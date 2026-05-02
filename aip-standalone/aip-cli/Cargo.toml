@@ -1,0 +1,17 @@
+[package]
+name = "aip-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "CLI tool for the Agent Identity Protocol"
+
+[[bin]]
+name = "aip-cli"
+path = "src/main.rs"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+clap = { version = "4", features = ["derive"] }
+serde_json = "1.0"

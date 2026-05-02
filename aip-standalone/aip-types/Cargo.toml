@@ -1,0 +1,9 @@
+[package]
+name = "aip-types"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Core data types for the Agent Identity Protocol v0.3.0"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }

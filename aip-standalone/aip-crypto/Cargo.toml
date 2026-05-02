@@ -1,0 +1,13 @@
+[package]
+name = "aip-crypto"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Cryptographic operations for AIP: Ed25519, SHA-256, Base58, AIP-ID derivation"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+sha2 = "0.10"
+rand = "0.8"
+bs58 = "0.5"

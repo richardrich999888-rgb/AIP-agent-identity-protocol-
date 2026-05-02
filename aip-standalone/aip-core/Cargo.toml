@@ -1,0 +1,15 @@
+[package]
+name = "aip-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Domain logic for AIP: identity creation, validation, lifecycle state machine"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+sha2 = "0.10"
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+base64 = "0.22"
