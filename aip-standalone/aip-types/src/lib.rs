@@ -249,7 +249,10 @@ pub struct CapabilityScope {
 
 impl CapabilityScope {
     pub fn empty() -> Self {
-        Self { allowed: vec![], denied: vec![] }
+        Self {
+            allowed: vec![],
+            denied: vec![],
+        }
     }
 
     pub fn all() -> Self {
@@ -276,11 +279,11 @@ impl CapabilityScope {
 /// The JTI (token ID) is referenced by the revocation log.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScopedToken {
-    pub jti: [u8; 16],       // UUIDv4 token identifier
-    pub agent_id: String,    // AIP-ID of the token holder
-    pub issuer_id: String,   // AIP-ID of the issuing authority
+    pub jti: [u8; 16],     // UUIDv4 token identifier
+    pub agent_id: String,  // AIP-ID of the token holder
+    pub issuer_id: String, // AIP-ID of the issuing authority
     pub scope: CapabilityScope,
-    pub issued_at: u64,      // Unix ms
+    pub issued_at: u64, // Unix ms
     pub expires_at: Option<u64>,
     pub issuer_sig: Signature,
 }
@@ -568,12 +571,12 @@ pub enum RevocationReason {
 /// This chains entries to the Chrono audit trail.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RevocationEntry {
-    pub jti: [u8; 16],           // Token ID being revoked
-    pub revoked_at: u64,         // Unix ms
+    pub jti: [u8; 16],   // Token ID being revoked
+    pub revoked_at: u64, // Unix ms
     pub reason: RevocationReason,
-    pub revoked_by: String,      // AIP-ID of revoking authority
-    pub cascade: bool,           // Revoke delegation children?
-    pub entry_hash: [u8; 32],    // SHA-256 chain hash
+    pub revoked_by: String,   // AIP-ID of revoking authority
+    pub cascade: bool,        // Revoke delegation children?
+    pub entry_hash: [u8; 32], // SHA-256 chain hash
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -585,13 +588,13 @@ pub struct RevocationEntry {
 /// Allows external systems to verify AIP tokens without calling the API.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JwksKey {
-    pub kty: String,    // "OKP"
-    pub crv: String,    // "Ed25519"
-    pub x: String,      // base64url-encoded public key bytes (32 bytes)
-    pub kid: String,    // Key ID (AIP-ID of the issuer)
+    pub kty: String, // "OKP"
+    pub crv: String, // "Ed25519"
+    pub x: String,   // base64url-encoded public key bytes (32 bytes)
+    pub kid: String, // Key ID (AIP-ID of the issuer)
     #[serde(rename = "use")]
-    pub use_: String,   // "sig"
-    pub alg: String,    // "EdDSA"
+    pub use_: String, // "sig"
+    pub alg: String, // "EdDSA"
 }
 
 /// JWKS document containing one or more public keys.

@@ -45,8 +45,8 @@ impl IdentityStore {
     pub fn with_file(path: impl AsRef<Path>) -> Result<Self, StoreError> {
         let path = path.as_ref().to_path_buf();
         let data = if path.exists() {
-            let contents = std::fs::read_to_string(&path)
-                .map_err(|e| StoreError::IoError(e.to_string()))?;
+            let contents =
+                std::fs::read_to_string(&path).map_err(|e| StoreError::IoError(e.to_string()))?;
             serde_json::from_str(&contents)
                 .map_err(|e| StoreError::SerializationError(e.to_string()))?
         } else {
@@ -64,7 +64,9 @@ impl IdentityStore {
     /// Store an identity and its keypair.
     pub fn put_identity(&mut self, aid: AgentIdentityDocument, keypair: KeyPair) {
         let id = aid.id.clone();
-        self.data.identities.insert(id, StoredIdentity { aid, keypair });
+        self.data
+            .identities
+            .insert(id, StoredIdentity { aid, keypair });
     }
 
     /// Get an identity by AIP-ID.
@@ -117,8 +119,7 @@ impl IdentityStore {
                 r
             });
 
-        let new_score = (record.overall_score as i64 + delta as i64)
-            .clamp(0, 1_000_000) as u32;
+        let new_score = (record.overall_score as i64 + delta as i64).clamp(0, 1_000_000) as u32;
         record.overall_score = new_score;
         record.version += 1;
         record.updated_at = std::time::SystemTime::now()
@@ -143,14 +144,12 @@ impl IdentityStore {
 
         // Create parent directories if needed
         if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)
-                .map_err(|e| StoreError::IoError(e.to_string()))?;
+            std::fs::create_dir_all(parent).map_err(|e| StoreError::IoError(e.to_string()))?;
         }
 
         let json = serde_json::to_string_pretty(&self.data)
             .map_err(|e| StoreError::SerializationError(e.to_string()))?;
-        std::fs::write(path, json)
-            .map_err(|e| StoreError::IoError(e.to_string()))?;
+        std::fs::write(path, json).map_err(|e| StoreError::IoError(e.to_string()))?;
         Ok(())
     }
 
@@ -165,8 +164,8 @@ impl IdentityStore {
             return Ok(()); // Nothing to load
         }
 
-        let contents = std::fs::read_to_string(path)
-            .map_err(|e| StoreError::IoError(e.to_string()))?;
+        let contents =
+            std::fs::read_to_string(path).map_err(|e| StoreError::IoError(e.to_string()))?;
         self.data = serde_json::from_str(&contents)
             .map_err(|e| StoreError::SerializationError(e.to_string()))?;
         Ok(())

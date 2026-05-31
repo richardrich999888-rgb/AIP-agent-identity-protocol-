@@ -1,12 +1,13 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/aip-types",
-    "crates/aip-crypto",
-    "crates/aip-core",
-    "crates/aip-test",
-    "crates/aip-cli",
-    "crates/aip-real-tests",
+    "aip-types",
+    "aip-crypto",
+    "aip-core",
+    "aip-protocol",
+    "aip-test",
+    "aip-cli",
+    "aip-real-tests",
 ]
 
 [workspace.package]

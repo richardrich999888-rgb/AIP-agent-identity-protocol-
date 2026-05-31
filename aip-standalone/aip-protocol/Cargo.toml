@@ -1,0 +1,16 @@
+[package]
+name = "aip-protocol"
+version = "0.4.0"
+edition.workspace = true
+license.workspace = true
+description = "AIP v4 Agent Accountability Protocol: decisions, action attestations, evidence graphs, and packets"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+sha2 = "0.10"
+
+[dev-dependencies]
+serde_json = "1.0"

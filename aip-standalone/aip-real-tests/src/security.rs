@@ -75,7 +75,10 @@ fn test_all_zero_private_key_can_sign() {
     // Ed25519 hashes the private key internally, so all-zeros is valid
     let zero_key = [0u8; 32];
     let result = sign_ed25519(&zero_key, "zero-agent", b"test");
-    assert!(result.is_ok(), "All-zero private key should still produce a valid signature");
+    assert!(
+        result.is_ok(),
+        "All-zero private key should still produce a valid signature"
+    );
 
     // The resulting signature should verify with the corresponding public key
     let sig = result.unwrap();
@@ -83,7 +86,10 @@ fn test_all_zero_private_key_can_sign() {
     let signing_key = ed25519_dalek::SigningKey::from_bytes(&zero_key);
     let verifying_key = signing_key.verifying_key();
     let valid = verify_ed25519(verifying_key.as_bytes(), &sig).unwrap();
-    assert!(valid, "Signature from zero key should verify with its derived public key");
+    assert!(
+        valid,
+        "Signature from zero key should verify with its derived public key"
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════

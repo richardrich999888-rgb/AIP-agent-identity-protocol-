@@ -189,8 +189,7 @@ mod integration_tests {
 
         // 7. Challenge-response: B challenges A
         let challenge = issue_liveness_challenge(&aid_b.id, &aid_a.id);
-        let response =
-            respond_to_challenge(&challenge, &kp_a.private_key, &aid_a.id).unwrap();
+        let response = respond_to_challenge(&challenge, &kp_a.private_key, &aid_a.id).unwrap();
         let liveness = verify_liveness(&challenge, &response, &kp_a.public_key).unwrap();
         assert!(liveness, "Liveness challenge-response must succeed");
 
@@ -223,11 +222,7 @@ mod integration_tests {
                 let payload = format!("message-from-{}-to-{}", j, i);
                 let sig = sign_ed25519(&kp_j.private_key, &aid_j.id, payload.as_bytes()).unwrap();
                 let valid = verify_ed25519(&kp_j.public_key, &sig).unwrap();
-                assert!(
-                    valid,
-                    "Agent {} must verify agent {}'s signature",
-                    i, j
-                );
+                assert!(valid, "Agent {} must verify agent {}'s signature", i, j);
             }
         }
     }
@@ -245,10 +240,7 @@ mod integration_tests {
         assert!(tracker.validate_and_record(&sig).is_ok());
 
         // Same exact signature replayed: rejected
-        assert_eq!(
-            tracker.validate_and_record(&sig),
-            Err(AipError::NonceReuse)
-        );
+        assert_eq!(tracker.validate_and_record(&sig), Err(AipError::NonceReuse));
 
         // A new signature on the same data: accepted (different nonce)
         let sig2 = sign_ed25519(&kp.private_key, "agent", b"important data").unwrap();
@@ -271,7 +263,10 @@ mod integration_tests {
 
         // Verification should match current environment
         let verification = verify_runtime_binding(&binding);
-        assert!(verification.exe_match, "Executable must match in same process");
+        assert!(
+            verification.exe_match,
+            "Executable must match in same process"
+        );
         assert!(
             verification.is_same_environment,
             "Same environment check must pass"
@@ -305,7 +300,10 @@ mod integration_tests {
             assert_eq!(loaded.aid.id, agent_id);
             assert_eq!(loaded.aid.status, IdentityStatus::Pending);
             // Validate the loaded AID (self-sig still matches Pending status)
-            assert!(validate_aid(&loaded.aid).is_ok(), "Loaded AID must validate");
+            assert!(
+                validate_aid(&loaded.aid).is_ok(),
+                "Loaded AID must validate"
+            );
             // Verify we can sign with the loaded keypair
             let sig = sign_ed25519(&loaded.keypair.private_key, &agent_id, b"test").unwrap();
             assert!(verify_ed25519(&loaded.keypair.public_key, &sig).unwrap());

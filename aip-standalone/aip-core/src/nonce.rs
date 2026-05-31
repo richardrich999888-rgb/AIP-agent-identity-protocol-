@@ -3,7 +3,7 @@
 //! Tracks seen (signer_id, nonce) tuples and rejects duplicates.
 //! Includes configurable timestamp validation window.
 
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use aip_types::{AipError, Signature};
@@ -44,7 +44,7 @@ pub struct NonceTracker {
     config: NonceTrackerConfig,
     seen: HashSet<NonceEntry>,
     /// Ordered list for eviction (oldest first).
-    order: Vec<(u64, NonceEntry)>,
+    order: VecDeque<(u64, NonceEntry)>,
 }
 
 impl NonceTracker {
@@ -58,7 +58,7 @@ impl NonceTracker {
         Self {
             config,
             seen: HashSet::new(),
-            order: Vec::new(),
+            order: VecDeque::new(),
         }
     }
 
@@ -102,7 +102,7 @@ impl NonceTracker {
         self.evict_if_needed();
 
         // Record this nonce
-        self.order.push((signature.timestamp, entry.clone()));
+        self.order.push_back((signature.timestamp, entry.clone()));
         self.seen.insert(entry);
 
         Ok(())
@@ -128,24 +128,21 @@ impl NonceTracker {
 
         // First, evict expired entries
         let cutoff = now.saturating_sub(self.config.max_signature_age_ms);
-        let mut new_order = Vec::new();
-        for (ts, entry) in self.order.drain(..) {
-            if ts >= cutoff {
-                new_order.push((ts, entry));
-            } else {
-                self.seen.remove(&NonceEntry {
-                    signer_id: entry.signer_id,
-                    nonce: entry.nonce,
-                });
+        while let Some((ts, _)) = self.order.front() {
+            if *ts >= cutoff {
+                break;
+            }
+            if let Some((_, entry)) = self.order.pop_front() {
+                self.seen.remove(&entry);
             }
         }
-        self.order = new_order;
 
         // If still over capacity, evict oldest
-        while self.order.len() > self.config.max_tracked_nonces {
-            if let Some((_, entry)) = self.order.first().cloned() {
-                self.order.remove(0);
+        while self.order.len() >= self.config.max_tracked_nonces {
+            if let Some((_, entry)) = self.order.pop_front() {
                 self.seen.remove(&entry);
+            } else {
+                break;
             }
         }
     }

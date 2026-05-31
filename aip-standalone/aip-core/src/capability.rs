@@ -81,9 +81,10 @@ pub fn scope_permits(scope: &CapabilityScope, action: &ScopeAction) -> bool {
 ///
 /// Returns `true` iff every action in `child.allowed` is also in `parent.allowed`.
 pub fn is_scope_subset(child: &CapabilityScope, parent: &CapabilityScope) -> bool {
-    child.allowed.iter().all(|action| {
-        parent.allowed.contains(action) && !parent.denied.contains(action)
-    })
+    child
+        .allowed
+        .iter()
+        .all(|action| parent.allowed.contains(action) && !parent.denied.contains(action))
 }
 
 /// Compute the intersection (MEET) of two scopes.
@@ -299,18 +300,24 @@ mod tests {
     #[test]
     fn test_scope_intersection_returns_narrower() {
         let parent = scope_orchestrator(); // Read, Write, Execute, Delegate
-        let child = scope_audit_reader();  // Read only
+        let child = scope_audit_reader(); // Read only
         let result = scope_intersection(&parent, &child);
         assert!(result.is_some());
         let effective = result.unwrap();
-        assert!(scope_permits(&effective, &ScopeAction::Standard(Action::Read)));
-        assert!(!scope_permits(&effective, &ScopeAction::Standard(Action::Write)));
+        assert!(scope_permits(
+            &effective,
+            &ScopeAction::Standard(Action::Read)
+        ));
+        assert!(!scope_permits(
+            &effective,
+            &ScopeAction::Standard(Action::Write)
+        ));
     }
 
     #[test]
     fn test_scope_intersection_disjoint_returns_none() {
         let parent = scope_audit_reader(); // Read only
-        let child = scope_submitter();     // Write only
+        let child = scope_submitter(); // Write only
         let result = scope_intersection(&parent, &child);
         assert!(result.is_none(), "Disjoint scopes must produce ⊥");
     }
@@ -338,14 +345,9 @@ mod tests {
     #[test]
     fn test_tampered_token_fails_verification() {
         let (issuer_id, priv_key, pub_key) = make_issuer();
-        let mut token = issue_scoped_token(
-            &issuer_id,
-            &priv_key,
-            "aip1agent",
-            scope_submitter(),
-            None,
-        )
-        .unwrap();
+        let mut token =
+            issue_scoped_token(&issuer_id, &priv_key, "aip1agent", scope_submitter(), None)
+                .unwrap();
 
         // Tamper: escalate scope after issuance
         token.scope = scope_admin();
@@ -357,19 +359,19 @@ mod tests {
     #[test]
     fn test_submitter_token_scope_violation_on_admin_action() {
         let (issuer_id, priv_key, _) = make_issuer();
-        let token = issue_scoped_token(
-            &issuer_id,
-            &priv_key,
-            "aip1agent",
-            scope_submitter(),
-            None,
-        )
-        .unwrap();
+        let token = issue_scoped_token(&issuer_id, &priv_key, "aip1agent", scope_submitter(), None)
+            .unwrap();
 
         // SUBMITTER token attempting admin action → violation
-        assert!(is_scope_violation(&token, &ScopeAction::Standard(Action::Admin)));
+        assert!(is_scope_violation(
+            &token,
+            &ScopeAction::Standard(Action::Admin)
+        ));
         // SUBMITTER token doing a write → no violation
-        assert!(!is_scope_violation(&token, &ScopeAction::Standard(Action::Write)));
+        assert!(!is_scope_violation(
+            &token,
+            &ScopeAction::Standard(Action::Write)
+        ));
     }
 
     #[test]
@@ -378,7 +380,10 @@ mod tests {
             allowed: vec![ScopeAction::Custom("ai.airon.infer".to_string())],
             denied: vec![],
         };
-        assert!(scope_permits(&scope, &ScopeAction::Custom("ai.airon.infer".to_string())));
+        assert!(scope_permits(
+            &scope,
+            &ScopeAction::Custom("ai.airon.infer".to_string())
+        ));
         assert!(!scope_permits(&scope, &ScopeAction::Standard(Action::Read)));
     }
 }

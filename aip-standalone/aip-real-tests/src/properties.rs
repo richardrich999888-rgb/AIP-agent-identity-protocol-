@@ -24,22 +24,27 @@ fn test_sign_verify_roundtrip_any_payload() {
 
     // Test various payload types
     let payloads: Vec<&[u8]> = vec![
-        b"",                        // Empty
-        b"a",                       // Single byte
-        b"hello world",             // Normal string
-        &[0u8; 1024],               // 1KB zeros
-        &[0xFF; 4096],              // 4KB all-ones
+        b"",                       // Empty
+        b"a",                      // Single byte
+        b"hello world",            // Normal string
+        &[0u8; 1024],              // 1KB zeros
+        &[0xFF; 4096],             // 4KB all-ones
         b"\x00\x01\x02\x03",       // Binary data
-        "🔐🤖💡".as_bytes(),        // UTF-8 emoji
+        "🔐🤖💡".as_bytes(),       // UTF-8 emoji
         &[0xDE, 0xAD, 0xBE, 0xEF], // Classic hex
     ];
 
     for (i, payload) in payloads.iter().enumerate() {
         let sig = sign_ed25519(&kp.private_key, id, payload)
             .expect(&format!("Sign failed for payload {}", i));
-        let valid = verify_ed25519(&kp.public_key, &sig)
-            .expect(&format!("Verify error for payload {}", i));
-        assert!(valid, "Roundtrip failed for payload {} (len={})", i, payload.len());
+        let valid =
+            verify_ed25519(&kp.public_key, &sig).expect(&format!("Verify error for payload {}", i));
+        assert!(
+            valid,
+            "Roundtrip failed for payload {} (len={})",
+            i,
+            payload.len()
+        );
     }
 }
 
@@ -99,10 +104,22 @@ fn test_aip_id_unique_per_key_500_pairs() {
 fn test_lifecycle_exhaustive_transitions() {
     // Test ALL 20 possible (state × action) combinations
     let actions = vec![
-        ("activate", activate_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>),
-        ("suspend", suspend_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>),
-        ("reactivate", reactivate_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>),
-        ("revoke", revoke_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>),
+        (
+            "activate",
+            activate_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>,
+        ),
+        (
+            "suspend",
+            suspend_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>,
+        ),
+        (
+            "reactivate",
+            reactivate_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>,
+        ),
+        (
+            "revoke",
+            revoke_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>,
+        ),
     ];
 
     // Actual behavior: transitions are idempotent where it makes sense.
@@ -110,25 +127,25 @@ fn test_lifecycle_exhaustive_transitions() {
     // revoke(ANY)=Ok, revoke(Revoked)=Ok (idempotent).
     let expected: Vec<(IdentityStatus, &str, bool)> = vec![
         // From Pending
-        (IdentityStatus::Pending, "activate", true),      // Primary transition
-        (IdentityStatus::Pending, "suspend", false),       // MissingRequiredField
-        (IdentityStatus::Pending, "reactivate", false),    // MissingRequiredField
-        (IdentityStatus::Pending, "revoke", true),         // ANY→Revoked
+        (IdentityStatus::Pending, "activate", true), // Primary transition
+        (IdentityStatus::Pending, "suspend", false), // MissingRequiredField
+        (IdentityStatus::Pending, "reactivate", false), // MissingRequiredField
+        (IdentityStatus::Pending, "revoke", true),   // ANY→Revoked
         // From Active
-        (IdentityStatus::Active, "activate", true),        // Idempotent
-        (IdentityStatus::Active, "suspend", true),         // Primary transition
-        (IdentityStatus::Active, "reactivate", true),      // Idempotent (already active)
-        (IdentityStatus::Active, "revoke", true),          // ANY→Revoked
+        (IdentityStatus::Active, "activate", true), // Idempotent
+        (IdentityStatus::Active, "suspend", true),  // Primary transition
+        (IdentityStatus::Active, "reactivate", true), // Idempotent (already active)
+        (IdentityStatus::Active, "revoke", true),   // ANY→Revoked
         // From Suspended
-        (IdentityStatus::Suspended, "activate", false),    // IdentitySuspended
-        (IdentityStatus::Suspended, "suspend", true),      // Idempotent
-        (IdentityStatus::Suspended, "reactivate", true),   // Primary transition
-        (IdentityStatus::Suspended, "revoke", true),       // ANY→Revoked
+        (IdentityStatus::Suspended, "activate", false), // IdentitySuspended
+        (IdentityStatus::Suspended, "suspend", true),   // Idempotent
+        (IdentityStatus::Suspended, "reactivate", true), // Primary transition
+        (IdentityStatus::Suspended, "revoke", true),    // ANY→Revoked
         // From Revoked (terminal — only revoke is idempotent)
-        (IdentityStatus::Revoked, "activate", false),      // IdentityRevoked
-        (IdentityStatus::Revoked, "suspend", false),       // IdentityRevoked
-        (IdentityStatus::Revoked, "reactivate", false),    // IdentityRevoked
-        (IdentityStatus::Revoked, "revoke", true),         // Idempotent
+        (IdentityStatus::Revoked, "activate", false), // IdentityRevoked
+        (IdentityStatus::Revoked, "suspend", false),  // IdentityRevoked
+        (IdentityStatus::Revoked, "reactivate", false), // IdentityRevoked
+        (IdentityStatus::Revoked, "revoke", true),    // Idempotent
     ];
 
     for (initial_status, action_name, should_succeed) in &expected {
@@ -190,7 +207,10 @@ fn make_grant(ns: &str, actions: Vec<Action>) -> CapabilityGrant {
 
 #[test]
 fn test_capability_meet_commutative() {
-    let a = make_grant("com.test", vec![Action::Read, Action::Write, Action::Delete]);
+    let a = make_grant(
+        "com.test",
+        vec![Action::Read, Action::Write, Action::Delete],
+    );
     let b = make_grant("com.test", vec![Action::Read, Action::Write]);
 
     let meet_ab = capability_meet(&a, &b);
@@ -281,73 +301,45 @@ fn test_temporal_decay_floor_never_breached() {
 
 #[test]
 fn test_reputation_score_always_bounded() {
-    // BUG FOUND: calculate_reputation has a u64→u32 integer overflow.
-    //
-    // The score formula is: ((sum * 10_000) / weight) as u32
-    // With Authority weight 10_000 and claim_value 500_000:
-    //   sum = 10_000 * 500_000 = 5_000_000_000
-    //   score = (5_000_000_000 * 10_000) / 10_000 = 5_000_000_000
-    //   5_000_000_000 as u32 → 705_032_704 (OVERFLOW!)
-    //
-    // This test documents that small values work correctly and large values overflow.
+    let values: Vec<i32> = vec![-1_000_000, -100_000, -1, 0, 1, 100_000, 400_000, 1_000_000];
 
-    // Small values (≤ ~400_000) produce correct results
-    let small_values: Vec<i32> = vec![0, 1, 100_000, 400_000, -1, -100_000];
+    for attester_type in [
+        AttesterType::Authority,
+        AttesterType::Oracle,
+        AttesterType::Governance,
+        AttesterType::Peer,
+        AttesterType::SelfAttest,
+    ] {
+        for &value in &values {
+            let attestation = Attestation {
+                id: [0u8; 16],
+                subject_id: "agent".into(),
+                attester_id: "authority".into(),
+                attester_type,
+                claim_type: ClaimType::TaskCompletion,
+                claim_value: value,
+                claim_context: "test".into(),
+                evidence_hash: None,
+                attested_at: 0,
+                valid_until: None,
+                attester_sig: sign_ed25519(
+                    &generate_ed25519_keypair().private_key,
+                    "authority",
+                    b"attest",
+                )
+                .unwrap(),
+            };
 
-    for &value in &small_values {
-        let attestation = Attestation {
-            id: [0u8; 16],
-            subject_id: "agent".into(),
-            attester_id: "authority".into(),
-            attester_type: AttesterType::Peer, // Peer weight is lower, avoiding overflow
-            claim_type: ClaimType::TaskCompletion,
-            claim_value: value,
-            claim_context: "test".into(),
-            evidence_hash: None,
-            attested_at: 0,
-            valid_until: None,
-            attester_sig: sign_ed25519(
-                &generate_ed25519_keypair().private_key,
-                "authority",
-                b"attest",
-            )
-            .unwrap(),
-        };
-
-        let rep = calculate_reputation("agent", &[attestation], 0);
-        // Peer weight produces manageable scores
-        assert!(
-            rep.overall_score < 5_000_000,
-            "Score {} out of range at claim_value={} (Peer)",
-            rep.overall_score,
-            value
-        );
+            let rep = calculate_reputation("agent", &[attestation], 0);
+            assert!(
+                rep.overall_score <= 1_000_000,
+                "Score {} out of range at claim_value={} ({:?})",
+                rep.overall_score,
+                value,
+                attester_type
+            );
+        }
     }
-
-    // Large Authority values overflow — this is a known bug we discovered
-    let overflow_att = Attestation {
-        id: [0u8; 16],
-        subject_id: "agent".into(),
-        attester_id: "authority".into(),
-        attester_type: AttesterType::Authority,
-        claim_type: ClaimType::TaskCompletion,
-        claim_value: 500_000,
-        claim_context: "test".into(),
-        evidence_hash: None,
-        attested_at: 0,
-        valid_until: None,
-        attester_sig: sign_ed25519(
-            &generate_ed25519_keypair().private_key,
-            "authority",
-            b"attest",
-        )
-        .unwrap(),
-    };
-
-    let rep = calculate_reputation("agent", &[overflow_att], 0);
-    // This DOCUMENTS the overflow bug — score should be ~500_000 but overflows
-    // We just verify it doesn't panic
-    let _ = rep.overall_score;
 }
 
 #[test]
@@ -357,10 +349,7 @@ fn test_nonce_uniqueness_csprng() {
 
     for _ in 0..10_000 {
         let sig = sign_ed25519(&kp.private_key, "agent", b"data").unwrap();
-        assert!(
-            nonces.insert(sig.nonce),
-            "CSPRNG produced duplicate nonce!"
-        );
+        assert!(nonces.insert(sig.nonce), "CSPRNG produced duplicate nonce!");
     }
     assert_eq!(nonces.len(), 10_000);
 }

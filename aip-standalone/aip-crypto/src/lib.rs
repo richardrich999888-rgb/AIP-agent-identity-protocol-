@@ -3,6 +3,59 @@
 use aip_types::{AlgorithmId, KeyPair, ProvenanceTriple, Signature};
 use ed25519_dalek::{Signer, SigningKey, Verifier, VerifyingKey};
 use sha2::{Digest, Sha256};
+use std::collections::{HashMap, VecDeque};
+use std::sync::{Mutex, OnceLock};
+
+const VERIFY_CACHE_LIMIT: usize = 4096;
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+struct VerifyCacheKey {
+    public_key: [u8; 32],
+    algorithm: u8,
+    signer_id: String,
+    timestamp: u64,
+    nonce: [u8; 16],
+    payload_hash: [u8; 32],
+    signature_bytes: Vec<u8>,
+}
+
+#[derive(Default)]
+struct VerifyCache {
+    results: HashMap<VerifyCacheKey, bool>,
+    order: VecDeque<VerifyCacheKey>,
+}
+
+static VERIFY_CACHE: OnceLock<Mutex<VerifyCache>> = OnceLock::new();
+
+fn verify_cache() -> &'static Mutex<VerifyCache> {
+    VERIFY_CACHE.get_or_init(|| Mutex::new(VerifyCache::default()))
+}
+
+fn get_cached_verification(key: &VerifyCacheKey) -> Option<bool> {
+    verify_cache()
+        .lock()
+        .ok()
+        .and_then(|cache| cache.results.get(key).copied())
+}
+
+fn cache_verification(key: VerifyCacheKey, result: bool) {
+    let Ok(mut cache) = verify_cache().lock() else {
+        return;
+    };
+
+    if cache.results.contains_key(&key) {
+        return;
+    }
+
+    cache.order.push_back(key.clone());
+    cache.results.insert(key, result);
+
+    while cache.order.len() > VERIFY_CACHE_LIMIT {
+        if let Some(oldest) = cache.order.pop_front() {
+            cache.results.remove(&oldest);
+        }
+    }
+}
 
 /// Generate an Ed25519 key pair.
 pub fn generate_ed25519_keypair() -> KeyPair {
@@ -153,12 +206,30 @@ pub fn verify_ed25519(
         return Err(aip_types::AipError::InvalidPublicKey);
     }
 
-    let verifying_key = VerifyingKey::from_bytes(
-        public_key
-            .try_into()
-            .map_err(|_| aip_types::AipError::InvalidPublicKey)?,
-    )
-    .map_err(|_| aip_types::AipError::InvalidPublicKey)?;
+    if signature.signature_bytes.len() != 64 {
+        return Err(aip_types::AipError::SignatureInvalid);
+    }
+
+    let public_key_array: [u8; 32] = public_key
+        .try_into()
+        .map_err(|_| aip_types::AipError::InvalidPublicKey)?;
+
+    let cache_key = VerifyCacheKey {
+        public_key: public_key_array,
+        algorithm: signature.algorithm as u8,
+        signer_id: signature.signer_id.clone(),
+        timestamp: signature.timestamp,
+        nonce: signature.nonce,
+        payload_hash: signature.payload_hash,
+        signature_bytes: signature.signature_bytes.clone(),
+    };
+
+    if let Some(valid) = get_cached_verification(&cache_key) {
+        return Ok(valid);
+    }
+
+    let verifying_key = VerifyingKey::from_bytes(&public_key_array)
+        .map_err(|_| aip_types::AipError::InvalidPublicKey)?;
 
     // Reconstruct signed_bytes
     let mut signed_input = Vec::new();
@@ -177,7 +248,9 @@ pub fn verify_ed25519(
             .map_err(|_| aip_types::AipError::SignatureInvalid)?,
     );
 
-    Ok(verifying_key.verify(&signed_bytes, &sig).is_ok())
+    let valid = verifying_key.verify(&signed_bytes, &sig).is_ok();
+    cache_verification(cache_key, valid);
+    Ok(valid)
 }
 
 /// Merkle tree helpers (§3.4).

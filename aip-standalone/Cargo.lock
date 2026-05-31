@@ -38,6 +38,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-protocol"
+version = "0.4.0"
+dependencies = [
+ "aip-types",
+ "ed25519-dalek",
+ "rand",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "aip-real-tests"
 version = "0.3.0"
 dependencies = [

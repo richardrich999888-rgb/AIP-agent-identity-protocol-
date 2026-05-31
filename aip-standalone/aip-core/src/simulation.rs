@@ -151,19 +151,12 @@ pub fn simulate_network_verification(agent_count: usize) -> SimulationResult {
         let challenge = crate::issue_liveness_challenge(challenger_id, target_id);
 
         let target_entry = store.get_identity(target_id).unwrap();
-        let response = crate::respond_to_challenge(
-            &challenge,
-            &target_entry.keypair.private_key,
-            target_id,
-        )
-        .expect("Response must succeed");
+        let response =
+            crate::respond_to_challenge(&challenge, &target_entry.keypair.private_key, target_id)
+                .expect("Response must succeed");
 
-        let valid = crate::verify_liveness(
-            &challenge,
-            &response,
-            &target_entry.keypair.public_key,
-        )
-        .expect("Verification must not error");
+        let valid = crate::verify_liveness(&challenge, &response, &target_entry.keypair.public_key)
+            .expect("Verification must not error");
 
         if valid {
             liveness_challenges_passed += 1;
@@ -258,7 +251,11 @@ mod tests {
     #[test]
     fn test_simulation_3_agents() {
         let result = simulate_network_verification(3);
-        assert!(result.all_passed, "Simulation must pass. Log:\n{}", result.log.join("\n"));
+        assert!(
+            result.all_passed,
+            "Simulation must pass. Log:\n{}",
+            result.log.join("\n")
+        );
         assert_eq!(result.agents_created, 3);
         assert!(result.verifications_passed > 0);
         assert_eq!(result.liveness_challenges_passed, 3);
@@ -269,7 +266,11 @@ mod tests {
     #[test]
     fn test_simulation_5_agents() {
         let result = simulate_network_verification(5);
-        assert!(result.all_passed, "Simulation must pass. Log:\n{}", result.log.join("\n"));
+        assert!(
+            result.all_passed,
+            "Simulation must pass. Log:\n{}",
+            result.log.join("\n")
+        );
         assert_eq!(result.agents_created, 5);
         assert_eq!(result.liveness_challenges_passed, 5);
         assert_eq!(result.replay_attacks_rejected, 5);
