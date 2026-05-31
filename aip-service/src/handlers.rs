@@ -392,3 +392,9 @@ pub async fn revocation_status(
     let revoked = revocation::is_revoked(&state.revocation_set, &jti);
     Json(RevocationStatusResponse { jti, revoked })
 }
+
+// ── GET /viewer ──────────────────────────────────────────────────────────────
+
+pub async fn viewer() -> axum::response::Html<&'static str> {
+    axum::response::Html(include_str!("viewer.html"))
+}

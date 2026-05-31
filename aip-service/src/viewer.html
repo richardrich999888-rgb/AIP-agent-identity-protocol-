@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIP EvidencePacket Viewer - Executive Trust Dashboard</title>
+    <!-- Google Fonts: Outfit (headings/stats) & Inter (body text) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* HSL tailored color palette */
+            --bg-dark: hsl(230, 25%, 9%);
+            --bg-card: hsla(230, 25%, 14%, 0.6);
+            --bg-card-border: rgba(255, 255, 255, 0.08);
+            
+            --neon-indigo: hsl(255, 80%, 65%);
+            --neon-indigo-glow: hsla(255, 80%, 65%, 0.35);
+            --electric-teal: hsl(180, 80%, 50%);
+            --electric-teal-glow: hsla(180, 80%, 50%, 0.35);
+            
+            --success-green: hsl(145, 75%, 45%);
+            --success-green-glow: hsla(145, 75%, 45%, 0.3);
+            --error-rose: hsl(350, 85%, 55%);
+            --error-rose-glow: hsla(350, 85%, 55%, 0.3);
+            --warning-amber: hsl(38, 90%, 55%);
+            --warning-amber-glow: hsla(38, 90%, 55%, 0.3);
+            
+            --text-primary: hsl(0, 0%, 94%);
+            --text-secondary: hsl(230, 15%, 70%);
+            --text-muted: hsl(230, 10%, 50%);
+            
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 10%, hsla(255, 80%, 65%, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, hsla(180, 80%, 50%, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+        }
+
+        /* ── Top Header ────────────────────────────────────────────────────────── */
+        header {
+            background: linear-gradient(180deg, rgba(20, 20, 30, 0.8) 0%, transparent 100%);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-symbol {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--neon-indigo), var(--electric-teal));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px var(--neon-indigo-glow);
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #fff 40%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text span {
+            font-size: 11px;
+            color: var(--electric-teal);
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: block;
+            margin-top: -3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* ── Toggle Switch (Advanced View) ─────────────────────────────────────── */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .toggle-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--neon-indigo);
+            box-shadow: 0 0 10px var(--neon-indigo-glow);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* ── Main Layout Grid ─────────────────────────────────────────────────── */
+        .container {
+            max-width: 1400px;
+            margin: 40px auto 0 auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 30px;
+        }
+
+        @media (max-width: 1100px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Executive Metrics Row ────────────────────────────────────────────── */
+        .metrics-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .metrics-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: transform var(--transition-speed), border var(--transition-speed);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .metric-info h3 {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 28px;
+            letter-spacing: -0.5px;
+        }
+
+        .score-gauge {
+            width: 65px;
+            height: 65px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-gauge svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .score-gauge circle {
+            fill: none;
+            stroke-width: 5;
+        }
+
+        .score-gauge .circle-bg {
+            stroke: rgba(255, 255, 255, 0.05);
+        }
+
+        .score-gauge .circle-val {
+            stroke: var(--electric-teal);
+            stroke-dasharray: 188.4;
+            stroke-dashoffset: 0; /* JS will adjust */
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s;
+            filter: drop-shadow(0 0 4px var(--electric-teal-glow));
+        }
+
+        .score-text {
+            position: absolute;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        .status-badge {
+            background: hsla(145, 75%, 45%, 0.1);
+            color: var(--success-green);
+            border: 1px solid hsla(145, 75%, 45%, 0.25);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 10px var(--success-green-glow);
+            transition: all var(--transition-speed);
+        }
+
+        .status-badge::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: var(--success-green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--success-green);
+        }
+
+        /* Failed Badge State */
+        .status-badge.failed {
+            background: hsla(350, 85%, 55%, 0.1);
+            color: var(--error-rose);
+            border: 1px solid hsla(350, 85%, 55%, 0.25);
+            box-shadow: 0 0 15px var(--error-rose-glow);
+        }
+        .status-badge.failed::before {
+            background: var(--error-rose);
+            box-shadow: 0 0 8px var(--error-rose);
+        }
+
+        /* ── Left Main Workspace ──────────────────────────────────────────────── */
+        .main-workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Glassmorphic Tabs Navigation */
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .tab-btn.active {
+            color: var(--bg-dark);
+            background: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Dashboard View Card */
+        .view-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            min-height: 480px;
+            display: none; /* JS will toggle */
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .view-card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 18px;
+            margin-bottom: 24px;
+        }
+
+        .view-title h2 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .view-title p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* ── Dispute Reconstruction Tab (High-Value View) ─────────────────────── */
+        .reconstruct-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .reconstruct-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .audit-fact-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .fact-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .fact-item:last-child {
+            border: none;
+            padding: 0;
+        }
+
+        .fact-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .fact-value {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .fact-value.highlight-indigo {
+            color: var(--neon-indigo);
+        }
+
+        .fact-value.highlight-teal {
+            color: var(--electric-teal);
+        }
+
+        .reconstruct-export-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            border: 2px dashed rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .export-badge {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--electric-teal);
+            box-shadow: 0 0 15px rgba(180, 80, 50, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-indigo), hsla(255, 80%, 55%, 1));
+            color: white;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 12px 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--neon-indigo-glow);
+            transition: all var(--transition-speed);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 20px var(--neon-indigo-glow);
+        }
+
+        /* ── Authorization Chain Graph (Interactive Node Render) ──────────────── */
+        .graph-outer {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .graph-canvas {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            position: relative;
+            padding: 20px 0;
+            min-width: 650px;
+        }
+
+        .graph-node {
+            background: rgba(30, 30, 45, 0.85);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            width: 170px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .graph-node:hover {
+            border-color: var(--neon-indigo);
+            transform: scale(1.03);
+        }
+
+        .graph-node.tampered {
+            border-color: var(--error-rose) !important;
+            box-shadow: 0 0 20px var(--error-rose-glow) !important;
+            animation: nodeShake 0.4s ease-in-out;
+        }
+
+        @keyframes nodeShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+
+        .node-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .node-label {
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-primary);
+        }
+
+        .node-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .node-pill {
+            background: rgba(255, 255, 255, 0.05);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-muted);
+            padding: 3px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        .graph-connector {
+            width: 40px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .graph-connector::after {
+            content: "➔";
+            position: absolute;
+            top: -9px;
+            right: -2px;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+        }
+
+        .graph-connector.active {
+            background: linear-gradient(90deg, var(--neon-indigo), var(--electric-teal));
+        }
+
+        .graph-connector.active::after {
+            color: var(--electric-teal);
+        }
+
+        .graph-connector.broken {
+            background: var(--error-rose) !important;
+        }
+        .graph-connector.broken::after {
+            color: var(--error-rose) !important;
+            content: "✖" !important;
+            top: -7px !important;
+        }
+
+        .node-attestation-desc {
+            font-size: 11px;
+            margin-top: 15px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* ── AIP vs Traditional Logs Panel (The Visual "Aha" Moment) ───────────── */
+        .logs-comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .logs-comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .log-box {
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .log-box-header {
+            padding: 12px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-box-body {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 18px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .traditional-log {
+            color: hsl(0, 0%, 75%);
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            padding-bottom: 6px;
+        }
+
+        .traditional-log:last-child {
+            border: none;
+            padding: 0;
+        }
+
+        .aip-log-block {
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 2px solid var(--neon-indigo);
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            border-radius: 0 4px 4px 0;
+        }
+        .aip-log-block.success-border {
+            border-left-color: var(--success-green);
+        }
+        .aip-log-block.rose-border {
+            border-left-color: var(--error-rose);
+        }
+
+        .log-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .log-tag.red { background: rgba(350, 85, 55, 0.15); color: var(--error-rose); }
+        .log-tag.indigo { background: rgba(255, 80, 65, 0.15); color: var(--neon-indigo); }
+        .log-tag.teal { background: rgba(180, 80, 50, 0.15); color: var(--electric-teal); }
+        .log-tag.green { background: rgba(145, 75, 45, 0.15); color: var(--success-green); }
+
+        /* ── Action Attestation Evidence Tab ──────────────────────────────────── */
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .evidence-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Advanced Tech Details (Toggled View Elements) ────────────────────── */
+        .advanced-details-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            display: none; /* Controlled by switch */
+        }
+
+        /* ── Right-Side Adversarial Control Panel ────────────────────────────── */
+        .control-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 20px;
+            padding: 24px;
+            align-self: start;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        .control-panel h3 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tamper-warning {
+            background: hsla(38, 90%, 55%, 0.08);
+            border: 1px solid hsla(38, 90%, 55%, 0.2);
+            color: var(--warning-amber);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .control-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: border 0.3s;
+        }
+
+        .control-item:hover {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .control-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .control-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .control-desc {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* ── Real-Time Verification Logger ───────────────────────────────────── */
+        .logger-box {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            max-height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .log-entry {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-secondary);
+            animation: logFadeIn 0.3s ease-out;
+        }
+
+        @keyframes logFadeIn {
+            from { opacity: 0; transform: translateX(-4px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-status-bullet {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .log-status-bullet.success { background: var(--success-green); }
+        .log-status-bullet.error { background: var(--error-rose); }
+        .log-status-bullet.pending { background: rgba(255,255,255,0.1); color: var(--text-muted); }
+
+        /* ── Dispute Reconstruction Modal ─────────────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none; /* Controlled by JS */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-dark);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            animation: modalScaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        @keyframes modalScaleUp {
+            from { transform: scale(0.9) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 24px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-close-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        /* Printable audit sheet styles */
+        .audit-sheet {
+            background: #fff;
+            color: #2b2b2b;
+            padding: 30px;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .audit-sheet h3 {
+            font-family: 'Outfit', sans-serif;
+            color: #111;
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .audit-sheet-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px 24px;
+            font-size: 13px;
+        }
+
+        .audit-sheet-label {
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            align-self: center;
+        }
+
+        .audit-sheet-value {
+            color: #111;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .audit-sheet-badge {
+            background: #eefdf5;
+            color: #0b8043;
+            border: 1px solid #c2eed9;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 11px;
+            display: inline-block;
+        }
+
+        .audit-sheet-badge.failed {
+            background: #fdf2f2;
+            color: #c53030;
+            border: 1px solid #f8b4b4;
+        }
+
+        .audit-footer-desc {
+            font-size: 11px;
+            color: #777;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── Header ── -->
+    <header>
+        <div class="logo-section">
+            <div class="logo-symbol">A</div>
+            <div class="logo-text">
+                <h1>VANIAN chronoLattice</h1>
+                <span>Agent Identity Protocol</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <!-- Advanced Technical View Switcher -->
+            <div class="toggle-container">
+                <span class="toggle-label">Advanced Technical View</span>
+                <label class="switch">
+                    <input type="checkbox" id="advancedViewToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── Dashboard Grid ── -->
+    <div class="container">
+        
+        <!-- Metrics Row (Top Span) -->
+        <div class="metrics-row">
+            <!-- Accountability Score Card -->
+            <div class="metric-card" id="cardScore">
+                <div class="metric-info">
+                    <h3>Accountability Strength</h3>
+                    <div class="metric-value" id="strengthScoreVal">100/100</div>
+                </div>
+                <div class="score-gauge">
+                    <svg viewBox="0 0 70 70">
+                        <circle class="circle-bg" cx="35" cy="35" r="30"></circle>
+                        <circle class="circle-val" id="strengthGaugeCircle" cx="35" cy="35" r="30"></circle>
+                    </svg>
+                    <div class="score-text" id="strengthScoreText">100</div>
+                </div>
+            </div>
+            
+            <!-- Payment Transaction Details Card -->
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h3>Assisted Payment</h3>
+                    <div class="metric-value" style="color: var(--text-primary); font-family: 'Outfit'; font-weight:800;">$48,150.00</div>
+                    <span style="font-size: 11px; color: var(--text-secondary);">Vendor: Globex Corp (INV-0042)</span>
+                </div>
+            </div>
+            
+            <!-- Trust Floor Level Card -->
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h3>Assigned Trust Floor</h3>
+                    <div class="metric-value" id="trustFloorVal" style="color: var(--electric-teal); font-size: 18px; font-weight:700;">COUNTERPARTY_SIGNED</div>
+                    <span style="font-size: 11px; color: var(--text-secondary);">Multi-node independently corroborated</span>
+                </div>
+            </div>
+
+            <!-- Verification Status Card -->
+            <div class="metric-card" id="cardStatus">
+                <div class="metric-info">
+                    <h3>Audit Integrity Status</h3>
+                    <div style="margin-top: 10px;">
+                        <span class="status-badge" id="integrityStatusBadge">PASS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Main Workspace ── -->
+        <div class="main-workspace">
+            
+            <!-- Glassmorphic Tabs Navigation -->
+            <div class="tabs-nav">
+                <button class="tab-btn active" data-tab="dispute">Dispute Reconstruction Mode</button>
+                <button class="tab-btn" data-tab="graph">Authorization Chain</button>
+                <button class="tab-btn" data-tab="attestations">Action Evidence</button>
+                <button class="tab-btn" data-tab="comparison">Traditional Logs vs AIP</button>
+            </div>
+
+            <!-- Tab 1: Dispute Reconstruction Mode (Default View) -->
+            <div class="view-card active" id="tab-dispute">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h2>Dispute Reconstruction Mode</h2>
+                        <p>Generate board-ready corporate compliance audit evidence regarding the AI payment action.</p>
+                    </div>
+                </div>
+                
+                <div class="reconstruct-container">
+                    <div class="audit-fact-box">
+                        <div class="fact-item">
+                            <span class="fact-label">Human Authority Initiator</span>
+                            <span class="fact-value highlight-indigo">CFO (did:web:cfo.acme.example)</span>
+                        </div>
+                        <div class="fact-item">
+                            <span class="fact-label">Delegated Authority Scope</span>
+                            <span class="fact-value">financial.approval (Limit: ≤ $50,000.00)</span>
+                        </div>
+                        <div class="fact-item">
+                            <span class="fact-label">AI Agent Executor</span>
+                            <span class="fact-value highlight-teal">llama-3.1-70b-instruct</span>
+                        </div>
+                        <div class="fact-item">
+                            <span class="fact-label">Model Prompt Version</span>
+                            <span class="fact-value">payment-approval-v2.1</span>
+                        </div>
+                        <div class="fact-item">
+                            <span class="fact-label">Downstream Tool Verification</span>
+                            <span class="fact-value" id="auditFactSAP">SAP POSTED (Counterparty Signed)</span>
+                        </div>
+                        <div class="fact-item">
+                            <span class="fact-label">Temporal Ledger Receipt</span>
+                            <span class="fact-value" style="font-family: 'JetBrains Mono';" id="auditFactReceipt">CL-8D91F4A2</span>
+                        </div>
+                    </div>
+                    
+                    <div class="reconstruct-export-panel">
+                        <div class="export-badge">📋</div>
+                        <h4 style="margin-bottom: 8px; font-size:16px;">Reconstruct Certified Audit Record</h4>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px;">
+                            Compile and verify the complete cryptographic EvidencePacket for external regulatory review.
+                        </p>
+                        <button class="btn-primary" onclick="openAuditModal()">Reconstruct Decision</button>
+                    </div>
+                </div>
+
+                <!-- Toggled Advanced Developer Details -->
+                <div class="advanced-details-box" id="adv-dispute">
+                    <div style="margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
+                        <strong>SYSTEM RUNTIME CONTEXT</strong>
+                    </div>
+                    <div>Host: pay-agent-pod-9c8a42f</div>
+                    <div>PID: 4901</div>
+                    <div>Executable Path Hash: sha256:d8f28a9b2c3f87c10d32b5e6109a244c</div>
+                    <div>Packet Assembler: aip1evidenceAssembler00000001</div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Authorization Chain View -->
+            <div class="view-card" id="tab-graph">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h2>Verifiable Delegation Lattice (VDL)</h2>
+                        <p>Cryptographic chain linking the human executive's authority to the AI agent execution.</p>
+                    </div>
+                </div>
+                
+                <div class="graph-outer">
+                    <div class="graph-canvas">
+                        <!-- Node 1: CFO -->
+                        <div class="graph-node" id="nodeHuman">
+                            <div class="node-icon">👔</div>
+                            <div class="node-label">Human CFO</div>
+                            <div class="node-sub">did:web:cfo.acme</div>
+                            <div class="node-pill">AUTHORIZED</div>
+                        </div>
+                        
+                        <div class="graph-connector active" id="conn1"></div>
+                        
+                        <!-- Node 2: Delegation Authority -->
+                        <div class="graph-node" id="nodeAuth">
+                            <div class="node-icon">🔑</div>
+                            <div class="node-label">Lattice Scope</div>
+                            <div class="node-sub">Max Limit: $50,000</div>
+                            <div class="node-pill">financial.approval</div>
+                        </div>
+                        
+                        <div class="graph-connector active" id="conn2"></div>
+                        
+                        <!-- Node 3: AI Agent -->
+                        <div class="graph-node" id="nodeAgent">
+                            <div class="node-icon">🤖</div>
+                            <div class="node-label">AI Agent</div>
+                            <div class="node-sub" id="nodeAgentModel">llama-3.1-70b</div>
+                            <div class="node-pill">AIP-ID ACTIVE</div>
+                        </div>
+                        
+                        <div class="graph-connector active" id="conn3"></div>
+                        
+                        <!-- Node 4: Action Executed -->
+                        <div class="graph-node" id="nodeAction">
+                            <div class="node-icon">⚡</div>
+                            <div class="node-label">Action Executed</div>
+                            <div class="node-sub" id="nodeActionStatus">SAP posted: $48,150</div>
+                            <div class="node-pill">COMPLETED</div>
+                        </div>
+                    </div>
+                    
+                    <div class="node-attestation-desc" id="graphDesc">
+                        ✓ All authorization hops contain valid cryptographic signatures linked to private key delegations.
+                    </div>
+                </div>
+
+                <!-- Toggled Advanced Developer Details -->
+                <div class="advanced-details-box" id="adv-graph">
+                    <div style="margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
+                        <strong>DELEGATION LATTICE CHAIN HASHES</strong>
+                    </div>
+                    <div>Root Token JTI (CFO): aip_jwt_root_cfo_093d84a7e2a910</div>
+                    <div>Delegation Token JTI: aip_del_token_48d8b392a101f37e</div>
+                    <div>Lattice meet scope intersection matches subset constraint. Max Depth Limit: 8, Current Depth: 1.</div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Action Attestation Evidence -->
+            <div class="view-card" id="tab-attestations">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h2>Downstream Action Attestations</h2>
+                        <p>Corroboration from downstream systems confirming details were not altered post-approval.</p>
+                    </div>
+                </div>
+                
+                <div class="evidence-grid">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div class="audit-fact-box" style="gap: 12px;" id="sapEvidenceBox">
+                            <div style="font-family: 'Outfit'; font-weight:700; font-size:14px; color: var(--electric-teal); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
+                                SAP Connector Attestation
+                            </div>
+                            <div class="fact-item">
+                                <span class="fact-label">Verb / API Method</span>
+                                <span>approve_invoice</span>
+                            </div>
+                            <div class="fact-item">
+                                <span class="fact-label">Resource ID</span>
+                                <span>invoice:INV-2025-0042</span>
+                            </div>
+                            <div class="fact-item">
+                                <span class="fact-label">System / Version</span>
+                                <span>sap_connector@1.4.2</span>
+                            </div>
+                            <div class="fact-item">
+                                <span class="fact-label">Commitment Hash</span>
+                                <span class="fact-value" style="font-family: 'JetBrains Mono'; font-size:11px;" id="sapCommitmentHash">sha256:4a3b8e9d...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div class="audit-fact-box" style="gap: 12px;">
+                            <div style="font-family: 'Outfit'; font-weight:700; font-size:14px; color: var(--neon-indigo); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
+                                Verification Cryptographic Signatures
+                            </div>
+                            <div class="fact-item">
+                                <span class="fact-label">Agent Signature</span>
+                                <span class="status-badge" style="font-size:11px; padding: 3px 10px; height:auto; box-shadow:none;">VALID</span>
+                            </div>
+                            <div class="fact-item">
+                                <span class="fact-label">SAP Corroboration</span>
+                                <span class="status-badge" id="sapSignatureStatus" style="font-size:11px; padding: 3px 10px; height:auto; box-shadow:none;">COUNTERPARTY_SIGNED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toggled Advanced Developer Details -->
+                <div class="advanced-details-box" id="adv-attestations">
+                    <div style="margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
+                        <strong>ATTESTATION CRYPTOGRAPHIC KEYS & INPUTS</strong>
+                    </div>
+                    <div>Agent Public Key: Ed25519 32-bytes Hex: c8e92a83bd783a48e718b28f9a2b77a014e82b7194fbc267e891c</div>
+                    <div>SAP API Connector PubKey: Ed25519 Hex: 7129b8c281dfc3a28c31e9c8a914f6b2e3c0b5f12e879a83c</div>
+                    <div>Input Commitment Hash = SHA256(invoice:INV-2025-0042;amount:48150.00;vendor:Globex)</div>
+                    <div>Output Commitment Hash = SHA256(decision:APPROVE)</div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Logs Comparison Panel -->
+            <div class="view-card" id="tab-comparison">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h2>AIP vs. Traditional Audit Logs</h2>
+                        <p>Side-by-side comparison demonstrating why flat text logs fail under regulation and court audits.</p>
+                    </div>
+                </div>
+                
+                <div class="logs-comparison-grid">
+                    <!-- Left: Traditional Logs -->
+                    <div class="log-box">
+                        <div class="log-box-header" style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                            <span>Traditional App Logs</span>
+                            <span style="font-size: 11px; font-weight: normal; color: var(--error-rose);">❌ No proof of policy or chain</span>
+                        </div>
+                        <div class="log-box-body">
+                            <div class="traditional-log">
+                                [2026-06-01 14:52:10] INFO - API gateway received POST /payments/execute
+                            </div>
+                            <div class="traditional-log">
+                                [2026-06-01 14:52:11] INFO - Executing payment of $48,150.00 to Globex Corporation
+                            </div>
+                            <div class="traditional-log" id="tradLogTargetAmount">
+                                [2026-06-01 14:52:12] INFO - Transaction completed. User: AI-Agent-17. Ref: TXN-00918
+                            </div>
+                            <div style="color: var(--text-muted); margin-top: 20px; font-size:11px; font-style:italic;">
+                                Warning: These logs are simple text databases. Any system administrator or bad actor with database access can rewrite "$48,150.00" to "$4,815,000.00" inside the logs in 5 seconds. A court or regulator cannot mathematically prove who authorized it or whether policy was followed.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: AIP EvidencePacket -->
+                    <div class="log-box">
+                        <div class="log-box-header" style="background: hsla(255, 80%, 65%, 0.05); border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--neon-indigo);">
+                            <span>AIP EvidencePacket Structure</span>
+                            <span style="font-size: 11px; font-weight: normal; color: var(--success-green);">✓ Cryptographically bound & tamper-proof</span>
+                        </div>
+                        <div class="log-box-body">
+                            <div class="aip-log-block success-border">
+                                <span class="log-tag indigo">1. Human Authority</span>
+                                <div>CFO Signature: Ed25519(did:web:cfo.acme)</div>
+                                <div style="font-size: 10px; color: var(--text-muted);">Bound to delegation token constraint</div>
+                            </div>
+                            <div class="aip-log-block success-border" id="aipEvidenceBlockModel">
+                                <span class="log-tag teal">2. Model Provenance</span>
+                                <div>Model: llama-3.1-70b-instruct (v2.1)</div>
+                                <div style="font-size: 10px; color: var(--text-muted);">Provenance Bound Hash: sha256:ab831c...</div>
+                            </div>
+                            <div class="aip-log-block success-border" id="aipEvidenceBlockAmount">
+                                <span class="log-tag green">3. Decision Record</span>
+                                <div>Committed Decision: APPROVE ($48,150.00)</div>
+                                <div style="font-size: 10px; color: var(--text-muted);">Decision Hash: sha256:bc8e42...</div>
+                            </div>
+                            <div class="aip-log-block success-border" id="aipEvidenceBlockSAP">
+                                <span class="log-tag teal">4. Downstream Attestation</span>
+                                <div>SAP Execution Attestation (Counterparty Signed)</div>
+                                <div style="font-size: 10px; color: var(--text-muted);">SAP Signer PubKey: Ed25519(sap_conn)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── Right-Side Adversarial Control Panel ── -->
+        <div class="control-panel">
+            <h3>🛡️ Adversarial Control Panel</h3>
+            <div class="tamper-warning">
+                Toggle these controls to simulate real-world attacks or audit violations, then observe how the protocol reacts.
+            </div>
+            
+            <div class="control-list">
+                <!-- Tamper 1: Amount -->
+                <div class="control-item">
+                    <div class="control-info">
+                        <span class="control-title">Tamper Payment Amount</span>
+                        <span class="control-desc">Alter payout from $48,150 to $4,815,000</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="tamperAmountToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <!-- Tamper 2: CFO Sign -->
+                <div class="control-item">
+                    <div class="control-info">
+                        <span class="control-title">Forge CFO Signature</span>
+                        <span class="control-desc">Use unapproved authority token</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="tamperCfoToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <!-- Tamper 3: Model -->
+                <div class="control-item">
+                    <div class="control-info">
+                        <span class="control-title">Substitute Shadow AI</span>
+                        <span class="control-desc">Run unapproved model without audit trace</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="tamperModelToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Tamper 4: SAP Logs -->
+                <div class="control-item">
+                    <div class="control-info">
+                        <span class="control-title">Alter Downstream Log</span>
+                        <span class="control-desc">Simulate tampered tool attestation</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="tamperSAPToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <button class="btn-primary" style="margin-top: 10px;" onclick="runVerificationPipeline()">Verify Packet Integrity</button>
+
+            <!-- Verification Progress Logger Output -->
+            <div style="margin-top: 15px;">
+                <h4 style="font-size:12px; color: var(--text-secondary); text-transform:uppercase; margin-bottom:8px;">Real-Time Verification Log</h4>
+                <div class="logger-box" id="verificationLogger">
+                    <div class="log-entry">
+                        <span class="log-status-bullet success">✓</span>
+                        <span>EvidencePacket loaded: MAGIC="EVPK"</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-status-bullet success">✓</span>
+                        <span>Cryptographic assembler signature verified successfully</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-status-bullet success">✓</span>
+                        <span>Lattice path matching depth constraints validated</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Dispute Reconstruction Modal ── -->
+    <div class="modal-overlay" id="auditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-size:18px;">Dispute Audit Report Viewer</h3>
+                <button class="modal-close-btn" onclick="closeAuditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="audit-sheet">
+                    <h3>AIP Decision Reconstruction Certificate</h3>
+                    
+                    <div class="audit-sheet-grid">
+                        <span class="audit-sheet-label">Audit Status:</span>
+                        <span class="audit-sheet-value">
+                            <span class="audit-sheet-badge" id="modalBadgeStatus">VERIFIED PASS</span>
+                        </span>
+                        
+                        <span class="audit-sheet-label">Authorized By:</span>
+                        <span class="audit-sheet-value" id="modalValCFO">did:web:cfo.acme.example (CFO Private Key Authorized)</span>
+                        
+                        <span class="audit-sheet-label">Assigned Limit:</span>
+                        <span class="audit-sheet-value">Up to $50,000.00 (financial.approval scope)</span>
+                        
+                        <span class="audit-sheet-label">Executed By Model:</span>
+                        <span class="audit-sheet-value" id="modalValModel">llama-3.1-70b-instruct</span>
+                        
+                        <span class="audit-sheet-label">Prompt Version:</span>
+                        <span class="audit-sheet-value">payment-approval-v2.1</span>
+                        
+                        <span class="audit-sheet-label">Transaction:</span>
+                        <span class="audit-sheet-value" id="modalValAmount">APPROVE invoice payment of $48,150.00 to Globex Corporation</span>
+                        
+                        <span class="audit-sheet-label">SAP Evidence:</span>
+                        <span class="audit-sheet-value" id="modalValSAP">SAP posted successfully (Transaction Code: doc=4500001234)</span>
+                        
+                        <span class="audit-sheet-label">Ledger Block:</span>
+                        <span class="audit-sheet-value" id="modalValReceipt">CL-8D91F4A2 (Temporal chronoLattice record)</span>
+                    </div>
+                    
+                    <div class="audit-footer-desc">
+                        Certified by VANIAN Agent Identity Protocol (AIP) Cryptographic Verification Suite. Handled offline via local cryptographic attestation check.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── JavaScript Interaction Logic ── -->
+    <script>
+        // State variables
+        let isTamperedAmount = false;
+        let isTamperedCfo = false;
+        let isTamperedModel = false;
+        let isTamperedSAP = false;
+
+        // Tabs functionality
+        const tabs = document.querySelectorAll('.tab-btn');
+        const cards = document.querySelectorAll('.view-card');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active classes
+                tabs.forEach(t => t.classList.remove('active'));
+                cards.forEach(c => c.classList.remove('active'));
+
+                // Add active state to selected
+                tab.classList.add('active');
+                const targetCard = document.getElementById(`tab-${tab.dataset.tab}`);
+                if (targetCard) targetCard.classList.add('active');
+            });
+        });
+
+        // Advanced Developer Details Switcher
+        const advToggle = document.getElementById('advancedViewToggle');
+        const advBoxes = document.querySelectorAll('.advanced-details-box');
+
+        advToggle.addEventListener('change', () => {
+            advBoxes.forEach(box => {
+                box.style.display = advToggle.checked ? 'block' : 'none';
+            });
+        });
+
+        // Adversarial Control switches
+        document.getElementById('tamperAmountToggle').addEventListener('change', (e) => {
+            isTamperedAmount = e.target.checked;
+            updateDynamicUI();
+        });
+        document.getElementById('tamperCfoToggle').addEventListener('change', (e) => {
+            isTamperedCfo = e.target.checked;
+            updateDynamicUI();
+        });
+        document.getElementById('tamperModelToggle').addEventListener('change', (e) => {
+            isTamperedModel = e.target.checked;
+            updateDynamicUI();
+        });
+        document.getElementById('tamperSAPToggle').addEventListener('change', (e) => {
+            isTamperedSAP = e.target.checked;
+            updateDynamicUI();
+        });
+
+        function updateDynamicUI() {
+            const hasAnyTampering = isTamperedAmount || isTamperedCfo || isTamperedModel || isTamperedSAP;
+            
+            // 1. Calculate executive metric score
+            let score = 100;
+            if (isTamperedAmount) score -= 30;
+            if (isTamperedCfo) score -= 30;
+            if (isTamperedModel) score -= 20;
+            if (isTamperedSAP) score -= 20;
+
+            // Cap at 0
+            score = Math.max(0, score);
+
+            // Update UI Score Elements
+            document.getElementById('strengthScoreVal').innerText = `${score}/100`;
+            document.getElementById('strengthScoreText').innerText = score;
+            
+            // Adjust SVG circle stroke-dashoffset (188.4 is full circumference)
+            const circumference = 188.4;
+            const offset = circumference - (score / 100 * circumference);
+            const circle = document.getElementById('strengthGaugeCircle');
+            circle.style.strokeDashoffset = offset;
+
+            // Circle Color Shift
+            if (score >= 90) {
+                circle.style.stroke = 'var(--electric-teal)';
+                circle.style.filter = 'drop-shadow(0 0 4px var(--electric-teal-glow))';
+            } else if (score >= 50) {
+                circle.style.stroke = 'var(--warning-amber)';
+                circle.style.filter = 'drop-shadow(0 0 4px var(--warning-amber-glow))';
+            } else {
+                circle.style.stroke = 'var(--error-rose)';
+                circle.style.filter = 'drop-shadow(0 0 4px var(--error-rose-glow))';
+            }
+
+            // 2. Update Integrity status card
+            const badge = document.getElementById('integrityStatusBadge');
+            const cardStatus = document.getElementById('cardStatus');
+            if (hasAnyTampering) {
+                badge.innerText = 'FAIL';
+                badge.classList.add('failed');
+                cardStatus.style.borderColor = 'var(--error-rose-glow)';
+            } else {
+                badge.innerText = 'PASS';
+                badge.classList.remove('failed');
+                cardStatus.style.borderColor = 'var(--bg-card-border)';
+            }
+
+            // 3. Update VDL Graph Node visuals
+            // Human CFO
+            const nodeHuman = document.getElementById('nodeHuman');
+            const conn1 = document.getElementById('conn1');
+            if (isTamperedCfo) {
+                nodeHuman.classList.add('tampered');
+                nodeHuman.querySelector('.node-sub').innerText = 'did:web:unknown_forged';
+                nodeHuman.querySelector('.node-pill').innerText = 'FORGED SIGNATURE';
+                conn1.className = 'graph-connector broken';
+            } else {
+                nodeHuman.classList.remove('tampered');
+                nodeHuman.querySelector('.node-sub').innerText = 'did:web:cfo.acme';
+                nodeHuman.querySelector('.node-pill').innerText = 'AUTHORIZED';
+                conn1.className = 'graph-connector active';
+            }
+
+            // AI Agent
+            const nodeAgent = document.getElementById('nodeAgent');
+            const conn2 = document.getElementById('conn2');
+            const nodeAgentModel = document.getElementById('nodeAgentModel');
+            if (isTamperedModel) {
+                nodeAgent.classList.add('tampered');
+                nodeAgentModel.innerText = 'shadow-unapproved-ai';
+                nodeAgent.querySelector('.node-pill').innerText = 'UNAUTHENTICATED';
+                conn2.className = 'graph-connector broken';
+            } else {
+                nodeAgent.classList.remove('tampered');
+                nodeAgentModel.innerText = 'llama-3.1-70b';
+                nodeAgent.querySelector('.node-pill').innerText = 'AIP-ID ACTIVE';
+                conn2.className = 'graph-connector active';
+            }
+
+            // Executed Action
+            const nodeAction = document.getElementById('nodeAction');
+            const conn3 = document.getElementById('conn3');
+            const nodeActionStatus = document.getElementById('nodeActionStatus');
+            if (isTamperedAmount) {
+                nodeAction.classList.add('tampered');
+                nodeActionStatus.innerText = 'Tampered: $4,815,000';
+                nodeAction.querySelector('.node-pill').innerText = 'COMMITMENT MISMATCH';
+                conn3.className = 'graph-connector broken';
+            } else {
+                nodeAction.classList.remove('tampered');
+                nodeActionStatus.innerText = 'SAP posted: $48,150';
+                nodeAction.querySelector('.node-pill').innerText = 'COMPLETED';
+                conn3.className = 'graph-connector active';
+            }
+
+            // Graph General Description Label
+            const graphDesc = document.getElementById('graphDesc');
+            if (hasAnyTampering) {
+                graphDesc.innerHTML = `<span style="color: var(--error-rose); font-weight: bold;">❌ Cryptographic chain violated! Tampering detected. See Verification Log for specific failure reason.</span>`;
+            } else {
+                graphDesc.innerHTML = `<span style="color: var(--success-green);">✓ All authorization hops contain valid cryptographic signatures linked to private key delegations.</span>`;
+            }
+
+            // 4. Update Logs Tab Details
+            const tradLogTargetAmount = document.getElementById('tradLogTargetAmount');
+            if (isTamperedAmount) {
+                tradLogTargetAmount.innerHTML = `<span style="color: var(--warning-amber);">[2026-06-01 14:52:12] INFO - Transaction completed. User: AI-Agent-17. Ref: TXN-00918 (Modified in SQL Db to $4,815,000.00)</span>`;
+            } else {
+                tradLogTargetAmount.innerHTML = `[2026-06-01 14:52:12] INFO - Transaction completed. User: AI-Agent-17. Ref: TXN-00918`;
+            }
+
+            const aipBlockAmount = document.getElementById('aipEvidenceBlockAmount');
+            if (isTamperedAmount) {
+                aipBlockAmount.className = 'aip-log-block rose-border';
+                aipBlockAmount.querySelector('div').innerHTML = `Committed Decision: APPROVE ($4,815,000.00) <span style="color: var(--error-rose);">[❌ ALTERED]</span>`;
+            } else {
+                aipBlockAmount.className = 'aip-log-block success-border';
+                aipBlockAmount.querySelector('div').innerHTML = `Committed Decision: APPROVE ($48,150.00)`;
+            }
+
+            // Model Log blocks
+            const aipBlockModel = document.getElementById('aipEvidenceBlockModel');
+            if (isTamperedModel) {
+                aipBlockModel.className = 'aip-log-block rose-border';
+                aipBlockModel.querySelector('div').innerHTML = `Model: shadow-unapproved-ai <span style="color: var(--error-rose);">[❌ INVALID MODEL]</span>`;
+            } else {
+                aipBlockModel.className = 'aip-log-block success-border';
+                aipBlockModel.querySelector('div').innerHTML = `Model: llama-3.1-70b-instruct (v2.1)`;
+            }
+
+            // CFO Log blocks
+            const aipBlockCFO = document.querySelector('.aip-log-block');
+            if (isTamperedCfo) {
+                aipBlockCFO.className = 'aip-log-block rose-border';
+                aipBlockCFO.querySelector('div').innerHTML = `CFO Signature: did:web:unknown_forged <span style="color: var(--error-rose);">[❌ FORGED DELEGATION]</span>`;
+            } else {
+                aipBlockCFO.className = 'aip-log-block success-border';
+                aipBlockCFO.querySelector('div').innerHTML = `CFO Signature: Ed25519(did:web:cfo.acme)`;
+            }
+
+            // Downstream SAP Evidence box & block
+            const aipBlockSAP = document.getElementById('aipEvidenceBlockSAP');
+            const sapSigStatus = document.getElementById('sapSignatureStatus');
+            const sapEvidenceBox = document.getElementById('sapEvidenceBox');
+            if (isTamperedSAP) {
+                aipBlockSAP.className = 'aip-log-block rose-border';
+                aipBlockSAP.querySelector('div').innerHTML = `SAP Execution Attestation <span style="color: var(--error-rose);">[❌ LOGS ALTERED]</span>`;
+                sapSigStatus.innerText = 'INVALID_SIGNATURE';
+                sapSigStatus.className = 'status-badge failed';
+                sapEvidenceBox.style.borderColor = 'var(--error-rose-glow)';
+            } else {
+                aipBlockSAP.className = 'aip-log-block success-border';
+                aipBlockSAP.querySelector('div').innerHTML = `SAP Execution Attestation (Counterparty Signed)`;
+                sapSigStatus.innerText = 'COUNTERPARTY_SIGNED';
+                sapSigStatus.className = 'status-badge';
+                sapEvidenceBox.style.borderColor = 'rgba(255,255,255,0.04)';
+            }
+
+            // Dispute Tab Facts
+            const auditFactSAP = document.getElementById('auditFactSAP');
+            if (isTamperedSAP) {
+                auditFactSAP.innerText = '❌ SAP ALTERED (Verification Failed)';
+                auditFactSAP.className = 'fact-value';
+                auditFactSAP.style.color = 'var(--error-rose)';
+            } else {
+                auditFactSAP.innerText = 'SAP POSTED (Counterparty Signed)';
+                auditFactSAP.className = 'fact-value';
+                auditFactSAP.style.color = '';
+            }
+
+            const auditFactReceipt = document.getElementById('auditFactReceipt');
+            if (isTamperedAmount || isTamperedCfo || isTamperedModel || isTamperedSAP) {
+                auditFactReceipt.innerText = '❌ LEDGER INVALIDATED (Hash Mismatch)';
+                auditFactReceipt.style.color = 'var(--error-rose)';
+            } else {
+                auditFactReceipt.innerText = 'CL-8D91F4A2';
+                auditFactReceipt.style.color = '';
+            }
+        }
+
+        // Real-time simulated verification pipeline
+        function runVerificationPipeline() {
+            const logger = document.getElementById('verificationLogger');
+            logger.innerHTML = ''; // Clear logs
+
+            const steps = [
+                {
+                    name: 'Verify Packet Magic Bytes',
+                    run: () => true, // Always matches EVPK magic
+                    successMsg: 'Magic Bytes matches EVPK header',
+                    errorMsg: 'Invalid packet header'
+                },
+                {
+                    name: 'Verify Assembler Signature',
+                    run: () => true, // Assembler structure
+                    successMsg: 'Assembler signature cryptographically valid',
+                    errorMsg: 'Assembler payload forged'
+                },
+                {
+                    name: 'Verify Delegation Lattice Path',
+                    run: () => !isTamperedCfo,
+                    successMsg: 'Delegation Lattice Signature matches CFO did:web root',
+                    errorMsg: '❌ Authorization Chain Verification Failed: CFO Signature forged!'
+                },
+                {
+                    name: 'Verify Agent Identity Provenance',
+                    run: () => !isTamperedModel,
+                    successMsg: 'Agent provenance bindings match authorized model Llama-3.1',
+                    errorMsg: '❌ Provenance Verification Failed: Unapproved shadow model execution!'
+                },
+                {
+                    name: 'Verify Decision Record Commitments',
+                    run: () => !isTamperedAmount,
+                    successMsg: 'Decision Record inputs & outputs match execution commitment',
+                    errorMsg: '❌ Decision Commitment Mismatch: Payment amount modified post-approval!'
+                },
+                {
+                    name: 'Verify Downstream Action Attestation',
+                    run: () => !isTamperedSAP,
+                    successMsg: 'SAP API execution attestation matches counterparty signature',
+                    errorMsg: '❌ Tool Attestation Failed: SAP Connector log altered or signature invalid!'
+                },
+                {
+                    name: 'Verify Ledger Receipt integrity',
+                    run: () => (!isTamperedAmount && !isTamperedCfo && !isTamperedModel && !isTamperedSAP),
+                    successMsg: 'Merkle root receipt verified on chronoLattice ledger',
+                    errorMsg: '❌ Ledger verification broken due to upstream payload tampered hashes'
+                }
+            ];
+
+            let delay = 0;
+            let successTotal = true;
+
+            steps.forEach((step, idx) => {
+                setTimeout(() => {
+                    const pass = step.run();
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry';
+                    
+                    if (pass) {
+                        entry.innerHTML = `
+                            <span class="log-status-bullet success">✓</span>
+                            <span>${step.successMsg}</span>
+                        `;
+                    } else {
+                        successTotal = false;
+                        entry.innerHTML = `
+                            <span class="log-status-bullet error">✖</span>
+                            <span style="color: var(--error-rose); font-weight: 600;">${step.errorMsg}</span>
+                        `;
+                    }
+                    
+                    logger.appendChild(entry);
+                    logger.scrollTop = logger.scrollHeight; // Scroll to bottom
+                }, delay);
+                
+                delay += 250; // Dynamic timeline check sequence
+            });
+        }
+
+        // Dispute Audit Modal Handlers
+        const auditModal = document.getElementById('auditModal');
+
+        function openAuditModal() {
+            // Populate modal sheet values dynamically depending on current state
+            const hasAnyTampering = isTamperedAmount || isTamperedCfo || isTamperedModel || isTamperedSAP;
+            
+            const badge = document.getElementById('modalBadgeStatus');
+            const cfo = document.getElementById('modalValCFO');
+            const model = document.getElementById('modalValModel');
+            const amount = document.getElementById('modalValAmount');
+            const sap = document.getElementById('modalValSAP');
+            const receipt = document.getElementById('modalValReceipt');
+
+            if (hasAnyTampering) {
+                badge.innerText = 'FAIL / AUDIT COMPROMISE';
+                badge.className = 'audit-sheet-badge failed';
+            } else {
+                badge.innerText = 'VERIFIED PASS';
+                badge.className = 'audit-sheet-badge';
+            }
+
+            // CFO
+            if (isTamperedCfo) {
+                cfo.innerText = '⚠️ FORGED DELEGATION: Unknown authority key presented!';
+                cfo.style.color = '#c53030';
+            } else {
+                cfo.innerText = 'did:web:cfo.acme.example (CFO Private Key Authorized)';
+                cfo.style.color = '';
+            }
+
+            // Model
+            if (isTamperedModel) {
+                model.innerText = '⚠️ shadow-unapproved-ai (Model mismatch!)';
+                model.style.color = '#c53030';
+            } else {
+                model.innerText = 'llama-3.1-70b-instruct';
+                model.style.color = '';
+            }
+
+            // Amount
+            if (isTamperedAmount) {
+                amount.innerText = '⚠️ APPROVE invoice payment of $4,815,000.00 to Globex (Modified payment amount!)';
+                amount.style.color = '#c53030';
+            } else {
+                amount.innerText = 'APPROVE invoice payment of $48,150.00 to Globex Corporation';
+                amount.style.color = '';
+            }
+
+            // SAP
+            if (isTamperedSAP) {
+                sap.innerText = '⚠️ SAP attestation log altered or signature signature failed!';
+                sap.style.color = '#c53030';
+            } else {
+                sap.innerText = 'SAP posted successfully (Transaction Code: doc=4500001234)';
+                sap.style.color = '';
+            }
+
+            // Receipt
+            if (hasAnyTampering) {
+                receipt.innerText = '⚠️ INVALID RECORD RECEIPT: Cryptographic state tampered!';
+                receipt.style.color = '#c53030';
+            } else {
+                receipt.innerText = 'CL-8D91F4A2 (Temporal chronoLattice record)';
+                receipt.style.color = '';
+            }
+
+            auditModal.classList.add('active');
+        }
+
+        function closeAuditModal() {
+            auditModal.classList.remove('active');
+        }
+
+        // Initialize gauge on launch
+        updateDynamicUI();
+    </script>
+</body>
+</html>

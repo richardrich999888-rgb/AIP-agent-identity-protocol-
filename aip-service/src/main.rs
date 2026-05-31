@@ -123,6 +123,8 @@ async fn main() {
 
     let app = Router::new()
         // Core endpoints
+        .route("/", get(handlers::viewer))
+        .route("/viewer", get(handlers::viewer))
         .route("/health", get(handlers::health))
         .route("/v1/identity/issue", post(handlers::issue))
         .route("/v1/identity/verify", post(handlers::verify))
