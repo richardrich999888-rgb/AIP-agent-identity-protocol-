@@ -4,7 +4,7 @@
 #
 # USAGE:
 #   make check        — Syntax check all workspace crates (macOS-safe)
-#   make test         — Run all 17+ unit tests
+#   make test         — Run all 104 Rust tests
 #   make run          — Run TRL-4 lab validation binary
 #   make dry-run      — Run Python dry-run validation (6/6 tests)
 #   make bench        — Run Criterion.rs benchmarks
@@ -16,7 +16,7 @@
 #   make clean        — Remove all build artifacts
 #   make all          — Full CI pipeline: check → test → run → dry-run
 
-.PHONY: all check test run dry-run bench build-ebpf clean \
+.PHONY: all check test run dry-run validation-report bench check-ebpf-env check-ebpf build-ebpf build-ebpf-debug ci-local clean \
         lima-up lima-shell lima-fire lima-down \
         vagrant-up vagrant-down vagrant-ssh-gateway vagrant-ssh-attacker
 
@@ -26,6 +26,7 @@ WORKSPACE       := .
 EBPF_CRATE      := aegis-quantum-ebpf
 USERSPACE_CRATE := aegis-quantum-userspace
 EBPF_TARGET     := bpfel-unknown-none
+EBPF_CHECK      := scripts/check_ebpf_toolchain.sh
 LIMA_CONFIG     := infra/lima/aegis-kernel.yaml
 LIMA_VM_NAME    := aegis-kernel
 VAGRANT_DIR     := infra/vagrant
@@ -44,6 +45,10 @@ all: check test run dry-run
 	@echo "$(GREEN)═══════════════════════════════════════════════════════$(RESET)"
 	@echo "$(GREEN)  AEGIS-QUANTUM CI Pipeline: ALL PASS$(RESET)"
 	@echo "$(GREEN)═══════════════════════════════════════════════════════$(RESET)"
+
+## Local CI without starting the lab binary; useful for GitHub Actions and quick checks
+ci-local: check test dry-run
+	@echo "$(GREEN)AEGIS local validation passed: check + 104 tests + dry-run$(RESET)"
 
 ## Syntax check all workspace crates (macOS-safe, no Linux deps compiled)
 check:
@@ -65,6 +70,12 @@ dry-run:
 	@echo "$(CYAN)── Python Dry-Run Validation ──$(RESET)"
 	python3 validation/validate_xdp.py --dry-run
 
+## Generate a JSON validation report artifact for funding/CI evidence packs
+validation-report:
+	@echo "$(CYAN)── Generating validation_report.json ──$(RESET)"
+	python3 validation/validate_xdp.py --dry-run --output validation_report.json
+	@echo "$(GREEN)Validation report written: validation_report.json$(RESET)"
+
 ## Run Criterion.rs performance benchmarks
 bench:
 	@echo "$(CYAN)── Criterion Benchmarks ──$(RESET)"
@@ -74,22 +85,30 @@ bench:
 
 ## Cross-compile the eBPF XDP program to BPF bytecode
 ## This works on macOS because it targets the BPF virtual machine, not host HW
+check-ebpf-env:
+	@echo "$(CYAN)── Checking eBPF toolchain prerequisites ──$(RESET)"
+	@$(EBPF_CHECK) --help >/dev/null
+	@rustup toolchain list | grep -E '^nightly([ -]|$$)' >/dev/null || \
+		( echo "$(RED)nightly missing. Run: rustup toolchain install nightly --component rust-src$(RESET)" && exit 1 )
+	@rustup component list --toolchain nightly --installed | grep -E '^rust-src([ -]|$$)' >/dev/null || \
+		( echo "$(RED)rust-src missing. Run: rustup component add rust-src --toolchain nightly$(RESET)" && exit 1 )
+	@echo "$(GREEN)eBPF toolchain prerequisites present$(RESET)"
+
+## Compile the eBPF XDP program in debug mode through the reproducible script
+check-ebpf:
+	@echo "$(CYAN)── eBPF debug build check ──$(RESET)"
+	$(EBPF_CHECK) --debug
+
+## Compile the eBPF XDP program in release mode through the reproducible script
 build-ebpf:
 	@echo "$(CYAN)── Cross-compiling eBPF to $(EBPF_TARGET) ──$(RESET)"
 	@echo "$(YELLOW)Requires: rustup toolchain install nightly --component rust-src$(RESET)"
-	cargo +nightly build \
-		--manifest-path $(EBPF_CRATE)/Cargo.toml \
-		--target $(EBPF_TARGET) \
-		-Z build-std=core \
-		--release
+	$(EBPF_CHECK) --release
 	@echo "$(GREEN)eBPF bytecode compiled: $(EBPF_CRATE)/target/$(EBPF_TARGET)/release/$(EBPF_CRATE)$(RESET)"
 
 ## Build eBPF in debug mode (faster, but may trigger verifier warnings)
 build-ebpf-debug:
-	cargo +nightly build \
-		--manifest-path $(EBPF_CRATE)/Cargo.toml \
-		--target $(EBPF_TARGET) \
-		-Z build-std=core
+	$(EBPF_CHECK) --debug
 
 # ── Lima VM (Apple Silicon native Linux) ─────────────────────────────────────
 
@@ -162,10 +181,13 @@ help:
 	@echo ""
 	@echo "  $(GREEN)Local (macOS)$(RESET)"
 	@echo "    make check       — Syntax check (0 warnings target)"
-	@echo "    make test        — Run 17+ unit tests"
+	@echo "    make test        — Run 104 Rust tests"
 	@echo "    make run         — TRL-4 lab validation"
 	@echo "    make dry-run     — Python validation (6/6 tests)"
+	@echo "    make validation-report — Write validation_report.json artifact"
 	@echo "    make bench       — Criterion benchmarks"
+	@echo "    make ci-local    — cargo check + tests + dry-run"
+	@echo "    make check-ebpf  — Debug eBPF build check (requires nightly + rust-src)"
 	@echo "    make build-ebpf  — Cross-compile eBPF bytecode"
 	@echo "    make all         — Full CI pipeline"
 	@echo ""

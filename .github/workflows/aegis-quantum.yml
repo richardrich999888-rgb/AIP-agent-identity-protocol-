@@ -1,0 +1,67 @@
+name: AEGIS Quantum Validation
+
+on:
+  push:
+    paths:
+      - "aegis-quantum/**"
+      - ".github/workflows/aegis-quantum.yml"
+  pull_request:
+    paths:
+      - "aegis-quantum/**"
+      - ".github/workflows/aegis-quantum.yml"
+  workflow_dispatch:
+
+jobs:
+  lab-validation:
+    name: Lab validation
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: aegis-quantum
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Rust toolchain
+        run: rustup show
+
+      - name: Cargo check, tests, and dry-run validation
+        run: make ci-local
+
+      - name: Generate validation report artifact
+        run: make validation-report
+
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegis-validation-report
+          path: aegis-quantum/validation_report.json
+          if-no-files-found: error
+
+  ebpf-build:
+    name: eBPF bytecode build
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: aegis-quantum
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install eBPF build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang llvm libelf-dev
+
+      - name: Install Rust nightly with rust-src
+        run: rustup toolchain install nightly --profile minimal --component rust-src
+
+      - name: Build eBPF bytecode
+        run: make build-ebpf
+
+      - name: Upload eBPF bytecode
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegis-ebpf-bytecode
+          path: aegis-quantum/aegis-quantum-ebpf/target/bpfel-unknown-none/release/aegis-quantum-ebpf
+          if-no-files-found: error

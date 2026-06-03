@@ -1,0 +1,130 @@
+# AEGIS Quantum Validation Ladder
+
+This document separates validated lab evidence from the next gates required for
+kernel/live-fire and pilot-readiness claims.
+
+## Current Evidence
+
+### Gate 1: Rust Lab Tests
+
+Command:
+
+```bash
+cargo test --workspace
+```
+
+Current scope:
+
+- 30 circuit-breaker tests for thresholds, sliding windows, resets, and scale.
+- 28 common ABI tests for kernel/userspace struct sizes, alignment, offsets, and map names.
+- 27 PQC userspace tests for Kyber-768 / ML-KEM simulated roundtrips, key sizes, entropy, and timing.
+- 19 integration-simulation tests for rogue detection, blocklist expiry, session values, packet events, and full pipeline simulation.
+
+Status: 104/104 passing on the local development host.
+
+### Gate 2: Dry-Run XDP Validation
+
+Command:
+
+```bash
+python3 validation/validate_xdp.py --dry-run
+```
+
+Current scope:
+
+- Single SYN pass.
+- Below-threshold burst pass.
+- Above-threshold burst expected drop.
+- Legitimate traffic unaffected after block.
+- Non-TCP passthrough.
+- IPv6 passthrough.
+
+Status: 6/6 passing in simulated mode.
+
+### Gate 3: eBPF Bytecode Build
+
+Command:
+
+```bash
+make check-ebpf
+make build-ebpf
+```
+
+Requirements:
+
+- Rust nightly.
+- `rust-src` for nightly.
+- `bpfel-unknown-none` with `-Z build-std=core`.
+
+Status: wired into Makefile and GitHub Actions. This gate proves the excluded
+`aegis-quantum-ebpf` crate compiles as BPF bytecode, but it does not prove the
+program loads into a kernel or passes live traffic.
+
+## Cryptography Bill of Materials
+
+This CBOM records what is implemented today and what belongs to the RDI
+hardening roadmap. It should be updated whenever cryptographic primitives,
+protocol bindings, or kernel enforcement assumptions change.
+
+| Component | Standard / Primitive | Current Implementation | RDI Hardening Target |
+| --- | --- | --- | --- |
+| PQC exchange | Kyber-768 / ML-KEM family | Rust userspace lab roundtrip through `pqcrypto_kyber::kyber768`; shared-secret hash stored as session material. | Align naming, test vectors, and compliance notes with NIST FIPS 203 ML-KEM; validate hybrid key establishment in live traffic. |
+| Session hash | SHA-256 | `sha2::Sha256` over the Kyber shared secret for `SessionValue.shared_secret_hash`. | Add domain separation, transcript binding, and replay-resistant session identifiers. |
+| Runtime enforcement | Linux eBPF / XDP | Indigenous XDP program using `AQ_EVENTS`, `AQ_BLOCKLIST`, `AQ_SESSIONS`, and `AQ_COUNTERS` maps. | Kernel verifier evidence, live-fire counter evidence, AF_XDP validation, and map-pressure testing. |
+| Agent identity binding | AIP Ed25519/JWT stack | Not enforced by AEGIS yet; AEGIS currently keys by TCP connection tuple. | Bind enforcement to AIP `agent_id`, `tenant_id`, capability, delegation, and revocation state. |
+| Delegation signatures | Ed25519 today; ML-DSA roadmap | Current AIP service and standalone protocol use classical signatures, not ML-DSA. | Evaluate ML-DSA/FIPS 204 for post-quantum delegation certificates after the AIP/AEGIS control-plane merge. |
+| Evidence export | JSON validation report | `validation/validate_xdp.py --output validation_report.json` writes a machine-readable test report. | Attach CI artifacts, signed reports, and AIP EvidencePackets for regulator/auditor review. |
+
+## Next Evidence Gates
+
+### Gate 4: BPF Verifier and Map Load
+
+Target environment: Linux 5.15+ with `bpftool`, CAP_BPF, and CAP_NET_ADMIN.
+
+Required proof:
+
+- eBPF program loads successfully.
+- `AQ_EVENTS`, `AQ_BLOCKLIST`, `AQ_SESSIONS`, and `AQ_COUNTERS` maps are visible through `bpftool`.
+- XDP program attaches to a real interface.
+
+### Gate 5: Live-Fire Packet Validation
+
+Command:
+
+```bash
+sudo python3 validation/validate_xdp.py --live-fire --iface <interface>
+```
+
+Required proof:
+
+- Real SYN packets are passed below threshold.
+- Rogue burst causes blocklist insertion.
+- Blocked packets are dropped by XDP, not by simulated logic.
+- Legitimate traffic from a different connection remains unaffected.
+- Kernel counters change as expected.
+
+### Gate 6: Performance and Pilot Benchmarks
+
+Required proof:
+
+- p50/p95/p99 latency with AEGIS disabled and enabled.
+- PQC key exchange timing separated from XDP pass/drop timing.
+- AF_XDP redirect timing separated from ring-buffer timing.
+- Sustained load behavior under many distinct connection keys.
+- Memory/map pressure behavior under blocklist/session churn.
+
+### Gate 7: AIP-Controlled Enforcement
+
+Required proof:
+
+- AEGIS enforcement can key policy by AIP `agent_id`, `tenant_id`, capability, and revocation state.
+- AEGIS events are written into AIP EvidencePackets.
+- An auditor can reconstruct the enforcement decision from AIP artifacts.
+
+## Claim Boundary
+
+Current evidence supports: lab-validated AEGIS prototype with passing Rust unit,
+integration, PQC simulation, and dry-run validation.
+
+Current evidence does not yet support: production deployment, wire-speed PQC,
+TRL-7/8 readiness, or live kernel enforcement claims.
