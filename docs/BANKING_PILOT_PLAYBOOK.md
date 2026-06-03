@@ -162,6 +162,32 @@ python3 scripts/generate_airon_latency_histogram.py \
 
 The script computes min, p50, p95, p99, max, pass/fail per metric, and the
 baseline-vs-AIRON p99 RTT delta. Missing metrics are marked `NOT_MEASURED`.
+Local developer measurements that hit the numeric gate are marked
+`PASS_LOCAL_SCOPE`; only `banking_pilot`, `bare_metal`, or `production_like`
+measurement scopes are treated as full banking evidence.
+
+## Local Pre-Pitch Pilot
+
+Before approaching outside pilot partners, run the local screening pass:
+
+```bash
+make pilot-local
+```
+
+This starts the AIP service, exercises issue/verify/delegate/verify-chain/revoke
+over HTTP, measures in-process AIP signature verification, measures AIP
+EvidencePacket assembly/export/storage overhead, and measures AEGIS local
+Kyber/circuit-breaker timing. Performance binaries run in Rust `--release`
+mode; debug-mode latency is not acceptable pilot evidence.
+
+Artifacts are written under `pilot-results/`:
+
+| Artifact | Purpose |
+| --- | --- |
+| `local_pilot_summary.json` | Pass/fail summary and list of remaining unmeasured metrics |
+| `local_pilot_http_smoke.json` | AIP service endpoint smoke evidence |
+| `local_pilot_samples.json` | Raw latency samples |
+| `local_pilot_latency_report.json` | Histogram report with p50/p95/p99/max and scope labels |
 
 ## Current Readiness Boundary
 

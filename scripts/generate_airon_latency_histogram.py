@@ -136,7 +136,18 @@ def load_samples(path: Path | None) -> dict[str, Any]:
     return raw
 
 
-def metric_report(metric: str, raw_values: Any) -> dict[str, Any]:
+FULL_EVIDENCE_SCOPES = {"banking_pilot", "bare_metal", "production_like"}
+
+
+def scoped_status(passed: bool, scope: str | None) -> str:
+    if not passed:
+        return "FAIL"
+    if scope in FULL_EVIDENCE_SCOPES:
+        return "PASS"
+    return "PASS_LOCAL_SCOPE"
+
+
+def metric_report(metric: str, raw_values: Any, scope: str | None = None, note: str | None = None) -> dict[str, Any]:
     target = TARGETS[metric]
     base = {
         "zone": target["zone"],
@@ -147,6 +158,8 @@ def metric_report(metric: str, raw_values: Any) -> dict[str, Any]:
             "p99_or_min": target["target"],
         },
         "proof": target["proof"],
+        "measurement_scope": scope,
+        "note": note,
     }
     if raw_values is None:
         return {**base, "status": "NOT_MEASURED", "stats": None}
@@ -154,17 +167,19 @@ def metric_report(metric: str, raw_values: Any) -> dict[str, Any]:
         return {**base, "status": "NOT_MEASURED", "stats": None}
     values = [float(value) for value in raw_values]
     stats = summarize(values)
-    status = "PASS" if target_passes(stats, target) else "FAIL"
+    status = scoped_status(target_passes(stats, target), scope)
     return {**base, "status": status, "stats": stats}
 
 
-def delta_report(samples: dict[str, Any]) -> dict[str, Any]:
+def delta_report(samples: dict[str, Any], scope: str | None = None, note: str | None = None) -> dict[str, Any]:
     baseline = samples.get("baseline_transaction_rtt_ms")
     active = samples.get("airon_active_transaction_rtt_ms")
     base = {
         "label": "Baseline vs AIRON-active transaction RTT delta",
         "unit": "percent",
         "target": {"p99_delta_percent_max": 3.0},
+        "measurement_scope": scope,
+        "note": note,
     }
     if not baseline or not active:
         return {**base, "status": "NOT_MEASURED", "stats": None}
@@ -177,7 +192,7 @@ def delta_report(samples: dict[str, Any]) -> dict[str, Any]:
     delta = ((p99_active - p99_baseline) / p99_baseline) * 100.0
     return {
         **base,
-        "status": "PASS" if delta <= 3.0 else "FAIL",
+        "status": scoped_status(delta <= 3.0, scope),
         "stats": {
             "baseline_rtt_ms": baseline_stats,
             "airon_active_rtt_ms": active_stats,
@@ -188,10 +203,19 @@ def delta_report(samples: dict[str, Any]) -> dict[str, Any]:
 
 def build_report(raw: dict[str, Any]) -> dict[str, Any]:
     samples = raw.get("samples", {})
-    metrics = {metric: metric_report(metric, samples.get(metric)) for metric in TARGETS}
+    scopes = raw.get("measurement_scope", {})
+    notes = raw.get("notes", {})
+    metrics = {
+        metric: metric_report(metric, samples.get(metric), scopes.get(metric), notes.get(metric))
+        for metric in TARGETS
+    }
     measured = [m for m in metrics.values() if m["status"] != "NOT_MEASURED"]
     failed = [m for m in metrics.values() if m["status"] == "FAIL"]
-    delta = delta_report(samples)
+    delta = delta_report(
+        samples,
+        scopes.get("transaction_rtt_delta"),
+        notes.get("transaction_rtt_delta"),
+    )
     if delta["status"] == "FAIL":
         failed.append(delta)
 
@@ -211,6 +235,8 @@ def build_report(raw: dict[str, Any]) -> dict[str, Any]:
         "measurement_policy": {
             "latency_gate": "p99 must satisfy the target unless the metric is throughput, where minimum measured throughput must satisfy the target.",
             "rtt_delta_gate": "AIRON-active p99 RTT overhead must be <= 3% over baseline p99 RTT.",
+            "full_evidence_scopes": sorted(FULL_EVIDENCE_SCOPES),
+            "local_scope_status": "PASS_LOCAL_SCOPE means the metric satisfied its numeric target in a local/dev measurement scope, but is not yet banking-pilot evidence.",
             "no_fabricated_values": True,
         },
         "metrics": metrics,
