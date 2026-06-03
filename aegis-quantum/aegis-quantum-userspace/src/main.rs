@@ -255,7 +255,7 @@ fn run_live_pipeline(iface: &str) {
                 }
             } else {
                 // Perform PQC key exchange for legitimate new connections
-                let pqc_report = pqc::kyber768_key_exchange();
+                let pqc_report = pqc::hybrid_x25519_kyber768_key_exchange();
 
                 if pqc_report.secrets_match {
                     // Parse the shared secret hash into a 32-byte array

@@ -24,8 +24,8 @@ portable evidence packets.
 | Chain verification | `POST /v1/identity/verify-chain` | Ordered delegation-chain validation and effective scope calculation |
 | Revocation | `POST /v1/identity/revoke` | Single-token or cascade revocation of descendant delegations |
 | Revocation lookup | `GET /v1/identity/revocation-status/:jti` | O(1) revocation-state lookup |
-| EvidencePacket | `aip-standalone/aip-protocol` | Decision, trace, receipt, attestation, graph, and assembler signature binding |
-| Terminal verifier | `cargo run --manifest-path aip-standalone/Cargo.toml --package airon-verify` | Offline PASS/TOXIC verification of assembler, agent, trace authority, receipt authority, counterparty, and external receipt digest checks |
+| EvidencePacket | `aip-standalone/aip-protocol` | Decision, trace, receipt, attestation, graph, Ed25519 assembler signature, and optional ML-DSA-65 assembler signature binding |
+| Terminal verifier | `cargo run --manifest-path aip-standalone/Cargo.toml --package airon-verify` | Offline PASS/TOXIC verification of assembler, optional or keyring-required ML-DSA-65 assembler, agent, trace authority, receipt authority, counterparty, and external receipt digest checks |
 
 ### AEGIS: Enforcement and Network Plane
 
@@ -36,7 +36,7 @@ handshakes, eBPF/XDP telemetry, session maps, blocklists, and circuit breaking.
 | --- | --- | --- |
 | XDP ingress hook | `aegis-quantum-ebpf` | Packet parsing and fast-path blocklist checks at driver ingress |
 | Kernel maps | `AQ_SESSIONS`, `AQ_BLOCKLIST`, `AQ_EVENTS` | Session trust cache, drop list, and ring-buffer telemetry |
-| PQC engine | `aegis-quantum-userspace/src/pqc.rs` | Kyber/ML-KEM key exchange validation and session-key hashing |
+| PQC engine | `aegis-quantum-userspace/src/pqc.rs` | X25519 + Kyber-768 hybrid key establishment and domain-separated session-key hashing |
 | Circuit breaker | `aegis-quantum-circuit-breaker` | Sliding-window rogue-loop detection |
 | Userspace controller | `aegis-quantum-userspace` | Ring-buffer event processing and map updates |
 | Validation harness | `aegis-quantum/validation/validate_xdp.py` | Dry-run and live-fire XDP validation scenarios |
@@ -58,7 +58,7 @@ Expected proof:
 
 | Component | Evidence |
 | --- | --- |
-| AIP | 254 Rust tests, JSON validation report, service contract checks, terminal EvidencePacket verifier |
+| AIP | 257 Rust tests, JSON validation report, service contract checks, terminal EvidencePacket verifier |
 | AEGIS | 104 Rust tests, XDP dry-run scenarios, eBPF bytecode CI build |
 
 For private-repository CI signing, provision `CI_GPG_PRIVATE_KEY_B64` as

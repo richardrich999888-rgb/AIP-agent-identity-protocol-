@@ -13,7 +13,7 @@ RDI/TDB diligence, and release gates.
 | L2 | Provenance and replay controls | Provenance-bound identity, runtime binding, nonce freshness, stale/future replay rejection | PASS |
 | L3 | Delegation lattice | Scope MEET, child cannot exceed parent, chain depth enforcement, audit hash binding | PASS |
 | L4 | EvidencePacket discipline | Session/decision binding, evidence graph validation, overclaim rejection, policy floor checks | PASS |
-| L5 | Terminal non-repudiation verifier | `airon-verify` rejects toxic packets if assembler, agent, trace, receipt, counterparty, or external digest checks fail | PASS |
+| L5 | Terminal non-repudiation verifier | `airon-verify` rejects toxic packets if assembler, optional ML-DSA-65 assembler, agent, trace, receipt, counterparty, or external digest checks fail | PASS |
 | L6 | Adversarial/property/stress | Forgery, key substitution, lineage forgery, sybil, replay, 10K sign/verify, 100K nonce tracking | PASS |
 | L7 | Service contract | JWT issue/verify, JWKS discovery, delegation, cascade revocation, mean verify latency guard | PASS |
 | L8 | CI evidence pack | GitHub Actions report artifact from `.github/workflows/aip-validation.yml` | READY |
@@ -40,9 +40,9 @@ Current local baseline:
 
 | Surface | Tests | Result |
 | --- | ---: | --- |
-| `aip-standalone` protocol workspace | 232 | PASS |
+| `aip-standalone` protocol workspace | 235 | PASS |
 | `aip-service` Axum service | 22 | PASS |
-| **Total AIP tests** | **254** | **PASS** |
+| **Total AIP tests** | **257** | **PASS** |
 
 ## Test Coverage Map
 
@@ -55,7 +55,7 @@ Current local baseline:
 | Delegation chains | Parent token validation, chain depth limit, child scope cannot exceed parent scope |
 | Revocation | Single-token revocation, cascade revocation, persisted revocation log integrity |
 | Evidence packets | Session ID binding, decision ID binding, signed receipts, trace roundtrip, graph validation |
-| Terminal verification | `airon-verify` verifies assembler authority, agent decision/action signatures, counterparty signatures, trace authority, receipt authority, and external receipt digest |
+| Terminal verification | `airon-verify` verifies assembler authority, ML-DSA-65 assembler authority when present or required by keyring, agent decision/action signatures, counterparty signatures, trace authority, receipt authority, and external receipt digest |
 | Adversarial resistance | Signature forgery, key substitution, lineage forgery, liveness impersonation, sybil duplicate key, replay |
 | Stress/property checks | 10K sign/verify, 100K nonce tracking, 1K identity creation, 1MB payload signing, score bounds |
 | Service behavior | JWT issue/verify, token expiry, wrong algorithm/key rejection, JWKS x-coordinate validity, verify latency |
@@ -65,10 +65,11 @@ Current local baseline:
 | Component | Primitive | Implementation Detail |
 | --- | --- | --- |
 | Agent identity signatures | Ed25519 / EdDSA | Rust-native `aip-crypto`; service tokens use EdDSA JWT verification |
+| EvidencePacket hybrid assembler signature | Ed25519 + ML-DSA-65 | `aip-protocol` signs packet digests with Ed25519 and optional Dilithium3-backed ML-DSA-65; `airon-verify` marks packets TOXIC if the keyring requires ML-DSA-65 and the signature is missing or invalid |
 | Provenance fingerprints | SHA-256 | AIP-ID derivation binds public key and provenance triple |
 | Delegation/revocation logs | SHA3-256 | Append-only entry hashes for audit-grade chain evidence |
 | Replay protection | CSPRNG nonce + timestamp window | Signer-scoped nonce tracking with eviction and stale/future rejection |
-| Algorithm agility | ML-DSA-ready verifier interface | Non-Ed25519 algorithms require explicit external verifier before acceptance |
+| Algorithm agility | ML-DSA-65 implemented in the EvidencePacket path | Current backend is `pqcrypto-dilithium` Dilithium3. This is algorithm implementation evidence, not a claim of FIPS module certification. |
 
 ## CI Artifact
 

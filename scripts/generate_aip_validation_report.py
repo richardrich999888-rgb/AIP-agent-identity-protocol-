@@ -95,7 +95,7 @@ def build_report() -> dict:
             "provenance_binding": "PASS (AIP-ID binding to public key and provenance triple)",
             "delegation_lattice": "PASS (scope MEET, parent-to-child attenuation, depth enforcement)",
             "evidence_packets": "PASS (decision/session binding, graph validation, overclaim detection)",
-            "terminal_evidence_verification": "PASS (assembler, agent, trace authority, receipt authority, counterparty, and external receipt digest checks)",
+            "terminal_evidence_verification": "PASS (assembler, optional ML-DSA-65 assembler, agent, trace authority, receipt authority, counterparty, and external receipt digest checks)",
             "replay_resistance": "PASS (nonce freshness, duplicate nonce rejection, stale/future timestamp rejection)",
             "revocation": "PASS (single-token revocation, cascade revocation, persisted revocation log)",
             "service_contract": "PASS (JWT issuance/verification, JWKS discovery, delegation, revocation, latency guard)",
@@ -130,6 +130,11 @@ def build_report() -> dict:
                 "implementation": "Rust-native aip-crypto and jsonwebtoken EdDSA service path",
             },
             {
+                "component": "EvidencePacket hybrid assembler signatures",
+                "primitive": "Ed25519 plus ML-DSA-65 / Dilithium3",
+                "implementation": "aip-protocol signs packet digests with optional pqcrypto-dilithium Dilithium3 signatures; airon-verify requires both classical and ML-DSA checks when a pqc_assembler key is supplied",
+            },
+            {
                 "component": "Token and evidence hashing",
                 "primitive": "SHA-256 and SHA3-256",
                 "implementation": "Provenance fingerprints, JWKS fingerprinting, revocation/delegation entry hashes",
@@ -141,8 +146,8 @@ def build_report() -> dict:
             },
             {
                 "component": "Algorithm agility",
-                "primitive": "ML-DSA-ready verifier interface",
-                "implementation": "Non-Ed25519 algorithms require an external verifier before acceptance",
+                "primitive": "ML-DSA-65 EvidencePacket verifier path",
+                "implementation": "Implemented with pqcrypto-dilithium Dilithium3; this is algorithm implementation evidence, not FIPS module certification",
             },
         ],
         "artifacts": {

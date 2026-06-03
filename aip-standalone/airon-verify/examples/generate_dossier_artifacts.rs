@@ -184,6 +184,7 @@ fn fixture() -> Result<
     counterparties.insert(tool_id.to_string(), tool.public_key);
     let keyring = VerificationKeyring {
         assembler: assembler.public_key,
+        pqc_assembler: None,
         agent: agent.public_key,
         trace_authority: trace_authority.public_key,
         receipt_authority: receipt_authority.public_key,

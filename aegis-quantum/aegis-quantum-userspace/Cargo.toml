@@ -15,6 +15,7 @@ aegis-quantum-circuit-breaker = { path = "../aegis-quantum-circuit-breaker" }
 # Post-Quantum Cryptography: NIST ML-KEM (Kyber)
 pqcrypto-kyber = "0.8"
 pqcrypto-traits = "0.3"
+x25519-dalek = { version = "2.0.1", features = ["getrandom"] }
 
 # Hashing for session keys
 sha2 = "0.10"

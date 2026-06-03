@@ -4,7 +4,7 @@
 #
 # USAGE:
 #   make check        — Syntax check all workspace crates (macOS-safe)
-#   make test         — Run all 104 Rust tests
+#   make test         — Run all 106 Rust tests
 #   make run          — Run TRL-4 lab validation binary
 #   make dry-run      — Run Python dry-run validation (6/6 tests)
 #   make bench        — Run Criterion.rs benchmarks
@@ -48,7 +48,7 @@ all: check test run dry-run
 
 ## Local CI without starting the lab binary; useful for GitHub Actions and quick checks
 ci-local: check test dry-run
-	@echo "$(GREEN)AEGIS local validation passed: check + 104 tests + dry-run$(RESET)"
+	@echo "$(GREEN)AEGIS local validation passed: check + 106 tests + dry-run$(RESET)"
 
 ## Syntax check all workspace crates (macOS-safe, no Linux deps compiled)
 check:
@@ -181,7 +181,7 @@ help:
 	@echo ""
 	@echo "  $(GREEN)Local (macOS)$(RESET)"
 	@echo "    make check       — Syntax check (0 warnings target)"
-	@echo "    make test        — Run 104 Rust tests"
+	@echo "    make test        — Run 106 Rust tests"
 	@echo "    make run         — TRL-4 lab validation"
 	@echo "    make dry-run     — Python validation (6/6 tests)"
 	@echo "    make validation-report — Write validation_report.json artifact"

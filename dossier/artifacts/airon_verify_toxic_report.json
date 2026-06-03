@@ -17,6 +17,11 @@
       "detail": "assembler signature verified over packet digest"
     },
     {
+      "name": "pqc_assembler_signature",
+      "status": "PASS",
+      "detail": "ML-DSA-65 signature not present; legacy packet accepted"
+    },
+    {
       "name": "accountability_graph",
       "status": "PASS",
       "detail": "graph valid; trust floor COUNTERPARTY_SIGNED (independently corroborated)"

@@ -12,6 +12,7 @@ use pqcrypto_kyber::kyber768;
 use pqcrypto_traits::kem::{Ciphertext, PublicKey, SharedSecret};
 use sha2::{Digest, Sha256};
 use std::time::Instant;
+use x25519_dalek::{EphemeralSecret, PublicKey as X25519PublicKey};
 
 use aegis_quantum_common::PacketEvent;
 
@@ -29,6 +30,8 @@ pub struct PqcValidationReport {
     pub secrets_match: bool,
     pub shared_secret_hash: String,
 }
+
+const HYBRID_CONTEXT: &[u8] = b"AIRON-AEGIS-HYBRID-v1";
 
 /// Perform a complete Kyber-768 key exchange round-trip with microsecond timing.
 ///
@@ -82,6 +85,67 @@ pub fn kyber768_key_exchange() -> PqcValidationReport {
     }
 }
 
+/// Perform a hybrid X25519 + Kyber-768 key exchange and derive the final
+/// session-map key material with a domain-separated SHA-256 combiner.
+pub fn hybrid_x25519_kyber768_key_exchange() -> PqcValidationReport {
+    let total_start = Instant::now();
+
+    let x25519_start = Instant::now();
+    let client_secret = EphemeralSecret::random();
+    let client_public = X25519PublicKey::from(&client_secret);
+    let server_secret = EphemeralSecret::random();
+    let server_public = X25519PublicKey::from(&server_secret);
+    let client_x25519 = client_secret.diffie_hellman(&server_public);
+    let server_x25519 = server_secret.diffie_hellman(&client_public);
+    let x25519_us = x25519_start.elapsed().as_micros() as u64;
+
+    let keygen_start = Instant::now();
+    let (pk, sk) = kyber768::keypair();
+    let keygen_us = keygen_start.elapsed().as_micros() as u64;
+
+    let encaps_start = Instant::now();
+    let (ss_client, ct) = kyber768::encapsulate(&pk);
+    let encaps_us = encaps_start.elapsed().as_micros() as u64;
+
+    let decaps_start = Instant::now();
+    let ss_server = kyber768::decapsulate(&ct, &sk);
+    let decaps_us = decaps_start.elapsed().as_micros() as u64;
+
+    let client_final = hybrid_session_hash(client_x25519.as_bytes(), ss_client.as_bytes());
+    let server_final = hybrid_session_hash(server_x25519.as_bytes(), ss_server.as_bytes());
+    let secrets_match = client_x25519.as_bytes() == server_x25519.as_bytes()
+        && ss_client.as_bytes() == ss_server.as_bytes()
+        && client_final == server_final;
+    let total_us = total_start.elapsed().as_micros() as u64;
+
+    PqcValidationReport {
+        algorithm: "X25519 + Kyber-768 (Hybrid ML-KEM)".to_string(),
+        public_key_bytes: pk.as_bytes().len() + client_public.as_bytes().len(),
+        ciphertext_bytes: ct.as_bytes().len(),
+        shared_secret_bytes: client_final.len(),
+        keygen_us: keygen_us + x25519_us,
+        encaps_us,
+        decaps_us,
+        total_us,
+        secrets_match,
+        shared_secret_hash: hex(&client_final),
+    }
+}
+
+fn hybrid_session_hash(x25519_secret: &[u8], kyber_secret: &[u8]) -> [u8; 32] {
+    let mut hasher = Sha256::new();
+    hasher.update(HYBRID_CONTEXT);
+    hasher.update((x25519_secret.len() as u32).to_le_bytes());
+    hasher.update(x25519_secret);
+    hasher.update((kyber_secret.len() as u32).to_le_bytes());
+    hasher.update(kyber_secret);
+    hasher.finalize().into()
+}
+
+fn hex(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{:02x}", b)).collect()
+}
+
 /// Process a `PacketEvent` from the Ring Buffer by performing a PQC key exchange.
 ///
 /// In a production deployment, this would:
@@ -97,26 +161,26 @@ pub fn process_packet_event(event: &PacketEvent) -> PqcValidationReport {
         "Processing SYN event — initiating Kyber-768 key exchange"
     );
 
-    kyber768_key_exchange()
+    hybrid_x25519_kyber768_key_exchange()
 }
 
 /// Run the full PQC validation suite (called from main for TRL-4 lab mode).
 pub fn run_pqc_validation() -> PqcValidationReport {
     // Run a warmup round (JIT / cache warming)
-    let _ = kyber768_key_exchange();
+    let _ = hybrid_x25519_kyber768_key_exchange();
 
     // Run the measured round
-    let report = kyber768_key_exchange();
+    let report = hybrid_x25519_kyber768_key_exchange();
 
     // Also simulate processing a mock PacketEvent
     let mock_event = PacketEvent {
-        src_addr: 0x0A000001,   // 10.0.0.1
-        dst_addr: 0x0A000002,   // 10.0.0.2
+        src_addr: 0x0A000001, // 10.0.0.1
+        dst_addr: 0x0A000002, // 10.0.0.2
         src_port: 44100,
         dst_port: 443,
         pkt_len: 64,
         timestamp_ns: 0,
-        tcp_flags: 0x02,        // SYN
+        tcp_flags: 0x02, // SYN
         _pad: [0u8; 7],
     };
 
@@ -138,11 +202,19 @@ mod tests {
     use std::collections::HashSet;
 
     fn phase_budget_us() -> u64 {
-        if cfg!(debug_assertions) { 5_000 } else { 2_000 }
+        if cfg!(debug_assertions) {
+            5_000
+        } else {
+            2_000
+        }
     }
 
     fn average_roundtrip_budget_us() -> u64 {
-        if cfg!(debug_assertions) { 5_000 } else { 3_000 }
+        if cfg!(debug_assertions) {
+            5_000
+        } else {
+            3_000
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -158,9 +230,18 @@ mod tests {
     #[test]
     fn test_kyber768_key_sizes() {
         let report = kyber768_key_exchange();
-        assert_eq!(report.public_key_bytes, 1184, "Kyber-768 public key must be 1184 bytes");
-        assert_eq!(report.ciphertext_bytes, 1088, "Kyber-768 ciphertext must be 1088 bytes");
-        assert_eq!(report.shared_secret_bytes, 32, "Kyber-768 shared secret must be 32 bytes");
+        assert_eq!(
+            report.public_key_bytes, 1184,
+            "Kyber-768 public key must be 1184 bytes"
+        );
+        assert_eq!(
+            report.ciphertext_bytes, 1088,
+            "Kyber-768 ciphertext must be 1088 bytes"
+        );
+        assert_eq!(
+            report.shared_secret_bytes, 32,
+            "Kyber-768 shared secret must be 32 bytes"
+        );
     }
 
     #[test]
@@ -177,9 +258,16 @@ mod tests {
     #[test]
     fn test_shared_secret_hash_is_valid_hex() {
         let report = kyber768_key_exchange();
-        assert_eq!(report.shared_secret_hash.len(), 64, "SHA-256 hex must be 64 chars");
+        assert_eq!(
+            report.shared_secret_hash.len(),
+            64,
+            "SHA-256 hex must be 64 chars"
+        );
         assert!(
-            report.shared_secret_hash.chars().all(|c| c.is_ascii_hexdigit()),
+            report
+                .shared_secret_hash
+                .chars()
+                .all(|c| c.is_ascii_hexdigit()),
             "Hash must be valid hexadecimal"
         );
     }
@@ -273,6 +361,33 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_hybrid_algorithm_name_and_sizes() {
+        let report = hybrid_x25519_kyber768_key_exchange();
+        assert_eq!(report.algorithm, "X25519 + Kyber-768 (Hybrid ML-KEM)");
+        assert!(report.secrets_match, "Hybrid shared secrets must match");
+        assert_eq!(
+            report.public_key_bytes, 1216,
+            "Hybrid public material must be 32-byte X25519 plus 1184-byte Kyber-768"
+        );
+        assert_eq!(report.ciphertext_bytes, 1088);
+        assert_eq!(report.shared_secret_bytes, 32);
+        assert_eq!(report.shared_secret_hash.len(), 64);
+    }
+
+    #[test]
+    fn test_hybrid_sequential_exchanges_are_independent() {
+        let r1 = hybrid_x25519_kyber768_key_exchange();
+        let r2 = hybrid_x25519_kyber768_key_exchange();
+
+        assert!(r1.secrets_match);
+        assert!(r2.secrets_match);
+        assert_ne!(
+            r1.shared_secret_hash, r2.shared_secret_hash,
+            "Hybrid exchanges must produce independent final session hashes"
+        );
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     //  PERFORMANCE / TIMING TESTS (Tests 7–12)
     // ═══════════════════════════════════════════════════════════════════════
@@ -352,7 +467,7 @@ mod tests {
             "run_pqc_validation() must produce matching secrets even after warmup"
         );
         assert_eq!(report.shared_secret_bytes, 32);
-        assert_eq!(report.public_key_bytes, 1184);
+        assert_eq!(report.public_key_bytes, 1216);
         assert_eq!(report.ciphertext_bytes, 1088);
     }
 
@@ -401,8 +516,8 @@ mod tests {
     /// Helper: create a mock PacketEvent with the given parameters.
     fn mock_event(src_port: u16, dst_port: u16, tcp_flags: u8) -> PacketEvent {
         PacketEvent {
-            src_addr: 0x0A000001,   // 10.0.0.1
-            dst_addr: 0x0A000002,   // 10.0.0.2
+            src_addr: 0x0A000001, // 10.0.0.1
+            dst_addr: 0x0A000002, // 10.0.0.2
             src_port,
             dst_port,
             pkt_len: 64,
@@ -422,7 +537,7 @@ mod tests {
             report.secrets_match,
             "process_packet_event must produce matching secrets"
         );
-        assert_eq!(report.algorithm, "Kyber-768 (ML-KEM)");
+        assert_eq!(report.algorithm, "X25519 + Kyber-768 (Hybrid ML-KEM)");
     }
 
     /// Test 18: SYN flag (0x02) events should be processed correctly.
@@ -430,7 +545,10 @@ mod tests {
     fn test_process_packet_event_with_syn_flags() {
         let event = mock_event(12345, 443, 0x02); // SYN
         let report = process_packet_event(&event);
-        assert!(report.secrets_match, "SYN-flagged event must produce valid exchange");
+        assert!(
+            report.secrets_match,
+            "SYN-flagged event must produce valid exchange"
+        );
         assert_eq!(report.shared_secret_bytes, 32);
     }
 
@@ -484,10 +602,7 @@ mod tests {
 
         for i in 0..keys.len() {
             for j in (i + 1)..keys.len() {
-                let differs = keys[i]
-                    .iter()
-                    .zip(keys[j].iter())
-                    .any(|(a, b)| a != b);
+                let differs = keys[i].iter().zip(keys[j].iter()).any(|(a, b)| a != b);
                 assert!(
                     differs,
                     "Public keys {} and {} are identical — catastrophic entropy failure",
@@ -588,8 +703,14 @@ mod tests {
         );
 
         // Both must still be individually valid
-        assert!(r1.secrets_match, "First exchange must produce matching secrets");
-        assert!(r2.secrets_match, "Second exchange must produce matching secrets");
+        assert!(
+            r1.secrets_match,
+            "First exchange must produce matching secrets"
+        );
+        assert!(
+            r2.secrets_match,
+            "Second exchange must produce matching secrets"
+        );
 
         // Sizes must remain consistent with Kyber-768 spec
         assert_eq!(r1.public_key_bytes, 1184);

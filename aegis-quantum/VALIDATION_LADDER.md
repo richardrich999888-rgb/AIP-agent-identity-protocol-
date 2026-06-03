@@ -17,10 +17,10 @@ Current scope:
 
 - 30 circuit-breaker tests for thresholds, sliding windows, resets, and scale.
 - 28 common ABI tests for kernel/userspace struct sizes, alignment, offsets, and map names.
-- 27 PQC userspace tests for Kyber-768 / ML-KEM simulated roundtrips, key sizes, entropy, and timing.
+- 29 PQC userspace tests for Kyber-768 / ML-KEM simulated roundtrips, X25519 + Kyber-768 hybrid session establishment, key sizes, entropy, and timing.
 - 19 integration-simulation tests for rogue detection, blocklist expiry, session values, packet events, and full pipeline simulation.
 
-Status: 104/104 passing on the local development host.
+Status: 106/106 passing on the local development host.
 
 ### Gate 2: Dry-Run XDP Validation
 
@@ -68,11 +68,11 @@ protocol bindings, or kernel enforcement assumptions change.
 
 | Component | Standard / Primitive | Current Implementation | RDI Hardening Target |
 | --- | --- | --- | --- |
-| PQC exchange | Kyber-768 / ML-KEM family | Rust userspace lab roundtrip through `pqcrypto_kyber::kyber768`; shared-secret hash stored as session material. | Align naming, test vectors, and compliance notes with NIST FIPS 203 ML-KEM; validate hybrid key establishment in live traffic. |
-| Session hash | SHA-256 | `sha2::Sha256` over the Kyber shared secret for `SessionValue.shared_secret_hash`. | Add domain separation, transcript binding, and replay-resistant session identifiers. |
+| PQC exchange | X25519 + Kyber-768 / ML-KEM family | Rust userspace hybrid roundtrip combines X25519 Diffie-Hellman with `pqcrypto_kyber::kyber768`; the final 32-byte session hash is stored as session material. | Align naming, test vectors, and compliance notes with NIST FIPS 203 ML-KEM; validate hybrid key establishment in live traffic. |
+| Session hash | Domain-separated SHA-256 | `sha2::Sha256` over `AIRON-AEGIS-HYBRID-v1`, the X25519 shared secret, and the Kyber shared secret for `SessionValue.shared_secret_hash`. | Add full transcript binding, replay-resistant session identifiers, and AIP token/delegation binding. |
 | Runtime enforcement | Linux eBPF / XDP | Indigenous XDP program using `AQ_EVENTS`, `AQ_BLOCKLIST`, `AQ_SESSIONS`, and `AQ_COUNTERS` maps. | Kernel verifier evidence, live-fire counter evidence, AF_XDP validation, and map-pressure testing. |
 | Agent identity binding | AIP Ed25519/JWT stack | Not enforced by AEGIS yet; AEGIS currently keys by TCP connection tuple. | Bind enforcement to AIP `agent_id`, `tenant_id`, capability, delegation, and revocation state. |
-| Delegation signatures | Ed25519 today; ML-DSA roadmap | Current AIP service and standalone protocol use classical signatures, not ML-DSA. | Evaluate ML-DSA/FIPS 204 for post-quantum delegation certificates after the AIP/AEGIS control-plane merge. |
+| Delegation signatures | Ed25519 + ML-DSA-65 EvidencePacket path | AIP standalone EvidencePackets can carry optional Dilithium3-backed ML-DSA-65 assembler signatures; AIP service tokens remain Ed25519/JWT for compatibility. | Extend service-token and delegation-certificate issuance to hybrid signatures after pilot API compatibility review. |
 | Evidence export | JSON validation report | `validation/validate_xdp.py --output validation_report.json` writes a machine-readable test report. CI also emits SHA-256 bundle manifests; public repos get GitHub provenance attestations and private repos can emit GPG detached signatures via `CI_GPG_PRIVATE_KEY_B64`. | Attach CI artifacts, signed reports, and AIP EvidencePackets for regulator/auditor review. |
 
 ## Next Evidence Gates

@@ -20,6 +20,8 @@ pub struct EvidencePacket {
     pub trust_floor: u8,
     pub assembled_at: u64,
     pub assembler_sig: Signature,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pqc_signature: Option<Signature>,
 }
 
 impl EvidencePacket {
@@ -68,10 +70,56 @@ impl EvidencePacket {
                 payload_hash: [0u8; 32],
                 signature_bytes: Vec::new(),
             },
+            pqc_signature: None,
         };
         let digest = packet.digest();
         packet.assembler_sig = sign_payload(assembler, assembler_id, &digest, assembled_at)?;
         Ok(packet)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn assemble_hybrid(
+        assembler: &KeyPair,
+        pqc_assembler: &KeyPair,
+        assembler_id: &str,
+        graph: AccountabilityGraph,
+        decision_record: DecisionRecord,
+        action_attestations: Vec<ActionAttestation>,
+        trace_binding: TraceBinding,
+        receipt_binding: ReceiptBinding,
+        assembled_at: u64,
+    ) -> AipResult<Self> {
+        let mut packet = Self::assemble(
+            assembler,
+            assembler_id,
+            graph,
+            decision_record,
+            action_attestations,
+            trace_binding,
+            receipt_binding,
+            assembled_at,
+        )?;
+        packet.attach_pqc_signature(pqc_assembler, assembler_id)?;
+        Ok(packet)
+    }
+
+    pub fn attach_pqc_signature(
+        &mut self,
+        pqc_assembler: &KeyPair,
+        assembler_id: &str,
+    ) -> AipResult<()> {
+        if pqc_assembler.algorithm != crate::primitives::AlgorithmId::MlDsa65 {
+            return Err(AipError::ValidationFailed {
+                reason: "pqc assembler key must use ML-DSA-65".into(),
+            });
+        }
+        self.pqc_signature = Some(sign_payload(
+            pqc_assembler,
+            assembler_id,
+            &self.digest(),
+            self.assembled_at,
+        )?);
+        Ok(())
     }
 
     fn digest(&self) -> Vec<u8> {
@@ -120,6 +168,25 @@ impl EvidencePacket {
 
     pub fn verify_assembler_signature(&self, assembler_pubkey: &PublicKey) -> AipResult<()> {
         verify_payload_signature(assembler_pubkey, &self.digest(), &self.assembler_sig)
+    }
+
+    pub fn verify_pqc_signature(&self, pqc_assembler_pubkey: &PublicKey) -> AipResult<()> {
+        let signature = self
+            .pqc_signature
+            .as_ref()
+            .ok_or_else(|| AipError::ValidationFailed {
+                reason: "packet is missing required ML-DSA-65 signature".into(),
+            })?;
+        verify_payload_signature(pqc_assembler_pubkey, &self.digest(), signature)
+    }
+
+    pub fn verify_hybrid_assembler_signatures(
+        &self,
+        assembler_pubkey: &PublicKey,
+        pqc_assembler_pubkey: &PublicKey,
+    ) -> AipResult<()> {
+        self.verify_assembler_signature(assembler_pubkey)?;
+        self.verify_pqc_signature(pqc_assembler_pubkey)
     }
 
     pub fn verify_trace_binding(&self, trace_authority_pubkey: &PublicKey) -> AipResult<()> {

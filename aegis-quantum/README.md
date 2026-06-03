@@ -44,7 +44,7 @@ By implementing a stateless, inline cryptographic proxy optimized at the **Linux
 │  │  [Ring Buffer Reader] ◄────────────────────────────┘   │   │     │     │
 │  │         │                                              │   │     │     │
 │  │         ▼                                              │   │     │     │
-│  │  [PQC Engine (Kyber-768)] ──── Session Key ────────────┘   │     │     │
+│  │  [PQC Engine (X25519 + Kyber-768)] ─ Session Key ──────────┘     │     │
 │  │         │                                                  │     │     │
 │  │         ▼                                                  │     │     │
 │  │  [Circuit Breaker] ──── Block Signal ──────────────────────┘     │     │
@@ -79,7 +79,7 @@ aegis-quantum/
 ├── aegis-quantum-userspace/        # User-space controller
 │   └── src/
 │       ├── main.rs                 # Entry point (TRL-4 validation mode)
-│       ├── pqc.rs                  # Kyber-768 PQC engine with timing
+│       ├── pqc.rs                  # X25519 + Kyber-768 hybrid PQC engine with timing
 │       └── controller.rs           # Circuit breaker integration
 ├── aegis-quantum-circuit-breaker/  # Sliding window loop detector
 │   └── src/lib.rs                  # O(1) amortized event tracking

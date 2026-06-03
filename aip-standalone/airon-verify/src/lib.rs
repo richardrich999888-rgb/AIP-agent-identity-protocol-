@@ -30,6 +30,13 @@ impl std::error::Error for VerifyError {}
 pub struct VerificationKeyring {
     #[serde(alias = "authority", alias = "assembler_authority")]
     pub assembler: PublicKey,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        alias = "pqc_authority",
+        alias = "pqc_assembler_authority"
+    )]
+    pub pqc_assembler: Option<PublicKey>,
     #[serde(alias = "session_key", alias = "agent_session")]
     pub agent: PublicKey,
     #[serde(alias = "trace", alias = "trace_authority")]
@@ -127,6 +134,25 @@ pub fn verify_packet(
             .verify_assembler_signature(&keyring.assembler)
             .map(|_| "assembler signature verified over packet digest".to_string())
             .map_err(|e| format!("{e:?}"))
+    });
+
+    push_check(&mut checks, "pqc_assembler_signature", || {
+        match (&packet.pqc_signature, &keyring.pqc_assembler) {
+            (Some(_), Some(public_key)) => packet
+                .verify_pqc_signature(public_key)
+                .map(|_| "ML-DSA-65 assembler signature verified over packet digest".to_string())
+                .map_err(|e| format!("{e:?}")),
+            (None, Some(_)) => {
+                Err("keyring requires ML-DSA-65 signature, but packet has none".to_string())
+            }
+            (Some(_), None) => Err(
+                "packet carries ML-DSA-65 signature, but keyring has no pqc_assembler key"
+                    .to_string(),
+            ),
+            (None, None) => {
+                Ok("ML-DSA-65 signature not present; legacy packet accepted".to_string())
+            }
+        }
     });
 
     push_check(&mut checks, "accountability_graph", || {
@@ -232,8 +258,23 @@ pub fn verify_packet(
                 |tool_ref| keyring.counterparties.get(tool_ref).cloned(),
                 expected,
             )
-            .map(|_| "complete EvidencePacket chain verified".to_string())
-            .map_err(|e| format!("{e:?}"))
+            .map_err(|e| format!("{e:?}"))?;
+        match (&packet.pqc_signature, &keyring.pqc_assembler) {
+            (Some(_), Some(public_key)) => packet
+                .verify_pqc_signature(public_key)
+                .map_err(|e| format!("{e:?}"))?,
+            (None, Some(_)) => {
+                return Err("keyring requires ML-DSA-65 signature, but packet has none".to_string());
+            }
+            (Some(_), None) => {
+                return Err(
+                    "packet carries ML-DSA-65 signature, but keyring has no pqc_assembler key"
+                        .to_string(),
+                );
+            }
+            (None, None) => {}
+        }
+        Ok("complete EvidencePacket chain verified".to_string())
     });
 
     let toxic = checks.iter().any(|check| check.status == CheckStatus::Fail);
@@ -522,6 +563,7 @@ mod tests {
         );
         let keyring = VerificationKeyring {
             assembler: assembler.public_key,
+            pqc_assembler: None,
             agent: agent.public_key,
             trace_authority: trace.public_key(),
             receipt_authority: receipts.public_key(),
@@ -538,6 +580,16 @@ mod tests {
             .any(|check| check.name == name && check.status == CheckStatus::Fail)
     }
 
+    fn hybrid_fixture() -> (EvidencePacket, VerificationKeyring, [u8; 32]) {
+        let (mut packet, mut keyring, receipt_digest) = fixture();
+        let pqc_assembler = KeyPair::generate_mldsa65();
+        packet
+            .attach_pqc_signature(&pqc_assembler, "aip1evidenceAssemblerVerifier0000001")
+            .unwrap();
+        keyring.pqc_assembler = Some(pqc_assembler.public_key);
+        (packet, keyring, receipt_digest)
+    }
+
     #[test]
     fn valid_packet_passes_all_terminal_checks() {
         let (packet, keyring, receipt_digest) = fixture();
@@ -549,6 +601,43 @@ mod tests {
             .checks
             .iter()
             .all(|check| check.status == CheckStatus::Pass));
+    }
+
+    #[test]
+    fn hybrid_packet_passes_ed25519_and_mldsa_checks() {
+        let (packet, keyring, receipt_digest) = hybrid_fixture();
+        let report = verify_packet(&packet, &keyring, Some(receipt_digest));
+
+        assert!(!report.toxic);
+        assert!(!failed(&report, "pqc_assembler_signature"));
+        assert!(report
+            .checks
+            .iter()
+            .all(|check| check.status == CheckStatus::Pass));
+    }
+
+    #[test]
+    fn missing_hybrid_signature_marks_packet_toxic_when_keyring_requires_it() {
+        let (mut packet, keyring, receipt_digest) = hybrid_fixture();
+        packet.pqc_signature = None;
+
+        let report = verify_packet(&packet, &keyring, Some(receipt_digest));
+
+        assert!(report.toxic);
+        assert!(failed(&report, "pqc_assembler_signature"));
+        assert!(failed(&report, "strict_chain_verification"));
+    }
+
+    #[test]
+    fn tampered_hybrid_signature_marks_packet_toxic() {
+        let (mut packet, keyring, receipt_digest) = hybrid_fixture();
+        packet.pqc_signature.as_mut().unwrap().signature_bytes[0] ^= 0xFF;
+
+        let report = verify_packet(&packet, &keyring, Some(receipt_digest));
+
+        assert!(report.toxic);
+        assert!(failed(&report, "pqc_assembler_signature"));
+        assert!(failed(&report, "strict_chain_verification"));
     }
 
     #[test]
