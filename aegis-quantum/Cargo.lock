@@ -30,6 +30,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "aegis-quantum-stress-tests"
+version = "0.1.0"
+dependencies = [
+ "aegis-quantum-circuit-breaker",
+ "aegis-quantum-common",
+ "criterion",
+ "serde",
+]
+
+[[package]]
 name = "aegis-quantum-userspace"
 version = "0.1.0"
 dependencies = [

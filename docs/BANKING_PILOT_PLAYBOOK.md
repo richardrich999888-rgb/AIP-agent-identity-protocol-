@@ -59,7 +59,7 @@ Expected proof:
 | Component | Evidence |
 | --- | --- |
 | AIP | 257 Rust tests, JSON validation report, service contract checks, terminal EvidencePacket verifier |
-| AEGIS | 104 Rust tests, XDP dry-run scenarios, eBPF bytecode CI build |
+| AEGIS | 110 Rust tests, XDP dry-run scenarios, deterministic stress harness, eBPF bytecode CI build |
 
 For private-repository CI signing, provision `CI_GPG_PRIVATE_KEY_B64` as
 documented in `docs/CI_SIGNING_PROVISIONING.md`. Once present, AIP and AEGIS
@@ -112,7 +112,9 @@ Use this mode for eBPF/XDP validation and PQC/circuit-breaker timing.
 cd aegis-quantum
 make ci-local
 make validation-report
+make chaos-local
 make bench
+make stress-bench
 ```
 
 Linux runner or bare-metal host:
@@ -208,6 +210,21 @@ Artifacts are written under `pilot-results/`:
 | `local_pilot_http_smoke.json` | AIP service endpoint smoke evidence |
 | `local_pilot_samples.json` | Raw latency samples |
 | `local_pilot_latency_report.json` | Histogram report with p50/p95/p99/max and scope labels |
+| `chaos_stress_report.json` | AEGIS stress-harness status plus live-kernel checks marked as local-scope skip unless run with `--live` |
+
+For AEGIS-specific chaos screening:
+
+```bash
+cd aegis-quantum
+make chaos-local
+```
+
+Run live kernel telemetry only on a privileged Linux gateway with the XDP
+program loaded:
+
+```bash
+sudo python3 stress-tests/run_chaos_suite.py --live --duration 10s
+```
 
 ## Current Readiness Boundary
 

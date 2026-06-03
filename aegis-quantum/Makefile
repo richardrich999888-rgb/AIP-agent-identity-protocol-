@@ -4,10 +4,12 @@
 #
 # USAGE:
 #   make check        — Syntax check all workspace crates (macOS-safe)
-#   make test         — Run all 106 Rust tests
+#   make test         — Run all 110 Rust tests
 #   make run          — Run TRL-4 lab validation binary
 #   make dry-run      — Run Python dry-run validation (6/6 tests)
+#   make chaos-local  — Run AEGIS chaos/stress dry-run report
 #   make bench        — Run Criterion.rs benchmarks
+#   make stress-bench — Run Criterion.rs stress benchmarks
 #   make build-ebpf   — Cross-compile eBPF bytecode (requires nightly)
 #   make lima-up      — Spin up Lima Linux VM for live-fire testing
 #   make lima-shell   — SSH into the Lima VM
@@ -16,7 +18,7 @@
 #   make clean        — Remove all build artifacts
 #   make all          — Full CI pipeline: check → test → run → dry-run
 
-.PHONY: all check test run dry-run validation-report bench check-ebpf-env check-ebpf build-ebpf build-ebpf-debug ci-local clean \
+.PHONY: all check test run dry-run validation-report bench stress-test stress-bench chaos-local check-ebpf-env check-ebpf build-ebpf build-ebpf-debug ci-local clean \
         lima-up lima-shell lima-fire lima-down \
         vagrant-up vagrant-down vagrant-ssh-gateway vagrant-ssh-attacker
 
@@ -48,7 +50,7 @@ all: check test run dry-run
 
 ## Local CI without starting the lab binary; useful for GitHub Actions and quick checks
 ci-local: check test dry-run
-	@echo "$(GREEN)AEGIS local validation passed: check + 106 tests + dry-run$(RESET)"
+	@echo "$(GREEN)AEGIS local validation passed: check + 110 tests + dry-run$(RESET)"
 
 ## Syntax check all workspace crates (macOS-safe, no Linux deps compiled)
 check:
@@ -80,6 +82,21 @@ validation-report:
 bench:
 	@echo "$(CYAN)── Criterion Benchmarks ──$(RESET)"
 	cargo bench --package aegis-quantum-benchmarks
+
+## Run deterministic stress harness tests only
+stress-test:
+	@echo "$(CYAN)── AEGIS Stress Harness Tests ──$(RESET)"
+	cargo test --package aegis-quantum-stress-tests
+
+## Run Criterion.rs stress benchmarks
+stress-bench:
+	@echo "$(CYAN)── AEGIS Stress Benchmarks ──$(RESET)"
+	cargo bench --package aegis-quantum-stress-tests
+
+## Generate the local chaos/stress JSON report
+chaos-local:
+	@echo "$(CYAN)── AEGIS Chaos Stress Dry-Run ──$(RESET)"
+	python3 stress-tests/run_chaos_suite.py --dry-run
 
 # ── eBPF Cross-Compilation (requires Rust nightly) ──────────────────────────
 
@@ -181,11 +198,14 @@ help:
 	@echo ""
 	@echo "  $(GREEN)Local (macOS)$(RESET)"
 	@echo "    make check       — Syntax check (0 warnings target)"
-	@echo "    make test        — Run 106 Rust tests"
+	@echo "    make test        — Run 110 Rust tests"
 	@echo "    make run         — TRL-4 lab validation"
 	@echo "    make dry-run     — Python validation (6/6 tests)"
 	@echo "    make validation-report — Write validation_report.json artifact"
 	@echo "    make bench       — Criterion benchmarks"
+	@echo "    make stress-test — Run AEGIS stress harness tests"
+	@echo "    make stress-bench — Run AEGIS stress benchmarks"
+	@echo "    make chaos-local — Write pilot-results/chaos_stress_report.json"
 	@echo "    make ci-local    — cargo check + tests + dry-run"
 	@echo "    make check-ebpf  — Debug eBPF build check (requires nightly + rust-src)"
 	@echo "    make build-ebpf  — Cross-compile eBPF bytecode"

@@ -19,8 +19,9 @@ Current scope:
 - 28 common ABI tests for kernel/userspace struct sizes, alignment, offsets, and map names.
 - 29 PQC userspace tests for Kyber-768 / ML-KEM simulated roundtrips, X25519 + Kyber-768 hybrid session establishment, key sizes, entropy, and timing.
 - 19 integration-simulation tests for rogue detection, blocklist expiry, session values, packet events, and full pipeline simulation.
+- 4 stress-harness tests for LRU session-map saturation and circuit-breaker noisy-neighbor isolation.
 
-Status: 106/106 passing on the local development host.
+Status: 110/110 passing on the local development host.
 
 ### Gate 2: Dry-Run XDP Validation
 
@@ -77,7 +78,26 @@ protocol bindings, or kernel enforcement assumptions change.
 
 ## Next Evidence Gates
 
-### Gate 4: BPF Verifier and Map Load
+### Gate 4: Chaos and Stress Harness
+
+Commands:
+
+```bash
+make stress-test
+make chaos-local
+make stress-bench
+```
+
+Current scope:
+
+- Deterministic LRU saturation of a mock `AQ_SESSIONS` table using the shared `ConnectionKey` and `SessionValue` ABI types.
+- Circuit-breaker isolation under a 10,000-event rogue burst while a legitimate connection continues to process independently.
+- Criterion stress benches for LRU saturation and noisy-neighbor isolation.
+- `stress-tests/run_chaos_suite.py` emits `pilot-results/chaos_stress_report.json`; dry-run mode marks `stress-ng` and `bpftool` checks as `SKIP_LOCAL_SCOPE` rather than claiming live kernel proof.
+
+Status: wired for local and CI-compatible execution. Live resource-starvation and map-telemetry proof still requires Linux with root, `stress-ng`, `bpftool`, and a loaded AEGIS XDP program.
+
+### Gate 5: BPF Verifier and Map Load
 
 Target environment: Linux 5.15+ with `bpftool`, CAP_BPF, and CAP_NET_ADMIN.
 
@@ -87,7 +107,7 @@ Required proof:
 - `AQ_EVENTS`, `AQ_BLOCKLIST`, `AQ_SESSIONS`, and `AQ_COUNTERS` maps are visible through `bpftool`.
 - XDP program attaches to a real interface.
 
-### Gate 5: Live-Fire Packet Validation
+### Gate 6: Live-Fire Packet Validation
 
 Command:
 
@@ -103,7 +123,7 @@ Required proof:
 - Legitimate traffic from a different connection remains unaffected.
 - Kernel counters change as expected.
 
-### Gate 6: Performance and Pilot Benchmarks
+### Gate 7: Performance and Pilot Benchmarks
 
 Required proof:
 
@@ -113,7 +133,7 @@ Required proof:
 - Sustained load behavior under many distinct connection keys.
 - Memory/map pressure behavior under blocklist/session churn.
 
-### Gate 7: AIP-Controlled Enforcement
+### Gate 8: AIP-Controlled Enforcement
 
 Required proof:
 
@@ -124,7 +144,8 @@ Required proof:
 ## Claim Boundary
 
 Current evidence supports: lab-validated AEGIS prototype with passing Rust unit,
-integration, PQC simulation, and dry-run validation.
+integration, PQC simulation, deterministic stress harness, and dry-run
+validation.
 
 Current evidence does not yet support: production deployment, wire-speed PQC,
 TRL-7/8 readiness, or live kernel enforcement claims.
