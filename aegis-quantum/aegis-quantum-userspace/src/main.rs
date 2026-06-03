@@ -215,10 +215,11 @@ fn run_live_pipeline(iface: &str) {
                     u32::from_be(event.src_addr), event.src_port
                 );
 
-                // Write blocklist entry to kernel map
+                // Write blocklist entry to kernel map with computed expiry
+                let block_duration_ns: u64 = 60_000_000_000; // 60-second block
                 let block_val = BlocklistValue {
                     blocked_at_ns: event.timestamp_ns,
-                    block_duration_ns: 60_000_000_000, // 60-second block
+                    expiry_ns: event.timestamp_ns + block_duration_ns,
                     reason: 1, // circuit breaker
                     _pad: 0,
                 };

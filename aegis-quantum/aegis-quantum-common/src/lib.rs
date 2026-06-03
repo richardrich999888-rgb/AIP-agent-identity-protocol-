@@ -62,13 +62,21 @@ pub struct ConnectionKey {
 /// Value stored in the blocklist map.  When the circuit breaker trips,
 /// user-space inserts a `BlocklistValue` keyed by `ConnectionKey`.
 /// The XDP program checks this map on every packet and drops matches.
+///
+/// **Self-healing design:** The `expiry_ns` field is a pre-computed absolute
+/// kernel timestamp. The XDP program performs a single comparison
+/// (`current_time < expiry_ns`) to enforce time-based blocks. When the
+/// block expires, the kernel automatically resumes passing traffic without
+/// requiring manual human intervention or userspace coordination.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct BlocklistValue {
     /// Kernel timestamp (ns) when the block was inserted.
     pub blocked_at_ns: u64,
-    /// Duration (ns) for which the block is active.  0 = permanent.
-    pub block_duration_ns: u64,
+    /// Absolute kernel timestamp (ns) when the block expires.
+    /// The XDP program compares `bpf_ktime_get_ns() < expiry_ns` to
+    /// determine if the block is still active.  0 = permanent block.
+    pub expiry_ns: u64,
     /// Reason code:  1 = circuit breaker,  2 = manual block.
     pub reason: u32,
     /// Padding for alignment.
@@ -104,6 +112,8 @@ pub mod map_names {
     pub const BLOCKLIST: &str = "AQ_BLOCKLIST";
     /// HashMap<ConnectionKey, SessionValue> for PQC session tracking.
     pub const SESSIONS: &str = "AQ_SESSIONS";
+    /// PerCpuArray<u64> telemetry counters.
+    pub const COUNTERS: &str = "AQ_COUNTERS";
 }
 
 #[cfg(test)]
