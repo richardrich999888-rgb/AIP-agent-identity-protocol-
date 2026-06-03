@@ -36,4 +36,6 @@ The ask is not only capital. We are looking for investors who can help us reach 
 Deck attached: `airon-agent-passport-trust-gateway.pdf`
 
 Best,
-[Your Name]
+Katta Naga Sri Ganesh
+Founder, Syntriass / AIRON
+syntriass@gmail.com
