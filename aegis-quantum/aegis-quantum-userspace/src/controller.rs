@@ -12,12 +12,23 @@ use aegis_quantum_circuit_breaker::CircuitBreaker;
 use aegis_quantum_common::{ConnectionKey, PacketEvent};
 
 /// Result of the circuit breaker validation run.
+///
+/// Separates the initial breach detection (primary violation) from
+/// subsequent packet drops to provide accurate telemetry.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct CircuitBreakerReport {
+    /// Total number of events processed in the simulation.
     pub total_events: usize,
-    pub trips_triggered: usize,
+    /// Number of unique breach detections (circuit breaker trip events).
+    /// Should be exactly 1 for a single rogue agent.
+    pub primary_violations: usize,
+    /// Number of subsequent packets blocked after the initial trip.
+    pub subsequent_blocked: usize,
+    /// Connections that were blocked.
     pub blocked_connections: Vec<String>,
+    /// Sliding window duration in milliseconds.
     pub window_ms: u64,
+    /// Threshold (max events per window before trip).
     pub threshold: usize,
 }
 
@@ -27,12 +38,17 @@ pub struct CircuitBreakerReport {
 /// - 150 rapid-fire TCP SYN packets from the same source within 10ms
 /// - The circuit breaker should trip after the configured threshold (100 requests)
 /// - After tripping, all subsequent packets from that source should be blocked
+///
+/// Telemetry is split into:
+/// - `primary_violations`: The first time the breaker trips for a connection (1 breach)
+/// - `subsequent_blocked`: All subsequent blocked packets after the trip (49 drops)
 pub fn run_circuit_breaker_validation() -> CircuitBreakerReport {
     let window_ms = 10;
     let threshold = 100;
     let mut cb = CircuitBreaker::new(window_ms, threshold);
 
-    let mut trips_triggered = 0;
+    let mut primary_violations: usize = 0;
+    let mut subsequent_blocked: usize = 0;
     let mut blocked_connections: Vec<String> = Vec::new();
 
     let rogue_key = ConnectionKey {
@@ -49,6 +65,8 @@ pub fn run_circuit_breaker_validation() -> CircuitBreakerReport {
         dst_port: 443,
     };
 
+    let mut breach_detected = false;
+
     // Simulate 150 rapid-fire requests from the rogue agent
     for i in 0..150 {
         let event = PacketEvent {
@@ -63,20 +81,34 @@ pub fn run_circuit_breaker_validation() -> CircuitBreakerReport {
         };
 
         let tripped = cb.record_event(&rogue_key, event.timestamp_ns);
+
         if tripped {
-            trips_triggered += 1;
-            if trips_triggered == 1 {
+            if !breach_detected {
+                // First trip — this is the PRIMARY VIOLATION
+                breach_detected = true;
+                primary_violations += 1;
                 blocked_connections.push(format!(
                     "{}:{} -> {}:{}",
                     rogue_key.src_addr, rogue_key.src_port,
                     rogue_key.dst_addr, rogue_key.dst_port
                 ));
                 tracing::warn!(
-                    "Circuit breaker TRIPPED at event #{} for rogue agent {}:{}",
-                    i + 1,
-                    rogue_key.src_addr,
-                    rogue_key.src_port
+                    "[AEGIS-CIRCUIT-BREAKER] STATUS: DETONATED"
                 );
+                tracing::warn!(
+                    "────────────────────────────────────────────────────────"
+                );
+                tracing::warn!(
+                    "Primary Violations: {} Breach Detected (Threshold: {})",
+                    primary_violations, threshold
+                );
+                tracing::warn!(
+                    "Trigger Point: Event #{} (0-indexed) from rogue agent {}:{}",
+                    i, rogue_key.src_addr, rogue_key.src_port
+                );
+            } else {
+                // Already tripped — this is a SUBSEQUENT BLOCK
+                subsequent_blocked += 1;
             }
         }
     }
@@ -99,14 +131,24 @@ pub fn run_circuit_breaker_validation() -> CircuitBreakerReport {
         "Legitimate traffic must NOT trigger the circuit breaker"
     );
 
-    tracing::info!(
-        "Circuit breaker validation: {} trips from 150 rogue events, legitimate traffic unaffected",
-        trips_triggered
+    tracing::warn!(
+        "Subsequent Countermeasures: {} Attack Packets Dropped Inline",
+        subsequent_blocked
+    );
+    tracing::warn!(
+        "Target Classification: Malicious Agentic Loop Isolated"
+    );
+    tracing::warn!(
+        "Legitimate Traffic: Unaffected (verified)"
+    );
+    tracing::warn!(
+        "────────────────────────────────────────────────────────"
     );
 
     CircuitBreakerReport {
         total_events: 150,
-        trips_triggered,
+        primary_violations,
+        subsequent_blocked,
         blocked_connections,
         window_ms,
         threshold,

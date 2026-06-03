@@ -3,21 +3,28 @@
 //! This eBPF/XDP program runs at the NIC driver level, intercepting every
 //! inbound packet *before* the Linux networking stack processes it.
 //!
-//! For every TCP SYN packet, it:
-//! 1. Parses Ethernet → IPv4 → TCP headers with strict bounds checking.
-//! 2. Checks the blocklist map — if the connection 4-tuple is present,
-//!    the packet is immediately DROPped (circuit breaker enforcement).
-//! 3. Emits a `PacketEvent` to the Ring Buffer for user-space PQC processing.
-//! 4. Checks the session map — if a PQC session exists, the packet is PASSed
-//!    with a marker; otherwise it is PASSed for initial handshake.
+//! Processing pipeline (strict priority order):
+//!
+//! 1. Parse Ethernet → IPv4 → TCP headers with zero-copy boundary offsets.
+//! 2. Build `ConnectionKey` from 4-tuple.
+//! 3. **FIRST** — Query `AQ_BLOCKLIST`: if source matches a blocked entity,
+//!    increment `blocked_drops` counter and return `XDP_DROP` immediately.
+//! 4. **SECOND** — Query `AQ_SESSIONS`: if key exists and `active == 1`,
+//!    increment `session_hits` counter and return `XDP_PASS` (fast path,
+//!    no ring buffer event).
+//! 5. **THIRD** — If SYN packet AND no existing session, push `PacketEvent`
+//!    to `AQ_EVENTS` ring buffer for PQC registration, increment
+//!    `tcp_syn_events` counter, then return `XDP_PASS`.
+//! 6. Default: `XDP_PASS` for all other traffic.
 
 #![no_std]
 #![no_main]
 
 use aya_ebpf::{
     bindings::xdp_action,
+    helpers::bpf_ktime_get_ns,
     macros::{map, xdp},
-    maps::{HashMap, RingBuf},
+    maps::{HashMap, PerCpuArray, RingBuf},
     programs::XdpContext,
 };
 use aya_log_ebpf::info;
@@ -28,6 +35,17 @@ use network_types::{
 };
 
 use aegis_quantum_common::{BlocklistValue, ConnectionKey, PacketEvent, SessionValue};
+
+// ── Telemetry counter indices ────────────────────────────────────────────────
+
+/// Index 0: total TCP packets inspected.
+const COUNTER_TOTAL_PACKETS: u32 = 0;
+/// Index 1: TCP SYN events pushed to ring buffer.
+const COUNTER_TCP_SYN_EVENTS: u32 = 1;
+/// Index 2: packets dropped by blocklist.
+const COUNTER_BLOCKED_DROPS: u32 = 2;
+/// Index 3: packets fast-pathed via active session.
+const COUNTER_SESSION_HITS: u32 = 3;
 
 // ── BPF Maps ─────────────────────────────────────────────────────────────────
 
@@ -45,6 +63,21 @@ static AQ_BLOCKLIST: HashMap<ConnectionKey, BlocklistValue> =
 #[map]
 static AQ_SESSIONS: HashMap<ConnectionKey, SessionValue> =
     HashMap::with_max_entries(16384, 0);
+
+/// Per-CPU packet counter array for telemetry.
+/// 4 entries: total_packets, tcp_syn_events, blocked_drops, session_hits.
+#[map]
+static AQ_COUNTERS: PerCpuArray<u64> = PerCpuArray::with_max_entries(4, 0);
+
+// ── Counter helper ───────────────────────────────────────────────────────────
+
+/// Atomically increment a per-CPU counter by 1.
+#[inline(always)]
+fn bump_counter(index: u32) {
+    if let Some(cnt) = unsafe { AQ_COUNTERS.get_ptr_mut(index) } {
+        unsafe { *cnt += 1 };
+    }
+}
 
 // ── Packet parsing helpers ───────────────────────────────────────────────────
 
@@ -100,7 +133,7 @@ fn try_aegis_xdp(ctx: &XdpContext) -> Result<u32, ()> {
     let src_port = u16::from_be(tcp.source);
     let dst_port = u16::from_be(tcp.dest);
 
-    // Build the connection key (4-tuple)
+    // ── Step 4: Build ConnectionKey from 4-tuple ─────────────────────────
     let conn_key = ConnectionKey {
         src_addr: ip.src_addr,
         dst_addr: ip.dst_addr,
@@ -108,15 +141,29 @@ fn try_aegis_xdp(ctx: &XdpContext) -> Result<u32, ()> {
         dst_port,
     };
 
-    // ── Step 4: Check blocklist (Circuit Breaker enforcement) ────────────
+    // Bump total TCP packets counter
+    bump_counter(COUNTER_TOTAL_PACKETS);
+
+    // ── Step 5 (FIRST): Query AQ_BLOCKLIST — DROP blocked entities ───────
     // If the circuit breaker has flagged this connection, DROP immediately.
     if unsafe { AQ_BLOCKLIST.get(&conn_key) }.is_some() {
+        bump_counter(COUNTER_BLOCKED_DROPS);
         info!(ctx, "AQ DROP: blocked connection {}:{}", src_port, dst_port);
         return Ok(xdp_action::XDP_DROP);
     }
 
-    // ── Step 5: Extract TCP flags ────────────────────────────────────────
-    // We access the flags byte at offset 13 of the TCP header.
+    // ── Step 6 (SECOND): Query AQ_SESSIONS — fast-path active sessions ──
+    // If the connection has an established, active PQC session, PASS
+    // immediately without emitting a ring buffer event.
+    if let Some(session) = unsafe { AQ_SESSIONS.get(&conn_key) } {
+        if session.active == 1 {
+            bump_counter(COUNTER_SESSION_HITS);
+            return Ok(xdp_action::XDP_PASS);
+        }
+    }
+
+    // ── Step 7 (THIRD): SYN detection → ring buffer event for PQC ────────
+    // Extract TCP flags byte at offset 13 of the TCP header.
     let flags_offset = tcp_offset + 13;
     let flags_ptr: *const u8 = ptr_at(ctx, flags_offset).ok_or(())?;
     let tcp_flags = unsafe { *flags_ptr };
@@ -125,20 +172,19 @@ fn try_aegis_xdp(ctx: &XdpContext) -> Result<u32, ()> {
     let is_syn = (tcp_flags & 0x02) != 0 && (tcp_flags & 0x10) == 0;
 
     if is_syn {
-        // ── Step 6: Emit PacketEvent via Ring Buffer ─────────────────────
+        // Build PacketEvent with real kernel timestamp
         let event = PacketEvent {
             src_addr: ip.src_addr,
             dst_addr: ip.dst_addr,
             src_port,
             dst_port,
             pkt_len: u16::from_be(ip.tot_len) as u32,
-            timestamp_ns: 0, // Filled by userspace from metadata
+            timestamp_ns: unsafe { bpf_ktime_get_ns() },
             tcp_flags,
             _pad: [0u8; 7],
         };
 
         // Write the event to the ring buffer.
-        // We use `output()` which copies the struct into the ring buffer.
         if let Some(mut buf) = AQ_EVENTS.reserve::<PacketEvent>(0) {
             unsafe {
                 let ptr = buf.as_mut_ptr();
@@ -146,6 +192,8 @@ fn try_aegis_xdp(ctx: &XdpContext) -> Result<u32, ()> {
                 buf.submit(0);
             }
         }
+
+        bump_counter(COUNTER_TCP_SYN_EVENTS);
 
         info!(
             ctx,
@@ -157,13 +205,7 @@ fn try_aegis_xdp(ctx: &XdpContext) -> Result<u32, ()> {
         );
     }
 
-    // ── Step 7: Check PQC session status ─────────────────────────────────
-    if unsafe { AQ_SESSIONS.get(&conn_key) }.is_some() {
-        // Connection has an established PQC session — pass with confidence.
-        return Ok(xdp_action::XDP_PASS);
-    }
-
-    // Default: pass the packet through for standard processing.
+    // ── Step 8 (Default): XDP_PASS for all other traffic ─────────────────
     Ok(xdp_action::XDP_PASS)
 }
 

@@ -6,11 +6,13 @@ members = [
     "aegis-quantum-circuit-breaker",
     "benchmarks",
 ]
+exclude = [
+    "aegis-quantum-ebpf",
+]
 
-# NOTE: aegis-quantum-ebpf is intentionally excluded from the default workspace
-# because it targets `bpfel-unknown-none` (eBPF bytecode) and requires a separate
-# build pipeline via `cargo +nightly build --target bpfel-unknown-none -Z build-std=core`.
-# It is built independently using xtask or manual invocation.
+# NOTE: aegis-quantum-ebpf targets `bpfel-unknown-none` (eBPF bytecode) and
+# requires: cargo +nightly build --target bpfel-unknown-none -Z build-std=core
+# It is excluded from the workspace and built independently on Linux.
 
 [workspace.package]
 version = "0.1.0"
