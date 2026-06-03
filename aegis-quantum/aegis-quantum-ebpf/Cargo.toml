@@ -16,11 +16,22 @@ aegis-quantum-common = { path = "../aegis-quantum-common", default-features = fa
 name = "aegis-quantum-ebpf"
 path = "src/main.rs"
 
+# ── eBPF Compilation Constraints ──────────────────────────────────────────────
+# Target: bpfel-unknown-none (eBPF little-endian bytecode)
+# Build: cargo +nightly build --target bpfel-unknown-none -Z build-std=core --release
+
 [profile.dev]
-opt-level = 2        # eBPF verifier is stricter on unoptimized code
-overflow-checks = false
-debug = false        # eBPF doesn't support debug info
+opt-level = 2             # eBPF verifier is stricter on unoptimized code
+overflow-checks = false   # No runtime overflow checks in kernel space
+debug = false             # eBPF doesn't support DWARF debug info
+debug-assertions = false  # Strip all debug assertions for verifier compliance
 
 [profile.release]
-lto = true
-panic = "abort"
+lto = true                # Link-time optimization — critical for eBPF inlining
+panic = "abort"           # No unwinding in kernel space — immediate abort
+opt-level = "z"           # Size-optimize: smaller bytecode = faster verifier pass
+strip = true              # Strip all symbols from the final bytecode
+debug = false             # No debug info in release
+debug-assertions = false  # No debug assertions in release
+overflow-checks = false   # No overflow checks in kernel fast path
+codegen-units = 1         # Single codegen unit for maximum optimization

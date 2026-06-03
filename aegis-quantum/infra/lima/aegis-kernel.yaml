@@ -1,0 +1,108 @@
+# ── AEGIS-QUANTUM Lima VM Configuration ──────────────────────────────────────
+# Spins up a lightweight, headless Linux VM on Apple Silicon (M4) for
+# live-fire eBPF/XDP development and testing.
+#
+# Usage:
+#   limactl start infra/lima/aegis-kernel.yaml
+#   limactl shell aegis-kernel
+#
+# Inside the VM, your project directory is auto-mounted at the same path.
+# Run `sudo python3 validation/validate_xdp.py --live-fire` with full
+# CAP_BPF and CAP_NET_ADMIN privileges.
+
+# ── VM Identity ──────────────────────────────────────────────────────────────
+# The VM name is derived from the filename (aegis-kernel).
+
+# ── Base Image ───────────────────────────────────────────────────────────────
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+    digest: "sha256:LATEST"
+
+# ── Hardware Resources ───────────────────────────────────────────────────────
+cpus: 4
+memory: "4GiB"
+disk: "20GiB"
+
+# ── Mounts ───────────────────────────────────────────────────────────────────
+# Mount the host project directory into the VM with writable access.
+# Lima auto-mounts home directories by default; this ensures the AIP
+# workspace is accessible at the same absolute path inside the VM.
+mounts:
+  - location: "~"
+    writable: true
+  - location: "/Users/richardrich/Desktop/AIP"
+    writable: true
+
+# ── Provisioning Script ─────────────────────────────────────────────────────
+# Installs all kernel-space development tools required for AEGIS TRL-5.
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -euxo pipefail
+
+      echo "╔══════════════════════════════════════════════════════════════╗"
+      echo "║  AEGIS-QUANTUM Kernel Dev Environment Provisioner          ║"
+      echo "╚══════════════════════════════════════════════════════════════╝"
+
+      # ── System packages ────────────────────────────────────────────
+      apt-get update -qq
+      apt-get install -y --no-install-recommends \
+        build-essential \
+        pkg-config \
+        libssl-dev \
+        libelf-dev \
+        linux-headers-generic \
+        linux-tools-generic \
+        linux-tools-common \
+        bpftool \
+        iproute2 \
+        tcpdump \
+        clang \
+        llvm \
+        python3 \
+        python3-pip \
+        python3-venv \
+        python3-scapy \
+        jq \
+        git \
+        curl
+
+      # ── Rust Toolchain ─────────────────────────────────────────────
+      if ! command -v rustup &>/dev/null; then
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      fi
+      source "$HOME/.cargo/env"
+
+      # Install nightly for eBPF cross-compilation
+      rustup toolchain install nightly --component rust-src
+      rustup target add --toolchain nightly x86_64-unknown-linux-gnu
+
+      # ── BPF Target ────────────────────────────────────────────────
+      # The bpfel-unknown-none target is built-in to nightly via -Z build-std
+      echo "Rust nightly + BPF target configured."
+
+      # ── Kernel Configuration Check ────────────────────────────────
+      echo ""
+      echo "── Kernel Info ──────────────────────────────────────────"
+      uname -a
+      echo ""
+      echo "── BPF Capabilities ─────────────────────────────────────"
+      cat /proc/sys/kernel/unprivileged_bpf_disabled 2>/dev/null || echo "N/A"
+      echo ""
+      echo "── bpftool Version ──────────────────────────────────────"
+      bpftool version 2>/dev/null || echo "bpftool not found"
+      echo ""
+      echo "════════════════════════════════════════════════════════════"
+      echo "  AEGIS dev environment ready. Use: limactl shell aegis-kernel"
+      echo "════════════════════════════════════════════════════════════"
+
+# ── Network ──────────────────────────────────────────────────────────────────
+# Enable host-accessible networking for AF_XDP testing.
+networks:
+  - lima: shared
+
+# ── SSH ──────────────────────────────────────────────────────────────────────
+ssh:
+  forwardAgent: true

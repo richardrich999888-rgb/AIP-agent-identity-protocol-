@@ -33,6 +33,7 @@ This will perform all live tests PLUS verify kernel maps via bpftool.
 import argparse
 import json
 import os
+import platform
 import subprocess
 import sys
 import time
@@ -100,8 +101,27 @@ def check_privileges() -> Tuple[bool, str]:
 def check_kernel_version() -> Tuple[bool, str]:
     """
     Parse os.uname().release and verify kernel >= 5.15.
+    Also checks that we are running on Linux and inspects
+    /proc/sys/kernel/unprivileged_bpf_disabled.
     Returns (ok, detail_string).
     """
+    # --- Hard gate: must be Linux ---
+    if platform.system() != 'Linux':
+        print('[FATAL] This mode requires Linux. Detected:', platform.system())
+        sys.exit(1)
+
+    # --- Check unprivileged BPF sysctl ---
+    try:
+        with open('/proc/sys/kernel/unprivileged_bpf_disabled', 'r') as fh:
+            val = fh.read().strip()
+        if val in ('1', '2'):
+            print(
+                f'  ⚠ /proc/sys/kernel/unprivileged_bpf_disabled = {val} — '
+                'unprivileged BPF is disabled (fine when running as root)'
+            )
+    except FileNotFoundError:
+        pass  # sysctl file may not exist on older kernels
+
     release = os.uname().release  # e.g. "5.15.0-73-generic"
     parts = release.split('.')
     try:
