@@ -6,9 +6,11 @@ license.workspace = true
 description = "Shared types and event definitions for Aegis-Quantum kernel↔userspace communication"
 
 [dependencies]
-# No external dependencies — this crate is `no_std`-compatible so the eBPF
-# program can also reference these types.
+# Keep Aya optional: userspace enables it for map key/value Pod impls, while
+# the eBPF crate consumes this package with default features disabled.
+aya = { version = "0.13", optional = true }
 
 [features]
 default = ["std"]
 std = []
+aya-pod = ["std", "dep:aya"]

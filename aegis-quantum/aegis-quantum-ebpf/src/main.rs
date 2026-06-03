@@ -115,7 +115,7 @@ static AQ_XSK_RING: XskMap = XskMap::with_max_entries(64, 0);
 /// Atomically increment a per-CPU counter by 1.
 #[inline(always)]
 fn bump_counter(index: u32) {
-    if let Some(cnt) = unsafe { AQ_COUNTERS.get_ptr_mut(index) } {
+    if let Some(cnt) = AQ_COUNTERS.get_ptr_mut(index) {
         unsafe { *cnt += 1 };
     }
 }

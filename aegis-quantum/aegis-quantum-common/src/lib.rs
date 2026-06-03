@@ -33,6 +33,9 @@ pub struct PacketEvent {
     pub _pad: [u8; 7],
 }
 
+#[cfg(feature = "aya-pod")]
+unsafe impl aya::Pod for PacketEvent {}
+
 // Safety: PacketEvent is a plain-old-data, repr(C) struct with no pointers.
 #[cfg(feature = "std")]
 unsafe impl Send for PacketEvent {}
@@ -56,6 +59,9 @@ pub struct ConnectionKey {
     pub src_port: u16,
     pub dst_port: u16,
 }
+
+#[cfg(feature = "aya-pod")]
+unsafe impl aya::Pod for ConnectionKey {}
 
 // ── BlocklistValue — BPF HashMap value for the blocklist ──────────────────
 
@@ -83,6 +89,9 @@ pub struct BlocklistValue {
     pub _pad: u32,
 }
 
+#[cfg(feature = "aya-pod")]
+unsafe impl aya::Pod for BlocklistValue {}
+
 // ── SessionValue — BPF HashMap value for PQC session state ────────────────
 
 /// Value stored in the PQC session map.  After a successful Kyber key
@@ -101,6 +110,9 @@ pub struct SessionValue {
     /// Padding.
     pub _pad: [u8; 7],
 }
+
+#[cfg(feature = "aya-pod")]
+unsafe impl aya::Pod for SessionValue {}
 
 // ── Map IDs — well-known names for BPF maps ──────────────────────────────
 

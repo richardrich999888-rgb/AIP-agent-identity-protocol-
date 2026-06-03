@@ -14,6 +14,7 @@ eBPF/XDP crate for bpfel-unknown-none with build-std=core.
 
 Prerequisites:
   rustup toolchain install nightly --component rust-src
+  cargo install bpf-linker --locked
 
 Examples:
   scripts/check_ebpf_toolchain.sh --debug
@@ -53,6 +54,12 @@ fi
 if ! rustup component list --toolchain nightly --installed | grep -Eq '^rust-src([ -]|$)'; then
   echo "error: rust-src is not installed for nightly" >&2
   echo "install with: rustup component add rust-src --toolchain nightly" >&2
+  exit 1
+fi
+
+if ! command -v bpf-linker >/dev/null 2>&1; then
+  echo "error: bpf-linker is not installed" >&2
+  echo "install with: cargo install bpf-linker --locked" >&2
   exit 1
 fi
 

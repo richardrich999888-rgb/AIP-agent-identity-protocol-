@@ -26,9 +26,6 @@ pub mod pqc;
 pub mod controller;
 
 #[cfg(target_os = "linux")]
-mod loader;
-
-#[cfg(target_os = "linux")]
 pub mod af_xdp;
 
 use tracing_subscriber::{fmt, EnvFilter};

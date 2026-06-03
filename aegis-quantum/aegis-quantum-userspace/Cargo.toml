@@ -35,6 +35,7 @@ chrono = "0.4"
 
 # eBPF loader & AF_XDP — Linux-only (requires kernel BPF/XDP syscalls)
 [target.'cfg(target_os = "linux")'.dependencies]
-aya = "0.12"
+aegis-quantum-common = { path = "../aegis-quantum-common", features = ["aya-pod"] }
+aya = "0.13"
 aya-log = "0.2"
 libc = "0.2"

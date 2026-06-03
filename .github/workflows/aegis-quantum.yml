@@ -56,6 +56,9 @@ jobs:
       - name: Install Rust nightly with rust-src
         run: rustup toolchain install nightly --profile minimal --component rust-src
 
+      - name: Install bpf-linker
+        run: cargo install bpf-linker --locked
+
       - name: Build eBPF bytecode
         run: make build-ebpf
 
