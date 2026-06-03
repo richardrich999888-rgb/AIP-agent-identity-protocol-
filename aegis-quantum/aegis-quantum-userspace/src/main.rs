@@ -161,15 +161,15 @@ fn run_live_pipeline(iface: &str) {
 
     // Get map handles
     let mut ring_buf = RingBuf::try_from(
-        bpf.map_mut("AQ_EVENTS").expect("AQ_EVENTS map not found")
+        bpf.take_map("AQ_EVENTS").expect("AQ_EVENTS map not found")
     ).expect("AQ_EVENTS is not a RingBuf");
 
     let mut sessions: AyaHashMap<_, ConnectionKey, SessionValue> = AyaHashMap::try_from(
-        bpf.map_mut("AQ_SESSIONS").expect("AQ_SESSIONS map not found")
+        bpf.take_map("AQ_SESSIONS").expect("AQ_SESSIONS map not found")
     ).expect("AQ_SESSIONS is not a HashMap");
 
     let mut blocklist: AyaHashMap<_, ConnectionKey, BlocklistValue> = AyaHashMap::try_from(
-        bpf.map_mut("AQ_BLOCKLIST").expect("AQ_BLOCKLIST map not found")
+        bpf.take_map("AQ_BLOCKLIST").expect("AQ_BLOCKLIST map not found")
     ).expect("AQ_BLOCKLIST is not a HashMap");
 
     // Initialize the circuit breaker
