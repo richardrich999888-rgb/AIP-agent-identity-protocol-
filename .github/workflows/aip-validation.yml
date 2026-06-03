@@ -49,7 +49,7 @@ jobs:
 
       - name: Attest AIP validation bundle
         if: github.event_name != 'pull_request'
-        uses: actions/attest@v2
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: |
             aip_validation_report.json
