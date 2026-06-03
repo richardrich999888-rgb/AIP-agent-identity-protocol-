@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SYNTRIASS - Passports for AI Agents</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&amp;family=Hanken+Grotesk:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#3c0090",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#ffcae9",
+                        "tertiary-fixed-dim": "#ffade1",
+                        "inverse-on-surface": "#2f3035",
+                        "on-surface": "#e2e2e8",
+                        "primary-fixed": "#7df4ff",
+                        "error": "#ffb4ab",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#23005b",
+                        "surface-container": "#1e2024",
+                        "inverse-surface": "#e2e2e8",
+                        "on-tertiary": "#5f004e",
+                        "surface-dim": "#111317",
+                        "surface-container-high": "#282a2e",
+                        "secondary": "#d1bcff",
+                        "on-secondary-fixed-variant": "#5700c9",
+                        "surface-container-low": "#1a1c20",
+                        "inverse-primary": "#006970",
+                        "surface-tint": "#00dbe9",
+                        "on-tertiary-container": "#b00092",
+                        "secondary-fixed": "#e9ddff",
+                        "secondary-container": "#7000ff",
+                        "on-primary": "#00363a",
+                        "on-primary-container": "#006970",
+                        "on-tertiary-fixed": "#3b002f",
+                        "tertiary": "#fff2f7",
+                        "surface-variant": "#333539",
+                        "surface-bright": "#37393e",
+                        "on-primary-fixed-variant": "#004f54",
+                        "secondary-fixed-dim": "#d1bcff",
+                        "on-secondary-container": "#ddcdff",
+                        "primary-container": "#00f0ff",
+                        "outline": "#849495",
+                        "primary": "#dbfcff",
+                        "background": "#111317",
+                        "surface-container-highest": "#333539",
+                        "on-primary-fixed": "#002022",
+                        "surface-container-lowest": "#0c0e12",
+                        "surface": "#111317",
+                        "on-tertiary-fixed-variant": "#86006f",
+                        "on-background": "#e2e2e8",
+                        "on-surface-variant": "#b9cacb",
+                        "primary-fixed-dim": "#00dbe9",
+                        "outline-variant": "#3b494b",
+                        "tertiary-fixed": "#ffd8ed"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "unit": "4px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Chivo", "sans-serif"],
+                        "label-caps": ["JetBrains Mono", "monospace"],
+                        "display-lg": ["Chivo", "sans-serif"],
+                        "body-md": ["Hanken Grotesk", "sans-serif"],
+                        "headline-lg": ["Chivo", "sans-serif"],
+                        "code-sm": ["JetBrains Mono", "monospace"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "label-caps": ["11px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "900" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "code-sm": ["13px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, #2f3035 0%, transparent 60%);
+        }
+        
+        .glass-panel {
+            background-color: rgba(22, 27, 34, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(125, 244, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 1px solid transparent;
+            background: linear-gradient(135deg, rgba(125, 244, 255, 0.4), transparent) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        .lattice-bg {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        .btn-primary {
+            background-color: theme('colors.primary-fixed-dim');
+            color: theme('colors.on-primary-fixed');
+            font-family: theme('fontFamily.code-sm');
+            font-size: theme('fontSize.code-sm')[0];
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 12px 24px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 219, 233, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 0 25px rgba(0, 219, 233, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: theme('colors.primary-fixed-dim');
+            font-family: theme('fontFamily.code-sm');
+            font-size: theme('fontSize.code-sm')[0];
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 12px 24px;
+            border: 1px solid theme('colors.primary-fixed-dim');
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 219, 233, 0.1);
+        }
+        
+        .id-tag {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-family: theme('fontFamily.label-caps');
+            font-size: theme('fontSize.label-caps')[0];
+            color: theme('colors.outline-variant');
+            letter-spacing: 0.1em;
+        }
+
+        .corner-bracket {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-top: 2px solid theme('colors.primary-fixed-dim');
+            border-left: 2px solid theme('colors.primary-fixed-dim');
+            top: -1px;
+            left: -1px;
+            opacity: 0.7;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, theme('colors.primary-fixed') 0%, theme('colors.secondary-fixed-dim') 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-shell-hidden {
+            transform: translateY(-100%);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col lattice-bg">
+<!-- Top Navigation (Mobile Optimized) -->
+<nav class="fixed top-0 w-full z-50 transition-transform duration-300 bg-surface/40 backdrop-blur-xl border-b border-outline-variant/30 flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 mx-auto" id="topNav">
+<div class="flex items-center gap-2">
+<span class="font-display-lg text-headline-lg-mobile md:text-headline-lg tracking-tight text-primary-fixed-dim">SYNTRIASS</span>
+</div>
+<!-- Desktop Nav Links (Hidden on Mobile) -->
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary-fixed-dim transition-colors duration-300" href="#">AIP</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary-fixed-dim transition-colors duration-300" href="#">AEGIS</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary-fixed-dim transition-colors duration-300" href="#">AIRON</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary-fixed-dim transition-colors duration-300" href="#">Use Cases</a>
+</div>
+<a class="hidden md:inline-flex btn-primary text-sm py-2 px-4" href="mailto:syntriass@gmail.com?subject=Syntriass%20pilot%20access">
+            Request Pilot
+        </a>
+<!-- Mobile Menu Toggle -->
+<button aria-label="Toggle Menu" class="md:hidden text-primary-fixed-dim p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-[80px] flex flex-col">
+<!-- Hero Section -->
+<section class="relative px-margin-mobile py-12 flex flex-col items-center text-center">
+<div class="mb-8 relative w-48 h-48 mx-auto flex items-center justify-center">
+<!-- Abstract Logo Representation -->
+<div class="absolute inset-0 rounded-full border border-primary-fixed-dim/30 animate-[spin_20s_linear_infinite]"></div>
+<div class="absolute inset-4 rounded-full border border-secondary-fixed-dim/20 animate-[spin_15s_linear_infinite_reverse]"></div>
+<span class="material-symbols-outlined text-[80px] text-primary-fixed-dim opacity-90" style="font-variation-settings: 'FILL' 1;">public</span>
+<img alt="Syntriass Logo" class="absolute inset-0 w-full h-full object-contain mix-blend-screen opacity-80" src="assets/syntriass-logo.jpeg"/>
+</div>
+<h1 class="font-display-lg text-headline-lg-mobile md:text-display-lg text-on-surface mb-4 max-w-[12ch] mx-auto leading-tight">
+                Passports for <br/><span class="gradient-text">AI Agents</span>
+</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mb-10 max-w-sm mx-auto">
+                AIRON Agent Passport gives autonomous systems verified identity, authority, audit evidence, and enforcement boundaries.
+            </p>
+<div class="flex flex-col w-full max-w-xs gap-4 mx-auto">
+<a class="btn-primary w-full" href="mailto:syntriass@gmail.com?subject=Syntriass%20pilot%20access">
+                    [ INITIATE PILOT ]
+                </a>
+<a class="btn-secondary w-full" href="../pitch-decks/airon-agent-passport-trust-gateway.pdf">
+<span class="material-symbols-outlined text-sm">terminal</span> DOCUMENTATION
+                </a>
+</div>
+</section>
+<!-- Core Infrastructure (Glassmorphic Cards) -->
+<section class="px-margin-mobile py-12 flex flex-col gap-6 relative">
+<div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-outline-variant/50 to-transparent"></div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2 border-l-2 border-primary-fixed-dim pl-3">Core Systems</h2>
+<!-- Card: AIRON -->
+<div class="glass-panel rounded-lg p-6 flex flex-col">
+<div class="corner-bracket"></div>
+<span class="id-tag">SYS_01_AIRON</span>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary-fixed-dim text-lg">network_node</span>
+</div>
+<h3 class="font-headline-lg-mobile text-[20px] font-bold text-on-surface tracking-tight">AIRON</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow">
+                    Trust gateway architecture for agent identity, audit-grade evidence, and regulated workflow control.
+                </p>
+<div class="flex items-center gap-2 mt-auto">
+<div class="w-2 h-2 bg-primary-fixed-dim"></div>
+<span class="font-code-sm text-code-sm text-primary-fixed-dim uppercase tracking-wider text-[10px]">Operational</span>
+</div>
+</div>
+<!-- Card: AIP -->
+<div class="glass-panel rounded-lg p-6 flex flex-col">
+<div class="corner-bracket"></div>
+<span class="id-tag">SYS_02_AIP</span>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center border border-outline-variant/30">
+<span class="material-symbols-outlined text-secondary-fixed-dim text-lg">badge</span>
+</div>
+<h3 class="font-headline-lg-mobile text-[20px] font-bold text-on-surface tracking-tight">AIP</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow">
+                    Agent Identity Passports. Portable credentials for origin, authority, capabilities, expiry, and revocation state.
+                </p>
+<div class="flex items-center gap-2 mt-auto">
+<div class="w-2 h-2 bg-secondary-fixed-dim"></div>
+<span class="font-code-sm text-code-sm text-secondary-fixed-dim uppercase tracking-wider text-[10px]">Active</span>
+</div>
+</div>
+<!-- Card: AEGIS -->
+<div class="glass-panel rounded-lg p-6 flex flex-col">
+<div class="corner-bracket"></div>
+<span class="id-tag">SYS_03_AEGIS</span>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center border border-outline-variant/30">
+<span class="material-symbols-outlined text-error text-lg">security</span>
+</div>
+<h3 class="font-headline-lg-mobile text-[20px] font-bold text-on-surface tracking-tight">AEGIS</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow">
+                    Kernel-enforcement roadmap for high-value network paths, rogue-loop containment, and agent boundary control.
+                </p>
+<div class="flex items-center gap-2 mt-auto">
+<div class="w-2 h-2 bg-error"></div>
+<span class="font-code-sm text-code-sm text-error uppercase tracking-wider text-[10px]">Standby</span>
+</div>
+</div>
+</section>
+<!-- Roadmap Timeline -->
+<section class="px-margin-mobile py-12 relative overflow-hidden bg-surface-container-lowest/50">
+<div class="absolute inset-0 opacity-10 bg-[linear-gradient(90deg,theme(colors.primary-fixed-dim)_1px,transparent_1px)] bg-[size:40px_100%]"></div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-8 relative z-10 text-center">Pilot Roadmap</h2>
+<div class="relative z-10 pl-6 border-l border-outline-variant/30 ml-4 space-y-8">
+<!-- Timeline Item 1 -->
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-3 h-3 bg-primary-fixed-dim rounded-sm shadow-[0_0_10px_theme(colors.primary-fixed-dim)]"></div>
+<div class="font-code-sm text-code-sm text-primary-fixed-dim mb-1">NOW</div>
+<h4 class="font-headline-lg-mobile text-[18px] text-on-surface mb-2">TRL-4 Evidence</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Repo, CI validation, SDK, Colab harness, and pilot pack.</p>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative opacity-60">
+<div class="absolute -left-[31px] top-1 w-3 h-3 bg-surface-container-high border border-outline-variant rounded-sm"></div>
+<div class="font-code-sm text-code-sm text-outline-variant mb-1">30 DAYS</div>
+<h4 class="font-headline-lg-mobile text-[18px] text-on-surface mb-2">Design Partners</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">BFSI, enterprise AI, and defense pilot conversations.</p>
+</div>
+<!-- Timeline Item 3 -->
+<div class="relative opacity-60">
+<div class="absolute -left-[31px] top-1 w-3 h-3 bg-surface-container-high border border-outline-variant rounded-sm"></div>
+<div class="font-code-sm text-code-sm text-outline-variant mb-1">90-180 DAYS</div>
+<h4 class="font-headline-lg-mobile text-[18px] text-on-surface mb-2">Revenue + Defense GTM</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Paid pilot LOIs, global IP filings, defense demo, and AEGIS lab dossier.</p>
+</div>
+</div>
+</section>
+<!-- Contact Section -->
+<section class="px-margin-mobile py-16 flex flex-col items-center text-center border-t border-outline-variant/20">
+<div class="w-16 h-16 rounded-full bg-surface-container border border-primary-fixed-dim/30 flex items-center justify-center mb-6 shadow-[0_0_30px_theme(colors.primary-fixed-dim)_inset] opacity-50">
+<span class="material-symbols-outlined text-primary-fixed-dim text-3xl">mail</span>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-4">Establish Comms</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-8 max-w-xs">
+                Pilot access, VC diligence, design partner conversations, and sovereign AI infrastructure.
+            </p>
+<a class="glass-panel px-6 py-4 rounded w-full max-w-sm flex items-center justify-between group active:scale-95 transition-transform" href="mailto:syntriass@gmail.com">
+<span class="font-code-sm text-code-sm text-primary-fixed-dim group-hover:text-primary transition-colors">syntriass@gmail.com</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-fixed-dim transition-colors">arrow_forward</span>
+</a>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 px-margin-mobile md:px-margin-desktop bg-surface-container-lowest border-t border-outline-variant/20 grid grid-cols-1 md:grid-cols-4 gap-gutter max-w-container-max mx-auto">
+<div class="mb-8 md:mb-0">
+<span class="font-label-caps text-label-caps text-on-surface tracking-widest block mb-4">SYNTRIASS</span>
+<p class="font-code-sm text-code-sm text-primary-fixed-dim/60">© 2026 Syntriass Labs. Founder: Katta Naga Sri Ganesh.</p>
+</div>
+<div class="flex flex-col gap-4">
+<a class="font-code-sm text-code-sm text-on-surface-variant hover:text-primary transition-colors hover:underline" href="#">Protocol</a>
+<a class="font-code-sm text-code-sm text-on-surface-variant hover:text-primary transition-colors hover:underline" href="#">Governance</a>
+</div>
+<div class="flex flex-col gap-4">
+<a class="font-code-sm text-code-sm text-on-surface-variant hover:text-primary transition-colors hover:underline" href="#">Labs</a>
+<a class="font-code-sm text-code-sm text-on-surface-variant hover:text-primary transition-colors hover:underline" href="mailto:syntriass@gmail.com">Contact: syntriass@gmail.com</a>
+</div>
+</footer>
+<!-- Mobile Bottom Nav (Suppressed for landing page intent as per guidelines, but included structure if needed for sub-pages. Kept hidden here to prioritize canvas.) -->
+<!-- 
+    <div class="md:hidden fixed bottom-0 w-full bg-surface-container-lowest/90 backdrop-blur-md border-t border-outline-variant/20 flex justify-around py-3 z-50">
+    </div>
+    -->
+<script>
+        // Simple scroll interaction for TopNav hide/show
+        let lastScroll = 0;
+        const nav = document.getElementById('topNav');
+        
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll <= 0) {
+                nav.classList.remove('nav-shell-hidden');
+                return;
+            }
+            
+            if (currentScroll > lastScroll && !nav.classList.contains('nav-shell-hidden')) {
+                // Scroll down
+                nav.classList.add('nav-shell-hidden');
+            } else if (currentScroll < lastScroll && nav.classList.contains('nav-shell-hidden')) {
+                // Scroll up
+                nav.classList.remove('nav-shell-hidden');
+            }
+            
+            lastScroll = currentScroll;
+        });
+    </script>
+</body></html>

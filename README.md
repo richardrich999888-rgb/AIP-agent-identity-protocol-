@@ -350,6 +350,24 @@ The notebook connects to a deployed `aip-service`, issues a passport, verifies
 `PASS`, tampers the capabilities, verifies `TOXIC`, attaches passport metadata
 to AI/ML workflow objects, and exports `pilot_results.json`.
 
+### Syntriass Labs Website Preview
+
+The Stitch-generated Syntriass Labs UI has been imported as a static website:
+
+```bash
+python3 -m http.server 4173 --bind 127.0.0.1 -d website
+```
+
+Then open:
+
+```text
+http://127.0.0.1:4173/
+```
+
+The page uses the local Syntriass logo asset, the company contact email
+`syntriass@gmail.com`, and the sovereign industrial design notes in
+`website/design/SOVEREIGN_INDUSTRIAL.md`.
+
 ### AEGIS (Infrastructure Layer)
 ```bash
 cd aegis-quantum/
