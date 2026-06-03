@@ -1,6 +1,6 @@
 # AIRON Trust Infrastructure validation orchestration.
 
-.PHONY: help aip-check aip-test aip-validation-report aip-ci-local
+.PHONY: help aip-check aip-test aip-validation-report aip-ci-local pilot-latency-report
 
 GREEN  := \033[0;32m
 CYAN   := \033[0;36m
@@ -19,6 +19,9 @@ help:
 	@echo "    make aip-test              - run all AIP protocol and service tests"
 	@echo "    make aip-validation-report - write $(AIP_REPORT)"
 	@echo "    make aip-ci-local          - check + tests + report"
+	@echo ""
+	@echo "  $(GREEN)Pilot Evidence$(RESET)"
+	@echo "    make pilot-latency-report  - write target-only latency report template"
 	@echo ""
 	@echo "  $(GREEN)AEGIS$(RESET)"
 	@echo "    cd aegis-quantum && make ci-local"
@@ -43,3 +46,8 @@ aip-validation-report:
 
 aip-ci-local: aip-check aip-test aip-validation-report
 	@echo "$(GREEN)AIP local validation passed: check + tests + report$(RESET)"
+
+pilot-latency-report:
+	@echo "$(CYAN)-- Generating airon_latency_report.json --$(RESET)"
+	python3 scripts/generate_airon_latency_histogram.py --output airon_latency_report.json
+	@echo "$(GREEN)Pilot latency report written: airon_latency_report.json$(RESET)"
