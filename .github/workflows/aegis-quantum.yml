@@ -19,6 +19,8 @@ jobs:
       contents: read
       id-token: write
       attestations: write
+    env:
+      CI_GPG_PRIVATE_KEY_B64: ${{ secrets.CI_GPG_PRIVATE_KEY_B64 }}
     defaults:
       run:
         working-directory: aegis-quantum
@@ -38,6 +40,12 @@ jobs:
       - name: Generate validation bundle manifest
         run: sha256sum validation_report.json > validation_bundle.sha256
 
+      - name: Sign AEGIS validation bundle manifest with GPG
+        if: env.CI_GPG_PRIVATE_KEY_B64 != ''
+        run: |
+          echo "$CI_GPG_PRIVATE_KEY_B64" | base64 -d | gpg --batch --import
+          gpg --batch --yes --armor --detach-sign validation_bundle.sha256
+
       - name: Upload validation report
         uses: actions/upload-artifact@v4
         with:
@@ -47,8 +55,16 @@ jobs:
             aegis-quantum/validation_bundle.sha256
           if-no-files-found: error
 
+      - name: Upload AEGIS validation bundle signature
+        if: env.CI_GPG_PRIVATE_KEY_B64 != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegis-validation-bundle-signature
+          path: aegis-quantum/validation_bundle.sha256.asc
+          if-no-files-found: error
+
       - name: Attest AEGIS validation bundle
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.repository_visibility == 'public'
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: |
@@ -62,6 +78,8 @@ jobs:
       contents: read
       id-token: write
       attestations: write
+    env:
+      CI_GPG_PRIVATE_KEY_B64: ${{ secrets.CI_GPG_PRIVATE_KEY_B64 }}
     defaults:
       run:
         working-directory: aegis-quantum
@@ -86,6 +104,12 @@ jobs:
       - name: Generate eBPF bytecode manifest
         run: sha256sum aegis-quantum-ebpf/target/bpfel-unknown-none/release/aegis-quantum-ebpf > ebpf_bytecode_bundle.sha256
 
+      - name: Sign eBPF bytecode manifest with GPG
+        if: env.CI_GPG_PRIVATE_KEY_B64 != ''
+        run: |
+          echo "$CI_GPG_PRIVATE_KEY_B64" | base64 -d | gpg --batch --import
+          gpg --batch --yes --armor --detach-sign ebpf_bytecode_bundle.sha256
+
       - name: Upload eBPF bytecode
         uses: actions/upload-artifact@v4
         with:
@@ -95,8 +119,16 @@ jobs:
             aegis-quantum/ebpf_bytecode_bundle.sha256
           if-no-files-found: error
 
+      - name: Upload eBPF bytecode bundle signature
+        if: env.CI_GPG_PRIVATE_KEY_B64 != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegis-ebpf-bytecode-signature
+          path: aegis-quantum/ebpf_bytecode_bundle.sha256.asc
+          if-no-files-found: error
+
       - name: Attest eBPF bytecode bundle
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.repository_visibility == 'public'
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: |

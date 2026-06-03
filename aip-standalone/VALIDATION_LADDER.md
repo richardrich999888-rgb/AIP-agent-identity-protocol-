@@ -73,9 +73,15 @@ Current local baseline:
 ## CI Artifact
 
 The AIP workflow produces `aip-validation-report` containing
-`aip_validation_report.json`. The report is generated from the current Rust test
-graph after checks and tests pass, so the submitted artifact reflects the code
-under review rather than a stale benchmark snapshot.
+`aip_validation_report.json` and `aip_validation_bundle.sha256`. The report is
+generated from the current Rust test graph after checks and tests pass, so the
+submitted artifact reflects the code under review rather than a stale benchmark
+snapshot.
+
+For public repositories, GitHub build-provenance attestations are attached to
+the validation bundle. For private repositories, configure
+`CI_GPG_PRIVATE_KEY_B64` to emit a detached GPG signature artifact for the
+checksum manifest.
 
 The terminal verifier is invoked as:
 

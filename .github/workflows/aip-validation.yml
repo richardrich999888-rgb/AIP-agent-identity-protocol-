@@ -25,6 +25,8 @@ jobs:
       contents: read
       id-token: write
       attestations: write
+    env:
+      CI_GPG_PRIVATE_KEY_B64: ${{ secrets.CI_GPG_PRIVATE_KEY_B64 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,6 +40,12 @@ jobs:
       - name: Generate validation bundle manifest
         run: sha256sum aip_validation_report.json > aip_validation_bundle.sha256
 
+      - name: Sign AIP validation bundle manifest with GPG
+        if: env.CI_GPG_PRIVATE_KEY_B64 != ''
+        run: |
+          echo "$CI_GPG_PRIVATE_KEY_B64" | base64 -d | gpg --batch --import
+          gpg --batch --yes --armor --detach-sign aip_validation_bundle.sha256
+
       - name: Upload AIP validation report
         uses: actions/upload-artifact@v4
         with:
@@ -47,8 +55,16 @@ jobs:
             aip_validation_bundle.sha256
           if-no-files-found: error
 
+      - name: Upload AIP validation bundle signature
+        if: env.CI_GPG_PRIVATE_KEY_B64 != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: aip-validation-bundle-signature
+          path: aip_validation_bundle.sha256.asc
+          if-no-files-found: error
+
       - name: Attest AIP validation bundle
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.repository_visibility == 'public'
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: |
