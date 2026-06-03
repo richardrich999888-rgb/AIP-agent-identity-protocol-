@@ -5,6 +5,7 @@
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)]()
 [![Patent: Provisional Filed](https://img.shields.io/badge/Patent-Provisional%20Filed-blue.svg)]()
 [![AIP Status: Production](https://img.shields.io/badge/AIP-Production-green.svg)]()
+[![Agent Passport: Phase 1](https://img.shields.io/badge/Agent%20Passport-Phase%201-green.svg)]()
 [![AEGIS Status: TRL‑4](https://img.shields.io/badge/AEGIS-TRL--4%20Validated-blue.svg)]()
 
 ---
@@ -20,8 +21,14 @@ The platform comprises two battle-tested systems:
 
 | Layer | System | Function | Status |
 |-------|--------|----------|--------|
-| **Identity Layer** | **AIP** (Agent Identity Protocol) | Cryptographic identity, delegation, and provenance for AI agents | ✅ Production |
+| **Identity Layer** | **AIP** (Agent Identity Protocol) | Cryptographic identity, delegation, provenance, and portable Agent Passports for AI agents | ✅ Production |
 | **Infrastructure Layer** | **AEGIS** (Aegis-Quantum / AQ-1) | eBPF/XDP Post-Quantum Proxy & Agentic AI Circuit Breaker | ✅ TRL-4 Validated |
+
+AIRON is the creator of the **AIRON Agent Passport**: a signed, portable
+credential that lets an AI agent prove who authorized it, what it is allowed to
+do, where it is running, and whether its authority is still valid. The passport
+is issued by AIP, verified online by the AIP service, and verified offline by
+the `airon-passport` CLI.
 
 ---
 
@@ -113,7 +120,7 @@ AEGIS sits directly at the network interface card (NIC) driver layer via Linux *
 
 ---
 
-## AIP: The Identity Layer
+## AIP: The Identity and Agent Passport Layer
 
 ### End-to-End Verifiable Identity for AI Agents
 
@@ -126,6 +133,32 @@ The Agent Identity Protocol provides agents with **provenance-bound, Ed25519-sig
 | **Zombie Agents** | Revoked agent continues operating | **Cascade Revocation (BFS)** instantly revokes root + all descendants with O(1) lookup |
 | **Replay Attacks** | Attacker re-submits captured valid signature | **Strict Nonce-Tracking** + sliding timestamp windows prevent replay |
 
+### AIRON Agent Passport
+
+The AIRON Agent Passport is AIP's portable credential layer for agentic systems.
+It is a signed JSON document that travels with an agent across services,
+frameworks, and audit workflows.
+
+| Passport Field | Purpose |
+|---|---|
+| `subject` | Agent ID, friendly name, and public keys |
+| `issuer` | Root issuer identity, registry URL, and public key fingerprint |
+| `constraints` | Expiry, capability list, and maximum delegation depth |
+| `lineage` | Signed authorization record linking the passport to the parent AIP token |
+| `environmental_lock` | Runtime and image hash context for deployment binding |
+| `proof` | Signature over the canonical passport body |
+
+Phase 1 is implemented with the active AIP Ed25519 issuer key. The schema
+reserves `pqc_signature` for the ML-DSA-65 hybrid keyring upgrade and fails
+closed if unsupported PQC proof material is presented to the Phase 1 verifier.
+
+| Interface | Command / Endpoint |
+|---|---|
+| Issue Passport | `POST /v1/passports/issue` |
+| Verify Passport | `POST /v1/passports/verify` |
+| Offline Audit | `airon-passport verify agent.passport.json` |
+| Python SDK | `from airon_aip import AIPConfig, AgentPassport` |
+
 ### Production Benchmarks
 
 | Metric | Result |
@@ -134,6 +167,7 @@ The Agent Identity Protocol provides agents with **provenance-bound, Ed25519-sig
 | **Revocation Check** | O(1) (In-memory HashSet lookup) |
 | **Anti-Replay Protection** | 100% block rate for duplicated nonces |
 | **Scope Propagation** | Mathematically guaranteed (Denied scopes always propagate) |
+| **Passport Verification** | Structural + temporal + Ed25519 proof checks with `PASS` / `TOXIC` output |
 
 ---
 
@@ -205,7 +239,8 @@ AIP/
 │   ├── load-tests/                     # Locust HTTP load profile
 │   └── src/
 │       ├── main.rs                     # Application entry point
-│       ├── handlers.rs                 # HTTP endpoints (issue, verify, delegate, revoke)
+│       ├── handlers.rs                 # HTTP endpoints (issue, verify, delegate, revoke, passports)
+│       ├── passport.rs                 # AgentPassport hash state and signature verification
 │       ├── capability.rs               # Lattice MEET operations (NM-A1)
 │       ├── delegation.rs               # Chain depth limits (NM-A2)
 │       ├── revocation.rs               # Cascade BFS walk (NM-A3)
@@ -215,14 +250,15 @@ AIP/
 │   ├── Cargo.toml
 │   ├── aip-types/                      # Pure data structures and claims
 │   ├── aip-crypto/                     # Ed25519, SHA-256, Base58
-│   ├── aip-core/                       # Core domain logic
+│   ├── aip-core/                       # Core domain logic and AgentPassport schema
 │   ├── aip-test/                       # Integration tests
 │   ├── aip-real-tests/                 # End-to-end adversarial tests
-│   └── aip-cli/                        # Command-line interface
+│   ├── aip-cli/                        # Command-line interface
+│   └── airon-verify/                   # EvidencePacket verifier + airon-passport CLI
 │
 ├── python/airon-aip-sdk/               # Python SDK for persistent agent identity
 │   ├── pyproject.toml
-│   ├── src/airon_aip/                  # Core client, store, integrations
+│   ├── src/airon_aip/                  # Core client, passports, store, integrations
 │   └── tests/
 │
 ├── aegis-quantum/                      # AEGIS Infrastructure Layer (AQ-1)
@@ -260,6 +296,46 @@ pip install -e 'python/airon-aip-sdk[langchain,numpy,pandas,torch]'
 
 The SDK provides persistent agent identity for Python agents and optional
 adapters for LangChain, PyTorch, NumPy, and pandas.
+
+### AIP Agent Passport
+Start the AIP service:
+
+```bash
+AIP_PORT=8081 \
+AIP_KEY_PATH=/tmp/airon-aip/signing.key \
+AIP_DELEGATION_LOG_PATH=/tmp/airon-aip/delegation.jsonl \
+AIP_REVOCATION_LOG_PATH=/tmp/airon-aip/revocation.jsonl \
+AIP_PASSPORT_LOG_PATH=/tmp/airon-aip/passports.jsonl \
+AIP_ISSUER_NAME="AIRON AIP Root" \
+AIP_ISSUER_ID="airon.aip.root" \
+AIP_REGISTRY_URL=http://127.0.0.1:8081 \
+cargo run --manifest-path aip-service/Cargo.toml
+```
+
+Issue and verify a passport from Python:
+
+```python
+from airon_aip import AIPConfig, AgentPassport
+
+passport_service = AgentPassport(AIPConfig(aip_token="<AIP_TOKEN>"))
+
+passport = passport_service.issue(
+    friendly_name="InvoiceBot",
+    capabilities=["invoice.read", "ledger.post"],
+    metadata={"runtime": "langchain-v0.2"},
+)
+passport.save("agent.passport.json")
+
+result = passport_service.verify(passport)
+assert result.is_valid
+```
+
+Verify the same document offline:
+
+```bash
+cargo run --manifest-path aip-standalone/Cargo.toml \
+  --package airon-verify --bin airon-passport -- verify agent.passport.json
+```
 
 ### AEGIS (Infrastructure Layer)
 ```bash
