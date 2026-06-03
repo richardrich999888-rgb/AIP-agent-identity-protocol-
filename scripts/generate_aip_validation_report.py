@@ -147,8 +147,13 @@ def build_report() -> dict:
         ],
         "artifacts": {
             "local_command": "make aip-ci-local",
+            "dossier_bundle_command": "make dossier-artifacts",
             "ci_workflow": ".github/workflows/aip-validation.yml",
             "report": "aip_validation_report.json",
+            "nominal_evidence_packet": "dossier/artifacts/evidence_packet_nominal.json",
+            "verification_keyring": "dossier/artifacts/verification_keyring.json",
+            "external_receipt_digest": "dossier/artifacts/external_receipt_digest.hex",
+            "toxic_verifier_report": "dossier/artifacts/airon_verify_toxic_report.json",
             "terminal_verifier": "cargo run --manifest-path aip-standalone/Cargo.toml --package airon-verify -- --packet <packet.json> --keyring <keyring.json> --receipt-digest-hex <sha256>",
         },
         "known_issues": [],

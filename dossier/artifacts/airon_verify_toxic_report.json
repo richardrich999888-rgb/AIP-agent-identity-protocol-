@@ -1,0 +1,55 @@
+{
+  "status": "TOXIC",
+  "toxic": true,
+  "decision_id_hex": "8d22a03a5165b76e12ef7d6a4189e9fd414e779249dd16137c2f61e2a6b57468",
+  "packet_digest_hex": "220a1afcbba2ef0b3bbfe9d4d7bbb464af9e96c7494f39bc6d834c0417b990bb",
+  "trust_floor": 2,
+  "trust_floor_label": "COUNTERPARTY_SIGNED (independently corroborated)",
+  "checks": [
+    {
+      "name": "packet_magic",
+      "status": "PASS",
+      "detail": "EVPK magic accepted"
+    },
+    {
+      "name": "assembler_authority_signature",
+      "status": "PASS",
+      "detail": "assembler signature verified over packet digest"
+    },
+    {
+      "name": "accountability_graph",
+      "status": "PASS",
+      "detail": "graph valid; trust floor COUNTERPARTY_SIGNED (independently corroborated)"
+    },
+    {
+      "name": "agent_decision_signature",
+      "status": "PASS",
+      "detail": "agent decision signature verified"
+    },
+    {
+      "name": "agent_action_and_counterparty_signatures",
+      "status": "PASS",
+      "detail": "1 action attestation(s) verified"
+    },
+    {
+      "name": "trace_authority_signature",
+      "status": "PASS",
+      "detail": "trace authority signature verified"
+    },
+    {
+      "name": "receipt_authority_signature",
+      "status": "PASS",
+      "detail": "receipt authority signature verified"
+    },
+    {
+      "name": "receipt_external_digest",
+      "status": "FAIL",
+      "detail": "ValidationFailed { reason: \"receipt_binding.receipt_hash does not match external digest\" }"
+    },
+    {
+      "name": "strict_chain_verification",
+      "status": "FAIL",
+      "detail": "ValidationFailed { reason: \"receipt_binding.receipt_hash does not match external digest\" }"
+    }
+  ]
+}

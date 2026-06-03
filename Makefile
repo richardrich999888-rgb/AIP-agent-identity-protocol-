@@ -1,6 +1,6 @@
 # AIRON Trust Infrastructure validation orchestration.
 
-.PHONY: help aip-check aip-test aip-validation-report aip-ci-local pilot-latency-report pilot-local
+.PHONY: help aip-check aip-test aip-validation-report aip-ci-local dossier-artifacts pilot-latency-report pilot-local
 
 GREEN  := \033[0;32m
 CYAN   := \033[0;36m
@@ -21,6 +21,7 @@ help:
 	@echo "    make aip-ci-local          - check + tests + report"
 	@echo ""
 	@echo "  $(GREEN)Pilot Evidence$(RESET)"
+	@echo "    make dossier-artifacts     - write sanitized EvidencePacket verifier bundle"
 	@echo "    make pilot-latency-report  - write target-only latency report template"
 	@echo "    make pilot-local           - run local AIRON pilot smoke and latency pass"
 	@echo ""
@@ -47,6 +48,11 @@ aip-validation-report:
 
 aip-ci-local: aip-check aip-test aip-validation-report
 	@echo "$(GREEN)AIP local validation passed: check + tests + report$(RESET)"
+
+dossier-artifacts:
+	@echo "$(CYAN)-- Generating AIRON dossier verifier artifacts --$(RESET)"
+	cargo run --manifest-path $(AIP_STANDALONE_MANIFEST) --package airon-verify --example generate_dossier_artifacts -- dossier/artifacts
+	@echo "$(GREEN)Dossier artifacts written: dossier/artifacts$(RESET)"
 
 pilot-latency-report:
 	@echo "$(CYAN)-- Generating airon_latency_report.json --$(RESET)"

@@ -81,7 +81,8 @@ snapshot.
 For public repositories, GitHub build-provenance attestations are attached to
 the validation bundle. For private repositories, configure
 `CI_GPG_PRIVATE_KEY_B64` to emit a detached GPG signature artifact for the
-checksum manifest.
+checksum manifest. Provisioning steps are documented in
+`docs/CI_SIGNING_PROVISIONING.md`.
 
 The terminal verifier is invoked as:
 
@@ -97,6 +98,22 @@ The keyring JSON contains `assembler`, `agent`, `trace_authority`,
 `receipt_authority`, and optional `counterparties` keyed by tool reference. The
 command exits `0` only for `PASS`; toxic packets exit non-zero and include the
 failed check names in the report.
+
+Generate a sanitized dossier bundle with a nominal packet, public keyring,
+external digest, and a tampered-digest TOXIC report:
+
+```bash
+make dossier-artifacts
+```
+
+The generated files are:
+
+| Artifact | Purpose |
+| --- | --- |
+| `dossier/artifacts/evidence_packet_nominal.json` | Synthetic invoice-approval EvidencePacket that verifies cleanly |
+| `dossier/artifacts/verification_keyring.json` | Public keys needed by the offline verifier |
+| `dossier/artifacts/external_receipt_digest.hex` | Digest supplied from the external receipt system |
+| `dossier/artifacts/airon_verify_toxic_report.json` | Fail-closed output when the external digest is altered |
 
 ## Next Validation Milestones
 
