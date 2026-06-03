@@ -111,6 +111,43 @@ impl EvidencePacket {
         sha256(&d).to_vec()
     }
 
+    pub fn packet_digest(&self) -> [u8; 32] {
+        let digest = self.digest();
+        let mut out = [0u8; 32];
+        out.copy_from_slice(&digest);
+        out
+    }
+
+    pub fn verify_assembler_signature(&self, assembler_pubkey: &PublicKey) -> AipResult<()> {
+        verify_payload_signature(assembler_pubkey, &self.digest(), &self.assembler_sig)
+    }
+
+    pub fn verify_trace_binding(&self, trace_authority_pubkey: &PublicKey) -> AipResult<()> {
+        verify_payload_signature(
+            trace_authority_pubkey,
+            &self.trace_binding.signing_payload(),
+            &self.trace_binding.sig,
+        )
+    }
+
+    pub fn verify_receipt_binding(&self, receipt_authority_pubkey: &PublicKey) -> AipResult<()> {
+        verify_payload_signature(
+            receipt_authority_pubkey,
+            &self.receipt_binding.signing_payload(),
+            &self.receipt_binding.sig,
+        )
+    }
+
+    pub fn verify_external_receipt_digest(&self, expected_digest: &[u8; 32]) -> AipResult<()> {
+        if &self.receipt_binding.receipt_hash == expected_digest {
+            Ok(())
+        } else {
+            Err(AipError::ValidationFailed {
+                reason: "receipt_binding.receipt_hash does not match external digest".into(),
+            })
+        }
+    }
+
     pub fn verify(
         &self,
         assembler_pubkey: &PublicKey,
@@ -171,6 +208,21 @@ impl EvidencePacket {
         }
 
         Ok(())
+    }
+
+    pub fn verify_with_authorities(
+        &self,
+        assembler_pubkey: &PublicKey,
+        agent_pubkey: &PublicKey,
+        trace_authority_pubkey: &PublicKey,
+        receipt_authority_pubkey: &PublicKey,
+        counterparty_key_for: impl Fn(&str) -> Option<PublicKey>,
+        expected_receipt_digest: &[u8; 32],
+    ) -> AipResult<()> {
+        self.verify(assembler_pubkey, agent_pubkey, counterparty_key_for)?;
+        self.verify_trace_binding(trace_authority_pubkey)?;
+        self.verify_receipt_binding(receipt_authority_pubkey)?;
+        self.verify_external_receipt_digest(expected_receipt_digest)
     }
 
     pub fn trust_floor_label(&self) -> &'static str {

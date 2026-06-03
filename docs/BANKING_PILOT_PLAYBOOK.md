@@ -25,6 +25,7 @@ portable evidence packets.
 | Revocation | `POST /v1/identity/revoke` | Single-token or cascade revocation of descendant delegations |
 | Revocation lookup | `GET /v1/identity/revocation-status/:jti` | O(1) revocation-state lookup |
 | EvidencePacket | `aip-standalone/aip-protocol` | Decision, trace, receipt, attestation, graph, and assembler signature binding |
+| Terminal verifier | `cargo run --manifest-path aip-standalone/Cargo.toml --package airon-verify` | Offline PASS/TOXIC verification of assembler, agent, trace authority, receipt authority, counterparty, and external receipt digest checks |
 
 ### AEGIS: Enforcement and Network Plane
 
@@ -57,7 +58,7 @@ Expected proof:
 
 | Component | Evidence |
 | --- | --- |
-| AIP | 246 Rust tests, JSON validation report, service contract checks |
+| AIP | 254 Rust tests, JSON validation report, service contract checks, terminal EvidencePacket verifier |
 | AEGIS | 104 Rust tests, XDP dry-run scenarios, eBPF bytecode CI build |
 
 ### 2. AIP Service Pilot

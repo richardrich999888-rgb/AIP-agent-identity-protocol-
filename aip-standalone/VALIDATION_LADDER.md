@@ -13,9 +13,10 @@ RDI/TDB diligence, and release gates.
 | L2 | Provenance and replay controls | Provenance-bound identity, runtime binding, nonce freshness, stale/future replay rejection | PASS |
 | L3 | Delegation lattice | Scope MEET, child cannot exceed parent, chain depth enforcement, audit hash binding | PASS |
 | L4 | EvidencePacket discipline | Session/decision binding, evidence graph validation, overclaim rejection, policy floor checks | PASS |
-| L5 | Adversarial/property/stress | Forgery, key substitution, lineage forgery, sybil, replay, 10K sign/verify, 100K nonce tracking | PASS |
-| L6 | Service contract | JWT issue/verify, JWKS discovery, delegation, cascade revocation, mean verify latency guard | PASS |
-| L7 | CI evidence pack | GitHub Actions report artifact from `.github/workflows/aip-validation.yml` | READY |
+| L5 | Terminal non-repudiation verifier | `airon-verify` rejects toxic packets if assembler, agent, trace, receipt, counterparty, or external digest checks fail | PASS |
+| L6 | Adversarial/property/stress | Forgery, key substitution, lineage forgery, sybil, replay, 10K sign/verify, 100K nonce tracking | PASS |
+| L7 | Service contract | JWT issue/verify, JWKS discovery, delegation, cascade revocation, mean verify latency guard | PASS |
+| L8 | CI evidence pack | GitHub Actions report artifact from `.github/workflows/aip-validation.yml` | READY |
 
 ## Reproducible Commands
 
@@ -39,9 +40,9 @@ Current local baseline:
 
 | Surface | Tests | Result |
 | --- | ---: | --- |
-| `aip-standalone` protocol workspace | 224 | PASS |
+| `aip-standalone` protocol workspace | 232 | PASS |
 | `aip-service` Axum service | 22 | PASS |
-| **Total AIP tests** | **246** | **PASS** |
+| **Total AIP tests** | **254** | **PASS** |
 
 ## Test Coverage Map
 
@@ -54,6 +55,7 @@ Current local baseline:
 | Delegation chains | Parent token validation, chain depth limit, child scope cannot exceed parent scope |
 | Revocation | Single-token revocation, cascade revocation, persisted revocation log integrity |
 | Evidence packets | Session ID binding, decision ID binding, signed receipts, trace roundtrip, graph validation |
+| Terminal verification | `airon-verify` verifies assembler authority, agent decision/action signatures, counterparty signatures, trace authority, receipt authority, and external receipt digest |
 | Adversarial resistance | Signature forgery, key substitution, lineage forgery, liveness impersonation, sybil duplicate key, replay |
 | Stress/property checks | 10K sign/verify, 100K nonce tracking, 1K identity creation, 1MB payload signing, score bounds |
 | Service behavior | JWT issue/verify, token expiry, wrong algorithm/key rejection, JWKS x-coordinate validity, verify latency |
@@ -75,6 +77,21 @@ The AIP workflow produces `aip-validation-report` containing
 graph after checks and tests pass, so the submitted artifact reflects the code
 under review rather than a stale benchmark snapshot.
 
+The terminal verifier is invoked as:
+
+```bash
+cargo run --manifest-path aip-standalone/Cargo.toml --package airon-verify -- \
+  --packet evidence_packet.json \
+  --keyring verification_keyring.json \
+  --receipt-digest-hex <external-receipt-sha256> \
+  --report airon_verify_report.json
+```
+
+The keyring JSON contains `assembler`, `agent`, `trace_authority`,
+`receipt_authority`, and optional `counterparties` keyed by tool reference. The
+command exits `0` only for `PASS`; toxic packets exit non-zero and include the
+failed check names in the report.
+
 ## Next Validation Milestones
 
 | Milestone | Goal | Priority |
@@ -85,3 +102,4 @@ under review rather than a stale benchmark snapshot.
 | OpenAPI contract | Publish machine-readable API schema and validate examples in CI | Medium |
 | Performance report | Persist verify/sign latency histograms as CI artifacts, not only unit assertions | Medium |
 | External audit pack | Map tests to patent claims, DPDP accountability controls, and STQC non-repudiation evidence | High |
+| ML-DSA implementation | Replace the current ML-DSA-ready verifier interface with a FIPS 204 implementation when product scope requires PQ signatures | High |

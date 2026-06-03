@@ -21,6 +21,10 @@ jobs:
   aip-validation:
     name: AIP protocol and service validation
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,9 +35,22 @@ jobs:
       - name: Check, test, and generate report
         run: make aip-ci-local
 
+      - name: Generate validation bundle manifest
+        run: sha256sum aip_validation_report.json > aip_validation_bundle.sha256
+
       - name: Upload AIP validation report
         uses: actions/upload-artifact@v4
         with:
           name: aip-validation-report
-          path: aip_validation_report.json
+          path: |
+            aip_validation_report.json
+            aip_validation_bundle.sha256
           if-no-files-found: error
+
+      - name: Attest AIP validation bundle
+        if: github.event_name != 'pull_request'
+        uses: actions/attest@v2
+        with:
+          subject-path: |
+            aip_validation_report.json
+            aip_validation_bundle.sha256

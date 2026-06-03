@@ -15,6 +15,10 @@ jobs:
   lab-validation:
     name: Lab validation
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     defaults:
       run:
         working-directory: aegis-quantum
@@ -31,16 +35,33 @@ jobs:
       - name: Generate validation report artifact
         run: make validation-report
 
+      - name: Generate validation bundle manifest
+        run: sha256sum validation_report.json > validation_bundle.sha256
+
       - name: Upload validation report
         uses: actions/upload-artifact@v4
         with:
           name: aegis-validation-report
-          path: aegis-quantum/validation_report.json
+          path: |
+            aegis-quantum/validation_report.json
+            aegis-quantum/validation_bundle.sha256
           if-no-files-found: error
+
+      - name: Attest AEGIS validation bundle
+        if: github.event_name != 'pull_request'
+        uses: actions/attest@v2
+        with:
+          subject-path: |
+            aegis-quantum/validation_report.json
+            aegis-quantum/validation_bundle.sha256
 
   ebpf-build:
     name: eBPF bytecode build
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     defaults:
       run:
         working-directory: aegis-quantum
@@ -62,9 +83,22 @@ jobs:
       - name: Build eBPF bytecode
         run: make build-ebpf
 
+      - name: Generate eBPF bytecode manifest
+        run: sha256sum aegis-quantum-ebpf/target/bpfel-unknown-none/release/aegis-quantum-ebpf > ebpf_bytecode_bundle.sha256
+
       - name: Upload eBPF bytecode
         uses: actions/upload-artifact@v4
         with:
           name: aegis-ebpf-bytecode
-          path: aegis-quantum/aegis-quantum-ebpf/target/bpfel-unknown-none/release/aegis-quantum-ebpf
+          path: |
+            aegis-quantum/aegis-quantum-ebpf/target/bpfel-unknown-none/release/aegis-quantum-ebpf
+            aegis-quantum/ebpf_bytecode_bundle.sha256
           if-no-files-found: error
+
+      - name: Attest eBPF bytecode bundle
+        if: github.event_name != 'pull_request'
+        uses: actions/attest@v2
+        with:
+          subject-path: |
+            aegis-quantum/aegis-quantum-ebpf/target/bpfel-unknown-none/release/aegis-quantum-ebpf
+            aegis-quantum/ebpf_bytecode_bundle.sha256

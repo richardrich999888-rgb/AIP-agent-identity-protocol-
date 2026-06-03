@@ -78,6 +78,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "airon-verify"
+version = "0.3.0"
+dependencies = [
+ "aip-protocol",
+ "clap",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "anstream"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
