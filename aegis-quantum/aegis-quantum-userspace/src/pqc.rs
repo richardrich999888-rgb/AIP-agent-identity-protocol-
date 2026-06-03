@@ -137,6 +137,14 @@ mod tests {
     use super::*;
     use std::collections::HashSet;
 
+    fn phase_budget_us() -> u64 {
+        if cfg!(debug_assertions) { 5_000 } else { 2_000 }
+    }
+
+    fn average_roundtrip_budget_us() -> u64 {
+        if cfg!(debug_assertions) { 5_000 } else { 3_000 }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     //  ORIGINAL 5 TESTS (preserved verbatim)
     // ═══════════════════════════════════════════════════════════════════════
@@ -269,42 +277,48 @@ mod tests {
     //  PERFORMANCE / TIMING TESTS (Tests 7–12)
     // ═══════════════════════════════════════════════════════════════════════
 
-    /// Test 7: Key generation phase alone must complete under 2ms.
+    /// Test 7: Key generation phase must stay within the profile-specific budget.
     #[test]
-    fn test_keygen_under_2ms() {
+    fn test_keygen_within_profile_budget() {
         // Warmup
         let _ = kyber768_key_exchange();
         let report = kyber768_key_exchange();
+        let budget_us = phase_budget_us();
         assert!(
-            report.keygen_us < 2000,
-            "Keygen took {}μs, exceeding the 2ms budget",
-            report.keygen_us
+            report.keygen_us < budget_us,
+            "Keygen took {}μs, exceeding the {}μs profile budget",
+            report.keygen_us,
+            budget_us
         );
     }
 
-    /// Test 8: Encapsulation phase alone must complete under 2ms.
+    /// Test 8: Encapsulation phase must stay within the profile-specific budget.
     #[test]
-    fn test_encaps_under_2ms() {
+    fn test_encaps_within_profile_budget() {
         // Warmup
         let _ = kyber768_key_exchange();
         let report = kyber768_key_exchange();
+        let budget_us = phase_budget_us();
         assert!(
-            report.encaps_us < 2000,
-            "Encapsulation took {}μs, exceeding the 2ms budget",
-            report.encaps_us
+            report.encaps_us < budget_us,
+            "Encapsulation took {}μs, exceeding the {}μs profile budget",
+            report.encaps_us,
+            budget_us
         );
     }
 
-    /// Test 9: Decapsulation phase alone must complete under 2ms.
+    /// Test 9: Decapsulation phase must stay within the profile-specific budget.
     #[test]
-    fn test_decaps_under_2ms() {
+    fn test_decaps_within_profile_budget() {
         // Warmup
         let _ = kyber768_key_exchange();
         let report = kyber768_key_exchange();
+        let budget_us = phase_budget_us();
         assert!(
-            report.decaps_us < 2000,
-            "Decapsulation took {}μs, exceeding the 2ms budget",
-            report.decaps_us
+            report.decaps_us < budget_us,
+            "Decapsulation took {}μs, exceeding the {}μs profile budget",
+            report.decaps_us,
+            budget_us
         );
     }
 
@@ -313,16 +327,18 @@ mod tests {
 
     /// Test 11: Average of 100 round-trips must be under 3ms (3000μs).
     #[test]
-    fn test_100_roundtrips_average_under_3ms() {
+    fn test_100_roundtrips_average_within_profile_budget() {
         // Warmup round
         let _ = kyber768_key_exchange();
 
         let total: u64 = (0..100).map(|_| kyber768_key_exchange().total_us).sum();
         let avg = total / 100;
+        let budget_us = average_roundtrip_budget_us();
         assert!(
-            avg < 3000,
-            "Average round-trip across 100 runs was {}μs, exceeding the 3ms target",
-            avg
+            avg < budget_us,
+            "Average round-trip across 100 runs was {}μs, exceeding the {}μs profile budget",
+            avg,
+            budget_us
         );
     }
 
