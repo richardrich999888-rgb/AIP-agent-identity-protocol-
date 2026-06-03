@@ -26,6 +26,7 @@ portable evidence packets.
 | Revocation lookup | `GET /v1/identity/revocation-status/:jti` | O(1) revocation-state lookup |
 | EvidencePacket | `aip-standalone/aip-protocol` | Decision, trace, receipt, attestation, graph, Ed25519 assembler signature, and optional ML-DSA-65 assembler signature binding |
 | Terminal verifier | `cargo run --manifest-path aip-standalone/Cargo.toml --package airon-verify` | Offline PASS/TOXIC verification of assembler, optional or keyring-required ML-DSA-65 assembler, agent, trace authority, receipt authority, counterparty, and external receipt digest checks |
+| Python SDK | `python/airon-aip-sdk` | Persistent agent identity client plus optional LangChain, PyTorch, NumPy, and pandas adapters |
 
 ### AEGIS: Enforcement and Network Plane
 
@@ -149,6 +150,23 @@ make aip-load-locust USERS=500 SPAWN_RATE=50 RUN_TIME=5m
 The Locust profile exercises issue, verify, delegate, verify-chain, and cascade
 revoke endpoints. A 50,000-concurrent-user claim requires distributed load
 generators and must not be measured from the same host running `aip-service`.
+
+### 5. Python SDK Adoption Pilot
+
+Use this mode when the evaluator wants to embed AIP into agent frameworks and
+data/ML workflows.
+
+```bash
+make aip-sdk-test
+pip install -e python/airon-aip-sdk
+pip install -e 'python/airon-aip-sdk[langchain,numpy,pandas,torch]'
+```
+
+The SDK persists an AIP identity alias locally, issues or refreshes service
+tokens through `aip-service`, attaches AIP metadata to LangChain runnable config,
+stamps pandas DataFrames, wraps NumPy arrays with provenance metadata, and binds
+identity hashes to PyTorch modules without storing raw bearer tokens in model
+state.
 
 ## Banking Latency Gates
 

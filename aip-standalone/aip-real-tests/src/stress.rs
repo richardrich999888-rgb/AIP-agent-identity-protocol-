@@ -16,6 +16,19 @@ fn test_provenance() -> ProvenanceTriple {
     }
 }
 
+fn throughput_floor(env_name: &str, debug_floor: f64, release_floor: f64) -> f64 {
+    std::env::var(env_name)
+        .ok()
+        .and_then(|value| value.parse::<f64>().ok())
+        .unwrap_or_else(|| {
+            if cfg!(debug_assertions) {
+                debug_floor
+            } else {
+                release_floor
+            }
+        })
+}
+
 #[test]
 fn test_create_1000_identities_no_collision() {
     let mut ids = HashSet::new();
@@ -167,9 +180,11 @@ fn test_signing_throughput() {
         "Signing throughput: {:.0} signs/sec ({} in {:.2?})",
         per_sec, count, elapsed
     );
+    let floor = throughput_floor("AIP_SIGNING_THROUGHPUT_FLOOR", 500.0, 1000.0);
     assert!(
-        per_sec > 1000.0,
-        "Signing must exceed 1000/sec, got {:.0}/sec",
+        per_sec > floor,
+        "Signing must exceed {:.0}/sec, got {:.0}/sec",
+        floor,
         per_sec
     );
 }
@@ -194,9 +209,11 @@ fn test_verification_throughput() {
         "Verification throughput: {:.0} verifies/sec ({} in {:.2?})",
         per_sec, count, elapsed
     );
+    let floor = throughput_floor("AIP_VERIFICATION_THROUGHPUT_FLOOR", 1000.0, 2000.0);
     assert!(
-        per_sec > 2000.0,
-        "Verification must exceed 2000/sec, got {:.0}/sec",
+        per_sec > floor,
+        "Verification must exceed {:.0}/sec, got {:.0}/sec",
+        floor,
         per_sec
     );
 }

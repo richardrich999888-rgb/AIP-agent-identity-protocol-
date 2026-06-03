@@ -202,6 +202,7 @@ AIP/
 ├── aip-service/                        # Production Axum microservice (Identity Layer)
 │   ├── Cargo.toml
 │   ├── Dockerfile
+│   ├── load-tests/                     # Locust HTTP load profile
 │   └── src/
 │       ├── main.rs                     # Application entry point
 │       ├── handlers.rs                 # HTTP endpoints (issue, verify, delegate, revoke)
@@ -218,6 +219,11 @@ AIP/
 │   ├── aip-test/                       # Integration tests
 │   ├── aip-real-tests/                 # End-to-end adversarial tests
 │   └── aip-cli/                        # Command-line interface
+│
+├── python/airon-aip-sdk/               # Python SDK for persistent agent identity
+│   ├── pyproject.toml
+│   ├── src/airon_aip/                  # Core client, store, integrations
+│   └── tests/
 │
 ├── aegis-quantum/                      # AEGIS Infrastructure Layer (AQ-1)
 │   ├── Cargo.toml                      # Workspace root
@@ -244,6 +250,16 @@ cargo build --workspace
 ./target/debug/aip-cli create-identity --model "my-model" --env "production"
 ./target/debug/aip-cli simulate --agents 5
 ```
+
+### AIP Python SDK
+```bash
+make aip-sdk-test
+pip install -e python/airon-aip-sdk
+pip install -e 'python/airon-aip-sdk[langchain,numpy,pandas,torch]'
+```
+
+The SDK provides persistent agent identity for Python agents and optional
+adapters for LangChain, PyTorch, NumPy, and pandas.
 
 ### AEGIS (Infrastructure Layer)
 ```bash
@@ -292,4 +308,3 @@ Unauthorized reproduction, distribution, or use of this technology without expli
 *AIRON Trust Infrastructure — cryptographic trust and sovereign security for the AI agent economy.*
 
 **© 2025–2026 Vanian Technologies Private Limited.**
-

@@ -1,6 +1,6 @@
 # AIRON Trust Infrastructure validation orchestration.
 
-.PHONY: help aip-check aip-test aip-validation-report aip-ci-local aip-load-locust dossier-artifacts pilot-latency-report pilot-local
+.PHONY: help aip-check aip-test aip-validation-report aip-ci-local aip-sdk-test aip-load-locust dossier-artifacts pilot-latency-report pilot-local
 
 GREEN  := \033[0;32m
 CYAN   := \033[0;36m
@@ -23,6 +23,7 @@ help:
 	@echo "    make aip-test              - run all AIP protocol and service tests"
 	@echo "    make aip-validation-report - write $(AIP_REPORT)"
 	@echo "    make aip-ci-local          - check + tests + report"
+	@echo "    make aip-sdk-test          - run Python SDK unit tests"
 	@echo "    make aip-load-locust       - run Locust HTTP identity load profile"
 	@echo ""
 	@echo "  $(GREEN)Pilot Evidence$(RESET)"
@@ -51,8 +52,12 @@ aip-validation-report:
 	python3 scripts/generate_aip_validation_report.py --output $(AIP_REPORT)
 	@echo "$(GREEN)AIP validation report written: $(AIP_REPORT)$(RESET)"
 
-aip-ci-local: aip-check aip-test aip-validation-report
-	@echo "$(GREEN)AIP local validation passed: check + tests + report$(RESET)"
+aip-ci-local: aip-check aip-test aip-sdk-test aip-validation-report
+	@echo "$(GREEN)AIP local validation passed: check + tests + Python SDK + report$(RESET)"
+
+aip-sdk-test:
+	@echo "$(CYAN)-- AIP Python SDK tests --$(RESET)"
+	PYTHONPATH=python/airon-aip-sdk/src python3 -m unittest discover -s python/airon-aip-sdk/tests
 
 aip-load-locust:
 	@echo "$(CYAN)-- Running AIP Locust profile against $(AIP_BASE_URL) --$(RESET)"
