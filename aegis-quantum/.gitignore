@@ -1,0 +1,22 @@
+# Build artifacts
+**/target/
+**/*.o
+**/*.d
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Criterion benchmark output (committed selectively)
+# benchmarks/target/

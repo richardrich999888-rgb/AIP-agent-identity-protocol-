@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+members = [
+    "aegis-quantum-common",
+    "aegis-quantum-userspace",
+    "aegis-quantum-circuit-breaker",
+    "benchmarks",
+]
+
+# NOTE: aegis-quantum-ebpf is intentionally excluded from the default workspace
+# because it targets `bpfel-unknown-none` (eBPF bytecode) and requires a separate
+# build pipeline via `cargo +nightly build --target bpfel-unknown-none -Z build-std=core`.
+# It is built independently using xtask or manual invocation.
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"

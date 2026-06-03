@@ -1,0 +1,24 @@
+[package]
+name = "aegis-quantum-benchmarks"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "TRL-4 Performance benchmarks for Aegis-Quantum PQC and Circuit Breaker"
+
+[dependencies]
+pqcrypto-kyber = "0.8"
+pqcrypto-traits = "0.3"
+sha2 = "0.10"
+aegis-quantum-common = { path = "../aegis-quantum-common" }
+aegis-quantum-circuit-breaker = { path = "../aegis-quantum-circuit-breaker" }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "pqc_bench"
+harness = false
+
+[[bench]]
+name = "circuit_breaker_bench"
+harness = false

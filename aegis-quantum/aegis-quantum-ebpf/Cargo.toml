@@ -1,0 +1,26 @@
+[package]
+name = "aegis-quantum-ebpf"
+version = "0.1.0"
+edition = "2021"
+description = "Aegis-Quantum XDP kernel-space program — intercepts TCP SYN packets and emits events via Ring Buffer"
+
+[dependencies]
+aya-ebpf = "0.1"
+aya-log-ebpf = "0.1"
+network-types = "0.0.7"
+
+# Reference the common types (no_std compatible)
+aegis-quantum-common = { path = "../aegis-quantum-common", default-features = false }
+
+[[bin]]
+name = "aegis-quantum-ebpf"
+path = "src/main.rs"
+
+[profile.dev]
+opt-level = 2        # eBPF verifier is stricter on unoptimized code
+overflow-checks = false
+debug = false        # eBPF doesn't support debug info
+
+[profile.release]
+lto = true
+panic = "abort"
