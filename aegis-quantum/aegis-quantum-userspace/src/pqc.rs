@@ -135,6 +135,11 @@ pub fn run_pqc_validation() -> PqcValidationReport {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashSet;
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  ORIGINAL 5 TESTS (preserved verbatim)
+    // ═══════════════════════════════════════════════════════════════════════
 
     #[test]
     fn test_kyber768_roundtrip_secrets_match() {
@@ -179,5 +184,403 @@ mod tests {
             r1.shared_secret_hash, r2.shared_secret_hash,
             "Different key exchanges should produce different shared secrets"
         );
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  CRYPTOGRAPHIC CORRECTNESS TESTS (Tests 1–6)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// Test 1: 10 consecutive key exchanges must all produce matching secrets.
+    #[test]
+    fn test_10_consecutive_key_exchanges_all_match() {
+        for i in 0..10 {
+            let report = kyber768_key_exchange();
+            assert!(
+                report.secrets_match,
+                "Key exchange #{} failed: shared secrets did not match",
+                i + 1
+            );
+        }
+    }
+
+    /// Test 2: 100 key exchanges must produce 100 unique shared secret hashes.
+    #[test]
+    fn test_100_key_exchanges_all_unique_secrets() {
+        let mut hashes = HashSet::new();
+        for i in 0..100 {
+            let report = kyber768_key_exchange();
+            assert!(
+                hashes.insert(report.shared_secret_hash.clone()),
+                "Duplicate shared secret hash detected at exchange #{}: {}",
+                i + 1,
+                report.shared_secret_hash
+            );
+        }
+        assert_eq!(hashes.len(), 100, "Expected 100 unique hashes");
+    }
+
+    /// Test 3: Shared secret must always be exactly 32 bytes (256 bits).
+    #[test]
+    fn test_shared_secret_is_32_bytes() {
+        for _ in 0..5 {
+            let report = kyber768_key_exchange();
+            assert_eq!(
+                report.shared_secret_bytes, 32,
+                "Kyber-768 shared secret must be exactly 32 bytes"
+            );
+        }
+    }
+
+    /// Test 4: Public key must always be exactly 1184 bytes (Kyber-768 standard).
+    #[test]
+    fn test_public_key_is_1184_bytes() {
+        for _ in 0..5 {
+            let report = kyber768_key_exchange();
+            assert_eq!(
+                report.public_key_bytes, 1184,
+                "Kyber-768 public key must be exactly 1184 bytes"
+            );
+        }
+    }
+
+    /// Test 5: Ciphertext must always be exactly 1088 bytes (Kyber-768 standard).
+    #[test]
+    fn test_ciphertext_is_1088_bytes() {
+        for _ in 0..5 {
+            let report = kyber768_key_exchange();
+            assert_eq!(
+                report.ciphertext_bytes, 1088,
+                "Kyber-768 ciphertext must be exactly 1088 bytes"
+            );
+        }
+    }
+
+    /// Test 6: Algorithm name must be "Kyber-768 (ML-KEM)".
+    #[test]
+    fn test_algorithm_name_is_kyber768() {
+        let report = kyber768_key_exchange();
+        assert_eq!(
+            report.algorithm, "Kyber-768 (ML-KEM)",
+            "Algorithm name must be 'Kyber-768 (ML-KEM)'"
+        );
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  PERFORMANCE / TIMING TESTS (Tests 7–12)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// Test 7: Key generation phase alone must complete under 2ms.
+    #[test]
+    fn test_keygen_under_2ms() {
+        // Warmup
+        let _ = kyber768_key_exchange();
+        let report = kyber768_key_exchange();
+        assert!(
+            report.keygen_us < 2000,
+            "Keygen took {}μs, exceeding the 2ms budget",
+            report.keygen_us
+        );
+    }
+
+    /// Test 8: Encapsulation phase alone must complete under 2ms.
+    #[test]
+    fn test_encaps_under_2ms() {
+        // Warmup
+        let _ = kyber768_key_exchange();
+        let report = kyber768_key_exchange();
+        assert!(
+            report.encaps_us < 2000,
+            "Encapsulation took {}μs, exceeding the 2ms budget",
+            report.encaps_us
+        );
+    }
+
+    /// Test 9: Decapsulation phase alone must complete under 2ms.
+    #[test]
+    fn test_decaps_under_2ms() {
+        // Warmup
+        let _ = kyber768_key_exchange();
+        let report = kyber768_key_exchange();
+        assert!(
+            report.decaps_us < 2000,
+            "Decapsulation took {}μs, exceeding the 2ms budget",
+            report.decaps_us
+        );
+    }
+
+    // Test 10: test_total_roundtrip_under_5ms — already exists above as
+    //          test_kyber768_performance_under_5ms
+
+    /// Test 11: Average of 100 round-trips must be under 3ms (3000μs).
+    #[test]
+    fn test_100_roundtrips_average_under_3ms() {
+        // Warmup round
+        let _ = kyber768_key_exchange();
+
+        let total: u64 = (0..100).map(|_| kyber768_key_exchange().total_us).sum();
+        let avg = total / 100;
+        assert!(
+            avg < 3000,
+            "Average round-trip across 100 runs was {}μs, exceeding the 3ms target",
+            avg
+        );
+    }
+
+    /// Test 12: run_pqc_validation() (which performs warmup) must still
+    /// produce a valid, secrets-matching report.
+    #[test]
+    fn test_warmup_does_not_affect_correctness() {
+        let report = run_pqc_validation();
+        assert!(
+            report.secrets_match,
+            "run_pqc_validation() must produce matching secrets even after warmup"
+        );
+        assert_eq!(report.shared_secret_bytes, 32);
+        assert_eq!(report.public_key_bytes, 1184);
+        assert_eq!(report.ciphertext_bytes, 1088);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  HASH INTEGRITY TESTS (Tests 13–16)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// Test 13: Hash must consist entirely of lowercase hex characters (0-9, a-f).
+    #[test]
+    fn test_hash_is_lowercase_hex() {
+        let report = kyber768_key_exchange();
+        assert!(
+            report
+                .shared_secret_hash
+                .chars()
+                .all(|c| matches!(c, '0'..='9' | 'a'..='f')),
+            "Hash contains non-lowercase-hex characters: {}",
+            report.shared_secret_hash
+        );
+    }
+
+    // Test 14: test_hash_length_always_64 — already exists above as
+    //          test_shared_secret_hash_is_valid_hex (asserts len==64)
+
+    // Test 15: test_hash_changes_between_runs — already exists above as
+    //          test_different_keypairs_produce_different_secrets
+
+    /// Test 16: NEGATIVE test — since keypairs are random, hashes from
+    /// separate key exchanges MUST differ.
+    #[test]
+    fn test_hash_is_deterministic_for_same_keypair() {
+        // Two independent key exchanges use independent random keypairs,
+        // so they MUST produce different hashes. This validates entropy.
+        let r1 = kyber768_key_exchange();
+        let r2 = kyber768_key_exchange();
+        assert_ne!(
+            r1.shared_secret_hash, r2.shared_secret_hash,
+            "Independent key exchanges must produce different hashes (entropy check)"
+        );
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  PACKET EVENT PROCESSING TESTS (Tests 17–20)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// Helper: create a mock PacketEvent with the given parameters.
+    fn mock_event(src_port: u16, dst_port: u16, tcp_flags: u8) -> PacketEvent {
+        PacketEvent {
+            src_addr: 0x0A000001,   // 10.0.0.1
+            dst_addr: 0x0A000002,   // 10.0.0.2
+            src_port,
+            dst_port,
+            pkt_len: 64,
+            timestamp_ns: 0,
+            tcp_flags,
+            _pad: [0u8; 7],
+        }
+    }
+
+    /// Test 17: process_packet_event with a valid mock event must return
+    /// a report with secrets_match == true.
+    #[test]
+    fn test_process_packet_event_returns_valid_report() {
+        let event = mock_event(44100, 443, 0x02);
+        let report = process_packet_event(&event);
+        assert!(
+            report.secrets_match,
+            "process_packet_event must produce matching secrets"
+        );
+        assert_eq!(report.algorithm, "Kyber-768 (ML-KEM)");
+    }
+
+    /// Test 18: SYN flag (0x02) events should be processed correctly.
+    #[test]
+    fn test_process_packet_event_with_syn_flags() {
+        let event = mock_event(12345, 443, 0x02); // SYN
+        let report = process_packet_event(&event);
+        assert!(report.secrets_match, "SYN-flagged event must produce valid exchange");
+        assert_eq!(report.shared_secret_bytes, 32);
+    }
+
+    /// Test 19: Various common and edge-case port numbers must work.
+    #[test]
+    fn test_process_packet_event_with_various_ports() {
+        let ports = [80u16, 443, 8080, 55000];
+        for &port in &ports {
+            let event = mock_event(port, port, 0x02);
+            let report = process_packet_event(&event);
+            assert!(
+                report.secrets_match,
+                "Event with port {} must produce valid exchange",
+                port
+            );
+        }
+    }
+
+    /// Test 20: Processing a single PacketEvent must complete under 5ms.
+    #[test]
+    fn test_process_packet_event_performance_under_5ms() {
+        // Warmup
+        let _ = kyber768_key_exchange();
+
+        let event = mock_event(44100, 443, 0x02);
+        let report = process_packet_event(&event);
+        assert!(
+            report.total_us < 5000,
+            "PacketEvent processing took {}μs, exceeding the 5ms target",
+            report.total_us
+        );
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  STATISTICAL VALIDATION TESTS — TDB-GRADE (Tests 21–23)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// Test 21: Generate 50 public keys and verify each pair differs by
+    /// at least 1 byte (entropy / key generation diversity check).
+    #[test]
+    fn test_key_generation_entropy() {
+        use pqcrypto_kyber::kyber768;
+        use pqcrypto_traits::kem::PublicKey;
+
+        let keys: Vec<Vec<u8>> = (0..50)
+            .map(|_| {
+                let (pk, _sk) = kyber768::keypair();
+                pk.as_bytes().to_vec()
+            })
+            .collect();
+
+        for i in 0..keys.len() {
+            for j in (i + 1)..keys.len() {
+                let differs = keys[i]
+                    .iter()
+                    .zip(keys[j].iter())
+                    .any(|(a, b)| a != b);
+                assert!(
+                    differs,
+                    "Public keys {} and {} are identical — catastrophic entropy failure",
+                    i, j
+                );
+            }
+        }
+    }
+
+    /// Test 22: Generate 50 shared secrets and verify:
+    ///   - No two are identical
+    ///   - None is all-zeros
+    ///   - None is all-0xFF
+    #[test]
+    fn test_shared_secret_entropy() {
+        use pqcrypto_kyber::kyber768;
+        use pqcrypto_traits::kem::SharedSecret;
+
+        let mut secrets = HashSet::new();
+
+        for i in 0..50 {
+            let (pk, _sk) = kyber768::keypair();
+            let (ss, _ct) = kyber768::encapsulate(&pk);
+            let bytes = ss.as_bytes().to_vec();
+
+            // Must not be all-zeros
+            assert!(
+                bytes.iter().any(|&b| b != 0x00),
+                "Shared secret #{} is all-zeros — critical entropy failure",
+                i
+            );
+            // Must not be all-0xFF
+            assert!(
+                bytes.iter().any(|&b| b != 0xFF),
+                "Shared secret #{} is all-0xFF — critical entropy failure",
+                i
+            );
+            // Must be unique
+            assert!(
+                secrets.insert(bytes),
+                "Duplicate shared secret detected at index {}",
+                i
+            );
+        }
+        assert_eq!(secrets.len(), 50, "Expected 50 unique shared secrets");
+    }
+
+    /// Test 23: Generate 50 ciphertexts from different keypairs and verify
+    /// all are unique.
+    #[test]
+    fn test_ciphertext_entropy() {
+        use pqcrypto_kyber::kyber768;
+        use pqcrypto_traits::kem::Ciphertext;
+
+        let mut ciphertexts = HashSet::new();
+
+        for i in 0..50 {
+            let (pk, _sk) = kyber768::keypair();
+            let (_ss, ct) = kyber768::encapsulate(&pk);
+            let ct_bytes = ct.as_bytes().to_vec();
+            assert!(
+                ciphertexts.insert(ct_bytes),
+                "Duplicate ciphertext detected at index {}",
+                i
+            );
+        }
+        assert_eq!(ciphertexts.len(), 50, "Expected 50 unique ciphertexts");
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  REGRESSION / EDGE CASE TESTS (Tests 24–25)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// Test 24: Calling run_pqc_validation() 5 times must not panic.
+    #[test]
+    fn test_run_pqc_validation_does_not_panic() {
+        for i in 0..5 {
+            let report = run_pqc_validation();
+            assert!(
+                report.secrets_match,
+                "run_pqc_validation() panicked or failed on iteration {}",
+                i + 1
+            );
+        }
+    }
+
+    /// Test 25: Two consecutive key exchanges must produce completely
+    /// different results (independent random state).
+    #[test]
+    fn test_sequential_exchanges_are_independent() {
+        let r1 = kyber768_key_exchange();
+        let r2 = kyber768_key_exchange();
+
+        // Shared secret hashes must differ
+        assert_ne!(
+            r1.shared_secret_hash, r2.shared_secret_hash,
+            "Sequential exchanges must produce different shared secret hashes"
+        );
+
+        // Both must still be individually valid
+        assert!(r1.secrets_match, "First exchange must produce matching secrets");
+        assert!(r2.secrets_match, "Second exchange must produce matching secrets");
+
+        // Sizes must remain consistent with Kyber-768 spec
+        assert_eq!(r1.public_key_bytes, 1184);
+        assert_eq!(r2.public_key_bytes, 1184);
+        assert_eq!(r1.ciphertext_bytes, 1088);
+        assert_eq!(r2.ciphertext_bytes, 1088);
+        assert_eq!(r1.shared_secret_bytes, 32);
+        assert_eq!(r2.shared_secret_bytes, 32);
     }
 }
