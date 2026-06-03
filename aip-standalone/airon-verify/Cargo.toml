@@ -9,11 +9,15 @@ description = "Terminal verifier for AIRON EvidencePacket non-repudiation chains
 name = "airon-verify"
 path = "src/main.rs"
 
+[[bin]]
+name = "airon-passport"
+path = "src/passport_main.rs"
+
 [dependencies]
+aip-core = { path = "../aip-core" }
 aip-protocol = { path = "../aip-protocol" }
+base64 = "0.22"
 clap = { version = "4", features = ["derive"] }
+ed25519-dalek = "2.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-
-[dev-dependencies]
-ed25519-dalek = "2.1"

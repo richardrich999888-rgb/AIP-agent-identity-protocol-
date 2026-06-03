@@ -7,8 +7,11 @@
 //!
 //! The seed file is chmod 600 on Unix.  The private key is NEVER logged.
 
-use base64::{engine::general_purpose::STANDARD as B64, Engine};
-use ed25519_dalek::{SigningKey, VerifyingKey};
+use base64::{
+    engine::general_purpose::{STANDARD as B64, URL_SAFE_NO_PAD as B64URL},
+    Engine,
+};
+use ed25519_dalek::{Signer, SigningKey, VerifyingKey};
 use rand::rngs::OsRng;
 use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
@@ -75,6 +78,7 @@ fn der_to_pem(der: &[u8], label: &str) -> String {
 
 // ── KeyPair ───────────────────────────────────────────────────────────────────
 
+#[derive(Clone)]
 pub struct KeyPair {
     /// 32-byte Ed25519 seed — NEVER printed or logged.
     seed: [u8; 32],
@@ -176,5 +180,15 @@ impl KeyPair {
             fs::set_permissions(path, perms)?;
         }
         Ok(())
+    }
+
+    pub fn public_key_b64url(&self) -> String {
+        let signing_key = SigningKey::from_bytes(&self.seed);
+        B64URL.encode(signing_key.verifying_key().as_bytes())
+    }
+
+    pub fn sign_bytes_b64url(&self, payload: &[u8]) -> String {
+        let signing_key = SigningKey::from_bytes(&self.seed);
+        B64URL.encode(signing_key.sign(payload).to_bytes())
     }
 }

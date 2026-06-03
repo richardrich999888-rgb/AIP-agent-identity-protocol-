@@ -83,7 +83,9 @@ dependencies = [
 name = "airon-verify"
 version = "0.3.0"
 dependencies = [
+ "aip-core",
  "aip-protocol",
+ "base64",
  "clap",
  "ed25519-dalek",
  "serde",

@@ -1,8 +1,12 @@
 //! Axum route handlers for all AIP endpoints.
 
+use aip_core::passport::{
+    canonical_passport_body_bytes, AgentPassport, EnvironmentalLock, LineageEntry, PassportBody,
+    PassportConstraints, PassportHeader, PassportIssuer, PassportProof, PassportSubject,
+};
 use axum::{
     extract::{Path, State},
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     Json,
 };
 use std::sync::Arc;
@@ -11,10 +15,11 @@ use crate::{
     delegation,
     models::{
         DelegateRequest, DelegateResponse, ErrorBody, HealthResponse, IssueRequest, IssueResponse,
+        PassportIssueRequest, PassportIssueResponse, PassportVerifyRequest, PassportVerifyResponse,
         PublicKeyResponse, RevocationStatusResponse, RevokeRequest, RevokeResponse,
         VerifyChainRequest, VerifyChainResponse, VerifyRequest, VerifyResponse,
     },
-    revocation, tokens, AppState,
+    passport as passport_store, revocation, tokens, AppState,
 };
 
 type ApiError = (StatusCode, Json<ErrorBody>);
@@ -31,6 +36,70 @@ fn internal_error(msg: impl Into<String>) -> ApiError {
         StatusCode::INTERNAL_SERVER_ERROR,
         Json(ErrorBody { error: msg.into() }),
     )
+}
+
+fn unauthorized(msg: impl Into<String>) -> ApiError {
+    (
+        StatusCode::UNAUTHORIZED,
+        Json(ErrorBody { error: msg.into() }),
+    )
+}
+
+fn now_unix_seconds() -> u64 {
+    chrono::Utc::now().timestamp().max(0) as u64
+}
+
+fn token_from_headers_or_body(
+    headers: &HeaderMap,
+    body_token: &Option<String>,
+) -> Result<String, ApiError> {
+    if let Some(token) = body_token
+        .as_deref()
+        .map(str::trim)
+        .filter(|t| !t.is_empty())
+    {
+        return Ok(token.to_owned());
+    }
+
+    if let Some(value) = headers.get("aip-token") {
+        let token = value
+            .to_str()
+            .map_err(|_| bad_request("AIP-Token header must be valid UTF-8"))?
+            .trim();
+        if !token.is_empty() {
+            return Ok(token.to_owned());
+        }
+    }
+
+    if let Some(value) = headers.get("authorization") {
+        let header = value
+            .to_str()
+            .map_err(|_| bad_request("Authorization header must be valid UTF-8"))?
+            .trim();
+        if let Some(token) = header.strip_prefix("Bearer ") {
+            let token = token.trim();
+            if !token.is_empty() {
+                return Ok(token.to_owned());
+            }
+        }
+    }
+
+    Err(unauthorized(
+        "AIP token required in aip_token, AIP-Token, or Authorization: Bearer",
+    ))
+}
+
+fn metadata_string(
+    metadata: &Option<serde_json::Map<String, serde_json::Value>>,
+    key: &str,
+) -> Option<String> {
+    metadata
+        .as_ref()
+        .and_then(|meta| meta.get(key))
+        .and_then(|value| value.as_str())
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(ToOwned::to_owned)
 }
 
 // ── GET /health ───────────────────────────────────────────────────────────────
@@ -391,6 +460,168 @@ pub async fn revocation_status(
 ) -> Json<RevocationStatusResponse> {
     let revoked = revocation::is_revoked(&state.revocation_set, &jti);
     Json(RevocationStatusResponse { jti, revoked })
+}
+
+// ── POST /v1/passports/issue ─────────────────────────────────────────────────
+
+pub async fn issue_passport(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Json(req): Json<PassportIssueRequest>,
+) -> Result<Json<PassportIssueResponse>, ApiError> {
+    if req.friendly_name.trim().is_empty() {
+        return Err(bad_request("friendly_name must not be empty"));
+    }
+    if req.capabilities.is_empty() {
+        return Err(bad_request("capabilities must not be empty"));
+    }
+    if req.capabilities.len() > 64 {
+        return Err(bad_request("capabilities may contain at most 64 entries"));
+    }
+
+    let ttl_seconds = req.ttl_seconds.unwrap_or(3_600);
+    if ttl_seconds == 0 || ttl_seconds > 86_400 {
+        return Err(bad_request("ttl_seconds must be between 1 and 86400"));
+    }
+
+    let aip_token = token_from_headers_or_body(&headers, &req.aip_token)?;
+    let parent_result = tokens::verify(&aip_token, &state.decoding_key);
+    if !parent_result.valid {
+        return Err(unauthorized(format!(
+            "aip_token invalid: {}",
+            parent_result.reason.unwrap_or_default()
+        )));
+    }
+    if revocation::is_revoked(&state.revocation_set, &parent_result.jti) {
+        return Err(unauthorized("aip_token has been revoked"));
+    }
+
+    let issued_at = now_unix_seconds();
+    let expires_at = issued_at + ttl_seconds;
+    let passport_id = format!("urn:aip:passport:{}", uuid::Uuid::new_v4());
+
+    let environmental_lock = req.environmental_lock.unwrap_or_else(|| EnvironmentalLock {
+        runtime: metadata_string(&req.metadata, "runtime")
+            .unwrap_or_else(|| format!("airon-aip-service-{}", env!("CARGO_PKG_VERSION"))),
+        image_hash: metadata_string(&req.metadata, "image_hash")
+            .unwrap_or_else(|| "sha256:unknown".to_owned()),
+    });
+
+    let lineage_payload = serde_json::json!({
+        "actor": parent_result.agent_id.clone(),
+        "action": "AUTHORIZE_PASSPORT",
+        "passport_id": passport_id,
+        "parent_jti": parent_result.jti.clone(),
+        "timestamp": issued_at,
+    });
+    let lineage_bytes = serde_json::to_vec(&lineage_payload)
+        .map_err(|e| internal_error(format!("lineage encoding failed: {e}")))?;
+    let lineage_signature = state.passport_keypair.sign_bytes_b64url(&lineage_bytes);
+
+    let body = PassportBody {
+        passport_id,
+        subject: PassportSubject {
+            agent_id: parent_result.agent_id,
+            friendly_name: req.friendly_name.trim().to_owned(),
+            pqc_pubkey: req.subject_pqc_pubkey,
+            classical_pubkey: req.subject_classical_pubkey,
+        },
+        issuer: PassportIssuer {
+            name: state.issuer_name.clone(),
+            id: state.issuer_id.clone(),
+            registry_url: state.registry_url.clone(),
+            public_key_fingerprint: state.fingerprint.clone(),
+            classical_pubkey: state.issuer_public_key_b64url.clone(),
+            pqc_pubkey: None,
+        },
+        constraints: PassportConstraints {
+            issued_at,
+            expires_at,
+            capabilities: req.capabilities,
+            max_delegation_depth: req.max_delegation_depth.unwrap_or(delegation::MAX_DEPTH),
+        },
+        lineage: vec![LineageEntry {
+            actor: lineage_payload["actor"]
+                .as_str()
+                .unwrap_or_default()
+                .to_owned(),
+            action: "AUTHORIZE".to_owned(),
+            timestamp: issued_at,
+            signature: lineage_signature,
+        }],
+        environmental_lock,
+    };
+
+    let body_bytes = canonical_passport_body_bytes(&body)
+        .map_err(|e| internal_error(format!("passport canonical encoding failed: {e}")))?;
+    let signature = state.passport_keypair.sign_bytes_b64url(&body_bytes);
+    let passport = AgentPassport {
+        header: PassportHeader::default(),
+        body,
+        proof: PassportProof {
+            signature,
+            pqc_signature: None,
+        },
+    };
+
+    passport
+        .structural_check()
+        .map_err(|e| bad_request(format!("passport validation failed: {e}")))?;
+
+    let passport_hash = passport_store::passport_hash(&passport)
+        .map_err(|e| internal_error(format!("passport hash failed: {e}")))?;
+    passport_store::append_passport_record(
+        &state.passport_log_path,
+        &passport_store::PassportRecord {
+            passport_id: passport.body.passport_id.clone(),
+            agent_id: passport.body.subject.agent_id.clone(),
+            passport_hash: passport_hash.clone(),
+            issued_at,
+            expires_at,
+        },
+    )
+    .map_err(|e| internal_error(format!("passport log write error: {e}")))?;
+
+    tracing::info!(
+        passport_id = %passport.body.passport_id,
+        agent_id = %passport.body.subject.agent_id,
+        passport_hash = %passport_hash,
+        "passport issued"
+    );
+
+    Ok(Json(PassportIssueResponse {
+        passport,
+        passport_hash,
+    }))
+}
+
+// ── POST /v1/passports/verify ────────────────────────────────────────────────
+
+pub async fn verify_passport(
+    State(_state): State<Arc<AppState>>,
+    Json(req): Json<PassportVerifyRequest>,
+) -> Json<PassportVerifyResponse> {
+    let passport = req.passport;
+    match passport_store::verify_passport_ed25519(&passport, now_unix_seconds()) {
+        Ok(()) => Json(PassportVerifyResponse {
+            valid: true,
+            status: "PASS",
+            reason: None,
+            passport_id: Some(passport.body.passport_id),
+            agent_id: Some(passport.body.subject.agent_id),
+            capabilities: passport.body.constraints.capabilities,
+            expires_at: Some(passport.body.constraints.expires_at),
+        }),
+        Err(reason) => Json(PassportVerifyResponse {
+            valid: false,
+            status: "TOXIC",
+            reason: Some(reason),
+            passport_id: Some(passport.body.passport_id),
+            agent_id: Some(passport.body.subject.agent_id),
+            capabilities: passport.body.constraints.capabilities,
+            expires_at: Some(passport.body.constraints.expires_at),
+        }),
+    }
 }
 
 // ── GET /viewer ──────────────────────────────────────────────────────────────

@@ -9,7 +9,10 @@
 //!   AIP_KEY_PATH            — path to persist the Ed25519 seed (default /var/lib/aip/signing.key)
 //!   AIP_DELEGATION_LOG_PATH — path to the delegation JSONL log (default /var/lib/aip/delegation.jsonl)
 //!   AIP_REVOCATION_LOG_PATH — path to the revocation JSONL log (default /var/lib/aip/revocation.jsonl)
+//!   AIP_PASSPORT_LOG_PATH   — path to the passport hash JSONL log (default /var/lib/aip/passports.jsonl)
 //!   AIP_ISSUER_URL          — base URL returned in /.well-known/aip-configuration (default http://aip:8081)
+//!   AIP_ISSUER_NAME         — passport issuer display name (default AIRON AIP Root)
+//!   AIP_ISSUER_ID           — passport issuer stable id (default airon.aip.root)
 //!   RUST_LOG                — log filter (default info)
 
 mod capability;
@@ -17,6 +20,7 @@ mod delegation;
 mod handlers;
 mod keys;
 mod models;
+mod passport;
 mod revocation;
 mod tokens;
 mod wellknown;
@@ -45,6 +49,16 @@ pub struct AppState {
     pub public_pem: String,
     /// SHA-256 fingerprint of the public key bytes — included in issue responses.
     pub fingerprint: String,
+    /// Issuer keypair for canonical AgentPassport body signatures.
+    pub passport_keypair: KeyPair,
+    /// Passport issuer display name.
+    pub issuer_name: String,
+    /// Passport issuer stable id.
+    pub issuer_id: String,
+    /// Passport registry / trust discovery URL.
+    pub registry_url: String,
+    /// Raw Ed25519 public key bytes, base64url without padding.
+    pub issuer_public_key_b64url: String,
     /// Path to the delegation JSONL log (for append operations).
     pub delegation_log_path: String,
     /// In-memory delegation log (loaded at startup, updated on delegate calls).
@@ -53,6 +67,8 @@ pub struct AppState {
     pub revocation_log_path: String,
     /// In-memory revocation set (loaded at startup, O(1) lookup in verify hot path).
     pub revocation_set: RevocationSet,
+    /// Path to passport hash JSONL state table.
+    pub passport_log_path: String,
 }
 
 // AppState is behind Arc; all fields are Send + Sync.
@@ -86,6 +102,18 @@ async fn main() {
     let revocation_log_path = std::env::var("AIP_REVOCATION_LOG_PATH")
         .unwrap_or_else(|_| "/var/lib/aip/revocation.jsonl".to_owned());
 
+    let passport_log_path = std::env::var("AIP_PASSPORT_LOG_PATH")
+        .unwrap_or_else(|_| "/var/lib/aip/passports.jsonl".to_owned());
+
+    let issuer_name =
+        std::env::var("AIP_ISSUER_NAME").unwrap_or_else(|_| "AIRON AIP Root".to_owned());
+
+    let issuer_id = std::env::var("AIP_ISSUER_ID").unwrap_or_else(|_| "airon.aip.root".to_owned());
+
+    let registry_url = std::env::var("AIP_REGISTRY_URL")
+        .or_else(|_| std::env::var("AIP_ISSUER_URL"))
+        .unwrap_or_else(|_| "http://127.0.0.1:8081".to_owned());
+
     // Ensure the key directory exists.
     if let Some(parent) = std::path::Path::new(&key_path).parent() {
         if let Err(e) = std::fs::create_dir_all(parent) {
@@ -99,6 +127,7 @@ async fn main() {
         .expect("generated private PEM must always be valid");
     let decoding_key = DecodingKey::from_ed_pem(kp.public_pem.as_bytes())
         .expect("generated public PEM must always be valid");
+    let issuer_public_key_b64url = kp.public_key_b64url();
 
     // Load delegation and revocation logs from disk into memory.
     let del_log = delegation::load_delegation_log(&delegation_log_path);
@@ -115,10 +144,16 @@ async fn main() {
         decoding_key,
         public_pem: kp.public_pem.clone(),
         fingerprint: kp.fingerprint.clone(),
+        passport_keypair: kp.clone(),
+        issuer_name,
+        issuer_id,
+        registry_url,
+        issuer_public_key_b64url,
         delegation_log_path,
         delegation_log: del_log,
         revocation_log_path,
         revocation_set: rev_set,
+        passport_log_path,
     });
 
     let app = Router::new()
@@ -138,6 +173,9 @@ async fn main() {
             "/v1/identity/revocation-status/:jti",
             get(handlers::revocation_status),
         )
+        // v3: portable AgentPassport
+        .route("/v1/passports/issue", post(handlers::issue_passport))
+        .route("/v1/passports/verify", post(handlers::verify_passport))
         // v2: well-known discovery
         .route(
             "/.well-known/aip-configuration",

@@ -42,6 +42,24 @@ headers = agent.authorization_headers()
 print(identity.agent_id, identity.jti, headers["Authorization"])
 ```
 
+Issue an AgentPassport:
+
+```python
+from airon_aip import AIPConfig, AgentPassport
+
+passport_service = AgentPassport(AIPConfig(aip_token=identity.token))
+
+passport = passport_service.issue(
+    friendly_name="InvoiceBot",
+    capabilities=["invoice.read", "ledger.post"],
+    metadata={"runtime": "langchain-v0.2"},
+)
+passport.save("agent.passport.json")
+
+verification = passport_service.verify(passport)
+assert verification.is_valid
+```
+
 LangChain:
 
 ```python

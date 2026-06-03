@@ -8,7 +8,15 @@ import unittest
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
-from airon_aip import AipClient, CapabilityScope, IdentityStore, PersistentAgentIdentity
+from airon_aip import (
+    AIPConfig,
+    AgentPassport,
+    AgentPassportDocument,
+    AipClient,
+    CapabilityScope,
+    IdentityStore,
+    PersistentAgentIdentity,
+)
 from airon_aip.identity import AgentIdentity
 from airon_aip.manifest import artifact_manifest, canonical_manifest_hash
 
@@ -70,6 +78,62 @@ class FakeTransport:
                     "entry_hash": "hash",
                 }
             }
+        if url.endswith("/v1/passports/issue"):
+            assert body is not None
+            now = int(time.time())
+            return 200, {
+                "passport": {
+                    "header": {
+                        "version": "1.0.0",
+                        "typ": "AIP-PASSPORT",
+                        "alg": "Ed25519",
+                    },
+                    "body": {
+                        "passport_id": "urn:aip:passport:550e8400-e29b-41d4-a716-446655440010",
+                        "subject": {
+                            "agent_id": "550e8400-e29b-41d4-a716-446655440000",
+                            "friendly_name": body["friendly_name"],
+                        },
+                        "issuer": {
+                            "name": "AIRON AIP Root",
+                            "id": "airon.aip.root",
+                            "registry_url": "http://127.0.0.1:8081",
+                            "public_key_fingerprint": "abc123",
+                            "classical_pubkey": "issuer-key",
+                        },
+                        "constraints": {
+                            "issued_at": now,
+                            "expires_at": now + int(body["ttl_seconds"]),
+                            "capabilities": body["capabilities"],
+                            "max_delegation_depth": body["max_delegation_depth"],
+                        },
+                        "lineage": [
+                            {
+                                "actor": "550e8400-e29b-41d4-a716-446655440000",
+                                "action": "AUTHORIZE",
+                                "timestamp": now,
+                                "signature": "lineage-sig",
+                            }
+                        ],
+                        "environmental_lock": body["environmental_lock"]
+                        or {"runtime": "python-3.11", "image_hash": "sha256:unknown"},
+                    },
+                    "proof": {"signature": "passport-sig"},
+                },
+                "passport_hash": "passport-hash",
+            }
+        if url.endswith("/v1/passports/verify"):
+            assert body is not None
+            passport = body["passport"]
+            return 200, {
+                "valid": True,
+                "status": "PASS",
+                "reason": None,
+                "passport_id": passport["body"]["passport_id"],
+                "agent_id": passport["body"]["subject"]["agent_id"],
+                "capabilities": passport["body"]["constraints"]["capabilities"],
+                "expires_at": passport["body"]["constraints"]["expires_at"],
+            }
         return 404, {"error": "not found"}
 
 
@@ -113,6 +177,30 @@ class CoreSdkTests(unittest.TestCase):
         digest_a = canonical_manifest_hash(manifest)
         digest_b = canonical_manifest_hash(json.loads(json.dumps(manifest)))
         self.assertEqual(digest_a, digest_b)
+
+    def test_agent_passport_issue_save_and_verify(self) -> None:
+        client = AipClient(transport=FakeTransport())
+        service = AgentPassport(AIPConfig(aip_token="parent-token"), client=client)
+
+        passport = service.issue(
+            friendly_name="InvoiceBot",
+            capabilities=["invoice.read", "ledger.post"],
+            metadata={"runtime": "langchain-v0.2"},
+        )
+
+        self.assertEqual(passport.passport_hash, "passport-hash")
+        self.assertEqual(passport.passport_id, "urn:aip:passport:550e8400-e29b-41d4-a716-446655440010")
+        self.assertEqual(passport.capabilities, ["invoice.read", "ledger.post"])
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "agent.passport.json"
+            passport.save(path)
+            loaded = AgentPassportDocument.load(path)
+
+        verification = service.verify(loaded)
+        self.assertTrue(verification.is_valid)
+        self.assertEqual(verification.status, "PASS")
+        self.assertEqual(verification.capabilities, ["invoice.read", "ledger.post"])
 
 
 if __name__ == "__main__":

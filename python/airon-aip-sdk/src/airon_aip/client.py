@@ -130,3 +130,35 @@ class AipClient:
 
     def revocation_status(self, jti: str) -> JsonDict:
         return self._request("GET", f"/v1/identity/revocation-status/{jti}")
+
+    def issue_passport(
+        self,
+        *,
+        friendly_name: str,
+        capabilities: list[str],
+        aip_token: Optional[str] = None,
+        metadata: Optional[JsonDict] = None,
+        environmental_lock: Optional[JsonDict] = None,
+        ttl_seconds: int = 3600,
+        max_delegation_depth: int = 3,
+        subject_classical_pubkey: Optional[str] = None,
+        subject_pqc_pubkey: Optional[str] = None,
+    ) -> JsonDict:
+        return self._request(
+            "POST",
+            "/v1/passports/issue",
+            {
+                "aip_token": aip_token,
+                "friendly_name": friendly_name,
+                "capabilities": list(capabilities),
+                "ttl_seconds": ttl_seconds,
+                "max_delegation_depth": max_delegation_depth,
+                "environmental_lock": environmental_lock,
+                "metadata": metadata,
+                "subject_classical_pubkey": subject_classical_pubkey,
+                "subject_pqc_pubkey": subject_pqc_pubkey,
+            },
+        )
+
+    def verify_passport(self, passport: JsonDict) -> JsonDict:
+        return self._request("POST", "/v1/passports/verify", {"passport": passport})

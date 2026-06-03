@@ -1,5 +1,6 @@
 //! AIP request / response types.
 
+use aip_core::passport::{AgentPassport, EnvironmentalLock};
 use serde::{Deserialize, Serialize};
 
 use crate::capability::CapabilityScope;
@@ -149,6 +150,47 @@ pub struct RevokeResponse {
 pub struct RevocationStatusResponse {
     pub jti: String,
     pub revoked: bool,
+}
+
+// ── POST /v1/passports/issue ─────────────────────────────────────────────────
+
+#[derive(Debug, Deserialize)]
+pub struct PassportIssueRequest {
+    /// Optional AIP JWT. Callers may also pass it as `Authorization: Bearer ...`
+    /// or `AIP-Token: ...`.
+    pub aip_token: Option<String>,
+    pub friendly_name: String,
+    pub capabilities: Vec<String>,
+    pub ttl_seconds: Option<u64>,
+    pub max_delegation_depth: Option<u32>,
+    pub environmental_lock: Option<EnvironmentalLock>,
+    pub metadata: Option<serde_json::Map<String, serde_json::Value>>,
+    pub subject_classical_pubkey: Option<String>,
+    pub subject_pqc_pubkey: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct PassportIssueResponse {
+    pub passport: AgentPassport,
+    pub passport_hash: String,
+}
+
+// ── POST /v1/passports/verify ────────────────────────────────────────────────
+
+#[derive(Debug, Deserialize)]
+pub struct PassportVerifyRequest {
+    pub passport: AgentPassport,
+}
+
+#[derive(Debug, Serialize)]
+pub struct PassportVerifyResponse {
+    pub valid: bool,
+    pub status: &'static str,
+    pub reason: Option<String>,
+    pub passport_id: Option<String>,
+    pub agent_id: Option<String>,
+    pub capabilities: Vec<String>,
+    pub expires_at: Option<u64>,
 }
 
 // ── Error body ────────────────────────────────────────────────────────────────

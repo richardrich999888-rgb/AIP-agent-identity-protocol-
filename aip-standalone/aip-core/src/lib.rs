@@ -13,6 +13,7 @@
 //! - Multi-node simulation
 
 pub mod nonce;
+pub mod passport;
 pub mod runtime;
 pub mod simulation;
 pub mod store;
