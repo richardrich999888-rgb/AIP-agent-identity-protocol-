@@ -70,6 +70,7 @@ Vagrant.configure("2") do |config|
         build-essential pkg-config libssl-dev libelf-dev \
         linux-headers-generic linux-tools-generic linux-tools-common \
         bpftool iproute2 tcpdump \
+        stress-ng \
         clang llvm \
         python3 python3-pip python3-venv python3-scapy \
         jq curl git
@@ -84,6 +85,7 @@ Vagrant.configure("2") do |config|
       echo "Gateway ready. XDP interface: eth1 (192.168.56.10)"
       echo "Build: cd ~/aegis-quantum && cargo build --workspace"
       echo "Live-fire: sudo python3 validation/validate_xdp.py --live-fire --iface eth1"
+      echo "Chaos: sudo python3 stress-tests/run_chaos_suite.py --live"
     SHELL
   end
 
@@ -118,7 +120,7 @@ Vagrant.configure("2") do |config|
 
       echo ""
       echo "Attacker ready. Inject packets to gateway: 192.168.56.10"
-      echo "Usage: sudo scapy  (then craft SYN floods targeting 192.168.56.10)"
+      echo "Usage: sudo python3 ~/aegis-quantum/infra/vagrant/semantic_loop_injector.py --target 192.168.56.10 --iface eth1"
     SHELL
   end
 

@@ -1,6 +1,6 @@
 # AIRON Trust Infrastructure validation orchestration.
 
-.PHONY: help aip-check aip-test aip-validation-report aip-ci-local dossier-artifacts pilot-latency-report pilot-local
+.PHONY: help aip-check aip-test aip-validation-report aip-ci-local aip-load-locust dossier-artifacts pilot-latency-report pilot-local
 
 GREEN  := \033[0;32m
 CYAN   := \033[0;36m
@@ -9,6 +9,10 @@ RESET  := \033[0m
 AIP_STANDALONE_MANIFEST := aip-standalone/Cargo.toml
 AIP_SERVICE_MANIFEST    := aip-service/Cargo.toml
 AIP_REPORT              := aip_validation_report.json
+AIP_BASE_URL            ?= http://127.0.0.1:8081
+USERS                   ?= 500
+SPAWN_RATE              ?= 50
+RUN_TIME                ?= 5m
 
 help:
 	@echo ""
@@ -19,6 +23,7 @@ help:
 	@echo "    make aip-test              - run all AIP protocol and service tests"
 	@echo "    make aip-validation-report - write $(AIP_REPORT)"
 	@echo "    make aip-ci-local          - check + tests + report"
+	@echo "    make aip-load-locust       - run Locust HTTP identity load profile"
 	@echo ""
 	@echo "  $(GREEN)Pilot Evidence$(RESET)"
 	@echo "    make dossier-artifacts     - write sanitized EvidencePacket verifier bundle"
@@ -48,6 +53,17 @@ aip-validation-report:
 
 aip-ci-local: aip-check aip-test aip-validation-report
 	@echo "$(GREEN)AIP local validation passed: check + tests + report$(RESET)"
+
+aip-load-locust:
+	@echo "$(CYAN)-- Running AIP Locust profile against $(AIP_BASE_URL) --$(RESET)"
+	mkdir -p pilot-results
+	locust -f aip-service/load-tests/locustfile.py \
+		--host $(AIP_BASE_URL) \
+		--headless \
+		-u $(USERS) \
+		-r $(SPAWN_RATE) \
+		--run-time $(RUN_TIME) \
+		--csv pilot-results/aip_locust
 
 dossier-artifacts:
 	@echo "$(CYAN)-- Generating AIRON dossier verifier artifacts --$(RESET)"

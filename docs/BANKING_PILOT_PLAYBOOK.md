@@ -117,6 +117,15 @@ make bench
 make stress-bench
 ```
 
+Bare-metal readiness check:
+
+```bash
+cd aegis-quantum
+sudo python3 stress-tests/run_live_fire_readiness.py \
+  --role gateway \
+  --iface <direct-dac-nic>
+```
+
 Linux runner or bare-metal host:
 
 ```bash
@@ -127,6 +136,19 @@ make build-ebpf
 Bare-metal line-rate claims require a Linux NIC testbed with traffic generation.
 The repository CI proves buildability and dry-run correctness; it does not
 substitute for a 10 Gbps hardware test.
+
+### 4. AIP HTTP Load Pilot
+
+Use this mode when the evaluator wants API-level identity load without the
+bare-metal NIC lab.
+
+```bash
+make aip-load-locust USERS=500 SPAWN_RATE=50 RUN_TIME=5m
+```
+
+The Locust profile exercises issue, verify, delegate, verify-chain, and cascade
+revoke endpoints. A 50,000-concurrent-user claim requires distributed load
+generators and must not be measured from the same host running `aip-service`.
 
 ## Banking Latency Gates
 
@@ -226,12 +248,24 @@ program loaded:
 sudo python3 stress-tests/run_chaos_suite.py --live --duration 10s
 ```
 
+For Vagrant functional packet injection:
+
+```bash
+cd aegis-quantum
+make vagrant-up
+make vagrant-chaos
+```
+
+This validates semantic-loop injection behavior inside Linux VMs. It does not
+replace the bare-metal DAC/TRex lab for line-rate proof.
+
 ## Current Readiness Boundary
 
 Ready today:
 
 - AIP validation CI and service API pilot.
-- AEGIS eBPF bytecode build CI, dry-run XDP validation, PQC/circuit-breaker benchmarks.
+- AIP Locust load profile for identity issue/verify/delegation/revocation stress.
+- AEGIS eBPF bytecode build CI, dry-run XDP validation, PQC/circuit-breaker benchmarks, chaos/stress dry-run, and bare-metal readiness checks.
 - A combined latency report format for pilot evidence packs.
 
 Still required before a banking LOI claim:

@@ -8,6 +8,7 @@
 #   make run          — Run TRL-4 lab validation binary
 #   make dry-run      — Run Python dry-run validation (6/6 tests)
 #   make chaos-local  — Run AEGIS chaos/stress dry-run report
+#   make live-fire-readiness — Check bare-metal gateway readiness
 #   make bench        — Run Criterion.rs benchmarks
 #   make stress-bench — Run Criterion.rs stress benchmarks
 #   make build-ebpf   — Cross-compile eBPF bytecode (requires nightly)
@@ -18,9 +19,9 @@
 #   make clean        — Remove all build artifacts
 #   make all          — Full CI pipeline: check → test → run → dry-run
 
-.PHONY: all check test run dry-run validation-report bench stress-test stress-bench chaos-local check-ebpf-env check-ebpf build-ebpf build-ebpf-debug ci-local clean \
+.PHONY: all check test run dry-run validation-report bench stress-test stress-bench chaos-local live-fire-readiness check-ebpf-env check-ebpf build-ebpf build-ebpf-debug ci-local clean \
         lima-up lima-shell lima-fire lima-down \
-        vagrant-up vagrant-down vagrant-ssh-gateway vagrant-ssh-attacker
+        vagrant-up vagrant-down vagrant-ssh-gateway vagrant-ssh-attacker vagrant-chaos
 
 # ── Configuration ────────────────────────────────────────────────────────────
 
@@ -32,6 +33,7 @@ EBPF_CHECK      := scripts/check_ebpf_toolchain.sh
 LIMA_CONFIG     := infra/lima/aegis-kernel.yaml
 LIMA_VM_NAME    := aegis-kernel
 VAGRANT_DIR     := infra/vagrant
+LIVE_FIRE_IFACE ?= eth1
 
 # Colors for terminal output
 GREEN  := \033[0;32m
@@ -97,6 +99,11 @@ stress-bench:
 chaos-local:
 	@echo "$(CYAN)── AEGIS Chaos Stress Dry-Run ──$(RESET)"
 	python3 stress-tests/run_chaos_suite.py --dry-run
+
+## Check whether this host is ready for bare-metal live-fire validation
+live-fire-readiness:
+	@echo "$(CYAN)── AEGIS Live-Fire Readiness ──$(RESET)"
+	python3 stress-tests/run_live_fire_readiness.py --role gateway --iface $(LIVE_FIRE_IFACE)
 
 # ── eBPF Cross-Compilation (requires Rust nightly) ──────────────────────────
 
@@ -177,6 +184,11 @@ vagrant-fire:
 	cd $(VAGRANT_DIR) && vagrant ssh aegis-gateway -- \
 		'cd ~/aegis-quantum && cargo build --workspace && sudo python3 validation/validate_xdp.py --live-fire --iface eth1'
 
+## Run functional semantic-loop packet injection from the attacker VM
+vagrant-chaos:
+	cd $(VAGRANT_DIR) && vagrant ssh aegis-attacker -- \
+		'cd ~/aegis-quantum && sudo python3 infra/vagrant/semantic_loop_injector.py --target 192.168.56.10 --iface eth1 --count 10000 --legit-count 100'
+
 ## Destroy the Vagrant testbed
 vagrant-down:
 	cd $(VAGRANT_DIR) && vagrant destroy -f
@@ -206,6 +218,7 @@ help:
 	@echo "    make stress-test — Run AEGIS stress harness tests"
 	@echo "    make stress-bench — Run AEGIS stress benchmarks"
 	@echo "    make chaos-local — Write pilot-results/chaos_stress_report.json"
+	@echo "    make live-fire-readiness — Check bare-metal gateway readiness"
 	@echo "    make ci-local    — cargo check + tests + dry-run"
 	@echo "    make check-ebpf  — Debug eBPF build check (requires nightly + rust-src)"
 	@echo "    make build-ebpf  — Cross-compile eBPF bytecode"
@@ -222,5 +235,6 @@ help:
 	@echo "    make vagrant-ssh-gateway  — SSH into XDP host"
 	@echo "    make vagrant-ssh-attacker — SSH into injector"
 	@echo "    make vagrant-fire         — Run live-fire on gateway"
+	@echo "    make vagrant-chaos        — Inject semantic-loop traffic from attacker"
 	@echo "    make vagrant-down         — Destroy cluster"
 	@echo ""
