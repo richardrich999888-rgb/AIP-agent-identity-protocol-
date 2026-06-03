@@ -261,6 +261,9 @@ AIP/
 │   ├── src/airon_aip/                  # Core client, passports, store, integrations
 │   └── tests/
 │
+├── notebooks/                          # Colab-ready pilot notebooks
+│   └── airon_agent_passport_pilot_colab.ipynb
+│
 ├── aegis-quantum/                      # AEGIS Infrastructure Layer (AQ-1)
 │   ├── Cargo.toml                      # Workspace root
 │   ├── aegis-quantum-common/           # Shared kernel↔userspace types (no_std)
@@ -336,6 +339,16 @@ Verify the same document offline:
 cargo run --manifest-path aip-standalone/Cargo.toml \
   --package airon-verify --bin airon-passport -- verify agent.passport.json
 ```
+
+Run the Colab-ready external pilot notebook:
+
+```text
+notebooks/airon_agent_passport_pilot_colab.ipynb
+```
+
+The notebook connects to a deployed `aip-service`, issues a passport, verifies
+`PASS`, tampers the capabilities, verifies `TOXIC`, attaches passport metadata
+to AI/ML workflow objects, and exports `pilot_results.json`.
 
 ### AEGIS (Infrastructure Layer)
 ```bash
