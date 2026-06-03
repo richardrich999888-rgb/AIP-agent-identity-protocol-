@@ -295,8 +295,7 @@ fn test_reputation_extreme_scores() {
     let kp = generate_ed25519_keypair();
     let sig = sign_ed25519(&kp.private_key, "attester", b"attest").unwrap();
 
-    // FINDING: i32::MAX and i32::MIN cause integer overflow in calculate_reputation.
-    // This test verifies the system doesn't panic on extreme values.
+    // Extreme external inputs must be clamped into the reputation score range.
     let extremes = [i32::MIN, i32::MAX, 0, -1, 1_000_001, -1_000_001];
 
     for &value in &extremes {
@@ -314,9 +313,11 @@ fn test_reputation_extreme_scores() {
             attester_sig: sig.clone(),
         };
 
-        // Must not panic — that's the primary check.
-        // NOTE: Scores CAN overflow 1_000_000 with extreme inputs.
-        // This is a known issue in calculate_reputation (lacks output clamping).
-        let _rep = calculate_reputation("agent", &[att], 0);
+        let rep = calculate_reputation("agent", &[att], 0);
+        assert!(rep.reliability <= 1_000_000);
+        assert!(rep.honesty <= 1_000_000);
+        assert!(rep.economic <= 1_000_000);
+        assert!(rep.governance <= 1_000_000);
+        assert!(rep.overall_score <= 1_000_000);
     }
 }

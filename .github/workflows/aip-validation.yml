@@ -1,0 +1,39 @@
+name: AIP Validation
+
+on:
+  push:
+    paths:
+      - "aip-standalone/**"
+      - "aip-service/**"
+      - "scripts/generate_aip_validation_report.py"
+      - "Makefile"
+      - ".github/workflows/aip-validation.yml"
+  pull_request:
+    paths:
+      - "aip-standalone/**"
+      - "aip-service/**"
+      - "scripts/generate_aip_validation_report.py"
+      - "Makefile"
+      - ".github/workflows/aip-validation.yml"
+  workflow_dispatch:
+
+jobs:
+  aip-validation:
+    name: AIP protocol and service validation
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Rust toolchain
+        run: rustup show
+
+      - name: Check, test, and generate report
+        run: make aip-ci-local
+
+      - name: Upload AIP validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: aip-validation-report
+          path: aip_validation_report.json
+          if-no-files-found: error
