@@ -281,51 +281,76 @@ fn test_temporal_decay_floor_never_breached() {
 
 #[test]
 fn test_reputation_score_always_bounded() {
-    // BUG FOUND: calculate_reputation has a u64→u32 integer overflow.
+    // PROPERTY: every dimension score and the overall score must lie in
+    // 0..=1_000_000 for ANY claim_value and ANY attester type.
     //
-    // The score formula is: ((sum * 10_000) / weight) as u32
-    // With Authority weight 10_000 and claim_value 500_000:
-    //   sum = 10_000 * 500_000 = 5_000_000_000
-    //   score = (5_000_000_000 * 10_000) / 10_000 = 5_000_000_000
-    //   5_000_000_000 as u32 → 705_032_704 (OVERFLOW!)
-    //
-    // This test documents that small values work correctly and large values overflow.
+    // (A previous implementation rescaled the weighted mean by 10_000 and
+    // overflowed u32 for Authority attestations with claim_value ≥ ~430K.
+    // Fixed in v0.4.0; this test now enforces the bound across the full
+    // input range instead of documenting the bug.)
+    let values: Vec<i32> = vec![
+        i32::MIN,
+        -1_000_000,
+        -100_000,
+        -1,
+        0,
+        1,
+        100_000,
+        400_000,
+        430_000,
+        500_000,
+        999_999,
+        1_000_000,
+        i32::MAX,
+    ];
+    let attester_types = [
+        AttesterType::Authority,
+        AttesterType::Oracle,
+        AttesterType::Governance,
+        AttesterType::Peer,
+        AttesterType::SelfAttest,
+    ];
 
-    // Small values (≤ ~400_000) produce correct results
-    let small_values: Vec<i32> = vec![0, 1, 100_000, 400_000, -1, -100_000];
+    let kp = generate_ed25519_keypair();
+    for &attester_type in &attester_types {
+        for &value in &values {
+            let attestation = Attestation {
+                id: [0u8; 16],
+                subject_id: "agent".into(),
+                attester_id: "authority".into(),
+                attester_type,
+                claim_type: ClaimType::TaskCompletion,
+                claim_value: value,
+                claim_context: "test".into(),
+                evidence_hash: None,
+                attested_at: 0,
+                valid_until: None,
+                attester_sig: sign_ed25519(&kp.private_key, "authority", b"attest").unwrap(),
+            };
 
-    for &value in &small_values {
-        let attestation = Attestation {
-            id: [0u8; 16],
-            subject_id: "agent".into(),
-            attester_id: "authority".into(),
-            attester_type: AttesterType::Peer, // Peer weight is lower, avoiding overflow
-            claim_type: ClaimType::TaskCompletion,
-            claim_value: value,
-            claim_context: "test".into(),
-            evidence_hash: None,
-            attested_at: 0,
-            valid_until: None,
-            attester_sig: sign_ed25519(
-                &generate_ed25519_keypair().private_key,
-                "authority",
-                b"attest",
-            )
-            .unwrap(),
-        };
-
-        let rep = calculate_reputation("agent", &[attestation], 0);
-        // Peer weight produces manageable scores
-        assert!(
-            rep.overall_score < 5_000_000,
-            "Score {} out of range at claim_value={} (Peer)",
-            rep.overall_score,
-            value
-        );
+            let rep = calculate_reputation("agent", &[attestation], 0);
+            for (name, score) in [
+                ("overall", rep.overall_score),
+                ("reliability", rep.reliability),
+                ("honesty", rep.honesty),
+                ("economic", rep.economic),
+                ("governance", rep.governance),
+            ] {
+                assert!(
+                    score <= 1_000_000,
+                    "{} score {} out of range at claim_value={} ({:?})",
+                    name,
+                    score,
+                    value,
+                    attester_type
+                );
+            }
+        }
     }
 
-    // Large Authority values overflow — this is a known bug we discovered
-    let overflow_att = Attestation {
+    // Spot-check correctness, not just bounds: a single Authority attestation
+    // of 500_000 with no decay must produce exactly 500_000 reliability.
+    let att = Attestation {
         id: [0u8; 16],
         subject_id: "agent".into(),
         attester_id: "authority".into(),
@@ -336,18 +361,10 @@ fn test_reputation_score_always_bounded() {
         evidence_hash: None,
         attested_at: 0,
         valid_until: None,
-        attester_sig: sign_ed25519(
-            &generate_ed25519_keypair().private_key,
-            "authority",
-            b"attest",
-        )
-        .unwrap(),
+        attester_sig: sign_ed25519(&kp.private_key, "authority", b"attest").unwrap(),
     };
-
-    let rep = calculate_reputation("agent", &[overflow_att], 0);
-    // This DOCUMENTS the overflow bug — score should be ~500_000 but overflows
-    // We just verify it doesn't panic
-    let _ = rep.overall_score;
+    let rep = calculate_reputation("agent", &[att], 0);
+    assert_eq!(rep.reliability, 500_000);
 }
 
 #[test]

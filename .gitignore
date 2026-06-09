@@ -1,0 +1,10 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+
+# OS noise
+.DS_Store
+
+# Local key material and logs — never commit
+*.key
+*.jsonl

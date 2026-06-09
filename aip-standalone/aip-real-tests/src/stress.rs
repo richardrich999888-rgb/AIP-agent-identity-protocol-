@@ -147,6 +147,10 @@ fn test_store_save_load_1000_identities() {
 }
 
 #[test]
+#[cfg_attr(
+    debug_assertions,
+    ignore = "wall-clock throughput gate — meaningful only under `cargo test --release`"
+)]
 fn test_signing_throughput() {
     let kp = generate_ed25519_keypair();
     let id = "bench-agent";
@@ -172,6 +176,10 @@ fn test_signing_throughput() {
 }
 
 #[test]
+#[cfg_attr(
+    debug_assertions,
+    ignore = "wall-clock throughput gate — meaningful only under `cargo test --release`"
+)]
 fn test_verification_throughput() {
     let kp = generate_ed25519_keypair();
     let id = "bench-agent";

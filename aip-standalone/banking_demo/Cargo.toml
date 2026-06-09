@@ -1,0 +1,18 @@
+[package]
+name = "banking-demo"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Design-partner demo: CFO → delegation → payments agent → ledger entry → EvidencePacket → tamper detection"
+
+[[bin]]
+name = "banking-demo"
+path = "src/main.rs"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+aip-protocol = { path = "../aip-protocol" }
+serde_json = "1.0"
+hex = "0.4"
