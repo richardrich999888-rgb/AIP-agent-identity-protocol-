@@ -12,6 +12,7 @@
 //!   AIP_ISSUER_URL          — base URL returned in /.well-known/aip-configuration (default http://aip:8081)
 //!   RUST_LOG                — log filter (default info)
 
+mod auth;
 mod authority;
 mod capability;
 mod delegation;
@@ -62,6 +63,9 @@ pub struct AppState {
     /// Evidence Vault — durable EvidencePacket store (system of record for the
     /// accountability layer). The authority graph is derived from it on demand.
     pub vault: vault::Vault,
+    /// API-key store for authentication + tenant binding. Empty ⇒ fail closed
+    /// (every authenticated route returns 401).
+    pub api_keys: auth::ApiKeyStore,
 }
 
 // AppState is behind Arc; all fields are Send + Sync.
@@ -98,6 +102,8 @@ async fn main() {
     let vault_path = std::env::var("AIP_VAULT_PATH")
         .unwrap_or_else(|_| "/var/lib/aip/evidence.jsonl".to_owned());
 
+    let api_keys_path = std::env::var("AIP_API_KEYS_PATH").unwrap_or_default();
+
     // Ensure the key directory exists.
     if let Some(parent) = std::path::Path::new(&key_path).parent() {
         if let Err(e) = std::fs::create_dir_all(parent) {
@@ -116,11 +122,19 @@ async fn main() {
     let del_log = delegation::load_delegation_log(&delegation_log_path);
     let rev_set = revocation::load_revocation_set(&revocation_log_path);
     let vault = vault::Vault::load(&vault_path);
+    let api_keys = auth::ApiKeyStore::load(&api_keys_path);
+    if api_keys.is_empty() {
+        tracing::warn!(
+            "no API keys configured (AIP_API_KEYS_PATH) — authenticated routes \
+             will reject all requests (fail closed). Set AIP_API_KEYS_PATH for a pilot."
+        );
+    }
 
     tracing::info!(
         delegation_entries = del_log.lock().unwrap().len(),
         revocation_entries = rev_set.lock().unwrap().len(),
         evidence_packets = vault.len(),
+        api_keys = api_keys.len(),
         "AIP v2 logs loaded"
     );
 
@@ -134,6 +148,7 @@ async fn main() {
         revocation_log_path,
         revocation_set: rev_set,
         vault,
+        api_keys,
     });
 
     let app = Router::new()

@@ -129,6 +129,51 @@ cargo test            # 31 passed, 0 failed
                            # GET /v1/evidence/{unknown} → 404; /v1/authority/{unknown} → 200 empty
 ```
 
+## P1(c) — Authentication & tenant isolation (pilot gate)
+
+Closes the "all endpoints effectively public" risk. **API keys** (bearer,
+stored only as SHA-256 hashes), each bound to a `tenant_id` and a `Role`
+(`machine` | `admin`). Tenant is taken from the key, never the request body.
+Fail closed: no keys configured ⇒ authenticated routes return 401.
+
+- New module `auth.rs`: `ApiKeyStore` (loads `AIP_API_KEYS_PATH`),
+  `Principal`/`AdminPrincipal` axum extractors.
+- `vault.rs`: records wrapped in `VaultRecord { tenant_id, stored_at, packet }`;
+  `store(tenant,..)`, `get(tenant,..)` (cross-tenant ⇒ `None`), `all_for_tenant`.
+  Backward compatible: pre-tenancy bare-packet lines load as tenant `legacy`.
+- `authority.rs`: `build_for_tenant`; `who_authorized(vault, tenant, action)`.
+- Evidence/authority handlers take `Principal` and scope to its tenant;
+  `verify` requires auth but is stateless. Legacy `issue`/`delegate` now
+  authenticated; `revoke` requires `AdminPrincipal` (and logs the admin key).
+
+**Route classification**
+
+| Route | Class | Checks |
+|---|---|---|
+| `GET /health`, `/.well-known/*`, `/v1/identity/public-key` | Public | none |
+| `POST /v1/evidence/generate` | Machine | auth; store under key's tenant |
+| `POST /v1/evidence/verify` | Machine | auth; stateless (no tenant) |
+| `GET /v1/evidence/{id}` | Machine | auth; tenant-checked read |
+| `GET /v1/authority/{id}` | Machine | auth; tenant-scoped graph |
+| `POST /v1/identity/issue`, `/delegate` | Machine | auth |
+| `POST /v1/identity/verify`, `/verify-chain`, `GET /revocation-status` | Public read | none (stateless verification) |
+| `POST /v1/identity/revoke` | Admin | auth + `admin` role |
+
+**New env var:** `AIP_API_KEYS_PATH` → JSON `{ "keys": [{key_id, tenant_id,
+role, secret_sha256}] }`. Mint a secret out of band; store
+`printf %s "$SECRET" | sha256sum`. No plaintext secret is ever persisted.
+
+**Verified over HTTP:** public 200; no/bad key 401; machine key authenticates;
+`revoke` 403 for machine, passes for admin; `issue` 401 anonymous. Cross-tenant
+`get`/authority denial unit-tested. `cargo test` → 37 pass.
+
+**Known limitations (post-pilot, documented not hidden):** keys are static
+(no rotation endpoint yet — rotate by editing the file + restart); no rate
+limiting; TLS terminates at the deployment's ingress/proxy (the service
+speaks plain HTTP behind it); legacy JWT delegation/revocation logs remain
+global, not tenant-partitioned (the evidence layer is the tenant-scoped
+pilot surface).
+
 ### Not yet proven at the HTTP layer (honest)
 A full `generate → verify → get → authority` roundtrip is proven by unit
 tests against real crypto (`evidence::tests`, `vault::tests`,

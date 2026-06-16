@@ -60,14 +60,15 @@ pub struct AuthorityGraph {
 }
 
 impl AuthorityGraph {
-    /// Rebuild the index from every packet currently in the vault.
-    pub fn build(vault: &Vault) -> Self {
+    /// Rebuild the index from every packet belonging to `tenant_id`.
+    /// The graph is always tenant-scoped; there is no cross-tenant view.
+    pub fn build_for_tenant(vault: &Vault, tenant_id: &str) -> Self {
         let mut g = AuthorityGraph {
             action_to_packet: HashMap::new(),
             principal_to_packets: HashMap::new(),
             agent_to_packets: HashMap::new(),
         };
-        for packet in vault.all() {
+        for packet in vault.all_for_tenant(tenant_id) {
             g.index(&packet);
         }
         g
@@ -90,10 +91,17 @@ impl AuthorityGraph {
     }
 
     /// Q1/Q5: given an action id (hex), return the authority path proving who
-    /// authorized it. Returns `None` if the action is unknown to the vault.
-    pub fn who_authorized(&self, vault: &Vault, action_id_hex: &str) -> Option<AuthorityPath> {
+    /// authorized it. Tenant-scoped: the graph was built for one tenant and
+    /// the vault read is tenant-checked, so this cannot resolve another
+    /// tenant's action. Returns `None` if unknown to this tenant.
+    pub fn who_authorized(
+        &self,
+        vault: &Vault,
+        tenant_id: &str,
+        action_id_hex: &str,
+    ) -> Option<AuthorityPath> {
         let packet_id = self.action_to_packet.get(action_id_hex)?;
-        let packet = vault.get(packet_id)?;
+        let packet = vault.get(tenant_id, packet_id)?;
         Some(authority_path(&packet))
     }
 
@@ -178,18 +186,32 @@ mod tests {
         let path = temp_path();
         let vault = Vault::load(&path);
         let (packet, _) = sample_packet();
-        vault.store(&packet).unwrap();
+        vault.store("acme", &packet).unwrap();
 
-        let graph = AuthorityGraph::build(&vault);
+        let graph = AuthorityGraph::build_for_tenant(&vault, "acme");
         let action_hex = hex::encode(packet.actions[0].action_id);
         let p = graph
-            .who_authorized(&vault, &action_hex)
+            .who_authorized(&vault, "acme", &action_hex)
             .expect("action must resolve to an authority path");
 
         assert_eq!(p.principal_id, packet.root_authority.principal_id);
         assert_eq!(p.agent_id, packet.agent.aip_id);
         assert_eq!(p.delegation_hops.len(), packet.delegation_chain.len());
         assert!(p.integrity_ok, "freshly built packet must self-verify");
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn test_authority_graph_is_tenant_isolated() {
+        let path = temp_path();
+        let vault = Vault::load(&path);
+        let (packet, _) = sample_packet();
+        vault.store("tenant-a", &packet).unwrap();
+
+        // A graph built for another tenant must not resolve the action.
+        let graph_b = AuthorityGraph::build_for_tenant(&vault, "tenant-b");
+        let action_hex = hex::encode(packet.actions[0].action_id);
+        assert!(graph_b.who_authorized(&vault, "tenant-b", &action_hex).is_none());
         let _ = std::fs::remove_file(&path);
     }
 
@@ -208,8 +230,8 @@ mod tests {
         let path = temp_path();
         let vault = Vault::load(&path);
         let (packet, _) = sample_packet();
-        vault.store(&packet).unwrap();
-        let graph = AuthorityGraph::build(&vault);
+        vault.store("acme", &packet).unwrap();
+        let graph = AuthorityGraph::build_for_tenant(&vault, "acme");
 
         assert_eq!(
             graph.packets_for_principal(&packet.root_authority.principal_id),

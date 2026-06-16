@@ -34,6 +34,7 @@ use aip_types::{
     Action, AlgorithmId, DelegationToken, ProvenanceTriple, PublicKey, ScopeAction, ScopedToken,
 };
 
+use crate::auth::Principal;
 use crate::authority::{AuthorityGraph, AuthorityPath};
 use crate::models::ErrorBody;
 use crate::AppState;
@@ -319,20 +320,32 @@ pub fn verify_request(req: &VerifyRequest) -> Result<VerificationReport, String>
 
 // ─── HTTP handlers ─────────────────────────────────────────────────────────
 
+// Authenticated (Machine or Admin). The tenant comes from the caller's key,
+// never from the request body — a caller cannot write into another tenant.
 pub async fn generate(
     State(state): State<Arc<AppState>>,
+    principal: Principal,
     Json(req): Json<GenerateRequest>,
 ) -> Result<Json<GenerateResponse>, ApiError> {
     let packet = generate_packet(&req).map_err(bad_request)?;
     let packet_id = state
         .vault
-        .store(&packet)
+        .store(&principal.tenant_id, &packet)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(ErrorBody { error: e })))?;
-    tracing::info!(packet_id = %packet_id, agent = %packet.agent.aip_id, "evidence packet generated");
+    tracing::info!(
+        packet_id = %packet_id,
+        tenant = %principal.tenant_id,
+        agent = %packet.agent.aip_id,
+        "evidence packet generated"
+    );
     Ok(Json(GenerateResponse { packet_id, packet }))
 }
 
+// Authenticated but stateless: verification is a pure function of the packet
+// and caller-supplied keys, so it is not tenant-scoped. Auth still required
+// (no anonymous use of the service).
 pub async fn verify(
+    _principal: Principal,
     Json(req): Json<VerifyRequest>,
 ) -> Result<Json<VerificationReport>, ApiError> {
     let report = verify_request(&req).map_err(bad_request)?;
@@ -341,26 +354,30 @@ pub async fn verify(
 
 pub async fn get_evidence(
     State(state): State<Arc<AppState>>,
+    principal: Principal,
     Path(id): Path<String>,
 ) -> Result<Json<EvidencePacket>, ApiError> {
     state
         .vault
-        .get(&id)
+        .get(&principal.tenant_id, &id)
         .map(Json)
+        // "not found" for both missing and wrong-tenant — no existence leak.
         .ok_or_else(|| not_found(format!("no evidence packet with id {id}")))
 }
 
 pub async fn get_authority(
     State(state): State<Arc<AppState>>,
+    principal: Principal,
     Path(id): Path<String>,
 ) -> Json<AuthorityResponse> {
-    let graph = AuthorityGraph::build(&state.vault);
-    let action_authority = graph.who_authorized(&state.vault, &id);
+    let tenant = &principal.tenant_id;
+    let graph = AuthorityGraph::build_for_tenant(&state.vault, tenant);
+    let action_authority = graph.who_authorized(&state.vault, tenant, &id);
     // When the query resolved to an action, attach the full accountability
     // graph (Human→…→Receipt) of the proving packet for visualization.
     let accountability_dot = action_authority
         .as_ref()
-        .and_then(|p| state.vault.get(&p.packet_id))
+        .and_then(|p| state.vault.get(tenant, &p.packet_id))
         .map(|packet| crate::authority::graph_for_packet(&packet).to_dot());
     Json(AuthorityResponse {
         query: id.clone(),

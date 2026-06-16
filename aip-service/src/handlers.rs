@@ -8,6 +8,7 @@ use axum::{
 use std::sync::Arc;
 
 use crate::{
+    auth::{AdminPrincipal, Principal},
     delegation,
     models::{
         DelegateRequest, DelegateResponse, ErrorBody, HealthResponse, IssueRequest, IssueResponse,
@@ -48,6 +49,7 @@ pub async fn health(State(state): State<Arc<AppState>>) -> Json<HealthResponse> 
 
 pub async fn issue(
     State(state): State<Arc<AppState>>,
+    _principal: Principal, // authenticated: minting tokens is not public
     Json(req): Json<IssueRequest>,
 ) -> Result<Json<IssueResponse>, ApiError> {
     // Validate: agent_id must be a UUID v4
@@ -161,6 +163,7 @@ pub async fn public_key(State(state): State<Arc<AppState>>) -> Json<PublicKeyRes
 
 pub async fn delegate(
     State(state): State<Arc<AppState>>,
+    _principal: Principal, // authenticated: delegating authority is not public
     Json(req): Json<DelegateRequest>,
 ) -> Result<Json<DelegateResponse>, ApiError> {
     // Validate delegatee_id is a UUID
@@ -343,6 +346,7 @@ pub async fn verify_chain(
 
 pub async fn revoke(
     State(state): State<Arc<AppState>>,
+    admin: AdminPrincipal, // admin-only: revocation is a privileged authority action
     Json(req): Json<RevokeRequest>,
 ) -> Result<Json<RevokeResponse>, ApiError> {
     if req.jti.is_empty() {
@@ -374,6 +378,8 @@ pub async fn revoke(
         count = revoked_jtis.len(),
         cascade = req.cascade,
         revoked_by = %req.revoked_by,
+        admin_key = %admin.0.key_id,
+        admin_tenant = %admin.0.tenant_id,
         "tokens revoked"
     );
 

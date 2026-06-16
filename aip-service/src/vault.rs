@@ -1,21 +1,43 @@
-//! Evidence Vault v1 — minimal durable store for EvidencePackets.
+//! Evidence Vault v1 — minimal durable store for EvidencePackets, tenant-scoped.
 //!
 //! Design (deliberately minimal — no blockchain, no distributed systems):
-//! - Append-only JSONL file at `AIP_VAULT_PATH` (one packet per line).
-//! - In-memory index `packet_id_hex → EvidencePacket`, loaded at startup.
+//! - Append-only JSONL file at `AIP_VAULT_PATH` (one [`VaultRecord`] per line).
+//! - In-memory index `packet_id_hex → VaultRecord`, loaded at startup.
 //! - The vault is the **system of record**; the authority graph
 //!   ([`crate::authority`]) is a derived index rebuilt from it.
 //!
-//! Storage requirements: a single writable file path. Each packet is stored
-//! verbatim as the canonical JSON produced by `EvidencePacket::to_json`, so
-//! the stored bytes round-trip and re-verify identically.
+//! ## Tenant model (Task 2)
+//! Tenancy is a **storage envelope**, not part of the signed evidence: the
+//! cryptographic EvidencePacket is unchanged and remains independently
+//! verifiable. Each stored record carries a `tenant_id`, supplied by the
+//! authenticated caller's API key (never by the request body). Every read is
+//! tenant-checked; a cross-tenant `get` returns `None` (indistinguishable
+//! from "not found", so existence does not leak across tenants).
+//!
+//! ## Migration
+//! Legacy lines written before tenancy were bare `EvidencePacket` JSON. On
+//! load, a line that fails to parse as `VaultRecord` is retried as a bare
+//! packet and assigned [`LEGACY_TENANT`]. New writes are always `VaultRecord`.
 
 use std::collections::HashMap;
 use std::io::Write;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
+use serde::{Deserialize, Serialize};
+
 use aip_protocol::EvidencePacket;
+
+/// Tenant assigned to pre-tenancy records found in an existing vault file.
+pub const LEGACY_TENANT: &str = "legacy";
+
+/// A tenant-scoped, timestamped envelope around a stored EvidencePacket.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VaultRecord {
+    pub tenant_id: String,
+    pub stored_at: u64,
+    pub packet: EvidencePacket,
+}
 
 /// Thread-safe handle to the in-memory vault index + backing file path.
 #[derive(Clone)]
@@ -25,14 +47,21 @@ pub struct Vault {
 }
 
 struct VaultInner {
-    /// packet_id (hex) → packet
-    by_id: HashMap<String, EvidencePacket>,
+    /// packet_id (hex) → record
+    by_id: HashMap<String, VaultRecord>,
     /// insertion order, for stable listing
     order: Vec<String>,
 }
 
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as u64
+}
+
 impl Vault {
-    /// Load the vault from `path`, replaying every stored packet into the
+    /// Load the vault from `path`, replaying every stored record into the
     /// in-memory index. A missing file yields an empty vault.
     pub fn load(path: &str) -> Self {
         let mut inner = VaultInner {
@@ -45,17 +74,25 @@ impl Vault {
                     if line.trim().is_empty() {
                         continue;
                     }
-                    match EvidencePacket::from_json(line) {
-                        Ok(packet) => {
-                            let id = packet.packet_id_hex();
-                            if inner.by_id.insert(id.clone(), packet).is_none() {
+                    let record = match serde_json::from_str::<VaultRecord>(line) {
+                        Ok(r) => Some(r),
+                        // Migration: retry as a bare pre-tenancy packet.
+                        Err(_) => EvidencePacket::from_json(line).ok().map(|packet| VaultRecord {
+                            tenant_id: LEGACY_TENANT.to_string(),
+                            stored_at: 0,
+                            packet,
+                        }),
+                    };
+                    match record {
+                        Some(r) => {
+                            let id = r.packet.packet_id_hex();
+                            if inner.by_id.insert(id.clone(), r).is_none() {
                                 inner.order.push(id);
                             }
                         }
-                        Err(e) => tracing::warn!(
+                        None => tracing::warn!(
                             line = line_no + 1,
-                            error = %e,
-                            "vault: skipping unparseable packet line"
+                            "vault: skipping unparseable record line"
                         ),
                     }
                 }
@@ -67,16 +104,25 @@ impl Vault {
         }
     }
 
-    /// Append a packet to the vault (durable) and index it in memory.
-    /// Idempotent on `packet_id`: storing the same id twice is a no-op write.
-    pub fn store(&self, packet: &EvidencePacket) -> Result<String, String> {
+    /// Append a packet for `tenant_id` to the vault (durable) and index it.
+    /// Idempotent on `packet_id`. A packet already stored under a *different*
+    /// tenant is rejected (an evidence id is globally unique to one tenant).
+    pub fn store(&self, tenant_id: &str, packet: &EvidencePacket) -> Result<String, String> {
         let id = packet.packet_id_hex();
         {
             let mut inner = self.inner.lock().unwrap();
-            if inner.by_id.contains_key(&id) {
-                return Ok(id); // already stored — idempotent
+            if let Some(existing) = inner.by_id.get(&id) {
+                if existing.tenant_id != tenant_id {
+                    return Err("packet id already stored under a different tenant".into());
+                }
+                return Ok(id); // idempotent within the same tenant
             }
-            let line = packet.to_json_compact().map_err(|e| e.to_string())?;
+            let record = VaultRecord {
+                tenant_id: tenant_id.to_string(),
+                stored_at: now_ms(),
+                packet: packet.clone(),
+            };
+            let line = serde_json::to_string(&record).map_err(|e| e.to_string())?;
             if let Some(parent) = Path::new(&self.path).parent() {
                 std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
             }
@@ -86,25 +132,34 @@ impl Vault {
                 .open(&self.path)
                 .map_err(|e| format!("open vault: {e}"))?;
             writeln!(file, "{line}").map_err(|e| format!("write vault: {e}"))?;
-            inner.by_id.insert(id.clone(), packet.clone());
+            inner.by_id.insert(id.clone(), record);
             inner.order.push(id.clone());
         }
         Ok(id)
     }
 
-    /// Retrieve a packet by its hex packet id.
-    pub fn get(&self, id: &str) -> Option<EvidencePacket> {
-        self.inner.lock().unwrap().by_id.get(id).cloned()
+    /// Retrieve a packet by id **only if it belongs to `tenant_id`**.
+    /// Returns `None` for both "not found" and "wrong tenant" (no existence
+    /// leak across tenants).
+    pub fn get(&self, tenant_id: &str, id: &str) -> Option<EvidencePacket> {
+        let inner = self.inner.lock().unwrap();
+        inner
+            .by_id
+            .get(id)
+            .filter(|r| r.tenant_id == tenant_id)
+            .map(|r| r.packet.clone())
     }
 
-    /// All stored packets, in insertion order. Used by the authority graph
-    /// to (re)build its index.
-    pub fn all(&self) -> Vec<EvidencePacket> {
+    /// All packets belonging to `tenant_id`, in insertion order. Used by the
+    /// authority graph to (re)build its per-tenant index.
+    pub fn all_for_tenant(&self, tenant_id: &str) -> Vec<EvidencePacket> {
         let inner = self.inner.lock().unwrap();
         inner
             .order
             .iter()
-            .filter_map(|id| inner.by_id.get(id).cloned())
+            .filter_map(|id| inner.by_id.get(id))
+            .filter(|r| r.tenant_id == tenant_id)
+            .map(|r| r.packet.clone())
             .collect()
     }
 
@@ -133,35 +188,61 @@ mod tests {
         let path = temp_path();
         let vault = Vault::load(&path);
         let (packet, _) = sample_packet();
-        let id = vault.store(&packet).unwrap();
+        let id = vault.store("acme", &packet).unwrap();
         assert_eq!(id, packet.packet_id_hex());
-        let got = vault.get(&id).expect("packet must be retrievable");
+        let got = vault.get("acme", &id).expect("packet must be retrievable");
         assert_eq!(got.packet_hash, packet.packet_hash);
         let _ = std::fs::remove_file(&path);
     }
 
     #[test]
-    fn test_store_is_idempotent() {
+    fn test_cross_tenant_get_is_denied() {
         let path = temp_path();
         let vault = Vault::load(&path);
         let (packet, _) = sample_packet();
-        vault.store(&packet).unwrap();
-        vault.store(&packet).unwrap();
-        assert_eq!(vault.len(), 1);
+        let id = vault.store("tenant-a", &packet).unwrap();
+        // Same id, different tenant → must look like "not found".
+        assert!(vault.get("tenant-b", &id).is_none());
+        assert!(vault.get("tenant-a", &id).is_some());
         let _ = std::fs::remove_file(&path);
     }
 
     #[test]
-    fn test_persist_and_reload() {
+    fn test_all_for_tenant_isolates() {
+        let path = temp_path();
+        let vault = Vault::load(&path);
+        let (p1, _) = sample_packet();
+        let (p2, _) = sample_packet();
+        vault.store("tenant-a", &p1).unwrap();
+        vault.store("tenant-b", &p2).unwrap();
+        assert_eq!(vault.all_for_tenant("tenant-a").len(), 1);
+        assert_eq!(vault.all_for_tenant("tenant-b").len(), 1);
+        assert_eq!(vault.all_for_tenant("tenant-c").len(), 0);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn test_store_rejects_id_reuse_across_tenants() {
+        let path = temp_path();
+        let vault = Vault::load(&path);
+        let (packet, _) = sample_packet();
+        vault.store("tenant-a", &packet).unwrap();
+        assert!(vault.store("tenant-b", &packet).is_err());
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn test_persist_and_reload_preserves_tenant() {
         let path = temp_path();
         let (packet, _) = sample_packet();
         {
             let vault = Vault::load(&path);
-            vault.store(&packet).unwrap();
+            vault.store("acme", &packet).unwrap();
         }
         let reloaded = Vault::load(&path);
         assert_eq!(reloaded.len(), 1);
-        assert!(reloaded.get(&packet.packet_id_hex()).is_some());
+        assert!(reloaded.get("acme", &packet.packet_id_hex()).is_some());
+        assert!(reloaded.get("other", &packet.packet_id_hex()).is_none());
         let _ = std::fs::remove_file(&path);
     }
 }
