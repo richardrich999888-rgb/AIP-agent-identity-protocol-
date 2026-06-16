@@ -57,7 +57,6 @@ pub struct ScopedAuditEntry {
     pub data: Vec<u8>,
 
     // ─── NM-A4: Delegation Binding Fields ───
-
     /// The JTI (unique identifier) of the delegation token that authorized
     /// this action. This is the link back to the delegation chain.
     pub authorizing_jti: [u8; 16],
@@ -158,7 +157,9 @@ pub struct ScopedAuditLog {
 
 impl ScopedAuditLog {
     pub fn new() -> Self {
-        Self { entries: Vec::new() }
+        Self {
+            entries: Vec::new(),
+        }
     }
 
     /// Create and append a scoped audit entry.
@@ -254,7 +255,10 @@ impl ScopedAuditLog {
     /// This is the key query for incident response: "What actions were
     /// performed under this delegation chain?"
     pub fn entries_for_jti(&self, jti: &[u8; 16]) -> Vec<&ScopedAuditEntry> {
-        self.entries.iter().filter(|e| &e.authorizing_jti == jti).collect()
+        self.entries
+            .iter()
+            .filter(|e| &e.authorizing_jti == jti)
+            .collect()
     }
 
     /// Find all audit entries authorized by a specific root principal.
@@ -262,7 +266,10 @@ impl ScopedAuditLog {
     /// For regulatory compliance: "Show all actions traceable to this
     /// original human authorizer."
     pub fn entries_for_principal(&self, principal: &str) -> Vec<&ScopedAuditEntry> {
-        self.entries.iter().filter(|e| e.root_principal == principal).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.root_principal == principal)
+            .collect()
     }
 
     /// Number of entries in the log.
@@ -291,11 +298,19 @@ impl Default for ScopedAuditLog {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AuditChainError {
     /// The `previous_hash` of an entry doesn't match the prior entry's hash.
-    BrokenLink { entry_index: usize, expected: String, actual: String },
+    BrokenLink {
+        entry_index: usize,
+        expected: String,
+        actual: String,
+    },
     /// An entry's computed hash doesn't match its stored hash (data modified).
     TamperedEntry { entry_index: usize, field: String },
     /// Sequence numbers are not monotonically increasing.
-    SequenceGap { entry_index: usize, expected: u64, actual: u64 },
+    SequenceGap {
+        entry_index: usize,
+        expected: u64,
+        actual: u64,
+    },
 }
 
 fn hex_encode(bytes: &[u8]) -> String {
@@ -328,8 +343,10 @@ mod tests {
     }
 
     fn test_jti() -> [u8; 16] {
-        [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-         0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10]
+        [
+            0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E,
+            0x0F, 0x10,
+        ]
     }
 
     #[test]
@@ -355,9 +372,30 @@ mod tests {
     fn test_chain_integrity_valid() {
         let mut log = ScopedAuditLog::new();
 
-        log.record_action("data.read", b"first", test_jti(), scope_read_only(), 1, "root-1");
-        log.record_action("data.write", b"second", test_jti(), scope_read_write(), 1, "root-1");
-        log.record_action("model.execute", b"third", [0xAA; 16], scope_read_only(), 3, "root-2");
+        log.record_action(
+            "data.read",
+            b"first",
+            test_jti(),
+            scope_read_only(),
+            1,
+            "root-1",
+        );
+        log.record_action(
+            "data.write",
+            b"second",
+            test_jti(),
+            scope_read_write(),
+            1,
+            "root-1",
+        );
+        log.record_action(
+            "model.execute",
+            b"third",
+            [0xAA; 16],
+            scope_read_only(),
+            3,
+            "root-2",
+        );
 
         assert!(log.verify_chain().is_ok());
     }
@@ -365,8 +403,22 @@ mod tests {
     #[test]
     fn test_tampered_delegation_jti_detected() {
         let mut log = ScopedAuditLog::new();
-        log.record_action("data.read", b"action", test_jti(), scope_read_only(), 1, "root");
-        log.record_action("data.write", b"action2", test_jti(), scope_read_write(), 1, "root");
+        log.record_action(
+            "data.read",
+            b"action",
+            test_jti(),
+            scope_read_only(),
+            1,
+            "root",
+        );
+        log.record_action(
+            "data.write",
+            b"action2",
+            test_jti(),
+            scope_read_write(),
+            1,
+            "root",
+        );
 
         // Tamper: change the authorizing JTI of the first entry
         log.entries[0].authorizing_jti = [0xFF; 16];
@@ -384,12 +436,20 @@ mod tests {
     #[test]
     fn test_tampered_scope_detected() {
         let mut log = ScopedAuditLog::new();
-        log.record_action("data.read", b"action", test_jti(), scope_read_only(), 1, "root");
+        log.record_action(
+            "data.read",
+            b"action",
+            test_jti(),
+            scope_read_only(),
+            1,
+            "root",
+        );
 
         // Tamper: change the effective scope to add Write permission
-        log.entries[0].effective_scope_at_action.allowed.push(
-            ScopeAction::Standard(Action::Write)
-        );
+        log.entries[0]
+            .effective_scope_at_action
+            .allowed
+            .push(ScopeAction::Standard(Action::Write));
 
         let result = log.verify_chain();
         assert!(result.is_err(), "Tampered scope must break chain integrity");
@@ -398,25 +458,45 @@ mod tests {
     #[test]
     fn test_tampered_root_principal_detected() {
         let mut log = ScopedAuditLog::new();
-        log.record_action("data.read", b"action", test_jti(), scope_read_only(), 1, "root-human");
+        log.record_action(
+            "data.read",
+            b"action",
+            test_jti(),
+            scope_read_only(),
+            1,
+            "root-human",
+        );
 
         // Tamper: change the root principal
         log.entries[0].root_principal = "attacker-id".to_string();
 
         let result = log.verify_chain();
-        assert!(result.is_err(), "Tampered principal must break chain integrity");
+        assert!(
+            result.is_err(),
+            "Tampered principal must break chain integrity"
+        );
     }
 
     #[test]
     fn test_tampered_chain_depth_detected() {
         let mut log = ScopedAuditLog::new();
-        log.record_action("data.read", b"action", test_jti(), scope_read_only(), 1, "root");
+        log.record_action(
+            "data.read",
+            b"action",
+            test_jti(),
+            scope_read_only(),
+            1,
+            "root",
+        );
 
         // Tamper: change depth from 1 to 0 (pretend it was a root token)
         log.entries[0].chain_depth_at_action = 0;
 
         let result = log.verify_chain();
-        assert!(result.is_err(), "Tampered chain depth must break chain integrity");
+        assert!(
+            result.is_err(),
+            "Tampered chain depth must break chain integrity"
+        );
     }
 
     #[test]
@@ -493,8 +573,10 @@ mod tests {
         let mut entry2 = entry1.clone();
         entry2.entry_hash = entry2.compute_hash();
 
-        assert_eq!(entry1.entry_hash, entry2.entry_hash,
-            "Same inputs must produce same hash (deterministic)");
+        assert_eq!(
+            entry1.entry_hash, entry2.entry_hash,
+            "Same inputs must produce same hash (deterministic)"
+        );
     }
 
     #[test]

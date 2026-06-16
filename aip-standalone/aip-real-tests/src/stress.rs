@@ -1,9 +1,9 @@
 //! Stress & Performance Tests — Verifying AIP at scale.
 
-use aip_core::*;
 use aip_core::nonce::NonceTracker;
-use aip_core::store::IdentityStore;
 use aip_core::simulation::simulate_network_verification;
+use aip_core::store::IdentityStore;
+use aip_core::*;
 use aip_crypto::*;
 use aip_types::*;
 use std::collections::HashSet;
@@ -45,9 +45,9 @@ fn test_sign_verify_10000_messages() {
     for i in 0u64..10_000 {
         let payload = format!("message-{}", i);
         let sig = sign_ed25519(&kp.private_key, id, payload.as_bytes())
-            .expect(&format!("Sign failed at {}", i));
+            .unwrap_or_else(|_| panic!("Sign failed at {}", i));
         let valid = verify_ed25519(&kp.public_key, &sig)
-            .expect(&format!("Verify error at {}", i));
+            .unwrap_or_else(|_| panic!("Verify error at {}", i));
         assert!(valid, "Verify failed at message {}", i);
     }
 }
@@ -65,7 +65,10 @@ fn test_nonce_tracker_100000_signatures() {
         }
     }
 
-    assert_eq!(accepted, 100_000, "All 100K unique signatures must be accepted");
+    assert_eq!(
+        accepted, 100_000,
+        "All 100K unique signatures must be accepted"
+    );
 }
 
 #[test]
@@ -108,10 +111,7 @@ fn test_simulation_20_agents() {
 #[test]
 fn test_simulation_50_agents() {
     let result = simulate_network_verification(50);
-    assert!(
-        result.all_passed,
-        "50-agent simulation must pass"
-    );
+    assert!(result.all_passed, "50-agent simulation must pass");
     assert_eq!(result.agents_created, 50);
     assert_eq!(result.liveness_challenges_passed, 50);
     assert_eq!(result.replay_attacks_rejected, 50);
@@ -140,13 +140,21 @@ fn test_store_save_load_1000_identities() {
 
     {
         let store = IdentityStore::with_file(&tmp_path).unwrap();
-        assert_eq!(store.identity_count(), 1000, "Must reload all 1000 identities");
+        assert_eq!(
+            store.identity_count(),
+            1000,
+            "Must reload all 1000 identities"
+        );
     }
 
     let _ = std::fs::remove_file(&tmp_path);
 }
 
 #[test]
+#[cfg_attr(
+    debug_assertions,
+    ignore = "wall-clock throughput gate — meaningful only under `cargo test --release`"
+)]
 fn test_signing_throughput() {
     let kp = generate_ed25519_keypair();
     let id = "bench-agent";
@@ -172,6 +180,10 @@ fn test_signing_throughput() {
 }
 
 #[test]
+#[cfg_attr(
+    debug_assertions,
+    ignore = "wall-clock throughput gate — meaningful only under `cargo test --release`"
+)]
 fn test_verification_throughput() {
     let kp = generate_ed25519_keypair();
     let id = "bench-agent";
@@ -206,9 +218,9 @@ fn test_rapid_challenge_response_100() {
     for i in 0..100 {
         let challenge = issue_liveness_challenge("verifier", &id);
         let response = respond_to_challenge(&challenge, &kp.private_key, &id)
-            .expect(&format!("Response failed at round {}", i));
+            .unwrap_or_else(|_| panic!("Response failed at round {}", i));
         let valid = verify_liveness(&challenge, &response, &kp.public_key)
-            .expect(&format!("Verify error at round {}", i));
+            .unwrap_or_else(|_| panic!("Verify error at round {}", i));
         assert!(valid, "Liveness round {} failed", i);
     }
 }

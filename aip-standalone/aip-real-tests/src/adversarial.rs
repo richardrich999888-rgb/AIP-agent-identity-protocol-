@@ -61,7 +61,10 @@ fn test_signature_from_different_payload() {
     let mut tampered = sig.clone();
     tampered.payload_hash = sha256(b"payload B");
     let tampered_valid = verify_ed25519(&kp.public_key, &tampered).unwrap();
-    assert!(!tampered_valid, "Changing payload_hash must invalidate signature");
+    assert!(
+        !tampered_valid,
+        "Changing payload_hash must invalidate signature"
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -263,7 +266,10 @@ fn test_liveness_cross_agent_impersonation() {
 
     // Verify with A's key → must fail
     let valid = verify_liveness(&challenge, &response, &kp_a.public_key).unwrap();
-    assert!(!valid, "Impersonation: B responding to A's challenge must fail");
+    assert!(
+        !valid,
+        "Impersonation: B responding to A's challenge must fail"
+    );
 }
 
 #[test]
@@ -281,7 +287,10 @@ fn test_liveness_replay_old_response() {
 
     // Attacker replays response_1 for challenge_2 → challenge_id mismatch
     let replay_valid = verify_liveness(&challenge_2, &response_1, &kp.public_key).unwrap();
-    assert!(!replay_valid, "Replayed response for different challenge must fail");
+    assert!(
+        !replay_valid,
+        "Replayed response for different challenge must fail"
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════

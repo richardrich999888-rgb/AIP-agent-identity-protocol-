@@ -8,9 +8,27 @@ description = "AIRON Trust Pipeline — agent identity and token issuance (Ed255
 name = "airon-aip"
 path = "src/main.rs"
 
+# Migration tool: JSONL vault → PostgreSQL (requires the `postgres` feature).
+[[bin]]
+name = "aip-migrate"
+path = "src/bin/aip_migrate.rs"
+required-features = ["postgres"]
+
+[features]
+default = []
+# Enables the PostgreSQL-backed EvidenceStore and the aip-migrate tool.
+postgres = ["dep:tokio-postgres", "dep:deadpool-postgres"]
+
 [dependencies]
+# ── Strategic core: the service is a thin layer over these ──
+aip-types    = { path = "../aip-standalone/aip-types" }
+aip-crypto   = { path = "../aip-standalone/aip-crypto" }
+aip-core     = { path = "../aip-standalone/aip-core" }
+aip-protocol = { path = "../aip-standalone/aip-protocol" }
+
 axum               = "0.7"
 tokio              = { version = "1", features = ["full"] }
+async-trait        = "0.1"
 serde              = { version = "1", features = ["derive"] }
 serde_json         = "1"
 # JWT: EdDSA (Ed25519) signing and verification
@@ -32,3 +50,7 @@ base64             = "0.22"
 # Structured logging
 tracing            = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+# ── PostgreSQL backend (optional, behind the `postgres` feature) ──
+tokio-postgres     = { version = "0.7", optional = true }
+deadpool-postgres  = { version = "0.14", optional = true }
+

@@ -161,8 +161,8 @@ fn cmd_sign(store_path: &PathBuf, agent_id: Option<&str>, payload: &str) {
         }
     };
 
-    let sig = sign_ed25519(&entry.keypair.private_key, &id, payload.as_bytes())
-        .expect("Failed to sign");
+    let sig =
+        sign_ed25519(&entry.keypair.private_key, &id, payload.as_bytes()).expect("Failed to sign");
 
     let sig_json = serde_json::to_string_pretty(&sig).expect("Failed to serialize");
 
@@ -277,7 +277,10 @@ fn cmd_list(store_path: &PathBuf) {
 }
 
 fn cmd_simulate(agent_count: usize) {
-    println!("Running multi-node verification simulation with {} agents...\n", agent_count);
+    println!(
+        "Running multi-node verification simulation with {} agents...\n",
+        agent_count
+    );
 
     let result = simulate_network_verification(agent_count);
 
@@ -289,12 +292,30 @@ fn cmd_simulate(agent_count: usize) {
     println!("╔══════════════════════════════════════╗");
     println!("║     SIMULATION RESULTS               ║");
     println!("╠══════════════════════════════════════╣");
-    println!("║ Agents created:          {:>5}       ║", result.agents_created);
-    println!("║ Verifications passed:    {:>5}       ║", result.verifications_passed);
-    println!("║ Liveness passed:         {:>5}       ║", result.liveness_challenges_passed);
-    println!("║ Replays rejected:        {:>5}       ║", result.replay_attacks_rejected);
-    println!("║ Reputation votes:        {:>5}       ║", result.reputation_votes_cast);
-    println!("║ All passed:              {:>5}       ║", result.all_passed);
+    println!(
+        "║ Agents created:          {:>5}       ║",
+        result.agents_created
+    );
+    println!(
+        "║ Verifications passed:    {:>5}       ║",
+        result.verifications_passed
+    );
+    println!(
+        "║ Liveness passed:         {:>5}       ║",
+        result.liveness_challenges_passed
+    );
+    println!(
+        "║ Replays rejected:        {:>5}       ║",
+        result.replay_attacks_rejected
+    );
+    println!(
+        "║ Reputation votes:        {:>5}       ║",
+        result.reputation_votes_cast
+    );
+    println!(
+        "║ All passed:              {:>5}       ║",
+        result.all_passed
+    );
     println!("╚══════════════════════════════════════╝");
 
     if !result.all_passed {

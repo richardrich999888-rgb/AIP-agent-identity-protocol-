@@ -1,198 +1,138 @@
-# AIRON Agent Identity Protocol (AIP)
+# AIP — Accountability Infrastructure for Autonomous AI
 
-**End-to-End Verifiable Identity, Provenance, and Reputation for AI Agents**
+**Prove what the agent did and who authorized it.**
 
-[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)]()
-[![Patent: Provisional Filed](https://img.shields.io/badge/Patent-Provisional%20Filed-blue.svg)]()
-[![Status: Production](https://img.shields.io/badge/Status-Production-green.svg)]()
+AIP is the flight recorder for AI agents. When an autonomous agent acts —
+approves a payment, files a claim, executes a trade — AIP produces an
+**EvidencePacket**: a self-contained, cryptographically signed, tamper-evident
+record binding the action to the human authority that permitted it, through
+every delegation hop in between.
 
----
-
-## What is AIP?
-
-The Agent Identity Protocol (AIP) is a **standalone cryptographic identity system designed specifically for AI agents and autonomous workloads**. AIP provides agents with end-to-end verifiable identity, ensuring that any action, decision, or generated content can be cryptographically traced back to a specific AI model, prompt version, and execution environment.
-
-AIP acts as the "Passport Control" for the AI agent economy. It replaces opaque, shared API keys with **provenance-bound, Ed25519-signed JSON Web Tokens (JWTs)** and introduces a mathematically rigorous **Verifiable Delegation Lattice (VDL)** to govern how agents grant capabilities to other agents.
-
----
-
-## Why AIP Exists
-
-### The Problems It Solves
-
-| Problem | Real-World Risk | AIP Solution |
-|---------|----------------|--------------|
-| **Shared API Keys** | If an agent misbehaves, it's impossible to mathematically prove *which* agent instance took the action because they all share a single API key. | **Provenance-Bound AIP-IDs** cryptographically bind an agent's identity to its underlying model and environment. |
-| **Confused Deputy Escalation** | An agent delegates a task to a sub-agent, accidentally granting it more permissions than the parent agent originally had. | **Lattice-Constrained Delegation** mathematically guarantees that a child agent can *never* exceed the capabilities of its ancestors. |
-| **Zombie Agents** | A revoked agent continues to operate because downstream services haven't synced the revocation list. | **Cascade Revocation (BFS)** instantly and atomically revokes a root token and all of its descendant delegations with O(1) lookup. |
-| **Replay Attacks** | An attacker captures a valid agent signature and re-submits it later to duplicate an action. | **Strict Nonce-Tracking** and sliding timestamp windows guarantee that no signature can ever be replayed. |
-
----
-
-## The AIP Technology Stack
-
-### Verifiable Delegation Lattice (VDL)
-
-AIP v2 introduces a novel composite architecture known as the Verifiable Delegation Lattice. This ensures that agent authority is strictly bounded and easily verifiable by any third party.
-
-1. **Scope-Constrained Delegation**: Delegation isn't just a list of strings. AIP computes the "lattice MEET" of the parent's scope and the requested child's scope. If a parent is denied an action, all descendants are mathematically denied that action.
-2. **Verifiable Depth-Limited Chains**: Delegations reference their parent (via JTI) and enforce a maximum depth limit (default: 8 hops) to prevent unbounded agent spawning.
-3. **Cascade Revocation**: Revoking a parent token performs a Breadth-First Search (BFS) walk of the delegation graph, automatically terminating all downstream delegations instantly.
-4. **Audit Trail Binding**: When an agent writes to an external system (like the AIRON ChronoLattice), the exact delegation ID used is hashed into the audit log. Tampering with the authorization record breaks the cryptographic chain.
-
----
-
-## Role in the AIRON Trust Pipeline
-
-AIP is the **identity layer** of the AIRON Trust Pipeline — a production AI content verification and agent trust infrastructure.
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     AIRON TRUST PIPELINE                         │
-│                                                                 │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌──────────────────┐   │
-│  │  PRISM  │→ │   AIP   │→ │   VCP   │→ │  CHRONOLATTICE   │   │
-│  │ Content │  │ Agent   │  │Verifiable│  │ Temporal Audit   │   │
-│  │Analysis │  │Identity │  │Cognition│  │ & Provenance     │   │
-│  └─────────┘  └─────────┘  └─────────┘  └──────────────────┘   │
-│       │            │            │               │               │
-│       └────────────┴────────────┴───────────────┘               │
-│                         │                                       │
-│                    ┌────┴────┐                                   │
-│                    │   KTS   │  AIRON Trust Standard             │
-│                    │Certificate│  (Three-Layer Crypto Cert)      │
-│                    └─────────┘                                   │
-└─────────────────────────────────────────────────────────────────┘
+```text
+Human CFO ──issues──▶ Scoped Token ──delegates──▶ Payments Agent
+                                                      │ decides
+                                                      ▼
+                       EvidencePacket ◀──seals── Payment Approval
+                        │                             │ performs
+                        │ binds                       ▼
+                        ▼                        Ledger Entry
+        agent identity · delegation chain        (countersigned
+        decision · signed actions · receipt        by the ledger)
 ```
 
-Within the pipeline, AIP ensures that **every component, external agent, and evaluation step is cryptographically signed and provenance-bound.** 
+Modify one byte of a sealed packet — the amount, the scope, the authority —
+and verification fails on a named cryptographic rule. Recompute the hash to
+cover your tracks and the agent's signature catches it.
 
-> **AIP is architecturally independent.** While it serves as the identity layer for the AIRON Trust Pipeline, it is built as a standalone suite of Rust crates and microservices. It can be deployed in any environment that requires rigorous, verifiable identity for autonomous software agents.
+## Why
 
----
+Agent logs are not evidence. Observability tells you *what happened*;
+identity systems control *who can act*. Neither proves, after the fact and
+to a skeptical third party, **which delegated authority an autonomous action
+descended from** — the question auditors, regulators, and counterparties ask
+when something goes wrong. AIP answers it with cryptography instead of trust.
 
-## What Makes AIP Novel and Defensible
-
-### Patent-Protected Innovations
-
-AIP's Verifiable Delegation Lattice is covered under Indian Patent Office CRI Guidelines 2025 and US USPTO 35 USC §101/§103. 
-
-| Innovation | Prior Art Limitation | AIP Advance |
-|-----------|---------------------|-------------|
-| **Scope-Constrained Delegation (NM-A1)** | OAuth 2.0 / ABAC use flat string sets; cannot mathematically guarantee subset properties across complex chains. | Represents scopes as lattice elements (Allowed/Denied sets). Computes delegation via lattice MEET operations. |
-| **Depth-Limited Chains (NM-A2)** | Standard JWTs lack cryptographic chain linkage; verifying deep chains requires online token introspection. | Offline-verifiable chains referencing parent JTIs with hard-coded max depth limits. |
-| **Cascade BFS Revocation (NM-A3)** | Revoking a root OAuth token does not automatically revoke tokens minted by the root. | Atomic BFS graph walk automatically terminates all downstream delegations with O(1) verify checks. |
-| **Audit Trail Binding (NM-A4)** | Audit logs record *what* happened, but not *which specific delegation* authorized it, allowing post-hoc tampering. | The delegation ID is included in the SHA3-256 canonical input of the audit entry, cryptographically binding the action to the authority. |
-
----
-
-## Production Status
-
-### Implementation Maturity
-
-AIP is production-ready, implemented in high-performance Rust, and heavily tested.
-
-| Component | Technology | Status | Description |
-|-----------|------------|--------|-------------|
-| **AIP Core Logic** | Rust (`aip-core`) | ✅ Production | Delegation lattice, nonce-tracking, runtime binding, reputation aggregation |
-| **AIP Cryptography** | Rust (`aip-crypto`) | ✅ Production | Ed25519 signing/verification, SHA-256 fingerprinting, Base58 encoding |
-| **AIP Service** | Rust (`axum`) | ✅ Production | Production HTTP service for token issuance, verification, and revocation |
-| **AIP CLI** | Rust (`aip-cli`) | ✅ Production | Command-line tool for identity creation, signing, and liveness simulations |
-| **AIP Data Types** | Rust (`aip-types`) | ✅ Production | Core data structures (Capabilities, Scopes, Claims) |
-
-### Verified Benchmarks
-
-| Metric | Result |
-|--------|--------|
-| **Token Verification** | < 1ms (Ed25519) |
-| **Revocation Check** | O(1) (In-memory HashSet lookup) |
-| **Anti-Replay Protection** | 100% block rate for duplicated nonces |
-| **Scope Propagation** | Mathematically guaranteed (Denied scopes always propagate) |
-
----
-
-## Repository Structure
-
-```
-AIP/
-│
-├── aip-service/                # Production Axum microservice
-│   ├── Cargo.toml              # Service dependencies (axum, jsonwebtoken, ed25519-dalek)
-│   ├── Dockerfile              # Multi-stage production build
-│   └── src/                    # HTTP Handlers, Key generation, Delegation processing
-│       ├── main.rs             # Application entry point
-│       ├── handlers.rs         # HTTP endpoints (issue, verify, delegate, revoke)
-│       ├── capability.rs       # Lattice MEET operations (NM-A1)
-│       ├── delegation.rs       # Chain depth limits and persistence (NM-A2)
-│       ├── revocation.rs       # Cascade BFS walk and O(1) lookups (NM-A3)
-│       └── wellknown.rs        # OIDC-style discovery endpoints
-│
-├── aip-standalone/             # Standalone Rust workspace (Library Crates)
-│   ├── Cargo.toml              # Workspace configuration
-│   ├── AIP_RUNTIME.md          # Runtime integration guide
-│   ├── aip-types/              # Pure data structures and claims
-│   ├── aip-crypto/             # Cryptographic primitives (Ed25519, Base58)
-│   ├── aip-core/               # Core domain logic (NonceTracker, Store, Simulation)
-│   ├── aip-test/               # Integration tests
-│   ├── aip-real-tests/         # End-to-end security and adversarial tests
-│   └── aip-cli/                # Command-line interface for AIP operations
-│
-├── docs/                       # Technical specifications and patent definitions
-│   ├── AIP_v2_IDF_complete.md  # Complete Invention Disclosure Form (VDL Architecture)
-│   └── AIP_v2_IDF_additions.md # Technical extensions and proofs
-│
-├── reports_and_patents/        # IP Strategy and Integration Reports
-│   ├── PATENT_DOSSIER_CCVL_AIP.md     # Cross-Channel Verification integration
-│   └── PATENT_IDF_1A_ORCHESTRATION.md # Orchestration integration
-│
-└── benchmark-results/          # Performance and validation reports
-    └── aip_validation.json     # Automated test results
-```
-
----
-
-## Quick Start (CLI)
+## See it in 60 seconds
 
 ```bash
-cd aip-standalone/
-cargo build --workspace
-
-# Create an identity
-./target/debug/aip-cli create-identity --model "my-model" --env "production"
-
-# List stored identities
-./target/debug/aip-cli list
-
-# Sign a payload
-./target/debug/aip-cli sign --payload "Hello, AIP!"
-
-# Issue a liveness challenge
-./target/debug/aip-cli challenge --target-id <AIP-ID>
-
-# Run 5-agent simulation
-./target/debug/aip-cli simulate --agents 5
+cd aip-standalone
+cargo run -p banking-demo
 ```
 
----
+The demo builds the full CFO → delegation → payment → countersigned-ledger
+flow, verifies the packet at the `COUNTERPARTY_SIGNED` trust floor, then
+tampers with the payment amount (twice — the second attacker also fixes the
+hash) and shows verification failing on the exact rules that caught it.
+Every check is real Ed25519/SHA-256; the demo exits non-zero if any honest
+check fails or any tamper goes undetected.
 
-## Intellectual Property
+## What's in the box
 
-This repository contains implementations covered by **provisional patent applications** filed with the Indian Patent Office under CRI Guidelines 2025 and the US USPTO under 35 USC §101/§103. 
+| Crate | What it is | Maturity |
+|---|---|---|
+| **`aip-protocol`** | **EvidencePacket v1**, the 14-rule verification engine, the accountability graph (Human→Authority→Agent→Decision→Action→Receipt) | MVP, tested |
+| `aip-core` | Delegation chains (per-hop signatures, lattice scope attenuation, depth limits), capability scopes, cascade revocation, hash-chained scoped audit | MVP, tested |
+| `aip-crypto` | Ed25519, SHA-256, Base58 AIP-ID derivation with checksum | Stable |
+| `aip-types` | Wire-format data structures | Stable |
+| `banking_demo` | End-to-end design-partner demo with tamper detection | Demo |
+| `aip-cli` | Local identity/signing utilities | Prototype |
+| `aip-service` | Reference HTTP prototype — **no auth, single-node; not for production** | Prototype |
+| reputation / hardware-attestation / liveness modules | **Experimental** — see `AUDIT_CORRECTIONS.md` | Experimental |
 
-**Patent Family:** AIRON Trust Pipeline  
-**Filing Status:** Provisional Filed  
-**IP Owner:** Vanian Technologies Private Limited  
+## Core guarantees (implemented and tested)
 
----
+1. **Tamper evidence.** `packet_hash = SHA-256(canonical bytes)`; the agent
+   signs it. Any post-sealing modification — including of embedded
+   delegation signatures — is detected.
+2. **Authority binding.** The delegation chain verifies per hop: signature,
+   parent linkage, depth, and scope attenuation (a child scope can never
+   exceed its parent — lattice MEET).
+3. **Scope enforcement.** The decision and every action must fall inside the
+   effective (most-attenuated) scope, or verification fails.
+4. **Bilateral evidence.** External systems countersign receipts, bound to
+   the specific decision — evidence both sides can rely on in a dispute.
+5. **Derived trust.** Verifiers compute the trust floor
+   (`UNVERIFIED → AGENT_SIGNED → AUTHORITY_BOUND → COUNTERPARTY_SIGNED`)
+   from the evidence; claims above the evidence fail.
+
+## Using the library
+
+```rust
+use aip_protocol::{EvidencePacketBuilder, VerificationContext, verify_packet};
+
+// Agent side: seal evidence for an action it just performed.
+let packet = EvidencePacketBuilder::new(agent_identity, root_authority)
+    .delegation_chain(chain)
+    .decision(decision)
+    .action(signed_action)
+    .receipt(countersigned_receipt)
+    .claimed_trust_floor(TrustFloor::CounterpartySigned)
+    .build_and_sign(&agent_private_key)?;
+
+// Auditor side: verify against keys *you* trust.
+let ctx = VerificationContext::new()
+    .trust_issuer(&cfo_id, &cfo_public_key)
+    .trust_issuer(&orchestrator_id, &orch_public_key)
+    .trust_counterparty("ledger.example-bank.com", &ledger_public_key);
+let report = verify_packet(&packet, &ctx);
+
+assert!(report.valid);
+println!("{}", report.to_json()?); // {"valid":true,"trust_floor":"COUNTERPARTY_SIGNED",...}
+```
+
+## Build & test
+
+```bash
+cd aip-standalone
+cargo build --workspace
+cargo test  --workspace            # full suite
+cargo test  --workspace --release  # includes wall-clock throughput gates
+cargo run   -p banking-demo
+```
+
+## Documents
+
+- [`AIP_SPEC.md`](AIP_SPEC.md) — the open EvidencePacket specification
+  (format, verification rules, delegation semantics, trust floors).
+- [`ROADMAP.md`](ROADMAP.md) — console, SDKs, framework integrations,
+  Evidence Vault.
+- [`AUDIT_CORRECTIONS.md`](AUDIT_CORRECTIONS.md) — what this repository
+  previously overstated and what was done about it. Trust is a product
+  feature; read this first if you're doing diligence.
+
+## Status, honestly
+
+This is an MVP accountability layer with a tested cryptographic core. It is
+not yet: a hosted service, an SDK ecosystem, or an enterprise product. The
+spec is v0.1-draft and the APIs will change. What it *is*: every claim in
+this README is backed by code you can run and tests you can read.
 
 ## License
 
-**Proprietary** — Vanian Technologies Private Limited. All rights reserved.
+Core protocol and reference implementation: proprietary
+(Vanian Technologies Private Limited) — **open-sourcing of the spec and core
+crates is planned**; see `ROADMAP.md`. Patent matters: provisional filings
+exist covering delegation-bound audit binding; see `reports_and_patents/`
+(attorney working documents).
 
-Unauthorized reproduction, distribution, or use of this technology without explicit written permission from Vanian Technologies is strictly prohibited.
-
----
-
-*AIP is a standalone component of the [AIRON Trust Pipeline](https://github.com/AironTrust) — cryptographic trust infrastructure for the AI agent economy.*
-
-**© 2025–2026 Vanian Technologies Private Limited.**
+© 2025–2026 Vanian Technologies Private Limited.

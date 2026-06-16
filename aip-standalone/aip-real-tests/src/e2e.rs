@@ -1,10 +1,10 @@
 //! End-to-End & CLI Tests — Full pipeline verification.
 
-use aip_core::*;
 use aip_core::nonce::NonceTracker;
-use aip_core::store::IdentityStore;
 use aip_core::runtime::{bind_identity_to_runtime, verify_runtime_binding};
 use aip_core::simulation::simulate_network_verification;
+use aip_core::store::IdentityStore;
+use aip_core::*;
 use aip_crypto::*;
 use aip_types::*;
 
@@ -59,7 +59,10 @@ fn test_cross_process_sign_verify_via_store() {
 
         // Crypto verification
         let valid = verify_ed25519(&entry.keypair.public_key, &sig).unwrap();
-        assert!(valid, "Process B must successfully verify Process A's signature");
+        assert!(
+            valid,
+            "Process B must successfully verify Process A's signature"
+        );
 
         // Replay rejection
         assert_eq!(
@@ -115,7 +118,11 @@ fn test_full_e2e_identity_pipeline() {
                 continue;
             }
             let valid = verify_ed25519(&signer_kp.public_key, &sig).unwrap();
-            assert!(valid, "{} must verify {}'s signature", verifier_id, signer_id);
+            assert!(
+                valid,
+                "{} must verify {}'s signature",
+                verifier_id, signer_id
+            );
         }
 
         // Replay rejected

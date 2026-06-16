@@ -1,0 +1,64 @@
+name: Security
+
+on:
+  pull_request:
+  schedule:
+    # Daily at 03:00 UTC
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  cargo-audit:
+    name: cargo audit (RUSTSEC)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo install cargo-audit --locked
+      - name: Audit (fail on any vulnerability)
+        run: |
+          set -e
+          (cd aip-standalone && cargo audit --json | tee ../audit-standalone.json)
+          (cd aip-service && cargo audit --json | tee ../audit-service.json)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cargo-audit-reports
+          path: audit-*.json
+          if-no-files-found: ignore
+
+  gitleaks:
+    name: gitleaks (secret scan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          # Fails the job if any secret is detected.
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
+
+  trivy-fs:
+    name: trivy filesystem scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy filesystem scan (fail on CRITICAL/HIGH)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+          format: sarif
+          output: trivy-results.sarif
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-report
+          path: trivy-results.sarif
+          if-no-files-found: ignore

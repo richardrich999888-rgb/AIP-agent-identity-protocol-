@@ -1,15 +1,18 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/aip-types",
-    "crates/aip-crypto",
-    "crates/aip-core",
-    "crates/aip-test",
-    "crates/aip-cli",
-    "crates/aip-real-tests",
+    "aip-types",
+    "aip-crypto",
+    "aip-core",
+    "aip-protocol",
+    "aip-test",
+    "aip-cli",
+    "aip-verify",
+    "aip-real-tests",
+    "banking_demo",
 ]
 
 [workspace.package]
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 license = "UNLICENSED"

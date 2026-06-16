@@ -1,0 +1,88 @@
+# AIP local/pilot deployment foundation.
+#
+#   docker compose -f deploy/docker/docker-compose.yml up --build
+#
+# aip-service uses PostgreSQL as the durable Evidence Vault backend
+# (AIP_STORE_BACKEND=postgres). The schema is applied automatically on startup.
+# To import an existing JSONL vault, run the bundled tool inside the container:
+#   docker compose exec aip-service aip-migrate \
+#     --source /var/lib/aip/evidence.jsonl --database-url "$DATABASE_URL"
+#
+# minio remains a placeholder for future evidence archival / export and is NOT
+# yet used by the service.
+
+services:
+  aip-service:
+    build:
+      context: ../..                      # repo root (needs both workspaces)
+      dockerfile: deploy/docker/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      AIP_PORT: "8081"
+      AIP_KEY_PATH: /var/lib/aip/signing.key
+      AIP_DELEGATION_LOG_PATH: /var/lib/aip/delegation.jsonl
+      AIP_REVOCATION_LOG_PATH: /var/lib/aip/revocation.jsonl
+      AIP_API_KEYS_PATH: /etc/aip/keys.json   # mount your keys file (see below)
+      # Durable backend:
+      AIP_STORE_BACKEND: postgres
+      DATABASE_URL: postgresql://aip:${AIP_PG_PASSWORD:-change-me}@postgres:5432/aip
+      # JSONL fallback path (used only if AIP_STORE_BACKEND=jsonl):
+      AIP_VAULT_PATH: /var/lib/aip/evidence.jsonl
+      RUST_LOG: info
+    volumes:
+      - aip-data:/var/lib/aip
+      - ./keys.json:/etc/aip/keys.json:ro     # provide an API keys file
+    # TLS terminates at an ingress/proxy in front of this service (the service
+    # speaks plain HTTP). Do not expose port 8081 directly to the internet.
+    restart: unless-stopped
+
+  # ── Durable Evidence Vault backend (primary store) ──
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: aip
+      POSTGRES_PASSWORD: ${AIP_PG_PASSWORD:-change-me}
+      POSTGRES_DB: aip
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aip -d aip"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # ── Placeholder object storage for evidence archival / exports ──
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${AIP_MINIO_USER:-aip}
+      MINIO_ROOT_PASSWORD: ${AIP_MINIO_PASSWORD:-change-me-please}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+
+volumes:
+  aip-data:
+  pg-data:
+  minio-data:
+
+# Environment variables (aip-service):
+#   AIP_PORT                  listen port (default 8081)
+#   AIP_KEY_PATH              service Ed25519 signing seed path
+#   AIP_VAULT_PATH            Evidence Vault JSONL path (system of record)
+#   AIP_DELEGATION_LOG_PATH   legacy delegation log path
+#   AIP_REVOCATION_LOG_PATH   legacy revocation log path
+#   AIP_API_KEYS_PATH         JSON: {"keys":[{key_id,tenant_id,role,secret_sha256}]}
+#                             (no keys => fail closed: authed routes return 401)
+#   AIP_STORE_BACKEND         "postgres" | "jsonl" (default jsonl)
+#   DATABASE_URL              PostgreSQL DSN (required when backend=postgres)
+#   RUST_LOG                  log filter (default info)

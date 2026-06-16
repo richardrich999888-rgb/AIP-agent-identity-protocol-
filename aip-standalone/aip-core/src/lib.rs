@@ -1,28 +1,30 @@
 //! AIP Core — Identity creation, AID validation, and lifecycle state machine.
 //!
-//! Includes modules for:
-//! - Identity creation and validation
-//! - Lifecycle state machine
-//! - Capability attenuation
-//! - Reputation calculation (BFT)
-//! - Hardware attestation
-//! - Liveness challenge-response
-//! - Nonce tracking (anti-replay)
-//! - Runtime binding
-//! - Identity/reputation storage
-//! - Multi-node simulation
+//! ## Module maturity
+//!
+//! **Stable (the accountability core):** identity creation/validation,
+//! lifecycle state machine, capability scopes ([`capability`]), delegation
+//! chains ([`delegation`]), revocation ([`revocation`]), and the
+//! scope-constrained audit trail ([`scoped_audit`]).
+//!
+//! **EXPERIMENTAL — not for production use:** reputation calculation
+//! (`calculate_reputation`, BFT vote aggregation), hardware attestation
+//! (`evaluate_hardware_trust` does NOT verify vendor TEE quotes; it performs
+//! structural checks only), liveness challenge-response, and the multi-node
+//! [`simulation`]. These exist for research and may change or be removed.
+//! See `AUDIT_CORRECTIONS.md` at the repository root.
 
 pub mod nonce;
 pub mod runtime;
-pub mod store;
 pub mod simulation;
+pub mod store;
 
 // ─── AIP v2: The Missing 20% ───
-pub mod capability;   // NM-A1: Scope intersection, named scopes, token issuance
-pub mod delegation;   // NM-A2: Delegation chain traversal, depth limit, DelegationLog
-pub mod revocation;   // NM-A3: Cascade revocation, append-only RevocationLog
-pub mod wellknown;    // NM-A4a: Portable identity — JWKS + AIP config documents
-pub mod scoped_audit; // NM-A4b: Scope-Constrained Audit Trail Binding (patent-critical)
+pub mod capability; // NM-A1: Scope intersection, named scopes, token issuance
+pub mod delegation; // NM-A2: Delegation chain traversal, depth limit, DelegationLog
+pub mod revocation; // NM-A3: Cascade revocation, append-only RevocationLog
+pub mod scoped_audit;
+pub mod wellknown; // NM-A4a: Portable identity — JWKS + AIP config documents // NM-A4b: Scope-Constrained Audit Trail Binding (patent-critical)
 
 use aip_crypto::*;
 use aip_types::*;
@@ -614,9 +616,13 @@ pub fn calculate_reputation(
         *weight += decayed as u64;
     }
 
+    // Weighted mean of clamped claim values. `sum` is Σ(weight·value) with
+    // value already clamped to 0..=1_000_000, so sum/weight is bounded by
+    // 1_000_000 — no rescaling is needed. (The previous `* 10_000` rescale
+    // overflowed u32 for claim values ≥ ~430K; see AUDIT_CORRECTIONS.md.)
     let score = |sum: u64, weight: u64| -> u32 {
         if weight > 0 {
-            ((sum * 10_000) / weight) as u32
+            ((sum / weight) as u32).min(1_000_000)
         } else {
             500_000 // Default 50%
         }

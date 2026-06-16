@@ -114,16 +114,15 @@ cargo test --package aip-test
 ## Architecture
 
 ```
-aip/
-├── crates/
-│   ├── aip-types/     # Pure data types (475 lines)
-│   ├── aip-crypto/    # Ed25519, SHA-256, Merkle, AIP-ID (270 lines)
-│   ├── aip-core/      # Domain logic + new modules
-│   │   ├── lib.rs     # Identity, lifecycle, capabilities, reputation, liveness
-│   │   ├── nonce.rs   # NonceTracker (anti-replay)
-│   │   ├── runtime.rs # Runtime binding
-│   │   ├── store.rs   # File-backed identity store
-│   │   └── simulation.rs # Multi-node verification
-│   ├── aip-test/      # Integration tests (13 tests)
-│   └── aip-cli/       # CLI binary
+aip-standalone/
+├── aip-types/     # Pure data types
+├── aip-crypto/    # Ed25519, SHA-256, Merkle, AIP-ID
+├── aip-core/      # Domain logic: identity, lifecycle, capability,
+│                  # delegation, revocation, scoped audit (+ experimental
+│                  # reputation/liveness/hardware modules)
+├── aip-protocol/  # EvidencePacket, verification engine, accountability graph
+├── aip-test/      # Integration tests
+├── aip-real-tests/# Adversarial / property / stress tests
+├── aip-cli/       # CLI binary
+└── banking_demo/  # End-to-end design-partner demo
 ```

@@ -85,12 +85,11 @@ pub fn generate_jwks(public_key_bytes: &[u8], kid: &str) -> Result<JwksDocument,
 /// Returns `true` if:
 /// 1. The JWKS contains a key matching `token.issuer_id` (by `kid`)
 /// 2. The token signature verifies against that key
-pub fn verify_token_with_jwks(
-    token: &ScopedToken,
-    jwks: &JwksDocument,
-) -> Result<bool, JwksError> {
+pub fn verify_token_with_jwks(token: &ScopedToken, jwks: &JwksDocument) -> Result<bool, JwksError> {
     // Find the key matching this token's issuer
-    let key = jwks.keys.iter()
+    let key = jwks
+        .keys
+        .iter()
         .find(|k| k.kid == token.issuer_id)
         .ok_or_else(|| JwksError::KeyNotFound(token.issuer_id.clone()))?;
 
@@ -112,7 +111,9 @@ pub fn verify_delegation_with_jwks(
     token: &DelegationToken,
     jwks: &JwksDocument,
 ) -> Result<bool, JwksError> {
-    let key = jwks.keys.iter()
+    let key = jwks
+        .keys
+        .iter()
         .find(|k| k.kid == token.issuer_id)
         .ok_or_else(|| JwksError::KeyNotFound(token.issuer_id.clone()))?;
 
@@ -126,14 +127,12 @@ pub fn verify_delegation_with_jwks(
 
 /// Serialize the AIP configuration to a JSON string (for the HTTP response body).
 pub fn aip_configuration_to_json(config: &AipConfiguration) -> Result<String, JwksError> {
-    serde_json::to_string_pretty(config)
-        .map_err(|e| JwksError::SerializationError(e.to_string()))
+    serde_json::to_string_pretty(config).map_err(|e| JwksError::SerializationError(e.to_string()))
 }
 
 /// Serialize the JWKS document to a JSON string (for the HTTP response body).
 pub fn jwks_to_json(jwks: &JwksDocument) -> Result<String, JwksError> {
-    serde_json::to_string_pretty(jwks)
-        .map_err(|e| JwksError::SerializationError(e.to_string()))
+    serde_json::to_string_pretty(jwks).map_err(|e| JwksError::SerializationError(e.to_string()))
 }
 
 // ─── Error ───
@@ -184,8 +183,12 @@ mod tests {
 
         assert_eq!(config.issuer, "https://aip.airon.ai");
         assert!(config.jwks_uri.contains("/.well-known/jwks.json"));
-        assert!(config.revocation_uri.contains("/v1/identity/revocation-status"));
-        assert!(config.delegation_verify_uri.contains("/v1/identity/verify-chain"));
+        assert!(config
+            .revocation_uri
+            .contains("/v1/identity/revocation-status"));
+        assert!(config
+            .delegation_verify_uri
+            .contains("/v1/identity/verify-chain"));
         assert!(!config.supported_algorithms.is_empty());
         assert_eq!(config.token_format, "AIP-JWT-v1");
         assert!(!config.version.is_empty());
@@ -274,14 +277,8 @@ mod tests {
         let (issuer_id, priv_key, pub_key) = make_issuer();
         let (agent_id, _, _) = make_issuer();
 
-        let mut token = issue_scoped_token(
-            &issuer_id,
-            &priv_key,
-            &agent_id,
-            scope_submitter(),
-            None,
-        )
-        .unwrap();
+        let mut token =
+            issue_scoped_token(&issuer_id, &priv_key, &agent_id, scope_submitter(), None).unwrap();
 
         // Tamper: escalate scope after issuance
         token.scope = scope_admin();
@@ -297,14 +294,8 @@ mod tests {
         let (_, _, wrong_pub_key) = make_issuer(); // Different key pair
         let (agent_id, _, _) = make_issuer();
 
-        let token = issue_scoped_token(
-            &issuer_id,
-            &priv_key,
-            &agent_id,
-            scope_submitter(),
-            None,
-        )
-        .unwrap();
+        let token =
+            issue_scoped_token(&issuer_id, &priv_key, &agent_id, scope_submitter(), None).unwrap();
 
         // JWKS has wrong public key
         let jwks = generate_jwks(&wrong_pub_key, &issuer_id).unwrap();
@@ -318,14 +309,8 @@ mod tests {
         let (other_id, _, other_pub) = make_issuer();
         let (agent_id, _, _) = make_issuer();
 
-        let token = issue_scoped_token(
-            &issuer_id,
-            &priv_key,
-            &agent_id,
-            scope_submitter(),
-            None,
-        )
-        .unwrap();
+        let token =
+            issue_scoped_token(&issuer_id, &priv_key, &agent_id, scope_submitter(), None).unwrap();
 
         // JWKS contains a different issuer's key
         let jwks = generate_jwks(&other_pub, &other_id).unwrap();
