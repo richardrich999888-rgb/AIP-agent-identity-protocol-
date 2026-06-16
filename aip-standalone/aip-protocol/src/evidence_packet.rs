@@ -345,6 +345,11 @@ impl EvidencePacket {
         serde_json::to_string_pretty(self)
     }
 
+    /// Export the packet as single-line JSON (for JSONL storage / the wire).
+    pub fn to_json_compact(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(self)
+    }
+
     /// Parse a packet from JSON. (Integrity is NOT checked here — run the
     /// verification engine on the result.)
     pub fn from_json(json: &str) -> Result<Self, serde_json::Error> {
