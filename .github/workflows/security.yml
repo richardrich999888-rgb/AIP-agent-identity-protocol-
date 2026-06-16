@@ -18,10 +18,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo install cargo-audit --locked
       - name: Audit (fail on any vulnerability)
+        # RUSTSEC-2026-0097 ignored with justification (see deny.toml): rand
+        # unsoundness only via rand::rng()+custom logger; AIP uses OsRng only.
         run: |
           set -e
-          (cd aip-standalone && cargo audit --json | tee ../audit-standalone.json)
-          (cd aip-service && cargo audit --json | tee ../audit-service.json)
+          (cd aip-standalone && cargo audit --ignore RUSTSEC-2026-0097 --json | tee ../audit-standalone.json)
+          (cd aip-service && cargo audit --ignore RUSTSEC-2026-0097 --json | tee ../audit-service.json)
       - uses: actions/upload-artifact@v4
         if: always()
         with:

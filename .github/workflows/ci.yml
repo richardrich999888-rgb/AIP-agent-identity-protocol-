@@ -89,10 +89,12 @@ jobs:
           cargo install cargo-audit --locked || true
           cargo install cargo-deny --locked || true
       - name: cargo audit (both workspaces)
+        # RUSTSEC-2026-0097: see deny.toml justification (rand::rng()+custom
+        # logger unsoundness; AIP uses OsRng with no custom logger).
         run: |
           set -e
-          (cd aip-standalone && cargo audit)
-          (cd aip-service && cargo audit)
+          (cd aip-standalone && cargo audit --ignore RUSTSEC-2026-0097)
+          (cd aip-service && cargo audit --ignore RUSTSEC-2026-0097)
       - name: cargo deny check
         run: |
           set -e
