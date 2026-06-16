@@ -3,12 +3,12 @@
 #[cfg(test)]
 mod adversarial;
 #[cfg(test)]
-mod security;
-#[cfg(test)]
-mod stress;
-#[cfg(test)]
-mod properties;
+mod e2e;
 #[cfg(test)]
 mod edge_cases;
 #[cfg(test)]
-mod e2e;
+mod properties;
+#[cfg(test)]
+mod security;
+#[cfg(test)]
+mod stress;

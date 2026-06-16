@@ -107,7 +107,9 @@ pub fn create_sub_delegation(
     requested_scope: CapabilityScope,
 ) -> Result<DelegationToken, AipError> {
     // Depth limit check
-    let new_depth = parent_delegation.depth.checked_add(1)
+    let new_depth = parent_delegation
+        .depth
+        .checked_add(1)
         .ok_or(AipError::LineageInvalid)?;
     if new_depth >= MAX_DELEGATION_DEPTH {
         return Err(AipError::LineageInvalid);
@@ -248,7 +250,11 @@ struct DelegationLogData {
 
 impl DelegationLog {
     pub fn new() -> Self {
-        Self { entries: vec![], index: HashMap::new(), file_path: None }
+        Self {
+            entries: vec![],
+            index: HashMap::new(),
+            file_path: None,
+        }
     }
 
     pub fn with_file(path: impl AsRef<Path>) -> Result<Self, DelegationLogError> {
@@ -263,7 +269,11 @@ impl DelegationLog {
             vec![]
         };
 
-        let mut log = Self { entries: vec![], index: HashMap::new(), file_path: Some(path) };
+        let mut log = Self {
+            entries: vec![],
+            index: HashMap::new(),
+            file_path: Some(path),
+        };
         for entry in entries {
             log.append_entry(entry);
         }
@@ -292,7 +302,10 @@ impl DelegationLog {
 
     /// Find all direct children of a given JTI (tokens with parent_jti == jti).
     pub fn children_of(&self, parent_jti: &[u8; 16]) -> Vec<&DelegationToken> {
-        self.entries.iter().filter(|t| &t.parent_jti == parent_jti).collect()
+        self.entries
+            .iter()
+            .filter(|t| &t.parent_jti == parent_jti)
+            .collect()
     }
 
     /// All JTIs in the subtree rooted at `root_jti` (BFS walk).
@@ -322,11 +335,12 @@ impl DelegationLog {
             std::fs::create_dir_all(parent)
                 .map_err(|e| DelegationLogError::IoError(e.to_string()))?;
         }
-        let data = DelegationLogData { entries: self.entries.clone() };
+        let data = DelegationLogData {
+            entries: self.entries.clone(),
+        };
         let json = serde_json::to_string_pretty(&data)
             .map_err(|e| DelegationLogError::SerializationError(e.to_string()))?;
-        std::fs::write(path, json)
-            .map_err(|e| DelegationLogError::IoError(e.to_string()))?;
+        std::fs::write(path, json).map_err(|e| DelegationLogError::IoError(e.to_string()))?;
         Ok(())
     }
 }
@@ -571,7 +585,11 @@ mod tests {
 
         // Subtree from root: d1, d3_side, d2 (children of d1)
         let subtree = log.subtree_jtis(&root_jti);
-        assert_eq!(subtree.len(), 3, "Root has 2 direct children + 1 grandchild");
+        assert_eq!(
+            subtree.len(),
+            3,
+            "Root has 2 direct children + 1 grandchild"
+        );
 
         // Subtree from d1: only d2
         let d1_subtree = log.subtree_jtis(&d1_jti);

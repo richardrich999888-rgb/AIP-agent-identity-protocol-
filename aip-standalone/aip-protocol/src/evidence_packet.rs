@@ -39,9 +39,7 @@ pub const PACKET_VERSION: u16 = 1;
 /// The minimum level of trust a verifier may place in a packet.
 ///
 /// Ordered: each level implies all levels below it.
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum TrustFloor {
     /// Structure parses but no signature has been verified.

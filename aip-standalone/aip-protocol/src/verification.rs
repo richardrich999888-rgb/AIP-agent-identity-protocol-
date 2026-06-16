@@ -139,8 +139,8 @@ pub fn verify_packet(packet: &EvidencePacket, ctx: &VerificationContext) -> Veri
     let sig = &packet.agent_sig;
     let signer_ok = sig.signer_id == packet.agent.aip_id;
     let payload_ok = sig.payload_hash == recomputed;
-    let crypto_ok = payload_ok
-        && verify_ed25519(&packet.agent.public_key.key_bytes, sig).unwrap_or(false);
+    let crypto_ok =
+        payload_ok && verify_ed25519(&packet.agent.public_key.key_bytes, sig).unwrap_or(false);
     let agent_sig_ok = signer_ok && crypto_ok;
     e.record_tamper(
         rules::AGENT_SIGNATURE,
@@ -460,8 +460,7 @@ fn check_scope_authority(
         rules::SCOPE_AUTHORITY,
         ok,
         if ok {
-            "decision and all actions fall within the effective (most-attenuated) scope"
-                .to_string()
+            "decision and all actions fall within the effective (most-attenuated) scope".to_string()
         } else {
             violations.join("; ")
         },
@@ -536,8 +535,8 @@ fn check_action_attestations(packet: &EvidencePacket, e: &mut Engine) -> bool {
             ));
             continue;
         }
-        let valid = verify_ed25519(&packet.agent.public_key.key_bytes, &action.agent_sig)
-            .unwrap_or(false);
+        let valid =
+            verify_ed25519(&packet.agent.public_key.key_bytes, &action.agent_sig).unwrap_or(false);
         if !valid {
             problems.push(format!("action {id}: signature verification failed"));
         }
@@ -603,7 +602,10 @@ fn check_trace_binding(
                 rules::TRACE_BINDING,
                 ok,
                 if ok {
-                    format!("supplied trace data hashes to the bound trace_hash for {}", t.trace_id)
+                    format!(
+                        "supplied trace data hashes to the bound trace_hash for {}",
+                        t.trace_id
+                    )
                 } else {
                     "supplied trace data does NOT match the bound trace_hash".to_string()
                 },
@@ -638,7 +640,8 @@ fn check_receipt_binding(
     // External receipt data, when supplied, must hash to the binding.
     if let Some(data) = &ctx.receipt_data {
         if sha256(data) != r.receipt_hash {
-            problems.push("supplied receipt data does NOT match the bound receipt_hash".to_string());
+            problems
+                .push("supplied receipt data does NOT match the bound receipt_hash".to_string());
             e.tamper_evidence = true;
         }
     }
@@ -650,12 +653,11 @@ fn check_receipt_binding(
                 problems.push("counterparty signature signer mismatch".to_string());
             } else {
                 match ctx.counterparty_public_keys.get(cp_id) {
-                    None => problems.push(format!(
-                        "no trusted public key for counterparty {cp_id}"
-                    )),
+                    None => {
+                        problems.push(format!("no trusted public key for counterparty {cp_id}"))
+                    }
                     Some(pk) => {
-                        let payload =
-                            r.canonical_receipt_payload(&packet.decision.decision_id);
+                        let payload = r.canonical_receipt_payload(&packet.decision.decision_id);
                         if cp_sig.payload_hash != sha256(&payload) {
                             problems.push(
                                 "counterparty signature does not cover current receipt contents"
@@ -663,9 +665,7 @@ fn check_receipt_binding(
                             );
                             e.tamper_evidence = true;
                         } else if !verify_ed25519(pk, cp_sig).unwrap_or(false) {
-                            problems.push(
-                                "counterparty signature verification failed".to_string(),
-                            );
+                            problems.push("counterparty signature verification failed".to_string());
                             e.tamper_evidence = true;
                         } else {
                             countersigned = true;

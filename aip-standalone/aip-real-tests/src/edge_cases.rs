@@ -1,8 +1,8 @@
 //! Edge Cases & Boundary Value Tests — Malformed and extreme inputs.
 
-use aip_core::*;
 use aip_core::nonce::NonceTracker;
 use aip_core::store::IdentityStore;
+use aip_core::*;
 use aip_crypto::*;
 use aip_types::*;
 
@@ -116,7 +116,10 @@ fn test_very_long_signer_id() {
 fn test_aip_id_validation_edge_cases() {
     // Too short
     assert!(validate_aip_id("").is_err(), "Empty string must be invalid");
-    assert!(validate_aip_id("aip1").is_err(), "Just prefix must be invalid");
+    assert!(
+        validate_aip_id("aip1").is_err(),
+        "Just prefix must be invalid"
+    );
     assert!(validate_aip_id("aip1a").is_err(), "Way too short");
 
     // Wrong prefix
@@ -257,7 +260,11 @@ fn test_capability_many_constraints() {
 
     // Should validate without error (constraints are within limits)
     let result = validate_capability_grant(&grant, 0);
-    assert!(result.is_ok(), "50 short constraints should be valid: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "50 short constraints should be valid: {:?}",
+        result
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════

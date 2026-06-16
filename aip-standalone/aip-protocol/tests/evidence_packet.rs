@@ -12,10 +12,10 @@ use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_protocol::verification_report::rules;
 use aip_protocol::{
     verify_packet, AccountabilityGraph, ActionAttestation, AgentIdentitySummary, DecisionRecord,
-    EvidencePacket, EvidencePacketBuilder, ReceiptBinding, RootAuthority, TraceBinding,
-    TrustFloor, VerificationContext,
+    EvidencePacket, EvidencePacketBuilder, ReceiptBinding, RootAuthority, TraceBinding, TrustFloor,
+    VerificationContext,
 };
-use aip_types::{Action, KeyPair, ProvenanceTriple, ScopeAction, CapabilityScope};
+use aip_types::{Action, CapabilityScope, KeyPair, ProvenanceTriple, ScopeAction};
 
 // ─── Test fixture: CFO → treasury orchestrator → payments agent ───
 
@@ -103,7 +103,11 @@ fn build_fixture() -> Fixture {
         counterparty_sig: None,
     };
     receipt
-        .countersign(&decision.decision_id, "ledger.example-bank.com", &ledger_kp.private_key)
+        .countersign(
+            &decision.decision_id,
+            "ledger.example-bank.com",
+            &ledger_kp.private_key,
+        )
         .unwrap();
 
     let trace_data = b"otel-trace-export-bytes".to_vec();
@@ -287,9 +291,12 @@ fn test_action_outside_scope_rejected() {
     p.actions = vec![action];
     p.packet_hash = p.compute_hash();
     // Re-sign as the agent (insider trying to overreach with valid keys).
-    p.agent_sig =
-        aip_crypto::sign_ed25519(&f.agent_kp.private_key, &p.agent.aip_id, &p.canonical_bytes())
-            .unwrap();
+    p.agent_sig = aip_crypto::sign_ed25519(
+        &f.agent_kp.private_key,
+        &p.agent.aip_id,
+        &p.canonical_bytes(),
+    )
+    .unwrap();
 
     let report = verify_packet(&p, &f.ctx);
     assert_rule_failed(&report, rules::SCOPE_AUTHORITY);
@@ -387,9 +394,12 @@ fn test_claimed_floor_above_evidence_fails() {
         r.counterparty_sig = None;
     }
     p.packet_hash = p.compute_hash();
-    p.agent_sig =
-        aip_crypto::sign_ed25519(&f.agent_kp.private_key, &p.agent.aip_id, &p.canonical_bytes())
-            .unwrap();
+    p.agent_sig = aip_crypto::sign_ed25519(
+        &f.agent_kp.private_key,
+        &p.agent.aip_id,
+        &p.canonical_bytes(),
+    )
+    .unwrap();
 
     let report = verify_packet(&p, &f.ctx);
     assert_rule_failed(&report, rules::TRUST_FLOOR);
@@ -418,9 +428,12 @@ fn test_action_after_token_expiry_rejected() {
     )
     .unwrap();
     p.packet_hash = p.compute_hash();
-    p.agent_sig =
-        aip_crypto::sign_ed25519(&f.agent_kp.private_key, &p.agent.aip_id, &p.canonical_bytes())
-            .unwrap();
+    p.agent_sig = aip_crypto::sign_ed25519(
+        &f.agent_kp.private_key,
+        &p.agent.aip_id,
+        &p.canonical_bytes(),
+    )
+    .unwrap();
 
     let report = verify_packet(&p, &f.ctx);
     assert_rule_failed(&report, rules::TEMPORAL_VALIDITY);
@@ -512,11 +525,22 @@ fn test_graph_reconstruction_and_connectivity() {
     let graph = AccountabilityGraph::from_packet(&f.packet).with_report(&report);
 
     assert_eq!(graph.packet_id, f.packet.packet_id_hex());
-    assert_eq!(graph.derived_trust_floor, Some(TrustFloor::CounterpartySigned));
+    assert_eq!(
+        graph.derived_trust_floor,
+        Some(TrustFloor::CounterpartySigned)
+    );
 
     // Human → Authority → Delegation → Agent → Decision → Action → Receipt
     use aip_protocol::NodeKind::*;
-    for kind in [Principal, AuthorityGrant, Delegation, Agent, Decision, Action, Receipt] {
+    for kind in [
+        Principal,
+        AuthorityGrant,
+        Delegation,
+        Agent,
+        Decision,
+        Action,
+        Receipt,
+    ] {
         assert!(
             graph.nodes.iter().any(|n| n.kind == kind),
             "graph missing node kind {kind:?}"

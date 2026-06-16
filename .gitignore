@@ -8,3 +8,6 @@ target/
 # Local key material and logs — never commit
 *.key
 *.jsonl
+
+# Local API keys (use keys.example.json as a template)
+deploy/docker/keys.json

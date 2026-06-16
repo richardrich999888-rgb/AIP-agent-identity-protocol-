@@ -24,22 +24,27 @@ fn test_sign_verify_roundtrip_any_payload() {
 
     // Test various payload types
     let payloads: Vec<&[u8]> = vec![
-        b"",                        // Empty
-        b"a",                       // Single byte
-        b"hello world",             // Normal string
-        &[0u8; 1024],               // 1KB zeros
-        &[0xFF; 4096],              // 4KB all-ones
+        b"",                       // Empty
+        b"a",                      // Single byte
+        b"hello world",            // Normal string
+        &[0u8; 1024],              // 1KB zeros
+        &[0xFF; 4096],             // 4KB all-ones
         b"\x00\x01\x02\x03",       // Binary data
-        "🔐🤖💡".as_bytes(),        // UTF-8 emoji
+        "🔐🤖💡".as_bytes(),       // UTF-8 emoji
         &[0xDE, 0xAD, 0xBE, 0xEF], // Classic hex
     ];
 
     for (i, payload) in payloads.iter().enumerate() {
         let sig = sign_ed25519(&kp.private_key, id, payload)
-            .expect(&format!("Sign failed for payload {}", i));
+            .unwrap_or_else(|_| panic!("Sign failed for payload {}", i));
         let valid = verify_ed25519(&kp.public_key, &sig)
-            .expect(&format!("Verify error for payload {}", i));
-        assert!(valid, "Roundtrip failed for payload {} (len={})", i, payload.len());
+            .unwrap_or_else(|_| panic!("Verify error for payload {}", i));
+        assert!(
+            valid,
+            "Roundtrip failed for payload {} (len={})",
+            i,
+            payload.len()
+        );
     }
 }
 
@@ -98,11 +103,23 @@ fn test_aip_id_unique_per_key_500_pairs() {
 #[test]
 fn test_lifecycle_exhaustive_transitions() {
     // Test ALL 20 possible (state × action) combinations
-    let actions = vec![
-        ("activate", activate_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>),
-        ("suspend", suspend_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>),
-        ("reactivate", reactivate_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>),
-        ("revoke", revoke_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>),
+    let actions = [
+        (
+            "activate",
+            activate_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>,
+        ),
+        (
+            "suspend",
+            suspend_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>,
+        ),
+        (
+            "reactivate",
+            reactivate_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>,
+        ),
+        (
+            "revoke",
+            revoke_identity as fn(&mut AgentIdentityDocument) -> Result<(), AipError>,
+        ),
     ];
 
     // Actual behavior: transitions are idempotent where it makes sense.
@@ -110,25 +127,25 @@ fn test_lifecycle_exhaustive_transitions() {
     // revoke(ANY)=Ok, revoke(Revoked)=Ok (idempotent).
     let expected: Vec<(IdentityStatus, &str, bool)> = vec![
         // From Pending
-        (IdentityStatus::Pending, "activate", true),      // Primary transition
-        (IdentityStatus::Pending, "suspend", false),       // MissingRequiredField
-        (IdentityStatus::Pending, "reactivate", false),    // MissingRequiredField
-        (IdentityStatus::Pending, "revoke", true),         // ANY→Revoked
+        (IdentityStatus::Pending, "activate", true), // Primary transition
+        (IdentityStatus::Pending, "suspend", false), // MissingRequiredField
+        (IdentityStatus::Pending, "reactivate", false), // MissingRequiredField
+        (IdentityStatus::Pending, "revoke", true),   // ANY→Revoked
         // From Active
-        (IdentityStatus::Active, "activate", true),        // Idempotent
-        (IdentityStatus::Active, "suspend", true),         // Primary transition
-        (IdentityStatus::Active, "reactivate", true),      // Idempotent (already active)
-        (IdentityStatus::Active, "revoke", true),          // ANY→Revoked
+        (IdentityStatus::Active, "activate", true), // Idempotent
+        (IdentityStatus::Active, "suspend", true),  // Primary transition
+        (IdentityStatus::Active, "reactivate", true), // Idempotent (already active)
+        (IdentityStatus::Active, "revoke", true),   // ANY→Revoked
         // From Suspended
-        (IdentityStatus::Suspended, "activate", false),    // IdentitySuspended
-        (IdentityStatus::Suspended, "suspend", true),      // Idempotent
-        (IdentityStatus::Suspended, "reactivate", true),   // Primary transition
-        (IdentityStatus::Suspended, "revoke", true),       // ANY→Revoked
+        (IdentityStatus::Suspended, "activate", false), // IdentitySuspended
+        (IdentityStatus::Suspended, "suspend", true),   // Idempotent
+        (IdentityStatus::Suspended, "reactivate", true), // Primary transition
+        (IdentityStatus::Suspended, "revoke", true),    // ANY→Revoked
         // From Revoked (terminal — only revoke is idempotent)
-        (IdentityStatus::Revoked, "activate", false),      // IdentityRevoked
-        (IdentityStatus::Revoked, "suspend", false),       // IdentityRevoked
-        (IdentityStatus::Revoked, "reactivate", false),    // IdentityRevoked
-        (IdentityStatus::Revoked, "revoke", true),         // Idempotent
+        (IdentityStatus::Revoked, "activate", false), // IdentityRevoked
+        (IdentityStatus::Revoked, "suspend", false),  // IdentityRevoked
+        (IdentityStatus::Revoked, "reactivate", false), // IdentityRevoked
+        (IdentityStatus::Revoked, "revoke", true),    // Idempotent
     ];
 
     for (initial_status, action_name, should_succeed) in &expected {
@@ -190,7 +207,10 @@ fn make_grant(ns: &str, actions: Vec<Action>) -> CapabilityGrant {
 
 #[test]
 fn test_capability_meet_commutative() {
-    let a = make_grant("com.test", vec![Action::Read, Action::Write, Action::Delete]);
+    let a = make_grant(
+        "com.test",
+        vec![Action::Read, Action::Write, Action::Delete],
+    );
     let b = make_grant("com.test", vec![Action::Read, Action::Write]);
 
     let meet_ab = capability_meet(&a, &b);
@@ -374,10 +394,7 @@ fn test_nonce_uniqueness_csprng() {
 
     for _ in 0..10_000 {
         let sig = sign_ed25519(&kp.private_key, "agent", b"data").unwrap();
-        assert!(
-            nonces.insert(sig.nonce),
-            "CSPRNG produced duplicate nonce!"
-        );
+        assert!(nonces.insert(sig.nonce), "CSPRNG produced duplicate nonce!");
     }
     assert_eq!(nonces.len(), 10_000);
 }

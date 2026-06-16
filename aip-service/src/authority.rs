@@ -141,11 +141,7 @@ pub fn authority_path(packet: &EvidencePacket) -> AuthorityPath {
         .last()
         .map(|h| &h.scope)
         .unwrap_or(&packet.root_authority.root_token.scope);
-    let effective_scope_allowed = effective
-        .allowed
-        .iter()
-        .map(|a| format!("{a:?}"))
-        .collect();
+    let effective_scope_allowed = effective.allowed.iter().map(|a| format!("{a:?}")).collect();
 
     // Integrity self-check (no external trust): the recomputed canonical hash
     // matches packet_hash AND the agent signature payload covers it.
@@ -211,7 +207,9 @@ mod tests {
         // A graph built for another tenant must not resolve the action.
         let graph_b = AuthorityGraph::build_for_tenant(&vault, "tenant-b");
         let action_hex = hex::encode(packet.actions[0].action_id);
-        assert!(graph_b.who_authorized(&vault, "tenant-b", &action_hex).is_none());
+        assert!(graph_b
+            .who_authorized(&vault, "tenant-b", &action_hex)
+            .is_none());
         let _ = std::fs::remove_file(&path);
     }
 
@@ -222,7 +220,10 @@ mod tests {
         // without needing the vault or external trust keys.
         packet.decision.summary = "ESCALATED".into();
         let p = authority_path(&packet);
-        assert!(!p.integrity_ok, "tampered packet must fail integrity self-check");
+        assert!(
+            !p.integrity_ok,
+            "tampered packet must fail integrity self-check"
+        );
     }
 
     #[test]

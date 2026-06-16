@@ -88,7 +88,11 @@ fn main() {
     )
     .unwrap();
     println!("  Payments agent (AIP-ID): {}", agent_aid.id);
-    println!("  Delegation JTI: {} (depth {})", hex::encode(delegation.jti), delegation.depth);
+    println!(
+        "  Delegation JTI: {} (depth {})",
+        hex::encode(delegation.jti),
+        delegation.depth
+    );
     println!("  Attenuated scope: Write ONLY (lattice MEET of parent ∩ requested)");
 
     // ── Step 4: The agent decides and acts ────────────────────────────────
@@ -104,7 +108,8 @@ fn main() {
         rationale_hash: sha256(b"PO match: OK; goods receipt: OK; within delegated limit"),
         decided_at: now,
     };
-    let action_payload = format!("POST /v1/ledger/payments {{\"invoice\":\"{invoice}\",\"amount\":\"{amount}\"}}");
+    let action_payload =
+        format!("POST /v1/ledger/payments {{\"invoice\":\"{invoice}\",\"amount\":\"{amount}\"}}");
     let action = ActionAttestation::create(
         &agent_aid.id,
         &agent_kp.private_key,
@@ -133,7 +138,10 @@ fn main() {
     receipt
         .countersign(&decision.decision_id, ledger_id, &ledger_kp.private_key)
         .unwrap();
-    println!("  Receipt {} countersigned by {}", receipt.receipt_id, ledger_id);
+    println!(
+        "  Receipt {} countersigned by {}",
+        receipt.receipt_id, ledger_id
+    );
 
     let trace_export = b"otel: spans for payment approval run".to_vec();
     let trace = TraceBinding {
@@ -183,12 +191,24 @@ fn main() {
     };
     let report = verify_packet(&packet, &ctx);
     for check in &report.checks {
-        println!("  [{}] {:<20} {}", if check.pass { "PASS" } else { "FAIL" }, check.rule, check.detail);
+        println!(
+            "  [{}] {:<20} {}",
+            if check.pass { "PASS" } else { "FAIL" },
+            check.rule,
+            check.detail
+        );
     }
-    println!("\n  valid: {}   trust_floor: {:?}   tampered: {}", report.valid, report.trust_floor, report.tampered);
+    println!(
+        "\n  valid: {}   trust_floor: {:?}   tampered: {}",
+        report.valid, report.trust_floor, report.tampered
+    );
 
     let graph = AccountabilityGraph::from_packet(&packet).with_report(&report);
-    println!("\n  Accountability chain ({} nodes, fully connected: {}):", graph.nodes.len(), graph.validate_chain().is_empty());
+    println!(
+        "\n  Accountability chain ({} nodes, fully connected: {}):",
+        graph.nodes.len(),
+        graph.validate_chain().is_empty()
+    );
     for node in &graph.nodes {
         println!("    {:?}: {}", node.kind, node.label);
     }
@@ -203,7 +223,10 @@ fn main() {
     for check in tampered_report.failures() {
         println!("  [FAIL] {:<20} {}", check.rule, check.detail);
     }
-    println!("\n  valid: {}   tampered: {}", tampered_report.valid, tampered_report.tampered);
+    println!(
+        "\n  valid: {}   tampered: {}",
+        tampered_report.valid, tampered_report.tampered
+    );
 
     // A smarter attacker also fixes the hash — the agent signature catches it.
     header("9. TAMPER harder — attacker recomputes packet_hash after editing");
@@ -213,16 +236,28 @@ fn main() {
     for check in report2.failures() {
         println!("  [FAIL] {:<20} {}", check.rule, check.detail);
     }
-    println!("\n  valid: {}   tampered: {}", report2.valid, report2.tampered);
+    println!(
+        "\n  valid: {}   tampered: {}",
+        report2.valid, report2.tampered
+    );
 
     // ── Verdict ───────────────────────────────────────────────────────────
     header("VERDICT");
     let honest_ok = report.valid && report.trust_floor == TrustFloor::CounterpartySigned;
     let tamper_caught = !tampered_report.valid && tampered_report.tampered;
     let tamper2_caught = !report2.valid && report2.tampered;
-    println!("  Honest packet verifies at COUNTERPARTY_SIGNED ... {}", if honest_ok { "YES" } else { "NO" });
-    println!("  One-field tamper detected ..................... {}", if tamper_caught { "YES" } else { "NO" });
-    println!("  Hash-fixing attacker detected ................. {}", if tamper2_caught { "YES" } else { "NO" });
+    println!(
+        "  Honest packet verifies at COUNTERPARTY_SIGNED ... {}",
+        if honest_ok { "YES" } else { "NO" }
+    );
+    println!(
+        "  One-field tamper detected ..................... {}",
+        if tamper_caught { "YES" } else { "NO" }
+    );
+    println!(
+        "  Hash-fixing attacker detected ................. {}",
+        if tamper2_caught { "YES" } else { "NO" }
+    );
 
     if honest_ok && tamper_caught && tamper2_caught {
         println!("\n  EvidencePacket: cryptographic accountability demonstrated end-to-end.");

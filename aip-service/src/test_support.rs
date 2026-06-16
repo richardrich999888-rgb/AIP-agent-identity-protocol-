@@ -48,8 +48,13 @@ pub fn sample_packet() -> (EvidencePacket, HashMap<String, String>) {
         Some(3_600_000),
     )
     .unwrap();
-    let hop = create_delegation(&root_token, &orch_kp.private_key, &agent_aid.id, scope_submitter())
-        .unwrap();
+    let hop = create_delegation(
+        &root_token,
+        &orch_kp.private_key,
+        &agent_aid.id,
+        scope_submitter(),
+    )
+    .unwrap();
 
     let now = now_ms();
     let decision = DecisionRecord {
@@ -132,8 +137,13 @@ pub fn sample_generate_request() -> (GenerateRequest, HashMap<String, String>) {
         Some(3_600_000),
     )
     .unwrap();
-    let hop = create_delegation(&root_token, &orch_kp.private_key, &agent_id, scope_submitter())
-        .unwrap();
+    let hop = create_delegation(
+        &root_token,
+        &orch_kp.private_key,
+        &agent_id,
+        scope_submitter(),
+    )
+    .unwrap();
 
     let req = GenerateRequest {
         agent_seed_hex,

@@ -167,7 +167,9 @@ fn unauthorized(msg: &str) -> (StatusCode, Json<ErrorBody>) {
 
 fn bearer_secret(parts: &Parts) -> Option<String> {
     let header = parts.headers.get(AUTHORIZATION)?.to_str().ok()?;
-    let token = header.strip_prefix("Bearer ").or_else(|| header.strip_prefix("bearer "))?;
+    let token = header
+        .strip_prefix("Bearer ")
+        .or_else(|| header.strip_prefix("bearer "))?;
     let token = token.trim();
     if token.is_empty() {
         None
@@ -230,7 +232,10 @@ mod tests {
         let p = store.authenticate("machine-secret").unwrap();
         assert_eq!(p.tenant_id, "acme");
         assert_eq!(p.role, Role::Machine);
-        assert_eq!(store.authenticate("admin-secret").unwrap().role, Role::Admin);
+        assert_eq!(
+            store.authenticate("admin-secret").unwrap().role,
+            Role::Admin
+        );
         assert!(store.authenticate("wrong").is_none());
     }
 

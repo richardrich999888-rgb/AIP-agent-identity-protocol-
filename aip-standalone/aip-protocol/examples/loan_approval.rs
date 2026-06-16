@@ -136,7 +136,10 @@ fn main() {
             (mgr_id.clone(), mgr_kp.public_key.clone()),
             (loan_aid.id.clone(), loan_kp.public_key.clone()),
         ]),
-        counterparty_public_keys: HashMap::from([(ledger_id.to_string(), ledger_kp.public_key.clone())]),
+        counterparty_public_keys: HashMap::from([(
+            ledger_id.to_string(),
+            ledger_kp.public_key.clone(),
+        )]),
         revoked_jtis: Default::default(),
         trace_data: None,
         receipt_data: Some(receipt_content.as_bytes().to_vec()),

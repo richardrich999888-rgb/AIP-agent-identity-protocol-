@@ -16,15 +16,15 @@
 
 pub mod nonce;
 pub mod runtime;
-pub mod store;
 pub mod simulation;
+pub mod store;
 
 // ─── AIP v2: The Missing 20% ───
-pub mod capability;   // NM-A1: Scope intersection, named scopes, token issuance
-pub mod delegation;   // NM-A2: Delegation chain traversal, depth limit, DelegationLog
-pub mod revocation;   // NM-A3: Cascade revocation, append-only RevocationLog
-pub mod wellknown;    // NM-A4a: Portable identity — JWKS + AIP config documents
-pub mod scoped_audit; // NM-A4b: Scope-Constrained Audit Trail Binding (patent-critical)
+pub mod capability; // NM-A1: Scope intersection, named scopes, token issuance
+pub mod delegation; // NM-A2: Delegation chain traversal, depth limit, DelegationLog
+pub mod revocation; // NM-A3: Cascade revocation, append-only RevocationLog
+pub mod scoped_audit;
+pub mod wellknown; // NM-A4a: Portable identity — JWKS + AIP config documents // NM-A4b: Scope-Constrained Audit Trail Binding (patent-critical)
 
 use aip_crypto::*;
 use aip_types::*;

@@ -1,0 +1,16 @@
+[package]
+name = "aip-verify"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Standalone offline verifier for AIP EvidencePackets — auditor self-service CLI"
+
+[[bin]]
+name = "aip-verify"
+path = "src/main.rs"
+
+[dependencies]
+aip-protocol = { path = "../aip-protocol" }
+clap = { version = "4", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"

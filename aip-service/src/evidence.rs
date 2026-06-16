@@ -42,7 +42,10 @@ use crate::AppState;
 type ApiError = (StatusCode, Json<ErrorBody>);
 
 fn bad_request(msg: impl Into<String>) -> ApiError {
-    (StatusCode::BAD_REQUEST, Json(ErrorBody { error: msg.into() }))
+    (
+        StatusCode::BAD_REQUEST,
+        Json(ErrorBody { error: msg.into() }),
+    )
 }
 
 fn not_found(msg: impl Into<String>) -> ApiError {
@@ -182,7 +185,10 @@ pub struct AuthorityResponse {
 fn seed_from_hex(label: &str, hex_str: &str) -> Result<[u8; 32], String> {
     let bytes = hex::decode(hex_str).map_err(|e| format!("{label}: invalid hex: {e}"))?;
     if bytes.len() != 32 {
-        return Err(format!("{label}: expected 32-byte seed, got {}", bytes.len()));
+        return Err(format!(
+            "{label}: expected 32-byte seed, got {}",
+            bytes.len()
+        ));
     }
     let mut seed = [0u8; 32];
     seed.copy_from_slice(&bytes);
@@ -331,7 +337,12 @@ pub async fn generate(
     let packet_id = state
         .vault
         .store(&principal.tenant_id, &packet)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(ErrorBody { error: e })))?;
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ErrorBody { error: e }),
+            )
+        })?;
     tracing::info!(
         packet_id = %packet_id,
         tenant = %principal.tenant_id,

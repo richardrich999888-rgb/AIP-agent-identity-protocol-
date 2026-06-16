@@ -36,9 +36,8 @@ pub mod verification_report;
 
 pub use accountability_graph::{AccountabilityGraph, GraphEdge, GraphNode, NodeKind, Relation};
 pub use evidence_packet::{
-    ActionAttestation, AgentIdentitySummary, DecisionRecord, EvidencePacket,
-    EvidencePacketBuilder, ReceiptBinding, RootAuthority, TraceBinding, TrustFloor,
-    PACKET_MAGIC, PACKET_VERSION,
+    ActionAttestation, AgentIdentitySummary, DecisionRecord, EvidencePacket, EvidencePacketBuilder,
+    ReceiptBinding, RootAuthority, TraceBinding, TrustFloor, PACKET_MAGIC, PACKET_VERSION,
 };
 pub use verification::{verify_packet, VerificationContext};
 pub use verification_report::{RuleResult, VerificationReport};

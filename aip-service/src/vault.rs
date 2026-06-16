@@ -77,11 +77,13 @@ impl Vault {
                     let record = match serde_json::from_str::<VaultRecord>(line) {
                         Ok(r) => Some(r),
                         // Migration: retry as a bare pre-tenancy packet.
-                        Err(_) => EvidencePacket::from_json(line).ok().map(|packet| VaultRecord {
-                            tenant_id: LEGACY_TENANT.to_string(),
-                            stored_at: 0,
-                            packet,
-                        }),
+                        Err(_) => EvidencePacket::from_json(line)
+                            .ok()
+                            .map(|packet| VaultRecord {
+                                tenant_id: LEGACY_TENANT.to_string(),
+                                stored_at: 0,
+                                packet,
+                            }),
                     };
                     match record {
                         Some(r) => {

@@ -164,9 +164,23 @@ impl RevocationLog {
         cascade: bool,
     ) -> RevocationEntry {
         let revoked_at = now_ms();
-        let entry_hash = compute_entry_hash(&jti, revoked_at, reason, revoked_by, cascade, &self.prev_hash);
+        let entry_hash = compute_entry_hash(
+            &jti,
+            revoked_at,
+            reason,
+            revoked_by,
+            cascade,
+            &self.prev_hash,
+        );
 
-        let entry = RevocationEntry { jti, revoked_at, reason, revoked_by: revoked_by.to_string(), cascade, entry_hash };
+        let entry = RevocationEntry {
+            jti,
+            revoked_at,
+            reason,
+            revoked_by: revoked_by.to_string(),
+            cascade,
+            entry_hash,
+        };
 
         let idx = self.entries.len();
         self.index.insert(jti, idx);
@@ -187,8 +201,7 @@ impl RevocationLog {
         };
         let json = serde_json::to_string_pretty(&data)
             .map_err(|e| RevocationLogError::SerializationError(e.to_string()))?;
-        std::fs::write(path, json)
-            .map_err(|e| RevocationLogError::IoError(e.to_string()))?;
+        std::fs::write(path, json).map_err(|e| RevocationLogError::IoError(e.to_string()))?;
         Ok(())
     }
 }
@@ -207,10 +220,7 @@ impl Default for RevocationLog {
 /// 1. It has expired (`expires_at < now`)
 /// 2. It is in the revocation log
 /// 3. Its issuer's token is revoked (checked via revocation log by issuer JTI)
-pub fn check_token_valid(
-    token: &ScopedToken,
-    revlog: &RevocationLog,
-) -> Result<(), AipError> {
+pub fn check_token_valid(token: &ScopedToken, revlog: &RevocationLog) -> Result<(), AipError> {
     // Check expiry
     if token.expires_at.is_some_and(|exp| now_ms() > exp) {
         return Err(AipError::SignatureExpired);
@@ -298,11 +308,7 @@ mod tests {
         (id, kp.private_key, kp.public_key)
     }
 
-    fn make_token(
-        issuer_id: &str,
-        issuer_priv: &[u8],
-        agent_id: &str,
-    ) -> ScopedToken {
+    fn make_token(issuer_id: &str, issuer_priv: &[u8], agent_id: &str) -> ScopedToken {
         issue_scoped_token(issuer_id, issuer_priv, agent_id, scope_orchestrator(), None).unwrap()
     }
 
@@ -318,7 +324,13 @@ mod tests {
         let mut revlog = RevocationLog::new();
         assert!(!revlog.is_revoked(&jti));
 
-        revlog.revoke(jti, RevocationReason::AdminRevocation, &issuer_id, false, None);
+        revlog.revoke(
+            jti,
+            RevocationReason::AdminRevocation,
+            &issuer_id,
+            false,
+            None,
+        );
         assert!(revlog.is_revoked(&jti));
     }
 
@@ -332,7 +344,13 @@ mod tests {
         let mut revlog = RevocationLog::new();
         assert!(check_token_valid(&token, &revlog).is_ok());
 
-        revlog.revoke(jti, RevocationReason::AgentCompromised, &issuer_id, false, None);
+        revlog.revoke(
+            jti,
+            RevocationReason::AgentCompromised,
+            &issuer_id,
+            false,
+            None,
+        );
         assert!(matches!(
             check_token_valid(&token, &revlog),
             Err(AipError::IdentityRevoked)
@@ -392,7 +410,13 @@ mod tests {
 
         let mut revlog = RevocationLog::new();
         // Revoke root WITHOUT cascade
-        revlog.revoke(root.jti, RevocationReason::TokenRotation, &issuer_id, false, Some(&del_log));
+        revlog.revoke(
+            root.jti,
+            RevocationReason::TokenRotation,
+            &issuer_id,
+            false,
+            Some(&del_log),
+        );
 
         // Child delegation is NOT directly revoked
         assert!(!revlog.is_revoked(&del_jti));
@@ -416,7 +440,10 @@ mod tests {
         );
 
         assert_eq!(entries.len(), 1);
-        assert_ne!(entries[0].entry_hash, [0u8; 32], "Entry hash must be non-zero");
+        assert_ne!(
+            entries[0].entry_hash, [0u8; 32],
+            "Entry hash must be non-zero"
+        );
     }
 
     #[test]
@@ -430,9 +457,21 @@ mod tests {
 
         let mut revlog = RevocationLog::new();
         let tip0 = revlog.chain_tip();
-        revlog.revoke(t1.jti, RevocationReason::TokenRotation, &issuer_id, false, None);
+        revlog.revoke(
+            t1.jti,
+            RevocationReason::TokenRotation,
+            &issuer_id,
+            false,
+            None,
+        );
         let tip1 = revlog.chain_tip();
-        revlog.revoke(t2.jti, RevocationReason::TokenRotation, &issuer_id, false, None);
+        revlog.revoke(
+            t2.jti,
+            RevocationReason::TokenRotation,
+            &issuer_id,
+            false,
+            None,
+        );
         let tip2 = revlog.chain_tip();
 
         assert_ne!(tip0, tip1, "Chain tip must advance after first revocation");
@@ -453,7 +492,13 @@ mod tests {
 
         {
             let mut revlog = RevocationLog::with_file(&tmp).unwrap();
-            revlog.revoke(jti, RevocationReason::AdminRevocation, &issuer_id, false, None);
+            revlog.revoke(
+                jti,
+                RevocationReason::AdminRevocation,
+                &issuer_id,
+                false,
+                None,
+            );
         }
 
         // Reload and check
