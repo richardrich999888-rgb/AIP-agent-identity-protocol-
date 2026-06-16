@@ -2,27 +2,36 @@
 #
 #   docker compose -f deploy/docker/docker-compose.yml up --build
 #
-# NOTE ON postgres / minio: the service today persists to an append-only file
-# (AIP_VAULT_PATH). postgres and minio are included as the PLACEHOLDER backing
-# stores for the planned durable backend (see docs/PRODUCTION_READINESS.md).
-# They are NOT yet wired into aip-service; they are here so the deployment
-# topology and credentials are defined ahead of that work. Do not assume the
-# service reads/writes them yet.
+# aip-service uses PostgreSQL as the durable Evidence Vault backend
+# (AIP_STORE_BACKEND=postgres). The schema is applied automatically on startup.
+# To import an existing JSONL vault, run the bundled tool inside the container:
+#   docker compose exec aip-service aip-migrate \
+#     --source /var/lib/aip/evidence.jsonl --database-url "$DATABASE_URL"
+#
+# minio remains a placeholder for future evidence archival / export and is NOT
+# yet used by the service.
 
 services:
   aip-service:
     build:
       context: ../..                      # repo root (needs both workspaces)
       dockerfile: deploy/docker/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8081:8081"
     environment:
       AIP_PORT: "8081"
       AIP_KEY_PATH: /var/lib/aip/signing.key
-      AIP_VAULT_PATH: /var/lib/aip/evidence.jsonl
       AIP_DELEGATION_LOG_PATH: /var/lib/aip/delegation.jsonl
       AIP_REVOCATION_LOG_PATH: /var/lib/aip/revocation.jsonl
       AIP_API_KEYS_PATH: /etc/aip/keys.json   # mount your keys file (see below)
+      # Durable backend:
+      AIP_STORE_BACKEND: postgres
+      DATABASE_URL: postgresql://aip:${AIP_PG_PASSWORD:-change-me}@postgres:5432/aip
+      # JSONL fallback path (used only if AIP_STORE_BACKEND=jsonl):
+      AIP_VAULT_PATH: /var/lib/aip/evidence.jsonl
       RUST_LOG: info
     volumes:
       - aip-data:/var/lib/aip
@@ -31,7 +40,7 @@ services:
     # speaks plain HTTP). Do not expose port 8081 directly to the internet.
     restart: unless-stopped
 
-  # ── Placeholder durable backend (NOT yet used by aip-service) ──
+  # ── Durable Evidence Vault backend (primary store) ──
   postgres:
     image: postgres:16-alpine
     environment:
@@ -40,6 +49,11 @@ services:
       POSTGRES_DB: aip
     volumes:
       - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aip -d aip"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     restart: unless-stopped
 
   # ── Placeholder object storage for evidence archival / exports ──
@@ -69,4 +83,6 @@ volumes:
 #   AIP_REVOCATION_LOG_PATH   legacy revocation log path
 #   AIP_API_KEYS_PATH         JSON: {"keys":[{key_id,tenant_id,role,secret_sha256}]}
 #                             (no keys => fail closed: authed routes return 401)
+#   AIP_STORE_BACKEND         "postgres" | "jsonl" (default jsonl)
+#   DATABASE_URL              PostgreSQL DSN (required when backend=postgres)
 #   RUST_LOG                  log filter (default info)

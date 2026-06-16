@@ -47,6 +47,37 @@ jobs:
         if: matrix.workspace == 'aip-standalone'
         run: cargo test --all --release
 
+  postgres-backend:
+    name: postgres backend integration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: aip
+          POSTGRES_PASSWORD: aip
+          POSTGRES_DB: aip
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aip -d aip"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    defaults:
+      run:
+        working-directory: aip-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: aip-service
+      - name: clippy (postgres feature)
+        run: cargo clippy --all-targets --features postgres -- -D warnings
+      - name: test (postgres feature, live DB)
+        env:
+          AIP_TEST_DATABASE_URL: postgresql://aip:aip@127.0.0.1:5432/aip
+        run: cargo test --features postgres
+
   supply-chain:
     name: cargo audit · cargo deny
     runs-on: ubuntu-latest

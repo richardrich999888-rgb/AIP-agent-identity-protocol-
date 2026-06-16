@@ -1,10 +1,11 @@
-//! Authority Graph v1 — a derived, queryable index over the Evidence Vault.
+//! Authority Graph v1 — a derived, queryable index over stored evidence.
 //!
-//! The graph is **not** a system of record: it is rebuilt on demand from the
-//! packets in [`crate::vault::Vault`]. Each EvidencePacket already carries a
-//! complete, verifiable authority chain (principal → root token → delegation
-//! hops → agent → actions); this module indexes those chains across packets
-//! so we can answer cross-packet questions:
+//! The graph is **not** a system of record: it is rebuilt on demand from a
+//! list of packets supplied by the [`EvidenceStore`](crate::store::EvidenceStore)
+//! (any backend). Each EvidencePacket already carries a complete, verifiable
+//! authority chain (principal → root token → delegation hops → agent →
+//! actions); this module indexes those chains across packets so we can answer
+//! cross-packet questions:
 //!
 //! 1. Who authorized this action?            → [`AuthorityGraph::who_authorized`]
 //! 2. Which human delegated authority?       → principal of the chain
@@ -20,8 +21,6 @@ use std::collections::HashMap;
 
 use aip_protocol::{AccountabilityGraph, EvidencePacket};
 use serde::Serialize;
-
-use crate::vault::Vault;
 
 /// The authority path behind a single action, extracted from its packet.
 #[derive(Debug, Clone, Serialize)]
@@ -49,7 +48,7 @@ pub struct DelegationHop {
     pub depth: u8,
 }
 
-/// Derived index built from the vault.
+/// Derived index built from a (tenant-scoped) list of packets.
 pub struct AuthorityGraph {
     /// action_id (hex) → packet_id (hex)
     action_to_packet: HashMap<String, String>,
@@ -57,24 +56,28 @@ pub struct AuthorityGraph {
     principal_to_packets: HashMap<String, Vec<String>>,
     /// agent_id → packet_ids it acted in
     agent_to_packets: HashMap<String, Vec<String>>,
+    /// packet_id (hex) → packet (so queries need no further store access)
+    packets: HashMap<String, EvidencePacket>,
 }
 
 impl AuthorityGraph {
-    /// Rebuild the index from every packet belonging to `tenant_id`.
-    /// The graph is always tenant-scoped; there is no cross-tenant view.
-    pub fn build_for_tenant(vault: &Vault, tenant_id: &str) -> Self {
+    /// Build the index from a list of packets. The caller fetches the packets
+    /// from the store for a single tenant, so the graph is tenant-scoped by
+    /// construction (storage-backend agnostic).
+    pub fn from_packets(packets: Vec<EvidencePacket>) -> Self {
         let mut g = AuthorityGraph {
             action_to_packet: HashMap::new(),
             principal_to_packets: HashMap::new(),
             agent_to_packets: HashMap::new(),
+            packets: HashMap::new(),
         };
-        for packet in vault.all_for_tenant(tenant_id) {
-            g.index(&packet);
+        for packet in packets {
+            g.index(packet);
         }
         g
     }
 
-    fn index(&mut self, packet: &EvidencePacket) {
+    fn index(&mut self, packet: EvidencePacket) {
         let pid = packet.packet_id_hex();
         for action in &packet.actions {
             self.action_to_packet
@@ -87,22 +90,21 @@ impl AuthorityGraph {
         self.agent_to_packets
             .entry(packet.agent.aip_id.clone())
             .or_default()
-            .push(pid);
+            .push(pid.clone());
+        self.packets.insert(pid, packet);
     }
 
     /// Q1/Q5: given an action id (hex), return the authority path proving who
-    /// authorized it. Tenant-scoped: the graph was built for one tenant and
-    /// the vault read is tenant-checked, so this cannot resolve another
-    /// tenant's action. Returns `None` if unknown to this tenant.
-    pub fn who_authorized(
-        &self,
-        vault: &Vault,
-        tenant_id: &str,
-        action_id_hex: &str,
-    ) -> Option<AuthorityPath> {
+    /// authorized it. `None` if unknown to this tenant's packet set.
+    pub fn who_authorized(&self, action_id_hex: &str) -> Option<AuthorityPath> {
         let packet_id = self.action_to_packet.get(action_id_hex)?;
-        let packet = vault.get(tenant_id, packet_id)?;
-        Some(authority_path(&packet))
+        self.packets.get(packet_id).map(authority_path)
+    }
+
+    /// The packet proving a given action (for graph visualization).
+    pub fn packet_for_action(&self, action_id_hex: &str) -> Option<&EvidencePacket> {
+        let packet_id = self.action_to_packet.get(action_id_hex)?;
+        self.packets.get(packet_id)
     }
 
     /// All packet ids authorized (at the root) by a given principal.
@@ -171,53 +173,35 @@ mod tests {
     use super::*;
     use crate::test_support::sample_packet;
 
-    fn temp_path() -> String {
-        let mut p = std::env::temp_dir();
-        p.push(format!("aip_authority_test_{}.jsonl", uuid::Uuid::new_v4()));
-        p.to_str().unwrap().to_owned()
-    }
-
     #[test]
     fn test_who_authorized_resolves_chain() {
-        let path = temp_path();
-        let vault = Vault::load(&path);
         let (packet, _) = sample_packet();
-        vault.store("acme", &packet).unwrap();
-
-        let graph = AuthorityGraph::build_for_tenant(&vault, "acme");
+        let graph = AuthorityGraph::from_packets(vec![packet.clone()]);
         let action_hex = hex::encode(packet.actions[0].action_id);
         let p = graph
-            .who_authorized(&vault, "acme", &action_hex)
+            .who_authorized(&action_hex)
             .expect("action must resolve to an authority path");
 
         assert_eq!(p.principal_id, packet.root_authority.principal_id);
         assert_eq!(p.agent_id, packet.agent.aip_id);
         assert_eq!(p.delegation_hops.len(), packet.delegation_chain.len());
         assert!(p.integrity_ok, "freshly built packet must self-verify");
-        let _ = std::fs::remove_file(&path);
     }
 
     #[test]
-    fn test_authority_graph_is_tenant_isolated() {
-        let path = temp_path();
-        let vault = Vault::load(&path);
+    fn test_authority_graph_scoped_to_supplied_packets() {
+        // A graph built from tenant B's (empty) packet set cannot resolve a
+        // tenant A action. (Tenant scoping is enforced by the store's
+        // all_for_tenant; the graph only sees what it is given.)
         let (packet, _) = sample_packet();
-        vault.store("tenant-a", &packet).unwrap();
-
-        // A graph built for another tenant must not resolve the action.
-        let graph_b = AuthorityGraph::build_for_tenant(&vault, "tenant-b");
+        let graph_b = AuthorityGraph::from_packets(vec![]);
         let action_hex = hex::encode(packet.actions[0].action_id);
-        assert!(graph_b
-            .who_authorized(&vault, "tenant-b", &action_hex)
-            .is_none());
-        let _ = std::fs::remove_file(&path);
+        assert!(graph_b.who_authorized(&action_hex).is_none());
     }
 
     #[test]
     fn test_tamper_breaks_integrity_flag() {
         let (mut packet, _) = sample_packet();
-        // Tamper after sealing — the integrity self-check must catch it
-        // without needing the vault or external trust keys.
         packet.decision.summary = "ESCALATED".into();
         let p = authority_path(&packet);
         assert!(
@@ -228,12 +212,8 @@ mod tests {
 
     #[test]
     fn test_principal_and_agent_indexes() {
-        let path = temp_path();
-        let vault = Vault::load(&path);
         let (packet, _) = sample_packet();
-        vault.store("acme", &packet).unwrap();
-        let graph = AuthorityGraph::build_for_tenant(&vault, "acme");
-
+        let graph = AuthorityGraph::from_packets(vec![packet.clone()]);
         assert_eq!(
             graph.packets_for_principal(&packet.root_authority.principal_id),
             vec![packet.packet_id_hex()]
@@ -242,6 +222,5 @@ mod tests {
             graph.packets_for_agent(&packet.agent.aip_id),
             vec![packet.packet_id_hex()]
         );
-        let _ = std::fs::remove_file(&path);
     }
 }

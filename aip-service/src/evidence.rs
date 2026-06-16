@@ -335,12 +335,15 @@ pub async fn generate(
 ) -> Result<Json<GenerateResponse>, ApiError> {
     let packet = generate_packet(&req).map_err(bad_request)?;
     let packet_id = state
-        .vault
+        .store
         .store(&principal.tenant_id, &packet)
+        .await
         .map_err(|e| {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ErrorBody { error: e }),
+                Json(ErrorBody {
+                    error: e.to_string(),
+                }),
             )
         })?;
     tracing::info!(
@@ -368,11 +371,21 @@ pub async fn get_evidence(
     principal: Principal,
     Path(id): Path<String>,
 ) -> Result<Json<EvidencePacket>, ApiError> {
-    state
-        .vault
+    let found = state
+        .store
         .get(&principal.tenant_id, &id)
+        .await
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ErrorBody {
+                    error: e.to_string(),
+                }),
+            )
+        })?;
+    // "not found" for both missing and wrong-tenant — no existence leak.
+    found
         .map(Json)
-        // "not found" for both missing and wrong-tenant — no existence leak.
         .ok_or_else(|| not_found(format!("no evidence packet with id {id}")))
 }
 
@@ -380,23 +393,30 @@ pub async fn get_authority(
     State(state): State<Arc<AppState>>,
     principal: Principal,
     Path(id): Path<String>,
-) -> Json<AuthorityResponse> {
+) -> Result<Json<AuthorityResponse>, ApiError> {
     let tenant = &principal.tenant_id;
-    let graph = AuthorityGraph::build_for_tenant(&state.vault, tenant);
-    let action_authority = graph.who_authorized(&state.vault, tenant, &id);
+    let packets = state.store.all_for_tenant(tenant).await.map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ErrorBody {
+                error: e.to_string(),
+            }),
+        )
+    })?;
+    let graph = AuthorityGraph::from_packets(packets);
+    let action_authority = graph.who_authorized(&id);
     // When the query resolved to an action, attach the full accountability
     // graph (Human→…→Receipt) of the proving packet for visualization.
-    let accountability_dot = action_authority
-        .as_ref()
-        .and_then(|p| state.vault.get(tenant, &p.packet_id))
-        .map(|packet| crate::authority::graph_for_packet(&packet).to_dot());
-    Json(AuthorityResponse {
+    let accountability_dot = graph
+        .packet_for_action(&id)
+        .map(|packet| crate::authority::graph_for_packet(packet).to_dot());
+    Ok(Json(AuthorityResponse {
         query: id.clone(),
         action_authority,
         accountability_dot,
         as_principal: graph.packets_for_principal(&id),
         as_agent: graph.packets_for_agent(&id),
-    })
+    }))
 }
 
 #[cfg(test)]

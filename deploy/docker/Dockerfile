@@ -13,8 +13,8 @@ WORKDIR /build
 COPY aip-standalone ./aip-standalone
 COPY aip-service ./aip-service
 
-# Build the deployable service and the auditor verifier.
-RUN cargo build --release --manifest-path aip-service/Cargo.toml \
+# Build the service (with PostgreSQL backend + aip-migrate) and the verifier.
+RUN cargo build --release --manifest-path aip-service/Cargo.toml --features postgres \
  && cargo build --release --manifest-path aip-standalone/Cargo.toml -p aip-verify
 
 # ── Runtime image ─────────────────────────────────────────────────────────────
@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
     && useradd -r -u 10001 -m -d /var/lib/aip aip
 
 COPY --from=builder /build/aip-service/target/release/airon-aip /usr/local/bin/aip-service
+COPY --from=builder /build/aip-service/target/release/aip-migrate /usr/local/bin/aip-migrate
 COPY --from=builder /build/aip-standalone/target/release/aip-verify /usr/local/bin/aip-verify
 
 USER aip
