@@ -31,6 +31,10 @@ USER aip
 WORKDIR /var/lib/aip
 
 # Defaults; override via environment (see deploy/docker/docker-compose.yml).
+# trivy DS-0031: these ENV values are file PATHS / config, not secret values.
+# The signing seed and API keys live in files at these paths (mounted volumes),
+# never baked into the image — so there is no secret exposure here.
+#trivy:ignore:AVD-DS-0031
 ENV AIP_PORT=8081 \
     AIP_KEY_PATH=/var/lib/aip/signing.key \
     AIP_VAULT_PATH=/var/lib/aip/evidence.jsonl \
