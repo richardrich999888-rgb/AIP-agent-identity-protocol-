@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   cargo-audit:
@@ -41,6 +42,8 @@ jobs:
       - name: Run gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
+          # Required by gitleaks-action v2 to scan pull requests.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Fails the job if any secret is detected.
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
 
@@ -49,15 +52,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # Install the trivy CLI directly (avoids action version-tag drift).
+      - name: Install trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sh -s -- -b /usr/local/bin
+          trivy --version
+      # Rust dependency vulnerabilities are owned by cargo-audit + cargo-deny
+      # (above / in ci.yml). Trivy here covers secrets and IaC misconfiguration
+      # (Dockerfile, compose) so coverage is complementary, not duplicated.
       - name: Trivy filesystem scan (fail on CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@0.24.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          severity: CRITICAL,HIGH
-          exit-code: "1"
-          format: sarif
-          output: trivy-results.sarif
+        run: |
+          trivy fs --scanners secret,misconfig \
+            --severity CRITICAL,HIGH --exit-code 1 \
+            --format sarif --output trivy-results.sarif .
       - uses: actions/upload-artifact@v4
         if: always()
         with:
