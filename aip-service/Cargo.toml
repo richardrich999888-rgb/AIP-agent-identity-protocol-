@@ -55,3 +55,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 tokio-postgres     = { version = "0.7", optional = true }
 deadpool-postgres  = { version = "0.14", optional = true }
 
+[dev-dependencies]
+# In-process router testing (oneshot).
+tower = { version = "0.5", features = ["util"] }
+

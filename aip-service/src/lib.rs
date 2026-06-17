@@ -53,6 +53,10 @@ pub struct AppState {
     pub store: Arc<dyn EvidenceStore>,
     /// API-key store for authentication + tenant binding. Empty ⇒ fail closed.
     pub api_keys: auth::ApiKeyStore,
+    /// Ed25519 seed used to sign audit-export bundle manifests.
+    pub signer_seed: [u8; 32],
+    /// Ed25519 public key embedded in exported bundles (for offline verify).
+    pub signer_public: [u8; 32],
 }
 
 /// Build the full router from shared state.
@@ -73,6 +77,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/v1/evidence/generate", post(evidence::generate))
         .route("/v1/evidence/verify", post(evidence::verify))
         .route("/v1/evidence/:id", get(evidence::get_evidence))
+        .route("/v1/evidence/:id/export", get(evidence::export_evidence))
         .route("/v1/authority/:id", get(evidence::get_authority))
         // Well-known discovery
         .route(

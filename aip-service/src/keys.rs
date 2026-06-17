@@ -114,6 +114,19 @@ impl KeyPair {
         Self::from_seed(seed)
     }
 
+    /// The 32-byte Ed25519 seed (private). Used to sign audit-export manifests.
+    /// Never logged or serialized outside the chmod-600 seed file.
+    pub fn signing_seed(&self) -> [u8; 32] {
+        self.seed
+    }
+
+    /// The 32-byte Ed25519 public key.
+    pub fn verifying_key_bytes(&self) -> [u8; 32] {
+        SigningKey::from_bytes(&self.seed)
+            .verifying_key()
+            .to_bytes()
+    }
+
     pub fn load_or_generate(key_path: &str) -> Self {
         let path = Path::new(key_path);
 

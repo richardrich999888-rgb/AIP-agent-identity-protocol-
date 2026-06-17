@@ -18,8 +18,13 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use axum::{
+    body::Body,
     extract::{Path, State},
-    http::StatusCode,
+    http::{
+        header::{CONTENT_DISPOSITION, CONTENT_TYPE},
+        StatusCode,
+    },
+    response::Response,
     Json,
 };
 use serde::{Deserialize, Serialize};
@@ -389,6 +394,68 @@ pub async fn get_evidence(
         .ok_or_else(|| not_found(format!("no evidence packet with id {id}")))
 }
 
+// GET /v1/evidence/{id}/export — signed audit-export bundle (application/zip).
+// Tenant-scoped: only the owning tenant can export. The bundled verification
+// report is integrity-level (the service holds no external trust keys); the
+// recipient runs `aip-verify bundle.zip [--trust ...]` for full verification.
+pub async fn export_evidence(
+    State(state): State<Arc<AppState>>,
+    principal: Principal,
+    Path(id): Path<String>,
+) -> Result<Response, ApiError> {
+    let packet = state
+        .store
+        .get(&principal.tenant_id, &id)
+        .await
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ErrorBody {
+                    error: e.to_string(),
+                }),
+            )
+        })?
+        // not found for both missing and wrong-tenant — no existence leak.
+        .ok_or_else(|| not_found(format!("no evidence packet with id {id}")))?;
+
+    let report = verify_packet(&packet, &VerificationContext::new());
+    let zip = aip_protocol::build_zip(
+        &principal.tenant_id,
+        &packet,
+        &report,
+        &state.signer_seed,
+        &state.signer_public,
+    )
+    .map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ErrorBody {
+                error: format!("bundle build failed: {e}"),
+            }),
+        )
+    })?;
+
+    tracing::info!(packet_id = %id, tenant = %principal.tenant_id, bytes = zip.len(), "audit-export bundle generated");
+
+    let filename = format!("aip-evidence-{id}.zip");
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(CONTENT_TYPE, "application/zip")
+        .header(
+            CONTENT_DISPOSITION,
+            format!("attachment; filename=\"{filename}\""),
+        )
+        .body(Body::from(zip))
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ErrorBody {
+                    error: e.to_string(),
+                }),
+            )
+        })
+}
+
 pub async fn get_authority(
     State(state): State<Arc<AppState>>,
     principal: Principal,
@@ -422,7 +489,75 @@ pub async fn get_authority(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_support::{sample_generate_request, sample_packet};
+    use crate::test_support::{sample_generate_request, sample_packet, test_app_state};
+
+    fn temp_vault() -> String {
+        let mut p = std::env::temp_dir();
+        p.push(format!("aip_export_test_{}.jsonl", uuid::Uuid::new_v4()));
+        p.to_str().unwrap().to_owned()
+    }
+
+    #[tokio::test]
+    async fn test_export_endpoint_roundtrip_and_tenant_isolation() {
+        use crate::auth::{ApiKeyStore, Role};
+        use crate::store::{EvidenceStore, JsonlEvidenceStore};
+        use axum::body::Body as AxBody;
+        use axum::http::Request;
+        use tower::ServiceExt;
+
+        let path = temp_vault();
+        let store = std::sync::Arc::new(JsonlEvidenceStore::load(&path));
+        let (packet, _) = sample_packet();
+        store.store("acme", &packet).await.unwrap();
+        let id = packet.packet_id_hex();
+
+        let api_keys = ApiKeyStore::from_entries(vec![
+            ("acme-secret", "k-acme", "acme", Role::Machine),
+            ("other-secret", "k-other", "other", Role::Machine),
+        ]);
+        let app = crate::router(test_app_state(store, api_keys));
+
+        // Owning tenant exports → 200 application/zip, verifies offline.
+        let resp = app
+            .clone()
+            .oneshot(
+                Request::get(format!("/v1/evidence/{id}/export"))
+                    .header("authorization", "Bearer acme-secret")
+                    .body(AxBody::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(resp.status(), 200);
+        assert_eq!(
+            resp.headers().get("content-type").unwrap(),
+            "application/zip"
+        );
+        let bytes = axum::body::to_bytes(resp.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let v = aip_protocol::verify_zip(&bytes, &VerificationContext::new());
+        assert_ne!(
+            v.overall,
+            aip_protocol::BundleStatus::Fail,
+            "exported bundle must verify: {:?}",
+            v.checks
+        );
+
+        // Different tenant → 404 (no existence leak), no bundle produced.
+        let resp2 = app
+            .oneshot(
+                Request::get(format!("/v1/evidence/{id}/export"))
+                    .header("authorization", "Bearer other-secret")
+                    .body(AxBody::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(resp2.status(), 404);
+
+        let _ = std::fs::remove_file(&path);
+    }
 
     #[test]
     fn test_generate_then_verify_roundtrip() {

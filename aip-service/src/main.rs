@@ -115,6 +115,8 @@ async fn main() {
         revocation_set: rev_set,
         store,
         api_keys,
+        signer_seed: kp.signing_seed(),
+        signer_public: kp.verifying_key_bytes(),
     });
 
     let addr = format!("0.0.0.0:{port}");

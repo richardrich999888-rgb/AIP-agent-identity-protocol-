@@ -17,6 +17,36 @@ use aip_types::{Action, AlgorithmId, ProvenanceTriple, PublicKey, ScopeAction};
 
 use crate::evidence::{ActionInput, DecisionInput, GenerateRequest, ProvenanceInput};
 
+use std::sync::Arc;
+
+/// Build an `AppState` for in-process router tests with the given store and
+/// API keys. Uses a fresh service keypair and empty delegation/revocation logs.
+pub fn test_app_state(
+    store: Arc<dyn crate::store::EvidenceStore>,
+    api_keys: crate::auth::ApiKeyStore,
+) -> Arc<crate::AppState> {
+    let kp = crate::keys::KeyPair::generate();
+    let encoding_key = jsonwebtoken::EncodingKey::from_ed_pem(kp.private_pem.as_bytes()).unwrap();
+    let decoding_key = jsonwebtoken::DecodingKey::from_ed_pem(kp.public_pem.as_bytes()).unwrap();
+    let mut p = std::env::temp_dir();
+    p.push(format!("aip_test_logs_{}", uuid::Uuid::new_v4()));
+    let log_path = p.to_str().unwrap().to_owned();
+    Arc::new(crate::AppState {
+        encoding_key,
+        decoding_key,
+        public_pem: kp.public_pem.clone(),
+        fingerprint: kp.fingerprint.clone(),
+        delegation_log_path: log_path.clone(),
+        delegation_log: crate::delegation::load_delegation_log(&log_path),
+        revocation_log_path: log_path.clone(),
+        revocation_set: crate::revocation::load_revocation_set(&log_path),
+        store,
+        api_keys,
+        signer_seed: kp.signing_seed(),
+        signer_public: kp.verifying_key_bytes(),
+    })
+}
+
 fn prov(tag: &str) -> ProvenanceTriple {
     ProvenanceTriple {
         model_commitment: sha256(format!("model:{tag}").as_bytes()),
