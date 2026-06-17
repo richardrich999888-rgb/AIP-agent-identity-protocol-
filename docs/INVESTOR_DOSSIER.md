@@ -1,504 +1,665 @@
-# AIP — Investor Dossier
+# AIP — Investor Dossier (Full Edition)
 
-**Agent Identity Protocol · "Accountability infrastructure for autonomous AI."**
-
-> **Honesty notes (read first).** This dossier is written for technical
-> diligence. Three disciplines apply throughout:
-> 1. **Technical claims are code-backed.** Everything in §2 is implemented and
->    tested in this repository; commands to reproduce are given. Where a
->    capability is *not* built, it is labeled **ROADMAP**.
-> 2. **Traction is stated truthfully.** AIP is **pre-revenue, pre-design-
->    partner.** There are no customers, no signed pilots, and no auditor
->    acceptance letter yet. The asset today is a working, independently
->    verifiable accountability stack + an open specification — engineering
->    traction, not commercial traction.
-> 3. **Market/competitor figures are estimates.** TAM/SAM/SOM are
->    founder/analyst estimates with stated methodology, not audited data.
->    Competitor funding numbers and team bios are marked `[VERIFY]` /
->    `[FOUNDER INPUT]`. Only figures with a hard public source (e.g. EU AI Act
->    penalties) are asserted.
+**Agent Identity Protocol · "The accountability infrastructure for autonomous AI."**
+**Stage:** Pre-PMF (Phase 1 — Design-Partner Validation) · **Round:** Pre-seed
 
 ---
 
-## SECTION 1 — EXECUTIVE SUMMARY
+> ## ⚠️ Reading contract (for technical diligence)
+> This dossier is written to be scrutinized. Three rules hold throughout:
+> 1. **Technical claims are code-backed** — every capability in §2 is
+>    implemented and tested in this repository, with commands to reproduce.
+>    Unbuilt items are labeled **ROADMAP**.
+> 2. **Traction is stated truthfully** — AIP is **pre-revenue, pre-design-
+>    partner**: 0 customers, 0 signed pilots, 0 auditor acceptances, $0 ARR.
+>    The asset is a working, independently verifiable stack + an open spec.
+> 3. **Market / competitor / financial figures are ESTIMATES** with stated
+>    methodology — **not** audited data and **not** sourced forecasts unless
+>    marked. Cells marked `[VERIFY]` must be sourced before external use; cells
+>    marked `[FOUNDER INPUT]` need the founder. Only hard public facts (EU AI
+>    Act penalties) are asserted outright.
+>
+> A reader should finish this document able to separate *what is built* (high
+> confidence) from *what is believed about the market* (hypothesis).
 
-**Vision.** As enterprises hand consequential decisions to autonomous AI
-agents, the binding question becomes not "what did the system log?" but "who
-authorized this action, within what limits, and can we prove it to a
-regulator or a court — years later, without trusting the vendor?" AIP exists
-to make that answer **cryptographic** rather than a matter of trust.
+---
+---
+
+# SECTION 1 — EXECUTIVE SUMMARY
+
+## 1.1 Vision & mission
+**Vision.** As enterprises delegate consequential decisions to autonomous AI
+agents, the load-bearing question shifts from *"what did the system log?"* to
+*"who authorized this action, within what limits, and can we prove it — to a
+regulator or a court, years later, without trusting the vendor?"* Today that is
+answered with mutable logs and trust. **AIP makes it cryptographic.**
 
 **Mission.** Be the accountability layer of the agent economy: every
-consequential agent action produces a portable, tamper-evident **EvidencePacket**
-binding the action to the human-rooted chain of delegated authority behind it.
+consequential agent action emits a portable, tamper-evident **EvidencePacket**
+binding the action to the human-rooted chain of delegated authority behind it,
+verifiable **offline** by any third party.
 
-**Product & differentiation (one line).** Identity systems answer *who may
-act*; observability answers *what happened*. AIP answers **"under whose
-delegated authority, within what limits, and provably unaltered"** — and
-emits that as an artifact a third party can verify **offline**. This is the
-gap neither IAM (Okta/Entra) nor observability (Datadog/Splunk) fills.
+## 1.2 Core product & differentiation
+Three layers; the customer buys Layer 3, Layers 1–2 are the machinery.
 
-**What exists today (verifiable).** A tested Rust stack: agent identity,
-n-hop signed delegation with mathematical scope attenuation, a 14-rule
-verification engine, an accountability graph, a **signed audit-export bundle**
-an auditor verifies offline with a standalone CLI, an authenticated
-multi-tenant HTTP service with a PostgreSQL backend, CI/security/release
-pipelines, and an **open EvidencePacket specification.** `cargo test` is green
-across the workspace; a ₹5-crore loan demo and the export→verify flow are
-reproducible end-to-end.
+| Layer | Question | Customer sees |
+|---|---|---|
+| 1 — Identity | Who is the agent? | Agent registry |
+| 2 — Authority | Who granted permission, and how did it flow? | Delegation graph |
+| 3 — Accountability | What happened, and can you prove it? | **Evidence Vault + Verification Portal** |
 
-**Market (estimate; see §3 for methodology).** AIP sits at the intersection of
-three fast-growing markets — agentic AI platforms, AI governance/compliance,
-and AI security. The *directly addressable* slice is **AI-accountability /
-audit-evidence for regulated enterprises**, which barely exists as a named
-category today. Illustrative sizing: SAM (regulated enterprises deploying
-consequential agents, 2027–2030) on the order of **$1–4B**; near-term SOM
-(design-partner + early enterprise, 24–36 months) in the **low tens of
-millions of ARR** if the category forms. These are estimates requiring
-validation, not forecasts.
+**The one-line wedge:** identity systems answer *who may act*; observability
+answers *what happened*. **AIP answers "under whose delegated authority, within
+what limits, provably unaltered" — and emits it as an artifact a third party
+verifies offline.** Neither IAM (Okta/Entra) nor observability (Datadog/Splunk)
+produces that artifact.
 
-**Status & milestones.** Phase 1 (Design-Partner Validation). Engineering
-milestones **met**; commercial milestones **not yet started** (0 design
-partners, 0 auditor acceptances, $0 ARR). The next three proof points are:
-(1) one regulated design partner running read-only; (2) one auditor accepting
-an EvidencePacket bundle as evidence; (3) first paid workflow.
+## 1.3 Market opportunity (estimates — see §3 for methodology)
+- **TAM (2030, blended agentic-AI + AI-governance + AI-security adjacency):**
+  order of **$30–60B** (estimate; ranges vary widely by analyst). `[VERIFY]`
+- **SAM (regulated enterprises deploying consequential agents, the
+  accountability/audit-evidence slice, 2027–2030):** **$1–4B**.
+- **SOM (24–36 months, design-partner → early enterprise):** **low tens of
+  $M ARR**, contingent on the category forming and on a first auditor
+  acceptance.
 
-**Investment thesis.** Right problem, right time, real engineering, no
-distribution yet. The wager is on **(a)** the regulatory + agentic-deployment
-wave making "prove what your agent did" a compulsory question within
-18–36 months, and **(b)** AIP converting a genuine engineering head-start and
-an open standard into category ownership before identity/observability
-incumbents bolt on a "good-enough" feature. This is a bet on founder execution
-and timing, supported by — not carried by — the code.
+The category ("AI accountability / audit-evidence") is **nascent to non-
+existent** today — the opportunity is to *name and own* it, not to take share
+of a measured market.
 
-**The ask (proposal).** Pre-seed **$1.5–3.0M** for ~10–15%, 18-month runway.
-Use of funds: ~55% engineering (productionize: KMS/HSM, client-side signing
-SDK + ingest, IAM bridge, hardening), ~25% design-partner/GTM (land 2–3
-regulated partners + an auditor acceptance), ~10% security/compliance
-(independent assessment, control-framework mapping), ~10% G&A.
-*Valuation/round are a proposal, not a term sheet; they should be priced on the
-founder and the design-partner outcomes, with the repo as evidence of build
-capability.*
-
-**Why category-defining (if it works).** Accountability evidence compounds:
-once an enterprise's audit procedures and a regulator's expectations are
-written around your EvidencePacket format, and years of anchored evidence
-accrue, switching means re-architecting compliance and abandoning history. You
-can re-platform software; you cannot re-witness the past.
-
----
-
-## SECTION 2 — TECHNICAL ARCHITECTURE
-
-All claims here map to code in this repo. Reproduce:
-
-```bash
-cd aip-standalone && cargo test --workspace        # core/protocol/verify
-cd ../aip-service && cargo test                     # service (auth, tenant, export)
-cargo run -p aip-protocol --example loan_approval   # ₹5cr demo
-```
-
-### 2.1 The three layers
-
-**Layer 1 — Identity (`aip-core`, `aip-crypto`).**
-- Each agent has an `AIP-ID` derived as
-  `aip1 · base58(SHA-256(pubkey ‖ provenance)[..26]) · base58(checksum)`.
-  Cryptographic primitives: **Ed25519** (RFC 8032) signatures, **SHA-256**,
-  Base58. Verifiers recompute the ID → it is bound to the key + a provenance
-  commitment (model/env/toolchain hashes).
-- Lifecycle: Pending→Active→Suspended→Revoked state machine; cascade
-  revocation invalidates a token's whole subtree.
-- **IAM integration (Okta/Entra): ROADMAP, not built.** Today identities are
-  self-derived; bridging to enterprise IdPs (mapping AIP-IDs ↔ workforce
-  identities, SCIM/OIDC) is a funded work item, not a current capability.
-- **Honest limitation:** the provenance triple is a *caller-supplied
-  commitment*, not a verified attestation that the hash equals a real model
-  build. Verified model/TEE attestation is ROADMAP. (The current hardware-
-  attestation module is flagged EXPERIMENTAL and performs structural checks
-  only — see `AUDIT_CORRECTIONS.md`.)
-
-**Layer 2 — Authority (`aip-core::delegation`, `::capability`).**
-- A **scope** is `{allowed, denied}` action sets. Delegation computes the
-  lattice **MEET** (intersection): a child's scope can never exceed its
-  parent's; empty intersection (⊥) is rejected.
-- Delegation chains are **n-hop, per-hop Ed25519-signed**, parent-linked by
-  JTI, depth-limited (≤8), and offline-verifiable. Agent-to-agent delegation
-  is `create_sub_delegation`.
-- Validation (`verify_delegation_chain`) checks, per hop: signature, parent
-  linkage, depth monotonicity, scope subset — returning the most-attenuated
-  effective scope at the leaf.
-
-**Layer 3 — Accountability (`aip-protocol`).**
-- **EvidencePacket v1** (`AEP1`): agent identity, root authority + signed
-  scoped token, delegation chain, decision (inputs/rationale by hash),
-  per-action attestations (each signed and **bound to its decision**),
-  optional trace + receipt bindings (counterparty can countersign), a
-  **trust floor**, a SHA-256 `packet_hash` over a **canonical length-prefixed
-  encoding**, and the agent's Ed25519 signature over that hash.
-- **Verification engine:** 14 named rules (structure, ID binding, canonical
-  hash, agent signature, root-token signature, delegation chain, authority-
-  chain connectivity, scope authority, revocation, temporal validity, action
-  attestations, trace/receipt bindings, trust-floor). No short-circuit; every
-  rule reported. Trust floor is **derived from evidence**, never asserted:
-  `UNVERIFIED → AGENT_SIGNED → AUTHORITY_BOUND → COUNTERPARTY_SIGNED`.
-- **Accountability graph:** reconstructs Human→Authority→Agent→Decision→
-  Action→Receipt; validates connectivity; exports JSON + Graphviz DOT.
-- **Evidence Vault & retrieval:** `EvidenceStore` trait with JSONL and
-  **PostgreSQL** backends (append-only, tenant-scoped, indexed; authority
-  nodes/edges materialized). `aip-migrate` imports JSONL→PG idempotently.
-- **Verification portal = the bundle + CLI.** `GET /v1/evidence/{id}/export`
-  produces a **signed ZIP** (evidence, report JSON + plain-language Markdown,
-  authority graph JSON/DOT, manifest, Ed25519 manifest signature).
-  `aip-verify bundle.zip` verifies it **offline** (PASS/WARNING/FAIL); spec in
-  `docs/AUDIT_EXPORT_SPEC.md`.
-
-### 2.2 Technical differentiators
-
-- **Not "logging with signatures."** A log records an event; an EvidencePacket
-  binds an action to a *verified chain of delegated authority* and refuses to
-  validate if the action exceeded that authority (lattice attenuation). The
-  authority semantics — not the signature — are the point.
-- **vs. IAM.** IAM gates access (who may call). AIP produces the *after-the-
-  fact, portable, offline-verifiable proof* of who authorized what, which IAM
-  does not emit. AIP sits *above* IAM and should consume its identities (the
-  ROADMAP bridge), not replace it.
-- **vs. observability.** Datadog/Splunk are mutable, central, and not
-  authority-aware; they answer "what happened" for operations, not "prove it
-  to a regulator." AIP is tamper-evident, offline-verifiable, and authority-
-  bound. They are complementary (AIP can bind to an OTel trace id).
-
-### 2.3 Technical risks & mitigations
-
-| Risk | Mitigation / status |
+## 1.4 Current status & milestones
+| Track | Status |
 |---|---|
-| **Key custody** (today: single on-disk service key; agent keys handled app-side) | KMS/HSM + client-side signing SDK are the top funded items; bundle signature already separates "who exported" from "what happened" |
-| **Provenance ≠ attestation** (commitment is self-declared) | Documented; verified TEE/model attestation is ROADMAP; does not weaken the authority/integrity guarantees, only the model-origin claim |
-| **Authority-graph query cost** (per-query rebuild; ~475ms at 10k packets) | Authority tables already materialized in PG; indexed-query path is a follow-up (no schema change) |
-| **Format/spec churn** breaking stored evidence | Wire format is versioned (`AEP1`/v1); verification is version-pinned; append-only store |
-| **Crypto agility** (Ed25519 today) | Algorithm identifier reserved; PQC (ML-DSA) is a documented migration path |
-| **Adoption/standard risk** (engineering, not technical) | Open spec + free offline verifier; see §5/§9 |
+| Engineering (identity, authority, accountability, vault, verifier, service, CI) | **Built & tested** (✅ `cargo test` green; see §2) |
+| Open EvidencePacket specification + offline verifier CLI + signed audit bundle | **Shipped** |
+| Design partners | **0** (not started) |
+| Auditor acceptance | **0** (the key unlock — unproven) |
+| Revenue | **$0** |
 
-### 2.4 Technology stack
+## 1.5 Investment thesis (one paragraph)
+Right problem, right time, real engineering, **no distribution yet.** The wager
+is that **(a)** regulation + agentic deployment make "prove what your agent did"
+compulsory for regulated enterprises within **18–36 months**, and **(b)** AIP
+converts a genuine engineering head-start + an open standard into category
+ownership before identity/observability incumbents ship a "good-enough"
+feature. The code de-risks *can they build it* (yes); the open questions are
+*will an auditor accept it* and *can they distribute*.
 
-- **Language:** Rust (memory-safe; small auditable surface; static binaries
-  suitable for air-gapped/edge).
-- **Crypto:** `ed25519-dalek`, `sha2`, Base58; raw + enveloped signing.
-- **Service:** `axum`/`tokio`; API-key auth (SHA-256-hashed, tenant+role,
-  fail-closed); `EvidenceStore` over JSONL or `tokio-postgres`/`deadpool`.
-- **Tooling:** `aip-verify` (clap CLI), `aip-migrate`, `banking_demo`.
-- **Ops:** GitHub Actions (fmt, clippy `-D warnings`, test, `cargo audit`,
-  `cargo deny`, coverage; gitleaks + trivy security workflow; multi-target
-  release), Docker + compose (service + Postgres), `deny.toml`.
-- **Production targets (ROADMAP):** KMS/HSM keys + rotation, client-side
-  signing SDKs (TS/Python), IAM bridge, transparency-log anchoring of packet
-  hashes, HA + backup/DR, SOC 2.
+## 1.6 The ask (proposal, not a term sheet)
+- **Round:** Pre-seed **$1.5–3.0M**, ~10–15%, **18-month runway**.
+- **Use of funds:** Engineering **55%** (KMS/HSM, client-side signing SDK +
+  `/ingest`, IAM bridge, hardening, HA); Design-partner/GTM **25%**;
+  Security/Compliance **10%** (independent assessment, control-framework
+  mapping); G&A **10%**.
+- **Seed gate:** 2–3 design partners live + **1 written auditor acceptance** +
+  first paid workflow.
 
 ---
+---
 
-## SECTION 3 — MARKET OPPORTUNITY
+# SECTION 2 — TECHNICAL ARCHITECTURE
 
-### 3.1 Sizing (estimates — methodology stated; figures require validation)
+Reproduce everything in this section:
+```bash
+cd aip-standalone && cargo test --workspace
+cargo run -p aip-protocol --example loan_approval     # build → verify → tamper-detect
+cd ../aip-service && cargo test                        # auth, tenant isolation, HTTP export
+# Offline auditor verification:  aip-verify bundle.zip [--report|--json|--trust id=hex]
+```
+Workspaces: `aip-standalone` (core libraries + CLI + demo) and `aip-service`
+(deployable HTTP service). Language: **Rust**.
 
-We deliberately do **not** present a fabricated top-down TAM table with false
-precision. Methodology instead:
+## 2.1 The three-layer architecture
 
-- **Top-down anchors (directional, public forecasts vary widely):** agentic-AI
-  platform spend, AI-governance/compliance tooling, and AI-security are each
-  multi-billion and growing >40% CAGR per mainstream analyst commentary
-  (Gartner/McKinsey/BCG have all published bullish agentic-AI adoption
-  outlooks). `[VERIFY exact figures before use in a deck.]`
-- **Bottom-up (the number that matters):** AIP's *directly addressable* buyers
-  are regulated enterprises deploying **consequential** agent workflows.
-  Estimate: ~2,000–5,000 such enterprises globally (GSIBs, large banks,
-  insurers, health systems, gov) × an accountability/audit-evidence ACV of
-  **$50k–$500k** → an order-of-magnitude SAM of **$1–4B** as the category
-  matures (2027–2030). **SOM (24–36 mo):** capturing 20–50 of these at pilot→
-  early-enterprise ACV → **low-tens-of-$M ARR**, *contingent on the category
-  forming and on AIP landing the first auditor acceptance.*
+### Layer 1 — Identity (`aip-core`, `aip-crypto`)
+- **Generation/verification.** Each agent has an `AIP-ID`:
+  `aip1 · base58(SHA-256(pubkey ‖ provenance)[..26]) · base58(checksum)`.
+  Verifiers recompute it, binding the ID to the public key + a **provenance
+  commitment** (SHA-256 of model / environment / toolchain).
+- **Primitives.** **Ed25519** (RFC 8032) signatures; **SHA-256**; Base58. Both
+  an enveloped signature (`sign_ed25519`, carries signer-id/timestamp/nonce/
+  payload-hash) and a **raw** detached signature (`sign_ed25519_raw`, used for
+  bundle manifests).
+- **Revocation / rotation.** Lifecycle state machine
+  (Pending→Active→Suspended→Revoked); **cascade revocation** invalidates a
+  token's entire delegation subtree; per-token JTI revocation set checked at
+  verification.
+- **IAM integration (Okta / Azure AD / Entra): ROADMAP — not built.** Today
+  identities are self-derived. The funded work is a bridge that maps AIP-IDs ↔
+  workforce/workload identities (OIDC/SCIM; consume SPIFFE SVIDs where present)
+  so the "authorizing party" resolves to a named, IdP-managed principal.
+- **Honest limitation.** The provenance triple is a *caller-supplied
+  commitment*, not a verified attestation that the hash equals a real model
+  build. Verified model/TEE attestation is ROADMAP; today's hardware-
+  attestation module is **EXPERIMENTAL** (structural checks only). See
+  `AUDIT_CORRECTIONS.md`.
 
-> Intellectually honest stance: the category is **nascent to non-existent**
-> today. The TAM is a bet that "agent accountability" becomes a budget line,
-> not a measurement of one that exists.
+### Layer 2 — Authority (`aip-core::capability`, `::delegation`)
+- **Delegation graph construction.** A **scope** = `{allowed[], denied[]}` over
+  actions. A delegation's scope is the **lattice MEET** (intersection) of the
+  parent scope and the requested scope; empty intersection (⊥) is rejected.
+- **Authority-chain validation.** `verify_delegation_chain` checks, per hop:
+  Ed25519 signature; parent-JTI linkage; depth monotonicity; scope ⊆ parent.
+  Returns the **most-attenuated effective scope** at the leaf.
+- **Scope attenuation.** Mathematically enforced: a child can **never** exceed
+  its parent. This is the "confused-deputy" defense.
+- **Agent-to-agent delegation.** `create_sub_delegation`; depth-limited (≤8) to
+  bound chains; each hop independently signed and offline-verifiable.
+- **Bounding.** Depth limit + scope subset + temporal validity (a child cannot
+  outlive its parent) + revocation.
 
-### 3.2 Market drivers
-- **Agentic deployment crossing from pilot to production** in regulated
-  functions (payments, underwriting, claims, servicing) — where actions have
-  legal/financial consequence and existing audit answers break.
-- **Regulation forcing traceability/logging** (see §3.4).
-- **"Shadow AI":** high-privilege agents as a new insider-threat class that
-  current tooling cannot attribute or constrain provably.
+### Layer 3 — Accountability (`aip-protocol`)
+- **EvidencePacket v1 format (`AEP1`):** header (magic/version/packet-id/
+  created-at); agent identity summary; root authority (principal + signed
+  scoped token); delegation chain; decision (action kind, summary, input-hash,
+  rationale-hash); per-action attestations (each Ed25519-signed and **bound to
+  the decision id** so it cannot be transplanted); optional trace binding;
+  optional receipt binding (counterparty may **countersign**, bound to the
+  decision); claimed trust floor; `packet_hash` = SHA-256 of a **canonical,
+  length-prefixed** byte encoding; agent signature over that hash.
+- **Cryptographic signing.** The packet hash covers a prefix-free canonical
+  encoding (every variable field length-prefixed), so two distinct packets
+  cannot collide. The agent signs the hash; per-action and counterparty
+  signatures are independent and also covered.
+- **Verification (14 rules, no short-circuit):** STRUCTURE, AGENT_ID_BINDING,
+  CANONICAL_HASH, AGENT_SIGNATURE, ROOT_TOKEN_SIGNATURE, DELEGATION_CHAIN,
+  AUTHORITY_CHAIN, SCOPE_AUTHORITY, REVOCATION, TEMPORAL_VALIDITY,
+  ACTION_ATTESTATIONS, TRACE_BINDING, RECEIPT_BINDING, TRUST_FLOOR. The **trust
+  floor is derived from evidence**, never asserted:
+  `UNVERIFIED → AGENT_SIGNED → AUTHORITY_BOUND → COUNTERPARTY_SIGNED`.
+- **Storage / retrieval.** `EvidenceStore` trait with **JSONL** and
+  **PostgreSQL** backends (append-only, tenant-scoped, indexed on
+  tenant/hash/created-at; authority nodes/edges materialized). `aip-migrate`
+  imports JSONL→PG idempotently. Selected at runtime via `AIP_STORE_BACKEND`.
+- **Verification portal = signed bundle + offline CLI.**
+  `GET /v1/evidence/{id}/export` → a **signed ZIP**: `evidence.json`,
+  `verification_report.json`, `verification_report.md` (plain-language),
+  `authority_graph.json`, `authority_graph.dot`, `manifest.json` (per-file
+  SHA-256 + bundle hash + signer public key), `bundle_signature.sig` (Ed25519
+  over the manifest). `aip-verify bundle.zip` verifies it **offline** →
+  PASS/WARNING/FAIL. Spec: `docs/AUDIT_EXPORT_SPEC.md`.
 
-### 3.3 Timing — why now
-- **Not 3 years ago:** too few consequential agents in production; no
-  regulatory forcing function; the pain was hypothetical.
-- **Not in 3 years:** by then identity/observability incumbents or an open
-  standard may have filled the gap; the category-naming window closes.
-- **Now:** agent deployments are scaling *and* the EU AI Act's high-risk
-  obligations phase in through **2026–2027**, creating a compliance deadline
-  that converts "nice-to-have" into "required" — before a default winner
-  exists. The window is roughly **18–36 months.**
+## 2.2 Technical differentiators
+- **Not "logging with signatures."** A signed log line proves *a record
+  existed*; an EvidencePacket proves *an action stayed within a verified chain
+  of delegated human authority* and refuses to validate otherwise
+  (`SCOPE_AUTHORITY` + `DELEGATION_CHAIN`). The authority semantics — not the
+  signature — are the moat-relevant part.
+- **Unique authority graph.** It is *cryptographically* reconstructable
+  (Human→Authority→Agent→Decision→Action→Receipt) and connectivity-checked, not
+  inferred from logs. Each edge is a signed delegation.
+- **vs. IAM.** IAM gates access (who may call). It does **not** emit a portable,
+  offline-verifiable, after-the-fact proof of who authorized what. AIP sits
+  above IAM and should consume its identities (the ROADMAP bridge).
+- **vs. observability.** Datadog/Splunk are mutable, central, operations-
+  oriented, not authority-aware, and require trusting the platform. AIP is
+  tamper-evident, offline-verifiable, authority-bound, and third-party-
+  verifiable. Complementary: AIP can bind to an OTel `trace_id`.
 
-### 3.4 Regulatory tailwinds
+## 2.3 Technical risks & failure modes
+| Risk / failure mode | Mitigation / status |
+|---|---|
+| **Key custody** — single on-disk service signing key today; agent keys app-side | KMS/HSM + rotation and a client-side signing SDK are the top funded items; the bundle signature already separates *who exported* from *what happened* |
+| **Provenance ≠ attestation** | Documented; verified TEE/model attestation is ROADMAP; does not weaken authority/integrity guarantees, only the model-origin claim |
+| **Authority-graph query cost** — per-query rebuild (~475 ms at 10k packets, measured) | Authority tables already materialized in PG; indexed-query path is a follow-up (no schema change) |
+| **Bundled report is integrity-level** (service holds no external trust keys at export) | By design; recipient runs `aip-verify --trust …` for full authority; documented in the spec so the exporter never over-claims |
+| **Spec churn breaking stored evidence** | Versioned wire format (`AEP1`/v1); version-pinned verification; append-only store; re-verification after restore |
+| **Crypto agility** (Ed25519 only) | Algorithm id reserved; ML-DSA (PQC) migration path documented |
+| **Availability** — single-node service today | Stateless verify; non-gating pilot design; HA is ROADMAP |
+
+## 2.4 Technology stack
+**MVP (today):**
+- Crypto: `ed25519-dalek`, `sha2`, `bs58`.
+- Service: `axum` + `tokio`; API-key auth (SHA-256-hashed secrets, tenant+role,
+  fail-closed); `EvidenceStore` over JSONL or `tokio-postgres` + `deadpool`.
+- Tooling: `aip-verify` (clap), `aip-migrate`, `banking_demo` example.
+- Ops: GitHub Actions CI (fmt, clippy `-D warnings`, test, `cargo audit`,
+  `cargo deny`, coverage), Security workflow (audit + gitleaks + trivy),
+  multi-target release; Docker + compose (service + Postgres); `deny.toml`.
+- Tests: workspace green; 10k-packet PG benchmark (≈228 inserts/sec,
+  0.29 ms indexed get, 456 ms tenant fetch).
+
+**Production targets (ROADMAP):** KMS/HSM-backed keys + rotation; client-side
+signing SDKs (TypeScript, Python); IAM bridge (OIDC/SCIM/SPIFFE);
+transparency-log anchoring of packet hashes; HA + backup/DR; SOC 2 / CERT-In.
+
+---
+---
+
+# SECTION 3 — MARKET OPPORTUNITY
+
+## 3.1 Market sizing
+> **BANNER: every number in this sub-section is an ESTIMATE.** Top-down ranges
+> are blended from public analyst commentary (which varies widely) and are
+> `[VERIFY]` before any external deck. The bottom-up SOM is the number that
+> should drive the investment decision.
+
+**Top-down (illustrative; USD, $B):**
+
+| Market (estimate) | 2025 | 2026 | 2027 | 2028 | 2029 | 2030 |
+|---|---|---|---|---|---|---|
+| Agentic AI platforms/services | ~7 | ~12 | ~20 | ~30 | ~42 | ~55 |
+| AI governance / TRiSM tooling | ~1 | ~1.8 | ~3 | ~5 | ~8 | ~12 |
+| AI security | ~20 | ~26 | ~33 | ~42 | ~52 | ~65 |
+| **AIP-addressable (accountability/evidence slice)** | ~0.05 | ~0.15 | ~0.5 | ~1.2 | ~2.5 | ~4 |
+
+*(Adjacencies overlap; do not sum. The AIP row is the bottom-up estimate
+below, not a fixed % of the others.)*
+
+**Bottom-up (the decision-relevant number):**
+- Universe: regulated enterprises running **consequential** agent workflows ≈
+  **2,000–5,000** globally (GSIBs, large banks, insurers, health systems,
+  government).
+- Accountability/audit-evidence ACV: **$50k–$500k** (Pro→Enterprise+on-prem).
+- **SAM (mature, 2027–2030):** 2,000–5,000 × $50k–$500k ⇒ order **$1–4B**.
+- **SOM (24–36 mo):** 20–50 logos at pilot→early-enterprise ACV ⇒ **low tens of
+  $M ARR**, gated on category formation + first auditor acceptance.
+
+## 3.2 Market drivers
+- **Pilot→production for consequential agents** in regulated functions
+  (payments, underwriting, claims, servicing) — where the existing audit answer
+  ("check the logs") breaks because logs are mutable and authority-blind.
+- **Regulation mandating traceability/logging/human-oversight** (see §3.4).
+- **"Shadow AI":** high-privilege agents as a new insider-threat class current
+  tooling can't attribute or constrain provably.
+- **Coalition / cross-party agent interactions** needing a neutral,
+  mutually-verifiable record.
+
+## 3.3 Market timing — why now
+- **Not 3 years ago:** too few consequential agents in production; no regulatory
+  forcing function; pain hypothetical.
+- **Not in 3 years:** identity/observability incumbents or an open standard may
+  fill the gap; the naming window closes.
+- **Now:** agent deployments scale *and* EU AI Act high-risk obligations phase
+  in (≈2026–2027), creating a compliance deadline that converts "nice-to-have"
+  into "required" — **before** a default winner exists. Window: **18–36 months.**
+- **If AIP doesn't capture it now:** the category consolidates into an identity
+  or observability suite, and AIP becomes a feature/acqui-hire, not a platform.
+
+## 3.4 Regulatory tailwinds
 - **EU AI Act (hard facts):** penalties up to **€35M or 7% of global annual
-  turnover** for prohibited-practice violations (lower tiers €15M/3% and
-  €7.5M/1%); high-risk-system obligations — including **record-keeping,
-  logging, traceability, and human oversight** — phase in, with key high-risk
-  obligations landing around **2026–2027**. These map almost directly onto
-  what an EvidencePacket provides. *(Exact dated milestones: `[VERIFY]` against
-  the current Act text before publishing.)*
-- **US:** no single federal AI law; a patchwork of state laws and sectoral
-  guidance (e.g. model-risk expectations like SR 11-7 in banking, NIST AI RMF
-  as a voluntary-but-influential framework). Demand here is audit/risk-driven
-  rather than statute-driven.
+  turnover** (prohibited practices); lower tiers **€15M/3%** and **€7.5M/1%**.
+  High-risk-system obligations — **record-keeping, logging, traceability, human
+  oversight** — phase in, with major high-risk duties around **2026–2027**.
+  These map almost directly onto what an EvidencePacket provides. *(Exact dated
+  milestones `[VERIFY]` against current Act text.)*
+- **US:** no single federal AI statute; a patchwork of state laws + sectoral
+  guidance — e.g. banking **model-risk (SR 11-7)** and the **NIST AI RMF**
+  (voluntary but influential). Demand is audit/risk-driven.
 - **India:** evolving AI-governance guidance (advisory/principles stage);
-  relevant for a sovereign/defence angle (see the iDEX submission in
-  `docs/idex_open_challenge/`).
-- **How this creates AIP demand:** every regime that mandates *traceability of
-  automated decisions* or *human accountability* turns AIP from a vitamin into
-  a painkiller — provided an auditor will accept the evidence (the #1
-  unproven assumption, §7.2).
+  relevant to a sovereign/defence wedge (see `docs/idex_open_challenge/`).
+- **Others:** UK pro-innovation/sectoral; Canada AIDA (proposed); Singapore
+  MAS/FEAT + AI Verify. `[VERIFY current status of each.]`
+- **Mechanism → demand:** any regime mandating *traceability of automated
+  decisions* or *human accountability* turns AIP from vitamin to painkiller —
+  **conditional on an auditor accepting the evidence** (the #1 unproven
+  assumption, §7).
 
 ---
+---
 
-## SECTION 4 — THE CUSTOMER
+# SECTION 4 — THE CUSTOMER
 
-### 4.1 Primary buyer persona
-- **Title:** Head of Internal Audit / Head of AI Governance / Chief Risk
-  Officer (economic buyer); champion often the platform/security lead already
-  piloting agents.
-- **Company:** regulated enterprise with consequential agent workflows.
-- **Pain:** cannot prove, to an auditor/regulator, who authorized an
-  autonomous action or that the record is unaltered; mutable logs; "shadow AI."
-- **Budget:** GRC / model-risk / security budgets (already exist).
-- **Process:** champion-led pilot → risk/security/legal review → procurement.
-- **Timeline:** **6–12 months** typical for regulated enterprise infra.
-
-### 4.2 Segments (priority order; "why now" = consequential agents + audit scrutiny)
-1. **Tier-1 banks / GSIBs** — highest scrutiny, biggest budgets, longest
-   cycles; the reference logo that unlocks everything. Buyer: CRO/Head of
-   Internal Audit. Budget: $100k–$500k+. Cycle: 9–12+ mo.
-2. **Large/European banks** — EU AI Act exposure is the sharpest forcing
-   function. Buyer: Head of Compliance/Model Risk. $75k–$300k. 6–12 mo.
-3. **Insurers** — automated claims/underwriting decisions, dispute exposure.
-   Buyer: Chief Risk/Compliance. $50k–$250k. 6–12 mo.
-4. **Health systems** — HIPAA accountability, clinical-decision liability.
-   Buyer: CISO/Compliance. $50k–$200k. 9–12 mo.
-5. **Sovereign/defence (e.g. iDEX path)** — command accountability, non-
-   repudiation, air-gapped verification. Buyer: program/security cell.
-   Grant-funded pilots possible. Bespoke cycle.
-
-> All "why they buy now," budgets, and named-account claims above are
+> Personas, "why they buy now," budgets, and named accounts below are
 > **founder hypotheses for discovery**, not validated pipeline.
 
-### 4.3 Buying process
-- **Champion:** internal audit / AI-governance lead.
-- **Buyer:** CRO / Head of Compliance / CISO.
-- **Influencers:** General Counsel, Chief Data Officer.
-- **Implementer:** platform/security engineering.
-- **Hurdles:** security review, data-processing/DPA, vendor-viability, on-prem
-  requirement, certifications (SOC 2 — a gap).
-- **Length:** 6–12 months; pilots can start faster if **non-gating** and
-  **read-only**.
+## 4.1 Primary buyer persona
+- **Title:** Head of Internal Audit / Head of AI Governance / Chief Risk
+  Officer (economic buyer). Champion is often the platform/security lead who is
+  already piloting agents and feels the audit gap first.
+- **Company:** regulated enterprise with consequential agent workflows.
+- **Responsibilities:** defensible audit trails, model/AI risk, regulatory
+  readiness, incident reconstruction.
+- **Pain points:** cannot prove *who authorized* an autonomous action or that
+  the record is unaltered; mutable logs; "shadow AI"; looming AI-Act exposure.
+- **Budget authority:** GRC / model-risk / security budgets (already exist).
+- **Decision process:** champion-led pilot → risk/security/legal review →
+  procurement → production.
+- **Procurement timeline:** **6–12 months** typical; faster if non-gating +
+  read-only.
 
-### 4.4 Design-partner path
-- **Definition:** a regulated enterprise that deploys AIP read-only on one
-  workflow, gives structured feedback, and (ideally) does a staged auditor
-  walkthrough.
+## 4.2 Target enterprise segments
+
+**Tier 1 — Global Systemically Important Banks (GSIBs).**
+- *Examples:* JPMorgan, HSBC, Deutsche Bank `[illustrative]`.
+- *Why now:* highest regulatory scrutiny; first to deploy agents in
+  consequential workflows under model-risk regimes.
+- *Buyer:* CRO / Head of Internal Audit (champion: AI-governance lead).
+- *Budget:* **$100k–$500k+**.
+- *Procurement:* **9–12+ months** (the reference logo that unlocks the rest).
+
+**Tier 2 — Large European banks.**
+- *Examples:* Santander, UniCredit, ING `[illustrative]`.
+- *Why now:* sharpest **EU AI Act** forcing function.
+- *Buyer:* Head of Compliance / Model Risk.
+- *Budget:* **$75k–$300k**. *Procurement:* **6–12 months.**
+
+**Tier 3 — Healthcare systems.**
+- *Examples:* Kaiser Permanente, NHS trusts, Mayo Clinic `[illustrative]`.
+- *Why now:* HIPAA accountability; clinical-decision liability for AI.
+- *Buyer:* CISO / Compliance. *Budget:* **$50k–$200k.** *Procurement:* **9–12 mo.**
+
+**Tier 4 — Insurers.**
+- *Examples:* AXA, Allianz, AIG `[illustrative]`.
+- *Why now:* automated claims/underwriting decisions; dispute & fairness
+  exposure.
+- *Buyer:* Chief Risk / Compliance. *Budget:* **$50k–$250k.** *Procurement:*
+  **6–12 mo.**
+
+**Tier 5 — Sovereign / defence / regulators.**
+- *Examples:* MAS, ECB, RBI, defence (iDEX) `[illustrative]`.
+- *Why now:* command accountability, non-repudiation, **air-gapped/offline**
+  verification; indigenous-IP preference.
+- *Buyer:* program / security cell. *Budget:* grant-funded pilots possible.
+  *Procurement:* bespoke, often longer.
+
+## 4.3 The buying process
+- **Champion:** Head of Internal Audit / AI-Governance lead.
+- **Buyer (economic):** CRO / Head of Compliance / CISO.
+- **Influencers:** General Counsel, Chief Data Officer.
+- **Implementer:** platform / security engineering.
+- **Hurdles:** security review, DPA/data-residency, vendor-viability,
+  on-prem requirement, **SOC 2** (a gap), penetration test.
+- **Sale length:** **6–12 months**; pilots start faster when **read-only and
+  non-gating** (AIP records; it does not sit in the transaction's critical
+  path).
+
+## 4.4 The design-partner path
+- **Definition:** a regulated enterprise deploying AIP read-only on one workflow,
+  giving structured feedback and (ideally) hosting a staged auditor walkthrough.
 - **AIP offers:** free/low-cost pilot, white-glove integration, influence over
   the spec, an Evidence Vault for one workflow.
-- **AIP asks:** access to a representative workflow, a security review slot, an
-  auditor introduction, and a reference on success.
-- **How many:** **2–3** is sufficient to validate Phase 1; **1 auditor
-  acceptance** is the true unlock.
-- **Success criteria:** see §7.
+- **AIP asks:** a representative workflow, a security-review slot, an auditor
+  introduction, a reference on success.
+- **How many:** **2–3** validates Phase 1; **1 auditor acceptance** is the true
+  unlock.
+- **Success criteria:** see §7 (3 partners live; ≥1 paid pilot; auditor
+  acceptance letter).
 
 ---
-
-## SECTION 5 — COMPETITIVE LANDSCAPE
-
-> Competitor funding/traction figures from the brief are **`[VERIFY]`** — do
-> not assert them in front of investors without a source.
-
-### 5.1 Direct / adjacent
-Emerging "identity/access for AI agents" and "AI security/governance" startups
-(e.g. agent-IAM and agent-security entrants). **Strength:** funded, access-
-focused, some enterprise traction. **Weakness vs. AIP:** access control ≠
-**portable, offline-verifiable accountability evidence.** None (to our
-knowledge) makes the auditor's artifact the product. `[VERIFY competitor
-positions.]`
-
-### 5.2 Indirect (the real gravity)
-- **Microsoft Entra (+ Copilot):** owns enterprise identity + the agents;
-  **highest** threat — could ship "agent audit" as a checkbox. AIP's defense:
-  neutrality (auditors prefer third-party attestation) + offline/open
-  verification + cross-vendor scope.
-- **Okta:** workforce identity; could extend to agents. Medium threat;
-  partner/acquirer candidate.
-- **Datadog / Splunk:** observability/logging; medium threat; complementary
-  ("they show what happened; AIP proves it"); acquirer candidates.
-- **Cloudflare / SPIFFE-SPIRE:** access/workload identity; SPIFFE is the
-  substrate AIP should build *on*, not fight.
-
-### 5.3 Differentiation / 5.4 Moat
-- **Not another IAM/observability tool:** it's the **evidence** layer above
-  both — the artifact a third party verifies without trusting the vendor.
-- **Moats (aspirational, must be earned):** (a) **standard** — if the
-  EvidencePacket format becomes what auditors ask for; (b) **switching cost** —
-  compliance pipelines + years of anchored evidence; (c) **trust/references** —
-  banking-first pilots are slow to win and slow for others to replicate;
-  (d) **graph semantics** — authority relationships are non-trivial.
-  **Honest:** the *code* is replicable by a strong team in a quarter; the moat
-  is distribution + standard + accumulated evidence, none of which exist yet.
-
 ---
 
-## SECTION 6 — BUSINESS MODEL
+# SECTION 5 — COMPETITIVE LANDSCAPE
 
-### 6.1 Revenue model (proposed)
-| Tier | Price | For |
-|---|---|---|
-| Discovery | $0 | OSS verifier + SDK; developers/early adopters |
-| Pro (Evidence) | ~$2k/mo | EvidencePacket generation + verification portal; compliance teams |
-| Enterprise (Vault) | $10k+/mo | Authority graph, integrations, audit exports, on-prem; regulated buyers |
+> Competitor funding/traction numbers are **`[VERIFY]`** — do not assert without
+> a source.
 
-Land-and-expand: one high-risk workflow → many; per-workflow / per-evidence-
-volume expansion.
+## 5.1 Direct / adjacent competitors
+| Competitor `[VERIFY]` | Focus | Strengths | Weakness vs. AIP |
+|---|---|---|---|
+| Agent-IAM entrants (e.g. NewCore-type) | Identity/access for agents | Funded; enterprise access traction | Access control ≠ portable, offline-verifiable **accountability evidence** |
+| Agent-access (e.g. Aembit-type) | Workload/agent access | Enterprise IAM traction | Not evidence/audit-artifact focused |
+| AI-security/governance startups (Cyata/Lumia/Vijil-type) | Security / compliance posture | Category momentum | Early; not the auditor's verifiable artifact |
 
-### 6.2 Projections — **illustrative model, not a forecast**
-The brief's ramp ($0.5M→$5M→$25M→$75M→$200M) is a **standard infra hockey-
-stick template.** It is achievable *only if* Phase-1/2 proof points land. We
-present it as a scenario, explicitly contingent on: first auditor acceptance
-(year 1), ~repeatable sale (year 2), and standard traction (year 3). Treat
-Year-1 ARR as **$0–0.5M** and everything beyond as conditional.
+**Takeaway:** the adjacent field is "who/whether an agent may act." To our
+knowledge none makes **the auditor's offline-verifiable artifact** the product.
+That is AIP's lane.
 
-### 6.3 Unit economics (assumptions to validate)
-- **ACV:** $24k (Pro) – $120k+ (Enterprise).
-- **CAC:** high early (founder-led, 6–12 mo cycles) — likely **$50k–$150k**
-  per enterprise logo initially; falls with references/channel.
-- **LTV:** high if switching costs materialize (multi-year, expanding);
-  **LTV:CAC > 3** is plausible *post*-reference, not at first sale.
+## 5.2 Indirect competitors (the real gravity)
+| Competitor | Focus | Threat | Note |
+|---|---|---|---|
+| **Microsoft Entra (+ Copilot)** | Identity + agents | **High** | Could ship "agent audit" as a checkbox; AIP's defense = neutrality + offline/open verification + cross-vendor scope |
+| Okta | Workforce identity | Medium | Could extend to agents; partner/acquirer candidate |
+| Datadog | Observability | Medium | Complementary ("shows what happened; AIP proves it"); acquirer candidate |
+| Splunk | Log management | Medium | Same; mutable logs, not authority-aware |
+| Cloudflare / SPIFFE-SPIRE | Access / workload identity | Medium | SPIFFE is the **substrate to build on**, not fight |
+
+## 5.3 Differentiation / value proposition
+- **Not another IAM tool:** it's the **evidence** layer above IAM — the artifact
+  a third party verifies without trusting the vendor.
+- **Not another observability tool:** tamper-evident, authority-bound, offline-
+  verifiable; complements (does not replace) monitoring.
+- **UVP:** *"Prove what your agent did and who authorized it — offline, to your
+  auditor, without trusting us."*
+
+## 5.4 The moat (aspirational — must be earned; honest)
+- **Data/switching:** once a bank's audit procedures rely on the EvidencePacket
+  schema, switching means re-architecting the compliance pipeline.
+- **Graph:** authority relationships carry semantics that are non-trivial to
+  model correctly.
+- **Standard:** if the EvidencePacket format is what auditors request, you own
+  the category.
+- **Trust:** banking-first pilots and references are slow to win and slow to
+  replicate.
+- **Honest caveat:** the **code** is replicable by a strong team in a quarter.
+  The durable moat = distribution + adopted standard + accumulated, anchored
+  evidence — **none of which exist yet.**
+
+---
+---
+
+# SECTION 6 — BUSINESS MODEL
+
+## 6.1 Revenue model
+| Tier | Price | Features | Buyer |
+|---|---|---|---|
+| Discovery (Free) | $0 | OSS verifier + SDK; agent discovery; basic dashboard | Startups, early adopters |
+| Pro (Evidence) | **~$2,000/mo** | EvidencePacket generation + verification portal | Compliance teams |
+| Enterprise (Vault) | **$10,000+/mo** | Full authority graph, integrations, audit exports, on-prem | Banks, healthcare, government |
+
+Motion: **land** one high-risk workflow → **expand** to many (per-workflow /
+per-evidence-volume) → **standardize** (auditors request the format).
+
+## 6.2 Revenue projections
+> **ILLUSTRATIVE MODEL, not a forecast.** This is the standard infra hockey-
+> stick template, achievable **only if** the Phase-1/2 proof points land.
+
+| Year | Customers | ARR (scenario) | Growth | Reality check |
+|---|---|---|---|---|
+| 1 | 5–10 | **$0–0.5M** | — | Treat as ~$0 until auditor acceptance |
+| 2 | 50–100 | $5M | 10x | Requires a repeatable sale |
+| 3 | 200–500 | $25M | 5x | Requires standard traction + channel |
+| 4 | 500–1,000 | $75M | 3x | Requires international + platform |
+| 5 | 1,000–2,000 | $200M | 2.7x | Requires category leadership |
+
+Every row beyond Year 1 is **conditional**, not projected.
+
+## 6.3 Unit economics (assumptions to validate)
+- **ACV:** $24k (Pro) – $120k+ (Enterprise/on-prem).
+- **CAC (early, founder-led, 6–12 mo cycles):** **$50k–$150k** per enterprise
+  logo; falls sharply with references + channel.
+- **LTV:** high *if* switching costs materialize (multi-year, expanding
+  workflows); **LTV:CAC > 3** is plausible **post-reference**, not at first
+  sale.
+- **Payback:** likely **>18 months** for first logos; improves via land-and-
+  expand.
 - **Gross margin:** software-typical **80%+** (on-prem/support drags early).
-- **Payback:** likely **>18 mo** for first logos; improves with land-and-expand.
 
-### 6.4 Path to $1B ARR (necessary conditions, not a promise)
-1. EvidencePacket adopted as a **de facto audit standard** (auditors request
-   it).  2. Embedded in **agent frameworks/clouds** (distribution).
-3. **Cross-party verification** network effects (A's agent ↔ B's systems).
-4. Expansion from "evidence" to a governance control-plane.
-Miss any one and the ceiling is a strong acquisition, not a standalone $1B.
-
----
-
-## SECTION 7 — ROADMAP & MILESTONES
-
-Engineering for Phases is **largely built**; the gating items are commercial
-and hardening.
-
-- **Phase 1 — Design-Partner Validation (M1–6):** 3 regulated enterprises
-  running read-only ingest; ≥1 paid pilot. *Status: not started (0).*
-  Prereqs done: working stack, demo, eval pack (`docs/design_partner/`).
-- **Phase 2 — Auditor Validation (M4–8):** **written auditor acceptance of an
-  EvidencePacket bundle.** *The single most important unlock; unproven.*
-  Prereqs done: offline verifier + signed bundle + spec.
-- **Phase 3 — First Paid Enterprise (M6–10):** $10k/mo; survives security/
-  legal/procurement. Prereq gaps: SOC 2, KMS/HSM, IAM bridge.
-- **Phase 4 — Expansion & Renewal (M10–12):** 3+ workflows, renewal, reference.
-- **Phase 5 — Market Expansion (Y2–3):** adjacent regulated verticals;
-  channel (audit/consulting firms); open the spec to drive adoption.
-- **Phase 6 — Scale (Y3–5):** international; governance platform; exit/IPO
-  optionality.
-
-**PMF scores** in the brief's table are **forward-looking targets**, not
-current state. Current honest PMF: **pre-PMF (<25%)** until a design partner
-and an auditor say yes.
+## 6.4 Path to $1B ARR (necessary conditions, not a promise)
+1. **Standard:** EvidencePacket becomes the de-facto audit-evidence format
+   (auditors request it).
+2. **Distribution:** embedded in agent frameworks / clouds (MCP, LangGraph,
+   hyperscaler agent runtimes).
+3. **Network effects:** cross-party verification (Org A's agent ↔ Org B's
+   systems) recruits counterparties.
+4. **Platform expansion:** from evidence to a governance control-plane.
+5. **Vertical + geographic scale:** banking → insurance → health → gov; EU →
+   US → APAC.
+Miss any one of (1)–(3) and the realistic ceiling is a **strong acquisition**,
+not a standalone $1B.
 
 ---
+---
 
-## SECTION 8 — TEAM
+# SECTION 7 — ROADMAP & MILESTONES
 
-`[FOUNDER INPUT REQUIRED — do not ship to investors with placeholders.]`
-- **Founders / technical team:** `[names, backgrounds — esp. cryptography,
-  distributed systems, regulated-enterprise sales]`.
-- **What the repo demonstrates about the team:** ability to ship a coherent,
+Engineering for the phases is **largely built**; gating items are commercial +
+hardening.
+
+## 7.1 Phase 1 — Design-Partner Validation (M1–6)
+- **Goal:** 3 regulated enterprises run AIP read-only on real logs.
+- **Prove:** ingest without disruption; accurate identity/authority mapping;
+  visibility is valuable enough to continue.
+- **Success:** 3 partners active; ≥1 paid pilot ($2–5k/mo); positive dashboard/
+  discovery feedback.
+- **Status:** **not started (0).** Prereqs done (stack, demo, `docs/design_partner/`).
+
+## 7.2 Phase 2 — Auditor Validation (M4–8) — **the key unlock**
+- **Goal:** a regulated auditor reviews an EvidencePacket bundle and confirms it
+  would be accepted as audit evidence.
+- **Prove:** cryptographic verification is sound; authority chain complete/
+  auditable; format meets regulatory expectations.
+- **Success:** **written auditor acceptance.** *Unproven; existential.*
+  Prereqs done (offline verifier, signed bundle, spec).
+
+## 7.3 Phase 3 — First Paid Enterprise (M6–10)
+- **Goal:** convert a partner to a paying enterprise customer.
+- **Prove:** budget allocation; survives procurement/legal/security; production-
+  sustainable.
+- **Success:** first **$10k/mo** contract; EvidencePacket generation on ≥1
+  high-risk workflow.
+- **Prereq gaps:** SOC 2, KMS/HSM, IAM bridge.
+
+## 7.4 Phase 4 — Expansion & Renewal (M10–12)
+- **Goal:** first customer expands and renews.
+- **Success:** 1→3+ workflows; Year-2 renewal; public reference/case study.
+
+## 7.5 Phase 5 — Market Expansion (Y2–3)
+- Adjacent regulated verticals (insurance, healthcare, government); channel
+  (audit/consulting/tech partners); **open the core protocol** to drive
+  adoption; push EvidencePacket toward an industry standard.
+
+## 7.6 Phase 6 — Scale (Y3–5)
+- International expansion; platform expansion (evidence → full AI governance);
+  strategic acquisitions; IPO/exit optionality.
+
+## 7.7 Milestone summary
+| Milestone | Timeline | Success criteria | PMF target* |
+|---|---|---|---|
+| Design partners | M1–6 | 3 enterprises deployed | 65–75% |
+| Auditor validation | M4–8 | Formal acceptance letter | 75–85% |
+| First paid customer | M6–10 | $10k/mo contract | 80–88% |
+| Expansion & renewal | M10–12 | 3+ workflows, renewal | 85–90% |
+| Market expansion | Y2–3 | 100+ customers, $10M ARR | 90–92% |
+| Scale | Y3–5 | 1,000+ customers, $100M+ ARR | 93–95% |
+
+\*PMF scores are **forward-looking targets**, not current state. **Current
+honest PMF: pre-PMF (<25%)** until a design partner and an auditor say yes.
+
+---
+---
+
+# SECTION 8 — THE TEAM
+
+> `[FOUNDER INPUT REQUIRED — do not ship to investors with placeholders.]`
+
+- **Founders:** `[names, # , backgrounds]` — ideally spanning cryptography /
+  distributed systems **and** regulated-enterprise sales.
+- **Technical team:** `[#, key bios]`.
+- **What the repository evidences about the team:** ability to ship a coherent,
   tested, secure Rust system with CI/security discipline and an open spec —
-  credible *build* capability. Investors will still need the **GTM / regulated-
-  sales** capability evidenced.
-- **Key hires (0–12 mo):** (1) founding GTM/solutions lead with banking-audit
-  relationships; (2) security/platform engineer (KMS, hardening); (3) part-
-  time compliance/accreditation advisor.
-- **Advisory board (target):** an ex-Big-4 audit partner, a bank CRO/model-risk
-  leader, a cryptographer, an EU-AI-Act counsel. `[recruit]`
+  credible **build** capability. Investors will still want demonstrated
+  **GTM / regulated-sales** capability.
+- **Key hires (0–6 mo):** (1) founding GTM/solutions lead with banking-audit
+  relationships; (2) senior security/platform engineer (KMS, hardening).
+- **Key hires (6–12 mo):** (3) developer-relations/SDK engineer (framework
+  integrations); (4) part-time compliance/accreditation advisor.
+- **Hiring strategy:** stay founder-led on first sales; hire the GTM lead only
+  once a design partner is live; keep burn low until auditor acceptance.
+- **Advisory board (targets, to recruit):** ex-Big-4 audit partner; bank CRO /
+  model-risk leader; applied cryptographer; EU-AI-Act counsel. Each maps to a
+  specific risk (auditor acceptance, banking credibility, crypto soundness,
+  regulatory mapping).
 
 ---
-
-## SECTION 9 — COMPETITIVE ADVANTAGE
-
-- **Defensibility (honest):** not the code. It is **(a)** first-mover on
-  *accountability-as-evidence* with an open, offline-verifiable format;
-  **(b)** banking/regulated trust + references that take years to earn;
-  **(c)** accumulated, anchored evidence + compliance-pipeline lock-in once
-  adopted.
-- **Why incumbents don't do it in 6 months:** they *can* build the tech; what
-  they cannot quickly manufacture is **neutral, third-party, offline-verifiable
-  trust** (auditors structurally prefer independent attestation over "Microsoft
-  audits its own agents") and an adopted **standard**. The risk that they ship
-  "good enough" is real and is the top bear case.
-- **Standard playbook:** open the spec + free verifier → get it into agent
-  frameworks (MCP/LangGraph) → get **auditors to ask for it** (demand from the
-  buyer's buyer). Standard = the format the verifier on the auditor's desk
-  expects.
-- **If not first:** the category likely consolidates into an identity or
-  observability suite, and AIP becomes a feature/acqui-hire rather than a
-  platform.
-
 ---
 
-## SECTION 10 — RISKS
+# SECTION 9 — COMPETITIVE ADVANTAGE
 
+## 9.1 Defensibility (honest)
+Not the code. It is **(a)** first-mover on *accountability-as-evidence* with an
+open, offline-verifiable format; **(b)** banking/regulated trust + references
+that take years to earn; **(c)** accumulated, anchored evidence + compliance-
+pipeline lock-in once adopted.
+
+## 9.2 The standard moat
+- **What "standard" means here:** the EvidencePacket format is what auditors and
+  regulators *ask for*, and what agent frameworks emit by default.
+- **How it creates defensibility:** a verifier on every auditor's desk + years
+  of evidence in that format = demand from the buyer's buyer and un-migratable
+  history.
+- **Playbook:** open the spec + free offline verifier → integrate into agent
+  frameworks (MCP/LangGraph) → get auditors to request the format.
+
+## 9.3 First-mover advantage
+- **Being first** = naming the category and shaping the format auditors adopt.
+- **Capitalize:** banking-first references + open standard before incumbents
+  react.
+- **If not first:** category folds into an identity/observability suite; AIP
+  becomes a feature or acqui-hire.
+
+## 9.4 Why incumbents don't do it in 6 months
+They can build the tech; they cannot quickly manufacture **neutral, third-party,
+offline-verifiable trust** (auditors structurally prefer independent attestation
+over "Microsoft audits its own agents") **or** an adopted standard. The real
+risk is that they ship "good enough" and bundle it free — the top bear case
+(§10/§11).
+
+---
+---
+
+# SECTION 10 — RISKS
+
+## 10.1 Risk register
 | Risk | Prob. | Impact | Mitigation |
 |---|---|---|---|
-| Incumbent ships "good-enough" agent audit | Med-High | High | Neutrality, open spec, offline verify, banking references |
-| Open standard emerges from elsewhere | Med | High | **Lead** the standard; open-source core + verifier |
-| Auditors won't accept the evidence | Med | **Existential** | Phase-2 is explicitly this proof; engage Big-4 early |
-| Sales cycles slower than runway | High | High | Non-gating read-only pilots; land-and-expand; tight burn |
-| Market timing early (few consequential agents yet) | Med | High | Defence/sovereign + early-adopter banks; keep burn low |
-| Trust/vendor-viability barrier | High | Med | Open verifier + on-prem + portable, self-verifiable evidence |
-| Key-management / security finding in diligence | Med | High | KMS/HSM + independent assessment are top funded items |
+| Incumbent ships "good-enough" agent audit | Med-High | High | Neutrality; open spec; offline verify; banking references |
+| Open standard emerges elsewhere | Med | High | **Lead** the standard; open-source core + verifier |
+| **Auditors won't accept the evidence** | Med | **Existential** | Phase 2 is exactly this proof; engage Big-4 early |
+| Sales cycles outrun runway | High | High | Non-gating read-only pilots; land-and-expand; tight burn |
+| Market early (few consequential agents yet) | Med | High | Defence/sovereign + early-adopter banks; low burn |
+| Trust / vendor-viability barrier | High | Med | Open verifier; on-prem; portable self-verifiable evidence |
+| Security finding in diligence | Med | High | KMS/HSM + independent assessment are top funded items |
+| Regulatory enforcement delayed | Low-Med | Med | Lead with security/audit value, not just compliance |
 
-**Existential risks:** (1) auditors never treat it as evidence; (2) the agent-
-accountability budget line never forms in the funding window; (3) an incumbent
-makes it a free checkbox before references accrue. **Plan B:** the strongest
-asset (offline-verifiable evidence + open spec) is an attractive **acquisition**
-for an IAM/observability/GRC platform even if the standalone company stalls.
-
----
-
-## SECTION 11 — INVESTMENT THESIS
-
-**Why invest:** a real, tested accountability stack aimed at a question
-regulation will force regulated enterprises to answer within ~18–36 months,
-with no incumbent yet owning it and an open-standard wedge available.
-
-**Bull case:** EvidencePacket becomes the audit standard for agent actions;
-double-digit Fortune-500 adoption; $1B+ ARR in 7–10 yrs; category-defining
-infra; $10B-class outcome.
-
-**Bear case:** Microsoft/AWS/Okta ship a competitive feature; an open standard
-emerges from elsewhere; enforcement slips; cycles outrun runway; "good enough"
-wins. Probability-weighted, the **most likely** outcome today is a modest
-acquisition; the **tail** is category-defining. That asymmetry is the
-investment.
-
-**The ask (proposal):** **$1.5–3.0M pre-seed**, ~10–15%, 18-mo runway.
-**Use of funds:** Engineering ~55% (KMS/HSM, signing SDK + ingest, IAM bridge,
-hardening, HA), GTM/design-partners ~25%, Security/Compliance ~10% (independent
-assessment + control-framework mapping), G&A ~10%. **Milestone gates for a
-seed:** 2–3 design partners live + **1 written auditor acceptance** + first
-paid workflow.
+## 10.2 What could derail AIP
+- **Existential:** (1) auditors never treat it as evidence; (2) the "agent-
+  accountability" budget line never forms in the funding window; (3) an
+  incumbent makes it a free checkbox before references accrue.
+- **Realistic failure scenarios:** slow regulated sales burn the runway before
+  proof; or the product is sound but undifferentiated once incumbents add a
+  feature.
+- **Plan B:** the strongest asset (offline-verifiable evidence + open spec) is
+  an attractive **acquisition** for an IAM / observability / GRC platform even
+  if the standalone company stalls.
 
 ---
+---
 
-## SECTION 12 — ONE-PAGE SUMMARY
+# SECTION 11 — INVESTMENT THESIS
+
+## 11.1 Why invest
+A real, tested accountability stack aimed at a question regulation will force
+regulated enterprises to answer within ~18–36 months, with no incumbent yet
+owning it and an open-standard wedge available. The code removes "can they
+build it"; the bet is on timing, auditor acceptance, and distribution.
+
+## 11.2 Bull case
+EvidencePacket becomes the audit standard for agent actions; double-digit
+Fortune-500 adoption; $1B+ ARR in 7–10 yrs; category-defining infrastructure;
+$10B-class outcome.
+
+## 11.3 Bear case
+Microsoft/AWS/Okta ship a competitive feature; an open standard emerges
+elsewhere; enforcement slips; sales cycles outrun runway; "good enough" wins.
+**Probability-weighted, the most-likely outcome today is a modest acquisition;
+the tail is category-defining.** That asymmetry is the investment.
+
+## 11.4 The ask (proposal)
+- **Round size:** **$1.5–3.0M** pre-seed.
+- **Valuation:** priced on founder + design-partner outcomes, with the repo as
+  build evidence (`[negotiable]`; ~10–15% target).
+- **Use of funds:** Engineering **55%** (KMS/HSM, signing SDK + ingest, IAM
+  bridge, hardening, HA); Sales & GTM/design-partners **25%**; Security/
+  Compliance **10%** (independent assessment + control-framework mapping);
+  G&A **10%**.
+- **Seed gate:** 2–3 design partners live + **1 written auditor acceptance** +
+  first paid workflow.
+
+---
+---
+
+# SECTION 12 — ONE-PAGE SUMMARY
 
 1. **Problem:** organizations can't prove who authorized an autonomous AI
    action, within what limits, or that the record is unaltered.
@@ -507,29 +668,35 @@ paid workflow.
    delegated authority.
 3. **Market:** an emerging "AI accountability / audit-evidence" category for
    regulated enterprises, pulled forward by the EU AI Act and agent deployment
-   (SAM est. low-single-digit $B as it forms — to be validated).
-4. **Traction (honest):** pre-revenue, pre-design-partner; a working, tested,
-   independently verifiable stack + open spec + reproducible demos — and a CI/
-   security/release pipeline. **0 customers, 0 auditor acceptances, $0 ARR.**
+   (SAM est. ~$1–4B as it forms — to validate).
+4. **Traction (honest):** a working, tested, independently verifiable stack +
+   open spec + reproducible demos + CI/security/release pipeline.
+   **0 customers, 0 auditor acceptances, $0 ARR.**
 5. **Team:** demonstrated ability to ship secure, tested infrastructure;
    GTM/regulated-sales capability `[to be evidenced]`.
-6. **Ask:** $1.5–3.0M pre-seed to land 2–3 regulated design partners and the
-   first auditor acceptance, and to productionize (KMS, SDK, IAM bridge).
+6. **Ask:** $1.5–3.0M pre-seed to land 2–3 regulated design partners + the first
+   auditor acceptance, and to productionize (KMS, SDK, IAM bridge).
 7. **Opportunity:** own the accountability layer of the agent economy — a
-   standard + accumulated-evidence moat where you can re-platform code but
-   never re-witness history.
+   standard + accumulated-evidence moat where you can re-platform code but never
+   re-witness history.
 
 ---
 
-### Appendix — verify the technical claims yourself
+### Appendix A — verify the technical claims yourself
 ```bash
 cd aip-standalone && cargo test --workspace
-cargo run -p aip-protocol --example loan_approval        # build → verify → tamper-detect
-cargo run -p aip-protocol --example loan_approval > /tmp/p.txt   # real EvidencePacket
-cd ../aip-service && cargo test                          # auth, tenant isolation, HTTP export
+cargo run -p aip-protocol --example loan_approval          # build → verify → tamper-detect
+cd ../aip-service && cargo test                             # auth, tenant isolation, HTTP export
 # Offline auditor verification of a signed bundle:
-#   aip-verify bundle.zip [--report|--json|--trust <id>=<hex>]
+#   aip-verify bundle.zip [--report | --json | --trust <id>=<hex>]
 ```
-Source-of-truth documents: `AIP_SPEC.md`, `docs/AUDIT_EXPORT_SPEC.md`,
-`docs/PRODUCTION_READINESS.md`, `AUDIT_CORRECTIONS.md`,
-`docs/design_partner/`.
+### Appendix B — source-of-truth documents
+`AIP_SPEC.md` · `docs/AUDIT_EXPORT_SPEC.md` · `docs/PRODUCTION_READINESS.md` ·
+`AUDIT_CORRECTIONS.md` · `docs/STRATEGY_TRUST_INFRASTRUCTURE.md` ·
+`docs/design_partner/` · `docs/idex_open_challenge/`
+
+### Appendix C — items to complete before external use
+- §8 Team bios `[FOUNDER INPUT]`.
+- §3 market figures + §5 competitor funding/traction `[VERIFY with sources]`.
+- §3.4 EU AI Act dated milestones `[VERIFY against current text]`.
+- Entity/cap-table/financials (data room) `[FOUNDER INPUT]`.
