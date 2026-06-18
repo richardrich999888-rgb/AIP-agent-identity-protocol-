@@ -9,7 +9,8 @@
 
 | Field | Value |
 |---|---|
-| Legal name | Vanian Technologies Private Limited |
+| Owner / applicant | K. NAGA SRI GANESH |
+| Legal entity (if incorporated) | `[FILL IN]` |
 | CIN | `[FILL IN]` |
 | Registered address | `[FILL IN]` |
 | Date of incorporation | `[FILL IN]` |

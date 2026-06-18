@@ -1,6 +1,6 @@
 # AIP — iDEX Open Challenge Submission Package
 
-**Applicant:** Vanian Technologies Private Limited  `[FILL IN: CIN, registered address, DPIIT recognition no.]`
+**Applicant / Owner:** K. NAGA SRI GANESH  `[FILL IN: entity (if any), CIN, registered address, DPIIT recognition no.]`
 **Product:** AIP — Accountability Infrastructure for Autonomous AI
 **One line:** *Prove what an autonomous AI agent did, and who authorized it — verifiable offline, even on air-gapped networks.*
 
