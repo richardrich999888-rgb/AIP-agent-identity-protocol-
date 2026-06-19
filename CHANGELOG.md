@@ -7,6 +7,17 @@ versioning is [SemVer](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- **Signed audit-export bundle.** `GET /v1/evidence/{id}/export` returns a
+  portable `application/zip` (evidence, verification report JSON + Markdown,
+  authority graph JSON + DOT, manifest, Ed25519 bundle signature) for offline
+  verification by auditors/regulators. New `aip-protocol::bundle`
+  (`build_zip`/`verify_zip`), raw Ed25519 helpers in `aip-crypto`, and
+  `aip-verify bundle.zip` (PASS/WARNING/FAIL). Spec: `docs/AUDIT_EXPORT_SPEC.md`.
+  Tenant-scoped export (cross-tenant → 404); every tamper scenario flips a
+  named bundle check (tested in `aip-protocol/tests/bundle.rs` and an
+  in-process HTTP test).
+
+### Added (storage)
 - **PostgreSQL Evidence Vault backend.** New `EvidenceStore` trait with two
   implementations: `JsonlEvidenceStore` (the original append-only file) and
   `PostgresEvidenceStore` (feature `postgres`) — durable, transactional,

@@ -16,6 +16,23 @@ cargo install --path aip-standalone/aip-verify
 
 This installs the `aip-verify` binary onto your `PATH`.
 
+## Audit-export bundles
+
+`aip-verify` also verifies a full **audit-export bundle** (`.zip` from
+`GET /v1/evidence/{id}/export`) entirely offline:
+
+```bash
+aip-verify bundle.zip            # integrity + signature (PASS/WARNING/FAIL)
+aip-verify bundle.zip --report   # every check
+aip-verify bundle.zip --json     # machine-readable
+aip-verify bundle.zip --trust <authority-id>=<pubkey-hex>   # full authority verification
+```
+
+Zero-config (`aip-verify bundle.zip`) checks bundle structure, per-file
+hashes, the manifest signature, and packet integrity; without `--trust` keys
+the authority chain is reported as WARNING (not FAIL). See
+`docs/AUDIT_EXPORT_SPEC.md`.
+
 ## Usage
 
 ```bash

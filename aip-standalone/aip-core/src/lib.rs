@@ -621,10 +621,9 @@ pub fn calculate_reputation(
     // 1_000_000 — no rescaling is needed. (The previous `* 10_000` rescale
     // overflowed u32 for claim values ≥ ~430K; see AUDIT_CORRECTIONS.md.)
     let score = |sum: u64, weight: u64| -> u32 {
-        if weight > 0 {
-            ((sum / weight) as u32).min(1_000_000)
-        } else {
-            500_000 // Default 50%
+        match sum.checked_div(weight) {
+            Some(v) => (v as u32).min(1_000_000),
+            None => 500_000, // weight == 0 → default 50%
         }
     };
 

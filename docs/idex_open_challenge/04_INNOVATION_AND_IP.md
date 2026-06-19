@@ -36,7 +36,7 @@ single verifiable artifact.**
 
 ## 3. Indigenous content & sovereignty
 
-- Designed and implemented in India by Vanian Technologies Private Limited.
+- Designed and implemented in India by K. NAGA SRI GANESH (owner).
 - Core depends only on standard, open cryptography (Ed25519, SHA-256) via
   permissively licensed libraries; **no foreign cloud, no foreign licensing
   in the trust path**, no call-home.
@@ -48,8 +48,8 @@ single verifiable artifact.**
 
 ## 4. Intellectual property status
 
-- **Copyright:** original source in this repository, owned by Vanian
-  Technologies Private Limited.
+- **Copyright:** original source in this repository, owned by
+  K. NAGA SRI GANESH.
 - **Patents:** provisional filings exist relating to delegation-bound,
   scope-constrained audit binding. **Honest note:** several broader
   mechanism claims face meaningful prior art (capability tokens/macaroons,

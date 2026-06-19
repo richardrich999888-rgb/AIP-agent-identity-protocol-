@@ -2,6 +2,7 @@
 name        = "airon-aip"
 version     = "0.2.0"
 edition     = "2021"
+license     = "LicenseRef-Proprietary"
 description = "AIRON Trust Pipeline — agent identity and token issuance (Ed25519 / EdDSA)"
 
 [[bin]]
@@ -53,4 +54,8 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 # ── PostgreSQL backend (optional, behind the `postgres` feature) ──
 tokio-postgres     = { version = "0.7", optional = true }
 deadpool-postgres  = { version = "0.14", optional = true }
+
+[dev-dependencies]
+# In-process router testing (oneshot).
+tower = { version = "0.5", features = ["util"] }
 

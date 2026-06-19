@@ -96,6 +96,33 @@ pub fn validate_aip_id(id: &str) -> Result<(), aip_types::AipError> {
     Err(aip_types::AipError::InvalidChecksum)
 }
 
+/// Sign a message with raw Ed25519 (no AIP envelope) — the detached 64-byte
+/// signature over `msg` exactly. Used for signing audit-export manifests so
+/// the signature can be verified offline with only the public key + bytes.
+pub fn sign_ed25519_raw(private_key: &[u8], msg: &[u8]) -> Result<[u8; 64], aip_types::AipError> {
+    if private_key.len() != 32 {
+        return Err(aip_types::AipError::InvalidPublicKey);
+    }
+    let signing_key = SigningKey::from_bytes(
+        private_key
+            .try_into()
+            .map_err(|_| aip_types::AipError::InvalidPublicKey)?,
+    );
+    Ok(signing_key.sign(msg).to_bytes())
+}
+
+/// Verify a raw Ed25519 detached signature over `msg`.
+pub fn verify_ed25519_raw(public_key: &[u8], msg: &[u8], sig: &[u8; 64]) -> bool {
+    let Ok(key_arr): Result<[u8; 32], _> = public_key.try_into() else {
+        return false;
+    };
+    let Ok(verifying_key) = VerifyingKey::from_bytes(&key_arr) else {
+        return false;
+    };
+    let signature = ed25519_dalek::Signature::from_bytes(sig);
+    verifying_key.verify(msg, &signature).is_ok()
+}
+
 /// Sign a payload with Ed25519.
 pub fn sign_ed25519(
     private_key: &[u8],
@@ -265,5 +292,18 @@ mod tests {
         let internal = merkle_internal(&leaf, &empty);
         assert_ne!(leaf, empty);
         assert_ne!(internal, leaf);
+    }
+
+    #[test]
+    fn test_raw_sign_verify_roundtrip() {
+        let kp = generate_ed25519_keypair();
+        let msg = b"audit-export manifest bytes";
+        let sig = sign_ed25519_raw(&kp.private_key, msg).unwrap();
+        assert!(verify_ed25519_raw(&kp.public_key, msg, &sig));
+        // Wrong message fails.
+        assert!(!verify_ed25519_raw(&kp.public_key, b"different", &sig));
+        // Wrong key fails.
+        let other = generate_ed25519_keypair();
+        assert!(!verify_ed25519_raw(&other.public_key, msg, &sig));
     }
 }

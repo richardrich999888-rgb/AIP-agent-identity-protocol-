@@ -130,9 +130,9 @@ this README is backed by code you can run and tests you can read.
 ## License
 
 Core protocol and reference implementation: proprietary
-(Vanian Technologies Private Limited) — **open-sourcing of the spec and core
+(owner: **K. NAGA SRI GANESH**) — **open-sourcing of the spec and core
 crates is planned**; see `ROADMAP.md`. Patent matters: provisional filings
 exist covering delegation-bound audit binding; see `reports_and_patents/`
 (attorney working documents).
 
-© 2025–2026 Vanian Technologies Private Limited.
+© 2025–2026 K. NAGA SRI GANESH.

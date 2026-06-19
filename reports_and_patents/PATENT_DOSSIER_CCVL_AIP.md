@@ -1,12 +1,12 @@
 # PATENT DOSSIER: CCVL & AIP
 ## Cross-Channel Verification Logic (CCVL) + Agent Identity Protocol (AIP)
-### Prepared for Patent Attorney | Vanian Technologies Private Limited
+### Prepared for Patent Attorney | K. NAGA SRI GANESH
 
 ---
 
 **Document Version:** 1.0
 **Date:** March 14, 2026
-**Prepared By:** AIRON Engineering, Vanian Technologies Pvt. Ltd.
+**Prepared By:** K. NAGA SRI GANESH
 **Classification:** ATTORNEY–CLIENT PRIVILEGED / CONFIDENTIAL
 **Filing Jurisdiction:** Indian Patent Office (CRI 2025) + USPTO (35 USC §101/§103)
 
@@ -46,7 +46,7 @@
 
 ## 1. EXECUTIVE SUMMARY
 
-This dossier covers two independent but synergistic inventions developed by Vanian Technologies for the AIRON AI Safety Platform:
+This dossier covers two independent but synergistic inventions developed by K. NAGA SRI GANESH for the AIRON AI Safety Platform:
 
 ### Invention 1: CCVL (Cross-Channel Verification Logic)
 
@@ -1140,7 +1140,7 @@ Complete test output logs available on request. Summary:
 
 ## 11. AIP PROTOCOL SPECIFICATION v0.3.0 — 10 NOVEL MECHANISMS
 
-The AIP Protocol Spec v0.3.0 (February 2026, SYNTRIASS Labs / Vanian Technologies) identifies **ten novel mechanisms (NM-1 through NM-10)** that address fundamental gaps in prior art (SPIFFE, UCAN, Macaroons, W3C DIDs, OAuth/OIDC agent extensions):
+The AIP Protocol Spec v0.3.0 (February 2026, K. NAGA SRI GANESH) identifies **ten novel mechanisms (NM-1 through NM-10)** that address fundamental gaps in prior art (SPIFFE, UCAN, Macaroons, W3C DIDs, OAuth/OIDC agent extensions):
 
 ### NM-1: Computational Provenance Binding
 - **Spec section:** §4.2.1
@@ -1663,6 +1663,6 @@ Both CCVL and AIP present **exceptionally strong patent applications** with:
 
 *END OF DOSSIER*
 
-**Prepared by:** AIRON Engineering Team, Vanian Technologies Pvt. Ltd.
+**Prepared by:** K. NAGA SRI GANESH
 **Date:** March 14, 2026
 **Status:** Ready for attorney review and filing preparation

@@ -17,6 +17,7 @@ use std::process::ExitCode;
 
 use clap::Parser;
 
+use aip_protocol::bundle::{verify_zip, BundleStatus};
 use aip_protocol::{verify_packet, EvidencePacket, VerificationContext};
 
 #[derive(Parser, Debug)]
@@ -26,7 +27,7 @@ use aip_protocol::{verify_packet, EvidencePacket, VerificationContext};
     version
 )]
 struct Cli {
-    /// Path to the EvidencePacket JSON file.
+    /// Path to an EvidencePacket JSON file OR an audit-export bundle (.zip).
     packet: String,
 
     /// Trusted issuer key, repeatable: `--trust <aip_id>=<pubkey_hex>`.
@@ -71,12 +72,7 @@ fn parse_kv(pairs: &[String], what: &str) -> Result<HashMap<String, Vec<u8>>, St
     Ok(map)
 }
 
-fn run(cli: &Cli) -> Result<bool, String> {
-    let raw = std::fs::read_to_string(&cli.packet)
-        .map_err(|e| format!("cannot read {}: {e}", cli.packet))?;
-    let packet = EvidencePacket::from_json(&raw)
-        .map_err(|e| format!("{} is not a valid EvidencePacket: {e}", cli.packet))?;
-
+fn build_ctx(cli: &Cli) -> Result<VerificationContext, String> {
     let mut ctx = VerificationContext::new();
     ctx.issuer_public_keys = parse_kv(&cli.trust, "trust")?;
     ctx.counterparty_public_keys = parse_kv(&cli.counterparty, "counterparty")?;
@@ -99,7 +95,62 @@ fn run(cli: &Cli) -> Result<bool, String> {
     if let Some(path) = &cli.receipt_data {
         ctx.receipt_data = Some(std::fs::read(path).map_err(|e| format!("receipt-data: {e}"))?);
     }
+    Ok(ctx)
+}
 
+fn is_zip(bytes: &[u8]) -> bool {
+    bytes.starts_with(b"PK\x03\x04") || bytes.starts_with(b"PK\x05\x06")
+}
+
+/// Verify an audit-export bundle. Returns true unless any check FAILed.
+fn run_bundle(cli: &Cli, bytes: &[u8]) -> Result<bool, String> {
+    let ctx = build_ctx(cli)?;
+    let v = verify_zip(bytes, &ctx);
+
+    if cli.json {
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&v).map_err(|e| format!("serialize: {e}"))?
+        );
+        return Ok(v.overall != BundleStatus::Fail);
+    }
+
+    println!("bundle:      {}", cli.packet);
+    println!("bundle_id:   {}", v.bundle_id);
+    println!("packet_id:   {}", v.packet_id);
+    println!("signer_fp:   {}", v.signer_fingerprint);
+    println!("result:      {:?}", v.overall);
+    if cli.trust.is_empty() {
+        println!(
+            "note:        no --trust keys supplied; the authority chain is not \
+             verified (WARNING). Bundle integrity + signature are still checked."
+        );
+    }
+    if cli.report || v.overall != BundleStatus::Pass {
+        println!("\nchecks:");
+        for c in &v.checks {
+            println!("  [{:?}] {:<20} {}", c.status, c.name, c.detail);
+        }
+    }
+    Ok(v.overall != BundleStatus::Fail)
+}
+
+fn run(cli: &Cli) -> Result<bool, String> {
+    let bytes =
+        std::fs::read(&cli.packet).map_err(|e| format!("cannot read {}: {e}", cli.packet))?;
+
+    // An audit-export bundle (.zip) is verified end to end; otherwise treat the
+    // input as a bare EvidencePacket JSON.
+    if is_zip(&bytes) || cli.packet.ends_with(".zip") {
+        return run_bundle(cli, &bytes);
+    }
+
+    let raw = String::from_utf8(bytes)
+        .map_err(|_| format!("{} is neither a zip bundle nor UTF-8 JSON", cli.packet))?;
+    let packet = EvidencePacket::from_json(&raw)
+        .map_err(|e| format!("{} is not a valid EvidencePacket: {e}", cli.packet))?;
+
+    let ctx = build_ctx(cli)?;
     let report = verify_packet(&packet, &ctx);
 
     if cli.json {

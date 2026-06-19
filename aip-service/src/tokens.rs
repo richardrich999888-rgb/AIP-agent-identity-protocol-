@@ -274,7 +274,7 @@ mod tests {
         let mut meta = serde_json::Map::new();
         meta.insert(
             "org".to_owned(),
-            serde_json::Value::String("vanian".to_owned()),
+            serde_json::Value::String("example-org".to_owned()),
         );
         meta.insert("tier".to_owned(), serde_json::Value::Number(1.into()));
 
@@ -290,7 +290,7 @@ mod tests {
         let meta_back = token_data.claims.meta.unwrap();
         assert_eq!(
             meta_back.get("org").and_then(|v| v.as_str()),
-            Some("vanian")
+            Some("example-org")
         );
     }
 

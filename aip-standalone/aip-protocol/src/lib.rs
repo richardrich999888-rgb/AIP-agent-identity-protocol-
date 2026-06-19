@@ -29,12 +29,16 @@
 //! The wire format is specified in `AIP_SPEC.md` at the repository root.
 
 pub mod accountability_graph;
+pub mod bundle;
 mod canonical;
 pub mod evidence_packet;
 pub mod verification;
 pub mod verification_report;
 
 pub use accountability_graph::{AccountabilityGraph, GraphEdge, GraphNode, NodeKind, Relation};
+pub use bundle::{
+    build_zip, verify_zip, BundleManifest, BundleStatus, BundleVerification, BUNDLE_SCHEMA_VERSION,
+};
 pub use evidence_packet::{
     ActionAttestation, AgentIdentitySummary, DecisionRecord, EvidencePacket, EvidencePacketBuilder,
     ReceiptBinding, RootAuthority, TraceBinding, TrustFloor, PACKET_MAGIC, PACKET_VERSION,
