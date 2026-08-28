@@ -1,0 +1,502 @@
+{
+  "standard": "ASC-SENTINEL-MISSION-DOSSIER-v1",
+  "generatedAtUtc": "2026-08-27T05:31:01.386Z",
+  "agent": {
+    "identity": {
+      "agentId": "AGT-0481-JARVIS",
+      "did": "did:syntriass:agent:AGT-0481-JARVIS",
+      "agentName": "JARVIS Tactical Copilot",
+      "organization": "DEFENCE_SPACE_AGENCY",
+      "modelEngine": "groq-fast",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "systemPromptHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "enclaveType": "SOFTWARE_SANDBOX",
+      "department": "TACTICAL_C2",
+      "clearanceLevel": "SECRET",
+      "supervisorOperatorId": "CONSOLE-OPERATOR",
+      "supervisorDid": "did:syntriass:officer:CONSOLE-OPERATOR",
+      "assignedPermissions": [
+        "NAVIGATE_CAMERA",
+        "ANNOTATE",
+        "READ_SENSORS",
+        "SCREEN_CONJUNCTIONS",
+        "PLAN_MANEUVER"
+      ],
+      "requiresDualKeyAuthorization": [],
+      "revocationStatus": "ACTIVE",
+      "issuedAtUtc": "2026-08-27T05:31:01.377Z",
+      "expiresAtUtc": "2026-08-27T17:31:01.377Z",
+      "credentialSignature": "a8c66540e6d9abd4389ca69ef6bcdadc00ac75fc5bc18e947a4164dcb6b1a632"
+    },
+    "genesisAttestation": {
+      "anchorId": "deaa508d-7ed0-4dde-a57b-ac47539a33d3",
+      "sequenceNumber": 1,
+      "anchorType": "AGENT_GENESIS",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "actorDid": "did:syntriass:officer:CONSOLE-OPERATOR",
+      "timestampUtc": "2026-08-27T05:31:01.378Z",
+      "payload": {
+        "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "systemPromptHash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "modelEngine": "groq-fast",
+        "organization": "DEFENCE_SPACE_AGENCY",
+        "enclaveType": "SOFTWARE_SANDBOX"
+      },
+      "previousAnchorHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "anchorHash": "70e09e2c762c8dd7a33b39862c23498740e6dcd6649a77cee7b5c195015dca14"
+    }
+  },
+  "lifecycleAnchors": [
+    {
+      "anchorId": "deaa508d-7ed0-4dde-a57b-ac47539a33d3",
+      "sequenceNumber": 1,
+      "anchorType": "AGENT_GENESIS",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "actorDid": "did:syntriass:officer:CONSOLE-OPERATOR",
+      "timestampUtc": "2026-08-27T05:31:01.378Z",
+      "payload": {
+        "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "systemPromptHash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "modelEngine": "groq-fast",
+        "organization": "DEFENCE_SPACE_AGENCY",
+        "enclaveType": "SOFTWARE_SANDBOX"
+      },
+      "previousAnchorHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "anchorHash": "70e09e2c762c8dd7a33b39862c23498740e6dcd6649a77cee7b5c195015dca14"
+    },
+    {
+      "anchorId": "ecfc410f-8f0a-45a5-b451-d65c4f1cad28",
+      "sequenceNumber": 2,
+      "anchorType": "SUPERVISOR_DELEGATION",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "actorDid": "did:syntriass:officer:CONSOLE-OPERATOR",
+      "timestampUtc": "2026-08-27T05:31:01.379Z",
+      "payload": {
+        "scope": [
+          "fly_to_location",
+          "orbit_entity",
+          "cockpit_mode",
+          "set_shader_mode",
+          "toggle_data_layer",
+          "annotate_bounding_box",
+          "get_nearby_contacts",
+          "screen_conjunction_threats",
+          "compute_avoidance_maneuver"
+        ],
+        "multiSigTools": [],
+        "clearanceLevel": "SECRET"
+      },
+      "previousAnchorHash": "70e09e2c762c8dd7a33b39862c23498740e6dcd6649a77cee7b5c195015dca14",
+      "anchorHash": "3ab20b23ce71e3dcb17dcbe67bc758e9a70a8dcd6bae4b0e0512047ed68007a8"
+    },
+    {
+      "anchorId": "bdd19b07-b572-4e9f-a3d7-399f37e5d910",
+      "sequenceNumber": 3,
+      "anchorType": "CAPABILITY_MODULATION",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "actorDid": "did:syntriass:officer:CONSOLE-OPERATOR",
+      "timestampUtc": "2026-08-27T05:31:01.380Z",
+      "payload": {
+        "toolsGranted": [
+          "fly_to_location",
+          "orbit_entity",
+          "cockpit_mode",
+          "set_shader_mode",
+          "toggle_data_layer",
+          "annotate_bounding_box",
+          "get_nearby_contacts",
+          "screen_conjunction_threats",
+          "compute_avoidance_maneuver"
+        ],
+        "note": "session grant: the nine tactical verbs; maneuver execution excluded"
+      },
+      "previousAnchorHash": "3ab20b23ce71e3dcb17dcbe67bc758e9a70a8dcd6bae4b0e0512047ed68007a8",
+      "anchorHash": "dcd2d08ba767dba56a20122c679010f7a2ded0dff619bc23c519858cf6206b88"
+    },
+    {
+      "anchorId": "6905275c-7922-4de3-a3aa-c3517b5427aa",
+      "sequenceNumber": 4,
+      "anchorType": "ACTION_EXECUTION_SEAL",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "actorDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "timestampUtc": "2026-08-27T05:31:01.382Z",
+      "payload": {
+        "packetId": "13e64ed9-ca48-4bbe-9d66-c792f1019961",
+        "packetHash": "5fb705ccbdf0fc81d96e7842c74dd2c10f5f4983e7410179df974f6aff6420f6",
+        "status": "SUCCESS"
+      },
+      "previousAnchorHash": "dcd2d08ba767dba56a20122c679010f7a2ded0dff619bc23c519858cf6206b88",
+      "anchorHash": "40526480e8f5c494235843bad3693089c3f83234966476de3ae1a7a23eefc56b"
+    },
+    {
+      "anchorId": "3b507a7b-fe24-44ed-a92e-1aa1c5ef841d",
+      "sequenceNumber": 5,
+      "anchorType": "ACTION_EXECUTION_SEAL",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "actorDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "timestampUtc": "2026-08-27T05:31:01.384Z",
+      "payload": {
+        "packetId": "9184d229-6a2a-4147-af87-8ef63b6972ed",
+        "packetHash": "bed39b526bcf82d9f34e459217c416f0285f51844e107a517988798f1642949a",
+        "status": "SUCCESS"
+      },
+      "previousAnchorHash": "40526480e8f5c494235843bad3693089c3f83234966476de3ae1a7a23eefc56b",
+      "anchorHash": "40dc03e98aee99679dbf73622f65b2554e7198a66b2b1cc20d593a17e0852d61"
+    },
+    {
+      "anchorId": "83b3702a-4634-43fc-9543-c5317e082402",
+      "sequenceNumber": 6,
+      "anchorType": "ACTION_EXECUTION_SEAL",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "actorDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "timestampUtc": "2026-08-27T05:31:01.385Z",
+      "payload": {
+        "packetId": "7d686fb5-2c16-41fa-890d-b0cb851b0a6b",
+        "packetHash": "b36d306050d17f676d86c5587678ac14d216a8e98b183f9e47c80b4b78d2ab6d",
+        "status": "SUCCESS"
+      },
+      "previousAnchorHash": "40dc03e98aee99679dbf73622f65b2554e7198a66b2b1cc20d593a17e0852d61",
+      "anchorHash": "103abd5e4ebf9958a57a9790bbe28e87d66ccb04e8b692111b862e55494feac8"
+    }
+  ],
+  "evidencePackets": [
+    {
+      "id": "13e64ed9-ca48-4bbe-9d66-c792f1019961",
+      "sequenceNumber": 1,
+      "timestampUtc": "2026-08-27T05:31:01.382Z",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "anchorHash": "dcd2d08ba767dba56a20122c679010f7a2ded0dff619bc23c519858cf6206b88",
+      "delegationPath": [
+        "did:syntriass:officer:CONSOLE-OPERATOR",
+        "did:syntriass:agent:AGT-0481-JARVIS"
+      ],
+      "edgeId": "24aac823-64ea-441c-9169-23b60132f683",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "rawPrompt": "jarvis, take me to hormuz",
+      "toolExecuted": {
+        "name": "fly_to_location",
+        "inputParams": {
+          "query": "strait of hormuz"
+        },
+        "status": "SUCCESS"
+      },
+      "preStateHash": "9c2bab954b88e23b583c341b70d53ad9a35bad47b9d7a48418dd0f1127589fcb",
+      "postStateHash": "9c2bab954b88e23b583c341b70d53ad9a35bad47b9d7a48418dd0f1127589fcb",
+      "previousPacketHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "packetHash": "5fb705ccbdf0fc81d96e7842c74dd2c10f5f4983e7410179df974f6aff6420f6"
+    },
+    {
+      "id": "9184d229-6a2a-4147-af87-8ef63b6972ed",
+      "sequenceNumber": 2,
+      "timestampUtc": "2026-08-27T05:31:01.383Z",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "anchorHash": "40526480e8f5c494235843bad3693089c3f83234966476de3ae1a7a23eefc56b",
+      "delegationPath": [
+        "did:syntriass:officer:CONSOLE-OPERATOR",
+        "did:syntriass:agent:AGT-0481-JARVIS"
+      ],
+      "edgeId": "24aac823-64ea-441c-9169-23b60132f683",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "rawPrompt": "switch to thermal",
+      "toolExecuted": {
+        "name": "set_shader_mode",
+        "inputParams": {
+          "mode": "flir"
+        },
+        "status": "SUCCESS"
+      },
+      "preStateHash": "9c2bab954b88e23b583c341b70d53ad9a35bad47b9d7a48418dd0f1127589fcb",
+      "postStateHash": "9c2bab954b88e23b583c341b70d53ad9a35bad47b9d7a48418dd0f1127589fcb",
+      "previousPacketHash": "5fb705ccbdf0fc81d96e7842c74dd2c10f5f4983e7410179df974f6aff6420f6",
+      "packetHash": "bed39b526bcf82d9f34e459217c416f0285f51844e107a517988798f1642949a"
+    },
+    {
+      "id": "7d686fb5-2c16-41fa-890d-b0cb851b0a6b",
+      "sequenceNumber": 3,
+      "timestampUtc": "2026-08-27T05:31:01.385Z",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "anchorHash": "40dc03e98aee99679dbf73622f65b2554e7198a66b2b1cc20d593a17e0852d61",
+      "delegationPath": [
+        "did:syntriass:officer:CONSOLE-OPERATOR",
+        "did:syntriass:agent:AGT-0481-JARVIS"
+      ],
+      "edgeId": "24aac823-64ea-441c-9169-23b60132f683",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "rawPrompt": "screen the catalog",
+      "toolExecuted": {
+        "name": "screen_conjunction_threats",
+        "inputParams": {},
+        "status": "SUCCESS"
+      },
+      "preStateHash": "9c2bab954b88e23b583c341b70d53ad9a35bad47b9d7a48418dd0f1127589fcb",
+      "postStateHash": "9c2bab954b88e23b583c341b70d53ad9a35bad47b9d7a48418dd0f1127589fcb",
+      "previousPacketHash": "bed39b526bcf82d9f34e459217c416f0285f51844e107a517988798f1642949a",
+      "packetHash": "b36d306050d17f676d86c5587678ac14d216a8e98b183f9e47c80b4b78d2ab6d"
+    }
+  ],
+  "actionLedger": [
+    {
+      "agentId": "AGT-0481-JARVIS",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "supervisorId": "CONSOLE-OPERATOR",
+      "rawPrompt": "jarvis, take me to hormuz",
+      "interpretedIntent": "fly_to_location",
+      "toolExecuted": {
+        "name": "fly_to_location",
+        "inputParams": {
+          "query": "strait of hormuz"
+        },
+        "executionStatus": "SUCCESS"
+      },
+      "preExecutionState": {
+        "cameraCoords": [
+          78.9,
+          20.5,
+          12000000
+        ],
+        "activeShader": "flir",
+        "selectedTargetId": "SPACE-25544"
+      },
+      "postExecutionState": {
+        "cameraCoords": [
+          78.9,
+          20.5,
+          12000000
+        ],
+        "activeShader": "flir",
+        "selectedTargetId": "SPACE-25544"
+      },
+      "eventId": "04fdc3f1-9fb5-4141-a231-9b444a368802",
+      "sequenceNumber": 1,
+      "timestampUtc": "2026-08-27T05:31:01.383Z",
+      "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "chainHash": "b491f4093eeedc9a5c8864eae306a542d34b3fdec746f0f038bd81b812b1862c"
+    },
+    {
+      "agentId": "AGT-0481-JARVIS",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "supervisorId": "CONSOLE-OPERATOR",
+      "rawPrompt": "switch to thermal",
+      "interpretedIntent": "set_shader_mode",
+      "toolExecuted": {
+        "name": "set_shader_mode",
+        "inputParams": {
+          "mode": "flir"
+        },
+        "executionStatus": "SUCCESS"
+      },
+      "preExecutionState": {
+        "cameraCoords": [
+          78.9,
+          20.5,
+          12000000
+        ],
+        "activeShader": "flir",
+        "selectedTargetId": "SPACE-25544"
+      },
+      "postExecutionState": {
+        "cameraCoords": [
+          78.9,
+          20.5,
+          12000000
+        ],
+        "activeShader": "flir",
+        "selectedTargetId": "SPACE-25544"
+      },
+      "eventId": "a41149ad-8f0f-4e6b-9133-ba5f554d8d0f",
+      "sequenceNumber": 2,
+      "timestampUtc": "2026-08-27T05:31:01.384Z",
+      "previousHash": "b491f4093eeedc9a5c8864eae306a542d34b3fdec746f0f038bd81b812b1862c",
+      "chainHash": "1f59ffcafe0590f1853a5e3be838000107589dc34a0411f9c4e94b8c8c207519"
+    },
+    {
+      "agentId": "AGT-0481-JARVIS",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "supervisorId": "CONSOLE-OPERATOR",
+      "rawPrompt": "screen the catalog",
+      "interpretedIntent": "screen_conjunction_threats",
+      "toolExecuted": {
+        "name": "screen_conjunction_threats",
+        "inputParams": {},
+        "executionStatus": "SUCCESS"
+      },
+      "preExecutionState": {
+        "cameraCoords": [
+          78.9,
+          20.5,
+          12000000
+        ],
+        "activeShader": "flir",
+        "selectedTargetId": "SPACE-25544"
+      },
+      "postExecutionState": {
+        "cameraCoords": [
+          78.9,
+          20.5,
+          12000000
+        ],
+        "activeShader": "flir",
+        "selectedTargetId": "SPACE-25544"
+      },
+      "eventId": "27286063-c747-460d-86b5-0023121f529d",
+      "sequenceNumber": 3,
+      "timestampUtc": "2026-08-27T05:31:01.385Z",
+      "previousHash": "1f59ffcafe0590f1853a5e3be838000107589dc34a0411f9c4e94b8c8c207519",
+      "chainHash": "c8cbe4d7bdaf6512c1b8cb52f5fb213f3adb3d87d520e1f95b09ac366411882b"
+    },
+    {
+      "agentId": "AGT-0481-JARVIS",
+      "agentDid": "did:syntriass:agent:AGT-0481-JARVIS",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "supervisorId": "CONSOLE-OPERATOR",
+      "rawPrompt": "execute the burn",
+      "interpretedIntent": "execute_maneuver",
+      "toolExecuted": {
+        "name": "execute_maneuver",
+        "inputParams": {},
+        "executionStatus": "BLOCKED_BY_POLICY",
+        "errorMessage": "REJECTED_POLICY_VIOLATION PERMISSION_NOT_GRANTED: tool \"execute_maneuver\" requires permission \"EXECUTE_MANEUVER\", which AGT-0481-JARVIS does not hold"
+      },
+      "preExecutionState": {
+        "cameraCoords": [
+          78.9,
+          20.5,
+          12000000
+        ],
+        "activeShader": "flir",
+        "selectedTargetId": "SPACE-25544"
+      },
+      "eventId": "7ef79051-90a5-4922-9c12-fa0890838abc",
+      "sequenceNumber": 4,
+      "timestampUtc": "2026-08-27T05:31:01.386Z",
+      "previousHash": "c8cbe4d7bdaf6512c1b8cb52f5fb213f3adb3d87d520e1f95b09ac366411882b",
+      "chainHash": "680e18c1eddff43e5feac2f80134efe562405a5c27ea5654fdd9e2466fcb42ab"
+    }
+  ],
+  "verification": {
+    "actionChain": {
+      "valid": true,
+      "entries": 4
+    }
+  },
+  "complianceMatrix": {
+    "standardsVersions": {
+      "nistAiRmf": "NIST AI 100-1 (AI RMF 1.0)",
+      "euAiAct": "Regulation (EU) 2024/1689",
+      "iso42001": "ISO/IEC 42001:2023"
+    },
+    "controls": [
+      {
+        "sequenceNumber": 1,
+        "toolName": "fly_to_location",
+        "executionStatus": "SUCCESS",
+        "timestampUtc": "2026-08-27T05:31:01.382Z",
+        "nistAiRmf": {
+          "functions": [
+            "GOVERN-1.2",
+            "MAP-1.5"
+          ],
+          "rationale": "executed under a signed credential with a named human supervisor, sealed into a hash-chained ledger"
+        },
+        "euAiAct": {
+          "articles": [
+            "Article 12 (Record-Keeping)"
+          ],
+          "conformityStatus": "CONFORMANT"
+        },
+        "iso42001": {
+          "clauses": [
+            "Clause 9 (Performance & Audit)"
+          ]
+        },
+        "auditProofHash": "5fb705ccbdf0fc81d96e7842c74dd2c10f5f4983e7410179df974f6aff6420f6"
+      },
+      {
+        "sequenceNumber": 2,
+        "toolName": "set_shader_mode",
+        "executionStatus": "SUCCESS",
+        "timestampUtc": "2026-08-27T05:31:01.383Z",
+        "nistAiRmf": {
+          "functions": [
+            "GOVERN-1.2",
+            "MAP-1.5"
+          ],
+          "rationale": "executed under a signed credential with a named human supervisor, sealed into a hash-chained ledger"
+        },
+        "euAiAct": {
+          "articles": [
+            "Article 12 (Record-Keeping)"
+          ],
+          "conformityStatus": "CONFORMANT"
+        },
+        "iso42001": {
+          "clauses": [
+            "Clause 9 (Performance & Audit)"
+          ]
+        },
+        "auditProofHash": "bed39b526bcf82d9f34e459217c416f0285f51844e107a517988798f1642949a"
+      },
+      {
+        "sequenceNumber": 3,
+        "toolName": "screen_conjunction_threats",
+        "executionStatus": "SUCCESS",
+        "timestampUtc": "2026-08-27T05:31:01.385Z",
+        "nistAiRmf": {
+          "functions": [
+            "GOVERN-1.2",
+            "MAP-1.5",
+            "MEASURE-2.4"
+          ],
+          "rationale": "executed under a signed credential with a named human supervisor, sealed into a hash-chained ledger; performs risk measurement over the operational picture"
+        },
+        "euAiAct": {
+          "articles": [
+            "Article 12 (Record-Keeping)",
+            "Article 9 (Risk Management)"
+          ],
+          "conformityStatus": "CONFORMANT"
+        },
+        "iso42001": {
+          "clauses": [
+            "Clause 9 (Performance & Audit)",
+            "Clause 6 (Risk Treatment)"
+          ]
+        },
+        "auditProofHash": "b36d306050d17f676d86c5587678ac14d216a8e98b183f9e47c80b4b78d2ab6d"
+      }
+    ],
+    "aggregated": {
+      "nistAiRmfFunctions": [
+        "GOVERN-1.2",
+        "MAP-1.5",
+        "MEASURE-2.4"
+      ],
+      "euAiActArticles": [
+        "Article 12 (Record-Keeping)",
+        "Article 9 (Risk Management)"
+      ],
+      "iso42001Clauses": [
+        "Clause 9 (Performance & Audit)",
+        "Clause 6 (Risk Treatment)"
+      ]
+    },
+    "humanOversight": {
+      "supervisorDid": "did:syntriass:officer:CONSOLE-OPERATOR",
+      "coSignedActions": 0,
+      "blockedByPolicy": 0,
+      "totalActions": 3
+    },
+    "attestationDigests": [
+      "5fb705ccbdf0fc81d96e7842c74dd2c10f5f4983e7410179df974f6aff6420f6",
+      "bed39b526bcf82d9f34e459217c416f0285f51844e107a517988798f1642949a",
+      "b36d306050d17f676d86c5587678ac14d216a8e98b183f9e47c80b4b78d2ab6d"
+    ]
+  },
+  "certification": {
+    "algorithm": "SHA-256 over canonical JSON (sorted keys)",
+    "rootDigest": "f0dd1a74e282473c66811728d850d695cc59803363f88de8f2d3740291192da9"
+  }
+}

@@ -1,0 +1,148 @@
+[workspace]
+resolver = "2"
+members = [
+    # ── Layer 1: Core domain ──────────────────────────────────────────────
+    "crates/ot-core",
+    # ── Layer 2: Propagation ──────────────────────────────────────────────
+    "crates/ot-propagator",
+    # ── Layer 3: Analysis & avoidance ─────────────────────────────────────
+    "crates/ot-od",
+    "crates/ot-intent",
+    "crates/ot-collision-prob",
+    "crates/ot-avoidance",
+    "crates/ot-cascade",
+    "crates/ot-deorbit",
+    "crates/ot-suborbital",
+    # ── Layer 4: Data provenance & space weather ──────────────────────────
+    "crates/ot-data",
+    "crates/ot-weather",
+    # ── Layer 5/6: Security, PQC & CBOM ───────────────────────────────────
+    "crates/ot-pqc",
+    # ── Layer 7: Trust, receipts & deterministic replay ───────────────────
+    "crates/ot-lifetime",
+    "crates/ot-trust",
+    "crates/ot-consensus",
+    # ── Layer 8: Plugins, bridge & REST/WebSocket API ─────────────────────
+    "crates/ot-bridge",
+    "crates/ot-api",
+    # ── Support: export, ops, simulation harness ──────────────────────────
+    "crates/ot-export",
+    "crates/ot-ops",
+    "crates/ot-sim",
+    # ── Offline audit tooling ─────────────────────────────────────────────
+    "crates/ot-accountability-core",
+    "crates/ot-verifier",
+    # ── Governed agent runtime boundary ───────────────────────────────────
+    "crates/ot-mcp-gateway",
+    "crates/ot-sentinel",
+]
+# The sovereign SDA/PQC/C2 overlay is a self-contained parallel workspace kept
+# side-by-side with this one; it is excluded so the two build independently.
+exclude = ["sovereign-overlay"]
+
+[workspace.package]
+edition = "2021"
+version = "0.2.0"
+authors = ["Vanian Technologies Private Limited"]
+license = "Proprietary"
+repository = "https://github.com/richardrich999888-rgb/ASC-space"
+rust-version = "1.85"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Unified dependency versions.
+#
+# Every crate in the workspace inherits its third-party dependency versions
+# from here so that serialization (`serde`), error handling (`thiserror`),
+# logging (`tracing`), and schema generation (`utoipa`) are guaranteed to be
+# identical across crate boundaries.  This is what makes the deterministic
+# replay guarantee (Layer 7) hold: a single `serde_json` version means a
+# single canonical byte encoding.
+# ─────────────────────────────────────────────────────────────────────────────
+[workspace.dependencies]
+# ── Internal crates ───────────────────────────────────────────────────────
+ot-core = { path = "crates/ot-core" }
+ot-propagator = { path = "crates/ot-propagator" }
+ot-od = { path = "crates/ot-od" }
+ot-intent = { path = "crates/ot-intent" }
+ot-collision-prob = { path = "crates/ot-collision-prob" }
+ot-avoidance = { path = "crates/ot-avoidance" }
+ot-cascade = { path = "crates/ot-cascade" }
+ot-deorbit = { path = "crates/ot-deorbit" }
+ot-suborbital = { path = "crates/ot-suborbital" }
+ot-data = { path = "crates/ot-data" }
+ot-weather = { path = "crates/ot-weather" }
+ot-pqc = { path = "crates/ot-pqc" }
+ot-lifetime = { path = "crates/ot-lifetime" }
+ot-trust = { path = "crates/ot-trust" }
+ot-consensus = { path = "crates/ot-consensus" }
+ot-bridge = { path = "crates/ot-bridge" }
+ot-api = { path = "crates/ot-api" }
+ot-export = { path = "crates/ot-export" }
+ot-ops = { path = "crates/ot-ops" }
+ot-accountability-core = { path = "crates/ot-accountability-core" }
+ot-mcp-gateway = { path = "crates/ot-mcp-gateway" }
+ot-sentinel = { path = "crates/ot-sentinel" }
+
+# ── Serialization & schema ────────────────────────────────────────────────
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+bincode = "1"
+utoipa = { version = "5", features = ["axum_extras"] }
+
+# ── CLI ───────────────────────────────────────────────────────────────────
+clap = { version = "4", features = ["derive"] }
+
+# ── WASM bridge ───────────────────────────────────────────────────────────
+wasm-bindgen = "0.2"
+
+# ── Errors & logging ──────────────────────────────────────────────────────
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+log = "0.4"
+
+# ── Cryptography ──────────────────────────────────────────────────────────
+sha2 = "0.10"
+hmac = "0.12"
+subtle = "2.6"
+ed25519-dalek = { version = "2", features = ["serde", "rand_core"] }
+ml-kem = { version = "0.3", features = ["getrandom"] }
+ml-dsa = "0.1"
+x25519-dalek = { version = "3", features = ["static_secrets"] }
+hkdf = "0.12"
+rand = "0.8"
+rand_chacha = "0.3"
+rand_core_09 = { package = "rand_core", version = "0.9", features = ["os_rng"] }
+
+# ── Orbital mechanics ─────────────────────────────────────────────────────
+sgp4 = "2.4"
+
+# ── Time & networking ─────────────────────────────────────────────────────
+chrono = { version = "0.4", features = ["serde"] }
+reqwest = { version = "0.12", default-features = false, features = [
+    "cookies",
+    "rustls-tls",
+    "json",
+] }
+ureq = { version = "2", features = ["json"] }
+dotenvy = "0.15"
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-native-roots"] }
+
+# ── Async runtime & HTTP server ───────────────────────────────────────────
+tokio = { version = "1", features = ["full"] }
+axum = { version = "0.8", features = ["ws", "macros"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace", "fs"] }
+futures-util = "0.3"
+
+# ── Dev / test ────────────────────────────────────────────────────────────
+tempfile = "3"
+wiremock = "0.6"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+
+[profile.bench]
+opt-level = 3
