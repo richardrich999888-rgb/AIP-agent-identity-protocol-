@@ -228,6 +228,51 @@ binding with the observed one:
 The parsers in `aip_core::execution_binding` are pure and reusable by an
 observer; the collector itself is not an observer.
 
+## 11a. Parent/child relationships and lifetime semantics (investigated; design only)
+
+Investigated under the Stage 1 authorization; **not implemented**, for the
+reasons below. Nothing here is a capability.
+
+**Parent/child.** `/proc/<pid>/stat` field 4 (`ppid`) is available to the
+agent, and the parent's own `ProcessInstance` could be read from
+`/proc/<ppid>/stat`. It was deliberately **not** added to the binding:
+
+- `ppid` is not stable: when the parent exits the child is re-parented to
+  PID 1 or a subreaper, so a self-read `ppid` describes a moment, not a
+  lineage.
+- Lineage is exactly the fact that `LINEAGE_VIOLATION` (RECONCILIATION_MODEL)
+  requires to be *independently attested*; a self-reported parent would
+  invite the reconciler to treat an agent claim as ancestry evidence (I5).
+- The observer (Stage 3) sees `fork`/`exec` events as they happen and can
+  record `(parent ProcessInstance → child ProcessInstance)` with its own
+  signature. That is the correct home for lineage.
+
+Until then the reconciler's answer to any lineage question is `CANNOT_PROVE`.
+
+**Start.** A process instance begins at `exec` of the measured binary; its
+`ProcessInstance` tuple is fixed from that point. A later `exec` in the same
+PID changes `exe_content_sha256` and therefore yields a *different* execution
+identity even though `(pid, start, boot)` is unchanged — this is intended:
+identity is "this process instance running this binary".
+
+**Termination.** A binding carries no termination fact and cannot: the agent
+cannot report its own exit. After exit the PID may be recycled; the recycled
+process has a different `pid_start_time_ticks` and so a different identity
+(Test A). Whether an action fell inside the *authorization* window is R10's
+question (tokens); whether it fell inside the *process lifetime* is a question
+only an observer with coverage over that window can answer (I8, I9).
+`bound_at_ms` records when the self-report was taken and nothing else.
+
+**Attribution rule for downstream stages.** Given a packet binding `B_pkt`
+and an observer binding `B_obs`:
+
+| Condition | Attribution |
+|---|---|
+| `B_obs` absent | `CANNOT_PROVE` |
+| `identity_bytes(B_pkt) == identity_bytes(B_obs)`, observer coverage attested | identity match (input to `VERIFIED_EXECUTION`) |
+| identities differ, both attested | `IDENTITY_DIVERGENCE` |
+| equal PID only | **never** attribution (guard test) |
+
 ## 12. Self-reported binding is not independent observation
 
 Stated once more because it is the invariant most likely to be eroded by

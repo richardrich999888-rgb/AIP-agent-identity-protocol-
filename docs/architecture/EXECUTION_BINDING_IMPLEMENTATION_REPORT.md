@@ -20,6 +20,35 @@ observation.
   proposal was explicitly marked "design only", and the deviation is recorded
   in `EXECUTION_BINDING.md` §3.1 rather than silently resolved.
 
+## Existing weakness demonstrated first (Skill 4 §13)
+
+Before the new type was relied upon, the weakness of the pre-existing
+`RuntimeBinding` was pinned by three characterization tests in
+`aip-standalone/aip-core/src/runtime.rs`. They **pass against the unchanged
+`RuntimeBinding`**, which is the point: each asserts a property an execution
+binding must *not* have.
+
+| Test | Demonstrated weakness | Result against current `RuntimeBinding` |
+|---|---|---|
+| `weakness_runtime_binding_ignores_pid_entirely` | PID rewritten by +1,000,000 → `is_same_environment == true` (PID reuse invisible, I4) | passes = weakness confirmed |
+| `weakness_runtime_binding_hashes_path_not_contents` | `exe_hash == sha256(path string)` and `!= sha256(binary contents)` (same-path replacement invisible, I2) | passes = weakness confirmed |
+| `weakness_runtime_binding_has_no_instance_identity` | no `start_time`/`boot_id` field exists; two instances differ only by an agent-set wall clock | passes = weakness confirmed |
+
+If a future change "fixes" `RuntimeBinding` in place these tests fail and
+redirect the author to `execution_binding`, which asserts the opposite
+properties (`same_pid_different_start_time_is_a_different_instance`,
+`same_path_different_contents_yields_different_executable_identity`).
+`RuntimeBinding` itself is unchanged and marked `NOT_PRODUCTION_CAPABILITY`.
+
+## Scope items investigated but not implemented
+
+| Item | Finding | Where recorded |
+|---|---|---|
+| Parent/child relationships | `ppid` is self-read and unstable under re-parenting; lineage must be observer-attested (`LINEAGE_VIOLATION` precondition). Not added to the binding. | `EXECUTION_BINDING.md` §11a |
+| Start / termination semantics | Instance begins at `exec`; a later `exec` changes identity via the exe hash; termination cannot be self-reported; lifetime coverage is an observer question (I8/I9). `bound_at_ms` is collection time only. | `EXECUTION_BINDING.md` §11a |
+| Attribution rule | Observer binding absent → `CANNOT_PROVE`; identity match requires equal `identity_bytes` **and** attested coverage; equal PID never attributes. | `EXECUTION_BINDING.md` §11a |
+| cgroup / namespace ids | Needed to scope observations, not to identify an instance; deferred to Stage 3. | `EXECUTION_BINDING.md` §3.1 |
+
 ## Files inspected
 
 `docs/architecture/{SECURITY_INVARIANTS, EXECUTION_BINDING, IMPLEMENTATION_PLAN,
@@ -40,7 +69,7 @@ procfs of the build container (`/proc/self/stat` field 22 = 433843,
 | `aip-standalone/aip-types/src/lib.rs` | **new section** "GHOST STAGE 1": `ProcessInstance`, `ExecutionBinding`, `EXECUTION_BINDING_DOMAIN`, `EXECUTION_IDENTITY_DOMAIN`, `EXECUTION_BINDING_VERSION`, `canonical_bytes`, `identity_bytes`, `same_execution` |
 | `aip-standalone/aip-core/src/execution_binding.rs` | **new** — Linux procfs collector, parsers, streaming exe hash, digests, `BindingError`; 12 tests |
 | `aip-standalone/aip-core/src/lib.rs` | `pub mod execution_binding` |
-| `aip-standalone/aip-core/src/runtime.rs` | module doc: `NOT_PRODUCTION_CAPABILITY`, superseded (no code change) |
+| `aip-standalone/aip-core/src/runtime.rs` | module doc: `NOT_PRODUCTION_CAPABILITY`, superseded (no production code change); 3 characterization tests of the existing weakness |
 | `aip-standalone/aip-protocol/src/evidence_packet.rs` | `execution_binding: Option<ExecutionBinding>` (`#[serde(default)]`); canonical encoding; builder method; `PACKET_VERSION` doc updated to state v2 covers Stages 0 + 1 |
 | `aip-standalone/aip-protocol/src/verification.rs` | R15 `check_execution_binding` |
 | `aip-standalone/aip-protocol/src/verification_report.rs` | `rules::EXECUTION_BINDING` |
@@ -130,6 +159,7 @@ binding and the claimed trust floor.
 
 | Location | Count | Names |
 |---|---|---|
+| `aip-core/src/runtime.rs` | 3 | `weakness_runtime_binding_ignores_pid_entirely`, `weakness_runtime_binding_hashes_path_not_contents`, `weakness_runtime_binding_has_no_instance_identity` (characterization of the pre-existing weakness) |
 | `aip-core/src/execution_binding.rs` | 12 | `same_pid_different_start_time_is_a_different_instance`, `same_pid_same_start_different_boot_is_a_different_instance`, `pid_equality_never_implies_same_execution`, `same_path_different_contents_yields_different_executable_identity`, `exe_path_does_not_participate_in_identity_but_is_signed_content`, `canonical_encoding_is_injective_over_variable_fields`, `domain_tags_lead_both_encodings_and_differ`, `parse_stat_handles_comm_with_spaces_and_parens`, `parse_stat_rejects_malformed_input_without_panicking`, `parse_boot_id_roundtrip_and_rejections`, `collect_self_binding_reads_real_process_instance` (linux), `collect_for_nonexistent_pid_fails_explicitly` (linux) |
 | `aip-protocol/tests/evidence_packet.rs` | 9 | `test_execution_binding_rule_passes_but_is_flagged_self_reported`, `test_packet_without_binding_verifies_and_reports_absence`, `test_binding_field_mutations_detected_by_hash`, `test_binding_transplant_detected_by_hash_and_signature`, `test_binding_presence_is_part_of_canonical_bytes`, `test_json_without_binding_key_parses_as_none`, `test_binding_for_other_agent_rejected_even_when_resealed`, `test_degenerate_binding_fields_rejected`, `test_resealed_self_binding_swap_verifies_documenting_self_report_limit` |
 
@@ -155,10 +185,10 @@ stage can claim otherwise). §14 permanent guard:
 
 | Suite | Before Stage 1 | After |
 |---|---|---|
-| aip-core | 125 | **137** (+12) |
+| aip-core | 125 | **140** (+12 execution_binding, +3 runtime characterization) |
 | aip-protocol tests/evidence_packet.rs | 26 | **35** (+9) |
 | aip-crypto / aip-types / aip-protocol unit / bundle / aip-test / aip-real-tests | 8 / 5 / 4 / 6 (1 ign) / 13 / 67 (2 ign) | unchanged |
-| **aip-standalone total** | 254 / 0 / 3 | **275 / 0 / 3** |
+| **aip-standalone total** | 254 / 0 / 3 | **278 / 0 / 3** |
 | aip-service | 38 | **38** |
 
 `cargo clippy --workspace --all-targets -- -D warnings` and
@@ -198,6 +228,13 @@ unreleased v2 rather than a v3 bump.
   `parse_proc_stat_start_time`, `parse_boot_id`, `hash_file_contents`.
 - **Stage 4 — Reconciliation**: joins on `decision_id` +
   `execution_identity_digest`; absent observer binding → `CANNOT_PROVE`.
+
+## Gate decision
+
+Skill 4 completion criteria (§28) are met as evidenced above. The repository
+is **ready for SKILL 5 — DECISION POINT**, subject to explicit authorization.
+Skill 5 must consume `ExecutionBinding` / `identity_bytes` as-is and must not
+re-derive identity from PID, path, or network identifiers.
 
 ## Security claims that remain prohibited after this stage
 
