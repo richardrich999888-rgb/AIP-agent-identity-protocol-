@@ -439,6 +439,69 @@ fn test_action_after_token_expiry_rejected() {
     assert_rule_failed(&report, rules::TEMPORAL_VALIDITY);
 }
 
+// ─── Adversarial: authority expiry extension through the real packet path (I6) ───
+//
+// The agent legitimately holds its own packet key.  It rewrites ONLY the
+// expiry of an authority token it did NOT issue, recomputes packet_hash and
+// re-signs the packet (both of which the current implementation permits an
+// agent to do), and presents the packet.  The issuer signatures on the token
+// and the hop are byte-for-byte the originals.  The verifier must reject via
+// the rule that checks that issuer signature — not merely via the packet hash.
+
+/// Recompute packet_hash and agent_sig with the legitimate agent key.
+fn reseal(p: &mut EvidencePacket, f: &Fixture) {
+    p.packet_hash = p.compute_hash();
+    p.agent_sig = aip_crypto::sign_ed25519(
+        &f.agent_kp.private_key,
+        &p.agent.aip_id,
+        &p.canonical_bytes(),
+    )
+    .unwrap();
+}
+
+#[test]
+fn test_root_token_expiry_extension_resealed_packet_rejected() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    let original_sig = p.root_authority.root_token.issuer_sig.clone();
+
+    p.root_authority.root_token.expires_at = Some(u64::MAX);
+    reseal(&mut p, &f);
+
+    // Sanity: the issuer signature was not touched by the attacker.
+    assert_eq!(p.root_authority.root_token.issuer_sig, original_sig);
+
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::ROOT_TOKEN_SIGNATURE);
+}
+
+#[test]
+fn test_root_token_expiry_removal_resealed_packet_rejected() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+
+    p.root_authority.root_token.expires_at = None;
+    reseal(&mut p, &f);
+
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::ROOT_TOKEN_SIGNATURE);
+}
+
+#[test]
+fn test_delegation_hop_expiry_extension_resealed_packet_rejected() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    let original_sig = p.delegation_chain[0].issuer_sig.clone();
+
+    p.delegation_chain[0].expires_at = Some(u64::MAX);
+    reseal(&mut p, &f);
+
+    assert_eq!(p.delegation_chain[0].issuer_sig, original_sig);
+
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::DELEGATION_CHAIN);
+}
+
 // ─── Multi-hop chains ───
 
 #[test]

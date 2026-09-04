@@ -430,6 +430,67 @@ mod tests {
         issue_scoped_token(issuer_id, issuer_priv, agent_id, scope, None).unwrap()
     }
 
+    // ── Adversarial: delegation expiry must be bound by the issuer signature (I6) ──
+
+    /// Root (unexpired, 1h) → hop1 → hop2, all validly signed.
+    /// Returns (root, chain, issuer public keys).
+    fn make_signed_two_hop_chain() -> (ScopedToken, Vec<DelegationToken>, HashMap<String, Vec<u8>>) {
+        let (issuer_id, issuer_priv, issuer_pub) = make_agent();
+        let (agent_id, agent_priv, agent_pub) = make_agent();
+        let (g1, g1_priv, g1_pub) = make_agent();
+        let (g2, _, _) = make_agent();
+
+        let root = issue_scoped_token(
+            &issuer_id,
+            &issuer_priv,
+            &agent_id,
+            scope_orchestrator(),
+            Some(3_600_000),
+        )
+        .unwrap();
+        let d1 = create_delegation(&root, &agent_priv, &g1, scope_orchestrator()).unwrap();
+        let d2 = create_sub_delegation(&d1, &g1_priv, &g2, scope_submitter()).unwrap();
+
+        let mut keys = HashMap::new();
+        keys.insert(issuer_id, issuer_pub);
+        keys.insert(agent_id, agent_pub);
+        keys.insert(g1, g1_pub);
+        (root, vec![d1, d2], keys)
+    }
+
+    #[test]
+    fn test_mutate_delegation_expires_at_extend_rejected() {
+        let (root, mut chain, keys) = make_signed_two_hop_chain();
+        assert!(verify_delegation_chain(&root, &chain, &keys).is_ok());
+
+        // Only the leaf hop's expires_at changes; its issuer_sig is untouched.
+        chain[1].expires_at = Some(u64::MAX);
+
+        assert!(
+            matches!(
+                verify_delegation_chain(&root, &chain, &keys),
+                Err(AipError::SignatureInvalid)
+            ),
+            "SECURITY: delegation expires_at extended without re-signing but chain still verifies"
+        );
+    }
+
+    #[test]
+    fn test_mutate_delegation_expires_at_some_to_none_rejected() {
+        let (root, mut chain, keys) = make_signed_two_hop_chain();
+        assert!(verify_delegation_chain(&root, &chain, &keys).is_ok());
+
+        chain[0].expires_at = None;
+
+        assert!(
+            matches!(
+                verify_delegation_chain(&root, &chain, &keys),
+                Err(AipError::SignatureInvalid)
+            ),
+            "SECURITY: delegation expiry removed (Some -> None) but chain still verifies"
+        );
+    }
+
     // ── Basic delegation tests ──
 
     #[test]

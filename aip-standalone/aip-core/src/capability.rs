@@ -257,6 +257,70 @@ mod tests {
         (id, kp.private_key, kp.public_key)
     }
 
+    // ── Adversarial: expiry must be bound by the issuer signature (I6) ──
+    //
+    // Threat: a holder of a legitimately issued token (or anyone who can
+    // re-seal the enclosing packet) rewrites ONLY `expires_at` and presents
+    // the token with the original, untouched issuer signature.  If the
+    // signature does not cover `expires_at`, verification still succeeds and
+    // the authority window has been extended without the issuer's consent.
+
+    #[test]
+    fn test_mutate_expires_at_extend_rejected() {
+        let (issuer_id, priv_key, pub_key) = make_issuer();
+        let (agent_id, _, _) = make_issuer();
+
+        let mut token =
+            issue_scoped_token(&issuer_id, &priv_key, &agent_id, scope_submitter(), Some(60_000))
+                .unwrap();
+        assert!(verify_scoped_token(&token, &pub_key).unwrap());
+
+        // Only expires_at changes. jti, ids, scope, issued_at, issuer_sig untouched.
+        token.expires_at = Some(u64::MAX);
+
+        assert!(
+            !verify_scoped_token(&token, &pub_key).unwrap(),
+            "SECURITY: expires_at extended without re-signing but token still verifies"
+        );
+    }
+
+    #[test]
+    fn test_mutate_expires_at_some_to_none_rejected() {
+        let (issuer_id, priv_key, pub_key) = make_issuer();
+        let (agent_id, _, _) = make_issuer();
+
+        let mut token =
+            issue_scoped_token(&issuer_id, &priv_key, &agent_id, scope_submitter(), Some(60_000))
+                .unwrap();
+        assert!(verify_scoped_token(&token, &pub_key).unwrap());
+
+        // Removing the expiry entirely = unbounded authority.
+        token.expires_at = None;
+
+        assert!(
+            !verify_scoped_token(&token, &pub_key).unwrap(),
+            "SECURITY: expiry removed (Some -> None) but token still verifies"
+        );
+    }
+
+    #[test]
+    fn test_mutate_expires_at_none_to_some_rejected() {
+        let (issuer_id, priv_key, pub_key) = make_issuer();
+        let (agent_id, _, _) = make_issuer();
+
+        let mut token =
+            issue_scoped_token(&issuer_id, &priv_key, &agent_id, scope_submitter(), None).unwrap();
+        assert!(verify_scoped_token(&token, &pub_key).unwrap());
+
+        // None and Some(t) must not share a signed preimage.
+        token.expires_at = Some(token.issued_at + 1);
+
+        assert!(
+            !verify_scoped_token(&token, &pub_key).unwrap(),
+            "SECURITY: expiry added (None -> Some) but token still verifies"
+        );
+    }
+
     // ── Named scope tests ──
 
     #[test]
