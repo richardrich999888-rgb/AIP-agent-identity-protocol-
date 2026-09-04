@@ -1,32 +1,40 @@
 # GAP_MATRIX
 
-Commit `377d5fc`. Priorities per skill §21:
+Discovered at commit `377d5fc`. Priorities per skill §21:
 **P0** security correctness · **P1** architectural dependency ·
 **P2** production hardening · **P3** performance · **P4** research.
+
+Status updates (rows marked **CLOSED** / **PARTIAL** below keep their
+original discovery text for traceability):
+
+- Stage 0 (Skill 3) closed at `830c1e5`…`f78a599` — see
+  `AIP_CORRECTNESS_REPORT.md`.
+- Stage 1 (Skill 4) closed at `4ff1f5c` — see
+  `EXECUTION_BINDING_IMPLEMENTATION_REPORT.md`.
 
 ## A. AIP correctness (must precede any Ghost work)
 
 | Component | Current state | Target state | Gap | Dependency | Pri |
 |---|---|---|---|---|---|
-| Token/delegation expiry integrity | `expires_at` absent from both signing payloads (`capability.rs:208`, `delegation.rs:369`); read by R10 (`verification.rs:495,497`) | expiry covered by issuer signature | agent extends its own authority window; all 14 rules pass, `tampered=false` | none — fix pattern already exists at `aip-core/src/lib.rs:135-142` | **P0** |
-| `aip-core` canonical encoding | non-injective; unprefixed string concat (`delegation.rs:381-382`) | length-prefixed via `aip-protocol/src/canonical.rs` | one signature valid for two distinct tokens (**I14**) | batch with expiry fix (one wire break) | **P0** |
-| Domain separation | absent in every signed preimage (`aip-crypto:151-162`) | type tag per signed object | new Ghost types confusable with packets/tokens | canonical encoder | **P0** |
+| Token/delegation expiry integrity — **CLOSED `830c1e5`** | `expires_at` absent from both signing payloads (`capability.rs:208`, `delegation.rs:369`); read by R10 (`verification.rs:495,497`) | expiry covered by issuer signature | agent extends its own authority window; all 14 rules pass, `tampered=false` | none — fix pattern already exists at `aip-core/src/lib.rs:135-142` | **P0** |
+| `aip-core` canonical encoding — **CLOSED `830c1e5`** (encoder relocated to `aip_types::canonical`) | non-injective; unprefixed string concat (`delegation.rs:381-382`) | length-prefixed via `aip-protocol/src/canonical.rs` | one signature valid for two distinct tokens (**I14**) | batch with expiry fix (one wire break) | **P0** |
+| Domain separation — **PARTIAL `830c1e5`** (all `aip-core` payloads tagged; packet/action/receipt payloads deferred to next wire bump) | absent in every signed preimage (`aip-crypto:151-162`) | type tag per signed object | new Ghost types confusable with packets/tokens | canonical encoder | **P0** |
 | Authorization decision point | **does not exist**; `/v1/evidence/generate` seals caller assertions using a caller-supplied private key (`evidence.rs:130,220-300`) | adjudicating decision point emitting signed `ExpectedExecution` | agent is sole authority for its own execution (**I1**) | expiry + encoder fixes | **P0** |
-| Service verify trust anchors | caller supplies `trusted_issuers` (`evidence.rs:161,307-309`) | documented as calculator; never an authority | self-authorization loop if consumed as a decision (**I19**) | doc + type-level separation | **P0** |
+| Service verify trust anchors — **PARTIAL `f78a599`** (documented as calculator; type-level separation pending decision point) | caller supplies `trusted_issuers` (`evidence.rs:161,307-309`) | documented as calculator; never an authority | self-authorization loop if consumed as a decision (**I19**) | doc + type-level separation | **P0** |
 | Packet replay | no seen-set; same packet verifies forever | explicit replay oracle in `VerificationContext` | replayed evidence indistinguishable | none | **P1** |
-| Absolute expiry | R10 never consults a clock; `is_token_expired` uncalled | optional `ctx.verification_time` | expired-years-ago token verifies | expiry fix | **P1** |
+| Absolute expiry — **DECIDED `f78a599`: no wall clock** (R10 semantics are explicit and offline relative to signed timestamps; see `AIP_CORRECTNESS_REPORT.md` "Verification-time semantics") | R10 never consults a clock; `is_token_expired` uncalled | optional `ctx.verification_time` | expired-years-ago token verifies | expiry fix | **P1** |
 | `aip-service` duplicate authority engine | unsigned tokens, no attenuation at issuance, no expiry check, different `Action` enum (`aip-service/src/{delegation,capability}.rs`) | deleted; route through `aip-core` | two security models; log write ⇒ privilege escalation (**I18**) | — | **P1** |
-| Private keys at rest | plaintext JSON, `Debug`+`Serialize` on `KeyPair` (`aip-types:25-30`, `store.rs:149-151`) | `serde(skip)`, custom `Debug`, 0600, zeroize | key disclosure | — | **P1** |
-| `validate_aip_id` panic | byte-index slice on `&str` (`aip-crypto:81-82`), reachable from JSON | char-boundary safe | authenticated request abort | — | **P1** |
+| Private keys at rest — **PARTIAL `228b02e`** (custom `Debug` redacts; `Serialize` kept for `store.rs`; plaintext at rest remains) | plaintext JSON, `Debug`+`Serialize` on `KeyPair` (`aip-types:25-30`, `store.rs:149-151`) | `serde(skip)`, custom `Debug`, 0600, zeroize | key disclosure | — | **P1** |
+| `validate_aip_id` panic — **CLOSED `14da5a8`** | byte-index slice on `&str` (`aip-crypto:81-82`), reachable from JSON | char-boundary safe | authenticated request abort | — | **P1** |
 
 ## B. Ghost prerequisites
 
 | Component | Current state | Target state | Gap | Dependency | Pri |
 |---|---|---|---|---|---|
 | `ExpectedExecution` | **MISSING** (0 occurrences) | signed pre-execution authorization record | no "expected" side of reconciliation | decision point (P0) | **P0** |
-| `ExecutionBinding` | **MISSING**; `RuntimeBinding` is self-reported, unwired, path-hashed | agent ↔ process-instance binding in signed evidence | cannot attribute execution to an agent (**I2**) | canonical encoder, packet version bump | **P0** |
-| Process instance identity | `pid` only (`runtime.rs:40`); no start time, no boot id | `(pid, pid_start_time, boot_id)` | PID reuse transfers attribution (**I4**) | ExecutionBinding | **P0** |
-| Executable identity | `sha256(path_string)` (`runtime.rs:41-44`) | `sha256(binary contents)` | different binary, same path, same hash | ExecutionBinding | **P0** |
+| `ExecutionBinding` — **CLOSED `4ff1f5c`** as a self-reported, agent-signed binding in `EvidencePacket` (R15); independent attestation of it remains the Observer's gap | **MISSING**; `RuntimeBinding` is self-reported, unwired, path-hashed | agent ↔ process-instance binding in signed evidence | cannot attribute execution to an agent (**I2**) | canonical encoder, packet version bump | **P0** |
+| Process instance identity — **CLOSED `4ff1f5c`** | `pid` only (`runtime.rs:40`); no start time, no boot id | `(pid, pid_start_time, boot_id)` | PID reuse transfers attribution (**I4**) | ExecutionBinding | **P0** |
+| Executable identity — **CLOSED `4ff1f5c`** (contents of `/proc/<pid>/exe`) | `sha256(path_string)` (`runtime.rs:41-44`) | `sha256(binary contents)` | different binary, same path, same hash | ExecutionBinding | **P0** |
 | Observer | **MISSING** (0 files: ebpf/XDP/perf_event/procfs/netlink) | independent runtime observer | no observation of any kind | binding + attestation | **P1** |
 | `ObserverAttestation` | **MISSING** | trust root not held by observed agent | observation would be a second self-report (**I10**) | anchor decision (open) | **P0** for design, **P1** to build |
 | Sensor health / continuity | **MISSING** | 5 explicit states, signed | silence indistinguishable from coverage (**I9**) | observer | **P1** |

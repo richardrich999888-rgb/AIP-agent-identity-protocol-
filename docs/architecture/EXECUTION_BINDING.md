@@ -1,113 +1,238 @@
 # EXECUTION_BINDING
 
-## 1. Current state
+Status: **IMPLEMENTED (self-reported binding + packet integration) /
+NOT IMPLEMENTED (independent attestation of the binding — Stage 3).**
 
-`EXECUTION_BINDING = MISSING`. Zero occurrences of `ExecutionBinding` in
-production code.
+Implemented under Skill 4 (`syntriass-execution-binding`); see
+`EXECUTION_BINDING_IMPLEMENTATION_REPORT.md` for the change-by-change record.
+Sections 1–2 preserve the discovery findings that motivated the design.
 
-The nearest existing type is `aip_core::runtime::RuntimeBinding`
-(`aip-standalone/aip-core/src/runtime.rs:10-26`). It is **not** a suitable
-foundation and must not be extended in place:
+---
 
-| Requirement | `RuntimeBinding` today |
+## 1. Threat
+
+An authorization decision, an agent's evidence, and a later observation each
+refer to "the process". If "the process" is named by a PID, the kernel's PID
+recycling lets an unrelated process inherit the attribution of a finished one
+(**I4**). If the executable is named by its path, a different binary at the
+same path inherits the identity of the intended one (**I2**). If identity is
+self-declared (`agent_id: &str`), anyone can claim it.
+
+Concrete case: between the authorization decision and the observation, the
+original process exits and another process receives the same PID. With no
+start time, no observation can distinguish them and attribution silently
+transfers to the wrong workload.
+
+### 1.1 What existed before (discovery, unchanged)
+
+`aip_core::runtime::RuntimeBinding` (`aip-standalone/aip-core/src/runtime.rs`)
+is **not** a suitable foundation and was not extended; it is now marked
+`NOT_PRODUCTION_CAPABILITY` in its module doc and retained only for the CLI
+display path.
+
+| Requirement | `RuntimeBinding` |
 |---|---|
-| Binds agent identity to a process | No — `agent_id` is an unvalidated `&str` argument (`:38`) with no proof of key possession |
-| Survives PID reuse | No — no process start time anywhere in the crate (verified: 0 matches for `start_time`/`starttime`) |
-| Measures the executable | No — `sha256` of `current_exe().to_string_lossy()`, the **path string** (`:41-44`) |
-| Resists environment forgery | No — `hostname` reads `$HOSTNAME` first (`:108-117`); `container_id` returns `$CONTAINER_ID` verbatim (`:121-142`) |
-| Signed | No — no signature field on the struct |
-| Reaches evidence | No — `EvidencePacket` has no runtime field; result is only printed (`aip-cli/src/main.rs:127,137`) |
-| Verified meaningfully | No — `pid` excluded from the verdict (`:76,84-93`); `container_match` computed then discarded (`:87` vs `:93`) |
+| Binds agent identity to a process | No — `agent_id` is an unvalidated `&str` argument |
+| Survives PID reuse | No — no process start time anywhere |
+| Measures the executable | No — `sha256` of `current_exe().to_string_lossy()`, the **path string** |
+| Resists environment forgery | No — `hostname` reads `$HOSTNAME`; `container_id` returns `$CONTAINER_ID` verbatim |
+| Signed | No |
+| Reaches evidence | No — `EvidencePacket` had no runtime field |
+| Verified meaningfully | No — `pid` excluded from the verdict |
 
-Violates **I2**, **I4**, **I10**.
+## 2. Assumptions
 
-## 2. Why PID alone fails — the concrete case
+| # | Assumption | Basis |
+|---|---|---|
+| A1 | Linux procfs is available to the collecting process: `/proc/<pid>/stat`, `/proc/<pid>/exe`, `/proc/sys/kernel/random/boot_id`. | Verified in the build container (kernel 6.18). Other platforms return `BindingError::UnsupportedPlatform`. |
+| A2 | Field 22 of `/proc/<pid>/stat` (`starttime`, clock ticks since boot) is constant for a process's lifetime and differs between two processes that hold the same PID within one boot. | `proc(5)`. Two processes can receive the same PID and the same `starttime` only if the kernel recycles a PID within one clock tick (10 ms at `CLK_TCK=100`) — this residual is recorded in §7. |
+| A3 | `boot_id` is a random UUID regenerated at every boot and constant during a boot. | Kernel behaviour. |
+| A4 | SHA-256 is collision-resistant, so equal `exe_content_sha256` implies equal executable contents. | Standard hash assumption; nothing stronger is claimed. |
+| A5 | The collecting process is honest **or** an independent observer later attests the same facts. | This is exactly the boundary this stage does *not* close (§9, §11). |
 
-`std::process::id()` returns a `u32` that the kernel reuses. Between the
-authorization decision and the observation, the original process may exit and
-an unrelated process may inherit the same PID. With no start time, no
-observation can distinguish them, and attribution silently transfers to the
-wrong workload (**I4**).
+## 3. Mechanism
 
-The minimal fix is a **process instance key**, not a PID:
+```text
+ProcessInstance  = (pid: u32, pid_start_time_ticks: u64, boot_id: [u8;16])
+ExecutionBinding = (version, agent_id, ProcessInstance, exe_content_sha256, exe_path, bound_at_ms)
 
-```
-ProcessInstance = (pid, pid_start_time_ticks, boot_id)
-```
+identity_bytes   = "GHOST/ExecutionIdentity/v1" ‖ version ‖ agent_id ‖ pid ‖ start ‖ boot_id ‖ exe_content_sha256
+canonical_bytes  = "GHOST/ExecutionBinding/v1"  ‖ version ‖ agent_id ‖ pid ‖ start ‖ boot_id ‖ exe_content_sha256 ‖ exe_path ‖ bound_at_ms
 
-`pid_start_time_ticks` is field 22 of `/proc/<pid>/stat`; `boot_id` is
-`/proc/sys/kernel/random/boot_id`. The triple is unique for the lifetime of a
-boot and is what makes a PID meaningful. Neither is read anywhere today.
-
-## 3. Proposed `ExecutionBinding` — design only, do not implement yet
-
-Every field carries a security purpose; nothing is included because it sounds
-useful.
-
-```rust
-struct ExecutionBinding {
-    // ── identity: who ────────────────────────────────────────────────
-    agent_id: String,          // AIP-ID; ties to derive_aip_id
-    key_proof: Signature,      // agent proves key possession over the
-                               // binding challenge — closes the
-                               // "unvalidated &str" hole in runtime.rs:38
-
-    // ── process instance: which process, unambiguously ───────────────
-    pid: u32,
-    pid_start_time_ticks: u64, // defeats PID reuse (I4)
-    boot_id: [u8; 16],         // defeats reuse across reboots
-
-    // ── workload: what code ──────────────────────────────────────────
-    exe_content_sha256: [u8; 32], // the BINARY, not the path (contrast :41-44)
-    exe_path: String,             // context only; never an identity claim
-
-    // ── containment context: where ───────────────────────────────────
-    cgroup_id: u64,            // kernel cgroup v2 id, not a /proc string
-    mnt_ns: u64,
-    pid_ns: u64,
-    net_ns: u64,               // required to interpret any network observation
-
-    // ── liveness window: when this binding is meaningful ─────────────
-    bound_at_ns: u64,
-    valid_until_ns: u64,       // MUST be signature-covered (I6, I21)
-}
+same_execution(a, b)  ⇔  identity_bytes(a) == identity_bytes(b)
 ```
 
-### Field justification
+- Process identity is the full tuple. Equality is derived over all three
+  fields; `same_execution` compares identity bytes, so a future change that
+  compares PIDs alone fails the permanent guard test
+  `pid_equality_never_implies_same_execution`.
+- Executable identity is the SHA-256 of the **contents** of `/proc/<pid>/exe`
+  (the mapped binary, hashed through the procfs link so a replaced or unlinked
+  on-disk file cannot change what is measured). `exe_path` is carried as
+  context and is **excluded** from `identity_bytes`.
+- All variable-length fields are length-prefixed by the shared encoder
+  (`aip_types::canonical`); both encodings start with a domain tag; the two
+  tags differ so a binding digest can never be confused with an identity
+  digest, nor with any AIP token, packet, or Ghost object.
 
-| Field | Threat it addresses |
+### 3.1 Field justification
+
+| Field | Purpose | In identity? | Signed as packet content? |
+|---|---|---|---|
+| `version` | encoding/semantics version | yes | yes |
+| `agent_id` | who the binding is about; must equal the packet agent (R15) | yes | yes |
+| `process.pid` | kernel handle — meaningless alone | yes (with the other two) | yes |
+| `process.pid_start_time_ticks` | defeats PID reuse within a boot (I4) | yes | yes |
+| `process.boot_id` | defeats reuse across boots (I4) | yes | yes |
+| `exe_content_sha256` | detects binary replacement at the same path (I2) | yes | yes |
+| `exe_path` | human/operator context; deliberately **not** identity | no | yes |
+| `bound_at_ms` | when the self-report was taken; metadata, **not** an authorization window (I21) | no | yes |
+
+Fields from the earlier proposal that were **not** adopted, and why:
+
+| Proposed field | Decision | Reason |
+|---|---|---|
+| `key_proof: Signature` | not added | Inside an `EvidencePacket` the agent's packet signature already proves key possession over the binding (R4). A standalone binding signature would be a second self-attestation and risks being mistaken for observer attestation. `ExpectedExecution` (Stage 2) and `ObservedExecution` (Stage 3) will each sign the binding with **their own** authority. |
+| `valid_until_ns` | not added | Skill 4 §18: temporal validity belongs to the authorization layer (tokens, R10). Duplicating expiry here would create a second expiry semantics. |
+| `cgroup_id`, `mnt_ns`, `pid_ns`, `net_ns` | deferred | Containment context is needed to *interpret* observations (Stage 3) and to scope containment (Stage 8); it does not change process-instance identity. Add when the observer defines what it can attest. |
+
+## 4. Implementation
+
+| Component | Location |
 |---|---|
-| `key_proof` | agent claiming an identity it does not hold the key for |
-| `pid_start_time_ticks`, `boot_id` | PID reuse transferring attribution (**I4**) |
-| `exe_content_sha256` | a different binary at the same path — the exact weakness of `runtime.rs:41-44` |
-| `cgroup_id`, `*_ns` | container/namespace escape and mis-scoped observation |
-| `valid_until_ns` | an unbounded binding outliving the process (**I21**) |
+| `ProcessInstance`, `ExecutionBinding`, `canonical_bytes`, `identity_bytes`, `same_execution`, domain tags, `EXECUTION_BINDING_VERSION = 1` | `aip-standalone/aip-types/src/lib.rs` (section "GHOST STAGE 1") |
+| Collector `collect_self_binding` / `collect_binding_for_pid` (Linux), parsers `parse_proc_stat_start_time`, `parse_boot_id`, `hash_file_contents`, digests `binding_digest`, `execution_identity_digest`, `BindingError` | `aip-standalone/aip-core/src/execution_binding.rs` |
+| `EvidencePacket.execution_binding: Option<ExecutionBinding>` (`#[serde(default)]`), canonical encoding (presence byte + nested length-prefixed bytes, between receipt binding and claimed trust floor), builder `.execution_binding(..)` | `aip-standalone/aip-protocol/src/evidence_packet.rs` |
+| Rule R15 `EXECUTION_BINDING` | `aip-standalone/aip-protocol/src/verification.rs` (`check_execution_binding`), `verification_report.rs` |
 
-### Lifecycle events the binding must handle
+### 4.1 Sources and units
 
-| Event | Required behaviour |
-|---|---|
-| process restart | new `ProcessInstance` ⇒ new binding; old binding expires, is not transferred |
-| container restart | `cgroup_id` and namespace ids change ⇒ new binding |
-| PID reuse | `pid_start_time_ticks` differs ⇒ **binding does not match**; attribution must fail closed |
-| namespace / cgroup change | binding invalidated; re-bind required |
-| runtime replacement (exec) | `exe_content_sha256` changes ⇒ new binding |
-| credential change / rotation | `key_proof` re-established; prior bindings expire |
+| Fact | Source | Units / format | Failure |
+|---|---|---|---|
+| `pid_start_time_ticks` | `/proc/<pid>/stat`, field 22, parsed from the **last** `)` so a hostile `comm` cannot shift fields | clock ticks since boot (`CLK_TCK`, 100/s here); `0` rejected | `BindingError::Unavailable{field:"pid_start_time_ticks"}` |
+| `boot_id` | `/proc/sys/kernel/random/boot_id` | textual UUID → 16 bytes; all-zero rejected | `BindingError::Unavailable{field:"boot_id"}` |
+| `exe_content_sha256` | contents of `/proc/<pid>/exe`, streamed | 32 bytes | `BindingError::Unavailable{field:"exe_content_sha256"}` |
+| `exe_path` | `readlink(/proc/<pid>/exe)` | lossy UTF-8 string | `BindingError::Unavailable{field:"exe_path"}` |
 
-### Who signs it
+No wall-clock creation time is used for process identity; `bound_at_ms` is
+metadata only.
 
-The binding is **co-asserted**: the agent proves key possession, but the
-process facts must be attested by the observer, which the agent does not
-control (**I10**). A binding signed only by the agent is worth exactly as much
-as `RuntimeBinding` is today — nothing. See `OBSERVER_ATTESTATION.md`.
+## 5. Test evidence
 
-## 4. Integration point in existing code
+`aip-standalone/aip-core/src/execution_binding.rs` (12 tests):
 
-`ExecutionBinding` must reach signed evidence. The extension point is
-`EvidencePacket` (`aip-standalone/aip-protocol/src/evidence_packet.rs:210-246`),
-which currently has **no runtime field**.
+| Skill 4 test | Test | Property |
+|---|---|---|
+| A — PID reuse | `same_pid_different_start_time_is_a_different_instance` | tuple inequality, `same_execution == false`, identity digests differ |
+| B — reboot | `same_pid_same_start_different_boot_is_a_different_instance` | as above with differing `boot_id` |
+| §14 guard | `pid_equality_never_implies_same_execution` | for every single-field variant with equal PID, `same_execution` is false |
+| C — executable replacement | `same_path_different_contents_yields_different_executable_identity` | same path, contents A then B → digests differ and equal `sha256(contents)`; path hash would have been identical |
+| D — path mutation | `exe_path_does_not_participate_in_identity_but_is_signed_content` | identity equal, canonical bytes differ |
+| E — injectivity | `canonical_encoding_is_injective_over_variable_fields`, `domain_tags_lead_both_encodings_and_differ` | `("ab","c")` ≠ `("a","bc")`, every field change changes bytes, tags differ |
+| parser robustness | `parse_stat_handles_comm_with_spaces_and_parens`, `parse_stat_rejects_malformed_input_without_panicking`, `parse_boot_id_roundtrip_and_rejections` | hostile `comm`, short/garbage/zero inputs → `Err`, never panic |
+| live collection (Linux) | `collect_self_binding_reads_real_process_instance`, `collect_for_nonexistent_pid_fails_explicitly` | real pid/start/boot/exe hash; nonexistent PID → explicit error |
 
-Adding one is a **wire-format change**: `canonical_bytes` (`:251-334`) must
-encode it with the length-prefixed helpers in `canonical.rs`, and
-`PACKET_VERSION` must be bumped (`aip-protocol-change-guard` §3). Batch it with
-the `expires_at` fix (P0-1) so there is one version break, not two.
+`aip-standalone/aip-protocol/tests/evidence_packet.rs` (9 tests):
+
+| Skill 4 test | Test | Property |
+|---|---|---|
+| F — signed mutation | `test_binding_field_mutations_detected_by_hash` | each of 8 fields mutated after sealing → R3 fails, `tampered` |
+| G — transplant | `test_binding_transplant_detected_by_hash_and_signature` | different binding → R3; hash recomputed without key → R4 |
+| presence | `test_binding_presence_is_part_of_canonical_bytes`, `test_json_without_binding_key_parses_as_none` | absence ≠ presence; legacy JSON parses as `None` and then fails R3 honestly |
+| R15 | `test_binding_for_other_agent_rejected_even_when_resealed`, `test_degenerate_binding_fields_rejected`, `test_packet_without_binding_verifies_and_reports_absence`, `test_execution_binding_rule_passes_but_is_flagged_self_reported` | agent mismatch / zero fields rejected; absence reported; passing detail says "NOT independently observed"; floor unchanged |
+| H — self-report limit | `test_resealed_self_binding_swap_verifies_documenting_self_report_limit` | the agent **can** re-seal with a different well-formed self-binding and the packet verifies — pinned as the documented boundary that only an observer can close |
+
+## 6. Failure semantics
+
+- Any unreadable or unparsable source → `Err(BindingError)`. No field is
+  defaulted, zeroed, or substituted (no hostname, path hash, or wall clock in
+  place of a missing fact).
+- Non-Linux targets → `Err(BindingError::UnsupportedPlatform)`.
+- A packet **without** a binding verifies; R15 records "no execution binding
+  present; process-instance attribution unavailable". The reconciler must
+  treat that as `CANNOT_PROVE` for attribution (I3).
+- A packet **with** a degenerate binding (pid 0, start 0, zero boot id, zero
+  exe hash, wrong version) fails R15 — a binding may be absent, never empty.
+- R15 never sets `tampered`: an inconsistent binding under a valid signature is
+  producer inconsistency, not post-signing modification.
+
+## 7. Limitations
+
+1. **Self-report.** Every binding produced today is collected by the agent
+   about itself. It is a correlation key, not evidence that the process
+   exists or ran. A root-compromised host can present arbitrary procfs
+   content. Test H pins this.
+2. **Sub-tick PID recycling.** Two processes receiving the same PID within one
+   clock tick of the same boot would share `(pid, start, boot)`. This is a
+   kernel-level residual; the observer stage may add `pid_ns`/`cgroup_id` and
+   spawn ordering to narrow it, but it cannot be eliminated by the agent.
+3. **Executable ≠ behaviour.** `exe_content_sha256` identifies the binary
+   image, not loaded libraries, interpreters' scripts, JIT code, or
+   `ptrace`-injected code. A Python agent is identified as the Python
+   interpreter.
+4. **Linux only.** No Windows/macOS process-instance source is implemented;
+   the API returns an explicit error rather than a weaker binding.
+5. **No namespace/cgroup context yet.** Observations from a different PID
+   namespace cannot yet be scoped; see §3.1 deferred fields.
+6. **PACKET_VERSION.** The binding was added inside the unreleased v2
+   canonical layout rather than as v3, per IMPLEMENTATION_PLAN §1.2 ("one bump
+   covers Stages 0 + 1"). Any v2 packet sealed between commits `830c1e5` and
+   this change (none exist outside this branch's test runs) would fail R3.
+
+## 8. Platform assumptions
+
+Linux procfs semantics as in `proc(5)`: `starttime` is field 22 in clock
+ticks since boot; `comm` is parenthesised and may contain spaces and
+parentheses; `/proc/<pid>/exe` is a magic link to the mapped executable;
+`boot_id` is a UUID. `CLK_TCK` is not stored because ticks are compared, not
+converted.
+
+## 9. Trust boundary
+
+```text
+agent process ──reads own /proc──▶ ExecutionBinding (self-report)
+        │
+        └─ signs packet (R4) ──▶ EvidencePacket.execution_binding
+                                   │
+                                   ▼
+                          verifier: R3/R4 (integrity), R15 (consistency)
+                                   │
+                                   ▼   NOT provided by this stage
+                          observer attests the same (pid,start,boot,exe)
+```
+
+The verifier can prove: the agent signed *this* binding, the binding is
+well-formed and names the packet agent. The verifier cannot prove: that the
+binding is true. Passing R15 is explicitly labelled "NOT independently
+observed" in the report detail.
+
+## 10. Relationship to `decision_id`
+
+`DecisionRecord.decision_id` remains the primary correlation key. The binding
+is complementary: reconciliation joins on `decision_id` **and**
+`execution_identity_digest`. A binding never replaces or derives a decision
+id, and a decision id never implies a process instance.
+
+## 11. Relationship to the future observer
+
+Stage 3's `ObservedExecution` embeds an `ExecutionBinding` collected by the
+observer (outside the agent's trust boundary) and signed with the observer's
+key. Reconciliation compares `identity_bytes` of the expected/self-reported
+binding with the observed one:
+
+- equal → identity match (one input to `VERIFIED_EXECUTION`, never sufficient
+  alone);
+- unequal, both attested → `IDENTITY_DIVERGENCE`;
+- observer binding absent → `CANNOT_PROVE`.
+
+The parsers in `aip_core::execution_binding` are pure and reusable by an
+observer; the collector itself is not an observer.
+
+## 12. Self-reported binding is not independent observation
+
+Stated once more because it is the invariant most likely to be eroded by
+convenience: a binding collected by `collect_self_binding`, carried in an
+`EvidencePacket`, and passing R15 is the **agent's claim** about which process
+it is. It satisfies I2 and I4 as an *identifier* (not PID-only, not path-only,
+survives PID reuse) but does not satisfy I5 or I10. Nothing in this stage may
+be described as observation, attestation, or proof of execution.
