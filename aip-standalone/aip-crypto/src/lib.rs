@@ -68,6 +68,12 @@ pub fn validate_aip_id(id: &str) -> Result<(), aip_types::AipError> {
     }
 
     let without_prefix = &id[4..];
+    // Base58 is a strict ASCII alphabet. Rejecting non-ASCII here also
+    // guarantees every byte index below is a char boundary, so the slicing
+    // can never panic on externally supplied input.
+    if !without_prefix.is_ascii() {
+        return Err(aip_types::AipError::InvalidAipId);
+    }
     if without_prefix.len() < 5 {
         return Err(aip_types::AipError::InvalidAipId);
     }
@@ -254,6 +260,39 @@ mod tests {
     fn test_aip_id_invalid() {
         assert!(validate_aip_id("xxx_invalid").is_err());
         assert!(validate_aip_id("aip1AAAA").is_err());
+    }
+
+    /// Malformed externally supplied IDs must produce an error, never a panic.
+    /// Multi-byte UTF-8 placed where the checksum split lands used to hit a
+    /// non-char-boundary slice.
+    #[test]
+    fn test_aip_id_malformed_never_panics() {
+        let cases: [&str; 12] = [
+            "",
+            "aip",
+            "aip1",
+            "aip1é",
+            "aip1ééééé",
+            "aip1abcdé",
+            "aip1abcdéfgh",
+            "aip1\u{1F600}\u{1F600}\u{1F600}",
+            "aip1abc\u{0}def",
+            "aip1\u{FFFD}\u{FFFD}\u{FFFD}\u{FFFD}",
+            "AIP1abcdefghijk",
+            "aip1 abcdefghijk",
+        ];
+        for c in cases {
+            let r = std::panic::catch_unwind(|| validate_aip_id(c));
+            assert!(r.is_ok(), "validate_aip_id panicked on {c:?}");
+            assert!(r.unwrap().is_err(), "malformed id {c:?} was accepted");
+        }
+        // Boundary sweep: a 2-byte char at every position around the split.
+        for n in 0..12 {
+            let s = format!("aip1{}é{}", "a".repeat(n), "b".repeat(11 - n));
+            let r = std::panic::catch_unwind(|| validate_aip_id(&s));
+            assert!(r.is_ok(), "validate_aip_id panicked on {s:?}");
+            assert!(r.unwrap().is_err());
+        }
     }
 
     #[test]
