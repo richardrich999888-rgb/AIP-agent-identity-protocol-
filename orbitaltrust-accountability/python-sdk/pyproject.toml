@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "otgovern"
+version = "0.2.0"
+description = "ASC SENTINEL governance SDK: seal NEXORA lifecycle anchors and AIP evidence packets from Python agents, byte-identical to the Rust core, and stream them to a governance hub"
+requires-python = ">=3.9"
+license = { text = "Proprietary" }
+
+[tool.setuptools.packages.find]
+include = ["otgovern*"]
