@@ -301,6 +301,13 @@ pub fn generate_packet(req: &GenerateRequest) -> Result<EvidencePacket, String> 
 }
 
 /// Verify a packet against caller-supplied trust context. Pure.
+///
+/// Trust-boundary note: `trusted_issuers` / `trusted_counterparties` are the
+/// *caller's* trust anchors. This endpoint is a deterministic calculator over
+/// the packet and those anchors — it does not decide who is a legitimate
+/// issuer, and a `valid` report means "consistent with the anchors the caller
+/// supplied", not "authorized by this service". Authorization decisions
+/// belong to an independent decision point, which this service is not.
 pub fn verify_request(req: &VerifyRequest) -> Result<VerificationReport, String> {
     let mut ctx = VerificationContext::new();
 
