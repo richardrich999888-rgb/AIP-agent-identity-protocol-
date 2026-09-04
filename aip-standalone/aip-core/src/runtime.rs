@@ -2,6 +2,13 @@
 //!
 //! Computes a SHA-256 fingerprint of the runtime context (hostname, PID,
 //! executable path, timestamp) and includes it in identity proofs.
+//!
+//! **NOT_PRODUCTION_CAPABILITY.** This type identifies a process by PID and
+//! by `sha256(path string)`, reads `$HOSTNAME`/`$CONTAINER_ID` verbatim, and
+//! is unsigned; it cannot survive PID reuse or detect binary replacement
+//! (violates I2, I4). It is superseded by [`crate::execution_binding`] and is
+//! retained only for the CLI display path. Do not extend it and do not use it
+//! as execution identity.
 
 use aip_crypto::sha256;
 use serde::{Deserialize, Serialize};

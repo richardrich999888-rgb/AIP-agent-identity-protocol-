@@ -14,6 +14,7 @@
 //! [`simulation`]. These exist for research and may change or be removed.
 //! See `AUDIT_CORRECTIONS.md` at the repository root.
 
+pub mod execution_binding; // Ghost Stage 1: process-instance identity (pid+start+boot, exe contents)
 pub mod nonce;
 pub mod runtime;
 pub mod simulation;

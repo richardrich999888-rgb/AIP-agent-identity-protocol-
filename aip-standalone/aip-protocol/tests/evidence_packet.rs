@@ -15,7 +15,10 @@ use aip_protocol::{
     EvidencePacket, EvidencePacketBuilder, ReceiptBinding, RootAuthority, TraceBinding, TrustFloor,
     VerificationContext,
 };
-use aip_types::{Action, CapabilityScope, KeyPair, ProvenanceTriple, ScopeAction};
+use aip_types::{
+    Action, CapabilityScope, ExecutionBinding, KeyPair, ProcessInstance, ProvenanceTriple,
+    ScopeAction, EXECUTION_BINDING_VERSION,
+};
 
 // ─── Test fixture: CFO → treasury orchestrator → payments agent ───
 
@@ -41,14 +44,36 @@ fn now_ms() -> u64 {
         .as_millis() as u64
 }
 
+/// A deterministic, synthetic execution binding for `agent_id`. Fixtures do
+/// not read procfs so they stay platform-independent; the live collector is
+/// covered by `aip_core::execution_binding` unit tests.
+fn test_binding(agent_id: &str) -> ExecutionBinding {
+    ExecutionBinding {
+        version: EXECUTION_BINDING_VERSION,
+        agent_id: agent_id.to_string(),
+        process: ProcessInstance {
+            pid: 4242,
+            pid_start_time_ticks: 433_843,
+            boot_id: [0x0c; 16],
+        },
+        exe_content_sha256: sha256(b"payments-agent binary v1"),
+        exe_path: "/opt/agent/bin/payments-agent".into(),
+        bound_at_ms: now_ms(),
+    }
+}
+
 /// Build a complete, honest, countersigned packet plus the matching context.
 fn build_fixture() -> Fixture {
-    build_fixture_with_root_expiry(Some(3_600_000))
+    build_fixture_opts(Some(3_600_000), true)
 }
 
 /// Same as [`build_fixture`] but with a caller-chosen root-token lifetime
 /// (`None` = the principal issued an unbounded token).
 fn build_fixture_with_root_expiry(root_expires_in_ms: Option<u64>) -> Fixture {
+    build_fixture_opts(root_expires_in_ms, true)
+}
+
+fn build_fixture_opts(root_expires_in_ms: Option<u64>, with_binding: bool) -> Fixture {
     // Principal (CFO) and intermediary (treasury orchestrator) and agent.
     let cfo_kp = generate_ed25519_keypair();
     let cfo_id = derive_aip_id(&cfo_kp.public_key, &provenance("cfo"));
@@ -133,15 +158,17 @@ fn build_fixture_with_root_expiry(root_expires_in_ms: Option<u64>) -> Fixture {
         root_token,
     };
 
-    let packet = EvidencePacketBuilder::new(agent_summary, root_authority)
+    let mut builder = EvidencePacketBuilder::new(agent_summary, root_authority)
         .delegation_chain(vec![hop1])
         .decision(decision)
         .action(action)
         .trace(trace)
         .receipt(receipt)
-        .claimed_trust_floor(TrustFloor::CounterpartySigned)
-        .build_and_sign(&agent_kp.private_key)
-        .unwrap();
+        .claimed_trust_floor(TrustFloor::CounterpartySigned);
+    if with_binding {
+        builder = builder.execution_binding(test_binding(&agent_aid.id));
+    }
+    let packet = builder.build_and_sign(&agent_kp.private_key).unwrap();
 
     let mut issuer_keys = HashMap::new();
     issuer_keys.insert(cfo_id, cfo_kp.public_key.clone());
@@ -535,6 +562,193 @@ fn test_delegation_hop_expiry_bounds_action() {
         .unwrap()
         .detail
         .contains("delegation hop 0"));
+}
+
+// ─── Execution binding (Ghost Stage 1) ───
+//
+/// A named in-place mutation of a binding field.
+type BindingMutation = (&'static str, Box<dyn Fn(&mut ExecutionBinding)>);
+//
+// The binding is agent-signed content: any post-sealing mutation or
+// transplant is caught by R3/R4. What the packet CANNOT prove is that the
+// binding is true — it is a self-report until an observer attests it. The
+// tests below pin both halves of that statement.
+
+#[test]
+fn test_execution_binding_rule_passes_but_is_flagged_self_reported() {
+    let f = build_fixture();
+    let report = verify_packet(&f.packet, &f.ctx);
+    assert!(report.valid);
+    let r = report.rule(rules::EXECUTION_BINDING).unwrap();
+    assert!(r.pass);
+    assert!(r.detail.contains("self-reported"), "{}", r.detail);
+    assert!(
+        r.detail.contains("NOT independently observed"),
+        "{}",
+        r.detail
+    );
+    // A binding never raises the trust floor.
+    assert_eq!(report.trust_floor, TrustFloor::CounterpartySigned);
+}
+
+#[test]
+fn test_packet_without_binding_verifies_and_reports_absence() {
+    let f = build_fixture_opts(Some(3_600_000), false);
+    assert!(f.packet.execution_binding.is_none());
+    let report = verify_packet(&f.packet, &f.ctx);
+    assert!(report.valid, "{:?}", report.failures());
+    let r = report.rule(rules::EXECUTION_BINDING).unwrap();
+    assert!(r.pass);
+    assert!(
+        r.detail.contains("no execution binding present"),
+        "{}",
+        r.detail
+    );
+}
+
+/// Test F — every security-sensitive binding field, mutated after sealing,
+/// is caught by the canonical hash.
+#[test]
+fn test_binding_field_mutations_detected_by_hash() {
+    let f = build_fixture();
+    let mutations: Vec<BindingMutation> = vec![
+        ("pid", Box::new(|b| b.process.pid += 1)),
+        (
+            "start_ticks",
+            Box::new(|b| b.process.pid_start_time_ticks += 1),
+        ),
+        ("boot_id", Box::new(|b| b.process.boot_id[0] ^= 0xFF)),
+        ("exe_hash", Box::new(|b| b.exe_content_sha256[31] ^= 0x01)),
+        ("exe_path", Box::new(|b| b.exe_path.push('x'))),
+        ("agent_id", Box::new(|b| b.agent_id.push('x'))),
+        ("bound_at", Box::new(|b| b.bound_at_ms += 1)),
+        ("version", Box::new(|b| b.version += 1)),
+    ];
+    for (name, mutate) in mutations {
+        let mut p = f.packet.clone();
+        mutate(p.execution_binding.as_mut().unwrap());
+        let report = verify_packet(&p, &f.ctx);
+        assert!(
+            !report.rule(rules::CANONICAL_HASH).unwrap().pass,
+            "mutating {name} was not detected"
+        );
+        assert!(report.tampered, "mutating {name} must be tamper evidence");
+    }
+}
+
+/// Test G — transplanting a different binding into a sealed packet is caught.
+#[test]
+fn test_binding_transplant_detected_by_hash_and_signature() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    let mut other = test_binding(&p.agent.aip_id);
+    other.process.pid_start_time_ticks += 10_000; // a different instance
+    p.execution_binding = Some(other);
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::CANONICAL_HASH);
+
+    // Recomputing the hash without the key still fails on the signature.
+    p.packet_hash = p.compute_hash();
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::AGENT_SIGNATURE);
+    assert!(report.tampered);
+}
+
+/// Adding a binding to a packet sealed without one (or removing one) is a
+/// canonical change — absence and presence are never confusable.
+#[test]
+fn test_binding_presence_is_part_of_canonical_bytes() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    p.execution_binding = None;
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::CANONICAL_HASH);
+
+    let g = build_fixture_opts(Some(3_600_000), false);
+    let mut q = g.packet.clone();
+    q.execution_binding = Some(test_binding(&q.agent.aip_id));
+    let report = verify_packet(&q, &g.ctx);
+    assert_rule_failed(&report, rules::CANONICAL_HASH);
+}
+
+/// JSON produced before the field existed (no `execution_binding` key) still
+/// parses — as `None` — and is then correctly reported as hash-mismatched if
+/// it was sealed with a binding.
+#[test]
+fn test_json_without_binding_key_parses_as_none() {
+    let f = build_fixture();
+    let mut v: serde_json::Value = serde_json::from_str(&f.packet.to_json().unwrap()).unwrap();
+    v.as_object_mut().unwrap().remove("execution_binding");
+    let restored = EvidencePacket::from_json(&v.to_string()).unwrap();
+    assert!(restored.execution_binding.is_none());
+    let report = verify_packet(&restored, &f.ctx);
+    assert_rule_failed(&report, rules::CANONICAL_HASH);
+}
+
+/// R15 consistency: a binding for a different agent, even when the agent
+/// re-seals the packet, is rejected.
+#[test]
+fn test_binding_for_other_agent_rejected_even_when_resealed() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    p.execution_binding = Some(test_binding("aip1someoneElse"));
+    reseal(&mut p, &f);
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::EXECUTION_BINDING);
+    assert!(
+        !report.tampered,
+        "producer inconsistency is not post-signing modification"
+    );
+    // Hash and signature themselves are fine — it was legitimately re-sealed.
+    assert!(report.rule(rules::CANONICAL_HASH).unwrap().pass);
+    assert!(report.rule(rules::AGENT_SIGNATURE).unwrap().pass);
+}
+
+/// R15 consistency: degenerate identity fields are rejected — a binding may
+/// be absent, but it may not be present and empty.
+#[test]
+fn test_degenerate_binding_fields_rejected() {
+    let f = build_fixture();
+    let cases: Vec<BindingMutation> = vec![
+        ("pid 0", Box::new(|b| b.process.pid = 0)),
+        ("start 0", Box::new(|b| b.process.pid_start_time_ticks = 0)),
+        ("zero boot", Box::new(|b| b.process.boot_id = [0u8; 16])),
+        ("zero exe", Box::new(|b| b.exe_content_sha256 = [0u8; 32])),
+        ("bad version", Box::new(|b| b.version = 0)),
+    ];
+    for (name, mutate) in cases {
+        let mut p = f.packet.clone();
+        mutate(p.execution_binding.as_mut().unwrap());
+        reseal(&mut p, &f);
+        let report = verify_packet(&p, &f.ctx);
+        assert!(
+            !report.rule(rules::EXECUTION_BINDING).unwrap().pass,
+            "{name} was accepted"
+        );
+        assert!(!report.valid);
+    }
+}
+
+/// Test H / self-report limit (documented, not a defect of this stage):
+/// the agent, holding its own key, CAN re-seal a packet with a different but
+/// well-formed binding for itself. The packet verifies, because the packet
+/// only proves what the agent signed. Catching a false binding requires an
+/// independent observer (Stage 3) — this test pins the boundary so a later
+/// stage cannot claim the packet alone already proves it.
+#[test]
+fn test_resealed_self_binding_swap_verifies_documenting_self_report_limit() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    let mut other = test_binding(&p.agent.aip_id);
+    other.process.pid = 99_999;
+    other.process.pid_start_time_ticks = 1;
+    other.exe_content_sha256 = sha256(b"a completely different binary");
+    p.execution_binding = Some(other);
+    reseal(&mut p, &f);
+    let report = verify_packet(&p, &f.ctx);
+    assert!(report.valid, "{:?}", report.failures());
+    let r = report.rule(rules::EXECUTION_BINDING).unwrap();
+    assert!(r.detail.contains("NOT independently observed"));
 }
 
 // ─── Wire versioning ───
