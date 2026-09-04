@@ -24,7 +24,7 @@ Commit `377d5fc`. Priorities per skill §21:
 | Component | Current state | Target state | Gap | Dependency | Pri |
 |---|---|---|---|---|---|
 | `ExpectedExecution` | **MISSING** (0 occurrences) | signed pre-execution authorization record | no "expected" side of reconciliation | decision point (P0) | **P0** |
-| `ExecutionBinding` | **MISSING**; `RuntimeBinding` is self-reported, unwired, path-hashed | agent ↔ process-instance binding in signed evidence | cannot attribute execution to an agent (**I3**) | canonical encoder, packet version bump | **P0** |
+| `ExecutionBinding` | **MISSING**; `RuntimeBinding` is self-reported, unwired, path-hashed | agent ↔ process-instance binding in signed evidence | cannot attribute execution to an agent (**I2**) | canonical encoder, packet version bump | **P0** |
 | Process instance identity | `pid` only (`runtime.rs:40`); no start time, no boot id | `(pid, pid_start_time, boot_id)` | PID reuse transfers attribution (**I4**) | ExecutionBinding | **P0** |
 | Executable identity | `sha256(path_string)` (`runtime.rs:41-44`) | `sha256(binary contents)` | different binary, same path, same hash | ExecutionBinding | **P0** |
 | Observer | **MISSING** (0 files: ebpf/XDP/perf_event/procfs/netlink) | independent runtime observer | no observation of any kind | binding + attestation | **P1** |

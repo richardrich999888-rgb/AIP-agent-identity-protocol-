@@ -19,7 +19,7 @@ foundation and must not be extended in place:
 | Reaches evidence | No — `EvidencePacket` has no runtime field; result is only printed (`aip-cli/src/main.rs:127,137`) |
 | Verified meaningfully | No — `pid` excluded from the verdict (`:76,84-93`); `container_match` computed then discarded (`:87` vs `:93`) |
 
-Violates **I3**, **I4**, **I10**.
+Violates **I2**, **I4**, **I10**.
 
 ## 2. Why PID alone fails — the concrete case
 
@@ -69,7 +69,7 @@ struct ExecutionBinding {
 
     // ── liveness window: when this binding is meaningful ─────────────
     bound_at_ns: u64,
-    valid_until_ns: u64,       // MUST be signature-covered (I5, I6)
+    valid_until_ns: u64,       // MUST be signature-covered (I6, I21)
 }
 ```
 
@@ -81,7 +81,7 @@ struct ExecutionBinding {
 | `pid_start_time_ticks`, `boot_id` | PID reuse transferring attribution (**I4**) |
 | `exe_content_sha256` | a different binary at the same path — the exact weakness of `runtime.rs:41-44` |
 | `cgroup_id`, `*_ns` | container/namespace escape and mis-scoped observation |
-| `valid_until_ns` | an unbounded binding outliving the process (**I5**) |
+| `valid_until_ns` | an unbounded binding outliving the process (**I21**) |
 
 ### Lifecycle events the binding must handle
 

@@ -35,7 +35,7 @@ ExpectedExecution (signed by a decision point the agent does not control)
         +
 ObservedExecution (signed by an observer the agent does not control)
         ↓
-IDENTITY BINDING     match on ExecutionBinding, not on PID and not on IP (I2, I3)
+IDENTITY BINDING     match on ExecutionBinding, not on PID and not on IP (I2)
         ↓
 CONTEXT COMPARISON   action_kind, parameter_digest, time window, net_ns
         ↓

@@ -76,7 +76,7 @@ Violates **I1**. This is the boundary Ghost must change.
 | Replay protection | none — `NonceTracker` is not wired to delegation |
 | **Failure mode** | **fail-open on lifetime.** The holder rewrites its own expiry; R5/R6 cannot see it; R10 honours the forged value |
 
-Violates **I5** and **I6**.
+Violates **I6** and **I21**.
 
 ## B4 — Verifier
 

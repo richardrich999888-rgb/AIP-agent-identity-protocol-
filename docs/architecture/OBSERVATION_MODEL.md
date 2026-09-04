@@ -95,7 +95,7 @@ struct ExpectedExecution {
     parameter_digest: [u8; 32],   // canonical digest of adjudicated params
     binding: ExecutionBinding,    // see EXECUTION_BINDING.md
     authorized_at: u64,
-    valid_until: u64,             // MUST be signature-covered — see I5, I6
+    valid_until: u64,             // MUST be signature-covered — see I6, I21
     decision_sig: Signature,      // by the decision point, NOT the agent
 }
 
@@ -110,7 +110,7 @@ struct ObservedExecution {
 }
 ```
 
-**Trust assumption to state explicitly (§13, I11):** a kernel network sensor
+**Trust assumption to state explicitly (§13, I23):** a kernel network sensor
 sees 5-tuples, byte counts and timing. It does **not** see TLS-encrypted
 application payloads. Therefore `parameter_digest` equality can only be
 established by cooperation from the agent runtime or an in-path proxy that

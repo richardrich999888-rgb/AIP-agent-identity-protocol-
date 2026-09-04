@@ -42,7 +42,7 @@ One wire break. Bump `PACKET_VERSION` exactly once for Stages 0–1 combined.
 **PROPOSED CHANGE** add `expires_at: Option<u64>` as a parameter to `canonical_token_payload` and encode it with a presence tag; update `issue_scoped_token:130` and `verify_scoped_token:156` call sites
 **WHY** the field is read by R10 (`verification.rs:495`) but not covered by the signature — the holder rewrites its own expiry. Copy the correct pattern already present at `aip-core/src/lib.rs:135-142`
 **DEPENDENCIES** none
-**SECURITY IMPACT** closes the P0 authority-extension defect; satisfies **I5**, **I6**
+**SECURITY IMPACT** closes the P0 authority-extension defect; satisfies **I6**, **I21**
 **COMPATIBILITY IMPACT** breaking — all existing tokens fail verification
 **TEST IMPACT** new: mutate `expires_at`, re-seal with the agent's real key, assert `ROOT_TOKEN_SIGNATURE` fails
 **MIGRATION IMPACT** re-issue tokens; no stored-data migration (tokens are ephemeral)
@@ -93,7 +93,7 @@ One wire break. Bump `PACKET_VERSION` exactly once for Stages 0–1 combined.
 
 **FILE** `aip-standalone/aip-types/src/lib.rs`
 **PROPOSED CHANGE** add `struct ExecutionBinding` and `struct ProcessInstance { pid: u32, pid_start_time_ticks: u64, boot_id: [u8;16] }` per `EXECUTION_BINDING.md` §3. Data only, no logic (this crate has no dependencies beyond serde and must stay that way)
-**WHY** PID alone cannot establish identity (**I3**); reuse must not transfer attribution (**I4**)
+**WHY** PID alone cannot establish identity (**I2**); reuse must not transfer attribution (**I4**)
 **TEST IMPACT** none directly — the crate has 0 tests today; add round-trip tests
 
 ### 1.2

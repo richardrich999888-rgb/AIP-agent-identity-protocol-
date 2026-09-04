@@ -502,7 +502,7 @@ It must never sign:
 > what the authorization system says should have happened
 
 The first supported trust-anchor design should follow the authoritative
-OBSERVATION_ATTESTATION.md decision.
+OBSERVER_ATTESTATION.md decision.
 
 If the selected design is remote collection:
 
