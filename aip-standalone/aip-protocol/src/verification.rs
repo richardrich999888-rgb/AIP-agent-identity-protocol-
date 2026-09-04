@@ -324,24 +324,27 @@ pub fn verify_packet(packet: &EvidencePacket, ctx: &VerificationContext) -> Veri
 // ─── Individual rule implementations ───
 
 fn check_structure(packet: &EvidencePacket, e: &mut Engine) -> bool {
-    let mut problems: Vec<&str> = vec![];
+    let mut problems: Vec<String> = vec![];
     if packet.magic != PACKET_MAGIC {
-        problems.push("bad magic");
+        problems.push("bad magic".into());
     }
     if packet.version != PACKET_VERSION {
-        problems.push("unsupported version");
+        problems.push(format!(
+            "unsupported version {} (this verifier implements v{}; embedded authority signatures of other versions are not comparable)",
+            packet.version, PACKET_VERSION
+        ));
     }
     if packet.agent.aip_id.is_empty() {
-        problems.push("empty agent id");
+        problems.push("empty agent id".into());
     }
     if packet.root_authority.principal_id.is_empty() {
-        problems.push("empty principal id");
+        problems.push("empty principal id".into());
     }
     if packet.actions.is_empty() {
-        problems.push("no action attestations");
+        problems.push("no action attestations".into());
     }
     if packet.decision.summary.is_empty() {
-        problems.push("empty decision summary");
+        problems.push("empty decision summary".into());
     }
     let ok = problems.is_empty();
     e.record(

@@ -1,6 +1,11 @@
 //! AIP Types — Core data structures for the Agent Identity Protocol v0.3.0.
 //!
 //! Pure types, no logic. Mirrors the wire format from the AIP spec.
+//!
+//! The one exception is [`canonical`]: the injective byte encoder shared by
+//! every crate that signs or hashes these types.
+
+pub mod canonical;
 
 use serde::{Deserialize, Serialize};
 
@@ -146,7 +151,13 @@ pub struct AgentIdentityDocument {
 }
 
 pub const AID_MAGIC: [u8; 4] = [0x41, 0x49, 0x44, 0x30]; // "AID0"
-pub const AIP_VERSION: u16 = 0x0003;
+/// AID document version.
+///
+/// `0x0004`: the self-signature and lineage-proof payloads switched to the
+/// domain-tagged, length-prefixed canonical encoding. AIDs at `0x0003` are
+/// rejected with `UnsupportedVersion` rather than failing signature checks
+/// with a misleading error.
+pub const AIP_VERSION: u16 = 0x0004;
 
 // ─── Error Codes (§4.8) ───
 

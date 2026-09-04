@@ -29,8 +29,12 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use aip_crypto::{sha256, sign_ed25519, verify_ed25519};
+use aip_types::canonical::{encode_scope, put_domain, put_opt_u64, put_str, put_u64, put_u8};
 use aip_types::*;
 use serde::{Deserialize, Serialize};
+
+/// Domain tag that leads every DelegationToken signing payload.
+pub const DELEGATION_TOKEN_DOMAIN: &str = "AIP/DelegationToken/v1";
 
 use crate::capability::{is_scope_subset, random_jti, scope_intersection};
 
@@ -71,6 +75,7 @@ pub fn create_delegation(
     let now_ms = now_ms();
     let jti = random_jti();
     let depth = 1u8; // Root delegation from a ScopedToken is depth 1
+    let expires_at = parent_token.expires_at; // Never outlive parent
 
     let payload = canonical_delegation_payload(
         &jti,
@@ -80,6 +85,7 @@ pub fn create_delegation(
         &effective_scope,
         depth,
         now_ms,
+        expires_at,
     );
     let issuer_sig = sign_ed25519(issuer_private_key, &parent_token.agent_id, &payload)?;
 
@@ -91,7 +97,7 @@ pub fn create_delegation(
         scope: effective_scope,
         depth,
         issued_at: now_ms,
-        expires_at: parent_token.expires_at, // Never outlive parent
+        expires_at,
         issuer_sig,
     })
 }
@@ -126,6 +132,7 @@ pub fn create_sub_delegation(
 
     let now_ms = now_ms();
     let jti = random_jti();
+    let expires_at = parent_delegation.expires_at; // Never outlive parent
 
     let payload = canonical_delegation_payload(
         &jti,
@@ -135,6 +142,7 @@ pub fn create_sub_delegation(
         &effective_scope,
         new_depth,
         now_ms,
+        expires_at,
     );
     let issuer_sig = sign_ed25519(issuer_private_key, &parent_delegation.grantee_id, &payload)?;
 
@@ -146,7 +154,7 @@ pub fn create_sub_delegation(
         scope: effective_scope,
         depth: new_depth,
         issued_at: now_ms,
-        expires_at: parent_delegation.expires_at,
+        expires_at,
         issuer_sig,
     })
 }
@@ -163,6 +171,8 @@ pub fn create_sub_delegation(
 /// 2. `chain[i].scope ⊆ chain[i-1].scope`
 /// 3. `chain[i].depth == chain[i-1].depth + 1`
 /// 4. `chain[i].parent_jti == chain[i-1].jti`
+/// 5. `chain[i].expires_at` does not outlive the parent's `expires_at`
+///    (a bounded parent cannot yield an unbounded or later-expiring child)
 ///
 /// Returns the effective (most-attenuated) scope — the leaf token's scope,
 /// which is already guaranteed to be ⊆ all ancestors by construction.
@@ -183,6 +193,7 @@ pub fn verify_delegation_chain(
 
     let mut prev_jti = root_token.jti;
     let mut prev_scope = root_token.scope.clone();
+    let mut prev_expires_at = root_token.expires_at;
 
     for (i, hop) in chain.iter().enumerate() {
         // 1. Parent JTI linkage
@@ -214,6 +225,7 @@ pub fn verify_delegation_chain(
             &hop.scope,
             hop.depth,
             hop.issued_at,
+            hop.expires_at,
         );
         let expected_hash = sha256(&payload);
         if hop.issuer_sig.payload_hash != expected_hash {
@@ -224,8 +236,23 @@ pub fn verify_delegation_chain(
             return Err(AipError::SignatureInvalid);
         }
 
+        // 5. Temporal attenuation (checked after authenticity so a forged
+        //    expiry is reported as SignatureInvalid, and an issuer that
+        //    genuinely over-delegated is reported as AttenuationViolation).
+        //    A bounded parent cannot yield an unbounded or later-expiring child.
+        if let Some(parent_exp) = prev_expires_at {
+            match hop.expires_at {
+                None => return Err(AipError::AttenuationViolation),
+                Some(child_exp) if child_exp > parent_exp => {
+                    return Err(AipError::AttenuationViolation)
+                }
+                Some(_) => {}
+            }
+        }
+
         prev_jti = hop.jti;
         prev_scope = hop.scope.clone();
+        prev_expires_at = hop.expires_at;
     }
 
     Ok(prev_scope)
@@ -366,6 +393,12 @@ fn now_ms() -> u64 {
         .as_millis() as u64
 }
 
+/// Signed payload of a DelegationToken.
+///
+/// Injective by construction: domain tag first, every variable-length field
+/// length-prefixed, `expires_at` with an explicit presence byte. Uses the
+/// shared encoder in [`aip_types::canonical`].
+#[allow(clippy::too_many_arguments)]
 fn canonical_delegation_payload(
     jti: &[u8; 16],
     parent_jti: &[u8; 16],
@@ -374,34 +407,19 @@ fn canonical_delegation_payload(
     scope: &CapabilityScope,
     depth: u8,
     issued_at: u64,
+    expires_at: Option<u64>,
 ) -> Vec<u8> {
     let mut buf = Vec::new();
-    buf.extend_from_slice(jti);
-    buf.extend_from_slice(parent_jti);
-    buf.extend_from_slice(issuer_id.as_bytes());
-    buf.extend_from_slice(grantee_id.as_bytes());
-    buf.push(depth);
-    for action in &scope.allowed {
-        buf.extend_from_slice(&encode_scope_action(action));
-    }
-    buf.push(0xFF);
-    for action in &scope.denied {
-        buf.extend_from_slice(&encode_scope_action(action));
-    }
-    buf.extend_from_slice(&issued_at.to_le_bytes());
+    put_domain(&mut buf, DELEGATION_TOKEN_DOMAIN);
+    buf.extend_from_slice(jti); // fixed 16 bytes
+    buf.extend_from_slice(parent_jti); // fixed 16 bytes
+    put_str(&mut buf, issuer_id);
+    put_str(&mut buf, grantee_id);
+    encode_scope(&mut buf, scope);
+    put_u8(&mut buf, depth);
+    put_u64(&mut buf, issued_at);
+    put_opt_u64(&mut buf, &expires_at);
     buf
-}
-
-fn encode_scope_action(action: &ScopeAction) -> Vec<u8> {
-    match action {
-        ScopeAction::Standard(a) => vec![0x00, *a as u8],
-        ScopeAction::Custom(s) => {
-            let mut v = vec![0x01];
-            v.extend_from_slice(s.as_bytes());
-            v.push(0x00);
-            v
-        }
-    }
 }
 
 #[cfg(test)]
@@ -434,7 +452,8 @@ mod tests {
 
     /// Root (unexpired, 1h) → hop1 → hop2, all validly signed.
     /// Returns (root, chain, issuer public keys).
-    fn make_signed_two_hop_chain() -> (ScopedToken, Vec<DelegationToken>, HashMap<String, Vec<u8>>) {
+    fn make_signed_two_hop_chain() -> (ScopedToken, Vec<DelegationToken>, HashMap<String, Vec<u8>>)
+    {
         let (issuer_id, issuer_priv, issuer_pub) = make_agent();
         let (agent_id, agent_priv, agent_pub) = make_agent();
         let (g1, g1_priv, g1_pub) = make_agent();
@@ -489,6 +508,115 @@ mod tests {
             ),
             "SECURITY: delegation expiry removed (Some -> None) but chain still verifies"
         );
+    }
+
+    /// An issuer who legitimately holds the delegating key signs a hop whose
+    /// expiry is LATER than the parent's. The signature is valid; the chain
+    /// must still be rejected — temporal attenuation is enforced, not trusted.
+    #[test]
+    fn test_legitimately_signed_hop_outliving_parent_rejected() {
+        let (issuer_id, issuer_priv, issuer_pub) = make_agent();
+        let (agent_id, agent_priv, agent_pub) = make_agent();
+        let (g1, _, _) = make_agent();
+        let root = issue_scoped_token(
+            &issuer_id,
+            &issuer_priv,
+            &agent_id,
+            scope_orchestrator(),
+            Some(3_600_000),
+        )
+        .unwrap();
+        let root_exp = root.expires_at.unwrap();
+        let mut keys = HashMap::new();
+        keys.insert(issuer_id, issuer_pub);
+        keys.insert(agent_id.clone(), agent_pub);
+
+        let forge = |expires_at: Option<u64>| {
+            let jti = random_jti();
+            let issued_at = now_ms();
+            let scope = scope_orchestrator();
+            let payload = canonical_delegation_payload(
+                &jti, &root.jti, &agent_id, &g1, &scope, 1, issued_at, expires_at,
+            );
+            let issuer_sig = sign_ed25519(&agent_priv, &agent_id, &payload).unwrap();
+            DelegationToken {
+                jti,
+                parent_jti: root.jti,
+                issuer_id: agent_id.clone(),
+                grantee_id: g1.clone(),
+                scope,
+                depth: 1,
+                issued_at,
+                expires_at,
+                issuer_sig,
+            }
+        };
+
+        // Control: equal expiry is accepted.
+        assert!(verify_delegation_chain(&root, &[forge(Some(root_exp))], &keys).is_ok());
+        // Later expiry, validly signed → rejected as attenuation violation.
+        assert_eq!(
+            verify_delegation_chain(&root, &[forge(Some(root_exp + 1))], &keys),
+            Err(AipError::AttenuationViolation)
+        );
+        // Unbounded child of a bounded parent → rejected.
+        assert_eq!(
+            verify_delegation_chain(&root, &[forge(None)], &keys),
+            Err(AipError::AttenuationViolation)
+        );
+    }
+
+    // ── Adversarial: domain separation and injectivity (I14) ──
+
+    /// A ScopedToken issuer signature transplanted onto a DelegationToken with
+    /// field-for-field matching content must not verify: the two payloads
+    /// live in different signing domains.
+    #[test]
+    fn test_scoped_token_signature_cannot_verify_as_delegation() {
+        let (issuer_id, issuer_priv, issuer_pub) = make_agent();
+        let (agent_id, _, _) = make_agent();
+        let token =
+            issue_scoped_token(&issuer_id, &issuer_priv, &agent_id, scope_submitter(), None)
+                .unwrap();
+
+        // A "root" whose jti is the zero parent_jti we place on the forged hop.
+        // verify_delegation_chain never checks the root's own signature.
+        let mut pseudo_root = token.clone();
+        pseudo_root.jti = [0u8; 16];
+
+        let forged_hop = DelegationToken {
+            jti: token.jti,
+            parent_jti: [0u8; 16],
+            issuer_id: token.issuer_id.clone(),
+            grantee_id: token.agent_id.clone(),
+            scope: token.scope.clone(),
+            depth: 1,
+            issued_at: token.issued_at,
+            expires_at: token.expires_at,
+            issuer_sig: token.issuer_sig.clone(), // genuine signature, wrong domain
+        };
+        let mut keys = HashMap::new();
+        keys.insert(issuer_id, issuer_pub);
+
+        assert_eq!(
+            verify_delegation_chain(&pseudo_root, &[forged_hop], &keys),
+            Err(AipError::SignatureInvalid)
+        );
+    }
+
+    #[test]
+    fn test_delegation_payload_adjacent_ids_do_not_collide() {
+        let jti = [1u8; 16];
+        let pj = [2u8; 16];
+        let scope = scope_submitter();
+        let p1 = canonical_delegation_payload(&jti, &pj, "ab", "c", &scope, 1, 1, None);
+        let p2 = canonical_delegation_payload(&jti, &pj, "a", "bc", &scope, 1, 1, None);
+        assert_ne!(p1, p2);
+        let none = canonical_delegation_payload(&jti, &pj, "a", "b", &scope, 1, 1, None);
+        let some = canonical_delegation_payload(&jti, &pj, "a", "b", &scope, 1, 1, Some(0));
+        assert_ne!(none, some);
+        let tag = DELEGATION_TOKEN_DOMAIN.as_bytes();
+        assert_eq!(&p1[4..4 + tag.len()], tag);
     }
 
     // ── Basic delegation tests ──

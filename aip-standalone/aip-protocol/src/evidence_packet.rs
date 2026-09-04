@@ -32,7 +32,17 @@ use crate::canonical::*;
 /// Magic bytes identifying an AIP EvidencePacket ("AEP1").
 pub const PACKET_MAGIC: [u8; 4] = *b"AEP1";
 /// EvidencePacket wire-format version.
-pub const PACKET_VERSION: u16 = 1;
+///
+/// History:
+/// - `1`: initial format.
+/// - `2`: authority-signature correction. The issuer signatures embedded in
+///   `root_token` and every `delegation_chain` hop now cover `expires_at`,
+///   use length-prefixed (injective) field encoding and carry a domain tag
+///   (`AIP/ScopedToken/v1`, `AIP/DelegationToken/v1`). Version-1 packets are
+///   NOT verifiable under this crate: their embedded signatures were produced
+///   over the old, non-binding payload, so R1 STRUCTURE rejects them
+///   explicitly rather than letting R5/R6 fail with a misleading detail.
+pub const PACKET_VERSION: u16 = 2;
 
 // ─── Trust Floor ───
 

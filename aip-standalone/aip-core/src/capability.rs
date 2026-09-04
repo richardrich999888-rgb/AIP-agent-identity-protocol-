@@ -15,8 +15,13 @@
 //! If the intersection is empty, the delegation is rejected.
 
 use aip_crypto::{sha256, sign_ed25519};
+use aip_types::canonical::{encode_scope, put_domain, put_opt_u64, put_str, put_u64};
 use aip_types::*;
 use std::time::{SystemTime, UNIX_EPOCH};
+
+/// Domain tag that leads every ScopedToken signing payload. A signature over
+/// a ScopedToken can therefore never verify as any other AIP object.
+pub const SCOPED_TOKEN_DOMAIN: &str = "AIP/ScopedToken/v1";
 
 // ─── Named Scope Constructors ───
 
@@ -136,9 +141,11 @@ pub fn issue_scoped_token(
 ) -> Result<ScopedToken, AipError> {
     let now_ms = now_ms();
     let jti = random_jti();
+    let expires_at = expires_in_ms.map(|d| now_ms + d);
 
-    // Canonical token payload for signing
-    let payload = canonical_token_payload(&jti, issuer_id, agent_id, &scope, now_ms);
+    // Canonical token payload for signing — covers every field the verifier
+    // later trusts, including the validity window (I6).
+    let payload = canonical_token_payload(&jti, issuer_id, agent_id, &scope, now_ms, expires_at);
     let issuer_sig = sign_ed25519(issuer_private_key, issuer_id, &payload)?;
 
     Ok(ScopedToken {
@@ -147,7 +154,7 @@ pub fn issue_scoped_token(
         issuer_id: issuer_id.to_string(),
         scope,
         issued_at: now_ms,
-        expires_at: expires_in_ms.map(|d| now_ms + d),
+        expires_at,
         issuer_sig,
     })
 }
@@ -163,6 +170,7 @@ pub fn verify_scoped_token(
         &token.agent_id,
         &token.scope,
         token.issued_at,
+        token.expires_at,
     );
     let expected_hash = sha256(&payload);
     if token.issuer_sig.payload_hash != expected_hash {
@@ -205,40 +213,28 @@ pub fn random_jti() -> [u8; 16] {
     jti
 }
 
+/// Signed payload of a ScopedToken.
+///
+/// Injective by construction: domain tag first, every variable-length field
+/// length-prefixed, `expires_at` with an explicit presence byte. Uses the
+/// shared encoder in [`aip_types::canonical`].
 fn canonical_token_payload(
     jti: &[u8; 16],
     issuer_id: &str,
     agent_id: &str,
     scope: &CapabilityScope,
     issued_at: u64,
+    expires_at: Option<u64>,
 ) -> Vec<u8> {
     let mut buf = Vec::new();
-    buf.extend_from_slice(jti);
-    buf.extend_from_slice(issuer_id.as_bytes());
-    buf.extend_from_slice(agent_id.as_bytes());
-    for action in &scope.allowed {
-        let action_bytes = encode_scope_action(action);
-        buf.extend_from_slice(&action_bytes);
-    }
-    buf.push(0xFF); // Separator between allowed and denied
-    for action in &scope.denied {
-        let action_bytes = encode_scope_action(action);
-        buf.extend_from_slice(&action_bytes);
-    }
-    buf.extend_from_slice(&issued_at.to_le_bytes());
+    put_domain(&mut buf, SCOPED_TOKEN_DOMAIN);
+    buf.extend_from_slice(jti); // fixed 16 bytes
+    put_str(&mut buf, issuer_id);
+    put_str(&mut buf, agent_id);
+    encode_scope(&mut buf, scope);
+    put_u64(&mut buf, issued_at);
+    put_opt_u64(&mut buf, &expires_at);
     buf
-}
-
-fn encode_scope_action(action: &ScopeAction) -> Vec<u8> {
-    match action {
-        ScopeAction::Standard(a) => vec![0x00, *a as u8],
-        ScopeAction::Custom(s) => {
-            let mut v = vec![0x01];
-            v.extend_from_slice(s.as_bytes());
-            v.push(0x00); // null terminator
-            v
-        }
-    }
 }
 
 #[cfg(test)]
@@ -270,9 +266,14 @@ mod tests {
         let (issuer_id, priv_key, pub_key) = make_issuer();
         let (agent_id, _, _) = make_issuer();
 
-        let mut token =
-            issue_scoped_token(&issuer_id, &priv_key, &agent_id, scope_submitter(), Some(60_000))
-                .unwrap();
+        let mut token = issue_scoped_token(
+            &issuer_id,
+            &priv_key,
+            &agent_id,
+            scope_submitter(),
+            Some(60_000),
+        )
+        .unwrap();
         assert!(verify_scoped_token(&token, &pub_key).unwrap());
 
         // Only expires_at changes. jti, ids, scope, issued_at, issuer_sig untouched.
@@ -289,9 +290,14 @@ mod tests {
         let (issuer_id, priv_key, pub_key) = make_issuer();
         let (agent_id, _, _) = make_issuer();
 
-        let mut token =
-            issue_scoped_token(&issuer_id, &priv_key, &agent_id, scope_submitter(), Some(60_000))
-                .unwrap();
+        let mut token = issue_scoped_token(
+            &issuer_id,
+            &priv_key,
+            &agent_id,
+            scope_submitter(),
+            Some(60_000),
+        )
+        .unwrap();
         assert!(verify_scoped_token(&token, &pub_key).unwrap());
 
         // Removing the expiry entirely = unbounded authority.
@@ -416,6 +422,68 @@ mod tests {
         // Tamper: escalate scope after issuance
         token.scope = scope_admin();
         assert!(!verify_scoped_token(&token, &pub_key).unwrap());
+    }
+
+    // ── Adversarial: signing payload injectivity and domain separation (I14) ──
+
+    #[test]
+    fn test_token_payload_adjacent_ids_do_not_collide() {
+        let jti = [7u8; 16];
+        let scope = scope_submitter();
+        // ("ab","c") vs ("a","bc") — identical under raw concatenation.
+        let p1 = canonical_token_payload(&jti, "ab", "c", &scope, 1, None);
+        let p2 = canonical_token_payload(&jti, "a", "bc", &scope, 1, None);
+        assert_ne!(p1, p2);
+        // Empty/shifted variants.
+        let p3 = canonical_token_payload(&jti, "", "abc", &scope, 1, None);
+        let p4 = canonical_token_payload(&jti, "abc", "", &scope, 1, None);
+        assert_ne!(p3, p4);
+        assert_ne!(p1, p3);
+    }
+
+    #[test]
+    fn test_token_payload_custom_action_interior_nul_unambiguous() {
+        let jti = [7u8; 16];
+        let a = CapabilityScope {
+            allowed: vec![ScopeAction::Custom("x\0y".into())],
+            denied: vec![],
+        };
+        let b = CapabilityScope {
+            allowed: vec![
+                ScopeAction::Custom("x".into()),
+                ScopeAction::Custom("y".into()),
+            ],
+            denied: vec![],
+        };
+        let c = CapabilityScope {
+            allowed: vec![ScopeAction::Custom("x".into())],
+            denied: vec![ScopeAction::Custom("y".into())],
+        };
+        let pa = canonical_token_payload(&jti, "i", "a", &a, 1, None);
+        let pb = canonical_token_payload(&jti, "i", "a", &b, 1, None);
+        let pc = canonical_token_payload(&jti, "i", "a", &c, 1, None);
+        assert_ne!(pa, pb);
+        assert_ne!(pb, pc);
+        assert_ne!(pa, pc);
+    }
+
+    #[test]
+    fn test_token_payload_expiry_presence_is_distinct() {
+        let jti = [7u8; 16];
+        let scope = scope_submitter();
+        let none = canonical_token_payload(&jti, "i", "a", &scope, 1, None);
+        let some0 = canonical_token_payload(&jti, "i", "a", &scope, 1, Some(0));
+        let some1 = canonical_token_payload(&jti, "i", "a", &scope, 1, Some(1));
+        assert_ne!(none, some0);
+        assert_ne!(some0, some1);
+    }
+
+    #[test]
+    fn test_token_payload_starts_with_domain_tag() {
+        let p = canonical_token_payload(&[0u8; 16], "i", "a", &scope_submitter(), 1, None);
+        let tag = SCOPED_TOKEN_DOMAIN.as_bytes();
+        assert_eq!(&p[..4], &(tag.len() as u32).to_le_bytes());
+        assert_eq!(&p[4..4 + tag.len()], tag);
     }
 
     // ── Scope violation detection tests ──

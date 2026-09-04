@@ -43,6 +43,12 @@ fn now_ms() -> u64 {
 
 /// Build a complete, honest, countersigned packet plus the matching context.
 fn build_fixture() -> Fixture {
+    build_fixture_with_root_expiry(Some(3_600_000))
+}
+
+/// Same as [`build_fixture`] but with a caller-chosen root-token lifetime
+/// (`None` = the principal issued an unbounded token).
+fn build_fixture_with_root_expiry(root_expires_in_ms: Option<u64>) -> Fixture {
     // Principal (CFO) and intermediary (treasury orchestrator) and agent.
     let cfo_kp = generate_ed25519_keypair();
     let cfo_id = derive_aip_id(&cfo_kp.public_key, &provenance("cfo"));
@@ -56,7 +62,7 @@ fn build_fixture() -> Fixture {
         &cfo_kp.private_key,
         &orch_aid.id,
         scope_orchestrator(), // Read, Write, Execute, Delegate; Admin denied
-        Some(3_600_000),
+        root_expires_in_ms,
     )
     .unwrap();
 
@@ -437,6 +443,112 @@ fn test_action_after_token_expiry_rejected() {
 
     let report = verify_packet(&p, &f.ctx);
     assert_rule_failed(&report, rules::TEMPORAL_VALIDITY);
+}
+
+// ─── Temporal semantics (R10): explicit, offline, inclusive expiry ───
+//
+// R10 compares the packet's own `decided_at` / `performed_at` against the
+// signed `issued_at` / `expires_at` of every token in the chain. It never
+// consults the verifier's clock. A timestamp exactly equal to `expires_at`
+// is inside the window; `expires_at + 1` is outside.
+
+/// Replace the packet's single action with one performed at `performed_at`
+/// and re-seal with the legitimate agent key.
+fn replace_action_at(p: &mut EvidencePacket, f: &Fixture, performed_at: u64) {
+    let kind = p.actions[0].action_kind.clone();
+    let description = p.actions[0].description.clone();
+    let payload_hash = p.actions[0].payload_hash;
+    p.actions[0] = ActionAttestation::create(
+        &p.agent.aip_id,
+        &f.agent_kp.private_key,
+        &p.decision.decision_id,
+        kind,
+        &description,
+        payload_hash,
+        performed_at,
+    )
+    .unwrap();
+    reseal(p, f);
+}
+
+#[test]
+fn test_action_at_exact_expiry_boundary_accepted() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    let expiry = p.root_authority.root_token.expires_at.unwrap();
+    replace_action_at(&mut p, &f, expiry);
+    let report = verify_packet(&p, &f.ctx);
+    assert!(
+        report.rule(rules::TEMPORAL_VALIDITY).unwrap().pass,
+        "{:?}",
+        report
+    );
+    assert!(report.valid);
+}
+
+#[test]
+fn test_action_one_past_expiry_rejected() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    let expiry = p.root_authority.root_token.expires_at.unwrap();
+    replace_action_at(&mut p, &f, expiry + 1);
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::TEMPORAL_VALIDITY);
+}
+
+#[test]
+fn test_decision_after_expiry_rejected() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    let expiry = p.root_authority.root_token.expires_at.unwrap();
+    p.decision.decided_at = expiry + 1;
+    replace_action_at(&mut p, &f, expiry + 2);
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::TEMPORAL_VALIDITY);
+}
+
+#[test]
+fn test_unbounded_root_token_accepts_far_future_action() {
+    let f = build_fixture_with_root_expiry(None);
+    assert!(f.packet.root_authority.root_token.expires_at.is_none());
+    assert!(f.packet.delegation_chain[0].expires_at.is_none());
+    let mut p = f.packet.clone();
+    let ten_years = 10 * 365 * 24 * 3_600_000u64;
+    let far_future = p.decision.decided_at + ten_years;
+    replace_action_at(&mut p, &f, far_future);
+    let report = verify_packet(&p, &f.ctx);
+    assert!(report.valid, "{:?}", report);
+}
+
+#[test]
+fn test_delegation_hop_expiry_bounds_action() {
+    // The hop inherits the root expiry; an action past it fails R10 and the
+    // detail names the hop, proving hop expiry is evaluated, not just root.
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    let hop_exp = p.delegation_chain[0].expires_at.unwrap();
+    replace_action_at(&mut p, &f, hop_exp + 1);
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::TEMPORAL_VALIDITY);
+    assert!(report
+        .rule(rules::TEMPORAL_VALIDITY)
+        .unwrap()
+        .detail
+        .contains("delegation hop 0"));
+}
+
+// ─── Wire versioning ───
+
+#[test]
+fn test_version_1_packet_rejected_explicitly() {
+    let f = build_fixture();
+    let mut p = f.packet.clone();
+    p.version = 1;
+    reseal(&mut p, &f);
+    let report = verify_packet(&p, &f.ctx);
+    assert_rule_failed(&report, rules::STRUCTURE);
+    let detail = &report.rule(rules::STRUCTURE).unwrap().detail;
+    assert!(detail.contains("unsupported version 1"), "{detail}");
 }
 
 // ─── Adversarial: authority expiry extension through the real packet path (I6) ───
