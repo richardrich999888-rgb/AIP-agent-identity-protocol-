@@ -27,11 +27,33 @@ pub struct PublicKey {
     pub key_bytes: Vec<u8>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// A signing key pair.
+///
+/// `Debug` is implemented by hand and redacts `private_key` so that logging
+/// or `{:?}`-formatting a key pair can never leak secret material.
+///
+/// `Serialize`/`Deserialize` are retained because `aip_core::store` persists
+/// identities (including their key pair) as JSON. That persistence is
+/// plaintext at rest; protecting it is a key-management concern outside this
+/// type. Do not serialize a `KeyPair` anywhere else.
+#[derive(Clone, Serialize, Deserialize)]
 pub struct KeyPair {
     pub algorithm: AlgorithmId,
     pub public_key: Vec<u8>,
     pub private_key: Vec<u8>,
+}
+
+impl std::fmt::Debug for KeyPair {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("KeyPair")
+            .field("algorithm", &self.algorithm)
+            .field("public_key", &self.public_key)
+            .field(
+                "private_key",
+                &format_args!("<redacted {} bytes>", self.private_key.len()),
+            )
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
