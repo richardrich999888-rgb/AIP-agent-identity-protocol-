@@ -173,3 +173,16 @@ DEPENDENCIES:  aip-crypto, aip-types, aip-core (capability, delegation,
                aip-reconcile (Reconciliation).
 STATUS:        authorized in the reduced form of A.4.
 ```
+
+## A.8 Phase B outcome
+
+| Component | State after Phase B | Evidence |
+|---|---|---|
+| SD-01 identity (validated projection over AID / packet summary) | **CLOSED for the projection**; issuer and lifecycle authority still `MISSING` | `aip-agent/src/identity.rs`; p01–p05 |
+| SD-05 passport as read-only projection of tokens | **CLOSED** | `aip-agent/src/authority.rs`; p06–p08, p11 |
+| SD-02 profile skeleton with fixed partitions and no scalar summary | **CLOSED for the skeleton**; lineage and experience partitions are explicit placeholders | `aip-agent/src/profile.rs`; p09–p15 |
+| Reputation / scoring never consumed | **pinned** | p16 |
+| Lifecycle without authority (A.3) | unchanged; **refused, not trusted** (`SelfAsserted` only) | c01, p02, p03 |
+| Depth does not chain (A.3) | unchanged; Phase C rebuilds ancestry from proofs | c02 |
+
+Test counts after Phase B: aip-standalone 567 / 0 / 3 ignored (+19), aip-service 39 / 0; clippy and fmt clean.

@@ -48,6 +48,12 @@ original discovery text for traceability):
   classified against this matrix and Skills 3–8. No code. Five decisions
   recorded as NOT DETERMINED (§8 there) block the identity-lifecycle and
   agent-lineage parts.
+- Sniffer Dog 2.0 Phase A/B — `SNIFFER_DOG_2_0_GAP_MATRIX.md` (inventory;
+  finds the unwired `AgentIdentityDocument`, its parent-signed lineage proof,
+  its unsigned lifecycle and the experimental reputation scorer) and the new
+  crate `aip-agent`: validated identity, authority projection under the
+  decision point's rules, dimension-separated profile view with no summary
+  field. No new key or authority. See `SNIFFER_DOG_2_0_IMPLEMENTATION_REPORT.md`.
 
 ## D. PR3 corrective review (pre-reconciliation)
 

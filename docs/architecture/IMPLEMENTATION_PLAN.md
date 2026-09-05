@@ -250,6 +250,10 @@ STAGE 7c Process execution      aip-observe/src/{perf,sched}.rs (sched fork/exec
                                 aip-reconcile/src/action.rs · tests/exec_evidence.rs
                                 ghost-demo live X-P/X-A/X-B/X-C   [second class; observer v5;
                                 perf clock defect from 7b fixed]
+SD2.0-B  Identity/profile view  NEW aip-agent (validated identity over AID/summary; authority
+                                projection under decision-point rules; profile partitions;
+                                lifecycle self-asserted only)  [no new authority; see
+                                SNIFFER_DOG_2_0_IMPLEMENTATION_REPORT.md]
 ─────────────────────────────────────────────────────────────────────────────
 DONE     Stages 0–5, 6.5 (Sniffer Dog), 7/7b/7c (two action classes) — see
          the implementation reports; every later stage is gated on its own review

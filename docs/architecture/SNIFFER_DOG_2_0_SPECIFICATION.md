@@ -9,6 +9,11 @@
 > Governing rule, unchanged from Skill 6.5: **the agent may describe itself,
 > the authority may authorize it, but only independent evidence can establish
 > what it actually did.**
+>
+> **Implementation status** is tracked in `SNIFFER_DOG_2_0_IMPLEMENTATION_REPORT.md`
+> and `SNIFFER_DOG_2_0_GAP_MATRIX.md`. Phase B (`aip-agent`: SD-01 reuse,
+> SD-05 projection, SD-02 skeleton) is implemented in the reduced form those
+> documents state; every other component remains as classified below.
 
 ## 0. Why this document exists
 
