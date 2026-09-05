@@ -21,8 +21,9 @@ use std::net::{Ipv4Addr, SocketAddrV4, TcpListener, TcpStream};
 use std::process::{Child, Command, Stdio};
 
 use aip_authorize::{
-    net_connect_action, net_connect_parameters, ActionParameters, AuthorizationRequest, Decision,
-    DecisionPoint, DecisionPointTrustAnchors, Denial, ExpectedExecution, NetProtocol,
+    net_connect_action, net_connect_parameters, process_exec_action, process_exec_parameters,
+    ActionParameters, AuthorizationRequest, Decision, DecisionPoint, DecisionPointTrustAnchors,
+    Denial, ExpectedExecution, NetProtocol,
 };
 use aip_core::capability::issue_scoped_token;
 use aip_core::create_identity;
@@ -31,8 +32,8 @@ use aip_core::execution_binding::collect_binding_for_pid;
 use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_observe::{
     boot_clock_anchor, AgentClaim, AttestedBatch, CollectorSigner, ObservedEffect,
-    ObserverAttestor, ObserverTrustAnchors, ProbeError, ProcfsProbe, SignedSensorHealth,
-    SockStateTracer, SocketProtocol, SourceMechanism,
+    ObserverAttestor, ObserverTrustAnchors, ProbeError, ProcessTracer, ProcfsProbe,
+    SignedSensorHealth, SockStateTracer, SocketProtocol, SourceMechanism,
 };
 use aip_reconcile::{
     reconcile_expectation, reconcile_observation, ExpectedSideCoverage, ObservationTarget,
@@ -177,16 +178,10 @@ pub fn connect_params(remote: SocketAddrV4) -> ActionParameters {
     net_connect_parameters(NetProtocol::Tcp, &remote.ip().octets(), remote.port()).unwrap()
 }
 
-/// The process-execution action, spelled out raw. The parameter is the
-/// executable's **content** hash (Stage 1 identity rule: never a path).
-pub const PROCESS_EXEC_ACTION: &str = "ghost.process.exec.v1";
-
-pub fn process_exec_action() -> aip_types::ScopeAction {
-    aip_types::ScopeAction::Custom(PROCESS_EXEC_ACTION.into())
-}
-
+/// The process-execution parameters: the executable's **content** hash
+/// (Stage 1 identity rule: never a path), through the shared vocabulary.
 pub fn exec_params(exe_sha256: [u8; 32]) -> ActionParameters {
-    ActionParameters::from_pairs([("exe_sha256", exe_sha256.to_vec())]).unwrap()
+    process_exec_parameters(exe_sha256)
 }
 
 /// SHA-256 of a file's contents, as the observer will hash `/proc/<pid>/exe`.
@@ -204,33 +199,35 @@ pub struct Observer {
     pub anchors: ObserverTrustAnchors,
     /// The kernel-pushed socket-state source, when this observer has one.
     tracer: Option<SockStateTracer>,
+    /// The kernel-pushed fork/exec source, when this observer has one.
+    process_tracer: Option<ProcessTracer>,
     next_batch: u8,
 }
 
-/// Can this host provide the kernel-pushed socket-state source? `Err` names
-/// what is missing (tracefs, perf permission). Nothing is simulated when it
-/// cannot.
+/// Can this host provide the kernel-pushed sources (socket state and
+/// fork/exec)? `Err` names what is missing (tracefs, perf permission).
+/// Nothing is simulated when it cannot.
 pub fn tracer_available() -> Result<(), String> {
-    SockStateTracer::open()
-        .map(|_| ())
-        .map_err(|e| e.to_string())
+    SockStateTracer::open().map_err(|e| e.to_string())?;
+    ProcessTracer::open().map(|_| ()).map_err(|e| e.to_string())
 }
 
 impl Observer {
     /// Polling only: `PidFdAnchored` process facts and `ProcNetTable` socket
     /// rows. This is the Stage 7 observer, kept as it was.
     pub fn new() -> Self {
-        Self::build(None)
+        Self::build(None, None)
     }
 
     /// Polling plus the kernel-pushed `sock:inet_sock_set_state` tracepoint
     /// through `perf_event_open`. Fails where the host does not permit it.
     pub fn with_tracer() -> Result<Self, String> {
         let tracer = SockStateTracer::open().map_err(|e| e.to_string())?;
-        Ok(Self::build(Some(tracer)))
+        let process_tracer = ProcessTracer::open().map_err(|e| e.to_string())?;
+        Ok(Self::build(Some(tracer), Some(process_tracer)))
     }
 
-    fn build(tracer: Option<SockStateTracer>) -> Self {
+    fn build(tracer: Option<SockStateTracer>, process_tracer: Option<ProcessTracer>) -> Self {
         let kp = generate_ed25519_keypair();
         let mut signer =
             CollectorSigner::new(OBSERVER_ID, 1, &kp.private_key, &kp.public_key).unwrap();
@@ -238,6 +235,9 @@ impl Observer {
         let mut probe = ProcfsProbe::new(PROBE_ID);
         probe.declare_source(SourceMechanism::PidFdAnchored);
         probe.declare_source(SourceMechanism::ProcNetTable);
+        if process_tracer.is_some() {
+            probe.declare_source(SourceMechanism::SchedTracepoint);
+        }
         if tracer.is_some() {
             probe.declare_source(SourceMechanism::SockStateTracepoint);
             // The perf ring reports loss; from here on "no loss" is a counted
@@ -253,6 +253,7 @@ impl Observer {
             signer,
             anchors,
             tracer,
+            process_tracer,
             next_batch: 1,
         }
     }
@@ -261,28 +262,54 @@ impl Observer {
     /// probe (anchoring `connect()` initiations to their instance), and
     /// account for any loss the perf ring reported.
     pub fn drain_kernel_events(&mut self) {
-        let Some(tracer) = self.tracer.as_mut() else {
-            return;
-        };
-        // A short wait lets in-flight transitions from a just-completed
-        // connect land in the rings before the batch closes.
-        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
-        loop {
-            match tracer.next_event(10) {
-                Ok(Some(ev)) => {
-                    self.probe.ingest_socket_event(ev);
-                }
-                Ok(None) => {
-                    if std::time::Instant::now() >= deadline {
-                        break;
-                    }
-                }
-                Err(_) => break,
+        // Re-anchor the three clocks for this batch: a suspend since the last
+        // anchor would otherwise shift the boot↔monotonic relation silently.
+        if self.tracer.is_some() || self.process_tracer.is_some() {
+            if let Ok(anchor) = boot_clock_anchor() {
+                self.probe.declare_clock_anchor(anchor);
             }
         }
-        let lost = tracer.take_lost();
-        if lost > 0 {
-            self.probe.record_lost_events(lost);
+        // A short wait lets in-flight events from a just-completed action
+        // land in the rings before the batch closes.
+        if let Some(tracer) = self.tracer.as_mut() {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+            loop {
+                match tracer.next_event(10) {
+                    Ok(Some(ev)) => {
+                        self.probe.ingest_socket_event(ev);
+                    }
+                    Ok(None) => {
+                        if std::time::Instant::now() >= deadline {
+                            break;
+                        }
+                    }
+                    Err(_) => break,
+                }
+            }
+            let lost = tracer.take_lost();
+            if lost > 0 {
+                self.probe.record_lost_events(lost);
+            }
+        }
+        if let Some(tracer) = self.process_tracer.as_mut() {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+            loop {
+                match tracer.next_event(10) {
+                    Ok(Some(ev)) => {
+                        self.probe.ingest_sched_event(ev);
+                    }
+                    Ok(None) => {
+                        if std::time::Instant::now() >= deadline {
+                            break;
+                        }
+                    }
+                    Err(_) => break,
+                }
+            }
+            let lost = tracer.take_lost();
+            if lost > 0 {
+                self.probe.record_lost_events(lost);
+            }
         }
     }
 

@@ -40,7 +40,7 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 ///   instead of inferring it from whether events happened to occur.
 ///
 /// Earlier versions never left this branch; all are refused.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 4;
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 5;
 
 /// Kernel TCP state bytes (`include/net/tcp_states.h`), as they appear in
 /// `/proc/net/tcp` and in the `sock:inet_sock_set_state` tracepoint.
@@ -95,6 +95,14 @@ pub enum SourceMechanism {
     /// event in kernel time. Loss is signalled by the perf ring
     /// (`PERF_RECORD_LOST`). Not packet-level; nothing about payload.
     SockStateTracepoint,
+    /// Process creation and image execution **pushed by the kernel** through
+    /// the `sched:sched_process_fork` and `sched:sched_process_exec`
+    /// tracepoints, sampled with `perf_event_open` (no eBPF). Fork fires in
+    /// the parent's task context (the actor is attributable); exec fires in
+    /// the new image's context with the kernel's own `filename`. The
+    /// executed *content* is not in the event: the probe hashes
+    /// `/proc/<pid>/exe` under a pidfd anchor. Loss via `PERF_RECORD_LOST`.
+    SchedTracepoint,
 }
 
 impl SourceMechanism {
@@ -105,6 +113,7 @@ impl SourceMechanism {
             SourceMechanism::ProcConnector => 0x03,
             SourceMechanism::ProcNetTable => 0x04,
             SourceMechanism::SockStateTracepoint => 0x05,
+            SourceMechanism::SchedTracepoint => 0x06,
         }
     }
 
@@ -113,13 +122,17 @@ impl SourceMechanism {
     pub fn is_kernel_pushed(&self) -> bool {
         matches!(
             self,
-            SourceMechanism::ProcConnector | SourceMechanism::SockStateTracepoint
+            SourceMechanism::ProcConnector
+                | SourceMechanism::SockStateTracepoint
+                | SourceMechanism::SchedTracepoint
         )
     }
 
     /// Kernel-pushed coverage of **process lifecycle** (fork/exec/exit).
     /// Only this can support a statement that a process instance never
-    /// appeared; a socket-state stream says nothing about processes.
+    /// appeared. The socket-state stream says nothing about processes; the
+    /// sched fork/exec stream carries no exit and is deliberately not
+    /// accepted here yet — lifecycle coverage means the connector.
     pub fn covers_process_lifecycle(&self) -> bool {
         matches!(self, SourceMechanism::ProcConnector)
     }
@@ -129,12 +142,13 @@ impl SourceMechanism {
         matches!(self, SourceMechanism::PidFdAnchored)
     }
 
-    pub const ALL: [SourceMechanism; 5] = [
+    pub const ALL: [SourceMechanism; 6] = [
         SourceMechanism::ProcfsPoll,
         SourceMechanism::PidFdAnchored,
         SourceMechanism::ProcConnector,
         SourceMechanism::ProcNetTable,
         SourceMechanism::SockStateTracepoint,
+        SourceMechanism::SchedTracepoint,
     ];
 
     /// Canonical ordering of a mechanism set: by code, deduplicated. Used
@@ -445,6 +459,24 @@ pub enum KernelLifecycleKind {
         sk: u64,
         current_pid: u32,
     },
+    /// `sched:sched_process_fork`: `parent_pid` created `child_pid`. Fires in
+    /// the parent's context, so the parent is the acting task. `comm`s are
+    /// kernel-authored context (16 bytes, lossy UTF-8), never identity.
+    ProcessSpawn {
+        parent_pid: u32,
+        child_pid: u32,
+        parent_comm: String,
+        child_comm: String,
+    },
+    /// `sched:sched_process_exec`: task `pid` (formerly `old_pid`) replaced
+    /// its image with the kernel-resolved `filename`. Fires in the new
+    /// image's context. The path is context; the image's identity is the
+    /// content hash the probe takes under a pidfd anchor (`bound`).
+    ProcessExec {
+        pid: u32,
+        old_pid: u32,
+        filename: String,
+    },
 }
 
 impl KernelLifecycleKind {
@@ -471,6 +503,19 @@ impl KernelLifecycleKind {
                     None
                 }
             }
+            // The spawning task is the actor; the child is the *subject of
+            // the spawn* (see `spawned_child_pid`), not the actor.
+            KernelLifecycleKind::ProcessSpawn { parent_pid, .. } => Some(*parent_pid),
+            KernelLifecycleKind::ProcessExec { pid, .. } => Some(*pid),
+        }
+    }
+
+    /// For a spawn, the child the actor created.
+    pub fn spawned_child_pid(&self) -> Option<u32> {
+        match self {
+            KernelLifecycleKind::ProcessSpawn { child_pid, .. } => Some(*child_pid),
+            KernelLifecycleKind::Fork { child_pid, .. } => Some(*child_pid),
+            _ => None,
         }
     }
 
@@ -539,6 +584,28 @@ impl KernelLifecycleKind {
                 put_u64(buf, *sk);
                 put_u32(buf, *current_pid);
             }
+            KernelLifecycleKind::ProcessSpawn {
+                parent_pid,
+                child_pid,
+                parent_comm,
+                child_comm,
+            } => {
+                put_u8(buf, 0x05);
+                put_u32(buf, *parent_pid);
+                put_u32(buf, *child_pid);
+                put_str(buf, parent_comm);
+                put_str(buf, child_comm);
+            }
+            KernelLifecycleKind::ProcessExec {
+                pid,
+                old_pid,
+                filename,
+            } => {
+                put_u8(buf, 0x06);
+                put_u32(buf, *pid);
+                put_u32(buf, *old_pid);
+                put_str(buf, filename);
+            }
         }
     }
 }
@@ -559,9 +626,10 @@ pub struct KernelLifecycleEvent {
     pub kind: KernelLifecycleKind,
     /// CPU the kernel reported the event on.
     pub cpu: u32,
-    /// Kernel monotonic timestamp (ns since boot) from the event itself —
-    /// not the host wall clock, and not settable by user space. Comparable
-    /// only within one boot.
+    /// Kernel timestamp from the event itself — not the host wall clock, and
+    /// not settable by user space. `CLOCK_MONOTONIC` for perf tracepoint
+    /// sources and for the connector; comparable only within one boot, and
+    /// placed on the wall clock only through a batch's `clock_anchor`.
     pub kernel_timestamp_ns: u64,
     /// Per-run probe sequence number, shared with observations.
     pub probe_seq: u64,
@@ -661,9 +729,10 @@ pub struct ObservationBatch {
     pub claimed_to_ms: u64,
     pub observations: Vec<ObservedExecution>,
     pub kernel_events: Vec<KernelLifecycleEvent>,
-    /// The probe's sample of the host's realtime and boot clocks, taken
-    /// back-to-back, so a verifier can place kernel timestamps (boot clock)
-    /// on the wall clock the decision point uses. A **probe claim** about the
+    /// The probe's sample of the host's realtime, boot and monotonic clocks,
+    /// taken back-to-back, so a verifier can place kernel event stamps
+    /// (`CLOCK_MONOTONIC`) on the wall clock the decision point uses and
+    /// convert process start ticks (boot clock) into the event clock. A **probe claim** about the
     /// host clock: kernel-authored (`clock_gettime`) but the host clock is
     /// attacker-controllable under the threat model, so any placement
     /// derived from it is `Attested` at most. `None` when the probe has no
@@ -671,24 +740,54 @@ pub struct ObservationBatch {
     pub clock_anchor: Option<BootClockAnchor>,
 }
 
-/// `realtime_ms` and `boottime_ns` read as close together as user space can:
-/// `wall_ms(event) = realtime_ms + (event_boottime_ns − boottime_ns) / 1e6`.
+/// Three clocks read as close together as user space can. Kernel event stamps
+/// from the perf tracepoints are `CLOCK_MONOTONIC`; process start ticks are
+/// on the boot clock (which additionally counts time in suspend); the
+/// decision point speaks in realtime. `wall_ms(event) = realtime_ms +
+/// (event_ns − monotonic_ns) / 1e6`. A suspend between the anchor and an
+/// event shifts the boot↔monotonic relation; probes re-anchor per batch to
+/// bound that.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BootClockAnchor {
     pub realtime_ms: u64,
     pub boottime_ns: u64,
+    pub monotonic_ns: u64,
+    /// Clock ticks per second (`CLK_TCK`) on the host, so a verifier can
+    /// convert `pid_start_time_ticks` into the same boot-clock nanoseconds
+    /// the kernel events carry. Part of the host clock description.
+    pub clk_tck: u32,
 }
 
 impl BootClockAnchor {
-    /// Place a `CLOCK_BOOTTIME` nanosecond stamp on the wall clock. Saturates
+    /// `pid_start_time_ticks` as boot-clock nanoseconds (start of its tick).
+    pub fn start_ticks_to_ns(&self, ticks: u64) -> u64 {
+        let tck = if self.clk_tck == 0 {
+            100
+        } else {
+            self.clk_tck as u64
+        };
+        ticks.saturating_mul(1_000_000_000 / tck)
+    }
+
+    /// One tick in nanoseconds — the resolution of process start times.
+    pub fn tick_ns(&self) -> u64 {
+        let tck = if self.clk_tck == 0 {
+            100
+        } else {
+            self.clk_tck as u64
+        };
+        1_000_000_000 / tck
+    }
+
+    /// Place a `CLOCK_MONOTONIC` event stamp on the wall clock. Saturates
     /// rather than wrapping; a stamp earlier than the anchor is subtracted.
-    pub fn wall_ms(&self, boottime_ns: u64) -> u64 {
-        if boottime_ns >= self.boottime_ns {
+    pub fn wall_ms(&self, event_ns: u64) -> u64 {
+        if event_ns >= self.monotonic_ns {
             self.realtime_ms
-                .saturating_add((boottime_ns - self.boottime_ns) / 1_000_000)
+                .saturating_add((event_ns - self.monotonic_ns) / 1_000_000)
         } else {
             self.realtime_ms
-                .saturating_sub((self.boottime_ns - boottime_ns) / 1_000_000)
+                .saturating_sub((self.monotonic_ns - event_ns) / 1_000_000)
         }
     }
 }
@@ -723,6 +822,8 @@ impl ObservationBatch {
                 put_u8(&mut buf, 1);
                 put_u64(&mut buf, a.realtime_ms);
                 put_u64(&mut buf, a.boottime_ns);
+                put_u64(&mut buf, a.monotonic_ns);
+                put_u32(&mut buf, a.clk_tck);
             }
             None => put_u8(&mut buf, 0),
         }

@@ -280,6 +280,8 @@ fn anchor_at(wall_ms: u64) -> BootClockAnchor {
     BootClockAnchor {
         realtime_ms: wall_ms,
         boottime_ns: ANCHOR_BOOT_NS,
+        monotonic_ns: ANCHOR_BOOT_NS,
+        clk_tck: 100,
     }
 }
 
@@ -734,11 +736,11 @@ fn tp11_start_time_rule_rejects_an_instance_started_after_the_event() {
     // 900_000 ticks at CLK_TCK=100 → 9_000 s of boot time.
     let tick_ns = 1_000_000_000 / 100;
     let start_ns = p.process.pid_start_time_ticks * tick_ns;
-    assert!(instance_started_no_later_than(&p, start_ns));
-    assert!(instance_started_no_later_than(&p, start_ns + 1));
-    assert!(!instance_started_no_later_than(&p, start_ns - 1));
+    assert!(instance_started_no_later_than(&p, start_ns, None));
+    assert!(instance_started_no_later_than(&p, start_ns + 1, None));
+    assert!(!instance_started_no_later_than(&p, start_ns - 1, None));
     p.process.pid_start_time_ticks += 1;
-    assert!(!instance_started_no_later_than(&p, start_ns));
+    assert!(!instance_started_no_later_than(&p, start_ns, None));
 }
 
 // ═══ Claims, replay, transplantation ═══

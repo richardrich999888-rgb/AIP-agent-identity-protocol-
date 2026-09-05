@@ -62,7 +62,9 @@ pub mod continuity;
 pub mod health;
 pub mod linux;
 pub mod observed;
+pub mod perf;
 pub mod probe;
+pub mod sched;
 pub mod sockstate;
 
 pub use attest::{
@@ -87,8 +89,14 @@ pub use observed::{
     OBSERVED_EXECUTION_DOMAIN, OBSERVED_PROCESS_DOMAIN, OBSERVE_PROTOCOL_VERSION,
 };
 #[cfg(target_os = "linux")]
+pub use perf::PerfTracepoints;
+pub use perf::{data_loc, decode_sample, RawFormat, RawSample, TraceField};
+#[cfg(target_os = "linux")]
 pub use probe::AnchoredMeasurement;
-pub use probe::{instance_started_no_later_than, AgentClaim, ProbeError, ProcfsProbe};
+pub use probe::{clk_tck, instance_started_no_later_than, AgentClaim, ProbeError, ProcfsProbe};
+#[cfg(target_os = "linux")]
+pub use sched::ProcessTracer;
+pub use sched::{parse_exec_record, parse_fork_record, EXEC_TRACEPOINT, FORK_TRACEPOINT};
 #[cfg(target_os = "linux")]
 pub use sockstate::{boot_clock_anchor, SockStateTracer};
-pub use sockstate::{parse_sock_state_record, TraceField, TracepointFormat};
+pub use sockstate::{parse_sock_state_record, TracepointFormat, SOCK_STATE_TRACEPOINT};

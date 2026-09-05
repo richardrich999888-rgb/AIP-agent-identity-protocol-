@@ -19,7 +19,7 @@ use aip_observe::{
     UnavailableReason, VerifyError,
 };
 
-use crate::action::{derive_action, derive_transitions, SocketTransition};
+use crate::action::{derive_action, derive_transition_evidence, TransitionEvidence};
 use crate::ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};
 use crate::inputs::{
     ExpectedSideCoverage, ObservationTarget, ObserverEvidence, ReconciliationContext,
@@ -328,7 +328,7 @@ struct ActionCandidate<'a> {
 /// A kernel-reported connection transition whose anchored instance matches
 /// the expected binding, with the batches that carry its two events.
 struct TransitionCandidate<'a> {
-    t: SocketTransition,
+    t: TransitionEvidence,
     /// The initiating event's claim pair names this decision and this agent.
     claimed_here: bool,
     syn_batch: &'a AttestedBatch,
@@ -363,7 +363,7 @@ enum Placement {
 }
 
 fn place_transition(
-    t: &SocketTransition,
+    t: &TransitionEvidence,
     syn_batch: &AttestedBatch,
     est_batch: Option<&AttestedBatch>,
     window: &CoverageWindow,
@@ -377,14 +377,14 @@ fn place_transition(
     let Some(anchor) = syn_batch.batch.clock_anchor else {
         return Placement::Unanchored;
     };
-    let init_wall = anchor.wall_ms(t.initiation.kernel_timestamp_ns);
+    let init_wall = anchor.wall_ms(t.initiation().kernel_timestamp_ns);
     if init_wall.saturating_add(tol) < window.from_ms {
         return Placement::Before;
     }
     if init_wall > window.to_ms.saturating_add(tol) {
         return Placement::After;
     }
-    if let Some(c) = &t.completion {
+    if let Some(c) = t.completion() {
         let est_anchor = est_batch
             .and_then(|b| b.batch.clock_anchor)
             .unwrap_or(anchor);
@@ -468,28 +468,48 @@ fn compare_action(
     let (mut t_after, mut t_uncovered, mut t_unclaimed, mut t_incomplete, mut t_unanchored) =
         (0u32, 0u32, 0u32, 0u32, 0u32);
     let mut t_mismatch = false;
+    let mut t_precedes = false;
+    let mut t_mechanism: Option<SourceMechanism> = None;
     for c in &refs.transitions {
         let t = &c.t;
-        if t.kind != ee.action_kind {
+        if t.kind() != &ee.action_kind {
             continue;
         }
-        if t.parameter_digest != ee.parameter_digest {
+        // An initiation whose parameters are not yet knowable (a spawn with
+        // no paired exec) is an attempt of the expected kind.
+        let Some(digest) = t.parameter_digest() else {
+            t_incomplete += 1;
+            continue;
+        };
+        if digest != ee.parameter_digest {
             t_mismatch = true;
+            t_mechanism.get_or_insert(t.mechanism());
             continue;
         }
         let placement = place_transition(t, c.syn_batch, c.est_batch, window, tol);
         if placement == Placement::Before {
-            preceding.push((t.protocol, t.remote, t.local));
+            if let Some(tuple) = t.socket_tuple() {
+                preceding.push(tuple);
+            }
+            t_precedes = true;
             continue;
         }
         if !c.claimed_here {
             t_unclaimed += 1;
             continue;
         }
-        let Some(completion) = &t.completion else {
+        let Some(completion) = t.completion() else {
             t_incomplete += 1;
             continue;
         };
+        // An exec pairing whose child start could not be checked against
+        // the fork (no anchor on the exec batch) is unanchored evidence.
+        if let TransitionEvidence::Exec(x) = t {
+            if !x.execution.as_ref().is_some_and(|e| e.child_start_verified) {
+                t_unanchored += 1;
+                continue;
+            }
+        }
         match placement {
             Placement::Unanchored => {
                 t_unanchored += 1;
@@ -506,9 +526,11 @@ fn compare_action(
             t_uncovered += 1;
             continue;
         }
+        t_mechanism.get_or_insert(t.mechanism());
+        let initiation = t.initiation();
         t_verified.push(EvidenceRef::KernelEvent {
-            batch_sequence: ObserverSequence(t.initiation.batch_sequence),
-            index: t.initiation.index,
+            batch_sequence: ObserverSequence(initiation.batch_sequence),
+            index: initiation.index,
         });
         t_verified.push(EvidenceRef::KernelEvent {
             batch_sequence: ObserverSequence(completion.batch_sequence),
@@ -517,7 +539,7 @@ fn compare_action(
     }
     if !t_verified.is_empty() {
         return ActionOutcome::Verified {
-            mechanism: SourceMechanism::SockStateTracepoint,
+            mechanism: t_mechanism.unwrap_or(SourceMechanism::SockStateTracepoint),
             kind: ActionEvidenceKind::Transition,
             evidence: t_verified,
         };
@@ -581,7 +603,7 @@ fn compare_action(
             evidence: verified,
         };
     }
-    if !preceding.is_empty() || p_precedes > 0 {
+    if t_precedes || p_precedes > 0 {
         return ActionOutcome::Precedes;
     }
     if outside > 0 {
@@ -604,7 +626,7 @@ fn compare_action(
     }
     if t_mismatch {
         return ActionOutcome::Mismatch {
-            mechanism: SourceMechanism::SockStateTracepoint,
+            mechanism: t_mechanism.unwrap_or(SourceMechanism::SockStateTracepoint),
             kind: ActionEvidenceKind::Transition,
         };
     }
@@ -776,19 +798,19 @@ fn collect_references<'a>(
     // Kernel-reported connection transitions anchored to the expected
     // instance. Their temporal placement is decided later from kernel time
     // and signed clocks, not from batch windows.
-    for t in derive_transitions(obs.batches.iter().copied()) {
-        if !t.bound.matches_process_of(&ee.execution_binding) {
+    for t in derive_transition_evidence(obs.batches.iter().copied()) {
+        if !t.actor().matches_process_of(&ee.execution_binding) {
             continue;
         }
         let find = |seq: u64| obs.batches.iter().copied().find(|b| b.sequence == seq);
-        let Some(syn_batch) = find(t.initiation.batch_sequence) else {
+        let Some(syn_batch) = find(t.initiation().batch_sequence) else {
             continue;
         };
-        let est_batch = t.completion.and_then(|c| find(c.batch_sequence));
+        let est_batch = t.completion().and_then(|c| find(c.batch_sequence));
         let claimed_here = matches!(
             claim_pair(
-                &t.claimed_decision_id,
-                &t.attribution,
+                &t.claimed_decision_id(),
+                t.attribution(),
                 &decision_id,
                 &ee.agent_id
             ),

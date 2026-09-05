@@ -17,10 +17,13 @@
 //! payload, and it shows that a connection *existed* at the sample, not when
 //! it was created. Every strength derived from it is capped at `Attested`.
 
-use aip_authorize::{net_connect_action, net_connect_parameters, NetProtocol};
+use aip_authorize::{
+    net_connect_action, net_connect_parameters, process_exec_action, process_exec_parameters,
+    NetProtocol,
+};
 use aip_observe::{
-    AgentAttribution, AttestedBatch, KernelLifecycleKind, ObservedEffect, ObservedExecution,
-    ObservedProcess, SocketEndpoint, SocketProtocol, SourceMechanism,
+    AgentAttribution, AttestedBatch, BootClockAnchor, KernelLifecycleKind, ObservedEffect,
+    ObservedExecution, ObservedProcess, SocketEndpoint, SocketProtocol, SourceMechanism,
 };
 use aip_types::ScopeAction;
 
@@ -206,6 +209,229 @@ pub fn derive_transitions<'a>(
         }
     }
     initiations
+}
+
+// ─── Process execution evidence (kernel-pushed) ───
+
+/// A process the kernel reported being **spawned and executed**: the
+/// `sched_process_fork` of a child by an anchored actor, paired with the
+/// child's `sched_process_exec`, at which the probe anchored the child and
+/// hashed its image. Derived from `SchedTracepoint` events only.
+///
+/// Pairing key: the fork's `child_pid` equals the exec's `pid`, the exec is
+/// not earlier than the fork in kernel time, and the anchored child's start
+/// tick lies within `[fork − one tick, exec]` so a recycled pid cannot pose
+/// as the forked child. A spawn with no paired exec is a child that never
+/// executed an image (or exited before it could be anchored): an attempt,
+/// not an execution.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProcessExecution {
+    /// The instance that forked (anchored at the fork, in its own context).
+    pub actor: ObservedProcess,
+    pub child_pid: u32,
+    pub kind: ScopeAction,
+    /// `process_exec_parameters(child.exe_content_sha256).digest()`, once
+    /// the child's image is known.
+    pub parameter_digest: Option<[u8; 32]>,
+    pub fork: EventPosition,
+    /// The child as anchored at exec, the kernel's filename, the position.
+    pub execution: Option<ExecutedImage>,
+    pub attribution: AgentAttribution,
+    pub claimed_decision_id: Option<[u8; 16]>,
+    pub mechanism: SourceMechanism,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExecutedImage {
+    pub child: ObservedProcess,
+    /// Kernel-resolved path: context, never identity.
+    pub filename: String,
+    pub at: EventPosition,
+    /// The anchored child's start tick was checked against the fork and
+    /// exec kernel times through the batch's clock anchor. Without an
+    /// anchor the check cannot be made and the pairing is unanchored.
+    pub child_start_verified: bool,
+}
+
+/// Derive every anchored spawn (and its execution, when paired) from the
+/// kernel events of the supplied batches.
+pub fn derive_executions<'a>(
+    batches: impl IntoIterator<Item = &'a AttestedBatch>,
+) -> Vec<ProcessExecution> {
+    struct Exec {
+        pid: u32,
+        child: ObservedProcess,
+        filename: String,
+        at: EventPosition,
+        anchor: Option<BootClockAnchor>,
+    }
+    let mut spawns: Vec<ProcessExecution> = Vec::new();
+    let mut execs: Vec<Exec> = Vec::new();
+    for b in batches {
+        for (i, e) in b.batch.kernel_events.iter().enumerate() {
+            if e.mechanism != SourceMechanism::SchedTracepoint {
+                continue;
+            }
+            let at = EventPosition {
+                batch_sequence: b.sequence,
+                index: i as u32,
+                kernel_timestamp_ns: e.kernel_timestamp_ns,
+            };
+            match &e.kind {
+                KernelLifecycleKind::ProcessSpawn { child_pid, .. } => {
+                    let Some(actor) = &e.bound else { continue };
+                    spawns.push(ProcessExecution {
+                        actor: actor.clone(),
+                        child_pid: *child_pid,
+                        kind: process_exec_action(),
+                        parameter_digest: None,
+                        fork: at,
+                        execution: None,
+                        attribution: e.attribution.clone(),
+                        claimed_decision_id: e.claimed_decision_id,
+                        mechanism: e.mechanism,
+                    });
+                }
+                KernelLifecycleKind::ProcessExec { pid, filename, .. } => {
+                    let Some(child) = &e.bound else { continue };
+                    execs.push(Exec {
+                        pid: *pid,
+                        child: child.clone(),
+                        filename: filename.clone(),
+                        at,
+                        anchor: b.batch.clock_anchor,
+                    });
+                }
+                _ => {}
+            }
+        }
+    }
+    // The anchored child must be the forked child: with an anchor, its start
+    // tick must lie within [fork − tick, exec]; an exec whose child fails
+    // that is a recycled pid and does not pair. Without an anchor the check
+    // cannot be made; the pairing is recorded as unverified.
+    let start_ok = |a: &BootClockAnchor, s: &ProcessExecution, x: &Exec| {
+        let start = a.start_ticks_to_ns(x.child.process.pid_start_time_ticks);
+        start.saturating_add(a.tick_ns()) >= s.fork.kernel_timestamp_ns
+            && start <= x.at.kernel_timestamp_ns
+    };
+    for s in &mut spawns {
+        let best = execs
+            .iter()
+            .filter(|x| {
+                x.pid == s.child_pid
+                    && x.at.kernel_timestamp_ns >= s.fork.kernel_timestamp_ns
+                    && x.anchor.is_none_or(|a| start_ok(&a, s, x))
+            })
+            .min_by_key(|x| x.at.kernel_timestamp_ns);
+        if let Some(x) = best {
+            s.parameter_digest = Some(process_exec_parameters(x.child.exe_content_sha256).digest());
+            s.execution = Some(ExecutedImage {
+                child: x.child.clone(),
+                filename: x.filename.clone(),
+                at: x.at,
+                child_start_verified: x.anchor.is_some(),
+            });
+        }
+    }
+    spawns
+}
+
+// ─── One view over every transition class ───
+
+/// Kernel-reported action evidence of any class, seen uniformly by the
+/// reconciler: an anchored actor, an initiating event, an optional
+/// completing event, a claim, and — once complete — an action kind and
+/// parameter digest to compare with the expectation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TransitionEvidence {
+    Socket(SocketTransition),
+    Exec(ProcessExecution),
+}
+
+impl TransitionEvidence {
+    pub fn kind(&self) -> &ScopeAction {
+        match self {
+            TransitionEvidence::Socket(t) => &t.kind,
+            TransitionEvidence::Exec(t) => &t.kind,
+        }
+    }
+
+    /// `None` while the transition is incomplete and its parameters are not
+    /// yet knowable (a spawn whose child has not executed an image).
+    pub fn parameter_digest(&self) -> Option<[u8; 32]> {
+        match self {
+            TransitionEvidence::Socket(t) => Some(t.parameter_digest),
+            TransitionEvidence::Exec(t) => t.parameter_digest,
+        }
+    }
+
+    /// The instance that acted, anchored at the initiating event.
+    pub fn actor(&self) -> &ObservedProcess {
+        match self {
+            TransitionEvidence::Socket(t) => &t.bound,
+            TransitionEvidence::Exec(t) => &t.actor,
+        }
+    }
+
+    pub fn attribution(&self) -> &AgentAttribution {
+        match self {
+            TransitionEvidence::Socket(t) => &t.attribution,
+            TransitionEvidence::Exec(t) => &t.attribution,
+        }
+    }
+
+    pub fn claimed_decision_id(&self) -> Option<[u8; 16]> {
+        match self {
+            TransitionEvidence::Socket(t) => t.claimed_decision_id,
+            TransitionEvidence::Exec(t) => t.claimed_decision_id,
+        }
+    }
+
+    pub fn initiation(&self) -> EventPosition {
+        match self {
+            TransitionEvidence::Socket(t) => t.initiation,
+            TransitionEvidence::Exec(t) => t.fork,
+        }
+    }
+
+    pub fn completion(&self) -> Option<EventPosition> {
+        match self {
+            TransitionEvidence::Socket(t) => t.completion,
+            TransitionEvidence::Exec(t) => t.execution.as_ref().map(|x| x.at),
+        }
+    }
+
+    pub fn mechanism(&self) -> SourceMechanism {
+        match self {
+            TransitionEvidence::Socket(t) => t.mechanism,
+            TransitionEvidence::Exec(t) => t.mechanism,
+        }
+    }
+
+    /// For socket transitions: the connection tuple, used to recognise the
+    /// same connection in polled presence evidence.
+    pub fn socket_tuple(&self) -> Option<(SocketProtocol, SocketEndpoint, Option<SocketEndpoint>)> {
+        match self {
+            TransitionEvidence::Socket(t) => Some((t.protocol, t.remote, t.local)),
+            TransitionEvidence::Exec(_) => None,
+        }
+    }
+}
+
+/// Every transition of every class in the supplied batches.
+pub fn derive_transition_evidence<'a>(
+    batches: impl IntoIterator<Item = &'a AttestedBatch> + Clone,
+) -> Vec<TransitionEvidence> {
+    derive_transitions(batches.clone())
+        .into_iter()
+        .map(TransitionEvidence::Socket)
+        .chain(
+            derive_executions(batches)
+                .into_iter()
+                .map(TransitionEvidence::Exec),
+        )
+        .collect()
 }
 
 #[cfg(test)]

@@ -84,6 +84,25 @@ impl std::fmt::Display for NetConnectError {
 
 impl std::error::Error for NetConnectError {}
 
+/// The custom scope action naming the execution of an image by a child of
+/// the authorized instance. The parameter is the image's **content** hash —
+/// never a path (Stage 1 identity rule). What the observer can match is
+/// exactly that hash, taken from `/proc/<child>/exe` under a pidfd anchor.
+pub const PROCESS_EXEC_ACTION: &str = "ghost.process.exec.v1";
+pub const PARAM_EXE_SHA256: &str = "exe_sha256";
+
+/// The scope action for [`PROCESS_EXEC_ACTION`].
+pub fn process_exec_action() -> ScopeAction {
+    ScopeAction::Custom(PROCESS_EXEC_ACTION.to_string())
+}
+
+/// Parameters naming one executable image by content. Both the decision
+/// point's caller and the reconciler must call this function.
+pub fn process_exec_parameters(exe_sha256: [u8; 32]) -> ActionParameters {
+    ActionParameters::from_pairs([(PARAM_EXE_SHA256, exe_sha256.to_vec())])
+        .expect("one constant key")
+}
+
 /// The scope action for [`NET_CONNECT_ACTION`].
 pub fn net_connect_action() -> ScopeAction {
     ScopeAction::Custom(NET_CONNECT_ACTION.to_string())
@@ -160,6 +179,27 @@ mod tests {
             net_connect_parameters(NetProtocol::Tcp, &[10, 0, 0, 5], 0),
             Err(NetConnectError::ZeroPort)
         );
+    }
+
+    #[test]
+    fn exec_parameters_are_the_content_hash_and_nothing_else() {
+        let h = [0xabu8; 32];
+        let p = process_exec_parameters(h);
+        let raw = ActionParameters::from_pairs([("exe_sha256", h.to_vec())]).unwrap();
+        assert_eq!(
+            p.digest(),
+            raw.digest(),
+            "byte-compatible with the raw construction"
+        );
+        assert_ne!(process_exec_parameters([0xacu8; 32]).digest(), p.digest());
+        assert_eq!(p.len(), 1);
+        assert_eq!(
+            process_exec_action(),
+            ScopeAction::Custom("ghost.process.exec.v1".into())
+        );
+        assert!(PROCESS_EXEC_ACTION.len() <= 64);
+        // Distinct classes never share a digest for the same bytes.
+        assert_ne!(process_exec_action(), net_connect_action());
     }
 
     #[test]

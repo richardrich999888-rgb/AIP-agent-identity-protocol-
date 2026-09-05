@@ -394,6 +394,15 @@ impl ProcfsProbe {
         self.ingest_event(ev, SourceMechanism::SockStateTracepoint)
     }
 
+    /// Ingest a kernel-pushed process spawn or exec (`SchedTracepoint`).
+    /// A spawn is anchored to the **parent** (the acting task; fork runs in
+    /// its context) and an exec to the **new image's task**; both bindings
+    /// require the instance's start tick to be no later than the event's
+    /// kernel time. The reconciler pairs a spawn with the child's exec.
+    pub fn ingest_sched_event(&mut self, ev: ProcEvent) -> &KernelLifecycleEvent {
+        self.ingest_event(ev, SourceMechanism::SchedTracepoint)
+    }
+
     fn ingest_event(&mut self, ev: ProcEvent, mechanism: SourceMechanism) -> &KernelLifecycleEvent {
         let seq = self.next_seq();
         let subject = ev.kind.subject_pid();
@@ -407,9 +416,13 @@ impl ProcfsProbe {
                 b
             }
             (KernelLifecycleKind::Exit { .. }, Some(pid)) => self.bound_by_exec.remove(&pid),
-            (KernelLifecycleKind::SocketState { .. }, Some(pid)) => self
-                .try_anchor(pid)
-                .filter(|p| instance_started_no_later_than(p, ev.timestamp_ns)),
+            (KernelLifecycleKind::SocketState { .. }, Some(pid))
+            | (KernelLifecycleKind::ProcessSpawn { .. }, Some(pid))
+            | (KernelLifecycleKind::ProcessExec { .. }, Some(pid)) => {
+                let anchor = self.clock_anchor;
+                self.try_anchor(pid)
+                    .filter(|p| instance_started_no_later_than(p, ev.timestamp_ns, anchor.as_ref()))
+            }
             _ => None,
         };
         let (attribution, claimed_decision_id) = subject
@@ -499,22 +512,32 @@ impl ProcfsProbe {
     }
 }
 
-/// `pid_start_time_ticks` (clock ticks since boot, `/proc/<pid>/stat`) is
-/// not later than `event_boottime_ns`. Both are the kernel's boot clock, so
-/// the comparison is inside one clock domain; the tick (`CLK_TCK`, usually
-/// 10 ms) is the resolution, and the start is taken at the *beginning* of
-/// its tick so a start inside the event's tick still passes — pid reuse
-/// within one tick is not excluded by time alone (documented).
-pub fn instance_started_no_later_than(p: &ObservedProcess, event_boottime_ns: u64) -> bool {
-    let start_ns = p
-        .process
-        .pid_start_time_ticks
-        .saturating_mul(1_000_000_000 / clk_tck());
-    start_ns <= event_boottime_ns
+/// `pid_start_time_ticks` (boot-clock ticks, `/proc/<pid>/stat`) is not
+/// later than the event's kernel stamp (`CLOCK_MONOTONIC`). With an anchor
+/// the start is converted into the event clock through the anchor's
+/// boot−monotonic offset; without one the two clocks are assumed to
+/// coincide (true unless the host has suspended since boot). The tick
+/// (`CLK_TCK`, usually 10 ms) is the resolution, and the start is taken at
+/// the *beginning* of its tick so a start inside the event's tick still
+/// passes — pid reuse within one tick is not excluded by time alone.
+pub fn instance_started_no_later_than(
+    p: &ObservedProcess,
+    event_ns: u64,
+    anchor: Option<&BootClockAnchor>,
+) -> bool {
+    let start_ns = match anchor {
+        Some(a) => a.start_ticks_to_ns(p.process.pid_start_time_ticks),
+        None => p
+            .process
+            .pid_start_time_ticks
+            .saturating_mul(1_000_000_000 / clk_tck()),
+    };
+    start_ns <= event_ns
 }
 
+/// Clock ticks per second on this host (`sysconf(_SC_CLK_TCK)`).
 #[cfg(target_os = "linux")]
-fn clk_tck() -> u64 {
+pub fn clk_tck() -> u64 {
     // SAFETY: sysconf has no preconditions.
     let v = unsafe { libc::sysconf(libc::_SC_CLK_TCK) };
     if v > 0 {
@@ -525,7 +548,7 @@ fn clk_tck() -> u64 {
 }
 
 #[cfg(not(target_os = "linux"))]
-fn clk_tck() -> u64 {
+pub fn clk_tck() -> u64 {
     100
 }
 
