@@ -185,6 +185,13 @@ pub fn verify_ed25519(
     if public_key.len() != 32 {
         return Err(aip_types::AipError::InvalidPublicKey);
     }
+    // This verifier implements exactly one algorithm. A signature labelled
+    // anything else is not "verified" here even if its envelope happens to
+    // check out under Ed25519 — the label would otherwise become a lie the
+    // evidence chain carries as fact.
+    if signature.algorithm != AlgorithmId::Ed25519 {
+        return Err(aip_types::AipError::EvolutionRequired);
+    }
 
     let verifying_key = VerifyingKey::from_bytes(
         public_key

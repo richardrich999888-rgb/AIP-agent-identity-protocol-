@@ -132,6 +132,10 @@ pub struct ProcfsProbe {
     /// source reports loss: after a gap the pid may have been recycled.
     bound_by_exec: HashMap<u32, ObservedProcess>,
     pending_kernel_events: Vec<KernelLifecycleEvent>,
+    /// Sources the operator has wired to this probe and declares live. Added
+    /// to every batch's `active_mechanisms` together with the mechanisms
+    /// actually used in that batch.
+    declared_sources: Vec<SourceMechanism>,
 }
 
 impl ProcfsProbe {
@@ -144,7 +148,22 @@ impl ProcfsProbe {
             claims: HashMap::new(),
             bound_by_exec: HashMap::new(),
             pending_kernel_events: Vec::new(),
+            declared_sources: Vec::new(),
         }
+    }
+
+    /// Declare that a source is wired and live from now on. Coverage by a
+    /// mechanism that produced no events in a window can only be claimed if
+    /// it was declared; declaring is a probe claim that the collector bounds
+    /// by its registry.
+    pub fn declare_source(&mut self, mechanism: SourceMechanism) {
+        if !self.declared_sources.contains(&mechanism) {
+            self.declared_sources.push(mechanism);
+        }
+    }
+
+    pub fn declared_sources(&self) -> &[SourceMechanism] {
+        &self.declared_sources
     }
 
     pub fn probe_id(&self) -> &str {
@@ -421,6 +440,15 @@ impl ProcfsProbe {
         if self.dropped_since_last_batch.is_some() {
             self.dropped_since_last_batch = Some(0);
         }
+        // Active over the window = declared live ∪ actually used.
+        let active_mechanisms = SourceMechanism::canonical_set(
+            self.declared_sources
+                .iter()
+                .copied()
+                .chain(observations.iter().map(|o| o.mechanism))
+                .chain(kernel_events.iter().map(|e| e.mechanism))
+                .collect(),
+        );
         ObservationBatch {
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: self.probe_id.clone(),
@@ -429,6 +457,7 @@ impl ProcfsProbe {
             probe_seq_first,
             probe_seq_last,
             dropped_events,
+            active_mechanisms,
             claimed_from_ms,
             claimed_to_ms,
             observations,

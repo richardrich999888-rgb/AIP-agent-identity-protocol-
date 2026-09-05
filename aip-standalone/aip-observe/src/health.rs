@@ -8,6 +8,8 @@ use aip_types::canonical::*;
 use aip_types::Signature;
 use serde::{Deserialize, Serialize};
 
+use crate::observed::SourceMechanism;
+
 /// Domain tag leading the canonical encoding of [`SensorHealth`].
 pub const OBSERVER_HEALTH_DOMAIN: &str = "SYNTRIASS/GHOST/OBSERVER_HEALTH/v1";
 
@@ -161,6 +163,13 @@ pub struct SensorHealth {
     pub last_batch_id: Option<[u8; 16]>,
     /// The interval the collector is prepared to vouch for.
     pub attested_coverage: Option<CoverageWindow>,
+    /// The mechanisms that were declared live in **every** batch of the
+    /// current coverage epoch — the intersection, canonically ordered. Empty
+    /// whenever `attested_coverage` is `None`. A reconciler may treat a
+    /// window as covered *by kernel-pushed observation* only if a
+    /// kernel-pushed mechanism appears here; polling in this list never
+    /// supports a claim about what did not happen.
+    pub covered_by: Vec<SourceMechanism>,
     /// Collector wall clock when this health was emitted.
     pub emitted_at_ms: u64,
 }
@@ -200,6 +209,10 @@ impl SensorHealth {
             }
             None => put_u8(&mut buf, 0),
         }
+        put_u32(&mut buf, self.covered_by.len() as u32);
+        for m in &self.covered_by {
+            put_u8(&mut buf, m.code());
+        }
         put_u64(&mut buf, self.emitted_at_ms);
         buf
     }
@@ -217,6 +230,15 @@ pub struct SignedSensorHealth {
 }
 
 impl SignedSensorHealth {
+    /// Was the attested coverage epoch covered by a kernel-pushed mechanism?
+    /// This is the precondition for any statement about an event *not*
+    /// having happened; polled coverage can never support one.
+    pub fn covered_by_kernel_pushed_source(&self) -> bool {
+        self.health.state.permits_attested_use()
+            && self.health.attested_coverage.is_some()
+            && self.health.covered_by.iter().any(|m| m.is_kernel_pushed())
+    }
+
     /// Availability for `window`, given a freshness bound on health itself.
     ///
     /// `now_ms` and `max_health_age_ms` are supplied by the caller; this

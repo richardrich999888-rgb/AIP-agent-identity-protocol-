@@ -337,6 +337,9 @@ pub struct CollectorSigner {
     last_probe_run: Option<[u8; 16]>,
     last_probe_seq_last: Option<u64>,
     probe_faults: Vec<ProbeStreamFault>,
+    /// Intersection of `active_mechanisms` over the batches that make up the
+    /// current coverage epoch. `None` whenever there is no coverage.
+    covered_by: Option<Vec<SourceMechanism>>,
 }
 
 impl std::fmt::Debug for CollectorSigner {
@@ -390,6 +393,7 @@ impl CollectorSigner {
             last_probe_run: None,
             last_probe_seq_last: None,
             probe_faults: Vec::new(),
+            covered_by: None,
         })
     }
 
@@ -439,6 +443,7 @@ impl CollectorSigner {
     pub fn note_probe_restart(&mut self) {
         self.recovering = true;
         self.attested_coverage = None;
+        self.covered_by = None;
         self.ledger.note_restart();
     }
 
@@ -577,6 +582,7 @@ impl ObserverAttestor for CollectorSigner {
         match admission {
             _ if faulted_now || !self.probe_faults.is_empty() => {
                 self.attested_coverage = None;
+                self.covered_by = None;
             }
             Admission::Continuous if !self.recovering => {
                 self.attested_coverage = Some(match self.attested_coverage {
@@ -589,6 +595,15 @@ impl ObserverAttestor for CollectorSigner {
                         to_ms: batch.claimed_to_ms,
                     },
                 });
+                // Coverage by a mechanism holds only if it was live in every
+                // batch of the epoch: intersect, never union.
+                self.covered_by = Some(match self.covered_by.take() {
+                    Some(prev) => prev
+                        .into_iter()
+                        .filter(|m| batch.active_mechanisms.contains(m))
+                        .collect(),
+                    None => batch.active_mechanisms.clone(),
+                });
             }
             Admission::Continuous => {
                 // First contiguous batch after a restart re-establishes a
@@ -598,9 +613,11 @@ impl ObserverAttestor for CollectorSigner {
                     from_ms: batch.claimed_from_ms,
                     to_ms: batch.claimed_to_ms,
                 });
+                self.covered_by = Some(batch.active_mechanisms.clone());
             }
             Admission::AdmittedWithGap { .. } | Admission::NewEpochUnverified => {
                 self.attested_coverage = None;
+                self.covered_by = None;
             }
         }
 
@@ -644,6 +661,11 @@ impl ObserverAttestor for CollectorSigner {
                 self.attested_coverage
             } else {
                 None
+            },
+            covered_by: if state.permits_attested_use() {
+                SourceMechanism::canonical_set(self.covered_by.clone().unwrap_or_default())
+            } else {
+                Vec::new()
             },
             emitted_at_ms,
         };

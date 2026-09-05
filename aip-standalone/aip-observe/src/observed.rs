@@ -29,7 +29,18 @@ pub const OBSERVED_PROCESS_DOMAIN: &str = "SYNTRIASS/GHOST/OBSERVED_PROCESS/v1";
 /// Domain tag leading the canonical encoding of a [`KernelLifecycleEvent`].
 pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 /// Protocol version of every structure in this crate.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 2;
+///
+/// - `1` Stage 3: polled observations, no provenance.
+/// - `2` Stage 6.5: `SourceMechanism` per observation, kernel lifecycle
+///   events, socket effects, probe run/sequence/loss fields.
+/// - `3` PR3 A-3: `ObservationBatch.active_mechanisms` (which sources the
+///   probe declares live over the batch window) and
+///   `SensorHealth.covered_by` (the intersection over the coverage epoch),
+///   so a verifier can read per-mechanism coverage from signed bytes
+///   instead of inferring it from whether events happened to occur.
+///
+/// Earlier versions never left this branch; all are refused.
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 3;
 
 // ─── Provenance ───
 
@@ -85,6 +96,15 @@ impl SourceMechanism {
         SourceMechanism::ProcConnector,
         SourceMechanism::ProcNetTable,
     ];
+
+    /// Canonical ordering of a mechanism set: by code, deduplicated. Used
+    /// wherever a set of mechanisms enters signed bytes, so two equal sets
+    /// always encode identically.
+    pub fn canonical_set(mut v: Vec<SourceMechanism>) -> Vec<SourceMechanism> {
+        v.sort_by_key(|m| m.code());
+        v.dedup();
+        v
+    }
 }
 
 // ─── Agent attribution ───
@@ -526,6 +546,13 @@ pub struct ObservationBatch {
     /// `None` means the mechanism exposes no loss counter (polling), so "no
     /// loss" is `CANNOT_PROVE`; `Some(0)` is a counted zero.
     pub dropped_events: Option<u64>,
+    /// The sources the probe declares were live over this batch's window,
+    /// whether or not they produced anything. Canonically ordered. A *claim*,
+    /// bounded by the collector's registry; the collector intersects it over
+    /// the coverage epoch into signed health so a verifier can tell a
+    /// connector-covered window from a poll-only one without inferring it
+    /// from event presence.
+    pub active_mechanisms: Vec<SourceMechanism>,
     /// The interval the probe claims to have been sampling. A *claim*: the
     /// collector decides what coverage it will attest, and a claimed window
     /// never widens attested coverage.
@@ -546,6 +573,10 @@ impl ObservationBatch {
         put_u64(&mut buf, self.probe_seq_first);
         put_u64(&mut buf, self.probe_seq_last);
         put_opt_u64(&mut buf, &self.dropped_events);
+        put_u32(&mut buf, self.active_mechanisms.len() as u32);
+        for m in &self.active_mechanisms {
+            put_u8(&mut buf, m.code());
+        }
         put_u64(&mut buf, self.claimed_from_ms);
         put_u64(&mut buf, self.claimed_to_ms);
         put_u32(&mut buf, self.observations.len() as u32);
@@ -563,11 +594,13 @@ impl ObservationBatch {
         sha256(&self.canonical_bytes())
     }
 
-    /// Every mechanism claimed anywhere in the batch.
+    /// Every mechanism claimed anywhere in the batch: declared active, used
+    /// by an observation, or used by a kernel event.
     pub fn mechanisms(&self) -> impl Iterator<Item = SourceMechanism> + '_ {
-        self.observations
+        self.active_mechanisms
             .iter()
-            .map(|o| o.mechanism)
+            .copied()
+            .chain(self.observations.iter().map(|o| o.mechanism))
             .chain(self.kernel_events.iter().map(|e| e.mechanism))
     }
 }
@@ -611,11 +644,32 @@ mod tests {
             probe_seq_first: 0,
             probe_seq_last: 0,
             dropped_events: None,
+            active_mechanisms: vec![],
             claimed_from_ms: 1,
             claimed_to_ms: 2,
             observations: vec![],
             kernel_events: vec![],
         }
+    }
+
+    #[test]
+    fn active_mechanisms_are_canonically_ordered_and_signed() {
+        let a = SourceMechanism::canonical_set(vec![
+            SourceMechanism::ProcConnector,
+            SourceMechanism::ProcfsPoll,
+            SourceMechanism::ProcfsPoll,
+        ]);
+        let b = SourceMechanism::canonical_set(vec![
+            SourceMechanism::ProcfsPoll,
+            SourceMechanism::ProcConnector,
+        ]);
+        assert_eq!(a, b);
+        let mut with = empty_batch();
+        with.active_mechanisms = a;
+        assert_ne!(with.digest(), empty_batch().digest());
+        assert!(with
+            .mechanisms()
+            .any(|m| m == SourceMechanism::ProcConnector));
     }
 
     #[test]

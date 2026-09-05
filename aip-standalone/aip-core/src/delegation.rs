@@ -216,23 +216,7 @@ pub fn verify_delegation_chain(
         let pub_key = issuer_public_keys
             .get(&hop.issuer_id)
             .ok_or(AipError::InvalidPublicKey)?;
-
-        let payload = canonical_delegation_payload(
-            &hop.jti,
-            &hop.parent_jti,
-            &hop.issuer_id,
-            &hop.grantee_id,
-            &hop.scope,
-            hop.depth,
-            hop.issued_at,
-            hop.expires_at,
-        );
-        let expected_hash = sha256(&payload);
-        if hop.issuer_sig.payload_hash != expected_hash {
-            return Err(AipError::SignatureInvalid);
-        }
-        let valid = verify_ed25519(pub_key, &hop.issuer_sig)?;
-        if !valid {
+        if !verify_delegation_token_signature(hop, pub_key)? {
             return Err(AipError::SignatureInvalid);
         }
 
@@ -256,6 +240,35 @@ pub fn verify_delegation_chain(
     }
 
     Ok(prev_scope)
+}
+
+/// Verify one delegation hop's issuer signature against the issuer's public
+/// key: recompute the canonical payload, require `payload_hash` to match, then
+/// verify the Ed25519 envelope.
+///
+/// This is the **only** correct way to check a `DelegationToken` signature.
+/// Verifying the envelope alone (`verify_ed25519` on `issuer_sig`) proves that
+/// the issuer signed *something*, not that it signed *this* hop — every field
+/// could have been rewritten. `verify_delegation_chain` uses this per hop; the
+/// JWKS verifier in `wellknown` uses it for a single hop.
+pub fn verify_delegation_token_signature(
+    hop: &DelegationToken,
+    issuer_public_key: &[u8],
+) -> Result<bool, AipError> {
+    let payload = canonical_delegation_payload(
+        &hop.jti,
+        &hop.parent_jti,
+        &hop.issuer_id,
+        &hop.grantee_id,
+        &hop.scope,
+        hop.depth,
+        hop.issued_at,
+        hop.expires_at,
+    );
+    if hop.issuer_sig.payload_hash != sha256(&payload) {
+        return Ok(false);
+    }
+    verify_ed25519(issuer_public_key, &hop.issuer_sig)
 }
 
 // ─── Delegation Log ───

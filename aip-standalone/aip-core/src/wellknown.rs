@@ -121,7 +121,14 @@ pub fn verify_delegation_with_jwks(
         .decode(&key.x)
         .map_err(|e| JwksError::InvalidBase64(e.to_string()))?;
 
-    aip_crypto::verify_ed25519(&pub_key_bytes, &token.issuer_sig)
+    if pub_key_bytes.len() != 32 {
+        return Err(JwksError::InvalidKeyLength(pub_key_bytes.len()));
+    }
+
+    // Full verification: recomputes the canonical hop payload AND checks the
+    // Ed25519 envelope. Verifying the envelope alone would accept a hop whose
+    // expiry, scope or grantee had been rewritten after issuance.
+    crate::delegation::verify_delegation_token_signature(token, &pub_key_bytes)
         .map_err(|e| JwksError::CryptoError(format!("{:?}", e)))
 }
 
