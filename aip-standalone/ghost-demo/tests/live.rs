@@ -1,0 +1,103 @@
+//! Live end-to-end tests. NOT FIXTURES: each test spawns the real
+//! `ghost-demo-agent` binary, makes (or does not make) a real TCP connection
+//! to a real listener, reads the real kernel socket table under a real pidfd
+//! anchor, attests it with a real collector, and reconciles with the real
+//! engine. Linux only.
+
+#![cfg(target_os = "linux")]
+
+use aip_reconcile::{
+    ActionComparison, EvidenceStrength, IdentityComparison, ReasonCode, ReconciliationResult,
+};
+use ghost_demo::{run, Scenario};
+
+const AGENT: &str = env!("CARGO_BIN_EXE_ghost-demo-agent");
+
+#[test]
+fn positive_authorized_connection_is_verified_at_attested() {
+    let d = run(Scenario::Positive, AGENT);
+    let r = &d.reconciliation;
+    assert_eq!(r.result, ReconciliationResult::VerifiedExecution, "{r:?}");
+    assert_eq!(
+        r.strength,
+        EvidenceStrength::Attested,
+        "never Proven: procfs content"
+    );
+    assert_eq!(r.reason, ReasonCode::ActionEvidenceMatches);
+    assert!(matches!(r.identity, IdentityComparison::Match { .. }));
+    match r.action {
+        ActionComparison::Match(seal) => assert_eq!(
+            seal.mechanism(),
+            aip_observe::SourceMechanism::ProcNetTable,
+            "the evidence is polled socket-table metadata, and the record says so"
+        ),
+        other => panic!("expected action Match, got {other:?}"),
+    }
+}
+
+#[test]
+fn a_expected_but_not_executed_is_cannot_prove_not_phantom() {
+    let r = run(Scenario::ExpectedNotExecuted, AGENT).reconciliation;
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert_ne!(r.result, ReconciliationResult::PhantomClaim);
+    // The instance was seen (anchored presence observation), but no
+    // connection of the authorized class was — and polled coverage can never
+    // turn that silence into non-execution.
+    assert_eq!(r.reason, ReasonCode::ActionEvidenceUnavailable);
+    assert!(matches!(r.identity, IdentityComparison::Match { .. }));
+    assert!(!r.action.is_observable());
+}
+
+#[test]
+fn b_executed_but_not_expected_is_cannot_prove() {
+    let r = run(Scenario::ExecutedNotExpected, AGENT).reconciliation;
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert_ne!(r.result, ReconciliationResult::UnattributedEffect);
+    assert_eq!(r.reason, ReasonCode::ExpectedSideCompletenessUnknown);
+}
+
+#[test]
+fn c_different_parameters_is_cannot_prove_with_action_mismatch() {
+    let r = run(Scenario::DifferentParameters, AGENT).reconciliation;
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert_eq!(r.reason, ReasonCode::ActionEvidenceDoesNotMatch);
+    assert!(matches!(r.action, ActionComparison::Mismatch(_)));
+    assert!(matches!(r.identity, IdentityComparison::Match { .. }));
+}
+
+#[test]
+fn d_wrong_process_instance_is_identity_divergence_never_verified() {
+    let r = run(Scenario::WrongInstance, AGENT).reconciliation;
+    assert_ne!(r.result, ReconciliationResult::VerifiedExecution, "{r:?}");
+    // Same binary, different instance, claiming the bound instance's
+    // decision: that is exactly divergence.
+    assert_eq!(r.result, ReconciliationResult::IdentityDivergence);
+    assert_eq!(r.strength, EvidenceStrength::Attested);
+    assert!(matches!(r.identity, IdentityComparison::Divergent { .. }));
+}
+
+#[test]
+fn e_lost_observation_is_cannot_prove() {
+    let r = run(Scenario::LostObservation, AGENT).reconciliation;
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert_eq!(r.reason, ReasonCode::ObserverDegraded);
+}
+
+#[test]
+fn f_replayed_evidence_does_not_verify_another_decision() {
+    let r = run(Scenario::ReplayedEvidence, AGENT).reconciliation;
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert!(r.replay_detected, "the duplicated batch is flagged");
+    assert_eq!(r.reason, ReasonCode::ActionEvidenceUnclaimed);
+}
+
+#[test]
+fn g_tampered_evidence_is_sensor_integrity_failure_proven() {
+    let r = run(Scenario::TamperedEvidence, AGENT).reconciliation;
+    assert_eq!(
+        r.result,
+        ReconciliationResult::SensorIntegrityFailure,
+        "{r:?}"
+    );
+    assert_eq!(r.strength, EvidenceStrength::Proven);
+}

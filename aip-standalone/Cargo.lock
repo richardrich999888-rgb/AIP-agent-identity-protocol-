@@ -472,6 +472,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "ghost-demo"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-types",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
