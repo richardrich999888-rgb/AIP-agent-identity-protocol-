@@ -293,6 +293,33 @@ impl Agent {
         }
     }
 
+    /// Spawn the agent binary, have it connect to `listener`, say hello and
+    /// close the connection immediately. Returns once the peer has closed:
+    /// by then no ESTABLISHED row for it exists in any table.
+    pub fn connect_then_close(agent_bin: &str, listener: &TcpListener) -> Agent {
+        let target = listener.local_addr().unwrap();
+        let child = Command::new(agent_bin)
+            .args(["--connect-close", &target.to_string()])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .spawn()
+            .expect("spawn agent");
+        let (accepted, _) = listener.accept().expect("accept");
+        let mut reader = BufReader::new(accepted);
+        let mut line = String::new();
+        reader.read_line(&mut line).expect("hello");
+        assert_eq!(line.trim(), "ghost-demo-agent connected");
+        // Drain to EOF: the agent has closed its end.
+        let mut rest = String::new();
+        let _ = reader.read_line(&mut rest);
+        let pid = child.id();
+        Agent {
+            child,
+            _accepted: None,
+            pid,
+        }
+    }
+
     /// Spawn the agent binary without any connection.
     pub fn idle(agent_bin: &str) -> Agent {
         let child = Command::new(agent_bin)
@@ -338,10 +365,16 @@ pub enum Scenario {
     ReplayedEvidence,
     /// G. Tampered evidence: a byte of the attested observation altered.
     TamperedEvidence,
+    /// T-A. The connection is established and attested **before** the
+    /// decision is issued, and stays open into the authorized window.
+    PreExistingConnection,
+    /// T-C. The connection is made and closed inside the window, before any
+    /// poll of the socket table could see it.
+    ConnectThenClose,
 }
 
 impl Scenario {
-    pub const ALL: [Scenario; 8] = [
+    pub const ALL: [Scenario; 10] = [
         Scenario::Positive,
         Scenario::ExpectedNotExecuted,
         Scenario::ExecutedNotExpected,
@@ -350,6 +383,8 @@ impl Scenario {
         Scenario::LostObservation,
         Scenario::ReplayedEvidence,
         Scenario::TamperedEvidence,
+        Scenario::PreExistingConnection,
+        Scenario::ConnectThenClose,
     ];
 
     pub fn label(&self) -> &'static str {
@@ -362,6 +397,10 @@ impl Scenario {
             Scenario::LostObservation => "E. observation lost",
             Scenario::ReplayedEvidence => "F. replayed evidence",
             Scenario::TamperedEvidence => "G. tampered evidence",
+            Scenario::PreExistingConnection => {
+                "T-A. connection established and attested before authorization"
+            }
+            Scenario::ConnectThenClose => "T-C. connection made and closed before any poll",
         }
     }
 }
@@ -583,6 +622,62 @@ pub fn run(scenario: Scenario, agent_bin: &str) -> Demo {
                 reconciliation: r,
                 note: "the batch claimed under decision 1 was duplicated and offered against decision 2"
                     .into(),
+            }
+        }
+        Scenario::PreExistingConnection => {
+            // 1. The connection exists and is observed/attested first …
+            let agent = Agent::connect(agent_bin, &listener);
+            let binding = a.binding_for(agent.pid);
+            let t0 = now_ms();
+            let b1 = o.epoch_start(t0);
+            let (b2, n_before) = o.observe_connections(agent.pid, None).unwrap();
+            // … 2. then the decision is issued …
+            std::thread::sleep(std::time::Duration::from_millis(20));
+            let now = now_ms().max(b2.batch.claimed_to_ms + 1);
+            let ee = a.authorize_connect(binding, remote, now).unwrap();
+            // … 3. and the still-open connection is observed again inside the
+            // window, now under the decision's claim.
+            let c = claim(&a, &ee);
+            let (b3, n_after) = o.observe_connections(agent.pid, Some(&c)).unwrap();
+            let at = now_ms().max(b3.batch.claimed_to_ms);
+            let ev = ObserverEvidence {
+                batches: vec![b1, b2, b3],
+                health: o.health(at),
+            };
+            let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
+            Demo {
+                scenario,
+                reconciliation: r,
+                note: format!(
+                    "connection to {remote} observed ({n_before}) and attested before the decision at {now}; observed again ({n_after}) inside the window"
+                ),
+            }
+        }
+        Scenario::ConnectThenClose => {
+            let b1 = o.epoch_start(now_ms());
+            // The window opens now; the agent connects and closes inside it.
+            // The decision is signed at `now` for the binding of the process
+            // that did it (the process stays alive, idle, after closing).
+            let now = now_ms();
+            let agent = Agent::connect_then_close(agent_bin, &listener);
+            let binding = a.binding_for(agent.pid);
+            let ee = a.authorize_connect(binding, remote, now).unwrap();
+            // The connection is already closed: no poll can see it.
+            let c = claim(&a, &ee);
+            let (b2, n) = o.observe_connections(agent.pid, Some(&c)).unwrap();
+            let at = now_ms().max(b2.batch.claimed_to_ms);
+            let ev = ObserverEvidence {
+                batches: vec![b1, b2],
+                health: o.health(at),
+            };
+            let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
+            Demo {
+                scenario,
+                reconciliation: r,
+                note: format!(
+                    "agent pid {} connected to {remote} and closed before the table was read; {n} established connection(s) in the poll",
+                    agent.pid
+                ),
             }
         }
         Scenario::TamperedEvidence => {
