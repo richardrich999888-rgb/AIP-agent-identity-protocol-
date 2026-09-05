@@ -18,6 +18,7 @@ use aip_observe::{
     ObservedExecution, ObserverState, ProbePolicy, SourceMechanism, UnavailableReason, VerifyError,
 };
 
+use crate::action::derive_action;
 use crate::ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};
 use crate::inputs::{
     ExpectedSideCoverage, ObservationTarget, ObserverEvidence, ReconciliationContext,
@@ -44,6 +45,11 @@ struct Draft {
     /// it, so a future edit that forgets the recomputation downgrades to
     /// `CannotProve` instead of asserting non-execution.
     coverage_recomputed: bool,
+    /// Set only by [`compare_action`], and only when the batch carrying the
+    /// matching action evidence lies wholly inside the authorized window and
+    /// inside the collector's attested coverage epoch. `VerifiedExecution`
+    /// cannot leave `finish` without it.
+    action_continuity_verified: bool,
 }
 
 impl Draft {
@@ -58,6 +64,7 @@ impl Draft {
             evidence: Vec::new(),
             verification_time_ms: ctx.verification_time_ms,
             coverage_recomputed: false,
+            action_continuity_verified: false,
         }
     }
 
@@ -70,13 +77,18 @@ impl Draft {
         use ReconciliationResult as R;
         match result {
             R::CannotProve => true,
-            // Requires action-level evidence, which no observation carries;
-            // `ActionComparison::Match` is unconstructible (see `result`).
+            // Requires a sealed action match (only `compare_action` can build
+            // one), a matching instance, the carrying batch inside the window
+            // and inside attested coverage, and exactly `Attested`: the
+            // content is procfs-read and can never be `Proven`. Full coverage
+            // of the *whole* window is not required for a positive claim —
+            // the observation itself is the evidence; coverage of the rest of
+            // the window would add nothing to it.
             R::VerifiedExecution => {
-                self.action.is_observable()
+                matches!(self.action, ActionComparison::Match(_))
                     && matches!(self.identity, IdentityComparison::Match { .. })
-                    && self.availability.is_covered()
-                    && strength >= EvidenceStrength::Attested
+                    && self.action_continuity_verified
+                    && strength == EvidenceStrength::Attested
             }
             // Requires a verified decision-point completeness statement,
             // which must be in the evidence list.
@@ -300,13 +312,129 @@ fn state_reason(state: ObserverState) -> Option<ReasonCode> {
 
 // ─── Reference collection ───
 
+/// An in-window observation whose measured instance matches the expected
+/// binding — the only kind of observation that can carry action evidence
+/// for the expectation.
+struct ActionCandidate<'a> {
+    evidence: EvidenceRef,
+    observation: &'a ObservedExecution,
+    batch: &'a AttestedBatch,
+    /// The observation's claim pair names this decision *and* this agent.
+    claimed_here: bool,
+}
+
 #[derive(Default)]
-struct References {
+struct References<'a> {
     matching: Vec<EvidenceRef>,
     divergent: Vec<EvidenceRef>,
     unbound: Vec<EvidenceRef>,
     inconsistent: Vec<EvidenceRef>,
     outside_window: u32,
+    candidates: Vec<ActionCandidate<'a>>,
+}
+
+/// How the in-window observations of the authorized instance compare with
+/// the expected action, by priority: a claimed exact match wins; otherwise
+/// the most specific reason nothing verified.
+enum ActionOutcome {
+    /// Exact kind + digest, claimed under this decision, carrying batch
+    /// inside the window and inside attested coverage.
+    Verified {
+        mechanism: SourceMechanism,
+        evidence: Vec<EvidenceRef>,
+    },
+    /// Exact kind + digest, claimed here, but the carrying batch straddles
+    /// or lies outside the authorized window.
+    OutsideWindow,
+    /// Exact kind + digest, claimed here, but the carrying batch is outside
+    /// the collector's attested coverage epoch.
+    NotCovered,
+    /// Exact kind + digest exists but is not claimed under this decision.
+    Unclaimed,
+    /// Evidence of the expected kind exists with a different digest.
+    Mismatch { mechanism: SourceMechanism },
+    /// No observation of the instance is an instance of the expected kind.
+    None,
+}
+
+/// Compare the expected action with what the candidates evidence.
+///
+/// The temporal test here is stricter than the reference filter: for a
+/// *positive* claim the carrying batch's claimed interval must lie wholly
+/// inside the authorized window (± verifier tolerance), and the probe's own
+/// wall-clock stamp must too. Both are host claims; they are used only to
+/// *restrict* a verdict, never to widen one, and the batch must additionally
+/// sit inside the coverage epoch the collector signed.
+fn compare_action(
+    ee: &ExpectedExecution,
+    refs: &References<'_>,
+    window: &CoverageWindow,
+    attested_coverage: Option<CoverageWindow>,
+    tol: u64,
+) -> ActionOutcome {
+    let lo = window.from_ms.saturating_sub(tol);
+    let hi = window.to_ms.saturating_add(tol);
+    let mut verified: Vec<EvidenceRef> = Vec::new();
+    let mut mechanism: Option<SourceMechanism> = None;
+    let (mut outside, mut uncovered, mut unclaimed, mut mismatch) = (0u32, 0u32, 0u32, None);
+
+    for c in &refs.candidates {
+        let Some(d) = derive_action(c.observation) else {
+            continue;
+        };
+        if d.kind != ee.action_kind {
+            continue;
+        }
+        if d.parameter_digest != ee.parameter_digest {
+            mismatch.get_or_insert(d.mechanism);
+            continue;
+        }
+        if !c.claimed_here {
+            unclaimed += 1;
+            continue;
+        }
+        let b = &c.batch.batch;
+        let inside_window = b.claimed_from_ms >= lo
+            && b.claimed_to_ms <= hi
+            && c.observation.host_wall_clock_ms >= lo
+            && c.observation.host_wall_clock_ms <= hi;
+        if !inside_window {
+            outside += 1;
+            continue;
+        }
+        let covered = attested_coverage.is_some_and(|cov| {
+            cov.covers(&CoverageWindow {
+                from_ms: b.claimed_from_ms,
+                to_ms: b.claimed_to_ms,
+            })
+        });
+        if !covered {
+            uncovered += 1;
+            continue;
+        }
+        mechanism.get_or_insert(d.mechanism);
+        verified.push(c.evidence.clone());
+    }
+
+    if let Some(mechanism) = mechanism {
+        return ActionOutcome::Verified {
+            mechanism,
+            evidence: verified,
+        };
+    }
+    if outside > 0 {
+        return ActionOutcome::OutsideWindow;
+    }
+    if uncovered > 0 {
+        return ActionOutcome::NotCovered;
+    }
+    if unclaimed > 0 {
+        return ActionOutcome::Unclaimed;
+    }
+    if let Some(mechanism) = mismatch {
+        return ActionOutcome::Mismatch { mechanism };
+    }
+    ActionOutcome::None
 }
 
 fn window_overlaps(batch: &AttestedBatch, w: &CoverageWindow, tol: u64) -> bool {
@@ -407,15 +535,16 @@ enum Refers {
     None,
 }
 
-fn collect_references(
-    obs: &VerifiedObserver<'_>,
+fn collect_references<'a>(
+    obs: &VerifiedObserver<'a>,
     ee: &ExpectedExecution,
     window: &CoverageWindow,
     tol: u64,
-) -> References {
+) -> References<'a> {
     let decision_id = DecisionId::from_bytes(ee.decision_id);
     let mut refs = References::default();
     for b in &obs.batches {
+        let b: &'a AttestedBatch = b;
         let in_window = window_overlaps(b, window, tol);
         for (i, o) in b.batch.observations.iter().enumerate() {
             let r = observation_refers(o, ee, &decision_id);
@@ -426,7 +555,23 @@ fn collect_references(
             match r {
                 Refers::None => {}
                 _ if !in_window => refs.outside_window += 1,
-                Refers::Match => refs.matching.push(er),
+                Refers::Match => {
+                    refs.candidates.push(ActionCandidate {
+                        evidence: er.clone(),
+                        observation: o,
+                        batch: b,
+                        claimed_here: matches!(
+                            claim_pair(
+                                &o.claimed_decision_id,
+                                &o.attribution,
+                                &decision_id,
+                                &ee.agent_id
+                            ),
+                            ClaimPair::Consistent
+                        ),
+                    });
+                    refs.matching.push(er)
+                }
                 Refers::Divergent => refs.divergent.push(er),
                 Refers::UnboundPid => refs.unbound.push(er),
                 Refers::ClaimInconsistent => refs.inconsistent.push(er),
@@ -699,10 +844,56 @@ pub fn reconcile_expectation(
             draft.cannot_prove(ReasonCode::AmbiguousObservations)
         }
         IdentityComparison::Match { .. } => {
-            // Identity corroborated; the action itself is unobservable, so
-            // VERIFIED_EXECUTION's precondition cannot be met. This is the
+            // Identity corroborated. Whether the *action* is corroborated
+            // depends on whether some in-window observation of the instance
+            // is an instance of an observable action class of the expected
+            // kind (`action::derive_action`), with the expected digest,
+            // claimed under this decision, carried by a batch inside the
+            // window and inside attested coverage. Anything less is the
             // ceiling of the current sensors and is reported as such.
-            draft.cannot_prove(ReasonCode::ActionEvidenceUnavailable)
+            let outcome = compare_action(
+                ee,
+                &refs,
+                &window,
+                obs.health.attested_coverage,
+                ctx.window_tolerance_ms,
+            );
+            if !matches!(outcome, ActionOutcome::None)
+                && obs.health.probe_policy == ProbePolicy::Open
+            {
+                // Action-shaped evidence exists but its mechanism label is
+                // unverified provenance.
+                return draft.cannot_prove(ReasonCode::ProvenanceUnverifiedOpenPolicy);
+            }
+            match outcome {
+                ActionOutcome::Verified {
+                    mechanism,
+                    evidence,
+                } => {
+                    draft.action = ActionComparison::matched(mechanism);
+                    draft.action_continuity_verified = true;
+                    // The carrying observations are already referenced; keep
+                    // the record deterministic by not duplicating them.
+                    debug_assert!(evidence.iter().all(|e| draft.evidence.contains(e)));
+                    draft.finish(
+                        ReconciliationResult::VerifiedExecution,
+                        EvidenceStrength::Attested,
+                        ReasonCode::ActionEvidenceMatches,
+                    )
+                }
+                ActionOutcome::Mismatch { mechanism } => {
+                    draft.action = ActionComparison::mismatched(mechanism);
+                    draft.cannot_prove(ReasonCode::ActionEvidenceDoesNotMatch)
+                }
+                ActionOutcome::Unclaimed => draft.cannot_prove(ReasonCode::ActionEvidenceUnclaimed),
+                ActionOutcome::OutsideWindow => {
+                    draft.cannot_prove(ReasonCode::ActionEvidenceOutsideWindow)
+                }
+                ActionOutcome::NotCovered => {
+                    draft.cannot_prove(ReasonCode::ActionEvidenceNotCovered)
+                }
+                ActionOutcome::None => draft.cannot_prove(ReasonCode::ActionEvidenceUnavailable),
+            }
         }
         IdentityComparison::Divergent { .. } => {
             if obs.health.probe_policy == ProbePolicy::Open {

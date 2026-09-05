@@ -37,9 +37,14 @@
 //! deployment property this crate documents but cannot enforce; see
 //! `docs/architecture/DECISION_POINT.md`.
 
+pub mod actions;
 pub mod decision;
 pub mod expected;
 
+pub use actions::{
+    net_connect_action, net_connect_parameters, NetConnectError, NetProtocol, NET_CONNECT_ACTION,
+    PARAM_PROTOCOL, PARAM_REMOTE_ADDR, PARAM_REMOTE_PORT,
+};
 pub use decision::{
     AuthorizationRequest, Decision, DecisionPoint, DecisionPointError, Denial, DenialReason,
 };

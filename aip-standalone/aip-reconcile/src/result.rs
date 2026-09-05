@@ -5,7 +5,7 @@
 //! confidence-like axis, it is an enum, and it is assigned by result kind
 //! (§ `reconcile`), never computed from a number.
 
-use aip_observe::ObservationAvailability;
+use aip_observe::{ObservationAvailability, SourceMechanism};
 use aip_types::canonical::*;
 use serde::{Deserialize, Serialize};
 
@@ -153,6 +153,27 @@ pub enum ReasonCode {
     /// claim pair is internally inconsistent and supports no verdict about
     /// either party.
     AttributionInconsistent = 0x46,
+    /// An observation of the authorized instance evidences the expected
+    /// action kind with exactly the expected parameter digest, inside the
+    /// window, claimed under this decision. The reason of a
+    /// `VerifiedExecution`.
+    ActionEvidenceMatches = 0x47,
+    /// Action evidence of the expected kind exists for the instance, but its
+    /// parameter digest differs. Says nothing about whether the authorized
+    /// action also happened.
+    ActionEvidenceDoesNotMatch = 0x48,
+    /// Action evidence matching the expected kind and digest exists for the
+    /// instance, but is not claimed under this decision (no claim, another
+    /// decision, or another agent), so it cannot be tied to *this*
+    /// expectation.
+    ActionEvidenceUnclaimed = 0x49,
+    /// Matching action evidence exists, but the batch that carries it is not
+    /// placed wholly inside the authorized window.
+    ActionEvidenceOutsideWindow = 0x4a,
+    /// Matching action evidence exists, but the batch that carries it lies
+    /// outside the collector's attested coverage epoch, so its continuity is
+    /// not vouched for.
+    ActionEvidenceNotCovered = 0x4b,
     // ── coverage ──
     WindowNotCovered = 0x50,
     CoverageNotKernelPushed = 0x51,
@@ -237,42 +258,77 @@ impl IdentityComparison {
     }
 }
 
-/// Witness that an observation carried action-level evidence — an action
-/// kind and a parameter digest the observer itself measured.
+/// Witness that an observation was interpreted as action-level evidence, and
+/// how that observation was obtained.
 ///
-/// Its only field is private, so a value can be built **only inside this
-/// module**. No constructor exists, because no evidence type in the pipeline
-/// carries action-level content: `ObservedEffect` has
-/// `ProcessPresent`/`ProcessNoLongerPresent`/`SocketObserved` and nothing
-/// else, and `KernelLifecycleEvent` carries fork/exec/exit. Adding a
-/// constructor is the deliberate, reviewable act that would make
-/// [`ReconciliationResult::VerifiedExecution`] reachable; until then the
-/// compiler enforces its unreachability rather than a comment.
+/// The field is private and the only constructors are `pub(crate)`, so a
+/// value can be built **only by this crate's engine** — specifically by the
+/// action-derivation step in `reconcile`, after an observation has passed
+/// signature, provenance, identity and window checks. No caller can hand the
+/// reconciler a `Match`. Extending the set of observable action classes means
+/// extending `action::derive_action`; that is the deliberate, reviewable act,
+/// and there is no other way in.
+///
+/// `mechanism` is recorded so a reader of the result sees *what kind* of
+/// evidence carried the action — today always `ProcNetTable`, i.e. polled
+/// socket-table metadata, never a kernel-pushed event.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct ActionEvidenceSeal(());
+pub struct ActionEvidenceSeal {
+    mechanism: SourceMechanism,
+}
+
+impl ActionEvidenceSeal {
+    pub(crate) fn new(mechanism: SourceMechanism) -> Self {
+        Self { mechanism }
+    }
+
+    pub fn mechanism(&self) -> SourceMechanism {
+        self.mechanism
+    }
+}
 
 /// Outcome of comparing expected action/parameters with observation.
 ///
-/// Only `Unobservable` can be produced: the positive variants require an
-/// [`ActionEvidenceSeal`], which nothing can construct.
+/// `Unobservable` is the default and the answer whenever no observation of
+/// the authorized instance is an instance of an observable action class of
+/// the expected `action_kind`. The positive variants require an
+/// [`ActionEvidenceSeal`], which only the engine can construct.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ActionComparison {
     Unobservable,
+    /// An observation of the authorized instance evidences the expected
+    /// action kind with exactly the expected parameter digest.
     Match(ActionEvidenceSeal),
+    /// An observation of the authorized instance evidences the expected
+    /// action kind with a different parameter digest. Not proof that the
+    /// authorized action did not also happen.
     Mismatch(ActionEvidenceSeal),
 }
 
 impl ActionComparison {
-    fn code(&self) -> u8 {
+    pub(crate) fn matched(mechanism: SourceMechanism) -> Self {
+        Self::Match(ActionEvidenceSeal::new(mechanism))
+    }
+
+    pub(crate) fn mismatched(mechanism: SourceMechanism) -> Self {
+        Self::Mismatch(ActionEvidenceSeal::new(mechanism))
+    }
+
+    fn encode(&self, buf: &mut Vec<u8>) {
         match self {
-            Self::Unobservable => 0x00,
-            Self::Match(_) => 0x01,
-            Self::Mismatch(_) => 0x02,
+            Self::Unobservable => put_u8(buf, 0x00),
+            Self::Match(s) => {
+                put_u8(buf, 0x01);
+                put_u8(buf, s.mechanism.code());
+            }
+            Self::Mismatch(s) => {
+                put_u8(buf, 0x02);
+                put_u8(buf, s.mechanism.code());
+            }
         }
     }
 
-    /// Did the observation carry action evidence at all? False for every
-    /// value this crate can currently produce.
+    /// Did some observation carry action evidence of the expected kind?
     pub fn is_observable(&self) -> bool {
         !matches!(self, Self::Unobservable)
     }
@@ -475,7 +531,7 @@ impl Reconciliation {
         }
         encode_availability(&mut buf, &self.availability);
         self.identity.encode(&mut buf);
-        put_u8(&mut buf, self.action.code());
+        self.action.encode(&mut buf);
         put_u8(&mut buf, self.temporal.code());
         put_u8(&mut buf, u8::from(self.replay_detected));
         put_u32(&mut buf, self.evidence.len() as u32);

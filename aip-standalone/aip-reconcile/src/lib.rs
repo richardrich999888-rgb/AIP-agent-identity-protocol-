@@ -31,11 +31,13 @@
 //! `LINEAGE_VIOLATION` is unreachable until both ends of a kernel fork are
 //! bound. These are stated, not worked around.
 
+pub mod action;
 pub mod ids;
 pub mod inputs;
 pub mod reconcile;
 pub mod result;
 
+pub use action::{derive_action, DerivedAction, TCP_ESTABLISHED};
 pub use ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};
 pub use inputs::{
     CoverageStatementError, DecisionPointCoverageStatement, ExpectedSideCoverage,

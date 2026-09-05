@@ -1386,10 +1386,10 @@ fn reconciliation_is_deterministic_and_canonically_encoded() {
     let mut m = a.clone();
     m.identity = IdentityComparison::Match { observations: 1 };
     assert_ne!(m.canonical_bytes(), bytes);
-    // `action` has no second constructible value: the positive variants of
-    // `ActionComparison` require an `ActionEvidenceSeal`, which no code can
-    // build. That unconstructibility is the property, and it is what keeps
-    // `VERIFIED_EXECUTION` unreachable — see the Skill 7 corrective tests.
+    // `action` cannot be mutated from outside the crate: the positive
+    // variants of `ActionComparison` require an `ActionEvidenceSeal` whose
+    // constructors are `pub(crate)`, so only the engine's action-derivation
+    // step can build one. Its encoding is covered by `tests/action_evidence`.
     let mut m = a.clone();
     m.temporal = TemporalComparison::WithinWindow;
     assert_ne!(m.canonical_bytes(), bytes);

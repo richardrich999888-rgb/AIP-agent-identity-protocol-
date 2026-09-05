@@ -577,11 +577,14 @@ fn each_corrective_check_reports_its_own_reason() {
 
 // ═══ Unreachable classes stay unreachable ═══
 
-/// `VERIFIED_EXECUTION` and `LINEAGE_VIOLATION` are not merely absent from
-/// the current control flow — the first cannot be assembled because
-/// `ActionComparison`'s positive variants are unconstructible, and the second
-/// is refused by the central precondition guard. `UNATTRIBUTED_EFFECT`
-/// requires a decision-point coverage statement in the evidence list.
+/// Without action-level evidence, `VERIFIED_EXECUTION` is not merely absent
+/// from the control flow — `ActionComparison`'s positive variants need a seal
+/// only the engine's action-derivation step can build, and it builds one only
+/// from an observation that is an instance of an observable action class
+/// (`tests/action_evidence`). `LINEAGE_VIOLATION` is refused by the central
+/// precondition guard. `UNATTRIBUTED_EFFECT` requires a decision-point
+/// coverage statement in the evidence list. None of the inputs here carry
+/// action evidence, so none of the three may appear.
 #[test]
 fn unreachable_classes_cannot_be_produced_from_any_supported_input() {
     let x = expected();
