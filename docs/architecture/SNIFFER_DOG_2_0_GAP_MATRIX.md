@@ -199,3 +199,15 @@ Test counts after Phase B: aip-standalone 567 / 0 / 3 ignored (+19), aip-service
 | Out-of-tree capabilities | classified in `OUT_OF_TREE_HARVEST_REVIEW.md`; none merged | — |
 
 Test counts after C1: aip-standalone 583 / 0 / 3 ignored (+16), aip-service 39 / 0; clippy and fmt clean.
+
+## A.10 Phase D outcome
+
+| Component | State after D | Evidence |
+|---|---|---|
+| SD-06 delegation graph over verified chains | **CLOSED** for derivation and queries | d01–d11 |
+| Incompleteness reporting (`DanglingHop`) | **CLOSED** | d03 |
+| Revocation standing from a verifier-supplied set | **CLOSED** for consumption; revocation *truth* remains the P1 service/core gap | d04 |
+| Conflict (one id, two signed terms) | implemented, **untested** — not reproducible from the public issuing API | — |
+| `LINEAGE_VIOLATION` (C2) | prerequisite now present; **not started** | — |
+
+Test counts after D: aip-standalone 594 / 0 / 3 ignored (+11), aip-service 39 / 0; clippy and fmt clean.

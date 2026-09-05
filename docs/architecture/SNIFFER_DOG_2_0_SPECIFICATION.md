@@ -13,7 +13,8 @@
 > **Implementation status** is tracked in `SNIFFER_DOG_2_0_IMPLEMENTATION_REPORT.md`
 > and `SNIFFER_DOG_2_0_GAP_MATRIX.md`. Phase B (`aip-agent`: SD-01 reuse,
 > SD-05 projection, SD-02 skeleton) and Phase C1 (SD-04: identity, authority
-> and process lineage without a reconciled verdict) are implemented in the
+> and process lineage without a reconciled verdict) and Phase D (SD-06:
+> delegation graph over verified chains) are implemented in the
 > reduced form those documents state; every other component remains as
 > classified below. Out-of-tree branches were reviewed in
 > `OUT_OF_TREE_HARVEST_REVIEW.md`; nothing from them is merged.

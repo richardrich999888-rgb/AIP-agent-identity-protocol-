@@ -61,6 +61,10 @@ original discovery text for traceability):
   attribution); no reconciled lineage verdict yet (C2 after Phase D).
   `OUT_OF_TREE_HARVEST_REVIEW.md` classifies every branch and PR capability;
   none merged.
+- Sniffer Dog 2.0 Phase D — `aip_agent::graph::DelegationGraph`: paths,
+  outgoing delegations, agents-under, authority-reaching over chains verified
+  whole by `aip_core`; dangling hops reported, verifier-supplied revocation
+  set consumed; no new authority.
 
 ## D. PR3 corrective review (pre-reconciliation)
 

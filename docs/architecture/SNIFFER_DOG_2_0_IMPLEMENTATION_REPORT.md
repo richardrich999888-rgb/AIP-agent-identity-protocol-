@@ -303,3 +303,121 @@ Phase D — delegation graph over verified token chains (index by grantee,
 all paths reaching an agent, effective scope per path, explicit
 incompleteness), harvested shape from `OUT_OF_TREE_HARVEST_REVIEW.md` §2.1;
 then C2. Skill 8 remains untouched.
+
+---
+
+# Phase D — delegation graph (SD-06)
+
+## Status
+
+**PASS.** `aip_agent::graph::DelegationGraph` is a projection over token
+chains that `aip_core` verified whole. It answers who delegated what to
+whom — paths to an agent, delegations an agent issued, agents under an
+issuer, authority reaching an agent for an action — and reports exactly
+what it could not verify: hops without their parent in hand
+(incompleteness) and one id carrying two sets of signed terms (conflict).
+Revocation is a verifier-supplied set of token ids, the shape the packet
+verifier's rule R9 already consumes; the graph decides nothing about what
+is revoked. No new authority, key or signed object.
+
+The path-resolution shape (walk child → root, report the whole path,
+effective scope at the leaf) is the design harvested from the OrbitalTrust
+authority module (`OUT_OF_TREE_HARVEST_REVIEW.md` §2.1), rebuilt over
+Ed25519-signed tokens instead of edges whose verifier returned `true`.
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| `2bdf49c` | RED: `aip-agent/tests/graph.rs` d01–d11; Phase B/C fixtures gain `loose_hops` and `revoked_jtis`; the lineage partition pin gains `delegation`; did not compile |
+| `f96e51a` | GREEN: `aip-agent/src/graph.rs`; `verify_chain_terms` split out of the per-agent projection; `Lineage.delegation`; two new profile inputs |
+| *(the following commit)* | this section and pointers |
+
+Test-file edits since RED, by `git diff -w`: rustfmt; one unused fixture
+field removed; one `clone` → `from_ref`; and **one corrected expectation**:
+d10 first asserted that the orchestrator holding one root token presented
+through two chains has *two* paths, which contradicts d02's dedupe rule —
+it has one path, because one token is one authority. The corrected
+assertion is the stricter reading. No other assertion changed.
+
+## Current State
+
+| Symbol | What it is | Authority behind it |
+|---|---|---|
+| `DelegationGraph::build(chains, loose_hops, keys, revoked_jtis, as_of)` | nodes from every chain `verify_chain_terms` accepts (no self-issued root, trusted and valid root signature, `aip_core::verify_delegation_chain`); a chain that fails is excluded whole with its reason | token signatures through `aip_core` |
+| `GraphNode { jti, parent_jti, issuer_id, grantee_id, scope, depth, issued_at, expires_at, terms_hash }` | one verified token; `terms_hash` is the signed payload hash | issuer signature |
+| `DanglingHop` / `incomplete()` | a hop supplied outside a chain: not verified alone (that would be a second verifier), reported with the parent it needs | — |
+| `conflicts()` | one id, two `terms_hash`es among verified tokens: both refused. Defensive; not reproducible from the public issuing API, which chooses ids itself, so **not claimed as a tested property** | — |
+| `PathStanding::{Valid, Expired, NotYetValid, Revoked{jti}}` | standing of a root-to-grantee path at `as_of`; `Revoked` names the nearest-to-root revoked token | verifier-supplied revocation set |
+| `paths_to`, `valid_paths_to`, `authority_reaching(agent, action)`, `agents_under(issuer)`, `delegated_by(agent)`, `standing_at(jti)`, `is_complete` | queries; every path ends at a root node or is not a path; cycles are not paths | — |
+| `Lineage.delegation: DelegationSummary { paths_to_agent, delegated_by_agent: Vec<OutgoingDelegation{jti, grantee_id, standing}>, agents_under_agent, incomplete, conflicts, excluded }` | the graph's answers for the profiled agent | — |
+| `ProfileInputs.{loose_hops, revoked_jtis}` | new inputs | verifier-supplied |
+
+The per-agent projection (`project_authority`, Phase B) and the graph share
+`verify_chain_terms`; the projection adds the decision point's "chain ends
+at this agent" rule, the graph does not — a chain reaching another agent is
+`LeafNotAgent` for the agent's own authority and an ordinary edge for the
+graph (d10).
+
+## Evidence
+
+| Test | Property |
+|---|---|
+| d01 | one verified chain → two nodes, one path, root issuer first, delegators, effective scope, `Valid`, complete |
+| d02 | shared root is one node; `agents_under(root issuer)` is transitive; `delegated_by(orchestrator)` is exactly its two hops |
+| d03 | a hop without its parent is `incomplete` naming the missing parent, not a node or path; supplying the chain resolves it |
+| d04 | revoked hop → that path `Revoked`, no valid path, no authority for any action, sibling unaffected; revoked root → every path revoked |
+| d05 | rewritten hop → chain excluded whole (`ChainInvalid(SignatureInvalid)`), no node from it |
+| d06 | identical token through two chains and as a loose hop → one node, no conflict, complete |
+| d07 | hops extended until `aip_core` refuses (`LineageInvalid`), always below `MAX_DELEGATION_DEPTH`; every prefix grantee has one path of increasing length |
+| d08 | `authority_reaching` = valid ∧ scope permits; out-of-scope → none; expired path still a path (`Expired`), reaches nothing, not excluded |
+| d09 | self-issued root → `SelfIssuedRoot` before any key lookup; untrusted issuer → `UntrustedIssuer(id)` |
+| d10 | profile carries paths to the agent, its outgoing delegations, agents under it, incompleteness and conflicts; the agent's own authority still excludes chains ending elsewhere |
+| d11 | serialized graph has no key naming score / trust / confidence / reputation / rating / rank / grade |
+
+## Changes Made
+
+| File | Change |
+|---|---|
+| `aip-agent/src/graph.rs` | new |
+| `aip-agent/src/authority.rs` | `verify_chain_terms` extracted; per-agent `verify_chain` reuses it |
+| `aip-agent/src/lineage.rs` | `Lineage.delegation` |
+| `aip-agent/src/profile.rs` | `loose_hops`, `revoked_jtis` inputs; graph built per profile |
+| `aip-agent/src/lib.rs` | exports |
+
+No file outside `aip-agent` changed. No protocol crate touched.
+
+## Tests
+
+| Suite | Result |
+|---|---|
+| `cargo test -p aip-agent` | 39 passed (3 + 16 + 9 + 11 graph), 0 failed |
+| `cargo test --workspace` (aip-standalone) | 594 passed, 0 failed, 3 ignored (Phase C: 583; +11) |
+| `cargo test` (aip-service) | 39 passed, 0 failed (unchanged) |
+| `cargo clippy --workspace --all-targets -- -D warnings` | clean |
+| `cargo fmt --all --check` | clean |
+
+## Remaining Gaps
+
+Revocation *truth*: `aip-core`'s `RevocationLog` is unwired and
+`aip-service` carries its own; the graph consumes whatever set the verifier
+supplies. Conflict branch untested (see above). C2 (`LINEAGE_VIOLATION`)
+now has its prerequisite and remains not started.
+
+## Security Claims
+
+- Every node is a token whose chain `aip_core` verified; nothing enters on
+  its own say-so.
+- A path exists only from a root node; a hop without its parent yields no
+  path and is reported.
+- A revoked token, wherever it sits on a path, makes that path confer no
+  authority.
+- The graph carries no scalar summary and decides nothing about revocation.
+
+Not claimed: that the graph is complete over the world's tokens (it says
+`is_complete` only over what it was handed); conflict detection as a tested
+property.
+
+## Next Gate
+
+Skill 8 (warrant engine), authorized alongside this phase; then Phase C2.
