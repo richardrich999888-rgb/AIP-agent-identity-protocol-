@@ -3,11 +3,11 @@
 //! domain tag is always the first, length-prefixed element of its preimage.
 //!
 //! Per-crate tests already assert this within each crate's dependency reach;
-//! this is the only place all eighteen tags are in scope at once.
+//! this is the only place all nineteen tags are in scope at once.
 
 use aip_types::canonical::put_domain;
 
-const ALL_DOMAINS: [&str; 18] = [
+const ALL_DOMAINS: [&str; 19] = [
     aip_core::AID_SELF_SIGNATURE_DOMAIN,
     aip_core::LINEAGE_PROOF_DOMAIN,
     aip_core::CAPABILITY_GRANT_DOMAIN,
@@ -26,6 +26,7 @@ const ALL_DOMAINS: [&str; 18] = [
     aip_observe::OBSERVER_HEALTH_DOMAIN,
     aip_reconcile::RECONCILIATION_DOMAIN,
     aip_reconcile::DECISION_POINT_COVERAGE_DOMAIN,
+    aip_warrant::WARRANT_DOMAIN,
 ];
 
 #[test]

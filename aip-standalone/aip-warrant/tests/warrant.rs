@@ -149,7 +149,14 @@ fn w01_default_policy_is_advisory() {
 #[test]
 fn w02_strength_gate_matrix() {
     let p = critical_everywhere(autonomous());
-    let r = |s| record(ReconciliationResult::UnattributedEffect, s, covered(), evidence());
+    let r = |s| {
+        record(
+            ReconciliationResult::UnattributedEffect,
+            s,
+            covered(),
+            evidence(),
+        )
+    };
 
     let w = eval(r(EvidenceStrength::Heuristic), &p);
     assert_eq!(w.severity, Severity::Critical);
@@ -160,7 +167,11 @@ fn w02_strength_gate_matrix() {
 
     let w = eval(r(EvidenceStrength::Attested), &p);
     assert_ne!(w.response, ResponseClass::Contain);
-    assert_eq!(w.response, ResponseClass::Alert, "constrain needs explicit policy");
+    assert_eq!(
+        w.response,
+        ResponseClass::Alert,
+        "constrain needs explicit policy"
+    );
     let mut p2 = p.clone();
     p2.allow_constrain_on_attested = true;
     let w = eval(r(EvidenceStrength::Attested), &p2);
@@ -183,7 +194,11 @@ fn w03_cannot_prove_never_contains() {
             record(ReconciliationResult::CannotProve, s, covered(), evidence()),
             &p,
         );
-        assert!(w.response <= ResponseClass::Alert, "{s:?} → {:?}", w.response);
+        assert!(
+            w.response <= ResponseClass::Alert,
+            "{s:?} → {:?}",
+            w.response
+        );
     }
 }
 
@@ -220,7 +235,12 @@ fn w05_continuity_failure_is_alert_about_the_observer() {
     let p = critical_everywhere(autonomous());
     for s in all_strengths() {
         let w = eval(
-            record(ReconciliationResult::ContinuityFailure, s, covered(), evidence()),
+            record(
+                ReconciliationResult::ContinuityFailure,
+                s,
+                covered(),
+                evidence(),
+            ),
             &p,
         );
         assert!(w.response <= ResponseClass::Alert);
@@ -366,16 +386,19 @@ fn w10_verified_execution_is_observe() {
 fn w11_severity_and_strength_are_orthogonal() {
     let r = |s| record(ReconciliationResult::PhantomClaim, s, covered(), evidence());
     for sev in all_severities() {
-        let p = WarrantPolicy::default()
-            .with_severity(ReconciliationResult::PhantomClaim, sev);
+        let p = WarrantPolicy::default().with_severity(ReconciliationResult::PhantomClaim, sev);
         for s in all_strengths() {
             let w = eval(r(s), &p);
             assert_eq!(w.severity, sev, "severity comes from policy alone");
-            assert_eq!(w.evidence_strength, s, "strength comes from the record alone");
+            assert_eq!(
+                w.evidence_strength, s,
+                "strength comes from the record alone"
+            );
         }
     }
     // Same strength, different severities: strength untouched.
-    let p_low = WarrantPolicy::default().with_severity(ReconciliationResult::PhantomClaim, Severity::Low);
+    let p_low =
+        WarrantPolicy::default().with_severity(ReconciliationResult::PhantomClaim, Severity::Low);
     let p_crit = WarrantPolicy::default()
         .with_severity(ReconciliationResult::PhantomClaim, Severity::Critical);
     let a = eval(r(EvidenceStrength::Attested), &p_low);
@@ -413,10 +436,8 @@ fn w12_containment_properties_hold_everywhere() {
                                     }
                                     let ev = if cited { evidence() } else { vec![] };
                                     let w = eval(record(result, strength, avail.clone(), ev), &p);
-                                    let unavailable = !matches!(
-                                        avail,
-                                        ObservationAvailability::Covered { .. }
-                                    );
+                                    let unavailable =
+                                        !matches!(avail, ObservationAvailability::Covered { .. });
                                     if w.response == ResponseClass::Contain {
                                         contain_seen += 1;
                                         assert_eq!(strength, EvidenceStrength::Proven);
@@ -458,7 +479,10 @@ fn w12_containment_properties_hold_everywhere() {
             }
         }
     }
-    assert!(contain_seen > 0, "the gate is reachable when every condition holds");
+    assert!(
+        contain_seen > 0,
+        "the gate is reachable when every condition holds"
+    );
 }
 
 // ─── authenticity ───
@@ -477,9 +501,12 @@ fn keys() -> Keys {
 
 fn signed() -> (Warrant, WarrantTrustAnchors, Keys) {
     let k = keys();
-    let authority =
-        WarrantAuthority::new("warrant-authority-1", &k.warrant.private_key, &k.warrant.public_key)
-            .unwrap();
+    let authority = WarrantAuthority::new(
+        "warrant-authority-1",
+        &k.warrant.private_key,
+        &k.warrant.public_key,
+    )
+    .unwrap();
     let w = eval(
         record(
             ReconciliationResult::UnattributedEffect,
@@ -505,7 +532,10 @@ fn w13_every_security_field_is_under_the_signature() {
 
     let mut unsigned = w.clone();
     unsigned.signature = None;
-    assert_eq!(verify_warrant(&unsigned, &anchors), Err(WarrantVerifyError::Unsigned));
+    assert_eq!(
+        verify_warrant(&unsigned, &anchors),
+        Err(WarrantVerifyError::Unsigned)
+    );
 
     let untrusted = WarrantTrustAnchors::new();
     assert!(matches!(
@@ -513,30 +543,49 @@ fn w13_every_security_field_is_under_the_signature() {
         Err(WarrantVerifyError::UntrustedAuthority(_))
     ));
 
-    let mutations: Vec<(&str, Box<dyn Fn(&mut Warrant)>)> = vec![
+    type Mutation = Box<dyn Fn(&mut Warrant)>;
+    let mutations: Vec<(&str, Mutation)> = vec![
         ("finding_id", Box::new(|m| m.finding_id[0] ^= 1)),
         ("warrant_id", Box::new(|m| m.warrant_id[0] ^= 1)),
-        ("result", Box::new(|m| m.reconciliation_result = ReconciliationResult::CannotProve)),
-        ("reconciliation_digest", Box::new(|m| m.reconciliation_digest[0] ^= 1)),
-        ("strength", Box::new(|m| m.evidence_strength = EvidenceStrength::Heuristic)),
+        (
+            "result",
+            Box::new(|m| m.reconciliation_result = ReconciliationResult::CannotProve),
+        ),
+        (
+            "reconciliation_digest",
+            Box::new(|m| m.reconciliation_digest[0] ^= 1),
+        ),
+        (
+            "strength",
+            Box::new(|m| m.evidence_strength = EvidenceStrength::Heuristic),
+        ),
         ("severity", Box::new(|m| m.severity = Severity::Low)),
         ("response", Box::new(|m| m.response = ResponseClass::Alert)),
         ("target", Box::new(|m| m.target = ResponseTarget::Observer)),
         ("policy_version", Box::new(|m| m.policy_version += 1)),
         ("issued_at", Box::new(|m| m.issued_at += 1)),
-        ("valid_until", Box::new(|m| m.valid_until = m.valid_until.map(|v| v + 86_400_000))),
+        (
+            "valid_until",
+            Box::new(|m| m.valid_until = m.valid_until.map(|v| v + 86_400_000)),
+        ),
         ("valid_until_none", Box::new(|m| m.valid_until = None)),
         ("evidence_refs", Box::new(|m| m.evidence_refs.clear())),
-        ("evidence_ref_content", Box::new(|m| {
-            m.evidence_refs[0] = EvidenceRef::Expected {
-                decision_point_id: DecisionPointId("aip1dp".into()),
-                decision_id: DecisionId::from_bytes([0x12; 16]),
-            }
-        })),
+        (
+            "evidence_ref_content",
+            Box::new(|m| {
+                m.evidence_refs[0] = EvidenceRef::Expected {
+                    decision_point_id: DecisionPointId("aip1dp".into()),
+                    decision_id: DecisionId::from_bytes([0x12; 16]),
+                }
+            }),
+        ),
         ("subject", Box::new(|m| m.subject_agent = None)),
         ("protected", Box::new(|m| m.protected = true)),
         ("autonomous", Box::new(|m| m.autonomous = false)),
-        ("observation_unavailable", Box::new(|m| m.observation_unavailable = true)),
+        (
+            "observation_unavailable",
+            Box::new(|m| m.observation_unavailable = true),
+        ),
     ];
     for (name, mutate) in mutations {
         let mut m = w.clone();
@@ -567,7 +616,10 @@ fn w14_warrant_key_must_not_be_another_authoritys_key() {
 fn w15_temporal_range_is_explicit_and_bounded() {
     let (w, _, _) = signed();
     assert_eq!(w.issued_at, NOW);
-    assert_eq!(w.valid_until, Some(NOW + WarrantPolicy::default().validity_ms));
+    assert_eq!(
+        w.valid_until,
+        Some(NOW + WarrantPolicy::default().validity_ms)
+    );
     assert!(w.is_valid_at(NOW));
     assert!(w.is_valid_at(NOW + WarrantPolicy::default().validity_ms));
     assert!(!w.is_valid_at(NOW + WarrantPolicy::default().validity_ms + 1));
@@ -647,7 +699,14 @@ fn w17_warrant_is_traceable_and_carries_no_scalar() {
     walk(&v, &mut keys);
     for k in &keys {
         let lk = k.to_ascii_lowercase();
-        for f in ["score", "confiden", "trust", "reputation", "should_kill", "kill"] {
+        for f in [
+            "score",
+            "confiden",
+            "trust",
+            "reputation",
+            "should_kill",
+            "kill",
+        ] {
             assert!(!lk.contains(f), "forbidden key `{k}`");
         }
     }
@@ -664,8 +723,18 @@ fn w18_crate_contains_no_actuation() {
         include_str!("../src/warrant.rs"),
     ];
     let forbidden = [
-        "SIGKILL", "kill(", "libc::kill", "cgroup", "freeze", "iptables", "nftables", "XDP",
-        "xdp", "setsockopt", "unshare", "ptrace",
+        "SIGKILL",
+        "kill(",
+        "libc::kill",
+        "cgroup",
+        "freeze",
+        "iptables",
+        "nftables",
+        "XDP",
+        "xdp",
+        "setsockopt",
+        "unshare",
+        "ptrace",
     ];
     for (i, src) in sources.iter().enumerate() {
         for f in forbidden {

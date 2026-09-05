@@ -465,6 +465,14 @@ pub enum EvidenceRef {
 }
 
 impl EvidenceRef {
+    /// Canonical, injective bytes of one reference, for embedding in another
+    /// signed object's preimage (the warrant). Same encoding the record uses.
+    pub fn canonical_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::new();
+        self.encode(&mut buf);
+        buf
+    }
+
     fn encode(&self, buf: &mut Vec<u8>) {
         match self {
             Self::Expected {
