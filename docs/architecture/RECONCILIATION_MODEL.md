@@ -1,6 +1,18 @@
 # RECONCILIATION_MODEL
 
-## 1. Current state
+> **Status (Stage 4, commit `ad9642a`): PARTIALLY_IMPLEMENTED** in
+> `aip-standalone/aip-reconcile`. The contract in §3–§5 below is implemented
+> as written, with `CANNOT_PROVE` as the `Default`. Reachable results:
+> `CANNOT_PROVE`, `PHANTOM_CLAIM`, `IDENTITY_DIVERGENCE`,
+> `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`. Unreachable with the
+> current evidence and stated so in code: `VERIFIED_EXECUTION` (no
+> action-level observation exists), `UNATTRIBUTED_EFFECT` (requires a
+> decision-point-signed completeness statement that nothing produces yet),
+> `LINEAGE_VIOLATION` (requires both fork ends bound). See
+> `RECONCILIATION_IMPLEMENTATION_REPORT.md`. §1 below is preserved as the
+> pre-implementation finding for traceability.
+
+## 1. Current state (at discovery, commit `377d5fc`)
 
 `RECONCILIATION = MISSING`. Zero occurrences of `reconcile` or `Reconciliation`
 in production code. No code path anywhere compares an authorized execution

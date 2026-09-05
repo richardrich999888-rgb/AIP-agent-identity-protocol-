@@ -20,6 +20,9 @@ original discovery text for traceability):
   `SNIFFER_DOG_IMPLEMENTATION_REPORT.md`.
 - PR3 corrective review — see `PR3_GAP_REVIEW.md`; three MUST-FIX items
   closed (section D below); reconciliation readiness decided.
+- Stage 4 (Skill 7) at `ad9642a` — reconciler `aip-reconcile`, `CANNOT_PROVE`
+  default, five of eight result classes reachable; see
+  `RECONCILIATION_IMPLEMENTATION_REPORT.md`.
 
 ## D. PR3 corrective review (pre-reconciliation)
 
@@ -58,9 +61,9 @@ original discovery text for traceability):
 | Observer — **PARTIAL (Stage 3 → 6.5)**: keyless host probe with four provenance-tagged sources — procfs poll, pidfd-anchored instance reads, kernel netlink process-event connector (fork/exec/exit with kernel time; `ENOBUFS` loss surfaced), kernel socket tables (socket-level only). Still no eBPF/tracepoint/perf/XDP path; procfs *content* remains root-forgeable; polled sources still miss what happens between polls | **MISSING** (0 files: ebpf/XDP/perf_event/procfs/netlink) | independent runtime observer | no observation of any kind | binding + attestation | **P1** |
 | `ObserverAttestation` — **CLOSED (Stage 3)**: anchor decided as *remote collector*; key held by `CollectorSigner`, structurally unreachable from host-side types; deployment as a separate process remains an operator obligation | **MISSING** | trust root not held by observed agent | observation would be a second self-report (**I10**) | anchor decision (open) | **P0** for design, **P1** to build |
 | Sensor health / continuity — **CLOSED (Stage 3 → 6.5)**: five signed states, collector-side ledger with replay/fork/rollback/gap/head-mismatch faults; 6.5 adds probe run-id (restart), per-run sequence discontinuity and counted kernel event loss as explicit `Degraded` causes, and `probe_policy` in signed health; coverage never back-fills an outage, a loss, or a restart | **MISSING** | 5 explicit states, signed | silence indistinguishable from coverage (**I9**) | observer | **P1** |
-| Reconciler | **MISSING** (0 occurrences) | join on `decision_id` + binding | no comparison exists | both producers | **P1** |
-| `OBSERVATION_UNAVAILABLE` semantics — **PARTIAL (Stage 3)**: `ObservationAvailability::Unavailable{reason}` is a first-class type with seven typed reasons; the `CANNOT_PROVE` default belongs to the reconciler (Stage 4) | **MISSING** | first-class type, `CANNOT_PROVE` default | risk of inferring non-execution from silence (**I8**) | reconciler | **P0** for design |
-| Warrant engine | **MISSING** | severity ⊥ strength; `Proven` gate | containment on suspicion (**I12**, **I13**) | reconciler | **P1** |
+| Reconciler — **PARTIAL (Stage 4, `ad9642a`)**: `aip-reconcile` joins on `decision_id` + structural `ExecutionBinding` match, verifies both signatures and the observer chain up to the signed health head, defaults to `CANNOT_PROVE`; reachable: `PHANTOM_CLAIM` (kernel-pushed signed coverage, `RegisteredOnly`, chain spans window), `IDENTITY_DIVERGENCE`, `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, `CANNOT_PROVE`; **unreachable by construction**: `VERIFIED_EXECUTION` (no action-level observation), `UNATTRIBUTED_EFFECT` (no producer for the DP completeness statement), `LINEAGE_VIOLATION` | **MISSING** (0 occurrences) | join on `decision_id` + binding | no comparison exists | both producers | **P1** |
+| `OBSERVATION_UNAVAILABLE` semantics — **CLOSED (Stage 4)**: `ObservationAvailability::Unavailable{reason}` is carried unchanged in every `Reconciliation`; `ReconciliationResult::default()` is `CannotProve`; every `Unavailable` reason and every non-`Active` observer state yields `CANNOT_PROVE` or an explicit failure class, never `PHANTOM_CLAIM` | **MISSING** | first-class type, `CANNOT_PROVE` default | risk of inferring non-execution from silence (**I8**) | reconciler | **P0** for design |
+| Warrant engine — the `EvidenceStrength` enum it must consume now exists as a separate type in `aip-reconcile` (Stage 4); the engine itself is still **MISSING** | **MISSING** | severity ⊥ strength; `Proven` gate | containment on suspicion (**I12**, **I13**) | reconciler | **P1** |
 | Containment | **MISSING** (correctly) | proof-gated, advisory default | — | warrant engine | **P2** |
 
 ## C. Commitment / NEXORA
@@ -89,6 +92,6 @@ original discovery text for traceability):
 | mutate `expires_at`, re-seal, assert rejection | the P0 defect is currently unprovable by the suite | **P0** |
 | canonical encoder injectivity / collision vectors | `canonical.rs` has **zero** tests | **P0** |
 | PID-reuse attribution refusal | **I4** | **P0** (with binding) |
-| `OBSERVATION_UNAVAILABLE` never yields `PHANTOM_CLAIM` | **I8** | **P0** (with reconciler) |
+| `OBSERVATION_UNAVAILABLE` never yields `PHANTOM_CLAIM` — **CLOSED (Stage 4)**: `aip-reconcile/tests/adversarial.rs` t02, t02b, t03b, t03c, t11, t11b, t14_t18, t17, t22 | **I8** | **P0** (with reconciler) |
 | suspicion cannot reach containment | **I12/I13** | **P1** |
 | service: cross-tenant HTTP 401/403, revoked-JTI rejection | single auth guard has zero coverage | **P1** |
