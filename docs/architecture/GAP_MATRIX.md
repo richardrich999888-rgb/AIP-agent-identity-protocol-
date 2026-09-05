@@ -11,6 +11,8 @@ original discovery text for traceability):
   `AIP_CORRECTNESS_REPORT.md`.
 - Stage 1 (Skill 4) closed at `4ff1f5c` — see
   `EXECUTION_BINDING_IMPLEMENTATION_REPORT.md`.
+- Stage 2 (Skill 5) — library decision point `aip-authorize`; see
+  `DECISION_POINT_IMPLEMENTATION_REPORT.md`.
 
 ## A. AIP correctness (must precede any Ghost work)
 
@@ -19,7 +21,7 @@ original discovery text for traceability):
 | Token/delegation expiry integrity — **CLOSED `830c1e5`** | `expires_at` absent from both signing payloads (`capability.rs:208`, `delegation.rs:369`); read by R10 (`verification.rs:495,497`) | expiry covered by issuer signature | agent extends its own authority window; all 14 rules pass, `tampered=false` | none — fix pattern already exists at `aip-core/src/lib.rs:135-142` | **P0** |
 | `aip-core` canonical encoding — **CLOSED `830c1e5`** (encoder relocated to `aip_types::canonical`) | non-injective; unprefixed string concat (`delegation.rs:381-382`) | length-prefixed via `aip-protocol/src/canonical.rs` | one signature valid for two distinct tokens (**I14**) | batch with expiry fix (one wire break) | **P0** |
 | Domain separation — **PARTIAL `830c1e5`** (all `aip-core` payloads tagged; packet/action/receipt payloads deferred to next wire bump) | absent in every signed preimage (`aip-crypto:151-162`) | type tag per signed object | new Ghost types confusable with packets/tokens | canonical encoder | **P0** |
-| Authorization decision point | **does not exist**; `/v1/evidence/generate` seals caller assertions using a caller-supplied private key (`evidence.rs:130,220-300`) | adjudicating decision point emitting signed `ExpectedExecution` | agent is sole authority for its own execution (**I1**) | expiry + encoder fixes | **P0** |
+| Authorization decision point — **PARTIAL (Stage 2)**: `aip-authorize::DecisionPoint` implemented as a library authority boundary with its own key and configured issuer anchors; deployment as a separate process and `/v1/evidence/generate` integration remain open | **does not exist**; `/v1/evidence/generate` seals caller assertions using a caller-supplied private key (`evidence.rs:130,220-300`) | adjudicating decision point emitting signed `ExpectedExecution` | agent is sole authority for its own execution (**I1**) | expiry + encoder fixes | **P0** |
 | Service verify trust anchors — **PARTIAL `f78a599`** (documented as calculator; type-level separation pending decision point) | caller supplies `trusted_issuers` (`evidence.rs:161,307-309`) | documented as calculator; never an authority | self-authorization loop if consumed as a decision (**I19**) | doc + type-level separation | **P0** |
 | Packet replay | no seen-set; same packet verifies forever | explicit replay oracle in `VerificationContext` | replayed evidence indistinguishable | none | **P1** |
 | Absolute expiry — **DECIDED `f78a599`: no wall clock** (R10 semantics are explicit and offline relative to signed timestamps; see `AIP_CORRECTNESS_REPORT.md` "Verification-time semantics") | R10 never consults a clock; `is_token_expired` uncalled | optional `ctx.verification_time` | expired-years-ago token verifies | expiry fix | **P1** |
@@ -31,7 +33,7 @@ original discovery text for traceability):
 
 | Component | Current state | Target state | Gap | Dependency | Pri |
 |---|---|---|---|---|---|
-| `ExpectedExecution` | **MISSING** (0 occurrences) | signed pre-execution authorization record | no "expected" side of reconciliation | decision point (P0) | **P0** |
+| `ExpectedExecution` — **CLOSED (Stage 2)**: `aip-authorize::ExpectedExecution`, domain `GHOST/ExpectedExecution/v1`, signed `issued_at`/`valid_until`, embeds `ExecutionBinding`, offline-verifiable against `DecisionPointTrustAnchors` | **MISSING** (0 occurrences) | signed pre-execution authorization record | no "expected" side of reconciliation | decision point (P0) | **P0** |
 | `ExecutionBinding` — **CLOSED `4ff1f5c`** as a self-reported, agent-signed binding in `EvidencePacket` (R15); independent attestation of it remains the Observer's gap | **MISSING**; `RuntimeBinding` is self-reported, unwired, path-hashed | agent ↔ process-instance binding in signed evidence | cannot attribute execution to an agent (**I2**) | canonical encoder, packet version bump | **P0** |
 | Process instance identity — **CLOSED `4ff1f5c`** | `pid` only (`runtime.rs:40`); no start time, no boot id | `(pid, pid_start_time, boot_id)` | PID reuse transfers attribution (**I4**) | ExecutionBinding | **P0** |
 | Executable identity — **CLOSED `4ff1f5c`** (contents of `/proc/<pid>/exe`) | `sha256(path_string)` (`runtime.rs:41-44`) | `sha256(binary contents)` | different binary, same path, same hash | ExecutionBinding | **P0** |
