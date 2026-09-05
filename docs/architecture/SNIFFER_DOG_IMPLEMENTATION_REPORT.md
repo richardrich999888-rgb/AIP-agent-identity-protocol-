@@ -327,14 +327,17 @@ client's pid — the reason `current_pid` is trusted only for the initiation.
 `aip-observe/src/sockstate.rs`: `SockStateTracer::open()` reads the
 tracepoint id and record layout from tracefs, opens one `perf_event_open`
 per online CPU (`sample_type = TID | TIME | CPU | RAW`, `sample_period = 1`,
-`use_clockid = 1`, `clockid = CLOCK_BOOTTIME`, `wakeup_events = 1`,
+`use_clockid = 1`, `clockid = CLOCK_BOOTTIME` — **as written at the time;
+Stage 7c found the flag set at the wrong bit and the clock rejected by the
+PMU, and corrected both to `CLOCK_MONOTONIC` (§24)** — `wakeup_events = 1`,
 `PERF_FLAG_FD_CLOEXEC`), maps a header page plus eight data pages per fd,
 enables with `PERF_EVENT_IOC_ENABLE`, and reads `PERF_RECORD_SAMPLE` /
 `PERF_RECORD_LOST` from the rings, delivering samples in kernel-time order.
 `parse_sock_state_record` decodes a raw record by the parsed layout; non-TCP
 protocols, unknown families, out-of-range states and short records are
 `Malformed`, never guessed. `boot_clock_anchor()` samples
-`CLOCK_REALTIME`/`CLOCK_BOOTTIME` back-to-back. The `perf_event_attr` layout
+`CLOCK_REALTIME`/`CLOCK_BOOTTIME` back-to-back (v5 adds `CLOCK_MONOTONIC`
+and `CLK_TCK`, §24). The `perf_event_attr` layout
 is declared explicitly (ABI size 128) rather than taken from a binding.
 
 No eBPF program, loader, map or verifier interaction exists. No XDP. No
@@ -401,3 +404,74 @@ tracefs mounted at `/sys/kernel/tracing` (or `/sys/kernel/debug/tracing`);
 `perf_event_paranoid ≤ -1` or `CAP_PERFMON`/`CAP_SYS_ADMIN` for the probe;
 the collector's clock is the temporal authority and must be off-host; the
 probe's `clock_anchor` is the host's clock and is treated as such.
+
+## 24. Stage 7c addendum — kernel-pushed process creation and execution
+
+Protocol version 4 → 5. Decision and ranking:
+`NEXT_ACTION_EVIDENCE_DECISION.md`.
+
+### 24.1 Instrumentation
+
+`aip-observe/src/perf.rs` now holds the perf tracepoint plumbing shared by
+`sockstate.rs` and the new `sched.rs`: one `perf_event_open(PERF_TYPE_TRACEPOINT)`
+per (tracepoint, online CPU), `TID | TIME | CPU | RAW`, `use_clockid` with
+`CLOCK_MONOTONIC`, layouts read from tracefs, `__data_loc` strings decoded
+from the locator word, `PERF_RECORD_LOST` counted, samples dispatched by
+`common_type` in kernel-time order. `ProcessTracer` opens
+`sched/sched_process_fork` and `sched/sched_process_exec`. No eBPF.
+
+### 24.2 Measured semantics
+
+Fork fires in the parent's context (`parent_pid`, `child_pid`, comms); exec
+fires in the new image's context with the kernel-resolved `filename`, `pid`,
+`old_pid`. The tracepoint PMU rejects `use_clockid` with `CLOCK_BOOTTIME`,
+`REALTIME` and `TAI` (`EINVAL`) and accepts `MONOTONIC`/`MONOTONIC_RAW`; boot
+and monotonic coincide here (< 1 µs). Stage 7b's `use_clockid` bit was wrong
+(bit 34, not 25) and is fixed; samples are now on the requested clock.
+
+### 24.3 Event model additions (v5)
+
+`SourceMechanism::SchedTracepoint` (kernel-pushed; **not** lifecycle coverage
+— no exit event); `KernelLifecycleKind::ProcessSpawn { parent_pid, child_pid,
+parent_comm, child_comm }` with `subject_pid = parent` (the actor) and
+`spawned_child_pid`; `KernelLifecycleKind::ProcessExec { pid, old_pid,
+filename }`; `BootClockAnchor` gains `monotonic_ns` and `clk_tck`;
+`ProcfsProbe::ingest_sched_event` anchors the parent at fork and the child
+at exec under the start-tick rule, converted through the anchor.
+
+### 24.4 PROVEN (additions)
+
+- The kernel reported an anchored instance forking a child, and that child
+  executing an image, at kernel times; the child's start tick lies within
+  the fork–exec interval (live X-P; `xe01`, `xe04`).
+- The executed image's content hash equals / differs from the authorized one
+  regardless of path (`xe02`; live X-A).
+- A spawn attested before the decision predates it by the collector's clock
+  (live X-C; `xe08`).
+- Ring loss degrades; restart is a continuity failure; every field of both
+  events and the anchor's `CLK_TCK` is mutation-detected at `Proven`
+  (`xe12`–`xe14`).
+
+### 24.5 CANNOT_PROVE (additions)
+
+Arguments and environment; what the child did; an exec chain faster than
+anchoring; the hashed image's truth under root; sub-tick pid reuse; the
+child of a parent that exited before anchoring; a spawn on a host whose root
+disables or starves the ring; non-execution from the absence of fork/exec.
+
+### 24.6 NOT_IMPLEMENTED (revised)
+
+eBPF; tracepoints other than `sock:inet_sock_set_state`,
+`sched:sched_process_fork`, `sched:sched_process_exec`; `sched_process_exit`
+as coverage; file, DNS, credential, IPC classes; argument capture; XDP;
+packet capture; filesystem/syscall observation; transport authentication;
+collector persistence; key lifecycle beyond version/revoke; hardware/TEE
+attestation; performance measurement.
+
+### 24.7 Deployment and privilege
+
+tracefs must be mounted (`mount -t tracefs nodev /sys/kernel/tracing`); it
+was not mounted by default in this session's fresh container.
+`perf_event_paranoid ≤ -1` or `CAP_PERFMON`/`CAP_SYS_ADMIN`. The collector's
+clock is the temporal authority; the probe's three-clock anchor is the host's
+clock and a claim; probes re-anchor per batch.

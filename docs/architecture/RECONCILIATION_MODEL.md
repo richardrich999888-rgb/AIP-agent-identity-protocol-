@@ -1,15 +1,19 @@
 # RECONCILIATION_MODEL
 
 > **Status (Stage 4 `ad9642a`, corrected `b821a23`; Stage 7 action evidence
-> `63c5e0a`; Stage 7b transition evidence): PARTIALLY_IMPLEMENTED** in `aip-standalone/aip-reconcile`. The
+> `63c5e0a`; Stage 7b transition evidence; Stage 7c process execution
+> `1d52f93`): PARTIALLY_IMPLEMENTED** in `aip-standalone/aip-reconcile`. The
 > contract in §3–§5 below is implemented as written, with `CANNOT_PROVE` as
 > the `Default`. Reachable results: `CANNOT_PROVE`, `PHANTOM_CLAIM`,
 > `IDENTITY_DIVERGENCE`, `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, and —
-> **for exactly one action class**, an established TCP connection authorized
-> as `ghost.net.connect.v1` — `VERIFIED_EXECUTION` at `Attested`, in two
-> distinguishable kinds: `Presence` (a table row: the connection existed at
+> **for exactly two action classes** — `VERIFIED_EXECUTION` at `Attested`:
+> an established TCP connection authorized as `ghost.net.connect.v1`, in two
+> distinguishable kinds, `Presence` (a table row: the connection existed at
 > the sample) and `Transition` (the kernel reported it being made;
-> `ACTION_EVIDENCE.md` §14). Unreachable with the current evidence and stated so
+> `ACTION_EVIDENCE.md` §14); and a process execution authorized as
+> `ghost.process.exec.v1` (the kernel reported the bound instance forking a
+> child that executed an image whose content hash is the authorized one;
+> `Transition` only; `ACTION_EVIDENCE.md` §15). Unreachable with the current evidence and stated so
 > in code: `VERIFIED_EXECUTION` for every other action kind (no action-level
 > observation exists), `UNATTRIBUTED_EFFECT` (requires a decision-point-signed
 > completeness statement that nothing produces yet), `LINEAGE_VIOLATION`
@@ -121,20 +125,31 @@ deterministically: an ESTABLISHED TCP/TCP6 socket-table row of the anchored
 instance is `ghost.net.connect.v1` with parameters `(protocol, remote_addr,
 remote_port)`, whose digest is recomputed through the same
 `aip_authorize::net_connect_parameters` the decision point's caller used
-(`ACTION_EVIDENCE.md`). For that class, and only that class, the
-context-match precondition can be satisfied. For every other action kind the
-strongest positive result remains identity-level corroboration, and identity
-match never implies action match.
+(`ACTION_EVIDENCE.md`). Since Stage 7c a second mapping exists: a kernel
+`sched_process_fork` whose bound parent is the anchored instance, paired with
+the `sched_process_exec` of that child (same `child_pid`, exec not earlier
+than fork, child start tick inside `[fork − one tick, exec]`), is
+`ghost.process.exec.v1` with parameter `exe_sha256` — the SHA-256 of the
+child's executed image read under a pidfd anchor, recomputed through
+`aip_authorize::process_exec_parameters`; the kernel's `filename` never
+enters the digest. For those two classes, and only those, the context-match
+precondition can be satisfied. For every other action kind the strongest
+positive result remains identity-level corroboration, and identity match
+never implies action match.
 
-**Temporal placement of kernel events (Stage 7b).** Kernel timestamps and
-the decision point's wall clock are different domains. A transition is placed
-*before* a decision when the collector signed its batch before the decision
-was issued (`attested_at_ms < issued_at`, two off-host clocks) or when the
-probe's boot-clock anchor says so; it is placed *inside* only by the anchor,
-which is the host's clock and therefore a claim (`Attested` cap); with no
-anchor it is `Unanchored` and nothing is inferred. A transition placed before
-the decision is `ActionPrecedesAuthorization` and also disqualifies presence
-evidence of the same connection.
+**Temporal placement of kernel events (Stage 7b, clock corrected in 7c).**
+Kernel timestamps (`CLOCK_MONOTONIC`, the perf event clock) and the decision
+point's wall clock are different domains. A transition is placed *before* a
+decision when the collector signed its batch before the decision was issued
+(`attested_at_ms < issued_at`, two off-host clocks) or when the probe's clock
+anchor says so; it is placed *inside* only by the anchor, which is the host's
+clock and therefore a claim (`Attested` cap); with no anchor it is
+`Unanchored` and nothing is inferred. A transition placed before the decision
+is `ActionPrecedesAuthorization` and, for a connection, also disqualifies
+presence evidence of the same connection. The same rules apply to a process
+execution, where the fork is the initiation and the exec the completion; an
+execution whose child start tick could not be checked against the anchor is
+`KernelTimeUnanchored`, never placed by guess.
 
 **"Continuity attested over the window" — per class.** For `PHANTOM_CLAIM`
 (a negative claim) it means whole-window, kernel-pushed, gap-free coverage

@@ -5,13 +5,15 @@ independently observed and cryptographically matched against its
 `ExpectedExecution`, so that `VERIFIED_EXECUTION` becomes reachable for that
 action and for nothing else.
 
-> **Status: PARTIALLY_IMPLEMENTED — one action class, two evidence kinds.**
+> **Status: PARTIALLY_IMPLEMENTED — two action classes.**
 > Implemented and live-demonstrated for `ghost.net.connect.v1` (an
 > established TCP connection to a remote endpoint), as **presence** (a polled
 > table row: the connection existed at the sample) and, since Stage 7b, as
-> **transition** (the kernel reported the connection being made — §14).
-> Every other action kind remains unobservable and reconciles to
-> `CANNOT_PROVE`. Strength is `Attested`, never `Proven`. See
+> **transition** (the kernel reported the connection being made — §14); and,
+> since Stage 7c, for `ghost.process.exec.v1` (the bound instance forked a
+> child that executed an image of the authorized **content** — §15), as
+> transition only. Every other action kind remains unobservable and
+> reconciles to `CANNOT_PROVE`. Strength is `Attested`, never `Proven`. See
 > `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md` for the evidence trail.
 
 ## 1. What "action evidence" is here
@@ -291,9 +293,10 @@ epistemic class: a transition says the connection was **made**.
 
 ### 14.3 Temporal semantics — five cases
 
-Kernel timestamps are `CLOCK_BOOTTIME`; the window is decision-point Unix
-ms. Placement uses the most trustworthy clock first and never compares the
-two domains directly:
+Kernel timestamps are `CLOCK_MONOTONIC` (this sentence said `CLOCK_BOOTTIME`
+until Stage 7c; §15.4 records why it was wrong); the window is decision-point
+Unix ms. Placement uses the most trustworthy clock first and never compares
+the two domains directly:
 
 | Case | How it is decided | Result |
 |---|---|---|
@@ -348,3 +351,89 @@ start tick, boot id, or executable) is not a match (`tp10`).
 The polling-only observer and its results are unchanged; presence evidence
 was not weakened, only labelled, and overridden solely where the kernel
 shows the same connection predates the decision.
+
+## 15. Stage 7c — process execution (second action class)
+
+Decided in `NEXT_ACTION_EVIDENCE_DECISION.md`. An AI agent that does anything
+on a host runs tools; every tool run is a fork followed by an exec. This class
+makes *what an agent ran* independently observable and matchable to *what it
+was authorized to run*.
+
+```
+ghost.process.exec.v1
+    parameters: exe_sha256 (32 raw bytes) — the image's CONTENT hash, never a path
+    observed as: sched:sched_process_fork  (parent = the actor, anchored; child_pid)
+                 sched:sched_process_exec  (child = the new image, anchored; kernel filename)
+    kind:        Transition · mechanism SchedTracepoint · Attested
+```
+
+### 15.1 Source and attribution
+
+Both tracepoints are sampled through the shared perf plumbing
+(`aip-observe/src/perf.rs`, `sched.rs`), no eBPF. Measured live before
+implementation: `sched_process_fork` fires in the **parent's** task context,
+so the actor is attributable at the event; `sched_process_exec` fires in the
+**new image's** context with the kernel-resolved `filename`. The probe
+pidfd-anchors the parent at the fork and the child at the exec, each under
+the start-tick rule, and hashes `/proc/<child>/exe`. The kernel's `filename`
+is recorded as context and **never enters the digest** (`xe02`: same hash,
+other path → verifies; same path, other content → mismatch).
+
+### 15.2 Pairing (`aip-reconcile::action::derive_executions`)
+
+A spawn pairs with an exec when the exec's `pid` equals the fork's
+`child_pid`, the exec is not earlier than the fork in kernel time, and the
+anchored child's start tick lies within `[fork − one tick, exec]` converted
+through the batch's clock anchor — a recycled pid does not pair (`xe04`).
+Without an anchor the pairing is recorded as unverified and the evidence is
+`KernelTimeUnanchored` (`xe09`). A spawn with no paired exec is an attempt,
+`ActionTransitionIncomplete` (`xe03`); an exec whose child could not be
+anchored (it exited first) is not an execution (`xe05`).
+
+### 15.3 The predicate
+
+Identical in shape to §14.2, with the actor being the fork's bound parent,
+the digest recomputed from the child's content hash through
+`process_exec_parameters`, and the claim taken from the fork event (the
+actor's registered pid). Placement, claim, coverage, provenance, loss,
+restart and the central guard are the same code path for both classes
+(`TransitionEvidence`). Strength is `Attested`; the executed image hash is
+procfs-read under a pidfd anchor, like every content fact.
+
+### 15.4 Clocks — a defect found by this class
+
+The tick-level child-start check exposed that Stage 7b's perf samples were
+**not** on `CLOCK_BOOTTIME` as documented: the `use_clockid` flag had been set
+at the wrong bit and the kernel had silently used its default `sched_clock`
+(a ~237 ms disagreement with process start ticks on this host). Measured on
+this kernel, the tracepoint PMU accepts `use_clockid` only with
+`CLOCK_MONOTONIC`/`MONOTONIC_RAW` and rejects `BOOTTIME`/`REALTIME`/`TAI`
+with `EINVAL`. Event stamps are now explicit **`CLOCK_MONOTONIC`**; the
+anchor samples realtime, boottime and monotonic together plus `CLK_TCK`, and
+converts boot-clock start ticks into the event clock. §14.3's rules are
+unchanged in form; "boot clock" there now reads "the event clock through the
+anchor". Boot and monotonic coincide on a host that has not suspended; a
+suspend between anchor and event shifts the relation, which is why probes
+re-anchor per batch. Both documents (§14 above) should be read with this
+correction.
+
+### 15.5 Live results (`ghost-demo`, this host)
+
+| Scenario | Result |
+|---|---|
+| X-P agent spawns a child executing the authorized image | `VERIFIED_EXECUTION · Attested · Match(SchedTracepoint, Transition)` |
+| X-A child executes a different image (authorized `/bin/true`, ran `sleep`) | `CANNOT_PROVE · ActionEvidenceDoesNotMatch`, action `Mismatch` |
+| X-B another instance of the same binary spawns the image under the bound instance's claim | `CANNOT_PROVE · AmbiguousObservations` — the bound (idle) agent's own exec event is a genuine match, the actor's spawn is divergent; ambiguity is never a verdict |
+| X-C spawn observed and attested before the decision | `CANNOT_PROVE · ActionPrecedesAuthorization · BeforeWindow` |
+
+### 15.6 Still CANNOT_PROVE
+
+Arguments and environment (the kernel exposes `filename` only); what the
+child did afterwards; an exec chain faster than the probe's anchoring (the
+hash is of the image present at the anchor, as with Skill 6.5 `t10`); the
+truth of the hashed image under a root host that swaps `/proc/<pid>/exe`;
+PID reuse inside one `CLK_TCK` tick; any placement inside the window beyond
+what the collector clock decides (the anchor is the host's clock); anything
+on a host whose root disables or starves the ring; non-execution from the
+absence of a fork/exec (the sched stream is not accepted as lifecycle
+coverage for `PHANTOM_CLAIM` — it carries no exit; `xe15`).

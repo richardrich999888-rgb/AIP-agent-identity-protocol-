@@ -225,7 +225,7 @@ files are numbered by installation order. They are **not** the same numbers:
 | 2 Decision point | 5 `syntriass-decision-point` |
 | 3 Observer (+ Stage 6.5 Sniffer Dog) | 6 `syntriass-observer-attestation` |
 | 4 Reconciler | 7 `syntriass-reconciliation` |
-| 7 / 7b Action-level and transition evidence (added after Skill 7; no skill file — governed by the orchestrator's Stage 7 adversarial-validation rules) | — |
+| 7 / 7b / 7c Action-level, transition and process-execution evidence (added after Skill 7; no skill file — governed by the orchestrator's Stage 7 adversarial-validation rules; 7c decided in `NEXT_ACTION_EVIDENCE_DECISION.md`) | — |
 | 5 Evidence strength, 6 Warrant | 8 `syntriass-ghost-warrant` |
 | 8 Containment | 9 `syntriass-ghost-containment` |
 | 9 NEXORA | 10 `syntriass-nexora-integration` |
@@ -245,10 +245,16 @@ STAGE 7  Action-level evidence  aip-authorize/src/actions.rs · aip-reconcile/sr
 STAGE 7b Transition evidence    aip-observe/src/sockstate.rs (perf tracepoint, no eBPF)
                                 aip-reconcile/tests/transition_evidence.rs · ghost-demo live T-A/T-C/T-P
                                 [connection creation vs existence; observer v4; record v3]
+STAGE 7c Process execution      aip-observe/src/{perf,sched}.rs (sched fork/exec tracepoints, no eBPF)
+                                aip-authorize/src/actions.rs (ghost.process.exec.v1, content hash)
+                                aip-reconcile/src/action.rs · tests/exec_evidence.rs
+                                ghost-demo live X-P/X-A/X-B/X-C   [second class; observer v5;
+                                perf clock defect from 7b fixed]
 ─────────────────────────────────────────────────────────────────────────────
-DONE     Stages 0–5, 6.5 (Sniffer Dog), 7 (one action class) — see the
-         implementation reports; every later stage is gated on its own review
-LATER    kernel-pushed socket-state events, warrant engine, containment, NEXORA, PQC
+DONE     Stages 0–5, 6.5 (Sniffer Dog), 7/7b/7c (two action classes) — see
+         the implementation reports; every later stage is gated on its own review
+LATER    further action classes (file class next per the decision), warrant
+         engine, containment, NEXORA, PQC
 ```
 
 **Deviation from skill §23:** the skill lists ExecutionBinding (5) before the

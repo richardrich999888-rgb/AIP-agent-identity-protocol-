@@ -167,7 +167,7 @@ allowed | denied | revoke | terminated | containment | isolate | kill`.
 | `IDENTITY_DIVERGENCE` | yes | `Attested` | Active observer, RegisteredOnly, a measured instance carrying this decision claim that fails the structural match, no matching instance |
 | `SENSOR_INTEGRITY_FAILURE` | yes | `Proven` (signature / chain arithmetic) or `Attested` (collector-declared `Quarantined`) | recomputable failure, or signed quarantine |
 | `CONTINUITY_FAILURE` | yes | `Attested` | signed `Recovering` / `ContinuityUnverified` |
-| `VERIFIED_EXECUTION` | **yes, for one action class only** (Stage 7, `63c5e0a`; Stage 7b): an established TCP connection authorized as `ghost.net.connect.v1`, as `Presence` (polled table) or `Transition` (kernel-reported creation); **no** for every other action kind | `Attested` | `ActionComparison::Match` requires an `ActionEvidenceSeal` whose constructors are `pub(crate)` and are called only by the action-derivation step; the central guard requires a sealed Match, identity Match, `action_continuity_verified` and exactly `Attested`. See `ACTION_EVIDENCE.md` §5 |
+| `VERIFIED_EXECUTION` | **yes, for two action classes only** (Stage 7, `63c5e0a`; Stage 7b; Stage 7c `1d52f93`): an established TCP connection authorized as `ghost.net.connect.v1`, as `Presence` (polled table) or `Transition` (kernel-reported creation); a process execution authorized as `ghost.process.exec.v1`, as `Transition` (kernel-reported fork by the bound instance + exec of the child, image content hash recomputed); **no** for every other action kind | `Attested` | `ActionComparison::Match` requires an `ActionEvidenceSeal` whose constructors are `pub(crate)` and are called only by the action-derivation step; the central guard requires a sealed Match, identity Match, `action_continuity_verified` and exactly `Attested`. See `ACTION_EVIDENCE.md` §5 |
 | `UNATTRIBUTED_EFFECT` | **only with a `DecisionPointCoverageStatement`**, which no production component emits | `Attested` | verified DP-signed completeness statement covering agent and window; claim not in its set; instance bound; attribution claimed; RegisteredOnly |
 | `LINEAGE_VIOLATION` | **no**, refused by the central guard | — | no lineage input type exists; `precondition_holds` returns `false` for this class unconditionally |
 
@@ -499,6 +499,22 @@ for `PHANTOM_CLAIM` now requires process-lifecycle coverage
 mechanism, because a socket-state stream says nothing about processes. See
 `ACTION_EVIDENCE.md` §14 and `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`.
 
+## Stage 7c note
+
+Record version unchanged (v3): no new result class, reason, kind or seal
+field was needed. `aip-reconcile::action` gains `ProcessExecution`,
+`ExecutedImage`, `derive_executions` (fork/exec pairing by `child_pid`,
+kernel-time order and the anchored child's start tick) and the
+`TransitionEvidence` enum that lets `compare_action` run the same claim,
+placement, coverage, provenance and guard path for a socket transition and
+a process execution. The `SchedTracepoint` stream is **not** accepted as
+process-lifecycle coverage for `PHANTOM_CLAIM` (`xe15`). Sixteen fixture
+tests in `tests/exec_evidence.rs` (`xe01`–`xe16`); every earlier test file is
+byte-for-byte unchanged except the `BootClockAnchor` literals in
+`transition_evidence.rs`, which gained the two new fields with no assertion
+touched. See `ACTION_EVIDENCE.md` §15 and
+`ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`.
+
 ## Corrective pass
 
 ### Phase 0 — audit of the first implementation
@@ -584,8 +600,11 @@ supply the key.
 > **Stage 7 update (`63c5e0a`).** `VERIFIED_EXECUTION` is now reachable for
 > exactly one action class — an established TCP connection — through
 > `aip-reconcile::action::derive_action`, the one deliberate constructor site
-> this table anticipated. For every other action kind the row below still
-> holds. See `ACTION_EVIDENCE.md` and `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`.
+> this table anticipated. **Stage 7c (`1d52f93`)** adds a second class, a
+> process execution of an authorized image, through
+> `derive_executions`/`derive_transition_evidence` behind the same sealed
+> constructors. For every other action kind the row below still holds. See
+> `ACTION_EVIDENCE.md` and `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`.
 
 | Result | Why unreachable | What would have to change |
 |---|---|---|

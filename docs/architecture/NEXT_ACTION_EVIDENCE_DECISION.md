@@ -189,11 +189,31 @@ what the tool did, and does not prove non-execution.
 ## 14. Required kernel mechanism
 
 `perf_event_open(PERF_TYPE_TRACEPOINT)` on `sched:sched_process_fork` and
-`sched:sched_process_exec`, per online CPU, `CLOCK_BOOTTIME`, record layouts
-read from tracefs (`__data_loc char[]` fields decoded by the offset/length
-word they carry). tracefs must be mounted; it was **not** mounted by default
-in this session's fresh container and had to be mounted by the operator —
-a deployment requirement, recorded. No eBPF.
+`sched:sched_process_exec`, per online CPU, record layouts read from tracefs
+(`__data_loc char[]` fields decoded by the offset/length word they carry).
+tracefs must be mounted; it was **not** mounted by default in this session's
+fresh container and had to be mounted by the operator — a deployment
+requirement, recorded. No eBPF.
+
+**Clock (corrected during implementation).** This section originally said
+`CLOCK_BOOTTIME`, following Stage 7b's documentation. Implementing the
+child-start-tick bound exposed that the Stage 7b samples were not on that
+clock: the `use_clockid` flag had been set at the wrong bit, and when set
+correctly the tracepoint PMU on this kernel rejects `BOOTTIME`, `REALTIME` and
+`TAI` with `EINVAL`, accepting only `CLOCK_MONOTONIC`/`MONOTONIC_RAW`
+(measured). Event stamps are therefore `CLOCK_MONOTONIC`; the anchor carries
+realtime, boottime, monotonic and `CLK_TCK`, and converts start ticks into
+the event clock. `ACTION_EVIDENCE.md` §15.4.
+
+## 14a. Outcome
+
+Implemented as decided: `a5e2cbf` (this document + RED), `1d52f93` (GREEN).
+Live on this host: X-P `VERIFIED_EXECUTION · Attested ·
+Match(SchedTracepoint, Transition)`; X-A `ActionEvidenceDoesNotMatch` on
+content; X-B `AmbiguousObservations` (the bound agent's own exec event is a
+genuine match while the other instance's spawn is divergent — ambiguity is
+reported, not resolved); X-C `ActionPrecedesAuthorization · BeforeWindow`.
+Nothing in §9 became provable; §17 holds.
 
 ## 15. Required tests
 

@@ -6,7 +6,9 @@ Stage 7 — action-level evidence. Commits `44ed9b5` (RED), `63c5e0a` (GREEN),
 
 ## Status
 
-**PASS, for one action class.** `VERIFIED_EXECUTION` is reachable for an
+**PASS, for one action class** (Stage 7; Stage 7b adds the transition kind
+and Stage 7c a second class — see the sections at the end of this report).
+`VERIFIED_EXECUTION` is reachable for an
 established TCP connection to an authorized `(protocol, remote_addr,
 remote_port)`, at `Attested`, derived by the engine from collector-signed
 socket-table observations of the pidfd-anchored instance. It is unreachable
@@ -309,3 +311,78 @@ lib.rs}`; `aip-reconcile/src/{action.rs, reconcile.rs, result.rs, lib.rs}`;
 `aip-reconcile/tests/transition_evidence.rs` (new); `ghost-demo/src/{lib.rs,
 bin/ghost-demo-agent.rs, bin/ghost-demo.rs}`; `ghost-demo/tests/
 live_transition.rs` (new).
+
+## Stage 7c — process execution (second action class)
+
+Decision: `NEXT_ACTION_EVIDENCE_DECISION.md`. Commits: RED `a5e2cbf`,
+implementation (see log), docs. Observer protocol 4 → 5.
+
+### Audit
+
+Kernel primitives already present: connector fork/exec/exit, pidfd anchor,
+polled socket tables, perf tracepoint sampling (one tracepoint). Measured on
+this host: `sched:sched_process_fork` fires under the parent (actor
+attributable), `sched:sched_process_exec` under the child with a
+kernel-authored `filename`; `syscalls:sys_enter_openat` exposes the path only
+as a user pointer, so a file class needs fanotify (a new mechanism family)
+and ranked lower. tracefs was not mounted in the fresh container and had to
+be mounted by the operator (`mount -t tracefs nodev /sys/kernel/tracing`) —
+a deployment requirement now recorded in `SNIFFER_DOG.md`.
+
+### RED
+
+`ghost-demo/tests/live_exec.rs` against `5c4c2d0`: `x_p` — the agent spawns a
+child executing the authorized image with the observer live —
+`CANNOT_PROVE / ActionEvidenceUnavailable`, 0 kernel events (nothing
+interprets fork/exec). `x_a`, `x_b`, `x_c` passed only because nothing
+verifies; pinned.
+
+### Implementation
+
+| Layer | Change |
+|---|---|
+| `aip-observe/src/perf.rs` (new) | shared perf tracepoint plumbing: rings per (tracepoint, CPU), layouts from tracefs, `__data_loc`, `PERF_RECORD_LOST`, samples dispatched by `common_type` in kernel-time order |
+| `aip-observe/src/sched.rs` (new) | `ProcessTracer`, `parse_fork_record`, `parse_exec_record` |
+| `aip-observe/src/observed.rs` | `SourceMechanism::SchedTracepoint`; `KernelLifecycleKind::ProcessSpawn`/`ProcessExec`; `BootClockAnchor { realtime_ms, boottime_ns, monotonic_ns, clk_tck }`; v5 |
+| `aip-observe/src/probe.rs` | `ingest_sched_event`; start-tick rule through the anchor |
+| `aip-observe/src/sockstate.rs` | rebuilt on `perf.rs` |
+| `aip-authorize/src/actions.rs` | `process_exec_action`, `process_exec_parameters`, `PARAM_EXE_SHA256` |
+| `aip-reconcile/src/action.rs` | `ProcessExecution`, `ExecutedImage`, `derive_executions`, `TransitionEvidence`, `derive_transition_evidence` |
+| `aip-reconcile/src/reconcile.rs` | `compare_action` over `TransitionEvidence`; mechanism carried per class |
+| `ghost-demo` | both tracers; X-P/X-A/X-B/X-C; re-anchor per batch |
+
+### Defect found in Stage 7b, fixed here
+
+`perf_event_attr.use_clockid` was set at bit 34 (`build_id`) instead of bit
+25, so `CLOCK_BOOTTIME` was never applied and samples carried the PMU default
+`sched_clock`. Exposed live by the child-start check (start ticks 1184.05 s
+vs fork stamp 1184.287 s). This kernel's tracepoint PMU accepts
+`use_clockid` only with `CLOCK_MONOTONIC`/`MONOTONIC_RAW` (`EINVAL` for
+`BOOTTIME`/`REALTIME`/`TAI`, measured). Stamps are now explicit
+`CLOCK_MONOTONIC`; the anchor carries the boot−monotonic offset. Stage 7b's
+live results are unchanged in outcome (its windows are seconds wide); its
+documentation is corrected in `ACTION_EVIDENCE.md` §15.4.
+
+### Tests
+
+`aip-reconcile/tests/exec_evidence.rs` (16, fixture): positive; path never
+in the digest; spawn without exec; other pid / exec before fork / recycled
+pid; unbound child; unbound spawn; other instance (start, boot, exe); before
+(anchor) and collector-clock override; unanchored and after; other decision /
+agent / none; replay; mutation of every field of both events and the
+anchor's `CLK_TCK`; unprovisioned mechanism refused and `Open`; loss and
+restart; sched coverage cannot support `PHANTOM_CLAIM`; no settable field and
+class named in the record. `aip-observe`: `perf` 2, `sched` 3 unit.
+`ghost-demo/tests/live_exec.rs` (8 live): the four RED tests plus reason /
+kind / mechanism pins.
+
+### Results
+
+| Suite | Before 7c | After |
+|---|---|---|
+| aip-standalone `cargo test --workspace` | 518 / 0 / 3 ignored | **548 / 0 / 3 ignored** |
+| aip-service | 39 / 0 | 39 / 0 |
+| clippy `-D warnings`, fmt (both) | clean | clean |
+
+Every predecessor suite unchanged and passing. Fixture anchor literals in
+`transition_evidence.rs` gained the two new fields; no assertion changed.

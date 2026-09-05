@@ -34,6 +34,14 @@ original discovery text for traceability):
   `perf_event_open`, no eBPF; connection *creation* is now evidence,
   distinguished from presence; observer protocol v4, record v3. See
   `ACTION_EVIDENCE.md` §14 and `SNIFFER_DOG_IMPLEMENTATION_REPORT.md` §23.
+- Stage 7c (process execution as action evidence) at `a5e2cbf` (decision +
+  RED) / `1d52f93` (GREEN) — `sched:sched_process_fork` +
+  `sched:sched_process_exec` via `perf_event_open`, no eBPF; a second action
+  class, `ghost.process.exec.v1` (image **content** hash), `VERIFIED_EXECUTION`
+  at `Attested`, live-demonstrated X-P/X-A/X-B/X-C; observer protocol v5;
+  the Stage 7b perf clock defect found and fixed. See
+  `NEXT_ACTION_EVIDENCE_DECISION.md`, `ACTION_EVIDENCE.md` §15 and
+  `SNIFFER_DOG_IMPLEMENTATION_REPORT.md` §24.
 
 ## D. PR3 corrective review (pre-reconciliation)
 
@@ -144,10 +152,25 @@ RED evidence: `44ed9b5` (positive path failing against `2c58771`). GREEN:
 | Observable action vocabulary — **CLOSED for one class** | `aip-authorize::actions`: `ghost.net.connect.v1`, `net_connect_parameters` (raw-byte, injective, domain `GHOST/ActionParameters/v1`) | every action a decision point may authorize has an observable definition | only network connections are observable | effect-level sensors | **P1** |
 | Action interpretation — **CLOSED for one class** | `aip-reconcile::action::derive_action`: ESTABLISHED TCP/TCP6 `ProcNetTable` row → kind + recomputed digest; everything else → not evidence | one deterministic mapping per observable class | one class | sensors | **P1** |
 | `VERIFIED_EXECUTION` — **PARTIAL** | reachable for `ghost.net.connect.v1` at `Attested`; sealed constructors, central guard, eleven predicates (`ACTION_EVIDENCE.md` §5); live-demonstrated | reachable for authorized actions generally | no action content for anything else | effect-level sensors | **P1** |
-| Connection *creation* events — **CLOSED (Stage 7b)**: `SockStateTracepoint` (`sock:inet_sock_set_state` through `perf_event_open`, `CLOCK_BOOTTIME`, `PERF_RECORD_LOST`); `CLOSE → SYN_SENT` pidfd-anchored to the caller with the start-time rule, paired to `SYN_SENT → ESTABLISHED` by `sk`; `ActionEvidenceKind::Transition`; a transition attested before the decision is `ActionPrecedesAuthorization` and disqualifies presence of the same connection | **MISSING** — the table shows existence at the sample, not creation | kernel-pushed socket-state event bound to the instance | verification means "existed during", never "was made during" | perf tracepoint (no eBPF) | **P1** |
+| Connection *creation* events — **CLOSED (Stage 7b)**: `SockStateTracepoint` (`sock:inet_sock_set_state` through `perf_event_open`, `CLOCK_MONOTONIC` event clock — corrected in Stage 7c, `PERF_RECORD_LOST`); `CLOSE → SYN_SENT` pidfd-anchored to the caller with the start-time rule, paired to `SYN_SENT → ESTABLISHED` by `sk`; `ActionEvidenceKind::Transition`; a transition attested before the decision is `ActionPrecedesAuthorization` and disqualifies presence of the same connection | **MISSING** — the table shows existence at the sample, not creation | kernel-pushed socket-state event bound to the instance | verification means "existed during", never "was made during" | perf tracepoint (no eBPF) | **P1** |
 | Wall-clock placement of kernel events | **PARTIAL (Stage 7b)**: *before* is provable by the collector's signed `attested_at_ms`; *inside* rests on the probe's `clock_anchor` (host clock, a claim) | — | placement inside the window is `Attested`, never `Proven` | a trusted kernel↔collector time anchor | **P2** |
 | PID reuse within one `CLK_TCK` tick | **open by design** | — | the start-time rule cannot exclude reuse inside 10 ms; pidfd anchor + exe hash narrow it | finer start-time source | **P2** |
 | Root suppression of the perf ring | **open by design** | — | disabling/filtering/starving the ring removes the mechanism or degrades the window; never becomes silent coverage | evidence source outside host control | **P2** |
 | Payload / application parameters | **MISSING** (I23: metadata only) | — | application-level `parameter_digest`s can never match | out of scope for any procfs source | **P2** |
 | Root-forgeable table content | **open by design** | — | caps the class at `Attested` permanently | evidence source outside host control | **P2** |
 | Live demonstrator trust separation | `ghost-demo` runs DP, collector and verifier in one process, labelled `NOT_PRODUCTION_CAPABILITY` | separate processes on separate trust | demonstrates the pipeline, not the separation | deployment | — |
+
+### G.2 Stage 7c — process execution (second action class)
+
+Decision: `NEXT_ACTION_EVIDENCE_DECISION.md`. RED: `a5e2cbf`. GREEN:
+`1d52f93`. Live: `ghost-demo` scenarios X-P, X-A, X-B, X-C.
+
+| Component | Current state | Target state | Gap | Dependency | Pri |
+|---|---|---|---|---|---|
+| Process execution as action evidence — **CLOSED (Stage 7c)** | `ghost.process.exec.v1` with `exe_sha256` (image **content**, `aip-authorize::process_exec_parameters`); `SchedTracepoint` (`sched_process_fork` in the parent's context + `sched_process_exec` in the child's, via `perf_event_open`, no eBPF); `derive_executions` pairs by `child_pid`, kernel-time order and the anchored child's start tick; `VERIFIED_EXECUTION · Attested · Transition`; kernel `filename` is context, never in the digest | **MISSING** — an agent that runs tools but opens no TCP connection is invisible to the action layer | what an agent *ran* is now matchable to what it was *authorized to run* | perf tracepoints, pidfd anchor, clock anchor | **P1** |
+| Perf event clock — **CLOSED (defect found in Stage 7c)** | `use_clockid` at bit 25 with `CLOCK_MONOTONIC`; the tracepoint PMU rejects `BOOTTIME`/`REALTIME`/`TAI` (`EINVAL`, measured); anchor carries realtime, boottime, monotonic and `CLK_TCK`; start ticks converted through the boot−monotonic offset | Stage 7b set the flag at the wrong bit, so samples were on the PMU default clock while the docs said `CLOCK_BOOTTIME` (~237 ms skew vs start ticks on this host) | none remaining for this host; a suspend between anchor and event shifts the offset, hence per-batch re-anchoring | — | closed |
+| Exec arguments / environment | **MISSING** | — | the kernel exposes `filename` only; `argv`/`envp` are not in either tracepoint; authorizations that depend on arguments can never match | a different source (out of scope) | **P2** |
+| Exec chain faster than anchoring | **open by design** | — | a child that execs again or exits before the probe anchors it is unbound → `CANNOT_PROVE`, never guessed | — | **P2** |
+| Sched stream as lifecycle coverage | **refused by design** (`xe15`) | — | fork/exec events say nothing about exits; `PHANTOM_CLAIM` still requires `ProcConnector` coverage | — | — |
+| File create/modify class | **MISSING** (ranked second in the decision; `fanotify`/`FAN_REPORT_PIDFD` candidate) | observable file evidence bound to the instance | agent writes are invisible to the action layer | own review, RED first | **P1** |
+| DNS / outbound-generic / privileged / credential / IPC classes | **MISSING** (ranked; see decision §5) | — | not observable with the current sources | own reviews | **P2** |

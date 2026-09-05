@@ -104,6 +104,14 @@ wall clock — a probe claim); `AttestedBatch.attested_at_ms` (the collector's
 clock at signing, inside the signed preimage). `SourceMechanism::
 SockStateTracepoint`. Version 3 records are refused like earlier versions.
 
+**Protocol version 5 (Stage 7c).** `KernelLifecycleKind::ProcessSpawn`
+(`parent_pid`, `child_pid`, both `comm`s) and `ProcessExec` (`pid`, `old_pid`,
+the kernel's `filename`) delivered by the `sched:sched_process_fork` and
+`sched:sched_process_exec` tracepoints through the same perf plumbing;
+`SourceMechanism::SchedTracepoint`; `BootClockAnchor` gains `monotonic_ns`
+and `clk_tck` so the probe's process start ticks can be placed on the event
+clock (§6b). Version 4 records are refused like earlier versions.
+
 Every new field is inside the canonical encoding (single encoder,
 `aip_types::canonical`; length-prefixed strings; explicit codes for enums;
 presence byte for options; counts for vectors). Version 1 records are refused
@@ -119,12 +127,16 @@ this branch and was never released.
 | `ProcConnector` | **yes** | only if a pidfd anchor succeeded (`bound`) | existence/order/cpu/time: no (user space cannot inject into the kernel's netlink source); identity: yes | **`ENOBUFS`** |
 | `ProcNetTable` | no (polled kernel table) | taken under a pidfd anchor | yes | none |
 | `SockStateTracepoint` | **yes** (static tracepoint via the perf ring) | only for `CLOSE → SYN_SENT` — the `connect()` call runs in the caller's context — and only if a `PidFdAnchored` measurement of `current_pid` succeeded and its start tick is not later than the event's kernel time | existence/order/time/endpoints: no (kernel-authored, user space cannot inject); identity: yes (procfs); root can disable or starve the ring | **`PERF_RECORD_LOST`** (counted per ring) |
+| `SchedTracepoint` | **yes** (two static tracepoints via the perf ring) | fork: the parent (the event fires in the parent's context) if a `PidFdAnchored` measurement of `parent_pid` succeeded under the start-tick rule; exec: the new image's task if anchored likewise. The child of a fork is bound at its exec, not at the fork | existence/order/time/pids/kernel filename: no; identity and image content: yes (procfs); root can disable or starve the ring | **`PERF_RECORD_LOST`** (counted per ring) |
 
 ### `SockStateTracepoint` — what the kernel says about a connection
 
 `perf_event_open(PERF_TYPE_TRACEPOINT, sock:inet_sock_set_state)` on every
-online CPU, sample type `TID | TIME | CPU | RAW`, `use_clockid =
-CLOCK_BOOTTIME`, one 8-page ring per CPU. The record layout is read from
+online CPU, sample type `TID | TIME | CPU | RAW`, `use_clockid` with
+`CLOCK_MONOTONIC` (Stage 7c correction: the tracepoint PMU on this kernel
+rejects `BOOTTIME`, `REALTIME` and `TAI` with `EINVAL`, and Stage 7b's flag
+had been set at the wrong bit — see `ACTION_EVIDENCE.md` §15.4), one 8-page
+ring per CPU. The record layout is read from
 tracefs (`events/sock/inet_sock_set_state/format`) at open time, never
 assumed. Measured on this host's 6.18 kernel:
 
@@ -144,6 +156,38 @@ Privilege: tracefs mounted and either `perf_event_paranoid ≤ -1` or
 `CAP_PERFMON`/`CAP_SYS_ADMIN`. Absent either, `SockStateTracer::open` is
 `Unavailable` and the mechanism does not exist for that host. No eBPF, no
 XDP, no packet capture is involved or claimed.
+
+### `SchedTracepoint` — what the kernel says about a process (Stage 7c)
+
+`perf_event_open(PERF_TYPE_TRACEPOINT)` on `sched:sched_process_fork` and
+`sched:sched_process_exec`, same sample type, clock, ring and layout
+discipline as above (`aip-observe/src/perf.rs` is shared; `sched.rs` decodes
+the two records, including the `__data_loc char[]` fields by the
+offset/length word they carry). Measured on this host before implementation:
+
+- `sched_process_fork` fires in the **parent's** task context with
+  `parent_pid`, `child_pid`, `parent_comm`, `child_comm` — the spawning task
+  is attributable at the event. `subject_pid()` is the parent;
+  `spawned_child_pid()` is the child.
+- `sched_process_exec` fires in the **new image's** context with `pid`,
+  `old_pid` and the kernel-resolved `filename`. The content of the image is
+  **not** in the event; the probe hashes `/proc/<pid>/exe` under a pidfd
+  anchor, and only that hash enters action evidence. `filename` is context.
+- Instance binding for both uses the start-tick rule: the process's
+  `/proc/<pid>/stat` start ticks, converted to the event clock through the
+  batch's anchor, must not exceed the event's kernel timestamp.
+
+Loss, privilege and the absence of eBPF/XDP are exactly as for
+`SockStateTracepoint`. The sched stream **does not** provide process-lifecycle
+coverage for `PHANTOM_CLAIM` (`covers_process_lifecycle` is `ProcConnector`
+only): it reports forks and execs that happened, it says nothing about exits
+and the reconciler does not let it stand in for the connector.
+
+**Deployment requirement.** tracefs must be mounted (`mount -t tracefs nodev
+/sys/kernel/tracing`). It was **not** mounted by default in this session's
+fresh container; without it every tracepoint mechanism is `Unavailable` and
+the observer is polling-only, which the signed `active_mechanisms` makes
+visible.
 
 ### `KernelLifecycleEvent.bound`
 
@@ -199,7 +243,9 @@ never widens over silence, loss, or a restart.
 
 ## 6b. Kernel time and wall time (Stage 7b)
 
-Kernel timestamps are `CLOCK_BOOTTIME` nanoseconds; authorizations are Unix
+Kernel timestamps are `CLOCK_MONOTONIC` nanoseconds (the event clock; Stage
+7c corrected the Stage 7b text, which said `CLOCK_BOOTTIME` — the flag had
+not been applied and the PMU rejects that clock); authorizations are Unix
 milliseconds from the decision point's clock. They are different clock
 domains and are never compared directly. Two anchors exist:
 
@@ -209,17 +255,22 @@ domains and are never compared directly. Two anchors exist:
    `issued_at` compares two off-host clocks with no host input: this is how
    a transition can be shown to **predate** a decision.
 2. **`ObservationBatch.clock_anchor`** — the probe's back-to-back sample of
-   `CLOCK_REALTIME` and `CLOCK_BOOTTIME`. Kernel-authored values, but the
+   `CLOCK_REALTIME`, `CLOCK_BOOTTIME` and `CLOCK_MONOTONIC`, plus `CLK_TCK`
+   (protocol v5). Kernel-authored values, but the
    host clock is attacker-controllable under §8, so a placement derived from
    it is a probe claim, `Attested` at most, and used only where the collector
    clock cannot decide. Without it, kernel time is **unanchored** and the
    reconciler says so rather than guessing.
 
-The probe's instance binding for a `connect()` initiation uses the same
-boot clock on both sides: `/proc/<pid>/stat` start ticks × (1 s / `CLK_TCK`)
-must not exceed the event's kernel timestamp, or the pid was recycled after
-the event. Resolution is one tick (10 ms); pid reuse inside one tick is not
-excluded by time alone.
+The probe's instance binding for a `connect()` initiation, a fork's parent
+or an exec's task compares two kernel clocks through the anchor:
+`/proc/<pid>/stat` start ticks are on the boot clock and are converted to the
+event clock by the anchor's boot−monotonic offset (`BootClockAnchor::
+start_ticks_to_ns`); the result must not exceed the event's kernel
+timestamp, or the pid was recycled after the event. Resolution is one tick
+(10 ms); pid reuse inside one tick is not excluded by time alone. The two
+clocks coincide on a host that has not suspended; because a suspend between
+anchor and event shifts the offset, the probe re-anchors every batch.
 
 ## 6a. Per-mechanism coverage (PR3 A-3, protocol v3)
 
@@ -283,7 +334,9 @@ anchor; gives protocol, local/remote address and port, kernel socket state,
 inode. And, since Stage 7b, **socket state transitions** pushed by the kernel
 (`SockStateTracepoint`): the `connect()` initiation bound to the calling
 instance and the handshake completion of the same socket, with kernel
-timestamps — connection *creation* as an event. Neither gives: packets,
+timestamps — connection *creation* as an event. (Stage 7c adds process
+creation and image execution the same way — `SchedTracepoint`, §4 — which is
+process observation, not network observation.) Neither gives: packets,
 bytes, payload, DNS names, TLS state, or anything on the wire. There is no
 XDP, no AF_PACKET, no conntrack read. Per I23 both are metadata and can never
 be promoted to payload evidence.
@@ -306,10 +359,11 @@ and the reconciler must honour:
 ## 11. NOT_IMPLEMENTED (explicit)
 
 eBPF programs, raw tracepoints, any tracepoint other than
-`sock:inet_sock_set_state`, XDP, packet or wire capture, filesystem and
-syscall observation, exec argument capture, UDP "connection" events,
-cgroup/namespace context in the event model, network transport and its
-authentication, collector persistence, key lifecycle beyond version/revoke,
-hardware or TEE attestation, any performance measurement. (One static
-tracepoint read through the perf ring **is** implemented — Stage 7b; that is
-the whole of the tracing surface.)
+`sock:inet_sock_set_state`, `sched:sched_process_fork` and
+`sched:sched_process_exec`, XDP, packet or wire capture, filesystem and
+syscall observation, exec argument and environment capture, UDP "connection"
+events, cgroup/namespace context in the event model, network transport and
+its authentication, collector persistence, key lifecycle beyond
+version/revoke, hardware or TEE attestation, any performance measurement.
+(Three static tracepoints read through the perf ring **are** implemented —
+Stages 7b and 7c; that is the whole of the tracing surface.)
