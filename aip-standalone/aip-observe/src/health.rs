@@ -123,6 +123,28 @@ pub enum ContinuityStatus {
     Broken,
 }
 
+/// Whether the collector accepts batches from any probe id or only from
+/// probes an operator registered (with the mechanisms each may claim).
+///
+/// `Open` is the Stage 3 behaviour and is only acceptable where the
+/// probe→collector transport is itself authenticated; it is recorded in every
+/// signed health record so a verifier can see which regime produced the
+/// evidence.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ProbePolicy {
+    Open,
+    RegisteredOnly,
+}
+
+impl ProbePolicy {
+    fn code(&self) -> u8 {
+        match self {
+            ProbePolicy::Open => 0x01,
+            ProbePolicy::RegisteredOnly => 0x02,
+        }
+    }
+}
+
 /// Signed statement of the observer's own condition.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SensorHealth {
@@ -131,6 +153,7 @@ pub struct SensorHealth {
     pub key_version: u32,
     pub state: ObserverState,
     pub continuity: ContinuityStatus,
+    pub probe_policy: ProbePolicy,
     /// Sequence of the last admitted batch (0 when none).
     pub sequence: u64,
     /// Head of the last admitted batch (`[0u8;32]` when none).
@@ -159,6 +182,7 @@ impl SensorHealth {
                 ContinuityStatus::Broken => 0x04,
             },
         );
+        put_u8(&mut buf, self.probe_policy.code());
         put_u64(&mut buf, self.sequence);
         buf.extend_from_slice(&self.head);
         match &self.last_batch_id {

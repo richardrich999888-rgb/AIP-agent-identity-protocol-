@@ -255,7 +255,9 @@ fn g_restart_leaves_the_outage_uncovered_and_says_nothing_about_execution() {
 
 #[test]
 fn h_polling_exposes_no_loss_counter() {
-    let probe = ProcfsProbe::new("probe");
+    // (`mut` added in Stage 6.5 because `batch()` now drains pending kernel
+    // events; the assertion below is unchanged.)
+    let mut probe = ProcfsProbe::new("probe");
     let b = probe.batch([1u8; 16], 1, 2, vec![]);
     let json = serde_json::to_string(&b).unwrap();
     // Either the field does not exist (v1) or it is explicitly absent (None):

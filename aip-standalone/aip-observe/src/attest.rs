@@ -10,6 +10,17 @@
 //! attacker with root on the observed host can therefore forge observations
 //! *offered* to the collector, but cannot forge an attestation of them.
 //!
+//! # Provenance gating (Stage 6.5)
+//!
+//! Every observation states its [`SourceMechanism`]. A host-side party could
+//! label a fabricated report as kernel-pushed; the collector therefore keeps
+//! a **probe registry**: which probe ids an operator has provisioned and
+//! which mechanisms each may claim. Under [`ProbePolicy::RegisteredOnly`] a
+//! batch from an unregistered probe, or claiming an unregistered mechanism,
+//! is refused before anything is signed. The registry lives at the collector,
+//! outside the host's reach; the transport that proves a batch really came
+//! from the registered probe is a deployment obligation (see report).
+//!
 //! # What is signed
 //!
 //! ```text
@@ -27,7 +38,7 @@
 //! `head` is **computed, never carried**: a verifier reconstructs the bytes
 //! and re-derives it, so there is no supplied-hash to be trusted.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use aip_crypto::{sha256, sign_ed25519, verify_ed25519};
 use aip_types::canonical::*;
@@ -36,9 +47,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::continuity::{Admission, ContinuityFault, ObserverLedger};
 use crate::health::{
-    ContinuityStatus, CoverageWindow, ObserverState, SensorHealth, SignedSensorHealth,
+    ContinuityStatus, CoverageWindow, ObserverState, ProbePolicy, SensorHealth, SignedSensorHealth,
 };
-use crate::observed::{ObservationBatch, OBSERVE_PROTOCOL_VERSION};
+use crate::observed::{ObservationBatch, SourceMechanism, OBSERVE_PROTOCOL_VERSION};
 
 /// Domain tag leading the attested-batch (chain head) preimage.
 pub const OBSERVER_HEAD_DOMAIN: &str = "SYNTRIASS/GHOST/OBSERVER_HEAD/v1";
@@ -49,9 +60,8 @@ pub const OBSERVER_HEAD_DOMAIN: &str = "SYNTRIASS/GHOST/OBSERVER_HEAD/v1";
 ///
 /// The collector attests: *this batch of observations was received from that
 /// probe, at this position in my chain*. It does not attest that the
-/// observations are true reports of the kernel — a host with root can lie to
-/// its own probe. It attests that these bytes, in this order, are what it
-/// received and recorded.
+/// observations are true — a host with root can lie to its own probe. It
+/// attests that these bytes, in this order, are what it received and recorded.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AttestedBatch {
     pub version: u16,
@@ -264,6 +274,17 @@ pub enum AttestError {
     UnsupportedVersion(u16),
     InvalidKeyLength(usize),
     EmptyObserverId,
+    /// Under `RegisteredOnly`, a batch arrived from a probe id no operator
+    /// provisioned. Refused before signing.
+    UnregisteredProbe(String),
+    /// A registered probe claimed a mechanism it was not provisioned for —
+    /// the shape of "host-side party labels its report as kernel provenance".
+    MechanismNotProvisioned {
+        probe_id: String,
+        mechanism: SourceMechanism,
+    },
+    /// The batch's own sequence range is impossible (`first > last`).
+    MalformedBatch(&'static str),
     Signing(AipError),
 }
 
@@ -285,8 +306,20 @@ pub trait ObserverAttestor {
     fn health(&self, emitted_at_ms: u64) -> Result<SignedSensorHealth, AttestError>;
 }
 
-/// The off-host collector: holds the observer signing key and the continuity
-/// ledger, and is the only thing in this crate that can produce a signature.
+/// Why the collector marked the probe stream degraded. Recorded for the
+/// operator; the signed health carries the resulting state.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ProbeStreamFault {
+    /// The probe reported `n` events lost since its previous batch.
+    EventsLost { n: u64 },
+    /// Within one probe run, the sequence range did not continue from the
+    /// previous batch (skipped, repeated, or moved backwards).
+    SequenceDiscontinuity { expected_first: u64, got_first: u64 },
+}
+
+/// The off-host collector: holds the observer signing key, the continuity
+/// ledger and the probe registry, and is the only thing in this crate that
+/// can produce a signature.
 pub struct CollectorSigner {
     observer_id: String,
     key_version: u32,
@@ -298,6 +331,12 @@ pub struct CollectorSigner {
     attested_coverage: Option<CoverageWindow>,
     recovering: bool,
     last_batch_id: Option<[u8; 16]>,
+    // Stage 6.5
+    probe_policy: ProbePolicy,
+    registry: HashMap<String, HashSet<SourceMechanism>>,
+    last_probe_run: Option<[u8; 16]>,
+    last_probe_seq_last: Option<u64>,
+    probe_faults: Vec<ProbeStreamFault>,
 }
 
 impl std::fmt::Debug for CollectorSigner {
@@ -310,6 +349,12 @@ impl std::fmt::Debug for CollectorSigner {
             .field("sequence", &self.ledger.last_sequence())
             .field("continuity", &self.ledger.status())
             .field("attested_coverage", &self.attested_coverage)
+            .field("probe_policy", &self.probe_policy)
+            .field(
+                "registered_probes",
+                &self.registry.keys().collect::<Vec<_>>(),
+            )
+            .field("probe_faults", &self.probe_faults.len())
             .finish()
     }
 }
@@ -340,6 +385,11 @@ impl CollectorSigner {
             attested_coverage: None,
             recovering: false,
             last_batch_id: None,
+            probe_policy: ProbePolicy::Open,
+            registry: HashMap::new(),
+            last_probe_run: None,
+            last_probe_seq_last: None,
+            probe_faults: Vec::new(),
         })
     }
 
@@ -357,6 +407,30 @@ impl CollectorSigner {
 
     pub fn ledger(&self) -> &ObserverLedger {
         &self.ledger
+    }
+
+    pub fn probe_policy(&self) -> ProbePolicy {
+        self.probe_policy
+    }
+
+    /// Faults the collector observed in the probe stream so far.
+    pub fn probe_faults(&self) -> &[ProbeStreamFault] {
+        &self.probe_faults
+    }
+
+    /// Switch to `RegisteredOnly` with no probes registered: every batch is
+    /// refused until an operator registers something. Explicit and loud.
+    pub fn require_registered_probes(&mut self) {
+        self.probe_policy = ProbePolicy::RegisteredOnly;
+    }
+
+    /// Provision a probe and the mechanisms it may claim. Registering any
+    /// probe switches the collector to `RegisteredOnly`. This is operator
+    /// configuration held at the collector; the host cannot alter it.
+    pub fn register_probe(&mut self, probe_id: &str, mechanisms: &[SourceMechanism]) {
+        self.probe_policy = ProbePolicy::RegisteredOnly;
+        self.registry
+            .insert(probe_id.to_string(), mechanisms.iter().copied().collect());
     }
 
     /// Record that the probe restarted. Continuity is not re-established by a
@@ -385,15 +459,22 @@ impl CollectorSigner {
         Ok(())
     }
 
-    /// The observer's current state, derived from ledger status and restart
-    /// flag. Never optimistic.
+    /// The observer's current state, derived from ledger status, the restart
+    /// flag and probe-stream faults. Never optimistic: a recorded loss or
+    /// discontinuity degrades the stream for the rest of this ledger epoch,
+    /// exactly as a recorded chain gap does.
     pub fn state(&self) -> ObserverState {
         if self.ledger.is_quarantined() {
             return ObserverState::Quarantined;
         }
         match self.ledger.status() {
             ContinuityStatus::Broken => ObserverState::Quarantined,
+            // A recorded chain gap or probe-stream fault (loss, sequence
+            // discontinuity) is reported as Degraded whatever the link
+            // status; the signed health carries `continuity` separately, so
+            // "degraded AND unverified" loses nothing.
             ContinuityStatus::GapObserved => ObserverState::Degraded,
+            _ if !self.probe_faults.is_empty() => ObserverState::Degraded,
             ContinuityStatus::Unverified => {
                 if self.recovering {
                     ObserverState::Recovering
@@ -402,6 +483,56 @@ impl CollectorSigner {
                 }
             }
             ContinuityStatus::Verified => ObserverState::Active,
+        }
+    }
+
+    fn check_registry(&self, batch: &ObservationBatch) -> Result<(), AttestError> {
+        if self.probe_policy == ProbePolicy::Open {
+            return Ok(());
+        }
+        let permitted = self
+            .registry
+            .get(&batch.probe_id)
+            .ok_or_else(|| AttestError::UnregisteredProbe(batch.probe_id.clone()))?;
+        for m in batch.mechanisms() {
+            if !permitted.contains(&m) {
+                return Err(AttestError::MechanismNotProvisioned {
+                    probe_id: batch.probe_id.clone(),
+                    mechanism: m,
+                });
+            }
+        }
+        Ok(())
+    }
+
+    /// Compare the batch's probe-stream fields with what this collector saw
+    /// last. A changed run id is a restart; a non-continuing sequence range
+    /// or a positive loss count is a fault.
+    fn track_probe_stream(&mut self, batch: &ObservationBatch) {
+        let restarted = matches!(self.last_probe_run, Some(prev) if prev != batch.probe_run_id);
+        if restarted {
+            self.note_probe_restart();
+            self.last_probe_seq_last = None;
+        }
+        if let Some(n) = batch.dropped_events {
+            if n > 0 {
+                self.probe_faults.push(ProbeStreamFault::EventsLost { n });
+            }
+        }
+        if let Some(prev_last) = self.last_probe_seq_last {
+            let expected_first = prev_last + 1;
+            let has_content = !batch.observations.is_empty() || !batch.kernel_events.is_empty();
+            if has_content && batch.probe_seq_first != expected_first {
+                self.probe_faults
+                    .push(ProbeStreamFault::SequenceDiscontinuity {
+                        expected_first,
+                        got_first: batch.probe_seq_first,
+                    });
+            }
+        }
+        self.last_probe_run = Some(batch.probe_run_id);
+        if !batch.observations.is_empty() || !batch.kernel_events.is_empty() {
+            self.last_probe_seq_last = Some(batch.probe_seq_last);
         }
     }
 }
@@ -414,6 +545,15 @@ impl ObserverAttestor for CollectorSigner {
         if self.ledger.is_quarantined() {
             return Err(AttestError::Quarantined);
         }
+        if batch.probe_seq_first > batch.probe_seq_last {
+            return Err(AttestError::MalformedBatch(
+                "probe_seq_first > probe_seq_last",
+            ));
+        }
+        self.check_registry(&batch)?;
+        let faults_before = self.probe_faults.len();
+        self.track_probe_stream(&batch);
+        let faulted_now = self.probe_faults.len() > faults_before;
 
         let sequence = self.ledger.next_sequence();
         let prev_head = self.ledger.expected_prev_head();
@@ -431,9 +571,13 @@ impl ObserverAttestor for CollectorSigner {
             .admit(sequence, prev_head, head)
             .map_err(AttestError::Continuity)?;
 
-        // Coverage is only extended across a verified, contiguous link, and
-        // only up to what the probe claimed. It is never widened by silence.
+        // Coverage is only extended across a verified, contiguous link with a
+        // clean probe stream, and only up to what the probe claimed. It is
+        // never widened by silence, loss, or a restart.
         match admission {
+            _ if faulted_now || !self.probe_faults.is_empty() => {
+                self.attested_coverage = None;
+            }
             Admission::Continuous if !self.recovering => {
                 self.attested_coverage = Some(match self.attested_coverage {
                     Some(w) => CoverageWindow {
@@ -491,6 +635,7 @@ impl ObserverAttestor for CollectorSigner {
             key_version: self.key_version,
             state,
             continuity: self.ledger.status(),
+            probe_policy: self.probe_policy,
             sequence: self.ledger.last_sequence().unwrap_or(0),
             head: self.ledger.last_head().unwrap_or([0u8; 32]),
             last_batch_id: self.last_batch_id,

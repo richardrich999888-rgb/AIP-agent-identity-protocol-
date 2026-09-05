@@ -10,6 +10,9 @@ aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
 aip-core = { path = "../aip-core" }
 serde = { version = "1.0", features = ["derive"] }
+# Raw syscalls for the kernel-mediated sources: pidfd_open/poll, the netlink
+# process-event connector, and nothing else. No eBPF loader is pulled in.
+libc = "0.2"
 
 [dev-dependencies]
 serde_json = "1.0"
