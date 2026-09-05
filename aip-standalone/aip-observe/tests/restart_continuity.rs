@@ -69,7 +69,8 @@ fn rc01_correct_resume_continues_one_chain_without_claiming_continuity() {
     assert_eq!(snap.observer_id, OBSERVER);
 
     let (mut resumed, brk) =
-        CollectorSigner::resume(&snap, OBSERVER, &kp.private_key, &kp.public_key, &archive).unwrap();
+        CollectorSigner::resume(&snap, OBSERVER, &kp.private_key, &kp.public_key, &archive)
+            .unwrap();
     assert_eq!(brk, None);
     assert_eq!(resumed.ledger().next_sequence(), 4);
     assert_eq!(resumed.ledger().last_head(), snap.head);
@@ -98,7 +99,8 @@ fn rc02_amnesia_is_reported_and_the_archive_head_is_adopted() {
     let archive = run(&mut s, 2, 1);
     let lost = CollectorSnapshot::fresh(OBSERVER, 1);
     let (resumed, brk) =
-        CollectorSigner::resume(&lost, OBSERVER, &kp.private_key, &kp.public_key, &archive).unwrap();
+        CollectorSigner::resume(&lost, OBSERVER, &kp.private_key, &kp.public_key, &archive)
+            .unwrap();
     assert_eq!(
         brk,
         Some(ContinuityBreak::Amnesia {
@@ -154,7 +156,8 @@ fn rc04_forked_state_quarantines_the_collector() {
     snap.head = Some(edited);
 
     let (resumed, brk) =
-        CollectorSigner::resume(&snap, OBSERVER, &kp.private_key, &kp.public_key, &archive).unwrap();
+        CollectorSigner::resume(&snap, OBSERVER, &kp.private_key, &kp.public_key, &archive)
+            .unwrap();
     assert_eq!(
         brk,
         Some(ContinuityBreak::Forked {
@@ -198,7 +201,8 @@ fn rc05_truncated_archive_is_reported_and_the_state_is_kept() {
     );
 
     // An empty archive with a non-empty state is the same finding.
-    let (_, brk) = CollectorSigner::resume(&snap, OBSERVER, &kp.private_key, &kp.public_key, &[]).unwrap();
+    let (_, brk) =
+        CollectorSigner::resume(&snap, OBSERVER, &kp.private_key, &kp.public_key, &[]).unwrap();
     assert_eq!(
         brk,
         Some(ContinuityBreak::ArchiveTruncated {
@@ -220,16 +224,16 @@ fn rc06_fresh_start_is_clean_and_foreign_state_is_refused() {
     assert_eq!(c.ledger().next_sequence(), 1);
 
     let mut other = signer(&kp);
-    other.attest_at(
-        ProcfsProbe::new("p").batch([1; 16], NOW, NOW + 1, vec![]),
-        NOW + 2,
-    )
-    .unwrap();
+    other
+        .attest_at(
+            ProcfsProbe::new("p").batch([1; 16], NOW, NOW + 1, vec![]),
+            NOW + 2,
+        )
+        .unwrap();
     let mut foreign = other.snapshot();
     foreign.observer_id = "collector-other".into();
     assert_eq!(
-        CollectorSigner::resume(&foreign, OBSERVER, &kp.private_key, &kp.public_key, &[])
-            .err(),
+        CollectorSigner::resume(&foreign, OBSERVER, &kp.private_key, &kp.public_key, &[]).err(),
         Some(AttestError::ForeignState {
             expected: OBSERVER.into(),
             got: "collector-other".into(),
@@ -255,18 +259,22 @@ fn rc07_forged_or_foreign_archive_records_are_ignored() {
     archive.push(forged);
     // A genuine record of a different observer at a higher sequence.
     let other_kp = keys();
-    let mut other = CollectorSigner::new("collector-z", 1, &other_kp.private_key, &other_kp.public_key).unwrap();
+    let mut other = CollectorSigner::new(
+        "collector-z",
+        1,
+        &other_kp.private_key,
+        &other_kp.public_key,
+    )
+    .unwrap();
     let _ = run(&mut other, 5, 1);
     archive.push(other.health(NOW + 99_000).unwrap());
 
     let (resumed, brk) =
-        CollectorSigner::resume(&snap, OBSERVER, &kp.private_key, &kp.public_key, &archive).unwrap();
+        CollectorSigner::resume(&snap, OBSERVER, &kp.private_key, &kp.public_key, &archive)
+            .unwrap();
     assert_eq!(brk, None, "forged and foreign records must not count");
     assert_eq!(resumed.ledger().next_sequence(), 3);
-    assert_eq!(
-        verify_continuity(&snap, &archive, &kp.public_key),
-        None
-    );
+    assert_eq!(verify_continuity(&snap, &archive, &kp.public_key), None);
 }
 
 /// rc08 — a `ContinuityBreak` is about the observer's own record and names
@@ -278,8 +286,11 @@ fn rc08_a_break_names_no_subject() {
     let archive = run(&mut s, 1, 1);
     let lost = CollectorSnapshot::fresh(OBSERVER, 1);
     let (_, brk) =
-        CollectorSigner::resume(&lost, OBSERVER, &kp.private_key, &kp.public_key, &archive).unwrap();
-    let text = serde_json::to_string(&brk.unwrap()).unwrap().to_ascii_lowercase();
+        CollectorSigner::resume(&lost, OBSERVER, &kp.private_key, &kp.public_key, &archive)
+            .unwrap();
+    let text = serde_json::to_string(&brk.unwrap())
+        .unwrap()
+        .to_ascii_lowercase();
     for f in ["agent", "decision", "pid", "process", "action", "aip1"] {
         assert!(!text.contains(f), "a break must not carry `{f}`: {text}");
     }
