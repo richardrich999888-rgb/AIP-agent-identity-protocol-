@@ -1,0 +1,15 @@
+[package]
+name = "aip-observe"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Ghost Stage 3: independent observation — host probe (no key) and off-host collector attestation"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"
