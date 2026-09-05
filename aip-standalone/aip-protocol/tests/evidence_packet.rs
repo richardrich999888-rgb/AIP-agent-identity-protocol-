@@ -751,6 +751,80 @@ fn test_resealed_self_binding_swap_verifies_documenting_self_report_limit() {
     assert!(r.detail.contains("NOT independently observed"));
 }
 
+// ─── Characterization of the pre-Stage-2 decision semantics (Skill 5) ───
+//
+// `verify_packet` answers "is this packet consistent with the anchors I was
+// given?" — correctly. What it cannot do, and what this test pins, is
+// require that anyone other than the agent decided the action was permitted.
+// With the agent's own key named as the trusted issuer, a fully self-issued
+// packet verifies at AUTHORITY_BOUND. That closed loop is what Stage 2's
+// decision point exists to break; it is NOT a defect in verify_packet, and
+// this test must keep passing so the boundary stays visible.
+
+#[test]
+fn weakness_packet_verifies_when_agent_is_its_own_root_issuer() {
+    let (agent_aid, agent_kp) =
+        create_identity(provenance("self-authorizing-agent"), None).unwrap();
+    // The agent issues ITSELF an admin token.
+    let root_token = issue_scoped_token(
+        &agent_aid.id,
+        &agent_kp.private_key,
+        &agent_aid.id,
+        aip_core::capability::scope_admin(),
+        Some(3_600_000),
+    )
+    .unwrap();
+    let now = now_ms();
+    let decision = DecisionRecord {
+        decision_id: aip_core::capability::random_jti(),
+        action_kind: ScopeAction::Standard(Action::Admin),
+        summary: "grant myself everything".into(),
+        input_hash: sha256(b"x"),
+        rationale_hash: sha256(b"because"),
+        decided_at: now,
+    };
+    let action = ActionAttestation::create(
+        &agent_aid.id,
+        &agent_kp.private_key,
+        &decision.decision_id,
+        ScopeAction::Standard(Action::Admin),
+        "DELETE /ledger",
+        sha256(b"{}"),
+        now + 1,
+    )
+    .unwrap();
+    let packet = EvidencePacketBuilder::new(
+        AgentIdentitySummary {
+            aip_id: agent_aid.id.clone(),
+            public_key: agent_aid.primary_key.clone(),
+            provenance: agent_aid.provenance.clone(),
+        },
+        RootAuthority {
+            principal_id: agent_aid.id.clone(),
+            display_role: "self".into(),
+            root_token,
+        },
+    )
+    .decision(decision)
+    .action(action)
+    .execution_binding(test_binding(&agent_aid.id))
+    .claimed_trust_floor(TrustFloor::AuthorityBound)
+    .build_and_sign(&agent_kp.private_key)
+    .unwrap();
+
+    // The caller names the agent's own key as the trusted issuer.
+    let ctx = VerificationContext::new().trust_issuer(&agent_aid.id, &agent_kp.public_key);
+    let report = verify_packet(&packet, &ctx);
+    assert!(
+        report.valid,
+        "verify_packet now refuses self-issued authority on its own — update DECISION_POINT.md"
+    );
+    assert_eq!(report.trust_floor, TrustFloor::AuthorityBound);
+    assert!(report.authority_chain_verified);
+    // Nothing in the report can say whether an independent party authorized this.
+    assert!(report.checks.iter().all(|c| c.rule != "EXPECTED_EXECUTION"));
+}
+
 // ─── Wire versioning ───
 
 #[test]

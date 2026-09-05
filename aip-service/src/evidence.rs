@@ -585,6 +585,46 @@ mod tests {
         assert!(report.authority_chain_verified);
     }
 
+    /// Characterization (Skill 5): `generate_packet` records, it does not
+    /// decide. A caller holding only its own key can self-issue an admin root
+    /// token, have the service seal a packet exercising it, and then have
+    /// `verify_request` accept it by naming its own key as the trusted
+    /// issuer. This pins the closed loop the Stage 2 decision point exists to
+    /// break; the endpoint itself is unchanged in Stage 2.
+    #[test]
+    fn weakness_generate_then_verify_accepts_self_issued_authority() {
+        use aip_core::capability::{issue_scoped_token, scope_admin};
+        use aip_crypto::derive_aip_id;
+
+        let (mut req, _) = sample_generate_request();
+        let seed = seed_from_hex("agent_seed_hex", &req.agent_seed_hex).unwrap();
+        let agent_pub = public_key_from_seed(&seed);
+        let agent_id = derive_aip_id(&agent_pub, &req.provenance.to_triple());
+
+        // Agent issues itself an ADMIN root token; no delegation chain.
+        req.root_token =
+            issue_scoped_token(&agent_id, &seed, &agent_id, scope_admin(), Some(3_600_000))
+                .unwrap();
+        req.delegation_chain.clear();
+        req.principal_id = agent_id.clone();
+        req.decision.action_kind = "admin".into();
+        req.actions[0].action_kind = "admin".into();
+
+        let packet = generate_packet(&req).expect("the service seals whatever it is told");
+
+        let vreq = VerifyRequest {
+            packet,
+            trusted_issuers: HashMap::from([(agent_id, hex::encode(&agent_pub))]),
+            trusted_counterparties: HashMap::new(),
+            revoked_jtis: vec![],
+            trace_data: None,
+            receipt_data: None,
+        };
+        let report = verify_request(&vreq).unwrap();
+        assert!(report.valid, "{:?}", report.failures());
+        assert!(report.authority_chain_verified);
+    }
+
     #[test]
     fn test_generate_requires_action() {
         let (mut req, _) = sample_generate_request();
