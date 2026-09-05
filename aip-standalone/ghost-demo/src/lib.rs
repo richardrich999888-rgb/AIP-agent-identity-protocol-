@@ -44,6 +44,9 @@ pub const TTL_MS: u64 = 60_000;
 const MAX_TTL_MS: u64 = 3_600_000;
 const HEALTH_MAX_AGE_MS: u64 = 60_000;
 pub const OBSERVER_ID: &str = "demo-collector";
+/// Images the exec scenarios run and authorize. Hashed by content.
+pub const SLEEP_BIN: &str = "/bin/sleep";
+pub const TRUE_BIN: &str = "/bin/true";
 pub const PROBE_ID: &str = "demo-probe";
 
 pub fn now_ms() -> u64 {
@@ -77,7 +80,7 @@ pub struct Authority {
 impl Authority {
     pub fn new() -> Self {
         let scope = CapabilityScope {
-            allowed: vec![net_connect_action()],
+            allowed: vec![net_connect_action(), process_exec_action()],
             denied: vec![],
         };
         let cfo_kp = generate_ed25519_keypair();
@@ -133,6 +136,29 @@ impl Authority {
         }
     }
 
+    /// Authorize `binding` to spawn a child executing an image with this
+    /// content hash.
+    pub fn authorize_exec(
+        &self,
+        binding: ExecutionBinding,
+        exe_sha256: [u8; 32],
+        now: u64,
+    ) -> Result<ExpectedExecution, Denial> {
+        let req = AuthorizationRequest {
+            agent_id: self.agent_id.clone(),
+            root_token: self.root.clone(),
+            delegation_chain: vec![self.hop.clone()],
+            action_kind: process_exec_action(),
+            parameters: exec_params(exe_sha256),
+            execution_binding: binding,
+            requested_ttl_ms: TTL_MS,
+        };
+        match self.dp.authorize_at(&req, now) {
+            Decision::Authorized(ee) => Ok(*ee),
+            Decision::Denied(d) => Err(d),
+        }
+    }
+
     /// Collect the Stage 1 binding of `pid` naming this agent. A self-report
     /// in production terms (the party under scrutiny hands it to the decision
     /// point); the observer measures the same facts independently.
@@ -149,6 +175,24 @@ impl Default for Authority {
 
 pub fn connect_params(remote: SocketAddrV4) -> ActionParameters {
     net_connect_parameters(NetProtocol::Tcp, &remote.ip().octets(), remote.port()).unwrap()
+}
+
+/// The process-execution action, spelled out raw. The parameter is the
+/// executable's **content** hash (Stage 1 identity rule: never a path).
+pub const PROCESS_EXEC_ACTION: &str = "ghost.process.exec.v1";
+
+pub fn process_exec_action() -> aip_types::ScopeAction {
+    aip_types::ScopeAction::Custom(PROCESS_EXEC_ACTION.into())
+}
+
+pub fn exec_params(exe_sha256: [u8; 32]) -> ActionParameters {
+    ActionParameters::from_pairs([("exe_sha256", exe_sha256.to_vec())]).unwrap()
+}
+
+/// SHA-256 of a file's contents, as the observer will hash `/proc/<pid>/exe`.
+pub fn hash_binary(path: &str) -> [u8; 32] {
+    aip_core::execution_binding::hash_file_contents(std::path::Path::new(path))
+        .expect("hash binary")
 }
 
 // ─── Observation side ───
@@ -390,6 +434,37 @@ impl Agent {
         }
     }
 
+    /// Spawn the agent binary and have it spawn `program` as its own child.
+    /// Returns once the agent has reported the child's pid.
+    pub fn spawning(agent_bin: &str, program: &str, args: &[&str]) -> (Agent, u32) {
+        let mut child = Command::new(agent_bin)
+            .arg("--spawn")
+            .arg(program)
+            .args(args)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("spawn agent");
+        let mut line = String::new();
+        BufReader::new(child.stdout.take().unwrap())
+            .read_line(&mut line)
+            .expect("spawned line");
+        let child_pid: u32 = line
+            .trim()
+            .strip_prefix("spawned ")
+            .and_then(|p| p.parse().ok())
+            .expect("child pid");
+        let pid = child.id();
+        (
+            Agent {
+                child,
+                _accepted: None,
+                pid,
+            },
+            child_pid,
+        )
+    }
+
     /// Spawn the agent binary without any connection.
     pub fn idle(agent_bin: &str) -> Agent {
         let child = Command::new(agent_bin)
@@ -444,10 +519,19 @@ pub enum Scenario {
     /// T-P. The positive case with the kernel-pushed source: the transition
     /// itself is the evidence.
     PositiveTransition,
+    /// X-P. The agent spawns a child executing the authorized image.
+    ExecPositive,
+    /// X-A. The agent spawns a child executing a different image.
+    ExecWrongBinary,
+    /// X-B. A different instance of the same binary spawns the authorized
+    /// image under the bound instance's decision.
+    ExecByOtherInstance,
+    /// X-C. The spawn happens, and is attested, before the decision is issued.
+    ExecBeforeAuthorization,
 }
 
 impl Scenario {
-    pub const ALL: [Scenario; 11] = [
+    pub const ALL: [Scenario; 15] = [
         Scenario::Positive,
         Scenario::ExpectedNotExecuted,
         Scenario::ExecutedNotExpected,
@@ -459,6 +543,10 @@ impl Scenario {
         Scenario::PreExistingConnection,
         Scenario::ConnectThenClose,
         Scenario::PositiveTransition,
+        Scenario::ExecPositive,
+        Scenario::ExecWrongBinary,
+        Scenario::ExecByOtherInstance,
+        Scenario::ExecBeforeAuthorization,
     ];
 
     /// Scenarios that need the kernel-pushed socket-state source.
@@ -468,6 +556,10 @@ impl Scenario {
             Scenario::PreExistingConnection
                 | Scenario::ConnectThenClose
                 | Scenario::PositiveTransition
+                | Scenario::ExecPositive
+                | Scenario::ExecWrongBinary
+                | Scenario::ExecByOtherInstance
+                | Scenario::ExecBeforeAuthorization
         )
     }
 
@@ -488,6 +580,10 @@ impl Scenario {
             Scenario::PositiveTransition => {
                 "T-P. authorized connection, kernel-reported transition"
             }
+            Scenario::ExecPositive => "X-P. authorized image executed by a child of the agent",
+            Scenario::ExecWrongBinary => "X-A. child executes a different image",
+            Scenario::ExecByOtherInstance => "X-B. another instance spawns the authorized image",
+            Scenario::ExecBeforeAuthorization => "X-C. spawn attested before the decision",
         }
     }
 }
@@ -791,6 +887,120 @@ pub fn run(scenario: Scenario, agent_bin: &str) -> Demo {
                 reconciliation: r,
                 note: format!(
                     "agent pid {} connected to {remote} and closed before the table was read; {n} established connection(s) in the poll",
+                    agent.pid
+                ),
+            }
+        }
+        Scenario::ExecPositive => {
+            let b1 = o.epoch_start(now_ms());
+            let now = now_ms();
+            // The agent process exists first (idle), gets its decision, then
+            // is asked to spawn. The demo agent cannot be told to spawn after
+            // start, so the sequence is: authorize a *fresh* agent's binding
+            // at `now`, then let it spawn — its binding is collected right
+            // after spawn and is stable (start tick, exe) from exec onward.
+            let (agent, child_pid) = Agent::spawning(agent_bin, SLEEP_BIN, &["30"]);
+            let binding = a.binding_for(agent.pid);
+            let ee = a
+                .authorize_exec(binding, hash_binary(SLEEP_BIN), now)
+                .unwrap();
+            let c = claim(&a, &ee);
+            let (b2, _) = o.observe_connections(agent.pid, Some(&c)).unwrap();
+            let at = now_ms().max(b2.batch.claimed_to_ms);
+            let events = b2.batch.kernel_events.len();
+            let ev = ObserverEvidence {
+                batches: vec![b1, b2],
+                health: o.health(at),
+            };
+            let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
+            Demo {
+                scenario,
+                reconciliation: r,
+                note: format!(
+                    "agent pid {} spawned pid {child_pid} running {SLEEP_BIN}; {events} kernel event(s) captured",
+                    agent.pid
+                ),
+            }
+        }
+        Scenario::ExecWrongBinary => {
+            let b1 = o.epoch_start(now_ms());
+            let now = now_ms();
+            let (agent, child_pid) = Agent::spawning(agent_bin, SLEEP_BIN, &["30"]);
+            let binding = a.binding_for(agent.pid);
+            // Authorized: /bin/true. Executed: sleep.
+            let ee = a
+                .authorize_exec(binding, hash_binary(TRUE_BIN), now)
+                .unwrap();
+            let c = claim(&a, &ee);
+            let (b2, _) = o.observe_connections(agent.pid, Some(&c)).unwrap();
+            let at = now_ms().max(b2.batch.claimed_to_ms);
+            let ev = ObserverEvidence {
+                batches: vec![b1, b2],
+                health: o.health(at),
+            };
+            let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
+            Demo {
+                scenario,
+                reconciliation: r,
+                note: format!(
+                    "authorized {TRUE_BIN}; agent pid {} spawned pid {child_pid} running {SLEEP_BIN}",
+                    agent.pid
+                ),
+            }
+        }
+        Scenario::ExecByOtherInstance => {
+            let b1 = o.epoch_start(now_ms());
+            let now = now_ms();
+            let bound = Agent::idle(agent_bin);
+            let (actor, child_pid) = Agent::spawning(agent_bin, SLEEP_BIN, &["30"]);
+            let binding = a.binding_for(bound.pid);
+            let ee = a
+                .authorize_exec(binding, hash_binary(SLEEP_BIN), now)
+                .unwrap();
+            let c = claim(&a, &ee);
+            let (b2, _) = o.observe_connections(actor.pid, Some(&c)).unwrap();
+            let at = now_ms().max(b2.batch.claimed_to_ms);
+            let ev = ObserverEvidence {
+                batches: vec![b1, b2],
+                health: o.health(at),
+            };
+            let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
+            Demo {
+                scenario,
+                reconciliation: r,
+                note: format!(
+                    "decision bound to pid {}, spawn of pid {child_pid} made by pid {} (same binary)",
+                    bound.pid, actor.pid
+                ),
+            }
+        }
+        Scenario::ExecBeforeAuthorization => {
+            let t0 = now_ms();
+            let b1 = o.epoch_start(t0);
+            let (agent, child_pid) = Agent::spawning(agent_bin, SLEEP_BIN, &["30"]);
+            let binding = a.binding_for(agent.pid);
+            // The spawn is observed and attested first …
+            let (b2, _) = o.observe_connections(agent.pid, None).unwrap();
+            std::thread::sleep(std::time::Duration::from_millis(20));
+            // … then the decision is issued …
+            let now = now_ms().max(b2.batch.claimed_to_ms + 1);
+            let ee = a
+                .authorize_exec(binding, hash_binary(SLEEP_BIN), now)
+                .unwrap();
+            // … and the still-running child is observed again inside the window.
+            let c = claim(&a, &ee);
+            let (b3, _) = o.observe_connections(agent.pid, Some(&c)).unwrap();
+            let at = now_ms().max(b3.batch.claimed_to_ms);
+            let ev = ObserverEvidence {
+                batches: vec![b1, b2, b3],
+                health: o.health(at),
+            };
+            let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
+            Demo {
+                scenario,
+                reconciliation: r,
+                note: format!(
+                    "agent pid {} spawned pid {child_pid} and it was attested before the decision at {now}",
                     agent.pid
                 ),
             }

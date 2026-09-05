@@ -8,6 +8,9 @@
 //!                                                connection at once, then block
 //!                                                on stdin (the connection is
 //!                                                gone before anyone can poll it)
+//!   ghost-demo-agent --spawn <path> [args...]    spawn a child process running
+//!                                                <path>, print "spawned <pid>",
+//!                                                block on stdin, then kill it
 //!   ghost-demo-agent --idle                      block on stdin without connecting
 //!
 //! It holds no key, signs nothing and reports nothing about itself. The only
@@ -19,6 +22,20 @@ use std::net::TcpStream;
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.first().map(String::as_str) == Some("--spawn") {
+        let mut child = std::process::Command::new(&args[1])
+            .args(&args[2..])
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .spawn()
+            .expect("spawn child");
+        println!("spawned {}", child.id());
+        let mut sink = Vec::new();
+        let _ = std::io::stdin().read_to_end(&mut sink);
+        let _ = child.kill();
+        let _ = child.wait();
+        return;
+    }
     let _held = match args.first().map(String::as_str) {
         Some("--idle") => None,
         Some("--connect-close") => {
