@@ -1,0 +1,16 @@
+[package]
+name = "aip-warrant"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Ghost Skill 8: warrant engine — maps an authenticated reconciliation result, its severity and evidence strength through explicit policy to a response class; containment requires Proven; advisory by default; no actuation"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-observe = { path = "../aip-observe" }
+aip-reconcile = { path = "../aip-reconcile" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"
