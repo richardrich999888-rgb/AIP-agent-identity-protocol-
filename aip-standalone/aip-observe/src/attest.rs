@@ -45,7 +45,7 @@ use aip_types::canonical::*;
 use aip_types::{AipError, Signature};
 use serde::{Deserialize, Serialize};
 
-use crate::continuity::{Admission, ContinuityFault, ObserverLedger};
+use crate::continuity::{Admission, ContinuityBreak, ContinuityFault, ObserverLedger};
 use crate::health::{
     ContinuityStatus, CoverageWindow, ObserverState, ProbePolicy, SensorHealth, SignedSensorHealth,
 };
@@ -282,6 +282,12 @@ pub enum AttestError {
     UnsupportedVersion(u16),
     InvalidKeyLength(usize),
     EmptyObserverId,
+    /// A snapshot of another observer was offered for resume. Splicing one
+    /// observer's chain position onto another's id is refused.
+    ForeignState {
+        expected: String,
+        got: String,
+    },
     /// Under `RegisteredOnly`, a batch arrived from a probe id no operator
     /// provisioned. Refused before signing.
     UnregisteredProbe(String),
@@ -462,6 +468,75 @@ impl CollectorSigner {
         self.attested_coverage = None;
         self.covered_by = None;
         self.ledger.note_restart();
+    }
+
+    /// Everything the collector must carry across a process restart to
+    /// continue its own chain: its id, key version, last sequence and head,
+    /// and whether it was quarantined. Persist it after each attestation;
+    /// hand it to [`CollectorSigner::resume`] on the way up together with
+    /// the archive of health records this collector emitted.
+    pub fn snapshot(&self) -> CollectorSnapshot {
+        CollectorSnapshot {
+            observer_id: self.observer_id.clone(),
+            key_version: self.key_version,
+            sequence: self.ledger.last_sequence(),
+            head: self.ledger.last_head(),
+            quarantined: self.ledger.is_quarantined(),
+        }
+    }
+
+    /// Resume from a snapshot, auditing it against the archive of this
+    /// collector's own signed health records (harvested design: PR #3
+    /// `ot-sentinel` restart continuity, `6cc439f`).
+    ///
+    /// - the snapshot must belong to `observer_id` (`ForeignState` otherwise);
+    /// - archive records are verified under `public_key` at the snapshot's
+    ///   key version and filtered to this observer; forged or foreign
+    ///   records are ignored, never counted;
+    /// - `Amnesia` and `RolledBack` adopt the archive head so that the
+    ///   collector continues one chain rather than starting a second under
+    ///   the same key; `Forked` quarantines; `ArchiveTruncated` keeps the
+    ///   state;
+    /// - a resumed collector is `Recovering` with `Unverified` continuity and
+    ///   no coverage until a contiguous batch is admitted — a restart never
+    ///   implies continuity, even a clean one.
+    pub fn resume(
+        snapshot: &CollectorSnapshot,
+        observer_id: &str,
+        private_key: &[u8],
+        public_key: &[u8],
+        archive: &[SignedSensorHealth],
+    ) -> Result<(Self, Option<ContinuityBreak>), AttestError> {
+        if snapshot.observer_id != observer_id {
+            return Err(AttestError::ForeignState {
+                expected: observer_id.to_string(),
+                got: snapshot.observer_id.clone(),
+            });
+        }
+        let mut s = Self::new(observer_id, snapshot.key_version, private_key, public_key)?;
+        let brk = verify_continuity(snapshot, archive, public_key);
+        let archived = archive_head(snapshot, archive, public_key);
+        match &brk {
+            None | Some(ContinuityBreak::ArchiveTruncated { .. }) => {
+                s.ledger.resume_at(snapshot.sequence, snapshot.head);
+            }
+            Some(ContinuityBreak::Amnesia { .. }) | Some(ContinuityBreak::RolledBack { .. }) => {
+                let (seq, head) =
+                    archived.expect("a break against the archive implies an archive head");
+                s.ledger.resume_at(Some(seq), Some(head));
+            }
+            Some(ContinuityBreak::Forked { .. }) => {
+                s.ledger.resume_at(snapshot.sequence, snapshot.head);
+                s.ledger.quarantine();
+            }
+        }
+        if snapshot.quarantined {
+            s.ledger.quarantine();
+        }
+        if snapshot.sequence.is_some() || archived.is_some() {
+            s.recovering = true;
+        }
+        Ok((s, brk))
     }
 
     /// Rotate to a new key version. History signed under the old version
@@ -723,5 +798,97 @@ fn placeholder_signature(signer_id: &str) -> Signature {
         nonce: [0u8; 16],
         payload_hash: [0u8; 32],
         signature_bytes: vec![],
+    }
+}
+
+/// The collector's chain position, carried across a restart. Serializable so
+/// an operator can persist it; it proves nothing on its own — resume audits
+/// it against the archive.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CollectorSnapshot {
+    pub observer_id: String,
+    pub key_version: u32,
+    pub sequence: Option<u64>,
+    pub head: Option<[u8; 32]>,
+    pub quarantined: bool,
+}
+
+impl CollectorSnapshot {
+    /// No state at all: a first deployment, or a collector that lost its
+    /// state.
+    pub fn fresh(observer_id: &str, key_version: u32) -> Self {
+        Self {
+            observer_id: observer_id.to_string(),
+            key_version,
+            sequence: None,
+            head: None,
+            quarantined: false,
+        }
+    }
+}
+
+/// The highest-sequence health record in `archive` that is this observer's
+/// and verifies under `public_key` at the snapshot's key version.
+fn archive_head(
+    snapshot: &CollectorSnapshot,
+    archive: &[SignedSensorHealth],
+    public_key: &[u8],
+) -> Option<(u64, [u8; 32])> {
+    let anchors =
+        ObserverTrustAnchors::new().trust(&snapshot.observer_id, snapshot.key_version, public_key);
+    archive
+        .iter()
+        .filter(|h| h.health.observer_id == snapshot.observer_id)
+        .filter(|h| verify_signed_health(h, &anchors).is_ok())
+        .filter(|h| h.health.sequence > 0)
+        .map(|h| (h.health.sequence, h.health.head))
+        .max_by_key(|(s, _)| *s)
+}
+
+/// Classify a resumed snapshot against the archive of the collector's own
+/// signed health records. `None` when the two agree (or both are empty).
+pub fn verify_continuity(
+    snapshot: &CollectorSnapshot,
+    archive: &[SignedSensorHealth],
+    public_key: &[u8],
+) -> Option<ContinuityBreak> {
+    let archived = archive_head(snapshot, archive, public_key);
+    match (snapshot.sequence, snapshot.head, archived) {
+        (None, _, None) => None,
+        (None, _, Some((archived_sequence, archived_head))) => Some(ContinuityBreak::Amnesia {
+            archived_sequence,
+            archived_head,
+        }),
+        (Some(resumed_sequence), _, None) => Some(ContinuityBreak::ArchiveTruncated {
+            resumed_sequence,
+            archived_sequence: 0,
+        }),
+        (Some(resumed_sequence), head, Some((archived_sequence, archived_head))) => {
+            match resumed_sequence.cmp(&archived_sequence) {
+                std::cmp::Ordering::Less => Some(ContinuityBreak::RolledBack {
+                    resumed_sequence,
+                    archived_sequence,
+                }),
+                std::cmp::Ordering::Greater => Some(ContinuityBreak::ArchiveTruncated {
+                    resumed_sequence,
+                    archived_sequence,
+                }),
+                std::cmp::Ordering::Equal => match head {
+                    Some(resumed_head) if resumed_head != archived_head => {
+                        Some(ContinuityBreak::Forked {
+                            sequence: resumed_sequence,
+                            resumed_head,
+                            archived_head,
+                        })
+                    }
+                    Some(_) => None,
+                    None => Some(ContinuityBreak::Forked {
+                        sequence: resumed_sequence,
+                        resumed_head: [0u8; 32],
+                        archived_head,
+                    }),
+                },
+            }
+        }
     }
 }

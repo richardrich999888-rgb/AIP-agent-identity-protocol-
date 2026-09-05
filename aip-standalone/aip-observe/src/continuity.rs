@@ -39,6 +39,43 @@ pub enum ContinuityFault {
     UnverifiableEpoch,
 }
 
+/// How a collector's resumed state disagrees with the archive of its own
+/// signed health records. Arithmetic on two independently held records;
+/// about the observer's record only, never about any workload. Harvested
+/// design: PR #3 `ot-sentinel/src/state.rs` (`6cc439f`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ContinuityBreak {
+    /// No state at all, but the archive holds sealed history: the collector
+    /// forgot. Resuming from genesis would start a second chain under the
+    /// same key, so the archive head is adopted instead.
+    Amnesia {
+        archived_sequence: u64,
+        archived_head: [u8; 32],
+    },
+    /// The state is older than the archive: an older state was restored.
+    /// The archive head is adopted.
+    RolledBack {
+        resumed_sequence: u64,
+        archived_sequence: u64,
+    },
+    /// Same sequence, different head: two heads under one key at one
+    /// position. An integrity failure of the observer's own record; the
+    /// collector is quarantined.
+    Forked {
+        sequence: u64,
+        resumed_head: [u8; 32],
+        archived_head: [u8; 32],
+    },
+    /// The state is ahead of the archive: records the collector sealed are
+    /// missing from the archive (a crash between state write and archive
+    /// append, or a shortened archive). The state is kept and the gap is
+    /// reported.
+    ArchiveTruncated {
+        resumed_sequence: u64,
+        archived_sequence: u64,
+    },
+}
+
 /// What the ledger did with a batch.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Admission {
@@ -171,6 +208,27 @@ impl ObserverLedger {
             }
             (Some(_), None) => Err(ContinuityFault::UnverifiableEpoch),
         }
+    }
+
+    /// Adopt a chain position carried across a collector restart. Continuity
+    /// is **not** re-established by resuming: the status is `Unverified`
+    /// until the next contiguous batch is admitted. With no position the
+    /// ledger stays fresh.
+    pub fn resume_at(&mut self, sequence: Option<u64>, head: Option<[u8; 32]>) {
+        if let (Some(s), Some(h)) = (sequence, head) {
+            self.last_sequence = Some(s);
+            self.last_head = Some(h);
+            if !self.quarantined {
+                self.status = Some(ContinuityStatus::Unverified);
+            }
+        }
+    }
+
+    /// Latch an integrity failure of the observer's own record. Never
+    /// un-latched by later traffic.
+    pub fn quarantine(&mut self) {
+        self.quarantined = true;
+        self.status = Some(ContinuityStatus::Broken);
     }
 
     /// Record that the observer restarted. Continuity is not re-established

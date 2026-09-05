@@ -68,11 +68,11 @@ pub mod sched;
 pub mod sockstate;
 
 pub use attest::{
-    verify_attested_batch, verify_attested_batch_independent_of_agent, verify_signed_health,
-    AttestError, AttestedBatch, CollectorSigner, ObserverAttestor, ObserverTrustAnchors,
-    ProbeStreamFault, VerifyError, OBSERVER_HEAD_DOMAIN,
+    verify_attested_batch, verify_attested_batch_independent_of_agent, verify_continuity,
+    verify_signed_health, AttestError, AttestedBatch, CollectorSigner, CollectorSnapshot,
+    ObserverAttestor, ObserverTrustAnchors, ProbeStreamFault, VerifyError, OBSERVER_HEAD_DOMAIN,
 };
-pub use continuity::{Admission, ContinuityFault, ObserverLedger};
+pub use continuity::{Admission, ContinuityBreak, ContinuityFault, ObserverLedger};
 pub use health::{
     no_observer, ContinuityStatus, CoverageWindow, ObservationAvailability, ObserverState,
     ProbePolicy, SensorHealth, SignedSensorHealth, UnavailableReason, OBSERVER_HEALTH_DOMAIN,
