@@ -9,12 +9,19 @@ use aip_observe::ObservationAvailability;
 use aip_types::canonical::*;
 use serde::{Deserialize, Serialize};
 
-use crate::ids::DecisionId;
+use crate::ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};
 
 /// Domain tag leading the canonical encoding of a [`Reconciliation`] record.
 pub const RECONCILIATION_DOMAIN: &str = "SYNTRIASS/GHOST/RECONCILIATION/v1";
 /// Structure version.
-pub const RECONCILIATION_VERSION: u16 = 1;
+///
+/// v2 (Skill 7 corrective pass): evidence references carry the probe-level
+/// identifiers needed to re-derive coverage (`batch_id`, `probe_run_id`),
+/// `IdentityComparison` gained `ClaimInconsistent`, and `ActionComparison`'s
+/// positive variants became unconstructible outside this module. No consumer
+/// had persisted a v1 record — the crate has no producer of signed
+/// reconciliation records and no storage.
+pub const RECONCILIATION_VERSION: u16 = 2;
 
 /// The eight result classes from `RECONCILIATION_MODEL.md` §4. The
 /// `Default` is `CannotProve`: absence of evidence is absence of a verdict.
@@ -100,42 +107,73 @@ impl EvidenceStrength {
 /// Why the result is what it is. Closed list; every variant names an
 /// epistemic condition, never a moral one.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum ReasonCode {
     // ── expected side ──
-    ExpectedSignatureInvalid,
-    ExpectedUntrustedDecisionPoint,
-    ExpectedStructurallyInvalid,
-    ExpectedSideCompletenessUnknown,
-    ExpectedSideStatementInvalid,
-    ExpectedSideStatementDoesNotCover,
-    ExpectationExistsForObservation,
+    ExpectedSignatureInvalid = 0x10,
+    ExpectedUntrustedDecisionPoint = 0x11,
+    ExpectedStructurallyInvalid = 0x12,
+    /// The agent is named as its own decision point, or the anchored
+    /// decision key is the agent's own key (I1). A trust failure, never a
+    /// verdict about execution.
+    ExpectedSelfAuthorization = 0x13,
+    ExpectedSideCompletenessUnknown = 0x14,
+    ExpectedSideStatementInvalid = 0x15,
+    ExpectedSideStatementDoesNotCover = 0x16,
+    ExpectationExistsForObservation = 0x17,
     // ── observer side ──
-    NoObserverEvidence,
-    ObserverUntrusted,
-    ObserverSignatureInvalid,
-    ObserverChainBroken,
-    ObserverQuarantined,
-    ObservationSetIncomplete,
-    MixedObservers,
-    HealthStale,
-    ObserverDegraded,
-    ObserverRecovering,
-    ObserverContinuityUnverified,
-    ProvenanceUnverifiedOpenPolicy,
+    NoObserverEvidence = 0x20,
+    ObserverUntrusted = 0x21,
+    ObserverSignatureInvalid = 0x22,
+    ObserverChainBroken = 0x23,
+    ObserverQuarantined = 0x24,
+    ObservationSetIncomplete = 0x25,
+    MixedObservers = 0x26,
+    HealthStale = 0x27,
+    ObserverDegraded = 0x28,
+    ObserverRecovering = 0x29,
+    ObserverContinuityUnverified = 0x2a,
+    ProvenanceUnverifiedOpenPolicy = 0x2b,
+    /// The observer protocol version is not one this reconciler verifies.
+    ObserverProtocolUnsupported = 0x2c,
+    /// The anchored observer key is the observed agent's own key: the
+    /// "observation" is a second self-report (I10), not independent evidence.
+    ObserverKeyIsAgentKey = 0x2d,
+    /// The health record is dated after the verifier's own verification
+    /// time, so the verifier cannot place it in time at all.
+    HealthNotYetEmitted = 0x2e,
     // ── matching ──
-    ActionEvidenceUnavailable,
-    IdentityDiverged,
-    AmbiguousObservations,
-    UnboundReferencesOnly,
-    ObservationOutsideWindow,
-    AttributionNotEstablished,
+    ActionEvidenceUnavailable = 0x40,
+    IdentityDiverged = 0x41,
+    AmbiguousObservations = 0x42,
+    UnboundReferencesOnly = 0x43,
+    ObservationOutsideWindow = 0x44,
+    AttributionNotEstablished = 0x45,
+    /// A reference claims this decision while naming a different agent. The
+    /// claim pair is internally inconsistent and supports no verdict about
+    /// either party.
+    AttributionInconsistent = 0x46,
     // ── coverage ──
-    WindowNotCovered,
-    CoverageNotKernelPushed,
-    KernelCoverageWithNoReference,
+    WindowNotCovered = 0x50,
+    CoverageNotKernelPushed = 0x51,
+    KernelCoverageWithNoReference = 0x52,
+    /// The supplied batches' claimed intervals leave a hole inside the
+    /// window: part of it was claimed by no batch at all.
+    CoverageGapInWindow = 0x53,
+    /// A batch claims to have sampled past the moment the collector signed
+    /// its health record — an attestation about the future.
+    CoverageEndsAfterHealth = 0x54,
+    /// The probe restarted inside the window: `probe_run_id` is not constant
+    /// across the batches that claim to cover it.
+    CoverageProbeRunChanged = 0x55,
     // ── target ──
-    TargetNotFound,
-    NoExpectationAttested,
+    TargetNotFound = 0x60,
+    NoExpectationAttested = 0x61,
+    /// A positive class was assembled whose evidence precondition is not
+    /// visible in the record. The central guard in `reconcile` downgraded it;
+    /// reaching this reason means a caller or a future edit tried to emit a
+    /// verdict the record does not support.
+    InvariantNotSatisfied = 0x62,
 }
 
 impl ReasonCode {
@@ -160,6 +198,11 @@ pub enum IdentityComparison {
     Divergent { observations: u32 },
     /// Both matching and divergent measured instances exist.
     Ambiguous { matching: u32, divergent: u32 },
+    /// A reference claims this decision but names a different agent than the
+    /// expectation was issued for. `claimed_decision_id` and the claimed
+    /// `agent_id` come from the same unauthenticated claim; when they
+    /// disagree the pair supports no statement about either party.
+    ClaimInconsistent { references: u32 },
 }
 
 impl IdentityComparison {
@@ -186,30 +229,52 @@ impl IdentityComparison {
                 put_u32(buf, *matching);
                 put_u32(buf, *divergent);
             }
+            Self::ClaimInconsistent { references } => {
+                put_u8(buf, 0x05);
+                put_u32(buf, *references);
+            }
         }
     }
 }
 
+/// Witness that an observation carried action-level evidence — an action
+/// kind and a parameter digest the observer itself measured.
+///
+/// Its only field is private, so a value can be built **only inside this
+/// module**. No constructor exists, because no evidence type in the pipeline
+/// carries action-level content: `ObservedEffect` has
+/// `ProcessPresent`/`ProcessNoLongerPresent`/`SocketObserved` and nothing
+/// else, and `KernelLifecycleEvent` carries fork/exec/exit. Adding a
+/// constructor is the deliberate, reviewable act that would make
+/// [`ReconciliationResult::VerifiedExecution`] reachable; until then the
+/// compiler enforces its unreachability rather than a comment.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct ActionEvidenceSeal(());
+
 /// Outcome of comparing expected action/parameters with observation.
 ///
-/// Only `Unobservable` can currently be produced: no `ObservedEffect` carries
-/// an action kind or parameter digest. `Match`/`Mismatch` are defined so the
-/// contract is complete, but nothing in this crate constructs them — which is
-/// exactly why `VerifiedExecution` is unreachable.
+/// Only `Unobservable` can be produced: the positive variants require an
+/// [`ActionEvidenceSeal`], which nothing can construct.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ActionComparison {
     Unobservable,
-    Match,
-    Mismatch,
+    Match(ActionEvidenceSeal),
+    Mismatch(ActionEvidenceSeal),
 }
 
 impl ActionComparison {
     fn code(&self) -> u8 {
         match self {
             Self::Unobservable => 0x00,
-            Self::Match => 0x01,
-            Self::Mismatch => 0x02,
+            Self::Match(_) => 0x01,
+            Self::Mismatch(_) => 0x02,
         }
+    }
+
+    /// Did the observation carry action evidence at all? False for every
+    /// value this crate can currently produce.
+    pub fn is_observable(&self) -> bool {
+        !matches!(self, Self::Unobservable)
     }
 }
 
@@ -238,30 +303,35 @@ impl TemporalComparison {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum EvidenceRef {
     Expected {
-        decision_point_id: String,
+        decision_point_id: DecisionPointId,
         decision_id: DecisionId,
     },
     Batch {
-        observer_id: String,
+        observer_id: ObserverId,
         key_version: u32,
-        sequence: u64,
+        sequence: ObserverSequence,
+        /// The probe-chosen batch id, and the probe run it belongs to. Both
+        /// are recorded so a reader can re-derive the coverage argument —
+        /// in particular that one probe run spanned the window.
+        batch_id: BatchId,
+        probe_run_id: ProbeRunId,
         head: [u8; 32],
     },
     Health {
-        observer_id: String,
-        sequence: u64,
+        observer_id: ObserverId,
+        sequence: ObserverSequence,
         emitted_at_ms: u64,
     },
     Observation {
-        batch_sequence: u64,
+        batch_sequence: ObserverSequence,
         index: u32,
     },
     KernelEvent {
-        batch_sequence: u64,
+        batch_sequence: ObserverSequence,
         index: u32,
     },
     CoverageStatement {
-        decision_point_id: String,
+        decision_point_id: DecisionPointId,
         issued_at_ms: u64,
     },
 }
@@ -274,19 +344,23 @@ impl EvidenceRef {
                 decision_id,
             } => {
                 put_u8(buf, 0x01);
-                put_str(buf, decision_point_id);
+                put_str(buf, &decision_point_id.0);
                 buf.extend_from_slice(decision_id.as_bytes());
             }
             Self::Batch {
                 observer_id,
                 key_version,
                 sequence,
+                batch_id,
+                probe_run_id,
                 head,
             } => {
                 put_u8(buf, 0x02);
-                put_str(buf, observer_id);
+                put_str(buf, &observer_id.0);
                 put_u32(buf, *key_version);
-                put_u64(buf, *sequence);
+                put_u64(buf, sequence.0);
+                buf.extend_from_slice(batch_id.as_bytes());
+                buf.extend_from_slice(probe_run_id.as_bytes());
                 buf.extend_from_slice(head);
             }
             Self::Health {
@@ -295,8 +369,8 @@ impl EvidenceRef {
                 emitted_at_ms,
             } => {
                 put_u8(buf, 0x03);
-                put_str(buf, observer_id);
-                put_u64(buf, *sequence);
+                put_str(buf, &observer_id.0);
+                put_u64(buf, sequence.0);
                 put_u64(buf, *emitted_at_ms);
             }
             Self::Observation {
@@ -304,7 +378,7 @@ impl EvidenceRef {
                 index,
             } => {
                 put_u8(buf, 0x04);
-                put_u64(buf, *batch_sequence);
+                put_u64(buf, batch_sequence.0);
                 put_u32(buf, *index);
             }
             Self::KernelEvent {
@@ -312,7 +386,7 @@ impl EvidenceRef {
                 index,
             } => {
                 put_u8(buf, 0x05);
-                put_u64(buf, *batch_sequence);
+                put_u64(buf, batch_sequence.0);
                 put_u32(buf, *index);
             }
             Self::CoverageStatement {
@@ -320,7 +394,7 @@ impl EvidenceRef {
                 issued_at_ms,
             } => {
                 put_u8(buf, 0x06);
-                put_str(buf, decision_point_id);
+                put_str(buf, &decision_point_id.0);
                 put_u64(buf, *issued_at_ms);
             }
         }

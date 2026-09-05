@@ -285,6 +285,7 @@ fn ctx(x: &Expected, o: &Observer, verification_time_ms: u64) -> ReconciliationC
         health_max_age_ms: HEALTH_MAX_AGE,
         window_tolerance_ms: 0,
         expected_side: ExpectedSideCoverage::Unknown,
+        agent_public_key: None,
     }
 }
 
@@ -348,7 +349,7 @@ fn t01_identity_match_is_cannot_prove_action_unavailable_and_never_verified_exec
     assert!(r.evidence.iter().any(|e| matches!(
         e,
         EvidenceRef::Observation {
-            batch_sequence: 2,
+            batch_sequence: ObserverSequence(2),
             index: 0
         }
     )));
@@ -555,7 +556,7 @@ fn t04_observed_only_with_unknown_expected_side_is_cannot_prove() {
     };
 
     let target = ObservationTarget::Observation {
-        batch_sequence: 2,
+        batch_sequence: ObserverSequence(2),
         index: 0,
     };
     let r = reconcile_observation(&ev, target, &ctx(&x, &o, at));
@@ -589,7 +590,7 @@ fn t05_unattributed_effect_requires_a_signed_complete_expected_side() {
         to_ms: batch_window.to_ms + 1_000,
     };
     let target = ObservationTarget::Observation {
-        batch_sequence: 2,
+        batch_sequence: ObserverSequence(2),
         index: 0,
     };
 
@@ -701,7 +702,7 @@ fn t05b_unclaimed_observation_is_never_unattributed_effect() {
     let r = reconcile_observation(
         &ev,
         ObservationTarget::Observation {
-            batch_sequence: 2,
+            batch_sequence: ObserverSequence(2),
             index: 0,
         },
         &c,
@@ -712,7 +713,7 @@ fn t05b_unclaimed_observation_is_never_unattributed_effect() {
     let r = reconcile_observation(
         &ev,
         ObservationTarget::Observation {
-            batch_sequence: 2,
+            batch_sequence: ObserverSequence(2),
             index: 9,
         },
         &c,
@@ -856,7 +857,7 @@ fn t07b_unbound_kernel_event_about_the_expected_pid_is_cannot_prove() {
     assert!(r.evidence.iter().any(|e| matches!(
         e,
         EvidenceRef::KernelEvent {
-            batch_sequence: 2,
+            batch_sequence: ObserverSequence(2),
             index: 0
         }
     )));
@@ -865,7 +866,7 @@ fn t07b_unbound_kernel_event_about_the_expected_pid_is_cannot_prove() {
     let r = reconcile_observation(
         &ev,
         ObservationTarget::KernelEvent {
-            batch_sequence: 2,
+            batch_sequence: ObserverSequence(2),
             index: 0,
         },
         &ctx(&x, &o, at),
@@ -893,7 +894,7 @@ fn t08_t09_action_comparison_is_never_match_or_mismatch() {
     results.push(reconcile_observation(
         &ev,
         ObservationTarget::Observation {
-            batch_sequence: 2,
+            batch_sequence: ObserverSequence(2),
             index: 0,
         },
         &ctx(&x, &o, at),
@@ -1058,7 +1059,7 @@ fn t13_tampered_observer_bytes_are_sensor_integrity_failure_proven() {
     let r = reconcile_observation(
         &ev,
         ObservationTarget::Observation {
-            batch_sequence: 2,
+            batch_sequence: ObserverSequence(2),
             index: 0,
         },
         &ctx(&x, &o, at),
@@ -1385,9 +1386,10 @@ fn reconciliation_is_deterministic_and_canonically_encoded() {
     let mut m = a.clone();
     m.identity = IdentityComparison::Match { observations: 1 };
     assert_ne!(m.canonical_bytes(), bytes);
-    let mut m = a.clone();
-    m.action = ActionComparison::Match;
-    assert_ne!(m.canonical_bytes(), bytes);
+    // `action` has no second constructible value: the positive variants of
+    // `ActionComparison` require an `ActionEvidenceSeal`, which no code can
+    // build. That unconstructibility is the property, and it is what keeps
+    // `VERIFIED_EXECUTION` unreachable — see the Skill 7 corrective tests.
     let mut m = a.clone();
     m.temporal = TemporalComparison::WithinWindow;
     assert_ne!(m.canonical_bytes(), bytes);

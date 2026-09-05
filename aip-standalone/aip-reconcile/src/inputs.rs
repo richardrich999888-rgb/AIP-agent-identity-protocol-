@@ -9,6 +9,8 @@ use aip_types::canonical::*;
 use aip_types::Signature;
 use serde::{Deserialize, Serialize};
 
+use crate::ids::ObserverSequence;
+
 /// Domain tag of a decision point's expected-side completeness statement.
 pub const DECISION_POINT_COVERAGE_DOMAIN: &str = "GHOST/DecisionPointCoverage/v1";
 pub const DECISION_POINT_COVERAGE_VERSION: u16 = 1;
@@ -124,14 +126,30 @@ pub struct ReconciliationContext {
     /// Health older than this is `HealthStale` → unavailable.
     pub health_max_age_ms: u64,
     /// Slack applied when comparing a probe-claimed batch window with the
-    /// expectation's authorized window. A filter, not evidence.
+    /// expectation's authorized window, and when comparing the collector's
+    /// clock with the verifier's. A filter, not evidence.
     pub window_tolerance_ms: u64,
     pub expected_side: ExpectedSideCoverage,
+    /// The observed agent's public key, when the verifier knows it (e.g.
+    /// from the `EvidencePacket` the agent produced).
+    ///
+    /// Supplying it lets the reconciler check the two independence
+    /// invariants it otherwise cannot see: that the anchored decision key is
+    /// not the agent's own (I1) and that the anchored observer key is not
+    /// the agent's own (I10). `None` means the verifier did not supply it and
+    /// those checks are skipped — a documented limitation, not a pass.
+    pub agent_public_key: Option<Vec<u8>>,
 }
 
 /// Which observation an observed-only reconciliation is about.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ObservationTarget {
-    Observation { batch_sequence: u64, index: u32 },
-    KernelEvent { batch_sequence: u64, index: u32 },
+    Observation {
+        batch_sequence: ObserverSequence,
+        index: u32,
+    },
+    KernelEvent {
+        batch_sequence: ObserverSequence,
+        index: u32,
+    },
 }

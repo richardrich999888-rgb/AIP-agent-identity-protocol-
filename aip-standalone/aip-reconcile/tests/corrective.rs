@@ -182,6 +182,7 @@ fn ctx(x: &Expected, o: &Observer, verification_time_ms: u64) -> ReconciliationC
         health_max_age_ms: HEALTH_MAX_AGE,
         window_tolerance_ms: 0,
         expected_side: ExpectedSideCoverage::Unknown,
+        agent_public_key: None,
     }
 }
 
@@ -428,4 +429,229 @@ fn r6_divergence_requires_the_claim_to_name_the_expected_agent() {
         x.agent_id
     );
     assert_eq!(r.result, ReconciliationResult::CannotProve);
+}
+
+// ═══ R7 — an observer key that is the agent's own key (I10) ═══
+
+/// `aip-observe` can refuse a batch whose anchored observer key is the
+/// observed agent's own key, and `aip-authorize` can refuse an expectation
+/// whose decision key is the agent's — but only when the caller supplies the
+/// agent's public key. The reconciler never did, so a self-signed "observer"
+/// produced `Attested` evidence and a `PHANTOM_CLAIM` about its own agent.
+///
+/// Red at compile time before the fix: `ReconciliationContext` had no
+/// `agent_public_key` field, so the check could not even be expressed.
+#[test]
+fn r7_observer_key_equal_to_the_agent_key_is_never_independent_evidence() {
+    let x = expected();
+    // The agent runs the "collector" itself, with its own key.
+    let mut o = Observer::with_keypair(x.agent_kp.clone(), true);
+    let now = x.now;
+    let at = now + TTL + 1_000;
+    let b1 = o.batch(1, now - 2_000, now - 1_000, vec![]);
+    let b2 = o.batch(2, now - 1_000, at, vec![]);
+    let ev = ObserverEvidence {
+        batches: vec![b1, b2],
+        health: o.health(at),
+    };
+
+    // Without the agent's key the verifier cannot see the collapse. This is
+    // the documented residual limitation, pinned here so it cannot be
+    // mistaken for a check that happens anyway.
+    let blind = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at));
+    assert_eq!(
+        blind.result,
+        ReconciliationResult::PhantomClaim,
+        "an unchecked anchor is trusted; the verifier must supply the agent key"
+    );
+
+    // With the agent's key supplied, independence is checked (I10).
+    let mut c = ctx(&x, &o, at);
+    c.agent_public_key = Some(x.agent_kp.public_key.clone());
+    let r = reconcile_expectation(&x.ee, Some(&ev), &c);
+    assert_eq!(r.result, ReconciliationResult::CannotProve);
+    assert_eq!(r.reason, ReasonCode::ObserverKeyIsAgentKey);
+    assert_ne!(
+        r.result,
+        ReconciliationResult::SensorIntegrityFailure,
+        "a self-signed observer is a trust failure, not proven tampering"
+    );
+}
+
+// ═══ Reason codes name the missing precondition ═══
+
+/// Each corrective check must be distinguishable in the record: a verifier
+/// reading `CANNOT_PROVE` has to be able to tell *which* precondition was
+/// absent, or the result is an opaque verdict (Skill 7 §32, §34).
+#[test]
+fn each_corrective_check_reports_its_own_reason() {
+    let x = expected();
+
+    // Gap between claimed windows.
+    let mut o = Observer::new(true);
+    let now = x.now;
+    let at = now + TTL + 1_000;
+    let b1 = o.batch(1, now - 2_000, now - 1_000, vec![]);
+    let b2 = o.batch(2, now - 1_000, now + 5_000, vec![]);
+    let b3 = o.batch(3, now + 55_000, at, vec![]);
+    let ev = ObserverEvidence {
+        batches: vec![b1, b2, b3],
+        health: o.health(at),
+    };
+    let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at));
+    assert_eq!(r.reason, ReasonCode::CoverageGapInWindow);
+
+    // Coverage claimed past the collector's own signed clock.
+    let mut o = Observer::new(true);
+    let b1 = o.batch(1, now - 2_000, now - 1_000, vec![]);
+    let b2 = o.batch(2, now - 1_000, now + TTL, vec![]);
+    let emitted = now + 1_000;
+    let ev = ObserverEvidence {
+        batches: vec![b1, b2],
+        health: o.health(emitted),
+    };
+    let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, emitted));
+    assert_eq!(r.reason, ReasonCode::CoverageEndsAfterHealth);
+
+    // Health dated after the verifier's own clock.
+    let mut o = Observer::new(true);
+    let b1 = o.batch(1, now - 2_000, now - 1_000, vec![]);
+    let b2 = o.batch(2, now - 1_000, at, vec![]);
+    let ev = ObserverEvidence {
+        batches: vec![b1, b2],
+        health: o.health(at),
+    };
+    let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, now));
+    assert_eq!(r.reason, ReasonCode::HealthNotYetEmitted);
+
+    // Probe restart inside the window.
+    let mut o = Observer::new(true);
+    let b1 = o.batch(1, now - 2_000, now - 1_000, vec![]);
+    let b2 = o.batch(2, now - 1_000, now + 30_000, vec![]);
+    let coverage_before = o.health(now + 30_000).health.attested_coverage.unwrap();
+    let mut restarted = ProcfsProbe::new(PROBE_ID);
+    restarted.declare_source(SourceMechanism::ProcConnector);
+    o.probe = restarted;
+    let b3 = o.batch(3, now + 30_000, at, vec![]);
+    let mut h = o.health(at);
+    h.health.state = ObserverState::Active;
+    h.health.continuity = ContinuityStatus::Verified;
+    h.health.attested_coverage = Some(CoverageWindow {
+        from_ms: coverage_before.from_ms,
+        to_ms: at,
+    });
+    h.health.covered_by = vec![SourceMechanism::ProcConnector];
+    let ev = ObserverEvidence {
+        batches: vec![b1, b2, b3],
+        health: o.resign_health(h),
+    };
+    let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at));
+    assert_eq!(r.reason, ReasonCode::CoverageProbeRunChanged);
+
+    // A claim naming another agent.
+    let mut o = Observer::new(true);
+    let b1 = o.batch(1, now - 2_000, now - 1_000, vec![]);
+    let claim = AgentClaim {
+        agent_id: "aip1someoneelseentirely".into(),
+        claim_source: "orchestrator".into(),
+        decision_id: Some(x.ee.decision_id),
+    };
+    let obs = o.probe.observation(
+        other_process(),
+        ObservedEffect::ProcessPresent,
+        Some(&claim),
+        now + 10,
+    );
+    let b2 = o.batch(2, now - 1_000, at, vec![obs]);
+    let ev = ObserverEvidence {
+        batches: vec![b1, b2],
+        health: o.health(at),
+    };
+    let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at));
+    assert_eq!(r.reason, ReasonCode::AttributionInconsistent);
+    assert_eq!(
+        r.identity,
+        IdentityComparison::ClaimInconsistent { references: 1 }
+    );
+}
+
+// ═══ Unreachable classes stay unreachable ═══
+
+/// `VERIFIED_EXECUTION` and `LINEAGE_VIOLATION` are not merely absent from
+/// the current control flow — the first cannot be assembled because
+/// `ActionComparison`'s positive variants are unconstructible, and the second
+/// is refused by the central precondition guard. `UNATTRIBUTED_EFFECT`
+/// requires a decision-point coverage statement in the evidence list.
+#[test]
+fn unreachable_classes_cannot_be_produced_from_any_supported_input() {
+    let x = expected();
+    let mut o = Observer::new(true);
+    let now = x.now;
+    let at = now + TTL + 1_000;
+
+    // A representative spread of inputs: silence, a match, a divergence, an
+    // unbound event, a broken chain, a degraded observer, no observer.
+    let mut results = Vec::new();
+    let b1 = o.batch(1, now - 2_000, now - 1_000, vec![]);
+    let claim = AgentClaim {
+        agent_id: x.agent_id.clone(),
+        claim_source: "orchestrator".into(),
+        decision_id: Some(x.ee.decision_id),
+    };
+    let matching = ObservedProcess {
+        process: x.ee.execution_binding.process,
+        exe_content_sha256: x.ee.execution_binding.exe_content_sha256,
+        exe_path: x.ee.execution_binding.exe_path.clone(),
+    };
+    let o1 = o.probe.observation(
+        matching,
+        ObservedEffect::ProcessPresent,
+        Some(&claim),
+        now + 5,
+    );
+    let o2 = o.probe.observation(
+        other_process(),
+        ObservedEffect::ProcessPresent,
+        Some(&claim),
+        now + 6,
+    );
+    let b2 = o.batch(2, now - 1_000, at, vec![o1, o2]);
+    let health = o.health(at);
+    for ev in [
+        ObserverEvidence {
+            batches: vec![b1.clone(), b2.clone()],
+            health: health.clone(),
+        },
+        ObserverEvidence {
+            batches: vec![b2.clone()],
+            health: health.clone(),
+        },
+        ObserverEvidence {
+            batches: vec![],
+            health: health.clone(),
+        },
+    ] {
+        results.push(reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at)));
+        for target in [
+            ObservationTarget::Observation {
+                batch_sequence: ObserverSequence(2),
+                index: 0,
+            },
+            ObservationTarget::KernelEvent {
+                batch_sequence: ObserverSequence(2),
+                index: 0,
+            },
+        ] {
+            results.push(reconcile_observation(&ev, target, &ctx(&x, &o, at)));
+        }
+    }
+    results.push(reconcile_expectation(&x.ee, None, &ctx(&x, &o, at)));
+
+    for r in &results {
+        assert_ne!(r.result, ReconciliationResult::VerifiedExecution, "{r:?}");
+        assert_ne!(r.result, ReconciliationResult::LineageViolation, "{r:?}");
+        assert_ne!(r.result, ReconciliationResult::UnattributedEffect, "{r:?}");
+        assert_eq!(r.action, ActionComparison::Unobservable, "{r:?}");
+        assert!(!r.action.is_observable(), "{r:?}");
+    }
 }

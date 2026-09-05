@@ -44,7 +44,7 @@ pub use inputs::{
 };
 pub use reconcile::{reconcile_expectation, reconcile_observation};
 pub use result::{
-    ActionComparison, EvidenceRef, EvidenceStrength, IdentityComparison, ReasonCode,
-    Reconciliation, ReconciliationResult, TemporalComparison, RECONCILIATION_DOMAIN,
+    ActionComparison, ActionEvidenceSeal, EvidenceRef, EvidenceStrength, IdentityComparison,
+    ReasonCode, Reconciliation, ReconciliationResult, TemporalComparison, RECONCILIATION_DOMAIN,
     RECONCILIATION_VERSION,
 };
