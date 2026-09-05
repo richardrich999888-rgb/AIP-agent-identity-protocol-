@@ -91,7 +91,7 @@ malicious execution — a sensor outage is not a ghost.
 Attacks the design must survive: disabling or killing the observer, modifying
 its binary or configuration, erasing its state, reordering events, clock
 manipulation, buffer exhaustion, telemetry loss, host reboot, and restoration
-of a stale state file. The last three are why continuity must be anchored
+of a stale state file. (Implemented for the collector's own position: `CollectorSigner::resume` classifies a carried snapshot against the archive of its signed health records as Amnesia / RolledBack / Forked / ArchiveTruncated — `SNIFFER_DOG.md` §6 — a design harvested from PR #3.) The last three are why continuity must be anchored
 off-host or in hardware; a state file the attacker can roll back proves
 nothing about itself.
 

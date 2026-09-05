@@ -45,7 +45,20 @@ repository as imported. Their test counts are claims of the import README
 
 #### A.1a Reproduced build and test results (scratch workspace, pinned deps)
 
-Filled from the run recorded in `SNIFFER_DOG_PR3_HARVEST_REPORT.md` §8.
+Extracted `orbitaltrust-accountability/rust` from `6cc439f` into a scratch
+workspace with pinned third-party versions (serde 1, serde_json 1, sha2
+0.10, tempfile 3) and the unbuildable dev-dependencies removed:
+
+| Crate | Target | Result |
+|---|---|---|
+| `ot-accountability-core` | `--lib` unit tests | **56 passed, 0 failed** (matches the README) |
+| `ot-sentinel` | `--lib` unit tests | **82 passed, 0 failed** |
+| `ot-sentinel` | `tests/ghost_hunt.rs` (31 end-to-end scenarios incl. the six restart scenarios) | **does not build** — imports `ot_mcp_gateway` and `ot_pqc` |
+| `ot-mcp-gateway`, `ot-verifier` | any | **do not build** — depend on `ot-pqc`, absent from the import |
+
+So 138 of the ~260 Rust tests PR #3 claims are reproducible here; the
+end-to-end escape/containment/restart scenarios are not. Their properties
+were re-established in this repository's own tests where harvested.
 
 ### C. Unique capabilities (what PR #3 has and HEAD does not)
 

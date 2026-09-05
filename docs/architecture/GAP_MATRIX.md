@@ -65,6 +65,14 @@ original discovery text for traceability):
   outgoing delegations, agents-under, authority-reaching over chains verified
   whole by `aip_core`; dangling hops reported, verifier-supplied revocation
   set consumed; no new authority.
+- Skill 8 (warrant engine) — `aip-warrant`: typed response gated on
+  `Proven` evidence by an explicit match, advisory default, protected
+  identities, signed warrant under `SYNTRIASS/GHOST/WARRANT/v1`; see
+  `WARRANT_IMPLEMENTATION_REPORT.md`. Design lineage PR #3 `response.rs`.
+- PR #3 harvest — `OT_SENTINEL_HARVEST_AUDIT.md` (forensic inventory, 40-row
+  matrix, dispositions) and the collector restart-continuity audit
+  (`CollectorSigner::resume`, four-way `ContinuityBreak`) harvested from
+  `ot-sentinel/state.rs`; see `SNIFFER_DOG_PR3_HARVEST_REPORT.md`.
 
 ## D. PR3 corrective review (pre-reconciliation)
 
@@ -105,7 +113,7 @@ original discovery text for traceability):
 | Sensor health / continuity — **CLOSED (Stage 3 → 6.5)**: five signed states, collector-side ledger with replay/fork/rollback/gap/head-mismatch faults; 6.5 adds probe run-id (restart), per-run sequence discontinuity and counted kernel event loss as explicit `Degraded` causes, and `probe_policy` in signed health; coverage never back-fills an outage, a loss, or a restart | **MISSING** | 5 explicit states, signed | silence indistinguishable from coverage (**I9**) | observer | **P1** |
 | Reconciler — **PARTIAL (Stage 4, `ad9642a` + `b821a23`)**: `aip-reconcile` joins on `decision_id` + structural `ExecutionBinding` match, verifies both signatures and the observer chain up to the signed health head, defaults to `CANNOT_PROVE`; reachable: `PHANTOM_CLAIM` (`RegisteredOnly`, kernel-pushed signed coverage, **and** coverage re-derived from the batches as gap-free, single-probe-run, kernel-pushed, ending no later than the collector's signed clock), `IDENTITY_DIVERGENCE` (claim must name the expectation's agent), `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, `CANNOT_PROVE`; `VERIFIED_EXECUTION` **for one action class only** (Stage 7: established TCP connection to an authorized `(protocol, remote_addr, remote_port)`, derived from pidfd-anchored socket-table observations, `Attested`, claim-tied, batch inside window and coverage epoch); **unreachable**: `VERIFIED_EXECUTION` for any other action kind (`ActionComparison::Match` needs a seal only the action-derivation step builds), `UNATTRIBUTED_EFFECT` (no producer for the DP completeness statement), `LINEAGE_VIOLATION` (refused by the central precondition guard) | **MISSING** (0 occurrences) | join on `decision_id` + binding | no comparison exists | both producers | **P1** |
 | `OBSERVATION_UNAVAILABLE` semantics — **CLOSED (Stage 4)**: `ObservationAvailability::Unavailable{reason}` is carried unchanged in every `Reconciliation`; `ReconciliationResult::default()` is `CannotProve`; every `Unavailable` reason and every non-`Active` observer state yields `CANNOT_PROVE` or an explicit failure class, never `PHANTOM_CLAIM` | **MISSING** | first-class type, `CANNOT_PROVE` default | risk of inferring non-execution from silence (**I8**) | reconciler | **P0** for design |
-| Warrant engine — the `EvidenceStrength` enum it must consume now exists as a separate type in `aip-reconcile` (Stage 4); the engine itself is still **MISSING** | **MISSING** | severity ⊥ strength; `Proven` gate | containment on suspicion (**I12**, **I13**) | reconciler | **P1** |
+| Warrant engine — **CLOSED (Skill 8, `9574420`)**: `aip-warrant`, containment requires `Proven` by explicit match, advisory default, protected identities, signed warrant; containment itself remains Skill 9 | **MISSING** | severity ⊥ strength; `Proven` gate | containment on suspicion (**I12**, **I13**) | reconciler | **P1** |
 | Containment | **MISSING** (correctly) | proof-gated, advisory default | — | warrant engine | **P2** |
 
 ## C. Commitment / NEXORA

@@ -475,3 +475,19 @@ was not mounted by default in this session's fresh container.
 `perf_event_paranoid ≤ -1` or `CAP_PERFMON`/`CAP_SYS_ADMIN`. The collector's
 clock is the temporal authority; the probe's three-clock anchor is the host's
 clock and a claim; probes re-anchor per batch.
+
+## 25. Collector restart continuity (harvest from PR #3, `6cc439f`)
+
+`CollectorSnapshot { observer_id, key_version, sequence, head, quarantined }`,
+`CollectorSigner::snapshot()`, `CollectorSigner::resume(...)`,
+`verify_continuity(...)`, `ContinuityBreak::{Amnesia, RolledBack, Forked,
+ArchiveTruncated}`, `AttestError::ForeignState`; `ObserverLedger::resume_at`
+and `quarantine`. The archive is the set of `SignedSensorHealth` records the
+collector already emits; each is verified under the collector's key and
+filtered to its id before it counts. A resumed collector is `Recovering`
+with `Unverified` continuity and no coverage until a contiguous batch is
+admitted. Eight tests, `aip-observe/tests/restart_continuity.rs`
+(rc01–rc08). No wire change: protocol stays v5. What remains the operator's:
+writing snapshot and archive to durable storage, and the ordering discipline
+(state before archive) that makes a crash between the two read as
+`ArchiveTruncated` rather than `Forked`.

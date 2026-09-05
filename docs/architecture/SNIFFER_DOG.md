@@ -238,6 +238,7 @@ Three independent signals, all visible at the collector, none inferred:
 |---|---|---|
 | chain gap / replay / rollback / fork | Skill 6 ledger | `Degraded` / refused / refused / `Quarantined` |
 | probe restart | `probe_run_id` changed | `note_probe_restart()` → `Recovering`; coverage dropped; no back-fill |
+| **collector restart** (harvest from PR #3 `ot-sentinel/state.rs`) | `CollectorSigner::resume(snapshot, id, keys, archive)` audits the carried `(sequence, head)` against the archive of the collector's own signed health records | `None` → chain continues at the next sequence but continuity stays `Unverified` until a contiguous batch; `Amnesia` / `RolledBack` → the archive head is adopted so no second chain starts under the same key; `Forked` → `Quarantined`; `ArchiveTruncated` → state kept, reported; foreign state refused; forged or other-observer archive records ignored (each is verified under the collector's key) |
 | probe sequence discontinuity | `probe_seq_first ≠ last+1` within a run | `ProbeStreamFault::SequenceDiscontinuity` → `Degraded` |
 | kernel event loss | `dropped_events: Some(n>0)` (from `ENOBUFS`) | `ProbeStreamFault::EventsLost` → `Degraded` |
 | polling mechanism | `dropped_events: None` | "no loss" is `CANNOT_PROVE`, not zero |
@@ -370,7 +371,9 @@ eBPF programs, raw tracepoints, any tracepoint other than
 `sched:sched_process_exec`, XDP, packet or wire capture, filesystem and
 syscall observation, exec argument and environment capture, UDP "connection"
 events, cgroup/namespace context in the event model, network transport and
-its authentication, collector persistence, key lifecycle beyond
+its authentication, durable storage of the collector snapshot and archive
+(the collector exposes `snapshot()` / `resume()` and audits continuity, but
+writing them to disk is the operator's), key lifecycle beyond
 version/revoke, hardware or TEE attestation, any performance measurement.
 (Three static tracepoints read through the perf ring **are** implemented —
 Stages 7b and 7c; that is the whole of the tracing surface.)

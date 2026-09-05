@@ -96,11 +96,17 @@ same quality it demanded before acting:
 Containment is **step 13** of the skill's §23 order. Preconditions, all
 currently unmet:
 
-1. `ExpectedExecution` producer exists (decision point) — **MISSING**
-2. `ExecutionBinding` survives PID reuse — **MISSING**
-3. Observer with an independent trust root — **MISSING**
-4. Reconciliation with `CANNOT_PROVE` as default — **MISSING**
-5. Warrant engine with orthogonal axes — **MISSING**
-6. Adversarial tests proving suspicion cannot reach containment — **MISSING**
+1. `ExpectedExecution` producer exists (decision point) — **library CLOSED (Skill 5)**; separate-process deployment design only
+2. `ExecutionBinding` survives PID reuse — **CLOSED (Skill 4)**
+3. Observer with an independent trust root — **CLOSED (Skills 6/6.5)**, collector off-host; deployment separation an operator obligation
+4. Reconciliation with `CANNOT_PROVE` as default — **CLOSED (Skill 7)**
+5. Warrant engine with orthogonal axes — **CLOSED (Skill 8, `aip-warrant`)**
+6. Adversarial tests proving suspicion cannot reach containment — **CLOSED at the warrant boundary** (`aip-warrant/tests/warrant.rs` w12 sweeps every result × strength × severity × availability × policy)
 
-Until all six hold, the correct containment implementation is **none**.
+The six preconditions now hold at the library level. Containment itself
+(Skill 9) is still **not implemented**: no code in this repository signals,
+freezes, isolates or filters anything, and today no production evidence path
+yields a `Proven` workload violation, so `Contain` is unreachable from real
+inputs even where the engine would permit it. PR #3's actuation (authority
+revocation inside the detector loop) was reviewed and not harvested
+(`OT_SENTINEL_HARVEST_AUDIT.md` §G, Phase 3).
