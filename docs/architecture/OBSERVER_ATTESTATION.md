@@ -1,5 +1,14 @@
 # OBSERVER_ATTESTATION
 
+> **Status update (Stage 3, Skill 6).** The anchor selection deferred in §3
+> and the threat-model questions left open in §4 were decided when Skill 6 was
+> authorized: **remote collector**, per this document's own recommendation.
+> The implementation, threat model, assumptions, key lifecycle and limitations
+> now live in `OBSERVER_IMPLEMENTATION_REPORT.md`; the crate is
+> `aip-standalone/aip-observe`. Sections 1–6 below are preserved as the
+> discovery record that motivated the design, including the adjacent code in
+> §1 that still must not be mistaken for attestation.
+
 ## 1. Current state
 
 `OBSERVER_ATTESTATION = MISSING`. Zero occurrences in production code. There is

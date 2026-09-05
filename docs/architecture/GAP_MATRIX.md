@@ -13,6 +13,8 @@ original discovery text for traceability):
   `EXECUTION_BINDING_IMPLEMENTATION_REPORT.md`.
 - Stage 2 (Skill 5) — library decision point `aip-authorize`; see
   `DECISION_POINT_IMPLEMENTATION_REPORT.md`.
+- Stage 3 (Skill 6) — observer/collector split `aip-observe`; see
+  `OBSERVER_IMPLEMENTATION_REPORT.md`.
 
 ## A. AIP correctness (must precede any Ghost work)
 
@@ -37,11 +39,11 @@ original discovery text for traceability):
 | `ExecutionBinding` — **CLOSED `4ff1f5c`** as a self-reported, agent-signed binding in `EvidencePacket` (R15); independent attestation of it remains the Observer's gap | **MISSING**; `RuntimeBinding` is self-reported, unwired, path-hashed | agent ↔ process-instance binding in signed evidence | cannot attribute execution to an agent (**I2**) | canonical encoder, packet version bump | **P0** |
 | Process instance identity — **CLOSED `4ff1f5c`** | `pid` only (`runtime.rs:40`); no start time, no boot id | `(pid, pid_start_time, boot_id)` | PID reuse transfers attribution (**I4**) | ExecutionBinding | **P0** |
 | Executable identity — **CLOSED `4ff1f5c`** (contents of `/proc/<pid>/exe`) | `sha256(path_string)` (`runtime.rs:41-44`) | `sha256(binary contents)` | different binary, same path, same hash | ExecutionBinding | **P0** |
-| Observer | **MISSING** (0 files: ebpf/XDP/perf_event/procfs/netlink) | independent runtime observer | no observation of any kind | binding + attestation | **P1** |
-| `ObserverAttestation` | **MISSING** | trust root not held by observed agent | observation would be a second self-report (**I10**) | anchor decision (open) | **P0** for design, **P1** to build |
-| Sensor health / continuity | **MISSING** | 5 explicit states, signed | silence indistinguishable from coverage (**I9**) | observer | **P1** |
+| Observer — **PARTIAL (Stage 3)**: procfs-polling probe with no key; no eBPF/netlink/perf_event path, so short-lived processes between polls are unseen and observation content is only as honest as the host kernel (A4) | **MISSING** (0 files: ebpf/XDP/perf_event/procfs/netlink) | independent runtime observer | no observation of any kind | binding + attestation | **P1** |
+| `ObserverAttestation` — **CLOSED (Stage 3)**: anchor decided as *remote collector*; key held by `CollectorSigner`, structurally unreachable from host-side types; deployment as a separate process remains an operator obligation | **MISSING** | trust root not held by observed agent | observation would be a second self-report (**I10**) | anchor decision (open) | **P0** for design, **P1** to build |
+| Sensor health / continuity — **CLOSED (Stage 3)**: five signed states, collector-side ledger with replay/fork/rollback/gap/head-mismatch faults; coverage never back-fills an outage | **MISSING** | 5 explicit states, signed | silence indistinguishable from coverage (**I9**) | observer | **P1** |
 | Reconciler | **MISSING** (0 occurrences) | join on `decision_id` + binding | no comparison exists | both producers | **P1** |
-| `OBSERVATION_UNAVAILABLE` semantics | **MISSING** | first-class type, `CANNOT_PROVE` default | risk of inferring non-execution from silence (**I8**) | reconciler | **P0** for design |
+| `OBSERVATION_UNAVAILABLE` semantics — **PARTIAL (Stage 3)**: `ObservationAvailability::Unavailable{reason}` is a first-class type with seven typed reasons; the `CANNOT_PROVE` default belongs to the reconciler (Stage 4) | **MISSING** | first-class type, `CANNOT_PROVE` default | risk of inferring non-execution from silence (**I8**) | reconciler | **P0** for design |
 | Warrant engine | **MISSING** | severity ⊥ strength; `Proven` gate | containment on suspicion (**I12**, **I13**) | reconciler | **P1** |
 | Containment | **MISSING** (correctly) | proof-gated, advisory default | — | warrant engine | **P2** |
 
