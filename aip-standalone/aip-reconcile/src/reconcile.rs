@@ -15,17 +15,18 @@ use aip_authorize::{
 use aip_observe::{
     verify_attested_batch, verify_attested_batch_independent_of_agent, verify_signed_health,
     AttestedBatch, CoverageWindow, KernelLifecycleEvent, ObservationAvailability,
-    ObservedExecution, ObserverState, ProbePolicy, SourceMechanism, UnavailableReason, VerifyError,
+    ObservedExecution, ObserverState, ProbePolicy, SocketEndpoint, SocketProtocol, SourceMechanism,
+    UnavailableReason, VerifyError,
 };
 
-use crate::action::derive_action;
+use crate::action::{derive_action, derive_transitions, SocketTransition};
 use crate::ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};
 use crate::inputs::{
     ExpectedSideCoverage, ObservationTarget, ObserverEvidence, ReconciliationContext,
 };
 use crate::result::{
-    ActionComparison, EvidenceRef, EvidenceStrength, IdentityComparison, ReasonCode,
-    Reconciliation, ReconciliationResult, TemporalComparison, RECONCILIATION_VERSION,
+    ActionComparison, ActionEvidenceKind, EvidenceRef, EvidenceStrength, IdentityComparison,
+    ReasonCode, Reconciliation, ReconciliationResult, TemporalComparison, RECONCILIATION_VERSION,
 };
 
 // ─── Result assembly ───
@@ -288,6 +289,7 @@ fn verify_observer<'a>(
             sequence: ObserverSequence(b.sequence),
             batch_id: BatchId::from_bytes(b.batch.batch_id),
             probe_run_id: ProbeRunId::from_bytes(b.batch.probe_run_id),
+            attested_at_ms: b.attested_at_ms,
             head: b.head(),
         });
     }
@@ -323,6 +325,16 @@ struct ActionCandidate<'a> {
     claimed_here: bool,
 }
 
+/// A kernel-reported connection transition whose anchored instance matches
+/// the expected binding, with the batches that carry its two events.
+struct TransitionCandidate<'a> {
+    t: SocketTransition,
+    /// The initiating event's claim pair names this decision and this agent.
+    claimed_here: bool,
+    syn_batch: &'a AttestedBatch,
+    est_batch: Option<&'a AttestedBatch>,
+}
+
 #[derive(Default)]
 struct References<'a> {
     matching: Vec<EvidenceRef>,
@@ -331,40 +343,107 @@ struct References<'a> {
     inconsistent: Vec<EvidenceRef>,
     outside_window: u32,
     candidates: Vec<ActionCandidate<'a>>,
+    transitions: Vec<TransitionCandidate<'a>>,
 }
 
-/// How the in-window observations of the authorized instance compare with
-/// the expected action, by priority: a claimed exact match wins; otherwise
-/// the most specific reason nothing verified.
+/// Where a kernel-timestamped transition sits relative to the authorized
+/// window, decided by the most trustworthy clock available first.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Placement {
+    /// Before the decision was issued: by the collector's signed attestation
+    /// clock (the transition was already attested when the decision was
+    /// made — two off-host clocks, no host input), or by the probe's
+    /// boot-clock anchor.
+    Before,
+    Within,
+    After,
+    /// No anchor: kernel time and wall time are different clock domains and
+    /// are not compared.
+    Unanchored,
+}
+
+fn place_transition(
+    t: &SocketTransition,
+    syn_batch: &AttestedBatch,
+    est_batch: Option<&AttestedBatch>,
+    window: &CoverageWindow,
+    tol: u64,
+) -> Placement {
+    // Trusted clocks first. The initiation cannot have happened after the
+    // collector signed the batch that carries it.
+    if syn_batch.attested_at_ms.saturating_add(tol) < window.from_ms {
+        return Placement::Before;
+    }
+    let Some(anchor) = syn_batch.batch.clock_anchor else {
+        return Placement::Unanchored;
+    };
+    let init_wall = anchor.wall_ms(t.initiation.kernel_timestamp_ns);
+    if init_wall.saturating_add(tol) < window.from_ms {
+        return Placement::Before;
+    }
+    if init_wall > window.to_ms.saturating_add(tol) {
+        return Placement::After;
+    }
+    if let Some(c) = &t.completion {
+        let est_anchor = est_batch
+            .and_then(|b| b.batch.clock_anchor)
+            .unwrap_or(anchor);
+        if est_anchor.wall_ms(c.kernel_timestamp_ns) > window.to_ms.saturating_add(tol) {
+            return Placement::After;
+        }
+    }
+    Placement::Within
+}
+
+/// How the observations of the authorized instance compare with the
+/// expected action, by priority: a claimed transition wins; then a claimed
+/// presence unless a transition proves that connection predates the
+/// decision; otherwise the most specific reason nothing verified.
 enum ActionOutcome {
-    /// Exact kind + digest, claimed under this decision, carrying batch
-    /// inside the window and inside attested coverage.
     Verified {
         mechanism: SourceMechanism,
+        kind: ActionEvidenceKind,
         evidence: Vec<EvidenceRef>,
     },
-    /// Exact kind + digest, claimed here, but the carrying batch straddles
-    /// or lies outside the authorized window.
+    /// A matching connection transition is placed before the decision.
+    Precedes,
+    /// Presence: carrying batch straddles or lies outside the window.
     OutsideWindow,
-    /// Exact kind + digest, claimed here, but the carrying batch is outside
-    /// the collector's attested coverage epoch.
+    /// Transition: placed after the window.
+    AfterWindow,
+    /// Carrying batch(es) outside the collector's attested coverage epoch.
     NotCovered,
-    /// Exact kind + digest exists but is not claimed under this decision.
+    /// Exact match exists but is not claimed under this decision.
     Unclaimed,
+    /// The initiation was seen for this instance and endpoint, but no
+    /// completion of that socket was recorded.
+    Incomplete,
+    /// A matching transition exists but its batch has no clock anchor.
+    Unanchored,
     /// Evidence of the expected kind exists with a different digest.
-    Mismatch { mechanism: SourceMechanism },
+    Mismatch {
+        mechanism: SourceMechanism,
+        kind: ActionEvidenceKind,
+    },
     /// No observation of the instance is an instance of the expected kind.
     None,
 }
 
 /// Compare the expected action with what the candidates evidence.
 ///
-/// The temporal test here is stricter than the reference filter: for a
-/// *positive* claim the carrying batch's claimed interval must lie wholly
-/// inside the authorized window (± verifier tolerance), and the probe's own
-/// wall-clock stamp must too. Both are host claims; they are used only to
-/// *restrict* a verdict, never to widen one, and the batch must additionally
-/// sit inside the coverage epoch the collector signed.
+/// Transition evidence (kernel-pushed, `SockStateTracepoint`) is evaluated
+/// first: the `connect()` initiation anchored to the instance, paired with
+/// its completion by kernel socket identity, placed in time by the
+/// collector's signed clock and then by the probe's boot-clock anchor. A
+/// transition placed **before** the decision is not the authorized action,
+/// whoever claims it — and it also disqualifies presence evidence of the
+/// same connection, which is exactly the "existed, but was not made" case.
+///
+/// Presence evidence (polled table) is evaluated second and unchanged: for
+/// a positive claim the carrying batch's claimed interval must lie wholly
+/// inside the authorized window (± verifier tolerance), the probe's own
+/// wall-clock stamp too, and the batch must sit inside the coverage epoch
+/// the collector signed. Host claims only ever *restrict* a verdict.
 fn compare_action(
     ee: &ExpectedExecution,
     refs: &References<'_>,
@@ -374,10 +453,81 @@ fn compare_action(
 ) -> ActionOutcome {
     let lo = window.from_ms.saturating_sub(tol);
     let hi = window.to_ms.saturating_add(tol);
+    let covered = |b: &AttestedBatch| {
+        attested_coverage.is_some_and(|cov| {
+            cov.covers(&CoverageWindow {
+                from_ms: b.batch.claimed_from_ms,
+                to_ms: b.batch.claimed_to_ms,
+            })
+        })
+    };
+
+    // ── Transitions ──
+    let mut t_verified: Vec<EvidenceRef> = Vec::new();
+    let mut preceding: Vec<(SocketProtocol, SocketEndpoint, Option<SocketEndpoint>)> = Vec::new();
+    let (mut t_after, mut t_uncovered, mut t_unclaimed, mut t_incomplete, mut t_unanchored) =
+        (0u32, 0u32, 0u32, 0u32, 0u32);
+    let mut t_mismatch = false;
+    for c in &refs.transitions {
+        let t = &c.t;
+        if t.kind != ee.action_kind {
+            continue;
+        }
+        if t.parameter_digest != ee.parameter_digest {
+            t_mismatch = true;
+            continue;
+        }
+        let placement = place_transition(t, c.syn_batch, c.est_batch, window, tol);
+        if placement == Placement::Before {
+            preceding.push((t.protocol, t.remote, t.local));
+            continue;
+        }
+        if !c.claimed_here {
+            t_unclaimed += 1;
+            continue;
+        }
+        let Some(completion) = &t.completion else {
+            t_incomplete += 1;
+            continue;
+        };
+        match placement {
+            Placement::Unanchored => {
+                t_unanchored += 1;
+                continue;
+            }
+            Placement::After => {
+                t_after += 1;
+                continue;
+            }
+            Placement::Within => {}
+            Placement::Before => unreachable!("handled above"),
+        }
+        if !covered(c.syn_batch) || !c.est_batch.is_some_and(covered) {
+            t_uncovered += 1;
+            continue;
+        }
+        t_verified.push(EvidenceRef::KernelEvent {
+            batch_sequence: ObserverSequence(t.initiation.batch_sequence),
+            index: t.initiation.index,
+        });
+        t_verified.push(EvidenceRef::KernelEvent {
+            batch_sequence: ObserverSequence(completion.batch_sequence),
+            index: completion.index,
+        });
+    }
+    if !t_verified.is_empty() {
+        return ActionOutcome::Verified {
+            mechanism: SourceMechanism::SockStateTracepoint,
+            kind: ActionEvidenceKind::Transition,
+            evidence: t_verified,
+        };
+    }
+
+    // ── Presence ──
     let mut verified: Vec<EvidenceRef> = Vec::new();
     let mut mechanism: Option<SourceMechanism> = None;
-    let (mut outside, mut uncovered, mut unclaimed, mut mismatch) = (0u32, 0u32, 0u32, None);
-
+    let (mut outside, mut uncovered, mut unclaimed, mut p_precedes) = (0u32, 0u32, 0u32, 0u32);
+    let mut mismatch: Option<SourceMechanism> = None;
     for c in &refs.candidates {
         let Some(d) = derive_action(c.observation) else {
             continue;
@@ -388,6 +538,21 @@ fn compare_action(
         if d.parameter_digest != ee.parameter_digest {
             mismatch.get_or_insert(d.mechanism);
             continue;
+        }
+        // The same connection, shown by the kernel to predate the decision.
+        if let aip_observe::ObservedEffect::SocketObserved {
+            protocol,
+            local,
+            remote,
+            ..
+        } = &c.observation.effect
+        {
+            if preceding.iter().any(|(p, r, l)| {
+                p == protocol && r == remote && l.is_none_or(|l| l.port == local.port)
+            }) {
+                p_precedes += 1;
+                continue;
+            }
         }
         if !c.claimed_here {
             unclaimed += 1;
@@ -402,37 +567,52 @@ fn compare_action(
             outside += 1;
             continue;
         }
-        let covered = attested_coverage.is_some_and(|cov| {
-            cov.covers(&CoverageWindow {
-                from_ms: b.claimed_from_ms,
-                to_ms: b.claimed_to_ms,
-            })
-        });
-        if !covered {
+        if !covered(c.batch) {
             uncovered += 1;
             continue;
         }
         mechanism.get_or_insert(d.mechanism);
         verified.push(c.evidence.clone());
     }
-
     if let Some(mechanism) = mechanism {
         return ActionOutcome::Verified {
             mechanism,
+            kind: ActionEvidenceKind::Presence,
             evidence: verified,
         };
+    }
+    if !preceding.is_empty() || p_precedes > 0 {
+        return ActionOutcome::Precedes;
     }
     if outside > 0 {
         return ActionOutcome::OutsideWindow;
     }
-    if uncovered > 0 {
+    if t_after > 0 {
+        return ActionOutcome::AfterWindow;
+    }
+    if uncovered > 0 || t_uncovered > 0 {
         return ActionOutcome::NotCovered;
     }
-    if unclaimed > 0 {
+    if unclaimed > 0 || t_unclaimed > 0 {
         return ActionOutcome::Unclaimed;
     }
+    if t_incomplete > 0 {
+        return ActionOutcome::Incomplete;
+    }
+    if t_unanchored > 0 {
+        return ActionOutcome::Unanchored;
+    }
+    if t_mismatch {
+        return ActionOutcome::Mismatch {
+            mechanism: SourceMechanism::SockStateTracepoint,
+            kind: ActionEvidenceKind::Transition,
+        };
+    }
     if let Some(mechanism) = mismatch {
-        return ActionOutcome::Mismatch { mechanism };
+        return ActionOutcome::Mismatch {
+            mechanism,
+            kind: ActionEvidenceKind::Presence,
+        };
     }
     ActionOutcome::None
 }
@@ -593,6 +773,34 @@ fn collect_references<'a>(
             }
         }
     }
+    // Kernel-reported connection transitions anchored to the expected
+    // instance. Their temporal placement is decided later from kernel time
+    // and signed clocks, not from batch windows.
+    for t in derive_transitions(obs.batches.iter().copied()) {
+        if !t.bound.matches_process_of(&ee.execution_binding) {
+            continue;
+        }
+        let find = |seq: u64| obs.batches.iter().copied().find(|b| b.sequence == seq);
+        let Some(syn_batch) = find(t.initiation.batch_sequence) else {
+            continue;
+        };
+        let est_batch = t.completion.and_then(|c| find(c.batch_sequence));
+        let claimed_here = matches!(
+            claim_pair(
+                &t.claimed_decision_id,
+                &t.attribution,
+                &decision_id,
+                &ee.agent_id
+            ),
+            ClaimPair::Consistent
+        );
+        refs.transitions.push(TransitionCandidate {
+            t,
+            claimed_here,
+            syn_batch,
+            est_batch,
+        });
+    }
     refs
 }
 
@@ -666,15 +874,18 @@ fn recompute_coverage(
         return Err(ReasonCode::CoverageProbeRunChanged);
     }
     // Provenance, recomputed: intersect the declared live mechanisms over
-    // exactly the batches that carried the window.
-    let kernel_pushed = used
+    // exactly the batches that carried the window. A statement that a
+    // *process* never appeared needs kernel-pushed **lifecycle** coverage
+    // (the process-event connector); a socket-state stream is kernel-pushed
+    // too but says nothing about processes, so it does not qualify.
+    let lifecycle_covered = used
         .iter()
         .map(|b| b.batch.active_mechanisms.clone())
         .reduce(|acc, m| acc.into_iter().filter(|x| m.contains(x)).collect())
         .unwrap_or_default()
         .iter()
-        .any(SourceMechanism::is_kernel_pushed);
-    if !kernel_pushed {
+        .any(SourceMechanism::covers_process_lifecycle);
+    if !lifecycle_covered {
         return Err(ReasonCode::CoverageNotKernelPushed);
     }
     Ok(())
@@ -868,21 +1079,39 @@ pub fn reconcile_expectation(
             match outcome {
                 ActionOutcome::Verified {
                     mechanism,
+                    kind,
                     evidence,
                 } => {
-                    draft.action = ActionComparison::matched(mechanism);
+                    draft.action = ActionComparison::matched(mechanism, kind);
                     draft.action_continuity_verified = true;
-                    // The carrying observations are already referenced; keep
-                    // the record deterministic by not duplicating them.
-                    debug_assert!(evidence.iter().all(|e| draft.evidence.contains(e)));
+                    for e in evidence {
+                        if !draft.evidence.contains(&e) {
+                            draft.evidence.push(e);
+                        }
+                    }
                     draft.finish(
                         ReconciliationResult::VerifiedExecution,
                         EvidenceStrength::Attested,
                         ReasonCode::ActionEvidenceMatches,
                     )
                 }
-                ActionOutcome::Mismatch { mechanism } => {
-                    draft.action = ActionComparison::mismatched(mechanism);
+                ActionOutcome::Precedes => {
+                    draft.temporal = TemporalComparison::BeforeWindow;
+                    draft.cannot_prove(ReasonCode::ActionPrecedesAuthorization)
+                }
+                ActionOutcome::AfterWindow => {
+                    draft.temporal = TemporalComparison::AfterWindow;
+                    draft.cannot_prove(ReasonCode::ActionEvidenceOutsideWindow)
+                }
+                ActionOutcome::Unanchored => {
+                    draft.temporal = TemporalComparison::Unanchored;
+                    draft.cannot_prove(ReasonCode::KernelTimeUnanchored)
+                }
+                ActionOutcome::Incomplete => {
+                    draft.cannot_prove(ReasonCode::ActionTransitionIncomplete)
+                }
+                ActionOutcome::Mismatch { mechanism, kind } => {
+                    draft.action = ActionComparison::mismatched(mechanism, kind);
                     draft.cannot_prove(ReasonCode::ActionEvidenceDoesNotMatch)
                 }
                 ActionOutcome::Unclaimed => draft.cannot_prove(ReasonCode::ActionEvidenceUnclaimed),

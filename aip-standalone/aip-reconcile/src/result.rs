@@ -15,13 +15,17 @@ use crate::ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSeque
 pub const RECONCILIATION_DOMAIN: &str = "SYNTRIASS/GHOST/RECONCILIATION/v1";
 /// Structure version.
 ///
+/// v3 (Stage 7b): `ActionEvidenceSeal` records the evidence *kind* (presence
+/// vs transition), `TemporalComparison` distinguishes before/after/unanchored,
+/// and batch references carry the collector's `attested_at_ms`.
+///
 /// v2 (Skill 7 corrective pass): evidence references carry the probe-level
 /// identifiers needed to re-derive coverage (`batch_id`, `probe_run_id`),
 /// `IdentityComparison` gained `ClaimInconsistent`, and `ActionComparison`'s
 /// positive variants became unconstructible outside this module. No consumer
 /// had persisted a v1 record — the crate has no producer of signed
 /// reconciliation records and no storage.
-pub const RECONCILIATION_VERSION: u16 = 2;
+pub const RECONCILIATION_VERSION: u16 = 3;
 
 /// The eight result classes from `RECONCILIATION_MODEL.md` §4. The
 /// `Default` is `CannotProve`: absence of evidence is absence of a verdict.
@@ -174,6 +178,22 @@ pub enum ReasonCode {
     /// outside the collector's attested coverage epoch, so its continuity is
     /// not vouched for.
     ActionEvidenceNotCovered = 0x4b,
+    /// A kernel-reported connection transition matching the expected action
+    /// is placed **before** the decision was issued — by the collector's
+    /// signed attestation clock (two off-host clocks) or by the probe's
+    /// boot-clock anchor. The connection predates the authorization; it is
+    /// not the authorized action. Also overrides presence evidence of the
+    /// same connection.
+    ActionPrecedesAuthorization = 0x4c,
+    /// The kernel reported the `connect()` initiation for the expected
+    /// endpoint on the authorized instance, but no matching completion
+    /// (`SYN_SENT → ESTABLISHED`) for that socket was recorded. An attempt
+    /// is not a connection.
+    ActionTransitionIncomplete = 0x4d,
+    /// A matching kernel transition exists but the batch carrying it has no
+    /// boot-clock anchor, so its kernel timestamp cannot be placed on the
+    /// wall clock the authorization is expressed in.
+    KernelTimeUnanchored = 0x4e,
     // ── coverage ──
     WindowNotCovered = 0x50,
     CoverageNotKernelPushed = 0x51,
@@ -275,15 +295,42 @@ impl IdentityComparison {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ActionEvidenceSeal {
     mechanism: SourceMechanism,
+    kind: ActionEvidenceKind,
+}
+
+/// What kind of fact the action evidence is. The two are not the same
+/// statement and a consumer must not treat them as one.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ActionEvidenceKind {
+    /// A socket **existed** in the relevant state at the moment the polled
+    /// table was read. Says nothing about when it came to exist.
+    Presence,
+    /// The kernel reported the socket **transitioning** into the relevant
+    /// state (`CLOSE → SYN_SENT → ESTABLISHED`), bound to the acting
+    /// instance at the initiating transition, with kernel timestamps.
+    Transition,
+}
+
+impl ActionEvidenceKind {
+    fn code(&self) -> u8 {
+        match self {
+            ActionEvidenceKind::Presence => 0x01,
+            ActionEvidenceKind::Transition => 0x02,
+        }
+    }
 }
 
 impl ActionEvidenceSeal {
-    pub(crate) fn new(mechanism: SourceMechanism) -> Self {
-        Self { mechanism }
+    pub(crate) fn new(mechanism: SourceMechanism, kind: ActionEvidenceKind) -> Self {
+        Self { mechanism, kind }
     }
 
     pub fn mechanism(&self) -> SourceMechanism {
         self.mechanism
+    }
+
+    pub fn kind(&self) -> ActionEvidenceKind {
+        self.kind
     }
 }
 
@@ -306,12 +353,12 @@ pub enum ActionComparison {
 }
 
 impl ActionComparison {
-    pub(crate) fn matched(mechanism: SourceMechanism) -> Self {
-        Self::Match(ActionEvidenceSeal::new(mechanism))
+    pub(crate) fn matched(mechanism: SourceMechanism, kind: ActionEvidenceKind) -> Self {
+        Self::Match(ActionEvidenceSeal::new(mechanism, kind))
     }
 
-    pub(crate) fn mismatched(mechanism: SourceMechanism) -> Self {
-        Self::Mismatch(ActionEvidenceSeal::new(mechanism))
+    pub(crate) fn mismatched(mechanism: SourceMechanism, kind: ActionEvidenceKind) -> Self {
+        Self::Mismatch(ActionEvidenceSeal::new(mechanism, kind))
     }
 
     fn encode(&self, buf: &mut Vec<u8>) {
@@ -320,11 +367,21 @@ impl ActionComparison {
             Self::Match(s) => {
                 put_u8(buf, 0x01);
                 put_u8(buf, s.mechanism.code());
+                put_u8(buf, s.kind.code());
             }
             Self::Mismatch(s) => {
                 put_u8(buf, 0x02);
                 put_u8(buf, s.mechanism.code());
+                put_u8(buf, s.kind.code());
             }
+        }
+    }
+
+    /// The evidence kind, if any action evidence exists.
+    pub fn evidence_kind(&self) -> Option<ActionEvidenceKind> {
+        match self {
+            Self::Unobservable => None,
+            Self::Match(s) | Self::Mismatch(s) => Some(s.kind),
         }
     }
 
@@ -342,6 +399,16 @@ pub enum TemporalComparison {
     WithinWindow,
     OutsideWindow,
     Indeterminate,
+    /// A kernel-timestamped transition is placed **before** the authorized
+    /// window — by the collector's signed clock, or by the probe's boot-clock
+    /// anchor.
+    BeforeWindow,
+    /// A kernel-timestamped transition is placed **after** the window.
+    AfterWindow,
+    /// Kernel timestamps exist but no clock anchor lets them be placed on
+    /// the decision point's wall clock; the two clock domains are not
+    /// compared.
+    Unanchored,
 }
 
 impl TemporalComparison {
@@ -350,6 +417,9 @@ impl TemporalComparison {
             Self::WithinWindow => 0x01,
             Self::OutsideWindow => 0x02,
             Self::Indeterminate => 0x00,
+            Self::BeforeWindow => 0x03,
+            Self::AfterWindow => 0x04,
+            Self::Unanchored => 0x05,
         }
     }
 }
@@ -371,6 +441,8 @@ pub enum EvidenceRef {
         /// in particular that one probe run spanned the window.
         batch_id: BatchId,
         probe_run_id: ProbeRunId,
+        /// The collector's clock when it signed the batch.
+        attested_at_ms: u64,
         head: [u8; 32],
     },
     Health {
@@ -409,6 +481,7 @@ impl EvidenceRef {
                 sequence,
                 batch_id,
                 probe_run_id,
+                attested_at_ms,
                 head,
             } => {
                 put_u8(buf, 0x02);
@@ -417,6 +490,7 @@ impl EvidenceRef {
                 put_u64(buf, sequence.0);
                 buf.extend_from_slice(batch_id.as_bytes());
                 buf.extend_from_slice(probe_run_id.as_bytes());
+                put_u64(buf, *attested_at_ms);
                 buf.extend_from_slice(head);
             }
             Self::Health {

@@ -75,6 +75,11 @@ pub struct AttestedBatch {
     pub sequence: u64,
     /// Head of the predecessor batch, `[0u8; 32]` for an epoch start.
     pub prev_head: [u8; 32],
+    /// The collector's own clock when it signed this batch. Off-host and
+    /// signed, so a verifier can bound *when the collector had this batch*
+    /// without trusting anything the host wrote — an event inside the batch
+    /// cannot have happened after this moment.
+    pub attested_at_ms: u64,
     pub batch: ObservationBatch,
     pub attestation: Signature,
 }
@@ -88,6 +93,7 @@ impl AttestedBatch {
             self.key_version,
             self.sequence,
             &self.prev_head,
+            self.attested_at_ms,
             &self.batch,
         )
     }
@@ -104,6 +110,7 @@ fn preimage(
     key_version: u32,
     sequence: u64,
     prev_head: &[u8; 32],
+    attested_at_ms: u64,
     batch: &ObservationBatch,
 ) -> Vec<u8> {
     let mut buf = Vec::new();
@@ -113,6 +120,7 @@ fn preimage(
     put_u32(&mut buf, key_version);
     put_u64(&mut buf, sequence);
     buf.extend_from_slice(prev_head);
+    put_u64(&mut buf, attested_at_ms);
     put_bytes(&mut buf, &batch.canonical_bytes());
     buf
 }
@@ -299,8 +307,17 @@ impl std::error::Error for AttestError {}
 /// The signing seam. Implemented only by a component that holds a key —
 /// which, by the architecture, is never on the observed host.
 pub trait ObserverAttestor {
-    /// Attest a batch received from a probe.
-    fn attest(&mut self, batch: ObservationBatch) -> Result<AttestedBatch, AttestError>;
+    /// Attest a batch received from a probe, stamped with the collector's
+    /// current clock.
+    fn attest(&mut self, batch: ObservationBatch) -> Result<AttestedBatch, AttestError> {
+        self.attest_at(batch, collector_now_ms())
+    }
+    /// Attest a batch received from a probe at an explicit collector time.
+    fn attest_at(
+        &mut self,
+        batch: ObservationBatch,
+        attested_at_ms: u64,
+    ) -> Result<AttestedBatch, AttestError>;
     /// Current signed health. Absence of a recent health record must reduce
     /// coverage at the verifier, never extend it.
     fn health(&self, emitted_at_ms: u64) -> Result<SignedSensorHealth, AttestError>;
@@ -542,8 +559,22 @@ impl CollectorSigner {
     }
 }
 
+/// The collector's clock. Off-host by deployment assumption; this is the one
+/// place the observer side reads a wall clock, and it is stamped into signed
+/// bytes rather than trusted implicitly.
+fn collector_now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+}
+
 impl ObserverAttestor for CollectorSigner {
-    fn attest(&mut self, batch: ObservationBatch) -> Result<AttestedBatch, AttestError> {
+    fn attest_at(
+        &mut self,
+        batch: ObservationBatch,
+        attested_at_ms: u64,
+    ) -> Result<AttestedBatch, AttestError> {
         if batch.version != OBSERVE_PROTOCOL_VERSION {
             return Err(AttestError::UnsupportedVersion(batch.version));
         }
@@ -568,6 +599,7 @@ impl ObserverAttestor for CollectorSigner {
             self.key_version,
             sequence,
             &prev_head,
+            attested_at_ms,
             &batch,
         ));
 
@@ -629,6 +661,7 @@ impl ObserverAttestor for CollectorSigner {
             key_version: self.key_version,
             sequence,
             prev_head,
+            attested_at_ms,
             batch,
             attestation: placeholder_signature(&self.observer_id),
         };

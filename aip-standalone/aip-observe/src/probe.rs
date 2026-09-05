@@ -39,8 +39,8 @@ use aip_types::ProcessInstance;
 
 use crate::linux::ProcEvent;
 use crate::observed::{
-    AgentAttribution, KernelLifecycleEvent, KernelLifecycleKind, ObservationBatch, ObservedEffect,
-    ObservedExecution, ObservedProcess, SourceMechanism, OBSERVE_PROTOCOL_VERSION,
+    AgentAttribution, BootClockAnchor, KernelLifecycleEvent, KernelLifecycleKind, ObservationBatch,
+    ObservedEffect, ObservedExecution, ObservedProcess, SourceMechanism, OBSERVE_PROTOCOL_VERSION,
 };
 
 /// Why a measurement could not be taken. Never silently substituted with a
@@ -136,6 +136,9 @@ pub struct ProcfsProbe {
     /// to every batch's `active_mechanisms` together with the mechanisms
     /// actually used in that batch.
     declared_sources: Vec<SourceMechanism>,
+    /// Host realtime ↔ boot clock sample, included in every batch so kernel
+    /// timestamps can be placed on the wall clock. A probe claim.
+    clock_anchor: Option<BootClockAnchor>,
 }
 
 impl ProcfsProbe {
@@ -149,7 +152,15 @@ impl ProcfsProbe {
             bound_by_exec: HashMap::new(),
             pending_kernel_events: Vec::new(),
             declared_sources: Vec::new(),
+            clock_anchor: None,
         }
+    }
+
+    /// Record the host's realtime/boot clock relation for the batches that
+    /// follow. The anchor is signed into each batch as a probe claim; without
+    /// one, kernel timestamps cannot be placed on the wall clock at all.
+    pub fn declare_clock_anchor(&mut self, anchor: BootClockAnchor) {
+        self.clock_anchor = Some(anchor);
     }
 
     /// Declare that a source is wired and live from now on. Coverage by a
@@ -359,13 +370,31 @@ impl ProcfsProbe {
         }
     }
 
-    /// Ingest a kernel-pushed event (`ProcConnector`). For an exec, the probe
-    /// tries an anchored measurement of the subject *now*; if it succeeds the
-    /// event is bound to that instance and the binding is remembered so the
-    /// matching exit can be attributed. If the subject already exited, the
-    /// event is recorded unbound — kernel-attested existence, identity
-    /// `CANNOT_PROVE`.
+    /// Ingest a kernel-pushed process event (`ProcConnector`). For an exec,
+    /// the probe tries an anchored measurement of the subject *now*; if it
+    /// succeeds the event is bound to that instance and the binding is
+    /// remembered so the matching exit can be attributed. If the subject
+    /// already exited, the event is recorded unbound — kernel-attested
+    /// existence, identity `CANNOT_PROVE`.
     pub fn ingest_kernel_event(&mut self, ev: ProcEvent) -> &KernelLifecycleEvent {
+        self.ingest_event(ev, SourceMechanism::ProcConnector)
+    }
+
+    /// Ingest a kernel-pushed socket state transition
+    /// (`SockStateTracepoint`). Only the `connect()` call itself —
+    /// `CLOSE → SYN_SENT` — runs in the acting task's context, so only that
+    /// transition is anchored: the probe opens a pidfd on `current_pid`,
+    /// measures the instance, and binds the event to it **only if the
+    /// instance's start time (boot clock, tick resolution) is not later than
+    /// the event's kernel timestamp** — otherwise the pid was recycled after
+    /// the event and the measurement describes a different process. Every
+    /// other transition is recorded unbound; the reconciler links it to the
+    /// initiating transition through the kernel socket identity `sk`.
+    pub fn ingest_socket_event(&mut self, ev: ProcEvent) -> &KernelLifecycleEvent {
+        self.ingest_event(ev, SourceMechanism::SockStateTracepoint)
+    }
+
+    fn ingest_event(&mut self, ev: ProcEvent, mechanism: SourceMechanism) -> &KernelLifecycleEvent {
         let seq = self.next_seq();
         let subject = ev.kind.subject_pid();
         let bound = match (&ev.kind, subject) {
@@ -378,6 +407,9 @@ impl ProcfsProbe {
                 b
             }
             (KernelLifecycleKind::Exit { .. }, Some(pid)) => self.bound_by_exec.remove(&pid),
+            (KernelLifecycleKind::SocketState { .. }, Some(pid)) => self
+                .try_anchor(pid)
+                .filter(|p| instance_started_no_later_than(p, ev.timestamp_ns)),
             _ => None,
         };
         let (attribution, claimed_decision_id) = subject
@@ -386,7 +418,7 @@ impl ProcfsProbe {
         self.pending_kernel_events.push(KernelLifecycleEvent {
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: self.probe_id.clone(),
-            mechanism: SourceMechanism::ProcConnector,
+            mechanism,
             kind: ev.kind,
             cpu: ev.cpu,
             kernel_timestamp_ns: ev.timestamp_ns,
@@ -462,8 +494,39 @@ impl ProcfsProbe {
             claimed_to_ms,
             observations,
             kernel_events,
+            clock_anchor: self.clock_anchor,
         }
     }
+}
+
+/// `pid_start_time_ticks` (clock ticks since boot, `/proc/<pid>/stat`) is
+/// not later than `event_boottime_ns`. Both are the kernel's boot clock, so
+/// the comparison is inside one clock domain; the tick (`CLK_TCK`, usually
+/// 10 ms) is the resolution, and the start is taken at the *beginning* of
+/// its tick so a start inside the event's tick still passes — pid reuse
+/// within one tick is not excluded by time alone (documented).
+pub fn instance_started_no_later_than(p: &ObservedProcess, event_boottime_ns: u64) -> bool {
+    let start_ns = p
+        .process
+        .pid_start_time_ticks
+        .saturating_mul(1_000_000_000 / clk_tck());
+    start_ns <= event_boottime_ns
+}
+
+#[cfg(target_os = "linux")]
+fn clk_tck() -> u64 {
+    // SAFETY: sysconf has no preconditions.
+    let v = unsafe { libc::sysconf(libc::_SC_CLK_TCK) };
+    if v > 0 {
+        v as u64
+    } else {
+        100
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+fn clk_tck() -> u64 {
+    100
 }
 
 #[cfg(test)]

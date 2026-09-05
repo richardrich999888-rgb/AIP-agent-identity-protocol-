@@ -63,6 +63,7 @@ pub mod health;
 pub mod linux;
 pub mod observed;
 pub mod probe;
+pub mod sockstate;
 
 pub use attest::{
     verify_attested_batch, verify_attested_batch_independent_of_agent, verify_signed_health,
@@ -80,11 +81,14 @@ pub use linux::{
 #[cfg(target_os = "linux")]
 pub use linux::{snapshot_socket_tables, socket_inodes_of, PidFd, ProcConnector};
 pub use observed::{
-    AgentAttribution, KernelLifecycleEvent, KernelLifecycleKind, ObservationBatch, ObservedEffect,
-    ObservedExecution, ObservedProcess, SocketEndpoint, SocketProtocol, SourceMechanism,
-    KERNEL_EVENT_DOMAIN, OBSERVATION_BATCH_DOMAIN, OBSERVED_EXECUTION_DOMAIN,
-    OBSERVED_PROCESS_DOMAIN, OBSERVE_PROTOCOL_VERSION,
+    tcp_state, AgentAttribution, BootClockAnchor, KernelLifecycleEvent, KernelLifecycleKind,
+    ObservationBatch, ObservedEffect, ObservedExecution, ObservedProcess, SocketEndpoint,
+    SocketProtocol, SourceMechanism, KERNEL_EVENT_DOMAIN, OBSERVATION_BATCH_DOMAIN,
+    OBSERVED_EXECUTION_DOMAIN, OBSERVED_PROCESS_DOMAIN, OBSERVE_PROTOCOL_VERSION,
 };
 #[cfg(target_os = "linux")]
 pub use probe::AnchoredMeasurement;
-pub use probe::{AgentClaim, ProbeError, ProcfsProbe};
+pub use probe::{instance_started_no_later_than, AgentClaim, ProbeError, ProcfsProbe};
+#[cfg(target_os = "linux")]
+pub use sockstate::{boot_clock_anchor, SockStateTracer};
+pub use sockstate::{parse_sock_state_record, TraceField, TracepointFormat};

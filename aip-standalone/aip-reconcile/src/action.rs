@@ -18,7 +18,10 @@
 //! it was created. Every strength derived from it is capped at `Attested`.
 
 use aip_authorize::{net_connect_action, net_connect_parameters, NetProtocol};
-use aip_observe::{ObservedEffect, ObservedExecution, SocketProtocol, SourceMechanism};
+use aip_observe::{
+    AgentAttribution, AttestedBatch, KernelLifecycleKind, ObservedEffect, ObservedExecution,
+    ObservedProcess, SocketEndpoint, SocketProtocol, SourceMechanism,
+};
 use aip_types::ScopeAction;
 
 /// Kernel TCP state byte for ESTABLISHED (`include/net/tcp_states.h`).
@@ -68,6 +71,141 @@ pub fn derive_action(o: &ObservedExecution) -> Option<DerivedAction> {
         parameter_digest: params.digest(),
         mechanism: o.mechanism,
     })
+}
+
+// ─── Transition evidence (kernel-pushed) ───
+
+/// Where an event sits in the attested chain.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EventPosition {
+    pub batch_sequence: u64,
+    pub index: u32,
+    pub kernel_timestamp_ns: u64,
+}
+
+/// A connection the kernel reported being **made**: the `connect()`
+/// initiation (`CLOSE → SYN_SENT`), anchored to a process instance by the
+/// probe, paired with the completion (`SYN_SENT → ESTABLISHED`) of the same
+/// kernel socket. Derived from `SockStateTracepoint` events only.
+///
+/// The pairing key is `sk`, the kernel's socket identity; the initiation has
+/// no local port yet, so the 4-tuple cannot pair them. A completion is
+/// accepted only if it names the same protocol and remote endpoint and is
+/// not earlier than the initiation in kernel time. `completion == None` is
+/// an attempt, not a connection.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SocketTransition {
+    /// The instance the probe anchored at the initiation.
+    pub bound: ObservedProcess,
+    pub kind: ScopeAction,
+    pub parameter_digest: [u8; 32],
+    pub protocol: SocketProtocol,
+    pub remote: SocketEndpoint,
+    /// Local endpoint, known once the completion is seen.
+    pub local: Option<SocketEndpoint>,
+    pub sk: u64,
+    pub initiation: EventPosition,
+    pub completion: Option<EventPosition>,
+    /// Claim attached to the initiating event by the probe (a claim, not a
+    /// fact).
+    pub attribution: AgentAttribution,
+    pub claimed_decision_id: Option<[u8; 16]>,
+    pub mechanism: SourceMechanism,
+}
+
+fn connect_digest(protocol: SocketProtocol, remote: &SocketEndpoint) -> Option<[u8; 32]> {
+    let (net, addr): (NetProtocol, &[u8]) = match protocol {
+        SocketProtocol::Tcp if !remote.is_v6 => (NetProtocol::Tcp, &remote.addr[..4]),
+        SocketProtocol::Tcp6 if remote.is_v6 => (NetProtocol::Tcp6, &remote.addr[..]),
+        _ => return None,
+    };
+    net_connect_parameters(net, addr, remote.port)
+        .ok()
+        .map(|p| p.digest())
+}
+
+/// Derive every bound connection transition from the kernel events of the
+/// supplied (verified, chain-ordered) batches. Unbound initiations are not
+/// transitions — the instance is `CANNOT_PROVE` — and events from any
+/// mechanism other than `SockStateTracepoint` are ignored.
+pub fn derive_transitions<'a>(
+    batches: impl IntoIterator<Item = &'a AttestedBatch>,
+) -> Vec<SocketTransition> {
+    struct Completion {
+        sk: u64,
+        protocol: SocketProtocol,
+        local: SocketEndpoint,
+        remote: SocketEndpoint,
+        at: EventPosition,
+    }
+    let mut initiations: Vec<SocketTransition> = Vec::new();
+    let mut completions: Vec<Completion> = Vec::new();
+    for b in batches {
+        for (i, e) in b.batch.kernel_events.iter().enumerate() {
+            if e.mechanism != SourceMechanism::SockStateTracepoint {
+                continue;
+            }
+            let KernelLifecycleKind::SocketState {
+                protocol,
+                local,
+                remote,
+                sk,
+                ..
+            } = &e.kind
+            else {
+                continue;
+            };
+            let at = EventPosition {
+                batch_sequence: b.sequence,
+                index: i as u32,
+                kernel_timestamp_ns: e.kernel_timestamp_ns,
+            };
+            if e.kind.is_connect_initiation() {
+                let Some(bound) = &e.bound else { continue };
+                let Some(digest) = connect_digest(*protocol, remote) else {
+                    continue;
+                };
+                initiations.push(SocketTransition {
+                    bound: bound.clone(),
+                    kind: net_connect_action(),
+                    parameter_digest: digest,
+                    protocol: *protocol,
+                    remote: *remote,
+                    local: None,
+                    sk: *sk,
+                    initiation: at,
+                    completion: None,
+                    attribution: e.attribution.clone(),
+                    claimed_decision_id: e.claimed_decision_id,
+                    mechanism: e.mechanism,
+                });
+            } else if e.kind.is_connect_established() {
+                completions.push(Completion {
+                    sk: *sk,
+                    protocol: *protocol,
+                    local: *local,
+                    remote: *remote,
+                    at,
+                });
+            }
+        }
+    }
+    for t in &mut initiations {
+        let best = completions
+            .iter()
+            .filter(|c| {
+                c.sk == t.sk
+                    && c.protocol == t.protocol
+                    && c.remote == t.remote
+                    && c.at.kernel_timestamp_ns >= t.initiation.kernel_timestamp_ns
+            })
+            .min_by_key(|c| c.at.kernel_timestamp_ns);
+        if let Some(c) = best {
+            t.local = Some(c.local);
+            t.completion = Some(c.at);
+        }
+    }
+    initiations
 }
 
 #[cfg(test)]

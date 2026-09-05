@@ -37,7 +37,10 @@ pub mod inputs;
 pub mod reconcile;
 pub mod result;
 
-pub use action::{derive_action, DerivedAction, TCP_ESTABLISHED};
+pub use action::{
+    derive_action, derive_transitions, DerivedAction, EventPosition, SocketTransition,
+    TCP_ESTABLISHED,
+};
 pub use ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};
 pub use inputs::{
     CoverageStatementError, DecisionPointCoverageStatement, ExpectedSideCoverage,
@@ -46,7 +49,7 @@ pub use inputs::{
 };
 pub use reconcile::{reconcile_expectation, reconcile_observation};
 pub use result::{
-    ActionComparison, ActionEvidenceSeal, EvidenceRef, EvidenceStrength, IdentityComparison,
-    ReasonCode, Reconciliation, ReconciliationResult, TemporalComparison, RECONCILIATION_DOMAIN,
-    RECONCILIATION_VERSION,
+    ActionComparison, ActionEvidenceKind, ActionEvidenceSeal, EvidenceRef, EvidenceStrength,
+    IdentityComparison, ReasonCode, Reconciliation, ReconciliationResult, TemporalComparison,
+    RECONCILIATION_DOMAIN, RECONCILIATION_VERSION,
 };

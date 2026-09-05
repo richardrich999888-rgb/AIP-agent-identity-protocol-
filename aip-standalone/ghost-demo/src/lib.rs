@@ -30,9 +30,9 @@ use aip_core::delegation::create_delegation;
 use aip_core::execution_binding::collect_binding_for_pid;
 use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_observe::{
-    AgentClaim, AttestedBatch, CollectorSigner, ObservedEffect, ObserverAttestor,
-    ObserverTrustAnchors, ProbeError, ProcfsProbe, SignedSensorHealth, SocketProtocol,
-    SourceMechanism,
+    boot_clock_anchor, AgentClaim, AttestedBatch, CollectorSigner, ObservedEffect,
+    ObserverAttestor, ObserverTrustAnchors, ProbeError, ProcfsProbe, SignedSensorHealth,
+    SockStateTracer, SocketProtocol, SourceMechanism,
 };
 use aip_reconcile::{
     reconcile_expectation, reconcile_observation, ExpectedSideCoverage, ObservationTarget,
@@ -158,11 +158,35 @@ pub struct Observer {
     pub probe: ProcfsProbe,
     pub signer: CollectorSigner,
     pub anchors: ObserverTrustAnchors,
+    /// The kernel-pushed socket-state source, when this observer has one.
+    tracer: Option<SockStateTracer>,
     next_batch: u8,
 }
 
+/// Can this host provide the kernel-pushed socket-state source? `Err` names
+/// what is missing (tracefs, perf permission). Nothing is simulated when it
+/// cannot.
+pub fn tracer_available() -> Result<(), String> {
+    SockStateTracer::open()
+        .map(|_| ())
+        .map_err(|e| e.to_string())
+}
+
 impl Observer {
+    /// Polling only: `PidFdAnchored` process facts and `ProcNetTable` socket
+    /// rows. This is the Stage 7 observer, kept as it was.
     pub fn new() -> Self {
+        Self::build(None)
+    }
+
+    /// Polling plus the kernel-pushed `sock:inet_sock_set_state` tracepoint
+    /// through `perf_event_open`. Fails where the host does not permit it.
+    pub fn with_tracer() -> Result<Self, String> {
+        let tracer = SockStateTracer::open().map_err(|e| e.to_string())?;
+        Ok(Self::build(Some(tracer)))
+    }
+
+    fn build(tracer: Option<SockStateTracer>) -> Self {
         let kp = generate_ed25519_keypair();
         let mut signer =
             CollectorSigner::new(OBSERVER_ID, 1, &kp.private_key, &kp.public_key).unwrap();
@@ -170,12 +194,51 @@ impl Observer {
         let mut probe = ProcfsProbe::new(PROBE_ID);
         probe.declare_source(SourceMechanism::PidFdAnchored);
         probe.declare_source(SourceMechanism::ProcNetTable);
+        if tracer.is_some() {
+            probe.declare_source(SourceMechanism::SockStateTracepoint);
+            // The perf ring reports loss; from here on "no loss" is a counted
+            // zero rather than an absence.
+            probe.enable_loss_counter();
+            if let Ok(anchor) = boot_clock_anchor() {
+                probe.declare_clock_anchor(anchor);
+            }
+        }
         let anchors = ObserverTrustAnchors::new().trust(OBSERVER_ID, 1, &kp.public_key);
         Self {
             probe,
             signer,
             anchors,
+            tracer,
             next_batch: 1,
+        }
+    }
+
+    /// Move every socket transition the kernel has reported so far into the
+    /// probe (anchoring `connect()` initiations to their instance), and
+    /// account for any loss the perf ring reported.
+    pub fn drain_kernel_events(&mut self) {
+        let Some(tracer) = self.tracer.as_mut() else {
+            return;
+        };
+        // A short wait lets in-flight transitions from a just-completed
+        // connect land in the rings before the batch closes.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+        loop {
+            match tracer.next_event(10) {
+                Ok(Some(ev)) => {
+                    self.probe.ingest_socket_event(ev);
+                }
+                Ok(None) => {
+                    if std::time::Instant::now() >= deadline {
+                        break;
+                    }
+                }
+                Err(_) => break,
+            }
+        }
+        let lost = tracer.take_lost();
+        if lost > 0 {
+            self.probe.record_lost_events(lost);
         }
     }
 
@@ -188,6 +251,7 @@ impl Observer {
     /// An empty batch that opens the chain. Coverage begins with the batch
     /// after it (Skill 6 epoch semantics).
     pub fn epoch_start(&mut self, now: u64) -> AttestedBatch {
+        self.drain_kernel_events();
         let id = self.batch_id();
         self.signer
             .attest(self.probe.batch(id, now - 2_000, now - 1_000, vec![]))
@@ -203,6 +267,12 @@ impl Observer {
         claim: Option<&AgentClaim>,
     ) -> Result<(AttestedBatch, usize), ProbeError> {
         let from = now_ms();
+        // The host-side claim for this pid is registered with the probe so
+        // kernel events about the pid carry it too — as a claim, nothing more.
+        if let Some(c) = claim {
+            self.probe.register_claim(pid, c.clone());
+        }
+        self.drain_kernel_events();
         let (process, effects, _malformed) = self.probe.observe_sockets(pid)?;
         let wall = now_ms();
         // The anchored instance itself is recorded first, so a window with no
@@ -371,10 +441,13 @@ pub enum Scenario {
     /// T-C. The connection is made and closed inside the window, before any
     /// poll of the socket table could see it.
     ConnectThenClose,
+    /// T-P. The positive case with the kernel-pushed source: the transition
+    /// itself is the evidence.
+    PositiveTransition,
 }
 
 impl Scenario {
-    pub const ALL: [Scenario; 10] = [
+    pub const ALL: [Scenario; 11] = [
         Scenario::Positive,
         Scenario::ExpectedNotExecuted,
         Scenario::ExecutedNotExpected,
@@ -385,7 +458,18 @@ impl Scenario {
         Scenario::TamperedEvidence,
         Scenario::PreExistingConnection,
         Scenario::ConnectThenClose,
+        Scenario::PositiveTransition,
     ];
+
+    /// Scenarios that need the kernel-pushed socket-state source.
+    pub fn needs_tracer(&self) -> bool {
+        matches!(
+            self,
+            Scenario::PreExistingConnection
+                | Scenario::ConnectThenClose
+                | Scenario::PositiveTransition
+        )
+    }
 
     pub fn label(&self) -> &'static str {
         match self {
@@ -401,6 +485,9 @@ impl Scenario {
                 "T-A. connection established and attested before authorization"
             }
             Scenario::ConnectThenClose => "T-C. connection made and closed before any poll",
+            Scenario::PositiveTransition => {
+                "T-P. authorized connection, kernel-reported transition"
+            }
         }
     }
 }
@@ -445,7 +532,11 @@ pub fn run(scenario: Scenario, agent_bin: &str) -> Demo {
     let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).unwrap();
     let remote = v4(&listener);
     let a = Authority::new();
-    let mut o = Observer::new();
+    let mut o = if scenario.needs_tracer() {
+        Observer::with_tracer().expect("kernel socket-state source unavailable on this host")
+    } else {
+        Observer::new()
+    };
 
     match scenario {
         Scenario::Positive => {
@@ -653,6 +744,30 @@ pub fn run(scenario: Scenario, agent_bin: &str) -> Demo {
                 ),
             }
         }
+        Scenario::PositiveTransition => {
+            let b1 = o.epoch_start(now_ms());
+            let now = now_ms();
+            let agent = Agent::connect(agent_bin, &listener);
+            let binding = a.binding_for(agent.pid);
+            let ee = a.authorize_connect(binding, remote, now).unwrap();
+            let c = claim(&a, &ee);
+            let (b2, n) = o.observe_connections(agent.pid, Some(&c)).unwrap();
+            let at = now_ms().max(b2.batch.claimed_to_ms);
+            let events = b2.batch.kernel_events.len();
+            let ev = ObserverEvidence {
+                batches: vec![b1, b2],
+                health: o.health(at),
+            };
+            let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
+            Demo {
+                scenario,
+                reconciliation: r,
+                note: format!(
+                    "agent pid {} → {remote}; {n} established connection(s) in the table, {events} kernel socket transition(s) captured",
+                    agent.pid
+                ),
+            }
+        }
         Scenario::ConnectThenClose => {
             let b1 = o.epoch_start(now_ms());
             // The window opens now; the agent connects and closes inside it.
@@ -710,7 +825,17 @@ pub fn run(scenario: Scenario, agent_bin: &str) -> Demo {
     }
 }
 
-/// Run every scenario.
-pub fn run_all(agent_bin: &str) -> Vec<Demo> {
-    Scenario::ALL.iter().map(|s| run(*s, agent_bin)).collect()
+/// Run every scenario the host supports. Scenarios that need the kernel
+/// socket-state source are skipped (and named) where it is unavailable.
+pub fn run_all(agent_bin: &str) -> (Vec<Demo>, Vec<(Scenario, String)>) {
+    let tracer = tracer_available();
+    let mut demos = Vec::new();
+    let mut skipped = Vec::new();
+    for s in Scenario::ALL {
+        match (&tracer, s.needs_tracer()) {
+            (Err(why), true) => skipped.push((s, why.clone())),
+            _ => demos.push(run(s, agent_bin)),
+        }
+    }
+    (demos, skipped)
 }

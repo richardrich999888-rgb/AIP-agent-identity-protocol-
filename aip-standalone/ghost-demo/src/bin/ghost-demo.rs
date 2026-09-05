@@ -21,7 +21,15 @@ fn main() {
     println!("ghost-demo — action-level evidence, live (NOT_PRODUCTION_CAPABILITY)");
     println!("agent binary: {agent_bin}");
     println!();
-    for demo in ghost_demo::run_all(&agent_bin) {
+    let (demos, skipped) = ghost_demo::run_all(&agent_bin);
+    for (s, why) in &skipped {
+        println!(
+            "{} — SKIPPED: kernel socket-state source unavailable: {why}",
+            s.label()
+        );
+        println!();
+    }
+    for demo in demos {
         let r = &demo.reconciliation;
         println!("{}", demo.scenario.label());
         println!("    {}", demo.note);
@@ -38,6 +46,15 @@ fn main() {
         println!("    availability={:?}", r.availability);
         println!();
     }
-    println!("Nothing above proves payload, bytes, timing of connect(), or anything a root host");
-    println!("could not have written into procfs. The positive result is Attested, never Proven.");
+    println!(
+        "Nothing above proves payload or bytes, or anything a root host could not have written"
+    );
+    println!(
+        "into procfs or suppressed in the perf ring. Positive results are Attested, never Proven."
+    );
+    println!(
+        "Presence evidence shows a connection existed at the sample; transition evidence shows"
+    );
+    println!("the kernel reported it being made, placed in time by signed collector and anchored");
+    println!("kernel clocks.");
 }

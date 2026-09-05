@@ -40,7 +40,24 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 ///   instead of inferring it from whether events happened to occur.
 ///
 /// Earlier versions never left this branch; all are refused.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 3;
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 4;
+
+/// Kernel TCP state bytes (`include/net/tcp_states.h`), as they appear in
+/// `/proc/net/tcp` and in the `sock:inet_sock_set_state` tracepoint.
+pub mod tcp_state {
+    pub const ESTABLISHED: u8 = 1;
+    pub const SYN_SENT: u8 = 2;
+    pub const SYN_RECV: u8 = 3;
+    pub const FIN_WAIT1: u8 = 4;
+    pub const FIN_WAIT2: u8 = 5;
+    pub const TIME_WAIT: u8 = 6;
+    pub const CLOSE: u8 = 7;
+    pub const CLOSE_WAIT: u8 = 8;
+    pub const LAST_ACK: u8 = 9;
+    pub const LISTEN: u8 = 10;
+    pub const CLOSING: u8 = 11;
+    pub const NEW_SYN_RECV: u8 = 12;
+}
 
 // ─── Provenance ───
 
@@ -67,6 +84,17 @@ pub enum SourceMechanism {
     /// (`/proc/net/{tcp,tcp6,udp,udp6}`) joined to `/proc/<pid>/fd`.
     /// **Socket-level only** — not packet-level, not wire-level.
     ProcNetTable,
+    /// A TCP socket **state transition pushed by the kernel** through the
+    /// `sock:inet_sock_set_state` tracepoint, sampled with `perf_event_open`
+    /// (no eBPF). Carries the kernel's own timestamp (`CLOCK_BOOTTIME`), CPU,
+    /// the task current at the transition, old/new state, family, protocol
+    /// and endpoints. Existence, order and time of the transition are
+    /// kernel-generated; the process *instance* behind it is established
+    /// only for syscall-driven transitions (`CLOSE → SYN_SENT`) and only if a
+    /// `PidFdAnchored` measurement of that task succeeded and pre-dated the
+    /// event in kernel time. Loss is signalled by the perf ring
+    /// (`PERF_RECORD_LOST`). Not packet-level; nothing about payload.
+    SockStateTracepoint,
 }
 
 impl SourceMechanism {
@@ -76,12 +104,23 @@ impl SourceMechanism {
             SourceMechanism::PidFdAnchored => 0x02,
             SourceMechanism::ProcConnector => 0x03,
             SourceMechanism::ProcNetTable => 0x04,
+            SourceMechanism::SockStateTracepoint => 0x05,
         }
     }
 
     /// The kernel generated and delivered this event itself (as opposed to
     /// the probe reading a kernel table at a moment of its choosing).
     pub fn is_kernel_pushed(&self) -> bool {
+        matches!(
+            self,
+            SourceMechanism::ProcConnector | SourceMechanism::SockStateTracepoint
+        )
+    }
+
+    /// Kernel-pushed coverage of **process lifecycle** (fork/exec/exit).
+    /// Only this can support a statement that a process instance never
+    /// appeared; a socket-state stream says nothing about processes.
+    pub fn covers_process_lifecycle(&self) -> bool {
         matches!(self, SourceMechanism::ProcConnector)
     }
 
@@ -90,11 +129,12 @@ impl SourceMechanism {
         matches!(self, SourceMechanism::PidFdAnchored)
     }
 
-    pub const ALL: [SourceMechanism; 4] = [
+    pub const ALL: [SourceMechanism; 5] = [
         SourceMechanism::ProcfsPoll,
         SourceMechanism::PidFdAnchored,
         SourceMechanism::ProcConnector,
         SourceMechanism::ProcNetTable,
+        SourceMechanism::SockStateTracepoint,
     ];
 
     /// Canonical ordering of a mechanism set: by code, deduplicated. Used
@@ -389,10 +429,29 @@ pub enum KernelLifecycleKind {
     Other {
         what: u32,
     },
+    /// A TCP socket changed state (`sock:inet_sock_set_state`). `sk` is the
+    /// kernel's socket identity for the socket's lifetime — the only field
+    /// that links the transitions of one socket (the `CLOSE → SYN_SENT`
+    /// transition of an outbound connect has no local port yet).
+    /// `current_pid` is the task current on the CPU: it names the acting
+    /// process **only** for syscall-driven transitions; handshake completions
+    /// run in softirq context under whatever task happens to be current.
+    SocketState {
+        protocol: SocketProtocol,
+        local: SocketEndpoint,
+        remote: SocketEndpoint,
+        old_state: u8,
+        new_state: u8,
+        sk: u64,
+        current_pid: u32,
+    },
 }
 
 impl KernelLifecycleKind {
-    /// The pid the event is *about* (the child for a fork).
+    /// The pid the event is *about* (the child for a fork). For a socket
+    /// transition, only `CLOSE → SYN_SENT` — the `connect()` call itself —
+    /// runs in the acting task's context; every other transition's current
+    /// task is not the socket's owner in general and yields `None`.
     pub fn subject_pid(&self) -> Option<u32> {
         match self {
             KernelLifecycleKind::Fork { child_pid, .. } => Some(*child_pid),
@@ -400,7 +459,31 @@ impl KernelLifecycleKind {
                 Some(*pid)
             }
             KernelLifecycleKind::Other { .. } => None,
+            KernelLifecycleKind::SocketState {
+                old_state,
+                new_state,
+                current_pid,
+                ..
+            } => {
+                if *old_state == tcp_state::CLOSE && *new_state == tcp_state::SYN_SENT {
+                    Some(*current_pid)
+                } else {
+                    None
+                }
+            }
         }
+    }
+
+    /// Is this the `connect()` call: `CLOSE → SYN_SENT`?
+    pub fn is_connect_initiation(&self) -> bool {
+        matches!(self, KernelLifecycleKind::SocketState { old_state, new_state, .. }
+            if *old_state == tcp_state::CLOSE && *new_state == tcp_state::SYN_SENT)
+    }
+
+    /// Is this the client-side handshake completion: `SYN_SENT → ESTABLISHED`?
+    pub fn is_connect_established(&self) -> bool {
+        matches!(self, KernelLifecycleKind::SocketState { old_state, new_state, .. }
+            if *old_state == tcp_state::SYN_SENT && *new_state == tcp_state::ESTABLISHED)
     }
 
     fn encode(&self, buf: &mut Vec<u8>) {
@@ -437,6 +520,24 @@ impl KernelLifecycleKind {
             KernelLifecycleKind::Other { what } => {
                 put_u8(buf, 0x7f);
                 put_u32(buf, *what);
+            }
+            KernelLifecycleKind::SocketState {
+                protocol,
+                local,
+                remote,
+                old_state,
+                new_state,
+                sk,
+                current_pid,
+            } => {
+                put_u8(buf, 0x04);
+                put_u8(buf, protocol.code());
+                local.encode(buf);
+                remote.encode(buf);
+                put_u8(buf, *old_state);
+                put_u8(buf, *new_state);
+                put_u64(buf, *sk);
+                put_u32(buf, *current_pid);
             }
         }
     }
@@ -560,6 +661,36 @@ pub struct ObservationBatch {
     pub claimed_to_ms: u64,
     pub observations: Vec<ObservedExecution>,
     pub kernel_events: Vec<KernelLifecycleEvent>,
+    /// The probe's sample of the host's realtime and boot clocks, taken
+    /// back-to-back, so a verifier can place kernel timestamps (boot clock)
+    /// on the wall clock the decision point uses. A **probe claim** about the
+    /// host clock: kernel-authored (`clock_gettime`) but the host clock is
+    /// attacker-controllable under the threat model, so any placement
+    /// derived from it is `Attested` at most. `None` when the probe has no
+    /// kernel-timestamped source; kernel time is then unanchored.
+    pub clock_anchor: Option<BootClockAnchor>,
+}
+
+/// `realtime_ms` and `boottime_ns` read as close together as user space can:
+/// `wall_ms(event) = realtime_ms + (event_boottime_ns − boottime_ns) / 1e6`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BootClockAnchor {
+    pub realtime_ms: u64,
+    pub boottime_ns: u64,
+}
+
+impl BootClockAnchor {
+    /// Place a `CLOCK_BOOTTIME` nanosecond stamp on the wall clock. Saturates
+    /// rather than wrapping; a stamp earlier than the anchor is subtracted.
+    pub fn wall_ms(&self, boottime_ns: u64) -> u64 {
+        if boottime_ns >= self.boottime_ns {
+            self.realtime_ms
+                .saturating_add((boottime_ns - self.boottime_ns) / 1_000_000)
+        } else {
+            self.realtime_ms
+                .saturating_sub((self.boottime_ns - boottime_ns) / 1_000_000)
+        }
+    }
 }
 
 impl ObservationBatch {
@@ -586,6 +717,14 @@ impl ObservationBatch {
         put_u32(&mut buf, self.kernel_events.len() as u32);
         for e in &self.kernel_events {
             put_bytes(&mut buf, &e.canonical_bytes());
+        }
+        match &self.clock_anchor {
+            Some(a) => {
+                put_u8(&mut buf, 1);
+                put_u64(&mut buf, a.realtime_ms);
+                put_u64(&mut buf, a.boottime_ns);
+            }
+            None => put_u8(&mut buf, 0),
         }
         buf
     }
@@ -649,6 +788,7 @@ mod tests {
             claimed_to_ms: 2,
             observations: vec![],
             kernel_events: vec![],
+            clock_anchor: None,
         }
     }
 
