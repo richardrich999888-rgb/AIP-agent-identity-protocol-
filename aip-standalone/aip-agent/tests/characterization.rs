@@ -49,9 +49,11 @@ fn c02_lineage_depth_does_not_chain_past_one_generation() {
     let (root, root_kp) = create_identity(provenance("root"), None).unwrap();
     let (child, child_kp) =
         create_identity(provenance("child"), Some((&root.id, &root_kp.private_key))).unwrap();
-    let (grandchild, _) =
-        create_identity(provenance("grandchild"), Some((&child.id, &child_kp.private_key)))
-            .unwrap();
+    let (grandchild, _) = create_identity(
+        provenance("grandchild"),
+        Some((&child.id, &child_kp.private_key)),
+    )
+    .unwrap();
 
     assert_eq!(root.lineage_depth, 0);
     assert_eq!(child.lineage_depth, 1);

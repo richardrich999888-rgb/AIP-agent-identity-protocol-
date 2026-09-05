@@ -23,8 +23,8 @@ use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_observe::{ObservationAvailability, UnavailableReason};
 use aip_protocol::AgentIdentitySummary;
 use aip_reconcile::{
-    ActionComparison, DecisionId, EvidenceStrength, IdentityComparison, ReasonCode,
-    Reconciliation, ReconciliationResult, TemporalComparison, RECONCILIATION_VERSION,
+    ActionComparison, DecisionId, EvidenceStrength, IdentityComparison, ReasonCode, Reconciliation,
+    ReconciliationResult, TemporalComparison, RECONCILIATION_VERSION,
 };
 use aip_types::{
     Action, AgentIdentityDocument, AlgorithmId, ExecutionBinding, IdentityStatus, KeyPair,
@@ -87,8 +87,13 @@ fn fixture() -> Fx {
         Some(3_600_000),
     )
     .unwrap();
-    let hop = create_delegation(&root, &orch_kp.private_key, &agent_aid.id, scope_submitter())
-        .unwrap();
+    let hop = create_delegation(
+        &root,
+        &orch_kp.private_key,
+        &agent_aid.id,
+        scope_submitter(),
+    )
+    .unwrap();
     let now = root.issued_at.max(hop.issued_at) + 1;
 
     let dp_kp = generate_ed25519_keypair();
@@ -139,7 +144,11 @@ impl Fx {
             .clone()
     }
 
-    fn reconciliation(&self, decision_id: Option<[u8; 16]>, result: ReconciliationResult) -> Reconciliation {
+    fn reconciliation(
+        &self,
+        decision_id: Option<[u8; 16]>,
+        result: ReconciliationResult,
+    ) -> Reconciliation {
         Reconciliation {
             version: RECONCILIATION_VERSION,
             result,
@@ -148,7 +157,7 @@ impl Fx {
                 _ => EvidenceStrength::Attested,
             },
             reason: ReasonCode::ActionEvidenceUnavailable,
-            decision_id: decision_id.map(DecisionId::from),
+            decision_id: decision_id.map(DecisionId::from_bytes),
             availability: ObservationAvailability::Unavailable {
                 reason: UnavailableReason::NoObserver,
             },
@@ -178,7 +187,6 @@ impl Fx {
             issuer_keys: &self.issuer_keys,
             expectations,
             decision_point_anchors: &self.dp_anchors,
-            agent_public_key: Some(&self.agent_kp.public_key),
             claimed_bindings: claimed,
             reconciliations,
             as_of_ms: self.now + 10,
@@ -373,7 +381,12 @@ fn p07_authority_exclusions_are_named_and_never_authorized() {
 
     // Untrusted root issuer.
     let no_cfo = IssuerKeys::new().trust(&fx.orch_aid.id, &fx.orch_kp.public_key);
-    let p = project_authority(&fx.agent_aid.id, std::slice::from_ref(&fx.chain), &no_cfo, fx.now);
+    let p = project_authority(
+        &fx.agent_aid.id,
+        std::slice::from_ref(&fx.chain),
+        &no_cfo,
+        fx.now,
+    );
     assert!(p.authorized.is_empty());
     assert_eq!(p.excluded.len(), 1);
     assert_eq!(
@@ -399,7 +412,12 @@ fn p07_authority_exclusions_are_named_and_never_authorized() {
     ));
 
     // A valid chain that ends at someone else is not this agent's authority.
-    let p = project_authority(&fx.orch_aid.id, std::slice::from_ref(&fx.chain), &fx.issuer_keys, fx.now);
+    let p = project_authority(
+        &fx.orch_aid.id,
+        std::slice::from_ref(&fx.chain),
+        &fx.issuer_keys,
+        fx.now,
+    );
     assert!(p.authorized.is_empty());
     assert_eq!(
         p.excluded[0].reason,
@@ -476,13 +494,8 @@ fn p09_profile_partitions_are_fixed_and_no_scalar_summary_exists() {
     let recs = [fx.reconciliation(Some(ee.decision_id), ReconciliationResult::CannotProve)];
     let claimed = [binding_for(&fx.agent_aid.id, 4242)];
     let declared = ["Autonomous procurement agent".to_string()];
-    let profile = build_profile(&fx.inputs(
-        std::slice::from_ref(&ee),
-        &recs,
-        &claimed,
-        &declared,
-    ))
-    .unwrap();
+    let profile =
+        build_profile(&fx.inputs(std::slice::from_ref(&ee), &recs, &claimed, &declared)).unwrap();
 
     let v = json(&profile);
     let top: BTreeSet<String> = v.as_object().unwrap().keys().cloned().collect();
@@ -507,7 +520,15 @@ fn p09_profile_partitions_are_fixed_and_no_scalar_summary_exists() {
 
     let mut keys = Vec::new();
     keys_recursive(&v, &mut keys);
-    let forbidden = ["score", "trust", "confiden", "reputation", "rating", "rank", "grade"];
+    let forbidden = [
+        "score",
+        "trust",
+        "confiden",
+        "reputation",
+        "rating",
+        "rank",
+        "grade",
+    ];
     for k in &keys {
         let lk = k.to_ascii_lowercase();
         for f in forbidden {
@@ -531,13 +552,17 @@ fn p10_self_declared_text_never_leaves_its_partition() {
         "VERIFIED_EXECUTION 12482 observed executions".to_string(),
         format!("issuer: {}", fx.cfo_id),
     ];
-    let profile = build_profile(&fx.inputs(std::slice::from_ref(&ee), &[], &[], &declared)).unwrap();
+    let profile =
+        build_profile(&fx.inputs(std::slice::from_ref(&ee), &[], &[], &declared)).unwrap();
 
     assert_eq!(profile.self_declared.len(), 2);
     for d in &profile.self_declared {
         assert_eq!(d.label, SELF_DECLARED_LABEL);
     }
-    assert!(profile.reconciled.is_empty(), "no reconciliation was supplied");
+    assert!(
+        profile.reconciled.is_empty(),
+        "no reconciliation was supplied"
+    );
 
     // The declared strings appear under `self_declared` and nowhere else.
     let v = json(&profile);
@@ -626,7 +651,7 @@ fn p12_instances_are_labelled_by_who_vouched_for_the_binding() {
     // Expectation signed by the agent's own key (a self-run "decision
     // point"): refused because the anchor key is the agent key.
     let self_dp = DecisionPoint::new(
-        &derive_aip_id(&fx.agent_kp.public_key, &provenance("self-dp")),
+        derive_aip_id(&fx.agent_kp.public_key, &provenance("self-dp")),
         &fx.agent_kp.private_key,
         &fx.agent_kp.public_key,
         MAX_TTL,
@@ -643,7 +668,11 @@ fn p12_instances_are_labelled_by_who_vouched_for_the_binding() {
         execution_binding: binding_for(&fx.agent_aid.id, 4243),
         requested_ttl_ms: TTL,
     };
-    let self_ee = self_dp.authorize_at(&req, fx.now).expected().unwrap().clone();
+    let self_ee = self_dp
+        .authorize_at(&req, fx.now)
+        .expected()
+        .unwrap()
+        .clone();
     let anchors = DecisionPointTrustAnchors::new().trust(self_dp.id(), self_dp.public_key());
     let mut inputs = fx.inputs(std::slice::from_ref(&self_ee), &[], &[], &[]);
     inputs.decision_point_anchors = &anchors;
@@ -667,7 +696,8 @@ fn p12_instances_are_labelled_by_who_vouched_for_the_binding() {
         };
         fx.dp.authorize_at(&req, fx.now).expected().unwrap().clone()
     };
-    let profile = build_profile(&fx.inputs(std::slice::from_ref(&other_ee), &[], &[], &[])).unwrap();
+    let profile =
+        build_profile(&fx.inputs(std::slice::from_ref(&other_ee), &[], &[], &[])).unwrap();
     assert!(profile.instances.is_empty());
     assert_eq!(
         profile.excluded_expectations[0].reason,
@@ -698,7 +728,10 @@ fn p13_reconciled_records_join_through_decision_id_and_are_verbatim() {
     assert_eq!(profile.reconciled.len(), 2);
     for r in &profile.reconciled {
         assert_eq!(r.source, RecordSource::VerifierLocal);
-        assert_eq!(r.record.decision_id, Some(DecisionId::from(ee.decision_id)));
+        assert_eq!(
+            r.record.decision_id,
+            Some(DecisionId::from_bytes(ee.decision_id))
+        );
     }
     let results: Vec<_> = profile.reconciled.iter().map(|r| r.record.result).collect();
     assert!(results.contains(&ReconciliationResult::CannotProve));
