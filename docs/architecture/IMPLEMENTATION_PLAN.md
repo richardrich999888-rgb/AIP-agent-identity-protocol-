@@ -225,6 +225,7 @@ files are numbered by installation order. They are **not** the same numbers:
 | 2 Decision point | 5 `syntriass-decision-point` |
 | 3 Observer (+ Stage 6.5 Sniffer Dog) | 6 `syntriass-observer-attestation` |
 | 4 Reconciler | 7 `syntriass-reconciliation` |
+| 7 Action-level evidence (added after Skill 7; no skill file — governed by the orchestrator's Stage 7 adversarial-validation rules) | — |
 | 5 Evidence strength, 6 Warrant | 8 `syntriass-ghost-warrant` |
 | 8 Containment | 9 `syntriass-ghost-containment` |
 | 9 NEXORA | 10 `syntriass-nexora-integration` |
@@ -238,8 +239,13 @@ STAGE 2  Decision point         NEW aip-authorize · aip-service/evidence.rs
 STAGE 3  Observer contract      NEW aip-observe (synthetic only)
 STAGE 4  Reconciler             NEW aip-reconcile
 STAGE 5  Adversarial proof      aip-reconcile/tests/adversarial.rs
+STAGE 7  Action-level evidence  aip-authorize/src/actions.rs · aip-reconcile/src/action.rs
+                                aip-reconcile/tests/action_evidence.rs · NEW ghost-demo (live)
+                                [one class: established TCP connection; Attested]
 ─────────────────────────────────────────────────────────────────────────────
-LATER    real kernel observer, warrant engine, containment, NEXORA, PQC
+DONE     Stages 0–5, 6.5 (Sniffer Dog), 7 (one action class) — see the
+         implementation reports; every later stage is gated on its own review
+LATER    kernel-pushed socket-state events, warrant engine, containment, NEXORA, PQC
 ```
 
 **Deviation from skill §23:** the skill lists ExecutionBinding (5) before the

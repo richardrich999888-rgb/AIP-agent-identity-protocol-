@@ -167,7 +167,7 @@ allowed | denied | revoke | terminated | containment | isolate | kill`.
 | `IDENTITY_DIVERGENCE` | yes | `Attested` | Active observer, RegisteredOnly, a measured instance carrying this decision claim that fails the structural match, no matching instance |
 | `SENSOR_INTEGRITY_FAILURE` | yes | `Proven` (signature / chain arithmetic) or `Attested` (collector-declared `Quarantined`) | recomputable failure, or signed quarantine |
 | `CONTINUITY_FAILURE` | yes | `Attested` | signed `Recovering` / `ContinuityUnverified` |
-| `VERIFIED_EXECUTION` | **no**, enforced by the compiler | — | `ActionComparison::Match` requires an `ActionEvidenceSeal`, which has a private field and no constructor; the central guard also requires `action.is_observable()` |
+| `VERIFIED_EXECUTION` | **yes, for one action class only** (Stage 7, `63c5e0a`): an established TCP connection authorized as `ghost.net.connect.v1`; **no** for every other action kind | `Attested` | `ActionComparison::Match` requires an `ActionEvidenceSeal` whose constructors are `pub(crate)` and are called only by the action-derivation step; the central guard requires a sealed Match, identity Match, `action_continuity_verified` and exactly `Attested`. See `ACTION_EVIDENCE.md` §5 |
 | `UNATTRIBUTED_EFFECT` | **only with a `DecisionPointCoverageStatement`**, which no production component emits | `Attested` | verified DP-signed completeness statement covering agent and window; claim not in its set; instance bound; attribution claimed; RegisteredOnly |
 | `LINEAGE_VIOLATION` | **no**, refused by the central guard | — | no lineage input type exists; `precondition_holds` returns `false` for this class unconditionally |
 
@@ -570,9 +570,15 @@ supply the key.
 
 ### Unreachable, by construction
 
+> **Stage 7 update (`63c5e0a`).** `VERIFIED_EXECUTION` is now reachable for
+> exactly one action class — an established TCP connection — through
+> `aip-reconcile::action::derive_action`, the one deliberate constructor site
+> this table anticipated. For every other action kind the row below still
+> holds. See `ACTION_EVIDENCE.md` and `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`.
+
 | Result | Why unreachable | What would have to change |
 |---|---|---|
-| `VERIFIED_EXECUTION` | `ActionComparison::Match` requires an `ActionEvidenceSeal`, a type with a private field and **no constructor**, because no `ObservedEffect` or `KernelLifecycleEvent` carries an action kind or parameter digest. The central guard additionally requires `action.is_observable()`. | an evidence source that measures the action itself and binds it to the process instance — a new producer, and a deliberate constructor here |
+| `VERIFIED_EXECUTION` (any action other than `ghost.net.connect.v1`) | `ActionComparison::Match` requires an `ActionEvidenceSeal` built only by `action::derive_action`, which maps only ESTABLISHED TCP socket-table rows; no other `ObservedEffect` or `KernelLifecycleEvent` carries action content. | an evidence source that measures the action itself and binds it to the process instance — a new producer, and a new arm in `derive_action` |
 | `UNATTRIBUTED_EFFECT` | requires a verified `DecisionPointCoverageStatement` in the evidence list; **no component emits one**. The verifier contract exists and is tested with a test-signed statement. | a decision point that publishes signed completeness statements |
 | `LINEAGE_VIOLATION` | refused unconditionally by the central guard; no lineage input type exists and a kernel fork binds at most one end | bound parent **and** child, plus an ancestry comparison |
 

@@ -25,6 +25,10 @@ original discovery text for traceability):
   result classes reachable; the corrective pass makes the reconciler
   re-derive coverage from the attested batches instead of trusting the
   collector's derived fields. See `RECONCILIATION_IMPLEMENTATION_REPORT.md`.
+- Stage 7 (action-level evidence) at `44ed9b5` (RED) / `63c5e0a` (GREEN) plus
+  the `ghost-demo` live demonstrator — `VERIFIED_EXECUTION` reachable for one
+  action class (established TCP connection), `Attested`, live-demonstrated;
+  see `ACTION_EVIDENCE.md` and `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`.
 
 ## D. PR3 corrective review (pre-reconciliation)
 
@@ -63,7 +67,7 @@ original discovery text for traceability):
 | Observer — **PARTIAL (Stage 3 → 6.5)**: keyless host probe with four provenance-tagged sources — procfs poll, pidfd-anchored instance reads, kernel netlink process-event connector (fork/exec/exit with kernel time; `ENOBUFS` loss surfaced), kernel socket tables (socket-level only). Still no eBPF/tracepoint/perf/XDP path; procfs *content* remains root-forgeable; polled sources still miss what happens between polls | **MISSING** (0 files: ebpf/XDP/perf_event/procfs/netlink) | independent runtime observer | no observation of any kind | binding + attestation | **P1** |
 | `ObserverAttestation` — **CLOSED (Stage 3)**: anchor decided as *remote collector*; key held by `CollectorSigner`, structurally unreachable from host-side types; deployment as a separate process remains an operator obligation | **MISSING** | trust root not held by observed agent | observation would be a second self-report (**I10**) | anchor decision (open) | **P0** for design, **P1** to build |
 | Sensor health / continuity — **CLOSED (Stage 3 → 6.5)**: five signed states, collector-side ledger with replay/fork/rollback/gap/head-mismatch faults; 6.5 adds probe run-id (restart), per-run sequence discontinuity and counted kernel event loss as explicit `Degraded` causes, and `probe_policy` in signed health; coverage never back-fills an outage, a loss, or a restart | **MISSING** | 5 explicit states, signed | silence indistinguishable from coverage (**I9**) | observer | **P1** |
-| Reconciler — **PARTIAL (Stage 4, `ad9642a` + `b821a23`)**: `aip-reconcile` joins on `decision_id` + structural `ExecutionBinding` match, verifies both signatures and the observer chain up to the signed health head, defaults to `CANNOT_PROVE`; reachable: `PHANTOM_CLAIM` (`RegisteredOnly`, kernel-pushed signed coverage, **and** coverage re-derived from the batches as gap-free, single-probe-run, kernel-pushed, ending no later than the collector's signed clock), `IDENTITY_DIVERGENCE` (claim must name the expectation's agent), `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, `CANNOT_PROVE`; **unreachable by construction**: `VERIFIED_EXECUTION` (`ActionComparison::Match` requires an unconstructible seal), `UNATTRIBUTED_EFFECT` (no producer for the DP completeness statement), `LINEAGE_VIOLATION` (refused by the central precondition guard) | **MISSING** (0 occurrences) | join on `decision_id` + binding | no comparison exists | both producers | **P1** |
+| Reconciler — **PARTIAL (Stage 4, `ad9642a` + `b821a23`)**: `aip-reconcile` joins on `decision_id` + structural `ExecutionBinding` match, verifies both signatures and the observer chain up to the signed health head, defaults to `CANNOT_PROVE`; reachable: `PHANTOM_CLAIM` (`RegisteredOnly`, kernel-pushed signed coverage, **and** coverage re-derived from the batches as gap-free, single-probe-run, kernel-pushed, ending no later than the collector's signed clock), `IDENTITY_DIVERGENCE` (claim must name the expectation's agent), `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, `CANNOT_PROVE`; `VERIFIED_EXECUTION` **for one action class only** (Stage 7: established TCP connection to an authorized `(protocol, remote_addr, remote_port)`, derived from pidfd-anchored socket-table observations, `Attested`, claim-tied, batch inside window and coverage epoch); **unreachable**: `VERIFIED_EXECUTION` for any other action kind (`ActionComparison::Match` needs a seal only the action-derivation step builds), `UNATTRIBUTED_EFFECT` (no producer for the DP completeness statement), `LINEAGE_VIOLATION` (refused by the central precondition guard) | **MISSING** (0 occurrences) | join on `decision_id` + binding | no comparison exists | both producers | **P1** |
 | `OBSERVATION_UNAVAILABLE` semantics — **CLOSED (Stage 4)**: `ObservationAvailability::Unavailable{reason}` is carried unchanged in every `Reconciliation`; `ReconciliationResult::default()` is `CannotProve`; every `Unavailable` reason and every non-`Active` observer state yields `CANNOT_PROVE` or an explicit failure class, never `PHANTOM_CLAIM` | **MISSING** | first-class type, `CANNOT_PROVE` default | risk of inferring non-execution from silence (**I8**) | reconciler | **P0** for design |
 | Warrant engine — the `EvidenceStrength` enum it must consume now exists as a separate type in `aip-reconcile` (Stage 4); the engine itself is still **MISSING** | **MISSING** | severity ⊥ strength; `Proven` gate | containment on suspicion (**I12**, **I13**) | reconciler | **P1** |
 | Containment | **MISSING** (correctly) | proof-gated, advisory default | — | warrant engine | **P2** |
@@ -124,3 +128,18 @@ the observer head (NEXORA); probe sampling claims are not countersigned by
 anything, which caps `PHANTOM_CLAIM` at `Attested`; attribution remains a
 claim; the independence checks depend on the verifier supplying the agent's
 public key; reconciliation records are unsigned and unstored.
+
+## G. Stage 7 — action-level evidence
+
+RED evidence: `44ed9b5` (positive path failing against `2c58771`). GREEN:
+`63c5e0a`. Live demonstrator: `ghost-demo` crate.
+
+| Component | Current state | Target state | Gap | Dependency | Pri |
+|---|---|---|---|---|---|
+| Observable action vocabulary — **CLOSED for one class** | `aip-authorize::actions`: `ghost.net.connect.v1`, `net_connect_parameters` (raw-byte, injective, domain `GHOST/ActionParameters/v1`) | every action a decision point may authorize has an observable definition | only network connections are observable | effect-level sensors | **P1** |
+| Action interpretation — **CLOSED for one class** | `aip-reconcile::action::derive_action`: ESTABLISHED TCP/TCP6 `ProcNetTable` row → kind + recomputed digest; everything else → not evidence | one deterministic mapping per observable class | one class | sensors | **P1** |
+| `VERIFIED_EXECUTION` — **PARTIAL** | reachable for `ghost.net.connect.v1` at `Attested`; sealed constructors, central guard, eleven predicates (`ACTION_EVIDENCE.md` §5); live-demonstrated | reachable for authorized actions generally | no action content for anything else | effect-level sensors | **P1** |
+| Connection *creation* events | **MISSING** — the table shows existence at the sample, not creation | kernel-pushed socket-state event bound to the instance (`inet_sock_set_state` tracepoint or `sock_diag` destroy) | verification means "existed during", never "was made during"; one long-lived connection can verify overlapping decisions | eBPF/tracing loader (NOT_IMPLEMENTED, not claimed) | **P1** |
+| Payload / application parameters | **MISSING** (I23: metadata only) | — | application-level `parameter_digest`s can never match | out of scope for any procfs source | **P2** |
+| Root-forgeable table content | **open by design** | — | caps the class at `Attested` permanently | evidence source outside host control | **P2** |
+| Live demonstrator trust separation | `ghost-demo` runs DP, collector and verifier in one process, labelled `NOT_PRODUCTION_CAPABILITY` | separate processes on separate trust | demonstrates the pipeline, not the separation | deployment | — |

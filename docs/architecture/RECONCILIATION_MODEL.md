@@ -1,16 +1,19 @@
 # RECONCILIATION_MODEL
 
-> **Status (Stage 4, commits `ad9642a`, corrected in `b821a23`):
-> PARTIALLY_IMPLEMENTED** in
-> `aip-standalone/aip-reconcile`. The contract in §3–§5 below is implemented
-> as written, with `CANNOT_PROVE` as the `Default`. Reachable results:
-> `CANNOT_PROVE`, `PHANTOM_CLAIM`, `IDENTITY_DIVERGENCE`,
-> `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`. Unreachable with the
-> current evidence and stated so in code: `VERIFIED_EXECUTION` (no
-> action-level observation exists), `UNATTRIBUTED_EFFECT` (requires a
-> decision-point-signed completeness statement that nothing produces yet),
-> `LINEAGE_VIOLATION` (requires both fork ends bound). See
-> `RECONCILIATION_IMPLEMENTATION_REPORT.md`. §1 below is preserved as the
+> **Status (Stage 4 `ad9642a`, corrected `b821a23`; Stage 7 action evidence
+> `63c5e0a`): PARTIALLY_IMPLEMENTED** in `aip-standalone/aip-reconcile`. The
+> contract in §3–§5 below is implemented as written, with `CANNOT_PROVE` as
+> the `Default`. Reachable results: `CANNOT_PROVE`, `PHANTOM_CLAIM`,
+> `IDENTITY_DIVERGENCE`, `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, and —
+> **for exactly one action class**, an established TCP connection authorized
+> as `ghost.net.connect.v1` — `VERIFIED_EXECUTION` at `Attested`
+> (`ACTION_EVIDENCE.md`). Unreachable with the current evidence and stated so
+> in code: `VERIFIED_EXECUTION` for every other action kind (no action-level
+> observation exists), `UNATTRIBUTED_EFFECT` (requires a decision-point-signed
+> completeness statement that nothing produces yet), `LINEAGE_VIOLATION`
+> (requires both fork ends bound). See
+> `RECONCILIATION_IMPLEMENTATION_REPORT.md` and
+> `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`. §1 below is preserved as the
 > pre-implementation finding for traceability.
 >
 > The Skill 7 corrective pass hardened the coverage precondition in §4 (see
@@ -109,11 +112,27 @@ than the moment the collector signed its health record. Without the
 recomputation, a probe could manufacture coverage over an interval nothing
 sampled — and that interval is exactly what `PHANTOM_CLAIM` speaks about.
 
-**Context match (PR3 item 20).** No current observation carries
-`action_kind` or `parameter_digest`. Until an effect-level source exists, the
-context-match precondition of `VERIFIED_EXECUTION` cannot be satisfied and
-the strongest positive result reachable is identity-level corroboration; a
-reconciler must not let identity match imply action match.
+**Context match (PR3 item 20, revised by Stage 7).** No observation carries
+`action_kind` or `parameter_digest` as fields — the observer never states
+meaning (I19). The reconciler instead *interprets* one observation class
+deterministically: an ESTABLISHED TCP/TCP6 socket-table row of the anchored
+instance is `ghost.net.connect.v1` with parameters `(protocol, remote_addr,
+remote_port)`, whose digest is recomputed through the same
+`aip_authorize::net_connect_parameters` the decision point's caller used
+(`ACTION_EVIDENCE.md`). For that class, and only that class, the
+context-match precondition can be satisfied. For every other action kind the
+strongest positive result remains identity-level corroboration, and identity
+match never implies action match.
+
+**"Continuity attested over the window" — per class.** For `PHANTOM_CLAIM`
+(a negative claim) it means whole-window, kernel-pushed, gap-free coverage
+re-derived from the batches. For `VERIFIED_EXECUTION` (a positive claim) it
+means the batch carrying the matching observation lies wholly inside the
+authorized window and inside the collector's signed coverage epoch, on an
+`Active` observer; coverage of the *rest* of the window adds nothing to an
+observation that was made. The record still reports availability for the
+whole window, so a verified result may carry `Unavailable { WindowNotCovered }`
+and that is the honest reading.
 
 ## 5. Evidence strength — kept separate from severity (I12)
 
