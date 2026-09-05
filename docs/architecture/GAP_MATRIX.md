@@ -42,6 +42,12 @@ original discovery text for traceability):
   the Stage 7b perf clock defect found and fixed. See
   `NEXT_ACTION_EVIDENCE_DECISION.md`, `ACTION_EVIDENCE.md` §15 and
   `SNIFFER_DOG_IMPLEMENTATION_REPORT.md` §24.
+- Sniffer Dog 2.0 (agent identity / profile / lineage / passport / ledger /
+  history / evidence graph / API) — **DESIGN_ONLY**, specified in
+  `SNIFFER_DOG_2_0_SPECIFICATION.md` with each component SD-01…SD-13
+  classified against this matrix and Skills 3–8. No code. Five decisions
+  recorded as NOT DETERMINED (§8 there) block the identity-lifecycle and
+  agent-lineage parts.
 
 ## D. PR3 corrective review (pre-reconciliation)
 

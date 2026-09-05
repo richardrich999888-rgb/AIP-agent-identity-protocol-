@@ -1,10 +1,17 @@
 # SNIFFER_DOG — kernel-mediated evidence sources for the Ghost observer
 
 Status: **IMPLEMENTED (procfs poll, pidfd-anchored measurement, netlink
-process-event connector, kernel socket tables, provenance gating) /
-NOT IMPLEMENTED (eBPF, tracepoints, perf ring buffers, XDP, packet or wire
-visibility, filesystem and syscall observation, network transport, durable
-collector state).**
+process-event connector, kernel socket tables, provenance gating; since
+Stages 7b/7c three static tracepoints — `sock:inet_sock_set_state`,
+`sched:sched_process_fork`, `sched:sched_process_exec` — read through
+`perf_event_open` rings) / NOT IMPLEMENTED (eBPF, any other tracepoint, XDP,
+packet or wire visibility, filesystem and syscall observation, network
+transport, durable collector state).**
+
+> The agent-level layer around this observer — identity, profile, lineage,
+> capability passport, experience ledger, history, evidence graph, profile API
+> — is specified, **DESIGN_ONLY**, in `SNIFFER_DOG_2_0_SPECIFICATION.md`.
+> Nothing in that document changes the trust boundary described here.
 
 Stage 6.5 (`aip-standalone/aip-observe`, protocol version 2; version 3 after
 the PR3 correction that adds `ObservationBatch.active_mechanisms` and
