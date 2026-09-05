@@ -25,8 +25,8 @@ the profile itself.
 |---|---|
 | `3798614` | Phase A: baseline, governing gate, gap matrix |
 | `4e3961d` | RED: crate with no items; `tests/characterization.rs` (3 pins, passing); `tests/profile.rs` (16 tests, 87 compile errors) |
-| *(this report's implementation commit)* | GREEN: `src/identity.rs`, `src/authority.rs`, `src/profile.rs`, `src/lib.rs`; workspace member |
-| *(this report's documentation commit)* | this report; spec, gap-matrix, plan pointers |
+| `8e350bb` | GREEN: `src/identity.rs`, `src/authority.rs`, `src/profile.rs`, `src/lib.rs`; workspace member |
+| `047ad67` and the following commit | this report; spec, gap-matrix, plan pointers |
 
 Edits to the RED test files after `4e3961d`, verified by `git diff -w`:
 rustfmt reflow; `DecisionId::from` → `DecisionId::from_bytes` (the type has
