@@ -28,7 +28,7 @@ use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_observe::{ObservedProcess, SourceMechanism};
 use aip_reconcile::{EventPosition, LineageEdge};
 use aip_types::{
-    Action, AgentIdentityDocument, ExecutionBinding, KeyPair, ProcessInstance, ProvenanceTriple,
+    Action, AgentIdentityDocument, ExecutionBinding, ProcessInstance, ProvenanceTriple,
     ScopeAction, EXECUTION_BINDING_VERSION,
 };
 
@@ -95,8 +95,6 @@ struct Fx {
     agent_aid: AgentIdentityDocument,
     orch_aid: AgentIdentityDocument,
     cfo_id: String,
-    cfo_kp: KeyPair,
-    orch_kp: KeyPair,
     chain: AuthorityChain,
     issuer_keys: IssuerKeys,
     dp: DecisionPoint,
@@ -142,8 +140,6 @@ fn fixture() -> Fx {
         agent_aid,
         orch_aid,
         cfo_id,
-        cfo_kp,
-        orch_kp,
         chain: AuthorityChain {
             root,
             chain: vec![hop],
@@ -362,7 +358,10 @@ fn l04_authority_paths_come_from_verified_chains_only() {
     assert_eq!(path.hops[0].grantee_id, fx.agent_aid.id);
     assert_eq!(path.hops[0].jti, fx.chain.chain[0].jti);
     assert_eq!(path.standing, Standing::Valid);
-    assert_eq!(path.delegators(), vec![fx.cfo_id.clone(), fx.orch_aid.id.clone()]);
+    assert_eq!(
+        path.delegators(),
+        vec![fx.cfo_id.clone(), fx.orch_aid.id.clone()]
+    );
 
     let mut forged = fx.chain.clone();
     forged.root.expires_at = None;
@@ -389,22 +388,19 @@ fn l05_observed_spawn_attributes_the_child_only_through_a_signed_expectation() {
     let e = [edge(&orch_b, &worker_b)];
 
     // Orchestrator's profile, no peer expectation: spawned an unattributed child.
-    let p = build_profile(&fx.inputs(
-        &fx.orch_aid,
-        std::slice::from_ref(&orch_ee),
-        &[],
-        &e,
-        &[],
-    ))
-    .unwrap();
+    let p = build_profile(&fx.inputs(&fx.orch_aid, std::slice::from_ref(&orch_ee), &[], &e, &[]))
+        .unwrap();
     assert_eq!(p.lineage.process.spawned.len(), 1);
     let s = &p.lineage.process.spawned[0];
     assert_eq!(s.child, process_of(&worker_b));
     assert_eq!(s.child_agent, ChildAttribution::Unattributed);
-    assert_eq!(s.parent_basis, InstanceAssertion::AuthorizedTarget {
-        decision_id: orch_ee.decision_id,
-        decision_point_id: orch_ee.decision_point_id.clone(),
-    });
+    assert_eq!(
+        s.parent_basis,
+        InstanceAssertion::AuthorizedTarget {
+            decision_id: orch_ee.decision_id,
+            decision_point_id: orch_ee.decision_point_id.clone(),
+        }
+    );
     assert!(p.lineage.process.spawned_by.is_empty());
 
     // With the worker's expectation as a peer: the child is attributed.
@@ -501,28 +497,16 @@ fn l07_relations_never_match_on_pid_alone() {
     let mut recycled = orch_b.clone();
     recycled.process.pid_start_time_ticks += 1;
     let e1 = [edge(&recycled, &worker_b)];
-    let p = build_profile(&fx.inputs(
-        &fx.orch_aid,
-        std::slice::from_ref(&orch_ee),
-        &[],
-        &e1,
-        &[],
-    ))
-    .unwrap();
+    let p = build_profile(&fx.inputs(&fx.orch_aid, std::slice::from_ref(&orch_ee), &[], &e1, &[]))
+        .unwrap();
     assert!(p.lineage.process.spawned.is_empty());
     assert_eq!(p.lineage.process.unrelated_edges, 1);
 
     let mut other_image = orch_b.clone();
     other_image.exe_content_sha256 = sha256(b"other image");
     let e2 = [edge(&other_image, &worker_b)];
-    let p = build_profile(&fx.inputs(
-        &fx.orch_aid,
-        std::slice::from_ref(&orch_ee),
-        &[],
-        &e2,
-        &[],
-    ))
-    .unwrap();
+    let p = build_profile(&fx.inputs(&fx.orch_aid, std::slice::from_ref(&orch_ee), &[], &e2, &[]))
+        .unwrap();
     assert!(p.lineage.process.spawned.is_empty());
 }
 
@@ -592,7 +576,15 @@ fn l09_lineage_partition_shape_is_fixed() {
     keys_recursive(lineage, &mut keys);
     for k in &keys {
         let lk = k.to_ascii_lowercase();
-        for f in ["score", "trust", "confiden", "reputation", "rating", "rank", "grade"] {
+        for f in [
+            "score",
+            "trust",
+            "confiden",
+            "reputation",
+            "rating",
+            "rank",
+            "grade",
+        ] {
             assert!(!lk.contains(f), "forbidden key `{k}` in lineage");
         }
     }

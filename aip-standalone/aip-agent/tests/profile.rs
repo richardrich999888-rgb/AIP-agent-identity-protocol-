@@ -189,6 +189,9 @@ impl Fx {
             decision_point_anchors: &self.dp_anchors,
             claimed_bindings: claimed,
             reconciliations,
+            peer_expectations: &[],
+            process_edges: &[],
+            ancestor_documents: &[],
             as_of_ms: self.now + 10,
         }
     }
@@ -536,8 +539,12 @@ fn p09_profile_partitions_are_fixed_and_no_scalar_summary_exists() {
         }
     }
 
-    // Placeholders for later phases are explicit, never empty-but-present.
-    assert_eq!(profile.lineage, LineageSection::NotEvaluated);
+    // Later-phase sections are explicit: lineage (Phase C) carries no
+    // reconciled verdict and, for these inputs, no identity parent or process
+    // relation; experience (Phase F) is a placeholder.
+    assert_eq!(profile.lineage.reconciled, ReconciledLineage::NotReachable);
+    assert_eq!(profile.lineage.identity.parent, IdentityParent::None);
+    assert!(profile.lineage.process.spawned.is_empty());
     assert_eq!(profile.experience, ExperienceSection::NotDerived);
 }
 
@@ -766,7 +773,8 @@ fn p14_an_empty_profile_asserts_nothing() {
     assert!(profile.instances.is_empty());
     assert!(profile.reconciled.is_empty());
     assert_eq!(profile.experience, ExperienceSection::NotDerived);
-    assert_eq!(profile.lineage, LineageSection::NotEvaluated);
+    assert_eq!(profile.lineage.reconciled, ReconciledLineage::NotReachable);
+    assert!(profile.lineage.authority.is_empty());
     assert_eq!(
         profile.identity.lifecycle(),
         &LifecycleAssertion::SelfAsserted {
@@ -804,6 +812,7 @@ fn p16_crate_sources_reference_no_scoring_machinery() {
         include_str!("../src/lib.rs"),
         include_str!("../src/identity.rs"),
         include_str!("../src/authority.rs"),
+        include_str!("../src/lineage.rs"),
         include_str!("../src/profile.rs"),
     ];
     let forbidden = [

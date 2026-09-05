@@ -30,12 +30,14 @@
 //!
 //! There is no identity issuer and no lifecycle authority in the repository,
 //! so `lifecycle` is the agent's self-assertion and nothing else. Lineage
-//! (Phase C) and experience (Phase F) are explicit placeholders.
+//! is three-kind (identity / authority / process) with no reconciled
+//! verdict yet (Phase C2); experience (Phase F) is an explicit placeholder.
 //! Reconciliation records are unsigned; the profile therefore admits only
 //! records from the builder's own verifier run (`RecordSource::VerifierLocal`).
 
 pub mod authority;
 pub mod identity;
+pub mod lineage;
 pub mod profile;
 
 pub use authority::{
@@ -45,9 +47,14 @@ pub use authority::{
 pub use identity::{
     AgentIdentity, IdentityError, IdentitySource, LifecycleAssertion, LineageProofState,
 };
+pub use lineage::{
+    Ancestor, AncestorLink, AuthorityHop, AuthorityPath, ChildAttribution, ExcludedDocument,
+    ExcludedPeerExpectation, IdentityLineage, IdentityParent, Lineage, ObservedSpawn,
+    ObservedSpawnedBy, ProcessLineage, ReconciledLineage,
+};
 pub use profile::{
     build_profile, AgentProfile, ExcludedExpectation, ExcludedReconciliation, ExecutionInstance,
-    ExpectationExclusion, ExperienceSection, IdentityInput, InstanceAssertion, LineageSection,
-    ProfileError, ProfileInputs, ReconciledRecord, ReconciliationExclusion, RecordSource,
-    SelfDeclared, SELF_DECLARED_LABEL,
+    ExpectationExclusion, ExperienceSection, IdentityInput, InstanceAssertion, ProfileError,
+    ProfileInputs, ReconciledRecord, ReconciliationExclusion, RecordSource, SelfDeclared,
+    SELF_DECLARED_LABEL,
 };

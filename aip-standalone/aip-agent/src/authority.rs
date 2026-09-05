@@ -62,6 +62,10 @@ pub struct AuthorizedCapability {
     pub root_issuer: String,
     /// The issuer of the last hop (the root issuer when there are no hops).
     pub leaf_issuer: String,
+    /// The root token's subject.
+    pub root_grantee: String,
+    /// Every delegation hop in order: issuer → grantee, with its token id.
+    pub hops: Vec<crate::lineage::AuthorityHop>,
     /// The most-attenuated scope, as `verify_delegation_chain` returns it.
     pub effective_scope: CapabilityScope,
     /// Latest `issued_at` along the path.
@@ -237,6 +241,16 @@ fn verify_chain(
             .last()
             .map(|h| h.issuer_id.clone())
             .unwrap_or_else(|| root.issuer_id.clone()),
+        root_grantee: root.agent_id.clone(),
+        hops: c
+            .chain
+            .iter()
+            .map(|h| crate::lineage::AuthorityHop {
+                jti: h.jti,
+                issuer_id: h.issuer_id.clone(),
+                grantee_id: h.grantee_id.clone(),
+            })
+            .collect(),
         effective_scope,
         issued_at,
         expires_at,

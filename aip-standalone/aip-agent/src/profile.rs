@@ -19,12 +19,15 @@ use aip_authorize::{
     verify_expected_execution_for_agent, DecisionPointTrustAnchors, ExpectedExecution,
 };
 use aip_protocol::AgentIdentitySummary;
-use aip_reconcile::Reconciliation;
+use aip_reconcile::{LineageEdge, Reconciliation};
 use aip_types::{AgentIdentityDocument, ExecutionBinding};
 use serde::Serialize;
 
 use crate::authority::{project_authority, AuthorityChain, AuthorityProjection, IssuerKeys};
 use crate::identity::{AgentIdentity, IdentityError};
+use crate::lineage::{
+    authority_lineage, identity_lineage, process_lineage, Lineage, ReconciledLineage,
+};
 use crate::IssuerAssertion;
 
 /// The label every self-declared entry carries.
@@ -67,6 +70,14 @@ pub struct ProfileInputs<'a> {
     pub claimed_bindings: &'a [ExecutionBinding],
     /// Reconciliation records produced in the builder's own trust domain.
     pub reconciliations: &'a [Reconciliation],
+    /// Decision-point-signed expectations of *other* agents, used only to
+    /// attribute the far end of a process edge; verified here.
+    pub peer_expectations: &'a [ExpectedExecution],
+    /// Process lineage edges derived by `aip_reconcile::derive_lineage_edges`
+    /// in the builder's own trust domain.
+    pub process_edges: &'a [LineageEdge],
+    /// Documents of possible ancestors; each is validated before use.
+    pub ancestor_documents: &'a [AgentIdentityDocument],
     pub as_of_ms: u64,
 }
 
@@ -135,12 +146,6 @@ pub struct ExcludedReconciliation {
     pub reason: ReconciliationExclusion,
 }
 
-/// Phase C fills this in. Until then the profile says so explicitly.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-pub enum LineageSection {
-    NotEvaluated,
-}
-
 /// Phase F fills this in. Until then the profile says so explicitly.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum ExperienceSection {
@@ -176,7 +181,7 @@ pub struct AgentProfile {
     pub excluded_bindings: Vec<ExecutionBinding>,
     pub reconciled: Vec<ReconciledRecord>,
     pub excluded_reconciliations: Vec<ExcludedReconciliation>,
-    pub lineage: LineageSection,
+    pub lineage: Lineage,
     pub experience: ExperienceSection,
     pub as_of_ms: u64,
 }
@@ -279,6 +284,26 @@ pub fn build_profile(inputs: &ProfileInputs<'_>) -> Result<AgentProfile, Profile
         }
     }
 
+    let lineage = Lineage {
+        identity: identity_lineage(
+            match inputs.identity {
+                IdentityInput::Document { document, .. } => Some(document),
+                IdentityInput::Summary(_) => None,
+            },
+            identity.lineage_proof(),
+            inputs.ancestor_documents,
+        ),
+        authority: authority_lineage(&authority),
+        process: process_lineage(
+            &agent_id,
+            &instances,
+            inputs.process_edges,
+            inputs.peer_expectations,
+            inputs.decision_point_anchors,
+        ),
+        reconciled: ReconciledLineage::NotReachable,
+    };
+
     Ok(AgentProfile {
         identity,
         self_declared,
@@ -289,7 +314,7 @@ pub fn build_profile(inputs: &ProfileInputs<'_>) -> Result<AgentProfile, Profile
         excluded_bindings,
         reconciled,
         excluded_reconciliations,
-        lineage: LineageSection::NotEvaluated,
+        lineage,
         experience: ExperienceSection::NotDerived,
         as_of_ms: inputs.as_of_ms,
     })

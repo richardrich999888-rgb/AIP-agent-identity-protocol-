@@ -26,6 +26,7 @@ use aip_observe::{
     ObservedExecution, ObservedProcess, SocketEndpoint, SocketProtocol, SourceMechanism,
 };
 use aip_types::ScopeAction;
+use serde::Serialize;
 
 /// Kernel TCP state byte for ESTABLISHED (`include/net/tcp_states.h`).
 pub const TCP_ESTABLISHED: u8 = 0x01;
@@ -79,7 +80,7 @@ pub fn derive_action(o: &ObservedExecution) -> Option<DerivedAction> {
 // ─── Transition evidence (kernel-pushed) ───
 
 /// Where an event sits in the attested chain.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct EventPosition {
     pub batch_sequence: u64,
     pub index: u32,
@@ -431,6 +432,58 @@ pub fn derive_transition_evidence<'a>(
                 .into_iter()
                 .map(TransitionEvidence::Exec),
         )
+        .collect()
+}
+
+// ─── Process lineage edges (Sniffer Dog 2.0, Phase C) ───
+
+/// "Bound instance `parent` forked bound instance `child`, which executed
+/// `image_sha256`" — derived from collector-signed kernel events and nothing
+/// else. An edge exists only when both ends were pidfd-anchored by the probe
+/// and the child's start tick was verified against the batch's clock anchor
+/// (`ExecutedImage::child_start_verified`); a fork without an exec, an
+/// unbound end, an unanchored pairing or a recycled child pid derives no
+/// edge. It carries no agent identity and no decision: which *agent* either
+/// instance is remains a separate question answered elsewhere.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct LineageEdge {
+    pub parent: ObservedProcess,
+    pub child: ObservedProcess,
+    pub fork: EventPosition,
+    pub exec: EventPosition,
+    /// The executed image's content hash (`child.exe_content_sha256`).
+    pub image_sha256: [u8; 32],
+    /// The kernel's `filename` at exec — context, never identity.
+    pub filename: String,
+    pub mechanism: SourceMechanism,
+    /// The collector sequence of the batch carrying the fork.
+    pub batch_sequence: u64,
+}
+
+/// Derive every process lineage edge the batches support. Reuses the
+/// fork/exec pairing of [`derive_executions`] and keeps only completed,
+/// start-verified executions.
+pub fn derive_lineage_edges<'a>(
+    batches: impl IntoIterator<Item = &'a AttestedBatch>,
+) -> Vec<LineageEdge> {
+    derive_executions(batches)
+        .into_iter()
+        .filter_map(|x| {
+            let img = x.execution?;
+            if !img.child_start_verified {
+                return None;
+            }
+            Some(LineageEdge {
+                image_sha256: img.child.exe_content_sha256,
+                parent: x.actor,
+                child: img.child,
+                fork: x.fork,
+                exec: img.at,
+                filename: img.filename,
+                mechanism: x.mechanism,
+                batch_sequence: x.fork.batch_sequence,
+            })
+        })
         .collect()
 }
 
