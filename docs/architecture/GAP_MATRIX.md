@@ -29,6 +29,11 @@ original discovery text for traceability):
   the `ghost-demo` live demonstrator — `VERIFIED_EXECUTION` reachable for one
   action class (established TCP connection), `Attested`, live-demonstrated;
   see `ACTION_EVIDENCE.md` and `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`.
+- Stage 7b (kernel-pushed socket-state transitions) at `ed9c75b` (RED) and
+  the following implementation commit — `sock:inet_sock_set_state` via
+  `perf_event_open`, no eBPF; connection *creation* is now evidence,
+  distinguished from presence; observer protocol v4, record v3. See
+  `ACTION_EVIDENCE.md` §14 and `SNIFFER_DOG_IMPLEMENTATION_REPORT.md` §23.
 
 ## D. PR3 corrective review (pre-reconciliation)
 
@@ -139,7 +144,10 @@ RED evidence: `44ed9b5` (positive path failing against `2c58771`). GREEN:
 | Observable action vocabulary — **CLOSED for one class** | `aip-authorize::actions`: `ghost.net.connect.v1`, `net_connect_parameters` (raw-byte, injective, domain `GHOST/ActionParameters/v1`) | every action a decision point may authorize has an observable definition | only network connections are observable | effect-level sensors | **P1** |
 | Action interpretation — **CLOSED for one class** | `aip-reconcile::action::derive_action`: ESTABLISHED TCP/TCP6 `ProcNetTable` row → kind + recomputed digest; everything else → not evidence | one deterministic mapping per observable class | one class | sensors | **P1** |
 | `VERIFIED_EXECUTION` — **PARTIAL** | reachable for `ghost.net.connect.v1` at `Attested`; sealed constructors, central guard, eleven predicates (`ACTION_EVIDENCE.md` §5); live-demonstrated | reachable for authorized actions generally | no action content for anything else | effect-level sensors | **P1** |
-| Connection *creation* events | **MISSING** — the table shows existence at the sample, not creation | kernel-pushed socket-state event bound to the instance (`inet_sock_set_state` tracepoint or `sock_diag` destroy) | verification means "existed during", never "was made during"; one long-lived connection can verify overlapping decisions | eBPF/tracing loader (NOT_IMPLEMENTED, not claimed) | **P1** |
+| Connection *creation* events — **CLOSED (Stage 7b)**: `SockStateTracepoint` (`sock:inet_sock_set_state` through `perf_event_open`, `CLOCK_BOOTTIME`, `PERF_RECORD_LOST`); `CLOSE → SYN_SENT` pidfd-anchored to the caller with the start-time rule, paired to `SYN_SENT → ESTABLISHED` by `sk`; `ActionEvidenceKind::Transition`; a transition attested before the decision is `ActionPrecedesAuthorization` and disqualifies presence of the same connection | **MISSING** — the table shows existence at the sample, not creation | kernel-pushed socket-state event bound to the instance | verification means "existed during", never "was made during" | perf tracepoint (no eBPF) | **P1** |
+| Wall-clock placement of kernel events | **PARTIAL (Stage 7b)**: *before* is provable by the collector's signed `attested_at_ms`; *inside* rests on the probe's `clock_anchor` (host clock, a claim) | — | placement inside the window is `Attested`, never `Proven` | a trusted kernel↔collector time anchor | **P2** |
+| PID reuse within one `CLK_TCK` tick | **open by design** | — | the start-time rule cannot exclude reuse inside 10 ms; pidfd anchor + exe hash narrow it | finer start-time source | **P2** |
+| Root suppression of the perf ring | **open by design** | — | disabling/filtering/starving the ring removes the mechanism or degrades the window; never becomes silent coverage | evidence source outside host control | **P2** |
 | Payload / application parameters | **MISSING** (I23: metadata only) | — | application-level `parameter_digest`s can never match | out of scope for any procfs source | **P2** |
 | Root-forgeable table content | **open by design** | — | caps the class at `Attested` permanently | evidence source outside host control | **P2** |
 | Live demonstrator trust separation | `ghost-demo` runs DP, collector and verifier in one process, labelled `NOT_PRODUCTION_CAPABILITY` | separate processes on separate trust | demonstrates the pipeline, not the separation | deployment | — |

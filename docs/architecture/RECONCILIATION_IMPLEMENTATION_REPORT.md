@@ -167,7 +167,7 @@ allowed | denied | revoke | terminated | containment | isolate | kill`.
 | `IDENTITY_DIVERGENCE` | yes | `Attested` | Active observer, RegisteredOnly, a measured instance carrying this decision claim that fails the structural match, no matching instance |
 | `SENSOR_INTEGRITY_FAILURE` | yes | `Proven` (signature / chain arithmetic) or `Attested` (collector-declared `Quarantined`) | recomputable failure, or signed quarantine |
 | `CONTINUITY_FAILURE` | yes | `Attested` | signed `Recovering` / `ContinuityUnverified` |
-| `VERIFIED_EXECUTION` | **yes, for one action class only** (Stage 7, `63c5e0a`): an established TCP connection authorized as `ghost.net.connect.v1`; **no** for every other action kind | `Attested` | `ActionComparison::Match` requires an `ActionEvidenceSeal` whose constructors are `pub(crate)` and are called only by the action-derivation step; the central guard requires a sealed Match, identity Match, `action_continuity_verified` and exactly `Attested`. See `ACTION_EVIDENCE.md` §5 |
+| `VERIFIED_EXECUTION` | **yes, for one action class only** (Stage 7, `63c5e0a`; Stage 7b): an established TCP connection authorized as `ghost.net.connect.v1`, as `Presence` (polled table) or `Transition` (kernel-reported creation); **no** for every other action kind | `Attested` | `ActionComparison::Match` requires an `ActionEvidenceSeal` whose constructors are `pub(crate)` and are called only by the action-derivation step; the central guard requires a sealed Match, identity Match, `action_continuity_verified` and exactly `Attested`. See `ACTION_EVIDENCE.md` §5 |
 | `UNATTRIBUTED_EFFECT` | **only with a `DecisionPointCoverageStatement`**, which no production component emits | `Attested` | verified DP-signed completeness statement covering agent and window; claim not in its set; instance bound; attribution claimed; RegisteredOnly |
 | `LINEAGE_VIOLATION` | **no**, refused by the central guard | — | no lineage input type exists; `precondition_holds` returns `false` for this class unconditionally |
 
@@ -487,6 +487,17 @@ Effect-level (sentinel-style) sensor; producer for
 `DecisionPointCoverageStatement`; warrant engine; containment; NEXORA; PQC;
 key lifecycle; durable persistence; `aip-service` integration; `[u8;16]`
 newtypes in upstream crates.
+
+## Stage 7b note
+
+Record version 3: `ActionEvidenceSeal { mechanism, kind }`,
+`TemporalComparison::{BeforeWindow, AfterWindow, Unanchored}`,
+`EvidenceRef::Batch.attested_at_ms`, reasons `ActionPrecedesAuthorization`,
+`ActionTransitionIncomplete`, `KernelTimeUnanchored`. `recompute_coverage`
+for `PHANTOM_CLAIM` now requires process-lifecycle coverage
+(`SourceMechanism::covers_process_lifecycle`) rather than any kernel-pushed
+mechanism, because a socket-state stream says nothing about processes. See
+`ACTION_EVIDENCE.md` §14 and `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`.
 
 ## Corrective pass
 

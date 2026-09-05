@@ -296,3 +296,108 @@ order and time only; `Unavailable` ⇒ `CANNOT_PROVE`; `Open` policy ⇒
 provenance unverified; `PHANTOM_CLAIM` needs `Covered` + `Active` + a
 kernel-pushed source over the exact window — polling alone can never support
 it.
+
+## 23. Stage 7b addendum — kernel-pushed socket state transitions
+
+Commits: RED `ed9c75b`, implementation (see git log), docs. Protocol version
+3 → 4.
+
+### 23.1 Why
+
+`ACTION_EVIDENCE.md` §7 recorded: *the table shows existence at the sample,
+not creation*. A connection opened before an authorization and still open
+inside its window satisfied the presence class (live test T-A produced
+`VERIFIED_EXECUTION`), and a connection made and closed between two polls
+was unprovable (T-C produced `CANNOT_PROVE`). Both were reproduced live
+against `ab05544` before any production change.
+
+### 23.2 What was audited on the host
+
+`/sys/kernel/tracing` is mounted; `events/sock/inet_sock_set_state` exists
+with id 1427 and a readable `format`; `perf_event_open(PERF_TYPE_TRACEPOINT)`
+succeeds on all four CPUs as root (`perf_event_paranoid = 2`, capabilities
+present); `unprivileged_bpf_disabled = 2`. A live connect traced through a
+tracefs instance showed `CLOSE → SYN_SENT` in the connecting task's context
+with `sport = 0`, `SYN_SENT → ESTABLISHED` with the full tuple, and the
+server side's `LISTEN → SYN_RECV → ESTABLISHED` in softirq context under the
+client's pid — the reason `current_pid` is trusted only for the initiation.
+
+### 23.3 Kernel instrumentation used
+
+`aip-observe/src/sockstate.rs`: `SockStateTracer::open()` reads the
+tracepoint id and record layout from tracefs, opens one `perf_event_open`
+per online CPU (`sample_type = TID | TIME | CPU | RAW`, `sample_period = 1`,
+`use_clockid = 1`, `clockid = CLOCK_BOOTTIME`, `wakeup_events = 1`,
+`PERF_FLAG_FD_CLOEXEC`), maps a header page plus eight data pages per fd,
+enables with `PERF_EVENT_IOC_ENABLE`, and reads `PERF_RECORD_SAMPLE` /
+`PERF_RECORD_LOST` from the rings, delivering samples in kernel-time order.
+`parse_sock_state_record` decodes a raw record by the parsed layout; non-TCP
+protocols, unknown families, out-of-range states and short records are
+`Malformed`, never guessed. `boot_clock_anchor()` samples
+`CLOCK_REALTIME`/`CLOCK_BOOTTIME` back-to-back. The `perf_event_attr` layout
+is declared explicitly (ABI size 128) rather than taken from a binding.
+
+No eBPF program, loader, map or verifier interaction exists. No XDP. No
+packet capture.
+
+### 23.4 Event model additions (v4)
+
+- `SourceMechanism::SockStateTracepoint` — kernel-pushed; does **not** cover
+  process lifecycle (`covers_process_lifecycle() == false`), so it cannot
+  stand in for the connector in a `PHANTOM_CLAIM`.
+- `KernelLifecycleKind::SocketState { protocol, local, remote, old_state,
+  new_state, sk, current_pid }`; `subject_pid()` is `Some(current_pid)` only
+  for `CLOSE → SYN_SENT`; `is_connect_initiation()`,
+  `is_connect_established()`; `tcp_state` constants.
+- `ProcfsProbe::ingest_socket_event` — anchors the initiation's
+  `current_pid` with a pidfd and binds only if
+  `instance_started_no_later_than(process, event_ns)`; every other
+  transition is recorded unbound. `declare_clock_anchor`.
+- `ObservationBatch.clock_anchor: Option<BootClockAnchor>` (signed).
+- `AttestedBatch.attested_at_ms` (signed); `ObserverAttestor::attest_at`.
+
+### 23.5 What is PROVEN (additions)
+
+- The kernel reported a TCP socket transitioning `CLOSE → SYN_SENT` and the
+  same socket (`sk`) transitioning `SYN_SENT → ESTABLISHED`, at kernel times,
+  on the recorded CPUs (live: T-C, T-P; fixture: `tp01`).
+- The initiation was made by an instance the probe anchored **and** whose
+  start tick is not later than the event's kernel time (`tp11`; live).
+- A transition attested before a decision was issued predates it, by two
+  off-host clocks (`tp03`; live T-A: `attested_at_ms < issued_at`).
+- Ring loss is counted and degrades the window (`tp17`); a restart is a
+  continuity failure (`tp18`); every signed field of a socket event, the
+  bound instance, the clock anchor and the attestation clock are
+  mutation-detected at `Proven` (`tp14`).
+- An unprovisioned probe cannot label events `SockStateTracepoint` (`tp15`);
+  `Open` policy yields unverified provenance (`tp16`).
+
+### 23.6 What remains CANNOT_PROVE (additions)
+
+- The wall-clock placement of a kernel timestamp **beyond** what the
+  collector's clock decides: the boot-clock anchor is the host's clock, a
+  claim, `Attested` at most; without it kernel time is unanchored.
+- PID reuse within one `CLK_TCK` tick (10 ms) of the event: the start-time
+  rule cannot exclude it; the pidfd anchor and executable hash narrow it.
+- Which process performed a transition other than the initiation
+  (`current_pid` in softirq context names nobody).
+- Anything on a host whose root disables the tracepoint, filters the perf
+  event or starves the ring: the mechanism is then absent or `Degraded`, and
+  silence is never coverage — but the *content* of what was delivered is
+  kernel-authored and not host-forgeable, unlike procfs.
+- UDP, SCTP, MPTCP; anything about bytes or payload.
+
+### 23.7 NOT_IMPLEMENTED (revised)
+
+eBPF; raw tracepoints; any tracepoint other than `sock:inet_sock_set_state`;
+XDP; packet or wire capture; filesystem, syscall and exec-argument
+observation; cgroup/namespace context; transport authentication; collector
+persistence; key lifecycle beyond version/revoke; hardware/TEE attestation;
+performance measurement.
+
+### 23.8 Deployment and privilege
+
+tracefs mounted at `/sys/kernel/tracing` (or `/sys/kernel/debug/tracing`);
+`perf_event_paranoid ≤ -1` or `CAP_PERFMON`/`CAP_SYS_ADMIN` for the probe;
+the collector's clock is the temporal authority and must be off-host; the
+probe's `clock_anchor` is the host's clock and is treated as such.

@@ -5,10 +5,13 @@ independently observed and cryptographically matched against its
 `ExpectedExecution`, so that `VERIFIED_EXECUTION` becomes reachable for that
 action and for nothing else.
 
-> **Status: PARTIALLY_IMPLEMENTED — one action class.** Implemented and
-> live-demonstrated for `ghost.net.connect.v1` (an established TCP connection
-> to a remote endpoint). Every other action kind remains unobservable and
-> reconciles to `CANNOT_PROVE`. Strength is `Attested`, never `Proven`. See
+> **Status: PARTIALLY_IMPLEMENTED — one action class, two evidence kinds.**
+> Implemented and live-demonstrated for `ghost.net.connect.v1` (an
+> established TCP connection to a remote endpoint), as **presence** (a polled
+> table row: the connection existed at the sample) and, since Stage 7b, as
+> **transition** (the kernel reported the connection being made — §14).
+> Every other action kind remains unobservable and reconciles to
+> `CANNOT_PROVE`. Strength is `Attested`, never `Proven`. See
 > `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md` for the evidence trail.
 
 ## 1. What "action evidence" is here
@@ -150,10 +153,14 @@ Three clocks, never equated: the probe's wall clock and claimed batch
 interval (host claims — used only to *restrict*), the collector's health
 emission time (signed — anchors the batch to a moment the collector vouched
 for), the verifier's time (bounds health freshness). The socket table shows
-that a connection **existed at the sample**, not when it was created; a
-connection that pre-dates the authorization window and is still open inside
-it will verify. Connection-creation events are `NOT_IMPLEMENTED`
-(`SNIFFER_DOG.md` §9).
+that a connection **existed at the sample**, not when it was created; on its
+own, presence evidence of a connection that pre-dates the authorization
+window and is still open inside it would verify. **Stage 7b closes this**
+where the kernel-pushed socket-state source is live: the connection's
+creation is a kernel event with a kernel timestamp, placed in time by the
+collector's signed clock and the probe's boot-clock anchor, and a connection
+shown to predate the decision disqualifies presence evidence of the same
+connection (§14).
 
 ## 8. Replay protection
 
@@ -192,8 +199,10 @@ this is a demonstrator, labelled `NOT_PRODUCTION_CAPABILITY`.
   any custom action other than `ghost.net.connect.v1`.
 - Application payload, bytes, request content, parameter digests that name
   application data.
-- When a connection was created; whether it pre-dates the window; whether
-  one connection served two decisions.
+- With presence evidence alone: when a connection was created and whether it
+  pre-dates the window. With transition evidence (§14): pre-existence is
+  provable by the collector's clock; placement *inside* the window rests on
+  the host's clock anchor.
 - Truth of the socket table on a host whose root feeds the probe a
   fabricated procfs — hence `Attested`, never `Proven`.
 - Non-execution from the absence of a connection in a polled table (A).
@@ -211,19 +220,131 @@ the same endpoint will never match); the collector provisions `ProcNetTable`
 for the probe; the probe reads sockets under a pidfd anchor (the
 `observe_sockets` path), not by pid alone.
 
-## 12. The missing kernel primitive
+## 12. The kernel primitive (closed in Stage 7b)
 
-Stronger action evidence than a polled table needs a **kernel-pushed
-socket-state event** bound to the process instance — on Linux a tracepoint on
-`inet_sock_set_state` (or the `sock_diag`/`INET_DIAG_DESTROY` netlink
-family) read from user space, which requires an eBPF or tracing loader this
-repository does not have and does not claim. Until then, the class stays
-socket-level, polled and `Attested`.
+Stage 7 recorded that stronger evidence than a polled table needs a
+**kernel-pushed socket-state event** bound to the process instance. Stage 7b
+implements exactly that: the `sock:inet_sock_set_state` tracepoint read
+through `perf_event_open` — no eBPF, no XDP — with the `connect()`
+initiation pidfd-anchored to the calling instance (§14). What it does *not*
+add: payload, bytes, any second action class, or `Proven` strength.
 
 ## 13. NOT_IMPLEMENTED / NOT_PROVEN
 
-eBPF, XDP, tracepoints, packet or wire capture, filesystem or syscall
-observation, exec-argument capture, connection-creation events, payload
-digests, UDP actions, any second action class, zero loss, root-compromise
-resistance, warrant or containment logic, TRL, latency, throughput, hardware
-validation.
+eBPF, XDP, any tracepoint other than `sock:inet_sock_set_state`, packet or
+wire capture, filesystem or syscall observation, exec-argument capture,
+payload digests, UDP actions, any second action class, zero loss,
+root-compromise resistance, warrant or containment logic, TRL, latency,
+throughput, hardware validation.
+
+## 14. Stage 7b — transition evidence (kernel-pushed)
+
+Everything above describes **presence** evidence: a socket row read from the
+polled table. §7 stated its limit — existence at the sample, not creation —
+and the live tests T-A/T-C reproduced both failure modes (a pre-existing
+connection verified; a connect-and-close was unprovable). Stage 7b adds a
+second, stronger kind for the same action class, and makes the two
+distinguishable in the record:
+
+```
+ActionEvidenceSeal { mechanism, kind }
+    kind = Presence    ProcNetTable        "a connection to R existed at the sample"
+    kind = Transition  SockStateTracepoint "the kernel reported a connection to R being made"
+```
+
+### 14.1 Source
+
+`sock:inet_sock_set_state`, read through `perf_event_open` (no eBPF) —
+`SNIFFER_DOG.md` §4, §6b. Two events make one connection:
+
+| Event | Context | What it carries | Instance binding |
+|---|---|---|---|
+| `CLOSE → SYN_SENT` | the `connect()` caller's task | remote endpoint, protocol, `sk`; local port not yet assigned | the probe pidfd-anchors `current_pid` and binds **only if** the instance's start tick ≤ the event's kernel time (same boot clock) |
+| `SYN_SENT → ESTABLISHED` | softirq | full 4-tuple, `sk` | none — `current_pid` is whoever was running |
+
+The reconciler pairs them by `sk`, same protocol, same remote, completion
+not earlier than initiation in kernel time (`aip-reconcile::action::
+derive_transitions`). An initiation without a completion is an **attempt**,
+not a connection (`ActionTransitionIncomplete`).
+
+### 14.2 The transition predicate
+
+`VERIFIED_EXECUTION` with `kind = Transition` requires, in addition to steps
+1–4, 10–11 of §5:
+
+5′. a `SocketTransition` whose bound instance matches the binding and whose
+   derived `kind`/`parameter_digest` equal the expectation's;
+6′. a completion of the same socket (else `ActionTransitionIncomplete`);
+7′. the initiating event's claim pair names this decision and this agent
+   (else `ActionEvidenceUnclaimed`);
+8′. temporal placement **inside the window** by the rules of §14.3 (else
+   `ActionPrecedesAuthorization`, `ActionEvidenceOutsideWindow`, or
+   `KernelTimeUnanchored`);
+9′. both carrying batches inside the collector's signed coverage epoch (else
+   `ActionEvidenceNotCovered`).
+
+Strength is `Attested`, exactly as for presence. Not `Proven`: the events are
+kernel-authored and cannot be injected from user space, but they travel
+through a host-side probe that a root host can stop, filter or starve, and
+the instance binding is procfs. What changed is the *fact*, not the
+epistemic class: a transition says the connection was **made**.
+
+### 14.3 Temporal semantics — five cases
+
+Kernel timestamps are `CLOCK_BOOTTIME`; the window is decision-point Unix
+ms. Placement uses the most trustworthy clock first and never compares the
+two domains directly:
+
+| Case | How it is decided | Result |
+|---|---|---|
+| 1. connection existed before authorization | the batch carrying the initiation has `attested_at_ms` (collector clock, signed) `< issued_at` — two off-host clocks, no host input; **or** the probe's `clock_anchor` places the initiation before `issued_at` | `CANNOT_PROVE / ActionPrecedesAuthorization`, `temporal = BeforeWindow`; also overrides presence evidence of the same connection (same protocol, remote, and local port where known) |
+| 2. connection transitioned during authorization | anchor places initiation and completion inside `[issued_at, valid_until]` ± tol; collector clock does not contradict | eligible for `VERIFIED_EXECUTION · Transition` |
+| 3. connection transitioned after authorization | anchor places initiation or completion after `valid_until` + tol | `CANNOT_PROVE / ActionEvidenceOutsideWindow`, `temporal = AfterWindow` |
+| 4. event timestamp unavailable/untrusted | no `clock_anchor` in the carrying batch | `CANNOT_PROVE / KernelTimeUnanchored`, `temporal = Unanchored` |
+| 5. clock domains cannot be compared | as 4; the reconciler never converts without an anchor and never uses the verifier's clock for placement | `Unanchored` |
+
+The collector clock can only ever *deny* a placement (prove pre-existence);
+it cannot place an event inside the window, because an event may be reported
+long after it happened. The anchor can place, but it is the host's clock —
+a probe claim, hence the `Attested` cap.
+
+### 14.4 Replay, duplication, transplantation
+
+A duplicated batch is collapsed and flagged. The initiating event carries the
+claim it was captured under; offered against another decision or agent it is
+`ActionEvidenceUnclaimed` / `ClaimInconsistent`. Two decisions cannot both be
+verified by one transition: one event, one claim. Cross-instance: the
+initiation is bound at capture; an event bound to another instance (other
+start tick, boot id, or executable) is not a match (`tp10`).
+
+### 14.5 What Stage 7b proves that Stage 7 could not
+
+- That the connection was **made** inside the window, not merely open during
+  it (T-C live: verified with an empty table).
+- That a connection open during the window was made **before** the decision
+  (T-A live: `ActionPrecedesAuthorization` by the collector's clock).
+- Which instance made it, by a kernel-time-ordered pidfd anchor rather than a
+  table join.
+
+### 14.6 Still CANNOT_PROVE after Stage 7b
+
+- Wall-clock placement beyond what the collector clock decides (the anchor
+  is the host's clock).
+- PID reuse inside one `CLK_TCK` tick of the initiation.
+- Which process performed any transition other than the initiation.
+- Anything on a host whose root disables or starves the ring — the
+  mechanism is then absent or `Degraded`; it never becomes silent coverage.
+- Bytes, payload, UDP, any other action class, non-execution from absence.
+
+### 14.7 Live results (`ghost-demo`, this host)
+
+| Scenario | Result |
+|---|---|
+| T-P authorized connection, tracer live | `VERIFIED_EXECUTION · Attested · Match(SockStateTracepoint, Transition)` |
+| T-A established and attested before the decision, still open in the window | `CANNOT_PROVE · ActionPrecedesAuthorization · BeforeWindow` |
+| T-C made and closed before any poll (0 rows in the table) | `VERIFIED_EXECUTION · Attested · Transition` |
+| positive (polling-only observer, unchanged) | `VERIFIED_EXECUTION · Attested · Match(ProcNetTable, Presence)` |
+
+The polling-only observer and its results are unchanged; presence evidence
+was not weakened, only labelled, and overridden solely where the kernel
+shows the same connection predates the decision.

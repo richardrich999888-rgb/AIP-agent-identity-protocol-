@@ -33,10 +33,10 @@ figure.
 | H. Required for a legitimate `VERIFIED_EXECUTION` | see `ACTION_EVIDENCE.md` §5 (eleven predicates) |
 | I. Impossible after this stage | connection creation time; payload; any `Standard(Action)` verb; procfs truth under root; non-execution from polled absence; two decisions served by one connection |
 
-Missing kernel primitive for stronger evidence: a kernel-pushed socket-state
-event bound to the instance (tracepoint `inet_sock_set_state` or
-`sock_diag` destroy events), which needs an eBPF/tracing loader this
-repository does not have. Not implemented, not claimed.
+Missing kernel primitive for stronger evidence, as found at Stage 7: a
+kernel-pushed socket-state event bound to the instance. **Implemented in
+Stage 7b** (see the section of that name below) through `perf_event_open` on
+the `sock:inet_sock_set_state` tracepoint, without eBPF.
 
 ## Design decisions
 
@@ -177,10 +177,11 @@ predecessor suite was modified.
 
 ## Architectural risks
 
-1. **Polled table, not events.** A connection that opens and closes between
-   two polls is invisible; a long-lived connection is visible across many
-   windows. Verification therefore says "existed during", never "was made
-   during". Closing this needs the kernel-pushed socket-state primitive.
+1. **Polled table, not events** — *closed in Stage 7b where the tracepoint
+   source is live.* Presence evidence still says "existed during"; transition
+   evidence says "was made during", and a transition the collector attested
+   before the decision disqualifies presence of the same connection. Where
+   the tracepoint is unavailable the Stage 7 limitation stands unchanged.
 2. **Root-forgeable content.** Same as identity (Skill 6 A4); the collector's
    provenance regime is the only defence, and it bounds labels, not content.
 3. **Demonstrator trust collapse.** `ghost-demo` runs DP, collector and
@@ -206,3 +207,105 @@ Action-level evidence exists for one class, is adversarially tested, and is
 live-demonstrated. Skill 8 (warrant) was not started and is **not**
 authorized by this report; whether it may begin is a separate decision that
 should weigh that `VERIFIED_EXECUTION` currently means one thing only.
+
+## Stage 7b — kernel-pushed socket-state transitions
+
+Commits: RED `ed9c75b`; implementation and documentation follow in the log.
+Observer protocol 3 → 4; reconciliation record 2 → 3.
+
+### Audit (Phase 0)
+
+| Question | Finding |
+|---|---|
+| Kernel primitives already present | proc connector (fork/exec/exit), pidfd anchoring, socket tables (polled). No tracepoint, perf or eBPF path. |
+| Viable socket-state source on this host | `sock:inet_sock_set_state` via `perf_event_open(PERF_TYPE_TRACEPOINT)`: tracefs mounted, tracepoint id 1427 with readable layout, perf permitted on all CPUs as root. eBPF gated (`unprivileged_bpf_disabled=2`) and not needed. |
+| Attribution semantics (measured live) | `CLOSE → SYN_SENT` in the caller's context (`sport = 0`); `SYN_SENT → ESTABLISHED` carries the tuple but runs in softirq; linkable by `skaddr`. |
+| Gap | presence evidence cannot distinguish existence from creation (T-A), and cannot see a connection closed between polls (T-C). |
+
+### RED (Phase 1)
+
+`ghost-demo/tests/live_transition.rs`, against `ab05544`, real processes:
+T-A `VERIFIED_EXECUTION` for a connection attested before the decision (the
+false positive); T-C `CANNOT_PROVE` for a connect-and-close inside the window
+(the unprovable true positive). Both failed as asserted; committed as
+`ed9c75b` with only test infrastructure changed (`--connect-close`, two
+scenarios).
+
+The fixture-level negatives for the new event type (`transition_evidence.rs`)
+could not be red — the type did not exist — and are pinned green in the
+implementation commit.
+
+### Minimum event (Phase 2) and implementation (Phase 3)
+
+`KernelLifecycleKind::SocketState { protocol, local, remote, old_state,
+new_state, sk, current_pid }` inside the existing `KernelLifecycleEvent`
+(mechanism, cpu, kernel timestamp, probe sequence, `bound`, attribution,
+claim) — no second observation model. Plus `ObservationBatch.clock_anchor`
+and `AttestedBatch.attested_at_ms`, both signed. Source:
+`aip-observe/src/sockstate.rs` (`SockStateTracer`, `TracepointFormat`,
+`parse_sock_state_record`, `boot_clock_anchor`). No authorization
+interpretation anywhere in the observer: it records transitions; the
+reconciler derives `net.connect` from them.
+
+### Instance binding (Phase 4)
+
+`ProcfsProbe::ingest_socket_event`: for the initiation only, pidfd-anchor
+`current_pid`, then bind iff `pid_start_time_ticks × (1 s / CLK_TCK) ≤
+kernel_timestamp_ns` — both boot clock. Otherwise unbound: a pid reference,
+never identity. Sub-tick reuse is a stated residual.
+
+### Temporal semantics (Phase 5) and reconciliation (Phase 6)
+
+`ACTION_EVIDENCE.md` §14.3. `Placement::{Before, Within, After, Unanchored}`
+decided by `attested_at_ms` first, then the anchor. `ActionEvidenceSeal`
+gained `kind ∈ {Presence, Transition}`; `TemporalComparison` gained
+`BeforeWindow`, `AfterWindow`, `Unanchored`; `ReasonCode` gained
+`ActionPrecedesAuthorization`, `ActionTransitionIncomplete`,
+`KernelTimeUnanchored`. Transition candidates are evaluated first; a
+transition placed before the decision disqualifies presence evidence of the
+same connection; presence evidence is otherwise unchanged. `PHANTOM_CLAIM`
+now requires **process-lifecycle** coverage (`ProcConnector`) in the
+recomputed intersection — a socket stream is kernel-pushed but says nothing
+about processes (`tp21`).
+
+### Adversarial results (Phase 7)
+
+`aip-reconcile/tests/transition_evidence.rs` (22): positive; before /
+collector-clock-override / unanchored / after; incomplete; wrong `sk`,
+remote, port, order; unbound; other start / boot / exe; start-time rule;
+other decision / agent / no claim; replay; 15 field mutations at `Proven`;
+unprovisioned mechanism refused; `Open` policy; counted loss; restart;
+presence overridden by a preceding transition of the same connection, not by
+one on another local port; socket coverage cannot support `PHANTOM_CLAIM`;
+no caller-settable field. `aip-observe/src/sockstate.rs` (5 unit): layout
+parsed not assumed, refused when a field is missing or mis-sized; connect
+semantics; non-TCP / unknown family / short / out-of-range refused; v6;
+anchor arithmetic.
+
+### Live (Phase 8)
+
+`ghost-demo/tests/live_transition.rs` (5): T-A not verified and placed
+`BeforeWindow` by `ActionPrecedesAuthorization`; T-C verified on
+`Transition` with an empty table; T-P verified on `Transition`. Skipped with
+a message where the tracepoint is unavailable; never simulated.
+
+### Test results
+
+| Suite | Before 7b | After |
+|---|---|---|
+| aip-standalone `cargo test --workspace` | 486 / 0 / 3 ignored | **518 / 0 / 3 ignored** |
+| aip-service | 39 / 0 | 39 / 0 |
+| clippy `-D warnings`, fmt (both) | clean | clean |
+
+Added: aip-observe +5 unit; aip-reconcile +22; ghost-demo +5 live. Every
+predecessor suite unchanged and passing; the Stage 7 live test that asserts
+`Match(ProcNetTable)` still passes because the polling-only observer was kept
+as it was.
+
+### Files
+
+`aip-observe/src/{sockstate.rs (new), observed.rs, probe.rs, attest.rs,
+lib.rs}`; `aip-reconcile/src/{action.rs, reconcile.rs, result.rs, lib.rs}`;
+`aip-reconcile/tests/transition_evidence.rs` (new); `ghost-demo/src/{lib.rs,
+bin/ghost-demo-agent.rs, bin/ghost-demo.rs}`; `ghost-demo/tests/
+live_transition.rs` (new).

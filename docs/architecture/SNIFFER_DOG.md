@@ -93,7 +93,16 @@ exec arguments, and are recorded as future work, not as a capability.
 | `KernelLifecycleEvent` | `SYNTRIASS/GHOST/KERNEL_EVENT/v1` | new: kind (Fork/Exec/Exit/Other), `cpu`, `kernel_timestamp_ns`, `probe_seq`, `bound: Option<ObservedProcess>`, attribution, claimed decision id |
 | `ObservationBatch` | `SYNTRIASS/GHOST/OBSERVATION_BATCH/v1` | `probe_run_id`, `probe_seq_first/last`, `dropped_events: Option<u64>`, `kernel_events`; v3: `active_mechanisms` |
 | `SensorHealth` | `SYNTRIASS/GHOST/OBSERVER_HEALTH/v1` | `probe_policy`; v3: `covered_by` |
-| `AttestedBatch` | `SYNTRIASS/GHOST/OBSERVER_HEAD/v1` | unchanged |
+| `AttestedBatch` | `SYNTRIASS/GHOST/OBSERVER_HEAD/v1` | v4: `attested_at_ms` — the collector's own clock, signed |
+
+**Protocol version 4 (Stage 7b).** `KernelLifecycleKind::SocketState`
+(protocol, local, remote, `old_state`, `new_state`, kernel socket identity
+`sk`, `current_pid`) delivered by the `sock:inet_sock_set_state` tracepoint
+through `perf_event_open`; `ObservationBatch.clock_anchor` (a probe sample of
+the host realtime and boot clocks, so kernel timestamps can be placed on the
+wall clock — a probe claim); `AttestedBatch.attested_at_ms` (the collector's
+clock at signing, inside the signed preimage). `SourceMechanism::
+SockStateTracepoint`. Version 3 records are refused like earlier versions.
 
 Every new field is inside the canonical encoding (single encoder,
 `aip_types::canonical`; length-prefixed strings; explicit codes for enums;
@@ -109,6 +118,32 @@ this branch and was never released.
 | `PidFdAnchored` | binding is kernel state; facts are procfs | **yes** | yes | n/a |
 | `ProcConnector` | **yes** | only if a pidfd anchor succeeded (`bound`) | existence/order/cpu/time: no (user space cannot inject into the kernel's netlink source); identity: yes | **`ENOBUFS`** |
 | `ProcNetTable` | no (polled kernel table) | taken under a pidfd anchor | yes | none |
+| `SockStateTracepoint` | **yes** (static tracepoint via the perf ring) | only for `CLOSE → SYN_SENT` — the `connect()` call runs in the caller's context — and only if a `PidFdAnchored` measurement of `current_pid` succeeded and its start tick is not later than the event's kernel time | existence/order/time/endpoints: no (kernel-authored, user space cannot inject); identity: yes (procfs); root can disable or starve the ring | **`PERF_RECORD_LOST`** (counted per ring) |
+
+### `SockStateTracepoint` — what the kernel says about a connection
+
+`perf_event_open(PERF_TYPE_TRACEPOINT, sock:inet_sock_set_state)` on every
+online CPU, sample type `TID | TIME | CPU | RAW`, `use_clockid =
+CLOCK_BOOTTIME`, one 8-page ring per CPU. The record layout is read from
+tracefs (`events/sock/inet_sock_set_state/format`) at open time, never
+assumed. Measured on this host's 6.18 kernel:
+
+- `CLOSE → SYN_SENT` fires in the connecting task's context — `current_pid`
+  is the caller; the local port is **not yet assigned** (`sport = 0`).
+- `SYN_SENT → ESTABLISHED` carries the full 4-tuple but runs in softirq
+  context; its `current_pid` names nobody in general.
+- The two are linked by `sk`, the kernel socket identity, for the socket's
+  lifetime. `subject_pid()` therefore returns `Some` only for the initiation.
+
+Loss: a ring overflow is reported as `PERF_RECORD_LOST` with a count; the
+probe folds it into `dropped_events` and the collector degrades the window
+(`Degraded`), exactly as for connector `ENOBUFS`. A record that fails to
+decode is counted as lost, never guessed.
+
+Privilege: tracefs mounted and either `perf_event_paranoid ≤ -1` or
+`CAP_PERFMON`/`CAP_SYS_ADMIN`. Absent either, `SockStateTracer::open` is
+`Unavailable` and the mechanism does not exist for that host. No eBPF, no
+XDP, no packet capture is involved or claimed.
 
 ### `KernelLifecycleEvent.bound`
 
@@ -162,6 +197,30 @@ reported alongside `state`, so "degraded *and* unverified" loses no
 information. Coverage is only extended on a contiguous, fault-free batch and
 never widens over silence, loss, or a restart.
 
+## 6b. Kernel time and wall time (Stage 7b)
+
+Kernel timestamps are `CLOCK_BOOTTIME` nanoseconds; authorizations are Unix
+milliseconds from the decision point's clock. They are different clock
+domains and are never compared directly. Two anchors exist:
+
+1. **`AttestedBatch.attested_at_ms`** — the collector's clock when it signed
+   the batch, off-host and inside the signature. An event in the batch cannot
+   have happened after this moment. Comparing it with the decision point's
+   `issued_at` compares two off-host clocks with no host input: this is how
+   a transition can be shown to **predate** a decision.
+2. **`ObservationBatch.clock_anchor`** — the probe's back-to-back sample of
+   `CLOCK_REALTIME` and `CLOCK_BOOTTIME`. Kernel-authored values, but the
+   host clock is attacker-controllable under §8, so a placement derived from
+   it is a probe claim, `Attested` at most, and used only where the collector
+   clock cannot decide. Without it, kernel time is **unanchored** and the
+   reconciler says so rather than guessing.
+
+The probe's instance binding for a `connect()` initiation uses the same
+boot clock on both sides: `/proc/<pid>/stat` start ticks × (1 s / `CLK_TCK`)
+must not exceed the event's kernel timestamp, or the pid was recycled after
+the event. Resolution is one tick (10 ms); pid reuse inside one tick is not
+excluded by time alone.
+
 ## 6a. Per-mechanism coverage (PR3 A-3, protocol v3)
 
 A window can only support a statement about what did **not** happen if a
@@ -212,7 +271,8 @@ partition the host.
 | starve the connector | `ENOBUFS` → `EventsLost` → `Degraded`; exec-time bindings dropped |
 | replay a probe batch | sequence discontinuity → `Degraded` |
 | roll back / restore host state | irrelevant to chain position; probe seq/run visible |
-| alter host clock | affects `host_wall_clock_ms` only; kernel `timestamp_ns` and collector sequence untouched |
+| alter host clock | affects `host_wall_clock_ms` and the probe's `clock_anchor`; kernel `timestamp_ns`, collector sequence and `attested_at_ms` untouched — a placement that rests on the anchor is a claim, one that rests on `attested_at_ms` is not |
+| disable, filter or starve the perf ring | `Unavailable` at open (mechanism absent from `active_mechanisms`/`covered_by`), or `PERF_RECORD_LOST` → `Degraded`; silence is never coverage |
 | steal the collector key | forges history until the key version is revoked (`t17`) — unresolved risk, NEXORA's domain |
 
 ## 9. Network observation model
@@ -220,10 +280,13 @@ partition the host.
 Implemented: **socket-level** association — rows of the kernel TCP/UDP tables
 whose inode appears in the instance's `/proc/<pid>/fd`, taken under a pidfd
 anchor; gives protocol, local/remote address and port, kernel socket state,
-inode. It does **not** give: packets, bytes, timing, payload, DNS names, TLS
-state, or anything on the wire. There is no XDP, no AF_PACKET, no conntrack
-read. Per I23 the variant is metadata and can never be promoted to payload
-evidence. Connection *creation* as an event is NOT_IMPLEMENTED (polling only).
+inode. And, since Stage 7b, **socket state transitions** pushed by the kernel
+(`SockStateTracepoint`): the `connect()` initiation bound to the calling
+instance and the handshake completion of the same socket, with kernel
+timestamps — connection *creation* as an event. Neither gives: packets,
+bytes, payload, DNS names, TLS state, or anything on the wire. There is no
+XDP, no AF_PACKET, no conntrack read. Per I23 both are metadata and can never
+be promoted to payload evidence.
 
 ## 10. Relationship to Skill 7 (reconciliation)
 
@@ -242,8 +305,11 @@ and the reconciler must honour:
 
 ## 11. NOT_IMPLEMENTED (explicit)
 
-eBPF programs, tracepoints/raw tracepoints, perf ring buffers, XDP, packet or
-wire capture, filesystem and syscall observation, exec argument capture,
+eBPF programs, raw tracepoints, any tracepoint other than
+`sock:inet_sock_set_state`, XDP, packet or wire capture, filesystem and
+syscall observation, exec argument capture, UDP "connection" events,
 cgroup/namespace context in the event model, network transport and its
 authentication, collector persistence, key lifecycle beyond version/revoke,
-hardware or TEE attestation, any performance measurement.
+hardware or TEE attestation, any performance measurement. (One static
+tracepoint read through the perf ring **is** implemented — Stage 7b; that is
+the whole of the tracing surface.)

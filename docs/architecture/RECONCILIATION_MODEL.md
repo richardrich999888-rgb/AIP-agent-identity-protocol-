@@ -1,13 +1,15 @@
 # RECONCILIATION_MODEL
 
 > **Status (Stage 4 `ad9642a`, corrected `b821a23`; Stage 7 action evidence
-> `63c5e0a`): PARTIALLY_IMPLEMENTED** in `aip-standalone/aip-reconcile`. The
+> `63c5e0a`; Stage 7b transition evidence): PARTIALLY_IMPLEMENTED** in `aip-standalone/aip-reconcile`. The
 > contract in §3–§5 below is implemented as written, with `CANNOT_PROVE` as
 > the `Default`. Reachable results: `CANNOT_PROVE`, `PHANTOM_CLAIM`,
 > `IDENTITY_DIVERGENCE`, `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, and —
 > **for exactly one action class**, an established TCP connection authorized
-> as `ghost.net.connect.v1` — `VERIFIED_EXECUTION` at `Attested`
-> (`ACTION_EVIDENCE.md`). Unreachable with the current evidence and stated so
+> as `ghost.net.connect.v1` — `VERIFIED_EXECUTION` at `Attested`, in two
+> distinguishable kinds: `Presence` (a table row: the connection existed at
+> the sample) and `Transition` (the kernel reported it being made;
+> `ACTION_EVIDENCE.md` §14). Unreachable with the current evidence and stated so
 > in code: `VERIFIED_EXECUTION` for every other action kind (no action-level
 > observation exists), `UNATTRIBUTED_EFFECT` (requires a decision-point-signed
 > completeness statement that nothing produces yet), `LINEAGE_VIOLATION`
@@ -123,6 +125,16 @@ remote_port)`, whose digest is recomputed through the same
 context-match precondition can be satisfied. For every other action kind the
 strongest positive result remains identity-level corroboration, and identity
 match never implies action match.
+
+**Temporal placement of kernel events (Stage 7b).** Kernel timestamps and
+the decision point's wall clock are different domains. A transition is placed
+*before* a decision when the collector signed its batch before the decision
+was issued (`attested_at_ms < issued_at`, two off-host clocks) or when the
+probe's boot-clock anchor says so; it is placed *inside* only by the anchor,
+which is the host's clock and therefore a claim (`Attested` cap); with no
+anchor it is `Unanchored` and nothing is inferred. A transition placed before
+the decision is `ActionPrecedesAuthorization` and also disqualifies presence
+evidence of the same connection.
 
 **"Continuity attested over the window" — per class.** For `PHANTOM_CLAIM`
 (a negative claim) it means whole-window, kernel-pushed, gap-free coverage
