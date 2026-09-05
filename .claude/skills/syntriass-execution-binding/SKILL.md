@@ -37,7 +37,7 @@ Before modifying code, read:
 - `docs/architecture/EXECUTION_BINDING.md`
 - `docs/architecture/GAP_MATRIX.md`
 - `docs/architecture/RECONCILIATION_MODEL.md`
-- `docs/architecture/OBSERVER_MODEL.md` if present
+- `docs/architecture/OBSERVATION_MODEL.md`
 - `docs/architecture/OBSERVER_ATTESTATION.md` if present
 - `docs/architecture/IMPLEMENTATION_PLAN.md`
 - the current AIP correctness report produced by Skill 3, if present

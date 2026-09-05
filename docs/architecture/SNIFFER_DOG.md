@@ -6,7 +6,9 @@ NOT IMPLEMENTED (eBPF, tracepoints, perf ring buffers, XDP, packet or wire
 visibility, filesystem and syscall observation, network transport, durable
 collector state).**
 
-Stage 6.5 (`aip-standalone/aip-observe`, protocol version 2). Skill 6 remains
+Stage 6.5 (`aip-standalone/aip-observe`, protocol version 2; version 3 after
+the PR3 correction that adds `ObservationBatch.active_mechanisms` and
+`SensorHealth.covered_by` — see §6a). Skill 6 remains
 the attestation foundation; this stage changes only *where the observed facts
 come from* and *how a verifier can tell*. Nothing here authorizes, reconciles,
 scores, classifies, or actuates.
@@ -89,8 +91,8 @@ exec arguments, and are recorded as future work, not as a capability.
 |---|---|---|
 | `ObservedExecution` | `SYNTRIASS/GHOST/OBSERVED_EXECUTION/v1` | `mechanism: SourceMechanism` (signed); `ObservedEffect::SocketObserved` |
 | `KernelLifecycleEvent` | `SYNTRIASS/GHOST/KERNEL_EVENT/v1` | new: kind (Fork/Exec/Exit/Other), `cpu`, `kernel_timestamp_ns`, `probe_seq`, `bound: Option<ObservedProcess>`, attribution, claimed decision id |
-| `ObservationBatch` | `SYNTRIASS/GHOST/OBSERVATION_BATCH/v1` | `probe_run_id`, `probe_seq_first/last`, `dropped_events: Option<u64>`, `kernel_events` |
-| `SensorHealth` | `SYNTRIASS/GHOST/OBSERVER_HEALTH/v1` | `probe_policy` |
+| `ObservationBatch` | `SYNTRIASS/GHOST/OBSERVATION_BATCH/v1` | `probe_run_id`, `probe_seq_first/last`, `dropped_events: Option<u64>`, `kernel_events`; v3: `active_mechanisms` |
+| `SensorHealth` | `SYNTRIASS/GHOST/OBSERVER_HEALTH/v1` | `probe_policy`; v3: `covered_by` |
 | `AttestedBatch` | `SYNTRIASS/GHOST/OBSERVER_HEAD/v1` | unchanged |
 
 Every new field is inside the canonical encoding (single encoder,
@@ -159,6 +161,25 @@ recorded gap is never erased by later contiguity. `SensorHealth.continuity` is
 reported alongside `state`, so "degraded *and* unverified" loses no
 information. Coverage is only extended on a contiguous, fault-free batch and
 never widens over silence, loss, or a restart.
+
+## 6a. Per-mechanism coverage (PR3 A-3, protocol v3)
+
+A window can only support a statement about what did **not** happen if a
+source that would have seen it was live for the whole window. Before PR3 the
+signed health said *that* a window was covered, not *by what*; a verifier
+would have had to infer connector coverage from whether kernel events
+happened to be present — inference from content, the I8 failure.
+
+Now: the probe declares its live sources (`ProcfsProbe::declare_source`) and
+every batch carries `active_mechanisms` = declared ∪ actually used
+(canonically ordered, inside the signed bytes, bounded by the collector's
+registry). The collector keeps the **intersection** over the contiguous
+coverage epoch and publishes it as `SensorHealth.covered_by`; it resets with
+the epoch (gap, loss, restart, new epoch). The reconciler's precondition for
+`PHANTOM_CLAIM` is `SignedSensorHealth::covered_by_kernel_pushed_source()`:
+verified health, `Active`, window inside `attested_coverage`, and a
+kernel-pushed mechanism in `covered_by`. The declaration is a probe claim in
+the same trust class as every other probe claim (§5).
 
 ## 7. Process identity
 

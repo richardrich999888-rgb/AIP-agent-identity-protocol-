@@ -375,7 +375,47 @@ Skill 7 adopting §10 verbatim as preconditions.
 
 ## 15. Corrections made in this pass (before / after)
 
-Filled in after the fixes; see the section of the same name appended below.
+All three A items were fixed test-first. RED evidence is commit `5046a95`
+(this review plus the A-1 and A-2 tests, failing against unchanged code);
+the A-3 test was red at compile time (`declare_source` /
+`covered_by_kernel_pushed_source` did not exist) and lands with its fix.
+
+| Item | RED (before) | Fix | GREEN (after) |
+|---|---|---|---|
+| A-1 | `test_delegation_with_jwks_rejects_mutated_hop` — "hop expires_at extended but JWKS verifier still accepts it" | `delegation::verify_delegation_token_signature` (payload hash + envelope), used by both `verify_delegation_chain` and `wellknown::verify_delegation_with_jwks`; JWKS path also checks key length | expiry / scope / grantee mutations all rejected |
+| A-2 | `test_algorithm_label_cannot_lie` — Ed25519 signature labelled `MlDsa65` verified `Ok(true)` | `verify_ed25519` returns `Err(EvolutionRequired)` for any non-Ed25519 label | `MlDsa65` and `Hybrid` labels refused; all existing callers unaffected (they `?` or `unwrap_or(false)`) |
+| A-3 | `pr3_coverage.rs` (6 tests) — no signed statement of covering mechanisms; compile-red | observer protocol v3: `ObservationBatch.active_mechanisms` (declared ∪ used, canonical order, registry-gated), `SensorHealth.covered_by` (intersection over the coverage epoch, reset on gap/loss/restart/new epoch), `SignedSensorHealth::covered_by_kernel_pushed_source()` | connector-covered vs poll-only windows distinguishable from signed bytes; partial-epoch connector does not cover; restart resets; mutation detected; declaration bounded by registry |
+| 34 | no cross-crate tag audit | `aip-test/src/domain_audit.rs` (3 tests) | 16 tags distinct, versioned, prefix-free; identity digests shown non-comparable and `matches_process_of` shown as the contract |
+
+Two A-3 test *scenarios* were corrected after first run because they
+asserted against the wrong window: Skill 6 already defines that the coverage
+epoch begins at the first contiguous batch and that the first batch after a
+restart opens a fresh epoch. The asserted properties (intersection, reset,
+no back-fill) are unchanged; no assertion was weakened.
+
+| Suite | Before PR3 (`1fc0152`) | After |
+|---|---|---|
+| aip-core | 140 | **141** |
+| aip-crypto | 8 | **9** |
+| aip-observe | 82 | **89** (+6 coverage, +1 unit) |
+| aip-test | 13 | **16** |
+| aip-authorize / aip-types / aip-protocol / aip-real-tests | 35 / 5 / 46 (1 ign) / 67 (2 ign) | unchanged |
+| **aip-standalone** | 396 / 0 / 3 | **408 / 0 / 3** |
+| aip-service | 39 / 0 | **39 / 0** |
+
+`cargo clippy --workspace --all-targets -- -D warnings` and
+`cargo fmt --all -- --check` clean in both workspaces. Skills 3–6 tests
+unmodified and passing (the observer's 26 Skill 6 adversarial tests and 9
+blind-spot tests run unchanged against protocol v3).
+
+Wire impact: observer protocol 2 → 3 (never released; v1/v2 refused).
+No `PACKET_VERSION` change. No change to any Stage 0–2 encoding.
+
+## 14a. Final readiness decision
+
+**READY WITH EXPLICIT CANNOT_PROVE BOUNDARIES.** A-1..A-3 are closed and
+verified; §10 is binding on Skill 7; §11 lists the deployment assumptions a
+verdict rests on; §12 is deferred hardening. Skill 7 has **not** been started.
 
 ## 16. Documentation normalization
 

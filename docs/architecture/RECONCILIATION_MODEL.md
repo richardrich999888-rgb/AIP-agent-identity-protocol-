@@ -65,6 +65,26 @@ to prevent.
 rather than an absence of verdict, silence becomes evidence and **I8** is
 violated by construction.
 
+**Terminology (PR3 E-3).** `OBSERVATION_UNAVAILABLE` is an *availability
+state* of the observer over a window — an **input** to reconciliation
+(`aip_observe::ObservationAvailability::Unavailable { reason }`), not a
+reconciliation result. Its reconciliation result is `CANNOT_PROVE`. The
+result record must carry the availability state alongside the result so the
+warrant layer can refuse both, but the result set above is complete as
+written.
+
+**Coverage precondition (PR3 A-3).** "Sensor coverage over that exact window
+is attested" means, concretely: `SignedSensorHealth` verifies, its state is
+`Active`, `attested_coverage` contains the window, **and** `covered_by`
+contains a kernel-pushed mechanism (`SourceMechanism::is_kernel_pushed`).
+Polled coverage can never support `PHANTOM_CLAIM`.
+
+**Context match (PR3 item 20).** No current observation carries
+`action_kind` or `parameter_digest`. Until an effect-level source exists, the
+context-match precondition of `VERIFIED_EXECUTION` cannot be satisfied and
+the strongest positive result reachable is identity-level corroboration; a
+reconciler must not let identity match imply action match.
+
 ## 5. Evidence strength — kept separate from severity (I12)
 
 Two independent axes, never collapsed into one score:

@@ -18,6 +18,19 @@ original discovery text for traceability):
 - Stage 6.5 (Sniffer Dog) — kernel-mediated sources and provenance gating in
   `aip-observe` (protocol v2); see `SNIFFER_DOG.md` and
   `SNIFFER_DOG_IMPLEMENTATION_REPORT.md`.
+- PR3 corrective review — see `PR3_GAP_REVIEW.md`; three MUST-FIX items
+  closed (section D below); reconciliation readiness decided.
+
+## D. PR3 corrective review (pre-reconciliation)
+
+| Component | Found | Fix | Pri |
+|---|---|---|---|
+| `wellknown::verify_delegation_with_jwks` — **CLOSED** | verified the signature envelope only; a hop with rewritten `expires_at`/scope/grantee still verified (the Skill 3 attack through a public verifier) | recomputes the hop payload via `delegation::verify_delegation_token_signature`, shared with `verify_delegation_chain` | **P0** |
+| `verify_ed25519` algorithm label — **CLOSED** | accepted any `Signature.algorithm`; an Ed25519 signature labelled `MlDsa65`/`Hybrid` verified (**I7**) | refuses non-Ed25519 labels with `EvolutionRequired` | **P0** |
+| Per-mechanism coverage in signed health — **CLOSED** (observer protocol v3) | health stated *that* a window was covered, not *by which source*; `PHANTOM_CLAIM` would have required inferring kernel coverage from event presence (**I8**) | `ObservationBatch.active_mechanisms` (declared ∪ used, registry-bounded), `SensorHealth.covered_by` (intersection over the epoch), `covered_by_kernel_pushed_source()` | **P0** |
+| Cross-crate domain-tag audit | no single test saw all 16 tags | `aip-test/src/domain_audit.rs` | — |
+| Identity digests not byte-comparable across crates | `ExecutionBinding::identity_bytes` ≠ `ObservedProcess::identity_bytes` by design | documented: compare structurally via `matches_process_of` | E |
+| `[u8;16]` identifiers indistinguishable by type | `decision_id`, `batch_id`, `probe_run_id`, `jti`, … | Skill 7 must introduce newtypes at its boundary | D |
 
 ## A. AIP correctness (must precede any Ghost work)
 

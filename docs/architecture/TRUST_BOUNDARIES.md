@@ -1,5 +1,14 @@
 # TRUST_BOUNDARIES — as implemented at `377d5fc`
 
+> **Status (PR3).** Discovery record; the boundaries marked ABSENT below have
+> since been partly built: POLICY → `aip-authorize` (library boundary,
+> `DECISION_POINT.md` §18), OBSERVER and OBSERVER trust root → `aip-observe`
+> (`OBSERVER_IMPLEMENTATION_REPORT.md` §3, `SNIFFER_DOG.md` §5), RUNTIME →
+> `ExecutionBinding` (`EXECUTION_BINDING.md`). B3's `expires_at` finding is
+> fixed (`AIP_CORRECTNESS_REPORT.md`). RECONCILER, PROOF SYSTEM and
+> CONTAINMENT remain ABSENT. B4's calculator hazard stands and is now also
+> documented in code (`aip-service/src/evidence.rs::verify_request`).
+
 Boundaries that exist in code. Boundaries the target architecture requires but
 which have no implementation are marked **ABSENT** and carry no row content
 invented from documentation.

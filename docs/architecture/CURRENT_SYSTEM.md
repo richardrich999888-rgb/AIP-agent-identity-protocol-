@@ -6,6 +6,15 @@
 **Method:** source, tests and build artifacts only. Documentation, patents,
 diagrams, branch names and other skills were treated as claims, not evidence.
 
+> **Status (PR3).** This is the discovery baseline and is kept verbatim.
+> Statements such as "NO DECISION POINT EXISTS" describe `377d5fc`; the
+> current state per stage is in `AIP_CORRECTNESS_REPORT.md`,
+> `EXECUTION_BINDING_IMPLEMENTATION_REPORT.md`,
+> `DECISION_POINT_IMPLEMENTATION_REPORT.md`, `OBSERVER_IMPLEMENTATION_REPORT.md`,
+> `SNIFFER_DOG_IMPLEMENTATION_REPORT.md` and `PR3_GAP_REVIEW.md`. §6 remains
+> true of `aip-service` (the generate endpoint is still a signing oracle);
+> a library decision point now exists in `aip-authorize`.
+
 ---
 
 ## 1. Production surface

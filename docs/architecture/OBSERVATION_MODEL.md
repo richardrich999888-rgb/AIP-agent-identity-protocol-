@@ -1,5 +1,16 @@
 # OBSERVATION_MODEL
 
+> **Status (PR3).** §1–§2 are the discovery record at `377d5fc`. Since then:
+> Stage 1 added `ExecutionBinding` (`EXECUTION_BINDING.md`), Stage 2 the
+> `ExpectedExecution` producer (`DECISION_POINT.md`), Stage 3 / 6.5 the
+> observer (`OBSERVER_IMPLEMENTATION_REPORT.md`, `SNIFFER_DOG.md`). The
+> `ObservedExecution` sketch in §4 was superseded by `aip_observe::{ObservedExecution,
+> KernelLifecycleEvent}`, which carry **no** `action_kind`/`parameter_digest`
+> — see `RECONCILIATION_MODEL.md` "Context match". §3's three states are
+> realised as `ObservationAvailability::{Covered, Unavailable{reason}}`;
+> `OBSERVATION_UNAVAILABLE` is an availability *state*, whose reconciliation
+> result is `CANNOT_PROVE`.
+
 ## 1. Current state — verified by exhaustive search
 
 `RUNTIME_OBSERVATION = MISSING`

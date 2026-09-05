@@ -83,7 +83,7 @@ STOP.
 
 Produce:
 
-`RECONCILIATION_IMPLEMENTATION_REPORT.md`
+`docs/architecture/RECONCILIATION_IMPLEMENTATION_REPORT.md`
 
 with the blocking condition.
 
@@ -925,7 +925,7 @@ PASS only when:
 
 Produce:
 
-`RECONCILIATION_IMPLEMENTATION_REPORT.md`
+`docs/architecture/RECONCILIATION_IMPLEMENTATION_REPORT.md`
 
 Then STOP.
 

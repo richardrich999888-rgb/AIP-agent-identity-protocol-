@@ -225,6 +225,15 @@ binding with the observed one:
 - unequal, both attested → `IDENTITY_DIVERGENCE`;
 - observer binding absent → `CANNOT_PROVE`.
 
+**How "equal" is computed (PR3 E-1).** `ExecutionBinding::identity_bytes`
+(`GHOST/ExecutionIdentity/v1`, includes `agent_id`) and
+`aip_observe::ObservedProcess::identity_bytes`
+(`SYNTRIASS/GHOST/OBSERVED_PROCESS/v1`, no agent) are **different digests by
+design** and must never be compared byte-for-byte. The contract is the
+structural predicate `ObservedProcess::matches_process_of(&ExecutionBinding)`
+(process instance tuple + executable digest); the agent claim is compared
+separately and stays a claim.
+
 The parsers in `aip_core::execution_binding` are pure and reusable by an
 observer; the collector itself is not an observer.
 

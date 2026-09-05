@@ -213,6 +213,22 @@ The slice is **not** complete until all seven pass.
 
 ---
 
+## Stage ↔ skill numbering (PR3 E-5)
+
+Stages here and in the orchestrator are numbered by dependency; the skill
+files are numbered by installation order. They are **not** the same numbers:
+
+| Stage (this plan / orchestrator) | Skill file |
+|---|---|
+| 0 AIP correctness | 3 `syntriass-aip-correctness` |
+| 1 ExecutionBinding | 4 `syntriass-execution-binding` |
+| 2 Decision point | 5 `syntriass-decision-point` |
+| 3 Observer (+ Stage 6.5 Sniffer Dog) | 6 `syntriass-observer-attestation` |
+| 4 Reconciler | 7 `syntriass-reconciliation` |
+| 5 Evidence strength, 6 Warrant | 8 `syntriass-ghost-warrant` |
+| 8 Containment | 9 `syntriass-ghost-containment` |
+| 9 NEXORA | 10 `syntriass-nexora-integration` |
+
 ## Sequence summary
 
 ```

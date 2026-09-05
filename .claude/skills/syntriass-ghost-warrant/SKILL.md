@@ -284,7 +284,7 @@ IDENTITY_DIVERGENCE
 LINEAGE_VIOLATION
 SENSOR_INTEGRITY_FAILURE
 CONTINUITY_FAILURE
-OBSERVATION_UNAVAILABLE
+OBSERVATION_UNAVAILABLE   (availability state carried alongside the result; its reconciliation result is CANNOT_PROVE)
 CANNOT_PROVE
 ```
 
@@ -1353,7 +1353,7 @@ Skill 8 is PASS only when all are true:
 [ ] no direct actuation exists
 [ ] adversarial tests pass
 [ ] full relevant test suite passes
-[ ] WARRANT_IMPLEMENTATION_REPORT.md exists
+[ ] docs/architecture/WARRANT_IMPLEMENTATION_REPORT.md exists
 [ ] report accurately states limitations
 ```
 
@@ -1385,7 +1385,7 @@ Use this exact order:
 11. Run targeted tests.
 12. Run full relevant tests.
 13. Perform security review.
-14. Write WARRANT_IMPLEMENTATION_REPORT.md.
+14. Write docs/architecture/WARRANT_IMPLEMENTATION_REPORT.md.
 15. Only then declare PASS.
 ```
 

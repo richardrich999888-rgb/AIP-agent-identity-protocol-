@@ -82,7 +82,7 @@ STOP.
 
 Produce:
 
-`OBSERVER_IMPLEMENTATION_REPORT.md`
+`docs/architecture/OBSERVER_IMPLEMENTATION_REPORT.md`
 
 with:
 
@@ -666,7 +666,7 @@ It is not a policy engine.
 
 Produce:
 
-`OBSERVER_IMPLEMENTATION_REPORT.md`
+`docs/architecture/OBSERVER_IMPLEMENTATION_REPORT.md`
 
 The report MUST contain:
 
@@ -732,7 +732,7 @@ Skill 6 is PASS only when:
 
 Then produce:
 
-`OBSERVER_IMPLEMENTATION_REPORT.md`
+`docs/architecture/OBSERVER_IMPLEMENTATION_REPORT.md`
 
 and stop.
 
