@@ -184,6 +184,8 @@ impl Fx {
             },
             self_declared,
             authority: std::slice::from_ref(&self.chain),
+            loose_hops: &[],
+            revoked_jtis: &[],
             issuer_keys: &self.issuer_keys,
             expectations,
             decision_point_anchors: &self.dp_anchors,
@@ -812,6 +814,7 @@ fn p16_crate_sources_reference_no_scoring_machinery() {
         include_str!("../src/lib.rs"),
         include_str!("../src/identity.rs"),
         include_str!("../src/authority.rs"),
+        include_str!("../src/graph.rs"),
         include_str!("../src/lineage.rs"),
         include_str!("../src/profile.rs"),
     ];

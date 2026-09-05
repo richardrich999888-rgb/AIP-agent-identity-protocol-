@@ -200,6 +200,8 @@ impl Fx {
             },
             self_declared: &[],
             authority: std::slice::from_ref(&self.chain),
+            loose_hops: &[],
+            revoked_jtis: &[],
             issuer_keys: &self.issuer_keys,
             expectations,
             decision_point_anchors: &self.dp_anchors,
@@ -553,7 +555,7 @@ fn l08_a_spawn_is_never_authority_and_no_verdict_is_manufactured() {
     }
 }
 
-/// l09 — the lineage partition has exactly four sections, and no key under
+/// l09 — the lineage partition has exactly five sections (delegation added in Phase D), and no key under
 /// it names a score, trust, confidence, reputation, rating, rank or grade.
 /// A claimed parent is never rendered under an endorsed key.
 #[test]
@@ -566,10 +568,16 @@ fn l09_lineage_partition_shape_is_fixed() {
     let v = serde_json::to_value(&p).unwrap();
     let lineage = v.get("lineage").unwrap();
     let top: BTreeSet<String> = lineage.as_object().unwrap().keys().cloned().collect();
-    let expected: BTreeSet<String> = ["identity", "authority", "process", "reconciled"]
-        .into_iter()
-        .map(String::from)
-        .collect();
+    let expected: BTreeSet<String> = [
+        "identity",
+        "authority",
+        "delegation",
+        "process",
+        "reconciled",
+    ]
+    .into_iter()
+    .map(String::from)
+    .collect();
     assert_eq!(top, expected);
 
     let mut keys = Vec::new();
