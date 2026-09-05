@@ -515,6 +515,15 @@ byte-for-byte unchanged except the `BootClockAnchor` literals in
 touched. See `ACTION_EVIDENCE.md` §15 and
 `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`.
 
+## Sniffer Dog 2.0 Phase C1 note
+
+`aip-reconcile::action` gains `LineageEdge` and `derive_lineage_edges`: a
+pure derivation over collector-signed batches that keeps only completed,
+start-verified `ProcessExecution`s (both ends pidfd-anchored). It adds no
+result class, no reason, no guard change; `LINEAGE_VIOLATION` remains
+refused by `Draft::precondition_holds`. Seven fixture tests in
+`tests/lineage_edges.rs`. Consumed by `aip-agent` as a verifier-local input.
+
 ## Corrective pass
 
 ### Phase 0 — audit of the first implementation

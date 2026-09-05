@@ -161,3 +161,145 @@ lineage from tokens; the four-way `CLAIMED / AUTHORIZED / OBSERVED /
 RECONCILED` classification for parent and child; `LINEAGE_VIOLATION`
 precondition in the reconciler under `syntriass-reconciliation` rules. RED
 first. Skill 8 remains the next numbered Ghost gate and is untouched.
+
+---
+
+# Phase C — parent / child lineage (C1: model and derivations)
+
+## Status
+
+**PASS for C1.** Lineage is now a real section of the profile in three
+kinds that never merge — identity (from AID lineage proofs across
+generations), authority (issuer → grantee paths from verified token chains)
+and process (kernel fork/exec edges between bound instances) — with the
+agent at either end of a process edge established only through a
+decision-point-signed peer expectation. **C2 is not started:** there is no
+reconciled lineage verdict; `LINEAGE_VIOLATION` remains refused by the
+reconciler's central guard, and `ReconciledLineage` has exactly one variant,
+`NotReachable`. C2 depends on the delegation graph (Phase D).
+
+Design input harvested from out-of-tree work is recorded in
+`OUT_OF_TREE_HARVEST_REVIEW.md` §5: lineage has a kind and an actor; an edge
+cannot exist without both bound ends; attribution of the far end is a
+separate fact; every relation carries how it was established.
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| `3d2ecd2` | `OUT_OF_TREE_HARVEST_REVIEW.md` |
+| `83bee50` | RED: `aip-reconcile/tests/lineage_edges.rs` (le01–le07), `aip-agent/tests/lineage.rs` (l01–l09); neither compiled |
+| `07328c9` | GREEN: `LineageEdge` + `derive_lineage_edges` in `aip-reconcile`; `aip-agent/src/lineage.rs`; hop path on `AuthorizedCapability`; three new profile inputs |
+| *(the following commit)* | this section and pointers |
+
+Test-file edits since RED, by `git diff -w`: Phase C files — rustfmt only.
+Phase B `tests/profile.rs` — three new empty fixture inputs; the two
+assertions that pinned `lineage == LineageSection::NotEvaluated` (the Phase
+B placeholder) now pin the real section's `reconciled == NotReachable`, no
+identity parent and no process relation for those inputs; p16's source list
+gained `lineage.rs`. These are the intended replacement of a placeholder by
+the thing it stood for, not a weakening: every Phase B property still holds
+and is still asserted.
+
+## Current State
+
+| Symbol | What it is | Authority behind it |
+|---|---|---|
+| `aip_reconcile::LineageEdge { parent, child, fork, exec, image_sha256, filename, mechanism, batch_sequence }` | "bound instance P forked bound instance C, which executed image H" | collector-signed kernel events; both ends pidfd-anchored; child start tick verified against the batch's clock anchor |
+| `aip_reconcile::derive_lineage_edges(batches)` | the only production constructor: a completed, start-verified `ProcessExecution` and nothing less | reuses `derive_executions` pairing (Stage 7c) |
+| `IdentityParent::{None, Claimed, Endorsed, Refused}` | how the parent named by the lineage proof stands | `Endorsed` only when the proof verifies against the parent's own validated document (or the key the caller asserted); `Refused` when the genuine parent document is present and the proof fails against it |
+| `IdentityLineage { parent, ancestors: Vec<Ancestor{id, link: Endorsed}>, generations, excluded_documents }` | ancestry rebuilt generation by generation from proofs; stops at the first missing or invalid document; cycle-guarded; capped at 64 | each ancestor's own self-signature and the proof it signed |
+| `AuthorityPath { root_jti, root_issuer, root_grantee, hops: Vec<AuthorityHop{jti, issuer_id, grantee_id}>, standing }`, `delegators()` | one verified chain as a path | token signatures through `aip_core` (Phase B projection) |
+| `ChildAttribution::{Unattributed, AuthorizedTarget{agent_id, decision_id}, Ambiguous{agent_ids}}` | which agent an observed instance is | a peer `ExpectedExecution` verified against the builder's decision-point anchors whose binding matches the instance structurally (`matches_process_of`); two agents naming one instance is reported as ambiguous, never resolved |
+| `ProcessLineage { spawned: Vec<ObservedSpawn{child, child_agent, parent_basis, edge}>, spawned_by: Vec<ObservedSpawnedBy{parent, parent_agent, child_basis, edge}>, unrelated_edges, excluded_peer_expectations }` | this agent's observed spawns and the spawn that produced it, each carrying how this agent's own instance was vouched for (`AuthorizedTarget` or `Claimed`) | kernel edges + the instance partition |
+| `ReconciledLineage::NotReachable` | no verdict exists | — |
+| `ProfileInputs.{peer_expectations, process_edges, ancestor_documents}` | new inputs | verified / validated inside the builder |
+
+## Evidence
+
+`aip-reconcile/tests/lineage_edges.rs`:
+
+| Test | Property |
+|---|---|
+| le01 | bound fork + bound exec + verified start → one edge with both instances, kernel positions, image, mechanism |
+| le02 | fork without exec → no edge |
+| le03 | unbound parent or unbound child → no edge |
+| le04 | no clock anchor → no edge |
+| le05 | child start tick outside `[fork − tick, exec]` (recycled pid) → no edge |
+| le06 | exec before fork in kernel time → no edge |
+| le07 | an edge serializes with no agent id, attribution or decision, whatever the events claimed |
+
+`aip-agent/tests/lineage.rs`:
+
+| Test | Property |
+|---|---|
+| l01 | root identity: parent `None`, no ancestors, zero generations |
+| l02 | parent `Claimed` without the parent's document, `Endorsed` with it; grandparent reached only through the parent; generations from proofs while `lineage_depth` stays 1 |
+| l03 | mutated ancestor document excluded with reason, parent stays `Claimed`; unrelated document ignored; a proof forged under another key against the genuine parent document → `Refused` |
+| l04 | one authority path per verified chain with hops, root issuer, standing and `delegators()`; a rewritten root yields none |
+| l05 | observed spawn by this agent's `AuthorizedTarget` instance; child `Unattributed` until a verified peer expectation names its binding; untrusted anchors → nothing attributed, edge unrelated, peer excluded |
+| l06 | the same edge from the child's side (`spawned_by`) with the parent attributed the same way |
+| l07 | same pid with another start tick, or another image, is another process: no relation |
+| l08 | the swarm shape: spawned by a known instance, no authority path, own instance only `Claimed`; `reconciled` matched exhaustively — no verdict variant exists |
+| l09 | lineage partition has exactly `identity / authority / process / reconciled`; no forbidden key; a claimed parent never renders as endorsed |
+
+## Security Findings (carried forward)
+
+Unchanged from Phase B, plus: a process edge says which *instances* are
+related, never which *agents*; attribution rests on decision-point-signed
+expectations, which are the agent's own binding claims countersigned as the
+authorized target. An agent that never requested a decision is unattributed
+in every edge it appears in — that is `CANNOT_PROVE` for its identity, not
+evidence of anything else.
+
+## Changes Made
+
+| File | Change |
+|---|---|
+| `aip-reconcile/src/action.rs` | `LineageEdge`, `derive_lineage_edges`; `Serialize` on `EventPosition`; no change to any comparison, guard or result |
+| `aip-reconcile/src/lib.rs` | exports |
+| `aip-agent/src/lineage.rs` | new |
+| `aip-agent/src/authority.rs` | `root_grantee`, `hops` on `AuthorizedCapability` |
+| `aip-agent/src/profile.rs` | three inputs; `lineage: Lineage` replaces the placeholder |
+| `aip-agent/src/lib.rs`, `Cargo.toml` | exports; `aip-observe` becomes a regular dependency |
+
+No canonical encoder, signed field, verification rule or wire format
+changed; the protocol change guard did not apply.
+
+## Tests
+
+| Suite | Result |
+|---|---|
+| `cargo test -p aip-agent` | 28 passed (3 characterization + 16 profile + 9 lineage), 0 failed |
+| `cargo test -p aip-reconcile --test lineage_edges` | 7 passed, 0 failed |
+| `cargo test --workspace` (aip-standalone) | 583 passed, 0 failed, 3 ignored (Phase B: 567; +16) |
+| `cargo test` (aip-service) | 39 passed, 0 failed (unchanged) |
+| `cargo clippy --workspace --all-targets -- -D warnings` | clean |
+| `cargo fmt --all --check` | clean |
+
+All Stage 0–7c tests unchanged. tracefs mounted by hand so live tests ran.
+
+## Remaining Gaps
+
+C2 (reconciled lineage, `LINEAGE_VIOLATION`) after Phase D; identity issuer
+and lifecycle authority (NOT DETERMINED); revocation status; everything
+listed under Phase B.
+
+## Security Claims
+
+- A `LineageEdge` exists only for a kernel fork whose parent and child were
+  both pidfd-anchored and whose child start tick was verified.
+- An identity ancestor appears only when the proof verifies against that
+  ancestor's own validated document.
+- An authority path is exactly one verified token chain.
+- No lineage verdict is produced; nothing in the type system can express one.
+
+Not claimed: that a spawned child inherited anything; that an unattributed
+instance belongs to no agent; that lineage across hosts is visible.
+
+## Next Gate
+
+Phase D — delegation graph over verified token chains (index by grantee,
+all paths reaching an agent, effective scope per path, explicit
+incompleteness), harvested shape from `OUT_OF_TREE_HARVEST_REVIEW.md` §2.1;
+then C2. Skill 8 remains untouched.

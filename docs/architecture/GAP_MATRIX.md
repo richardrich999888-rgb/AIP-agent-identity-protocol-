@@ -54,6 +54,13 @@ original discovery text for traceability):
   crate `aip-agent`: validated identity, authority projection under the
   decision point's rules, dimension-separated profile view with no summary
   field. No new key or authority. See `SNIFFER_DOG_2_0_IMPLEMENTATION_REPORT.md`.
+- Sniffer Dog 2.0 Phase C1 — `LineageEdge` / `derive_lineage_edges` in
+  `aip-reconcile` (both ends bound, start verified, no agent identity) and a
+  three-kind lineage section on the profile (identity from proofs across
+  generations, authority paths, observed spawns with peer-expectation
+  attribution); no reconciled lineage verdict yet (C2 after Phase D).
+  `OUT_OF_TREE_HARVEST_REVIEW.md` classifies every branch and PR capability;
+  none merged.
 
 ## D. PR3 corrective review (pre-reconciliation)
 

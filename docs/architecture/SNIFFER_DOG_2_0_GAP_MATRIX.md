@@ -186,3 +186,16 @@ STATUS:        authorized in the reduced form of A.4.
 | Depth does not chain (A.3) | unchanged; Phase C rebuilds ancestry from proofs | c02 |
 
 Test counts after Phase B: aip-standalone 567 / 0 / 3 ignored (+19), aip-service 39 / 0; clippy and fmt clean.
+
+## A.9 Phase C1 outcome
+
+| Component | State after C1 | Evidence |
+|---|---|---|
+| Process lineage edges (`LineageEdge`, `derive_lineage_edges`) | **CLOSED** for derivation; both ends bound, start verified, no agent identity | `aip-reconcile/tests/lineage_edges.rs` le01–le07 |
+| Identity lineage across generations from proofs | **CLOSED**; `Claimed` / `Endorsed` / `Refused`; depth never read | l01–l03 |
+| Authority lineage as paths | **CLOSED** (projection of Phase B chains) | l04 |
+| Four-way parent classification | **PARTIAL**: identity (Claimed/Endorsed/Refused) and process (Observed, with the instance's own basis Claimed/AuthorizedTarget) exist; **Reconciled is unreachable** by type | l05–l09 |
+| `LINEAGE_VIOLATION` reachability | **open** — Phase C2 after Phase D | guard unchanged |
+| Out-of-tree capabilities | classified in `OUT_OF_TREE_HARVEST_REVIEW.md`; none merged | — |
+
+Test counts after C1: aip-standalone 583 / 0 / 3 ignored (+16), aip-service 39 / 0; clippy and fmt clean.
