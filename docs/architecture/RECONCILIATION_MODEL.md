@@ -195,3 +195,12 @@ The dependency order is fixed by evidence, not preference:
 4. **then** reconciliation
 
 See `IMPLEMENTATION_PLAN.md`.
+
+## Downstream consumer (Skill 8)
+
+`aip-warrant::evaluate` consumes `Reconciliation` records unchanged: the
+typed `result`, `strength`, `availability` and `evidence` are read, never
+recomputed; the engine adds an operator-declared severity and returns a
+response class gated on `EvidenceStrength::Proven`. Records remain unsigned;
+the warrant carries `Reconciliation::digest()` so a later signed-record layer
+binds to the same bytes. See `WARRANT_IMPLEMENTATION_REPORT.md`.

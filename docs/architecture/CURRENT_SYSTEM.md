@@ -157,3 +157,20 @@ no authorized-execution record to reconcile observation against.
 
 Per invariant **I17**, none of this is production capability. It may be
 harvested as design input; it must not be cited as implemented.
+
+## 8. Ghost programme state (added after Stages 0–7c, Skill 8 and the PR #3 harvest)
+
+§1–§7 describe the repository at `377d5fc` and are kept for traceability.
+Since then the following are **PRODUCTION in `aip-standalone`** (each with a
+report under `docs/architecture/`): corrected AIP authority (Skill 3),
+`ExecutionBinding` (Skill 4), `aip-authorize` decision point (Skill 5),
+`aip-observe` probe/collector observer with kernel-pushed sources, provenance
+gating, loss accounting and restart-continuity audit (Skills 6/6.5, Stages
+7b/7c, PR #3 harvest), `aip-reconcile` with `CANNOT_PROVE` default and two
+verified action classes (Skill 7, Stages 7–7c), `aip-agent` identity /
+profile / lineage / delegation graph (Sniffer Dog 2.0 Phases B–D),
+`aip-warrant` (Skill 8). Still **MISSING**: containment (Skill 9), NEXORA
+(Skill 10), signed reconciliation records, experience ledger, profile API,
+`aip-service` integration of any of the above (the service still carries its
+own authority model, §5). The out-of-tree inventory in §7 is superseded by
+`OUT_OF_TREE_HARVEST_REVIEW.md` and `OT_SENTINEL_HARVEST_AUDIT.md`.

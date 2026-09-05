@@ -17,7 +17,9 @@
 > delegation graph over verified chains) are implemented in the
 > reduced form those documents state; every other component remains as
 > classified below. Out-of-tree branches were reviewed in
-> `OUT_OF_TREE_HARVEST_REVIEW.md`; nothing from them is merged.
+> `OUT_OF_TREE_HARVEST_REVIEW.md` and PR #3 forensically in
+> `OT_SENTINEL_HARVEST_AUDIT.md`; designs were harvested (Skill 8 response
+> policy, collector restart continuity), no code was merged.
 
 ## 0. Why this document exists
 

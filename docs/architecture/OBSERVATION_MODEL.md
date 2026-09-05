@@ -1,5 +1,15 @@
 # OBSERVATION_MODEL
 
+> **Status note (post Stages 3–7c, Skill 8, PR #3 harvest).** §1 below is the
+> Stage 0 discovery and reads "MISSING" for runtime observation; that was
+> true at `377d5fc`. The observer now exists — `aip-observe` with a
+> probe/collector split, kernel-pushed sources, provenance gating, loss
+> accounting and restart-continuity audit — and is described in
+> `SNIFFER_DOG.md`, `OBSERVER_IMPLEMENTATION_REPORT.md` and
+> `SNIFFER_DOG_IMPLEMENTATION_REPORT.md`. The semantics in §3–§4 are the
+> ones implemented. Statements of absence in §1 are kept for traceability.
+
+
 > **Status (PR3).** §1–§2 are the discovery record at `377d5fc`. Since then:
 > Stage 1 added `ExecutionBinding` (`EXECUTION_BINDING.md`), Stage 2 the
 > `ExpectedExecution` producer (`DECISION_POINT.md`), Stage 3 / 6.5 the

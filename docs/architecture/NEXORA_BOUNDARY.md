@@ -98,3 +98,11 @@ proof because it looks authoritative.
 
 Precondition for starting NEXORA: `VERIFIED_EXECUTION` must be producible, i.e.
 the decision point, execution binding, observer and reconciler all exist.
+
+## PR #3 review note (post-audit)
+
+`OT_SENTINEL_HARVEST_AUDIT.md` reviewed the import's NEXORA material
+(TypeScript anchors, delegation graph, verifier; Rust lifecycle anchors).
+Disposition: design input for Skill 10 only — anchors are hash-chained JSON
+without a signature or an external anchor (I15), on a second encoding (I14).
+`NEXORA = MISSING` is unchanged.
