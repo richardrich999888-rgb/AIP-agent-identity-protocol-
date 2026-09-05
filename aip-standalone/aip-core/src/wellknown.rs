@@ -303,6 +303,50 @@ mod tests {
         assert!(!valid, "Token must fail verification against wrong key");
     }
 
+    /// PR3 A-1. The JWKS delegation verifier must bind the signature to the
+    /// hop's contents, exactly as `verify_delegation_chain` does. Mutating
+    /// `expires_at` (or scope, or grantee) after issuance must fail.
+    #[test]
+    fn test_delegation_with_jwks_rejects_mutated_hop() {
+        use crate::delegation::create_delegation;
+        let (issuer_id, issuer_priv, _) = make_issuer();
+        let (orch_id, orch_priv, orch_pub) = make_issuer();
+        let (agent_id, _, _) = make_issuer();
+
+        let root = issue_scoped_token(
+            &issuer_id,
+            &issuer_priv,
+            &orch_id,
+            scope_orchestrator(),
+            Some(3_600_000),
+        )
+        .unwrap();
+        let hop = create_delegation(&root, &orch_priv, &agent_id, scope_submitter()).unwrap();
+        let jwks = generate_jwks(&orch_pub, &orch_id).unwrap();
+        assert!(verify_delegation_with_jwks(&hop, &jwks).unwrap());
+
+        let mut extended = hop.clone();
+        extended.expires_at = Some(u64::MAX);
+        assert!(
+            !verify_delegation_with_jwks(&extended, &jwks).unwrap(),
+            "SECURITY: hop expires_at extended but JWKS verifier still accepts it"
+        );
+
+        let mut escalated = hop.clone();
+        escalated.scope = scope_admin();
+        assert!(
+            !verify_delegation_with_jwks(&escalated, &jwks).unwrap(),
+            "SECURITY: hop scope escalated but JWKS verifier still accepts it"
+        );
+
+        let mut regranted = hop.clone();
+        regranted.grantee_id = "aip1SomeoneElse".into();
+        assert!(
+            !verify_delegation_with_jwks(&regranted, &jwks).unwrap(),
+            "SECURITY: hop grantee rewritten but JWKS verifier still accepts it"
+        );
+    }
+
     #[test]
     fn test_key_not_found_returns_error() {
         let (issuer_id, priv_key, _) = make_issuer();
