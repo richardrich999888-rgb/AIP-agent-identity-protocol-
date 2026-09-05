@@ -372,6 +372,8 @@ pub enum ReconciledLineage {
 pub struct Lineage {
     pub identity: IdentityLineage,
     pub authority: Vec<AuthorityPath>,
+    /// Phase D: the delegation graph's answers for this agent.
+    pub delegation: crate::graph::DelegationSummary,
     pub process: ProcessLineage,
     pub reconciled: ReconciledLineage,
 }

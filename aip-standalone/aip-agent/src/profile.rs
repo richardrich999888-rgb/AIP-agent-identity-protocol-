@@ -24,6 +24,7 @@ use aip_types::{AgentIdentityDocument, ExecutionBinding};
 use serde::Serialize;
 
 use crate::authority::{project_authority, AuthorityChain, AuthorityProjection, IssuerKeys};
+use crate::graph::{DelegationGraph, DelegationSummary};
 use crate::identity::{AgentIdentity, IdentityError};
 use crate::lineage::{
     authority_lineage, identity_lineage, process_lineage, Lineage, ReconciledLineage,
@@ -60,6 +61,11 @@ pub struct ProfileInputs<'a> {
     pub identity: IdentityInput<'a>,
     pub self_declared: &'a [String],
     pub authority: &'a [AuthorityChain],
+    /// Delegation tokens held without their chain; reported as incompleteness
+    /// by the graph, never verified alone.
+    pub loose_hops: &'a [aip_types::DelegationToken],
+    /// Verifier-supplied revoked token ids (the shape rule R9 consumes).
+    pub revoked_jtis: &'a [[u8; 16]],
     pub issuer_keys: &'a IssuerKeys,
     /// Decision-point-signed expectations; verified here against the anchors
     /// and against the validated agent key (`DecisionKeyIsAgentKey`).
@@ -294,6 +300,16 @@ pub fn build_profile(inputs: &ProfileInputs<'_>) -> Result<AgentProfile, Profile
             inputs.ancestor_documents,
         ),
         authority: authority_lineage(&authority),
+        delegation: DelegationSummary::for_agent(
+            &DelegationGraph::build(
+                inputs.authority,
+                inputs.loose_hops,
+                inputs.issuer_keys,
+                inputs.revoked_jtis,
+                inputs.as_of_ms,
+            ),
+            &agent_id,
+        ),
         process: process_lineage(
             &agent_id,
             &instances,

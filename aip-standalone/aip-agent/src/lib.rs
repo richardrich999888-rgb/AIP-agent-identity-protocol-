@@ -36,6 +36,7 @@
 //! records from the builder's own verifier run (`RecordSource::VerifierLocal`).
 
 pub mod authority;
+pub mod graph;
 pub mod identity;
 pub mod lineage;
 pub mod profile;
@@ -43,6 +44,10 @@ pub mod profile;
 pub use authority::{
     project_authority, AuthorityChain, AuthorityProjection, AuthorizedCapability,
     ExcludedAuthority, ExclusionReason, IssuerAssertion, IssuerKeys, Standing,
+};
+pub use graph::{
+    DanglingHop, DelegationGraph, DelegationSummary, GraphNode, GraphPath, OutgoingDelegation,
+    PathStanding,
 };
 pub use identity::{
     AgentIdentity, IdentityError, IdentitySource, LifecycleAssertion, LineageProofState,

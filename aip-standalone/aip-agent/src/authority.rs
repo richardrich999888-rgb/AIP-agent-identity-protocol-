@@ -162,16 +162,18 @@ pub fn project_authority(
     p
 }
 
-fn verify_chain(
-    agent_id: &str,
+/// Steps 1–3 of the decision point's rules, independent of any particular
+/// agent: no self-issued root, trusted and valid root signature, chain
+/// verified by `aip_core`. Returns the effective scope. Shared by the
+/// per-agent projection and the delegation graph.
+pub(crate) fn verify_chain_terms(
     c: &AuthorityChain,
     keys: &IssuerKeys,
-    as_of_ms: u64,
-) -> Result<AuthorizedCapability, ExclusionReason> {
+) -> Result<CapabilityScope, ExclusionReason> {
     let root = &c.root;
 
-    // 1. The agent did not issue its own root authority.
-    if root.issuer_id == agent_id {
+    // 1. A root whose issuer is its own subject is self-issued authority.
+    if root.issuer_id == root.agent_id {
         return Err(ExclusionReason::SelfIssuedRoot);
     }
 
@@ -198,6 +200,23 @@ fn verify_chain(
             }
             other => ExclusionReason::ChainInvalid(other),
         })?;
+    Ok(effective_scope)
+}
+
+fn verify_chain(
+    agent_id: &str,
+    c: &AuthorityChain,
+    keys: &IssuerKeys,
+    as_of_ms: u64,
+) -> Result<AuthorizedCapability, ExclusionReason> {
+    let root = &c.root;
+
+    // 1. The agent did not issue its own root authority (the decision point's
+    //    rule, in addition to the issuer == subject check in the terms).
+    if root.issuer_id == agent_id {
+        return Err(ExclusionReason::SelfIssuedRoot);
+    }
+    let effective_scope = verify_chain_terms(c, keys)?;
 
     // 4. The chain ends at this agent.
     let leaf = c

@@ -28,7 +28,6 @@ fn provenance(tag: &str) -> ProvenanceTriple {
 
 struct Fx {
     cfo_id: String,
-    cfo_kp: KeyPair,
     orch: AgentIdentityDocument,
     orch_kp: KeyPair,
     a: AgentIdentityDocument,
@@ -60,7 +59,6 @@ fn fixture() -> Fx {
     let now = root.issued_at + 1;
     Fx {
         cfo_id,
-        cfo_kp,
         orch,
         orch_kp,
         a,
@@ -99,7 +97,7 @@ fn write() -> ScopeAction {
 fn d01_one_chain_is_one_path() {
     let fx = fixture();
     let chain = fx.chain_to(&fx.a.id);
-    let g = DelegationGraph::build(&[chain.clone()], &[], &fx.keys, &[], fx.now);
+    let g = DelegationGraph::build(std::slice::from_ref(&chain), &[], &fx.keys, &[], fx.now);
     assert_eq!(g.nodes().len(), 2);
     assert!(g.is_complete());
     assert!(g.excluded().is_empty());
@@ -410,8 +408,8 @@ fn d10_profile_carries_delegation_summary() {
     let d = &p.lineage.delegation;
     assert_eq!(
         d.paths_to_agent.len(),
-        2,
-        "both chains' roots reach the orchestrator"
+        1,
+        "one root token presented in two chains is one path (d02 dedupe)"
     );
     assert_eq!(d.delegated_by_agent.len(), 2);
     let mut grantees: Vec<String> = d
