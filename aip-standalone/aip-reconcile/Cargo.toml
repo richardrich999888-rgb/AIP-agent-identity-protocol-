@@ -1,0 +1,17 @@
+[package]
+name = "aip-reconcile"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Ghost Stage 4: reconcile ExpectedExecution against attested observation; CANNOT_PROVE by default"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-authorize = { path = "../aip-authorize" }
+aip-observe = { path = "../aip-observe" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+aip-core = { path = "../aip-core" }
+serde_json = "1.0"

@@ -93,6 +93,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-reconcile"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-observe",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-test"
 version = "0.4.0"
 dependencies = [
@@ -101,6 +114,7 @@ dependencies = [
  "aip-crypto",
  "aip-observe",
  "aip-protocol",
+ "aip-reconcile",
  "aip-types",
 ]
 
