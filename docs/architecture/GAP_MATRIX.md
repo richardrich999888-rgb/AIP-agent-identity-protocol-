@@ -20,9 +20,11 @@ original discovery text for traceability):
   `SNIFFER_DOG_IMPLEMENTATION_REPORT.md`.
 - PR3 corrective review — see `PR3_GAP_REVIEW.md`; three MUST-FIX items
   closed (section D below); reconciliation readiness decided.
-- Stage 4 (Skill 7) at `ad9642a` — reconciler `aip-reconcile`, `CANNOT_PROVE`
-  default, five of eight result classes reachable; see
-  `RECONCILIATION_IMPLEMENTATION_REPORT.md`.
+- Stage 4 (Skill 7) at `ad9642a`, corrected at `6b2f5c7` (RED) / `b821a23`
+  (GREEN) — reconciler `aip-reconcile`, `CANNOT_PROVE` default, five of eight
+  result classes reachable; the corrective pass makes the reconciler
+  re-derive coverage from the attested batches instead of trusting the
+  collector's derived fields. See `RECONCILIATION_IMPLEMENTATION_REPORT.md`.
 
 ## D. PR3 corrective review (pre-reconciliation)
 
@@ -33,7 +35,7 @@ original discovery text for traceability):
 | Per-mechanism coverage in signed health — **CLOSED** (observer protocol v3) | health stated *that* a window was covered, not *by which source*; `PHANTOM_CLAIM` would have required inferring kernel coverage from event presence (**I8**) | `ObservationBatch.active_mechanisms` (declared ∪ used, registry-bounded), `SensorHealth.covered_by` (intersection over the epoch), `covered_by_kernel_pushed_source()` | **P0** |
 | Cross-crate domain-tag audit | no single test saw all 16 tags | `aip-test/src/domain_audit.rs` | — |
 | Identity digests not byte-comparable across crates | `ExecutionBinding::identity_bytes` ≠ `ObservedProcess::identity_bytes` by design | documented: compare structurally via `matches_process_of` | E |
-| `[u8;16]` identifiers indistinguishable by type | `decision_id`, `batch_id`, `probe_run_id`, `jti`, … | Skill 7 must introduce newtypes at its boundary | D |
+| `[u8;16]` identifiers indistinguishable by type — **CLOSED at the reconciliation boundary (`b821a23`)** | `decision_id`, `batch_id`, `probe_run_id`, `jti`, … | `DecisionId`/`BatchId`/`ProbeRunId`/`ObserverId`/`ObserverSequence`/`DecisionPointId` used throughout `EvidenceRef` and `ObservationTarget`; upstream crates still use bare `[u8;16]` | D |
 
 ## A. AIP correctness (must precede any Ghost work)
 
@@ -61,7 +63,7 @@ original discovery text for traceability):
 | Observer — **PARTIAL (Stage 3 → 6.5)**: keyless host probe with four provenance-tagged sources — procfs poll, pidfd-anchored instance reads, kernel netlink process-event connector (fork/exec/exit with kernel time; `ENOBUFS` loss surfaced), kernel socket tables (socket-level only). Still no eBPF/tracepoint/perf/XDP path; procfs *content* remains root-forgeable; polled sources still miss what happens between polls | **MISSING** (0 files: ebpf/XDP/perf_event/procfs/netlink) | independent runtime observer | no observation of any kind | binding + attestation | **P1** |
 | `ObserverAttestation` — **CLOSED (Stage 3)**: anchor decided as *remote collector*; key held by `CollectorSigner`, structurally unreachable from host-side types; deployment as a separate process remains an operator obligation | **MISSING** | trust root not held by observed agent | observation would be a second self-report (**I10**) | anchor decision (open) | **P0** for design, **P1** to build |
 | Sensor health / continuity — **CLOSED (Stage 3 → 6.5)**: five signed states, collector-side ledger with replay/fork/rollback/gap/head-mismatch faults; 6.5 adds probe run-id (restart), per-run sequence discontinuity and counted kernel event loss as explicit `Degraded` causes, and `probe_policy` in signed health; coverage never back-fills an outage, a loss, or a restart | **MISSING** | 5 explicit states, signed | silence indistinguishable from coverage (**I9**) | observer | **P1** |
-| Reconciler — **PARTIAL (Stage 4, `ad9642a`)**: `aip-reconcile` joins on `decision_id` + structural `ExecutionBinding` match, verifies both signatures and the observer chain up to the signed health head, defaults to `CANNOT_PROVE`; reachable: `PHANTOM_CLAIM` (kernel-pushed signed coverage, `RegisteredOnly`, chain spans window), `IDENTITY_DIVERGENCE`, `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, `CANNOT_PROVE`; **unreachable by construction**: `VERIFIED_EXECUTION` (no action-level observation), `UNATTRIBUTED_EFFECT` (no producer for the DP completeness statement), `LINEAGE_VIOLATION` | **MISSING** (0 occurrences) | join on `decision_id` + binding | no comparison exists | both producers | **P1** |
+| Reconciler — **PARTIAL (Stage 4, `ad9642a` + `b821a23`)**: `aip-reconcile` joins on `decision_id` + structural `ExecutionBinding` match, verifies both signatures and the observer chain up to the signed health head, defaults to `CANNOT_PROVE`; reachable: `PHANTOM_CLAIM` (`RegisteredOnly`, kernel-pushed signed coverage, **and** coverage re-derived from the batches as gap-free, single-probe-run, kernel-pushed, ending no later than the collector's signed clock), `IDENTITY_DIVERGENCE` (claim must name the expectation's agent), `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, `CANNOT_PROVE`; **unreachable by construction**: `VERIFIED_EXECUTION` (`ActionComparison::Match` requires an unconstructible seal), `UNATTRIBUTED_EFFECT` (no producer for the DP completeness statement), `LINEAGE_VIOLATION` (refused by the central precondition guard) | **MISSING** (0 occurrences) | join on `decision_id` + binding | no comparison exists | both producers | **P1** |
 | `OBSERVATION_UNAVAILABLE` semantics — **CLOSED (Stage 4)**: `ObservationAvailability::Unavailable{reason}` is carried unchanged in every `Reconciliation`; `ReconciliationResult::default()` is `CannotProve`; every `Unavailable` reason and every non-`Active` observer state yields `CANNOT_PROVE` or an explicit failure class, never `PHANTOM_CLAIM` | **MISSING** | first-class type, `CANNOT_PROVE` default | risk of inferring non-execution from silence (**I8**) | reconciler | **P0** for design |
 | Warrant engine — the `EvidenceStrength` enum it must consume now exists as a separate type in `aip-reconcile` (Stage 4); the engine itself is still **MISSING** | **MISSING** | severity ⊥ strength; `Proven` gate | containment on suspicion (**I12**, **I13**) | reconciler | **P1** |
 | Containment | **MISSING** (correctly) | proof-gated, advisory default | — | warrant engine | **P2** |
@@ -92,6 +94,33 @@ original discovery text for traceability):
 | mutate `expires_at`, re-seal, assert rejection | the P0 defect is currently unprovable by the suite | **P0** |
 | canonical encoder injectivity / collision vectors | `canonical.rs` has **zero** tests | **P0** |
 | PID-reuse attribution refusal | **I4** | **P0** (with binding) |
-| `OBSERVATION_UNAVAILABLE` never yields `PHANTOM_CLAIM` — **CLOSED (Stage 4)**: `aip-reconcile/tests/adversarial.rs` t02, t02b, t03b, t03c, t11, t11b, t14_t18, t17, t22 | **I8** | **P0** (with reconciler) |
+| `OBSERVATION_UNAVAILABLE` never yields `PHANTOM_CLAIM` — **CLOSED (Stage 4)**: `adversarial.rs` t02, t02b, t03b, t03c, t11, t11b, t14_t18, t17, t22; `corrective.rs` r1–r5 add fabricated coverage (hole, future window, forged mechanism, restart, future-dated health) | **I8** | **P0** (with reconciler) |
 | suspicion cannot reach containment | **I12/I13** | **P1** |
 | service: cross-tenant HTTP 401/403, revoked-JTI rejection | single auth guard has zero coverage | **P1** |
+
+## F. Skill 7 corrective pass (post-reconciliation)
+
+RED evidence: `6b2f5c7` (six tests failing against `362695b`, no production
+change). Fixes: `b821a23`.
+
+| Finding | Found | Fix | Pri |
+|---|---|---|---|
+| Hole between probe-claimed windows read as coverage — **CLOSED** | the collector unions `claimed_from_ms`/`claimed_to_ms` without checking that they abut, so two far-apart batches spanned a window nothing sampled → `PHANTOM_CLAIM` (**I8**) | `recompute_coverage` sweeps the claimed intervals in order and requires gap-free cover → `CoverageGapInWindow` | **P0** |
+| Coverage claimed beyond the collector's own clock — **CLOSED** | a probe could claim an unfinished window; "nothing happened in the next 60 s" was attestable one second in | the window must end at/before `health.emitted_at_ms` → `CoverageEndsAfterHealth` | **P0** |
+| Future-dated health treated as fresh — **CLOSED** | `availability_for` bounds only *old* health; a forward-set clock saturated to age 0 | health after the verifier's own time → `HealthNotYetEmitted` | **P0** |
+| Kernel provenance read from a derived field — **CLOSED** | `covered_by` trusted although the batches it derives from were in hand | intersection recomputed over the covering batches | **P1** |
+| Probe restart inside the window invisible — **CLOSED** | `probe_run_id` present in the evidence, never checked by the reconciler | one run required across the covering batches → `CoverageProbeRunChanged` | **P1** |
+| Divergence keyed on an unauthenticated claim — **CLOSED** | any process able to register a claim could attach itself to another agent's `decision_id` and produce `IDENTITY_DIVERGENCE` against them | the claim's `agent_id` must name the expectation's agent, else `IdentityComparison::ClaimInconsistent` → `CANNOT_PROVE` | **P1** |
+| Observer/decision independence never checked (**I1**, **I10**) — **CLOSED (when the key is supplied)** | a self-signed "observer" using the agent's key produced `Attested` evidence and `PHANTOM_CLAIM` | `ReconciliationContext::agent_public_key`; `ObserverKeyIsAgentKey` / `ExpectedSelfAuthorization`, always `CANNOT_PROVE` | **P1** |
+| Verifier misconfiguration reported as proven tampering — **CLOSED** | `Err(_)` catch-all sent a malformed anchor key to `SENSOR_INTEGRITY_FAILURE` at `Proven` | exhaustive classification; only signature/payload/signer failures are `Proven` | **P1** |
+| No central precondition enforcement — **CLOSED** | preconditions lived only in the branch that proposed each class | `Draft::precondition_holds` choke point; failures become `CANNOT_PROVE` / `InvariantNotSatisfied` | **P1** |
+| `VERIFIED_EXECUTION` unreachability was a comment — **CLOSED** | `ActionComparison::Match` was freely constructible | `ActionEvidenceSeal` (private field, no constructor) | **P2** |
+| Declared-but-unused newtypes cited as a property (**I15**) — **CLOSED** | `BatchId`/`ProbeRunId` were dead code | used throughout `EvidenceRef`/`ObservationTarget`; `ProbeRunId` drives the probe-run check | **P2** |
+
+Remaining, and **not** closable inside Skill 7 (see the implementation
+report, "Unresolved architectural risks"): withheld *future* observer
+evidence is bounded only by health freshness and needs an external anchor for
+the observer head (NEXORA); probe sampling claims are not countersigned by
+anything, which caps `PHANTOM_CLAIM` at `Attested`; attribution remains a
+claim; the independence checks depend on the verifier supplying the agent's
+public key; reconciliation records are unsigned and unstored.

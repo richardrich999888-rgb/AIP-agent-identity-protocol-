@@ -1,6 +1,7 @@
 # RECONCILIATION_MODEL
 
-> **Status (Stage 4, commit `ad9642a`): PARTIALLY_IMPLEMENTED** in
+> **Status (Stage 4, commits `ad9642a`, corrected in `b821a23`):
+> PARTIALLY_IMPLEMENTED** in
 > `aip-standalone/aip-reconcile`. The contract in §3–§5 below is implemented
 > as written, with `CANNOT_PROVE` as the `Default`. Reachable results:
 > `CANNOT_PROVE`, `PHANTOM_CLAIM`, `IDENTITY_DIVERGENCE`,
@@ -11,6 +12,10 @@
 > `LINEAGE_VIOLATION` (requires both fork ends bound). See
 > `RECONCILIATION_IMPLEMENTATION_REPORT.md`. §1 below is preserved as the
 > pre-implementation finding for traceability.
+>
+> The Skill 7 corrective pass hardened the coverage precondition in §4 (see
+> the note under it) and added the independence checks the reconciler can
+> make when the verifier supplies the agent's public key.
 
 ## 1. Current state (at discovery, commit `377d5fc`)
 
@@ -85,11 +90,24 @@ result record must carry the availability state alongside the result so the
 warrant layer can refuse both, but the result set above is complete as
 written.
 
-**Coverage precondition (PR3 A-3).** "Sensor coverage over that exact window
-is attested" means, concretely: `SignedSensorHealth` verifies, its state is
-`Active`, `attested_coverage` contains the window, **and** `covered_by`
-contains a kernel-pushed mechanism (`SourceMechanism::is_kernel_pushed`).
-Polled coverage can never support `PHANTOM_CLAIM`.
+**Coverage precondition (PR3 A-3, hardened in the Skill 7 corrective pass).**
+"Sensor coverage over that exact window is attested" means, concretely:
+`SignedSensorHealth` verifies, its state is `Active`, `probe_policy` is
+`RegisteredOnly`, `attested_coverage` contains the window, **and**
+`covered_by` contains a kernel-pushed mechanism
+(`SourceMechanism::is_kernel_pushed`). Polled coverage can never support
+`PHANTOM_CLAIM`.
+
+Those are the collector's *derived* claims, and every input to them
+(`claimed_from_ms`, `claimed_to_ms`, `active_mechanisms`, `probe_run_id`) is
+authored by the untrusted host-side probe and unvalidated by the collector.
+The reconciler therefore **re-derives** coverage from the attested batches it
+holds and additionally requires: the claimed intervals to cover the window
+without a hole; one `probe_run_id` across them; a kernel-pushed mechanism in
+the intersection of their `active_mechanisms`; and the window to end no later
+than the moment the collector signed its health record. Without the
+recomputation, a probe could manufacture coverage over an interval nothing
+sampled — and that interval is exactly what `PHANTOM_CLAIM` speaks about.
 
 **Context match (PR3 item 20).** No current observation carries
 `action_kind` or `parameter_digest`. Until an effect-level source exists, the
