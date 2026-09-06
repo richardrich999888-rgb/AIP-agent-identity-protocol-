@@ -1022,3 +1022,203 @@ fn test_graph_reconstruction_and_connectivity() {
     let json = graph.to_json().unwrap();
     assert!(json.contains("\"principal\""));
 }
+
+// ═══ AUDIT P0-1 — the verifier's trusted verification-time bound ═══
+//
+// Every temporal check above compares values that come from *inside* the
+// packet: `decided_at` and `performed_at` against windows the issuer chose.
+// The single clock read feeds the report's `verified_at` field and no rule.
+// So a packet dated arbitrarily in the future verified, provided its own
+// tokens said it was fine — and a holder of a legitimately issued
+// long-lived token can mint exactly that.
+//
+// The fix is a bound the *verifier* supplies, with two properties that
+// matter equally: when a verification time is given, nothing in the packet
+// may be dated after it beyond a declared tolerance; when none is given,
+// the rule is recorded as NOT EVALUATED rather than as a pass, so a
+// verifier that did not check cannot present a report that looks as if it
+// had.
+//
+// What the bound is deliberately not: "the tokens must still be valid now".
+// A historical packet stays verifiable after its authority expires — that
+// is what offline and delayed verification are for, and whether the
+// authority was valid *when the decision was made* is R10's question.
+
+const P01_HOUR: u64 = 3_600_000;
+const P01_YEAR: u64 = 365 * 24 * P01_HOUR;
+
+/// A packet whose decision and action are `ahead` in the future, under a
+/// root token whose window covers them.
+fn future_dated_packet(ahead: u64) -> Fixture {
+    let mut f = build_fixture_with_root_expiry(Some(2 * P01_YEAR));
+    let base = f.packet.decision.decided_at;
+    f.packet.decision.decided_at = base + ahead;
+    let p = &mut f.packet;
+    let kind = p.actions[0].action_kind.clone();
+    let description = p.actions[0].description.clone();
+    let payload_hash = p.actions[0].payload_hash;
+    p.actions[0] = ActionAttestation::create(
+        &p.agent.aip_id,
+        &f.agent_kp.private_key,
+        &p.decision.decision_id,
+        kind,
+        &description,
+        payload_hash,
+        base + ahead + 1,
+    )
+    .unwrap();
+    let packet = &mut f.packet;
+    packet.packet_hash = packet.compute_hash();
+    packet.agent_sig = aip_crypto::sign_ed25519(
+        &f.agent_kp.private_key,
+        &packet.agent.aip_id,
+        &packet.canonical_bytes(),
+    )
+    .unwrap();
+    f
+}
+
+#[test]
+fn p0_1_a_future_dated_packet_is_refused_against_a_supplied_bound() {
+    let f = future_dated_packet(P01_YEAR);
+    let now = f.packet.decision.decided_at - P01_YEAR;
+
+    // Unbounded, this is the finding: it verifies.
+    let report = verify_packet(&f.packet, &f.ctx);
+    assert!(
+        report.valid,
+        "the finding: with no verifier clock a future-dated packet passes"
+    );
+    assert!(!report.verification_time_checked);
+
+    // Bounded, it is refused by a named rule.
+    let report = verify_packet(&f.packet, &f.ctx.clone().at_time(now));
+    assert!(!report.valid, "a future-dated packet must not verify");
+    assert!(report.verification_time_checked);
+    assert_rule_failed(&report, rules::VERIFICATION_TIME_BOUND);
+}
+
+#[test]
+fn p0_1_an_action_after_the_bound_is_refused_even_when_the_decision_is_not() {
+    let f = build_fixture();
+    let now = f.packet.decision.decided_at;
+    let mut p = f.packet.clone();
+    replace_action_at(&mut p, &f, now + P01_HOUR);
+    let report = verify_packet(&p, &f.ctx.clone().at_time(now + 60_000));
+    assert!(!report.valid, "an action in the future must not verify");
+    assert_rule_failed(&report, rules::VERIFICATION_TIME_BOUND);
+}
+
+#[test]
+fn p0_1_authority_issued_after_the_bound_is_refused() {
+    let f = build_fixture();
+    let before_issue = f.packet.root_authority.root_token.issued_at - 1;
+    let report = verify_packet(&f.packet, &f.ctx.clone().at_time(before_issue));
+    assert!(
+        !report.valid,
+        "authority issued after the verifier's own time must not verify"
+    );
+    assert_rule_failed(&report, rules::VERIFICATION_TIME_BOUND);
+}
+
+#[test]
+fn p0_1_without_a_bound_the_rule_is_not_evaluated_rather_than_passed() {
+    let f = build_fixture();
+    let report = verify_packet(&f.packet, &f.ctx);
+    let r = report.rule(rules::VERIFICATION_TIME_BOUND).unwrap();
+    assert!(
+        !r.evaluated,
+        "a verifier that supplied no time did not check the bound"
+    );
+    assert!(!report.verification_time_checked);
+    assert_eq!(report.verification_time_ms, None);
+    assert!(
+        r.detail.to_lowercase().contains("no verification time"),
+        "the report must say why: {}",
+        r.detail
+    );
+    // Still valid — an unevaluated rule is not a failure — but a consumer
+    // can tell the difference, which is the whole point.
+    assert!(report.valid);
+
+    let at = f.packet.decision.decided_at + 5;
+    let report = verify_packet(&f.packet, &f.ctx.clone().at_time(at));
+    let r = report.rule(rules::VERIFICATION_TIME_BOUND).unwrap();
+    assert!(r.evaluated && r.pass);
+    assert!(report.verification_time_checked);
+    assert_eq!(report.verification_time_ms, Some(at));
+}
+
+#[test]
+fn p0_1_a_historical_packet_stays_verifiable_after_its_authority_expires() {
+    // One hour of authority; the verifier looks a year later. The decision
+    // and action happened inside the window, so the packet remains a valid
+    // record — offline and delayed verification depend on this.
+    let f = build_fixture_with_root_expiry(Some(P01_HOUR));
+    let long_after = f.packet.decision.decided_at + P01_YEAR;
+    let report = verify_packet(&f.packet, &f.ctx.clone().at_time(long_after));
+    assert!(
+        report.valid,
+        "a historical packet must stay verifiable after its authority expires: {report:#?}"
+    );
+    assert!(report.rule(rules::VERIFICATION_TIME_BOUND).unwrap().pass);
+    assert!(report.rule(rules::TEMPORAL_VALIDITY).unwrap().pass);
+}
+
+#[test]
+fn p0_1_a_declared_tolerance_absorbs_skew_and_nothing_more() {
+    let f = build_fixture();
+    let now = f.packet.decision.decided_at;
+    // The verifier's clock is a second behind the packet's action.
+    let behind = now - 1_000;
+    assert!(!verify_packet(&f.packet, &f.ctx.clone().at_time(behind)).valid);
+    assert!(
+        verify_packet(
+            &f.packet,
+            &f.ctx.clone().at_time(behind).with_future_tolerance(10_000)
+        )
+        .valid,
+        "a declared tolerance absorbs clock skew"
+    );
+
+    // A tolerance is a bound, not a licence.
+    let g = future_dated_packet(P01_YEAR);
+    let base = g.packet.decision.decided_at - P01_YEAR;
+    assert!(
+        !verify_packet(
+            &g.packet,
+            &g.ctx.clone().at_time(base).with_future_tolerance(10_000)
+        )
+        .valid
+    );
+}
+
+#[test]
+fn p0_1_every_existing_rule_survives_the_new_one() {
+    let f = build_fixture();
+    let report = verify_packet(&f.packet, &f.ctx.clone().at_time(f.packet.decision.decided_at + 5));
+    for name in [
+        rules::STRUCTURE,
+        rules::AGENT_ID_BINDING,
+        rules::CANONICAL_HASH,
+        rules::AGENT_SIGNATURE,
+        rules::ROOT_TOKEN_SIGNATURE,
+        rules::DELEGATION_CHAIN,
+        rules::AUTHORITY_CHAIN,
+        rules::SCOPE_AUTHORITY,
+        rules::REVOCATION,
+        rules::TEMPORAL_VALIDITY,
+        rules::ACTION_ATTESTATIONS,
+        rules::TRACE_BINDING,
+        rules::RECEIPT_BINDING,
+        rules::TRUST_FLOOR,
+        rules::EXECUTION_BINDING,
+        rules::VERIFICATION_TIME_BOUND,
+    ] {
+        assert!(
+            report.checks.iter().any(|c| c.rule == name),
+            "rule {name} missing from the report"
+        );
+    }
+    assert!(report.valid);
+}
