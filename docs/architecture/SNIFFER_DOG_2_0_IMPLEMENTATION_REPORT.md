@@ -833,3 +833,66 @@ commitment is over records whose own strength is unchanged by it).
 
 Gate 7: NEXORA — signed commitment heads, proof objects, an offline
 verifier, an external anchoring interface.
+
+---
+
+# Gate 7 — NEXORA: the proof layer (completion mandate; Skill 10)
+
+## Status
+
+**PASS for the layer; deployment of the anchor open.** Records → signed
+commitment → proof object → offline verifier exist in `aip-nexora::commitment`
+with every refusal named and tested. `NEXORA_BOUNDARY.md` §4 rows are
+closed or partial as stated there; the external anchor is an interface
+whose independence is a deployment.
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| `b6868de` | RED: `tests/nexora.rs` x01–x15; did not compile |
+| `e405d96` | `NexoraSigner`, `NexoraTrustAnchors`, `SignedHead` (+ `signing_preimage`, `digest`, `resign`), `verify_signed_head`, `CommitmentLog` (`append`, `head`, `proof_for`, `consistency_since`, `last_head`, `set_last_head`), `ProofObject`, `VerifiedInclusion`, `verify_proof`, `HeadTracker` / `Advance`, `AnchorSink` / `MemoryAnchor`, `NexoraError` |
+| *(the commit carrying this section)* | documentation |
+
+## Evidence (mandate's requirements → tests)
+
+| Requirement | Tests |
+|---|---|
+| bundle → signed commitment | x01 (head over log id, size, root, previous head, time; chained), x03 (empty log) |
+| tamper and trust refusals on the head | x02, x08 |
+| proof object → offline verifier | x04 (anchors only; the result names where and what digest, nothing about truth or authorization), x05 (a committed `CANNOT_PROVE` is as committed as anything), x15 (a real reconciliation record by its canonical bytes) |
+| changed record / kind, transplant, stale head | x06, x07 |
+| rollback / fork / broken chain / missing or wrong consistency / other log | x10, x11, x12, x13 |
+| replay is not an advance | x09 (`Same`) |
+| external anchoring interface | x14 (`MemoryAnchor`, a tracker following the anchor refuses a truncated log) |
+| no bitwise LLM replay claim | no field, method or document claims one; the proof carries bytes and a digest |
+
+## Security Claims
+
+- A `VerifiedInclusion` is `Proven`-grade arithmetic over a head whose
+  signature the verifier anchors: these bytes, of this kind, were at this
+  index under this root when this head was signed.
+- Rollback, fork and broken head chains are refusals, not warnings.
+
+Not claimed: that any record's own claims hold; that the anchor is
+outside the party holding the log (a deployment); that history is
+complete (only that what is offered extends what was accepted); durable
+storage; that the reconciler's records reach a log automatically.
+
+## Next Gate
+
+Gate 8: strict continuity runtime semantics for the collector's own
+AMNESIA / ROLLBACK / FORK / TRUNCATION, with restart tests.
+
+## Demonstrator limitation recorded at Gate 7
+
+The live scenarios of `ghost-demo` run on whatever host executes the
+tests. This host runs an unrelated process that streams TCP continuously
+and forks often; every host-wide source (fork/exec, sends, the tap, the
+mount watch) sees it. Two remedies were applied (sources opened per
+scenario; larger perf rings and tap queue) and one residual flake was seen
+once in a full workspace run and not reproduced in four reruns of the
+suite. The observer's loss accounting is what makes such interference
+visible as `ObserverDegraded` rather than a wrong verdict; the demonstrator
+is `NOT_PRODUCTION_CAPABILITY` and its timing assumptions are stated in
+`ACTION_EVIDENCE.md` §17.5 and in the commit history.

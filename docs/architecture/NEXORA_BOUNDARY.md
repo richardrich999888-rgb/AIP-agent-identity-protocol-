@@ -49,9 +49,9 @@ and rollback of that history.
 | Merkle **tree** builder | **CLOSED (Gate 6, `aip-nexora::merkle`)** — RFC 6962 tree over domain-separated leaves |
 | Root over an actual set | **CLOSED (Gate 6)** — `MerkleTree::root` / `root_of`; `merkle_empty()` is the root of the empty tree only. The `aip-core` placeholders at `lib.rs:62,63,647` are unchanged and still not commitments |
 | Inclusion proof + verifier | **CLOSED (Gate 6)** — `inclusion_proof` / `verify_inclusion` (RFC 9162 §2.1.3.2), bound to index and tree size; `consistency_proof` / `verify_consistency` (§2.1.4.2), forward only |
-| Cross-packet sequence numbers | none — packets carry no ordering relative to each other |
-| Anchoring of a chain head | none — `authority_journal`-style head publication does not exist in production |
-| Replay/uniqueness | none — the same packet verifies identically forever (`VerificationContext` has no seen-set) |
+| Cross-packet sequence numbers | **CLOSED (Gate 7)** — a record's position in a `CommitmentLog` is its order; heads chain by `prev_head` |
+| Anchoring of a chain head | **PARTIAL (Gate 7)** — `SignedHead` under `SYNTRIASS/NEXORA/HEAD/v1`, `AnchorSink` / `MemoryAnchor`, `HeadTracker` (rollback, fork, broken chain refused). The *externality* of the anchor is a deployment: no anchor outside this process exists in the repository |
+| Replay/uniqueness | **PARTIAL (Gate 7)** — a proof object is bound to a head of one size; a tracker treats a repeated head as `Same`, not an advance. The packet verifier's own seen-set is unchanged (the `aip-protocol` P1 gap) |
 
 Per **I15**, having `merkle_leaf` and `merkle_internal` is *not* having a
 commitment protocol. The gap between the two is the whole of NEXORA.
@@ -123,3 +123,27 @@ bound to its size). §5's warning stands unchanged: a tree in memory is a
 commitment nobody else can rely on until a **signed head** exists and is
 **anchored outside** the party that holds the tree — a prefix of the
 history verifies exactly as well as the whole. That is Gate 7.
+
+## Gate 7 note — the proof layer
+
+`aip-nexora::commitment` (RED `b6868de`, GREEN `e405d96`) puts
+the rest of §5's interface over the Gate 6 tree: `CommitmentLog::append`
+(position = order), `head` (a `SignedHead` chained by `prev_head` under
+NEXORA's own key and domain), `proof_for` (a `ProofObject`: head, kind,
+record bytes, inclusion path), `verify_proof` (offline: anchors only;
+yields where bytes of this digest were committed and nothing else),
+`HeadTracker` (an offline party's memory: forward only, with a consistency
+proof; rollback, fork, broken chain, missing or wrong proof and another
+log's head are named refusals; the same head twice is `Same`), and
+`AnchorSink` (`MemoryAnchor` in-tree). Tests `aip-nexora/tests/nexora.rs`
+x01–x15, including a real `Reconciliation` committed by its canonical
+bytes and read back by its own digest.
+
+What it is not, restated: a committed record's own claims are untouched by
+commitment (a committed `CANNOT_PROVE` is exactly as committed as a
+committed `VERIFIED_EXECUTION`); nothing here authorizes, observes,
+reconciles or contains; no "replay" of any execution is claimed — the
+bytes are what was committed. And the anchor is only as external as its
+deployment: `MemoryAnchor` is the shape, not the independence. Wiring the
+reconciler's output and the collector's batches into a log as they are
+produced, and durable storage of logs and heads, are not done.

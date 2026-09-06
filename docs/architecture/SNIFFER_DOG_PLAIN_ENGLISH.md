@@ -121,7 +121,21 @@ switched autonomous containment on, never for a protected system component,
 and never when the observer was not watching. Out of the box, nothing is ever
 more than an alert.
 
-## 7. Nothing here contains anything
+## 7. It can commit what it found to a ledger a stranger can check
+
+Every signed record — an observation batch, a health record, a verdict, a
+warrant — can be appended to a commitment log. The log's head (how many
+records, and one hash over all of them) is signed under a key of its own,
+and each head names the one before it. Anyone holding a head and a proof
+for one record can check, without contacting anything, that the record
+was in the log at that position when the head was signed; anyone holding
+an older head can check that a newer one extends it, and will refuse one
+that shrinks, forks or skips. The ledger says *that* a record was
+committed, never whether the record is right, and it is only as
+independent as where its heads are kept: the code hands heads to an
+anchor, and putting that anchor outside the machine is the operator's job.
+
+## 8. Nothing here contains anything
 
 There is no code in this repository that kills a process, freezes a control
 group, drops a packet or changes a firewall. The warrant is a signed statement
@@ -137,10 +151,10 @@ That component does not exist yet.
 | "intercepts every socket (`cgroup/connect4`) and wire packet" | partly | `inet_sock_set_state` transitions, TCP only, plus an `AF_PACKET` tap that copies TCP/IP **headers** from the device layer (payload by length only, no process attribution); no cgroup hook, no eBPF, nothing is intercepted or blocked |
 | "ingests actual database and proxy records out-of-band" | decided against as evidence | such records are statements by the programs that write them, not observation; the decision (`APPLICATION_LOG_SENSOR_DECISION.md`) allows them only as a clearly labelled supporting tier that can never raise or lower a verdict, and no such tier is built |
 | "32-byte SHA-256 of the raw payload, exact arguments" | partly | the executed program's **contents** and the authorised action's **parameters** are hashed; a send is evidenced by the kernel's byte **count**; payloads and arguments are not visible from the kernel and no payload hash exists (invariant I23) |
-| "cross-checks against the Gateway's append-only Merkle ledger" | not implemented | there is no gateway and no Merkle commitment in this repository; the collector's chain is a signed sequence, not a Merkle tree |
+| "cross-checks against the Gateway's append-only Merkle ledger" | partly | there is no gateway; a Merkle commitment with signed, chained heads and offline proofs exists (`aip-nexora`), over the Sniffer Dog's own records, and the anchor's independence is a deployment |
 | "Matched / Unattributed Effect / Phantom Claim" | partly | `VERIFIED_EXECUTION` and `PHANTOM_CLAIM` are reachable; `UNATTRIBUTED_EFFECT` needs a signed completeness statement from the decision point that nothing produces yet |
 | "automatically triggers instant isolation … XDP_DROP … cgroups v2 freeze" | not implemented, and forbidden at this stage | no actuation code exists; containment is Skill 9 |
 | "Zero False Outages" | not a claim anyone can make | no outage statistics exist; the design goal is that nothing below proven evidence can cause an outage |
-| "writes its own detections onto a tamper-evident hash chain" | partly | the collector's batches and health are a signed, sequenced chain; reconciliation records and warrants are not yet chained or persisted |
+| "writes its own detections onto a tamper-evident hash chain" | partly | the collector's batches and health are a signed, sequenced chain; verdicts and warrants can be committed to the NEXORA log, but nothing wires them in automatically and nothing is persisted |
 | "refuses to run in an amnesic state" | partly | the collector detects amnesia, rollback, fork and a truncated archive on resume and reports them; refusing to start is an operator choice built on that result |
 | "10 Gbps", "line rate", "sub-1% overhead", "TRL" figures | not measurable here | no benchmark in this repository measures the observer; the figures on the `codex` branches measure unrelated userspace code |

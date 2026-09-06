@@ -111,6 +111,12 @@ original discovery text for traceability):
   tree, inclusion and consistency proofs with verifiers, every adversarial
   case pinned (m01–m16). No signed head or anchor yet (Gate 7).
   `NEXORA_BOUNDARY.md` §4 rows 1–3 CLOSED.
+- Gate 7 (NEXORA proof layer, Skill 10) at `b6868de` (RED) / `e405d96` (GREEN) — `aip-nexora::commitment`:
+  signed heads chained under `SYNTRIASS/NEXORA/HEAD/v1`, proof objects, an
+  offline verifier yielding where-and-what-digest only, a head tracker that
+  refuses rollback, fork and broken chains, an anchoring interface. NEXORA
+  is no longer MISSING; the anchor's externality and durable storage are
+  deployment and follow-up. `NEXORA_BOUNDARY.md` Gate 7 note.
 
 ## D. PR3 corrective review (pre-reconciliation)
 

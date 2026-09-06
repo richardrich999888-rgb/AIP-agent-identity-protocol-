@@ -270,3 +270,13 @@ Test counts after Gate 4: aip-standalone 715 / 0 / 3 ignored (+25), aip-service 
 | Inclusion proof + verifier, bound to index and size | **CLOSED** | m04–m10, m14, m15 |
 | Consistency proof + verifier, forward only | **CLOSED** | m11–m13, m16 |
 | Signed head, proof object, offline verifier, external anchor | **OPEN** — Gate 7 | — |
+
+## A.16 Gate 7 outcome (NEXORA proof layer)
+
+| Component | State after Gate 7 | Evidence |
+|---|---|---|
+| Signed head under NEXORA's own key and domain, chained | **CLOSED** | x01–x03 |
+| Proof object and offline verifier | **CLOSED** | x04–x08, x15 |
+| Head tracker (rollback, fork, broken chain, consistency) | **CLOSED** | x09–x13 |
+| Anchoring interface | **CLOSED as an interface**; externality is a deployment | x14 |
+| Durable storage; automatic commitment of reconciler output and collector batches | **OPEN** | — |

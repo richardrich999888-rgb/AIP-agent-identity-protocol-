@@ -171,9 +171,11 @@ verified action classes (Skill 7, Stages 7–7c, Gates 3–4), `aip-agent` ident
 profile / lineage / delegation graph (Sniffer Dog 2.0 Phases B–D),
 `aip-warrant` (Skill 8), `reconcile_lineage` / `LINEAGE_VIOLATION` (Gate 1
 of the completion mandate) and the `AF_PACKET` device-layer tap with wire
-corroboration on record v5 (Gate 2; `OBSERVATION_MODEL.md` §5). Still
-**MISSING**: containment (Skill 9), NEXORA
-(Skill 10), signed reconciliation records, experience ledger, profile API,
+corroboration on record v5 (Gate 2; `OBSERVATION_MODEL.md` §5), `aip-nexora`
+(Gates 6–7: Merkle commitment, signed heads, proof objects, offline
+verifier, head tracker, anchoring interface — NEXORA as a layer, its anchor's
+externality a deployment). Still
+**MISSING**: containment (Skill 9), signed reconciliation records, experience ledger, profile API,
 `aip-service` integration of any of the above (the service still carries its
 own authority model, §5). The out-of-tree inventory in §7 is superseded by
 `OUT_OF_TREE_HARVEST_REVIEW.md` and `OT_SENTINEL_HARVEST_AUDIT.md`.
