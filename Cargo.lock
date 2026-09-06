@@ -152,6 +152,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-platform"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-system",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-protocol"
 version = "0.4.0"
 dependencies = [

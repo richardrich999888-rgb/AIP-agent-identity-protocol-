@@ -1,0 +1,24 @@
+[package]
+name = "aip-platform"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Verifier-supplied platform and hardware binding for observed executions"
+
+# One direction only, as with aip-system and aip-execution. Nothing in the
+# verdict path depends on this crate and it depends on none of them: the
+# registry is a verifier input, not a participant in any decision.
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-system = { path = "../aip-system" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"
+# The T13 tests drive the real decision point, the real observer and the real
+# reconciler, rather than asserting the boundary in prose.
+aip-authorize = { path = "../aip-authorize" }
+aip-core = { path = "../aip-core" }
+aip-observe = { path = "../aip-observe" }
+aip-reconcile = { path = "../aip-reconcile" }
