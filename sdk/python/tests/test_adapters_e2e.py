@@ -20,6 +20,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from vanian_airi import (  # noqa: E402
     AiriEmitter,
+    ExecutionContext,
     AiriEventKind,
     FrameworkIdentity,
     ListSink,
@@ -38,7 +39,9 @@ FRAMEWORK = FrameworkIdentity("langgraph", "0.2.0", "vanian-airi-adapter/1")
 AGENT = "aip1testagent"
 
 
-def make_emitter(tmp: str, bound: bool = True) -> tuple[AiriEmitter, ListSink, object]:
+def make_emitter(
+    tmp: str, bound: bool = True, clock_ms: object = None
+) -> tuple[AiriEmitter, ListSink, object]:
     key = os.path.join(tmp, "agent.key")
     with open(key, "wb") as fh:
         fh.write(bytes(range(32)))
@@ -56,7 +59,12 @@ def make_emitter(tmp: str, bound: bool = True) -> tuple[AiriEmitter, ListSink, o
         if bound
         else None
     )
-    return AiriEmitter(ident, FRAMEWORK, sink=sink, runtime_binding=rb), sink, ident
+    kw = {} if clock_ms is None else {"clock_ms": clock_ms}
+    return (
+        AiriEmitter(ident, FRAMEWORK, sink=sink, runtime_binding=rb, **kw),  # type: ignore[arg-type]
+        sink,
+        ident,
+    )
 
 
 class TestEndToEnd(unittest.TestCase):
@@ -160,11 +168,26 @@ class TestEndToEnd(unittest.TestCase):
             self.assertIsNone(sink.events[0].payload.model_digest)
 
     def test_events_serialise_for_the_rust_interop_fixture(self) -> None:
-        """Write the fixture the Rust interop test consumes."""
+        """Write the fixture the Rust interop test consumes.
+
+        Deterministic on purpose. ``new_execution()`` draws a random
+        execution id — correct for a real agent, wrong for a committed
+        fixture, which would then be rewritten on every test run and show as
+        a spurious diff forever. A fixed id means the file changes only when
+        the *encoding* changes, which is exactly when a reviewer should see a
+        diff and look at it.
+
+        The emitter's clock is pinned for the same reason.
+        """
+        fixed_exec = ExecutionContext(
+            agent_id=AGENT,
+            execution_id=bytes([0xE1] * 16),
+            decision_id=bytes([0xD1] * 16),
+        )
         with tempfile.TemporaryDirectory() as tmp:
-            em, sink, ident = make_emitter(tmp)
+            em, sink, ident = make_emitter(tmp, clock_ms=lambda: 1_700_000_000_000)
             fw, model, tools = FrameworkAdapter(em), ModelAdapter(em), ToolAdapter(em)
-            with bind(new_execution(ident.aip_id, decision_id=bytes([0xD1] * 16))):
+            with bind(fixed_exec):
                 fw.on_agent_start(role="refund-bot")
                 model.requested("claude-opus-5", prompt={"q": "x"})
                 call = tools.request("http.post", "http.post", {"amount": 5})
@@ -184,7 +207,20 @@ class TestEndToEnd(unittest.TestCase):
                 ],
             }
             dest = pathlib.Path(__file__).parent / "python_events.json"
-            dest.write_text(json.dumps(out, indent=2))
+            rendered = json.dumps(out, indent=2)
+
+            # A committed fixture that is rewritten on every run is a
+            # permanent spurious diff. Regenerating identical bytes is the
+            # property that stops that, so it is asserted, not assumed.
+            if dest.exists():
+                self.assertEqual(
+                    dest.read_text(),
+                    rendered,
+                    "the interop fixture is not byte-stable across runs; a "
+                    "committed fixture must regenerate identically or it "
+                    "shows as a diff forever",
+                )
+            dest.write_text(rendered)
             self.assertEqual(len(out["events"]), 5)
 
 
