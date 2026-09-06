@@ -410,10 +410,29 @@ pub fn continuity_report_of(observer_id: &str) -> aip_observe::SignedContinuityR
     aip_observe::SignedContinuityReport { report, signature }
 }
 
+/// As [`warrant_for`], returning the public key the verifier must anchor
+/// to check it.
+pub fn warrant_and_key_for(
+    rec: &Reconciliation,
+    subject: Option<&str>,
+) -> (aip_warrant::Warrant, Vec<u8>) {
+    let kp = generate_ed25519_keypair();
+    let public = kp.public_key.clone();
+    (warrant_under(rec, subject, &kp), public)
+}
+
 /// A signed warrant resting on `rec`, for `subject`. The response class is
 /// whatever the engine decides; these tests never need it to be Contain.
 pub fn warrant_for(rec: &Reconciliation, subject: Option<&str>) -> aip_warrant::Warrant {
     let kp = generate_ed25519_keypair();
+    warrant_under(rec, subject, &kp)
+}
+
+fn warrant_under(
+    rec: &Reconciliation,
+    subject: Option<&str>,
+    kp: &KeyPair,
+) -> aip_warrant::Warrant {
     let finding = aip_warrant::Finding {
         finding_id: [0xa1; 16],
         reconciliation: rec.clone(),
