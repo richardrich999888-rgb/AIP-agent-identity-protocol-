@@ -369,3 +369,70 @@ pub fn cannot_prove() -> Scenario {
     );
     s
 }
+
+// ─── Components other gates attach to a package ───
+
+/// A signed continuity report from `observer_id`, under a key of its own.
+/// The break it names is immaterial to the binding tests; what matters is
+/// whose record it is.
+pub fn continuity_report_of(observer_id: &str) -> aip_observe::SignedContinuityReport {
+    let kp = generate_ed25519_keypair();
+    let report = aip_observe::ContinuityReport {
+        version: OBSERVE_PROTOCOL_VERSION,
+        observer_id: observer_id.to_string(),
+        key_version: 1,
+        continuity_break: aip_observe::ContinuityBreak::ArchiveTruncated {
+            resumed_sequence: 3,
+            archived_sequence: 2,
+        },
+        resumed_sequence: Some(3),
+        archived_sequence: Some(2),
+        archived_head: Some([0x11; 32]),
+        policy: aip_observe::ContinuityPolicy::Strict,
+        refused: false,
+        emitted_at_ms: 1_700_000_100_000,
+    };
+    let signature =
+        aip_crypto::sign_ed25519(&kp.private_key, observer_id, &report.canonical_bytes()).unwrap();
+    aip_observe::SignedContinuityReport { report, signature }
+}
+
+/// A signed warrant resting on `rec`, for `subject`. The response class is
+/// whatever the engine decides; these tests never need it to be Contain.
+pub fn warrant_for(rec: &Reconciliation, subject: Option<&str>) -> aip_warrant::Warrant {
+    let kp = generate_ed25519_keypair();
+    let finding = aip_warrant::Finding {
+        finding_id: [0xa1; 16],
+        reconciliation: rec.clone(),
+        subject_agent: subject.map(str::to_string),
+    };
+    let w = aip_warrant::evaluate(
+        &finding,
+        &aip_warrant::WarrantPolicy::default(),
+        rec.verification_time_ms + 1,
+    )
+    .unwrap();
+    aip_warrant::WarrantAuthority::new("warrant-authority", &kp.private_key, &kp.public_key)
+        .unwrap()
+        .sign(w)
+        .unwrap()
+}
+
+/// Commit `rec` to a fresh log and return the inclusion proof plus the
+/// anchors that verify its head.
+pub fn commit(
+    rec: &Reconciliation,
+) -> (
+    aip_nexora::ProofObject,
+    aip_nexora::NexoraTrustAnchors,
+) {
+    let kp = generate_ed25519_keypair();
+    let signer = aip_nexora::NexoraSigner::new("nexora-1", 1, &kp.private_key, &kp.public_key)
+        .unwrap();
+    let mut log = aip_nexora::CommitmentLog::new([0x7a; 16]);
+    let index = log.append(aip_nexora::LeafKind::Reconciliation, &rec.canonical_bytes());
+    let head = log.head(&signer, 1_700_000_200_000).unwrap();
+    let proof = log.proof_for(index, &head).unwrap();
+    let anchors = aip_nexora::NexoraTrustAnchors::new().trust("nexora-1", 1, &kp.public_key);
+    (proof, anchors)
+}
