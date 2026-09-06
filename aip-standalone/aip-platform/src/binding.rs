@@ -20,6 +20,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::PlatformError;
 use crate::method::BindingMethod;
+use crate::observed::ObservedBoot;
 use crate::registry::PlatformRegistry;
 
 /// Domain tag leading every `PlatformBinding` canonical encoding.
@@ -107,9 +108,15 @@ pub struct PlatformBinding {
     pub execution_id: [u8; 16],
     /// The host-boot an anchored observer measured, when one did.
     ///
-    /// `None` means no observation reached the verifier — which is why the
-    /// disposition is then `NotEvaluated` rather than anything stronger.
-    pub observed_boot_id: Option<[u8; 16]>,
+    /// [`ObservedBoot`] can only be constructed by verifying an attested batch
+    /// against the verifier's own anchors, so this field cannot hold a
+    /// self-reported boot id. That is the difference between this binding
+    /// meaning something and meaning nothing.
+    ///
+    /// `None` means no verified observation reached the verifier — which is
+    /// why the disposition is then `NotEvaluated` rather than anything
+    /// stronger.
+    pub observed_boot: Option<ObservedBoot>,
     /// The instant the binding was resolved at, Unix ms.
     ///
     /// Supplied by the verifier, not read from a clock: this crate reads no
@@ -125,8 +132,9 @@ impl PlatformBinding {
     /// The only constructor. There is no setter for `disposition`, so a
     /// caller cannot choose the answer — it is a consequence of the inputs.
     ///
-    /// - No observed boot → `NotEvaluated`. Absence of observation is not
-    ///   evidence of location.
+    /// - No verified observed boot → `NotEvaluated`. Absence of observation
+    ///   is not evidence of location, and a boot id that failed verification
+    ///   never becomes an [`ObservedBoot`] in the first place.
     /// - Registry does not cover the boot at this instant → `Unregistered`.
     /// - Registry resolves it, and an authorized platform was supplied that
     ///   differs → `Mismatch`. **This is T13 caught at the platform layer.**
@@ -139,14 +147,14 @@ impl PlatformBinding {
     /// only where it ran, not that it was permitted to.
     pub fn resolve(
         execution_id: [u8; 16],
-        observed_boot_id: Option<[u8; 16]>,
+        observed_boot: Option<ObservedBoot>,
         authorized_platform: Option<&PlatformId>,
         registry: &PlatformRegistry,
         resolved_at_ms: u64,
     ) -> Self {
-        let disposition = match observed_boot_id {
+        let disposition = match observed_boot.as_ref() {
             None => PlatformDisposition::NotEvaluated,
-            Some(boot) => match registry.resolve(&boot, resolved_at_ms) {
+            Some(boot) => match registry.resolve(boot.boot_id(), resolved_at_ms) {
                 None => PlatformDisposition::Unregistered,
                 Some(reg) => match authorized_platform {
                     Some(auth) if auth != &reg.platform_id => PlatformDisposition::Mismatch {
@@ -167,7 +175,7 @@ impl PlatformBinding {
         Self {
             version: PLATFORM_BINDING_VERSION,
             execution_id,
-            observed_boot_id,
+            observed_boot,
             resolved_at_ms,
             disposition,
         }
@@ -214,10 +222,10 @@ impl PlatformBinding {
         put_domain(&mut buf, PLATFORM_BINDING_DOMAIN);
         put_u16(&mut buf, self.version);
         put_bytes(&mut buf, &self.execution_id);
-        match &self.observed_boot_id {
+        match &self.observed_boot {
             Some(b) => {
                 put_u8(&mut buf, 1);
-                put_bytes(&mut buf, b);
+                put_bytes(&mut buf, b.boot_id());
             }
             None => put_u8(&mut buf, 0),
         }

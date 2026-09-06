@@ -29,6 +29,11 @@
 //! it trusts; deciding which platform a covered host is, is a statement of the
 //! same kind by the same party. It is portable data, so it works offline.
 //!
+//! The observed boot id is an [`ObservedBoot`], constructible only by
+//! verifying an attested batch against the verifier's own anchors. A caller
+//! holding a self-reported boot id has nothing to call — which is what stops a
+//! self-reported platform identity from silently establishing a binding.
+//!
 //! # What it is worth
 //!
 //! A [`PlatformDisposition::Bound`] means:
@@ -53,6 +58,7 @@
 pub mod binding;
 pub mod error;
 pub mod method;
+pub mod observed;
 pub mod registry;
 
 pub use binding::{
@@ -60,4 +66,5 @@ pub use binding::{
 };
 pub use error::PlatformError;
 pub use method::BindingMethod;
+pub use observed::ObservedBoot;
 pub use registry::{HostRegistration, PlatformRegistry};

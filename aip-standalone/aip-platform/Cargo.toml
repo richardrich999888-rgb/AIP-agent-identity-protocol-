@@ -12,6 +12,13 @@ description = "Verifier-supplied platform and hardware binding for observed exec
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
 aip-system = { path = "../aip-system" }
+# Runtime, and load-bearing: an `ObservedBoot` can only be constructed from an
+# attested batch this crate has verified against the verifier's own anchors.
+# Without it the boot id would be bare bytes and a caller could pass a
+# self-reported one, which is precisely the failure this skill must prevent.
+# Not a verdict dependency: aip-observe is the observation layer, and
+# aip-reconcile already depends on it.
+aip-observe = { path = "../aip-observe" }
 serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]
@@ -20,5 +27,4 @@ serde_json = "1.0"
 # reconciler, rather than asserting the boundary in prose.
 aip-authorize = { path = "../aip-authorize" }
 aip-core = { path = "../aip-core" }
-aip-observe = { path = "../aip-observe" }
 aip-reconcile = { path = "../aip-reconcile" }

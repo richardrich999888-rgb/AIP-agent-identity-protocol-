@@ -314,8 +314,18 @@ const PLATFORM_Q: &str = "tail:N456CD";
 const BOOT_P: [u8; 16] = [0x11; 16];
 const BOOT_Q: [u8; 16] = [0x22; 16];
 
+mod support;
+
 fn platform(v: &str) -> PlatformId {
     PlatformId::parse(v).expect("valid platform id")
+}
+
+/// A verified `ObservedBoot`, produced the only way one can be.
+fn observed(boot: [u8; 16]) -> ObservedBoot {
+    let (batch, anchors) = support::attested_batch_on(boot);
+    ObservedBoot::from_attested(&batch, &anchors)
+        .expect("an anchored observer's batch must verify")
+        .expect("the batch carries an observation")
 }
 
 /// A registry asserting that boot P is platform P and boot Q is platform Q.
@@ -432,7 +442,7 @@ fn t13_04_an_observed_boot_registered_to_another_platform_is_a_mismatch() {
     // verifier registered as Q.
     let b = PlatformBinding::resolve(
         [0xE1; 16],
-        Some(BOOT_Q),
+        Some(observed(BOOT_Q)),
         Some(&platform(PLATFORM_P)),
         &deployment_registry(),
         1_000,
@@ -454,7 +464,7 @@ fn t13_04_an_observed_boot_registered_to_another_platform_is_a_mismatch() {
 fn t13_05_an_observed_boot_registered_to_the_authorized_platform_binds() {
     let b = PlatformBinding::resolve(
         [0xE1; 16],
-        Some(BOOT_P),
+        Some(observed(BOOT_P)),
         Some(&platform(PLATFORM_P)),
         &deployment_registry(),
         1_000,
@@ -484,7 +494,7 @@ fn t13_06_an_unregistered_host_is_unknown_not_wrong() {
     // and it is distinct from having looked and found nothing.
     let b = PlatformBinding::resolve(
         [0xE1; 16],
-        Some([0xEE; 16]),
+        Some(observed([0xEE; 16])),
         Some(&platform(PLATFORM_P)),
         &deployment_registry(),
         1_000,
@@ -546,7 +556,7 @@ fn t13_08_the_observer_seeing_a_different_platform_is_a_divergence_not_a_pass() 
     // And at the platform layer the same facts resolve to a named mismatch.
     let b = PlatformBinding::resolve(
         [0xE1; 16],
-        Some(BOOT_Q),
+        Some(observed(BOOT_Q)),
         Some(&platform(PLATFORM_P)),
         &deployment_registry(),
         1_000,
@@ -568,8 +578,8 @@ fn t13_09_a_binding_digest_commits_to_the_platform_it_resolved() {
     // would rely on, asserted here rather than by modifying the proof format
     // speculatively.
     let reg = deployment_registry();
-    let on_p = PlatformBinding::resolve([0xE1; 16], Some(BOOT_P), None, &reg, 1_000);
-    let on_q = PlatformBinding::resolve([0xE1; 16], Some(BOOT_Q), None, &reg, 1_000);
+    let on_p = PlatformBinding::resolve([0xE1; 16], Some(observed(BOOT_P)), None, &reg, 1_000);
+    let on_q = PlatformBinding::resolve([0xE1; 16], Some(observed(BOOT_Q)), None, &reg, 1_000);
     assert_ne!(
         on_p.digest(),
         on_q.digest(),

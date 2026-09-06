@@ -45,8 +45,28 @@ fn registry() -> PlatformRegistry {
         .unwrap()
 }
 
+mod support;
+
+/// A verified `ObservedBoot` for `boot`, produced the only way one can be: by
+/// an anchored observer attesting a batch that this crate then verifies.
+///
+/// The helper exists because there is no shortcut — and the absence of a
+/// shortcut is itself the property under test in `a16b`.
+fn observed(boot: [u8; 16]) -> ObservedBoot {
+    let (batch, anchors) = support::attested_batch_on(boot);
+    ObservedBoot::from_attested(&batch, &anchors)
+        .expect("an anchored observer's batch must verify")
+        .expect("the batch carries an observation")
+}
+
 fn bind(exec: [u8; 16], boot: Option<[u8; 16]>, auth: Option<&str>) -> PlatformBinding {
-    PlatformBinding::resolve(exec, boot, auth.map(p).as_ref(), &registry(), NOW)
+    PlatformBinding::resolve(
+        exec,
+        boot.map(observed),
+        auth.map(p).as_ref(),
+        &registry(),
+        NOW,
+    )
 }
 
 /// Assert a substitution changed both the encoding and the digest.
@@ -83,8 +103,8 @@ fn a04_hardware_id_substitution() {
         .unwrap()
         .register(BOOT_Q, open_reg("tail:N123AB", Some("mod:EC-09")))
         .unwrap();
-    let a = PlatformBinding::resolve(EXEC_A, Some(BOOT_P), None, &reg, NOW);
-    let b = PlatformBinding::resolve(EXEC_A, Some(BOOT_Q), None, &reg, NOW);
+    let a = PlatformBinding::resolve(EXEC_A, Some(observed(BOOT_P)), None, &reg, NOW);
+    let b = PlatformBinding::resolve(EXEC_A, Some(observed(BOOT_Q)), None, &reg, NOW);
 
     // Same platform...
     match (a.disposition(), b.disposition()) {
@@ -180,8 +200,10 @@ fn a09_hardware_replacement_does_not_silently_preserve_old_trust() {
         )
         .expect("the replacement registers after the old entry closed");
 
-    let before = PlatformBinding::resolve(EXEC_A, Some(BOOT_P), None, &reg, replaced_at - 1);
-    let after = PlatformBinding::resolve(EXEC_A, Some(BOOT_P), None, &reg, replaced_at + 1);
+    let before =
+        PlatformBinding::resolve(EXEC_A, Some(observed(BOOT_P)), None, &reg, replaced_at - 1);
+    let after =
+        PlatformBinding::resolve(EXEC_A, Some(observed(BOOT_P)), None, &reg, replaced_at + 1);
 
     let hw = |b: &PlatformBinding| match b.disposition() {
         PlatformDisposition::Bound { hardware_id, .. } => {
@@ -239,7 +261,7 @@ fn a10_a_reboot_produces_a_new_boot_and_the_old_registration_stops_applying() {
     // attestation.
     let reg = registry();
     let after_reboot = [0x33; 16];
-    let b = PlatformBinding::resolve(EXEC_A, Some(after_reboot), None, &reg, NOW);
+    let b = PlatformBinding::resolve(EXEC_A, Some(observed(after_reboot)), None, &reg, NOW);
     assert_eq!(
         b.disposition(),
         &PlatformDisposition::Unregistered,
@@ -273,9 +295,9 @@ fn a13_a_stale_registration_does_not_apply() {
         .unwrap();
     // Exactly at the closing instant the window is half-open, so it no longer
     // applies — an overlap at handover is precisely when ambiguity is worst.
-    let at_close = PlatformBinding::resolve(EXEC_A, Some(BOOT_P), None, &reg, NOW);
+    let at_close = PlatformBinding::resolve(EXEC_A, Some(observed(BOOT_P)), None, &reg, NOW);
     assert_eq!(at_close.disposition(), &PlatformDisposition::Unregistered);
-    let before = PlatformBinding::resolve(EXEC_A, Some(BOOT_P), None, &reg, NOW - 1);
+    let before = PlatformBinding::resolve(EXEC_A, Some(observed(BOOT_P)), None, &reg, NOW - 1);
     assert!(before.disposition().asserts_platform());
 }
 
@@ -338,8 +360,14 @@ fn a17_a18_a_binding_names_the_boot_it_resolved_from() {
 fn a19_replaying_a_binding_at_another_instant_changes_the_digest() {
     // A binding is resolved *at* an instant, and the instant is committed. A
     // replay presenting an old resolution as current changes the bytes.
-    let then = PlatformBinding::resolve(EXEC_A, Some(BOOT_P), None, &registry(), NOW);
-    let now = PlatformBinding::resolve(EXEC_A, Some(BOOT_P), None, &registry(), NOW + 60_000);
+    let then = PlatformBinding::resolve(EXEC_A, Some(observed(BOOT_P)), None, &registry(), NOW);
+    let now = PlatformBinding::resolve(
+        EXEC_A,
+        Some(observed(BOOT_P)),
+        None,
+        &registry(),
+        NOW + 60_000,
+    );
     assert_distinct(&then, &now, "replay at another instant");
 }
 
@@ -384,7 +412,7 @@ fn a22_an_empty_registry_yields_unregistered_not_bound() {
     // host is unknown, and none is silently accepted.
     let empty = PlatformRegistry::new();
     assert!(empty.is_empty());
-    let b = PlatformBinding::resolve(EXEC_A, Some(BOOT_P), None, &empty, NOW);
+    let b = PlatformBinding::resolve(EXEC_A, Some(observed(BOOT_P)), None, &empty, NOW);
     assert_eq!(b.disposition(), &PlatformDisposition::Unregistered);
 }
 
@@ -468,4 +496,98 @@ fn a25b_unsupported_versions_are_refused_not_guessed() {
             })
         );
     }
+}
+
+// ═══ 16, 23b. The observation must be earned ═══
+//
+// These close a defect found by auditing this crate's own API after Skill 19
+// was first completed. `PlatformBinding::resolve` originally took a bare
+// `Option<[u8; 16]>`, so nothing stopped a caller passing the boot id out of
+// the agent's own self-reported `ExecutionBinding` and receiving a `Bound`
+// disposition — exactly the failure acceptance criterion 4 prohibits,
+// prevented only by caller discipline, which is not prevention.
+
+#[test]
+fn a16b_a_batch_from_an_unanchored_observer_yields_no_observed_boot() {
+    // Case 16 — "attestation signed by an untrusted key" — in the form this
+    // architecture actually has one. The batch is validly signed; the verifier
+    // simply does not anchor that observer. A failed verification must yield
+    // no boot id at all, so a caller cannot proceed with a value it did not
+    // earn.
+    let (batch, foreign_anchors) = support::attested_batch_from_untrusted_observer(BOOT_P);
+
+    let refused = ObservedBoot::from_attested(&batch, &foreign_anchors);
+    assert!(
+        refused.is_err(),
+        "SECURITY: a batch from an observer the verifier does not anchor \
+         produced an ObservedBoot"
+    );
+
+    // The same batch under the anchors that do trust it verifies — so the
+    // refusal above is about trust, not about a broken fixture.
+    let (batch, own_anchors) = support::attested_batch_on(BOOT_P);
+    assert!(ObservedBoot::from_attested(&batch, &own_anchors)
+        .expect("verifies under its own anchors")
+        .is_some());
+}
+
+#[test]
+fn a16c_an_empty_anchor_set_trusts_nothing() {
+    let (batch, _) = support::attested_batch_on(BOOT_P);
+    assert!(
+        ObservedBoot::from_attested(&batch, &aip_observe::ObserverTrustAnchors::new()).is_err(),
+        "SECURITY: a verifier anchoring no observers accepted an observation"
+    );
+}
+
+#[test]
+fn a16d_a_verified_but_silent_batch_is_an_absence_not_an_error() {
+    // A batch that verifies and carries no observation is not a failure. The
+    // two must not be conflated: "the observer signed nothing about this" and
+    // "the observer is untrusted" are different states, and only the second is
+    // an error.
+    let (batch, anchors) = support::empty_attested_batch();
+    let result = ObservedBoot::from_attested(&batch, &anchors);
+    assert!(result.is_ok(), "a verified batch is not an error");
+    assert!(
+        result.unwrap().is_none(),
+        "a batch with no observations yields no boot id"
+    );
+}
+
+#[test]
+fn a23b_a_self_reported_boot_id_cannot_become_a_binding() {
+    // The defect, stated as the property that now prevents it.
+    //
+    // An agent's self-collected `ExecutionBinding` carries a boot id. There is
+    // no constructor, conversion or builder taking those bytes into an
+    // `ObservedBoot` — no `from_bytes`, no `new`, no `From<[u8; 16]>` — so the
+    // only thing a caller can do with a self-reported boot id is pass `None`.
+    //
+    // That is enforced by the type system and cannot be asserted at runtime;
+    // what is asserted here is the consequence.
+    let self_reported = aip_types::ExecutionBinding {
+        version: aip_types::EXECUTION_BINDING_VERSION,
+        agent_id: "aip1selfreported".into(),
+        process: aip_types::ProcessInstance {
+            pid: 4321,
+            pid_start_time_ticks: 777_000,
+            // The agent claims the registered host.
+            boot_id: BOOT_P,
+        },
+        exe_content_sha256: [0x11; 32],
+        exe_path: "/opt/agent/bin/autonomy".into(),
+        bound_at_ms: NOW,
+    };
+    // Those bytes are available to the caller...
+    assert_eq!(self_reported.process.boot_id, BOOT_P);
+
+    // ...and the only binding reachable from them is one with no observation.
+    let b = PlatformBinding::resolve(EXEC_A, None, Some(&p("tail:N123AB")), &registry(), NOW);
+    assert_eq!(
+        b.disposition(),
+        &PlatformDisposition::NotEvaluated,
+        "SECURITY: a self-reported boot id established a platform binding"
+    );
+    assert!(!b.disposition().asserts_platform());
 }
