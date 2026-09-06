@@ -237,3 +237,17 @@ Test counts after Gate 2: aip-standalone 666 / 0 / 3 ignored (+29), aip-service 
 | Receive side, UDP | **OPEN** (not observed) | — |
 
 Test counts after Gate 3: aip-standalone 690 / 0 / 3 ignored (+24), aip-service 39 / 0; clippy and fmt clean.
+
+## A.13 Gate 4 outcome (file write, fourth action class)
+
+| Component | State after Gate 4 | Evidence |
+|---|---|---|
+| `ghost.fs.write.v1` vocabulary (path bytes, validated, unnormalised) | **CLOSED** | fw02 |
+| `Fanotify` source (mount mark, `FAN_REPORT_PIDFD`, overflow loss, no content) | **CLOSED** | fa01–fa07 (fa05/fa06 live) |
+| Kernel-bound writer attribution (pidfd created by the kernel) | **CLOSED** — stronger than pid-number anchoring | fa05, fa06 |
+| The five observation states | **CLOSED** — each pinned | fw01, fw03–fw06; `OBSERVATION_MODEL.md` §6.4 |
+| Verdict `VERIFIED_EXECUTION · Attested · Transition`, live | **CLOSED** | fw01, f_p |
+| File-handle identity, creates / deletes / renames | **OPEN** — `FAN_REPORT_FID` refused here (zero fsid) | — |
+| Kernel event time | **OPEN by mechanism** — fanotify carries none; probe read stamp | `ACTION_EVIDENCE.md` §17.5 |
+
+Test counts after Gate 4: aip-standalone 715 / 0 / 3 ignored (+25), aip-service 39 / 0; clippy and fmt clean.

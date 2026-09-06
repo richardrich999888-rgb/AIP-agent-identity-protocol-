@@ -675,3 +675,14 @@ initiation). `reconcile.rs`: `ActionOutcome::Unresolved` →
 `ReasonCode::SendSocketUnresolved` (0x4f); a transition that is one event
 is cited once; the wire question is asked of socket transitions only. Record
 version unchanged (v5). Tests: `tests/send_evidence.rs` ss01–ss13.
+
+## Gate 4 note (file write)
+
+`action.rs`: `FileWrite` and `derive_file_writes` — bound `Fanotify` events
+with `FAN_CLOSE_WRITE`; the digest is `fs_write_parameters(path)` unless
+the kernel reported the name as deleted (then unresolved).
+`TransitionEvidence::File` (one event is initiation and completion).
+`reconcile.rs`: `ActionOutcome::Unresolved { reason }` — `SendSocketUnresolved`
+for a send, `FilePathUnresolved` (0x56) for a write. Record version
+unchanged (v5). The five observation states are pinned in
+`tests/file_evidence.rs` fw01–fw15.

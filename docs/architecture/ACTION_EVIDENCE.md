@@ -5,7 +5,7 @@ independently observed and cryptographically matched against its
 `ExpectedExecution`, so that `VERIFIED_EXECUTION` becomes reachable for that
 action and for nothing else.
 
-> **Status: PARTIALLY_IMPLEMENTED — three action classes.**
+> **Status: PARTIALLY_IMPLEMENTED — four action classes.**
 > Implemented and live-demonstrated for `ghost.net.connect.v1` (an
 > established TCP connection to a remote endpoint), as **presence** (a polled
 > table row: the connection existed at the sample) and, since Stage 7b, as
@@ -15,7 +15,10 @@ action and for nothing else.
 > transition only; and, since Gate 3 of the completion mandate, for
 > `ghost.net.send.v1` (the bound instance handed bytes to the kernel for
 > send on a connection to the authorized endpoint — §16; the count, never
-> the bytes), as transition only. Every other action kind remains
+> the bytes), as transition only; and, since Gate 4, for `ghost.fs.write.v1`
+> (the bound instance completed a write to the authorized path, bound by
+> the kernel's own pidfd — §17; the path, never the content), as transition
+> only. Every other action kind remains
 > unobservable and reconciles to `CANNOT_PROVE`. Strength is `Attested`,
 > never `Proven`. See `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md` for the
 > evidence trail.
@@ -241,8 +244,10 @@ eBPF, XDP, any tracepoint other than `sock:inet_sock_set_state`,
 `sched:sched_process_fork`, `sched:sched_process_exec` and
 `sock:sock_send_length`, payload capture or payload digests (the Gate 2
 `AF_PACKET` tap keeps TCP/IP headers only; the Gate 3 send class keeps a
-byte count only), filesystem or syscall observation, exec-argument capture,
-UDP actions, receive-side actions, any fourth action class, zero loss,
+byte count only), syscall observation, file events other than a completed write on a marked
+mount (create / delete / rename need `FAN_REPORT_FID`, refused on this
+host), file content or content digests, exec-argument capture,
+UDP actions, receive-side actions, any fifth action class, zero loss,
 root-compromise resistance, containment logic, TRL, latency, throughput,
 hardware validation. (This list was "any second action class" until Stage
 7c and "any third" until Gate 3; §12 above records Stage 7b's own view.)
@@ -544,3 +549,93 @@ count is what the kernel accepted from the caller); sends on a socket whose
 transitions were not observed (`SendSocketUnresolved`); receive-side
 actions (`sock_recv_length` is not read); UDP and every non-TCP send;
 anything on a host whose root disables or starves the ring.
+
+## 17. Gate 4 — file write (fourth action class; the five observation states)
+
+The mandate asked for one filesystem or syscall action with its
+observation states stated explicitly. Mechanism evaluation:
+`OBSERVATION_MODEL.md` §6. RED `4a5f716`, GREEN `2f1ba9b`.
+
+```
+ghost.fs.write.v1
+    parameters:  path — the absolute path bytes, exactly as authorized
+    observed as: a fanotify FAN_CLOSE_WRITE on a marked mount, with the pidfd
+                 the kernel created for the acting process (FAN_REPORT_PIDFD),
+                 the object resolved to the kernel's current path and (dev, ino)
+    evidence:    that a write to that path was completed by that instance
+    kind:        Transition · mechanism Fanotify · Attested
+```
+
+### 17.1 The five states
+
+| State | Meaning here | Record | Test |
+|---|---|---|---|
+| OBSERVED | a bound `FAN_CLOSE_WRITE` on the authorized path, claimed, in window, covered | `VERIFIED_EXECUTION · Attested · Match(Fanotify, Transition)` | fw01, F-P |
+| NOT OBSERVED | the instance was seen in the window; no completed write to the path was | `CANNOT_PROVE · ActionEvidenceUnavailable` — never `PHANTOM_CLAIM` (fanotify is not lifecycle coverage) | fw03, F-N |
+| AMBIGUOUS | two instances completed writes to the path under one claim | `CANNOT_PROVE · AmbiguousObservations` | fw04 |
+| LOSS | the queue overflowed (`FAN_Q_OVERFLOW`) in the window | `CANNOT_PROVE · ObserverDegraded` — a matching event does not survive loss | fw05 |
+| UNAVAILABLE | no observer; a probe not provisioned for `Fanotify` (its batch is refused); `Open` policy | `NoObserverEvidence` / refused / `ProvenanceUnverifiedOpenPolicy` | fw06 |
+
+### 17.2 Source and attribution — the kernel binds the writer
+
+`fanotify` queues, per event, an open descriptor to the object and a pidfd
+it creates **from the event's own `struct pid`** when the event is read:
+the binding to the acting process instance is the kernel's, not a pid
+number the probe opens later (Stage 7b/7c/Gate 3 anchoring). If the
+process has exited by the read the kernel reports `FAN_NOPIDFD` and the
+event is unbound (`fa06`). The probe measures the instance *through* that
+pidfd (alive before and after the procfs reads) and still applies the
+start-tick rule against its read stamp (`fa05`). The content of the
+measurement — start tick, image hash — is still procfs, so `Attested`.
+
+### 17.3 Path semantics
+
+The digest is over the path bytes, unnormalised (`fw02`): `/a/b` and
+`/a/b/` are different names, as they are to the kernel. The observed path
+is the kernel's resolution of the object's dentry in the probe's mount
+namespace **when the event is read**: a rename between write and read
+shows the new name; an unlink shows ` (deleted)`, which the probe turns
+into a flag and the reconciler refuses to place on any authorized path
+(`FilePathUnresolved`, `fw09`). `(dev, ino)` is signed context: a replaced
+file at the same path still verifies (`fw02`), because the class names the
+path. File-handle identity (`FAN_REPORT_FID`) would name the object
+independently of any path; it is refused with `ENODEV` on this host (zero
+fsid on the root filesystem) and is not claimed.
+
+### 17.4 The predicate
+
+As §14.2 with the event as both initiation and completion, the actor
+being the kernel-bound writer, the digest recomputed from the resolved
+path through `fs_write_parameters`, the claim taken from the event.
+Placement, claim, coverage, provenance, loss, restart and the central
+guard are the shared `TransitionEvidence` path (`fw07`–`fw15`). A
+`FAN_MODIFY` without `FAN_CLOSE_WRITE` is a write in progress, not this
+class (`fw08`).
+
+### 17.5 Time — a weaker stamp than the tracepoints
+
+fanotify events carry no kernel timestamp. The probe stamps each event
+when it reads it: an upper bound on when the write completed, bounded
+below only by the previous drain. Placement inside the window therefore
+rests on the probe's read cadence as well as its clock anchor; a write
+completed before the window and read inside it would be placed inside.
+The demonstrator drains every 50 ms of quiet; a production probe must
+state its cadence. This is recorded, not hidden: `TemporalComparison` for
+this class is `Attested` on a probe stamp, as for every class, with this
+additional caveat.
+
+### 17.6 Live results (`ghost-demo`, this host)
+
+| Scenario | Result |
+|---|---|
+| F-P the agent writes the authorized path | `VERIFIED_EXECUTION · Attested · Match(Fanotify, Transition)`, 1 file event |
+| F-A write authorized for another path | `CANNOT_PROVE · ActionEvidenceDoesNotMatch`, action `Mismatch` |
+| F-N write authorized, never done | `CANNOT_PROVE · ActionEvidenceUnavailable`, identity `Match`, 0 file events |
+
+### 17.7 Still CANNOT_PROVE
+
+What was written (no content is read, hashed or claimed); writes on
+mounts that are not marked; creates, deletes and renames (need
+`FAN_REPORT_FID`); writes whose writer exited before the read; when
+exactly the write completed beyond the read stamp; anything on a host
+whose root disables the mark or starves the queue.

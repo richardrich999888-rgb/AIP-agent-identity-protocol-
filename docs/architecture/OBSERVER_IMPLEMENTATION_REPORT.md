@@ -374,3 +374,18 @@ executable per event. `ProcfsProbe` now caches one image hash per pid,
 revalidated by start tick, inode, size, mtime and path of the file
 `/proc/<pid>/exe` resolves to; the pidfd anchor is unchanged.
 `ACTION_EVIDENCE.md` §16.5.
+
+## Gate 4 note — fanotify and kernel-bound pidfds
+
+`aip-observe/src/fanotify.rs` (GREEN `2f1ba9b`, protocol v8) adds a ninth
+mechanism, `SourceMechanism::Fanotify`: a notification-class fanotify
+descriptor with `FAN_REPORT_PIDFD`, marked on a mount, decoded by
+`parse_fanotify_buffer` (metadata and info records, `FAN_NOPIDFD` /
+`FAN_EPIDFD` as no pidfd, `FAN_Q_OVERFLOW` as counted loss). Each event's
+object descriptor is resolved to the kernel's current path and `(dev, ino)`
+and closed; nothing is read from the file. The pidfd the kernel created
+for the acting process is owned (`PidFd::from_raw`) and
+`ProcfsProbe::ingest_file_event` measures the instance through it — the
+first source whose attribution the kernel binds rather than the probe.
+Events carry no kernel timestamp and are stamped at read. Evaluation:
+`OBSERVATION_MODEL.md` §6.

@@ -658,3 +658,76 @@ Gate 4: filesystem / syscall observation, one action, with
 OBSERVED / NOT OBSERVED / AMBIGUOUS / LOSS / UNAVAILABLE stated. Candidates
 from this host: `syscalls:sys_enter_openat` family tracepoints (714 syscall
 tracepoints present) and `fanotify` (`CONFIG_FANOTIFY=y`, `FAN_REPORT_PIDFD`).
+
+---
+
+# Gate 4 — file write, the fourth action class (completion mandate)
+
+## Status
+
+**PASS.** One filesystem action, `ghost.fs.write.v1`, is observable and
+reconcilable with its five observation states stated and pinned. The
+source is `fanotify` with `FAN_REPORT_PIDFD`: the kernel itself binds the
+writing instance to the event, which is stronger attribution than the
+pid-number anchoring of the tracepoint classes. Evaluation:
+`OBSERVATION_MODEL.md` §6; class: `ACTION_EVIDENCE.md` §17.
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| `4a5f716` | RED: `aip-observe/tests/fanotify.rs` fa01–fa07, `aip-reconcile/tests/file_evidence.rs` fw01–fw15, `ghost-demo/tests/live_file.rs` f_p/f_a/f_n; did not compile |
+| `2f1ba9b` | GREEN: `fs_write_action` / `fs_write_parameters` / `FS_WRITE_ACTION`; `fanotify.rs` (`parse_fanotify_buffer`, `FanotifyWatch`, `FileObservation`); `SourceMechanism::Fanotify` (0x09), `KernelLifecycleKind::FileEvent` (0x09), observer protocol v8; `PidFd::from_raw`; `ProcfsProbe::ingest_file_event` measuring through the kernel's pidfd; `FileWrite` / `derive_file_writes` / `TransitionEvidence::File`; `ActionOutcome::Unresolved { reason }` with `FilePathUnresolved` (0x56); agent `--write`, scenarios F-P/F-A/F-N |
+| *(the commit carrying this section)* | documentation |
+
+Test-file edits since RED: rustfmt; one `#[allow(clippy::too_many_arguments)]`
+on a fixture; `sk03` (Gate 3) pinned the mechanism count at exactly eight
+and now pins "at least eight, all codes distinct". No assertion changed.
+
+## Evidence (mandate's requirements → tests)
+
+| Requirement | Tests |
+|---|---|
+| one filesystem action | `ghost.fs.write.v1` (`ACTION_EVIDENCE.md` §17) |
+| OBSERVED / NOT OBSERVED / AMBIGUOUS / LOSS / UNAVAILABLE stated | fw01, fw03, fw04, fw05, fw06; `OBSERVATION_MODEL.md` §6.4 |
+| attribution never from a pid number alone | fa05 (kernel pidfd), fa06 (writer gone → unbound), fw10 |
+| explicit hash semantics | fw02 (path bytes only; inode is context; validation) |
+| no content claim | fa04 (no content-shaped field), `ACTION_EVIDENCE.md` §17.3 |
+| loss counted, never silent | fa02, fw05 |
+| registry gating | fa07, fw06 |
+| tamper | fw15 |
+| live | fa05, fa06; F-P / F-A / F-N |
+
+## Live run on this host
+
+```
+F-P. authorized file write, kernel-bound writer
+    agent pid 6473 wrote /tmp/ghost-demo-6315/f-p.txt; authorized write to the same path; 1 file event(s) captured on the mount (fanotify open)
+    result=VERIFIED_EXECUTION strength=Attested reason=ActionEvidenceMatches
+    action=Match(ActionEvidenceSeal { mechanism: Fanotify, kind: Transition }) temporal=WithinWindow
+F-A. write authorized for a different path
+    result=CANNOT_PROVE strength=Heuristic reason=ActionEvidenceDoesNotMatch  action=Mismatch(… Fanotify, Transition)
+F-N. write authorized, never done
+    result=CANNOT_PROVE strength=Heuristic reason=ActionEvidenceUnavailable  identity=Match { observations: 2 }  0 file event(s)
+```
+
+Test counts after Gate 4: aip-standalone 715 / 0 / 3 ignored (+25),
+aip-service 39 / 0; clippy `-D warnings` and fmt clean.
+
+## Security Claims
+
+- A `ghost.fs.write.v1` verdict cites one collector-signed event whose
+  writer the kernel bound through a pidfd it created for that process,
+  and whose object the kernel resolved to the authorized path; the
+  measurement content is procfs — `Attested`, never `Proven`.
+- Nothing in the class can reveal, hash or claim what was written.
+
+Not claimed: content; file-handle identity (refused on this host); creates,
+deletes, renames; kernel event time (the probe stamps at read); writes on
+unmarked mounts; anything on a host whose root removes the mark.
+
+## Next Gate
+
+Gate 5: application / database / proxy sensors — an explicit decision
+first (`OT_SENTINEL_HARVEST_AUDIT.md`, Phase H); self-reported logs can be
+supporting evidence only and never independent observation.

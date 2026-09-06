@@ -230,3 +230,76 @@ the verdict. For the *wire question* they appear as
 corroborate). None of these raises strength above `Attested` and none lowers
 a verdict; wire segments alone attribute nothing and verify nothing. See
 `RECONCILIATION_MODEL.md` "The wire question".
+
+## 6. Filesystem observation — mechanism evaluation and decision (Gate 4)
+
+Commits: RED `4a5f716`, GREEN `2f1ba9b`. Class: `ghost.fs.write.v1`
+(`ACTION_EVIDENCE.md` §17).
+
+### 6.1 What this host permits (measured)
+
+714 `syscalls:*` tracepoints under tracefs; `CONFIG_FANOTIFY=y`,
+`CONFIG_FANOTIFY_ACCESS_PERMISSIONS=y`, `CONFIG_INOTIFY_USER=y`,
+`CONFIG_AUDITSYSCALL=y` with no audit daemon; root filesystem ext4 on
+`/dev/vda` reporting **fsid 0**. `fanotify_init(FAN_REPORT_PIDFD)` and
+`fanotify_mark(FAN_MARK_MOUNT)` succeed; `fanotify_mark(FAN_MARK_FILESYSTEM)`
+with `FAN_REPORT_DFID_NAME` fails with `ENODEV` (zero fsid). Measured before
+any code: a shell's `echo > file` on the root mount produced one event with
+mask `MODIFY|CLOSE_WRITE`, an fd whose `/proc/self/fd` link was the file's
+path, its inode, and a pidfd whose `fdinfo` named the shell's pid; a writer
+that had exited before the read came back with `FAN_NOPIDFD`.
+
+### 6.2 Candidates
+
+| Mechanism | What it yields | Process attribution | Object identity | Cost here | Verdict |
+|---|---|---|---|---|---|
+| `syscalls:sys_enter_openat` / `write` / `unlinkat` … via `perf_event_open` | pid, flags, mode, return values | the caller (syscall context) | **none without eBPF**: `filename` is a user-space pointer in the record, not the string | already-implemented perf plumbing | rejected: no path, no object |
+| kprobes / eBPF (`bpf_probe_read_user_str`, LSM `file_open` with `d_path`) | path at entry, inode | the caller | path or inode | eBPF loader + bytecode; same host root | rejected for this gate: reach, not independence; loader cost (Gate 2 §5.2) |
+| `inotify` | mask, name | **none** | watch descriptor | small | rejected: cannot attribute |
+| audit (`CONFIG_AUDITSYSCALL`) | syscall records with pid, cwd, path | the caller | path | daemon absent; a second pipeline with its own loss semantics | rejected here |
+| **`fanotify`** notification class, `FAN_REPORT_PIDFD`, mount mark | per `FAN_CLOSE_WRITE`/`FAN_MODIFY`: an open fd to the object and a pidfd the kernel created from the event's own `struct pid` | **the kernel binds the instance itself**; `FAN_NOPIDFD` when it has gone | kernel-resolved path + `(dev, ino)` through the fd; file handles (`FAN_REPORT_FID`) refused here | `libc` only; `CAP_SYS_ADMIN` | **chosen** |
+
+### 6.3 Decision
+
+    DECISION:       fanotify mount watch (`aip_observe::fanotify::FanotifyWatch`),
+                    `SourceMechanism::Fanotify`, event kind
+                    `KernelLifecycleKind::FileEvent`; one class, ghost.fs.write.v1.
+    THREAT:         an agent's file effects are invisible to the action layer;
+                    a pid-number anchor taken after the fact can bind a
+                    recycled pid inside one clock tick.
+    ASSUMPTION:     the kernel's fanotify queue and pidfd creation are faithful;
+                    the marked mount is the one the agent writes on.
+    MECHANISM:      FAN_CLOSE_WRITE on a marked mount; the object descriptor
+                    resolved to the kernel's current path and (dev, ino) then
+                    closed; the pidfd owned and used to measure the instance
+                    (alive before and after); FAN_Q_OVERFLOW counted as loss;
+                    nothing read from the file.
+    IMPLEMENTATION: `aip-observe/src/fanotify.rs`, `ProcfsProbe::ingest_file_event`,
+                    `PidFd::from_raw`; `aip-authorize` fs_write_action /
+                    fs_write_parameters; `aip-reconcile` FileWrite /
+                    derive_file_writes / TransitionEvidence::File /
+                    FilePathUnresolved.
+    TEST:           `aip-observe/tests/fanotify.rs` fa01–fa07 (fa05/fa06 live);
+                    `aip-reconcile/tests/file_evidence.rs` fw01–fw15;
+                    `ghost-demo/tests/live_file.rs` f_p / f_a / f_n (live).
+    LIMITATION:     the path is a name resolved at read time in the probe's
+                    mount namespace (renames, bind mounts, namespaces);
+                    file-handle identity is refused on this host; events
+                    carry no kernel timestamp (placement rests on read
+                    cadence plus the clock anchor); creates / deletes /
+                    renames need FID reporting; content is never observed;
+                    the measurement content (start tick, image hash) is
+                    procfs — `Attested`, never `Proven`; root can remove the
+                    mark or starve the queue (then Degraded, never silent).
+    DEPENDENCIES:   pidfd anchoring (Skill 6.5), transition evidence path.
+    STATUS:         IMPLEMENTED, live-demonstrated on this host.
+
+### 6.4 The five states, as the mandate names them
+
+| Gate 4 state | §3 state | Record |
+|---|---|---|
+| OBSERVED | `OBSERVED` | `VERIFIED_EXECUTION · Attested` |
+| NOT OBSERVED | `NOT_OBSERVED` for the *action*, with the instance observed | `CANNOT_PROVE · ActionEvidenceUnavailable` — fanotify is not lifecycle coverage, so never `PHANTOM_CLAIM` |
+| AMBIGUOUS | — | `CANNOT_PROVE · AmbiguousObservations` |
+| LOSS | `OBSERVATION_UNAVAILABLE` (degraded) | `CANNOT_PROVE · ObserverDegraded` |
+| UNAVAILABLE | `OBSERVATION_UNAVAILABLE` | `NoObserverEvidence`, a refused batch, or `ProvenanceUnverifiedOpenPolicy` |
