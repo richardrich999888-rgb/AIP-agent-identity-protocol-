@@ -1,5 +1,11 @@
 # RECONCILIATION_MODEL
 
+> **Completion mandate, final state.** Gates 1–11 are complete;
+> `SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md` is the single record of
+> what exists, what was measured, what may be claimed and what may not.
+> Final status: **VALIDATED RUNTIME**, scoped there — the evidence
+> machinery, not a shipped product.
+
 > **Status (Stage 4 `ad9642a`, corrected `b821a23`; Stage 7 action evidence
 > `63c5e0a`; Stage 7b transition evidence; Stage 7c process execution
 > `1d52f93`): PARTIALLY_IMPLEMENTED** in `aip-standalone/aip-reconcile`. The

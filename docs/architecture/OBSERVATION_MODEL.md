@@ -1,5 +1,11 @@
 # OBSERVATION_MODEL
 
+> **Completion mandate, final state.** Gates 1–11 are complete;
+> `SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md` is the single record of
+> what exists, what was measured, what may be claimed and what may not.
+> Final status: **VALIDATED RUNTIME**, scoped there — the evidence
+> machinery, not a shipped product.
+
 > **Status note (post Stages 3–7c, Skill 8, PR #3 harvest).** §1 below is the
 > Stage 0 discovery and reads "MISSING" for runtime observation; that was
 > true at `377d5fc`. The observer now exists — `aip-observe` with a

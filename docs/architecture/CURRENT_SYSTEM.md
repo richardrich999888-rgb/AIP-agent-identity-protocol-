@@ -1,5 +1,11 @@
 # CURRENT_SYSTEM — what the AIP repository actually implements
 
+> **Completion mandate, final state.** Gates 1–11 are complete;
+> `SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md` is the single record of
+> what exists, what was measured, what may be claimed and what may not.
+> Final status: **VALIDATED RUNTIME**, scoped there — the evidence
+> machinery, not a shipped product.
+
 **Discovery run:** `ghost-architecture-engineer`
 **Commit:** `377d5fc874f21b5ce046dc9879a912bdbf6c4a3c`
 **Branch:** `claude/codebase-production-readiness-wm6idp` · working tree clean
@@ -185,3 +191,12 @@ cgroup v2 freeze). Still
 `aip-service` integration of any of the above (the service still carries its
 own authority model, §5). The out-of-tree inventory in §7 is superseded by
 `OUT_OF_TREE_HARVEST_REVIEW.md` and `OT_SENTINEL_HARVEST_AUDIT.md`.
+
+**Completion mandate (Gates 1–11).** Gate 10 evaluated XDP on this host
+and did not adopt it; Gate 11 could not be performed because the hardware
+is a virtual machine. The single record of what exists, what was
+measured, and what may and may not be claimed is
+`SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md`, whose final status is
+**VALIDATED RUNTIME** — the evidence machinery in `aip-standalone`,
+validated at runtime against a real kernel, and explicitly *not* a shipped
+product: §5 and §6 above still describe `aip-service` accurately.

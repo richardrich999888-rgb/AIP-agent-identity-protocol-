@@ -1,5 +1,11 @@
 # How the Sniffer Dog works — in plain English, and only what is true today
 
+> **Completion mandate, final state.** Gates 1–11 are complete;
+> `SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md` is the single record of
+> what exists, what was measured, what may be claimed and what may not.
+> Final status: **VALIDATED RUNTIME**, scoped there — the evidence
+> machinery, not a shipped product.
+
 This is the description that may be used outside the repository. Every
 sentence below is backed by code and tests on this branch at the commit named
 in `SNIFFER_DOG_PR3_HARVEST_REPORT.md`. A companion table at the end lists

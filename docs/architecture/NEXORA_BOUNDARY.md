@@ -1,5 +1,11 @@
 # NEXORA_BOUNDARY
 
+> **Completion mandate, final state.** Gates 1–11 are complete;
+> `SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md` is the single record of
+> what exists, what was measured, what may be claimed and what may not.
+> Final status: **VALIDATED RUNTIME**, scoped there — the evidence
+> machinery, not a shipped product.
+
 ## 1. Current state
 
 `NEXORA = MISSING` from production. Verified: zero occurrences of `nexora`

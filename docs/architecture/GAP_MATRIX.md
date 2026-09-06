@@ -1,5 +1,11 @@
 # GAP_MATRIX
 
+> **Completion mandate, final state.** Gates 1–11 are complete;
+> `SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md` is the single record of
+> what exists, what was measured, what may be claimed and what may not.
+> Final status: **VALIDATED RUNTIME**, scoped there — the evidence
+> machinery, not a shipped product.
+
 Discovered at commit `377d5fc`. Priorities per skill §21:
 **P0** security correctness · **P1** architectural dependency ·
 **P2** production hardening · **P3** performance · **P4** research.

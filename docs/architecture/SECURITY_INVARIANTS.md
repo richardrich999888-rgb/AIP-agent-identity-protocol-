@@ -1,5 +1,11 @@
 # VANIAN Security Invariants
 
+> **Completion mandate, final state.** Gates 1–11 are complete;
+> `SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md` is the single record of
+> what exists, what was measured, what may be claimed and what may not.
+> Final status: **VALIDATED RUNTIME**, scoped there — the evidence
+> machinery, not a shipped product.
+
 **This file is the single authoritative invariant numbering system.**
 
 Numbers I1–I20 correspond exactly to the invariants enforced by the
@@ -157,3 +163,35 @@ separately numbered.
 
 The before/after mapping is recorded in the commit that performed the
 normalization.
+
+---
+
+## The completion mandate's twenty rules, mapped to executable evidence
+
+Rule 20 of the mandate requires every architectural claim to map to
+executable evidence. This table is that map. It does not replace the
+invariant numbering above; it shows where each standing rule is enforced
+and which test fails if the enforcement is removed.
+
+| # | Rule | Enforced in | Test |
+|---|---|---|---|
+| 1 | `CANNOT_PROVE` is the default under insufficient observation | `aip-reconcile::reconcile` — every path that cannot establish its precondition returns it | `aip-reconcile` lib `default_result_is_cannot_prove`; `adversarial` (30) |
+| 2 | Agent self-report is never independent observation | `aip-observe` imports no type from `aip-authorize`; `AgentClaim` is separate from measurement | `aip-observe/tests/adversarial.rs`; `blind_spots.rs` |
+| 3 | Observer signing keys are not agent-controlled | `ProcfsProbe` has no key field or signing method; `ObservationBatch` has no signature field; `verify_attested_batch_independent_of_agent` refuses an anchor equal to the agent's key | `aip-observe/tests/adversarial.rs` |
+| 4 | `ExpectedExecution` stays decision-point signed | `aip-authorize::decision` | `aip-authorize/tests/adversarial.rs` (32) |
+| 5 | `ExecutionBinding` stays structurally bound | `aip-types::ExecutionBinding::identity_bytes`, `aip-core::execution_binding` | `aip-core` lib; `aip-reconcile/tests/adversarial.rs` |
+| 6 | Domain separation is explicit | every signed preimage opens with `put_domain(..)`: `OBSERVER_HEAD_DOMAIN`, `OBSERVER_HEALTH_DOMAIN`, `KERNEL_EVENT_DOMAIN`, `CONTINUITY_REPORT_DOMAIN`, `WARRANT_DOMAIN`, `CONTAINMENT_DOMAIN`, NEXORA `LEAF`/`HEAD`/`PROOF` | cr09, c15, `nexora` x01–x08, `warrant` |
+| 7 | Canonical encoding is injective | `aip-types::canonical` length-prefixes every variable field, tags every `Option`, counts every collection | `aip-protocol/tests/evidence_packet.rs` collision vectors |
+| 8 | Expiry lives inside signed authority material | `aip-core::capability`, `::delegation` | `aip-core` lib expiry-mutation tests |
+| 9 | Revocation is checked where required | `ObserverTrustAnchors::revoke`, `WarrantTrustAnchors`, `ContainmentTrustAnchors` | `aip-observe/tests/adversarial.rs`; c03 |
+| 10 | PID reuse never silently produces attribution | `PidFd` held across every measurement; `aip-containment::attribute` compares start ticks and boot id | `aip-observe/tests/sniffer_dog.rs`; c06 |
+| 11 | Ambiguous evidence never becomes proof | `ActionOutcome::Unresolved`, `WireCorroboration::Ambiguous`, `LineageComparison` | `wire_corroboration` (15), `send_evidence` (13), `file_evidence` (15) |
+| 12 | Missing evidence never becomes proof | `ObservationAvailability::Unavailable`; `PHANTOM_CLAIM` requires kernel-pushed coverage of the exact window | `aip-reconcile/tests/adversarial.rs`; `aip-observe/tests/blind_spots.rs` |
+| 13 | Degraded observation never becomes proof | `ObserverState::permits_attested_use` is true only for `Active`; coverage is dropped on loss, gap or restart | `aip-observe` lib; `restart_continuity` (8); cr01–cr10 |
+| 14 | Containment is never triggered from weak evidence | `aip-containment::contain` gates 3–8: `Contain`, `Workload`, `Proven` by explicit match, workload-violation result, availability, citation | c01, c02 |
+| 15 | No duplicate authority engine | `aip-warrant` and `aip-containment` reuse `ProtectedIdentitySet`; containment issues no warrant | c09; `aip-containment` has no warrant constructor |
+| 16 | No duplicate identity engine | one `derive_aip_id`; one `ExecutionBinding` | repository-wide search recorded in `CURRENT_SYSTEM.md` §3 |
+| 17 | NEXORA cannot become an authorisation bypass | `aip-nexora` imports no authority type; a `VerifiedInclusion` states where and what digest, never truth or permission | `nexora` x04, x05 |
+| 18 | Application logs never silently become independent truth | no such sensor exists; the decision and its fence | `APPLICATION_LOG_SENSOR_DECISION.md`; g5a–g5d |
+| 19 | Every positive verdict names its trust root | every record carries `EvidenceRef`s naming observer, key version, sequence, batch and decision point | `aip-reconcile/tests/transition_evidence.rs` (22) |
+| 20 | Every architectural claim maps to executable evidence | this table; `SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md` §§3–5 | 787 tests in `aip-standalone`, 39 in `aip-service` |
