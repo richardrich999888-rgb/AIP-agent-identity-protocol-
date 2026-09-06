@@ -594,7 +594,6 @@ fn degraded(h: &SignedSensorHealth) -> bool {
     matches!(h.health.state, ObserverState::Degraded)
 }
 
-
 /// Re-derive an [`AiriBundle`]: which key really signed these events, whether
 /// each signature holds, and whether they form one intact chain.
 ///

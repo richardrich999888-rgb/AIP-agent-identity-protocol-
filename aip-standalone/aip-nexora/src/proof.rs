@@ -855,7 +855,12 @@ impl ProofBuilder {
     /// holding its own anchor for this agent compares the two and the
     /// verifier's wins; carrying it here makes the package self-describing
     /// without making it self-authorising.
-    pub fn airi(mut self, agent_id: String, agent_public_key: Vec<u8>, events: Vec<aip_airi::AiriEvent>) -> Self {
+    pub fn airi(
+        mut self,
+        agent_id: String,
+        agent_public_key: Vec<u8>,
+        events: Vec<aip_airi::AiriEvent>,
+    ) -> Self {
         self.proof.airi = Some(AiriBundle {
             agent_id,
             agent_public_key,

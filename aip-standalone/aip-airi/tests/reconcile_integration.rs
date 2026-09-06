@@ -12,8 +12,8 @@
 //! influence over a verdict — however well intentioned — fails here.
 
 use aip_airi::*;
-use aip_observe::ObservationAvailability;
 use aip_authorize::DecisionPointTrustAnchors;
+use aip_observe::ObservationAvailability;
 use aip_observe::ObserverTrustAnchors;
 use aip_reconcile::{
     reconcile_expectation, EvidenceStrength, ExpectedSideCoverage, ReconciliationContext,
@@ -58,8 +58,7 @@ fn all_corroboration_shapes(a: &Agent) -> Vec<Corroboration> {
         10_000,
     );
 
-    let mk = |batches: Vec<&aip_observe::AttestedBatch>,
-              availability: &ObservationAvailability| {
+    let mk = |batches: Vec<&aip_observe::AttestedBatch>, availability: &ObservationAvailability| {
         corroborate(&CorroborationInputs {
             event: &ev,
             batches: &batches,
@@ -137,7 +136,10 @@ fn a_corroborated_claim_does_not_produce_verified_execution() {
         .filter(|c| c.is_corroborated())
         .cloned()
         .collect();
-    assert!(!corroborated.is_empty(), "sweep produced no corroborated case");
+    assert!(
+        !corroborated.is_empty(),
+        "sweep produced no corroborated case"
+    );
 
     let ann = annotate(&rec, &corroborated, Some(true));
     assert!(ann.corroborated > 0);
@@ -188,7 +190,10 @@ fn an_uncorroborated_claim_is_surfaced_but_is_not_itself_a_verdict() {
     let shapes = all_corroboration_shapes(&a);
     let ann = annotate(&rec, &shapes, Some(true));
 
-    assert!(ann.uncorroborated > 0, "the uncorroborated case must be visible");
+    assert!(
+        ann.uncorroborated > 0,
+        "the uncorroborated case must be visible"
+    );
     assert!(ann.has_unexplained_claims());
     // ...and the verdict is untouched.
     assert_eq!(rec.result, ReconciliationResult::CannotProve);

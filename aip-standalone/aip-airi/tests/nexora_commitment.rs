@@ -51,8 +51,20 @@ fn an_airi_leaf_cannot_be_replayed_as_another_kind() {
 #[test]
 fn distinct_events_commit_to_distinct_leaves() {
     let a = agent("agent-1");
-    let e1 = signed_tool_request(&a, EXEC_A, Some(DECISION_A), "tool.http.post", b"{\"amount\":5}");
-    let e2 = signed_tool_request(&a, EXEC_A, Some(DECISION_A), "tool.http.post", b"{\"amount\":500000}");
+    let e1 = signed_tool_request(
+        &a,
+        EXEC_A,
+        Some(DECISION_A),
+        "tool.http.post",
+        b"{\"amount\":5}",
+    );
+    let e2 = signed_tool_request(
+        &a,
+        EXEC_A,
+        Some(DECISION_A),
+        "tool.http.post",
+        b"{\"amount\":500000}",
+    );
     assert_ne!(
         leaf_hash(LeafKind::AiriEvent, &e1.signing_preimage()),
         leaf_hash(LeafKind::AiriEvent, &e2.signing_preimage()),

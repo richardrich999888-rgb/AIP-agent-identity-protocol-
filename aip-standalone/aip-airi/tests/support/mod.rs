@@ -167,7 +167,11 @@ pub fn signed_chain(a: &Agent, exec: [u8; 16], n: u64) -> Vec<AiriEvent> {
     let mut out: Vec<AiriEvent> = Vec::new();
     let mut prev = [0u8; 32];
     for i in 0..n {
-        let mut ev = skeleton(exec, Some(DECISION_A), tool_payload("tool.http.post", b"{}"));
+        let mut ev = skeleton(
+            exec,
+            Some(DECISION_A),
+            tool_payload("tool.http.post", b"{}"),
+        );
         ev.sequence = i;
         ev.prev_event_hash = prev;
         ev.emitted_at_ms = 1_000 + i;
@@ -186,8 +190,8 @@ pub fn signed_chain(a: &Agent, exec: [u8; 16], n: u64) -> Vec<AiriEvent> {
 
 use aip_observe::{
     AgentAttribution, AttestedBatch, CollectorSigner, CoverageWindow, KernelLifecycleEvent,
-    KernelLifecycleKind, ObservationAvailability, ObservationBatch, ObservedExecution,
-    ObservedEffect, ObservedProcess, ObserverAttestor, SocketEndpoint, SocketProtocol,
+    KernelLifecycleKind, ObservationAvailability, ObservationBatch, ObservedEffect,
+    ObservedExecution, ObservedProcess, ObserverAttestor, SocketEndpoint, SocketProtocol,
     SourceMechanism, OBSERVE_PROTOCOL_VERSION,
 };
 
@@ -231,7 +235,11 @@ pub fn covered(from: u64, to: u64) -> ObservationAvailability {
 fn ep(a: u8, b: u8, c: u8, d: u8, port: u16) -> SocketEndpoint {
     let mut addr = [0u8; 16];
     addr[..4].copy_from_slice(&[a, b, c, d]);
-    SocketEndpoint { addr, is_v6: false, port }
+    SocketEndpoint {
+        addr,
+        is_v6: false,
+        port,
+    }
 }
 
 pub fn raw_batch(

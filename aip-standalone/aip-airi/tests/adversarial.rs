@@ -47,7 +47,11 @@ fn claim_corroborated_when_the_observer_saw_a_matching_kernel_event() {
     let a = agent("agent-1");
     let (ev, b) = bound_tool_claim(&a, 4321);
     let mut o = Observer::new();
-    let batch = attest(&mut o, raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]), 10_000);
+    let batch = attest(
+        &mut o,
+        raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]),
+        10_000,
+    );
 
     let avail = covered(0, 10_000);
     let c = corroborate(&inputs(&ev, &[&batch], &avail));
@@ -62,7 +66,11 @@ fn corroboration_never_yields_a_verdict_or_a_strength() {
     let a = agent("agent-1");
     let (ev, b) = bound_tool_claim(&a, 4321);
     let mut o = Observer::new();
-    let batch = attest(&mut o, raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]), 10_000);
+    let batch = attest(
+        &mut o,
+        raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]),
+        10_000,
+    );
     let avail = covered(0, 10_000);
 
     match corroborate(&inputs(&ev, &[&batch], &avail)) {
@@ -111,7 +119,11 @@ fn an_observation_of_the_wrong_class_does_not_corroborate() {
     let a = agent("agent-1");
     let (ev, b) = bound_tool_claim(&a, 4321);
     let mut o = Observer::new();
-    let batch = attest(&mut o, raw_batch(1, 0, 10_000, vec![], vec![exec_event(&b)]), 10_000);
+    let batch = attest(
+        &mut o,
+        raw_batch(1, 0, 10_000, vec![], vec![exec_event(&b)]),
+        10_000,
+    );
     let avail = covered(0, 10_000);
 
     let c = corroborate(&inputs(&ev, &[&batch], &avail));
@@ -158,7 +170,10 @@ fn an_observation_of_a_different_instance_does_not_corroborate() {
     let avail = covered(0, 10_000);
 
     let c = corroborate(&inputs(&ev, &[&batch], &avail));
-    assert!(!c.is_corroborated(), "cross-instance corroboration accepted: {c:?}");
+    assert!(
+        !c.is_corroborated(),
+        "cross-instance corroboration accepted: {c:?}"
+    );
     assert!(matches!(
         c,
         Corroboration::Uncorroborated {
@@ -177,7 +192,11 @@ fn a_kernel_event_the_probe_could_not_bind_does_not_corroborate() {
     let mut unbound = socket_event(&b);
     unbound.bound = None;
     let mut o = Observer::new();
-    let batch = attest(&mut o, raw_batch(1, 0, 10_000, vec![], vec![unbound]), 10_000);
+    let batch = attest(
+        &mut o,
+        raw_batch(1, 0, 10_000, vec![], vec![unbound]),
+        10_000,
+    );
     let avail = covered(0, 10_000);
 
     assert!(
@@ -203,7 +222,10 @@ fn observer_unavailable_is_not_evaluated_and_is_not_a_finding() {
         matches!(c, Corroboration::NotEvaluated(_)),
         "an unavailable observer must yield NotEvaluated, got {c:?}"
     );
-    assert!(!c.is_uncorroborated(), "sensor downtime must not become an accusation");
+    assert!(
+        !c.is_uncorroborated(),
+        "sensor downtime must not become an accusation"
+    );
 }
 
 #[test]
@@ -252,7 +274,11 @@ fn a_model_invocation_is_never_corroborated_by_a_host_observer() {
     let ev = resign(&a, ev);
 
     let mut o = Observer::new();
-    let batch = attest(&mut o, raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]), 10_000);
+    let batch = attest(
+        &mut o,
+        raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]),
+        10_000,
+    );
     let avail = covered(0, 10_000);
 
     let c = corroborate(&inputs(&ev, &[&batch], &avail));
@@ -272,7 +298,11 @@ fn a_claim_without_a_runtime_binding_cannot_be_joined() {
     assert!(ev.runtime_binding.is_none());
     let mut o = Observer::new();
     let b = binding(&a.agent_id, 4321);
-    let batch = attest(&mut o, raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]), 10_000);
+    let batch = attest(
+        &mut o,
+        raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]),
+        10_000,
+    );
     let avail = covered(0, 10_000);
     assert!(matches!(
         corroborate(&inputs(&ev, &[&batch], &avail)),
@@ -299,7 +329,11 @@ fn an_unmappable_action_class_is_not_evaluated_rather_than_accused() {
     let ev = resign(&a, ev);
 
     let mut o = Observer::new();
-    let batch = attest(&mut o, raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]), 10_000);
+    let batch = attest(
+        &mut o,
+        raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]),
+        10_000,
+    );
     let avail = covered(0, 10_000);
     assert!(
         matches!(
@@ -336,7 +370,11 @@ fn a_successful_tool_response_is_not_evidence_of_the_external_effect() {
     let ev = resign(&a, ev);
 
     let mut o = Observer::new();
-    let batch = attest(&mut o, raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]), 10_000);
+    let batch = attest(
+        &mut o,
+        raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]),
+        10_000,
+    );
     let avail = covered(0, 10_000);
 
     let c = corroborate(&inputs(&ev, &[&batch], &avail));
@@ -380,11 +418,21 @@ fn no_framework_is_a_trust_anchor() {
     let a = agent("agent-1");
     let mut o = Observer::new();
     let b = binding(&a.agent_id, 4321);
-    let batch = attest(&mut o, raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]), 10_000);
+    let batch = attest(
+        &mut o,
+        raw_batch(1, 0, 10_000, vec![], vec![socket_event(&b)]),
+        10_000,
+    );
     let avail = covered(0, 10_000);
 
     let mut outcomes = vec![];
-    for fw in ["langgraph", "autogen", "crewai", "llamaindex", "totally-made-up"] {
+    for fw in [
+        "langgraph",
+        "autogen",
+        "crewai",
+        "llamaindex",
+        "totally-made-up",
+    ] {
         let (mut ev, _) = bound_tool_claim(&a, 4321);
         ev.framework = FrameworkIdentity {
             name: fw.into(),

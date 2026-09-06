@@ -249,7 +249,10 @@ fn a_package_naming_a_key_the_verifier_does_not_anchor_is_refused() {
     let real = agent("aip1airiagent");
     let attacker = agent("aip1airiagent"); // same claimed id, different key
     let events = chain(&attacker, 3);
-    let p = package(&s, Some((attacker.id.clone(), attacker.public_key.clone(), events)));
+    let p = package(
+        &s,
+        Some((attacker.id.clone(), attacker.public_key.clone(), events)),
+    );
 
     // The verifier anchors the *real* agent's key.
     let v = verify_nexora_proof(&p, &anchors(&s, Some(real.public_key.clone())));

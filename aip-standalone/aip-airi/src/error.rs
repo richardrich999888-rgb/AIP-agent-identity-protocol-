@@ -24,10 +24,7 @@ pub enum AiriError {
     InvalidPublicKey,
     /// `signature.signer_id` is not the event's `agent_id`. An agent may
     /// only sign for itself.
-    SignerIsNotTheAgent {
-        signer_id: String,
-        agent_id: String,
-    },
+    SignerIsNotTheAgent { signer_id: String, agent_id: String },
     /// A required field was empty.
     MissingField(&'static str),
     /// A field exceeded the bound in the specification.
@@ -44,14 +41,23 @@ impl std::fmt::Display for AiriError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::UnsupportedVersion(v) => {
-                write!(f, "AIRI event version {v} is not implemented by this verifier")
+                write!(
+                    f,
+                    "AIRI event version {v} is not implemented by this verifier"
+                )
             }
             Self::SignatureInvalid => write!(f, "AIRI event signature did not verify"),
             Self::PayloadHashMismatch => {
-                write!(f, "AIRI event was altered after signing (payload hash mismatch)")
+                write!(
+                    f,
+                    "AIRI event was altered after signing (payload hash mismatch)"
+                )
             }
             Self::InvalidPublicKey => write!(f, "not a well-formed Ed25519 public key"),
-            Self::SignerIsNotTheAgent { signer_id, agent_id } => write!(
+            Self::SignerIsNotTheAgent {
+                signer_id,
+                agent_id,
+            } => write!(
                 f,
                 "event is signed by {signer_id} but claims to be about {agent_id}"
             ),

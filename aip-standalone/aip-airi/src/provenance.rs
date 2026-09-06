@@ -104,7 +104,10 @@ impl ModelProvenance {
         put_opt_digest(buf, &self.model_digest);
         put_str(buf, &self.runtime);
         put_opt_str(buf, &self.runtime_version);
-        put_opt_str(buf, &self.inference_request_id.as_ref().map(|x| x.0.clone()));
+        put_opt_str(
+            buf,
+            &self.inference_request_id.as_ref().map(|x| x.0.clone()),
+        );
         put_opt_digest(buf, &self.prompt_commitment);
         put_opt_digest(buf, &self.output_commitment);
         put_opt_str(buf, &self.accelerator);

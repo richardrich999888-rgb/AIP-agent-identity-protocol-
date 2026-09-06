@@ -20,7 +20,13 @@ use support::*;
 #[test]
 fn a_well_formed_event_verifies_against_the_signing_agent() {
     let a = agent("agent-1");
-    let ev = signed_tool_request(&a, EXEC_A, Some(DECISION_A), "tool.http.post", b"{\"url\":\"x\"}");
+    let ev = signed_tool_request(
+        &a,
+        EXEC_A,
+        Some(DECISION_A),
+        "tool.http.post",
+        b"{\"url\":\"x\"}",
+    );
     assert!(verify_airi_event(&ev, &a.public_key).is_ok());
 }
 
@@ -34,13 +40,31 @@ fn the_signature_covers_every_field_the_verifier_later_reads() {
     type Mutation = (&'static str, Box<dyn Fn(&mut AiriEvent)>);
 
     let mutations: Vec<Mutation> = vec![
-        ("agent_id", Box::new(|e: &mut AiriEvent| e.agent_id = "agent-2".into())),
-        ("execution_id", Box::new(|e: &mut AiriEvent| e.execution_id = EXEC_B)),
-        ("parent_execution_id", Box::new(|e: &mut AiriEvent| e.parent_execution_id = Some(EXEC_B))),
-        ("decision_id", Box::new(|e: &mut AiriEvent| e.decision_id = Some(DECISION_B))),
+        (
+            "agent_id",
+            Box::new(|e: &mut AiriEvent| e.agent_id = "agent-2".into()),
+        ),
+        (
+            "execution_id",
+            Box::new(|e: &mut AiriEvent| e.execution_id = EXEC_B),
+        ),
+        (
+            "parent_execution_id",
+            Box::new(|e: &mut AiriEvent| e.parent_execution_id = Some(EXEC_B)),
+        ),
+        (
+            "decision_id",
+            Box::new(|e: &mut AiriEvent| e.decision_id = Some(DECISION_B)),
+        ),
         ("sequence", Box::new(|e: &mut AiriEvent| e.sequence = 99)),
-        ("emitted_at_ms", Box::new(|e: &mut AiriEvent| e.emitted_at_ms += 1)),
-        ("prev_event_hash", Box::new(|e: &mut AiriEvent| e.prev_event_hash = [9u8; 32])),
+        (
+            "emitted_at_ms",
+            Box::new(|e: &mut AiriEvent| e.emitted_at_ms += 1),
+        ),
+        (
+            "prev_event_hash",
+            Box::new(|e: &mut AiriEvent| e.prev_event_hash = [9u8; 32]),
+        ),
         ("version", Box::new(|e: &mut AiriEvent| e.version = 7)),
     ];
 
@@ -110,12 +134,19 @@ fn an_event_cannot_be_moved_to_another_expected_execution() {
 #[test]
 fn parameter_substitution_is_detected() {
     let a = agent("agent-1");
-    let authorized = signed_tool_request(&a, EXEC_A, Some(DECISION_A), "tool.http.post",
-        br#"{"url":"https://payments.internal/refund","amount":5}"#);
+    let authorized = signed_tool_request(
+        &a,
+        EXEC_A,
+        Some(DECISION_A),
+        "tool.http.post",
+        br#"{"url":"https://payments.internal/refund","amount":5}"#,
+    );
     let mut swapped = authorized.clone();
     // Same tool, same execution, same agent — different money.
     swapped.payload = AiriPayload::ToolInvocationRequested(ToolInvocation {
-        parameter_commitment: commit(br#"{"url":"https://payments.internal/refund","amount":500000}"#),
+        parameter_commitment: commit(
+            br#"{"url":"https://payments.internal/refund","amount":500000}"#,
+        ),
         ..match &authorized.payload {
             AiriPayload::ToolInvocationRequested(t) => t.clone(),
             _ => unreachable!(),
@@ -236,7 +267,10 @@ fn an_airi_preimage_is_not_a_valid_preimage_in_any_other_aip_domain() {
         "SYNTRIASS/GHOST/WARRANT/v1",
         "SYNTRIASS/NEXORA/LEAF/v1",
     ] {
-        assert_ne!(AIRI_EVENT_DOMAIN, other, "AIRI reuses an existing signing domain");
+        assert_ne!(
+            AIRI_EVENT_DOMAIN, other,
+            "AIRI reuses an existing signing domain"
+        );
     }
 }
 
@@ -248,7 +282,10 @@ fn the_preimage_is_injective_across_adjacent_string_fields() {
     let a = agent("x");
     let p1 = preimage_with_ids(&a, "ab", "c");
     let p2 = preimage_with_ids(&a, "a", "bc");
-    assert_ne!(p1, p2, "SECURITY: AIRI preimage is not injective across adjacent strings");
+    assert_ne!(
+        p1, p2,
+        "SECURITY: AIRI preimage is not injective across adjacent strings"
+    );
 }
 
 #[test]
@@ -285,7 +322,10 @@ fn an_unsupported_version_is_refused() {
     // Re-sign so the failure is about the version rule, not the signature.
     let ev = resign(&a, ev);
     assert!(
-        matches!(verify_airi_event(&ev, &a.public_key), Err(AiriError::UnsupportedVersion(_))),
+        matches!(
+            verify_airi_event(&ev, &a.public_key),
+            Err(AiriError::UnsupportedVersion(_))
+        ),
         "an event of an unknown version must be refused, not interpreted"
     );
 }

@@ -14,8 +14,7 @@
 use std::path::PathBuf;
 
 fn fixture_path() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../sdk/python/tests/python_events.json")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../sdk/python/tests/python_events.json")
 }
 
 /// Minimal reader — the fixture is a flat object and pulling in a JSON
