@@ -403,6 +403,14 @@ impl ProcfsProbe {
         self.ingest_event(ev, SourceMechanism::SchedTracepoint)
     }
 
+    /// Ingest a TCP segment copied from a network device
+    /// (`WireTapAfPacket`). The device layer has no task context, so the
+    /// event is recorded **unbound** with no attribution and no claim,
+    /// whatever claims are registered: the wire names no process.
+    pub fn ingest_wire_event(&mut self, ev: ProcEvent) -> &KernelLifecycleEvent {
+        self.ingest_event(ev, SourceMechanism::WireTapAfPacket)
+    }
+
     fn ingest_event(&mut self, ev: ProcEvent, mechanism: SourceMechanism) -> &KernelLifecycleEvent {
         let seq = self.next_seq();
         let subject = ev.kind.subject_pid();

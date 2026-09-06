@@ -103,6 +103,18 @@ pub enum SourceMechanism {
     /// executed *content* is not in the event: the probe hashes
     /// `/proc/<pid>/exe` under a pidfd anchor. Loss via `PERF_RECORD_LOST`.
     SchedTracepoint,
+    /// A copy of a frame the kernel handed to a network device or took from
+    /// one, delivered through an `AF_PACKET` socket (`packet_rcv` on
+    /// receive, `dev_queue_xmit_nit` on transmit), stamped by the kernel
+    /// (`SO_TIMESTAMPNS`, realtime clock) and counted for loss
+    /// (`PACKET_STATISTICS`). **Headers only**: IP addresses, TCP ports,
+    /// flags, sequence numbers and the payload *length*; no payload byte is
+    /// copied, hashed or kept (I23). The device layer knows no process: a
+    /// wire segment carries no pid and is never bound to an instance. The
+    /// same code produces the same evidence on a mirror-port or TAP host
+    /// outside the observed host's root; on the observed host it is as
+    /// root-forgeable as every other source here. No eBPF, no XDP.
+    WireTapAfPacket,
 }
 
 impl SourceMechanism {
@@ -114,6 +126,7 @@ impl SourceMechanism {
             SourceMechanism::ProcNetTable => 0x04,
             SourceMechanism::SockStateTracepoint => 0x05,
             SourceMechanism::SchedTracepoint => 0x06,
+            SourceMechanism::WireTapAfPacket => 0x07,
         }
     }
 
@@ -125,6 +138,7 @@ impl SourceMechanism {
             SourceMechanism::ProcConnector
                 | SourceMechanism::SockStateTracepoint
                 | SourceMechanism::SchedTracepoint
+                | SourceMechanism::WireTapAfPacket
         )
     }
 
@@ -142,13 +156,14 @@ impl SourceMechanism {
         matches!(self, SourceMechanism::PidFdAnchored)
     }
 
-    pub const ALL: [SourceMechanism; 6] = [
+    pub const ALL: [SourceMechanism; 7] = [
         SourceMechanism::ProcfsPoll,
         SourceMechanism::PidFdAnchored,
         SourceMechanism::ProcConnector,
         SourceMechanism::ProcNetTable,
         SourceMechanism::SockStateTracepoint,
         SourceMechanism::SchedTracepoint,
+        SourceMechanism::WireTapAfPacket,
     ];
 
     /// Canonical ordering of a mechanism set: by code, deduplicated. Used
@@ -243,6 +258,27 @@ impl SocketEndpoint {
         put_u8(buf, u8::from(self.is_v6));
         buf.extend_from_slice(&self.addr);
         put_u16(buf, self.port);
+    }
+}
+
+/// Which way a captured frame was travelling, from the `AF_PACKET`
+/// `sll_pkttype`: `PACKET_OUTGOING` is a frame the host is transmitting,
+/// `PACKET_HOST` one addressed to it; everything else (broadcast, multicast,
+/// other-host in promiscuous mode) is `Other`. Recorded, never inferred from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum WireDirection {
+    Outgoing,
+    Incoming,
+    Other,
+}
+
+impl WireDirection {
+    fn code(&self) -> u8 {
+        match self {
+            WireDirection::Outgoing => 0x01,
+            WireDirection::Incoming => 0x02,
+            WireDirection::Other => 0x03,
+        }
     }
 }
 
@@ -477,9 +513,55 @@ pub enum KernelLifecycleKind {
         old_pid: u32,
         filename: String,
     },
+    /// One TCP segment as it crossed a network device (`WireTapAfPacket`):
+    /// the headers the kernel copied, and nothing of the payload but its
+    /// length. `kernel_realtime_ns` is the kernel's capture stamp on the
+    /// **realtime** clock (`SO_TIMESTAMPNS`); the event's
+    /// `kernel_timestamp_ns` is the probe's own monotonic dequeue stamp, an
+    /// upper bound. A verifier relates the two through the batch's
+    /// `clock_anchor`. No task context exists at the device layer: this
+    /// kind never names a pid and is never bound.
+    WireSegment {
+        ifindex: u32,
+        direction: WireDirection,
+        protocol: SocketProtocol,
+        src: SocketEndpoint,
+        dst: SocketEndpoint,
+        /// TCP flags byte (FIN=0x01, SYN=0x02, RST=0x04, PSH=0x08, ACK=0x10 …).
+        flags: u8,
+        seq: u32,
+        ack: u32,
+        /// Bytes after the TCP header, by the IP length field. Never the
+        /// bytes themselves.
+        payload_len: u32,
+        /// Bytes the kernel delivered for the frame (link header excluded).
+        frame_len: u32,
+        kernel_realtime_ns: u64,
+    },
+}
+
+/// TCP flag bits as they appear in `WireSegment::flags`.
+pub mod tcp_flags {
+    pub const FIN: u8 = 0x01;
+    pub const SYN: u8 = 0x02;
+    pub const RST: u8 = 0x04;
+    pub const PSH: u8 = 0x08;
+    pub const ACK: u8 = 0x10;
 }
 
 impl KernelLifecycleKind {
+    /// A wire segment that is a SYN without ACK: a connection being opened.
+    pub fn is_wire_syn(&self) -> bool {
+        matches!(self, KernelLifecycleKind::WireSegment { flags, .. }
+            if flags & (tcp_flags::SYN | tcp_flags::ACK) == tcp_flags::SYN)
+    }
+
+    /// A wire segment that is a SYN-ACK: the peer accepting.
+    pub fn is_wire_syn_ack(&self) -> bool {
+        matches!(self, KernelLifecycleKind::WireSegment { flags, .. }
+            if flags & (tcp_flags::SYN | tcp_flags::ACK) == tcp_flags::SYN | tcp_flags::ACK)
+    }
+
     /// The pid the event is *about* (the child for a fork). For a socket
     /// transition, only `CLOSE → SYN_SENT` — the `connect()` call itself —
     /// runs in the acting task's context; every other transition's current
@@ -507,6 +589,8 @@ impl KernelLifecycleKind {
             // the spawn* (see `spawned_child_pid`), not the actor.
             KernelLifecycleKind::ProcessSpawn { parent_pid, .. } => Some(*parent_pid),
             KernelLifecycleKind::ProcessExec { pid, .. } => Some(*pid),
+            // The device layer has no task context.
+            KernelLifecycleKind::WireSegment { .. } => None,
         }
     }
 
@@ -605,6 +689,32 @@ impl KernelLifecycleKind {
                 put_u32(buf, *pid);
                 put_u32(buf, *old_pid);
                 put_str(buf, filename);
+            }
+            KernelLifecycleKind::WireSegment {
+                ifindex,
+                direction,
+                protocol,
+                src,
+                dst,
+                flags,
+                seq,
+                ack,
+                payload_len,
+                frame_len,
+                kernel_realtime_ns,
+            } => {
+                put_u8(buf, 0x07);
+                put_u32(buf, *ifindex);
+                put_u8(buf, direction.code());
+                put_u8(buf, protocol.code());
+                src.encode(buf);
+                dst.encode(buf);
+                put_u8(buf, *flags);
+                put_u32(buf, *seq);
+                put_u32(buf, *ack);
+                put_u32(buf, *payload_len);
+                put_u32(buf, *frame_len);
+                put_u64(buf, *kernel_realtime_ns);
             }
         }
     }
@@ -777,6 +887,20 @@ impl BootClockAnchor {
             self.clk_tck as u64
         };
         1_000_000_000 / tck
+    }
+
+    /// Place a kernel **realtime** capture stamp (nanoseconds since the Unix
+    /// epoch, as `SO_TIMESTAMPNS` reports it) on the `CLOCK_MONOTONIC` axis
+    /// the tracepoint events are stamped on. The anchor's realtime is known
+    /// to the millisecond, so the placement is exact to that resolution.
+    /// Saturates rather than wrapping.
+    pub fn realtime_ns_to_monotonic(&self, realtime_ns: u64) -> u64 {
+        let anchor_rt_ns = self.realtime_ms.saturating_mul(1_000_000);
+        if realtime_ns >= anchor_rt_ns {
+            self.monotonic_ns.saturating_add(realtime_ns - anchor_rt_ns)
+        } else {
+            self.monotonic_ns.saturating_sub(anchor_rt_ns - realtime_ns)
+        }
     }
 
     /// Place a `CLOCK_MONOTONIC` event stamp on the wall clock. Saturates

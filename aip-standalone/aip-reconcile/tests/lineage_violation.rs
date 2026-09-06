@@ -1001,10 +1001,12 @@ fn lv14_observer_gates_apply() {
 
 /// lv15 — the guard: a `LineageViolation` can leave `finish` only with
 /// `lineage == Contradicted` at `Attested`. The record carries the lineage
-/// comparison in its canonical bytes (record v4).
+/// comparison in its canonical bytes since record v4 (Gate 2 raised the
+/// record to v5 for the wire comparison; the lineage field stays).
 #[test]
 fn lv15_record_carries_lineage_and_version_four() {
-    assert_eq!(RECONCILIATION_VERSION, 4);
+    // The lineage comparison entered the record at v4.
+    const _: () = assert!(RECONCILIATION_VERSION >= 4);
     let c = case(Spawner::Rogue);
     let r = run(&c, &full(&c));
     let mut other = r.clone();

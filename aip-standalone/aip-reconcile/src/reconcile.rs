@@ -30,7 +30,7 @@ use crate::inputs::{
 use crate::result::{
     ActionComparison, ActionEvidenceKind, EvidenceRef, EvidenceStrength, IdentityComparison,
     LineageComparison, LineageLink, ReasonCode, Reconciliation, ReconciliationResult,
-    TemporalComparison, RECONCILIATION_VERSION,
+    TemporalComparison, WireCorroboration, RECONCILIATION_VERSION,
 };
 
 // ─── Result assembly ───
@@ -44,6 +44,9 @@ struct Draft {
     /// Set only by [`reconcile_lineage`]; `Contradicted` is the sole value
     /// that lets `LineageViolation` leave `finish`.
     lineage: LineageComparison,
+    /// Set only when a socket transition carried a `VerifiedExecution`
+    /// (Gate 2). Informational: it can neither raise nor lower the verdict.
+    wire: WireCorroboration,
     replay_detected: bool,
     evidence: Vec<EvidenceRef>,
     verification_time_ms: u64,
@@ -69,6 +72,7 @@ impl Draft {
             action: ActionComparison::Unobservable,
             temporal: TemporalComparison::Indeterminate,
             lineage: LineageComparison::NotEvaluated,
+            wire: WireCorroboration::NotEvaluated,
             replay_detected: false,
             evidence: Vec::new(),
             verification_time_ms: ctx.verification_time_ms,
@@ -159,6 +163,7 @@ impl Draft {
             action: self.action,
             temporal: self.temporal,
             lineage: self.lineage,
+            wire: self.wire,
             replay_detected: self.replay_detected,
             evidence: self.evidence,
             verification_time_ms: self.verification_time_ms,
@@ -419,6 +424,9 @@ enum ActionOutcome {
         mechanism: SourceMechanism,
         kind: ActionEvidenceKind,
         evidence: Vec<EvidenceRef>,
+        /// Index into `References::transitions` of the transition that
+        /// carried the verdict, when one did.
+        transition: Option<usize>,
     },
     /// A matching connection transition is placed before the decision.
     Precedes,
@@ -485,7 +493,8 @@ fn compare_action(
     let mut t_mismatch = false;
     let mut t_precedes = false;
     let mut t_mechanism: Option<SourceMechanism> = None;
-    for c in &refs.transitions {
+    let mut t_first: Option<usize> = None;
+    for (ti, c) in refs.transitions.iter().enumerate() {
         let t = &c.t;
         if t.kind() != &ee.action_kind {
             continue;
@@ -542,6 +551,7 @@ fn compare_action(
             continue;
         }
         t_mechanism.get_or_insert(t.mechanism());
+        t_first.get_or_insert(ti);
         let initiation = t.initiation();
         t_verified.push(EvidenceRef::KernelEvent {
             batch_sequence: ObserverSequence(initiation.batch_sequence),
@@ -557,6 +567,7 @@ fn compare_action(
             mechanism: t_mechanism.unwrap_or(SourceMechanism::SockStateTracepoint),
             kind: ActionEvidenceKind::Transition,
             evidence: t_verified,
+            transition: t_first,
         };
     }
 
@@ -616,6 +627,7 @@ fn compare_action(
             mechanism,
             kind: ActionEvidenceKind::Presence,
             evidence: verified,
+            transition: None,
         };
     }
     if t_precedes || p_precedes > 0 {
@@ -839,6 +851,161 @@ fn collect_references<'a>(
         });
     }
     refs
+}
+
+/// Slack, in kernel nanoseconds, around a socket transition inside which a
+/// wire handshake is taken to belong to it. Anchors are exact to the
+/// millisecond; one second absorbs anchor skew between batches without
+/// reaching into a neighbouring connection on the same tuple.
+const WIRE_WINDOW_NS: u64 = 1_000_000_000;
+
+/// Gate 2 — does the device layer corroborate a socket-layer transition?
+///
+/// Looks for exactly one TCP handshake on the transition's tuple inside
+/// `[initiation − slack, completion + slack]` on the kernel monotonic axis:
+/// a SYN from the local endpoint to the remote and a SYN-ACK back that
+/// acknowledges it. Wire stamps are on the realtime clock and are placed on
+/// the monotonic axis through the carrying batch's `clock_anchor`; a segment
+/// in an unanchored batch cannot be placed and is not evidence.
+///
+/// `Unavailable` when no batch overlapping the transition's wall window
+/// declared a live tap inside attested coverage, or when such a batch
+/// reported loss — the tap cannot vouch for its own silence then.
+/// Ambiguity (two distinct SYNs) cites nothing. Nothing here changes the
+/// verdict or the strength of the record it is written on.
+fn corroborate_wire(
+    t: &crate::action::SocketTransition,
+    batches: &[&AttestedBatch],
+    attested_coverage: Option<CoverageWindow>,
+) -> (WireCorroboration, Vec<EvidenceRef>) {
+    let (Some(local), Some(completion)) = (t.local, t.completion) else {
+        return (WireCorroboration::NotEvaluated, Vec::new());
+    };
+    let syn_batch = batches
+        .iter()
+        .copied()
+        .find(|b| b.sequence == t.initiation.batch_sequence);
+    let Some(anchor) = syn_batch.and_then(|b| b.batch.clock_anchor) else {
+        return (WireCorroboration::Unavailable, Vec::new());
+    };
+    let lo_ns = t
+        .initiation
+        .kernel_timestamp_ns
+        .saturating_sub(WIRE_WINDOW_NS);
+    let hi_ns = completion
+        .kernel_timestamp_ns
+        .saturating_add(WIRE_WINDOW_NS);
+    let (lo_ms, hi_ms) = (anchor.wall_ms(lo_ns), anchor.wall_ms(hi_ns));
+
+    // Which batches can vouch for the wire over that window?
+    let mut tap_live = false;
+    for b in batches {
+        let declared = b
+            .batch
+            .active_mechanisms
+            .contains(&SourceMechanism::WireTapAfPacket);
+        let overlaps = b.batch.claimed_from_ms <= hi_ms && b.batch.claimed_to_ms >= lo_ms;
+        if !declared || !overlaps {
+            continue;
+        }
+        let covered = attested_coverage.is_some_and(|cov| {
+            cov.covers(&CoverageWindow {
+                from_ms: b.batch.claimed_from_ms,
+                to_ms: b.batch.claimed_to_ms,
+            })
+        });
+        if !covered || b.batch.dropped_events != Some(0) {
+            return (WireCorroboration::Unavailable, Vec::new());
+        }
+        tap_live = true;
+    }
+    if !tap_live {
+        return (WireCorroboration::Unavailable, Vec::new());
+    }
+
+    // Place every segment of the tuple inside the window.
+    struct Seg {
+        seq: u32,
+        ack: u32,
+        at_ns: u64,
+        is_syn: bool,
+        r: EvidenceRef,
+    }
+    let mut segs: Vec<Seg> = Vec::new();
+    for b in batches {
+        let Some(a) = b.batch.clock_anchor else {
+            continue;
+        };
+        for (i, e) in b.batch.kernel_events.iter().enumerate() {
+            if e.mechanism != SourceMechanism::WireTapAfPacket {
+                continue;
+            }
+            let aip_observe::KernelLifecycleKind::WireSegment {
+                protocol,
+                src,
+                dst,
+                seq,
+                ack,
+                kernel_realtime_ns,
+                ..
+            } = &e.kind
+            else {
+                continue;
+            };
+            if *protocol != t.protocol {
+                continue;
+            }
+            let is_syn = e.kind.is_wire_syn() && *src == local && *dst == t.remote;
+            let is_syn_ack = e.kind.is_wire_syn_ack() && *src == t.remote && *dst == local;
+            if !is_syn && !is_syn_ack {
+                continue;
+            }
+            let at_ns = a.realtime_ns_to_monotonic(*kernel_realtime_ns);
+            if at_ns < lo_ns || at_ns > hi_ns {
+                continue;
+            }
+            segs.push(Seg {
+                seq: *seq,
+                ack: *ack,
+                at_ns,
+                is_syn,
+                r: EvidenceRef::KernelEvent {
+                    batch_sequence: ObserverSequence(b.sequence),
+                    index: i as u32,
+                },
+            });
+        }
+    }
+    let mut isns: Vec<u32> = segs.iter().filter(|s| s.is_syn).map(|s| s.seq).collect();
+    isns.sort_unstable();
+    isns.dedup();
+    if isns.len() > 1 {
+        return (
+            WireCorroboration::Ambiguous {
+                handshakes: isns.len() as u32,
+            },
+            Vec::new(),
+        );
+    }
+    let Some(isn) = isns.first().copied() else {
+        return (WireCorroboration::NotObserved, Vec::new());
+    };
+    let syn = segs
+        .iter()
+        .filter(|s| s.is_syn && s.seq == isn)
+        .min_by_key(|s| s.at_ns)
+        .expect("an isn came from a syn");
+    let syn_ack = segs
+        .iter()
+        .filter(|s| !s.is_syn && s.ack == isn.wrapping_add(1) && s.at_ns >= syn.at_ns)
+        .min_by_key(|s| s.at_ns);
+    match syn_ack {
+        Some(sa) => (
+            WireCorroboration::Corroborated,
+            vec![syn.r.clone(), sa.r.clone()],
+        ),
+        None => (WireCorroboration::NotObserved, Vec::new()),
+    }
 }
 
 /// Does the outer hull of the supplied batches' claimed windows reach across
@@ -1150,10 +1317,21 @@ pub fn reconcile_expectation(
                 ActionOutcome::Verified {
                     mechanism,
                     kind,
-                    evidence,
+                    mut evidence,
+                    transition,
                 } => {
                     draft.action = ActionComparison::matched(mechanism, kind);
                     draft.action_continuity_verified = true;
+                    // Gate 2: ask the device layer whether it saw the
+                    // handshake the socket layer reported. Informational.
+                    if let Some(TransitionEvidence::Socket(t)) =
+                        transition.map(|i| &refs.transitions[i].t)
+                    {
+                        let (wire, wire_refs) =
+                            corroborate_wire(t, &obs.batches, obs.health.attested_coverage);
+                        draft.wire = wire;
+                        evidence.extend(wire_refs);
+                    }
                     for e in evidence {
                         if !draft.evidence.contains(&e) {
                             draft.evidence.push(e);

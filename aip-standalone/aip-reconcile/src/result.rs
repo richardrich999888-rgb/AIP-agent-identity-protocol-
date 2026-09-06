@@ -25,7 +25,7 @@ pub const RECONCILIATION_DOMAIN: &str = "SYNTRIASS/GHOST/RECONCILIATION/v1";
 /// positive variants became unconstructible outside this module. No consumer
 /// had persisted a v1 record — the crate has no producer of signed
 /// reconciliation records and no storage.
-pub const RECONCILIATION_VERSION: u16 = 4;
+pub const RECONCILIATION_VERSION: u16 = 5;
 
 /// The eight result classes from `RECONCILIATION_MODEL.md` §4. The
 /// `Default` is `CannotProve`: absence of evidence is absence of a verdict.
@@ -473,6 +473,46 @@ impl LineageComparison {
     }
 }
 
+/// Outcome of the wire question (Gate 2): did the device layer see the
+/// handshake the socket layer reported? Asked only of a `VerifiedExecution`
+/// carried by a socket transition. It informs; it never changes the verdict
+/// or the strength — both kernel paths sit under the same host root, and a
+/// tap that saw nothing may simply not cover the path the packets took.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+pub enum WireCorroboration {
+    /// No transition verdict to corroborate, or the verdict came from
+    /// presence evidence.
+    #[default]
+    NotEvaluated,
+    /// No batch over the transition's window declared a live wire tap
+    /// inside attested coverage, or one that did reported loss.
+    Unavailable,
+    /// A tap was live and clean over the window, and no complete handshake
+    /// for the connection tuple could be placed inside it.
+    NotObserved,
+    /// More than one distinct handshake for the tuple lies in the window;
+    /// none is cited.
+    Ambiguous { handshakes: u32 },
+    /// Exactly one SYN for the tuple, and a SYN-ACK acknowledging it, lie
+    /// in the window; both are cited in the evidence.
+    Corroborated,
+}
+
+impl WireCorroboration {
+    fn encode(&self, buf: &mut Vec<u8>) {
+        match self {
+            WireCorroboration::NotEvaluated => put_u8(buf, 0x00),
+            WireCorroboration::Unavailable => put_u8(buf, 0x01),
+            WireCorroboration::NotObserved => put_u8(buf, 0x02),
+            WireCorroboration::Ambiguous { handshakes } => {
+                put_u8(buf, 0x03);
+                put_u32(buf, *handshakes);
+            }
+            WireCorroboration::Corroborated => put_u8(buf, 0x04),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TemporalComparison {
     WithinWindow,
@@ -638,6 +678,9 @@ pub struct Reconciliation {
     pub temporal: TemporalComparison,
     /// Phase C2: the lineage question, when asked (`reconcile_lineage`).
     pub lineage: LineageComparison,
+    /// Gate 2: the wire question, when a socket transition carried the
+    /// verdict.
+    pub wire: WireCorroboration,
     /// Duplicate attested batches were supplied and collapsed.
     pub replay_detected: bool,
     pub evidence: Vec<EvidenceRef>,
@@ -697,6 +740,7 @@ impl Reconciliation {
         self.action.encode(&mut buf);
         put_u8(&mut buf, self.temporal.code());
         self.lineage.encode(&mut buf);
+        self.wire.encode(&mut buf);
         put_u8(&mut buf, u8::from(self.replay_detected));
         put_u32(&mut buf, self.evidence.len() as u32);
         for e in &self.evidence {
@@ -757,6 +801,7 @@ mod tests {
             action: ActionComparison::Unobservable,
             temporal: TemporalComparison::Indeterminate,
             lineage: LineageComparison::NotEvaluated,
+            wire: WireCorroboration::NotEvaluated,
             replay_detected: false,
             evidence: vec![],
             verification_time_ms: 0,

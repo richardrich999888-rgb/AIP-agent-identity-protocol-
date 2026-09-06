@@ -33,6 +33,7 @@ const SYN: u8 = 0x02;
 const ACK: u8 = 0x10;
 const PSH: u8 = 0x08;
 
+#[allow(clippy::too_many_arguments)] // a fixture: every field is a knob
 /// An IPv4 + TCP frame as `SOCK_DGRAM` on `AF_PACKET` presents it: the link
 /// header stripped, the IP header first.
 fn v4_tcp(

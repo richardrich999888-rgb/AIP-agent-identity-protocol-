@@ -43,7 +43,7 @@ fn main() {
             "    identity={:?} action={:?} temporal={:?} replay_detected={}",
             r.identity, r.action, r.temporal, r.replay_detected
         );
-        println!("    availability={:?}", r.availability);
+        println!("    availability={:?} wire={:?}", r.availability, r.wire);
         println!();
     }
     println!(
@@ -56,5 +56,6 @@ fn main() {
         "Presence evidence shows a connection existed at the sample; transition evidence shows"
     );
     println!("the kernel reported it being made, placed in time by signed collector and anchored");
-    println!("kernel clocks.");
+    println!("kernel clocks. A wire corroboration is the device layer agreeing with the socket");
+    println!("layer under the same host root: it changes neither the verdict nor the strength.");
 }

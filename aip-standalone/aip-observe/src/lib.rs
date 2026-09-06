@@ -66,6 +66,7 @@ pub mod perf;
 pub mod probe;
 pub mod sched;
 pub mod sockstate;
+pub mod wiretap;
 
 pub use attest::{
     verify_attested_batch, verify_attested_batch_independent_of_agent, verify_continuity,
@@ -83,10 +84,11 @@ pub use linux::{
 #[cfg(target_os = "linux")]
 pub use linux::{snapshot_socket_tables, socket_inodes_of, PidFd, ProcConnector};
 pub use observed::{
-    tcp_state, AgentAttribution, BootClockAnchor, KernelLifecycleEvent, KernelLifecycleKind,
-    ObservationBatch, ObservedEffect, ObservedExecution, ObservedProcess, SocketEndpoint,
-    SocketProtocol, SourceMechanism, KERNEL_EVENT_DOMAIN, OBSERVATION_BATCH_DOMAIN,
-    OBSERVED_EXECUTION_DOMAIN, OBSERVED_PROCESS_DOMAIN, OBSERVE_PROTOCOL_VERSION,
+    tcp_flags, tcp_state, AgentAttribution, BootClockAnchor, KernelLifecycleEvent,
+    KernelLifecycleKind, ObservationBatch, ObservedEffect, ObservedExecution, ObservedProcess,
+    SocketEndpoint, SocketProtocol, SourceMechanism, WireDirection, KERNEL_EVENT_DOMAIN,
+    OBSERVATION_BATCH_DOMAIN, OBSERVED_EXECUTION_DOMAIN, OBSERVED_PROCESS_DOMAIN,
+    OBSERVE_PROTOCOL_VERSION,
 };
 #[cfg(target_os = "linux")]
 pub use perf::PerfTracepoints;
@@ -100,3 +102,6 @@ pub use sched::{parse_exec_record, parse_fork_record, EXEC_TRACEPOINT, FORK_TRAC
 #[cfg(target_os = "linux")]
 pub use sockstate::{boot_clock_anchor, SockStateTracer};
 pub use sockstate::{parse_sock_state_record, TracepointFormat, SOCK_STATE_TRACEPOINT};
+pub use wiretap::parse_wire_frame;
+#[cfg(target_os = "linux")]
+pub use wiretap::WireTap;

@@ -33,7 +33,7 @@ use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_observe::{
     boot_clock_anchor, AgentClaim, AttestedBatch, CollectorSigner, ObservedEffect,
     ObserverAttestor, ObserverTrustAnchors, ProbeError, ProcessTracer, ProcfsProbe,
-    SignedSensorHealth, SockStateTracer, SocketProtocol, SourceMechanism,
+    SignedSensorHealth, SockStateTracer, SocketProtocol, SourceMechanism, WireTap,
 };
 use aip_reconcile::{
     reconcile_expectation, reconcile_observation, ExpectedSideCoverage, ObservationTarget,
@@ -201,6 +201,9 @@ pub struct Observer {
     tracer: Option<SockStateTracer>,
     /// The kernel-pushed fork/exec source, when this observer has one.
     process_tracer: Option<ProcessTracer>,
+    /// The device-layer tap (`AF_PACKET`, headers only), when this observer
+    /// has one. Bound to every device so loopback traffic is seen.
+    wire_tap: Option<WireTap>,
     next_batch: u8,
 }
 
@@ -212,22 +215,46 @@ pub fn tracer_available() -> Result<(), String> {
     ProcessTracer::open().map(|_| ()).map_err(|e| e.to_string())
 }
 
+/// Can this host provide the device-layer tap? `Err` names what is missing
+/// (`CAP_NET_RAW`). Nothing is simulated when it cannot.
+pub fn wire_tap_available() -> Result<(), String> {
+    WireTap::open(None).map(|_| ()).map_err(|e| e.to_string())
+}
+
 impl Observer {
     /// Polling only: `PidFdAnchored` process facts and `ProcNetTable` socket
     /// rows. This is the Stage 7 observer, kept as it was.
     pub fn new() -> Self {
-        Self::build(None, None)
+        Self::build(None, None, None)
     }
 
-    /// Polling plus the kernel-pushed `sock:inet_sock_set_state` tracepoint
-    /// through `perf_event_open`. Fails where the host does not permit it.
+    /// Polling plus the kernel-pushed `sock:inet_sock_set_state` and
+    /// `sched` tracepoints through `perf_event_open`, plus the device-layer
+    /// tap where the host permits it (the tap is optional: without it the
+    /// wire question is simply `Unavailable`). Fails where the tracepoints
+    /// are not permitted.
     pub fn with_tracer() -> Result<Self, String> {
+        Self::with_sources(true)
+    }
+
+    /// As [`Observer::with_tracer`] but never opens the tap, so the wire
+    /// question is `Unavailable` by construction.
+    pub fn with_tracer_no_tap() -> Result<Self, String> {
+        Self::with_sources(false)
+    }
+
+    fn with_sources(tap: bool) -> Result<Self, String> {
         let tracer = SockStateTracer::open().map_err(|e| e.to_string())?;
         let process_tracer = ProcessTracer::open().map_err(|e| e.to_string())?;
-        Ok(Self::build(Some(tracer), Some(process_tracer)))
+        let wire_tap = if tap { WireTap::open(None).ok() } else { None };
+        Ok(Self::build(Some(tracer), Some(process_tracer), wire_tap))
     }
 
-    fn build(tracer: Option<SockStateTracer>, process_tracer: Option<ProcessTracer>) -> Self {
+    fn build(
+        tracer: Option<SockStateTracer>,
+        process_tracer: Option<ProcessTracer>,
+        wire_tap: Option<WireTap>,
+    ) -> Self {
         let kp = generate_ed25519_keypair();
         let mut signer =
             CollectorSigner::new(OBSERVER_ID, 1, &kp.private_key, &kp.public_key).unwrap();
@@ -247,6 +274,10 @@ impl Observer {
                 probe.declare_clock_anchor(anchor);
             }
         }
+        if wire_tap.is_some() {
+            probe.declare_source(SourceMechanism::WireTapAfPacket);
+            probe.enable_loss_counter();
+        }
         let anchors = ObserverTrustAnchors::new().trust(OBSERVER_ID, 1, &kp.public_key);
         Self {
             probe,
@@ -254,8 +285,14 @@ impl Observer {
             anchors,
             tracer,
             process_tracer,
+            wire_tap,
             next_batch: 1,
         }
+    }
+
+    /// Whether this observer has the device-layer tap open.
+    pub fn has_wire_tap(&self) -> bool {
+        self.wire_tap.is_some()
     }
 
     /// Move every socket transition the kernel has reported so far into the
@@ -307,6 +344,26 @@ impl Observer {
                 }
             }
             let lost = tracer.take_lost();
+            if lost > 0 {
+                self.probe.record_lost_events(lost);
+            }
+        }
+        if let Some(tap) = self.wire_tap.as_mut() {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+            loop {
+                match tap.next_event(10) {
+                    Ok(Some(ev)) => {
+                        self.probe.ingest_wire_event(ev);
+                    }
+                    Ok(None) => {
+                        if std::time::Instant::now() >= deadline {
+                            break;
+                        }
+                    }
+                    Err(_) => break,
+                }
+            }
+            let lost = tap.take_lost();
             if lost > 0 {
                 self.probe.record_lost_events(lost);
             }
@@ -650,13 +707,28 @@ fn v4(listener: &TcpListener) -> SocketAddrV4 {
 }
 
 /// Run one scenario against a freshly spawned agent. Linux only: needs
-/// procfs, pidfd and the kernel socket tables.
+/// procfs, pidfd and the kernel socket tables. Opens the device-layer tap
+/// where the host permits it.
 pub fn run(scenario: Scenario, agent_bin: &str) -> Demo {
+    run_with(scenario, agent_bin, true)
+}
+
+/// As [`run`], but never opens the device-layer tap.
+pub fn run_without_wire_tap(scenario: Scenario, agent_bin: &str) -> Demo {
+    run_with(scenario, agent_bin, false)
+}
+
+fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
     let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).unwrap();
     let remote = v4(&listener);
     let a = Authority::new();
     let mut o = if scenario.needs_tracer() {
-        Observer::with_tracer().expect("kernel socket-state source unavailable on this host")
+        let o = if tap {
+            Observer::with_tracer()
+        } else {
+            Observer::with_tracer_no_tap()
+        };
+        o.expect("kernel socket-state source unavailable on this host")
     } else {
         Observer::new()
     };
@@ -876,7 +948,13 @@ pub fn run(scenario: Scenario, agent_bin: &str) -> Demo {
             let c = claim(&a, &ee);
             let (b2, n) = o.observe_connections(agent.pid, Some(&c)).unwrap();
             let at = now_ms().max(b2.batch.claimed_to_ms);
-            let events = b2.batch.kernel_events.len();
+            let wire = b2
+                .batch
+                .kernel_events
+                .iter()
+                .filter(|e| e.mechanism == SourceMechanism::WireTapAfPacket)
+                .count();
+            let events = b2.batch.kernel_events.len() - wire;
             let ev = ObserverEvidence {
                 batches: vec![b1, b2],
                 health: o.health(at),
@@ -886,8 +964,9 @@ pub fn run(scenario: Scenario, agent_bin: &str) -> Demo {
                 scenario,
                 reconciliation: r,
                 note: format!(
-                    "agent pid {} → {remote}; {n} established connection(s) in the table, {events} kernel socket transition(s) captured",
-                    agent.pid
+                    "agent pid {} → {remote}; {n} established connection(s) in the table, {events} kernel socket transition(s) captured, {wire} wire segment(s) captured (tap {})",
+                    agent.pid,
+                    if o.has_wire_tap() { "open" } else { "not open" }
                 ),
             }
         }

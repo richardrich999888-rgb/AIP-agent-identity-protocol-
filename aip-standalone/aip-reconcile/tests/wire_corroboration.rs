@@ -292,6 +292,7 @@ fn wire_syn_ack(seq: u64, probe_ts: u64, rt_ns: u64, isn: u32) -> KernelLifecycl
     )
 }
 
+#[allow(clippy::too_many_arguments)] // a fixture: every field is a knob
 fn raw_batch(
     id: u8,
     from: u64,

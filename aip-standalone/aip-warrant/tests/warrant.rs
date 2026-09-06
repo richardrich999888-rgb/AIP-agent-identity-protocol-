@@ -11,7 +11,7 @@ use aip_observe::{CoverageWindow, ObservationAvailability, UnavailableReason};
 use aip_reconcile::{
     ActionComparison, DecisionId, DecisionPointId, EvidenceRef, EvidenceStrength,
     IdentityComparison, LineageComparison, ReasonCode, Reconciliation, ReconciliationResult,
-    TemporalComparison, RECONCILIATION_VERSION,
+    TemporalComparison, WireCorroboration, RECONCILIATION_VERSION,
 };
 use aip_types::KeyPair;
 use aip_warrant::*;
@@ -55,6 +55,7 @@ fn record(
         action: ActionComparison::Unobservable,
         temporal: TemporalComparison::Indeterminate,
         lineage: LineageComparison::NotEvaluated,
+        wire: WireCorroboration::NotEvaluated,
         replay_detected: false,
         evidence,
         verification_time_ms: NOW - 1,

@@ -24,7 +24,8 @@ use aip_observe::{ObservationAvailability, UnavailableReason};
 use aip_protocol::AgentIdentitySummary;
 use aip_reconcile::{
     ActionComparison, DecisionId, EvidenceStrength, IdentityComparison, LineageComparison,
-    ReasonCode, Reconciliation, ReconciliationResult, TemporalComparison, RECONCILIATION_VERSION,
+    ReasonCode, Reconciliation, ReconciliationResult, TemporalComparison, WireCorroboration,
+    RECONCILIATION_VERSION,
 };
 use aip_types::{
     Action, AgentIdentityDocument, AlgorithmId, ExecutionBinding, IdentityStatus, KeyPair,
@@ -165,6 +166,7 @@ impl Fx {
             action: ActionComparison::Unobservable,
             temporal: TemporalComparison::Indeterminate,
             lineage: LineageComparison::NotEvaluated,
+            wire: WireCorroboration::NotEvaluated,
             replay_detected: false,
             evidence: vec![],
             verification_time_ms: self.now + 5,
