@@ -273,7 +273,11 @@ pub struct Observer {
 /// Directory the file scenarios write into: under the temp directory, on
 /// whatever mount holds it.
 pub fn demo_dir() -> std::path::PathBuf {
-    std::env::temp_dir().join(format!("ghost-demo-{}", std::process::id()))
+    let nonce: String = aip_core::capability::random_jti()
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
+    std::env::temp_dir().join(format!("ghost-demo-{}-{nonce}", std::process::id()))
 }
 
 /// Can this host provide the fanotify mount watch? `Err` names what is
@@ -327,6 +331,17 @@ impl Observer {
     /// question is `Unavailable` by construction.
     pub fn with_tracer_no_tap() -> Result<Self, String> {
         Self::with_sources(false)
+    }
+
+    /// Polling plus the fanotify mount watch only: what the file scenarios
+    /// need. Fails where the host does not permit fanotify.
+    pub fn with_fanotify() -> Result<Self, String> {
+        let watch = FanotifyWatch::open(
+            std::env::temp_dir().to_str().unwrap_or("/tmp"),
+            FAN_CLOSE_WRITE,
+        )
+        .map_err(|e| e.to_string())?;
+        Ok(Self::build(None, None, None, None, Some(watch)))
     }
 
     fn with_sources(tap: bool) -> Result<Self, String> {
@@ -864,9 +879,15 @@ impl Scenario {
                 | Scenario::ExecBeforeAuthorization
                 | Scenario::SendPositive
                 | Scenario::SendWrongEndpoint
-                | Scenario::FileWritePositive
-                | Scenario::FileWriteWrongPath
-                | Scenario::FileWriteNotDone
+        )
+    }
+
+    /// Scenarios that need the fanotify mount watch (and nothing else
+    /// beyond polling).
+    pub fn needs_fanotify(&self) -> bool {
+        matches!(
+            self,
+            Scenario::FileWritePositive | Scenario::FileWriteWrongPath | Scenario::FileWriteNotDone
         )
     }
 
@@ -966,6 +987,8 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             Observer::with_tracer_no_tap()
         };
         o.expect("kernel socket-state source unavailable on this host")
+    } else if scenario.needs_fanotify() {
+        Observer::with_fanotify().expect("fanotify unavailable on this host")
     } else {
         Observer::new()
     };
@@ -1469,11 +1492,13 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
 /// socket-state source are skipped (and named) where it is unavailable.
 pub fn run_all(agent_bin: &str) -> (Vec<Demo>, Vec<(Scenario, String)>) {
     let tracer = tracer_available();
+    let fanotify = fanotify_available();
     let mut demos = Vec::new();
     let mut skipped = Vec::new();
     for s in Scenario::ALL {
-        match (&tracer, s.needs_tracer()) {
-            (Err(why), true) => skipped.push((s, why.clone())),
+        match (&tracer, s.needs_tracer(), &fanotify, s.needs_fanotify()) {
+            (Err(why), true, _, _) => skipped.push((s, why.clone())),
+            (_, _, Err(why), true) => skipped.push((s, why.clone())),
             _ => demos.push(run(s, agent_bin)),
         }
     }

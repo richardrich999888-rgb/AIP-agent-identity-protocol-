@@ -24,7 +24,7 @@ fn main() {
     let (demos, skipped) = ghost_demo::run_all(&agent_bin);
     for (s, why) in &skipped {
         println!(
-            "{} — SKIPPED: kernel socket-state source unavailable: {why}",
+            "{} — SKIPPED: a kernel source this scenario needs is unavailable: {why}",
             s.label()
         );
         println!();
