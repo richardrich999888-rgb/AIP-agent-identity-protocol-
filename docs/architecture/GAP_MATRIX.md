@@ -73,6 +73,10 @@ original discovery text for traceability):
   matrix, dispositions) and the collector restart-continuity audit
   (`CollectorSigner::resume`, four-way `ContinuityBreak`) harvested from
   `ot-sentinel/state.rs`; see `SNIFFER_DOG_PR3_HARVEST_REPORT.md`.
+- Phase C2 (Gate 1 of the completion mandate) — `LINEAGE_VIOLATION`
+  reachable through `reconcile_lineage` on complete two-sided evidence;
+  record v4 carries the lineage comparison. `RECONCILIATION_MODEL.md` "The
+  lineage question".
 
 ## D. PR3 corrective review (pre-reconciliation)
 

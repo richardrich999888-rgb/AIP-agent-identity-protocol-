@@ -69,8 +69,11 @@ For everything else, and whenever the observer was not watching, the answer
 is `CANNOT_PROVE`. Other answers exist for specific situations: an
 authorisation that was never seen executed while the observer had full
 coverage (`PHANTOM_CLAIM`), a different process instance acting under an
-agent's authorisation (`IDENTITY_DIVERGENCE`), and a broken or forked
-observer chain (`SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`).
+agent's authorisation (`IDENTITY_DIVERGENCE`), a broken or forked
+observer chain (`SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`), and — when
+the kernel shows an agent's process was created by an agent that neither
+authorised it nor created its identity, with every piece of that evidence
+signed — a lineage contradiction (`LINEAGE_VIOLATION`).
 
 ## 5. It builds an agent's record from evidence, not from the agent
 

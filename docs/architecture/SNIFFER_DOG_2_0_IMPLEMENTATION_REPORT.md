@@ -421,3 +421,62 @@ property.
 ## Next Gate
 
 Skill 8 (warrant engine), authorized alongside this phase; then Phase C2.
+
+---
+
+# Phase C2 — the lineage verdict (Gate 1 of the completion mandate)
+
+## Status
+
+**PASS.** `LINEAGE_VIOLATION` is reachable, through one entry point
+(`aip_reconcile::reconcile_lineage`), only on complete evidence from both
+the observed and the claimed side, at `Attested`. The definition, the
+preconditions and every gap are in `RECONCILIATION_MODEL.md` "The lineage
+question"; the mechanics in `RECONCILIATION_IMPLEMENTATION_REPORT.md`
+"Phase C2 note".
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| `8c263fe` | RED: `aip-reconcile/tests/lineage_violation.rs` lv01–lv16, did not compile |
+| `6dcec84` | GREEN: record v4 with `lineage`, `LineageComparison`/`LineageLink`, reason codes `0x70–0x78`, `LineageInputs`/`DecisionAuthority`/`IdentityLineageInput`, shared `prologue`, `reconcile_lineage`; fixtures in `aip-warrant` and `aip-agent` gain the field |
+| *(the commit carrying this section)* | documentation: this section, `RECONCILIATION_MODEL.md` "The lineage question", `RECONCILIATION_IMPLEMENTATION_REPORT.md` "Phase C2 note", spec, gap matrices, plain-English text |
+
+Test-file edits since RED: rustfmt, a fixture variable renamed from
+`scene` to `sc` where it shadowed the fixture function, an unused fixture
+field removed and a doc-comment list re-indented for clippy. No assertion
+changed.
+
+## Evidence (mandate's required behaviours → tests)
+
+| Behaviour | Tests |
+|---|---|
+| child cannot invent parent | lv04 (forged parent attribution → unattributed), lv11 (no bound parent → no edge) |
+| parent cannot invent child | lv05 (other instance → no edge), lv13 (second claim on the child → ambiguity) |
+| token-chain authority verified | lv06 (transplanted), lv07 (mutated), lv12 (revoked) |
+| delegation graph from verified authority only | Phase D d01–d11 |
+| observed parent must match where the claim requires it | lv01 (violation), lv02 (delegator), lv03 (identity parent) |
+| identity lineage requires a valid parent-signed proof | lv08 |
+| authority lineage requires a valid chain | lv09 |
+| missing evidence ⇒ `CANNOT_PROVE` | lv04–lv09, lv11, lv12 |
+| ambiguity ⇒ never a violation | lv10, lv13 |
+| positive requires both sides | lv01 against lv08 and lv09 |
+| observer gates | lv14 |
+| record and guard | lv15, lv16, unit `lineage_violation_is_refused_without_a_contradicted_lineage` |
+
+## Security Claims
+
+- A `LINEAGE_VIOLATION` names a kernel edge (two `KernelEvent` references),
+  the parent's decision (an `Expected` reference) and the subject's
+  decision; every element is signed by the collector or the decision point.
+- No single side, no unattributed parent, no unverified token, no
+  unverified proof and no ambiguity can produce it.
+
+Not claimed: that a violation is malicious; that consistency is authorization;
+anything about hosts the observer does not cover.
+
+## Next Gate
+
+Gate 2 of the completion mandate (network / wire observation beyond TCP
+state transitions).

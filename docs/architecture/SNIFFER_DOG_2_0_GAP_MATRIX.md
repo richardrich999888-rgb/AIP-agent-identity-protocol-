@@ -195,7 +195,7 @@ Test counts after Phase B: aip-standalone 567 / 0 / 3 ignored (+19), aip-service
 | Identity lineage across generations from proofs | **CLOSED**; `Claimed` / `Endorsed` / `Refused`; depth never read | l01–l03 |
 | Authority lineage as paths | **CLOSED** (projection of Phase B chains) | l04 |
 | Four-way parent classification | **PARTIAL**: identity (Claimed/Endorsed/Refused) and process (Observed, with the instance's own basis Claimed/AuthorizedTarget) exist; **Reconciled is unreachable** by type | l05–l09 |
-| `LINEAGE_VIOLATION` reachability | **open** — Phase C2 after Phase D | guard unchanged |
+| `LINEAGE_VIOLATION` reachability | **CLOSED (Phase C2)** — `reconcile_lineage`, record v4 | lv01–lv16 |
 | Out-of-tree capabilities | classified in `OUT_OF_TREE_HARVEST_REVIEW.md`; none merged | — |
 
 Test counts after C1: aip-standalone 583 / 0 / 3 ignored (+16), aip-service 39 / 0; clippy and fmt clean.
@@ -208,6 +208,6 @@ Test counts after C1: aip-standalone 583 / 0 / 3 ignored (+16), aip-service 39 /
 | Incompleteness reporting (`DanglingHop`) | **CLOSED** | d03 |
 | Revocation standing from a verifier-supplied set | **CLOSED** for consumption; revocation *truth* remains the P1 service/core gap | d04 |
 | Conflict (one id, two signed terms) | implemented, **untested** — not reproducible from the public issuing API | — |
-| `LINEAGE_VIOLATION` (C2) | prerequisite now present; **not started** | — |
+| `LINEAGE_VIOLATION` (C2) | **CLOSED** — complete two-sided evidence required; every gap `CANNOT_PROVE`, every ambiguity ambiguity | lv01–lv16 |
 
 Test counts after D: aip-standalone 594 / 0 / 3 ignored (+11), aip-service 39 / 0; clippy and fmt clean.

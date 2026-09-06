@@ -16,8 +16,9 @@
 > `Transition` only; `ACTION_EVIDENCE.md` §15). Unreachable with the current evidence and stated so
 > in code: `VERIFIED_EXECUTION` for every other action kind (no action-level
 > observation exists), `UNATTRIBUTED_EFFECT` (requires a decision-point-signed
-> completeness statement that nothing produces yet), `LINEAGE_VIOLATION`
-> (requires both fork ends bound). See
+> completeness statement that nothing produces yet). `LINEAGE_VIOLATION` is
+> reachable since Phase C2 (`6dcec84`, see below) through `reconcile_lineage`
+> only, on complete two-sided evidence. See
 > `RECONCILIATION_IMPLEMENTATION_REPORT.md` and
 > `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`. §1 below is preserved as the
 > pre-implementation finding for traceability.
@@ -82,7 +83,7 @@ to prevent.
 | `UNATTRIBUTED_EFFECT` | observed ∧ ¬expected ∧ observer continuity attested | `CANNOT_PROVE` |
 | `PHANTOM_CLAIM` | expected ∧ ¬observed ∧ **sensor coverage over that exact window is attested** | `CANNOT_PROVE` — never infer non-execution from silence (**I8**) |
 | `IDENTITY_DIVERGENCE` | observed binding ≠ expected binding, both attested | `CANNOT_PROVE` |
-| `LINEAGE_VIOLATION` | observed process ancestry contradicts the delegation chain | requires process lineage, which does not exist today |
+| `LINEAGE_VIOLATION` | observed process ancestry contradicts the agent's own signed lineage claims — see "The lineage question" below | `CANNOT_PROVE` naming the missing side, or ambiguity; never from one side alone |
 | `SENSOR_INTEGRITY_FAILURE` | observer chain/attestation fails arithmetic check | — |
 | `CONTINUITY_FAILURE` | observer restart/gap/rollback detected | — |
 | `CANNOT_PROVE` | **the default.** Any missing or unattested input | — |
@@ -204,3 +205,62 @@ recomputed; the engine adds an operator-declared severity and returns a
 response class gated on `EvidenceStrength::Proven`. Records remain unsigned;
 the warrant carries `Reconciliation::digest()` so a later signed-record layer
 binds to the same bytes. See `WARRANT_IMPLEMENTATION_REPORT.md`.
+
+## The lineage question (Phase C2)
+
+`reconcile_lineage(ee, observer, ctx, LineageInputs)` asks one question
+about one decision: does the kernel-observed ancestry of the authorized
+instance contradict the lineage the agent's own signed claims assert?
+
+**Observed side (complete only with all of):** a `LineageEdge` — bound
+fork and bound exec, child start tick verified — whose child instance
+structurally matches the expectation's binding; the edge's batch inside the
+collector's attested coverage under a `RegisteredOnly` probe; the parent
+instance attributed to exactly one agent **P** through a
+decision-point-signed expectation whose binding matches it structurally.
+
+**Claimed side (complete only with all of):** the decision's authority
+chain supplied as tokens whose ids equal the expectation's `AuthorityRef`,
+verified by `aip_core` (root signature, every hop, attenuation, expiry),
+ending at this agent, in standing at the decision's `issued_at`, with no
+revoked id — giving the delegators **D** (root issuer and every hop
+issuer); and the agent's identity document whose lineage proof verifies
+against the offered parent document — giving the identity parent **A**.
+
+**Decision.** P is the agent itself → `Consistent{SelfSpawn}`; P ∈ D →
+`Consistent{Delegator}`; P = A → `Consistent{IdentityParent}`; otherwise
+`Contradicted` and the result is `LINEAGE_VIOLATION · Attested` with reason
+`LineageContradicted`. Consistency is reported as `CANNOT_PROVE ·
+LineageConsistent` with the comparison filled — there is no positive class
+for "lineage is fine", and none is invented.
+
+**What it is not.** Not a policy about who should spawn whom: an
+orchestrator that spawns a worker whose authority came from the CFO is
+consistent (the orchestrator is a delegator or the identity parent, or the
+CFO's chain is the one supplied). The violation is a contradiction between
+what the kernel showed and what the agent's tokens and identity document
+signed — an instance created by an agent that neither authorized it nor
+created its identity nor is it.
+
+**Gaps and ambiguity (each `CANNOT_PROVE`, `lineage: Incomplete` or
+`Ambiguous`):** no edge for this instance (`LineageEvidenceUnavailable`);
+edge outside attested coverage (`LineageEdgeNotCovered`); `Open` probe policy;
+parent unattributed (`LineageParentUnattributed`); parent named by two agents,
+or two parent instances for one child (`LineageParentAmbiguous`); the child
+instance named by another agent's expectation (`LineageChildAmbiguous`);
+authority missing, mismatched, invalid, out of standing or revoked
+(`LineageAuthorityUnavailable`); identity missing or proof failing
+(`LineageIdentityUnavailable`). The observer gates apply exactly as for
+actions. The record is version 4: `Reconciliation.lineage` carries the
+comparison inside the canonical bytes, and `precondition_holds` admits
+`LINEAGE_VIOLATION` only with `lineage == Contradicted` at `Attested`.
+
+Required behaviours from the Gate 1 mandate, each pinned by a test in
+`aip-reconcile/tests/lineage_violation.rs`: a child cannot invent a parent
+(lv04, lv11); a parent cannot invent a child (lv05, lv13); authority is
+cryptographically verified (lv06, lv07, lv12); the graph is built from
+verified authority only (Phase D); observed parent must match where the
+claim requires it (lv01–lv03); identity lineage needs a valid parent-signed
+proof (lv08); authority lineage needs a valid chain (lv09); missing evidence
+is `CANNOT_PROVE` (lv04–lv09, lv11, lv12); ambiguity is ambiguity (lv10,
+lv13); a positive needs both sides (lv01 vs lv08/lv09).

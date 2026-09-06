@@ -169,7 +169,7 @@ allowed | denied | revoke | terminated | containment | isolate | kill`.
 | `CONTINUITY_FAILURE` | yes | `Attested` | signed `Recovering` / `ContinuityUnverified` |
 | `VERIFIED_EXECUTION` | **yes, for two action classes only** (Stage 7, `63c5e0a`; Stage 7b; Stage 7c `1d52f93`): an established TCP connection authorized as `ghost.net.connect.v1`, as `Presence` (polled table) or `Transition` (kernel-reported creation); a process execution authorized as `ghost.process.exec.v1`, as `Transition` (kernel-reported fork by the bound instance + exec of the child, image content hash recomputed); **no** for every other action kind | `Attested` | `ActionComparison::Match` requires an `ActionEvidenceSeal` whose constructors are `pub(crate)` and are called only by the action-derivation step; the central guard requires a sealed Match, identity Match, `action_continuity_verified` and exactly `Attested`. See `ACTION_EVIDENCE.md` §5 |
 | `UNATTRIBUTED_EFFECT` | **only with a `DecisionPointCoverageStatement`**, which no production component emits | `Attested` | verified DP-signed completeness statement covering agent and window; claim not in its set; instance bound; attribution claimed; RegisteredOnly |
-| `LINEAGE_VIOLATION` | **no**, refused by the central guard | — | no lineage input type exists; `precondition_holds` returns `false` for this class unconditionally |
+| `LINEAGE_VIOLATION` | **yes, since Phase C2** through `reconcile_lineage` only | `Attested` | `lineage == Contradicted` set only by `reconcile_lineage` when both the observed side (bound edge, covered, parent attributed to one agent) and the claimed side (verified unrevoked authority chain matching `AuthorityRef`, verified identity lineage proof) are complete and the spawner is on neither; `precondition_holds` refuses it otherwise |
 
 "Identity corroborated" is the ceiling for an expectation: it is reported as
 `CANNOT_PROVE` with `reason = ActionEvidenceUnavailable` and `identity =
@@ -523,6 +523,21 @@ start-verified `ProcessExecution`s (both ends pidfd-anchored). It adds no
 result class, no reason, no guard change; `LINEAGE_VIOLATION` remains
 refused by `Draft::precondition_holds`. Seven fixture tests in
 `tests/lineage_edges.rs`. Consumed by `aip-agent` as a verifier-local input.
+
+## Phase C2 note (Gate 1 of the completion mandate)
+
+Record version 3 → 4: `Reconciliation.lineage: LineageComparison` (encoded
+after `temporal`), `LineageLink`, nine reason codes `0x70–0x78`. The two
+entry points now share `prologue()` (expectation verification, window,
+observer verification, availability, health freshness) — a pure extraction;
+every pre-existing test passed unchanged. `reconcile_lineage` is the third
+entry point. `LineageInputs { peer_expectations, authority: Option<DecisionAuthority>,
+issuer_keys, revoked_jtis, identity: Option<IdentityLineageInput> }`; all of
+it is verified inside the reconciler through `aip_authorize` and `aip_core`
+(`aip-core` became a regular dependency). The guard unit test that pinned
+"refused unconditionally" now pins "refused without a contradicted lineage".
+Sixteen tests, `tests/lineage_violation.rs`. See `RECONCILIATION_MODEL.md`
+"The lineage question".
 
 ## Corrective pass
 

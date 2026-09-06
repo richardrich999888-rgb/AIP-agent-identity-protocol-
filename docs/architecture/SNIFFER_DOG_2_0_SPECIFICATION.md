@@ -266,13 +266,14 @@ Three different things are called "lineage" and must stay distinct:
   attested batches exactly as `derive_executions` pairs fork and exec today.
   It is a **reconciler derivation over signed observer facts**, never a probe
   or collector statement about ancestry, and never the agent's `ppid`.
-- `LINEAGE_VIOLATION` becomes reachable **only** when: a `LineageEdge` is
-  derived with both ends bound; the child instance carries a claim for a
-  decision whose `AuthorityRef` chain, when resolved, does **not** include a
-  token whose `grantee_id` is the child's agent and whose `issuer_id` is the
-  parent's agent (or a principal above it); and coverage over the window is
-  attested. Otherwise `CANNOT_PROVE` with a reason that names which of the
-  three was missing.
+- `LINEAGE_VIOLATION` is reachable (Phase C2, implemented) **only** through
+  `reconcile_lineage`, when both sides are complete: a covered `LineageEdge`
+  whose child is the authorized instance with its parent attributed to one
+  agent by a decision-point-signed expectation, and the decision's verified,
+  unrevoked authority chain plus the agent's verified identity lineage proof
+  — and the spawner is neither a delegator, nor the identity parent, nor the
+  agent itself. Otherwise `CANNOT_PROVE` naming the missing side, or
+  ambiguity. `RECONCILIATION_MODEL.md`, "The lineage question".
 - A spawn edge is **never** a delegation edge. "A spawned B" is a kernel
   fact. "A authorized B" is a signature. Case 1 in §5 is the difference.
 
@@ -402,7 +403,7 @@ verification_time_ms }`. Reachable: `CANNOT_PROVE` (default), `PHANTOM_CLAIM`,
 `IDENTITY_DIVERGENCE`, `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`,
 `VERIFIED_EXECUTION` for two classes. `UNATTRIBUTED_EFFECT` requires a
 `DecisionPointCoverageStatement` no production component emits.
-`LINEAGE_VIOLATION` is unreachable. Records are **unsigned and unstored**.
+`LINEAGE_VIOLATION` is reachable through `reconcile_lineage` (Phase C2). Records are **unsigned and unstored**.
 
 **Required for 2.0.**
 - **Signed reconciliation records.** SD-10/11/12 consume records; a consumer
@@ -537,7 +538,7 @@ compose a profile, and the service's authority routes duplicate `aip-core`
 | SD-01 Identity | AIP-ID derivation, validation | `agent_id` in binding | `agent_id` in expectation | attribution is `Claimed`, never established by the Dog alone | identity compared structurally | must not read | `PRODUCTION` id · `MISSING` lifecycle/issuer |
 | SD-02 Profile | — | — | — | — | inputs only | must not read | `MISSING` |
 | SD-03 Execution identity | — | **owner** | embedded, DP-signed | measured independently | compared | — | `PRODUCTION` |
-| SD-04 Lineage | `parent_jti` chain | ppid rejected (§11a) | `AuthorityRef` | fork/exec events, both ends bound (7c) | `LINEAGE_VIOLATION` unreachable | — | `PARTIAL` process · `MISSING` graph/agent |
+| SD-04 Lineage | `parent_jti` chain | ppid rejected (§11a) | `AuthorityRef` | fork/exec events, both ends bound (7c) | `LINEAGE_VIOLATION` reachable on complete two-sided evidence (C2) | — | `PARTIAL` process · `CLOSED` graph (Phase D) · `MISSING` agent-creation authority |
 | SD-05 Passport | **owner** (tokens, expiry signed) | — | consumer | — | — | — | `PRODUCTION` (aip-core) · duplicate in service P1 |
 | SD-06 Delegation graph | chain verification | — | one path per decision | — | — | — | `MISSING` (graph) |
 | SD-07 Observation | — | — | — | **owner** | consumer | — | `PARTIAL` |
