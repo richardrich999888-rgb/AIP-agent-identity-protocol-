@@ -183,6 +183,8 @@ fn build_fixture_opts(root_expires_in_ms: Option<u64>, with_binding: bool) -> Fi
         revoked_jtis: Default::default(),
         trace_data: Some(trace_data),
         receipt_data: Some(receipt_data.clone()),
+        verification_time_ms: None,
+        future_tolerance_ms: 0,
     };
 
     Fixture {
@@ -213,6 +215,19 @@ fn test_honest_packet_verifies_at_counterparty_floor() {
     let report = verify_packet(&f.packet, &f.ctx);
 
     for check in &report.checks {
+        if !check.evaluated {
+            // The only rule a verifier can decline to run is the one whose
+            // input it did not supply. Naming it here keeps the exemption
+            // from becoming a blanket skip (AUDIT P0-1).
+            assert_eq!(
+                check.rule,
+                rules::VERIFICATION_TIME_BOUND,
+                "rule {} was not evaluated: {}",
+                check.rule,
+                check.detail
+            );
+            continue;
+        }
         assert!(check.pass, "rule {} failed: {}", check.rule, check.detail);
     }
     assert!(report.valid);
@@ -1196,7 +1211,10 @@ fn p0_1_a_declared_tolerance_absorbs_skew_and_nothing_more() {
 #[test]
 fn p0_1_every_existing_rule_survives_the_new_one() {
     let f = build_fixture();
-    let report = verify_packet(&f.packet, &f.ctx.clone().at_time(f.packet.decision.decided_at + 5));
+    let report = verify_packet(
+        &f.packet,
+        &f.ctx.clone().at_time(f.packet.decision.decided_at + 5),
+    );
     for name in [
         rules::STRUCTURE,
         rules::AGENT_ID_BINDING,

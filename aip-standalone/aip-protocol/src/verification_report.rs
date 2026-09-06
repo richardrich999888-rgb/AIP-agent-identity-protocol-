@@ -31,6 +31,10 @@ pub mod rules {
     /// binding, when present. Passing this rule never means the execution
     /// was independently observed.
     pub const EXECUTION_BINDING: &str = "EXECUTION_BINDING";
+    /// R16 — nothing in the packet is dated after the verification time the
+    /// *verifier* supplied. Recorded as not evaluated when the verifier
+    /// supplied none; never as a pass (AUDIT P0-1).
+    pub const VERIFICATION_TIME_BOUND: &str = "VERIFICATION_TIME_BOUND";
 }
 
 /// Outcome of one verification rule.
@@ -39,6 +43,16 @@ pub struct RuleResult {
     pub rule: String,
     pub pass: bool,
     pub detail: String,
+    /// Whether the rule was actually evaluated. A rule the verifier could
+    /// not run — because the input it needs was not supplied — is recorded
+    /// with `evaluated: false` and never counted as a pass. Defaults to
+    /// true so reports written before this field existed still parse.
+    #[serde(default = "default_true")]
+    pub evaluated: bool,
+}
+
+fn default_true() -> bool {
+    true
 }
 
 /// The verification engine's full output for one EvidencePacket.
@@ -64,8 +78,19 @@ pub struct VerificationReport {
     pub packet_id: String,
     /// AIP-ID of the acting agent.
     pub agent_id: String,
-    /// Unix ms when verification ran.
+    /// Unix ms when verification ran. Read from the local clock and used
+    /// for nothing but this field — it is not a bound (see
+    /// `verification_time_ms`).
     pub verified_at: u64,
+    /// The verification time the *verifier* supplied, if any. When present,
+    /// nothing in the packet may be dated after it.
+    #[serde(default)]
+    pub verification_time_ms: Option<u64>,
+    /// Whether the verification-time bound was evaluated at all. False
+    /// means the verifier supplied no time; it does not mean the packet
+    /// passed the bound (AUDIT P0-1).
+    #[serde(default)]
+    pub verification_time_checked: bool,
 
     /// Every rule that was evaluated, in order, with pass/fail and detail.
     pub checks: Vec<RuleResult>,
@@ -79,7 +104,17 @@ impl VerificationReport {
 
     /// All failed rules (empty when `valid`).
     pub fn failures(&self) -> Vec<&RuleResult> {
-        self.checks.iter().filter(|c| !c.pass).collect()
+        self.checks
+            .iter()
+            .filter(|c| c.evaluated && !c.pass)
+            .collect()
+    }
+
+    /// Rules the verifier declined to run because it was not given what
+    /// they need. Neither passes nor failures — a consumer that requires
+    /// one of them must look here rather than at `valid` (AUDIT P0-1).
+    pub fn not_evaluated(&self) -> Vec<&RuleResult> {
+        self.checks.iter().filter(|c| !c.evaluated).collect()
     }
 
     /// Look up a specific rule's result by its stable identifier.
