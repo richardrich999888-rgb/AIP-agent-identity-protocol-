@@ -93,6 +93,14 @@ original discovery text for traceability):
   payload digest; `SendSocketUnresolved`; the probe's per-instance image
   cache (a host-wide source must not re-hash every sender's executable per
   event). Live-demonstrated S-P/S-A. `ACTION_EVIDENCE.md` §16.
+- Gate 4 (file write, fourth action class) at `4a5f716` (RED) / `2f1ba9b`
+  (GREEN) — `ghost.fs.write.v1`: `fanotify` with `FAN_REPORT_PIDFD` on a
+  marked mount (`Fanotify`, observer protocol v8); the writer bound by the
+  pidfd the kernel created for it; digest = the path bytes; `(dev, ino)`
+  as signed context; the five observation states OBSERVED / NOT OBSERVED /
+  AMBIGUOUS / LOSS / UNAVAILABLE each pinned; `FilePathUnresolved`.
+  Live-demonstrated F-P/F-A/F-N. `ACTION_EVIDENCE.md` §17,
+  `OBSERVATION_MODEL.md` §6.
 
 ## D. PR3 corrective review (pre-reconciliation)
 
@@ -223,7 +231,7 @@ Decision: `NEXT_ACTION_EVIDENCE_DECISION.md`. RED: `a5e2cbf`. GREEN:
 | Exec arguments / environment | **MISSING** | — | the kernel exposes `filename` only; `argv`/`envp` are not in either tracepoint; authorizations that depend on arguments can never match | a different source (out of scope) | **P2** |
 | Exec chain faster than anchoring | **open by design** | — | a child that execs again or exits before the probe anchors it is unbound → `CANNOT_PROVE`, never guessed | — | **P2** |
 | Sched stream as lifecycle coverage | **refused by design** (`xe15`) | — | fork/exec events say nothing about exits; `PHANTOM_CLAIM` still requires `ProcConnector` coverage | — | — |
-| File create/modify class | **MISSING** (ranked second in the decision; `fanotify`/`FAN_REPORT_PIDFD` candidate) | observable file evidence bound to the instance | agent writes are invisible to the action layer | own review, RED first | **P1** |
+| File create/modify class — **CLOSED for completed writes (Gate 4)**: `ghost.fs.write.v1` through `fanotify`/`FAN_REPORT_PIDFD`; creates / deletes / renames remain **MISSING** (`FAN_REPORT_FID` refused here) | observable file evidence bound to the instance | agent writes were invisible to the action layer | see G.4 | **P1** |
 | DNS / outbound-generic / privileged / credential / IPC classes | **MISSING** (ranked; see decision §5) | — | not observable with the current sources | own reviews | **P2** |
 
 ### G.3 Gate 3 — socket send (third action class)
@@ -235,3 +243,15 @@ RED: `c830a8d`. GREEN: `4e4bd6a`. Live: `ghost-demo` scenarios S-P, S-A.
 | Socket send as action evidence — **CLOSED (Gate 3)** | `ghost.net.send.v1`; `SockSendTracepoint` (`sock:sock_send_length` in the caller's context, via `perf_event_open`, no eBPF); `derive_sends` resolves the endpoint from the latest attested transition of the same `sk` not later than the send, refusing a socket closed in between; digest = `net_send_parameters(endpoint)`, equal to the connect digest by construction; `bytes` signed as context; `VERIFIED_EXECUTION · Attested · Transition` | — | receive side, UDP, non-TCP families, sends on sockets whose transitions were not observed | — | — |
 | Payload digest | **permanently absent from the kernel path** (I23) | a party holding the plaintext (Gate 5 decision) | authorizations that depend on content can never match kernel evidence | — | **P2** |
 | Host-wide source anchoring cost — **CLOSED (defect found in Gate 3)** | the probe re-hashed each sender's executable per event (215 MB daemon binary on this host); now one hash per (instance, image), revalidated by start tick, inode, size, mtime and path | — | in-place rewrite preserving all five defeats revalidation — a root capability, already the `Attested` ceiling | — | — |
+
+### G.4 Gate 4 — file write (fourth action class)
+
+RED: `4a5f716`. GREEN: `2f1ba9b`. Live: `ghost-demo` scenarios F-P, F-A, F-N.
+
+| Component | Current state | Target state | Gap | Dependency | Pri |
+|---|---|---|---|---|---|
+| File write as action evidence — **CLOSED (Gate 4)** | `ghost.fs.write.v1`; `Fanotify` (`FAN_CLOSE_WRITE` on a marked mount, `FAN_REPORT_PIDFD`); the writer bound through the kernel's own pidfd; `derive_file_writes`; digest = path bytes; `(dev, ino)` signed context; the five states pinned (`ACTION_EVIDENCE.md` §17.1) | — | content, unmarked mounts, writers gone before the read | — | — |
+| Kernel-bound attribution | **stronger than the tracepoint classes**: the pidfd is created by the kernel from the event's own process reference; no pid-number window | extend to other sources where the kernel offers it | tracepoints still anchor by number under the start-tick rule | — | **P2** |
+| File identity independent of path | **MISSING here** — `FAN_REPORT_FID` refused (`ENODEV`, zero fsid on this root filesystem) | object handle in the event | a path is a name; renames and mount namespaces can make the authorized and observed names differ | a filesystem with a fsid | **P2** |
+| Creates, deletes, renames | **MISSING** (need `FAN_REPORT_FID` directory events) | — | only completed writes are observable | as above | **P2** |
+| Event time | **weaker than the tracepoints**: fanotify carries no kernel timestamp; the probe stamps at read | — | placement rests on read cadence plus the anchor | — | **P2** |

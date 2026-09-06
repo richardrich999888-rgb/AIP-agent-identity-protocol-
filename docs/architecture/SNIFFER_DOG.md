@@ -6,10 +6,11 @@ Stages 7b/7c three static tracepoints — `sock:inet_sock_set_state`,
 `sched:sched_process_fork`, `sched:sched_process_exec` — read through
 `perf_event_open` rings; since Gate 2 the `AF_PACKET` device-layer tap,
 TCP/IP headers only — §9; since Gate 3 a fourth tracepoint,
-`sock:sock_send_length`, the byte count of a send in the sender's context)
-/ NOT IMPLEMENTED (eBPF, any other tracepoint, XDP, payload visibility,
-filesystem and syscall observation, network transport, durable collector
-state).**
+`sock:sock_send_length`, the byte count of a send in the sender's context;
+since Gate 4 `fanotify` with kernel-created pidfds for completed writes on
+a marked mount) / NOT IMPLEMENTED (eBPF, any other tracepoint, XDP,
+payload or file-content visibility, syscall observation, network
+transport, durable collector state).**
 
 > The agent-level layer around this observer — identity, profile, lineage,
 > capability passport, experience ledger, history, evidence graph, profile API
@@ -139,6 +140,14 @@ tracepoint through the same perf plumbing; `SourceMechanism::
 SockSendTracepoint`. The count, never the bytes, never a digest of them.
 Version 6 records are refused like earlier versions.
 
+**Protocol version 8 (Gate 4).** `KernelLifecycleKind::FileEvent` (event
+mask, pid, the kernel's current path of the object, a `deleted` flag,
+device, inode) queued by `fanotify` on a marked mount;
+`SourceMechanism::Fanotify`. The acting instance is bound through the
+pidfd the kernel created for it (`FAN_REPORT_PIDFD`). Events carry no
+kernel timestamp; the probe stamps them at read time. Version 7 records
+are refused like earlier versions.
+
 Every new field is inside the canonical encoding (single encoder,
 `aip_types::canonical`; length-prefixed strings; explicit codes for enums;
 presence byte for options; counts for vectors). Version 1 records are refused
@@ -157,6 +166,7 @@ this branch and was never released.
 | `SchedTracepoint` | **yes** (two static tracepoints via the perf ring) | fork: the parent (the event fires in the parent's context) if a `PidFdAnchored` measurement of `parent_pid` succeeded under the start-tick rule; exec: the new image's task if anchored likewise. The child of a fork is bound at its exec, not at the fork | existence/order/time/pids/kernel filename: no; identity and image content: yes (procfs); root can disable or starve the ring | **`PERF_RECORD_LOST`** (counted per ring) |
 | `WireTapAfPacket` | **yes** (the device layer copies each frame to the packet socket) | **never** — the device layer has no task context; a segment names no process | headers/direction/interface/kernel realtime stamp: no (kernel-authored) on a mirror host, yes on the observed host (root can stop or starve the socket); payload: never captured | **`PACKET_STATISTICS.tp_drops`** (counted; kernel resets on read), plus truncated or unstamped frames |
 | `SockSendTracepoint` | **yes** (static tracepoint via the perf ring) | the sender — `sock_send_length` fires in the calling task — if a `PidFdAnchored` measurement of `current_pid` succeeded under the start-tick rule | existence/order/time/`sk`/count: no (kernel-authored); identity: yes (procfs); root can disable or starve the ring | **`PERF_RECORD_LOST`** (counted per ring) |
+| `Fanotify` | **yes** (the kernel queues the event) | the writer, through the pidfd the **kernel** created for it at read time (`FAN_REPORT_PIDFD`); unbound if the writer had exited (`FAN_NOPIDFD`) | existence/mask/object identity: no (kernel-authored); the path is the kernel's resolution at read time; measurement content: yes (procfs); root can remove the mark or starve the queue | **`FAN_Q_OVERFLOW`** (counted) |
 
 ### `SockStateTracepoint` — what the kernel says about a connection
 
@@ -395,6 +405,22 @@ by the reconciler from the state transitions of the same socket. This is
 the third action class, `ghost.net.send.v1` (`ACTION_EVIDENCE.md` §16): a
 count, never content, never a payload digest.
 
+## 9a. Filesystem observation model (Gate 4)
+
+Implemented: **completed writes on a marked mount** through `fanotify`
+(`fanotify.rs`, `Fanotify`): for each `FAN_CLOSE_WRITE` the kernel queues
+an open descriptor to the object and a pidfd it created from the event's
+own process reference — the writer is bound by the kernel, not by a pid
+number the probe opens later. The probe resolves the descriptor to the
+kernel's current path and `(dev, ino)`, closes it, and reads nothing from
+the file; a writer that exited before the read is reported unbound;
+queue overflow is a kernel-reported, counted loss. This is the fourth
+action class, `ghost.fs.write.v1` (`ACTION_EVIDENCE.md` §17). Not given:
+content, creates / deletes / renames (they need `FAN_REPORT_FID`, refused
+here with `ENODEV` because the root filesystem reports a zero fsid),
+writes on unmarked mounts, a kernel timestamp (the probe stamps at read),
+or anything on a host whose root removes the mark or starves the queue.
+
 ## 10. Relationship to Skill 7 (reconciliation)
 
 The reconciler receives, per subject: `AttestedBatch`es (observations with
@@ -418,7 +444,8 @@ eBPF programs, raw tracepoints, any tracepoint other than
 capture or any payload hash (the `AF_PACKET` tap of Gate 2 keeps TCP/IP
 headers only; the send source of Gate 3 keeps a byte count only), the
 receive side (`sock_recv_length`), non-TCP wire traffic, IPv6 extension
-headers, filesystem and syscall observation, exec argument and environment capture, UDP "connection"
+headers, syscall observation, file events other than a completed write on
+a marked mount (`FAN_REPORT_FID` is refused on this host), file content, exec argument and environment capture, UDP "connection"
 events, cgroup/namespace context in the event model, network transport and
 its authentication, durable storage of the collector snapshot and archive
 (the collector exposes `snapshot()` / `resume()` and audits continuity, but

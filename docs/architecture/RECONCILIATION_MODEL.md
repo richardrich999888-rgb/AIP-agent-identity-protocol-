@@ -6,7 +6,7 @@
 > contract in §3–§5 below is implemented as written, with `CANNOT_PROVE` as
 > the `Default`. Reachable results: `CANNOT_PROVE`, `PHANTOM_CLAIM`,
 > `IDENTITY_DIVERGENCE`, `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, and —
-> **for exactly three action classes** — `VERIFIED_EXECUTION` at `Attested`:
+> **for exactly four action classes** — `VERIFIED_EXECUTION` at `Attested`:
 > an established TCP connection authorized as `ghost.net.connect.v1`, in two
 > distinguishable kinds, `Presence` (a table row: the connection existed at
 > the sample) and `Transition` (the kernel reported it being made;
@@ -17,7 +17,11 @@
 > (`4e4bd6a`), a socket send authorized as `ghost.net.send.v1` (the kernel
 > reported the bound instance handing bytes to a socket whose attested
 > transitions name the authorized endpoint; the count, never the bytes;
-> `Transition` only; `ACTION_EVIDENCE.md` §16). Unreachable with the current evidence and stated so
+> `Transition` only; `ACTION_EVIDENCE.md` §16); and, since Gate 4 (`2f1ba9b`),
+> a file write authorized as `ghost.fs.write.v1` (the kernel queued a
+> completed write on a marked mount, the writer bound by the kernel's own
+> pidfd, the object resolved to the authorized path; the path, never the
+> content; `Transition` only; `ACTION_EVIDENCE.md` §17). Unreachable with the current evidence and stated so
 > in code: `VERIFIED_EXECUTION` for every other action kind (no action-level
 > observation exists), `UNATTRIBUTED_EFFECT` (requires a decision-point-signed
 > completeness statement that nothing produces yet). `LINEAGE_VIOLATION` is
@@ -147,8 +151,13 @@ transitions of the same `sk` (the latest not later than the send, with no
 close of that `sk` in between), is `ghost.net.send.v1` with the endpoint
 parameters recomputed through `aip_authorize::net_send_parameters`; the
 byte count is signed context and never enters the digest, and no payload
-digest exists. For those three classes, and only those, the context-match
-precondition can be satisfied. For every other action kind the strongest
+digest exists. Since Gate 4 a fourth mapping exists:
+a fanotify `FAN_CLOSE_WRITE` event whose kernel-bound writer is the
+anchored instance, on an object the kernel resolved to an absolute path not
+reported as deleted, is `ghost.fs.write.v1` with the path bytes recomputed
+through `aip_authorize::fs_write_parameters`; `(dev, ino)` is signed context
+and no content digest exists. For those four classes, and only those, the
+context-match precondition can be satisfied. For every other action kind the strongest
 positive result remains identity-level corroboration, and identity match
 never implies action match.
 

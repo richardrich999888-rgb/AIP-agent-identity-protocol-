@@ -40,6 +40,12 @@ A small probe on the host reads two kinds of facts straight from Linux:
   tell it which process a frame belongs to. The same code can run on a
   mirror port on another machine, outside the watched host's control.
 
+- **File writes.** When any process closes a file it had open for
+  writing on a watched mount, the kernel queues an event (`fanotify`) that
+  names the file and hands the probe a handle the kernel itself tied to the
+  writing process. The probe records the file's path and inode and reads
+  nothing from the file.
+
 It also polls the kernel's socket tables and process list as a second,
 weaker source, and it counts every event the kernel ring buffer dropped.
 There is no eBPF program and no view of payloads.
@@ -68,11 +74,12 @@ and does not hold the agent's key.
 
 The **reconciler** takes the decision point's signed expectation and the
 collector's signed observations and answers one question: did the authorised
-process do the authorised thing? Today it can answer that for three kinds of
+process do the authorised thing? Today it can answer that for four kinds of
 action — making a TCP connection to an authorised endpoint, running a
-program whose contents hash to the authorised value, and sending bytes on a
+program whose contents hash to the authorised value, sending bytes on a
 connection to an authorised endpoint (the kernel's count of the bytes,
-never the bytes themselves) — and it says
+never the bytes themselves), and completing a write to an authorised file
+path (the path, never what was written) — and it says
 `VERIFIED_EXECUTION` at *attested* strength: signed by an independent
 collector, but read from a host that a root attacker could still lie to.
 

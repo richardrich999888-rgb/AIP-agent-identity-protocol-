@@ -28,7 +28,7 @@ process-instance execution identity (Skill 4), an independent decision point
 (Skill 5), an observer with an off-host signer (Skill 6), kernel-mediated
 sensing with provenance and loss accounting (Skill 6.5, "Sniffer Dog"), a
 reconciler whose default is `CANNOT_PROVE` (Skill 7), and action evidence for
-three classes (Stages 7/7b/7c, Gate 3). Each answers one narrow question about one
+four classes (Stages 7/7b/7c, Gates 3–4). Each answers one narrow question about one
 execution.
 
 Sniffer Dog 2.0 asks a wider question about one **agent**:
@@ -382,10 +382,12 @@ on a mirror host, and never as visibility into what was sent.
 
 **Question.** Which authorized action does an observed fact correspond to?
 
-**Today — `PARTIAL`, three classes.** `ghost.net.connect.v1` (presence +
-transition), `ghost.process.exec.v1` (transition; image content hash) and,
-since Gate 3, `ghost.net.send.v1` (transition; endpoint digest, byte count
-as signed context, never a payload digest).
+**Today — `PARTIAL`, four classes.** `ghost.net.connect.v1` (presence +
+transition), `ghost.process.exec.v1` (transition; image content hash),
+since Gate 3 `ghost.net.send.v1` (transition; endpoint digest, byte count
+as signed context, never a payload digest) and since Gate 4
+`ghost.fs.write.v1` (transition; path digest, kernel-bound writer, never
+content).
 `ActionEvidenceSeal` constructors are `pub(crate)`; `ActionEvidenceKind::
 {Presence, Transition}`; `TransitionEvidence` unifies socket and exec
 handling; `Attested` is the ceiling.
@@ -410,7 +412,7 @@ correspond, and how strong is the evidence?
 identity, action, temporal, replay_detected, evidence: Vec<EvidenceRef>,
 verification_time_ms }`. Reachable: `CANNOT_PROVE` (default), `PHANTOM_CLAIM`,
 `IDENTITY_DIVERGENCE`, `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`,
-`VERIFIED_EXECUTION` for three classes. `UNATTRIBUTED_EFFECT` requires a
+`VERIFIED_EXECUTION` for four classes. `UNATTRIBUTED_EFFECT` requires a
 `DecisionPointCoverageStatement` no production component emits.
 `LINEAGE_VIOLATION` is reachable through `reconcile_lineage` (Phase C2). Records are **unsigned and unstored**.
 
@@ -486,7 +488,7 @@ cross-record sequence, head anchoring, replay/uniqueness. Only `merkle_leaf`
 governed by `syntriass-nexora-integration` (Skill 10). It is listed here so
 that the profile architecture has a named place for it and so that no other
 component grows a hash chain of its own. Precondition per the orchestrator:
-real `VERIFIED_EXECUTION` history exists (it does, for three classes) **and**
+real `VERIFIED_EXECUTION` history exists (it does, for four classes) **and**
 SD-10 exists to be committed.
 
 **`CANNOT_PROVE` boundary.** Anything before the first anchored head.
@@ -551,7 +553,7 @@ compose a profile, and the service's authority routes duplicate `aip-core`
 | SD-05 Passport | **owner** (tokens, expiry signed) | — | consumer | — | — | — | `PRODUCTION` (aip-core) · duplicate in service P1 |
 | SD-06 Delegation graph | chain verification | — | one path per decision | — | — | — | `MISSING` (graph) |
 | SD-07 Observation | — | — | — | **owner** | consumer | — | `PARTIAL` |
-| SD-08 Action evidence | action vocabulary domain | image hash reuse | `parameter_digest` | transitions | **owner**, three classes | — | `PARTIAL` |
+| SD-08 Action evidence | action vocabulary domain | image hash reuse | `parameter_digest` | transitions | **owner**, four classes | — | `PARTIAL` |
 | SD-09 Reconciliation | — | — | expectation | evidence | **owner** | consumer (later) | `PARTIAL`, unsigned records |
 | SD-10 Ledger | — | — | — | — | records are the entries | **must not read** | `MISSING` |
 | SD-11 History | merkle primitives only | — | — | — | — | — | `MISSING` (Skill 10) |
@@ -647,7 +649,7 @@ operational history.
 Permitted today, on `0b737d9`: independent observation with provenance and
 loss accounting; execution identity resistant to PID reuse; an external
 decision point; reconciliation with a `CANNOT_PROVE` default; verified
-execution for three action classes at `Attested`, live-demonstrated.
+execution for four action classes at `Attested`, live-demonstrated.
 
 Not permitted today: identity lifecycle, lineage findings, delegation graph,
 experience, history, profile, API — every one is `MISSING` above.
