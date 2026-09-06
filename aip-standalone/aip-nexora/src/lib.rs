@@ -7,4 +7,5 @@
 //! an offline verifier can check against a root it obtained elsewhere.
 //! Signed heads, proof objects and the offline verifier are Gate 7.
 
+pub mod commitment;
 pub mod merkle;
