@@ -27,7 +27,7 @@ pub use proof::{
     StructuralFault, Subject, NEXORA_PROOF_VERSION, PROOF_BUNDLE_DOMAIN, PROOF_ENVELOPE_DOMAIN,
 };
 pub use verify::{
-    verify_nexora_proof, Completeness, ComponentVerdict, Coverage, Independence, InvalidReason,
-    LineageReport, LineageStanding, ObservationCoverage, ProofVerdict, VerifiedProof,
-    VerifierAnchors,
+    verify_nexora_proof, Completeness, ComponentVerdict, ContinuityStanding, Coverage,
+    Independence, InvalidReason, LineageReport, LineageStanding, ObservationCoverage, ProofVerdict,
+    VerifiedProof, VerifierAnchors,
 };

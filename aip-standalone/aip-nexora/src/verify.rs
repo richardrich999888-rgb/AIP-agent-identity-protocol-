@@ -220,6 +220,48 @@ pub struct LineageReport {
     pub process: LineageStanding,
 }
 
+/// What the package establishes about the observer's own record across
+/// time. `Continuous` is the only value that asserts an unbroken chain.
+///
+/// `Unknown` and `CannotProve` are deliberately distinct: the first says
+/// the package carries nothing about continuity, the second says it
+/// carries something the verifier could not establish. A verifier that
+/// collapsed them would let an unverifiable report read as an absent one.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ContinuityStanding {
+    /// The chain is unbroken across what the package carries.
+    Continuous,
+    /// A break is established: the collector said so, under its own key.
+    Discontinuous,
+    /// The package carries nothing about continuity.
+    Unknown,
+    /// Something was carried and it does not settle the question.
+    CannotProve,
+}
+
+impl ContinuityStanding {
+    pub const ALL: [ContinuityStanding; 4] = [
+        ContinuityStanding::Continuous,
+        ContinuityStanding::Discontinuous,
+        ContinuityStanding::Unknown,
+        ContinuityStanding::CannotProve,
+    ];
+
+    pub fn code(self) -> u8 {
+        match self {
+            ContinuityStanding::Continuous => 0x01,
+            ContinuityStanding::Discontinuous => 0x02,
+            ContinuityStanding::Unknown => 0x03,
+            ContinuityStanding::CannotProve => 0x04,
+        }
+    }
+
+    /// Does this standing assert an unbroken chain?
+    pub fn asserts_unbroken(self) -> bool {
+        matches!(self, ContinuityStanding::Continuous)
+    }
+}
+
 /// Why a package is not valid.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InvalidReason {
@@ -276,6 +318,8 @@ pub struct VerifiedProof {
     pub coverage: Coverage,
     /// What the package establishes about each kind of lineage.
     pub lineage_report: LineageReport,
+    /// What it establishes about the observer's record across time.
+    pub continuity_standing: ContinuityStanding,
     pub independence: Independence,
     /// Where the claim was committed, when a commitment was carried and
     /// verified.
@@ -320,6 +364,7 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
             authority: LineageStanding::Unavailable,
             process: LineageStanding::Unavailable,
         },
+        continuity_standing: ContinuityStanding::Unknown,
         independence: if proof.parameters.agent_key_supplied {
             Independence::Checked
         } else {
@@ -423,11 +468,26 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
         }
     }
 
-    // The continuity report, under the observer's anchors.
+    // The continuity report, under the observer's anchors. A report is the
+    // collector's own signed statement that its record broke; the verifier
+    // checks the signature and carries the statement, and never softens a
+    // break into continuity.
     if let Some(c) = &proof.continuity {
         match verify_continuity_report(c, &anchors.observer) {
-            Ok(()) => v.continuity = ComponentVerdict::Verified,
-            Err(e) => fail(Component::Continuity, format!("{e:?}"), &mut v.continuity),
+            Ok(()) => {
+                v.continuity = ComponentVerdict::Verified;
+                // Any break the collector reports is a break. There is no
+                // "mild" one: ArchiveTruncated means records it sealed are
+                // missing, which is not a demonstration of continuity.
+                v.continuity_standing = ContinuityStanding::Discontinuous;
+            }
+            Err(e) => {
+                fail(Component::Continuity, format!("{e:?}"), &mut v.continuity);
+                // Carried and unestablished. Not the same as absent: the
+                // package asked the question and the evidence did not
+                // answer it.
+                v.continuity_standing = ContinuityStanding::CannotProve;
+            }
         }
     }
 

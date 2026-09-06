@@ -73,7 +73,8 @@ fn g8_02_each_break_the_collector_signs_is_reported_as_discontinuous() {
         let p = base(&s).continuity(report).build();
         let v = verify_nexora_proof(&p, &anchors(&s));
         assert_eq!(
-            v.continuity, ComponentVerdict::Verified,
+            v.continuity,
+            ComponentVerdict::Verified,
             "the report is the collector's own signed record: {v:#?}"
         );
         assert_eq!(
