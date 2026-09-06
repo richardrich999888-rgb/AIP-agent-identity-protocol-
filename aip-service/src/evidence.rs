@@ -170,6 +170,18 @@ pub struct VerifyRequest {
     /// Raw receipt data to cross-check against the packet's receipt_hash.
     #[serde(default)]
     pub receipt_data: Option<String>,
+    /// Verify as of this Unix-ms instant instead of the service's own clock.
+    ///
+    /// For replaying a historical verification, or for an offline caller that
+    /// knows the time it means. **Omitted is not unbounded**: the service
+    /// substitutes its own clock, so the default path is the bounded one
+    /// (AUDIT B-1a).
+    #[serde(default)]
+    pub verification_time_ms: Option<u64>,
+    /// Slack allowed ahead of the verification time, absorbing declared clock
+    /// skew. Defaults to zero: a tolerance is a bound, not a licence.
+    #[serde(default)]
+    pub future_tolerance_ms: Option<u64>,
 }
 
 #[derive(Debug, Serialize)]
@@ -332,6 +344,24 @@ pub fn verify_request(req: &VerifyRequest) -> Result<VerificationReport, String>
     ctx.revoked_jtis = revoked;
     ctx.trace_data = req.trace_data.as_ref().map(|s| s.as_bytes().to_vec());
     ctx.receipt_data = req.receipt_data.as_ref().map(|s| s.as_bytes().to_vec());
+
+    // AUDIT B-1a. R16 is opt-in at the protocol layer, and correctly so: an
+    // offline verifier must be able to say what "now" means to it, and an
+    // unevaluated rule must not read as a failure. But opt-in propagates only
+    // as far as someone remembers to opt in, and this tier did not — so every
+    // service verification was unbounded and a future-dated packet returned
+    // `valid: true`.
+    //
+    // The default is now the service's own clock. A caller may override it to
+    // replay a historical verification, but omitting the field no longer
+    // means "apply no bound"; it means "apply the bound the service knows".
+    // The unsafe path has to be asked for explicitly, and cannot be reached
+    // through this API at all.
+    // `now_ms` is this module's existing clock helper — the protocol verifier
+    // is deliberately clock-free so offline verification stays possible, and
+    // this tier is online by definition, so it is where the time is known.
+    ctx.verification_time_ms = Some(req.verification_time_ms.unwrap_or_else(now_ms));
+    ctx.future_tolerance_ms = req.future_tolerance_ms.unwrap_or(0);
 
     Ok(verify_packet(&req.packet, &ctx))
 }
@@ -579,6 +609,8 @@ mod tests {
             revoked_jtis: vec![],
             trace_data: None,
             receipt_data: None,
+            verification_time_ms: None,
+            future_tolerance_ms: None,
         };
         let report = verify_request(&vreq).unwrap();
         assert!(report.valid, "failures: {:?}", report.failures());
@@ -619,6 +651,8 @@ mod tests {
             revoked_jtis: vec![],
             trace_data: None,
             receipt_data: None,
+            verification_time_ms: None,
+            future_tolerance_ms: None,
         };
         let report = verify_request(&vreq).unwrap();
         assert!(report.valid, "{:?}", report.failures());
@@ -643,6 +677,8 @@ mod tests {
             revoked_jtis: vec![],
             trace_data: None,
             receipt_data: None,
+            verification_time_ms: None,
+            future_tolerance_ms: None,
         };
         let report = verify_request(&vreq).unwrap();
         assert!(!report.valid);

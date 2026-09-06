@@ -1,0 +1,248 @@
+//! Fixtures for the service's integration tests.
+//!
+//! `src/test_support.rs` is `#[cfg(test)]`, so it is invisible to an
+//! integration test, which is a separate crate. Rather than widen that
+//! module's visibility — a production-surface change made for a test's
+//! convenience — the fixtures an integration test needs are built here from
+//! the same public primitives.
+//!
+//! # Why the packet is built directly rather than via `generate_packet`
+//!
+//! `generate_packet` stamps `decided_at` and `performed_at` from the
+//! service's own clock, so no generate request can produce a future-dated
+//! packet. That is a property worth having, and it is asserted below — but it
+//! also means the generate path cannot exercise R16's failing branch.
+//!
+//! The verify endpoint does not require the packet to have come from this
+//! service. The documented production shape is the opposite: agents sign
+//! client-side and the service is used for verify and ingest. So a packet
+//! built here, dated where the test needs it, is the realistic input, not a
+//! contrivance.
+
+#![allow(dead_code)] // each test file uses a subset
+
+use std::collections::HashMap;
+
+use aip_core::capability::{issue_scoped_token, random_jti, scope_orchestrator, scope_submitter};
+use aip_core::create_identity;
+use aip_core::delegation::create_delegation;
+use aip_crypto::sha256;
+use aip_protocol::{
+    ActionAttestation, AgentIdentitySummary, DecisionRecord, EvidencePacket, EvidencePacketBuilder,
+    RootAuthority, TrustFloor,
+};
+use aip_types::{Action, AlgorithmId, ProvenanceTriple, PublicKey, ScopeAction};
+
+use airon_aip::evidence::{ActionInput, DecisionInput, GenerateRequest, ProvenanceInput};
+
+/// Unix milliseconds. Mirrors the service's own clock helper; the tests use
+/// it to place fixtures relative to real time, because the property under
+/// test is precisely that the service consults real time.
+pub fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .expect("system clock before the Unix epoch")
+        .as_millis() as u64
+}
+
+/// A century, in milliseconds. Wide enough that a token issued now covers any
+/// instant the tests date a packet at, so the authority-window rule (R10)
+/// stays satisfied and R16 is the *only* rule that can object to the date.
+/// Without this, a future-dated packet would fail for the wrong reason and
+/// the test would pass while proving nothing about R16.
+const CENTURY_MS: u64 = 100 * 365 * 24 * 60 * 60 * 1000;
+
+fn prov(tag: &str) -> ProvenanceTriple {
+    ProvenanceTriple {
+        model_commitment: sha256(format!("model:{tag}").as_bytes()),
+        environment_commitment: sha256(format!("env:{tag}").as_bytes()),
+        toolchain_commitment: sha256(format!("tool:{tag}").as_bytes()),
+    }
+}
+
+/// A fixture packet and everything a test needs to reason about its dates.
+pub struct Fixture {
+    pub packet: EvidencePacket,
+    /// Issuer AIP-ID → Ed25519 public key (hex), as the verify API wants them.
+    pub issuers: HashMap<String, String>,
+    /// The instant the authority tokens were issued. This is the *earliest*
+    /// instant at which the packet can legitimately verify: a verification
+    /// bound before it would rightly object that the tokens did not yet
+    /// exist. Tests compute their explicit verification instants from this
+    /// rather than from a separate clock read, so no test depends on how much
+    /// wall time elapses inside the fixture.
+    pub issued_at_ms: u64,
+    /// The instant the packet claims its decision was made.
+    pub decided_at_ms: u64,
+}
+
+/// A complete, correctly signed CFO → orchestrator → agent packet whose
+/// decision is dated `offset_ms` after its authority was issued.
+///
+/// Every field except the two activity timestamps is what an honest packet
+/// carries. The authority tokens are issued at the real present — the public
+/// issuance API stamps its own clock and offers no way to back-date, which is
+/// correct — so `offset_ms` moves the *claimed activity* forward without
+/// moving the authority. That is exactly the shape a future-dating agent
+/// produces, and exactly what R16 exists to see.
+///
+/// # Boundary
+///
+/// `offset_ms` is unsigned on purpose. A negative offset would date the
+/// decision before the authority that permits it, which R10
+/// (`TEMPORAL_VALIDITY`) rejects — correctly, and for a reason that has
+/// nothing to do with R16. A test wanting a packet older than the
+/// verification instant should move the *verification* instant later
+/// instead.
+pub fn packet_dated(offset_ms: u64) -> Fixture {
+    let (cfo_aid, cfo_kp) = create_identity(prov("cfo"), None).expect("cfo identity");
+    let (orch_aid, orch_kp) = create_identity(prov("orch"), None).expect("orchestrator identity");
+    let (agent_aid, agent_kp) = create_identity(prov("agent"), None).expect("agent identity");
+
+    let root_token = issue_scoped_token(
+        &cfo_aid.id,
+        &cfo_kp.private_key,
+        &orch_aid.id,
+        scope_orchestrator(),
+        Some(CENTURY_MS),
+    )
+    .expect("root token");
+    let hop = create_delegation(
+        &root_token,
+        &orch_kp.private_key,
+        &agent_aid.id,
+        scope_submitter(),
+    )
+    .expect("delegation hop");
+
+    // Dated from the hop, not from a fresh clock read: the hop is issued
+    // after the root token, so this is the true earliest legitimate instant.
+    let issued_at_ms = hop.issued_at.max(root_token.issued_at);
+    let decided_at_ms = issued_at_ms + offset_ms;
+
+    let decision = DecisionRecord {
+        decision_id: random_jti(),
+        action_kind: ScopeAction::Standard(Action::Write),
+        summary: "approve payment".into(),
+        input_hash: sha256(b"invoice INV-1"),
+        rationale_hash: sha256(b"3-way match ok"),
+        decided_at: decided_at_ms,
+    };
+    let action = ActionAttestation::create(
+        &agent_aid.id,
+        &agent_kp.private_key,
+        &decision.decision_id,
+        ScopeAction::Standard(Action::Write),
+        "POST /ledger/payments",
+        sha256(b"{\"amount\":100}"),
+        decided_at_ms + 1,
+    )
+    .expect("action attestation");
+
+    let packet = EvidencePacketBuilder::new(
+        AgentIdentitySummary {
+            aip_id: agent_aid.id.clone(),
+            public_key: PublicKey {
+                algorithm: AlgorithmId::Ed25519,
+                key_bytes: agent_kp.public_key.clone(),
+            },
+            provenance: agent_aid.provenance.clone(),
+        },
+        RootAuthority {
+            principal_id: cfo_aid.id.clone(),
+            display_role: "CFO".into(),
+            root_token,
+        },
+    )
+    .delegation_chain(vec![hop])
+    .decision(decision)
+    .action(action)
+    .claimed_trust_floor(TrustFloor::AuthorityBound)
+    .build_and_sign(&agent_kp.private_key)
+    .expect("seal packet");
+
+    let issuers = HashMap::from([
+        (cfo_aid.id, hex::encode(&cfo_kp.public_key)),
+        (orch_aid.id, hex::encode(&orch_kp.public_key)),
+    ]);
+    Fixture {
+        packet,
+        issuers,
+        issued_at_ms,
+        decided_at_ms,
+    }
+}
+
+/// A generate request whose authority tokens are pre-signed, plus the issuer
+/// keys needed to verify the resulting packet.
+///
+/// Mirrors `src/test_support::sample_generate_request`, which is
+/// `#[cfg(test)]` and therefore unreachable from here. It is deliberately a
+/// second, independent fixture rather than a shared one: making the unit-test
+/// fixture public would put test scaffolding on the crate's production
+/// surface, which is a worse trade than forty duplicated lines of setup.
+pub fn sample_generate_request() -> (GenerateRequest, HashMap<String, String>) {
+    let (cfo_aid, cfo_kp) = create_identity(prov("cfo"), None).expect("cfo identity");
+    let (orch_aid, orch_kp) = create_identity(prov("orch"), None).expect("orchestrator identity");
+    let (agent_aid, agent_kp) = create_identity(prov("agent"), None).expect("agent identity");
+
+    // The request carries the agent's seed, so the provenance the service
+    // will hash must be the provenance the identity was derived from —
+    // otherwise the derived AIP-ID would not match and the packet's
+    // delegation hop would name the wrong subject.
+    let agent_prov = ProvenanceInput {
+        model: "model:agent".into(),
+        environment: "env:agent".into(),
+        toolchain: "tool:agent".into(),
+    };
+    debug_assert_eq!(
+        agent_prov.to_triple(),
+        agent_aid.provenance,
+        "the fixture's provenance strings must hash to the identity's triple"
+    );
+
+    let root_token = issue_scoped_token(
+        &cfo_aid.id,
+        &cfo_kp.private_key,
+        &orch_aid.id,
+        scope_orchestrator(),
+        Some(CENTURY_MS),
+    )
+    .expect("root token");
+    let hop = create_delegation(
+        &root_token,
+        &orch_kp.private_key,
+        &agent_aid.id,
+        scope_submitter(),
+    )
+    .expect("delegation hop");
+
+    let req = GenerateRequest {
+        agent_seed_hex: hex::encode(&agent_kp.private_key),
+        provenance: agent_prov,
+        principal_id: cfo_aid.id.clone(),
+        principal_role: "CFO".into(),
+        root_token,
+        delegation_chain: vec![hop],
+        decision: DecisionInput {
+            action_kind: "write".into(),
+            summary: "approve payment".into(),
+            input: "invoice INV-1".into(),
+            rationale: "3-way match ok".into(),
+        },
+        actions: vec![ActionInput {
+            action_kind: "write".into(),
+            description: "POST /ledger/payments".into(),
+            payload: "{\"amount\":100}".into(),
+        }],
+        trace: None,
+        receipt: None,
+        claimed_trust_floor: Some(TrustFloor::AuthorityBound),
+    };
+
+    let issuers = HashMap::from([
+        (cfo_aid.id, hex::encode(&cfo_kp.public_key)),
+        (orch_aid.id, hex::encode(&orch_kp.public_key)),
+    ]);
+    (req, issuers)
+}
