@@ -553,3 +553,20 @@ pub fn phantom_claim() -> Scenario {
         at,
     }
 }
+
+/// A child identity whose document carries a lineage proof naming
+/// `parent`, and the parent's own document. Real `create_identity` output:
+/// the child's proof is signed by the parent's key, so it is checkable.
+pub fn identity_lineage() -> (
+    aip_types::AgentIdentityDocument,
+    aip_types::AgentIdentityDocument,
+    KeyPair,
+) {
+    let (parent, parent_kp) = create_identity(provenance("lineage-parent"), None).unwrap();
+    let (child, _child_kp) = create_identity(
+        provenance("lineage-child"),
+        Some((&parent.id, &parent_kp.private_key)),
+    )
+    .unwrap();
+    (child, parent, parent_kp)
+}
