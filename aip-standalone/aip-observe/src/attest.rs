@@ -157,6 +157,17 @@ impl ObserverTrustAnchors {
             .get(&(observer_id.to_string(), key_version))
             .map(|k| k.as_slice())
     }
+
+    /// Every anchor, in a deterministic order, so a written file is stable.
+    pub fn entries(&self) -> Vec<(String, u32, Vec<u8>)> {
+        let mut v: Vec<(String, u32, Vec<u8>)> = self
+            .keys
+            .iter()
+            .map(|((id, ver), key)| (id.clone(), *ver, key.clone()))
+            .collect();
+        v.sort();
+        v
+    }
 }
 
 /// Why an attested batch or health record failed verification. Cryptographic

@@ -387,6 +387,13 @@ impl WarrantTrustAnchors {
             .find(|(id, _)| id == authority_id)
             .map(|(_, k)| k.as_slice())
     }
+
+    /// Every anchor, in a deterministic order, so a written file is stable.
+    pub fn entries(&self) -> Vec<(String, Vec<u8>)> {
+        let mut v = self.keys.clone();
+        v.sort();
+        v
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

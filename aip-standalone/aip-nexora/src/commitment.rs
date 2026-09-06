@@ -280,6 +280,17 @@ impl NexoraTrustAnchors {
             .get(&(signer_id.to_string(), key_version))
             .map(Vec::as_slice)
     }
+
+    /// Every anchor, in a deterministic order, so a written file is stable.
+    pub fn entries(&self) -> Vec<(String, u32, Vec<u8>)> {
+        let mut v: Vec<(String, u32, Vec<u8>)> = self
+            .keys
+            .iter()
+            .map(|((id, ver), key)| (id.clone(), *ver, key.clone()))
+            .collect();
+        v.sort();
+        v
+    }
 }
 
 /// Verify a head against the verifier's anchors: version, anchored key,

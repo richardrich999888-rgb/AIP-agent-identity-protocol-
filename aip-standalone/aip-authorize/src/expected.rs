@@ -255,6 +255,17 @@ impl DecisionPointTrustAnchors {
     pub fn get(&self, decision_point_id: &str) -> Option<&[u8]> {
         self.keys.get(decision_point_id).map(|k| k.as_slice())
     }
+
+    /// Every anchor, in a deterministic order, so a written file is stable.
+    pub fn entries(&self) -> Vec<(String, Vec<u8>)> {
+        let mut v: Vec<(String, Vec<u8>)> = self
+            .keys
+            .iter()
+            .map(|(id, key)| (id.clone(), key.clone()))
+            .collect();
+        v.sort();
+        v
+    }
 }
 
 /// Why an `ExpectedExecution` failed verification. The variants distinguish

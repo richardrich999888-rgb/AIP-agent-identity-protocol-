@@ -8,6 +8,7 @@
 //! Signed heads, proof objects and the offline verifier are Gate 7.
 
 pub mod commitment;
+pub mod export;
 pub mod merkle;
 pub mod proof;
 pub mod verify;

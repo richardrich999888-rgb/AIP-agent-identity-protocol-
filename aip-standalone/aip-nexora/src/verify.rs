@@ -69,6 +69,20 @@ pub struct VerifierAnchors {
     /// The observed agent's public key, when the verifier knows it.
     /// Supplying it lets the independence invariants be checked (I1, I10).
     pub agent_public_key: Option<Vec<u8>>,
+    /// The largest `health_max_age_ms` this verifier will accept a package
+    /// to have been reconciled under. `None` accepts whatever the package
+    /// declares.
+    ///
+    /// This exists because a declared parameter is an input to the verdict,
+    /// and re-derivation alone cannot object to it: widening the staleness
+    /// allowance from a minute to a century leaves a record that is still
+    /// derivable from the same evidence and still *true* under those
+    /// parameters. Whether those parameters are acceptable is the
+    /// verifier's judgement, not the package's, so the verifier states it.
+    pub max_declared_health_age_ms: Option<u64>,
+    /// The largest `window_tolerance_ms` this verifier will accept, for the
+    /// same reason.
+    pub max_declared_window_tolerance_ms: Option<u64>,
 }
 
 /// What the verifier could establish about one component.
@@ -282,6 +296,14 @@ pub enum InvalidReason {
         claimed: [u8; 32],
         rederived: [u8; 32],
     },
+    /// The package was reconciled under a parameter this verifier will not
+    /// accept. The claim may well be derivable under it; the verifier
+    /// declines to treat a verdict drawn under those terms as its own.
+    DeclaredParameterRefused {
+        parameter: String,
+        declared: u64,
+        max_accepted: u64,
+    },
 }
 
 impl std::fmt::Display for InvalidReason {
@@ -380,6 +402,26 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
     if proof.version != NEXORA_PROOF_VERSION {
         v.verdict = ProofVerdict::Invalid(InvalidReason::UnsupportedVersion(proof.version));
         return v;
+    }
+    if let Some(max) = anchors.max_declared_health_age_ms {
+        if proof.parameters.health_max_age_ms > max {
+            v.verdict = ProofVerdict::Invalid(InvalidReason::DeclaredParameterRefused {
+                parameter: "health_max_age_ms".into(),
+                declared: proof.parameters.health_max_age_ms,
+                max_accepted: max,
+            });
+            return v;
+        }
+    }
+    if let Some(max) = anchors.max_declared_window_tolerance_ms {
+        if proof.parameters.window_tolerance_ms > max {
+            v.verdict = ProofVerdict::Invalid(InvalidReason::DeclaredParameterRefused {
+                parameter: "window_tolerance_ms".into(),
+                declared: proof.parameters.window_tolerance_ms,
+                max_accepted: max,
+            });
+            return v;
+        }
     }
     if let Some(f) = proof.structural_faults().into_iter().next() {
         v.verdict = ProofVerdict::Invalid(InvalidReason::Structural(f));

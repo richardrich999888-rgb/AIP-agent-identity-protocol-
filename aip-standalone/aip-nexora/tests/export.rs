@@ -51,6 +51,7 @@ fn anchors(s: &common::Scenario) -> VerifierAnchors {
         nexora: aip_nexora::NexoraTrustAnchors::new(),
         issuers: s.a.issuer_keys.clone(),
         agent_public_key: Some(s.a.agent_kp.public_key.clone()),
+        ..Default::default()
     }
 }
 
@@ -113,10 +114,7 @@ fn g10_04_the_export_carries_evidence_and_never_the_keys_that_check_it() {
     // The decision point's public key, the observer's, the issuers' — none
     // of them appear. A package that shipped its own anchors would prove
     // nothing, because a forger would ship theirs.
-    for key in [
-        s.o.public_key.clone(),
-        s.a.agent_kp.public_key.clone(),
-    ] {
+    for key in [s.o.public_key.clone(), s.a.agent_kp.public_key.clone()] {
         let hex: String = key.iter().map(|b| format!("{b:02x}")).collect();
         assert!(
             !text.contains(&hex),
@@ -200,10 +198,6 @@ fn g10_06_every_component_altered_in_transit_fails_on_arrival() {
             Box::new(|p: &mut NexoraProof| p.claim.verification_time_ms += 1),
         ),
         (
-            "the declared parameters",
-            Box::new(|p: &mut NexoraProof| p.parameters.health_max_age_ms += 1),
-        ),
-        (
             "the verdict",
             Box::new(|p: &mut NexoraProof| {
                 p.claim.strength = aip_reconcile::EvidenceStrength::Proven
@@ -243,4 +237,46 @@ fn g10_07_a_commitment_altered_in_transit_fails_on_arrival() {
         verify_nexora_proof(&back, &a).verdict,
         ProofVerdict::Invalid(_)
     ));
+}
+
+#[test]
+fn g10_08_a_declared_parameter_is_an_input_and_the_verifier_may_refuse_it() {
+    // Widening the staleness allowance does not change the record the
+    // evidence yields, so re-derivation alone has nothing to object to:
+    // the proof remains a true statement *under the parameters it
+    // declares*. Whether those parameters are acceptable is the verifier's
+    // judgement, and it is the verifier that states it.
+    let s = common::verified_execution();
+    let mut widened = package(&s);
+    widened.parameters.health_max_age_ms = 100 * 365 * 24 * 3_600_000;
+
+    let permissive = anchors(&s);
+    let v = verify_nexora_proof(&widened, &permissive);
+    assert_eq!(
+        v.verdict,
+        ProofVerdict::Valid,
+        "the claim is still derivable under the declared parameters"
+    );
+
+    let strict = VerifierAnchors {
+        max_declared_health_age_ms: Some(3_600_000),
+        ..anchors(&s)
+    };
+    let v = verify_nexora_proof(&widened, &strict);
+    assert!(
+        matches!(
+            v.verdict,
+            ProofVerdict::Invalid(InvalidReason::DeclaredParameterRefused { .. })
+        ),
+        "a verifier that set a bound must be able to refuse: {v:#?}"
+    );
+    // The honest package is unaffected by the same bound.
+    assert_eq!(
+        verify_nexora_proof(&package(&s), &strict).verdict,
+        ProofVerdict::Valid
+    );
+    // And a bound is the verifier's own: it never travels with a package.
+    let bytes = export_anchors(&strict).unwrap();
+    let back = import_anchors(&bytes).unwrap();
+    assert_eq!(back.max_declared_health_age_ms, None);
 }
