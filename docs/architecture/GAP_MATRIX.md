@@ -106,6 +106,11 @@ original discovery text for traceability):
   never observation; a supporting tier, if ever admitted, is capped at
   `Correlated` / `Claimed` and never counts as coverage. Fence pinned by
   g5a–g5d.
+- Gate 6 (Merkle commitment layer) at `e8e42db` (RED) / `533e44b` (GREEN) —
+  new crate `aip-nexora`, module `merkle`: domain-separated leaves, RFC 6962
+  tree, inclusion and consistency proofs with verifiers, every adversarial
+  case pinned (m01–m16). No signed head or anchor yet (Gate 7).
+  `NEXORA_BOUNDARY.md` §4 rows 1–3 CLOSED.
 
 ## D. PR3 corrective review (pre-reconciliation)
 

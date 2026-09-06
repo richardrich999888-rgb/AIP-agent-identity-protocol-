@@ -779,3 +779,57 @@ reject, is in `APPLICATION_LOG_SENSOR_DECISION.md`'s companion table below.
 ## Next Gate
 
 Gate 6: the Merkle commitment layer.
+
+---
+
+# Gate 6 — the Merkle commitment layer (completion mandate)
+
+## Status
+
+**PASS.** `aip-nexora::merkle`: leaf / internal / root / inclusion proof /
+consistency proof, over the repository's own primitives, with every
+adversarial case the mandate names pinned. Not yet a commitment a third
+party can rely on: signed heads, proof objects, the offline verifier and
+external anchoring are Gate 7 (`NEXORA_BOUNDARY.md` §5 and Gate 6 note).
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| `e8e42db` | RED: the crate skeleton and `tests/merkle.rs` m01–m16; did not compile |
+| `533e44b` | GREEN: `LEAF_DOMAIN`, `LeafKind`, `leaf_hash`, `root_of`, `MerkleTree`, `InclusionProof`, `ConsistencyProof`, `verify_inclusion`, `verify_consistency`, `MerkleError` |
+| *(the commit carrying this section)* | documentation |
+
+## Evidence (mandate's adversarial cases → tests)
+
+| Case | Test |
+|---|---|
+| changed leaf | m05 |
+| swapped leaves | m06 |
+| omitted leaf | m07 |
+| duplicate leaf | m08 |
+| changed root | m09 |
+| proof transplantation | m10 |
+| cross-domain | m03, m05 |
+| rollback | m12 |
+| fork | m13 |
+| replay | m14 |
+| malformed proof | m15 |
+| shape, every leaf of every small tree, every prefix, append-only history, serialisable proofs | m01, m02, m04, m11, m16 |
+
+## Security Claims
+
+- Given a root, an inclusion proof establishes that exactly one leaf at
+  one index of a tree of one size hashes into that root; given two roots,
+  a consistency proof establishes that the earlier tree is a prefix of the
+  later one. Both are pure recomputation: `Proven`-grade arithmetic.
+- No leaf of one kind can be presented as a leaf of another.
+
+Not claimed: that any root is authentic (no signature yet), that history
+is not truncated (no anchor yet), that anything committed is true (the
+commitment is over records whose own strength is unchanged by it).
+
+## Next Gate
+
+Gate 7: NEXORA — signed commitment heads, proof objects, an offline
+verifier, an external anchoring interface.

@@ -260,3 +260,13 @@ Test counts after Gate 4: aip-standalone 715 / 0 / 3 ignored (+25), aip-service 
 | Supporting-tier adapter | **NOT BUILT**, preconditions stated | — |
 | Executable fence | **CLOSED** | g5a–g5d |
 | Spec §8 product decisions | **NOT DETERMINED** (human); recommended defaults recorded | `SNIFFER_DOG_2_0_IMPLEMENTATION_REPORT.md` Gate 5 |
+
+## A.15 Gate 6 outcome (Merkle commitment layer)
+
+| Component | State after Gate 6 | Evidence |
+|---|---|---|
+| Domain-separated leaves (`LeafKind`, `LEAF_DOMAIN`) | **CLOSED** | m03, m05 |
+| RFC 6962 tree, root over a real set | **CLOSED** | m01, m02, m04 |
+| Inclusion proof + verifier, bound to index and size | **CLOSED** | m04–m10, m14, m15 |
+| Consistency proof + verifier, forward only | **CLOSED** | m11–m13, m16 |
+| Signed head, proof object, offline verifier, external anchor | **OPEN** — Gate 7 | — |

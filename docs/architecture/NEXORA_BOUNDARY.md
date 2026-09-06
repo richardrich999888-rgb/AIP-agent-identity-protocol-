@@ -46,9 +46,9 @@ and rollback of that history.
 
 | Missing | Evidence |
 |---|---|
-| Merkle **tree** builder | none — only the two node helpers exist |
-| Root over an actual set | none — production roots are all `merkle_empty()` (`aip-core/src/lib.rs:62,63,647`) |
-| Inclusion proof + verifier | none |
+| Merkle **tree** builder | **CLOSED (Gate 6, `aip-nexora::merkle`)** — RFC 6962 tree over domain-separated leaves |
+| Root over an actual set | **CLOSED (Gate 6)** — `MerkleTree::root` / `root_of`; `merkle_empty()` is the root of the empty tree only. The `aip-core` placeholders at `lib.rs:62,63,647` are unchanged and still not commitments |
+| Inclusion proof + verifier | **CLOSED (Gate 6)** — `inclusion_proof` / `verify_inclusion` (RFC 9162 §2.1.3.2), bound to index and tree size; `consistency_proof` / `verify_consistency` (§2.1.4.2), forward only |
 | Cross-packet sequence numbers | none — packets carry no ordering relative to each other |
 | Anchoring of a chain head | none — `authority_journal`-style head publication does not exist in production |
 | Replay/uniqueness | none — the same packet verifies identically forever (`VerificationContext` has no seen-set) |
@@ -106,3 +106,20 @@ the decision point, execution binding, observer and reconciler all exist.
 Disposition: design input for Skill 10 only — anchors are hash-chained JSON
 without a signature or an external anchor (I15), on a second encoding (I14).
 `NEXORA = MISSING` is unchanged.
+
+## Gate 6 note — the commitment exists; the anchor does not yet
+
+`aip-nexora::merkle` (RED `e8e42db`, GREEN `533e44b`) closes the first
+three rows of §4: an append-only RFC 6962 tree whose leaves are
+`merkle_leaf(SYNTRIASS/NEXORA/LEAF/v1 ‖ kind ‖ record)` — a reconciliation
+record, an attested batch, a signed health record, a warrant and an
+expectation are five kinds that never collide — with inclusion proofs bound
+to an index and a size and consistency proofs that run forward only. The
+adversarial cases named by the mandate are each one test in
+`aip-nexora/tests/merkle.rs`: changed, swapped, omitted and duplicated
+leaves; changed root; transplantation; cross-domain; rollback (a refusal);
+fork (two roots at one size that no proof reconciles); replay (a proof is
+bound to its size). §5's warning stands unchanged: a tree in memory is a
+commitment nobody else can rely on until a **signed head** exists and is
+**anchored outside** the party that holds the tree — a prefix of the
+history verifies exactly as well as the whole. That is Gate 7.
