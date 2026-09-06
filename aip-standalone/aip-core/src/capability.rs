@@ -218,6 +218,23 @@ pub fn random_jti() -> [u8; 16] {
 /// Injective by construction: domain tag first, every variable-length field
 /// length-prefixed, `expires_at` with an explicit presence byte. Uses the
 /// shared encoder in [`aip_types::canonical`].
+/// The exact bytes a [`ScopedToken`]'s `issuer_sig` covers.
+///
+/// Exposed so a party that packages a token — NEXORA's proof bundle — can
+/// bind *the bytes the issuer actually signed* rather than describe the
+/// token a second way. There is one encoder; this is a view of it, not a
+/// second one (I14, I18).
+pub fn token_signing_payload(token: &ScopedToken) -> Vec<u8> {
+    canonical_token_payload(
+        &token.jti,
+        &token.issuer_id,
+        &token.agent_id,
+        &token.scope,
+        token.issued_at,
+        token.expires_at,
+    )
+}
+
 fn canonical_token_payload(
     jti: &[u8; 16],
     issuer_id: &str,

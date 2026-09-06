@@ -9,3 +9,19 @@
 
 pub mod commitment;
 pub mod merkle;
+pub mod proof;
+
+pub use commitment::{
+    verify_proof, verify_signed_head, Advance, AnchorSink, CommitmentLog, HeadTracker,
+    MemoryAnchor, NexoraError, NexoraSigner, NexoraTrustAnchors, ProofObject, SignedHead,
+    VerifiedInclusion, HEAD_DOMAIN, NEXORA_VERSION, PROOF_DOMAIN,
+};
+pub use merkle::{
+    leaf_hash, root_of, verify_consistency, verify_inclusion, ConsistencyProof, InclusionProof,
+    LeafKind, MerkleError, MerkleTree, LEAF_DOMAIN,
+};
+pub use proof::{
+    verify_envelope, AuthorityEvidence, Component, DeclaredParameters, Envelope, LineageEvidence,
+    NexoraProof, ObserverBundle, ProofAssembler, ProofBuilder, StructuralFault, Subject,
+    NEXORA_PROOF_VERSION, PROOF_BUNDLE_DOMAIN, PROOF_ENVELOPE_DOMAIN,
+};

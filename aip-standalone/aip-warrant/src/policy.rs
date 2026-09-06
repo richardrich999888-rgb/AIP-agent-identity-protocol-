@@ -9,10 +9,10 @@
 use std::collections::BTreeSet;
 
 use aip_reconcile::ReconciliationResult;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// How serious a finding would be if true. Ordered low → high.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Severity {
     Low,
     Medium,

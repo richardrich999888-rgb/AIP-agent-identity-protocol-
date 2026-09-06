@@ -12,7 +12,7 @@ use aip_reconcile::{
 };
 use aip_types::canonical::{put_domain, put_opt_u64, put_str, put_u16, put_u32, put_u64, put_u8};
 use aip_types::{AipError, Signature};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::policy::{Severity, WarrantPolicy};
 
@@ -21,7 +21,7 @@ pub const WARRANT_VERSION: u16 = 1;
 
 /// The response a warrant permits. Ordered: nothing may exceed `Contain`,
 /// and every cap in the engine is a `min` against this order.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum ResponseClass {
     /// Record only; no operator attention required.
     Observe,
@@ -46,7 +46,7 @@ impl ResponseClass {
 
 /// What the response is about. A sensor finding is about the observer, never
 /// authority over the workload (§12, §13).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ResponseTarget {
     Workload,
     Observer,
@@ -91,7 +91,7 @@ impl std::fmt::Display for Refusal {
 impl std::error::Error for Refusal {}
 
 /// Permission to respond, traceable to the record it rests on (§16, §21).
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Warrant {
     pub version: u16,
     /// Deterministic: derived from finding, record digest, policy and time.

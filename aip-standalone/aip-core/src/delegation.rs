@@ -411,6 +411,22 @@ fn now_ms() -> u64 {
 /// Injective by construction: domain tag first, every variable-length field
 /// length-prefixed, `expires_at` with an explicit presence byte. Uses the
 /// shared encoder in [`aip_types::canonical`].
+/// The exact bytes a [`DelegationToken`]'s `issuer_sig` covers. Exposed for
+/// the same reason as [`crate::capability::token_signing_payload`]: a
+/// packager binds the bytes the issuer signed, never a second description.
+pub fn delegation_signing_payload(token: &DelegationToken) -> Vec<u8> {
+    canonical_delegation_payload(
+        &token.jti,
+        &token.parent_jti,
+        &token.issuer_id,
+        &token.grantee_id,
+        &token.scope,
+        token.depth,
+        token.issued_at,
+        token.expires_at,
+    )
+}
+
 #[allow(clippy::too_many_arguments)]
 fn canonical_delegation_payload(
     jti: &[u8; 16],

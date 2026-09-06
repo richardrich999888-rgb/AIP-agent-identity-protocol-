@@ -111,6 +111,15 @@ pub const CAPABILITY_GRANT_DOMAIN: &str = "AIP/CapabilityGrant/v1";
 pub const REPUTATION_VOTE_DOMAIN: &str = "AIP/ReputationVote/v1";
 
 /// Canonical encoding of AID for self-signature (§4.5).
+/// The exact bytes an [`AgentIdentityDocument`]'s `self_signature` covers.
+///
+/// Exposed for the same reason as [`capability::token_signing_payload`]: a
+/// packager binds the bytes the signer signed rather than describing the
+/// document a second way (I14).
+pub fn identity_signing_payload(aid: &AgentIdentityDocument) -> Vec<u8> {
+    canonical_encode_aid(aid)
+}
+
 fn canonical_encode_aid(aid: &AgentIdentityDocument) -> Vec<u8> {
     use aip_types::canonical::*;
     let mut buf = Vec::new();

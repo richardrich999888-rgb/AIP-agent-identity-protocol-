@@ -8,11 +8,12 @@ description = "NEXORA — the portable commitment layer over verified execution 
 [dependencies]
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
-serde = { version = "1.0", features = ["derive"] }
-
-[dev-dependencies]
-serde_json = "1.0"
 aip-core = { path = "../aip-core" }
 aip-authorize = { path = "../aip-authorize" }
 aip-observe = { path = "../aip-observe" }
 aip-reconcile = { path = "../aip-reconcile" }
+aip-warrant = { path = "../aip-warrant" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0" 

@@ -136,7 +136,7 @@ impl std::ops::BitOr for AidFlags {
 
 // ─── Agent Identity Document (§4.2) ───
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentIdentityDocument {
     // Header
     pub magic: [u8; 4], // 0x41494430 ("AID0")
@@ -310,7 +310,7 @@ impl CapabilityScope {
 /// A scope-bound token issued to an agent (§6-v2).
 ///
 /// The JTI (token ID) is referenced by the revocation log.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScopedToken {
     pub jti: [u8; 16],     // UUIDv4 token identifier
     pub agent_id: String,  // AIP-ID of the token holder
@@ -325,7 +325,7 @@ pub struct ScopedToken {
 ///
 /// `scope` must be ⊆ parent token's scope (enforced by `create_delegation`).
 /// `depth` must be < MAX_DELEGATION_DEPTH (8).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DelegationToken {
     pub jti: [u8; 16],          // This token's ID
     pub parent_jti: [u8; 16],   // Parent token being delegated from

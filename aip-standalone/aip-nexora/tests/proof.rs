@@ -23,9 +23,8 @@ use aip_crypto::sha256;
 use aip_nexora::proof::*;
 use aip_reconcile::{EvidenceStrength, ReconciliationResult};
 
-/// The scenario, packaged with everything it has.
-fn full_proof() -> NexoraProof {
-    let s = common::verified_execution();
+/// Everything one scenario has, packaged.
+fn package(s: &common::Scenario) -> NexoraProof {
     NexoraProof::builder(s.a.agent_id.clone(), s.reconciliation.clone())
         .issued_at(s.at + 1)
         .authority(s.a.root.clone(), s.a.chain.clone())
@@ -40,12 +39,20 @@ fn full_proof() -> NexoraProof {
         .build()
 }
 
+/// One scenario and its package. Every test that compares a proof with the
+/// evidence it came from must use one call: a second scenario has fresh
+/// keys and a fresh clock and is a different execution entirely.
+fn scenario() -> (common::Scenario, NexoraProof) {
+    let s = common::verified_execution();
+    let p = package(&s);
+    (s, p)
+}
+
 // ═══ The result and the strength are carried, never restated ═══
 
 #[test]
 fn p01_the_claim_is_carried_verbatim_and_cannot_be_relabelled() {
-    let s = common::verified_execution();
-    let p = full_proof();
+    let (s, p) = scenario();
     assert_eq!(p.result(), ReconciliationResult::VerifiedExecution);
     assert_eq!(p.strength(), EvidenceStrength::Attested);
     assert_eq!(p.claim, s.reconciliation, "the record is carried as it was");
@@ -81,7 +88,7 @@ fn p01_the_claim_is_carried_verbatim_and_cannot_be_relabelled() {
 
 #[test]
 fn p02_every_absent_component_is_a_value_and_changes_the_bytes() {
-    let s = common::verified_execution();
+    let (s, full) = scenario();
     let bare = NexoraProof::builder(s.a.agent_id.clone(), s.reconciliation.clone()).build();
     assert_eq!(bare.expectation, None);
     assert_eq!(bare.observer, None);
@@ -93,8 +100,8 @@ fn p02_every_absent_component_is_a_value_and_changes_the_bytes() {
     assert_eq!(bare.envelope, None);
 
     // Presence is reported, not inferred from a field being defaulted.
-    assert_eq!(bare.present(Component::Expectation), false);
-    assert_eq!(full_proof().present(Component::Expectation), true);
+    assert!(!bare.present(Component::Expectation));
+    assert!(full.present(Component::Expectation));
 
     // The canonical bytes distinguish absent from present.
     let with_ee = NexoraProof::builder(s.a.agent_id.clone(), s.reconciliation.clone())
@@ -119,7 +126,7 @@ fn p02_every_absent_component_is_a_value_and_changes_the_bytes() {
 
 #[test]
 fn p03_a_claim_that_outruns_its_package_is_a_structural_fault() {
-    let s = common::verified_execution();
+    let (s, full) = scenario();
     // The scenario's record cites the expectation and the observer's
     // batches and health. A package carrying none of them is structurally
     // incomplete, and the object says so itself.
@@ -136,7 +143,7 @@ fn p03_a_claim_that_outruns_its_package_is_a_structural_fault() {
         "{faults:?}"
     );
     assert!(
-        full_proof().structural_faults().is_empty(),
+        full.structural_faults().is_empty(),
         "the full package cites nothing it does not carry"
     );
 
@@ -155,10 +162,11 @@ fn p03_a_claim_that_outruns_its_package_is_a_structural_fault() {
     );
 
     // A package for another agent than the expectation names.
-    let wrong_subject = NexoraProof::builder("aip1someoneelse".to_string(), s.reconciliation.clone())
-        .expectation(s.a.ee.clone())
-        .observer(s.evidence.batches.clone(), s.evidence.health.clone())
-        .build();
+    let wrong_subject =
+        NexoraProof::builder("aip1someoneelse".to_string(), s.reconciliation.clone())
+            .expectation(s.a.ee.clone())
+            .observer(s.evidence.batches.clone(), s.evidence.health.clone())
+            .build();
     assert!(wrong_subject
         .structural_faults()
         .contains(&StructuralFault::SubjectNotTheExpectationsAgent));
@@ -168,7 +176,7 @@ fn p03_a_claim_that_outruns_its_package_is_a_structural_fault() {
 
 #[test]
 fn p04_the_bytes_are_domain_separated_versioned_and_injective() {
-    let p = full_proof();
+    let (s, p) = scenario();
     assert_eq!(p.version, NEXORA_PROOF_VERSION);
     assert!(PROOF_BUNDLE_DOMAIN.starts_with("SYNTRIASS/NEXORA/"));
     let bytes = p.canonical_bytes();
@@ -183,7 +191,6 @@ fn p04_the_bytes_are_domain_separated_versioned_and_injective() {
     assert_ne!(other_version.canonical_bytes(), bytes);
 
     // Every component moves the digest.
-    let s = common::verified_execution();
     let mut mutated = p.clone();
     mutated.subject.agent_id.push('x');
     assert_ne!(mutated.proof_id(), p.proof_id());
@@ -221,7 +228,7 @@ fn p04_the_bytes_are_domain_separated_versioned_and_injective() {
 #[test]
 fn p05_the_bundle_bytes_cannot_be_read_as_any_other_signed_object() {
     // Domain separation across NEXORA's own three domains.
-    let p = full_proof();
+    let (_s, p) = scenario();
     let bytes = p.canonical_bytes();
     for other in [
         aip_nexora::HEAD_DOMAIN,
@@ -255,7 +262,7 @@ fn p05_the_bundle_bytes_cannot_be_read_as_any_other_signed_object() {
 fn p06_an_assembler_signature_binds_the_package_and_grants_nothing() {
     let kp = aip_crypto::generate_ed25519_keypair();
     let assembler = ProofAssembler::new("assembler-1", 1, &kp.private_key, &kp.public_key).unwrap();
-    let p = full_proof();
+    let (_s, p) = scenario();
     let sealed = assembler.seal(p.clone()).unwrap();
     assert!(sealed.envelope.is_some());
     let anchors = aip_nexora::NexoraTrustAnchors::new().trust("assembler-1", 1, &kp.public_key);
@@ -286,7 +293,7 @@ fn p06_an_assembler_signature_binds_the_package_and_grants_nothing() {
 
 #[test]
 fn p07_the_package_round_trips_without_changing_its_identity() {
-    let p = full_proof();
+    let (_s, p) = scenario();
     let json = serde_json::to_string(&p).unwrap();
     let back: NexoraProof = serde_json::from_str(&json).unwrap();
     assert_eq!(back, p);
@@ -308,10 +315,9 @@ fn p08_the_component_vocabulary_is_closed_and_distinct() {
     codes.sort_unstable();
     codes.dedup();
     assert_eq!(codes.len(), all.len());
+    let s = common::verified_execution();
+    let bare = NexoraProof::builder(s.a.agent_id.clone(), s.reconciliation.clone()).build();
     for c in all {
-        // Every component is representable as absent.
-        let s = common::verified_execution();
-        let bare = NexoraProof::builder(s.a.agent_id.clone(), s.reconciliation.clone()).build();
         if c != Component::Subject && c != Component::Claim {
             assert!(!bare.present(c), "{c:?} must be absent in a bare package");
         } else {

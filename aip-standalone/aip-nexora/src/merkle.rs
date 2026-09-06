@@ -47,6 +47,13 @@ pub enum LeafKind {
     Warrant,
     /// An `ExpectedExecution`'s canonical bytes.
     Expectation,
+    /// A `SignedContinuityReport`'s canonical bytes (Gate 8 of the
+    /// completion mandate).
+    ContinuityReport,
+    /// A `ContainmentRecord`'s canonical bytes (Skill 9).
+    ContainmentRecord,
+    /// A `NexoraProof`'s canonical bytes (Skill 10).
+    ProofBundle,
 }
 
 impl LeafKind {
@@ -57,15 +64,23 @@ impl LeafKind {
             LeafKind::SignedHealth => 0x03,
             LeafKind::Warrant => 0x04,
             LeafKind::Expectation => 0x05,
+            LeafKind::ContinuityReport => 0x06,
+            LeafKind::ContainmentRecord => 0x07,
+            LeafKind::ProofBundle => 0x08,
         }
     }
 
-    pub const ALL: [LeafKind; 5] = [
+    /// Codes 0x01–0x05 are frozen: a leaf committed before Skill 10 keeps
+    /// verifying. New kinds append.
+    pub const ALL: [LeafKind; 8] = [
         LeafKind::Reconciliation,
         LeafKind::AttestedBatch,
         LeafKind::SignedHealth,
         LeafKind::Warrant,
         LeafKind::Expectation,
+        LeafKind::ContinuityReport,
+        LeafKind::ContainmentRecord,
+        LeafKind::ProofBundle,
     ];
 }
 
