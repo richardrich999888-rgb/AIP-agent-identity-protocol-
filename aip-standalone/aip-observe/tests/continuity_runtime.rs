@@ -191,9 +191,17 @@ fn cr03_amnesia_strict_refuses_advisory_adopts_the_archive_head_and_reports() {
     );
     let store = CollectorStore::open(&d).unwrap();
     let reports = store.load_reports().unwrap();
-    assert_eq!(reports.len(), 1);
-    let r = &reports[0];
+    assert_eq!(
+        reports.len(),
+        2,
+        "the refusal and the resume are both reports"
+    );
+    assert_eq!(reports[0].report.policy, ContinuityPolicy::Strict);
+    assert!(reports[0].report.refused);
+    assert_eq!(reports[0].report.resumed_sequence, None, "no state file");
+    let r = &reports[1];
     verify_continuity_report(r, &anchors(&kp)).unwrap();
+    assert!(!r.report.refused);
     assert_eq!(r.report.observer_id, OBSERVER);
     assert!(matches!(
         r.report.continuity_break,

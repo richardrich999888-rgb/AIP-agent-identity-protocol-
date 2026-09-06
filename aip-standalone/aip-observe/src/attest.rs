@@ -191,7 +191,7 @@ impl std::fmt::Display for VerifyError {
 
 impl std::error::Error for VerifyError {}
 
-fn verify_signature_over(
+pub(crate) fn verify_signature_over(
     payload: &[u8],
     signer_id: &str,
     key_version: u32,
@@ -637,7 +637,7 @@ impl CollectorSigner {
 /// The collector's clock. Off-host by deployment assumption; this is the one
 /// place the observer side reads a wall clock, and it is stamped into signed
 /// bytes rather than trusted implicitly.
-fn collector_now_ms() -> u64 {
+pub(crate) fn collector_now_ms() -> u64 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
@@ -829,7 +829,7 @@ impl CollectorSnapshot {
 
 /// The highest-sequence health record in `archive` that is this observer's
 /// and verifies under `public_key` at the snapshot's key version.
-fn archive_head(
+pub(crate) fn archive_head(
     snapshot: &CollectorSnapshot,
     archive: &[SignedSensorHealth],
     public_key: &[u8],

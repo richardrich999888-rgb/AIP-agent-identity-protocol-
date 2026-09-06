@@ -105,6 +105,10 @@ pub use perf::{data_loc, decode_sample, RawFormat, RawSample, TraceField};
 #[cfg(target_os = "linux")]
 pub use probe::AnchoredMeasurement;
 pub use probe::{clk_tck, instance_started_no_later_than, AgentClaim, ProbeError, ProcfsProbe};
+pub use runtime::{
+    verify_continuity_report, CollectorRuntime, ContinuityPolicy, ContinuityReport, RuntimeError,
+    SignedContinuityReport, StartOutcome, Started, CONTINUITY_REPORT_DOMAIN,
+};
 #[cfg(target_os = "linux")]
 pub use sched::ProcessTracer;
 pub use sched::{parse_exec_record, parse_fork_record, EXEC_TRACEPOINT, FORK_TRACEPOINT};
@@ -114,6 +118,7 @@ pub use socksend::{parse_sock_send_record, SOCK_SEND_TRACEPOINT};
 #[cfg(target_os = "linux")]
 pub use sockstate::{boot_clock_anchor, SockStateTracer};
 pub use sockstate::{parse_sock_state_record, TracepointFormat, SOCK_STATE_TRACEPOINT};
+pub use store::{CollectorStore, StoreError, ARCHIVE_FILE, REPORTS_FILE, SNAPSHOT_FILE};
 pub use wiretap::parse_wire_frame;
 #[cfg(target_os = "linux")]
 pub use wiretap::WireTap;
