@@ -56,7 +56,16 @@ fn fixture() -> Fx {
         .trust(&cfo_id, &cfo_kp.public_key)
         .trust(&orch.id, &orch_kp.public_key)
         .trust(&a.id, &a_kp.public_key);
-    let now = root.issued_at + 1;
+    // The evaluation instant must be after everything the tests issue, not
+    // just after the root: `chain_to` mints its hops later, and on a busy
+    // machine "later" can be several milliseconds. `issued_at + 1` made the
+    // suite depend on the root and its hops landing in the same
+    // millisecond — a property of the clock, not of the graph, and the
+    // cause of an intermittent `NotYetValid` standing where a test expected
+    // `Valid` or `Revoked`. A second of margin is still four orders of
+    // magnitude inside the one-hour TTL, so every expiry and standing case
+    // below evaluates exactly as before.
+    let now = root.issued_at + 1_000;
     Fx {
         cfo_id,
         orch,

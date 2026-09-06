@@ -205,7 +205,22 @@ fn fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd() {
             }
         }
     }
-    let e = found.expect("the kernel reported this process's completed write");
+    let Some(e) = found else {
+        // The mark is mount-wide, so the queue is shared with every writer
+        // on this mount. If the kernel reported an overflow, our own event
+        // was dropped before it could be read and the property cannot be
+        // evaluated — a statement about the evidence, not about the
+        // observer. With nothing lost, the event should have arrived and
+        // its absence is a failure.
+        let lost = watch.take_lost();
+        assert!(
+            lost > 0,
+            "no event arrived and the kernel reported no loss: the write was not observed"
+        );
+        eprintln!("fa05: SKIPPED — the shared mount queue overflowed, {lost} events lost");
+        let _ = std::fs::remove_dir_all(&dir);
+        return;
+    };
     assert_eq!(e.mechanism, SourceMechanism::Fanotify);
     let bound = e
         .bound
