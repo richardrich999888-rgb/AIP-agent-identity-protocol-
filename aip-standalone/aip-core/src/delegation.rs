@@ -194,10 +194,24 @@ pub fn verify_delegation_chain(
     let mut prev_jti = root_token.jti;
     let mut prev_scope = root_token.scope.clone();
     let mut prev_expires_at = root_token.expires_at;
+    // Who currently holds the authority being delegated. The root token's
+    // grantee holds it first; after each hop, that hop's grantee does.
+    let mut prev_holder: &str = &root_token.agent_id;
 
     for (i, hop) in chain.iter().enumerate() {
         // 1. Parent JTI linkage
         if hop.parent_jti != prev_jti {
+            return Err(AipError::LineageInvalid);
+        }
+
+        // 1b. Issuer ↔ holder binding (AUDIT P0-2). A hop may only be
+        //     issued by the party the parent granted to. Without this,
+        //     linkage by `parent_jti` alone lets anyone whose key the
+        //     verifier holds mint a hop off a token they never held: the
+        //     signature check below would pass, because it only proves the
+        //     named issuer signed this hop, not that the named issuer was
+        //     entitled to issue it.
+        if hop.issuer_id != prev_holder {
             return Err(AipError::LineageInvalid);
         }
 
@@ -237,6 +251,7 @@ pub fn verify_delegation_chain(
         prev_jti = hop.jti;
         prev_scope = hop.scope.clone();
         prev_expires_at = hop.expires_at;
+        prev_holder = &hop.grantee_id;
     }
 
     Ok(prev_scope)
@@ -506,6 +521,122 @@ mod tests {
         (root, vec![d1, d2], keys)
     }
 
+    // ── Adversarial: the issuer of a hop must be the holder of the parent ──
+    //
+    // AUDIT P0-2. `verify_delegation_chain` checked parent_jti linkage,
+    // depth, scope attenuation, the issuer signature and temporal
+    // attenuation — but never that the party doing the delegating was the
+    // party the parent granted to. Any agent whose public key the verifier
+    // holds could therefore mint a hop off a root token issued to somebody
+    // else, and the chain verified.
+
+    /// Mallory, a legitimate agent in the same fleet, delegates to herself
+    /// from a root token that was issued to Alice. Mallory never held it.
+    #[test]
+    fn p0_2_a_hop_issued_by_someone_who_never_held_the_parent_is_refused() {
+        let (issuer_id, issuer_priv, issuer_pub) = make_agent();
+        let (alice, _alice_priv, alice_pub) = make_agent();
+        let (mallory, mallory_priv, mallory_pub) = make_agent();
+
+        // Alice is the grantee of the root token.
+        let root = make_root_token(&issuer_id, &issuer_priv, &alice, scope_orchestrator());
+
+        // Mallory signs a hop naming herself as issuer and grantee, with a
+        // correct parent_jti, correct depth and an attenuated scope.
+        let forged = DelegationToken {
+            jti: random_jti(),
+            parent_jti: root.jti,
+            issuer_id: mallory.clone(),
+            grantee_id: mallory.clone(),
+            scope: scope_submitter(),
+            depth: 1,
+            issued_at: root.issued_at,
+            expires_at: root.expires_at,
+            issuer_sig: Signature {
+                algorithm: AlgorithmId::Ed25519,
+                signer_id: mallory.clone(),
+                timestamp: 0,
+                nonce: [0u8; 16],
+                payload_hash: [0u8; 32],
+                signature_bytes: vec![],
+            },
+        };
+        // Sign it properly with Mallory's own key, over its own payload.
+        let payload = canonical_delegation_payload(
+            &forged.jti,
+            &forged.parent_jti,
+            &forged.issuer_id,
+            &forged.grantee_id,
+            &forged.scope,
+            forged.depth,
+            forged.issued_at,
+            forged.expires_at,
+        );
+        let forged = DelegationToken {
+            issuer_sig: sign_ed25519(&mallory_priv, &mallory, &payload).unwrap(),
+            ..forged
+        };
+
+        // The verifier holds every one of these agents' keys, as it would.
+        let mut keys = HashMap::new();
+        keys.insert(issuer_id, issuer_pub);
+        keys.insert(alice, alice_pub);
+        keys.insert(mallory, mallory_pub);
+
+        assert!(
+            matches!(
+                verify_delegation_chain(&root, &[forged], &keys),
+                Err(AipError::LineageInvalid)
+            ),
+            "SECURITY: a hop whose issuer never held the parent token verified"
+        );
+    }
+
+    /// The same attack one hop deeper: the forged issuer is not the grantee
+    /// of the preceding hop.
+    #[test]
+    fn p0_2_a_mid_chain_hop_must_be_issued_by_the_previous_grantee() {
+        let (root, chain, mut keys) = make_signed_two_hop_chain();
+        assert!(verify_delegation_chain(&root, &chain, &keys).is_ok());
+
+        let (mallory, mallory_priv, mallory_pub) = make_agent();
+        keys.insert(mallory.clone(), mallory_pub);
+
+        // Re-issue the second hop under Mallory's identity and key. Every
+        // other field — parent_jti, depth, scope, window — stays legitimate.
+        let mut forged = chain[1].clone();
+        forged.issuer_id = mallory.clone();
+        let payload = canonical_delegation_payload(
+            &forged.jti,
+            &forged.parent_jti,
+            &forged.issuer_id,
+            &forged.grantee_id,
+            &forged.scope,
+            forged.depth,
+            forged.issued_at,
+            forged.expires_at,
+        );
+        forged.issuer_sig = sign_ed25519(&mallory_priv, &mallory, &payload).unwrap();
+
+        assert!(
+            matches!(
+                verify_delegation_chain(&root, &[chain[0].clone(), forged], &keys),
+                Err(AipError::LineageInvalid)
+            ),
+            "SECURITY: a mid-chain hop issued by a party the previous hop never granted to verified"
+        );
+    }
+
+    /// The honest chains still verify: this is a new refusal, not a new
+    /// restriction on legitimate delegation.
+    #[test]
+    fn p0_2_honest_chains_still_verify() {
+        let (root, chain, keys) = make_signed_two_hop_chain();
+        assert!(verify_delegation_chain(&root, &chain, &keys).is_ok());
+        assert!(verify_delegation_chain(&root, &chain[..1], &keys).is_ok());
+        assert!(verify_delegation_chain(&root, &[], &keys).is_ok());
+    }
+
     #[test]
     fn test_mutate_delegation_expires_at_extend_rejected() {
         let (root, mut chain, keys) = make_signed_two_hop_chain();
@@ -610,8 +741,14 @@ mod tests {
 
         // A "root" whose jti is the zero parent_jti we place on the forged hop.
         // verify_delegation_chain never checks the root's own signature.
+        //
+        // The pseudo-root also grants to the forged hop's issuer, so that the
+        // issuer↔holder binding (P0-2) is satisfied and this test still fails
+        // for the reason it is about — the transplanted signature living in
+        // the wrong domain — rather than short-circuiting on lineage.
         let mut pseudo_root = token.clone();
         pseudo_root.jti = [0u8; 16];
+        pseudo_root.agent_id = token.issuer_id.clone();
 
         let forged_hop = DelegationToken {
             jti: token.jti,

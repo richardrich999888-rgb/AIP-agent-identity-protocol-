@@ -50,6 +50,22 @@ struct Cli {
     #[arg(long = "receipt-data", value_name = "FILE")]
     receipt_data: Option<String>,
 
+    /// Verify as of this Unix-ms instant: refuse anything in the packet
+    /// dated after it. Without `--at` or `--now`, the verifier applies no
+    /// temporal bound and says so in the report.
+    #[arg(long = "at", value_name = "UNIX_MS", conflicts_with = "now")]
+    at: Option<u64>,
+
+    /// Verify as of this machine's clock. Equivalent to `--at <now>`;
+    /// separate so that reading a clock is always an explicit choice.
+    #[arg(long)]
+    now: bool,
+
+    /// Allow timestamps up to this many ms ahead of the verification time,
+    /// to absorb declared clock skew. Requires `--at` or `--now`.
+    #[arg(long = "future-tolerance", value_name = "MS", default_value_t = 0)]
+    future_tolerance: u64,
+
     /// Print the full per-rule report (human readable).
     #[arg(long)]
     report: bool,
@@ -94,6 +110,20 @@ fn build_ctx(cli: &Cli) -> Result<VerificationContext, String> {
     }
     if let Some(path) = &cli.receipt_data {
         ctx.receipt_data = Some(std::fs::read(path).map_err(|e| format!("receipt-data: {e}"))?);
+    }
+    ctx.verification_time_ms = match (cli.at, cli.now) {
+        (Some(ms), _) => Some(ms),
+        (None, true) => Some(
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map_err(|e| format!("--now: {e}"))?
+                .as_millis() as u64,
+        ),
+        (None, false) => None,
+    };
+    ctx.future_tolerance_ms = cli.future_tolerance;
+    if ctx.verification_time_ms.is_none() && cli.future_tolerance != 0 {
+        return Err("--future-tolerance requires --at or --now".into());
     }
     Ok(ctx)
 }
@@ -179,11 +209,20 @@ fn run(cli: &Cli) -> Result<bool, String> {
         println!("\nrules:");
         for c in &report.checks {
             println!(
-                "  [{}] {:<20} {}",
-                if c.pass { "PASS" } else { "FAIL" },
+                "  [{}] {:<24} {}",
+                if !c.evaluated {
+                    "  - "
+                } else if c.pass {
+                    "PASS"
+                } else {
+                    "FAIL"
+                },
                 c.rule,
                 c.detail
             );
+        }
+        for c in report.not_evaluated() {
+            println!("\nnote: {} was NOT evaluated — {}", c.rule, c.detail);
         }
     } else if !report.valid {
         println!("\nfailed rules:");

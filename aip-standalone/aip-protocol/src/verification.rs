@@ -40,11 +40,36 @@ pub struct VerificationContext {
     /// If provided, the receipt content; must hash to the packet's
     /// `receipt_binding.receipt_hash`.
     pub receipt_data: Option<Vec<u8>>,
+    /// The verifier's own view of the current time, in Unix ms. When
+    /// supplied, R16 refuses any packet dated after it. When absent, R16 is
+    /// recorded as not evaluated — the verifier states that it applied no
+    /// temporal bound rather than implying one (AUDIT P0-1).
+    ///
+    /// It is deliberately not read from the system clock: an offline
+    /// verifier checking a historical packet, an air-gapped verifier and a
+    /// test all need to say explicitly what "now" means to them.
+    pub verification_time_ms: Option<u64>,
+    /// How far ahead of `verification_time_ms` a timestamp may still be, to
+    /// absorb declared clock skew. Zero by default; a tolerance is a bound,
+    /// not a licence.
+    pub future_tolerance_ms: u64,
 }
 
 impl VerificationContext {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Verify as of `ms`: nothing in the packet may be dated after it.
+    pub fn at_time(mut self, ms: u64) -> Self {
+        self.verification_time_ms = Some(ms);
+        self
+    }
+
+    /// Allow timestamps up to `ms` ahead of the verification time.
+    pub fn with_future_tolerance(mut self, ms: u64) -> Self {
+        self.future_tolerance_ms = ms;
+        self
     }
 
     pub fn trust_issuer(mut self, aip_id: &str, public_key: &[u8]) -> Self {
@@ -76,8 +101,20 @@ impl Engine {
             rule: rule.to_string(),
             pass,
             detail: detail.into(),
+            evaluated: true,
         });
         pass
+    }
+
+    /// Record a rule the verifier could not run. Never a pass: `valid`
+    /// ignores unevaluated rules, and the report says which they were.
+    fn record_not_evaluated(&mut self, rule: &str, detail: impl Into<String>) {
+        self.checks.push(RuleResult {
+            rule: rule.to_string(),
+            pass: false,
+            detail: detail.into(),
+            evaluated: false,
+        });
     }
 
     fn record_tamper(&mut self, rule: &str, pass: bool, detail: impl Into<String>) -> bool {
@@ -308,7 +345,14 @@ pub fn verify_packet(packet: &EvidencePacket, ctx: &VerificationContext) -> Veri
         },
     );
 
-    let valid = e.checks.iter().all(|c| c.pass);
+    // ── R16 VERIFICATION_TIME_BOUND: nothing is dated after the verifier's
+    //    own time (AUDIT P0-1). Absent a supplied time, not evaluated. ────
+    check_verification_time_bound(packet, ctx, &mut e);
+
+    // `valid` ignores rules that were not evaluated: a check the verifier
+    // could not run is neither a pass nor a failure, and the report says
+    // which is which.
+    let valid = e.checks.iter().all(|c| !c.evaluated || c.pass);
     VerificationReport {
         valid,
         trust_floor: derived_floor,
@@ -323,8 +367,73 @@ pub fn verify_packet(packet: &EvidencePacket, ctx: &VerificationContext) -> Veri
         packet_id: packet.packet_id_hex(),
         agent_id: packet.agent.aip_id.clone(),
         verified_at: now_ms(),
+        verification_time_ms: ctx.verification_time_ms,
+        verification_time_checked: ctx.verification_time_ms.is_some(),
         checks: e.checks,
     }
+}
+
+/// R16 — the bound the *verifier* supplies. Every timestamp the packet
+/// asserts must be at or before it, allowing the declared tolerance.
+///
+/// This is not "the authority must still be valid now". A historical packet
+/// stays verifiable long after its tokens expire — offline and delayed
+/// verification depend on that — and whether the authority was valid *when
+/// the decision was made* is R10's question, not this one.
+fn check_verification_time_bound(
+    packet: &EvidencePacket,
+    ctx: &VerificationContext,
+    e: &mut Engine,
+) {
+    let Some(now) = ctx.verification_time_ms else {
+        e.record_not_evaluated(
+            rules::VERIFICATION_TIME_BOUND,
+            "no verification time supplied: the verifier applied no temporal bound, \
+             so nothing here rules out a future-dated packet",
+        );
+        return;
+    };
+    let bound = now.saturating_add(ctx.future_tolerance_ms);
+    let mut ahead: Vec<String> = vec![];
+    if packet.decision.decided_at > bound {
+        ahead.push(format!(
+            "decision decided_at {} is after the bound {bound}",
+            packet.decision.decided_at
+        ));
+    }
+    for action in &packet.actions {
+        if action.performed_at > bound {
+            ahead.push(format!(
+                "action {} performed_at {} is after the bound {bound}",
+                hex::encode(action.action_id),
+                action.performed_at
+            ));
+        }
+    }
+    let rt = &packet.root_authority.root_token;
+    if rt.issued_at > bound {
+        ahead.push(format!(
+            "root token issued_at {} is after the bound {bound}",
+            rt.issued_at
+        ));
+    }
+    for (i, hop) in packet.delegation_chain.iter().enumerate() {
+        if hop.issued_at > bound {
+            ahead.push(format!(
+                "delegation hop {i} issued_at {} is after the bound {bound}",
+                hop.issued_at
+            ));
+        }
+    }
+    e.record(
+        rules::VERIFICATION_TIME_BOUND,
+        ahead.is_empty(),
+        if ahead.is_empty() {
+            format!("nothing in the packet is dated after {bound}")
+        } else {
+            format!("dated after the verification bound: {}", ahead.join("; "))
+        },
+    );
 }
 
 // ─── Individual rule implementations ───
