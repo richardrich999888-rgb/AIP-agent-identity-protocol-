@@ -37,6 +37,45 @@ fn base(s: &common::Scenario) -> ProofBuilder {
         })
 }
 
+/// A package that carries lineage evidence must carry a claim drawn the
+/// way the package will be read: the presence of that evidence *means* the
+/// record came from `reconcile_lineage`. An assembler that used the other
+/// entry point has built an inconsistent package, and the verifier says so
+/// — which is a property, not an obstacle.
+fn package_with_lineage(s: &common::Scenario, l: LineageEvidence) -> NexoraProof {
+    let authority = aip_reconcile::DecisionAuthority {
+        root: s.a.root.clone(),
+        chain: s.a.chain.clone(),
+    };
+    let claim = {
+        let identity = l
+            .identity
+            .as_ref()
+            .map(|(child, parent)| aip_reconcile::IdentityLineageInput { child, parent });
+        let inputs = aip_reconcile::LineageInputs {
+            peer_expectations: &l.peer_expectations,
+            authority: Some(&authority),
+            issuer_keys: &s.a.issuer_keys,
+            revoked_jtis: &l.revoked_jtis,
+            identity,
+        };
+        aip_reconcile::reconcile_lineage(&s.a.ee, Some(&s.evidence), &s.ctx(), &inputs)
+    };
+    NexoraProof::builder(s.a.agent_id.clone(), claim)
+        .issued_at(s.at + 1)
+        .authority(s.a.root.clone(), s.a.chain.clone())
+        .expectation(s.a.ee.clone())
+        .observer(s.evidence.batches.clone(), s.evidence.health.clone())
+        .parameters(DeclaredParameters {
+            verification_time_ms: s.at,
+            health_max_age_ms: common::HEALTH_MAX_AGE,
+            window_tolerance_ms: 0,
+            agent_key_supplied: true,
+        })
+        .lineage(l)
+        .build()
+}
+
 fn anchors(s: &common::Scenario) -> VerifierAnchors {
     VerifierAnchors {
         decision_point: s.a.dp_anchors.clone(),
@@ -75,26 +114,32 @@ fn g7_02_identity_lineage_needs_the_parents_signature_not_a_similar_name() {
 
     // The real pair: the child's document carries a lineage proof the
     // parent's key made.
-    let p = base(&s)
-        .lineage(LineageEvidence {
+    let p = package_with_lineage(
+        &s,
+        LineageEvidence {
             peer_expectations: vec![],
             identity: Some((child.clone(), parent.clone())),
             revoked_jtis: vec![],
-        })
-        .build();
+        },
+    );
     let v = verify_nexora_proof(&p, &anchors(&s));
-    assert_eq!(v.lineage_report.identity, LineageStanding::Verified, "{v:#?}");
+    assert_eq!(
+        v.lineage_report.identity,
+        LineageStanding::Verified,
+        "{v:#?}"
+    );
 
     // A forged parent: an unrelated document put in the parent slot. The
     // child's proof was not made by that key, so nothing is established.
     let (_c2, stranger, _k2) = common::identity_lineage();
-    let p = base(&s)
-        .lineage(LineageEvidence {
+    let p = package_with_lineage(
+        &s,
+        LineageEvidence {
             peer_expectations: vec![],
             identity: Some((child.clone(), stranger)),
             revoked_jtis: vec![],
-        })
-        .build();
+        },
+    );
     let v = verify_nexora_proof(&p, &anchors(&s));
     assert_eq!(
         v.lineage_report.identity,
@@ -104,13 +149,14 @@ fn g7_02_identity_lineage_needs_the_parents_signature_not_a_similar_name() {
 
     // A child with no lineage proof at all: unavailable, not verified.
     let (orphan, _k) = aip_core::create_identity(common::provenance("orphan"), None).unwrap();
-    let p = base(&s)
-        .lineage(LineageEvidence {
+    let p = package_with_lineage(
+        &s,
+        LineageEvidence {
             peer_expectations: vec![],
             identity: Some((orphan, parent)),
             revoked_jtis: vec![],
-        })
-        .build();
+        },
+    );
     let v = verify_nexora_proof(&p, &anchors(&s));
     assert_eq!(v.lineage_report.identity, LineageStanding::Incomplete);
 }
@@ -190,9 +236,7 @@ fn g7_06_process_lineage_needs_kernel_fork_evidence_and_says_so_when_it_lacks_it
     // process instance was spawned by another: no peer expectation, no
     // fork/exec pair. The engine's own answer is Incomplete, and the
     // report must carry that rather than round it up.
-    let p = base(&s)
-        .lineage(LineageEvidence::default())
-        .build();
+    let p = package_with_lineage(&s, LineageEvidence::default());
     let v = verify_nexora_proof(&p, &anchors(&s));
     assert_eq!(v.verdict, ProofVerdict::Valid, "{v:#?}");
     assert_ne!(
@@ -213,13 +257,14 @@ fn g7_07_a_peer_expectation_for_another_agent_does_not_attribute_this_one() {
     // Cross-agent attribution: another agent's expectation offered as the
     // spawning parent. It is signed and it verifies as a document — and it
     // still establishes nothing about this execution.
-    let p = base(&s)
-        .lineage(LineageEvidence {
+    let p = package_with_lineage(
+        &s,
+        LineageEvidence {
             peer_expectations: vec![other.a.ee.clone()],
             identity: None,
             revoked_jtis: vec![],
-        })
-        .build();
+        },
+    );
     let v = verify_nexora_proof(&p, &anchors(&s));
     assert_ne!(v.lineage_report.process, LineageStanding::Verified);
 }

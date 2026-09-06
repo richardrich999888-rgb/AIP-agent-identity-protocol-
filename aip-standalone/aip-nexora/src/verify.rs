@@ -43,7 +43,8 @@ use aip_observe::{
     ObservationAvailability, ObserverState, ObserverTrustAnchors, SignedSensorHealth,
 };
 use aip_reconcile::{
-    reconcile_expectation, EvidenceStrength, ExpectedSideCoverage, ObserverEvidence,
+    reconcile_expectation, reconcile_lineage, DecisionAuthority, EvidenceStrength,
+    ExpectedSideCoverage, IdentityLineageInput, LineageComparison, LineageInputs, ObserverEvidence,
     Reconciliation, ReconciliationContext, ReconciliationResult,
 };
 use aip_warrant::{verify_warrant, WarrantTrustAnchors};
@@ -162,6 +163,63 @@ pub struct Coverage {
     pub completeness: Completeness,
 }
 
+/// What the evidence establishes about one kind of lineage. `Verified` is
+/// the only standing that asserts two things are related; every other one
+/// is a way of saying the package does not establish it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum LineageStanding {
+    /// Evidence the package carries, checked here, establishes the link.
+    Verified,
+    /// A required piece is missing from what was carried.
+    Incomplete,
+    /// More than one candidate; the evidence does not pick one.
+    Ambiguous,
+    /// Both sides are present and they disagree.
+    Contradicted,
+    /// The package carries nothing about this kind. `CANNOT_PROVE`, and
+    /// never "assumed related".
+    Unavailable,
+}
+
+impl LineageStanding {
+    pub const ALL: [LineageStanding; 5] = [
+        LineageStanding::Verified,
+        LineageStanding::Incomplete,
+        LineageStanding::Ambiguous,
+        LineageStanding::Contradicted,
+        LineageStanding::Unavailable,
+    ];
+
+    pub fn code(self) -> u8 {
+        match self {
+            LineageStanding::Verified => 0x01,
+            LineageStanding::Incomplete => 0x02,
+            LineageStanding::Ambiguous => 0x03,
+            LineageStanding::Contradicted => 0x04,
+            LineageStanding::Unavailable => 0x05,
+        }
+    }
+
+    /// Does this standing assert that two things are related?
+    pub fn asserts_a_link(self) -> bool {
+        matches!(self, LineageStanding::Verified)
+    }
+}
+
+/// The three kinds, kept apart. One being established says nothing about
+/// the others: an agent may hold delegated authority from a party that did
+/// not spawn it, and a process may be spawned by one whose identity
+/// document claims no relation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct LineageReport {
+    /// Is this agent's identity document descended from that one?
+    pub identity: LineageStanding,
+    /// Did the authority this decision rests on reach it by delegation?
+    pub authority: LineageStanding,
+    /// Did the observed process instance come from another one?
+    pub process: LineageStanding,
+}
+
 /// Why a package is not valid.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InvalidReason {
@@ -216,6 +274,8 @@ pub struct VerifiedProof {
     /// The re-derived strength. Not the claimed one, and never raised.
     pub strength: Option<EvidenceStrength>,
     pub coverage: Coverage,
+    /// What the package establishes about each kind of lineage.
+    pub lineage_report: LineageReport,
     pub independence: Independence,
     /// Where the claim was committed, when a commitment was carried and
     /// verified.
@@ -254,6 +314,11 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
         coverage: Coverage {
             observation: ObservationCoverage::CannotEstablish,
             completeness: Completeness::Partial,
+        },
+        lineage_report: LineageReport {
+            identity: LineageStanding::Unavailable,
+            authority: LineageStanding::Unavailable,
+            process: LineageStanding::Unavailable,
         },
         independence: if proof.parameters.agent_key_supplied {
             Independence::Checked
@@ -431,6 +496,7 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
         }
         Ok(r) => {
             v.coverage = derive_coverage(proof, &r);
+            v.lineage_report = derive_lineage(proof, &r, &v.authority);
             let claimed = proof.claim.digest();
             let got = r.digest();
             v.result = Some(r.result);
@@ -493,7 +559,90 @@ fn rederive(
         batches: o.batches.clone(),
         health: o.health.clone(),
     });
-    Ok(reconcile_expectation(ee, evidence.as_ref(), &ctx))
+    // Which entry point the assembler used is decided by the package, not
+    // by the verifier: carrying lineage evidence *means* the record was
+    // drawn by `reconcile_lineage`. Both sides read the same rule off the
+    // same package, so a mismatch shows up as a different record rather
+    // than as a verifier that guessed differently.
+    let Some(l) = &proof.lineage else {
+        return Ok(reconcile_expectation(ee, evidence.as_ref(), &ctx));
+    };
+    let authority = proof.authority.as_ref().map(|a| DecisionAuthority {
+        root: a.root.clone(),
+        chain: a.chain.clone(),
+    });
+    let identity = l
+        .identity
+        .as_ref()
+        .map(|(child, parent)| IdentityLineageInput { child, parent });
+    let inputs = LineageInputs {
+        peer_expectations: &l.peer_expectations,
+        authority: authority.as_ref(),
+        issuer_keys: &anchors.issuers,
+        revoked_jtis: &l.revoked_jtis,
+        identity,
+    };
+    Ok(reconcile_lineage(ee, evidence.as_ref(), &ctx, &inputs))
+}
+
+/// Read the three lineage axes off what the package carries and what the
+/// engine made of it. Each axis has its own evidence; none is inferred
+/// from another, and none is `Verified` merely because nothing said
+/// otherwise.
+fn derive_lineage(
+    proof: &NexoraProof,
+    r: &Reconciliation,
+    authority_verdict: &ComponentVerdict,
+) -> LineageReport {
+    // Authority: the chain the expectation names, verified under the
+    // verifier's issuer keys. `binding_faults` already refused a chain
+    // that is not the one the expectation names, so reaching here with a
+    // verified authority means both held.
+    let authority = match authority_verdict {
+        ComponentVerdict::Verified => LineageStanding::Verified,
+        ComponentVerdict::Absent => LineageStanding::Unavailable,
+        ComponentVerdict::Unverifiable(_) => LineageStanding::Contradicted,
+    };
+
+    // Identity: the child's document must carry a lineage proof the
+    // parent's key made. `validate_aid_with_parent` is the existing check;
+    // a document with no proof at all is incomplete rather than wrong.
+    let identity = match proof.lineage.as_ref().and_then(|l| l.identity.as_ref()) {
+        None => LineageStanding::Unavailable,
+        Some((child, parent)) => {
+            if child.lineage_proof.is_none() {
+                LineageStanding::Incomplete
+            } else {
+                match aip_core::validate_aid_with_parent(
+                    child,
+                    &parent.id,
+                    &parent.primary_key.key_bytes,
+                ) {
+                    Ok(()) => LineageStanding::Verified,
+                    Err(_) => LineageStanding::Contradicted,
+                }
+            }
+        }
+    };
+
+    // Process: the engine's own answer, carried across without rounding.
+    let process = if proof.lineage.is_none() {
+        LineageStanding::Unavailable
+    } else {
+        match r.lineage {
+            LineageComparison::NotEvaluated => LineageStanding::Unavailable,
+            LineageComparison::Incomplete => LineageStanding::Incomplete,
+            LineageComparison::Ambiguous { .. } => LineageStanding::Ambiguous,
+            LineageComparison::Consistent { .. } => LineageStanding::Verified,
+            LineageComparison::Contradicted => LineageStanding::Contradicted,
+        }
+    };
+
+    LineageReport {
+        identity,
+        authority,
+        process,
+    }
 }
 
 /// Read coverage off the evidence and the record the reconciler re-drew

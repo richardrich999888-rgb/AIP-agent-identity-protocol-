@@ -28,5 +28,6 @@ pub use proof::{
 };
 pub use verify::{
     verify_nexora_proof, Completeness, ComponentVerdict, Coverage, Independence, InvalidReason,
-    ObservationCoverage, ProofVerdict, VerifiedProof, VerifierAnchors,
+    LineageReport, LineageStanding, ObservationCoverage, ProofVerdict, VerifiedProof,
+    VerifierAnchors,
 };
