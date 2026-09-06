@@ -570,3 +570,70 @@ pub fn identity_lineage() -> (
     .unwrap();
     (child, parent, parent_kp)
 }
+
+/// Every break a collector can report about its own record. The list is
+/// exhaustive by construction: a new variant makes this fail to compile.
+pub fn every_continuity_break() -> Vec<aip_observe::ContinuityBreak> {
+    use aip_observe::ContinuityBreak as B;
+    let all = vec![
+        B::Amnesia {
+            archived_sequence: 3,
+            archived_head: [0x11; 32],
+        },
+        B::RolledBack {
+            resumed_sequence: 2,
+            archived_sequence: 4,
+        },
+        B::Forked {
+            sequence: 3,
+            resumed_head: [0x22; 32],
+            archived_head: [0x33; 32],
+        },
+        B::ArchiveTruncated {
+            resumed_sequence: 4,
+            archived_sequence: 2,
+        },
+    ];
+    // Exhaustiveness: adding a variant to ContinuityBreak breaks this match.
+    for b in &all {
+        match b {
+            B::Amnesia { .. }
+            | B::RolledBack { .. }
+            | B::Forked { .. }
+            | B::ArchiveTruncated { .. } => {}
+        }
+    }
+    all
+}
+
+pub fn amnesia_break() -> aip_observe::ContinuityBreak {
+    aip_observe::ContinuityBreak::Amnesia {
+        archived_sequence: 3,
+        archived_head: [0x11; 32],
+    }
+}
+
+/// A continuity report signed by **this scenario's observer**, under the
+/// key the verifier anchors — so it is the collector's own record rather
+/// than a stranger's claim about it.
+pub fn continuity_report_for(
+    observer_id: &str,
+    o: &Observer,
+    brk: aip_observe::ContinuityBreak,
+) -> aip_observe::SignedContinuityReport {
+    let report = aip_observe::ContinuityReport {
+        version: OBSERVE_PROTOCOL_VERSION,
+        observer_id: observer_id.to_string(),
+        key_version: 1,
+        continuity_break: brk,
+        resumed_sequence: Some(3),
+        archived_sequence: Some(2),
+        archived_head: Some([0x11; 32]),
+        policy: aip_observe::ContinuityPolicy::Strict,
+        refused: false,
+        emitted_at_ms: 1_700_000_100_000,
+    };
+    let signature =
+        aip_crypto::sign_ed25519(&o.private_key, observer_id, &report.canonical_bytes()).unwrap();
+    aip_observe::SignedContinuityReport { report, signature }
+}
