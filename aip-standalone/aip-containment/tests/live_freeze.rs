@@ -156,13 +156,8 @@ fn fixture(binding_pid: u32) -> (Keys, Warrant, SignedSensorHealth, ExecutionBin
         .unwrap()
         .sign(w)
         .unwrap();
-    let mut s = CollectorSigner::new(
-        OBSERVER,
-        1,
-        &k.observer.private_key,
-        &k.observer.public_key,
-    )
-    .unwrap();
+    let mut s =
+        CollectorSigner::new(OBSERVER, 1, &k.observer.private_key, &k.observer.public_key).unwrap();
     let mut probe = ProcfsProbe::new("p");
     for i in 1..=2u8 {
         s.attest_at(
@@ -208,12 +203,9 @@ fn f_p_a_proven_warrant_freezes_the_bound_process_and_release_thaws_it() {
     std::thread::sleep(Duration::from_millis(100));
     assert!(t.bytes_in(Duration::from_millis(200)) > 0, "ticker runs");
     let (k, w, h, binding) = fixture(t.child.id());
-    let authority = ContainmentAuthority::new(
-        "ca",
-        &k.containment.private_key,
-        &k.containment.public_key,
-    )
-    .unwrap();
+    let authority =
+        ContainmentAuthority::new("ca", &k.containment.private_key, &k.containment.public_key)
+            .unwrap();
     let mut ledger = MemoryReplayLedger::default();
     let req = ContainmentRequest {
         warrant: &w,
@@ -274,12 +266,9 @@ fn f_a_a_root_that_is_not_a_cgroup2_hierarchy_fails_open() {
     std::fs::create_dir_all(&dir).unwrap();
     let mut fz = CgroupV2Freezer::at(&dir);
     let (k, w, h, binding) = fixture(t.child.id());
-    let authority = ContainmentAuthority::new(
-        "ca",
-        &k.containment.private_key,
-        &k.containment.public_key,
-    )
-    .unwrap();
+    let authority =
+        ContainmentAuthority::new("ca", &k.containment.private_key, &k.containment.public_key)
+            .unwrap();
     let mut ledger = MemoryReplayLedger::default();
     let req = ContainmentRequest {
         warrant: &w,
@@ -302,7 +291,10 @@ fn f_a_a_root_that_is_not_a_cgroup2_hierarchy_fails_open() {
         "{:?}",
         c.record.record.outcome
     );
-    assert!(t.bytes_in(Duration::from_millis(200)) > 0, "nothing was frozen");
+    assert!(
+        t.bytes_in(Duration::from_millis(200)) > 0,
+        "nothing was frozen"
+    );
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -315,19 +307,16 @@ fn f_b_a_pre_existing_cgroup_holding_another_process_is_refused_and_nothing_is_f
     let (k, w, h, binding) = fixture(t.child.id());
     // The attacker (or a stale run) pre-creates the cgroup this decision
     // would use and parks another process in it.
-    let path = fz.cgroup_path_for(&w.warrant_id);
+    let path = fz.cgroup_path_for(&binding.process);
     std::fs::create_dir(&path).unwrap();
     std::fs::write(
         format!("{}/cgroup.procs", path.display()),
         bystander.child.id().to_string(),
     )
     .unwrap();
-    let authority = ContainmentAuthority::new(
-        "ca",
-        &k.containment.private_key,
-        &k.containment.public_key,
-    )
-    .unwrap();
+    let authority =
+        ContainmentAuthority::new("ca", &k.containment.private_key, &k.containment.public_key)
+            .unwrap();
     let mut ledger = MemoryReplayLedger::default();
     let req = ContainmentRequest {
         warrant: &w,
@@ -353,7 +342,10 @@ fn f_b_a_pre_existing_cgroup_holding_another_process_is_refused_and_nothing_is_f
         "{:?}",
         c.record.record.outcome
     );
-    assert!(t.bytes_in(Duration::from_millis(200)) > 0, "target not frozen");
+    assert!(
+        t.bytes_in(Duration::from_millis(200)) > 0,
+        "target not frozen"
+    );
     assert!(
         bystander.bytes_in(Duration::from_millis(200)) > 0,
         "bystander not frozen"
@@ -377,22 +369,16 @@ fn f_c_a_target_that_exits_before_actuation_is_a_failure_not_a_containment() {
     let mut t = Ticker::spawn();
     std::thread::sleep(Duration::from_millis(50));
     let (k, w, h, binding) = fixture(t.child.id());
-    let authority = ContainmentAuthority::new(
-        "ca",
-        &k.containment.private_key,
-        &k.containment.public_key,
-    )
-    .unwrap();
+    let authority =
+        ContainmentAuthority::new("ca", &k.containment.private_key, &k.containment.public_key)
+            .unwrap();
     let mut ledger = MemoryReplayLedger::default();
     // Attribution succeeds against the live process; then it is gone.
     let attributed = attribute(&binding).unwrap();
     let _ = t.child.kill();
     let _ = t.child.wait();
     let r = fz.apply(&attributed, ContainmentAction::FreezeProcess);
-    assert!(
-        matches!(r, Err(ActuationFailure::TargetGone)),
-        "{r:?}"
-    );
+    assert!(matches!(r, Err(ActuationFailure::TargetGone)), "{r:?}");
     // And through the full path, with the process gone before attribution:
     let req = ContainmentRequest {
         warrant: &w,

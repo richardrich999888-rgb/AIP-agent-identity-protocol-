@@ -146,36 +146,42 @@ fn warrant_for(k: &Keys, rec: Reconciliation, subject: Option<&str>) -> Warrant 
     .with_severity(ReconciliationResult::PhantomClaim, Severity::Critical)
     .with_severity(ReconciliationResult::CannotProve, Severity::Critical)
     .with_severity(ReconciliationResult::ContinuityFailure, Severity::Critical)
-    .with_severity(ReconciliationResult::SensorIntegrityFailure, Severity::Critical);
+    .with_severity(
+        ReconciliationResult::SensorIntegrityFailure,
+        Severity::Critical,
+    );
     let f = Finding {
         finding_id: [0xf1; 16],
         reconciliation: rec,
         subject_agent: subject.map(str::to_string),
     };
     let w = evaluate(&f, &policy, NOW - 10_000).unwrap();
-    WarrantAuthority::new(WARRANT_AUTHORITY, &k.warrant.private_key, &k.warrant.public_key)
-        .unwrap()
-        .sign(w)
-        .unwrap()
+    WarrantAuthority::new(
+        WARRANT_AUTHORITY,
+        &k.warrant.private_key,
+        &k.warrant.public_key,
+    )
+    .unwrap()
+    .sign(w)
+    .unwrap()
 }
 
 /// A Contain warrant on a Proven PhantomClaim, bound to `AGENT`.
 fn contain_warrant(k: &Keys) -> Warrant {
     let w = warrant_for(k, proven_phantom(), Some(AGENT));
-    assert_eq!(w.response, ResponseClass::Contain, "fixture must be Contain");
+    assert_eq!(
+        w.response,
+        ResponseClass::Contain,
+        "fixture must be Contain"
+    );
     w
 }
 
 /// Current signed health from `OBSERVER`: Active after two contiguous
 /// batches.
 fn active_health(k: &Keys, at: u64) -> SignedSensorHealth {
-    let mut s = CollectorSigner::new(
-        OBSERVER,
-        1,
-        &k.observer.private_key,
-        &k.observer.public_key,
-    )
-    .unwrap();
+    let mut s =
+        CollectorSigner::new(OBSERVER, 1, &k.observer.private_key, &k.observer.public_key).unwrap();
     let mut probe = ProcfsProbe::new("p");
     for i in 1..=2u8 {
         s.attest_at(
@@ -198,7 +204,10 @@ struct Target {
 
 impl Target {
     fn spawn() -> Self {
-        let child = Command::new("sleep").arg("300").spawn().expect("spawn sleep");
+        let child = Command::new("sleep")
+            .arg("300")
+            .spawn()
+            .expect("spawn sleep");
         std::thread::sleep(std::time::Duration::from_millis(30));
         let binding = collect_binding_for_pid(AGENT, child.id()).unwrap();
         Self { child, binding }
@@ -337,7 +346,10 @@ fn c01_heuristic_correlated_attested_cannot_contain() {
         );
         assert!(!c.actuated());
     }
-    assert!(r.actuator.applied.is_empty(), "the actuator was never called");
+    assert!(
+        r.actuator.applied.is_empty(),
+        "the actuator was never called"
+    );
 }
 
 #[test]
@@ -382,7 +394,12 @@ fn c02_cannot_prove_observation_unavailable_and_observer_results_cannot_contain(
     for rec in cases {
         let w = warrant_for(&r.k, rec.clone(), Some(AGENT));
         let c = run(&mut r, &w, &t.binding, Some(&h), &enabled_policy());
-        assert!(!c.actuated(), "{:?}: {:?}", rec.result, c.record.record.outcome);
+        assert!(
+            !c.actuated(),
+            "{:?}: {:?}",
+            rec.result,
+            c.record.record.outcome
+        );
         assert!(matches!(c.record.record.outcome, Outcome::Refused(_)));
     }
     assert!(r.actuator.applied.is_empty());
@@ -418,7 +435,8 @@ fn c03_a_forged_contain_warrant_is_refused_even_when_every_field_says_contain() 
     assert!(matches!(refused(&c), Refusal::WarrantInvalid(_)));
 
     // Every security field mutated after signing (skill test 9 / 18).
-    let mutations: Vec<Box<dyn Fn(&mut Warrant)>> = vec![
+    type Mutation = Box<dyn Fn(&mut Warrant)>;
+    let mutations: Vec<Mutation> = vec![
         Box::new(|w| w.valid_until = Some(NOW + 10_000_000_000)),
         Box::new(|w| w.issued_at = NOW - 1),
         Box::new(|w| w.response = ResponseClass::Contain),
@@ -635,12 +653,15 @@ fn c08_operator_enabled_requires_an_acknowledgement_naming_this_warrant() {
     ));
     assert!(r.actuator.applied.is_empty());
     let right = OperatorAcknowledgement {
+        operator_id: "op".into(),
         warrant_id: w.warrant_id,
-        ..wrong
+        acknowledged_at_ms: NOW,
     };
     let req = ContainmentRequest {
+        warrant: &w,
+        target: &t.binding,
+        observer_health: Some(&h),
         operator_ack: Some(&right),
-        ..req
     };
     let c = contain(
         &req,
@@ -755,10 +776,7 @@ fn c11_containment_needs_current_active_health_from_the_cited_observer() {
     .unwrap();
     s.note_probe_restart();
     let recovering = s.health(NOW).unwrap();
-    assert_ne!(
-        recovering.health.state,
-        aip_observe::ObserverState::Active
-    );
+    assert_ne!(recovering.health.state, aip_observe::ObserverState::Active);
     let c = run(&mut r, &w, &t.binding, Some(&recovering), &p);
     assert!(matches!(refused(&c), Refusal::ObserverNotActive(_)));
 
@@ -844,7 +862,7 @@ fn c14_an_actuation_failure_fails_open_is_recorded_and_escalates_nothing() {
     let h = active_health(&r.k, NOW);
     let w = contain_warrant(&r.k);
     r.actuator.fail_next = Some(ActuationFailure::Stage {
-        stage: "freeze",
+        stage: "freeze".into(),
         reason: "simulated".into(),
     });
     let c = run(&mut r, &w, &t.binding, Some(&h), &enabled_policy());
@@ -857,16 +875,19 @@ fn c14_an_actuation_failure_fails_open_is_recorded_and_escalates_nothing() {
         c.record.record.decision.evidence_strength,
         w.evidence_strength
     );
-    assert_eq!(c.record.record.decision.reconciliation_result, w.reconciliation_result);
+    assert_eq!(
+        c.record.record.decision.reconciliation_result,
+        w.reconciliation_result
+    );
     // The warrant was consumed by the decision, so the failure is not
     // retried destructively by default.
     assert!(r.ledger.is_consumed(&w.warrant_id));
     let again = run(&mut r, &w, &t.binding, Some(&h), &enabled_policy());
     assert!(matches!(refused(&again), Refusal::Replayed { .. }));
-    verify_containment_record(&c.record, &ContainmentTrustAnchors::new().trust(
-        CONTAINMENT_AUTHORITY,
-        &r.k.containment.public_key,
-    ))
+    verify_containment_record(
+        &c.record,
+        &ContainmentTrustAnchors::new().trust(CONTAINMENT_AUTHORITY, &r.k.containment.public_key),
+    )
     .unwrap();
 }
 
@@ -878,10 +899,17 @@ fn c15_every_attempt_is_a_signed_domain_separated_record_a_third_party_can_read(
     let t = Target::spawn();
     let h = active_health(&r.k, NOW);
     let w = contain_warrant(&r.k);
-    let ca = ContainmentTrustAnchors::new().trust(CONTAINMENT_AUTHORITY, &r.k.containment.public_key);
+    let ca =
+        ContainmentTrustAnchors::new().trust(CONTAINMENT_AUTHORITY, &r.k.containment.public_key);
 
     // Refused.
-    let c = run(&mut r, &w, &t.binding, Some(&h), &ContainmentPolicy::default());
+    let c = run(
+        &mut r,
+        &w,
+        &t.binding,
+        Some(&h),
+        &ContainmentPolicy::default(),
+    );
     verify_containment_record(&c.record, &ca).unwrap();
     // Applied.
     let c = run(&mut r, &w, &t.binding, Some(&h), &enabled_policy());
@@ -935,7 +963,11 @@ fn c15_every_attempt_is_a_signed_domain_separated_record_a_third_party_can_read(
     let ca2 = ContainmentTrustAnchors::new().trust(CONTAINMENT_AUTHORITY, &r.k.warrant.public_key);
     assert!(verify_containment_record(&signed_by_warrant_key, &ca2).is_ok());
     assert!(matches!(
-        verify_containment_record_distinct(&signed_by_warrant_key, &ca2, &[&r.k.warrant.public_key]),
+        verify_containment_record_distinct(
+            &signed_by_warrant_key,
+            &ca2,
+            &[&r.k.warrant.public_key]
+        ),
         Err(RecordVerifyError::KeyIsAnotherAuthority)
     ));
     // Serde round trip, and no forbidden vocabulary.
