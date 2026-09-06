@@ -125,13 +125,39 @@ fn g6_05_no_observer_at_all_establishes_nothing() {
 #[test]
 fn g6_06_a_package_carries_no_coverage_for_an_assembler_to_overstate() {
     let s = common::verified_execution();
-    let json = serde_json::to_string(&package(&s)).unwrap().to_lowercase();
-    for word in ["coverage", "complete", "observed", "continuous"] {
+    let value: serde_json::Value = serde_json::to_value(package(&s)).unwrap();
+    let top = value.as_object().unwrap();
+    for key in [
+        "coverage",
+        "completeness",
+        "observation",
+        "verdict",
+        "result",
+    ] {
         assert!(
-            !json.contains(word),
-            "a package must not state {word}: coverage is the verifier's to derive, {json}"
+            !top.contains_key(key),
+            "a package must not carry a {key} field: it is the verifier's to derive"
         );
     }
+    // None of the verifier's coverage vocabulary appears anywhere in the
+    // package, at any depth.
+    let json = serde_json::to_string(&value).unwrap().to_lowercase();
+    for word in [
+        "availableandempty",
+        "cannotestablish",
+        "completeness",
+        "licenses",
+    ] {
+        assert!(!json.contains(word), "{word} appears in a package: {json}");
+    }
+    // What *does* appear is the collector's own signed `attested_coverage`
+    // inside its health record. That is evidence, not a verdict: the
+    // reconciler re-derives coverage from the batches rather than trusting
+    // it, and this gate's derivation reads the re-derived record.
+    assert!(
+        json.contains("attested_coverage"),
+        "the observer's signed statement of what it will vouch for is evidence and is carried"
+    );
 }
 
 #[test]
@@ -146,9 +172,7 @@ fn g6_07_editing_what_the_host_authored_cannot_manufacture_coverage() {
     );
 
     let mut p = package(&s);
-    p.observer.as_mut().unwrap().batches[1]
-        .batch
-        .claimed_to_ms += 60_000;
+    p.observer.as_mut().unwrap().batches[1].batch.claimed_to_ms += 60_000;
     let v = verify_nexora_proof(&p, &anchors(&s));
     assert!(
         matches!(v.verdict, ProofVerdict::Invalid(_)),

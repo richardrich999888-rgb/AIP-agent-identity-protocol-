@@ -368,6 +368,12 @@ fn context(a: &Authorized, o: &Observer, at: u64) -> ReconciliationContext {
 /// reconciler's default answer, `CANNOT_PROVE`.
 pub fn cannot_prove() -> Scenario {
     let mut s = verified_execution();
+    // The claim is drawn without observer evidence, so the scenario must
+    // not still be holding any: a package whose claim was computed from
+    // one set of inputs while carrying another is exactly what the
+    // verifier's re-derivation refuses, and it would be refusing a
+    // fixture bug rather than an attack.
+    s.evidence.batches.clear();
     s.reconciliation = reconcile_expectation(&s.a.ee, None, &s.ctx());
     assert_eq!(
         s.reconciliation.result,

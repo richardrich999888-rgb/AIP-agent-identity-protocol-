@@ -92,20 +92,59 @@ pub enum Independence {
     NotChecked,
 }
 
-/// What the observer could say about the window, as the verifier read it
-/// back off the evidence. Derived here, never claimed by the package.
+/// What the observation channel could say, as the verifier read it back
+/// off signed evidence and the record re-drawn from that evidence. Derived
+/// here; a package states no coverage at all, so there is nothing for an
+/// assembler to overstate.
+///
+/// The distinction that carries the most weight is between
+/// [`AvailableAndEmpty`](Self::AvailableAndEmpty) and
+/// [`CannotEstablish`](Self::CannotEstablish). "The observer was
+/// demonstrably watching and carried nothing" is evidence about the world.
+/// "The observer carried nothing" is not — it is equally consistent with
+/// the observer not having been watching. Only the first licenses a
+/// statement about something *not* having happened.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ObservationCoverage {
-    /// The window is inside attested coverage and the action was observed.
+    /// The action was observed in evidence the collector attested.
     Observed,
-    /// Coverage held and the action was not seen in it.
-    NotObserved,
-    /// Evidence exists but does not resolve to one answer.
+    /// Kernel-pushed coverage over the window is attested and the channel
+    /// carried no matching event. The only state that speaks of absence.
+    AvailableAndEmpty,
+    /// Evidence exists and does not resolve to one answer.
     Ambiguous,
-    /// The observer was alive and impaired over the window.
-    Degraded,
-    /// No coverage: no observer, a gap, a restart, staleness, quarantine.
-    Unavailable,
+    /// The channel reported dropped events over the window.
+    Loss,
+    /// No attested coverage: no observer, a gap, a restart, stale health,
+    /// quarantine. Nothing may be concluded about what did or did not
+    /// happen.
+    CannotEstablish,
+}
+
+impl ObservationCoverage {
+    pub const ALL: [ObservationCoverage; 5] = [
+        ObservationCoverage::Observed,
+        ObservationCoverage::AvailableAndEmpty,
+        ObservationCoverage::Ambiguous,
+        ObservationCoverage::Loss,
+        ObservationCoverage::CannotEstablish,
+    ];
+
+    pub fn code(self) -> u8 {
+        match self {
+            ObservationCoverage::Observed => 0x01,
+            ObservationCoverage::AvailableAndEmpty => 0x02,
+            ObservationCoverage::Ambiguous => 0x03,
+            ObservationCoverage::Loss => 0x04,
+            ObservationCoverage::CannotEstablish => 0x05,
+        }
+    }
+
+    /// May a statement about something *not* having happened rest on this?
+    /// True for exactly one state.
+    pub fn licenses_absence_claim(self) -> bool {
+        matches!(self, ObservationCoverage::AvailableAndEmpty)
+    }
 }
 
 /// Whether the evidence covers the whole of what the claim speaks about.
@@ -213,7 +252,7 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
         result: None,
         strength: None,
         coverage: Coverage {
-            observation: ObservationCoverage::Unavailable,
+            observation: ObservationCoverage::CannotEstablish,
             completeness: Completeness::Partial,
         },
         independence: if proof.parameters.agent_key_supplied {
@@ -457,27 +496,48 @@ fn rederive(
     Ok(reconcile_expectation(ee, evidence.as_ref(), &ctx))
 }
 
-/// Read coverage off the evidence and the re-derived record. Derived, so
-/// there is nothing for a package to overstate.
+/// Read coverage off the evidence and the record the reconciler re-drew
+/// from it. Derived, so there is nothing for a package to overstate.
+///
+/// The result comes first, and deliberately. `availability` answers "was
+/// the expectation's authorized *window* inside attested coverage" — a
+/// verified execution routinely reports `WindowNotCovered` while its action
+/// matched observed evidence, because the window runs on past the moment
+/// the action was seen. Reading availability first would report an
+/// execution the observer watched happen as unobserved.
 fn derive_coverage(proof: &NexoraProof, r: &Reconciliation) -> Coverage {
-    let observation = match (&r.availability, r.result) {
-        (ObservationAvailability::Unavailable { .. }, _) => {
-            // The window is not covered. Whether the observer was alive and
-            // impaired, or absent altogether, is the health record's answer.
-            match proof.observer.as_ref().map(|o| &o.health) {
-                Some(h) if degraded(h) => ObservationCoverage::Degraded,
-                _ => ObservationCoverage::Unavailable,
+    use ReconciliationResult as R;
+    let observation = match r.result {
+        // The reconciler resolved the action against observed evidence.
+        R::VerifiedExecution
+        | R::UnattributedEffect
+        | R::IdentityDivergence
+        | R::LineageViolation => ObservationCoverage::Observed,
+        // PHANTOM_CLAIM is precisely the licensed absence: the reconciler
+        // only reaches it with kernel-pushed lifecycle coverage over the
+        // exact window and nothing in it.
+        R::PhantomClaim => ObservationCoverage::AvailableAndEmpty,
+        // The observer's own record failed. Nothing is established about
+        // the workload either way.
+        R::SensorIntegrityFailure | R::ContinuityFailure => ObservationCoverage::CannotEstablish,
+        // No verdict. Which of the remaining states applies is a question
+        // about the channel, and the evidence answers it.
+        R::CannotProve => {
+            if reported_loss(proof) {
+                ObservationCoverage::Loss
+            } else if matches!(r.availability, ObservationAvailability::Covered { .. }) {
+                // Coverage held and the evidence still did not resolve.
+                ObservationCoverage::Ambiguous
+            } else {
+                ObservationCoverage::CannotEstablish
             }
         }
-        (_, ReconciliationResult::VerifiedExecution) => ObservationCoverage::Observed,
-        (_, ReconciliationResult::PhantomClaim) => ObservationCoverage::NotObserved,
-        (_, ReconciliationResult::CannotProve) => ObservationCoverage::Ambiguous,
-        _ => ObservationCoverage::Ambiguous,
     };
-    // Completeness is about the *action* the expectation names: only a
-    // record that resolved the action to observed evidence covers it.
+    // Completeness is about the action the expectation names: complete only
+    // when the record settled it, either by observing it or by establishing
+    // that the watched channel carried nothing.
     let completeness = match r.result {
-        ReconciliationResult::VerifiedExecution => Completeness::Complete,
+        R::VerifiedExecution | R::PhantomClaim => Completeness::Complete,
         _ => Completeness::Partial,
     };
     Coverage {
@@ -486,9 +546,22 @@ fn derive_coverage(proof: &NexoraProof, r: &Reconciliation) -> Coverage {
     }
 }
 
+/// Did the channel itself report dropped events, or is the observer in a
+/// state that says it lost its footing? Both are the channel speaking, not
+/// the verifier inferring.
+fn reported_loss(proof: &NexoraProof) -> bool {
+    let Some(o) = &proof.observer else {
+        return false;
+    };
+    if o.batches
+        .iter()
+        .any(|b| b.batch.dropped_events.is_some_and(|n| n > 0))
+    {
+        return true;
+    }
+    degraded(&o.health)
+}
+
 fn degraded(h: &SignedSensorHealth) -> bool {
-    matches!(
-        h.health.state,
-        ObserverState::Degraded | ObserverState::Recovering | ObserverState::ContinuityUnverified
-    )
+    matches!(h.health.state, ObserverState::Degraded)
 }

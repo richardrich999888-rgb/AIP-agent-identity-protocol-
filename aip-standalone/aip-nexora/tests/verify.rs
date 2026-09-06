@@ -254,7 +254,12 @@ fn v08_a_cannot_prove_package_verifies_as_cannot_prove_and_is_never_upgraded() {
     assert_ne!(v.strength, Some(EvidenceStrength::Proven));
     // And the verifier says the observation was not available, rather than
     // saying nothing.
-    assert_eq!(v.coverage.observation, ObservationCoverage::Unavailable);
+    assert_eq!(
+        v.coverage.observation,
+        ObservationCoverage::CannotEstablish,
+        "no observer establishes nothing — and that is not the same as \
+         'the observer was watching and saw nothing' (Gate 6)"
+    );
 }
 
 // ═══ Independence is reported, never silently skipped ═══
