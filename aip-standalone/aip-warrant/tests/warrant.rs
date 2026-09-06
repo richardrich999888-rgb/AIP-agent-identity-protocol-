@@ -758,3 +758,86 @@ fn w19_domain_is_distinct_and_leads_the_preimage() {
     aip_types::canonical::put_domain(&mut expected, WARRANT_DOMAIN);
     assert!(bytes.starts_with(&expected));
 }
+
+// ═══ AUDIT §14 — a verdict must come out of the engine ═══
+//
+// `Reconciliation` carries the verdict the whole response pipeline rests
+// on. If a downstream caller can produce one, then the warrant engine's
+// Proven gate protects nothing: an attacker who reaches this API — or a
+// well-meaning integrator who does not know better — can hand it a record
+// asserting PhantomClaim · Proven and receive a Contain warrant for it.
+//
+// Two doors have to be shut, and they are different doors:
+//
+//   construction  a struct literal or functional update in another crate
+//   import        deserialising one from bytes
+//
+// The second cannot simply be forbidden: NEXORA's offline verifier must be
+// able to read a record back out of a proof package. So a record knows
+// where it came from, and the engine's own output is the only kind a
+// warrant may rest on.
+
+#[test]
+fn w20_a_record_that_did_not_come_from_the_engine_cannot_warrant_anything() {
+    // The only route an external crate has to a record it did not get from
+    // the engine: serialise a legitimate one and read it back, then edit.
+    let honest = record(
+        ReconciliationResult::CannotProve,
+        EvidenceStrength::Heuristic,
+        covered(),
+        evidence(),
+    );
+    let json = serde_json::to_string(&honest).unwrap();
+    let mut forged: Reconciliation = serde_json::from_str(&json).unwrap();
+    forged.result = ReconciliationResult::PhantomClaim;
+    forged.strength = EvidenceStrength::Proven;
+
+    assert!(
+        !forged.is_engine_produced(),
+        "a record read back from bytes did not come out of the engine"
+    );
+
+    // The engine refuses it outright: not a lowered response class, a
+    // refusal. A response ceiling would still be a response.
+    let policy = critical_everywhere(autonomous());
+    let refusal = evaluate(&finding(forged), &policy, NOW);
+    assert!(
+        matches!(refusal, Err(Refusal::ReconciliationNotEngineProduced)),
+        "a forged record must not produce a warrant at all, got {refusal:?}"
+    );
+}
+
+#[test]
+fn w21_an_engine_produced_record_still_warrants_normally() {
+    // The refusal above must not have cost the engine its job.
+    let rec = record(
+        ReconciliationResult::PhantomClaim,
+        EvidenceStrength::Proven,
+        covered(),
+        evidence(),
+    );
+    assert!(
+        rec.is_engine_produced(),
+        "fixtures stand in for engine output and are marked as such"
+    );
+    let w = eval(rec, &critical_everywhere(autonomous()));
+    assert_eq!(w.response, ResponseClass::Contain);
+}
+
+#[test]
+fn w22_a_record_survives_a_round_trip_by_value_but_not_by_provenance() {
+    // Serialisation must not change what the record *says* — NEXORA's
+    // offline verifier compares canonical digests across the wire — while
+    // still making plain that the copy is not the engine's own output.
+    let rec = record(
+        ReconciliationResult::CannotProve,
+        EvidenceStrength::Attested,
+        covered(),
+        evidence(),
+    );
+    let back: Reconciliation = serde_json::from_str(&serde_json::to_string(&rec).unwrap()).unwrap();
+    assert_eq!(back.digest(), rec.digest(), "the record is unchanged");
+    assert_eq!(back, rec, "equality is over what the record says");
+    assert!(rec.is_engine_produced());
+    assert!(!back.is_engine_produced());
+}
