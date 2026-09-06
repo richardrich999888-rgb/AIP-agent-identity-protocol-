@@ -134,6 +134,16 @@ original discovery text for traceability):
   a Linux cgroup v2 freeze, exercised against a real process (`live_freeze`
   f_p/f_a/f_b/f_c). `CONTAINMENT_IMPLEMENTATION_REPORT.md`;
   `CONTAINMENT_MODEL.md` §9.
+- Gates 10–11 (XDP; hardware) — evaluation only, no capability added. XDP was
+  detected, loaded, verified, executed and measured on this host through
+  `BPF_PROG_TEST_RUN` with nothing attached to any interface
+  (`aip-observe/tests/gate10_xdp_evaluation.rs`), and **not adopted**: it
+  cannot attribute a frame better than the Gate 2 tap, and its one new
+  capability is packet dropping, which Gate 9 deliberately did not build
+  (`OBSERVATION_MODEL.md` §7). Hardware validation was **not performed** —
+  this host is a virtual machine with a `virtio_net` interface, so no
+  throughput, line-rate, overhead or TRL figure exists or may be quoted
+  (§8).
 
 ## D. PR3 corrective review (pre-reconciliation)
 

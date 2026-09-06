@@ -303,3 +303,110 @@ that had exited before the read came back with `FAN_NOPIDFD`.
 | AMBIGUOUS | — | `CANNOT_PROVE · AmbiguousObservations` |
 | LOSS | `OBSERVATION_UNAVAILABLE` (degraded) | `CANNOT_PROVE · ObserverDegraded` |
 | UNAVAILABLE | `OBSERVATION_UNAVAILABLE` | `NoObserverEvidence`, a refused batch, or `ProvenanceUnverifiedOpenPolicy` |
+
+## 7. XDP — mechanism evaluation and decision (Gate 10)
+
+The mandate requires XDP to be evaluated against the actual host, detecting
+the NIC and driver and dry-running before anything is claimed. This section
+records what was measured and what was decided. **No library code in this
+repository loads a BPF program**; the evaluation lives in
+`aip-observe/tests/gate10_xdp_evaluation.rs`.
+
+### 7.1 What this host is
+
+| Fact | Value | How |
+|---|---|---|
+| Kernel | 6.18.44 | `uname -r` |
+| `CONFIG_BPF_SYSCALL`, `CONFIG_BPF_JIT_ALWAYS_ON`, `CONFIG_XDP_SOCKETS`, `CONFIG_DEBUG_INFO_BTF` | all `y` | `/proc/config.gz` |
+| Interfaces | `eth0`, `ifb0`, `ifb1`, `lo` | `/sys/class/net` |
+| `eth0` driver | `virtio_net` (PCI `1af4:1041`, `virtio-pci`) | `/sys/class/net/eth0/device/driver` |
+| BTF | `/sys/kernel/btf/vmlinux` present, 4.7 MB | filesystem |
+| Unprivileged BPF | disabled (`unprivileged_bpf_disabled = 2`) | `/proc/sys/kernel` |
+
+`virtio_net` implements native XDP; a generic (SKB-mode) attach is available
+on any driver. Nothing here was assumed from the driver name — the dry run
+below is what establishes capability.
+
+### 7.2 The dry run, and what it measured
+
+A 27-instruction XDP program was hand-assembled: bounds-check the frame
+against `data_end`, match `ETH_P_IP`, IPv4 with `ihl = 5`, protocol TCP,
+test the SYN flag, increment a counter in a `BPF_MAP_TYPE_ARRAY`, and return
+`XDP_PASS` on every path. It was loaded with `bpf(BPF_PROG_LOAD)` — so the
+in-kernel verifier, not a document, is the judge — and executed with
+`BPF_PROG_TEST_RUN`.
+
+| Measurement | Result |
+|---|---|
+| Verifier | accepted the guarded program |
+| Verdict on a TCP SYN | `XDP_PASS`, counter 0 → 1 |
+| TCP ACK, UDP datagram, 20-byte truncated frame | `XDP_PASS`, counter unchanged — the parser discriminates and the short frame takes the guard |
+| 1 000 runs | counter 1 → 1 001; kernel-reported ~10 ns per run |
+| The same program with the `data_end` guard removed | refused: `EACCES`, log `invalid access to packet, off=12 size=2, R2(id=0,off=12,r=0)` |
+
+The ~10 ns figure is the kernel's own `BPF_PROG_TEST_RUN` duration for this
+program on this host under no load. It is **not** a throughput, line-rate or
+overhead figure for anything, and nothing in this repository measures those.
+
+Nothing was attached to any interface. `BPF_PROG_TEST_RUN` executes the
+program against a supplied buffer; no real frame passes through it, so no
+packet could be delayed or dropped. The only route off this host is `eth0`,
+and attaching to it with no out-of-band path is precisely the irreversible
+act "dry-run first" exists to prevent.
+
+### 7.3 The decision
+
+    DECISION:       XDP is CAPABLE on this host and is NOT ADOPTED into the
+                    observation model.
+
+    THREAT:         A host-side party fabricates or suppresses the evidence
+                    that a connection existed on the wire.
+
+    ASSUMPTION:     The device-layer question is already answered. Gate 2's
+                    AF_PACKET tap observes TCP/IP headers below the socket
+                    layer with kernel timestamps (SO_TIMESTAMPNS) and
+                    accounted loss (PACKET_STATISTICS), and the reconciler
+                    consumes it as WireCorroboration.
+
+    MECHANISM:      XDP would run a program in the driver's receive path,
+                    before an skb exists.
+
+    IMPLEMENTATION: None. The evaluation is a test, not a capability.
+
+    TEST:           x10a (load, execute, discriminate, count, measure),
+                    x10b (the verifier refuses an unbounded read).
+
+    LIMITATION:     What XDP would add over the existing tap is earlier
+                    placement and better behaviour under load — neither of
+                    which changes a verdict, because XDP has no socket or
+                    process context and therefore cannot attribute a frame
+                    to an execution instance any better than the tap can.
+                    What it would cost is a program in the kernel data path,
+                    inside the TCB, for every packet. Its one genuinely new
+                    capability is XDP_DROP, which is network isolation — an
+                    actuation Gate 9 deliberately did not build.
+
+    DEPENDENCIES:   None taken on.
+
+    STATUS:         EVALUATED, NOT ADOPTED. Reopen if a requirement appears
+                    that the tap provably cannot meet — sustained loss the
+                    tap cannot absorb, or a decision to build network
+                    isolation as a containment action, which would be its
+                    own gate under Skill 9's rules.
+
+## 8. Hardware validation (Gate 11)
+
+    STATUS:         NOT PERFORMED — the hardware is not available.
+
+The mandate permits hardware validation on a Dell R630 with an Intel X710
+"if available", and requires empirical results only. This host is a virtual
+machine: the CPU reports the `hypervisor` flag, DMI identity is masked
+(`/sys/class/dmi/id/*` unreadable), and the only network device is
+`virtio-pci 1af4:1041` bound to `virtio_net`. There is no X710, no R630, and
+no physical NIC of any kind to measure.
+
+Consequently **no throughput, line-rate, latency, overhead, packet-loss or
+TRL figure for physical hardware appears anywhere in this repository**, and
+none may be quoted. Every performance-shaped number recorded at any gate is
+named with the interface that produced it and the conditions under which it
+was taken, on this virtual host.

@@ -438,9 +438,12 @@ and the reconciler must honour:
 
 ## 11. NOT_IMPLEMENTED (explicit)
 
-eBPF programs, raw tracepoints, any tracepoint other than
-`sock:inet_sock_set_state`, `sched:sched_process_fork`,
-`sched:sched_process_exec` and `sock:sock_send_length`, XDP, payload
+eBPF programs in any library or production path, raw tracepoints, any
+tracepoint other than `sock:inet_sock_set_state`,
+`sched:sched_process_fork`, `sched:sched_process_exec` and
+`sock:sock_send_length`, XDP (evaluated at Gate 10 and **not adopted** —
+`OBSERVATION_MODEL.md` §7; the evaluation is a test that loads and
+test-runs a program and attaches nothing), payload
 capture or any payload hash (the `AF_PACKET` tap of Gate 2 keeps TCP/IP
 headers only; the send source of Gate 3 keeps a byte count only), the
 receive side (`sock_recv_length`), non-TCP wire traffic, IPv6 extension

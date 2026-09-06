@@ -1058,6 +1058,61 @@ deliberately not implemented.
 Gate 10: evaluate XDP against this host — detect the NIC and driver, and
 dry-run before claiming anything.
 
+---
+
+# Gates 10 and 11 — XDP, and hardware (completion mandate)
+
+## Status
+
+**Gate 10: EVALUATED, NOT ADOPTED.** XDP is capable on this host and that
+was measured, not assumed; adopting it would not change a verdict and
+would put a program in the kernel data path for every packet. The full
+record, including the decision in the mandate's format, is
+`OBSERVATION_MODEL.md` §7.
+
+**Gate 11: NOT PERFORMED.** The hardware is not available. This host is a
+virtual machine with a `virtio_net` interface; there is no Dell R630, no
+Intel X710 and no physical NIC. `OBSERVATION_MODEL.md` §8.
+
+## What was measured (Gate 10)
+
+`aip-observe/tests/gate10_xdp_evaluation.rs` hand-assembles a
+27-instruction XDP program — bounds check, IPv4, TCP, SYN, counter in an
+array map, `XDP_PASS` on every path — loads it through `bpf(2)` so the
+in-kernel verifier judges it, and executes it with `BPF_PROG_TEST_RUN`.
+
+| Test | Result |
+|---|---|
+| x10a | verifier accepted; a SYN counted and passed; ACK, UDP and a truncated frame passed uncounted; 1 000 runs at ~10 ns each by the kernel's own clock; nothing attached to any interface |
+| x10b | the same program with the `data_end` guard removed is refused — `EACCES`, `invalid access to packet, off=12 size=2, R2(id=0,off=12,r=0)` |
+
+The ~10 ns is this program's `BPF_PROG_TEST_RUN` duration on an idle
+virtual host. It is not a throughput, line-rate or overhead figure, and
+none of those exist in this repository.
+
+## Why not adopted
+
+XDP has no socket or process context, so it cannot attribute a frame to an
+execution instance any better than the Gate 2 `AF_PACKET` tap already
+does — and the tap already carries kernel timestamps and accounted loss
+into `WireCorroboration`. What XDP would add is earlier placement and
+better behaviour under load; what it would cost is a program inside the
+TCB on every packet. Its one genuinely new capability, `XDP_DROP`, is
+network isolation, which Gate 9 deliberately did not build.
+
+## What was not done, and why
+
+Nothing was attached to any interface. `BPF_PROG_TEST_RUN` runs the
+program against a supplied buffer, so no real frame passes through it. The
+only route off this host is `eth0`; attaching to it with no out-of-band
+path is exactly the irreversible act the mandate's "dry-run first" exists
+to prevent.
+
+## Next Gate
+
+None. The remaining work is the completion report and the standing
+limitations it records.
+
 ## Demonstrator limitation recorded at Gate 7
 
 The live scenarios of `ghost-demo` run on whatever host executes the

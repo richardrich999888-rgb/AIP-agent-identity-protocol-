@@ -307,3 +307,15 @@ Test counts after Gate 4: aip-standalone 715 / 0 / 3 ignored (+25), aip-service 
 | Closed action set, no command representable | **CLOSED** | c17 |
 | Real actuation: a live process frozen and thawed through cgroup v2 | **CLOSED** (root + cgroup2 required) | live_freeze f_p, f_a, f_b, f_c |
 | Network isolation; committing records to NEXORA; transport; warrant revocation | **OPEN / deferred** | — |
+
+## A.19 Gates 10 and 11 outcome (XDP; hardware)
+
+| Component | State | Evidence |
+|---|---|---|
+| NIC and driver detected before any claim | **CLOSED** | `virtio_net`, PCI `1af4:1041`; `OBSERVATION_MODEL.md` §7.1 |
+| XDP dry-run: load, verify, execute, discriminate, measure — attaching nothing | **CLOSED** | x10a |
+| The kernel verifier refuses an unbounded packet read | **CLOSED** | x10b |
+| XDP adopted into the observation model | **NOT ADOPTED**, with the decision recorded | `OBSERVATION_MODEL.md` §7.3 |
+| XDP as containment (`XDP_DROP` / network isolation) | **NOT BUILT** — a deferred actuation under Skill 9 | `CONTAINMENT_IMPLEMENTATION_REPORT.md` Deferred |
+| Hardware validation on a physical NIC | **NOT PERFORMED** — no hardware | `OBSERVATION_MODEL.md` §8 |
+| Throughput / line-rate / overhead / TRL figures | **NONE EXIST**, and none may be quoted | — |
