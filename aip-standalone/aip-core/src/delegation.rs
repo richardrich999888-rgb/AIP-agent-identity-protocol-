@@ -194,10 +194,24 @@ pub fn verify_delegation_chain(
     let mut prev_jti = root_token.jti;
     let mut prev_scope = root_token.scope.clone();
     let mut prev_expires_at = root_token.expires_at;
+    // Who currently holds the authority being delegated. The root token's
+    // grantee holds it first; after each hop, that hop's grantee does.
+    let mut prev_holder: &str = &root_token.agent_id;
 
     for (i, hop) in chain.iter().enumerate() {
         // 1. Parent JTI linkage
         if hop.parent_jti != prev_jti {
+            return Err(AipError::LineageInvalid);
+        }
+
+        // 1b. Issuer ↔ holder binding (AUDIT P0-2). A hop may only be
+        //     issued by the party the parent granted to. Without this,
+        //     linkage by `parent_jti` alone lets anyone whose key the
+        //     verifier holds mint a hop off a token they never held: the
+        //     signature check below would pass, because it only proves the
+        //     named issuer signed this hop, not that the named issuer was
+        //     entitled to issue it.
+        if hop.issuer_id != prev_holder {
             return Err(AipError::LineageInvalid);
         }
 
@@ -237,6 +251,7 @@ pub fn verify_delegation_chain(
         prev_jti = hop.jti;
         prev_scope = hop.scope.clone();
         prev_expires_at = hop.expires_at;
+        prev_holder = &hop.grantee_id;
     }
 
     Ok(prev_scope)
@@ -726,8 +741,14 @@ mod tests {
 
         // A "root" whose jti is the zero parent_jti we place on the forged hop.
         // verify_delegation_chain never checks the root's own signature.
+        //
+        // The pseudo-root also grants to the forged hop's issuer, so that the
+        // issuer↔holder binding (P0-2) is satisfied and this test still fails
+        // for the reason it is about — the transplanted signature living in
+        // the wrong domain — rather than short-circuiting on lineage.
         let mut pseudo_root = token.clone();
         pseudo_root.jti = [0u8; 16];
+        pseudo_root.agent_id = token.issuer_id.clone();
 
         let forged_hop = DelegationToken {
             jti: token.jti,
