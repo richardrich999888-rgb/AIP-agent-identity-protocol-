@@ -102,21 +102,23 @@ fn record(
     availability: ObservationAvailability,
     evidence: Vec<EvidenceRef>,
 ) -> Reconciliation {
-    Reconciliation {
-        version: RECONCILIATION_VERSION,
-        result,
-        strength,
-        reason: ReasonCode::ActionEvidenceUnavailable,
-        decision_id: Some(DecisionId::from_bytes([0x11; 16])),
-        availability,
-        identity: IdentityComparison::NoReference,
-        action: ActionComparison::Unobservable,
-        temporal: TemporalComparison::Indeterminate,
-        lineage: LineageComparison::NotEvaluated,
-        wire: WireCorroboration::NotEvaluated,
-        replay_detected: false,
-        evidence,
-        verification_time_ms: NOW - 1,
+    {
+        let mut r = Reconciliation::fixture_default();
+        r.version = RECONCILIATION_VERSION;
+        r.result = result;
+        r.strength = strength;
+        r.reason = ReasonCode::ActionEvidenceUnavailable;
+        r.decision_id = Some(DecisionId::from_bytes([0x11; 16]));
+        r.availability = availability;
+        r.identity = IdentityComparison::NoReference;
+        r.action = ActionComparison::Unobservable;
+        r.temporal = TemporalComparison::Indeterminate;
+        r.lineage = LineageComparison::NotEvaluated;
+        r.wire = WireCorroboration::NotEvaluated;
+        r.replay_detected = false;
+        r.evidence = evidence;
+        r.verification_time_ms = NOW - 1;
+        r
     }
 }
 

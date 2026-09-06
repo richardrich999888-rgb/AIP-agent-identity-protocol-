@@ -231,15 +231,7 @@ pub struct Scenario {
 impl Scenario {
     /// The verifier context this scenario reconciles under.
     pub fn ctx(&self) -> ReconciliationContext {
-        ReconciliationContext {
-            decision_point_anchors: self.a.dp_anchors.clone(),
-            observer_anchors: self.o.anchors.clone(),
-            verification_time_ms: self.at,
-            health_max_age_ms: HEALTH_MAX_AGE,
-            window_tolerance_ms: 0,
-            expected_side: ExpectedSideCoverage::Unknown,
-            agent_public_key: Some(self.a.agent_kp.public_key.clone()),
-        }
+        context(&self.a, &self.o, self.at)
     }
 }
 
@@ -324,37 +316,40 @@ pub fn verified_execution() -> Scenario {
         batches: vec![b1, b2],
         health,
     };
-    let mut s = Scenario {
+    // The verdict comes out of the engine, and is the only one this
+    // scenario ever holds: there is no placeholder record to overwrite,
+    // because a record no engine produced is not a verdict.
+    let ctx = context(&a, &o, at);
+    let reconciliation = reconcile_expectation(&a.ee, Some(&evidence), &ctx);
+    assert_eq!(
+        reconciliation.result,
+        ReconciliationResult::VerifiedExecution,
+        "the shared scenario must be a verified execution: {:?}",
+        reconciliation.reason
+    );
+    assert_eq!(reconciliation.strength, EvidenceStrength::Attested);
+    assert!(reconciliation.is_engine_produced());
+    Scenario {
         a,
         o,
         evidence,
-        reconciliation: Reconciliation {
-            version: RECONCILIATION_VERSION,
-            result: ReconciliationResult::CannotProve,
-            strength: EvidenceStrength::Heuristic,
-            reason: ReasonCode::NoObserverEvidence,
-            decision_id: None,
-            availability: aip_observe::no_observer(),
-            identity: IdentityComparison::NoReference,
-            action: ActionComparison::Unobservable,
-            temporal: TemporalComparison::Indeterminate,
-            lineage: LineageComparison::NotEvaluated,
-            wire: WireCorroboration::NotEvaluated,
-            replay_detected: false,
-            evidence: vec![],
-            verification_time_ms: at,
-        },
+        reconciliation,
         at,
-    };
-    s.reconciliation = reconcile_expectation(&s.a.ee, Some(&s.evidence), &s.ctx());
-    assert_eq!(
-        s.reconciliation.result,
-        ReconciliationResult::VerifiedExecution,
-        "the shared scenario must be a verified execution: {:?}",
-        s.reconciliation.reason
-    );
-    assert_eq!(s.reconciliation.strength, EvidenceStrength::Attested);
-    s
+    }
+}
+
+/// The verifier context this scenario reconciles under, before a
+/// [`Scenario`] exists to ask.
+fn context(a: &Authorized, o: &Observer, at: u64) -> ReconciliationContext {
+    ReconciliationContext {
+        decision_point_anchors: a.dp_anchors.clone(),
+        observer_anchors: o.anchors.clone(),
+        verification_time_ms: at,
+        health_max_age_ms: HEALTH_MAX_AGE,
+        window_tolerance_ms: 0,
+        expected_side: ExpectedSideCoverage::Unknown,
+        agent_public_key: Some(a.agent_kp.public_key.clone()),
+    }
 }
 
 /// The same authorisation with **no** observer evidence at all: the

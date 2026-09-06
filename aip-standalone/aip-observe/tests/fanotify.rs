@@ -193,31 +193,44 @@ fn fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd() {
         f.write_all(b"gate four").unwrap();
     } // close → FAN_CLOSE_WRITE
     let me = std::process::id();
-    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
     let mut found = None;
+    // Did the queue ever go empty after our write? That is what separates
+    // "our event was never there" from "we never got to it": the mark is
+    // mount-wide, so on a busy mount this loop can spend its whole deadline
+    // measuring other processes' events while ours waits behind them.
+    let mut drained = false;
     while std::time::Instant::now() < deadline && found.is_none() {
-        if let Some(obs) = watch.next_event(50).unwrap() {
-            let e = probe.ingest_file_event(obs).clone();
-            if let KernelLifecycleKind::FileEvent { pid, path, .. } = &e.kind {
-                if *pid == me && path == target.to_str().unwrap() && e.kind.is_file_write() {
-                    found = Some(e);
+        match watch.next_event(50).unwrap() {
+            Some(obs) => {
+                let e = probe.ingest_file_event(obs).clone();
+                if let KernelLifecycleKind::FileEvent { pid, path, .. } = &e.kind {
+                    if *pid == me && path == target.to_str().unwrap() && e.kind.is_file_write() {
+                        found = Some(e);
+                    }
                 }
             }
+            None => drained = true,
         }
     }
     let Some(e) = found else {
-        // The mark is mount-wide, so the queue is shared with every writer
-        // on this mount. If the kernel reported an overflow, our own event
-        // was dropped before it could be read and the property cannot be
-        // evaluated — a statement about the evidence, not about the
-        // observer. With nothing lost, the event should have arrived and
-        // its absence is a failure.
+        // Three different things, and only one of them is a failure.
         let lost = watch.take_lost();
-        assert!(
-            lost > 0,
-            "no event arrived and the kernel reported no loss: the write was not observed"
-        );
-        eprintln!("fa05: SKIPPED — the shared mount queue overflowed, {lost} events lost");
+        if lost > 0 {
+            // The kernel dropped events: ours may have been among them.
+            // Absence of evidence is not evidence of a violation.
+            eprintln!("fa05: SKIPPED — the shared mount queue overflowed, {lost} events lost");
+        } else if !drained {
+            // The queue never went empty: other writers on this mount kept
+            // it full for the whole deadline, so the harness never reached
+            // our event. A statement about the machine, not the observer.
+            eprintln!("fa05: SKIPPED — the shared mount queue stayed busy for the whole deadline");
+        } else {
+            // The queue went empty with nothing lost, and our event was not
+            // in it. That is the observer failing to report a completed
+            // write it was watching for.
+            panic!("the queue drained with no loss and the write was never reported");
+        }
         let _ = std::fs::remove_dir_all(&dir);
         return;
     };

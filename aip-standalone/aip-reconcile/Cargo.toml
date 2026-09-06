@@ -5,6 +5,12 @@ edition.workspace = true
 license.workspace = true
 description = "Ghost Stage 4: reconcile ExpectedExecution against attested observation; CANNOT_PROVE by default"
 
+[features]
+# NOT PRODUCTION. Exposes `Reconciliation::fixture_default` so downstream
+# test suites can build records the engine cannot currently reach. Switched
+# on only in dev-dependencies; no production build enables it.
+test-fixtures = []
+
 [dependencies]
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }

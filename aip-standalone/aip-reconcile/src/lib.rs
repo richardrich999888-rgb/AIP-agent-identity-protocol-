@@ -52,7 +52,7 @@ pub use inputs::{
 pub use reconcile::{reconcile_expectation, reconcile_lineage, reconcile_observation};
 pub use result::{
     ActionComparison, ActionEvidenceKind, ActionEvidenceSeal, EvidenceRef, EvidenceStrength,
-    IdentityComparison, LineageComparison, LineageLink, ReasonCode, Reconciliation,
+    IdentityComparison, LineageComparison, LineageLink, Provenance, ReasonCode, Reconciliation,
     ReconciliationResult, TemporalComparison, WireCorroboration, RECONCILIATION_DOMAIN,
     RECONCILIATION_VERSION,
 };

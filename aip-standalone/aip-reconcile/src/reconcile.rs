@@ -29,7 +29,7 @@ use crate::inputs::{
 };
 use crate::result::{
     ActionComparison, ActionEvidenceKind, EvidenceRef, EvidenceStrength, IdentityComparison,
-    LineageComparison, LineageLink, ReasonCode, Reconciliation, ReconciliationResult,
+    LineageComparison, LineageLink, Provenance, ReasonCode, Reconciliation, ReconciliationResult,
     TemporalComparison, WireCorroboration, RECONCILIATION_VERSION,
 };
 
@@ -167,6 +167,7 @@ impl Draft {
             replay_detected: self.replay_detected,
             evidence: self.evidence,
             verification_time_ms: self.verification_time_ms,
+            provenance: Provenance::Engine,
         }
     }
 

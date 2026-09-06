@@ -105,25 +105,26 @@ fn fixture(binding_pid: u32) -> (Keys, Warrant, SignedSensorHealth, ExecutionBin
         containment: generate_ed25519_keypair(),
         observer: generate_ed25519_keypair(),
     };
-    let rec = Reconciliation {
-        version: RECONCILIATION_VERSION,
-        result: ReconciliationResult::PhantomClaim,
-        strength: EvidenceStrength::Proven,
-        reason: ReasonCode::ActionEvidenceUnavailable,
-        decision_id: Some(DecisionId::from_bytes([0x11; 16])),
-        availability: ObservationAvailability::Covered {
+    let rec = {
+        let mut r = Reconciliation::fixture_default();
+        r.version = RECONCILIATION_VERSION;
+        r.result = ReconciliationResult::PhantomClaim;
+        r.strength = EvidenceStrength::Proven;
+        r.reason = ReasonCode::ActionEvidenceUnavailable;
+        r.decision_id = Some(DecisionId::from_bytes([0x11; 16]));
+        r.availability = ObservationAvailability::Covered {
             window: CoverageWindow {
                 from_ms: NOW - 60_000,
                 to_ms: NOW,
             },
-        },
-        identity: IdentityComparison::NoReference,
-        action: ActionComparison::Unobservable,
-        temporal: TemporalComparison::Indeterminate,
-        lineage: LineageComparison::NotEvaluated,
-        wire: WireCorroboration::NotEvaluated,
-        replay_detected: false,
-        evidence: vec![
+        };
+        r.identity = IdentityComparison::NoReference;
+        r.action = ActionComparison::Unobservable;
+        r.temporal = TemporalComparison::Indeterminate;
+        r.lineage = LineageComparison::NotEvaluated;
+        r.wire = WireCorroboration::NotEvaluated;
+        r.replay_detected = false;
+        r.evidence = vec![
             EvidenceRef::Expected {
                 decision_point_id: DecisionPointId("aip1dp".into()),
                 decision_id: DecisionId::from_bytes([0x11; 16]),
@@ -133,8 +134,9 @@ fn fixture(binding_pid: u32) -> (Keys, Warrant, SignedSensorHealth, ExecutionBin
                 sequence: ObserverSequence(2),
                 emitted_at_ms: NOW - 1_000,
             },
-        ],
-        verification_time_ms: NOW - 1,
+        ];
+        r.verification_time_ms = NOW - 1;
+        r
     };
     let policy = WarrantPolicy {
         autonomous_containment: true,

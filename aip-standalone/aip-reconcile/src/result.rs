@@ -675,7 +675,35 @@ impl EvidenceRef {
 /// `availability` is the observer's coverage state for the window — the
 /// `OBSERVATION_UNAVAILABLE` input state — carried alongside the result so a
 /// later layer can refuse to act on it.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// Where a record came from. Not part of what the record *says* — it is
+/// not encoded, not hashed and not compared — but part of what it *is*.
+///
+/// A verdict is only worth the engine that drew it. `Engine` is set by the
+/// reconciler and by nothing else; anything read back from bytes is
+/// `Deserialized`, however faithful the bytes. Consumers that act on a
+/// verdict (the warrant engine) require `Engine`; consumers that merely
+/// re-check one (NEXORA's offline verifier, which re-derives it) do not
+/// care, because they never trust the record they were handed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub enum Provenance {
+    /// Produced by this crate's reconciler.
+    Engine,
+    /// Read back from bytes. Faithful, but not the engine's own output.
+    #[default]
+    Deserialized,
+}
+
+/// **Construction is sealed.** The struct is `#[non_exhaustive]` and carries
+/// a private field, so no crate but this one can write a literal or a
+/// functional update. A record still deserialises — NEXORA's proof package
+/// carries one and the offline verifier must read it back — but arrives
+/// marked [`Provenance::Deserialized`].
+///
+/// Every field stays public to read and to mutate: adversarial tests must
+/// be able to alter a record and watch a verifier refuse it. What they
+/// cannot do is manufacture one and have it taken for the engine's answer.
+#[derive(Debug, Clone, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Reconciliation {
     pub version: u16,
     pub result: ReconciliationResult,
@@ -696,6 +724,62 @@ pub struct Reconciliation {
     pub evidence: Vec<EvidenceRef>,
     /// The verifier-supplied time the reconciliation was computed at.
     pub verification_time_ms: u64,
+    /// Where this record came from. Never serialised, never hashed, never
+    /// compared: it says nothing about the execution, only about the
+    /// record.
+    #[serde(skip)]
+    pub(crate) provenance: Provenance,
+}
+
+#[cfg(feature = "test-fixtures")]
+impl Reconciliation {
+    /// **NOT PRODUCTION.** A record shaped like the engine's output, at its
+    /// most conservative: `CANNOT_PROVE`, `Heuristic`, nothing compared,
+    /// no evidence. Enabled only by the `test-fixtures` feature, which
+    /// downstream crates switch on in `dev-dependencies` so their tests can
+    /// sweep verdicts the engine cannot currently reach — and which no
+    /// production build turns on.
+    ///
+    /// Every other field is public, so a test mutates what it cares about:
+    ///
+    /// ```ignore
+    /// let mut r = Reconciliation::fixture_default();
+    /// r.result = ReconciliationResult::PhantomClaim;
+    /// r.strength = EvidenceStrength::Proven;
+    /// ```
+    ///
+    /// It is marked [`Provenance::Engine`] because it stands in for engine
+    /// output; a test that needs a record which is *not* engine-produced
+    /// gets one the only way anyone can — by deserialising it.
+    pub fn fixture_default() -> Self {
+        Self {
+            version: RECONCILIATION_VERSION,
+            result: ReconciliationResult::CannotProve,
+            strength: EvidenceStrength::Heuristic,
+            reason: ReasonCode::NoObserverEvidence,
+            decision_id: None,
+            availability: aip_observe::no_observer(),
+            identity: IdentityComparison::NoReference,
+            action: ActionComparison::Unobservable,
+            temporal: TemporalComparison::Indeterminate,
+            lineage: LineageComparison::NotEvaluated,
+            wire: WireCorroboration::NotEvaluated,
+            replay_detected: false,
+            evidence: Vec::new(),
+            verification_time_ms: 0,
+            provenance: Provenance::Engine,
+        }
+    }
+}
+
+/// Equality is over what the record *says*, so a record and its faithful
+/// round trip are equal. Provenance is deliberately excluded: NEXORA
+/// compares a re-derived record with one that travelled as bytes, and they
+/// must compare equal when they encode identically.
+impl PartialEq for Reconciliation {
+    fn eq(&self, other: &Self) -> bool {
+        self.canonical_bytes() == other.canonical_bytes()
+    }
 }
 
 fn encode_availability(buf: &mut Vec<u8>, a: &ObservationAvailability) {
@@ -729,6 +813,20 @@ fn encode_availability(buf: &mut Vec<u8>, a: &ObservationAvailability) {
 }
 
 impl Reconciliation {
+    /// Where this record came from.
+    pub fn provenance(&self) -> Provenance {
+        self.provenance
+    }
+
+    /// Did this record come out of the reconciler in this process?
+    ///
+    /// False for anything deserialised, however faithful. A consumer that
+    /// *acts* on a verdict must require this; a consumer that re-derives
+    /// the verdict itself need not.
+    pub fn is_engine_produced(&self) -> bool {
+        self.provenance == Provenance::Engine
+    }
+
     /// Canonical, domain-tagged, injective encoding for audit and any later
     /// signing by a party that is one. This crate signs nothing.
     pub fn canonical_bytes(&self) -> Vec<u8> {
@@ -801,6 +899,7 @@ mod tests {
     #[test]
     fn no_severity_or_score_exists_in_output() {
         let r = Reconciliation {
+            provenance: Provenance::Engine,
             version: RECONCILIATION_VERSION,
             result: ReconciliationResult::CannotProve,
             strength: EvidenceStrength::Heuristic,

@@ -150,26 +150,28 @@ impl Fx {
         decision_id: Option<[u8; 16]>,
         result: ReconciliationResult,
     ) -> Reconciliation {
-        Reconciliation {
-            version: RECONCILIATION_VERSION,
-            result,
-            strength: match result {
+        {
+            let mut r = Reconciliation::fixture_default();
+            r.version = RECONCILIATION_VERSION;
+            r.result = result;
+            r.strength = match result {
                 ReconciliationResult::CannotProve => EvidenceStrength::Heuristic,
                 _ => EvidenceStrength::Attested,
-            },
-            reason: ReasonCode::ActionEvidenceUnavailable,
-            decision_id: decision_id.map(DecisionId::from_bytes),
-            availability: ObservationAvailability::Unavailable {
+            };
+            r.reason = ReasonCode::ActionEvidenceUnavailable;
+            r.decision_id = decision_id.map(DecisionId::from_bytes);
+            r.availability = ObservationAvailability::Unavailable {
                 reason: UnavailableReason::NoObserver,
-            },
-            identity: IdentityComparison::NoReference,
-            action: ActionComparison::Unobservable,
-            temporal: TemporalComparison::Indeterminate,
-            lineage: LineageComparison::NotEvaluated,
-            wire: WireCorroboration::NotEvaluated,
-            replay_detected: false,
-            evidence: vec![],
-            verification_time_ms: self.now + 5,
+            };
+            r.identity = IdentityComparison::NoReference;
+            r.action = ActionComparison::Unobservable;
+            r.temporal = TemporalComparison::Indeterminate;
+            r.lineage = LineageComparison::NotEvaluated;
+            r.wire = WireCorroboration::NotEvaluated;
+            r.replay_detected = false;
+            r.evidence = vec![];
+            r.verification_time_ms = self.now + 5;
+            r
         }
     }
 

@@ -18,29 +18,31 @@ use aip_warrant::*;
 const NOW: u64 = 1_700_000_900_000;
 
 fn record(result: ReconciliationResult, strength: EvidenceStrength) -> Reconciliation {
-    Reconciliation {
-        version: RECONCILIATION_VERSION,
-        result,
-        strength,
-        reason: ReasonCode::ActionEvidenceMatches,
-        decision_id: Some(DecisionId::from_bytes([0x11; 16])),
-        availability: ObservationAvailability::Covered {
+    {
+        let mut r = Reconciliation::fixture_default();
+        r.version = RECONCILIATION_VERSION;
+        r.result = result;
+        r.strength = strength;
+        r.reason = ReasonCode::ActionEvidenceMatches;
+        r.decision_id = Some(DecisionId::from_bytes([0x11; 16]));
+        r.availability = ObservationAvailability::Covered {
             window: CoverageWindow {
                 from_ms: NOW - 60_000,
                 to_ms: NOW,
             },
-        },
-        identity: IdentityComparison::NoReference,
-        action: ActionComparison::Unobservable,
-        temporal: TemporalComparison::Indeterminate,
-        lineage: LineageComparison::NotEvaluated,
-        wire: WireCorroboration::NotEvaluated,
-        replay_detected: false,
-        evidence: vec![EvidenceRef::Expected {
+        };
+        r.identity = IdentityComparison::NoReference;
+        r.action = ActionComparison::Unobservable;
+        r.temporal = TemporalComparison::Indeterminate;
+        r.lineage = LineageComparison::NotEvaluated;
+        r.wire = WireCorroboration::NotEvaluated;
+        r.replay_detected = false;
+        r.evidence = vec![EvidenceRef::Expected {
             decision_point_id: DecisionPointId("aip1dp".into()),
             decision_id: DecisionId::from_bytes([0x11; 16]),
-        }],
-        verification_time_ms: NOW - 1,
+        }];
+        r.verification_time_ms = NOW - 1;
+        r
     }
 }
 

@@ -16,4 +16,5 @@ aip-warrant = { path = "../aip-warrant" }
 serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]
+aip-reconcile = { path = "../aip-reconcile", features = ["test-fixtures"] }
 serde_json = "1.0" 

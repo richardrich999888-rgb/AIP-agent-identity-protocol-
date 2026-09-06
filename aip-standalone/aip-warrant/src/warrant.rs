@@ -75,6 +75,11 @@ pub struct Finding {
 pub enum Refusal {
     UnsupportedReconciliationVersion(u16),
     InvalidPolicy(String),
+    /// The record did not come out of the reconciler. A warrant is
+    /// permission to act on a verdict; a verdict a caller assembled — by
+    /// literal, by update or by deserialising bytes it wrote itself — is
+    /// not one the engine drew, whatever it says (AUDIT §14).
+    ReconciliationNotEngineProduced,
 }
 
 impl std::fmt::Display for Refusal {
@@ -84,6 +89,10 @@ impl std::fmt::Display for Refusal {
                 write!(f, "unsupported reconciliation record version {v}")
             }
             Refusal::InvalidPolicy(why) => write!(f, "invalid policy: {why}"),
+            Refusal::ReconciliationNotEngineProduced => write!(
+                f,
+                "the reconciliation record was not produced by the engine"
+            ),
         }
     }
 }
@@ -171,6 +180,13 @@ fn min3(a: ResponseClass, b: ResponseClass, c: ResponseClass) -> ResponseClass {
 /// the reconciler (§5).
 pub fn evaluate(f: &Finding, p: &WarrantPolicy, now_ms: u64) -> Result<Warrant, Refusal> {
     let rec = &f.reconciliation;
+    // A warrant may rest only on a verdict the reconciler drew. Anything a
+    // caller assembled is refused outright — not lowered to a smaller
+    // response class, because a ceiling would still be a response
+    // (AUDIT §14).
+    if !rec.is_engine_produced() {
+        return Err(Refusal::ReconciliationNotEngineProduced);
+    }
     if rec.version != RECONCILIATION_VERSION {
         return Err(Refusal::UnsupportedReconciliationVersion(rec.version));
     }
