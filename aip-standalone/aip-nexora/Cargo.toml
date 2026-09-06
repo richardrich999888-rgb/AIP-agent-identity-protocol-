@@ -12,5 +12,7 @@ serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]
 serde_json = "1.0"
+aip-core = { path = "../aip-core" }
+aip-authorize = { path = "../aip-authorize" }
 aip-observe = { path = "../aip-observe" }
 aip-reconcile = { path = "../aip-reconcile" }
