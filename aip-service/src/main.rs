@@ -72,13 +72,30 @@ async fn main() {
         .unwrap_or_else(|_| "/var/lib/aip/revocation.jsonl".to_owned());
     let api_keys_path = std::env::var("AIP_API_KEYS_PATH").unwrap_or_default();
 
+    // The directory must exist before a key can be created in it. A failure
+    // here is not fatal on its own — the key may already be present — so it
+    // is reported and the key load below decides whether to proceed.
     if let Some(parent) = std::path::Path::new(&key_path).parent() {
         if let Err(e) = std::fs::create_dir_all(parent) {
-            tracing::warn!(path = %parent.display(), error = %e, "Could not create key directory");
+            tracing::warn!(path = %parent.display(), error = %e, "could not create key directory");
         }
     }
 
-    let kp = KeyPair::load_or_generate(&key_path);
+    // Fail closed on the signing identity (AUDIT B-6). A service that cannot
+    // read its configured key must not invent one: doing so silently rotates
+    // the identity, invalidating every token and audit bundle already signed
+    // under it, and leaves nothing to distinguish that from forgery. The only
+    // condition under which a key is created is that none exists yet.
+    let kp = match KeyPair::load_or_create(&key_path) {
+        Ok(kp) => kp,
+        Err(e) => {
+            tracing::error!(key_path, error = %e, "cannot obtain signing key; refusing to start");
+            // Written to stderr as well: the JSON tracing subscriber is easy
+            // to miss, and this is the last thing the process does.
+            eprintln!("FATAL: {e}");
+            std::process::exit(1);
+        }
+    };
     let encoding_key = jsonwebtoken::EncodingKey::from_ed_pem(kp.private_pem.as_bytes())
         .expect("generated private PEM must always be valid");
     let decoding_key = jsonwebtoken::DecodingKey::from_ed_pem(kp.public_pem.as_bytes())

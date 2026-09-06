@@ -1,17 +1,53 @@
-//! Ed25519 keypair management.
+//! Ed25519 keypair management — custody of the service's signing identity.
 //!
 //! Key lifecycle:
 //!   1. On startup, look for a seed file at `AIP_KEY_PATH`.
-//!   2. If found, load the 32-byte seed (base64-encoded) and reconstruct the keypair.
-//!   3. If not found, generate a new keypair and persist the seed.
+//!   2. If it exists, load the 32-byte seed (base64) and reconstruct the keypair.
+//!      Any failure here is returned to the caller, which must refuse to start.
+//!   3. If and only if it does not exist, create one, exclusively, mode 0600.
 //!
-//! The seed file is chmod 600 on Unix.  The private key is NEVER logged.
+//! The private key is never logged.
+//!
+//! # Why loading fails closed (AUDIT B-6)
+//!
+//! `load_or_generate` previously treated *any* load failure — a truncated
+//! file, a permissions error, a wrong-length seed — as licence to generate a
+//! fresh keypair and carry on. That silently rotates the service's identity.
+//! The damage is not limited to the restart:
+//!
+//! - Every JWT the service previously issued stops verifying, with no signal
+//!   distinguishing "key rotated by accident" from "token forged".
+//! - Every audit-export manifest signed under the old key is now signed by a
+//!   key the service no longer advertises. An auditor holding an old bundle
+//!   cannot tell a legitimate historical signature from a fabricated one.
+//! - The rotation is announced at WARN level, in a log line that a running
+//!   service emits once and nobody reads.
+//!
+//! A signing identity is not a cache. If the configured key cannot be read,
+//! the correct behaviour is to refuse to serve, and to say what is wrong.
+//!
+//! # Why creation is exclusive and mode-checked (AUDIT B-5)
+//!
+//! `save_to_file` wrote the seed with `fs::write` and then chmod'd it to
+//! 0600. Between those two calls the private key sits on disk at whatever the
+//! process umask allows — commonly 0644. A local reader that wins that race
+//! obtains the service's signing key. Creation is therefore done with
+//! `O_CREAT | O_EXCL` and the mode supplied at open time, so the file never
+//! exists with permissions wider than 0600. `O_EXCL` also removes the second
+//! half of the problem: this code can no longer overwrite an existing key.
+//!
+//! Loading applies the same standard in reverse: a seed file readable by
+//! group or other is refused rather than used, because a key that other local
+//! accounts can read is not a key that identifies this service.
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine};
 use ed25519_dalek::{SigningKey, VerifyingKey};
 use rand::rngs::OsRng;
 use sha2::{Digest, Sha256};
-use std::{fs, path::Path};
+use std::fmt;
+use std::fs;
+use std::io;
+use std::path::{Path, PathBuf};
 
 // ── DER/PEM helpers ───────────────────────────────────────────────────────────
 //
@@ -108,6 +144,12 @@ impl KeyPair {
         }
     }
 
+    /// A fresh keypair, held only in memory.
+    ///
+    /// Not the production bootstrap path — that is [`KeyPair::load_or_create`],
+    /// which persists the seed and refuses to invent one over a key that
+    /// already exists. This exists for tests and for callers that genuinely
+    /// want an ephemeral identity.
     pub fn generate() -> Self {
         let signing_key = SigningKey::generate(&mut OsRng);
         let seed: [u8; 32] = *signing_key.as_bytes();
@@ -127,67 +169,233 @@ impl KeyPair {
             .to_bytes()
     }
 
-    pub fn load_or_generate(key_path: &str) -> Self {
-        let path = Path::new(key_path);
-
-        if path.exists() {
-            match Self::load_from_file(key_path) {
-                Ok(kp) => {
-                    // Log fingerprint (safe — public information)
-                    tracing::info!(
-                        key_path,
-                        fingerprint = %kp.fingerprint,
-                        "Loaded Ed25519 keypair from disk"
-                    );
-                    return kp;
-                }
-                Err(e) => {
-                    tracing::warn!(
-                        key_path,
-                        error = %e,
-                        "Failed to load key file — generating new keypair"
-                    );
-                }
+    /// Load the keypair at `key_path`, creating one only if the file does not
+    /// exist. Every other outcome is an error the caller must act on.
+    ///
+    /// This replaces the former `load_or_generate`, whose fallback to
+    /// generation on *any* failure is AUDIT B-6. The distinction this method
+    /// draws is the whole point: "there is no key yet" is a first-run
+    /// condition; "there is a key and I could not read it" is an incident.
+    pub fn load_or_create(key_path: &str) -> Result<Self, KeyError> {
+        match Self::load(key_path) {
+            Ok(kp) => {
+                // The fingerprint is a hash of the public key: safe to log,
+                // and the only way an operator can confirm which identity the
+                // service came up as.
+                tracing::info!(
+                    key_path,
+                    fingerprint = %kp.fingerprint,
+                    "loaded Ed25519 signing key from disk"
+                );
+                Ok(kp)
             }
+            Err(KeyError::Absent { .. }) => {
+                let kp = Self::create_new(key_path)?;
+                tracing::info!(
+                    key_path,
+                    fingerprint = %kp.fingerprint,
+                    "no signing key present; created one"
+                );
+                Ok(kp)
+            }
+            // Unreadable, malformed, or world-readable: fail closed. Never
+            // generate over a key that exists but could not be used.
+            Err(e) => Err(e),
         }
-
-        let kp = Self::generate();
-        match kp.save_to_file(key_path) {
-            Ok(()) => tracing::info!(
-                key_path,
-                fingerprint = %kp.fingerprint,
-                "Generated new Ed25519 keypair and persisted to disk"
-            ),
-            Err(e) => tracing::error!(
-                key_path,
-                error = %e,
-                "Could not persist key to disk — key is ephemeral this session"
-            ),
-        }
-        kp
     }
 
-    fn load_from_file(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
-        let raw = fs::read_to_string(path)?;
-        let seed_bytes = B64.decode(raw.trim())?;
-        let seed: [u8; 32] = seed_bytes
-            .try_into()
-            .map_err(|_| "seed file must contain exactly 32 bytes (base64-encoded)")?;
+    /// Read and validate the seed file. Fails rather than substituting.
+    pub fn load(key_path: &str) -> Result<Self, KeyError> {
+        let path = PathBuf::from(key_path);
+        let raw = match fs::read_to_string(&path) {
+            Ok(raw) => raw,
+            Err(e) if e.kind() == io::ErrorKind::NotFound => return Err(KeyError::Absent { path }),
+            Err(source) => return Err(KeyError::Unreadable { path, source }),
+        };
+
+        // Permissions are checked after the read succeeds so that a genuine
+        // I/O error is reported as one, but before the bytes are used for
+        // anything: a seed other local accounts can read does not identify
+        // this service, whatever it decodes to.
+        check_seed_permissions(&path)?;
+
+        let decoded = B64.decode(raw.trim()).map_err(|e| KeyError::Malformed {
+            path: path.clone(),
+            reason: format!("seed file is not valid base64: {e}"),
+        })?;
+        let len = decoded.len();
+        let seed: [u8; 32] = decoded.try_into().map_err(|_| KeyError::Malformed {
+            path: path.clone(),
+            reason: format!("seed must decode to exactly 32 bytes, got {len}"),
+        })?;
         Ok(Self::from_seed(seed))
     }
 
-    pub fn save_to_file(&self, path: &str) -> std::io::Result<()> {
-        // Persist only the 32-byte seed, base64-encoded.
-        // We intentionally do NOT write the PEM (it is re-derived on every load).
-        fs::write(path, B64.encode(self.seed))?;
+    /// Create a new keypair and persist the seed, failing if a key is already
+    /// there.
+    ///
+    /// The file is created with `O_CREAT | O_EXCL` and mode 0600 supplied at
+    /// open time, so it never exists with wider permissions and this call can
+    /// never overwrite an existing key (AUDIT B-5).
+    pub fn create_new(key_path: &str) -> Result<Self, KeyError> {
+        let path = PathBuf::from(key_path);
+        let kp = Self::generate();
+        write_new_seed_file(&path, &B64.encode(kp.seed))?;
+        Ok(kp)
+    }
+}
 
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::PermissionsExt;
-            let mut perms = fs::metadata(path)?.permissions();
-            perms.set_mode(0o600);
-            fs::set_permissions(path, perms)?;
+// ── Seed file I/O ─────────────────────────────────────────────────────────────
+
+/// Bits that must be clear on a seed file: any group or other permission.
+#[cfg(unix)]
+const FORBIDDEN_MODE_BITS: u32 = 0o077;
+
+/// Refuse a seed file that group or other can reach.
+///
+/// Non-Unix targets have no equivalent bit to check; the function is a no-op
+/// there rather than pretending to a guarantee it cannot make.
+#[cfg(unix)]
+fn check_seed_permissions(path: &Path) -> Result<(), KeyError> {
+    use std::os::unix::fs::PermissionsExt;
+    let mode = fs::metadata(path)
+        .map_err(|source| KeyError::Unreadable {
+            path: path.to_path_buf(),
+            source,
+        })?
+        .permissions()
+        .mode()
+        & 0o777;
+    if mode & FORBIDDEN_MODE_BITS != 0 {
+        return Err(KeyError::Permissions {
+            path: path.to_path_buf(),
+            mode,
+        });
+    }
+    Ok(())
+}
+
+#[cfg(not(unix))]
+fn check_seed_permissions(_path: &Path) -> Result<(), KeyError> {
+    Ok(())
+}
+
+/// Write `contents` to `path`, which must not already exist, at mode 0600.
+///
+/// Deliberately not a write-to-temp-and-rename: the payload is 44 bytes of
+/// base64, far below any sector or page boundary, so a torn write is not a
+/// realistic failure mode — whereas a stale temp file left by a crashed
+/// process is, and it would block every subsequent start. If a partial file
+/// somehow appeared, the next start fails closed on a malformed seed, which
+/// is the outcome an operator should see.
+fn write_new_seed_file(path: &Path, contents: &str) -> Result<(), KeyError> {
+    use std::io::Write;
+
+    let mut opts = fs::OpenOptions::new();
+    opts.write(true).create_new(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        // The mode is applied by the kernel at creation, so the file is never
+        // observable with wider permissions (AUDIT B-5).
+        opts.mode(0o600);
+    }
+
+    let mut file = opts.open(path).map_err(|source| {
+        if source.kind() == io::ErrorKind::AlreadyExists {
+            KeyError::AlreadyExists {
+                path: path.to_path_buf(),
+            }
+        } else {
+            KeyError::NotWritable {
+                path: path.to_path_buf(),
+                source,
+            }
         }
-        Ok(())
+    })?;
+    file.write_all(contents.as_bytes())
+        .and_then(|()| file.sync_all())
+        .map_err(|source| KeyError::NotWritable {
+            path: path.to_path_buf(),
+            source,
+        })
+}
+
+// ── Errors ────────────────────────────────────────────────────────────────────
+
+/// Why the service could not obtain its signing identity.
+///
+/// Every variant except [`KeyError::Absent`] is a refusal: the caller must
+/// stop, not substitute a fresh key. `Absent` is separated out because it is
+/// the only condition under which creating a key is correct.
+#[derive(Debug)]
+pub enum KeyError {
+    /// No file at the configured path. The one recoverable case.
+    Absent { path: PathBuf },
+    /// The file exists but could not be read.
+    Unreadable { path: PathBuf, source: io::Error },
+    /// The file was read but does not contain a 32-byte base64 seed.
+    Malformed { path: PathBuf, reason: String },
+    /// The file is readable by group or other.
+    Permissions { path: PathBuf, mode: u32 },
+    /// A key already exists where one was to be created.
+    AlreadyExists { path: PathBuf },
+    /// The new key could not be written.
+    NotWritable { path: PathBuf, source: io::Error },
+}
+
+impl fmt::Display for KeyError {
+    /// Messages name the path and the remedy: this text is what an operator
+    /// sees when the service refuses to start, and it is the only thing
+    /// standing between them and a wrong guess about what happened.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            KeyError::Absent { path } => {
+                write!(f, "no signing key at {}", path.display())
+            }
+            KeyError::Unreadable { path, source } => write!(
+                f,
+                "signing key at {} exists but could not be read ({source}). \
+                 Refusing to start: generating a new key here would silently \
+                 rotate this service's identity and invalidate every token \
+                 and audit bundle it has already signed.",
+                path.display()
+            ),
+            KeyError::Malformed { path, reason } => write!(
+                f,
+                "signing key at {} is not a valid seed: {reason}. Refusing to \
+                 start: restore the key from backup, or move it aside to have \
+                 a new identity created deliberately.",
+                path.display()
+            ),
+            KeyError::Permissions { path, mode } => write!(
+                f,
+                "signing key at {} has mode {mode:04o}; group and other must \
+                 have no access. Run: chmod 600 {}",
+                path.display(),
+                path.display()
+            ),
+            KeyError::AlreadyExists { path } => write!(
+                f,
+                "a signing key already exists at {}; refusing to overwrite it",
+                path.display()
+            ),
+            KeyError::NotWritable { path, source } => write!(
+                f,
+                "could not write a new signing key to {}: {source}",
+                path.display()
+            ),
+        }
+    }
+}
+
+impl std::error::Error for KeyError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            KeyError::Unreadable { source, .. } | KeyError::NotWritable { source, .. } => {
+                Some(source)
+            }
+            _ => None,
+        }
     }
 }
