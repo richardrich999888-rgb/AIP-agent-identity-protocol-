@@ -22,7 +22,8 @@ report for the derivation.
 
 | ID | Sev | Issue | Where | Report |
 |---|---|---|---|---|
-| **B-1** | **P0** | The verifier has no clock. A packet dated arbitrarily far in the future passes all 15 rules at `AuthorityBound` with `tampered = false`. | `aip-protocol/src/verification.rs:535` `check_temporal_validity`; `VerificationContext:29` has no time field | 03 I-7 |
+| ~~**B-1**~~ | ~~**P0**~~ | ~~The verifier has no clock.~~ **CLOSED 2026-09-06** by prod `fdf380c`: rule **R16 VERIFICATION_TIME_BOUND**, a verifier-*supplied* time (never the system clock), with an absent time recorded as NOT EVALUATED rather than a pass. Independently verified. | `aip-protocol/src/verification.rs` R16 | 03 I-7, addendum §2 |
+| **B-1a** | **P1** | **NEW.** The fix did not reach the service. `aip-service` never sets `verification_time_ms` (0 occurrences); `evidence.rs` builds `VerificationContext::new()` at three sites; `handlers.rs` decides on `result.valid` at five. `/verify` is unbounded. | `aip-service/src/evidence.rs:312,428,546`; `handlers.rs:125,132,140,181,249` | addendum §2.3 |
 | **B-2** | **P0** | A delegation hop's issuer is never bound to the previous hop's grantee. Any trusted key can substitute itself as issuer of a hop whose `parent_jti` matches. | `aip-core/src/delegation.rs:179-244` | 03 I-3 |
 | **B-3** | **P1** | Containment cannot actuate on any engine-produced reconciliation, and no test crosses the reconcile→warrant→contain boundary. | `aip-containment/src/contain.rs` gates 3/5/6 vs `aip-reconcile/src/reconcile.rs:89-137` | 04 §3 |
 | **B-4** | **P1** | A bundle is verified against a public key the bundle itself supplies. | `aip-protocol/src/bundle.rs:437` | 03 I-9, 05 §3 |
@@ -34,14 +35,38 @@ report for the derivation.
 | **B-10** | **P2** | The primary test command does not reach the HTTP service. | `aip-service` is a member of no workspace, all branches | 02 §5 |
 | **B-11** | **P3** | The two observer-directed verdicts have no structural precondition, only a strength threshold. | `aip-reconcile/src/reconcile.rs:129-131` | 04 §2.1 |
 
-### 2.1 What B-1 and B-2 mean together
+### 2.1 What B-1 and B-2 meant together — and what closing them changed
 
-Individually each is serious. Together they compose: B-2 lets an attacker
+> **Superseded 2026-09-06.** Both were closed by prod and independently
+> verified. The analysis below is retained because it explains why they were
+> the two that mattered, and because §2.1a records what the closure did and
+> did not buy.
+
+Individually each was serious. Together they composed: B-2 let an attacker
 holding *any* trusted issuer key insert themselves into a delegation chain,
-and B-1 removes the time bound that would otherwise limit how long a
-captured or forged chain remains usable. The system's central claim —
-that an evidence packet establishes *who* authorized an action and *when* —
-is not held by either half on any branch.
+and B-1 removed the time bound that would otherwise limit how long a
+captured or forged chain remained usable. The system's central claim — that
+an evidence packet establishes *who* authorized an action and *when* — was
+held by neither half on any branch.
+
+### 2.1a What the closure bought, and what it did not
+
+**B-2 is fully closed.** The check is unconditional — inside
+`verify_delegation_chain`, which every caller reaches — so nothing can be
+left behind. `aip-service` inherits it without changing a line.
+
+**B-1 is closed in the protocol and not adopted by the service.** The bound
+is *opt-in* by design, and correctly so: reading the system clock inside the
+verifier would break offline and air-gapped verification, and making an
+unevaluated rule fail would conflate "could not check" with "failed" — the
+`CANNOT_PROVE` / `FAILED` distinction this codebase is built on. The
+obligation that design creates is on the consumer, and `aip-service` does not
+meet it. That is **B-1a**.
+
+The two fixes therefore illustrate the same lesson from opposite sides: an
+unconditional check propagates for free, an opt-in one propagates only as far
+as someone remembers to opt in. B-10 — `aip-service` being a member of no
+workspace — is why nobody did.
 
 `prod` narrowed B-2's surface materially: because `expires_at` is now
 covered by the hop signature, a forged expiry fails as `SignatureInvalid`
@@ -119,10 +144,10 @@ Not a remediation plan — the brief forbids fixing during the audit — but the
 order in which the blockers must be cleared is itself a finding, because
 some depend on others.
 
-1. **B-1** (verifier clock). Independent; smallest change with the largest
-   security delta. Add `now_ms` to `VerificationContext` and bound packet
-   age in `check_temporal_validity`.
-2. **B-2** (issuer↔grantee). Independent; one comparison per hop.
+1. ~~**B-1** (verifier clock).~~ **DONE.** Superseded by **B-1a**: adopt the
+   bound in `aip-service`, and have the handlers refuse when
+   `verification_time_checked` is false rather than reading `valid` alone.
+2. ~~**B-2** (issuer↔grantee).~~ **DONE**, unconditionally.
 3. **B-3** (containment reachability). Requires a decision first — is
    autonomous containment intended to be reachable at all? Until that is
    answered, no code change is correct. The end-to-end test should be

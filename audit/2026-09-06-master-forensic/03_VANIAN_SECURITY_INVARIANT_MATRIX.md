@@ -12,11 +12,11 @@ Legend: **✓** holds · **✗** fails · **~** partial · **n/a** component abs
 |---|---|:--:|:--:|:--:|:--:|:--:|:--:|
 | I-1 | A token's signature covers its expiry | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
 | I-2 | A delegation hop's signature covers its expiry | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
-| I-3 | A delegation hop's issuer is the previous hop's grantee | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| I-3 | A delegation hop's issuer is the previous hop's grantee | ✗ | **✓** | ✗ | ✗ | ✗ | ✗ |
 | I-4 | A child delegation cannot outlive its parent | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
 | I-5 | Signing payloads are prefix-free (injective) | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
 | I-6 | Signing payloads are domain-separated | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
-| I-7 | The verifier bounds packet age against its own clock | ✗ | ✗ | ✗ | ✗ | n/a | n/a |
+| I-7 | The verifier bounds packet age against its own clock | ✗ | **~** | ✗ | ✗ | n/a | n/a |
 | I-8 | A packet cannot be replayed undetected | ✗ | ✗ | ✗ | ✗ | n/a | n/a |
 | I-9 | A bundle's signer key is not supplied by the bundle | ✗ | ✗ | ✗ | ✗ | n/a | n/a |
 | I-10 | Private keys are not written world-readable | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
@@ -71,7 +71,17 @@ express, which is the correct shape.
 **Status on every other branch: OPEN.** All five branches other than prod
 carry main's encoder verbatim.
 
-### I-3 — issuer↔grantee binding (P0, OPEN ON ALL BRANCHES)
+### I-3 — issuer↔grantee binding
+
+> **RESOLVED on prod, 2026-09-06** (commit `8daffe3`), after this audit was
+> filed. `verify_delegation_chain` now tracks `prev_holder` — the root
+> token's grantee, then each hop's grantee — and refuses a hop whose
+> `issuer_id` is not the party that held the parent. The check is
+> unconditional, so every caller including `aip-service` inherits it.
+> Independently verified; see the AIRI extension's
+> `P0_VERIFICATION_ADDENDUM.md` §1. The original finding follows.
+
+### I-3 — issuer↔grantee binding (as filed: P0, OPEN ON ALL BRANCHES)
 
 **CODE-PROVEN.** `prod/aip-standalone/aip-core/src/delegation.rs:179-244`.
 `verify_delegation_chain` performs five checks per hop: parent JTI linkage,
@@ -89,7 +99,21 @@ authenticated but not attributed.
 `SignatureInvalid`), but the substitution itself remains accepted. The
 counter is one comparison per hop; it is absent.
 
-### I-7 — verifier clock (P0, OPEN ON PROD)
+### I-7 — verifier clock
+
+> **PARTLY RESOLVED on prod, 2026-09-06** (commit `fdf380c`), after this
+> audit was filed. Rule **R16 VERIFICATION_TIME_BOUND** adds a
+> verifier-*supplied* time — never the system clock, so offline and
+> air-gapped verification stay possible — and records the rule as NOT
+> EVALUATED, rather than as a pass, when no time is given.
+>
+> The matrix now reads **~** rather than ✓ for prod because the bound is
+> opt-in and **`aip-service` does not take it**: `verification_time_ms` is
+> set nowhere in the service, so `/verify` remains unbounded and its handlers
+> decide on `result.valid` alone. That residual is tracked as **B-1a (P1)**.
+> See `P0_VERIFICATION_ADDENDUM.md` §2. The original finding follows.
+
+### I-7 — verifier clock (as filed: P0, OPEN ON PROD)
 
 **CODE-PROVEN.** `check_temporal_validity`
 (`prod/aip-standalone/aip-protocol/src/verification.rs:535-585`) is
@@ -104,8 +128,11 @@ but set fifty years in the future passes all fourteen rules and reaches
 `AuthorityBound` with `tampered = false`. This was demonstrated by probe in
 the base audit and nothing on any branch changes it.
 
-**This is the single most important unremediated finding.** R15 on prod adds
-a *fifteenth* rule and still does not introduce a verifier clock.
+~~**This is the single most important unremediated finding.** R15 on prod adds
+a *fifteenth* rule and still does not introduce a verifier clock.~~
+
+**Superseded.** A *sixteenth* rule, R16, introduced exactly that bound three
+commits later. What survives of this finding is its service-tier half, B-1a.
 
 ### I-8 / I-9 / I-10 / I-11 — carried forward, unremediated
 
