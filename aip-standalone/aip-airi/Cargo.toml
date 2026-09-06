@@ -10,9 +10,11 @@ aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
 aip-observe = { path = "../aip-observe" }
 aip-authorize = { path = "../aip-authorize" }
+aip-reconcile = { path = "../aip-reconcile" }
 serde = { version = "1.0", features = ["derive"] }
 hex = "0.4"
 
 [dev-dependencies]
 aip-core = { path = "../aip-core" }
+aip-nexora = { path = "../aip-nexora" }
 serde_json = "1.0"

@@ -72,6 +72,7 @@ mod corroborate;
 mod error;
 mod event;
 mod ids;
+mod integrate;
 mod provenance;
 
 pub use chain::{verify_event_chain, ChainDefect, ChainReport, VerifiedChain};
@@ -80,6 +81,7 @@ pub use corroborate::{
     UncorroboratedReason,
 };
 pub use error::AiriError;
+pub use integrate::{annotate, claims_decision, verdict_of, AiriAnnotation};
 pub use event::{
     parameter_commitment, sign_airi_event, verify_airi_event, AiriEvent, AiriEventKind,
     AiriPayload, AIRI_EVENT_DOMAIN, AIRI_EVENT_VERSION,

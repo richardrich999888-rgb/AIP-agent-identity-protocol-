@@ -328,3 +328,36 @@ pub fn presence_observation(b: &ExecutionBinding) -> ObservedExecution {
 pub fn attest(o: &mut Observer, batch: ObservationBatch, at_ms: u64) -> AttestedBatch {
     o.signer.attest_at(batch, at_ms).expect("attest")
 }
+
+// ─── Expectation fixture (for the composition tests) ───
+
+use aip_authorize::{AuthorityRef, ExpectedExecution, EXPECTED_EXECUTION_VERSION};
+
+/// A structurally valid, decision-point-signed expectation.
+///
+/// The composition tests do not anchor the decision point, so the reconciler
+/// refuses the expectation and returns `CannotProve` — which is exactly the
+/// baseline those tests need. What matters is that the value is well formed,
+/// not that it is trusted.
+pub fn sample_expectation(a: &Agent) -> ExpectedExecution {
+    let dp = aip_crypto::generate_ed25519_keypair();
+    let mut ee = ExpectedExecution {
+        version: EXPECTED_EXECUTION_VERSION,
+        decision_id: DECISION_A,
+        decision_point_id: "dp-1".into(),
+        agent_id: a.agent_id.clone(),
+        authority: AuthorityRef {
+            root_jti: [0x01; 16],
+            chain_jtis: vec![],
+        },
+        action_kind: aip_types::ScopeAction::Custom("http.post".into()),
+        parameter_digest: [0x44; 32],
+        execution_binding: binding(&a.agent_id, 4321),
+        issued_at: 0,
+        valid_until: 10_000,
+        decision_sig: empty_signature(),
+    };
+    let preimage = ee.signing_preimage();
+    ee.decision_sig = aip_crypto::sign_ed25519(&dp.private_key, "dp-1", &preimage).expect("sign");
+    ee
+}
