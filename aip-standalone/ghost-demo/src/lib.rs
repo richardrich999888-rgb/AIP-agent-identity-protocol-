@@ -351,17 +351,15 @@ impl Observer {
         // Optional like the tap: where the tracepoint does not exist the
         // send class is simply unobservable.
         let send_tracer = SockSendTracer::open().ok();
-        let fanotify = FanotifyWatch::open(
-            std::env::temp_dir().to_str().unwrap_or("/tmp"),
-            FAN_CLOSE_WRITE,
-        )
-        .ok();
+        // The mount-wide fanotify watch is opened only by the file scenarios
+        // (`with_fanotify`): every source an observer opens costs a drain per
+        // batch, and a watch over every write on the host is the heaviest.
         Ok(Self::build(
             Some(tracer),
             Some(process_tracer),
             wire_tap,
             send_tracer,
-            fanotify,
+            None,
         ))
     }
 
@@ -387,9 +385,6 @@ impl Observer {
             // The perf ring reports loss; from here on "no loss" is a counted
             // zero rather than an absence.
             probe.enable_loss_counter();
-            if let Ok(anchor) = boot_clock_anchor() {
-                probe.declare_clock_anchor(anchor);
-            }
         }
         if wire_tap.is_some() {
             probe.declare_source(SourceMechanism::WireTapAfPacket);
@@ -402,6 +397,19 @@ impl Observer {
         if fanotify.is_some() {
             probe.declare_source(SourceMechanism::Fanotify);
             probe.enable_loss_counter();
+        }
+        // Every kernel-stamped source needs the clock anchor for its events
+        // to be placed on the wall clock the decision point speaks; without
+        // it a matching event is `KernelTimeUnanchored`, never verified.
+        if tracer.is_some()
+            || process_tracer.is_some()
+            || wire_tap.is_some()
+            || send_tracer.is_some()
+            || fanotify.is_some()
+        {
+            if let Ok(anchor) = boot_clock_anchor() {
+                probe.declare_clock_anchor(anchor);
+            }
         }
         let anchors = ObserverTrustAnchors::new().trust(OBSERVER_ID, 1, &kp.public_key);
         Self {
@@ -428,7 +436,12 @@ impl Observer {
     pub fn drain_kernel_events(&mut self) {
         // Re-anchor the three clocks for this batch: a suspend since the last
         // anchor would otherwise shift the boot↔monotonic relation silently.
-        if self.tracer.is_some() || self.process_tracer.is_some() {
+        if self.tracer.is_some()
+            || self.process_tracer.is_some()
+            || self.wire_tap.is_some()
+            || self.send_tracer.is_some()
+            || self.fanotify.is_some()
+        {
             if let Ok(anchor) = boot_clock_anchor() {
                 self.probe.declare_clock_anchor(anchor);
             }
@@ -976,7 +989,14 @@ pub fn run_without_wire_tap(scenario: Scenario, agent_bin: &str) -> Demo {
     run_with(scenario, agent_bin, false)
 }
 
+/// Live scenarios share one kernel, one set of tracepoints and one mount
+/// watch; running several at once on a small host starves each other's
+/// rings and turns kernel loss into false negatives. They run one at a time
+/// per process; the test harness may still schedule them in parallel.
+static LIVE: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
+    let _one_at_a_time = LIVE.lock().unwrap_or_else(|e| e.into_inner());
     let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).unwrap();
     let remote = v4(&listener);
     let a = Authority::new();
