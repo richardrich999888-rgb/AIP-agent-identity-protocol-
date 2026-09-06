@@ -45,9 +45,10 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 /// - `6` Gate 2: `SourceMechanism::WireTapAfPacket`, `WireSegment` with
 ///   `WireDirection` and the kernel realtime capture stamp.
 /// - `7` Gate 3: `SourceMechanism::SockSendTracepoint`, `SocketSend`.
+/// - `8` Gate 4: `SourceMechanism::Fanotify`, `FileEvent`.
 ///
 /// Earlier versions never left this branch; all are refused.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 7;
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 8;
 
 /// Kernel TCP state bytes (`include/net/tcp_states.h`), as they appear in
 /// `/proc/net/tcp` and in the `sock:inet_sock_set_state` tracepoint.
@@ -132,6 +133,15 @@ pub enum SourceMechanism {
     /// measurement of the task succeeded under the start-tick rule. Loss
     /// via `PERF_RECORD_LOST`.
     SockSendTracepoint,
+    /// A file event **queued by the kernel** through `fanotify`
+    /// (`FAN_CLOSE_WRITE`, `FAN_MODIFY`) on a marked mount, with a pidfd the
+    /// kernel created from the event's own process reference
+    /// (`FAN_REPORT_PIDFD`): the acting instance is bound by the kernel,
+    /// not by a pid number. The probe resolves the object descriptor to
+    /// the kernel's current path and inode and reads nothing from the
+    /// file. Events carry no kernel timestamp; the probe stamps them at
+    /// read time. Loss via `FAN_Q_OVERFLOW`. No eBPF, no syscall tracing.
+    Fanotify,
 }
 
 impl SourceMechanism {
@@ -145,6 +155,7 @@ impl SourceMechanism {
             SourceMechanism::SchedTracepoint => 0x06,
             SourceMechanism::WireTapAfPacket => 0x07,
             SourceMechanism::SockSendTracepoint => 0x08,
+            SourceMechanism::Fanotify => 0x09,
         }
     }
 
@@ -158,6 +169,7 @@ impl SourceMechanism {
                 | SourceMechanism::SchedTracepoint
                 | SourceMechanism::WireTapAfPacket
                 | SourceMechanism::SockSendTracepoint
+                | SourceMechanism::Fanotify
         )
     }
 
@@ -175,7 +187,7 @@ impl SourceMechanism {
         matches!(self, SourceMechanism::PidFdAnchored)
     }
 
-    pub const ALL: [SourceMechanism; 8] = [
+    pub const ALL: [SourceMechanism; 9] = [
         SourceMechanism::ProcfsPoll,
         SourceMechanism::PidFdAnchored,
         SourceMechanism::ProcConnector,
@@ -184,6 +196,7 @@ impl SourceMechanism {
         SourceMechanism::SchedTracepoint,
         SourceMechanism::WireTapAfPacket,
         SourceMechanism::SockSendTracepoint,
+        SourceMechanism::Fanotify,
     ];
 
     /// Canonical ordering of a mechanism set: by code, deduplicated. Used
@@ -570,6 +583,20 @@ pub enum KernelLifecycleKind {
         flags: u32,
         current_pid: u32,
     },
+    /// A fanotify event (`Fanotify`): process `pid` acted on the object the
+    /// kernel resolved to `path` (`deleted` when the kernel reported the
+    /// name as unlinked), with device `dev` and inode `ino`. `mask` is the
+    /// kernel's event mask (`FAN_CLOSE_WRITE` = a completed write). The
+    /// acting instance is bound through the kernel's own pidfd. Nothing of
+    /// the file's content is here or anywhere.
+    FileEvent {
+        mask: u64,
+        pid: u32,
+        path: String,
+        deleted: bool,
+        dev: u64,
+        ino: u64,
+    },
 }
 
 /// TCP flag bits as they appear in `WireSegment::flags`.
@@ -592,6 +619,14 @@ impl KernelLifecycleKind {
     pub fn is_wire_syn_ack(&self) -> bool {
         matches!(self, KernelLifecycleKind::WireSegment { flags, .. }
             if flags & (tcp_flags::SYN | tcp_flags::ACK) == tcp_flags::SYN | tcp_flags::ACK)
+    }
+
+    /// A file event that is a **completed** write: the object was closed
+    /// after being opened for writing (`FAN_CLOSE_WRITE`). A `FAN_MODIFY`
+    /// alone is a write in progress.
+    pub fn is_file_write(&self) -> bool {
+        matches!(self, KernelLifecycleKind::FileEvent { mask, .. }
+            if mask & crate::fanotify::FAN_CLOSE_WRITE != 0)
     }
 
     /// The pid the event is *about* (the child for a fork). For a socket
@@ -625,6 +660,8 @@ impl KernelLifecycleKind {
             KernelLifecycleKind::WireSegment { .. } => None,
             // sendmsg runs in the caller.
             KernelLifecycleKind::SocketSend { current_pid, .. } => Some(*current_pid),
+            // The kernel names the acting process on the event.
+            KernelLifecycleKind::FileEvent { pid, .. } => Some(*pid),
         }
     }
 
@@ -763,6 +800,22 @@ impl KernelLifecycleKind {
                 put_u32(buf, *bytes);
                 put_u32(buf, *flags);
                 put_u32(buf, *current_pid);
+            }
+            KernelLifecycleKind::FileEvent {
+                mask,
+                pid,
+                path,
+                deleted,
+                dev,
+                ino,
+            } => {
+                put_u8(buf, 0x09);
+                put_u64(buf, *mask);
+                put_u32(buf, *pid);
+                put_str(buf, path);
+                put_u8(buf, u8::from(*deleted));
+                put_u64(buf, *dev);
+                put_u64(buf, *ino);
             }
         }
     }

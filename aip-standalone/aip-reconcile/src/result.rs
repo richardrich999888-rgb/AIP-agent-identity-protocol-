@@ -199,6 +199,11 @@ pub enum ReasonCode {
     /// later than the send and not followed by a close of it, names the
     /// socket's endpoint — so the send cannot be placed on any endpoint.
     SendSocketUnresolved = 0x4f,
+    /// Gate 4: the kernel reported the authorized instance completing a
+    /// write, but the object's name it resolved is not one an authorization
+    /// can name (the kernel reported it as deleted, or it is not an absolute
+    /// path), so the write cannot be placed on any authorized path.
+    FilePathUnresolved = 0x56,
     // ── lineage (Phase C2) ──
     /// No bound fork/exec edge whose child is the authorized instance.
     LineageEvidenceUnavailable = 0x70,

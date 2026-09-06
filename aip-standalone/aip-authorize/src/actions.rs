@@ -41,6 +41,56 @@ pub const NET_CONNECT_ACTION: &str = "ghost.net.connect.v1";
 /// connection to a remote endpoint.
 pub const NET_SEND_ACTION: &str = "ghost.net.send.v1";
 
+/// **`ghost.fs.write.v1` (Gate 4).** A write to a file at an absolute path
+/// completed by the authorized instance (the file was closed after being
+/// opened for writing). The parameters — and so the digest — name the
+/// **path bytes** exactly as authorized. A path is a name the kernel
+/// resolves for an object at a moment, in a mount namespace; the object's
+/// device and inode are observed and signed as context, never part of the
+/// digest, and nothing about the content written is part of this class.
+pub const FS_WRITE_ACTION: &str = "ghost.fs.write.v1";
+pub const PARAM_PATH: &str = "path";
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FsWriteError {
+    /// Only absolute paths name an object without a working directory.
+    NotAbsolute,
+    Empty,
+    /// A path with an interior NUL cannot be the path the kernel resolved.
+    InteriorNul,
+}
+
+impl std::fmt::Display for FsWriteError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
+}
+
+impl std::error::Error for FsWriteError {}
+
+/// The scope action for [`FS_WRITE_ACTION`].
+pub fn fs_write_action() -> ScopeAction {
+    ScopeAction::Custom(FS_WRITE_ACTION.to_string())
+}
+
+/// Parameters naming one absolute path, byte for byte. No normalisation:
+/// `/a/b` and `/a/b/` are different names, as they are to the kernel.
+pub fn fs_write_parameters(path: &str) -> Result<ActionParameters, FsWriteError> {
+    if path.is_empty() {
+        return Err(FsWriteError::Empty);
+    }
+    if !path.starts_with('/') {
+        return Err(FsWriteError::NotAbsolute);
+    }
+    if path.as_bytes().contains(&0) {
+        return Err(FsWriteError::InteriorNul);
+    }
+    Ok(
+        ActionParameters::from_pairs([(PARAM_PATH, path.as_bytes().to_vec())])
+            .expect("one constant key"),
+    )
+}
+
 /// Parameter keys. Values: `protocol` is the ASCII name, `remote_addr` the
 /// raw 4- or 16-byte address, `remote_port` the port as two big-endian bytes.
 /// Raw bytes rather than text, so there is exactly one encoding of each.

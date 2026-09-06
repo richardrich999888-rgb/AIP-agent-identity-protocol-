@@ -239,6 +239,7 @@ fn presence(seq: u64, p: ObservedProcess, c: Option<&AgentClaim>, wall: u64) -> 
     }
 }
 
+#[allow(clippy::too_many_arguments)] // a fixture: every field is a knob
 fn raw_batch(
     id: u8,
     from: u64,

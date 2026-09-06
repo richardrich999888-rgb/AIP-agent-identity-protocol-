@@ -42,10 +42,11 @@ pub mod decision;
 pub mod expected;
 
 pub use actions::{
-    net_connect_action, net_connect_parameters, net_send_action, net_send_parameters,
-    process_exec_action, process_exec_parameters, NetConnectError, NetProtocol, NET_CONNECT_ACTION,
-    NET_SEND_ACTION, PARAM_EXE_SHA256, PARAM_PROTOCOL, PARAM_REMOTE_ADDR, PARAM_REMOTE_PORT,
-    PROCESS_EXEC_ACTION,
+    fs_write_action, fs_write_parameters, net_connect_action, net_connect_parameters,
+    net_send_action, net_send_parameters, process_exec_action, process_exec_parameters,
+    FsWriteError, NetConnectError, NetProtocol, FS_WRITE_ACTION, NET_CONNECT_ACTION,
+    NET_SEND_ACTION, PARAM_EXE_SHA256, PARAM_PATH, PARAM_PROTOCOL, PARAM_REMOTE_ADDR,
+    PARAM_REMOTE_PORT, PROCESS_EXEC_ACTION,
 };
 pub use decision::{
     AuthorizationRequest, Decision, DecisionPoint, DecisionPointError, Denial, DenialReason,

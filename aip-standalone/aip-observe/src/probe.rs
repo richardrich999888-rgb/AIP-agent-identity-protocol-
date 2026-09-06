@@ -498,6 +498,58 @@ impl ProcfsProbe {
         self.ingest_event(ev, SourceMechanism::SockSendTracepoint)
     }
 
+    /// Ingest a fanotify file event (`Fanotify`). The kernel handed the
+    /// probe a pidfd it created for the acting process itself; the probe
+    /// measures the instance **through that pidfd** (alive before and after
+    /// the read) instead of opening one by number, and still applies the
+    /// start-tick rule against the read stamp. Without a pidfd (the process
+    /// had gone) the event is recorded unbound: existence, no identity.
+    #[cfg(target_os = "linux")]
+    pub fn ingest_file_event(
+        &mut self,
+        obs: crate::fanotify::FileObservation,
+    ) -> &KernelLifecycleEvent {
+        let seq = self.next_seq();
+        let ev = obs.event;
+        let subject = ev.kind.subject_pid();
+        let anchor = self.clock_anchor;
+        let bound = obs
+            .pidfd
+            .and_then(|pidfd| self.measure_through(&pidfd).ok())
+            .filter(|p| instance_started_no_later_than(p, ev.timestamp_ns, anchor.as_ref()));
+        let (attribution, claimed_decision_id) = subject
+            .map(|pid| self.attribution_for(pid))
+            .unwrap_or((AgentAttribution::NotEstablished, None));
+        self.pending_kernel_events.push(KernelLifecycleEvent {
+            version: OBSERVE_PROTOCOL_VERSION,
+            probe_id: self.probe_id.clone(),
+            mechanism: SourceMechanism::Fanotify,
+            kind: ev.kind,
+            cpu: ev.cpu,
+            kernel_timestamp_ns: ev.timestamp_ns,
+            probe_seq: seq,
+            bound,
+            attribution,
+            claimed_decision_id,
+        });
+        self.pending_kernel_events.last().unwrap()
+    }
+
+    /// Measure the instance a kernel-created pidfd refers to: alive before
+    /// the procfs reads and still alive after them, or nothing.
+    #[cfg(target_os = "linux")]
+    fn measure_through(&self, pidfd: &crate::linux::PidFd) -> Result<ObservedProcess, ProbeError> {
+        let pid = pidfd.pid();
+        if !pidfd.is_alive()? {
+            return Err(ProbeError::InstanceEnded { pid });
+        }
+        let process = self.read_process(pid)?;
+        if !pidfd.is_alive()? {
+            return Err(ProbeError::InstanceEnded { pid });
+        }
+        Ok(process)
+    }
+
     fn ingest_event(&mut self, ev: ProcEvent, mechanism: SourceMechanism) -> &KernelLifecycleEvent {
         let seq = self.next_seq();
         let subject = ev.kind.subject_pid();

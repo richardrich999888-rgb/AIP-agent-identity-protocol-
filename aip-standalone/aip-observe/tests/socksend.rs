@@ -95,11 +95,12 @@ fn sk03_the_mechanism_is_kernel_pushed_and_covers_no_lifecycle() {
     let m = SourceMechanism::SockSendTracepoint;
     assert_eq!(m.code(), 0x08);
     assert!(SourceMechanism::ALL.contains(&m));
-    assert_eq!(SourceMechanism::ALL.len(), 8);
+    // Eight mechanisms at Gate 3; later gates add their own.
+    assert!(SourceMechanism::ALL.len() >= 8);
     let mut codes: Vec<u8> = SourceMechanism::ALL.iter().map(|m| m.code()).collect();
     codes.sort_unstable();
     codes.dedup();
-    assert_eq!(codes.len(), 8);
+    assert_eq!(codes.len(), SourceMechanism::ALL.len());
     assert!(m.is_kernel_pushed());
     assert!(!m.covers_process_lifecycle());
     assert!(!m.is_instance_anchored());

@@ -12,6 +12,9 @@
 //!                                                <path>, print "spawned <pid>",
 //!                                                block on stdin, then kill it
 //!   ghost-demo-agent --idle                      block on stdin without connecting
+//!   ghost-demo-agent --write <path>              write one line to <path>, close
+//!                                                it, print "wrote <path>", block
+//!                                                on stdin
 //!
 //! It holds no key, signs nothing and reports nothing about itself. The only
 //! thing it does is (optionally) open one TCP connection and stay alive so an
@@ -34,6 +37,15 @@ fn main() {
         let _ = std::io::stdin().read_to_end(&mut sink);
         let _ = child.kill();
         let _ = child.wait();
+        return;
+    }
+    if args.first().map(String::as_str) == Some("--write") {
+        // Write one line to the path, close it (a completed write), report,
+        // then stay alive so an observer can bind the instance.
+        std::fs::write(&args[1], b"ghost-demo-agent wrote\n").expect("write");
+        println!("wrote {}", args[1]);
+        let mut sink = Vec::new();
+        let _ = std::io::stdin().read_to_end(&mut sink);
         return;
     }
     let _held = match args.first().map(String::as_str) {

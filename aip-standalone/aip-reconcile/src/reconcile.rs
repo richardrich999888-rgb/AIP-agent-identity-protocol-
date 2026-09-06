@@ -441,9 +441,11 @@ enum ActionOutcome {
     /// The initiation was seen for this instance and endpoint, but no
     /// completion of that socket was recorded.
     Incomplete,
-    /// Gate 3: a send by the instance was seen, but no attested transition
-    /// names the socket's endpoint.
-    Unresolved,
+    /// Gate 3 / Gate 4: an action by the instance was seen, but what it
+    /// acted on cannot be placed on any authorized parameter (a send whose
+    /// socket no attested transition names; a write whose name the kernel
+    /// reported as deleted). The reason names the class.
+    Unresolved { reason: ReasonCode },
     /// A matching transition exists but its batch has no clock anchor.
     Unanchored,
     /// Evidence of the expected kind exists with a different digest.
@@ -497,7 +499,7 @@ fn compare_action(
     let mut t_precedes = false;
     let mut t_mechanism: Option<SourceMechanism> = None;
     let mut t_first: Option<usize> = None;
-    let mut t_unresolved = 0u32;
+    let mut t_unresolved: Option<ReasonCode> = None;
     for (ti, c) in refs.transitions.iter().enumerate() {
         let t = &c.t;
         if t.kind() != &ee.action_kind {
@@ -508,10 +510,14 @@ fn compare_action(
         // socket no attested transition names cannot be placed on an
         // endpoint at all.
         let Some(digest) = t.parameter_digest() else {
-            if matches!(t, TransitionEvidence::Send(_)) {
-                t_unresolved += 1;
-            } else {
-                t_incomplete += 1;
+            match t {
+                TransitionEvidence::Send(_) => {
+                    t_unresolved.get_or_insert(ReasonCode::SendSocketUnresolved);
+                }
+                TransitionEvidence::File(_) => {
+                    t_unresolved.get_or_insert(ReasonCode::FilePathUnresolved);
+                }
+                _ => t_incomplete += 1,
             }
             continue;
         };
@@ -660,8 +666,8 @@ fn compare_action(
     if t_incomplete > 0 {
         return ActionOutcome::Incomplete;
     }
-    if t_unresolved > 0 {
-        return ActionOutcome::Unresolved;
+    if let Some(reason) = t_unresolved {
+        return ActionOutcome::Unresolved { reason };
     }
     if t_unanchored > 0 {
         return ActionOutcome::Unanchored;
@@ -1373,7 +1379,7 @@ pub fn reconcile_expectation(
                 ActionOutcome::Incomplete => {
                     draft.cannot_prove(ReasonCode::ActionTransitionIncomplete)
                 }
-                ActionOutcome::Unresolved => draft.cannot_prove(ReasonCode::SendSocketUnresolved),
+                ActionOutcome::Unresolved { reason } => draft.cannot_prove(reason),
                 ActionOutcome::Mismatch { mechanism, kind } => {
                     draft.action = ActionComparison::mismatched(mechanism, kind);
                     draft.cannot_prove(ReasonCode::ActionEvidenceDoesNotMatch)

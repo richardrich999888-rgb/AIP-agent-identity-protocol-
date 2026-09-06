@@ -21,9 +21,10 @@ use std::net::{Ipv4Addr, SocketAddrV4, TcpListener, TcpStream};
 use std::process::{Child, Command, Stdio};
 
 use aip_authorize::{
-    net_connect_action, net_connect_parameters, net_send_action, net_send_parameters,
-    process_exec_action, process_exec_parameters, ActionParameters, AuthorizationRequest, Decision,
-    DecisionPoint, DecisionPointTrustAnchors, Denial, ExpectedExecution, NetProtocol,
+    fs_write_action, fs_write_parameters, net_connect_action, net_connect_parameters,
+    net_send_action, net_send_parameters, process_exec_action, process_exec_parameters,
+    ActionParameters, AuthorizationRequest, Decision, DecisionPoint, DecisionPointTrustAnchors,
+    Denial, ExpectedExecution, NetProtocol,
 };
 use aip_core::capability::issue_scoped_token;
 use aip_core::create_identity;
@@ -31,9 +32,10 @@ use aip_core::delegation::create_delegation;
 use aip_core::execution_binding::collect_binding_for_pid;
 use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_observe::{
-    boot_clock_anchor, AgentClaim, AttestedBatch, CollectorSigner, ObservedEffect,
+    boot_clock_anchor, AgentClaim, AttestedBatch, CollectorSigner, FanotifyWatch, ObservedEffect,
     ObserverAttestor, ObserverTrustAnchors, ProbeError, ProcessTracer, ProcfsProbe,
     SignedSensorHealth, SockSendTracer, SockStateTracer, SocketProtocol, SourceMechanism, WireTap,
+    FAN_CLOSE_WRITE,
 };
 use aip_reconcile::{
     reconcile_expectation, reconcile_observation, ExpectedSideCoverage, ObservationTarget,
@@ -85,6 +87,7 @@ impl Authority {
                 net_connect_action(),
                 process_exec_action(),
                 net_send_action(),
+                fs_write_action(),
             ],
             denied: vec![],
         };
@@ -167,6 +170,30 @@ impl Authority {
         }
     }
 
+    /// Authorize `binding` to complete a write to the file at `path`
+    /// (`ghost.fs.write.v1`): the path bytes are authorized, nothing about
+    /// the content is.
+    pub fn authorize_write(
+        &self,
+        binding: ExecutionBinding,
+        path: &str,
+        now: u64,
+    ) -> Result<ExpectedExecution, Denial> {
+        let req = AuthorizationRequest {
+            agent_id: self.agent_id.clone(),
+            root_token: self.root.clone(),
+            delegation_chain: vec![self.hop.clone()],
+            action_kind: fs_write_action(),
+            parameters: fs_write_parameters(path).expect("absolute path"),
+            execution_binding: binding,
+            requested_ttl_ms: TTL_MS,
+        };
+        match self.dp.authorize_at(&req, now) {
+            Decision::Authorized(ee) => Ok(*ee),
+            Decision::Denied(d) => Err(d),
+        }
+    }
+
     /// Authorize `binding` to spawn a child executing an image with this
     /// content hash.
     pub fn authorize_exec(
@@ -237,7 +264,25 @@ pub struct Observer {
     /// The kernel-pushed socket-send source (`sock:sock_send_length`), when
     /// this observer has one.
     send_tracer: Option<SockSendTracer>,
+    /// The fanotify watch on the mount that holds the temp directory, when
+    /// this observer has one (`FAN_CLOSE_WRITE`, `FAN_REPORT_PIDFD`).
+    fanotify: Option<FanotifyWatch>,
     next_batch: u8,
+}
+
+/// Directory the file scenarios write into: under the temp directory, on
+/// whatever mount holds it.
+pub fn demo_dir() -> std::path::PathBuf {
+    std::env::temp_dir().join(format!("ghost-demo-{}", std::process::id()))
+}
+
+/// Can this host provide the fanotify mount watch? `Err` names what is
+/// missing (`CAP_SYS_ADMIN`, or a refused mark).
+pub fn fanotify_available() -> Result<(), String> {
+    let dir = std::env::temp_dir();
+    FanotifyWatch::open(dir.to_str().unwrap_or("/tmp"), FAN_CLOSE_WRITE)
+        .map(|_| ())
+        .map_err(|e| e.to_string())
 }
 
 /// Can this host provide the socket-send tracepoint? `Err` names what is
@@ -266,7 +311,7 @@ impl Observer {
     /// Polling only: `PidFdAnchored` process facts and `ProcNetTable` socket
     /// rows. This is the Stage 7 observer, kept as it was.
     pub fn new() -> Self {
-        Self::build(None, None, None, None)
+        Self::build(None, None, None, None, None)
     }
 
     /// Polling plus the kernel-pushed `sock:inet_sock_set_state` and
@@ -291,11 +336,17 @@ impl Observer {
         // Optional like the tap: where the tracepoint does not exist the
         // send class is simply unobservable.
         let send_tracer = SockSendTracer::open().ok();
+        let fanotify = FanotifyWatch::open(
+            std::env::temp_dir().to_str().unwrap_or("/tmp"),
+            FAN_CLOSE_WRITE,
+        )
+        .ok();
         Ok(Self::build(
             Some(tracer),
             Some(process_tracer),
             wire_tap,
             send_tracer,
+            fanotify,
         ))
     }
 
@@ -304,6 +355,7 @@ impl Observer {
         process_tracer: Option<ProcessTracer>,
         wire_tap: Option<WireTap>,
         send_tracer: Option<SockSendTracer>,
+        fanotify: Option<FanotifyWatch>,
     ) -> Self {
         let kp = generate_ed25519_keypair();
         let mut signer =
@@ -332,6 +384,10 @@ impl Observer {
             probe.declare_source(SourceMechanism::SockSendTracepoint);
             probe.enable_loss_counter();
         }
+        if fanotify.is_some() {
+            probe.declare_source(SourceMechanism::Fanotify);
+            probe.enable_loss_counter();
+        }
         let anchors = ObserverTrustAnchors::new().trust(OBSERVER_ID, 1, &kp.public_key);
         Self {
             probe,
@@ -341,6 +397,7 @@ impl Observer {
             process_tracer,
             wire_tap,
             send_tracer,
+            fanotify,
             next_batch: 1,
         }
     }
@@ -459,6 +516,30 @@ impl Observer {
                 }
             }
             let lost = tracer.take_lost();
+            if lost > 0 {
+                self.probe.record_lost_events(lost);
+            }
+        }
+        if let Some(watch) = self.fanotify.as_mut() {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+            let hard_deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+            loop {
+                match watch.next_event(10) {
+                    Ok(Some(obs)) => {
+                        self.probe.ingest_file_event(obs);
+                        if std::time::Instant::now() >= hard_deadline {
+                            break;
+                        }
+                    }
+                    Ok(None) => {
+                        if std::time::Instant::now() >= deadline {
+                            break;
+                        }
+                    }
+                    Err(_) => break,
+                }
+            }
+            let lost = watch.take_lost();
             if lost > 0 {
                 self.probe.record_lost_events(lost);
             }
@@ -644,6 +725,28 @@ impl Agent {
         )
     }
 
+    /// Spawn the agent binary and have it write one line to `path`, close
+    /// the file and stay alive. Returns once it has reported the write.
+    pub fn writing(agent_bin: &str, path: &str) -> Agent {
+        let mut child = Command::new(agent_bin)
+            .args(["--write", path])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("spawn agent");
+        let mut line = String::new();
+        BufReader::new(child.stdout.take().unwrap())
+            .read_line(&mut line)
+            .expect("wrote line");
+        assert!(line.starts_with("wrote "), "{line}");
+        let pid = child.id();
+        Agent {
+            child,
+            _accepted: None,
+            pid,
+        }
+    }
+
     /// Spawn the agent binary without any connection.
     pub fn idle(agent_bin: &str) -> Agent {
         let child = Command::new(agent_bin)
@@ -713,10 +816,19 @@ pub enum Scenario {
     /// S-A. The send is authorized to a different endpoint than the one the
     /// agent sends to.
     SendWrongEndpoint,
+    /// F-P. The agent completes a write to the authorized path
+    /// (`ghost.fs.write.v1`).
+    FileWritePositive,
+    /// F-A. The write is authorized for a different path than the one the
+    /// agent writes.
+    FileWriteWrongPath,
+    /// F-N. The write is authorized and the agent never writes: not
+    /// observed, never a phantom.
+    FileWriteNotDone,
 }
 
 impl Scenario {
-    pub const ALL: [Scenario; 17] = [
+    pub const ALL: [Scenario; 20] = [
         Scenario::Positive,
         Scenario::ExpectedNotExecuted,
         Scenario::ExecutedNotExpected,
@@ -734,6 +846,9 @@ impl Scenario {
         Scenario::ExecBeforeAuthorization,
         Scenario::SendPositive,
         Scenario::SendWrongEndpoint,
+        Scenario::FileWritePositive,
+        Scenario::FileWriteWrongPath,
+        Scenario::FileWriteNotDone,
     ];
 
     /// Scenarios that need the kernel-pushed socket-state source.
@@ -749,6 +864,9 @@ impl Scenario {
                 | Scenario::ExecBeforeAuthorization
                 | Scenario::SendPositive
                 | Scenario::SendWrongEndpoint
+                | Scenario::FileWritePositive
+                | Scenario::FileWriteWrongPath
+                | Scenario::FileWriteNotDone
         )
     }
 
@@ -775,6 +893,9 @@ impl Scenario {
             Scenario::ExecBeforeAuthorization => "X-C. spawn attested before the decision",
             Scenario::SendPositive => "S-P. authorized send, kernel-reported byte count",
             Scenario::SendWrongEndpoint => "S-A. send authorized to a different endpoint",
+            Scenario::FileWritePositive => "F-P. authorized file write, kernel-bound writer",
+            Scenario::FileWriteWrongPath => "F-A. write authorized for a different path",
+            Scenario::FileWriteNotDone => "F-N. write authorized, never done",
         }
     }
 }
@@ -810,6 +931,15 @@ fn v4(listener: &TcpListener) -> SocketAddrV4 {
     match listener.local_addr().unwrap() {
         std::net::SocketAddr::V4(a) => a,
         _ => panic!("demo listener is IPv4"),
+    }
+}
+
+fn scenario_slug(s: Scenario) -> &'static str {
+    match s {
+        Scenario::FileWritePositive => "f-p",
+        Scenario::FileWriteWrongPath => "f-a",
+        Scenario::FileWriteNotDone => "f-n",
+        _ => "other",
     }
 }
 
@@ -1251,6 +1381,57 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
                     "agent pid {} sent its hello to {remote}; authorized send to {target}; {sends} send event(s) captured (send tracer {})",
                     agent.pid,
                     if o.send_tracer.is_some() { "open" } else { "not open" }
+                ),
+            }
+        }
+        Scenario::FileWritePositive | Scenario::FileWriteWrongPath | Scenario::FileWriteNotDone => {
+            let dir = demo_dir();
+            std::fs::create_dir_all(&dir).expect("demo dir");
+            let written = dir.join(format!("{}.txt", scenario_slug(scenario)));
+            let authorized = if scenario == Scenario::FileWriteWrongPath {
+                dir.join("elsewhere.txt")
+            } else {
+                written.clone()
+            };
+            let b1 = o.epoch_start(now_ms());
+            let now = now_ms();
+            let agent = if scenario == Scenario::FileWriteNotDone {
+                Agent::idle(agent_bin)
+            } else {
+                Agent::writing(agent_bin, written.to_str().unwrap())
+            };
+            let binding = a.binding_for(agent.pid);
+            let ee = a
+                .authorize_write(binding, authorized.to_str().unwrap(), now)
+                .unwrap();
+            let c = claim(&a, &ee);
+            let (b2, _) = o.observe_connections(agent.pid, Some(&c)).unwrap();
+            let at = now_ms().max(b2.batch.claimed_to_ms);
+            let files = b2
+                .batch
+                .kernel_events
+                .iter()
+                .filter(|e| e.mechanism == SourceMechanism::Fanotify)
+                .count();
+            let ev = ObserverEvidence {
+                batches: vec![b1, b2],
+                health: o.health(at),
+            };
+            let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
+            let _ = std::fs::remove_dir_all(&dir);
+            Demo {
+                scenario,
+                reconciliation: r,
+                note: format!(
+                    "agent pid {} {}; authorized write to {}; {files} file event(s) captured on the mount (fanotify {})",
+                    agent.pid,
+                    if scenario == Scenario::FileWriteNotDone {
+                        "wrote nothing".to_string()
+                    } else {
+                        format!("wrote {}", written.display())
+                    },
+                    authorized.display(),
+                    if o.fanotify.is_some() { "open" } else { "not open" }
                 ),
             }
         }

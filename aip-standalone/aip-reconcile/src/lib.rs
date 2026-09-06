@@ -38,9 +38,9 @@ pub mod reconcile;
 pub mod result;
 
 pub use action::{
-    derive_action, derive_executions, derive_lineage_edges, derive_sends,
+    derive_action, derive_executions, derive_file_writes, derive_lineage_edges, derive_sends,
     derive_transition_evidence, derive_transitions, DerivedAction, EventPosition, ExecutedImage,
-    LineageEdge, ProcessExecution, SocketSend, SocketTransition, TransitionEvidence,
+    FileWrite, LineageEdge, ProcessExecution, SocketSend, SocketTransition, TransitionEvidence,
     TCP_ESTABLISHED,
 };
 pub use ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};

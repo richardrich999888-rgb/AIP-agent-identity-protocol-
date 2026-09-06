@@ -230,6 +230,13 @@ mod sys {
     }
 
     impl PidFd {
+        /// Take ownership of a pidfd another kernel interface created for
+        /// `pid` (fanotify's `FAN_REPORT_PIDFD`). The kernel bound it to the
+        /// process instance behind the event, not to the number.
+        pub fn from_raw(fd: RawFd, pid: u32) -> PidFd {
+            PidFd { fd, pid }
+        }
+
         pub fn open(pid: u32) -> Result<PidFd, ProbeError> {
             // SAFETY: plain syscall with integer arguments; result checked.
             let r = unsafe {

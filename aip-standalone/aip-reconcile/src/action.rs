@@ -18,8 +18,9 @@
 //! it was created. Every strength derived from it is capped at `Attested`.
 
 use aip_authorize::{
-    net_connect_action, net_connect_parameters, net_send_action, net_send_parameters,
-    process_exec_action, process_exec_parameters, NetProtocol,
+    fs_write_action, fs_write_parameters, net_connect_action, net_connect_parameters,
+    net_send_action, net_send_parameters, process_exec_action, process_exec_parameters,
+    NetProtocol,
 };
 use aip_observe::{
     AgentAttribution, AttestedBatch, BootClockAnchor, KernelLifecycleKind, ObservedEffect,
@@ -481,6 +482,81 @@ pub fn derive_sends<'a>(batches: impl IntoIterator<Item = &'a AttestedBatch>) ->
     sends
 }
 
+// ─── File write evidence (kernel-queued, Gate 4) ───
+
+/// A completed write the kernel reported through fanotify
+/// (`FAN_CLOSE_WRITE`), bound to the acting instance through the kernel's
+/// own pidfd, on the object the kernel resolved to `path`. Derived from
+/// `Fanotify` events only. The digest, when the name is one an
+/// authorization can carry (absolute, not reported deleted), is
+/// `fs_write_parameters(path).digest()`: the path bytes only. `(dev, ino)`
+/// is signed context; nothing about content exists.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FileWrite {
+    pub bound: ObservedProcess,
+    pub kind: ScopeAction,
+    pub parameter_digest: Option<[u8; 32]>,
+    pub path: String,
+    pub deleted: bool,
+    pub dev: u64,
+    pub ino: u64,
+    pub at: EventPosition,
+    pub attribution: AgentAttribution,
+    pub claimed_decision_id: Option<[u8; 16]>,
+    pub mechanism: SourceMechanism,
+}
+
+/// Derive every bound completed write from the kernel events of the
+/// supplied batches. Unbound events (the writer had gone before the event
+/// was read) are not evidence of an instance; a `FAN_MODIFY` without
+/// `FAN_CLOSE_WRITE` is a write in progress, not a completed write.
+pub fn derive_file_writes<'a>(
+    batches: impl IntoIterator<Item = &'a AttestedBatch>,
+) -> Vec<FileWrite> {
+    let mut out = Vec::new();
+    for b in batches {
+        for (i, e) in b.batch.kernel_events.iter().enumerate() {
+            if e.mechanism != SourceMechanism::Fanotify || !e.kind.is_file_write() {
+                continue;
+            }
+            let KernelLifecycleKind::FileEvent {
+                path,
+                deleted,
+                dev,
+                ino,
+                ..
+            } = &e.kind
+            else {
+                continue;
+            };
+            let Some(bound) = &e.bound else { continue };
+            let parameter_digest = if *deleted {
+                None
+            } else {
+                fs_write_parameters(path).ok().map(|p| p.digest())
+            };
+            out.push(FileWrite {
+                bound: bound.clone(),
+                kind: fs_write_action(),
+                parameter_digest,
+                path: path.clone(),
+                deleted: *deleted,
+                dev: *dev,
+                ino: *ino,
+                at: EventPosition {
+                    batch_sequence: b.sequence,
+                    index: i as u32,
+                    kernel_timestamp_ns: e.kernel_timestamp_ns,
+                },
+                attribution: e.attribution.clone(),
+                claimed_decision_id: e.claimed_decision_id,
+                mechanism: e.mechanism,
+            });
+        }
+    }
+    out
+}
+
 // ─── One view over every transition class ───
 
 /// Kernel-reported action evidence of any class, seen uniformly by the
@@ -494,6 +570,8 @@ pub enum TransitionEvidence {
     /// A send is one kernel event: it initiates and completes at once (the
     /// kernel accepted the bytes), so `completion() == Some(initiation())`.
     Send(SocketSend),
+    /// A completed file write is one kernel event likewise.
+    File(FileWrite),
 }
 
 impl TransitionEvidence {
@@ -502,6 +580,7 @@ impl TransitionEvidence {
             TransitionEvidence::Socket(t) => &t.kind,
             TransitionEvidence::Exec(t) => &t.kind,
             TransitionEvidence::Send(t) => &t.kind,
+            TransitionEvidence::File(t) => &t.kind,
         }
     }
 
@@ -513,6 +592,7 @@ impl TransitionEvidence {
             TransitionEvidence::Socket(t) => Some(t.parameter_digest),
             TransitionEvidence::Exec(t) => t.parameter_digest,
             TransitionEvidence::Send(t) => t.parameter_digest,
+            TransitionEvidence::File(t) => t.parameter_digest,
         }
     }
 
@@ -522,6 +602,7 @@ impl TransitionEvidence {
             TransitionEvidence::Socket(t) => &t.bound,
             TransitionEvidence::Exec(t) => &t.actor,
             TransitionEvidence::Send(t) => &t.bound,
+            TransitionEvidence::File(t) => &t.bound,
         }
     }
 
@@ -530,6 +611,7 @@ impl TransitionEvidence {
             TransitionEvidence::Socket(t) => &t.attribution,
             TransitionEvidence::Exec(t) => &t.attribution,
             TransitionEvidence::Send(t) => &t.attribution,
+            TransitionEvidence::File(t) => &t.attribution,
         }
     }
 
@@ -538,6 +620,7 @@ impl TransitionEvidence {
             TransitionEvidence::Socket(t) => t.claimed_decision_id,
             TransitionEvidence::Exec(t) => t.claimed_decision_id,
             TransitionEvidence::Send(t) => t.claimed_decision_id,
+            TransitionEvidence::File(t) => t.claimed_decision_id,
         }
     }
 
@@ -546,6 +629,7 @@ impl TransitionEvidence {
             TransitionEvidence::Socket(t) => t.initiation,
             TransitionEvidence::Exec(t) => t.fork,
             TransitionEvidence::Send(t) => t.at,
+            TransitionEvidence::File(t) => t.at,
         }
     }
 
@@ -554,6 +638,7 @@ impl TransitionEvidence {
             TransitionEvidence::Socket(t) => t.completion,
             TransitionEvidence::Exec(t) => t.execution.as_ref().map(|x| x.at),
             TransitionEvidence::Send(t) => Some(t.at),
+            TransitionEvidence::File(t) => Some(t.at),
         }
     }
 
@@ -562,6 +647,7 @@ impl TransitionEvidence {
             TransitionEvidence::Socket(t) => t.mechanism,
             TransitionEvidence::Exec(t) => t.mechanism,
             TransitionEvidence::Send(t) => t.mechanism,
+            TransitionEvidence::File(t) => t.mechanism,
         }
     }
 
@@ -570,7 +656,9 @@ impl TransitionEvidence {
     pub fn socket_tuple(&self) -> Option<(SocketProtocol, SocketEndpoint, Option<SocketEndpoint>)> {
         match self {
             TransitionEvidence::Socket(t) => Some((t.protocol, t.remote, t.local)),
-            TransitionEvidence::Exec(_) | TransitionEvidence::Send(_) => None,
+            TransitionEvidence::Exec(_)
+            | TransitionEvidence::Send(_)
+            | TransitionEvidence::File(_) => None,
         }
     }
 }
@@ -588,9 +676,14 @@ pub fn derive_transition_evidence<'a>(
                 .map(TransitionEvidence::Exec),
         )
         .chain(
-            derive_sends(batches)
+            derive_sends(batches.clone())
                 .into_iter()
                 .map(TransitionEvidence::Send),
+        )
+        .chain(
+            derive_file_writes(batches)
+                .into_iter()
+                .map(TransitionEvidence::File),
         )
         .collect()
 }
