@@ -44,9 +44,10 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 ///   `clk_tck`.
 /// - `6` Gate 2: `SourceMechanism::WireTapAfPacket`, `WireSegment` with
 ///   `WireDirection` and the kernel realtime capture stamp.
+/// - `7` Gate 3: `SourceMechanism::SockSendTracepoint`, `SocketSend`.
 ///
 /// Earlier versions never left this branch; all are refused.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 6;
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 7;
 
 /// Kernel TCP state bytes (`include/net/tcp_states.h`), as they appear in
 /// `/proc/net/tcp` and in the `sock:inet_sock_set_state` tracepoint.
@@ -121,6 +122,16 @@ pub enum SourceMechanism {
     /// outside the observed host's root; on the observed host it is as
     /// root-forgeable as every other source here. No eBPF, no XDP.
     WireTapAfPacket,
+    /// A send of application bytes on a socket **pushed by the kernel**
+    /// through the `sock:sock_send_length` tracepoint, sampled with
+    /// `perf_event_open` (no eBPF). Fires in `sock_sendmsg` in the
+    /// **sending task's** context with the socket's kernel identity `sk`,
+    /// family, protocol, the byte count the kernel accepted and the flags.
+    /// The count, never the bytes and never a hash of them (I23). The
+    /// instance behind it is established only if a `PidFdAnchored`
+    /// measurement of the task succeeded under the start-tick rule. Loss
+    /// via `PERF_RECORD_LOST`.
+    SockSendTracepoint,
 }
 
 impl SourceMechanism {
@@ -133,6 +144,7 @@ impl SourceMechanism {
             SourceMechanism::SockStateTracepoint => 0x05,
             SourceMechanism::SchedTracepoint => 0x06,
             SourceMechanism::WireTapAfPacket => 0x07,
+            SourceMechanism::SockSendTracepoint => 0x08,
         }
     }
 
@@ -145,6 +157,7 @@ impl SourceMechanism {
                 | SourceMechanism::SockStateTracepoint
                 | SourceMechanism::SchedTracepoint
                 | SourceMechanism::WireTapAfPacket
+                | SourceMechanism::SockSendTracepoint
         )
     }
 
@@ -162,7 +175,7 @@ impl SourceMechanism {
         matches!(self, SourceMechanism::PidFdAnchored)
     }
 
-    pub const ALL: [SourceMechanism; 7] = [
+    pub const ALL: [SourceMechanism; 8] = [
         SourceMechanism::ProcfsPoll,
         SourceMechanism::PidFdAnchored,
         SourceMechanism::ProcConnector,
@@ -170,6 +183,7 @@ impl SourceMechanism {
         SourceMechanism::SockStateTracepoint,
         SourceMechanism::SchedTracepoint,
         SourceMechanism::WireTapAfPacket,
+        SourceMechanism::SockSendTracepoint,
     ];
 
     /// Canonical ordering of a mechanism set: by code, deduplicated. Used
@@ -544,6 +558,18 @@ pub enum KernelLifecycleKind {
         frame_len: u32,
         kernel_realtime_ns: u64,
     },
+    /// `sock:sock_send_length`: the task `current_pid` handed `bytes` to the
+    /// kernel for send on socket `sk` (`SockSendTracepoint`). Fires in the
+    /// caller's context, so `current_pid` is the sender. The endpoint is not
+    /// in the event: a verifier resolves it from the state transitions of
+    /// the same `sk`. Never the bytes, never a digest of them.
+    SocketSend {
+        protocol: SocketProtocol,
+        sk: u64,
+        bytes: u32,
+        flags: u32,
+        current_pid: u32,
+    },
 }
 
 /// TCP flag bits as they appear in `WireSegment::flags`.
@@ -597,6 +623,8 @@ impl KernelLifecycleKind {
             KernelLifecycleKind::ProcessExec { pid, .. } => Some(*pid),
             // The device layer has no task context.
             KernelLifecycleKind::WireSegment { .. } => None,
+            // sendmsg runs in the caller.
+            KernelLifecycleKind::SocketSend { current_pid, .. } => Some(*current_pid),
         }
     }
 
@@ -721,6 +749,20 @@ impl KernelLifecycleKind {
                 put_u32(buf, *payload_len);
                 put_u32(buf, *frame_len);
                 put_u64(buf, *kernel_realtime_ns);
+            }
+            KernelLifecycleKind::SocketSend {
+                protocol,
+                sk,
+                bytes,
+                flags,
+                current_pid,
+            } => {
+                put_u8(buf, 0x08);
+                put_u8(buf, protocol.code());
+                put_u64(buf, *sk);
+                put_u32(buf, *bytes);
+                put_u32(buf, *flags);
+                put_u32(buf, *current_pid);
             }
         }
     }

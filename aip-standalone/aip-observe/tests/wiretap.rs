@@ -235,11 +235,16 @@ fn wt05_the_tap_is_a_kernel_pushed_mechanism_that_covers_no_process_lifecycle() 
     let m = SourceMechanism::WireTapAfPacket;
     assert_eq!(m.code(), 0x07);
     assert!(SourceMechanism::ALL.contains(&m));
-    assert_eq!(SourceMechanism::ALL.len(), 7);
+    // Seven mechanisms at Gate 2; later gates add their own.
+    assert!(SourceMechanism::ALL.len() >= 7);
     let mut codes: Vec<u8> = SourceMechanism::ALL.iter().map(|m| m.code()).collect();
     codes.sort_unstable();
     codes.dedup();
-    assert_eq!(codes.len(), 7, "codes stay distinct");
+    assert_eq!(
+        codes.len(),
+        SourceMechanism::ALL.len(),
+        "codes stay distinct"
+    );
     assert!(m.is_kernel_pushed());
     assert!(!m.covers_process_lifecycle());
     assert!(!m.is_instance_anchored());

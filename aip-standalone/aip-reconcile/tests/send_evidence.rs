@@ -211,6 +211,7 @@ fn event(
     }
 }
 
+#[allow(clippy::too_many_arguments)] // a fixture: every field is a knob
 fn state(
     seq: u64,
     ts_ns: u64,

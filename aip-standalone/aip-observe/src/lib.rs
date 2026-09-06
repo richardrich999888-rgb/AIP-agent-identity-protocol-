@@ -65,6 +65,7 @@ pub mod observed;
 pub mod perf;
 pub mod probe;
 pub mod sched;
+pub mod socksend;
 pub mod sockstate;
 pub mod wiretap;
 
@@ -99,6 +100,9 @@ pub use probe::{clk_tck, instance_started_no_later_than, AgentClaim, ProbeError,
 #[cfg(target_os = "linux")]
 pub use sched::ProcessTracer;
 pub use sched::{parse_exec_record, parse_fork_record, EXEC_TRACEPOINT, FORK_TRACEPOINT};
+#[cfg(target_os = "linux")]
+pub use socksend::SockSendTracer;
+pub use socksend::{parse_sock_send_record, SOCK_SEND_TRACEPOINT};
 #[cfg(target_os = "linux")]
 pub use sockstate::{boot_clock_anchor, SockStateTracer};
 pub use sockstate::{parse_sock_state_record, TracepointFormat, SOCK_STATE_TRACEPOINT};

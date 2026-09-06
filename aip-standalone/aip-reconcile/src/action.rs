@@ -18,8 +18,8 @@
 //! it was created. Every strength derived from it is capped at `Attested`.
 
 use aip_authorize::{
-    net_connect_action, net_connect_parameters, process_exec_action, process_exec_parameters,
-    NetProtocol,
+    net_connect_action, net_connect_parameters, net_send_action, net_send_parameters,
+    process_exec_action, process_exec_parameters, NetProtocol,
 };
 use aip_observe::{
     AgentAttribution, AttestedBatch, BootClockAnchor, KernelLifecycleKind, ObservedEffect,
@@ -338,6 +338,149 @@ pub fn derive_executions<'a>(
     spawns
 }
 
+// ─── Socket send evidence (kernel-pushed, Gate 3) ───
+
+/// A send the kernel reported: `sock:sock_send_length` in the sender's own
+/// context, anchored to an instance by the probe, with the socket's endpoint
+/// resolved from the attested state transitions of the same kernel socket.
+/// Derived from `SockSendTracepoint` and `SockStateTracepoint` events only.
+///
+/// The endpoint is named by the **latest** attested transition of `sk` that
+/// is not later than the send in kernel time and is not itself a close —
+/// unless a transition of `sk` to `CLOSE` lies between that transition and
+/// the send, in which case the kernel may have reused the socket's address
+/// and the send is left **unresolved** (`remote == None`). The digest, when
+/// resolved, is `net_send_parameters(protocol, remote).digest()`: the
+/// endpoint only. `bytes` is the count the kernel accepted, signed as
+/// context; it never enters the digest and no payload digest exists.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SocketSend {
+    /// The instance the probe anchored at the send.
+    pub bound: ObservedProcess,
+    pub kind: ScopeAction,
+    pub parameter_digest: Option<[u8; 32]>,
+    pub protocol: SocketProtocol,
+    pub sk: u64,
+    pub bytes: u32,
+    pub remote: Option<SocketEndpoint>,
+    pub local: Option<SocketEndpoint>,
+    pub at: EventPosition,
+    pub attribution: AgentAttribution,
+    pub claimed_decision_id: Option<[u8; 16]>,
+    pub mechanism: SourceMechanism,
+}
+
+fn send_digest(protocol: SocketProtocol, remote: &SocketEndpoint) -> Option<[u8; 32]> {
+    let (net, addr): (NetProtocol, &[u8]) = match protocol {
+        SocketProtocol::Tcp if !remote.is_v6 => (NetProtocol::Tcp, &remote.addr[..4]),
+        SocketProtocol::Tcp6 if remote.is_v6 => (NetProtocol::Tcp6, &remote.addr[..]),
+        _ => return None,
+    };
+    net_send_parameters(net, addr, remote.port)
+        .ok()
+        .map(|p| p.digest())
+}
+
+/// Derive every bound send from the kernel events of the supplied batches,
+/// resolving each socket's endpoint from the transitions of the same `sk`.
+/// Unbound sends are not evidence of an instance (`CANNOT_PROVE`); sends of
+/// zero bytes are not sends.
+pub fn derive_sends<'a>(batches: impl IntoIterator<Item = &'a AttestedBatch>) -> Vec<SocketSend> {
+    struct State {
+        sk: u64,
+        protocol: SocketProtocol,
+        local: SocketEndpoint,
+        remote: SocketEndpoint,
+        closed: bool,
+        ts: u64,
+    }
+    let mut states: Vec<State> = Vec::new();
+    let mut sends: Vec<SocketSend> = Vec::new();
+    for b in batches {
+        for (i, e) in b.batch.kernel_events.iter().enumerate() {
+            match (&e.mechanism, &e.kind) {
+                (
+                    SourceMechanism::SockStateTracepoint,
+                    KernelLifecycleKind::SocketState {
+                        protocol,
+                        local,
+                        remote,
+                        new_state,
+                        sk,
+                        ..
+                    },
+                ) => states.push(State {
+                    sk: *sk,
+                    protocol: *protocol,
+                    local: *local,
+                    remote: *remote,
+                    closed: *new_state == aip_observe::tcp_state::CLOSE,
+                    ts: e.kernel_timestamp_ns,
+                }),
+                (
+                    SourceMechanism::SockSendTracepoint,
+                    KernelLifecycleKind::SocketSend {
+                        protocol,
+                        sk,
+                        bytes,
+                        ..
+                    },
+                ) => {
+                    let Some(bound) = &e.bound else { continue };
+                    if *bytes == 0 {
+                        continue;
+                    }
+                    sends.push(SocketSend {
+                        bound: bound.clone(),
+                        kind: net_send_action(),
+                        parameter_digest: None,
+                        protocol: *protocol,
+                        sk: *sk,
+                        bytes: *bytes,
+                        remote: None,
+                        local: None,
+                        at: EventPosition {
+                            batch_sequence: b.sequence,
+                            index: i as u32,
+                            kernel_timestamp_ns: e.kernel_timestamp_ns,
+                        },
+                        attribution: e.attribution.clone(),
+                        claimed_decision_id: e.claimed_decision_id,
+                        mechanism: e.mechanism,
+                    });
+                }
+                _ => {}
+            }
+        }
+    }
+    for s in &mut sends {
+        let at = s.at.kernel_timestamp_ns;
+        let Some(named) = states
+            .iter()
+            .filter(|st| {
+                st.sk == s.sk
+                    && st.protocol == s.protocol
+                    && !st.closed
+                    && st.remote.port != 0
+                    && st.ts <= at
+            })
+            .max_by_key(|st| st.ts)
+        else {
+            continue;
+        };
+        let reused = states
+            .iter()
+            .any(|st| st.sk == s.sk && st.closed && st.ts > named.ts && st.ts <= at);
+        if reused {
+            continue;
+        }
+        s.remote = Some(named.remote);
+        s.local = Some(named.local);
+        s.parameter_digest = send_digest(s.protocol, &named.remote);
+    }
+    sends
+}
+
 // ─── One view over every transition class ───
 
 /// Kernel-reported action evidence of any class, seen uniformly by the
@@ -348,6 +491,9 @@ pub fn derive_executions<'a>(
 pub enum TransitionEvidence {
     Socket(SocketTransition),
     Exec(ProcessExecution),
+    /// A send is one kernel event: it initiates and completes at once (the
+    /// kernel accepted the bytes), so `completion() == Some(initiation())`.
+    Send(SocketSend),
 }
 
 impl TransitionEvidence {
@@ -355,15 +501,18 @@ impl TransitionEvidence {
         match self {
             TransitionEvidence::Socket(t) => &t.kind,
             TransitionEvidence::Exec(t) => &t.kind,
+            TransitionEvidence::Send(t) => &t.kind,
         }
     }
 
     /// `None` while the transition is incomplete and its parameters are not
-    /// yet knowable (a spawn whose child has not executed an image).
+    /// yet knowable (a spawn whose child has not executed an image; a send
+    /// whose socket endpoint could not be resolved).
     pub fn parameter_digest(&self) -> Option<[u8; 32]> {
         match self {
             TransitionEvidence::Socket(t) => Some(t.parameter_digest),
             TransitionEvidence::Exec(t) => t.parameter_digest,
+            TransitionEvidence::Send(t) => t.parameter_digest,
         }
     }
 
@@ -372,6 +521,7 @@ impl TransitionEvidence {
         match self {
             TransitionEvidence::Socket(t) => &t.bound,
             TransitionEvidence::Exec(t) => &t.actor,
+            TransitionEvidence::Send(t) => &t.bound,
         }
     }
 
@@ -379,6 +529,7 @@ impl TransitionEvidence {
         match self {
             TransitionEvidence::Socket(t) => &t.attribution,
             TransitionEvidence::Exec(t) => &t.attribution,
+            TransitionEvidence::Send(t) => &t.attribution,
         }
     }
 
@@ -386,6 +537,7 @@ impl TransitionEvidence {
         match self {
             TransitionEvidence::Socket(t) => t.claimed_decision_id,
             TransitionEvidence::Exec(t) => t.claimed_decision_id,
+            TransitionEvidence::Send(t) => t.claimed_decision_id,
         }
     }
 
@@ -393,6 +545,7 @@ impl TransitionEvidence {
         match self {
             TransitionEvidence::Socket(t) => t.initiation,
             TransitionEvidence::Exec(t) => t.fork,
+            TransitionEvidence::Send(t) => t.at,
         }
     }
 
@@ -400,6 +553,7 @@ impl TransitionEvidence {
         match self {
             TransitionEvidence::Socket(t) => t.completion,
             TransitionEvidence::Exec(t) => t.execution.as_ref().map(|x| x.at),
+            TransitionEvidence::Send(t) => Some(t.at),
         }
     }
 
@@ -407,6 +561,7 @@ impl TransitionEvidence {
         match self {
             TransitionEvidence::Socket(t) => t.mechanism,
             TransitionEvidence::Exec(t) => t.mechanism,
+            TransitionEvidence::Send(t) => t.mechanism,
         }
     }
 
@@ -415,7 +570,7 @@ impl TransitionEvidence {
     pub fn socket_tuple(&self) -> Option<(SocketProtocol, SocketEndpoint, Option<SocketEndpoint>)> {
         match self {
             TransitionEvidence::Socket(t) => Some((t.protocol, t.remote, t.local)),
-            TransitionEvidence::Exec(_) => None,
+            TransitionEvidence::Exec(_) | TransitionEvidence::Send(_) => None,
         }
     }
 }
@@ -428,9 +583,14 @@ pub fn derive_transition_evidence<'a>(
         .into_iter()
         .map(TransitionEvidence::Socket)
         .chain(
-            derive_executions(batches)
+            derive_executions(batches.clone())
                 .into_iter()
                 .map(TransitionEvidence::Exec),
+        )
+        .chain(
+            derive_sends(batches)
+                .into_iter()
+                .map(TransitionEvidence::Send),
         )
         .collect()
 }

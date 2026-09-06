@@ -17,6 +17,16 @@
 //! connection from the authorized instance to `(protocol, remote_addr,
 //! remote_port)`. Nothing about bytes, payload, TLS, DNS names or timing is
 //! part of it, because no observer source in this repository sees those.
+//!
+//! **`ghost.net.send.v1` (Gate 3).** Application bytes handed to the kernel
+//! for send by the authorized instance on a TCP connection to `(protocol,
+//! remote_addr, remote_port)`. The parameters — and so the digest — name the
+//! **endpoint only**, exactly as a connect's do; the action kind is what
+//! differs. The number of bytes is observed and signed as evidence context
+//! but is never part of the digest, and no digest of the bytes themselves
+//! exists in this vocabulary: the kernel path sees a count, not content
+//! (I23). A payload digest could only be introduced by a party that holds
+//! the plaintext, which is a separate decision, not an observation.
 
 use aip_types::ScopeAction;
 
@@ -26,6 +36,10 @@ use crate::expected::ActionParameters;
 /// endpoint. The string is part of the signed scope of every token and
 /// expectation that mentions it.
 pub const NET_CONNECT_ACTION: &str = "ghost.net.connect.v1";
+
+/// The custom scope action naming a send of application bytes on a TCP
+/// connection to a remote endpoint.
+pub const NET_SEND_ACTION: &str = "ghost.net.send.v1";
 
 /// Parameter keys. Values: `protocol` is the ASCII name, `remote_addr` the
 /// raw 4- or 16-byte address, `remote_port` the port as two big-endian bytes.
@@ -131,6 +145,24 @@ pub fn net_connect_parameters(
         (PARAM_REMOTE_PORT, remote_port.to_be_bytes().to_vec()),
     ])
     .expect("three distinct constant keys"))
+}
+
+/// The scope action for [`NET_SEND_ACTION`].
+pub fn net_send_action() -> ScopeAction {
+    ScopeAction::Custom(NET_SEND_ACTION.to_string())
+}
+
+/// Parameters naming the endpoint a send goes to. Same keys, same encoding
+/// and same validation as [`net_connect_parameters`]: the digest of a send
+/// and of a connect to one endpoint are equal by construction, and only the
+/// action kind tells them apart. No byte count and no payload digest is, or
+/// may be, part of these parameters.
+pub fn net_send_parameters(
+    protocol: NetProtocol,
+    remote_addr: &[u8],
+    remote_port: u16,
+) -> Result<ActionParameters, NetConnectError> {
+    net_connect_parameters(protocol, remote_addr, remote_port)
 }
 
 #[cfg(test)]

@@ -194,6 +194,11 @@ pub enum ReasonCode {
     /// boot-clock anchor, so its kernel timestamp cannot be placed on the
     /// wall clock the authorization is expressed in.
     KernelTimeUnanchored = 0x4e,
+    /// Gate 3: the kernel reported the authorized instance sending on a
+    /// socket, but no attested state transition of that kernel socket, not
+    /// later than the send and not followed by a close of it, names the
+    /// socket's endpoint — so the send cannot be placed on any endpoint.
+    SendSocketUnresolved = 0x4f,
     // ── lineage (Phase C2) ──
     /// No bound fork/exec edge whose child is the authorized instance.
     LineageEvidenceUnavailable = 0x70,

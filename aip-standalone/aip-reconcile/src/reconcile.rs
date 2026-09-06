@@ -441,6 +441,9 @@ enum ActionOutcome {
     /// The initiation was seen for this instance and endpoint, but no
     /// completion of that socket was recorded.
     Incomplete,
+    /// Gate 3: a send by the instance was seen, but no attested transition
+    /// names the socket's endpoint.
+    Unresolved,
     /// A matching transition exists but its batch has no clock anchor.
     Unanchored,
     /// Evidence of the expected kind exists with a different digest.
@@ -494,15 +497,22 @@ fn compare_action(
     let mut t_precedes = false;
     let mut t_mechanism: Option<SourceMechanism> = None;
     let mut t_first: Option<usize> = None;
+    let mut t_unresolved = 0u32;
     for (ti, c) in refs.transitions.iter().enumerate() {
         let t = &c.t;
         if t.kind() != &ee.action_kind {
             continue;
         }
         // An initiation whose parameters are not yet knowable (a spawn with
-        // no paired exec) is an attempt of the expected kind.
+        // no paired exec) is an attempt of the expected kind; a send whose
+        // socket no attested transition names cannot be placed on an
+        // endpoint at all.
         let Some(digest) = t.parameter_digest() else {
-            t_incomplete += 1;
+            if matches!(t, TransitionEvidence::Send(_)) {
+                t_unresolved += 1;
+            } else {
+                t_incomplete += 1;
+            }
             continue;
         };
         if digest != ee.parameter_digest {
@@ -557,10 +567,12 @@ fn compare_action(
             batch_sequence: ObserverSequence(initiation.batch_sequence),
             index: initiation.index,
         });
-        t_verified.push(EvidenceRef::KernelEvent {
-            batch_sequence: ObserverSequence(completion.batch_sequence),
-            index: completion.index,
-        });
+        if completion != initiation {
+            t_verified.push(EvidenceRef::KernelEvent {
+                batch_sequence: ObserverSequence(completion.batch_sequence),
+                index: completion.index,
+            });
+        }
     }
     if !t_verified.is_empty() {
         return ActionOutcome::Verified {
@@ -647,6 +659,9 @@ fn compare_action(
     }
     if t_incomplete > 0 {
         return ActionOutcome::Incomplete;
+    }
+    if t_unresolved > 0 {
+        return ActionOutcome::Unresolved;
     }
     if t_unanchored > 0 {
         return ActionOutcome::Unanchored;
@@ -1358,6 +1373,7 @@ pub fn reconcile_expectation(
                 ActionOutcome::Incomplete => {
                     draft.cannot_prove(ReasonCode::ActionTransitionIncomplete)
                 }
+                ActionOutcome::Unresolved => draft.cannot_prove(ReasonCode::SendSocketUnresolved),
                 ActionOutcome::Mismatch { mechanism, kind } => {
                     draft.action = ActionComparison::mismatched(mechanism, kind);
                     draft.cannot_prove(ReasonCode::ActionEvidenceDoesNotMatch)

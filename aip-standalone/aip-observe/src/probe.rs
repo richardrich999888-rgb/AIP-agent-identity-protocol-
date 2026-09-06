@@ -139,6 +139,47 @@ pub struct ProcfsProbe {
     /// Host realtime ↔ boot clock sample, included in every batch so kernel
     /// timestamps can be placed on the wall clock. A probe claim.
     clock_anchor: Option<BootClockAnchor>,
+    /// pid → the last image hash taken for that pid, with what it was taken
+    /// of. Host-wide sources (socket sends, Gate 3) fire for every process
+    /// on the host, and hashing a large executable for each event never
+    /// catches up; the cache makes the cost one hash per (instance, image).
+    /// A hit requires the same start tick (the same instance) **and** the
+    /// same inode, size and modification time of the file `/proc/<pid>/exe`
+    /// resolves to (the same image); any change re-hashes. The pidfd anchor
+    /// around every measurement is unchanged.
+    image_cache: std::cell::RefCell<HashMap<u32, CachedImage>>,
+}
+
+/// What an image hash in the probe's cache was taken of.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct CachedImage {
+    pid_start_time_ticks: u64,
+    exe_ino: u64,
+    exe_size: u64,
+    exe_mtime: (i64, i64),
+    exe_path: String,
+    exe_content_sha256: [u8; 32],
+}
+
+impl CachedImage {
+    /// Does a cached hash still describe what `/proc/<pid>/exe` now resolves
+    /// to, for the same instance? Every field must agree: a recycled pid
+    /// (other start tick), an exec of another file (other inode), a rewrite
+    /// of the file (other size or mtime) or another path all miss.
+    fn still_describes(
+        &self,
+        pid_start_time_ticks: u64,
+        exe_ino: u64,
+        exe_size: u64,
+        exe_mtime: (i64, i64),
+        exe_path: &str,
+    ) -> bool {
+        self.pid_start_time_ticks == pid_start_time_ticks
+            && self.exe_ino == exe_ino
+            && self.exe_size == exe_size
+            && self.exe_mtime == exe_mtime
+            && self.exe_path == exe_path
+    }
 }
 
 impl ProcfsProbe {
@@ -153,6 +194,7 @@ impl ProcfsProbe {
             pending_kernel_events: Vec::new(),
             declared_sources: Vec::new(),
             clock_anchor: None,
+            image_cache: std::cell::RefCell::new(HashMap::new()),
         }
     }
 
@@ -230,10 +272,11 @@ impl ProcfsProbe {
 
     // ─── Measurement ───
 
-    fn read_process(pid: u32) -> Result<ObservedProcess, ProbeError> {
+    fn read_process(&self, pid: u32) -> Result<ObservedProcess, ProbeError> {
         use aip_core::execution_binding::{
             hash_file_contents, parse_boot_id, parse_proc_stat_start_time,
         };
+        use std::os::unix::fs::MetadataExt;
         let stat = std::fs::read_to_string(format!("/proc/{pid}/stat"))
             .map_err(|_| ProbeError::ProcessNotVisible { pid })?;
         let pid_start_time_ticks = parse_proc_stat_start_time(&stat)?;
@@ -250,7 +293,41 @@ impl ProcfsProbe {
             .map_err(|_| ProbeError::ProcessNotVisible { pid })?
             .to_string_lossy()
             .into_owned();
-        let exe_content_sha256 = hash_file_contents(&exe_link)?;
+        // `metadata` follows the link: the image file's own inode, size and
+        // modification time, read from the kernel, not from the path.
+        let meta =
+            std::fs::metadata(&exe_link).map_err(|_| ProbeError::ProcessNotVisible { pid })?;
+        let (exe_ino, exe_size, exe_mtime) =
+            (meta.ino(), meta.len(), (meta.mtime(), meta.mtime_nsec()));
+        let cached = self.image_cache.borrow().get(&pid).cloned();
+        let exe_content_sha256 = match cached {
+            Some(c)
+                if c.still_describes(
+                    pid_start_time_ticks,
+                    exe_ino,
+                    exe_size,
+                    exe_mtime,
+                    &exe_path,
+                ) =>
+            {
+                c.exe_content_sha256
+            }
+            _ => {
+                let sha = hash_file_contents(&exe_link)?;
+                self.image_cache.borrow_mut().insert(
+                    pid,
+                    CachedImage {
+                        pid_start_time_ticks,
+                        exe_ino,
+                        exe_size,
+                        exe_mtime,
+                        exe_path: exe_path.clone(),
+                        exe_content_sha256: sha,
+                    },
+                );
+                sha
+            }
+        };
         Ok(ObservedProcess {
             process: ProcessInstance {
                 pid,
@@ -266,7 +343,7 @@ impl ProcfsProbe {
     /// straddle an exit and PID reuse without this function knowing.
     #[cfg(target_os = "linux")]
     pub fn measure(&self, pid: u32) -> Result<ObservedProcess, ProbeError> {
-        Self::read_process(pid)
+        self.read_process(pid)
     }
 
     #[cfg(not(target_os = "linux"))]
@@ -284,7 +361,7 @@ impl ProcfsProbe {
         if !pidfd.is_alive()? {
             return Err(ProbeError::InstanceEnded { pid });
         }
-        let process = Self::read_process(pid)?;
+        let process = self.read_process(pid)?;
         if !pidfd.is_alive()? {
             return Err(ProbeError::InstanceEnded { pid });
         }
@@ -411,6 +488,16 @@ impl ProcfsProbe {
         self.ingest_event(ev, SourceMechanism::WireTapAfPacket)
     }
 
+    /// Ingest a kernel-pushed socket send (`SockSendTracepoint`). The event
+    /// fires in the sending task's context, so the probe anchors
+    /// `current_pid` exactly as it anchors a `connect()` initiation: pidfd,
+    /// measurement, and the instance's start tick no later than the event's
+    /// kernel time — otherwise the pid was recycled and the event is
+    /// recorded unbound.
+    pub fn ingest_send_event(&mut self, ev: ProcEvent) -> &KernelLifecycleEvent {
+        self.ingest_event(ev, SourceMechanism::SockSendTracepoint)
+    }
+
     fn ingest_event(&mut self, ev: ProcEvent, mechanism: SourceMechanism) -> &KernelLifecycleEvent {
         let seq = self.next_seq();
         let subject = ev.kind.subject_pid();
@@ -425,6 +512,7 @@ impl ProcfsProbe {
             }
             (KernelLifecycleKind::Exit { .. }, Some(pid)) => self.bound_by_exec.remove(&pid),
             (KernelLifecycleKind::SocketState { .. }, Some(pid))
+            | (KernelLifecycleKind::SocketSend { .. }, Some(pid))
             | (KernelLifecycleKind::ProcessSpawn { .. }, Some(pid))
             | (KernelLifecycleKind::ProcessExec { .. }, Some(pid)) => {
                 let anchor = self.clock_anchor;
@@ -664,6 +752,62 @@ mod tests {
         // A new probe is a new run.
         let other = ProcfsProbe::new("probe-1");
         assert_ne!(other.run_id(), run);
+    }
+
+    #[test]
+    fn an_image_hash_is_reused_only_for_the_same_instance_and_the_same_file() {
+        let c = CachedImage {
+            pid_start_time_ticks: 900_000,
+            exe_ino: 4242,
+            exe_size: 1_000,
+            exe_mtime: (1_700_000_000, 5),
+            exe_path: "/opt/agent".into(),
+            exe_content_sha256: [7u8; 32],
+        };
+        assert!(c.still_describes(900_000, 4242, 1_000, (1_700_000_000, 5), "/opt/agent"));
+        // Recycled pid: another instance.
+        assert!(!c.still_describes(900_001, 4242, 1_000, (1_700_000_000, 5), "/opt/agent"));
+        // Exec of another file at the same path.
+        assert!(!c.still_describes(900_000, 4243, 1_000, (1_700_000_000, 5), "/opt/agent"));
+        // The file was rewritten (size, or only mtime).
+        assert!(!c.still_describes(900_000, 4242, 1_001, (1_700_000_000, 5), "/opt/agent"));
+        assert!(!c.still_describes(900_000, 4242, 1_000, (1_700_000_000, 6), "/opt/agent"));
+        // Another path (bind mount, rename) is not assumed to be the same.
+        assert!(!c.still_describes(900_000, 4242, 1_000, (1_700_000_000, 5), "/opt/other"));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn repeated_measurements_of_one_instance_agree_and_do_not_rehash_a_stable_image() {
+        let probe = ProcfsProbe::new("probe-self");
+        let pid = std::process::id();
+        let a = probe.measure(pid).unwrap();
+        assert_eq!(probe.image_cache.borrow().len(), 1);
+        let cached = probe.image_cache.borrow().get(&pid).cloned().unwrap();
+        let b = probe.measure(pid).unwrap();
+        assert_eq!(a, b);
+        assert_eq!(
+            probe.image_cache.borrow().get(&pid).cloned().unwrap(),
+            cached
+        );
+        // A poisoned cache entry for a different inode is not used.
+        probe
+            .image_cache
+            .borrow_mut()
+            .get_mut(&pid)
+            .unwrap()
+            .exe_ino += 1;
+        probe
+            .image_cache
+            .borrow_mut()
+            .get_mut(&pid)
+            .unwrap()
+            .exe_content_sha256 = [0xee; 32];
+        let c = probe.measure(pid).unwrap();
+        assert_eq!(
+            c.exe_content_sha256, a.exe_content_sha256,
+            "re-hashed, not trusted"
+        );
     }
 
     #[test]

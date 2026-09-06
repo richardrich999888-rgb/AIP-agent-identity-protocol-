@@ -21,9 +21,9 @@ use std::net::{Ipv4Addr, SocketAddrV4, TcpListener, TcpStream};
 use std::process::{Child, Command, Stdio};
 
 use aip_authorize::{
-    net_connect_action, net_connect_parameters, process_exec_action, process_exec_parameters,
-    ActionParameters, AuthorizationRequest, Decision, DecisionPoint, DecisionPointTrustAnchors,
-    Denial, ExpectedExecution, NetProtocol,
+    net_connect_action, net_connect_parameters, net_send_action, net_send_parameters,
+    process_exec_action, process_exec_parameters, ActionParameters, AuthorizationRequest, Decision,
+    DecisionPoint, DecisionPointTrustAnchors, Denial, ExpectedExecution, NetProtocol,
 };
 use aip_core::capability::issue_scoped_token;
 use aip_core::create_identity;
@@ -33,7 +33,7 @@ use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_observe::{
     boot_clock_anchor, AgentClaim, AttestedBatch, CollectorSigner, ObservedEffect,
     ObserverAttestor, ObserverTrustAnchors, ProbeError, ProcessTracer, ProcfsProbe,
-    SignedSensorHealth, SockStateTracer, SocketProtocol, SourceMechanism, WireTap,
+    SignedSensorHealth, SockSendTracer, SockStateTracer, SocketProtocol, SourceMechanism, WireTap,
 };
 use aip_reconcile::{
     reconcile_expectation, reconcile_observation, ExpectedSideCoverage, ObservationTarget,
@@ -81,7 +81,11 @@ pub struct Authority {
 impl Authority {
     pub fn new() -> Self {
         let scope = CapabilityScope {
-            allowed: vec![net_connect_action(), process_exec_action()],
+            allowed: vec![
+                net_connect_action(),
+                process_exec_action(),
+                net_send_action(),
+            ],
             denied: vec![],
         };
         let cfo_kp = generate_ed25519_keypair();
@@ -127,6 +131,32 @@ impl Authority {
             root_token: self.root.clone(),
             delegation_chain: vec![self.hop.clone()],
             action_kind: net_connect_action(),
+            parameters: params,
+            execution_binding: binding,
+            requested_ttl_ms: TTL_MS,
+        };
+        match self.dp.authorize_at(&req, now) {
+            Decision::Authorized(ee) => Ok(*ee),
+            Decision::Denied(d) => Err(d),
+        }
+    }
+
+    /// Authorize `binding` to send application bytes on a TCP connection to
+    /// `remote` (`ghost.net.send.v1`): the endpoint is authorized, the byte
+    /// count is not part of it, and nothing about the bytes is.
+    pub fn authorize_send(
+        &self,
+        binding: ExecutionBinding,
+        remote: SocketAddrV4,
+        now: u64,
+    ) -> Result<ExpectedExecution, Denial> {
+        let params =
+            net_send_parameters(NetProtocol::Tcp, &remote.ip().octets(), remote.port()).unwrap();
+        let req = AuthorizationRequest {
+            agent_id: self.agent_id.clone(),
+            root_token: self.root.clone(),
+            delegation_chain: vec![self.hop.clone()],
+            action_kind: net_send_action(),
             parameters: params,
             execution_binding: binding,
             requested_ttl_ms: TTL_MS,
@@ -204,7 +234,18 @@ pub struct Observer {
     /// The device-layer tap (`AF_PACKET`, headers only), when this observer
     /// has one. Bound to every device so loopback traffic is seen.
     wire_tap: Option<WireTap>,
+    /// The kernel-pushed socket-send source (`sock:sock_send_length`), when
+    /// this observer has one.
+    send_tracer: Option<SockSendTracer>,
     next_batch: u8,
+}
+
+/// Can this host provide the socket-send tracepoint? `Err` names what is
+/// missing (tracefs, the tracepoint on kernels before 6.4, perf permission).
+pub fn send_tracer_available() -> Result<(), String> {
+    SockSendTracer::open()
+        .map(|_| ())
+        .map_err(|e| e.to_string())
 }
 
 /// Can this host provide the kernel-pushed sources (socket state and
@@ -225,7 +266,7 @@ impl Observer {
     /// Polling only: `PidFdAnchored` process facts and `ProcNetTable` socket
     /// rows. This is the Stage 7 observer, kept as it was.
     pub fn new() -> Self {
-        Self::build(None, None, None)
+        Self::build(None, None, None, None)
     }
 
     /// Polling plus the kernel-pushed `sock:inet_sock_set_state` and
@@ -247,13 +288,22 @@ impl Observer {
         let tracer = SockStateTracer::open().map_err(|e| e.to_string())?;
         let process_tracer = ProcessTracer::open().map_err(|e| e.to_string())?;
         let wire_tap = if tap { WireTap::open(None).ok() } else { None };
-        Ok(Self::build(Some(tracer), Some(process_tracer), wire_tap))
+        // Optional like the tap: where the tracepoint does not exist the
+        // send class is simply unobservable.
+        let send_tracer = SockSendTracer::open().ok();
+        Ok(Self::build(
+            Some(tracer),
+            Some(process_tracer),
+            wire_tap,
+            send_tracer,
+        ))
     }
 
     fn build(
         tracer: Option<SockStateTracer>,
         process_tracer: Option<ProcessTracer>,
         wire_tap: Option<WireTap>,
+        send_tracer: Option<SockSendTracer>,
     ) -> Self {
         let kp = generate_ed25519_keypair();
         let mut signer =
@@ -278,6 +328,10 @@ impl Observer {
             probe.declare_source(SourceMechanism::WireTapAfPacket);
             probe.enable_loss_counter();
         }
+        if send_tracer.is_some() {
+            probe.declare_source(SourceMechanism::SockSendTracepoint);
+            probe.enable_loss_counter();
+        }
         let anchors = ObserverTrustAnchors::new().trust(OBSERVER_ID, 1, &kp.public_key);
         Self {
             probe,
@@ -286,6 +340,7 @@ impl Observer {
             tracer,
             process_tracer,
             wire_tap,
+            send_tracer,
             next_batch: 1,
         }
     }
@@ -307,13 +362,21 @@ impl Observer {
             }
         }
         // A short wait lets in-flight events from a just-completed action
-        // land in the rings before the batch closes.
+        // land in the rings before the batch closes: a source is drained until
+        // it has been quiet past the short deadline, and never beyond the hard
+        // deadline whatever keeps arriving (host-wide sources fire for every
+        // process). What is left in a ring is carried by a later batch, placed
+        // by its kernel stamp.
         if let Some(tracer) = self.tracer.as_mut() {
             let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+            let hard_deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
             loop {
                 match tracer.next_event(10) {
                     Ok(Some(ev)) => {
                         self.probe.ingest_socket_event(ev);
+                        if std::time::Instant::now() >= hard_deadline {
+                            break;
+                        }
                     }
                     Ok(None) => {
                         if std::time::Instant::now() >= deadline {
@@ -330,10 +393,14 @@ impl Observer {
         }
         if let Some(tracer) = self.process_tracer.as_mut() {
             let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+            let hard_deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
             loop {
                 match tracer.next_event(10) {
                     Ok(Some(ev)) => {
                         self.probe.ingest_sched_event(ev);
+                        if std::time::Instant::now() >= hard_deadline {
+                            break;
+                        }
                     }
                     Ok(None) => {
                         if std::time::Instant::now() >= deadline {
@@ -350,10 +417,14 @@ impl Observer {
         }
         if let Some(tap) = self.wire_tap.as_mut() {
             let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+            let hard_deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
             loop {
                 match tap.next_event(10) {
                     Ok(Some(ev)) => {
                         self.probe.ingest_wire_event(ev);
+                        if std::time::Instant::now() >= hard_deadline {
+                            break;
+                        }
                     }
                     Ok(None) => {
                         if std::time::Instant::now() >= deadline {
@@ -364,6 +435,30 @@ impl Observer {
                 }
             }
             let lost = tap.take_lost();
+            if lost > 0 {
+                self.probe.record_lost_events(lost);
+            }
+        }
+        if let Some(tracer) = self.send_tracer.as_mut() {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+            let hard_deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+            loop {
+                match tracer.next_event(10) {
+                    Ok(Some(ev)) => {
+                        self.probe.ingest_send_event(ev);
+                        if std::time::Instant::now() >= hard_deadline {
+                            break;
+                        }
+                    }
+                    Ok(None) => {
+                        if std::time::Instant::now() >= deadline {
+                            break;
+                        }
+                    }
+                    Err(_) => break,
+                }
+            }
+            let lost = tracer.take_lost();
             if lost > 0 {
                 self.probe.record_lost_events(lost);
             }
@@ -612,10 +707,16 @@ pub enum Scenario {
     ExecByOtherInstance,
     /// X-C. The spawn happens, and is attested, before the decision is issued.
     ExecBeforeAuthorization,
+    /// S-P. The agent's hello on its connection verifies as a send to the
+    /// authorized endpoint (`ghost.net.send.v1`).
+    SendPositive,
+    /// S-A. The send is authorized to a different endpoint than the one the
+    /// agent sends to.
+    SendWrongEndpoint,
 }
 
 impl Scenario {
-    pub const ALL: [Scenario; 15] = [
+    pub const ALL: [Scenario; 17] = [
         Scenario::Positive,
         Scenario::ExpectedNotExecuted,
         Scenario::ExecutedNotExpected,
@@ -631,6 +732,8 @@ impl Scenario {
         Scenario::ExecWrongBinary,
         Scenario::ExecByOtherInstance,
         Scenario::ExecBeforeAuthorization,
+        Scenario::SendPositive,
+        Scenario::SendWrongEndpoint,
     ];
 
     /// Scenarios that need the kernel-pushed socket-state source.
@@ -644,6 +747,8 @@ impl Scenario {
                 | Scenario::ExecWrongBinary
                 | Scenario::ExecByOtherInstance
                 | Scenario::ExecBeforeAuthorization
+                | Scenario::SendPositive
+                | Scenario::SendWrongEndpoint
         )
     }
 
@@ -668,6 +773,8 @@ impl Scenario {
             Scenario::ExecWrongBinary => "X-A. child executes a different image",
             Scenario::ExecByOtherInstance => "X-B. another instance spawns the authorized image",
             Scenario::ExecBeforeAuthorization => "X-C. spawn attested before the decision",
+            Scenario::SendPositive => "S-P. authorized send, kernel-reported byte count",
+            Scenario::SendWrongEndpoint => "S-A. send authorized to a different endpoint",
         }
     }
 }
@@ -1108,6 +1215,42 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
                 note: format!(
                     "agent pid {} spawned pid {child_pid} and it was attested before the decision at {now}",
                     agent.pid
+                ),
+            }
+        }
+        Scenario::SendPositive | Scenario::SendWrongEndpoint => {
+            let b1 = o.epoch_start(now_ms());
+            let now = now_ms();
+            let target = if scenario == Scenario::SendWrongEndpoint {
+                SocketAddrV4::new(*remote.ip(), remote.port().wrapping_add(1).max(1))
+            } else {
+                remote
+            };
+            // The agent connects and says hello: one send on the connection.
+            let agent = Agent::connect(agent_bin, &listener);
+            let binding = a.binding_for(agent.pid);
+            let ee = a.authorize_send(binding, target, now).unwrap();
+            let c = claim(&a, &ee);
+            let (b2, _) = o.observe_connections(agent.pid, Some(&c)).unwrap();
+            let at = now_ms().max(b2.batch.claimed_to_ms);
+            let sends = b2
+                .batch
+                .kernel_events
+                .iter()
+                .filter(|e| e.mechanism == SourceMechanism::SockSendTracepoint)
+                .count();
+            let ev = ObserverEvidence {
+                batches: vec![b1, b2],
+                health: o.health(at),
+            };
+            let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
+            Demo {
+                scenario,
+                reconciliation: r,
+                note: format!(
+                    "agent pid {} sent its hello to {remote}; authorized send to {target}; {sends} send event(s) captured (send tracer {})",
+                    agent.pid,
+                    if o.send_tracer.is_some() { "open" } else { "not open" }
                 ),
             }
         }
