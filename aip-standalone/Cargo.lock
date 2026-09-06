@@ -24,6 +24,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-airi"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-observe",
+ "aip-types",
+ "hex",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-authorize"
 version = "0.4.0"
 dependencies = [
