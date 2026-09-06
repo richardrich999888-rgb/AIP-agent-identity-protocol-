@@ -360,7 +360,7 @@ pub fn verify_zip(bytes: &[u8], ctx: &VerificationContext) -> BundleVerification
             BundleStatus::Fail
         },
         if sig_ok {
-            format!("Ed25519 signature valid (signer fp {})", &signer_fp)
+            format!("Ed25519 signature valid (signer fp {signer_fp})")
         } else {
             "bundle signature invalid — manifest not signed by the embedded key".to_string()
         },

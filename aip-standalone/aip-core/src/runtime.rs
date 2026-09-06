@@ -2,6 +2,13 @@
 //!
 //! Computes a SHA-256 fingerprint of the runtime context (hostname, PID,
 //! executable path, timestamp) and includes it in identity proofs.
+//!
+//! **NOT_PRODUCTION_CAPABILITY.** This type identifies a process by PID and
+//! by `sha256(path string)`, reads `$HOSTNAME`/`$CONTAINER_ID` verbatim, and
+//! is unsigned; it cannot survive PID reuse or detect binary replacement
+//! (violates I2, I4). It is superseded by [`crate::execution_binding`] and is
+//! retained only for the CLI display path. Do not extend it and do not use it
+//! as execution identity.
 
 use aip_crypto::sha256;
 use serde::{Deserialize, Serialize};
@@ -189,5 +196,59 @@ mod tests {
         let deserialized: RuntimeBinding = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized.agent_id, binding.agent_id);
         assert_eq!(deserialized.runtime_hash, binding.runtime_hash);
+    }
+
+    // ── Characterization of the pre-Stage-1 weakness (Skill 4 §13) ──
+    //
+    // These tests PASS against RuntimeBinding and thereby document why it is
+    // NOT_PRODUCTION_CAPABILITY: the properties they assert are exactly the
+    // ones an execution binding must NOT have. `execution_binding.rs` asserts
+    // the opposite properties. If someone "fixes" RuntimeBinding in place,
+    // these tests will fail and point them to the real type instead.
+
+    /// Weakness 1: PID plays no part in the verdict. A binding whose PID is
+    /// rewritten to an arbitrary value still verifies as the same environment,
+    /// so PID reuse is invisible (I4).
+    #[test]
+    fn weakness_runtime_binding_ignores_pid_entirely() {
+        let mut binding = bind_identity_to_runtime("testAgent");
+        binding.pid = binding.pid.wrapping_add(1_000_000);
+        let v = verify_runtime_binding(&binding);
+        assert!(
+            v.is_same_environment,
+            "RuntimeBinding now considers PID — migrate callers to execution_binding instead"
+        );
+    }
+
+    /// Weakness 2: executable identity is the hash of the PATH STRING, not the
+    /// binary. Two different binaries at one path are indistinguishable (I2).
+    #[test]
+    fn weakness_runtime_binding_hashes_path_not_contents() {
+        let binding = bind_identity_to_runtime("testAgent");
+        let path = std::env::current_exe().unwrap();
+        assert_eq!(
+            binding.exe_hash,
+            sha256(path.to_string_lossy().as_bytes()),
+            "exe_hash is no longer the path hash — this type must not be extended in place"
+        );
+        let contents = aip_crypto::sha256(&std::fs::read(&path).unwrap());
+        assert_ne!(binding.exe_hash, contents);
+    }
+
+    /// Weakness 3: there is no process start identity and no boot identity in
+    /// the structure at all; nothing distinguishes two instances of the same
+    /// binary on the same host beyond `bound_at` (a wall clock the agent sets).
+    #[test]
+    fn weakness_runtime_binding_has_no_instance_identity() {
+        let a = bind_identity_to_runtime("testAgent");
+        let mut b = a.clone();
+        b.bound_at = a.bound_at; // same clock reading ⇒ nothing else differs
+        assert_eq!(a.pid, b.pid);
+        assert_eq!(a.exe_hash, b.exe_hash);
+        assert_eq!(a.hostname, b.hostname);
+        // No field exists that could tell a restarted process from this one.
+        let json = serde_json::to_string(&a).unwrap();
+        assert!(!json.contains("start_time"));
+        assert!(!json.contains("boot_id"));
     }
 }

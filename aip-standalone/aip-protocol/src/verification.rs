@@ -21,6 +21,7 @@ use aip_types::CapabilityScope;
 
 use crate::evidence_packet::{EvidencePacket, TrustFloor, PACKET_MAGIC, PACKET_VERSION};
 use crate::verification_report::{rules, RuleResult, VerificationReport};
+use aip_types::EXECUTION_BINDING_VERSION;
 
 /// Trusted inputs for verification. The verifier — not the packet — decides
 /// which issuer keys to trust and which tokens are revoked.
@@ -262,6 +263,11 @@ pub fn verify_packet(packet: &EvidencePacket, ctx: &VerificationContext) -> Veri
     // ── R13 RECEIPT_BINDING ───────────────────────────────────────────────
     let (receipt_countersigned, receipt_rule_ok) = check_receipt_binding(packet, ctx, &mut e);
 
+    // ── R15 EXECUTION_BINDING: self-reported binding must be well-formed
+    //    and consistent with the packet agent. Does NOT affect the trust
+    //    floor: a self-report cannot raise evidence strength (I5).
+    check_execution_binding(packet, &mut e);
+
     // ── Derive trust floor from what actually verified ────────────────────
     let agent_signed = structure_ok && binding_ok && hash_ok && agent_sig_ok;
     let authority_bound = agent_signed
@@ -324,24 +330,27 @@ pub fn verify_packet(packet: &EvidencePacket, ctx: &VerificationContext) -> Veri
 // ─── Individual rule implementations ───
 
 fn check_structure(packet: &EvidencePacket, e: &mut Engine) -> bool {
-    let mut problems: Vec<&str> = vec![];
+    let mut problems: Vec<String> = vec![];
     if packet.magic != PACKET_MAGIC {
-        problems.push("bad magic");
+        problems.push("bad magic".into());
     }
     if packet.version != PACKET_VERSION {
-        problems.push("unsupported version");
+        problems.push(format!(
+            "unsupported version {} (this verifier implements v{}; embedded authority signatures of other versions are not comparable)",
+            packet.version, PACKET_VERSION
+        ));
     }
     if packet.agent.aip_id.is_empty() {
-        problems.push("empty agent id");
+        problems.push("empty agent id".into());
     }
     if packet.root_authority.principal_id.is_empty() {
-        problems.push("empty principal id");
+        problems.push("empty principal id".into());
     }
     if packet.actions.is_empty() {
-        problems.push("no action attestations");
+        problems.push("no action attestations".into());
     }
     if packet.decision.summary.is_empty() {
-        problems.push("empty decision summary");
+        problems.push("empty decision summary".into());
     }
     let ok = problems.is_empty();
     e.record(
@@ -466,6 +475,61 @@ fn check_scope_authority(
         },
     );
     ok
+}
+
+/// R15. When a binding is present it must be version-1, refer to the packet
+/// agent, and carry non-degenerate process/executable identity. Absence is
+/// reported, not failed: a packet without a binding simply cannot be
+/// attributed to a process instance (the reconciler's answer is CANNOT_PROVE).
+fn check_execution_binding(packet: &EvidencePacket, e: &mut Engine) -> bool {
+    let Some(b) = &packet.execution_binding else {
+        return e.record(
+            rules::EXECUTION_BINDING,
+            true,
+            "no execution binding present; process-instance attribution unavailable",
+        );
+    };
+    let mut problems: Vec<String> = vec![];
+    if b.version != EXECUTION_BINDING_VERSION {
+        problems.push(format!(
+            "binding version {} unsupported (expected {})",
+            b.version, EXECUTION_BINDING_VERSION
+        ));
+    }
+    if b.agent_id != packet.agent.aip_id {
+        problems.push(format!(
+            "binding agent {} is not the packet agent {}",
+            b.agent_id, packet.agent.aip_id
+        ));
+    }
+    if b.process.pid == 0 {
+        problems.push("pid is 0".into());
+    }
+    if b.process.pid_start_time_ticks == 0 {
+        problems.push("pid_start_time_ticks is 0".into());
+    }
+    if b.process.boot_id == [0u8; 16] {
+        problems.push("boot_id is all zeros".into());
+    }
+    if b.exe_content_sha256 == [0u8; 32] {
+        problems.push("exe_content_sha256 is all zeros".into());
+    }
+    let ok = problems.is_empty();
+    e.record(
+        rules::EXECUTION_BINDING,
+        ok,
+        if ok {
+            format!(
+                "self-reported execution binding present (pid {}, start {} ticks, boot {}, exe {}); NOT independently observed",
+                b.process.pid,
+                b.process.pid_start_time_ticks,
+                hex::encode(b.process.boot_id),
+                hex::encode(b.exe_content_sha256)
+            )
+        } else {
+            format!("execution binding problems: {}", problems.join("; "))
+        },
+    )
 }
 
 fn check_temporal_validity(packet: &EvidencePacket, e: &mut Engine) -> bool {

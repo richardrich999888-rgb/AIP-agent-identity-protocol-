@@ -1,0 +1,6 @@
+# Historical findings already triaged as false positives.
+# Format: <commit>:<file>:<rule>:<line>
+# deploy/docker/keys.example.json holds SHA-256 hashes of documented sample
+# keys (see deploy/docker/README) — not real credentials.
+51a04c928647797ec14ce92f86293f18f4175157:deploy/docker/keys.example.json:generic-api-key:3
+51a04c928647797ec14ce92f86293f18f4175157:deploy/docker/keys.example.json:generic-api-key:4

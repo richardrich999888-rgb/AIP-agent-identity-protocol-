@@ -1,6 +1,9 @@
 //! AIP Test — Comprehensive integration tests for the Agent Identity Protocol.
 
 #[cfg(test)]
+mod domain_audit;
+
+#[cfg(test)]
 mod integration_tests {
     use aip_core::*;
     use aip_crypto::*;

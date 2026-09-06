@@ -27,6 +27,10 @@ pub mod rules {
     pub const TRACE_BINDING: &str = "TRACE_BINDING";
     pub const RECEIPT_BINDING: &str = "RECEIPT_BINDING";
     pub const TRUST_FLOOR: &str = "TRUST_FLOOR";
+    /// R15 — structural/consistency check of the (self-reported) execution
+    /// binding, when present. Passing this rule never means the execution
+    /// was independently observed.
+    pub const EXECUTION_BINDING: &str = "EXECUTION_BINDING";
 }
 
 /// Outcome of one verification rule.
