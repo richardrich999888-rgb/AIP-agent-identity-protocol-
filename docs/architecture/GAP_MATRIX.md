@@ -101,6 +101,11 @@ original discovery text for traceability):
   AMBIGUOUS / LOSS / UNAVAILABLE each pinned; `FilePathUnresolved`.
   Live-demonstrated F-P/F-A/F-N. `ACTION_EVIDENCE.md` §17,
   `OBSERVATION_MODEL.md` §6.
+- Gate 5 (application / database / proxy sensors) — **DECIDED, NOT BUILT**:
+  `APPLICATION_LOG_SENSOR_DECISION.md`; such records are writer statements,
+  never observation; a supporting tier, if ever admitted, is capped at
+  `Correlated` / `Claimed` and never counts as coverage. Fence pinned by
+  g5a–g5d.
 
 ## D. PR3 corrective review (pre-reconciliation)
 

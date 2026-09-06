@@ -251,3 +251,12 @@ Test counts after Gate 3: aip-standalone 690 / 0 / 3 ignored (+24), aip-service 
 | Kernel event time | **OPEN by mechanism** — fanotify carries none; probe read stamp | `ACTION_EVIDENCE.md` §17.5 |
 
 Test counts after Gate 4: aip-standalone 715 / 0 / 3 ignored (+25), aip-service 39 / 0; clippy and fmt clean.
+
+## A.14 Gate 5 outcome (application / database / proxy sensors)
+
+| Component | State after Gate 5 | Evidence |
+|---|---|---|
+| Decision on application-layer records | **DECIDED** — not observation; supporting tier only, `Correlated` / `Claimed` ceilings, never coverage | `APPLICATION_LOG_SENSOR_DECISION.md` |
+| Supporting-tier adapter | **NOT BUILT**, preconditions stated | — |
+| Executable fence | **CLOSED** | g5a–g5d |
+| Spec §8 product decisions | **NOT DETERMINED** (human); recommended defaults recorded | `SNIFFER_DOG_2_0_IMPLEMENTATION_REPORT.md` Gate 5 |

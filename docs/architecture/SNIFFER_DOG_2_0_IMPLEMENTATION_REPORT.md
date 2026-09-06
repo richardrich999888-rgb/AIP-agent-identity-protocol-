@@ -731,3 +731,51 @@ unmarked mounts; anything on a host whose root removes the mark.
 Gate 5: application / database / proxy sensors — an explicit decision
 first (`OT_SENTINEL_HARVEST_AUDIT.md`, Phase H); self-reported logs can be
 supporting evidence only and never independent observation.
+
+---
+
+# Gate 5 — application, database and proxy sensors (decision; completion mandate)
+
+## Status
+
+**DECIDED, NOT BUILT.** `APPLICATION_LOG_SENSOR_DECISION.md` (Phase H)
+records the decision in the I20 format: such records are statements by
+host-side writers, not observation (I16, I22, rule 18); if ever admitted
+they form a *supporting* tier with a `Correlated` strength ceiling, a
+`Claimed` attribution ceiling, no coverage, no effect on result, strength
+or reason, writer-signed under their own domain, with their own RED suite
+and protocol bump. No adapter is built by this gate. The fence is
+executable: `aip-observe/tests/gate5_no_log_sensor.rs` g5a–g5c and
+`aip-warrant/tests/gate5_ceiling.rs` g5d.
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| *(the fence commit)* | g5a–g5d, all passing against HEAD |
+| *(the commit carrying this section)* | the decision document and this section |
+
+## The decisions of spec §8 remain NOT DETERMINED
+
+Who issues `AgentIdentity`; what "agent creation" is for agent lineage;
+who holds the reconciler key; profile audience; cross-host identity. These
+are product decisions and stay with a human. What this programme has done
+is remove their blocking effect where it could: `LINEAGE_VIOLATION` (Gate 1)
+is defined over the two lineages that *are* signed today (authority chain,
+parent-signed identity proof), so it needs no answer to "who issues
+identity" to be reachable; the signed reconciliation record (Gate 7) will
+be keyed by whoever runs the verifier, stated as a fifth trust root and
+nothing more. A recommended default for each, for the human to accept or
+reject, is in `APPLICATION_LOG_SENSOR_DECISION.md`'s companion table below.
+
+| Decision | Recommended default (not adopted) | Why |
+|---|---|---|
+| Identity issuer | the `ScopedToken` root issuer's organization, signing `AgentIdentityDocument`s under a distinct domain | reuses the one trust root the authority model already has (I18) |
+| Agent creation | the first decision-point-signed expectation naming a new `agent_id` whose binding was observed forked by a bound parent | the only definition with a kernel fact and a decision behind it |
+| Reconciler key | the verifier operator, separate from the collector | keeps observation and interpretation on different keys |
+| Profile audience | internal, per organization | least exposure until SD-13 exists |
+| Cross-host identity | none until NEXORA anchors exist (Gate 7) | a `boot_id` is per host by construction |
+
+## Next Gate
+
+Gate 6: the Merkle commitment layer.
