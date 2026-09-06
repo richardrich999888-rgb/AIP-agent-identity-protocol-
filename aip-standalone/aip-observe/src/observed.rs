@@ -38,9 +38,15 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 ///   `SensorHealth.covered_by` (the intersection over the coverage epoch),
 ///   so a verifier can read per-mechanism coverage from signed bytes
 ///   instead of inferring it from whether events happened to occur.
+/// - `4` Stage 7b: `KernelLifecycleKind::SocketState`, batch `clock_anchor`,
+///   `AttestedBatch.attested_at_ms`.
+/// - `5` Stage 7c: `ProcessSpawn` / `ProcessExec`, anchor `monotonic_ns` and
+///   `clk_tck`.
+/// - `6` Gate 2: `SourceMechanism::WireTapAfPacket`, `WireSegment` with
+///   `WireDirection` and the kernel realtime capture stamp.
 ///
 /// Earlier versions never left this branch; all are refused.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 5;
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 6;
 
 /// Kernel TCP state bytes (`include/net/tcp_states.h`), as they appear in
 /// `/proc/net/tcp` and in the `sock:inet_sock_set_state` tracepoint.
