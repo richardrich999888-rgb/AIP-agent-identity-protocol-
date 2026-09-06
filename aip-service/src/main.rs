@@ -16,7 +16,7 @@ use std::sync::Arc;
 use tracing_subscriber::{fmt, EnvFilter};
 
 use airon_aip::store::{EvidenceStore, JsonlEvidenceStore};
-use airon_aip::{auth, delegation, keys::KeyPair, revocation, router, AppState};
+use airon_aip::{auth, delegation, keys::KeyPair, revocation, router, AppState, ManagedSigning};
 
 async fn build_store() -> Arc<dyn EvidenceStore> {
     let backend = std::env::var("AIP_STORE_BACKEND").unwrap_or_else(|_| "jsonl".to_owned());
@@ -112,6 +112,23 @@ async fn main() {
         );
     }
 
+    // AUDIT B-7. Off unless a deployment opts in; when it does, say plainly
+    // what has been accepted, because the cost is not obvious from the name.
+    let managed_signing = ManagedSigning::from_env();
+    if managed_signing.is_permitted() {
+        tracing::warn!(
+            "AIP_ALLOW_MANAGED_SIGNING is set: POST /v1/evidence/generate will \
+             accept agent private seeds in request bodies. Those keys will be \
+             visible to every proxy and log on the request path, and packets \
+             signed this way cannot distinguish the agent from this service."
+        );
+    } else {
+        tracing::info!(
+            "managed signing is off: POST /v1/evidence/generate returns 501. \
+             Agents sign client-side; the service verifies and ingests."
+        );
+    }
+
     let evidence_packets = store.count().await.unwrap_or(0);
     tracing::info!(
         delegation_entries = del_log.lock().unwrap().len(),
@@ -134,6 +151,7 @@ async fn main() {
         api_keys,
         signer_seed: kp.signing_seed(),
         signer_public: kp.verifying_key_bytes(),
+        managed_signing,
     });
 
     let addr = format!("0.0.0.0:{port}");

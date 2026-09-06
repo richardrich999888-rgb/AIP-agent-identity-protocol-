@@ -32,6 +32,7 @@ use aip_protocol::{
     RootAuthority, TrustFloor,
 };
 use aip_types::{Action, AlgorithmId, ProvenanceTriple, PublicKey, ScopeAction};
+use std::path::PathBuf;
 
 use airon_aip::evidence::{ActionInput, DecisionInput, GenerateRequest, ProvenanceInput};
 
@@ -245,4 +246,112 @@ pub fn sample_generate_request() -> (GenerateRequest, HashMap<String, String>) {
         (orch_aid.id, hex::encode(&orch_kp.public_key)),
     ]);
     (req, issuers)
+}
+
+// ── HTTP-level fixtures ───────────────────────────────────────────────────────
+
+/// An `ApiKeyStore` holding one machine key with secret `secret`, for tenant
+/// `tenant`.
+///
+/// Written to a file and loaded through `ApiKeyStore::load` — the production
+/// path — because the in-crate `from_entries` constructor is `#[cfg(test)]`.
+/// Going through the real loader is the better test anyway: it exercises the
+/// format an operator actually writes.
+pub fn api_key_store(secret: &str, tenant: &str) -> (airon_aip::auth::ApiKeyStore, PathBuf) {
+    let mut path = std::env::temp_dir();
+    path.push(format!("aip_it_keys_{}.json", uuid::Uuid::new_v4()));
+    let digest = hex::encode(aip_crypto::sha256(secret.as_bytes()));
+    std::fs::write(
+        &path,
+        serde_json::json!({
+            "keys": [{
+                "key_id": "k-test",
+                "secret_sha256": digest,
+                "tenant_id": tenant,
+                "role": "machine",
+            }]
+        })
+        .to_string(),
+    )
+    .expect("write api keys file");
+    let store = airon_aip::auth::ApiKeyStore::load(path.to_str().expect("utf-8 path"));
+    assert!(!store.is_empty(), "the fixture key file must load");
+    (store, path)
+}
+
+/// Build an `AppState` for in-process router tests.
+///
+/// Constructed field by field from the crate's public API rather than by
+/// exposing `src/test_support`, which is `#[cfg(test)]`. Same reasoning as
+/// above: test scaffolding does not belong on the production surface, and
+/// `AppState`'s fields are already public.
+pub fn app_state(
+    store: std::sync::Arc<dyn airon_aip::store::EvidenceStore>,
+    api_keys: airon_aip::auth::ApiKeyStore,
+    managed_signing: airon_aip::ManagedSigning,
+) -> std::sync::Arc<airon_aip::AppState> {
+    let kp = airon_aip::keys::KeyPair::generate();
+    let encoding_key =
+        jsonwebtoken::EncodingKey::from_ed_pem(kp.private_pem.as_bytes()).expect("private pem");
+    let decoding_key =
+        jsonwebtoken::DecodingKey::from_ed_pem(kp.public_pem.as_bytes()).expect("public pem");
+    let mut p = std::env::temp_dir();
+    p.push(format!("aip_it_logs_{}", uuid::Uuid::new_v4()));
+    let log_path = p.to_str().expect("utf-8 path").to_owned();
+
+    std::sync::Arc::new(airon_aip::AppState {
+        encoding_key,
+        decoding_key,
+        public_pem: kp.public_pem.clone(),
+        fingerprint: kp.fingerprint.clone(),
+        delegation_log_path: log_path.clone(),
+        delegation_log: airon_aip::delegation::load_delegation_log(&log_path),
+        revocation_log_path: log_path.clone(),
+        revocation_set: airon_aip::revocation::load_revocation_set(&log_path),
+        store,
+        api_keys,
+        signer_seed: kp.signing_seed(),
+        signer_public: kp.verifying_key_bytes(),
+        managed_signing,
+    })
+}
+
+/// The JSON body of a generate request.
+///
+/// Built as JSON rather than by deriving `Serialize` on `GenerateRequest`:
+/// that type is deliberately deserialize-only, and adding a `Serialize` impl
+/// so a test could round-trip it would create a second, sanctioned way for a
+/// private seed to be written out — which is the defect under test.
+///
+/// Returns the body and the seed it carries. `substitute_seed` replaces the
+/// fixture's own seed with a distinctive value, for tests that need to search
+/// a response for it; `None` keeps the real seed so generation succeeds.
+pub fn generate_request_json(substitute_seed: Option<&str>) -> String {
+    let (req, _) = sample_generate_request();
+    let seed = substitute_seed.unwrap_or(&req.agent_seed_hex);
+    serde_json::json!({
+        "agent_seed_hex": seed,
+        "provenance": {
+            "model": req.provenance.model,
+            "environment": req.provenance.environment,
+            "toolchain": req.provenance.toolchain,
+        },
+        "principal_id": req.principal_id,
+        "principal_role": req.principal_role,
+        "root_token": req.root_token,
+        "delegation_chain": req.delegation_chain,
+        "decision": {
+            "action_kind": req.decision.action_kind,
+            "summary": req.decision.summary,
+            "input": req.decision.input,
+            "rationale": req.decision.rationale,
+        },
+        "actions": req.actions.iter().map(|a| serde_json::json!({
+            "action_kind": a.action_kind,
+            "description": a.description,
+            "payload": a.payload,
+        })).collect::<Vec<_>>(),
+        "claimed_trust_floor": req.claimed_trust_floor,
+    })
+    .to_string()
 }

@@ -114,7 +114,7 @@ pub struct TraceInput {
     pub trace_data: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct ReceiptInput {
     pub receipt_system: String,
     pub receipt_id: String,
@@ -125,7 +125,7 @@ pub struct ReceiptInput {
     pub counterparty_seed_hex: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct GenerateRequest {
     /// 32-byte hex seed of the acting agent's Ed25519 key.
     pub agent_seed_hex: String,
@@ -145,6 +145,50 @@ pub struct GenerateRequest {
     pub receipt: Option<ReceiptInput>,
     #[serde(default)]
     pub claimed_trust_floor: Option<TrustFloor>,
+}
+
+/// Redacting `Debug`. Derived `Debug` on a struct holding a private seed is
+/// a leak waiting for the first `tracing::debug!(?req)` or `unwrap` panic
+/// message; the field is printed as a placeholder instead (AUDIT B-7).
+/// The presence of a seed is still visible, because whether one was supplied
+/// is operationally relevant and is not itself secret.
+/// Redacting `Debug`. Derived `Debug` on a struct holding a private seed is
+/// a leak waiting for the first `tracing::debug!(?req)` or panic message that
+/// formats it; the field is printed as a placeholder instead (AUDIT B-7).
+/// Whether a seed was supplied is still visible, because that is
+/// operationally relevant and is not itself secret.
+impl std::fmt::Debug for GenerateRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GenerateRequest")
+            .field("agent_seed_hex", &"<redacted>")
+            .field("provenance", &self.provenance)
+            .field("principal_id", &self.principal_id)
+            .field("principal_role", &self.principal_role)
+            .field("root_token", &self.root_token)
+            .field("delegation_chain", &self.delegation_chain)
+            .field("decision", &self.decision)
+            .field("actions", &self.actions)
+            .field("trace", &self.trace)
+            .field("receipt", &self.receipt)
+            .field("claimed_trust_floor", &self.claimed_trust_floor)
+            .finish()
+    }
+}
+
+/// Redacting `Debug`; see [`GenerateRequest`]'s impl.
+impl std::fmt::Debug for ReceiptInput {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ReceiptInput")
+            .field("receipt_system", &self.receipt_system)
+            .field("receipt_id", &self.receipt_id)
+            .field("receipt_content", &self.receipt_content)
+            .field("counterparty_id", &self.counterparty_id)
+            .field(
+                "counterparty_seed_hex",
+                &self.counterparty_seed_hex.as_ref().map(|_| "<redacted>"),
+            )
+            .finish()
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -388,13 +432,44 @@ pub async fn generate(
                 }),
             )
         })?;
+    // `managed_signed` is recorded on every packet produced this way so that
+    // an auditor reading the service's logs can tell which packets carry a
+    // signature the service itself could have produced (AUDIT B-7).
     tracing::info!(
         packet_id = %packet_id,
         tenant = %principal.tenant_id,
         agent = %packet.agent.aip_id,
+        managed_signed = true,
         "evidence packet generated"
     );
     Ok(Json(GenerateResponse { packet_id, packet }))
+}
+
+/// The handler routed in place of [`generate`] when managed signing is
+/// refused (AUDIT B-7).
+///
+/// Takes no body extractor on purpose: a caller that sends a private seed
+/// here has it rejected by the routing table, not parsed and then declined.
+/// The seed never reaches serde, a log line, or this process's heap.
+///
+/// 501 rather than 403: the endpoint is not disabled for *this caller*, it is
+/// not implemented by this deployment. A 403 would invite a client to retry
+/// with different credentials.
+pub async fn generate_refused() -> ApiError {
+    (
+        StatusCode::NOT_IMPLEMENTED,
+        Json(ErrorBody {
+            error: "managed signing is not enabled on this deployment. \
+                    POST /v1/evidence/generate requires the agent's private \
+                    seed in the request body, which would place the signing \
+                    key in every proxy, log and trace on the path and would \
+                    make the resulting packet unable to distinguish the agent \
+                    from this service. Sign client-side and submit the sealed \
+                    packet to /v1/evidence/verify instead. A deployment that \
+                    has accepted those costs sets AIP_ALLOW_MANAGED_SIGNING=1."
+                .into(),
+        }),
+    )
 }
 
 // Authenticated but stateless: verification is a pure function of the packet
