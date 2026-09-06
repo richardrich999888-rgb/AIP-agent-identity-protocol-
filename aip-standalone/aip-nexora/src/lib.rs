@@ -10,6 +10,7 @@
 pub mod commitment;
 pub mod merkle;
 pub mod proof;
+pub mod verify;
 
 pub use commitment::{
     verify_proof, verify_signed_head, Advance, AnchorSink, CommitmentLog, HeadTracker,
@@ -24,4 +25,8 @@ pub use proof::{
     verify_envelope, AuthorityEvidence, BindingFault, Component, DeclaredParameters, Envelope,
     LineageEvidence, NexoraProof, ObserverBundle, ProofAssembler, ProofBuilder, ProofFault,
     StructuralFault, Subject, NEXORA_PROOF_VERSION, PROOF_BUNDLE_DOMAIN, PROOF_ENVELOPE_DOMAIN,
+};
+pub use verify::{
+    verify_nexora_proof, Completeness, ComponentVerdict, Coverage, Independence, InvalidReason,
+    ObservationCoverage, ProofVerdict, VerifiedProof, VerifierAnchors,
 };

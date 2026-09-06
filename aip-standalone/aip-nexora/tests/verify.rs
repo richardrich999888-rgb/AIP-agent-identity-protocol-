@@ -76,7 +76,10 @@ fn v01_a_complete_package_verifies_offline_against_supplied_anchors() {
     // The result is the re-derived one, and it equals the claim.
     assert_eq!(v.result, Some(ReconciliationResult::VerifiedExecution));
     assert_eq!(v.strength, Some(EvidenceStrength::Attested));
-    assert_eq!(v.rederived.as_ref().unwrap().digest(), s.reconciliation.digest());
+    assert_eq!(
+        v.rederived.as_ref().unwrap().digest(),
+        s.reconciliation.digest()
+    );
     assert_eq!(v.independence, Independence::Checked);
 }
 
@@ -101,7 +104,10 @@ fn v03_an_unanchored_authority_is_unverifiable_not_assumed() {
     let mut a = anchors(&s);
     a.decision_point = aip_authorize::DecisionPointTrustAnchors::new();
     let v = verify_nexora_proof(&package(&s), &a);
-    assert!(matches!(v.expectation, ComponentVerdict::Unverifiable(_)), "{v:#?}");
+    assert!(
+        matches!(v.expectation, ComponentVerdict::Unverifiable(_)),
+        "{v:#?}"
+    );
     assert_ne!(v.verdict, ProofVerdict::Valid);
 
     // The verifier trusts no observer.
@@ -158,9 +164,7 @@ fn v06_every_single_field_mutation_of_the_claim_is_refused() {
     let mutations: Vec<(&str, Mutate)> = vec![
         (
             "result",
-            Box::new(|p: &mut NexoraProof| {
-                p.claim.result = ReconciliationResult::PhantomClaim
-            }),
+            Box::new(|p: &mut NexoraProof| p.claim.result = ReconciliationResult::PhantomClaim),
         ),
         (
             "strength raised to Proven",
@@ -299,7 +303,10 @@ fn v10_a_commitment_is_checked_against_the_head_and_the_verifiers_anchors() {
 
     // Without the NEXORA anchor the head cannot be checked.
     let v = verify_nexora_proof(&p, &anchors(&s));
-    assert!(matches!(v.commitment, ComponentVerdict::Unverifiable(_)), "{v:#?}");
+    assert!(
+        matches!(v.commitment, ComponentVerdict::Unverifiable(_)),
+        "{v:#?}"
+    );
     assert_ne!(v.verdict, ProofVerdict::Valid);
 
     // With it, the inclusion is established and named.
@@ -308,7 +315,9 @@ fn v10_a_commitment_is_checked_against_the_head_and_the_verifiers_anchors() {
     let v = verify_nexora_proof(&p, &a);
     assert_eq!(v.verdict, ProofVerdict::Valid, "{v:#?}");
     assert_eq!(v.commitment, ComponentVerdict::Verified);
-    let inclusion = v.inclusion.expect("the verifier names where it was committed");
+    let inclusion = v
+        .inclusion
+        .expect("the verifier names where it was committed");
     assert_eq!(inclusion.index, 0);
     assert_eq!(inclusion.size, 1);
     assert_eq!(inclusion.kind, aip_nexora::LeafKind::Reconciliation);
@@ -342,7 +351,10 @@ fn v11_a_commitment_of_other_bytes_or_under_a_broken_head_is_refused() {
     let mut a = anchors(&s);
     a.nexora = nexora_anchors;
     let v = verify_nexora_proof(&p, &a);
-    assert!(matches!(v.commitment, ComponentVerdict::Unverifiable(_)), "{v:#?}");
+    assert!(
+        matches!(v.commitment, ComponentVerdict::Unverifiable(_)),
+        "{v:#?}"
+    );
     assert_ne!(v.verdict, ProofVerdict::Valid);
 }
 
@@ -371,8 +383,13 @@ fn v12_a_sealed_package_reports_who_sealed_it_and_an_unsealed_one_is_no_weaker()
     // Sealed by a party the verifier does not anchor: the seal is
     // unverifiable, and that is not a licence to ignore it.
     let stranger = aip_crypto::generate_ed25519_keypair();
-    let asm2 = ProofAssembler::new("assembler-2", 1, &stranger.private_key, &stranger.public_key)
-        .unwrap();
+    let asm2 = ProofAssembler::new(
+        "assembler-2",
+        1,
+        &stranger.private_key,
+        &stranger.public_key,
+    )
+    .unwrap();
     let sealed2 = asm2.seal(package(&s)).unwrap();
     let v = verify_nexora_proof(&sealed2, &a);
     assert!(matches!(v.envelope, ComponentVerdict::Unverifiable(_)));
@@ -401,7 +418,10 @@ fn v13_structural_and_binding_faults_stop_verification_before_any_verdict() {
     p.expectation = None;
     let v = verify_nexora_proof(&p, &anchors(&s));
     assert!(
-        matches!(v.verdict, ProofVerdict::Invalid(InvalidReason::Structural(_))),
+        matches!(
+            v.verdict,
+            ProofVerdict::Invalid(InvalidReason::Structural(_))
+        ),
         "{v:#?}"
     );
 
@@ -423,7 +443,14 @@ fn v14_the_verifier_states_nothing_the_evidence_does_not_carry() {
     let s = common::verified_execution();
     let v = verify_nexora_proof(&package(&s), &anchors(&s));
     let json = serde_json::to_string(&v).unwrap().to_lowercase();
-    for forbidden in ["trusted", "permitted", "malicious", "confidence", "score", "risk"] {
+    for forbidden in [
+        "trusted",
+        "permitted",
+        "malicious",
+        "confidence",
+        "score",
+        "risk",
+    ] {
         assert!(!json.contains(forbidden), "{forbidden} in {json}");
     }
     // The verdict names a result only because the reconciler produced one.
