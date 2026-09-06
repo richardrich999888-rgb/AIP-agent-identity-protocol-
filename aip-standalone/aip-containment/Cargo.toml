@@ -1,0 +1,19 @@
+[package]
+name = "aip-containment"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Ghost Skill 9: the containment boundary — consumes a signed warrant, an execution binding and current observer health; advisory by default; Proven required; every attempt a signed record; cgroup v2 freeze as the only actuator"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+aip-observe = { path = "../aip-observe" }
+aip-reconcile = { path = "../aip-reconcile" }
+aip-warrant = { path = "../aip-warrant" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"
+libc = "0.2"
