@@ -107,8 +107,9 @@ sits on, and all remain **OPEN**.
 
 | ID | Blocker | Status |
 |---|---|---|
-| B-1 | Verifier has no clock | OPEN |
-| B-2 | Delegation issuer not bound to previous grantee | OPEN |
+| B-1 | Verifier has no clock | **CLOSED** in `aip-protocol` (R16) |
+| **B-1a** | `aip-service` supplies no verification time, so its `/verify` is unbounded | **OPEN (P1)** |
+| B-2 | Delegation issuer not bound to previous grantee | **CLOSED**, fully adopted |
 | B-3 | Containment unreachable from engine output | OPEN |
 | B-4 | Bundle verified against a self-supplied key | OPEN |
 | B-5 | Private keys written with default permissions | OPEN (the Python SDK refuses to *read* such a file, which is not the same as fixing the writer) |
@@ -119,3 +120,6 @@ sits on, and all remain **OPEN**.
 | B-10 | `aip-service` in no workspace | OPEN |
 
 **Production promotion remains forbidden** until these are closed and tested.
+Both P0s were closed by prod after this document was first written and were
+independently verified; see
+`audit/2026-09-06-airi-extension/P0_VERIFICATION_ADDENDUM.md`.

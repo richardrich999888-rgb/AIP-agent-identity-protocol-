@@ -176,6 +176,7 @@ category", and none did: a claimed-but-unobserved AI action is
 |---|---|
 | `cargo test --workspace` (baseline, prod merged, pre-AIRI) | **821 passed / 0 failed / 3 ignored / 81 suites** |
 | `cargo test --workspace` (with AIRI) | **888 passed / 0 failed / 4 ignored / 90 suites** |
+| `cargo test --workspace` (after merging prod's P0 fixes) | **898 passed / 0 failed / 4 ignored / 90 suites** |
 | `cargo clippy -p aip-airi --all-targets` | **0 warnings, 0 errors** |
 | `python3 -m unittest discover -s tests` | **50 passed / 0 failed** |
 
@@ -245,12 +246,19 @@ was deliberately deferred (`AIRI_MIGRATION.md` §4).
 
 ## H. Existing forensic blockers remaining
 
-**All ten remain OPEN.** AIRI closes none of them.
+> **Superseded in part by `P0_VERIFICATION_ADDENDUM.md`.** After this report
+> was written, prod advanced `dc8caf3 → fdf380c` and closed both P0s. The
+> table below is amended to the verified state; the addendum has the
+> derivation, including one new P1 the verification found.
+
+AIRI closes none of them. The two closures are prod's work, independently
+verified rather than accepted on the strength of their commit messages.
 
 | ID | Blocker | Status |
 |---|---|---|
-| B-1 | Verifier clock semantics | **OPEN** |
-| B-2 | Issuer/grantee binding | **OPEN** |
+| B-1 | Verifier clock semantics | **CLOSED in `aip-protocol`** (R16, verified) |
+| **B-1a** | Service applies no temporal bound | **OPEN (P1) — new**, found by verifying B-1 |
+| B-2 | Issuer/grantee binding | **CLOSED, fully adopted** (verified) |
 | B-3 | Real engine-produced containment path | **OPEN** |
 | B-4 | Bundle signer trust | **OPEN** |
 | B-5 | Private-key storage | **OPEN** (the SDK refuses to *read* a world-readable key; the writer is unchanged) |
@@ -258,7 +266,7 @@ was deliberately deferred (`AIRI_MIGRATION.md` §4).
 | B-7 | Private seed handling | **OPEN** |
 | B-8 | Sealed reconciliation result construction (`Reconciliation` fields all `pub`) | **OPEN** |
 | B-9 | Packet replay undetected | **OPEN** |
-| B-10 | Service integration (`aip-service` in no workspace) | **OPEN** |
+| B-10 | Service integration (`aip-service` in no workspace) | **OPEN** — now demonstrably load-bearing: B-1a exists because of it |
 
 ---
 
@@ -268,11 +276,13 @@ was deliberately deferred (`AIRI_MIGRATION.md` §4).
 
 Three independent reasons, any one of which is sufficient:
 
-1. **Ten forensic blockers remain open**, including two P0s — the verifier has
-   no clock, and delegation chains do not bind a hop's issuer to the previous
-   hop's grantee. Both sit directly under the protocol's central claim about
-   who authorized what and when. Building AI-stack accountability on top
-   without closing them is building on sand.
+1. **Eight blockers remain open, plus one new P1.** Both P0s are now closed —
+   that is real progress and the gap has narrowed from "two P0s under the
+   central claim" to "one P1 in the service request path". But **B-1a** is
+   the original P0 wearing a different hat: `aip-service` never supplies a
+   verification time, so its `/verify` endpoint answers `valid: true` for a
+   future-dated packet, and every handler decides on that boolean. Seven of
+   the nine remaining blockers now sit in or depend on the service tier.
 
 2. **AIRI contributes nothing to a verdict.** Deploying it today yields
    signed, checkable claims and no additional detection. That is the correct
@@ -285,8 +295,8 @@ Three independent reasons, any one of which is sufficient:
    whose false-positive rate has never been characterised should not be put in
    front of an operator.
 
-**What promotion would require**, in order: close B-1 and B-2; close B-5 to
-B-7 and B-10; resolve B-3 and B-8; run stages 1–2 of `AIRI_MIGRATION.md` §5
+**What promotion would require**, in order: close B-1a and B-10 together (the
+second causes the first); close B-5 to B-7; resolve B-3 and B-8; run stages 1–2 of `AIRI_MIGRATION.md` §5
 and characterise the false-positive rate; then build the §4 entry point with
 an adversarial suite of comparable depth to the existing reconciler's.
 
