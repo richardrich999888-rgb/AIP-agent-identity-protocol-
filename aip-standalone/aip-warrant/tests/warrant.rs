@@ -10,8 +10,8 @@ use aip_crypto::{generate_ed25519_keypair, sha256};
 use aip_observe::{CoverageWindow, ObservationAvailability, UnavailableReason};
 use aip_reconcile::{
     ActionComparison, DecisionId, DecisionPointId, EvidenceRef, EvidenceStrength,
-    IdentityComparison, ReasonCode, Reconciliation, ReconciliationResult, TemporalComparison,
-    RECONCILIATION_VERSION,
+    IdentityComparison, LineageComparison, ReasonCode, Reconciliation, ReconciliationResult,
+    TemporalComparison, RECONCILIATION_VERSION,
 };
 use aip_types::KeyPair;
 use aip_warrant::*;
@@ -54,6 +54,7 @@ fn record(
         identity: IdentityComparison::NoReference,
         action: ActionComparison::Unobservable,
         temporal: TemporalComparison::Indeterminate,
+        lineage: LineageComparison::NotEvaluated,
         replay_detected: false,
         evidence,
         verification_time_ms: NOW - 1,

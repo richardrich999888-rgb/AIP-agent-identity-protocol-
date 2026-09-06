@@ -6,7 +6,7 @@ use aip_authorize::DecisionPointTrustAnchors;
 use aip_crypto::{sha256, verify_ed25519};
 use aip_observe::{AttestedBatch, CoverageWindow, ObserverTrustAnchors, SignedSensorHealth};
 use aip_types::canonical::*;
-use aip_types::Signature;
+use aip_types::{AgentIdentityDocument, DelegationToken, ScopedToken, Signature};
 use serde::{Deserialize, Serialize};
 
 use crate::ids::ObserverSequence;
@@ -152,4 +152,39 @@ pub enum ObservationTarget {
         batch_sequence: ObserverSequence,
         index: u32,
     },
+}
+
+// ─── Lineage inputs (Phase C2) ───
+
+/// The tokens a decision rests on, supplied by the verifier so the
+/// reconciler can check them against the expectation's `AuthorityRef` and
+/// verify them through `aip_core`. Never trusted from the record itself.
+#[derive(Debug, Clone)]
+pub struct DecisionAuthority {
+    pub root: ScopedToken,
+    pub chain: Vec<DelegationToken>,
+}
+
+/// The agent's identity document and the parent document its lineage proof
+/// names, both validated before use.
+#[derive(Debug, Clone, Copy)]
+pub struct IdentityLineageInput<'a> {
+    pub child: &'a AgentIdentityDocument,
+    pub parent: &'a AgentIdentityDocument,
+}
+
+/// Everything `reconcile_lineage` needs beyond the expectation and the
+/// observer evidence. Each piece is verified inside the reconciler; an
+/// absent or unverifiable piece makes the corresponding side incomplete.
+#[derive(Debug, Clone, Copy)]
+pub struct LineageInputs<'a> {
+    /// Decision-point-signed expectations of other agents, used to attribute
+    /// the spawning instance (and to detect a second claim on the child).
+    pub peer_expectations: &'a [aip_authorize::ExpectedExecution],
+    pub authority: Option<&'a DecisionAuthority>,
+    /// Issuer public keys by AIP-ID, the verifier's own.
+    pub issuer_keys: &'a std::collections::HashMap<String, Vec<u8>>,
+    /// Verifier-supplied revoked token ids.
+    pub revoked_jtis: &'a [[u8; 16]],
+    pub identity: Option<IdentityLineageInput<'a>>,
 }

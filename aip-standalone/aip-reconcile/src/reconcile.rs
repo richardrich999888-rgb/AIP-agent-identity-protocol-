@@ -19,14 +19,18 @@ use aip_observe::{
     UnavailableReason, VerifyError,
 };
 
-use crate::action::{derive_action, derive_transition_evidence, TransitionEvidence};
+use crate::action::{
+    derive_action, derive_lineage_edges, derive_transition_evidence, LineageEdge,
+    TransitionEvidence,
+};
 use crate::ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};
 use crate::inputs::{
-    ExpectedSideCoverage, ObservationTarget, ObserverEvidence, ReconciliationContext,
+    ExpectedSideCoverage, LineageInputs, ObservationTarget, ObserverEvidence, ReconciliationContext,
 };
 use crate::result::{
     ActionComparison, ActionEvidenceKind, EvidenceRef, EvidenceStrength, IdentityComparison,
-    ReasonCode, Reconciliation, ReconciliationResult, TemporalComparison, RECONCILIATION_VERSION,
+    LineageComparison, LineageLink, ReasonCode, Reconciliation, ReconciliationResult,
+    TemporalComparison, RECONCILIATION_VERSION,
 };
 
 // ─── Result assembly ───
@@ -37,6 +41,9 @@ struct Draft {
     identity: IdentityComparison,
     action: ActionComparison,
     temporal: TemporalComparison,
+    /// Set only by [`reconcile_lineage`]; `Contradicted` is the sole value
+    /// that lets `LineageViolation` leave `finish`.
+    lineage: LineageComparison,
     replay_detected: bool,
     evidence: Vec<EvidenceRef>,
     verification_time_ms: u64,
@@ -61,6 +68,7 @@ impl Draft {
             identity: IdentityComparison::NoReference,
             action: ActionComparison::Unobservable,
             temporal: TemporalComparison::Indeterminate,
+            lineage: LineageComparison::NotEvaluated,
             replay_detected: false,
             evidence: Vec::new(),
             verification_time_ms: ctx.verification_time_ms,
@@ -111,8 +119,14 @@ impl Draft {
                 matches!(self.identity, IdentityComparison::Divergent { .. })
                     && strength == EvidenceStrength::Attested
             }
-            // No lineage evidence type exists; nothing may emit this.
-            R::LineageViolation => false,
+            // Phase C2: only `reconcile_lineage`, and only with both sides
+            // complete and contradicting. The content is procfs-bound on the
+            // observed side and token/document-bound on the claimed side:
+            // `Attested`, never `Proven`.
+            R::LineageViolation => {
+                matches!(self.lineage, LineageComparison::Contradicted)
+                    && strength == EvidenceStrength::Attested
+            }
             R::SensorIntegrityFailure | R::ContinuityFailure => {
                 strength >= EvidenceStrength::Attested
             }
@@ -144,6 +158,7 @@ impl Draft {
             identity: self.identity,
             action: self.action,
             temporal: self.temporal,
+            lineage: self.lineage,
             replay_detected: self.replay_detected,
             evidence: self.evidence,
             verification_time_ms: self.verification_time_ms,
@@ -915,21 +930,22 @@ fn recompute_coverage(
 
 // ─── Entry point 1: an expectation against observation ───
 
-/// Reconcile one signed expectation against the observer evidence the caller
-/// holds. `None` observer evidence is a legitimate input and yields
-/// `CANNOT_PROVE` with `NoObserver` availability — never a verdict.
-pub fn reconcile_expectation(
-    ee: &ExpectedExecution,
-    observer: Option<&ObserverEvidence>,
-    ctx: &ReconciliationContext,
-) -> Reconciliation {
-    let mut draft = Draft::new(ctx);
-    draft.decision_id = Some(DecisionId::from_bytes(ee.decision_id));
-    draft.evidence.push(EvidenceRef::Expected {
-        decision_point_id: DecisionPointId(ee.decision_point_id.clone()),
-        decision_id: DecisionId::from_bytes(ee.decision_id),
-    });
+/// Everything the two entry points share before they diverge: expectation
+/// verification, window, observer verification, availability, health
+/// freshness. Returned as a whole; an early exit is the finished record.
+struct Prepared<'a> {
+    draft: Draft,
+    obs: VerifiedObserver<'a>,
+    window: CoverageWindow,
+    ev: &'a ObserverEvidence,
+}
 
+fn prologue<'a>(
+    ee: &ExpectedExecution,
+    observer: Option<&'a ObserverEvidence>,
+    ctx: &ReconciliationContext,
+    mut draft: Draft,
+) -> Result<Prepared<'a>, Reconciliation> {
     // 1–3. Expected signature, trust, structure (window included). When the
     // verifier supplied the agent's key, also I1: the agent must not hold
     // the decision key. Matched exhaustively: a new variant must be
@@ -955,7 +971,7 @@ pub fn reconcile_expectation(
             | ExpectedVerifyError::BindingAgentMismatch
             | ExpectedVerifyError::BindingMalformed(_) => ReasonCode::ExpectedStructurallyInvalid,
         };
-        return draft.cannot_prove(reason);
+        return Err(draft.cannot_prove(reason));
     }
     let window = CoverageWindow {
         from_ms: ee.issued_at,
@@ -964,18 +980,18 @@ pub fn reconcile_expectation(
 
     // 4–6. Observer signatures, trust, chain, continuity.
     let Some(ev) = observer else {
-        return draft.cannot_prove(ReasonCode::NoObserverEvidence);
+        return Err(draft.cannot_prove(ReasonCode::NoObserverEvidence));
     };
     let obs = match verify_observer(ev, ctx, &mut draft) {
         ObserverCheck::Ok(o) => o,
         ObserverCheck::IntegrityFailure(reason) => {
-            return draft.finish(
+            return Err(draft.finish(
                 ReconciliationResult::SensorIntegrityFailure,
                 EvidenceStrength::Proven,
                 reason,
-            )
+            ))
         }
-        ObserverCheck::CannotProve(reason) => return draft.cannot_prove(reason),
+        ObserverCheck::CannotProve(reason) => return Err(draft.cannot_prove(reason)),
     };
     draft.replay_detected = obs.replay_detected;
     draft.availability =
@@ -987,7 +1003,7 @@ pub fn reconcile_expectation(
         reason: UnavailableReason::HealthStale { .. },
     } = &draft.availability
     {
-        return draft.cannot_prove(ReasonCode::HealthStale);
+        return Err(draft.cannot_prove(ReasonCode::HealthStale));
     }
     // …and health the verifier's own clock says has not been emitted yet.
     // Staleness only bounds records that are too old; a forward-set collector
@@ -997,8 +1013,40 @@ pub fn reconcile_expectation(
             .verification_time_ms
             .saturating_add(ctx.window_tolerance_ms)
     {
-        return draft.cannot_prove(ReasonCode::HealthNotYetEmitted);
+        return Err(draft.cannot_prove(ReasonCode::HealthNotYetEmitted));
     }
+    Ok(Prepared {
+        draft,
+        obs,
+        window,
+        ev,
+    })
+}
+
+/// Reconcile one signed expectation against the observer evidence the caller
+/// holds. `None` observer evidence is a legitimate input and yields
+/// `CANNOT_PROVE` with `NoObserver` availability — never a verdict.
+pub fn reconcile_expectation(
+    ee: &ExpectedExecution,
+    observer: Option<&ObserverEvidence>,
+    ctx: &ReconciliationContext,
+) -> Reconciliation {
+    let mut draft = Draft::new(ctx);
+    draft.decision_id = Some(DecisionId::from_bytes(ee.decision_id));
+    draft.evidence.push(EvidenceRef::Expected {
+        decision_point_id: DecisionPointId(ee.decision_point_id.clone()),
+        decision_id: DecisionId::from_bytes(ee.decision_id),
+    });
+
+    let Prepared {
+        mut draft,
+        obs,
+        window,
+        ev,
+    } = match prologue(ee, observer, ctx, draft) {
+        Ok(p) => p,
+        Err(r) => return r,
+    };
 
     // 7–12. Identity, decision id, binding, action, parameters, time.
     let refs = collect_references(&obs, ee, &window, ctx.window_tolerance_ms);
@@ -1355,6 +1403,285 @@ pub fn reconcile_observation(
     }
 }
 
+// ─── Lineage (Phase C2) ───
+
+/// Ask the lineage question about one decision: does the kernel-observed
+/// ancestry of the authorized instance contradict the lineage its own
+/// signed claims assert? See `tests/lineage_violation.rs` for the full
+/// precondition. Every missing piece is `CANNOT_PROVE` naming the gap;
+/// every ambiguity is ambiguity; only complete, contradicting evidence on
+/// both sides yields `LINEAGE_VIOLATION`, at `Attested`.
+pub fn reconcile_lineage(
+    ee: &ExpectedExecution,
+    observer: Option<&ObserverEvidence>,
+    ctx: &ReconciliationContext,
+    li: &LineageInputs<'_>,
+) -> Reconciliation {
+    let mut draft = Draft::new(ctx);
+    draft.decision_id = Some(DecisionId::from_bytes(ee.decision_id));
+    draft.evidence.push(EvidenceRef::Expected {
+        decision_point_id: DecisionPointId(ee.decision_point_id.clone()),
+        decision_id: DecisionId::from_bytes(ee.decision_id),
+    });
+    let Prepared {
+        mut draft,
+        obs,
+        window: _,
+        ev: _,
+    } = match prologue(ee, observer, ctx, draft) {
+        Ok(p) => p,
+        Err(r) => return r,
+    };
+
+    // Observer state gates lineage exactly as it gates actions.
+    match obs.health.state {
+        ObserverState::Quarantined => {
+            return draft.finish(
+                ReconciliationResult::SensorIntegrityFailure,
+                EvidenceStrength::Attested,
+                ReasonCode::ObserverQuarantined,
+            )
+        }
+        ObserverState::Recovering | ObserverState::ContinuityUnverified => {
+            return draft.finish(
+                ReconciliationResult::ContinuityFailure,
+                EvidenceStrength::Attested,
+                state_reason(obs.health.state).unwrap_or(ReasonCode::ObserverContinuityUnverified),
+            )
+        }
+        ObserverState::Degraded => return draft.cannot_prove(ReasonCode::ObserverDegraded),
+        ObserverState::Active => {}
+    }
+
+    // ── Observed side ──
+    // 1. Edges whose child is the authorized instance.
+    let edges: Vec<LineageEdge> = derive_lineage_edges(obs.batches.iter().copied())
+        .into_iter()
+        .filter(|e| e.child.matches_process_of(&ee.execution_binding))
+        .collect();
+    if edges.is_empty() {
+        draft.lineage = LineageComparison::Incomplete;
+        return draft.cannot_prove(ReasonCode::LineageEvidenceUnavailable);
+    }
+    if obs.health.probe_policy == ProbePolicy::Open {
+        draft.lineage = LineageComparison::Incomplete;
+        return draft.cannot_prove(ReasonCode::ProvenanceUnverifiedOpenPolicy);
+    }
+    // 2. The carrying batch inside the collector's attested coverage.
+    let covered = |seq: u64| {
+        obs.batches
+            .iter()
+            .find(|b| b.sequence == seq)
+            .is_some_and(|b| {
+                obs.health.attested_coverage.is_some_and(|cov| {
+                    cov.covers(&CoverageWindow {
+                        from_ms: b.batch.claimed_from_ms,
+                        to_ms: b.batch.claimed_to_ms,
+                    })
+                })
+            })
+    };
+    let edges: Vec<LineageEdge> = edges
+        .into_iter()
+        .filter(|e| covered(e.batch_sequence))
+        .collect();
+    if edges.is_empty() {
+        draft.lineage = LineageComparison::Incomplete;
+        return draft.cannot_prove(ReasonCode::LineageEdgeNotCovered);
+    }
+    for e in &edges {
+        draft.evidence.push(EvidenceRef::KernelEvent {
+            batch_sequence: ObserverSequence(e.fork.batch_sequence),
+            index: e.fork.index,
+        });
+        draft.evidence.push(EvidenceRef::KernelEvent {
+            batch_sequence: ObserverSequence(e.exec.batch_sequence),
+            index: e.exec.index,
+        });
+    }
+    // Two different parent instances for one child instance cannot both be
+    // true; report ambiguity rather than pick one.
+    let mut parents: Vec<&aip_observe::ObservedProcess> = Vec::new();
+    for e in &edges {
+        if !parents.iter().any(|p| **p == e.parent) {
+            parents.push(&e.parent);
+        }
+    }
+    if parents.len() > 1 {
+        draft.lineage = LineageComparison::Ambiguous {
+            parent_candidates: parents.len() as u32,
+        };
+        return draft.cannot_prove(ReasonCode::LineageParentAmbiguous);
+    }
+    let parent = parents[0];
+
+    // 3. Attribute the parent through verified peer expectations; and
+    //    refuse a child that another agent's expectation also names.
+    let peers: Vec<&ExpectedExecution> = li
+        .peer_expectations
+        .iter()
+        .filter(|p| verify_expected_execution(p, &ctx.decision_point_anchors).is_ok())
+        .collect();
+    if peers.iter().any(|p| {
+        p.agent_id != ee.agent_id
+            && aip_observe::ObservedProcess {
+                process: ee.execution_binding.process,
+                exe_content_sha256: ee.execution_binding.exe_content_sha256,
+                exe_path: String::new(),
+            }
+            .matches_process_of(&p.execution_binding)
+    }) {
+        draft.lineage = LineageComparison::Ambiguous {
+            parent_candidates: 0,
+        };
+        return draft.cannot_prove(ReasonCode::LineageChildAmbiguous);
+    }
+    let mut parent_agents: Vec<(&str, &ExpectedExecution)> = Vec::new();
+    for p in peers
+        .iter()
+        .filter(|p| parent.matches_process_of(&p.execution_binding))
+    {
+        if !parent_agents.iter().any(|(a, _)| *a == p.agent_id) {
+            parent_agents.push((&p.agent_id, p));
+        }
+    }
+    let (parent_agent, parent_ee) = match parent_agents.as_slice() {
+        [] => {
+            draft.lineage = LineageComparison::Incomplete;
+            return draft.cannot_prove(ReasonCode::LineageParentUnattributed);
+        }
+        [one] => *one,
+        many => {
+            draft.lineage = LineageComparison::Ambiguous {
+                parent_candidates: many.len() as u32,
+            };
+            return draft.cannot_prove(ReasonCode::LineageParentAmbiguous);
+        }
+    };
+    draft.evidence.push(EvidenceRef::Expected {
+        decision_point_id: DecisionPointId(parent_ee.decision_point_id.clone()),
+        decision_id: DecisionId::from_bytes(parent_ee.decision_id),
+    });
+
+    // ── Claimed side ──
+    // 4. The decision's authority chain: the tokens named by `AuthorityRef`,
+    //    verified by aip_core, ending at this agent, in standing at the
+    //    decision time, none revoked.
+    let delegators = match li.authority.and_then(|a| verified_delegators(ee, a, li)) {
+        Some(d) => d,
+        None => {
+            draft.lineage = LineageComparison::Incomplete;
+            return draft.cannot_prove(ReasonCode::LineageAuthorityUnavailable);
+        }
+    };
+    // 5. The identity parent: the agent's document, its proof verified
+    //    against the offered parent document.
+    let identity_parent = match li.identity.and_then(|i| verified_identity_parent(ee, i)) {
+        Some(a) => a,
+        None => {
+            draft.lineage = LineageComparison::Incomplete;
+            return draft.cannot_prove(ReasonCode::LineageIdentityUnavailable);
+        }
+    };
+
+    // ── Decide ──
+    let via = if parent_agent == ee.agent_id {
+        Some(LineageLink::SelfSpawn)
+    } else if delegators.iter().any(|d| d == parent_agent) {
+        Some(LineageLink::Delegator)
+    } else if identity_parent == parent_agent {
+        Some(LineageLink::IdentityParent)
+    } else {
+        None
+    };
+    match via {
+        Some(via) => {
+            draft.lineage = LineageComparison::Consistent { via };
+            draft.cannot_prove(ReasonCode::LineageConsistent)
+        }
+        None => {
+            draft.lineage = LineageComparison::Contradicted;
+            draft.finish(
+                ReconciliationResult::LineageViolation,
+                EvidenceStrength::Attested,
+                ReasonCode::LineageContradicted,
+            )
+        }
+    }
+}
+
+/// The delegators of a decision's authority, or `None` if the supplied
+/// tokens are not that decision's, do not verify, end elsewhere, are out of
+/// standing at the decision time, or include a revoked id.
+fn verified_delegators(
+    ee: &ExpectedExecution,
+    a: &crate::inputs::DecisionAuthority,
+    li: &LineageInputs<'_>,
+) -> Option<Vec<String>> {
+    use aip_core::capability::verify_scoped_token;
+    use aip_core::delegation::verify_delegation_chain;
+
+    let root = &a.root;
+    if root.jti != ee.authority.root_jti {
+        return None;
+    }
+    let chain_jtis: Vec<[u8; 16]> = a.chain.iter().map(|h| h.jti).collect();
+    if chain_jtis != ee.authority.chain_jtis {
+        return None;
+    }
+    if root.issuer_id == ee.agent_id || root.issuer_id == root.agent_id {
+        return None;
+    }
+    let key = li.issuer_keys.get(&root.issuer_id)?;
+    if !matches!(verify_scoped_token(root, key), Ok(true)) {
+        return None;
+    }
+    verify_delegation_chain(root, &a.chain, li.issuer_keys).ok()?;
+    let leaf = a
+        .chain
+        .last()
+        .map(|h| h.grantee_id.as_str())
+        .unwrap_or(root.agent_id.as_str());
+    if leaf != ee.agent_id {
+        return None;
+    }
+    if li.revoked_jtis.contains(&root.jti)
+        || a.chain.iter().any(|h| li.revoked_jtis.contains(&h.jti))
+    {
+        return None;
+    }
+    let issued = a
+        .chain
+        .iter()
+        .map(|h| h.issued_at)
+        .fold(root.issued_at, u64::max);
+    let expiry = a
+        .chain
+        .iter()
+        .filter_map(|h| h.expires_at)
+        .fold(root.expires_at, |acc, e| Some(acc.map_or(e, |x| x.min(e))));
+    if ee.issued_at < issued || expiry.is_some_and(|x| ee.issued_at > x) {
+        return None;
+    }
+    let mut d = vec![root.issuer_id.clone()];
+    d.extend(a.chain.iter().map(|h| h.issuer_id.clone()));
+    Some(d)
+}
+
+/// The identity parent named by a verified lineage proof, or `None`.
+fn verified_identity_parent(
+    ee: &ExpectedExecution,
+    i: crate::inputs::IdentityLineageInput<'_>,
+) -> Option<String> {
+    use aip_core::{validate_aid, validate_aid_with_parent};
+    if i.child.id != ee.agent_id {
+        return None;
+    }
+    validate_aid(i.parent).ok()?;
+    validate_aid_with_parent(i.child, &i.parent.id, &i.parent.primary_key.key_bytes).ok()?;
+    Some(i.parent.id.clone())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1459,7 +1786,7 @@ mod tests {
     /// refuses it unconditionally rather than relying on no branch proposing
     /// it.
     #[test]
-    fn lineage_violation_is_refused_unconditionally() {
+    fn lineage_violation_is_refused_without_a_contradicted_lineage() {
         let c = ctx();
         let mut d = Draft::new(&c);
         d.identity = IdentityComparison::Divergent { observations: 1 };

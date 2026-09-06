@@ -44,13 +44,13 @@ pub use action::{
 };
 pub use ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};
 pub use inputs::{
-    CoverageStatementError, DecisionPointCoverageStatement, ExpectedSideCoverage,
-    ObservationTarget, ObserverEvidence, ReconciliationContext, DECISION_POINT_COVERAGE_DOMAIN,
-    DECISION_POINT_COVERAGE_VERSION,
+    CoverageStatementError, DecisionAuthority, DecisionPointCoverageStatement,
+    ExpectedSideCoverage, IdentityLineageInput, LineageInputs, ObservationTarget, ObserverEvidence,
+    ReconciliationContext, DECISION_POINT_COVERAGE_DOMAIN, DECISION_POINT_COVERAGE_VERSION,
 };
-pub use reconcile::{reconcile_expectation, reconcile_observation};
+pub use reconcile::{reconcile_expectation, reconcile_lineage, reconcile_observation};
 pub use result::{
     ActionComparison, ActionEvidenceKind, ActionEvidenceSeal, EvidenceRef, EvidenceStrength,
-    IdentityComparison, ReasonCode, Reconciliation, ReconciliationResult, TemporalComparison,
-    RECONCILIATION_DOMAIN, RECONCILIATION_VERSION,
+    IdentityComparison, LineageComparison, LineageLink, ReasonCode, Reconciliation,
+    ReconciliationResult, TemporalComparison, RECONCILIATION_DOMAIN, RECONCILIATION_VERSION,
 };

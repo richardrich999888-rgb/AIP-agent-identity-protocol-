@@ -5,18 +5,21 @@
 //! lineage its own signed claims assert? A violation is reachable **only**
 //! when both sides are complete:
 //!
-//! observed side
-//!   - a `LineageEdge` (bound fork + bound exec, start verified) whose child
-//!     is the authorized instance, carried by a batch inside attested
-//!     coverage under a registered probe;
-//!   - the parent instance attributed to exactly one agent P through a
-//!     decision-point-signed expectation whose binding matches it;
-//! claimed side
-//!   - the decision's authority chain, supplied as tokens matching the
-//!     expectation's `AuthorityRef`, verified by `aip_core`, in standing at
-//!     the decision time, none of it revoked — giving the delegators D;
-//!   - the agent's identity document with a lineage proof that verifies
-//!     against the parent document's key — giving the identity parent A.
+//! Observed side:
+//!
+//! - a `LineageEdge` (bound fork + bound exec, start verified) whose child
+//!   is the authorized instance, carried by a batch inside attested
+//!   coverage under a registered probe;
+//! - the parent instance attributed to exactly one agent P through a
+//!   decision-point-signed expectation whose binding matches it.
+//!
+//! Claimed side:
+//!
+//! - the decision's authority chain, supplied as tokens matching the
+//!   expectation's `AuthorityRef`, verified by `aip_core`, in standing at
+//!   the decision time, none of it revoked — giving the delegators D;
+//! - the agent's identity document with a lineage proof that verifies
+//!   against the parent document's key — giving the identity parent A.
 //!
 //! Violation iff P ∉ D and P ≠ A and P ≠ the agent itself. Anything missing
 //! is `CANNOT_PROVE` with the gap named; any ambiguity is ambiguity. Nothing
@@ -94,7 +97,6 @@ struct World {
     rogue_root: ScopedToken,
     keys: HashMap<String, Vec<u8>>,
     dp: DecisionPoint,
-    dp_kp: KeyPair,
     anchors: DecisionPointTrustAnchors,
     now: u64,
 }
@@ -154,7 +156,6 @@ fn world() -> World {
         rogue_root,
         keys,
         dp,
-        dp_kp,
         anchors,
         now,
     }
@@ -421,7 +422,7 @@ fn case(spawner: Spawner) -> Case {
             (pb.clone(), w.rogue_expectation(pb))
         }
     };
-    let scene = scene(
+    let sc = scene(
         &w,
         Observer::new(true),
         Some(process_of(&pb)),
@@ -431,7 +432,7 @@ fn case(spawner: Spawner) -> Case {
     Case {
         w,
         ee,
-        scene,
+        scene: sc,
         peers: vec![peer],
     }
 }
@@ -543,7 +544,7 @@ fn lv03_spawner_that_is_the_identity_parent_is_consistent() {
     );
     let pb = parent_binding(&w.orch.id);
     let peer = w.orch_expectation(pb.clone());
-    let scene = scene(
+    let sc = scene(
         &w,
         Observer::new(true),
         Some(process_of(&pb)),
@@ -553,7 +554,7 @@ fn lv03_spawner_that_is_the_identity_parent_is_consistent() {
     let c = Case {
         w,
         ee,
-        scene,
+        scene: sc,
         peers: vec![peer],
     };
     let authority = DecisionAuthority {
@@ -650,7 +651,6 @@ fn world_with_direct_root() -> (World, ScopedToken) {
             rogue_root,
             keys,
             dp,
-            dp_kp,
             anchors,
             now,
         },
@@ -669,7 +669,7 @@ fn lv04_forged_parent_attribution_leaves_the_parent_unattributed() {
     // Re-sign the rogue's expectation under an unanchored decision point.
     let fake_kp = generate_ed25519_keypair();
     let fake_dp = DecisionPoint::new(
-        &derive_aip_id(&fake_kp.public_key, &provenance("fake-dp")),
+        derive_aip_id(&fake_kp.public_key, &provenance("fake-dp")),
         &fake_kp.private_key,
         &fake_kp.public_key,
         MAX_TTL,
@@ -709,7 +709,7 @@ fn lv05_a_child_that_is_not_the_authorized_instance_is_no_evidence() {
     let peer = w.rogue_expectation(pb.clone());
     let mut other = process_of(&cb);
     other.exe_content_sha256 = sha256(b"another image");
-    let scene = scene(
+    let sc = scene(
         &w,
         Observer::new(true),
         Some(process_of(&pb)),
@@ -719,7 +719,7 @@ fn lv05_a_child_that_is_not_the_authorized_instance_is_no_evidence() {
     let c = Case {
         w,
         ee,
-        scene,
+        scene: sc,
         peers: vec![peer],
     };
     let r = run(&c, &full(&c));
@@ -850,11 +850,11 @@ fn lv11_missing_parent_evidence_is_no_edge() {
     let ee = w.child_expectation(cb.clone());
     let pb = parent_binding(&w.rogue.id);
     let peer = w.rogue_expectation(pb.clone());
-    let scene = scene(&w, Observer::new(true), None, Some(process_of(&cb)), true);
+    let sc = scene(&w, Observer::new(true), None, Some(process_of(&cb)), true);
     let c = Case {
         w,
         ee,
-        scene,
+        scene: sc,
         peers: vec![peer],
     };
     let r = run(&c, &full(&c));
@@ -866,11 +866,11 @@ fn lv11_missing_parent_evidence_is_no_edge() {
     let ee = w.child_expectation(cb.clone());
     let pb = parent_binding(&w.rogue.id);
     let peer = w.rogue_expectation(pb.clone());
-    let scene = scene(&w, Observer::new(true), Some(process_of(&pb)), None, false);
+    let sc = scene(&w, Observer::new(true), Some(process_of(&pb)), None, false);
     let c = Case {
         w,
         ee,
-        scene,
+        scene: sc,
         peers: vec![peer],
     };
     let r = run(&c, &full(&c));
@@ -942,7 +942,7 @@ fn lv14_observer_gates_apply() {
     let ee = w.child_expectation(cb.clone());
     let pb = parent_binding(&w.rogue.id);
     let peer = w.rogue_expectation(pb.clone());
-    let scene = scene(
+    let sc = scene(
         &w,
         Observer::new(false),
         Some(process_of(&pb)),
@@ -952,7 +952,7 @@ fn lv14_observer_gates_apply() {
     let c = Case {
         w,
         ee,
-        scene,
+        scene: sc,
         peers: vec![peer],
     };
     let r = run(&c, &full(&c));

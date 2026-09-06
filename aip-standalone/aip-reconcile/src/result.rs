@@ -25,7 +25,7 @@ pub const RECONCILIATION_DOMAIN: &str = "SYNTRIASS/GHOST/RECONCILIATION/v1";
 /// positive variants became unconstructible outside this module. No consumer
 /// had persisted a v1 record — the crate has no producer of signed
 /// reconciliation records and no storage.
-pub const RECONCILIATION_VERSION: u16 = 3;
+pub const RECONCILIATION_VERSION: u16 = 4;
 
 /// The eight result classes from `RECONCILIATION_MODEL.md` §4. The
 /// `Default` is `CannotProve`: absence of evidence is absence of a verdict.
@@ -194,6 +194,27 @@ pub enum ReasonCode {
     /// boot-clock anchor, so its kernel timestamp cannot be placed on the
     /// wall clock the authorization is expressed in.
     KernelTimeUnanchored = 0x4e,
+    // ── lineage (Phase C2) ──
+    /// No bound fork/exec edge whose child is the authorized instance.
+    LineageEvidenceUnavailable = 0x70,
+    /// The spawning instance matches no decision-point-signed expectation.
+    LineageParentUnattributed = 0x71,
+    /// The spawning instance is named by expectations of different agents.
+    LineageParentAmbiguous = 0x72,
+    /// Another agent's expectation also names the authorized instance.
+    LineageChildAmbiguous = 0x73,
+    /// The decision's authority chain was not supplied, does not match its
+    /// `AuthorityRef`, does not verify, is out of standing, or is revoked.
+    LineageAuthorityUnavailable = 0x74,
+    /// No identity document, or its lineage proof does not verify against
+    /// the offered parent document.
+    LineageIdentityUnavailable = 0x75,
+    /// The edge's batch lies outside the collector's attested coverage.
+    LineageEdgeNotCovered = 0x76,
+    /// Both sides complete and they agree.
+    LineageConsistent = 0x77,
+    /// Both sides complete and the spawner is on neither.
+    LineageContradicted = 0x78,
     // ── coverage ──
     WindowNotCovered = 0x50,
     CoverageNotKernelPushed = 0x51,
@@ -394,6 +415,64 @@ impl ActionComparison {
 /// Where the observation's claimed window sits relative to the expectation's
 /// authorized window (plus verifier tolerance). Batch windows are probe
 /// claims, so this is a consistency filter, never evidence.
+/// How the spawner relates to the agent's own signed lineage claims.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum LineageLink {
+    /// The spawning agent is an issuer on the decision's authority chain.
+    Delegator,
+    /// The spawning agent's key endorsed the agent's identity at creation.
+    IdentityParent,
+    /// The spawning instance is another instance of the same agent.
+    SelfSpawn,
+}
+
+impl LineageLink {
+    fn code(&self) -> u8 {
+        match self {
+            LineageLink::Delegator => 0x01,
+            LineageLink::IdentityParent => 0x02,
+            LineageLink::SelfSpawn => 0x03,
+        }
+    }
+}
+
+/// Outcome of the lineage question (Phase C2). `Contradicted` is the only
+/// value that can support `LINEAGE_VIOLATION`, and only `reconcile_lineage`
+/// produces it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+pub enum LineageComparison {
+    /// The lineage question was not asked of this record.
+    #[default]
+    NotEvaluated,
+    /// A required piece of either side was missing; the reason names it.
+    Incomplete,
+    /// More than one agent could be the parent, or more than one agent
+    /// claims the child.
+    Ambiguous { parent_candidates: u32 },
+    /// Both sides complete and consistent.
+    Consistent { via: LineageLink },
+    /// Both sides complete; the observed spawner is on neither.
+    Contradicted,
+}
+
+impl LineageComparison {
+    fn encode(&self, buf: &mut Vec<u8>) {
+        match self {
+            LineageComparison::NotEvaluated => put_u8(buf, 0x00),
+            LineageComparison::Incomplete => put_u8(buf, 0x01),
+            LineageComparison::Ambiguous { parent_candidates } => {
+                put_u8(buf, 0x02);
+                put_u32(buf, *parent_candidates);
+            }
+            LineageComparison::Consistent { via } => {
+                put_u8(buf, 0x03);
+                put_u8(buf, via.code());
+            }
+            LineageComparison::Contradicted => put_u8(buf, 0x04),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TemporalComparison {
     WithinWindow,
@@ -557,6 +636,8 @@ pub struct Reconciliation {
     pub identity: IdentityComparison,
     pub action: ActionComparison,
     pub temporal: TemporalComparison,
+    /// Phase C2: the lineage question, when asked (`reconcile_lineage`).
+    pub lineage: LineageComparison,
     /// Duplicate attested batches were supplied and collapsed.
     pub replay_detected: bool,
     pub evidence: Vec<EvidenceRef>,
@@ -615,6 +696,7 @@ impl Reconciliation {
         self.identity.encode(&mut buf);
         self.action.encode(&mut buf);
         put_u8(&mut buf, self.temporal.code());
+        self.lineage.encode(&mut buf);
         put_u8(&mut buf, u8::from(self.replay_detected));
         put_u32(&mut buf, self.evidence.len() as u32);
         for e in &self.evidence {
@@ -674,6 +756,7 @@ mod tests {
             identity: IdentityComparison::NoReference,
             action: ActionComparison::Unobservable,
             temporal: TemporalComparison::Indeterminate,
+            lineage: LineageComparison::NotEvaluated,
             replay_detected: false,
             evidence: vec![],
             verification_time_ms: 0,

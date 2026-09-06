@@ -23,8 +23,8 @@ use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_observe::{ObservationAvailability, UnavailableReason};
 use aip_protocol::AgentIdentitySummary;
 use aip_reconcile::{
-    ActionComparison, DecisionId, EvidenceStrength, IdentityComparison, ReasonCode, Reconciliation,
-    ReconciliationResult, TemporalComparison, RECONCILIATION_VERSION,
+    ActionComparison, DecisionId, EvidenceStrength, IdentityComparison, LineageComparison,
+    ReasonCode, Reconciliation, ReconciliationResult, TemporalComparison, RECONCILIATION_VERSION,
 };
 use aip_types::{
     Action, AgentIdentityDocument, AlgorithmId, ExecutionBinding, IdentityStatus, KeyPair,
@@ -164,6 +164,7 @@ impl Fx {
             identity: IdentityComparison::NoReference,
             action: ActionComparison::Unobservable,
             temporal: TemporalComparison::Indeterminate,
+            lineage: LineageComparison::NotEvaluated,
             replay_detected: false,
             evidence: vec![],
             verification_time_ms: self.now + 5,
