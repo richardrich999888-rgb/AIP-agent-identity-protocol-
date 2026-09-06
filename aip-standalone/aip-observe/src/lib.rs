@@ -65,9 +65,11 @@ pub mod linux;
 pub mod observed;
 pub mod perf;
 pub mod probe;
+pub mod runtime;
 pub mod sched;
 pub mod socksend;
 pub mod sockstate;
+pub mod store;
 pub mod wiretap;
 
 pub use attest::{

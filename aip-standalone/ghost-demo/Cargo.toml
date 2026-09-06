@@ -13,6 +13,10 @@ path = "src/bin/ghost-demo-agent.rs"
 name = "ghost-demo"
 path = "src/bin/ghost-demo.rs"
 
+[[bin]]
+name = "ghost-demo-collector"
+path = "src/bin/ghost-demo-collector.rs"
+
 [dependencies]
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
