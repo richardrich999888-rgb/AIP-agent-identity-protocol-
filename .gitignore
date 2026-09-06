@@ -11,3 +11,7 @@ target/
 
 # Local API keys (use keys.example.json as a template)
 deploy/docker/keys.json
+
+# Python bytecode caches (sdk/python)
+__pycache__/
+*.py[cod]

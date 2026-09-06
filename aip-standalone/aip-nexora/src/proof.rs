@@ -70,7 +70,16 @@ use crate::commitment::{NexoraError, NexoraTrustAnchors, ProofObject};
 
 /// Version of the proof bundle. Independent of `NEXORA_VERSION`, which
 /// versions heads and inclusion proofs and is unchanged by this gate.
-pub const NEXORA_PROOF_VERSION: u16 = 1;
+/// Structure version.
+///
+/// v2 adds the optional [`AiriBundle`] component: the agent-signed AI-stack
+/// events a reconciliation rested on, so an offline verifier can re-derive
+/// their integrity rather than take them on trust. v1 packages are refused
+/// rather than reinterpreted — the component codes shifted no existing
+/// field, but a v1 verifier and a v2 package disagree about what follows
+/// the warrant, and guessing is how a signature ends up covering something
+/// other than what a verifier reads.
+pub const NEXORA_PROOF_VERSION: u16 = 2;
 /// Domain tag leading a bundle's canonical bytes.
 pub const PROOF_BUNDLE_DOMAIN: &str = "SYNTRIASS/NEXORA/PROOF_BUNDLE/v1";
 /// Domain tag leading an assembler's envelope signature.
@@ -91,6 +100,9 @@ pub enum Component {
     Claim,
     Warrant,
     Commitment,
+    /// AI-stack provenance (AIRI). Optional; absent in a package from a
+    /// deployment that runs no instrumented agents.
+    Airi,
 }
 
 impl Component {
@@ -117,6 +129,7 @@ impl Component {
             Component::Claim => 0x07,
             Component::Warrant => 0x08,
             Component::Commitment => 0x09,
+            Component::Airi => 0x0A,
         }
     }
 }
@@ -185,6 +198,35 @@ pub struct Envelope {
 
 // ─── The proof ───
 
+/// Agent-signed AI-stack events carried in a proof package.
+///
+/// # What the verifier does with this
+///
+/// It re-derives, it does not trust. Every event's signature is checked
+/// against `agent_public_key`, the chain is re-walked, and the result is a
+/// [`ComponentVerdict`] — never an upgrade to any other component. AIRI
+/// evidence cannot raise a reconciliation result or an evidence strength
+/// here for the same reason it cannot anywhere else: there is no statement
+/// in this crate that would.
+///
+/// # Why the key travels with the events
+///
+/// `agent_public_key` is the key the *package author* says signed these
+/// events. It is a claim, exactly like the rest of the package. A verifier
+/// that holds its own anchor for this agent must compare the two — the
+/// verifier's anchor wins, and a mismatch is a finding. Carrying the key
+/// makes the package self-describing without making it self-authorising.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AiriBundle {
+    /// The agent's AIP-ID, repeated so a reader need not parse an event.
+    pub agent_id: String,
+    /// The key the package says signed the events. A claim, not an anchor.
+    pub agent_public_key: Vec<u8>,
+    /// One execution's events, in the order they were emitted. Order is
+    /// load-bearing: the chain check exists to detect reordering.
+    pub events: Vec<aip_airi::AiriEvent>,
+}
+
 /// A portable package of signed evidence and the verdict drawn from it.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NexoraProof {
@@ -200,6 +242,8 @@ pub struct NexoraProof {
     /// The reconciliation record, exactly as the reconciler produced it.
     pub claim: Reconciliation,
     pub warrant: Option<Warrant>,
+    /// AI-stack provenance, when the deployment runs instrumented agents.
+    pub airi: Option<AiriBundle>,
     pub commitment: Option<ProofObject>,
     pub envelope: Option<Envelope>,
 }
@@ -210,6 +254,7 @@ impl NexoraProof {
             proof: NexoraProof {
                 version: NEXORA_PROOF_VERSION,
                 issued_at_ms: 0,
+                airi: None,
                 subject: Subject {
                     agent_id,
                     identity: None,
@@ -248,6 +293,7 @@ impl NexoraProof {
             Component::Lineage => self.lineage.is_some(),
             Component::Warrant => self.warrant.is_some(),
             Component::Commitment => self.commitment.is_some(),
+            Component::Airi => self.airi.is_some(),
         }
     }
 
@@ -384,6 +430,27 @@ impl NexoraProof {
                 put_u8(&mut buf, 1);
                 put_bytes(&mut buf, &c.canonical_bytes());
                 put_signature(&mut buf, &c.head.signature);
+            }
+            None => put_u8(&mut buf, 0),
+        }
+
+        // AIRI (v2). Appended last so every field a v1 package encoded sits
+        // at the same offset it always did; the version byte, not the
+        // layout, is what tells the two apart.
+        put_u8(&mut buf, Component::Airi.code());
+        match &self.airi {
+            Some(a) => {
+                put_u8(&mut buf, 1);
+                put_str(&mut buf, &a.agent_id);
+                put_bytes(&mut buf, &a.agent_public_key);
+                put_u32(&mut buf, a.events.len() as u32);
+                for ev in &a.events {
+                    // The event's own signing preimage, so the committed
+                    // bytes are the bytes the agent signed — not a
+                    // re-serialisation a verifier would have to trust.
+                    put_bytes(&mut buf, &ev.signing_preimage());
+                    put_signature(&mut buf, &ev.signature);
+                }
             }
             None => put_u8(&mut buf, 0),
         }
@@ -779,6 +846,21 @@ impl ProofBuilder {
 
     pub fn warrant(mut self, w: Warrant) -> Self {
         self.proof.warrant = Some(w);
+        self
+    }
+
+    /// Attach the AI-stack events a reconciliation rested on.
+    ///
+    /// `agent_public_key` is what the package *says* signed them. A verifier
+    /// holding its own anchor for this agent compares the two and the
+    /// verifier's wins; carrying it here makes the package self-describing
+    /// without making it self-authorising.
+    pub fn airi(mut self, agent_id: String, agent_public_key: Vec<u8>, events: Vec<aip_airi::AiriEvent>) -> Self {
+        self.proof.airi = Some(AiriBundle {
+            agent_id,
+            agent_public_key,
+            events,
+        });
         self
     }
 
