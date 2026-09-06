@@ -350,7 +350,11 @@ pub fn verify_zip(bytes: &[u8], ctx: &VerificationContext) -> BundleVerification
         },
     );
 
-    // R5 BUNDLE_SIGNATURE — signature over the exact manifest bytes.
+    // R5 BUNDLE_SIGNATURE — the manifest bytes are signed by the key the
+    // manifest *names*. This is an internal-consistency check and nothing
+    // more: the key comes out of the bundle, so a forger who signs their own
+    // fabrication with their own key passes it (AUDIT B-4). R5a is where the
+    // question of *whose* bundle this is gets asked.
     let sig_ok = verify_bundle_signature(&files, &manifest);
     c.add(
         "BUNDLE_SIGNATURE",
@@ -360,11 +364,19 @@ pub fn verify_zip(bytes: &[u8], ctx: &VerificationContext) -> BundleVerification
             BundleStatus::Fail
         },
         if sig_ok {
-            format!("Ed25519 signature valid (signer fp {signer_fp})")
+            format!(
+                "manifest is self-consistent: signed by the key it names \
+                 (signer fp {signer_fp}). This does not establish who \
+                 produced the bundle — see BUNDLE_SIGNER_TRUSTED."
+            )
         } else {
-            "bundle signature invalid — manifest not signed by the embedded key".to_string()
+            "bundle signature invalid — manifest not signed by the key it names".to_string()
         },
     );
+
+    // R5a BUNDLE_SIGNER_TRUSTED — the named signer is one the *verifier*
+    // anchored, not one the bundle asserted (AUDIT B-4).
+    check_bundle_signer_trusted(&manifest, ctx, &mut c);
 
     // R6 EVIDENCE_INTEGRITY — packet parses, matches manifest packet_hash, self-consistent.
     let packet: Option<EvidencePacket> = files
@@ -449,6 +461,81 @@ fn verify_bundle_signature(files: &HashMap<String, Vec<u8>>, manifest: &BundleMa
         return false;
     };
     verify_ed25519_raw(&pk, manifest_bytes, &sig_arr)
+}
+
+/// R5a — is the key that signed this manifest one the verifier already
+/// trusted?
+///
+/// Three outcomes, and the middle one is the point of the rule:
+///
+/// - **Pass** — the named key is anchored. The bundle is attributable.
+/// - **Fail** — anchors were supplied and the named key is not among them.
+///   Either this bundle came from somewhere else or the signer rotated
+///   without the verifier being told; both are refusals.
+/// - **Warning** — no anchors were supplied. The verifier did not ask the
+///   question, so nothing here answers it. This is deliberately *not* a pass:
+///   `finalize` never reports `Pass` overall while any check is a warning, so
+///   an unanchored verification cannot come back clean. Recording it as a
+///   pass would convert "we did not check" into "we checked and it was fine",
+///   which is the failure this whole rule exists to prevent.
+fn check_bundle_signer_trusted(
+    manifest: &BundleManifest,
+    ctx: &VerificationContext,
+    c: &mut CheckCollector,
+) {
+    if ctx.trusted_bundle_signers.is_empty() {
+        c.add(
+            "BUNDLE_SIGNER_TRUSTED",
+            BundleStatus::Warning,
+            "no trusted bundle signer supplied: this verification establishes \
+             that the bundle is internally consistent, not that it came from \
+             anyone in particular. Anyone can produce a self-consistent \
+             bundle. Supply the exporting service's public key to check.",
+        );
+        return;
+    }
+
+    // The manifest's declared key is what the signature was checked against
+    // in R5, so it is the key that must be anchored. Comparing anything else
+    // would leave R5 verifying one key and R5a trusting another.
+    let Ok(declared) = hex::decode(&manifest.signer_public_key) else {
+        c.add(
+            "BUNDLE_SIGNER_TRUSTED",
+            BundleStatus::Fail,
+            "manifest signer_public_key is not valid hex",
+        );
+        return;
+    };
+    let Ok(declared): Result<[u8; 32], _> = declared.as_slice().try_into() else {
+        c.add(
+            "BUNDLE_SIGNER_TRUSTED",
+            BundleStatus::Fail,
+            format!(
+                "manifest signer_public_key is {} bytes; Ed25519 keys are 32",
+                declared.len()
+            ),
+        );
+        return;
+    };
+
+    if ctx.trusted_bundle_signers.contains(&declared) {
+        c.add(
+            "BUNDLE_SIGNER_TRUSTED",
+            BundleStatus::Pass,
+            "the manifest signer is a key this verifier anchored",
+        );
+    } else {
+        c.add(
+            "BUNDLE_SIGNER_TRUSTED",
+            BundleStatus::Fail,
+            format!(
+                "the manifest signer ({}) is not among the {} anchored bundle \
+                 signer(s)",
+                &manifest.signer_public_key,
+                ctx.trusted_bundle_signers.len()
+            ),
+        );
+    }
 }
 
 fn first_failure(report: &crate::VerificationReport) -> String {

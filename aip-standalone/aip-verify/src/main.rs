@@ -34,6 +34,16 @@ struct Cli {
     #[arg(long = "trust", value_name = "AIP_ID=HEX")]
     trust: Vec<String>,
 
+    /// Trusted audit-export bundle signer, repeatable:
+    /// `--trust-bundle-signer <pubkey_hex>`.
+    ///
+    /// Without one, a bundle's signature is checked only against the key the
+    /// bundle itself names, which establishes internal consistency and not
+    /// who produced it (AUDIT B-4). Bundle verification then reports WARNING
+    /// rather than PASS.
+    #[arg(long = "trust-bundle-signer", value_name = "HEX")]
+    trust_bundle_signer: Vec<String>,
+
     /// Trusted counterparty key, repeatable: `--counterparty <id>=<pubkey_hex>`.
     #[arg(long = "counterparty", value_name = "ID=HEX")]
     counterparty: Vec<String>,
@@ -91,6 +101,20 @@ fn parse_kv(pairs: &[String], what: &str) -> Result<HashMap<String, Vec<u8>>, St
 fn build_ctx(cli: &Cli) -> Result<VerificationContext, String> {
     let mut ctx = VerificationContext::new();
     ctx.issuer_public_keys = parse_kv(&cli.trust, "trust")?;
+    for hex_key in &cli.trust_bundle_signer {
+        let bytes = hex::decode(hex_key.trim())
+            .map_err(|e| format!("--trust-bundle-signer: invalid hex: {e}"))?;
+        // Rejected here rather than dropped silently by the context builder:
+        // a caller who mistyped an anchor must be told, not left believing a
+        // bundle was attributed when no anchor was installed.
+        let key: [u8; 32] = bytes.as_slice().try_into().map_err(|_| {
+            format!(
+                "--trust-bundle-signer: Ed25519 keys are 32 bytes, got {}",
+                bytes.len()
+            )
+        })?;
+        ctx.trusted_bundle_signers.insert(key);
+    }
     ctx.counterparty_public_keys = parse_kv(&cli.counterparty, "counterparty")?;
     for jti_hex in &cli.revoked {
         let bytes =
@@ -154,6 +178,13 @@ fn run_bundle(cli: &Cli, bytes: &[u8]) -> Result<bool, String> {
         println!(
             "note:        no --trust keys supplied; the authority chain is not \
              verified (WARNING). Bundle integrity + signature are still checked."
+        );
+    }
+    if cli.trust_bundle_signer.is_empty() {
+        println!(
+            "note:        no --trust-bundle-signer supplied; the signature was \
+             checked against the key the bundle names, which does not \
+             establish who produced it (WARNING)."
         );
     }
     if cli.report || v.overall != BundleStatus::Pass {

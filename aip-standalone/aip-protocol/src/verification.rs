@@ -53,11 +53,36 @@ pub struct VerificationContext {
     /// absorb declared clock skew. Zero by default; a tolerance is a bound,
     /// not a licence.
     pub future_tolerance_ms: u64,
+    /// Ed25519 public keys the verifier accepts as audit-export bundle
+    /// signers.
+    ///
+    /// Used only by [`crate::bundle::verify_zip`]. A bundle's manifest names
+    /// the key that signed it, and checking the signature against that key
+    /// proves only that the manifest is internally consistent — anyone can
+    /// produce such a bundle (AUDIT B-4). Establishing *who* exported it
+    /// requires a key the verifier already trusts, which is what this holds.
+    ///
+    /// Empty means the verifier supplied no anchor. The signer-trust check is
+    /// then reported as unestablished rather than passed: absent evidence is
+    /// not evidence of absence, and it is certainly not a pass.
+    pub trusted_bundle_signers: HashSet<[u8; 32]>,
 }
 
 impl VerificationContext {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Anchor an Ed25519 public key as an accepted bundle signer.
+    ///
+    /// A key of the wrong length is ignored rather than accepted: a
+    /// malformed anchor must not silently become a trusted one. Callers that
+    /// need to know supply the key through their own validated path.
+    pub fn trust_bundle_signer(mut self, public_key: &[u8]) -> Self {
+        if let Ok(key) = <[u8; 32]>::try_from(public_key) {
+            self.trusted_bundle_signers.insert(key);
+        }
+        self
     }
 
     /// Verify as of `ms`: nothing in the packet may be dated after it.

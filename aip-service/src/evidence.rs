@@ -627,7 +627,11 @@ mod tests {
             ("acme-secret", "k-acme", "acme", Role::Machine),
             ("other-secret", "k-other", "other", Role::Machine),
         ]);
-        let app = crate::router(test_app_state(store, api_keys));
+        let state = test_app_state(store, api_keys);
+        // Kept so the bundle can be verified against the key that signed it
+        // (AUDIT B-4) rather than against a key the bundle supplies.
+        let signer_public = state.signer_public;
+        let app = crate::router(state);
 
         // Owning tenant exports → 200 application/zip, verifies offline.
         let resp = app
@@ -648,12 +652,30 @@ mod tests {
         let bytes = axum::body::to_bytes(resp.into_body(), usize::MAX)
             .await
             .unwrap();
-        let v = aip_protocol::verify_zip(&bytes, &VerificationContext::new());
+        // Anchored on the service's own signer key (AUDIT B-4). Verifying
+        // without an anchor would establish only that the bundle is
+        // internally consistent — which a forgery also is — so anchoring is
+        // what makes this an assertion about *this* service's export.
+        let v = aip_protocol::verify_zip(
+            &bytes,
+            &VerificationContext::new().trust_bundle_signer(&signer_public),
+        );
         assert_ne!(
             v.overall,
             aip_protocol::BundleStatus::Fail,
             "exported bundle must verify: {:?}",
             v.checks
+        );
+        let trust = v
+            .checks
+            .iter()
+            .find(|c| c.name == "BUNDLE_SIGNER_TRUSTED")
+            .expect("R5a present");
+        assert_eq!(
+            trust.status,
+            aip_protocol::BundleStatus::Pass,
+            "the export must be attributable to this service: {}",
+            trust.detail
         );
 
         // Different tenant → 404 (no existence leak), no bundle produced.
