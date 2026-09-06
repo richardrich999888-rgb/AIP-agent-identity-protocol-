@@ -112,7 +112,8 @@ Reused verbatim: `PlatformId`, `HardwareId` (`aip-system`), `boot_id` /
 | S19-1 | Platform ≠ hardware identity | TEST-PROVEN (a04) |
 | S19-2 | Agent identity absent from a platform binding | TEST-PROVEN (a06) |
 | S19-3 | Mission absent from a platform binding | TEST-PROVEN (a07) |
-| S19-4 | A self-reported platform establishes nothing | TEST-PROVEN (t13_03), mutation-checked |
+| S19-4 | A self-reported platform establishes nothing | TEST-PROVEN (t13_03, a23b), mutation-checked |
+| S19-4a | An `ObservedBoot` exists only after verification against anchors | CODE-PROVEN + TEST-PROVEN (a16b, a16c, a16d), mutation-checked |
 | S19-5 | An unregistered host is unknown, not wrong | TEST-PROVEN (a22, t13_06), mutation-checked |
 | S19-6 | No observation ⇒ `NotEvaluated` | TEST-PROVEN (a21), mutation-checked |
 | S19-7 | A platform mismatch is named, not absorbed | TEST-PROVEN (t13_04, t13_08), mutation-checked |
@@ -143,14 +144,46 @@ failing target and had been hiding two thirds of one mutation's effect.
 ## 10. Test results
 
 ```
-cargo test -p aip-platform      39 passed, 0 failed   (9 t13, 23 adversarial, 7 compatibility)
-cargo test --workspace         116 suites, 1138 passed, 0 failed, 6 ignored
+cargo test -p aip-platform      44 passed, 0 failed   (9 t13, 27 adversarial, 8 compatibility)
+cargo test --workspace         116 suites, 1143 passed, 0 failed, 6 ignored
 cargo test -p airon-aip         79 passed, 0 failed
 cargo clippy --workspace --all-targets   clean
 cargo fmt --all -- --check               clean
 ```
 
-Workspace members: 21 → **22**. Net: +39 tests over the 1099 baseline.
+Workspace members: 21 → **22**. Net: +44 tests over the 1099 baseline.
+
+## 10a. A defect in this crate, found by re-audit and fixed
+
+`PlatformBinding::resolve` originally took the observed boot id as a bare
+`Option<[u8; 16]>`. Nothing required those bytes to have come from an anchored
+observer, so a caller could pass the boot id out of the agent's own
+self-reported `ExecutionBinding` and receive a `Bound` disposition — exactly
+the failure **acceptance criterion 4** prohibits. The property held only by
+caller discipline, which is not prevention.
+
+Fixed by `ObservedBoot`: a private field whose only constructors verify an
+`AttestedBatch` against the verifier's anchors first. No `from_bytes`, no
+`new`, no `From<[u8; 16]>`.
+
+This also closes matrix case 16 — *attestation signed by an untrusted key* —
+in the form this architecture actually has one: a validly signed batch from an
+observer the verifier does not anchor (`a16b`).
+
+Mutation results for the fix: skipping verification fails 2. Adding a public
+`from_bytes` escape hatch was caught by **nothing**, which is an honest limit
+of a type-system invariant — the compiler stops external callers, not a later
+edit inside the crate. A structural guard now catches it.
+
+Two of my own guard tests fired falsely during this fix and were made precise
+rather than worked around: they scanned raw manifests, where "load-bearing"
+contains "ring" and a comment mentioning `aip-reconcile` read as a dependency.
+Rewording the comments to dodge the scan would have been backwards.
+
+`aip-observe` became a runtime dependency, deliberately: it is the observation
+layer rather than a verdict engine, `aip-reconcile` already depends on it, and
+it is what enforces the property. The verdict-engine guard is unchanged in
+force.
 
 ## 11. An error of mine, recorded
 
