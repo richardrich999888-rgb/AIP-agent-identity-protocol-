@@ -67,6 +67,7 @@ fn vreq(
         receipt_data: None,
         verification_time_ms: at,
         future_tolerance_ms: tolerance,
+        check_replay: false,
     }
 }
 

@@ -146,6 +146,7 @@ fn main() {
         verification_time_ms: None,
         future_tolerance_ms: 0,
         trusted_bundle_signers: Default::default(),
+        observed_history: None,
     };
     let report = verify_packet(&packet, &ctx);
     let graph = AccountabilityGraph::from_packet(&packet).with_report(&report);

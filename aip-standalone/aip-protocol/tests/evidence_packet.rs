@@ -186,6 +186,7 @@ fn build_fixture_opts(root_expires_in_ms: Option<u64>, with_binding: bool) -> Fi
         verification_time_ms: None,
         future_tolerance_ms: 0,
         trusted_bundle_signers: Default::default(),
+        observed_history: None,
     };
 
     Fixture {
@@ -217,12 +218,18 @@ fn test_honest_packet_verifies_at_counterparty_floor() {
 
     for check in &report.checks {
         if !check.evaluated {
-            // The only rule a verifier can decline to run is the one whose
-            // input it did not supply. Naming it here keeps the exemption
-            // from becoming a blanket skip (AUDIT P0-1).
-            assert_eq!(
-                check.rule,
-                rules::VERIFICATION_TIME_BOUND,
+            // A verifier may decline only the rules whose input it did not
+            // supply, and the set of those is enumerated here rather than
+            // waved through — otherwise the exemption becomes a blanket skip
+            // and a future rule could quietly stop running (AUDIT P0-1).
+            //
+            //   R16 needs a verification time (AUDIT P0-1)
+            //   R18 needs an observed history (AUDIT B-8)
+            //
+            // Both are absent from this fixture's context on purpose: it is a
+            // stateless, clock-free verification.
+            assert!(
+                check.rule == rules::VERIFICATION_TIME_BOUND || check.rule == rules::REPLAY_SCOPE,
                 "rule {} was not evaluated: {}",
                 check.rule,
                 check.detail

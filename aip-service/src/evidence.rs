@@ -32,8 +32,8 @@ use serde::{Deserialize, Serialize};
 use aip_crypto::{derive_aip_id, sha256};
 use aip_protocol::{
     verify_packet, ActionAttestation, AgentIdentitySummary, DecisionRecord, EvidencePacket,
-    EvidencePacketBuilder, ReceiptBinding, RootAuthority, TraceBinding, TrustFloor,
-    VerificationContext, VerificationReport,
+    EvidencePacketBuilder, ObservedHistory, ReceiptBinding, RootAuthority, TraceBinding,
+    TrustFloor, VerificationContext, VerificationReport,
 };
 use aip_types::{
     Action, AlgorithmId, DelegationToken, ProvenanceTriple, PublicKey, ScopeAction, ScopedToken,
@@ -226,6 +226,15 @@ pub struct VerifyRequest {
     /// skew. Defaults to zero: a tolerance is a bound, not a licence.
     #[serde(default)]
     pub future_tolerance_ms: Option<u64>,
+    /// Check the packet against this tenant's stored evidence for replay
+    /// (AUDIT B-8).
+    ///
+    /// Off by default because it is the one part of verification that is not
+    /// a pure function of the request: it reads the store. When off, R18 is
+    /// reported NOT EVALUATED — a caller that did not ask has not been told
+    /// the packet is fresh.
+    #[serde(default)]
+    pub check_replay: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -365,7 +374,21 @@ pub fn generate_packet(req: &GenerateRequest) -> Result<EvidencePacket, String> 
 /// supplied", not "authorized by this service". Authorization decisions
 /// belong to an independent decision point, which this service is not.
 pub fn verify_request(req: &VerifyRequest) -> Result<VerificationReport, String> {
+    verify_request_with_history(req, None)
+}
+
+/// As [`verify_request`], against a replay history the caller has already
+/// gathered.
+///
+/// The history is a parameter rather than something this function fetches:
+/// gathering it is I/O and belongs to the handler, so the calculator stays
+/// pure and testable without a store (AUDIT B-8).
+pub fn verify_request_with_history(
+    req: &VerifyRequest,
+    history: Option<ObservedHistory>,
+) -> Result<VerificationReport, String> {
     let mut ctx = VerificationContext::new();
+    ctx.observed_history = history;
 
     for (id, pk_hex) in &req.trusted_issuers {
         let pk = hex::decode(pk_hex).map_err(|e| format!("issuer {id} key hex: {e}"))?;
@@ -476,10 +499,43 @@ pub async fn generate_refused() -> ApiError {
 // and caller-supplied keys, so it is not tenant-scoped. Auth still required
 // (no anonymous use of the service).
 pub async fn verify(
-    _principal: Principal,
+    State(state): State<Arc<AppState>>,
+    principal: Principal,
     Json(req): Json<VerifyRequest>,
 ) -> Result<Json<VerificationReport>, ApiError> {
-    let report = verify_request(&req).map_err(bad_request)?;
+    // Replay is a property of the packet relative to what else this tenant
+    // has recorded, so answering it means reading the store (AUDIT B-8). The
+    // read happens here, in the handler; the calculator below stays pure.
+    //
+    // Scaling note, stated rather than discovered later: this walks the
+    // tenant's packets on every request that asks for it. That is acceptable
+    // for the reference JSONL store and is not acceptable at volume — a
+    // production store should answer "who recorded this decision id" with an
+    // index instead. The trait would need a method for it; adding one is a
+    // larger change than this blocker's minimum fix.
+    let history = if req.check_replay {
+        let packets = state
+            .store
+            .all_for_tenant(&principal.tenant_id)
+            .await
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ErrorBody {
+                        error: e.to_string(),
+                    }),
+                )
+            })?;
+        let mut h = ObservedHistory::new();
+        for p in &packets {
+            h.observe(p);
+        }
+        Some(h)
+    } else {
+        None
+    };
+
+    let report = verify_request_with_history(&req, history).map_err(bad_request)?;
     Ok(Json(report))
 }
 
@@ -708,6 +764,7 @@ mod tests {
             receipt_data: None,
             verification_time_ms: None,
             future_tolerance_ms: None,
+            check_replay: false,
         };
         let report = verify_request(&vreq).unwrap();
         assert!(report.valid, "failures: {:?}", report.failures());
@@ -750,6 +807,7 @@ mod tests {
             receipt_data: None,
             verification_time_ms: None,
             future_tolerance_ms: None,
+            check_replay: false,
         };
         let report = verify_request(&vreq).unwrap();
         assert!(report.valid, "{:?}", report.failures());
@@ -776,6 +834,7 @@ mod tests {
             receipt_data: None,
             verification_time_ms: None,
             future_tolerance_ms: None,
+            check_replay: false,
         };
         let report = verify_request(&vreq).unwrap();
         assert!(!report.valid);

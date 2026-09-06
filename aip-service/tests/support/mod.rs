@@ -355,3 +355,96 @@ pub fn generate_request_json(substitute_seed: Option<&str>) -> String {
     })
     .to_string()
 }
+
+// ── Replay fixtures ───────────────────────────────────────────────────────────
+
+/// Two distinct packets that share a decision id, plus the issuer keys for
+/// both.
+///
+/// This is what a replay actually looks like: same agent, same authority,
+/// same decision, different packets. Two calls to [`packet_dated`] cannot
+/// produce it — each draws a fresh decision id — so the pair is built from
+/// one chain here.
+pub fn replay_pair() -> (EvidencePacket, EvidencePacket, HashMap<String, String>) {
+    let (cfo_aid, cfo_kp) = create_identity(prov("cfo"), None).expect("cfo identity");
+    let (orch_aid, orch_kp) = create_identity(prov("orch"), None).expect("orchestrator identity");
+    let (agent_aid, agent_kp) = create_identity(prov("agent"), None).expect("agent identity");
+
+    let root_token = issue_scoped_token(
+        &cfo_aid.id,
+        &cfo_kp.private_key,
+        &orch_aid.id,
+        scope_orchestrator(),
+        Some(CENTURY_MS),
+    )
+    .expect("root token");
+    let hop = create_delegation(
+        &root_token,
+        &orch_kp.private_key,
+        &agent_aid.id,
+        scope_submitter(),
+    )
+    .expect("delegation hop");
+
+    let at = hop.issued_at.max(root_token.issued_at);
+    let decision_id = [0xD0u8; 16];
+
+    // Two packets differing only in the action payload, so they have
+    // different packet ids and different action ids while claiming the same
+    // decision.
+    let seal = |payload: &[u8], offset: u64| -> EvidencePacket {
+        let decision = DecisionRecord {
+            decision_id,
+            action_kind: ScopeAction::Standard(Action::Write),
+            summary: "approve payment".into(),
+            input_hash: sha256(b"invoice INV-1"),
+            rationale_hash: sha256(b"3-way match ok"),
+            decided_at: at,
+        };
+        let action = ActionAttestation::create(
+            &agent_aid.id,
+            &agent_kp.private_key,
+            &decision_id,
+            ScopeAction::Standard(Action::Write),
+            "POST /ledger/payments",
+            sha256(payload),
+            at + offset,
+        )
+        .expect("action attestation");
+        EvidencePacketBuilder::new(
+            AgentIdentitySummary {
+                aip_id: agent_aid.id.clone(),
+                public_key: PublicKey {
+                    algorithm: AlgorithmId::Ed25519,
+                    key_bytes: agent_kp.public_key.clone(),
+                },
+                provenance: agent_aid.provenance.clone(),
+            },
+            RootAuthority {
+                principal_id: cfo_aid.id.clone(),
+                display_role: "CFO".into(),
+                root_token: root_token.clone(),
+            },
+        )
+        .delegation_chain(vec![hop.clone()])
+        .decision(decision)
+        .action(action)
+        .claimed_trust_floor(TrustFloor::AuthorityBound)
+        .build_and_sign(&agent_kp.private_key)
+        .expect("seal packet")
+    };
+
+    let first = seal(b"pay 1000", 1);
+    let second = seal(b"pay 9999", 2);
+    assert_ne!(
+        first.packet_id, second.packet_id,
+        "the pair must be two distinct packets, or the fixture proves nothing"
+    );
+    assert_eq!(first.decision.decision_id, second.decision.decision_id);
+
+    let issuers = HashMap::from([
+        (cfo_aid.id, hex::encode(&cfo_kp.public_key)),
+        (orch_aid.id, hex::encode(&orch_kp.public_key)),
+    ]);
+    (first, second, issuers)
+}
