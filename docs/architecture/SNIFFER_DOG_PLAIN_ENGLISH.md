@@ -31,9 +31,18 @@ A small probe on the host reads two kinds of facts straight from Linux:
   `inet_sock_set_state` tracepoint). The probe records the endpoints and
   binds the *start* of the connection to the process that made it.
 
+- **Frames on the wire.** Every frame a network device sends or receives is
+  copied to the probe by the kernel's ordinary packet tap (`AF_PACKET`).
+  The probe keeps the **headers** — addresses, ports, TCP flags and
+  sequence numbers, and how many payload bytes there were — with the
+  kernel's own capture time, and counts every frame the kernel dropped. It
+  never keeps, hashes or looks at the payload itself, and the wire cannot
+  tell it which process a frame belongs to. The same code can run on a
+  mirror port on another machine, outside the watched host's control.
+
 It also polls the kernel's socket tables and process list as a second,
 weaker source, and it counts every event the kernel ring buffer dropped.
-There is no eBPF program, no packet capture, and no view of payloads.
+There is no eBPF program and no view of payloads.
 
 ## 2. It signs nothing on the host
 
@@ -75,6 +84,14 @@ the kernel shows an agent's process was created by an agent that neither
 authorised it nor created its identity, with every piece of that evidence
 signed — a lineage contradiction (`LINEAGE_VIOLATION`).
 
+When the answer for a connection is `VERIFIED_EXECUTION`, the verifier also
+asks the wire: did the packet tap see this connection's handshake at the
+same time? The answer is written on the record — corroborated, not seen,
+tap not running, or two handshakes at once — and cited. It is information,
+not a stronger verdict: on the same machine the wire and the socket layer
+sit under the same root, and a tap that saw nothing may simply have been
+watching a different network path.
+
 ## 5. It builds an agent's record from evidence, not from the agent
 
 Around those verdicts sits a profile of each agent: who issued its tokens,
@@ -108,7 +125,7 @@ That component does not exist yet.
 |---|---|---|
 | "hooks straight into the OS using eBPF" | not implemented | static tracepoints via `perf_event_open`; no eBPF program exists |
 | "hooks `sys_enter_execve`" | not implemented | `sched_process_exec` is used; it is a different, later hook that carries the resolved filename |
-| "intercepts every socket (`cgroup/connect4`) and wire packet" | not implemented | `inet_sock_set_state` transitions, TCP only; no cgroup hook, no packet capture |
+| "intercepts every socket (`cgroup/connect4`) and wire packet" | partly | `inet_sock_set_state` transitions, TCP only, plus an `AF_PACKET` tap that copies TCP/IP **headers** from the device layer (payload by length only, no process attribution); no cgroup hook, no eBPF, nothing is intercepted or blocked |
 | "ingests actual database and proxy records out-of-band" | not implemented | application-log sensors exist only on the unmerged PR #3 branch; a decision document is required before adopting them (`OT_SENTINEL_HARVEST_AUDIT.md`) |
 | "32-byte SHA-256 of the raw payload, exact arguments" | partly | the executed program's **contents** and the authorised action's **parameters** are hashed; payloads and arguments are not visible from the kernel (invariant I23) |
 | "cross-checks against the Gateway's append-only Merkle ledger" | not implemented | there is no gateway and no Merkle commitment in this repository; the collector's chain is a signed sequence, not a Merkle tree |

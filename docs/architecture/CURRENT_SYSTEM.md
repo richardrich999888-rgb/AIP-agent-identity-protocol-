@@ -169,7 +169,10 @@ gating, loss accounting and restart-continuity audit (Skills 6/6.5, Stages
 7b/7c, PR #3 harvest), `aip-reconcile` with `CANNOT_PROVE` default and two
 verified action classes (Skill 7, Stages 7–7c), `aip-agent` identity /
 profile / lineage / delegation graph (Sniffer Dog 2.0 Phases B–D),
-`aip-warrant` (Skill 8). Still **MISSING**: containment (Skill 9), NEXORA
+`aip-warrant` (Skill 8), `reconcile_lineage` / `LINEAGE_VIOLATION` (Gate 1
+of the completion mandate) and the `AF_PACKET` device-layer tap with wire
+corroboration on record v5 (Gate 2; `OBSERVATION_MODEL.md` §5). Still
+**MISSING**: containment (Skill 9), NEXORA
 (Skill 10), signed reconciliation records, experience ledger, profile API,
 `aip-service` integration of any of the above (the service still carries its
 own authority model, §5). The out-of-tree inventory in §7 is superseded by

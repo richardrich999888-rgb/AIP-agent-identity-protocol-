@@ -347,3 +347,16 @@ explicit authorization. Reconciliation must consume `AttestedBatch` +
 `SignedSensorHealth` + `ExpectedExecution` + `EvidencePacket`, join on
 `decision_id` and process identity, default to `CANNOT_PROVE`, and must not
 emit `PHANTOM_CLAIM` without attested coverage of the exact window.
+
+## Gate 2 note — the device-layer tap
+
+`aip-observe/src/wiretap.rs` (GREEN `57849bd`) adds a seventh mechanism,
+`SourceMechanism::WireTapAfPacket`: an `AF_PACKET` `SOCK_DGRAM` socket on
+one device or all, `SO_TIMESTAMPNS` for the kernel's realtime capture stamp,
+`PACKET_STATISTICS.tp_drops` (plus truncated and unstamped frames) as the
+loss counter, `CAP_NET_RAW` as the only privilege. `parse_wire_frame` keeps
+TCP/IP headers only and refuses everything else; the event kind
+`KernelLifecycleKind::WireSegment` has no pid, is never bound and is never
+attributed, whatever claims the probe holds. The probe still holds no key;
+the registry still decides which probe may claim the mechanism. Evaluation
+and decision: `OBSERVATION_MODEL.md` §5. Tests: `tests/wiretap.rs`.

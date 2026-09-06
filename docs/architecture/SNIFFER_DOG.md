@@ -4,8 +4,9 @@ Status: **IMPLEMENTED (procfs poll, pidfd-anchored measurement, netlink
 process-event connector, kernel socket tables, provenance gating; since
 Stages 7b/7c three static tracepoints — `sock:inet_sock_set_state`,
 `sched:sched_process_fork`, `sched:sched_process_exec` — read through
-`perf_event_open` rings) / NOT IMPLEMENTED (eBPF, any other tracepoint, XDP,
-packet or wire visibility, filesystem and syscall observation, network
+`perf_event_open` rings; since Gate 2 the `AF_PACKET` device-layer tap,
+TCP/IP headers only — §9) / NOT IMPLEMENTED (eBPF, any other tracepoint,
+XDP, payload visibility, filesystem and syscall observation, network
 transport, durable collector state).**
 
 > The agent-level layer around this observer — identity, profile, lineage,
@@ -119,6 +120,16 @@ the kernel's `filename`) delivered by the `sched:sched_process_fork` and
 and `clk_tck` so the probe's process start ticks can be placed on the event
 clock (§6b). Version 4 records are refused like earlier versions.
 
+**Protocol version 6 (Gate 2).** `KernelLifecycleKind::WireSegment`
+(interface index, `WireDirection`, protocol, source and destination
+endpoints, TCP flags, sequence and acknowledgement numbers, payload length,
+frame length, the kernel's realtime capture stamp) delivered by an
+`AF_PACKET` socket; `SourceMechanism::WireTapAfPacket`. The event's
+`kernel_timestamp_ns` is the probe's monotonic dequeue stamp; the kind's
+`kernel_realtime_ns` is the kernel's capture stamp, placed on the monotonic
+axis through the batch's `clock_anchor` (`realtime_ns_to_monotonic`).
+Version 5 records are refused like earlier versions.
+
 Every new field is inside the canonical encoding (single encoder,
 `aip_types::canonical`; length-prefixed strings; explicit codes for enums;
 presence byte for options; counts for vectors). Version 1 records are refused
@@ -135,6 +146,7 @@ this branch and was never released.
 | `ProcNetTable` | no (polled kernel table) | taken under a pidfd anchor | yes | none |
 | `SockStateTracepoint` | **yes** (static tracepoint via the perf ring) | only for `CLOSE → SYN_SENT` — the `connect()` call runs in the caller's context — and only if a `PidFdAnchored` measurement of `current_pid` succeeded and its start tick is not later than the event's kernel time | existence/order/time/endpoints: no (kernel-authored, user space cannot inject); identity: yes (procfs); root can disable or starve the ring | **`PERF_RECORD_LOST`** (counted per ring) |
 | `SchedTracepoint` | **yes** (two static tracepoints via the perf ring) | fork: the parent (the event fires in the parent's context) if a `PidFdAnchored` measurement of `parent_pid` succeeded under the start-tick rule; exec: the new image's task if anchored likewise. The child of a fork is bound at its exec, not at the fork | existence/order/time/pids/kernel filename: no; identity and image content: yes (procfs); root can disable or starve the ring | **`PERF_RECORD_LOST`** (counted per ring) |
+| `WireTapAfPacket` | **yes** (the device layer copies each frame to the packet socket) | **never** — the device layer has no task context; a segment names no process | headers/direction/interface/kernel realtime stamp: no (kernel-authored) on a mirror host, yes on the observed host (root can stop or starve the socket); payload: never captured | **`PACKET_STATISTICS.tp_drops`** (counted; kernel resets on read), plus truncated or unstamped frames |
 
 ### `SockStateTracepoint` — what the kernel says about a connection
 
@@ -345,9 +357,24 @@ instance and the handshake completion of the same socket, with kernel
 timestamps — connection *creation* as an event. (Stage 7c adds process
 creation and image execution the same way — `SchedTracepoint`, §4 — which is
 process observation, not network observation.) Neither gives: packets,
-bytes, payload, DNS names, TLS state, or anything on the wire. There is no
-XDP, no AF_PACKET, no conntrack read. Per I23 both are metadata and can never
-be promoted to payload evidence.
+bytes, payload, DNS names, TLS state, or anything on the wire. Per I23 both
+are metadata and can never be promoted to payload evidence.
+
+Since Gate 2 of the completion mandate there is a third, **device-level**
+source: `WireTapAfPacket` (`wiretap.rs`), an `AF_PACKET` socket that receives
+the kernel's copy of every frame a device sends or receives, with direction,
+interface, the kernel's realtime capture stamp (`SO_TIMESTAMPNS`) and a
+kernel drop counter (`PACKET_STATISTICS`). The probe keeps TCP/IP **headers**
+— addresses, ports, flags, sequence and acknowledgement numbers, payload
+*length* — and nothing after the TCP header. The device layer has no task
+context, so a wire segment names no process and is never bound or
+attributed; the reconciler uses it only to corroborate a socket-transition
+verdict on the same tuple and time (`RECONCILIATION_MODEL.md` "The wire
+question"), and that corroboration neither raises strength nor lowers a
+verdict. The same code runs unchanged on a mirror port or TAP host outside
+the observed host's root; reconciling such a tap against the host's own
+collector chain is not implemented. Still no XDP, no conntrack read, no
+payload. Evaluation of every candidate mechanism: `OBSERVATION_MODEL.md` §5.
 
 ## 10. Relationship to Skill 7 (reconciliation)
 
@@ -368,8 +395,9 @@ and the reconciler must honour:
 
 eBPF programs, raw tracepoints, any tracepoint other than
 `sock:inet_sock_set_state`, `sched:sched_process_fork` and
-`sched:sched_process_exec`, XDP, packet or wire capture, filesystem and
-syscall observation, exec argument and environment capture, UDP "connection"
+`sched:sched_process_exec`, XDP, payload capture or any payload hash (the
+`AF_PACKET` tap of Gate 2 keeps TCP/IP headers only), non-TCP wire traffic,
+IPv6 extension headers, filesystem and syscall observation, exec argument and environment capture, UDP "connection"
 events, cgroup/namespace context in the event model, network transport and
 its authentication, durable storage of the collector snapshot and archive
 (the collector exposes `snapshot()` / `resume()` and audits continuity, but

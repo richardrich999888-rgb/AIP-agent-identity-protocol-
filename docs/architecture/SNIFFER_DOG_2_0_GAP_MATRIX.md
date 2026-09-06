@@ -211,3 +211,15 @@ Test counts after C1: aip-standalone 583 / 0 / 3 ignored (+16), aip-service 39 /
 | `LINEAGE_VIOLATION` (C2) | **CLOSED** — complete two-sided evidence required; every gap `CANNOT_PROVE`, every ambiguity ambiguity | lv01–lv16 |
 
 Test counts after D: aip-standalone 594 / 0 / 3 ignored (+11), aip-service 39 / 0; clippy and fmt clean.
+
+## A.11 Gate 2 outcome (wire-level observation)
+
+| Component | State after Gate 2 | Evidence |
+|---|---|---|
+| Wire-level mechanism evaluation (eBPF / tracepoints / perf / kprobes / cgroup / XDP / AF_PACKET / TC) | **DECIDED** — `OBSERVATION_MODEL.md` §5; `AF_PACKET` header tap chosen; XDP deferred to Gate 10 as a response hook | — |
+| `WireTapAfPacket` source (headers only, kernel realtime stamp, `tp_drops` loss, no pid) | **CLOSED** | `aip-observe/tests/wiretap.rs` wt01–wt10 (wt10 live) |
+| Wire corroboration of a socket transition (`Reconciliation.wire`, record v5) | **CLOSED** — informational; never raises strength or lowers a verdict | `aip-reconcile/tests/wire_corroboration.rs` wc01–wc15; `ghost-demo/tests/live_wire.rs` |
+| Tap on a mirror / TAP host reconciled against the host's observer | **OPEN** — the code runs there unchanged; a second collector chain is refused (`MixedObservers`); cross-observer reconciliation not implemented | — |
+| Payload, TLS, arguments | **permanently out of scope** for the kernel path (I23) | wt04 |
+
+Test counts after Gate 2: aip-standalone 666 / 0 / 3 ignored (+29), aip-service 39 / 0; clippy and fmt clean.

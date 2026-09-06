@@ -646,3 +646,20 @@ Skill 7 complete. The next permitted gate is **SKILL 8 — WARRANT**, which may
 consume `Reconciliation { result, strength, availability }` and must refuse to
 act on `CANNOT_PROVE` or any `Unavailable` availability. Nothing in this stage
 pre-empts it: no policy, severity or response type was introduced.
+
+## Gate 2 note (wire corroboration, record v5)
+
+`RECONCILIATION_VERSION` 4 → 5: `Reconciliation.wire: WireCorroboration`
+(`NotEvaluated` 0x00 / `Unavailable` 0x01 / `NotObserved` 0x02 /
+`Ambiguous{handshakes}` 0x03 / `Corroborated` 0x04), encoded after the
+lineage comparison. `compare_action` now names the transition that carried a
+`Verified` outcome; for a socket transition `corroborate_wire` (in
+`reconcile.rs`) answers the device layer's question from `WireTapAfPacket`
+segments — tap declared live inside attested coverage with counted zero
+loss over the transition's window, segments placed through their batch's
+clock anchor, exactly one SYN and its SYN-ACK on the tuple within one second
+of the kernel transition — and cites both segments. No branch of it touches
+`result`, `strength` or `reason`; `precondition_holds` is unchanged. Model:
+`RECONCILIATION_MODEL.md` "The wire question". Tests:
+`tests/wire_corroboration.rs` wc01–wc15. The `lv15` pin on the record
+version became a compile-time `>= 4` bound.

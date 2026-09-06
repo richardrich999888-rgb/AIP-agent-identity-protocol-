@@ -366,10 +366,17 @@ modes).
 **`CANNOT_PROVE` boundary.** Unchanged and permanent for this design: a root
 host can stop, filter or starve every source (the mechanism becomes absent or
 `Degraded`, never silent coverage); procfs content is root-forgeable, capping
-content facts at `Attested`; no payload, no arguments, no wire.
+content facts at `Attested`; no payload, no arguments. Since Gate 2 the wire
+is seen at the device layer — TCP/IP **headers** copied by an `AF_PACKET`
+tap (`WireTapAfPacket`), payload by length only, no pid — and the reconciler
+reports whether it corroborates a socket-transition verdict without ever
+raising strength or lowering a verdict (`OBSERVATION_MODEL.md` §5,
+`RECONCILIATION_MODEL.md` "The wire question").
 
-**Never claim.** eBPF, XDP, packet capture, zero loss, root-compromise
-resistance.
+**Never claim.** eBPF, XDP, payload capture or any payload hash, zero loss,
+root-compromise resistance. "Packet capture" may be said only as: TCP/IP
+headers copied from the device layer by `AF_PACKET`, on the observed host or
+on a mirror host, and never as visibility into what was sent.
 
 ### SD-08 Action Evidence
 

@@ -8,6 +8,8 @@
 > `SNIFFER_DOG.md`, `OBSERVER_IMPLEMENTATION_REPORT.md` and
 > `SNIFFER_DOG_IMPLEMENTATION_REPORT.md`. The semantics in §3–§4 are the
 > ones implemented. Statements of absence in §1 are kept for traceability.
+> §5 (Gate 2 of the completion mandate) records the wire-level mechanism
+> evaluation and the decision taken: an `AF_PACKET` header tap.
 
 
 > **Status (PR3).** §1–§2 are the discovery record at `377d5fc`. Since then:
@@ -139,3 +141,92 @@ terminates TLS. Any design that compares parameters must declare which of those
 two it assumes, and `ObservedEffect` must keep `NetworkMetadata` and
 `ApplicationPayload` as distinct variants so metadata can never be silently
 promoted to payload evidence.
+
+## 5. Wire-level observation — mechanism evaluation and decision (Gate 2)
+
+The completion mandate asks for "real network/wire observation" and for the
+candidate mechanisms to be evaluated against the actual repository and host
+before one is chosen. This section is that record. Commits: RED `36b026c`,
+GREEN `57849bd`.
+
+### 5.1 What this host permits (measured, not assumed)
+
+Kernel `6.18.44`, root with a full capability set, `bpf(BPF_MAP_CREATE)`
+succeeds, `CONFIG_BPF_SYSCALL/JIT/CGROUP_BPF/NET_CLS_BPF/XDP_SOCKETS/
+DEBUG_INFO_BTF=y`, `AF_PACKET` raw and datagram sockets open, tracefs
+mounted with `sock`, `tcp`, `net`, `skb`, `xdp` and 714 `syscalls`
+tracepoints, `perf_event_paranoid = 2` (irrelevant under
+`CAP_SYS_ADMIN`). No `tc`, `bpftool` or `ip` binaries; `clang` present.
+Interfaces: `lo`, `eth0`, two idle `ifb` devices. A header-only capture on
+`lo` with `SO_TIMESTAMPNS` and `PACKET_STATISTICS` was run by hand before
+any code was written: fourteen frames of one loopback connection, each
+delivered twice (`PACKET_OUTGOING` then `PACKET_HOST`), kernel realtime
+stamps, zero drops.
+
+### 5.2 Candidates
+
+| Mechanism | What it yields | Process attribution | Independent of the observed host's root? | Cost here | Verdict |
+|---|---|---|---|---|---|
+| Static tracepoints via `perf_event_open` (`sock:inet_sock_set_state`, `sched:*`) | socket-layer state changes, process lifecycle, kernel monotonic stamps | yes for syscall-driven transitions, through the pidfd anchor | no — same kernel, same root | already implemented (Stages 7b/7c) | **kept** as the attribution source |
+| `sock:sock_send_length` / `sock_recv_length` tracepoints | per-socket byte counts in the caller's context, linked by `sk` | yes | no | small; same perf machinery | **deferred to Gate 3** (action-level evidence beyond connect) |
+| `net:net_dev_queue` / `net_dev_xmit` / `netif_receive_skb` tracepoints | per-skb device name and length | none (`skbaddr` only; no socket link without eBPF) | no | small | rejected: neither attribution nor headers |
+| kprobes (`tcp_connect`, `tcp_sendmsg`, …) | arbitrary kernel state | yes, with eBPF to read `sk` | no | eBPF loader + bytecode + BTF-dependent offsets | rejected for this gate: stronger *reach*, not stronger *evidence*; a duplicate of what the tracepoints already give |
+| eBPF `cgroup/connect4`, `sockops`, `sk_msg` | in-kernel attribution by cgroup and socket cookie; payload visibility with `sk_msg` | yes | no | `aya` (crates.io reachable) or a hand-rolled loader; bytecode compiled with `clang -target bpf` at build time | rejected for this gate: same trust root as the tracepoints; `sk_msg` payload access is forbidden by I23; the loader is a large new surface that adds no independence |
+| TC (`cls_bpf`) | per-packet ingress/egress with eBPF | none without extra maps | no | eBPF loader, `tc` absent here | rejected: superset of AF_PACKET's evidence at eBPF's cost, on the same host |
+| XDP | earliest inbound packet hook, drop capability | none | no | eBPF loader, driver support, `ifb`/`lo` do not support native XDP; generic XDP only | **Gate 10**: detect NIC/driver, dry-run first; a *response* mechanism, not an evidence one |
+| `AF_PACKET` (`SOCK_DGRAM`, `ETH_P_ALL`, `SO_TIMESTAMPNS`, `PACKET_STATISTICS`) | a copy of every frame at the device layer with direction, interface, kernel realtime capture stamp and a kernel drop counter | **none** (the device layer has no task context) | **yes when placed on a mirror port or TAP host** — the same code produces the same evidence there; on the observed host itself, no | `libc` only; `CAP_NET_RAW` | **chosen** |
+
+### 5.3 Decision
+
+    DECISION:       AF_PACKET header tap (`aip_observe::wiretap::WireTap`),
+                    `SourceMechanism::WireTapAfPacket`, event kind
+                    `KernelLifecycleKind::WireSegment`.
+    THREAT:         the socket-state tracepoint is the only kernel path by
+                    which a connection is seen; a host that can suppress or
+                    starve the perf ring leaves the verifier with nothing
+                    but silence, and a verifier has no second path to
+                    compare against.
+    ASSUMPTION:     the kernel's device layer copies frames faithfully to a
+                    packet socket the probe opens; when the tap runs on a
+                    mirror host, that host's kernel is outside the observed
+                    host's root.
+    MECHANISM:      headers only — IP addresses, TCP ports, flags, seq/ack,
+                    payload length, frame length, direction, interface,
+                    kernel realtime stamp. Nothing after the TCP header is
+                    copied, hashed or kept. Loss from `tp_drops`, truncated
+                    or unstamped frames.
+    IMPLEMENTATION: `aip-observe/src/wiretap.rs`; the probe ingests segments
+                    unbound and unattributed; the collector's registry gates
+                    the mechanism; the reconciler's `corroborate_wire` joins a
+                    verified socket transition to exactly one SYN / SYN-ACK
+                    pair on its tuple inside a one-second window around the
+                    kernel transition, placed through the batch clock anchor.
+    TEST:           `aip-observe/tests/wiretap.rs` wt01–wt10 (wt10 live);
+                    `aip-reconcile/tests/wire_corroboration.rs` wc01–wc15;
+                    `ghost-demo/tests/live_wire.rs` w_p / w_n (live).
+    LIMITATION:     on the observed host the tap is root-forgeable and root-
+                    stoppable like every other source, so a corroborated
+                    verdict stays `Attested`; a tap on a mirror host needs its
+                    own collector chain, and cross-observer reconciliation is
+                    not implemented (`MixedObservers` is refused), so
+                    "independent" placement is a deployment the code permits
+                    and the verifier cannot yet exploit; the tap does not
+                    know which interface a connection used, so `NotObserved`
+                    may mean "not on the tapped path" and is never a
+                    contradiction; TLS and everything above TCP remain
+                    invisible (I23); IPv6 extension headers are not walked;
+                    non-TCP traffic is out of scope.
+    DEPENDENCIES:   Stage 7b transition evidence; batch clock anchor.
+    STATUS:         IMPLEMENTED, live-demonstrated on this host.
+
+### 5.4 What the wire adds to the three states
+
+`OBSERVED / NOT_OBSERVED / OBSERVATION_UNAVAILABLE` of §3 are unchanged for
+the verdict. For the *wire question* they appear as
+`Reconciliation.wire: WireCorroboration` — `Corroborated`, `NotObserved`
+(tap live and clean, no complete handshake placed in the window),
+`Unavailable` (no live clean tap over the window), `Ambiguous{handshakes}`
+(two distinct SYNs on the tuple), `NotEvaluated` (no transition verdict to
+corroborate). None of these raises strength above `Attested` and none lowers
+a verdict; wire segments alone attribute nothing and verify nothing. See
+`RECONCILIATION_MODEL.md` "The wire question".

@@ -480,3 +480,98 @@ anything about hosts the observer does not cover.
 
 Gate 2 of the completion mandate (network / wire observation beyond TCP
 state transitions).
+
+---
+
+# Gate 2 — wire-level observation (completion mandate)
+
+## Status
+
+**PASS.** A second kernel path by which a connection is seen — the device
+layer, through an `AF_PACKET` header tap — is a probe source with its own
+mechanism, event kind, loss counter and kernel capture stamp; the reconciler
+reports, on record v5, whether that path corroborates a socket-transition
+verdict, and cites the segments. The mechanism evaluation that led here is
+in `OBSERVATION_MODEL.md` §5; the reconciler semantics in
+`RECONCILIATION_MODEL.md` "The wire question".
+
+## Mechanism evaluation (summary; full table in `OBSERVATION_MODEL.md` §5.2)
+
+Measured on this host first: `bpf()` usable, BTF present, `AF_PACKET`
+usable, `sock`/`net`/`skb`/`xdp`/`syscalls` tracepoints present, no
+`tc`/`bpftool`. eBPF (kprobes, `cgroup/connect4`, `sockops`, TC) was
+rejected for this gate: loadable here, but it lives under the same host root
+as the tracepoints, adds a loader and a bytecode toolchain, and its one
+distinctive capability — payload access through `sk_msg` — is forbidden by
+I23. XDP is a response hook and is Gate 10. `AF_PACKET` was chosen because
+it is the only candidate whose code produces the same evidence on a mirror
+port or TAP host outside the observed host's root, and because it costs
+nothing but `CAP_NET_RAW`.
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| `36b026c` | RED: `aip-observe/tests/wiretap.rs` wt01–wt10, `aip-reconcile/tests/wire_corroboration.rs` wc01–wc15, `ghost-demo/tests/live_wire.rs` w_p/w_n; did not compile |
+| `57849bd` | GREEN: `wiretap.rs` (`parse_wire_frame`, `WireTap`), `SourceMechanism::WireTapAfPacket` (0x07), `KernelLifecycleKind::WireSegment` (0x07) + `WireDirection` + `tcp_flags`, `BootClockAnchor::realtime_ns_to_monotonic`, `ProcfsProbe::ingest_wire_event`; record v5 with `wire: WireCorroboration`; `corroborate_wire`; ghost-demo tap wiring and `run_without_wire_tap` |
+| `275c4e3` | observer protocol v6: the new mechanism and event-kind codes are refused by verifiers that do not know them |
+| *(the commit carrying this section)* | documentation |
+
+Test-file edits since RED: rustfmt; two `#[allow(clippy::too_many_arguments)]`
+attributes on fixture constructors. No assertion changed. One earlier test,
+`lv15`, pinned `RECONCILIATION_VERSION == 4`; it now pins `>= 4` at compile
+time ("lineage entered the record at v4"), because a record version is
+raised by every gate that adds a signed field and an equality would break
+each time without protecting anything.
+
+## Evidence (mandate's requirements → tests)
+
+| Requirement | Tests |
+|---|---|
+| strongest independent mechanism evaluated and chosen with reasons | `OBSERVATION_MODEL.md` §5.2–5.3 |
+| observer holds no identity key; collector signs | the tap lives in `ProcfsProbe`, which has no key; wt08 (registry gates the mechanism), wc15 (tamper after signing is `Proven` `SENSOR_INTEGRITY_FAILURE`) |
+| headers only, never payload, never a payload hash | wt04 (payload measured by length; no payload byte in the event, its JSON or its canonical bytes) |
+| the wire names no process | wt06, wt07 (no `subject_pid`, never bound, never attributed even with a registered claim), wc12 (wire alone: `CANNOT_PROVE`, `NoReference`) |
+| loss counted, never silent | wt10 (`PACKET_STATISTICS` counted zero), wc10 (loss never corroborates) |
+| kernel-stamped, placed through the signed anchor | wt09, wt10, wc06, wc11 |
+| corroboration cites its evidence and raises nothing | wc01–wc03 |
+| every gap named on the record, never a verdict change | wc04–wc09, wc11, wc13 |
+| record versioned, canonical, injective | wc14, wt06 |
+| live | wt10 (loopback capture: SYN out, SYN-ACK in, 19 bytes measured by length, zero drops); `live_wire.rs` w_p (`Corroborated`) and w_n (`Unavailable` without the tap) |
+
+## Live run on this host
+
+`cargo run -p ghost-demo --bin ghost-demo`, scenario T-P:
+
+```
+agent pid 17338 → 127.0.0.1:44093; 1 established connection(s) in the table,
+6 kernel socket transition(s) captured, 24 wire segment(s) captured (tap open)
+result=VERIFIED_EXECUTION strength=Attested reason=ActionEvidenceMatches
+identity=Match { observations: 4 } action=Match(ActionEvidenceSeal { mechanism: SockStateTracepoint, kind: Transition }) temporal=WithinWindow
+wire=Corroborated
+```
+
+Test counts after Gate 2: aip-standalone 666 / 0 / 3 ignored (+29 over
+Gate 1), aip-service 39 / 0; clippy `-D warnings` and fmt clean.
+
+## Security Claims
+
+- A `Corroborated` record cites two collector-signed wire segments whose
+  headers, direction, interface and kernel capture stamp are inside the
+  signed bytes, alongside the two socket transitions.
+- No segment can be bound to a process, attributed to an agent, or verify
+  anything on its own; nothing in the wire path can raise a record above
+  `Attested` or turn a verdict into a violation.
+
+Not claimed: payload visibility or any payload hash; eBPF, XDP or packet
+*filtering*; zero loss; that the tap covers the path a connection took;
+independence from the observed host's root when the tap runs on that host;
+cross-observer reconciliation for a tap on a mirror host (its own collector
+chain is refused as `MixedObservers` today).
+
+## Next Gate
+
+Gate 3: action-level network evidence beyond TCP connect. Candidate from the
+evaluation: `sock:sock_send_length` — per-socket byte counts in the caller's
+task context, linked by `sk` — with explicit semantics "bytes the kernel
+accepted for send on this socket", never a payload hash.

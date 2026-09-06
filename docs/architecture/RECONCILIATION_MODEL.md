@@ -18,7 +18,10 @@
 > observation exists), `UNATTRIBUTED_EFFECT` (requires a decision-point-signed
 > completeness statement that nothing produces yet). `LINEAGE_VIOLATION` is
 > reachable since Phase C2 (`6dcec84`, see below) through `reconcile_lineage`
-> only, on complete two-sided evidence. See
+> only, on complete two-sided evidence. Since Gate 2 (`57849bd`) the record
+> is version 5 and carries `wire: WireCorroboration`, the device layer's
+> answer to a socket-layer transition verdict ("The wire question" below);
+> it never changes the verdict or the strength. See
 > `RECONCILIATION_IMPLEMENTATION_REPORT.md` and
 > `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md`. §1 below is preserved as the
 > pre-implementation finding for traceability.
@@ -264,3 +267,52 @@ claim requires it (lv01–lv03); identity lineage needs a valid parent-signed
 proof (lv08); authority lineage needs a valid chain (lv09); missing evidence
 is `CANNOT_PROVE` (lv04–lv09, lv11, lv12); ambiguity is ambiguity (lv10,
 lv13); a positive needs both sides (lv01 vs lv08/lv09).
+
+## The wire question (Gate 2)
+
+When a socket transition carries a `VERIFIED_EXECUTION` for
+`ghost.net.connect.v1`, the reconciler asks a second kernel path — the
+device layer, through `WireTapAfPacket` segments — whether it saw the
+handshake the socket layer reported. The answer is written to
+`Reconciliation.wire` (record v5) and cited in `evidence`; it is
+**informational**: it raises no strength (both paths sit under the same host
+root when the tap runs on the observed host; `Attested` is the ceiling) and
+lowers no verdict (a tap may simply not cover the path the packets took).
+
+**Answerable only when** some batch whose claimed window overlaps
+`[initiation − 1 s, completion + 1 s]` (kernel monotonic, placed on the wall
+clock by the transition batch's anchor) declared `WireTapAfPacket` live,
+lies inside the collector's attested coverage, and reports a counted zero
+loss. Otherwise `Unavailable` — a tap that dropped frames cannot vouch for
+its own silence.
+
+**Placement.** A segment's kernel capture stamp is on the realtime clock
+(`SO_TIMESTAMPNS`); it is placed on the monotonic axis through its own
+batch's `clock_anchor` (`BootClockAnchor::realtime_ns_to_monotonic`). A
+segment in an unanchored batch cannot be placed and is not evidence.
+
+**Decision.** Among placed segments on the transition's protocol and tuple
+(local → remote SYN without ACK; remote → local SYN-ACK), take the distinct
+SYN sequence numbers inside the window. Two or more →
+`Ambiguous{handshakes}`, nothing cited. Exactly one, with a SYN-ACK whose
+acknowledgement number is that sequence plus one and that is not earlier
+than the SYN → `Corroborated`, both segments cited. Otherwise `NotObserved`.
+A retransmitted SYN, or the loopback's two copies of one frame, share a
+sequence number and are one handshake.
+
+**What it is not.** Not a third action class, not attribution (a segment
+names no process and is never bound), not payload (headers only, I23), not a
+statement about hosts or interfaces the tap does not cover, and never a
+reason to change `result`, `strength` or `reason`. Verdicts that came from
+presence evidence, from process execution, or from no evidence leave
+`wire == NotEvaluated`.
+
+Pinned by `aip-reconcile/tests/wire_corroboration.rs`: corroboration and
+its citations (wc01, wc03); strength ceiling (wc02); `Unavailable` without a
+declared tap (wc04); `NotObserved` for a clean tap with no handshake, a far
+handshake, another tuple, a SYN without its SYN-ACK or with a mismatched
+acknowledgement, and unplaceable segments (wc05–wc08, wc11); ambiguity
+(wc09); loss never corroborates (wc10); wire alone attributes and verifies
+nothing (wc12, wc13); record v5 canonical bytes (wc14); a segment altered
+after attestation is a `Proven` `SENSOR_INTEGRITY_FAILURE` (wc15). Live:
+`ghost-demo/tests/live_wire.rs`.
