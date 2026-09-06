@@ -226,7 +226,13 @@ mod sys {
     const PERF_RECORD_LOST: u32 = 2;
     const PERF_RECORD_SAMPLE: u32 = 9;
     const PERF_EVENT_IOC_ENABLE: libc::c_ulong = 0x2400;
-    const DATA_PAGES: usize = 8;
+    /// Data pages per ring (a power of two). Eight pages held a burst of a
+    /// few hundred records; host-wide tracepoints (every fork, exec and
+    /// send on the host) overflowed that between two drains under load,
+    /// and every overflow is counted loss that degrades the observer.
+    /// Sixty-four pages (256 KiB per CPU per tracepoint) absorb a burst of
+    /// several thousand records; loss stays counted, never hidden.
+    const DATA_PAGES: usize = 64;
 
     const MMAP_DATA_HEAD: usize = 1024;
     const MMAP_DATA_TAIL: usize = 1032;

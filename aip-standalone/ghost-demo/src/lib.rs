@@ -324,13 +324,13 @@ impl Observer {
     /// wire question is simply `Unavailable`). Fails where the tracepoints
     /// are not permitted.
     pub fn with_tracer() -> Result<Self, String> {
-        Self::with_sources(true)
+        Self::with_sources(true, true)
     }
 
     /// As [`Observer::with_tracer`] but never opens the tap, so the wire
     /// question is `Unavailable` by construction.
     pub fn with_tracer_no_tap() -> Result<Self, String> {
-        Self::with_sources(false)
+        Self::with_sources(false, true)
     }
 
     /// Polling plus the fanotify mount watch only: what the file scenarios
@@ -344,13 +344,22 @@ impl Observer {
         Ok(Self::build(None, None, None, None, Some(watch)))
     }
 
-    fn with_sources(tap: bool) -> Result<Self, String> {
+    /// Every source an observer opens is a host-wide stream it must drain
+    /// every batch, and an undrained stream reports loss, which degrades
+    /// the observer (correctly). A scenario therefore opens only what it
+    /// needs: the two tracepoint sources always, the device tap and the
+    /// send tracepoint on request.
+    fn with_sources(tap: bool, send: bool) -> Result<Self, String> {
         let tracer = SockStateTracer::open().map_err(|e| e.to_string())?;
         let process_tracer = ProcessTracer::open().map_err(|e| e.to_string())?;
         let wire_tap = if tap { WireTap::open(None).ok() } else { None };
         // Optional like the tap: where the tracepoint does not exist the
         // send class is simply unobservable.
-        let send_tracer = SockSendTracer::open().ok();
+        let send_tracer = if send {
+            SockSendTracer::open().ok()
+        } else {
+            None
+        };
         // The mount-wide fanotify watch is opened only by the file scenarios
         // (`with_fanotify`): every source an observer opens costs a drain per
         // batch, and a watch over every write on the host is the heaviest.
@@ -895,6 +904,16 @@ impl Scenario {
         )
     }
 
+    /// Scenarios that need the socket-send tracepoint.
+    pub fn needs_send(&self) -> bool {
+        matches!(self, Scenario::SendPositive | Scenario::SendWrongEndpoint)
+    }
+
+    /// Scenarios that need the device tap (the wire question).
+    pub fn needs_wire_tap(&self) -> bool {
+        matches!(self, Scenario::PositiveTransition)
+    }
+
     /// Scenarios that need the fanotify mount watch (and nothing else
     /// beyond polling).
     pub fn needs_fanotify(&self) -> bool {
@@ -1001,12 +1020,8 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
     let remote = v4(&listener);
     let a = Authority::new();
     let mut o = if scenario.needs_tracer() {
-        let o = if tap {
-            Observer::with_tracer()
-        } else {
-            Observer::with_tracer_no_tap()
-        };
-        o.expect("kernel socket-state source unavailable on this host")
+        Observer::with_sources(tap && scenario.needs_wire_tap(), scenario.needs_send())
+            .expect("kernel socket-state source unavailable on this host")
     } else if scenario.needs_fanotify() {
         Observer::with_fanotify().expect("fanotify unavailable on this host")
     } else {

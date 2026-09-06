@@ -235,6 +235,27 @@ mod sys {
                 lost: 0,
                 buf: vec![0u8; BUF_LEN],
             };
+            // A larger receive queue: frames the queue cannot hold are counted
+            // as loss, and the default queue overflows within a second of
+            // host traffic between drains. Root may exceed rmem_max
+            // (SO_RCVBUFFORCE); otherwise the ordinary option applies and the
+            // kernel clamps. Either way loss stays counted, never hidden.
+            let want: libc::c_int = 8 * 1024 * 1024;
+            for opt in [libc::SO_RCVBUFFORCE, libc::SO_RCVBUF] {
+                // SAFETY: `want` outlives the call; the option takes an int.
+                let rc = unsafe {
+                    libc::setsockopt(
+                        fd,
+                        libc::SOL_SOCKET,
+                        opt,
+                        &want as *const libc::c_int as *const libc::c_void,
+                        std::mem::size_of::<libc::c_int>() as libc::socklen_t,
+                    )
+                };
+                if rc == 0 {
+                    break;
+                }
+            }
             let one: libc::c_int = 1;
             // SAFETY: `one` outlives the call; the option takes an int.
             let rc = unsafe {
