@@ -37,6 +37,17 @@
 //! description of any signed object (I14, I18); it only states which
 //! objects are in this package, in which order.
 //!
+//! # What cannot be swapped
+//!
+//! Two independent defences, and the module keeps them independent.
+//! [`NexoraProof::binding_faults`] checks that the components agree with
+//! each other — by digest, id, sequence, jti, head and leaf kind — using no
+//! signature verification at all, so a transplant is visible in an unsealed
+//! package a verifier has not yet anchored. The envelope, when present,
+//! covers every byte, so a transplant breaks it too. Neither is allowed to
+//! be the only line: a swap is caught with the seal removed, and caught
+//! with the agreement checks skipped.
+//!
 //! # The envelope
 //!
 //! A [`ProofAssembler`] may seal a package. That signature means exactly
@@ -385,6 +396,143 @@ impl NexoraProof {
         sha256(&self.canonical_bytes())
     }
 
+    /// Every fault in the package: what it cites but does not carry, and
+    /// where its components disagree with each other.
+    pub fn faults(&self) -> Vec<ProofFault> {
+        let mut all: Vec<ProofFault> = self
+            .structural_faults()
+            .into_iter()
+            .map(ProofFault::Structural)
+            .collect();
+        all.extend(self.binding_faults().into_iter().map(ProofFault::Binding));
+        all
+    }
+
+    /// Whether the components agree with each other. **No signature is
+    /// verified here**: this is the defence that still works on an unsealed
+    /// package, and it is deliberately independent of the envelope.
+    pub fn binding_faults(&self) -> Vec<BindingFault> {
+        let mut f = Vec::new();
+
+        if let Some(doc) = &self.subject.identity {
+            if doc.id != self.subject.agent_id {
+                f.push(BindingFault::IdentityIsNotTheSubject {
+                    document_id: doc.id.clone(),
+                    subject: self.subject.agent_id.clone(),
+                });
+            }
+            if let Some(sig) = &doc.self_signature {
+                unsupported(&mut f, sig, Component::Subject);
+            }
+        }
+
+        // The authority must be the one the expectation names.
+        if let (Some(a), Some(ee)) = (&self.authority, &self.expectation) {
+            let chain_jtis: Vec<[u8; 16]> = a.chain.iter().map(|h| h.jti).collect();
+            if a.root.jti != ee.authority.root_jti || chain_jtis != ee.authority.chain_jtis {
+                f.push(BindingFault::AuthorityNotTheExpectations);
+            }
+            unsupported(&mut f, &a.root.issuer_sig, Component::Authority);
+            for hop in &a.chain {
+                unsupported(&mut f, &hop.issuer_sig, Component::Authority);
+            }
+        }
+        if let Some(ee) = &self.expectation {
+            unsupported(&mut f, &ee.decision_sig, Component::Expectation);
+        }
+
+        // Every observer record the claim cites must be the one carried.
+        if let Some(o) = &self.observer {
+            for r in &self.claim.evidence {
+                match r {
+                    EvidenceRef::Batch { sequence, head, .. } => {
+                        match o.batches.iter().find(|b| b.sequence == sequence.0) {
+                            None => f.push(BindingFault::CitedBatchNotCarried {
+                                sequence: sequence.0,
+                            }),
+                            Some(b) if b.head() != *head => {
+                                f.push(BindingFault::CitedBatchHeadMismatch {
+                                    sequence: sequence.0,
+                                })
+                            }
+                            Some(_) => {}
+                        }
+                    }
+                    EvidenceRef::Health {
+                        sequence,
+                        emitted_at_ms,
+                        ..
+                    } => {
+                        if o.health.health.sequence != sequence.0
+                            || o.health.health.emitted_at_ms != *emitted_at_ms
+                        {
+                            f.push(BindingFault::CitedHealthNotCarried {
+                                sequence: sequence.0,
+                            });
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            for b in &o.batches {
+                unsupported(&mut f, &b.attestation, Component::Observer);
+            }
+            unsupported(&mut f, &o.health.attestation, Component::Observer);
+
+            // A continuity report must be this observer's own record.
+            if let Some(c) = &self.continuity {
+                if c.report.observer_id != o.health.health.observer_id {
+                    f.push(BindingFault::ContinuityForAnotherObserver {
+                        report_observer: c.report.observer_id.clone(),
+                        observer: o.health.health.observer_id.clone(),
+                    });
+                }
+            }
+        }
+        if let Some(c) = &self.continuity {
+            unsupported(&mut f, &c.signature, Component::Continuity);
+        }
+
+        // Lineage never names the subject as its own peer.
+        if let Some(l) = &self.lineage {
+            for peer in &l.peer_expectations {
+                if peer.agent_id == self.subject.agent_id {
+                    f.push(BindingFault::LineagePeerIsTheSubject {
+                        agent_id: peer.agent_id.clone(),
+                    });
+                }
+                unsupported(&mut f, &peer.decision_sig, Component::Lineage);
+            }
+        }
+
+        // A warrant must rest on this record and name this subject.
+        if let Some(w) = &self.warrant {
+            if w.reconciliation_digest != self.claim.digest() {
+                f.push(BindingFault::WarrantForAnotherRecord);
+            }
+            if w.subject_agent.as_deref() != Some(self.subject.agent_id.as_str()) {
+                f.push(BindingFault::WarrantForAnotherSubject {
+                    warrant_subject: w.subject_agent.clone(),
+                    subject: self.subject.agent_id.clone(),
+                });
+            }
+            if let Some(sig) = &w.signature {
+                unsupported(&mut f, sig, Component::Warrant);
+            }
+        }
+
+        // A commitment must commit this claim's bytes, as a reconciliation.
+        if let Some(c) = &self.commitment {
+            if c.kind != crate::merkle::LeafKind::Reconciliation
+                || c.record != self.claim.canonical_bytes()
+            {
+                f.push(BindingFault::CommitmentIsNotOfTheClaim);
+            }
+            unsupported(&mut f, &c.head.signature, Component::Commitment);
+        }
+        f
+    }
+
     /// What the claim cites that this package does not carry, and where the
     /// components it does carry disagree with each other. A fault is a
     /// statement about the package, not about the execution.
@@ -463,6 +611,74 @@ impl std::fmt::Display for StructuralFault {
     }
 }
 
+/// A disagreement *between* the components a package carries. Detected
+/// without verifying a single signature: a transplanted component stops
+/// matching the digests, ids, sequences and heads the rest of the package
+/// names. Never a statement about the execution.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BindingFault {
+    /// The carried identity document is not the subject's.
+    IdentityIsNotTheSubject {
+        document_id: String,
+        subject: String,
+    },
+    /// The carried authority is not the one the expectation was issued
+    /// under: a different root, or a different chain of hops.
+    AuthorityNotTheExpectations,
+    /// The claim cites a batch at this sequence that the package does not
+    /// carry.
+    CitedBatchNotCarried { sequence: u64 },
+    /// The package carries a batch at the cited sequence, but its
+    /// recomputed head is not the one the claim cites.
+    CitedBatchHeadMismatch { sequence: u64 },
+    /// The claim cites a health record the package does not carry.
+    CitedHealthNotCarried { sequence: u64 },
+    /// The continuity report is another observer's record.
+    ContinuityForAnotherObserver {
+        report_observer: String,
+        observer: String,
+    },
+    /// A lineage peer expectation is the subject's own: an agent cannot be
+    /// its own parent, and lineage is never synthesised from self-report.
+    LineagePeerIsTheSubject { agent_id: String },
+    /// The warrant rests on a different reconciliation record.
+    WarrantForAnotherRecord,
+    /// The warrant names a different subject.
+    WarrantForAnotherSubject {
+        warrant_subject: Option<String>,
+        subject: String,
+    },
+    /// The commitment does not commit this claim's canonical bytes under
+    /// the reconciliation leaf kind.
+    CommitmentIsNotOfTheClaim,
+    /// A carried signature declares an algorithm this repository does not
+    /// implement. Ed25519 is the only one; a package says so rather than
+    /// checking foreign bytes as Ed25519 anyway.
+    UnsupportedAlgorithm { component: Component },
+}
+
+impl std::fmt::Display for BindingFault {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
+}
+
+/// Either kind of fault, for callers that want one list.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ProofFault {
+    Structural(StructuralFault),
+    Binding(BindingFault),
+}
+
+impl std::fmt::Display for ProofFault {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ProofFault::Structural(x) => write!(f, "{x}"),
+            ProofFault::Binding(x) => write!(f, "{x}"),
+        }
+    }
+}
+
 // ─── Encoding helpers ───
 
 /// A signature envelope, every field of it, so two different signatures can
@@ -474,6 +690,18 @@ fn put_signature(buf: &mut Vec<u8>, sig: &Signature) {
     buf.extend_from_slice(&sig.nonce);
     buf.extend_from_slice(&sig.payload_hash);
     put_bytes(buf, &sig.signature_bytes);
+}
+
+/// Ed25519 is the only signature algorithm this repository implements. A
+/// carried signature declaring anything else is recorded as a fault, never
+/// verified as Ed25519 regardless.
+fn unsupported(f: &mut Vec<BindingFault>, sig: &Signature, component: Component) {
+    if sig.algorithm != aip_types::AlgorithmId::Ed25519 {
+        let fault = BindingFault::UnsupportedAlgorithm { component };
+        if !f.contains(&fault) {
+            f.push(fault);
+        }
+    }
 }
 
 /// Explicit algorithm identifiers: a verifier refuses what it does not

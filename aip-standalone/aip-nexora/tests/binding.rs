@@ -51,7 +51,11 @@ fn package(s: &common::Scenario) -> NexoraProof {
 fn b01_a_package_whose_components_come_from_one_execution_binds() {
     let s = common::verified_execution();
     let p = package(&s);
-    assert!(p.structural_faults().is_empty(), "{:?}", p.structural_faults());
+    assert!(
+        p.structural_faults().is_empty(),
+        "{:?}",
+        p.structural_faults()
+    );
     assert!(p.binding_faults().is_empty(), "{:?}", p.binding_faults());
     assert!(p.faults().is_empty(), "faults() is the union");
 }
@@ -91,7 +95,7 @@ fn b03_an_authority_the_expectation_was_not_issued_under_does_not_bind() {
     assert!(
         p.binding_faults()
             .iter()
-            .any(|f| matches!(f, BindingFault::AuthorityNotTheExpectations { .. })),
+            .any(|f| matches!(f, BindingFault::AuthorityNotTheExpectations)),
         "{:?}",
         p.binding_faults()
     );
@@ -105,7 +109,7 @@ fn b03_an_authority_the_expectation_was_not_issued_under_does_not_bind() {
     assert!(p
         .binding_faults()
         .iter()
-        .any(|f| matches!(f, BindingFault::AuthorityNotTheExpectations { .. })));
+        .any(|f| matches!(f, BindingFault::AuthorityNotTheExpectations)));
 }
 
 // ═══ Execution / expectation substitution ═══
@@ -117,9 +121,10 @@ fn b04_another_executions_expectation_does_not_bind() {
     p.expectation = Some(b.a.ee.clone());
     let faults = p.faults();
     assert!(
-        faults
-            .iter()
-            .any(|f| matches!(f, ProofFault::Structural(StructuralFault::ExpectationDecisionMismatch))),
+        faults.iter().any(|f| matches!(
+            f,
+            ProofFault::Structural(StructuralFault::ExpectationDecisionMismatch)
+        )),
         "{faults:?}"
     );
 }
@@ -229,9 +234,10 @@ fn b08_another_executions_verdict_does_not_bind() {
         faults.iter().any(|f| matches!(
             f,
             ProofFault::Structural(StructuralFault::ExpectationDecisionMismatch)
-        )) || faults
-            .iter()
-            .any(|f| matches!(f, ProofFault::Binding(BindingFault::CitedBatchHeadMismatch { .. }))),
+        )) || faults.iter().any(|f| matches!(
+            f,
+            ProofFault::Binding(BindingFault::CitedBatchHeadMismatch { .. })
+        )),
         "{faults:?}"
     );
 }
@@ -247,7 +253,7 @@ fn b09_a_warrant_for_another_record_or_another_subject_does_not_bind() {
     assert!(
         faults
             .iter()
-            .any(|f| matches!(f, BindingFault::WarrantForAnotherRecord { .. })),
+            .any(|f| matches!(f, BindingFault::WarrantForAnotherRecord)),
         "{faults:?}"
     );
 
@@ -324,7 +330,12 @@ fn b11_a_signature_declaring_an_algorithm_nobody_implements_is_a_fault() {
     let asm = ProofAssembler::new("asm", 1, &kp.private_key, &kp.public_key).unwrap();
     let sealed = asm.seal(package(&s)).unwrap();
     let mut tampered = sealed.clone();
-    tampered.expectation.as_mut().unwrap().decision_sig.algorithm = aip_types::AlgorithmId::MlDsa65;
+    tampered
+        .expectation
+        .as_mut()
+        .unwrap()
+        .decision_sig
+        .algorithm = aip_types::AlgorithmId::MlDsa65;
     let anchors = NexoraTrustAnchors::new().trust("asm", 1, &kp.public_key);
     assert!(verify_envelope(&sealed, &anchors).is_ok());
     assert!(verify_envelope(&tampered, &anchors).is_err());
@@ -341,7 +352,8 @@ fn b12_a_seal_is_broken_by_every_component_substitution() {
     let sealed = asm.seal_at(package(&a), 1_700_000_000_000).unwrap();
     assert!(verify_envelope(&sealed, &anchors).is_ok());
 
-    let swaps: Vec<(&str, Box<dyn Fn(&mut NexoraProof)>)> = vec![
+    type Swap = Box<dyn Fn(&mut NexoraProof)>;
+    let swaps: Vec<(&str, Swap)> = vec![
         (
             "subject",
             Box::new(|p: &mut NexoraProof| p.subject.agent_id = "aip1other".into()),

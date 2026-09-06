@@ -420,15 +420,10 @@ pub fn warrant_for(rec: &Reconciliation, subject: Option<&str>) -> aip_warrant::
 
 /// Commit `rec` to a fresh log and return the inclusion proof plus the
 /// anchors that verify its head.
-pub fn commit(
-    rec: &Reconciliation,
-) -> (
-    aip_nexora::ProofObject,
-    aip_nexora::NexoraTrustAnchors,
-) {
+pub fn commit(rec: &Reconciliation) -> (aip_nexora::ProofObject, aip_nexora::NexoraTrustAnchors) {
     let kp = generate_ed25519_keypair();
-    let signer = aip_nexora::NexoraSigner::new("nexora-1", 1, &kp.private_key, &kp.public_key)
-        .unwrap();
+    let signer =
+        aip_nexora::NexoraSigner::new("nexora-1", 1, &kp.private_key, &kp.public_key).unwrap();
     let mut log = aip_nexora::CommitmentLog::new([0x7a; 16]);
     let index = log.append(aip_nexora::LeafKind::Reconciliation, &rec.canonical_bytes());
     let head = log.head(&signer, 1_700_000_200_000).unwrap();

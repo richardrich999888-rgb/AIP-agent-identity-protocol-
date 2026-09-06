@@ -21,7 +21,7 @@ pub use merkle::{
     LeafKind, MerkleError, MerkleTree, LEAF_DOMAIN,
 };
 pub use proof::{
-    verify_envelope, AuthorityEvidence, Component, DeclaredParameters, Envelope, LineageEvidence,
-    NexoraProof, ObserverBundle, ProofAssembler, ProofBuilder, StructuralFault, Subject,
-    NEXORA_PROOF_VERSION, PROOF_BUNDLE_DOMAIN, PROOF_ENVELOPE_DOMAIN,
+    verify_envelope, AuthorityEvidence, BindingFault, Component, DeclaredParameters, Envelope,
+    LineageEvidence, NexoraProof, ObserverBundle, ProofAssembler, ProofBuilder, ProofFault,
+    StructuralFault, Subject, NEXORA_PROOF_VERSION, PROOF_BUNDLE_DOMAIN, PROOF_ENVELOPE_DOMAIN,
 };
