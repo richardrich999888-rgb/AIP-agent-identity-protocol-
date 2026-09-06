@@ -68,9 +68,11 @@ and does not hold the agent's key.
 
 The **reconciler** takes the decision point's signed expectation and the
 collector's signed observations and answers one question: did the authorised
-process do the authorised thing? Today it can answer that for two kinds of
-action — making a TCP connection to an authorised endpoint, and running a
-program whose contents hash to the authorised value — and it says
+process do the authorised thing? Today it can answer that for three kinds of
+action — making a TCP connection to an authorised endpoint, running a
+program whose contents hash to the authorised value, and sending bytes on a
+connection to an authorised endpoint (the kernel's count of the bytes,
+never the bytes themselves) — and it says
 `VERIFIED_EXECUTION` at *attested* strength: signed by an independent
 collector, but read from a host that a root attacker could still lie to.
 
@@ -127,7 +129,7 @@ That component does not exist yet.
 | "hooks `sys_enter_execve`" | not implemented | `sched_process_exec` is used; it is a different, later hook that carries the resolved filename |
 | "intercepts every socket (`cgroup/connect4`) and wire packet" | partly | `inet_sock_set_state` transitions, TCP only, plus an `AF_PACKET` tap that copies TCP/IP **headers** from the device layer (payload by length only, no process attribution); no cgroup hook, no eBPF, nothing is intercepted or blocked |
 | "ingests actual database and proxy records out-of-band" | not implemented | application-log sensors exist only on the unmerged PR #3 branch; a decision document is required before adopting them (`OT_SENTINEL_HARVEST_AUDIT.md`) |
-| "32-byte SHA-256 of the raw payload, exact arguments" | partly | the executed program's **contents** and the authorised action's **parameters** are hashed; payloads and arguments are not visible from the kernel (invariant I23) |
+| "32-byte SHA-256 of the raw payload, exact arguments" | partly | the executed program's **contents** and the authorised action's **parameters** are hashed; a send is evidenced by the kernel's byte **count**; payloads and arguments are not visible from the kernel and no payload hash exists (invariant I23) |
 | "cross-checks against the Gateway's append-only Merkle ledger" | not implemented | there is no gateway and no Merkle commitment in this repository; the collector's chain is a signed sequence, not a Merkle tree |
 | "Matched / Unattributed Effect / Phantom Claim" | partly | `VERIFIED_EXECUTION` and `PHANTOM_CLAIM` are reachable; `UNATTRIBUTED_EFFECT` needs a signed completeness statement from the decision point that nothing produces yet |
 | "automatically triggers instant isolation … XDP_DROP … cgroups v2 freeze" | not implemented, and forbidden at this stage | no actuation code exists; containment is Skill 9 |

@@ -6,14 +6,18 @@
 > contract in §3–§5 below is implemented as written, with `CANNOT_PROVE` as
 > the `Default`. Reachable results: `CANNOT_PROVE`, `PHANTOM_CLAIM`,
 > `IDENTITY_DIVERGENCE`, `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, and —
-> **for exactly two action classes** — `VERIFIED_EXECUTION` at `Attested`:
+> **for exactly three action classes** — `VERIFIED_EXECUTION` at `Attested`:
 > an established TCP connection authorized as `ghost.net.connect.v1`, in two
 > distinguishable kinds, `Presence` (a table row: the connection existed at
 > the sample) and `Transition` (the kernel reported it being made;
-> `ACTION_EVIDENCE.md` §14); and a process execution authorized as
+> `ACTION_EVIDENCE.md` §14); a process execution authorized as
 > `ghost.process.exec.v1` (the kernel reported the bound instance forking a
 > child that executed an image whose content hash is the authorized one;
-> `Transition` only; `ACTION_EVIDENCE.md` §15). Unreachable with the current evidence and stated so
+> `Transition` only; `ACTION_EVIDENCE.md` §15); and, since Gate 3
+> (`4e4bd6a`), a socket send authorized as `ghost.net.send.v1` (the kernel
+> reported the bound instance handing bytes to a socket whose attested
+> transitions name the authorized endpoint; the count, never the bytes;
+> `Transition` only; `ACTION_EVIDENCE.md` §16). Unreachable with the current evidence and stated so
 > in code: `VERIFIED_EXECUTION` for every other action kind (no action-level
 > observation exists), `UNATTRIBUTED_EFFECT` (requires a decision-point-signed
 > completeness statement that nothing produces yet). `LINEAGE_VIOLATION` is
@@ -136,7 +140,14 @@ than fork, child start tick inside `[fork − one tick, exec]`), is
 `ghost.process.exec.v1` with parameter `exe_sha256` — the SHA-256 of the
 child's executed image read under a pidfd anchor, recomputed through
 `aip_authorize::process_exec_parameters`; the kernel's `filename` never
-enters the digest. For those two classes, and only those, the context-match
+enters the digest. Since Gate 3 a third mapping exists: a kernel
+`sock_send_length` event whose bound sender is the anchored instance, its
+socket's endpoint resolved from the attested `inet_sock_set_state`
+transitions of the same `sk` (the latest not later than the send, with no
+close of that `sk` in between), is `ghost.net.send.v1` with the endpoint
+parameters recomputed through `aip_authorize::net_send_parameters`; the
+byte count is signed context and never enters the digest, and no payload
+digest exists. For those three classes, and only those, the context-match
 precondition can be satisfied. For every other action kind the strongest
 positive result remains identity-level corroboration, and identity match
 never implies action match.

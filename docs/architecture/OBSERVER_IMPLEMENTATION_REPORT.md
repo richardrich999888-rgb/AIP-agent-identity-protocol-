@@ -360,3 +360,17 @@ TCP/IP headers only and refuses everything else; the event kind
 attributed, whatever claims the probe holds. The probe still holds no key;
 the registry still decides which probe may claim the mechanism. Evaluation
 and decision: `OBSERVATION_MODEL.md` §5. Tests: `tests/wiretap.rs`.
+
+## Gate 3 note — the send tracepoint and the image cache
+
+`aip-observe/src/socksend.rs` (GREEN `4e4bd6a`, protocol v7) adds an eighth
+mechanism, `SourceMechanism::SockSendTracepoint`: `sock:sock_send_length`
+through the shared perf plumbing, decoded to `KernelLifecycleKind::SocketSend`
+(protocol, `sk`, the byte count the kernel accepted, flags, `current_pid`)
+and refused for anything but TCP with a positive count. The event fires in
+the sending task's context and is anchored under the start-tick rule. A
+host-wide source exposed a cost defect: the probe hashed every sender's
+executable per event. `ProcfsProbe` now caches one image hash per pid,
+revalidated by start tick, inode, size, mtime and path of the file
+`/proc/<pid>/exe` resolves to; the pidfd anchor is unchanged.
+`ACTION_EVIDENCE.md` §16.5.

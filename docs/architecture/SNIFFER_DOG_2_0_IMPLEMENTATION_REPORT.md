@@ -575,3 +575,86 @@ Gate 3: action-level network evidence beyond TCP connect. Candidate from the
 evaluation: `sock:sock_send_length` — per-socket byte counts in the caller's
 task context, linked by `sk` — with explicit semantics "bytes the kernel
 accepted for send on this socket", never a payload hash.
+
+---
+
+# Gate 3 — socket send, the third action class (completion mandate)
+
+## Status
+
+**PASS.** `ghost.net.send.v1` is observable and reconcilable: the kernel's
+`sock:sock_send_length` tracepoint, in the sender's own task context, gives
+the socket and the byte count; the socket's endpoint is resolved from the
+attested transitions of the same kernel socket; the verdict is
+`VERIFIED_EXECUTION · Attested · Transition`. Hash semantics are explicit
+and tested: the digest names the endpoint only, the count is signed
+context, no payload digest exists. `ACTION_EVIDENCE.md` §16.
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| `c830a8d` | RED: `aip-observe/tests/socksend.rs` sk01–sk07, `aip-reconcile/tests/send_evidence.rs` ss01–ss13, `ghost-demo/tests/live_send.rs` s_p/s_a; did not compile |
+| `4e4bd6a` | GREEN: `net_send_action` / `net_send_parameters` / `NET_SEND_ACTION`; `socksend.rs` (`parse_sock_send_record`, `SockSendTracer`); `SourceMechanism::SockSendTracepoint` (0x08), `KernelLifecycleKind::SocketSend` (0x08), observer protocol v7; `ProcfsProbe::ingest_send_event` and the per-instance image cache; `SocketSend` / `derive_sends` / `TransitionEvidence::Send`; `ReasonCode::SendSocketUnresolved` (0x4f); ghost-demo S-P/S-A and bounded drains |
+| *(the commit carrying this section)* | documentation |
+
+Test-file edits since RED: rustfmt; one `#[allow(clippy::too_many_arguments)]`
+on a fixture; `wt05` (Gate 2) pinned the mechanism count at exactly seven
+and now pins "at least seven, all codes distinct". No assertion changed.
+
+## Evidence (mandate's requirements → tests)
+
+| Requirement | Tests |
+|---|---|
+| smallest new class beyond `connect()` | one tracepoint, one event kind, one action; `ACTION_EVIDENCE.md` §16 |
+| explicit hash semantics | ss02 (endpoint digest equals the connect digest; kind differs; any count verifies), `sk04` (count inside the signed bytes, no payload-shaped field) |
+| never claim a raw payload hash unless captured | no payload is captured; no digest of bytes exists in the vocabulary, the observer or the reconciler (`sk04`, `ss02`, `ACTION_EVIDENCE.md` §16.1) |
+| kernel-pushed, attributed in the caller's context | sk01, sk05, sk07 (live), ss01 |
+| endpoint from attested transitions only; socket reuse refused | ss04–ss06 |
+| every weaker set of facts is not a verdict | ss03, ss07–ss12 |
+| tampering | ss13 (Proven `SENSOR_INTEGRITY_FAILURE`) |
+| registry gating | sk06 |
+| live | sk07; `live_send.rs` s_p (`VERIFIED_EXECUTION`), s_a (`ActionEvidenceDoesNotMatch`) |
+
+## Defect found and closed
+
+A host-wide source fires for every process; the probe re-hashed each
+sender's executable per event (a 215 MB daemon binary here), and eight
+parallel live observers never finished draining. Closed by a per-instance
+image cache revalidated by start tick, inode, size, mtime and path, with
+unit tests, and by bounded drains in the demonstrator. `ACTION_EVIDENCE.md`
+§16.5 records the residual.
+
+## Live run on this host
+
+```
+S-P. authorized send, kernel-reported byte count
+    agent pid 32369 sent its hello to 127.0.0.1:38287; authorized send to 127.0.0.1:38287; 1 send event(s) captured (send tracer open)
+    result=VERIFIED_EXECUTION strength=Attested reason=ActionEvidenceMatches
+    action=Match(ActionEvidenceSeal { mechanism: SockSendTracepoint, kind: Transition }) temporal=WithinWindow
+S-A. send authorized to a different endpoint
+    result=CANNOT_PROVE strength=Heuristic reason=ActionEvidenceDoesNotMatch
+    action=Mismatch(ActionEvidenceSeal { mechanism: SockSendTracepoint, kind: Transition })
+```
+
+Test counts after Gate 3: aip-standalone 690 / 0 / 3 ignored (+24),
+aip-service 39 / 0; clippy `-D warnings` and fmt clean.
+
+## Security Claims
+
+- A `ghost.net.send.v1` verdict cites one collector-signed send event
+  bound to the instance and rests on collector-signed transitions of the
+  same kernel socket for its endpoint; both are kernel-authored facts
+  under the observed host's root — `Attested`, never `Proven`.
+- Nothing in the class can name, hash or reveal what was sent.
+
+Not claimed: payload content or any payload digest; that the bytes left
+the host or reached the peer; the receive side; UDP or any non-TCP family;
+anything on a host whose root starves the ring.
+
+## Next Gate
+
+Gate 4: filesystem / syscall observation, one action, with
+OBSERVED / NOT OBSERVED / AMBIGUOUS / LOSS / UNAVAILABLE stated. Candidates
+from this host: `syscalls:sys_enter_openat` family tracepoints (714 syscall
+tracepoints present) and `fanotify` (`CONFIG_FANOTIFY=y`, `FAN_REPORT_PIDFD`).

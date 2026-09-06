@@ -85,6 +85,14 @@ original discovery text for traceability):
   seventh probe source; record v5 carries `wire: WireCorroboration`, the
   device layer's answer to a socket-transition verdict, informational only.
   Live-demonstrated. `RECONCILIATION_MODEL.md` "The wire question".
+- Gate 3 (socket send, third action class) at `c830a8d` (RED) / `4e4bd6a`
+  (GREEN) — `ghost.net.send.v1`: `sock:sock_send_length` in the sender's
+  context through `perf_event_open` (`SockSendTracepoint`, observer protocol
+  v7), endpoint resolved from the attested transitions of the same kernel
+  socket, digest = the endpoint only, byte count as signed context, no
+  payload digest; `SendSocketUnresolved`; the probe's per-instance image
+  cache (a host-wide source must not re-hash every sender's executable per
+  event). Live-demonstrated S-P/S-A. `ACTION_EVIDENCE.md` §16.
 
 ## D. PR3 corrective review (pre-reconciliation)
 
@@ -217,3 +225,13 @@ Decision: `NEXT_ACTION_EVIDENCE_DECISION.md`. RED: `a5e2cbf`. GREEN:
 | Sched stream as lifecycle coverage | **refused by design** (`xe15`) | — | fork/exec events say nothing about exits; `PHANTOM_CLAIM` still requires `ProcConnector` coverage | — | — |
 | File create/modify class | **MISSING** (ranked second in the decision; `fanotify`/`FAN_REPORT_PIDFD` candidate) | observable file evidence bound to the instance | agent writes are invisible to the action layer | own review, RED first | **P1** |
 | DNS / outbound-generic / privileged / credential / IPC classes | **MISSING** (ranked; see decision §5) | — | not observable with the current sources | own reviews | **P2** |
+
+### G.3 Gate 3 — socket send (third action class)
+
+RED: `c830a8d`. GREEN: `4e4bd6a`. Live: `ghost-demo` scenarios S-P, S-A.
+
+| Component | Current state | Target state | Gap | Dependency | Pri |
+|---|---|---|---|---|---|
+| Socket send as action evidence — **CLOSED (Gate 3)** | `ghost.net.send.v1`; `SockSendTracepoint` (`sock:sock_send_length` in the caller's context, via `perf_event_open`, no eBPF); `derive_sends` resolves the endpoint from the latest attested transition of the same `sk` not later than the send, refusing a socket closed in between; digest = `net_send_parameters(endpoint)`, equal to the connect digest by construction; `bytes` signed as context; `VERIFIED_EXECUTION · Attested · Transition` | — | receive side, UDP, non-TCP families, sends on sockets whose transitions were not observed | — | — |
+| Payload digest | **permanently absent from the kernel path** (I23) | a party holding the plaintext (Gate 5 decision) | authorizations that depend on content can never match kernel evidence | — | **P2** |
+| Host-wide source anchoring cost — **CLOSED (defect found in Gate 3)** | the probe re-hashed each sender's executable per event (215 MB daemon binary on this host); now one hash per (instance, image), revalidated by start tick, inode, size, mtime and path | — | in-place rewrite preserving all five defeats revalidation — a root capability, already the `Attested` ceiling | — | — |

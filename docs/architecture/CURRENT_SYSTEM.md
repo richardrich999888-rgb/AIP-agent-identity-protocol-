@@ -166,8 +166,8 @@ report under `docs/architecture/`): corrected AIP authority (Skill 3),
 `ExecutionBinding` (Skill 4), `aip-authorize` decision point (Skill 5),
 `aip-observe` probe/collector observer with kernel-pushed sources, provenance
 gating, loss accounting and restart-continuity audit (Skills 6/6.5, Stages
-7b/7c, PR #3 harvest), `aip-reconcile` with `CANNOT_PROVE` default and two
-verified action classes (Skill 7, Stages 7–7c), `aip-agent` identity /
+7b/7c, PR #3 harvest), `aip-reconcile` with `CANNOT_PROVE` default and three
+verified action classes (Skill 7, Stages 7–7c, Gate 3), `aip-agent` identity /
 profile / lineage / delegation graph (Sniffer Dog 2.0 Phases B–D),
 `aip-warrant` (Skill 8), `reconcile_lineage` / `LINEAGE_VIOLATION` (Gate 1
 of the completion mandate) and the `AF_PACKET` device-layer tap with wire

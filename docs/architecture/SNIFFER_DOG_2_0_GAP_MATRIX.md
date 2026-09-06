@@ -223,3 +223,17 @@ Test counts after D: aip-standalone 594 / 0 / 3 ignored (+11), aip-service 39 / 
 | Payload, TLS, arguments | **permanently out of scope** for the kernel path (I23) | wt04 |
 
 Test counts after Gate 2: aip-standalone 666 / 0 / 3 ignored (+29), aip-service 39 / 0; clippy and fmt clean.
+
+## A.12 Gate 3 outcome (socket send, third action class)
+
+| Component | State after Gate 3 | Evidence |
+|---|---|---|
+| `ghost.net.send.v1` vocabulary (endpoint digest, kind distinct from connect) | **CLOSED** | ss02 |
+| `SockSendTracepoint` source (caller context, count, `sk`, loss) | **CLOSED** | sk01–sk07 (sk07 live) |
+| Endpoint resolution from attested transitions; socket reuse refused | **CLOSED** — `SendSocketUnresolved` | ss04–ss06 |
+| Verdict `VERIFIED_EXECUTION · Attested · Transition` | **CLOSED**, live | ss01, s_p |
+| Payload digest | **permanently out of scope** for the kernel path (I23); a Gate 5 decision | sk04, ss02 |
+| Host-wide anchoring cost | **CLOSED** — per-instance image cache with revalidation | `probe.rs` unit tests |
+| Receive side, UDP | **OPEN** (not observed) | — |
+
+Test counts after Gate 3: aip-standalone 690 / 0 / 3 ignored (+24), aip-service 39 / 0; clippy and fmt clean.

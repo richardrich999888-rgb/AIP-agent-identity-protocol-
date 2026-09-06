@@ -663,3 +663,15 @@ of the kernel transition — and cites both segments. No branch of it touches
 `RECONCILIATION_MODEL.md` "The wire question". Tests:
 `tests/wire_corroboration.rs` wc01–wc15. The `lv15` pin on the record
 version became a compile-time `>= 4` bound.
+
+## Gate 3 note (socket send)
+
+`action.rs`: `SocketSend` and `derive_sends` — a bound `SocketSend` event
+with a positive count, its endpoint the one named by the latest attested
+`SocketState` transition of the same `sk` not later than the send and not a
+close, unless a close of that `sk` lies between (unresolved); digest through
+`net_send_parameters`. `TransitionEvidence::Send` (completion is the
+initiation). `reconcile.rs`: `ActionOutcome::Unresolved` →
+`ReasonCode::SendSocketUnresolved` (0x4f); a transition that is one event
+is cited once; the wire question is asked of socket transitions only. Record
+version unchanged (v5). Tests: `tests/send_evidence.rs` ss01–ss13.

@@ -5,16 +5,20 @@ independently observed and cryptographically matched against its
 `ExpectedExecution`, so that `VERIFIED_EXECUTION` becomes reachable for that
 action and for nothing else.
 
-> **Status: PARTIALLY_IMPLEMENTED — two action classes.**
+> **Status: PARTIALLY_IMPLEMENTED — three action classes.**
 > Implemented and live-demonstrated for `ghost.net.connect.v1` (an
 > established TCP connection to a remote endpoint), as **presence** (a polled
 > table row: the connection existed at the sample) and, since Stage 7b, as
-> **transition** (the kernel reported the connection being made — §14); and,
+> **transition** (the kernel reported the connection being made — §14);
 > since Stage 7c, for `ghost.process.exec.v1` (the bound instance forked a
 > child that executed an image of the authorized **content** — §15), as
-> transition only. Every other action kind remains unobservable and
-> reconciles to `CANNOT_PROVE`. Strength is `Attested`, never `Proven`. See
-> `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md` for the evidence trail.
+> transition only; and, since Gate 3 of the completion mandate, for
+> `ghost.net.send.v1` (the bound instance handed bytes to the kernel for
+> send on a connection to the authorized endpoint — §16; the count, never
+> the bytes), as transition only. Every other action kind remains
+> unobservable and reconciles to `CANNOT_PROVE`. Strength is `Attested`,
+> never `Proven`. See `ACTION_EVIDENCE_IMPLEMENTATION_REPORT.md` for the
+> evidence trail.
 
 ## 1. What "action evidence" is here
 
@@ -233,11 +237,15 @@ add: payload, bytes, any second action class, or `Proven` strength.
 
 ## 13. NOT_IMPLEMENTED / NOT_PROVEN
 
-eBPF, XDP, any tracepoint other than `sock:inet_sock_set_state`, packet or
-wire capture, filesystem or syscall observation, exec-argument capture,
-payload digests, UDP actions, any second action class, zero loss,
-root-compromise resistance, warrant or containment logic, TRL, latency,
-throughput, hardware validation.
+eBPF, XDP, any tracepoint other than `sock:inet_sock_set_state`,
+`sched:sched_process_fork`, `sched:sched_process_exec` and
+`sock:sock_send_length`, payload capture or payload digests (the Gate 2
+`AF_PACKET` tap keeps TCP/IP headers only; the Gate 3 send class keeps a
+byte count only), filesystem or syscall observation, exec-argument capture,
+UDP actions, receive-side actions, any fourth action class, zero loss,
+root-compromise resistance, containment logic, TRL, latency, throughput,
+hardware validation. (This list was "any second action class" until Stage
+7c and "any third" until Gate 3; §12 above records Stage 7b's own view.)
 
 ## 14. Stage 7b — transition evidence (kernel-pushed)
 
@@ -437,3 +445,102 @@ what the collector clock decides (the anchor is the host's clock); anything
 on a host whose root disables or starves the ring; non-execution from the
 absence of a fork/exec (the sched stream is not accepted as lifecycle
 coverage for `PHANTOM_CLAIM` — it carries no exit; `xe15`).
+
+## 16. Gate 3 — socket send (third action class)
+
+The mandate asked for the smallest action-level network class beyond
+`connect()`, with explicit hash semantics and no payload-hash claim unless a
+payload is captured. Chosen from the Gate 2 evaluation
+(`OBSERVATION_MODEL.md` §5.2): the `sock:sock_send_length` tracepoint.
+RED `c830a8d`, GREEN `4e4bd6a`.
+
+```
+ghost.net.send.v1
+    parameters:  protocol, remote_addr, remote_port — the ENDPOINT only,
+                 the same keys, encoding and validation as ghost.net.connect.v1
+    observed as: sock:sock_send_length in the SENDER's task context (anchored),
+                 the socket's endpoint resolved from the attested
+                 sock:inet_sock_set_state transitions of the same `sk`
+    evidence:    the byte count the kernel accepted (`bytes`), signed as context
+    kind:        Transition · mechanism SockSendTracepoint · Attested
+```
+
+### 16.1 Hash semantics, stated once
+
+The parameter digest of a send names the endpoint, and is **equal by
+construction** to the digest of a connect to the same endpoint
+(`net_send_parameters` delegates to `net_connect_parameters`); the action
+*kind* is what tells them apart (`ss02`, `ss11`). The byte count is inside
+the signed event and never inside the digest: any positive count verifies
+against the same expectation (`ss02`). No digest of the bytes themselves
+exists anywhere in this class, in the observer, or in the vocabulary — the
+kernel path sees a count, not content (I23). A payload digest could only be
+introduced by a party that holds the plaintext (the agent, or an in-path
+proxy that terminates TLS), which is a Gate 5 decision about self-reported
+evidence, not an observation.
+
+### 16.2 Source and attribution
+
+Measured on this host before implementation: the tracepoint fires in
+`sock_sendmsg` in the sending task's context (a 19-byte loopback send
+produced one record under the sender's pid with `length = 19`). The record
+carries the socket's kernel identity `sk`, family, protocol, the value
+`sendmsg` returns and the flags; `ret ≤ 0` accepted nothing and is not a
+send (`sk02`, `ss12`). The probe pidfd-anchors `current_pid` under the same
+start-tick rule as a `connect()` initiation (`sk05`); the endpoint is not in
+the record.
+
+### 16.3 Endpoint resolution (`aip-reconcile::action::derive_sends`)
+
+A send's endpoint is the one named by the **latest** attested transition of
+the same `sk` that is not later than the send and is not itself a close.
+If a transition of that `sk` to `CLOSE` lies between that transition and
+the send, the kernel may have reused the socket's address: the send is
+**unresolved** (`SendSocketUnresolved`, `ss04`–`ss06`), and a later
+`ESTABLISHED` for the reused `sk` names the new endpoint (`ss05`). An
+unresolved send is not a mismatch and not a verdict.
+
+### 16.4 The predicate
+
+As §14.2 with the send event as both initiation and completion (the kernel
+accepted the bytes: one event), the actor being the bound sender, the
+digest recomputed from the resolved endpoint through `net_send_parameters`,
+the claim taken from the send event. Placement, claim, coverage,
+provenance, loss, restart and the central guard are the shared
+`TransitionEvidence` path (`ss03`, `ss07`–`ss10`, `ss13`). The wire
+question (Gate 2) is not asked of a send verdict: a send is not a
+handshake (`ss01`).
+
+### 16.5 A defect found by this class — host-wide sources and anchoring cost
+
+The send tracepoint fires for every process on the host, and the probe
+hashed each sender's executable for each event. On this host two daemons
+(a 215 MB and a 31 MB binary) send continuously; with eight live observers
+in parallel the drains never finished. The probe now keeps one image hash
+per pid and reuses it only while the start tick (same instance) and the
+inode, size, modification time and path of the file `/proc/<pid>/exe`
+resolves to (same image) all agree; a recycled pid, an exec of another
+file, a rewritten file or another path re-hash, and a poisoned entry for
+another inode is re-hashed rather than trusted (unit tests in `probe.rs`).
+The pidfd anchor around every measurement is unchanged. Residual: a root
+attacker who rewrites an image in place while preserving inode, size and
+mtime defeats the revalidation — the same attacker who can already present
+any procfs content, which is why every content fact is `Attested`, never
+`Proven`. The demonstrator additionally bounds each drain by a hard
+deadline; events left in a ring are carried by a later batch and placed by
+their kernel stamps.
+
+### 16.6 Live results (`ghost-demo`, this host)
+
+| Scenario | Result |
+|---|---|
+| S-P the agent's hello on its connection, send authorized to that endpoint | `VERIFIED_EXECUTION · Attested · Match(SockSendTracepoint, Transition)`, 1 send event |
+| S-A send authorized to another port | `CANNOT_PROVE · ActionEvidenceDoesNotMatch`, action `Mismatch` |
+
+### 16.7 Still CANNOT_PROVE
+
+What the bytes were; that they left the host or reached the peer (the
+count is what the kernel accepted from the caller); sends on a socket whose
+transitions were not observed (`SendSocketUnresolved`); receive-side
+actions (`sock_recv_length` is not read); UDP and every non-TCP send;
+anything on a host whose root disables or starves the ring.
