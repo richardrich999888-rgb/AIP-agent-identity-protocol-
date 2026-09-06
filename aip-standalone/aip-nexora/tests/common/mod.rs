@@ -73,7 +73,15 @@ pub fn authorized() -> Authorized {
     authorized_for(REMOTE, PORT)
 }
 
+pub fn authorized_with_ttl(ttl_ms: u64) -> Authorized {
+    authorized_inner(REMOTE, PORT, ttl_ms)
+}
+
 pub fn authorized_for(remote: [u8; 4], port: u16) -> Authorized {
+    authorized_inner(remote, port, TTL)
+}
+
+fn authorized_inner(remote: [u8; 4], port: u16, ttl_ms: u64) -> Authorized {
     let scope = CapabilityScope {
         allowed: vec![net_connect_action()],
         denied: vec![],
@@ -106,7 +114,7 @@ pub fn authorized_for(remote: [u8; 4], port: u16) -> Authorized {
         action_kind: net_connect_action(),
         parameters: net_connect_parameters(NetProtocol::Tcp, &remote, port).unwrap(),
         execution_binding: binding(&agent_aid.id),
-        requested_ttl_ms: TTL,
+        requested_ttl_ms: ttl_ms,
     };
     let ee = match dp.authorize_at(&req, now) {
         Decision::Authorized(ee) => *ee,
@@ -209,6 +217,10 @@ fn raw_batch(
             SourceMechanism::PidFdAnchored,
             SourceMechanism::ProcNetTable,
             SourceMechanism::SockStateTracepoint,
+            // The process-event connector: kernel-pushed *lifecycle*
+            // coverage. Only this licenses a statement that a process
+            // instance never appeared, which is what PHANTOM_CLAIM says.
+            SourceMechanism::ProcConnector,
         ]),
         claimed_from_ms: from,
         claimed_to_ms: to,
@@ -425,4 +437,113 @@ pub fn commit(rec: &Reconciliation) -> (aip_nexora::ProofObject, aip_nexora::Nex
     let proof = log.proof_for(index, &head).unwrap();
     let anchors = aip_nexora::NexoraTrustAnchors::new().trust("nexora-1", 1, &kp.public_key);
     (proof, anchors)
+}
+
+/// The same authorisation and coverage, but the observer recorded **no
+/// event** of the expected class. What the engine makes of that is the
+/// question Gate 6 exists to answer, so this fixture asserts nothing about
+/// the verdict.
+pub fn covered_but_empty() -> Scenario {
+    let mut s = verified_execution();
+    // Strip the kernel events from the second batch and re-attest, keeping
+    // the same claimed window and mechanisms.
+    let now = s.a.now;
+    let mut o = Observer::new();
+    let anchor_wall = now - 10_000;
+    let anchor = Some(anchor_at(anchor_wall));
+    let b1 = o
+        .signer
+        .attest_at(
+            raw_batch(1, now - 2_000, now - 1_000, (0, 0), vec![], anchor),
+            now - 1_000,
+        )
+        .unwrap();
+    let b2 = o
+        .signer
+        .attest_at(
+            raw_batch(2, now + 2_000, now + 4_000, (1, 2), vec![], anchor),
+            now + 4_000,
+        )
+        .unwrap();
+    let at = now + 5_000;
+    let health = o.signer.health(at).unwrap();
+    s.o = o;
+    s.evidence = ObserverEvidence {
+        batches: vec![b1, b2],
+        health,
+    };
+    s.at = at;
+    s.reconciliation = reconcile_expectation(&s.a.ee, Some(&s.evidence), &s.ctx());
+    s
+}
+
+/// The observer reported dropped events over the window.
+pub fn with_loss() -> Scenario {
+    let mut s = verified_execution();
+    let now = s.a.now;
+    let mut o = Observer::new();
+    let anchor_wall = now - 10_000;
+    let anchor = Some(anchor_at(anchor_wall));
+    let b1 = o
+        .signer
+        .attest_at(
+            raw_batch(1, now - 2_000, now - 1_000, (0, 0), vec![], anchor),
+            now - 1_000,
+        )
+        .unwrap();
+    let mut lossy = raw_batch(2, now + 2_000, now + 4_000, (1, 2), vec![], anchor);
+    lossy.dropped_events = Some(3);
+    let b2 = o.signer.attest_at(lossy, now + 4_000).unwrap();
+    let at = now + 5_000;
+    let health = o.signer.health(at).unwrap();
+    s.o = o;
+    s.evidence = ObserverEvidence {
+        batches: vec![b1, b2],
+        health,
+    };
+    s.at = at;
+    s.reconciliation = reconcile_expectation(&s.a.ee, Some(&s.evidence), &s.ctx());
+    s
+}
+
+/// An authorisation whose window has **closed**, with attested
+/// kernel-pushed coverage spanning exactly that window and no event in it.
+/// This is the only shape that can license a statement about something
+/// *not* having happened.
+pub fn phantom_claim() -> Scenario {
+    let a = authorized_with_ttl(1_000);
+    let mut o = Observer::new();
+    let now = a.now;
+    let anchor_wall = now - 10_000;
+    let anchor = Some(anchor_at(anchor_wall));
+    // b1 opens the epoch before the window; b2 covers the whole window.
+    let b1 = o
+        .signer
+        .attest_at(
+            raw_batch(1, now - 2_000, now - 1_500, (0, 0), vec![], anchor),
+            now - 1_400,
+        )
+        .unwrap();
+    let b2 = o
+        .signer
+        .attest_at(
+            raw_batch(2, now - 100, now + 1_500, (0, 0), vec![], anchor),
+            now + 1_600,
+        )
+        .unwrap();
+    let at = now + 2_000;
+    let health = o.signer.health(at).unwrap();
+    let evidence = ObserverEvidence {
+        batches: vec![b1, b2],
+        health,
+    };
+    let ctx = context(&a, &o, at);
+    let reconciliation = reconcile_expectation(&a.ee, Some(&evidence), &ctx);
+    Scenario {
+        a,
+        o,
+        evidence,
+        reconciliation,
+        at,
+    }
 }
