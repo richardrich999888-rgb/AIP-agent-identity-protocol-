@@ -8,6 +8,9 @@
 | Event domain | `AIRI_EVENT_DOMAIN` | `SYNTRIASS/AIRI/EVENT/v1` | New tag, never a redefinition |
 | Commitment domain | `AIRI_PARAM_DOMAIN` | `SYNTRIASS/AIRI/PARAM_COMMITMENT/v1` | New tag, never a redefinition |
 | NEXORA leaf kind | `LeafKind::AiriEvent` | `0x09` | Frozen; new kinds append |
+| NEXORA package | `NEXORA_PROOF_VERSION` | `2` | Bump on any component change |
+| NEXORA component | `Component::Airi` | `0x0A` | Frozen; new components append |
+| JSON schemas | `docs/schemas/` | — | Non-normative; kept in step by `test_schema_conformance.py` |
 | Adapter mapping | `FrameworkIdentity.adapter_version` | per adapter | Bump when the translation changes |
 | Python package | `vanian_airi.__version__` | `0.1.0` | Semver against the Rust event version |
 
@@ -91,12 +94,33 @@ Stage 4 is gated on the blockers, not on AIRI's own maturity: contributing to
 a verdict in a system whose verifier has no clock and whose delegation chains
 do not bind issuer to grantee would be building on sand.
 
+## 5a. The v1 → v2 package break
+
+`NEXORA_PROOF_VERSION` moved from 1 to 2 to carry `AiriBundle`. A v1 package
+is **refused** by a v2 verifier (`InvalidReason::UnsupportedVersion`), not
+reinterpreted.
+
+The break is deliberate and cheap here: no v1 package exists outside tests,
+because NEXORA has never shipped. Had one existed, the alternative would have
+been a v1-tolerant verifier that treats a missing AIRI component as absent —
+sound, but it buys backward compatibility with a format nobody has.
+
+The AIRI component is appended *after* `Commitment`, so every field a v1
+package encoded sits at the byte offset it always did. The version number,
+not the layout, is what distinguishes them; a verifier that ignored the
+version and parsed positionally would read a v2 package correctly right up to
+the point where it ran out of v1 fields, which is exactly why the version
+check comes first.
+
 ## 6. Compatibility
 
 * A v1 event verifies against a v1 verifier indefinitely.
 * A v1 verifier refuses a v2 event with `UnsupportedVersion` — loud, not silent.
-* A NEXORA package containing AIRI leaves verifies on a build without AIRI:
+* A NEXORA package containing AIRI *leaves* verifies on a build without AIRI:
   the leaf kind is opaque to a verifier that does not know it, and the Merkle
   root still recomputes.
+* A NEXORA package containing an AIRI *component* requires a v2 verifier. A
+  v1 verifier refuses it by version, which is the loud failure, not a
+  misparse.
 * The Python SDK and the Rust crate must ship together. The parity vectors
   are the contract; a mismatched pair is a build failure by construction.

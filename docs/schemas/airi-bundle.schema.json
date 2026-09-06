@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vanian.dev/schemas/airi-bundle.schema.json",
+  "title": "AiriBundle",
+  "description": "AI-stack provenance carried in a NEXORA proof (package version 2). NON-NORMATIVE, as above. agent_public_key is what the PACKAGE SAYS signed the events \u2014 a claim, not an anchor. A verifier holding its own anchor for this agent MUST use that one; a mismatch is a finding, not a preference.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "agent_id",
+    "agent_public_key",
+    "events"
+  ],
+  "properties": {
+    "agent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_public_key": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Claimed signing key. See the description above."
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One execution's events, in emission order. Order is load-bearing: the chain check exists to detect reordering. An empty array is refused rather than vacuously verified.",
+      "items": {
+        "$ref": "https://vanian.dev/schemas/airi-event.schema.json"
+      }
+    }
+  }
+}

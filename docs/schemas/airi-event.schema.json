@@ -1,0 +1,626 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vanian.dev/schemas/airi-event.schema.json",
+  "title": "AiriEvent",
+  "description": "One self-authored statement by an AI agent's runtime. NON-NORMATIVE: the wire format is the canonical byte preimage in AIRI_SPECIFICATION.md section 6. A verifying implementation MUST check the preimage, not this document. An event that validates here proves nothing about authorship, integrity, or occurrence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "agent_id",
+    "execution_id",
+    "sequence",
+    "prev_event_hash",
+    "emitted_at_ms",
+    "framework",
+    "payload",
+    "signature"
+  ],
+  "properties": {
+    "version": {
+      "const": 1,
+      "description": "AIRI_EVENT_VERSION. An unknown value MUST be refused, not interpreted."
+    },
+    "agent_id": {
+      "type": "string",
+      "maxLength": 4096,
+      "description": "AIP-ID. MUST equal signature.signer_id \u2014 an agent signs only for itself."
+    },
+    "execution_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "description": "The AIRI execution instance."
+    },
+    "parent_execution_id": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$",
+          "description": "Application lineage. Confers no authority."
+        }
+      ]
+    },
+    "decision_id": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$",
+          "description": "The ExpectedExecution this run claims. null is a statement a verifier can act on."
+        }
+      ]
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Position in this execution's chain, from 0."
+    },
+    "prev_event_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of the previous event's preimage; all-zero at sequence 0."
+    },
+    "emitted_at_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The AGENT'S OWN CLOCK. Carried, never trusted to order or place anything."
+    },
+    "framework": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "adapter_version"
+      ],
+      "description": "Provenance, never authority. Nothing grants anything on the strength of a framework's name.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "version": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "adapter_version": {
+          "type": "string",
+          "maxLength": 4096
+        }
+      }
+    },
+    "runtime_binding": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "agent_id",
+            "process",
+            "exe_content_sha256"
+          ],
+          "description": "The process the agent BELIEVES it is in. Self-reported; the authoritative binding is the observer's.",
+          "properties": {
+            "version": {
+              "const": 1
+            },
+            "agent_id": {
+              "type": "string"
+            },
+            "process": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "pid",
+                "pid_start_time_ticks",
+                "boot_id"
+              ],
+              "properties": {
+                "pid": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "pid_start_time_ticks": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "boot_id": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{32}$",
+                  "description": ""
+                }
+              }
+            },
+            "exe_content_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "description": ""
+            }
+          }
+        }
+      ]
+    },
+    "payload": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "AgentExecutionStarted"
+          ],
+          "properties": {
+            "AgentExecutionStarted": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "agent_role": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Framework role/graph-node label. Context only."
+                },
+                "framework_run_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The framework's own run id, for human correlation."
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ModelInvocationRequested"
+          ],
+          "properties": {
+            "ModelInvocationRequested": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "model_id",
+                "runtime"
+              ],
+              "description": "Establishes that the agent ASKED for model_id. Not that the provider served it, that specific weights loaded, or that any accelerator ran.",
+              "properties": {
+                "model_id": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string",
+                  "description": "pytorch | jax | tensorflow | vllm | hosted-api"
+                },
+                "model_digest": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$",
+                      "description": "SHA-256 of weights. MUST be null for hosted inference \u2014 the agent cannot compute a digest of weights it never sees."
+                    }
+                  ]
+                },
+                "runtime_version": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "inference_request_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "prompt_commitment": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$",
+                      "description": "Domain-separated commitment. The plaintext is never carried."
+                    }
+                  ]
+                },
+                "output_commitment": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$",
+                      "description": "Domain-separated commitment."
+                    }
+                  ]
+                },
+                "accelerator": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Self-reported. NEVER proof a device executed anything."
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ModelInvocationObserved"
+          ],
+          "properties": {
+            "ModelInvocationObserved": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "model_id",
+                "runtime"
+              ],
+              "description": "Establishes that the agent ASKED for model_id. Not that the provider served it, that specific weights loaded, or that any accelerator ran.",
+              "properties": {
+                "model_id": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "string",
+                  "description": "pytorch | jax | tensorflow | vllm | hosted-api"
+                },
+                "model_digest": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$",
+                      "description": "SHA-256 of weights. MUST be null for hosted inference \u2014 the agent cannot compute a digest of weights it never sees."
+                    }
+                  ]
+                },
+                "runtime_version": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "inference_request_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "prompt_commitment": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$",
+                      "description": "Domain-separated commitment. The plaintext is never carried."
+                    }
+                  ]
+                },
+                "output_commitment": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$",
+                      "description": "Domain-separated commitment."
+                    }
+                  ]
+                },
+                "accelerator": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Self-reported. NEVER proof a device executed anything."
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ToolInvocationRequested"
+          ],
+          "properties": {
+            "ToolInvocationRequested": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "tool_id",
+                "action_kind",
+                "parameter_commitment"
+              ],
+              "description": "Layer 1 of three: the REQUESTED invocation. Not runtime execution, not external effect.",
+              "properties": {
+                "tool_id": {
+                  "type": "string"
+                },
+                "action_kind": {
+                  "type": "string",
+                  "description": "Mapped onto the vocabulary the decision point authorizes over."
+                },
+                "parameter_commitment": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$",
+                  "description": "Built with SYNTRIASS/AIRI/PARAM_COMMITMENT/v1. Never a bare SHA-256."
+                },
+                "tool_call_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "target": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Context for a human. Not authorization."
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ToolExecutionReported"
+          ],
+          "properties": {
+            "ToolExecutionReported": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "tool_id",
+                "parameter_commitment",
+                "outcome"
+              ],
+              "description": "Layer 2 reporting on layer 3, which it cannot see across. A 200 means bytes resembling success reached this process \u2014 not that the external effect occurred.",
+              "properties": {
+                "tool_id": {
+                  "type": "string"
+                },
+                "parameter_commitment": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$",
+                  "description": "Repeated from the request so a report cannot be paired with a different one."
+                },
+                "outcome": {
+                  "enum": [
+                    "Success",
+                    "Failure",
+                    "Denied",
+                    "Indeterminate"
+                  ]
+                },
+                "result_commitment": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$",
+                      "description": ""
+                    }
+                  ]
+                },
+                "transport_status": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "SubprocessExecution"
+          ],
+          "properties": {
+            "SubprocessExecution": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "program",
+                "argv_commitment"
+              ],
+              "properties": {
+                "program": {
+                  "type": "string",
+                  "description": "A path, not a measurement. A same-path different binary is a different program and this field cannot tell."
+                },
+                "argv_commitment": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$",
+                  "description": "Committed, not carried \u2014 argument vectors routinely contain credentials."
+                },
+                "reported_pid": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "description": "Self-reported and reusable. Only an observer's ProcessInstance pins an instance."
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ExecutionCompleted"
+          ],
+          "properties": {
+            "ExecutionCompleted": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "enum": [
+                    "Success",
+                    "Failure",
+                    "Denied",
+                    "Indeterminate"
+                  ]
+                },
+                "detail": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ExecutionFailed"
+          ],
+          "properties": {
+            "ExecutionFailed": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "enum": [
+                    "Success",
+                    "Failure",
+                    "Denied",
+                    "Indeterminate"
+                  ]
+                },
+                "detail": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ExecutionContextPropagated"
+          ],
+          "properties": {
+            "ExecutionContextPropagated": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "boundary",
+                "to_execution_id"
+              ],
+              "properties": {
+                "boundary": {
+                  "enum": [
+                    "AsyncTask",
+                    "Thread",
+                    "Process",
+                    "Subprocess",
+                    "WorkerQueue"
+                  ]
+                },
+                "to_execution_id": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{32}$",
+                  "description": ""
+                }
+              }
+            }
+          }
+        }
+      ],
+      "description": "Exactly one variant. ModelInvocationObserved is named 'observed' by the specification and is NOT independent observation \u2014 the observer is the framework, inside the process under scrutiny."
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "signer_id",
+        "timestamp",
+        "nonce",
+        "payload_hash",
+        "signature_bytes"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "Ed25519"
+        },
+        "signer_id": {
+          "type": "string",
+          "description": "MUST equal agent_id."
+        },
+        "timestamp": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$",
+          "description": ""
+        },
+        "payload_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 of the canonical preimage."
+        },
+        "signature_bytes": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{128}$",
+          "description": ""
+        }
+      }
+    }
+  }
+}

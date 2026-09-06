@@ -177,6 +177,8 @@ category", and none did: a claimed-but-unobserved AI action is
 | `cargo test --workspace` (baseline, prod merged, pre-AIRI) | **821 passed / 0 failed / 3 ignored / 81 suites** |
 | `cargo test --workspace` (with AIRI) | **888 passed / 0 failed / 4 ignored / 90 suites** |
 | `cargo test --workspace` (after merging prod's P0 fixes) | **898 passed / 0 failed / 4 ignored / 90 suites** |
+| `cargo test --workspace --no-fail-fast` (after closing #7 and #11) | **912 passed / 0 failed / 4 ignored / 91 suites** |
+| Python SDK (after closing #7) | **62 passed / 0 failed** |
 | `cargo clippy -p aip-airi --all-targets` | **0 warnings, 0 errors** |
 | `python3 -m unittest discover -s tests` | **50 passed / 0 failed** |
 
@@ -253,6 +255,11 @@ was deliberately deferred (`AIRI_MIGRATION.md` §4).
 
 AIRI closes none of them. The two closures are prod's work, independently
 verified rather than accepted on the strength of their commit messages.
+
+> **Deliverables #7 and #11 were incomplete when this report was filed, and
+> #11 was reported as done when it was not.** Both are now closed; see
+> `DELIVERABLES_COMPLETENESS.md`, which records the over-claim rather than
+> quietly correcting it.
 
 | ID | Blocker | Status |
 |---|---|---|

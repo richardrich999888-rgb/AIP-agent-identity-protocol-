@@ -217,12 +217,49 @@ is `Attested` — content read from the observed host is root-forgeable.
 
 ## 11. NEXORA
 
-An AIRI event commits into a NEXORA Merkle tree under `LeafKind::AiriEvent`
+Two carriage points, both live.
+
+**As a Merkle leaf.** An AIRI event commits under `LeafKind::AiriEvent`
 (code `0x09`), appended to the frozen set rather than renumbering it.
 
-What is committed is the event's **signing preimage** — the exact bytes the
-agent signed — so a verifier checks one artefact rather than trusting a
-re-serialisation round-trip.
+**As a proof component.** `NexoraProof` (package version **2**) carries an
+optional `AiriBundle` under `Component::Airi` (`0x0A`): the agent id, the key
+the package says signed the events, and the events themselves in emission
+order.
+
+In both cases what is committed is the event's **signing preimage** — the
+exact bytes the agent signed — so a verifier checks one artefact rather than
+trusting a re-serialisation round-trip.
+
+### What the offline verifier does with it
+
+`verify_nexora_proof` **re-derives**:
+
+1. every event's signature, against the key the *verifier* anchored;
+2. the chain, re-walked from the package's own bytes;
+3. that every event's `agent_id` is the bundle's.
+
+The result is a `ComponentVerdict` — `Verified`, `Absent`, or
+`Unverifiable(reason)` — plus `airi_events_verified`. It is never an upgrade
+to any other component.
+
+**The package cannot choose the key it is judged against.** If the verifier
+anchored a key for this agent, that key is used and the package's must match
+it; a package naming a different key is refused with "does not anchor", not
+quietly verified against the one it supplied. Without that rule an assembler
+could sign a fabricated chain with its own key, put that key in the bundle,
+and have every signature check out.
+
+A `Verified` verdict reached under a *self-supplied* key (verifier anchored
+none) means "internally consistent", which is weaker than "signed by the
+agent the verifier trusts" and must not be read as the latter.
+
+### Symmetry
+
+AIRI cannot raise a verdict and a broken AIRI bundle cannot lower one. The
+reconciliation rests on the observer's evidence; a defect in the agent's own
+account is recorded as its own component verdict rather than leaking into the
+result. Both directions are tested (`aip-nexora/tests/airi.rs`).
 
 ## 12. Reconciliation
 
