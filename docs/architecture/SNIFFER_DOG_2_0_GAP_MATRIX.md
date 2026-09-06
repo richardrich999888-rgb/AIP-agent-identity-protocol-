@@ -280,3 +280,14 @@ Test counts after Gate 4: aip-standalone 715 / 0 / 3 ignored (+25), aip-service 
 | Head tracker (rollback, fork, broken chain, consistency) | **CLOSED** | x09–x13 |
 | Anchoring interface | **CLOSED as an interface**; externality is a deployment | x14 |
 | Durable storage; automatic commitment of reconciler output and collector batches | **OPEN** | — |
+
+## A.17 Gate 8 outcome (strict continuity runtime semantics)
+
+| Component | State after Gate 8 | Evidence |
+|---|---|---|
+| Durable collector state: atomic snapshot after every signature, append-only health archive, append-only continuity reports | **CLOSED** | cr01, cr02 |
+| `Strict` refuses AMNESIA / ROLLBACK / FORK; `Advisory` continues on the archive head; FORK quarantined under both; TRUNCATION reported and `Recovering` | **CLOSED** | cr03–cr06 |
+| Every break a signed, domain-separated `ContinuityReport` naming no subject; refusal itself is a report | **CLOSED** | cr03, cr04, cr09 |
+| Corrupt or foreign state is an error, never a fresh chain; forged archive lines ignored | **CLOSED** | cr07, cr08 |
+| A real collector process restarted over one directory, then over a rolled-back state file | **CLOSED** (demonstrator, `NOT_PRODUCTION_CAPABILITY`) | `live_collector_restart` p_r |
+| Durable storage of attested batches; key custody; network transport | **OPEN** | — |

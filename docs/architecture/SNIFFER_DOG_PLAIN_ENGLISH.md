@@ -60,7 +60,12 @@ or a batch goes missing, the collector marks the observer *degraded* or
 *recovering* and refuses to claim it was watching during that time. If the
 collector itself restarts, it checks its own remembered position against the
 archive of records it previously signed; a collector that forgot, was rolled
-back, or was fed an edited state file is caught by that arithmetic.
+back, or was fed an edited state file is caught by that arithmetic. By
+default it then refuses to sign anything until an operator has looked, and
+the refusal is itself a signed record; an operator can instead choose the
+advisory setting, under which it continues from the archived position and
+says so in a signed report. Either way it treats its own restart as a gap
+until it has chained a new batch onto the old one.
 
 ## 3. Authority is a separate signature
 
@@ -156,5 +161,5 @@ That component does not exist yet.
 | "automatically triggers instant isolation … XDP_DROP … cgroups v2 freeze" | not implemented, and forbidden at this stage | no actuation code exists; containment is Skill 9 |
 | "Zero False Outages" | not a claim anyone can make | no outage statistics exist; the design goal is that nothing below proven evidence can cause an outage |
 | "writes its own detections onto a tamper-evident hash chain" | partly | the collector's batches and health are a signed, sequenced chain; verdicts and warrants can be committed to the NEXORA log, but nothing wires them in automatically and nothing is persisted |
-| "refuses to run in an amnesic state" | partly | the collector detects amnesia, rollback, fork and a truncated archive on resume and reports them; refusing to start is an operator choice built on that result |
+| "refuses to run in an amnesic state" | yes, for the collector's own state | under the default strict policy the collector refuses to sign after amnesia, rollback or fork and leaves a signed report of the refusal; a fork is quarantined under every policy; a truncated archive is reported and the collector runs as recovering (Gate 8, `continuity_runtime` cr01–cr10, a real process restarted in `live_collector_restart`) |
 | "10 Gbps", "line rate", "sub-1% overhead", "TRL" figures | not measurable here | no benchmark in this repository measures the observer; the figures on the `codex` branches measure unrelated userspace code |

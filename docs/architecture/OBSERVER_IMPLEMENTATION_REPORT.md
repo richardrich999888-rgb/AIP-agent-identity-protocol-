@@ -134,7 +134,7 @@ instrumentation (eBPF/LSM) that Skill 6 does not authorize here.
 | Storage / custody at the collector | **NOT IMPLEMENTED** — in-memory `Vec<u8>`, `Debug` redacted |
 | Expiry | **NOT IMPLEMENTED** — no key validity window |
 | Key loss / compromise recovery | **NOT IMPLEMENTED** — an operator re-provisions a new `observer_id` or version |
-| Collector restart | **NOT IMPLEMENTED as persistence** — the ledger is in memory, so a collector restart loses the chain and the next batch is `NewEpochUnverified`, i.e. `CONTINUITY_UNVERIFIED`, never a silent resumption |
+| Collector restart | **IMPLEMENTED (Gate 8)** — `CollectorRuntime` over `CollectorStore` persists the snapshot after every signature and the health archive after every health record, audits them on start, applies `ContinuityPolicy` and signs a `ContinuityReport` for every break; a resumed runtime is `Recovering` until a contiguous batch (`SNIFFER_DOG.md` §6) |
 
 The protocol carries key identity and version, as Skill 6 §16 requires, so the
 unimplemented phases can be added without a wire break.
@@ -281,9 +281,13 @@ Skill 4 tests that pin the `RuntimeBinding` weakness.
    metadata and application payload distinct (I23).
 4. **No transport or daemon.** Library only; no collector binary, no
    authenticated channel, no batching policy.
-5. **Collector ledger is in memory.** A collector restart yields
-   `CONTINUITY_UNVERIFIED` rather than false continuity — honest, but it means
-   long-run continuity needs durable collector state, which is not built.
+5. **Collector ledger is in memory.** *Closed at Gate 8:* `CollectorRuntime`
+   persists its position and its signed health archive through
+   `CollectorStore`, audits them on start and refuses (under `Strict`) or
+   reports (under `Advisory`) amnesia, rollback and fork; a resumed runtime
+   is still `Recovering` until a contiguous batch. What remains open is
+   that the directory's reachability is a deployment matter and that
+   attested batches themselves are not persisted.
 6. **Agent attribution is a claim.** The observer cannot bind a process to an
    AIP-ID. Reconciliation must treat the linkage accordingly.
 7. **Host wall clock is contextual only.** Ordering comes from the collector

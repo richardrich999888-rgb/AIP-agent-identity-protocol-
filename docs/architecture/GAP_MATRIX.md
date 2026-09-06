@@ -117,6 +117,14 @@ original discovery text for traceability):
   refuses rollback, fork and broken chains, an anchoring interface. NEXORA
   is no longer MISSING; the anchor's externality and durable storage are
   deployment and follow-up. `NEXORA_BOUNDARY.md` Gate 7 note.
+- Gate 8 (strict continuity runtime semantics) at `48b53b0` (RED) / `8a4b759` (GREEN) —
+  `aip-observe::{store, runtime}`: durable collector state (atomic snapshot,
+  append-only health archive and continuity reports), `CollectorRuntime`
+  with `ContinuityPolicy::{Strict (default), Advisory}`, every AMNESIA /
+  ROLLBACK / FORK / TRUNCATION a signed `ContinuityReport`, strict refusal
+  of the first three, quarantine of a fork under both, and a real collector
+  process restarted by `ghost-demo-collector`. `OBSERVER_IMPLEMENTATION_REPORT.md`
+  limitation 5 closed; key custody and transport remain open.
 
 ## D. PR3 corrective review (pre-reconciliation)
 

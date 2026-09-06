@@ -882,7 +882,91 @@ storage; that the reconciler's records reach a log automatically.
 ## Next Gate
 
 Gate 8: strict continuity runtime semantics for the collector's own
-AMNESIA / ROLLBACK / FORK / TRUNCATION, with restart tests.
+AMNESIA / ROLLBACK / FORK / TRUNCATION, with restart tests (done; see
+below).
+
+---
+
+# Gate 8 — strict continuity runtime semantics (completion mandate)
+
+## Status
+
+**PASS.** The collector's own AMNESIA / ROLLBACK / FORK / TRUNCATION are
+now runtime semantics over durable state, with a policy that is a policy
+and a break that is signed evidence, tested by restarting the same
+directory in-process (cr01–cr10) and by restarting a real collector
+process (`live_collector_restart`).
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| `48b53b0` | RED: `aip-observe/tests/continuity_runtime.rs` cr01–cr10 (did not compile), `ghost-demo/tests/live_collector_restart.rs` (failed against a stub binary) |
+| `8a4b759` | `aip_observe::store::CollectorStore` (snapshot rewritten atomically after every signature; append-only health archive; append-only continuity reports; corrupt ≠ absent), `aip_observe::runtime::{CollectorRuntime, ContinuityPolicy, StartOutcome, Started, RuntimeError, ContinuityReport, SignedContinuityReport, verify_continuity_report, CONTINUITY_REPORT_DOMAIN}`, `ghost-demo-collector` |
+| *(the commit carrying this section)* | documentation |
+
+## The semantics
+
+| break found on start | `Strict` (default) | `Advisory` |
+|---|---|---|
+| none | run, `Recovering` | run, `Recovering` |
+| `Amnesia` (no state, archive has history) | **refuse** | adopt archive head, run `Recovering` |
+| `RolledBack` (state older than archive) | **refuse** | adopt archive head, run `Recovering` |
+| `Forked` (same sequence, different head) | **refuse** | run **`Quarantined`**: health signs, no batch does |
+| `ArchiveTruncated` (state ahead of archive) | run `Recovering`, report | run `Recovering`, report |
+
+Every break, refused or not, is first written to the store as a
+`SignedContinuityReport` under the collector's key: observer id, key
+version, the break, the resumed and archived sequences, the archived head,
+the policy, `refused`, and the collector's clock, canonically encoded
+under `SYNTRIASS/GHOST/CONTINUITY_REPORT/v1`. The report is about the
+observer's own record; its JSON names no agent, decision or workload
+(cr09). A restart never implies continuity: every resumed runtime is
+`Recovering` until a contiguous batch is admitted, under both policies
+(cr02). Foreign state and files that do not parse are errors, never fresh
+chains (cr07). Forged archive lines do not count (cr08).
+
+## Evidence (mandate's requirements → tests)
+
+| Requirement | Tests |
+|---|---|
+| durable state, written after every signature | cr01 |
+| clean restart continues one chain; no continuity claimed | cr02; live p_r (sequence 2 → 4 across two processes, `state-at-start=Recovering`) |
+| AMNESIA: strict refuses, advisory adopts and reports | cr03 |
+| ROLLBACK: strict refuses (and the refusal is a signed report), advisory adopts | cr04; live p_r (old state file restored → exit 3, one report line; advisory → sequence 6, not 4) |
+| FORK: quarantined under every policy, no batch signed again, health still signs | cr05 |
+| TRUNCATION: state kept, reported, `Recovering` | cr06 |
+| corrupt / foreign state is an error, never a fresh chain | cr07 |
+| forged archive records ignored | cr08 |
+| report signed, domain-separated, tamper-refused, key-anchored, names no subject | cr09 |
+| strict by default; no `trusted` vocabulary | cr10 |
+
+The RED draft of cr03 expected a strict refusal to leave *no* report while
+cr04 and cr05 required one; the refusal-is-evidence semantics is the
+stronger property and cr03 was corrected to expect both reports and check
+the refused one. No assertion was weakened (commit `8a4b759` message).
+
+## Security Claims
+
+- A collector that forgot, was rolled back or was forked does not sign a
+  batch again under `Strict` until an operator acts, and its refusal is a
+  record it signed.
+- Under `Advisory` one chain is continued from the archive head rather
+  than a second started under the same key, and the report says so.
+- A fork is quarantined under both policies; no policy un-proves
+  arithmetic.
+
+Not claimed: that the state directory is outside the attacker's reach
+(the audit is what makes a reachable directory harmless, not the
+directory); durable storage of attested batches themselves (only the
+snapshot, the health archive and the reports are persisted); key custody
+(`ghost-demo-collector` writes its key in plaintext and says so); that
+the archive is complete (`ArchiveTruncated` is reported, not repaired).
+
+## Next Gate
+
+Gate 9: containment boundary (Skill 9), now that the proof layer (Gate 7)
+and the collector's continuity semantics (Gate 8) exist.
 
 ## Demonstrator limitation recorded at Gate 7
 

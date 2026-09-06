@@ -174,7 +174,10 @@ of the completion mandate) and the `AF_PACKET` device-layer tap with wire
 corroboration on record v5 (Gate 2; `OBSERVATION_MODEL.md` §5), `aip-nexora`
 (Gates 6–7: Merkle commitment, signed heads, proof objects, offline
 verifier, head tracker, anchoring interface — NEXORA as a layer, its anchor's
-externality a deployment). Still
+externality a deployment), and the Gate 8 collector runtime
+(`aip-observe::{store, runtime}`: durable state, `Strict` / `Advisory`
+continuity policy, signed continuity reports, a restartable collector
+process). Still
 **MISSING**: containment (Skill 9), signed reconciliation records, experience ledger, profile API,
 `aip-service` integration of any of the above (the service still carries its
 own authority model, §5). The out-of-tree inventory in §7 is superseded by
