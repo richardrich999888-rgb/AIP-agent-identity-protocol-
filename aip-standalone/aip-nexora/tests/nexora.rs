@@ -101,7 +101,7 @@ fn x01_a_head_signs_the_log_size_root_and_previous_head_under_nexoras_own_key() 
 #[test]
 fn x02_a_head_altered_after_signing_or_signed_by_an_unanchored_key_is_refused() {
     let nx = nexora("nexora-1");
-    let mut log = log_with(LOG_A, 5);
+    let log = log_with(LOG_A, 5);
     let h = log.head(&nx.signer, T0).unwrap();
     let mut t = h.clone();
     t.size = 4;
@@ -124,16 +124,20 @@ fn x02_a_head_altered_after_signing_or_signed_by_an_unanchored_key_is_refused() 
     let mut t = h.clone();
     t.signer_id = "nexora-2".into();
     assert!(verify_signed_head(&t, &nx.anchors).is_err());
-    // A key the verifier does not anchor.
-    let other = nexora("nexora-1");
+    // A signer id the verifier does not anchor at all.
+    let stranger = nexora("nexora-9");
     assert!(matches!(
-        verify_signed_head(&h, &other.anchors),
+        verify_signed_head(&h, &stranger.anchors),
         Err(NexoraError::UntrustedKey { .. })
     ));
-    // A signature that verifies under another anchored key is still refused
-    // for this signer id.
-    let h_other = log.head(&other.signer, T0).unwrap();
-    assert!(verify_signed_head(&h_other, &nx.anchors).is_err());
+    // The same signer id under a key the verifier does not hold: the
+    // anchored key is consulted and the signature fails against it.
+    let impostor = nexora("nexora-1");
+    let h_impostor = log.head(&impostor.signer, T0).unwrap();
+    assert!(matches!(
+        verify_signed_head(&h_impostor, &nx.anchors),
+        Err(NexoraError::SignatureInvalid)
+    ));
 }
 
 #[test]
@@ -290,10 +294,15 @@ fn x08_a_proof_under_a_tampered_or_unanchored_head_is_refused_before_anything_el
         verify_proof(&t, &nx.anchors),
         Err(NexoraError::PayloadHashMismatch)
     ));
-    let stranger = nexora("nexora-1");
+    let stranger = nexora("nexora-9");
     assert!(matches!(
         verify_proof(&p, &stranger.anchors),
         Err(NexoraError::UntrustedKey { .. })
+    ));
+    let impostor = nexora("nexora-1");
+    assert!(matches!(
+        verify_proof(&p, &impostor.anchors),
+        Err(NexoraError::SignatureInvalid)
     ));
     let mut t = p.clone();
     t.version = 2;
@@ -365,9 +374,7 @@ fn x11_a_fork_is_refused() {
     let mut b = base.clone();
     b.append(LeafKind::Reconciliation, b"a different fifth record");
     let h4 = base.head(&nx.signer, T0).unwrap();
-    let mut a = a;
     a.set_last_head(h4.clone());
-    let mut b = b;
     b.set_last_head(h4.clone());
     let ha = a.head(&nx.signer, T0 + 1).unwrap();
     let hb = b.head(&nx.signer, T0 + 1).unwrap();
