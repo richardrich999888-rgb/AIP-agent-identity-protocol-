@@ -291,3 +291,19 @@ Test counts after Gate 4: aip-standalone 715 / 0 / 3 ignored (+25), aip-service 
 | Corrupt or foreign state is an error, never a fresh chain; forged archive lines ignored | **CLOSED** | cr07, cr08 |
 | A real collector process restarted over one directory, then over a rolled-back state file | **CLOSED** (demonstrator, `NOT_PRODUCTION_CAPABILITY`) | `live_collector_restart` p_r |
 | Durable storage of attested batches; key custody; network transport | **OPEN** | — |
+
+## A.18 Gate 9 outcome (containment boundary)
+
+| Component | State after Gate 9 | Evidence |
+|---|---|---|
+| Warrant is the only door: no finding, severity, strength, confidence, boolean or pid can reach an actuator | **CLOSED** | c01–c04, and the signatures of `contain` / `Actuator::apply` |
+| `Proven` workload violation required by explicit match | **CLOSED** | c01, c02 |
+| Target bound to a live execution instance; pid reuse, wrong boot, wrong executable, self and init refused | **CLOSED** | c05, c06 |
+| Advisory by default; autonomous needs two enablements; operator mode needs an acknowledgement naming the warrant | **CLOSED** | c07, c08, c10, c18 |
+| Protected identities never autonomously contained | **CLOSED** | c09 |
+| Current, Active, cited observer health required at decision time | **CLOSED** | c11 |
+| Replay consumed durably before actuation; failure fails open and escalates nothing | **CLOSED** | c12–c14 |
+| Every attempt a signed, domain-separated record under a distinct authority | **CLOSED** | c15, c16 |
+| Closed action set, no command representable | **CLOSED** | c17 |
+| Real actuation: a live process frozen and thawed through cgroup v2 | **CLOSED** (root + cgroup2 required) | live_freeze f_p, f_a, f_b, f_c |
+| Network isolation; committing records to NEXORA; transport; warrant revocation | **OPEN / deferred** | — |

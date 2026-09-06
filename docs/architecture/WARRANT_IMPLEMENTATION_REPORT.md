@@ -204,8 +204,9 @@ Test-file edits since RED: rustfmt and one type alias for a clippy lint.
 
 ## Deferred Work
 
-Containment (Skill 9): consumes `Warrant`; nothing here signals, freezes,
-isolates or filters. NEXORA (Skill 10): warrants are not committed or
+Containment (Skill 9): **implemented at Gate 9** in `aip-containment`, which
+consumes a signed `Warrant` and may freeze one attributed process through
+cgroup v2; nothing in *this* crate signals, freezes, isolates or filters. NEXORA (Skill 10): warrants are not committed or
 anchored. Signed reconciliation records: Sniffer Dog 2.0 Phase E.
 
 ## §30 gate

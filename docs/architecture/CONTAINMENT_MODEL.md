@@ -2,6 +2,12 @@
 
 ## 1. Current state
 
+> **Updated at Gate 9 (Skill 9, `272feac`).** The paragraph below described the
+> repository before containment existed and is kept for traceability. What
+> exists now is `aip-standalone/aip-containment`: a warrant-gated boundary whose
+> only actuator is a Linux cgroup v2 freeze, advisory by default, with every
+> attempt a signed record. See §9 and `CONTAINMENT_IMPLEMENTATION_REPORT.md`.
+
 `CONTAINMENT = MISSING` from production, and this is **correct for now**.
 
 Verified: no process termination, no cgroup control, no network blocking, no
@@ -103,10 +109,62 @@ currently unmet:
 5. Warrant engine with orthogonal axes — **CLOSED (Skill 8, `aip-warrant`)**
 6. Adversarial tests proving suspicion cannot reach containment — **CLOSED at the warrant boundary** (`aip-warrant/tests/warrant.rs` w12 sweeps every result × strength × severity × availability × policy)
 
-The six preconditions now hold at the library level. Containment itself
-(Skill 9) is still **not implemented**: no code in this repository signals,
-freezes, isolates or filters anything, and today no production evidence path
-yields a `Proven` workload violation, so `Contain` is unreachable from real
-inputs even where the engine would permit it. PR #3's actuation (authority
-revocation inside the detector loop) was reviewed and not harvested
-(`OT_SENTINEL_HARVEST_AUDIT.md` §G, Phase 3).
+The six preconditions hold at the library level, and Gate 8 added strict
+continuity semantics for the collector whose health containment demands.
+Containment itself (Skill 9) is now **implemented** — §9. PR #3's actuation
+(authority revocation inside the detector loop) was reviewed and not harvested
+(`OT_SENTINEL_HARVEST_AUDIT.md` §G, Phase 3); nothing in `aip-containment`
+revokes authority, and nothing in it runs inside a detector loop.
+
+Today no production evidence path yields a `Proven` workload violation: the
+reconciler produces `Proven` only for `SENSOR_INTEGRITY_FAILURE`, which targets
+the observer and which the boundary refuses. So `Contain` is reachable in tests
+and unreachable from real inputs. That is a property of the evidence layer,
+stated, not a defect of the gate.
+
+## 9. What is implemented (Gate 9)
+
+`aip-containment` accepts a signed `Warrant`, an `ExecutionBinding`, the cited
+observer's current signed health and an explicit policy, and returns a signed
+`ContainmentRecord`. Seventeen gates run in order before anything is touched:
+
+| # | Gate | Refusal |
+|---|---|---|
+| 1 | warrant authenticated under the warrant trust root, and **not** under the containment key | `WarrantInvalid` |
+| 2 | now inside `[issued_at, valid_until]` | `WarrantNotYetValid` / `WarrantExpired` |
+| 3–4 | `response == Contain`, `target == Workload` | `ResponseNotContain` / `TargetNotWorkload` |
+| 5 | `strength == Proven`, by explicit match over all four variants | `StrengthBelowProven` |
+| 6 | result is a workload violation | `ResultNotWorkloadViolation` |
+| 7–8 | observation was not unavailable; evidence references present | `ObservationUnavailable` / `NoEvidenceReference` |
+| 9 | engine issued it autonomous and did not flag it protected | `WarrantNotAutonomous` / `WarrantMarkedProtected` |
+| 10 | warrant subject bound and equal to the target agent | `SubjectUnbound` / `SubjectMismatch` |
+| 11 | no protected agent, decision point or observer involved | `Protected` |
+| 12 | mode permits (operator mode needs an acknowledgement naming *this* warrant) | `OperatorAcknowledgement*` |
+| 13 | cited observer's health verifies, is `Active` and is fresh | `ObserverHealth*` / `ObserverNotActive` / `ObserverNotCited` |
+| 14 | warrant id not consumed | `Replayed` |
+| 15 | target attributed live through a held pidfd: pid, start ticks, boot id, executable contents | `Attribution(..)` |
+| 16 | consume the warrant id, durably | `Outcome::Failed` if the ledger cannot be written |
+| 17 | actuate; `Applied` only on a kernel-confirmed effect | `Outcome::Failed` |
+
+**Action set.** Closed: `AdvisoryOnly` and `FreezeProcess`. No string, path or
+command line is representable as an action, and the `Actuator` trait takes an
+`Attributed` instance rather than a pid, so a caller holding a process number
+cannot reach the kernel through this crate.
+
+**The actuator.** `CgroupV2Freezer` creates a cgroup for the instance under the
+detected cgroup2 mount, moves the process there, writes `1` to `cgroup.freeze`,
+and reports `Applied` only once `cgroup.events` reports `frozen 1`. Every
+failure reverts what was done and fails open. `release` thaws, returns members
+to their original cgroup and removes the cgroup.
+
+**Posture.** `ContainmentPolicy::default()` is `Advisory` + `AdvisoryOnly`:
+every gate runs, the decision is signed, nothing is actuated, and the warrant is
+not consumed. Autonomous actuation needs two independent enablements — the
+warrant engine's `autonomous_containment` and the containment policy's
+`AutonomousEnabled`.
+
+**Limits worth stating here.** Freezing is not killing and not isolation: a
+frozen process keeps its descriptors, sockets and memory, and work already
+queued in the kernel may complete. Children the target forks after attachment
+inherit the cgroup and freeze with it. Network isolation is deliberately not
+implemented.

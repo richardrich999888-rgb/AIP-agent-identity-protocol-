@@ -125,6 +125,15 @@ original discovery text for traceability):
   of the first three, quarantine of a fork under both, and a real collector
   process restarted by `ghost-demo-collector`. `OBSERVER_IMPLEMENTATION_REPORT.md`
   limitation 5 closed; key custody and transport remain open.
+- Gate 9 (containment boundary, Skill 9) at `c06e10b` (RED) / `272feac` (GREEN) —
+  new crate `aip-containment`: seventeen gates between a signed warrant and an
+  actuator, `Proven` required by explicit match, target attributed live through
+  a held pidfd (pid reuse refused), advisory by default, protected identities
+  exempt, replay consumed durably before actuation, failures fail open, every
+  attempt a signed record under a third authority, and one closed action —
+  a Linux cgroup v2 freeze, exercised against a real process (`live_freeze`
+  f_p/f_a/f_b/f_c). `CONTAINMENT_IMPLEMENTATION_REPORT.md`;
+  `CONTAINMENT_MODEL.md` §9.
 
 ## D. PR3 corrective review (pre-reconciliation)
 
@@ -165,7 +174,7 @@ original discovery text for traceability):
 | Sensor health / continuity — **CLOSED (Stage 3 → 6.5)**: five signed states, collector-side ledger with replay/fork/rollback/gap/head-mismatch faults; 6.5 adds probe run-id (restart), per-run sequence discontinuity and counted kernel event loss as explicit `Degraded` causes, and `probe_policy` in signed health; coverage never back-fills an outage, a loss, or a restart | **MISSING** | 5 explicit states, signed | silence indistinguishable from coverage (**I9**) | observer | **P1** |
 | Reconciler — **PARTIAL (Stage 4, `ad9642a` + `b821a23`)**: `aip-reconcile` joins on `decision_id` + structural `ExecutionBinding` match, verifies both signatures and the observer chain up to the signed health head, defaults to `CANNOT_PROVE`; reachable: `PHANTOM_CLAIM` (`RegisteredOnly`, kernel-pushed signed coverage, **and** coverage re-derived from the batches as gap-free, single-probe-run, kernel-pushed, ending no later than the collector's signed clock), `IDENTITY_DIVERGENCE` (claim must name the expectation's agent), `SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`, `CANNOT_PROVE`; `VERIFIED_EXECUTION` **for one action class only** (Stage 7: established TCP connection to an authorized `(protocol, remote_addr, remote_port)`, derived from pidfd-anchored socket-table observations, `Attested`, claim-tied, batch inside window and coverage epoch); **unreachable**: `VERIFIED_EXECUTION` for any other action kind (`ActionComparison::Match` needs a seal only the action-derivation step builds), `UNATTRIBUTED_EFFECT` (no producer for the DP completeness statement), `LINEAGE_VIOLATION` (refused by the central precondition guard) | **MISSING** (0 occurrences) | join on `decision_id` + binding | no comparison exists | both producers | **P1** |
 | `OBSERVATION_UNAVAILABLE` semantics — **CLOSED (Stage 4)**: `ObservationAvailability::Unavailable{reason}` is carried unchanged in every `Reconciliation`; `ReconciliationResult::default()` is `CannotProve`; every `Unavailable` reason and every non-`Active` observer state yields `CANNOT_PROVE` or an explicit failure class, never `PHANTOM_CLAIM` | **MISSING** | first-class type, `CANNOT_PROVE` default | risk of inferring non-execution from silence (**I8**) | reconciler | **P0** for design |
-| Warrant engine — **CLOSED (Skill 8, `9574420`)**: `aip-warrant`, containment requires `Proven` by explicit match, advisory default, protected identities, signed warrant; containment itself remains Skill 9 | **MISSING** | severity ⊥ strength; `Proven` gate | containment on suspicion (**I12**, **I13**) | reconciler | **P1** |
+| Warrant engine — **CLOSED (Skill 8, `9574420`)**: `aip-warrant`, containment requires `Proven` by explicit match, advisory default, protected identities, signed warrant. Containment — **CLOSED (Skill 9, `272feac`)**: `aip-containment`, seventeen gates, live-attributed target, cgroup v2 freeze, signed records | **MISSING** | severity ⊥ strength; `Proven` gate | containment on suspicion (**I12**, **I13**) | reconciler | **P1** |
 | Containment | **MISSING** (correctly) | proof-gated, advisory default | — | warrant engine | **P2** |
 
 ## C. Commitment / NEXORA

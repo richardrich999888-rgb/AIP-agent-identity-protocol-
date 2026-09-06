@@ -968,6 +968,96 @@ the archive is complete (`ArchiveTruncated` is reported, not repaired).
 Gate 9: containment boundary (Skill 9), now that the proof layer (Gate 7)
 and the collector's continuity semantics (Gate 8) exist.
 
+---
+
+# Gate 9 — the containment boundary (completion mandate; Skill 9)
+
+## Status
+
+**PASS.** `aip-containment` exists, the full Skill 9 §30 gate holds, and the
+one implemented action was exercised against a real process on this host.
+The full account is `CONTAINMENT_IMPLEMENTATION_REPORT.md`; this section
+records the gate.
+
+The mandate permitted Gate 9 only "after the proof layer is strong
+enough". Gates 6–7 gave NEXORA inclusion and consistency proofs with an
+offline verifier, and Gate 8 gave the collector strict continuity
+semantics — which is what makes "the observer was signing healthy at the
+moment of the decision" a checkable claim rather than a hopeful one.
+Containment demands exactly that, and refuses without it.
+
+## Commits
+
+| Commit | Content |
+|---|---|
+| `c06e10b` | RED: `tests/containment.rs` c01–c18 and `tests/live_freeze.rs` f_p/f_a/f_b/f_c; the crate was a one-line stub and the suite did not compile |
+| `272feac` | `record.rs`, `attribution.rs`, `actuator.rs`, `replay.rs`, `contain.rs` |
+| *(the commit carrying this section)* | documentation, including `CONTAINMENT_IMPLEMENTATION_REPORT.md` |
+
+## The shape
+
+```text
+signed Warrant (Contain, Proven, workload violation, cited, covered,
+                autonomous, unprotected, bound to a subject)
+  + ExecutionBinding, attributed live through a held pidfd
+  + the cited observer's current Active signed health
+  + a policy an operator explicitly enabled
+  + an unconsumed warrant id
+  ↓  seventeen gates
+ContainmentDecision → Actuator (cgroup v2 freeze) → signed ContainmentRecord
+```
+
+`contain` takes no finding, no severity, no strength and no boolean;
+`Actuator::apply` takes an `Attributed` instance and a closed action, not
+a pid and not a string. The bypass the skill forbids is absent because the
+types do not admit it.
+
+## Evidence (mandate's adversarial cases → tests)
+
+| Mandate case | Test | Outcome |
+|---|---|---|
+| wrong PID | c06 | `Attribution(ProcessNotVisible)` |
+| PID reuse | c06 | `Attribution(InstanceMismatch)` — the pidfd is held across the check |
+| wrong cgroup | live f_b | `WrongCgroup`; neither target nor bystander frozen |
+| forged warrant | c03 | `WarrantInvalid` (another key, and unsigned) |
+| expired warrant | c04 | `WarrantExpired`, and `WarrantNotYetValid` before issue |
+| replayed warrant | c12, c13 | `Replayed`, durably across a restart |
+| cross-agent transplant | c05 | `SubjectMismatch`; unbound subject `SubjectUnbound` |
+| protected component | c09 | protected agent, protected observer, protected flag |
+| operator disabled | c07, c08, c10 | advisory records and consumes nothing; operator mode needs an acknowledgement naming the warrant; a non-autonomous warrant never actuates |
+| strength below threshold | c01, c02 | Heuristic, Correlated, Attested, CANNOT_PROVE, observer-targeted results |
+| observer degraded | c11 | missing, stale, non-Active, untrusted, uncited health |
+| ambiguous attribution | c06 | wrong boot and wrong executable contents are refusals, never a guess |
+
+Twelve post-signature field mutations of a valid Contain warrant are
+refused one at a time (c03). The freeze itself was demonstrated: a child
+writing to a pipe every 20 ms stopped producing output, the kernel
+reported `frozen 1`, and release thawed it and removed the cgroup
+(live f_p).
+
+## Security Claims
+
+- Nothing short of a signed `Contain` warrant on `Proven` evidence about a
+  workload reaches an actuator, and the warrant must be bound to the very
+  process instance that is alive now.
+- Autonomous containment is off by default and needs two independent
+  enablements.
+- A consumed warrant is not a second authorization, across restarts.
+- Failures fail open, are recorded, and change no evidence.
+- `Applied` is written only after the kernel confirmed the effect.
+
+Not claimed: that freezing is isolation (a frozen process keeps its
+descriptors, sockets and memory); that the boundary survives a
+compromised warrant authority key; that any production evidence path
+reaches it today (the reconciler's only `Proven` result targets the
+observer, which the boundary refuses); network isolation, which is
+deliberately not implemented.
+
+## Next Gate
+
+Gate 10: evaluate XDP against this host — detect the NIC and driver, and
+dry-run before claiming anything.
+
 ## Demonstrator limitation recorded at Gate 7
 
 The live scenarios of `ghost-demo` run on whatever host executes the

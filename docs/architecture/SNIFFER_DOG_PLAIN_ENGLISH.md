@@ -140,12 +140,37 @@ committed, never whether the record is right, and it is only as
 independent as where its heads are kept: the code hands heads to an
 anchor, and putting that anchor outside the machine is the operator's job.
 
-## 8. Nothing here contains anything
+## 8. It can freeze one process, and almost never will
 
-There is no code in this repository that kills a process, freezes a control
-group, drops a packet or changes a firewall. The warrant is a signed statement
-of what a later, separate containment component *would* be allowed to do.
-That component does not exist yet.
+There is now code that can stop a process: it puts that one process into a
+control group of its own and asks the kernel to freeze it. Nothing in this
+repository kills a process, drops a packet or changes a firewall.
+
+Getting to the freeze is deliberately hard. The component that freezes accepts
+one thing: a warrant, signed by the warrant authority, that already says
+*contain*, on evidence already marked proven, about a workload rather than
+about the observer, citing the evidence it rests on. Then it checks its own
+list: the operator must have switched actuation on, the target must not be on
+the protected list, the observer that produced the evidence must be signing
+healthy right now, and this warrant must not have been used before. Last, it
+checks that the process it is about to freeze really is the one the warrant
+names — same process instance, same boot, same executable contents — because a
+process number on its own can be recycled onto something else.
+
+Out of the box it is off. The default settings run every one of those checks,
+sign a record of what they decided, and then do nothing. Turning actuation on
+takes two separate decisions by an operator, not one.
+
+Whatever happens — refused, advised, frozen, failed, released — it writes a
+signed record saying which warrant, which evidence, which process, what was
+attempted and what happened, under a key that is not the warrant authority's.
+If the freeze fails, it stays failed: a failed action never becomes a reason to
+believe anything worse about the process.
+
+Two honest limits. Freezing is not killing: a frozen process still holds its
+files, its sockets and its memory, and work already handed to the kernel may
+finish. And today no real evidence path produces evidence strong enough to
+reach this door at all, so in practice the answer is still no.
 
 ## Claims that earlier drafts made and this text does not
 
@@ -158,7 +183,7 @@ That component does not exist yet.
 | "32-byte SHA-256 of the raw payload, exact arguments" | partly | the executed program's **contents** and the authorised action's **parameters** are hashed; a send is evidenced by the kernel's byte **count**; payloads and arguments are not visible from the kernel and no payload hash exists (invariant I23) |
 | "cross-checks against the Gateway's append-only Merkle ledger" | partly | there is no gateway; a Merkle commitment with signed, chained heads and offline proofs exists (`aip-nexora`), over the Sniffer Dog's own records, and the anchor's independence is a deployment |
 | "Matched / Unattributed Effect / Phantom Claim" | partly | `VERIFIED_EXECUTION` and `PHANTOM_CLAIM` are reachable; `UNATTRIBUTED_EFFECT` needs a signed completeness statement from the decision point that nothing produces yet |
-| "automatically triggers instant isolation … XDP_DROP … cgroups v2 freeze" | not implemented, and forbidden at this stage | no actuation code exists; containment is Skill 9 |
+| "automatically triggers instant isolation … XDP_DROP … cgroups v2 freeze" | the freeze is implemented; the rest is not | a cgroups v2 freeze of one identified process exists and has been demonstrated on a real process, but only behind a signed warrant resting on proven evidence, off by default, and no production evidence path yet produces evidence that strong. No XDP, no packet dropping, no network isolation |
 | "Zero False Outages" | not a claim anyone can make | no outage statistics exist; the design goal is that nothing below proven evidence can cause an outage |
 | "writes its own detections onto a tamper-evident hash chain" | partly | the collector's batches and health are a signed, sequenced chain; verdicts and warrants can be committed to the NEXORA log, but nothing wires them in automatically and nothing is persisted |
 | "refuses to run in an amnesic state" | yes, for the collector's own state | under the default strict policy the collector refuses to sign after amnesia, rollback or fork and leaves a signed report of the refusal; a fork is quarantined under every policy; a truncated archive is reported and the collector runs as recovering (Gate 8, `continuity_runtime` cr01–cr10, a real process restarted in `live_collector_restart`) |
