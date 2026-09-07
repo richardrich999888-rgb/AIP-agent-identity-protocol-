@@ -56,6 +56,11 @@ members = [
     "aip-standalone/aip-edge-workload",
     "aip-standalone/aip-edge-observer",
     "aip-standalone/aip-edge",
+    # ── vertical profiles over the generic core (Skills 23+) ───────────
+    # A profile consumes the core and is consumed by nothing in it: the
+    # dependency points one way, so a vertical cannot cause a semantic
+    # regression in the accountability model it specialises.
+    "aip-standalone/aip-uas",
     # ── tooling, demos and test harnesses ──────────────────────────────
     "aip-standalone/ghost-demo",
     "aip-standalone/aip-test",
