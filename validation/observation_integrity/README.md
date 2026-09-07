@@ -1,61 +1,100 @@
-# `validation/observation_integrity/` — OBSERVATION-INTEGRITY-001
+# `validation/observation_integrity/` — the observer-integrity boundary
 
-Reproduces, isolates, and characterises the observation-path interference found
-during the AIRI experiment: an eBPF program attached to a sched tracepoint
-silently blinds Sniffer Dog 2.0's `perf_event_open` sensor for that tracepoint,
-with zero reported loss.
+Two experiments, built independently and in parallel, characterise the same
+finding from the AIRI validation work and turn it into a specified,
+reproducible security requirement. Both are kept. Neither changes production
+code.
 
-**Status: THREAT_REPRODUCED and THREAT_CHARACTERIZED. No production code changed.**
+> **The finding.** An observer can report healthy coverage while its
+> observation mechanism has been silently disabled. A no-op eBPF program
+> attached to `sched:sched_process_exec` suppresses that tracepoint's perf
+> submission for every `perf_event_open` consumer of it, so Sniffer Dog 2.0 —
+> a separate process reading the same tracepoint — observes nothing and reports
+> zero loss. Silence and "no event occurred" become indistinguishable from the
+> observer's own outputs.
 
-Read first: `../../docs/OBSERVATION_INTEGRITY_THREAT_MODEL.md` (the security
-property and attack surface) and `../../docs/OBSERVATION_INTEGRITY_EXPERIMENT_PLAN.md`
-(design, expected behaviour, results, AIRI implications).
+**Status: THREAT_REPRODUCED, THREAT_CHARACTERIZED. No mitigation implemented.
+No production code changed.**
 
-## Layout
+## The two experiments, and what each adds
 
-| Path | What |
+They agree on the finding and are complementary in method. Where they overlap
+(both define observation states, both evaluate mitigation options), treat them
+as two independent characterisations of the same thing, not one derived from
+the other.
+
+### Experiment 2b — minimal-cause isolation
+| | |
 |---|---|
-| `harness/interference_probe.sh` | one run: ground truth + observer-under-test (single lifetime) + interferer across BEFORE/DURING/AFTER phases |
-| `harness/analyze_interference.py` | per-phase counts and the guarded verdict |
-| `harness/window_analysis.py` | resolves TOTAL vs SELECTIVE suppression using audit's shared event order (no clock) |
-| `harness/summarize.py` | prints one run's result table |
-| `instruments/a3s_control_switch.patch` | 42-line env-gated patch to the LOCAL A3S build enabling per-tracepoint arms; not upstreamed, touches nothing in this repo |
-| `evidence/OI-001-*/` | raw artefacts, one run per arm |
+| Interferer | `tracepoint_interferer.c` — a 2-instruction BPF program that returns 0. No A3S code, no observation logic. |
+| Harness | `reproduce_interference.sh` — two arms, Sniffer Dog alone vs Sniffer Dog with the gate held |
+| Evidence | `results/<ts>/` with per-arm counts, `environment.txt`, `verdict.json`, `SHA256SUMS` |
+| Next experiment | `OBSERVATION-INTEGRITY-001.md` — seven observer conditions and expected classifications |
+| Specs | `docs/OBSERVATION_INTEGRITY_REQUIREMENTS.md`, `docs/OBSERVATION_MECHANISM_INDEPENDENCE.md`, `docs/OBSERVATION_INTEGRITY_DECISION_RECORD.md` |
 
-## Run it
+**Its strength:** the interferer does exactly one thing — hold the
+perf-submission gate shut — so a reproduction proves the mechanism rather than
+a correlation. "A3S blinds Sniffer Dog" leaves open which of A3S's many actions
+is the cause; a 2-instruction return-0 program does not.
 
+### Experiment 2a — ambiguity exclusion
+| | |
+|---|---|
+| Interferer | A3S with a 42-line env-gated control switch (`instruments/a3s_control_switch.patch`, local build only) to attach one sched tracepoint at a time |
+| Harness | `harness/interference_probe.sh` — one observer lifetime, three phases (BEFORE / DURING / AFTER attach), no restart |
+| Ground truth | `harness/` uses the audit subsystem (different submission path) to prove the phase-2 executions really happened |
+| Resolution | `harness/window_analysis.py` fixes the confirmed-attached window in audit's shared event order and resolves TOTAL vs SELECTIVE suppression with no clock |
+| Evidence | `evidence/OI-001-*/`, one run per arm (`none`, `both`, `exec_only`, `fork_only`) |
+| Specs | `docs/OBSERVATION_INTEGRITY_THREAT_MODEL.md`, `docs/OBSERVATION_INTEGRITY_EXPERIMENT_PLAN.md` |
+
+**Its strength:** interference inside one observer lifetime with no restart
+excludes lifecycle ordering by construction; the audit ground truth and window
+analysis exclude the "selective vs total" ambiguity (suppression is total
+within the confirmed window — all 15 execs missed, `sleep`/`date`/`seq`
+included); the per-tracepoint control arms confirm the gate is per
+`trace_event_call` (gating exec suppresses exec, gating fork does not).
+
+## Where they agree, and the one wording to reconcile
+
+Both establish: the effect is real; it is silent (loss = 0); it is
+per-tracepoint (the fork stream is untouched when only exec is gated); and the
+current health model does not represent it. "Host-wide" in experiment 2b means
+host-wide **across perf consumers of the gated tracepoint** — which is the same
+per-tracepoint gate experiment 2a isolates, not a claim that unrelated
+tracepoints go dark. The two are consistent.
+
+## Reproducing
+
+Minimal-cause (2b):
 ```sh
-# build the observer-under-test driver (uses the production aip_observe sensor)
-(cd ../scenarios/exp01_linux_runtime_observation/recorder && cargo build --release)
+sudo ./reproduce_interference.sh          # exit 0 = finding reproduced
+```
 
+Ambiguity-exclusion (2a):
+```sh
+(cd ../scenarios/exp01_linux_runtime_observation/recorder && cargo build --release)
 # build the interferer with the control switch (local A3S checkout)
-git -C /tmp/a3s apply <this dir>/instruments/a3s_control_switch.patch   # if not already applied
+git -C /tmp/a3s apply "$PWD/instruments/a3s_control_switch.patch"   # if not applied
 (cd /tmp/a3s && LLVM_SYS_181_PREFIX=/usr/lib/llvm-18 PATH=/usr/lib/llvm-18/bin:$PATH \
    cargo +nightly build --release -p a3s-observer-collector)
-
-# the four arms
 for A in none both exec_only fork_only; do ARM=$A bash harness/interference_probe.sh; done
 ```
 
-Requires root, `CONFIG_AUDITSYSCALL=y`, and a mountable `tracefs`. Each run
-writes `result.json`, `window_analysis.json`, `metadata.json`, `timeline.txt`,
-and every observer's raw stream to a fresh `evidence/OI-001-*` directory.
-
-## What each arm shows
-
-- `none` — negative control; the harness does not manufacture the signature.
-- `both` — the raw effect: total suppression of the observer under test with
-  loss = 0, while audit records every execution.
-- `exec_only` / `fork_only` — the gate is per-tracepoint: gating one sched
-  tracepoint suppresses that stream and leaves the other intact.
+Both require root, `CONFIG_AUDITSYSCALL=y`, and a mountable `tracefs`.
 
 ## The boundary — read before citing any result
 
-This establishes, on this host with this mechanism, that the interference is
-real, silent, per-tracepoint, and total within the confirmed-attached window,
-and that the current health model cannot represent it (CODE-PROVEN from
-`aip-observe/src/attest.rs`). It does **not** establish that an unprivileged
-subject can reach the gate (UNKNOWN), and it makes **no** claim that any host
+Together these establish, on this host with this mechanism, that the
+interference is real, silent, per-tracepoint, and total within the
+confirmed-attached window, and that `aip-observe`'s health model cannot
+represent it (CODE-PROVEN from `aip-observe/src/attest.rs`: `ObserverState`
+reaches `Active` unless `probe_faults` is non-empty, and that is fed only by
+loss > 0, sequence discontinuity, or restart — none of which this attack
+produces).
+
+They do **not** establish that an unprivileged subject can reach the gate
+(UNKNOWN — it required root/`CAP_BPF` here), and make **no** claim that any host
 observer resists a root or kernel adversary (out of boundary). The kernel
-mechanism itself is corroborated behaviourally here, not re-derived from kernel
-source on this host — see the threat model §5.
+mechanism is corroborated behaviourally (per-tracepoint isolation, ftrace
+surviving on a different submission path), not re-derived from kernel source on
+this host.

@@ -1,5 +1,8 @@
 # OBSERVATION-INTEGRITY-001 — experiment plan and results
 
+> A concurrent experiment (`validation/observation_integrity/reproduce_interference.sh`, minimal-cause BPF interferer) characterises the same finding; `validation/observation_integrity/README.md` compares the two methods.
+
+
 Status: **THREAT_REPRODUCED and THREAT_CHARACTERIZED.**
 
 This document is both the plan and the record, because the experiment ran. The

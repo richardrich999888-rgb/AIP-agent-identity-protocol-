@@ -1,5 +1,8 @@
 # Observation-integrity threat model
 
+> Companion specs from a concurrent, independently built characterisation of the same finding: `OBSERVATION_INTEGRITY_REQUIREMENTS.md`, `OBSERVATION_MECHANISM_INDEPENDENCE.md`, `OBSERVATION_INTEGRITY_DECISION_RECORD.md`. `validation/observation_integrity/README.md` compares the two.
+
+
 Status: **THREAT_CHARACTERIZED.**
 
 Not MITIGATION_DESIGNED beyond the option analysis in §6, not
