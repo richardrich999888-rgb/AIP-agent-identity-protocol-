@@ -20,6 +20,22 @@
 //! reach an actuator: the function signature does not accept them. The
 //! actuator here is a recording double; the real cgroup v2 freezer is
 //! exercised in `live_freeze.rs`.
+//!
+//! # What the input to these tests is, and is not
+//!
+//! The warrant fixtures below rest on `PhantomClaim · Proven`. **The
+//! reconciliation engine cannot produce that record**, and no record it can
+//! produce reaches `Contain` at all — `reachability.rs` proves it, and
+//! `CONTAINMENT_MODEL.md` §10 records it as a deliberate v1 position rather
+//! than a gap to be routed around.
+//!
+//! So what these tests establish is the correctness of the gates, the
+//! actuator and the signed records **given** a warrant that authorises
+//! containment: that the seventeen gates refuse everything they should,
+//! that failure fails open, and that every attempt becomes evidence. They
+//! do not establish that the system can autonomously contain anything
+//! today, and the fixture must not be read as a demonstration that it can.
+//! Directive §13 forbids exactly that reading.
 
 #![cfg(target_os = "linux")]
 
@@ -131,6 +147,12 @@ fn covered() -> ObservationAvailability {
     }
 }
 
+/// A `PhantomClaim · Proven` record. **The engine cannot produce this
+/// pair** — the guard in `aip-reconcile` emits `PhantomClaim` only at
+/// `Attested`, because an unobserved window under attested coverage is a
+/// strong statement about evidence and not a recomputable fact. It exists
+/// here to drive the actuator path, and `reachability.rs` is the record of
+/// why nothing real arrives at that path in v1.
 fn proven_phantom() -> Reconciliation {
     record(
         ReconciliationResult::PhantomClaim,

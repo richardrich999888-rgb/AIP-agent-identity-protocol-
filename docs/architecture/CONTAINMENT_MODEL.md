@@ -174,3 +174,75 @@ frozen process keeps its descriptors, sockets and memory, and work already
 queued in the kernel may complete. Children the target forks after attachment
 inherit the cgroup and freeze with it. Network isolation is deliberately not
 implemented.
+
+## 10. Is autonomous containment reachable? (directive §13)
+
+**No, and that is the v1 position rather than an unfinished edge.**
+
+`aip_warrant::evaluate` takes the minimum of three caps, so `Contain`
+requires all three to reach it:
+
+| cap | reaches `Contain` when |
+|---|---|
+| result | the result targets the **workload**: `UNATTRIBUTED_EFFECT`, `PHANTOM_CLAIM`, `IDENTITY_DIVERGENCE`, `LINEAGE_VIOLATION` |
+| strength | the strength is **`Proven`** — nothing weaker |
+| severity | the operator's table says **`Critical`** |
+
+The severity cap belongs to the operator and may be raised. The other two
+are not policy, and the reconciliation engine's own guard fixes which
+`(result, strength)` pairs can leave `Draft::finish`:
+
+```
+VERIFIED_EXECUTION        Attested
+PHANTOM_CLAIM             Attested
+UNATTRIBUTED_EFFECT       Attested
+IDENTITY_DIVERGENCE       Attested
+LINEAGE_VIOLATION         Attested   ← procfs-bound instances, never Proven
+CONTINUITY_FAILURE        Attested
+SENSOR_INTEGRITY_FAILURE  Attested, Proven
+CANNOT_PROVE              Heuristic
+```
+
+The only result the engine produces at `Proven` is
+`SENSOR_INTEGRITY_FAILURE` — a finding a verifier can recompute from bytes
+it already holds, which is what earns the word. That result's own cap is
+`Constrain`, and its target is the **observer**, not the workload.
+
+The two sets do not intersect. Everything containable is at most
+`Attested`; the one `Proven` thing is not a workload finding. And the
+observer target is deliberate: freezing a workload because a sensor failed
+would be the wrong response to the wrong party.
+
+**Why this is A and not B.** Reaching option B would mean either lowering
+what `Proven` means — which would make the word describe evidence it does
+not describe — or adding an evidence source whose output a verifier can
+independently recompute for a workload action. The current sources cannot
+support that: `/proc` content and socket-table reads are attested
+observations of a host's own reporting, not recomputable facts. Manufacturing
+a `Proven` label over them to make a later gate reachable is exactly the
+substitution this architecture exists to prevent.
+
+**What would change the answer.** An evidence source whose record a verifier
+can recompute end to end from independently anchored material — a
+kernel-resident sensor with its own attestation path, or hardware-anchored
+observation. When such a source exists, nothing else stands in the way:
+`reachability.rs::r02` shows that a workload finding at `Proven` warrants
+containment immediately. The machinery is not missing; the evidence is.
+
+**Consequences recorded honestly.**
+
+- `aip-containment` is real, tested and unreachable from live evidence in
+  v1. Its gates, actuator and signed records are exercised against a
+  fixture, and `containment.rs` says so at the top of the file.
+- The fixture is `PHANTOM_CLAIM · Proven`, a pair the engine cannot
+  produce. It demonstrates the gates, never the capability.
+- `tests/reachability.rs` proves the unreachability over the engine's whole
+  producible set under the most permissive policy an operator could write,
+  and fails if the engine ever gains a `Proven` workload finding — at which
+  point this section must be written again.
+- Containment is gated twice regardless: by the evidence, and by two
+  independent operator enablements that are both off by default.
+
+**The claim that must not be made:** that this system can autonomously
+contain a misbehaving agent today. It cannot, by design, and no
+configuration changes that.
