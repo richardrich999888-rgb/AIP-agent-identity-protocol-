@@ -207,6 +207,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-industrial"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-crypto",
+ "aip-edge",
+ "aip-execution",
+ "aip-nexora",
+ "aip-observation",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-robotics",
+ "aip-system",
+ "aip-types",
+ "aip-uas",
+ "aip-warrant",
+ "serde",
+]
+
+[[package]]
 name = "aip-nexora"
 version = "0.4.0"
 dependencies = [
