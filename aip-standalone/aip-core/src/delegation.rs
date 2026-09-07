@@ -166,12 +166,22 @@ pub fn create_sub_delegation(
 /// `chain[0]` must be the root delegation (depth=1), `chain[n-1]` is the leaf.
 /// `issuer_public_keys` maps AIP-ID → public key bytes for each issuer in the chain.
 ///
-/// Each hop is verified:
+/// The root token is verified first, under its own issuer's key. Everything
+/// the walk below reads from it — its `jti`, its scope, its expiry, and the
+/// holder each hop must be issued by — comes from those signed bytes, so
+/// authenticating it is not an optional extra a caller may supply itself:
+/// without it this function would report a verified chain over a root
+/// nobody signed. (Found by Gate 14: four of the five callers happened to
+/// call `verify_scoped_token` beforehand and one did not, which is the
+/// caller-discipline this repository does not rely on.)
+///
+/// Each hop is then verified:
 /// 1. Signature is valid against the issuer's public key
-/// 2. `chain[i].scope ⊆ chain[i-1].scope`
-/// 3. `chain[i].depth == chain[i-1].depth + 1`
-/// 4. `chain[i].parent_jti == chain[i-1].jti`
-/// 5. `chain[i].expires_at` does not outlive the parent's `expires_at`
+/// 2. The issuer is the party the parent granted to
+/// 3. `chain[i].scope ⊆ chain[i-1].scope`
+/// 4. `chain[i].depth == chain[i-1].depth + 1`
+/// 5. `chain[i].parent_jti == chain[i-1].jti`
+/// 6. `chain[i].expires_at` does not outlive the parent's `expires_at`
 ///    (a bounded parent cannot yield an unbounded or later-expiring child)
 ///
 /// Returns the effective (most-attenuated) scope — the leaf token's scope,
@@ -181,8 +191,20 @@ pub fn verify_delegation_chain(
     chain: &[DelegationToken],
     issuer_public_keys: &HashMap<String, Vec<u8>>,
 ) -> Result<CapabilityScope, AipError> {
+    // 0. The root of the chain, under its own issuer's key. An issuer this
+    //    verifier does not know is refused rather than skipped: a chain
+    //    starting from a token nobody here can check is not a verified
+    //    chain.
+    let root_key = issuer_public_keys
+        .get(&root_token.issuer_id)
+        .ok_or(AipError::InvalidPublicKey)?;
+    if !crate::capability::verify_scoped_token(root_token, root_key)? {
+        return Err(AipError::SignatureInvalid);
+    }
+
     if chain.is_empty() {
-        // Empty chain — effective scope is the root token's scope
+        // Empty chain — effective scope is the root token's scope, now
+        // known to be the scope its issuer signed.
         return Ok(root_token.scope.clone());
     }
 
@@ -855,7 +877,7 @@ mod tests {
 
     #[test]
     fn test_3_hop_delegation_chain_verifies() {
-        let (issuer_id, priv_key, _issuer_pub) = make_agent();
+        let (issuer_id, priv_key, issuer_pub) = make_agent();
         let (a1_id, a1_priv, a1_pub) = make_agent();
         let (a2_id, a2_priv, a2_pub) = make_agent();
         let (a3_id, _, _) = make_agent();
@@ -865,6 +887,11 @@ mod tests {
         let hop2 = create_sub_delegation(&hop1, &a2_priv, &a3_id, scope_audit_reader()).unwrap();
 
         let mut keys = HashMap::new();
+        // The root's issuer, which this test used to leave out: the chain
+        // verified anyway, because the root was never authenticated. It is
+        // supplied now because the verifier needs it, not to make the test
+        // pass — the assertions below are unchanged.
+        keys.insert(issuer_id.clone(), issuer_pub);
         keys.insert(a1_id.clone(), a1_pub);
         keys.insert(a2_id.clone(), a2_pub);
 
@@ -980,7 +1007,7 @@ mod tests {
         .unwrap();
         let hop =
             create_delegation(&root, &holder_priv, &grantee_id, scope_audit_reader()).unwrap();
-        assert!(verify_delegation_chain(&root, &[hop.clone()], &keys).is_ok());
+        assert!(verify_delegation_chain(&root, std::slice::from_ref(&hop), &keys).is_ok());
 
         // The root's expiry, rewritten by whoever presents the chain. The
         // issuer never signed this.
@@ -991,7 +1018,7 @@ mod tests {
             "the root token's own signature does not cover this"
         );
         assert!(
-            verify_delegation_chain(&extended, &[hop.clone()], &keys).is_err(),
+            verify_delegation_chain(&extended, std::slice::from_ref(&hop), &keys).is_err(),
             "a chain was verified from a root token nobody signed"
         );
 

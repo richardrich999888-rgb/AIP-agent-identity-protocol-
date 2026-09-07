@@ -43,24 +43,35 @@ use ghost_demo::{run, Demo, ProofInputs, Scenario};
 
 const AGENT: &str = env!("CARGO_BIN_EXE_ghost-demo-agent");
 
-/// `nexora-verify` belongs to another crate, so cargo does not hand this
-/// test its path. It sits beside every other binary of this build, which is
-/// two directories up from the test executable in `target/<profile>/deps`.
-/// Resolved rather than assumed: if it is not there the demonstrator says
-/// so instead of quietly checking the proof in-process, which would not be
-/// isolation at all.
+/// `nexora-verify` belongs to another crate, so cargo neither hands this
+/// test its path nor rebuilds it for `cargo test -p ghost-demo`. Both
+/// matter, and the second one bit: a stale verifier left over from an
+/// earlier build accepted a package that the current code refuses, and the
+/// demonstrator reported a pass. The whole claim of this suite is that a
+/// *separate, current* process reached the same verdict, so the binary is
+/// built here rather than assumed. Cargo has released the target lock by
+/// the time tests run, so the nested build is safe.
 fn verifier_path() -> std::path::PathBuf {
+    static BUILD: std::sync::Once = std::sync::Once::new();
+    BUILD.call_once(|| {
+        let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".into());
+        let out = std::process::Command::new(cargo)
+            .args(["build", "-p", "aip-nexora", "--bin", "nexora-verify"])
+            .output()
+            .expect("cargo must be runnable to build the offline verifier");
+        assert!(
+            out.status.success(),
+            "could not build nexora-verify:\n{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+    });
     let exe = std::env::current_exe().expect("the test binary has a path");
     let profile_dir = exe
         .parent()
         .and_then(|deps| deps.parent())
         .expect("target/<profile>/deps/<test>");
     let p = profile_dir.join("nexora-verify");
-    assert!(
-        p.is_file(),
-        "the offline verifier was not built at {}; run `cargo build -p aip-nexora --bin nexora-verify`",
-        p.display()
-    );
+    assert!(p.is_file(), "no offline verifier at {}", p.display());
     p
 }
 
@@ -92,6 +103,13 @@ fn package(d: &Demo) -> (NexoraProof, VerifierAnchors) {
         nexora: aip_nexora::NexoraTrustAnchors::new(),
         issuers: i.issuer_keys.clone(),
         agent_public_key: Some(i.agent_public_key.clone()),
+        // The verifier's own limits on what it will accept a package to
+        // have been reconciled under. Without them it accepts whatever the
+        // package declares and re-derives under it, which is a weaker
+        // verifier than any real deployment should be: a package could
+        // declare a month-old health record acceptable and be believed.
+        max_declared_health_age_ms: Some(ghost_demo::HEALTH_MAX_AGE_MS),
+        max_declared_window_tolerance_ms: Some(0),
         ..Default::default()
     };
     (proof, anchors)
@@ -129,6 +147,14 @@ fn verify_in_another_process(f: &Files) -> (bool, String) {
         .arg(&f.proof)
         .arg("--anchors")
         .arg(&f.anchors)
+        // The verifier's own limits, on its own command line — the one
+        // channel a package cannot reach. They match what the live run was
+        // actually reconciled under, so a package declaring anything looser
+        // is refused.
+        .arg("--max-health-age-ms")
+        .arg(ghost_demo::HEALTH_MAX_AGE_MS.to_string())
+        .arg("--max-window-tolerance-ms")
+        .arg("0")
         .output()
         .expect("the offline verifier must be runnable");
     let text = format!(
@@ -281,7 +307,11 @@ fn g14_05_every_mutation_of_a_live_package_is_refused_offline() {
         "the honest live package must verify before it is attacked"
     );
 
-    let mutations: Vec<(&str, Box<dyn Fn(&mut NexoraProof)>)> = vec![
+    /// One attack: what it does to a package, and what to call it in the
+    /// failure message.
+    type Mutation = (&'static str, Box<dyn Fn(&mut NexoraProof)>);
+
+    let mutations: Vec<Mutation> = vec![
         (
             "the observed window moved by one millisecond",
             Box::new(|p: &mut NexoraProof| {
