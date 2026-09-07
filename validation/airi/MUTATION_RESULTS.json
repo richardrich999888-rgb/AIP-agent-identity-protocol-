@@ -1,0 +1,93 @@
+{
+  "mutations": [
+    {
+      "id": "M-OBS-1",
+      "kills": "the classification is driven by the observer, not by the claim",
+      "scenarios": [
+        "AIRI-002"
+      ],
+      "patch_applied": true,
+      "sha256_before": "39c13e2bd60f9db1",
+      "sha256_after": "8c3a03273585cc7b",
+      "verdicts_under_mutation": {
+        "AIRI-002": "FAIL"
+      },
+      "killed_by": [
+        "AIRI-002"
+      ],
+      "result": "KILLED"
+    },
+    {
+      "id": "M-OBS-2",
+      "kills": "the netlink length convention (records truncated by 16 bytes)",
+      "scenarios": [
+        "AIRI-001"
+      ],
+      "patch_applied": true,
+      "sha256_before": "5f433c42ad4526cc",
+      "sha256_after": "cd5c6cc1c359f447",
+      "verdicts_under_mutation": {
+        "AIRI-001": "UNKNOWN"
+      },
+      "killed_by": [
+        "AIRI-001"
+      ],
+      "result": "KILLED"
+    },
+    {
+      "id": "M-OBS-3",
+      "kills": "observer-side parentage attribution (pid/ppid from the SYSCALL record)",
+      "scenarios": [
+        "AIRI-014"
+      ],
+      "patch_applied": true,
+      "sha256_before": "39c13e2bd60f9db1",
+      "sha256_after": "bedaee2096d48f31",
+      "verdicts_under_mutation": {
+        "AIRI-014": "FAIL"
+      },
+      "killed_by": [
+        "AIRI-014"
+      ],
+      "result": "KILLED"
+    },
+    {
+      "id": "M-OBS-4",
+      "kills": "beacon ordering (a completion claimed before the execution it describes)",
+      "scenarios": [
+        "AIRI-008",
+        "AIRI-009"
+      ],
+      "patch_applied": true,
+      "sha256_before": "39c13e2bd60f9db1",
+      "sha256_after": "dcdc022dccc7fc33",
+      "verdicts_under_mutation": {
+        "AIRI-008": "PASS",
+        "AIRI-009": "FAIL"
+      },
+      "killed_by": [
+        "AIRI-009"
+      ],
+      "result": "KILLED"
+    },
+    {
+      "id": "M-OBS-5",
+      "kills": "the result's dependence on the independent observer watching the right syscalls at all",
+      "scenarios": [
+        "AIRI-001"
+      ],
+      "patch_applied": true,
+      "sha256_before": "94121f1b3aacbd2c",
+      "sha256_after": "e41ec6df03e6b208",
+      "verdicts_under_mutation": {
+        "AIRI-001": "UNKNOWN"
+      },
+      "killed_by": [
+        "AIRI-001"
+      ],
+      "result": "KILLED"
+    }
+  ],
+  "survivors": [],
+  "note": "A mutation is KILLED when at least one guard scenario stops reporting PASS. UNKNOWN counts: the harness refusing to conclude is the correct response to a broken observer, and it is recorded as UNKNOWN rather than silently as FAIL."
+}

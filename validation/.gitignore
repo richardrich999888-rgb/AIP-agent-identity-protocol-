@@ -9,3 +9,9 @@ reports/*
 # Build artefacts of the instrument driver.
 scenarios/*/recorder/target/
 scenarios/*/recorder/Cargo.lock
+
+# The AIRI experiment's canonical run set is EVIDENCE, not scratch output, and
+# is committed: the mandate requires raw artefacts to be preserved with their
+# metadata. Exploratory and mutation runs stay out.
+!traces/airi-final/
+!traces/airi-final/**
