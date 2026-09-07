@@ -345,6 +345,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-space"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-edge",
+ "aip-execution",
+ "aip-nexora",
+ "aip-observation",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-system",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-system"
 version = "0.4.0"
 dependencies = [

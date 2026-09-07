@@ -1,0 +1,35 @@
+[package]
+name = "aip-space"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Disconnected and space autonomy accountability profile: a vertical over the generic core, adding no ledger, no verdict and no proof tree"
+
+# ── A profile, not a second continuity engine ─────────────────────────────
+#
+# Every dependency here is consumed and none is extended. The continuity
+# authority is `aip-observe`'s `ObserverLedger`; this crate reassembles what
+# arrives across contacts and hands it to that ledger, and never repairs a
+# fault the ledger returns. The proof tree is NEXORA's; this crate packages
+# evidence for transport and verification flows through the existing verifier.
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-system = { path = "../aip-system" }
+aip-execution = { path = "../aip-execution" }
+aip-observation = { path = "../aip-observation" }
+aip-observe = { path = "../aip-observe" }
+aip-authorize = { path = "../aip-authorize" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"
+aip-core = { path = "../aip-core" }
+# Driven in tests only, to demonstrate the profile needs no change to either.
+# Deliberately not runtime dependencies: a profile that could reach the verdict
+# engine at runtime is a profile that could eventually produce a verdict.
+aip-reconcile = { path = "../aip-reconcile" }
+aip-nexora = { path = "../aip-nexora" }
+# The Skill 22 reference, driven as a spacecraft's onboard computer across a
+# simulated link outage — the acceptance gate's execution path.
+aip-edge = { path = "../aip-edge" }

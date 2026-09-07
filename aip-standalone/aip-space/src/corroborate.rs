@@ -1,0 +1,185 @@
+//! Agreement between onboard sources, and why it is not proof.
+//!
+//! # The orbital version of the intuition
+//!
+//! The star tracker, the gyro and the navigation filter all say the vehicle is
+//! pointing where it should. Surely it is?
+//!
+//! No. All three are aboard the vehicle, on a bus the vehicle owns, and the
+//! filter's inputs are the other two. Three agreeing sources inside one trust
+//! boundary are **one** report with three names on it — and the failure mode
+//! with no attacker in it at all is a filter that has converged confidently on
+//! a wrong solution and is dragging both sensors' residuals along with it.
+//!
+//! # Two rules, as code
+//!
+//! 1. [`SourceAgreement::ceiling_after_agreement`] returns the base ceiling
+//!    unchanged, for any number of agreeing sources, and contains no
+//!    arithmetic.
+//! 2. A conflict is reported as a conflict, never resolved by majority, by
+//!    recency, by an apparently better sensor, or by a covariance. The last is
+//!    worth naming for spaceflight specifically: an estimator's covariance is
+//!    an output of its own model, so "the filter was confident" is the subject
+//!    reporting on itself twice.
+
+use aip_observation::EvidenceCeiling;
+use serde::{Deserialize, Serialize};
+
+use crate::sensing::SpaceSensingSource;
+
+/// What a set of sources said about one quantity.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Agreement {
+    Corroborated { agreeing: u32, independent: u32 },
+    Conflicting { agreeing: u32, disagreeing: u32 },
+    Insufficient { reporting: u32 },
+}
+
+impl Agreement {
+    pub fn code(&self) -> u8 {
+        match self {
+            Self::Corroborated { .. } => 0x01,
+            Self::Conflicting { .. } => 0x02,
+            Self::Insufficient { .. } => 0x03,
+        }
+    }
+
+    /// Whether this agreement supports treating a quantity as established.
+    ///
+    /// **False for every variant, including `Corroborated`.**
+    pub fn establishes(&self) -> bool {
+        false
+    }
+}
+
+/// A set of sources reporting on one thing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SourceAgreement {
+    pub agreeing: Vec<SpaceSensingSource>,
+    pub disagreeing: Vec<SpaceSensingSource>,
+}
+
+impl SourceAgreement {
+    pub fn classify(&self) -> Agreement {
+        let agreeing = self.agreeing.len() as u32;
+        let disagreeing = self.disagreeing.len() as u32;
+        if disagreeing > 0 {
+            return Agreement::Conflicting {
+                agreeing,
+                disagreeing,
+            };
+        }
+        if agreeing < 2 {
+            return Agreement::Insufficient {
+                reporting: agreeing,
+            };
+        }
+        Agreement::Corroborated {
+            agreeing,
+            independent: self
+                .agreeing
+                .iter()
+                .filter(|s| s.is_independent() && s.can_produce_observation_record())
+                .count() as u32,
+        }
+    }
+
+    /// The ceiling after taking agreement into account. Returns `base`.
+    pub fn ceiling_after_agreement(&self, base: EvidenceCeiling) -> EvidenceCeiling {
+        let _ = self.classify();
+        base
+    }
+
+    /// Whether the set may be reduced to a single value.
+    ///
+    /// False whenever anything disagrees. There is deliberately no method that
+    /// performs such a reduction: resolving a sensor conflict on a vehicle
+    /// nobody can reach for six months is a domain decision with mission
+    /// consequences, and a generic profile that picked a winner would be
+    /// making it on a deployment's behalf.
+    pub fn is_resolvable(&self) -> bool {
+        self.disagreeing.is_empty()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn three_agreeing_onboard_sources_establish_nothing() {
+        let a = SourceAgreement {
+            agreeing: vec![
+                SpaceSensingSource::AttitudeSolutionOnboard,
+                SpaceSensingSource::HousekeepingTelemetry,
+                SpaceSensingSource::NavigationSolutionOnboard,
+            ],
+            disagreeing: vec![],
+        };
+        match a.classify() {
+            Agreement::Corroborated {
+                agreeing,
+                independent,
+            } => {
+                assert_eq!(agreeing, 3);
+                assert_eq!(independent, 0, "all three are aboard the vehicle");
+            }
+            other => panic!("{other:?}"),
+        }
+        assert!(!a.classify().establishes());
+    }
+
+    #[test]
+    fn agreement_never_raises_the_ceiling() {
+        for n in 1..=8usize {
+            let a = SourceAgreement {
+                agreeing: vec![SpaceSensingSource::HousekeepingTelemetry; n],
+                disagreeing: vec![],
+            };
+            for base in [
+                EvidenceCeiling::Corroborative,
+                EvidenceCeiling::Attested,
+                EvidenceCeiling::Proven,
+            ] {
+                assert_eq!(a.ceiling_after_agreement(base), base, "{n}, {base:?}");
+            }
+        }
+    }
+
+    #[test]
+    fn ground_tracking_disagreeing_with_the_vehicle_stays_a_conflict() {
+        let a = SourceAgreement {
+            agreeing: vec![
+                SpaceSensingSource::NavigationSolutionOnboard,
+                SpaceSensingSource::AttitudeSolutionOnboard,
+                SpaceSensingSource::HousekeepingTelemetry,
+            ],
+            disagreeing: vec![SpaceSensingSource::GroundRadiometricTracking],
+        };
+        assert!(matches!(a.classify(), Agreement::Conflicting { .. }));
+        assert!(!a.is_resolvable());
+        assert!(!a.classify().establishes());
+    }
+
+    #[test]
+    fn one_source_is_not_corroboration_and_no_variant_establishes() {
+        let a = SourceAgreement {
+            agreeing: vec![SpaceSensingSource::HousekeepingTelemetry],
+            disagreeing: vec![],
+        };
+        assert_eq!(a.classify(), Agreement::Insufficient { reporting: 1 });
+        for v in [
+            Agreement::Corroborated {
+                agreeing: 9,
+                independent: 9,
+            },
+            Agreement::Conflicting {
+                agreeing: 1,
+                disagreeing: 1,
+            },
+            Agreement::Insufficient { reporting: 0 },
+        ] {
+            assert!(!v.establishes(), "{v:?}");
+        }
+    }
+}
