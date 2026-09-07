@@ -1,0 +1,17 @@
+{
+  "experiment_id": "ROBOTICS-PHYSICAL-OBSERVATION-001",
+  "run_utc": "2026-09-07T19:16:42Z",
+  "source_mode": "synthetic",
+  "provenance_class": "SimulatorGroundTruth",
+  "anchored_collector_asserted_by_operator": false,
+  "tag_family": "apriltag_36h11",
+  "opencv_version": "5.0.0",
+  "numpy_version": "2.4.6",
+  "python": "3.11.15",
+  "seed": 1,
+  "mm_per_px_declared": 2.0,
+  "calibration_performed": false,
+  "marker_attachment_verified": false,
+  "physical_claim_supported": false,
+  "why": "A synthetic scene is not an observation of any world. A real camera without an anchored collector is a party the verifier cannot name. Neither reaches a physical-effect claim in this build, because no SourceMechanism carries an optical observation."
+}
