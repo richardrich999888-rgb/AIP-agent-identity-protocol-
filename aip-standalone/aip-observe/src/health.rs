@@ -32,6 +32,16 @@ pub enum ObserverState {
     /// Integrity failure proven arithmetically (e.g. two distinct attested
     /// batches at the same sequence under the same key).
     Quarantined,
+    /// Live and continuous, but the observer cannot establish that its
+    /// observation mechanism remained *capable* of delivering the event class
+    /// over the window — a foreign eBPF program was found gating a tracepoint
+    /// it samples, so the perf submission for that tracepoint may have been
+    /// suppressed host-wide with no dropped-record accounting. This is neither
+    /// ordinary loss (nothing was dropped from the ring) nor a continuity
+    /// break (the chain is intact); it is the observation-integrity finding
+    /// (`docs/OBSERVATION_INTEGRITY_REQUIREMENTS.md`). Absence during such a
+    /// window carries no information: the observer may have been blind.
+    IntegrityUnknown,
 }
 
 impl ObserverState {
@@ -42,6 +52,7 @@ impl ObserverState {
             ObserverState::Recovering => 0x03,
             ObserverState::ContinuityUnverified => 0x04,
             ObserverState::Quarantined => 0x05,
+            ObserverState::IntegrityUnknown => 0x06,
         }
     }
 
@@ -52,6 +63,31 @@ impl ObserverState {
     pub fn permits_attested_use(&self) -> bool {
         matches!(self, ObserverState::Active)
     }
+}
+
+/// The collector's finding about whether its observation mechanisms remained
+/// *capable* of delivering their event class — distinct from whether they
+/// dropped anything (loss) or whether the chain is intact (continuity).
+///
+/// This is runtime state the collector derives from a live integrity check
+/// (on Linux, enumerating the eBPF programs attached to the tracepoints it
+/// samples). It is never signed on its own; its effect is carried into signed
+/// evidence through [`ObserverState::IntegrityUnknown`], so a verifier trusts
+/// the resulting state, not this input. Default is `Verified`: an observer
+/// that samples no gate-able mechanism, or that has positively checked, is
+/// capable — and the reconciler's non-occurrence gate does not rest on this
+/// signal in any case (it requires a gate-independent mechanism in the signed
+/// coverage), so a collector that never checks cannot thereby manufacture a
+/// coverage claim.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MechanismIntegrity {
+    /// No foreign eBPF program was found gating a sampled tracepoint (or the
+    /// observer samples nothing a tracepoint gate could suppress).
+    Verified,
+    /// A foreign eBPF program was found attached to a tracepoint the observer
+    /// samples: its perf submission may be suppressed host-wide with no loss
+    /// accounting. The count is diagnostic, not load-bearing.
+    ForeignTracepointGate { foreign_programs: u32 },
 }
 
 /// The interval an observation covers. Half-open is avoided deliberately:
@@ -86,6 +122,10 @@ pub enum UnavailableReason {
     ContinuityUnverified,
     /// The observer's integrity failed arithmetically.
     ObserverQuarantined,
+    /// The observer could not establish that its mechanism remained capable of
+    /// observing the event class (a foreign eBPF program was gating a sampled
+    /// tracepoint). Absence over this window is not evidence of non-occurrence.
+    ObserverIntegrityUnknown,
     /// The observer is healthy but the requested window falls outside what
     /// it attested to.
     WindowNotCovered,
@@ -230,13 +270,31 @@ pub struct SignedSensorHealth {
 }
 
 impl SignedSensorHealth {
-    /// Was the attested coverage epoch covered by a kernel-pushed mechanism?
-    /// This is the precondition for any statement about an event *not*
-    /// having happened; polled coverage can never support one.
+    /// Was the attested coverage epoch covered by a kernel-pushed mechanism
+    /// that an on-host adversary cannot silently suppress?
+    ///
+    /// This is the precondition for any statement about an event *not* having
+    /// happened; polled coverage can never support one. It now requires more
+    /// than "kernel-pushed": the coverage must include at least one mechanism
+    /// that does not pass through the per-tracepoint eBPF submission gate
+    /// (`is_gate_independent_kernel_pushed`). A window covered *only* by
+    /// perf-tracepoint mechanisms (sched/sock-state/sock-send) is not
+    /// sufficient, because a single eBPF program on that tracepoint blinds
+    /// them all with no loss accounting — the observation-integrity finding.
+    /// Requiring an independent facility (the netlink process connector, the
+    /// `fanotify` queue, or the `AF_PACKET` tap) is the cross-mechanism
+    /// corroboration that closes it: two tracepoint consumers are not
+    /// independent observers, so one of them alone cannot license a
+    /// non-occurrence claim. See `docs/OBSERVATION_INTEGRITY_REQUIREMENTS.md`
+    /// and `docs/OBSERVATION_MECHANISM_INDEPENDENCE.md`.
     pub fn covered_by_kernel_pushed_source(&self) -> bool {
         self.health.state.permits_attested_use()
             && self.health.attested_coverage.is_some()
-            && self.health.covered_by.iter().any(|m| m.is_kernel_pushed())
+            && self
+                .health
+                .covered_by
+                .iter()
+                .any(|m| m.is_gate_independent_kernel_pushed())
     }
 
     /// Availability for `window`, given a freshness bound on health itself.
@@ -263,6 +321,7 @@ impl SignedSensorHealth {
             ObserverState::Recovering => Some(UnavailableReason::ObserverRecovering),
             ObserverState::ContinuityUnverified => Some(UnavailableReason::ContinuityUnverified),
             ObserverState::Quarantined => Some(UnavailableReason::ObserverQuarantined),
+            ObserverState::IntegrityUnknown => Some(UnavailableReason::ObserverIntegrityUnknown),
             ObserverState::Active => None,
         };
         if let Some(reason) = reason {
@@ -298,6 +357,7 @@ mod tests {
             ObserverState::Recovering,
             ObserverState::ContinuityUnverified,
             ObserverState::Quarantined,
+            ObserverState::IntegrityUnknown,
         ] {
             assert!(!s.permits_attested_use(), "{s:?} must not be Attested");
         }
@@ -311,6 +371,7 @@ mod tests {
             ObserverState::Recovering,
             ObserverState::ContinuityUnverified,
             ObserverState::Quarantined,
+            ObserverState::IntegrityUnknown,
         ]
         .iter()
         .map(|s| s.code())
@@ -331,5 +392,142 @@ mod tests {
         assert!(w.contains(20));
         assert!(!w.contains(9));
         assert!(!w.contains(21));
+    }
+
+    // ── observation-integrity finding ────────────────────────────────────
+    // A blinded observer is one whose sampled tracepoint has a foreign eBPF
+    // program gating it. The signed health must not let such an observer's
+    // silence be read as coverage. These pin the two mechanisms that stop it:
+    // the `IntegrityUnknown` state, and the requirement for a gate-independent
+    // mechanism before coverage counts as kernel-pushed.
+
+    fn signed(
+        state: ObserverState,
+        covered_by: Vec<SourceMechanism>,
+        coverage: Option<CoverageWindow>,
+    ) -> SignedSensorHealth {
+        SignedSensorHealth {
+            health: SensorHealth {
+                version: 9,
+                observer_id: "obs".into(),
+                key_version: 1,
+                state,
+                continuity: ContinuityStatus::Verified,
+                probe_policy: ProbePolicy::RegisteredOnly,
+                sequence: 1,
+                head: [0u8; 32],
+                last_batch_id: None,
+                attested_coverage: coverage,
+                covered_by,
+                emitted_at_ms: 1_000,
+            },
+            // The predicates under test never inspect the signature; a
+            // placeholder keeps the test to the logic it is pinning.
+            attestation: Signature {
+                algorithm: aip_types::AlgorithmId::Ed25519,
+                signer_id: "obs".into(),
+                timestamp: 1_000,
+                nonce: [0u8; 16],
+                payload_hash: [0u8; 32],
+                signature_bytes: vec![0u8; 64],
+            },
+        }
+    }
+
+    #[test]
+    fn integrity_unknown_does_not_permit_attested_use() {
+        assert!(!ObserverState::IntegrityUnknown.permits_attested_use());
+    }
+
+    #[test]
+    fn integrity_unknown_reports_unavailable_not_covered() {
+        let w = CoverageWindow {
+            from_ms: 10,
+            to_ms: 20,
+        };
+        let h = signed(
+            ObserverState::IntegrityUnknown,
+            vec![SourceMechanism::ProcConnector],
+            Some(w),
+        );
+        // Even with the connector in coverage and the window inside it, an
+        // integrity-unknown observer vouches for nothing.
+        assert_eq!(
+            h.availability_for(&w, 1_000, 60_000),
+            ObservationAvailability::Unavailable {
+                reason: UnavailableReason::ObserverIntegrityUnknown
+            }
+        );
+        assert!(!h.covered_by_kernel_pushed_source());
+    }
+
+    #[test]
+    fn lone_gate_able_tracepoint_is_not_kernel_pushed_coverage() {
+        let w = CoverageWindow {
+            from_ms: 10,
+            to_ms: 20,
+        };
+        // Active observer, real coverage — but the only mechanism is the
+        // sched tracepoint, which a single eBPF program can blind. This is the
+        // finding: it must NOT license a non-occurrence statement.
+        let h = signed(
+            ObserverState::Active,
+            vec![SourceMechanism::SchedTracepoint],
+            Some(w),
+        );
+        assert!(
+            !h.covered_by_kernel_pushed_source(),
+            "a gate-able tracepoint alone must not count as kernel-pushed coverage"
+        );
+        // Same for the other two perf-tracepoint mechanisms, alone or together.
+        let h2 = signed(
+            ObserverState::Active,
+            vec![
+                SourceMechanism::SockStateTracepoint,
+                SourceMechanism::SockSendTracepoint,
+            ],
+            Some(w),
+        );
+        assert!(!h2.covered_by_kernel_pushed_source());
+    }
+
+    #[test]
+    fn gate_independent_mechanism_is_kernel_pushed_coverage() {
+        let w = CoverageWindow {
+            from_ms: 10,
+            to_ms: 20,
+        };
+        // The netlink connector is kernel-pushed and not exposed to the
+        // tracepoint gate, so it stands on its own.
+        for m in [
+            SourceMechanism::ProcConnector,
+            SourceMechanism::WireTapAfPacket,
+            SourceMechanism::Fanotify,
+        ] {
+            let h = signed(ObserverState::Active, vec![m], Some(w));
+            assert!(
+                h.covered_by_kernel_pushed_source(),
+                "{m:?} is gate-independent and should count"
+            );
+        }
+    }
+
+    #[test]
+    fn independent_mechanism_alongside_a_gate_able_one_still_counts() {
+        let w = CoverageWindow {
+            from_ms: 10,
+            to_ms: 20,
+        };
+        // A gate on the sched tracepoint cannot suppress the connector, so the
+        // pair is corroborated by the independent mechanism.
+        let h = signed(
+            ObserverState::Active,
+            vec![
+                SourceMechanism::SchedTracepoint,
+                SourceMechanism::ProcConnector,
+            ],
+            Some(w),
+        );
+        assert!(h.covered_by_kernel_pushed_source());
     }
 }

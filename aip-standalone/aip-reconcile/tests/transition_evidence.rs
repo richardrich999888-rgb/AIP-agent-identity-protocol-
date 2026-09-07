@@ -1221,7 +1221,12 @@ fn tp21_socket_state_coverage_alone_cannot_support_phantom_claim() {
         batches: vec![b1, b2],
         health: o.signer.health(at).unwrap(),
     };
-    assert!(ev.health.covered_by_kernel_pushed_source());
+    // The socket-state tracepoint is gate-able (perf submission), so it no
+    // longer counts as kernel-pushed coverage on its own — the cross-mechanism
+    // requirement of the observation-integrity fix. It is still present in
+    // covered_by; it simply does not, alone, license a non-occurrence claim.
+    // The reconcile outcome (CannotProve / CoverageNotKernelPushed) is unchanged.
+    assert!(!ev.health.covered_by_kernel_pushed_source());
     assert!(ev
         .health
         .health

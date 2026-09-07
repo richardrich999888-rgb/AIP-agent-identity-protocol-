@@ -1057,8 +1057,14 @@ fn xe14_loss_and_restart_block_verification() {
 
 // ═══ Coverage semantics ═══
 
-/// A fork/exec stream is kernel-pushed but carries no exit and is not
-/// accepted as lifecycle coverage for a `PHANTOM_CLAIM`.
+/// A fork/exec stream is kernel-pushed but reaches the observer through the
+/// perf-tracepoint eBPF submission gate, so a single foreign program could
+/// blind it (the observation-integrity finding). It is therefore no longer
+/// accepted as kernel-pushed *coverage* on its own — the coverage predicate
+/// now requires a gate-independent mechanism — and, as before, it also carries
+/// no exit and so fails the lifecycle check. Either way it cannot support a
+/// `PHANTOM_CLAIM`; the reconcile outcome (`CoverageNotKernelPushed`, not
+/// phantom) is unchanged, now defended at two layers instead of one.
 #[test]
 fn xe15_sched_coverage_alone_cannot_support_phantom_claim() {
     let x = expected();
@@ -1083,7 +1089,9 @@ fn xe15_sched_coverage_alone_cannot_support_phantom_claim() {
         batches: vec![b1, b2],
         health: o.signer.health(at).unwrap(),
     };
-    assert!(ev.health.covered_by_kernel_pushed_source());
+    // Sched coverage is gate-able, so it no longer counts as kernel-pushed
+    // coverage on its own (the cross-mechanism requirement).
+    assert!(!ev.health.covered_by_kernel_pushed_source());
     let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at));
     assert_ne!(r.result, ReconciliationResult::PhantomClaim, "{r:?}");
     assert_eq!(r.reason, ReasonCode::CoverageNotKernelPushed);
