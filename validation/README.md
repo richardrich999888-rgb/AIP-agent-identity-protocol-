@@ -66,3 +66,29 @@ not describe a rung you are standing below.
 It reports `READY`, `PARTIAL` or `BLOCKED` per instrument, prints the reason
 for anything that is not `READY`, and never installs, downloads or configures
 anything. It is a report, not a setup step.
+
+## AIRI validation (added by AIRI-INDEPENDENT-OBSERVATION-001)
+
+`airi/` holds AIRI-specific findings; `external/{a3s_observer,obi,otel,langfuse}/`
+hold per-tool status with the exact commands executed and their observed
+output; `scenarios/airi_independent_observation_001/` is the experiment.
+
+The report is `../docs/AIRI_REAL_WORLD_VALIDATION.md`.
+
+A **second, independently built AIRI experiment** also lives here:
+`airi/run_airi_validation.sh` with `airi/analyze.py`, `airi/observers/`,
+`airi/mutate.py`, its matrix at
+`airi/AIRI_INDEPENDENT_OBSERVATION_MATRIX.csv`, its committed run set under
+`traces/airi-final/`, and its report at
+`../docs/AIRI_INDEPENDENT_OBSERVATION_REPORT.md`. `airi/README.md` compares the
+two. It uses the Linux audit subsystem as a mechanism-independent observer,
+which `linux/INDEPENDENCE.md` had concluded did not exist here — that document
+surveyed tracing facilities, and audit is not one. See
+`airi/OBSERVER_INDEPENDENCE.md`.
+
+**Read `external/a3s_observer/TRACEPOINT_INTERFERENCE.md` before running two
+kernel observers at once.** Running A3S Observer alongside Sniffer Dog 2.0
+silently blinds Sniffer Dog's perf tracepoint sensors — zero events, zero
+reported loss — because a BPF program attached to a tracepoint gates that
+tracepoint's perf submission host-wide. It is the most consequential finding
+in this tree.

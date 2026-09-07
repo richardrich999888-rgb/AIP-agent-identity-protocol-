@@ -209,6 +209,52 @@ independently and the count mismatch surfaced.
 asserts an execution the other does not. The classification drops to `UNKNOWN`;
 neither account is promoted, neither is discarded.
 
+### Relationship to the concurrent experiment
+
+A second experiment ran independently and in parallel:
+`docs/AIRI_REAL_WORLD_VALIDATION.md`, with its subject, correlator and matrix
+under `validation/scenarios/airi_independent_observation_001/` and
+`validation/reports/`. It was not coordinated with this one. Both are kept,
+because two independent attempts at the same question are worth more than one,
+and where they differ the difference is itself information.
+
+**Where they agree.** An agent's success claim never becomes evidence; an
+execution can be established without asking the agent; a missing observer
+yields a refusal to conclude rather than a finding against the subject.
+
+**What that experiment has and this one does not.** It ran **A3S Observer**, an
+eBPF instrument written by a third party, and it ran **Sniffer Dog 2.0 itself**
+alongside. That produced the single most consequential result in either
+experiment — see `validation/external/a3s_observer/TRACEPOINT_INTERFERENCE.md`:
+a BPF program attached to `sched:sched_process_exec` causes the kernel to drop
+the sample for *every* `perf_event_open` consumer of that tracepoint, because
+`perf_trace_run_bpf_submit()` gates on the BPF return value per
+`trace_event_call`, host-wide. Sniffer Dog saw four exec events alone and zero
+with A3S running, **and reported `"lost":0` while blind**. The ftrace path is
+not gated the same way and kept working, which is what makes the diagnosis
+certain rather than plausible.
+
+That is a coverage defect in Sniffer Dog 2.0 found by putting it next to an
+independent observer, and it is exactly the class of finding a self-written
+test suite cannot produce. It is not a defect in A3S.
+
+**What this experiment has and that one does not.** A mechanism-independent
+observer that carries argv (audit); scenarios for delayed, duplicated,
+replayed and contradictory observation; a mutation suite proving the checks can
+fail; and eighteen scenarios against ten.
+
+**Where they disagree, substantively.** That report labels an
+externally-observed execution **`PROVEN`**. This one refuses to, and labels the
+same class of fact `OBSERVED`. Both documents state that their labels are
+external-validation labels and not Vanian verdicts, so neither is claiming a
+Vanian `EvidenceStrength`. The disagreement is still real and worth resolving
+in favour of the stricter reading: `aip-observation::ObservationClass::ceiling`
+reserves `Proven` for facts a third party recomputes from bytes it holds, and
+an `execve` record is content measured on the observed host, which host root
+can forge. **No syscall observation on the observed host should be labelled
+`PROVEN`, however many independent instruments record it.** §15 sets out the
+reasoning in full.
+
 ## 11. Mismatches
 
 Every mismatch listed above was surfaced by the observers, and none by the
@@ -418,8 +464,11 @@ In priority order.
    from every conclusion.
 4. **Sniffer Dog 2.0 itself as the subject under observation.** This experiment
    validated the *method*; it did not run `aip-observe` and therefore says
-   nothing about whether Sniffer Dog reads its tracepoints correctly. That is
-   the natural next target and both observers here are available for it.
+   nothing about whether Sniffer Dog reads its tracepoints correctly. The
+   concurrent experiment did run it and found that it can go silently blind —
+   see the tracepoint-interference finding referenced in §10. Following that up
+   is now the highest-value target, and audit is the right instrument for it,
+   because audit is not on the perf submission path the finding implicates.
 5. **A hostile subject.** The subject here is honest-but-configurable. A
    subject that actively attacks the observers — clearing audit rules, exiting
    the process tree, racing the window — would test the failure modes rather

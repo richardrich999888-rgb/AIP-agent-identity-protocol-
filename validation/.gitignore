@@ -6,9 +6,17 @@ reports/*
 !replay/.gitkeep
 !reports/.gitkeep
 
+# The consolidated validation matrix is a deliverable, not a run artefact.
+!reports/AIRI_VALIDATION_MATRIX.csv
+!reports/AIRI_VALIDATION_MATRIX.json
+
 # Build artefacts of the instrument driver.
 scenarios/*/recorder/target/
 scenarios/*/recorder/Cargo.lock
+scenarios/*/agent/target/
+scenarios/*/agent/Cargo.lock
+airi/agent/target/
+airi/agent/Cargo.lock
 
 # The AIRI experiment's canonical run set is EVIDENCE, not scratch output, and
 # is committed: the mandate requires raw artefacts to be preserved with their

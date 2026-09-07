@@ -96,6 +96,13 @@ fn main() {
                     ),
                 };
                 writeln!(out, "{line}").unwrap();
+                // Flush per event, deliberately. A recorder that loses its
+                // buffer when it is terminated produces an empty file that
+                // is indistinguishable from "the observer saw nothing" —
+                // which is the exact confusion this whole exercise exists to
+                // prevent. Evidence already gathered must survive the
+                // observer being stopped.
+                out.flush().unwrap();
             }
             Ok(None) => {}
             Err(e) => {

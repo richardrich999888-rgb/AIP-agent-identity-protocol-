@@ -1,18 +1,26 @@
 # OpenTelemetry — evaluation
 
-Phase 6 of the real-world validation mandate.
+Phase 6 of the real-world validation mandate. This document is about what OTel
+could *prove*. For what installs, see `otel/STATUS.md`, which records the
+`otelcol` collector binary being fetched and run successfully — a concurrent
+result that does not change anything below.
 
 ## Availability
 
-The Python OpenTelemetry SDK is not installed in this image and the package
-index is unreachable from this network:
+The Python OpenTelemetry **SDK** — the part that would instrument a subject —
+is not installed in this image and the package index is unreachable:
 
 ```
 $ python3 -c "import opentelemetry"
 ModuleNotFoundError: No module named 'opentelemetry'
 ```
 
-Status: **BLOCKED** for installation.
+The **collector** (`otelcol` 0.111.0) does install; see `otel/STATUS.md`. The
+distinction matters and is easy to blur: a collector that starts is a
+collector, not evidence. Nothing in this experiment sends to it, and if
+something did, the analysis below would be unchanged.
+
+Status: **SDK BLOCKED for installation; collector TOOLING_READY and unused.**
 
 ## Why that changes nothing about the experiment
 
@@ -64,6 +72,8 @@ prevent.
 
 ## Conclusion
 
-OTel is **BLOCKED** here and would be classified **SELF_REPORTED** if it ran.
-No result in `../../docs/AIRI_INDEPENDENT_OBSERVATION_REPORT.md` depends on it,
-and none would have been stronger if it had been available.
+The OTel SDK is **BLOCKED** here and would be classified **SELF_REPORTED** if
+it ran. The collector is installed and unused. No result in
+`../../docs/AIRI_INDEPENDENT_OBSERVATION_REPORT.md` depends on either, and none
+would have been stronger if both had been available — which is the whole point:
+**a tool that installs is `TOOLING_READY`, never a validation result.**
