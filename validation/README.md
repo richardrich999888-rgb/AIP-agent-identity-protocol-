@@ -66,3 +66,18 @@ not describe a rung you are standing below.
 It reports `READY`, `PARTIAL` or `BLOCKED` per instrument, prints the reason
 for anything that is not `READY`, and never installs, downloads or configures
 anything. It is a report, not a setup step.
+
+## AIRI validation (added by AIRI-INDEPENDENT-OBSERVATION-001)
+
+`airi/` holds AIRI-specific findings; `external/{a3s_observer,obi,otel,langfuse}/`
+hold per-tool status with the exact commands executed and their observed
+output; `scenarios/airi_independent_observation_001/` is the experiment.
+
+The report is `../docs/AIRI_REAL_WORLD_VALIDATION.md`.
+
+**Read `external/a3s_observer/TRACEPOINT_INTERFERENCE.md` before running two
+kernel observers at once.** Running A3S Observer alongside Sniffer Dog 2.0
+silently blinds Sniffer Dog's perf tracepoint sensors — zero events, zero
+reported loss — because a BPF program attached to a tracepoint gates that
+tracepoint's perf submission host-wide. It is the most consequential finding
+in this tree.
