@@ -212,6 +212,22 @@ Each is enforced by a named test that fails if it stops holding.
 | N5c | A verifier cannot declare a proof version this build does not implement. | `capability.rs::gh`, `adv06_07` |
 | N5d | An unknown declared parameter is refused, never ignored. | `capability.rs::ge`, `adv03_09` |
 | N5e | `Independence::Checked` reports what this verifier could do, not what the package says the original run did. | `capability.rs::d5b`, `gc` |
+
+## Phase A/B additions — key custody and bundle signer anchoring
+
+| # | invariant | enforced by |
+|---|---|---|
+| K1 | A `Custodian` signs and does not surrender: no trait method and no backend returns private key material. | `aip-core/tests/custody.rs::a_4_5` |
+| K2 | A production store refuses to write private keys, names how many it refused, and leaves no file behind. | `custody.rs::a1`, `a_6_a_production_store_never_falls_back` |
+| K3 | A production collector refuses a development backend outright rather than accepting it at reduced strength. | `aip-observe/tests/custody.rs::a_6` |
+| K4 | A development backend is never mistakable for a production one: every backend answers `is_production()`, and the collector's debug names it. | `aip-observe/tests/custody.rs::a_15` |
+| K5 | Corrupt, truncated, wrong-magic, wrong-version and wrong-passphrase key material all fail closed; none falls back to a generated or empty key. | `aip-core/tests/custody.rs::a_12_13` |
+| K6 | The collector key's custody is owned by `aip-observe` and by no downstream crate. | `aip-observe/tests/custody.rs::a_14` |
+| K7 | Key custody is not attestation: nothing anywhere derives observation truthfulness from which backend signed. | `docs/adr/ADR-KEY-CUSTODY.md`; no code reads `backend()` in an evidence decision |
+| B1 | A key a bundle carries is never its own trust anchor; signer trust comes from the caller's anchor set. | `signer_anchored.rs::bd`, `be` |
+| B2 | An empty bundle-signer anchor set is conservative, never permissive. | `signer_anchored.rs::bg` |
+| B3 | An unanchored signer is a warning, not a failure — unattributed is not forged, and no exit code changes. | `signer_anchored.rs::bb`, `b_consumer_exit_semantics_are_unchanged` |
+| B4 | There is no historical exemption: a bundle does not become attributable by being old. | `signer_anchored.rs::bh` |
 | N6 | Coverage is derived by the verifier; a package has no field for it. | `adversarial.rs::s`, `coverage.rs::g6_06` |
 | N7 | Exactly one coverage state licenses a statement about absence. | `ObservationCoverage::licenses_absence_claim`, `adversarial.rs::q` |
 | N8 | Any continuity break the collector reports reads as `Discontinuous`. | `adversarial.rs::i`, exhaustive over the variants |

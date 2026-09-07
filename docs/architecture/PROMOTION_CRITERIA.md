@@ -6,9 +6,14 @@ Directive §25. Twenty criteria that must all be satisfied before
 **Branch** `claude/codebase-production-readiness-wm6idp` at `de46793`
 **Evaluated** at the completion of Skill 10 Gates 0–16.
 
-## Result
+> **Superseded in part.** Criteria 7 and 8 were closed by the Phase A/B
+> work at `9adad9d` and `cdac72e`; see the addendum at the end of this
+> document. The evaluation below is preserved as written, because a
+> criterion that was once unmet is part of the record.
 
-**18 of 20 met. Promotion is blocked.**
+## Result (as evaluated at `de46793`)
+
+**18 of 20 met. Promotion was blocked.**
 
 Two criteria are not satisfied, and neither can be closed by this
 programme on its own initiative — one needs an operational decision, the
@@ -129,3 +134,46 @@ kernel-resident sensing, and any evidence strong enough to make the
 response pipeline reachable.
 
 **No promotion action has been taken.** `main` is untouched.
+
+
+---
+
+# Addendum — criteria 7 and 8 after Phase A/B
+
+**Evaluated at `cdac72e`.**
+
+### 7 — private key storage hardened · **NOW MET**
+
+`aip-crypto::custody` provides a `Custodian` that signs and does not
+surrender: no trait method and no backend returns key material.
+`WrappedFileCustodian` wraps a key under Argon2id + XChaCha20-Poly1305 at
+mode 0600, written to a temp file and renamed so a reader never sees key
+material at 644. `aip-observe` owns the collector key's custody and a
+production policy refuses a development backend outright.
+`IdentityStore::with_file` now requires an explicit `Persistence`, and
+`ProductionNoSecrets` refuses to write private keys at all.
+
+The backend comparison and the tradeoff are in `docs/adr/ADR-KEY-CUSTODY.md`,
+which also records what the decision does **not** settle: passphrase
+custody is a deployment decision, and an attacker who can read the running
+process's memory has the decrypted key on any software backend.
+
+### 8 — bundle trust anchor fixed · **NOW MET**
+
+`SIGNER_ANCHORED` compares the bundle's embedded signer key against
+`VerificationContext::bundle_signer_public_keys`, a verifier-owned anchor
+set. A bundle can no longer be its own trust anchor. An unanchored signer
+is a warning rather than a failure — unattributed is not forged — and no
+`aip-verify` exit code changes, which is asserted by a test.
+
+### Revised result
+
+**20 of 20 met.**
+
+That is not the same as "promote". `NEXORA_IMPLEMENTATION_REPORT.md` §12
+lists seven boundaries that remain open regardless — no external anchoring
+of the commitment head, no kernel-resident sensing, no hardware key
+custody, no revocation distribution, and every measurement from one
+machine — and §25 is a gate for promoting a branch, not a definition of
+readiness. The promotion decision remains the owner's, and **no promotion
+action has been taken**.
