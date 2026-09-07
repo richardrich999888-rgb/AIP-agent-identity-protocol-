@@ -45,7 +45,7 @@ use aip_types::{CapabilityScope, ExecutionBinding, KeyPair, ProvenanceTriple};
 
 pub const TTL_MS: u64 = 60_000;
 const MAX_TTL_MS: u64 = 3_600_000;
-const HEALTH_MAX_AGE_MS: u64 = 60_000;
+pub const HEALTH_MAX_AGE_MS: u64 = 60_000;
 pub const OBSERVER_ID: &str = "demo-collector";
 /// Images the exec scenarios run and authorize. Hashed by content.
 pub const SLEEP_BIN: &str = "/bin/sleep";
@@ -78,6 +78,8 @@ pub struct Authority {
     pub agent_kp: KeyPair,
     root: aip_types::ScopedToken,
     hop: aip_types::DelegationToken,
+    /// issuer AIP-ID → public key, for a verifier that must check the chain.
+    pub issuer_keys: std::collections::HashMap<String, Vec<u8>>,
 }
 
 impl Authority {
@@ -111,6 +113,10 @@ impl Authority {
             .trust_issuer(&cfo_id, &cfo_kp.public_key)
             .trust_issuer(&orch.id, &orch_kp.public_key);
         let anchors = DecisionPointTrustAnchors::new().trust(&dp_id, &dp_kp.public_key);
+        let issuer_keys = std::collections::HashMap::from([
+            (cfo_id, cfo_kp.public_key.clone()),
+            (orch.id, orch_kp.public_key.clone()),
+        ]);
         Self {
             dp,
             anchors,
@@ -118,7 +124,15 @@ impl Authority {
             agent_kp,
             root,
             hop,
+            issuer_keys,
         }
+    }
+
+    /// The authority chain behind every decision this instance makes, and
+    /// the issuer keys that check it. A NEXORA package carries both so a
+    /// verifier elsewhere can follow the chain without asking anyone.
+    pub fn authority(&self) -> (aip_types::ScopedToken, Vec<aip_types::DelegationToken>) {
+        (self.root.clone(), vec![self.hop.clone()])
     }
 
     /// Authorize `binding` to hold an established TCP connection to `remote`.
@@ -953,11 +967,55 @@ impl Scenario {
     }
 }
 
+/// Everything a NEXORA package is assembled from, for the scenarios that
+/// carry it. These are the live run's own artifacts — the decision point's
+/// signed expectation, the collector's signed batches and health, and the
+/// keys a verifier would have to hold — not a reconstruction of them.
+pub struct ProofInputs {
+    pub expectation: ExpectedExecution,
+    pub evidence: ObserverEvidence,
+    /// The verification time the live reconciliation was drawn at.
+    pub at: u64,
+    pub decision_point_anchors: DecisionPointTrustAnchors,
+    pub observer_anchors: ObserverTrustAnchors,
+    pub issuer_keys: std::collections::HashMap<String, Vec<u8>>,
+    pub root: aip_types::ScopedToken,
+    pub chain: Vec<aip_types::DelegationToken>,
+    pub agent_id: String,
+    pub agent_public_key: Vec<u8>,
+}
+
 /// One scenario's outcome, with the facts a reader needs to check it.
 pub struct Demo {
     pub scenario: Scenario,
     pub reconciliation: Reconciliation,
     pub note: String,
+    /// What a NEXORA package would be built from, for the scenarios that
+    /// supply it. `None` means this scenario has not been wired for the
+    /// proof layer, never that a package could be assembled without them.
+    pub inputs: Option<ProofInputs>,
+}
+
+fn proof_inputs(
+    a: &Authority,
+    o: &Observer,
+    ee: &ExpectedExecution,
+    ev: &ObserverEvidence,
+    at: u64,
+) -> ProofInputs {
+    let (root, chain) = a.authority();
+    ProofInputs {
+        expectation: ee.clone(),
+        evidence: ev.clone(),
+        at,
+        decision_point_anchors: a.anchors.clone(),
+        observer_anchors: o.anchors.clone(),
+        issuer_keys: a.issuer_keys.clone(),
+        root,
+        chain,
+        agent_id: a.agent_id.clone(),
+        agent_public_key: a.agent_kp.public_key.clone(),
+    }
 }
 
 fn ctx(a: &Authority, o: &Observer, at: u64) -> ReconciliationContext {
@@ -1044,6 +1102,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: Some(proof_inputs(&a, &o, &ee, &ev, at)),
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1067,6 +1126,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: Some(proof_inputs(&a, &o, &ee, &ev, at)),
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1100,6 +1160,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
                 &ctx(&a, &o, at),
             );
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1124,6 +1185,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!("authorized {other}, agent connected to {remote}; {n} connection(s)"),
@@ -1147,6 +1209,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1174,6 +1237,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1199,6 +1263,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee2, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: "the batch claimed under decision 1 was duplicated and offered against decision 2"
@@ -1227,6 +1292,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1256,6 +1322,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1284,6 +1351,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1315,6 +1383,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1341,6 +1410,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1367,6 +1437,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1398,6 +1469,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1433,6 +1505,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1478,6 +1551,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             let _ = std::fs::remove_dir_all(&dir);
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
@@ -1515,6 +1589,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             };
             let r = reconcile_expectation(&ee, Some(&ev), &ctx(&a, &o, at));
             Demo {
+                inputs: None,
                 scenario,
                 reconciliation: r,
                 note: "remote port flipped inside the attested batch after signing".into(),

@@ -24,3 +24,10 @@ aip-core = { path = "../aip-core" }
 aip-authorize = { path = "../aip-authorize" }
 aip-observe = { path = "../aip-observe" }
 aip-reconcile = { path = "../aip-reconcile" }
+
+[dev-dependencies]
+# Gate 14: the offline demonstrator packages this crate's live runs as
+# NEXORA proofs and verifies them in a separate process. The proof layer is
+# downstream of the demo, never a dependency of the observation it checks.
+aip-nexora = { path = "../aip-nexora" }
+aip-warrant = { path = "../aip-warrant" }

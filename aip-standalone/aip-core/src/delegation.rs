@@ -950,4 +950,61 @@ mod tests {
         let d1_subtree = log.subtree_jtis(&d1_jti);
         assert_eq!(d1_subtree.len(), 1);
     }
+
+    /// AUDIT (Gate 14): `verify_delegation_chain` authenticates every hop
+    /// but not the root token it starts from. Its scope, its expiry and its
+    /// grantee are read as given, so a holder who can edit the chain it
+    /// presents can rewrite the root and still be told the chain verifies.
+    ///
+    /// Four of the five callers work around this by calling
+    /// `verify_scoped_token` themselves first; the offline NEXORA verifier
+    /// did not, which is how this surfaced. Relying on every caller to
+    /// remember is the caller-discipline this repository refuses to depend
+    /// on elsewhere, so the fix belongs here.
+    #[test]
+    fn the_root_token_a_chain_starts_from_must_be_authentic() {
+        let (issuer_id, issuer_priv, issuer_pub) = make_agent();
+        let (holder_id, holder_priv, holder_pub) = make_agent();
+        let (grantee_id, _, _) = make_agent();
+        let mut keys = HashMap::new();
+        keys.insert(issuer_id.clone(), issuer_pub);
+        keys.insert(holder_id.clone(), holder_pub);
+
+        let root = issue_scoped_token(
+            &issuer_id,
+            &issuer_priv,
+            &holder_id,
+            scope_orchestrator(),
+            Some(60_000),
+        )
+        .unwrap();
+        let hop =
+            create_delegation(&root, &holder_priv, &grantee_id, scope_audit_reader()).unwrap();
+        assert!(verify_delegation_chain(&root, &[hop.clone()], &keys).is_ok());
+
+        // The root's expiry, rewritten by whoever presents the chain. The
+        // issuer never signed this.
+        let mut extended = root.clone();
+        extended.expires_at = Some(u64::MAX);
+        assert!(
+            !verify_scoped_token(&extended, keys.get(&issuer_id).unwrap()).unwrap(),
+            "the root token's own signature does not cover this"
+        );
+        assert!(
+            verify_delegation_chain(&extended, &[hop.clone()], &keys).is_err(),
+            "a chain was verified from a root token nobody signed"
+        );
+
+        // The same with an empty chain, which returns the root's scope and
+        // must not hand back a scope from an unauthenticated token.
+        assert!(
+            verify_delegation_chain(&extended, &[], &keys).is_err(),
+            "an empty chain returned the scope of an unsigned root token"
+        );
+
+        // And a root token whose issuer this verifier does not know is not
+        // silently accepted either.
+        let unknown = HashMap::from([(holder_id.clone(), keys[&holder_id].clone())]);
+        assert!(verify_delegation_chain(&root, &[hop], &unknown).is_err());
+    }
 }
