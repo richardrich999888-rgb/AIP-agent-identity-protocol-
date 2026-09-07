@@ -124,6 +124,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-effect"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-execution",
+ "aip-observation",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-system",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-execution"
 version = "0.4.0"
 dependencies = [

@@ -1,0 +1,23 @@
+[package]
+name = "aip-effect"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "The effect boundary: what independent observation establishes about an actuation, and where the claim stops"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-system = { path = "../aip-system" }
+aip-execution = { path = "../aip-execution" }
+aip-observation = { path = "../aip-observation" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"
+aip-crypto = { path = "../aip-crypto" }
+# The assessment tests build real attested batches through a real collector,
+# so a record under test is one the observer trust model actually produced.
+aip-observe = { path = "../aip-observe" }
+# The ceiling table is checked against the reconciler's own vocabulary, so a
+# declared ceiling cannot drift above what the engine enforces.
+aip-reconcile = { path = "../aip-reconcile" }
