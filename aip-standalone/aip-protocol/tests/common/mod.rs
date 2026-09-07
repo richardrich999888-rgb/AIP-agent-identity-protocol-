@@ -154,3 +154,16 @@ pub fn rezip(files: &HashMap<String, Vec<u8>>) -> Vec<u8> {
     }
     cursor.into_inner()
 }
+
+/// A custodian over the fixture's signer key.
+///
+/// `build_zip` takes a signer, not a key: the service no longer holds a raw
+/// seed for it to borrow. Tests keep the seed because they also assert on the
+/// public key directly.
+#[allow(dead_code)]
+pub fn signer_custodian(
+    seed: &[u8; 32],
+    public: &[u8; 32],
+) -> aip_crypto::custody::InMemoryCustodian {
+    aip_crypto::custody::InMemoryCustodian::new(seed, public).expect("fixture key must be valid")
+}

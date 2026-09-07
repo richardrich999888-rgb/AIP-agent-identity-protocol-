@@ -9,7 +9,7 @@ use aip_protocol::VerificationContext;
 #[test]
 fn test_bundle_build_and_verify_ok() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     // With trust keys → full PASS.
     let v = verify_zip(&zip, &ctx);
@@ -23,7 +23,7 @@ fn test_bundle_build_and_verify_ok() {
 #[test]
 fn test_bundle_no_trust_keys_is_warning_not_fail() {
     let (packet, report, _ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     // No trust keys: integrity + signature pass, authority unverifiable → WARNING.
     let v = verify_zip(&zip, &VerificationContext::new());
@@ -35,7 +35,7 @@ fn test_bundle_no_trust_keys_is_warning_not_fail() {
 #[test]
 fn test_bundle_tampered_content_detected() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     // Tamper a content file (the evidence) without updating the manifest hash.
     let mut files = unzip(&zip);
@@ -53,7 +53,7 @@ fn test_bundle_tampered_content_detected() {
 #[test]
 fn test_bundle_missing_file_detected() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     let mut files = unzip(&zip);
     files.remove(F_EVIDENCE);
@@ -72,7 +72,7 @@ fn test_bundle_missing_file_detected() {
 #[test]
 fn test_bundle_signature_mismatch_detected() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     // Replace the signature with a valid-length but wrong signature.
     let mut files = unzip(&zip);
@@ -92,7 +92,7 @@ fn test_bundle_signature_mismatch_detected() {
 #[test]
 fn test_bundle_manifest_edit_breaks_signature() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     // Edit the manifest (e.g. change tenant) — the signature no longer matches.
     let mut files = unzip(&zip);
@@ -118,7 +118,7 @@ fn test_bundle_manifest_edit_breaks_signature() {
 #[ignore = "emits a sample bundle for CLI smoke testing"]
 fn emit_sample_bundle() {
     let (packet, report, _ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
     let out =
         std::env::var("AIP_BUNDLE_OUT").unwrap_or_else(|_| "/tmp/aip_sample_bundle.zip".into());
     std::fs::write(&out, zip).unwrap();

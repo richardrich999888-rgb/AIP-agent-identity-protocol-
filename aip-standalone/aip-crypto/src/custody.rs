@@ -58,6 +58,20 @@ pub enum Backend {
     /// A passphrase-wrapped file: Argon2id derives the key-encryption key,
     /// XChaCha20-Poly1305 wraps the signing key, the file is mode 0600.
     WrappedFile,
+    /// Key material on disk in the clear, protected only by file
+    /// permission.
+    ///
+    /// **Not production**, and named rather than left unnamed so that the
+    /// places that still do this cannot be mistaken for the places that do
+    /// not. It exists because `aip-service` persists a base64 seed in this
+    /// shape and its deployed key files must keep loading; a deployment
+    /// that wants a production custody posture supplies a passphrase and
+    /// gets [`Backend::WrappedFile`] instead.
+    ///
+    /// This is not a capability claim for an unimplemented backend — it
+    /// names something the repository actually does today, so that a policy
+    /// check can refuse it.
+    PlaintextFile,
 }
 
 impl Backend {
@@ -70,6 +84,9 @@ impl Backend {
     pub fn is_production(self) -> bool {
         match self {
             Backend::DevelopmentInMemory => false,
+            // Plaintext on the disk. Anyone holding the volume, a snapshot
+            // or a backup has the key, and no passphrase stands in the way.
+            Backend::PlaintextFile => false,
             Backend::WrappedFile => true,
         }
     }
@@ -294,6 +311,7 @@ impl WrappedFileCustodian {
     /// distinction would be inventing information.
     pub fn open(path: impl AsRef<Path>, passphrase: &[u8]) -> Result<Self, CustodyError> {
         let path = path.as_ref().to_path_buf();
+        check_secret_file(&path)?;
         let bytes = std::fs::read(&path).map_err(|e| CustodyError::Io(e.to_string()))?;
         let min = MAGIC.len() + 2 + SALT_LEN + NONCE_LEN;
         if bytes.len() < min {
@@ -376,13 +394,23 @@ impl WrappedFileCustodian {
                 std::fs::create_dir_all(parent).map_err(|e| CustodyError::Io(e.to_string()))?;
             }
         }
-        // Written to a temporary file with restrictive permissions set
+        // Written to a temporary file whose mode is set *by the open call*,
         // before any bytes land, then renamed: a reader never sees a
         // partly-written key, and never sees one at mode 644 even briefly.
-        let tmp = path.with_extension("tmp");
-        std::fs::write(&tmp, &out).map_err(|e| CustodyError::Io(e.to_string()))?;
-        restrict(&tmp)?;
-        std::fs::rename(&tmp, path).map_err(|e| CustodyError::Io(e.to_string()))?;
+        //
+        // The mode must come from `OpenOptions::mode`, not from a `chmod`
+        // after the write. `fs::write` creates at `0o666 & !umask`, so a
+        // write-then-restrict sequence leaves the key world-readable for the
+        // interval between the two syscalls — and a reader only has to win
+        // that race once. The temp name carries the process id so two
+        // processes writing at once do not collide on it.
+        let tmp = path.with_extension(format!("tmp.{}", std::process::id()));
+        write_owner_only(&tmp, &out)?;
+        if let Err(e) = std::fs::rename(&tmp, path) {
+            // Leave no readable remnant of a failed write.
+            let _ = std::fs::remove_file(&tmp);
+            return Err(CustodyError::Io(e.to_string()));
+        }
         restrict(path)?;
         Ok(())
     }
@@ -415,4 +443,202 @@ impl Custodian for WrappedFileCustodian {
     fn backend(&self) -> Backend {
         Backend::WrappedFile
     }
+}
+
+// ─── Permission discipline ───
+
+/// Create `path` with mode 0600 applied by the open call, and write `bytes`.
+///
+/// The mode must be set at creation. `fs::write` creates at `0o666 & !umask`
+/// and a following `chmod` closes the window only *after* the bytes are on
+/// disk; a reader only has to win that race once. On a platform without Unix
+/// permissions this falls back to a plain write, and [`Backend`] is what tells
+/// the caller what it is relying on.
+fn write_owner_only(path: &Path, bytes: &[u8]) -> Result<(), CustodyError> {
+    #[cfg(unix)]
+    {
+        use std::io::Write;
+        use std::os::unix::fs::OpenOptionsExt;
+
+        let mut f = std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .mode(0o600)
+            .open(path)
+            .map_err(|e| CustodyError::Io(e.to_string()))?;
+        f.write_all(bytes)
+            .and_then(|()| f.sync_all())
+            .map_err(|e| CustodyError::Io(e.to_string()))
+    }
+    #[cfg(not(unix))]
+    {
+        std::fs::write(path, bytes).map_err(|e| CustodyError::Io(e.to_string()))
+    }
+}
+
+/// Refuse a key file that is not a regular file, owner-only, in a directory
+/// nobody else can write.
+///
+/// Fail closed, and it is worth being precise about what this adds to a file
+/// that is already encrypted. The passphrase is the primary protection; these
+/// checks are what keep an attacker from *getting* the ciphertext to attack
+/// offline, and from replacing it:
+///
+/// - **Mode.** A wrapped key at 0644 is an Argon2id target any local user can
+///   copy and grind at their leisure. Encryption raises the cost of an offline
+///   attack; it does not make handing over the ciphertext free.
+/// - **Regular file.** A symlink's own mode is meaningless (always 0777), so
+///   checking a target's mode through a link proves nothing about the link,
+///   which can be repointed.
+/// - **Parent directory.** A 0600 key in a group-writable directory can be
+///   unlinked and replaced with the attacker's own wrapped key under a
+///   passphrase they chose. That is a substitution attack, and it is worse
+///   than disclosure because the system keeps working and signs with their
+///   key. The sticky bit is the kernel's own exception — only an owner may
+///   remove a file from such a directory — so `/tmp` and its like are accepted.
+pub fn check_secret_file(path: &Path) -> Result<(), CustodyError> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+
+        let meta = std::fs::symlink_metadata(path).map_err(|e| CustodyError::Io(e.to_string()))?;
+        if !meta.file_type().is_file() {
+            return Err(CustodyError::Malformed(
+                "not a regular file: a symlink, directory or device cannot carry \
+                 enforceable key permissions"
+                    .into(),
+            ));
+        }
+        let mode = meta.permissions().mode() & 0o7777;
+        // 0o077 = any read, write or execute bit for group or other.
+        if mode & 0o077 != 0 {
+            return Err(CustodyError::Malformed(format!(
+                "{} has mode {mode:o}; group and other must have no access. \
+                 Run: chmod 600 {}",
+                path.display(),
+                path.display()
+            )));
+        }
+
+        if let Some(parent) = path.parent().filter(|p| !p.as_os_str().is_empty()) {
+            if let Ok(dm) = std::fs::metadata(parent) {
+                let dmode = dm.permissions().mode() & 0o7777;
+                if dmode & 0o022 != 0 && dmode & 0o1000 == 0 {
+                    return Err(CustodyError::Malformed(format!(
+                        "{} has mode {dmode:o}; another user could replace the key \
+                         inside it. Run: chmod 700 {}",
+                        parent.display(),
+                        parent.display()
+                    )));
+                }
+            }
+        }
+        Ok(())
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = path;
+        Ok(())
+    }
+}
+
+// ─── Raw signing ───
+
+/// A custodian that will also produce a bare Ed25519 signature over exact
+/// bytes, outside the [`Signature`] envelope.
+///
+/// Deliberately **separate from [`Custodian`]**, and implemented only by the
+/// two general-purpose backends. Some things a signer must sign are not AIP
+/// signature envelopes — an audit-export bundle manifest is signed as a
+/// detached 64-byte signature so it can be checked offline with nothing but
+/// the public key and the bytes.
+///
+/// It is a separate trait because `sign(&[u8]) -> [u8; 64]` is a raw-signing
+/// oracle: whoever holds one can obtain that key's signature over *any* bytes,
+/// including bytes that are a valid preimage for some other protocol in this
+/// workspace. Widening `Custodian` would hand that oracle to every key holder
+/// that implements it — including the collector, whose only signing surface
+/// should stay the batch attestation it constructs itself. So the two capabilities
+/// stay apart, and a type opts in to the wider one.
+///
+/// `CollectorKey` deliberately does **not** implement this.
+pub trait RawSigner: Send + Sync {
+    /// The public key a verifier anchors. Safe to publish.
+    fn public_key(&self) -> &[u8];
+
+    /// Sign `message` exactly, returning the detached Ed25519 signature.
+    fn sign_raw(&self, message: &[u8]) -> Result<[u8; 64], CustodyError>;
+}
+
+impl RawSigner for InMemoryCustodian {
+    fn public_key(&self) -> &[u8] {
+        &self.public_key
+    }
+    fn sign_raw(&self, message: &[u8]) -> Result<[u8; 64], CustodyError> {
+        crate::sign_ed25519_raw(&self.private_key, message).map_err(CustodyError::Crypto)
+    }
+}
+
+impl RawSigner for WrappedFileCustodian {
+    fn public_key(&self) -> &[u8] {
+        &self.public_key
+    }
+    fn sign_raw(&self, message: &[u8]) -> Result<[u8; 64], CustodyError> {
+        crate::sign_ed25519_raw(&self.private_key, message).map_err(CustodyError::Crypto)
+    }
+}
+
+/// Create `path` exclusively at mode 0600 and write `bytes`.
+///
+/// `create_new(true)` is `O_EXCL`: the existence check and the creation are one
+/// syscall, so no other process can win a race and have its file silently
+/// replaced. Fails if anything is already there — overwriting a key file
+/// destroys an identity.
+///
+/// For key material a caller stores in its own format. Callers holding a
+/// wrapped key use [`WrappedFileCustodian`] instead.
+pub fn create_owner_only(path: &Path, bytes: &[u8]) -> Result<(), CustodyError> {
+    #[cfg(unix)]
+    {
+        use std::io::Write;
+        use std::os::unix::fs::OpenOptionsExt;
+
+        if let Some(parent) = path.parent().filter(|p| !p.as_os_str().is_empty()) {
+            std::fs::create_dir_all(parent).map_err(|e| CustodyError::Io(e.to_string()))?;
+        }
+        let mut f = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(path)
+            .map_err(|e| CustodyError::Io(e.to_string()))?;
+        f.write_all(bytes)
+            .and_then(|()| f.sync_all())
+            .map_err(|e| CustodyError::Io(e.to_string()))
+    }
+    #[cfg(not(unix))]
+    {
+        std::fs::write(path, bytes).map_err(|e| CustodyError::Io(e.to_string()))
+    }
+}
+
+/// Recover the raw signing seed from a wrapped key file.
+///
+/// **A named export path, and the only one.** [`Custodian`] has no
+/// `private_key()` and [`WrappedFileCustodian`] will not surrender its key;
+/// this function exists because `jsonwebtoken` builds its `EncodingKey` from a
+/// PKCS#8 PEM, so a service issuing JWTs must materialise the key in that form
+/// or not issue JWTs at all.
+///
+/// It is a free function with an unmistakable name rather than a method,
+/// precisely so that every use of it is visible at the call site and greppable
+/// in review. Do not reach for it for anything a [`Custodian`] can already do.
+pub fn wrapped_file_seed(path: &Path, passphrase: &[u8]) -> Result<[u8; 32], CustodyError> {
+    let custodian = WrappedFileCustodian::open(path, passphrase)?;
+    custodian
+        .private_key
+        .as_slice()
+        .try_into()
+        .map_err(|_| CustodyError::InvalidKeyLength(custodian.private_key.len()))
 }

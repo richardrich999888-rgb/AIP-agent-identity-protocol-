@@ -52,7 +52,7 @@ fn check<'a>(v: &'a aip_protocol::bundle::BundleVerification, name: &str) -> &'a
 #[test]
 fn ba_valid_signature_and_anchored_signer_passes() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
     let v = verify_zip(&zip, &ctx);
 
     assert_eq!(*check(&v, "BUNDLE_SIGNATURE"), BundleStatus::Pass);
@@ -78,7 +78,7 @@ fn ba_valid_signature_and_anchored_signer_passes() {
 #[test]
 fn bb_valid_signature_with_an_unanchored_signer_cannot_reach_pass() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
     let v = verify_zip(&zip, &without_signer_anchor(&ctx));
 
     assert_eq!(
@@ -102,7 +102,7 @@ fn bb_valid_signature_with_an_unanchored_signer_cannot_reach_pass() {
 #[test]
 fn bc_a_forged_signature_still_fails() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
     let mut files = unzip(&zip);
     files.insert(
         aip_protocol::bundle::F_SIG.to_string(),
@@ -130,7 +130,13 @@ fn bd_a_bundle_cannot_supply_its_own_trust_anchor() {
     let forger = aip_crypto::generate_ed25519_keypair();
     let f_seed: [u8; 32] = forger.private_key.clone().try_into().unwrap();
     let f_public: [u8; 32] = forger.public_key.clone().try_into().unwrap();
-    let zip = build_zip("acme", &packet, &report, &f_seed, &f_public).unwrap();
+    let zip = build_zip(
+        "acme",
+        &packet,
+        &report,
+        &signer_custodian(&f_seed, &f_public),
+    )
+    .unwrap();
 
     // Against the real verifier's anchors — which anchor the *real* signer.
     let v = verify_zip(&zip, &ctx);
@@ -154,7 +160,7 @@ fn bd_a_bundle_cannot_supply_its_own_trust_anchor() {
 #[test]
 fn be_a_different_anchored_signer_does_not_vouch_for_this_one() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     let someone_else = aip_crypto::generate_ed25519_keypair();
     let mut c = without_signer_anchor(&ctx);
@@ -181,7 +187,7 @@ fn be_a_different_anchored_signer_does_not_vouch_for_this_one() {
 #[test]
 fn bf_the_right_anchor_is_found_among_several() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     let mut c = without_signer_anchor(&ctx);
     for name in ["auditor-a", "auditor-b", "auditor-c"] {
@@ -210,7 +216,7 @@ fn bf_the_right_anchor_is_found_among_several() {
 #[test]
 fn bg_an_empty_anchor_set_is_conservative() {
     let (packet, report, _ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
     let v = verify_zip(&zip, &VerificationContext::new());
 
     assert_eq!(*check(&v, "SIGNER_ANCHORED"), BundleStatus::Warning);
@@ -246,7 +252,7 @@ fn bh_a_historical_bundle_is_readable_and_is_not_grandfathered() {
     // The format is unchanged, so a bundle built now is byte-identical to
     // one built by a prior version from the same inputs; this stands in
     // for a historical artifact.
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     let unanchored = verify_zip(&zip, &without_signer_anchor(&ctx));
     assert_eq!(*check(&unanchored, "BUNDLE_STRUCTURE"), BundleStatus::Pass);
@@ -274,7 +280,7 @@ fn bh_a_historical_bundle_is_readable_and_is_not_grandfathered() {
 #[test]
 fn b_consumer_exit_semantics_are_unchanged() {
     let (packet, report, ctx, seed, public) = fixture();
-    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
+    let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     for c in [ctx.clone(), without_signer_anchor(&ctx)] {
         let v = verify_zip(&zip, &c);

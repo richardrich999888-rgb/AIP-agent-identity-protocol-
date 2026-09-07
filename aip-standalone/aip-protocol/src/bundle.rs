@@ -20,7 +20,7 @@ use std::io::{Cursor, Read, Write};
 
 use serde::{Deserialize, Serialize};
 
-use aip_crypto::{sha256, sign_ed25519_raw, verify_ed25519_raw};
+use aip_crypto::{sha256, verify_ed25519_raw};
 
 use crate::{verify_packet, AccountabilityGraph, EvidencePacket, VerificationContext};
 
@@ -106,12 +106,22 @@ fn now_ms() -> u64 {
 /// `report` is the verification report computed at export time (typically at
 /// the integrity level the service can attest without external trust keys).
 /// `signer_seed`/`signer_public` are the service's Ed25519 key material.
+/// Takes a [`RawSigner`] rather than a raw seed.
+///
+/// The previous signature required the caller to hold the service's 32-byte
+/// private key and pass it in, which is why the service kept one in the state
+/// it shares with every HTTP handler in the process. The signer removes that:
+/// the bundle is signed by an object that can sign, and the key stays where it
+/// is held.
+///
+/// The bundle bytes are unchanged — same manifest, same detached signature
+/// over the same preimage — so `verify_zip` is untouched and bundles produced
+/// before and after this change verify identically.
 pub fn build_zip(
     tenant_id: &str,
     packet: &EvidencePacket,
     report: &crate::VerificationReport,
-    signer_seed: &[u8; 32],
-    signer_public: &[u8; 32],
+    signer: &dyn aip_crypto::custody::RawSigner,
 ) -> Result<Vec<u8>, BundleError> {
     let graph = AccountabilityGraph::from_packet(packet).with_report(report);
 
@@ -152,13 +162,14 @@ pub fn build_zip(
         packet_hash: hex::encode(packet.packet_hash),
         bundle_hash: compute_bundle_hash(&files),
         signer_algorithm: "Ed25519".to_string(),
-        signer_public_key: hex::encode(signer_public),
+        signer_public_key: hex::encode(signer.public_key()),
         files,
     };
 
     let manifest_bytes =
         serde_json::to_vec_pretty(&manifest).map_err(|e| BundleError::Serialize(e.to_string()))?;
-    let sig = sign_ed25519_raw(signer_seed, &manifest_bytes)
+    let sig = signer
+        .sign_raw(&manifest_bytes)
         .map_err(|e| BundleError::Crypto(e.to_string()))?;
     let sig_hex = hex::encode(sig);
 

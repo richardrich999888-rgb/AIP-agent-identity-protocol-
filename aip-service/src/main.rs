@@ -16,7 +16,7 @@ use std::sync::Arc;
 use tracing_subscriber::{fmt, EnvFilter};
 
 use airon_aip::store::{EvidenceStore, JsonlEvidenceStore};
-use airon_aip::{auth, delegation, keys::KeyPair, revocation, router, AppState};
+use airon_aip::{auth, delegation, keys::ServiceKey, revocation, router, AppState};
 
 async fn build_store() -> Arc<dyn EvidenceStore> {
     let backend = std::env::var("AIP_STORE_BACKEND").unwrap_or_else(|_| "jsonl".to_owned());
@@ -78,11 +78,35 @@ async fn main() {
         }
     }
 
-    let kp = KeyPair::load_or_generate(&key_path);
-    let encoding_key = jsonwebtoken::EncodingKey::from_ed_pem(kp.private_pem.as_bytes())
-        .expect("generated private PEM must always be valid");
-    let decoding_key = jsonwebtoken::DecodingKey::from_ed_pem(kp.public_pem.as_bytes())
-        .expect("generated public PEM must always be valid");
+    // Fail closed: a service that cannot establish custody of its signing key
+    // must not start. Starting anyway would mean either signing with a newly
+    // minted identity nobody trusts, or issuing tokens that stop verifying at
+    // the next restart.
+    let passphrase = std::env::var("AIP_KEY_PASSPHRASE").ok();
+    let kp = match ServiceKey::load_or_create(&key_path, passphrase.as_deref().map(str::as_bytes)) {
+        Ok(kp) => kp,
+        Err(e) => {
+            tracing::error!(key_path, error = %e, "cannot establish custody of the service signing key — refusing to start");
+            std::process::exit(1);
+        }
+    };
+    // A production deployment refuses a backend that is not production. There
+    // is no downgrade: the operator sets AIP_KEY_PASSPHRASE for a wrapped key,
+    // or declares the deployment development.
+    let dev_policy = matches!(
+        std::env::var("AIP_CUSTODY_POLICY").as_deref(),
+        Ok("development") | Ok("dev")
+    );
+    if !dev_policy && !kp.backend().is_production() {
+        tracing::error!(
+            key_path,
+            backend = ?kp.backend(),
+            "the service signing key is not held by a production backend — refusing to start.              Set AIP_KEY_PASSPHRASE to use a wrapped key, or AIP_CUSTODY_POLICY=development to              declare this a development deployment."
+        );
+        std::process::exit(1);
+    }
+    let encoding_key = kp.encoding_key();
+    let decoding_key = kp.decoding_key();
 
     let del_log = delegation::load_delegation_log(&delegation_log_path);
     let rev_set = revocation::load_revocation_set(&revocation_log_path);
@@ -115,12 +139,11 @@ async fn main() {
         revocation_set: rev_set,
         store,
         api_keys,
-        signer_seed: kp.signing_seed(),
-        signer_public: kp.verifying_key_bytes(),
+        signer: Arc::new(kp),
     });
 
     let addr = format!("0.0.0.0:{port}");
-    tracing::info!(port, fingerprint = %kp.fingerprint, key_path, "airon-aip v2 starting");
+    tracing::info!(port, fingerprint = %state.fingerprint, key_path, "airon-aip v2 starting");
 
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
