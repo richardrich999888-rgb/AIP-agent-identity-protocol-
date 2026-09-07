@@ -145,6 +145,7 @@ fn main() {
         receipt_data: Some(receipt_content.as_bytes().to_vec()),
         verification_time_ms: None,
         future_tolerance_ms: 0,
+        bundle_signer_public_keys: Default::default(),
     };
     let report = verify_packet(&packet, &ctx);
     let graph = AccountabilityGraph::from_packet(&packet).with_report(&report);

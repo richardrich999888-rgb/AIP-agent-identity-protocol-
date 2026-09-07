@@ -34,6 +34,16 @@ struct Cli {
     #[arg(long = "trust", value_name = "AIP_ID=HEX")]
     trust: Vec<String>,
 
+    /// A party this verifier accepts as having assembled a bundle,
+    /// repeatable: `--trust-bundle-signer <name>=<pubkey_hex>`.
+    ///
+    /// A bundle carries the key its manifest was signed with, which proves
+    /// the manifest matches that key and nothing about whose key it is.
+    /// Supply the publisher's key here, obtained out of band, to have the
+    /// bundle attributed to them.
+    #[arg(long = "trust-bundle-signer", value_name = "NAME=HEX")]
+    trust_bundle_signer: Vec<String>,
+
     /// Trusted counterparty key, repeatable: `--counterparty <id>=<pubkey_hex>`.
     #[arg(long = "counterparty", value_name = "ID=HEX")]
     counterparty: Vec<String>,
@@ -92,6 +102,7 @@ fn build_ctx(cli: &Cli) -> Result<VerificationContext, String> {
     let mut ctx = VerificationContext::new();
     ctx.issuer_public_keys = parse_kv(&cli.trust, "trust")?;
     ctx.counterparty_public_keys = parse_kv(&cli.counterparty, "counterparty")?;
+    ctx.bundle_signer_public_keys = parse_kv(&cli.trust_bundle_signer, "trust-bundle-signer")?;
     for jti_hex in &cli.revoked {
         let bytes =
             hex::decode(jti_hex.trim()).map_err(|e| format!("--revoked: invalid hex: {e}"))?;
@@ -154,6 +165,14 @@ fn run_bundle(cli: &Cli, bytes: &[u8]) -> Result<bool, String> {
         println!(
             "note:        no --trust keys supplied; the authority chain is not \
              verified (WARNING). Bundle integrity + signature are still checked."
+        );
+    }
+    if cli.trust_bundle_signer.is_empty() {
+        println!(
+            "note:        no --trust-bundle-signer keys supplied; the bundle's \
+             signature is valid under the key it carries, but the bundle is \
+             not attributed to anyone (WARNING). A valid signature is not a \
+             trusted signer."
         );
     }
     if cli.report || v.overall != BundleStatus::Pass {

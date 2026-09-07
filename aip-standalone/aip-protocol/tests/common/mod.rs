@@ -13,7 +13,6 @@ use aip_core::capability::{issue_scoped_token, scope_orchestrator, scope_submitt
 use aip_core::create_identity;
 use aip_core::delegation::create_delegation;
 use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
-use aip_protocol::bundle::{build_zip, verify_zip, BundleStatus, F_EVIDENCE, F_MANIFEST, F_SIG};
 use aip_protocol::{
     verify_packet, ActionAttestation, AgentIdentitySummary, DecisionRecord, EvidencePacket,
     EvidencePacketBuilder, RootAuthority, TrustFloor, VerificationContext, VerificationReport,
@@ -116,6 +115,13 @@ pub fn fixture() -> (
     let signer = generate_ed25519_keypair();
     let seed: [u8; 32] = signer.private_key.clone().try_into().unwrap();
     let public: [u8; 32] = signer.public_key.clone().try_into().unwrap();
+
+    // The returned context anchors the bundle signer, because this fixture
+    // is the "verifier already trusts the publisher" case and `Pass` now
+    // means exactly that. A verifier that has not anchored the signer gets
+    // a warning instead, which is what `VerificationContext::new()` is for
+    // in the tests below.
+    let ctx = ctx.trust_bundle_signer("acme", &signer.public_key);
 
     (packet, report, ctx, seed, public)
 }

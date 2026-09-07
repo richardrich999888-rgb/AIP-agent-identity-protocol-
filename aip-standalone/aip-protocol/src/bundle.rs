@@ -350,7 +350,11 @@ pub fn verify_zip(bytes: &[u8], ctx: &VerificationContext) -> BundleVerification
         },
     );
 
-    // R5 BUNDLE_SIGNATURE — signature over the exact manifest bytes.
+    // R5 BUNDLE_SIGNATURE — signature over the exact manifest bytes, under
+    // the key the bundle carries. This is an integrity check on the
+    // container: it establishes that the manifest matches the key shipped
+    // beside it, and nothing about whose key that is. Who the signer is,
+    // is R5b.
     let sig_ok = verify_bundle_signature(&files, &manifest);
     c.add(
         "BUNDLE_SIGNATURE",
@@ -360,11 +364,54 @@ pub fn verify_zip(bytes: &[u8], ctx: &VerificationContext) -> BundleVerification
             BundleStatus::Fail
         },
         if sig_ok {
-            format!("Ed25519 signature valid (signer fp {signer_fp})")
+            format!("manifest matches the embedded key (signer fp {signer_fp}); see SIGNER_ANCHORED for whose key it is")
         } else {
             "bundle signature invalid — manifest not signed by the embedded key".to_string()
         },
     );
+
+    // R5b SIGNER_ANCHORED — is the embedded key one this verifier was told
+    // to trust?
+    //
+    //     VALID SIGNATURE  ≠  TRUSTED SIGNER
+    //
+    // A key the bundle carries must not become its own trust anchor, so
+    // the answer comes from the caller's anchor set and from nowhere else.
+    // An unanchored signer is a **warning**, not a failure: the bundle is
+    // unattributed rather than forged, and treating every bundle from an
+    // unknown party as an attack would make the status useless.
+    let embedded = hex::decode(&manifest.signer_public_key).unwrap_or_default();
+    let anchored = if embedded.is_empty() {
+        None
+    } else {
+        ctx.bundle_signer_public_keys
+            .iter()
+            .find(|(_, key)| key.as_slice() == embedded.as_slice())
+            .map(|(id, _)| id.clone())
+    };
+    match (&anchored, ctx.bundle_signer_public_keys.is_empty()) {
+        (Some(id), _) => c.add(
+            "SIGNER_ANCHORED",
+            BundleStatus::Pass,
+            format!("the signer is anchored by this verifier as {id}"),
+        ),
+        (None, true) => c.add(
+            "SIGNER_ANCHORED",
+            BundleStatus::Warning,
+            "this verifier anchored no bundle signers, so the bundle cannot be \
+             attributed to anyone; its integrity is still checked"
+                .to_string(),
+        ),
+        (None, false) => c.add(
+            "SIGNER_ANCHORED",
+            BundleStatus::Warning,
+            format!(
+                "signer fp {signer_fp} is not among the {} signer(s) this verifier anchors; \
+                 the bundle is unattributed, not invalid",
+                ctx.bundle_signer_public_keys.len()
+            ),
+        ),
+    }
 
     // R6 EVIDENCE_INTEGRITY — packet parses, matches manifest packet_hash, self-consistent.
     let packet: Option<EvidencePacket> = files
