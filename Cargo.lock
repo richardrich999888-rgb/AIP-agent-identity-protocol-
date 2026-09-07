@@ -140,6 +140,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-observation"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-system",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-observe"
 version = "0.4.0"
 dependencies = [
