@@ -28,3 +28,8 @@ airi/agent/Cargo.lock
 # docs/AIRI_INDEPENDENT_OBSERVATION_REPORT.md §7 rests on it.
 !traces/airi-a3s-interference/
 !traces/airi-a3s-interference/**
+
+# Observation-integrity: the compiled interference instrument is a build
+# artefact; its source is tracked. Sealed result runs ARE kept as evidence.
+observation_integrity/tracepoint_interferer
+observation_integrity/*.o

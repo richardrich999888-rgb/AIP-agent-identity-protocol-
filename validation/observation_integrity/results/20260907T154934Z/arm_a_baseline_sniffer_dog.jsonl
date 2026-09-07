@@ -1,0 +1,33 @@
+# sniffer dog 2.0 live capture (aip_observe::ProcessTracer)
+# mechanism: perf_event_open(PERF_TYPE_TRACEPOINT), CLOCK_MONOTONIC
+# tracepoints: sched:sched_process_fork, sched:sched_process_exec
+# duration_ms: 6000
+{"seq":1,"kind":"spawn","parent_pid":1414,"child_pid":1446,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623442104332}
+{"seq":2,"kind":"exec","pid":1446,"old_pid":1446,"filename":"/usr/bin/grep","cpu":3,"kernel_monotonic_ns":43623442552631}
+{"seq":3,"kind":"spawn","parent_pid":1414,"child_pid":1447,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623444272109}
+{"seq":4,"kind":"exec","pid":1447,"old_pid":1447,"filename":"/usr/bin/date","cpu":0,"kernel_monotonic_ns":43623444852875}
+{"seq":5,"kind":"spawn","parent_pid":1414,"child_pid":1448,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623446153301}
+{"seq":6,"kind":"exec","pid":1448,"old_pid":1448,"filename":"/usr/bin/seq","cpu":3,"kernel_monotonic_ns":43623446750329}
+{"seq":7,"kind":"spawn","parent_pid":1414,"child_pid":1449,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623447959773}
+{"seq":8,"kind":"exec","pid":1449,"old_pid":1449,"filename":"/usr/bin/wc","cpu":3,"kernel_monotonic_ns":43623448564493}
+{"seq":9,"kind":"spawn","parent_pid":1414,"child_pid":1450,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623449926212}
+{"seq":10,"kind":"exec","pid":1450,"old_pid":1450,"filename":"/usr/bin/wc","cpu":0,"kernel_monotonic_ns":43623450277391}
+{"seq":11,"kind":"spawn","parent_pid":1414,"child_pid":1451,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623451604007}
+{"seq":12,"kind":"exec","pid":1451,"old_pid":1451,"filename":"/usr/bin/wc","cpu":3,"kernel_monotonic_ns":43623451958636}
+{"seq":13,"kind":"spawn","parent_pid":1414,"child_pid":1452,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623453300994}
+{"seq":14,"kind":"exec","pid":1452,"old_pid":1452,"filename":"/usr/bin/wc","cpu":0,"kernel_monotonic_ns":43623453633497}
+{"seq":15,"kind":"spawn","parent_pid":1414,"child_pid":1453,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623455057811}
+{"seq":16,"kind":"exec","pid":1453,"old_pid":1453,"filename":"/usr/bin/wc","cpu":3,"kernel_monotonic_ns":43623455393387}
+{"seq":17,"kind":"spawn","parent_pid":1414,"child_pid":1454,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623456725082}
+{"seq":18,"kind":"exec","pid":1454,"old_pid":1454,"filename":"/usr/bin/wc","cpu":0,"kernel_monotonic_ns":43623457042491}
+{"seq":19,"kind":"spawn","parent_pid":1414,"child_pid":1455,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623458717535}
+{"seq":20,"kind":"exec","pid":1455,"old_pid":1455,"filename":"/usr/bin/wc","cpu":3,"kernel_monotonic_ns":43623459035424}
+{"seq":21,"kind":"spawn","parent_pid":1414,"child_pid":1456,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623460979162}
+{"seq":22,"kind":"exec","pid":1456,"old_pid":1456,"filename":"/usr/bin/wc","cpu":0,"kernel_monotonic_ns":43623461315982}
+{"seq":23,"kind":"spawn","parent_pid":1414,"child_pid":1457,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43623463162450}
+{"seq":24,"kind":"exec","pid":1457,"old_pid":1457,"filename":"/usr/bin/date","cpu":3,"kernel_monotonic_ns":43623463833083}
+{"seq":25,"kind":"spawn","parent_pid":10221,"child_pid":1458,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43624594628060}
+{"seq":26,"kind":"exec","pid":1458,"old_pid":1458,"filename":"/usr/bin/grep","cpu":3,"kernel_monotonic_ns":43624595175563}
+{"seq":27,"kind":"spawn","parent_pid":10221,"child_pid":1459,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43624597138996}
+{"seq":28,"kind":"exec","pid":1459,"old_pid":1459,"filename":"/usr/bin/sleep","cpu":0,"kernel_monotonic_ns":43624597499051}
+{"kind":"summary","events":28,"lost":0}

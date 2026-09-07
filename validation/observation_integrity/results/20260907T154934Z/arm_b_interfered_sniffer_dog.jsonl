@@ -1,0 +1,17 @@
+# sniffer dog 2.0 live capture (aip_observe::ProcessTracer)
+# mechanism: perf_event_open(PERF_TYPE_TRACEPOINT), CLOCK_MONOTONIC
+# tracepoints: sched:sched_process_fork, sched:sched_process_exec
+# duration_ms: 6000
+{"seq":1,"kind":"spawn","parent_pid":1414,"child_pid":1472,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629583339885}
+{"seq":2,"kind":"spawn","parent_pid":1414,"child_pid":1473,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629585819520}
+{"seq":3,"kind":"spawn","parent_pid":1414,"child_pid":1474,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629588595825}
+{"seq":4,"kind":"spawn","parent_pid":1414,"child_pid":1475,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629590707887}
+{"seq":5,"kind":"spawn","parent_pid":1414,"child_pid":1476,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629592911972}
+{"seq":6,"kind":"spawn","parent_pid":1414,"child_pid":1477,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629595018153}
+{"seq":7,"kind":"spawn","parent_pid":1414,"child_pid":1478,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629597118009}
+{"seq":8,"kind":"spawn","parent_pid":1414,"child_pid":1479,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629599164585}
+{"seq":9,"kind":"spawn","parent_pid":1414,"child_pid":1480,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629601265708}
+{"seq":10,"kind":"spawn","parent_pid":1414,"child_pid":1481,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629603281930}
+{"seq":11,"kind":"spawn","parent_pid":1414,"child_pid":1482,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629605328137}
+{"seq":12,"kind":"spawn","parent_pid":1414,"child_pid":1483,"parent_comm":"bash","child_comm":"bash","cpu":1,"kernel_monotonic_ns":43629607389215}
+{"kind":"summary","events":12,"lost":0}
