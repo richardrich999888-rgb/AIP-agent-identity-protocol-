@@ -49,6 +49,13 @@ members = [
     "aip-standalone/aip-warrant",
     "aip-standalone/aip-nexora",
     "aip-standalone/aip-containment",
+    # ── the Linux autonomous edge reference (Skill 22) ─────────────────
+    # Four members, and the split is the deliverable: the workload cannot
+    # link the observer's crate and the observer cannot link the workload's.
+    "aip-standalone/aip-edge-contract",
+    "aip-standalone/aip-edge-workload",
+    "aip-standalone/aip-edge-observer",
+    "aip-standalone/aip-edge",
     # ── tooling, demos and test harnesses ──────────────────────────────
     "aip-standalone/ghost-demo",
     "aip-standalone/aip-test",

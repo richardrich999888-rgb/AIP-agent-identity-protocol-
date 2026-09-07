@@ -1,0 +1,33 @@
+[package]
+name = "aip-edge-observer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "The Linux autonomous edge reference observer: the independent witness, process B"
+
+# ── The load-bearing absence ──────────────────────────────────────────────
+#
+# `aip-airi` is NOT here, and must never be. It is the crate that holds
+# `sign_airi_event`; an observer that linked it could author the subject's own
+# account of itself and then attest to it, collapsing the two independent
+# statements the architecture keeps apart into one party's opinion.
+#
+# `aip-authorize` is absent for the neighbouring reason: an observer that could
+# construct an `ExpectedExecution` could decide what the workload was permitted
+# to do and then testify that it did it. `aip-observe`'s own crate
+# documentation already states the rule — "no type from `aip-authorize` is
+# imported (I19, I22)" — and this manifest keeps the reference observer on the
+# same side of it.
+#
+# Asserted mechanically by `aip-edge/tests/dependency_isolation.rs`.
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-observe = { path = "../aip-observe" }
+aip-edge-contract = { path = "../aip-edge-contract" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[[bin]]
+name = "aip-edge-observer"
+path = "src/main.rs"

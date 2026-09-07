@@ -1,0 +1,49 @@
+[package]
+name = "aip-edge"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Linux autonomous edge reference: adapts live kernel observation into the Skills 17-21 accountability model without adding a verdict path"
+
+# This crate is an **assembler**, not a model and not an engine.
+#
+# It defines no identifier, no ceiling, no verdict class and no trust anchor.
+# It depends on the verdict path (`aip-reconcile`, `aip-nexora`) only to *use*
+# it: every judgement in the reference is produced by `reconcile_expectation`
+# and every commitment by NEXORA. Nothing here computes an `EvidenceStrength`
+# or constructs a `ReconciliationResult`; `tests/no_second_engine.rs` asserts
+# that mechanically over this crate's own source.
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+aip-authorize = { path = "../aip-authorize" }
+aip-airi = { path = "../aip-airi" }
+aip-observe = { path = "../aip-observe" }
+aip-system = { path = "../aip-system" }
+aip-execution = { path = "../aip-execution" }
+aip-platform = { path = "../aip-platform" }
+aip-observation = { path = "../aip-observation" }
+aip-effect = { path = "../aip-effect" }
+aip-reconcile = { path = "../aip-reconcile" }
+aip-nexora = { path = "../aip-nexora" }
+aip-edge-contract = { path = "../aip-edge-contract" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+# The end-to-end tests spawn the real `aip-edge-workload` and
+# `aip-edge-observer` binaries. They are deliberately **not** dependencies:
+# both are bin-only packages with no library target, and pulling them in would
+# also re-link `aip-observe` into the workload's dependency closure through
+# this crate, destroying the isolation the reference exists to demonstrate.
+#
+# The tests instead locate the binaries on disk beside the test executable, as
+# `ghost-demo` does. `cargo test --workspace` — the mandated full-suite command
+# — builds every member's bin targets, so they are present. Under a narrower
+# `cargo test -p aip-edge` they may be absent, and the harness then fails with
+# an actionable message rather than skipping silently.
+
+[[bin]]
+name = "aip-edge"
+path = "src/bin/aip-edge.rs"

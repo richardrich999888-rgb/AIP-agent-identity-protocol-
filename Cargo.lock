@@ -124,6 +124,61 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-edge"
+version = "0.4.0"
+dependencies = [
+ "aip-airi",
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-edge-contract",
+ "aip-effect",
+ "aip-execution",
+ "aip-nexora",
+ "aip-observation",
+ "aip-observe",
+ "aip-platform",
+ "aip-reconcile",
+ "aip-system",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "aip-edge-contract"
+version = "0.4.0"
+dependencies = [
+ "aip-types",
+ "serde",
+]
+
+[[package]]
+name = "aip-edge-observer"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-edge-contract",
+ "aip-observe",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "aip-edge-workload"
+version = "0.4.0"
+dependencies = [
+ "aip-airi",
+ "aip-core",
+ "aip-crypto",
+ "aip-edge-contract",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-effect"
 version = "0.4.0"
 dependencies = [
