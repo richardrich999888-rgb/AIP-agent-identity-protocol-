@@ -78,7 +78,34 @@ impl ObservationCorrelation {
 }
 
 /// One verified observation of one class, bound to one execution.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+///
+/// # Why this type is `Serialize` but not `Deserialize`
+///
+/// [`Self::from_attested`] is documented as the only constructor, and the
+/// Skill 20 suite states the property as "it cannot be constructed at all
+/// without a batch that verifies against the verifier's own anchors".
+///
+/// A derived `Deserialize` **was** such a construction path, and it was
+/// reachable: `serde_json::from_str::<ObservationRecord>(..)` built a record
+/// naming an observer the verifier never anchored, with a sequence, a
+/// mechanism and a completeness of the writer's choosing, having consulted no
+/// batch and no anchors. Every downstream consumer — `describes`,
+/// `measured_on`, `ceiling_under`, and everything Skill 21 builds on them —
+/// treats a record as already verified, so a forged one is indistinguishable
+/// from a real one at the point of use.
+///
+/// The derive is therefore removed rather than guarded. `#[serde(try_from)]`
+/// is the pattern used elsewhere in this workspace (`EffectEvidence`,
+/// `aip-system`'s identifiers) and it is the wrong tool here: a `TryFrom` at
+/// deserialization has no batch and no anchors, so it cannot perform the one
+/// check that matters, and would launder the bypass behind a validating name.
+///
+/// Writing a record out stays supported. Reading one back is not a gap to be
+/// filled later with a permissive parse — a record that crossed a wire has
+/// lost the thing that made it evidence, and the correct move on the far side
+/// is to re-derive it from the attested batch, which is what `from_attested`
+/// is for.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct ObservationRecord {
     pub version: u16,
     /// Which observer attested it. A reference the existing anchor model

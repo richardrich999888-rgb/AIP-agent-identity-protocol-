@@ -410,13 +410,21 @@ fn f24_f25_malformed_input_and_round_trips() {
     assert!(ObservationProfile::new(&"x".repeat(129)).is_err());
     assert!(ObservationProfile::new(&"x".repeat(128)).is_ok());
 
-    // Round trip preserves the record and its committed encoding.
+    // Serialization is stable, and there is deliberately no way back.
+    //
+    // This assertion used to be a JSON round trip, and the round trip *was*
+    // the bypass: `Deserialize` constructed a record with no batch and no
+    // anchors, which is precisely what claim 1 at the top of this file says is
+    // impossible. Writing a record out is still supported; reading one back is
+    // not, so the only path to a record remains `from_attested`.
     let r = record_on(BOOT_P, SourceMechanism::PidFdAnchored);
-    let parsed: ObservationRecord =
-        serde_json::from_str(&serde_json::to_string(&r).unwrap()).expect("round trip");
-    assert_eq!(parsed, r);
-    assert_eq!(parsed.canonical_bytes(), r.canonical_bytes());
-    parsed.check_version().expect("version accepted");
+    let json = serde_json::to_string(&r).expect("a record serializes");
+    assert!(json.contains("observer_id"), "{json}");
+    // Determinism on one record. Two separately built records are not equal —
+    // the collector stamps a live clock into each — so encoding one twice is
+    // the property that actually holds.
+    assert_eq!(r.canonical_bytes(), r.clone().canonical_bytes());
+    r.check_version().expect("version accepted");
 
     // Unknown versions refused, never guessed.
     let mut bad = r.clone();
@@ -466,5 +474,49 @@ fn f25b_every_distinct_context_encodes_distinctly() {
         n,
         all.len(),
         "SECURITY: two distinct contexts encoded identically"
+    );
+}
+
+/// Claim 1 at the top of this file, enforced rather than asserted in prose.
+///
+/// A record must be obtainable only from a batch that verifies against the
+/// verifier's anchors. `#[derive(Deserialize)]` was a second path — one a
+/// compromised agent with a JSON writer could call — and it is gone.
+///
+/// The guard reads the source because this is a compile-time property: a
+/// runtime test cannot demonstrate the absence of a trait implementation, and
+/// re-adding the derive would compile cleanly and make every consumer of
+/// `describes`, `measured_on` and `ceiling_under` silently accept forgeries.
+#[test]
+fn a_record_cannot_be_deserialized_into_existence() {
+    let src = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/record.rs"),
+    )
+    .unwrap();
+    let code: String = src
+        .lines()
+        .filter(|l| !l.trim_start().starts_with("//"))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    let derive = code
+        .split("pub struct ObservationRecord {")
+        .next()
+        .unwrap()
+        .lines()
+        .rfind(|l| l.trim_start().starts_with("#[derive"))
+        .unwrap_or("");
+    assert!(
+        derive.contains("Serialize"),
+        "a record must still be writable: {derive}"
+    );
+    assert!(
+        !derive.contains("Deserialize"),
+        "SECURITY: ObservationRecord derives Deserialize, which constructs one \
+         with no batch and no anchors, defeating from_attested: {derive}"
+    );
+    assert!(
+        !code.contains("impl<'de> Deserialize<'de> for ObservationRecord"),
+        "SECURITY: a hand-written Deserialize is the same bypass"
     );
 }

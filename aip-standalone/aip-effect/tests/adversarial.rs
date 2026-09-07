@@ -671,3 +671,58 @@ fn correlation_bytes_are_injective() {
         "the domain tag must be inside the bytes"
     );
 }
+
+/// Structural guard for the stance-on-absence refusal.
+///
+/// **Documented limitation, established by mutation.** The refusal in
+/// `EffectObservation::new` is unreachable at runtime today:
+/// `ObservationRecord::from_attested` is the only constructor, it always
+/// stamps `Completeness::Observed`, and the record type is deliberately not
+/// `Deserialize`. So no caller can present a non-observing record, and
+/// removing the guard leaves the entire behavioural suite green — verified by
+/// running exactly that mutation.
+///
+/// The guard is kept because the day a record arrives from anywhere else — a
+/// second constructor, a profile-derived record, a wire format someone adds —
+/// it is what stops a stated absence being turned into support. That is the
+/// single inversion this crate exists to prevent, and "currently unreachable"
+/// is not a reason to delete it as dead code.
+///
+/// The check is whitespace-normalised and matches the **condition**, not its
+/// vocabulary: naming the types is not enough, because `if false && !matches!(..)`
+/// keeps every identifier while disabling the guard, and that is the mutation
+/// this test exists to catch.
+#[test]
+fn structural_the_stance_guard_is_the_condition_it_should_be() {
+    let src = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/assess.rs"),
+    )
+    .unwrap();
+    let code: String = src
+        .lines()
+        .filter(|l| !l.trim_start().starts_with("//"))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    let ctor = code
+        .split("pub fn new(record: ObservationRecord, stance: ObservedStance)")
+        .nth(1)
+        .expect("EffectObservation::new must exist")
+        .split("pub fn record")
+        .next()
+        .unwrap();
+    let flat: String = ctor.chars().filter(|c| !c.is_whitespace()).collect();
+
+    assert!(
+        flat.contains(
+            "if!matches!(record.completeness(),Completeness::Observed)&&!matches!(stance,ObservedStance::Neither)"
+        ),
+        "SECURITY: the completeness guard is not the condition it should be — \
+         removed, reordered, or short-circuited — any of which lets a stated \
+         absence carry a supporting stance: {ctor}"
+    );
+    assert!(
+        flat.contains("Err(EffectError::StanceWithoutObservation"),
+        "SECURITY: the guard no longer refuses, or no longer names its reason: {ctor}"
+    );
+}
