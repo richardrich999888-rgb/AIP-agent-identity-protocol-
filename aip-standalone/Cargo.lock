@@ -29,6 +29,7 @@ version = "0.4.0"
 dependencies = [
  "aip-core",
  "aip-crypto",
+ "aip-custody",
  "aip-types",
  "serde",
  "serde_json",
@@ -40,6 +41,7 @@ version = "0.4.0"
 dependencies = [
  "aip-core",
  "aip-crypto",
+ "aip-custody",
  "aip-types",
  "clap",
  "serde_json",
@@ -51,6 +53,7 @@ version = "0.4.0"
 dependencies = [
  "aip-core",
  "aip-crypto",
+ "aip-custody",
  "aip-observe",
  "aip-reconcile",
  "aip-types",
@@ -65,6 +68,7 @@ name = "aip-core"
 version = "0.4.0"
 dependencies = [
  "aip-crypto",
+ "aip-custody",
  "aip-types",
  "base64",
  "rand",
@@ -85,6 +89,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-custody"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-types",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-nexora"
 version = "0.4.0"
 dependencies = [
@@ -92,6 +107,7 @@ dependencies = [
  "aip-containment",
  "aip-core",
  "aip-crypto",
+ "aip-custody",
  "aip-observe",
  "aip-reconcile",
  "aip-types",
@@ -106,6 +122,7 @@ version = "0.4.0"
 dependencies = [
  "aip-core",
  "aip-crypto",
+ "aip-custody",
  "aip-types",
  "libc",
  "serde",
@@ -118,6 +135,7 @@ version = "0.4.0"
 dependencies = [
  "aip-core",
  "aip-crypto",
+ "aip-custody",
  "aip-types",
  "hex",
  "rand",
@@ -158,6 +176,7 @@ dependencies = [
  "aip-authorize",
  "aip-core",
  "aip-crypto",
+ "aip-custody",
  "aip-observe",
  "aip-protocol",
  "aip-reconcile",
@@ -187,6 +206,7 @@ name = "aip-warrant"
 version = "0.4.0"
 dependencies = [
  "aip-crypto",
+ "aip-custody",
  "aip-observe",
  "aip-reconcile",
  "aip-types",

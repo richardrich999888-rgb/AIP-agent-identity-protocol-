@@ -25,9 +25,9 @@ pub fn test_app_state(
     store: Arc<dyn crate::store::EvidenceStore>,
     api_keys: crate::auth::ApiKeyStore,
 ) -> Arc<crate::AppState> {
-    let kp = crate::keys::KeyPair::generate();
-    let encoding_key = jsonwebtoken::EncodingKey::from_ed_pem(kp.private_pem.as_bytes()).unwrap();
-    let decoding_key = jsonwebtoken::DecodingKey::from_ed_pem(kp.public_pem.as_bytes()).unwrap();
+    let kp = crate::keys::ServiceKey::generate();
+    let encoding_key = kp.encoding_key();
+    let decoding_key = kp.decoding_key();
     let mut p = std::env::temp_dir();
     p.push(format!("aip_test_logs_{}", uuid::Uuid::new_v4()));
     let log_path = p.to_str().unwrap().to_owned();
@@ -42,8 +42,7 @@ pub fn test_app_state(
         revocation_set: crate::revocation::load_revocation_set(&log_path),
         store,
         api_keys,
-        signer_seed: kp.signing_seed(),
-        signer_public: kp.verifying_key_bytes(),
+        signer: Arc::new(kp),
     })
 }
 

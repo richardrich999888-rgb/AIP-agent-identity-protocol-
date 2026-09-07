@@ -1,0 +1,15 @@
+[package]
+name = "aip-custody"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Private key custody boundary: one signing interface, pluggable backends, no key accessor"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+serde = { version = "1.0", features = ["derive"] }
+rand = "0.8"
+
+[dev-dependencies]
+serde_json = "1.0"

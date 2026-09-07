@@ -430,8 +430,7 @@ pub async fn export_evidence(
         &principal.tenant_id,
         &packet,
         &report,
-        &state.signer_seed,
-        &state.signer_public,
+        state.signer.as_ref(),
     )
     .map_err(|e| {
         (

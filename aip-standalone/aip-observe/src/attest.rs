@@ -38,6 +38,7 @@
 //! `head` is **computed, never carried**: a verifier reconstructs the bytes
 //! and re-derives it, so there is no supplied-hash to be trusted.
 
+use aip_custody::{CustodyClass, KeyCustody};
 use std::collections::{HashMap, HashSet};
 
 use aip_crypto::{sha256, sign_ed25519, verify_ed25519};
@@ -374,6 +375,34 @@ pub struct CollectorSigner {
     /// Intersection of `active_mechanisms` over the batches that make up the
     /// current coverage epoch. `None` whenever there is no coverage.
     covered_by: Option<Vec<SourceMechanism>>,
+}
+
+/// Named custody for CollectorSigner's key.
+///
+/// Reporting only: no `sign(&[u8])`. `CollectorSigner` signs exactly one kind of
+/// input through its own operation, and a general signing oracle on this type
+/// would let a caller obtain its signature over bytes belonging to another
+/// protocol. See `aip_custody::KeyCustody`.
+///
+/// The key does not move. It stays in this crate, in the private field it was
+/// already in; this impl only makes the custody visible to policy checks and to
+/// an inventory.
+impl KeyCustody for CollectorSigner {
+    fn key_id(&self) -> &str {
+        &self.observer_id
+    }
+    fn key_version(&self) -> u32 {
+        self.key_version
+    }
+    fn public_key(&self) -> &[u8] {
+        &self.public_key
+    }
+    /// In-process key material, supplied by the operator at construction.
+    /// Honest classification: nothing here protects it, so a production policy
+    /// refuses it and the operator must say where the key actually comes from.
+    fn custody_class(&self) -> CustodyClass {
+        CustodyClass::Development
+    }
 }
 
 impl std::fmt::Debug for CollectorSigner {

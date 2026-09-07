@@ -14,9 +14,10 @@ use aip_core::simulation::simulate_network_verification;
 use aip_core::store::IdentityStore;
 use aip_core::*;
 use aip_crypto::*;
+use aip_custody::{CustodyPolicy, FileCustodian, KeyCustody};
 use aip_types::*;
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// AIP CLI — Agent Identity Protocol command-line tool.
 #[derive(Parser)]
@@ -126,7 +127,22 @@ fn cmd_create_identity(store_path: &PathBuf, model: &str, env: &str) {
     // Bind to runtime
     let binding = bind_identity_to_runtime(&agent_id);
 
-    store.put_identity(aid, kp);
+    // The private key goes to its own custodian file before anything else. If
+    // this fails the identity is not recorded at all — an entry in the store
+    // with no key behind it is an identity nobody can ever speak for, and
+    // silently creating one is worse than failing here.
+    let key_file = key_path(store_path, &agent_id);
+    if let Err(e) = aip_custody::ensure_secret_dir(&key_dir(store_path)) {
+        eprintln!("✗ Could not prepare the key directory: {e}");
+        std::process::exit(1);
+    }
+    let custodian = FileCustodian::create(&key_file, &agent_id, 0, &kp.private_key, &kp.public_key)
+        .unwrap_or_else(|e| {
+            eprintln!("✗ Could not store the signing key: {e}");
+            std::process::exit(1);
+        });
+
+    store.put_public_identity(aid);
     store.save().expect("Failed to save store");
 
     println!("✓ Identity created and activated");
@@ -136,6 +152,8 @@ fn cmd_create_identity(store_path: &PathBuf, model: &str, env: &str) {
     println!("  Status:        Active");
     println!("  Runtime hash:  {}", hex(&binding.runtime_hash));
     println!("  Stored in:     {}", store_path.display());
+    println!("  Signing key:   {}", custodian.path().display());
+    println!("  Custody:       {:?}", custodian.custody_class());
 }
 
 fn cmd_sign(store_path: &PathBuf, agent_id: Option<&str>, payload: &str) {
@@ -153,16 +171,14 @@ fn cmd_sign(store_path: &PathBuf, agent_id: Option<&str>, payload: &str) {
         }
     };
 
-    let entry = match store.get_identity(&id) {
-        Some(e) => e,
-        None => {
-            eprintln!("✗ Identity not found: {}", id);
-            std::process::exit(1);
-        }
-    };
+    if store.get_identity(&id).is_none() {
+        eprintln!("✗ Identity not found: {}", id);
+        std::process::exit(1);
+    }
 
+    let custodian = load_custodian(store_path, &id);
     let sig =
-        sign_ed25519(&entry.keypair.private_key, &id, payload.as_bytes()).expect("Failed to sign");
+        aip_custody::sign_envelope(&custodian, &id, payload.as_bytes()).expect("Failed to sign");
 
     let sig_json = serde_json::to_string_pretty(&sig).expect("Failed to serialize");
 
@@ -203,7 +219,7 @@ fn cmd_verify(store_path: &PathBuf, agent_id: &str, signature_json: &str) {
         }
     }
 
-    match verify_ed25519(&entry.keypair.public_key, &sig) {
+    match verify_ed25519(entry.public_key(), &sig) {
         Ok(true) => {
             println!("✓ Signature VALID");
             println!("  Signer:     {}", sig.signer_id);
@@ -235,10 +251,12 @@ fn cmd_challenge(store_path: &PathBuf, target_id: &str) {
     println!("Issuing liveness challenge to {}...", target_id);
 
     let challenge = issue_liveness_challenge("aip-cli", target_id);
-    let response = respond_to_challenge(&challenge, &entry.keypair.private_key, target_id)
-        .expect("Failed to create response");
+    let custodian = load_custodian(store_path, target_id);
+    let sig = aip_custody::sign_envelope(&custodian, target_id, &challenge.nonce)
+        .expect("Failed to sign the challenge nonce");
+    let response = assemble_liveness_response(&challenge, sig, target_id);
 
-    match verify_liveness(&challenge, &response, &entry.keypair.public_key) {
+    match verify_liveness(&challenge, &response, entry.public_key()) {
         Ok(true) => {
             println!("✓ Liveness challenge PASSED");
             println!("  Target:      {}", target_id);
@@ -323,11 +341,63 @@ fn cmd_simulate(agent_count: usize) {
     }
 }
 
+/// Open the identity store, or exit.
+///
+/// This used to fall back to an empty in-memory store on any load error and
+/// print a warning. That is the same defect class as `load_or_generate`: the
+/// next `save()` would rewrite the file from the empty store and delete every
+/// identity it held. A store that cannot be read is a stop condition, not a
+/// warning.
 fn load_store(path: &PathBuf) -> IdentityStore {
     IdentityStore::with_file(path).unwrap_or_else(|e| {
-        eprintln!("Warning: Could not load store ({}), using empty store", e);
-        IdentityStore::new()
+        eprintln!("✗ Could not open the identity store at {}", path.display());
+        eprintln!("  {e}");
+        eprintln!("  Refusing to continue with an empty store: saving one would");
+        eprintln!("  overwrite the file and destroy the identities it holds.");
+        std::process::exit(1);
     })
+}
+
+/// Where the private keys for `store_path` live: a sibling directory at mode
+/// 0700, one `FileCustodian` file per identity.
+///
+/// Keys are deliberately *not* in the store file. The store holds public
+/// identity documents and reputation records; key material is the custodian's,
+/// with its own permissions and its own lifecycle.
+fn key_dir(store_path: &Path) -> PathBuf {
+    let mut dir = store_path.as_os_str().to_owned();
+    dir.push(".keys");
+    PathBuf::from(dir)
+}
+
+fn key_path(store_path: &Path, agent_id: &str) -> PathBuf {
+    // AIP-IDs are base58 with a fixed prefix and contain no path separators
+    // (validate_aip_id enforces the alphabet), so this cannot escape the
+    // directory. Checked rather than assumed:
+    if agent_id.contains('/') || agent_id.contains('\\') || agent_id.contains("..") {
+        eprintln!("✗ Refusing to use {agent_id} as a file name");
+        std::process::exit(1);
+    }
+    key_dir(store_path).join(format!("{agent_id}.key"))
+}
+
+/// Load the custodian for `agent_id`, or exit.
+///
+/// Checks the deployment's custody policy before returning: a custodian whose
+/// class the policy does not admit is refused here rather than used and
+/// regretted.
+fn load_custodian(store_path: &Path, agent_id: &str) -> FileCustodian {
+    let path = key_path(store_path, agent_id);
+    let custodian = FileCustodian::load(&path).unwrap_or_else(|e| {
+        eprintln!("✗ No usable signing key for {agent_id}");
+        eprintln!("  {e}");
+        std::process::exit(1);
+    });
+    if let Err(e) = aip_custody::admits(CustodyPolicy::from_env(), &custodian) {
+        eprintln!("✗ {e}");
+        std::process::exit(1);
+    }
+    custodian
 }
 
 fn hex(bytes: &[u8]) -> String {

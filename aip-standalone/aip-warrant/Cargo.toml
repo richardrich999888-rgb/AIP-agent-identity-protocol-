@@ -8,6 +8,7 @@ description = "Ghost Skill 8: warrant engine — maps an authenticated reconcili
 [dependencies]
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
+aip-custody = { path = "../aip-custody" }
 aip-observe = { path = "../aip-observe" }
 aip-reconcile = { path = "../aip-reconcile" }
 serde = { version = "1.0", features = ["derive"] }

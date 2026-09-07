@@ -22,6 +22,7 @@ name = "aip-core"
 version = "0.4.0"
 dependencies = [
  "aip-crypto",
+ "aip-custody",
  "aip-types",
  "base64",
  "rand 0.8.6",
@@ -42,11 +43,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-custody"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-types",
+ "rand 0.8.6",
+ "serde",
+]
+
+[[package]]
 name = "aip-protocol"
 version = "0.4.0"
 dependencies = [
  "aip-core",
  "aip-crypto",
+ "aip-custody",
  "aip-types",
  "hex",
  "serde",
@@ -67,6 +79,7 @@ version = "0.2.0"
 dependencies = [
  "aip-core",
  "aip-crypto",
+ "aip-custody",
  "aip-protocol",
  "aip-types",
  "async-trait",

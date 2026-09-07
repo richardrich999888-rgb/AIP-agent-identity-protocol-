@@ -53,10 +53,13 @@ pub struct AppState {
     pub store: Arc<dyn EvidenceStore>,
     /// API-key store for authentication + tenant binding. Empty ⇒ fail closed.
     pub api_keys: auth::ApiKeyStore,
-    /// Ed25519 seed used to sign audit-export bundle manifests.
-    pub signer_seed: [u8; 32],
-    /// Ed25519 public key embedded in exported bundles (for offline verify).
-    pub signer_public: [u8; 32],
+    /// The custodian that signs audit-export bundle manifests.
+    ///
+    /// A signer, not a key. This field previously held the service's raw
+    /// 32-byte Ed25519 seed, which made the private key readable from every
+    /// HTTP handler in the process — `AppState` is shared with all of them.
+    /// The custodian exposes signing and a public key and nothing else.
+    pub signer: Arc<dyn aip_custody::SigningCustodian>,
 }
 
 /// Build the full router from shared state.

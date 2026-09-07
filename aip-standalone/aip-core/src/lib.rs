@@ -762,31 +762,49 @@ pub fn issue_liveness_challenge(challenger_id: &str, target_id: &str) -> Livenes
 }
 
 /// Create a liveness response by signing the challenge nonce.
+///
+/// Takes raw key material. Prefer [`store::StoredIdentity::respond_to_challenge`],
+/// which reaches the same result through a custodian and never puts the key in
+/// the caller's hands.
 pub fn respond_to_challenge(
     challenge: &LivenessChallenge,
     responder_private_key: &[u8],
     responder_id: &str,
 ) -> Result<LivenessResponse, AipError> {
     let sig = sign_ed25519(responder_private_key, responder_id, &challenge.nonce)?;
+    Ok(assemble_liveness_response(challenge, sig, responder_id))
+}
 
+/// Assemble a liveness response from a signature already produced over the
+/// challenge nonce.
+///
+/// Split out so the key-taking path and the custodian-backed path build the
+/// identical response: the proof binding below must match what
+/// [`verify_liveness`] recomputes, and two copies of it would be two chances
+/// to diverge.
+pub fn assemble_liveness_response(
+    challenge: &LivenessChallenge,
+    responder_sig: Signature,
+    responder_id: &str,
+) -> LivenessResponse {
     // Proof = SHA-256(nonce || signature_bytes)
     let mut proof_input = Vec::new();
     proof_input.extend_from_slice(&challenge.nonce);
-    proof_input.extend_from_slice(&sig.signature_bytes);
+    proof_input.extend_from_slice(&responder_sig.signature_bytes);
     let proof = sha256(&proof_input);
 
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
+        .unwrap_or_default()
         .as_millis() as u64;
 
-    Ok(LivenessResponse {
+    LivenessResponse {
         challenge_id: challenge.challenge_id,
         responder_id: responder_id.to_string(),
         proof,
         responded_at: now,
-        responder_sig: sig,
-    })
+        responder_sig,
+    }
 }
 
 /// Verify a liveness response.

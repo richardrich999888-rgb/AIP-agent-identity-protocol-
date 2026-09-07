@@ -13,5 +13,6 @@ path = "src/main.rs"
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
 aip-core = { path = "../aip-core" }
+aip-custody = { path = "../aip-custody" }
 clap = { version = "4", features = ["derive"] }
 serde_json = "1.0"

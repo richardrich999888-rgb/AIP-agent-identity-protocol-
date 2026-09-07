@@ -6,6 +6,7 @@
 //! computes a product of the two axes, and nothing here actuates (§20).
 
 use aip_crypto::{sha256, sign_ed25519, verify_ed25519};
+use aip_custody::{CustodyClass, KeyCustody};
 use aip_observe::ObservationAvailability;
 use aip_reconcile::{
     EvidenceRef, EvidenceStrength, Reconciliation, ReconciliationResult, RECONCILIATION_VERSION,
@@ -323,6 +324,37 @@ pub struct WarrantAuthority {
     id: String,
     private_key: Vec<u8>,
     public_key: Vec<u8>,
+}
+
+/// Named custody for WarrantAuthority's key.
+///
+/// Reporting only: no `sign(&[u8])`. `WarrantAuthority` signs exactly one kind of
+/// input through its own operation, and a general signing oracle on this type
+/// would let a caller obtain its signature over bytes belonging to another
+/// protocol. See `aip_custody::KeyCustody`.
+///
+/// The key does not move. It stays in this crate, in the private field it was
+/// already in; this impl only makes the custody visible to policy checks and to
+/// an inventory.
+impl KeyCustody for WarrantAuthority {
+    fn key_id(&self) -> &str {
+        &self.id
+    }
+    fn key_version(&self) -> u32 {
+        // No rotation scheme for this authority yet; every key is version 0.
+        // Stated rather than invented — a version that moves with no rotation
+        // mechanism behind it is decoration.
+        0
+    }
+    fn public_key(&self) -> &[u8] {
+        &self.public_key
+    }
+    /// In-process key material, supplied by the operator at construction.
+    /// Honest classification: nothing here protects it, so a production policy
+    /// refuses it and the operator must say where the key actually comes from.
+    fn custody_class(&self) -> CustodyClass {
+        CustodyClass::Development
+    }
 }
 
 impl std::fmt::Debug for WarrantAuthority {

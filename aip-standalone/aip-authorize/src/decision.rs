@@ -8,6 +8,7 @@
 //! trusted issuers, the leaf-is-the-agent check, temporal adjudication, the
 //! binding check, and its own signature.
 
+use aip_custody::{CustodyClass, KeyCustody};
 use std::collections::HashMap;
 
 use aip_core::capability::{random_jti, scope_permits, verify_scoped_token};
@@ -129,6 +130,37 @@ pub struct DecisionPoint {
     public_key: Vec<u8>,
     issuer_keys: HashMap<String, Vec<u8>>,
     max_ttl_ms: u64,
+}
+
+/// Named custody for DecisionPoint's key.
+///
+/// Reporting only: no `sign(&[u8])`. `DecisionPoint` signs exactly one kind of
+/// input through its own operation, and a general signing oracle on this type
+/// would let a caller obtain its signature over bytes belonging to another
+/// protocol. See `aip_custody::KeyCustody`.
+///
+/// The key does not move. It stays in this crate, in the private field it was
+/// already in; this impl only makes the custody visible to policy checks and to
+/// an inventory.
+impl KeyCustody for DecisionPoint {
+    fn key_id(&self) -> &str {
+        &self.id
+    }
+    fn key_version(&self) -> u32 {
+        // No rotation scheme for this authority yet; every key is version 0.
+        // Stated rather than invented — a version that moves with no rotation
+        // mechanism behind it is decoration.
+        0
+    }
+    fn public_key(&self) -> &[u8] {
+        &self.public_key
+    }
+    /// In-process key material, supplied by the operator at construction.
+    /// Honest classification: nothing here protects it, so a production policy
+    /// refuses it and the operator must say where the key actually comes from.
+    fn custody_class(&self) -> CustodyClass {
+        CustodyClass::Development
+    }
 }
 
 impl std::fmt::Debug for DecisionPoint {

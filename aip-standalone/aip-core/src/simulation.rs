@@ -105,8 +105,7 @@ pub fn simulate_network_verification(agent_count: usize) -> SimulationResult {
 
     for id in &agent_ids {
         let entry = store.get_identity(id).unwrap();
-        let sig = sign_ed25519(&entry.keypair.private_key, id, test_payload)
-            .expect("Signing must succeed");
+        let sig = entry.sign(test_payload).expect("Signing must succeed");
         // Validate nonce freshness
         nonce_tracker
             .validate_and_record(&sig)
@@ -120,7 +119,7 @@ pub fn simulate_network_verification(agent_count: usize) -> SimulationResult {
                 continue; // Skip self-verification
             }
             let signer_entry = store.get_identity(signer_id).unwrap();
-            let valid = verify_ed25519(&signer_entry.keypair.public_key, sig)
+            let valid = verify_ed25519(signer_entry.public_key(), sig)
                 .expect("Verification must not error");
             if valid {
                 verifications_passed += 1;
@@ -151,11 +150,11 @@ pub fn simulate_network_verification(agent_count: usize) -> SimulationResult {
         let challenge = crate::issue_liveness_challenge(challenger_id, target_id);
 
         let target_entry = store.get_identity(target_id).unwrap();
-        let response =
-            crate::respond_to_challenge(&challenge, &target_entry.keypair.private_key, target_id)
-                .expect("Response must succeed");
+        let response = target_entry
+            .respond_to_challenge(&challenge)
+            .expect("Response must succeed");
 
-        let valid = crate::verify_liveness(&challenge, &response, &target_entry.keypair.public_key)
+        let valid = crate::verify_liveness(&challenge, &response, target_entry.public_key())
             .expect("Verification must not error");
 
         if valid {

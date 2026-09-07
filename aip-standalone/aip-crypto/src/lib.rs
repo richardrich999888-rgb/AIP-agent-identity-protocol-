@@ -129,6 +129,40 @@ pub fn verify_ed25519_raw(public_key: &[u8], msg: &[u8], sig: &[u8; 64]) -> bool
     verifying_key.verify(msg, &signature).is_ok()
 }
 
+/// The 32 bytes an AIP signature envelope actually covers.
+///
+/// `signed_bytes = SHA-256(algorithm || signer_id || timestamp_le || nonce ||
+/// payload_hash)`.
+///
+/// Extracted so the signer and the verifier cannot drift: this construction
+/// previously existed twice, written out by hand in [`sign_ed25519`] and again
+/// in [`verify_ed25519`], and a custodian-backed signer would have made it
+/// three copies. Two hand-built encodings that must agree byte for byte are a
+/// latent divergence; one function is the fix.
+///
+/// The encoding is unchanged from the original pair, so every signature
+/// produced or accepted before this extraction remains valid.
+///
+/// Note the encoding is not prefix-free: `signer_id` is embedded without a
+/// length. That is pre-existing wire format and is not altered here; the
+/// prefix-free canonical encodings elsewhere in the workspace (`put_domain`
+/// and friends) are the pattern new formats follow.
+pub fn signature_signed_bytes(
+    algorithm: AlgorithmId,
+    signer_id: &str,
+    timestamp: u64,
+    nonce: &[u8; 16],
+    payload_hash: &[u8; 32],
+) -> [u8; 32] {
+    let mut signed_input = Vec::new();
+    signed_input.push(algorithm as u8);
+    signed_input.extend_from_slice(signer_id.as_bytes());
+    signed_input.extend_from_slice(&timestamp.to_le_bytes());
+    signed_input.extend_from_slice(nonce);
+    signed_input.extend_from_slice(payload_hash);
+    sha256(&signed_input)
+}
+
 /// Sign a payload with Ed25519.
 pub fn sign_ed25519(
     private_key: &[u8],
@@ -156,14 +190,13 @@ pub fn sign_ed25519(
 
     let payload_hash = sha256(payload);
 
-    // signed_bytes = SHA-256(algorithm || signer_id || timestamp || nonce || payload_hash)
-    let mut signed_input = Vec::new();
-    signed_input.push(AlgorithmId::Ed25519 as u8);
-    signed_input.extend_from_slice(signer_id.as_bytes());
-    signed_input.extend_from_slice(&timestamp.to_le_bytes());
-    signed_input.extend_from_slice(&nonce);
-    signed_input.extend_from_slice(&payload_hash);
-    let signed_bytes = sha256(&signed_input);
+    let signed_bytes = signature_signed_bytes(
+        AlgorithmId::Ed25519,
+        signer_id,
+        timestamp,
+        &nonce,
+        &payload_hash,
+    );
 
     let sig = signing_key.sign(&signed_bytes);
 
@@ -200,14 +233,13 @@ pub fn verify_ed25519(
     )
     .map_err(|_| aip_types::AipError::InvalidPublicKey)?;
 
-    // Reconstruct signed_bytes
-    let mut signed_input = Vec::new();
-    signed_input.push(signature.algorithm as u8);
-    signed_input.extend_from_slice(signature.signer_id.as_bytes());
-    signed_input.extend_from_slice(&signature.timestamp.to_le_bytes());
-    signed_input.extend_from_slice(&signature.nonce);
-    signed_input.extend_from_slice(&signature.payload_hash);
-    let signed_bytes = sha256(&signed_input);
+    let signed_bytes = signature_signed_bytes(
+        signature.algorithm,
+        &signature.signer_id,
+        signature.timestamp,
+        &signature.nonce,
+        &signature.payload_hash,
+    );
 
     let sig = ed25519_dalek::Signature::from_bytes(
         signature
