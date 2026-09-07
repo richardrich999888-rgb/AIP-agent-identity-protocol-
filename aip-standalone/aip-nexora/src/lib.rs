@@ -7,6 +7,7 @@
 //! an offline verifier can check against a root it obtained elsewhere.
 //! Signed heads, proof objects and the offline verifier are Gate 7.
 
+pub mod capability;
 pub mod commitment;
 pub mod export;
 pub mod merkle;
@@ -14,6 +15,7 @@ pub mod proof;
 pub mod replay;
 pub mod verify;
 
+pub use capability::{ReconciliationAge, VerifierCapability};
 pub use commitment::{
     verify_proof, verify_signed_head, Advance, AnchorSink, CommitmentLog, HeadTracker,
     MemoryAnchor, NexoraError, NexoraSigner, NexoraTrustAnchors, ProofObject, SignedHead,

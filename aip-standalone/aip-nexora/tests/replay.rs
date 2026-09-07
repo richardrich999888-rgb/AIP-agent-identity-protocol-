@@ -20,6 +20,7 @@
 
 mod common;
 
+use aip_nexora::capability::VerifierCapability;
 use aip_nexora::export::*;
 use aip_nexora::proof::*;
 use aip_nexora::replay::*;
@@ -48,7 +49,8 @@ fn anchors(s: &common::Scenario) -> VerifierAnchors {
         nexora: aip_nexora::NexoraTrustAnchors::new(),
         issuers: s.a.issuer_keys.clone(),
         agent_public_key: Some(s.a.agent_kp.public_key.clone()),
-        ..Default::default()
+        capability: VerifierCapability::strict(),
+        present_time_ms: None,
     }
 }
 

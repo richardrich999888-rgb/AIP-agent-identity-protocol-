@@ -35,6 +35,7 @@
 
 #![cfg(target_os = "linux")]
 
+use aip_nexora::capability::VerifierCapability;
 use aip_nexora::export::*;
 use aip_nexora::proof::*;
 use aip_nexora::verify::*;
@@ -104,13 +105,12 @@ fn package(d: &Demo) -> (NexoraProof, VerifierAnchors) {
         issuers: i.issuer_keys.clone(),
         agent_public_key: Some(i.agent_public_key.clone()),
         // The verifier's own limits on what it will accept a package to
-        // have been reconciled under. Without them it accepts whatever the
-        // package declares and re-derives under it, which is a weaker
-        // verifier than any real deployment should be: a package could
-        // declare a month-old health record acceptable and be believed.
-        max_declared_health_age_ms: Some(ghost_demo::HEALTH_MAX_AGE_MS),
-        max_declared_window_tolerance_ms: Some(0),
-        ..Default::default()
+        // have been reconciled under. There is no way to decline to state
+        // them: `VerifierAnchors` has no `Default` (Defect #5).
+        capability: VerifierCapability::strict()
+            .max_health_age_ms(ghost_demo::HEALTH_MAX_AGE_MS)
+            .max_window_tolerance_ms(0),
+        present_time_ms: None,
     };
     (proof, anchors)
 }

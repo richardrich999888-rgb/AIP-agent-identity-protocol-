@@ -103,13 +103,26 @@ demonstration can move them, and the anchor file carries its own warning
 that a verifier taking anchors from beside the artifact has verified
 nothing (`live_nexora.rs::g14_06` reads that text back).
 
-Three things the anchor file deliberately never carries: the verifier's
-declared-parameter bounds, and the verifier's present time. A package must
-not tell a verifier what it will accept or what time it is
-(`adversarial.rs::n_verifier_context_substitution_*`). `nexora-verify`
-supplies them on its command line instead — `--max-health-age-ms`,
-`--max-window-tolerance-ms`, `--now-ms` — which is the one input a package
-cannot reach.
+The anchor file deliberately never carries the verifier's own terms: not
+its declared-parameter bounds, and not its present time. A package must not
+tell a verifier what it will accept or what time it is
+(`adversarial.rs::n_verifier_context_substitution_*`).
+
+Those terms are a seventh thing the verifier owns, and since Defect #5 they
+are a type it cannot decline to supply: `VerifierCapability` states the
+proof versions this verifier reads and the declared parameters it accepts.
+It has no `Default`, no variant meaning "anything", and no `Deserialize` —
+so an unstated bound is not an unlimited one, and there is no byte sequence
+anywhere that becomes a statement about what a verifier is prepared to
+establish. `VerifierAnchors` consequently has no `Default` either: a
+verifier that never said what it accepts cannot be constructed.
+`import_anchors` takes the capability from its caller, because an anchor
+file has nothing to build one from. `nexora-verify` assembles it from its
+own command line — `--max-health-age-ms`, `--max-window-tolerance-ms`,
+`--max-reconciliation-age-ms`, `--understand-versions`, `--now-ms` — before
+it opens a file, and prints it beside every verdict as `evaluated_under`,
+because a result without the terms it was reached under is half a
+sentence.
 
 ---
 
@@ -328,7 +341,7 @@ ambiguous observation (`coverage.rs`), wrong Merkle root and invalid
 inclusion proof (`merkle.rs`), sequence rollback / fork / truncation (I),
 warrant transplantation (`binding.rs`, `warrant_ref.rs`).
 
-**Three defects the suites found, all fixed in the implementation:**
+**Four defects the suites found, all fixed in the implementation:**
 
 1. A refused package still stated a result and a strength (Gate 12).
 2. A carried component the verifier never reached reported `Absent`
@@ -339,9 +352,20 @@ warrant transplantation (`binding.rs`, `warrant_ref.rs`).
    `verify_scoped_token` first; the fix is in `aip-core`, not a fifth
    workaround.
 
-A fourth was found in the CLI: `nexora-verify` had no way to express the
-verifier's own declared-parameter bounds, so the Gate 10 protection was
-unreachable from the only offline verifier anyone would run.
+4. The verifier's declared-parameter bounds were `Option`s that defaulted
+   to `None`, and `None` meant *accept whatever the package declares*. Both
+   `VerifierAnchors::default()` and `import_anchors` produced an unbounded
+   verifier, so the Gate 10 protection was unreachable by default rather
+   than merely unreachable from the CLI. Alongside it,
+   `DeclaredParameters::agent_key_supplied` — a package boolean — was
+   copied straight into the verifier's `independence` finding. Both closed
+   by `VerifierCapability` (Defect #5).
+
+Two further hazards surfaced while closing the fourth: a verifier could
+declare it understood a proof version this build does not implement, which
+would have read such a package under the current rules while reporting the
+version as understood; and an unknown declared parameter was silently
+ignored rather than refused. Both are now refused.
 
 ---
 

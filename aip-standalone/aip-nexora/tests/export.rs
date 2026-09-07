@@ -19,6 +19,7 @@
 
 mod common;
 
+use aip_nexora::capability::VerifierCapability;
 use aip_nexora::export::*;
 use aip_nexora::proof::*;
 use aip_nexora::verify::*;
@@ -51,7 +52,8 @@ fn anchors(s: &common::Scenario) -> VerifierAnchors {
         nexora: aip_nexora::NexoraTrustAnchors::new(),
         issuers: s.a.issuer_keys.clone(),
         agent_public_key: Some(s.a.agent_kp.public_key.clone()),
-        ..Default::default()
+        capability: VerifierCapability::strict(),
+        present_time_ms: None,
     }
 }
 
@@ -250,18 +252,32 @@ fn g10_08_a_declared_parameter_is_an_input_and_the_verifier_may_refuse_it() {
     let mut widened = package(&s);
     widened.parameters.health_max_age_ms = 100 * 365 * 24 * 3_600_000;
 
-    let permissive = anchors(&s);
-    let v = verify_nexora_proof(&widened, &permissive);
+    // The record is still *derivable* under those parameters — that is what
+    // makes this the verifier's judgement rather than a re-derivation
+    // failure. A verifier that deliberately widens its bound to a century
+    // therefore accepts it, and its own report says so.
+    let century = 100 * 365 * 24 * 3_600_000;
+    let widened_verifier = VerifierAnchors {
+        capability: VerifierCapability::strict().max_health_age_ms(century),
+        ..anchors(&s)
+    };
+    let v = verify_nexora_proof(&widened, &widened_verifier);
     assert_eq!(
         v.verdict,
         ProofVerdict::Valid,
         "the claim is still derivable under the declared parameters"
     );
+    assert_eq!(
+        v.evaluated_under.health_age_bound(),
+        century,
+        "and the result states the terms it was reached under"
+    );
 
-    let strict = VerifierAnchors {
-        max_declared_health_age_ms: Some(3_600_000),
-        ..anchors(&s)
-    };
+    // A verifier that did not widen it refuses — including one that simply
+    // never thought about the question, because there is no longer any way
+    // to not think about it: `VerifierAnchors` has no `Default`, and
+    // `strict()` is a named policy rather than a blank (Defect #5).
+    let strict = anchors(&s);
     let v = verify_nexora_proof(&widened, &strict);
     assert!(
         matches!(
@@ -275,8 +291,13 @@ fn g10_08_a_declared_parameter_is_an_input_and_the_verifier_may_refuse_it() {
         verify_nexora_proof(&package(&s), &strict).verdict,
         ProofVerdict::Valid
     );
-    // And a bound is the verifier's own: it never travels with a package.
-    let bytes = export_anchors(&strict).unwrap();
-    let back = import_anchors(&bytes).unwrap();
-    assert_eq!(back.max_declared_health_age_ms, None);
+    // And a bound is the verifier's own: it never travels with a package,
+    // and importing anchors cannot supply one — the caller must.
+    let bytes = export_anchors(&widened_verifier).unwrap();
+    let back = import_anchors(&bytes, VerifierCapability::strict()).unwrap();
+    assert_eq!(
+        back.capability.health_age_bound(),
+        VerifierCapability::strict().health_age_bound(),
+        "the file's bound did not survive the trip, because it was never in it"
+    );
 }

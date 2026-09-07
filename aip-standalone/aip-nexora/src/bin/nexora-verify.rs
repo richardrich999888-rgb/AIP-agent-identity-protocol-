@@ -31,6 +31,7 @@
 
 use std::process::ExitCode;
 
+use aip_nexora::capability::{ReconciliationAge, VerifierCapability};
 use aip_nexora::export::{import_anchors, import_proof};
 use aip_nexora::verify::{verify_nexora_proof, ProofVerdict};
 
@@ -40,6 +41,8 @@ fn main() -> ExitCode {
     let mut json = false;
     let mut max_health_age: Option<u64> = None;
     let mut max_window_tolerance: Option<u64> = None;
+    let mut max_reconciliation_age: Option<u64> = None;
+    let mut understood_versions: Option<Vec<u16>> = None;
     let mut now_ms: Option<u64> = None;
     let mut args = std::env::args().skip(1);
     let number = |args: &mut dyn Iterator<Item = String>, flag: &str| -> Option<u64> {
@@ -64,6 +67,27 @@ fn main() -> ExitCode {
                 Some(n) => max_window_tolerance = Some(n),
                 None => return ExitCode::from(2),
             },
+            "--max-reconciliation-age-ms" => {
+                match number(&mut args, "--max-reconciliation-age-ms") {
+                    Some(n) => max_reconciliation_age = Some(n),
+                    None => return ExitCode::from(2),
+                }
+            }
+            "--understand-versions" => {
+                let Some(list) = args.next() else {
+                    eprintln!("--understand-versions needs a comma-separated list");
+                    return ExitCode::from(2);
+                };
+                let parsed: Result<Vec<u16>, _> =
+                    list.split(',').map(|x| x.trim().parse::<u16>()).collect();
+                match parsed {
+                    Ok(v) if !v.is_empty() => understood_versions = Some(v),
+                    _ => {
+                        eprintln!("--understand-versions needs at least one version number");
+                        return ExitCode::from(2);
+                    }
+                }
+            }
             "--now-ms" => match number(&mut args, "--now-ms") {
                 Some(n) => now_ms = Some(n),
                 None => return ExitCode::from(2),
@@ -73,6 +97,8 @@ fn main() -> ExitCode {
                 println!("  --json                         machine-readable output");
                 println!("  --max-health-age-ms <n>        refuse a larger declared health age");
                 println!("  --max-window-tolerance-ms <n>  refuse a larger declared tolerance");
+                println!("  --max-reconciliation-age-ms <n>  refuse an older reconciliation");
+                println!("  --understand-versions <a,b>    proof versions this run will read");
                 println!("  --now-ms <n>                   this verifier's present time");
                 return ExitCode::SUCCESS;
             }
@@ -86,6 +112,36 @@ fn main() -> ExitCode {
         eprintln!("both --proof and --anchors are required");
         return ExitCode::from(2);
     };
+
+    // This verifier's own terms, assembled and checked before a single
+    // file is opened, so that nothing read from disk can contribute to
+    // them. `strict()` is a named policy, not a blank: there is no way to
+    // run this binary without having stated what it accepts.
+    let mut capability = VerifierCapability::strict();
+    if let Some(n) = max_health_age {
+        capability = capability.max_health_age_ms(n);
+    }
+    if let Some(n) = max_window_tolerance {
+        capability = capability.max_window_tolerance_ms(n);
+    }
+    if let Some(n) = max_reconciliation_age {
+        capability = capability.max_reconciliation_age(ReconciliationAge::AtMost(n));
+    }
+    if let Some(versions) = understood_versions {
+        // Checked here rather than left to the library's assertion: asking
+        // for a format this build does not implement is an operator's
+        // mistake, and it deserves a sentence rather than a panic.
+        for v in &versions {
+            if !VerifierCapability::IMPLEMENTED_VERSIONS.contains(v) {
+                eprintln!(
+                    "this build does not implement proof version {v}; it implements {:?}",
+                    VerifierCapability::IMPLEMENTED_VERSIONS
+                );
+                return ExitCode::from(2);
+            }
+        }
+        capability = capability.understanding(versions);
+    }
 
     let proof = match std::fs::read(&proof_path).map_err(|e| e.to_string()) {
         Ok(bytes) => match import_proof(&bytes) {
@@ -101,7 +157,7 @@ fn main() -> ExitCode {
         }
     };
     let mut anchors = match std::fs::read(&anchors_path).map_err(|e| e.to_string()) {
-        Ok(bytes) => match import_anchors(&bytes) {
+        Ok(bytes) => match import_anchors(&bytes, capability.clone()) {
             Ok(a) => a,
             Err(e) => {
                 eprintln!("{anchors_path}: {e}");
@@ -114,10 +170,6 @@ fn main() -> ExitCode {
         }
     };
 
-    // The verifier's own terms, applied after the anchor file is read so
-    // that nothing in the file can set or widen them.
-    anchors.max_declared_health_age_ms = max_health_age;
-    anchors.max_declared_window_tolerance_ms = max_window_tolerance;
     anchors.present_time_ms = now_ms;
 
     let v = verify_nexora_proof(&proof, &anchors);
@@ -138,7 +190,12 @@ fn main() -> ExitCode {
                 println!("result={r:?}");
                 println!("strength={s:?}");
             }
-            _ => println!("result=<not derivable from this package>"),
+            // Anything else means the verifier established nothing. That
+            // covers a claim the evidence does not yield *and* a package
+            // whose declared terms this verifier declined, which are
+            // different facts — the verdict above names which, and this
+            // line does not guess.
+            _ => println!("result=<none: the package was refused; see verdict>"),
         }
         println!("coverage={:?}", v.coverage.observation);
         println!("completeness={:?}", v.coverage.completeness);
@@ -149,6 +206,20 @@ fn main() -> ExitCode {
         // the authority expires, and no value of this grants anything.
         println!("authority_standing={:?}", v.authority_standing);
         println!("independence={:?}", v.independence);
+        // The result is only meaningful alongside the terms it was reached
+        // under, so the report states them rather than leaving a reader to
+        // reconstruct them from the command line.
+        let versions: Vec<String> = capability
+            .understood_versions()
+            .map(|x| x.to_string())
+            .collect();
+        println!(
+            "evaluated_under: versions={} health_age<={}ms window_tolerance<={}ms age={:?}",
+            versions.join(","),
+            capability.health_age_bound(),
+            capability.window_tolerance_bound(),
+            capability.reconciliation_age_bound()
+        );
         println!(
             "lineage: identity={:?} authority={:?} process={:?}",
             v.lineage_report.identity, v.lineage_report.authority, v.lineage_report.process

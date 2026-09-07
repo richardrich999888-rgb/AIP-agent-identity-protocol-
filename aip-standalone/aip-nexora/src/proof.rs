@@ -162,7 +162,13 @@ pub struct LineageEvidence {
 /// trusted**: they are inside the signed bytes so they cannot be changed
 /// after the fact, and the verifier re-runs the reconciler under them while
 /// supplying its own anchors.
+/// `deny_unknown_fields` because this is the block a package uses to state
+/// the terms it was reconciled under. A parameter this build does not
+/// implement must be refused rather than silently ignored: ignoring it
+/// would mean verifying under terms the verifier never evaluated while
+/// reporting a result as though it had (Defect #5).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct DeclaredParameters {
     pub verification_time_ms: u64,
     pub health_max_age_ms: u64,
