@@ -366,6 +366,12 @@ pub struct VerifiedProof {
     pub warrant: ComponentVerdict,
     pub commitment: ComponentVerdict,
     pub envelope: ComponentVerdict,
+    /// The AI-stack provenance, re-derived. `Absent` when the package
+    /// carries none — which is not a failure and not a pass.
+    pub airi: ComponentVerdict,
+    /// Number of AIRI events whose signature and chain position the verifier
+    /// re-derived. Zero when `airi` is `Absent`.
+    pub airi_events_verified: usize,
     /// The record the verifier recomputed from the package's inputs.
     pub rederived: Option<Reconciliation>,
     /// The re-derived result. Not the claimed one.
@@ -422,7 +428,10 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
     };
     let mut v = VerifiedProof {
         proof_id: proof.proof_id(),
-        // Settled below, once the package agrees with itself.
+        // Settled below, once the package agrees with itself. Gate 12: a
+        // component the package *carried* but which verification never
+        // reached is `Unverifiable`, never `Absent` — collapsing the two
+        // reads absence of evidence as evidence of absence.
         subject: unreached(true),
         authority: unreached(proof.authority.is_some()),
         expectation: unreached(proof.expectation.is_some()),
@@ -431,6 +440,10 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
         lineage: unreached(proof.lineage.is_some()),
         warrant: unreached(proof.warrant.is_some()),
         commitment: unreached(proof.commitment.is_some()),
+        // AIRI (Skill 15) carries the same rule: a carried AIRI component
+        // that verification did not reach is unverifiable, not absent.
+        airi: unreached(proof.airi.is_some()),
+        airi_events_verified: 0,
         envelope: unreached(proof.envelope.is_some()),
         rederived: None,
         result: None,
@@ -653,6 +666,26 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
                 v.commitment = ComponentVerdict::Verified;
             }
             Err(e) => fail(Component::Commitment, format!("{e:?}"), &mut v.commitment),
+        }
+    }
+
+    // AI-stack provenance (v2). Re-derived, never trusted: every event's
+    // signature is checked and the chain is re-walked from the package's own
+    // bytes.
+    //
+    // Two things this deliberately does not do. It does not let AIRI touch
+    // `v.result` or `v.strength` — those are fields of the record the
+    // reconciler produced during verification, and nothing here writes
+    // either. And it does not accept the package's own `agent_public_key`
+    // when the verifier holds an anchor for that agent: the verifier's
+    // anchor wins, and a disagreement is a finding rather than a preference.
+    if let Some(bundle) = &proof.airi {
+        match verify_airi_bundle(bundle, anchors) {
+            Ok(n) => {
+                v.airi = ComponentVerdict::Verified;
+                v.airi_events_verified = n;
+            }
+            Err(e) => fail(Component::Airi, e, &mut v.airi),
         }
     }
 
@@ -951,4 +984,67 @@ fn reported_loss(proof: &NexoraProof) -> bool {
 
 fn degraded(h: &SignedSensorHealth) -> bool {
     matches!(h.health.state, ObserverState::Degraded)
+}
+
+/// Re-derive an [`AiriBundle`]: which key really signed these events, whether
+/// each signature holds, and whether they form one intact chain.
+///
+/// Returns the number of events verified. Returns `Err` with a reason a human
+/// can act on; the caller records it as `Unverifiable`, never as absent.
+///
+/// # Key selection
+///
+/// If the verifier anchored a public key for this agent, that key is used and
+/// the package's own is required to match it. A package naming a different
+/// key is not quietly verified against the one it supplied — that would let
+/// an assembler choose whose signature counts.
+///
+/// If the verifier anchored no key, the package's is used and the caller is
+/// told, through the reason string on any failure, that the check rested on a
+/// self-supplied key. A `Verified` verdict under a self-supplied key means
+/// "internally consistent", which is weaker than "signed by the agent the
+/// verifier trusts" and must not be read as the latter.
+fn verify_airi_bundle(
+    bundle: &crate::proof::AiriBundle,
+    anchors: &VerifierAnchors,
+) -> Result<usize, String> {
+    if bundle.events.is_empty() {
+        return Err("bundle carries no events".to_string());
+    }
+    if bundle.agent_public_key.len() != 32 {
+        return Err(format!(
+            "agent_public_key is {} bytes; an Ed25519 key is 32",
+            bundle.agent_public_key.len()
+        ));
+    }
+
+    let key: &[u8] = match &anchors.agent_public_key {
+        Some(anchored) => {
+            if anchored.as_slice() != bundle.agent_public_key.as_slice() {
+                return Err(
+                    "the package names an agent key the verifier does not anchor; \
+                     refusing to verify against a key the package chose"
+                        .to_string(),
+                );
+            }
+            anchored.as_slice()
+        }
+        None => bundle.agent_public_key.as_slice(),
+    };
+
+    for ev in &bundle.events {
+        if ev.agent_id != bundle.agent_id {
+            return Err(format!(
+                "event at sequence {} is authored by {}, not the bundle's agent {}",
+                ev.sequence, ev.agent_id, bundle.agent_id
+            ));
+        }
+        aip_airi::verify_airi_event(ev, key)
+            .map_err(|e| format!("event at sequence {}: {e}", ev.sequence))?;
+    }
+
+    match aip_airi::verify_event_chain(&bundle.events, key) {
+        aip_airi::ChainReport::Intact(_) => Ok(bundle.events.len()),
+        aip_airi::ChainReport::Defective(d) => Err(format!("chain defect: {d:?}")),
+    }
 }

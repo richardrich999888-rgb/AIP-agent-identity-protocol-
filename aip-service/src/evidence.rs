@@ -32,8 +32,8 @@ use serde::{Deserialize, Serialize};
 use aip_crypto::{derive_aip_id, sha256};
 use aip_protocol::{
     verify_packet, ActionAttestation, AgentIdentitySummary, DecisionRecord, EvidencePacket,
-    EvidencePacketBuilder, ReceiptBinding, RootAuthority, TraceBinding, TrustFloor,
-    VerificationContext, VerificationReport,
+    EvidencePacketBuilder, ObservedHistory, ReceiptBinding, RootAuthority, TraceBinding,
+    TrustFloor, VerificationContext, VerificationReport,
 };
 use aip_types::{
     Action, AlgorithmId, DelegationToken, ProvenanceTriple, PublicKey, ScopeAction, ScopedToken,
@@ -114,7 +114,7 @@ pub struct TraceInput {
     pub trace_data: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct ReceiptInput {
     pub receipt_system: String,
     pub receipt_id: String,
@@ -125,7 +125,7 @@ pub struct ReceiptInput {
     pub counterparty_seed_hex: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct GenerateRequest {
     /// 32-byte hex seed of the acting agent's Ed25519 key.
     pub agent_seed_hex: String,
@@ -145,6 +145,50 @@ pub struct GenerateRequest {
     pub receipt: Option<ReceiptInput>,
     #[serde(default)]
     pub claimed_trust_floor: Option<TrustFloor>,
+}
+
+/// Redacting `Debug`. Derived `Debug` on a struct holding a private seed is
+/// a leak waiting for the first `tracing::debug!(?req)` or `unwrap` panic
+/// message; the field is printed as a placeholder instead (AUDIT B-7).
+/// The presence of a seed is still visible, because whether one was supplied
+/// is operationally relevant and is not itself secret.
+/// Redacting `Debug`. Derived `Debug` on a struct holding a private seed is
+/// a leak waiting for the first `tracing::debug!(?req)` or panic message that
+/// formats it; the field is printed as a placeholder instead (AUDIT B-7).
+/// Whether a seed was supplied is still visible, because that is
+/// operationally relevant and is not itself secret.
+impl std::fmt::Debug for GenerateRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GenerateRequest")
+            .field("agent_seed_hex", &"<redacted>")
+            .field("provenance", &self.provenance)
+            .field("principal_id", &self.principal_id)
+            .field("principal_role", &self.principal_role)
+            .field("root_token", &self.root_token)
+            .field("delegation_chain", &self.delegation_chain)
+            .field("decision", &self.decision)
+            .field("actions", &self.actions)
+            .field("trace", &self.trace)
+            .field("receipt", &self.receipt)
+            .field("claimed_trust_floor", &self.claimed_trust_floor)
+            .finish()
+    }
+}
+
+/// Redacting `Debug`; see [`GenerateRequest`]'s impl.
+impl std::fmt::Debug for ReceiptInput {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ReceiptInput")
+            .field("receipt_system", &self.receipt_system)
+            .field("receipt_id", &self.receipt_id)
+            .field("receipt_content", &self.receipt_content)
+            .field("counterparty_id", &self.counterparty_id)
+            .field(
+                "counterparty_seed_hex",
+                &self.counterparty_seed_hex.as_ref().map(|_| "<redacted>"),
+            )
+            .finish()
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -170,6 +214,27 @@ pub struct VerifyRequest {
     /// Raw receipt data to cross-check against the packet's receipt_hash.
     #[serde(default)]
     pub receipt_data: Option<String>,
+    /// Verify as of this Unix-ms instant instead of the service's own clock.
+    ///
+    /// For replaying a historical verification, or for an offline caller that
+    /// knows the time it means. **Omitted is not unbounded**: the service
+    /// substitutes its own clock, so the default path is the bounded one
+    /// (AUDIT B-1a).
+    #[serde(default)]
+    pub verification_time_ms: Option<u64>,
+    /// Slack allowed ahead of the verification time, absorbing declared clock
+    /// skew. Defaults to zero: a tolerance is a bound, not a licence.
+    #[serde(default)]
+    pub future_tolerance_ms: Option<u64>,
+    /// Check the packet against this tenant's stored evidence for replay
+    /// (AUDIT B-8).
+    ///
+    /// Off by default because it is the one part of verification that is not
+    /// a pure function of the request: it reads the store. When off, R18 is
+    /// reported NOT EVALUATED — a caller that did not ask has not been told
+    /// the packet is fresh.
+    #[serde(default)]
+    pub check_replay: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -309,7 +374,21 @@ pub fn generate_packet(req: &GenerateRequest) -> Result<EvidencePacket, String> 
 /// supplied", not "authorized by this service". Authorization decisions
 /// belong to an independent decision point, which this service is not.
 pub fn verify_request(req: &VerifyRequest) -> Result<VerificationReport, String> {
+    verify_request_with_history(req, None)
+}
+
+/// As [`verify_request`], against a replay history the caller has already
+/// gathered.
+///
+/// The history is a parameter rather than something this function fetches:
+/// gathering it is I/O and belongs to the handler, so the calculator stays
+/// pure and testable without a store (AUDIT B-8).
+pub fn verify_request_with_history(
+    req: &VerifyRequest,
+    history: Option<ObservedHistory>,
+) -> Result<VerificationReport, String> {
     let mut ctx = VerificationContext::new();
+    ctx.observed_history = history;
 
     for (id, pk_hex) in &req.trusted_issuers {
         let pk = hex::decode(pk_hex).map_err(|e| format!("issuer {id} key hex: {e}"))?;
@@ -332,6 +411,24 @@ pub fn verify_request(req: &VerifyRequest) -> Result<VerificationReport, String>
     ctx.revoked_jtis = revoked;
     ctx.trace_data = req.trace_data.as_ref().map(|s| s.as_bytes().to_vec());
     ctx.receipt_data = req.receipt_data.as_ref().map(|s| s.as_bytes().to_vec());
+
+    // AUDIT B-1a. R16 is opt-in at the protocol layer, and correctly so: an
+    // offline verifier must be able to say what "now" means to it, and an
+    // unevaluated rule must not read as a failure. But opt-in propagates only
+    // as far as someone remembers to opt in, and this tier did not — so every
+    // service verification was unbounded and a future-dated packet returned
+    // `valid: true`.
+    //
+    // The default is now the service's own clock. A caller may override it to
+    // replay a historical verification, but omitting the field no longer
+    // means "apply no bound"; it means "apply the bound the service knows".
+    // The unsafe path has to be asked for explicitly, and cannot be reached
+    // through this API at all.
+    // `now_ms` is this module's existing clock helper — the protocol verifier
+    // is deliberately clock-free so offline verification stays possible, and
+    // this tier is online by definition, so it is where the time is known.
+    ctx.verification_time_ms = Some(req.verification_time_ms.unwrap_or_else(now_ms));
+    ctx.future_tolerance_ms = req.future_tolerance_ms.unwrap_or(0);
 
     Ok(verify_packet(&req.packet, &ctx))
 }
@@ -358,23 +455,87 @@ pub async fn generate(
                 }),
             )
         })?;
+    // `managed_signed` is recorded on every packet produced this way so that
+    // an auditor reading the service's logs can tell which packets carry a
+    // signature the service itself could have produced (AUDIT B-7).
     tracing::info!(
         packet_id = %packet_id,
         tenant = %principal.tenant_id,
         agent = %packet.agent.aip_id,
+        managed_signed = true,
         "evidence packet generated"
     );
     Ok(Json(GenerateResponse { packet_id, packet }))
+}
+
+/// The handler routed in place of [`generate`] when managed signing is
+/// refused (AUDIT B-7).
+///
+/// Takes no body extractor on purpose: a caller that sends a private seed
+/// here has it rejected by the routing table, not parsed and then declined.
+/// The seed never reaches serde, a log line, or this process's heap.
+///
+/// 501 rather than 403: the endpoint is not disabled for *this caller*, it is
+/// not implemented by this deployment. A 403 would invite a client to retry
+/// with different credentials.
+pub async fn generate_refused() -> ApiError {
+    (
+        StatusCode::NOT_IMPLEMENTED,
+        Json(ErrorBody {
+            error: "managed signing is not enabled on this deployment. \
+                    POST /v1/evidence/generate requires the agent's private \
+                    seed in the request body, which would place the signing \
+                    key in every proxy, log and trace on the path and would \
+                    make the resulting packet unable to distinguish the agent \
+                    from this service. Sign client-side and submit the sealed \
+                    packet to /v1/evidence/verify instead. A deployment that \
+                    has accepted those costs sets AIP_ALLOW_MANAGED_SIGNING=1."
+                .into(),
+        }),
+    )
 }
 
 // Authenticated but stateless: verification is a pure function of the packet
 // and caller-supplied keys, so it is not tenant-scoped. Auth still required
 // (no anonymous use of the service).
 pub async fn verify(
-    _principal: Principal,
+    State(state): State<Arc<AppState>>,
+    principal: Principal,
     Json(req): Json<VerifyRequest>,
 ) -> Result<Json<VerificationReport>, ApiError> {
-    let report = verify_request(&req).map_err(bad_request)?;
+    // Replay is a property of the packet relative to what else this tenant
+    // has recorded, so answering it means reading the store (AUDIT B-8). The
+    // read happens here, in the handler; the calculator below stays pure.
+    //
+    // Scaling note, stated rather than discovered later: this walks the
+    // tenant's packets on every request that asks for it. That is acceptable
+    // for the reference JSONL store and is not acceptable at volume — a
+    // production store should answer "who recorded this decision id" with an
+    // index instead. The trait would need a method for it; adding one is a
+    // larger change than this blocker's minimum fix.
+    let history = if req.check_replay {
+        let packets = state
+            .store
+            .all_for_tenant(&principal.tenant_id)
+            .await
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ErrorBody {
+                        error: e.to_string(),
+                    }),
+                )
+            })?;
+        let mut h = ObservedHistory::new();
+        for p in &packets {
+            h.observe(p);
+        }
+        Some(h)
+    } else {
+        None
+    };
+
+    let report = verify_request_with_history(&req, history).map_err(bad_request)?;
     Ok(Json(report))
 }
 
@@ -521,7 +682,18 @@ mod tests {
             ("acme-secret", "k-acme", "acme", Role::Machine),
             ("other-secret", "k-other", "other", Role::Machine),
         ]);
-        let app = crate::router(test_app_state(store, api_keys));
+        let state = test_app_state(store, api_keys);
+        // Kept so the bundle can be verified against the key that signed it
+        // (AUDIT B-4) rather than against a key the bundle supplies.
+        // Kept as bytes so the bundle can be verified against the key that
+        // signed it rather than against a key the bundle supplies. The state
+        // holds a signer, not a key, so the public half comes from the signer.
+        let signer_public: [u8; 32] = state
+            .signer
+            .public_key()
+            .try_into()
+            .expect("an Ed25519 public key is 32 bytes");
+        let app = crate::router(state);
 
         // Owning tenant exports → 200 application/zip, verifies offline.
         let resp = app
@@ -542,12 +714,30 @@ mod tests {
         let bytes = axum::body::to_bytes(resp.into_body(), usize::MAX)
             .await
             .unwrap();
-        let v = aip_protocol::verify_zip(&bytes, &VerificationContext::new());
+        // Anchored on the service's own signer key (AUDIT B-4). Verifying
+        // without an anchor would establish only that the bundle is
+        // internally consistent — which a forgery also is — so anchoring is
+        // what makes this an assertion about *this* service's export.
+        let v = aip_protocol::verify_zip(
+            &bytes,
+            &VerificationContext::new().trust_bundle_signer(&signer_public),
+        );
         assert_ne!(
             v.overall,
             aip_protocol::BundleStatus::Fail,
             "exported bundle must verify: {:?}",
             v.checks
+        );
+        let trust = v
+            .checks
+            .iter()
+            .find(|c| c.name == "BUNDLE_SIGNER_TRUSTED")
+            .expect("R5a present");
+        assert_eq!(
+            trust.status,
+            aip_protocol::BundleStatus::Pass,
+            "the export must be attributable to this service: {}",
+            trust.detail
         );
 
         // Different tenant → 404 (no existence leak), no bundle produced.
@@ -578,6 +768,9 @@ mod tests {
             revoked_jtis: vec![],
             trace_data: None,
             receipt_data: None,
+            verification_time_ms: None,
+            future_tolerance_ms: None,
+            check_replay: false,
         };
         let report = verify_request(&vreq).unwrap();
         assert!(report.valid, "failures: {:?}", report.failures());
@@ -618,6 +811,9 @@ mod tests {
             revoked_jtis: vec![],
             trace_data: None,
             receipt_data: None,
+            verification_time_ms: None,
+            future_tolerance_ms: None,
+            check_replay: false,
         };
         let report = verify_request(&vreq).unwrap();
         assert!(report.valid, "{:?}", report.failures());
@@ -642,6 +838,9 @@ mod tests {
             revoked_jtis: vec![],
             trace_data: None,
             receipt_data: None,
+            verification_time_ms: None,
+            future_tolerance_ms: None,
+            check_replay: false,
         };
         let report = verify_request(&vreq).unwrap();
         assert!(!report.valid);

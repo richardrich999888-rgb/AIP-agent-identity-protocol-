@@ -25,6 +25,18 @@ pub fn test_app_state(
     store: Arc<dyn crate::store::EvidenceStore>,
     api_keys: crate::auth::ApiKeyStore,
 ) -> Arc<crate::AppState> {
+    // Mirrors the production default (AUDIT B-7): a test that wants the
+    // managed-signing endpoint must ask for it explicitly, so no test can
+    // silently exercise a route real deployments do not serve.
+    test_app_state_with(store, api_keys, crate::ManagedSigning::Refused)
+}
+
+/// As [`test_app_state`], with the managed-signing posture stated.
+pub fn test_app_state_with(
+    store: Arc<dyn crate::store::EvidenceStore>,
+    api_keys: crate::auth::ApiKeyStore,
+    managed_signing: crate::ManagedSigning,
+) -> Arc<crate::AppState> {
     let kp = crate::keys::ServiceKey::generate();
     let encoding_key = kp.encoding_key();
     let decoding_key = kp.decoding_key();
@@ -43,6 +55,7 @@ pub fn test_app_state(
         store,
         api_keys,
         signer: Arc::new(kp),
+        managed_signing,
     })
 }
 

@@ -121,7 +121,7 @@ pub fn fixture() -> (
     // means exactly that. A verifier that has not anchored the signer gets
     // a warning instead, which is what `VerificationContext::new()` is for
     // in the tests below.
-    let ctx = ctx.trust_bundle_signer("acme", &signer.public_key);
+    let ctx = ctx.trust_bundle_signer(&signer.public_key);
 
     (packet, report, ctx, seed, public)
 }

@@ -380,3 +380,145 @@ fn code_of(rel: &str) -> String {
         .collect::<Vec<_>>()
         .join("\n")
 }
+
+// ─── Ported from the Skill 16 B-5/B-6 suite ───
+//
+// These four properties were established independently on the Skills 16–20
+// branch against the then-current `KeyPair` API. They are kept, adapted to
+// `ServiceKey`, because each pins something the rest of this file does not.
+
+/// `umask(2)`. Declared here rather than adding a `libc` dependency for one
+/// call: the signature is fixed by POSIX and this workspace minimises
+/// dependencies.
+#[cfg(unix)]
+unsafe fn libc_umask(mask: u32) -> u32 {
+    extern "C" {
+        fn umask(mask: u32) -> u32;
+    }
+    umask(mask)
+}
+
+/// An unreadable key file refuses rather than rotating the identity.
+///
+/// The test states its precondition rather than passing vacuously: running as
+/// root defeats permission-based unreadability, so when the process *can* read
+/// a mode-000 file it asserts the weaker property that still holds — the
+/// identity did not change.
+#[test]
+fn an_unreadable_key_file_refuses_rather_than_rotating_the_identity() {
+    let dir = scratch("unreadable");
+    let path = dir.join("service.key");
+    let p = path.to_str().unwrap();
+    let original = ServiceKey::load_or_create(p, Some(PP)).unwrap().fingerprint;
+    chmod(&path, 0o000);
+
+    match ServiceKey::load_or_create(p, Some(PP)) {
+        Err(CustodyError::Io(_)) | Err(CustodyError::Malformed(_)) => {}
+        Ok(loaded) if fs::read(&path).is_ok() => {
+            // The process can read a 000 file, i.e. it is root. The property
+            // under test is not observable here; assert the one that is.
+            assert_eq!(
+                loaded.fingerprint, original,
+                "the key on disk must be the key that loaded"
+            );
+        }
+        Ok(other) => panic!(
+            "an unreadable key file produced a new identity ({} rather than {})",
+            other.fingerprint, original
+        ),
+        Err(other) => panic!("unexpected error {other}"),
+    }
+    chmod(&path, 0o600);
+}
+
+/// The file ends at 0600 whatever the umask.
+///
+/// # What this test cannot prove
+///
+/// It does not discriminate against the write-then-chmod defect. Verified by
+/// mutation on the Skills branch: with the writer reverted to write-then-chmod
+/// this still passes, because the chmod lands before the assertion runs. The
+/// window is transient and a single-threaded test cannot observe it; a test
+/// racing a reader thread against it would be non-deterministic, which this
+/// codebase forbids more strongly than it wants the coverage.
+///
+/// Closure evidence for the *race* is therefore CODE-PROVEN, not TEST-PROVEN:
+/// `write_owner_only_file` passes the mode to `OpenOptions::mode` and never
+/// calls `set_permissions`, so no state exists in which the file is present at
+/// wider permissions. The discriminating test for that call's shape is
+/// `creating_a_key_never_overwrites_an_existing_one`, which pins the `O_EXCL`
+/// half of the same open and does fail under mutation.
+#[test]
+fn the_final_mode_is_600_even_under_a_permissive_umask() {
+    let previous = unsafe { libc_umask(0o000) };
+    let dir = scratch("umask");
+    let path = dir.join("service.key");
+    let created = ServiceKey::load_or_create(path.to_str().unwrap(), Some(PP));
+    let mode = created.as_ref().ok().map(|_| mode_of(&path));
+    unsafe { libc_umask(previous) };
+
+    created.expect("create");
+    assert_eq!(
+        mode,
+        Some(0o600),
+        "with umask 000 the key file ended up wider than 0600"
+    );
+}
+
+/// Creating a key never overwrites an existing one.
+///
+/// This is the test that discriminates against losing `O_EXCL`: without it,
+/// a second create silently replaces a live identity.
+#[test]
+fn creating_a_key_never_overwrites_an_existing_one() {
+    let dir = scratch("noclobber");
+    let path = dir.join("service.key");
+    let original = ServiceKey::load_or_create(path.to_str().unwrap(), Some(PP))
+        .unwrap()
+        .fingerprint;
+    let bytes = fs::read(&path).unwrap();
+
+    // `WrappedFileCustodian::create` refuses an existing path, so the only
+    // route through `load_or_create` for an existing file is `open`.
+    let err = aip_crypto::custody::WrappedFileCustodian::create(&path, PP)
+        .expect_err("create overwrote an existing signing key");
+    assert!(matches!(err, CustodyError::Io(_)), "got {err}");
+
+    assert_eq!(
+        fs::read(&path).unwrap(),
+        bytes,
+        "a refused create must leave the key byte-identical"
+    );
+    assert_eq!(
+        ServiceKey::load_or_create(path.to_str().unwrap(), Some(PP))
+            .unwrap()
+            .fingerprint,
+        original,
+        "the original key must survive"
+    );
+}
+
+/// The key file carries no PEM.
+///
+/// The PEMs are recomputed on load. A file carrying one would be a second
+/// place for the private key to leak from — and under the wrapped backend the
+/// file must additionally not carry the key in the clear at all.
+#[test]
+fn the_key_file_carries_no_pem_and_no_plaintext_key() {
+    let dir = scratch("contents");
+    let path = dir.join("service.key");
+    let key = ServiceKey::load_or_create(path.to_str().unwrap(), Some(PP)).unwrap();
+    let raw = fs::read(&path).expect("read");
+
+    assert!(
+        !String::from_utf8_lossy(&raw).contains("PRIVATE KEY"),
+        "no PEM in the key file"
+    );
+    // Wrapped: the public key is not in the clear either, so a reader cannot
+    // even tell which identity the file holds without the passphrase.
+    let public = key.verifying_key_bytes();
+    assert!(
+        !raw.windows(32).any(|w| w == public),
+        "the wrapped file leaked the key material it wraps"
+    );
+}

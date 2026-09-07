@@ -35,6 +35,15 @@ pub mod rules {
     /// *verifier* supplied. Recorded as not evaluated when the verifier
     /// supplied none; never as a pass (AUDIT P0-1).
     pub const VERIFICATION_TIME_BOUND: &str = "VERIFICATION_TIME_BOUND";
+    /// R17 — no two action attestations inside one packet share an
+    /// `action_id`. Always evaluable: it is a property of the packet alone
+    /// (AUDIT B-8).
+    pub const ACTION_UNIQUENESS: &str = "ACTION_UNIQUENESS";
+    /// R18 — this packet does not reuse a decision or action identity that a
+    /// *different* packet already established. Requires the verifier to
+    /// supply what it has observed; recorded as not evaluated when it does
+    /// not, never as a pass (AUDIT B-8).
+    pub const REPLAY_SCOPE: &str = "REPLAY_SCOPE";
 }
 
 /// Outcome of one verification rule.

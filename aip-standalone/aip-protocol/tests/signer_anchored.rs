@@ -9,19 +9,40 @@
 //! VALID SIGNATURE   ≠   TRUSTED SIGNER
 //! ```
 //!
-//! `SIGNER_ANCHORED` answers the second question, from the caller's anchor
+//! `BUNDLE_SIGNER_TRUSTED` answers the second question, from the caller's anchor
 //! set and from nowhere else. The three states a reader now gets:
 //!
 //! | | meaning |
 //! |---|---|
 //! | `BUNDLE_SIGNATURE: Pass` | the manifest matches the key the bundle carries |
-//! | `SIGNER_ANCHORED: Pass`  | that key is one this verifier was told to trust |
+//! | `BUNDLE_SIGNER_TRUSTED: Pass`  | that key is one this verifier was told to trust |
 //! | `overall: Pass`          | both, plus every integrity and packet check |
 //!
-//! An unanchored signer is a **warning**, not a failure. The bundle is
-//! unattributed, not forged, and treating every bundle from an unknown
-//! party as an attack would make the status useless for the case
-//! audit-export bundles exist to serve.
+//! # The two negative cases are not the same, and do not share a status
+//!
+//! Two independent implementations of this check were reconciled here, and
+//! they agreed on everything except one case. The canonical rule:
+//!
+//! | verifier state | signer | verdict |
+//! |---|---|---|
+//! | anchored some signers | is one of them | `Pass` |
+//! | anchored some signers | **is not one of them** | **`Fail`** |
+//! | anchored nobody | — | `Warning` |
+//!
+//! **No anchors is a warning.** The verifier never stated an expectation, so
+//! the bundle is unattributed rather than rejected. Treating every bundle
+//! from an unknown party as an attack would make the status useless for the
+//! case audit-export bundles exist to serve.
+//!
+//! **Anchors, and the signer is not among them, is a failure.** Here the
+//! verifier *did* state whose bundles it accepts, and this is not one. That
+//! is an expectation violated, not merely unmet. `aip-verify` exits non-zero
+//! only on `overall == Fail`, so this is also the difference between a CI job
+//! that stops and one that passes with a warning nobody reads.
+//!
+//! The rejected alternative made both cases `Warning` and distinguished them
+//! in the message only. It is recorded here because the distinction is easy
+//! to erase by accident and the tests below are what stop that.
 
 mod common;
 use common::*;
@@ -33,7 +54,7 @@ use aip_protocol::VerificationContext;
 /// trusts the issuers and has never been told who may publish a bundle.
 fn without_signer_anchor(ctx: &VerificationContext) -> VerificationContext {
     let mut c = ctx.clone();
-    c.bundle_signer_public_keys.clear();
+    c.trusted_bundle_signers.clear();
     c
 }
 
@@ -56,16 +77,19 @@ fn ba_valid_signature_and_anchored_signer_passes() {
     let v = verify_zip(&zip, &ctx);
 
     assert_eq!(*check(&v, "BUNDLE_SIGNATURE"), BundleStatus::Pass);
-    assert_eq!(*check(&v, "SIGNER_ANCHORED"), BundleStatus::Pass);
+    assert_eq!(*check(&v, "BUNDLE_SIGNER_TRUSTED"), BundleStatus::Pass);
     assert_eq!(v.overall, BundleStatus::Pass, "{:?}", v.checks);
     // The report names *who*, not merely that somebody signed.
     let detail = &v
         .checks
         .iter()
-        .find(|c| c.name == "SIGNER_ANCHORED")
+        .find(|c| c.name == "BUNDLE_SIGNER_TRUSTED")
         .unwrap()
         .detail;
-    assert!(detail.contains("acme"), "{detail}");
+    assert!(
+        detail.contains("anchored"),
+        "the detail must say the signer was anchored: {detail}"
+    );
 }
 
 // ═══ B — valid signature, unanchored signer ═══
@@ -86,7 +110,7 @@ fn bb_valid_signature_with_an_unanchored_signer_cannot_reach_pass() {
         BundleStatus::Pass,
         "the signature is valid; that was never the question"
     );
-    assert_eq!(*check(&v, "SIGNER_ANCHORED"), BundleStatus::Warning);
+    assert_eq!(*check(&v, "BUNDLE_SIGNER_TRUSTED"), BundleStatus::Warning);
     assert_ne!(v.overall, BundleStatus::Pass);
     assert_ne!(
         v.overall,
@@ -98,7 +122,7 @@ fn bb_valid_signature_with_an_unanchored_signer_cannot_reach_pass() {
 // ═══ C — forged signature ═══
 
 /// PROVES: unchanged. A broken signature was a failure before this work
-/// and still is; `SIGNER_ANCHORED` does not soften it.
+/// and still is; `BUNDLE_SIGNER_TRUSTED` does not soften it.
 #[test]
 fn bc_a_forged_signature_still_fails() {
     let (packet, report, ctx, seed, public) = fixture();
@@ -146,9 +170,9 @@ fn bd_a_bundle_cannot_supply_its_own_trust_anchor() {
         "the forger signed their own manifest correctly"
     );
     assert_eq!(
-        *check(&v, "SIGNER_ANCHORED"),
-        BundleStatus::Warning,
-        "and the verifier does not know them"
+        *check(&v, "BUNDLE_SIGNER_TRUSTED"),
+        BundleStatus::Fail,
+        "the verifier anchored signers and this is not one of them"
     );
     assert_ne!(v.overall, BundleStatus::Pass);
 }
@@ -164,17 +188,17 @@ fn be_a_different_anchored_signer_does_not_vouch_for_this_one() {
 
     let someone_else = aip_crypto::generate_ed25519_keypair();
     let mut c = without_signer_anchor(&ctx);
-    c = c.trust_bundle_signer("other-auditor", &someone_else.public_key);
+    c = c.trust_bundle_signer(&someone_else.public_key);
 
     let v = verify_zip(&zip, &c);
-    assert_eq!(*check(&v, "SIGNER_ANCHORED"), BundleStatus::Warning);
+    assert_eq!(*check(&v, "BUNDLE_SIGNER_TRUSTED"), BundleStatus::Fail);
     assert_ne!(v.overall, BundleStatus::Pass);
     // The message says how many were anchored, so the operator can tell
     // "I anchored nobody" from "I anchored the wrong party".
     let detail = &v
         .checks
         .iter()
-        .find(|c| c.name == "SIGNER_ANCHORED")
+        .find(|c| c.name == "BUNDLE_SIGNER_TRUSTED")
         .unwrap()
         .detail;
     assert!(detail.contains("not among the 1"), "{detail}");
@@ -190,22 +214,25 @@ fn bf_the_right_anchor_is_found_among_several() {
     let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
 
     let mut c = without_signer_anchor(&ctx);
-    for name in ["auditor-a", "auditor-b", "auditor-c"] {
+    for _name in ["auditor-a", "auditor-b", "auditor-c"] {
         let k = aip_crypto::generate_ed25519_keypair();
-        c = c.trust_bundle_signer(name, &k.public_key);
+        c = c.trust_bundle_signer(&k.public_key);
     }
-    c = c.trust_bundle_signer("the-real-one", &public);
+    c = c.trust_bundle_signer(&public);
 
     let v = verify_zip(&zip, &c);
-    assert_eq!(*check(&v, "SIGNER_ANCHORED"), BundleStatus::Pass);
+    assert_eq!(*check(&v, "BUNDLE_SIGNER_TRUSTED"), BundleStatus::Pass);
     assert_eq!(v.overall, BundleStatus::Pass, "{:?}", v.checks);
     let detail = &v
         .checks
         .iter()
-        .find(|c| c.name == "SIGNER_ANCHORED")
+        .find(|c| c.name == "BUNDLE_SIGNER_TRUSTED")
         .unwrap()
         .detail;
-    assert!(detail.contains("the-real-one"), "{detail}");
+    assert!(
+        detail.contains("anchored"),
+        "the detail must say the signer was anchored: {detail}"
+    );
 }
 
 // ═══ G — no anchor set at all ═══
@@ -219,15 +246,18 @@ fn bg_an_empty_anchor_set_is_conservative() {
     let zip = build_zip("acme", &packet, &report, &signer_custodian(&seed, &public)).unwrap();
     let v = verify_zip(&zip, &VerificationContext::new());
 
-    assert_eq!(*check(&v, "SIGNER_ANCHORED"), BundleStatus::Warning);
+    assert_eq!(*check(&v, "BUNDLE_SIGNER_TRUSTED"), BundleStatus::Warning);
     assert_ne!(v.overall, BundleStatus::Pass);
     let detail = &v
         .checks
         .iter()
-        .find(|c| c.name == "SIGNER_ANCHORED")
+        .find(|c| c.name == "BUNDLE_SIGNER_TRUSTED")
         .unwrap()
         .detail;
-    assert!(detail.contains("anchored no bundle signers"), "{detail}");
+    assert!(
+        detail.contains("no trusted bundle signer supplied"),
+        "{detail}"
+    );
     // Integrity is still established — a bundle from an unknown party is
     // still checkable for tampering, which is most of what it is for.
     assert_eq!(*check(&v, "FILE_HASHES"), BundleStatus::Pass);

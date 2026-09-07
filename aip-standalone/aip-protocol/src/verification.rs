@@ -53,28 +53,101 @@ pub struct VerificationContext {
     /// absorb declared clock skew. Zero by default; a tolerance is a bound,
     /// not a licence.
     pub future_tolerance_ms: u64,
-    /// Ed25519 public keys of the parties this verifier will accept as
-    /// having *assembled* an audit-export bundle.
+    /// What this verifier has already observed, for replay detection.
     ///
-    /// A bundle carries the key its manifest was signed with, which proves
-    /// the manifest matches that key and nothing about whose key it is. A
-    /// bundle signer is trusted because the verifier put its key here,
-    /// out of band — never because the bundle brought it along.
+    /// `None` means the verifier keeps no history — an offline or one-shot
+    /// verifier, which is the common case. R18 is then recorded as not
+    /// evaluated: a verifier with no memory has not established that a packet
+    /// is fresh, and must not imply that it has (AUDIT B-8).
     ///
-    /// Empty is the conservative state, not a permissive one: a verifier
-    /// that has anchored no bundle signer cannot attribute any bundle, and
-    /// says so rather than assuming the best.
+    /// `Some(empty)` is different and is a genuine evaluated pass: a stateful
+    /// verifier whose store is empty has looked and found nothing.
+    pub observed_history: Option<ObservedHistory>,
+    /// Ed25519 public keys the verifier accepts as audit-export bundle
+    /// signers.
     ///
-    /// Deliberately separate from `issuer_public_keys`: assembling a
-    /// bundle and issuing authority are different acts by different
-    /// parties, and one key set doing both would make an issuer implicitly
-    /// a trusted publisher.
-    pub bundle_signer_public_keys: HashMap<String, Vec<u8>>,
+    /// Used only by [`crate::bundle::verify_zip`]. A bundle's manifest names
+    /// the key that signed it, and checking the signature against that key
+    /// proves only that the manifest is internally consistent — anyone can
+    /// produce such a bundle (AUDIT B-4). Establishing *who* exported it
+    /// requires a key the verifier already trusts, which is what this holds.
+    ///
+    /// Empty means the verifier supplied no anchor. The signer-trust check is
+    /// then reported as unestablished rather than passed: absent evidence is
+    /// not evidence of absence, and it is certainly not a pass.
+    pub trusted_bundle_signers: HashSet<[u8; 32]>,
+}
+
+/// Replay identities a stateful verifier has already recorded, each mapped to
+/// the packet that established it.
+///
+/// # Why the value is a packet id and not a bare set
+///
+/// An evidence packet is a *record of what happened*, not a command, so
+/// verifying the same packet twice is not an attack — archival and delayed
+/// verification depend on it being possible. A bare "seen" set makes the
+/// obvious wiring wrong: an ingest tier that populates it from its own store
+/// and then re-verifies a stored packet would refuse the packet's own entry.
+///
+/// Mapping each identity to the packet that established it removes that
+/// failure mode structurally. A packet re-verified against a history that
+/// already contains it maps to itself and passes; only a *different* packet
+/// reusing the identity is a replay. There is no way to hold this correctly
+/// and no way to hold it incorrectly.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ObservedHistory {
+    /// `decision_id` → the 16-byte packet id that first recorded that decision.
+    pub decisions: HashMap<[u8; 16], [u8; 16]>,
+    /// `action_id` → the 16-byte packet id that first recorded that action.
+    pub actions: HashMap<[u8; 16], [u8; 16]>,
+}
+
+impl ObservedHistory {
+    /// An empty history: a stateful verifier that has recorded nothing yet.
+    ///
+    /// Distinct from `None`, which is a verifier that keeps no history at all.
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Record `packet`'s replay identities.
+    ///
+    /// First writer wins: if an identity is already present it is left alone,
+    /// so a history built by replaying a store in order attributes each
+    /// identity to the packet that genuinely established it rather than to
+    /// the last one that reused it.
+    pub fn observe(&mut self, packet: &EvidencePacket) {
+        let packet_id = packet.packet_id;
+        self.decisions
+            .entry(packet.decision.decision_id)
+            .or_insert(packet_id);
+        for action in &packet.actions {
+            self.actions.entry(action.action_id).or_insert(packet_id);
+        }
+    }
 }
 
 impl VerificationContext {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Verify against `history`, enabling R18.
+    pub fn with_history(mut self, history: ObservedHistory) -> Self {
+        self.observed_history = Some(history);
+        self
+    }
+
+    /// Anchor an Ed25519 public key as an accepted bundle signer.
+    ///
+    /// A key of the wrong length is ignored rather than accepted: a
+    /// malformed anchor must not silently become a trusted one. Callers that
+    /// need to know supply the key through their own validated path.
+    pub fn trust_bundle_signer(mut self, public_key: &[u8]) -> Self {
+        if let Ok(key) = <[u8; 32]>::try_from(public_key) {
+            self.trusted_bundle_signers.insert(key);
+        }
+        self
     }
 
     /// Verify as of `ms`: nothing in the packet may be dated after it.
@@ -92,13 +165,6 @@ impl VerificationContext {
     pub fn trust_issuer(mut self, aip_id: &str, public_key: &[u8]) -> Self {
         self.issuer_public_keys
             .insert(aip_id.to_string(), public_key.to_vec());
-        self
-    }
-
-    /// Anchor a party this verifier will accept as a bundle assembler.
-    pub fn trust_bundle_signer(mut self, id: &str, public_key: &[u8]) -> Self {
-        self.bundle_signer_public_keys
-            .insert(id.to_string(), public_key.to_vec());
         self
     }
 
@@ -373,6 +439,11 @@ pub fn verify_packet(packet: &EvidencePacket, ctx: &VerificationContext) -> Veri
     //    own time (AUDIT P0-1). Absent a supplied time, not evaluated. ────
     check_verification_time_bound(packet, ctx, &mut e);
 
+    // ── R17/R18 replay (AUDIT B-8). R17 is a property of the packet alone
+    //    and is always evaluated; R18 needs the verifier's own memory. ──
+    check_action_uniqueness(packet, &mut e);
+    check_replay_scope(packet, ctx, &mut e);
+
     // `valid` ignores rules that were not evaluated: a check the verifier
     // could not run is neither a pass nor a failure, and the report says
     // which is which.
@@ -395,6 +466,125 @@ pub fn verify_packet(packet: &EvidencePacket, ctx: &VerificationContext) -> Veri
         verification_time_checked: ctx.verification_time_ms.is_some(),
         checks: e.checks,
     }
+}
+
+/// R17 — no two action attestations in this packet share an `action_id`.
+///
+/// A repeated attestation is one claim written twice, not two events. Nothing
+/// else in the engine catches it: R11 verifies each attestation's signature
+/// independently, and a duplicate of a genuine attestation is genuinely
+/// signed, so it passes R11 as readily as the original. A downstream ledger
+/// summing a packet's actions would count the payment twice.
+///
+/// Always evaluated: it is a property of the packet alone and needs nothing
+/// from the verifier (AUDIT B-8).
+fn check_action_uniqueness(packet: &EvidencePacket, e: &mut Engine) {
+    let mut seen: HashSet<[u8; 16]> = HashSet::with_capacity(packet.actions.len());
+    let mut duplicates: Vec<String> = vec![];
+    for action in &packet.actions {
+        if !seen.insert(action.action_id) {
+            duplicates.push(hex::encode(action.action_id));
+        }
+    }
+    // Duplicates are sorted so the message is identical for the same packet
+    // whatever order the duplicates were found in: a report that differs
+    // run to run cannot be diffed.
+    duplicates.sort();
+    duplicates.dedup();
+
+    e.record(
+        rules::ACTION_UNIQUENESS,
+        duplicates.is_empty(),
+        if duplicates.is_empty() {
+            format!(
+                "{} action attestation(s), all distinct",
+                packet.actions.len()
+            )
+        } else {
+            format!(
+                "action id(s) repeated within the packet: {}. A repeated \
+                 attestation is one claim written twice, not two events.",
+                duplicates.join(", ")
+            )
+        },
+    );
+}
+
+/// R18 — does this packet reuse a replay identity that a *different* packet
+/// already established?
+///
+/// # What replay means for an evidence packet
+///
+/// Not what it means for a request. A packet records what happened; verifying
+/// it again is not an attack, and archival verification depends on it staying
+/// possible. So this rule is not "have I seen this packet before" — that
+/// answer is routinely yes and routinely fine.
+///
+/// It is "has some *other* packet already claimed this decision, or this
+/// action?" Two packets asserting the same signed action are two records of
+/// one event. Whichever is authentic, a consumer that counts both is wrong.
+///
+/// # Why it is not evaluated without a history
+///
+/// Replay is not a property of a packet. It is a property of a packet
+/// *relative to what else exists*, and a stateless verifier has no access to
+/// that. Reporting a pass here would mean "no replay", which the verifier
+/// cannot know; reporting a failure would mean "replay", which it also cannot
+/// know. NOT EVALUATED is the only honest answer, and it is what R16
+/// established as the shape for a rule whose input the verifier did not
+/// supply (AUDIT B-8).
+fn check_replay_scope(packet: &EvidencePacket, ctx: &VerificationContext, e: &mut Engine) {
+    let Some(history) = &ctx.observed_history else {
+        e.record_not_evaluated(
+            rules::REPLAY_SCOPE,
+            "no observed history supplied: this verifier keeps no record of \
+             what it has seen, so nothing here rules out that another packet \
+             already claimed this decision or these actions",
+        );
+        return;
+    };
+
+    let mut collisions: Vec<String> = vec![];
+
+    // A packet re-verified against a history that already contains it maps to
+    // itself. Only a *different* packet reusing the identity is a replay.
+    if let Some(owner) = history.decisions.get(&packet.decision.decision_id) {
+        if *owner != packet.packet_id {
+            collisions.push(format!(
+                "decision {} was already recorded by packet {}",
+                hex::encode(packet.decision.decision_id),
+                hex::encode(owner)
+            ));
+        }
+    }
+    for action in &packet.actions {
+        if let Some(owner) = history.actions.get(&action.action_id) {
+            if *owner != packet.packet_id {
+                collisions.push(format!(
+                    "action {} was already recorded by packet {}",
+                    hex::encode(action.action_id),
+                    hex::encode(owner)
+                ));
+            }
+        }
+    }
+    collisions.sort();
+    collisions.dedup();
+
+    e.record(
+        rules::REPLAY_SCOPE,
+        collisions.is_empty(),
+        if collisions.is_empty() {
+            format!(
+                "no decision or action in this packet was previously recorded \
+                 by another packet ({} decision(s) and {} action(s) in history)",
+                history.decisions.len(),
+                history.actions.len()
+            )
+        } else {
+            collisions.join("; ")
+        },
+    );
 }
 
 /// R16 — the bound the *verifier* supplies. Every timestamp the packet

@@ -105,14 +105,12 @@ fn now_ms() -> u64 {
 ///
 /// `report` is the verification report computed at export time (typically at
 /// the integrity level the service can attest without external trust keys).
-/// `signer_seed`/`signer_public` are the service's Ed25519 key material.
-/// Takes a [`RawSigner`] rather than a raw seed.
 ///
-/// The previous signature required the caller to hold the service's 32-byte
-/// private key and pass it in, which is why the service kept one in the state
-/// it shares with every HTTP handler in the process. The signer removes that:
-/// the bundle is signed by an object that can sign, and the key stays where it
-/// is held.
+/// Takes a [`RawSigner`] rather than a raw seed. The previous signature
+/// required the caller to hold the service's 32-byte private key and pass it
+/// in, which is why the service kept one in the state it shares with every
+/// HTTP handler in the process. The signer removes that: the bundle is signed
+/// by an object that can sign, and the key stays where it is held.
 ///
 /// The bundle bytes are unchanged — same manifest, same detached signature
 /// over the same preimage — so `verify_zip` is untouched and bundles produced
@@ -361,11 +359,11 @@ pub fn verify_zip(bytes: &[u8], ctx: &VerificationContext) -> BundleVerification
         },
     );
 
-    // R5 BUNDLE_SIGNATURE — signature over the exact manifest bytes, under
-    // the key the bundle carries. This is an integrity check on the
-    // container: it establishes that the manifest matches the key shipped
-    // beside it, and nothing about whose key that is. Who the signer is,
-    // is R5b.
+    // R5 BUNDLE_SIGNATURE — the manifest bytes are signed by the key the
+    // manifest *names*. This is an internal-consistency check and nothing
+    // more: the key comes out of the bundle, so a forger who signs their own
+    // fabrication with their own key passes it (AUDIT B-4). R5a is where the
+    // question of *whose* bundle this is gets asked.
     let sig_ok = verify_bundle_signature(&files, &manifest);
     c.add(
         "BUNDLE_SIGNATURE",
@@ -375,54 +373,19 @@ pub fn verify_zip(bytes: &[u8], ctx: &VerificationContext) -> BundleVerification
             BundleStatus::Fail
         },
         if sig_ok {
-            format!("manifest matches the embedded key (signer fp {signer_fp}); see SIGNER_ANCHORED for whose key it is")
+            format!(
+                "manifest is self-consistent: signed by the key it names \
+                 (signer fp {signer_fp}). This does not establish who \
+                 produced the bundle — see BUNDLE_SIGNER_TRUSTED."
+            )
         } else {
-            "bundle signature invalid — manifest not signed by the embedded key".to_string()
+            "bundle signature invalid — manifest not signed by the key it names".to_string()
         },
     );
 
-    // R5b SIGNER_ANCHORED — is the embedded key one this verifier was told
-    // to trust?
-    //
-    //     VALID SIGNATURE  ≠  TRUSTED SIGNER
-    //
-    // A key the bundle carries must not become its own trust anchor, so
-    // the answer comes from the caller's anchor set and from nowhere else.
-    // An unanchored signer is a **warning**, not a failure: the bundle is
-    // unattributed rather than forged, and treating every bundle from an
-    // unknown party as an attack would make the status useless.
-    let embedded = hex::decode(&manifest.signer_public_key).unwrap_or_default();
-    let anchored = if embedded.is_empty() {
-        None
-    } else {
-        ctx.bundle_signer_public_keys
-            .iter()
-            .find(|(_, key)| key.as_slice() == embedded.as_slice())
-            .map(|(id, _)| id.clone())
-    };
-    match (&anchored, ctx.bundle_signer_public_keys.is_empty()) {
-        (Some(id), _) => c.add(
-            "SIGNER_ANCHORED",
-            BundleStatus::Pass,
-            format!("the signer is anchored by this verifier as {id}"),
-        ),
-        (None, true) => c.add(
-            "SIGNER_ANCHORED",
-            BundleStatus::Warning,
-            "this verifier anchored no bundle signers, so the bundle cannot be \
-             attributed to anyone; its integrity is still checked"
-                .to_string(),
-        ),
-        (None, false) => c.add(
-            "SIGNER_ANCHORED",
-            BundleStatus::Warning,
-            format!(
-                "signer fp {signer_fp} is not among the {} signer(s) this verifier anchors; \
-                 the bundle is unattributed, not invalid",
-                ctx.bundle_signer_public_keys.len()
-            ),
-        ),
-    }
+    // R5a BUNDLE_SIGNER_TRUSTED — the named signer is one the *verifier*
+    // anchored, not one the bundle asserted (AUDIT B-4).
+    check_bundle_signer_trusted(&manifest, ctx, &mut c);
 
     // R6 EVIDENCE_INTEGRITY — packet parses, matches manifest packet_hash, self-consistent.
     let packet: Option<EvidencePacket> = files
@@ -507,6 +470,81 @@ fn verify_bundle_signature(files: &HashMap<String, Vec<u8>>, manifest: &BundleMa
         return false;
     };
     verify_ed25519_raw(&pk, manifest_bytes, &sig_arr)
+}
+
+/// R5a — is the key that signed this manifest one the verifier already
+/// trusted?
+///
+/// Three outcomes, and the middle one is the point of the rule:
+///
+/// - **Pass** — the named key is anchored. The bundle is attributable.
+/// - **Fail** — anchors were supplied and the named key is not among them.
+///   Either this bundle came from somewhere else or the signer rotated
+///   without the verifier being told; both are refusals.
+/// - **Warning** — no anchors were supplied. The verifier did not ask the
+///   question, so nothing here answers it. This is deliberately *not* a pass:
+///   `finalize` never reports `Pass` overall while any check is a warning, so
+///   an unanchored verification cannot come back clean. Recording it as a
+///   pass would convert "we did not check" into "we checked and it was fine",
+///   which is the failure this whole rule exists to prevent.
+fn check_bundle_signer_trusted(
+    manifest: &BundleManifest,
+    ctx: &VerificationContext,
+    c: &mut CheckCollector,
+) {
+    if ctx.trusted_bundle_signers.is_empty() {
+        c.add(
+            "BUNDLE_SIGNER_TRUSTED",
+            BundleStatus::Warning,
+            "no trusted bundle signer supplied: this verification establishes \
+             that the bundle is internally consistent, not that it came from \
+             anyone in particular. Anyone can produce a self-consistent \
+             bundle. Supply the exporting service's public key to check.",
+        );
+        return;
+    }
+
+    // The manifest's declared key is what the signature was checked against
+    // in R5, so it is the key that must be anchored. Comparing anything else
+    // would leave R5 verifying one key and R5a trusting another.
+    let Ok(declared) = hex::decode(&manifest.signer_public_key) else {
+        c.add(
+            "BUNDLE_SIGNER_TRUSTED",
+            BundleStatus::Fail,
+            "manifest signer_public_key is not valid hex",
+        );
+        return;
+    };
+    let Ok(declared): Result<[u8; 32], _> = declared.as_slice().try_into() else {
+        c.add(
+            "BUNDLE_SIGNER_TRUSTED",
+            BundleStatus::Fail,
+            format!(
+                "manifest signer_public_key is {} bytes; Ed25519 keys are 32",
+                declared.len()
+            ),
+        );
+        return;
+    };
+
+    if ctx.trusted_bundle_signers.contains(&declared) {
+        c.add(
+            "BUNDLE_SIGNER_TRUSTED",
+            BundleStatus::Pass,
+            "the manifest signer is a key this verifier anchored",
+        );
+    } else {
+        c.add(
+            "BUNDLE_SIGNER_TRUSTED",
+            BundleStatus::Fail,
+            format!(
+                "the manifest signer ({}) is not among the {} anchored bundle \
+                 signer(s)",
+                &manifest.signer_public_key,
+                ctx.trusted_bundle_signers.len()
+            ),
+        );
+    }
 }
 
 fn first_failure(report: &crate::VerificationReport) -> String {

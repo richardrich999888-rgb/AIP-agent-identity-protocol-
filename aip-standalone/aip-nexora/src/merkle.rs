@@ -54,6 +54,13 @@ pub enum LeafKind {
     ContainmentRecord,
     /// A `NexoraProof`'s canonical bytes (Skill 10).
     ProofBundle,
+    /// An `AiriEvent`'s signing preimage (AI-stack extension).
+    ///
+    /// Committing the *preimage* rather than a re-serialisation means the
+    /// committed bytes are exactly the bytes the agent signed, so a verifier
+    /// checks one artefact rather than trusting a round-trip. The kind code
+    /// keeps an AIRI event from being replayed as any other leaf.
+    AiriEvent,
 }
 
 impl LeafKind {
@@ -67,12 +74,13 @@ impl LeafKind {
             LeafKind::ContinuityReport => 0x06,
             LeafKind::ContainmentRecord => 0x07,
             LeafKind::ProofBundle => 0x08,
+            LeafKind::AiriEvent => 0x09,
         }
     }
 
     /// Codes 0x01–0x05 are frozen: a leaf committed before Skill 10 keeps
     /// verifying. New kinds append.
-    pub const ALL: [LeafKind; 8] = [
+    pub const ALL: [LeafKind; 9] = [
         LeafKind::Reconciliation,
         LeafKind::AttestedBatch,
         LeafKind::SignedHealth,
@@ -81,6 +89,7 @@ impl LeafKind {
         LeafKind::ContinuityReport,
         LeafKind::ContainmentRecord,
         LeafKind::ProofBundle,
+        LeafKind::AiriEvent,
     ];
 }
 

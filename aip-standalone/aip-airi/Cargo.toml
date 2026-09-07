@@ -1,0 +1,20 @@
+[package]
+name = "aip-airi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "AIRI — the Vanian Autonomous Intelligence Runtime Interface: framework-neutral, self-authored AI-stack execution events and their corroboration against independent observation"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-observe = { path = "../aip-observe" }
+aip-authorize = { path = "../aip-authorize" }
+aip-reconcile = { path = "../aip-reconcile" }
+serde = { version = "1.0", features = ["derive"] }
+hex = "0.4"
+
+[dev-dependencies]
+aip-core = { path = "../aip-core" }
+aip-nexora = { path = "../aip-nexora" }
+serde_json = "1.0"

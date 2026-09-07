@@ -190,7 +190,10 @@ fn main() {
         receipt_data: Some(receipt_content.into_bytes()),
         verification_time_ms: None,
         future_tolerance_ms: 0,
-        bundle_signer_public_keys: Default::default(),
+        // This demo verifies a packet, not a bundle; no bundle signer anchor
+        // is relevant here.
+        trusted_bundle_signers: Default::default(),
+        observed_history: None,
     };
     let report = verify_packet(&packet, &ctx);
     for check in &report.checks {
