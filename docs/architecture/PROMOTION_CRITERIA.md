@@ -45,8 +45,8 @@ useful outcome: the gate is closed on merit, not merely on schedule.
 | 13 | coverage semantics adversarially tested | **MET** | Five states, derived not claimed; `coverage.rs` (8), `adversarial.rs::q`, `s`. A package has no field in which to state coverage. |
 | 14 | lineage adversarially tested | **MET** | Three kinds, six standings; `lineage.rs` (8), `adversarial.rs::h`, `u`. An absent edge is `Unavailable`, never "assumed related". |
 | 15 | observer trust boundary hardened | **MET** | Keyless probe, off-host collector, mechanism-scoped provisioning (`fa07`), I10 refusal of the agent's key as an observer anchor, `Independence::NotChecked` reported rather than passed (`audit.rs::a10`), revocation by anchor withdrawal (`adversarial.rs::v`). |
-| 16 | complete test suite passes | **MET** | `aip-standalone` 925 passed, 0 failed. Three consecutive clean runs taken before each security-relevant commit. |
-| 17 | standalone roots tested | **MET** | `aip-service` 39 passed, 0 failed, run separately — the workspace run does not cover it. |
+| 16 | complete test suite passes | **MET** | 137 suites, 1323 passed, 0 failed, 6 ignored, on the canonical baseline. Three consecutive identical runs. |
+| 17 | standalone roots tested | **MET — and the split is gone** | B-10 merged the two Cargo roots into one workspace, so `cargo test --workspace` now covers `aip-service` too. The criterion was written for a split that no longer exists; the condition it protected against — a protocol change that never reaches the service — is now a compile error in the ordinary build. |
 | 18 | README updated | **MET** | Rewritten to the actual system with five capability tiers; `de46793`. |
 | 19 | defense deployment documentation updated | **MET** | README "Defense and Sovereign Deployment", opening with the statement that these are deployment targets and none is validated in its environment. |
 | 20 | IP mechanism register updated | **MET** | `docs/IP/INVENTION_REGISTER.md`, nine mechanisms, each with a disclosure status saying no prior-art search and no filing. |
@@ -160,11 +160,41 @@ process's memory has the decrypted key on any software backend.
 
 ### 8 — bundle trust anchor fixed · **NOW MET**
 
-`SIGNER_ANCHORED` compares the bundle's embedded signer key against
-`VerificationContext::bundle_signer_public_keys`, a verifier-owned anchor
-set. A bundle can no longer be its own trust anchor. An unanchored signer
-is a warning rather than a failure — unattributed is not forged — and no
-`aip-verify` exit code changes, which is asserted by a test.
+**Superseded by the canonical baseline. Corrected here rather than left
+standing, because the paragraph this replaces now describes behaviour the
+code does not have.**
+
+Two implementations of this check existed on two branches and were
+reconciled at the integration merge. The canonical one is
+`BUNDLE_SIGNER_TRUSTED`, which compares the bundle's embedded signer key
+against `VerificationContext::trusted_bundle_signers`, a verifier-owned
+anchor set. A bundle can no longer be its own trust anchor.
+
+The two negative cases are deliberately **not** the same status:
+
+| verifier state | signer | verdict |
+|---|---|---|
+| anchored some signers | is one of them | `Pass` |
+| anchored some signers | is not one of them | **`Fail`** |
+| anchored nobody | — | `Warning` |
+
+No anchors is a warning: the verifier never stated an expectation, so the
+bundle is unattributed rather than rejected, and treating every bundle from
+an unknown party as an attack would make the status useless for the case
+audit-export bundles exist to serve.
+
+Anchors and a signer that is not among them is a **failure**: the verifier
+did state whose bundles it accepts and this is not one — an expectation
+violated, not merely unmet.
+
+**This does change an `aip-verify` exit code**, and the earlier text
+claiming otherwise described the rejected alternative. `aip-verify` exits
+non-zero on `overall == Fail`, so a bundle from an unexpected signer now
+stops a CI job rather than passing it with a warning nobody reads. That is
+the intended consequence and it is asserted by
+`aip-protocol/tests/signer_anchored.rs` (cases A–H) and by four tests in
+`tests/bundle.rs`. A deployment that anchors no signers sees no exit-code
+change.
 
 ### Revised result
 
