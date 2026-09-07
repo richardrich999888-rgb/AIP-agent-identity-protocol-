@@ -203,6 +203,47 @@ fn observer_loss_on_the_companion_computer_degrades_and_never_accuses() {
 }
 
 #[test]
+fn evidence_from_another_process_does_not_become_evidence_about_this_flight() {
+    // Found by mutation testing. Bypassing the core's process-instance
+    // correlation (`ObservedProcess::matches_process_of` against the DP-signed
+    // binding) was killed by `aip-edge`'s own suite and *survived* this
+    // crate's, because every UAS test drove the honest scenario. A profile
+    // whose tests are insensitive to the guard it rests on is a profile that
+    // will not notice when the guard goes.
+    //
+    // So the profile now drives the injection case itself: a real observation,
+    // really signed, really about a different process on this host.
+    let out = companion_run("cross", Scenario::CrossExecutionInjection);
+    assert!(
+        out.reference.observations_offered > 0,
+        "the injected observation must exist, or nothing was excluded"
+    );
+    assert_eq!(
+        out.reference.records.len(),
+        0,
+        "an observation of another process instance became evidence about this flight"
+    );
+    assert!(!out.reference.establishes_named_effect);
+
+    // And the profile's own answers degrade with it: with no correlated
+    // record, the one navigation quantity a companion observer can establish
+    // is established about nothing.
+    assert!(
+        !out.reference
+            .ladder
+            .contiguous_to("INDEPENDENT OBSERVATION"),
+        "the ladder must not reach independent observation on an uncorrelated run"
+    );
+    for claimed in [MissionState::Started, MissionState::InProgress] {
+        assert_eq!(
+            MissionState::assertable(claimed, StateEvidence::DecisionSigned),
+            MissionState::Unknown,
+            "{claimed:?} must not be assertable when nothing correlated"
+        );
+    }
+}
+
+#[test]
 fn a_geofence_question_cannot_be_answered_by_a_live_companion_run() {
     use aip_uas::{AltitudeReference, CoordinateFrame, GeofenceRegion};
 
