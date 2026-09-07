@@ -170,12 +170,41 @@ fn fa04_the_mechanism_and_the_event_kind() {
     }
 }
 
+/// The two live tests must not run at the same time.
+///
+/// `FAN_CLOSE_WRITE` is emitted when the last reference to a file
+/// *description* opened for writing is released, and the kernel attributes
+/// it to whichever process performs that release. `fork` duplicates the
+/// descriptor table, so a fork anywhere in this process while fa05 holds
+/// `out.txt` open hands that reference to the child; fa05's own `close`
+/// then merely decrements, and the event is attributed to the child when it
+/// `exec`s (Rust opens files `O_CLOEXEC`). fa06 forks a shell, so run
+/// concurrently the two tests make the kernel report a completed write by a
+/// pid that is not this process — a correct observation of a real fd
+/// inheritance, and a fact about this test binary rather than about the
+/// observer. Serialising them removes the interference at its source.
+#[cfg(target_os = "linux")]
+static LIVE_FANOTIFY: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 #[cfg(target_os = "linux")]
 #[test]
 fn fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd() {
     use std::io::Write;
+    let _serialised = LIVE_FANOTIFY
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     let dir = std::env::temp_dir().join(format!("ghost-fa05-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
+    // A fanotify mark covers a whole *mount*. On the shared temp mount this
+    // test competed with every other writer on the machine — cargo's own
+    // artifact writes included — which is a race with the host rather than
+    // a property of the observer. A private tmpfs removes the competition
+    // at its source instead of tolerating it: the mark then covers exactly
+    // this directory, and nothing else can write here.
+    let private_mount = mount_tmpfs(&dir);
+    if !private_mount {
+        eprintln!("fa05: no private tmpfs (needs CAP_SYS_ADMIN); sharing the temp mount");
+    }
     let mut watch = match FanotifyWatch::open(dir.to_str().unwrap(), FAN_CLOSE_WRITE | FAN_MODIFY) {
         Ok(w) => w,
         Err(SourceError::Unavailable(why)) => {
@@ -195,43 +224,31 @@ fn fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd() {
     let me = std::process::id();
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
     let mut found = None;
-    // Did the queue ever go empty after our write? That is what separates
-    // "our event was never there" from "we never got to it": the mark is
-    // mount-wide, so on a busy mount this loop can spend its whole deadline
-    // measuring other processes' events while ours waits behind them.
-    let mut drained = false;
+    let mut seen = 0u32;
     while std::time::Instant::now() < deadline && found.is_none() {
-        match watch.next_event(50).unwrap() {
-            Some(obs) => {
-                let e = probe.ingest_file_event(obs).clone();
-                if let KernelLifecycleKind::FileEvent { pid, path, .. } = &e.kind {
-                    if *pid == me && path == target.to_str().unwrap() && e.kind.is_file_write() {
-                        found = Some(e);
-                    }
+        if let Some(obs) = watch.next_event(50).unwrap() {
+            seen += 1;
+            let e = probe.ingest_file_event(obs).clone();
+            if let KernelLifecycleKind::FileEvent { pid, path, .. } = &e.kind {
+                if *pid == me && path == target.to_str().unwrap() && e.kind.is_file_write() {
+                    found = Some(e);
                 }
             }
-            None => drained = true,
         }
     }
     let Some(e) = found else {
-        // Three different things, and only one of them is a failure.
         let lost = watch.take_lost();
-        if lost > 0 {
-            // The kernel dropped events: ours may have been among them.
-            // Absence of evidence is not evidence of a violation.
-            eprintln!("fa05: SKIPPED — the shared mount queue overflowed, {lost} events lost");
-        } else if !drained {
-            // The queue never went empty: other writers on this mount kept
-            // it full for the whole deadline, so the harness never reached
-            // our event. A statement about the machine, not the observer.
-            eprintln!("fa05: SKIPPED — the shared mount queue stayed busy for the whole deadline");
-        } else {
-            // The queue went empty with nothing lost, and our event was not
-            // in it. That is the observer failing to report a completed
-            // write it was watching for.
-            panic!("the queue drained with no loss and the write was never reported");
-        }
-        let _ = std::fs::remove_dir_all(&dir);
+        // On a private mount nothing else can write here, so failing to see
+        // our own completed write is the observer failing at its one job.
+        assert!(
+            !private_mount,
+            "on a private mount the write went unreported ({lost} lost, {seen} events seen)"
+        );
+        // On the shared mount, absence proves nothing about the observer:
+        // the queue may have overflowed, or simply stayed busy with other
+        // writers for the whole deadline.
+        eprintln!("fa05: SKIPPED — shared mount, {lost} events lost, {seen} seen");
+        cleanup(&dir, private_mount);
         return;
     };
     assert_eq!(e.mechanism, SourceMechanism::Fanotify);
@@ -260,18 +277,32 @@ fn fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd() {
         Some(lost),
         "loss is carried into the batch, never hidden"
     );
-    let _ = std::fs::remove_dir_all(&dir);
+    cleanup(&dir, private_mount);
 }
 
 #[cfg(target_os = "linux")]
 #[test]
 fn fa06_live_a_writer_that_exited_before_the_read_is_unbound() {
+    // See `LIVE_FANOTIFY`: this test forks, and a fork while fa05 holds a
+    // file open moves the close event to the child.
+    let _serialised = LIVE_FANOTIFY
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     let dir = std::env::temp_dir().join(format!("ghost-fa06-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
+    // Same reason as fa05: a mount-wide mark on the shared temp mount puts
+    // this test in a queue with every other writer on the machine, so an
+    // absent event says nothing about the observer. A private tmpfs makes
+    // the queue this test's own.
+    let private_mount = mount_tmpfs(&dir);
+    if !private_mount {
+        eprintln!("fa06: no private tmpfs (needs CAP_SYS_ADMIN); sharing the temp mount");
+    }
     let mut watch = match FanotifyWatch::open(dir.to_str().unwrap(), FAN_CLOSE_WRITE) {
         Ok(w) => w,
         Err(SourceError::Unavailable(why)) => {
             eprintln!("fa06: SKIPPED — fanotify unavailable: {why}");
+            cleanup(&dir, private_mount);
             return;
         }
         Err(e) => panic!("{e}"),
@@ -299,24 +330,23 @@ fn fa06_live_a_writer_that_exited_before_the_read_is_unbound() {
         }
     }
     let Some(e) = seen else {
-        // The queue is shared with every writer on this mount. If the kernel
-        // reported an overflow, the event was dropped before it could be
-        // read and the property cannot be evaluated here — which is a
-        // statement about the evidence, not about the observer. If nothing
-        // was lost, the event should have arrived and its absence is a
-        // failure.
         let lost = watch.take_lost();
+        // On a private mount this test is the only writer, so the child's
+        // completed write must be reported.
         assert!(
-            lost > 0,
-            "no event arrived and the kernel reported no loss: the write was not observed"
+            !private_mount,
+            "on a private mount the child's write went unreported ({lost} lost)"
         );
-        eprintln!("fa06: SKIPPED — the shared mount queue overflowed, {lost} events lost");
-        let _ = std::fs::remove_dir_all(&dir);
+        // On the shared mount, absence is a statement about the queue and
+        // not about the observer: it may have overflowed, or simply stayed
+        // busy with other writers for the whole deadline.
+        eprintln!("fa06: SKIPPED — shared mount, {lost} events lost");
+        cleanup(&dir, private_mount);
         return;
     };
     assert_eq!(e.bound, None, "FAN_NOPIDFD: existence, no identity");
     assert_eq!(e.subject_identity_digest(), None);
-    let _ = std::fs::remove_dir_all(&dir);
+    cleanup(&dir, private_mount);
 }
 
 #[test]
@@ -329,4 +359,36 @@ fn fa07_the_collector_refuses_fanotify_provenance_from_a_probe_not_provisioned_f
     let b = probe.batch([1u8; 16], 1, 2, vec![]);
     assert!(b.active_mechanisms.contains(&SourceMechanism::Fanotify));
     assert!(signer.attest(b).is_err());
+}
+
+/// Give `dir` its own tmpfs so a mount-wide fanotify mark covers only it.
+/// False when the mount is refused (no `CAP_SYS_ADMIN`); the caller then
+/// shares the temp mount with the rest of the machine and says so.
+#[cfg(target_os = "linux")]
+fn mount_tmpfs(dir: &std::path::Path) -> bool {
+    let path = std::ffi::CString::new(dir.to_str().unwrap()).unwrap();
+    let fstype = std::ffi::CString::new("tmpfs").unwrap();
+    // SAFETY: plain syscall with owned, NUL-terminated strings; the result
+    // is checked and failure is handled by the caller.
+    unsafe {
+        libc::mount(
+            fstype.as_ptr(),
+            path.as_ptr(),
+            fstype.as_ptr(),
+            0,
+            std::ptr::null(),
+        ) == 0
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn cleanup(dir: &std::path::Path, mounted: bool) {
+    if mounted {
+        let path = std::ffi::CString::new(dir.to_str().unwrap()).unwrap();
+        // SAFETY: unmounting a path this test mounted.
+        unsafe {
+            libc::umount(path.as_ptr());
+        }
+    }
+    let _ = std::fs::remove_dir_all(dir);
 }
