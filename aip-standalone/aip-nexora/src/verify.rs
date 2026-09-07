@@ -199,15 +199,22 @@ pub enum LineageStanding {
     /// The package carries nothing about this kind. `CANNOT_PROVE`, and
     /// never "assumed related".
     Unavailable,
+    /// The evidence is genuine and the operator has withdrawn it. A revoked
+    /// token is not a forged one — every signature still checks — so this
+    /// is deliberately not `Contradicted`, and the package did carry the
+    /// evidence, so it is deliberately not `Unavailable`. It is its own
+    /// answer: the link existed and no longer counts.
+    Revoked,
 }
 
 impl LineageStanding {
-    pub const ALL: [LineageStanding; 5] = [
+    pub const ALL: [LineageStanding; 6] = [
         LineageStanding::Verified,
         LineageStanding::Incomplete,
         LineageStanding::Ambiguous,
         LineageStanding::Contradicted,
         LineageStanding::Unavailable,
+        LineageStanding::Revoked,
     ];
 
     pub fn code(self) -> u8 {
@@ -217,6 +224,7 @@ impl LineageStanding {
             LineageStanding::Ambiguous => 0x03,
             LineageStanding::Contradicted => 0x04,
             LineageStanding::Unavailable => 0x05,
+            LineageStanding::Revoked => 0x06,
         }
     }
 
@@ -753,6 +761,17 @@ fn rederive(
 /// engine made of it. Each axis has its own evidence; none is inferred
 /// from another, and none is `Verified` merely because nothing said
 /// otherwise.
+/// Has the operator withdrawn the root token or any hop of the chain this
+/// package carries? The list is the *verifier's* operator's declaration,
+/// carried beside the evidence rather than inside it, exactly as the
+/// reconciler receives it.
+fn is_revoked(proof: &NexoraProof, revoked: &[[u8; 16]]) -> bool {
+    let Some(a) = proof.authority.as_ref() else {
+        return false;
+    };
+    revoked.contains(&a.root.jti) || a.chain.iter().any(|h| revoked.contains(&h.jti))
+}
+
 fn derive_lineage(
     proof: &NexoraProof,
     r: &Reconciliation,
@@ -762,7 +781,19 @@ fn derive_lineage(
     // verifier's issuer keys. `binding_faults` already refused a chain
     // that is not the one the expectation names, so reaching here with a
     // verified authority means both held.
+    //
+    // Revocation is checked separately and last, because it is a different
+    // kind of fact from a signature: the operator has withdrawn a token
+    // whose signatures are all still good. Without this a package would
+    // report a live authority link for a token the operator revoked —
+    // which the reconciler already refuses to draw an edge from, so the
+    // two would disagree about the same evidence.
+    let revoked = proof
+        .lineage
+        .as_ref()
+        .is_some_and(|l| is_revoked(proof, &l.revoked_jtis));
     let authority = match authority_verdict {
+        _ if revoked => LineageStanding::Revoked,
         ComponentVerdict::Verified => LineageStanding::Verified,
         ComponentVerdict::Absent => LineageStanding::Unavailable,
         ComponentVerdict::Unverifiable(_) => LineageStanding::Contradicted,

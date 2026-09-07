@@ -275,7 +275,12 @@ fn g7_07_a_peer_expectation_for_another_agent_does_not_attribute_this_one() {
 #[test]
 fn g7_08_the_standings_are_closed_and_only_one_of_them_asserts_a_link() {
     let all = LineageStanding::ALL;
-    assert_eq!(all.len(), 5);
+    // Six since Gate 12 case U: `Revoked` joined the set, because a token
+    // the operator has withdrawn is neither forged (Contradicted) nor
+    // missing (Unavailable). The count is asserted so a variant cannot be
+    // added without a reader deciding what `asserts_a_link` should say
+    // about it — which the loop below then enforces.
+    assert_eq!(all.len(), 6);
     let mut codes: Vec<u8> = all.iter().map(|x| x.code()).collect();
     codes.sort_unstable();
     codes.dedup();
