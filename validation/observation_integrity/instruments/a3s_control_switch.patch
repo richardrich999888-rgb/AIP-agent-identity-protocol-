@@ -1,0 +1,42 @@
+--- /tmp/a3s_main.rs.bak	2026-09-07 16:02:41.061242750 +0000
++++ /tmp/a3s/a3s-observer-collector/src/main.rs	2026-09-07 16:02:41.083459067 +0000
+@@ -1512,24 +1512,35 @@
+             }
+         }
+     }
++    // OI-001 CONTROL SWITCH — validation instrumentation, local build only.
++    // Lets one sched tracepoint be attached without the other, so the
++    // interference can be shown to follow the SPECIFIC tracepoint a BPF
++    // program is attached to rather than the presence of any BPF program.
++    // Not upstreamed and not in the AIP repository.
++    let oi_skip_fork = std::env::var("OI001_SKIP_SCHED_FORK").is_ok();
++    let oi_skip_exec = std::env::var("OI001_SKIP_SCHED_EXEC").is_ok();
++    if oi_skip_fork || oi_skip_exec {
++        tracing::warn!(skip_fork = oi_skip_fork, skip_exec = oi_skip_exec,
++                       "OI-001 control switch active");
++    }
+     // sched_process_fork runs before the child can execute, so its parent PID is available even for short-lived tools.
+-    match attach(
++    match (if oi_skip_fork { Err(anyhow::anyhow!("OI001_SKIP_SCHED_FORK")) } else { attach(
+         &mut ebpf,
+         "track_process_fork",
+         "sched",
+         "sched_process_fork",
+-    ) {
++    ) }) {
+         Ok(()) => attached += 1,
+         Err(e) => {
+             tracing::warn!(error = %e, "sched_process_fork probe failed - using syscall-exit ancestry fallback")
+         }
+     }
+-    let exec_commit_probe_attached = match attach(
++    let exec_commit_probe_attached = match (if oi_skip_exec { Err(anyhow::anyhow!("OI001_SKIP_SCHED_EXEC")) } else { attach(
+         &mut ebpf,
+         "track_process_exec",
+         "sched",
+         "sched_process_exec",
+-    ) {
++    ) }) {
+         Ok(()) => {
+             attached += 1;
+             true

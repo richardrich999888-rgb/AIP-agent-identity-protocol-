@@ -1,0 +1,4 @@
+# Per-phase binaries are reproducible copies of /bin/true; the harness recreates
+# them each run. The evidence that matters is what each observer recorded, not
+# the copies themselves.
+evidence/*/bin/

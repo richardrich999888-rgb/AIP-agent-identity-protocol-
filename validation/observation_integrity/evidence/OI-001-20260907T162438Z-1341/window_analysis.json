@@ -1,0 +1,99 @@
+{
+  "reference_observer": "linux-audit (sees every exec; fixes the window order)",
+  "confirmed_attached_window_execs": 15,
+  "seen_by_observer_under_test": 15,
+  "missed_by_observer_under_test": 0,
+  "result": "NO_SUPPRESSION",
+  "detail": [
+    {
+      "pid": 1457,
+      "label": "ANCHOR-ATTACHED",
+      "argv0": "/home/user/AIP-agent-identity-protocol-/validation/observation_integrity/evidence/OI-001-20260907T162438Z-1341/bin/oiATTACHEDf0fc",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1458,
+      "label": null,
+      "argv0": "sleep",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1460,
+      "label": null,
+      "argv0": "tee",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1461,
+      "label": null,
+      "argv0": "date",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1462,
+      "label": null,
+      "argv0": "seq",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1463,
+      "label": "P2",
+      "argv0": "/home/user/AIP-agent-identity-protocol-/validation/observation_integrity/evidence/OI-001-20260907T162438Z-1341/bin/oiP2f0fc",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1464,
+      "label": "P2",
+      "argv0": "/home/user/AIP-agent-identity-protocol-/validation/observation_integrity/evidence/OI-001-20260907T162438Z-1341/bin/oiP2f0fc",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1465,
+      "label": "P2",
+      "argv0": "/home/user/AIP-agent-identity-protocol-/validation/observation_integrity/evidence/OI-001-20260907T162438Z-1341/bin/oiP2f0fc",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1466,
+      "label": "P2",
+      "argv0": "/home/user/AIP-agent-identity-protocol-/validation/observation_integrity/evidence/OI-001-20260907T162438Z-1341/bin/oiP2f0fc",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1467,
+      "label": "P2",
+      "argv0": "/home/user/AIP-agent-identity-protocol-/validation/observation_integrity/evidence/OI-001-20260907T162438Z-1341/bin/oiP2f0fc",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1468,
+      "label": "P2",
+      "argv0": "/home/user/AIP-agent-identity-protocol-/validation/observation_integrity/evidence/OI-001-20260907T162438Z-1341/bin/oiP2f0fc",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1469,
+      "label": null,
+      "argv0": "sleep",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1471,
+      "label": null,
+      "argv0": "tee",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1472,
+      "label": null,
+      "argv0": "date",
+      "seen_by_observer": true
+    },
+    {
+      "pid": 1473,
+      "label": "ANCHOR-DETACHED",
+      "argv0": "/home/user/AIP-agent-identity-protocol-/validation/observation_integrity/evidence/OI-001-20260907T162438Z-1341/bin/oiDETACHEDf0fc",
+      "seen_by_observer": true
+    }
+  ]
+}
