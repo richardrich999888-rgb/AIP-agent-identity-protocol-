@@ -48,7 +48,7 @@
 //!
 //! The private key is never logged. The fingerprint is public and is.
 
-use aip_custody::{CustodyClass, CustodyError, SigningCustodian};
+use aip_custody::{CustodyClass, CustodyError, KeyCustody, SigningCustodian};
 use base64::{engine::general_purpose::STANDARD as B64, Engine};
 use ed25519_dalek::{Signer, SigningKey, VerifyingKey};
 use rand::rngs::OsRng;
@@ -263,7 +263,7 @@ impl ServiceKey {
     }
 }
 
-impl SigningCustodian for ServiceKey {
+impl KeyCustody for ServiceKey {
     /// The key's fingerprint. Stable, public, and already what token responses
     /// use to say which key signed them.
     fn key_id(&self) -> &str {
@@ -285,6 +285,12 @@ impl SigningCustodian for ServiceKey {
         self.custody
     }
 
+}
+
+/// The service key signs arbitrary bytes: audit-export manifests, and whatever
+/// else the service must attest to. That is its purpose, so unlike the domain
+/// authorities it does implement the general signing interface.
+impl SigningCustodian for ServiceKey {
     fn sign(&self, message: &[u8]) -> Result<[u8; 64], CustodyError> {
         Ok(SigningKey::from_bytes(&self.seed).sign(message).to_bytes())
     }
