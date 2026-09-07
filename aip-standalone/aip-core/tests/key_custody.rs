@@ -343,3 +343,58 @@ fn t02_store_debug_reports_counts_not_contents() {
     assert!(!rendered.contains(&bytes), "store Debug leaked a key");
     assert!(rendered.contains("identities: 1"), "{rendered}");
 }
+
+/// Structural guard: `StoredIdentity::sign` routes through the custody
+/// abstraction, and `store.rs` never signs with raw key material.
+///
+/// **Documented limitation.** Bypassing the abstraction here — signing with
+/// `aip_crypto::sign_ed25519(&kp.private_key, ..)` directly — produces a
+/// byte-identical signature, so no behavioural test can detect it. Verified by
+/// mutation: replacing the custodian call with a direct one leaves the whole
+/// suite green. The property is structural and is guarded structurally.
+///
+/// It matters because the bypass reintroduces the shape this work removed: key
+/// material named, borrowed and passed as an argument at a call site. That is
+/// how the field became public, how it reached `fs::write`, and how it would
+/// again.
+#[test]
+fn t03_structural_sign_routes_through_the_custodian() {
+    let src = store_src();
+
+    let sign = src
+        .split("pub fn sign(&self, payload: &[u8])")
+        .nth(1)
+        .expect("StoredIdentity::sign must exist")
+        .split("pub fn ")
+        .next()
+        .unwrap();
+    assert!(
+        sign.contains("aip_custody::sign_envelope"),
+        "StoredIdentity::sign must sign through a custodian: {sign}"
+    );
+    assert!(
+        !sign.contains("private_key"),
+        "StoredIdentity::sign must not name key material: {sign}"
+    );
+
+    // Nowhere in the store does key material reach a signing call directly.
+    for l in src.lines().map(str::trim) {
+        assert!(
+            !(l.contains("sign_ed25519") && l.contains("private_key")),
+            "store.rs signs with raw key material: {l}"
+        );
+    }
+
+    // The one place key material is read at all is the private custodian
+    // adapter, which does not return it.
+    let uses: Vec<&str> = src
+        .lines()
+        .map(str::trim)
+        .filter(|l| l.contains("kp.private_key"))
+        .collect();
+    assert_eq!(
+        uses.len(),
+        1,
+        "key material must be read from exactly one place in store.rs: {uses:?}"
+    );
+}
