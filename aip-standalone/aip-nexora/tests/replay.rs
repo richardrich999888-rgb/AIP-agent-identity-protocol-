@@ -180,7 +180,10 @@ fn g11_07_verification_stays_pure_and_a_duplicate_is_still_a_valid_proof() {
     record_submission(&mut ledger, &before).unwrap();
     record_submission(&mut ledger, &before).unwrap();
     let after = verify_nexora_proof(&p, &a);
-    assert_eq!(before, after, "verification is a pure function of its inputs");
+    assert_eq!(
+        before, after,
+        "verification is a pure function of its inputs"
+    );
     assert_eq!(after.verdict, ProofVerdict::Valid);
 }
 
@@ -193,14 +196,20 @@ fn g11_08_nothing_in_the_api_turns_a_proof_into_authority() {
     // The output says what it supports and says the limit in the same
     // breath. There is no field a consumer could read as a licence.
     let json = serde_json::to_string(&v).unwrap().to_lowercase();
-    for word in ["grant", "permit", "allow", "authorise", "authorize", "token"] {
+    for word in [
+        "grant",
+        "permit",
+        "allow",
+        "authorise",
+        "authorize",
+        "token",
+    ] {
         assert!(!json.contains(word), "{word} appears in a verifier output");
     }
     // And the crate names the distinction where a reader will meet it.
     let src = std::fs::read_to_string("src/replay.rs").unwrap();
     assert!(
-        src.contains("does not grant current authority")
-            || src.contains("never permission"),
+        src.contains("does not grant current authority") || src.contains("never permission"),
         "replay.rs must state the distinction it exists to keep"
     );
 }

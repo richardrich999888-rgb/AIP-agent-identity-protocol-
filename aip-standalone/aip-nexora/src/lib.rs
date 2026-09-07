@@ -11,6 +11,7 @@ pub mod commitment;
 pub mod export;
 pub mod merkle;
 pub mod proof;
+pub mod replay;
 pub mod verify;
 
 pub use commitment::{
@@ -26,6 +27,10 @@ pub use proof::{
     verify_envelope, AuthorityEvidence, BindingFault, Component, DeclaredParameters, Envelope,
     LineageEvidence, NexoraProof, ObserverBundle, ProofAssembler, ProofBuilder, ProofFault,
     StructuralFault, Subject, NEXORA_PROOF_VERSION, PROOF_BUNDLE_DOMAIN, PROOF_ENVELOPE_DOMAIN,
+};
+pub use replay::{
+    record_submission, AuthorityStanding, FileProofLedger, MemoryProofLedger, ProofLedger,
+    ReplayStanding,
 };
 pub use verify::{
     verify_nexora_proof, Completeness, ComponentVerdict, ContinuityStanding, Coverage,

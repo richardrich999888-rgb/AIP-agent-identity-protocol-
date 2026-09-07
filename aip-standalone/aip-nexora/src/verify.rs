@@ -54,6 +54,7 @@ use crate::commitment::{verify_proof, NexoraTrustAnchors, VerifiedInclusion};
 use crate::proof::{
     verify_envelope, BindingFault, Component, NexoraProof, StructuralFault, NEXORA_PROOF_VERSION,
 };
+use crate::replay::AuthorityStanding;
 
 /// Everything the verifier trusts, and nothing it does not. Each field is
 /// the verifier's own decision; none of it comes from the package.
@@ -83,6 +84,11 @@ pub struct VerifierAnchors {
     /// The largest `window_tolerance_ms` this verifier will accept, for the
     /// same reason.
     pub max_declared_window_tolerance_ms: Option<u64>,
+    /// The verifier's own view of *now*, used only to say whether the
+    /// authority behind the execution has since expired. It never enters
+    /// the reconciliation: what happened does not change because time
+    /// passed, and a stale authority is not an invalid proof.
+    pub present_time_ms: Option<u64>,
 }
 
 /// What the verifier could establish about one component.
@@ -342,6 +348,9 @@ pub struct VerifiedProof {
     pub lineage_report: LineageReport,
     /// What it establishes about the observer's record across time.
     pub continuity_standing: ContinuityStanding,
+    /// Where the authority behind the execution stands at the verifier's
+    /// present time. No value of it grants anything (Gate 11).
+    pub authority_standing: AuthorityStanding,
     pub independence: Independence,
     /// Where the claim was committed, when a commitment was carried and
     /// verified.
@@ -387,6 +396,7 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
             process: LineageStanding::Unavailable,
         },
         continuity_standing: ContinuityStanding::Unknown,
+        authority_standing: authority_standing(proof, anchors),
         independence: if proof.parameters.agent_key_supplied {
             Independence::Checked
         } else {
@@ -617,6 +627,23 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
         v.verdict = ProofVerdict::Invalid(reason);
     }
     v
+}
+
+/// Where the authority stands at the verifier's present time, if it named
+/// one. Assessed against the expectation's own window, and used for
+/// nothing else: a stale authority is a fact about now, and the proof is a
+/// statement about then.
+fn authority_standing(proof: &NexoraProof, anchors: &VerifierAnchors) -> AuthorityStanding {
+    let (Some(now), Some(ee)) = (anchors.present_time_ms, proof.expectation.as_ref()) else {
+        return AuthorityStanding::NotAssessed;
+    };
+    if now > ee.valid_until {
+        AuthorityStanding::StaleSince {
+            valid_until: ee.valid_until,
+        }
+    } else {
+        AuthorityStanding::ValidNow
+    }
 }
 
 /// Re-run the reconciler over the package's inputs. The anchors are the

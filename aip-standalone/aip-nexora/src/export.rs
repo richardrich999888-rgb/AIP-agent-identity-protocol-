@@ -160,5 +160,7 @@ pub fn import_anchors(bytes: &[u8]) -> Result<VerifierAnchors, ExportError> {
         // it will accept.
         max_declared_health_age_ms: None,
         max_declared_window_tolerance_ms: None,
+        // Nor does a package get to tell a verifier what time it is.
+        present_time_ms: None,
     })
 }
