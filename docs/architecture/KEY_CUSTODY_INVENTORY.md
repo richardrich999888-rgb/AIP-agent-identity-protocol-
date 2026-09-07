@@ -211,133 +211,23 @@ is still *acceptable* is verifier policy, not a property of the record.
 
 ## 7. As built
 
-### 7.1 The trait split
+Two independent implementations of this decision landed on the branch. The one
+that survived is `aip_crypto::custody`, recorded in
+[`docs/adr/ADR-KEY-CUSTODY.md`](../adr/ADR-KEY-CUSTODY.md) (**ACCEPTED**),
+which selects the same option **F** and implements **B** — a passphrase-wrapped
+file, Argon2id deriving the key-encryption key and XChaCha20-Poly1305 wrapping
+the signing key — as its production backend.
 
-```
-KeyCustody                       SigningCustodian: KeyCustody
-  key_id()                         sign(&[u8]) -> [u8; 64]
-  key_version()
-  public_key()
-  custody_class()
-```
+That is stronger than the OS-protected plaintext file this document originally
+selected: it protects the key against an attacker who holds the volume, a
+snapshot or a backup, which no permission bit can do. §2's rejection of B was
+argued on the grounds that an unattended collector must hold the passphrase
+somewhere the same process can read; the ADR accepts that and scopes it
+honestly as a deployment decision it does not make. The reasoning stands, the
+conclusion changed, and one implementation had to go — the brief forbids
+multiple implementations of the same semantics.
 
-`KeyCustody` is what a key holder needs to be **inventoried and
-policy-checked**. `SigningCustodian` adds general signing.
-
-| Type | Crate | Implements | Why |
-|---|---|---|---|
-| `DevCustodian` | aip-custody | both | general signing is its purpose |
-| `FileCustodian` | aip-custody | both | general signing is its purpose |
-| `ServiceKey` | aip-service | both | signs audit-export manifests |
-| `DecisionPoint` | aip-authorize | `KeyCustody` only | signs one preimage, through its own operation |
-| `WarrantAuthority` | aip-warrant | `KeyCustody` only | ditto |
-| `ContainmentAuthority` | aip-containment | `KeyCustody` only | ditto |
-| `NexoraSigner` | aip-nexora | `KeyCustody` only | ditto |
-| `ProofAssembler` | aip-nexora | `KeyCustody` only | ditto |
-| `CollectorSigner` | aip-observe | `KeyCustody` only | ditto — and this is the observer key |
-
-A narrow, domain-separated signing surface is **stronger** than a general one.
-The split keeps it that way. `aip-observe/tests/key_custody.rs` asserts
-structurally that `CollectorSigner` never gains `SigningCustodian`, and that no
-crate outside `aip-observe` implements its custody.
-
-`admits()` is a free function, generic over `KeyCustody + ?Sized`, rather than a
-trait method: a trait method could be overridden by an implementation to report
-a class it does not have, which is precisely what the policy exists to catch.
-
-### 7.2 What the selected backend does and does not establish
-
-`CustodyClass::OsProtectedFile` is a **plaintext key in a file the kernel
-protects by permission**. Stated precisely, because the words matter:
-
-**Protects against** — another local user reading the key; another local user
-replacing it via a writable directory; a permissive `umask` at creation; an
-accidental overwrite of an existing identity; a truncated or corrupt file being
-mistaken for an absent one.
-
-**Does not protect against** — `root`; any process with the same uid; memory
-disclosure of this process; possession of the disk, a snapshot or a backup; an
-offline attacker with the file.
-
-It is **not** hardware-secured, **not** tamper-proof, and **not**
-non-exportable at the storage layer. Non-exportability here is a property of
-the *interface*: no code path in this workspace returns key material to a
-caller. That is a narrower and more honest claim than a hardware backend would
-earn, and it is the only one made.
-
-Key material is **not zeroized on drop**. Memory disclosure is outside what this
-class claims, and a reallocated `Vec<u8>` cannot be reliably wiped; claiming
-otherwise would be the kind of thing this crate exists to stop.
-
-### 7.3 The on-disk key format
-
-Fixed binary layout, written and parsed by hand — no `serde`, and no custodian
-type derives `Serialize`:
-
-```
-offset  size  field
-0       8     magic "AIPKEY" + format version u16 LE
-8       4     key_version u32 LE
-12      2     key_id length u16 LE
-14      n     key_id (UTF-8)
-14+n    32    private key
-46+n    32    public key
-```
-
-Total length is exactly `78 + n`; anything else is refused. On load, the stored
-private key signs a fixed domain-separated probe and the stored public key must
-verify it — a mismatched pair would otherwise produce signatures that fail far
-away, at the relying party, as an unexplained rejection.
-
-"Never *casually* serialized" is the invariant. This encoding is a deliberate,
-reviewed act at one call site; a `derive` is what follows a struct into every
-JSON response somebody writes later.
-
----
-
-## 8. Migration requirements
-
-Nothing here invalidates a historical proof package. The signature envelope, the
-bundle bytes, `verify_zip`, `verify_attested_batch` and every trust anchor are
-untouched. **Key storage changed; key identity did not.**
-
-Two artefacts on disk need an operator decision.
-
-### 8.1 An existing identity store containing plaintext key pairs
-
-`IdentityStore::with_file` now **refuses** such a file with
-`StoreError::PlaintextKeysPresent`. It does not open it. The alternative —
-loading it and dropping the keys on the next `save()` — would rewrite the file
-without them, destroying every private key it holds, irreversibly and silently.
-
-Either:
-
-- **Production path.** Move each key into its own `FileCustodian` file
-  (`aip-cli` now does this automatically for identities it creates: the store
-  path plus `.keys/<aip-id>.key`, in a directory at mode 0700), and rewrite the
-  store with public data only.
-- **Development path.** Open it with
-  `IdentityStore::with_file_and_plaintext_keys(path, CustodyPolicy::Development)`,
-  accepting that the keys are unprotected. Test fixtures that round-trip a
-  private key through a file are converted to this and named as fixtures.
-
-### 8.2 An existing service seed file
-
-The format is unchanged — base64 of the 32-byte seed — so no migration of
-content is needed. Two operational changes:
-
-- The file's **mode must be 0600** and its directory must not be writable by
-  group or other (a sticky directory such as `/tmp` is accepted). A file at
-  0644 now stops the service from starting rather than being loaded. Remedy:
-  `chmod 600 <path>`.
-- A **corrupt or unreadable** seed file now stops the service instead of
-  silently minting a new identity. Remedy: restore from backup, or move the
-  file aside to have a new identity created deliberately — and re-register the
-  new public key with every relying party, which is exactly the work the old
-  behaviour hid.
-
-### 8.3 `build_zip` callers
-
-`aip_protocol::build_zip` takes `&dyn SigningCustodian` in place of
-`(&[u8; 32], &[u8; 32])`. Bundle bytes are unchanged and bundles produced before
-and after verify identically. In-tree callers are migrated.
+What was carried across from the other implementation, and why, is in
+[`KEY_CUSTODY_IMPLEMENTATION_REPORT.md`](KEY_CUSTODY_IMPLEMENTATION_REPORT.md).
+This document remains the inventory and the options matrix that led to the
+decision; the ADR is the decision, and the report is what was built.

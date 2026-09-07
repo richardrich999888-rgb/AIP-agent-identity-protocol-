@@ -2,11 +2,20 @@
 
 **Status: ACCEPTED** · Phase A of the production-blocker closure.
 
-This is the only ADR in this repository. The mandate that prompted this
-work referred to ADR-001, ADR-002 and ADR-003 as existing documents; they
-do not exist here, on any branch. This document therefore does not number
-itself into that sequence and does not claim any relationship to it. See
-`docs/architecture/FINAL_AUDIT_RECONCILIATION.md` for how findings are
+This is the only ADR on *this* branch. ADR-001, ADR-002 and ADR-003 do
+exist, on `claude/autonomous-accountability-skills-16-30`
+(`docs/architecture/ADR-00{1,2,3}-*.md`); they are simply not on the branch
+this decision was made on. This document does not number itself into that
+sequence and does not claim any relationship to it.
+
+The one that bears on this decision is **ADR-002 — Hardware-Rooted
+Attestation, status PROPOSED / NOT IMPLEMENTED**. Nothing here changes
+that, and nothing here implements hardware attestation. `Backend::Tpm`,
+`Backend::Hsm` and `Backend::Kms` are deliberately absent for the reason
+given below, which is the same reason ADR-002 is a STOP rather than an
+implementation.
+
+See `docs/architecture/FINAL_AUDIT_RECONCILIATION.md` for how findings are
 tracked in this repository.
 
 ---
