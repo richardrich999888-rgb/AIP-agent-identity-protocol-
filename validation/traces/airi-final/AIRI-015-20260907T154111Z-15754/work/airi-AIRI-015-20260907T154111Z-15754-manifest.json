@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip17cYnPpSVSBKcMe7CYN1hRG8u75BgHFo5LqAb464KEi",
+  "agent_public_key_hex": "62cc4d3adc7b3b78b71208e8feeb3d4590f2777bd02f97fc6bc46cbf55f00983",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-015-20260907T154111Z-15754\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-015-20260907T154111Z-15754/work/airi-AIRI-015-20260907T154111Z-15754-tool.txt"
+  ],
+  "execution_id_hex": "cf98d4d0524c491ebcadd7c1b8f26c15",
+  "intended_execute_count": 1,
+  "intended_report_count": 1,
+  "intended_report_success": true,
+  "nonce": "AIRI-015-20260907T154111Z-15754",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 15801,
+  "record": "subject_manifest",
+  "scenario": "AIRI-015",
+  "what_it_tests": "the subject behaves honestly while the independent observer is lost mid-run; absence of observation must not become evidence of non-execution"
+}

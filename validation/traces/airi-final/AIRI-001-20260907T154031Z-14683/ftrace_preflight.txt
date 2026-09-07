@@ -1,0 +1,7 @@
+instrument: ftrace tracepoint reader
+  ok    tracefs mounted at /sys/kernel/tracing
+  ok    ftrace instances supported
+  ok    tracepoints present: sched/sched_process_fork sched/sched_process_exec sched/sched_process_exit
+  STATUS READY
+ftrace_observer: capturing on instance 'vanian_ref' (clock=mono)
+ftrace_observer: capture written to /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-001-20260907T154031Z-14683/ftrace_observer.txt

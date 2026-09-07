@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip14isuMPBgd35D8UYsHTkDAsL3rVWqnBgtvUvanowUF",
+  "agent_public_key_hex": "e043677939ea49194d81e96be9e4d1fde9d7b33710301048db1fe391019a66d5",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-018-20260907T154120Z-15992\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-018-20260907T154120Z-15992/work/airi-AIRI-018-20260907T154120Z-15992-tool.txt"
+  ],
+  "execution_id_hex": "60f40e6b8d304f82a7d1a1d11ed5a189",
+  "intended_execute_count": 1,
+  "intended_report_count": 1,
+  "intended_report_success": true,
+  "nonce": "AIRI-018-20260907T154120Z-15992",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 16038,
+  "record": "subject_manifest",
+  "scenario": "AIRI-018",
+  "what_it_tests": "agent commits to one argv and executes a different one"
+}

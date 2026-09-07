@@ -64,7 +64,8 @@ import time
 
 NETLINK_AUDIT = 9
 AUDIT_GET, AUDIT_SET = 1000, 1001
-AUDIT_ADD_RULE, AUDIT_DEL_RULE = 1011, 1012
+AUDIT_ADD_RULE, AUDIT_DEL_RULE, AUDIT_LIST_RULES = 1011, 1012, 1013
+NLMSG_DONE = 3
 NLM_F_REQUEST, NLM_F_ACK = 1, 4
 STATUS_ENABLED, STATUS_PID = 0x0001, 0x0004
 
@@ -98,6 +99,7 @@ class AuditObserver:
         self.sock = None
         self.prior = None
         self.rules = []
+        self.prior_rules = []
         self.seq = 0
 
     # ── netlink plumbing ────────────────────────────────────────────────
@@ -107,13 +109,28 @@ class AuditObserver:
         self.sock.send(hdr + payload)
 
     def _ack(self, timeout=3):
-        self.sock.settimeout(timeout)
-        try:
-            data = self.sock.recv(8192)
-        except socket.timeout:
-            return None
-        _, typ, _, _, _ = struct.unpack("=IHHII", data[:16])
-        return struct.unpack("=i", data[16:20])[0] if typ == 2 else 0
+        """The error code for the request just sent, or None on timeout.
+
+        Audit delivers EVENT RECORDS on the same socket as command replies, and
+        a command of ours (enabling audit, adding a rule) generates records of
+        its own. Reading a single message and treating whatever arrives as the
+        ack therefore misreads an event record as success — which is how three
+        rules came to be recorded as installed while the kernel held none.
+        The reply is matched on the netlink sequence number instead, and
+        anything else is skipped.
+        """
+        want = self.seq
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            self.sock.settimeout(max(0.05, deadline - time.time()))
+            try:
+                data = self.sock.recv(65536)
+            except socket.timeout:
+                return None
+            _, typ, _, seq, _ = struct.unpack("=IHHII", data[:16])
+            if typ == 2 and seq == want:          # NLMSG_ERROR carries the code
+                return struct.unpack("=i", data[16:20])[0]
+        return None
 
     def _status(self):
         self._send(AUDIT_GET, b"", NLM_F_REQUEST)
@@ -131,6 +148,39 @@ class AuditObserver:
     def _set_status(self, mask, enabled=0, pid=0):
         self._send(AUDIT_SET, struct.pack("=8I", mask, enabled, 0, pid, 0, 0, 0, 0))
         return self._ack()
+
+    def _list_rules(self, timeout=3):
+        """Every rule currently loaded in the kernel, as raw blobs.
+
+        Audit rules are GLOBAL and persist beyond the process that added them.
+        An observer killed with SIGKILL — which the observation-loss scenario
+        does deliberately — never runs its own cleanup, so its rules stay
+        loaded. A later run then captures through rules it did not install and
+        cannot account for, and its result no longer depends on its own
+        configuration. That is how mutation M-OBS-5 survived: an observer asked
+        to watch only `openat` still received `execve` records, from a leaked
+        rule, and the scenario passed while testing nothing.
+        """
+        self._send(AUDIT_LIST_RULES, b"", NLM_F_REQUEST)
+        want = self.seq
+        deadline = time.time() + timeout
+        rules = []
+        while time.time() < deadline:
+            self.sock.settimeout(max(0.05, deadline - time.time()))
+            try:
+                data = self.sock.recv(65536)
+            except socket.timeout:
+                break
+            ln = struct.unpack("=I", data[:4])[0]
+            typ, seq = struct.unpack("=HxxI", data[4:12])
+            if seq != want:                       # an interleaved event record
+                continue
+            if typ in (NLMSG_DONE, 2):
+                break
+            if typ == AUDIT_LIST_RULES:
+                body = data[16:] if ln == len(data) - 16 else data[16:ln]
+                rules.append(body)
+        return rules
 
     def _rule(self, syscall_nr):
         """`-a always,exit -F arch=b64 -S <call>` as an audit_rule_data blob."""
@@ -178,6 +228,23 @@ class AuditObserver:
         if not enabled:
             self.stop()
             raise SystemExit("AUDIT_NOT_ENABLED")
+        # Clear the global rule set before installing ours, so what this
+        # observer records depends on what this observer asked for and on
+        # nothing else. Removed rules are counted and reported; they are not
+        # restored, because a leaked rule is not a configuration worth
+        # preserving and silently reinstating one would recreate the defect.
+        self.prior_rules = self._list_rules()
+        for blob in self.prior_rules:
+            self._send(AUDIT_DEL_RULE, blob)
+            self._ack(timeout=1)
+        leftover = self._list_rules()
+        if leftover:
+            self.stop()
+            raise SystemExit(
+                f"AUDIT_RULES_NOT_CLEARED: {len(leftover)} rule(s) remain; "
+                "refusing to record through a rule set this observer does not "
+                "control"
+            )
         for name in self.syscalls:
             blob = self._rule(SYSCALLS[name])
             self._send(AUDIT_ADD_RULE, blob)
@@ -191,6 +258,14 @@ class AuditObserver:
         if not self.rules:
             self.stop()
             raise SystemExit("AUDIT_NO_RULES_INSTALLED")
+        # Verify by asking the kernel, not by trusting the acks.
+        loaded = self._list_rules()
+        if len(loaded) != len(self.rules):
+            self.stop()
+            raise SystemExit(
+                f"AUDIT_RULE_SET_UNEXPECTED: asked for {len(self.rules)}, "
+                f"kernel reports {len(loaded)}"
+            )
 
     def stop(self):
         try:
@@ -252,7 +327,7 @@ class AuditObserver:
                 continue
         return "\n".join(parts)
 
-    def run(self, until_marker, max_seconds):
+    def run(self, until_marker, max_seconds, stall_after="", stall_ms=0):
         """Copy records until `until_marker` is seen in one, or time runs out.
 
         The marker is how the harness closes the observation window from
@@ -261,6 +336,7 @@ class AuditObserver:
         """
         deadline = time.time() + max_seconds
         counts = {}
+        stalled = False
         with open(self.out_path, "w") as out:
             out.write(json.dumps({
                 "observer": "linux-audit",
@@ -268,6 +344,8 @@ class AuditObserver:
                 "independent_of_sniffer_dog": "mechanism",
                 "syscalls": sorted(self.syscalls),
                 "observer_pid": os.getpid(),
+                "rules_installed": len(self.rules),
+                "leaked_rules_removed_at_start": len(self.prior_rules),
                 "started_unix_ns": time.time_ns(),
                 "record": "observer_ready",
             }) + "\n")
@@ -293,6 +371,19 @@ class AuditObserver:
                     "kernel_record": body,
                 }) + "\n")
                 out.flush()
+                if stall_after and not stalled and stall_after in self._searchable(body):
+                    # Deliberate delivery delay, for the scenario that tests
+                    # whether anything downstream orders events by RECEIVE time.
+                    # Records queue in the socket buffer meanwhile; netlink
+                    # preserves their order, so the stream is late, not wrong.
+                    stalled = True
+                    out.write(json.dumps({
+                        "record": "observer_stalled",
+                        "stall_ms": stall_ms,
+                        "at_unix_ns": time.time_ns(),
+                    }) + "\n")
+                    out.flush()
+                    time.sleep(stall_ms / 1000.0)
                 if until_marker and until_marker in self._searchable(body):
                     break
             out.write(json.dumps({
@@ -310,6 +401,10 @@ def main():
     ap.add_argument("--until-marker", default="")
     ap.add_argument("--max-seconds", type=float, default=120.0)
     ap.add_argument("--ready-file", default="")
+    ap.add_argument("--stall-after", default="",
+                    help="pause the receive loop once, after a record matching "
+                         "this text; the delivery delay is the point")
+    ap.add_argument("--stall-ms", type=float, default=0.0)
     args = ap.parse_args()
 
     calls = [c.strip() for c in args.syscalls.split(",") if c.strip()]
@@ -331,7 +426,8 @@ def main():
         with open(args.ready_file, "w") as f:
             f.write(str(os.getpid()))
     try:
-        counts = obs.run(args.until_marker, args.max_seconds)
+        counts = obs.run(args.until_marker, args.max_seconds,
+                         args.stall_after, args.stall_ms)
     finally:
         obs.stop()
     sys.stderr.write(f"audit_observer: {sum(counts.values())} records\n")

@@ -1,0 +1,36 @@
+{
+  "experiment": "AIRI-INDEPENDENT-AGENT-OBSERVATION-001",
+  "scenario": "AIRI-016",
+  "run_id": "20260907T154114Z-15831",
+  "nonce": "AIRI-016-20260907T154114Z-15831",
+  "git_commit": "f5999bbb3b6af99de55f7ba846225ade6a6c5f69",
+  "git_branch": "claude/codebase-production-readiness-wm6idp",
+  "git_dirty": true,
+  "kernel": "6.18.44-fc-v24",
+  "uname": "Linux vm 6.18.44-fc-v24 #1 SMP PREEMPT_DYNAMIC @0 x86_64 x86_64 x86_64 GNU/Linux",
+  "observers": [
+    {
+      "name": "linux-audit",
+      "mechanism": "audit_syscall hooks -> NETLINK_AUDIT",
+      "independent_of_sniffer_dog": "mechanism",
+      "note": "different probe site, subsystem, delivery path and record format from the sched tracepoints aip-observe reads"
+    },
+    {
+      "name": "ftrace-sched",
+      "mechanism": "sched_process_exec tracepoint -> ftrace instance ring",
+      "independent_of_sniffer_dog": "interface only \u2014 same tracepoint",
+      "independent_of_linux_audit": "mechanism",
+      "status": "READY",
+      "note": "carries filename and pid, NOT argv; it cannot corroborate any argv-level fact"
+    }
+  ],
+  "subject": {
+    "binary": "/home/user/AIP-agent-identity-protocol-/validation/airi/agent/target/debug/airi-subject-agent",
+    "note": "emits REAL aip-airi events; every field it writes is a CLAIM"
+  },
+  "guard_seconds": 0.25,
+  "boundary_tolerance_ms": 100,
+  "started_unix_ns": 1788795674582326854,
+  "subject_exit_code": 0,
+  "ended_unix_ns": 1788795677467689900
+}

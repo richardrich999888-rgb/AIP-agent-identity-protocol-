@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip16anyxUhYWmiY3trzW2y6aTCwRJm7wADqhYhN72JLuZ",
+  "agent_public_key_hex": "8e53e4979aa8d1d92b2e3a3af8f0f9f48aac57610eb3d5a8f200177f60c4a516",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-012-20260907T154104Z-15526\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-012-20260907T154104Z-15526/work/airi-AIRI-012-20260907T154104Z-15526-tool.txt"
+  ],
+  "execution_id_hex": "f4d0f39cdc7f4d8b9defe8067cceba5a",
+  "intended_execute_count": 0,
+  "intended_report_count": 0,
+  "intended_report_success": true,
+  "nonce": "AIRI-012-20260907T154104Z-15526",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 15575,
+  "record": "subject_manifest",
+  "scenario": "AIRI-012",
+  "what_it_tests": "a previous run's signed event stream, republished with no execution behind it"
+}

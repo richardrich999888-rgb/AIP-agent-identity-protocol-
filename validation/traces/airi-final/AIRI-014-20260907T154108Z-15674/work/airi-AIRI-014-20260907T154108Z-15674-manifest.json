@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip1nq8B9eXCZ5bW19MsEMgaqMeNqYwaZEPZcpG4JfPdM",
+  "agent_public_key_hex": "5c554ca3f5fe238ce252079d05cc3cd2b66cfc90e307160a65d0467f35851276",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-014-20260907T154108Z-15674\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-014-20260907T154108Z-15674/work/airi-AIRI-014-20260907T154108Z-15674-tool.txt"
+  ],
+  "execution_id_hex": "e650f52e2ab742fcbd91ea6d6b35f830",
+  "intended_execute_count": 1,
+  "intended_report_count": 1,
+  "intended_report_success": true,
+  "nonce": "AIRI-014-20260907T154108Z-15674",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 15720,
+  "record": "subject_manifest",
+  "scenario": "AIRI-014",
+  "what_it_tests": "a child process survives the parent"
+}

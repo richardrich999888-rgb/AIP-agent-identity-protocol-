@@ -73,6 +73,41 @@ MUTATIONS = [
         "new": '            if ev["serial"] >= 0:',
     },
     {
+        "id": "M-OBS-6",
+        "file": ANALYZE,
+        "kills": "the stated boundary tolerance; without it two observers that "
+                 "order events at different points in the syscall report "
+                 "contradictions on an honest run",
+        "scenarios": ["AIRI-001"],
+        "old": "BOUNDARY_TOLERANCE_MS = 100",
+        "new": "BOUNDARY_TOLERANCE_MS = 0",
+    },
+    {
+        "id": "M-OBS-7",
+        "file": ANALYZE,
+        "kills": "detection of two observers contradicting each other",
+        "scenarios": ["AIRI-016"],
+        "old": '        if x["compared_second_observer_only"] or x["compared_audit_only"]:',
+        "new": '        if False:',
+    },
+    {
+        "id": "M-OBS-8",
+        "file": ANALYZE,
+        "kills": "the refusal to assert a divergence from an uninterpretable "
+                 "window (absence of observation read as non-execution)",
+        "scenarios": ["AIRI-015"],
+        "old": '    divs = divergences(claims, observed) if window["window_closed"] else []',
+        "new": '    divs = divergences(claims, observed)',
+    },
+    {
+        "id": "M-OBS-9",
+        "file": ANALYZE,
+        "kills": "collapsing a duplicated observation onto its audit serial",
+        "scenarios": ["AIRI-011"],
+        "old": "        serial = int(m.group(3))",
+        "new": "        serial = len(order)",
+    },
+    {
         "id": "M-OBS-5",
         "file": RUNNER,
         "kills": "the result's dependence on the independent observer watching the "

@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip149DdFV5up6YbuJYnjoaeXmK87Lh5GHjj2HJh2eZZe6",
+  "agent_public_key_hex": "b41ba1f131779f50b1516cee7934c985da22f4b1c6b2f7f108965c33b221c44f",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-010-20260907T154058Z-15372\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-010-20260907T154058Z-15372/work/airi-AIRI-010-20260907T154058Z-15372-tool.txt"
+  ],
+  "execution_id_hex": "65e5eec6aa514fbeb2b8a03f358183b5",
+  "intended_execute_count": 1,
+  "intended_report_count": 1,
+  "intended_report_success": true,
+  "nonce": "AIRI-010-20260907T154058Z-15372",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 15417,
+  "record": "subject_manifest",
+  "scenario": "AIRI-010",
+  "what_it_tests": "an observation of a real execution is delivered late; ordering must not be taken from receive time"
+}

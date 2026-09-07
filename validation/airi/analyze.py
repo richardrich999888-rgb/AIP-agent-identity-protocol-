@@ -119,6 +119,107 @@ def flatten_argv(acc):
     ]
 
 
+# ── the second observer ─────────────────────────────────────────────────
+# ftrace's sched_process_exec carries `filename` and `pid`. It does NOT carry
+# argv. Every argv-level fact in this experiment therefore rests on ONE
+# observer, and no amount of agreement between the two upgrades it.
+# Two observers cannot have byte-identical windows. Audit assigns a record its
+# serial when the record is emitted at syscall exit; ftrace orders an event
+# when the tracepoint fires inside the syscall. A process whose exec straddles
+# a boundary therefore lands on different sides for the two observers, and a
+# naive set comparison reports it as a contradiction. It is not one.
+#
+# The comparison excludes execs within this many milliseconds of either
+# boundary. The runner leaves a quiet guard interval there (GUARD_SECONDS in
+# run_airi_validation.sh) so no subject activity falls inside the band; the
+# only things that do are unrelated host processes racing the boundary, which
+# the experiment is not about. This is a STATED TOLERANCE, not a filter chosen
+# to make a result come out.
+BOUNDARY_TOLERANCE_MS = 100
+
+FTRACE_EXEC = re.compile(
+    r":\s+sched_process_exec:\s+filename=(\S+)\s+pid=(\d+)\s+old_pid=(\d+)"
+)
+FTRACE_MARK = re.compile(r":\s+tracing_mark_write:\s+(.*?)\s*$")
+FTRACE_TS = re.compile(r"\s(\d+\.\d+):\s")
+FTRACE_BUFFER = re.compile(r"entries-in-buffer/entries-written:\s*(\d+)/(\d+)")
+
+
+def parse_ftrace(path, open_pid, close_pid):
+    """Read the second observer's capture, bounded by the SAME two events.
+
+    THE BOUNDARY PROBLEM, AND WHY IT IS NOT A DETAIL
+    ------------------------------------------------
+    The first version of this bounded ftrace's window with its own
+    `trace_marker` writes and audit's window with the marker `execve`s. Those
+    are different events a few hundred microseconds apart, so the two windows
+    were not the same interval and the comparison reported four to five
+    "contradictions" on every honest run — including the baseline. That is a
+    manufactured false failure of exactly the kind the mandate forbids, and it
+    would have made the contradiction test pass for the wrong reason.
+
+    Both windows are now delimited by the two marker `execve` calls
+    themselves, identified by the pids audit recorded for them. Those are
+    single kernel events that both observers see, so the intervals coincide by
+    construction and a residual disagreement is a real one.
+
+    Returns `None` when the observer did not run, or when the boundary events
+    are not in its capture: an unbounded capture is not compared, because a
+    comparison over the wrong interval is worse than no comparison.
+    """
+    if not path.exists() or open_pid is None or close_pid is None:
+        return None
+    text = path.read_text(errors="replace")
+    in_window, closed, seen_open = False, False, False
+    open_ns = close_ns = None
+    execs = []
+    buffered = written = None
+    marks = []
+    for line in text.splitlines():
+        b = FTRACE_BUFFER.search(line)
+        if b:
+            buffered, written = int(b.group(1)), int(b.group(2))
+        if line.startswith("#"):
+            continue
+        m = FTRACE_MARK.search(line)
+        if m:
+            marks.append(m.group(1))
+            continue
+        e = FTRACE_EXEC.search(line)
+        if not e:
+            continue
+        ts = FTRACE_TS.search(line)
+        ts_ns = int(round(float(ts.group(1)) * 1e9)) if ts else None
+        pid = int(e.group(2))
+        if pid == open_pid and not seen_open:
+            in_window, seen_open = True, True
+            open_ns = ts_ns
+            continue
+        if pid == close_pid and seen_open:
+            closed, in_window = True, False
+            close_ns = ts_ns
+            continue
+        if in_window:
+            execs.append({"filename": e.group(1), "pid": pid,
+                          "mono_ns": ts_ns})
+    if not (seen_open and closed):
+        return None
+    return {
+        "present": True,
+        "bounded_by": {"open_marker_pid": open_pid, "close_marker_pid": close_pid},
+        "marks_seen": marks,
+        "execs": execs,
+        "open_mono_ns": open_ns,
+        "close_mono_ns": close_ns,
+        "entries_in_buffer": buffered,
+        "entries_written": written,
+        # ftrace reports loss explicitly. A short capture is never inferred to
+        # be a complete one.
+        "records_lost": (None if buffered is None or written is None
+                         else max(0, written - buffered)),
+    }
+
+
 BEACON = re.compile(r"AIRIEV_([A-Za-z0-9._:-]+)_(\d+)_([A-Za-z]+)")
 
 
@@ -186,7 +287,10 @@ def parse_audit(records, nonce):
     open_marker = f"WINDOW_OPEN_{nonce}"
     close_marker = f"WINDOW_CLOSE_{nonce}"
     in_window, closed = False, False
+    open_marker_pid = close_marker_pid = None
+    open_boundary_ms = close_boundary_ms = None
     events, beacons = [], []
+    all_exec_pids = []             # every in-window exec, beacons included
     dropped_before, dropped_after = 0, 0
 
     for g in group_by_serial(records):
@@ -194,9 +298,11 @@ def parse_audit(records, nonce):
         if g["argv"]:
             if open_marker in joined:
                 in_window = True
+                open_marker_pid, open_boundary_ms = g["pid"], g["kernel_ms"]
                 continue
             if close_marker in joined:
                 closed, in_window = True, False
+                close_marker_pid, close_boundary_ms = g["pid"], g["kernel_ms"]
                 continue
         if not in_window:
             if closed:
@@ -205,6 +311,8 @@ def parse_audit(records, nonce):
                 dropped_before += 1
             continue
 
+        if g["argv"] and g["pid"] is not None:
+            all_exec_pids.append((g["pid"], g["kernel_ms"]))
         b = BEACON.search(joined)
         if b and b.group(1) == nonce:
             beacons.append({
@@ -232,11 +340,15 @@ def parse_audit(records, nonce):
             "received_unix_ns": g["received_unix_ns"],
         })
 
-    return events, beacons, {
+    return events, beacons, all_exec_pids, {
         "window_opened": bool(closed or in_window),
         "window_closed": closed,
         "dropped_before_window": dropped_before,
         "dropped_after_window": dropped_after,
+        "open_marker_pid": open_marker_pid,
+        "close_marker_pid": close_marker_pid,
+        "open_boundary_ms": open_boundary_ms,
+        "close_boundary_ms": close_boundary_ms,
     }
 
 
@@ -422,6 +534,17 @@ def divergences(claims, observed):
             f"EVENT_COUNT_MISMATCH claimed={observed['airi_events_claimed']} "
             f"beacons_observed={observed['beacons_observed']}"
         )
+    # Two observers disagreeing about whether an event happened is the one
+    # case that must NOT be resolved. Neither is promoted, neither is
+    # discarded, and the classification refuses to conclude.
+    x = observed["cross_observer"]
+    if x["second_observer"] != "INDEPENDENT_OBSERVER_BLOCKED":
+        if x["compared_second_observer_only"] or x["compared_audit_only"]:
+            out.append(
+                "CONTRADICTORY_OBSERVATIONS "
+                f"audit_only={x['compared_audit_only']} "
+                f"second_observer_only={x['compared_second_observer_only']}"
+            )
     if observed["subject_child_execs"] > 0:
         out.append(
             f"UNACCOUNTED_CHILD_PROCESS observed={observed['subject_child_execs']}"
@@ -456,6 +579,14 @@ def classify(claims, observed, divs):
             "no independent record of the declared tool executing inside the window; "
             "absence of observation is not evidence of non-execution"
         )
+    if any(d.startswith("CONTRADICTORY_OBSERVATIONS") for d in divs):
+        # PHASE 11: contradictory evidence is not resolved by guessing. The
+        # classification drops to UNKNOWN regardless of which observer would
+        # have been more convenient.
+        base = UNKNOWN
+        note = ("two independent observers disagree about what occurred; "
+                "neither account is promoted and the disagreement is not "
+                "resolved")
     if divs:
         note += "; divergence: " + "; ".join(divs)
     return base, note
@@ -476,7 +607,9 @@ def main():
     manifest_path = next((d / "work").glob("airi-*-manifest.json"), None)
     manifest = json.loads(manifest_path.read_text()) if manifest_path else {}
 
-    events, beacons, window = parse_audit(audit_records, nonce)
+    events, beacons, audit_exec_pids, window = parse_audit(audit_records, nonce)
+    ftrace = parse_ftrace(d / "ftrace_observer.txt",
+                          window["open_marker_pid"], window["close_marker_pid"])
     claims = parse_airi(airi_events)
 
     declared_argv = manifest.get("declared_tool_argv", [])
@@ -536,6 +669,73 @@ def main():
             else:
                 before += 1
 
+    stalled_ms = 0
+    seen_records, duplicates = set(), 0
+    for rec in audit_records:
+        if rec.get("record") == "observer_stalled":
+            stalled_ms = max(stalled_ms, int(rec.get("stall_ms") or 0))
+            continue
+        key = (rec.get("type"), rec.get("kernel_record"))
+        if key in seen_records:
+            duplicates += 1
+        else:
+            seen_records.add(key)
+
+    # ── the two observers, compared ─────────────────────────────────────
+    #
+    # Agreement here is MECHANISM-DIVERSE corroboration: the audit syscall hook
+    # and the sched_process_exec tracepoint are different probe sites in
+    # different subsystems. It is NOT proof, and it does not extend to argv:
+    # the tracepoint never carries argv, so every argv-level fact in this
+    # experiment rests on a single observer and is marked CORROBORATION_ONLY
+    # for that reason.
+    def _inside(ts, lo, hi, tol):
+        """True when `ts` is clear of both boundaries by at least `tol`."""
+        if ts is None or lo is None or hi is None:
+            return False
+        return lo + tol <= ts <= hi - tol
+
+    if ftrace is None:
+        cross = {
+            "second_observer": "INDEPENDENT_OBSERVER_BLOCKED",
+            "why_blocked": ("no capture, or its boundary events are absent — an "
+                            "unbounded capture is not compared, because a "
+                            "comparison over the wrong interval is worse than "
+                            "no comparison"),
+            "corroborated_exec_pids": 0,
+            "compared_audit_only": [],
+            "compared_second_observer_only": [],
+            "records_lost": None,
+        }
+    else:
+        tol_ms = BOUNDARY_TOLERANCE_MS
+        tol_ns = tol_ms * 1_000_000
+        a_all = {pid for pid, _ in audit_exec_pids}
+        f_all = {e["pid"] for e in ftrace["execs"]}
+        # The compared sets: execs clear of both boundaries in their own
+        # observer's own clock. Comparing only these removes the boundary race
+        # without removing anything the experiment is about.
+        a_cmp = {pid for pid, ms in audit_exec_pids
+                 if _inside(ms, window["open_boundary_ms"],
+                            window["close_boundary_ms"], tol_ms)}
+        f_cmp = {e["pid"] for e in ftrace["execs"]
+                 if _inside(e["mono_ns"], ftrace["open_mono_ns"],
+                            ftrace["close_mono_ns"], tol_ns)}
+        cross = {
+            "second_observer": "ftrace-sched",
+            "bounded_by": ftrace["bounded_by"],
+            "boundary_tolerance_ms": tol_ms,
+            "corroborated_exec_pids": len(a_cmp & f_cmp),
+            "compared_audit_only": sorted(a_cmp - f_all),
+            "compared_second_observer_only": sorted(f_cmp - a_all),
+            "excluded_at_boundary": sorted((a_all - a_cmp) | (f_all - f_cmp)),
+            "records_lost": ftrace["records_lost"],
+            "argv_corroborable_by_second_observer": False,
+            "why": ("sched_process_exec carries filename and pid only; it cannot "
+                    "confirm or contradict any argv, so every argv-level fact "
+                    "here rests on ONE observer"),
+        }
+
     # A SubprocessExecution report commits to an argv. Recomputing that
     # commitment needs `parameter_commitment`, which is Rust and deliberately
     # not reimplemented here — a second implementation of a security-relevant
@@ -568,6 +768,12 @@ def main():
         "execs_after_completion_claim": after,
         "execs_before_completion_claim": before,
         "argv_commitment_unverifiable": unverifiable,
+        # Delivery delay the observer reported having injected, and repeated
+        # records in the stream it delivered. Both are properties of the
+        # OBSERVATION PATH, not of the subject.
+        "observer_stalled_ms": stalled_ms,
+        "duplicate_records": duplicates,
+        "cross_observer": cross,
         **window,
     }
 
@@ -611,13 +817,18 @@ def main():
                              and observed["execs_after_completion_claim"] >= 1
                              and observed["execs_before_completion_claim"] >= 1
                              and has("EXECUTION_OBSERVED_AFTER_COMPLETION_CLAIM")),
-        "AIRI-010": lambda: (observed["declared_tool_execs"] == 0
-                             and observed["substituted_execs"] >= 1
-                             and has("COMMITTED_ARGV_NOT_THE_ARGV_EXECUTED")),
-        "AIRI-011": lambda: (observed["declared_tool_execs"] == 0
-                             and observed["unattributed_declared_execs"] >= 1
-                             and classification == CANNOT_PROVE
-                             and has("DECLARED_ARGV_NOT_ATTRIBUTED_TO_SUBJECT")),
+        # Delivery was delayed by 2 s; the execution was not. Ordering comes
+        # from the audit serial, so a late stream must give the same answer as
+        # a prompt one.
+        "AIRI-010": lambda: (observed["declared_tool_execs"] == 1
+                             and classification == OBSERVED and not divs
+                             and observed["observer_stalled_ms"] >= 1000),
+        # Every record delivered twice. Grouping on the audit serial must
+        # collapse them, so the counts are AIRI-001's counts.
+        "AIRI-011": lambda: (observed["duplicate_records"]
+                             >= observed["in_window_events"]
+                             and observed["declared_tool_execs"] == 1
+                             and classification == OBSERVED and not divs),
         "AIRI-012": lambda: (observed["beacons_observed"] == 0
                              and claims["events"] > 0
                              and observed["declared_tool_execs"] == 0
@@ -635,6 +846,17 @@ def main():
         "AIRI-015": lambda: (not observed["window_closed"]
                              and classification == UNKNOWN
                              and not divs),
+        # A fabricated execution asserted by one observer and absent from the
+        # other. The only correct outcome is a refusal to resolve it.
+        "AIRI-016": lambda: (has("CONTRADICTORY_OBSERVATIONS")
+                             and classification == UNKNOWN),
+        "AIRI-017": lambda: (observed["declared_tool_execs"] == 0
+                             and observed["unattributed_declared_execs"] >= 1
+                             and classification == CANNOT_PROVE
+                             and has("DECLARED_ARGV_NOT_ATTRIBUTED_TO_SUBJECT")),
+        "AIRI-018": lambda: (observed["declared_tool_execs"] == 0
+                             and observed["substituted_execs"] >= 1
+                             and has("COMMITTED_ARGV_NOT_THE_ARGV_EXECUTED")),
     }
     check = expectations.get(scenario)
     if scenario in OBSERVATION_LOSS_SCENARIOS:

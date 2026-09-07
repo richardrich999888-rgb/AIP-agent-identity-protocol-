@@ -32,6 +32,7 @@ themselves*.
 | 4 | **Sniffer Dog 2.0** — fanotify / socksend / AF_PACKET / pidfd+procfs | yes | no (unless root) | — | mixed | subject under test |
 | 5 | **ftrace tracepoint reader** | **yes** | no (unless root) | **yes — interface only** | **same tracepoint as #2** | corroborates *reading*, not *event* |
 | 6 | **Tetragon** (eBPF on kernel functions) | **no** — `CONFIG_KPROBES` unset | no (unless root) | **yes — mechanism** | kprobe + eBPF | would corroborate the *event* |
+| 6a | **Linux audit subsystem** via `NETLINK_AUDIT` | **yes** — `CONFIG_AUDITSYSCALL=y` | no (unless root) | **yes — mechanism** | audit syscall hook | **corroborates the *event*, at the syscall boundary** |
 | 7 | ROS 2 topic telemetry | no | **yes** — the node publishes it | no | application | **self-report** |
 | 8 | rosbag2 recording | no | **yes** — records #7 verbatim | no | application | **self-report, durably stored** |
 | 9 | Gazebo simulator ground truth | no | no — the simulator owns physics | yes | simulator | independent *within the simulation only* |
@@ -77,6 +78,21 @@ unavailable here and remains unavailable until there is instrumented hardware
 observed by something that is not the vehicle. Until then, no physical-effect
 claim is available to Vanian by any path.
 
+### Row 6a — added after row 6 was tested rather than assumed
+
+Rows 5 and 6 were written from a survey of *tracing* facilities. The audit
+subsystem is not one, and it is compiled into this kernel. It hooks the syscall
+path rather than the `sched_*` tracepoints, assembles records in
+`kernel/auditsc.c`, and delivers kernel-formatted text over a netlink unicast
+to one registered consumer. Every layer below the event differs from Sniffer
+Dog's, so a disagreement is evidence about the event.
+
+This does **not** promote any other row, and it does not raise the ceiling on
+anything outside the host: audit observes syscalls. It is also not
+root-resistant, and its single-consumer delivery is a real availability
+constraint. The full analysis, including a clock-granularity defect it exposed,
+is in `../airi/OBSERVER_INDEPENDENCE.md`.
+
 ### Rows 5 and 6 — the gap that limits everything runnable here
 
 Row 6 is the instrument that would have made Experiment 1 a test of the
@@ -87,10 +103,15 @@ Row 5 is what remains. It is a real cross-check, and it is a cross-check on
 Sniffer Dog's *reading of a shared source* — not a second witness. The analysis
 is in `../linux/INDEPENDENCE.md`.
 
-**Consequence:** in this environment, the strongest available result is
+**Consequence, as originally written:** the strongest available result is
 "Sniffer Dog reads the kernel tracepoint correctly and classifies subject
-self-reports correctly against it." That is worth establishing and it is not
-real-world validation of an autonomous system.
+self-reports correctly against it."
+
+**Revised by row 6a:** an agent's execution claims can be checked against a
+mechanism-independent witness at the syscall boundary of this host. That is
+strictly stronger, and it is still not real-world validation of an autonomous
+system: nothing here observes anything outside the host, and rows 9 and 12
+remain unavailable.
 
 ## What must never happen to this matrix
 
@@ -110,7 +131,7 @@ real-world validation of an autonomous system.
 | `CANNOT_PROVE` | yes — and it is the correct default |
 | `UNKNOWN` provenance | yes |
 | Subject claim vs kernel disagreement detected | yes — via row 5 |
-| Independent *event* corroboration | **no** — needs row 6 |
+| Independent *event* corroboration | **yes, at the syscall boundary** — via row 6a |
 | Autonomous-system behavioural validation | **no** — needs rows 7–9 |
 | Physical-effect proof | **no** — needs row 12 |
 
