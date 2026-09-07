@@ -309,8 +309,9 @@ mod integration_tests {
                 "Loaded AID must validate"
             );
             // Verify we can sign with the loaded keypair
-            let sig = sign_ed25519(&loaded.keypair.private_key, &agent_id, b"test").unwrap();
-            assert!(verify_ed25519(&loaded.keypair.public_key, &sig).unwrap());
+            // Reached through the controlled operation, not a key accessor.
+            let sig = loaded.sign(b"test").unwrap();
+            assert!(verify_ed25519(loaded.public_key(), &sig).unwrap());
         }
 
         let _ = std::fs::remove_file(&tmp_path);

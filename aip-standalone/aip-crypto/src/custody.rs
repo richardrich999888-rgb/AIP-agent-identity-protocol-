@@ -405,7 +405,7 @@ impl WrappedFileCustodian {
         // that race once. The temp name carries the process id so two
         // processes writing at once do not collide on it.
         let tmp = path.with_extension(format!("tmp.{}", std::process::id()));
-        write_owner_only(&tmp, &out)?;
+        write_owner_only_file(&tmp, &out)?;
         if let Err(e) = std::fs::rename(&tmp, path) {
             // Leave no readable remnant of a failed write.
             let _ = std::fs::remove_file(&tmp);
@@ -454,7 +454,7 @@ impl Custodian for WrappedFileCustodian {
 /// disk; a reader only has to win that race once. On a platform without Unix
 /// permissions this falls back to a plain write, and [`Backend`] is what tells
 /// the caller what it is relying on.
-fn write_owner_only(path: &Path, bytes: &[u8]) -> Result<(), CustodyError> {
+pub fn write_owner_only_file(path: &Path, bytes: &[u8]) -> Result<(), CustodyError> {
     #[cfg(unix)]
     {
         use std::io::Write;

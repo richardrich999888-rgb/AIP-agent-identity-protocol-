@@ -59,7 +59,7 @@ fn test_cross_process_sign_verify_via_store() {
         );
 
         // Crypto verification
-        let valid = verify_ed25519(&entry.keypair.public_key, &sig).unwrap();
+        let valid = verify_ed25519(entry.public_key(), &sig).unwrap();
         assert!(
             valid,
             "Process B must successfully verify Process A's signature"
@@ -158,7 +158,7 @@ fn test_full_e2e_identity_pipeline() {
             assert_eq!(entry.aid.status, IdentityStatus::Active);
             // Verify the loaded key still works
             let sig = sign_ed25519(&kp.private_key, id, b"reload test").unwrap();
-            let valid = verify_ed25519(&entry.keypair.public_key, &sig).unwrap();
+            let valid = verify_ed25519(entry.public_key(), &sig).unwrap();
             assert!(valid, "Reloaded identity must still sign/verify");
         }
     }
@@ -270,7 +270,7 @@ fn test_tampered_signature_rejected_via_store() {
     let entry = store.get_identity(&id).unwrap();
     let tampered_sig: Signature = serde_json::from_str(&sig_json).unwrap();
 
-    let valid = verify_ed25519(&entry.keypair.public_key, &tampered_sig).unwrap();
+    let valid = verify_ed25519(entry.public_key(), &tampered_sig).unwrap();
     assert!(
         !valid,
         "Tampered signature loaded from JSON must not verify"

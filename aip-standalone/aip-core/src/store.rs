@@ -5,21 +5,125 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
+use aip_crypto::custody::{Custodian, InMemoryCustodian};
 use aip_types::{AgentIdentityDocument, KeyPair, ReputationRecord};
 use serde::{Deserialize, Serialize};
 
 /// Stored identity entry: the AID document plus its keypair.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+///
+/// The key pair is **private**. There is no accessor that returns it, and the
+/// type carries no serialization derive; the on-disk shape is
+/// [`StoredIdentityWire`], built at exactly one place in `save`.
+///
+/// Both properties close a hole a `pub keypair: KeyPair` leaves open. A public
+/// field is a key accessor by another name — `store.get_identity(id).keypair
+/// .private_key` hands the raw key to any caller — and a `derive(Serialize)`
+/// on a type holding key material means every JSON response the type reaches
+/// carries the private key. `Persistence::ProductionNoSecrets` stops `save`
+/// from writing one; it cannot stop a handler somewhere else from serializing
+/// the struct.
+///
+/// Callers that need a signature call [`Self::sign`]; callers that need to
+/// verify use [`Self::public_key`], which is public material.
+#[derive(Debug, Clone)]
 pub struct StoredIdentity {
     pub aid: AgentIdentityDocument,
-    pub keypair: KeyPair,
+    keypair: KeyPair,
 }
 
-/// Serializable store format for JSON persistence.
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+impl StoredIdentity {
+    /// An identity and the key that speaks for it.
+    pub fn new(aid: AgentIdentityDocument, keypair: KeyPair) -> Self {
+        Self { aid, keypair }
+    }
+
+    /// The identity's public key. Safe to publish.
+    pub fn public_key(&self) -> &[u8] {
+        &self.keypair.public_key
+    }
+
+    /// Whether this process can currently sign as this identity.
+    ///
+    /// False after a `ProductionNoSecrets` round trip, where the stored entry
+    /// carries an empty private key.
+    pub fn can_sign(&self) -> bool {
+        !self.keypair.private_key.is_empty()
+    }
+
+    /// Sign `payload` as this identity.
+    ///
+    /// The controlled signing operation: the key goes in, a signature comes
+    /// out, and nothing in between is reachable by the caller. Routed through
+    /// [`InMemoryCustodian`] so this store uses the same custody interface as
+    /// everything else rather than a private arrangement of its own, and the
+    /// envelope is what `sign_ed25519` has always produced — existing
+    /// verifiers are unaffected.
+    pub fn sign(&self, payload: &[u8]) -> Result<aip_types::Signature, StoreError> {
+        if !self.can_sign() {
+            return Err(StoreError::NoPrivateKey(self.aid.id.clone()));
+        }
+        let custodian = InMemoryCustodian::new(&self.keypair.private_key, &self.keypair.public_key)
+            .map_err(|e| StoreError::SigningFailed(e.to_string()))?;
+        custodian
+            .sign(&self.aid.id, payload)
+            .map_err(|e: aip_crypto::custody::CustodyError| {
+                StoreError::SigningFailed(e.to_string())
+            })
+    }
+
+    /// Answer a liveness challenge as this identity.
+    pub fn respond_to_challenge(
+        &self,
+        challenge: &crate::LivenessChallenge,
+    ) -> Result<crate::LivenessResponse, StoreError> {
+        let sig = self.sign(&challenge.nonce)?;
+        Ok(crate::assemble_liveness_response(
+            challenge,
+            sig,
+            &self.aid.id,
+        ))
+    }
+}
+
+/// The on-disk shape of a stored identity.
+///
+/// Byte-identical to what previous builds wrote, so no existing store file
+/// becomes unreadable. It is separate from [`StoredIdentity`] so the domain
+/// type can carry no derive at all: this is the single, reviewed place where
+/// key material is written out, rather than a derive that follows a struct
+/// into whatever somebody serializes it into later.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct StoredIdentityWire {
+    aid: AgentIdentityDocument,
+    keypair: KeyPair,
+}
+
+/// What the store holds in memory. Carries no serialization derive, because
+/// the values in it hold key material.
+#[derive(Debug, Clone, Default)]
 struct StoreData {
     identities: HashMap<String, StoredIdentity>,
     reputations: HashMap<String, ReputationRecord>,
+}
+
+/// The on-disk shape of the whole store. Unchanged from previous builds.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+struct StoreFile {
+    identities: HashMap<String, StoredIdentityWire>,
+    reputations: HashMap<String, ReputationRecord>,
+}
+
+impl StoreFile {
+    fn into_memory(self) -> StoreData {
+        StoreData {
+            identities: self
+                .identities
+                .into_iter()
+                .map(|(id, w)| (id, StoredIdentity::new(w.aid, w.keypair)))
+                .collect(),
+            reputations: self.reputations,
+        }
+    }
 }
 
 /// What a store is allowed to write.
@@ -77,8 +181,9 @@ impl IdentityStore {
         let data = if path.exists() {
             let contents =
                 std::fs::read_to_string(&path).map_err(|e| StoreError::IoError(e.to_string()))?;
-            serde_json::from_str(&contents)
-                .map_err(|e| StoreError::SerializationError(e.to_string()))?
+            let file: StoreFile = serde_json::from_str(&contents)
+                .map_err(|e| StoreError::SerializationError(e.to_string()))?;
+            file.into_memory()
         } else {
             StoreData::default()
         };
@@ -97,7 +202,7 @@ impl IdentityStore {
         let id = aid.id.clone();
         self.data
             .identities
-            .insert(id, StoredIdentity { aid, keypair });
+            .insert(id, StoredIdentity::new(aid, keypair));
     }
 
     /// Get an identity by AIP-ID.
@@ -192,15 +297,40 @@ impl IdentityStore {
             }
         }
 
-        let json = serde_json::to_string_pretty(&self.data)
+        // The single place key material is written out.
+        let file = StoreFile {
+            identities: self
+                .data
+                .identities
+                .iter()
+                .map(|(id, e)| {
+                    (
+                        id.clone(),
+                        StoredIdentityWire {
+                            aid: e.aid.clone(),
+                            keypair: e.keypair.clone(),
+                        },
+                    )
+                })
+                .collect(),
+            reputations: self.data.reputations.clone(),
+        };
+        let json = serde_json::to_string_pretty(&file)
             .map_err(|e| StoreError::SerializationError(e.to_string()))?;
-        // Owner-only, and set on a temporary file before any bytes are
-        // visible under the real name, so a reader never catches key
-        // material at mode 644 in the window between write and chmod.
-        let tmp = path.with_extension("tmp");
-        std::fs::write(&tmp, json).map_err(|e| StoreError::IoError(e.to_string()))?;
-        restrict(&tmp)?;
-        std::fs::rename(&tmp, path).map_err(|e| StoreError::IoError(e.to_string()))?;
+        // Owner-only, with the mode applied by the open call rather than by a
+        // chmod afterwards. `fs::write` creates at `0o666 & !umask`, so a
+        // write-then-restrict sequence leaves key material world-readable for
+        // the interval between the two syscalls, and a reader only has to win
+        // that race once. The temp name carries the process id so two writers
+        // do not collide on it, and a failed rename removes the temp file
+        // rather than leaving a readable remnant.
+        let tmp = path.with_extension(format!("tmp.{}", std::process::id()));
+        aip_crypto::custody::write_owner_only_file(&tmp, json.as_bytes())
+            .map_err(|e| StoreError::IoError(e.to_string()))?;
+        if let Err(e) = std::fs::rename(&tmp, path) {
+            let _ = std::fs::remove_file(&tmp);
+            return Err(StoreError::IoError(e.to_string()));
+        }
         restrict(path)?;
         Ok(())
     }
@@ -218,8 +348,9 @@ impl IdentityStore {
 
         let contents =
             std::fs::read_to_string(path).map_err(|e| StoreError::IoError(e.to_string()))?;
-        self.data = serde_json::from_str(&contents)
+        let file: StoreFile = serde_json::from_str(&contents)
             .map_err(|e| StoreError::SerializationError(e.to_string()))?;
+        self.data = file.into_memory();
         Ok(())
     }
 }
@@ -257,6 +388,11 @@ pub enum StoreError {
     /// keys. Named with the count so an operator knows how much is
     /// affected, and refused rather than written or silently stripped.
     SecretsRefused(usize),
+    /// A signing operation was asked of an identity whose private key this
+    /// process does not hold — the shape every entry takes after a
+    /// `ProductionNoSecrets` round trip.
+    NoPrivateKey(String),
+    SigningFailed(String),
 }
 
 impl std::fmt::Display for StoreError {
@@ -271,6 +407,11 @@ impl std::fmt::Display for StoreError {
                  ProductionNoSecrets. Keep signing keys in a custodian (aip_crypto::custody)."
             ),
             StoreError::IdentityNotFound(id) => write!(f, "Identity not found: {}", id),
+            StoreError::NoPrivateKey(id) => write!(
+                f,
+                "cannot sign as {id}: this process does not hold its private key"
+            ),
+            StoreError::SigningFailed(why) => write!(f, "Signing failed: {why}"),
         }
     }
 }

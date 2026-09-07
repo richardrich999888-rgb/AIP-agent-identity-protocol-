@@ -11,7 +11,7 @@
 //! better than being copied out of a demo.
 
 use aip_core::create_identity;
-use aip_core::store::{IdentityStore, Persistence};
+use aip_core::store::{IdentityStore, Persistence, StoreError};
 use aip_types::ProvenanceTriple;
 
 fn provenance(tag: &str) -> ProvenanceTriple {
@@ -389,4 +389,149 @@ fn a_6_a_production_store_never_falls_back() {
     store.put_identity(aid, kp);
     assert!(store.save().is_err());
     assert!(!path.exists(), "a refused save must leave nothing behind");
+}
+
+// ─── The key does not come back out ───
+//
+// `Persistence::ProductionNoSecrets` stops `save` from writing a private key.
+// It cannot stop anything else in the process from reading one, and until the
+// field was made private there were two ways around it: `pub keypair` handed
+// the raw key to any caller, and `derive(Serialize)` on `StoredIdentity` put it
+// into any JSON somebody serialized the struct into. Both are closed
+// structurally, because both failure modes are future edits that would compile.
+
+/// Comment-stripped source, so a guard reads code and not the prose describing
+/// the thing it forbids.
+fn store_code() -> String {
+    let src = std::fs::read_to_string(
+        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/store.rs"),
+    )
+    .unwrap();
+    src.lines()
+        .filter(|l| !l.trim_start().starts_with("//"))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+#[test]
+fn stored_identity_keypair_is_private_and_unserializable() {
+    let code = store_code();
+
+    let decl = code
+        .split("pub struct StoredIdentity {")
+        .nth(1)
+        .expect("StoredIdentity must exist")
+        .split('}')
+        .next()
+        .unwrap();
+    assert!(
+        !decl.contains("pub keypair"),
+        "StoredIdentity::keypair must be private; a public field is a key \
+         accessor by another name: {decl}"
+    );
+    assert!(decl.contains("keypair: KeyPair"), "{decl}");
+
+    let derive = code
+        .split("pub struct StoredIdentity {")
+        .next()
+        .unwrap()
+        .lines()
+        .rfind(|l| l.trim_start().starts_with("#[derive"))
+        .unwrap_or("");
+    assert!(
+        !derive.contains("Serialize") && !derive.contains("Deserialize"),
+        "StoredIdentity must carry no serialization derive: {derive}"
+    );
+
+    for l in code.lines().map(str::trim) {
+        if l.starts_with("pub fn ") {
+            let name = l.trim_start_matches("pub fn ").split('(').next().unwrap();
+            assert!(
+                !["private_key", "keypair", "secret", "export"].contains(&name),
+                "store.rs exposes `pub fn {name}`, an export path for key material"
+            );
+        }
+    }
+}
+
+/// Key material is written from exactly one place, and read from exactly one.
+#[test]
+fn key_material_crosses_the_boundary_in_one_place_each() {
+    let code = store_code();
+
+    let save = code
+        .split("pub fn save(&self)")
+        .nth(1)
+        .expect("save must exist")
+        .split("pub fn reload")
+        .next()
+        .unwrap();
+    assert_eq!(
+        save.matches("keypair: e.keypair.clone()").count(),
+        1,
+        "key material must leave the store from exactly one place in save()"
+    );
+
+    let sign = code
+        .split("pub fn sign(&self, payload: &[u8])")
+        .nth(1)
+        .expect("StoredIdentity::sign must exist")
+        .split("pub fn respond_to_challenge")
+        .next()
+        .unwrap();
+    assert!(
+        sign.contains("InMemoryCustodian::new"),
+        "signing must go through the custody interface, not a private \
+         arrangement of the store's own: {sign}"
+    );
+}
+
+/// A `ProductionNoSecrets` round trip leaves an identity that verifies but
+/// cannot sign, and says so rather than failing obscurely later.
+#[test]
+fn production_roundtrip_yields_a_verifiable_but_unsignable_identity() {
+    let dir = std::env::temp_dir().join(format!("aip-store-nosec-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("store.json");
+
+    let (aid, kp) = create_identity(provenance("nosec"), None).unwrap();
+    let id = aid.id.clone();
+    let public = aid.primary_key.key_bytes.clone();
+
+    // A production store refuses to write a private key rather than stripping
+    // it: writing less than the caller asked for, silently, is its own defect.
+    {
+        let mut store = IdentityStore::with_file(&path, Persistence::ProductionNoSecrets).unwrap();
+        store.put_identity(aid.clone(), kp.clone());
+        assert!(matches!(
+            store.save().unwrap_err(),
+            StoreError::SecretsRefused(1)
+        ));
+    }
+
+    // Stored public-only, it saves, reloads, verifies — and refuses to sign.
+    {
+        let mut store = IdentityStore::with_file(&path, Persistence::ProductionNoSecrets).unwrap();
+        store.put_identity(
+            aid,
+            aip_types::KeyPair {
+                algorithm: kp.algorithm,
+                public_key: kp.public_key.clone(),
+                private_key: Vec::new(),
+            },
+        );
+        store.save().unwrap();
+    }
+
+    let store = IdentityStore::with_file(&path, Persistence::ProductionNoSecrets).unwrap();
+    let entry = store.get_identity(&id).unwrap();
+    assert_eq!(entry.public_key(), &public[..], "the public key survives");
+    assert!(!entry.can_sign());
+    assert!(
+        matches!(entry.sign(b"x").unwrap_err(), StoreError::NoPrivateKey(ref who) if who == &id),
+        "an entry with no private key must say so"
+    );
+
+    let _ = std::fs::remove_dir_all(&dir);
 }

@@ -161,8 +161,10 @@ fn cmd_sign(store_path: &PathBuf, agent_id: Option<&str>, payload: &str) {
         }
     };
 
-    let sig =
-        sign_ed25519(&entry.keypair.private_key, &id, payload.as_bytes()).expect("Failed to sign");
+    let sig = entry.sign(payload.as_bytes()).unwrap_or_else(|e| {
+        eprintln!("✗ {e}");
+        std::process::exit(1);
+    });
 
     let sig_json = serde_json::to_string_pretty(&sig).expect("Failed to serialize");
 
@@ -203,7 +205,7 @@ fn cmd_verify(store_path: &PathBuf, agent_id: &str, signature_json: &str) {
         }
     }
 
-    match verify_ed25519(&entry.keypair.public_key, &sig) {
+    match verify_ed25519(entry.public_key(), &sig) {
         Ok(true) => {
             println!("✓ Signature VALID");
             println!("  Signer:     {}", sig.signer_id);
@@ -235,10 +237,12 @@ fn cmd_challenge(store_path: &PathBuf, target_id: &str) {
     println!("Issuing liveness challenge to {}...", target_id);
 
     let challenge = issue_liveness_challenge("aip-cli", target_id);
-    let response = respond_to_challenge(&challenge, &entry.keypair.private_key, target_id)
-        .expect("Failed to create response");
+    let response = entry.respond_to_challenge(&challenge).unwrap_or_else(|e| {
+        eprintln!("✗ {e}");
+        std::process::exit(1);
+    });
 
-    match verify_liveness(&challenge, &response, &entry.keypair.public_key) {
+    match verify_liveness(&challenge, &response, entry.public_key()) {
         Ok(true) => {
             println!("✓ Liveness challenge PASSED");
             println!("  Target:      {}", target_id);
