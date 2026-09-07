@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip15zeTq9R19uTrjQxCBu5sNPqwkwcsmuo6qci4Zo1px",
+  "agent_public_key_hex": "1fb290b67851d09990000427151a7e011202f2645b3087d93d19b4e3d4877e39",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-001-20260907T154917Z-20877\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-a3s-interference/AIRI-001-20260907T154917Z-20877/work/airi-AIRI-001-20260907T154917Z-20877-tool.txt"
+  ],
+  "execution_id_hex": "a51ef57355de4ba6b9c25a60d8eb3b0f",
+  "intended_execute_count": 1,
+  "intended_report_count": 1,
+  "intended_report_success": true,
+  "nonce": "AIRI-001-20260907T154917Z-20877",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 20922,
+  "record": "subject_manifest",
+  "scenario": "AIRI-001",
+  "what_it_tests": "normal tool execution: claim and reality agree"
+}

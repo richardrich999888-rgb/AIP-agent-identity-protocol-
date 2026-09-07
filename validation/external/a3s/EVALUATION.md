@@ -1,64 +1,96 @@
 # A3S Observer — evaluation
 
-Phase 4 of the real-world validation mandate. Assessed as a candidate
-independent observer for the AIRI experiment.
+Phase 4 of the real-world validation mandate.
 
-## What it is
+**This document contained a wrong result and has been corrected.** An earlier
+version recorded A3S as BLOCKED because `bpf-linker` failed to compile against
+the system LLVM. That was a conclusion drawn from one failed build, not from
+the tool. A concurrent experiment
+(`../a3s_observer/STATUS.md`) had it working, and the build was then reproduced
+here to settle the contradiction rather than defer to either account.
+
+## Status: BUILDS AND RUNS
+
+```sh
+rustup toolchain install nightly --component rust-src --profile minimal
+export LLVM_SYS_181_PREFIX=/usr/lib/llvm-18 PATH=/usr/lib/llvm-18/bin:$PATH
+cargo install bpf-linker --version 0.9.13 --locked   # 0.11.x needs an LLVM newer than 18
+cargo +nightly build --release -p a3s-observer-collector
+```
+
+Attach result on this kernel:
+
+```
+WARN  proc_exit (do_exit kprobe) failed — exit signals unavailable  error=attach kprobe do_exit
+INFO  probes attached; streaming  attached=23 total=24  mode=observe
+```
+
+23 of 24 probes attach. The one that does not is the `do_exit` kprobe, for the
+same reason Tetragon is blocked entirely: `# CONFIG_KPROBES is not set`. Exit
+codes and terminating signals are unavailable; everything else works.
 
 | | |
 |---|---|
-| Source | `github.com/A3S-Lab/a3s-observer` |
+| Repository | `github.com/A3S-Lab/Observer` |
 | Commit evaluated | `06105bbf647e0653b92034e597e932a593f8fc12` (2026-08-26) |
 | Licence | MIT |
-| Language | Rust, eBPF via `aya` |
-| Crates | `a3s-observer-ebpf` (kernel side), `a3s-observer-collector`, `a3s-observer-common` |
+| Carries argv | **yes**, reassembled from kernel fragments |
 
-## Verdict: BLOCKED, and it would not have been mechanism-independent anyway
+## Mechanism, and what a comparison against it is worth
 
-Two separate findings. The second matters more than the first.
+From `a3s-observer-ebpf/src/main.rs`, not from the README: exec capture is eBPF
+on **syscall and sched tracepoints** — `sys_enter_execve`,
+`sched:sched_process_exec`, plus `sys_enter_openat`/`openat2`/`open`/`close`
+for files. That is the same tracepoint Sniffer Dog 2.0 samples through
+`perf_event_open`.
 
-### 1. It does not build here
+So for process execution A3S is **interface-independent** of Sniffer Dog, not
+mechanism-independent: a disagreement is evidence about one of the two
+readings of a shared source. Its one mechanism-diverse probe site, the
+`do_exit` kprobe, is the part this kernel refuses.
 
-`a3s-observer-ebpf/rust-toolchain.toml` pins the nightly channel and requires
-the `rust-src` component; `bpf-linker` fails to compile against the system
-LLVM in this image. Neither is a defect in A3S — it is a toolchain the
-environment does not have and cannot fetch (`apt` and crates that need a
-nightly `rust-src` are unreachable from this network).
+That distinction survives the correction above. Being installable and being
+mechanism-independent are different properties, and the first does not imply
+the second.
 
-### 2. Its process instrumentation overlaps Sniffer Dog's
+**Relative to the Linux audit observer** used by this experiment, A3S *is*
+mechanism-independent — audit hooks the syscall path in `kernel/auditsc.c`, A3S
+reads tracepoints — and it carries argv, which the ftrace reader does not. That
+makes it the best available second witness for argv-level facts on this host.
 
-From `a3s-observer-ebpf/src/main.rs`, not from the README: the file-and-exec
-path is built on **syscall tracepoints** — `sys_enter_openat`,
-`sys_enter_openat2`, `sys_enter_open`, `sys_enter_close`, plus `sched_*`
-tracepoints. That is the same mechanism class Sniffer Dog 2.0 already reads
-through `perf_event_open(PERF_TYPE_TRACEPOINT)`.
+## The interference finding, and a cross-check of it
 
-Its one genuinely different probe site is a **`do_exit` kprobe**
-(`main.rs:1834`), for process exit codes and terminating signals. That is
-exactly the mechanism this kernel does not have:
+`../a3s_observer/TRACEPOINT_INTERFERENCE.md` reports that attaching A3S
+silently blinds Sniffer Dog 2.0's perf sensors: the kernel gates a tracepoint's
+*perf* submission on the return value of any BPF program attached to that
+tracepoint, per `trace_event_call` and host-wide
+(`perf_trace_run_bpf_submit()`). Sniffer Dog went from 4 exec events to 0 and
+reported `"lost":0` while blind.
 
-```
-$ zgrep CONFIG_KPROBES /proc/config.gz
-# CONFIG_KPROBES is not set
-```
+That explanation makes a testable prediction: observers **not** on the perf
+submission path should be unaffected. Tested here, with A3S attached for a full
+AIRI-001 run
+(`../../traces/airi-a3s-interference/AIRI-001-20260907T154917Z-20877/`):
 
-So even with a working toolchain, the part of A3S that would have added
-mechanism diversity is the part this kernel refuses, and the part that would
-have run reads what is already read.
+| Observer | Path | Result with A3S attached |
+|---|---|---|
+| linux-audit | `audit_syscall` hook → NETLINK_AUDIT | unaffected; recorded the declared argv |
+| ftrace-sched | ftrace ring on `sched_process_exec` | unaffected; 9 exec pids corroborated, 0 disagreements |
+| A3S | eBPF on the same tracepoint | 73 `ToolExec` events, including the declared argv |
 
-## What this does and does not mean
+Scenario verdict PASS, classification OBSERVED, cross-observer disagreements
+zero.
 
-A3S is not being judged as a product. The question asked of it was narrow:
-*would a disagreement between A3S and Sniffer Dog be evidence about the event,
-or only about one reading of a shared source?* For process execution on this
-kernel, the answer is the latter.
+The prediction holds. **The defect is in Sniffer Dog's choice of interface, not
+in the tracepoint**, and an audit-based observer is structurally immune to it.
+That is a second, independent line of support for the finding — arrived at by
+testing its mechanism rather than by repeating its experiment.
 
-**Installing it successfully would not have produced a validation result.** It
-is recorded here as evaluated and blocked, and no claim in
-`docs/AIRI_INDEPENDENT_OBSERVATION_REPORT.md` rests on it.
+## What this does not establish
 
-## What was used instead
-
-The Linux audit subsystem, which is compiled into this kernel, hooks the
-syscall path rather than the tracepoints, and delivers over `NETLINK_AUDIT`.
-See `../../airi/OBSERVER_INDEPENDENCE.md`.
+A3S was **not** used as an observer in the canonical 18-run set
+(`../../traces/airi-final/`), which used audit and ftrace only. No result in
+`../../../docs/AIRI_INDEPENDENT_OBSERVATION_REPORT.md` rests on A3S, and the
+report's statement that argv-level facts there have a single witness is
+accurate for that run set. Adding A3S as a second argv witness is item 2 of the
+next-experiment list.

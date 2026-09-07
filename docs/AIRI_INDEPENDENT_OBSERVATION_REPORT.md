@@ -86,17 +86,24 @@ encoding is exactly the duplication this programme forbids.
 | Rendering | kernel text | kernel text |
 | Carries argv | **yes** | **no** |
 | Status | READY, all 18 runs | READY, 17 of 18 runs |
+| Also available, not used in the run set | — | A3S Observer (eBPF, carries argv) |
 
 Observer B was unavailable on AIRI-015 by design — that scenario removes
 observer A, and B's window is bounded by events A identifies, so B's capture
 could not be bounded either. It is reported `INDEPENDENT_OBSERVER_BLOCKED` for
 that run rather than compared over the wrong interval.
 
-Evaluated and blocked: **Tetragon** (`# CONFIG_KPROBES is not set`; re-verified,
-`validation/external/tetragon/RECHECK.md`), **A3S Observer** (nightly toolchain
-unavailable, and its exec instrumentation overlaps Sniffer Dog's anyway;
-`validation/external/a3s/EVALUATION.md`), **OpenTelemetry** (not installed, and
-a self-report if it were; `validation/external/OTEL.md`).
+Evaluated: **Tetragon** — blocked, `# CONFIG_KPROBES is not set`, re-verified
+(`validation/external/tetragon/RECHECK.md`). **OpenTelemetry** — SDK not
+installable, and a self-report if it were; the collector installs and is unused
+(`validation/external/OTEL.md`).
+
+**A3S Observer** — builds and runs here (23 of 24 probes; the `do_exit` kprobe
+fails for the same kernel reason as Tetragon). An earlier version of this
+report recorded it as blocked; that was wrong, and
+`validation/external/a3s/EVALUATION.md` records the correction and the working
+recipe. It was **not** used in the canonical run set, so no result below rests
+on it. It was used for one cross-check run, described in §7.
 
 ## 6. Observation mechanisms
 
@@ -123,14 +130,30 @@ prior analysis (`validation/linux/INDEPENDENCE.md`) concluded was reachable
 here; that document surveyed tracing facilities and did not consider audit,
 which is not one and is compiled in.
 
+**A cross-check of the interference finding.** The concurrent experiment found
+that attaching a BPF program to `sched:sched_process_exec` silently blinds
+Sniffer Dog 2.0's perf sensors, because the kernel gates that tracepoint's perf
+submission on the BPF return value host-wide (§10). That explanation predicts
+that observers not on the perf submission path are unaffected. Tested directly:
+one AIRI-001 run with the A3S collector attached
+(`validation/traces/airi-a3s-interference/`) gave verdict PASS, classification
+OBSERVED, 9 corroborated exec pids and **zero** cross-observer disagreements,
+while A3S itself recorded 73 `ToolExec` events including the declared argv. The
+prediction holds: **the defect is in Sniffer Dog's choice of interface, not in
+the tracepoint**, and an audit-based observer is structurally immune to it.
+This is independent support for the finding, obtained by testing its mechanism
+rather than repeating its experiment.
+
 **What it does not buy.**
 
 - Not root-resistant. Root can disable audit or the tracepoints. Interference
   produces an *absence*, and absence is not non-execution.
 - Not kernel-compromise-resistant. A compromised kernel defeats both.
 - Not a physical-effect witness. Both observe syscalls on one host.
-- **Argv is single-observer.** Observer B carries filename and pid only, so no
-  argv-level fact in this report has two witnesses.
+- **Argv is single-observer in the canonical run set.** Observer B carries
+  filename and pid only, so no argv-level fact in the 18 runs has two
+  witnesses. A3S Observer does carry argv and would supply a second; it was not
+  used there.
 - **Same author.** The subject and observer A were written by the same author.
   Mitigated by observer A rendering nothing of its own — `kernel_record` is the
   bytes the kernel produced — but not eliminated. It is a stated limitation of
@@ -457,9 +480,11 @@ In priority order.
 1. **A kprobe-capable kernel.** Tetragon probes kernel functions *below* the
    syscall boundary and would survive a subject manipulating syscall entry.
    This is the single largest gap and it needs a host change, not effort.
-2. **A second argv witness.** Every argv-level fact here has one. A second
-   mechanism carrying argv would remove the largest single-point dependency in
-   the result.
+2. **A second argv witness.** Every argv-level fact in the canonical run set
+   has one. A3S Observer builds, runs, carries argv, and is
+   mechanism-independent of audit; folding it into the run set as observer C
+   would remove the largest single-point dependency in the result. The
+   cross-check run in §7 shows the three coexist without interference.
 3. **An observer authored by someone else.** Removes the same-author caveat
    from every conclusion.
 4. **Sniffer Dog 2.0 itself as the subject under observation.** This experiment

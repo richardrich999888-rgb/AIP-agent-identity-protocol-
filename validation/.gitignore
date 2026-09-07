@@ -23,3 +23,8 @@ airi/agent/Cargo.lock
 # metadata. Exploratory and mutation runs stay out.
 !traces/airi-final/
 !traces/airi-final/**
+
+# The A3S interference cross-check, for the same reason: a statement in
+# docs/AIRI_INDEPENDENT_OBSERVATION_REPORT.md §7 rests on it.
+!traces/airi-a3s-interference/
+!traces/airi-a3s-interference/**
