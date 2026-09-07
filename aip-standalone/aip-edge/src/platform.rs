@@ -196,6 +196,9 @@ mod tests {
                 registered_until_ms: Some(10),
             },
         );
-        assert!(r.is_err(), "a registration that applies at no instant is not a registration");
+        assert!(
+            r.is_err(),
+            "a registration that applies at no instant is not a registration"
+        );
     }
 }

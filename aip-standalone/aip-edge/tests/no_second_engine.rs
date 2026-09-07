@@ -112,7 +112,8 @@ fn this_crate_defines_no_verdict_or_ceiling_vocabulary_of_its_own() {
 fn the_comment_stripper_does_not_defeat_the_guards() {
     // If `strip_comments` were broken toward emptiness every assertion above
     // would pass vacuously. Pin its behaviour on both sides.
-    let src = "let a = 1; // ReconciliationResult\n/* EvidenceStrength */ let b = \"//not a comment\";";
+    let src =
+        "let a = 1; // ReconciliationResult\n/* EvidenceStrength */ let b = \"//not a comment\";";
     let out = strip_comments(src);
     assert!(!out.contains("ReconciliationResult"));
     assert!(!out.contains("EvidenceStrength"));

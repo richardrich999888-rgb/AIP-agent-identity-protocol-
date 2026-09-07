@@ -74,7 +74,10 @@ pub fn profile_from_mechanisms(
 /// Fails closed on any unknown code: a profile built from a partially
 /// understood declaration would silently understate or overstate capability,
 /// and both are worse than a refusal the operator can see.
-pub fn profile_from_codes(observer_id: &str, codes: &[u8]) -> Result<ObservationProfile, EdgeError> {
+pub fn profile_from_codes(
+    observer_id: &str,
+    codes: &[u8],
+) -> Result<ObservationProfile, EdgeError> {
     let mechanisms = codes
         .iter()
         .map(|c| mechanism_from_code(*c))
@@ -107,14 +110,25 @@ mod tests {
     fn a_profile_declares_only_what_was_projected() {
         let p = profile_from_mechanisms(
             "obs",
-            &[SourceMechanism::PidFdAnchored, SourceMechanism::ProcNetTable],
+            &[
+                SourceMechanism::PidFdAnchored,
+                SourceMechanism::ProcNetTable,
+            ],
         )
         .unwrap();
-        assert!(p.capability(ObservationClass::ProcessIdentity).is_observable());
-        assert!(p.capability(ObservationClass::NetworkSocket).is_observable());
+        assert!(p
+            .capability(ObservationClass::ProcessIdentity)
+            .is_observable());
+        assert!(p
+            .capability(ObservationClass::NetworkSocket)
+            .is_observable());
         // Nothing was declared for these, so they stay unobservable.
-        assert!(!p.capability(ObservationClass::FilesystemEffect).is_observable());
-        assert!(!p.capability(ObservationClass::PhysicalEffect).is_observable());
+        assert!(!p
+            .capability(ObservationClass::FilesystemEffect)
+            .is_observable());
+        assert!(!p
+            .capability(ObservationClass::PhysicalEffect)
+            .is_observable());
     }
 
     #[test]

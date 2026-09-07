@@ -71,10 +71,7 @@ pub fn requested_effect(ip: [u8; 4], port: u16) -> RequestedEffect {
         parameter_commitment: aip_airi::parameter_commitment(
             &aip_edge_contract::connect_parameter_bytes(ip, port),
         ),
-        target: Some(format!(
-            "{}.{}.{}.{}:{port}",
-            ip[0], ip[1], ip[2], ip[3]
-        )),
+        target: Some(format!("{}.{}.{}.{}:{port}", ip[0], ip[1], ip[2], ip[3])),
     }
 }
 
@@ -355,18 +352,19 @@ mod tests {
         assert!(!status.observable_in_profile);
         assert!(!status.establishes_physical_effect());
         assert_eq!(status.completeness, Completeness::NotObservable);
-        assert_eq!(status.ceiling_if_ever_implemented, EvidenceCeiling::Attested);
+        assert_eq!(
+            status.ceiling_if_ever_implemented,
+            EvidenceCeiling::Attested
+        );
     }
 
     #[test]
     fn physical_effect_stays_unreachable_even_if_every_mechanism_is_declared() {
         // The strongest profile this build can produce still cannot see it,
         // because no mechanism maps to the class at all (ADR-003 decision 2).
-        let profile = crate::profile::profile_from_mechanisms(
-            "obs",
-            &aip_observe::SourceMechanism::ALL,
-        )
-        .unwrap();
+        let profile =
+            crate::profile::profile_from_mechanisms("obs", &aip_observe::SourceMechanism::ALL)
+                .unwrap();
         let status = physical_effect_finding(&profile);
         assert!(!status.establishes_physical_effect());
         assert_eq!(status.completeness, Completeness::NotObservable);
@@ -377,9 +375,10 @@ mod tests {
         // Both sides must agree byte for byte, or the reference would report a
         // parameter mismatch for two spellings of one action.
         let r = requested_effect([127, 0, 0, 1], 8080);
-        let expected = aip_airi::parameter_commitment(
-            &aip_edge_contract::connect_parameter_bytes([127, 0, 0, 1], 8080),
-        );
+        let expected = aip_airi::parameter_commitment(&aip_edge_contract::connect_parameter_bytes(
+            [127, 0, 0, 1],
+            8080,
+        ));
         assert_eq!(r.parameter_commitment, expected);
         assert_eq!(r.action_kind, ACTION_KIND);
     }

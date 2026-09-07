@@ -72,7 +72,12 @@ fn t17_the_workload_has_no_route_to_a_collector_key() {
     // observer key" is not a runtime event that could succeed or fail — it is
     // a compile error in a crate that does not exist.
     let src = workload_code();
-    for name in ["CollectorSigner", "CollectorKey", "ObserverTrustAnchors", "aip_observe"] {
+    for name in [
+        "CollectorSigner",
+        "CollectorKey",
+        "ObserverTrustAnchors",
+        "aip_observe",
+    ] {
         assert!(
             !src.contains(name),
             "aip-edge-workload names {name}; it must not be able to reach the observer key. \
@@ -122,7 +127,12 @@ fn t19_the_observer_cannot_author_airi_evidence() {
 #[test]
 fn t20_the_observer_cannot_alter_an_expected_execution() {
     let src = observer_code();
-    for name in ["ExpectedExecution", "DecisionPoint", "authorize", "aip_authorize"] {
+    for name in [
+        "ExpectedExecution",
+        "DecisionPoint",
+        "authorize",
+        "aip_authorize",
+    ] {
         assert!(
             !src.contains(name),
             "aip-edge-observer names {name}; an observer that could construct an authorization \
@@ -159,10 +169,7 @@ fn the_observer_publishes_a_public_key_and_never_a_private_one() {
     // or the announcement. So the guard is a count and a location, not an
     // absence: an absence guard here would be satisfied by code that could not
     // sign at all.
-    let uses: Vec<&str> = src
-        .lines()
-        .filter(|l| l.contains("private_key"))
-        .collect();
+    let uses: Vec<&str> = src.lines().filter(|l| l.contains("private_key")).collect();
     assert_eq!(
         uses.len(),
         1,

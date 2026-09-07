@@ -52,7 +52,9 @@ use crate::error::EdgeError;
 /// the count is returned so a caller can distinguish "the file was empty" from
 /// "the file was corrupt", which are different operational facts. Nothing here
 /// verifies anything.
-pub fn read_jsonl<T: serde::de::DeserializeOwned>(path: &Path) -> Result<(Vec<T>, usize), EdgeError> {
+pub fn read_jsonl<T: serde::de::DeserializeOwned>(
+    path: &Path,
+) -> Result<(Vec<T>, usize), EdgeError> {
     let file = std::fs::File::open(path)
         .map_err(|e| EdgeError::Transport(format!("{}: {e}", path.display())))?;
     let mut out = Vec::new();
@@ -116,11 +118,7 @@ pub struct Peer {
 
 impl Peer {
     /// Spawn `binary` with `args`, wired for the line protocol.
-    pub fn spawn(
-        label: &'static str,
-        binary: &Path,
-        args: &[&str],
-    ) -> Result<Self, EdgeError> {
+    pub fn spawn(label: &'static str, binary: &Path, args: &[&str]) -> Result<Self, EdgeError> {
         let mut child = Command::new(binary)
             .args(args)
             .stdin(Stdio::piped())
@@ -175,10 +173,7 @@ impl Peer {
         let reply = reply.trim().to_string();
         match reply.strip_prefix(&format!("{} ", contract::REPLY_OK)) {
             Some(rest) => Ok(rest.to_string()),
-            None => Err(EdgeError::Transport(format!(
-                "{}: {reply}",
-                self.label
-            ))),
+            None => Err(EdgeError::Transport(format!("{}: {reply}", self.label))),
         }
     }
 
@@ -212,8 +207,8 @@ impl Peer {
 /// does nothing when its own binaries are missing is worse than one that stops
 /// and says which command builds them.
 pub fn sibling_binary(name: &str) -> Result<PathBuf, EdgeError> {
-    let exe = std::env::current_exe()
-        .map_err(|e| EdgeError::Transport(format!("current_exe: {e}")))?;
+    let exe =
+        std::env::current_exe().map_err(|e| EdgeError::Transport(format!("current_exe: {e}")))?;
     let mut dir = exe.parent().map(Path::to_path_buf);
     // `target/debug/deps/<test>` and `target/debug/<bin>` are both possible
     // homes for the caller, so try this directory and its parent.

@@ -66,8 +66,10 @@ use aip_observe::{
 /// `observer.json`, and projected by the verifier into its
 /// `ObservationProfile`. There is no second place that says what this
 /// deployment can see.
-const DECLARED: [SourceMechanism; 2] =
-    [SourceMechanism::PidFdAnchored, SourceMechanism::ProcNetTable];
+const DECLARED: [SourceMechanism; 2] = [
+    SourceMechanism::PidFdAnchored,
+    SourceMechanism::ProcNetTable,
+];
 
 /// TCP `ESTABLISHED`, from the kernel socket table.
 const TCP_ESTABLISHED: u8 = aip_observe::tcp_state::ESTABLISHED;
@@ -210,7 +212,12 @@ impl Observer {
         let now = now_ms();
         let id = self.batch_id();
         let (signer, probe) = self.parts()?;
-        let batch = probe.batch(id, now.saturating_sub(2_000), now.saturating_sub(1_000), vec![]);
+        let batch = probe.batch(
+            id,
+            now.saturating_sub(2_000),
+            now.saturating_sub(1_000),
+            vec![],
+        );
         let attested = signer.attest(batch).map_err(|e| format!("{e:?}"))?;
         append_json(&self.args.dir.join(contract::BATCHES_JSONL), &attested)?;
         Ok(format!("epoch sequence {}", attested.sequence))

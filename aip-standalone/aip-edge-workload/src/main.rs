@@ -249,11 +249,7 @@ impl Workload {
     }
 
     /// Sign one AIRI event onto the chain and append it to `claims.jsonl`.
-    fn emit(
-        &mut self,
-        payload: AiriPayload,
-        decision_id: Option<[u8; 16]>,
-    ) -> Result<(), String> {
+    fn emit(&mut self, payload: AiriPayload, decision_id: Option<[u8; 16]>) -> Result<(), String> {
         let (agent_id, kp) = self
             .identity
             .as_ref()

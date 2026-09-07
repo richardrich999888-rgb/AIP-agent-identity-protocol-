@@ -114,9 +114,13 @@ impl IdentityKind {
     /// Where the value comes from, in one line, for the reference's output.
     pub fn derived_from(self) -> &'static str {
         match self {
-            Self::Process => "probe measurement of (pid, start ticks, boot id) under a pidfd anchor",
+            Self::Process => {
+                "probe measurement of (pid, start ticks, boot id) under a pidfd anchor"
+            }
             Self::Container => "nothing: no mechanism in this build measures a container",
-            Self::Platform => "probe measurement of /proc/sys/kernel/random/boot_id, inside a signed batch",
+            Self::Platform => {
+                "probe measurement of /proc/sys/kernel/random/boot_id, inside a signed batch"
+            }
             Self::Hardware => "nothing: ADR-002 is PROPOSED and HardwareAttested is unreachable",
             Self::System => "the deployment's declaration, plus the AIRI execution id",
         }

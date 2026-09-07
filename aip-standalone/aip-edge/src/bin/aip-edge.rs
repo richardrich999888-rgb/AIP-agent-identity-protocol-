@@ -7,8 +7,8 @@
 //! `aip_edge::orchestrate::run`, which the tests drive too, so the
 //! demonstration path and the tested path are one piece of code.
 
-use aip_edge::orchestrate::{run, RunConfig, Scenario};
 use aip_edge::identity::IdentityKind;
+use aip_edge::orchestrate::{run, RunConfig, Scenario};
 use aip_system::{PlatformId, SystemId};
 
 const ALL: [Scenario; 8] = [
@@ -38,11 +38,8 @@ fn main() {
 
     let mut failures = 0usize;
     for scenario in scenarios {
-        let dir = std::env::temp_dir().join(format!(
-            "aip-edge-{}-{:?}",
-            std::process::id(),
-            scenario
-        ));
+        let dir =
+            std::env::temp_dir().join(format!("aip-edge-{}-{:?}", std::process::id(), scenario));
         let config = RunConfig {
             dir: dir.clone(),
             system_id: SystemId::parse("edge:reference-system").expect("system id"),
@@ -129,8 +126,8 @@ fn print_outcome(outcome: &aip_edge::orchestrate::RunOutcome) {
 fn print_identity_table() {
     println!("identity kinds — what survives what");
     println!(
-        "    {:<10} {:<14} {:<16} {:<16} {}",
-        "kind", "independent", "workload restart", "host reboot", "derived from"
+        "    {:<10} {:<14} {:<16} {:<16} derived from",
+        "kind", "independent", "workload restart", "host reboot"
     );
     for k in IdentityKind::ALL {
         println!(

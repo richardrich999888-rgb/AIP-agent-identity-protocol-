@@ -214,7 +214,10 @@ impl EdgeReference {
         put_u8(&mut buf, self.finding.code());
         put_u8(&mut buf, self.binding.code());
         put_u8(&mut buf, u8::from(self.establishes_named_effect));
-        put_u8(&mut buf, u8::from(self.physical_effect.establishes_physical_effect()));
+        put_u8(
+            &mut buf,
+            u8::from(self.physical_effect.establishes_physical_effect()),
+        );
         put_u8(&mut buf, self.physical_effect.completeness.code());
         put_bytes(&mut buf, &self.reconciliation.digest());
         put_bytes(&mut buf, &self.expectation.decision_id);
@@ -242,13 +245,7 @@ impl EdgeReference {
     pub fn identity_table(&self) -> Vec<(IdentityKind, IdentityStability, IdentityStability)> {
         IdentityKind::ALL
             .iter()
-            .map(|k| {
-                (
-                    *k,
-                    k.across_workload_restart(),
-                    k.across_host_reboot(),
-                )
-            })
+            .map(|k| (*k, k.across_workload_restart(), k.across_host_reboot()))
             .collect()
     }
 }

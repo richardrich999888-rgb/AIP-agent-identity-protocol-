@@ -4,6 +4,11 @@
 //! module builds an `ObservationRecord`, an `AttestedBatch` or an
 //! `ObservedExecution` by hand: a fixture may configure the expectation, and a
 //! fixture must never manufacture the observation.
+//!
+//! Each test binary uses a different subset of these helpers, so unused ones
+//! are expected rather than a sign of drift.
+
+#![allow(dead_code)]
 
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -163,4 +168,3 @@ pub fn strip_comments(src: &str) -> String {
     }
     out
 }
-

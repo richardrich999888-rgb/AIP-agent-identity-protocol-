@@ -65,7 +65,9 @@ use aip_types::{CapabilityScope, ExecutionBinding, KeyPair, ProvenanceTriple};
 use crate::correlate::{observation_record, subject_from_expectation, ObservationSubject};
 use crate::effect::{assess_effect, physical_effect_finding, requested_effect, EffectInputs};
 use crate::error::EdgeError;
-use crate::platform::{bind_platform, observed_boot_from, register_measured_host, verifier_boot_id};
+use crate::platform::{
+    bind_platform, observed_boot_from, register_measured_host, verifier_boot_id,
+};
 use crate::profile::profile_from_codes;
 use crate::reference::EdgeReference;
 use crate::transport::{read_batches, read_health, sibling_binary, Peer};
@@ -294,11 +296,9 @@ pub fn run(config: &RunConfig) -> Result<RunOutcome, EdgeError> {
     //
     // `workload.pid()` is what the OS told this process when it forked, not
     // what the child said about itself. The decision point binds that.
-    let binding = aip_core::execution_binding::collect_binding_for_pid(
-        &claimed.agent_id,
-        workload_pid,
-    )
-    .map_err(|e| EdgeError::Transport(format!("collect binding: {e:?}")))?;
+    let binding =
+        aip_core::execution_binding::collect_binding_for_pid(&claimed.agent_id, workload_pid)
+            .map_err(|e| EdgeError::Transport(format!("collect binding: {e:?}")))?;
 
     // ── 4. Authorization ─────────────────────────────────────────────────
     let authority = Authority::for_agent(&claimed.agent_id)?;
@@ -498,7 +498,13 @@ pub fn run(config: &RunConfig) -> Result<RunOutcome, EdgeError> {
         ));
 
     // The existing engine. The only verdict in this reference.
-    let reconciliation = reconcile(&expectation, &batches, &health, &observer_anchors, &authority);
+    let reconciliation = reconcile(
+        &expectation,
+        &batches,
+        &health,
+        &observer_anchors,
+        &authority,
+    );
 
     let physical = physical_effect_finding(&profile);
     let records: Vec<ObservationRecord> = correlated.iter().map(|(r, _)| r.clone()).collect();
