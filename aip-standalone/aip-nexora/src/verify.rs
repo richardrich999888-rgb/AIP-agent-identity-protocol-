@@ -324,6 +324,10 @@ pub enum ProofVerdict {
     Invalid(InvalidReason),
 }
 
+/// What a carried component's verdict says before the verifier reached it.
+pub const NOT_REACHED: &str =
+    "not evaluated: the package was refused before this component was reached";
+
 /// Everything the verifier established, and nothing more.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct VerifiedProof {
@@ -372,17 +376,33 @@ impl VerifiedProof {
 /// answer. Reads no clock — every time reference comes from the package's
 /// declared parameters or from the evidence itself.
 pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> VerifiedProof {
+    // A component starts as *carried and not yet established*, never as
+    // absent. The verifier can refuse a package before it reaches a given
+    // component — a structural fault, a refused parameter, a binding that
+    // does not hold — and on that path these values are what the report
+    // keeps. "The package does not carry it" and "the package carries it
+    // and the verifier could not establish it" are different facts, and
+    // collapsing the second into the first is the same error as reading
+    // absence of evidence as evidence of absence, one level down.
+    let unreached = |carried: bool| {
+        if carried {
+            ComponentVerdict::Unverifiable(NOT_REACHED.to_string())
+        } else {
+            ComponentVerdict::Absent
+        }
+    };
     let mut v = VerifiedProof {
         proof_id: proof.proof_id(),
-        subject: ComponentVerdict::Verified,
-        authority: ComponentVerdict::Absent,
-        expectation: ComponentVerdict::Absent,
-        observer: ComponentVerdict::Absent,
-        continuity: ComponentVerdict::Absent,
-        lineage: ComponentVerdict::Absent,
-        warrant: ComponentVerdict::Absent,
-        commitment: ComponentVerdict::Absent,
-        envelope: ComponentVerdict::Absent,
+        // Settled below, once the package agrees with itself.
+        subject: unreached(true),
+        authority: unreached(proof.authority.is_some()),
+        expectation: unreached(proof.expectation.is_some()),
+        observer: unreached(proof.observer.is_some()),
+        continuity: unreached(proof.continuity.is_some()),
+        lineage: unreached(proof.lineage.is_some()),
+        warrant: unreached(proof.warrant.is_some()),
+        commitment: unreached(proof.commitment.is_some()),
+        envelope: unreached(proof.envelope.is_some()),
         rederived: None,
         result: None,
         strength: None,
@@ -440,6 +460,13 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
     if let Some(f) = proof.binding_faults().into_iter().next() {
         v.verdict = ProofVerdict::Invalid(InvalidReason::Binding(f));
         return v;
+    }
+
+    // The subject's id is settled by the structural checks just passed —
+    // it is the agent the expectation names. Without a document there is
+    // nothing further to establish; with one, the check below settles it.
+    if proof.subject.identity.is_none() {
+        v.subject = ComponentVerdict::Verified;
     }
 
     // 2. Each carried component, under the verifier's own anchors.
@@ -625,6 +652,14 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
 
     if let Some(reason) = first_failure {
         v.verdict = ProofVerdict::Invalid(reason);
+        // A refused package establishes nothing. `result` and `strength`
+        // are what the *package* establishes, so a refusal empties them —
+        // otherwise a consumer reading `.result` without reading `.verdict`
+        // could act on a package the verifier turned down. Nothing is lost:
+        // `rederived` still carries the whole recomputed record, under a
+        // name that says it is a recomputation and not a conclusion.
+        v.result = None;
+        v.strength = None;
     }
     v
 }
