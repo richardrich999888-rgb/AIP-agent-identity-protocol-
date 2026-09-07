@@ -891,3 +891,115 @@ fn t_altered_verdict_cannot_prove_never_becomes_proven() {
     // the pipeline has a legitimate path that the wire does not.
     assert!(v.rederived.as_ref().unwrap().is_engine_produced());
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// U. Revoked authority  (Skill 10 Gate 12 item 16)
+// ═══════════════════════════════════════════════════════════════════
+
+/// INVARIANT: revocation is the verifier's operator's declaration, carried
+/// beside the evidence and applied by the re-derivation. A chain whose root
+/// or any hop has been revoked stops supporting an authority link — the
+/// signatures are still perfectly valid, and that is precisely the point:
+/// a revoked token is not a forged one, it is a real one that no longer
+/// counts.
+#[test]
+fn u_revoked_authority_a_valid_chain_stops_conferring_a_link() {
+    let s = common::verified_execution();
+
+    let authority = aip_reconcile::DecisionAuthority {
+        root: s.a.root.clone(),
+        chain: s.a.chain.clone(),
+    };
+    // The honest package, with lineage evidence and nothing revoked.
+    let inputs = aip_reconcile::LineageInputs {
+        peer_expectations: &[],
+        authority: Some(&authority),
+        issuer_keys: &s.a.issuer_keys,
+        revoked_jtis: &[],
+        identity: None,
+    };
+    let honest = aip_reconcile::reconcile_lineage(&s.a.ee, Some(&s.evidence), &s.ctx(), &inputs);
+    let mut p = package(&s);
+    p.claim = honest;
+    p.lineage = Some(LineageEvidence {
+        peer_expectations: vec![],
+        identity: None,
+        revoked_jtis: vec![],
+    });
+    let v = verify_nexora_proof(&p, &anchors(&s));
+    assert!(v.is_valid(), "{:?}", v.verdict);
+    assert!(
+        v.lineage_report.authority.asserts_a_link(),
+        "the unrevoked chain must establish an authority link, got {:?}",
+        v.lineage_report.authority
+    );
+
+    // Now the operator revokes the delegation hop. Same signatures, same
+    // chain, same keys — and the link is gone.
+    for revoked in [s.a.root.jti, s.a.chain[0].jti] {
+        let inputs = aip_reconcile::LineageInputs {
+            peer_expectations: &[],
+            authority: Some(&authority),
+            issuer_keys: &s.a.issuer_keys,
+            revoked_jtis: &[revoked],
+            identity: None,
+        };
+        let claim = aip_reconcile::reconcile_lineage(&s.a.ee, Some(&s.evidence), &s.ctx(), &inputs);
+        let mut p = package(&s);
+        p.claim = claim;
+        p.lineage = Some(LineageEvidence {
+            peer_expectations: vec![],
+            identity: None,
+            revoked_jtis: vec![revoked],
+        });
+        let v = verify_nexora_proof(&p, &anchors(&s));
+        assert!(
+            !v.lineage_report.authority.asserts_a_link(),
+            "a revoked token still conferred authority lineage, got {:?}",
+            v.lineage_report.authority
+        );
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// V. Revoked observer  (Skill 10 Gate 12 item 17)
+// ═══════════════════════════════════════════════════════════════════
+
+/// INVARIANT: an observer is trusted because the verifier anchors its key,
+/// so revocation is withdrawing that anchor. The package does not change;
+/// what changes is who the verifier is willing to believe. The result is
+/// `Unverifiable` and a refusal — never `Absent`, because the records were
+/// carried, and never a quiet pass because they look well-formed.
+#[test]
+fn v_revoked_observer_withdrawing_the_anchor_withdraws_the_evidence() {
+    let s = common::verified_execution();
+    let p = package(&s);
+    assert!(verify_nexora_proof(&p, &anchors(&s)).is_valid());
+
+    // V1 — the anchor withdrawn entirely.
+    let mut a = anchors(&s);
+    a.observer = aip_observe::ObserverTrustAnchors::new();
+    let v = verify_nexora_proof(&p, &a);
+    establishes_nothing(&v);
+    match v.observer {
+        ComponentVerdict::Unverifiable(_) => {}
+        other => panic!("a revoked observer must be unverifiable, got {other:?}"),
+    }
+    assert_ne!(v.observer, ComponentVerdict::Absent);
+
+    // V2 — the key rotated: the verifier now anchors a *different* version,
+    // so records signed under the old one are no longer believed.
+    let fresh = aip_crypto::generate_ed25519_keypair();
+    let mut a = anchors(&s);
+    a.observer =
+        aip_observe::ObserverTrustAnchors::new().trust(common::OBSERVER_ID, 2, &fresh.public_key);
+    let v = verify_nexora_proof(&p, &a);
+    establishes_nothing(&v);
+    assert_ne!(v.observer, ComponentVerdict::Absent);
+
+    // V3 — and the coverage that rested on those records goes with them.
+    assert!(
+        !v.coverage.observation.licenses_absence_claim(),
+        "a revoked observer's records must not license an absence claim"
+    );
+}
