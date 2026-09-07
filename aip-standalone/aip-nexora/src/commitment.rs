@@ -36,7 +36,6 @@
 //! a warrant or a containment. Not a replay of anything: the bytes are what
 //! was committed, no more.
 
-use aip_custody::{CustodyClass, KeyCustody};
 use std::cell::RefCell;
 use std::collections::HashMap;
 
@@ -201,34 +200,6 @@ pub struct NexoraSigner {
     key_version: u32,
     private_key: Vec<u8>,
     public_key: Vec<u8>,
-}
-
-/// Named custody for NexoraSigner's key.
-///
-/// Reporting only: no `sign(&[u8])`. `NexoraSigner` signs exactly one kind of
-/// input through its own operation, and a general signing oracle on this type
-/// would let a caller obtain its signature over bytes belonging to another
-/// protocol. See `aip_custody::KeyCustody`.
-///
-/// The key does not move. It stays in this crate, in the private field it was
-/// already in; this impl only makes the custody visible to policy checks and to
-/// an inventory.
-impl KeyCustody for NexoraSigner {
-    fn key_id(&self) -> &str {
-        &self.id
-    }
-    fn key_version(&self) -> u32 {
-        self.key_version
-    }
-    fn public_key(&self) -> &[u8] {
-        &self.public_key
-    }
-    /// In-process key material, supplied by the operator at construction.
-    /// Honest classification: nothing here protects it, so a production policy
-    /// refuses it and the operator must say where the key actually comes from.
-    fn custody_class(&self) -> CustodyClass {
-        CustodyClass::Development
-    }
 }
 
 impl std::fmt::Debug for NexoraSigner {

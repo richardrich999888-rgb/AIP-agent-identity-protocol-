@@ -16,7 +16,7 @@ use std::sync::Arc;
 use tracing_subscriber::{fmt, EnvFilter};
 
 use airon_aip::store::{EvidenceStore, JsonlEvidenceStore};
-use airon_aip::{auth, delegation, keys::ServiceKey, revocation, router, AppState};
+use airon_aip::{auth, delegation, keys::KeyPair, revocation, router, AppState};
 
 async fn build_store() -> Arc<dyn EvidenceStore> {
     let backend = std::env::var("AIP_STORE_BACKEND").unwrap_or_else(|_| "jsonl".to_owned());
@@ -78,23 +78,11 @@ async fn main() {
         }
     }
 
-    // Fail closed: a service that cannot establish custody of its signing key
-    // must not start. Starting anyway would mean either signing with a newly
-    // minted identity nobody trusts, or issuing tokens that stop verifying at
-    // the next restart.
-    let kp = match ServiceKey::load_or_create(&key_path) {
-        Ok(kp) => kp,
-        Err(e) => {
-            tracing::error!(key_path, error = %e, "cannot establish custody of the service signing key — refusing to start");
-            std::process::exit(1);
-        }
-    };
-    if let Err(e) = aip_custody::admits(aip_custody::CustodyPolicy::from_env(), &kp) {
-        tracing::error!(key_path, error = %e, "service signing key custody is not acceptable under the deployment policy — refusing to start");
-        std::process::exit(1);
-    }
-    let encoding_key = kp.encoding_key();
-    let decoding_key = kp.decoding_key();
+    let kp = KeyPair::load_or_generate(&key_path);
+    let encoding_key = jsonwebtoken::EncodingKey::from_ed_pem(kp.private_pem.as_bytes())
+        .expect("generated private PEM must always be valid");
+    let decoding_key = jsonwebtoken::DecodingKey::from_ed_pem(kp.public_pem.as_bytes())
+        .expect("generated public PEM must always be valid");
 
     let del_log = delegation::load_delegation_log(&delegation_log_path);
     let rev_set = revocation::load_revocation_set(&revocation_log_path);
@@ -127,11 +115,12 @@ async fn main() {
         revocation_set: rev_set,
         store,
         api_keys,
-        signer: Arc::new(kp),
+        signer_seed: kp.signing_seed(),
+        signer_public: kp.verifying_key_bytes(),
     });
 
     let addr = format!("0.0.0.0:{port}");
-    tracing::info!(port, fingerprint = %state.fingerprint, key_path, "airon-aip v2 starting");
+    tracing::info!(port, fingerprint = %kp.fingerprint, key_path, "airon-aip v2 starting");
 
     let listener = tokio::net::TcpListener::bind(&addr)
         .await

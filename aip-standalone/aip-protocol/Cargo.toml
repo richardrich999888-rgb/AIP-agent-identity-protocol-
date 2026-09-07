@@ -8,7 +8,6 @@ description = "EvidencePacket, verification engine, and accountability graph —
 [dependencies]
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
-aip-custody = { path = "../aip-custody" }
 aip-core = { path = "../aip-core" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

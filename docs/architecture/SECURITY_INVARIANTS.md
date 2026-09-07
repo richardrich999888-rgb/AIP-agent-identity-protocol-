@@ -207,6 +207,11 @@ Each is enforced by a named test that fails if it stops holding.
 | N3 | A refused package establishes nothing: no result, no strength. | `adversarial.rs::establishes_nothing`, used by every refusal case |
 | N4 | A carried component is never reported `Absent`. | `adversarial.rs::g`, `v`; `verify.rs::NOT_REACHED` |
 | N5 | A package cannot tell a verifier what it will accept, or what time it is. | `adversarial.rs::n`, `export.rs::import_anchors` |
+| N5a | A verifier that never stated a bound has no bound to state — the type has no `Default` and no "unlimited" variant, so every bound was written down by somebody. | `capability.rs::adv04`, `VerifierCapability` |
+| N5b | A `VerifierCapability` cannot be built from bytes: it does not implement `Deserialize`, and neither does the `VerifiedProof` that carries it. | `capability.rs::adv05` |
+| N5c | A verifier cannot declare a proof version this build does not implement. | `capability.rs::gh`, `adv06_07` |
+| N5d | An unknown declared parameter is refused, never ignored. | `capability.rs::ge`, `adv03_09` |
+| N5e | `Independence::Checked` reports what this verifier could do, not what the package says the original run did. | `capability.rs::d5b`, `gc` |
 | N6 | Coverage is derived by the verifier; a package has no field for it. | `adversarial.rs::s`, `coverage.rs::g6_06` |
 | N7 | Exactly one coverage state licenses a statement about absence. | `ObservationCoverage::licenses_absence_claim`, `adversarial.rs::q` |
 | N8 | Any continuity break the collector reports reads as `Discontinuous`. | `adversarial.rs::i`, exhaustive over the variants |

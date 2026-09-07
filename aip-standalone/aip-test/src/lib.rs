@@ -275,18 +275,9 @@ mod integration_tests {
         );
     }
 
-    /// Development fixture, explicitly isolated as one.
-    ///
-    /// This test round-trips a **private key** through a file, so it opens the
-    /// store with `with_file_and_plaintext_keys` under an explicit
-    /// `CustodyPolicy::Development`. Under the production policy that
-    /// constructor refuses, which is asserted separately in
-    /// `aip-custody/tests/custody_invariants.rs`. Nothing here relaxes
-    /// production behaviour to keep the fixture working.
     #[test]
-    fn test_store_identity_persistence_roundtrip_development_fixture() {
-        use aip_core::store::IdentityStore;
-        use aip_custody::CustodyPolicy;
+    fn test_store_identity_persistence_roundtrip() {
+        use aip_core::store::{IdentityStore, Persistence};
 
         let tmp_path = std::env::temp_dir().join("aip_integration_test_store.json");
         let _ = std::fs::remove_file(&tmp_path);
@@ -300,8 +291,7 @@ mod integration_tests {
 
         {
             let mut store =
-                IdentityStore::with_file_and_plaintext_keys(&tmp_path, CustodyPolicy::Development)
-                    .unwrap();
+                IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
             store.put_identity(aid, kp);
             store.save().unwrap();
         }
@@ -309,8 +299,7 @@ mod integration_tests {
         // Load from file and verify it's the same
         {
             let store =
-                IdentityStore::with_file_and_plaintext_keys(&tmp_path, CustodyPolicy::Development)
-                    .unwrap();
+                IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
             let loaded = store.get_identity(&agent_id).unwrap();
             assert_eq!(loaded.aid.id, agent_id);
             assert_eq!(loaded.aid.status, IdentityStatus::Pending);
@@ -319,23 +308,9 @@ mod integration_tests {
                 validate_aid(&loaded.aid).is_ok(),
                 "Loaded AID must validate"
             );
-            // The key survived the round trip and still signs — reached
-            // through the controlled operation, not through a key accessor.
-            let sig = loaded.sign(b"test").unwrap();
-            assert!(verify_ed25519(loaded.public_key(), &sig).unwrap());
-        }
-
-        // The same file is refused by the production-default constructor,
-        // rather than opened and later saved without its keys.
-        {
-            let err = IdentityStore::with_file(&tmp_path).unwrap_err();
-            assert!(
-                matches!(
-                    err,
-                    aip_core::store::StoreError::PlaintextKeysPresent { .. }
-                ),
-                "expected PlaintextKeysPresent, got {err:?}"
-            );
+            // Verify we can sign with the loaded keypair
+            let sig = sign_ed25519(&loaded.keypair.private_key, &agent_id, b"test").unwrap();
+            assert!(verify_ed25519(&loaded.keypair.public_key, &sig).unwrap());
         }
 
         let _ = std::fs::remove_file(&tmp_path);

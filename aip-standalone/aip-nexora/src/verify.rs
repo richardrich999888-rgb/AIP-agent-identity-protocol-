@@ -50,15 +50,20 @@ use aip_reconcile::{
 use aip_warrant::{verify_warrant, WarrantTrustAnchors};
 use serde::{Deserialize, Serialize};
 
+use crate::capability::{ReconciliationAge, VerifierCapability};
 use crate::commitment::{verify_proof, NexoraTrustAnchors, VerifiedInclusion};
-use crate::proof::{
-    verify_envelope, BindingFault, Component, NexoraProof, StructuralFault, NEXORA_PROOF_VERSION,
-};
+use crate::proof::{verify_envelope, BindingFault, Component, NexoraProof, StructuralFault};
 use crate::replay::AuthorityStanding;
 
 /// Everything the verifier trusts, and nothing it does not. Each field is
 /// the verifier's own decision; none of it comes from the package.
-#[derive(Debug, Clone, Default)]
+///
+/// There is deliberately no `Default`. The bounds in
+/// [`VerifierCapability`] have no safe blank value — an unstated bound used
+/// to mean an unlimited one — so a verifier that never said what it accepts
+/// cannot be constructed at all. `VerifierCapability::strict()` is the
+/// shortest honest answer.
+#[derive(Debug, Clone)]
 pub struct VerifierAnchors {
     pub decision_point: DecisionPointTrustAnchors,
     pub observer: ObserverTrustAnchors,
@@ -70,24 +75,28 @@ pub struct VerifierAnchors {
     /// The observed agent's public key, when the verifier knows it.
     /// Supplying it lets the independence invariants be checked (I1, I10).
     pub agent_public_key: Option<Vec<u8>>,
-    /// The largest `health_max_age_ms` this verifier will accept a package
-    /// to have been reconciled under. `None` accepts whatever the package
-    /// declares.
+    /// What this verifier is prepared to establish: the proof versions it
+    /// reads, and the declared parameters it will accept a package to have
+    /// been reconciled under.
     ///
     /// This exists because a declared parameter is an input to the verdict,
     /// and re-derivation alone cannot object to it: widening the staleness
     /// allowance from a minute to a century leaves a record that is still
     /// derivable from the same evidence and still *true* under those
     /// parameters. Whether those parameters are acceptable is the
-    /// verifier's judgement, not the package's, so the verifier states it.
-    pub max_declared_health_age_ms: Option<u64>,
-    /// The largest `window_tolerance_ms` this verifier will accept, for the
-    /// same reason.
-    pub max_declared_window_tolerance_ms: Option<u64>,
-    /// The verifier's own view of *now*, used only to say whether the
-    /// authority behind the execution has since expired. It never enters
-    /// the reconciliation: what happened does not change because time
-    /// passed, and a stale authority is not an invalid proof.
+    /// verifier's judgement, not the package's — and it now has no way to
+    /// decline to make it.
+    pub capability: VerifierCapability,
+    /// The verifier's own view of *now*, used to say whether the authority
+    /// behind the execution has since expired, and to age the reconciliation
+    /// when the capability bounds that. It never enters the reconciliation
+    /// itself: what happened does not change because time passed, and a
+    /// stale authority is not an invalid proof.
+    ///
+    /// `None` here is not permissive. It means staleness was not assessed —
+    /// reported as `AuthorityStanding::NotAssessed`, which grants nothing —
+    /// and if the capability bounds the reconciliation's age, a verifier
+    /// with no clock cannot compute that age and refuses.
     pub present_time_ms: Option<u64>,
 }
 
@@ -337,7 +346,15 @@ pub const NOT_REACHED: &str =
     "not evaluated: the package was refused before this component was reached";
 
 /// Everything the verifier established, and nothing more.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+///
+/// `Deserialize` is deliberately not implemented. A `VerifiedProof`
+/// carries the [`VerifierCapability`] its result was reached under, and a
+/// capability that could be read out of bytes would be a capability an
+/// attacker could write — so neither type can be deserialized, and there
+/// is no sequence of bytes anywhere that becomes a statement about what a
+/// verifier is prepared to establish. Nothing in this repository ever
+/// deserialized a `VerifiedProof`; it is an output.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct VerifiedProof {
     pub proof_id: [u8; 32],
     pub subject: ComponentVerdict,
@@ -369,6 +386,10 @@ pub struct VerifiedProof {
     pub inclusion: Option<VerifiedInclusion>,
     /// Who sealed the package, when a seal was carried and verified.
     pub assembled_by: Option<String>,
+    /// The terms this result was reached under. A verdict without them is
+    /// half a sentence: "valid" means valid *given* the parameters this
+    /// verifier agreed to accept, and a reader is entitled to see which.
+    pub evaluated_under: VerifierCapability,
     pub verdict: ProofVerdict,
 }
 
@@ -425,38 +446,60 @@ pub fn verify_nexora_proof(proof: &NexoraProof, anchors: &VerifierAnchors) -> Ve
         },
         continuity_standing: ContinuityStanding::Unknown,
         authority_standing: authority_standing(proof, anchors),
-        independence: if proof.parameters.agent_key_supplied {
+        // What *this* verifier did, not what the package says the original
+        // run did. Both must hold: the reconciliation ran with the agent's
+        // key, and this verifier holds that key so it could re-run the
+        // checks. A package asserting the first does not give the verifier
+        // the second (Defect #5).
+        independence: if proof.parameters.agent_key_supplied && anchors.agent_public_key.is_some() {
             Independence::Checked
         } else {
             Independence::NotChecked
         },
         inclusion: None,
         assembled_by: None,
+        evaluated_under: anchors.capability.clone(),
         verdict: ProofVerdict::Valid,
     };
 
     // 1. Version, then the package's own agreement with itself. A package
     //    that disagrees with itself is refused before any key is consulted.
-    if proof.version != NEXORA_PROOF_VERSION {
+    if !anchors.capability.understands(proof.version) {
         v.verdict = ProofVerdict::Invalid(InvalidReason::UnsupportedVersion(proof.version));
         return v;
     }
-    if let Some(max) = anchors.max_declared_health_age_ms {
-        if proof.parameters.health_max_age_ms > max {
-            v.verdict = ProofVerdict::Invalid(InvalidReason::DeclaredParameterRefused {
-                parameter: "health_max_age_ms".into(),
-                declared: proof.parameters.health_max_age_ms,
-                max_accepted: max,
-            });
-            return v;
-        }
+    let max = anchors.capability.health_age_bound();
+    if proof.parameters.health_max_age_ms > max {
+        v.verdict = ProofVerdict::Invalid(InvalidReason::DeclaredParameterRefused {
+            parameter: "health_max_age_ms".into(),
+            declared: proof.parameters.health_max_age_ms,
+            max_accepted: max,
+        });
+        return v;
     }
-    if let Some(max) = anchors.max_declared_window_tolerance_ms {
-        if proof.parameters.window_tolerance_ms > max {
+    let max = anchors.capability.window_tolerance_bound();
+    if proof.parameters.window_tolerance_ms > max {
+        v.verdict = ProofVerdict::Invalid(InvalidReason::DeclaredParameterRefused {
+            parameter: "window_tolerance_ms".into(),
+            declared: proof.parameters.window_tolerance_ms,
+            max_accepted: max,
+        });
+        return v;
+    }
+    // How old the reconciliation may be. A verifier that bounds this and
+    // holds no clock cannot compute the age, so it refuses rather than
+    // skipping the check it said it would make.
+    if let ReconciliationAge::AtMost(max_age) = anchors.capability.reconciliation_age_bound() {
+        let declared = proof.parameters.verification_time_ms;
+        let age = match anchors.present_time_ms {
+            Some(now) => now.saturating_sub(declared),
+            None => u64::MAX,
+        };
+        if age > max_age {
             v.verdict = ProofVerdict::Invalid(InvalidReason::DeclaredParameterRefused {
-                parameter: "window_tolerance_ms".into(),
-                declared: proof.parameters.window_tolerance_ms,
-                max_accepted: max,
+                parameter: "verification_time_ms".into(),
+                declared,
+                max_accepted: max_age,
             });
             return v;
         }

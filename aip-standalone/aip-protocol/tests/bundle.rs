@@ -29,12 +29,13 @@ fn now_ms() -> u64 {
         .as_millis() as u64
 }
 
-/// Returns (packet, report, trust ctx, signer custodian).
+/// Returns (packet, report, trust ctx, signer_seed, signer_public).
 fn fixture() -> (
     EvidencePacket,
     VerificationReport,
     VerificationContext,
-    aip_custody::DevCustodian,
+    [u8; 32],
+    [u8; 32],
 ) {
     let cfo_kp = generate_ed25519_keypair();
     let cfo_id = derive_aip_id(&cfo_kp.public_key, &prov("cfo"));
@@ -105,17 +106,12 @@ fn fixture() -> (
     let report = verify_packet(&packet, &ctx);
     assert!(report.valid);
 
-    // Service signer key (distinct from agent/principal), held by a
-    // development custodian: these are tests, and the class says so.
-    let kp = generate_ed25519_keypair();
-    let signer = aip_custody::DevCustodian::from_bytes(
-        "bundle-test-signer",
-        0,
-        &kp.private_key,
-        &kp.public_key,
-    );
+    // Service signer key (distinct from agent/principal).
+    let signer = generate_ed25519_keypair();
+    let seed: [u8; 32] = signer.private_key.clone().try_into().unwrap();
+    let public: [u8; 32] = signer.public_key.clone().try_into().unwrap();
 
-    (packet, report, ctx, signer)
+    (packet, report, ctx, seed, public)
 }
 
 /// Read a zip into a name→bytes map.
@@ -149,8 +145,8 @@ fn rezip(files: &HashMap<String, Vec<u8>>) -> Vec<u8> {
 
 #[test]
 fn test_bundle_build_and_verify_ok() {
-    let (packet, report, ctx, signer) = fixture();
-    let zip = build_zip("acme", &packet, &report, &signer).unwrap();
+    let (packet, report, ctx, seed, public) = fixture();
+    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
 
     // With trust keys → full PASS.
     let v = verify_zip(&zip, &ctx);
@@ -163,8 +159,8 @@ fn test_bundle_build_and_verify_ok() {
 
 #[test]
 fn test_bundle_no_trust_keys_is_warning_not_fail() {
-    let (packet, report, _ctx, signer) = fixture();
-    let zip = build_zip("acme", &packet, &report, &signer).unwrap();
+    let (packet, report, _ctx, seed, public) = fixture();
+    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
 
     // No trust keys: integrity + signature pass, authority unverifiable → WARNING.
     let v = verify_zip(&zip, &VerificationContext::new());
@@ -175,8 +171,8 @@ fn test_bundle_no_trust_keys_is_warning_not_fail() {
 
 #[test]
 fn test_bundle_tampered_content_detected() {
-    let (packet, report, ctx, signer) = fixture();
-    let zip = build_zip("acme", &packet, &report, &signer).unwrap();
+    let (packet, report, ctx, seed, public) = fixture();
+    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
 
     // Tamper a content file (the evidence) without updating the manifest hash.
     let mut files = unzip(&zip);
@@ -193,8 +189,8 @@ fn test_bundle_tampered_content_detected() {
 
 #[test]
 fn test_bundle_missing_file_detected() {
-    let (packet, report, ctx, signer) = fixture();
-    let zip = build_zip("acme", &packet, &report, &signer).unwrap();
+    let (packet, report, ctx, seed, public) = fixture();
+    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
 
     let mut files = unzip(&zip);
     files.remove(F_EVIDENCE);
@@ -212,8 +208,8 @@ fn test_bundle_missing_file_detected() {
 
 #[test]
 fn test_bundle_signature_mismatch_detected() {
-    let (packet, report, ctx, signer) = fixture();
-    let zip = build_zip("acme", &packet, &report, &signer).unwrap();
+    let (packet, report, ctx, seed, public) = fixture();
+    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
 
     // Replace the signature with a valid-length but wrong signature.
     let mut files = unzip(&zip);
@@ -232,8 +228,8 @@ fn test_bundle_signature_mismatch_detected() {
 
 #[test]
 fn test_bundle_manifest_edit_breaks_signature() {
-    let (packet, report, ctx, signer) = fixture();
-    let zip = build_zip("acme", &packet, &report, &signer).unwrap();
+    let (packet, report, ctx, seed, public) = fixture();
+    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
 
     // Edit the manifest (e.g. change tenant) — the signature no longer matches.
     let mut files = unzip(&zip);
@@ -258,8 +254,8 @@ fn test_bundle_manifest_edit_breaks_signature() {
 #[test]
 #[ignore = "emits a sample bundle for CLI smoke testing"]
 fn emit_sample_bundle() {
-    let (packet, report, _ctx, signer) = fixture();
-    let zip = build_zip("acme", &packet, &report, &signer).unwrap();
+    let (packet, report, _ctx, seed, public) = fixture();
+    let zip = build_zip("acme", &packet, &report, &seed, &public).unwrap();
     let out =
         std::env::var("AIP_BUNDLE_OUT").unwrap_or_else(|_| "/tmp/aip_sample_bundle.zip".into());
     std::fs::write(&out, zip).unwrap();

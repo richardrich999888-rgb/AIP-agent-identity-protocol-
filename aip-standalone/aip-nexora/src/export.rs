@@ -25,6 +25,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
+use crate::capability::VerifierCapability;
 use crate::commitment::NexoraTrustAnchors;
 use crate::proof::{NexoraProof, NEXORA_PROOF_VERSION};
 use crate::verify::VerifierAnchors;
@@ -122,7 +123,16 @@ pub fn export_anchors(a: &VerifierAnchors) -> Result<Vec<u8>, ExportError> {
 }
 
 /// Read anchors a verifier chose to provision this way.
-pub fn import_anchors(bytes: &[u8]) -> Result<VerifierAnchors, ExportError> {
+///
+/// The capability is a parameter and not a field of the file, because
+/// there is nothing in an anchor file to build one from and everything to
+/// lose by pretending there is. Anchors say which keys this verifier
+/// trusts; what it is prepared to establish under them is a separate
+/// decision it makes itself, and one it cannot skip (Defect #5).
+pub fn import_anchors(
+    bytes: &[u8],
+    capability: VerifierCapability,
+) -> Result<VerifierAnchors, ExportError> {
     let file: AnchorFile =
         serde_json::from_slice(bytes).map_err(|e| ExportError::Malformed(e.to_string()))?;
     if file.version != NEXORA_PROOF_VERSION {
@@ -155,11 +165,10 @@ pub fn import_anchors(bytes: &[u8]) -> Result<VerifierAnchors, ExportError> {
         nexora,
         issuers,
         agent_public_key: file.agent_public_key,
-        // Bounds are the verifier's own judgement and are deliberately not
-        // transported: a package must not be able to tell a verifier what
-        // it will accept.
-        max_declared_health_age_ms: None,
-        max_declared_window_tolerance_ms: None,
+        // The caller's, never the file's: a package — or anything shipped
+        // beside one — must not be able to tell a verifier what it will
+        // accept.
+        capability,
         // Nor does a package get to tell a verifier what time it is.
         present_time_ms: None,
     })

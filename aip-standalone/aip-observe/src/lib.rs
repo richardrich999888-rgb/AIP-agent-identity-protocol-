@@ -59,6 +59,7 @@
 
 pub mod attest;
 pub mod continuity;
+pub mod custody;
 pub mod fanotify;
 pub mod health;
 pub mod linux;
@@ -78,6 +79,7 @@ pub use attest::{
     ObserverAttestor, ObserverTrustAnchors, ProbeStreamFault, VerifyError, OBSERVER_HEAD_DOMAIN,
 };
 pub use continuity::{Admission, ContinuityBreak, ContinuityFault, ObserverLedger};
+pub use custody::{CollectorKey, CollectorKeyError, CollectorKeyPolicy};
 pub use fanotify::{
     parse_fanotify_buffer, RawFileEvent, FAN_CLOSE_WRITE, FAN_MODIFY, FAN_Q_OVERFLOW,
 };

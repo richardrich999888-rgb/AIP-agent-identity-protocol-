@@ -59,7 +59,6 @@
 use aip_core::capability::token_signing_payload;
 use aip_core::delegation::delegation_signing_payload;
 use aip_crypto::{sha256, sign_ed25519, verify_ed25519};
-use aip_custody::{CustodyClass, KeyCustody};
 use aip_observe::{AttestedBatch, SignedContinuityReport, SignedSensorHealth};
 use aip_reconcile::{EvidenceRef, EvidenceStrength, Reconciliation, ReconciliationResult};
 use aip_types::canonical::*;
@@ -163,7 +162,13 @@ pub struct LineageEvidence {
 /// trusted**: they are inside the signed bytes so they cannot be changed
 /// after the fact, and the verifier re-runs the reconciler under them while
 /// supplying its own anchors.
+/// `deny_unknown_fields` because this is the block a package uses to state
+/// the terms it was reconciled under. A parameter this build does not
+/// implement must be refused rather than silently ignored: ignoring it
+/// would mean verifying under terms the verifier never evaluated while
+/// reporting a result as though it had (Defect #5).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct DeclaredParameters {
     pub verification_time_ms: u64,
     pub health_max_age_ms: u64,
@@ -802,34 +807,6 @@ pub struct ProofAssembler {
     key_version: u32,
     private_key: Vec<u8>,
     public_key: Vec<u8>,
-}
-
-/// Named custody for ProofAssembler's key.
-///
-/// Reporting only: no `sign(&[u8])`. `ProofAssembler` signs exactly one kind of
-/// input through its own operation, and a general signing oracle on this type
-/// would let a caller obtain its signature over bytes belonging to another
-/// protocol. See `aip_custody::KeyCustody`.
-///
-/// The key does not move. It stays in this crate, in the private field it was
-/// already in; this impl only makes the custody visible to policy checks and to
-/// an inventory.
-impl KeyCustody for ProofAssembler {
-    fn key_id(&self) -> &str {
-        &self.id
-    }
-    fn key_version(&self) -> u32 {
-        self.key_version
-    }
-    fn public_key(&self) -> &[u8] {
-        &self.public_key
-    }
-    /// In-process key material, supplied by the operator at construction.
-    /// Honest classification: nothing here protects it, so a production policy
-    /// refuses it and the operator must say where the key actually comes from.
-    fn custody_class(&self) -> CustodyClass {
-        CustodyClass::Development
-    }
 }
 
 impl std::fmt::Debug for ProofAssembler {

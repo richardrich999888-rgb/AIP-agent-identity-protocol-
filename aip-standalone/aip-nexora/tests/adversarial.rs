@@ -24,6 +24,7 @@
 
 mod common;
 
+use aip_nexora::capability::VerifierCapability;
 use aip_nexora::export::*;
 use aip_nexora::proof::*;
 use aip_nexora::replay::*;
@@ -63,7 +64,8 @@ fn anchors(s: &common::Scenario) -> VerifierAnchors {
         nexora: aip_nexora::NexoraTrustAnchors::new(),
         issuers: s.a.issuer_keys.clone(),
         agent_public_key: Some(s.a.agent_kp.public_key.clone()),
-        ..Default::default()
+        capability: VerifierCapability::strict(),
+        present_time_ms: None,
     }
 }
 
@@ -572,7 +574,10 @@ fn n_verifier_context_substitution_a_package_cannot_set_the_verifiers_terms() {
     let mut p = package(&s);
     p.parameters.health_max_age_ms = 30 * 24 * 3_600_000;
     let mut a = anchors(&s);
-    a.max_declared_health_age_ms = Some(common::HEALTH_MAX_AGE);
+    a.capability = a
+        .capability
+        .clone()
+        .max_health_age_ms(common::HEALTH_MAX_AGE);
     let v = verify_nexora_proof(&p, &a);
     match refused(&v) {
         InvalidReason::DeclaredParameterRefused {
@@ -592,7 +597,7 @@ fn n_verifier_context_substitution_a_package_cannot_set_the_verifiers_terms() {
     let mut p = package(&s);
     p.parameters.window_tolerance_ms = 86_400_000;
     let mut a = anchors(&s);
-    a.max_declared_window_tolerance_ms = Some(0);
+    a.capability = a.capability.clone().max_window_tolerance_ms(0);
     match refused(&verify_nexora_proof(&p, &a)) {
         InvalidReason::DeclaredParameterRefused { parameter, .. } => {
             assert_eq!(parameter, "window_tolerance_ms")
@@ -603,13 +608,34 @@ fn n_verifier_context_substitution_a_package_cannot_set_the_verifiers_terms() {
     // Anchors shipped beside a proof carry keys and nothing else: no
     // bounds, and no opinion about what time it is.
     let mut source = anchors(&s);
-    source.max_declared_health_age_ms = Some(1);
-    source.max_declared_window_tolerance_ms = Some(2);
+    source.capability = VerifierCapability::strict()
+        .max_health_age_ms(1)
+        .max_window_tolerance_ms(2);
     source.present_time_ms = Some(3);
-    let imported = import_anchors(&export_anchors(&source).unwrap()).unwrap();
-    assert_eq!(imported.max_declared_health_age_ms, None);
-    assert_eq!(imported.max_declared_window_tolerance_ms, None);
+    // The importing verifier supplies its own capability; nothing in the
+    // file contributes to it, so the source's bounds simply do not arrive.
+    let mine = VerifierCapability::strict().max_health_age_ms(999);
+    let imported = import_anchors(&export_anchors(&source).unwrap(), mine.clone()).unwrap();
+    assert_eq!(
+        imported.capability, mine,
+        "the importer's own terms, unchanged"
+    );
+    assert_ne!(imported.capability, source.capability);
     assert_eq!(imported.present_time_ms, None);
+    // There is no bound field in the anchor file at all, so there is
+    // nothing for a forger to put one in.
+    let text = String::from_utf8(export_anchors(&source).unwrap()).unwrap();
+    for word in [
+        "max_health",
+        "capability",
+        "window_tolerance",
+        "present_time",
+    ] {
+        assert!(
+            !text.contains(word),
+            "{word} is stateable in an anchor file"
+        );
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════

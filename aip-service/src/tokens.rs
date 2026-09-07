@@ -136,18 +136,18 @@ pub fn verify(token: &str, decoding_key: &DecodingKey) -> VerifyResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::keys::ServiceKey;
+    use crate::keys::KeyPair;
 
-    fn test_keypair() -> ServiceKey {
-        ServiceKey::generate()
+    fn test_keypair() -> KeyPair {
+        KeyPair::generate()
     }
 
-    fn encoding_key(kp: &ServiceKey) -> EncodingKey {
-        kp.encoding_key()
+    fn encoding_key(kp: &KeyPair) -> EncodingKey {
+        EncodingKey::from_ed_pem(kp.private_pem.as_bytes()).expect("test keypair PEM must be valid")
     }
 
-    fn decoding_key(kp: &ServiceKey) -> DecodingKey {
-        kp.decoding_key()
+    fn decoding_key(kp: &KeyPair) -> DecodingKey {
+        DecodingKey::from_ed_pem(kp.public_pem.as_bytes()).expect("test keypair PEM must be valid")
     }
 
     const AGENT_ID: &str = "550e8400-e29b-41d4-a716-446655440000";

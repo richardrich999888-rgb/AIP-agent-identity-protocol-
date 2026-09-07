@@ -1,5 +1,7 @@
 //! AIP Crypto — Ed25519 signing, SHA-256 hashing, Base58, AIP-ID derivation.
 
+pub mod custody;
+
 use aip_types::{AlgorithmId, KeyPair, ProvenanceTriple, Signature};
 use ed25519_dalek::{Signer, SigningKey, Verifier, VerifyingKey};
 use sha2::{Digest, Sha256};

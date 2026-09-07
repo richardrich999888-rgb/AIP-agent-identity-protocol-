@@ -8,7 +8,6 @@ description = "Domain logic for AIP: identity creation, validation, lifecycle st
 [dependencies]
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
-aip-custody = { path = "../aip-custody" }
 sha2 = "0.10"
 rand = "0.8"
 serde = { version = "1.0", features = ["derive"] }
