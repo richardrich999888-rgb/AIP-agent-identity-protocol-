@@ -284,7 +284,6 @@ impl KeyCustody for ServiceKey {
     fn custody_class(&self) -> CustodyClass {
         self.custody
     }
-
 }
 
 /// The service key signs arbitrary bytes: audit-export manifests, and whatever

@@ -9,8 +9,8 @@
 use std::fs;
 use std::path::PathBuf;
 
-use airon_aip::keys::ServiceKey;
 use aip_custody::{CustodyClass, CustodyError, CustodyPolicy, KeyCustody, SigningCustodian};
+use airon_aip::keys::ServiceKey;
 
 fn scratch(name: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!("aip_svc_key_{}_{}", name, std::process::id()));
@@ -147,8 +147,8 @@ fn debug_redacts_the_seed_and_the_private_pem() {
 /// cannot assert the absence of an API.
 #[test]
 fn structural_no_private_key_accessor_remains() {
-    let src = fs::read_to_string(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/keys.rs"))
-        .unwrap();
+    let src =
+        fs::read_to_string(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/keys.rs")).unwrap();
     let code: String = src
         .lines()
         .filter(|l| !l.trim_start().starts_with("//") && !l.trim_start().starts_with("//!"))

@@ -114,7 +114,10 @@ fn t05_a_batch_cannot_be_relabelled_as_another_observer() {
 
     // Another observer, separately anchored.
     let other_kp = generate_ed25519_keypair();
-    let anchors = f.anchors.clone().trust("other-observer", V1, &other_kp.public_key);
+    let anchors = f
+        .anchors
+        .clone()
+        .trust("other-observer", V1, &other_kp.public_key);
 
     a.observer_id = "other-observer".to_string();
     assert_ne!(

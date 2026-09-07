@@ -80,8 +80,7 @@ fn t01_plaintext_persistence_refused_under_production_policy() {
     let path = dir.join("store.json");
 
     let err = IdentityStore::with_file_and_plaintext_keys(&path, CustodyPolicy::Production)
-        .err()
-        .expect("a production policy must refuse plaintext key persistence");
+        .expect_err("a production policy must refuse plaintext key persistence");
     assert!(
         matches!(err, StoreError::CustodyRefused(_)),
         "expected CustodyRefused, got {err:?}"
@@ -277,8 +276,7 @@ fn t02_structural_stored_identity_has_no_key_accessor() {
         .next()
         .unwrap()
         .lines()
-        .filter(|l| l.trim_start().starts_with("#[derive"))
-        .next_back()
+        .rfind(|l| l.trim_start().starts_with("#[derive"))
         .unwrap_or("")
         .to_string();
     assert!(

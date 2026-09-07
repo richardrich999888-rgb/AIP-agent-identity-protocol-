@@ -182,7 +182,7 @@ fn t04_verification_is_independent_of_custody() {
 
     let dev = DevCustodian::from_bytes("same", 0, &kp.private_key, &kp.public_key);
     let file = FileCustodian::create(
-        &dir.join("k.key"),
+        dir.join("k.key"),
         "same",
         0,
         &kp.private_key,
@@ -236,7 +236,13 @@ fn t06_structural_trait_exposes_no_key_accessor() {
         })
         .collect();
 
-    let mut expected = vec!["key_id", "key_version", "public_key", "custody_class", "sign"];
+    let mut expected = vec![
+        "key_id",
+        "key_version",
+        "public_key",
+        "custody_class",
+        "sign",
+    ];
     expected.sort();
     let mut got = methods.clone();
     got.sort();
@@ -488,7 +494,10 @@ fn t13_wrong_key_length_is_refused_at_creation() {
             matches!(err, CustodyError::Malformed { .. }),
             "{name}: expected Malformed, got {err:?}"
         );
-        assert!(!path.exists(), "{name}: a refused create must write nothing");
+        assert!(
+            !path.exists(),
+            "{name}: a refused create must write nothing"
+        );
     }
 }
 
@@ -496,14 +505,8 @@ fn t13_wrong_key_length_is_refused_at_creation() {
 fn t13_empty_key_id_is_refused() {
     let dir = scratch("t13b");
     let kp = aip_crypto::generate_ed25519_keypair();
-    let err = FileCustodian::create(
-        &dir.join("k.key"),
-        "",
-        0,
-        &kp.private_key,
-        &kp.public_key,
-    )
-    .unwrap_err();
+    let err = FileCustodian::create(dir.join("k.key"), "", 0, &kp.private_key, &kp.public_key)
+        .unwrap_err();
     assert!(matches!(err, CustodyError::Malformed { .. }), "{err:?}");
 }
 
@@ -535,7 +538,7 @@ fn t16_dev_backend_is_classified_development_and_refused_in_production() {
 #[test]
 fn t16_file_backend_is_admitted_in_production() {
     let dir = scratch("t16");
-    let file = FileCustodian::generate(&dir.join("k.key"), "svc", 0).unwrap();
+    let file = FileCustodian::generate(dir.join("k.key"), "svc", 0).unwrap();
     assert_eq!(file.custody_class(), CustodyClass::OsProtectedFile);
     assert!(admits(CustodyPolicy::Production, &file).is_ok());
     assert!(
