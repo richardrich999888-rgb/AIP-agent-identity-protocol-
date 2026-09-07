@@ -195,3 +195,53 @@ reach this door at all, so in practice the answer is still no.
 | "refuses to run in an amnesic state" | yes, for the collector's own state | under the default strict policy the collector refuses to sign after amnesia, rollback or fork and leaves a signed report of the refusal; a fork is quarantined under every policy; a truncated archive is reported and the collector runs as recovering (Gate 8, `continuity_runtime` cr01–cr10, a real process restarted in `live_collector_restart`) |
 | "10 Gbps", "line rate", "sub-1% overhead", "TRL" figures | not measurable here | no benchmark in this repository measures the observer; the figures on the `codex` branches measure unrelated userspace code. The machine this was built and tested on is a virtual one with a virtual network card, so no figure about real network hardware could be produced even in principle |
 | "XDP" | tested, deliberately not used | the kernel here does accept and run an XDP program — that was measured, not assumed — but the system does not use one. The packet-level question is already answered by a simpler tap that carries the same information, and the one thing XDP would add is the ability to drop packets, which is a power this system was deliberately not given |
+
+## 9. It can hand you a file that somebody else can check without you
+
+This is the newest piece, and the easiest to overstate, so here is what it
+actually does.
+
+When the dog has watched something happen and the reconciler has drawn its
+conclusion, all of that can be packed into a single file: what was
+authorised and who signed the authorisation, what the collector saw and its
+signature over it, whether its record of the world was unbroken, and the
+conclusion itself. About ten kilobytes for one action.
+
+You can email that file to someone. They run one command. It reads the file
+and a second file holding the public keys *they* already decided to trust —
+never keys that came with the proof, because a forger would simply ship
+their own — and it tells them what the package supports. It does not phone
+anyone, look anything up, or need to know you exist.
+
+**The part that makes it worth anything:** their program does not read the
+conclusion in the file. It re-runs the same reconciler over the same
+evidence and checks that it gets the same answer. If somebody edited the
+file to say "verified" where it said "cannot prove", the answer does not
+come out the same and the package is refused. You cannot make weak evidence
+strong by writing a stronger word into the file, because nothing reads the
+word.
+
+We tested this by doing it: a real program on this machine made a real
+network connection, the kernel's own records were read and signed, the file
+was written, everything in memory was thrown away, and a separate program
+checked the file. Then we changed one millisecond of one timestamp and it
+was refused. Then seven other things, one at a time, and each was refused.
+
+**What it says about time.** A proof is a statement about the past, and the
+past does not expire. If the permission the agent was acting under ran out
+last year, the proof is still true — and the checker says so *and* says the
+permission has expired, in the same breath, because those are different
+sentences. It ends every report with: this is not authority to act now.
+Somebody waving a valid proof around as though it were a permission slip is
+something no file can prevent; what we can do is make sure there is nothing
+in the file that looks like one.
+
+**What it does not do.** It does not stop somebody deleting the file. It
+does not prove the file is the only one — if a party controls both the
+ledger and its backups they can drop entries and present a shorter, tidy
+history, and defeating that needs the ledger's fingerprint published
+somewhere outside their reach, which we have not built. And it does not
+turn a good look at something into certainty: the dog's evidence about what
+a program did is attested — a trustworthy witness's signed account — and
+the checker says "attested", not "proven". We tested that it says the
+weaker word.

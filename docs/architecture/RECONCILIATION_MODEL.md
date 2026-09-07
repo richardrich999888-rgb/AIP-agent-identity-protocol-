@@ -342,3 +342,54 @@ acknowledgement, and unplaceable segments (wc05–wc08, wc11); ambiguity
 nothing (wc12, wc13); record v5 canonical bytes (wc14); a segment altered
 after attestation is a `Proven` `SENSOR_INTEGRITY_FAILURE` (wc15). Live:
 `ghost-demo/tests/live_wire.rs`.
+
+## The proof question (Skill 10)
+
+An offline verifier re-runs this engine over a package's own inputs and
+compares canonical digests, so the reconciler is now consumed twice: once
+live, and once by whoever checks the package later. Three consequences the
+model has to carry.
+
+**The verdict must be reproducible from the evidence alone.** It is:
+`aip-nexora`'s `rederive` supplies the verifier's anchors and the package's
+declared parameters and gets the same record back. A package whose verdict
+is not derivable from its own evidence is refused with
+`ClaimNotDerivable`. This is what makes packaging incapable of strengthening
+evidence.
+
+**The record must not be constructible by anyone else.** `Reconciliation`
+is `#[non_exhaustive]` with a crate-private `Provenance`, so a downstream
+crate cannot build one; deserialisation yields `Provenance::Deserialized`,
+and `is_engine_produced()` reports false. The warrant engine refuses
+anything else outright (AUDIT §14).
+
+**Revocation is the engine's answer, and the verifier must not disagree
+with it.** `authority_edge` draws no edge from a revoked root or hop.
+Gate 12 case U found the NEXORA verifier reporting a verified authority
+lineage for a token the operator had revoked — the two halves disagreeing
+about the same evidence. The verifier now reports
+`LineageStanding::Revoked`, which asserts no link.
+
+### What the engine can and cannot produce
+
+The strengths the guard permits out of `Draft::finish`:
+
+```
+VERIFIED_EXECUTION        Attested
+PHANTOM_CLAIM             Attested
+UNATTRIBUTED_EFFECT       Attested
+IDENTITY_DIVERGENCE       Attested
+LINEAGE_VIOLATION         Attested   ← procfs-bound instances, never Proven
+CONTINUITY_FAILURE        Attested
+SENSOR_INTEGRITY_FAILURE  Attested, Proven
+CANNOT_PROVE              Heuristic
+```
+
+`SENSOR_INTEGRITY_FAILURE` is the only `Proven` result, and it earns the
+word because a verifier can recompute it from bytes it already holds. Every
+statement about what a *workload* did is at most `Attested`, because the
+underlying sources — `/proc` content, socket-table reads, kernel event
+streams — are attested observations of a host's own reporting rather than
+recomputable facts. This is the fact that makes autonomous containment
+unreachable (`CONTAINMENT_MODEL.md` §10), and it must not be relaxed to
+make a downstream gate reachable.

@@ -200,3 +200,43 @@ measured, and what may and may not be claimed is
 **VALIDATED RUNTIME** — the evidence machinery in `aip-standalone`,
 validated at runtime against a real kernel, and explicitly *not* a shipped
 product: §5 and §6 above still describe `aip-service` accurately.
+
+## 9. Skill 10 — the proof layer (added after Gates 0–16)
+
+`aip-nexora` is now a complete portable-proof layer over verified execution
+history, at status **VALIDATED OFFLINE PROOF**
+(`NEXORA_IMPLEMENTATION_REPORT.md`).
+
+**What exists.** A signed proof package (`NexoraProof`, format v1) carrying
+identity, authority, expectation, observer records, continuity, lineage,
+the reconciliation record, a warrant and a Merkle inclusion proof. An
+offline verifier that re-runs the reconciler over the package's own inputs
+rather than believing its claim. A `nexora-verify` binary that takes a
+proof file, an anchor file and the verifier's own bounds, and reads nothing
+else. Export/import, a replay ledger, and a live demonstrator that packages
+a real kernel-observed execution and verifies it in a separate process.
+
+**Three AIP-level defects Skill 10 found and closed**, all in code outside
+`aip-nexora`:
+
+- `verify_delegation_chain` never authenticated its root token, so a chain
+  could verify from a token nobody signed. Four callers happened to check
+  it separately; the offline verifier did not. Fixed in `aip-core`.
+- The verifier reported `result` and `strength` on packages it had refused.
+- Carried components the verifier never reached reported `Absent`, which is
+  the statement "the package does not carry it".
+
+**Two P0 audit findings closed earlier in the same programme:** the packet
+verifier had no trusted verification-time bound (R16), and a delegation
+issuer was not bound to the previous grantee. Both had RED tests
+demonstrating the exploit before the fix.
+
+**What is still true of the system as a whole.** Every statement about what
+a *workload* did is at most `Attested`. The only `Proven` result the engine
+produces is a sensor-integrity finding, aimed at the observer. Autonomous
+containment is therefore unreachable, deliberately and provably
+(`CONTAINMENT_MODEL.md` §10, `aip-containment/tests/reachability.rs`).
+
+**Measured, on one 4-vCPU virtual machine, release build:** a proof of one
+authorised action is ~10.3 kB and verifies cold — parse plus check, six
+signatures — in ~630 µs. Nothing is known about behaviour at scale.

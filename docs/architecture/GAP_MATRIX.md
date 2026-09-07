@@ -304,3 +304,34 @@ RED: `4a5f716`. GREEN: `2f1ba9b`. Live: `ghost-demo` scenarios F-P, F-A, F-N.
 | File identity independent of path | **MISSING here** — `FAN_REPORT_FID` refused (`ENODEV`, zero fsid on this root filesystem) | object handle in the event | a path is a name; renames and mount namespaces can make the authorized and observed names differ | a filesystem with a fsid | **P2** |
 | Creates, deletes, renames | **MISSING** (need `FAN_REPORT_FID` directory events) | — | only completed writes are observable | as above | **P2** |
 | Event time | **weaker than the tracepoints**: fanotify carries no kernel timestamp; the probe stamps at read | — | placement rests on read cadence plus the anchor | — | **P2** |
+
+## H. Skill 10 — the proof layer, and what it left open
+
+Closed by Gates 0–16 (`NEXORA_IMPLEMENTATION_REPORT.md`):
+
+| gap | closed by |
+|---|---|
+| No portable proof object | `NexoraProof` v1, domain-separated, `proof_id` stable across transport |
+| No offline verification | `verify_nexora_proof` + `nexora-verify`, no clock/network/filesystem |
+| A claimed verdict could be believed | re-derivation; `ClaimNotDerivable` when it does not follow |
+| Coverage could be asserted by the assembler | no coverage field exists; the verifier derives five states |
+| Lineage could be inferred | three kinds, six standings, `Unavailable` for an absent edge |
+| Continuity breaks could soften | every break maps to `Discontinuous`, exhaustively |
+| A revoked token still conferred authority | `LineageStanding::Revoked` (Gate 12 case U) |
+| A refused package still stated a result | cleared on any `Invalid` verdict |
+| A carried component could report `Absent` | components start `Unverifiable(NOT_REACHED)` when carried |
+| A chain could verify from an unsigned root | `verify_delegation_chain` authenticates its root (Gate 14) |
+| The CLI could not state the verifier's own bounds | `--max-health-age-ms`, `--max-window-tolerance-ms`, `--now-ms` |
+| No end-to-end evidence that any of it works live | `ghost-demo/tests/live_nexora.rs`, six cases on this kernel |
+
+Still open, and each is a real boundary rather than a to-do:
+
+| gap | why it matters | state |
+|---|---|---|
+| The commitment head is not externally anchored | a party controlling log and archive can truncate history | `HeadTracker`/`AnchorSink` are the interface; no service implemented |
+| No `Proven` workload finding | autonomous containment is unreachable; the response pipeline is built and idle | decided position, `CONTAINMENT_MODEL.md` §10 |
+| No kernel-resident sensing | coverage depends on user-space reads the host could stop | no eBPF, no XDP, none claimed |
+| Software keys only | root on a *collector* host is unbounded | no TPM, no HSM |
+| No revocation distribution | `revoked_jtis` is a list the operator hands the verifier | no CRL, no OCSP, no service |
+| `aip_core::respond_to_challenge` signs an untagged nonce | a signature with no domain tag | on no NEXORA path; **recorded and open**, not fixed |
+| One machine, one build, for every measurement | nothing is known at scale | `aip-nexora/tests/perf.rs` says so in its own header |

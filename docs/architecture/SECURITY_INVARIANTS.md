@@ -195,3 +195,28 @@ and which test fails if the enforcement is removed.
 | 18 | Application logs never silently become independent truth | no such sensor exists; the decision and its fence | `APPLICATION_LOG_SENSOR_DECISION.md`; g5a–g5d |
 | 19 | Every positive verdict names its trust root | every record carries `EvidenceRef`s naming observer, key version, sequence, batch and decision point | `aip-reconcile/tests/transition_evidence.rs` (22) |
 | 20 | Every architectural claim maps to executable evidence | this table; `SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md` §§3–5 | 787 tests in `aip-standalone`, 39 in `aip-service` |
+
+## Skill 10 additions — invariants the proof layer introduced
+
+Each is enforced by a named test that fails if it stops holding.
+
+| # | invariant | enforced by |
+|---|---|---|
+| N1 | A verifier re-derives the verdict; it never reads the claimed one. | `adversarial.rs::t`, `verify.rs` re-derivation |
+| N2 | `CANNOT_PROVE` cannot become `PROVEN` through packaging, export, import or transport. | `adversarial.rs::t`, `live_nexora.rs::g14_04` |
+| N3 | A refused package establishes nothing: no result, no strength. | `adversarial.rs::establishes_nothing`, used by every refusal case |
+| N4 | A carried component is never reported `Absent`. | `adversarial.rs::g`, `v`; `verify.rs::NOT_REACHED` |
+| N5 | A package cannot tell a verifier what it will accept, or what time it is. | `adversarial.rs::n`, `export.rs::import_anchors` |
+| N6 | Coverage is derived by the verifier; a package has no field for it. | `adversarial.rs::s`, `coverage.rs::g6_06` |
+| N7 | Exactly one coverage state licenses a statement about absence. | `ObservationCoverage::licenses_absence_claim`, `adversarial.rs::q` |
+| N8 | Any continuity break the collector reports reads as `Discontinuous`. | `adversarial.rs::i`, exhaustive over the variants |
+| N9 | A revoked token asserts no authority link. | `adversarial.rs::u`, `LineageStanding::Revoked` |
+| N10 | Withdrawing an observer's anchor withdraws its evidence and its coverage. | `adversarial.rs::v` |
+| N11 | A delegation chain is verified from its root, not from an assumed one. | `aip-core::delegation::tests::the_root_token_a_chain_starts_from_must_be_authentic` |
+| N12 | A signature made for one purpose does not verify for another. | `adversarial.rs::k`, `audit.rs::a01` |
+| N13 | An unimplemented algorithm identifier is refused, never checked as Ed25519. | `audit.rs::a07`, `a08` |
+| N14 | Offline verification is deterministic and grants no authority. | `adversarial.rs::j`, `m`; `AuthorityStanding::grants_authority_now` |
+| N15 | No engine-producible record warrants autonomous containment. | `aip-containment/tests/reachability.rs` |
+
+The full statement of what each of these does *not* establish is in
+`NEXORA_IMPLEMENTATION_REPORT.md` §12 and §13.

@@ -153,3 +153,43 @@ bytes are what was committed. And the anchor is only as external as its
 deployment: `MemoryAnchor` is the shape, not the independence. Wiring the
 reconciler's output and the collector's batches into a log as they are
 produced, and durable storage of logs and heads, are not done.
+
+## Gate 16 note — the boundary held, and what it cost to keep it
+
+Skill 10 is complete (`NEXORA_IMPLEMENTATION_REPORT.md`, status
+**VALIDATED OFFLINE PROOF**). The boundary this document draws was tested
+by building the whole proof layer against it, and it held in the way that
+matters: NEXORA never became a second anything.
+
+**It did not become a second authority engine.** The verifier calls
+`aip_core::delegation::verify_delegation_chain` and
+`aip_authorize::verify_expected_execution`. When Gate 14 found that the
+chain verifier never authenticated its own root token, the fix went into
+`aip-core` — not into NEXORA as a compensating check. A second copy of
+authority logic here would have been the exact defect this boundary exists
+to prevent, and it would have hidden the aip-core weakness rather than
+closing it.
+
+**It did not become a second reconciler.** The verifier re-runs
+`aip_reconcile::reconcile_expectation` and `reconcile_lineage`. It contains
+no code that writes a `ReconciliationResult` or an `EvidenceStrength`, so
+`CANNOT_PROVE` cannot become `PROVEN` here — not by policy, but because no
+statement exists that could.
+
+**It did not become a second warrant model.** NEXORA checks a warrant's
+signature and its binding to the record and subject. It never evaluates
+policy and never acts.
+
+**It did not become an alternative observation system.** Every fact about
+what happened comes from the collector's signed records. NEXORA derives
+coverage *from* those records; it does not observe.
+
+**It did not become a source of stronger evidence than its inputs justify.**
+The live demonstrator packages a real kernel-observed execution and the
+verifier reports `Attested`. The test asserts it is not `Proven`.
+
+The one thing the boundary does **not** give: an externally anchored head.
+The commitment is signed and chained; nothing outside the log witnesses it,
+so truncation by a party controlling both log and archive is not defeated.
+`HeadTracker` and `AnchorSink` are the interface for closing that, and no
+anchoring service is implemented.

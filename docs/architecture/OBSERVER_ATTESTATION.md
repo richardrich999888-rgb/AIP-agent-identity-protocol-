@@ -114,3 +114,40 @@ already used for detached signatures over arbitrary bytes in `bundle.rs:161`,
 and are a suitable primitive here. A *primitive* is not a protocol (**I15**) —
 domain separation must be added, since no signed payload in AIP currently
 carries a type tag.
+
+## 7. What the proof layer requires of the observer (Skill 10)
+
+A NEXORA package carries the collector's records unchanged and the verifier
+checks them under its own anchors. Four things that placed on the observer,
+all now implemented.
+
+**The probe holds no key.** `ProcfsProbe` measures; `CollectorSigner`
+attests, off-host. The verifier separately refuses an observer anchor that
+is the observed agent's own key (I10) and a decision-point key that is the
+agent's (I1), and when it does not hold the agent's key it reports
+`Independence::NotChecked` rather than passing quietly
+(`aip-nexora/tests/audit.rs::a10`).
+
+**Provenance is scoped.** `register_probe` names which mechanisms a probe
+is provisioned for, and a batch claiming provenance it was not provisioned
+for is refused at attestation (`aip-observe/tests/fanotify.rs::fa07`).
+
+**Coverage is the verifier's derivation, not the collector's claim.** The
+package has no coverage field. The verifier reads
+`SignedSensorHealth::attested_coverage` and the re-derived record and
+decides between `Observed`, `AvailableAndEmpty`, `Ambiguous`, `Loss` and
+`CannotEstablish`. Exactly one of those — `AvailableAndEmpty` — licenses a
+statement about something not having happened.
+
+**Revoking an observer is withdrawing its anchor.** The package does not
+change; the verifier stops believing it. The observer component becomes
+`Unverifiable` — never `Absent`, because the records were carried — and the
+coverage that rested on them goes with them
+(`aip-nexora/tests/adversarial.rs::v_revoked_observer_*`). There is no
+revocation distribution mechanism: the anchor set is the verifier's own,
+provisioned out of band.
+
+**Still not selected:** a hardware-backed trust anchor. The signing key is
+software-held off-host. Root on the observed host cannot forge attested
+records, but it can stop the probe — which yields `CannotEstablish`, an
+honest denial of evidence rather than a clean bill of health.
