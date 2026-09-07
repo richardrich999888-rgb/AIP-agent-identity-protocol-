@@ -11,7 +11,7 @@
 use aip_core::nonce::NonceTracker;
 use aip_core::runtime::bind_identity_to_runtime;
 use aip_core::simulation::simulate_network_verification;
-use aip_core::store::IdentityStore;
+use aip_core::store::{IdentityStore, Persistence};
 use aip_core::*;
 use aip_crypto::*;
 use aip_types::*;
@@ -323,8 +323,12 @@ fn cmd_simulate(agent_count: usize) {
     }
 }
 
+/// The CLI is a development tool and its store is a development store: it
+/// writes private keys to disk (owner-only, but in the clear). Production
+/// deployments keep signing keys in a custodian — see
+/// `aip_crypto::custody` and `docs/adr/ADR-KEY-CUSTODY.md`.
 fn load_store(path: &PathBuf) -> IdentityStore {
-    IdentityStore::with_file(path).unwrap_or_else(|e| {
+    IdentityStore::with_file(path, Persistence::DevelopmentPlaintext).unwrap_or_else(|e| {
         eprintln!("Warning: Could not load store ({}), using empty store", e);
         IdentityStore::new()
     })

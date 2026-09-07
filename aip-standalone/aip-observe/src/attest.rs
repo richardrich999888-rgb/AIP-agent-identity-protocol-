@@ -40,7 +40,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use aip_crypto::{sha256, sign_ed25519, verify_ed25519};
+use aip_crypto::{sha256, verify_ed25519};
 use aip_types::canonical::*;
 use aip_types::{AipError, Signature};
 use serde::{Deserialize, Serialize};
@@ -292,6 +292,9 @@ pub enum AttestError {
     Quarantined,
     UnsupportedVersion(u16),
     InvalidKeyLength(usize),
+    /// The custodian could not sign. Reported rather than retried: a
+    /// collector that cannot sign must stop, not produce something weaker.
+    Custody(String),
     EmptyObserverId,
     /// A snapshot of another observer was offered for resume. Splicing one
     /// observer's chain position onto another's id is refused.
@@ -357,7 +360,13 @@ pub enum ProbeStreamFault {
 pub struct CollectorSigner {
     observer_id: String,
     key_version: u32,
-    private_key: Vec<u8>,
+    /// The key, held by a custodian rather than as bytes on this struct.
+    /// There is no accessor: this type signs and does not surrender
+    /// (Phase A). `new` wraps caller-supplied bytes in a development
+    /// custodian so existing provisioning keeps working;
+    /// `with_custodian` is the production path, where the key is never in
+    /// the caller's hands at all.
+    custodian: Box<dyn aip_crypto::custody::Custodian>,
     public_key: Vec<u8>,
     ledger: ObserverLedger,
     /// Coverage the collector is willing to vouch for. `None` whenever
@@ -382,6 +391,10 @@ impl std::fmt::Debug for CollectorSigner {
             .field("observer_id", &self.observer_id)
             .field("key_version", &self.key_version)
             .field("public_key", &self.public_key)
+            // Both: the backend, so an operator can see what holds the
+            // key, and an explicit marker, so a reader can see that
+            // something was withheld rather than that nothing was there.
+            .field("custody", &self.custodian.backend())
             .field("private_key", &"<redacted>")
             .field("sequence", &self.ledger.last_sequence())
             .field("continuity", &self.ledger.status())
@@ -397,6 +410,30 @@ impl std::fmt::Debug for CollectorSigner {
 }
 
 impl CollectorSigner {
+    /// Build a signer whose key is held by a custodian, so the private key
+    /// never passes through the caller's hands at all.
+    ///
+    /// This is the production path. With
+    /// [`CollectorKey::production`](crate::custody::CollectorKey::production)
+    /// the key is generated, wrapped and opened by the custodian, and there
+    /// is nothing for a caller to log, serialize or leak.
+    pub fn with_custodian(
+        observer_id: impl Into<String>,
+        key_version: u32,
+        custodian: Box<dyn aip_crypto::custody::Custodian>,
+    ) -> Result<Self, AttestError> {
+        let public_key = custodian.public_key().to_vec();
+        if public_key.len() != 32 {
+            return Err(AttestError::InvalidKeyLength(public_key.len()));
+        }
+        // Built through `new` so there is one construction path and one set
+        // of invariants. The placeholder key it is handed is replaced by the
+        // real custodian before anything is signed.
+        let mut s = Self::new(observer_id, key_version, &[0u8; 32], &public_key)?;
+        s.custodian = custodian;
+        Ok(s)
+    }
+
     pub fn new(
         observer_id: impl Into<String>,
         key_version: u32,
@@ -416,7 +453,10 @@ impl CollectorSigner {
         Ok(Self {
             observer_id,
             key_version,
-            private_key: private_key.to_vec(),
+            custodian: Box::new(
+                aip_crypto::custody::InMemoryCustodian::new(private_key, public_key)
+                    .map_err(|_| AttestError::InvalidKeyLength(private_key.len()))?,
+            ),
             public_key: public_key.to_vec(),
             ledger: ObserverLedger::new(),
             attested_coverage: None,
@@ -550,6 +590,13 @@ impl CollectorSigner {
         Ok((s, brk))
     }
 
+    /// What is holding this collector's key. Reported so a deployment can
+    /// assert it is not running a development backend in production, and so
+    /// an operator can see it without guessing.
+    pub fn custody_backend(&self) -> aip_crypto::custody::Backend {
+        self.custodian.backend()
+    }
+
     /// Rotate to a new key version. History signed under the old version
     /// stays verifiable while the verifier keeps that anchor.
     pub fn rotate_key(
@@ -562,7 +609,10 @@ impl CollectorSigner {
             return Err(AttestError::InvalidKeyLength(private_key.len()));
         }
         self.key_version = new_version;
-        self.private_key = private_key.to_vec();
+        self.custodian = Box::new(
+            aip_crypto::custody::InMemoryCustodian::new(private_key, public_key)
+                .map_err(|_| AttestError::InvalidKeyLength(private_key.len()))?,
+        );
         self.public_key = public_key.to_vec();
         Ok(())
     }
@@ -751,12 +801,10 @@ impl ObserverAttestor for CollectorSigner {
             batch,
             attestation: placeholder_signature(&self.observer_id),
         };
-        let sig = sign_ed25519(
-            &self.private_key,
-            &self.observer_id,
-            &attested.signing_preimage(),
-        )
-        .map_err(AttestError::Signing)?;
+        let sig = self
+            .custodian
+            .sign(&self.observer_id, &attested.signing_preimage())
+            .map_err(|e| AttestError::Custody(e.to_string()))?;
         Ok(AttestedBatch {
             attestation: sig,
             ..attested
@@ -788,12 +836,10 @@ impl ObserverAttestor for CollectorSigner {
             },
             emitted_at_ms,
         };
-        let attestation = sign_ed25519(
-            &self.private_key,
-            &self.observer_id,
-            &health.canonical_bytes(),
-        )
-        .map_err(AttestError::Signing)?;
+        let attestation = self
+            .custodian
+            .sign(&self.observer_id, &health.canonical_bytes())
+            .map_err(|e| AttestError::Custody(e.to_string()))?;
         Ok(SignedSensorHealth {
             health,
             attestation,

@@ -277,7 +277,7 @@ mod integration_tests {
 
     #[test]
     fn test_store_identity_persistence_roundtrip() {
-        use aip_core::store::IdentityStore;
+        use aip_core::store::{IdentityStore, Persistence};
 
         let tmp_path = std::env::temp_dir().join("aip_integration_test_store.json");
         let _ = std::fs::remove_file(&tmp_path);
@@ -290,14 +290,16 @@ mod integration_tests {
         assert!(validate_aid(&aid).is_ok(), "AID must validate before store");
 
         {
-            let mut store = IdentityStore::with_file(&tmp_path).unwrap();
+            let mut store =
+                IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
             store.put_identity(aid, kp);
             store.save().unwrap();
         }
 
         // Load from file and verify it's the same
         {
-            let store = IdentityStore::with_file(&tmp_path).unwrap();
+            let store =
+                IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
             let loaded = store.get_identity(&agent_id).unwrap();
             assert_eq!(loaded.aid.id, agent_id);
             assert_eq!(loaded.aid.status, IdentityStatus::Pending);

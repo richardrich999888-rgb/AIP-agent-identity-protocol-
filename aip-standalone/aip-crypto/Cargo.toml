@@ -11,3 +11,10 @@ ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 sha2 = "0.10"
 rand = "0.8"
 bs58 = "0.5"
+# Phase A key custody. Argon2id is memory-hard so a stolen wrapped file
+# does not fall to a fast dictionary attack; XChaCha20-Poly1305 has a
+# 24-byte nonce, large enough that a random one per write needs no counter
+# to stay safe. zeroize wipes decrypted material on drop.
+argon2 = "0.5"
+chacha20poly1305 = "0.10"
+zeroize = "1.8"

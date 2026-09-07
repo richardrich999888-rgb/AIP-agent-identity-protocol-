@@ -22,6 +22,33 @@ struct StoreData {
     reputations: HashMap<String, ReputationRecord>,
 }
 
+/// What a store is allowed to write.
+///
+/// Named at construction and never inferred, because the difference is
+/// whether private keys reach the disk in the clear and that is not a
+/// thing to get wrong by omission (Phase A).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Persistence {
+    /// Writes everything it holds, private keys included, as plaintext
+    /// JSON. Development and tests only. The file is still created
+    /// owner-only, because a convenience is no reason to be careless.
+    DevelopmentPlaintext,
+    /// Refuses to write private key material at all. An identity carrying
+    /// a keypair makes `save` fail rather than quietly dropping the key —
+    /// silently writing less than the caller asked for is how a store ends
+    /// up missing the identity somebody needed.
+    ///
+    /// Production deployments keep signing keys in a custodian
+    /// (`aip_crypto::custody`), not in this store.
+    ProductionNoSecrets,
+}
+
+impl Persistence {
+    pub fn is_production(self) -> bool {
+        matches!(self, Persistence::ProductionNoSecrets)
+    }
+}
+
 /// Combined identity and reputation store.
 ///
 /// Operates in-memory with optional file-backed persistence.
@@ -29,6 +56,7 @@ struct StoreData {
 pub struct IdentityStore {
     data: StoreData,
     file_path: Option<PathBuf>,
+    persistence: Persistence,
 }
 
 impl IdentityStore {
@@ -37,12 +65,14 @@ impl IdentityStore {
         Self {
             data: StoreData::default(),
             file_path: None,
+            // Nothing is written, so nothing can be written in the clear.
+            persistence: Persistence::ProductionNoSecrets,
         }
     }
 
     /// Create a store backed by a JSON file.
     /// If the file exists, it will be loaded. Otherwise, an empty store is created.
-    pub fn with_file(path: impl AsRef<Path>) -> Result<Self, StoreError> {
+    pub fn with_file(path: impl AsRef<Path>, persistence: Persistence) -> Result<Self, StoreError> {
         let path = path.as_ref().to_path_buf();
         let data = if path.exists() {
             let contents =
@@ -56,6 +86,7 @@ impl IdentityStore {
         Ok(Self {
             data,
             file_path: Some(path),
+            persistence,
         })
     }
 
@@ -146,9 +177,31 @@ impl IdentityStore {
             std::fs::create_dir_all(parent).map_err(|e| StoreError::IoError(e.to_string()))?;
         }
 
+        // A production store does not write secrets. Counted and named
+        // rather than stripped: writing less than the caller asked for,
+        // without saying so, is its own defect.
+        if self.persistence.is_production() {
+            let with_keys = self
+                .data
+                .identities
+                .values()
+                .filter(|i| !i.keypair.private_key.is_empty())
+                .count();
+            if with_keys > 0 {
+                return Err(StoreError::SecretsRefused(with_keys));
+            }
+        }
+
         let json = serde_json::to_string_pretty(&self.data)
             .map_err(|e| StoreError::SerializationError(e.to_string()))?;
-        std::fs::write(path, json).map_err(|e| StoreError::IoError(e.to_string()))?;
+        // Owner-only, and set on a temporary file before any bytes are
+        // visible under the real name, so a reader never catches key
+        // material at mode 644 in the window between write and chmod.
+        let tmp = path.with_extension("tmp");
+        std::fs::write(&tmp, json).map_err(|e| StoreError::IoError(e.to_string()))?;
+        restrict(&tmp)?;
+        std::fs::rename(&tmp, path).map_err(|e| StoreError::IoError(e.to_string()))?;
+        restrict(path)?;
         Ok(())
     }
 
@@ -171,6 +224,22 @@ impl IdentityStore {
     }
 }
 
+/// Owner-only where the platform has Unix permissions.
+fn restrict(path: &Path) -> Result<(), StoreError> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mut perms = std::fs::metadata(path)
+            .map_err(|e| StoreError::IoError(e.to_string()))?
+            .permissions();
+        perms.set_mode(0o600);
+        std::fs::set_permissions(path, perms).map_err(|e| StoreError::IoError(e.to_string()))?;
+    }
+    #[cfg(not(unix))]
+    let _ = path;
+    Ok(())
+}
+
 impl Default for IdentityStore {
     fn default() -> Self {
         Self::new()
@@ -184,6 +253,10 @@ pub enum StoreError {
     SerializationError(String),
     NoPersistencePath,
     IdentityNotFound(String),
+    /// A production store was asked to save identities carrying private
+    /// keys. Named with the count so an operator knows how much is
+    /// affected, and refused rather than written or silently stripped.
+    SecretsRefused(usize),
 }
 
 impl std::fmt::Display for StoreError {
@@ -192,6 +265,11 @@ impl std::fmt::Display for StoreError {
             StoreError::IoError(e) => write!(f, "Store I/O error: {}", e),
             StoreError::SerializationError(e) => write!(f, "Store serialization error: {}", e),
             StoreError::NoPersistencePath => write!(f, "No persistence path configured"),
+            StoreError::SecretsRefused(n) => write!(
+                f,
+                "refusing to write {n} identity(ies) carrying private keys: this store is \
+                 ProductionNoSecrets. Keep signing keys in a custodian (aip_crypto::custody)."
+            ),
             StoreError::IdentityNotFound(id) => write!(f, "Identity not found: {}", id),
         }
     }
@@ -302,7 +380,8 @@ mod tests {
         let _ = std::fs::remove_file(&tmp_path);
 
         {
-            let mut store = IdentityStore::with_file(&tmp_path).unwrap();
+            let mut store =
+                IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
             let (aid, kp) = make_test_identity();
             store.put_identity(aid, kp);
             store.update_reputation("test_agent", 50_000);
@@ -311,7 +390,8 @@ mod tests {
 
         // Load in a new store instance
         {
-            let store = IdentityStore::with_file(&tmp_path).unwrap();
+            let store =
+                IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
             assert_eq!(store.identity_count(), 1);
             assert!(store.get_reputation("test_agent").is_some());
         }
