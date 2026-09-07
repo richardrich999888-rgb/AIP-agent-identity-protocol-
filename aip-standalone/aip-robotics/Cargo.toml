@@ -1,0 +1,43 @@
+[package]
+name = "aip-robotics"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Robotics autonomy accountability profile: a vertical over the generic core, adding no identity, no verdict and no evidence hierarchy"
+
+# ── A profile, not a robotics security core ───────────────────────────────
+#
+# Every dependency here is consumed and none is extended. This crate defines no
+# identifier, no observation record, no verdict class, no evidence strength, no
+# key and no proof tree. The dependency points one way: nothing in the verdict
+# path depends on it, so a vertical cannot cause a semantic regression in the
+# accountability model it specialises (D17-6, applied to the second vertical).
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-system = { path = "../aip-system" }
+aip-execution = { path = "../aip-execution" }
+aip-platform = { path = "../aip-platform" }
+aip-observation = { path = "../aip-observation" }
+aip-observe = { path = "../aip-observe" }
+aip-effect = { path = "../aip-effect" }
+aip-authorize = { path = "../aip-authorize" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"
+aip-core = { path = "../aip-core" }
+# Driven in tests only, to demonstrate that the profile needs no change to
+# either. Deliberately not runtime dependencies: a profile that could reach the
+# verdict engine at runtime is a profile that could eventually produce a verdict.
+aip-reconcile = { path = "../aip-reconcile" }
+aip-nexora = { path = "../aip-nexora" }
+# The Skill 22 reference, driven as a robot's companion computer — the one
+# observation path a robotics deployment actually has.
+aip-edge = { path = "../aip-edge" }
+# The UAS profile, for the cross-vertical consistency test. Skills 23 and 24
+# share three generic rules and must not drift apart; extracting them into a
+# shared crate would mean editing Skill 23, which this skill's brief forbids,
+# and two instances is too few to know what is genuinely common. The test is
+# the interim guard. See ADR-006.
+aip-uas = { path = "../aip-uas" }

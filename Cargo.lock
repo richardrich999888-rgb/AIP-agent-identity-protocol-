@@ -303,6 +303,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-robotics"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-edge",
+ "aip-effect",
+ "aip-execution",
+ "aip-nexora",
+ "aip-observation",
+ "aip-observe",
+ "aip-platform",
+ "aip-reconcile",
+ "aip-system",
+ "aip-types",
+ "aip-uas",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-system"
 version = "0.4.0"
 dependencies = [
