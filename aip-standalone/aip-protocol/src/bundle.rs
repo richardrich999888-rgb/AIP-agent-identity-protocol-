@@ -106,8 +106,6 @@ fn now_ms() -> u64 {
 ///
 /// `report` is the verification report computed at export time (typically at
 /// the integrity level the service can attest without external trust keys).
-/// `signer_seed`/`signer_public` are the service's Ed25519 key material.
-/// Build a signed audit-export bundle.
 ///
 /// Takes a [`SigningCustodian`] rather than a raw seed. The previous signature
 /// required the caller to hold the service's 32-byte private key and pass it
