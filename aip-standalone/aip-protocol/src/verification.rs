@@ -53,6 +53,23 @@ pub struct VerificationContext {
     /// absorb declared clock skew. Zero by default; a tolerance is a bound,
     /// not a licence.
     pub future_tolerance_ms: u64,
+    /// Ed25519 public keys of the parties this verifier will accept as
+    /// having *assembled* an audit-export bundle.
+    ///
+    /// A bundle carries the key its manifest was signed with, which proves
+    /// the manifest matches that key and nothing about whose key it is. A
+    /// bundle signer is trusted because the verifier put its key here,
+    /// out of band — never because the bundle brought it along.
+    ///
+    /// Empty is the conservative state, not a permissive one: a verifier
+    /// that has anchored no bundle signer cannot attribute any bundle, and
+    /// says so rather than assuming the best.
+    ///
+    /// Deliberately separate from `issuer_public_keys`: assembling a
+    /// bundle and issuing authority are different acts by different
+    /// parties, and one key set doing both would make an issuer implicitly
+    /// a trusted publisher.
+    pub bundle_signer_public_keys: HashMap<String, Vec<u8>>,
 }
 
 impl VerificationContext {
@@ -75,6 +92,13 @@ impl VerificationContext {
     pub fn trust_issuer(mut self, aip_id: &str, public_key: &[u8]) -> Self {
         self.issuer_public_keys
             .insert(aip_id.to_string(), public_key.to_vec());
+        self
+    }
+
+    /// Anchor a party this verifier will accept as a bundle assembler.
+    pub fn trust_bundle_signer(mut self, id: &str, public_key: &[u8]) -> Self {
+        self.bundle_signer_public_keys
+            .insert(id.to_string(), public_key.to_vec());
         self
     }
 

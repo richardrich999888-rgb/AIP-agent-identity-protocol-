@@ -87,6 +87,8 @@ Working code with tests, in this repository.
 | Warrant engine over severity × evidence strength × policy | `aip-warrant` |
 | Containment gates, cgroup v2 freeze actuator, signed containment records | `aip-containment` |
 | Merkle commitment with inclusion and consistency proofs, signed heads | `aip-nexora` |
+| Private-key custody: a custodian that signs without surrendering, passphrase-wrapped at rest | `aip-crypto`, `aip-observe` |
+| Bundle signer anchoring: a valid signature and a trusted signer reported separately | `aip-protocol`, `aip-verify` |
 | Portable proof package, export/import, replay ledger | `aip-nexora` |
 | Offline verifier (`nexora-verify`) that re-derives rather than believes | `aip-nexora` |
 
@@ -133,8 +135,18 @@ Real capabilities whose value depends entirely on how they are deployed.
   own text.
 - **Revocation** — `revoked_jtis` is a list the operator hands the
   verifier. There is no distribution mechanism.
-- **Key custody** — keys are software-held, and at rest in the reference
-  store they are plaintext JSON.
+- **Key custody** — keys are software-held. `aip-crypto::custody` provides a
+  passphrase-wrapped file backend (Argon2id + XChaCha20-Poly1305, mode
+  0600) whose custodian signs without returning key material, and
+  `aip-observe` owns the collector key's custody. What protects the
+  passphrase is a deployment decision this repository does not make, and
+  anyone who can read the running process's memory has the decrypted key —
+  which is what a hardware backend would address and it is not
+  implemented. See `docs/adr/ADR-KEY-CUSTODY.md`.
+- **Bundle attribution** — a bundle's signature is checked against the
+  key it carries (integrity) *and* against the verifier's own anchor set
+  (attribution). Supply `--trust-bundle-signer` or the bundle is reported
+  as unattributed rather than trusted.
 
 ### NOT YET IMPLEMENTED
 
@@ -146,7 +158,9 @@ Named here so nobody has to guess.
 - Packet payload inspection. The wire tap reads headers only.
 - Post-quantum or hybrid signatures. Two algorithm identifiers exist in the
   type and are **refused**, not implemented.
-- Hardware-backed key custody or hardware attestation.
+- Hardware-backed key custody or hardware attestation. Custody is software
+  only, and a protected key would establish *who signed* — never that what
+  was signed is true.
 - Autonomous containment (see below).
 - Any hosted service, SDK ecosystem, or console.
 

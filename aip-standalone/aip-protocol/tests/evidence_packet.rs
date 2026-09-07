@@ -185,6 +185,7 @@ fn build_fixture_opts(root_expires_in_ms: Option<u64>, with_binding: bool) -> Fi
         receipt_data: Some(receipt_data.clone()),
         verification_time_ms: None,
         future_tolerance_ms: 0,
+        bundle_signer_public_keys: Default::default(),
     };
 
     Fixture {
