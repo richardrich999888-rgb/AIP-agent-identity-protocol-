@@ -1484,3 +1484,89 @@ fn t03e_gate_able_tracepoint_alone_is_not_kernel_pushed_coverage() {
     assert_eq!(r.reason, ReasonCode::CoverageNotKernelPushed);
     assert_ne!(r.result, ReconciliationResult::PhantomClaim);
 }
+
+// ═══ Mutation-driven regressions ═══
+//
+// Each test below exists because a mutation of the reconciler survived this
+// suite. See `validation/mutation/CORE_MUTATION_RESULTS.json` and
+// `docs/RECONCILER_VERIFIER_MUTATION_ASSURANCE.md`. They assert observable
+// security properties, not the shape of the implementation.
+
+/// R-10. I10 — an observer anchored to the *agent's own key* is not an
+/// independent observer, and `verify_observer` refuses on the health record
+/// before it looks at a single batch.
+///
+/// Why this needed its own test. Every other path into I10 runs through
+/// `verify_attested_batch_independent_of_agent`, which makes the same
+/// refusal per batch. So with batches present the health-level check is
+/// shadowed, and deleting it changed no result anywhere in this suite. The
+/// one arrangement that reaches it alone is an observer that has attested
+/// nothing yet: sequence 0, no batches, a health record and nothing else.
+/// That is a real deployment state — a collector that has just started — and
+/// it is exactly the state in which an attacker would most like the
+/// independence check to be skipped.
+#[test]
+fn t13d_an_observer_anchored_to_the_agents_key_is_refused_before_any_batch() {
+    let x = expected();
+    let o = Observer::new(true, true);
+    let at = at_of(&x);
+
+    // No batches: the collector has attested nothing, so the per-batch
+    // independence check never runs and the health-level one is the only guard.
+    let ev = o.evidence(vec![], at);
+    assert!(ev.batches.is_empty());
+
+    let mut c = ctx(&x, &o, at);
+    // The verifier holds the agent's key — and it is the very key the
+    // observer is anchored under. The "observer" is the agent.
+    c.agent_public_key = Some(o.kp.public_key.clone());
+
+    let r = reconcile_expectation(&x.ee, Some(&ev), &c);
+    assert_eq!(r.result, ReconciliationResult::CannotProve);
+    assert_eq!(
+        r.reason,
+        ReasonCode::ObserverKeyIsAgentKey,
+        "an observer that is the agent is not independent, batches or none"
+    );
+
+    // Control: the same evidence under a distinct agent key gets past I10 and
+    // fails for an unrelated, honest reason. Without this the test above
+    // would pass even if the reconciler refused everything.
+    let mut c2 = ctx(&x, &o, at);
+    c2.agent_public_key = Some(generate_ed25519_keypair().public_key);
+    let r2 = reconcile_expectation(&x.ee, Some(&ev), &c2);
+    assert_ne!(r2.reason, ReasonCode::ObserverKeyIsAgentKey);
+}
+
+/// R-21. A record read back from bytes is never the engine's own output.
+///
+/// `Provenance` is not serialised, so a round trip must land on
+/// `Deserialized` — that is the whole of the B-9 seal. A consumer that
+/// *acts* on a verdict (`aip-warrant` gate 1) requires
+/// `is_engine_produced()`, so a mutation making it always true hands the
+/// actuator a record anyone could have written. Downstream crates pin this;
+/// nothing in `aip-reconcile`, which owns the invariant, did.
+#[test]
+fn t22_a_record_read_back_from_bytes_is_never_engine_produced() {
+    let x = expected();
+    let o = Observer::new(true, true);
+    let at = at_of(&x);
+
+    let r = reconcile_expectation(&x.ee, None, &ctx(&x, &o, at));
+    assert!(r.is_engine_produced(), "the engine produced this one");
+    assert_eq!(r.provenance(), Provenance::Engine);
+
+    let json = serde_json::to_string(&r).unwrap();
+    let back: Reconciliation = serde_json::from_str(&json).unwrap();
+
+    // The round trip is faithful about the execution …
+    assert_eq!(back.result, r.result);
+    assert_eq!(back.reason, r.reason);
+    assert_eq!(back.digest(), r.digest());
+    // … and honest about itself.
+    assert!(
+        !back.is_engine_produced(),
+        "however faithful, a deserialised record is not the engine's own output"
+    );
+    assert_eq!(back.provenance(), Provenance::Deserialized);
+}

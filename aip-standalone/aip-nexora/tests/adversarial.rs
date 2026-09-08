@@ -1029,3 +1029,74 @@ fn v_revoked_observer_withdrawing_the_anchor_withdraws_the_evidence() {
         "a revoked observer's records must not license an absence claim"
     );
 }
+
+// ═══ Mutation-driven regression ═══
+
+/// N-22. I10, verifier side: an observer whose *anchored key is the agent's
+/// own key* is not an independent observer, and the check holds on the
+/// health record as well as on each batch.
+///
+/// Why this needed its own test. Every batch runs through
+/// `verify_attested_batch_independent_of_agent`, which makes the same
+/// refusal, so with batches present the health-level check is shadowed and
+/// deleting it changed no result in this suite. The arrangement that
+/// reaches it is a package whose claim cites no batch — a reconciliation
+/// that ran with no observer evidence — carrying an observer bundle that is
+/// a health record and nothing else.
+///
+/// That is not a contrived shape. It is what an attacker would assemble:
+/// strip the batches so the per-batch guard never runs, keep a health record
+/// signed by the agent itself, and present the agent as its own witness.
+#[test]
+fn w_the_agent_as_its_own_observer_is_refused_on_the_health_record_alone() {
+    let s = common::verified_execution();
+
+    // A reconciliation that ran with no observer evidence: CANNOT_PROVE, and
+    // its evidence cites the expectation only — no batch, so the binding gate
+    // has nothing to demand and the observer component is actually reached.
+    let claim = aip_reconcile::reconcile_expectation(&s.a.ee, None, &s.ctx());
+    assert_eq!(claim.result, ReconciliationResult::CannotProve);
+
+    // The health record, re-signed under the agent's own private key, and the
+    // observer id anchored to the agent's own public key. Everything about it
+    // verifies; that is the point.
+    let agent_pub = s.a.agent_kp.public_key.clone();
+    let mut health = s.evidence.health.clone();
+    health.attestation = aip_crypto::sign_ed25519(
+        &s.a.agent_kp.private_key,
+        &health.health.observer_id,
+        &health.health.canonical_bytes(),
+    )
+    .unwrap();
+
+    let p = NexoraProof::builder(s.a.agent_id.clone(), claim)
+        .issued_at(s.at + 1)
+        .expectation(s.a.ee.clone())
+        .observer(vec![], health.clone())
+        .parameters(DeclaredParameters {
+            verification_time_ms: s.at,
+            health_max_age_ms: common::HEALTH_MAX_AGE,
+            window_tolerance_ms: 0,
+            agent_key_supplied: true,
+        })
+        .build();
+
+    let mut a = anchors(&s);
+    a.observer = aip_observe::ObserverTrustAnchors::new().trust(
+        &health.health.observer_id,
+        health.health.key_version,
+        &agent_pub,
+    );
+
+    let v = verify_nexora_proof(&p, &a);
+    assert!(
+        matches!(
+            &v.observer,
+            ComponentVerdict::Unverifiable(r) if r.contains("the agent's own key")
+        ),
+        "the agent may not witness for itself: {:?}",
+        v.observer
+    );
+    assert!(matches!(v.verdict, ProofVerdict::Invalid(_)), "{v:#?}");
+    establishes_nothing(&v);
+}
