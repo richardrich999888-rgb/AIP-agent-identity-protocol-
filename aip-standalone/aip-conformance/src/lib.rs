@@ -23,6 +23,7 @@
 
 pub mod blocker;
 pub mod domain;
+pub mod empirical;
 pub mod evidence;
 pub mod invariant;
 pub mod matrix;
@@ -30,6 +31,7 @@ pub mod threat;
 
 pub use blocker::{Blocker, BlockerStatus};
 pub use domain::{Domain, Realisation};
+pub use empirical::{ExecutedCell, ExecutionLog, Outcome};
 pub use evidence::EvidenceClass;
 pub use invariant::{Invariant, InvariantCode};
 pub use matrix::{Cell, Conformance, ConformanceMatrix};

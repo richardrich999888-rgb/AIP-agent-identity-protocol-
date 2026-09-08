@@ -5,6 +5,10 @@
 **Plan** `docs/architecture/SKILL29_PLAN_AND_INVARIANTS.md` (written before implementation)
 **Companion** `docs/architecture/EDGE_TRUST_AND_CUSTODY.md` (trust roots, key custody,
 transport authenticity, recovery obligations)
+**Amended by** `docs/audit/THREAT_MODEL_EXECUTION_REPORT.md`, which executed the
+model. Where the two differ, that report is later and its numbers are the ones
+to use: §2's totals moved by one cell, and §7.1's first limitation no longer
+holds.
 **Related** Skill 28 (`docs/audit/SKILL28_EVIDENCE_REPORT.md`), ADR-014
 
 This report states what is CODE-PROVEN, TEST-PROVEN, EXECUTION-PROVEN,
@@ -40,11 +44,16 @@ detection either.
 | disposition | cells |
 |---|---:|
 | `Prevented` | 5 |
-| `Detected` | 32 |
+| `Detected` | 33 |
 | `Uncertainty` | 13 |
-| `NotDetectable` | 41 |
+| `NotDetectable` | 40 |
 
-`NotDetectable` is 45% of the model. That is the intended shape, not a
+*(As corrected by the executed run: `(CompromisedAgent, Warrant)` moved from
+`NotDetectable` to `Detected` when execution showed the warrant gate refuses a
+record the agent authored. The original declaration and the adjudication are in
+`THREAT_MODEL_EXECUTION_REPORT.md` §4.)*
+
+`NotDetectable` is 44% of the model. That is the intended shape, not a
 shortfall: a layer that does nothing about a threat says so, with a reason and
 — where one applies — the non-establishment that already said so. Filling a
 cell with a neighbouring layer's answer would be the "mitigated because
@@ -65,7 +74,7 @@ N-9, N-11** (10 of the 11 in `docs/architecture/AIRI_LIMITATIONS.md`).
 
 | threat | P | D | U | N | has a defence anywhere |
 |---|--:|--:|--:|--:|---|
-| CompromisedAgent | 1 | 3 | 0 | 3 | yes |
+| CompromisedAgent | 1 | 4 | 0 | 2 | yes |
 | CompromisedFramework | 0 | 3 | 1 | 3 | yes |
 | CompromisedModelRuntime | 0 | 1 | 2 | 4 | yes |
 | CompromisedTool | 0 | 2 | 2 | 3 | yes |
@@ -82,10 +91,13 @@ N-9, N-11** (10 of the 11 in `docs/architecture/AIRI_LIMITATIONS.md`).
 ## 3. Evidence classification
 
 ### EXECUTION-PROVEN
-Nothing new in this skill. The threat model is an *account* of behaviour
-established elsewhere; it executes no agent, no observer and no containment.
-Cells that rest on the live containment crossing inherit Skill 28's
-EXECUTION-PROVEN evidence by citation, and are not re-claimed here.
+**At the time this report was written: nothing.** The model was an account of
+behaviour established elsewhere.
+
+That is no longer true. `THREAT_MODEL_EXECUTION_REPORT.md` records **83 of the
+91 cells executed** — each attack staged as real signed artifacts and pushed
+through all seven layers, with the observed disposition compared against the
+declared one. The eight that remain are named there and counted separately.
 
 ### CODE-PROVEN
 Claims that hold because the code admits no other shape, independent of any
@@ -102,7 +114,9 @@ test:
   discriminant `0x00`, so the default value is the conservative verdict.
 
 ### TEST-PROVEN
-- **21 tests added, all passing**: `tests/threat.rs` (11), `tests/blocker.rs` (10).
+- **21 tests added at this baseline, all passing**: `tests/threat.rs` (11),
+  `tests/blocker.rs` (10). A further 10 arrived with the executed model
+  (`tests/empirical.rs`), bringing the crate to 31.
 - Model totality — every threat has an answer at every layer.
 - Every cell names a mechanism; no answer is bare.
 - The committed `docs/audit/THREAT_MODEL_MATRIX.{json,csv}` matches what the
@@ -122,11 +136,11 @@ obligation, it is labelled as one. Operator obligations are DOCUMENTED and
 nothing stronger: the repository cannot test a deployment's key ceremony.
 
 ### INFERRED
-The disposition of a cell is a judgement about what a layer does, derived by
-reading that layer. It is anchored by mechanism strings that name real code,
-and the four scenario tests exercise four of the load-bearing ones — but 91
-cells are not 91 tests. **A reader should treat an individual uncited
-`NotDetectable` cell as INFERRED, not TEST-PROVEN.**
+At this baseline, every cell: a disposition was a judgement about what a layer
+does, derived by reading it, and 91 cells were not 91 tests.
+
+After the executed run, **eight** — the cells that could not be staged, each
+naming why. Every other cell is EXECUTION-PROVEN.
 
 ### UNKNOWN
 - Whether any of these dispositions holds against a *real* adversary. The model
@@ -227,11 +241,16 @@ no crate outside `aip-conformance` was touched at all.**
 
 ## 7. Known limitations
 
-1. **The model is analytic, not empirical.** No adversary was run against it.
-   Every disposition is a claim about code, verified against code — not against
-   an attacker.
-2. **91 cells, 11 tests.** The scenario tests cover the load-bearing rows. An
-   individual `NotDetectable` cell without a citation is INFERRED.
+1. **Superseded, and replaced by a narrower limitation.** This said the model
+   was analytic and no adversary had been run against it. Thirteen attacks have
+   since been staged and 83 of the 91 cells executed
+   (`THREAT_MODEL_EXECUTION_REPORT.md`). What remains true, and is the honest
+   version of the original point: **a staged attack is not an adversary.**
+   Every attack was written by the same author as the model, so a move neither
+   of them thought of appears in none of the 91 cells.
+2. **Superseded.** This said "91 cells, 11 tests", and that 91 cells were not
+   91 tests. 83 of them have since been executed; the remaining 8 are named in
+   `THREAT_MODEL_EXECUTION_REPORT.md` §§6–7.
 3. **Sensor deception is unanswered** (§4.2). This is a real gap, stated rather
    than dressed.
 4. **B-3 is open.**

@@ -37,8 +37,8 @@
       "threat": "CompromisedAgent",
       "threat_id": "X01",
       "layer": "Warrant",
-      "disposition": "NotDetectable",
-      "mechanism": "the warrant gate consumes a verdict and detects nothing itself",
+      "disposition": "Detected",
+      "mechanism": "a warrant may rest only on a verdict the reconciler drew; a record the agent assembled — by literal, by functional update, or read back from bytes it wrote itself, which arrives Provenance::Deserialized — is refused with ReconciliationNotEngineProduced before any response class is computed",
       "non_establishment": ""
     },
     {

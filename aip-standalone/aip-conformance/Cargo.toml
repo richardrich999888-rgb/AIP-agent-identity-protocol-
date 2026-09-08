@@ -43,3 +43,8 @@ aip-enterprise = { path = "../aip-enterprise" }
 
 [dev-dependencies]
 aip-edge = { path = "../aip-edge" }
+
+# The threat model grades Containment as one of its seven layers. A model that
+# cannot call the layer it grades cannot be empirical about it. Dev-only: the
+# library's dependency surface is unchanged.
+aip-containment = { path = "../aip-containment" }

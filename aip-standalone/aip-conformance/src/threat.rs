@@ -354,9 +354,14 @@ fn answer(t: Threat, l: Layer) -> (Disposition, &'static str, &'static str) {
             "a claim with no matching observation under kernel-pushed coverage is PhantomClaim; without that coverage it is CANNOT_PROVE",
             "",
         ),
+        // Corrected by the executed model: the declaration here was
+        // "consumes a verdict and detects nothing itself", and running the
+        // attack showed otherwise. A warrant may rest only on a verdict the
+        // reconciler drew, and a compromised agent authoring its own record
+        // is caught here, one layer before NEXORA's re-derivation.
         (CompromisedAgent, Warrant) => (
-            NotDetectable,
-            "the warrant gate consumes a verdict and detects nothing itself",
+            Detected,
+            "a warrant may rest only on a verdict the reconciler drew; a record the agent assembled — by literal, by functional update, or read back from bytes it wrote itself, which arrives Provenance::Deserialized — is refused with ReconciliationNotEngineProduced before any response class is computed",
             "",
         ),
         (CompromisedAgent, Containment) => (
