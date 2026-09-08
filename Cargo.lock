@@ -81,6 +81,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-conformance"
+version = "0.4.0"
+dependencies = [
+ "aip-airi",
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-edge",
+ "aip-enterprise",
+ "aip-execution",
+ "aip-industrial",
+ "aip-nexora",
+ "aip-observation",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-robotics",
+ "aip-space",
+ "aip-system",
+ "aip-types",
+ "aip-uas",
+ "aip-warrant",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-containment"
 version = "0.4.0"
 dependencies = [

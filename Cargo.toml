@@ -65,6 +65,9 @@ members = [
     "aip-standalone/aip-industrial",
     "aip-standalone/aip-space",
     "aip-standalone/aip-enterprise",
+    # ── the conformance program over all of them (Skill 28) ───────────
+    # Last in the order: it consumes every layer and nothing consumes it.
+    "aip-standalone/aip-conformance",
     # ── tooling, demos and test harnesses ──────────────────────────────
     "aip-standalone/ghost-demo",
     "aip-standalone/aip-test",
