@@ -1,4 +1,4 @@
-# cargo-deny configuration. Used by CI (.github/workflows/ci.yml).
+# cargo-deny configuration. Workspace-root config. One workspace, one lockfile, one deny.toml.
 
 [advisories]
 # Fail on security vulnerabilities (default). Warn on yanked crates.

@@ -1,5 +1,12 @@
 name: CI
 
+# The repository is a SINGLE Cargo workspace rooted at the repository root
+# (see the top of ./Cargo.toml for why aip-standalone/ and aip-service/ were
+# merged into one root). Every command below therefore runs from the root and
+# addresses the whole workspace; the previous per-subdirectory `cd` steps were
+# left over from the two-workspace layout and no longer have a manifest to run
+# against.
+
 on:
   pull_request:
   push:
@@ -11,16 +18,8 @@ env:
 
 jobs:
   quality:
-    name: fmt · clippy · test (${{ matrix.workspace }})
+    name: fmt · clippy · test
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # The repo has two independent Cargo workspaces.
-        workspace: [aip-standalone, aip-service]
-    defaults:
-      run:
-        working-directory: ${{ matrix.workspace }}
     steps:
       - uses: actions/checkout@v4
 
@@ -31,21 +30,24 @@ jobs:
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: ${{ matrix.workspace }}
 
       - name: cargo fmt --check
         run: cargo fmt --all -- --check
 
+      # --all-features compiles the postgres code path too (tokio-postgres and
+      # deadpool-postgres are pure Rust and build without a database). clippy
+      # only compiles, so this widens coverage without needing a live DB.
       - name: cargo clippy (deny warnings)
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
+      # Default features only. aip-service's `postgres` feature is exercised by
+      # the postgres-backend job below against a live database; running it here
+      # without one would be a false failure.
       - name: cargo test
-        run: cargo test --all --all-features
+        run: cargo test --workspace
 
       - name: cargo test (release — perf gates)
-        if: matrix.workspace == 'aip-standalone'
-        run: cargo test --all --release
+        run: cargo test --workspace --release
 
   postgres-backend:
     name: postgres backend integration
@@ -64,13 +66,13 @@ jobs:
           --health-interval 5s --health-timeout 3s --health-retries 10
     defaults:
       run:
+        # cwd selects aip-service as the current package; the workspace root is
+        # still resolved from ./Cargo.toml.
         working-directory: aip-service
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: aip-service
       - name: clippy (postgres feature)
         run: cargo clippy --all-targets --features postgres -- -D warnings
       - name: test (postgres feature, live DB)
@@ -88,18 +90,14 @@ jobs:
         run: |
           cargo install cargo-audit --locked || true
           cargo install cargo-deny --locked || true
-      - name: cargo audit (both workspaces)
-        # RUSTSEC-2026-0097: see deny.toml justification (rand::rng()+custom
-        # logger unsoundness; AIP uses OsRng with no custom logger).
-        run: |
-          set -e
-          (cd aip-standalone && cargo audit --ignore RUSTSEC-2026-0097)
-          (cd aip-service && cargo audit --ignore RUSTSEC-2026-0097)
+      # One workspace, one Cargo.lock at the root, one deny.toml at the root.
+      # RUSTSEC-2026-0097 is assessed and ignored with justification in
+      # ./deny.toml (rand::rng()+custom-logger unsoundness; AIP uses OsRng and
+      # installs no custom logger).
+      - name: cargo audit
+        run: cargo audit --ignore RUSTSEC-2026-0097
       - name: cargo deny check
-        run: |
-          set -e
-          (cd aip-standalone && cargo deny check) || exit 1
-          (cd aip-service && cargo deny check) || exit 1
+        run: cargo deny check
 
   coverage:
     name: coverage (best effort)
@@ -112,12 +110,11 @@ jobs:
           components: llvm-tools-preview
       - name: Install cargo-llvm-cov
         run: cargo install cargo-llvm-cov --locked
-      - name: Generate coverage (aip-standalone)
-        working-directory: aip-standalone
-        run: cargo llvm-cov --workspace --lcov --output-path ../lcov-standalone.info
+      - name: Generate coverage
+        run: cargo llvm-cov --workspace --lcov --output-path lcov.info
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-lcov
-          path: lcov-*.info
+          path: lcov.info
           if-no-files-found: ignore
