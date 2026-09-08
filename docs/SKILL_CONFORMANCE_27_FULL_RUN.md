@@ -16,8 +16,18 @@ stale (§9.1). Where this report and the code disagree, the code wins.
 
 ## 1. Executive verdict
 
+**27-skill conformance run completed: 0 failures; 2 partial; 1 blocked.
+2,192 validation tests executed with 0 failures; 84/84 mutations killed;
+zero cross-skill architectural invariant violations.**
+
+Nothing in this repository failed. Two skills are PARTIAL because evidence
+they require was not produced, one is BLOCKED because the hardware it needs
+does not exist here, and neither condition is a defect in the code.
+
+### 1.1 Scope — and a discrepancy in the count
+
 **The repository does not contain 27 skills. It contains 36 skill
-specifications, of which 30 are numbered.** The user-stated count of 27 is
+specifications, of which 30 are numbered.** The stated count of 27 is
 reconstructible and is used as the audit scope, but the discrepancy is stated
 first because a conformance report that silently accepted a wrong denominator
 would be worthless.
@@ -33,25 +43,77 @@ Recovered from `git log --diff-filter=A -- .claude/skills/`:
 | Bundle README (no `SKILL.md`) | 1 | — |
 | **Total directories** | **37** | |
 
-**Skills 1–27 are the 27 in scope.** Skills 28, 29 and 30 exist as
-specifications and are explicitly out of scope for this run (the instruction
-was *"Do not implement Skill 28 or any future skill"*); they are reported
-below as SPEC-ONLY so that nothing is hidden. The six unnumbered role skills
-are process guidance for a human or agent operator, not deliverable
-specifications, and have no acceptance gate to run.
+**Skills 1–27 are the 27 in scope, and they are the whole denominator.**
+Skills 28, 29 and 30 exist as specifications, are explicitly out of scope for
+this run (the instruction was *"Do not implement Skill 28 or any future
+skill"*), and are **excluded from the 27-skill conformance result** — they are
+reported in §3 as SPEC-ONLY so that nothing is hidden, and nowhere counted.
+The six unnumbered role skills are process guidance for a human or agent
+operator, not deliverable specifications, and have no acceptance gate to run.
 
-**Verdict on the 27 in scope: 24 PASS, 2 PARTIAL, 1 BLOCKED, 0 FAIL.**
+### 1.2 Skill status — in-scope (Skills 1–27)
 
-The accountability core is architecturally sound and self-consistent. One
-core, one reconciler, one verifier, one evidence hierarchy, one observation
-model, one key-generation primitive. Five vertical profiles conform to an
-identical composition pattern with no semantic drift. Zero test failures
-across 2,192 executed tests in three independent test runners.
+| Status | Count |
+|---|---:|
+| PASS | 24 |
+| PARTIAL | 2 |
+| BLOCKED | 1 |
+| **FAIL** | **0** |
 
-What this run does **not** establish: any physical validation whatsoever, any
-deployment, any customer or defence evaluation, and any TRL claim. Those are
-BLOCKED on hardware that does not exist in this environment, and the
-repository says so itself rather than substituting simulation.
+Read that table with these four facts attached; without them it is misleading:
+
+- **Skills 1 and 2 are process/N/A classifications counted inside the 24.**
+  Neither is a deliverable specification — Skill 1 is an architectural
+  gatekeeper, Skill 2 an implementation methodology — so neither states an
+  acceptance gate over repository state and neither can strictly PASS or FAIL.
+  They are counted as PASS-equivalent because their governing rules are upheld
+  throughout, not because either was independently validated. **22 skills were
+  validated against a gate and passed it; 2 had no gate to validate.**
+- **Skill 15 is PARTIAL** because 6 of 16 external AIRI validation scenarios
+  are recorded NOT_RUN (§3, §11.4). It is not upgraded to PASS.
+- **Skill 16 is PARTIAL** because blocker **B-3 remains OPEN** (§3, §11.6).
+  It is not upgraded to PASS.
+- **Skill 25's physical-AI extension is BLOCKED** by unavailable physical
+  hardware and environment — no camera, no ROS, no PX4, no independent
+  physical observer (§12). Skill 25's core profile passes on its own gate;
+  the extension is blocked, not failed.
+
+### 1.3 Measured results
+
+| Measure | Result |
+|---|---|
+| Validation performed against | `8fe9ff4b9b777a3de2baf8b13f8751fdee3f2344` |
+| Rust workspace | **2,064 passed · 0 failed · 6 ignored** (two independent passes, identical) |
+| External validation adapter | **66 passed · 0 failed** |
+| Python SDK (clean virtualenv) | **62 passed · 0 failed** |
+| **Total tests / total failures** | **2,192 / 0** |
+| Adversarial + structural checks | **498 passing** |
+| Mutations | **84 total · 84 killed · 0 survivors** |
+| Cross-skill architectural violations | **0** |
+| `cargo fmt` / `cargo clippy -D warnings` | clean / clean |
+| Production files changed by this run | **0** |
+
+### 1.4 What this run does not establish
+
+Zero failures in a test suite is a statement about the test suite. It is not
+a statement about production readiness, and it is not physical validation.
+Specifically, this run establishes **none** of the following:
+
+- **No physical validation of any kind.** No physical quantity was measured by
+  any independent mechanism. This remains BLOCKED (§12), not pending.
+- **No spacecraft or orbital validation.** Skill 26 is **SIMULATION-PROVEN**:
+  the onboard execution is real, the link, contact windows, light-time and
+  ground station are simulated.
+- **No production readiness.** No deployment, no operational evidence, no
+  measured latency, CPU, memory, event loss or recovery time (§13).
+- **No customer, defence or TRL claim.** Skill 30's gate is not approached.
+
+The accountability core is architecturally sound and self-consistent — one
+core, one reconciler, one verifier, one evidence hierarchy, one
+`ObservationClass`/`EvidenceCeiling` model, one keypair primitive, no
+vertical-specific signing authority, no second source of truth, and no
+wire/protocol change during this run (§8). That is what was verified. It is
+not a substitute for any of the four items above.
 
 ---
 
@@ -358,7 +420,7 @@ existing artifact modified.
 
 Evidence: `aip-system` 32 tests including `tests/identity_separation.rs`
 (25 tests) and `tests/compatibility.rs`. **6 mutations, 6 killed.**
-See §9.1 for the required-work naming delta and §11.1 for the live gap.
+See §9.1 for the required-work naming delta and §11.2 for the live gap.
 **TEST-PROVEN.**
 
 ### Skill 18 — Autonomy execution profile · **PASS**
@@ -681,9 +743,16 @@ Two of Skill 26's mutations survived their first run (S8, S11) and both were
 shadowed by earlier checks were removed, and `completeness_claimable` was
 reduced to two independently-killable conjuncts.
 
-**Skills 3–10, 16, 21, 22, 23, 24 have no mutation evidence.** They are
-covered by adversarial tests but their security assertions have never been
-proven non-vacuous. This is a real gap and is listed in §11.
+**84/84 is not system-wide mutation coverage, and must not be read as such.**
+It is a complete result for the nine skills that have mutation evidence.
+**Skills 3–10, 16, 21, 22, 23 and 24 have none**; they are covered by
+adversarial tests whose non-vacuity has never been established.
+
+Skills 7 (the reconciler) and 10 (the verifier) are the two that matter most:
+they are the sole authorities for their questions, they carry 351 tests between
+them, and **nothing establishes that those tests would fail if the
+reconciliation or verification logic were broken.** Ranked as the
+highest-priority remaining gap in §11.1.
 
 ---
 
@@ -703,6 +772,29 @@ proven non-vacuous. This is a real gap and is listed in §11.
 ---
 
 ## 8. Cross-skill architectural findings
+
+**Zero architecture violations detected.** Verified at this HEAD, by
+inspection and by executing structural guard tests:
+
+- **One authoritative reconciler** — `aip-reconcile`. `pub fn reconcile_*` is
+  defined in exactly one file in the repository.
+- **One authoritative verifier** — NEXORA. `pub fn verify_proof` is defined
+  exactly once, and NEXORA has not become a governance authority.
+- **One evidence hierarchy** — no duplicated or conflicting evidence semantics.
+- **One `ObservationClass` / `EvidenceCeiling` model** — each defined once, in
+  `aip-observation/src/class.rs`; a ceiling is declared per class and never
+  computed from a record.
+- **One crypto/keypair primitive** — `aip-crypto::generate_ed25519_keypair`.
+- **No vertical-specific signing authority** — zero signing references in all
+  five vertical profile crates.
+- **No second source of truth** — adapters and profile crates carry no security
+  semantics of their own.
+- **No wire/protocol change during this conformance run** — and none by the
+  work that preceded it: `AIP_VERSION 0x0004`, `PACKET_VERSION 2`,
+  `EXECUTION_BINDING_VERSION 1`, `LeafKind::ALL` = 9, all last modified at
+  `12767ea`.
+
+The subsections below are the evidence for each.
 
 ### A. ONE CORE — **UPHELD**
 
@@ -889,7 +981,33 @@ tooling — which is the behaviour its specification demands.
 
 ## 11. Remaining gaps
 
-### 11.1 `AutonomousSystem` has no production consumer *(current, verified at this HEAD)*
+Ranked by engineering priority. The first three are the ones that matter; the
+rest are real but subordinate.
+
+### 11.1 No mutation evidence for the authoritative reconciler and verifier
+
+**This is the highest-priority remaining assurance gap.**
+
+84 of 84 existing mutations were killed, with 0 survivors — but that figure
+describes the skills that *have* mutation evidence, and it must not be read as
+coverage of the system as a whole. **14 of the 27 in-scope skills have no
+mutation evidence at all**: skills 3, 4, 5, 6, 7, 8, 9, 10, 16, 21, 22, 23, 24,
+plus skills 1–2 which cannot have any.
+
+Two of those fourteen are the ones that matter:
+
+- **Skill 7 — `aip-reconcile`**, the single authoritative reconciler, 173 tests.
+- **Skill 10 — `aip-nexora`**, the single authoritative verifier, 178 tests.
+
+They are the sole authorities for their questions, they carry 351 tests between
+them, and **nothing establishes that those tests would fail if the reconciliation
+or verification logic underneath them were broken.** Every other gap in this
+section concerns a capability the system honestly states it lacks. This one
+concerns whether a capability the system *claims* is genuinely tested, which is
+why it ranks first. Mutation coverage of the authoritative reconciliation and
+verification logic is the single highest-value next piece of assurance work.
+
+### 11.2 `AutonomousSystem` aggregate descriptor has no production consumer *(current, verified at this HEAD)*
 
 Skill 17's evidence report states as limitation §9.5: *"No integration with the
 accountability core yet. By D17-6 nothing consumes `AutonomousSystem`."*
@@ -903,16 +1021,28 @@ referenced outside its own crate in exactly **one file, a test**
 (`aip-execution/tests/binding.rs`). The universal abstraction the skill was
 written to produce is still not read by anything that ships.
 
-### 11.2 No mutation evidence for 14 of the 27 skills
+### 11.3 No physical validation
 
-Skills 3, 4, 5, 6, 7, 8, 9, 10, 16, 21, 22, 23, 24 — and skills 1–2, which
-cannot have any — carry no mutation testing. Their adversarial tests have
-never been proven non-vacuous. Skills 7 (the reconciler) and 10 (the verifier)
-are the two that matter most: they are the sole authorities for their
-questions, they carry 351 tests between them, and **nothing establishes that
-those tests would fail if the logic were broken.**
+**Software and runtime validation are not physical observation, and this run
+produced only the former.**
 
-### 11.3 Six AIRI validation scenarios not run
+What *was* established: real processes executing on a real Linux host, observed
+by a separate process that does not share the workload's crate — genuine
+independent observation **of computation**. That is EXECUTION-PROVEN and it is
+not nothing.
+
+What was **not** established, and is not approached: any measurement of any
+physical quantity by any independent physical mechanism. No camera, no fiducial
+detection, no external tracking, no observer machine separate from the subject
+holding its own key. Every physical claim the architecture could make remains
+mechanically unreachable — `ObservationClass::PhysicalEffect` is declared and
+`has_mechanism()` returns `false` for it.
+
+This is **BLOCKED**, not pending and not partial: the hardware does not exist
+in this environment, and the repository refuses to substitute anything for it.
+See §12 for the executed preflight and the exact missing infrastructure.
+
+### 11.4 Six AIRI validation scenarios not run
 
 `s07`, `s08`, `s09` need a live telemetry pipeline; `s14` was observed by
 accident rather than by design; `s15` needs two mechanism-independent sources
@@ -920,21 +1050,37 @@ that disagree; `s10` belongs to a verifier the harness deliberately does not
 invoke. All 16 rows also record the external observers as `BLOCKED (no
 kprobes)`.
 
-### 11.4 Device attestation is unimplemented
+### 11.5 Device attestation is unimplemented
 
 ADR-002 is PROPOSED. Gap G1 — no durable hardware identity across reboots —
 is OPEN. Correct as deferral; still a gap.
 
-### 11.5 Containment actuation is unreachable from genuine reconciliation
+### 11.6 B-3 — containment actuation is unreachable from genuine reconciliation *(runner-up: an architectural decision, not a hidden failure)*
 
-Skill 16's B-3. The cgroup freezer fires only from a fixture. Fail-closed and
-correct as behaviour; unresolved as an architectural decision.
+**B-3 is OPEN. It is not fixed, and nothing in this run fixed it.** It is
+recorded here, and in §3 as the reason Skill 16 is PARTIAL, so that it is
+visible rather than buried.
 
-### 11.6 The profile-kit extraction is owed
+What the evidence establishes: the reconcile → warrant → containment crossing
+exists and executes on engine-produced reconciliation against a live process
+(`engine_to_containment.rs`, 5 tests). It terminates in a refusal, by three
+independent closures each sufficient alone (§3, Skill 16).
+
+What the evidence does **not** establish: that containment is reachable from
+genuine reconciliation. On the contrary — the cgroup freezer fires only from a
+`fixture_default()` record. This report makes no claim that actuation works
+end to end on real evidence, because it does not.
+
+Whether that full closure is the intended end state is an unresolved
+architectural decision that has now been deferred through four skills. It is a
+decision to make deliberately, not a bug to patch, and not a result to
+relabel.
+
+### 11.7 The profile-kit extraction is owed
 
 ADR-011. Scoped to Skill 28 and deliberately not done here.
 
-### 11.7 Skills 21–24 have no evidence report
+### 11.8 Skills 21–24 have no evidence report
 
 `docs/audit/` holds reports for 16, 17, 18, 19, 20, 25, 26, 27. Skills 21, 22,
 23 and 24 have architecture documents (`ADR-004`, `LINUX_EDGE_REFERENCE.md`,
@@ -1026,7 +1172,7 @@ report is worth.
    claims is actually tested. Do this before Skill 28.
 2. **Run Skill 28.** The conformance program it specifies would replace this
    manually-assembled document with a machine-readable, regenerable artifact,
-   and would close §11.7 (missing evidence reports for 21–24) and §9.1 (the
+   and would close §11.8 (missing evidence reports for 21–24) and §9.1 (the
    spec-name-to-type mapping) as a by-product.
 3. **Extract the profile kit** (ADR-011 / ADR-007 / ADR-009) as part of
    Skill 28 — five copies of three security rules is the highest-probability
@@ -1094,10 +1240,19 @@ non-overlapping totals are in §4.
 | `git status --short` at start | empty |
 | Production files changed by this run | **0** |
 | Files added by this run | 1 — this document |
-| Commits created | 0 (none requested) |
+| Documentation commit | `0ef70d6` — this report, first version |
+| Subsequent commits | reporting corrections to this document only |
 
 No production code, test, manifest or configuration file was modified to obtain
-any result in this report. The only environment change was creating a
-throwaway virtualenv **outside the repository** to work around the container's
-broken system `cryptography` package.
+any result in this report, and none has been modified since. The only
+environment change was creating a throwaway virtualenv **outside the
+repository** to work around the container's broken system `cryptography`
+package.
+
+**Measured results are frozen.** Every figure in this document was measured
+against `8fe9ff4` and is unchanged by any later edit: 2,192 tests / 0 failures,
+84/84 mutations killed, 0 architecture violations, 0 production files changed.
+Later revisions correct classification and reporting language only — no test
+was re-run to produce a different number, no result was reinterpreted, and no
+history was rewritten.
 
