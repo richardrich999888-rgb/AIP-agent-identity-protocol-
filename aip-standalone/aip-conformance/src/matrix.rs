@@ -181,7 +181,7 @@ impl ConformanceMatrix {
 
 /// One CSV field, quoted per RFC 4180 when it contains a comma, a quote or a
 /// newline. A doubled quote escapes a quote.
-fn csv_field(f: &str) -> String {
+pub(crate) fn csv_field(f: &str) -> String {
     if f.contains([',', '"', '\n', '\r']) {
         format!("\"{}\"", f.replace('"', "\"\""))
     } else {

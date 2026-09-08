@@ -21,15 +21,19 @@
 //! [`Conformance`] is `Satisfied`, `NotApplicable` or `Unknown`, and the
 //! matrix counts the last two separately from the first.
 
+pub mod blocker;
 pub mod domain;
 pub mod evidence;
 pub mod invariant;
 pub mod matrix;
+pub mod threat;
 
+pub use blocker::{Blocker, BlockerStatus};
 pub use domain::{Domain, Realisation};
 pub use evidence::EvidenceClass;
 pub use invariant::{Invariant, InvariantCode};
 pub use matrix::{Cell, Conformance, ConformanceMatrix};
+pub use threat::{Disposition, Layer, Threat, ThreatCell, ThreatModel};
 
 /// The version of the conformance program's own artifact schema.
 ///
