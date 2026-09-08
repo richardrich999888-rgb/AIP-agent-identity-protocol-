@@ -1570,3 +1570,401 @@ fn t22_a_record_read_back_from_bytes_is_never_engine_produced() {
     );
     assert_eq!(back.provenance(), Provenance::Deserialized);
 }
+
+// ═══ `reconcile_observation` — mutation-driven regressions ═══
+//
+// The previous milestone's report (§9.2) predicted that the observation entry
+// point would carry the same asymmetry that produced R-11b and R-12b: an
+// invariant guarded on one path and bare on another. A 26-mutation matrix
+// against `reconcile_observation` killed 13 and left 12 survivors. Every test
+// below closes one of them.
+//
+// See `validation/mutation/OBSERVATION_MUTATION_RESULTS.json` and
+// `docs/RECONCILE_OBSERVATION_MUTATION_ASSURANCE.md`.
+
+/// Build a covered chain whose single observation claims `decision`, and an
+/// attested expected side wide enough to cover the batch window. Returns
+/// evidence, target, and a context that reaches the end of the function —
+/// so a test that expects an *earlier* refusal is asserting that the refusal
+/// happened, not that the fixture fell short.
+fn observation_scene(
+    x: &Expected,
+    o: &mut Observer,
+    decision: Option<[u8; 16]>,
+) -> (ObserverEvidence, ObservationTarget, ReconciliationContext) {
+    let at = at_of(x);
+    let claim = AgentClaim {
+        decision_id: decision,
+        ..claim_for(x)
+    };
+    let obs = o.present(process_of(&x.ee), Some(&claim), x.now + 10);
+    let ev = {
+        let batches = covered_chain(x, o, vec![obs]);
+        o.evidence(batches, at)
+    };
+    let w = CoverageWindow {
+        from_ms: ev.batches[1].batch.claimed_from_ms - 1_000,
+        to_ms: ev.batches[1].batch.claimed_to_ms + 1_000,
+    };
+    let mut c = ctx(x, o, at);
+    c.expected_side =
+        ExpectedSideCoverage::Attested(Box::new(coverage_statement(x, &x.agent_id, w, vec![], at)));
+    let target = ObservationTarget::Observation {
+        batch_sequence: ObserverSequence(2),
+        index: 0,
+    };
+    (ev, target, c)
+}
+
+/// O-12 … O-16. The observer-state gate on the observation path, swept.
+///
+/// This is the asymmetry §9.2 predicted, and it was the largest one in the
+/// repository: **five consecutive mutations survived here**. `Quarantined`
+/// was covered on the expectation path (t17b) and on the lineage path
+/// (lv18); `Degraded` on both (t14/t18, lv14); `IntegrityUnknown` on both
+/// (t03d, lv17). On the observation path — the one entry point that can
+/// produce an accusation against a workload with no expectation to check it
+/// against — none of them was covered, and the gate could be deleted whole
+/// without failing a single test.
+///
+/// Each state is asserted to its exact result, strength and reason, because
+/// the three outcomes are not interchangeable: an integrity failure accuses
+/// the observer, a continuity failure describes a gap, and CANNOT_PROVE
+/// says the question is open.
+#[test]
+fn t23_observer_state_gates_the_observation_path_state_by_state() {
+    let x = expected();
+
+    // Control: an Active observer runs the whole function and reaches the
+    // attributive end. Without this the sweep below would pass against a
+    // reconciler that refused everything.
+    let mut o = Observer::new(true, true);
+    let (ev, target, c) = observation_scene(&x, &mut o, Some([0x5a; 16]));
+    let r = reconcile_observation(&ev, target, &c);
+    assert_eq!(r.result, ReconciliationResult::UnattributedEffect);
+    assert_eq!(r.reason, ReasonCode::NoExpectationAttested);
+
+    for (state, result, strength, reason) in [
+        (
+            ObserverState::Quarantined,
+            ReconciliationResult::SensorIntegrityFailure,
+            EvidenceStrength::Attested,
+            ReasonCode::ObserverQuarantined,
+        ),
+        (
+            ObserverState::Recovering,
+            ReconciliationResult::ContinuityFailure,
+            EvidenceStrength::Attested,
+            ReasonCode::ObserverRecovering,
+        ),
+        (
+            ObserverState::ContinuityUnverified,
+            ReconciliationResult::ContinuityFailure,
+            EvidenceStrength::Attested,
+            ReasonCode::ObserverContinuityUnverified,
+        ),
+        (
+            ObserverState::Degraded,
+            ReconciliationResult::CannotProve,
+            EvidenceStrength::Heuristic,
+            ReasonCode::ObserverDegraded,
+        ),
+        (
+            ObserverState::IntegrityUnknown,
+            ReconciliationResult::CannotProve,
+            EvidenceStrength::Heuristic,
+            ReasonCode::ObserverIntegrityUnknown,
+        ),
+    ] {
+        let mut o = Observer::new(true, true);
+        let (mut ev, target, c) = observation_scene(&x, &mut o, Some([0x5a; 16]));
+        // The state lives inside the signed preimage, so re-signing is what
+        // an honest collector in that state actually emits.
+        ev.health.health.state = state;
+        ev.health = o.resign_health(ev.health);
+
+        let r = reconcile_observation(&ev, target, &c);
+        assert_eq!(r.result, result, "{state:?}");
+        assert_eq!(r.strength, strength, "{state:?}");
+        assert_eq!(r.reason, reason, "{state:?}");
+        assert_ne!(
+            r.result,
+            ReconciliationResult::UnattributedEffect,
+            "{state:?}: an observer in this state cannot underwrite an accusation"
+        );
+    }
+}
+
+/// O-11. A collector clock set ahead of the verifier's cannot make a health
+/// record read as fresh, on the observation path as on the expectation path.
+///
+/// Staleness only bounds records that are too *old*; without this check a
+/// forward-set clock saturates the age computation to zero and every stale
+/// record reads as current. Covered on the expectation path (t11b's sibling,
+/// R-17) and nowhere here.
+#[test]
+fn t24_a_health_record_from_the_future_is_refused_on_the_observation_path() {
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let (ev, target, mut c) = observation_scene(&x, &mut o, Some([0x5a; 16]));
+
+    // The verifier's clock is behind the collector's by more than tolerance.
+    c.verification_time_ms = ev.health.health.emitted_at_ms - 1;
+    c.window_tolerance_ms = 0;
+
+    let r = reconcile_observation(&ev, target, &c);
+    assert_eq!(r.result, ReconciliationResult::CannotProve);
+    assert_eq!(r.reason, ReasonCode::HealthNotYetEmitted);
+    assert_ne!(r.result, ReconciliationResult::UnattributedEffect);
+}
+
+/// O-18. Under `Open` probe policy the collector attested bytes from a probe
+/// it cannot name, so the mechanism label is unverified provenance and cannot
+/// carry an attribution. Covered on the expectation path by t03c; on the
+/// observation path the check could be deleted with no test failing.
+#[test]
+fn t25_open_probe_policy_blocks_attribution_on_the_observation_path() {
+    let x = expected();
+    let mut o = Observer::new(true, false);
+    let (ev, target, c) = observation_scene(&x, &mut o, Some([0x5a; 16]));
+    assert_eq!(ev.health.health.probe_policy, ProbePolicy::Open);
+
+    let r = reconcile_observation(&ev, target, &c);
+    assert_eq!(r.result, ReconciliationResult::CannotProve);
+    assert_eq!(r.reason, ReasonCode::ProvenanceUnverifiedOpenPolicy);
+    assert_ne!(r.result, ReconciliationResult::UnattributedEffect);
+
+    // Control: the same scene under RegisteredOnly reaches the accusation, so
+    // the refusal above is the policy and nothing else.
+    let mut o = Observer::new(true, true);
+    let (ev, target, c) = observation_scene(&x, &mut o, Some([0x5a; 16]));
+    assert_eq!(ev.health.health.probe_policy, ProbePolicy::RegisteredOnly);
+    let r = reconcile_observation(&ev, target, &c);
+    assert_eq!(r.result, ReconciliationResult::UnattributedEffect);
+}
+
+/// O-02. A duplicate attested batch is collapsed *and flagged* on the
+/// observation path. t15 pins this on the expectation path; the observation
+/// path carried the same assignment and no test read it.
+///
+/// The flag is not cosmetic: it is a field of the canonical record, so a
+/// consumer reading a record that silently dropped a replay cannot tell the
+/// difference between "one batch" and "the same batch twice".
+#[test]
+fn t26_a_replayed_batch_is_flagged_on_the_observation_path() {
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let (mut ev, target, c) = observation_scene(&x, &mut o, Some([0x5a; 16]));
+
+    let r = reconcile_observation(&ev, target, &c);
+    assert!(!r.replay_detected, "the honest chain carries no replay");
+    assert_eq!(r.result, ReconciliationResult::UnattributedEffect);
+
+    // The same batch, byte-identical, submitted twice.
+    let dup = ev.batches[1].clone();
+    ev.batches.push(dup);
+    let r = reconcile_observation(&ev, target, &c);
+    assert!(
+        r.replay_detected,
+        "a byte-identical duplicate is a replay and the record must say so"
+    );
+    // Collapsing it must not change what the evidence establishes.
+    assert_eq!(r.result, ReconciliationResult::UnattributedEffect);
+}
+
+/// O-03 and O-05. A target names exactly one record. A batch sequence that is
+/// not present, or a kernel-event index that is not present, is
+/// `TargetNotFound` — never the nearest batch and never record zero.
+///
+/// t05b covered a missing *observation* index only. Substituting a different
+/// record for the one the target names would let a verifier ask about one
+/// event and be answered about another, which is the whole content of an
+/// attribution.
+///
+/// **The fixture matters more than the assertion here.** A first attempt used
+/// a chain whose other records did not exist, so a fallback to "the first
+/// batch" or "record zero" still found nothing and still returned
+/// `TargetNotFound` — the test passed and the mutation lived. Both batches
+/// below therefore carry a record at index 0, and batch 2 carries a kernel
+/// event, so a fallback is *observable*: it answers instead of refusing.
+#[test]
+fn t27_a_target_names_exactly_one_record() {
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let now = x.now;
+    let at = at_of(&x);
+
+    let decoy = o.present(other_process(), None, now - 1_500);
+    let b1 = o.batch(1, now - 2_000, now - 1_000, vec![decoy]);
+    let claim = AgentClaim {
+        decision_id: Some([0x5a; 16]),
+        ..claim_for(&x)
+    };
+    let obs = o.present(process_of(&x.ee), Some(&claim), now + 10);
+    o.probe.ingest_kernel_event(exec_event(PID, 5_000));
+    let b2 = o.batch(2, now - 1_000, at, vec![obs]);
+    let ev = o.evidence(vec![b1, b2], at);
+
+    // The fixture's own preconditions: a fallback would find something.
+    assert!(!ev.batches[0].batch.observations.is_empty());
+    assert!(!ev.batches[1].batch.observations.is_empty());
+    assert_eq!(ev.batches[1].batch.kernel_events.len(), 1);
+
+    let c = ctx(&x, &o, at);
+
+    // A sequence the chain does not contain. Falling back to batch 1 would
+    // answer about the decoy.
+    let r = reconcile_observation(
+        &ev,
+        ObservationTarget::Observation {
+            batch_sequence: ObserverSequence(99),
+            index: 0,
+        },
+        &c,
+    );
+    assert_eq!(r.result, ReconciliationResult::CannotProve);
+    assert_eq!(r.reason, ReasonCode::TargetNotFound);
+
+    // An observation index the batch does not contain. Falling back to
+    // observation zero would answer about the authorised instance.
+    let r = reconcile_observation(
+        &ev,
+        ObservationTarget::Observation {
+            batch_sequence: ObserverSequence(2),
+            index: 9,
+        },
+        &c,
+    );
+    assert_eq!(r.reason, ReasonCode::TargetNotFound);
+
+    // A kernel-event index the batch does not contain. Batch 2 holds exactly
+    // one event, so index 7 is absent and a fallback to event zero would
+    // answer about it.
+    let r = reconcile_observation(
+        &ev,
+        ObservationTarget::KernelEvent {
+            batch_sequence: ObserverSequence(2),
+            index: 7,
+        },
+        &c,
+    );
+    assert_eq!(r.reason, ReasonCode::TargetNotFound);
+
+    // A sequence the chain does not contain, on the kernel-event target.
+    let r = reconcile_observation(
+        &ev,
+        ObservationTarget::KernelEvent {
+            batch_sequence: ObserverSequence(99),
+            index: 0,
+        },
+        &c,
+    );
+    assert_eq!(r.reason, ReasonCode::TargetNotFound);
+}
+
+/// O-07. The record cites the observation it is about.
+///
+/// A reconciliation whose evidence list does not name its own target is a
+/// verdict about nothing an auditor can locate. t07b asserts the
+/// `KernelEvent` ref on the *expectation* path; nothing asserted it here, so
+/// the push could be deleted and every existing assertion still held.
+#[test]
+fn t28_the_observation_record_cites_its_own_target() {
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let (ev, _, c) = observation_scene(&x, &mut o, Some([0x5a; 16]));
+
+    let r = reconcile_observation(
+        &ev,
+        ObservationTarget::Observation {
+            batch_sequence: ObserverSequence(2),
+            index: 0,
+        },
+        &c,
+    );
+    assert!(
+        r.evidence.iter().any(|e| matches!(
+            e,
+            EvidenceRef::Observation {
+                batch_sequence: ObserverSequence(2),
+                index: 0
+            }
+        )),
+        "the record must name the observation it is about: {:?}",
+        r.evidence
+    );
+}
+
+/// O-09. The window carried into the expected-side comparison is the batch's
+/// **whole** claimed window, not a point inside it.
+///
+/// `covers` is `from >= self.from && to <= self.to`, so collapsing the
+/// observation's window to a single instant makes almost any statement cover
+/// it. A decision point that attested completeness over one millisecond
+/// would then settle a batch spanning seconds — and the accusation would
+/// rest on a statement that never covered the period it is about.
+///
+/// The statement below covers the batch's start instant and stops short of
+/// its end: correct behaviour refuses it, and the mutation accepts it.
+#[test]
+fn t29_the_expected_side_must_cover_the_whole_batch_window_not_an_instant() {
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let (ev, target, mut c) = observation_scene(&x, &mut o, Some([0x5a; 16]));
+
+    let from = ev.batches[1].batch.claimed_from_ms;
+    let to = ev.batches[1].batch.claimed_to_ms;
+    assert!(to > from, "the fixture's batch must span a real interval");
+
+    // Covers the opening instant and nothing more.
+    let stmt = coverage_statement(
+        &x,
+        &x.agent_id,
+        CoverageWindow {
+            from_ms: from,
+            to_ms: from,
+        },
+        vec![],
+        at_of(&x),
+    );
+    c.expected_side = ExpectedSideCoverage::Attested(Box::new(stmt));
+
+    let r = reconcile_observation(&ev, target, &c);
+    assert_eq!(r.result, ReconciliationResult::CannotProve);
+    assert_eq!(r.reason, ReasonCode::ExpectedSideStatementDoesNotCover);
+    assert_ne!(
+        r.result,
+        ReconciliationResult::UnattributedEffect,
+        "a statement covering one instant cannot settle a batch spanning an interval"
+    );
+}
+
+/// O-10. Availability over the window is **computed** from the signed health
+/// record, never asserted by the reconciler.
+///
+/// `ObservationAvailability` is a field of the canonical record and the input
+/// a downstream consumer reads to decide whether a window was watched at all.
+/// Hard-coding it to `Covered` would make every observation-path record claim
+/// coverage the health record does not support.
+#[test]
+fn t30_availability_on_the_observation_path_is_computed_from_the_health_record() {
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let (ev, target, mut c) = observation_scene(&x, &mut o, Some([0x5a; 16]));
+
+    // Honest: the health record covers the batch window.
+    let r = reconcile_observation(&ev, target, &c);
+    assert!(r.availability.is_covered());
+
+    // The verifier's staleness bound is tighter than the health record's age,
+    // so the same evidence yields an uncovered window — the health record
+    // decides, not the reconciler.
+    c.health_max_age_ms = 0;
+    c.verification_time_ms = ev.health.health.emitted_at_ms + 10_000;
+    let r = reconcile_observation(&ev, target, &c);
+    assert!(
+        !r.availability.is_covered(),
+        "availability must follow the health record, not a constant: {:?}",
+        r.availability
+    );
+}

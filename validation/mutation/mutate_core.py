@@ -440,7 +440,17 @@ def targeted(pkg, extra=None):
 
 
 def main():
-    only = sys.argv[1:] or None
+    return run_matrix(MUTATIONS, REPO / "validation/mutation/CORE_MUTATION_RESULTS.json",
+               sys.argv[1:] or None, ["aip-reconcile", "aip-nexora"])
+
+
+def run_matrix(MUTATIONS, outp, only, targets):
+    """Apply each mutation, prove it was active, run the suite, restore.
+
+    Shared by every mutation matrix in this repository so that the forensic
+    steps — unique fragment, changed digest, successful compile, restored
+    bytes — cannot drift between one matrix and another.
+    """
     results = []
     originals = {}
     for m in MUTATIONS:
@@ -522,7 +532,7 @@ def main():
     killed = [r["id"] for r in results if r["result"] == "KILLED"]
     doc = {
         "harness": "validation/mutation/mutate_core.py",
-        "targets": ["aip-reconcile", "aip-nexora"],
+        "targets": targets,
         "total": len(results),
         "killed": len(killed),
         "survivors": survivors,
@@ -531,7 +541,6 @@ def main():
         "restored": restored,
         "mutations": results,
     }
-    outp = REPO / "validation/mutation/CORE_MUTATION_RESULTS.json"
     # A filtered run updates the entries it re-ran and leaves the rest, so a
     # targeted re-run after adding a regression test produces one complete
     # artifact rather than a partial one that looks like a shrunken matrix.
