@@ -93,6 +93,7 @@ pub fn parse_exec_record(fmt: &RawFormat, raw: &[u8]) -> Result<KernelLifecycleK
 #[cfg(target_os = "linux")]
 mod sys {
     use super::*;
+    use crate::health::MechanismIntegrity;
     use crate::perf::PerfTracepoints;
 
     /// The fork + exec tracepoint source.
@@ -125,6 +126,32 @@ mod sys {
 
         pub fn take_lost(&mut self) -> u64 {
             self.perf.take_lost()
+        }
+
+        /// The tracer's mechanism-integrity finding: is a foreign eBPF program
+        /// gating the `sched:sched_process_{fork,exec}` tracepoints it samples?
+        /// Both are perf-tracepoint mechanisms exposed to the eBPF submission
+        /// gate, so a program on either can silently suppress this tracer's
+        /// events. The collector feeds this to
+        /// [`crate::CollectorSigner::note_mechanism_integrity`] each health
+        /// cycle so a blinded tracer signs
+        /// [`crate::ObserverState::IntegrityUnknown`] instead of a false
+        /// `Active`.
+        ///
+        /// Fail-closed: if the kernel refuses the query, integrity cannot be
+        /// established, so the finding is `ForeignTracepointGate` (unknown),
+        /// never a silent `Verified`.
+        pub fn mechanism_integrity(&self) -> MechanismIntegrity {
+            match self.perf.foreign_bpf_program_count() {
+                Ok(0) => MechanismIntegrity::Verified,
+                Ok(n) => MechanismIntegrity::ForeignTracepointGate {
+                    foreign_programs: n,
+                },
+                // Cannot establish capability → not clean.
+                Err(_) => MechanismIntegrity::ForeignTracepointGate {
+                    foreign_programs: 0,
+                },
+            }
         }
 
         /// Next decoded fork or exec, waiting up to `timeout_ms`; `Ok(None)`

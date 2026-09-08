@@ -47,7 +47,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::continuity::{Admission, ContinuityBreak, ContinuityFault, ObserverLedger};
 use crate::health::{
-    ContinuityStatus, CoverageWindow, ObserverState, ProbePolicy, SensorHealth, SignedSensorHealth,
+    ContinuityStatus, CoverageWindow, MechanismIntegrity, ObserverState, ProbePolicy, SensorHealth,
+    SignedSensorHealth,
 };
 use crate::observed::{ObservationBatch, SourceMechanism, OBSERVE_PROTOCOL_VERSION};
 
@@ -383,6 +384,12 @@ pub struct CollectorSigner {
     /// Intersection of `active_mechanisms` over the batches that make up the
     /// current coverage epoch. `None` whenever there is no coverage.
     covered_by: Option<Vec<SourceMechanism>>,
+    /// The collector's most recent finding about whether its sampled
+    /// mechanisms remained capable of delivering events (the tracepoint-gate
+    /// check). `Verified` until a live check says otherwise; a
+    /// `ForeignTracepointGate` finding drives the signed state to
+    /// `IntegrityUnknown`.
+    mechanism_integrity: MechanismIntegrity,
 }
 
 impl std::fmt::Debug for CollectorSigner {
@@ -468,7 +475,20 @@ impl CollectorSigner {
             last_probe_seq_last: None,
             probe_faults: Vec::new(),
             covered_by: None,
+            mechanism_integrity: MechanismIntegrity::Verified,
         })
+    }
+
+    /// Record the result of a mechanism-integrity check (on Linux, an
+    /// enumeration of the eBPF programs gating the sampled tracepoints). A
+    /// `ForeignTracepointGate` finding makes the next signed health report
+    /// [`ObserverState::IntegrityUnknown`]: the observer cannot vouch that it
+    /// remained capable of seeing the event class, so absence over the window
+    /// carries no information. Monotone within a health cycle only — the
+    /// collector re-checks and re-reports each cycle, so a cleared gate
+    /// restores `Active` on the next cycle exactly as a cleared loss does.
+    pub fn note_mechanism_integrity(&mut self, integrity: MechanismIntegrity) {
+        self.mechanism_integrity = integrity;
     }
 
     pub fn observer_id(&self) -> &str {
@@ -624,6 +644,18 @@ impl CollectorSigner {
     pub fn state(&self) -> ObserverState {
         if self.ledger.is_quarantined() {
             return ObserverState::Quarantined;
+        }
+        // Quarantine (a proven integrity failure) outranks everything. Below
+        // it, a foreign tracepoint gate outranks the loss/continuity ladder:
+        // it can suppress events with neither a dropped-record count nor a
+        // chain break, so an otherwise-clean stream must not mask it. The
+        // signed `continuity` field still carries any concurrent gap, so
+        // reporting `IntegrityUnknown` here loses nothing a verifier needs.
+        if matches!(self.ledger.status(), ContinuityStatus::Broken) {
+            return ObserverState::Quarantined;
+        }
+        if !matches!(self.mechanism_integrity, MechanismIntegrity::Verified) {
+            return ObserverState::IntegrityUnknown;
         }
         match self.ledger.status() {
             ContinuityStatus::Broken => ObserverState::Quarantined,

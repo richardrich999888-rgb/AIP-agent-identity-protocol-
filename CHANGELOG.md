@@ -6,6 +6,31 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Security
+- **Observer integrity boundary (observation-integrity finding).** A foreign
+  eBPF program on a tracepoint Sniffer Dog samples suppresses that tracepoint's
+  perf submission host-wide with no dropped-record accounting, so a live,
+  continuity-verified observer can be silently blind — and, before this change,
+  still sign `Active` coverage and let a blinded window drive a `PhantomClaim`.
+  Fixed, fail-safe and strictly monotone (it can only turn a coverage claim
+  into `CannotProve`, never the reverse):
+  - New `ObserverState::IntegrityUnknown`, carried inside the signed
+    `SensorHealth`, set when the collector detects a foreign tracepoint gate.
+  - `PerfTracepoints::foreign_bpf_program_count` (via `PERF_EVENT_IOC_QUERY_BPF`)
+    and `ProcessTracer::mechanism_integrity` — the synchronous, fail-closed
+    detector.
+  - `covered_by_kernel_pushed_source` now requires a gate-independent
+    kernel-pushed mechanism (netlink connector / `fanotify` / `AF_PACKET`); a
+    lone perf-tracepoint mechanism no longer licenses a non-occurrence claim.
+  - Reconciler maps `IntegrityUnknown` to `cannot_prove(ObserverIntegrityUnknown)`.
+  - **Wire change:** `OBSERVE_PROTOCOL_VERSION` 8 → 9 (additive state code
+    `0x06`; all in-tree records rebuild against v9). `CANNOT_PROVE`,
+    `EvidenceCeiling` and the single reconciler authority are unchanged.
+  Specs: `docs/OBSERVATION_INTEGRITY_REQUIREMENTS.md`,
+  `docs/OBSERVATION_MECHANISM_INDEPENDENCE.md`,
+  `docs/OBSERVATION_INTEGRITY_DECISION_RECORD.md`; reproduction in
+  `validation/observation_integrity/`.
+
 ### Added
 - **Signed audit-export bundle.** `GET /v1/evidence/{id}/export` returns a
   portable `application/zip` (evidence, verification report JSON + Markdown,

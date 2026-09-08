@@ -2,12 +2,17 @@
 
 > See also the mitigation-option analysis in `OBSERVATION_INTEGRITY_THREAT_MODEL.md` §6, from a concurrent independent characterisation.
 
-
-**Decision: none. No mitigation is selected.** The threat is reproduced and
-characterised; the options are analysed; selection is deferred to
-OBSERVATION-INTEGRITY-001 producing evidence that discriminates between them.
-This record exists so that when a mitigation *is* chosen, the reasoning is on
-the table rather than reconstructed.
+**Decision: implemented — H + A + G + I, the fail-safe cross-mechanism core.**
+The threat was reproduced and characterised, the options below were analysed,
+and the operator directed implementation to production. What shipped is the
+combination the analysis pointed at as lowest-risk and trust-model-preserving:
+detect the gate (H), require an independent mechanism before coverage counts
+(A), carry the honest state in the signed record (G), and fail the coverage
+assertion closed (I). The heavier options (C canary, D/E remote/off-host, F
+hardware) were **not** taken; they remain future work on the
+OBSERVER_ATTESTATION roadmap. The original "no mitigation selected" posture is
+superseded by this record; the earlier reasoning is retained below because it
+is what justifies the selection.
 
 ## Status
 
@@ -16,8 +21,42 @@ the table rather than reconstructed.
 - `THREAT_CHARACTERIZED` — `docs/OBSERVATION_INTEGRITY_REQUIREMENTS.md`,
   `docs/OBSERVATION_MECHANISM_INDEPENDENCE.md`.
 - `MITIGATION_OPTIONS_DEFINED` — below.
-- `MITIGATION_IMPLEMENTED` — **no.**
-- No production code changed. No new runtime dependency added.
+- `MITIGATION_IMPLEMENTED` — **yes** (see "What shipped").
+- One signed-wire change (`OBSERVE_PROTOCOL_VERSION` 8 → 9); no new runtime
+  dependency; `CANNOT_PROVE`, `EvidenceCeiling`, and the single reconciler
+  authority all preserved.
+
+## What shipped
+
+Fail-safe and strictly monotone: every part can only make the observer *more*
+conservative — it can turn an `Active`/covered claim into `CannotProve`, never
+the reverse, and it touches no verdict on the trusted-observation side.
+
+1. **Detect (H).** `PerfTracepoints::foreign_bpf_program_count` queries the
+   kernel's per-tracepoint eBPF program array through the observer's own perf
+   fds (`PERF_EVENT_IOC_QUERY_BPF`); `ProcessTracer::mechanism_integrity` maps
+   a foreign program to `ForeignTracepointGate`, fail-closed if the query is
+   refused. This is the direct, synchronous detector for the reproduced gate.
+2. **State + attestation (G).** `ObserverState::IntegrityUnknown` (new, code
+   `0x06`, non-`Active`, fails `permits_attested_use`) is carried inside the
+   signed `SensorHealth`. A blinded collector signs the truth, so a verifier
+   consumes a coverage claim that is itself evidence — not an assumption. A
+   forger holding the collector key can still lie, but that is the separate
+   key-custody boundary, stated in `execution-binding` / `attestation-keys`.
+3. **Cross-mechanism requirement (A).** `covered_by_kernel_pushed_source`
+   now requires a mechanism that does **not** share the perf-tracepoint gate
+   (`is_gate_independent_kernel_pushed`): the netlink connector, `fanotify`,
+   or the `AF_PACKET` tap. A lone gate-able tracepoint no longer licenses a
+   non-occurrence statement. This is always-on and needs no runtime signal, so
+   it holds even where detection (H) cannot run.
+4. **Fail closed (I).** `IntegrityUnknown` maps to
+   `cannot_prove(ObserverIntegrityUnknown)` in every reconciler state gate; a
+   blinded observer never reaches `PhantomClaim`.
+
+Tests: `aip-observe` unit + `tests/observer_integrity.rs` (synthetic
+adversarial, incl. the re-signing forger); `aip-reconcile` `t03d`/`t03e`
+(a blinded observer cannot accuse); `validation/observation_integrity`
+reproduces the gate and now asserts the observer reports `integrity_unknown`.
 
 ## What any mitigation must preserve
 

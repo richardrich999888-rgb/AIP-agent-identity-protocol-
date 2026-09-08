@@ -2,13 +2,15 @@
 
 > Companion from a concurrent, independently built characterisation of the same finding: `OBSERVATION_INTEGRITY_THREAT_MODEL.md` (attack model, states, boundary) and `OBSERVATION_INTEGRITY_EXPERIMENT_PLAN.md` (three-phase design, results, AIRI implications). `validation/observation_integrity/README.md` compares the two.
 
-
-**Status: specified, validated by experiment, not yet implemented in
-production.** These are validation/design semantics. No production enum or type
-is added by this document; where it names states, those are a vocabulary for
-reasoning and for the experiment in
-`validation/observation_integrity/OBSERVATION-INTEGRITY-001.md`, not a patch to
-`aip-observe`.
+**Status: specified, validated by experiment, and implemented in production**
+(`OBSERVE_PROTOCOL_VERSION` 9; see `docs/OBSERVATION_INTEGRITY_DECISION_RECORD.md`
+for what shipped). The states below were the design vocabulary; the one the
+finding turns on, `OBSERVATION_INTEGRITY_UNKNOWN`, is now the real
+`aip_observe::ObserverState::IntegrityUnknown`, carried inside the signed
+`SensorHealth`. The other four names remain a reasoning vocabulary that the
+existing `Active / Degraded / Recovering / ContinuityUnverified / Quarantined`
+states and `ObservationAvailability` already realise; this document does not
+rename those.
 
 ## The property
 

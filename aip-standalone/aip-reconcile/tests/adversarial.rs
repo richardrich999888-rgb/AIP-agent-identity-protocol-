@@ -1417,3 +1417,70 @@ fn decision_id_is_the_only_correlation_key_and_is_explicitly_typed() {
     let seq = ObserverSequence(2);
     assert!(seq > ObserverSequence(1));
 }
+
+// ═══ Observation-integrity finding: a blinded observer cannot accuse ═══
+// (docs/OBSERVATION_INTEGRITY_REQUIREMENTS.md). A foreign eBPF program on a
+// sampled tracepoint suppresses that tracepoint's perf submission host-wide
+// with no loss accounting. Such an observer must never drive a PhantomClaim —
+// a signed accusation that a claimed execution did not happen — off the back
+// of the silence its own blindness produced.
+
+/// The signed `IntegrityUnknown` state turns the strongest positive verdict
+/// (PhantomClaim, reached by t03) into `CannotProve`. This is the honesty
+/// half: a blinded observer says so, and the reconciler believes it.
+#[test]
+fn t03d_integrity_unknown_state_is_cannot_prove_never_phantom() {
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let at = at_of(&x);
+    let filler = o.present(other_process(), None, x.now + 10);
+    let mut ev = {
+        let batches = covered_chain(&x, &mut o, vec![filler]);
+        o.evidence(batches, at)
+    };
+    // Sanity: unmodified, this evidence would reach PhantomClaim.
+    assert!(ev.health.covered_by_kernel_pushed_source());
+
+    // The collector's live integrity check found a foreign tracepoint gate,
+    // so it signs IntegrityUnknown. (Re-signed with the real key: the state
+    // is inside the signed preimage, so this is what an honest blinded
+    // collector actually emits, not a forgery.)
+    ev.health.health.state = ObserverState::IntegrityUnknown;
+    ev.health = o.resign_health(ev.health);
+    assert!(!ev.health.covered_by_kernel_pushed_source());
+
+    let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at));
+    assert_eq!(r.result, ReconciliationResult::CannotProve);
+    assert_eq!(r.reason, ReasonCode::ObserverIntegrityUnknown);
+    assert_ne!(r.result, ReconciliationResult::PhantomClaim);
+}
+
+/// The cross-mechanism half: even with an `Active` state, kernel-pushed
+/// coverage resting only on a gate-able perf tracepoint is not enough for a
+/// non-occurrence statement. A single eBPF program could have blinded it, so
+/// an independent facility (the connector) is required. Here the signed
+/// coverage is the sched tracepoint alone — kernel-pushed, but gate-able.
+#[test]
+fn t03e_gate_able_tracepoint_alone_is_not_kernel_pushed_coverage() {
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let at = at_of(&x);
+    let filler = o.present(other_process(), None, x.now + 10);
+    let mut ev = {
+        let batches = covered_chain(&x, &mut o, vec![filler]);
+        o.evidence(batches, at)
+    };
+    // Replace the connector with the sched tracepoint as the sole covering
+    // mechanism, and re-sign: kernel-pushed, but exposed to the eBPF gate.
+    ev.health.health.covered_by = vec![SourceMechanism::SchedTracepoint];
+    ev.health = o.resign_health(ev.health);
+
+    assert!(
+        !ev.health.covered_by_kernel_pushed_source(),
+        "a lone gate-able tracepoint must not count as kernel-pushed coverage"
+    );
+    let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at));
+    assert_eq!(r.result, ReconciliationResult::CannotProve);
+    assert_eq!(r.reason, ReasonCode::CoverageNotKernelPushed);
+    assert_ne!(r.result, ReconciliationResult::PhantomClaim);
+}

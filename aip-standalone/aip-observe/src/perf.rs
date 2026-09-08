@@ -226,6 +226,15 @@ mod sys {
     const PERF_RECORD_LOST: u32 = 2;
     const PERF_RECORD_SAMPLE: u32 = 9;
     const PERF_EVENT_IOC_ENABLE: libc::c_ulong = 0x2400;
+    /// `_IOWR('$', 10, struct perf_event_query_bpf)` — `'$'` is 0x24, the
+    /// struct is 8 bytes (two `__u32` before the flexible `ids[]`):
+    /// `(dir=3 << 30) | (8 << 16) | (0x24 << 8) | 10`. Queries the eBPF
+    /// programs attached to this perf event's tracepoint — the kernel reads
+    /// `event->tp_event->prog_array`, the array **shared** by every perf
+    /// consumer of that tracepoint, so a program attached by another process
+    /// is reported here. This is how the observer sees the gate that the
+    /// observation-integrity finding turns against it.
+    const PERF_EVENT_IOC_QUERY_BPF: libc::c_ulong = 0xC008_240A;
     /// Data pages per ring (a power of two). Eight pages held a burst of a
     /// few hundred records; host-wide tracepoints (every fork, exec and
     /// send on the host) overflowed that between two drains under load,
@@ -431,6 +440,64 @@ mod sys {
         /// (`PERF_RECORD_LOST`, plus records this reader could not decode).
         pub fn take_lost(&mut self) -> u64 {
             std::mem::take(&mut self.lost)
+        }
+
+        /// How many eBPF programs are attached to the tracepoints this
+        /// observer samples. Sniffer Dog attaches none of its own, so any
+        /// non-zero result is a **foreign** program sitting on the
+        /// tracepoint's shared eBPF submission gate — able to suppress this
+        /// observer's samples host-wide with no dropped-record accounting.
+        /// That is the observation-integrity finding
+        /// (`docs/OBSERVATION_INTEGRITY_REQUIREMENTS.md`); this is the
+        /// observer's synchronous check for it, so it can sign
+        /// [`crate::ObserverState::IntegrityUnknown`] rather than a false
+        /// `Active`.
+        ///
+        /// Returns the largest program count seen across the sampled
+        /// tracepoints. `Err` means the kernel refused the query (e.g. no
+        /// `CAP_PERFMON`): the observer cannot establish integrity, which a
+        /// fail-closed caller treats as unverified, not as clean.
+        pub fn foreign_bpf_program_count(&self) -> std::io::Result<u32> {
+            // The kernel caps `ids_len` at BPF_TRACE_MAX_PROGS (64); a larger
+            // value is rejected with E2BIG before `prog_cnt` is written. 64 is
+            // also the most programs a tracepoint can carry, so this never
+            // truncates a real count.
+            const MAX_PROGS: usize = 64;
+            #[repr(C)]
+            struct PerfEventQueryBpf {
+                ids_len: u32,
+                prog_cnt: u32,
+                ids: [u32; MAX_PROGS],
+            }
+            let mut worst = 0u32;
+            for r in &self.rings {
+                let mut q = PerfEventQueryBpf {
+                    ids_len: MAX_PROGS as u32,
+                    prog_cnt: 0,
+                    ids: [0; MAX_PROGS],
+                };
+                // SAFETY: ioctl on a perf fd we own; `q` is a fully
+                // initialised repr(C) buffer the kernel writes `prog_cnt` and
+                // up to `ids_len` ids into.
+                let rc = unsafe {
+                    libc::ioctl(
+                        r.fd,
+                        PERF_EVENT_IOC_QUERY_BPF as _,
+                        &mut q as *mut PerfEventQueryBpf,
+                    )
+                };
+                if rc != 0 {
+                    let err = std::io::Error::last_os_error();
+                    // ENOSPC: more programs than our (large) buffer holds; the
+                    // kernel still wrote the true `prog_cnt`, which is all we
+                    // need. Any other error means we could not establish it.
+                    if err.raw_os_error() != Some(libc::ENOSPC) {
+                        return Err(err);
+                    }
+                }
+                worst = worst.max(q.prog_cnt);
+            }
+            Ok(worst)
         }
 
         /// Next sample in kernel-time order, waiting up to `timeout_ms`.

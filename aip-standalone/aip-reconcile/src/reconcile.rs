@@ -330,6 +330,7 @@ fn state_reason(state: ObserverState) -> Option<ReasonCode> {
         ObserverState::Recovering => Some(ReasonCode::ObserverRecovering),
         ObserverState::ContinuityUnverified => Some(ReasonCode::ObserverContinuityUnverified),
         ObserverState::Quarantined => Some(ReasonCode::ObserverQuarantined),
+        ObserverState::IntegrityUnknown => Some(ReasonCode::ObserverIntegrityUnknown),
     }
 }
 
@@ -1305,6 +1306,9 @@ pub fn reconcile_expectation(
             )
         }
         ObserverState::Degraded => return draft.cannot_prove(ReasonCode::ObserverDegraded),
+        ObserverState::IntegrityUnknown => {
+            return draft.cannot_prove(ReasonCode::ObserverIntegrityUnknown)
+        }
         ObserverState::Active => {}
     }
 
@@ -1651,6 +1655,9 @@ pub fn reconcile_lineage(
             )
         }
         ObserverState::Degraded => return draft.cannot_prove(ReasonCode::ObserverDegraded),
+        ObserverState::IntegrityUnknown => {
+            return draft.cannot_prove(ReasonCode::ObserverIntegrityUnknown)
+        }
         ObserverState::Active => {}
     }
 

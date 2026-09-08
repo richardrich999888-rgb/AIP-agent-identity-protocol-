@@ -49,6 +49,16 @@ fn main() {
     // never starts the subject against a sensor that has not attached.
     eprintln!("READY");
 
+    // Mechanism-integrity check: is a foreign eBPF program gating the
+    // tracepoints this sensor samples? This is the production observer's own
+    // check (`ProcessTracer::mechanism_integrity`), the fix for the
+    // observation-integrity finding. Recorded at open and again at close, so a
+    // gate applied mid-window is caught. A `ForeignTracepointGate` reading is
+    // exactly what makes the collector sign `ObserverState::IntegrityUnknown`
+    // instead of a false `Active`.
+    writeln!(out, "{}", integrity_line("open", tracer.mechanism_integrity())).unwrap();
+    out.flush().unwrap();
+
     let deadline = std::time::Instant::now() + std::time::Duration::from_millis(duration_ms);
     let mut seq: u64 = 0;
     let mut lost_total: u64 = 0;
@@ -122,9 +132,24 @@ fn main() {
     if lost > 0 {
         writeln!(out, r#"{{"kind":"loss","count":{lost}}}"#).unwrap();
     }
+    writeln!(out, "{}", integrity_line("close", tracer.mechanism_integrity())).unwrap();
     writeln!(out, r#"{{"kind":"summary","events":{seq},"lost":{lost_total}}}"#).unwrap();
     out.flush().unwrap();
     eprintln!("exp01-recorder: {seq} events, {lost_total} lost");
+}
+
+/// Render a mechanism-integrity reading as one JSON line. `verified` means no
+/// foreign eBPF program was found on the sampled tracepoints; `integrity_unknown`
+/// means one was — the observer may be blind, and its silence proves nothing.
+fn integrity_line(at: &str, mi: aip_observe::MechanismIntegrity) -> String {
+    match mi {
+        aip_observe::MechanismIntegrity::Verified => format!(
+            r#"{{"kind":"mechanism_integrity","at":"{at}","state":"verified","foreign_programs":0}}"#
+        ),
+        aip_observe::MechanismIntegrity::ForeignTracepointGate { foreign_programs } => format!(
+            r#"{{"kind":"mechanism_integrity","at":"{at}","state":"integrity_unknown","foreign_programs":{foreign_programs}}}"#
+        ),
+    }
 }
 
 /// Minimal JSON string escaping. The recorder has no serde dependency on

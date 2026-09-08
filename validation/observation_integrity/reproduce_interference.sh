@@ -125,6 +125,7 @@ import json, sys
 sd_log, win_open, win_close, arm, mode, out = sys.argv[1:7]
 win_open, win_close = int(win_open), int(win_close)
 wc_in_window = wc_total = loss = total_exec = 0
+integrity = None
 # Sniffer Dog timestamps are CLOCK_MONOTONIC ns; the window bounds are
 # realtime ns. They are different clocks, so we do not filter exec events by
 # the realtime window — instead we count wc execs across the capture, which is
@@ -142,6 +143,8 @@ for line in open(sd_log):
             wc_total += 1
     elif k == "loss":
         loss += r["count"]
+    elif k == "mechanism_integrity" and r.get("at") == "close":
+        integrity = r.get("state")
 summary = {
     "arm": arm, "mode": mode,
     "window_open_realtime_ns": win_open,
@@ -149,9 +152,13 @@ summary = {
     "sniffer_dog_wc_execs": wc_total,
     "sniffer_dog_total_execs": total_exec,
     "sniffer_dog_reported_loss": loss,
+    # The production observer's own integrity self-report (the fix): does it
+    # know it may have been blinded? "verified" | "integrity_unknown" | None.
+    "sniffer_dog_integrity_self_report": integrity,
 }
 open(out, "w").write(json.dumps(summary, indent=2))
-print(f"  {arm:12} mode={mode:11} wc_execs={wc_total} total_execs={total_exec} reported_loss={loss}")
+print(f"  {arm:12} mode={mode:11} wc_execs={wc_total} total_execs={total_exec} "
+      f"reported_loss={loss} integrity={integrity}")
 PY
 }
 
@@ -177,26 +184,39 @@ reproduced = (
     b["sniffer_dog_wc_execs"] == 0 and
     b["sniffer_dog_reported_loss"] == 0
 )
+# The fix: the observer must now KNOW it was blinded. Baseline integrity is
+# "verified" (no foreign gate); the interfered arm is "integrity_unknown"
+# (the production ProcessTracer::mechanism_integrity check saw the foreign
+# program). That self-report is what makes the collector sign
+# ObserverState::IntegrityUnknown instead of a false Active.
+a_int = a.get("sniffer_dog_integrity_self_report")
+b_int = b.get("sniffer_dog_integrity_self_report")
+detected = (a_int == "verified" and b_int == "integrity_unknown")
 verdict = {
     "finding": "observer reports healthy coverage while observation was suppressed",
     "arm_a_baseline_wc_execs": a["sniffer_dog_wc_execs"],
     "arm_b_interfered_wc_execs": b["sniffer_dog_wc_execs"],
     "arm_b_interfered_reported_loss": b["sniffer_dog_reported_loss"],
     "reproduced": reproduced,
+    "arm_a_baseline_integrity": a_int,
+    "arm_b_interfered_integrity": b_int,
+    "fix_detected_the_gate": detected,
     "interpretation": (
-        "REPRODUCED: with the gate held, Sniffer Dog observed zero of the "
-        f"{nexecs} execs and reported zero loss. Its silence is "
-        "indistinguishable, from its own outputs, from 'no exec occurred'."
-        if reproduced else
-        "NOT REPRODUCED under these parameters; see per-arm summaries."
+        "REPRODUCED and DETECTED: with the gate held, Sniffer Dog observed "
+        f"zero of the {nexecs} execs and reported zero loss — but its "
+        "mechanism-integrity check reported 'integrity_unknown', so the "
+        "collector no longer signs a false Active. The fix converts silent "
+        "blindness into a signed 'I cannot vouch'."
+        if reproduced and detected else
+        "See per-arm summaries; reproduced=%s detected=%s." % (reproduced, detected)
     ),
 }
 open(f"{run}/verdict.json", "w").write(json.dumps(verdict, indent=2))
-print("VERDICT:", "REPRODUCED" if reproduced else "NOT REPRODUCED")
-print(f"  baseline wc execs observed  : {a['sniffer_dog_wc_execs']}")
-print(f"  interfered wc execs observed: {b['sniffer_dog_wc_execs']}")
-print(f"  interfered reported loss    : {b['sniffer_dog_reported_loss']}")
-sys.exit(0 if reproduced else 1)
+print("VERDICT:", "REPRODUCED + FIX DETECTED" if reproduced and detected
+      else ("REPRODUCED, FIX NOT DETECTED" if reproduced else "NOT REPRODUCED"))
+print(f"  baseline   : wc_execs={a['sniffer_dog_wc_execs']} integrity={a_int}")
+print(f"  interfered : wc_execs={b['sniffer_dog_wc_execs']} loss={b['sniffer_dog_reported_loss']} integrity={b_int}")
+sys.exit(0 if reproduced and detected else 1)
 PY
 RC=$?
 

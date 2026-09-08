@@ -137,6 +137,10 @@ pub enum ReasonCode {
     ObserverDegraded = 0x28,
     ObserverRecovering = 0x29,
     ObserverContinuityUnverified = 0x2a,
+    /// The observer could not establish that its mechanism remained capable of
+    /// observing the event class (a foreign eBPF program was gating a sampled
+    /// tracepoint). An epistemic limit — never a positive verdict.
+    ObserverIntegrityUnknown = 0x2f,
     ProvenanceUnverifiedOpenPolicy = 0x2b,
     /// The observer protocol version is not one this reconciler verifies.
     ObserverProtocolUnsupported = 0x2c,
@@ -798,6 +802,7 @@ fn encode_availability(buf: &mut Vec<u8>, a: &ObservationAvailability) {
                 R::ObserverRecovering => put_u8(buf, 0x03),
                 R::ContinuityUnverified => put_u8(buf, 0x04),
                 R::ObserverQuarantined => put_u8(buf, 0x05),
+                R::ObserverIntegrityUnknown => put_u8(buf, 0x08),
                 R::WindowNotCovered => put_u8(buf, 0x06),
                 R::HealthStale {
                     newest_ms,

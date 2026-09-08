@@ -48,7 +48,7 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 /// - `8` Gate 4: `SourceMechanism::Fanotify`, `FileEvent`.
 ///
 /// Earlier versions never left this branch; all are refused.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 8;
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 9;
 
 /// Kernel TCP state bytes (`include/net/tcp_states.h`), as they appear in
 /// `/proc/net/tcp` and in the `sock:inet_sock_set_state` tracepoint.
@@ -180,6 +180,44 @@ impl SourceMechanism {
     /// accepted here yet — lifecycle coverage means the connector.
     pub fn covers_process_lifecycle(&self) -> bool {
         matches!(self, SourceMechanism::ProcConnector)
+    }
+
+    /// Does this mechanism's delivery pass through the kernel's per-tracepoint
+    /// eBPF submission gate — `perf_trace_run_bpf_submit()`, keyed on the
+    /// `trace_event_call`?
+    ///
+    /// These are the mechanisms sampled with `perf_event_open` on a
+    /// tracepoint. Any eBPF program attached to the same tracepoint by any
+    /// process runs before the sample is submitted, and a program returning
+    /// zero suppresses the sample for **every** perf consumer of that
+    /// tracepoint host-wide, with no dropped-record accounting. That is the
+    /// observation-integrity finding (`docs/OBSERVATION_INTEGRITY_REQUIREMENTS.md`):
+    /// a `CAP_BPF` process, or a co-resident eBPF observer, can blind these
+    /// mechanisms silently.
+    ///
+    /// It is therefore false for the kernel-pushed mechanisms that reach the
+    /// observer by a different facility — the netlink process connector, the
+    /// `fanotify` queue, and the `AF_PACKET` device tap — none of which is
+    /// gated by a tracepoint's eBPF program array. Two mechanisms that both
+    /// return true here are **not** independent observers of one another: a
+    /// single gate closes both. See `docs/OBSERVATION_MECHANISM_INDEPENDENCE.md`.
+    pub fn shares_perf_tracepoint_gate(&self) -> bool {
+        matches!(
+            self,
+            SourceMechanism::SchedTracepoint
+                | SourceMechanism::SockStateTracepoint
+                | SourceMechanism::SockSendTracepoint
+        )
+    }
+
+    /// Kernel-pushed **and** not exposed to the per-tracepoint eBPF submission
+    /// gate: the observer's evidence that an event was delivered by the kernel
+    /// through a facility a co-resident eBPF program cannot silently suppress.
+    /// This is the independence property the reconciler requires before it
+    /// will treat kernel-pushed coverage as trustworthy for a statement about
+    /// what did *not* happen.
+    pub fn is_gate_independent_kernel_pushed(&self) -> bool {
+        self.is_kernel_pushed() && !self.shares_perf_tracepoint_gate()
     }
 
     /// The measurement is proven to refer to one process instance.
@@ -1214,6 +1252,40 @@ mod tests {
         assert!(!SourceMechanism::ProcfsPoll.is_kernel_pushed());
         assert!(SourceMechanism::ProcConnector.is_kernel_pushed());
         assert!(SourceMechanism::PidFdAnchored.is_instance_anchored());
+    }
+
+    #[test]
+    fn perf_tracepoint_mechanisms_are_the_gate_able_ones() {
+        // Exactly the three sampled with perf_event_open on a tracepoint pass
+        // through perf_trace_run_bpf_submit and can be blinded by a single
+        // eBPF program on that tracepoint (the observation-integrity finding).
+        for m in [
+            SourceMechanism::SchedTracepoint,
+            SourceMechanism::SockStateTracepoint,
+            SourceMechanism::SockSendTracepoint,
+        ] {
+            assert!(m.shares_perf_tracepoint_gate(), "{m:?} is gate-able");
+            assert!(
+                !m.is_gate_independent_kernel_pushed(),
+                "{m:?} is not gate-independent"
+            );
+        }
+        // The kernel-pushed mechanisms that reach the observer by another
+        // facility are gate-independent: a tracepoint program cannot suppress
+        // them.
+        for m in [
+            SourceMechanism::ProcConnector,
+            SourceMechanism::WireTapAfPacket,
+            SourceMechanism::Fanotify,
+        ] {
+            assert!(!m.shares_perf_tracepoint_gate(), "{m:?} is not gate-able");
+            assert!(
+                m.is_gate_independent_kernel_pushed(),
+                "{m:?} is gate-independent kernel-pushed"
+            );
+        }
+        // Polled mechanisms are neither kernel-pushed nor gate-independent.
+        assert!(!SourceMechanism::ProcfsPoll.is_gate_independent_kernel_pushed());
     }
 
     #[test]
