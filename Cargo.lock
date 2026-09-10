@@ -194,6 +194,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-enforce"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-types",
+ "libc",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-execution"
 version = "0.4.0"
 dependencies = [
@@ -201,6 +212,17 @@ dependencies = [
  "aip-core",
  "aip-crypto",
  "aip-system",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "aip-interlock"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-observe",
  "aip-types",
  "serde",
  "serde_json",

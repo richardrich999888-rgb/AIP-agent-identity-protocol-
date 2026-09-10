@@ -62,6 +62,13 @@ members = [
     # regression in the accountability model it specialises.
     "aip-standalone/aip-uas",
     "aip-standalone/aip-robotics",
+    # ── Sniffer Dog 3.0: the two tiers that are not observation (ADR-008) ──
+    # `aip-enforce` decides syscalls under a signed capability epoch;
+    # `aip-interlock` is the dead-man heartbeat and the actuator watchdog.
+    # Neither may depend on the observation or reconciliation path, and each
+    # carries a test that reads its own manifest to keep it that way.
+    "aip-standalone/aip-enforce",
+    "aip-standalone/aip-interlock",
     # ── tooling, demos and test harnesses ──────────────────────────────
     "aip-standalone/ghost-demo",
     "aip-standalone/aip-test",
