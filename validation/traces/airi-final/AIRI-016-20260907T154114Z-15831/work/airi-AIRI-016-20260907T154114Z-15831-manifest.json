@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip1d8Lokd4sseQY1xoKbBXQk36ebsYmmKNK9ST7NZANo",
+  "agent_public_key_hex": "fd6ea12a1d247b1c82d182871a741247fb049c8ea23209e852df0b4ecf766a91",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-016-20260907T154114Z-15831\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-016-20260907T154114Z-15831/work/airi-AIRI-016-20260907T154114Z-15831-tool.txt"
+  ],
+  "execution_id_hex": "66b092d0c63d485da7539432fea4c39b",
+  "intended_execute_count": 1,
+  "intended_report_count": 1,
+  "intended_report_success": true,
+  "nonce": "AIRI-016-20260907T154114Z-15831",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 15877,
+  "record": "subject_manifest",
+  "scenario": "AIRI-016",
+  "what_it_tests": "two independent observers contradict each other; the contradiction must not be resolved by guessing"
+}

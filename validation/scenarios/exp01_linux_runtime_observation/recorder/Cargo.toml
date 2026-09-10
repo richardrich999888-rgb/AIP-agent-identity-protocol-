@@ -1,0 +1,24 @@
+# Its own workspace root, deliberately.
+#
+# `[workspace]` here stops Cargo from asking the repository-root workspace to
+# adopt this package. That keeps the production manifest — the one whose
+# explicit `members` list exists so that new crates are intentional entries —
+# completely untouched by validation scaffolding.
+#
+# This crate is an INSTRUMENT DRIVER. It exercises aip-observe's live sensor
+# and writes down what it emitted. It adds no observation capability, defines
+# no evidence semantics, and nothing in aip-* depends on it.
+[workspace]
+
+[package]
+name = "exp01-recorder"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+aip-observe = { path = "../../../../aip-standalone/aip-observe" }
+
+[[bin]]
+name = "exp01-recorder"
+path = "src/main.rs"

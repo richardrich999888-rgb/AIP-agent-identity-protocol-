@@ -1,0 +1,25 @@
+[package]
+name = "aip-nexora"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "NEXORA — the portable commitment layer over verified execution history: Merkle commitment, signed heads, offline proofs"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+aip-authorize = { path = "../aip-authorize" }
+aip-observe = { path = "../aip-observe" }
+aip-reconcile = { path = "../aip-reconcile" }
+aip-airi = { path = "../aip-airi" }
+aip-warrant = { path = "../aip-warrant" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+aip-reconcile = { path = "../aip-reconcile", features = ["test-fixtures"] }
+# Gate 13's audit gathers every domain-separation tag in the workspace and
+# checks they are distinct; aip-containment owns one of them.
+aip-containment = { path = "../aip-containment" }
+serde_json = "1.0" 

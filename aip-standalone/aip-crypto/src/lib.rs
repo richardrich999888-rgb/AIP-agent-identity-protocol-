@@ -1,5 +1,7 @@
 //! AIP Crypto — Ed25519 signing, SHA-256 hashing, Base58, AIP-ID derivation.
 
+pub mod custody;
+
 use aip_types::{AlgorithmId, KeyPair, ProvenanceTriple, Signature};
 use ed25519_dalek::{Signer, SigningKey, Verifier, VerifyingKey};
 use sha2::{Digest, Sha256};
@@ -68,6 +70,12 @@ pub fn validate_aip_id(id: &str) -> Result<(), aip_types::AipError> {
     }
 
     let without_prefix = &id[4..];
+    // Base58 is a strict ASCII alphabet. Rejecting non-ASCII here also
+    // guarantees every byte index below is a char boundary, so the slicing
+    // can never panic on externally supplied input.
+    if !without_prefix.is_ascii() {
+        return Err(aip_types::AipError::InvalidAipId);
+    }
     if without_prefix.len() < 5 {
         return Err(aip_types::AipError::InvalidAipId);
     }
@@ -123,6 +131,40 @@ pub fn verify_ed25519_raw(public_key: &[u8], msg: &[u8], sig: &[u8; 64]) -> bool
     verifying_key.verify(msg, &signature).is_ok()
 }
 
+/// The 32 bytes an AIP signature envelope actually covers.
+///
+/// `signed_bytes = SHA-256(algorithm || signer_id || timestamp_le || nonce ||
+/// payload_hash)`.
+///
+/// Extracted so the signer and the verifier cannot drift: this construction
+/// previously existed twice, written out by hand in [`sign_ed25519`] and again
+/// in [`verify_ed25519`], and a custodian-backed signer would have made it
+/// three copies. Two hand-built encodings that must agree byte for byte are a
+/// latent divergence; one function is the fix.
+///
+/// The encoding is unchanged from the original pair, so every signature
+/// produced or accepted before this extraction remains valid.
+///
+/// Note the encoding is not prefix-free: `signer_id` is embedded without a
+/// length. That is pre-existing wire format and is not altered here; the
+/// prefix-free canonical encodings elsewhere in the workspace (`put_domain`
+/// and friends) are the pattern new formats follow.
+pub fn signature_signed_bytes(
+    algorithm: AlgorithmId,
+    signer_id: &str,
+    timestamp: u64,
+    nonce: &[u8; 16],
+    payload_hash: &[u8; 32],
+) -> [u8; 32] {
+    let mut signed_input = Vec::new();
+    signed_input.push(algorithm as u8);
+    signed_input.extend_from_slice(signer_id.as_bytes());
+    signed_input.extend_from_slice(&timestamp.to_le_bytes());
+    signed_input.extend_from_slice(nonce);
+    signed_input.extend_from_slice(payload_hash);
+    sha256(&signed_input)
+}
+
 /// Sign a payload with Ed25519.
 pub fn sign_ed25519(
     private_key: &[u8],
@@ -150,14 +192,13 @@ pub fn sign_ed25519(
 
     let payload_hash = sha256(payload);
 
-    // signed_bytes = SHA-256(algorithm || signer_id || timestamp || nonce || payload_hash)
-    let mut signed_input = Vec::new();
-    signed_input.push(AlgorithmId::Ed25519 as u8);
-    signed_input.extend_from_slice(signer_id.as_bytes());
-    signed_input.extend_from_slice(&timestamp.to_le_bytes());
-    signed_input.extend_from_slice(&nonce);
-    signed_input.extend_from_slice(&payload_hash);
-    let signed_bytes = sha256(&signed_input);
+    let signed_bytes = signature_signed_bytes(
+        AlgorithmId::Ed25519,
+        signer_id,
+        timestamp,
+        &nonce,
+        &payload_hash,
+    );
 
     let sig = signing_key.sign(&signed_bytes);
 
@@ -179,6 +220,13 @@ pub fn verify_ed25519(
     if public_key.len() != 32 {
         return Err(aip_types::AipError::InvalidPublicKey);
     }
+    // This verifier implements exactly one algorithm. A signature labelled
+    // anything else is not "verified" here even if its envelope happens to
+    // check out under Ed25519 — the label would otherwise become a lie the
+    // evidence chain carries as fact.
+    if signature.algorithm != AlgorithmId::Ed25519 {
+        return Err(aip_types::AipError::EvolutionRequired);
+    }
 
     let verifying_key = VerifyingKey::from_bytes(
         public_key
@@ -187,14 +235,13 @@ pub fn verify_ed25519(
     )
     .map_err(|_| aip_types::AipError::InvalidPublicKey)?;
 
-    // Reconstruct signed_bytes
-    let mut signed_input = Vec::new();
-    signed_input.push(signature.algorithm as u8);
-    signed_input.extend_from_slice(signature.signer_id.as_bytes());
-    signed_input.extend_from_slice(&signature.timestamp.to_le_bytes());
-    signed_input.extend_from_slice(&signature.nonce);
-    signed_input.extend_from_slice(&signature.payload_hash);
-    let signed_bytes = sha256(&signed_input);
+    let signed_bytes = signature_signed_bytes(
+        signature.algorithm,
+        &signature.signer_id,
+        signature.timestamp,
+        &signature.nonce,
+        &signature.payload_hash,
+    );
 
     let sig = ed25519_dalek::Signature::from_bytes(
         signature
@@ -254,6 +301,78 @@ mod tests {
     fn test_aip_id_invalid() {
         assert!(validate_aip_id("xxx_invalid").is_err());
         assert!(validate_aip_id("aip1AAAA").is_err());
+    }
+
+    /// Malformed externally supplied IDs must produce an error, never a panic.
+    /// Multi-byte UTF-8 placed where the checksum split lands used to hit a
+    /// non-char-boundary slice.
+    #[test]
+    fn test_aip_id_malformed_never_panics() {
+        let cases: [&str; 12] = [
+            "",
+            "aip",
+            "aip1",
+            "aip1é",
+            "aip1ééééé",
+            "aip1abcdé",
+            "aip1abcdéfgh",
+            "aip1\u{1F600}\u{1F600}\u{1F600}",
+            "aip1abc\u{0}def",
+            "aip1\u{FFFD}\u{FFFD}\u{FFFD}\u{FFFD}",
+            "AIP1abcdefghijk",
+            "aip1 abcdefghijk",
+        ];
+        for c in cases {
+            let r = std::panic::catch_unwind(|| validate_aip_id(c));
+            assert!(r.is_ok(), "validate_aip_id panicked on {c:?}");
+            assert!(r.unwrap().is_err(), "malformed id {c:?} was accepted");
+        }
+        // Boundary sweep: a 2-byte char at every position around the split.
+        for n in 0..12 {
+            let s = format!("aip1{}é{}", "a".repeat(n), "b".repeat(11 - n));
+            let r = std::panic::catch_unwind(|| validate_aip_id(&s));
+            assert!(r.is_ok(), "validate_aip_id panicked on {s:?}");
+            assert!(r.unwrap().is_err());
+        }
+    }
+
+    /// PR3 A-2. An Ed25519 signature whose `algorithm` label claims a
+    /// post-quantum suite must not verify as Ed25519: the label would then be
+    /// a lie the whole evidence chain carries as fact (I7).
+    #[test]
+    fn test_algorithm_label_cannot_lie() {
+        let kp = generate_ed25519_keypair();
+        let signer_id = "aip1labeller";
+        let payload_hash = sha256(b"payload");
+        let timestamp = 1_700_000_000_000u64;
+        let nonce = [7u8; 16];
+        // Reproduce the envelope exactly, but stamp a PQC algorithm byte.
+        let mut signed_input = Vec::new();
+        signed_input.push(AlgorithmId::MlDsa65 as u8);
+        signed_input.extend_from_slice(signer_id.as_bytes());
+        signed_input.extend_from_slice(&timestamp.to_le_bytes());
+        signed_input.extend_from_slice(&nonce);
+        signed_input.extend_from_slice(&payload_hash);
+        let signed_bytes = sha256(&signed_input);
+        let signing_key = SigningKey::from_bytes(kp.private_key.as_slice().try_into().unwrap());
+        let sig_bytes = signing_key.sign(&signed_bytes).to_bytes().to_vec();
+        let lying = Signature {
+            algorithm: AlgorithmId::MlDsa65,
+            signer_id: signer_id.to_string(),
+            timestamp,
+            nonce,
+            payload_hash,
+            signature_bytes: sig_bytes,
+        };
+        let result = verify_ed25519(&kp.public_key, &lying);
+        assert!(
+            !matches!(result, Ok(true)),
+            "SECURITY: an Ed25519 signature labelled MlDsa65 verified as valid: {result:?}"
+        );
+        // And a Hybrid label likewise.
+        let mut hybrid = lying.clone();
+        hybrid.algorithm = AlgorithmId::Hybrid;
+        assert!(!matches!(verify_ed25519(&kp.public_key, &hybrid), Ok(true)));
     }
 
     #[test]

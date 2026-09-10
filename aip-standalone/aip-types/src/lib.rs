@@ -1,6 +1,11 @@
 //! AIP Types — Core data structures for the Agent Identity Protocol v0.3.0.
 //!
 //! Pure types, no logic. Mirrors the wire format from the AIP spec.
+//!
+//! The one exception is [`canonical`]: the injective byte encoder shared by
+//! every crate that signs or hashes these types.
+
+pub mod canonical;
 
 use serde::{Deserialize, Serialize};
 
@@ -22,11 +27,33 @@ pub struct PublicKey {
     pub key_bytes: Vec<u8>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// A signing key pair.
+///
+/// `Debug` is implemented by hand and redacts `private_key` so that logging
+/// or `{:?}`-formatting a key pair can never leak secret material.
+///
+/// `Serialize`/`Deserialize` are retained because `aip_core::store` persists
+/// identities (including their key pair) as JSON. That persistence is
+/// plaintext at rest; protecting it is a key-management concern outside this
+/// type. Do not serialize a `KeyPair` anywhere else.
+#[derive(Clone, Serialize, Deserialize)]
 pub struct KeyPair {
     pub algorithm: AlgorithmId,
     pub public_key: Vec<u8>,
     pub private_key: Vec<u8>,
+}
+
+impl std::fmt::Debug for KeyPair {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("KeyPair")
+            .field("algorithm", &self.algorithm)
+            .field("public_key", &self.public_key)
+            .field(
+                "private_key",
+                &format_args!("<redacted {} bytes>", self.private_key.len()),
+            )
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -109,7 +136,7 @@ impl std::ops::BitOr for AidFlags {
 
 // ─── Agent Identity Document (§4.2) ───
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AgentIdentityDocument {
     // Header
     pub magic: [u8; 4], // 0x41494430 ("AID0")
@@ -146,7 +173,13 @@ pub struct AgentIdentityDocument {
 }
 
 pub const AID_MAGIC: [u8; 4] = [0x41, 0x49, 0x44, 0x30]; // "AID0"
-pub const AIP_VERSION: u16 = 0x0003;
+/// AID document version.
+///
+/// `0x0004`: the self-signature and lineage-proof payloads switched to the
+/// domain-tagged, length-prefixed canonical encoding. AIDs at `0x0003` are
+/// rejected with `UnsupportedVersion` rather than failing signature checks
+/// with a misleading error.
+pub const AIP_VERSION: u16 = 0x0004;
 
 // ─── Error Codes (§4.8) ───
 
@@ -277,7 +310,7 @@ impl CapabilityScope {
 /// A scope-bound token issued to an agent (§6-v2).
 ///
 /// The JTI (token ID) is referenced by the revocation log.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ScopedToken {
     pub jti: [u8; 16],     // UUIDv4 token identifier
     pub agent_id: String,  // AIP-ID of the token holder
@@ -292,7 +325,7 @@ pub struct ScopedToken {
 ///
 /// `scope` must be ⊆ parent token's scope (enforced by `create_delegation`).
 /// `depth` must be < MAX_DELEGATION_DEPTH (8).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DelegationToken {
     pub jti: [u8; 16],          // This token's ID
     pub parent_jti: [u8; 16],   // Parent token being delegated from
@@ -616,4 +649,106 @@ pub struct AipConfiguration {
     pub supported_algorithms: Vec<String>,
     pub token_format: String,
     pub version: String,
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GHOST STAGE 1 — EXECUTION BINDING
+// ═══════════════════════════════════════════════════════════════
+//
+// Data only. Collection (procfs, executable hashing) lives in
+// `aip_core::execution_binding`; digests live there too because this crate
+// has no hash dependency.
+
+/// Domain tag leading the full canonical encoding of an [`ExecutionBinding`]
+/// (used when the binding is hashed or signed as content).
+pub const EXECUTION_BINDING_DOMAIN: &str = "GHOST/ExecutionBinding/v1";
+/// Domain tag leading the *identity* encoding of an [`ExecutionBinding`]
+/// (the correlation key: who + which process instance + which executable).
+pub const EXECUTION_IDENTITY_DOMAIN: &str = "GHOST/ExecutionIdentity/v1";
+/// Structure version of [`ExecutionBinding`].
+pub const EXECUTION_BINDING_VERSION: u16 = 1;
+
+/// A process *instance* — the minimum tuple that survives PID reuse.
+///
+/// `pid` alone is recycled by the kernel; `pid_start_time_ticks` (field 22 of
+/// `/proc/<pid>/stat`, clock ticks since boot) distinguishes two processes that
+/// held the same PID within one boot; `boot_id`
+/// (`/proc/sys/kernel/random/boot_id`) distinguishes boots. Equality is over
+/// all three fields — never over `pid` alone (I2, I4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct ProcessInstance {
+    pub pid: u32,
+    pub pid_start_time_ticks: u64,
+    pub boot_id: [u8; 16],
+}
+
+/// Binds an agent identity to a specific process instance running a specific
+/// executable.
+///
+/// This is an identity/correlation artifact. It does not grant authority and
+/// it is not, by itself, observation: a binding collected by the agent about
+/// itself is a **self-report** until an independent observer attests the same
+/// facts (I5, I10). Verifiers must never upgrade a self-reported binding into
+/// evidence that the execution occurred.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ExecutionBinding {
+    /// Structure version; see [`EXECUTION_BINDING_VERSION`].
+    pub version: u16,
+    /// AIP-ID of the agent this binding is about.
+    pub agent_id: String,
+    /// The process instance (pid + start ticks + boot id).
+    pub process: ProcessInstance,
+    /// SHA-256 of the executable's **contents** (`/proc/<pid>/exe`), not of
+    /// its path.
+    pub exe_content_sha256: [u8; 32],
+    /// Executable path as observed. Context only — excluded from
+    /// [`ExecutionBinding::identity_bytes`] so two path spellings of the same
+    /// binary are the same identity and a same-path different binary is not.
+    pub exe_path: String,
+    /// Unix ms when the binding was collected. Metadata; not an authorization
+    /// window (temporal validity belongs to tokens, I21).
+    pub bound_at_ms: u64,
+}
+
+impl ExecutionBinding {
+    /// Full canonical encoding — every field, domain-tagged, injective. This
+    /// is what is hashed/signed when the binding is embedded as content
+    /// (e.g. inside an EvidencePacket).
+    pub fn canonical_bytes(&self) -> Vec<u8> {
+        use canonical::*;
+        let mut buf = Vec::new();
+        put_domain(&mut buf, EXECUTION_BINDING_DOMAIN);
+        put_u16(&mut buf, self.version);
+        put_str(&mut buf, &self.agent_id);
+        put_u32(&mut buf, self.process.pid);
+        put_u64(&mut buf, self.process.pid_start_time_ticks);
+        buf.extend_from_slice(&self.process.boot_id); // fixed 16
+        buf.extend_from_slice(&self.exe_content_sha256); // fixed 32
+        put_str(&mut buf, &self.exe_path);
+        put_u64(&mut buf, self.bound_at_ms);
+        buf
+    }
+
+    /// Identity encoding — the reconciliation join key. Covers exactly:
+    /// agent, process instance, executable contents. Deliberately excludes
+    /// `exe_path` and `bound_at_ms`.
+    pub fn identity_bytes(&self) -> Vec<u8> {
+        use canonical::*;
+        let mut buf = Vec::new();
+        put_domain(&mut buf, EXECUTION_IDENTITY_DOMAIN);
+        put_u16(&mut buf, self.version);
+        put_str(&mut buf, &self.agent_id);
+        put_u32(&mut buf, self.process.pid);
+        put_u64(&mut buf, self.process.pid_start_time_ticks);
+        buf.extend_from_slice(&self.process.boot_id);
+        buf.extend_from_slice(&self.exe_content_sha256);
+        buf
+    }
+
+    /// True iff both bindings denote the same execution: same agent, same
+    /// process *instance* (all three tuple fields) and same executable
+    /// contents. Equal PIDs are never sufficient.
+    pub fn same_execution(&self, other: &ExecutionBinding) -> bool {
+        self.identity_bytes() == other.identity_bytes()
+    }
 }

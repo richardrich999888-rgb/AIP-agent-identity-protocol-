@@ -1,0 +1,247 @@
+# How the Sniffer Dog works — in plain English, and only what is true today
+
+> **Completion mandate, final state.** Gates 1–11 are complete;
+> `SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md` is the single record of
+> what exists, what was measured, what may be claimed and what may not.
+> Final status: **VALIDATED RUNTIME**, scoped there — the evidence
+> machinery, not a shipped product.
+
+This is the description that may be used outside the repository. Every
+sentence below is backed by code and tests on this branch at the commit named
+in `SNIFFER_DOG_PR3_HARVEST_REPORT.md`. A companion table at the end lists
+the claims from earlier drafts that must **not** be made, and why.
+
+## The problem
+
+An AI agent can say anything about what it did. A gateway can only see what
+the agent chose to send through it. The Sniffer Dog is the part of the system
+that does not believe either of them: it watches the operating system itself,
+records what it saw under a key the agent cannot reach, and lets a separate
+verifier compare that record with what the agent was actually authorised to
+do. When the evidence is not there, it says so — `CANNOT_PROVE` — instead of
+guessing.
+
+## 1. It watches the kernel, not the agent's logs
+
+A small probe on the host reads two kinds of facts straight from Linux:
+
+- **Process events.** When any process forks a child and when that child
+  starts running a program, the kernel announces it. The probe listens to
+  those announcements (the `sched_process_fork` and `sched_process_exec`
+  tracepoints, read through the standard `perf_event_open` interface) and
+  pins each process down by three things that survive process-id reuse: the
+  id, the exact start tick, and the machine's boot id. It then hashes the
+  **contents** of the program the child is running, not its path.
+- **Network connections.** When any process starts a TCP connection and when
+  that connection completes, the kernel announces it (the
+  `inet_sock_set_state` tracepoint). The probe records the endpoints and
+  binds the *start* of the connection to the process that made it.
+
+- **Frames on the wire.** Every frame a network device sends or receives is
+  copied to the probe by the kernel's ordinary packet tap (`AF_PACKET`).
+  The probe keeps the **headers** — addresses, ports, TCP flags and
+  sequence numbers, and how many payload bytes there were — with the
+  kernel's own capture time, and counts every frame the kernel dropped. It
+  never keeps, hashes or looks at the payload itself, and the wire cannot
+  tell it which process a frame belongs to. The same code can run on a
+  mirror port on another machine, outside the watched host's control.
+
+- **File writes.** When any process closes a file it had open for
+  writing on a watched mount, the kernel queues an event (`fanotify`) that
+  names the file and hands the probe a handle the kernel itself tied to the
+  writing process. The probe records the file's path and inode and reads
+  nothing from the file.
+
+It also polls the kernel's socket tables and process list as a second,
+weaker source, and it counts every event the kernel ring buffer dropped.
+There is no eBPF program and no view of payloads.
+
+## 2. It signs nothing on the host
+
+The probe holds no key. Everything it collects is sent to a **collector**
+that runs elsewhere and holds the signing key. The collector signs each batch
+into a numbered chain, so a batch cannot be replayed, reordered, rolled back
+or forked without the chain showing it. If the probe restarts, drops events,
+or a batch goes missing, the collector marks the observer *degraded* or
+*recovering* and refuses to claim it was watching during that time. If the
+collector itself restarts, it checks its own remembered position against the
+archive of records it previously signed; a collector that forgot, was rolled
+back, or was fed an edited state file is caught by that arithmetic. By
+default it then refuses to sign anything until an operator has looked, and
+the refusal is itself a signed record; an operator can instead choose the
+advisory setting, under which it continues from the archived position and
+says so in a signed report. Either way it treats its own restart as a gap
+until it has chained a new batch onto the old one.
+
+## 3. Authority is a separate signature
+
+Before an agent acts, an independent **decision point** checks the agent's
+signed tokens — who issued them, whether they were delegated properly, when
+they expire — and signs a record of exactly which process instance is
+authorised to do exactly which action. The decision point is not the agent
+and does not hold the agent's key.
+
+## 4. A verifier compares the two
+
+The **reconciler** takes the decision point's signed expectation and the
+collector's signed observations and answers one question: did the authorised
+process do the authorised thing? Today it can answer that for four kinds of
+action — making a TCP connection to an authorised endpoint, running a
+program whose contents hash to the authorised value, sending bytes on a
+connection to an authorised endpoint (the kernel's count of the bytes,
+never the bytes themselves), and completing a write to an authorised file
+path (the path, never what was written) — and it says
+`VERIFIED_EXECUTION` at *attested* strength: signed by an independent
+collector, but read from a host that a root attacker could still lie to.
+
+For everything else, and whenever the observer was not watching, the answer
+is `CANNOT_PROVE`. Other answers exist for specific situations: an
+authorisation that was never seen executed while the observer had full
+coverage (`PHANTOM_CLAIM`), a different process instance acting under an
+agent's authorisation (`IDENTITY_DIVERGENCE`), a broken or forked
+observer chain (`SENSOR_INTEGRITY_FAILURE`, `CONTINUITY_FAILURE`), and — when
+the kernel shows an agent's process was created by an agent that neither
+authorised it nor created its identity, with every piece of that evidence
+signed — a lineage contradiction (`LINEAGE_VIOLATION`).
+
+When the answer for a connection is `VERIFIED_EXECUTION`, the verifier also
+asks the wire: did the packet tap see this connection's handshake at the
+same time? The answer is written on the record — corroborated, not seen,
+tap not running, or two handshakes at once — and cited. It is information,
+not a stronger verdict: on the same machine the wire and the socket layer
+sit under the same root, and a tap that saw nothing may simply have been
+watching a different network path.
+
+## 5. It builds an agent's record from evidence, not from the agent
+
+Around those verdicts sits a profile of each agent: who issued its tokens,
+who delegated what to it and whom it delegated to, which process spawned it
+and which it spawned, and which decisions were verified, refused or
+unprovable. Every line of that profile names the signature it rests on.
+Anything the agent says about itself is kept in a separate box marked
+*self-declared, unverified*. There is no score, rating or trust level
+anywhere.
+
+## 6. A warrant is permission to act on proof, and it is advisory by default
+
+A **warrant engine** turns a verdict into a response class — observe, alert,
+constrain or contain — using two separate axes: how serious the finding would
+be if true, and how strongly the evidence establishes it. Containment can be
+*permitted* only for mechanically proven evidence, only when an operator has
+switched autonomous containment on, never for a protected system component,
+and never when the observer was not watching. Out of the box, nothing is ever
+more than an alert.
+
+## 7. It can commit what it found to a ledger a stranger can check
+
+Every signed record — an observation batch, a health record, a verdict, a
+warrant — can be appended to a commitment log. The log's head (how many
+records, and one hash over all of them) is signed under a key of its own,
+and each head names the one before it. Anyone holding a head and a proof
+for one record can check, without contacting anything, that the record
+was in the log at that position when the head was signed; anyone holding
+an older head can check that a newer one extends it, and will refuse one
+that shrinks, forks or skips. The ledger says *that* a record was
+committed, never whether the record is right, and it is only as
+independent as where its heads are kept: the code hands heads to an
+anchor, and putting that anchor outside the machine is the operator's job.
+
+## 8. It can freeze one process, and almost never will
+
+There is now code that can stop a process: it puts that one process into a
+control group of its own and asks the kernel to freeze it. Nothing in this
+repository kills a process, drops a packet or changes a firewall.
+
+Getting to the freeze is deliberately hard. The component that freezes accepts
+one thing: a warrant, signed by the warrant authority, that already says
+*contain*, on evidence already marked proven, about a workload rather than
+about the observer, citing the evidence it rests on. Then it checks its own
+list: the operator must have switched actuation on, the target must not be on
+the protected list, the observer that produced the evidence must be signing
+healthy right now, and this warrant must not have been used before. Last, it
+checks that the process it is about to freeze really is the one the warrant
+names — same process instance, same boot, same executable contents — because a
+process number on its own can be recycled onto something else.
+
+Out of the box it is off. The default settings run every one of those checks,
+sign a record of what they decided, and then do nothing. Turning actuation on
+takes two separate decisions by an operator, not one.
+
+Whatever happens — refused, advised, frozen, failed, released — it writes a
+signed record saying which warrant, which evidence, which process, what was
+attempted and what happened, under a key that is not the warrant authority's.
+If the freeze fails, it stays failed: a failed action never becomes a reason to
+believe anything worse about the process.
+
+Two honest limits. Freezing is not killing: a frozen process still holds its
+files, its sockets and its memory, and work already handed to the kernel may
+finish. And today no real evidence path produces evidence strong enough to
+reach this door at all, so in practice the answer is still no.
+
+## Claims that earlier drafts made and this text does not
+
+| Earlier claim | Status | Why it cannot be said |
+|---|---|---|
+| "hooks straight into the OS using eBPF" | not implemented | static tracepoints via `perf_event_open`; no eBPF program exists |
+| "hooks `sys_enter_execve`" | not implemented | `sched_process_exec` is used; it is a different, later hook that carries the resolved filename |
+| "intercepts every socket (`cgroup/connect4`) and wire packet" | partly | `inet_sock_set_state` transitions, TCP only, plus an `AF_PACKET` tap that copies TCP/IP **headers** from the device layer (payload by length only, no process attribution); no cgroup hook, no eBPF, nothing is intercepted or blocked |
+| "ingests actual database and proxy records out-of-band" | decided against as evidence | such records are statements by the programs that write them, not observation; the decision (`APPLICATION_LOG_SENSOR_DECISION.md`) allows them only as a clearly labelled supporting tier that can never raise or lower a verdict, and no such tier is built |
+| "32-byte SHA-256 of the raw payload, exact arguments" | partly | the executed program's **contents** and the authorised action's **parameters** are hashed; a send is evidenced by the kernel's byte **count**; payloads and arguments are not visible from the kernel and no payload hash exists (invariant I23) |
+| "cross-checks against the Gateway's append-only Merkle ledger" | partly | there is no gateway; a Merkle commitment with signed, chained heads and offline proofs exists (`aip-nexora`), over the Sniffer Dog's own records, and the anchor's independence is a deployment |
+| "Matched / Unattributed Effect / Phantom Claim" | partly | `VERIFIED_EXECUTION` and `PHANTOM_CLAIM` are reachable; `UNATTRIBUTED_EFFECT` needs a signed completeness statement from the decision point that nothing produces yet |
+| "automatically triggers instant isolation … XDP_DROP … cgroups v2 freeze" | the freeze is implemented; the rest is not | a cgroups v2 freeze of one identified process exists and has been demonstrated on a real process, but only behind a signed warrant resting on proven evidence, off by default, and no production evidence path yet produces evidence that strong. No XDP, no packet dropping, no network isolation |
+| "Zero False Outages" | not a claim anyone can make | no outage statistics exist; the design goal is that nothing below proven evidence can cause an outage |
+| "writes its own detections onto a tamper-evident hash chain" | partly | the collector's batches and health are a signed, sequenced chain; verdicts and warrants can be committed to the NEXORA log, but nothing wires them in automatically and nothing is persisted |
+| "refuses to run in an amnesic state" | yes, for the collector's own state | under the default strict policy the collector refuses to sign after amnesia, rollback or fork and leaves a signed report of the refusal; a fork is quarantined under every policy; a truncated archive is reported and the collector runs as recovering (Gate 8, `continuity_runtime` cr01–cr10, a real process restarted in `live_collector_restart`) |
+| "10 Gbps", "line rate", "sub-1% overhead", "TRL" figures | not measurable here | no benchmark in this repository measures the observer; the figures on the `codex` branches measure unrelated userspace code. The machine this was built and tested on is a virtual one with a virtual network card, so no figure about real network hardware could be produced even in principle |
+| "XDP" | tested, deliberately not used | the kernel here does accept and run an XDP program — that was measured, not assumed — but the system does not use one. The packet-level question is already answered by a simpler tap that carries the same information, and the one thing XDP would add is the ability to drop packets, which is a power this system was deliberately not given |
+
+## 9. It can hand you a file that somebody else can check without you
+
+This is the newest piece, and the easiest to overstate, so here is what it
+actually does.
+
+When the dog has watched something happen and the reconciler has drawn its
+conclusion, all of that can be packed into a single file: what was
+authorised and who signed the authorisation, what the collector saw and its
+signature over it, whether its record of the world was unbroken, and the
+conclusion itself. About ten kilobytes for one action.
+
+You can email that file to someone. They run one command. It reads the file
+and a second file holding the public keys *they* already decided to trust —
+never keys that came with the proof, because a forger would simply ship
+their own — and it tells them what the package supports. It does not phone
+anyone, look anything up, or need to know you exist.
+
+**The part that makes it worth anything:** their program does not read the
+conclusion in the file. It re-runs the same reconciler over the same
+evidence and checks that it gets the same answer. If somebody edited the
+file to say "verified" where it said "cannot prove", the answer does not
+come out the same and the package is refused. You cannot make weak evidence
+strong by writing a stronger word into the file, because nothing reads the
+word.
+
+We tested this by doing it: a real program on this machine made a real
+network connection, the kernel's own records were read and signed, the file
+was written, everything in memory was thrown away, and a separate program
+checked the file. Then we changed one millisecond of one timestamp and it
+was refused. Then seven other things, one at a time, and each was refused.
+
+**What it says about time.** A proof is a statement about the past, and the
+past does not expire. If the permission the agent was acting under ran out
+last year, the proof is still true — and the checker says so *and* says the
+permission has expired, in the same breath, because those are different
+sentences. It ends every report with: this is not authority to act now.
+Somebody waving a valid proof around as though it were a permission slip is
+something no file can prevent; what we can do is make sure there is nothing
+in the file that looks like one.
+
+**What it does not do.** It does not stop somebody deleting the file. It
+does not prove the file is the only one — if a party controls both the
+ledger and its backups they can drop entries and present a shorter, tidy
+history, and defeating that needs the ledger's fingerprint published
+somewhere outside their reach, which we have not built. And it does not
+turn a good look at something into certainty: the dog's evidence about what
+a program did is attested — a trustworthy witness's signed account — and
+the checker says "attested", not "proven". We tested that it says the
+weaker word.

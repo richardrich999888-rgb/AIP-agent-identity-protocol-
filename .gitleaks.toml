@@ -1,0 +1,15 @@
+# Gitleaks configuration — extends the default ruleset.
+#
+# The only allowlisted path is the documented example key file used by the
+# Docker deployment guide. It contains SHA-256 *hashes* of sample API keys
+# (the service stores only hashes; see aip-service/src/auth.rs), not secrets.
+# Real key files are gitignored (deploy/docker/keys.json).
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented example/sample files containing no real secrets"
+paths = [
+  '''deploy/docker/keys\.example\.json$''',
+]

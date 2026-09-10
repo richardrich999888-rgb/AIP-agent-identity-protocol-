@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip16KNDk2iJWuQr9xDtSSKJrbQPQDueuwywaTrx2TEELZ",
+  "agent_public_key_hex": "06f50da2621a734c8b4edf6f6740249c355b3eb0cfca0f10a21b750f6f1d537e",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-002-20260907T154034Z-14759\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-002-20260907T154034Z-14759/work/airi-AIRI-002-20260907T154034Z-14759-tool.txt"
+  ],
+  "execution_id_hex": "217cf140b345407581c9860f026d0770",
+  "intended_execute_count": 0,
+  "intended_report_count": 1,
+  "intended_report_success": true,
+  "nonce": "AIRI-002-20260907T154034Z-14759",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 14804,
+  "record": "subject_manifest",
+  "scenario": "AIRI-002",
+  "what_it_tests": "agent claims execution; the tool never runs. THE critical test."
+}

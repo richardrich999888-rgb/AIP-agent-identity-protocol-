@@ -53,10 +53,69 @@ pub struct AppState {
     pub store: Arc<dyn EvidenceStore>,
     /// API-key store for authentication + tenant binding. Empty ⇒ fail closed.
     pub api_keys: auth::ApiKeyStore,
-    /// Ed25519 seed used to sign audit-export bundle manifests.
-    pub signer_seed: [u8; 32],
-    /// Ed25519 public key embedded in exported bundles (for offline verify).
-    pub signer_public: [u8; 32],
+    /// The signer for audit-export bundle manifests.
+    ///
+    /// A signer, not a key. This field previously held the service's raw
+    /// 32-byte Ed25519 seed, which made the private key readable from every
+    /// HTTP handler in the process — `AppState` is shared with all of them.
+    /// `RawSigner` exposes signing and a public key and nothing else.
+    pub signer: std::sync::Arc<dyn aip_crypto::custody::RawSigner>,
+    /// Whether `POST /v1/evidence/generate` — which requires the caller to
+    /// send an agent's *private* Ed25519 seed in the request body — is
+    /// served at all.
+    ///
+    /// Off unless a deployment sets `AIP_ALLOW_MANAGED_SIGNING=1` (AUDIT
+    /// B-7). See [`ManagedSigning`] for what enabling it costs.
+    pub managed_signing: ManagedSigning,
+}
+
+/// Whether the service will sign on an agent's behalf using a key the caller
+/// hands it.
+///
+/// # Why this is a decision and not a default (AUDIT B-7)
+///
+/// `/v1/evidence/generate` takes `agent_seed_hex`: the agent's private key,
+/// in a JSON body. Two distinct costs follow, and they are not the same cost.
+///
+/// **Exposure.** The private key crosses the network and comes to rest
+/// wherever request bodies come to rest — TLS-terminating proxies, access
+/// logs, APM traces, crash reports, the client's own retry buffer. None of
+/// those are places a signing key can be withdrawn from once it has been
+/// there.
+///
+/// **Attribution.** The deeper cost. A packet signed this way asserts "this
+/// agent acted", but the service held the agent's key, so the service could
+/// have signed anything under that identity. The signature no longer
+/// distinguishes the agent from the service, and the accountability claim the
+/// packet exists to carry is exactly the claim it can no longer support.
+///
+/// The supported production shape is the opposite one, and the request schema
+/// already accommodates it: agents sign client-side and the service is used
+/// for verify and ingest, with the authority tokens supplied pre-signed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ManagedSigning {
+    /// The endpoint is not routed. A caller cannot send a private seed here
+    /// because there is nothing listening to deserialize one.
+    Refused,
+    /// The deployment has explicitly accepted both costs above.
+    Permitted,
+}
+
+impl ManagedSigning {
+    /// Read the deployment's choice from the environment. Anything other than
+    /// an explicit opt-in is a refusal — including an unset, empty, or
+    /// unparseable value.
+    pub fn from_env() -> Self {
+        match std::env::var("AIP_ALLOW_MANAGED_SIGNING").as_deref() {
+            Ok("1") | Ok("true") => ManagedSigning::Permitted,
+            _ => ManagedSigning::Refused,
+        }
+    }
+
+    /// Whether managed signing has been explicitly permitted.
+    pub fn is_permitted(self) -> bool {
+        self == ManagedSigning::Permitted
+    }
 }
 
 /// Build the full router from shared state.
@@ -73,8 +132,21 @@ pub fn router(state: Arc<AppState>) -> Router {
             "/v1/identity/revocation-status/:jti",
             get(handlers::revocation_status),
         )
-        // Accountability layer
-        .route("/v1/evidence/generate", post(evidence::generate))
+        // Accountability layer.
+        //
+        // The generate route is chosen here rather than checked inside the
+        // handler, so that when managed signing is refused there is no
+        // extractor to deserialize a private seed out of a request body
+        // (AUDIT B-7). Refusal is a property of the routing table, not of a
+        // branch someone can later forget to take.
+        .route(
+            "/v1/evidence/generate",
+            if state.managed_signing.is_permitted() {
+                post(evidence::generate)
+            } else {
+                post(evidence::generate_refused)
+            },
+        )
         .route("/v1/evidence/verify", post(evidence::verify))
         .route("/v1/evidence/:id", get(evidence::get_evidence))
         .route("/v1/evidence/:id/export", get(evidence::export_evidence))

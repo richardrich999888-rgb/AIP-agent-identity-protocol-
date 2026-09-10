@@ -1,0 +1,158 @@
+{
+  "experiment": "AIRI-INDEPENDENT-AGENT-OBSERVATION-001",
+  "scenario": "AIRI-003",
+  "run_id": "20260907T154037Z-14834",
+  "git_commit": "f5999bbb3b6af99de55f7ba846225ade6a6c5f69",
+  "kernel": "6.18.44-fc-v24",
+  "observer": "linux-audit (mechanism-independent of aip-observe's sched tracepoints)",
+  "window": {
+    "window_opened": true,
+    "window_closed": true,
+    "dropped_before_window": 1,
+    "dropped_after_window": 0,
+    "open_marker_pid": 14876,
+    "close_marker_pid": 14888,
+    "open_boundary_ms": 1788795637778,
+    "close_boundary_ms": 1788795640278
+  },
+  "claim_summary": "invocations=1 reports=1 success=0 failure=1 completions=1",
+  "observed_summary": "declared_execs=1 undeclared_execs=0 substituted=0 unattributed=0 child_execs=0 subject_connects=1 beacons=6",
+  "airi_claims": {
+    "events": 6,
+    "tool_invocations_requested": 1,
+    "tool_executions_reported": 1,
+    "tool_report_success": 0,
+    "tool_report_failure": 1,
+    "subprocess_reports": 0,
+    "completions": 1,
+    "model_invocations_requested": 1,
+    "chain_intact": null,
+    "sequences": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "subject_pid": 14879,
+    "completion_emitted_at_ms": 1788795640024,
+    "first_event_ms": 1788795638316,
+    "last_event_ms": 1788795640024,
+    "subprocess_reports_detail": [],
+    "sequence_monotonic": true
+  },
+  "independent_observations": {
+    "audit_records_total": 129,
+    "in_window_events": 7,
+    "declared_tool_execs": 1,
+    "unattributed_declared_execs": 0,
+    "substituted_execs": 0,
+    "undeclared_execs": 0,
+    "subject_child_execs": 0,
+    "connects": 1,
+    "subject_connects": 1,
+    "subject_pid_from_claim": 14879,
+    "subject_process_tree_size": 2,
+    "beacons_observed": 6,
+    "airi_events_claimed": 6,
+    "completion_beacon_serial": 7055,
+    "execs_after_completion_claim": 0,
+    "execs_before_completion_claim": 1,
+    "argv_commitment_unverifiable": 0,
+    "observer_stalled_ms": 0,
+    "duplicate_records": 1,
+    "cross_observer": {
+      "second_observer": "ftrace-sched",
+      "bounded_by": {
+        "open_marker_pid": 14876,
+        "close_marker_pid": 14888
+      },
+      "boundary_tolerance_ms": 100,
+      "corroborated_exec_pids": 9,
+      "compared_audit_only": [],
+      "compared_second_observer_only": [],
+      "excluded_at_boundary": [
+        14875,
+        14877,
+        14878
+      ],
+      "records_lost": 0,
+      "argv_corroborable_by_second_observer": false,
+      "why": "sched_process_exec carries filename and pid only; it cannot confirm or contradict any argv, so every argv-level fact here rests on ONE observer"
+    },
+    "window_opened": true,
+    "window_closed": true,
+    "dropped_before_window": 1,
+    "dropped_after_window": 0,
+    "open_marker_pid": 14876,
+    "close_marker_pid": 14888,
+    "open_boundary_ms": 1788795637778,
+    "close_boundary_ms": 1788795640278
+  },
+  "classification": "OBSERVED",
+  "beacon_ordering": [
+    {
+      "serial": 7048,
+      "sequence": 0,
+      "kind": "AgentExecutionStarted",
+      "pid": 14880,
+      "ppid": 14879
+    },
+    {
+      "serial": 7050,
+      "sequence": 1,
+      "kind": "ModelInvocationRequested",
+      "pid": 14881,
+      "ppid": 14879
+    },
+    {
+      "serial": 7051,
+      "sequence": 2,
+      "kind": "ModelInvocationObserved",
+      "pid": 14882,
+      "ppid": 14879
+    },
+    {
+      "serial": 7052,
+      "sequence": 3,
+      "kind": "ToolInvocationRequested",
+      "pid": 14883,
+      "ppid": 14879
+    },
+    {
+      "serial": 7054,
+      "sequence": 4,
+      "kind": "ToolExecutionReported",
+      "pid": 14885,
+      "ppid": 14879
+    },
+    {
+      "serial": 7055,
+      "sequence": 5,
+      "kind": "ExecutionCompleted",
+      "pid": 14886,
+      "ppid": 14879
+    }
+  ],
+  "divergences": [
+    "CLAIMED_FAILURE_BUT_EXECUTION_OBSERVED"
+  ],
+  "classification_note": "an independent observer recorded 1 execution(s) of the declared tool argv inside the window; divergence: CLAIMED_FAILURE_BUT_EXECUTION_OBSERVED",
+  "ceiling": "Attested-equivalent at best. PROVEN is unreachable in this experiment: an execve record is content measured on the observed host, and Vanian reserves Proven for facts recomputable from held bytes.",
+  "harness_verdict": "PASS",
+  "harness_verdict_means": "whether the accountability chain refused to promote a self-report and surfaced the divergence an independent observer could see. Not a statement about the world, and not a Vanian verdict.",
+  "declared_tool_execs_detail": [
+    {
+      "pid": 14884,
+      "ppid": 14879,
+      "success": "yes",
+      "kernel_ms": 1788795639346,
+      "argv": [
+        "/bin/sh",
+        "-c",
+        "printf 'AIRI-TOOL-RAN AIRI-003-20260907T154037Z-14834\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-003-20260907T154037Z-14834/work/airi-AIRI-003-20260907T154037Z-14834-tool.txt"
+      ]
+    }
+  ]
+}

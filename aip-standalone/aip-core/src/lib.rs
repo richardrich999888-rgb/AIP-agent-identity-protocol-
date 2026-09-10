@@ -14,6 +14,7 @@
 //! [`simulation`]. These exist for research and may change or be removed.
 //! See `AUDIT_CORRECTIONS.md` at the repository root.
 
+pub mod execution_binding; // Ghost Stage 1: process-instance identity (pid+start+boot, exe contents)
 pub mod nonce;
 pub mod runtime;
 pub mod simulation;
@@ -50,9 +51,7 @@ pub fn create_identity(
 
     // Lineage proof from parent
     let lineage_proof = if let Some((parent_id, parent_priv)) = parent {
-        let mut lineage_payload = Vec::new();
-        lineage_payload.extend_from_slice(id.as_bytes());
-        lineage_payload.extend_from_slice(&keypair.public_key);
+        let lineage_payload = canonical_encode_lineage_parts(&id, &keypair.public_key);
         let sig = sign_ed25519(parent_priv, parent_id, &lineage_payload)?;
         Some(sig)
     } else {
@@ -96,67 +95,101 @@ pub fn create_identity(
     Ok((aid, keypair))
 }
 
+// ─── Signed-payload domain tags ───
+//
+// Every signed payload produced by this crate starts with one of these tags so
+// that a signature over one object type can never verify as another type.
+// All payloads use the shared injective encoder in `aip_types::canonical`.
+
+/// Domain tag for the AID self-signature payload.
+pub const AID_SELF_SIGNATURE_DOMAIN: &str = "AIP/AgentIdentityDocument/v1";
+/// Domain tag for the parent→child lineage proof payload.
+pub const LINEAGE_PROOF_DOMAIN: &str = "AIP/LineageProof/v1";
+/// Domain tag for the CapabilityGrant grantor-signature payload.
+pub const CAPABILITY_GRANT_DOMAIN: &str = "AIP/CapabilityGrant/v1";
+/// Domain tag for the ReputationVote voter-signature payload.
+pub const REPUTATION_VOTE_DOMAIN: &str = "AIP/ReputationVote/v1";
+
 /// Canonical encoding of AID for self-signature (§4.5).
+/// The exact bytes an [`AgentIdentityDocument`]'s `self_signature` covers.
+///
+/// Exposed for the same reason as [`capability::token_signing_payload`]: a
+/// packager binds the bytes the signer signed rather than describing the
+/// document a second way (I14).
+pub fn identity_signing_payload(aid: &AgentIdentityDocument) -> Vec<u8> {
+    canonical_encode_aid(aid)
+}
+
 fn canonical_encode_aid(aid: &AgentIdentityDocument) -> Vec<u8> {
+    use aip_types::canonical::*;
     let mut buf = Vec::new();
-    buf.extend_from_slice(&aid.magic);
-    buf.extend_from_slice(&aid.version.to_le_bytes());
-    buf.extend_from_slice(&aid.flags.0.to_le_bytes());
-    buf.extend_from_slice(aid.id.as_bytes());
-    buf.extend_from_slice(&aid.created_at.to_le_bytes());
-    buf.extend_from_slice(&aid.primary_key.key_bytes);
-    buf.extend_from_slice(&aid.provenance.to_bytes());
-    buf.push(aid.status as u8);
-    buf.extend_from_slice(&aid.sequence.to_le_bytes());
-    buf.push(aid.lineage_depth);
-    buf.extend_from_slice(&aid.capability_root);
-    buf.extend_from_slice(&aid.reputation_root);
+    put_domain(&mut buf, AID_SELF_SIGNATURE_DOMAIN);
+    buf.extend_from_slice(&aid.magic); // fixed 4 bytes
+    put_u16(&mut buf, aid.version);
+    put_u16(&mut buf, aid.flags.0);
+    put_str(&mut buf, &aid.id);
+    put_u64(&mut buf, aid.created_at);
+    put_u8(&mut buf, aid.primary_key.algorithm as u8);
+    put_bytes(&mut buf, &aid.primary_key.key_bytes);
+    put_bytes(&mut buf, &aid.provenance.to_bytes());
+    put_u8(&mut buf, aid.status as u8);
+    put_u64(&mut buf, aid.sequence);
+    put_u8(&mut buf, aid.lineage_depth);
+    buf.extend_from_slice(&aid.capability_root); // fixed 32 bytes
+    buf.extend_from_slice(&aid.reputation_root); // fixed 32 bytes
     buf
 }
 
 /// Canonical encoding of capability grant fields for signature verification.
 /// Excludes `grantor_sig` itself.
 fn canonical_encode_capability_grant(grant: &CapabilityGrant) -> Vec<u8> {
+    use aip_types::canonical::*;
     let mut buf = Vec::new();
-    buf.extend_from_slice(&grant.id);
-    buf.extend_from_slice(grant.grantor_id.as_bytes());
-    buf.extend_from_slice(grant.grantee_id.as_bytes());
-    buf.extend_from_slice(grant.namespace.as_bytes());
+    put_domain(&mut buf, CAPABILITY_GRANT_DOMAIN);
+    buf.extend_from_slice(&grant.id); // fixed 16 bytes
+    put_str(&mut buf, &grant.grantor_id);
+    put_str(&mut buf, &grant.grantee_id);
+    put_str(&mut buf, &grant.namespace);
+    put_u32(&mut buf, grant.actions.len() as u32);
     for action in &grant.actions {
-        buf.push(*action as u8);
+        put_u8(&mut buf, *action as u8);
     }
+    put_u32(&mut buf, grant.constraints.len() as u32);
     for constraint in &grant.constraints {
-        buf.extend_from_slice(constraint.key.as_bytes());
-        buf.push(constraint.operator as u8);
-        buf.extend_from_slice(constraint.value.as_bytes());
+        put_str(&mut buf, &constraint.key);
+        put_u8(&mut buf, constraint.operator as u8);
+        put_str(&mut buf, &constraint.value);
     }
-    buf.push(if grant.delegatable { 1 } else { 0 });
-    buf.extend_from_slice(&grant.issued_at.to_le_bytes());
-    match grant.expires_at {
-        Some(ts) => {
-            buf.push(1);
-            buf.extend_from_slice(&ts.to_le_bytes());
-        }
-        None => buf.push(0),
-    }
+    put_u8(&mut buf, if grant.delegatable { 1 } else { 0 });
+    put_u64(&mut buf, grant.issued_at);
+    put_opt_u64(&mut buf, &grant.expires_at);
+    buf
+}
+
+/// Lineage proof payload: the parent signs (child id, child public key).
+fn canonical_encode_lineage_parts(child_id: &str, child_public_key: &[u8]) -> Vec<u8> {
+    use aip_types::canonical::*;
+    let mut buf = Vec::new();
+    put_domain(&mut buf, LINEAGE_PROOF_DOMAIN);
+    put_str(&mut buf, child_id);
+    put_bytes(&mut buf, child_public_key);
     buf
 }
 
 fn canonical_encode_lineage_payload(aid: &AgentIdentityDocument) -> Vec<u8> {
-    let mut lineage_payload = Vec::new();
-    lineage_payload.extend_from_slice(aid.id.as_bytes());
-    lineage_payload.extend_from_slice(&aid.primary_key.key_bytes);
-    lineage_payload
+    canonical_encode_lineage_parts(&aid.id, &aid.primary_key.key_bytes)
 }
 
 fn canonical_encode_reputation_vote(vote: &ReputationVote) -> Vec<u8> {
+    use aip_types::canonical::*;
     let mut buf = Vec::new();
-    buf.extend_from_slice(vote.voter_id.as_bytes());
-    buf.extend_from_slice(vote.subject_id.as_bytes());
-    buf.push(vote.dimension as u8);
-    buf.extend_from_slice(&vote.score.to_le_bytes());
-    buf.extend_from_slice(&vote.evidence_root);
-    buf.extend_from_slice(&vote.voted_at.to_le_bytes());
+    put_domain(&mut buf, REPUTATION_VOTE_DOMAIN);
+    put_str(&mut buf, &vote.voter_id);
+    put_str(&mut buf, &vote.subject_id);
+    put_u8(&mut buf, vote.dimension as u8);
+    put_u32(&mut buf, vote.score);
+    buf.extend_from_slice(&vote.evidence_root); // fixed 32 bytes
+    put_u64(&mut buf, vote.voted_at);
     buf
 }
 
@@ -735,25 +768,39 @@ pub fn respond_to_challenge(
     responder_id: &str,
 ) -> Result<LivenessResponse, AipError> {
     let sig = sign_ed25519(responder_private_key, responder_id, &challenge.nonce)?;
+    Ok(assemble_liveness_response(challenge, sig, responder_id))
+}
 
+/// Assemble a liveness response from a signature already produced over the
+/// challenge nonce.
+///
+/// Split out so the key-taking path above and the custodian-backed path in
+/// [`store::StoredIdentity::respond_to_challenge`] build the identical
+/// response: the proof binding must match what [`verify_liveness`] recomputes,
+/// and two copies of it would be two chances to diverge.
+pub fn assemble_liveness_response(
+    challenge: &LivenessChallenge,
+    responder_sig: Signature,
+    responder_id: &str,
+) -> LivenessResponse {
     // Proof = SHA-256(nonce || signature_bytes)
     let mut proof_input = Vec::new();
     proof_input.extend_from_slice(&challenge.nonce);
-    proof_input.extend_from_slice(&sig.signature_bytes);
+    proof_input.extend_from_slice(&responder_sig.signature_bytes);
     let proof = sha256(&proof_input);
 
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
+        .unwrap_or_default()
         .as_millis() as u64;
 
-    Ok(LivenessResponse {
+    LivenessResponse {
         challenge_id: challenge.challenge_id,
         responder_id: responder_id.to_string(),
         proof,
         responded_at: now,
-        responder_sig: sig,
-    })
+        responder_sig,
+    }
 }
 
 /// Verify a liveness response.
@@ -1277,6 +1324,80 @@ mod tests {
             validate_capability_grant_with_key(&grant, &kp.public_key, 2),
             Err(AipError::SignatureInvalid)
         );
+    }
+
+    // ─── Adversarial: authority encoders are injective (I14) ───
+
+    #[test]
+    fn test_capability_grant_encoding_adjacent_ids_do_not_collide() {
+        let mut a = make_grant("ns", vec![Action::Read], "c");
+        a.grantor_id = "ab".into();
+        let mut b = make_grant("ns", vec![Action::Read], "bc");
+        b.grantor_id = "a".into();
+        b.id = a.id;
+        b.issued_at = a.issued_at;
+        b.expires_at = a.expires_at;
+        assert_ne!(
+            canonical_encode_capability_grant(&a),
+            canonical_encode_capability_grant(&b)
+        );
+
+        // grantee/namespace boundary
+        let mut c = make_grant("de", vec![Action::Read], "c");
+        let mut d = make_grant("e", vec![Action::Read], "cd");
+        c.id = a.id;
+        d.id = a.id;
+        c.issued_at = a.issued_at;
+        d.issued_at = a.issued_at;
+        c.expires_at = a.expires_at;
+        d.expires_at = a.expires_at;
+        assert_ne!(
+            canonical_encode_capability_grant(&c),
+            canonical_encode_capability_grant(&d)
+        );
+    }
+
+    #[test]
+    fn test_lineage_encoding_adjacent_fields_do_not_collide() {
+        assert_ne!(
+            canonical_encode_lineage_parts("ab", b"c"),
+            canonical_encode_lineage_parts("a", b"bc")
+        );
+        assert_ne!(
+            canonical_encode_lineage_parts("", b"abc"),
+            canonical_encode_lineage_parts("abc", b"")
+        );
+    }
+
+    #[test]
+    fn test_reputation_vote_encoding_adjacent_ids_do_not_collide() {
+        let mut a = make_vote(ReputationDimensionId::Reliability, 1);
+        a.voter_id = "ab".into();
+        a.subject_id = "c".into();
+        let mut b = make_vote(ReputationDimensionId::Reliability, 1);
+        b.voter_id = "a".into();
+        b.subject_id = "bc".into();
+        assert_ne!(
+            canonical_encode_reputation_vote(&a),
+            canonical_encode_reputation_vote(&b)
+        );
+    }
+
+    #[test]
+    fn test_signed_payload_domains_are_pairwise_distinct() {
+        let tags = [
+            AID_SELF_SIGNATURE_DOMAIN,
+            LINEAGE_PROOF_DOMAIN,
+            CAPABILITY_GRANT_DOMAIN,
+            REPUTATION_VOTE_DOMAIN,
+            capability::SCOPED_TOKEN_DOMAIN,
+            delegation::DELEGATION_TOKEN_DOMAIN,
+        ];
+        for (i, a) in tags.iter().enumerate() {
+            for b in &tags[i + 1..] {
+                assert_ne!(a, b);
+            }
+        }
     }
 
     // ─── AIP-4: Reputation Tests ───

@@ -1,0 +1,25 @@
+[package]
+name = "aip-observation"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Environment-neutral autonomous observation profile: classes, declared ceilings and execution correlation"
+
+# `aip-observe` is a runtime dependency and load-bearing: an observation record
+# can only be built from a batch this crate has verified against the verifier's
+# own anchors. Observer keys stay in aip-observe; nothing here holds one.
+#
+# No verdict-engine dependency. This crate computes no EvidenceStrength and
+# produces no result class.
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-system = { path = "../aip-system" }
+aip-observe = { path = "../aip-observe" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"
+# The ceiling-consistency test reads the reconciler's own vocabulary, so the
+# declared table cannot drift above what the engine enforces.
+aip-reconcile = { path = "../aip-reconcile" }

@@ -34,6 +34,16 @@ struct Cli {
     #[arg(long = "trust", value_name = "AIP_ID=HEX")]
     trust: Vec<String>,
 
+    /// Trusted audit-export bundle signer, repeatable:
+    /// `--trust-bundle-signer <pubkey_hex>`.
+    ///
+    /// Without one, a bundle's signature is checked only against the key the
+    /// bundle itself names, which establishes internal consistency and not
+    /// who produced it (AUDIT B-4). Bundle verification then reports WARNING
+    /// rather than PASS.
+    #[arg(long = "trust-bundle-signer", value_name = "HEX")]
+    trust_bundle_signer: Vec<String>,
+
     /// Trusted counterparty key, repeatable: `--counterparty <id>=<pubkey_hex>`.
     #[arg(long = "counterparty", value_name = "ID=HEX")]
     counterparty: Vec<String>,
@@ -49,6 +59,22 @@ struct Cli {
     /// File whose bytes must hash to the packet's receipt_hash.
     #[arg(long = "receipt-data", value_name = "FILE")]
     receipt_data: Option<String>,
+
+    /// Verify as of this Unix-ms instant: refuse anything in the packet
+    /// dated after it. Without `--at` or `--now`, the verifier applies no
+    /// temporal bound and says so in the report.
+    #[arg(long = "at", value_name = "UNIX_MS", conflicts_with = "now")]
+    at: Option<u64>,
+
+    /// Verify as of this machine's clock. Equivalent to `--at <now>`;
+    /// separate so that reading a clock is always an explicit choice.
+    #[arg(long)]
+    now: bool,
+
+    /// Allow timestamps up to this many ms ahead of the verification time,
+    /// to absorb declared clock skew. Requires `--at` or `--now`.
+    #[arg(long = "future-tolerance", value_name = "MS", default_value_t = 0)]
+    future_tolerance: u64,
 
     /// Print the full per-rule report (human readable).
     #[arg(long)]
@@ -75,6 +101,20 @@ fn parse_kv(pairs: &[String], what: &str) -> Result<HashMap<String, Vec<u8>>, St
 fn build_ctx(cli: &Cli) -> Result<VerificationContext, String> {
     let mut ctx = VerificationContext::new();
     ctx.issuer_public_keys = parse_kv(&cli.trust, "trust")?;
+    for hex_key in &cli.trust_bundle_signer {
+        let bytes = hex::decode(hex_key.trim())
+            .map_err(|e| format!("--trust-bundle-signer: invalid hex: {e}"))?;
+        // Rejected here rather than dropped silently by the context builder:
+        // a caller who mistyped an anchor must be told, not left believing a
+        // bundle was attributed when no anchor was installed.
+        let key: [u8; 32] = bytes.as_slice().try_into().map_err(|_| {
+            format!(
+                "--trust-bundle-signer: Ed25519 keys are 32 bytes, got {}",
+                bytes.len()
+            )
+        })?;
+        ctx.trusted_bundle_signers.insert(key);
+    }
     ctx.counterparty_public_keys = parse_kv(&cli.counterparty, "counterparty")?;
     for jti_hex in &cli.revoked {
         let bytes =
@@ -94,6 +134,20 @@ fn build_ctx(cli: &Cli) -> Result<VerificationContext, String> {
     }
     if let Some(path) = &cli.receipt_data {
         ctx.receipt_data = Some(std::fs::read(path).map_err(|e| format!("receipt-data: {e}"))?);
+    }
+    ctx.verification_time_ms = match (cli.at, cli.now) {
+        (Some(ms), _) => Some(ms),
+        (None, true) => Some(
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map_err(|e| format!("--now: {e}"))?
+                .as_millis() as u64,
+        ),
+        (None, false) => None,
+    };
+    ctx.future_tolerance_ms = cli.future_tolerance;
+    if ctx.verification_time_ms.is_none() && cli.future_tolerance != 0 {
+        return Err("--future-tolerance requires --at or --now".into());
     }
     Ok(ctx)
 }
@@ -124,6 +178,13 @@ fn run_bundle(cli: &Cli, bytes: &[u8]) -> Result<bool, String> {
         println!(
             "note:        no --trust keys supplied; the authority chain is not \
              verified (WARNING). Bundle integrity + signature are still checked."
+        );
+    }
+    if cli.trust_bundle_signer.is_empty() {
+        println!(
+            "note:        no --trust-bundle-signer supplied; the signature was \
+             checked against the key the bundle names, which does not \
+             establish who produced it (WARNING)."
         );
     }
     if cli.report || v.overall != BundleStatus::Pass {
@@ -179,11 +240,20 @@ fn run(cli: &Cli) -> Result<bool, String> {
         println!("\nrules:");
         for c in &report.checks {
             println!(
-                "  [{}] {:<20} {}",
-                if c.pass { "PASS" } else { "FAIL" },
+                "  [{}] {:<24} {}",
+                if !c.evaluated {
+                    "  - "
+                } else if c.pass {
+                    "PASS"
+                } else {
+                    "FAIL"
+                },
                 c.rule,
                 c.detail
             );
+        }
+        for c in report.not_evaluated() {
+            println!("\nnote: {} was NOT evaluated — {}", c.rule, c.detail);
         }
     } else if !report.valid {
         println!("\nfailed rules:");

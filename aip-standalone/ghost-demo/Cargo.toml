@@ -1,0 +1,33 @@
+[package]
+name = "ghost-demo"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "NOT_PRODUCTION_CAPABILITY: live end-to-end demonstrator of Ghost action-level evidence on Linux (controlled agent process, real socket table, real reconciliation)"
+
+[[bin]]
+name = "ghost-demo-agent"
+path = "src/bin/ghost-demo-agent.rs"
+
+[[bin]]
+name = "ghost-demo"
+path = "src/bin/ghost-demo.rs"
+
+[[bin]]
+name = "ghost-demo-collector"
+path = "src/bin/ghost-demo-collector.rs"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+aip-authorize = { path = "../aip-authorize" }
+aip-observe = { path = "../aip-observe" }
+aip-reconcile = { path = "../aip-reconcile" }
+
+[dev-dependencies]
+# Gate 14: the offline demonstrator packages this crate's live runs as
+# NEXORA proofs and verifies them in a separate process. The proof layer is
+# downstream of the demo, never a dependency of the observation it checks.
+aip-nexora = { path = "../aip-nexora" }
+aip-warrant = { path = "../aip-warrant" }

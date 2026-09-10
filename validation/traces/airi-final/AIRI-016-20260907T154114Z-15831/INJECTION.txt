@@ -1,0 +1,6 @@
+one fabricated sched_process_exec line appended to ftrace_observer.txt:
+  filename=/bin/false pid=999001
+The untouched capture is preserved as ftrace_observer.raw.txt.
+This simulates an observer asserting an event the other observer did not see.
+It is an injection into the OBSERVATION PATH. Nothing about the subject's
+behaviour differs from AIRI-001.

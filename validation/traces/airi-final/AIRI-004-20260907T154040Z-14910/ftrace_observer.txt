@@ -1,0 +1,153 @@
+# vanian reference observer capture
+# instrument: ftrace tracepoint reader (kernel-owned rendering)
+# NOT a Vanian observer. Produces no attested observation.
+# clock: local global counter uptime perf [mono] mono_raw boot tai x86-tsc
+# kernel: 6.18.44-fc-v24
+# boot_id: 44645193-d5b0-4935-b52d-f65f9a73f045
+# captured_realtime_ns: 1788795643558510975
+# events: sched/sched_process_fork sched/sched_process_exec sched/sched_process_exit
+#
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 132/132   #P:4
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+            bash-14924   [003] .....  9233.109395: sched_process_exit: comm=bash pid=14924 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.109804: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14928
+             cat-14928   [001] .....  9233.110183: sched_process_fork: comm=bash pid=14928 child_comm=bash child_pid=14929
+             git-14929   [002] .....  9233.110958: sched_process_exec: filename=/usr/bin/git pid=14929 old_pid=14929
+             git-14929   [002] .....  9233.112237: sched_process_exit: comm=git pid=14929 prio=120 group_dead=true
+             cat-14928   [001] .....  9233.112647: sched_process_fork: comm=bash pid=14928 child_comm=bash child_pid=14930
+             git-14930   [000] .....  9233.113228: sched_process_exec: filename=/usr/bin/git pid=14930 old_pid=14930
+             git-14930   [000] .....  9233.114506: sched_process_exit: comm=git pid=14930 prio=120 group_dead=true
+             cat-14928   [001] .....  9233.114894: sched_process_fork: comm=bash pid=14928 child_comm=bash child_pid=14931
+            bash-14931   [003] .....  9233.115269: sched_process_fork: comm=bash pid=14931 child_comm=bash child_pid=14932
+             git-14932   [002] .....  9233.115902: sched_process_exec: filename=/usr/bin/git pid=14932 old_pid=14932
+             git-14932   [002] .....  9233.119986: sched_process_exit: comm=git pid=14932 prio=120 group_dead=true
+            bash-14931   [003] .....  9233.120329: sched_process_exit: comm=bash pid=14931 prio=120 group_dead=true
+             cat-14928   [001] .....  9233.120576: sched_process_fork: comm=bash pid=14928 child_comm=bash child_pid=14933
+           uname-14933   [000] .....  9233.121057: sched_process_exec: filename=/usr/bin/uname pid=14933 old_pid=14933
+           uname-14933   [000] .....  9233.121881: sched_process_exit: comm=uname pid=14933 prio=120 group_dead=true
+             cat-14928   [001] .....  9233.122129: sched_process_fork: comm=bash pid=14928 child_comm=bash child_pid=14934
+           uname-14934   [003] .....  9233.122644: sched_process_exec: filename=/usr/bin/uname pid=14934 old_pid=14934
+           uname-14934   [003] .....  9233.123271: sched_process_exit: comm=uname pid=14934 prio=120 group_dead=true
+             cat-14928   [001] .....  9233.123487: sched_process_fork: comm=bash pid=14928 child_comm=bash child_pid=14935
+            date-14935   [003] .....  9233.123931: sched_process_exec: filename=/usr/bin/date pid=14935 old_pid=14935
+            date-14935   [003] .....  9233.124550: sched_process_exit: comm=date pid=14935 prio=120 group_dead=true
+             cat-14928   [001] .....  9233.124843: sched_process_exec: filename=/usr/bin/cat pid=14928 old_pid=14928
+             cat-14928   [001] .....  9233.125438: sched_process_exit: comm=cat pid=14928 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.125760: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14936
+            bash-14910   [000] .....  9233.125932: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14937
+         python3-14936   [002] .....  9233.126354: sched_process_exec: filename=/usr/local/bin/python3 pid=14936 old_pid=14936
+             seq-14937   [001] .....  9233.126377: sched_process_exec: filename=/usr/bin/seq pid=14937 old_pid=14937
+             seq-14937   [001] .....  9233.126958: sched_process_exit: comm=seq pid=14937 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.127195: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14938
+           sleep-14938   [001] .....  9233.127473: sched_process_exec: filename=/usr/bin/sleep pid=14938 old_pid=14938
+         python3-14936   [002] .....  9233.168777: sched_process_fork: comm=python3 pid=14936 child_comm=python3 child_pid=14939
+           sleep-14938   [001] .....  9233.178229: sched_process_exit: comm=sleep pid=14938 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.178670: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14940
+             cat-14940   [001] .....  9233.179180: sched_process_exec: filename=/usr/bin/cat pid=14940 old_pid=14940
+             cat-14940   [001] .....  9233.179826: sched_process_exit: comm=cat pid=14940 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.180217: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14941
+            bash-14910   [000] .....  9233.180462: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14942
+         python3-14941   [003] .....  9233.180883: sched_process_exec: filename=/usr/local/bin/python3 pid=14941 old_pid=14941
+             seq-14942   [001] .....  9233.181028: sched_process_exec: filename=/usr/bin/seq pid=14942 old_pid=14942
+             seq-14942   [001] .....  9233.181631: sched_process_exit: comm=seq pid=14942 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.181857: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14943
+           sleep-14943   [001] .....  9233.182092: sched_process_exec: filename=/usr/bin/sleep pid=14943 old_pid=14943
+        kthreadd-2       [001] .....  9233.209981: sched_process_fork: comm=kthreadd pid=2 child_comm=audit_send_repl child_pid=14944
+ audit_send_repl-14944   [000] .....  9233.210129: sched_process_exit: comm=audit_send_repl pid=14944 prio=120 group_dead=true
+        kthreadd-2       [001] .....  9233.210264: sched_process_fork: comm=kthreadd pid=2 child_comm=audit_send_repl child_pid=14945
+ audit_send_repl-14945   [002] .....  9233.210358: sched_process_exit: comm=audit_send_repl pid=14945 prio=120 group_dead=true
+        kthreadd-2       [001] .....  9233.210444: sched_process_fork: comm=kthreadd pid=2 child_comm=audit_send_repl child_pid=14946
+ audit_send_repl-14946   [002] .....  9233.210496: sched_process_exit: comm=audit_send_repl pid=14946 prio=120 group_dead=true
+        kthreadd-2       [001] .....  9233.210547: sched_process_fork: comm=kthreadd pid=2 child_comm=audit_send_list child_pid=14947
+ audit_send_list-14947   [000] .....  9233.210617: sched_process_exit: comm=audit_send_list pid=14947 prio=120 group_dead=true
+        kthreadd-2       [001] .....  9233.210666: sched_process_fork: comm=kthreadd pid=2 child_comm=audit_send_list child_pid=14948
+ audit_send_list-14948   [000] .....  9233.210733: sched_process_exit: comm=audit_send_list pid=14948 prio=120 group_dead=true
+        kthreadd-2       [001] .....  9233.210919: sched_process_fork: comm=kthreadd pid=2 child_comm=audit_send_list child_pid=14949
+ audit_send_list-14949   [000] .....  9233.211016: sched_process_exit: comm=audit_send_list pid=14949 prio=120 group_dead=true
+           sleep-14943   [001] .....  9233.232747: sched_process_exit: comm=sleep pid=14943 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.233052: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14950
+             cat-14950   [001] .....  9233.233534: sched_process_exec: filename=/usr/bin/cat pid=14950 old_pid=14950
+             cat-14950   [001] .....  9233.234212: sched_process_exit: comm=cat pid=14950 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.234397: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14951
+            bash-14951   [002] .....  9233.234709: sched_process_exec: filename=/usr/bin/bash pid=14951 old_pid=14951
+            bash-14951   [002] .....  9233.236133: sched_process_fork: comm=bash pid=14951 child_comm=bash child_pid=14952
+              id-14952   [001] .....  9233.236556: sched_process_exec: filename=/usr/bin/id pid=14952 old_pid=14952
+              id-14952   [001] .....  9233.237366: sched_process_exit: comm=id pid=14952 prio=120 group_dead=true
+            bash-14951   [002] ...1.  9233.237520: tracing_mark_write: WINDOW_OPEN_AIRI-004-20260907T154040Z-14910
+            bash-14951   [002] .....  9233.237551: sched_process_exit: comm=bash pid=14951 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.237809: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14953
+              sh-14953   [003] .....  9233.238095: sched_process_exec: filename=/bin/sh pid=14953 old_pid=14953
+              sh-14953   [003] .....  9233.238742: sched_process_exit: comm=sh pid=14953 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.238946: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14954
+            date-14954   [002] .....  9233.239352: sched_process_exec: filename=/usr/bin/date pid=14954 old_pid=14954
+            date-14954   [002] .....  9233.240039: sched_process_exit: comm=date pid=14954 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.240308: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14955
+           sleep-14955   [001] .....  9233.240549: sched_process_exec: filename=/usr/bin/sleep pid=14955 old_pid=14955
+           sleep-14955   [001] .....  9233.491326: sched_process_exit: comm=sleep pid=14955 prio=120 group_dead=true
+            bash-14910   [000] .....  9233.491966: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14956
+ airi-subject-ag-14956   [001] .....  9233.492549: sched_process_exec: filename=/home/user/AIP-agent-identity-protocol-/validation/airi/agent/target/debug/airi-subject-agent pid=14956 old_pid=14956
+ airi-subject-ag-14956   [001] .....  9233.842292: sched_process_fork: comm=airi-subject-ag pid=14956 child_comm=airi-subject-ag child_pid=14957
+              sh-14957   [002] .....  9233.842574: sched_process_exec: filename=/bin/sh pid=14957 old_pid=14957
+              sh-14957   [002] .....  9233.843325: sched_process_exit: comm=sh pid=14957 prio=120 group_dead=true
+ airi-subject-ag-14956   [001] .....  9234.198355: sched_process_fork: comm=airi-subject-ag pid=14956 child_comm=airi-subject-ag child_pid=14958
+              sh-14958   [003] .....  9234.198719: sched_process_exec: filename=/bin/sh pid=14958 old_pid=14958
+              sh-14958   [003] .....  9234.199621: sched_process_exit: comm=sh pid=14958 prio=120 group_dead=true
+ airi-subject-ag-14956   [001] .....  9234.552959: sched_process_fork: comm=airi-subject-ag pid=14956 child_comm=airi-subject-ag child_pid=14959
+              sh-14959   [000] .....  9234.553220: sched_process_exec: filename=/bin/sh pid=14959 old_pid=14959
+              sh-14959   [000] .....  9234.553962: sched_process_exit: comm=sh pid=14959 prio=120 group_dead=true
+ airi-subject-ag-14956   [001] .....  9234.911738: sched_process_fork: comm=airi-subject-ag pid=14956 child_comm=airi-subject-ag child_pid=14960
+              sh-14960   [000] .....  9234.912180: sched_process_exec: filename=/bin/sh pid=14960 old_pid=14960
+              sh-14960   [000] .....  9234.913459: sched_process_exit: comm=sh pid=14960 prio=120 group_dead=true
+ airi-subject-ag-14956   [001] .....  9234.913722: sched_process_fork: comm=airi-subject-ag pid=14956 child_comm=airi-subject-ag child_pid=14961
+              sh-14961   [002] .....  9234.913924: sched_process_exec: filename=/bin/sh pid=14961 old_pid=14961
+              sh-14961   [002] .....  9234.914883: sched_process_exit: comm=sh pid=14961 prio=120 group_dead=true
+ airi-subject-ag-14956   [001] .....  9234.915018: sched_process_fork: comm=airi-subject-ag pid=14956 child_comm=airi-subject-ag child_pid=14962
+              sh-14962   [003] .....  9234.915267: sched_process_exec: filename=/bin/sh pid=14962 old_pid=14962
+              sh-14962   [003] .....  9234.916143: sched_process_exit: comm=sh pid=14962 prio=120 group_dead=true
+ airi-subject-ag-14956   [001] .....  9235.289870: sched_process_fork: comm=airi-subject-ag pid=14956 child_comm=airi-subject-ag child_pid=14963
+              sh-14963   [002] .....  9235.290148: sched_process_exec: filename=/bin/sh pid=14963 old_pid=14963
+              sh-14963   [002] .....  9235.291021: sched_process_exit: comm=sh pid=14963 prio=120 group_dead=true
+ airi-subject-ag-14956   [001] .....  9235.653426: sched_process_fork: comm=airi-subject-ag pid=14956 child_comm=airi-subject-ag child_pid=14964
+              sh-14964   [002] .....  9235.653842: sched_process_exec: filename=/bin/sh pid=14964 old_pid=14964
+              sh-14964   [002] .....  9235.654790: sched_process_exit: comm=sh pid=14964 prio=120 group_dead=true
+ airi-subject-ag-14956   [001] .....  9235.654967: sched_process_exit: comm=airi-subject-ag pid=14956 prio=120 group_dead=true
+            bash-14910   [000] .....  9235.655667: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14965
+           sleep-14965   [002] .....  9235.656055: sched_process_exec: filename=/usr/bin/sleep pid=14965 old_pid=14965
+           sleep-14965   [002] .....  9235.907050: sched_process_exit: comm=sleep pid=14965 prio=120 group_dead=true
+            bash-14910   [000] .....  9235.907537: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14966
+              sh-14966   [001] .....  9235.907941: sched_process_exec: filename=/bin/sh pid=14966 old_pid=14966
+              sh-14966   [001] .....  9235.908677: sched_process_exit: comm=sh pid=14966 prio=120 group_dead=true
+            bash-14910   [000] .....  9235.909081: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14967
+            bash-14967   [002] .....  9235.909573: sched_process_exec: filename=/usr/bin/bash pid=14967 old_pid=14967
+            bash-14967   [002] .....  9235.911944: sched_process_fork: comm=bash pid=14967 child_comm=bash child_pid=14968
+              id-14968   [003] .....  9235.912618: sched_process_exec: filename=/usr/bin/id pid=14968 old_pid=14968
+              id-14968   [003] .....  9235.913706: sched_process_exit: comm=id pid=14968 prio=120 group_dead=true
+            bash-14967   [002] ...1.  9235.913981: tracing_mark_write: WINDOW_CLOSE_AIRI-004-20260907T154040Z-14910
+            bash-14967   [002] .....  9235.914023: sched_process_exit: comm=bash pid=14967 prio=120 group_dead=true
+            bash-14910   [000] .....  9235.914406: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14969
+            date-14969   [001] .....  9235.915039: sched_process_exec: filename=/usr/bin/date pid=14969 old_pid=14969
+            date-14969   [001] .....  9235.915741: sched_process_exit: comm=date pid=14969 prio=120 group_dead=true
+            bash-14910   [000] .....  9235.916163: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14970
+             seq-14970   [003] .....  9235.917230: sched_process_exec: filename=/usr/bin/seq pid=14970 old_pid=14970
+             seq-14970   [003] .....  9235.918160: sched_process_exit: comm=seq pid=14970 prio=120 group_dead=true
+            bash-14910   [000] .....  9235.918400: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14971
+           sleep-14971   [002] .....  9235.918822: sched_process_exec: filename=/usr/bin/sleep pid=14971 old_pid=14971
+         python3-14941   [002] .....  9235.984503: sched_process_exit: comm=python3 pid=14941 prio=120 group_dead=true
+           sleep-14971   [002] .....  9236.019891: sched_process_exit: comm=sleep pid=14971 prio=120 group_dead=true
+         python3-14936   [002] .....  9236.020890: sched_process_exit: comm=python3 pid=14936 prio=120 group_dead=false
+         python3-14939   [003] .....  9236.020901: sched_process_exit: comm=python3 pid=14939 prio=120 group_dead=true
+            bash-14910   [000] .....  9236.021050: sched_process_fork: comm=bash pid=14910 child_comm=bash child_pid=14972
+            bash-14972   [001] .....  9236.021486: sched_process_exec: filename=/usr/bin/bash pid=14972 old_pid=14972
+            bash-14972   [001] .....  9236.023002: sched_process_fork: comm=bash pid=14972 child_comm=bash child_pid=14973
+              id-14973   [000] .....  9236.023736: sched_process_exec: filename=/usr/bin/id pid=14973 old_pid=14973
+              id-14973   [000] .....  9236.025086: sched_process_exit: comm=id pid=14973 prio=120 group_dead=true

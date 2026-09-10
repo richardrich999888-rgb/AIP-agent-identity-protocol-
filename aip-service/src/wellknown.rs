@@ -113,12 +113,12 @@ fn extract_ed25519_x_from_pem(pem: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::keys::KeyPair;
+    use crate::keys::ServiceKey;
 
     // T-WK-1: JWKS x field is 43 base64url chars (32 bytes)
     #[test]
     fn test_jwks_x_is_32_bytes() {
-        let kp = KeyPair::generate();
+        let kp = ServiceKey::generate();
         let x = extract_ed25519_x_from_pem(&kp.public_pem);
         // 32 bytes in base64url without padding = ceil(32 * 4/3) = 43 chars
         assert_eq!(
@@ -132,7 +132,7 @@ mod tests {
     // T-WK-2: x decodes back to 32 bytes
     #[test]
     fn test_jwks_x_decodes_to_32_bytes() {
-        let kp = KeyPair::generate();
+        let kp = ServiceKey::generate();
         let x = extract_ed25519_x_from_pem(&kp.public_pem);
         let decoded = URL_SAFE_NO_PAD
             .decode(&x)

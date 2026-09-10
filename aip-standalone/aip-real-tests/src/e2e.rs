@@ -3,7 +3,7 @@
 use aip_core::nonce::NonceTracker;
 use aip_core::runtime::{bind_identity_to_runtime, verify_runtime_binding};
 use aip_core::simulation::simulate_network_verification;
-use aip_core::store::IdentityStore;
+use aip_core::store::{IdentityStore, Persistence};
 use aip_core::*;
 use aip_crypto::*;
 use aip_types::*;
@@ -31,7 +31,8 @@ fn test_cross_process_sign_verify_via_store() {
 
     // "Process A" — creates identity and signs
     {
-        let mut store = IdentityStore::with_file(&tmp_path).unwrap();
+        let mut store =
+            IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         let (aid, kp) = create_identity(test_provenance("process-a-model"), None).unwrap();
         agent_id = aid.id.clone();
         store.put_identity(aid, kp.clone());
@@ -43,7 +44,7 @@ fn test_cross_process_sign_verify_via_store() {
 
     // "Process B" — loads store and verifies
     {
-        let store = IdentityStore::with_file(&tmp_path).unwrap();
+        let store = IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         let entry = store
             .get_identity(&agent_id)
             .expect("Process B must find the identity");
@@ -58,7 +59,7 @@ fn test_cross_process_sign_verify_via_store() {
         );
 
         // Crypto verification
-        let valid = verify_ed25519(&entry.keypair.public_key, &sig).unwrap();
+        let valid = verify_ed25519(entry.public_key(), &sig).unwrap();
         assert!(
             valid,
             "Process B must successfully verify Process A's signature"
@@ -84,7 +85,7 @@ fn test_full_e2e_identity_pipeline() {
     let tmp_path = std::env::temp_dir().join("aip_e2e_full_pipeline.json");
     let _ = std::fs::remove_file(&tmp_path);
 
-    let mut store = IdentityStore::with_file(&tmp_path).unwrap();
+    let mut store = IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
     let mut tracker = NonceTracker::new();
 
     // 1. Create 3 agents
@@ -149,14 +150,15 @@ fn test_full_e2e_identity_pipeline() {
 
     // 6. Reload store from disk and verify
     {
-        let reloaded = IdentityStore::with_file(&tmp_path).unwrap();
+        let reloaded =
+            IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         assert_eq!(reloaded.identity_count(), 3);
         for (id, kp) in &agents {
             let entry = reloaded.get_identity(id).unwrap();
             assert_eq!(entry.aid.status, IdentityStatus::Active);
             // Verify the loaded key still works
             let sig = sign_ed25519(&kp.private_key, id, b"reload test").unwrap();
-            let valid = verify_ed25519(&entry.keypair.public_key, &sig).unwrap();
+            let valid = verify_ed25519(entry.public_key(), &sig).unwrap();
             assert!(valid, "Reloaded identity must still sign/verify");
         }
     }
@@ -193,7 +195,8 @@ fn test_lifecycle_transitions_persist_through_store() {
 
     // Create → Activate → Suspend → Reactivate → Revoke, persisting each step
     {
-        let mut store = IdentityStore::with_file(&tmp_path).unwrap();
+        let mut store =
+            IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         store.put_identity(aid, kp);
         let e = store.get_identity_mut(&id).unwrap();
         activate_identity(&mut e.aid).unwrap();
@@ -201,7 +204,8 @@ fn test_lifecycle_transitions_persist_through_store() {
     }
 
     {
-        let mut store = IdentityStore::with_file(&tmp_path).unwrap();
+        let mut store =
+            IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         let e = store.get_identity_mut(&id).unwrap();
         assert_eq!(e.aid.status, IdentityStatus::Active);
         suspend_identity(&mut e.aid).unwrap();
@@ -209,7 +213,8 @@ fn test_lifecycle_transitions_persist_through_store() {
     }
 
     {
-        let mut store = IdentityStore::with_file(&tmp_path).unwrap();
+        let mut store =
+            IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         let e = store.get_identity_mut(&id).unwrap();
         assert_eq!(e.aid.status, IdentityStatus::Suspended);
         reactivate_identity(&mut e.aid).unwrap();
@@ -217,7 +222,8 @@ fn test_lifecycle_transitions_persist_through_store() {
     }
 
     {
-        let mut store = IdentityStore::with_file(&tmp_path).unwrap();
+        let mut store =
+            IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         let e = store.get_identity_mut(&id).unwrap();
         assert_eq!(e.aid.status, IdentityStatus::Active);
         revoke_identity(&mut e.aid).unwrap();
@@ -226,7 +232,7 @@ fn test_lifecycle_transitions_persist_through_store() {
 
     // Final reload — must be Revoked
     {
-        let store = IdentityStore::with_file(&tmp_path).unwrap();
+        let store = IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         let e = store.get_identity(&id).unwrap();
         assert_eq!(e.aid.status, IdentityStatus::Revoked);
     }
@@ -243,7 +249,8 @@ fn test_tampered_signature_rejected_via_store() {
     let id = aid.id.clone();
 
     {
-        let mut store = IdentityStore::with_file(&tmp_path).unwrap();
+        let mut store =
+            IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         store.put_identity(aid, kp.clone());
         store.save().unwrap();
     }
@@ -259,11 +266,11 @@ fn test_tampered_signature_rejected_via_store() {
     );
 
     // Load and verify tampered signature
-    let store = IdentityStore::with_file(&tmp_path).unwrap();
+    let store = IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
     let entry = store.get_identity(&id).unwrap();
     let tampered_sig: Signature = serde_json::from_str(&sig_json).unwrap();
 
-    let valid = verify_ed25519(&entry.keypair.public_key, &tampered_sig).unwrap();
+    let valid = verify_ed25519(entry.public_key(), &tampered_sig).unwrap();
     assert!(
         !valid,
         "Tampered signature loaded from JSON must not verify"

@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip134HJiZz6izWNXtXVM7oimH31b8LrhEAGEgNY5ehiiW",
+  "agent_public_key_hex": "0bec770cd3fdd18ecd4045a129cc261945830ca47925781823024dcf7dc3c7a2",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-017-20260907T154117Z-15911\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-017-20260907T154117Z-15911/work/airi-AIRI-017-20260907T154117Z-15911-tool.txt"
+  ],
+  "execution_id_hex": "cc990953f13043c39c56c70b0cc92fcf",
+  "intended_execute_count": 0,
+  "intended_report_count": 1,
+  "intended_report_success": true,
+  "nonce": "AIRI-017-20260907T154117Z-15911",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 15956,
+  "record": "subject_manifest",
+  "scenario": "AIRI-017",
+  "what_it_tests": "the declared argv runs on the host, outside this subject's process tree; it must not be credited to this execution"
+}

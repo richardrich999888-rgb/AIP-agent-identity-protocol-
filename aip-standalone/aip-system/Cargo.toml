@@ -1,0 +1,18 @@
+[package]
+name = "aip-system"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Environment-neutral autonomous-system model: identity separation over the AIP accountability core"
+
+# Dependencies point one way only (design decision D17-6). Nothing in the
+# verdict path — reconcile, warrant, containment, nexora, airi — depends on
+# this crate, and this crate depends on none of them. A description layer the
+# verdict layers cannot see cannot cause a semantic regression in them.
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"

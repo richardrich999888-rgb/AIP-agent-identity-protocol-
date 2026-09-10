@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip12m9VNSXh7orraouBuMv3LEybpaurpi8Nynu16ya1jS",
+  "agent_public_key_hex": "82d4033cd67e72aa7857b821bd1e6bd4a37d3f28b64b2d785f1ddf2690fb1258",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-013-20260907T154105Z-15599\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-013-20260907T154105Z-15599/work/airi-AIRI-013-20260907T154105Z-15599-tool.txt"
+  ],
+  "execution_id_hex": "22bfa12cc453440e9b45a353cfb747fd",
+  "intended_execute_count": 1,
+  "intended_report_count": 1,
+  "intended_report_success": true,
+  "nonce": "AIRI-013-20260907T154105Z-15599",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 15644,
+  "record": "subject_manifest",
+  "scenario": "AIRI-013",
+  "what_it_tests": "agent process dies before emitting completion"
+}

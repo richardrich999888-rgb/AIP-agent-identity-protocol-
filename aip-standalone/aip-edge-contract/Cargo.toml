@@ -1,0 +1,16 @@
+[package]
+name = "aip-edge-contract"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "The wire contract between the Linux edge reference's three processes: verbs, file names and canonical parameter bytes"
+
+# Deliberately minimal. This crate is the *port* the workload, the observer and
+# the driver all speak; if it depended on `aip-observe` the workload would link
+# the collector signer through it, and if it depended on `aip-airi` the observer
+# would gain the ability to author agent claims. Both are the exact boundaries
+# Skill 22 exists to establish, so this manifest is load-bearing and is asserted
+# by `aip-edge/tests/dependency_isolation.rs`.
+[dependencies]
+aip-types = { path = "../aip-types" }
+serde = { version = "1.0", features = ["derive"] }

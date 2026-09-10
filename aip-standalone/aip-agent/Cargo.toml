@@ -1,0 +1,20 @@
+[package]
+name = "aip-agent"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Sniffer Dog 2.0: validated agent identity and a dimension-separated profile view over existing signed artifacts; no new authority"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+aip-authorize = { path = "../aip-authorize" }
+aip-protocol = { path = "../aip-protocol" }
+aip-reconcile = { path = "../aip-reconcile" }
+aip-observe = { path = "../aip-observe" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+aip-reconcile = { path = "../aip-reconcile", features = ["test-fixtures"] }
+serde_json = "1.0"

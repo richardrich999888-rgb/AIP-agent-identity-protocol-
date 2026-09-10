@@ -1,0 +1,8 @@
+{
+  "finding": "observer reports healthy coverage while observation was suppressed",
+  "arm_a_baseline_wc_execs": 8,
+  "arm_b_interfered_wc_execs": 0,
+  "arm_b_interfered_reported_loss": 0,
+  "reproduced": true,
+  "interpretation": "REPRODUCED: with the gate held, Sniffer Dog observed zero of the 8 execs and reported zero loss. Its silence is indistinguishable, from its own outputs, from 'no exec occurred'."
+}

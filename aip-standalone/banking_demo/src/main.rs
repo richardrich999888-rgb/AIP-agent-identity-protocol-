@@ -188,6 +188,12 @@ fn main() {
         revoked_jtis: Default::default(),
         trace_data: Some(trace_export),
         receipt_data: Some(receipt_content.into_bytes()),
+        verification_time_ms: None,
+        future_tolerance_ms: 0,
+        // This demo verifies a packet, not a bundle; no bundle signer anchor
+        // is relevant here.
+        trusted_bundle_signers: Default::default(),
+        observed_history: None,
     };
     let report = verify_packet(&packet, &ctx);
     for check in &report.checks {

@@ -23,7 +23,8 @@
 
 use aip_crypto::{sha256, sign_ed25519};
 use aip_types::{
-    AipError, DelegationToken, ProvenanceTriple, PublicKey, ScopeAction, ScopedToken, Signature,
+    AipError, DelegationToken, ExecutionBinding, ProvenanceTriple, PublicKey, ScopeAction,
+    ScopedToken, Signature,
 };
 use serde::{Deserialize, Serialize};
 
@@ -32,7 +33,22 @@ use crate::canonical::*;
 /// Magic bytes identifying an AIP EvidencePacket ("AEP1").
 pub const PACKET_MAGIC: [u8; 4] = *b"AEP1";
 /// EvidencePacket wire-format version.
-pub const PACKET_VERSION: u16 = 1;
+///
+/// History:
+/// - `1`: initial format.
+/// - `2`: one deliberate wire break covering Ghost Stages 0 and 1
+///   (IMPLEMENTATION_PLAN §1.2 — "bump PACKET_VERSION once, covers Stages
+///   0 + 1"). Stage 0: the issuer signatures embedded in `root_token` and
+///   every `delegation_chain` hop cover `expires_at`, use length-prefixed
+///   (injective) field encoding and carry a domain tag
+///   (`AIP/ScopedToken/v1`, `AIP/DelegationToken/v1`). Stage 1: the optional
+///   `execution_binding` (presence byte + nested length-prefixed
+///   `GHOST/ExecutionBinding/v1` encoding) enters the canonical bytes
+///   between the receipt binding and the claimed trust floor. Version-1
+///   packets are NOT verifiable under this crate: their embedded signatures
+///   were produced over the old, non-binding payload, so R1 STRUCTURE rejects
+///   them explicitly rather than letting R5/R6 fail with a misleading detail.
+pub const PACKET_VERSION: u16 = 2;
 
 // ─── Trust Floor ───
 
@@ -232,6 +248,13 @@ pub struct EvidencePacket {
     pub trace_binding: Option<TraceBinding>,
     pub receipt_binding: Option<ReceiptBinding>,
 
+    /// Which process instance (pid + start ticks + boot id) running which
+    /// executable (content hash) produced this packet. **Self-reported by the
+    /// agent** and covered by the agent signature; it is a correlation key
+    /// for reconciliation, not independent observation (I5).
+    #[serde(default)]
+    pub execution_binding: Option<ExecutionBinding>,
+
     /// The trust floor the producer claims this packet supports. Verifiers
     /// independently derive the floor; a claim above the derived floor
     /// fails verification.
@@ -327,6 +350,15 @@ impl EvidencePacket {
             None => put_u8(&mut buf, 0),
         }
 
+        // Execution binding (nested canonical encoding, length-prefixed)
+        match &self.execution_binding {
+            Some(b) => {
+                put_u8(&mut buf, 1);
+                put_bytes(&mut buf, &b.canonical_bytes());
+            }
+            None => put_u8(&mut buf, 0),
+        }
+
         // Claimed trust floor
         put_u8(&mut buf, self.claimed_trust_floor as u8);
 
@@ -374,6 +406,7 @@ pub struct EvidencePacketBuilder {
     actions: Vec<ActionAttestation>,
     trace_binding: Option<TraceBinding>,
     receipt_binding: Option<ReceiptBinding>,
+    execution_binding: Option<ExecutionBinding>,
     claimed_trust_floor: TrustFloor,
     created_at: Option<u64>,
 }
@@ -388,9 +421,16 @@ impl EvidencePacketBuilder {
             actions: vec![],
             trace_binding: None,
             receipt_binding: None,
+            execution_binding: None,
             claimed_trust_floor: TrustFloor::AgentSigned,
             created_at: None,
         }
+    }
+
+    /// Attach the agent's self-reported execution binding.
+    pub fn execution_binding(mut self, binding: ExecutionBinding) -> Self {
+        self.execution_binding = Some(binding);
+        self
     }
 
     pub fn delegation_chain(mut self, chain: Vec<DelegationToken>) -> Self {
@@ -451,6 +491,7 @@ impl EvidencePacketBuilder {
             actions: self.actions,
             trace_binding: self.trace_binding,
             receipt_binding: self.receipt_binding,
+            execution_binding: self.execution_binding,
             claimed_trust_floor: self.claimed_trust_floor,
             packet_hash: [0u8; 32],
             // Placeholder; replaced below once canonical bytes are final.

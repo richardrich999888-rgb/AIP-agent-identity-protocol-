@@ -2,7 +2,7 @@
 
 use aip_core::nonce::NonceTracker;
 use aip_core::simulation::simulate_network_verification;
-use aip_core::store::IdentityStore;
+use aip_core::store::{IdentityStore, Persistence};
 use aip_core::*;
 use aip_crypto::*;
 use aip_types::*;
@@ -125,7 +125,8 @@ fn test_store_save_load_1000_identities() {
     let _ = std::fs::remove_file(&tmp_path);
 
     {
-        let mut store = IdentityStore::with_file(&tmp_path).unwrap();
+        let mut store =
+            IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         for i in 0..1000 {
             let prov = ProvenanceTriple {
                 model_commitment: sha256(format!("model-{}", i).as_bytes()),
@@ -139,7 +140,7 @@ fn test_store_save_load_1000_identities() {
     }
 
     {
-        let store = IdentityStore::with_file(&tmp_path).unwrap();
+        let store = IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         assert_eq!(
             store.identity_count(),
             1000,

@@ -16,7 +16,7 @@ use std::sync::Arc;
 use tracing_subscriber::{fmt, EnvFilter};
 
 use airon_aip::store::{EvidenceStore, JsonlEvidenceStore};
-use airon_aip::{auth, delegation, keys::KeyPair, revocation, router, AppState};
+use airon_aip::{auth, delegation, keys::ServiceKey, revocation, router, AppState, ManagedSigning};
 
 async fn build_store() -> Arc<dyn EvidenceStore> {
     let backend = std::env::var("AIP_STORE_BACKEND").unwrap_or_else(|_| "jsonl".to_owned());
@@ -72,17 +72,55 @@ async fn main() {
         .unwrap_or_else(|_| "/var/lib/aip/revocation.jsonl".to_owned());
     let api_keys_path = std::env::var("AIP_API_KEYS_PATH").unwrap_or_default();
 
+    // The directory must exist before a key can be created in it. A failure
+    // here is not fatal on its own — the key may already be present — so it
+    // is reported and the key load below decides whether to proceed.
     if let Some(parent) = std::path::Path::new(&key_path).parent() {
         if let Err(e) = std::fs::create_dir_all(parent) {
-            tracing::warn!(path = %parent.display(), error = %e, "Could not create key directory");
+            tracing::warn!(path = %parent.display(), error = %e, "could not create key directory");
         }
     }
 
-    let kp = KeyPair::load_or_generate(&key_path);
-    let encoding_key = jsonwebtoken::EncodingKey::from_ed_pem(kp.private_pem.as_bytes())
-        .expect("generated private PEM must always be valid");
-    let decoding_key = jsonwebtoken::DecodingKey::from_ed_pem(kp.public_pem.as_bytes())
-        .expect("generated public PEM must always be valid");
+    // Fail closed on the signing identity (AUDIT B-6). A service that cannot
+    // read its configured key must not invent one: doing so silently rotates
+    // the identity, invalidating every token and audit bundle already signed
+    // under it, and leaves nothing to distinguish that from forgery. The only
+    // condition under which a key is created is that none exists yet.
+    // `AIP_KEY_PASSPHRASE` selects the backend: set, the key is wrapped
+    // (Argon2id + XChaCha20-Poly1305, the production backend); unset, it is
+    // the legacy plaintext seed, which a production policy refuses below.
+    let passphrase = std::env::var("AIP_KEY_PASSPHRASE").ok();
+    let kp = match ServiceKey::load_or_create(&key_path, passphrase.as_deref().map(str::as_bytes)) {
+        Ok(kp) => kp,
+        Err(e) => {
+            tracing::error!(key_path, error = %e, "cannot obtain signing key; refusing to start");
+            // Written to stderr as well: the JSON tracing subscriber is easy
+            // to miss, and this is the last thing the process does.
+            eprintln!("FATAL: {e}");
+            std::process::exit(1);
+        }
+    };
+    // A production deployment refuses a backend that is not a production one.
+    // There is no downgrade: the operator supplies a passphrase, or declares
+    // the deployment development.
+    let dev_policy = matches!(
+        std::env::var("AIP_CUSTODY_POLICY").as_deref(),
+        Ok("development") | Ok("dev")
+    );
+    if !dev_policy && !kp.backend().is_production() {
+        let msg = format!(
+            "the service signing key is held by the {:?} backend, which is not a \
+             production one. Set AIP_KEY_PASSPHRASE to wrap the key, or \
+             AIP_CUSTODY_POLICY=development to declare this a development \
+             deployment.",
+            kp.backend()
+        );
+        tracing::error!(key_path, backend = ?kp.backend(), "{msg}");
+        eprintln!("FATAL: {msg}");
+        std::process::exit(1);
+    }
+    let encoding_key = kp.encoding_key();
+    let decoding_key = kp.decoding_key();
 
     let del_log = delegation::load_delegation_log(&delegation_log_path);
     let rev_set = revocation::load_revocation_set(&revocation_log_path);
@@ -92,6 +130,23 @@ async fn main() {
         tracing::warn!(
             "no API keys configured (AIP_API_KEYS_PATH) — authenticated routes \
              will reject all requests (fail closed)."
+        );
+    }
+
+    // AUDIT B-7. Off unless a deployment opts in; when it does, say plainly
+    // what has been accepted, because the cost is not obvious from the name.
+    let managed_signing = ManagedSigning::from_env();
+    if managed_signing.is_permitted() {
+        tracing::warn!(
+            "AIP_ALLOW_MANAGED_SIGNING is set: POST /v1/evidence/generate will \
+             accept agent private seeds in request bodies. Those keys will be \
+             visible to every proxy and log on the request path, and packets \
+             signed this way cannot distinguish the agent from this service."
+        );
+    } else {
+        tracing::info!(
+            "managed signing is off: POST /v1/evidence/generate returns 501. \
+             Agents sign client-side; the service verifies and ingests."
         );
     }
 
@@ -115,12 +170,12 @@ async fn main() {
         revocation_set: rev_set,
         store,
         api_keys,
-        signer_seed: kp.signing_seed(),
-        signer_public: kp.verifying_key_bytes(),
+        signer: Arc::new(kp),
+        managed_signing,
     });
 
     let addr = format!("0.0.0.0:{port}");
-    tracing::info!(port, fingerprint = %kp.fingerprint, key_path, "airon-aip v2 starting");
+    tracing::info!(port, fingerprint = %state.fingerprint, key_path, "airon-aip v2 starting");
 
     let listener = tokio::net::TcpListener::bind(&addr)
         .await

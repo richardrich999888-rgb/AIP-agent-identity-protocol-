@@ -1,0 +1,19 @@
+{
+  "agent_id": "aip15SqBwg2S3m411NHFjhNS3goV6MVNdCAXvRwo2Z1dDQ",
+  "agent_public_key_hex": "328746d3d1fcce2f11eeb84f8fb95f58aebe57ace6d87ce835b959e118bb6a35",
+  "declared_tool_argv": [
+    "/bin/sh",
+    "-c",
+    "printf 'AIRI-TOOL-RAN AIRI-004-20260907T154040Z-14910\\n' > /home/user/AIP-agent-identity-protocol-/validation/traces/airi-final/AIRI-004-20260907T154040Z-14910/work/airi-AIRI-004-20260907T154040Z-14910-tool.txt"
+  ],
+  "execution_id_hex": "082ca0da384648e3963d0204d50cb27b",
+  "intended_execute_count": 2,
+  "intended_report_count": 1,
+  "intended_report_success": true,
+  "nonce": "AIRI-004-20260907T154040Z-14910",
+  "note": "every field here is self-reported by the subject and is a CLAIM",
+  "pid": 14956,
+  "record": "subject_manifest",
+  "scenario": "AIRI-004",
+  "what_it_tests": "tool executes twice; agent reports once"
+}

@@ -1,7 +1,7 @@
 //! Edge Cases & Boundary Value Tests — Malformed and extreme inputs.
 
 use aip_core::nonce::NonceTracker;
-use aip_core::store::IdentityStore;
+use aip_core::store::{IdentityStore, Persistence};
 use aip_core::*;
 use aip_crypto::*;
 use aip_types::*;
@@ -141,13 +141,13 @@ fn test_store_empty_save_load() {
     let _ = std::fs::remove_file(&tmp_path);
 
     {
-        let store = IdentityStore::with_file(&tmp_path).unwrap();
+        let store = IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         assert_eq!(store.identity_count(), 0);
         store.save().unwrap();
     }
 
     {
-        let store = IdentityStore::with_file(&tmp_path).unwrap();
+        let store = IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext).unwrap();
         assert_eq!(store.identity_count(), 0);
     }
 
@@ -159,7 +159,7 @@ fn test_store_corrupted_json_graceful_error() {
     let tmp_path = std::env::temp_dir().join("aip_edge_corrupt_store.json");
     std::fs::write(&tmp_path, "{{{{not valid json at all!!!").unwrap();
 
-    let result = IdentityStore::with_file(&tmp_path);
+    let result = IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext);
     assert!(result.is_err(), "Corrupted JSON must produce error");
 
     let _ = std::fs::remove_file(&tmp_path);
@@ -171,7 +171,7 @@ fn test_store_truncated_json_graceful_error() {
     // Partial valid JSON that was cut off
     std::fs::write(&tmp_path, "{\"identities\":{},\"reputations\":").unwrap();
 
-    let result = IdentityStore::with_file(&tmp_path);
+    let result = IdentityStore::with_file(&tmp_path, Persistence::DevelopmentPlaintext);
     assert!(result.is_err(), "Truncated JSON must produce error");
 
     let _ = std::fs::remove_file(&tmp_path);

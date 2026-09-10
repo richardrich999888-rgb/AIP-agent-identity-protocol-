@@ -1,0 +1,36 @@
+[package]
+name = "aip-edge-workload"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "The Linux autonomous edge reference workload: the subject under scrutiny, process A"
+
+# ── The load-bearing absence ──────────────────────────────────────────────
+#
+# `aip-observe` is NOT here, and must never be. It is the crate that holds
+# `CollectorSigner`, `ObserverTrustAnchors` and `verify_attested_batch`; a
+# workload that linked it could construct an attestation over observations it
+# invented, and the entire evidence model would rest on that process choosing
+# not to. Excluding it makes the choice unavailable rather than discouraged:
+# there is no path from any expression in this crate to a signed batch, and a
+# reviewer checks that by reading five lines of manifest instead of auditing
+# a binary.
+#
+# `aip-observation` and `aip-effect` are absent for the same reason one rung
+# up: `ObservationRecord::from_attested` and `EffectAssessment::assess` are
+# the verifier's, and a subject that could call them could decide what was
+# observed about itself.
+#
+# Asserted mechanically by `aip-edge/tests/dependency_isolation.rs`.
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+aip-airi = { path = "../aip-airi" }
+aip-edge-contract = { path = "../aip-edge-contract" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[[bin]]
+name = "aip-edge-workload"
+path = "src/main.rs"

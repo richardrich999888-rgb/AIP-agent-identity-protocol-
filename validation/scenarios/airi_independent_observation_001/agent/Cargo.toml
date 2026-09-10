@@ -1,0 +1,28 @@
+# Its own workspace root, deliberately.
+#
+# `[workspace]` here stops Cargo from asking the repository-root workspace to
+# adopt this package, so the production manifest — whose `members` are listed
+# explicitly precisely so new crates are intentional entries — is untouched by
+# validation scaffolding.
+#
+# This crate is the SUBJECT UNDER OBSERVATION. It emits real, signed AIRI
+# events through the real aip-airi API, and it lies in specified ways. It is
+# not part of Vanian, nothing in aip-* depends on it, and it defines no
+# evidence semantics.
+[workspace]
+
+[package]
+name = "airi-subject-agent"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+aip-airi = { path = "../../../../aip-standalone/aip-airi" }
+aip-types = { path = "../../../../aip-standalone/aip-types" }
+aip-crypto = { path = "../../../../aip-standalone/aip-crypto" }
+serde_json = "1"
+
+[[bin]]
+name = "airi-subject-agent"
+path = "src/main.rs"

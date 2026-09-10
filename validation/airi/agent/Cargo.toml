@@ -1,0 +1,33 @@
+# Its own workspace root, deliberately.
+#
+# `[workspace]` here stops Cargo from asking the repository-root workspace to
+# adopt this package, which keeps the production manifest — whose explicit
+# `members` list exists so new crates are intentional entries — untouched by
+# validation scaffolding. Same pattern as the exp01 recorder.
+#
+# This crate is a SUBJECT, not an instrument. It is a small real AI-agent
+# workload that emits REAL AIRI events using the real `aip-airi` crate: real
+# Ed25519 signatures, a real hash chain, real parameter commitments. Nothing
+# about the events is mocked. What varies between scenarios is the relationship
+# between what it CLAIMS and what it actually DOES on the host.
+#
+# It adds no observation capability and defines no evidence semantics, and
+# nothing in aip-* depends on it.
+[workspace]
+
+[package]
+name = "airi-subject-agent"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+aip-types = { path = "../../../aip-standalone/aip-types" }
+aip-crypto = { path = "../../../aip-standalone/aip-crypto" }
+aip-core = { path = "../../../aip-standalone/aip-core" }
+aip-airi = { path = "../../../aip-standalone/aip-airi" }
+serde_json = "1.0"
+
+[[bin]]
+name = "airi-subject-agent"
+path = "src/main.rs"

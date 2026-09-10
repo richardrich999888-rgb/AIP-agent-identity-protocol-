@@ -1,0 +1,80 @@
+# Repository-root workspace.
+#
+# # Why this exists (AUDIT B-10)
+#
+# `aip-standalone` and `aip-service` were two independent Cargo roots. The
+# consequence was not theoretical: the six-branch forensic audit found that
+# the verifier-time bound added to `aip-protocol` never reached the service,
+# because `cargo test --workspace` in `aip-standalone` does not compile
+# `aip-service` — so nothing failed when the service did not adopt it. That
+# is finding B-1a, and B-10 is its cause.
+#
+# One workspace makes the primary build command span the protocol and the
+# tier that serves it. A protocol change that breaks a service caller is now
+# a compile error in the same command that developers already run.
+#
+# Members are listed explicitly rather than globbed: a new crate should be an
+# intentional entry in this file, not something that appears by directory.
+#
+# # `aip-standalone/Cargo.toml` is gone, deliberately
+#
+# It was the previous workspace root. Cargo requires every member to sit
+# hierarchically below its workspace root, and `aip-service` is a sibling of
+# `aip-standalone`, so the root had to move up rather than that file gaining
+# an out-of-tree member. Leaving a stub `[workspace]` behind does not work:
+# an empty workspace table makes that directory a root again, with zero
+# members, and every crate under it then fails to resolve
+# `workspace.package`. There is now exactly one workspace root and one
+# `Cargo.lock` in this repository; the old `aip-standalone/Cargo.lock` was
+# removed with it, because a second lockfile that nothing reads is a trap for
+# whoever next tries to reproduce a build from it.
+[workspace]
+resolver = "2"
+members = [
+    # ── accountability core ────────────────────────────────────────────
+    "aip-standalone/aip-types",
+    "aip-standalone/aip-crypto",
+    "aip-standalone/aip-core",
+    "aip-standalone/aip-protocol",
+    "aip-standalone/aip-authorize",
+    "aip-standalone/aip-observe",
+    "aip-standalone/aip-airi",
+    "aip-standalone/aip-system",
+    "aip-standalone/aip-execution",
+    "aip-standalone/aip-platform",
+    "aip-standalone/aip-observation",
+    "aip-standalone/aip-effect",
+    "aip-standalone/aip-reconcile",
+    "aip-standalone/aip-agent",
+    "aip-standalone/aip-warrant",
+    "aip-standalone/aip-nexora",
+    "aip-standalone/aip-containment",
+    # ── the Linux autonomous edge reference (Skill 22) ─────────────────
+    # Four members, and the split is the deliverable: the workload cannot
+    # link the observer's crate and the observer cannot link the workload's.
+    "aip-standalone/aip-edge-contract",
+    "aip-standalone/aip-edge-workload",
+    "aip-standalone/aip-edge-observer",
+    "aip-standalone/aip-edge",
+    # ── vertical profiles over the generic core (Skills 23+) ───────────
+    # A profile consumes the core and is consumed by nothing in it: the
+    # dependency points one way, so a vertical cannot cause a semantic
+    # regression in the accountability model it specialises.
+    "aip-standalone/aip-uas",
+    "aip-standalone/aip-robotics",
+    # ── tooling, demos and test harnesses ──────────────────────────────
+    "aip-standalone/ghost-demo",
+    "aip-standalone/aip-test",
+    "aip-standalone/aip-cli",
+    "aip-standalone/aip-verify",
+    "aip-standalone/aip-real-tests",
+    "aip-standalone/banking_demo",
+    # ── the HTTP service tier (B-10) ───────────────────────────────────
+    "aip-service",
+]
+
+[workspace.package]
+version = "0.4.0"
+edition = "2021"
+# Proprietary; "UNLICENSED" is not a valid SPDX expression (cargo-deny rejects it).
+license = "LicenseRef-Proprietary"

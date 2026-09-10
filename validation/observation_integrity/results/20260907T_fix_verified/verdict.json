@@ -1,0 +1,11 @@
+{
+  "finding": "observer reports healthy coverage while observation was suppressed",
+  "arm_a_baseline_wc_execs": 8,
+  "arm_b_interfered_wc_execs": 0,
+  "arm_b_interfered_reported_loss": 0,
+  "reproduced": true,
+  "arm_a_baseline_integrity": "verified",
+  "arm_b_interfered_integrity": "integrity_unknown",
+  "fix_detected_the_gate": true,
+  "interpretation": "REPRODUCED and DETECTED: with the gate held, Sniffer Dog observed zero of the 8 execs and reported zero loss \u2014 but its mechanism-integrity check reported 'integrity_unknown', so the collector no longer signs a false Active. The fix converts silent blindness into a signed 'I cannot vouch'."
+}

@@ -1,103 +1,283 @@
-# AIP — Accountability Infrastructure for Autonomous AI
+# Vanian Technologies
+## Autonomous Intelligence Trust Infrastructure
 
-**Prove what the agent did and who authorized it.**
+**Vanian makes autonomous systems cryptographically accountable.**
 
-AIP is the flight recorder for AI agents. When an autonomous agent acts —
-approves a payment, files a claim, executes a trade — AIP produces an
-**EvidencePacket**: a self-contained, cryptographically signed, tamper-evident
-record binding the action to the human authority that permitted it, through
-every delegation hop in between.
+When an autonomous agent acts — approves a payment, opens a connection,
+writes a file, spawns a process — this system can answer, to a skeptical
+third party who does not trust the machine it ran on:
+
+> Who was it? What was it allowed to do? What was it *expected* to do? What
+> actually happened? Who observed that? What can be proven, what cannot,
+> and can somebody else check the answer without trusting us?
+
+The last question is the one that matters, and it is the one most systems
+cannot answer. A proof this system produces is a file. Somebody else runs
+one command against it with public keys **they** already trust. Their
+program does not read our conclusion — it re-runs the same reconciliation
+over the same evidence and checks that it gets the same answer.
+
+---
+
+## The layers, and what each one is for
 
 ```text
-Human CFO ──issues──▶ Scoped Token ──delegates──▶ Payments Agent
-                                                      │ decides
-                                                      ▼
-                       EvidencePacket ◀──seals── Payment Approval
-                        │                             │ performs
-                        │ binds                       ▼
-                        ▼                        Ledger Entry
-        agent identity · delegation chain        (countersigned
-        decision · signed actions · receipt        by the ledger)
+      AIP            identity and authority
+                     who this is, and what it may do
+        │
+        ▼
+  ExpectedExecution  authorized operational intent
+                     signed by a decision point that is not the agent
+        │
+        ▼
+   Sniffer Dog       independent runtime observation
+                     kernel-sourced, probe holds no key, collector signs off-host
+        │
+        ▼
+  Reconciliation     authorized-vs-observed evidence analysis
+                     default answer: CANNOT_PROVE
+        │
+        ▼
+    Warrant          cryptographic authorization for consequential response
+                     severity × evidence strength × policy, no arithmetic
+        │
+        ▼
+   Containment       controlled enforcement boundary
+                     advisory by default; see the honest note below
+        │
+        ▼
+     NEXORA          persistent provenance and offline verification
+                     a portable proof that re-derives instead of asserting
 ```
 
-Modify one byte of a sealed packet — the amount, the scope, the authority —
-and verification fails on a named cryptographic rule. Recompute the hash to
-cover your tracks and the agent's signature catches it.
+Two properties run through all of it.
 
-## Why
+**Severity and evidence strength never combine into a number.** "How bad
+would this be" and "how certain are we" are different questions, and a
+high-severity guess is not a proven fact. Evidence strength is
+`Heuristic → Correlated → Attested → Proven`, kept in its own type, and
+there is no confidence score anywhere.
 
-Agent logs are not evidence. Observability tells you *what happened*;
-identity systems control *who can act*. Neither proves, after the fact and
-to a skeptical third party, **which delegated authority an autonomous action
-descended from** — the question auditors, regulators, and counterparties ask
-when something goes wrong. AIP answers it with cryptography instead of trust.
+**Absence of evidence is never evidence of absence.** If the observer was
+not watching, the answer is `CANNOT_PROVE` — not "it didn't happen".
+Exactly one coverage state licenses a statement about something *not*
+having occurred, and reaching it requires attested kernel-pushed coverage
+of the exact window.
 
-## See it in 60 seconds
+---
+
+## Capability tiers
+
+Read this section as the answer to "what can I actually rely on today".
+
+### CURRENTLY IMPLEMENTED
+
+Working code with tests, in this repository.
+
+| Capability | Where |
+|---|---|
+| Identity, scoped tokens, delegation chains with per-hop signatures and lattice scope attenuation | `aip-core` |
+| Injective canonical encoding, 26 distinct domain-separated signed structures | `aip-types`, all crates |
+| EvidencePacket v1 and its 16-rule verification engine | `aip-protocol` |
+| Independent decision point producing signed `ExpectedExecution` | `aip-authorize` |
+| Kernel observation: socket state, process fork/exec, socket send, `AF_PACKET` headers, fanotify file writes | `aip-observe` |
+| Keyless on-host probe with off-host collector attestation | `aip-observe` |
+| Explicit observer health and continuity, with four named break kinds | `aip-observe` |
+| Reconciliation engine, eight result classes, `CANNOT_PROVE` by default | `aip-reconcile` |
+| Warrant engine over severity × evidence strength × policy | `aip-warrant` |
+| Containment gates, cgroup v2 freeze actuator, signed containment records | `aip-containment` |
+| Merkle commitment with inclusion and consistency proofs, signed heads | `aip-nexora` |
+| Private-key custody: a custodian that signs without surrendering, passphrase-wrapped at rest | `aip-crypto`, `aip-observe` |
+| Bundle signer anchoring: a valid signature and a trusted signer reported separately | `aip-protocol`, `aip-verify` |
+| Portable proof package, export/import, replay ledger | `aip-nexora` |
+| Offline verifier (`nexora-verify`) that re-derives rather than believes | `aip-nexora` |
+
+### VALIDATED
+
+Demonstrated end-to-end on a real kernel, not only unit-tested.
+
+- A real agent process makes a real authorised TCP connection; the kernel's
+  socket table is read under a pidfd anchor, attested off-host, and
+  reconciled by the engine — `ghost-demo/tests/live.rs`, and the same
+  through kernel tracepoints, socket-send, exec and fanotify.
+- That live result is packaged as a NEXORA proof, written to disk with
+  every runtime value dropped, and verified by a **separate process**
+  holding nothing but the file and its own anchors —
+  `ghost-demo/tests/live_nexora.rs`.
+- Eight mutations of that live package are each refused offline.
+- A live execution that did not happen reconciles as `CANNOT_PROVE` and
+  stays `CANNOT_PROVE` through the proof layer — never `PHANTOM_CLAIM`.
+- 22 adversarial cases against the proof layer, plus a cross-crate audit of
+  every signature, hash and encoding it depends on.
+- Live evidence is reported as **`Attested`**, and the tests assert it is
+  **not `Proven`**.
+
+### PILOT-CAPABLE
+
+Usable in a controlled pilot with a knowledgeable operator, on Linux.
+
+- Single-host observation with an off-host collector.
+- Offline verification of exported proofs on a disconnected machine.
+- Advisory findings: alerting on reconciliation results, with the evidence
+  and its strength attached.
+
+Not suitable for unattended production. The APIs will change.
+
+### DEPLOYMENT-DEPENDENT
+
+Real capabilities whose value depends entirely on how they are deployed.
+
+- **Observer independence** — the collector's key must genuinely be off the
+  observed host. Run it on the same host and the guarantee is gone.
+- **Trust anchors** — verification proves consistency with the keys the
+  verifier chose. Provisioning them correctly, out of band, is the
+  operator's job, and the anchor file this repository writes says so in its
+  own text.
+- **Revocation** — `revoked_jtis` is a list the operator hands the
+  verifier. There is no distribution mechanism.
+- **Key custody** — keys are software-held. `aip-crypto::custody` provides a
+  passphrase-wrapped file backend (Argon2id + XChaCha20-Poly1305, mode
+  0600) whose custodian signs without returning key material, and
+  `aip-observe` owns the collector key's custody. What protects the
+  passphrase is a deployment decision this repository does not make, and
+  anyone who can read the running process's memory has the decrypted key —
+  which is what a hardware backend would address and it is not
+  implemented. See `docs/adr/ADR-KEY-CUSTODY.md`.
+- **Bundle attribution** — a bundle's signature is checked against the
+  key it carries (integrity) *and* against the verifier's own anchor set
+  (attribution). Supply `--trust-bundle-signer` or the bundle is reported
+  as unattributed rather than trusted.
+
+### NOT YET IMPLEMENTED
+
+Named here so nobody has to guess.
+
+- External anchoring of the commitment head. Without it, a party
+  controlling both the log and its archive can truncate history.
+- Kernel-resident sensing: no eBPF, no XDP, no in-kernel programs.
+- Packet payload inspection. The wire tap reads headers only.
+- Post-quantum or hybrid signatures. Two algorithm identifiers exist in the
+  type and are **refused**, not implemented.
+- Hardware-backed key custody or hardware attestation. Custody is software
+  only, and a protected key would establish *who signed* — never that what
+  was signed is true.
+- Autonomous containment (see below).
+- Any hosted service, SDK ecosystem, or console.
+
+---
+
+## The honest note about containment
+
+The containment layer is built, gated seventeen ways, and **unreachable
+from real evidence** — deliberately.
+
+Containing a workload requires `Proven` evidence. The reconciliation engine
+produces every workload-facing result at `Attested`, because its sources
+(`/proc` content, socket-table reads, kernel event streams) are attested
+observations of a host's own reporting rather than facts a verifier can
+independently recompute. The one result it produces at `Proven` is a
+sensor-integrity failure — aimed at the observer, capped below containment,
+because freezing a workload when a sensor fails is the wrong response to
+the wrong party.
+
+We could have made containment reachable by calling attested evidence
+proven. That is precisely the substitution this architecture exists to
+prevent, so we did not.
+`aip-containment/tests/reachability.rs` proves the gap over the engine's
+entire producible set, under the most permissive policy an operator could
+write, and fails if it ever closes silently.
+`docs/architecture/CONTAINMENT_MODEL.md` §10 records what would change the
+answer.
+
+**This system cannot autonomously contain a misbehaving agent today, and no
+configuration changes that.**
+
+---
+
+## Defense and Sovereign Deployment
+
+The architecture is designed for environments where the network is not
+available, not trusted, or not there. **These are deployment targets. None
+of them has been validated in its corresponding environment**, and this
+section is a description of the design, not a claim of field readiness.
+
+The operational model assumes connectivity is a bonus:
+
+```text
+edge / mission system → local autonomous intelligence → AIP identity
+  → authority → ExpectedExecution → Sniffer Dog → off-host attestation
+  → local reconciliation → warrant → local enforcement → NEXORA proof
+  → offline / delayed verification → central system when the link returns
+```
+
+**Disconnected operation.** Nothing in the evidence path requires a cloud
+service, a directory, or a clock server. There is no mandatory cloud
+dependency anywhere in this repository.
+
+**Air-gapped verification.** A proof is a file. The verifier opens no
+socket, contacts no service, reads no database, and needs no relationship
+to the system that produced it — this is tested by running it as a separate
+process with two file paths and nothing else. Trust anchors travel
+separately and by a different route, because a verifier that takes its keys
+from beside the artifact has verified nothing.
+
+**Edge autonomy.** Reconciliation, warrant evaluation and containment
+decisions are local. A severed link degrades what can later be *proven to
+others*; it does not stop the local pipeline from producing evidence.
+
+**Delayed synchronisation.** Proofs are durable and order-independent. A
+package produced today verifies identically in a decade — and the verifier
+reports separately whether the authority behind it has since expired,
+because a true statement about the past is not permission to act now.
+
+**Hostile networks.** The wire is not trusted at any point: every record is
+signed at rest by the party responsible for it, and the transport carries
+nothing that verification depends on.
+
+Deployment targets under consideration — **not validated**: mission
+systems, robotics, uncrewed vehicles, industrial autonomy, sovereign AI
+deployments, and critical infrastructure. Each has environmental,
+certification and safety requirements this repository has not been tested
+against.
+
+---
+
+## What must not be claimed
+
+Stated plainly because the temptation runs the other way:
+
+- production readiness, or readiness for field deployment
+- post-quantum cryptography, or any hybrid signature scheme
+- hardware-backed security, hardware attestation, or hardware roots of trust
+- kernel-resident sensing (eBPF, XDP), packet capture, or payload inspection
+- universal observation, complete coverage, or zero event loss
+- resistance to root compromise of the observed host
+- externally anchored history, or truncation resistance
+- autonomous containment of a misbehaving agent
+- deterministic replay of any model's internal reasoning
+- any TRL, throughput figure, latency guarantee, or comparison to another
+  system
+
+---
+
+## See it run
 
 ```bash
 cd aip-standalone
+
+# The original evidence-packet demo, with tamper detection.
 cargo run -p banking-demo
-```
 
-The demo builds the full CFO → delegation → payment → countersigned-ledger
-flow, verifies the packet at the `COUNTERPARTY_SIGNED` trust floor, then
-tampers with the payment amount (twice — the second attacker also fixes the
-hash) and shows verification failing on the exact rules that caught it.
-Every check is real Ed25519/SHA-256; the demo exits non-zero if any honest
-check fails or any tamper goes undetected.
+# Live kernel observation and reconciliation (Linux; needs procfs + pidfd).
+cargo test -p ghost-demo --test live
 
-## What's in the box
+# A live execution, packaged as a proof and verified in a separate process.
+cargo test -p ghost-demo --test live_nexora
 
-| Crate | What it is | Maturity |
-|---|---|---|
-| **`aip-protocol`** | **EvidencePacket v1**, the 14-rule verification engine, the accountability graph (Human→Authority→Agent→Decision→Action→Receipt) | MVP, tested |
-| `aip-core` | Delegation chains (per-hop signatures, lattice scope attenuation, depth limits), capability scopes, cascade revocation, hash-chained scoped audit | MVP, tested |
-| `aip-crypto` | Ed25519, SHA-256, Base58 AIP-ID derivation with checksum | Stable |
-| `aip-types` | Wire-format data structures | Stable |
-| `banking_demo` | End-to-end design-partner demo with tamper detection | Demo |
-| `aip-cli` | Local identity/signing utilities | Prototype |
-| `aip-service` | Reference HTTP prototype — **no auth, single-node; not for production** | Prototype |
-| reputation / hardware-attestation / liveness modules | **Experimental** — see `AUDIT_CORRECTIONS.md` | Experimental |
-
-## Core guarantees (implemented and tested)
-
-1. **Tamper evidence.** `packet_hash = SHA-256(canonical bytes)`; the agent
-   signs it. Any post-sealing modification — including of embedded
-   delegation signatures — is detected.
-2. **Authority binding.** The delegation chain verifies per hop: signature,
-   parent linkage, depth, and scope attenuation (a child scope can never
-   exceed its parent — lattice MEET).
-3. **Scope enforcement.** The decision and every action must fall inside the
-   effective (most-attenuated) scope, or verification fails.
-4. **Bilateral evidence.** External systems countersign receipts, bound to
-   the specific decision — evidence both sides can rely on in a dispute.
-5. **Derived trust.** Verifiers compute the trust floor
-   (`UNVERIFIED → AGENT_SIGNED → AUTHORITY_BOUND → COUNTERPARTY_SIGNED`)
-   from the evidence; claims above the evidence fail.
-
-## Using the library
-
-```rust
-use aip_protocol::{EvidencePacketBuilder, VerificationContext, verify_packet};
-
-// Agent side: seal evidence for an action it just performed.
-let packet = EvidencePacketBuilder::new(agent_identity, root_authority)
-    .delegation_chain(chain)
-    .decision(decision)
-    .action(signed_action)
-    .receipt(countersigned_receipt)
-    .claimed_trust_floor(TrustFloor::CounterpartySigned)
-    .build_and_sign(&agent_private_key)?;
-
-// Auditor side: verify against keys *you* trust.
-let ctx = VerificationContext::new()
-    .trust_issuer(&cfo_id, &cfo_public_key)
-    .trust_issuer(&orchestrator_id, &orch_public_key)
-    .trust_counterparty("ledger.example-bank.com", &ledger_public_key);
-let report = verify_packet(&packet, &ctx);
-
-assert!(report.valid);
-println!("{}", report.to_json()?); // {"valid":true,"trust_floor":"COUNTERPARTY_SIGNED",...}
+# Verify a proof offline, by hand.
+cargo build -p aip-nexora --bin nexora-verify
+./target/debug/nexora-verify --proof proof.json --anchors anchors.json \
+    --max-health-age-ms 3600000 --max-window-tolerance-ms 0
 ```
 
 ## Build & test
@@ -105,27 +285,51 @@ println!("{}", report.to_json()?); // {"valid":true,"trust_floor":"COUNTERPARTY_
 ```bash
 cd aip-standalone
 cargo build --workspace
-cargo test  --workspace            # full suite
-cargo test  --workspace --release  # includes wall-clock throughput gates
-cargo run   -p banking-demo
+cargo test  --workspace
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo fmt --all -- --check
+
+cd ../aip-service   # a separate root; the workspace run does not cover it
+cargo test
 ```
+
+Measured on one 4-vCPU virtual machine, release build: a proof of one
+authorised action is ~10.3 kB and verifies cold — parse plus six signature
+checks — in ~630 µs. Nothing is known about behaviour at scale, and these
+figures are not a specification.
 
 ## Documents
 
-- [`AIP_SPEC.md`](AIP_SPEC.md) — the open EvidencePacket specification
-  (format, verification rules, delegation semantics, trust floors).
-- [`ROADMAP.md`](ROADMAP.md) — console, SDKs, framework integrations,
-  Evidence Vault.
+Start here if you are doing diligence:
+
+- [`docs/architecture/NEXORA_IMPLEMENTATION_REPORT.md`](docs/architecture/NEXORA_IMPLEMENTATION_REPORT.md)
+  — the proof layer, its limitations (§12) and what must not be claimed
+  about it (§13).
+- [`docs/architecture/FINAL_AUDIT_RECONCILIATION.md`](docs/architecture/FINAL_AUDIT_RECONCILIATION.md)
+  — every audit finding, classified FIXED / PARTIALLY FIXED / REMAINING /
+  ACCEPTED, including three the work found itself.
+- [`docs/architecture/SECURITY_INVARIANTS.md`](docs/architecture/SECURITY_INVARIANTS.md)
+  — each invariant with the named test that fails if it stops holding.
+- [`docs/architecture/CONTAINMENT_MODEL.md`](docs/architecture/CONTAINMENT_MODEL.md)
+  — why enforcement is deliberately unreachable.
+- [`docs/architecture/SNIFFER_DOG_PLAIN_ENGLISH.md`](docs/architecture/SNIFFER_DOG_PLAIN_ENGLISH.md)
+  — the same system without the jargon, including what it does not do.
+- [`docs/IP/INVENTION_REGISTER.md`](docs/IP/INVENTION_REGISTER.md)
+  — the distinctive mechanisms, each with its own disclosure status.
+- [`AIP_SPEC.md`](AIP_SPEC.md) — the EvidencePacket specification.
 - [`AUDIT_CORRECTIONS.md`](AUDIT_CORRECTIONS.md) — what this repository
-  previously overstated and what was done about it. Trust is a product
-  feature; read this first if you're doing diligence.
+  previously overstated and what was done about it.
 
 ## Status, honestly
 
-This is an MVP accountability layer with a tested cryptographic core. It is
-not yet: a hosted service, an SDK ecosystem, or an enterprise product. The
-spec is v0.1-draft and the APIs will change. What it *is*: every claim in
-this README is backed by code you can run and tests you can read.
+A tested evidence architecture with an offline-verifiable proof layer. Not
+a product, not a hosted service, not an SDK ecosystem. The APIs will change
+and the spec is a draft.
+
+What it is: for every consequential claim there is an implementation, a
+stated invariant, an adversarial test, runtime evidence, an independent
+verification path, and an explicit failure mode. Where one of those is
+missing, the documents say so instead of the README claiming otherwise.
 
 ## License
 
@@ -133,6 +337,9 @@ Core protocol and reference implementation: proprietary
 (owner: **K. NAGA SRI GANESH**) — **open-sourcing of the spec and core
 crates is planned**; see `ROADMAP.md`. Patent matters: provisional filings
 exist covering delegation-bound audit binding; see `reports_and_patents/`
-(attorney working documents).
+(attorney working documents). The mechanisms in
+`docs/IP/INVENTION_REGISTER.md` carry their own disclosure status, and none
+of them is asserted to be patentable — that requires prior-art search and
+counsel.
 
 © 2025–2026 K. NAGA SRI GANESH.
