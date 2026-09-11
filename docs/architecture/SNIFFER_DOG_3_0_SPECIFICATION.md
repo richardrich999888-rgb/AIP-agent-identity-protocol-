@@ -37,6 +37,39 @@ decides syscalls. `aip-interlock` decides whether an actuator may be
 energised. **None of them can write into another**, and each of the two new
 crates carries a test that reads its own manifest to keep it that way.
 
+## 1a. Lineage — which "Sniffer Dog" this is built on
+
+There are two things in this repository's history that a reader may call
+Sniffer Dog, and 3.0 is built on exactly one of them.
+
+| | `ot-sentinel` | `aip-observe` (Sniffer Dog 2.0) |
+|---|---|---|
+| where | `import/orbitaltrust-accountability-layer` only (PR #3, one commit `6cc439f`, imported from ASC-space). **Not on `main`, not on the production branch.** | production branch; merged into this branch at `429939a` |
+| what it reads | **application-layer JSONL logs** the surrounding system writes — a tool server's access log, an egress proxy's log, an exec audit trail (`sensors.rs`). Zero uses of `perf_event_open`, netlink, tracepoints or procfs | **kernel-pushed sources**: `sched`/`sock` tracepoints via `perf_event_open`, the netlink process connector, `fanotify`, the `AF_PACKET` tap, pidfd-anchored procfs |
+| who authors the content | the writing process, from its own program | the kernel, from its own state |
+| key | the sentinel signs its own findings on the host | keyless probe on the host; collector signs off-host |
+| tests reproducible here | 82 lib unit tests; the 31 `ghost_hunt` scenarios **do not build** (depend on `ot-mcp-gateway` / `ot-pqc`, absent from the import) | full workspace suite, plus sealed live validation runs |
+| uses the name "Sniffer Dog" | never — zero occurrences on that branch | yes |
+
+**`ot-sentinel` is the ancestor, not the base.** The production branch
+already put it through `OT_SENTINEL_HARVEST_AUDIT.md` (Phases 0–3, with
+builds and tests reproduced in a scratch workspace) and harvested what
+survived the gates: its response policy became `aip-warrant`; its four-way
+continuity audit (Amnesia / RolledBack / Forked / ArchiveTruncated) became
+the collector's `ContinuityBreak` taxonomy; its graph resolution was rebuilt
+over signed chains. Its **log-tailing sensors were deliberately fenced out
+as observation** by `APPLICATION_LOG_SENSOR_DECISION.md` (Gate 5, DECIDED):
+an application, database or proxy record is a statement written by a
+host-side process about itself — a witness's claim, `Claimed` at best, with
+no loss signal the observer can trust — and it may never produce, upgrade
+or lower a verdict, never count as coverage. The gateway was rejected as
+code (unbuildable, a second evidence model) and kept as deployment design.
+
+So: 3.0 sits on the kernel-observing 2.0, which is the only lineage with an
+off-host key and a trustworthy loss signal. Nothing of `ot-sentinel` that
+was not already harvested is re-imported here, and in particular its log
+sensors are not a 3.0 tier — the decision that excludes them stands.
+
 ## 2. Tier status
 
 | tier | crate | what it does | status | evidence |
