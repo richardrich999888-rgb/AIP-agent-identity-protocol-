@@ -69,6 +69,10 @@ members = [
     # carries a test that reads its own manifest to keep it that way.
     "aip-standalone/aip-enforce",
     "aip-standalone/aip-interlock",
+    # Shown-versus-authorized: the only workload-directed divergence class in
+    # the system whose basis is arithmetic over two signed artifacts rather
+    # than content read from the observed host (ADR-009).
+    "aip-standalone/aip-approval",
     # ── tooling, demos and test harnesses ──────────────────────────────
     "aip-standalone/ghost-demo",
     "aip-standalone/aip-test",
