@@ -6,6 +6,27 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (committed verdicts — SD-10)
+- **Signed verdicts committed to NEXORA, verifiable offline.** New
+  `LeafKind::SignedReconciliation` (code `0x0a`, appended; earlier codes
+  frozen) commits `SignedReconciliation::canonical_bytes()` — the verdict
+  *plus* the reconciler's signature, under its own domain
+  (`SYNTRIASS/GHOST/SIGNED_RECONCILIATION/v1`, distinct from the signing
+  preimage's) so stored bytes can never pose as something the reconciler
+  signed. `aip_nexora::commit_signed_verdict` appends one;
+  `aip_nexora::verify_committed_verdict` lets a party holding only the proof,
+  the signed verdict and its own anchors establish, in order: the reconciler's
+  attestation (reconciler anchors), the inclusion under an anchored head
+  (NEXORA anchors), that the leaf is a signed-verdict leaf (a bare verdict
+  relabelled is refused), and that the committed bytes are *this* verdict's,
+  recomputed from the struct — never trusted from the proof. Result and
+  strength are carried verbatim, never raised. Both new domains registered in
+  the Gate-13 domain audit (now 28, prefix-free). Tests over real-engine
+  verdicts: bare-leaf relabel, proof-for-another-verdict, untrusted reconciler,
+  post-commit tamper, unanchored head, and preimage/commit domain separation.
+  Closes SD-10; SD-11 (signed verdict inside `NexoraProof`, a version bump)
+  and SD-12 (`nexora-verify` surface) remain.
+
 ### Added (reconciliation attestation — SD-09)
 - **Signed reconciliation verdicts.** `aip-reconcile` gains a fourth authority
   that signs its verdict: `ReconcilerSigner` (custody-based, so the key may be

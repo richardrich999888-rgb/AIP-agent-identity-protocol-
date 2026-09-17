@@ -221,9 +221,18 @@ Stated as assumptions, because that is what they are.
    `SignedReconciliation`, verified offline against `ReconcilerTrustAnchors`
    the verifier supplies (`aip-reconcile/src/attest.rs`, adversarial tests +
    a real-engine end-to-end test in `ghost-demo/tests/signed_verdict.rs`).
-   Signing attributes the verdict; it never strengthens it. **Wiring the
-   signed verdict into the NEXORA commitment (SD-10) is the next step** — the
-   capability exists; automatic commit does not yet.
+   Signing attributes the verdict; it never strengthens it. **SD-10 is also
+   closed:** `aip_nexora::commit_signed_verdict` commits the signed verdict as
+   its own leaf kind (`LeafKind::SignedReconciliation`, code `0x0a`), and
+   `aip_nexora::verify_committed_verdict` lets an offline party check, from
+   the proof, the signed verdict and its own anchors alone, both that it was
+   committed under an anchored head and which reconciler key vouches for it —
+   binding the two by recomputing the committed bytes from the struct it holds
+   (`aip-nexora/src/committed.rs`, `tests/committed_verdict.rs`). What remains
+   is **SD-11**: carrying the signed verdict *inside* the `NexoraProof` bundle
+   (a wire change to the proof object, so a version bump), and **SD-12**:
+   surfacing it in `nexora-verify`. Nothing commits verdicts automatically in
+   a running pipeline yet; the demonstrator does not persist.
 4. **Nothing feeds NEXORA automatically, and nothing persists it.**
 5. **`UNATTRIBUTED_EFFECT` is unreachable** until the decision point emits
    signed coverage statements.
@@ -370,11 +379,13 @@ unmeasured.
 
 Ordered by what unblocks the most.
 
-1. **Signed reconciliation records (SD-09) — DONE.** A fourth signer over the
-   verdict (`aip_reconcile::attest`), so a committed record's origin is
-   checkable. The remaining work it unblocks is **SD-10**: feed the
-   `SignedReconciliation` into the NEXORA commitment automatically (nothing
-   commits it yet), then SD-11/SD-12.
+1. **Signed and committed reconciliation records (SD-09, SD-10) — DONE.** A
+   fourth signer over the verdict (`aip_reconcile::attest`), and a NEXORA leaf
+   kind plus offline verifier for it (`aip_nexora::committed`), so a committed
+   verdict's origin is checkable by a third party. Remaining: **SD-11** (carry
+   the `SignedReconciliation` inside the `NexoraProof` bundle — a proof-object
+   wire change, so a version bump) and **SD-12** (expose it in
+   `nexora-verify`).
 2. **Decision-point coverage statements** — the signed "no expectation
    exists for this window" that `UNATTRIBUTED_EFFECT` requires.
 3. **A collector deployment** — an authenticated probe → collector

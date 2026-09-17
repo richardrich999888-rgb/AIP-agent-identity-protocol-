@@ -47,6 +47,7 @@ pub use action::{
 pub use attest::{
     ReconcilerSigner, ReconcilerTrustAnchors, ReconciliationAttestationError, SignedReconciliation,
     RECONCILIATION_ATTESTATION_DOMAIN, RECONCILIATION_ATTESTATION_VERSION,
+    SIGNED_RECONCILIATION_DOMAIN,
 };
 pub use ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};
 pub use inputs::{

@@ -9,6 +9,7 @@
 
 pub mod capability;
 pub mod commitment;
+pub mod committed;
 pub mod export;
 pub mod merkle;
 pub mod proof;
@@ -20,6 +21,9 @@ pub use commitment::{
     verify_proof, verify_signed_head, Advance, AnchorSink, CommitmentLog, HeadTracker,
     MemoryAnchor, NexoraError, NexoraSigner, NexoraTrustAnchors, ProofObject, SignedHead,
     VerifiedInclusion, HEAD_DOMAIN, NEXORA_VERSION, PROOF_DOMAIN,
+};
+pub use committed::{
+    commit_signed_verdict, verify_committed_verdict, CommittedVerdict, CommittedVerdictError,
 };
 pub use merkle::{
     leaf_hash, root_of, verify_consistency, verify_inclusion, ConsistencyProof, InclusionProof,

@@ -38,7 +38,7 @@ use std::collections::HashMap;
 
 use aip_crypto::custody::{Custodian, CustodyError, InMemoryCustodian};
 use aip_crypto::{sha256, verify_ed25519};
-use aip_types::canonical::{put_bytes, put_domain, put_str, put_u16, put_u32};
+use aip_types::canonical::{encode_signature, put_bytes, put_domain, put_str, put_u16, put_u32};
 use aip_types::Signature;
 use serde::{Deserialize, Serialize};
 
@@ -52,6 +52,12 @@ pub const RECONCILIATION_ATTESTATION_DOMAIN: &str = "SYNTRIASS/GHOST/RECONCILIAT
 /// Version of the attestation envelope. Bumped only if the preimage layout
 /// changes; the wrapped [`Reconciliation`] carries its own version.
 pub const RECONCILIATION_ATTESTATION_VERSION: u16 = 1;
+
+/// Domain tag for the **committed** encoding of a [`SignedReconciliation`] —
+/// the bytes NEXORA stores as a leaf (SD-10). Distinct from the *signing*
+/// preimage domain above: the committed record includes the signature, and
+/// its bytes must never be presentable as something the reconciler signed.
+pub const SIGNED_RECONCILIATION_DOMAIN: &str = "SYNTRIASS/GHOST/SIGNED_RECONCILIATION/v1";
 
 /// A reconciliation verdict signed by an independent reconciler authority.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -102,6 +108,30 @@ impl SignedReconciliation {
     /// verdict must verify first; reading it does not imply it was checked.
     pub fn reconciliation(&self) -> &Reconciliation {
         &self.reconciliation
+    }
+
+    /// The **committed** encoding (SD-10): what NEXORA stores as a leaf. It is
+    /// the signing preimage's fields *plus* the signature envelope, under its
+    /// own domain ([`SIGNED_RECONCILIATION_DOMAIN`]), so the stored bytes carry
+    /// the attribution and can never be mistaken for a signing preimage.
+    /// Injective: every variable-length part is length-prefixed via
+    /// `aip_types::canonical`. A verifier holding the struct recomputes these
+    /// bytes and matches them against the committed leaf — it never trusts the
+    /// leaf's bytes on their own.
+    pub fn canonical_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::new();
+        put_domain(&mut buf, SIGNED_RECONCILIATION_DOMAIN);
+        put_u16(&mut buf, self.version);
+        put_str(&mut buf, &self.reconciler_id);
+        put_u32(&mut buf, self.key_version);
+        put_bytes(&mut buf, &self.reconciliation.canonical_bytes());
+        encode_signature(&mut buf, &self.attestation);
+        buf
+    }
+
+    /// SHA-256 of [`canonical_bytes`](Self::canonical_bytes).
+    pub fn digest(&self) -> [u8; 32] {
+        sha256(&self.canonical_bytes())
     }
 
     /// Verify against anchors the **verifier** supplies (never keys carried in

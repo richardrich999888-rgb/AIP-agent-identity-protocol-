@@ -38,7 +38,7 @@ use aip_nexora::verify::*;
 /// Every domain-separation tag in the workspace, gathered from the crate
 /// that owns it. Adding a signed structure without adding it here is
 /// caught by `a01`, which counts them.
-const DOMAINS: [&str; 26] = [
+const DOMAINS: [&str; 28] = [
     aip_types::EXECUTION_BINDING_DOMAIN,
     aip_types::EXECUTION_IDENTITY_DOMAIN,
     aip_core::AID_SELF_SIGNATURE_DOMAIN,
@@ -58,6 +58,8 @@ const DOMAINS: [&str; 26] = [
     aip_observe::CONTINUITY_REPORT_DOMAIN,
     aip_reconcile::RECONCILIATION_DOMAIN,
     aip_reconcile::DECISION_POINT_COVERAGE_DOMAIN,
+    aip_reconcile::RECONCILIATION_ATTESTATION_DOMAIN,
+    aip_reconcile::SIGNED_RECONCILIATION_DOMAIN,
     aip_warrant::WARRANT_DOMAIN,
     aip_containment::CONTAINMENT_DOMAIN,
     aip_nexora::LEAF_DOMAIN,

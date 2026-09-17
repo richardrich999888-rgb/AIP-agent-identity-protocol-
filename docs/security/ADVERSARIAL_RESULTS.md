@@ -156,8 +156,31 @@ signed and verified offline against caller-supplied anchors; mutation, identity
 or key-version swaps, foreign-key re-signing, domain confusion, and version
 downgrade are each refused. The signature attributes the verdict and never
 strengthens it.* Bound, stated: attribution is only as trustworthy as the
-reconciler key's custody (wrapped-file today; HSM is future), and **nothing
-commits the signed verdict to NEXORA automatically yet — SD-10**.
+reconciler key's custody (wrapped-file today; HSM is future).
+
+### CV — committed verdicts (SD-10)
+
+**Claim targeted.** *"A third party holding only an inclusion proof, the signed
+verdict and its own anchors can establish that this exact attributed verdict
+was committed under an anchored NEXORA head."* Executed as tests in
+`aip-nexora/tests/committed_verdict.rs` over real-engine verdicts.
+
+| id | attacker | attack | result |
+|----|----------|--------|--------|
+| CV-01 | — (control) | commit a signed real verdict; verify offline | verifies; result/strength carried verbatim |
+| CV-02 | forger | present a bare `Reconciliation` leaf (old kind) as an attributed verdict | **DETECTED** — `WrongLeafKind(Reconciliation)` |
+| CV-03 | forger | offer a valid proof for verdict A with signed verdict B | **DETECTED** — `RecordMismatch` (bytes recomputed from the struct, not read from the proof) |
+| CV-04 | forger, no anchored key | verdict from a reconciler the verifier does not anchor | **DETECTED** — `Attestation(UntrustedReconciler)`, refused before the log is consulted |
+| CV-05 | forger | relabel a committed verdict's `result` after commit | **DETECTED** — `Attestation(PayloadHashMismatch)` |
+| CV-06 | forger | proof under a NEXORA head the verifier does not anchor | **DETECTED** — `Commitment(..)` |
+| CV-07 | — (property) | committed bytes vs. signing preimage vs. bare verdict bytes | all three distinct — domain separation is load-bearing |
+
+**Revised claim.** *An attributed verdict can be committed and checked offline;
+relabelling a bare leaf, binding a proof to a different verdict, an
+unanchored reconciler or head, and post-commit tampering are each refused.*
+Bounds: the log's truncation resistance still rests on an **external anchor
+for heads** (a deployment property, unbuilt), and **nothing commits verdicts
+automatically in a running pipeline** — SD-11/SD-12 remain.
 
 ---
 

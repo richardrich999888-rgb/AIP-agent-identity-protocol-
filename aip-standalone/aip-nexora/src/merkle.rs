@@ -61,6 +61,12 @@ pub enum LeafKind {
     /// checks one artefact rather than trusting a round-trip. The kind code
     /// keeps an AIRI event from being replayed as any other leaf.
     AiriEvent,
+    /// A `SignedReconciliation`'s committed canonical bytes (SD-10): the
+    /// verdict **plus** the reconciler's signature over it, so a committed
+    /// verdict's origin is checkable offline. `Reconciliation` (0x01) commits
+    /// the bare verdict; this commits the attributed one. Distinct codes keep
+    /// one from being presented as the other.
+    SignedReconciliation,
 }
 
 impl LeafKind {
@@ -75,12 +81,13 @@ impl LeafKind {
             LeafKind::ContainmentRecord => 0x07,
             LeafKind::ProofBundle => 0x08,
             LeafKind::AiriEvent => 0x09,
+            LeafKind::SignedReconciliation => 0x0a,
         }
     }
 
     /// Codes 0x01–0x05 are frozen: a leaf committed before Skill 10 keeps
     /// verifying. New kinds append.
-    pub const ALL: [LeafKind; 9] = [
+    pub const ALL: [LeafKind; 10] = [
         LeafKind::Reconciliation,
         LeafKind::AttestedBatch,
         LeafKind::SignedHealth,
@@ -90,6 +97,7 @@ impl LeafKind {
         LeafKind::ContainmentRecord,
         LeafKind::ProofBundle,
         LeafKind::AiriEvent,
+        LeafKind::SignedReconciliation,
     ];
 }
 
