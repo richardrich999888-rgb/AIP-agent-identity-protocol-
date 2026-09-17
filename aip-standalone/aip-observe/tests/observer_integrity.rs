@@ -98,10 +98,12 @@ fn a_foreign_tracepoint_gate_makes_the_signed_state_integrity_unknown() {
     assert!(healthy.health.attested_coverage.is_some());
 
     // A foreign eBPF program is found gating the sampled tracepoint.
-    f.signer
-        .note_mechanism_integrity(MechanismIntegrity::ForeignTracepointGate {
+    f.signer.note_mechanism_integrity(
+        SourceMechanism::SchedTracepoint,
+        MechanismIntegrity::ForeignTracepointGate {
             foreign_programs: 1,
-        });
+        },
+    );
 
     let blinded = f.signer.health(500).unwrap();
     assert_eq!(
@@ -132,10 +134,12 @@ fn a_foreign_tracepoint_gate_makes_the_signed_state_integrity_unknown() {
 fn a_forger_with_the_key_cannot_relabel_integrity_unknown_as_active() {
     let mut f = fixture();
     warm_up_to_active(&mut f, SourceMechanism::ProcConnector);
-    f.signer
-        .note_mechanism_integrity(MechanismIntegrity::ForeignTracepointGate {
+    f.signer.note_mechanism_integrity(
+        SourceMechanism::SchedTracepoint,
+        MechanismIntegrity::ForeignTracepointGate {
             foreign_programs: 3,
-        });
+        },
+    );
     let blinded = f.signer.health(400).unwrap();
     assert_eq!(blinded.health.state, ObserverState::IntegrityUnknown);
 
@@ -164,18 +168,75 @@ fn a_forger_with_the_key_cannot_relabel_integrity_unknown_as_active() {
 fn integrity_recovers_on_the_next_clean_cycle() {
     let mut f = fixture();
     warm_up_to_active(&mut f, SourceMechanism::ProcConnector);
-    f.signer
-        .note_mechanism_integrity(MechanismIntegrity::ForeignTracepointGate {
+    f.signer.note_mechanism_integrity(
+        SourceMechanism::SchedTracepoint,
+        MechanismIntegrity::ForeignTracepointGate {
             foreign_programs: 1,
-        });
+        },
+    );
     assert_eq!(
         f.signer.health(400).unwrap().health.state,
         ObserverState::IntegrityUnknown
     );
-    // The gate is removed; the next check is clean. Integrity is not a
-    // permanent verdict (unlike quarantine): the observer reports Active again.
-    f.signer
-        .note_mechanism_integrity(MechanismIntegrity::Verified);
+    // The gate is removed; the next check of the same mechanism is clean.
+    // Integrity is not a permanent verdict (unlike quarantine): its slot
+    // clears and the observer reports Active again.
+    f.signer.note_mechanism_integrity(
+        SourceMechanism::SchedTracepoint,
+        MechanismIntegrity::Verified,
+    );
+    attest_batch(&mut f, 3, 300, 400, SourceMechanism::ProcConnector);
+    assert_eq!(
+        f.signer.health(500).unwrap().health.state,
+        ObserverState::Active
+    );
+}
+
+#[test]
+fn an_unverifiable_query_fails_closed_like_a_found_gate() {
+    // A refused kernel query (no CAP_PERFMON) is not evidence of a clean
+    // mechanism. It must fail closed identically to a found gate: the observer
+    // cannot vouch it was capable, so it signs IntegrityUnknown.
+    let mut f = fixture();
+    warm_up_to_active(&mut f, SourceMechanism::ProcConnector);
+    f.signer.note_mechanism_integrity(
+        SourceMechanism::SchedTracepoint,
+        MechanismIntegrity::Unverifiable,
+    );
+    assert_eq!(
+        f.signer.health(400).unwrap().health.state,
+        ObserverState::IntegrityUnknown,
+        "an unverifiable mechanism is not assumed clean"
+    );
+}
+
+#[test]
+fn a_clean_mechanism_does_not_mask_a_gated_one() {
+    // The single-slot defect: with one gated and one clean perf tracepoint,
+    // reporting the clean one second must not overwrite the gated finding.
+    // Order-independence is the property; assert it both ways.
+    let mut f = fixture();
+    warm_up_to_active(&mut f, SourceMechanism::ProcConnector);
+    f.signer.note_mechanism_integrity(
+        SourceMechanism::SockStateTracepoint,
+        MechanismIntegrity::ForeignTracepointGate {
+            foreign_programs: 1,
+        },
+    );
+    f.signer.note_mechanism_integrity(
+        SourceMechanism::SchedTracepoint,
+        MechanismIntegrity::Verified,
+    );
+    assert_eq!(
+        f.signer.health(400).unwrap().health.state,
+        ObserverState::IntegrityUnknown,
+        "a clean sched reading must not mask a gated socket-state reading"
+    );
+    // Only when the gated slot itself clears does the observer recover.
+    f.signer.note_mechanism_integrity(
+        SourceMechanism::SockStateTracepoint,
+        MechanismIntegrity::Verified,
+    );
     attest_batch(&mut f, 3, 300, 400, SourceMechanism::ProcConnector);
     assert_eq!(
         f.signer.health(500).unwrap().health.state,

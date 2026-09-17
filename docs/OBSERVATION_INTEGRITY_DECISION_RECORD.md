@@ -58,6 +58,39 @@ adversarial, incl. the re-signing forger); `aip-reconcile` `t03d`/`t03e`
 (a blinded observer cannot accuse); `validation/observation_integrity`
 reproduces the gate and now asserts the observer reports `integrity_unknown`.
 
+### Follow-up (2026-09-17): all three perf tracepoints, and the live pipeline
+
+The first cut of H closed the gate for the `sched` process tracepoints only.
+An adversarial pass (`docs/security/ADVERSARIAL_RESULTS.md`, OI-02/OI-03) found
+the two other perf-tracepoint sensors — `sock:inet_sock_set_state` and
+`sock:sock_send_length` — still went silently blind under the same no-op BPF
+gate: the socket-state sensor fell back to polled `Presence` with no integrity
+signal, and the send sensor was safe only by the coverage predicate, not by an
+observer-reported failure. Three defects, all now closed, none a wire change
+(`MechanismIntegrity` is not serialized; `ObserverState 0x06` already ships):
+
+- **Detector on every perf sensor.** `SockStateTracer::mechanism_integrity` and
+  `SockSendTracer::mechanism_integrity` join `ProcessTracer`'s, all three
+  routed through one fail-closed constructor
+  `MechanismIntegrity::from_foreign_program_query`.
+- **Per-mechanism collector state.** `note_mechanism_integrity` is keyed by
+  `SourceMechanism` (worst-of across sensors), so a clean reading for one
+  tracepoint can no longer overwrite a gated reading for another — the defect a
+  single global slot had.
+- **Honest `Unverifiable`.** A refused kernel query is
+  `MechanismIntegrity::Unverifiable`, distinct from a *found* gate, and fails
+  closed identically (both → `IntegrityUnknown`).
+- **Wired into the live pipeline.** `ghost-demo`'s `drain_kernel_events` now
+  feeds every open perf sensor's finding to the collector each cycle; the fix
+  is no longer exercised only inside the validation recorder. OI-04/OI-05 show
+  both gated socket sensors driving `CannotProve(ObserverIntegrityUnknown)`
+  through the real reconciler; OI-06 (no gate) still `VerifiedExecution`.
+
+Residual, unchanged by this follow-up and stated in the ledger: A3 (root/kernel
+compromise) defeats detection (option D/E/F, unbuilt); the observer state is
+global rather than per-action; a gate applied and cleared entirely between two
+drains is a TOCTOU a liveness canary (option C) would narrow.
+
 ## What any mitigation must preserve
 
 Non-negotiable, because the finding does not justify weakening them:

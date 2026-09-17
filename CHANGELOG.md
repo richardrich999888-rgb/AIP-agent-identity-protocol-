@@ -30,6 +30,26 @@ versioning is [SemVer](https://semver.org/).
   `docs/OBSERVATION_MECHANISM_INDEPENDENCE.md`,
   `docs/OBSERVATION_INTEGRITY_DECISION_RECORD.md`; reproduction in
   `validation/observation_integrity/`.
+- **Observer integrity boundary — extended to every perf sensor and wired
+  live.** The first cut detected the foreign tracepoint gate only on the
+  `sched` process tracepoints. An adversarial pass found
+  `sock:inet_sock_set_state` and `sock:sock_send_length` still went silently
+  blind. Now closed, fail-safe and monotone, with no wire change
+  (`MechanismIntegrity` is not serialized; state code `0x06` already ships):
+  - `SockStateTracer::mechanism_integrity` and
+    `SockSendTracer::mechanism_integrity` added, all three perf sensors routed
+    through one fail-closed `MechanismIntegrity::from_foreign_program_query`.
+  - New `MechanismIntegrity::Unverifiable` for a refused kernel query, distinct
+    from a *found* gate and failing closed identically.
+  - `CollectorSigner::note_mechanism_integrity` is keyed per `SourceMechanism`
+    (worst-of), so a clean reading cannot mask a gated one; state self-heals
+    when the gated mechanism clears.
+  - The detector is wired into `ghost-demo`'s live drain, not only the
+    validation recorder.
+  - New adversarial ledger `docs/security/ADVERSARIAL_RESULTS.md`; live
+    before/after evidence sealed under
+    `validation/observation_integrity/results/20260917T_*` via
+    `validation/observation_integrity/pipeline_under_gate.sh`.
 
 ### Added
 - **Signed audit-export bundle.** `GET /v1/evidence/{id}/export` returns a

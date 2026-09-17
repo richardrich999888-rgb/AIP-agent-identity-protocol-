@@ -1,0 +1,66 @@
+{
+  "experiment": "OBSERVATION-INTEGRITY-002: foreign-eBPF tracepoint gate on the socket sensors, driven through the real ghost-demo pipeline (agent + CollectorSigner + reconciler)",
+  "kernel": "6.18.44-fc-v33",
+  "gates_tested": [
+    "sock/inet_sock_set_state (T-P connect transition)",
+    "sock/sock_send_length (S-P send)"
+  ],
+  "pre_fix": {
+    "tree": "50dca61 (sched-only integrity fix; sock sensors unchecked)",
+    "tp_gated": {
+      "arm": "tp_gated",
+      "gated_tracepoint": "sock/inet_sock_set_state",
+      "test_exit_code": 101,
+      "test_passed": false,
+      "result": "FAILED",
+      "reason": null,
+      "availability": null,
+      "observer_state_in_log": null
+    },
+    "sp_gated": {
+      "arm": "sp_gated",
+      "gated_tracepoint": "sock/sock_send_length",
+      "test_exit_code": 101,
+      "test_passed": false,
+      "result": "CannotProve",
+      "reason": "ActionEvidenceUnavailable",
+      "availability": "Unavailable { reason: WindowNotCovered }",
+      "observer_state_in_log": null
+    },
+    "classification": "MISSED (honesty): observer stayed Active. T-P silently fell back to polled Presence with no integrity signal; S-P was safe only by the coverage predicate (WindowNotCovered), not by an observer-reported integrity failure."
+  },
+  "post_fix": {
+    "tp_gated": {
+      "arm": "tp_gated",
+      "gated_tracepoint": "sock/inet_sock_set_state",
+      "test_exit_code": 101,
+      "test_passed": false,
+      "result": "CannotProve",
+      "reason": "ObserverIntegrityUnknown",
+      "availability": "Unavailable { reason: ObserverIntegrityUnknown }",
+      "observer_state_in_log": null
+    },
+    "sp_gated": {
+      "arm": "sp_gated",
+      "gated_tracepoint": "sock/sock_send_length",
+      "test_exit_code": 101,
+      "test_passed": false,
+      "result": "CannotProve",
+      "reason": "ObserverIntegrityUnknown",
+      "availability": "Unavailable { reason: ObserverIntegrityUnknown }",
+      "observer_state_in_log": null
+    },
+    "tp_control": {
+      "arm": "tp_control",
+      "gated_tracepoint": "none",
+      "test_exit_code": 0,
+      "test_passed": true,
+      "result": "ok",
+      "reason": null,
+      "availability": null,
+      "observer_state_in_log": null
+    },
+    "classification": "DETECTED: both gated sensors drive ObserverState::IntegrityUnknown -> reconciler CannotProve(ObserverIntegrityUnknown) -> availability Unavailable{ObserverIntegrityUnknown}. Control (no gate) still VerifiedExecution: no false positive."
+  },
+  "interpretation": "The shipped fix (12767ea) closed the gate only for the sched process tracepoints. Extending the same synchronous, fail-closed detector to SockStateTracer and SockSendTracer, keying the collector's finding per mechanism (worst-of), and wiring it into the live drain converts silent blindness on the socket sensors into a signed 'I cannot vouch'. Strictly monotone: it can only turn a coverage claim into CannotProve."
+}

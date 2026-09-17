@@ -1,0 +1,36 @@
+
+running 1 test
+
+thread 's_p_the_agents_hello_verifies_as_a_send_to_the_authorized_endpoint' (3814) panicked at aip-standalone/ghost-demo/tests/live_send.rs:33:5:
+assertion `left == right` failed: agent pid 3815 sent its hello to 127.0.0.1:34427; authorized send to 127.0.0.1:34427; 0 send event(s) captured (send tracer open)
+Reconciliation { version: 5, result: CannotProve, strength: Heuristic, reason: ObserverIntegrityUnknown, decision_id: Some(DecisionId(b922c53a44ce4b12aaac7c74f960f285)), availability: Unavailable { reason: ObserverIntegrityUnknown }, identity: Match { observations: 4 }, action: Unobservable, temporal: WithinWindow, lineage: NotEvaluated, wire: NotEvaluated, replay_detected: false, evidence: [Expected { decision_point_id: DecisionPointId("aip12GunnC4TmiW1tj7vzTHbK6rb58NY1fEh3CSi6Cb5gB"), decision_id: DecisionId(b922c53a44ce4b12aaac7c74f960f285) }, Health { observer_id: ObserverId("demo-collector"), sequence: ObserverSequence(2), emitted_at_ms: 1789604999012 }, Batch { observer_id: ObserverId("demo-collector"), key_version: 1, sequence: ObserverSequence(1), batch_id: BatchId(01010101010101010101010101010101), probe_run_id: ProbeRunId(37d9c1239f5f405296d4eee852af2b98), attested_at_ms: 1789604998681, head: [99, 91, 96, 154, 138, 80, 34, 89, 18, 43, 189, 93, 245, 186, 123, 140, 54, 201, 118, 230, 60, 26, 25, 245, 212, 221, 125, 125, 26, 10, 207, 136] }, Batch { observer_id: ObserverId("demo-collector"), key_version: 1, sequence: ObserverSequence(2), batch_id: BatchId(02020202020202020202020202020202), probe_run_id: ProbeRunId(37d9c1239f5f405296d4eee852af2b98), attested_at_ms: 1789604999011, head: [146, 227, 138, 152, 104, 119, 85, 255, 249, 79, 69, 206, 64, 133, 22, 175, 180, 193, 72, 38, 58, 124, 12, 191, 91, 108, 168, 36, 55, 114, 40, 4] }, Observation { batch_sequence: ObserverSequence(2), index: 0 }, Observation { batch_sequence: ObserverSequence(2), index: 1 }, KernelEvent { batch_sequence: ObserverSequence(2), index: 0 }, KernelEvent { batch_sequence: ObserverSequence(2), index: 5 }], verification_time_ms: 1789604999012, provenance: Engine }
+  left: CannotProve
+ right: VerifiedExecution
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:394:5
+   4: live_send::s_p_the_agents_hello_verifies_as_a_send_to_the_authorized_endpoint
+             at ./tests/live_send.rs:33:5
+   5: live_send::s_p_the_agents_hello_verifies_as_a_send_to_the_authorized_endpoint::{{closure}}
+             at ./tests/live_send.rs:27:72
+   6: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+   7: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+s_p_the_agents_hello_verifies_as_a_send_to_the_authorized_endpoint --- FAILED
+
+failures:
+
+failures:
+    s_p_the_agents_hello_verifies_as_a_send_to_the_authorized_endpoint
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.91s
+
+error: test failed, to rerun pass `-p ghost-demo --test live_send`

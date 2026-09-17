@@ -88,6 +88,44 @@ pub enum MechanismIntegrity {
     /// samples: its perf submission may be suppressed host-wide with no loss
     /// accounting. The count is diagnostic, not load-bearing.
     ForeignTracepointGate { foreign_programs: u32 },
+    /// The kernel refused the integrity query (for example, no `CAP_PERFMON`
+    /// to run `PERF_EVENT_IOC_QUERY_BPF`). The observer could establish
+    /// neither that a gate is present nor that none is: capability is unknown.
+    /// Distinct from `ForeignTracepointGate` so a refused query is never
+    /// reported as a *found* gate, and fail-closed like it — both drive
+    /// [`ObserverState::IntegrityUnknown`] (see [`Self::is_capable`]).
+    Unverifiable,
+}
+
+impl MechanismIntegrity {
+    /// Map the result of a foreign-program enumeration
+    /// ([`crate::PerfTracepoints::foreign_bpf_program_count`]) to a finding.
+    /// One place decides the fail-closed policy for every perf-tracepoint
+    /// sensor, so `sched`, `sock:inet_sock_set_state` and
+    /// `sock:sock_send_length` cannot drift apart:
+    ///
+    /// - `Ok(0)` → `Verified` (no foreign program on the shared gate);
+    /// - `Ok(n)` → `ForeignTracepointGate { n }` (a program that can suppress
+    ///   this sensor's samples host-wide);
+    /// - `Err(_)` → `Unverifiable` (capability could not be established, so
+    ///   integrity is *not* assumed clean).
+    pub fn from_foreign_program_query(result: std::io::Result<u32>) -> Self {
+        match result {
+            Ok(0) => Self::Verified,
+            Ok(foreign_programs) => Self::ForeignTracepointGate { foreign_programs },
+            Err(_) => Self::Unverifiable,
+        }
+    }
+
+    /// True only when the mechanism is positively established as capable of
+    /// delivering the event class. `ForeignTracepointGate` and `Unverifiable`
+    /// are both false: a gated sensor may be silently blind, and an
+    /// unverifiable one cannot rule that out. This is the single predicate the
+    /// collector's state derivation rests on, so "found a gate" and "could not
+    /// check" fail closed identically without conflating the two diagnostics.
+    pub fn is_capable(&self) -> bool {
+        matches!(self, MechanismIntegrity::Verified)
+    }
 }
 
 /// The interval an observation covers. Half-open is avoided deliberately:

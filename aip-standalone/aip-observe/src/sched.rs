@@ -142,16 +142,7 @@ mod sys {
         /// established, so the finding is `ForeignTracepointGate` (unknown),
         /// never a silent `Verified`.
         pub fn mechanism_integrity(&self) -> MechanismIntegrity {
-            match self.perf.foreign_bpf_program_count() {
-                Ok(0) => MechanismIntegrity::Verified,
-                Ok(n) => MechanismIntegrity::ForeignTracepointGate {
-                    foreign_programs: n,
-                },
-                // Cannot establish capability → not clean.
-                Err(_) => MechanismIntegrity::ForeignTracepointGate {
-                    foreign_programs: 0,
-                },
-            }
+            MechanismIntegrity::from_foreign_program_query(self.perf.foreign_bpf_program_count())
         }
 
         /// Next decoded fork or exec, waiting up to `timeout_ms`; `Ok(None)`

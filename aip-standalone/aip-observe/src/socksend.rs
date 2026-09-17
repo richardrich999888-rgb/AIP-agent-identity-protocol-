@@ -80,6 +80,7 @@ pub fn parse_sock_send_record(
 #[cfg(target_os = "linux")]
 mod sys {
     use super::*;
+    use crate::health::MechanismIntegrity;
     use crate::perf::PerfTracepoints;
 
     /// The send tracepoint source.
@@ -112,6 +113,20 @@ mod sys {
 
         pub fn take_lost(&mut self) -> u64 {
             self.perf.take_lost()
+        }
+
+        /// Is a foreign eBPF program gating the `sock:sock_send_length`
+        /// tracepoint this tracer samples? Like the other perf-tracepoint
+        /// sensors it is exposed to the kernel's per-tracepoint submission
+        /// gate, so a foreign program can suppress its send events host-wide
+        /// with no dropped-record accounting. The collector feeds this to
+        /// [`crate::CollectorSigner::note_mechanism_integrity`] each health
+        /// cycle so a blinded send sensor signs
+        /// [`crate::ObserverState::IntegrityUnknown`] instead of a false
+        /// `Active`. Fail-closed: a refused query is
+        /// [`MechanismIntegrity::Unverifiable`], never a silent `Verified`.
+        pub fn mechanism_integrity(&self) -> MechanismIntegrity {
+            MechanismIntegrity::from_foreign_program_query(self.perf.foreign_bpf_program_count())
         }
 
         /// Next decoded TCP send, waiting up to `timeout_ms`; `Ok(None)` on

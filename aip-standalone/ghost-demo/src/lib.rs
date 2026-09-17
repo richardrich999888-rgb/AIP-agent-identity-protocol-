@@ -32,10 +32,10 @@ use aip_core::delegation::create_delegation;
 use aip_core::execution_binding::collect_binding_for_pid;
 use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_observe::{
-    boot_clock_anchor, AgentClaim, AttestedBatch, CollectorSigner, FanotifyWatch, ObservedEffect,
-    ObserverAttestor, ObserverTrustAnchors, ProbeError, ProcessTracer, ProcfsProbe,
-    SignedSensorHealth, SockSendTracer, SockStateTracer, SocketProtocol, SourceMechanism, WireTap,
-    FAN_CLOSE_WRITE,
+    boot_clock_anchor, AgentClaim, AttestedBatch, CollectorSigner, FanotifyWatch,
+    MechanismIntegrity, ObservedEffect, ObserverAttestor, ObserverTrustAnchors, ProbeError,
+    ProcessTracer, ProcfsProbe, SignedSensorHealth, SockSendTracer, SockStateTracer,
+    SocketProtocol, SourceMechanism, WireTap, FAN_CLOSE_WRITE,
 };
 use aip_reconcile::{
     reconcile_expectation, reconcile_observation, ExpectedSideCoverage, ObservationTarget,
@@ -594,6 +594,34 @@ impl Observer {
             if lost > 0 {
                 self.probe.record_lost_events(lost);
             }
+        }
+
+        // Mechanism-integrity check for every perf-tracepoint sensor open on
+        // this observer. A foreign eBPF program on a sampled tracepoint can
+        // suppress its events host-wide with no dropped-record accounting and
+        // no continuity break (the observation-integrity finding), so the
+        // collector must learn of it each drain and sign
+        // `ObserverState::IntegrityUnknown` rather than a false `Active`. Read
+        // each tracer's finding into an owned list first so the tracer borrows
+        // are released before the collector is borrowed mutably. The
+        // non-tracepoint sources — the AF_PACKET tap, fanotify, and the procfs
+        // poll — do not share the per-tracepoint submission gate and are not
+        // checked here.
+        let mut findings: Vec<(SourceMechanism, MechanismIntegrity)> = Vec::new();
+        if let Some(t) = self.process_tracer.as_ref() {
+            findings.push((SourceMechanism::SchedTracepoint, t.mechanism_integrity()));
+        }
+        if let Some(t) = self.tracer.as_ref() {
+            findings.push((
+                SourceMechanism::SockStateTracepoint,
+                t.mechanism_integrity(),
+            ));
+        }
+        if let Some(t) = self.send_tracer.as_ref() {
+            findings.push((SourceMechanism::SockSendTracepoint, t.mechanism_integrity()));
+        }
+        for (mechanism, integrity) in findings {
+            self.signer.note_mechanism_integrity(mechanism, integrity);
         }
     }
 

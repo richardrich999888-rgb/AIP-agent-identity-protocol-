@@ -1,0 +1,35 @@
+
+running 1 test
+
+thread 't_p_authorized_connection_verifies_on_the_kernel_transition' (3788) panicked at aip-standalone/ghost-demo/tests/live_transition.rs:118:5:
+assertion `left == right` failed: Reconciliation { version: 5, result: CannotProve, strength: Heuristic, reason: ObserverIntegrityUnknown, decision_id: Some(DecisionId(24e1208e91ce4ae7ae3ecf43a9c51625)), availability: Unavailable { reason: ObserverIntegrityUnknown }, identity: Match { observations: 3 }, action: Unobservable, temporal: WithinWindow, lineage: NotEvaluated, wire: NotEvaluated, replay_detected: false, evidence: [Expected { decision_point_id: DecisionPointId("aip18nqJPC2KkzNYJj4pSzT2AvSR3xe8wYGWtMdM5Yntcs"), decision_id: DecisionId(24e1208e91ce4ae7ae3ecf43a9c51625) }, Health { observer_id: ObserverId("demo-collector"), sequence: ObserverSequence(2), emitted_at_ms: 1789604997929 }, Batch { observer_id: ObserverId("demo-collector"), key_version: 1, sequence: ObserverSequence(1), batch_id: BatchId(01010101010101010101010101010101), probe_run_id: ProbeRunId(95b61028fc7c48b0ade9c2bc3a338da6), attested_at_ms: 1789604997597, head: [107, 117, 208, 59, 39, 137, 135, 192, 139, 123, 102, 110, 251, 179, 121, 58, 246, 205, 108, 96, 234, 249, 193, 163, 46, 9, 196, 213, 225, 172, 47, 141] }, Batch { observer_id: ObserverId("demo-collector"), key_version: 1, sequence: ObserverSequence(2), batch_id: BatchId(02020202020202020202020202020202), probe_run_id: ProbeRunId(95b61028fc7c48b0ade9c2bc3a338da6), attested_at_ms: 1789604997928, head: [161, 121, 229, 96, 72, 140, 22, 29, 62, 115, 221, 129, 63, 199, 80, 115, 177, 112, 193, 23, 94, 141, 0, 54, 193, 11, 157, 15, 104, 82, 192, 125] }, Observation { batch_sequence: ObserverSequence(2), index: 0 }, Observation { batch_sequence: ObserverSequence(2), index: 1 }, KernelEvent { batch_sequence: ObserverSequence(2), index: 1 }], verification_time_ms: 1789604997929, provenance: Engine }
+  left: CannotProve
+ right: VerifiedExecution
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:394:5
+   4: live_transition::t_p_authorized_connection_verifies_on_the_kernel_transition
+             at ./tests/live_transition.rs:118:5
+   5: live_transition::t_p_authorized_connection_verifies_on_the_kernel_transition::{{closure}}
+             at ./tests/live_transition.rs:112:65
+   6: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+   7: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+t_p_authorized_connection_verifies_on_the_kernel_transition --- FAILED
+
+failures:
+
+failures:
+    t_p_authorized_connection_verifies_on_the_kernel_transition
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.80s
+
+error: test failed, to rerun pass `-p ghost-demo --test live_transition`

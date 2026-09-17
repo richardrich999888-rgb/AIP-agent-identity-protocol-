@@ -1,0 +1,17 @@
+run_id: 20260917T_sched_repro
+utc: 2026-09-17T00:30:15Z
+kernel: 6.18.44-fc-v33
+arch: x86_64
+boot_id: c03f4b43-621f-4ddc-9c57-649e64770383
+tracepoint: sched/sched_process_exec
+tracepoint_id: 256
+sniffer_dog_mechanism: perf_event_open(PERF_TYPE_TRACEPOINT, config=256), CLOCK_MONOTONIC, sample_period=1
+interferer_mechanism: BPF_PROG_TYPE_TRACEPOINT (2 insns: r0=0; exit) attached via PERF_EVENT_IOC_SET_BPF
+perf_event_paranoid: 2
+unprivileged_bpf_disabled: 2
+capeff: 000001fffeffffff
+recorder: /home/user/AIP-agent-identity-protocol-/validation/scenarios/exp01_linux_runtime_observation/recorder/target/release/exp01-recorder
+duration_ms: 6000
+planned_execs_per_arm: 8
+config_kprobes: # CONFIG_KPROBES is not set
+config_uprobe_events: CONFIG_UPROBE_EVENTS=y

@@ -192,6 +192,7 @@ pub fn boot_clock_anchor() -> Result<BootClockAnchor, SourceError> {
 #[cfg(target_os = "linux")]
 mod sys {
     use super::*;
+    use crate::health::MechanismIntegrity;
     use crate::perf::PerfTracepoints;
 
     /// The tracepoint source: the shared perf rings, one tracepoint.
@@ -221,6 +222,21 @@ mod sys {
         /// `PERF_RECORD_LOST`. Resets the counter.
         pub fn take_lost(&mut self) -> u64 {
             self.perf.take_lost()
+        }
+
+        /// Is a foreign eBPF program gating the `sock:inet_sock_set_state`
+        /// tracepoint this tracer samples? A perf-tracepoint mechanism shares
+        /// the kernel's per-tracepoint submission gate with `sched` and
+        /// `sock:sock_send_length`, so the same observation-integrity finding
+        /// applies: a foreign program can suppress this tracer's transitions
+        /// host-wide with no dropped-record accounting. The collector feeds
+        /// this to [`crate::CollectorSigner::note_mechanism_integrity`] each
+        /// health cycle so a blinded socket-state sensor signs
+        /// [`crate::ObserverState::IntegrityUnknown`] instead of a false
+        /// `Active`. Fail-closed: a refused query is
+        /// [`MechanismIntegrity::Unverifiable`], never a silent `Verified`.
+        pub fn mechanism_integrity(&self) -> MechanismIntegrity {
+            MechanismIntegrity::from_foreign_program_query(self.perf.foreign_bpf_program_count())
         }
 
         /// Next decoded transition, waiting up to `timeout_ms` for the rings.

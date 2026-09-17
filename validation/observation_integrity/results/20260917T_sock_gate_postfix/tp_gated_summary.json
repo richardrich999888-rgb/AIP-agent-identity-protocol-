@@ -1,0 +1,10 @@
+{
+  "arm": "tp_gated",
+  "gated_tracepoint": "sock/inet_sock_set_state",
+  "test_exit_code": 101,
+  "test_passed": false,
+  "result": "CannotProve",
+  "reason": "ObserverIntegrityUnknown",
+  "availability": "Unavailable { reason: ObserverIntegrityUnknown }",
+  "observer_state_in_log": null
+}

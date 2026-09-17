@@ -67,7 +67,13 @@ it can support **on its own**.
 - **Common dependency.** The tracepoint's `perf_trace_run_bpf_submit()` gate.
   Any BPF program on the same tracepoint sits upstream of it.
 - **Interferes with others?** No — it is a passive reader.
-- **Detects interference?** No, not the BPF gate; yes, ordinary loss.
+- **Detects interference?** Yes for both, now: ordinary loss via
+  `PERF_RECORD_LOST`, and the BPF gate via `PERF_EVENT_IOC_QUERY_BPF`
+  (`mechanism_integrity` on each of the three tracers → `IntegrityUnknown`).
+  A refused query is `Unverifiable` and fails closed. Detection reads shared
+  kernel state, so a root/kernel-module attacker can still hide the program;
+  the guarantee is against a `CAP_BPF` adversary, not root. Evidence:
+  `docs/security/ADVERSARIAL_RESULTS.md` (OI-01/OI-04/OI-05).
 - **Independent evidence?** Of the *kernel event*, yes — against a userspace
   self-report. Not against another perf/tracepoint consumer of the same
   tracepoint.

@@ -149,6 +149,11 @@ fn integrity_line(at: &str, mi: aip_observe::MechanismIntegrity) -> String {
         aip_observe::MechanismIntegrity::ForeignTracepointGate { foreign_programs } => format!(
             r#"{{"kind":"mechanism_integrity","at":"{at}","state":"integrity_unknown","foreign_programs":{foreign_programs}}}"#
         ),
+        // The kernel refused the query: capability could not be established.
+        // Fail-closed to integrity_unknown, but distinct from a *found* gate.
+        aip_observe::MechanismIntegrity::Unverifiable => format!(
+            r#"{{"kind":"mechanism_integrity","at":"{at}","state":"integrity_unknown","unverifiable":true}}"#
+        ),
     }
 }
 

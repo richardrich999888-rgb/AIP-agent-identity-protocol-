@@ -384,12 +384,19 @@ pub struct CollectorSigner {
     /// Intersection of `active_mechanisms` over the batches that make up the
     /// current coverage epoch. `None` whenever there is no coverage.
     covered_by: Option<Vec<SourceMechanism>>,
-    /// The collector's most recent finding about whether its sampled
-    /// mechanisms remained capable of delivering events (the tracepoint-gate
-    /// check). `Verified` until a live check says otherwise; a
-    /// `ForeignTracepointGate` finding drives the signed state to
-    /// `IntegrityUnknown`.
-    mechanism_integrity: MechanismIntegrity,
+    /// The collector's most recent integrity finding **per sampled
+    /// mechanism** (the tracepoint-gate check). Keyed by mechanism so a clean
+    /// reading for one perf tracepoint can never overwrite a gated reading for
+    /// another: a collector that samples `sched`, `sock:inet_sock_set_state`
+    /// and `sock:sock_send_length` reports each independently, and the signed
+    /// state is the worst across all of them. Empty until the first check; an
+    /// empty map is treated as capable, exactly as the previous single-value
+    /// `Verified` default was — the coverage predicate, not this signal, is
+    /// what protects a non-occurrence claim (a collector that never checks
+    /// still cannot manufacture gate-independent coverage). Self-healing: a
+    /// mechanism whose slot returns to `Verified` on a later cycle restores
+    /// `Active`.
+    mechanism_integrity: HashMap<SourceMechanism, MechanismIntegrity>,
 }
 
 impl std::fmt::Debug for CollectorSigner {
@@ -475,20 +482,33 @@ impl CollectorSigner {
             last_probe_seq_last: None,
             probe_faults: Vec::new(),
             covered_by: None,
-            mechanism_integrity: MechanismIntegrity::Verified,
+            mechanism_integrity: HashMap::new(),
         })
     }
 
-    /// Record the result of a mechanism-integrity check (on Linux, an
-    /// enumeration of the eBPF programs gating the sampled tracepoints). A
-    /// `ForeignTracepointGate` finding makes the next signed health report
-    /// [`ObserverState::IntegrityUnknown`]: the observer cannot vouch that it
-    /// remained capable of seeing the event class, so absence over the window
-    /// carries no information. Monotone within a health cycle only — the
-    /// collector re-checks and re-reports each cycle, so a cleared gate
-    /// restores `Active` on the next cycle exactly as a cleared loss does.
-    pub fn note_mechanism_integrity(&mut self, integrity: MechanismIntegrity) {
-        self.mechanism_integrity = integrity;
+    /// Record the result of a mechanism-integrity check for one sampled
+    /// `mechanism` (on Linux, an enumeration of the eBPF programs gating that
+    /// tracepoint — see [`ProcessTracer::mechanism_integrity`],
+    /// [`SockStateTracer::mechanism_integrity`],
+    /// [`SockSendTracer::mechanism_integrity`]).
+    ///
+    /// A non-capable finding for **any** sampled mechanism
+    /// ([`MechanismIntegrity::ForeignTracepointGate`] or
+    /// [`MechanismIntegrity::Unverifiable`]) makes the next signed health
+    /// report [`ObserverState::IntegrityUnknown`]: the observer cannot vouch
+    /// that it remained capable of seeing that event class, so absence over
+    /// the window carries no information. Keyed per mechanism so a clean
+    /// reading for one sensor does not mask a gated reading for another — the
+    /// defect a single global slot had. Self-healing: re-reporting the same
+    /// mechanism as [`MechanismIntegrity::Verified`] on a later cycle clears
+    /// its slot, and `Active` returns once every reported mechanism is capable
+    /// again, exactly as a cleared loss count does.
+    pub fn note_mechanism_integrity(
+        &mut self,
+        mechanism: SourceMechanism,
+        integrity: MechanismIntegrity,
+    ) {
+        self.mechanism_integrity.insert(mechanism, integrity);
     }
 
     pub fn observer_id(&self) -> &str {
@@ -654,7 +674,14 @@ impl CollectorSigner {
         if matches!(self.ledger.status(), ContinuityStatus::Broken) {
             return ObserverState::Quarantined;
         }
-        if !matches!(self.mechanism_integrity, MechanismIntegrity::Verified) {
+        // Worst-of across every sampled mechanism: one gated or unverifiable
+        // perf tracepoint blinds the observer for that event class, and the
+        // signed state must say so even if the other mechanisms are clean.
+        if self
+            .mechanism_integrity
+            .values()
+            .any(|integrity| !integrity.is_capable())
+        {
             return ObserverState::IntegrityUnknown;
         }
         match self.ledger.status() {

@@ -1,0 +1,35 @@
+
+running 1 test
+
+thread 't_p_authorized_connection_verifies_on_the_kernel_transition' (1666) panicked at aip-standalone/ghost-demo/tests/live_transition.rs:120:5:
+assertion `left == right` failed: with the tracer live, the transition — not the table row — carries the verdict: agent pid 1667 → 127.0.0.1:35295; 1 established connection(s) in the table, 2 kernel socket transition(s) captured, 10 wire segment(s) captured (tap open)
+  left: Some(Presence)
+ right: Some(Transition)
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:394:5
+   4: live_transition::t_p_authorized_connection_verifies_on_the_kernel_transition
+             at ./tests/live_transition.rs:120:5
+   5: live_transition::t_p_authorized_connection_verifies_on_the_kernel_transition::{{closure}}
+             at ./tests/live_transition.rs:112:65
+   6: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+   7: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+t_p_authorized_connection_verifies_on_the_kernel_transition --- FAILED
+
+failures:
+
+failures:
+    t_p_authorized_connection_verifies_on_the_kernel_transition
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.85s
+
+error: test failed, to rerun pass `-p ghost-demo --test live_transition`
