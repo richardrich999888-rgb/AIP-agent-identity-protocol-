@@ -332,6 +332,90 @@ impl CollectorRuntime {
         ))
     }
 
+    /// Start under a [`Custodian`](aip_crypto::custody::Custodian) — the
+    /// production path. Identical to [`start`](Self::start) but the signing key
+    /// is held wrapped by the custodian and never passes through this call as
+    /// raw bytes, so an off-host collector can hold its key at rest without the
+    /// runtime ever seeing it. The continuity logic is shared verbatim through
+    /// [`CollectorSigner::resume_with_custodian`].
+    pub fn start_with_custodian(
+        store: CollectorStore,
+        observer_id: &str,
+        key_version: u32,
+        custodian: Box<dyn aip_crypto::custody::Custodian>,
+        policy: ContinuityPolicy,
+    ) -> Result<Started, RuntimeError> {
+        let loaded = store.load_snapshot()?;
+        let archive = store.load_archive()?;
+        let fresh = loaded.is_none() && archive.is_empty();
+        let resumed_sequence = loaded.as_ref().and_then(|s| s.sequence);
+        let snapshot = loaded.unwrap_or_else(|| CollectorSnapshot::fresh(observer_id, key_version));
+        // Capture the public key before the custodian is moved into the signer;
+        // it is needed to locate the archived head for the continuity report.
+        let public_key = custodian.public_key().to_vec();
+        let (signer, brk) =
+            CollectorSigner::resume_with_custodian(&snapshot, observer_id, custodian, &archive)?;
+
+        let Some(brk) = brk else {
+            let rt = Self {
+                signer,
+                store,
+                policy,
+            };
+            rt.store.save_snapshot(&rt.signer.snapshot())?;
+            let outcome = if fresh {
+                StartOutcome::Fresh
+            } else {
+                StartOutcome::Resumed {
+                    continuity_break: None,
+                }
+            };
+            return Ok(Started::Running(rt, outcome));
+        };
+
+        let refused = policy == ContinuityPolicy::Strict
+            && matches!(
+                brk,
+                ContinuityBreak::Amnesia { .. }
+                    | ContinuityBreak::RolledBack { .. }
+                    | ContinuityBreak::Forked { .. }
+            );
+        let archived = archive_head(&snapshot, &archive, &public_key);
+        let report = ContinuityReport {
+            version: OBSERVE_PROTOCOL_VERSION,
+            observer_id: observer_id.to_string(),
+            key_version: signer.key_version(),
+            continuity_break: brk.clone(),
+            resumed_sequence,
+            archived_sequence: archived.map(|(s, _)| s),
+            archived_head: archived.map(|(_, h)| h),
+            policy,
+            refused,
+            emitted_at_ms: collector_now_ms(),
+        };
+        // Signed through the custodian, so the continuity report is signed
+        // without the raw key — the same signature `start` produces with
+        // `sign_ed25519`, only the key holder differs.
+        let signature = signer.sign_bytes(&report.canonical_bytes())?;
+        store.append_report(&SignedContinuityReport { report, signature })?;
+
+        if refused {
+            return Ok(Started::Refused(brk));
+        }
+        let rt = Self {
+            signer,
+            store,
+            policy,
+        };
+        rt.store.save_snapshot(&rt.signer.snapshot())?;
+        Ok(Started::Running(
+            rt,
+            StartOutcome::Resumed {
+                continuity_break: Some(brk),
+            },
+        ))
+    }
+
     pub fn policy(&self) -> ContinuityPolicy {
         self.policy
     }

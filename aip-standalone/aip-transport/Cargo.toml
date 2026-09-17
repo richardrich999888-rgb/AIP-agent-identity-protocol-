@@ -1,0 +1,17 @@
+[package]
+name = "aip-transport"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Phase 1: framed, authenticated probe<->collector channel over blocking TCP. Evidence-agnostic; carries opaque batch bytes and never holds an evidence key."
+
+[dependencies]
+aip-crypto = { path = "../aip-crypto" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+# OS CSPRNG for the per-session challenge nonce only. Pinned to the workspace
+# version already in use elsewhere.
+rand = "0.8"
+
+[dev-dependencies]
+serde_json = "1.0"

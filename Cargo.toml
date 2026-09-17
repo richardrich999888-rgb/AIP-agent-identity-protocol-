@@ -56,6 +56,12 @@ members = [
     "aip-standalone/aip-edge-workload",
     "aip-standalone/aip-edge-observer",
     "aip-standalone/aip-edge",
+    # ── two-host pilot deployment (Phase 1) ────────────────────────────
+    # The authenticated probe<->collector channel and the two daemons. The
+    # probe holds no evidence key; the collector holds the only (wrapped) one.
+    "aip-standalone/aip-transport",
+    "aip-standalone/aip-collector",
+    "aip-standalone/aip-probe",
     # ── vertical profiles over the generic core (Skills 23+) ───────────
     # A profile consumes the core and is consumed by nothing in it: the
     # dependency points one way, so a vertical cannot cause a semantic

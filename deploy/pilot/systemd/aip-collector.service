@@ -1,38 +1,29 @@
-# TEMPLATE — off-host collector daemon (aip-collector).
+# Off-host collector daemon (aip-collector), Phase 1.
 #
-# The aip-collector daemon is a Phase-1 BUILD ITEM (docs/pilot/BFSI_PILOT_PLAN.md
-# §7.3). This unit documents the intended deployment shape; the ExecStart binary
-# does not exist yet. The key-custody library it will use (CollectorKey::production)
-# does exist today — see ../templates/collector-key-provisioning.md.
-#
-# Runs on the collector host ONLY — never on an observed agent host.
+# The daemon is env-driven (see collector.env.example); it takes no CLI flags.
+# Runs on the collector host ONLY — never on an observed agent host. Build the
+# binary with `cargo build --release -p aip-collector` and install it at
+# /usr/local/bin/aip-collector.
 
 [Unit]
-Description=AIP off-host collector (holds the signing key; signs observation batches)
+Description=AIP off-host collector (holds the signing key; attests observation batches)
 Documentation=file:/opt/aip/deploy/pilot/README.md
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-Type=notify
+Type=simple
 User=aip-collector
 Group=aip-collector
 
-# Passphrase for the wrapped signing key, delivered by the secret manager and
-# exposed to the process only as a credential file the kernel drops after start.
-# Populate via a drop-in that sets LoadCredential from your Vault/agent.
+# Passphrase for the wrapped signing key, delivered by the secret manager. The
+# daemon reads $CREDENTIALS_DIRECTORY/collector-passphrase automatically.
+# Populate via a drop-in that sets the source, e.g.:
 #   LoadCredential=collector-passphrase:/run/secrets/aip-collector-passphrase
 LoadCredential=collector-passphrase
 
 EnvironmentFile=/etc/aip/collector.env
-ExecStart=/usr/local/bin/aip-collector \
-    --observer-id ${AIP_COLLECTOR_OBSERVER_ID} \
-    --key-version ${AIP_COLLECTOR_KEY_VERSION} \
-    --key-path ${AIP_COLLECTOR_KEY_PATH} \
-    --passphrase-file %d/collector-passphrase \
-    --continuity ${AIP_COLLECTOR_CONTINUITY} \
-    --state-dir ${AIP_COLLECTOR_STATE_DIR} \
-    --listen ${AIP_COLLECTOR_LISTEN}
+ExecStart=/usr/local/bin/aip-collector
 Restart=on-failure
 RestartSec=2
 
@@ -45,7 +36,7 @@ PrivateDevices=yes
 ReadWritePaths=/var/lib/aip-collector
 CapabilityBoundingSet=
 AmbientCapabilities=
-RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictAddressFamilies=AF_INET AF_INET6
 MemoryDenyWriteExecute=yes
 LockPersonality=yes
 

@@ -105,7 +105,7 @@ phase does not start until the prior gate is met.
 
 | Phase | Deliverable | Exit gate |
 |---|---|---|
-| **1** | Off-host collector + host-side probe daemon + authenticated probe→collector transport | A real agent process on an institution host is observed; its batch is signed by a collector on a **different** host holding a wrapped key; `aip-verify` accepts the batch offline. **Transport does not exist yet — this is the first build item (§7).** |
+| **1** | Off-host collector + host-side probe daemon + authenticated probe→collector transport | A real agent process on an institution host is observed; its batch is signed by a collector on a **different** host holding a wrapped key; `aip-verify` accepts the batch offline. **The three components are built (§7); the exit gate is running them on the institution's own hardware.** |
 | **2** | Decision point issues signed `ExpectedExecution` for the pilot's agent actions | An expectation and an observation join on `decision_id` + `ExecutionBinding`; reconciler emits `VerifiedExecution` (Attested) on the honest path. |
 | **3** | Reconciler + evidence API wired: verdicts land in `aip-service` | `POST /v1/evidence/*` stores and returns a verdict; `GET /v1/authority/{id}` rebuilds the chain; tenant isolation holds. |
 | **4** | Adversarial + honesty validation on the institution's hosts | The RED suite (§3) runs on pilot hardware: blinded observer → `ObserverIntegrityUnknown`; observer down → `CANNOT_PROVE`; no false `PhantomClaim`. |
@@ -248,33 +248,49 @@ a Vanian defect. Neither raises a verdict above its `EvidenceCeiling`.
 
 ---
 
-## 7. Build items that do not exist yet (honest gap list)
+## 7. Build status (what now exists, and what remains)
 
-The pilot cannot run end-to-end until these are built. None are hidden behind
-optimistic language elsewhere in this plan.
+**Built in Phase 1** (design record: `docs/pilot/PHASE1_DAEMONS.md`; all with
+unit + integration tests, `clippy -D warnings` clean):
 
-1. **Production probe daemon** (`aip-probe`) — a long-running host-side process
-   over `aip-observe`'s live sensors. Today only `ghost-demo` and the exp01
-   recorder drive them, both demonstrators.
-2. **Authenticated probe→collector transport.** The reference transport is
-   pipes + JSONL in a state dir (`LINUX_EDGE_REFERENCE.md` §8); a networked,
-   authenticated carrier for two hosts does not exist. The `AttestedBatch`
-   signature survives any carrier, so this is transport engineering, not new
-   evidence semantics — but it needs its own security review (auth, TLS,
-   backpressure) before an institution host.
-3. **Production collector daemon** (`aip-collector`) — persists attested
-   batches (today only snapshot/health/continuity persist —
-   `COMPLETE_IMPLEMENTATION_REPORT.md` §8.6), holds the wrapped key, exposes
-   signed health. `WrappedFileCustodian` supplies the key custody; the daemon
-   around it is the build item.
-4. **Decision-point coverage statements** for `UNATTRIBUTED_EFFECT` (Phase 2).
-5. **aip-service hardening** for §8.
-6. **RED suite harness on institution hardware** (extend
+1. **Probe daemon** (`aip-probe`) — a long-running host-side process over
+   `aip-observe`'s perf sensors (sched, sockstate, socksend). Holds a
+   transport-auth key only; no evidence key.
+2. **Authenticated probe→collector transport** (`aip-transport`) — std-only
+   blocking TCP, length-prefixed frames bounded before allocation, an Ed25519
+   challenge/response handshake against the collector's allow-list, and a
+   per-frame signature over a domain-separated preimage (session nonce +
+   strictly increasing sequence + `sha256(batch)`). Replay, reorder, tamper and
+   oversize are refused; a clean disconnect is normal.
+3. **Collector daemon** (`aip-collector`) — attests authenticated batches under
+   the wrapped key via `CollectorRuntime::start_with_custodian` (a new
+   custody-aware path so the runtime never sees a raw key), persists chain
+   state, and keeps a fresh signed health record. Fail-closed: a continuity
+   refusal writes a signed report and does not serve.
+
+The end-to-end proof runs in CI (`aip-collector/tests/e2e.rs`): a probe client
+ships a real `ObservationBatch` over TCP to a collector holding a wrapped key,
+and the resulting `AttestedBatch` verifies **offline** against the collector's
+public key; an unlisted transport key is refused with nothing attested.
+
+**Remaining before the pilot runs end to end on institution hardware:**
+
+4. **Mechanism-integrity across the split** (Phase 1.x) — convey the probe's
+   per-sensor gate finding to the collector as a signed transport field so a
+   blinded probe drives `IntegrityUnknown` (safety already holds via the
+   coverage predicate; see `PHASE1_DAEMONS.md`).
+5. **Gate-independent sensors in the probe** (connector, fanotify, AF_PACKET) —
+   requested-but-unsupported today is a startup error, not a silent no-op.
+6. **Decision-point coverage statements** for `UNATTRIBUTED_EFFECT` (Phase 2).
+7. **aip-service hardening** for §8.
+8. **RED suite harness on institution hardware** (extend
    `validation/observation_integrity/pipeline_under_gate.sh`).
+9. **TLS/mTLS outer layer and durable batch buffering** on the transport
+   (confidentiality and no-loss-on-transient-failure) — deployment concerns
+   named in `PHASE1_DAEMONS.md`.
 
-The `deploy/pilot/` kit provides what **is** buildable now — the off-host key
-custody procedure, config templates, and the target daemon shapes — and marks
-each of the above as a Phase-1 deliverable.
+The `deploy/pilot/` kit provides the built daemons' units and config plus the
+off-host key-custody procedure.
 
 ---
 

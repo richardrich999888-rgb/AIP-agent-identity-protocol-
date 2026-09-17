@@ -1,0 +1,21 @@
+[package]
+name = "aip-probe"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Phase 1: host-side observation probe daemon. Drives aip-observe's kernel-mediated sensors, ships unsigned observation batches to the off-host collector. Holds a transport-auth key only; never an evidence key."
+
+[[bin]]
+name = "aip-probe"
+path = "src/main.rs"
+
+[dependencies]
+aip-observe = { path = "../aip-observe" }
+aip-transport = { path = "../aip-transport" }
+aip-crypto = { path = "../aip-crypto" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+
+[dev-dependencies]
+serde_json = "1.0"

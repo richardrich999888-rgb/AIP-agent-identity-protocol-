@@ -164,4 +164,12 @@ impl CollectorKey {
     ) -> Result<aip_types::Signature, CollectorKeyError> {
         Ok(self.custodian.sign(observer_id, payload)?)
     }
+
+    /// Hand the wrapped custodian to a [`CollectorRuntime`](crate::CollectorRuntime)
+    /// via `start_with_custodian`, after the production-policy check has already
+    /// run at construction. The key is still never exposed as raw bytes; the
+    /// custodian signs, the runtime holds it.
+    pub fn into_custodian(self) -> Box<dyn Custodian> {
+        self.custodian
+    }
 }

@@ -6,6 +6,35 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (two-host pilot — Phase 1)
+- **`aip-transport`** — an authenticated probe↔collector channel over blocking
+  TCP (std only; no async runtime). Length-prefixed frames bounded before
+  allocation; an Ed25519 challenge/response handshake and a per-frame signature
+  over a domain-separated preimage (session nonce + strictly increasing
+  sequence + `sha256(batch)`). Evidence-agnostic: it carries opaque batch bytes
+  and holds no evidence key. Refuses replay, reorder, tamper, oversize, and an
+  unlisted probe key. Unit + loopback tests.
+- **`aip-collector`** — the off-host collector daemon. Attests authenticated
+  batches under a wrapped signing key, binds each batch to its authenticated
+  probe id, persists chain state, keeps a fresh signed health record, and fails
+  closed on a continuity refusal. An operator-controlled JSON allow-list gates
+  which transport key may submit as which probe id.
+- **`aip-probe`** — the host-side probe daemon. Drives `aip-observe`'s perf
+  sensors (sched, sockstate, socksend), ships unsigned batches to the collector,
+  and holds a transport-auth key only — never an evidence key.
+- **Custody-composable collector runtime.** `CollectorRuntime::start_with_custodian`
+  and `CollectorSigner::resume_with_custodian` (plus `CollectorKey::into_custodian`)
+  let the persistence/continuity runtime resume under a wrapped-file custodian
+  without the raw key ever entering the process as bytes. `resume` now delegates
+  to the custody path, so there is one continuity implementation. No signed
+  field, canonical encoder, verification rule, or protocol version changed.
+- **End-to-end proof** (`aip-collector/tests/e2e.rs`): a probe ships a real
+  `ObservationBatch` over TCP to a collector holding a wrapped key; the
+  resulting `AttestedBatch` verifies offline against the collector's public key;
+  an unlisted transport key is refused with nothing attested.
+- Design record `docs/pilot/PHASE1_DAEMONS.md`; `deploy/pilot/` updated to the
+  built, env-driven daemons.
+
 ### Security
 - **Observer integrity boundary (observation-integrity finding).** A foreign
   eBPF program on a tracepoint Sniffer Dog samples suppresses that tracepoint's

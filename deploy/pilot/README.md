@@ -16,9 +16,9 @@ the pieces that exist and clearly marks the ones that do not.
 | **Off-host collector key custody** (wrapped key, argon2 + chacha20poly1305, generated on the collector host, dev backend refused) | **buildable today** | `aip-observe`: `CollectorKey::production`, `CollectorSigner::with_custodian` |
 | **Evidence API service** (auth, tenant isolation, Postgres backend) | **deployable today** (pilot-grade) | `deploy/docker/` |
 | **Offline verifier** for the auditor | **exists today** | `aip-verify` |
-| **`aip-probe`** — production host-side daemon over the live sensors | **Phase-1 build item** (only `ghost-demo` / exp01 recorder drive the sensors today) | `systemd/aip-probe.service` is a **template** for it |
-| **Authenticated probe→collector transport** | **Phase-1 build item** (reference transport is pipes + JSONL, single host) | see plan §7.2 |
-| **`aip-collector`** — production daemon: persists attested batches, holds the wrapped key, serves signed health | **Phase-1 build item** (custody exists; the daemon around it does not) | `systemd/aip-collector.service` is a **template** for it |
+| **`aip-probe`** — host-side daemon over the live perf sensors | **built (Phase 1)** — `cargo build --release -p aip-probe`; holds a transport-auth key only | `systemd/aip-probe.service`, `probe.env.example` |
+| **Authenticated probe→collector transport** | **built (Phase 1)** — `aip-transport`, std-only TCP, Ed25519 challenge/response + per-frame signatures | `docs/pilot/PHASE1_DAEMONS.md` |
+| **`aip-collector`** — daemon: attests authenticated batches under the wrapped key, persists chain state, keeps signed health fresh | **built (Phase 1)** — `cargo build --release -p aip-collector` | `systemd/aip-collector.service`, `collector.env.example` |
 
 **Do not deploy `ghost-demo-collector` in the pilot.** It writes its signing key
 to disk in plaintext on the observed host — the exact thing this topology exists
@@ -30,8 +30,8 @@ to prevent. It is a restart demonstrator, not a collector.
 |---|---|
 | `collector.env.example` | Config for the off-host collector host (key path, passphrase source, strict continuity). |
 | `probe.env.example` | Config for the host-side probe (holds no key; names the collector endpoint). |
-| `systemd/aip-collector.service` | Unit **template** for the Phase-1 collector daemon. |
-| `systemd/aip-probe.service` | Unit **template** for the Phase-1 probe daemon. |
+| `systemd/aip-collector.service` | Unit for the collector daemon (env-driven; install the built binary at /usr/local/bin/aip-collector). |
+| `systemd/aip-probe.service` | Unit for the probe daemon (env-driven; install the built binary at /usr/local/bin/aip-probe). |
 | `templates/collector-key-provisioning.md` | The one security-critical procedure that is real today: generate the wrapped collector key **on the collector host**. |
 
 ## The rule this kit exists to enforce

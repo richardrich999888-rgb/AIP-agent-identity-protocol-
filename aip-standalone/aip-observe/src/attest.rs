@@ -576,6 +576,15 @@ impl CollectorSigner {
         }
     }
 
+    /// Sign arbitrary bytes as this collector, through its custodian. Used by
+    /// the runtime to sign a continuity report at start under wrapped custody,
+    /// so the raw key is never needed. The key is never exposed.
+    pub(crate) fn sign_bytes(&self, payload: &[u8]) -> Result<Signature, AttestError> {
+        self.custodian
+            .sign(&self.observer_id, payload)
+            .map_err(|e| AttestError::Custody(e.to_string()))
+    }
+
     /// Resume from a snapshot, auditing it against the archive of this
     /// collector's own signed health records (harvested design: PR #3
     /// `ot-sentinel` restart continuity, `6cc439f`).
@@ -598,13 +607,37 @@ impl CollectorSigner {
         public_key: &[u8],
         archive: &[SignedSensorHealth],
     ) -> Result<(Self, Option<ContinuityBreak>), AttestError> {
+        // Delegate to the custody-aware path so there is exactly one
+        // continuity implementation. An in-memory custodian is the development
+        // key holder; a production collector resumes through
+        // `resume_with_custodian` with a wrapped-file or hardware custodian.
+        let custodian = Box::new(
+            aip_crypto::custody::InMemoryCustodian::new(private_key, public_key)
+                .map_err(|_| AttestError::InvalidKeyLength(private_key.len()))?,
+        );
+        Self::resume_with_custodian(snapshot, observer_id, custodian, archive)
+    }
+
+    /// Resume a collector whose key is held by a [`Custodian`](aip_crypto::custody::Custodian)
+    /// — the production path, where the signing key is wrapped at rest and
+    /// never exists as raw bytes in the process's configuration. Identical
+    /// continuity semantics to [`resume`](Self::resume); only the key holder
+    /// differs.
+    pub fn resume_with_custodian(
+        snapshot: &CollectorSnapshot,
+        observer_id: &str,
+        custodian: Box<dyn aip_crypto::custody::Custodian>,
+        archive: &[SignedSensorHealth],
+    ) -> Result<(Self, Option<ContinuityBreak>), AttestError> {
         if snapshot.observer_id != observer_id {
             return Err(AttestError::ForeignState {
                 expected: observer_id.to_string(),
                 got: snapshot.observer_id.clone(),
             });
         }
-        let mut s = Self::new(observer_id, snapshot.key_version, private_key, public_key)?;
+        let public_key = custodian.public_key().to_vec();
+        let mut s = Self::with_custodian(observer_id, snapshot.key_version, custodian)?;
+        let public_key = public_key.as_slice();
         let brk = verify_continuity(snapshot, archive, public_key);
         let archived = archive_head(snapshot, archive, public_key);
         match &brk {

@@ -1,48 +1,37 @@
-# TEMPLATE — host-side probe daemon (aip-probe).
+# Host-side probe daemon (aip-probe), Phase 1.
 #
-# The aip-probe daemon is a Phase-1 BUILD ITEM (docs/pilot/BFSI_PILOT_PLAN.md
-# §7.1). This unit documents the intended deployment shape; the ExecStart binary
-# does not exist yet. The live sensors it will drive (aip-observe: ProcessTracer,
-# SockStateTracer, SockSendTracer, ProcConnector, FanotifyWatch, WireTap) do
-# exist and are tested — only the long-running daemon and the networked transport
-# are unbuilt.
-#
-# Runs on each observed AGENT host. HOLDS NO KEY. Cannot sign.
+# The daemon is env-driven (see probe.env.example); it takes no CLI flags. Runs
+# on each observed AGENT host. Holds a transport-auth key only; no evidence key.
+# Build with `cargo build --release -p aip-probe`, install at /usr/local/bin.
 
 [Unit]
-Description=AIP host-side probe (kernel-mediated observation; holds no key)
+Description=AIP host-side probe (kernel-mediated observation; holds no evidence key)
 Documentation=file:/opt/aip/deploy/pilot/README.md
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-Type=notify
+Type=simple
 User=aip-probe
 Group=aip-probe
 
 EnvironmentFile=/etc/aip/probe.env
-ExecStart=/usr/local/bin/aip-probe \
-    --probe-id ${AIP_PROBE_ID} \
-    --collector ${AIP_PROBE_COLLECTOR_ENDPOINT} \
-    --sensors ${AIP_PROBE_SENSORS} \
-    --fanotify-mounts ${AIP_PROBE_FANOTIFY_MOUNTS}
+ExecStart=/usr/local/bin/aip-probe
 Restart=on-failure
 RestartSec=2
 
-# Least privilege: grant ONLY the capabilities the configured sensors need.
-# perf tracepoints need CAP_PERFMON; fanotify needs CAP_SYS_ADMIN; the AF_PACKET
-# tap needs CAP_NET_RAW. Trim this set to the sensors actually enabled; do not
-# run as full root if a capability subset suffices.
+# Least privilege: the perf tracepoints need CAP_PERFMON. Add CAP_SYS_ADMIN /
+# CAP_NET_RAW only when Phase 1.x adds fanotify / AF_PACKET sensors. Trim this
+# to what the configured AIP_PROBE_SENSORS actually require.
 NoNewPrivileges=yes
-AmbientCapabilities=CAP_PERFMON CAP_SYS_ADMIN CAP_NET_RAW
-CapabilityBoundingSet=CAP_PERFMON CAP_SYS_ADMIN CAP_NET_RAW
+AmbientCapabilities=CAP_PERFMON
+CapabilityBoundingSet=CAP_PERFMON
 ProtectSystem=strict
 ProtectHome=yes
 PrivateTmp=yes
-# The probe writes no key and needs no persistent key store. It ships batches
-# to the collector; give it no ReadWritePaths beyond what its transport buffer
-# requires.
-RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_PACKET AF_NETLINK
+# The probe writes only its transport key file; grant just that path.
+ReadWritePaths=/var/lib/aip-probe
+RestrictAddressFamilies=AF_INET AF_INET6
 LockPersonality=yes
 
 [Install]

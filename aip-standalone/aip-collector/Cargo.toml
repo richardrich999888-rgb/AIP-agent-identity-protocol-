@@ -1,0 +1,24 @@
+[package]
+name = "aip-collector"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Phase 1: off-host collector daemon. Holds the only (wrapped) evidence-signing key, attests authenticated observation batches, persists chain state, serves signed health. The trust anchor."
+
+[lib]
+name = "aip_collector"
+path = "src/lib.rs"
+
+[[bin]]
+name = "aip-collector"
+path = "src/main.rs"
+
+[dependencies]
+aip-observe = { path = "../aip-observe" }
+aip-transport = { path = "../aip-transport" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+
+[dev-dependencies]
+aip-crypto = { path = "../aip-crypto" }
