@@ -1,0 +1,53 @@
+# TEMPLATE — off-host collector daemon (aip-collector).
+#
+# The aip-collector daemon is a Phase-1 BUILD ITEM (docs/pilot/BFSI_PILOT_PLAN.md
+# §7.3). This unit documents the intended deployment shape; the ExecStart binary
+# does not exist yet. The key-custody library it will use (CollectorKey::production)
+# does exist today — see ../templates/collector-key-provisioning.md.
+#
+# Runs on the collector host ONLY — never on an observed agent host.
+
+[Unit]
+Description=AIP off-host collector (holds the signing key; signs observation batches)
+Documentation=file:/opt/aip/deploy/pilot/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=aip-collector
+Group=aip-collector
+
+# Passphrase for the wrapped signing key, delivered by the secret manager and
+# exposed to the process only as a credential file the kernel drops after start.
+# Populate via a drop-in that sets LoadCredential from your Vault/agent.
+#   LoadCredential=collector-passphrase:/run/secrets/aip-collector-passphrase
+LoadCredential=collector-passphrase
+
+EnvironmentFile=/etc/aip/collector.env
+ExecStart=/usr/local/bin/aip-collector \
+    --observer-id ${AIP_COLLECTOR_OBSERVER_ID} \
+    --key-version ${AIP_COLLECTOR_KEY_VERSION} \
+    --key-path ${AIP_COLLECTOR_KEY_PATH} \
+    --passphrase-file %d/collector-passphrase \
+    --continuity ${AIP_COLLECTOR_CONTINUITY} \
+    --state-dir ${AIP_COLLECTOR_STATE_DIR} \
+    --listen ${AIP_COLLECTOR_LISTEN}
+Restart=on-failure
+RestartSec=2
+
+# Hardening: the collector is the trust anchor; lock it down.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ReadWritePaths=/var/lib/aip-collector
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryDenyWriteExecute=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

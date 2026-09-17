@@ -1,0 +1,49 @@
+# TEMPLATE — host-side probe daemon (aip-probe).
+#
+# The aip-probe daemon is a Phase-1 BUILD ITEM (docs/pilot/BFSI_PILOT_PLAN.md
+# §7.1). This unit documents the intended deployment shape; the ExecStart binary
+# does not exist yet. The live sensors it will drive (aip-observe: ProcessTracer,
+# SockStateTracer, SockSendTracer, ProcConnector, FanotifyWatch, WireTap) do
+# exist and are tested — only the long-running daemon and the networked transport
+# are unbuilt.
+#
+# Runs on each observed AGENT host. HOLDS NO KEY. Cannot sign.
+
+[Unit]
+Description=AIP host-side probe (kernel-mediated observation; holds no key)
+Documentation=file:/opt/aip/deploy/pilot/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=aip-probe
+Group=aip-probe
+
+EnvironmentFile=/etc/aip/probe.env
+ExecStart=/usr/local/bin/aip-probe \
+    --probe-id ${AIP_PROBE_ID} \
+    --collector ${AIP_PROBE_COLLECTOR_ENDPOINT} \
+    --sensors ${AIP_PROBE_SENSORS} \
+    --fanotify-mounts ${AIP_PROBE_FANOTIFY_MOUNTS}
+Restart=on-failure
+RestartSec=2
+
+# Least privilege: grant ONLY the capabilities the configured sensors need.
+# perf tracepoints need CAP_PERFMON; fanotify needs CAP_SYS_ADMIN; the AF_PACKET
+# tap needs CAP_NET_RAW. Trim this set to the sensors actually enabled; do not
+# run as full root if a capability subset suffices.
+NoNewPrivileges=yes
+AmbientCapabilities=CAP_PERFMON CAP_SYS_ADMIN CAP_NET_RAW
+CapabilityBoundingSet=CAP_PERFMON CAP_SYS_ADMIN CAP_NET_RAW
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+# The probe writes no key and needs no persistent key store. It ships batches
+# to the collector; give it no ReadWritePaths beyond what its transport buffer
+# requires.
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_PACKET AF_NETLINK
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target
