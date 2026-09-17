@@ -32,6 +32,7 @@
 //! bound. These are stated, not worked around.
 
 pub mod action;
+pub mod attest;
 pub mod ids;
 pub mod inputs;
 pub mod reconcile;
@@ -42,6 +43,10 @@ pub use action::{
     derive_transition_evidence, derive_transitions, DerivedAction, EventPosition, ExecutedImage,
     FileWrite, LineageEdge, ProcessExecution, SocketSend, SocketTransition, TransitionEvidence,
     TCP_ESTABLISHED,
+};
+pub use attest::{
+    ReconcilerSigner, ReconcilerTrustAnchors, ReconciliationAttestationError, SignedReconciliation,
+    RECONCILIATION_ATTESTATION_DOMAIN, RECONCILIATION_ATTESTATION_VERSION,
 };
 pub use ids::{BatchId, DecisionId, DecisionPointId, ObserverId, ObserverSequence, ProbeRunId};
 pub use inputs::{

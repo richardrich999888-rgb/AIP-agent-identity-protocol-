@@ -216,8 +216,14 @@ Stated as assumptions, because that is what they are.
    emits `Proven` only for `SENSOR_INTEGRITY_FAILURE`, which targets the
    observer and which containment refuses. Containment is therefore
    reachable in tests and unreachable from real evidence today.
-3. **Reconciliation records are unsigned.** SD-09 remains open, so the
-   NEXORA log commits records whose origin it cannot itself check.
+3. **Reconciliation records are now signable (SD-09 closed).** A fourth
+   authority signs the verdict: `aip_reconcile::ReconcilerSigner` produces a
+   `SignedReconciliation`, verified offline against `ReconcilerTrustAnchors`
+   the verifier supplies (`aip-reconcile/src/attest.rs`, adversarial tests +
+   a real-engine end-to-end test in `ghost-demo/tests/signed_verdict.rs`).
+   Signing attributes the verdict; it never strengthens it. **Wiring the
+   signed verdict into the NEXORA commitment (SD-10) is the next step** — the
+   capability exists; automatic commit does not yet.
 4. **Nothing feeds NEXORA automatically, and nothing persists it.**
 5. **`UNATTRIBUTED_EFFECT` is unreachable** until the decision point emits
    signed coverage statements.
@@ -364,9 +370,11 @@ unmeasured.
 
 Ordered by what unblocks the most.
 
-1. **Signed reconciliation records (SD-09)** — a fourth signer over the
-   verdict, so a committed record's origin is checkable. Unblocks SD-10,
-   SD-11 and SD-12 properly.
+1. **Signed reconciliation records (SD-09) — DONE.** A fourth signer over the
+   verdict (`aip_reconcile::attest`), so a committed record's origin is
+   checkable. The remaining work it unblocks is **SD-10**: feed the
+   `SignedReconciliation` into the NEXORA commitment automatically (nothing
+   commits it yet), then SD-11/SD-12.
 2. **Decision-point coverage statements** — the signed "no expectation
    exists for this window" that `UNATTRIBUTED_EFFECT` requires.
 3. **A collector deployment** — an authenticated probe → collector

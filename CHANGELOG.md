@@ -6,6 +6,24 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (reconciliation attestation — SD-09)
+- **Signed reconciliation verdicts.** `aip-reconcile` gains a fourth authority
+  that signs its verdict: `ReconcilerSigner` (custody-based, so the key may be
+  wrapped or off-host) produces a `SignedReconciliation`, verified offline with
+  `SignedReconciliation::verify` against `ReconcilerTrustAnchors` the verifier
+  supplies. The signature covers a domain-separated
+  (`SYNTRIASS/GHOST/RECONCILIATION_ATTESTATION/v1`), length-prefixed preimage
+  binding the envelope version, reconciler id, key version, and the verdict's
+  own canonical bytes — so a verdict's bytes cannot be replayed as an
+  attestation and identity/version fields cannot be swapped. Signing attributes
+  the verdict; it never strengthens it (a `CannotProve` stays `CannotProve`).
+  No existing signed struct, canonical encoder, or wire version changed —
+  additive new signed object. Adversarial tests (mutation, swapped id, untrusted
+  key/version, foreign-key forger, bare-verdict-signature domain confusion,
+  unsupported version) plus a real-engine end-to-end test
+  (`ghost-demo/tests/signed_verdict.rs`). Closes SD-09; unblocks SD-10 (NEXORA
+  commit of the signed verdict).
+
 ### Added (two-host pilot — Phase 1)
 - **`aip-transport`** — an authenticated probe↔collector channel over blocking
   TCP (std only; no async runtime). Length-prefixed frames bounded before

@@ -132,6 +132,35 @@ Bounds that must travel with the claim:
 
 ---
 
+## RA — Reconciliation attestation (SD-09)
+
+**Claim targeted.** *"A committed reconciliation verdict is attributable to the
+reconciler that produced it, and cannot be forged or altered without detection."*
+
+The verdict is signed by a fourth authority (`aip_reconcile::ReconcilerSigner`)
+and verified offline against anchors the verifier supplies. These attacks are
+executed as tests in `aip-reconcile/src/attest.rs` (synthetic verdict) and
+`ghost-demo/tests/signed_verdict.rs` (real-engine verdict).
+
+| id | attacker | attack | result |
+|----|----------|--------|--------|
+| RA-01 | forger, no key | mutate a signed verdict's `result`/`reason` | **DETECTED** — `PayloadHashMismatch` (synthetic + real-engine) |
+| RA-02 | forger, no key | swap `reconciler_id` on a signed verdict | **DETECTED** — `UntrustedReconciler` (and signer-id bind) |
+| RA-03 | forger, no key | claim a different `key_version` | **DETECTED** — `UntrustedReconciler` |
+| RA-04 | A-key holder ≠ reconciler | re-sign under a key not in the anchor set | **DETECTED** — `SignatureInvalid` |
+| RA-05 | forger | present a signature over the verdict's *own* canonical bytes as an attestation (domain confusion) | **DETECTED** — `PayloadHashMismatch`; the attestation domain wrapper is load-bearing |
+| RA-06 | forger | downgrade the envelope version | **DETECTED** — `UnsupportedVersion` |
+
+**Revised claim (what the evidence supports).** *A reconciler's verdict can be
+signed and verified offline against caller-supplied anchors; mutation, identity
+or key-version swaps, foreign-key re-signing, domain confusion, and version
+downgrade are each refused. The signature attributes the verdict and never
+strengthens it.* Bound, stated: attribution is only as trustworthy as the
+reconciler key's custody (wrapped-file today; HSM is future), and **nothing
+commits the signed verdict to NEXORA automatically yet — SD-10**.
+
+---
+
 ## Backlog (declared, not silently omitted)
 
 Each is `NOT_RUN` or `DEFERRED` with the blocking component named. An omitted
