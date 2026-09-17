@@ -48,7 +48,7 @@ demonstrator with extra steps, and its guarantee does not hold.
 1. Provision the collector key on the collector host
    (`templates/collector-key-provisioning.md`). Never on an agent host.
 2. Stand up the evidence API (`deploy/docker/`) with TLS terminated at the
-   bank's ingress proxy (plan B1) — the service speaks plain HTTP.
+   institution's ingress proxy (plan B1) — the service speaks plain HTTP.
 3. Build and deploy the Phase-1 daemons (plan §7) — probe on agent hosts,
    collector on its own host, authenticated transport between them.
 4. Run the RED suite on the pilot's own hardware (plan §3) and record results

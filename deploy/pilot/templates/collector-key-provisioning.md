@@ -24,7 +24,7 @@ let key = CollectorKey::production(
 
 // The collector signs with the custodian; the private key is never returned.
 let signer = CollectorSigner::with_custodian(
-    observer_id,   // e.g. "aip-collector.bank.example"
+    observer_id,   // e.g. "aip-collector.institution.example"
     key_version,   // bump on rotation
     /* the custodian held by `key` */,
 )?;
@@ -36,11 +36,11 @@ never consults custody.
 
 ## Passphrase handling
 
-- Source the passphrase from the bank's secret manager (systemd
+- Source the passphrase from the institution's secret manager (systemd
   `LoadCredential=`, Vault, or an HSM-fronted secret) — never a file literal,
   never a process argument, never an environment variable committed anywhere.
 - The wrapped key file is `0600`, owned by the collector service user, on the
-  collector host's local disk. Back it up encrypted per the bank's DR plan
+  collector host's local disk. Back it up encrypted per the institution's DR plan
   (plan B3).
 
 ## What this does and does not give you

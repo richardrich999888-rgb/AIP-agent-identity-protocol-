@@ -10,7 +10,7 @@
 | Modifies the agent? | No — passive; the agent is not instrumented |
 | Observe-only? | Yes |
 
-## Why audit, for a bank
+## Why audit, for a regulated institution
 
 For process `execve`, the Sniffer Dog reads `sched:sched_process_exec` through
 `perf_event_open`. The audit subsystem observes the **same act** through a
@@ -39,10 +39,10 @@ CONFIG_AUDIT=y
 CONFIG_AUDITSYSCALL=y
 ```
 
-## Deploying it as the pilot cross-check (on bank hardware)
+## Deploying it as the pilot cross-check (on institution hardware)
 
 The `auditd` userspace is packaged by every enterprise Linux distribution
-(`audit` / `auditd`), so on a bank host it is normally an already-approved
+(`audit` / `auditd`), so on an institution host it is normally an already-approved
 package rather than a source build. Minimal cross-check rule for the pilot's
 agent actions:
 
@@ -67,7 +67,7 @@ not evidence to consume. The comparison procedure is
 
 Tetragon (eBPF on **kprobes**) is the other candidate independent witness. It is
 **blocked wherever the kernel lacks `CONFIG_KPROBES`** — the repo's test kernel
-does (`../tetragon/BUILD.md`), so it could not be validated here. On bank
+does (`../tetragon/BUILD.md`), so it could not be validated here. On institution
 hardware, check `CONFIG_KPROBES` first; if present, Tetragon adds a second
 independent witness, and audit + Tetragon agreeing against a differing Sniffer
 Dog isolates a Sniffer Dog defect.
