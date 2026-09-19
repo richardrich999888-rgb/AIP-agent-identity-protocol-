@@ -49,6 +49,22 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R1)
+- **`aip-registry`**: the institution's signed, versioned registry of named
+  network resources (address ranges, ports, protocol, criticality). Entries
+  are sorted and pairwise non-overlapping at signing, so resolving an
+  observed endpoint is a total, deterministic function: exactly one
+  resource, or `Unregistered` — an answer, never an inference. Verified
+  offline against the institution's anchor; every downstream artefact cites
+  `(registry_id, revision)` so a later edit cannot re-label past evidence.
+  Depends on `aip-types` and `aip-crypto` only. 21 tests: signing, every
+  post-signing edit detected, impostor key, overlap and malformation
+  refusals, resolution including v4/v6 non-confusion.
+- `docs/pilot/RBI_REQUIREMENTS_COVERAGE.md`: every requirement the RBI
+  ecosystem places on an agent deployment, each with one disposition —
+  EXISTS (code and test named), BUILD (roadmap item R1–R20 with acceptance
+  test), INTEGRATE (who supplies it), or OUT OF SCOPE (named owner).
+
 ### Added (research)
 - `docs/pilot/RBI_AGENT_RISK_MAP.md`: where AI agents will create failures in
   the RBI-regulated ecosystem (ten classes, from mandate violations and

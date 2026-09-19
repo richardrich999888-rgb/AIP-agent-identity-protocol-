@@ -10,7 +10,9 @@
 
 **Where agents will create the mess, and where this system fits:** see
 `docs/pilot/RBI_AGENT_RISK_MAP.md` (regulatory clock, ten failure classes,
-entry points into the RBI ecosystem, build order).
+entry points into the RBI ecosystem, build order) and
+`docs/pilot/RBI_REQUIREMENTS_COVERAGE.md` (every requirement → EXISTS / BUILD /
+INTEGRATE / OUT OF SCOPE, with the roadmap R1–R20).
 
 **BFSI is the sector, not one segment.** This plan targets Banking, Financial
 Services **and Insurance** — banks, NBFCs, payment/fintech operators, capital
