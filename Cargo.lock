@@ -64,6 +64,7 @@ version = "0.4.0"
 dependencies = [
  "aip-core",
  "aip-crypto",
+ "aip-registry",
  "aip-types",
  "serde",
  "serde_json",
@@ -219,6 +220,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-ledger"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-registry",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-nexora"
 version = "0.4.0"
 dependencies = [
@@ -227,8 +241,10 @@ dependencies = [
  "aip-containment",
  "aip-core",
  "aip-crypto",
+ "aip-ledger",
  "aip-observe",
  "aip-reconcile",
+ "aip-registry",
  "aip-types",
  "aip-warrant",
  "serde",

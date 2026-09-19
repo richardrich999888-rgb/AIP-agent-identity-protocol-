@@ -301,9 +301,9 @@ fn the_profile_needs_no_change_to_nexora_or_to_the_reconciler() {
 
     assert_eq!(
         LeafKind::ALL.len(),
-        10,
+        11,
         "Skill 23 must add no leaf kind: a UAS proof tree would be a second proof tree \
-         (the list stands at ten: the tenth, `SignedReconciliation`, is SD-10's signed \
-         verdict leaf, not a profile's)"
+         (the list stands at eleven: `SignedReconciliation` is SD-10's signed verdict leaf and \
+         `AccessLedger` is R3's per-agent ledger; neither is a profile's)"
     );
 }

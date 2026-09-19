@@ -26,6 +26,8 @@ use crate::coverage::{
 use crate::expected::{
     ActionParameters, AuthorityRef, ExpectedExecution, EXPECTED_EXECUTION_VERSION,
 };
+use crate::resource::{destination_of, ResourcePolicy};
+use aip_registry::{granted_resources, Resolution};
 
 // ─── Request ───
 
@@ -117,6 +119,17 @@ pub enum DenialReason {
     /// The decision point has already signed a completeness statement for
     /// this agent covering the decision time; issuing now would falsify it.
     AttestedWindowClosed,
+    /// The request names a network destination whose parameters cannot be
+    /// read as one. Refused, not resolved permissively.
+    DestinationMalformed,
+    /// A resource policy is configured and the destination resolves to no
+    /// resource the institution has named. Refused outright: an unnamed
+    /// system is not a permitted one.
+    DestinationUnregistered,
+    /// The destination resolves to a named resource that the effective scope
+    /// does not grant (`res:<id>` absent from `allowed`, or present in
+    /// `denied` anywhere in the chain).
+    ResourceNotGranted,
 }
 
 // ─── Decision point ───
@@ -145,6 +158,11 @@ pub struct DecisionPoint {
     issuer_keys: HashMap<String, Vec<u8>>,
     max_ttl_ms: u64,
     ledger: Mutex<DecisionLedger>,
+    /// The institution's verified resource registry, when configured. With
+    /// it, every network destination must resolve to a resource the
+    /// effective scope grants. Without it, no resource check is performed —
+    /// visible through [`DecisionPoint::resource_policy`].
+    resource_policy: Option<ResourcePolicy>,
 }
 
 impl std::fmt::Debug for DecisionPoint {
@@ -156,6 +174,13 @@ impl std::fmt::Debug for DecisionPoint {
             .field("issuer_keys", &self.issuer_keys.keys().collect::<Vec<_>>())
             .field("max_ttl_ms", &self.max_ttl_ms)
             .field("ledger_since_ms", &self.coverage_ledger_since())
+            .field(
+                "resource_policy",
+                &self
+                    .resource_policy
+                    .as_ref()
+                    .map(|p| p.registry().citation()),
+            )
             .finish()
     }
 }
@@ -192,7 +217,23 @@ impl DecisionPoint {
             issuer_keys: HashMap::new(),
             max_ttl_ms,
             ledger: Mutex::new(DecisionLedger::default()),
+            resource_policy: None,
         })
+    }
+
+    /// Adopt the institution's verified resource registry as policy. From
+    /// then on a request naming a network destination is authorized only if
+    /// the destination resolves to a registered resource that the effective
+    /// scope grants (`res:<id>`). See [`crate::resource`].
+    pub fn with_resource_policy(mut self, policy: ResourcePolicy) -> Self {
+        self.resource_policy = Some(policy);
+        self
+    }
+
+    /// The configured resource policy, if any. `None` means network
+    /// destinations are not resource-checked by this decision point.
+    pub fn resource_policy(&self) -> Option<&ResourcePolicy> {
+        self.resource_policy.as_ref()
     }
 
     /// Declare from which instant this decision point vouches for the
@@ -387,6 +428,55 @@ impl DecisionPoint {
                 DenialReason::ActionOutOfScope,
                 format!("{:?} not permitted by effective scope", req.action_kind),
             ));
+        }
+
+        // 5b. Resource authority. The destination is read from the same
+        //     parameter bytes the expectation will sign; it is resolved
+        //     against the institution's verified registry; and it must be
+        //     granted by the effective (most attenuated) scope. Each failure
+        //     is a denial: an unparseable destination is not resolved
+        //     permissively, an unnamed system is not a permitted one, and a
+        //     name the chain never granted is not reachable.
+        if let Some(policy) = &self.resource_policy {
+            match destination_of(&req.parameters) {
+                Err(e) => {
+                    return Err(deny(
+                        DenialReason::DestinationMalformed,
+                        format!("network destination unreadable: {e}"),
+                    ))
+                }
+                Ok(None) => {}
+                Ok(Some(dest)) => {
+                    match policy.registry().resolve(
+                        dest.protocol,
+                        dest.is_v6,
+                        &dest.addr,
+                        dest.port,
+                    ) {
+                        Resolution::Unregistered => {
+                            let (rid, rev) = policy.registry().citation();
+                            return Err(deny(
+                                DenialReason::DestinationUnregistered,
+                                format!(
+                                    "destination port {} is not a resource named in registry {rid} revision {rev}",
+                                    dest.port
+                                ),
+                            ));
+                        }
+                        Resolution::Resource(entry) => {
+                            if !granted_resources(&effective_scope).contains(&entry.id) {
+                                return Err(deny(
+                                    DenialReason::ResourceNotGranted,
+                                    format!(
+                                        "resource {} ({}) is not granted by the effective scope",
+                                        entry.id, entry.display_name
+                                    ),
+                                ));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // 6. Binding: names this agent and is not degenerate.

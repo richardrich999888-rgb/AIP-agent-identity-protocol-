@@ -26,6 +26,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use aip_ledger::{AccessLedger, LedgerError, LedgerTrustAnchors};
 use aip_reconcile::{
     EvidenceStrength, ReconcilerTrustAnchors, ReconciliationAttestationError, ReconciliationResult,
     SignedReconciliation,
@@ -126,5 +127,89 @@ pub fn verify_committed_verdict(
         key_version: signed.key_version,
         result: verdict.result,
         strength: verdict.strength,
+    })
+}
+
+// ─── Access ledgers (R3) ───
+
+/// Append a signed access ledger to `log` as a [`LeafKind::AccessLedger`]
+/// leaf; returns its position. The committed bytes are
+/// [`AccessLedger::canonical_bytes`], which include the ledger signer's
+/// attestation.
+pub fn commit_access_ledger(log: &mut CommitmentLog, ledger: &AccessLedger) -> u64 {
+    log.append(LeafKind::AccessLedger, &ledger.canonical_bytes())
+}
+
+/// What an offline party can say after [`verify_committed_ledger`]: where the
+/// ledger was committed, who composed it, and which registry revision it
+/// resolved against. Nothing here restates a row.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CommittedLedger {
+    pub inclusion: VerifiedInclusion,
+    pub ledger_signer_id: String,
+    pub key_version: u32,
+    pub agent_id: String,
+    pub registry_id: String,
+    pub registry_revision: u64,
+    pub entries: usize,
+}
+
+/// Why a committed ledger was refused.
+#[derive(Debug)]
+pub enum CommittedLedgerError {
+    /// The ledger signer's attestation did not verify under the verifier's
+    /// ledger anchors, or the ledger is not canonical.
+    Ledger(LedgerError),
+    /// The inclusion proof or its signed head did not verify.
+    Commitment(NexoraError),
+    /// The proof commits a leaf of another kind.
+    WrongLeafKind(LeafKind),
+    /// The proof's committed bytes are not this ledger's canonical bytes.
+    RecordMismatch,
+}
+
+impl std::fmt::Display for CommittedLedgerError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Ledger(e) => write!(f, "ledger: {e}"),
+            Self::Commitment(e) => write!(f, "commitment: {e}"),
+            Self::WrongLeafKind(k) => write!(f, "committed leaf is {k:?}, not an access ledger"),
+            Self::RecordMismatch => {
+                write!(f, "committed bytes are not this ledger's canonical bytes")
+            }
+        }
+    }
+}
+
+impl std::error::Error for CommittedLedgerError {}
+
+/// Verify that `ledger` is signer-attested and canonical **and** that `proof`
+/// commits exactly it under a head the verifier anchors. Same order and
+/// reasoning as [`verify_committed_verdict`].
+pub fn verify_committed_ledger(
+    ledger: &AccessLedger,
+    proof: &ProofObject,
+    nexora_anchors: &NexoraTrustAnchors,
+    ledger_anchors: &LedgerTrustAnchors,
+) -> Result<CommittedLedger, CommittedLedgerError> {
+    ledger
+        .verify(ledger_anchors)
+        .map_err(CommittedLedgerError::Ledger)?;
+    let inclusion =
+        verify_proof(proof, nexora_anchors).map_err(CommittedLedgerError::Commitment)?;
+    if inclusion.kind != LeafKind::AccessLedger {
+        return Err(CommittedLedgerError::WrongLeafKind(inclusion.kind));
+    }
+    if proof.record != ledger.canonical_bytes() {
+        return Err(CommittedLedgerError::RecordMismatch);
+    }
+    Ok(CommittedLedger {
+        inclusion,
+        ledger_signer_id: ledger.ledger_signer_id.clone(),
+        key_version: ledger.key_version,
+        agent_id: ledger.agent_id.clone(),
+        registry_id: ledger.registry_id.clone(),
+        registry_revision: ledger.registry_revision,
+        entries: ledger.entries.len(),
     })
 }

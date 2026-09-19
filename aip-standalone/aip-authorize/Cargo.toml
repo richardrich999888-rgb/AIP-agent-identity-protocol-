@@ -9,6 +9,7 @@ description = "Ghost Stage 2: independent authorization decision point emitting 
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
 aip-core = { path = "../aip-core" }
+aip-registry = { path = "../aip-registry" }
 serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]

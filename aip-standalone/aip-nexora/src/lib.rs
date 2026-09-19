@@ -23,7 +23,8 @@ pub use commitment::{
     VerifiedInclusion, HEAD_DOMAIN, NEXORA_VERSION, PROOF_DOMAIN,
 };
 pub use committed::{
-    commit_signed_verdict, verify_committed_verdict, CommittedVerdict, CommittedVerdictError,
+    commit_access_ledger, commit_signed_verdict, verify_committed_ledger, verify_committed_verdict,
+    CommittedLedger, CommittedLedgerError, CommittedVerdict, CommittedVerdictError,
 };
 pub use merkle::{
     leaf_hash, root_of, verify_consistency, verify_inclusion, ConsistencyProof, InclusionProof,

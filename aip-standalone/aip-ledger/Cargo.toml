@@ -1,0 +1,17 @@
+[package]
+name = "aip-ledger"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Per-agent, per-window access ledger: every network resource an agent reached, resolved against the institution's signed registry and cited to signed reconciliation verdicts; signed, offline-verifiable"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-observe = { path = "../aip-observe" }
+aip-reconcile = { path = "../aip-reconcile" }
+aip-registry = { path = "../aip-registry" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"

@@ -41,6 +41,7 @@ pub mod actions;
 pub mod coverage;
 pub mod decision;
 pub mod expected;
+pub mod resource;
 
 pub use actions::{
     fs_write_action, fs_write_parameters, net_connect_action, net_connect_parameters,
@@ -62,3 +63,4 @@ pub use expected::{
     TemporalStatus, ACTION_PARAMETERS_DOMAIN, EXPECTED_EXECUTION_DOMAIN,
     EXPECTED_EXECUTION_VERSION,
 };
+pub use resource::{destination_of, Destination, DestinationError, ResourcePolicy};

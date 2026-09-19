@@ -67,6 +67,10 @@ pub enum LeafKind {
     /// the bare verdict; this commits the attributed one. Distinct codes keep
     /// one from being presented as the other.
     SignedReconciliation,
+    /// An `AccessLedger`'s canonical bytes (R3): the per-agent, per-window
+    /// ledger of resources reached, with its signer's attestation, so a
+    /// committed ledger's composer is checkable offline.
+    AccessLedger,
 }
 
 impl LeafKind {
@@ -82,12 +86,13 @@ impl LeafKind {
             LeafKind::ProofBundle => 0x08,
             LeafKind::AiriEvent => 0x09,
             LeafKind::SignedReconciliation => 0x0a,
+            LeafKind::AccessLedger => 0x0b,
         }
     }
 
     /// Codes 0x01–0x05 are frozen: a leaf committed before Skill 10 keeps
     /// verifying. New kinds append.
-    pub const ALL: [LeafKind; 10] = [
+    pub const ALL: [LeafKind; 11] = [
         LeafKind::Reconciliation,
         LeafKind::AttestedBatch,
         LeafKind::SignedHealth,
@@ -98,6 +103,7 @@ impl LeafKind {
         LeafKind::ProofBundle,
         LeafKind::AiriEvent,
         LeafKind::SignedReconciliation,
+        LeafKind::AccessLedger,
     ];
 }
 

@@ -33,19 +33,29 @@
 //! the reconciler and the ledger consume this crate; it consumes none of
 //! them, so a registry can never influence what was observed.
 
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use aip_crypto::{sha256, sign_ed25519, verify_ed25519};
 use aip_types::canonical::*;
-use aip_types::Signature;
+use aip_types::{CapabilityScope, ScopeAction, Signature};
 use serde::{Deserialize, Serialize};
 
 /// Domain tag leading the canonical encoding of a [`ResourceRegistry`].
 pub const RESOURCE_REGISTRY_DOMAIN: &str = "GHOST/ResourceRegistry/v1";
 /// Wire version of [`ResourceRegistry`].
 pub const RESOURCE_REGISTRY_VERSION: u16 = 1;
-/// Longest permitted resource id, in bytes.
-pub const MAX_RESOURCE_ID_LEN: usize = 128;
+/// Longest permitted resource id, in bytes. Chosen so that
+/// [`RESOURCE_SCOPE_PREFIX`] plus an id fits a `ScopeAction::Custom` (64
+/// bytes): a resource grant rides inside the existing signed, attenuating
+/// capability scope with no change to any token's wire format.
+pub const MAX_RESOURCE_ID_LEN: usize = 60;
+/// Prefix that marks a `ScopeAction::Custom` as a **resource grant** rather
+/// than an action. `res:core-banking-api` in a token's `allowed` list grants
+/// the agent that resource; in `denied` it withholds it, overriding any
+/// grant above it in the chain. Grants attenuate down a delegation chain
+/// exactly as actions do (`child.allowed ⊆ parent.allowed`), and are covered
+/// by the issuer's signature exactly as actions are.
+pub const RESOURCE_SCOPE_PREFIX: &str = "res:";
 /// Longest permitted display name, in bytes.
 pub const MAX_DISPLAY_NAME_LEN: usize = 256;
 
@@ -125,8 +135,10 @@ pub enum ObservedProtocol {
 
 // ─── Address and port ranges ───
 
-/// A CIDR range. IPv4 addresses are carried in the low 4 bytes of `addr`
-/// with `is_v6 == false` and `prefix_len <= 32`; IPv6 in all 16 with
+/// A CIDR range. IPv4 addresses occupy the **first** four bytes of `addr`
+/// with `is_v6 == false` and `prefix_len <= 32` — the same layout the
+/// observer uses for `SocketEndpoint`, so an observed address is compared
+/// byte for byte with no re-encoding in between; IPv6 fills all 16 with
 /// `prefix_len <= 128`. Host bits below the prefix are ignored on match and
 /// must be zero in a well-formed entry, so two spellings of one range have
 /// one canonical encoding.
@@ -141,7 +153,7 @@ impl AddressRange {
     /// An IPv4 range from dotted octets and a prefix length.
     pub fn v4(octets: [u8; 4], prefix_len: u8) -> Self {
         let mut addr = [0u8; 16];
-        addr[12..].copy_from_slice(&octets);
+        addr[..4].copy_from_slice(&octets);
         AddressRange {
             is_v6: false,
             addr,
@@ -172,12 +184,12 @@ impl AddressRange {
     }
 
     /// The bytes of the address that carry the family's bits (16 for v6,
-    /// the low 4 for v4).
+    /// the first 4 for v4).
     fn family_bytes(addr: &[u8; 16], is_v6: bool) -> &[u8] {
         if is_v6 {
             &addr[..]
         } else {
-            &addr[12..]
+            &addr[..4]
         }
     }
 
@@ -188,7 +200,7 @@ impl AddressRange {
                 is_v6: self.is_v6,
             });
         }
-        if !self.is_v6 && self.addr[..12] != [0u8; 12] {
+        if !self.is_v6 && self.addr[4..] != [0u8; 12] {
             return Err(RegistryError::V4WithHighBytes);
         }
         // Host bits below the prefix must be zero: one range, one spelling.
@@ -615,6 +627,41 @@ impl ResourceRegistry {
     }
 }
 
+// ─── Resource grants inside capability scopes ───
+
+/// The scope action that grants `id`. Inverse of [`resource_id_of`].
+pub fn resource_scope_action(id: &str) -> ScopeAction {
+    ScopeAction::Custom(format!("{RESOURCE_SCOPE_PREFIX}{id}"))
+}
+
+impl ResourceEntry {
+    /// The scope action that grants this resource.
+    pub fn scope_action(&self) -> ScopeAction {
+        resource_scope_action(&self.id)
+    }
+}
+
+/// The resource id a scope action grants, if it is a resource grant.
+pub fn resource_id_of(action: &ScopeAction) -> Option<&str> {
+    match action {
+        ScopeAction::Custom(s) => s.strip_prefix(RESOURCE_SCOPE_PREFIX),
+        ScopeAction::Standard(_) => None,
+    }
+}
+
+/// The resources a scope grants: every `res:` entry in `allowed` that is
+/// not also in `denied`. Explicit deny overrides allow, as for actions.
+pub fn granted_resources(scope: &CapabilityScope) -> BTreeSet<String> {
+    let denied: BTreeSet<&str> = scope.denied.iter().filter_map(resource_id_of).collect();
+    scope
+        .allowed
+        .iter()
+        .filter_map(resource_id_of)
+        .filter(|id| !denied.contains(id))
+        .map(str::to_owned)
+        .collect()
+}
+
 /// A structurally valid, obviously unsigned placeholder used while the
 /// preimage is computed. Never leaves [`ResourceRegistry::sign`].
 fn placeholder_signature(signer_id: &str) -> Signature {
@@ -656,6 +703,28 @@ mod tests {
         assert!(host_bits_zero(&[10, 0, 5, 0b1010_0000], 27));
         assert!(!host_bits_zero(&[10, 0, 5, 0b1010_0001], 27));
         assert!(host_bits_zero(&[10, 0, 5, 7], 32));
+    }
+
+    #[test]
+    fn resource_grants_ride_in_the_scope_and_deny_overrides_allow() {
+        let scope = CapabilityScope {
+            allowed: vec![
+                resource_scope_action("core-banking-api"),
+                resource_scope_action("payments-switch"),
+                ScopeAction::Custom("ghost.net.connect.v1".into()),
+            ],
+            denied: vec![resource_scope_action("payments-switch")],
+        };
+        let g = granted_resources(&scope);
+        assert_eq!(
+            g.into_iter().collect::<Vec<_>>(),
+            vec!["core-banking-api".to_owned()]
+        );
+        assert_eq!(
+            resource_id_of(&ScopeAction::Custom("ghost.net.connect.v1".into())),
+            None
+        );
+        assert_eq!(resource_id_of(&resource_scope_action("x")), Some("x"));
     }
 
     #[test]

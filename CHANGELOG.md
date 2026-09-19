@@ -49,6 +49,41 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R2, R3)
+- **Resource-scoped authority at the decision point (R2).** A resource grant
+  is a `res:<id>` entry in the existing signed capability scope
+  (`aip_registry::resource_scope_action`), so it is covered by the issuer's
+  signature and attenuates down the delegation chain with **no change to any
+  token's wire format**; explicit deny overrides. `DecisionPoint::
+  with_resource_policy(ResourcePolicy)` adopts the institution's registry
+  after verifying it; adjudication reads the network destination from the
+  same parameter bytes the expectation signs, resolves it, and denies
+  `DestinationMalformed`, `DestinationUnregistered` (an unnamed system is not
+  a permitted one) or `ResourceNotGranted`. The resolved name is kept out of
+  the expectation's parameter digest, which must stay exactly what the
+  reconciler recomputes. Without a policy no resource check runs, and the
+  decision point says so. Resource ids are capped at 60 bytes so a grant
+  fits a `Custom` action. Tests: `aip-authorize/tests/resources.rs`.
+- **Per-agent access ledger (R3).** `aip-ledger::AccessLedger`: for one
+  agent over one window, every endpoint reached (socket effects and
+  kernel-pushed connect initiations attributed to the agent), resolved
+  against a verified registry revision it cites, with the reconciler's
+  signed verdicts cited to rows through the observation, kernel event or
+  claimed decision they reference. Results and strengths verbatim; a row's
+  `Standing` is a fixed summary never above its citations; verdicts that
+  match no row are counted, not dropped. Signed by a fifth authority
+  (`LedgerSigner`), canonical order enforced at verification, offline
+  verification under `LedgerTrustAnchors`. `aip-nexora` gains
+  `LeafKind::AccessLedger` (0x0b), `commit_access_ledger` and
+  `verify_committed_ledger`. Tests over a real probe and collector
+  (`aip-ledger/tests/ledger.rs`) and over the real-engine
+  `VERIFIED_EXECUTION` fixture committed to a log
+  (`aip-nexora/tests/access_ledger.rs`). Three profile pins move from ten to
+  eleven leaf kinds.
+- IPv4 layout: the registry and the decision point's destination parser use
+  the observer's layout (first four bytes of the 16-byte field), so all
+  three resolve identical bytes.
+
 ### Added (RBI requirements coverage — R1)
 - **`aip-registry`**: the institution's signed, versioned registry of named
   network resources (address ranges, ports, protocol, criticality). Entries

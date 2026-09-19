@@ -74,9 +74,10 @@ fn estate() -> Vec<ResourceEntry> {
     ]
 }
 
+/// The observer's layout: IPv4 in the first four bytes.
 fn v4(octets: [u8; 4]) -> [u8; 16] {
     let mut a = [0u8; 16];
-    a[12..].copy_from_slice(&octets);
+    a[..4].copy_from_slice(&octets);
     a
 }
 
@@ -391,10 +392,10 @@ fn everything_the_institution_did_not_name_is_unregistered_not_guessed() {
         reg.resolve(ObservedProtocol::Tcp, false, &v4([10, 0, 9, 1]), 9011),
         Resolution::Unregistered
     );
-    // A v4 address that happens to equal the low bytes of a v6 entry's
-    // network is not a v6 address.
+    // A v4 address whose bytes equal a v6 entry's network prefix is not a
+    // v6 address: the family flag, not the bytes, decides.
     let mut looks_like = [0u8; 16];
-    looks_like[12] = 0xfd;
+    looks_like[0] = 0xfd;
     assert_eq!(
         reg.resolve(ObservedProtocol::Tcp, false, &looks_like, 22),
         Resolution::Unregistered
