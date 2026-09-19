@@ -308,6 +308,7 @@ pub fn app_state(
         artifacts: std::sync::Arc::new(airon_aip::artifacts::JsonlArtifactStore::in_memory()),
         api_keys,
         signer: std::sync::Arc::new(kp),
+        metrics: std::sync::Arc::new(Default::default()),
         managed_signing,
     })
 }

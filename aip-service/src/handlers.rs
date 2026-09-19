@@ -34,6 +34,25 @@ fn internal_error(msg: impl Into<String>) -> ApiError {
 
 // ── GET /health ───────────────────────────────────────────────────────────────
 
+/// `GET /metrics` — Prometheus text exposition format (R15).
+///
+/// Authenticated with any role. The counters are aggregate: no tenant,
+/// agent or document identifier appears, so one tenant's scrape reveals
+/// nothing about another's volume. See `crate::metrics` for what is
+/// deliberately absent.
+pub async fn metrics(
+    State(state): State<Arc<AppState>>,
+    _principal: crate::auth::Principal,
+) -> (StatusCode, [(&'static str, &'static str); 1], String) {
+    (
+        StatusCode::OK,
+        // The content type Prometheus expects; a scraper handed
+        // `application/json` refuses the body.
+        [("content-type", "text/plain; version=0.0.4; charset=utf-8")],
+        state.metrics.render(),
+    )
+}
+
 pub async fn health(State(state): State<Arc<AppState>>) -> Json<HealthResponse> {
     Json(HealthResponse {
         status: "ok",

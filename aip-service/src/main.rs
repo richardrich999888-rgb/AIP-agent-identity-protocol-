@@ -223,6 +223,7 @@ async fn main() {
         artifacts,
         api_keys,
         signer: Arc::new(kp),
+        metrics: Arc::new(Default::default()),
         managed_signing,
     });
 

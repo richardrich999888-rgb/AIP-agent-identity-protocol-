@@ -1,0 +1,14 @@
+[package]
+name = "aip-siem"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "CEF over RFC 5424 syslog export of verified reconciliation verdicts"
+
+[dependencies]
+aip-reconcile = { path = "../aip-reconcile" }
+
+[dev-dependencies]
+aip-crypto = { path = "../aip-crypto" }
+aip-observe = { path = "../aip-observe" }
+aip-reconcile = { path = "../aip-reconcile", features = ["test-fixtures"] }

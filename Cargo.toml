@@ -57,6 +57,9 @@ members = [
     # log operator does not hold, so a rewritten log cannot reproduce the
     # receipts a reviewer already has.
     "aip-standalone/aip-anchor",
+    # SIEM export (R15): CEF over RFC 5424, formatting only, emitted from a
+    # verified verdict and never from an unverified one.
+    "aip-standalone/aip-siem",
     "aip-standalone/aip-containment",
     # ── the Linux autonomous edge reference (Skill 22) ─────────────────
     # Four members, and the split is the deliverable: the workload cannot

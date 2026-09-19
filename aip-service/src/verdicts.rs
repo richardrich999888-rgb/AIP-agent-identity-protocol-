@@ -138,6 +138,11 @@ pub async fn submit_verdict(
         anchors = anchors.trust(id, *version, key);
     }
     req.verdict.verify(&anchors).map_err(|e| {
+        // Counted before the error is returned: a rising rejection rate is
+        // the signal that something is submitting documents this service
+        // will not stand behind, and it is invisible in the store by
+        // definition — nothing is stored.
+        state.metrics.verdicts_rejected.incr();
         bad_request(format!(
             "verdict did not verify under the supplied anchors ({e:?}); \
              it is not stored"
@@ -165,6 +170,7 @@ pub async fn submit_verdict(
         body,
     };
     let id = state.artifacts.put(stored).await.map_err(store_error)?;
+    state.metrics.verdicts_stored.incr();
     Ok(Json(StoredResponse {
         id,
         kind: ArtifactKind::Verdict.as_str().to_string(),
@@ -211,6 +217,7 @@ pub async fn submit_ledger(
         anchors = anchors.trust(id, *version, key);
     }
     req.ledger.verify(&anchors).map_err(|e| {
+        state.metrics.ledgers_rejected.incr();
         bad_request(format!(
             "access ledger did not verify under the supplied anchors ({e:?}); \
              it is not stored"
@@ -232,6 +239,7 @@ pub async fn submit_ledger(
         body,
     };
     let id = state.artifacts.put(stored).await.map_err(store_error)?;
+    state.metrics.ledgers_stored.incr();
     Ok(Json(StoredResponse {
         id,
         kind: ArtifactKind::AccessLedger.as_str().to_string(),

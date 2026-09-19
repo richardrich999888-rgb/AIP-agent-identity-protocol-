@@ -49,6 +49,60 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R15: metrics, SIEM, runbook)
+- **Verified verdicts as CEF over RFC 5424 syslog (`aip-standalone/aip-siem`).**
+  A verdict nobody reads changes nothing, and an institution's analysts
+  work in a SIEM. `CefEvent::from_verdict` verifies under anchors the
+  caller supplies and there is no constructor that skips it: the SIEM is
+  exactly where a forgery would acquire the institution's own provenance,
+  arriving as something the bank's reconciler said.
+- **The severity this crate had to invent, and how it is bounded.** A
+  `Reconciliation` carries no severity, confidence or score by design, and
+  a test in `aip-reconcile` enforces that; CEF's header makes one
+  mandatory. It is therefore a documented routing hint owned by the
+  exporter: a total table over `ReconciliationResult` alone, never over
+  `strength`, with no wildcard arm so a new result class is a compile
+  error rather than a silent "informational". `CANNOT_PROVE` maps to the
+  middle of the range, not the bottom — an unproven claim is not a clean
+  one — and its `msg` says so in words.
+- **Refusal rather than ambiguous logging.** Escaping (`escape.rs`) is
+  correct and separately tested for both halves of a CEF line, which
+  differ. It is not sufficient on its own: a signed-but-hostile
+  `reconciler_id` can still spell a literal `CEF:0|…` inside a
+  conformantly-escaped record, which a stream consumer that re-scans for
+  `CEF:` reads as a second event. An exporter cannot verify what its
+  receiver does, so a value containing a pipe, a backslash or a control
+  character is refused, and the refusal names the verdict digest so the
+  document is not lost. Device identity is validated the same way, once,
+  at construction.
+- **No new dependencies.** CEF and RFC 5424 are text formats; the one
+  thing that usually drags in a crate — Unix milliseconds to RFC 3339 — is
+  `time.rs`, with the derivation of Hinnant's `civil_from_days` written
+  out and tested against known instants, leap days, the 1900/2000 century
+  rule and eleven years of consecutive days.
+- **`GET /metrics` on `aip-service`,** Prometheus text exposition format.
+  **Authenticated** — request volume is operationally sensitive and an
+  unauthenticated counter of filed evidence tells an observer when an
+  institution is busy. **Unlabelled** — a series labelled by tenant is a
+  cross-tenant disclosure channel on a shared scrape, and agent or
+  document identifiers are unbounded cardinality as well as being
+  evidence. Ten counters, including `aip_verdicts_rejected_total` and
+  `aip_siem_exports_refused_total`: both count events that are by
+  definition invisible in the store, because nothing was stored.
+  **Decision:** the exposition format rather than the OpenTelemetry SDK —
+  every stack the requirement names scrapes it, the OTel Collector
+  included, and the SDK would add a large tree to a ten-counter surface.
+- **`deploy/pilot/RUNBOOK.md`,** written for someone on call at 03:00:
+  which `cs1` values page, the CERT-In six-hour assembly, the anchor audit
+  before a submission, and the instruction to alert on
+  `aip_evidence_stored_total` *falling to zero* — a pipeline that stopped
+  looks exactly like a quiet day. It opens with the rule that
+  `CANNOT_PROVE`, `NotEvaluated` and an empty gap list are not clean
+  results.
+- Tests: 35 in `aip-siem` (20 integration over real signed verdicts, 15
+  unit over escaping, framing and the date arithmetic) and 4 over the
+  service's real router.
+
 ### Added (RBI requirements coverage — R11: anchoring against the operator)
 - **An external witness for NEXORA log heads (`aip-standalone/aip-anchor`).**
   A Merkle commitment log establishes that a record is under a root and

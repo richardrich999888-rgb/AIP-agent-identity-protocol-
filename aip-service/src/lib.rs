@@ -8,6 +8,7 @@ pub mod authority;
 pub mod evidence;
 pub mod handlers;
 pub mod keys;
+pub mod metrics;
 pub mod models;
 pub mod revocation;
 pub mod store;
@@ -65,6 +66,10 @@ pub struct AppState {
     /// HTTP handler in the process — `AppState` is shared with all of them.
     /// `RawSigner` exposes signing and a public key and nothing else.
     pub signer: std::sync::Arc<dyn aip_crypto::custody::RawSigner>,
+    /// Operational counters (R15). Aggregate only: no tenant, agent or
+    /// document identifier appears in a metric, because a labelled series
+    /// on a shared scrape is a cross-tenant disclosure channel.
+    pub metrics: Arc<metrics::Metrics>,
     /// Whether `POST /v1/evidence/generate` — which requires the caller to
     /// send an agent's *private* Ed25519 seed in the request body — is
     /// served at all.
@@ -127,6 +132,17 @@ impl ManagedSigning {
 pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
         .route("/health", get(handlers::health))
+        // Operational metrics (R15).
+        //
+        // Auth: `Principal` — any role. **Not public.** Request volume is
+        // commercially and operationally sensitive, and an unauthenticated
+        // counter of filed evidence tells an observer when an institution
+        // is busy. A Prometheus scrape sends a bearer token like any other
+        // client.
+        // Tenant: none. Counters are aggregate; see `metrics`.
+        // Cost: reads ten atomics and formats a fixed string. No store
+        // access, no signature verification, no unbounded work.
+        .route("/metrics", get(handlers::metrics))
         .route("/v1/identity/issue", post(handlers::issue))
         .route("/v1/identity/verify", post(handlers::verify))
         .route("/v1/identity/public-key", get(handlers::public_key))

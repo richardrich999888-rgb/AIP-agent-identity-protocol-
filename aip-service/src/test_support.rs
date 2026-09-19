@@ -54,6 +54,7 @@ pub fn test_app_state_with(
         artifacts: Arc::new(crate::artifacts::JsonlArtifactStore::in_memory()),
         api_keys,
         signer: Arc::new(kp),
+        metrics: Arc::new(Default::default()),
         managed_signing,
     })
 }

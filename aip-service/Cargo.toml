@@ -65,4 +65,8 @@ tower = { version = "0.5", features = ["util"] }
 aip-authorize = { path = "../aip-standalone/aip-authorize" }
 aip-observe   = { path = "../aip-standalone/aip-observe" }
 aip-registry  = { path = "../aip-standalone/aip-registry" }
+# `Reconciliation::fixture_default` — a verdict shaped like engine output,
+# so a test can exercise a class the engine cannot currently reach. The
+# feature is dev-only and no production build turns it on.
+aip-reconcile = { path = "../aip-standalone/aip-reconcile", features = ["test-fixtures"] }
 

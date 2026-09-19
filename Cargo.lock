@@ -506,6 +506,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-siem"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-observe",
+ "aip-reconcile",
+]
+
+[[package]]
 name = "aip-space"
 version = "0.4.0"
 dependencies = [
