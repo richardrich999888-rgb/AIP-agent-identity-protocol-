@@ -49,6 +49,51 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R12, R13: supply chain and storage)
+- **Release artefacts are signed (R12).** `release.yml` signs each archive
+  with keyless Sigstore and then **verifies the signature it just produced**,
+  under the same identity constraints a downloader uses. An unverified
+  signing step is a step that can silently stop signing; this one fails the
+  release instead. No long-lived signing key exists, so there is none to leak
+  or rotate. `VERIFYING.md` ships with the release and says plainly that
+  omitting the identity flags accepts any Sigstore signature ever issued, to
+  anyone, which is not a check.
+- **The evidence store's immutability is now the database's property, not the
+  service's (R13).** `deploy/sql/hardening.sql`, applied once by the owning
+  role: the service connects as a role holding SELECT and INSERT only.
+  A fully compromised service still cannot delete or alter a stored packet,
+  because the connection it holds was never granted the privilege.
+- **Legal hold binds the operator too.** A `BEFORE DELETE` trigger refuses to
+  remove a held packet even for the role that runs the retention job — a hold
+  the operator can step around is not a hold. Holds are per packet or
+  tenant-wide, and a tenant-wide hold covers packets stored after it was
+  placed. Releasing it restores retention.
+- **Retention floor is a constraint.** 180 days (CERT-In) as a CHECK, so a
+  misconfigured policy is refused at write time rather than discovered at an
+  inspection.
+- **Row-level security closes the single-forgotten-WHERE disclosure.** The
+  policy reads `aip.tenant_id`, which the store now sets inside each
+  transaction (`is_local`, so a pooled connection cannot carry one request's
+  tenant into the next). A connection that declared no tenant sees nothing:
+  failing closed is the whole value of the control. `count()` consequently
+  reports zero under RLS, because a cross-tenant total is exactly what tenant
+  isolation forbids.
+- The store tolerates a database it may not provision: DDL refused for lack
+  of privilege is followed by confirming the tables exist, so a restricted
+  role starts cleanly while a genuinely unprovisioned database still fails
+  loudly at startup rather than on the first request.
+- **These are proven, not asserted.** `aip-service/tests/storage_controls.rs`
+  runs against a real PostgreSQL and checks what the database refuses: the
+  service role's DELETE, UPDATE, TRUNCATE, DROP and `DISABLE ROW LEVEL
+  SECURITY`; an unfiltered SELECT crossing tenants; an undeclared
+  connection; a held packet against the owner; a 90-day retention policy.
+  They are `#[ignore]` rather than self-skipping, so an unconfigured run
+  reports them as *ignored* instead of *ok* — the failure mode the audit
+  recorded in the existing Postgres suite.
+- **Not done, stated:** backup, disaster recovery and a tested restore drill.
+  Immutability is not durability; a table nobody can delete from is still lost
+  with its disk.
+
 ### Changed — wire (RBI requirements coverage — R5: container identity)
 - **`EXECUTION_BINDING_VERSION` is 2.** `ExecutionBinding` gains
   `container: Option<ContainerIdentity>`. The version is inside both the full

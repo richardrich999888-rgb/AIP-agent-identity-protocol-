@@ -65,8 +65,8 @@
 | D3 | External anchoring of log heads | tamper evidence against the operator | **BUILD** | R11: anchor sink to an RE-controlled second system (HSM-signed timestamp or independent ledger); test: a rewritten head fails against the anchor |
 | D4 | Offline verification with RE-held keys, no call-home | data residency; RBI inspection | EXISTS | `aip-verify`, `nexora-verify`; both in releases |
 | D5 | Signed audit-export bundle for the auditor | audit | EXISTS | `/v1/evidence/{id}/export`; `verify_zip` |
-| D6 | Release artefacts **signed**, not only checksummed | supply-chain assurance; MRM third-party | **BUILD** | R12: sigstore/cosign in `release.yml`; test: verification step in CI against the published key |
-| D7 | Storage-enforced immutability and retention (WORM, RLS, 180-day floor) | CERT-In 180 days; IT Governance | **BUILD** | R13: Postgres RLS + `REVOKE DELETE`, retention policy table, legal hold; test: delete attempt by the service role fails at the database |
+| D6 | Release artefacts **signed**, not only checksummed | supply-chain assurance; MRM third-party | EXISTS | R12: keyless Sigstore signing in `release.yml`, with the release job verifying the signature it just produced under the same identity constraints a downloader uses, so a misconfiguration fails the release rather than shipping an unverifiable artefact. `VERIFYING.md` ships with the release. No long-lived signing key exists to leak. Note: the published key |
+| D7 | Storage-enforced immutability and retention (WORM, RLS, 180-day floor) | CERT-In 180 days; IT Governance | EXISTS (controls) / **BUILD** (backup) | `deploy/sql/hardening.sql`, applied by the owning role: the service's role holds SELECT and INSERT only, and triggers make evidence append-only and enforce legal hold **against the owner too**. Row-level security scopes an unfiltered query and admits nothing to a connection that declared no tenant. Retention floor of 180 days is a CHECK, so a misconfigured policy is refused at write time. Proven against a real PostgreSQL: `aip-service/tests/storage_controls.rs` (10, `--ignored`). **Still BUILD:** backup, DR and a tested restore drill — immutability is not durability |
 
 ### E. Operations and incident handling
 
@@ -76,7 +76,7 @@
 | E2 | Metrics, SIEM export, runbook | IT Governance; SOC | **BUILD** | R15: OpenTelemetry metrics + syslog/CEF export of verdicts; runbook in `deploy/pilot/` |
 | E3 | Kill-switch trigger interface | MRM kill switch | EXISTS (tier) / **INTEGRATE** (trigger) | Enforcement tier in tree: `aip-enforce` (seccomp user-notify execve gate deciding under a signed `CapabilityEpoch`; ADR-015) and `aip-interlock` (dead-man heartbeat, actuator watchdog, measured stopping budget). Both fail closed when the epoch or heartbeat lapses and neither reads observation or reconciliation. The *trigger* from a verdict to an epoch revocation is the RE's orchestration or SOAR; containment stays advisory in pilot. |
 | E4 | Clock discipline (NTP), time anchoring of evidence | CERT-In | EXISTS partly | `BootClockAnchor` per batch; INTEGRATE: host NTP to NIC/NPL servers per CERT-In |
-| E5 | Backup, DR, BCP for the evidence store | IT Governance BCP | **BUILD** | R13 (with D7); documented in `docs/BACKUP_AND_RECOVERY.md` with a tested restore |
+| E5 | Backup, DR, BCP for the evidence store | IT Governance BCP | **BUILD** | The storage controls (D7) are in place; backup, DR and a tested restore remain. A table nobody can delete from is still lost with its disk. `docs/BACKUP_AND_RECOVERY.md` with an exercised restore |
 | E6 | TLS and rate limiting at the service ingress | IT Governance | **BUILD** | R9: in-process TLS optional, ingress reference config mandatory; request timeouts and body limits; test: unauthenticated flood bounded |
 | E7 | KMS/HSM custody for signing keys | IT Governance key management | **BUILD** | R16: PKCS#11 `Custodian` backend; test: key never leaves the module in the structural test |
 
@@ -122,8 +122,8 @@ only with its acceptance test.
 | **R9 Confidential transport + ingress** | TLS/Noise on probe→collector; ingress reference; timeouts | — | Capture shows no plaintext metadata |
 | **R10 Verdict API** | `aip-service` links the reconciler; tenant-scoped verdict and ledger routes | R3 | Cross-tenant 404; verdict verifies offline from the API response |
 | **R11 External anchoring** | Head anchor sink to an RE-controlled second system | — | Rewritten head fails against anchor |
-| **R12 Signed releases** | sigstore in `release.yml` | — | CI verifies signature |
-| **R13 Storage controls** | RLS, `REVOKE DELETE`, retention table, legal hold, tested restore | — | Service role cannot delete; restore drill documented |
+| **R12 Signed releases** — done | Keyless Sigstore signing in `release.yml` | — | Met: the release job signs each archive and then verifies that signature with the same identity flags a downloader must use; `VERIFYING.md` ships alongside and states that omitting those flags accepts any Sigstore signature ever issued, which is not a check |
+| **R13 Storage controls** — done (controls) | RLS, no DELETE or UPDATE for the service role, retention floor, legal hold | — | Met against a real PostgreSQL: the service role's DELETE, UPDATE, TRUNCATE, DROP and `DISABLE ROW LEVEL SECURITY` are all refused by the database; an unfiltered SELECT returns only the declared tenant; an undeclared connection sees nothing; a held packet resists the owner; a 90-day retention policy is refused by the CHECK. **Open:** backup/DR and the restore drill (E5) |
 | **R14 Incident bundle** | `aip-incident export` | R3 | Bundle verifies offline; coverage gaps listed |
 | **R15 Metrics/SIEM/runbook** | OTel metrics, CEF/syslog verdict export, runbook | R10 | SIEM receives every verdict; runbook exercised |
 | **R16 HSM custodian** | PKCS#11 backend | — | Structural test: no key export path |

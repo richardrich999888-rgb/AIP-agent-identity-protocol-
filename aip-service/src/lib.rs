@@ -13,7 +13,11 @@ pub mod store;
 pub mod tokens;
 pub mod wellknown;
 
-#[cfg(test)]
+// Also compiled for the `postgres` feature: the storage-control integration
+// tests need a real packet to store, and duplicating the builder there would
+// mean two fixtures that can drift apart. It is not compiled into a default
+// build.
+#[cfg(any(test, feature = "postgres"))]
 pub mod test_support;
 
 use std::sync::Arc;

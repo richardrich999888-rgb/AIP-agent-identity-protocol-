@@ -10,6 +10,7 @@ use std::str::FromStr;
 
 use aip_protocol::{AccountabilityGraph, EvidencePacket};
 use deadpool_postgres::{Manager, ManagerConfig, Object, Pool, RecyclingMethod};
+use tokio_postgres::error::SqlState;
 use tokio_postgres::NoTls;
 
 use super::{integrity_status, EvidenceStore, StoreError};
@@ -86,36 +87,103 @@ impl PostgresEvidenceStore {
         c.execute("SELECT pg_advisory_lock($1)", &[&SCHEMA_LOCK_KEY])
             .await
             .map_err(be)?;
-        let result = c.batch_execute(SCHEMA).await.map_err(be);
+        let result = c.batch_execute(SCHEMA).await;
         let _ = c
             .execute("SELECT pg_advisory_unlock($1)", &[&SCHEMA_LOCK_KEY])
             .await;
-        result
+        match result {
+            Ok(()) => Ok(()),
+            // A hardened deployment (deploy/sql/hardening.sql) gives the
+            // service a role with no DDL privilege, on purpose: a service
+            // that can create a table can drop one. That role cannot run
+            // this DDL and must not fail to start because of it — but it
+            // also must not start against a database that has no schema at
+            // all, so the tables are confirmed to exist instead.
+            Err(e) if e.code() == Some(&SqlState::INSUFFICIENT_PRIVILEGE) => {
+                self.require_provisioned_schema().await
+            }
+            Err(e) => Err(be(e)),
+        }
+    }
+
+    /// Confirm the tables this service needs are already present.
+    ///
+    /// Used only when the connecting role is not permitted to create them.
+    /// The alternative — starting anyway and failing on the first request —
+    /// turns a provisioning mistake into a runtime one.
+    async fn require_provisioned_schema(&self) -> Result<(), StoreError> {
+        let c = self.client().await?;
+        for table in ["evidence_packets", "authority_nodes", "authority_edges"] {
+            let row = c
+                .query_one("SELECT to_regclass($1) IS NOT NULL", &[&table])
+                .await
+                .map_err(be)?;
+            let present: bool = row.get(0);
+            if !present {
+                return Err(StoreError::Backend(format!(
+                    "table `{table}` is absent and this role may not create it: \
+                     apply deploy/sql/schema.sql and deploy/sql/hardening.sql as \
+                     the owning role before starting the service"
+                )));
+            }
+        }
+        Ok(())
+    }
+
+    /// Declare the tenant this connection is acting for, for the remainder of
+    /// the current transaction.
+    ///
+    /// Row-level security (`deploy/sql/hardening.sql`) reads
+    /// `aip.tenant_id`, and with no value set the policy admits no rows at
+    /// all — a connection that has not said who it is sees nothing. `is_local
+    /// = true` scopes the setting to the transaction, which is what makes it
+    /// safe under a connection pool: a pooled connection cannot carry one
+    /// request's tenant into the next.
+    ///
+    /// On a database without the policy applied this is an inert session
+    /// variable, so the same code path serves both deployments.
+    async fn declare_tenant(
+        tx: &tokio_postgres::Transaction<'_>,
+        tenant_id: &str,
+    ) -> Result<(), StoreError> {
+        tx.execute(
+            "SELECT set_config('aip.tenant_id', $1, true)",
+            &[&tenant_id],
+        )
+        .await
+        .map_err(be)?;
+        Ok(())
     }
 
     /// Test/diagnostic helper: count materialised authority nodes for a tenant.
     pub async fn tenant_node_count(&self, tenant_id: &str) -> Result<i64, StoreError> {
-        let c = self.client().await?;
-        let row = c
+        let mut c = self.client().await?;
+        let tx = c.transaction().await.map_err(be)?;
+        Self::declare_tenant(&tx, tenant_id).await?;
+        let row = tx
             .query_one(
                 "SELECT count(*) FROM authority_nodes WHERE tenant_id=$1",
                 &[&tenant_id],
             )
             .await
             .map_err(be)?;
+        tx.commit().await.map_err(be)?;
         Ok(row.get(0))
     }
 
     /// Test/diagnostic helper: count materialised authority edges for a tenant.
     pub async fn tenant_edge_count(&self, tenant_id: &str) -> Result<i64, StoreError> {
-        let c = self.client().await?;
-        let row = c
+        let mut c = self.client().await?;
+        let tx = c.transaction().await.map_err(be)?;
+        Self::declare_tenant(&tx, tenant_id).await?;
+        let row = tx
             .query_one(
                 "SELECT count(*) FROM authority_edges WHERE tenant_id=$1",
                 &[&tenant_id],
             )
             .await
             .map_err(be)?;
+        tx.commit().await.map_err(be)?;
         Ok(row.get(0))
     }
 }
@@ -126,6 +194,7 @@ impl EvidenceStore for PostgresEvidenceStore {
         let id = packet.packet_id_hex();
         let mut client = self.client().await?;
         let tx = client.transaction().await.map_err(be)?;
+        Self::declare_tenant(&tx, tenant_id).await?;
 
         // Idempotency + tenant-conflict check.
         if let Some(row) = tx
@@ -194,14 +263,17 @@ impl EvidenceStore for PostgresEvidenceStore {
     }
 
     async fn get(&self, tenant_id: &str, id: &str) -> Result<Option<EvidencePacket>, StoreError> {
-        let c = self.client().await?;
-        let row = c
+        let mut c = self.client().await?;
+        let tx = c.transaction().await.map_err(be)?;
+        Self::declare_tenant(&tx, tenant_id).await?;
+        let row = tx
             .query_opt(
                 "SELECT evidence_json FROM evidence_packets WHERE id=$1 AND tenant_id=$2",
                 &[&id, &tenant_id],
             )
             .await
             .map_err(be)?;
+        tx.commit().await.map_err(be)?;
         match row {
             None => Ok(None),
             Some(r) => {
@@ -212,8 +284,10 @@ impl EvidenceStore for PostgresEvidenceStore {
     }
 
     async fn all_for_tenant(&self, tenant_id: &str) -> Result<Vec<EvidencePacket>, StoreError> {
-        let c = self.client().await?;
-        let rows = c
+        let mut c = self.client().await?;
+        let tx = c.transaction().await.map_err(be)?;
+        Self::declare_tenant(&tx, tenant_id).await?;
+        let rows = tx
             .query(
                 "SELECT evidence_json FROM evidence_packets \
                  WHERE tenant_id=$1 ORDER BY created_at ASC, id ASC",
@@ -221,6 +295,7 @@ impl EvidenceStore for PostgresEvidenceStore {
             )
             .await
             .map_err(be)?;
+        tx.commit().await.map_err(be)?;
         let mut out = Vec::with_capacity(rows.len());
         for r in rows {
             let json: String = r.get(0);
@@ -229,6 +304,14 @@ impl EvidenceStore for PostgresEvidenceStore {
         Ok(out)
     }
 
+    /// Rows visible to this connection.
+    ///
+    /// Under row-level security there is deliberately no such thing as a
+    /// cross-tenant total: the connection declares no tenant here, so the
+    /// policy admits nothing and this reports zero. That is the control
+    /// working, not a fault. A per-tenant figure comes from
+    /// [`Self::all_for_tenant`]; this exists for startup logging on
+    /// deployments that have not applied the policy.
     async fn count(&self) -> Result<usize, StoreError> {
         let c = self.client().await?;
         let row = c

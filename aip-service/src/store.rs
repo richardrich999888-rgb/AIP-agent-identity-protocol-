@@ -22,8 +22,10 @@ use serde::{Deserialize, Serialize};
 
 use aip_protocol::EvidencePacket;
 
+// Public so the storage-control tests can apply the same DDL the service
+// applies, as the owning role, before handing the service a restricted one.
 #[cfg(feature = "postgres")]
-mod pg;
+pub mod pg;
 #[cfg(feature = "postgres")]
 pub use pg::PostgresEvidenceStore;
 

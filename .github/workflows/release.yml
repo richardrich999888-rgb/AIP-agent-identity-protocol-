@@ -7,6 +7,11 @@ on:
 
 permissions:
   contents: write # needed to create the GitHub Release
+  # Sigstore keyless signing (R12). The workflow exchanges this OIDC token
+  # for a short-lived certificate binding the signature to *this repository,
+  # this workflow, this ref* — which is what a downloader verifies against.
+  # No signing key is stored anywhere, so there is none to leak or rotate.
+  id-token: write
 
 jobs:
   build:
@@ -60,15 +65,50 @@ jobs:
           cp "$BIN/airon-aip" "$OUT/aip-service"
           cp "$BIN/aip-verify" "$OUT/aip-verify"
           cp "$BIN/nexora-verify" "$OUT/nexora-verify"
-          # Checksummed, not signed: SHA256SUMS lets a downloader detect
-          # corruption or substitution in transit, not prove who built it.
+          # SHA256SUMS detects corruption or substitution in transit. It does
+          # not establish who built the archive; the signature below does.
           (cd "$OUT" && sha256sum aip-service aip-verify nexora-verify > SHA256SUMS)
           tar -C "$OUT" -czf "aip-${{ matrix.target }}.tar.gz" aip-service aip-verify nexora-verify SHA256SUMS
+
+      # ── R12: sign the artefact, then verify the signature just produced ──
+      #
+      # An unverified signing step is a step that can silently stop signing.
+      # The verification below runs against the same file that will be
+      # uploaded, with the same identity constraints a downloader uses, so a
+      # misconfiguration fails the release instead of shipping an artefact
+      # nobody can check.
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.4.1'
+
+      - name: Sign the release archive
+        env:
+          COSIGN_YES: "true"
+        run: |
+          set -euo pipefail
+          cosign sign-blob \
+            --output-signature "aip-${{ matrix.target }}.tar.gz.sig" \
+            --output-certificate "aip-${{ matrix.target }}.tar.gz.pem" \
+            "aip-${{ matrix.target }}.tar.gz"
+
+      - name: Verify the signature this job just produced
+        run: |
+          set -euo pipefail
+          cosign verify-blob \
+            --signature "aip-${{ matrix.target }}.tar.gz.sig" \
+            --certificate "aip-${{ matrix.target }}.tar.gz.pem" \
+            --certificate-identity "https://github.com/${GITHUB_REPOSITORY}/.github/workflows/release.yml@${GITHUB_REF}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "aip-${{ matrix.target }}.tar.gz"
 
       - uses: actions/upload-artifact@v4
         with:
           name: aip-${{ matrix.target }}
-          path: aip-${{ matrix.target }}.tar.gz
+          path: |
+            aip-${{ matrix.target }}.tar.gz
+            aip-${{ matrix.target }}.tar.gz.sig
+            aip-${{ matrix.target }}.tar.gz.pem
 
   release:
     name: publish GitHub Release
@@ -78,8 +118,44 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
+      # The instructions travel with the release, because a signature a
+      # downloader does not know how to check is decoration.
+      - name: Write verification instructions
+        run: |
+          set -euo pipefail
+          cat > VERIFYING.md <<EOF
+          # Verifying these artefacts
+
+          Each \`aip-<target>.tar.gz\` ships with a Sigstore signature
+          (\`.sig\`) and the short-lived certificate it was made under
+          (\`.pem\`). There is no long-lived signing key: the certificate
+          binds the signature to this repository, this workflow file and this
+          tag, and that binding is what you check.
+
+          \`\`\`sh
+          cosign verify-blob \\
+            --signature aip-<target>.tar.gz.sig \\
+            --certificate aip-<target>.tar.gz.pem \\
+            --certificate-identity \\
+              "https://github.com/${GITHUB_REPOSITORY}/.github/workflows/release.yml@${GITHUB_REF}" \\
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \\
+            aip-<target>.tar.gz
+          \`\`\`
+
+          Both identity flags are required. Omitting them accepts any
+          signature Sigstore ever issued, to anyone, which is not a check.
+
+          The \`SHA256SUMS\` inside each archive covers the three binaries
+          and detects corruption after extraction. It establishes nothing
+          about origin; the signature above does that.
+          EOF
+
       - name: Publish release with binaries
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*.tar.gz
+          files: |
+            artifacts/**/*.tar.gz
+            artifacts/**/*.sig
+            artifacts/**/*.pem
+            VERIFYING.md
           generate_release_notes: true
