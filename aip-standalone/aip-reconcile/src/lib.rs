@@ -26,8 +26,11 @@
 //! [`ActionComparison`] is always `Unobservable`. The strongest positive
 //! statement about an expectation is *identity corroborated* — reported as
 //! `CANNOT_PROVE` with `reason = ActionEvidenceUnavailable` and
-//! `identity = Match`. `UNATTRIBUTED_EFFECT` is unreachable in production
-//! until a decision point emits [`DecisionPointCoverageStatement`]s.
+//! `identity = Match`. `UNATTRIBUTED_EFFECT` requires a
+//! [`DecisionPointCoverageStatement`] the decision point derived from its own
+//! ledger (`aip_authorize::DecisionPoint::coverage_statement`); without one
+//! the expected side's completeness is unknown and the verdict stays
+//! `CANNOT_PROVE`.
 //! `LINEAGE_VIOLATION` is unreachable until both ends of a kernel fork are
 //! bound. These are stated, not worked around.
 

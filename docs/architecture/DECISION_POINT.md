@@ -270,24 +270,26 @@ here. In particular this crate **never** produces `PHANTOM_CLAIM`: an
 expectation with no matching observation is `CANNOT_PROVE` until an observer
 with attested coverage of the window says otherwise (I8).
 
-## 17. ExpectedExecution does not prove execution
+## 16a. Expected-side completeness (the coverage ledger)
 
-An `ExpectedExecution` proves exactly one thing: **the named decision point
-signed an authorization expectation for this agent, this process instance,
-this action and parameter digest, within this window.** It does not prove
-that the process ran, that the action happened, that the parameters were
-used, that anyone observed anything, or that the agent's later packet is
-truthful. Conversely, a denial does not prove the agent refrained. The
-correct statement for anything beyond the signature is `CANNOT_PROVE`.
+The reconciler may name `UNATTRIBUTED_EFFECT` — an observed effect with no
+expectation — only when the decision point signs that no expectation
+*exists*, not merely that none was found. This crate produces that statement
+(`DecisionPoint::coverage_statement`, `aip_authorize::coverage`) under four
+rules:
 
-## 18. Deployment boundary (design only)
-
-The crate is a library. Its security property holds only when the
-`DecisionPoint` value lives in a process the agent cannot read. The
-architecture has not yet selected the topology (separate binary, sidecar, or
-service); IMPLEMENTATION_PLAN §2.2's service integration (require a verified
-`ExpectedExecution` in `GenerateRequest`) is a breaking API change deferred
-to a versioned endpoint. It was deliberately **not** placed in `aip-service`
-in this stage because that process also handles agent-seed-bearing requests;
-co-locating the decision key with agent key material would make "agent
-compromise ≠ decision-key compromise" false by construction (Skill 5 §16).
+1. **Derived, never supplied.** Every `ExpectedExecution` the decision point
+   signs is appended to its own ledger (agent, decision id, validity
+   window). A statement's decision list is computed from the ledger for the
+   requested agent and window. A caller supplies only the agent, the window
+   and the issue time; a producer that signed a caller's list would be a
+   forgery oracle.
+2. **Only what it can vouch for.** The ledger has a declared epoch
+   (`with_coverage_ledger(since_ms)`); without one, no statement issues. A
+   window starting before the epoch, or ending after the issue time, is
+   refused (`WindowPrecedesLedger`, `WindowNotClosed`).
+3. **Never falsified afterwards.** Once a statement is issued for an agent
+   through `to_ms`, a later request to authorize that agent at or before
+   `to_ms` is denied (`DenialReason::AttestedWindowClosed`). Closure is
+   monotone per agent. The check, the signature and the ledger append happen
+   under one guard, so a concurrent statement cannot

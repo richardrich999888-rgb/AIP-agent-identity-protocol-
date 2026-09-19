@@ -184,16 +184,15 @@ automatically in a running pipeline** — SD-11/SD-12 remain.
 
 ---
 
-## Backlog (declared, not silently omitted)
+### CS — decision-point coverage statements (expected-side completeness)
 
-Each is `NOT_RUN` or `DEFERRED` with the blocking component named. An omitted
-attack reads as a passed attack six months later.
+**Claim targeted.** *"An observed effect with no expectation can be named
+`UNATTRIBUTED_EFFECT` only when the decision point itself signs, from its own
+ledger, that no decision exists for that agent over the observed window — and
+that statement cannot be forged, widened, or later falsified."* Executed live
+(`ghost-demo/tests/live_coverage.rs`, `ghost-demo/tests/live.rs` B / B-U: a
+real process, the real observer, the real reconciler, the decision point's
+real ledger) and synthetically against the producer
+(`aip-authorize/tests/coverage.rs`, P-01..P-14).
 
-| id | attack | status | blocked on |
-|----|--------|--------|------------|
-| RB-01 | ring-buffer exhaustion vs. reported loss | NOT_RUN | — (runnable; loss accounting exists) |
-| PID-01 | PID reuse across the network sensor | NOT_RUN | per-sensor run (process sensor covered by `adversarial.rs`) |
-| CLK-01 | host clock manipulation vs. temporal correlation | NOT_RUN | — |
-| KO-01 | kernel-module hiding of the gating program (OI-08) | DEFERRED | off-host / hardware-rooted observer |
-| NS-01 | namespace / container-boundary evasion | DEFERRED | container deployment target |
-| KEY-01 | observer key compromise weaponised as DoS against an agent | partly (OI-07) | off-host key custody + containment path |
+| id | attack

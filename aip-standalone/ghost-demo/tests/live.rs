@@ -7,7 +7,8 @@
 #![cfg(target_os = "linux")]
 
 use aip_reconcile::{
-    ActionComparison, EvidenceStrength, IdentityComparison, ReasonCode, ReconciliationResult,
+    ActionComparison, EvidenceRef, EvidenceStrength, IdentityComparison, ReasonCode,
+    ReconciliationResult,
 };
 use ghost_demo::{run, Scenario};
 
@@ -49,8 +50,28 @@ fn a_expected_but_not_executed_is_cannot_prove_not_phantom() {
 }
 
 #[test]
-fn b_executed_but_not_expected_is_cannot_prove() {
+fn b_executed_but_not_expected_with_attested_absence_is_unattributed_effect() {
+    // The defining ghost detection, live: a real process makes a real
+    // connection under no decision, the observer attests it, and the
+    // decision point signs — from its own ledger — that no decision exists
+    // for that agent over the observed window.
     let r = run(Scenario::ExecutedNotExpected, AGENT).reconciliation;
+    assert_eq!(r.result, ReconciliationResult::UnattributedEffect, "{r:?}");
+    assert_eq!(r.strength, EvidenceStrength::Attested);
+    assert_eq!(r.reason, ReasonCode::NoExpectationAttested);
+    assert!(matches!(r.identity, IdentityComparison::Match { .. }));
+    assert!(
+        r.evidence
+            .iter()
+            .any(|e| matches!(e, EvidenceRef::CoverageStatement { .. })),
+        "the verdict must cite the decision point's statement: {r:?}"
+    );
+}
+
+#[test]
+fn b_u_executed_but_not_expected_without_a_statement_is_cannot_prove() {
+    // Same observation, no coverage statement: absence is only absence.
+    let r = run(Scenario::ExecutedNotExpectedUnattested, AGENT).reconciliation;
     assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
     assert_ne!(r.result, ReconciliationResult::UnattributedEffect);
     assert_eq!(r.reason, ReasonCode::ExpectedSideCompletenessUnknown);

@@ -128,23 +128,10 @@ impl MechanismIntegrity {
     }
 }
 
-/// The interval an observation covers. Half-open is avoided deliberately:
-/// both ends are inclusive, matching the R10 convention used since Stage 0.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CoverageWindow {
-    pub from_ms: u64,
-    pub to_ms: u64,
-}
-
-impl CoverageWindow {
-    pub fn contains(&self, t_ms: u64) -> bool {
-        t_ms >= self.from_ms && t_ms <= self.to_ms
-    }
-
-    pub fn covers(&self, other: &CoverageWindow) -> bool {
-        other.from_ms >= self.from_ms && other.to_ms <= self.to_ms
-    }
-}
+/// The interval an observation covers. Defined in `aip_types` so the
+/// decision point can state completeness over the same closed interval the
+/// observer states coverage over; re-exported here unchanged.
+pub use aip_types::CoverageWindow;
 
 /// Why coverage could not be established. Each variant is an epistemic
 /// statement about the observer, never about the workload.

@@ -38,6 +38,7 @@
 //! `docs/architecture/DECISION_POINT.md`.
 
 pub mod actions;
+pub mod coverage;
 pub mod decision;
 pub mod expected;
 
@@ -47,6 +48,10 @@ pub use actions::{
     FsWriteError, NetConnectError, NetProtocol, FS_WRITE_ACTION, NET_CONNECT_ACTION,
     NET_SEND_ACTION, PARAM_EXE_SHA256, PARAM_PATH, PARAM_PROTOCOL, PARAM_REMOTE_ADDR,
     PARAM_REMOTE_PORT, PROCESS_EXEC_ACTION,
+};
+pub use coverage::{
+    CoverageIssueError, CoverageStatementError, DecisionPointCoverageStatement,
+    DECISION_POINT_COVERAGE_DOMAIN, DECISION_POINT_COVERAGE_VERSION,
 };
 pub use decision::{
     AuthorizationRequest, Decision, DecisionPoint, DecisionPointError, Denial, DenialReason,

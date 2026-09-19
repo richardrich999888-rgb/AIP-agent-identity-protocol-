@@ -9,15 +9,20 @@
 //! binding check, and its own signature.
 
 use std::collections::HashMap;
+use std::sync::Mutex;
 
 use aip_core::capability::{random_jti, scope_permits, verify_scoped_token};
 use aip_core::delegation::verify_delegation_chain;
 use aip_crypto::sign_ed25519;
 use aip_types::{
-    AipError, DelegationToken, ExecutionBinding, ScopeAction, ScopedToken,
+    AipError, CoverageWindow, DelegationToken, ExecutionBinding, ScopeAction, ScopedToken,
     EXECUTION_BINDING_VERSION,
 };
 
+use crate::coverage::{
+    CoverageIssueError, DecisionLedger, DecisionPointCoverageStatement, LedgerEntry,
+    DECISION_POINT_COVERAGE_VERSION,
+};
 use crate::expected::{
     ActionParameters, AuthorityRef, ExpectedExecution, EXPECTED_EXECUTION_VERSION,
 };
@@ -109,6 +114,9 @@ pub enum DenialReason {
     TimeOverflow,
     /// The decision point could not produce its signature.
     SigningFailed,
+    /// The decision point has already signed a completeness statement for
+    /// this agent covering the decision time; issuing now would falsify it.
+    AttestedWindowClosed,
 }
 
 // ─── Decision point ───
@@ -123,12 +131,20 @@ pub enum DecisionPointError {
 
 /// An independent signing authority. Constructed by its operator; the
 /// private key never enters through a request.
+///
+/// Every expectation it signs is also recorded in its own
+/// [`DecisionLedger`], from which it can later state — and sign — the
+/// complete set of decisions for an agent over a window
+/// ([`DecisionPoint::coverage_statement`]). The ledger is behind a mutex so
+/// adjudication keeps `&self`; the guarded section is one check, one
+/// signature and one append.
 pub struct DecisionPoint {
     id: String,
     private_key: Vec<u8>,
     public_key: Vec<u8>,
     issuer_keys: HashMap<String, Vec<u8>>,
     max_ttl_ms: u64,
+    ledger: Mutex<DecisionLedger>,
 }
 
 impl std::fmt::Debug for DecisionPoint {
@@ -139,6 +155,7 @@ impl std::fmt::Debug for DecisionPoint {
             .field("private_key", &"<redacted>")
             .field("issuer_keys", &self.issuer_keys.keys().collect::<Vec<_>>())
             .field("max_ttl_ms", &self.max_ttl_ms)
+            .field("ledger_since_ms", &self.coverage_ledger_since())
             .finish()
     }
 }
@@ -174,7 +191,83 @@ impl DecisionPoint {
             public_key: public_key.to_vec(),
             issuer_keys: HashMap::new(),
             max_ttl_ms,
+            ledger: Mutex::new(DecisionLedger::default()),
         })
+    }
+
+    /// Declare from which instant this decision point vouches for the
+    /// completeness of its own ledger. Without this, no
+    /// [`DecisionPoint::coverage_statement`] can be issued. `since_ms` must
+    /// be no earlier than this process began recording — see the restart
+    /// caveat on [`DecisionLedger`].
+    pub fn with_coverage_ledger(self, since_ms: u64) -> Self {
+        self.ledger().enable(since_ms);
+        self
+    }
+
+    /// The declared ledger epoch, if any.
+    pub fn coverage_ledger_since(&self) -> Option<u64> {
+        self.ledger().since_ms()
+    }
+
+    /// How many expectations this decision point has signed since it was
+    /// constructed.
+    pub fn issued_count(&self) -> usize {
+        self.ledger().len()
+    }
+
+    /// Sign a statement of every decision this point issued for `agent_id`
+    /// whose validity intersects `window`. The list is derived from the
+    /// ledger, never taken from the caller. Refuses a window that starts
+    /// before the ledger epoch or ends after `issued_at_ms`. Once issued, a
+    /// later decision for `agent_id` at or before `window.to_ms` is denied
+    /// ([`DenialReason::AttestedWindowClosed`]) so the statement stays true.
+    pub fn coverage_statement(
+        &self,
+        agent_id: &str,
+        window: CoverageWindow,
+        issued_at_ms: u64,
+    ) -> Result<DecisionPointCoverageStatement, CoverageIssueError> {
+        if agent_id.is_empty() {
+            return Err(CoverageIssueError::EmptyAgentId);
+        }
+        if !window.is_well_formed() {
+            return Err(CoverageIssueError::InvalidWindow);
+        }
+        if window.to_ms > issued_at_ms {
+            return Err(CoverageIssueError::WindowNotClosed { issued_at_ms });
+        }
+        let mut ledger = self.ledger();
+        let since_ms = ledger
+            .since_ms()
+            .ok_or(CoverageIssueError::LedgerNotEnabled)?;
+        if window.from_ms < since_ms {
+            return Err(CoverageIssueError::WindowPrecedesLedger { since_ms });
+        }
+        let decision_ids = ledger.decisions_for(agent_id, &window);
+        // Close before signing: a signing failure leaves the window closed,
+        // which over-refuses rather than lets a later decision slip in
+        // under a statement that may have been emitted.
+        ledger.close(agent_id, window.to_ms);
+        let mut stmt = DecisionPointCoverageStatement {
+            version: DECISION_POINT_COVERAGE_VERSION,
+            decision_point_id: self.id.clone(),
+            agent_id: agent_id.to_string(),
+            window,
+            decision_ids,
+            issued_at_ms,
+            signature: placeholder_signature(&self.id),
+        };
+        stmt.signature = sign_ed25519(&self.private_key, &self.id, &stmt.signing_preimage())
+            .map_err(|e| CoverageIssueError::SigningFailed(e.to_string()))?;
+        Ok(stmt)
+    }
+
+    /// The ledger guard. A poisoned lock is recovered: every guarded
+    /// mutation is a single `Vec::push`, `HashMap` insert or field write, so
+    /// a panic while holding the lock cannot leave the ledger half-updated.
+    fn ledger(&self) -> std::sync::MutexGuard<'_, DecisionLedger> {
+        self.ledger.lock().unwrap_or_else(|e| e.into_inner())
     }
 
     /// Register a trusted issuer (principal or intermediary) public key.
@@ -368,7 +461,17 @@ impl DecisionPoint {
             valid_until = valid_until.min(exp);
         }
 
-        // 8. Sign.
+        // 8. Sign and record, under one ledger guard: the closed-window
+        //    check, the signature and the append are atomic with respect to
+        //    a concurrent `coverage_statement`, so a statement can never
+        //    miss a decision issued while it was being computed.
+        let mut ledger = self.ledger();
+        if let Some(closed) = ledger.closed_at(&req.agent_id, now_ms) {
+            return Err(deny(
+                DenialReason::AttestedWindowClosed,
+                format!("completeness already attested for this agent through {closed}, decision time {now_ms}"),
+            ));
+        }
         let mut ee = ExpectedExecution {
             version: EXPECTED_EXECUTION_VERSION,
             decision_id: random_jti(),
@@ -388,6 +491,14 @@ impl DecisionPoint {
         let preimage = ee.signing_preimage();
         ee.decision_sig = sign_ed25519(&self.private_key, &self.id, &preimage)
             .map_err(|e| deny(DenialReason::SigningFailed, format!("signing failed: {e}")))?;
+        ledger.record(LedgerEntry {
+            agent_id: ee.agent_id.clone(),
+            decision_id: ee.decision_id,
+            validity: CoverageWindow {
+                from_ms: ee.issued_at,
+                to_ms: ee.valid_until,
+            },
+        });
         Ok(ee)
     }
 }

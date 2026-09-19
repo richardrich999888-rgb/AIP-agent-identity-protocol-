@@ -234,8 +234,16 @@ Stated as assumptions, because that is what they are.
    surfacing it in `nexora-verify`. Nothing commits verdicts automatically in
    a running pipeline yet; the demonstrator does not persist.
 4. **Nothing feeds NEXORA automatically, and nothing persists it.**
-5. **`UNATTRIBUTED_EFFECT` is unreachable** until the decision point emits
-   signed coverage statements.
+5. **`UNATTRIBUTED_EFFECT` is reachable, live (closed).** The decision point
+   now keeps a ledger of every expectation it signs and issues
+   `DecisionPointCoverageStatement`s derived from it
+   (`aip_authorize::DecisionPoint::coverage_statement`); scenario B in
+   `ghost-demo` reaches `UnattributedEffect` at `Attested` from a real
+   process, the real observer and the real reconciler, and the live
+   attacks in `ghost-demo/tests/live_coverage.rs` are refused by name. What
+   remains a limitation: the ledger is in-process memory, so a restarted
+   decision point must declare a fresh epoch (operator contract, not
+   enforced), and nothing persists or commits statements automatically.
 6. **Attested batches are not persisted.** Gate 8 persists the snapshot,
    the health archive and the continuity reports — not the batches.
 7. **Observation is TCP-only on the wire**, IPv4 without extension
@@ -386,8 +394,13 @@ Ordered by what unblocks the most.
    the `SignedReconciliation` inside the `NexoraProof` bundle — a proof-object
    wire change, so a version bump) and **SD-12** (expose it in
    `nexora-verify`).
-2. **Decision-point coverage statements** — the signed "no expectation
-   exists for this window" that `UNATTRIBUTED_EFFECT` requires.
+2. **Decision-point coverage statements — DONE.** The decision point signs
+   "every decision I issued for this agent over this window", computed from
+   its own ledger, never supplied; once issued, it refuses to back-issue a
+   decision into the attested window. `UNATTRIBUTED_EFFECT` fires live
+   (`ghost-demo` scenario B). Remaining: a durable ledger so the epoch
+   survives restart, and committing statements to NEXORA alongside the
+   verdicts they license.
 3. **A collector deployment** — an authenticated probe → collector
    transport, key custody off the observed host, and persistence of
    attested batches. This is what turns assumption 1 and 2 of §7 into

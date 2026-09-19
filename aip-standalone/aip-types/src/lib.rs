@@ -6,6 +6,9 @@
 //! every crate that signs or hashes these types.
 
 pub mod canonical;
+pub mod window;
+
+pub use window::CoverageWindow;
 
 use serde::{Deserialize, Serialize};
 

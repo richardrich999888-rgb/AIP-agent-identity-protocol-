@@ -23,8 +23,9 @@ use std::process::{Child, Command, Stdio};
 use aip_authorize::{
     fs_write_action, fs_write_parameters, net_connect_action, net_connect_parameters,
     net_send_action, net_send_parameters, process_exec_action, process_exec_parameters,
-    ActionParameters, AuthorizationRequest, Decision, DecisionPoint, DecisionPointTrustAnchors,
-    Denial, ExpectedExecution, NetProtocol,
+    ActionParameters, AuthorizationRequest, CoverageIssueError, Decision, DecisionPoint,
+    DecisionPointCoverageStatement, DecisionPointTrustAnchors, Denial, ExpectedExecution,
+    NetProtocol,
 };
 use aip_core::capability::issue_scoped_token;
 use aip_core::create_identity;
@@ -41,7 +42,7 @@ use aip_reconcile::{
     reconcile_expectation, reconcile_observation, ExpectedSideCoverage, ObservationTarget,
     ObserverEvidence, ObserverSequence, Reconciliation, ReconciliationContext, TCP_ESTABLISHED,
 };
-use aip_types::{CapabilityScope, ExecutionBinding, KeyPair, ProvenanceTriple};
+use aip_types::{CapabilityScope, CoverageWindow, ExecutionBinding, KeyPair, ProvenanceTriple};
 
 pub const TTL_MS: u64 = 60_000;
 const MAX_TTL_MS: u64 = 3_600_000;
@@ -108,10 +109,13 @@ impl Authority {
         let hop = create_delegation(&root, &orch_kp.private_key, &agent.id, scope).unwrap();
         let dp_kp = generate_ed25519_keypair();
         let dp_id = derive_aip_id(&dp_kp.public_key, &provenance("decision-point"));
+        // The ledger epoch is this process's construction instant: the
+        // decision point vouches for completeness from here, never earlier.
         let dp = DecisionPoint::new(&dp_id, &dp_kp.private_key, &dp_kp.public_key, MAX_TTL_MS)
             .unwrap()
             .trust_issuer(&cfo_id, &cfo_kp.public_key)
-            .trust_issuer(&orch.id, &orch_kp.public_key);
+            .trust_issuer(&orch.id, &orch_kp.public_key)
+            .with_coverage_ledger(now_ms());
         let anchors = DecisionPointTrustAnchors::new().trust(&dp_id, &dp_kp.public_key);
         let issuer_keys = std::collections::HashMap::from([
             (cfo_id, cfo_kp.public_key.clone()),
@@ -126,6 +130,18 @@ impl Authority {
             hop,
             issuer_keys,
         }
+    }
+
+    /// The decision point's signed statement of every decision it issued
+    /// for this instance's agent whose validity intersects `window`,
+    /// issued at `at`. Derived from the decision point's own ledger; the
+    /// demo supplies only the window and the time.
+    pub fn coverage_statement(
+        &self,
+        window: CoverageWindow,
+        at: u64,
+    ) -> Result<DecisionPointCoverageStatement, CoverageIssueError> {
+        self.dp.coverage_statement(&self.agent_id, window, at)
     }
 
     /// The authority chain behind every decision this instance makes, and
@@ -858,8 +874,12 @@ pub enum Scenario {
     Positive,
     /// A. Expected but not executed: the agent never connects.
     ExpectedNotExecuted,
-    /// B. Executed but not expected: an observation with no expectation.
+    /// B. Executed but not expected: an observation with no expectation,
+    /// and the decision point's signed statement that none exists.
     ExecutedNotExpected,
+    /// B-U. Executed but not expected, expected-side completeness unknown:
+    /// the same observation without a coverage statement.
+    ExecutedNotExpectedUnattested,
     /// C. Expected action, different parameters: authorized port differs.
     DifferentParameters,
     /// D. Correct action from the wrong process instance.
@@ -907,10 +927,11 @@ pub enum Scenario {
 }
 
 impl Scenario {
-    pub const ALL: [Scenario; 20] = [
+    pub const ALL: [Scenario; 21] = [
         Scenario::Positive,
         Scenario::ExpectedNotExecuted,
         Scenario::ExecutedNotExpected,
+        Scenario::ExecutedNotExpectedUnattested,
         Scenario::DifferentParameters,
         Scenario::WrongInstance,
         Scenario::LostObservation,
@@ -969,7 +990,10 @@ impl Scenario {
         match self {
             Scenario::Positive => "positive: authorized connection observed",
             Scenario::ExpectedNotExecuted => "A. expected but not executed",
-            Scenario::ExecutedNotExpected => "B. executed but not expected",
+            Scenario::ExecutedNotExpected => "B. executed but not expected, absence attested",
+            Scenario::ExecutedNotExpectedUnattested => {
+                "B-U. executed but not expected, completeness unknown"
+            }
             Scenario::DifferentParameters => "C. expected action, different parameters",
             Scenario::WrongInstance => "D. correct action, wrong process instance",
             Scenario::LostObservation => "E. observation lost",
@@ -1163,7 +1187,7 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
                 ),
             }
         }
-        Scenario::ExecutedNotExpected => {
+        Scenario::ExecutedNotExpected | Scenario::ExecutedNotExpectedUnattested => {
             let agent = Agent::connect(agent_bin, &listener);
             let now = now_ms();
             let b1 = o.epoch_start(now);
@@ -1175,9 +1199,26 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
             let (b2, n) = o.observe_connections(agent.pid, Some(&c)).unwrap();
             let at = now_ms().max(b2.batch.claimed_to_ms);
             let seq = b2.sequence;
+            let window = CoverageWindow {
+                from_ms: b2.batch.claimed_from_ms,
+                to_ms: b2.batch.claimed_to_ms,
+            };
             let ev = ObserverEvidence {
                 batches: vec![b1, b2],
                 health: o.health(at),
+            };
+            let mut c = ctx(&a, &o, at);
+            let note = if scenario == Scenario::ExecutedNotExpected {
+                // The decision point states, from its own ledger, every
+                // decision for this agent over the observed window — here
+                // none — and signs it. Only this turns absence into a claim.
+                let stmt = a
+                    .coverage_statement(window, at)
+                    .expect("decision point refused a closed, in-epoch window");
+                c.expected_side = ExpectedSideCoverage::Attested(Box::new(stmt));
+                "decision point attests no decision exists for the window"
+            } else {
+                "expected-side completeness is unknown"
             };
             let r = reconcile_observation(
                 &ev,
@@ -1185,14 +1226,14 @@ fn run_with(scenario: Scenario, agent_bin: &str, tap: bool) -> Demo {
                     batch_sequence: ObserverSequence(seq),
                     index: 0,
                 },
-                &ctx(&a, &o, at),
+                &c,
             );
             Demo {
                 inputs: None,
                 scenario,
                 reconciliation: r,
                 note: format!(
-                    "agent pid {} connected with no decision; {n} connection(s); expected-side completeness is unknown",
+                    "agent pid {} connected with no decision; {n} connection(s); {note}",
                     agent.pid
                 ),
             }

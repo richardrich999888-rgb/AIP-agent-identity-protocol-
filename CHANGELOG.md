@@ -6,6 +6,38 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (expected-side completeness — `UNATTRIBUTED_EFFECT` reachable)
+- **Decision-point coverage statements, produced from a ledger.** The
+  decision point (`aip-authorize`) now records every `ExpectedExecution` it
+  signs in an in-process `DecisionLedger` and issues
+  `DecisionPointCoverageStatement`s from it
+  (`DecisionPoint::coverage_statement(agent_id, window, issued_at_ms)`). The
+  decision list is **computed, never supplied**; the producer refuses a
+  window before its declared epoch (`with_coverage_ledger`) or not yet closed
+  at issue time; and once a statement is issued, a decision for that agent
+  at or before the attested `to_ms` is denied
+  (`DenialReason::AttestedWindowClosed`, new variant) so the statement cannot
+  be falsified afterwards. Check, signature and append share one guard.
+- **`UNATTRIBUTED_EFFECT` fires live.** `ghost-demo` scenario B now attaches
+  the decision point's statement over the observed window and reconciles to
+  `UnattributedEffect` / `Attested` / `NoExpectationAttested` from a real
+  process, the real observer and the real reconciler; new scenario **B-U**
+  (`ExecutedNotExpectedUnattested`) pins that the same observation without a
+  statement stays `CannotProve` / `ExpectedSideCompletenessUnknown`.
+- **Type moves, no wire change.** `CoverageWindow` now lives in `aip-types`
+  (re-exported unchanged from `aip-observe`; gains `is_well_formed` and
+  `intersects`); `DecisionPointCoverageStatement`, `CoverageStatementError`
+  and the coverage domain/version constants moved from `aip-reconcile` to
+  `aip-authorize` and are re-exported from `aip-reconcile` at their old
+  paths. Domain string, version, preimage and verification rule are
+  unchanged.
+- Tests: producer attacks `aip-authorize/tests/coverage.rs` (P-01..P-14);
+  live attacks `ghost-demo/tests/live_coverage.rs` (CS-01..CS-06); ledger
+  unit tests. Ledger `docs/security/ADVERSARIAL_RESULTS.md` §CS;
+  `docs/architecture/DECISION_POINT.md` §16a states the restart contract.
+  Chosen over SD-11 (a `NexoraProof` version bump that buys packaging, not a
+  new security property).
+
 ### Added (committed verdicts — SD-10)
 - **Signed verdicts committed to NEXORA, verifiable offline.** New
   `LeafKind::SignedReconciliation` (code `0x0a`, appended; earlier codes
@@ -161,38 +193,4 @@ versioning is [SemVer](https://semver.org/).
 - GitHub Actions: `ci.yml` (fmt, clippy `-D warnings`, test, audit, deny,
   best-effort coverage), `security.yml` (cargo-audit, gitleaks, trivy),
   `release.yml` (multi-target binaries → GitHub Release).
-- `deny.toml` (cargo-deny) for both workspaces.
-- `CONTRIBUTING.md`, `RELEASE_PROCESS.md`, `CHANGELOG.md`,
-  `docs/PRODUCTION_READINESS.md`, PR template.
-- `deploy/docker/`: production Dockerfile (workspace-aware) and
-  `docker-compose.yml` (aip-service + postgres + MinIO object-storage
-  placeholder) with documented environment variables.
-- `aip-protocol` example `loan_approval` producing a real ₹5 crore
-  EvidencePacket, verification report, and authority graph.
-
-### Changed
-- Cleaned all clippy `-D warnings` findings across both workspaces; both are
-  now `fmt --check` and `clippy -D warnings` clean.
-
-### Security
-- (Prior) API-key authentication + tenant isolation on the service; secrets
-  stored only as SHA-256 hashes; fail-closed when no keys configured.
-
-## [0.4.0] — accountability layer
-
-### Added
-- `aip-protocol`: EvidencePacket v1, 14-rule verification engine,
-  accountability graph.
-- `aip-service`: `/v1/evidence/{generate,verify}`, `/v1/evidence/{id}`,
-  `/v1/authority/{id}`; Evidence Vault (append-only, tenant-scoped); authority
-  graph; API-key auth + tenant isolation; wired onto `aip-core`/`aip-protocol`.
-
-### Fixed
-- Reputation score integer overflow in `aip-core::calculate_reputation`
-  (weighted mean no longer rescaled); bounds now property-tested.
-- Broken `aip-standalone` workspace manifest (member paths) — workspace builds.
-
-### Security
-- Removed non-reproducing benchmark artifacts; marked experimental modules
-  (reputation, hardware attestation, liveness) in rustdoc. See
-  `AUDIT_CORRECTIONS.md`.
+- 

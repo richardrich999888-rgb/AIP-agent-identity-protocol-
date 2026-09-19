@@ -55,7 +55,7 @@ verified with `aip-authorize`, the observer's with `aip-observe`, and
 | Can identity be compared without comparing digests? | Yes — `ObservedProcess::matches_process_of(&ExecutionBinding)` is structural (process tuple + executable content hash); the two identity digests are deliberately non-comparable (PR3 E-1). |
 | Can non-execution ever be stated? | Only under signed kernel-pushed coverage of the exact window (`covered_by_kernel_pushed_source()`), in a `RegisteredOnly` regime, from a contiguous chain that spans the window. Never from polled coverage or silence (I8). |
 | Can action/parameters be compared? | **No.** No `ObservedEffect` or `KernelLifecycleEvent` carries an action kind or parameter digest. `VERIFIED_EXECUTION` is therefore unreachable and stated so. |
-| Can expected-side completeness be established? | Only by a decision-point-signed statement. None is produced today. `UNATTRIBUTED_EFFECT` is therefore unreachable in production and stated so. |
+| Can expected-side completeness be established? | Only by a decision-point-signed statement. `aip_authorize::DecisionPoint::coverage_statement` now produces one from the decision point's own ledger (never from a caller-supplied list); `UNATTRIBUTED_EFFECT` is reachable live (`ghost-demo` scenario B, `tests/live_coverage.rs`). Without a statement the verdict stays `CANNOT_PROVE` / `ExpectedSideCompletenessUnknown`. |
 | Can lineage be judged? | Only when both ends of a fork are bound. Not produced today. `LINEAGE_VIOLATION` is unreachable and stated so. |
 
 ## Files changed (commit `ad9642a`)

@@ -3,17 +3,20 @@
 //! a generic "execution".
 
 use aip_authorize::DecisionPointTrustAnchors;
-use aip_crypto::{sha256, verify_ed25519};
-use aip_observe::{AttestedBatch, CoverageWindow, ObserverTrustAnchors, SignedSensorHealth};
-use aip_types::canonical::*;
-use aip_types::{AgentIdentityDocument, DelegationToken, ScopedToken, Signature};
-use serde::{Deserialize, Serialize};
+use aip_observe::{AttestedBatch, ObserverTrustAnchors, SignedSensorHealth};
+use aip_types::{AgentIdentityDocument, DelegationToken, ScopedToken};
 
 use crate::ids::ObserverSequence;
 
-/// Domain tag of a decision point's expected-side completeness statement.
-pub const DECISION_POINT_COVERAGE_DOMAIN: &str = "GHOST/DecisionPointCoverage/v1";
-pub const DECISION_POINT_COVERAGE_VERSION: u16 = 1;
+/// The decision point's expected-side completeness statement and its
+/// verifier. Defined by the producer crate (`aip_authorize::coverage`), where
+/// the ledger it is derived from lives; re-exported here so the reconciler's
+/// input contract names it unchanged. Domain and version are the ones fixed
+/// when this contract was written.
+pub use aip_authorize::{
+    CoverageStatementError, DecisionPointCoverageStatement, DECISION_POINT_COVERAGE_DOMAIN,
+    DECISION_POINT_COVERAGE_VERSION,
+};
 
 /// Everything the observer side contributes: the attested batches the caller
 /// holds for the subject and the newest signed health record. The batches
@@ -26,89 +29,15 @@ pub struct ObserverEvidence {
     pub health: SignedSensorHealth,
 }
 
-/// A decision point's signed statement of *every* decision it issued for an
-/// agent over a window. This is the only thing that can turn "no expectation
-/// found" into "no expectation exists" (`UNATTRIBUTED_EFFECT`). Database
-/// absence never can.
-///
-/// **No producer exists yet.** `aip-authorize` does not emit these; until it
-/// does, the reconciler only ever sees [`ExpectedSideCoverage::Unknown`] in
-/// production and `UNATTRIBUTED_EFFECT` is unreachable. The type is defined
-/// here so the input contract — and the signature the reconciler demands — is
-/// fixed before any producer is written.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct DecisionPointCoverageStatement {
-    pub version: u16,
-    pub decision_point_id: String,
-    pub agent_id: String,
-    pub window: CoverageWindow,
-    /// Every decision id issued for `agent_id` whose validity window
-    /// intersects `window`. May be empty.
-    pub decision_ids: Vec<[u8; 16]>,
-    pub issued_at_ms: u64,
-    pub signature: Signature,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum CoverageStatementError {
-    UnsupportedVersion(u16),
-    UntrustedDecisionPoint(String),
-    SignerMismatch,
-    PayloadHashMismatch,
-    SignatureInvalid,
-    InvalidWindow,
-}
-
-impl DecisionPointCoverageStatement {
-    pub fn signing_preimage(&self) -> Vec<u8> {
-        let mut buf = Vec::new();
-        put_domain(&mut buf, DECISION_POINT_COVERAGE_DOMAIN);
-        put_u16(&mut buf, self.version);
-        put_str(&mut buf, &self.decision_point_id);
-        put_str(&mut buf, &self.agent_id);
-        put_u64(&mut buf, self.window.from_ms);
-        put_u64(&mut buf, self.window.to_ms);
-        put_u32(&mut buf, self.decision_ids.len() as u32);
-        for d in &self.decision_ids {
-            buf.extend_from_slice(d);
-        }
-        put_u64(&mut buf, self.issued_at_ms);
-        buf
-    }
-
-    pub fn verify(
-        &self,
-        anchors: &DecisionPointTrustAnchors,
-    ) -> Result<(), CoverageStatementError> {
-        if self.version != DECISION_POINT_COVERAGE_VERSION {
-            return Err(CoverageStatementError::UnsupportedVersion(self.version));
-        }
-        if self.window.to_ms < self.window.from_ms {
-            return Err(CoverageStatementError::InvalidWindow);
-        }
-        let key = anchors.get(&self.decision_point_id).ok_or_else(|| {
-            CoverageStatementError::UntrustedDecisionPoint(self.decision_point_id.clone())
-        })?;
-        if self.signature.signer_id != self.decision_point_id {
-            return Err(CoverageStatementError::SignerMismatch);
-        }
-        if self.signature.payload_hash != sha256(&self.signing_preimage()) {
-            return Err(CoverageStatementError::PayloadHashMismatch);
-        }
-        match verify_ed25519(key, &self.signature) {
-            Ok(true) => Ok(()),
-            _ => Err(CoverageStatementError::SignatureInvalid),
-        }
-    }
-}
-
 /// What the reconciler knows about the expected side's completeness.
 #[derive(Debug, Clone)]
 pub enum ExpectedSideCoverage {
     /// Nothing attests that the set of expectations the caller holds is
     /// complete. Absence of an expectation is then just absence.
     Unknown,
-    /// A decision point attests the complete set for an agent and window.
+    /// A decision point attests the complete set for an agent and window
+    /// (produced by `aip_authorize::DecisionPoint::coverage_statement` from
+    /// its own ledger).
     Attested(Box<DecisionPointCoverageStatement>),
 }
 
