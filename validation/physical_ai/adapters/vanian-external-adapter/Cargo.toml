@@ -1,0 +1,34 @@
+# Its own workspace root, deliberately.
+#
+# `[workspace]` here stops Cargo from asking the repository-root workspace to
+# adopt this package, which keeps the production manifest — whose explicit
+# `members` list exists so new crates are intentional entries — untouched by
+# validation scaffolding. Same pattern as `validation/airi/agent` and the
+# exp01 recorder.
+#
+# This crate is an ADMISSION GATE, not an observer and not an evidence source.
+# It takes what an external tool produced, records it verbatim, classifies its
+# provenance, and answers one question: may this be admitted, and as what?
+# It constructs no ObservationRecord, holds no key, and defines no evidence
+# vocabulary of its own — `EvidenceCeiling` and `SourceMechanism` are the
+# production types, consumed and not extended.
+#
+# Nothing in `aip-*` depends on this crate, and it is not a workspace member,
+# so no production build can reach it.
+[workspace]
+
+[package]
+name = "vanian-external-adapter"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# The production evidence vocabulary, consumed. Reusing these is the whole
+# point: a validation adapter that defined its own ceiling would be the second
+# evidence hierarchy this exercise exists to prevent.
+aip-observation = { path = "../../../../aip-standalone/aip-observation" }
+aip-observe = { path = "../../../../aip-standalone/aip-observe" }
+aip-crypto = { path = "../../../../aip-standalone/aip-crypto" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

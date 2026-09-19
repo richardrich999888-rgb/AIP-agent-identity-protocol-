@@ -1,0 +1,50 @@
+[package]
+name = "aip-conformance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "The universal conformance program: one invariant set, asked of every domain, emitted as a reviewable artifact"
+
+# ── The last crate in the dependency order ────────────────────────────────
+#
+# This crate consumes every layer and is consumed by nothing. That direction
+# is the whole of its safety argument: a conformance program that anything
+# depended on could change what it is checking. `tests/no_second_architecture`
+# reads the workspace manifests and fails if any crate names this one.
+#
+# It states no security semantics of its own. Every invariant here is a
+# question asked of the core by calling the core — there is no verdict, no
+# ceiling, no observation class and no identifier defined in this crate, and a
+# structural guard over its own source asserts that.
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# The core, read-only.
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+aip-authorize = { path = "../aip-authorize" }
+aip-observe = { path = "../aip-observe" }
+aip-observation = { path = "../aip-observation" }
+aip-system = { path = "../aip-system" }
+aip-execution = { path = "../aip-execution" }
+aip-airi = { path = "../aip-airi" }
+aip-reconcile = { path = "../aip-reconcile" }
+aip-warrant = { path = "../aip-warrant" }
+aip-nexora = { path = "../aip-nexora" }
+
+# The five profiles that realise the seven named domains.
+aip-uas = { path = "../aip-uas" }
+aip-robotics = { path = "../aip-robotics" }
+aip-industrial = { path = "../aip-industrial" }
+aip-space = { path = "../aip-space" }
+aip-enterprise = { path = "../aip-enterprise" }
+
+[dev-dependencies]
+aip-edge = { path = "../aip-edge" }
+
+# The threat model grades Containment as one of its seven layers. A model that
+# cannot call the layer it grades cannot be empirical about it. Dev-only: the
+# library's dependency surface is unchanged.
+aip-containment = { path = "../aip-containment" }

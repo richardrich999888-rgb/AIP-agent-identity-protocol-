@@ -1,0 +1,761 @@
+{
+  "schema_version": 1,
+  "cells": [
+    {
+      "domain": "Enterprise",
+      "invariant": "Identity",
+      "invariant_id": "I01",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i01_identity_is_derived_and_malformed_input_is_refused_not_fatal",
+      "reason": ""
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "Authority",
+      "invariant_id": "I02",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i02_authority_is_a_verified_chain_not_a_parent_child_relation",
+      "reason": ""
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "ExpectedExecution",
+      "invariant_id": "I03",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i03_an_expectation_is_signed_bounded_and_not_self_authorized",
+      "reason": ""
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "ExecutionBinding",
+      "invariant_id": "I04",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i04_execution_binding_is_not_a_pid_and_does_not_transplant",
+      "reason": ""
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "AiriClaim",
+      "invariant_id": "I05",
+      "conformance": "Satisfied",
+      "evidence": "CodeProven",
+      "witness": "aip-conformance/tests/universal.rs::i05_no_framework_name_is_a_trust_input",
+      "reason": ""
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "Observation",
+      "invariant_id": "I06",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i06_a_ceiling_is_declared_per_class_and_never_computed",
+      "reason": ""
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "Attribution",
+      "invariant_id": "I07",
+      "conformance": "Satisfied",
+      "evidence": "ExecutionProven",
+      "witness": "aip-reconcile: reconcile_observation; aip-enterprise/tests/integration.rs local effect",
+      "reason": ""
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "Continuity",
+      "invariant_id": "I08",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i08_a_recorded_gap_is_sticky_and_a_fork_quarantines_permanently",
+      "reason": ""
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "Reconciliation",
+      "invariant_id": "I09",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i09_cannot_prove_is_the_default_and_strength_follows_result_kind",
+      "reason": ""
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "Warrant",
+      "invariant_id": "I10",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i10_a_warrant_refuses_a_verdict_the_engine_did_not_draw",
+      "reason": ""
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "Containment",
+      "invariant_id": "I11",
+      "conformance": "Satisfied",
+      "evidence": "ExecutionProven",
+      "witness": "aip-containment/tests/engine_to_containment.rs (5 tests, live process)",
+      "reason": "reached through the shared engine, not re-tested here: the crossing needs a live process and an actuator, and duplicating it would add a second fixture for one property"
+    },
+    {
+      "domain": "Enterprise",
+      "invariant": "Proof",
+      "invariant_id": "I12",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i12_a_proof_is_rederived_and_a_tampered_head_is_refused",
+      "reason": ""
+    },
+    {
+      "domain": "Uas",
+      "invariant": "Identity",
+      "invariant_id": "I01",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i01_identity_is_derived_and_malformed_input_is_refused_not_fatal",
+      "reason": ""
+    },
+    {
+      "domain": "Uas",
+      "invariant": "Authority",
+      "invariant_id": "I02",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i02_authority_is_a_verified_chain_not_a_parent_child_relation",
+      "reason": ""
+    },
+    {
+      "domain": "Uas",
+      "invariant": "ExpectedExecution",
+      "invariant_id": "I03",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i03_an_expectation_is_signed_bounded_and_not_self_authorized",
+      "reason": ""
+    },
+    {
+      "domain": "Uas",
+      "invariant": "ExecutionBinding",
+      "invariant_id": "I04",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i04_execution_binding_is_not_a_pid_and_does_not_transplant",
+      "reason": ""
+    },
+    {
+      "domain": "Uas",
+      "invariant": "AiriClaim",
+      "invariant_id": "I05",
+      "conformance": "Satisfied",
+      "evidence": "CodeProven",
+      "witness": "aip-conformance/tests/universal.rs::i05_no_framework_name_is_a_trust_input",
+      "reason": ""
+    },
+    {
+      "domain": "Uas",
+      "invariant": "Observation",
+      "invariant_id": "I06",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i06_a_ceiling_is_declared_per_class_and_never_computed",
+      "reason": ""
+    },
+    {
+      "domain": "Uas",
+      "invariant": "Attribution",
+      "invariant_id": "I07",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i07_an_unknown_expected_side_never_becomes_an_accusation",
+      "reason": "the domain's top evidence tier is a physical effect; no implemented mechanism observes one, so attribution stops below it (ADR-011)"
+    },
+    {
+      "domain": "Uas",
+      "invariant": "Continuity",
+      "invariant_id": "I08",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i08_a_recorded_gap_is_sticky_and_a_fork_quarantines_permanently",
+      "reason": ""
+    },
+    {
+      "domain": "Uas",
+      "invariant": "Reconciliation",
+      "invariant_id": "I09",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i09_cannot_prove_is_the_default_and_strength_follows_result_kind",
+      "reason": ""
+    },
+    {
+      "domain": "Uas",
+      "invariant": "Warrant",
+      "invariant_id": "I10",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i10_a_warrant_refuses_a_verdict_the_engine_did_not_draw",
+      "reason": ""
+    },
+    {
+      "domain": "Uas",
+      "invariant": "Containment",
+      "invariant_id": "I11",
+      "conformance": "Satisfied",
+      "evidence": "ExecutionProven",
+      "witness": "aip-containment/tests/engine_to_containment.rs (5 tests, live process)",
+      "reason": "reached through the shared engine, not re-tested here: the crossing needs a live process and an actuator, and duplicating it would add a second fixture for one property"
+    },
+    {
+      "domain": "Uas",
+      "invariant": "Proof",
+      "invariant_id": "I12",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i12_a_proof_is_rederived_and_a_tampered_head_is_refused",
+      "reason": ""
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "Identity",
+      "invariant_id": "I01",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i01_identity_is_derived_and_malformed_input_is_refused_not_fatal",
+      "reason": ""
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "Authority",
+      "invariant_id": "I02",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i02_authority_is_a_verified_chain_not_a_parent_child_relation",
+      "reason": ""
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "ExpectedExecution",
+      "invariant_id": "I03",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i03_an_expectation_is_signed_bounded_and_not_self_authorized",
+      "reason": ""
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "ExecutionBinding",
+      "invariant_id": "I04",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i04_execution_binding_is_not_a_pid_and_does_not_transplant",
+      "reason": ""
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "AiriClaim",
+      "invariant_id": "I05",
+      "conformance": "Satisfied",
+      "evidence": "CodeProven",
+      "witness": "aip-conformance/tests/universal.rs::i05_no_framework_name_is_a_trust_input",
+      "reason": ""
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "Observation",
+      "invariant_id": "I06",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i06_a_ceiling_is_declared_per_class_and_never_computed",
+      "reason": ""
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "Attribution",
+      "invariant_id": "I07",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i07_an_unknown_expected_side_never_becomes_an_accusation",
+      "reason": "the domain's top evidence tier is a physical effect; no implemented mechanism observes one, so attribution stops below it (ADR-011)"
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "Continuity",
+      "invariant_id": "I08",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i08_a_recorded_gap_is_sticky_and_a_fork_quarantines_permanently",
+      "reason": ""
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "Reconciliation",
+      "invariant_id": "I09",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i09_cannot_prove_is_the_default_and_strength_follows_result_kind",
+      "reason": ""
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "Warrant",
+      "invariant_id": "I10",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i10_a_warrant_refuses_a_verdict_the_engine_did_not_draw",
+      "reason": ""
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "Containment",
+      "invariant_id": "I11",
+      "conformance": "Satisfied",
+      "evidence": "ExecutionProven",
+      "witness": "aip-containment/tests/engine_to_containment.rs (5 tests, live process)",
+      "reason": "reached through the shared engine, not re-tested here: the crossing needs a live process and an actuator, and duplicating it would add a second fixture for one property"
+    },
+    {
+      "domain": "Ugv",
+      "invariant": "Proof",
+      "invariant_id": "I12",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i12_a_proof_is_rederived_and_a_tampered_head_is_refused",
+      "reason": ""
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "Identity",
+      "invariant_id": "I01",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i01_identity_is_derived_and_malformed_input_is_refused_not_fatal",
+      "reason": ""
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "Authority",
+      "invariant_id": "I02",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i02_authority_is_a_verified_chain_not_a_parent_child_relation",
+      "reason": ""
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "ExpectedExecution",
+      "invariant_id": "I03",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i03_an_expectation_is_signed_bounded_and_not_self_authorized",
+      "reason": ""
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "ExecutionBinding",
+      "invariant_id": "I04",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i04_execution_binding_is_not_a_pid_and_does_not_transplant",
+      "reason": ""
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "AiriClaim",
+      "invariant_id": "I05",
+      "conformance": "Satisfied",
+      "evidence": "CodeProven",
+      "witness": "aip-conformance/tests/universal.rs::i05_no_framework_name_is_a_trust_input",
+      "reason": ""
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "Observation",
+      "invariant_id": "I06",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i06_a_ceiling_is_declared_per_class_and_never_computed",
+      "reason": ""
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "Attribution",
+      "invariant_id": "I07",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i07_an_unknown_expected_side_never_becomes_an_accusation",
+      "reason": "the domain's top evidence tier is a physical effect; no implemented mechanism observes one, so attribution stops below it (ADR-011)"
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "Continuity",
+      "invariant_id": "I08",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i08_a_recorded_gap_is_sticky_and_a_fork_quarantines_permanently",
+      "reason": ""
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "Reconciliation",
+      "invariant_id": "I09",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i09_cannot_prove_is_the_default_and_strength_follows_result_kind",
+      "reason": ""
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "Warrant",
+      "invariant_id": "I10",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i10_a_warrant_refuses_a_verdict_the_engine_did_not_draw",
+      "reason": ""
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "Containment",
+      "invariant_id": "I11",
+      "conformance": "Satisfied",
+      "evidence": "ExecutionProven",
+      "witness": "aip-containment/tests/engine_to_containment.rs (5 tests, live process)",
+      "reason": "reached through the shared engine, not re-tested here: the crossing needs a live process and an actuator, and duplicating it would add a second fixture for one property"
+    },
+    {
+      "domain": "Robotics",
+      "invariant": "Proof",
+      "invariant_id": "I12",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i12_a_proof_is_rederived_and_a_tampered_head_is_refused",
+      "reason": ""
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "Identity",
+      "invariant_id": "I01",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i01_identity_is_derived_and_malformed_input_is_refused_not_fatal",
+      "reason": ""
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "Authority",
+      "invariant_id": "I02",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i02_authority_is_a_verified_chain_not_a_parent_child_relation",
+      "reason": ""
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "ExpectedExecution",
+      "invariant_id": "I03",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i03_an_expectation_is_signed_bounded_and_not_self_authorized",
+      "reason": ""
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "ExecutionBinding",
+      "invariant_id": "I04",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i04_execution_binding_is_not_a_pid_and_does_not_transplant",
+      "reason": ""
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "AiriClaim",
+      "invariant_id": "I05",
+      "conformance": "Satisfied",
+      "evidence": "CodeProven",
+      "witness": "aip-conformance/tests/universal.rs::i05_no_framework_name_is_a_trust_input",
+      "reason": ""
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "Observation",
+      "invariant_id": "I06",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i06_a_ceiling_is_declared_per_class_and_never_computed",
+      "reason": ""
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "Attribution",
+      "invariant_id": "I07",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i07_an_unknown_expected_side_never_becomes_an_accusation",
+      "reason": "the domain's top evidence tier is a physical effect; no implemented mechanism observes one, so attribution stops below it (ADR-011)"
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "Continuity",
+      "invariant_id": "I08",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i08_a_recorded_gap_is_sticky_and_a_fork_quarantines_permanently",
+      "reason": ""
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "Reconciliation",
+      "invariant_id": "I09",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i09_cannot_prove_is_the_default_and_strength_follows_result_kind",
+      "reason": ""
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "Warrant",
+      "invariant_id": "I10",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i10_a_warrant_refuses_a_verdict_the_engine_did_not_draw",
+      "reason": ""
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "Containment",
+      "invariant_id": "I11",
+      "conformance": "Satisfied",
+      "evidence": "ExecutionProven",
+      "witness": "aip-containment/tests/engine_to_containment.rs (5 tests, live process)",
+      "reason": "reached through the shared engine, not re-tested here: the crossing needs a live process and an actuator, and duplicating it would add a second fixture for one property"
+    },
+    {
+      "domain": "Industrial",
+      "invariant": "Proof",
+      "invariant_id": "I12",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i12_a_proof_is_rederived_and_a_tampered_head_is_refused",
+      "reason": ""
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "Identity",
+      "invariant_id": "I01",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i01_identity_is_derived_and_malformed_input_is_refused_not_fatal",
+      "reason": ""
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "Authority",
+      "invariant_id": "I02",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i02_authority_is_a_verified_chain_not_a_parent_child_relation",
+      "reason": ""
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "ExpectedExecution",
+      "invariant_id": "I03",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i03_an_expectation_is_signed_bounded_and_not_self_authorized",
+      "reason": ""
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "ExecutionBinding",
+      "invariant_id": "I04",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i04_execution_binding_is_not_a_pid_and_does_not_transplant",
+      "reason": ""
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "AiriClaim",
+      "invariant_id": "I05",
+      "conformance": "Satisfied",
+      "evidence": "CodeProven",
+      "witness": "aip-conformance/tests/universal.rs::i05_no_framework_name_is_a_trust_input",
+      "reason": ""
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "Observation",
+      "invariant_id": "I06",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i06_a_ceiling_is_declared_per_class_and_never_computed",
+      "reason": ""
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "Attribution",
+      "invariant_id": "I07",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i07_an_unknown_expected_side_never_becomes_an_accusation",
+      "reason": "the domain's top evidence tier is a physical effect; no implemented mechanism observes one, so attribution stops below it (ADR-011)"
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "Continuity",
+      "invariant_id": "I08",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i08_a_recorded_gap_is_sticky_and_a_fork_quarantines_permanently",
+      "reason": ""
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "Reconciliation",
+      "invariant_id": "I09",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i09_cannot_prove_is_the_default_and_strength_follows_result_kind",
+      "reason": ""
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "Warrant",
+      "invariant_id": "I10",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i10_a_warrant_refuses_a_verdict_the_engine_did_not_draw",
+      "reason": ""
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "Containment",
+      "invariant_id": "I11",
+      "conformance": "Satisfied",
+      "evidence": "ExecutionProven",
+      "witness": "aip-containment/tests/engine_to_containment.rs (5 tests, live process)",
+      "reason": "reached through the shared engine, not re-tested here: the crossing needs a live process and an actuator, and duplicating it would add a second fixture for one property"
+    },
+    {
+      "domain": "CriticalEdge",
+      "invariant": "Proof",
+      "invariant_id": "I12",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i12_a_proof_is_rederived_and_a_tampered_head_is_refused",
+      "reason": ""
+    },
+    {
+      "domain": "Space",
+      "invariant": "Identity",
+      "invariant_id": "I01",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i01_identity_is_derived_and_malformed_input_is_refused_not_fatal",
+      "reason": ""
+    },
+    {
+      "domain": "Space",
+      "invariant": "Authority",
+      "invariant_id": "I02",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i02_authority_is_a_verified_chain_not_a_parent_child_relation",
+      "reason": ""
+    },
+    {
+      "domain": "Space",
+      "invariant": "ExpectedExecution",
+      "invariant_id": "I03",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i03_an_expectation_is_signed_bounded_and_not_self_authorized",
+      "reason": ""
+    },
+    {
+      "domain": "Space",
+      "invariant": "ExecutionBinding",
+      "invariant_id": "I04",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i04_execution_binding_is_not_a_pid_and_does_not_transplant",
+      "reason": ""
+    },
+    {
+      "domain": "Space",
+      "invariant": "AiriClaim",
+      "invariant_id": "I05",
+      "conformance": "Satisfied",
+      "evidence": "CodeProven",
+      "witness": "aip-conformance/tests/universal.rs::i05_no_framework_name_is_a_trust_input",
+      "reason": ""
+    },
+    {
+      "domain": "Space",
+      "invariant": "Observation",
+      "invariant_id": "I06",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i06_a_ceiling_is_declared_per_class_and_never_computed",
+      "reason": ""
+    },
+    {
+      "domain": "Space",
+      "invariant": "Attribution",
+      "invariant_id": "I07",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i07_an_unknown_expected_side_never_becomes_an_accusation",
+      "reason": "the domain's top evidence tier is a physical effect; no implemented mechanism observes one, so attribution stops below it (ADR-011)"
+    },
+    {
+      "domain": "Space",
+      "invariant": "Continuity",
+      "invariant_id": "I08",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i08_a_recorded_gap_is_sticky_and_a_fork_quarantines_permanently",
+      "reason": ""
+    },
+    {
+      "domain": "Space",
+      "invariant": "Reconciliation",
+      "invariant_id": "I09",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i09_cannot_prove_is_the_default_and_strength_follows_result_kind",
+      "reason": ""
+    },
+    {
+      "domain": "Space",
+      "invariant": "Warrant",
+      "invariant_id": "I10",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i10_a_warrant_refuses_a_verdict_the_engine_did_not_draw",
+      "reason": ""
+    },
+    {
+      "domain": "Space",
+      "invariant": "Containment",
+      "invariant_id": "I11",
+      "conformance": "Satisfied",
+      "evidence": "ExecutionProven",
+      "witness": "aip-containment/tests/engine_to_containment.rs (5 tests, live process)",
+      "reason": "reached through the shared engine, not re-tested here: the crossing needs a live process and an actuator, and duplicating it would add a second fixture for one property"
+    },
+    {
+      "domain": "Space",
+      "invariant": "Proof",
+      "invariant_id": "I12",
+      "conformance": "Satisfied",
+      "evidence": "TestProven",
+      "witness": "aip-conformance/tests/universal.rs::i12_a_proof_is_rederived_and_a_tampered_head_is_refused",
+      "reason": ""
+    }
+  ]
+}

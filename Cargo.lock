@@ -105,6 +105,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-conformance"
+version = "0.4.0"
+dependencies = [
+ "aip-airi",
+ "aip-authorize",
+ "aip-containment",
+ "aip-core",
+ "aip-crypto",
+ "aip-edge",
+ "aip-enterprise",
+ "aip-execution",
+ "aip-industrial",
+ "aip-nexora",
+ "aip-observation",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-robotics",
+ "aip-space",
+ "aip-system",
+ "aip-types",
+ "aip-uas",
+ "aip-warrant",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-containment"
 version = "0.4.0"
 dependencies = [
@@ -229,6 +256,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-enterprise"
+version = "0.4.0"
+dependencies = [
+ "aip-airi",
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-edge",
+ "aip-execution",
+ "aip-industrial",
+ "aip-nexora",
+ "aip-observation",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-robotics",
+ "aip-space",
+ "aip-system",
+ "aip-types",
+ "aip-uas",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-execution"
 version = "0.4.0"
 dependencies = [
@@ -239,6 +290,26 @@ dependencies = [
  "aip-types",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "aip-industrial"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-crypto",
+ "aip-edge",
+ "aip-execution",
+ "aip-nexora",
+ "aip-observation",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-robotics",
+ "aip-system",
+ "aip-types",
+ "aip-uas",
+ "aip-warrant",
+ "serde",
 ]
 
 [[package]]
@@ -403,6 +474,25 @@ dependencies = [
  "aip-system",
  "aip-types",
  "aip-uas",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "aip-space"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-edge",
+ "aip-execution",
+ "aip-nexora",
+ "aip-observation",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-system",
+ "aip-types",
  "serde",
  "serde_json",
 ]

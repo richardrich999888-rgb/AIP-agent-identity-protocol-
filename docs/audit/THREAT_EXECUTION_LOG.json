@@ -1,0 +1,1097 @@
+{
+  "schema_version": 1,
+  "cells": [
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Aip",
+      "declared": "Prevented",
+      "observed": "Prevented",
+      "outcome": {
+        "Unrepresentable": {
+          "evidence": "an AIP-ID derived from the attacker's key is not the victim's, and a token the attacker issues in the victim's name does not verify under the victim's key: the victim's identity has no representation without the key"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Airi",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "a fabricated ExecutionCompleted(Success) signs and verifies; AIRI establishes authorship and integrity, never occurrence"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Observation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "a batch signed under the collector's id by a key the verifier does not anchor is refused: SignatureInvalid"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Reconciliation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "reconcile_expectation -> PHANTOM_CLAIM @ Attested (KernelCoverageWithNoReference); the claim is named as a phantom"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Warrant",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "a record the agent authored — read back from its own bytes and therefore Provenance::Deserialized — is refused outright with ReconciliationNotEngineProduced, before any response class is computed"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "contain() -> Refused(ResponseNotContain), actuator untouched; the refusal names a warrant field, not the attack"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "a package claiming VERIFIED_EXECUTION over inputs that support PHANTOM_CLAIM is Invalid(ClaimNotDerivable); the verifier re-derives from the package's own bytes"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Aip",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "AIP-ID derivation reads a key and a provenance triple; the same agent derives the same identity under either framework name, and AIP has no framework input to be lied to"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Airi",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "the event verifies as authorship only; framework_grants_authority() is false for every adapter and every name, so the framework's account changes no standing and AIRI settles nothing about it"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Observation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the collector's record is signed off-host; a batch the framework attests under the collector's id is refused (SignatureInvalid), and ProcfsProbe carries no field through which a framework's account could enter"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Reconciliation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "reconcile_expectation -> PHANTOM_CLAIM @ Attested (KernelCoverageWithNoReference); the framework's account does not corroborate itself — corroboration needs an independent observation of the same instance"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Warrant",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "evaluate under the maximal policy -> Constrain/Workload; determined by the verdict alone, and identical for a benign record of the same class"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "contain() -> Refused(ResponseNotContain), actuator untouched; the refusal names a warrant field, not the attack"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the framework identity is inside the signed preimage; relabelling it after signing fails the re-walk with PayloadHashMismatch"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Aip",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "AIP has no inference input; identity derivation and token verification are unchanged by anything a model runtime reports"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Airi",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "a ModelProvenance naming a model that never ran, with no weight digest and a self-reported accelerator, verifies as authorship; the identity is recorded as declared and AIRI settles nothing about what executed"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Observation",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "every one of the 9 implemented source mechanisms maps to a process, socket, wire, transfer, filesystem, platform or observer-integrity class; none observes accelerator or kernel execution, so no model event enters the record"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Reconciliation",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "with no observation of the model invocation there is nothing to reconcile it against: reconcile_expectation -> CANNOT_PROVE @ Heuristic (NoObserverEvidence)"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Warrant",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "evaluate under the maximal policy -> Alert/Workload; determined by the verdict alone, and identical for a benign record of the same class"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "contain() -> Refused(ResponseNotContain), actuator untouched; the refusal names a warrant field, not the attack"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "model provenance is bound to the execution it was signed under; moving the event to another execution id fails verification with PayloadHashMismatch"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Aip",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "AIP models no tool endpoint; nothing a tool returns reaches identity or authority"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Airi",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "a ToolReport claiming Success with transport 200 verifies as authorship; requested invocation, runtime execution and external effect are three separate records and the report is only the second"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Observation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "FilesystemEffect and NetworkSocket are implemented classes, so the local half of a tool call is observable; the attested record carries only what the probe measured and no FilesystemEffect for the claimed write"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Reconciliation",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "the instance is corroborated and the action is not: reconcile_expectation -> CANNOT_PROVE @ Heuristic (ActionEvidenceUnavailable), identity Match { observations: 1 }, action Unobservable — a matched instance never becomes a landed effect"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Warrant",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "evaluate under the maximal policy -> Alert/Workload; determined by the verdict alone, and identical for a benign record of the same class"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "contain() -> Refused(ResponseNotContain), actuator untouched; the refusal names a warrant field, not the attack"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "a tool event carries its author inside the signature; verified against another agent's key it fails with SignatureInvalid"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Aip",
+      "declared": "Prevented",
+      "observed": "Prevented",
+      "outcome": {
+        "Unrepresentable": {
+          "evidence": "execution identity is the process instance plus the executable's content, both inside the decision point's signature; swapping the content makes the expectation fail verification (PayloadHashMismatch) rather than authorising the new binary"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Airi",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "runtime_binding is self-reported: a compromised process reports its real pid, and the event verifies whatever else it says"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Observation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the collector measures pid, start ticks, boot id and executable content itself rather than accepting them; the measured content differs from the authorised content and the difference is inside the signed batch"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Reconciliation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "reconcile_expectation -> IDENTITY_DIVERGENCE @ Attested (IdentityDiverged), identity Divergent { observations: 1 }"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Warrant",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "evaluate under the maximal policy -> Constrain/Workload; determined by the verdict alone, and identical for a benign record of the same class"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "contain() -> Refused(ResponseNotContain), actuator untouched; the refusal names a warrant field, not the attack"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the honest package is Valid over the divergence; the same package with the binding edited is Invalid(Component) — the components must be bound to one another"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Aip",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "a token signed with the host-held key verifies exactly as an honest one does; AIP establishes what was signed and declines the question of who held the key"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Airi",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "every self-report on a rooted host is the attacker's, and each one verifies as authorship"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Observation",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "every class whose content is read from the observed host declares a ceiling below Proven; the only class that reaches Proven is ObserverIntegrity, which is arithmetic over the collector's own record and not host content"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Reconciliation",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "content the attacker controls produces IDENTITY_DIVERGENCE at Attested, never Proven; the limit is declared per ObservationClass rather than computed from the evidence"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Warrant",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "under the most permissive policy an operator can set, an Attested workload verdict is capped at Constrain by the evidence-strength gate; the attacker does not get containment out of content they control"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Containment",
+      "declared": "Prevented",
+      "observed": "Prevented",
+      "outcome": {
+        "Unrepresentable": {
+          "evidence": "swept all 9 (result, strength) pairs the engine can draw, each under the most permissive policy: the actuator was reached 0 times. contain()'s strength gate and its workload-violation gate are jointly unsatisfiable from engine output, so a warrant that actuates has no representation reachable from a rooted host — the same unreachability recorded as blocker B-3, which this does not close"
+        }
+      }
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the same package that verifies under the collector's real anchor is Invalid(Component) when the verifier anchors a different collector; the package does not supply the keys it is judged by"
+        }
+      }
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Aip",
+      "declared": "Prevented",
+      "observed": "Prevented",
+      "outcome": {
+        "Unrepresentable": {
+          "evidence": "AIP-ID derivation reads a key and a provenance triple and nothing else, and no AIP verification consumes telemetry; a forged stream has no representation that reaches this layer"
+        }
+      }
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Airi",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "forging a self-report produces a well-formed self-report, which is what AIRI is; the event verifies"
+        }
+      }
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Observation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the unedited batch verifies against the collector's anchor and the same batch with one field altered after signing does not: PayloadHashMismatch"
+        }
+      }
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Reconciliation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "reconcile_expectation -> SENSOR_INTEGRITY_FAILURE @ Proven (ObserverSignatureInvalid); the one verdict the engine reaches at Proven, because it is a recomputation over bytes the verifier already holds"
+        }
+      }
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Warrant",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "evaluate under the maximal policy -> Alert/Observer; determined by the verdict alone, and identical for a benign record of the same class"
+        }
+      }
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "contain() -> Refused(ResponseNotContain), actuator untouched; the refusal names a warrant field, not the attack"
+        }
+      }
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "a package carrying the edited observer bundle is Invalid(Component); the verifier checks each component under its own anchors before any of it is credited"
+        }
+      }
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Aip",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "token verification reads a token and a public key; it succeeds with no network, and severing the link changes neither identity nor authority"
+        }
+      }
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Airi",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "an event queued through an outage verifies unchanged when it arrives; its standing was never a function of the link"
+        }
+      }
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Observation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the collector's sequence and head chain are continuous across the outage: a batch delayed by the link still links to the recorded head, so an outage cannot be dressed as a gap and a gap cannot hide behind an outage"
+        }
+      }
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Reconciliation",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "with the window's tail still in flight the engine answers CANNOT_PROVE (ObservationSetIncomplete), availability Unavailable { reason: NoObserver } — never PHANTOM_CLAIM, which would be an absence claim drawn from a link failure"
+        }
+      }
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Warrant",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "evaluate under the maximal policy -> Alert/Workload; determined by the verdict alone, and identical for a benign record of the same class"
+        }
+      }
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "contain() -> Refused(ResponseNotContain), actuator untouched; the refusal names a warrant field, not the attack"
+        }
+      }
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "verify_nexora_proof reads a package and a set of anchors and nothing else: two runs with no network give Valid both times, so cutting the link denies the attacker nothing to exploit and the verifier nothing it needed"
+        }
+      }
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Aip",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "AIP observes nothing, so dropping observations changes nothing it holds"
+        }
+      }
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Airi",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "an agent that never emits an event for part of what it did leaves a chain with no gap in it; verify_event_chain reports Intact, because silence is not visible from a self-report"
+        }
+      }
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Observation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "withholding a batch and offering the next one is not silence: the ledger names it, HeadMismatch"
+        }
+      }
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Reconciliation",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "an observation set with a hole in it answers CANNOT_PROVE (ObservationSetIncomplete), availability Unavailable { reason: NoObserver }; a non-occurrence claim would additionally require kernel-pushed coverage of the whole window"
+        }
+      }
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Warrant",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "evaluate under the maximal policy -> Alert/Workload; determined by the verdict alone, and identical for a benign record of the same class"
+        }
+      }
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "contain() -> Refused(ResponseNotContain), actuator untouched; the refusal names a warrant field, not the attack"
+        }
+      }
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "a claim drawn from observer evidence, packaged without that evidence, is Invalid(Structural); the package is refused rather than credited with the part it kept"
+        }
+      }
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Aip",
+      "declared": "NotDetectable",
+      "observed": null,
+      "outcome": {
+        "NotStageable": {
+          "reason": "AIP consumes no sensor reading; the attack is manipulation of a physical quantity; this workspace contains no sensor to deceive and no physical actuator to observe, and the physical validation extension is BLOCKED"
+        }
+      }
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Airi",
+      "declared": "NotDetectable",
+      "observed": null,
+      "outcome": {
+        "NotStageable": {
+          "reason": "AIRI models no sensor; the attack is manipulation of a physical quantity; this workspace contains no sensor to deceive and no physical actuator to observe, and the physical validation extension is BLOCKED"
+        }
+      }
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Observation",
+      "declared": "Uncertainty",
+      "observed": null,
+      "outcome": {
+        "NotStageable": {
+          "reason": "ObservationClass::PhysicalEffect is representable with no implemented mechanism, so there is no reading to falsify; the attack is manipulation of a physical quantity; this workspace contains no sensor to deceive and no physical actuator to observe, and the physical validation extension is BLOCKED"
+        }
+      }
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Reconciliation",
+      "declared": "Uncertainty",
+      "observed": null,
+      "outcome": {
+        "NotStageable": {
+          "reason": "no reconciliation input is a physical quantity; the attack is manipulation of a physical quantity; this workspace contains no sensor to deceive and no physical actuator to observe, and the physical validation extension is BLOCKED"
+        }
+      }
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Warrant",
+      "declared": "NotDetectable",
+      "observed": null,
+      "outcome": {
+        "NotStageable": {
+          "reason": "the gate consumes a verdict; the attack is manipulation of a physical quantity; this workspace contains no sensor to deceive and no physical actuator to observe, and the physical validation extension is BLOCKED"
+        }
+      }
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": null,
+      "outcome": {
+        "NotStageable": {
+          "reason": "containment acts on a warrant; the attack is manipulation of a physical quantity; this workspace contains no sensor to deceive and no physical actuator to observe, and the physical validation extension is BLOCKED"
+        }
+      }
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Nexora",
+      "declared": "NotDetectable",
+      "observed": null,
+      "outcome": {
+        "NotStageable": {
+          "reason": "NEXORA commits to what it was given, and a deceived reading is faithfully committed; the attack is manipulation of a physical quantity; this workspace contains no sensor to deceive and no physical actuator to observe, and the physical validation extension is BLOCKED"
+        }
+      }
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Aip",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "AIP does not model the observer; nothing it holds changes when a collector fails"
+        }
+      }
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Airi",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "AIRI does not model the observer; an agent's own chain is unaffected by a collector failing"
+        }
+      }
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Observation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "two distinct attested batches at one sequence under one key is a Fork, recomputable by anyone holding the bytes; the ledger quarantines and later well-formed traffic does not un-prove it"
+        }
+      }
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Reconciliation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "an epoch the collector cannot vouch for answers CONTINUITY_FAILURE @ Attested (ObserverContinuityUnverified); the verdict is about the observer's record and makes no claim about the workload"
+        }
+      }
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Warrant",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "under the maximal policy the response is Alert against the Observer, not the workload; breaking the observer does not become permission to act on the agent"
+        }
+      }
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "contain() -> Refused(ResponseNotContain), actuator untouched; the refusal names a warrant field, not the attack"
+        }
+      }
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the verifier re-derives Some(\"CONTINUITY_FAILURE\") and reports continuity standing Unknown; a break the collector attested is carried through and never softened into continuity"
+        }
+      }
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Aip",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the replayed token verifies and carries the same signed issuance and expiry it always did; widening that window to make the replay useful makes the token fail verification, so the reuse is bounded by the artifact itself"
+        }
+      }
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Airi",
+      "declared": "Uncertainty",
+      "observed": "Uncertainty",
+      "outcome": {
+        "Declined": {
+          "evidence": "the same event verifies as many times as it is offered; AIRI holds no ledger and settles nothing about whether this is the first submission"
+        }
+      }
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Observation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "a batch offered at an already-consumed sequence with the same head is named Replay; the same sequence with a different head would be a Fork and would quarantine permanently"
+        }
+      }
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Reconciliation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "a duplicated attested batch is collapsed and the record carries replay_detected = true; the duplicate adds no coverage and no corroboration"
+        }
+      }
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Warrant",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "evaluate under the maximal policy -> Constrain/Workload; determined by the verdict alone, and identical for a benign record of the same class"
+        }
+      }
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Containment",
+      "declared": "Detected",
+      "observed": null,
+      "outcome": {
+        "NotStageable": {
+          "reason": "contain()'s replay check is gate 14, reached only after the strength gate (5) and the workload-violation gate (6), which no verdict the engine draws satisfies. Submitting this threat's real warrant twice gives Refused(ResponseNotContain) both times — a refusal about the warrant's class, not a replay detection. Staging the ledger would require fabricating a Proven workload-violation warrant, which no verdict outside a fixture produces"
+        }
+      }
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the proof id is recorded on first submission and the second is reported as a duplicate; the verdict is unchanged, because a proof is no less true for being shown twice and no more granting"
+        }
+      }
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Aip",
+      "declared": "Prevented",
+      "observed": "Prevented",
+      "outcome": {
+        "Unrepresentable": {
+          "evidence": "expiry is inside the signature on both ScopedToken and DelegationToken; a token whose window has been extended does not verify, so a live authority derived from a dead one has no representation"
+        }
+      }
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Airi",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "AIRI carries no authority and has nothing to assess; the event verifies whatever the authority's standing"
+        }
+      }
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Observation",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "an ObservedExecution carries a process, an effect, a mechanism and an attribution, and no authority field at all; the record is identical whether the authority behind it was live or expired"
+        }
+      }
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Reconciliation",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "reconciled at its own verification time the record answers CANNOT_PROVE (ActionEvidenceUnavailable); reconciled long after the window closed it answers CANNOT_PROVE (HealthStale) — the window is read, not assumed"
+        }
+      }
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Warrant",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "evaluate under the maximal policy -> Alert/Workload; determined by the verdict alone, and identical for a benign record of the same class"
+        }
+      }
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Containment",
+      "declared": "NotDetectable",
+      "observed": "NotDetectable",
+      "outcome": {
+        "Unnoticed": {
+          "evidence": "contain() -> Refused(ResponseNotContain), actuator untouched; the refusal names a warrant field, not the attack"
+        }
+      }
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Nexora",
+      "declared": "Detected",
+      "observed": "Detected",
+      "outcome": {
+        "Rejected": {
+          "evidence": "the same package assessed at its own time reports authority standing \"StaleSince\" and assessed long afterwards reports \"StaleSince\"; neither grants anything, and the staleness is computed at the verifier's present time rather than read from the package"
+        }
+      }
+    }
+  ]
+}

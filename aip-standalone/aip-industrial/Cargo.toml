@@ -1,0 +1,40 @@
+[package]
+name = "aip-industrial"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Industrial and critical-edge accountability profile: a vertical over the generic core, adding no identity, no verdict and no evidence hierarchy"
+
+# ── A profile, not an ICS security core ───────────────────────────────────
+#
+# Every dependency here is consumed and none is extended. This crate defines no
+# identifier, no observation record, no verdict class, no evidence strength, no
+# key and no proof tree. The dependency points one way: nothing in the verdict
+# path depends on it, so a vertical cannot cause a semantic regression in the
+# accountability model it specialises (D17-6, applied to the third vertical).
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-system = { path = "../aip-system" }
+aip-execution = { path = "../aip-execution" }
+aip-observation = { path = "../aip-observation" }
+aip-observe = { path = "../aip-observe" }
+aip-authorize = { path = "../aip-authorize" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+# Driven in tests only, to demonstrate that the profile needs no change to any
+# of them. Deliberately not runtime dependencies: a profile that could reach
+# the verdict engine at runtime is a profile that could eventually produce a
+# verdict, and one that could reach the containment path at runtime is a
+# second place a plant could be acted on.
+aip-reconcile = { path = "../aip-reconcile" }
+aip-nexora = { path = "../aip-nexora" }
+aip-warrant = { path = "../aip-warrant" }
+# The Skill 22 reference, driven as a critical-edge node — the one observation
+# path an industrial deployment actually has.
+aip-edge = { path = "../aip-edge" }
+# The two shipped verticals, for the three-way consistency test that replaces
+# the two-way one ADR-007 installed. See ADR-008.
+aip-uas = { path = "../aip-uas" }
+aip-robotics = { path = "../aip-robotics" }

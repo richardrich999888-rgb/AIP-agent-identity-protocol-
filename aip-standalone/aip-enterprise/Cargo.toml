@@ -1,0 +1,39 @@
+[package]
+name = "aip-enterprise"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Enterprise autonomous systems accountability profile: one deployment class over the generic core, adding no trust score, no verdict and no second evidence hierarchy"
+
+# ── One deployment class, not the definition of Vanian ────────────────────
+#
+# Every dependency here is consumed and none is extended. The AIRI framework,
+# model and tool abstractions already exist and already refuse to treat a
+# framework name as a trust input; this crate maps enterprise resources onto
+# them and adds the one thing they do not have — a tenant/workload binding that
+# commits to the execution identity, so a copied token is not a copied identity.
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-system = { path = "../aip-system" }
+aip-execution = { path = "../aip-execution" }
+aip-observation = { path = "../aip-observation" }
+aip-observe = { path = "../aip-observe" }
+aip-airi = { path = "../aip-airi" }
+aip-authorize = { path = "../aip-authorize" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"
+aip-core = { path = "../aip-core" }
+# Driven in tests only. A profile that could reach the verdict engine at
+# runtime is a profile that could eventually produce a verdict.
+aip-reconcile = { path = "../aip-reconcile" }
+aip-nexora = { path = "../aip-nexora" }
+aip-edge = { path = "../aip-edge" }
+# The four shipped verticals, for the five-way cross-vertical guard that
+# replaces the three-way one. See ADR-011.
+aip-uas = { path = "../aip-uas" }
+aip-robotics = { path = "../aip-robotics" }
+aip-industrial = { path = "../aip-industrial" }
+aip-space = { path = "../aip-space" }

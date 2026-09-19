@@ -1,0 +1,733 @@
+{
+  "schema_version": 1,
+  "cells": [
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Aip",
+      "disposition": "Prevented",
+      "mechanism": "an AIP-ID is derived from a key and provenance; an agent cannot sign as another identity without that key",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Airi",
+      "disposition": "NotDetectable",
+      "mechanism": "AIRI is the agent's own account of itself; a compromised agent emits whatever it likes and the events remain well-formed",
+      "non_establishment": "N-1"
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Observation",
+      "disposition": "Detected",
+      "mechanism": "the collector runs off-host under its own key; the agent cannot write the observer's record",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Reconciliation",
+      "disposition": "Detected",
+      "mechanism": "a claim with no matching observation under kernel-pushed coverage is PhantomClaim; without that coverage it is CANNOT_PROVE",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Warrant",
+      "disposition": "Detected",
+      "mechanism": "a warrant may rest only on a verdict the reconciler drew; a record the agent assembled — by literal, by functional update, or read back from bytes it wrote itself, which arrives Provenance::Deserialized — is refused with ReconciliationNotEngineProduced before any response class is computed",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "containment acts on a warrant and detects nothing itself",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedAgent",
+      "threat_id": "X01",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "the verifier re-derives the claim from the package's own inputs; a verdict the agent wrote is not derivable",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Aip",
+      "disposition": "NotDetectable",
+      "mechanism": "AIP knows nothing of frameworks; a framework name is not an identity",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Airi",
+      "disposition": "Uncertainty",
+      "mechanism": "FrameworkIdentity is data, never a trust input; framework_grants_authority() is non-overridable and returns false, so a compromised framework changes no standing — and AIRI feeds no verdict at all, the reconciler having no dependency on it",
+      "non_establishment": "N-1, N-11"
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Observation",
+      "disposition": "Detected",
+      "mechanism": "the observer watches the process, not the framework; a framework's account does not enter the observed record",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Reconciliation",
+      "disposition": "Detected",
+      "mechanism": "framework events are claims; corroboration requires an independent observation of the same instance",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Warrant",
+      "disposition": "NotDetectable",
+      "mechanism": "consumes a verdict",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "acts on a warrant",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedFramework",
+      "threat_id": "X02",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "a relabelled framework event fails verification; the AIRI bundle is re-walked from the package's own bytes",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Aip",
+      "disposition": "NotDetectable",
+      "mechanism": "AIP does not model inference",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Airi",
+      "disposition": "Uncertainty",
+      "mechanism": "model identity is recorded as declared, not as verified; a hosted API returns an unverifiable identifier and a weight digest describes a file, not runtime memory",
+      "non_establishment": "N-3, N-4"
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Observation",
+      "disposition": "NotDetectable",
+      "mechanism": "no implemented mechanism observes accelerator or kernel execution; framework telemetry is still framework telemetry",
+      "non_establishment": "N-5"
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Reconciliation",
+      "disposition": "Uncertainty",
+      "mechanism": "a model invocation is never corroborated by a host observer; the question is refused rather than answered",
+      "non_establishment": "N-5"
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Warrant",
+      "disposition": "NotDetectable",
+      "mechanism": "consumes a verdict",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "acts on a warrant",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedModelRuntime",
+      "threat_id": "X03",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "model provenance is bound to the execution event; a transplanted model event fails verification",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Aip",
+      "disposition": "NotDetectable",
+      "mechanism": "AIP does not model tool endpoints",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Airi",
+      "disposition": "Uncertainty",
+      "mechanism": "requested invocation, runtime execution and external effect are three separate records; a successful response is none of the other two, and a gateway's own report is not authoritative because its key lifecycle and transport are undefined",
+      "non_establishment": "N-2, N-9"
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Observation",
+      "disposition": "Detected",
+      "mechanism": "the local half is observable — a socket is ProcNetTable, a file write is Fanotify — and the observer sees what the host did regardless of what the tool returned",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Reconciliation",
+      "disposition": "Uncertainty",
+      "mechanism": "a successful tool response is not evidence the external effect landed; the remote half stops at CANNOT_PROVE",
+      "non_establishment": "N-2"
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Warrant",
+      "disposition": "NotDetectable",
+      "mechanism": "consumes a verdict",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "acts on a warrant",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedTool",
+      "threat_id": "X04",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "a tool event transplanted to another agent or execution fails verification",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Aip",
+      "disposition": "Prevented",
+      "mechanism": "execution identity is the process instance plus the executable's content; a different binary is a different identity and cannot be asserted into",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Airi",
+      "disposition": "NotDetectable",
+      "mechanism": "runtime_binding is self-reported; a compromised process can report its real pid and lie about everything else",
+      "non_establishment": "N-8"
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Observation",
+      "disposition": "Detected",
+      "mechanism": "the collector measures pid, start ticks, boot id and exe content itself rather than accepting them",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Reconciliation",
+      "disposition": "Detected",
+      "mechanism": "a divergent instance under one decision is IdentityDivergence; PID reuse never matches",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Warrant",
+      "disposition": "NotDetectable",
+      "mechanism": "consumes a verdict",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "acts on a warrant",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedProcess",
+      "threat_id": "X05",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "the binding is inside the signed expectation; a package whose components are not bound to one another is refused",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Aip",
+      "disposition": "Uncertainty",
+      "mechanism": "a key on a rooted host is a key the attacker holds; AIP establishes what was signed, not who was in control",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Airi",
+      "disposition": "NotDetectable",
+      "mechanism": "every self-report on the host is the attacker's",
+      "non_establishment": "N-1"
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Observation",
+      "disposition": "Uncertainty",
+      "mechanism": "content measured from the observed host is root-forgeable, so every such class is capped at Attested rather than Proven; the collector's own key is off-host",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Reconciliation",
+      "disposition": "Uncertainty",
+      "mechanism": "the Attested ceiling is why no host-content verdict reaches Proven; the limit is declared per ObservationClass, not computed",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Warrant",
+      "disposition": "Detected",
+      "mechanism": "containment requires Proven, which no root-forgeable class reaches; the gate refuses rather than acting on host-controlled content",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Containment",
+      "disposition": "Prevented",
+      "mechanism": "actuation is unreachable from any verdict a rooted host could manufacture; see blocker B-3, which records that it is unreachable from genuine reconciliation too",
+      "non_establishment": ""
+    },
+    {
+      "threat": "CompromisedHost",
+      "threat_id": "X06",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "anchors are the verifier's, not the package's; a head signed under an unanchored key is refused",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Aip",
+      "disposition": "Prevented",
+      "mechanism": "telemetry is not an identity; nothing in AIP consumes it",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Airi",
+      "disposition": "NotDetectable",
+      "mechanism": "AIRI records what was reported; forging it produces well-formed self-report, which is what AIRI is",
+      "non_establishment": "N-1"
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Observation",
+      "disposition": "Detected",
+      "mechanism": "an observation is signed by the collector; edited bytes break the attestation",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Reconciliation",
+      "disposition": "Detected",
+      "mechanism": "tampered observer bytes are SensorIntegrityFailure at Proven — an arithmetic statement about the observer's record",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Warrant",
+      "disposition": "NotDetectable",
+      "mechanism": "consumes a verdict",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "acts on a warrant",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ForgedTelemetry",
+      "threat_id": "X07",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "every carried component is verified under the verifier's own anchors before any of it is credited",
+      "non_establishment": ""
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Aip",
+      "disposition": "NotDetectable",
+      "mechanism": "identity and authority are offline artifacts; connectivity changes nothing about them",
+      "non_establishment": ""
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Airi",
+      "disposition": "NotDetectable",
+      "mechanism": "AIRI events queue locally; their standing is unchanged by the link",
+      "non_establishment": ""
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Observation",
+      "disposition": "Detected",
+      "mechanism": "the collector's sequence and head chain are continuous across a link outage; a gap in the chain is visible whether or not the link was up",
+      "non_establishment": ""
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Reconciliation",
+      "disposition": "Uncertainty",
+      "mechanism": "delayed arrival is never non-occurrence; a window with no evidence yet is CANNOT_PROVE, not an absence claim",
+      "non_establishment": "N-6"
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Warrant",
+      "disposition": "NotDetectable",
+      "mechanism": "consumes a verdict",
+      "non_establishment": ""
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "acts on a warrant",
+      "non_establishment": ""
+    },
+    {
+      "threat": "LostConnectivity",
+      "threat_id": "X08",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "a proof package verifies offline against anchors the verifier holds; no network is required and none is trusted",
+      "non_establishment": ""
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Aip",
+      "disposition": "NotDetectable",
+      "mechanism": "AIP observes nothing",
+      "non_establishment": ""
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Airi",
+      "disposition": "NotDetectable",
+      "mechanism": "an agent that reports only some of what it did leaves an intact chain; silence is not visible from AIRI",
+      "non_establishment": "N-6"
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Observation",
+      "disposition": "Detected",
+      "mechanism": "dropped events are counted and the count is inside the signed batch; a withheld tail batch disagrees with the signed health record's head",
+      "non_establishment": "N-7"
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Reconciliation",
+      "disposition": "Uncertainty",
+      "mechanism": "an incomplete observation set is CANNOT_PROVE naming the gap; a non-occurrence claim additionally requires kernel-pushed coverage across the whole window",
+      "non_establishment": ""
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Warrant",
+      "disposition": "NotDetectable",
+      "mechanism": "consumes a verdict",
+      "non_establishment": ""
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "acts on a warrant",
+      "non_establishment": ""
+    },
+    {
+      "threat": "PartialObservation",
+      "threat_id": "X09",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "a claim citing evidence the package does not carry is a structural fault and the package is refused",
+      "non_establishment": ""
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Aip",
+      "disposition": "NotDetectable",
+      "mechanism": "AIP models no sensor",
+      "non_establishment": ""
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Airi",
+      "disposition": "NotDetectable",
+      "mechanism": "AIRI models no sensor",
+      "non_establishment": ""
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Observation",
+      "disposition": "Uncertainty",
+      "mechanism": "a sensor reading is content read from a device and is root-forgeable exactly as procfs is; the physical-effect class is declared and has no implemented mechanism at all",
+      "non_establishment": ""
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Reconciliation",
+      "disposition": "Uncertainty",
+      "mechanism": "no verdict rests on a physical quantity; the top evidence tier of every embodied profile is unreachable",
+      "non_establishment": ""
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Warrant",
+      "disposition": "NotDetectable",
+      "mechanism": "consumes a verdict",
+      "non_establishment": ""
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "acts on a warrant",
+      "non_establishment": ""
+    },
+    {
+      "threat": "SensorDeception",
+      "threat_id": "X10",
+      "layer": "Nexora",
+      "disposition": "NotDetectable",
+      "mechanism": "NEXORA commits to what it was given; a deceived sensor produces a faithfully committed false reading",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Aip",
+      "disposition": "NotDetectable",
+      "mechanism": "AIP does not model the observer",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Airi",
+      "disposition": "NotDetectable",
+      "mechanism": "AIRI does not model the observer",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Observation",
+      "disposition": "Detected",
+      "mechanism": "the collector signs its own state — Degraded, Recovering, ContinuityUnverified, Quarantined, IntegrityUnknown — and a fork at one sequence under one key is arithmetic anyone can recompute",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Reconciliation",
+      "disposition": "Detected",
+      "mechanism": "a quarantined observer yields SensorIntegrityFailure and a broken chain yields ContinuityFailure; both accuse the observer and neither accuses the workload",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Warrant",
+      "disposition": "Detected",
+      "mechanism": "SensorIntegrityFailure is named by the gate and refused as a containment basis; the one verdict strong enough to clear the strength gate is by its nature a verdict about missing observation",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "acts on a warrant",
+      "non_establishment": ""
+    },
+    {
+      "threat": "ObserverFailure",
+      "threat_id": "X11",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "a continuity report is the collector's own signed statement that its record broke; the verifier carries it and never softens a break into continuity",
+      "non_establishment": ""
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Aip",
+      "disposition": "Detected",
+      "mechanism": "tokens carry signed issuance and expiry; a replayed token is bounded by its own signature",
+      "non_establishment": ""
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Airi",
+      "disposition": "Uncertainty",
+      "mechanism": "a replayed framework event is well-formed self-report; AIRI alone cannot distinguish it from the original",
+      "non_establishment": "N-1"
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Observation",
+      "disposition": "Detected",
+      "mechanism": "a batch at an already-consumed sequence is Replay; a different head at the same sequence is Fork and quarantines permanently",
+      "non_establishment": ""
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Reconciliation",
+      "disposition": "Detected",
+      "mechanism": "duplicate attested batches are collapsed and the record carries replay_detected",
+      "non_establishment": ""
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Warrant",
+      "disposition": "NotDetectable",
+      "mechanism": "consumes a verdict",
+      "non_establishment": ""
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Containment",
+      "disposition": "Detected",
+      "mechanism": "containment consults a replay ledger before acting, so one warrant cannot actuate twice",
+      "non_establishment": ""
+    },
+    {
+      "threat": "Replay",
+      "threat_id": "X12",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "a proof id is recorded on first submission; a second submission changes nothing and grants nothing",
+      "non_establishment": ""
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Aip",
+      "disposition": "Prevented",
+      "mechanism": "expiry is inside the signature on both ScopedToken and DelegationToken; mutating it invalidates the token rather than extending it",
+      "non_establishment": ""
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Airi",
+      "disposition": "NotDetectable",
+      "mechanism": "AIRI carries no authority and cannot assess one",
+      "non_establishment": ""
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Observation",
+      "disposition": "NotDetectable",
+      "mechanism": "the observer records what happened, not whether it was permitted",
+      "non_establishment": ""
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Reconciliation",
+      "disposition": "Detected",
+      "mechanism": "an expectation outside its window is refused, and action evidence preceding its authorization does not verify the execution",
+      "non_establishment": ""
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Warrant",
+      "disposition": "NotDetectable",
+      "mechanism": "consumes a verdict",
+      "non_establishment": ""
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Containment",
+      "disposition": "NotDetectable",
+      "mechanism": "acts on a warrant",
+      "non_establishment": ""
+    },
+    {
+      "threat": "StaleAuthority",
+      "threat_id": "X13",
+      "layer": "Nexora",
+      "disposition": "Detected",
+      "mechanism": "AuthorityStanding is assessed at the verifier's present time and reported as StaleSince; a stale authority is a fact about now and the proof is a statement about then",
+      "non_establishment": ""
+    }
+  ]
+}

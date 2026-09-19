@@ -1,0 +1,446 @@
+{
+  "harness": "validation/mutation/mutate_core.py",
+  "targets": [
+    "aip-reconcile"
+  ],
+  "total": 26,
+  "killed": 26,
+  "survivors": [],
+  "harness_defects": [],
+  "all_files_restored_byte_identical": true,
+  "restored": {
+    "aip-standalone/aip-reconcile/src/reconcile.rs": true
+  },
+  "mutations": [
+    {
+      "id": "O-01",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "an observer integrity failure is SensorIntegrityFailure at Proven, not an inability to prove",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "44f8ca562f2b93c0",
+      "killed_by": [
+        "t13_tampered_observer_bytes_are_sensor_integrity_failure_proven"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-02",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a replayed batch is recorded as replay on the observation path too",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "563a904558deb3e3",
+      "killed_by": [
+        "t26_a_replayed_batch_is_flagged_on_the_observation_path"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-03",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "an Observation target names one batch; a sequence not present is TargetNotFound, not the nearest batch",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "d221e458f68d22ea",
+      "killed_by": [
+        "t27_a_target_names_exactly_one_record"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-04",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "an Observation target names one observation; an index not present is TargetNotFound, not observation zero",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "c58e573f0911ab6c",
+      "killed_by": [
+        "t05b_unclaimed_observation_is_never_unattributed_effect"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-05",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a KernelEvent target names one event; an index not present is TargetNotFound, not event zero",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "6a0a52642fbdfee3",
+      "killed_by": [
+        "t27_a_target_names_exactly_one_record"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-06",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a kernel event the probe could not bind to an instance is unbound, and unboundness is not assumed away",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "b18acdcff6263b19",
+      "killed_by": [
+        "t07b_unbound_kernel_event_about_the_expected_pid_is_cannot_prove"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-07",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "the record cites the observation it is about",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "044e1311d10fbdbb",
+      "killed_by": [
+        "t28_the_observation_record_cites_its_own_target"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-08",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "the record carries the decision the observation claimed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "75257aa321ae1581",
+      "killed_by": [
+        "t05_unattributed_effect_requires_a_signed_complete_expected_side"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-09",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "the window compared against the expected-side statement is the batch's own claimed window",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "e52bcc9e900b2625",
+      "killed_by": [
+        "t29_the_expected_side_must_cover_the_whole_batch_window_not_an_instant"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-10",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "availability over the window is computed from the health record, not asserted",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "f60ad19107034403",
+      "killed_by": [
+        "t30_availability_on_the_observation_path_is_computed_from_the_health_record"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-11",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a forward-set collector clock cannot saturate staleness to age zero (observation path)",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "08858873658eca8f",
+      "killed_by": [
+        "t24_a_health_record_from_the_future_is_refused_on_the_observation_path"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-12",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "observer state gates the observation path at all",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "0b38c8ffc4311c60",
+      "killed_by": [
+        "t23_observer_state_gates_the_observation_path_state_by_state"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-13",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a quarantined observer yields SensorIntegrityFailure on the observation path, never a mere inability to prove",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "86580b839c18d083",
+      "killed_by": [
+        "t23_observer_state_gates_the_observation_path_state_by_state"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-14",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a recovering or continuity-unverified observer yields ContinuityFailure on the observation path",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "242abe27cf62d51e",
+      "killed_by": [
+        "t23_observer_state_gates_the_observation_path_state_by_state"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-15",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a degraded observer cannot support an attribution on the observation path",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "9875eafb3bf2e64a",
+      "killed_by": [
+        "t23_observer_state_gates_the_observation_path_state_by_state"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-16",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "an observer whose integrity is unknown cannot support an attribution on the observation path",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "c536a4504c3ab940",
+      "killed_by": [
+        "t23_observer_state_gates_the_observation_path_state_by_state"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-16b",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "an unbound reference establishes no instance, and unboundness is not assumed away",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "44a76f1ccd433f0d",
+      "killed_by": [
+        "t07b_unbound_kernel_event_about_the_expected_pid_is_cannot_prove"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-17",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "an observation with no claimed agent attributes to nobody",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "56e123630c8b6a1e",
+      "killed_by": [
+        "t05b_unclaimed_observation_is_never_unattributed_effect"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-18",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "an Open-policy (unverified-provenance) mechanism label cannot support an attribution (observation path)",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "0c3f93eea66026a2",
+      "killed_by": [
+        "t25_open_probe_policy_blocks_attribution_on_the_observation_path"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-19",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "an unknown expected side is CANNOT_PROVE and never an accusation",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "29e7ff435b729547",
+      "killed_by": [
+        "t04_observed_only_with_unknown_expected_side_is_cannot_prove"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-20",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "the expected-side statement must verify under the verifier's own decision-point anchors",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "16a19ec597a92983",
+      "killed_by": [
+        "t05_unattributed_effect_requires_a_signed_complete_expected_side"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-21",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "the record cites the coverage statement its accusation rests on",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "24081e05656a7c68",
+      "killed_by": [
+        "t05_unattributed_effect_requires_a_signed_complete_expected_side",
+        "t23_observer_state_gates_the_observation_path_state_by_state",
+        "t26_a_replayed_batch_is_flagged_on_the_observation_path",
+        "t25_open_probe_policy_blocks_attribution_on_the_observation_path"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 4
+    },
+    {
+      "id": "O-22",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a statement about another agent does not settle this agent's expected side",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "b3695ed1f4ad6722",
+      "killed_by": [
+        "t05_unattributed_effect_requires_a_signed_complete_expected_side"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "O-23",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a statement whose window does not cover the observation's window does not settle it",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "d35714c7406898cc",
+      "killed_by": [
+        "t05_unattributed_effect_requires_a_signed_complete_expected_side",
+        "t29_the_expected_side_must_cover_the_whole_batch_window_not_an_instant"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "O-24",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "an observation whose decision IS in the attested set is not unattributed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "a378c57d0314ff1c",
+      "killed_by": [
+        "t05_unattributed_effect_requires_a_signed_complete_expected_side",
+        "t23_observer_state_gates_the_observation_path_state_by_state",
+        "t25_open_probe_policy_blocks_attribution_on_the_observation_path",
+        "t26_a_replayed_batch_is_flagged_on_the_observation_path"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 4
+    },
+    {
+      "id": "O-25",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "UnattributedEffect is Attested, and its strength is not raised",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "91db10cfa5950d79",
+      "killed_by": [
+        "t05_unattributed_effect_requires_a_signed_complete_expected_side",
+        "t23_observer_state_gates_the_observation_path_state_by_state",
+        "t26_a_replayed_batch_is_flagged_on_the_observation_path",
+        "t25_open_probe_policy_blocks_attribution_on_the_observation_path"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 4
+    }
+  ],
+  "reran_in_last_pass": [
+    "O-03",
+    "O-05"
+  ]
+}

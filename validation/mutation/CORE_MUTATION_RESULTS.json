@@ -1,0 +1,833 @@
+{
+  "harness": "validation/mutation/mutate_core.py",
+  "targets": [
+    "aip-reconcile",
+    "aip-nexora"
+  ],
+  "total": 46,
+  "killed": 46,
+  "survivors": [],
+  "harness_defects": [],
+  "all_files_restored_byte_identical": true,
+  "restored": {
+    "aip-standalone/aip-reconcile/src/reconcile.rs": true,
+    "aip-standalone/aip-reconcile/src/result.rs": true,
+    "aip-standalone/aip-nexora/src/commitment.rs": true,
+    "aip-standalone/aip-nexora/src/verify.rs": true
+  },
+  "mutations": [
+    {
+      "id": "R-01",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a structurally or cryptographically invalid expectation cannot yield a verdict",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "44fb75020070f925",
+      "killed_by": [
+        "t12_tampered_or_untrusted_expectation_is_cannot_prove_never_anything_else"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-02",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "missing observer evidence is CANNOT_PROVE, never a verdict (absence is not evidence)",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "5de8ae0ce590faf1",
+      "killed_by": [
+        "t22_no_observer_evidence_is_cannot_prove_with_no_observer_availability",
+        "fw06_unavailable_no_observer_unprovisioned_probe_or_open_policy"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "R-03",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "an invalid observer signature is an integrity failure, not mere inability to prove",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "f5a9e0fc75893a94",
+      "killed_by": [
+        "caller_cannot_assert_verification_through_the_record",
+        "n15_mutating_any_signed_field_of_the_action_observation_is_an_integrity_failure",
+        "t13_tampered_observer_bytes_are_sensor_integrity_failure_proven",
+        "t19_t21_strength_is_fixed_by_result_kind_and_no_severity_or_score_exists",
+        "xe12_mutating_any_signed_field_of_either_event_is_an_integrity_failure",
+        "fw15_a_path_altered_after_attestation_breaks_the_batch_signature",
+        "ss13_a_byte_count_altered_after_attestation_breaks_the_batch_signature",
+        "tp14_mutating_any_signed_field_of_a_socket_event_is_an_integrity_failure",
+        "wc15_a_segment_altered_after_attestation_breaks_the_batch_signature"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 9
+    },
+    {
+      "id": "R-04",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "batches from a second observer cannot be mixed into one observer's chain",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "4c9286318c8b26e8",
+      "killed_by": [
+        "t16b_batches_from_a_second_trusted_observer_are_not_merged"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-05",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "two validly signed batches at one sequence are a proven observer fork",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "e325c4e2b842b662",
+      "killed_by": [
+        "t15b_forked_chain_signed_by_the_collector_key_is_integrity_failure_proven"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-06",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a gap in the batch sequence is an incomplete observation set",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "e2a05e9a3d3072b7",
+      "killed_by": [
+        "t03b_withholding_the_batch_with_the_observation_never_yields_phantom"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-07",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a broken prev_head linkage is an observer chain break",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "6c5fa1927aea39fe",
+      "killed_by": [
+        "t15b_forked_chain_signed_by_the_collector_key_is_integrity_failure_proven"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-08",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "batches withheld from the tail of the chain are detectable against the health record",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "7dbfd084421a116d",
+      "killed_by": [
+        "t16_health_and_chain_must_agree_on_the_head"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-09",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a replayed batch is recorded as replay, not silently deduplicated",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "fed5280c60ddffc2",
+      "killed_by": [
+        "t15_replayed_batch_is_collapsed_and_flagged_not_counted_twice",
+        "xe11_replayed_batch_is_flagged_and_counted_once",
+        "tp13_replayed_batch_is_flagged_and_counted_once"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "R-10",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "I10 \u2014 an observer anchored to the agent's own key is not independent",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "0e9274016e5ea2d8",
+      "killed_by": [
+        "t13d_an_observer_anchored_to_the_agents_key_is_refused_before_any_batch"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-11",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "reconcile_expectation: a quarantined observer yields SensorIntegrityFailure, never a positive verdict",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "e981f562e007391a",
+      "killed_by": [
+        "t17b_quarantined_observer_is_integrity_failure_attested_not_proven"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-11b",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "reconcile_lineage: a quarantined observer yields SensorIntegrityFailure, never a positive verdict",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "753a9087cbc0c6d2",
+      "killed_by": [
+        "lv18_a_quarantined_observer_stops_lineage_and_accuses_only_itself"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-12",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "reconcile_expectation: an observer whose integrity is unknown cannot support a positive verdict",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "8e63bff652aed1dd",
+      "killed_by": [
+        "t03d_integrity_unknown_state_is_cannot_prove_never_phantom"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-12b",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "reconcile_lineage: an observer whose integrity is unknown cannot support a positive verdict",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "0b4bc3550fb627aa",
+      "killed_by": [
+        "lv17_integrity_unknown_blocks_lineage_exactly_as_it_blocks_an_action"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-13",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "reconcile_expectation: a degraded observer cannot support a positive verdict",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "0bbbd2ada4d03d51",
+      "killed_by": [
+        "n13_counted_loss_around_the_action_is_cannot_prove",
+        "t14_t18_degraded_observer_is_cannot_prove_even_with_kernel_coverage_and_silence",
+        "xe14_loss_and_restart_block_verification",
+        "fw05_loss_a_queue_overflow_in_the_window_degrades_the_verdict",
+        "tp17_counted_loss_over_the_window_blocks_verification"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 5
+    },
+    {
+      "id": "R-13b",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "reconcile_lineage: a degraded observer cannot support a positive verdict",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "653947f18c1f1cd2",
+      "killed_by": [
+        "lv14_observer_gates_apply"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-14",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "matching and divergent observations together are ambiguous, not a match",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "4abb36de1835ad90",
+      "killed_by": [
+        "t06b_matching_and_divergent_observations_together_are_ambiguous_not_a_verdict",
+        "fw04_ambiguous_two_instances_write_the_path_under_one_claim"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "R-15",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "ambiguous identity is CANNOT_PROVE",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "eca2588b1b36bb97",
+      "killed_by": [
+        "t06b_matching_and_divergent_observations_together_are_ambiguous_not_a_verdict",
+        "fw04_ambiguous_two_instances_write_the_path_under_one_claim"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "R-16",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a stale health record settles nothing about the window",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "7325a32256f18a86",
+      "killed_by": [
+        "t11b_stale_health_is_cannot_prove"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "R-17",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "a forward-set collector clock cannot saturate staleness to age zero",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "927169b17c921e2e",
+      "killed_by": [
+        "r3_health_emitted_after_the_verification_time_is_not_usable",
+        "each_corrective_check_reports_its_own_reason"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "R-18",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "reconcile_expectation: an Open-policy (unverified-provenance) mechanism label cannot support a match",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "f0aca3753b8f9a60",
+      "killed_by": [
+        "n10_fabricated_evidence_under_open_provenance_does_not_verify",
+        "xe13_unprovisioned_sched_events_are_refused_and_open_policy_does_not_verify",
+        "fw06_unavailable_no_observer_unprovisioned_probe_or_open_policy",
+        "tp16_transition_evidence_under_open_policy_does_not_verify"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 4
+    },
+    {
+      "id": "R-19",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "action evidence that does not match the expectation is not a verified execution",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "6de221351edf908d",
+      "killed_by": [
+        "xe02_the_path_never_enters_the_digest_only_the_content_does",
+        "fw07_a_write_to_another_path_does_not_match",
+        "ss03_a_send_to_another_endpoint_does_not_match",
+        "ss05_a_kernel_socket_identity_reused_after_close_is_not_the_old_connection"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 4
+    },
+    {
+      "id": "R-20",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/reconcile.rs",
+      "invariant": "action evidence preceding its authorization does not verify the execution",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cc141ecaaecab758",
+      "sha256_after": "29293f21b3615331",
+      "killed_by": [
+        "xe08_spawn_before_the_decision_precedes_authorization",
+        "fw13_a_write_placed_before_the_decision_precedes_authorization",
+        "ss10_a_send_placed_before_the_decision_precedes_authorization",
+        "tp02_initiation_anchored_before_the_window_precedes_authorization",
+        "tp03_collector_attestation_before_the_decision_overrides_a_host_anchor",
+        "tp19_presence_of_a_connection_the_kernel_places_before_the_decision_does_not_verify"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 6
+    },
+    {
+      "id": "R-21",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/result.rs",
+      "invariant": "a record read back from bytes is not engine-produced, however faithful (B-9 seal)",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f9ee249d1c9958a8",
+      "sha256_after": "1d60c61c6f3a21a8",
+      "killed_by": [
+        "t22_a_record_read_back_from_bytes_is_never_engine_produced"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "N-01",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "an anchor is bound to (signer_id, key_version): a head naming another key version is not verified by this key",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "596b256e5f04b567",
+      "killed_by": [
+        "x18_an_anchored_signer_at_an_unanchored_key_version_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "N-02",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "the signature's signer_id must be the head's signer_id",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "b69b088259d64ec1",
+      "killed_by": [
+        "x16_a_signature_naming_another_signer_is_refused_even_though_it_verifies"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "N-03",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "the signed payload hash must be the hash of the head's own preimage",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "be77d3bd72ce57b0",
+      "killed_by": [
+        "x02_a_head_altered_after_signing_or_signed_by_an_unanchored_key_is_refused",
+        "x08_a_proof_under_a_tampered_or_unanchored_head_is_refused_before_anything_else",
+        "x14_heads_are_published_to_an_anchor_outside_the_log_and_tracked_from_there"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "N-04",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "a head whose Ed25519 signature does not verify is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "77553a13e46e52ca",
+      "killed_by": [
+        "x02_a_head_altered_after_signing_or_signed_by_an_unanchored_key_is_refused",
+        "x08_a_proof_under_a_tampered_or_unanchored_head_is_refused_before_anything_else"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "N-05",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "a head declaring an unsupported NEXORA version is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "f7d3c0e388bd9d3b",
+      "killed_by": [
+        "x17_a_validly_signed_head_at_an_unknown_version_is_refused_on_the_version"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "N-06",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "a proof must name the same log as the head it carries",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "8f55e8848ba8f184",
+      "killed_by": [
+        "x07_a_proof_cannot_be_transplanted_to_another_log_or_another_head"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "N-07",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "the inclusion proof's tree size must be the head's size",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "9d0d431c2c4d514c",
+      "killed_by": [
+        "x07_a_proof_cannot_be_transplanted_to_another_log_or_another_head"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "N-08",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "the record must actually be included under the head's committed root",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "0a912faf6f907c1a",
+      "killed_by": [
+        "g10_07_a_commitment_altered_in_transit_fails_on_arrival",
+        "x06_a_changed_record_or_a_changed_kind_is_not_included"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "N-09",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "a head tracker never accepts a rollback to a smaller tree",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "db935faf709518ac",
+      "killed_by": [
+        "x10_rollback_is_refused",
+        "x14_heads_are_published_to_an_anchor_outside_the_log_and_tracked_from_there"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "N-10",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "two distinct heads at one size are a fork",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "4507a869c7b18dd6",
+      "killed_by": [
+        "x11_a_fork_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "N-11",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/commitment.rs",
+      "invariant": "an extension without a valid consistency proof is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "8105689dde2fb3b4",
+      "sha256_after": "37dddccbeefb4f52",
+      "killed_by": [
+        "x13_a_consistency_proof_that_does_not_fit_is_refused",
+        "x11_a_fork_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "N-12",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "a claimed verdict that the verifier cannot re-derive is refused (the package's own claim is never trusted)",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "31158f76bd32dc20",
+      "killed_by": [
+        "t_altered_verdict_cannot_prove_never_becomes_proven",
+        "g10_06_every_component_altered_in_transit_fails_on_arrival",
+        "v06_every_single_field_mutation_of_the_claim_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "N-13",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "a refused package establishes no result and no strength",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "399216e5a65be78a",
+      "killed_by": [
+        "a_proof_substitution_a_package_is_evidence_of_exactly_one_execution",
+        "k_cross_protocol_reuse_a_signature_does_not_travel_between_purposes",
+        "r_conflicting_observation_extra_evidence_is_not_silently_absorbed",
+        "t_altered_verdict_cannot_prove_never_becomes_proven",
+        "w_the_agent_as_its_own_observer_is_refused_on_the_health_record_alone",
+        "v_revoked_observer_withdrawing_the_anchor_withdraws_the_evidence",
+        "an_unverifiable_bundle_does_not_downgrade_the_re_derived_verdict_either",
+        "a10_the_agent_may_be_neither_its_own_observer_nor_its_own_authoriser",
+        "a09_authority_cannot_be_issued_to_itself"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 9
+    },
+    {
+      "id": "N-14",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "a structurally faulty package is refused before any component is credited",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "6675d03d9626c813",
+      "killed_by": [
+        "f_expected_execution_substitution_the_claim_names_its_own_decision",
+        "l_cross_agent_transplantation_a_relabelled_subject_is_refused",
+        "p_partial_package_a_claim_cannot_rest_on_what_was_not_shipped",
+        "g10_06_every_component_altered_in_transit_fails_on_arrival",
+        "v13_structural_and_binding_faults_stop_verification_before_any_verdict"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 5
+    },
+    {
+      "id": "N-15",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "a package whose components are not bound to one another is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "c33cb46cc2fa2924",
+      "killed_by": [
+        "d_identity_substitution_a_document_for_another_agent_is_not_the_subjects",
+        "b_commitment_substitution_an_inclusion_proof_is_of_one_record_only",
+        "e_authority_substitution_a_valid_chain_for_another_execution_is_refused",
+        "h_lineage_substitution_a_carried_pair_is_not_by_itself_a_link",
+        "a05_a_claim_cites_evidence_by_digest_and_not_by_name",
+        "a08_a_package_names_the_component_whose_algorithm_it_cannot_check",
+        "v11_a_commitment_of_other_bytes_or_under_a_broken_head_is_refused",
+        "v13_structural_and_binding_faults_stop_verification_before_any_verdict",
+        "g9_04_the_warrant_must_rest_on_this_record_and_name_this_subject"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 9
+    },
+    {
+      "id": "N-16",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "a package declaring a version this verifier does not understand is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "2a36ac29466c657a",
+      "killed_by": [
+        "o_malformed_package_is_refused_rather_than_partially_believed",
+        "the_package_version_is_two_and_a_v1_package_is_refused",
+        "a06_versions_are_explicit_in_the_bytes_and_not_inferred",
+        "adv06_07_version_mismatch_is_never_a_false_success",
+        "gh_a_version_the_verifier_does_not_understand_is_never_a_success",
+        "v13_structural_and_binding_faults_stop_verification_before_any_verdict"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 6
+    },
+    {
+      "id": "N-17",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "a carried-but-unreached component is Unverifiable, never Absent (absence of evidence is not evidence of absence)",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "3250ad00a8b6508e",
+      "killed_by": [
+        "g_observation_substitution_an_edited_event_breaks_the_collectors_signature",
+        "a05_a_claim_cites_evidence_by_digest_and_not_by_name"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "N-18",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "independence is what THIS verifier checked, not what the package asserts (Defect #5)",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "7dbcd8be2c9ead9d",
+      "killed_by": [
+        "d5b_independence_is_what_this_verifier_did_not_what_the_package_says",
+        "gc_a_claim_about_verifier_support_is_downgraded_not_honoured"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "N-19",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "a verified continuity break is reported as discontinuous, never softened",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "c4134fa3f48f67a4",
+      "killed_by": [
+        "i_continuity_rollback_a_reported_break_never_reads_as_continuous",
+        "g8_02_each_break_the_collector_signs_is_reported_as_discontinuous",
+        "g8_03_a_clean_restart_report_is_still_not_an_unbroken_chain"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "N-20",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "a declared parameter beyond the verifier's own bound is refused, not silently accepted",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "b1263127fa940419",
+      "killed_by": [
+        "n_verifier_context_substitution_a_package_cannot_set_the_verifiers_terms",
+        "adv08_a_narrow_verifier_refuses_every_broad_declaration",
+        "d5a_a_verifier_that_stated_no_bound_must_not_accept_any_bound",
+        "adv10_acceptance_travels_with_the_verifier_not_the_package",
+        "gb_outside_bounds_cannot_receive_the_stronger_result",
+        "gg_a_package_cannot_widen_the_verifiers_capability",
+        "gf_the_narrower_verifier_bound_wins",
+        "g10_08_a_declared_parameter_is_an_input_and_the_verifier_may_refuse_it"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 8
+    },
+    {
+      "id": "N-21",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "a verifier that bounds reconciliation age but holds no clock refuses rather than skipping the check",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "50aad4be3997cfa1",
+      "killed_by": [
+        "adv08_a_narrow_verifier_refuses_every_broad_declaration"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "N-22",
+      "package": "aip-nexora",
+      "file": "aip-standalone/aip-nexora/src/verify.rs",
+      "invariant": "an observer anchored to the agent's own key is not independent (I10, verifier side)",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f0e904062668a90a",
+      "sha256_after": "346965c22570d3ca",
+      "killed_by": [
+        "w_the_agent_as_its_own_observer_is_refused_on_the_health_record_alone"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    }
+  ],
+  "reran_in_last_pass": [
+    "N-01",
+    "R-11b"
+  ]
+}

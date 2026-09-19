@@ -231,6 +231,7 @@ impl World {
 struct Observer {
     signer: CollectorSigner,
     anchors: ObserverTrustAnchors,
+    kp: aip_types::KeyPair,
 }
 
 impl Observer {
@@ -242,7 +243,24 @@ impl Observer {
             signer.register_probe(PROBE_ID, &SourceMechanism::ALL);
         }
         let anchors = ObserverTrustAnchors::new().trust(OBSERVER_ID, 1, &kp.public_key);
-        Self { signer, anchors }
+        Self {
+            signer,
+            anchors,
+            kp,
+        }
+    }
+
+    /// Re-sign a health record the test has edited. The state lives inside
+    /// the signed preimage, so this is what an honest collector in that
+    /// state actually emits — not a forgery.
+    fn resign_health(&self, mut h: SignedSensorHealth) -> SignedSensorHealth {
+        h.attestation = aip_crypto::sign_ed25519(
+            &self.kp.private_key,
+            OBSERVER_ID,
+            &h.health.canonical_bytes(),
+        )
+        .unwrap();
+        h
     }
 }
 
@@ -1024,4 +1042,93 @@ fn lv16_expectation_reconciliation_does_not_evaluate_lineage() {
     let r = reconcile_expectation(&c.ee, Some(&c.scene.ev), &c.w.ctx(&c.scene.o, c.scene.at));
     assert_eq!(r.lineage, LineageComparison::NotEvaluated);
     assert_ne!(r.result, ReconciliationResult::LineageViolation);
+}
+
+/// R-12b. `reconcile_lineage` gates on observer state exactly as
+/// `reconcile_expectation` does, and `IntegrityUnknown` is one of the states
+/// that stops it.
+///
+/// Why this needed its own test. lv14 already covers `Degraded` on the
+/// lineage path and t03d covers `IntegrityUnknown` on the expectation path,
+/// so deleting the `IntegrityUnknown` arm *from the lineage gate alone*
+/// changed no result in this suite. A blinded collector — one whose own
+/// integrity check found a foreign tracepoint gate — would then have gone on
+/// to support a `LineageViolation`, which is an accusation about a workload
+/// resting on an observer that has said it cannot vouch for what it saw.
+#[test]
+fn lv17_integrity_unknown_blocks_lineage_exactly_as_it_blocks_an_action() {
+    let c = case(Spawner::Rogue);
+
+    // Sanity: this scene reaches a lineage violation when the observer is sound.
+    let sound = reconcile_lineage(
+        &c.ee,
+        Some(&c.scene.ev),
+        &c.w.ctx(&c.scene.o, c.scene.at),
+        &full(&c),
+    );
+    assert_eq!(sound.result, ReconciliationResult::LineageViolation);
+
+    // The collector's live integrity check found a foreign tracepoint gate,
+    // so it signs IntegrityUnknown. The state is inside the signed preimage,
+    // so re-signing is what an honest blinded collector actually emits.
+    let mut ev = c.scene.ev.clone();
+    ev.health.health.state = ObserverState::IntegrityUnknown;
+    ev.health = c.scene.o.resign_health(ev.health);
+
+    let r = reconcile_lineage(
+        &c.ee,
+        Some(&ev),
+        &c.w.ctx(&c.scene.o, c.scene.at),
+        &full(&c),
+    );
+    assert_eq!(r.result, ReconciliationResult::CannotProve);
+    assert_eq!(r.reason, ReasonCode::ObserverIntegrityUnknown);
+    assert_ne!(
+        r.result,
+        ReconciliationResult::LineageViolation,
+        "a blinded observer must not underwrite an accusation about ancestry"
+    );
+}
+
+/// R-11b. A quarantined observer stops `reconcile_lineage` exactly as it
+/// stops `reconcile_expectation`: `SensorIntegrityFailure` at `Attested`,
+/// and never a statement about the workload's ancestry.
+///
+/// Why this needed its own test. t17b covers `Quarantined` on the
+/// expectation path and lv14 covers `Degraded` on the lineage path, so
+/// deleting the `Quarantined` arm from the lineage gate alone changed no
+/// result in this suite. A quarantined collector is one that has been
+/// *proven* to have forked its own record — the strongest statement the
+/// system makes against an observer — and it must not go on to underwrite
+/// an accusation against a workload.
+#[test]
+fn lv18_a_quarantined_observer_stops_lineage_and_accuses_only_itself() {
+    let c = case(Spawner::Rogue);
+
+    let sound = reconcile_lineage(
+        &c.ee,
+        Some(&c.scene.ev),
+        &c.w.ctx(&c.scene.o, c.scene.at),
+        &full(&c),
+    );
+    assert_eq!(sound.result, ReconciliationResult::LineageViolation);
+
+    let mut ev = c.scene.ev.clone();
+    ev.health.health.state = ObserverState::Quarantined;
+    ev.health = c.scene.o.resign_health(ev.health);
+
+    let r = reconcile_lineage(
+        &c.ee,
+        Some(&ev),
+        &c.w.ctx(&c.scene.o, c.scene.at),
+        &full(&c),
+    );
+    assert_eq!(r.result, ReconciliationResult::SensorIntegrityFailure);
+    assert_eq!(r.strength, EvidenceStrength::Attested);
+    assert_eq!(r.reason, ReasonCode::ObserverQuarantined);
+    assert_ne!(
+        r.result,
+        ReconciliationResult::LineageViolation,
+        "a collector proven to have forked its own record accuses nobody else"
+    );
 }

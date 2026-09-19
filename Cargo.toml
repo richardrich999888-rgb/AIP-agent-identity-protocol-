@@ -70,6 +70,12 @@ members = [
     # regression in the accountability model it specialises.
     "aip-standalone/aip-uas",
     "aip-standalone/aip-robotics",
+    "aip-standalone/aip-industrial",
+    "aip-standalone/aip-space",
+    "aip-standalone/aip-enterprise",
+    # ── the conformance program over all of them (Skill 28) ───────────
+    # Last in the order: it consumes every layer and nothing consumes it.
+    "aip-standalone/aip-conformance",
     # ── Sniffer Dog 3.0: the two tiers that are not observation (ADR-015) ──
     # `aip-enforce` decides syscalls under a signed capability epoch;
     # `aip-interlock` is the dead-man heartbeat and the actuator watchdog.

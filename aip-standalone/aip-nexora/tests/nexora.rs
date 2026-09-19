@@ -532,3 +532,121 @@ fn x15_a_real_reconciliation_record_is_committed_by_its_canonical_bytes_and_read
     assert_eq!(p.record, r.canonical_bytes());
     assert_eq!(v.kind, LeafKind::Reconciliation);
 }
+
+// ═══ Mutation-driven regressions ═══
+//
+// Each test below exists because a mutation of `verify_signed_head` survived
+// this suite. See `validation/mutation/CORE_MUTATION_RESULTS.json` and
+// `docs/RECONCILER_VERIFIER_MUTATION_ASSURANCE.md`.
+
+/// N-02. The signature's own `signer_id` must be the head's `signer_id`.
+///
+/// Why this needed its own test. x02 already covers every field that is
+/// inside the signing preimage: change one and the payload hash stops
+/// matching. `signature.signer_id` is *not* in the preimage, so editing it
+/// leaves a head whose hash and Ed25519 signature both still verify. The
+/// mismatch check is the only thing that catches it, and deleting the check
+/// broke nothing in this suite.
+///
+/// What it defends: a head that verifies under `nexora-1`'s anchored key
+/// while carrying `nexora-2` inside the signature. Any consumer that reads
+/// the attribution off the signature rather than off the head would credit
+/// the wrong signer for a valid commitment.
+#[test]
+fn x16_a_signature_naming_another_signer_is_refused_even_though_it_verifies() {
+    let nx = nexora("nexora-1");
+    let log = log_with(LOG_A, 4);
+    let h = log.head(&nx.signer, T0).unwrap();
+    verify_signed_head(&h, &nx.anchors).unwrap();
+
+    let mut t = h.clone();
+    t.signature.signer_id = "nexora-2".into();
+
+    // The preimage is untouched, so the hash still matches and the key still
+    // verifies. Only the mismatch check stands between this and acceptance.
+    assert_eq!(t.signature.payload_hash, h.signature.payload_hash);
+    assert_eq!(t.signer_id, "nexora-1");
+
+    assert!(
+        matches!(
+            verify_signed_head(&t, &nx.anchors),
+            Err(NexoraError::SignerMismatch)
+        ),
+        "a head must name one signer, in both places"
+    );
+}
+
+/// N-05. A head declaring a NEXORA version this build does not implement is
+/// refused — before its key is consulted and whoever signed it.
+///
+/// Why this needed its own test. Nothing here constructed a head at another
+/// version, so deleting the version gate changed no result. A future
+/// version may add fields to the signing preimage; accepting one under
+/// today's parser means verifying a preimage that omits whatever the newer
+/// head actually committed to.
+///
+/// The head below is *validly signed at the wrong version* — re-signed after
+/// the edit, so this is a genuine foreign-version head and not a tampered
+/// one. The refusal must be the version, not the signature.
+#[test]
+fn x17_a_validly_signed_head_at_an_unknown_version_is_refused_on_the_version() {
+    let nx = nexora("nexora-1");
+    let log = log_with(LOG_A, 4);
+    let h = log.head(&nx.signer, T0).unwrap();
+
+    let mut t = h.clone();
+    t.version = NEXORA_VERSION + 1;
+    let t = nx.signer.resign(t).unwrap();
+
+    assert!(
+        matches!(
+            verify_signed_head(&t, &nx.anchors),
+            Err(NexoraError::UnsupportedVersion(v)) if v == NEXORA_VERSION + 1
+        ),
+        "an unknown version is refused on the version, not on the signature"
+    );
+
+    // Control: at the supported version the same signer is accepted, so the
+    // refusal above is the version gate and nothing else.
+    verify_signed_head(&h, &nx.anchors).unwrap();
+}
+
+/// N-01. An anchor is bound to a **pair** — `(signer_id, key_version)` — so a
+/// head naming a key version the verifier has not provisioned is refused,
+/// even when the same signer's other version is anchored and even when the
+/// signature itself is genuine.
+///
+/// Why this needed its own test. x02 covers an unanchored *signer*; nothing
+/// covered an anchored signer at an unanchored *version*. Dropping
+/// `key_version` from the anchor lookup therefore broke no test, and a
+/// retired key would have gone on verifying heads indefinitely — which is
+/// the entire point of having a version in the anchor.
+///
+/// The head below is validly signed at version 2 by a real signer. The
+/// refusal must be the anchor, not the signature.
+#[test]
+fn x18_an_anchored_signer_at_an_unanchored_key_version_is_refused() {
+    let kp = generate_ed25519_keypair();
+    let v1 = NexoraSigner::new("nexora-1", 1, &kp.private_key, &kp.public_key).unwrap();
+    let v2 = NexoraSigner::new("nexora-1", 2, &kp.private_key, &kp.public_key).unwrap();
+
+    // The verifier provisioned version 1 only. Version 2 is the same signer
+    // and even the same key material — it is simply not anchored.
+    let anchors = NexoraTrustAnchors::new().trust("nexora-1", 1, &kp.public_key);
+
+    let log = log_with(LOG_A, 3);
+    let h1 = log.head(&v1, T0).unwrap();
+    verify_signed_head(&h1, &anchors).unwrap();
+
+    let h2 = log.head(&v2, T0 + 1).unwrap();
+    assert_eq!(h2.signer_id, "nexora-1");
+    assert_eq!(h2.key_version, 2);
+
+    assert!(
+        matches!(
+            verify_signed_head(&h2, &anchors),
+            Err(NexoraError::UntrustedKey { key_version: 2, .. })
+        ),
+        "an anchor is a (signer, version) pair, not a signer"
+    );
+}
