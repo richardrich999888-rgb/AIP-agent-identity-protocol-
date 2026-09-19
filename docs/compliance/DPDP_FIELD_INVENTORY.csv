@@ -1,0 +1,36 @@
+FIELD_PATH,WHAT,PERSONAL_DATA_RISK,PURPOSE
+active_mechanisms,Which sensor mechanisms were running.,NONE,A verdict about non-occurrence needs to know what was watching.
+batch_id,Random 16-byte batch identifier.,NONE,Idempotency and de-duplication at the collector.
+claimed_from_ms,Start of the window the probe claims to cover.,NONE,Bounds what the batch is evidence about.
+claimed_to_ms,End of the claimed window.,NONE,"Closes the interval, so a verdict can state that evidence covers the authorized window rather than part of it."
+clock_anchor,"Boot-clock to wall-clock anchor, when the probe could take one.",NONE,Places kernel timestamps on the wall clock an authorization is expressed in.
+dropped_events,Count of events the kernel ring buffer dropped.,NONE,Loss is stated rather than silent; the reconciler degrades on it.
+kernel_events.attribution,The agent identifier claimed for the event.,POSSIBLE-BY-CONFIGURATION,"Lets a verdict be about an agent. The observer attests that the claim was made, never that it is true."
+kernel_events.bound,"The process instance the probe bound the event to, when it could.",INDIRECT-VIA-HOST,"An unbound event names a PID, and a PID is not an instance."
+kernel_events.claimed_decision_id,The decision claimed for the event.,NONE,"The join key to an authorization. A claim by the orchestrator, not a fact the kernel reported."
+kernel_events.cpu,CPU the event was recorded on.,NONE,Per-CPU ring buffer ordering.
+kernel_events.kernel_timestamp_ns,Kernel timestamp of the event.,NONE,"Ordering and placement, from the kernel rather than the agent."
+kernel_events.kind,"The event: fork, exec, exit, socket state change, send, file write.",INDIRECT-VIA-HOST,"The event itself. Carries endpoints, byte counts and paths; never payload."
+kernel_events.mechanism,Which tracepoint or connector delivered it.,NONE,Kernel-pushed evidence is distinguishable from polled evidence.
+kernel_events.probe_id,Probe that received the event.,POSSIBLE-BY-CONFIGURATION,"Attributes the event to a declared sensor, so a batch assembled from two probes is visible as such."
+kernel_events.probe_seq,Probe sequence number of the event.,NONE,Continuity within the stream.
+kernel_events.version,Kernel event record version.,NONE,A record is refused rather than reinterpreted when its structure version is not one this verifier implements.
+mechanism_integrity,Per-mechanism integrity findings (e.g. a foreign eBPF gate).,NONE,A blinded sensor says so; without this the observer would report silence as absence.
+observations.attribution,"The agent identifier claimed to the observer, and by whom.",POSSIBLE-BY-CONFIGURATION,Lets a verdict be about an agent. Personal only where an institution derives agent identifiers from people.
+observations.claimed_decision_id,The decision the orchestrator claimed this act was under.,NONE,"The join key to an authorization. A claim, not a fact."
+observations.effect,"What was observed: a socket row, a process presence, a file write path.",INDIRECT-VIA-HOST,"The observation itself. Addresses and ports, never payload; a file path where the fanotify sensor runs."
+observations.host_wall_clock_ms,Host wall clock at the reading.,NONE,Places the reading in the window an authorization is expressed in.
+observations.mechanism,Which sensor produced this reading.,NONE,Bounds the evidence strength a verdict may claim.
+observations.observed.exe_content_sha256,SHA-256 of the executable's contents.,NONE,"Which program ran. A hash of a binary, never of user data."
+observations.observed.exe_path,Filesystem path of the executable.,POSSIBLE-BY-CONFIGURATION,"Context for an operator. A path under a home directory carries a username; the path is excluded from identity for that reason, and an institution that objects can run agents from a system path."
+observations.observed.process.boot_id,Kernel boot identifier.,INDIRECT-VIA-HOST,"Distinguishes boots, so a process instance is unique in time."
+observations.observed.process.pid,Process identifier.,INDIRECT-VIA-HOST,Part of the process instance. Never identity on its own: PIDs are reused.
+observations.observed.process.pid_start_time_ticks,Process start time in clock ticks since boot.,INDIRECT-VIA-HOST,Distinguishes two processes that held one PID within a boot.
+observations.probe_id,Probe that took this reading.,POSSIBLE-BY-CONFIGURATION,"Attributes the reading to a declared sensor, so a batch assembled from two probes is visible as such."
+observations.probe_monotonic_ns,Probe monotonic clock at the reading.,NONE,Ordering that survives wall-clock adjustment.
+observations.version,Observation record version.,NONE,A record is refused rather than reinterpreted when its structure version is not one this verifier implements.
+probe_id,Operator-chosen name of the probe that produced the batch.,POSSIBLE-BY-CONFIGURATION,Binds observations to a declared sensor. An institution that names probes after people makes this personal; naming them after hosts does not.
+probe_run_id,Random identifier of one probe process lifetime.,NONE,A restart mid-window is visible as a coverage gap rather than invisible.
+probe_seq_first,First probe sequence number in the batch.,NONE,Continuity: a gap in the sequence is a gap in coverage.
+probe_seq_last,Last probe sequence number in the batch.,NONE,"Closes the interval the batch accounts for, so the next batch's first sequence either continues it or exposes a gap."
+version,Observation protocol version.,NONE,A verifier refuses a version it does not implement rather than guessing field meanings.

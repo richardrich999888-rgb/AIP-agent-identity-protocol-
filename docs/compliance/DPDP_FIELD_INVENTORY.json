@@ -1,0 +1,212 @@
+[
+  {
+    "path": "active_mechanisms",
+    "what": "Which sensor mechanisms were running.",
+    "risk": "None",
+    "purpose": "A verdict about non-occurrence needs to know what was watching."
+  },
+  {
+    "path": "batch_id",
+    "what": "Random 16-byte batch identifier.",
+    "risk": "None",
+    "purpose": "Idempotency and de-duplication at the collector."
+  },
+  {
+    "path": "claimed_from_ms",
+    "what": "Start of the window the probe claims to cover.",
+    "risk": "None",
+    "purpose": "Bounds what the batch is evidence about."
+  },
+  {
+    "path": "claimed_to_ms",
+    "what": "End of the claimed window.",
+    "risk": "None",
+    "purpose": "Closes the interval, so a verdict can state that evidence covers the authorized window rather than part of it."
+  },
+  {
+    "path": "clock_anchor",
+    "what": "Boot-clock to wall-clock anchor, when the probe could take one.",
+    "risk": "None",
+    "purpose": "Places kernel timestamps on the wall clock an authorization is expressed in."
+  },
+  {
+    "path": "dropped_events",
+    "what": "Count of events the kernel ring buffer dropped.",
+    "risk": "None",
+    "purpose": "Loss is stated rather than silent; the reconciler degrades on it."
+  },
+  {
+    "path": "kernel_events.attribution",
+    "what": "The agent identifier claimed for the event.",
+    "risk": "PossibleByConfiguration",
+    "purpose": "Lets a verdict be about an agent. The observer attests that the claim was made, never that it is true."
+  },
+  {
+    "path": "kernel_events.bound",
+    "what": "The process instance the probe bound the event to, when it could.",
+    "risk": "IndirectViaHost",
+    "purpose": "An unbound event names a PID, and a PID is not an instance."
+  },
+  {
+    "path": "kernel_events.claimed_decision_id",
+    "what": "The decision claimed for the event.",
+    "risk": "None",
+    "purpose": "The join key to an authorization. A claim by the orchestrator, not a fact the kernel reported."
+  },
+  {
+    "path": "kernel_events.cpu",
+    "what": "CPU the event was recorded on.",
+    "risk": "None",
+    "purpose": "Per-CPU ring buffer ordering."
+  },
+  {
+    "path": "kernel_events.kernel_timestamp_ns",
+    "what": "Kernel timestamp of the event.",
+    "risk": "None",
+    "purpose": "Ordering and placement, from the kernel rather than the agent."
+  },
+  {
+    "path": "kernel_events.kind",
+    "what": "The event: fork, exec, exit, socket state change, send, file write.",
+    "risk": "IndirectViaHost",
+    "purpose": "The event itself. Carries endpoints, byte counts and paths; never payload."
+  },
+  {
+    "path": "kernel_events.mechanism",
+    "what": "Which tracepoint or connector delivered it.",
+    "risk": "None",
+    "purpose": "Kernel-pushed evidence is distinguishable from polled evidence."
+  },
+  {
+    "path": "kernel_events.probe_id",
+    "what": "Probe that received the event.",
+    "risk": "PossibleByConfiguration",
+    "purpose": "Attributes the event to a declared sensor, so a batch assembled from two probes is visible as such."
+  },
+  {
+    "path": "kernel_events.probe_seq",
+    "what": "Probe sequence number of the event.",
+    "risk": "None",
+    "purpose": "Continuity within the stream."
+  },
+  {
+    "path": "kernel_events.version",
+    "what": "Kernel event record version.",
+    "risk": "None",
+    "purpose": "A record is refused rather than reinterpreted when its structure version is not one this verifier implements."
+  },
+  {
+    "path": "mechanism_integrity",
+    "what": "Per-mechanism integrity findings (e.g. a foreign eBPF gate).",
+    "risk": "None",
+    "purpose": "A blinded sensor says so; without this the observer would report silence as absence."
+  },
+  {
+    "path": "observations.attribution",
+    "what": "The agent identifier claimed to the observer, and by whom.",
+    "risk": "PossibleByConfiguration",
+    "purpose": "Lets a verdict be about an agent. Personal only where an institution derives agent identifiers from people."
+  },
+  {
+    "path": "observations.claimed_decision_id",
+    "what": "The decision the orchestrator claimed this act was under.",
+    "risk": "None",
+    "purpose": "The join key to an authorization. A claim, not a fact."
+  },
+  {
+    "path": "observations.effect",
+    "what": "What was observed: a socket row, a process presence, a file write path.",
+    "risk": "IndirectViaHost",
+    "purpose": "The observation itself. Addresses and ports, never payload; a file path where the fanotify sensor runs."
+  },
+  {
+    "path": "observations.host_wall_clock_ms",
+    "what": "Host wall clock at the reading.",
+    "risk": "None",
+    "purpose": "Places the reading in the window an authorization is expressed in."
+  },
+  {
+    "path": "observations.mechanism",
+    "what": "Which sensor produced this reading.",
+    "risk": "None",
+    "purpose": "Bounds the evidence strength a verdict may claim."
+  },
+  {
+    "path": "observations.observed.exe_content_sha256",
+    "what": "SHA-256 of the executable's contents.",
+    "risk": "None",
+    "purpose": "Which program ran. A hash of a binary, never of user data."
+  },
+  {
+    "path": "observations.observed.exe_path",
+    "what": "Filesystem path of the executable.",
+    "risk": "PossibleByConfiguration",
+    "purpose": "Context for an operator. A path under a home directory carries a username; the path is excluded from identity for that reason, and an institution that objects can run agents from a system path."
+  },
+  {
+    "path": "observations.observed.process.boot_id",
+    "what": "Kernel boot identifier.",
+    "risk": "IndirectViaHost",
+    "purpose": "Distinguishes boots, so a process instance is unique in time."
+  },
+  {
+    "path": "observations.observed.process.pid",
+    "what": "Process identifier.",
+    "risk": "IndirectViaHost",
+    "purpose": "Part of the process instance. Never identity on its own: PIDs are reused."
+  },
+  {
+    "path": "observations.observed.process.pid_start_time_ticks",
+    "what": "Process start time in clock ticks since boot.",
+    "risk": "IndirectViaHost",
+    "purpose": "Distinguishes two processes that held one PID within a boot."
+  },
+  {
+    "path": "observations.probe_id",
+    "what": "Probe that took this reading.",
+    "risk": "PossibleByConfiguration",
+    "purpose": "Attributes the reading to a declared sensor, so a batch assembled from two probes is visible as such."
+  },
+  {
+    "path": "observations.probe_monotonic_ns",
+    "what": "Probe monotonic clock at the reading.",
+    "risk": "None",
+    "purpose": "Ordering that survives wall-clock adjustment."
+  },
+  {
+    "path": "observations.version",
+    "what": "Observation record version.",
+    "risk": "None",
+    "purpose": "A record is refused rather than reinterpreted when its structure version is not one this verifier implements."
+  },
+  {
+    "path": "probe_id",
+    "what": "Operator-chosen name of the probe that produced the batch.",
+    "risk": "PossibleByConfiguration",
+    "purpose": "Binds observations to a declared sensor. An institution that names probes after people makes this personal; naming them after hosts does not."
+  },
+  {
+    "path": "probe_run_id",
+    "what": "Random identifier of one probe process lifetime.",
+    "risk": "None",
+    "purpose": "A restart mid-window is visible as a coverage gap rather than invisible."
+  },
+  {
+    "path": "probe_seq_first",
+    "what": "First probe sequence number in the batch.",
+    "risk": "None",
+    "purpose": "Continuity: a gap in the sequence is a gap in coverage."
+  },
+  {
+    "path": "probe_seq_last",
+    "what": "Last probe sequence number in the batch.",
+    "risk": "None",
+    "purpose": "Closes the interval the batch accounts for, so the next batch's first sequence either continues it or exposes a gap."
+  },
+  {
+    "path": "version",
+    "what": "Observation protocol version.",
+    "risk": "None",
+    "purpose": "A verifier refuses a version it does not implement rather than guessing field meanings."
+  }
+]

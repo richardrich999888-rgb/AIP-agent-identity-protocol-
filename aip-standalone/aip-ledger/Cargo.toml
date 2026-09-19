@@ -12,6 +12,9 @@ aip-observe = { path = "../aip-observe" }
 aip-reconcile = { path = "../aip-reconcile" }
 aip-registry = { path = "../aip-registry" }
 serde = { version = "1.0", features = ["derive"] }
+# The inventory export (R17) emits JSON for the entity's AI inventory.
+serde_json = "1.0"
 
 [dev-dependencies]
 serde_json = "1.0"
+hex = "0.4"

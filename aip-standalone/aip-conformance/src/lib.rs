@@ -23,10 +23,12 @@
 
 pub mod blocker;
 pub mod domain;
+pub mod dpdp;
 pub mod empirical;
 pub mod evidence;
 pub mod invariant;
 pub mod matrix;
+pub mod regulatory;
 pub mod threat;
 
 pub use blocker::{Blocker, BlockerStatus};

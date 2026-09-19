@@ -43,6 +43,9 @@
 //! has no anchor. Both are bounded above by the collector's signed
 //! `attested_at_ms`. The ledger records which it used.
 
+pub mod inventory;
+pub use inventory::{InventoryEntry, ResourceTouched};
+
 use std::collections::BTreeMap;
 
 use aip_crypto::{sha256, sign_ed25519, verify_ed25519};

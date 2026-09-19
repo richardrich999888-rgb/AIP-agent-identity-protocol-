@@ -49,6 +49,43 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R17, R18, R20: what a reviewer reads)
+- **A regulatory control map that cannot claim what it cannot show (R18).**
+  `aip_conformance::regulatory`: 25 rows over seven instruments (IT
+  Governance, IT Outsourcing, FREE-AI, draft MRM, Digital Lending, CERT-In,
+  DPDP), emitted to `docs/compliance/CONTROL_MAP.{csv,json}`. Three rules are
+  enforced by test: a row claiming a control must name a file that exists in
+  the repository; a gap must be a sentence saying what would close it, never
+  an omission, because a map whose gaps are missing reads as complete; and no
+  row may claim compliance, which is a judgement for the entity and its
+  auditor, not for this crate. Three gaps are stated (backup/DR, ingress
+  security, the six-hour incident bundle) and three controls are assigned to
+  the regulated entity rather than claimed.
+- **A DPDP field inventory that cannot fall behind the code (R20).**
+  `aip_conformance::dpdp`: every one of the 35 fields that leaves the
+  observed host, with what it holds, a personal-data risk class and why it is
+  collected. The field set is **derived from a fully-populated
+  `ObservationBatch`** rather than from the inventory's own list, so adding a
+  field fails the build until someone writes down what it is — the only
+  mechanism that survives the six months between a DPO's signature and the
+  next change. A separate test asserts that no field is classed as carrying
+  personal data directly, which is the claim the pilot rests on; if that ever
+  changes it becomes a decision rather than a passing test. DPO sign-off
+  template in `deploy/pilot/DPO_SIGNOFF_TEMPLATE.md`, completed by the entity
+  because a supplier cannot make a lawful-basis determination on its behalf.
+- **The AI-inventory attachment (R17).** `aip_ledger::InventoryEntry`
+  derives, from a **verified** access ledger, what an inventory entry is
+  usually weakest on: which named institutional systems the agent reached in
+  a window, on evidence rather than recollection. Ordered most-critical
+  first; cites the ledger by digest and the registry revision, since two
+  entries from different revisions are not comparable. `unproven` and
+  `no_verdict` rows are reported separately from `verified`, so a window
+  nobody observed cannot read as a clean one. An unsigned or altered ledger
+  yields no entry at all.
+- New binary `emit-compliance` writes all four artefacts deterministically,
+  so a diff in a committed file is a change in the system rather than a
+  change in the run.
+
 ### Added (RBI requirements coverage — R10: verdicts and ledgers the RE serves)
 - **An inspector now has an endpoint to ask.** `POST /v1/verdicts`,
   `GET /v1/verdicts/{id}`, `POST /v1/ledgers` and

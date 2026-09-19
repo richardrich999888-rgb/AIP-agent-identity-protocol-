@@ -84,12 +84,12 @@
 
 | # | Requirement | Instrument | Disposition | Where / acceptance |
 |---|---|---|---|---|
-| F1 | AI inventory entry per agent, six-monthly review, inspectable | FREE-AI | INTEGRATE + **BUILD** | The RE keeps the inventory; R3's access ledger is its evidence attachment; R17: export in the FREE-AI inventory shape |
-| F2 | Control-framework mapping (IT Governance, Outsourcing, Digital Lending, FREE-AI, MRM, CERT-In, DPDP) to code and tests | all | **BUILD** (harness exists) | R18 builds on `aip-conformance` (invariant × domain matrix, threat × layer execution log, emitted as `docs/audit/CONFORMANCE_MATRIX.{csv,json}`): add the regulatory control dimension so every control ID → requirement → code → test → artefact, with an explicit NONE where nothing exists |
+| F1 | AI inventory entry per agent, six-monthly review, inspectable | FREE-AI | EXISTS (the evidence attachment) + INTEGRATE (the entry itself) | `aip_ledger::InventoryEntry::from_ledger` derives the attachment from a **verified** access ledger: which named resources the agent reached, ordered most-critical first, with rows counted by standing and `unproven`/`no_verdict` reported separately from `verified` so an unobserved window cannot read as a clean one. Cites the ledger by digest and the registry revision. Tests: `aip-ledger/tests/inventory.rs` (5). The inventory itself — owner, business purpose, model vendor, approval date — is the entity's and is not invented here |
+| F2 | Control-framework mapping (IT Governance, Outsourcing, Digital Lending, FREE-AI, MRM, CERT-In, DPDP) to code and tests | all | EXISTS | `aip_conformance::regulatory`: 25 rows over 7 instruments, emitted to `docs/compliance/CONTROL_MAP.{csv,json}`. A row claiming a control must name a file that exists, checked by test; a gap must be a sentence saying what would close it; no row may claim compliance, which is the entity's and its auditor's judgement. 3 stated gaps, 3 rows assigned to the entity. Tests: `aip-conformance/tests/control_map.rs` (7) |
 | F3 | Independent security assessment (CERT-In empanelled) | CERT-In; segment regulator | INTEGRATE | Commission it; R14's bundle and this matrix are its inputs |
 | F4 | Red teaming of the observer and the decision point, trigger-based | FREE-AI | EXISTS partly | `ADVERSARIAL_RESULTS.md` ledger; BUILD: R19 scripted RED suite runnable on institution hardware |
 | F5 | Third-party model and vendor-agent accountability | MRM; Outsourcing | EXISTS (evidence) | Observation is external to the vendor process; INTEGRATE: contract clauses requiring the probe on vendor-operated hosts |
-| F6 | DPDP field-level review of every observed field | DPDP | **BUILD** | R20: data inventory of every batch field with lawful-basis note; DPO sign-off template in `deploy/pilot/` |
+| F6 | DPDP field-level review of every observed field | DPDP | EXISTS | `aip_conformance::dpdp`: 35 fields, each with what it holds, a personal-data risk class and why it is collected. The field set is **derived from the observation structure**, so a new field fails the build until it is documented; a test also asserts no field is classed as carrying personal data directly, which is the claim the pilot rests on. DPO sign-off template in `deploy/pilot/DPO_SIGNOFF_TEMPLATE.md`. Tests: `aip-conformance/tests/dpdp_inventory.rs` (5) |
 
 ### G. Out of scope — named owners
 
@@ -127,10 +127,10 @@ only with its acceptance test.
 | **R14 Incident bundle** | `aip-incident export` | R3 | Bundle verifies offline; coverage gaps listed |
 | **R15 Metrics/SIEM/runbook** | OTel metrics, CEF/syslog verdict export, runbook | R10 | SIEM receives every verdict; runbook exercised |
 | **R16 HSM custodian** | PKCS#11 backend | — | Structural test: no key export path |
-| **R17 Inventory export** | FREE-AI inventory shape | R3 | Export validates against the form |
-| **R18 Control map** | control ID → code → test → artefact | all | No row without a test or an explicit NONE |
+| **R17 Inventory export** — done | FREE-AI inventory shape | R3 | Met: derived only from a verified ledger, so an unsigned or tampered one yields no entry; an unobserved window is not reported as verified; resources ordered most-critical first; the ledger cited by digest |
+| **R18 Control map** — done | control ID → code → test → artefact | all | Met: every claimed control names a file that exists (checked); every gap states what would close it; the three items open elsewhere in this matrix read as gaps here too, by test, so the two documents cannot drift apart with the control map becoming the more flattering one |
 | **R19 RED suite harness** | scripted attacks for institution hardware | — | Every ledger row reproducible by script |
-| **R20 DPDP field inventory** | every batch field, lawful basis, DPO template | — | DPO sign-off obtained before Phase 1 |
+| **R20 DPDP field inventory** — done | every batch field, lawful basis, DPO template | — | Met: the inventory is checked against the structure it describes, so it cannot fall behind the code; every row states a purpose, not a label; zero fields carry personal data directly, asserted by test. DPO sign-off is the entity's to complete before Phase 1 |
 
 ## 3. Reading this matrix with RBI
 

@@ -1,0 +1,277 @@
+[
+  {
+    "instrument": "ItGovernance",
+    "control_id": "ITG-ACCESS-CONTROL",
+    "requirement": "Access rights are granted on least privilege and withdrawn when no longer needed.",
+    "mechanism": "Capability scopes attenuate only down a delegation chain; resource grants name institutional systems; revocation is tenant-scoped and reaches verification.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-authorize/tests/resources.rs"
+      }
+    }
+  },
+  {
+    "instrument": "ItGovernance",
+    "control_id": "ITG-AUDIT-TRAIL",
+    "requirement": "Maintain an audit trail of system activity sufficient to reconstruct events.",
+    "mechanism": "Kernel-level observation signed off-host, hash-chained and sequence-numbered; a gap in the chain is refused rather than absorbed.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-observe/tests/adversarial.rs"
+      }
+    }
+  },
+  {
+    "instrument": "ItGovernance",
+    "control_id": "ITG-BCP-DR",
+    "requirement": "Business continuity and disaster recovery for critical records.",
+    "mechanism": "None. Immutability is not durability: a table nobody can delete from is still lost with its disk.",
+    "coverage": {
+      "None": {
+        "note": "Backup, DR and a tested restore drill are open (R13/E5). Until they exist the evidence store is a single point of loss."
+      }
+    }
+  },
+  {
+    "instrument": "ItGovernance",
+    "control_id": "ITG-IMMUTABLE-STORAGE",
+    "requirement": "Records are protected against unauthorised alteration or deletion.",
+    "mechanism": "The service's database role holds SELECT and INSERT only; triggers make evidence append-only and enforce legal hold against the owner as well.",
+    "coverage": {
+      "Deployment": {
+        "artefact": "deploy/sql/hardening.sql"
+      }
+    }
+  },
+  {
+    "instrument": "ItGovernance",
+    "control_id": "ITG-INGRESS-SECURITY",
+    "requirement": "Transport security and rate limiting at service boundaries.",
+    "mechanism": "None in-process. The probe-to-collector link is authenticated but not encrypted.",
+    "coverage": {
+      "None": {
+        "note": "TLS terminates at the institution's proxy today; in-process TLS, request timeouts, body limits and rate limiting are open (R9)."
+      }
+    }
+  },
+  {
+    "instrument": "ItGovernance",
+    "control_id": "ITG-KEY-MANAGEMENT",
+    "requirement": "Cryptographic keys are managed under defined custody with rotation.",
+    "mechanism": "The evidence key is generated on the collector host, wrapped at rest, and never present on the observed host; key versions are part of every anchor.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-service/tests/key_custody.rs"
+      }
+    }
+  },
+  {
+    "instrument": "ItGovernance",
+    "control_id": "ITG-NON-REPUDIATION",
+    "requirement": "Records must be attributable and resistant to repudiation.",
+    "mechanism": "Every artefact is Ed25519-signed over a domain-separated, length-prefixed canonical encoding; a signature over one artefact type cannot be presented as another.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-protocol/tests/evidence_packet.rs"
+      }
+    }
+  },
+  {
+    "instrument": "ItOutsourcing",
+    "control_id": "OUT-ACCOUNTABILITY-RETAINED",
+    "requirement": "A regulated entity cannot outsource its accountability for an outsourced activity.",
+    "mechanism": "Every verifier input is the institution's own: trust anchors come from the verifier, never from the artefact, and verification is offline with no call-home.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-verify/tests/cli.rs"
+      }
+    }
+  },
+  {
+    "instrument": "ItOutsourcing",
+    "control_id": "OUT-VENDOR-AGENT-VISIBILITY",
+    "requirement": "Activity of a service provider's systems within the entity's environment is visible to the entity.",
+    "mechanism": "Observation is external to the observed process, so a vendor-supplied agent is observed on the same terms as any other workload.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-observe/tests/sniffer_dog.rs"
+      }
+    }
+  },
+  {
+    "instrument": "FreeAi",
+    "control_id": "FREEAI-ACCOUNTABILITY",
+    "requirement": "An accountable human or entity for every AI-driven action.",
+    "mechanism": "Authorization is adjudicated outside the agent and signed before the act; a self-issued root is refused where the verifier requires independence.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-authorize/tests/adversarial.rs"
+      }
+    }
+  },
+  {
+    "instrument": "FreeAi",
+    "control_id": "FREEAI-AI-INVENTORY",
+    "requirement": "Maintain an inventory of AI systems in use, reviewed periodically.",
+    "mechanism": "The per-agent access ledger is the evidence attachment for an inventory entry: which institutional resources an agent reached, in a window, with standing per row.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-ledger/tests/ledger.rs"
+      }
+    }
+  },
+  {
+    "instrument": "FreeAi",
+    "control_id": "FREEAI-FAIRNESS",
+    "requirement": "Fairness, bias and drift management for models.",
+    "mechanism": "Nothing. This system observes execution, not model behaviour; it holds no opinion about a model's outputs.",
+    "coverage": {
+      "EntityResponsibility": {
+        "note": "Model risk function and model vendors. Out of scope by design, and claiming it would be a false claim."
+      }
+    }
+  },
+  {
+    "instrument": "FreeAi",
+    "control_id": "FREEAI-RED-TEAMING",
+    "requirement": "Adversarial testing of AI systems, trigger-based as well as periodic.",
+    "mechanism": "A recorded adversarial ledger with raw output, and adversarial suites across the observer, reconciler, warrant and containment tiers.",
+    "coverage": {
+      "Deployment": {
+        "artefact": "docs/security/ADVERSARIAL_RESULTS.md"
+      }
+    }
+  },
+  {
+    "instrument": "FreeAi",
+    "control_id": "FREEAI-UNDERSTANDING-BY-DESIGN",
+    "requirement": "Outputs must be intelligible to those who must act on them.",
+    "mechanism": "A closed verdict vocabulary with a machine-readable reason code, and evidence strength separated from severity so a serious-looking finding on weak evidence stays weak.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-reconcile/tests/adversarial.rs"
+      }
+    }
+  },
+  {
+    "instrument": "ModelRiskManagement",
+    "control_id": "MRM-AGENT-AUTHORITY-MATRIX",
+    "requirement": "Defined authority per agent over defined systems.",
+    "mechanism": "A signed resource registry names institutional systems; `res:` grants inside the capability scope attenuate down the chain; an unregistered destination is refused.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-registry/tests/registry.rs"
+      }
+    }
+  },
+  {
+    "instrument": "ModelRiskManagement",
+    "control_id": "MRM-HUMAN-APPROVAL-INTEGRITY",
+    "requirement": "Where a human approves an AI action, the approval must be of what was actually authorised.",
+    "mechanism": "A signed record of what the human was shown, compared against the sealed expectation as arithmetic over two signed documents.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-approval/tests/adversarial.rs"
+      }
+    }
+  },
+  {
+    "instrument": "ModelRiskManagement",
+    "control_id": "MRM-KILL-SWITCH",
+    "requirement": "A means to stop an AI system promptly.",
+    "mechanism": "A seccomp user-notify execve gate under a signed, counter-bearing capability epoch, and a dead-man heartbeat that trips on silence or a signed 'I am blind'.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-enforce/tests/adversarial.rs"
+      }
+    }
+  },
+  {
+    "instrument": "DigitalLending",
+    "control_id": "DL-BORROWER-DISCLOSURE",
+    "requirement": "Disclosure to the borrower and grievance redress.",
+    "mechanism": "Nothing. This system produces no borrower-facing artefact.",
+    "coverage": {
+      "EntityResponsibility": {
+        "note": "Compliance function and the customer-facing channels."
+      }
+    }
+  },
+  {
+    "instrument": "DigitalLending",
+    "control_id": "DL-LSP-ACCOUNTABILITY",
+    "requirement": "The regulated entity remains accountable for a lending service provider's conduct.",
+    "mechanism": "The access ledger attributes each resource an agent reached to signed verdicts, so an LSP's agent is accounted for on the entity's own evidence.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-nexora/tests/access_ledger.rs"
+      }
+    }
+  },
+  {
+    "instrument": "CertIn",
+    "control_id": "CERTIN-CLOCK-SYNC",
+    "requirement": "Synchronise system clocks to a designated time source.",
+    "mechanism": "Each batch carries a boot-clock anchor so kernel timestamps are placed on the wall clock; the host's own NTP discipline is the operator's.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-reconcile/tests/transition_evidence.rs"
+      }
+    }
+  },
+  {
+    "instrument": "CertIn",
+    "control_id": "CERTIN-INCIDENT-REPORT-6H",
+    "requirement": "Report a reportable incident within six hours of noticing it.",
+    "mechanism": "Nothing that assembles a bundle on demand. The evidence exists and verifies, but an operator assembles it by hand today.",
+    "coverage": {
+      "None": {
+        "note": "An `aip-incident export --agent --window` producing a signed bundle with coverage gaps listed is open (R14). Six hours is not a lot of hand assembly."
+      }
+    }
+  },
+  {
+    "instrument": "CertIn",
+    "control_id": "CERTIN-LOG-RETENTION-180",
+    "requirement": "Retain logs for a rolling period of 180 days.",
+    "mechanism": "A per-tenant retention policy with the 180-day floor expressed as a database CHECK, so a misconfigured policy is refused at write time.",
+    "coverage": {
+      "Deployment": {
+        "artefact": "deploy/sql/hardening.sql"
+      }
+    }
+  },
+  {
+    "instrument": "Dpdp",
+    "control_id": "DPDP-CONSENT-NOTICE",
+    "requirement": "Notice and consent, where consent is the basis of processing.",
+    "mechanism": "Nothing. This system processes no data subject's data on its own account.",
+    "coverage": {
+      "EntityResponsibility": {
+        "note": "The entity's own notice and consent management. A DPO field-level review of the inventory above is the input it needs."
+      }
+    }
+  },
+  {
+    "instrument": "Dpdp",
+    "control_id": "DPDP-DATA-MINIMISATION",
+    "requirement": "Collect only the personal data necessary for the stated purpose.",
+    "mechanism": "No payload is captured or hashed anywhere in the observation pipeline; transaction arguments enter signed documents only as domain-separated commitments.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-airi/tests/tool_boundary.rs"
+      }
+    }
+  },
+  {
+    "instrument": "Dpdp",
+    "control_id": "DPDP-FIELD-INVENTORY",
+    "requirement": "Know and record what personal data is processed, and why.",
+    "mechanism": "A field-by-field inventory of everything that leaves the observed host, checked against the structure so a new field fails the build until it is documented.",
+    "coverage": {
+      "Implemented": {
+        "test": "aip-standalone/aip-conformance/tests/dpdp_inventory.rs"
+      }
+    }
+  }
+]
