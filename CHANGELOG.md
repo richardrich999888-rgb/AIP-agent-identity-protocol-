@@ -49,6 +49,63 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R4: the tool boundary)
+- **A mandate can carry transaction parameters without carrying them.**
+  `aip-authorize` gains the `ghost.tool.invoke.v1` action class
+  (`tool_invoke_action`, `tool_invoke_parameters(tool_id, params_commitment)`,
+  `MAX_TOOL_ID_LEN`, `ToolInvokeError`). The decision point seals a tool
+  identifier and the agent SDK's domain-separated commitment to the canonical
+  tool arguments (`aip_airi::parameter_commitment`) into the expectation's
+  parameter digest; the arguments themselves (an amount, a beneficiary) enter
+  no signed document. No existing action class or digest changes.
+- **A third signer at the tool boundary.** `aip-airi::ToolReceipt`, signed by
+  the institution's tool gateway (`GatewaySigner`, `GatewayTrustAnchors`,
+  `verify_tool_receipt`): the gateway's own recomputation of the commitment
+  over the request it actually received, the decision it cited, the agent it
+  named, and what the gateway did with it (`GatewayDisposition`). Domain
+  `GHOST/AIRI/ToolReceipt/v1`, length-prefixed canonical encoding, every
+  field inside the signature. A gateway anchored under the agent's own key is
+  refused (`GatewayKeyIsAgentKey`), as a decision point (I1) and an observer
+  (I10) are.
+- **Authorized versus received versus claimed.** `aip-airi::compare_tool_boundary`
+  recomputes the sealed digest from the verified receipt through the same
+  `tool_invoke_parameters` the decision point used and names the outcome:
+  `ReceiptDoesNotMatchAuthorization` (what reached the system is not what was
+  authorized, whatever the agent said), `ClaimDoesNotMatchAuthorization` (the
+  request was in order; the agent misreported it), `Agrees` with the claim's
+  standing, or `NotEvaluated` with a reason — an absent receipt is a coverage
+  statement, never a finding. Built on AIRI's existing `ToolInvocation`; there
+  is no second tool-call layer. Like `AiriAnnotation` and `aip-approval`, the
+  outcome sits beside a reconciliation and is not a verdict: engine
+  integration remains gated (ADR-016 §gate).
+- **The kernel side says nothing about this class, on purpose.** The
+  reconciler derives no action evidence for `ghost.tool.invoke.v1` and
+  returns `ACTION_EVIDENCE_UNAVAILABLE` even with a kernel-pushed socket
+  transition on the authorized instance claimed under the decision
+  (`aip-airi/tests/tool_boundary.rs`, 12 tests, real engine). A socket is not
+  a tool call and is not matched to one.
+- Not done, stated: committing receipts to NEXORA (a twelfth leaf kind is a
+  wire change and is batched with the next one); policy over plaintext
+  amounts at the decision point (the decision point receives a commitment; a
+  policy engine that needs the arguments is a separate, DPDP-scoped design).
+
+### Merged (branch consolidation before further roadmap work)
+- `claude/vanian-audit-maturity-addendum-n5ysvd`: `aip-enforce` (seccomp
+  user-notify execve gate under a signed `CapabilityEpoch`), `aip-interlock`
+  (dead-man heartbeat, actuator watchdog), `aip-approval` (shown-versus-
+  authorized over two signed artefacts). Its ADR-008/009 are renumbered
+  ADR-015/016 to avoid colliding with the skill-25 series.
+- `claude/skill-25-implementation-xbz0t3`: `aip-conformance` (invariant ×
+  domain matrix, threat × layer execution log, substitution and versioning
+  suites), `aip-industrial`, `aip-space`, `aip-enterprise`, ADR-008..014,
+  mutation-assurance results and the regression tests they produced in
+  `aip-nexora` and `aip-reconcile`.
+- Both branches pinned the proof tree at nine leaf kinds and observe protocol
+  9; the tree is at eleven kinds and protocol 10. Six pins moved to 11 with
+  corrected rationale; conformance blocker B-10 now accepts the equivalent
+  `cargo test --workspace` this CI runs. Full workspace green after both
+  merges.
+
 ### Added (RBI requirements coverage — R2, R3)
 - **Resource-scoped authority at the decision point (R2).** A resource grant
   is a `res:<id>` entry in the existing signed capability scope

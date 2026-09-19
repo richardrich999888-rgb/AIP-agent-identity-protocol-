@@ -215,6 +215,88 @@ pub fn net_send_parameters(
     net_connect_parameters(protocol, remote_addr, remote_port)
 }
 
+// ─── Tool invocation (R4) ───
+
+/// The custom scope action naming one invocation of a named tool with a
+/// committed parameter set: an MCP tool, an HTTP API behind a gateway, a
+/// database procedure. This is the action class under which a mandate
+/// carries **transaction parameters** — an amount, a beneficiary, an account
+/// — without any of them entering the mandate, the observer or the ledger
+/// in plaintext.
+///
+/// # What the parameters are
+///
+/// - `tool_id`: the stable tool identifier the agent's runtime uses
+///   (`"mcp:payments:transfer"`, `"http:POST:core-banking.internal/loans"`).
+/// - `params_commitment`: the agent SDK's domain-separated commitment to the
+///   canonical tool arguments (`aip_airi::parameter_commitment`). The
+///   decision point signs the commitment, never the arguments.
+///
+/// # What the kernel observer can do with this class: nothing
+///
+/// No socket, exec or file observation carries a tool identifier or a
+/// commitment over application arguments, so `aip-reconcile` derives no
+/// action evidence for this kind and returns `ACTION_EVIDENCE_UNAVAILABLE`,
+/// never a match and never a mismatch. The independent side of this class
+/// is the **tool gateway's countersigned receipt** (`aip_airi::ToolReceipt`),
+/// which recomputes the same commitment from the request it actually
+/// received; the comparison lives in `aip_airi::compare_tool_boundary`.
+pub const TOOL_INVOKE_ACTION: &str = "ghost.tool.invoke.v1";
+pub const PARAM_TOOL_ID: &str = "tool_id";
+pub const PARAM_PARAMS_COMMITMENT: &str = "params_commitment";
+
+/// Upper bound on a tool identifier. A bound, so a mandate cannot be made
+/// arbitrarily large through this one free-text field.
+pub const MAX_TOOL_ID_LEN: usize = 256;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ToolInvokeError {
+    EmptyToolId,
+    ToolIdTooLong { len: usize, max: usize },
+}
+
+impl std::fmt::Display for ToolInvokeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::EmptyToolId => write!(f, "tool_id must not be empty"),
+            Self::ToolIdTooLong { len, max } => {
+                write!(f, "tool_id is {len} bytes, limit {max}")
+            }
+        }
+    }
+}
+
+impl std::error::Error for ToolInvokeError {}
+
+/// The scope action for [`TOOL_INVOKE_ACTION`].
+pub fn tool_invoke_action() -> ScopeAction {
+    ScopeAction::Custom(TOOL_INVOKE_ACTION.to_string())
+}
+
+/// Parameters naming one tool invocation by tool identifier and parameter
+/// commitment. The decision point's caller, the agent SDK that emits the
+/// matching AIRI claim, and the gateway-receipt comparison must all call
+/// this function, so the three digests are comparable byte for byte.
+pub fn tool_invoke_parameters(
+    tool_id: &str,
+    params_commitment: [u8; 32],
+) -> Result<ActionParameters, ToolInvokeError> {
+    if tool_id.is_empty() {
+        return Err(ToolInvokeError::EmptyToolId);
+    }
+    if tool_id.len() > MAX_TOOL_ID_LEN {
+        return Err(ToolInvokeError::ToolIdTooLong {
+            len: tool_id.len(),
+            max: MAX_TOOL_ID_LEN,
+        });
+    }
+    Ok(ActionParameters::from_pairs([
+        (PARAM_TOOL_ID, tool_id.as_bytes().to_vec()),
+        (PARAM_PARAMS_COMMITMENT, params_commitment.to_vec()),
+    ])
+    .expect("two distinct constant keys"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -239,6 +321,46 @@ mod tests {
         ] {
             assert_ne!(other.unwrap().digest(), a.digest());
         }
+    }
+
+    #[test]
+    fn tool_invocations_are_named_by_tool_and_commitment_only() {
+        let a = tool_invoke_parameters("mcp:payments:transfer", [0x11; 32]).unwrap();
+        let b = tool_invoke_parameters("mcp:payments:transfer", [0x11; 32]).unwrap();
+        assert_eq!(a.digest(), b.digest());
+        assert_eq!(a.len(), 2);
+        assert_ne!(
+            tool_invoke_parameters("mcp:payments:transfer", [0x12; 32])
+                .unwrap()
+                .digest(),
+            a.digest()
+        );
+        assert_ne!(
+            tool_invoke_parameters("mcp:payments:refund", [0x11; 32])
+                .unwrap()
+                .digest(),
+            a.digest()
+        );
+        // Distinct from every other class even with a colliding value.
+        assert_ne!(tool_invoke_action(), net_connect_action());
+        assert_ne!(tool_invoke_action(), process_exec_action());
+    }
+
+    #[test]
+    fn tool_identifiers_are_bounded_and_non_empty() {
+        assert_eq!(
+            tool_invoke_parameters("", [0; 32]),
+            Err(ToolInvokeError::EmptyToolId)
+        );
+        let long = "x".repeat(MAX_TOOL_ID_LEN + 1);
+        assert_eq!(
+            tool_invoke_parameters(&long, [0; 32]),
+            Err(ToolInvokeError::ToolIdTooLong {
+                len: MAX_TOOL_ID_LEN + 1,
+                max: MAX_TOOL_ID_LEN
+            })
+        );
+        assert!(tool_invoke_parameters(&"x".repeat(MAX_TOOL_ID_LEN), [0; 32]).is_ok());
     }
 
     #[test]

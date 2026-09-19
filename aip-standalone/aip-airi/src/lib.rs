@@ -57,6 +57,18 @@
 //! is what makes `PHANTOM_CLAIM` reachable at the *AI action* level rather
 //! than only at the socket level.
 //!
+//! # The tool boundary (R4)
+//!
+//! A third signer exists at the tool boundary: the institution's **tool
+//! gateway**, which recomputes the parameter commitment from the request it
+//! actually received and signs a [`ToolReceipt`]. [`compare_tool_boundary`]
+//! compares that receipt with the decision point's `ghost.tool.invoke.v1`
+//! authorization, and with the agent's own claim, as arithmetic over signed
+//! bytes. A mismatch is a named [`ToolBoundaryDivergence`]; an absent
+//! receipt is [`ToolBoundaryNotEvaluated::NoReceipt`], never a finding. Like
+//! [`AiriAnnotation`], the outcome sits beside a reconciliation and is not a
+//! verdict.
+//!
 //! # Privacy
 //!
 //! Prompts, tool arguments, model outputs and credentials never enter an
@@ -67,6 +79,7 @@
 
 #![forbid(unsafe_code)]
 
+mod boundary;
 mod chain;
 mod corroborate;
 mod error;
@@ -74,7 +87,12 @@ mod event;
 mod ids;
 mod integrate;
 mod provenance;
+mod receipt;
 
+pub use boundary::{
+    compare_tool_boundary, ClaimStanding, ToolBoundary, ToolBoundaryDivergence,
+    ToolBoundaryNotEvaluated,
+};
 pub use chain::{verify_event_chain, ChainDefect, ChainReport, VerifiedChain};
 pub use corroborate::{
     corroborate, Corroboration, CorroborationInputs, CorroborationSeal, NotEvaluatedReason,
@@ -91,4 +109,9 @@ pub use provenance::{
     AgentStart, Completion, ContextPropagation, FrameworkIdentity, ModelProvenance,
     PropagationBoundary, ReportedOutcome, SubprocessReport, ToolInvocation, ToolReport,
     AIRI_PARAM_DOMAIN,
+};
+pub use receipt::{
+    verify_tool_receipt, GatewayDisposition, GatewaySigner, GatewayTrustAnchors, ReceiptError,
+    SignedToolReceipt, ToolReceipt, VerifiedToolReceipt, MAX_RECEIPT_FIELD_LEN,
+    TOOL_RECEIPT_DOMAIN, TOOL_RECEIPT_VERSION,
 };

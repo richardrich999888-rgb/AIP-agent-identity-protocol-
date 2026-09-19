@@ -46,9 +46,10 @@ pub mod resource;
 pub use actions::{
     fs_write_action, fs_write_parameters, net_connect_action, net_connect_parameters,
     net_send_action, net_send_parameters, process_exec_action, process_exec_parameters,
-    FsWriteError, NetConnectError, NetProtocol, FS_WRITE_ACTION, NET_CONNECT_ACTION,
-    NET_SEND_ACTION, PARAM_EXE_SHA256, PARAM_PATH, PARAM_PROTOCOL, PARAM_REMOTE_ADDR,
-    PARAM_REMOTE_PORT, PROCESS_EXEC_ACTION,
+    tool_invoke_action, tool_invoke_parameters, FsWriteError, NetConnectError, NetProtocol,
+    ToolInvokeError, FS_WRITE_ACTION, MAX_TOOL_ID_LEN, NET_CONNECT_ACTION, NET_SEND_ACTION,
+    PARAM_EXE_SHA256, PARAM_PARAMS_COMMITMENT, PARAM_PATH, PARAM_PROTOCOL, PARAM_REMOTE_ADDR,
+    PARAM_REMOTE_PORT, PARAM_TOOL_ID, PROCESS_EXEC_ACTION, TOOL_INVOKE_ACTION,
 };
 pub use coverage::{
     CoverageIssueError, CoverageStatementError, DecisionPointCoverageStatement,
