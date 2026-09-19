@@ -185,15 +185,13 @@ fn main() {
             ledger_id.to_string(),
             ledger_kp.public_key.clone(),
         )]),
-        revoked_jtis: Default::default(),
         trace_data: Some(trace_export),
         receipt_data: Some(receipt_content.into_bytes()),
-        verification_time_ms: None,
-        future_tolerance_ms: 0,
         // This demo verifies a packet, not a bundle; no bundle signer anchor
-        // is relevant here.
-        trusted_bundle_signers: Default::default(),
-        observed_history: None,
+        // is relevant here. Every other input keeps its default, which for a
+        // revocation source means the report says the rule was not evaluated
+        // rather than claiming the chain is clear.
+        ..Default::default()
     };
     let report = verify_packet(&packet, &ctx);
     for check in &report.checks {

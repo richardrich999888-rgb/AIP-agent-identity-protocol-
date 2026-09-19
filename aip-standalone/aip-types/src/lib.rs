@@ -668,7 +668,113 @@ pub const EXECUTION_BINDING_DOMAIN: &str = "GHOST/ExecutionBinding/v1";
 /// (the correlation key: who + which process instance + which executable).
 pub const EXECUTION_IDENTITY_DOMAIN: &str = "GHOST/ExecutionIdentity/v1";
 /// Structure version of [`ExecutionBinding`].
-pub const EXECUTION_BINDING_VERSION: u16 = 1;
+///
+/// **Version 2 (R5)** adds [`ExecutionBinding::container`]. Both the full
+/// and the identity encodings carry the version, so a v1 binding and a v2
+/// binding never produce equal bytes even when every other field agrees. A
+/// deployment upgrades both sides together; see `CHANGELOG.md`.
+pub const EXECUTION_BINDING_VERSION: u16 = 2;
+
+/// The kernel-visible container identity of a process (R5).
+///
+/// # Why a process instance is not enough
+///
+/// [`ProcessInstance`] is the tuple that survives PID reuse *within one
+/// kernel's view*. Containers break that assumption: two processes in
+/// different PID namespaces can hold the same `pid`, and
+/// `pid_start_time_ticks` is measured from boot in ticks (usually
+/// hundredths of a second), so two containers starting a process in the same
+/// tick collide. If both run the same image, `exe_content_sha256` agrees
+/// too. Every field of the v1 identity can match across two genuinely
+/// different workloads.
+///
+/// These four numbers are what the kernel uses to tell them apart, and none
+/// of them is reported by the process about itself.
+///
+/// # Why the fields are inode numbers
+///
+/// A namespace has no name. `/proc/<pid>/ns/pid` is a symlink whose target
+/// is `pid:[4026531836]`, and that number is the namespace's inode in the
+/// `nsfs` filesystem — the only stable identifier the kernel offers. Inode
+/// numbers are reused after a namespace is destroyed, so they identify a
+/// namespace *within one boot*, which is exactly the scope
+/// [`ProcessInstance::boot_id`] already bounds.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct ContainerIdentity {
+    /// Inode of `/proc/<pid>/ns/pid`. Two processes in different PID
+    /// namespaces may share a `pid`; this is what distinguishes them.
+    pub pid_ns_inode: u64,
+    /// Inode of `/proc/<pid>/ns/mnt`. Distinguishes two processes whose
+    /// executables hash identically because they are the same image mounted
+    /// in different roots.
+    pub mnt_ns_inode: u64,
+    /// Inode of `/proc/<pid>/ns/net`. Distinguishes two processes whose
+    /// sockets carry the same addresses in different network namespaces —
+    /// the case that matters for resource resolution.
+    pub net_ns_inode: u64,
+    /// The cgroup v2 id: the inode of the process's cgroup directory under
+    /// the cgroup2 mount.
+    ///
+    /// **Context, not identity.** It is in the full canonical encoding and
+    /// deliberately *not* in [`ExecutionBinding::identity_bytes`], for two
+    /// reasons. A host running only cgroup v1 hierarchies exposes no such
+    /// id, so making it load-bearing would withdraw container identity from
+    /// those hosts entirely. And a process can be migrated between cgroups
+    /// while remaining the same execution in the same namespaces, which
+    /// would otherwise read as a change of workload.
+    ///
+    /// Two processes that differ here but agree on all three namespaces are
+    /// the same container as far as the kernel's isolation boundaries go;
+    /// the difference is a resource-control fact an auditor may want and a
+    /// verifier must not act on.
+    pub cgroup_id: Option<u64>,
+}
+
+impl ContainerIdentity {
+    /// Do these two identities name the same set of kernel namespaces?
+    ///
+    /// The cgroup id is excluded. Two readings of one process taken either
+    /// side of a cgroup migration must compare equal, because the execution
+    /// did not change.
+    pub fn same_namespaces(&self, other: &ContainerIdentity) -> bool {
+        self.pid_ns_inode == other.pid_ns_inode
+            && self.mnt_ns_inode == other.mnt_ns_inode
+            && self.net_ns_inode == other.net_ns_inode
+    }
+}
+
+/// The outcome of comparing two execution bindings.
+///
+/// Byte equality of [`ExecutionBinding::identity_bytes`] answers "are these
+/// the same execution" with a yes or a no. That is the right answer for a
+/// join key and the wrong answer for a *reason*, because two of the ways to
+/// get "no" mean completely different things: one says the kernel
+/// distinguishes these workloads, the other says one side never looked.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExecutionMatch {
+    /// Identity bytes are equal: same agent, same process instance, same
+    /// executable contents, same container identity (or neither recorded
+    /// one).
+    Same,
+    DifferentAgent,
+    /// Same agent, different process instance.
+    DifferentProcessInstance,
+    /// Same agent and instance, different executable contents.
+    DifferentExecutable,
+    /// Same agent, instance and executable, but the kernel places them in
+    /// different containers. **A positive finding**: these are two
+    /// workloads, and a v1 binding could not have told them apart.
+    DifferentContainer,
+    /// Everything comparable agrees, but exactly one side recorded a
+    /// container identity. **Not a finding.** A consumer must treat this as
+    /// a limit on what it can establish, never as evidence that the two are
+    /// different — otherwise an un-instrumented collector on one side
+    /// manufactures divergences out of its own blindness.
+    ContainerNotComparable,
+    /// The two bindings declare different structure versions, so their
+    /// encodings are not comparable field by field.
+    VersionMismatch,
+}
 
 /// A process *instance* — the minimum tuple that survives PID reuse.
 ///
@@ -710,6 +816,14 @@ pub struct ExecutionBinding {
     /// Unix ms when the binding was collected. Metadata; not an authorization
     /// window (temporal validity belongs to tokens, I21).
     pub bound_at_ms: u64,
+    /// Kernel-visible container identity, when the collector could read it
+    /// (R5).
+    ///
+    /// `None` means **not observed**, never "not in a container". A
+    /// collector that cannot read the namespaces records `None` rather than
+    /// zeros, because zeros would assert a specific (root) container and
+    /// would make two blind collectors agree with each other.
+    pub container: Option<ContainerIdentity>,
 }
 
 impl ExecutionBinding {
@@ -728,6 +842,7 @@ impl ExecutionBinding {
         buf.extend_from_slice(&self.exe_content_sha256); // fixed 32
         put_str(&mut buf, &self.exe_path);
         put_u64(&mut buf, self.bound_at_ms);
+        put_container(&mut buf, &self.container, true);
         buf
     }
 
@@ -744,13 +859,77 @@ impl ExecutionBinding {
         put_u64(&mut buf, self.process.pid_start_time_ticks);
         buf.extend_from_slice(&self.process.boot_id);
         buf.extend_from_slice(&self.exe_content_sha256);
+        put_container(&mut buf, &self.container, false);
         buf
     }
 
     /// True iff both bindings denote the same execution: same agent, same
-    /// process *instance* (all three tuple fields) and same executable
-    /// contents. Equal PIDs are never sufficient.
+    /// process *instance* (all three tuple fields), same executable contents
+    /// and same container identity. Equal PIDs are never sufficient.
+    ///
+    /// This is byte equality of [`Self::identity_bytes`], which makes it a
+    /// correct join key and a poor explanation. When the answer is `false`
+    /// and the reason matters — in particular to tell "different containers"
+    /// from "one side did not record one" — use [`Self::compare_execution`].
     pub fn same_execution(&self, other: &ExecutionBinding) -> bool {
         self.identity_bytes() == other.identity_bytes()
+    }
+
+    /// Why two bindings do or do not denote the same execution (R5).
+    ///
+    /// Checked from the coarsest difference to the finest, so the answer
+    /// names the first thing that actually differs rather than the last.
+    /// [`ExecutionMatch::ContainerNotComparable`] is returned only when
+    /// everything else agrees, because a container difference is not worth
+    /// reporting about two processes that were never the same anyway.
+    pub fn compare_execution(&self, other: &ExecutionBinding) -> ExecutionMatch {
+        if self.version != other.version {
+            return ExecutionMatch::VersionMismatch;
+        }
+        if self.agent_id != other.agent_id {
+            return ExecutionMatch::DifferentAgent;
+        }
+        if self.process != other.process {
+            return ExecutionMatch::DifferentProcessInstance;
+        }
+        if self.exe_content_sha256 != other.exe_content_sha256 {
+            return ExecutionMatch::DifferentExecutable;
+        }
+        match (self.container, other.container) {
+            // Namespaces only: the cgroup id is context and a process may
+            // move between cgroups without becoming a different execution.
+            (Some(a), Some(b)) if !a.same_namespaces(&b) => ExecutionMatch::DifferentContainer,
+            (Some(_), None) | (None, Some(_)) => ExecutionMatch::ContainerNotComparable,
+            _ => ExecutionMatch::Same,
+        }
+    }
+}
+
+/// Encode an optional container identity with an explicit presence byte, so
+/// "not observed" and any observed value have different preimages.
+///
+/// `full` selects the complete encoding (used where the binding is hashed as
+/// content) from the identity encoding (the reconciliation join key). The
+/// cgroup id appears only in the former; see [`ContainerIdentity::cgroup_id`]
+/// for why it must not take part in identity.
+fn put_container(buf: &mut Vec<u8>, c: &Option<ContainerIdentity>, full: bool) {
+    use canonical::*;
+    match c {
+        None => put_u8(buf, 0),
+        Some(c) => {
+            put_u8(buf, 1);
+            put_u64(buf, c.pid_ns_inode);
+            put_u64(buf, c.mnt_ns_inode);
+            put_u64(buf, c.net_ns_inode);
+            if full {
+                match c.cgroup_id {
+                    None => put_u8(buf, 0),
+                    Some(id) => {
+                        put_u8(buf, 1);
+                        put_u64(buf, id);
+                    }
+                }
+            }
+        }
     }
 }

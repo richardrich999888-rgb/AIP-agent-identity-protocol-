@@ -144,6 +144,7 @@ fn the_execution_binding_is_reused_verbatim_including_its_caveat() {
         exe_content_sha256: [4; 32],
         exe_path: "/bin/x".into(),
         bound_at_ms: 5,
+        container: None,
     };
     // The binding's own canonical encoding is what gets embedded, unmodified.
     let embedded = binding.canonical_bytes();

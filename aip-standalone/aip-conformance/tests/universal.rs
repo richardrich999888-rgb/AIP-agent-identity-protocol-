@@ -141,6 +141,7 @@ fn i04_execution_binding_is_not_a_pid_and_does_not_transplant() {
         exe_content_sha256: sha256(exe),
         exe_path: "/opt/agent/bin/worker".into(),
         bound_at_ms: 1_700_000_000_000,
+        container: None,
     };
     let base = mk(4242, [0x11; 16], b"/opt/agent");
 

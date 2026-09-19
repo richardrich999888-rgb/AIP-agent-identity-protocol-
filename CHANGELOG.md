@@ -49,6 +49,83 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Changed — wire (RBI requirements coverage — R5: container identity)
+- **`EXECUTION_BINDING_VERSION` is 2.** `ExecutionBinding` gains
+  `container: Option<ContainerIdentity>`. The version is inside both the full
+  and the identity encodings, so a v1 binding and a v2 binding never produce
+  equal bytes even when every other field agrees: **existing stored bindings
+  do not match newly collected ones, and a deployment upgrades both sides
+  together.** No packet format changed; `PACKET_VERSION` is untouched.
+- **What v1 could not see.** Two containers on one host, running the same
+  image, whose processes the kernel gave the same PID in different PID
+  namespaces and which started in the same clock tick, agree on every v1
+  field. A payments agent and a reporting agent would reconcile against each
+  other's evidence. `ContainerIdentity` carries the pid, mount and network
+  namespace inodes — the only stable identifiers a namespace has — and those
+  three are the identity.
+- **The cgroup v2 id is recorded context, not identity.** It is in the full
+  canonical encoding and deliberately absent from `identity_bytes`: a
+  cgroup-v1-only host exposes none, and making it load-bearing would withdraw
+  container identity from those hosts entirely; and a process migrated
+  between cgroups is still the same execution.
+- **Absence is not difference.** `ExecutionBinding::compare_execution`
+  returns a reason rather than a boolean, and distinguishes
+  `DifferentContainer` (the kernel separates these workloads — a positive
+  finding v1 could not make) from `ContainerNotComparable` (exactly one side
+  recorded an identity). A consumer that collapsed those two would let an
+  un-instrumented collector manufacture divergences out of its own
+  blindness. The collector records all three namespaces or none, never a
+  partial identity, and never zeros — zeros are a real container.
+- `aip-core` reads `/proc/<pid>/ns/{pid,mnt,net}` link text and the cgroup id
+  under the cgroup2 mount. A read failure costs container identity, never the
+  whole binding: a binding without it is weaker, not wrong.
+- **Not done, stated:** `aip_observe::ObservedProcess` does not carry the
+  field, so the observer cannot yet assert container identity independently
+  and the reconciler cannot compare it. That is an observe-protocol version
+  bump and is folded into R8, where the probe is being changed anyway.
+
+### Added (RBI requirements coverage — R6, R7: what the offline verifier can establish)
+- **A verifier can now require that something other than the agent decided
+  (R6).** `VerificationContext::independent_authority_required`
+  (`aip-verify --require-independent-authority`) fails `AUTHORITY_CHAIN`
+  when the acting agent is its own authority root. Both spellings are
+  caught: the declared principal being the agent, and the root token's
+  issuer being the agent, so relabelling one does not evade the other. The
+  default is unchanged, because some deployments are legitimately their own
+  principal — but a self-issued pass is no longer silent: the rule's detail
+  says the root is the agent itself and that independence was not
+  established. Self-issuance is not recorded as tamper evidence; nothing was
+  altered.
+- **Revocation is a signed, time-bounded document (R7).**
+  `aip_protocol::RevocationList` (AIP_SPEC §4.4): domain
+  `AIP/RevocationList/v1`, length-prefixed canonical encoding, every field
+  inside the signature, entries sorted and unique so one set of revocations
+  has one encoding, a per-issuer `sequence` so a replayed older list is
+  visible as older, and an `issued_at`/`valid_until` window the verifier
+  places against its own instant. `verify_revocation_list` is the only way
+  to obtain a `VerifiedRevocationList`, so the engine cannot be handed a
+  list nobody checked or one that has expired.
+- **The vacuous revocation pass is gone.** `REVOCATION` previously reported
+  "no token in the authority chain is revoked" whenever the verifier's set
+  was empty — a claim about the world made by a verifier that had not looked
+  at the world. It now separates three states: a hit in any source FAILS
+  (whatever the source's freshness: a revocation does not lapse); a usable
+  source with no hit PASSES **citing that source**, including the admission
+  that a bare identifier list carries no issuer, issue time or expiry; and
+  no usable source is NOT EVALUATED, naming what was missing. An expired or
+  unanchored list lands in the third state, which is the R7 acceptance
+  criterion. `valid` is unaffected, since it already ignored unevaluated
+  rules.
+- `aip-verify` gains `--revocations`, `--trust-revocation-issuer
+  <id>:<version>=<hex>` and `--require-independent-authority`. A list
+  supplied without `--at`/`--now` is refused at the command line rather than
+  applied against an assumed present. A list that fails to verify is carried
+  into the report as the reason the rule could not be evaluated, not dropped
+  with a warning the operator may scroll past.
+- First tests for the `aip-verify` binary itself (7): the compiled command,
+  real files, exit codes and printed output — because the library being
+  correct is not the same as the command being correct.
+
 ### Added (RBI requirements coverage — R4: the tool boundary)
 - **A mandate can carry transaction parameters without carrying them.**
   `aip-authorize` gains the `ghost.tool.invoke.v1` action class

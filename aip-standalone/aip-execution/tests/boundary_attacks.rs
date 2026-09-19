@@ -658,6 +658,7 @@ fn a23_a_forged_binding_changes_the_committed_digest() {
         exe_content_sha256: [0x11; 32],
         exe_path: "/opt/agent/bin/autonomy".into(),
         bound_at_ms: NOW,
+        container: None,
     };
     let real = rebuild(base_execution().bound_to(binding(4321)));
     let forged = rebuild(base_execution().bound_to(binding(9999)));

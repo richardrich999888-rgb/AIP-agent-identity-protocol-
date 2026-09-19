@@ -11,9 +11,10 @@ use aip_core::delegation::{create_delegation, create_sub_delegation};
 use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256};
 use aip_protocol::verification_report::rules;
 use aip_protocol::{
-    verify_packet, AccountabilityGraph, ActionAttestation, AgentIdentitySummary, DecisionRecord,
-    EvidencePacket, EvidencePacketBuilder, ReceiptBinding, RootAuthority, TraceBinding, TrustFloor,
-    VerificationContext,
+    verify_packet, verify_revocation_list, AccountabilityGraph, ActionAttestation,
+    AgentIdentitySummary, DecisionRecord, EvidencePacket, EvidencePacketBuilder, ReceiptBinding,
+    RevocationEvidence, RevocationListAnchors, RevocationReason, RevokedEntry, RootAuthority,
+    SignedRevocationList, TraceBinding, TrustFloor, VerificationContext,
 };
 use aip_types::{
     Action, CapabilityScope, ExecutionBinding, KeyPair, ProcessInstance, ProvenanceTriple,
@@ -59,6 +60,7 @@ fn test_binding(agent_id: &str) -> ExecutionBinding {
         exe_content_sha256: sha256(b"payments-agent binary v1"),
         exe_path: "/opt/agent/bin/payments-agent".into(),
         bound_at_ms: now_ms(),
+        container: None,
     }
 }
 
@@ -180,13 +182,9 @@ fn build_fixture_opts(root_expires_in_ms: Option<u64>, with_binding: bool) -> Fi
             "ledger.example-bank.com".to_string(),
             ledger_kp.public_key.clone(),
         )]),
-        revoked_jtis: Default::default(),
         trace_data: Some(trace_data),
         receipt_data: Some(receipt_data.clone()),
-        verification_time_ms: None,
-        future_tolerance_ms: 0,
-        trusted_bundle_signers: Default::default(),
-        observed_history: None,
+        ..Default::default()
     };
 
     Fixture {
@@ -214,7 +212,13 @@ fn assert_rule_failed(report: &aip_protocol::VerificationReport, rule: &str) {
 #[test]
 fn test_honest_packet_verifies_at_counterparty_floor() {
     let f = build_fixture();
-    let report = verify_packet(&f.packet, &f.ctx);
+    // A signed, in-window revocation list naming other tokens. Without a
+    // revocation source R9 is NOT EVALUATED (R7), which is the honest answer
+    // for a verifier that was told nothing — so the happy path, which asserts
+    // that every rule but two was evaluated, must supply one.
+    let mut ctx = f.ctx.clone();
+    ctx.revocation_evidence = Some(fresh_revocation_list(&[[0xAA; 16], [0xBB; 16]]));
+    let report = verify_packet(&f.packet, &ctx);
 
     for check in &report.checks {
         if !check.evaluated {
@@ -227,7 +231,9 @@ fn test_honest_packet_verifies_at_counterparty_floor() {
             //   R18 needs an observed history (AUDIT B-8)
             //
             // Both are absent from this fixture's context on purpose: it is a
-            // stateless, clock-free verification.
+            // stateless, clock-free verification. R9 is *not* on this list:
+            // the caller supplied a signed revocation list above, so it is
+            // evaluated like any other rule (R7).
             assert!(
                 check.rule == rules::VERIFICATION_TIME_BOUND || check.rule == rules::REPLAY_SCOPE,
                 "rule {} was not evaluated: {}",
@@ -846,6 +852,344 @@ fn weakness_packet_verifies_when_agent_is_its_own_root_issuer() {
     assert!(report.authority_chain_verified);
     // Nothing in the report can say whether an independent party authorized this.
     assert!(report.checks.iter().all(|c| c.rule != "EXPECTED_EXECUTION"));
+}
+
+// ─── R6: independent authority ───
+
+/// The same self-issued packet as above, refused when the verifier says that
+/// something other than the agent must have authorised the act.
+///
+/// This is the shape a regulated entity cares about: the agent holds a valid
+/// key, every signature verifies, and the authority it acted under is its
+/// own. Nothing is forged. The packet is simply not evidence of authority.
+#[test]
+fn a_self_issued_root_is_refused_when_the_verifier_requires_independence() {
+    let (agent_aid, agent_kp) = create_identity(provenance("self-authorizing"), None).unwrap();
+    let packet = self_issued_packet(&agent_aid, &agent_kp);
+
+    // Default verifier: passes, exactly as before this rule existed.
+    let permissive = VerificationContext::new().trust_issuer(&agent_aid.id, &agent_kp.public_key);
+    let report = verify_packet(&packet, &permissive);
+    assert!(report.valid, "the default must be unchanged");
+    // And it is not silent about what it did not check.
+    let note = report.rule(rules::AUTHORITY_CHAIN).unwrap();
+    assert!(
+        note.detail.contains("the root is the agent itself"),
+        "a self-issued pass must say so: {}",
+        note.detail
+    );
+    assert!(note.detail.contains("not established"), "{}", note.detail);
+
+    // The same bytes, the same keys, one question asked.
+    let strict = VerificationContext::new()
+        .trust_issuer(&agent_aid.id, &agent_kp.public_key)
+        .require_independent_authority();
+    let strict_report = verify_packet(&packet, &strict);
+    assert_rule_failed(&strict_report, rules::AUTHORITY_CHAIN);
+    assert!(
+        strict_report
+            .rule(rules::AUTHORITY_CHAIN)
+            .unwrap()
+            .detail
+            .contains("no independent party authorized this"),
+        "{:?}",
+        strict_report.rule(rules::AUTHORITY_CHAIN)
+    );
+    // Refusing self-issuance is not an accusation of tampering: nothing was
+    // altered, and the report must not say it was.
+    assert!(
+        !strict_report.tampered,
+        "self-issuance is not tamper evidence"
+    );
+}
+
+/// A genuinely delegated packet is unaffected by the flag. Without this the
+/// test above would pass for a verifier that refuses everything.
+#[test]
+fn an_independently_authorised_packet_passes_under_the_same_requirement() {
+    let f = build_fixture();
+    let strict = {
+        let mut c = f.ctx.clone();
+        c.independent_authority_required = true;
+        c
+    };
+    let report = verify_packet(&f.packet, &strict);
+    assert!(report.valid, "{:#?}", report.failures());
+    let detail = &report.rule(rules::AUTHORITY_CHAIN).unwrap().detail;
+    assert!(
+        !detail.contains("the root is the agent itself"),
+        "a delegated chain must carry no self-issuance note: {detail}"
+    );
+}
+
+/// Self-issuance spelled the other way: the declared principal is a separate
+/// identity, but the root token's issuer is the agent. One spelling must not
+/// be a way past the other.
+#[test]
+fn a_root_token_the_agent_issued_is_refused_however_the_principal_is_labelled() {
+    let (agent_aid, agent_kp) = create_identity(provenance("issuer-is-agent"), None).unwrap();
+    let mut packet = self_issued_packet(&agent_aid, &agent_kp);
+    // Relabel the principal only. The issuer inside the signed root token is
+    // untouched and still the agent.
+    packet.root_authority.principal_id = "aip1SomeOtherPrincipal".into();
+    let ctx = VerificationContext::new()
+        .trust_issuer(&agent_aid.id, &agent_kp.public_key)
+        .require_independent_authority();
+    let report = verify_packet(&packet, &ctx);
+    assert_rule_failed(&report, rules::AUTHORITY_CHAIN);
+    assert!(
+        report
+            .rule(rules::AUTHORITY_CHAIN)
+            .unwrap()
+            .detail
+            .contains("no independent party authorized this"),
+        "relabelling the principal must not evade the check"
+    );
+}
+
+/// A packet whose agent issued itself an admin root token.
+fn self_issued_packet(
+    agent_aid: &aip_types::AgentIdentityDocument,
+    agent_kp: &KeyPair,
+) -> EvidencePacket {
+    let root_token = issue_scoped_token(
+        &agent_aid.id,
+        &agent_kp.private_key,
+        &agent_aid.id,
+        aip_core::capability::scope_admin(),
+        Some(3_600_000),
+    )
+    .unwrap();
+    let now = now_ms();
+    let decision = DecisionRecord {
+        decision_id: aip_core::capability::random_jti(),
+        action_kind: ScopeAction::Standard(Action::Admin),
+        summary: "grant myself everything".into(),
+        input_hash: sha256(b"x"),
+        rationale_hash: sha256(b"because"),
+        decided_at: now,
+    };
+    let action = ActionAttestation::create(
+        &agent_aid.id,
+        &agent_kp.private_key,
+        &decision.decision_id,
+        ScopeAction::Standard(Action::Admin),
+        "DELETE /ledger",
+        sha256(b"{}"),
+        now + 1,
+    )
+    .unwrap();
+    EvidencePacketBuilder::new(
+        AgentIdentitySummary {
+            aip_id: agent_aid.id.clone(),
+            public_key: agent_aid.primary_key.clone(),
+            provenance: agent_aid.provenance.clone(),
+        },
+        RootAuthority {
+            principal_id: agent_aid.id.clone(),
+            display_role: "self".into(),
+            root_token,
+        },
+    )
+    .decision(decision)
+    .action(action)
+    .execution_binding(test_binding(&agent_aid.id))
+    .claimed_trust_floor(TrustFloor::AuthorityBound)
+    .build_and_sign(&agent_kp.private_key)
+    .unwrap()
+}
+
+// ─── R7: revocation lists are signed and time-bounded ───
+
+const REVOCATION_ISSUER: &str = "aip1RevocationAuthority";
+const LIST_ISSUED_AT: u64 = 1_700_000_000_000;
+const LIST_VALID_UNTIL: u64 = LIST_ISSUED_AT + 86_400_000;
+
+/// A signed list, verified at an instant inside its window, holding `jtis`.
+fn fresh_revocation_list(jtis: &[[u8; 16]]) -> RevocationEvidence {
+    let kp = generate_ed25519_keypair();
+    let signed = SignedRevocationList::issue(
+        REVOCATION_ISSUER,
+        1,
+        &kp.private_key,
+        42,
+        LIST_ISSUED_AT,
+        LIST_VALID_UNTIL,
+        jtis.iter()
+            .map(|j| RevokedEntry {
+                jti: *j,
+                revoked_at_ms: LIST_ISSUED_AT,
+                reason: RevocationReason::AuthorityEnded,
+            })
+            .collect(),
+    )
+    .unwrap();
+    let anchors = RevocationListAnchors::new().trust(REVOCATION_ISSUER, 1, &kp.public_key);
+    RevocationEvidence::Fresh(Box::new(
+        verify_revocation_list(&signed, &anchors, LIST_ISSUED_AT + 1).unwrap(),
+    ))
+}
+
+/// **The R7 acceptance criterion.** A list that has expired yields NOT
+/// EVALUATED, never a pass — the verifier refuses to restate an answer about
+/// the past as an answer about now.
+#[test]
+fn an_expired_revocation_list_leaves_the_rule_unevaluated_never_passed() {
+    let f = build_fixture();
+    let kp = generate_ed25519_keypair();
+    let signed = SignedRevocationList::issue(
+        REVOCATION_ISSUER,
+        1,
+        &kp.private_key,
+        42,
+        LIST_ISSUED_AT,
+        LIST_VALID_UNTIL,
+        vec![],
+    )
+    .unwrap();
+    let anchors = RevocationListAnchors::new().trust(REVOCATION_ISSUER, 1, &kp.public_key);
+
+    // The auditor verifies one millisecond after the issuer stopped standing
+    // behind the document.
+    let defect = verify_revocation_list(&signed, &anchors, LIST_VALID_UNTIL + 1).unwrap_err();
+    let mut ctx = f.ctx.clone();
+    ctx.revocation_evidence = Some(RevocationEvidence::Unusable(defect));
+
+    let report = verify_packet(&f.packet, &ctx);
+    let r = report.rule(rules::REVOCATION).unwrap();
+    assert!(
+        !r.evaluated,
+        "an expired list must not be evaluated: {}",
+        r.detail
+    );
+    assert!(!r.pass, "and must never be recorded as a pass");
+    assert!(
+        r.detail.contains("expired") && r.detail.contains("established nothing"),
+        "the report must say why: {}",
+        r.detail
+    );
+    // An unevaluated rule does not invalidate the packet; it withholds a
+    // statement the verifier cannot make.
+    assert!(report.valid);
+    assert!(report
+        .not_evaluated()
+        .iter()
+        .any(|c| c.rule == rules::REVOCATION));
+}
+
+/// A verifier that was handed nothing says so, instead of reporting that
+/// nothing is revoked. This is the fail-open the audit recorded.
+#[test]
+fn a_verifier_with_no_revocation_source_does_not_claim_the_chain_is_clear() {
+    let f = build_fixture();
+    let report = verify_packet(&f.packet, &f.ctx);
+    let r = report.rule(rules::REVOCATION).unwrap();
+    assert!(!r.evaluated, "{}", r.detail);
+    assert!(
+        r.detail.contains("no revocation source supplied"),
+        "{}",
+        r.detail
+    );
+    assert!(
+        !r.detail
+            .contains("no token in the authority chain is revoked"),
+        "the old vacuous sentence must be gone"
+    );
+}
+
+/// A fresh list that names this packet's own root token fails the rule, and
+/// the report says which document said so.
+#[test]
+fn a_fresh_list_naming_the_root_token_fails_the_rule_and_cites_the_list() {
+    let f = build_fixture();
+    let root_jti = f.packet.root_authority.root_token.jti;
+    let mut ctx = f.ctx.clone();
+    ctx.revocation_evidence = Some(fresh_revocation_list(&[root_jti]));
+
+    let report = verify_packet(&f.packet, &ctx);
+    assert_rule_failed(&report, rules::REVOCATION);
+    let detail = &report.rule(rules::REVOCATION).unwrap().detail;
+    assert!(detail.contains("root token"), "{detail}");
+    assert!(detail.contains("per signed list"), "{detail}");
+    // A revoked token is not tamper evidence: nothing was altered.
+    assert!(!report.tampered);
+}
+
+/// A clean fresh list passes and cites its own sequence and validity, so an
+/// auditor can tell which document the answer rests on.
+#[test]
+fn a_clean_fresh_list_passes_and_names_the_document_it_rests_on() {
+    let f = build_fixture();
+    let mut ctx = f.ctx.clone();
+    ctx.revocation_evidence = Some(fresh_revocation_list(&[[0x11; 16]]));
+    let report = verify_packet(&f.packet, &ctx);
+    let r = report.rule(rules::REVOCATION).unwrap();
+    assert!(r.evaluated && r.pass, "{}", r.detail);
+    assert!(r.detail.contains("sequence 42"), "{}", r.detail);
+    assert!(r.detail.contains(REVOCATION_ISSUER), "{}", r.detail);
+    assert!(
+        r.detail.contains(&LIST_VALID_UNTIL.to_string()),
+        "the pass must state until when it stood: {}",
+        r.detail
+    );
+}
+
+/// An expired list still proves the issuer revoked a token. A positive
+/// finding does not need freshness; only the negative one does.
+#[test]
+fn a_revoked_identifier_still_fails_when_the_only_list_has_expired() {
+    let f = build_fixture();
+    let root_jti = f.packet.root_authority.root_token.jti;
+    let kp = generate_ed25519_keypair();
+    let signed = SignedRevocationList::issue(
+        REVOCATION_ISSUER,
+        1,
+        &kp.private_key,
+        1,
+        LIST_ISSUED_AT,
+        LIST_VALID_UNTIL,
+        vec![RevokedEntry {
+            jti: root_jti,
+            revoked_at_ms: LIST_ISSUED_AT,
+            reason: RevocationReason::KeyCompromise,
+        }],
+    )
+    .unwrap();
+    let anchors = RevocationListAnchors::new().trust(REVOCATION_ISSUER, 1, &kp.public_key);
+    let defect = verify_revocation_list(&signed, &anchors, LIST_VALID_UNTIL + 1).unwrap_err();
+
+    // The verifier holds the expired list *and* was told the identifier
+    // directly. The direct knowledge is what carries the failure.
+    let mut ctx = f.ctx.clone();
+    ctx.revocation_evidence = Some(RevocationEvidence::Unusable(defect));
+    ctx.revoked_jtis.insert(root_jti);
+    let report = verify_packet(&f.packet, &ctx);
+    assert_rule_failed(&report, rules::REVOCATION);
+    assert!(
+        report
+            .rule(rules::REVOCATION)
+            .unwrap()
+            .detail
+            .contains("per verifier"),
+        "the report must attribute the finding to the direct set"
+    );
+}
+
+/// A bare identifier set is usable but says less than a signed list, and the
+/// pass must not pretend otherwise.
+#[test]
+fn a_bare_identifier_set_passes_with_its_limitation_stated() {
+    let f = build_fixture();
+    let mut ctx = f.ctx.clone();
+    ctx.revoked_jtis.insert([0x77; 16]);
+    let report = verify_packet(&f.packet, &ctx);
+    let r = report.rule(rules::REVOCATION).unwrap();
+    assert!(r.evaluated && r.pass, "{}", r.detail);
+    assert!(
+        r.detail.contains("no issuer, issue time or expiry"),
+        "the pass must state what it does not establish: {}",
+        r.detail
+    );
 }
 
 // ─── Wire versioning ───

@@ -146,6 +146,37 @@ Packets serialize to JSON for transport and archival (`to_json` /
 MUST re-derive the canonical bytes from the parsed structure and MUST NOT
 trust any hash present in the JSON without recomputation.
 
+### 4.4 RevocationList (normative)
+
+A separate signed artefact, carried alongside a packet rather than inside
+it, by which an authority tells an **offline** verifier which tokens it has
+revoked and until when that statement stands.
+
+Domain tag `AIP/RevocationList/v1`; `REVOCATION_LIST_VERSION = 1`. Canonical
+encoding is the length-prefixed encoder of §4.1. Fields, all inside the
+signature:
+
+| Field | Meaning |
+|---|---|
+| `issuer_id`, `key_version` | The maintaining authority. A verifier maps the pair to an anchor **it** was provisioned with; the list never names the key it is judged against. |
+| `sequence` | Strictly increasing per `(issuer_id, key_version)`. Two lists from one issuer are ordered by this and never by their timestamps, so a replayed older list is visible as older. |
+| `issued_at_ms`, `valid_until_ms` | The window inside which the issuer stands behind the document. `valid_until_ms < issued_at_ms` is refused as malformed. |
+| `entries` | `(jti, revoked_at_ms, reason)`, sorted by `jti` and unique. Enforced at issue and rechecked at verification, so one set of revocations has exactly one encoding and therefore one signature. |
+
+A verifier MUST supply its own instant when verifying a list, for the same
+reason R16 requires one: an offline verifier checking a historical packet
+and an air-gapped verifier need to say what "now" means to them. A list
+outside its window MUST NOT be used to establish that a token is live; the
+reason MUST reach the report, so that a verifier which was handed an expired
+list is distinguishable from one that was handed nothing.
+
+`revoked_at_ms` is recorded for the auditor and decides nothing: a verifier
+holding a fresh list treats every entry as revoked now. Backdating a
+revocation cannot un-revoke anything.
+
+A list does **not** prove that the tokens it omits are live. Completeness is
+a claim the issuer makes by signing, bounded by the window.
+
 ## 5. Verification rules (normative)
 
 A verifier evaluates **all** rules (no short-circuit) and reports each:
@@ -158,24 +189,25 @@ A verifier evaluates **all** rules (no short-circuit) and reports each:
 | `AGENT_SIGNATURE` | `agent_sig.signer_id == aip_id`, payload hash equals recomputed hash, Ed25519 verifies against the embedded key. |
 | `ROOT_TOKEN_SIGNATURE` | Root token verifies against a key the **verifier** trusts for the principal. |
 | `DELEGATION_CHAIN` | Every hop: signature, parent-JTI linkage, depth monotonicity, scope ⊆ parent. |
-| `AUTHORITY_CHAIN` | Principal issued the root token; each hop's issuer is the previous grantee; leaf grantee is the acting agent. |
+| `AUTHORITY_CHAIN` | Principal issued the root token; each hop's issuer is the previous grantee; leaf grantee is the acting agent. **Self-issuance** (the declared principal or the root token's issuer is the acting agent) is always reported in the rule's detail; it **fails** the rule when the verifier sets `independent_authority_required` (R6). Self-issuance is not tamper evidence. |
 | `SCOPE_AUTHORITY` | Decision `action_kind` and every action's `action_kind` are permitted by the effective (most-attenuated) scope. |
-| `REVOCATION` | No JTI in the chain appears in the verifier's revocation set. |
+| `REVOCATION` | No JTI in the chain appears in any revocation source the verifier holds: a signed, time-bounded `RevocationList` (§4.4) and/or identifiers supplied directly. A hit **fails** whatever the source's freshness — a revocation does not lapse. With no usable source the rule is **NOT EVALUATED**, never a pass; an expired or unanchored list lands there and the detail says why (R7). A pass cites the list's issuer, sequence and validity, or states that a bare identifier set carries no issuer, issue time or expiry. |
 | `TEMPORAL_VALIDITY` | Decision/actions fall within issuance↔expiry of every token; actions do not precede their decision. |
 | `ACTION_ATTESTATIONS` | Every action signature verifies and is bound to the packet's decision. |
 | `TRACE_BINDING` | If trace data is supplied, its hash matches `trace_hash`. |
 | `RECEIPT_BINDING` | If receipt data is supplied, hash matches; if countersigned, the countersignature verifies against a trusted counterparty key. |
 | `TRUST_FLOOR` | The claimed floor must not exceed the derived floor (§6). |
-| `EXECUTION_BINDING` (R15) | If an execution binding is present it is version 1, names the packet's agent, and carries non-degenerate process and executable identity. Structural only: passing **never** means the execution was independently observed, and R15 does not feed the trust floor. Absence is reported, not failed. |
+| `EXECUTION_BINDING` (R15) | If an execution binding is present it is the current structure version (2 since R5), names the packet's agent, and carries non-degenerate process and executable identity. A v2 binding may additionally carry a `ContainerIdentity`; its absence is "not observed", never "not in a container", and is not failed. Structural only: passing **never** means the execution was independently observed, and R15 does not feed the trust floor. Absence is reported, not failed. |
 | `VERIFICATION_TIME_BOUND` (R16) | Every timestamp the packet asserts is at or before the verification time the **verifier** supplied, within the declared tolerance. **NOT EVALUATED** when the verifier supplied no time; never reported as a pass in that case. |
 | `ACTION_UNIQUENESS` (R17) | No two action attestations in the packet share an `action_id`. Always evaluable. |
 | `REPLAY_SCOPE` (R18) | The packet does not reuse a decision or action identity that a *different* packet already established. Requires the verifier to supply its observed history; **NOT EVALUATED** without one, never a pass. |
 
 A rule has three outcomes: PASS, FAIL, or NOT EVALUATED (`evaluated:
-false`). `valid` ⇔ every *evaluated* rule passes. A report with R16 or R18
-NOT EVALUATED is therefore **not** a claim that the packet is temporally
-bounded or replay-free; a consumer that needs those properties must supply a
-verification time and a history, and must read those two rules explicitly.
+false`). `valid` ⇔ every *evaluated* rule passes. A report with R9, R16 or
+R18 NOT EVALUATED is therefore **not** a claim that the packet is unrevoked,
+temporally bounded or replay-free; a consumer that needs those properties
+must supply a revocation source, a verification time and a history, and must
+read those rules explicitly.
 `tampered` ⇔ at least one failure is positive evidence of post-signing
 modification (hash or signature-payload mismatch), as distinct from e.g.
 revocation.

@@ -32,8 +32,8 @@ use serde::{Deserialize, Serialize};
 use aip_crypto::{derive_aip_id, sha256};
 use aip_protocol::{
     verify_packet, ActionAttestation, AgentIdentitySummary, DecisionRecord, EvidencePacket,
-    EvidencePacketBuilder, ObservedHistory, ReceiptBinding, RootAuthority, TraceBinding,
-    TrustFloor, VerificationContext, VerificationReport,
+    EvidencePacketBuilder, ObservedHistory, ReceiptBinding, RevocationEvidence, RootAuthority,
+    TraceBinding, TrustFloor, VerificationContext, VerificationReport,
 };
 use aip_types::{
     Action, AlgorithmId, DelegationToken, ProvenanceTriple, PublicKey, ScopeAction, ScopedToken,
@@ -446,6 +446,19 @@ pub fn verify_request_with_context(
     // this tier is online by definition, so it is where the time is known.
     ctx.verification_time_ms = Some(req.verification_time_ms.unwrap_or_else(now_ms));
     ctx.future_tolerance_ms = req.future_tolerance_ms.unwrap_or(0);
+
+    // R7. At the protocol layer an empty revocation set is NOT EVALUATED,
+    // because a verifier holding nothing has established nothing. This tier
+    // is not holding nothing: it read its own tenant-scoped revocation
+    // record for this request, and an empty answer from an authoritative
+    // record is a real answer. Declaring the source turns the rule back into
+    // an evaluated one and puts *what was consulted* into the report, so a
+    // reader can tell a service's live record from a signed list an auditor
+    // could carry away.
+    ctx.revocation_evidence = Some(RevocationEvidence::Live {
+        source: "aip-service tenant-scoped revocation record".to_string(),
+        as_of_ms: ctx.verification_time_ms.unwrap_or_else(now_ms),
+    });
 
     Ok(verify_packet(&req.packet, &ctx))
 }

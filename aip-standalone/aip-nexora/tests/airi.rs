@@ -52,6 +52,7 @@ fn binding(agent_id: &str) -> ExecutionBinding {
         exe_content_sha256: [0x33; 32],
         exe_path: "/usr/bin/python3".into(),
         bound_at_ms: 1_000,
+        container: None,
     }
 }
 

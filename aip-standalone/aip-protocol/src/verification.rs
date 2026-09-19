@@ -20,6 +20,7 @@ use aip_crypto::{derive_aip_id, sha256, validate_aip_id, verify_ed25519};
 use aip_types::CapabilityScope;
 
 use crate::evidence_packet::{EvidencePacket, TrustFloor, PACKET_MAGIC, PACKET_VERSION};
+use crate::revocation_list::RevocationEvidence;
 use crate::verification_report::{rules, RuleResult, VerificationReport};
 use aip_types::EXECUTION_BINDING_VERSION;
 
@@ -63,6 +64,49 @@ pub struct VerificationContext {
     /// `Some(empty)` is different and is a genuine evaluated pass: a stateful
     /// verifier whose store is empty has looked and found nothing.
     pub observed_history: Option<ObservedHistory>,
+    /// Whether the verifier refuses an authority root the acting agent
+    /// issued to itself (R6 of `docs/pilot/RBI_REQUIREMENTS_COVERAGE.md`).
+    ///
+    /// # What self-issued authority is
+    ///
+    /// An `EvidencePacket` carries a root token naming a principal who
+    /// granted the agent its scope. Nothing in the packet format stops that
+    /// principal from *being* the agent: an agent holding its own key can
+    /// mint itself an admin root token, sign every hop, and produce a packet
+    /// in which all fourteen original rules pass. The packet is internally
+    /// consistent and cryptographically sound; it simply records the agent
+    /// authorising itself, which is not authority at all.
+    ///
+    /// # Why this is a verifier choice and not a protocol rule
+    ///
+    /// Some legitimate deployments are self-issued by construction: a
+    /// single-operator tool, a development environment, an agent that is its
+    /// own principal because there is no institution above it. Refusing
+    /// those by default would break existing packets and would make the
+    /// verifier wrong about a deployment shape it was never told about.
+    ///
+    /// So the default is `false` and the behaviour is unchanged. What the
+    /// report does *not* do is stay silent: whenever the root is
+    /// self-issued, [`rules::AUTHORITY_CHAIN`]'s detail says so, whether or
+    /// not this flag is set. A verifier that did not ask the question still
+    /// learns the answer.
+    ///
+    /// A regulated entity — where the whole point is that something other
+    /// than the agent decided — sets this to `true` and gets a failed
+    /// `AUTHORITY_CHAIN` instead of a note.
+    pub independent_authority_required: bool,
+    /// A signed, time-bounded revocation list the verifier holds, or the
+    /// reason one it was offered cannot be used (R7).
+    ///
+    /// This is the authoritative source. [`Self::revoked_jtis`] remains for
+    /// a verifier that was simply told "this JTI is revoked" by some other
+    /// means; both are consulted, and a hit in either is a failure.
+    ///
+    /// `None` means no list was offered. Combined with an empty
+    /// `revoked_jtis` that makes [`rules::REVOCATION`] NOT EVALUATED rather
+    /// than a pass: a verifier that was told nothing about revocation has
+    /// established nothing about it.
+    pub revocation_evidence: Option<RevocationEvidence>,
     /// Ed25519 public keys the verifier accepts as audit-export bundle
     /// signers.
     ///
@@ -159,6 +203,14 @@ impl VerificationContext {
     /// Allow timestamps up to `ms` ahead of the verification time.
     pub fn with_future_tolerance(mut self, ms: u64) -> Self {
         self.future_tolerance_ms = ms;
+        self
+    }
+
+    /// Require that the authority root be someone other than the acting
+    /// agent (R6). See [`VerificationContext::independent_authority_required`]
+    /// for what this refuses and why it is off by default.
+    pub fn require_independent_authority(mut self) -> Self {
+        self.independent_authority_required = true;
         self
     }
 
@@ -352,31 +404,13 @@ pub fn verify_packet(packet: &EvidencePacket, ctx: &VerificationContext) -> Veri
     }
 
     // ── R7 AUTHORITY_CHAIN: principal → issuer → … → acting agent ─────────
-    let authority_ok = check_authority_chain(packet, &mut e);
+    let authority_ok = check_authority_chain(packet, ctx, &mut e);
 
     // ── R8 SCOPE_AUTHORITY: decision and every action within effective scope ──
     let scope_ok = check_scope_authority(packet, effective_scope.as_ref(), &mut e);
 
     // ── R9 REVOCATION ─────────────────────────────────────────────────────
-    let mut revoked: Vec<String> = vec![];
-    if ctx.revoked_jtis.contains(&root.root_token.jti) {
-        revoked.push(format!("root token {}", hex::encode(root.root_token.jti)));
-    }
-    for hop in &packet.delegation_chain {
-        if ctx.revoked_jtis.contains(&hop.jti) {
-            revoked.push(format!("delegation {}", hex::encode(hop.jti)));
-        }
-    }
-    let revocation_ok = revoked.is_empty();
-    e.record(
-        rules::REVOCATION,
-        revocation_ok,
-        if revocation_ok {
-            "no token in the authority chain is revoked".to_string()
-        } else {
-            format!("revoked tokens in chain: {}", revoked.join(", "))
-        },
-    );
+    let revocation_ok = check_revocation(packet, ctx, &mut e);
 
     // ── R10 TEMPORAL_VALIDITY ─────────────────────────────────────────────
     let temporal_ok = check_temporal_validity(packet, &mut e);
@@ -697,9 +731,137 @@ fn check_structure(packet: &EvidencePacket, e: &mut Engine) -> bool {
 /// each hop's issuer is the previous hop's grantee, and the leaf grantee is
 /// the acting agent. (Cryptographic per-hop validity is R6; this rule checks
 /// that the chain actually connects the principal to the agent.)
-fn check_authority_chain(packet: &EvidencePacket, e: &mut Engine) -> bool {
+/// R9 REVOCATION — is any token in this authority chain revoked?
+///
+/// # Why an empty answer is not a pass (R7)
+///
+/// The rule used to report "no token in the authority chain is revoked"
+/// whenever the verifier's revocation set was empty. That sentence is a
+/// claim about the world, and a verifier holding nothing had not checked the
+/// world. It now separates three states that were previously one:
+///
+/// - **A hit** in any source the verifier holds: FAIL, whatever else is
+///   true. A positive finding never needs the source to be fresh — a list
+///   that has expired still proves the issuer revoked that token once, and
+///   nothing un-revokes a token.
+/// - **A usable source with no hit**: PASS, citing the source, so a reader
+///   can see which document the answer rests on and until when it stood.
+/// - **No usable source**: NOT EVALUATED, naming what was missing. An
+///   expired list lands here, which is the R7 acceptance criterion.
+fn check_revocation(packet: &EvidencePacket, ctx: &VerificationContext, e: &mut Engine) -> bool {
+    let root = &packet.root_authority;
+    let chain: Vec<(&str, [u8; 16])> = std::iter::once(("root token", root.root_token.jti))
+        .chain(
+            packet
+                .delegation_chain
+                .iter()
+                .map(|h| ("delegation", h.jti)),
+        )
+        .collect();
+
+    let fresh = match &ctx.revocation_evidence {
+        Some(RevocationEvidence::Fresh(list)) => Some(list.as_ref()),
+        _ => None,
+    };
+
+    let mut hits: Vec<String> = vec![];
+    for (what, jti) in &chain {
+        let in_list = fresh.is_some_and(|l| l.contains(jti));
+        let in_set = ctx.revoked_jtis.contains(jti);
+        if in_list || in_set {
+            let src = if in_list {
+                "signed list"
+            } else if matches!(
+                ctx.revocation_evidence,
+                Some(RevocationEvidence::Live { .. })
+            ) {
+                "the verifier's own record"
+            } else {
+                "verifier"
+            };
+            hits.push(format!("{what} {} (per {src})", hex::encode(jti)));
+        }
+    }
+    if !hits.is_empty() {
+        return e.record(
+            rules::REVOCATION,
+            false,
+            format!("revoked tokens in chain: {}", hits.join(", ")),
+        );
+    }
+
+    if let Some(list) = fresh {
+        let (issuer, key_version, sequence, valid_until) = list.citation();
+        return e.record(
+            rules::REVOCATION,
+            true,
+            format!(
+                "no token in the authority chain appears in revocation list \
+                 sequence {sequence} from {issuer} (key version {key_version}), \
+                 which the issuer stands behind until {valid_until}"
+            ),
+        );
+    }
+
+    if let Some(RevocationEvidence::Live { source, as_of_ms }) = &ctx.revocation_evidence {
+        return e.record(
+            rules::REVOCATION,
+            true,
+            format!(
+                "no token in the authority chain is revoked according to \
+                 {source}, consulted at {as_of_ms}"
+            ),
+        );
+    }
+
+    if !ctx.revoked_jtis.is_empty() {
+        return e.record(
+            rules::REVOCATION,
+            true,
+            format!(
+                "no token in the authority chain is among the {} revoked \
+                 identifier(s) this verifier supplied directly — note that an \
+                 identifier list carries no issuer, issue time or expiry, so \
+                 this is a statement about what the verifier was told and not \
+                 about the issuer's current record",
+                ctx.revoked_jtis.len()
+            ),
+        );
+    }
+
+    let detail = match &ctx.revocation_evidence {
+        Some(RevocationEvidence::Unusable(err)) => format!(
+            "a revocation list was supplied but cannot be used: {err} — this \
+             verifier has established nothing about whether these tokens are \
+             revoked"
+        ),
+        _ => "no revocation source supplied: this verifier holds no signed \
+              revocation list and was told of no revoked identifiers, so \
+              nothing here establishes that these tokens are live"
+            .to_string(),
+    };
+    e.record_not_evaluated(rules::REVOCATION, detail);
+    // Unevaluated rules do not invalidate a report; `valid` ignores them.
+    true
+}
+
+fn check_authority_chain(
+    packet: &EvidencePacket,
+    ctx: &VerificationContext,
+    e: &mut Engine,
+) -> bool {
     let root = &packet.root_authority;
     let mut problems: Vec<String> = vec![];
+
+    // R6 — is the root of this authority the acting agent itself?
+    //
+    // Two spellings of the same thing, and both count: the declared
+    // principal being the agent, and the root token's issuer being the
+    // agent. A packet can carry one without the other (a principal id that
+    // differs from the issuer is already a separate defect, recorded below),
+    // so the question is asked of each independently.
+    let self_issued = root.principal_id == packet.agent.aip_id
+        || root.root_token.issuer_id == packet.agent.aip_id;
 
     if root.root_token.issuer_id != root.principal_id {
         problems.push(format!(
@@ -740,15 +902,34 @@ fn check_authority_chain(packet: &EvidencePacket, e: &mut Engine) -> bool {
         }
     }
 
+    // The refusal is appended after the structural problems so a packet that
+    // is both broken and self-issued reports both, in that order.
+    if self_issued && ctx.independent_authority_required {
+        problems.push(format!(
+            "authority root is the acting agent itself ({}): no independent \
+             party authorized this, and this verifier requires one",
+            packet.agent.aip_id
+        ));
+    }
+
     let ok = problems.is_empty();
     e.record(
         rules::AUTHORITY_CHAIN,
         ok,
         if ok {
-            format!(
+            let mut detail = format!(
                 "authority chain connects principal {} to acting agent {}",
                 root.principal_id, packet.agent.aip_id
-            )
+            );
+            // Passing while self-issued is a pass this verifier did not ask
+            // about. Say so rather than let the pass imply independence.
+            if self_issued {
+                detail.push_str(
+                    " — NOTE: the root is the agent itself; independence was \
+                     not required by this verifier and is not established",
+                );
+            }
+            detail
         } else {
             problems.join("; ")
         },

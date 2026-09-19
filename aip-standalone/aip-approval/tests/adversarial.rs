@@ -11,7 +11,9 @@ use aip_authorize::{
     EXPECTED_EXECUTION_VERSION,
 };
 use aip_crypto::{generate_ed25519_keypair, sha256, sign_ed25519};
-use aip_types::{Action, ExecutionBinding, KeyPair, ProcessInstance, ScopeAction};
+use aip_types::{
+    Action, ExecutionBinding, KeyPair, ProcessInstance, ScopeAction, EXECUTION_BINDING_VERSION,
+};
 
 const AGENT: &str = "aip:agent-under-test";
 const DP: &str = "dp:decision-point-1";
@@ -43,7 +45,7 @@ fn rig() -> Rig {
 
 fn binding() -> ExecutionBinding {
     ExecutionBinding {
-        version: 1,
+        version: EXECUTION_BINDING_VERSION,
         agent_id: AGENT.into(),
         process: ProcessInstance {
             pid: 4242,
@@ -53,6 +55,7 @@ fn binding() -> ExecutionBinding {
         exe_content_sha256: sha256(b"the binary"),
         exe_path: "/usr/local/bin/agent".into(),
         bound_at_ms: 1_000,
+        container: None,
     }
 }
 

@@ -578,6 +578,7 @@ fn a23b_a_self_reported_boot_id_cannot_become_a_binding() {
         exe_content_sha256: [0x11; 32],
         exe_path: "/opt/agent/bin/autonomy".into(),
         bound_at_ms: NOW,
+        container: None,
     };
     // Those bytes are available to the caller...
     assert_eq!(self_reported.process.boot_id, BOOT_P);

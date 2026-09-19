@@ -99,6 +99,7 @@ fn expected() -> Expected {
             exe_content_sha256: sha256(b"payments-agent binary v2"),
             exe_path: "/opt/agent/bin/payments-agent".into(),
             bound_at_ms: 1_700_000_000_000,
+            container: None,
         },
         requested_ttl_ms: TTL,
     };

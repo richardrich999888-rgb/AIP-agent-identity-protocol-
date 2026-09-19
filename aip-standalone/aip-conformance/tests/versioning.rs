@@ -18,8 +18,9 @@ fn v1_the_wire_constants_are_what_they_were() {
     assert_eq!(aip_types::AIP_VERSION, 0x0004, "AIP identity/token version");
     assert_eq!(
         aip_types::EXECUTION_BINDING_VERSION,
-        1,
-        "execution binding structure version"
+        2,
+        "execution binding structure version — 2 since R5 added ContainerIdentity; \
+         a v1 binding and a v2 binding never produce equal identity bytes"
     );
     assert_eq!(
         aip_nexora::merkle::LeafKind::ALL.len(),

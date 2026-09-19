@@ -32,6 +32,7 @@ pub mod accountability_graph;
 pub mod bundle;
 mod canonical;
 pub mod evidence_packet;
+pub mod revocation_list;
 pub mod verification;
 pub mod verification_report;
 
@@ -42,6 +43,12 @@ pub use bundle::{
 pub use evidence_packet::{
     ActionAttestation, AgentIdentitySummary, DecisionRecord, EvidencePacket, EvidencePacketBuilder,
     ReceiptBinding, RootAuthority, TraceBinding, TrustFloor, PACKET_MAGIC, PACKET_VERSION,
+};
+pub use revocation_list::{
+    verify_revocation_list, RevocationEvidence, RevocationList, RevocationListAnchors,
+    RevocationListError, RevocationReason, RevokedEntry, SignedRevocationList,
+    VerifiedRevocationList, MAX_ENTRIES, MAX_ISSUER_LEN, REVOCATION_LIST_DOMAIN,
+    REVOCATION_LIST_VERSION,
 };
 pub use verification::{verify_packet, ObservedHistory, VerificationContext};
 pub use verification_report::{RuleResult, VerificationReport};

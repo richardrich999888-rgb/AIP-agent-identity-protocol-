@@ -63,6 +63,7 @@ pub fn binding_for(agent_id: &str) -> ExecutionBinding {
         exe_content_sha256: sha256(b"empirical-agent binary v1"),
         exe_path: "/opt/agent/bin/empirical-agent".into(),
         bound_at_ms: 1_700_000_000_000,
+        container: None,
     }
 }
 

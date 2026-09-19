@@ -31,7 +31,7 @@ use aip_enterprise::{
     EnterpriseSource, WorkloadBinding, WorkloadState,
 };
 use aip_system::{PlatformId, SystemId};
-use aip_types::{ExecutionBinding, ProcessInstance};
+use aip_types::{ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION};
 
 const DEPLOYMENT: [EnterpriseSource; 8] = [
     EnterpriseSource::AgentSelfReport,
@@ -71,7 +71,7 @@ fn profile() -> EnterpriseProfile {
 /// The real execution's own binding, as the run measured it.
 fn binding_for(out: &aip_edge::orchestrate::RunOutcome) -> (ExecutionBinding, WorkloadBinding) {
     let e = ExecutionBinding {
-        version: 1,
+        version: EXECUTION_BINDING_VERSION,
         agent_id: out.reference.system_execution.agent_id().to_owned(),
         process: ProcessInstance {
             pid: out.workload_pid,
@@ -81,6 +81,7 @@ fn binding_for(out: &aip_edge::orchestrate::RunOutcome) -> (ExecutionBinding, Wo
         exe_content_sha256: [0xAA; 32],
         exe_path: "/usr/bin/agent".to_owned(),
         bound_at_ms: 1_000,
+        container: None,
     };
     let b = WorkloadBinding::new(
         "acme",

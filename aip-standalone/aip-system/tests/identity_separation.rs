@@ -363,6 +363,7 @@ fn t10_serialization_round_trip_preserves_identity_relationships() {
         exe_content_sha256: [0x11; 32],
         exe_path: "/opt/agent/bin/autonomy".into(),
         bound_at_ms: NOW,
+        container: None,
     };
     let original = execution("sys:fleet-1", &a, EXEC_A)
         .with_parent(EXEC_B)

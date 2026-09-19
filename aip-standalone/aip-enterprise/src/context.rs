@@ -317,11 +317,11 @@ impl ContextChain {
 mod tests {
     use super::*;
     use crate::binding::framework_commitment;
-    use aip_types::{ExecutionBinding, ProcessInstance};
+    use aip_types::{ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION};
 
     fn execution(agent: &str, pid: u32, ticks: u64) -> ExecutionBinding {
         ExecutionBinding {
-            version: 1,
+            version: EXECUTION_BINDING_VERSION,
             agent_id: agent.to_owned(),
             process: ProcessInstance {
                 pid,
@@ -331,6 +331,7 @@ mod tests {
             exe_content_sha256: [0xAA; 32],
             exe_path: "/usr/bin/agent".to_owned(),
             bound_at_ms: 1_000,
+            container: None,
         }
     }
 

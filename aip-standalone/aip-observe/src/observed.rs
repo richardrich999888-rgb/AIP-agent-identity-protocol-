@@ -1385,6 +1385,7 @@ mod tests {
             exe_content_sha256: [1; 32],
             exe_path: "/x".into(),
             bound_at_ms: 0,
+            container: None,
         };
         assert!(
             !base.matches_process_of(&binding),

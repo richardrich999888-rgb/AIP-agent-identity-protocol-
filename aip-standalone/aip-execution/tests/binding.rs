@@ -99,6 +99,7 @@ fn fixture() -> Fixture {
         exe_content_sha256: sha256(b"autonomy binary v3"),
         exe_path: "/opt/agent/bin/autonomy".into(),
         bound_at_ms: now,
+        container: None,
     };
 
     Fixture {

@@ -76,6 +76,7 @@ fn binding(agent_id: &str) -> ExecutionBinding {
         exe_content_sha256: sha256(b"payments-agent binary v5"),
         exe_path: "/opt/agent/bin/payments-agent".into(),
         bound_at_ms: 1_700_000_000_000,
+        container: None,
     }
 }
 

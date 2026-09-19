@@ -72,6 +72,7 @@ fn binding(agent_id: &str, pid: u32, start_ticks: u64, image: &[u8]) -> Executio
         exe_content_sha256: sha256(image),
         exe_path: "/opt/agent/bin/image".into(),
         bound_at_ms: 1_700_000_000_000,
+        container: None,
     }
 }
 

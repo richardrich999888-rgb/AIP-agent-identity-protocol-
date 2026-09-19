@@ -25,7 +25,7 @@
 //! [`BindingError::UnsupportedPlatform`] rather than a degraded binding.
 
 use aip_crypto::sha256;
-use aip_types::{ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION};
+use aip_types::{ContainerIdentity, ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION};
 
 /// Why a binding could not be established. Never silently recoverable.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -202,6 +202,13 @@ pub fn collect_binding_for_pid(agent_id: &str, pid: u32) -> Result<ExecutionBind
         })?
         .as_millis() as u64;
 
+    // R5. Absence here is not an error: a kernel without cgroup v2, a
+    // hidepid mount, or a container runtime that denies the read all yield
+    // a process whose binding is still meaningful — only less able to
+    // distinguish co-resident workloads. What must never happen is a
+    // *partial* identity, so every field is required or none is recorded.
+    let container = collect_container_identity(pid);
+
     Ok(ExecutionBinding {
         version: EXECUTION_BINDING_VERSION,
         agent_id: agent_id.to_string(),
@@ -213,7 +220,98 @@ pub fn collect_binding_for_pid(agent_id: &str, pid: u32) -> Result<ExecutionBind
         exe_content_sha256,
         exe_path,
         bound_at_ms,
+        container,
     })
+}
+
+/// Read the kernel-visible container identity of `pid`, or `None`.
+///
+/// # Why `None` and not an error
+///
+/// A binding without container identity is weaker, not wrong: it still
+/// survives PID reuse within one kernel view, which is what v1 promised.
+/// Failing the whole collection would make the agent unobservable on any
+/// host whose kernel or runtime withholds one of these files, which is a
+/// worse outcome than a binding that says "I could not see this".
+///
+/// # Why the namespaces are all-or-nothing and the cgroup id is not
+///
+/// A half-read *identity* would compare unequal against a fully-read one for
+/// the same container, manufacturing a difference out of a read failure.
+/// [`aip_types::ExecutionMatch::ContainerNotComparable`] exists to carry the
+/// honest answer, and it needs that absence to be total. The cgroup id is
+/// not part of the identity, so its absence costs an auditor context and
+/// costs a verifier nothing.
+#[cfg(target_os = "linux")]
+fn collect_container_identity(pid: u32) -> Option<ContainerIdentity> {
+    // The three namespaces are the identity and are required together: a
+    // partial reading would compare unequal against a complete one for the
+    // same container, manufacturing a difference out of a read failure.
+    let pid_ns_inode = read_ns_inode(pid, "pid")?;
+    let mnt_ns_inode = read_ns_inode(pid, "mnt")?;
+    let net_ns_inode = read_ns_inode(pid, "net")?;
+    Some(ContainerIdentity {
+        pid_ns_inode,
+        mnt_ns_inode,
+        net_ns_inode,
+        // Context. Absent on a cgroup-v1-only host, and its absence must not
+        // withdraw the namespace identity that host can still provide.
+        cgroup_id: read_cgroup_id(pid),
+    })
+}
+
+/// Parse the inode out of `/proc/<pid>/ns/<kind>`.
+///
+/// The link target is of the form `pid:[4026531836]`. The number is the
+/// namespace's inode in `nsfs` and is the only stable identifier a namespace
+/// has. It is read from the link text rather than by `stat`, because the
+/// text is readable whenever `/proc/<pid>` is, while resolving the link
+/// needs a permission the caller may not hold.
+#[cfg(target_os = "linux")]
+fn read_ns_inode(pid: u32, kind: &str) -> Option<u64> {
+    let target = std::fs::read_link(format!("/proc/{pid}/ns/{kind}")).ok()?;
+    let text = target.to_string_lossy();
+    // Refuse a link whose prefix is not the namespace kind that was asked
+    // for: a mismatch means the kernel's format changed, and the number
+    // after it means something this code has not been told.
+    if !text.starts_with(kind) {
+        return None;
+    }
+    let open = text.find('[')?;
+    let close = text.find(']')?;
+    if close <= open + 1 {
+        return None;
+    }
+    text[open + 1..close].parse::<u64>().ok()
+}
+
+/// The cgroup v2 id of `pid`.
+///
+/// `/proc/<pid>/cgroup` gives the path; the id is the inode of that path
+/// under the cgroup2 mount. Either read can fail independently (a cgroup v1
+/// hierarchy, an unmounted cgroup2, a namespaced path that does not resolve
+/// from here), and either failure withdraws the whole container identity.
+#[cfg(target_os = "linux")]
+fn read_cgroup_id(pid: u32) -> Option<u64> {
+    use std::os::unix::fs::MetadataExt;
+    let text = std::fs::read_to_string(format!("/proc/{pid}/cgroup")).ok()?;
+    // cgroup v2 is the single line with an empty controller field: `0::/path`.
+    let rel = text
+        .lines()
+        .find_map(|l| l.strip_prefix("0::"))?
+        .trim()
+        .to_string();
+    let path = format!(
+        "/sys/fs/cgroup{}",
+        if rel == "/" { "" } else { rel.as_str() }
+    );
+    let meta = std::fs::metadata(path).ok()?;
+    Some(meta.ino())
+}
+
+#[cfg(not(target_os = "linux"))]
+fn collect_container_identity(_pid: u32) -> Option<ContainerIdentity> {
+    None
 }
 
 #[cfg(not(target_os = "linux"))]
@@ -248,6 +346,7 @@ mod tests {
             exe_content_sha256: [exe; 32],
             exe_path: path.into(),
             bound_at_ms: 1_700_000_000_000,
+            container: None,
         }
     }
 
@@ -413,6 +512,63 @@ mod tests {
         // though bound_at_ms may differ.
         let b2 = collect_self_binding("aip1selftest").unwrap();
         assert!(b.same_execution(&b2));
+    }
+
+    // ─── R5: container identity, read from this kernel ───
+
+    /// The collector reads the real namespaces of the running test process.
+    ///
+    /// This is not a fixture: the inode numbers come from `/proc/self/ns/*`
+    /// on whatever kernel the suite runs on. The assertions are therefore
+    /// about shape and self-consistency, not about particular values, since
+    /// a CI container and a bare host give different ones.
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn the_collector_reads_this_processs_own_container_identity() {
+        let b = collect_self_binding("aip1selftest").unwrap();
+        let c = b
+            .container
+            .expect("/proc/<self>/ns is readable by the process itself on Linux");
+        // Namespace inodes are nsfs inodes; zero is not one of them.
+        assert_ne!(c.pid_ns_inode, 0, "pid namespace inode");
+        assert_ne!(c.mnt_ns_inode, 0, "mount namespace inode");
+        assert_ne!(c.net_ns_inode, 0, "network namespace inode");
+        // The three namespaces of one process are distinct objects.
+        assert_ne!(c.pid_ns_inode, c.mnt_ns_inode);
+        assert_ne!(c.mnt_ns_inode, c.net_ns_inode);
+        // And the same process measured twice gives the same identity, which
+        // is what makes it usable as part of a join key.
+        let b2 = collect_self_binding("aip1selftest").unwrap();
+        assert_eq!(b2.container, b.container);
+        assert!(b.same_execution(&b2));
+    }
+
+    /// The version the collector stamps is the one the encodings carry, so a
+    /// binding produced here and one built by a caller compare by version
+    /// rather than by accident.
+    #[test]
+    fn the_collector_stamps_the_current_structure_version() {
+        assert_eq!(
+            EXECUTION_BINDING_VERSION, 2,
+            "R5 bumped this; update the CHANGELOG"
+        );
+        #[cfg(target_os = "linux")]
+        {
+            let b = collect_self_binding("aip1selftest").unwrap();
+            assert_eq!(b.version, EXECUTION_BINDING_VERSION);
+        }
+    }
+
+    /// A namespace link whose text this code does not recognise yields no
+    /// identity rather than a guessed number.
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn a_namespace_link_this_build_cannot_parse_yields_nothing() {
+        // The parser is exercised through the public path by asking for a
+        // namespace kind that does not exist, which produces no link at all.
+        assert_eq!(read_ns_inode(std::process::id(), "nosuchns"), None);
+        // And a real one parses.
+        assert!(read_ns_inode(std::process::id(), "pid").is_some());
     }
 
     #[cfg(target_os = "linux")]

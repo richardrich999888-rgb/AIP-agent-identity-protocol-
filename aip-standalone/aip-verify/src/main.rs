@@ -18,7 +18,10 @@ use std::process::ExitCode;
 use clap::Parser;
 
 use aip_protocol::bundle::{verify_zip, BundleStatus};
-use aip_protocol::{verify_packet, EvidencePacket, VerificationContext};
+use aip_protocol::{
+    verify_packet, verify_revocation_list, EvidencePacket, RevocationEvidence,
+    RevocationListAnchors, SignedRevocationList, VerificationContext,
+};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -49,8 +52,34 @@ struct Cli {
     counterparty: Vec<String>,
 
     /// Revoked JTI (16-byte hex), repeatable.
+    ///
+    /// A bare identifier carries no issuer, issue time or expiry. Supplying
+    /// one lets the verifier fail a packet, but a pass records that the
+    /// answer rests on what the operator typed. Prefer `--revocations`.
     #[arg(long = "revoked", value_name = "JTI_HEX")]
     revoked: Vec<String>,
+
+    /// Signed revocation list (JSON), from the authority that maintains it.
+    ///
+    /// Verified under `--trust-revocation-issuer` and placed in time against
+    /// `--at`/`--now`. A list outside its validity window leaves the
+    /// REVOCATION rule NOT EVALUATED — never a pass.
+    #[arg(long = "revocations", value_name = "FILE")]
+    revocations: Option<String>,
+
+    /// Trusted revocation-list issuer, repeatable:
+    /// `--trust-revocation-issuer <issuer_id>:<key_version>=<pubkey_hex>`.
+    #[arg(long = "trust-revocation-issuer", value_name = "ID:VER=HEX")]
+    trust_revocation_issuer: Vec<String>,
+
+    /// Refuse an authority root that the acting agent issued to itself.
+    ///
+    /// Off by default, because some deployments are legitimately their own
+    /// principal. A regulated entity — where the point is that something
+    /// other than the agent decided — sets this. Without it, a self-issued
+    /// root still passes but the report says so.
+    #[arg(long = "require-independent-authority")]
+    require_independent_authority: bool,
 
     /// File whose bytes must hash to the packet's trace_hash.
     #[arg(long = "trace-data", value_name = "FILE")]
@@ -129,6 +158,7 @@ fn build_ctx(cli: &Cli) -> Result<VerificationContext, String> {
         jti.copy_from_slice(&bytes);
         ctx.revoked_jtis.insert(jti);
     }
+    ctx.independent_authority_required = cli.require_independent_authority;
     if let Some(path) = &cli.trace_data {
         ctx.trace_data = Some(std::fs::read(path).map_err(|e| format!("trace-data: {e}"))?);
     }
@@ -149,7 +179,60 @@ fn build_ctx(cli: &Cli) -> Result<VerificationContext, String> {
     if ctx.verification_time_ms.is_none() && cli.future_tolerance != 0 {
         return Err("--future-tolerance requires --at or --now".into());
     }
+    // The revocation list is placed in time, so it needs the same instant the
+    // rest of the verification uses. A caller who supplies a list but no
+    // instant is told to choose one rather than being given a pass that
+    // silently assumed the list was current.
+    if let Some(path) = &cli.revocations {
+        let Some(now) = ctx.verification_time_ms else {
+            return Err(
+                "--revocations requires --at or --now: a revocation list is only \
+                 meaningful relative to an instant, and this verifier will not \
+                 assume one"
+                    .into(),
+            );
+        };
+        let raw = std::fs::read_to_string(path).map_err(|e| format!("--revocations: {e}"))?;
+        let signed = SignedRevocationList::from_json(&raw)
+            .map_err(|e| format!("--revocations: not a signed revocation list: {e}"))?;
+        let anchors = parse_revocation_anchors(&cli.trust_revocation_issuer)?;
+        // A list that fails to verify is carried into the report as the
+        // reason the rule could not be evaluated, not discarded. An operator
+        // who supplied a stale or unanchored list must see that in the
+        // report, not merely in a warning they may have scrolled past.
+        ctx.revocation_evidence = Some(match verify_revocation_list(&signed, &anchors, now) {
+            Ok(list) => RevocationEvidence::Fresh(Box::new(list)),
+            Err(defect) => RevocationEvidence::Unusable(defect),
+        });
+    } else if !cli.trust_revocation_issuer.is_empty() {
+        return Err("--trust-revocation-issuer without --revocations has nothing to check".into());
+    }
     Ok(ctx)
+}
+
+/// Parse `--trust-revocation-issuer ID:VERSION=HEX` pairs.
+///
+/// The key version is part of the anchor because a list names the version it
+/// was signed under; an operator who rotates the issuer key must be able to
+/// say which version they are trusting, and an old list must not silently
+/// verify against a new key.
+fn parse_revocation_anchors(pairs: &[String]) -> Result<RevocationListAnchors, String> {
+    let mut anchors = RevocationListAnchors::new();
+    for pair in pairs {
+        let (id_ver, hex_str) = pair.split_once('=').ok_or_else(|| {
+            format!("--trust-revocation-issuer expects ID:VERSION=HEX, got '{pair}'")
+        })?;
+        let (id, ver) = id_ver.rsplit_once(':').ok_or_else(|| {
+            format!("--trust-revocation-issuer expects ID:VERSION=HEX, got '{pair}'")
+        })?;
+        let version: u32 = ver.trim().parse().map_err(|_| {
+            format!("--trust-revocation-issuer {id}: key version '{ver}' is not a number")
+        })?;
+        let key = hex::decode(hex_str.trim())
+            .map_err(|e| format!("--trust-revocation-issuer {id}: invalid hex: {e}"))?;
+        anchors = anchors.trust(id.trim(), version, &key);
+    }
+    Ok(anchors)
 }
 
 fn is_zip(bytes: &[u8]) -> bool {

@@ -74,6 +74,7 @@ fn s2_execution_a_binding_does_not_transplant_between_domains() {
         exe_content_sha256: sha256(exe),
         exe_path: "/opt/vertical/bin/worker".into(),
         bound_at_ms: 1_700_000_000_000,
+        container: None,
     };
     // Two domains running the same-named binary on two hosts.
     let uas_host = mk([0xa1; 16], b"autonomy-stack");

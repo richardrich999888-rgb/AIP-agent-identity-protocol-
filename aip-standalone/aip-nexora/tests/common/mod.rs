@@ -52,6 +52,7 @@ pub fn binding(agent_id: &str) -> ExecutionBinding {
         exe_content_sha256: sha256(b"nexora-scenario agent binary"),
         exe_path: "/opt/agent/bin/payments-agent".into(),
         bound_at_ms: 1_700_000_000_000,
+        container: None,
     }
 }
 

@@ -83,6 +83,7 @@ fn real_preimages_begin_with_their_tag() {
         exe_content_sha256: [2; 32],
         exe_path: "/x".into(),
         bound_at_ms: 0,
+        container: None,
     };
     let starts_with = |bytes: &[u8], tag: &str| {
         bytes.len() > 4 + tag.len() && &bytes[4..4 + tag.len()] == tag.as_bytes()
