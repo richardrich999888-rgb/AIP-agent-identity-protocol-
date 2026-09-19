@@ -104,6 +104,31 @@ pub fn validate_aip_id(id: &str) -> Result<(), aip_types::AipError> {
     Err(aip_types::AipError::InvalidChecksum)
 }
 
+/// Derive the Ed25519 public key from a private key.
+///
+/// Exists so that a component holding a signing key never has to be told
+/// its own public key as a second argument. Two arguments can disagree,
+/// and the failure is silent in the worst way: the component signs with
+/// one key and publishes another, so every signature it issues is
+/// unverifiable by anyone who trusted what it published.
+///
+/// # Errors
+///
+/// [`AipError::InvalidPublicKey`] if `private_key` is not 32 bytes. Every
+/// 32-byte string is a valid Ed25519 scalar seed, so there is no other
+/// failure mode.
+pub fn public_key_from_private(private_key: &[u8]) -> Result<[u8; 32], aip_types::AipError> {
+    if private_key.len() != 32 {
+        return Err(aip_types::AipError::InvalidPublicKey);
+    }
+    let signing_key = SigningKey::from_bytes(
+        private_key
+            .try_into()
+            .map_err(|_| aip_types::AipError::InvalidPublicKey)?,
+    );
+    Ok(signing_key.verifying_key().to_bytes())
+}
+
 /// Sign a message with raw Ed25519 (no AIP envelope) — the detached 64-byte
 /// signature over `msg` exactly. Used for signing audit-export manifests so
 /// the signature can be verified offline with only the public key + bytes.
@@ -424,5 +449,55 @@ mod tests {
         // Wrong key fails.
         let other = generate_ed25519_keypair();
         assert!(!verify_ed25519_raw(&other.public_key, msg, &sig));
+    }
+}
+
+#[cfg(test)]
+mod public_key_derivation_tests {
+    use super::*;
+
+    /// The derivation must agree with the generator, or a component that
+    /// derives and one that was handed a key would disagree about the same
+    /// identity.
+    #[test]
+    fn derivation_agrees_with_the_generator() {
+        for _ in 0..8 {
+            let kp = generate_ed25519_keypair();
+            assert_eq!(
+                public_key_from_private(&kp.private_key).unwrap().to_vec(),
+                kp.public_key
+            );
+        }
+    }
+
+    /// Deterministic: the same seed yields the same key every time.
+    #[test]
+    fn derivation_is_deterministic() {
+        let seed = [7u8; 32];
+        assert_eq!(
+            public_key_from_private(&seed).unwrap(),
+            public_key_from_private(&seed).unwrap()
+        );
+    }
+
+    /// A key of the wrong length is refused rather than padded.
+    #[test]
+    fn a_wrong_length_key_is_refused() {
+        for len in [0usize, 16, 31, 33, 64] {
+            assert!(
+                public_key_from_private(&vec![1u8; len]).is_err(),
+                "len {len}"
+            );
+        }
+    }
+
+    /// A signature made with the private key verifies under the derived
+    /// public key — the property every caller actually relies on.
+    #[test]
+    fn signatures_verify_under_the_derived_key() {
+        let kp = generate_ed25519_keypair();
+        let derived = public_key_from_private(&kp.private_key).unwrap();
+        let sig = sign_ed25519_raw(&kp.private_key, b"payload").unwrap();
+        assert!(verify_ed25519_raw(&derived, b"payload", &sig));
     }
 }

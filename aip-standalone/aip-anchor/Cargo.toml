@@ -1,0 +1,13 @@
+[package]
+name = "aip-anchor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "External witness for NEXORA log heads: countersigned receipts a rewritten log cannot reproduce"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-nexora = { path = "../aip-nexora" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

@@ -53,6 +53,10 @@ members = [
     "aip-standalone/aip-agent",
     "aip-standalone/aip-warrant",
     "aip-standalone/aip-nexora",
+    # The external witness (R11): countersigns NEXORA heads with a key the
+    # log operator does not hold, so a rewritten log cannot reproduce the
+    # receipts a reviewer already has.
+    "aip-standalone/aip-anchor",
     "aip-standalone/aip-containment",
     # ── the Linux autonomous edge reference (Skill 22) ─────────────────
     # Four members, and the split is the deliverable: the workload cannot

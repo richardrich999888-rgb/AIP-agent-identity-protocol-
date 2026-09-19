@@ -59,6 +59,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-anchor"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-nexora",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-approval"
 version = "0.4.0"
 dependencies = [

@@ -49,6 +49,55 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R11: anchoring against the operator)
+- **An external witness for NEXORA log heads (`aip-standalone/aip-anchor`).**
+  A Merkle commitment log establishes that a record is under a root and
+  that one root extends another. It does not establish that the root shown
+  today is the root that existed yesterday: whoever holds the NEXORA
+  signing key can build a shorter log, sign a head over it, and hand out
+  proofs that all check out. `aip_nexora::MemoryAnchor` already said as
+  much — "the shape of an anchor, not its independence".
+- **The mechanism is one negative property.** A witness on a second system
+  holds its own key, verifies each head under NEXORA anchors it was
+  provisioned with, requires a proven consistency step for every extension,
+  and countersigns into a `WitnessReceipt` chained to its own previous
+  receipt. An operator who rewrites the log can still sign the new head;
+  they cannot produce a receipt for it. Receipts already distributed are
+  therefore evidence the operator cannot revise.
+- **`aip_anchor::audit` is three-valued.** `Consistent`, `Diverged`
+  (truncation, same-size in-place rewrite, a divergent longer history, a
+  log that cannot prove extension, or the wrong log) or `NotEvaluated`.
+  A log with no receipts is `NotEvaluated::NoReceipts` and never a pass:
+  an unanchored log and an anchored one must not read alike, which is the
+  entire point. A log that declines to produce a consistency proof is
+  treated as divergent, so refusing to prove is not an escape.
+- **What the witness refuses to sign.** A head it cannot verify; a rollback;
+  a fork (two roots at one size); an extension with no consistency proof; a
+  head dated more than `DEFAULT_FUTURE_TOLERANCE_MS` (5 s) past its own
+  clock, because a witness cannot corroborate a time it has not reached.
+  It refuses at construction to hold the log's own key, or a public key
+  its private key does not derive. A refusal leaves the witness's state
+  untouched.
+- **Restart safety.** Resumable state is replayed from the receipt file
+  rather than stored beside it, so a restart cannot be used to slip a
+  rollback past a witness that has forgotten. Appends are `fsync`ed before
+  the receipt is reported. A corrupt line is reported with its line number,
+  never skipped — skipping would silently discard a countersignature.
+- **`aip-crypto` gains `public_key_from_private`.** So a component holding a
+  signing key is never told its own public key as a second argument: two
+  arguments can disagree, and the failure is silent in the worst way —
+  signing with one key while publishing another. Four unit tests.
+- Tests: `aip-anchor/tests/witness.rs` (19) and `tests/store.rs` (5). Every
+  rewrite test actually rewrites — rebuilding a log and signing it with the
+  real NEXORA key, so the attack is the one an operator can mount.
+- **Not covered by code, and stated as such:** that the witness is
+  independent. A witness on the same host, under the same administrator,
+  with its key in a file that administrator can read, is a second signature
+  by one party, and no flag can detect it.
+  `deploy/pilot/ANCHOR_WITNESS.md` states the four deployment conditions,
+  of which copying receipts outside the entity is the one that separates an
+  internal control from evidence a third party can rely on.
+
 ### Added (RBI requirements coverage — R14: the incident bundle)
 - **A bundle that states its own coverage gaps (`aip-standalone/aip-incident`).**
   CERT-In directs that a reportable incident be reported within six hours.
