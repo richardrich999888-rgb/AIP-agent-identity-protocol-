@@ -49,6 +49,35 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R10: verdicts and ledgers the RE serves)
+- **An inspector now has an endpoint to ask.** `POST /v1/verdicts`,
+  `GET /v1/verdicts/{id}`, `POST /v1/ledgers` and
+  `GET /v1/agents/{id}/ledger`, all tenant-scoped from the caller's API key.
+- **Verify before storing.** A document is checked under anchors the caller
+  supplies, and refused if it does not verify. Storing an unverified one
+  would make the service a laundry: a forged verdict would acquire the
+  bank's endpoint as its provenance. A submission with no anchors is
+  likewise refused, because it cannot be checked at all.
+- **The service adds no signature and re-serialises nothing.** Bytes are
+  stored and returned verbatim, so an auditor pipes a response into the
+  producing crate's own verifier with their own keys and gets the same
+  answer — which is the only reason to believe the service. A response
+  re-serialised from parsed structures would verify only if this crate's
+  serialiser happened to agree with the producer's.
+- **Ids are document digests**, so re-filing the same verdict is one row
+  rather than a duplicate, and a cross-tenant id collision is refused.
+- A cross-tenant read returns 404, byte-identical to not-found: a
+  distinguishable 403 would confirm that an id exists under another tenant.
+- Stored in PostgreSQL in `signed_artifacts`, created with the evidence
+  schema and therefore covered by the same `hardening.sql` grants and row
+  policy — an artifact tier with weaker storage controls than the evidence
+  it rests on is the place that answer goes to be edited. It shares the
+  evidence connection pool rather than opening a second one.
+- **Not done, stated:** a `Reconciliation` names no agent, so verdicts are
+  not indexed per agent; attribution is the reconciler's finding carried in
+  evidence references. The per-agent route is the access ledger's, which does
+  name one.
+
 ### Added (RBI requirements coverage — R12, R13: supply chain and storage)
 - **Release artefacts are signed (R12).** `release.yml` signs each archive
   with keyless Sigstore and then **verifies the signature it just produced**,

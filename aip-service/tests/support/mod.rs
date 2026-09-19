@@ -305,6 +305,7 @@ pub fn app_state(
         revocation_log_path: log_path.clone(),
         revocation_set: airon_aip::revocation::load_revocation_set(&log_path),
         store,
+        artifacts: std::sync::Arc::new(airon_aip::artifacts::JsonlArtifactStore::in_memory()),
         api_keys,
         signer: std::sync::Arc::new(kp),
         managed_signing,

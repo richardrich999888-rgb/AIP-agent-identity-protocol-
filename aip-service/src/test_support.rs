@@ -51,6 +51,7 @@ pub fn test_app_state_with(
         revocation_log_path: log_path.clone(),
         revocation_set: crate::revocation::load_revocation_set(&log_path),
         store,
+        artifacts: Arc::new(crate::artifacts::JsonlArtifactStore::in_memory()),
         api_keys,
         signer: Arc::new(kp),
         managed_signing,

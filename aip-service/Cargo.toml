@@ -26,6 +26,8 @@ aip-types    = { path = "../aip-standalone/aip-types" }
 aip-crypto   = { path = "../aip-standalone/aip-crypto" }
 aip-core     = { path = "../aip-standalone/aip-core" }
 aip-protocol = { path = "../aip-standalone/aip-protocol" }
+aip-reconcile = { path = "../aip-standalone/aip-reconcile" }
+aip-ledger   = { path = "../aip-standalone/aip-ledger" }
 
 axum               = "0.7"
 tokio              = { version = "1", features = ["full"] }
@@ -58,4 +60,9 @@ deadpool-postgres  = { version = "0.14", optional = true }
 [dev-dependencies]
 # In-process router testing (oneshot).
 tower = { version = "0.5", features = ["util"] }
+# Real documents from the real producing crates, so the verdict-API tests
+# verify what an auditor would verify rather than a stand-in.
+aip-authorize = { path = "../aip-standalone/aip-authorize" }
+aip-observe   = { path = "../aip-standalone/aip-observe" }
+aip-registry  = { path = "../aip-standalone/aip-registry" }
 

@@ -47,6 +47,25 @@ CREATE TABLE IF NOT EXISTS authority_edges (
     relation   TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_edges_tenant ON authority_edges(tenant_id);
+
+-- Signed verdicts and access ledgers (R10). Created with the evidence
+-- schema, so `deploy/sql/hardening.sql` covers it under the same grants and
+-- the same row-level policy: an artifact tier with weaker storage controls
+-- than the evidence tier would be the place an inspector's answer went to be
+-- edited.
+CREATE TABLE IF NOT EXISTS signed_artifacts (
+    id            TEXT   NOT NULL,
+    kind          TEXT   NOT NULL,
+    tenant_id     TEXT   NOT NULL,
+    agent_id      TEXT,
+    from_ms       BIGINT,
+    to_ms         BIGINT,
+    stored_at_ms  BIGINT NOT NULL,
+    body          TEXT   NOT NULL,
+    PRIMARY KEY (kind, id)
+);
+CREATE INDEX IF NOT EXISTS idx_artifacts_tenant ON signed_artifacts(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_artifacts_agent  ON signed_artifacts(tenant_id, kind, agent_id);
 "#;
 
 fn be<E: std::fmt::Display>(e: E) -> StoreError {
@@ -72,6 +91,13 @@ impl PostgresEvidenceStore {
         let store = Self { pool };
         store.init_schema().await?;
         Ok(store)
+    }
+
+    /// The connection pool, so the artifact store (R10) shares it rather
+    /// than opening a second one: one pool per process keeps the tenant-GUC
+    /// discipline and the connection limits identical for both tiers.
+    pub fn pool(&self) -> Pool {
+        self.pool.clone()
     }
 
     async fn client(&self) -> Result<Object, StoreError> {
@@ -113,7 +139,12 @@ impl PostgresEvidenceStore {
     /// turns a provisioning mistake into a runtime one.
     async fn require_provisioned_schema(&self) -> Result<(), StoreError> {
         let c = self.client().await?;
-        for table in ["evidence_packets", "authority_nodes", "authority_edges"] {
+        for table in [
+            "evidence_packets",
+            "authority_nodes",
+            "authority_edges",
+            "signed_artifacts",
+        ] {
             let row = c
                 .query_one("SELECT to_regclass($1) IS NOT NULL", &[&table])
                 .await

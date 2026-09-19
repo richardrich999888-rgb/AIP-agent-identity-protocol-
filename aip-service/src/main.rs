@@ -17,7 +17,57 @@ use tracing_subscriber::{fmt, EnvFilter};
 use airon_aip::store::{EvidenceStore, JsonlEvidenceStore};
 use airon_aip::{auth, keys::ServiceKey, revocation, router, AppState, ManagedSigning};
 
-async fn build_store() -> Arc<dyn EvidenceStore> {
+/// The evidence store's connection pool, when there is one.
+///
+/// A unit on builds without the `postgres` feature, so the wiring below is
+/// one code path rather than two.
+#[cfg(feature = "postgres")]
+type EvidencePool = Option<deadpool_postgres::Pool>;
+/// A build without the feature has no pool to share, and the artifact tier
+/// falls through to its file backend.
+#[cfg(not(feature = "postgres"))]
+type EvidencePool = Option<std::convert::Infallible>;
+
+/// The verdict and access-ledger store (R10).
+///
+/// JSONL by default, beside the evidence vault. A deployment using the
+/// PostgreSQL evidence backend should point this at the database too; that
+/// wiring shares the evidence pool and is the next step for this tier, so
+/// the default is stated here rather than implied.
+fn build_artifact_store(
+    evidence_pool: EvidencePool,
+) -> Arc<dyn airon_aip::artifacts::ArtifactStore> {
+    // When the evidence tier is on PostgreSQL the artifact tier must be too:
+    // an inspector's answer stored somewhere with weaker controls than the
+    // evidence it rests on is the place that answer goes to be edited. The
+    // pool is shared rather than duplicated, so both tiers observe the same
+    // connection limits and the same tenant-GUC discipline.
+    #[cfg(feature = "postgres")]
+    if let Some(pool) = evidence_pool {
+        tracing::info!("verdict/ledger store: postgres (sharing the evidence pool)");
+        return Arc::new(airon_aip::artifacts::pg::PostgresArtifactStore::with_pool(
+            pool,
+        ));
+    }
+    let _ = evidence_pool;
+    let path = std::env::var("AIP_ARTIFACT_PATH")
+        .unwrap_or_else(|_| "/var/lib/aip/artifacts.jsonl".to_string());
+    match airon_aip::artifacts::JsonlArtifactStore::open(&path) {
+        Ok(s) => {
+            tracing::info!(path, "verdict/ledger store: jsonl");
+            Arc::new(s)
+        }
+        Err(e) => {
+            // In memory rather than refusing to start: this tier is additive,
+            // and an unwritable path must not take down evidence ingest. It
+            // is logged at warn because anything filed here is lost on exit.
+            tracing::warn!(path, error = %e, "verdict/ledger store unavailable; using memory");
+            Arc::new(airon_aip::artifacts::JsonlArtifactStore::in_memory())
+        }
+    }
+}
+
+async fn build_store() -> (Arc<dyn EvidenceStore>, EvidencePool) {
     let backend = std::env::var("AIP_STORE_BACKEND").unwrap_or_else(|_| "jsonl".to_owned());
     match backend.as_str() {
         "postgres" => {
@@ -29,7 +79,8 @@ async fn build_store() -> Arc<dyn EvidenceStore> {
                     .await
                     .expect("failed to connect to PostgreSQL");
                 tracing::info!("evidence store backend: postgres");
-                Arc::new(store)
+                let pool = store.pool();
+                (Arc::new(store) as Arc<dyn EvidenceStore>, Some(pool))
             }
             #[cfg(not(feature = "postgres"))]
             {
@@ -43,7 +94,10 @@ async fn build_store() -> Arc<dyn EvidenceStore> {
             let vault_path = std::env::var("AIP_VAULT_PATH")
                 .unwrap_or_else(|_| "/var/lib/aip/evidence.jsonl".to_owned());
             tracing::info!(path = %vault_path, "evidence store backend: jsonl");
-            Arc::new(JsonlEvidenceStore::load(&vault_path))
+            (
+                Arc::new(JsonlEvidenceStore::load(&vault_path)) as Arc<dyn EvidenceStore>,
+                None,
+            )
         }
     }
 }
@@ -120,7 +174,8 @@ async fn main() {
     let decoding_key = kp.decoding_key();
 
     let rev_set = revocation::load_revocation_set(&revocation_log_path);
-    let store = build_store().await;
+    let (store, evidence_pool) = build_store().await;
+    let artifacts = build_artifact_store(evidence_pool);
     let api_keys = auth::ApiKeyStore::load(&api_keys_path);
     if api_keys.is_empty() {
         tracing::warn!(
@@ -162,6 +217,10 @@ async fn main() {
         revocation_log_path,
         revocation_set: rev_set,
         store,
+        // Verdicts and access ledgers (R10). The path defaults beside the
+        // evidence vault; a deployment with the PostgreSQL backend points
+        // both at the database instead.
+        artifacts,
         api_keys,
         signer: Arc::new(kp),
         managed_signing,

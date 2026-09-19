@@ -2,6 +2,7 @@
 //! `aip-migrate` tool. The deployable surface is a thin layer over
 //! `aip-core` + `aip-protocol`.
 
+pub mod artifacts;
 pub mod auth;
 pub mod authority;
 pub mod evidence;
@@ -11,6 +12,7 @@ pub mod models;
 pub mod revocation;
 pub mod store;
 pub mod tokens;
+pub mod verdicts;
 pub mod wellknown;
 
 // Also compiled for the `postgres` feature: the storage-control integration
@@ -45,6 +47,12 @@ pub struct AppState {
     pub revocation_log_path: String,
     /// In-memory revocation set.
     pub revocation_set: RevocationSet,
+    /// Signed verdicts and access ledgers (R10). A separate store from the
+    /// evidence one because the documents are separate: an evidence packet
+    /// is the agent's account, a verdict is the reconciler's, and a service
+    /// that filed them together would invite a reader to treat one as
+    /// vouching for the other.
+    pub artifacts: Arc<dyn artifacts::ArtifactStore>,
     /// Evidence store (JSONL or PostgreSQL) — the accountability system of
     /// record. Handlers depend only on the trait, never the backend.
     pub store: Arc<dyn EvidenceStore>,
@@ -146,6 +154,13 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/v1/evidence/:id", get(evidence::get_evidence))
         .route("/v1/evidence/:id/export", get(evidence::export_evidence))
         .route("/v1/authority/:id", get(evidence::get_authority))
+        // Verdicts and access ledgers (R10). Every one is verified under the
+        // caller's anchors before it is stored, and returned verbatim, so
+        // the answer never depends on trusting this service.
+        .route("/v1/verdicts", post(verdicts::submit_verdict))
+        .route("/v1/verdicts/:id", get(verdicts::get_verdict))
+        .route("/v1/ledgers", post(verdicts::submit_ledger))
+        .route("/v1/agents/:agent_id/ledger", get(verdicts::agent_ledger))
         // Well-known discovery
         .route(
             "/.well-known/aip-configuration",

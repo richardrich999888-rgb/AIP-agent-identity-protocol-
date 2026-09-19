@@ -589,9 +589,14 @@ dependencies = [
 name = "airon-aip"
 version = "0.2.0"
 dependencies = [
+ "aip-authorize",
  "aip-core",
  "aip-crypto",
+ "aip-ledger",
+ "aip-observe",
  "aip-protocol",
+ "aip-reconcile",
+ "aip-registry",
  "aip-types",
  "async-trait",
  "axum",
