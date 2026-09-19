@@ -1,0 +1,21 @@
+[package]
+name = "aip-approval"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Sniffer Dog 3.0 approval tier: sealing what was shown to a human approver and comparing it, arithmetically, against the sealed intent the decision point signed"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+# The comparison is against a *verified* ExpectedExecution, not a supplied
+# struct — otherwise the arithmetic is over bytes nobody checked.
+aip-authorize = { path = "../aip-authorize" }
+serde = { version = "1.0", features = ["derive"] }
+
+# Deliberately absent (ADR-015 §5.1, ADR-016): aip-observe, aip-observation,
+# aip-reconcile, aip-warrant, aip-containment. This tier produces a comparison,
+# never a verdict, and a test reads this manifest to keep it that way.
+
+[dev-dependencies]
+serde_json = "1.0"

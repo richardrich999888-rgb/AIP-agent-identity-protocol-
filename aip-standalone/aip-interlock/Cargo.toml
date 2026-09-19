@@ -1,0 +1,19 @@
+[package]
+name = "aip-interlock"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Sniffer Dog 3.0 interlock tier: the signed dead-man heartbeat, the actuator watchdog state machine, and the safe-state contract an interlock must hold before it may arm"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+# The heartbeat is withheld on any non-Active observer state. That mapping is
+# exhaustive over `ObserverState`, so a new state cannot silently keep the
+# actuator armed. Nothing flows the other way: this crate never feeds the
+# observation path (ADR-015 §5.1).
+aip-observe = { path = "../aip-observe" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0"

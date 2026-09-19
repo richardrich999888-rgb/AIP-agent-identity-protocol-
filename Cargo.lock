@@ -59,6 +59,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-approval"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-crypto",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-authorize"
 version = "0.4.0"
 dependencies = [
@@ -207,6 +218,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-enforce"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-types",
+ "libc",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-execution"
 version = "0.4.0"
 dependencies = [
@@ -214,6 +236,17 @@ dependencies = [
  "aip-core",
  "aip-crypto",
  "aip-system",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "aip-interlock"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-observe",
  "aip-types",
  "serde",
  "serde_json",
@@ -904,9 +937,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-utils"
-version = "0.8.23"
+version = "0.8.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a31eee39dddec8330830986fcd7625edb5a24ec90ea038215273bbc3adb08ac6"
+checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
 
 [[package]]
 name = "crypto-common"

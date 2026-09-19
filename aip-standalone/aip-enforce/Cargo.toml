@@ -1,0 +1,20 @@
+[package]
+name = "aip-enforce"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Sniffer Dog 3.0 enforcement tier: seccomp user-notify supervision under a signed, counter-bound capability epoch — a separate authority from observation (ADR-015)"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+serde = { version = "1.0", features = ["derive"] }
+# seccomp(2), pidfd_open/pidfd_getfd, ioctl, fork/execv. No eBPF loader.
+libc = "0.2"
+
+# Deliberately absent (ADR-015 §5.1): aip-observe, aip-observation,
+# aip-reconcile. The enforcer is a claimant, not an observer, and cannot be
+# allowed to name the types it would need in order to become one.
+
+[dev-dependencies]
+serde_json = "1.0"
