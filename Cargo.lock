@@ -293,6 +293,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-incident"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-crypto",
+ "aip-ledger",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-registry",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-industrial"
 version = "0.4.0"
 dependencies = [

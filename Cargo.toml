@@ -39,6 +39,9 @@ members = [
     "aip-standalone/aip-authorize",
     "aip-standalone/aip-registry",
     "aip-standalone/aip-ledger",
+    # The incident evidence bundle (R14): assembles signed documents for an
+    # agent and window and states the coverage it does not have.
+    "aip-standalone/aip-incident",
     "aip-standalone/aip-observe",
     "aip-standalone/aip-airi",
     "aip-standalone/aip-system",

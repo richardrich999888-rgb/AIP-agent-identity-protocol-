@@ -49,6 +49,47 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R14: the incident bundle)
+- **A bundle that states its own coverage gaps (`aip-standalone/aip-incident`).**
+  CERT-In directs that a reportable incident be reported within six hours.
+  Six hours is not enough time to assemble evidence by hand, and hand
+  assembly is where a window quietly acquires a hole nobody can later
+  distinguish from an absence of activity. `aip-incident export --agent
+  --from --to` assembles one signed bundle from documents that are already
+  signed — attested batches, reconciliation verdicts, access ledgers, sensor
+  health records, expectations — and derives `CoverageSummary::gaps` by
+  subtracting the intervals the enclosed batches actually claim from the
+  window that was asked for. Intervals are closed at both ends, the
+  convention `CoverageWindow::contains` already documents. The summary is
+  computed, never supplied by the caller.
+- **Two independent defences on the coverage claim.** The summary sits
+  inside the manifest signature, so it cannot be edited without breaking
+  it; and `verify` recomputes the summary from the enclosed batches and
+  compares. The second is what survives an exporter key held by whoever
+  wants the bundle to look complete.
+- **The exporter's signature is scoped in the artefact itself.** It attests
+  that this set of documents was assembled by this exporter at this time and
+  nothing else; every enclosed document keeps its own signature and must be
+  verified under its own anchors. `verify` prints that sentence so a reader
+  cannot mistake bundle assembly for document verification.
+- **The `aip-incident` command reads only files.** No collector call, no
+  service call: an incident is the wrong moment to discover a network path
+  is down, and a bundle assembled from files is one an operator can
+  reproduce. The bundle identifier is derived — SHA-256 over the agent, the
+  window, the export instant and every document digest, truncated to 128
+  bits — rather than random, so re-running an export demonstrably yields the
+  same artefact.
+- Tests: `aip-incident/tests/bundle.rs` (13) over the library and
+  `tests/cli.rs` (9) against the compiled binary. A hole between two batches
+  is stated with its bounds; a window with no batches reads as wholly
+  uncovered; a bundle re-signed with its gaps erased fails recomputation; a
+  document removed, altered or undeclared is detected; an untrusted or
+  unanchored exporter exits non-zero; a malformed invocation writes no
+  bundle at all.
+- **Not covered:** the reporting path itself — who files, to whom, on which
+  form, and the six-hour clock — is the regulated entity's process. This
+  crate produces the evidence that process attaches.
+
 ### Added (RBI requirements coverage — R17, R18, R20: what a reviewer reads)
 - **A regulatory control map that cannot claim what it cannot show (R18).**
   `aip_conformance::regulatory`: 25 rows over seven instruments (IT

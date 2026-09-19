@@ -1,0 +1,19 @@
+[package]
+name = "aip-incident"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Signed incident evidence bundle for an agent and window, stating its own coverage gaps"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-observe = { path = "../aip-observe" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+aip-reconcile = { path = "../aip-reconcile" }
+aip-ledger = { path = "../aip-ledger" }
+aip-registry = { path = "../aip-registry" }
+aip-authorize = { path = "../aip-authorize" }

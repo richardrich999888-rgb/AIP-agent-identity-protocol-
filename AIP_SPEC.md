@@ -177,6 +177,55 @@ revocation cannot un-revoke anything.
 A list does **not** prove that the tokens it omits are live. Completeness is
 a claim the issuer makes by signing, bounded by the window.
 
+### 4.5 IncidentBundle (normative)
+
+A signed container assembled after the fact, by which an operator hands a
+reviewer one artefact for one agent and one window. Domain tag
+`GHOST/IncidentBundle/v1`; `INCIDENT_BUNDLE_VERSION = 1`. Canonical encoding
+is the length-prefixed encoder of §4.1.
+
+The exporter's signature attests **exactly one proposition**: this set of
+documents was assembled by this exporter at this time. It does not make any
+enclosed document more true. Every enclosed document retains its own
+signature and MUST be verified under its own trust anchors; a verifier MUST
+NOT treat bundle verification as document verification, and an implementation
+that reports a verified bundle MUST state this distinction.
+
+Fields inside the manifest signature:
+
+| Field | Meaning |
+|---|---|
+| `bundle_id` | Names this assembly. It authenticates nothing; the signature does. |
+| `agent_id`, `window` | What the bundle is about. |
+| `exporter_id`, `key_version` | Mapped by the verifier to an anchor it was provisioned with. |
+| `files` | `(name, sha256, kind)` per document, sorted by name and unique. A document cannot be added, removed or altered after assembly without breaking the signature. |
+| `coverage` | §4.5.1. |
+
+#### 4.5.1 Coverage is computed, never asserted
+
+`coverage` MUST be derived from the enclosed attested batches and MUST NOT
+be supplied by the caller. `covered` is the batches' claimed intervals,
+clipped to the requested window and merged; `gaps` is the complement of
+`covered` inside that window; `uncovered_ms` is the total length of `gaps`.
+Intervals are closed at both ends, consistent with `CoverageWindow`.
+
+An empty `gaps` means the enclosed batches claim the whole window. It does
+**not** mean nothing happened in the window, and an implementation MUST NOT
+present it as such.
+
+A verifier MUST recompute `coverage` from the enclosed batches and MUST
+refuse a bundle whose recomputed summary differs from the signed one. The
+signature and the recomputation are independent defences: the first
+establishes that the exporter stated these gaps, the second that these gaps
+are the ones the evidence supports. Only the second survives an exporter key
+in the hands of a party that wants the bundle to look complete.
+
+`batches_with_integrity_findings` MUST count enclosed batches whose observer
+reported a per-mechanism integrity problem: an interval covered by a blinded
+sensor is covered in name only. `dropped_events` MUST be absent where any
+enclosed batch reported no count, because a sum over some batches would be
+read as a total and would understate the loss.
+
 ## 5. Verification rules (normative)
 
 A verifier evaluates **all** rules (no short-circuit) and reports each:
