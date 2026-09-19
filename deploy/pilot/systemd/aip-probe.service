@@ -20,18 +20,23 @@ ExecStart=/usr/local/bin/aip-probe
 Restart=on-failure
 RestartSec=2
 
-# Least privilege: the perf tracepoints need CAP_PERFMON. Add CAP_SYS_ADMIN /
-# CAP_NET_RAW only when Phase 1.x adds fanotify / AF_PACKET sensors. Trim this
-# to what the configured AIP_PROBE_SENSORS actually require.
+# Least privilege: the perf tracepoints need CAP_PERFMON; the netlink
+# process-event connector (sensor `connector`) needs CAP_NET_ADMIN in the
+# initial network namespace. The connector is what makes the pilot's coverage
+# gate-independent — without it no non-occurrence claim can be licensed — so
+# both are granted by default. Add CAP_SYS_ADMIN / CAP_NET_RAW only when Phase
+# 1.x adds fanotify / AF_PACKET sensors. Trim this to what the configured
+# AIP_PROBE_SENSORS actually require.
 NoNewPrivileges=yes
-AmbientCapabilities=CAP_PERFMON
-CapabilityBoundingSet=CAP_PERFMON
+AmbientCapabilities=CAP_PERFMON CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_PERFMON CAP_NET_ADMIN
 ProtectSystem=strict
 ProtectHome=yes
 PrivateTmp=yes
 # The probe writes only its transport key file; grant just that path.
 ReadWritePaths=/var/lib/aip-probe
-RestrictAddressFamilies=AF_INET AF_INET6
+# AF_NETLINK is the connector's socket family.
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK
 LockPersonality=yes
 
 [Install]

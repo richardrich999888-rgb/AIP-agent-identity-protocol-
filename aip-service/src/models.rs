@@ -2,9 +2,6 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::capability::CapabilityScope;
-use crate::delegation::DelegationToken;
-
 // ── agent_type enum ───────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -85,43 +82,6 @@ pub struct HealthResponse {
     pub key_fingerprint: String,
 }
 
-// ── POST /v1/identity/delegate ────────────────────────────────────────────────
-
-#[derive(Debug, Deserialize)]
-pub struct DelegateRequest {
-    /// The parent AIP JWT (or a delegation_id string for sub-delegation).
-    pub parent_token: String,
-    /// UUID v4 of the agent being delegated to.
-    pub delegatee_id: String,
-    /// Requested capability scope (must be subset of parent scope).
-    pub scope: CapabilityScope,
-    /// Token lifetime in seconds. Range: 1..=86400.
-    pub ttl_seconds: u64,
-}
-
-#[derive(Debug, Serialize)]
-pub struct DelegateResponse {
-    pub delegation: DelegationToken,
-}
-
-// ── POST /v1/identity/verify-chain ────────────────────────────────────────────
-
-#[derive(Debug, Deserialize)]
-pub struct VerifyChainRequest {
-    /// The root AIP JWT at the head of the chain.
-    pub root_token: String,
-    /// Ordered list of delegation_ids from root to leaf (depth 1 first).
-    pub delegation_ids: Vec<String>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct VerifyChainResponse {
-    pub valid: bool,
-    pub effective_scope: Option<CapabilityScope>,
-    pub chain_depth: u32,
-    pub reason: Option<String>,
-}
-
 // ── POST /v1/identity/revoke ──────────────────────────────────────────────────
 
 #[derive(Debug, Deserialize)]
@@ -132,7 +92,10 @@ pub struct RevokeRequest {
     pub revoked_by: String,
     /// Human-readable reason.
     pub reason: String,
-    /// If true, cascade-revoke all delegations that descend from this JTI.
+    /// Accepted for wire compatibility and **refused when true**. Cascade
+    /// revocation walked the service's unsigned delegation log, which has
+    /// been removed; descendants of a JTI are now expressed by signed
+    /// `aip-core` delegation chains, which the caller revokes explicitly.
     #[serde(default)]
     pub cascade: bool,
 }
@@ -148,6 +111,9 @@ pub struct RevokeResponse {
 #[derive(Debug, Serialize)]
 pub struct RevocationStatusResponse {
     pub jti: String,
+    /// Whether the JTI is revoked **within the caller's tenant**. A JTI is a
+    /// tenant-scoped fact: another tenant's revocation of the same string is
+    /// neither visible here nor reported.
     pub revoked: bool,
 }
 

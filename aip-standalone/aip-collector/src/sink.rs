@@ -4,7 +4,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use aip_observe::{CollectorRuntime, ObservationBatch};
+use aip_observe::{CollectorRuntime, MechanismIntegrity, ObservationBatch, SourceMechanism};
 use aip_transport::{BatchAckData, BatchSink, SinkError};
 
 /// Bridges [`aip_transport`]'s [`BatchSink`] to a shared [`CollectorRuntime`].
@@ -45,6 +45,31 @@ impl BatchSink for RuntimeSink {
             .runtime
             .lock()
             .map_err(|_| SinkError("collector runtime lock poisoned".into()))?;
+
+        // Completeness of the probe's integrity reports. `aip-probe` reports
+        // a finding for every perf-tracepoint sensor it has open, every
+        // cycle. A batch that declares such a sensor active and carries no
+        // finding for it is therefore a probe that did not check — an older
+        // build, a misconfiguration, or a host-side party editing the batch
+        // before it left — and the collector cannot tell which. It fails
+        // closed: the missing mechanism is noted `Unverifiable`, which the
+        // signer treats exactly like a found gate, so the signed state is
+        // `IntegrityUnknown` until a batch arrives that does report it. The
+        // rule lives here, at the daemon boundary, because it is a property
+        // of this deployment's probe, not of every batch producer.
+        for m in batch
+            .active_mechanisms
+            .iter()
+            .copied()
+            .filter(SourceMechanism::shares_perf_tracepoint_gate)
+        {
+            let reported = batch.mechanism_integrity.iter().any(|r| r.mechanism == m);
+            if !reported {
+                rt.signer_mut()
+                    .note_mechanism_integrity(m, MechanismIntegrity::Unverifiable);
+            }
+        }
+
         let attested = rt
             .attest(batch)
             .map_err(|e| SinkError(format!("attest refused: {e:?}")))?;
@@ -59,7 +84,9 @@ impl BatchSink for RuntimeSink {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aip_observe::{CollectorKey, CollectorStore, ContinuityPolicy, ProcfsProbe, Started};
+    use aip_observe::{
+        CollectorKey, CollectorStore, ContinuityPolicy, ObserverState, ProcfsProbe, Started,
+    };
 
     fn dev_runtime(observer_id: &str, tag: &str) -> Arc<Mutex<CollectorRuntime>> {
         let dir = std::env::temp_dir().join(format!(
@@ -109,6 +136,121 @@ mod tests {
             .accept_batch("probe-authed", 1, &bytes)
             .expect_err("a probe_id mismatch must be refused");
         assert!(err.0.contains("does not match"), "{}", err.0);
+    }
+
+    fn batch_with(
+        probe_id: &str,
+        declare: &[SourceMechanism],
+        reports: &[(SourceMechanism, MechanismIntegrity)],
+    ) -> Vec<u8> {
+        let mut probe = ProcfsProbe::new(probe_id);
+        for m in declare {
+            probe.declare_source(*m);
+        }
+        for (m, i) in reports {
+            probe.declare_mechanism_integrity(*m, *i);
+        }
+        serde_json::to_vec(&probe.batch([1u8; 16], 100, 200, vec![])).unwrap()
+    }
+
+    fn state_of(rt: &Arc<Mutex<CollectorRuntime>>) -> ObserverState {
+        rt.lock().unwrap().state()
+    }
+
+    // The finding the two-host deployment could not previously express: the
+    // probe on the agent host saw a foreign eBPF program on a sampled
+    // tracepoint; the collector on another host must sign IntegrityUnknown.
+    #[test]
+    fn a_gate_reported_by_the_probe_makes_the_off_host_state_integrity_unknown() {
+        let rt = dev_runtime("obs", "gate");
+        let mut sink = RuntimeSink::new(Arc::clone(&rt));
+        let bytes = batch_with(
+            "probe-1",
+            &[SourceMechanism::SchedTracepoint],
+            &[(
+                SourceMechanism::SchedTracepoint,
+                MechanismIntegrity::ForeignTracepointGate {
+                    foreign_programs: 1,
+                },
+            )],
+        );
+        sink.accept_batch("probe-1", 1, &bytes).unwrap();
+        assert_eq!(state_of(&rt), ObserverState::IntegrityUnknown);
+        // The finding is inside the attested bytes: the signed health says so.
+        let h = rt.lock().unwrap().health(300).unwrap();
+        assert_eq!(h.health.state, ObserverState::IntegrityUnknown);
+        assert_eq!(h.health.attested_coverage, None);
+    }
+
+    #[test]
+    fn a_verified_report_for_every_open_sensor_keeps_the_state_active() {
+        let rt = dev_runtime("obs", "verified");
+        let mut sink = RuntimeSink::new(Arc::clone(&rt));
+        let bytes = batch_with(
+            "probe-1",
+            &[SourceMechanism::SchedTracepoint],
+            &[(
+                SourceMechanism::SchedTracepoint,
+                MechanismIntegrity::Verified,
+            )],
+        );
+        sink.accept_batch("probe-1", 1, &bytes).unwrap();
+        assert_ne!(state_of(&rt), ObserverState::IntegrityUnknown);
+    }
+
+    // A probe that declares a gate-able sensor active and says nothing about
+    // its integrity did not check; the daemon fails closed rather than sign a
+    // false Active.
+    #[test]
+    fn a_missing_report_for_an_active_tracepoint_sensor_fails_closed() {
+        let rt = dev_runtime("obs", "omitted");
+        let mut sink = RuntimeSink::new(Arc::clone(&rt));
+        let bytes = batch_with("probe-1", &[SourceMechanism::SchedTracepoint], &[]);
+        sink.accept_batch("probe-1", 1, &bytes).unwrap();
+        assert_eq!(state_of(&rt), ObserverState::IntegrityUnknown);
+    }
+
+    // The gate-independent sources do not share the tracepoint submission
+    // gate; a batch built from them alone owes no integrity report.
+    #[test]
+    fn a_batch_without_tracepoint_sensors_owes_no_report() {
+        let rt = dev_runtime("obs", "no-tracepoint");
+        let mut sink = RuntimeSink::new(Arc::clone(&rt));
+        let bytes = batch_with("probe-1", &[SourceMechanism::ProcConnector], &[]);
+        sink.accept_batch("probe-1", 1, &bytes).unwrap();
+        assert_ne!(state_of(&rt), ObserverState::IntegrityUnknown);
+    }
+
+    // A Verified report for a sensor the batch does not declare active cannot
+    // clear a slot: the probe would otherwise clear a gate finding for a
+    // sensor it stopped running.
+    #[test]
+    fn a_verified_report_for_an_inactive_sensor_does_not_clear_a_gate() {
+        let rt = dev_runtime("obs", "stale-clear");
+        let mut sink = RuntimeSink::new(Arc::clone(&rt));
+        let gated = batch_with(
+            "probe-1",
+            &[SourceMechanism::SockStateTracepoint],
+            &[(
+                SourceMechanism::SockStateTracepoint,
+                MechanismIntegrity::ForeignTracepointGate {
+                    foreign_programs: 2,
+                },
+            )],
+        );
+        sink.accept_batch("probe-1", 1, &gated).unwrap();
+        assert_eq!(state_of(&rt), ObserverState::IntegrityUnknown);
+        let clear_without_running = batch_with(
+            "probe-1",
+            &[],
+            &[(
+                SourceMechanism::SockStateTracepoint,
+                MechanismIntegrity::Verified,
+            )],
+        );
+        sink.accept_batch("probe-1", 2, &clear_without_running)
+            .unwrap();
+        assert_eq!(state_of(&rt), ObserverState::IntegrityUnknown);
     }
 
     #[test]

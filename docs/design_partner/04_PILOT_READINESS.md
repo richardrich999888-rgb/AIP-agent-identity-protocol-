@@ -13,7 +13,7 @@ is hardened (see §4).
 |---|---|
 | Ed25519 sign/verify, SHA-256, Base58 AIP-ID + checksum | `aip-crypto`; tests in-crate |
 | EvidencePacket canonical encoding + deterministic hashing | `aip-protocol::evidence_packet` |
-| 14-rule verification engine; derived trust floor; tamper classification | `aip-protocol::verification`; 17 integration tests where every tamper flips a named rule |
+| 18-rule verification engine (three-state: PASS / FAIL / NOT EVALUATED); derived trust floor; tamper classification | `aip-protocol::verification`; 17 integration tests where every tamper flips a named rule |
 | Delegation lattice: per-hop signatures, depth limits, scope attenuation (MEET) | `aip-core::delegation`/`capability` |
 | Offline / independent verification (pure function of packet + keys) | `verify_packet`; loan example runs with no network |
 | Test status | `cargo test --workspace` → 214 pass, 2 release-only ignored |

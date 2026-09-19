@@ -267,6 +267,7 @@ fn raw_batch(
             SourceMechanism::ProcNetTable,
             SourceMechanism::SockStateTracepoint,
         ]),
+        mechanism_integrity: Vec::new(),
         claimed_from_ms: from,
         claimed_to_ms: to,
         observations: obs,

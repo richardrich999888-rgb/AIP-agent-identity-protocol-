@@ -648,7 +648,6 @@ pub struct AipConfiguration {
     pub issuer: String,
     pub jwks_uri: String,
     pub revocation_uri: String,
-    pub delegation_verify_uri: String,
     pub supported_algorithms: Vec<String>,
     pub token_format: String,
     pub version: String,

@@ -37,10 +37,10 @@ Honest as of the current commit; see `aip-service/MIGRATION_NOTES.md` and
 
 | Item | Status | Notes |
 |---|---|---|
-| Container image | ✅ | `deploy/docker/Dockerfile` (workspace-aware) |
-| Compose topology | ✅ | `docker-compose.yml` (service + postgres/minio placeholders) |
+| Container image | 🟡 | `deploy/docker/Dockerfile` builds from the single root workspace (fixed 2026-09; it previously referenced a deleted manifest). **Not built or smoke-tested in CI.** |
+| Compose topology | 🟡 | `docker-compose.yml` (service + postgres; minio placeholder). Requires `AIP_KEY_PASSPHRASE` (the service refuses an unwrapped key outside `AIP_CUSTODY_POLICY=development`); compose now fails fast if it is unset. **No CI smoke test.** |
 | CI (fmt/clippy/test/audit/deny) | ✅ | `.github/workflows/ci.yml` |
-| Release pipeline (signed binaries) | ✅ | `.github/workflows/release.yml`, per-target SHA256SUMS |
+| Release pipeline | 🟡 | `.github/workflows/release.yml` ships `aip-service`, `aip-verify`, `nexora-verify` with per-target `SHA256SUMS`. **Checksummed, not signed** — no cosign/sigstore/GPG. |
 | **Metrics / monitoring** | ⬜ | structured `tracing` logs only; no metrics/SIEM export |
 | Config via env | ✅ | documented in compose + Dockerfile |
 | Runbook | ⬜ | not written |
@@ -63,7 +63,7 @@ Honest as of the current commit; see `aip-service/MIGRATION_NOTES.md` and
 | Tamper detection | ✅ | hash + agent signature; catches hash-recomputing attacker |
 | Authority reconstruction | ✅ | `/v1/authority/{id}` + accountability graph |
 | Privileged-action audit logging | 🟡 | revoke logs admin key id; broader audit log pending |
-| **Signed audit-export bundle** | ⬜ | packets are portable JSON today; signed bundle endpoint pending |
+| Signed audit-export bundle | ✅ | `GET /v1/evidence/{id}/export` → signed ZIP (manifest + detached Ed25519); `aip-verify <bundle.zip> --trust-bundle-signer <pk>` verifies offline. The embedded report is integrity-level only; the auditor re-runs with their own anchors. |
 | Open format / spec | ✅ | `AIP_SPEC.md` (v0.1-draft) |
 
 ## The pre-production blocker list (must close before a regulated rollout)
@@ -72,7 +72,10 @@ Honest as of the current commit; see `aip-service/MIGRATION_NOTES.md` and
 2. Independent security assessment (CERT-In) + remediation.
 3. Durable, backed-up storage (replace single-file vault) + DR/BCP.
 4. KMS/HSM for the signing key + API-key rotation.
-5. Signed audit-export bundle + standalone verifier distribution (verifier
-   binary now exists: `aip-verify`).
+5. ~~Signed audit-export bundle + standalone verifier distribution~~ —
+   **closed.** `GET /v1/evidence/{id}/export` emits a signed bundle;
+   `aip-verify` (packets, bundles) and `nexora-verify` (Ghost verdicts,
+   NEXORA proofs) are both built by `release.yml`. Remaining: release
+   artifacts are checksummed, not signed (see Operations).
 6. Metrics/monitoring + runbook.
 7. Control-framework mapping for the target jurisdiction.

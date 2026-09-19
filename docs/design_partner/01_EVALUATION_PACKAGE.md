@@ -42,7 +42,7 @@ Change one byte and verification fails on a named cryptographic rule.
 ```
 
 **Implementation:** Rust. Strategic core = `aip-core` (delegation lattice,
-scope attenuation, revocation) + `aip-protocol` (EvidencePacket, 14-rule
+scope attenuation, revocation) + `aip-protocol` (EvidencePacket, 18-rule
 verification engine, accountability graph). Deployable surface = `aip-service`
 (authenticated, tenant-isolated HTTP API over that core).
 
@@ -110,10 +110,14 @@ Full, exact bytes are reproducible via
 }
 ```
 
-The 14 rules: `STRUCTURE, AGENT_ID_BINDING, CANONICAL_HASH, AGENT_SIGNATURE,
+The 18 rules: `STRUCTURE, AGENT_ID_BINDING, CANONICAL_HASH, AGENT_SIGNATURE,
 ROOT_TOKEN_SIGNATURE, DELEGATION_CHAIN, AUTHORITY_CHAIN, SCOPE_AUTHORITY,
 REVOCATION, TEMPORAL_VALIDITY, ACTION_ATTESTATIONS, TRACE_BINDING,
-RECEIPT_BINDING, TRUST_FLOOR`. Full text in `03_LOAN_DEMO.md`.
+RECEIPT_BINDING, TRUST_FLOOR, EXECUTION_BINDING, VERIFICATION_TIME_BOUND,
+ACTION_UNIQUENESS, REPLAY_SCOPE`. `VERIFICATION_TIME_BOUND` and `REPLAY_SCOPE`
+are reported NOT EVALUATED unless the verifier supplies a verification time
+and a replay history; `valid` covers evaluated rules only (`AIP_SPEC.md` §5).
+Full text in `03_LOAN_DEMO.md`.
 
 ## 5. Authority graph example (real output)
 

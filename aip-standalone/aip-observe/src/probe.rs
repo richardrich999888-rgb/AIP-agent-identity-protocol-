@@ -37,7 +37,9 @@ use aip_core::capability::random_jti;
 use aip_core::execution_binding::BindingError;
 use aip_types::ProcessInstance;
 
+use crate::health::MechanismIntegrity;
 use crate::linux::ProcEvent;
+use crate::observed::MechanismIntegrityReport;
 use crate::observed::{
     AgentAttribution, BootClockAnchor, KernelLifecycleEvent, KernelLifecycleKind, ObservationBatch,
     ObservedEffect, ObservedExecution, ObservedProcess, SourceMechanism, OBSERVE_PROTOCOL_VERSION,
@@ -136,6 +138,12 @@ pub struct ProcfsProbe {
     /// to every batch's `active_mechanisms` together with the mechanisms
     /// actually used in that batch.
     declared_sources: Vec<SourceMechanism>,
+    /// The latest integrity finding per mechanism, as the sensor that owns
+    /// it reported this cycle. Carried in every batch so the off-host
+    /// collector learns of a gated tracepoint (see
+    /// [`MechanismIntegrityReport`]). Re-declared each cycle by the sensor
+    /// set; a mechanism that is not re-declared keeps its last finding.
+    mechanism_integrity: Vec<MechanismIntegrityReport>,
     /// Host realtime ↔ boot clock sample, included in every batch so kernel
     /// timestamps can be placed on the wall clock. A probe claim.
     clock_anchor: Option<BootClockAnchor>,
@@ -193,9 +201,32 @@ impl ProcfsProbe {
             bound_by_exec: HashMap::new(),
             pending_kernel_events: Vec::new(),
             declared_sources: Vec::new(),
+            mechanism_integrity: Vec::new(),
             clock_anchor: None,
             image_cache: std::cell::RefCell::new(HashMap::new()),
         }
+    }
+
+    /// Record the sensor's integrity finding for `mechanism` for the batches
+    /// that follow (one slot per mechanism; the latest declaration wins). The
+    /// probe does not interpret the finding — it is shipped to the collector,
+    /// which decides what the signed state becomes.
+    pub fn declare_mechanism_integrity(
+        &mut self,
+        mechanism: SourceMechanism,
+        integrity: MechanismIntegrity,
+    ) {
+        self.mechanism_integrity
+            .retain(|r| r.mechanism != mechanism);
+        self.mechanism_integrity.push(MechanismIntegrityReport {
+            mechanism,
+            integrity,
+        });
+    }
+
+    /// The findings the next batch will carry, in canonical order.
+    pub fn mechanism_integrity_reports(&self) -> Vec<MechanismIntegrityReport> {
+        MechanismIntegrityReport::canonical_set(self.mechanism_integrity.clone())
     }
 
     /// Record the host's realtime/boot clock relation for the batches that
@@ -651,6 +682,7 @@ impl ProcfsProbe {
             probe_seq_last,
             dropped_events,
             active_mechanisms,
+            mechanism_integrity: self.mechanism_integrity_reports(),
             claimed_from_ms,
             claimed_to_ms,
             observations,

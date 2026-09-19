@@ -97,10 +97,10 @@ pub use linux::{
 pub use linux::{snapshot_socket_tables, socket_inodes_of, PidFd, ProcConnector};
 pub use observed::{
     tcp_flags, tcp_state, AgentAttribution, BootClockAnchor, KernelLifecycleEvent,
-    KernelLifecycleKind, ObservationBatch, ObservedEffect, ObservedExecution, ObservedProcess,
-    SocketEndpoint, SocketProtocol, SourceMechanism, WireDirection, KERNEL_EVENT_DOMAIN,
-    OBSERVATION_BATCH_DOMAIN, OBSERVED_EXECUTION_DOMAIN, OBSERVED_PROCESS_DOMAIN,
-    OBSERVE_PROTOCOL_VERSION,
+    KernelLifecycleKind, MechanismIntegrityReport, ObservationBatch, ObservedEffect,
+    ObservedExecution, ObservedProcess, SocketEndpoint, SocketProtocol, SourceMechanism,
+    WireDirection, KERNEL_EVENT_DOMAIN, OBSERVATION_BATCH_DOMAIN, OBSERVED_EXECUTION_DOMAIN,
+    OBSERVED_PROCESS_DOMAIN, OBSERVE_PROTOCOL_VERSION,
 };
 #[cfg(target_os = "linux")]
 pub use perf::PerfTracepoints;

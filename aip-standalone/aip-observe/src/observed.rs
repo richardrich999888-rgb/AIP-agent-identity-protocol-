@@ -19,6 +19,8 @@ use aip_types::canonical::*;
 use aip_types::{ExecutionBinding, ProcessInstance};
 use serde::{Deserialize, Serialize};
 
+use crate::health::MechanismIntegrity;
+
 /// Domain tag leading the canonical encoding of an [`ObservedExecution`].
 pub const OBSERVED_EXECUTION_DOMAIN: &str = "SYNTRIASS/GHOST/OBSERVED_EXECUTION/v1";
 /// Domain tag leading the canonical encoding of an [`ObservationBatch`].
@@ -46,9 +48,13 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 ///   `WireDirection` and the kernel realtime capture stamp.
 /// - `7` Gate 3: `SourceMechanism::SockSendTracepoint`, `SocketSend`.
 /// - `8` Gate 4: `SourceMechanism::Fanotify`, `FileEvent`.
+/// - `10` Observation integrity for the two-host deployment:
+///   `ObservationBatch.mechanism_integrity` — the probe's per-mechanism
+///   integrity finding (`MechanismIntegrityReport`) inside the attested
+///   bytes, so the off-host collector can sign `IntegrityUnknown`.
 ///
 /// Earlier versions never left this branch; all are refused.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 9;
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 10;
 
 /// Kernel TCP state bytes (`include/net/tcp_states.h`), as they appear in
 /// `/proc/net/tcp` and in the `sock:inet_sock_set_state` tracepoint.
@@ -938,6 +944,34 @@ impl KernelLifecycleEvent {
 
 // ─── ObservationBatch ───
 
+/// The probe's integrity finding for one mechanism, carried in the batch.
+///
+/// Produced on the observed host by the sensor that owns the mechanism (on
+/// Linux, `PERF_EVENT_IOC_QUERY_BPF` over the tracepoint's perf rings) and
+/// shipped to the off-host collector as a probe claim. It exists so the
+/// two-host deployment — where the sensor and the signing key are on
+/// different machines — can sign [`crate::ObserverState::IntegrityUnknown`]
+/// at all: without it the collector never learns a sampled tracepoint was
+/// gated, and a false `Active` follows. The collector treats it as it treats
+/// every batch field: it can lower the signed state, never raise it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct MechanismIntegrityReport {
+    pub mechanism: SourceMechanism,
+    pub integrity: MechanismIntegrity,
+}
+
+impl MechanismIntegrityReport {
+    /// Canonical order: by mechanism code, one report per mechanism (the
+    /// first in code order is kept after sorting, so callers that upsert per
+    /// mechanism never present a duplicate). Deterministic bytes for the
+    /// same findings however the probe collected them.
+    pub fn canonical_set(mut reports: Vec<Self>) -> Vec<Self> {
+        reports.sort_by_key(|r| r.mechanism.code());
+        reports.dedup_by_key(|r| r.mechanism.code());
+        reports
+    }
+}
+
 /// A batch of observations as produced on the observed host.
 ///
 /// **Unsigned by construction.** It carries no observer identity, no key
@@ -971,6 +1005,14 @@ pub struct ObservationBatch {
     /// connector-covered window from a poll-only one without inferring it
     /// from event presence.
     pub active_mechanisms: Vec<SourceMechanism>,
+    /// The probe's integrity finding per mechanism it checked this cycle
+    /// (see [`MechanismIntegrityReport`]). Canonically ordered. A *claim* the
+    /// collector absorbs fail-closed: any non-capable finding lowers the
+    /// signed state to `IntegrityUnknown`; a `Verified` finding counts only
+    /// for a mechanism this batch also declares active. Empty from probes
+    /// that check nothing, which then say nothing.
+    #[serde(default)]
+    pub mechanism_integrity: Vec<MechanismIntegrityReport>,
     /// The interval the probe claims to have been sampling. A *claim*: the
     /// collector decides what coverage it will attest, and a claimed window
     /// never widens attested coverage.
@@ -1070,6 +1112,15 @@ impl ObservationBatch {
         for m in &self.active_mechanisms {
             put_u8(&mut buf, m.code());
         }
+        // Version 10: the probe's per-mechanism integrity reports, inside the
+        // attested bytes so a finding cannot be edited or dropped after
+        // signing. Count, then (mechanism, finding code, diagnostic count).
+        put_u32(&mut buf, self.mechanism_integrity.len() as u32);
+        for r in &self.mechanism_integrity {
+            put_u8(&mut buf, r.mechanism.code());
+            put_u8(&mut buf, r.integrity.code());
+            put_u32(&mut buf, r.integrity.foreign_program_count());
+        }
         put_u64(&mut buf, self.claimed_from_ms);
         put_u64(&mut buf, self.claimed_to_ms);
         put_u32(&mut buf, self.observations.len() as u32);
@@ -1148,6 +1199,7 @@ mod tests {
             probe_seq_last: 0,
             dropped_events: None,
             active_mechanisms: vec![],
+            mechanism_integrity: Vec::new(),
             claimed_from_ms: 1,
             claimed_to_ms: 2,
             observations: vec![],

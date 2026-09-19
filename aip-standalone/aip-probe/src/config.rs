@@ -3,15 +3,23 @@
 use std::path::PathBuf;
 
 /// Which kernel-mediated sensors this probe opens. Phase 1 drives the three
-/// perf-tracepoint sensors; the gate-independent sources (netlink connector,
-/// fanotify, AF_PACKET) are accepted in the pilot design but not yet driven by
-/// this daemon (named in `docs/pilot/PHASE1_DAEMONS.md`), so requesting one is a
-/// startup error rather than a silent no-op.
+/// perf-tracepoint sensors and the netlink process-event connector. The
+/// connector matters beyond what it observes: it is the only mechanism whose
+/// coverage the reconciler accepts for a statement about process lifecycle
+/// (`SourceMechanism::covers_process_lifecycle`), and it is
+/// **gate-independent** — a foreign eBPF program on a tracepoint cannot
+/// silence it — so without it the pilot's observer can never license a
+/// non-occurrence claim and `PHANTOM_CLAIM` is unreachable. It needs
+/// `CAP_NET_ADMIN` in the initial network namespace (see the systemd unit).
+///
+/// fanotify and AF_PACKET remain Phase 1.x: requesting one is a startup error
+/// rather than a silent no-op.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct SensorConfig {
     pub sched: bool,
     pub sockstate: bool,
     pub socksend: bool,
+    pub connector: bool,
 }
 
 impl SensorConfig {
@@ -22,7 +30,8 @@ impl SensorConfig {
                 "sched" => c.sched = true,
                 "sockstate" => c.sockstate = true,
                 "socksend" => c.socksend = true,
-                "connector" | "fanotify" | "afpacket" => {
+                "connector" => c.connector = true,
+                "fanotify" | "afpacket" => {
                     return Err(format!(
                         "sensor {item:?} is part of the pilot design but not yet driven by \
                          aip-probe (Phase 1.x); remove it from AIP_PROBE_SENSORS for now"
@@ -31,7 +40,7 @@ impl SensorConfig {
                 other => return Err(format!("unknown sensor {other:?} in AIP_PROBE_SENSORS")),
             }
         }
-        if !(c.sched || c.sockstate || c.socksend) {
+        if !(c.sched || c.sockstate || c.socksend || c.connector) {
             return Err("AIP_PROBE_SENSORS selected no supported sensor".into());
         }
         Ok(c)
@@ -85,14 +94,24 @@ mod tests {
             SensorConfig {
                 sched: true,
                 sockstate: true,
-                socksend: false
+                socksend: false,
+                connector: false,
             }
         );
     }
 
     #[test]
+    fn the_connector_is_a_supported_sensor_on_its_own_or_with_tracepoints() {
+        let alone = SensorConfig::parse("connector").unwrap();
+        assert!(alone.connector && !alone.sched && !alone.sockstate && !alone.socksend);
+        let with = SensorConfig::parse("sched,sockstate,connector").unwrap();
+        assert!(with.connector && with.sched && with.sockstate);
+    }
+
+    #[test]
     fn rejects_unsupported_and_unknown_sensors() {
         assert!(SensorConfig::parse("sched,fanotify").is_err());
+        assert!(SensorConfig::parse("connector,afpacket").is_err());
         assert!(SensorConfig::parse("bogus").is_err());
         assert!(SensorConfig::parse("").is_err());
     }

@@ -42,7 +42,6 @@ pub fn generate_aip_configuration(base_url: &str) -> AipConfiguration {
         issuer: base.to_string(),
         jwks_uri: format!("{}/.well-known/jwks.json", base),
         revocation_uri: format!("{}/v1/identity/revocation-status", base),
-        delegation_verify_uri: format!("{}/v1/identity/verify-chain", base),
         supported_algorithms: vec!["EdDSA".to_string()],
         token_format: "AIP-JWT-v1".to_string(),
         version: "0.3.0".to_string(),
@@ -193,9 +192,6 @@ mod tests {
         assert!(config
             .revocation_uri
             .contains("/v1/identity/revocation-status"));
-        assert!(config
-            .delegation_verify_uri
-            .contains("/v1/identity/verify-chain"));
         assert!(!config.supported_algorithms.is_empty());
         assert_eq!(config.token_format, "AIP-JWT-v1");
         assert!(!config.version.is_empty());

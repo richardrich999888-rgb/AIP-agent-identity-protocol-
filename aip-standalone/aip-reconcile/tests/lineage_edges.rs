@@ -116,6 +116,7 @@ fn batch(events: Vec<KernelLifecycleEvent>, with_anchor: bool) -> AttestedBatch 
                     SourceMechanism::PidFdAnchored,
                     SourceMechanism::SchedTracepoint,
                 ]),
+                mechanism_integrity: Vec::new(),
                 claimed_from_ms: NOW,
                 claimed_to_ms: NOW + 2_000,
                 observations: vec![],

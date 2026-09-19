@@ -1,66 +1,169 @@
-//! Token revocation — append-only log + in-memory O(1) lookup.
+//! Token revocation — append-only JSONL log + in-memory lookup, **scoped per
+//! tenant**.
 //!
-//! Revocation entries are appended to a JSONL file at AIP_REVOCATION_LOG_PATH.
-//! The in-memory HashSet is populated at startup and updated on every revoke call.
+//! A revocation is a fact about one tenant's authority. The set is keyed on
+//! `(tenant_id, jti)`, so an administrator of tenant A revoking a JTI string
+//! has no effect on tenant B's token that happens to carry the same string,
+//! and tenant B cannot learn of A's revocation through any query. The tenant
+//! never comes from a request body: the revoke handler takes it from the
+//! administrator's API key, the JWT verify path from the token's own `tid`
+//! claim, and the evidence verify path from the caller's key.
 //!
-//! CASCADE REVOCATION (NM-A3): BFS walk of delegation log revokes all descendants atomically.
+//! Two JTI namespaces share this log:
+//! - identity JWTs use a UUID `jti` (as issued by [`crate::tokens::issue`]);
+//! - evidence-layer tokens (`aip-core` scoped and delegation tokens) use a
+//!   16-byte JTI, written here as 32 lowercase hex characters.
+//!
+//! [`normalize_jti`] admits exactly those two forms and canonicalises them, so
+//! a revocation written once matches however the JTI is later spelled.
+//!
+//! Pre-tenancy entries (no `tenant_id` on the line) load under
+//! [`LEGACY_TENANT`] with their original hash form, so an existing log keeps
+//! verifying and keeps applying to the tokens it applied to before.
 
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sha3::{Digest, Sha3_256};
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::HashSet;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
+
+/// The tenant assigned to entries and tokens that predate tenancy. Shared
+/// with the evidence store so a "legacy" token and a "legacy" packet mean the
+/// same population.
+pub use crate::store::LEGACY_TENANT;
+
+/// Upper bound on the free-text fields, so a revocation cannot be used to
+/// write an unbounded line into the log.
+pub const MAX_TEXT_FIELD_LEN: usize = 1024;
+
+// ── JTI normalisation ─────────────────────────────────────────────────────────
+
+/// Canonicalise a JTI to its 16-byte form written as 32 lowercase hex
+/// characters.
+///
+/// Accepts a UUID in any spelling (hyphenated, simple, any case — the form
+/// [`crate::tokens::issue`] stamps into a JWT) or 32 hex characters (an
+/// `aip-core` evidence JTI). Both are 16 random bytes, so one canonical
+/// spelling serves both namespaces and a revocation written once matches
+/// however the JTI is later spelled. Anything else is refused: a revocation
+/// for a string that can never appear on a token is a wasted log line at
+/// best and a typo that silently fails to revoke at worst.
+pub fn normalize_jti(raw: &str) -> Result<String, String> {
+    let trimmed = raw.trim();
+    match uuid::Uuid::parse_str(trimmed) {
+        Ok(u) => Ok(u.simple().to_string()),
+        Err(_) => Err("jti must be a UUID or a 16-byte JTI as 32 hex characters".to_owned()),
+    }
+}
+
+/// Decode a canonical JTI into the 16-byte form the evidence verifier uses.
+/// `None` only for a string that is not canonical, which the set never holds.
+fn evidence_jti_bytes(jti: &str) -> Option<[u8; 16]> {
+    let bytes = hex::decode(jti).ok()?;
+    <[u8; 16]>::try_from(bytes.as_slice()).ok()
+}
 
 // ── RevocationEntry ───────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RevocationEntry {
-    /// The JTI being revoked.
+    /// The tenant whose authority this revocation is about. `None` only on
+    /// lines written before tenancy existed; such lines belong to
+    /// [`LEGACY_TENANT`].
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tenant_id: Option<String>,
+    /// The JTI being revoked, canonical form (see [`normalize_jti`]).
     pub jti: String,
-    /// JTI of the revoking authority.
+    /// Who revoked it (an operator identifier; free text, bounded).
     pub revoked_by: String,
     /// ISO 8601 timestamp.
     pub revoked_at: String,
     /// Human-readable reason.
     pub reason: String,
-    /// SHA3-256(jti + revoked_by + revoked_at + reason) — tamper evidence.
+    /// Tamper evidence over every other field. Tenant-scoped entries use a
+    /// length-prefixed encoding so no field boundary is ambiguous; legacy
+    /// entries keep the `k=v&` form they were written with.
     pub entry_hash: String,
 }
 
 impl RevocationEntry {
-    pub fn new(jti: &str, revoked_by: &str, reason: &str) -> Self {
+    /// A new, tenant-scoped entry stamped now. `jti` must already be
+    /// canonical (the handler normalises before constructing).
+    pub fn new(tenant_id: &str, jti: &str, revoked_by: &str, reason: &str) -> Self {
         let revoked_at = Utc::now().format("%Y-%m-%dT%H:%M:%SZ").to_string();
-        let canonical = format!(
-            "jti={}&revoked_by={}&revoked_at={}&reason={}",
-            jti, revoked_by, revoked_at, reason
-        );
-        let entry_hash = sha3_256_hex(&canonical);
-        Self {
+        let mut entry = Self {
+            tenant_id: Some(tenant_id.to_owned()),
             jti: jti.to_owned(),
             revoked_by: revoked_by.to_owned(),
             revoked_at,
             reason: reason.to_owned(),
-            entry_hash,
+            entry_hash: String::new(),
+        };
+        entry.entry_hash = entry.expected_hash();
+        entry
+    }
+
+    /// The tenant this entry applies to.
+    pub fn tenant(&self) -> &str {
+        self.tenant_id.as_deref().unwrap_or(LEGACY_TENANT)
+    }
+
+    /// Recompute the hash the entry must carry.
+    fn expected_hash(&self) -> String {
+        match &self.tenant_id {
+            Some(tenant) => {
+                // v2: domain tag, then every field length-prefixed (u32 BE).
+                let mut h = Sha3_256::new();
+                h.update(b"AIP/RevocationEntry/v2");
+                for field in [
+                    tenant,
+                    &self.jti,
+                    &self.revoked_by,
+                    &self.revoked_at,
+                    &self.reason,
+                ] {
+                    h.update((field.len() as u32).to_be_bytes());
+                    h.update(field.as_bytes());
+                }
+                hex::encode(h.finalize())
+            }
+            None => {
+                // Legacy form, kept verbatim so old lines still verify.
+                let canonical = format!(
+                    "jti={}&revoked_by={}&revoked_at={}&reason={}",
+                    self.jti, self.revoked_by, self.revoked_at, self.reason
+                );
+                let mut h = Sha3_256::new();
+                h.update(canonical.as_bytes());
+                hex::encode(h.finalize())
+            }
         }
     }
-}
 
-fn sha3_256_hex(input: &str) -> String {
-    let mut hasher = Sha3_256::new();
-    hasher.update(input.as_bytes());
-    hex::encode(hasher.finalize())
+    /// True when the carried hash matches the fields.
+    pub fn hash_matches(&self) -> bool {
+        self.entry_hash == self.expected_hash()
+    }
 }
 
 // ── RevocationSet ─────────────────────────────────────────────────────────────
 
-pub type RevocationSet = Arc<Mutex<HashSet<String>>>;
+/// One revoked JTI within one tenant.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct RevokedKey {
+    pub tenant_id: String,
+    pub jti: String,
+}
+
+pub type RevocationSet = Arc<Mutex<HashSet<RevokedKey>>>;
 
 /// Load the revocation set from the JSONL log at startup.
 ///
-/// Each entry's `entry_hash` is verified against the canonical form before
-/// inserting the JTI into the set.  Entries whose hashes do not match are
-/// skipped with a warning — this detects offline tampering with the log file.
+/// Each entry's `entry_hash` is verified before the JTI is admitted. Entries
+/// whose hashes do not match are skipped with a warning — this detects
+/// offline tampering with the log file. Legacy entries (no tenant) load under
+/// [`LEGACY_TENANT`].
 pub fn load_revocation_set(log_path: &str) -> RevocationSet {
     let mut set = HashSet::new();
     let path = Path::new(log_path);
@@ -69,20 +172,19 @@ pub fn load_revocation_set(log_path: &str) -> RevocationSet {
             for (line_no, line) in contents.lines().enumerate() {
                 match serde_json::from_str::<RevocationEntry>(line) {
                     Ok(entry) => {
-                        let canonical = format!(
-                            "jti={}&revoked_by={}&revoked_at={}&reason={}",
-                            entry.jti, entry.revoked_by, entry.revoked_at, entry.reason
-                        );
-                        let expected_hash = sha3_256_hex(&canonical);
-                        if entry.entry_hash != expected_hash {
+                        if !entry.hash_matches() {
                             tracing::warn!(
                                 line = line_no + 1,
                                 jti = %entry.jti,
                                 "revocation entry hash mismatch — skipping (possible tampering)"
                             );
-                        } else {
-                            set.insert(entry.jti);
+                            continue;
                         }
+                        // Legacy lines carry the JTI as the JWT spelled it
+                        // (hyphenated); canonicalise so lookups match.
+                        let tenant_id = entry.tenant().to_owned();
+                        let jti = normalize_jti(&entry.jti).unwrap_or(entry.jti);
+                        set.insert(RevokedKey { tenant_id, jti });
                     }
                     Err(e) => {
                         tracing::warn!(line = line_no + 1, error = %e, "failed to parse revocation entry — skipping");
@@ -112,45 +214,41 @@ pub fn revoke(
         .map_err(|e| format!("open revocation log: {e}"))?;
     writeln!(file, "{}", line).map_err(|e| format!("write revocation log: {e}"))?;
 
-    revocation_set.lock().unwrap().insert(entry.jti.clone());
+    revocation_set.lock().unwrap().insert(RevokedKey {
+        tenant_id: entry.tenant().to_owned(),
+        jti: normalize_jti(&entry.jti).unwrap_or_else(|_| entry.jti.clone()),
+    });
     Ok(())
 }
 
-/// Returns true if the given JTI has been revoked.
-pub fn is_revoked(revocation_set: &RevocationSet, jti: &str) -> bool {
-    revocation_set.lock().unwrap().contains(jti)
+/// Whether `jti` is revoked **within `tenant_id`**. `jti` is normalised
+/// first; an unnormalisable string is not revoked (it can never be a token).
+pub fn is_revoked(revocation_set: &RevocationSet, tenant_id: &str, jti: &str) -> bool {
+    let Ok(jti) = normalize_jti(jti) else {
+        return false;
+    };
+    revocation_set.lock().unwrap().contains(&RevokedKey {
+        tenant_id: tenant_id.to_owned(),
+        jti,
+    })
 }
 
-/// Cascade revocation: BFS walk of the delegation graph, revoke root and all descendants.
-/// Returns the list of revoked JTIs (including root).
-///
-/// PATENT CLAIM (NM-A3): atomically revokes an entire delegation tree.
-pub fn cascade_revoke(
-    log_path: &str,
+/// Every revoked JTI within `tenant_id` in the 16-byte form the evidence
+/// verifier uses, for merging into an evidence verification context. Identity
+/// JWT ids are included too: they are 16 random bytes that never coincide with
+/// an `aip-core` chain JTI, so their presence is harmless and the export needs
+/// no knowledge of which namespace a line came from.
+pub fn evidence_jtis_for_tenant(
     revocation_set: &RevocationSet,
-    root_jti: &str,
-    revoked_by: &str,
-    reason: &str,
-    // Map from parent_jti → Vec<child_jti> (built from delegation log).
-    parent_to_children: &HashMap<String, Vec<String>>,
-) -> Result<Vec<String>, String> {
-    let mut revoked = Vec::new();
-    let mut queue = VecDeque::new();
-    queue.push_back(root_jti.to_owned());
-
-    while let Some(jti) = queue.pop_front() {
-        if !is_revoked(revocation_set, &jti) {
-            let entry = RevocationEntry::new(&jti, revoked_by, &format!("cascade: {reason}"));
-            revoke(log_path, revocation_set, &entry)?;
-            revoked.push(jti.clone());
-        }
-        if let Some(children) = parent_to_children.get(&jti) {
-            for child in children {
-                queue.push_back(child.clone());
-            }
-        }
-    }
-    Ok(revoked)
+    tenant_id: &str,
+) -> HashSet<[u8; 16]> {
+    revocation_set
+        .lock()
+        .unwrap()
+        .iter()
+        .filter(|k| k.tenant_id == tenant_id)
+        .filter_map(|k| evidence_jti_bytes(&k.jti))
+        .collect()
 }
 
 // ── Unit tests ────────────────────────────────────────────────────────────────
@@ -158,7 +256,10 @@ pub fn cascade_revoke(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
+
+    const JWT_JTI: &str = "0f8fad5b-d9cb-469f-a165-70867728950e";
+    const JWT_JTI_CANONICAL: &str = "0f8fad5bd9cb469fa16570867728950e";
+    const EVIDENCE_JTI: &str = "00112233445566778899aabbccddeeff";
 
     fn temp_path() -> String {
         let mut p = std::env::temp_dir();
@@ -166,63 +267,132 @@ mod tests {
         p.to_str().unwrap().to_owned()
     }
 
-    // T-REV-1: revoke and is_revoked round-trip
     #[test]
-    fn test_revoke_roundtrip() {
+    fn revoke_and_lookup_are_tenant_scoped() {
         let path = temp_path();
         let set = load_revocation_set(&path);
-        let entry = RevocationEntry::new("jti-abc", "admin-jti", "test revocation");
+        let entry = RevocationEntry::new("bank-a", JWT_JTI_CANONICAL, "ops", "key rotation");
         revoke(&path, &set, &entry).unwrap();
-        assert!(is_revoked(&set, "jti-abc"));
-        assert!(!is_revoked(&set, "jti-xyz"));
+        assert!(is_revoked(&set, "bank-a", JWT_JTI));
+        assert!(
+            !is_revoked(&set, "bank-b", JWT_JTI),
+            "tenant B must not observe tenant A's revocation"
+        );
+        assert!(!is_revoked(&set, "bank-a", EVIDENCE_JTI));
     }
 
-    // T-REV-2: revocation set is persisted and reloaded correctly
     #[test]
-    fn test_revocation_persisted() {
+    fn lookup_normalises_case_and_form() {
+        let path = temp_path();
+        let set = load_revocation_set(&path);
+        revoke(
+            &path,
+            &set,
+            &RevocationEntry::new("t", EVIDENCE_JTI, "ops", "r"),
+        )
+        .unwrap();
+        assert!(is_revoked(&set, "t", &EVIDENCE_JTI.to_ascii_uppercase()));
+        assert!(is_revoked(&set, "t", &format!("  {EVIDENCE_JTI} ")));
+        assert!(!is_revoked(&set, "t", "not-a-jti"));
+    }
+
+    #[test]
+    fn persisted_entries_reload_under_their_tenant() {
         let path = temp_path();
         {
             let set = load_revocation_set(&path);
-            let entry = RevocationEntry::new("jti-persist", "admin", "persist test");
-            revoke(&path, &set, &entry).unwrap();
+            revoke(
+                &path,
+                &set,
+                &RevocationEntry::new("t1", JWT_JTI_CANONICAL, "a", "r"),
+            )
+            .unwrap();
         }
-        // Reload from disk
         let set2 = load_revocation_set(&path);
-        assert!(is_revoked(&set2, "jti-persist"));
+        assert!(is_revoked(&set2, "t1", JWT_JTI));
+        assert!(!is_revoked(&set2, LEGACY_TENANT, JWT_JTI));
     }
 
-    // T-REV-3: cascade_revoke covers all descendants
     #[test]
-    fn test_cascade_revoke() {
+    fn a_tampered_line_is_not_loaded() {
         let path = temp_path();
-        let set = load_revocation_set(&path);
-
-        // Build graph: root → child1, child1 → grandchild
-        let mut parent_to_children: HashMap<String, Vec<String>> = HashMap::new();
-        parent_to_children.insert("root-jti".to_owned(), vec!["child1".to_owned()]);
-        parent_to_children.insert("child1".to_owned(), vec!["grandchild".to_owned()]);
-
-        let revoked = cascade_revoke(
+        let mut entry = RevocationEntry::new("t", JWT_JTI_CANONICAL, "a", "r");
+        entry.tenant_id = Some("other-tenant".to_owned()); // move it after hashing
+        std::fs::write(
             &path,
-            &set,
-            "root-jti",
-            "admin",
-            "test cascade",
-            &parent_to_children,
+            format!("{}\n", serde_json::to_string(&entry).unwrap()),
         )
         .unwrap();
-
-        assert_eq!(revoked.len(), 3);
-        assert!(is_revoked(&set, "root-jti"));
-        assert!(is_revoked(&set, "child1"));
-        assert!(is_revoked(&set, "grandchild"));
+        let set = load_revocation_set(&path);
+        assert!(!is_revoked(&set, "other-tenant", JWT_JTI));
+        assert!(!is_revoked(&set, "t", JWT_JTI));
     }
 
-    // T-REV-4: entry_hash is deterministic for the same inputs modulo timestamp
     #[test]
-    fn test_entry_hash_is_populated() {
-        let entry = RevocationEntry::new("jti-hash-test", "admin", "reason");
-        assert_eq!(entry.entry_hash.len(), 64); // SHA3-256 = 32 bytes = 64 hex chars
-        assert!(entry.entry_hash.chars().all(|c| c.is_ascii_hexdigit()));
+    fn legacy_lines_load_under_the_legacy_tenant_with_their_old_hash() {
+        let path = temp_path();
+        // Exactly what the pre-tenancy code wrote.
+        let canonical = format!(
+            "jti={}&revoked_by={}&revoked_at={}&reason={}",
+            JWT_JTI, "admin", "2026-01-01T00:00:00Z", "old"
+        );
+        let mut h = Sha3_256::new();
+        h.update(canonical.as_bytes());
+        let line = serde_json::json!({
+            "jti": JWT_JTI,
+            "revoked_by": "admin",
+            "revoked_at": "2026-01-01T00:00:00Z",
+            "reason": "old",
+            "entry_hash": hex::encode(h.finalize()),
+        });
+        std::fs::write(&path, format!("{line}\n")).unwrap();
+        let set = load_revocation_set(&path);
+        assert!(is_revoked(&set, LEGACY_TENANT, JWT_JTI));
+        assert!(!is_revoked(&set, "bank-a", JWT_JTI));
+    }
+
+    #[test]
+    fn evidence_jtis_are_exported_per_tenant_in_16_byte_form() {
+        let path = temp_path();
+        let set = load_revocation_set(&path);
+        revoke(
+            &path,
+            &set,
+            &RevocationEntry::new("t", EVIDENCE_JTI, "a", "r"),
+        )
+        .unwrap();
+        revoke(
+            &path,
+            &set,
+            &RevocationEntry::new("t", JWT_JTI_CANONICAL, "a", "r"),
+        )
+        .unwrap();
+        revoke(
+            &path,
+            &set,
+            &RevocationEntry::new("u", "ffeeddccbbaa99887766554433221100", "a", "r"),
+        )
+        .unwrap();
+        let t = evidence_jtis_for_tenant(&set, "t");
+        assert_eq!(t.len(), 2);
+        let want: [u8; 16] = hex::decode(EVIDENCE_JTI).unwrap().try_into().unwrap();
+        assert!(t.contains(&want));
+        assert_eq!(evidence_jtis_for_tenant(&set, "u").len(), 1);
+        assert!(evidence_jtis_for_tenant(&set, "v").is_empty());
+    }
+
+    #[test]
+    fn normalize_rejects_everything_that_is_not_a_token_id() {
+        assert!(normalize_jti("").is_err());
+        assert!(normalize_jti("jti-abc").is_err());
+        assert!(normalize_jti("0011223344556677").is_err()); // 8 bytes
+        assert_eq!(
+            normalize_jti("0F8FAD5B-D9CB-469F-A165-70867728950E").unwrap(),
+            JWT_JTI_CANONICAL
+        );
+        assert_eq!(
+            normalize_jti(&EVIDENCE_JTI.to_ascii_uppercase()).unwrap(),
+            EVIDENCE_JTI
+        );
     }
 }

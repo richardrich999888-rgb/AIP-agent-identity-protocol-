@@ -54,6 +54,10 @@ default and the `EvidenceCeiling`; those are not what these rows test.
 | OI-06 | — (control) | none | ghost-demo live, T-P connect | post-fix: `VerifiedExecution` (Attested) | **no false positive** |
 | OI-07 | A4 (key holder) | n/a | synthetic `CollectorSigner` | a forger holding the collector key can relabel `IntegrityUnknown`→`Active` (valid signature over the lie) but **cannot mint the gate-independent coverage** it never had | key custody is the separate boundary; see note |
 | OI-08 | A3 (root/kernel) | patched kernel hides the program from `PERF_EVENT_IOC_QUERY_BPF` | — | detection queries shared kernel state a root attacker can defeat | **DEFERRED** — off-host/hardware observer (options D/E/F, decision record) |
+| OI-09 | A2+/A3 | any perf tracepoint, **two-host split** | `aip-probe` → transport → `aip-collector` sink (`aip-collector/src/sink.rs`, synthetic batch) | probe's `ForeignTracepointGate` report inside the batch → collector `IntegrityUnknown`, signed health `attested_coverage: None` | **DETECTED** (previously **unreachable** in the daemon pair: the batch had no field for the finding) |
+| OI-10 | A2 (probe omits the check) | any perf tracepoint, two-host split | `aip-collector` sink | batch declares a gate-able sensor active with **no** finding → sink notes `Unverifiable` → `IntegrityUnknown` | **DETECTED** (fail closed on silence) |
+| OI-11 | A2 (probe clears a stale slot) | `sock:inet_sock_set_state`, two-host split | `aip-collector` sink | gate reported, then a `Verified` report for a sensor the batch no longer declares active | **DETECTED** — `Verified` counts only for an active mechanism; state stays `IntegrityUnknown` |
+| OI-12 | — (control) | none | `aip-collector` sink | `Verified` for every open sensor / no tracepoint sensors at all | **no false positive** |
 
 ### Commands (verbatim)
 

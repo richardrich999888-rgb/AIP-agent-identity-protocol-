@@ -6,6 +6,66 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Security (pre-evaluation fixes for a supervised BFSI pilot)
+- **The second authority engine in `aip-service` is gone.**
+  `POST /v1/identity/delegate` and `POST /v1/identity/verify-chain` — unsigned
+  delegation tokens whose keyless hash omitted `scope` and `expires_at`, no
+  attenuation at issuance, an unauthenticated chain verifier that answered
+  ADMIN for a bare root JWT — are removed together with
+  `aip-service/src/{delegation,capability}.rs` and `AIP_DELEGATION_LOG_PATH`.
+  Delegated authority is expressed only by signed `aip-core` chains inside
+  evidence packets. The discovery document (`AipConfiguration`, `aip-types`)
+  no longer advertises a delegation endpoint (`delegation_verify_uri`
+  removed — a wire change to an unsigned discovery document).
+- **Revocation is a tenant-scoped, authenticated fact.** `RevocationEntry`
+  carries `tenant_id` (from the administrator's API key, never the body);
+  the in-memory set is keyed `(tenant, jti)`; identity JWTs carry the
+  minting tenant as a `tid` claim and are checked against their own tenant's
+  revocations; `GET /v1/identity/revocation-status/{jti}` requires a key and
+  answers for the caller's tenant only (it was a public oracle over every
+  tenant's log); `cascade` is refused rather than silently ignored; JTIs are
+  canonicalised to 32 hex characters so a UUID JWT id and a 16-byte evidence
+  JTI share one spelling. Pre-tenancy log lines load under the legacy tenant
+  with their original hash.
+- **`POST /v1/evidence/verify` consults the server-side revocation set.**
+  The caller's `revoked_jtis` are unioned with the tenant's revocations
+  recorded through `POST /v1/identity/revoke`; a revoked chain JTI fails
+  `REVOCATION` whether or not the caller lists it. Tests:
+  `aip-service/tests/revocation_scope.rs` (HTTP level, two tenants).
+- **The two-host observer can now sign `IntegrityUnknown`.** `ObservationBatch`
+  gains `mechanism_integrity: Vec<MechanismIntegrityReport>` — the probe's
+  per-sensor foreign-eBPF finding — inside the attested bytes
+  (`OBSERVE_PROTOCOL_VERSION` **9 → 10**; version-9 batches are refused).
+  `aip-probe` reports every open tracer every cycle; `CollectorSigner`
+  absorbs reports fail-closed (a `Verified` report counts only for a
+  mechanism the batch declares active); `aip-collector`'s sink treats a
+  declared gate-able sensor with no report as `Unverifiable`. `ghost-demo`
+  now declares findings into the probe so the demo and the pilot share one
+  path. Tests: `aip-collector/src/sink.rs`; ledger §OI rows OI-09..OI-12.
+- **The pilot probe drives the netlink process-event connector**
+  (`AIP_PROBE_SENSORS=...,connector`; `CAP_NET_ADMIN` and `AF_NETLINK` added to
+  the systemd unit). It is the pilot's only gate-independent kernel-pushed
+  source and the only coverage the reconciler accepts for a process-lifecycle
+  non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
+  pilot topology. `ENOBUFS` is recorded as counted loss.
+
+### Fixed (documentation and delivery that did not match the code)
+- `deploy/docker/Dockerfile` built against `aip-standalone/Cargo.toml`, which
+  no longer exists; it now builds from the single root workspace and ships
+  `nexora-verify` alongside `aip-service`, `aip-migrate` and `aip-verify`.
+  `docker-compose.yml` fails fast when `AIP_KEY_PASSPHRASE` is unset instead
+  of letting the service `exit(1)` in a restart loop.
+- `release.yml` ships `nexora-verify` (the only offline verifier for Ghost
+  verdicts and NEXORA proofs); release artifacts are described as
+  checksummed, not signed.
+- `AIP_SPEC.md` §5 documents rules R15–R18 and the three-state outcome
+  (`valid` covers evaluated rules only); design-partner documents say 18
+  rules, not 14. `PRODUCTION_READINESS.md`: container image, compose and
+  release rows corrected from ✅ to 🟡 with the reason; the signed
+  audit-export bundle row corrected from ⬜ to ✅ (it shipped).
+- `aip-edge/tests/nexora.rs` pinned the NEXORA leaf list at nine; SD-10
+  added the tenth (`SignedReconciliation`). The pin now says so.
+
 ### Added (expected-side completeness — `UNATTRIBUTED_EFFECT` reachable)
 - **Decision-point coverage statements, produced from a ledger.** The
   decision point (`aip-authorize`) now records every `ExpectedExecution` it

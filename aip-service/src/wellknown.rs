@@ -12,7 +12,7 @@ use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::sync::Arc;
 
-use crate::{delegation, AppState};
+use crate::AppState;
 
 // ── /.well-known/aip-configuration ───────────────────────────────────────────
 
@@ -21,11 +21,9 @@ pub struct AipConfiguration {
     pub issuer: String,
     pub token_endpoint: String,
     pub verification_endpoint: String,
-    pub delegation_endpoint: String,
     pub revocation_endpoint: String,
     pub jwks_uri: String,
     pub algorithms_supported: Vec<&'static str>,
-    pub delegation_max_depth: u32,
 }
 
 pub async fn aip_configuration(State(state): State<Arc<AppState>>) -> Json<AipConfiguration> {
@@ -36,11 +34,9 @@ pub async fn aip_configuration(State(state): State<Arc<AppState>>) -> Json<AipCo
         issuer: base.clone(),
         token_endpoint: format!("{base}/v1/identity/issue"),
         verification_endpoint: format!("{base}/v1/identity/verify"),
-        delegation_endpoint: format!("{base}/v1/identity/delegate"),
         revocation_endpoint: format!("{base}/v1/identity/revoke"),
         jwks_uri: format!("{base}/.well-known/jwks.json"),
         algorithms_supported: vec!["EdDSA"],
-        delegation_max_depth: delegation::MAX_DEPTH,
     })
 }
 

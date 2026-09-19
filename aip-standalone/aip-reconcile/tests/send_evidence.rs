@@ -311,6 +311,7 @@ fn raw_batch(
             SourceMechanism::SockStateTracepoint,
             SourceMechanism::SockSendTracepoint,
         ]),
+        mechanism_integrity: Vec::new(),
         claimed_from_ms: from,
         claimed_to_ms: to,
         observations: vec![],

@@ -9,11 +9,9 @@ use std::sync::Arc;
 
 use crate::{
     auth::{AdminPrincipal, Principal},
-    delegation,
     models::{
-        DelegateRequest, DelegateResponse, ErrorBody, HealthResponse, IssueRequest, IssueResponse,
-        PublicKeyResponse, RevocationStatusResponse, RevokeRequest, RevokeResponse,
-        VerifyChainRequest, VerifyChainResponse, VerifyRequest, VerifyResponse,
+        ErrorBody, HealthResponse, IssueRequest, IssueResponse, PublicKeyResponse,
+        RevocationStatusResponse, RevokeRequest, RevokeResponse, VerifyRequest, VerifyResponse,
     },
     revocation, tokens, AppState,
 };
@@ -49,7 +47,7 @@ pub async fn health(State(state): State<Arc<AppState>>) -> Json<HealthResponse> 
 
 pub async fn issue(
     State(state): State<Arc<AppState>>,
-    _principal: Principal, // authenticated: minting tokens is not public
+    principal: Principal, // authenticated: minting tokens is not public
     Json(req): Json<IssueRequest>,
 ) -> Result<Json<IssueResponse>, ApiError> {
     // Validate: agent_id must be a UUID v4
@@ -84,6 +82,7 @@ pub async fn issue(
         req.agent_type.as_str(),
         req.metadata,
         req.ttl_seconds,
+        &principal.tenant_id,
         &state.encoding_key,
     )
     .map_err(|e| {
@@ -121,10 +120,17 @@ pub async fn verify(
 ) -> Json<VerifyResponse> {
     let result = tokens::verify(&req.token, &state.decoding_key);
 
-    // Check revocation set — a valid signature on a revoked JTI must be rejected.
+    // Check revocation set — a valid signature on a revoked JTI must be
+    // rejected. The lookup is scoped to the tenant that minted the token (its
+    // `tid` claim; pre-tenancy tokens belong to the legacy tenant), so no
+    // other tenant's revocation log can invalidate it.
+    let token_tenant = result
+        .tenant_id
+        .clone()
+        .unwrap_or_else(|| revocation::LEGACY_TENANT.to_owned());
     let (valid, reason) = if result.valid
         && !result.jti.is_empty()
-        && revocation::is_revoked(&state.revocation_set, &result.jti)
+        && revocation::is_revoked(&state.revocation_set, &token_tenant, &result.jti)
     {
         tracing::debug!(jti = %result.jti, "token rejected: revoked");
         (false, Some("token has been revoked".to_owned()))
@@ -159,242 +165,74 @@ pub async fn public_key(State(state): State<Arc<AppState>>) -> Json<PublicKeyRes
     })
 }
 
-// ── POST /v1/identity/delegate ────────────────────────────────────────────────
-
-pub async fn delegate(
-    State(state): State<Arc<AppState>>,
-    _principal: Principal, // authenticated: delegating authority is not public
-    Json(req): Json<DelegateRequest>,
-) -> Result<Json<DelegateResponse>, ApiError> {
-    // Validate delegatee_id is a UUID
-    if uuid::Uuid::parse_str(&req.delegatee_id).is_err() {
-        return Err(bad_request("delegatee_id must be a valid UUID v4"));
-    }
-
-    // Validate ttl
-    if req.ttl_seconds == 0 || req.ttl_seconds > 86_400 {
-        return Err(bad_request("ttl_seconds must be between 1 and 86400"));
-    }
-
-    // Verify the parent token to get its JTI and check revocation
-    let parent_result = tokens::verify(&req.parent_token, &state.decoding_key);
-    if !parent_result.valid {
-        return Err((
-            StatusCode::UNAUTHORIZED,
-            Json(ErrorBody {
-                error: format!(
-                    "parent_token invalid: {}",
-                    parent_result.reason.unwrap_or_default()
-                ),
-            }),
-        ));
-    }
-    if revocation::is_revoked(&state.revocation_set, &parent_result.jti) {
-        return Err((
-            StatusCode::UNAUTHORIZED,
-            Json(ErrorBody {
-                error: "parent_token has been revoked".to_owned(),
-            }),
-        ));
-    }
-
-    // Determine parent depth — root token (AIP JWT) has depth 0
-    let parent_depth: u32 = {
-        let log = state.delegation_log.lock().unwrap();
-        log.iter()
-            .find(|t| t.delegation_id == parent_result.jti)
-            .map(|t| t.depth)
-            .unwrap_or(0) // root AIP JWT → depth 0
-    };
-
-    let new_depth = parent_depth + 1;
-    if new_depth > delegation::MAX_DEPTH {
-        return Err(bad_request(format!(
-            "delegation chain depth {} exceeds maximum {}",
-            new_depth,
-            delegation::MAX_DEPTH
-        )));
-    }
-
-    let token = delegation::DelegationToken::new(
-        &parent_result.jti,
-        &req.delegatee_id,
-        req.scope,
-        new_depth,
-        req.ttl_seconds,
-    );
-
-    delegation::append_delegation(&state.delegation_log_path, &state.delegation_log, &token)
-        .map_err(|e| internal_error(format!("delegation log write error: {e}")))?;
-
-    tracing::info!(
-        delegation_id = %token.delegation_id,
-        parent_jti = %token.parent_jti,
-        delegatee_id = %token.delegatee_id,
-        depth = token.depth,
-        "delegation issued"
-    );
-
-    Ok(Json(DelegateResponse { delegation: token }))
-}
-
-// ── POST /v1/identity/verify-chain ───────────────────────────────────────────
-
-pub async fn verify_chain(
-    State(state): State<Arc<AppState>>,
-    Json(req): Json<VerifyChainRequest>,
-) -> Json<VerifyChainResponse> {
-    // Verify root token
-    let root_result = tokens::verify(&req.root_token, &state.decoding_key);
-    if !root_result.valid {
-        return Json(VerifyChainResponse {
-            valid: false,
-            effective_scope: None,
-            chain_depth: 0,
-            reason: Some(format!(
-                "root_token invalid: {}",
-                root_result.reason.unwrap_or_default()
-            )),
-        });
-    }
-    if revocation::is_revoked(&state.revocation_set, &root_result.jti) {
-        return Json(VerifyChainResponse {
-            valid: false,
-            effective_scope: None,
-            chain_depth: 0,
-            reason: Some("root_token has been revoked".to_owned()),
-        });
-    }
-
-    if req.delegation_ids.is_empty() {
-        // Root-only chain — valid, no scope constraint from delegations
-        return Json(VerifyChainResponse {
-            valid: true,
-            effective_scope: Some(crate::capability::CapabilityScope::admin()),
-            chain_depth: 0,
-            reason: None,
-        });
-    }
-
-    let log = state.delegation_log.lock().unwrap();
-
-    let mut expected_parent = root_result.jti.clone();
-    let mut effective_scope: Option<crate::capability::CapabilityScope> = None;
-
-    for (i, del_id) in req.delegation_ids.iter().enumerate() {
-        // Find delegation entry
-        let entry = match delegation::find_by_id(&log, del_id) {
-            Some(e) => e,
-            None => {
-                return Json(VerifyChainResponse {
-                    valid: false,
-                    effective_scope: None,
-                    chain_depth: i as u32,
-                    reason: Some(format!("delegation_id {del_id} not found")),
-                })
-            }
-        };
-
-        // Check parent linkage
-        if entry.parent_jti != expected_parent {
-            return Json(VerifyChainResponse {
-                valid: false,
-                effective_scope: None,
-                chain_depth: i as u32,
-                reason: Some(format!("chain broken at index {i}: parent_jti mismatch")),
-            });
-        }
-
-        // Check revocation
-        if revocation::is_revoked(&state.revocation_set, &entry.delegation_id) {
-            return Json(VerifyChainResponse {
-                valid: false,
-                effective_scope: None,
-                chain_depth: i as u32,
-                reason: Some(format!("delegation {del_id} has been revoked")),
-            });
-        }
-
-        // Narrow effective scope
-        effective_scope = Some(match effective_scope {
-            None => entry.scope.clone(),
-            Some(prev) => match prev.meet(&entry.scope) {
-                Some(s) => s,
-                None => {
-                    return Json(VerifyChainResponse {
-                        valid: false,
-                        effective_scope: None,
-                        chain_depth: i as u32,
-                        reason: Some(format!("scope intersection empty at chain index {i}")),
-                    })
-                }
-            },
-        });
-
-        expected_parent = entry.delegation_id.clone();
-    }
-
-    Json(VerifyChainResponse {
-        valid: true,
-        effective_scope,
-        chain_depth: req.delegation_ids.len() as u32,
-        reason: None,
-    })
-}
-
 // ── POST /v1/identity/revoke ──────────────────────────────────────────────────
+//
+// Admin-only, and scoped to the administrator's own tenant: the entry is
+// written under `admin.0.tenant_id`, which comes from the API key and never
+// from the body. A JTI that belongs to another tenant is unaffected — the
+// call succeeds and records a revocation in the caller's namespace, which is
+// inert there, rather than returning a distinguishable error that would tell
+// the caller whether the JTI exists elsewhere.
 
 pub async fn revoke(
     State(state): State<Arc<AppState>>,
     admin: AdminPrincipal, // admin-only: revocation is a privileged authority action
     Json(req): Json<RevokeRequest>,
 ) -> Result<Json<RevokeResponse>, ApiError> {
-    if req.jti.is_empty() {
-        return Err(bad_request("jti must not be empty"));
+    let jti = revocation::normalize_jti(&req.jti).map_err(bad_request)?;
+    if req.revoked_by.is_empty() || req.revoked_by.len() > revocation::MAX_TEXT_FIELD_LEN {
+        return Err(bad_request(format!(
+            "revoked_by must be 1..={} bytes",
+            revocation::MAX_TEXT_FIELD_LEN
+        )));
     }
-    if req.revoked_by.is_empty() {
-        return Err(bad_request("revoked_by must not be empty"));
+    if req.reason.len() > revocation::MAX_TEXT_FIELD_LEN {
+        return Err(bad_request(format!(
+            "reason must be at most {} bytes",
+            revocation::MAX_TEXT_FIELD_LEN
+        )));
+    }
+    if req.cascade {
+        // Refused, not ignored: a caller that asked for descendants to be
+        // revoked and received a 200 would believe they were.
+        return Err(bad_request(
+            "cascade revocation is not available: the service no longer keeps a \
+             delegation log. Revoke each descendant JTI explicitly; signed \
+             aip-core delegation chains name them.",
+        ));
     }
 
-    let revoked_jtis = if req.cascade {
-        let parent_to_children = delegation::build_parent_to_children(&state.delegation_log);
-        revocation::cascade_revoke(
-            &state.revocation_log_path,
-            &state.revocation_set,
-            &req.jti,
-            &req.revoked_by,
-            &req.reason,
-            &parent_to_children,
-        )
-        .map_err(|e| internal_error(format!("cascade revoke error: {e}")))?
-    } else {
-        let entry = revocation::RevocationEntry::new(&req.jti, &req.revoked_by, &req.reason);
-        revocation::revoke(&state.revocation_log_path, &state.revocation_set, &entry)
-            .map_err(|e| internal_error(format!("revoke error: {e}")))?;
-        vec![req.jti.clone()]
-    };
+    let tenant = admin.0.tenant_id.as_str();
+    let entry = revocation::RevocationEntry::new(tenant, &jti, &req.revoked_by, &req.reason);
+    revocation::revoke(&state.revocation_log_path, &state.revocation_set, &entry).map_err(|e| {
+        tracing::error!(error = %e, "revocation log write failed");
+        internal_error("revocation could not be recorded")
+    })?;
 
     tracing::info!(
-        count = revoked_jtis.len(),
-        cascade = req.cascade,
+        jti = %jti,
         revoked_by = %req.revoked_by,
         admin_key = %admin.0.key_id,
-        admin_tenant = %admin.0.tenant_id,
-        "tokens revoked"
+        tenant = %tenant,
+        "token revoked"
     );
 
     Ok(Json(RevokeResponse {
-        revoked_count: revoked_jtis.len(),
-        revoked_jtis,
+        revoked_count: 1,
+        revoked_jtis: vec![jti],
     }))
 }
 
 // ── GET /v1/identity/revocation-status/{jti} ─────────────────────────────────
+//
+// Authenticated and answered for the caller's tenant only. Unauthenticated,
+// this was an oracle over every tenant's revocation log.
 
 pub async fn revocation_status(
     State(state): State<Arc<AppState>>,
+    principal: Principal,
     Path(jti): Path<String>,
 ) -> Json<RevocationStatusResponse> {
-    let revoked = revocation::is_revoked(&state.revocation_set, &jti);
+    let revoked = revocation::is_revoked(&state.revocation_set, &principal.tenant_id, &jti);
     Json(RevocationStatusResponse { jti, revoked })
 }

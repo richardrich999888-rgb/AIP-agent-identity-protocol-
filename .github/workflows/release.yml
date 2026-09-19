@@ -41,12 +41,15 @@ jobs:
           echo '[target.aarch64-unknown-linux-gnu]' >> .cargo/config.toml
           echo 'linker = "aarch64-linux-gnu-gcc"' >> .cargo/config.toml
 
-      # One workspace: both binaries build from the repository root and land
-      # in the single ./target/<triple>/release directory.
+      # One workspace: every binary builds from the repository root and lands
+      # in the single ./target/<triple>/release directory. `nexora-verify` is
+      # the offline verifier for Ghost verdicts and NEXORA proofs; an auditor
+      # who receives a verdict needs it as much as `aip-verify`.
       - name: Build release binaries
         run: |
           cargo build --release --target ${{ matrix.target }} -p airon-aip
           cargo build --release --target ${{ matrix.target }} -p aip-verify
+          cargo build --release --target ${{ matrix.target }} -p aip-nexora --bin nexora-verify
 
       - name: Package artifacts
         run: |
@@ -56,8 +59,11 @@ jobs:
           mkdir -p "$OUT"
           cp "$BIN/airon-aip" "$OUT/aip-service"
           cp "$BIN/aip-verify" "$OUT/aip-verify"
-          (cd "$OUT" && sha256sum aip-service aip-verify > SHA256SUMS)
-          tar -C "$OUT" -czf "aip-${{ matrix.target }}.tar.gz" aip-service aip-verify SHA256SUMS
+          cp "$BIN/nexora-verify" "$OUT/nexora-verify"
+          # Checksummed, not signed: SHA256SUMS lets a downloader detect
+          # corruption or substitution in transit, not prove who built it.
+          (cd "$OUT" && sha256sum aip-service aip-verify nexora-verify > SHA256SUMS)
+          tar -C "$OUT" -czf "aip-${{ matrix.target }}.tar.gz" aip-service aip-verify nexora-verify SHA256SUMS
 
       - uses: actions/upload-artifact@v4
         with:

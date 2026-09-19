@@ -14,7 +14,7 @@
 services:
   aip-service:
     build:
-      context: ../..                      # repo root (needs both workspaces)
+      context: ../..                      # repo root (the single Cargo workspace)
       dockerfile: deploy/docker/Dockerfile
     depends_on:
       postgres:
@@ -24,7 +24,11 @@ services:
     environment:
       AIP_PORT: "8081"
       AIP_KEY_PATH: /var/lib/aip/signing.key
-      AIP_DELEGATION_LOG_PATH: /var/lib/aip/delegation.jsonl
+      # Signing-key custody. The service refuses to start with an unwrapped
+      # key unless AIP_CUSTODY_POLICY=development; compose therefore fails
+      # fast here rather than letting the container exit(1) in a loop.
+      AIP_KEY_PASSPHRASE: ${AIP_KEY_PASSPHRASE:?set AIP_KEY_PASSPHRASE to wrap the service signing key (or export AIP_CUSTODY_POLICY=development for a throwaway local trial and pass it through below)}
+      AIP_CUSTODY_POLICY: ${AIP_CUSTODY_POLICY:-production}
       AIP_REVOCATION_LOG_PATH: /var/lib/aip/revocation.jsonl
       AIP_API_KEYS_PATH: /etc/aip/keys.json   # mount your keys file (see below)
       # Durable backend:
@@ -79,8 +83,9 @@ volumes:
 #   AIP_PORT                  listen port (default 8081)
 #   AIP_KEY_PATH              service Ed25519 signing seed path
 #   AIP_VAULT_PATH            Evidence Vault JSONL path (system of record)
-#   AIP_DELEGATION_LOG_PATH   legacy delegation log path
-#   AIP_REVOCATION_LOG_PATH   legacy revocation log path
+#   AIP_KEY_PASSPHRASE        REQUIRED: wraps the signing key at rest
+#   AIP_CUSTODY_POLICY        "production" (default) | "development"
+#   AIP_REVOCATION_LOG_PATH   tenant-scoped revocation log path
 #   AIP_API_KEYS_PATH         JSON: {"keys":[{key_id,tenant_id,role,secret_sha256}]}
 #                             (no keys => fail closed: authed routes return 401)
 #   AIP_STORE_BACKEND         "postgres" | "jsonl" (default jsonl)

@@ -387,6 +387,22 @@ pub fn verify_request_with_history(
     req: &VerifyRequest,
     history: Option<ObservedHistory>,
 ) -> Result<VerificationReport, String> {
+    verify_request_with_context(req, history, &HashSet::new())
+}
+
+/// As [`verify_request_with_history`], additionally treating
+/// `server_revoked_jtis` as revoked.
+///
+/// These are the JTIs the *service* has recorded as revoked for the caller's
+/// tenant (via `POST /v1/identity/revoke`). They are unioned with the
+/// caller's own list, never replaced by it: a caller cannot un-revoke by
+/// omission. Gathering them reads shared state and belongs to the handler,
+/// so this calculator stays a pure function of its arguments.
+pub fn verify_request_with_context(
+    req: &VerifyRequest,
+    history: Option<ObservedHistory>,
+    server_revoked_jtis: &HashSet<[u8; 16]>,
+) -> Result<VerificationReport, String> {
     let mut ctx = VerificationContext::new();
     ctx.observed_history = history;
 
@@ -408,6 +424,7 @@ pub fn verify_request_with_history(
         jti.copy_from_slice(&bytes);
         revoked.insert(jti);
     }
+    revoked.extend(server_revoked_jtis.iter().copied());
     ctx.revoked_jtis = revoked;
     ctx.trace_data = req.trace_data.as_ref().map(|s| s.as_bytes().to_vec());
     ctx.receipt_data = req.receipt_data.as_ref().map(|s| s.as_bytes().to_vec());
@@ -495,9 +512,12 @@ pub async fn generate_refused() -> ApiError {
     )
 }
 
-// Authenticated but stateless: verification is a pure function of the packet
-// and caller-supplied keys, so it is not tenant-scoped. Auth still required
-// (no anonymous use of the service).
+// Authenticated. Verification is a pure function of the packet, the
+// caller-supplied keys, and two pieces of tenant state this handler gathers
+// for the calculator: the tenant's replay history (opt-in) and the tenant's
+// server-side revocations (always). A JTI revoked through
+// `POST /v1/identity/revoke` therefore fails `REVOCATION` here whether or not
+// the caller lists it.
 pub async fn verify(
     State(state): State<Arc<AppState>>,
     principal: Principal,
@@ -535,7 +555,10 @@ pub async fn verify(
         None
     };
 
-    let report = verify_request_with_history(&req, history).map_err(bad_request)?;
+    let server_revoked =
+        crate::revocation::evidence_jtis_for_tenant(&state.revocation_set, &principal.tenant_id);
+    let report =
+        verify_request_with_context(&req, history, &server_revoked).map_err(bad_request)?;
     Ok(Json(report))
 }
 

@@ -254,8 +254,10 @@ a Vanian defect. Neither raises a verdict above its `EvidenceCeiling`.
 unit + integration tests, `clippy -D warnings` clean):
 
 1. **Probe daemon** (`aip-probe`) — a long-running host-side process over
-   `aip-observe`'s perf sensors (sched, sockstate, socksend). Holds a
-   transport-auth key only; no evidence key.
+   `aip-observe`'s perf sensors (sched, sockstate, socksend) **and the netlink
+   process-event connector** (gate-independent; the source whose coverage a
+   non-occurrence claim requires). Reports each perf sensor's integrity
+   finding in every batch. Holds a transport-auth key only; no evidence key.
 2. **Authenticated probe→collector transport** (`aip-transport`) — std-only
    blocking TCP, length-prefixed frames bounded before allocation, an Ed25519
    challenge/response handshake against the collector's allow-list, and a
@@ -275,14 +277,22 @@ public key; an unlisted transport key is refused with nothing attested.
 
 **Remaining before the pilot runs end to end on institution hardware:**
 
-4. **Mechanism-integrity across the split** (Phase 1.x) — convey the probe's
-   per-sensor gate finding to the collector as a signed transport field so a
-   blinded probe drives `IntegrityUnknown` (safety already holds via the
-   coverage predicate; see `PHASE1_DAEMONS.md`).
-5. **Gate-independent sensors in the probe** (connector, fanotify, AF_PACKET) —
-   requested-but-unsupported today is a startup error, not a silent no-op.
-6. **Decision-point coverage statements** for `UNATTRIBUTED_EFFECT` (Phase 2).
-7. **aip-service hardening** for §8.
+4. ~~**Mechanism-integrity across the split**~~ — **closed.** The probe's
+   per-sensor finding travels inside the batch (protocol v10), inside both the
+   frame signature and the attested bytes; the collector absorbs it
+   fail-closed and its daemon sink refuses a batch that declares a gate-able
+   sensor and omits the finding (`PHASE1_DAEMONS.md`).
+5. **Gate-independent sensors in the probe** — **connector done**
+   (`AIP_PROBE_SENSORS=...,connector`, `CAP_NET_ADMIN`); fanotify and
+   AF_PACKET remain Phase 1.x and requesting one is a startup error.
+6. ~~**Decision-point coverage statements**~~ — **done** (`aip-authorize`
+   `DecisionLedger`; `UNATTRIBUTED_EFFECT` fires live).
+7. **aip-service hardening** for §8 — **partly done:** the unsigned legacy
+   delegation routes are deleted, revocation is tenant-scoped, admin-only and
+   authenticated to query, and `/v1/evidence/verify` consults the server-side
+   revocation set. Still open: TLS/rate limiting at ingress (B1), KMS/HSM
+   (B4), verdict persistence and API (the reconciler is not linked into the
+   service), the self-issued-authority acceptance in `aip-protocol`.
 8. **RED suite harness on institution hardware** (extend
    `validation/observation_integrity/pipeline_under_gate.sh`).
 9. **TLS/mTLS outer layer and durable batch buffering** on the transport
@@ -309,10 +319,10 @@ IRDAI for insurance) — CERT-In and DPDP apply sector-wide.
 | B2 | Independent security assessment (CERT-In empanelled) + remediation | CERT-In (all); segment regulator | ⬜ **hard gate, every segment** |
 | B3 | Durable, backed-up storage + DR/BCP | segment regulator's BCP/resilience rules (RBI BCP, SEBI CSCRF, IRDAI) | 🟡 (Postgres backend exists; backup/DR not) |
 | B4 | KMS/HSM for service **and** collector signing keys; API-key rotation | segment regulator's key-management expectations | 🟡 (wrapped-file custody exists; HSM not) |
-| B5 | Signed audit-export bundle + standalone verifier for the auditor | audit / evidence (all) | 🟡 (`aip-verify` + bundle exist; auditor distribution not) |
+| B5 | Signed audit-export bundle + standalone verifier for the auditor | audit / evidence (all) | ✅ (`/export` bundle; `aip-verify` and `nexora-verify` both in `release.yml`; artifacts checksummed, not signed) |
 | B6 | Metrics / monitoring / SIEM export + runbook | SOC integration (all) | ⬜ |
 | B7 | Control-framework mapping (RBI / SEBI CSCRF / IRDAI / DPDP / ISO 27001) | compliance, **mapped per target segment** | ⬜ |
-| B8 | Off-host collector daemon + authenticated transport (§7.1–7.3) | the P3 guarantee in production (all) | ⬜ **observer-side hard gate** |
+| B8 | Off-host collector daemon + authenticated transport (§7.1–7.3) | the P3 guarantee in production (all) | 🟡 components built (incl. connector + integrity-across-split); **hard gate is the run on institution hardware** (Phase 1 exit) |
 | B9 | Client-side signing SDK + `/v1/evidence/ingest` (no agent key on the wire) | key custody (all) | ⬜ |
 
 ---

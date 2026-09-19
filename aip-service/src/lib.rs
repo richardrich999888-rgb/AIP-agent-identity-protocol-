@@ -4,8 +4,6 @@
 
 pub mod auth;
 pub mod authority;
-pub mod capability;
-pub mod delegation;
 pub mod evidence;
 pub mod handlers;
 pub mod keys;
@@ -26,7 +24,6 @@ use axum::{
 };
 use jsonwebtoken::{DecodingKey, EncodingKey};
 
-use delegation::DelegationLog;
 use revocation::RevocationSet;
 use store::EvidenceStore;
 
@@ -40,10 +37,6 @@ pub struct AppState {
     pub public_pem: String,
     /// SHA-256 fingerprint of the public key bytes.
     pub fingerprint: String,
-    /// Path to the delegation JSONL log (for append operations).
-    pub delegation_log_path: String,
-    /// In-memory delegation log.
-    pub delegation_log: DelegationLog,
     /// Path to the revocation JSONL log (for append operations).
     pub revocation_log_path: String,
     /// In-memory revocation set.
@@ -125,8 +118,6 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/v1/identity/issue", post(handlers::issue))
         .route("/v1/identity/verify", post(handlers::verify))
         .route("/v1/identity/public-key", get(handlers::public_key))
-        .route("/v1/identity/delegate", post(handlers::delegate))
-        .route("/v1/identity/verify-chain", post(handlers::verify_chain))
         .route("/v1/identity/revoke", post(handlers::revoke))
         .route(
             "/v1/identity/revocation-status/:jti",

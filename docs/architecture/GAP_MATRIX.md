@@ -173,7 +173,7 @@ original discovery text for traceability):
 | Service verify trust anchors — **PARTIAL `f78a599`** (documented as calculator; type-level separation pending decision point) | caller supplies `trusted_issuers` (`evidence.rs:161,307-309`) | documented as calculator; never an authority | self-authorization loop if consumed as a decision (**I19**) | doc + type-level separation | **P0** |
 | Packet replay | no seen-set; same packet verifies forever | explicit replay oracle in `VerificationContext` | replayed evidence indistinguishable | none | **P1** |
 | Absolute expiry — **DECIDED `f78a599`: no wall clock** (R10 semantics are explicit and offline relative to signed timestamps; see `AIP_CORRECTNESS_REPORT.md` "Verification-time semantics") | R10 never consults a clock; `is_token_expired` uncalled | optional `ctx.verification_time` | expired-years-ago token verifies | expiry fix | **P1** |
-| `aip-service` duplicate authority engine | unsigned tokens, no attenuation at issuance, no expiry check, different `Action` enum (`aip-service/src/{delegation,capability}.rs`) | deleted; route through `aip-core` | two security models; log write ⇒ privilege escalation (**I18**) | — | **P1** |
+| `aip-service` duplicate authority engine — **CLOSED** | unsigned tokens, no attenuation at issuance, no expiry check, different `Action` enum (`aip-service/src/{delegation,capability}.rs`) | **deleted**: `/v1/identity/delegate` and `/verify-chain` removed with both modules; revocation tenant-scoped (`tid` JWT claim, admin's key tenant), `revocation-status` authenticated; `/v1/evidence/verify` unions the tenant's server-side revocations | two security models; log write ⇒ privilege escalation (**I18**) | — | **P1** |
 | Private keys at rest — **PARTIAL `228b02e`** (custom `Debug` redacts; `Serialize` kept for `store.rs`; plaintext at rest remains) | plaintext JSON, `Debug`+`Serialize` on `KeyPair` (`aip-types:25-30`, `store.rs:149-151`) | `serde(skip)`, custom `Debug`, 0600, zeroize | key disclosure | — | **P1** |
 | `validate_aip_id` panic — **CLOSED `14da5a8`** | byte-index slice on `&str` (`aip-crypto:81-82`), reachable from JSON | char-boundary safe | authenticated request abort | — | **P1** |
 
@@ -332,6 +332,6 @@ Still open, and each is a real boundary rather than a to-do:
 | No `Proven` workload finding | autonomous containment is unreachable; the response pipeline is built and idle | decided position, `CONTAINMENT_MODEL.md` §10 |
 | No kernel-resident sensing | coverage depends on user-space reads the host could stop | no eBPF, no XDP, none claimed |
 | Software keys only | root on a *collector* host is unbounded | no TPM, no HSM |
-| No revocation distribution | `revoked_jtis` is a list the operator hands the verifier | no CRL, no OCSP, no service |
+| No revocation distribution | `revoked_jtis` is a list the operator hands the verifier; the service now consults its own tenant-scoped revocation set on `/v1/evidence/verify` | no CRL, no OCSP, nothing for an *offline* verifier |
 | `aip_core::respond_to_challenge` signs an untagged nonce | a signature with no domain tag | on no NEXORA path; **recorded and open**, not fixed |
 | One machine, one build, for every measurement | nothing is known at scale | `aip-nexora/tests/perf.rs` says so in its own header |

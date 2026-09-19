@@ -1,4 +1,5 @@
-//! The probe's sensor set: opens the configured perf-tracepoint sources and
+//! The probe's sensor set: opens the configured kernel sources — the
+//! perf-tracepoint tracers and the netlink process-event connector — and
 //! drains them into a [`ProcfsProbe`] each cycle, producing an
 //! [`ObservationBatch`]. The probe holds no key; the batch it produces is
 //! unsigned and becomes evidence only when the off-host collector attests it.
@@ -29,6 +30,12 @@ pub struct SensorSet {
     sockstate: Option<aip_observe::SockStateTracer>,
     #[cfg(target_os = "linux")]
     socksend: Option<aip_observe::SockSendTracer>,
+    /// The netlink process-event connector: kernel-pushed fork/exec/exit,
+    /// not exposed to the per-tracepoint eBPF submission gate. The only
+    /// source whose coverage licenses a process-lifecycle non-occurrence
+    /// claim. `CAP_NET_ADMIN`.
+    #[cfg(target_os = "linux")]
+    connector: Option<aip_observe::ProcConnector>,
 }
 
 /// Encode a monotonic counter into a 16-byte batch id (big-endian in the low 8
@@ -48,7 +55,8 @@ impl SensorSet {
     #[cfg(target_os = "linux")]
     pub fn open(probe_id: &str, cfg: SensorConfig) -> Result<Self, String> {
         use aip_observe::{
-            boot_clock_anchor, ProcessTracer, SockSendTracer, SockStateTracer, SourceMechanism,
+            boot_clock_anchor, ProcConnector, ProcessTracer, SockSendTracer, SockStateTracer,
+            SourceMechanism,
         };
 
         let mut probe = ProcfsProbe::new(probe_id);
@@ -78,6 +86,16 @@ impl SensorSet {
             None
         };
 
+        let connector = if cfg.connector {
+            let c = ProcConnector::open()
+                .map_err(|e| format!("open netlink process connector (needs CAP_NET_ADMIN in the initial network namespace): {e}"))?;
+            probe.declare_source(SourceMechanism::ProcConnector);
+            probe.enable_loss_counter();
+            Some(c)
+        } else {
+            None
+        };
+
         if let Ok(anchor) = boot_clock_anchor() {
             probe.declare_clock_anchor(anchor);
         }
@@ -88,6 +106,7 @@ impl SensorSet {
             process,
             sockstate,
             socksend,
+            connector,
         })
     }
 
@@ -134,6 +153,62 @@ impl SensorSet {
             drain_into_probe!(self.process, ingest_sched_event);
             drain_into_probe!(self.sockstate, ingest_socket_event);
             drain_into_probe!(self.socksend, ingest_send_event);
+
+            // The connector has no ring and no LOST record: the kernel signals
+            // an overflowed receive queue with `ENOBUFS`, surfaced as
+            // `SourceError::EventsLost`. How many events were lost is unknown,
+            // so the count recorded is a floor of one, and it does what any
+            // counted loss does: the collector marks the epoch degraded and
+            // the probe forgets its exec-time bindings (a pid may have been
+            // recycled across the gap). Nothing is inferred to fill the hole.
+            if let Some(c) = self.connector.as_ref() {
+                let mut n: u32 = 0;
+                loop {
+                    match c.next_event(POLL_MS) {
+                        Ok(Some(ev)) => {
+                            self.probe.ingest_kernel_event(ev);
+                            n += 1;
+                            if n >= MAX_EVENTS_PER_SENSOR {
+                                break;
+                            }
+                        }
+                        Ok(None) => break,
+                        Err(aip_observe::SourceError::EventsLost) => {
+                            self.probe.record_lost_events(1);
+                            break;
+                        }
+                        Err(_) => break,
+                    }
+                }
+            }
+
+            // Integrity check for every open perf-tracepoint sensor, every
+            // cycle, carried in the batch. A foreign eBPF program on a sampled
+            // tracepoint suppresses events host-wide with no loss accounting;
+            // the collector — on another host, holding the key — can only
+            // sign `IntegrityUnknown` if this probe tells it. A refused query
+            // is reported as `Unverifiable`, which the collector treats like
+            // a found gate. Nothing here is signed: it is a probe claim the
+            // collector can lower the state on, never raise it.
+            use aip_observe::SourceMechanism;
+            if let Some(t) = self.process.as_ref() {
+                self.probe.declare_mechanism_integrity(
+                    SourceMechanism::SchedTracepoint,
+                    t.mechanism_integrity(),
+                );
+            }
+            if let Some(t) = self.sockstate.as_ref() {
+                self.probe.declare_mechanism_integrity(
+                    SourceMechanism::SockStateTracepoint,
+                    t.mechanism_integrity(),
+                );
+            }
+            if let Some(t) = self.socksend.as_ref() {
+                self.probe.declare_mechanism_integrity(
+                    SourceMechanism::SockSendTracepoint,
+                    t.mechanism_integrity(),
+                );
+            }
         }
         let _ = (from_ms, to_ms);
         self.batch_counter += 1;

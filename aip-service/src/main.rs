@@ -3,7 +3,6 @@
 //! Environment variables:
 //!   AIP_PORT                — listen port (default 8081)
 //!   AIP_KEY_PATH            — Ed25519 seed path (default /var/lib/aip/signing.key)
-//!   AIP_DELEGATION_LOG_PATH — delegation JSONL log (default /var/lib/aip/delegation.jsonl)
 //!   AIP_REVOCATION_LOG_PATH — revocation JSONL log (default /var/lib/aip/revocation.jsonl)
 //!   AIP_VAULT_PATH          — JSONL evidence vault (jsonl backend)
 //!   AIP_API_KEYS_PATH       — API keys file (no keys ⇒ fail closed)
@@ -16,7 +15,7 @@ use std::sync::Arc;
 use tracing_subscriber::{fmt, EnvFilter};
 
 use airon_aip::store::{EvidenceStore, JsonlEvidenceStore};
-use airon_aip::{auth, delegation, keys::ServiceKey, revocation, router, AppState, ManagedSigning};
+use airon_aip::{auth, keys::ServiceKey, revocation, router, AppState, ManagedSigning};
 
 async fn build_store() -> Arc<dyn EvidenceStore> {
     let backend = std::env::var("AIP_STORE_BACKEND").unwrap_or_else(|_| "jsonl".to_owned());
@@ -66,8 +65,6 @@ async fn main() {
 
     let key_path =
         std::env::var("AIP_KEY_PATH").unwrap_or_else(|_| "/var/lib/aip/signing.key".to_owned());
-    let delegation_log_path = std::env::var("AIP_DELEGATION_LOG_PATH")
-        .unwrap_or_else(|_| "/var/lib/aip/delegation.jsonl".to_owned());
     let revocation_log_path = std::env::var("AIP_REVOCATION_LOG_PATH")
         .unwrap_or_else(|_| "/var/lib/aip/revocation.jsonl".to_owned());
     let api_keys_path = std::env::var("AIP_API_KEYS_PATH").unwrap_or_default();
@@ -122,7 +119,6 @@ async fn main() {
     let encoding_key = kp.encoding_key();
     let decoding_key = kp.decoding_key();
 
-    let del_log = delegation::load_delegation_log(&delegation_log_path);
     let rev_set = revocation::load_revocation_set(&revocation_log_path);
     let store = build_store().await;
     let api_keys = auth::ApiKeyStore::load(&api_keys_path);
@@ -152,7 +148,6 @@ async fn main() {
 
     let evidence_packets = store.count().await.unwrap_or(0);
     tracing::info!(
-        delegation_entries = del_log.lock().unwrap().len(),
         revocation_entries = rev_set.lock().unwrap().len(),
         evidence_packets,
         api_keys = api_keys.len(),
@@ -164,8 +159,6 @@ async fn main() {
         decoding_key,
         public_pem: kp.public_pem.clone(),
         fingerprint: kp.fingerprint.clone(),
-        delegation_log_path,
-        delegation_log: del_log,
         revocation_log_path,
         revocation_set: rev_set,
         store,

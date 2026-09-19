@@ -69,17 +69,25 @@ impl ObserverState {
 /// *capable* of delivering their event class — distinct from whether they
 /// dropped anything (loss) or whether the chain is intact (continuity).
 ///
-/// This is runtime state the collector derives from a live integrity check
-/// (on Linux, enumerating the eBPF programs attached to the tracepoints it
-/// samples). It is never signed on its own; its effect is carried into signed
-/// evidence through [`ObserverState::IntegrityUnknown`], so a verifier trusts
-/// the resulting state, not this input. Default is `Verified`: an observer
+/// This is runtime state derived from a live integrity check (on Linux,
+/// enumerating the eBPF programs attached to the tracepoints a sensor
+/// samples). The check runs where the sensor is — on the observed host, in
+/// the probe — and the finding travels to the off-host collector inside the
+/// unsigned [`crate::ObservationBatch`] as a
+/// [`crate::MechanismIntegrityReport`], a *probe claim* like every other
+/// batch field. The collector absorbs it through
+/// [`crate::CollectorSigner::note_mechanism_integrity`]; its effect on
+/// evidence is carried through [`ObserverState::IntegrityUnknown`] in the
+/// signed health, so a verifier trusts the resulting state, not this input.
+/// The claim can only lower the state: a non-capable report fails closed,
+/// and a `Verified` report is honoured only for a mechanism the same batch
+/// declares active (see [`crate::CollectorSigner`]). Default is `Verified`: an observer
 /// that samples no gate-able mechanism, or that has positively checked, is
 /// capable — and the reconciler's non-occurrence gate does not rest on this
 /// signal in any case (it requires a gate-independent mechanism in the signed
 /// coverage), so a collector that never checks cannot thereby manufacture a
 /// coverage claim.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MechanismIntegrity {
     /// No foreign eBPF program was found gating a sampled tracepoint (or the
     /// observer samples nothing a tracepoint gate could suppress).
@@ -125,6 +133,24 @@ impl MechanismIntegrity {
     /// check" fail closed identically without conflating the two diagnostics.
     pub fn is_capable(&self) -> bool {
         matches!(self, MechanismIntegrity::Verified)
+    }
+
+    /// Stable code for the canonical encoding of a report inside a batch.
+    pub fn code(&self) -> u8 {
+        match self {
+            MechanismIntegrity::Verified => 0x01,
+            MechanismIntegrity::ForeignTracepointGate { .. } => 0x02,
+            MechanismIntegrity::Unverifiable => 0x03,
+        }
+    }
+
+    /// The diagnostic count carried by a gate finding; zero otherwise. Part of
+    /// the canonical encoding so the count cannot be edited after attestation.
+    pub fn foreign_program_count(&self) -> u32 {
+        match self {
+            MechanismIntegrity::ForeignTracepointGate { foreign_programs } => *foreign_programs,
+            _ => 0,
+        }
     }
 }
 

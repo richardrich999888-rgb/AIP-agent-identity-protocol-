@@ -155,9 +155,11 @@ Fail closed: no keys configured ⇒ authenticated routes return 401.
 | `POST /v1/evidence/verify` | Machine | auth; stateless (no tenant) |
 | `GET /v1/evidence/{id}` | Machine | auth; tenant-checked read |
 | `GET /v1/authority/{id}` | Machine | auth; tenant-scoped graph |
-| `POST /v1/identity/issue`, `/delegate` | Machine | auth |
-| `POST /v1/identity/verify`, `/verify-chain`, `GET /revocation-status` | Public read | none (stateless verification) |
-| `POST /v1/identity/revoke` | Admin | auth + `admin` role |
+| `POST /v1/identity/issue` | Machine | auth; token carries the key's tenant (`tid`) |
+| `POST /v1/identity/verify` | Public read | stateless; revocation looked up in the token's own tenant |
+| `GET /v1/identity/revocation-status/{jti}` | Machine | auth; answered for the caller's tenant only |
+| `POST /v1/identity/revoke` | Admin | auth + `admin` role; recorded under the admin's tenant; `cascade` refused |
+| ~~`POST /v1/identity/delegate`~~, ~~`/verify-chain`~~ | removed | unsigned delegation model deleted; use `aip-core` signed chains inside evidence packets |
 
 **New env var:** `AIP_API_KEYS_PATH` → JSON `{ "keys": [{key_id, tenant_id,
 role, secret_sha256}] }`. Mint a secret out of band; store

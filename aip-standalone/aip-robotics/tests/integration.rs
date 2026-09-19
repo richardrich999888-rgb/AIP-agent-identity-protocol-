@@ -213,7 +213,9 @@ fn the_profile_needs_no_change_to_nexora_or_to_the_reconciler() {
 
     assert_eq!(
         LeafKind::ALL.len(),
-        9,
-        "Skill 24 must add no leaf kind: a robotics proof tree would be a second proof tree"
+        10,
+        "Skill 24 must add no leaf kind: a robotics proof tree would be a second proof tree \
+         (the list stands at ten: the tenth, `SignedReconciliation`, is SD-10's signed \
+         verdict leaf, not a profile's)"
     );
 }

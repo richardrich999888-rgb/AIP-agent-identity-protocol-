@@ -48,8 +48,6 @@ pub fn test_app_state_with(
         decoding_key,
         public_pem: kp.public_pem.clone(),
         fingerprint: kp.fingerprint.clone(),
-        delegation_log_path: log_path.clone(),
-        delegation_log: crate::delegation::load_delegation_log(&log_path),
         revocation_log_path: log_path.clone(),
         revocation_set: crate::revocation::load_revocation_set(&log_path),
         store,

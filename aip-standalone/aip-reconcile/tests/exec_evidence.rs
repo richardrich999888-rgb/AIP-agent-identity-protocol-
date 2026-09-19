@@ -265,6 +265,7 @@ fn raw_batch(
             SourceMechanism::PidFdAnchored,
             SourceMechanism::SchedTracepoint,
         ]),
+        mechanism_integrity: Vec::new(),
         claimed_from_ms: from,
         claimed_to_ms: to,
         observations: vec![],

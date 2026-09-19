@@ -744,7 +744,10 @@ impl CollectorSigner {
             .registry
             .get(&batch.probe_id)
             .ok_or_else(|| AttestError::UnregisteredProbe(batch.probe_id.clone()))?;
-        for m in batch.mechanisms() {
+        for m in batch
+            .mechanisms()
+            .chain(batch.mechanism_integrity.iter().map(|r| r.mechanism))
+        {
             if !permitted.contains(&m) {
                 return Err(AttestError::MechanismNotProvisioned {
                     probe_id: batch.probe_id.clone(),
@@ -753,6 +756,22 @@ impl CollectorSigner {
             }
         }
         Ok(())
+    }
+
+    /// Absorb the probe's per-mechanism integrity reports carried in the
+    /// batch (`ObservationBatch::mechanism_integrity`). The reports are probe
+    /// claims and can only lower the signed state: every non-capable finding
+    /// is noted as reported (fail closed), while a `Verified` finding is noted
+    /// only for a mechanism the same batch declares active — a probe cannot
+    /// clear a slot for a sensor it is not running. This is how the two-host
+    /// deployment, where the sensors and the signing key are on different
+    /// machines, reaches [`ObserverState::IntegrityUnknown`].
+    fn absorb_mechanism_reports(&mut self, batch: &ObservationBatch) {
+        for r in &batch.mechanism_integrity {
+            if !r.integrity.is_capable() || batch.active_mechanisms.contains(&r.mechanism) {
+                self.note_mechanism_integrity(r.mechanism, r.integrity);
+            }
+        }
     }
 
     /// Compare the batch's probe-stream fields with what this collector saw
@@ -815,6 +834,7 @@ impl ObserverAttestor for CollectorSigner {
             ));
         }
         self.check_registry(&batch)?;
+        self.absorb_mechanism_reports(&batch);
         let faults_before = self.probe_faults.len();
         self.track_probe_stream(&batch);
         let faulted_now = self.probe_faults.len() > faults_before;

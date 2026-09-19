@@ -320,6 +320,7 @@ fn raw_batch(
         probe_seq_last: seq.1,
         dropped_events: dropped,
         active_mechanisms: SourceMechanism::canonical_set(mechanisms),
+        mechanism_integrity: Vec::new(),
         claimed_from_ms: from,
         claimed_to_ms: to,
         observations: vec![],

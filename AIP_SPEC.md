@@ -166,10 +166,19 @@ A verifier evaluates **all** rules (no short-circuit) and reports each:
 | `TRACE_BINDING` | If trace data is supplied, its hash matches `trace_hash`. |
 | `RECEIPT_BINDING` | If receipt data is supplied, hash matches; if countersigned, the countersignature verifies against a trusted counterparty key. |
 | `TRUST_FLOOR` | The claimed floor must not exceed the derived floor (§6). |
+| `EXECUTION_BINDING` (R15) | If an execution binding is present it is version 1, names the packet's agent, and carries non-degenerate process and executable identity. Structural only: passing **never** means the execution was independently observed, and R15 does not feed the trust floor. Absence is reported, not failed. |
+| `VERIFICATION_TIME_BOUND` (R16) | Every timestamp the packet asserts is at or before the verification time the **verifier** supplied, within the declared tolerance. **NOT EVALUATED** when the verifier supplied no time; never reported as a pass in that case. |
+| `ACTION_UNIQUENESS` (R17) | No two action attestations in the packet share an `action_id`. Always evaluable. |
+| `REPLAY_SCOPE` (R18) | The packet does not reuse a decision or action identity that a *different* packet already established. Requires the verifier to supply its observed history; **NOT EVALUATED** without one, never a pass. |
 
-`valid` ⇔ all rules pass. `tampered` ⇔ at least one failure is positive
-evidence of post-signing modification (hash or signature-payload mismatch),
-as distinct from e.g. revocation.
+A rule has three outcomes: PASS, FAIL, or NOT EVALUATED (`evaluated:
+false`). `valid` ⇔ every *evaluated* rule passes. A report with R16 or R18
+NOT EVALUATED is therefore **not** a claim that the packet is temporally
+bounded or replay-free; a consumer that needs those properties must supply a
+verification time and a history, and must read those two rules explicitly.
+`tampered` ⇔ at least one failure is positive evidence of post-signing
+modification (hash or signature-payload mismatch), as distinct from e.g.
+revocation.
 
 ## 6. Trust floors (normative)
 

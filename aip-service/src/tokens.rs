@@ -10,6 +10,9 @@
 //!   iat      — issued-at (Unix seconds, i64)
 //!   exp      — expiry   (Unix seconds, i64)
 //!   jti      — JWT ID   (UUID v4, unique per token)
+//!   tid      — tenant that minted the token (from the issuing API key);
+//!              absent on tokens minted before tenancy, which belong to the
+//!              legacy tenant for revocation purposes
 
 use chrono::Utc;
 use jsonwebtoken::{
@@ -35,6 +38,10 @@ pub struct Claims {
     pub exp: i64,
     /// JWT ID — unique per token, enables future revocation indexing.
     pub jti: String,
+    /// Tenant that minted the token. Revocation is scoped to it, so an
+    /// administrator of another tenant cannot revoke this token.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tid: Option<String>,
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
@@ -51,6 +58,7 @@ pub fn issue(
     agent_type: &str,
     metadata: Option<serde_json::Map<String, serde_json::Value>>,
     ttl_seconds: u64,
+    tenant_id: &str,
     encoding_key: &EncodingKey,
 ) -> Result<IssueResult, String> {
     let now = Utc::now();
@@ -64,6 +72,7 @@ pub fn issue(
         iat,
         exp,
         jti: Uuid::new_v4().to_string(),
+        tid: Some(tenant_id.to_owned()),
     };
 
     let token = encode(&Header::new(Algorithm::EdDSA), &claims, encoding_key)
@@ -88,6 +97,8 @@ pub struct VerifyResult {
     pub agent_type: String,
     /// JWT ID — used by handlers to check the revocation set.
     pub jti: String,
+    /// The minting tenant (`tid` claim), or `None` for a pre-tenancy token.
+    pub tenant_id: Option<String>,
     pub expired: bool,
     pub reason: Option<String>,
 }
@@ -105,6 +116,7 @@ pub fn verify(token: &str, decoding_key: &DecodingKey) -> VerifyResult {
             agent_id: data.claims.sub,
             agent_type: data.claims.agt,
             jti: data.claims.jti,
+            tenant_id: data.claims.tid,
             expired: false,
             reason: None,
         },
@@ -124,6 +136,7 @@ pub fn verify(token: &str, decoding_key: &DecodingKey) -> VerifyResult {
                 agent_id: String::new(),
                 agent_type: String::new(),
                 jti: String::new(),
+                tenant_id: None,
                 expired,
                 reason: Some(reason),
             }
@@ -160,7 +173,7 @@ mod tests {
         let ek = encoding_key(&kp);
         let dk = decoding_key(&kp);
 
-        let result = issue(AGENT_ID, "human", None, 3600, &ek).unwrap();
+        let result = issue(AGENT_ID, "human", None, 3600, "tenant-test", &ek).unwrap();
         assert!(!result.token.is_empty());
         assert!(result.issued_at.contains('T'));
         assert!(result.expires_at.contains('T'));
@@ -181,7 +194,7 @@ mod tests {
         let ek = encoding_key(&kp);
         let dk = decoding_key(&kp);
 
-        let result = issue(AGENT_ID, "service", None, 1, &ek).unwrap();
+        let result = issue(AGENT_ID, "service", None, 1, "tenant-test", &ek).unwrap();
         tokio::time::sleep(std::time::Duration::from_secs(2)).await;
 
         let v = verify(&result.token, &dk);
@@ -198,7 +211,7 @@ mod tests {
         let ek = encoding_key(&kp);
         let dk = decoding_key(&kp);
 
-        let result = issue(AGENT_ID, "ai_model", None, 3600, &ek).unwrap();
+        let result = issue(AGENT_ID, "ai_model", None, 3600, "tenant-test", &ek).unwrap();
 
         // Flip the last character of the Base64url signature segment.
         let mut tampered = result.token.clone();
@@ -257,7 +270,7 @@ mod tests {
         let ek = encoding_key(&kp_signer);
         let dk = decoding_key(&kp_verifier);
 
-        let result = issue(AGENT_ID, "human", None, 3600, &ek).unwrap();
+        let result = issue(AGENT_ID, "human", None, 3600, "tenant-test", &ek).unwrap();
         let v = verify(&result.token, &dk);
         assert!(!v.valid, "token signed by different key must be rejected");
         assert!(!v.expired);
@@ -278,7 +291,7 @@ mod tests {
         );
         meta.insert("tier".to_owned(), serde_json::Value::Number(1.into()));
 
-        let result = issue(AGENT_ID, "service", Some(meta), 3600, &ek).unwrap();
+        let result = issue(AGENT_ID, "service", Some(meta), 3600, "tenant-test", &ek).unwrap();
         let v = verify(&result.token, &dk);
         assert!(v.valid);
 
@@ -306,8 +319,12 @@ mod tests {
         val.validate_aud = false;
         val.leeway = 0;
 
-        let t1 = issue(AGENT_ID, "human", None, 60, &ek).unwrap().token;
-        let t2 = issue(AGENT_ID, "human", None, 60, &ek).unwrap().token;
+        let t1 = issue(AGENT_ID, "human", None, 60, "tenant-test", &ek)
+            .unwrap()
+            .token;
+        let t2 = issue(AGENT_ID, "human", None, 60, "tenant-test", &ek)
+            .unwrap()
+            .token;
 
         let d1 = decode::<Claims>(&t1, &dk, &val).unwrap();
         let d2 = decode::<Claims>(&t2, &dk, &val).unwrap();
@@ -332,7 +349,9 @@ mod tests {
         let ek = encoding_key(&kp);
         let dk = decoding_key(&kp);
 
-        let token = issue(AGENT_ID, "human", None, 3600, &ek).unwrap().token;
+        let token = issue(AGENT_ID, "human", None, 3600, "tenant-test", &ek)
+            .unwrap()
+            .token;
         const ITERS: u32 = 1_000;
 
         let t0 = Instant::now();

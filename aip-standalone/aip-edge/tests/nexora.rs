@@ -103,9 +103,10 @@ fn nexora_and_reconcile_were_not_modified_by_skill_22() {
     // If a future change adds either, this test names the file to look at.
     assert_eq!(
         LeafKind::ALL.len(),
-        9,
+        10,
         "Skill 22 must add no leaf kind; codes 0x01-0x05 are frozen and the list stands at \
-         nine"
+         ten (the tenth, `SignedReconciliation`, was added by SD-10 — the signed verdict \
+         leaf — not by the edge reference)"
     );
     let merkle = std::fs::read_to_string(concat!(
         env!("CARGO_MANIFEST_DIR"),

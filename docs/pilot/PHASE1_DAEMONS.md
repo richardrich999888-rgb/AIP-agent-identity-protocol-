@@ -144,35 +144,58 @@ No signed field, canonical encoder, verification rule, or protocol version
 changes; the signatures produced are identical, only the key holder differs.
 `aip-protocol-change-guard` reviewed: none of its triggers fire.
 
-## Mechanism-integrity across the split (a named Phase 1.x gap)
+## Mechanism-integrity across the split (closed)
 
 In the single-host demonstrator the tracepoint-gate detector
-(`ProcessTracer::mechanism_integrity`) and the signer share a process, so
-`drain_kernel_events` feeds the finding straight to
-`note_mechanism_integrity` and a blinded observer signs
-`ObserverState::IntegrityUnknown`. In the two-host split the detector runs on
-the **probe** and the signer runs on the **collector**, and the Phase-1 wire
-carries only the opaque batch — so the collector cannot yet sign
-`IntegrityUnknown` from a probe-side gate.
+(`ProcessTracer::mechanism_integrity` and its two siblings) and the signer
+shared a process, so a blinded observer signed
+`ObserverState::IntegrityUnknown` directly. In the two-host split the detector
+runs on the **probe** and the signer on the **collector**, and the original
+Phase-1 wire carried only an opaque batch — so the collector could not sign
+`IntegrityUnknown` from a probe-side gate. That gap is closed:
 
-This does **not** reintroduce the false-accusation risk the detector was built
-for. The dangerous inference — "the observer covered this window and saw
-nothing" → `PhantomClaim` — is blocked by a separate, structural rule the
-collector applies to every batch: a non-occurrence claim requires a
-**gate-independent** kernel-pushed mechanism
-(`covered_by_kernel_pushed_source`), derived from the batch's own
-`active_mechanisms`. A probe reporting only gate-able perf-tracepoint coverage
-can never license a non-occurrence claim, blinded or not. What is deferred is
-only the *honesty layer* (the observer positively stating `IntegrityUnknown`),
-not the *safety layer*.
+- **The finding travels inside the batch.** `ObservationBatch` (protocol
+  version 10) carries `mechanism_integrity: Vec<MechanismIntegrityReport>`,
+  one `(mechanism, finding)` per perf-tracepoint sensor the probe has open.
+  It is inside the transport frame signature (a network attacker cannot strip
+  it) **and** inside the attested bytes (it cannot be edited or dropped after
+  signing). `aip-probe` re-checks every open tracer every cycle
+  (`sensors.rs`); the single-host demonstrator now declares its findings into
+  the same probe field rather than into the signer, so the two paths are one.
+- **The collector absorbs it fail-closed.** `CollectorSigner` notes every
+  non-capable report (a found gate or a refused query) as reported, and a
+  `Verified` report only for a mechanism the same batch declares active — a
+  probe cannot clear a slot for a sensor it stopped running.
+- **The daemon refuses silence.** `aip-collector`'s sink treats a batch that
+  declares a gate-able sensor active and carries no finding for it as an
+  `Unverifiable` report: an older or edited probe cannot keep the state
+  `Active` by omitting the check. Gate-independent sources (the connector,
+  fanotify, AF_PACKET) owe no report.
 
-Phase 1.x closes it by conveying the probe's per-mechanism integrity finding to
-the collector as a **signed transport-level field** (inside the frame
-signature, so a network attacker cannot strip it) that the collector applies
-via `note_mechanism_integrity` before attesting. It is a probe self-report, so
-its trust bound is the same as on-host detection (a root probe host lies about
-itself — N1); it is not an evidence-format change. Named here so it is not
-mistaken for shipped.
+Trust bound: the report is a probe self-report, so a root probe host lies
+about itself exactly as it lies about every other batch field (N1). It can
+only *lower* the signed state. The safety layer described before — a
+non-occurrence claim requires a **gate-independent** kernel-pushed mechanism
+in the signed coverage (`covered_by_kernel_pushed_source`) — is unchanged and
+still does not rest on this signal.
+
+Tests: `aip-collector/src/sink.rs` (gate → `IntegrityUnknown`; omitted →
+`IntegrityUnknown`; verified-for-every-open-sensor → not `IntegrityUnknown`;
+no tracepoint sensors → no report owed; stale `Verified` cannot clear a
+gate). The live attack against the two-daemon pair on institution hardware
+remains a Phase-4 item.
+
+## The netlink process-event connector in the probe (added)
+
+`aip-probe` drives the netlink process-event connector (`AIP_PROBE_SENSORS=
+...,connector`, `CAP_NET_ADMIN` in the initial network namespace, granted by
+the systemd unit). It is the pilot's only **gate-independent** kernel-pushed
+source and the only one whose coverage licenses a process-lifecycle
+non-occurrence statement (`SourceMechanism::covers_process_lifecycle`);
+without it the pilot observer could never reach `PHANTOM_CLAIM`, only
+`CANNOT_PROVE`. `ENOBUFS` on the receive queue is recorded as a counted loss
+(a floor of one) and degrades the epoch like any other loss. fanotify and
+AF_PACKET remain Phase 1.x.
 
 ## What Phase 1 does not include (named, not hidden)
 

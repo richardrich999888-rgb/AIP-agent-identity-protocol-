@@ -36,7 +36,9 @@ Human Branch Manager  ──issues scoped authority──▶  Loan Agent (AI)
 }
 ```
 
-The 14 rules all pass, including (verbatim `detail` strings):
+The evaluated rules all pass (the engine has 18; `VERIFICATION_TIME_BOUND` and
+`REPLAY_SCOPE` are NOT EVALUATED unless the verifier supplies a time and a
+history — see `AIP_SPEC.md` §5), including (verbatim `detail` strings):
 
 - `ROOT_TOKEN_SIGNATURE` — "root token signed by trusted issuer aip17V6PKzBzpMw9JH4pLQJGsPPgd2bKWCYogSa47JBwMU"
 - `DELEGATION_CHAIN` — "1-hop delegation chain verified (per-hop signatures, JTI linkage, depth, scope attenuation)"

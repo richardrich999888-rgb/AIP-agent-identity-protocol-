@@ -222,6 +222,7 @@ fn raw_batch(
             // instance never appeared, which is what PHANTOM_CLAIM says.
             SourceMechanism::ProcConnector,
         ]),
+        mechanism_integrity: Vec::new(),
         claimed_from_ms: from,
         claimed_to_ms: to,
         observations: vec![],

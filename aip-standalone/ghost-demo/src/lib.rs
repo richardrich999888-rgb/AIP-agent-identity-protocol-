@@ -617,9 +617,12 @@ impl Observer {
         // suppress its events host-wide with no dropped-record accounting and
         // no continuity break (the observation-integrity finding), so the
         // collector must learn of it each drain and sign
-        // `ObserverState::IntegrityUnknown` rather than a false `Active`. Read
-        // each tracer's finding into an owned list first so the tracer borrows
-        // are released before the collector is borrowed mutably. The
+        // `ObserverState::IntegrityUnknown` rather than a false `Active`. The
+        // finding is declared into the *probe*, so it travels inside the
+        // batch exactly as it does from the pilot's `aip-probe` daemon to the
+        // off-host `aip-collector`; the collector absorbs it at attestation.
+        // Read each tracer's finding into an owned list first so the tracer
+        // borrows are released before the probe is borrowed mutably. The
         // non-tracepoint sources — the AF_PACKET tap, fanotify, and the procfs
         // poll — do not share the per-tracepoint submission gate and are not
         // checked here.
@@ -637,7 +640,7 @@ impl Observer {
             findings.push((SourceMechanism::SockSendTracepoint, t.mechanism_integrity()));
         }
         for (mechanism, integrity) in findings {
-            self.signer.note_mechanism_integrity(mechanism, integrity);
+            self.probe.declare_mechanism_integrity(mechanism, integrity);
         }
     }
 
