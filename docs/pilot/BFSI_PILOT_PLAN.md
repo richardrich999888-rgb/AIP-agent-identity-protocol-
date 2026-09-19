@@ -8,6 +8,10 @@
 > `docs/architecture/SNIFFER_DOG_COMPLETE_IMPLEMENTATION_REPORT.md`,
 > `docs/security/ADVERSARIAL_RESULTS.md`.
 
+**Where agents will create the mess, and where this system fits:** see
+`docs/pilot/RBI_AGENT_RISK_MAP.md` (regulatory clock, ten failure classes,
+entry points into the RBI ecosystem, build order).
+
 **BFSI is the sector, not one segment.** This plan targets Banking, Financial
 Services **and Insurance** — banks, NBFCs, payment/fintech operators, capital
 markets (brokers, AMCs, depositories), and insurers. Each segment has a

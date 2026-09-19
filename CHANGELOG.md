@@ -49,6 +49,15 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (research)
+- `docs/pilot/RBI_AGENT_RISK_MAP.md`: where AI agents will create failures in
+  the RBI-regulated ecosystem (ten classes, from mandate violations and
+  phantom work to blinded monitoring and agent-payment liability), the
+  regulatory clock from CERT-In 2022 through the June 2026 MRM draft and
+  fraud-liability amendment to NPCI's agent protocol, and for each class what
+  this repository proves, what it does not, and which instrument it serves.
+  Secondary sources flagged for primary verification before use with RBI.
+
 ### Fixed (documentation and delivery that did not match the code)
 - `deploy/docker/Dockerfile` built against `aip-standalone/Cargo.toml`, which
   no longer exists; it now builds from the single root workspace and ships
