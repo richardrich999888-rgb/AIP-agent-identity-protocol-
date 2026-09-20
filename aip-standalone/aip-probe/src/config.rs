@@ -12,17 +12,55 @@ use std::path::PathBuf;
 /// non-occurrence claim and `PHANTOM_CLAIM` is unreachable. It needs
 /// `CAP_NET_ADMIN` in the initial network namespace (see the systemd unit).
 ///
-/// fanotify and AF_PACKET remain Phase 1.x: requesting one is a startup error
-/// rather than a silent no-op.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+/// # Gate independence, which is why the last three matter
+///
+/// A foreign eBPF program attached to a perf tracepoint suppresses that
+/// tracepoint's submission host-wide, for every consumer, with no loss
+/// accounting (`docs/OBSERVATION_INTEGRITY_REQUIREMENTS.md`). The three
+/// tracepoint sensors — `sched`, `sockstate`, `socksend` — all share that
+/// one gate, so they are not independent observers of one another.
+///
+/// `connector`, `fanotify` and `afpacket` each reach the probe by a
+/// different kernel facility (netlink, the fanotify queue, an `AF_PACKET`
+/// device tap) that a per-tracepoint eBPF program array does not gate.
+/// They are what `SourceMechanism::is_gate_independent_kernel_pushed`
+/// selects, and they are the coverage the reconciler needs before it will
+/// treat silence as evidence of non-occurrence.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct SensorConfig {
     pub sched: bool,
     pub sockstate: bool,
     pub socksend: bool,
     pub connector: bool,
+    /// Filesystem events from the fanotify queue (`CAP_SYS_ADMIN`).
+    pub fanotify: bool,
+    /// Frame headers from an `AF_PACKET` device tap (`CAP_NET_RAW`).
+    pub afpacket: bool,
+    /// The mount to mark for `fanotify`. Required when `fanotify` is on:
+    /// the mark is `FAN_MARK_MOUNT`, so this choice decides how much of the
+    /// host the probe watches, and defaulting it would either watch `/` (a
+    /// firehose on a busy host) or watch nothing while appearing to work.
+    /// From `AIP_PROBE_FANOTIFY_PATH`.
+    pub fanotify_path: Option<String>,
+    /// The interface to bind the `AF_PACKET` tap to. `None` binds every
+    /// device, which is the documented default because a host whose
+    /// interfaces change (a container host, a bonded NIC) would otherwise
+    /// silently stop seeing the traffic it was configured for. From
+    /// `AIP_PROBE_AFPACKET_INTERFACE`.
+    pub afpacket_interface: Option<String>,
 }
 
 impl SensorConfig {
+    /// Any sensor at all is selected.
+    fn any(&self) -> bool {
+        self.sched
+            || self.sockstate
+            || self.socksend
+            || self.connector
+            || self.fanotify
+            || self.afpacket
+    }
+
     fn parse(csv: &str) -> Result<Self, String> {
         let mut c = SensorConfig::default();
         for item in csv.split(',').map(str::trim).filter(|s| !s.is_empty()) {
@@ -31,16 +69,12 @@ impl SensorConfig {
                 "sockstate" => c.sockstate = true,
                 "socksend" => c.socksend = true,
                 "connector" => c.connector = true,
-                "fanotify" | "afpacket" => {
-                    return Err(format!(
-                        "sensor {item:?} is part of the pilot design but not yet driven by \
-                         aip-probe (Phase 1.x); remove it from AIP_PROBE_SENSORS for now"
-                    ))
-                }
+                "fanotify" => c.fanotify = true,
+                "afpacket" => c.afpacket = true,
                 other => return Err(format!("unknown sensor {other:?} in AIP_PROBE_SENSORS")),
             }
         }
-        if !(c.sched || c.sockstate || c.socksend || c.connector) {
+        if !c.any() {
             return Err("AIP_PROBE_SENSORS selected no supported sensor".into());
         }
         Ok(c)
@@ -57,6 +91,16 @@ pub struct Config {
     pub key_path: PathBuf,
     pub sensors: SensorConfig,
     pub batch_interval_ms: u64,
+}
+
+/// An optional, non-empty environment value. An empty string is treated as
+/// unset: a variable set to "" in a unit file is an operator leaving it
+/// blank, not a request to watch a path named "".
+fn optional(key: &str) -> Option<String> {
+    match std::env::var(key) {
+        Ok(v) if !v.trim().is_empty() => Some(v.trim().to_string()),
+        _ => None,
+    }
 }
 
 fn require(key: &str) -> Result<String, String> {
@@ -88,6 +132,22 @@ impl Config {
                 .max(100),
             _ => 2000,
         };
+        let mut sensors = SensorConfig::parse(&require("AIP_PROBE_SENSORS")?)?;
+        sensors.fanotify_path = optional("AIP_PROBE_FANOTIFY_PATH");
+        sensors.afpacket_interface = optional("AIP_PROBE_AFPACKET_INTERFACE");
+        // Fail closed on a fanotify sensor with no mount to mark. The mark is
+        // FAN_MARK_MOUNT; without an explicit path the probe would either
+        // watch `/` or watch nothing, and both are worse than refusing to
+        // start with the reason named.
+        if sensors.fanotify && sensors.fanotify_path.is_none() {
+            return Err(
+                "sensor \"fanotify\" requires AIP_PROBE_FANOTIFY_PATH: the mount \
+                        holding this path is marked (FAN_MARK_MOUNT), so it decides how much \
+                        of the host the probe watches and has no safe default"
+                    .into(),
+            );
+        }
+
         Ok(Self {
             probe_id: require("AIP_PROBE_ID")?,
             collector_endpoint: require("AIP_PROBE_COLLECTOR_ENDPOINT")?,
@@ -96,7 +156,7 @@ impl Config {
                 &require("AIP_PROBE_COLLECTOR_NOISE_PUBKEY")?,
             )?,
             key_path: PathBuf::from(require("AIP_PROBE_KEY_PATH")?),
-            sensors: SensorConfig::parse(&require("AIP_PROBE_SENSORS")?)?,
+            sensors,
             batch_interval_ms,
         })
     }
@@ -124,10 +184,31 @@ mod tests {
             SensorConfig {
                 sched: true,
                 sockstate: true,
-                socksend: false,
-                connector: false,
+                ..SensorConfig::default()
             }
         );
+    }
+
+    /// The file and wire sensors parse, and carry their own configuration.
+    /// They were a startup error before R8; accepting them is the change.
+    #[test]
+    fn the_file_and_wire_sensors_are_supported() {
+        let c = SensorConfig::parse("fanotify,afpacket").unwrap();
+        assert!(c.fanotify && c.afpacket);
+        assert!(!c.sched && !c.sockstate && !c.socksend && !c.connector);
+        // They can be selected alongside the rest.
+        let all =
+            SensorConfig::parse("sched,sockstate,socksend,connector,fanotify,afpacket").unwrap();
+        assert!(all.any() && all.fanotify && all.afpacket && all.connector);
+    }
+
+    /// An unknown sensor is still refused — accepting two new names must not
+    /// turn the parser permissive.
+    #[test]
+    fn an_unknown_sensor_is_still_refused() {
+        assert!(SensorConfig::parse("fanotify,ebpf")
+            .unwrap_err()
+            .contains("ebpf"));
     }
 
     #[test]
@@ -138,11 +219,16 @@ mod tests {
         assert!(with.connector && with.sched && with.sockstate);
     }
 
+    /// `fanotify` and `afpacket` used to be refused here as Phase 1.x. R8
+    /// drives them, so they parse (see `the_file_and_wire_sensors_are_supported`);
+    /// what must still be refused is a name the probe cannot drive at all,
+    /// and an empty selection.
     #[test]
-    fn rejects_unsupported_and_unknown_sensors() {
-        assert!(SensorConfig::parse("sched,fanotify").is_err());
-        assert!(SensorConfig::parse("connector,afpacket").is_err());
+    fn rejects_unknown_and_empty_sensor_selections() {
+        assert!(SensorConfig::parse("sched,fanotify").is_ok());
+        assert!(SensorConfig::parse("connector,afpacket").is_ok());
         assert!(SensorConfig::parse("bogus").is_err());
         assert!(SensorConfig::parse("").is_err());
+        assert!(SensorConfig::parse("  ,  ").is_err());
     }
 }

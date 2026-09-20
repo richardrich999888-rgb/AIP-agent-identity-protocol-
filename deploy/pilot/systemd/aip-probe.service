@@ -20,23 +20,40 @@ ExecStart=/usr/local/bin/aip-probe
 Restart=on-failure
 RestartSec=2
 
-# Least privilege: the perf tracepoints need CAP_PERFMON; the netlink
-# process-event connector (sensor `connector`) needs CAP_NET_ADMIN in the
-# initial network namespace. The connector is what makes the pilot's coverage
-# gate-independent — without it no non-occurrence claim can be licensed — so
-# both are granted by default. Add CAP_SYS_ADMIN / CAP_NET_RAW only when Phase
-# 1.x adds fanotify / AF_PACKET sensors. Trim this to what the configured
-# AIP_PROBE_SENSORS actually require.
+# Least privilege, per sensor. Grant ONLY what the configured
+# AIP_PROBE_SENSORS actually require — this list is a starting point, not a
+# default to leave alone:
+#
+#   sched, sockstate, socksend  CAP_PERFMON   perf tracepoints
+#   connector                   CAP_NET_ADMIN netlink process events,
+#                                             initial network namespace
+#   fanotify                    CAP_SYS_ADMIN fanotify mount mark (R8)
+#   afpacket                    CAP_NET_RAW   AF_PACKET device tap (R8)
+#
+# The three gate-independent sensors are `connector`, `fanotify` and
+# `afpacket`: each reaches the probe by a facility no per-tracepoint eBPF
+# program array can silently gate. At least one is what licenses a
+# non-occurrence claim.
+#
+# CAP_SYS_ADMIN is deliberately NOT granted below, because the default
+# sensor set does not include `fanotify`. Enabling that sensor means adding
+# CAP_SYS_ADMIN to both capability lines — a near-root capability on the
+# observed host — and also relaxing PrivateTmp/ProtectSystem enough for the
+# probe to see the mount named in AIP_PROBE_FANOTIFY_PATH. That is a real
+# privilege decision for the entity, not a checkbox: file evidence is
+# valuable, and CAP_SYS_ADMIN on the agent host is a large grant to make
+# for it.
 NoNewPrivileges=yes
-AmbientCapabilities=CAP_PERFMON CAP_NET_ADMIN
-CapabilityBoundingSet=CAP_PERFMON CAP_NET_ADMIN
+AmbientCapabilities=CAP_PERFMON CAP_NET_ADMIN CAP_NET_RAW
+CapabilityBoundingSet=CAP_PERFMON CAP_NET_ADMIN CAP_NET_RAW
 ProtectSystem=strict
 ProtectHome=yes
 PrivateTmp=yes
 # The probe writes only its transport key file; grant just that path.
 ReadWritePaths=/var/lib/aip-probe
-# AF_NETLINK is the connector's socket family.
-RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK
+# AF_NETLINK is the connector's socket family; AF_PACKET is the wire tap's.
+# Drop AF_PACKET when the `afpacket` sensor is not enabled.
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK AF_PACKET
 LockPersonality=yes
 
 [Install]

@@ -49,6 +49,58 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R8: file and wire evidence in the pilot probe)
+- **`aip-probe` drives `fanotify` and `AF_PACKET`.** Both taps already
+  existed in `aip-observe` and were exercised by `ghost-demo`; the pilot
+  probe refused them as "Phase 1.x". They are now real sensors, which the
+  matrix row B7 asked for.
+- **What each one proves, and what it does not.** `fanotify`
+  (`CAP_SYS_ADMIN`) marks the mount holding `AIP_PROBE_FANOTIFY_PATH` for
+  `FAN_CLOSE_WRITE` — one event per completed write-and-close, carrying a
+  pidfd **the kernel** created from the event's own process reference, so
+  the acting instance is bound by the kernel and not by a pid number that
+  may since have been recycled. The probe reads nothing through the
+  descriptor. `afpacket` (`CAP_NET_RAW`) records TCP/IP **headers only**:
+  addresses, ports, flags, sequence numbers and the payload *length*. No
+  payload byte is copied, hashed or kept (I23), and a wire segment is never
+  bound to an instance, because the device layer knows no task — it proves
+  bytes crossed a device, not who sent them.
+- **The mount path is required.** `FAN_MARK_MOUNT` makes the choice of path
+  the choice of how much of the host is watched. Defaulting it would either
+  mark `/` (a firehose whose queue overflows, and an overflow is counted
+  loss that degrades the epoch) or mark nothing while appearing to work, so
+  the probe refuses to start without it and names the reason.
+- **Gate independence is the real gain.** The three tracepoint sensors all
+  share one eBPF submission gate, so they are not independent observers of
+  one another. `fanotify` and `AF_PACKET` each reach the probe by a facility
+  that gate does not touch, joining the netlink connector. Neither owes an
+  integrity report and neither is asked for one — declaring a finding for a
+  mechanism outside the gate would be inventing a check that was never run,
+  and the collector's sink asks only where `shares_perf_tracepoint_gate` is
+  true. The connector remains the only source licensing a
+  *process-lifecycle* non-occurrence claim, which is what `PHANTOM_CLAIM`
+  rests on; that has not changed.
+- **Live tests, against the real kernel** (`aip-probe/tests/live_sensors.rs`,
+  6): a real write is captured and bound through its pidfd; real loopback
+  TCP is captured; a distinctive secret written to the watched file and a
+  distinctive payload sent over the socket are each asserted **absent from
+  the whole serialized batch**, which is how I23 is checked rather than
+  trusted. Fail-closed startup is proven without any capability: a fanotify
+  sensor with no path, and a sensor that cannot open, are startup errors.
+  Where a host lacks the capability the test prints `SKIPPED` with the
+  reason and asserts nothing — this workspace's convention for a kernel
+  facility a host does not provide. On the development host none skipped.
+- **Capability trimming is per sensor.** The systemd unit lists which
+  capability each sensor needs and deliberately does **not** grant
+  `CAP_SYS_ADMIN`: enabling `fanotify` means granting a near-root capability
+  on the observed host, which is a decision for the entity, not a default.
+  `aip-probe` also gains a `[lib]` target so the tests drive the same
+  `SensorSet` the daemon does, rather than a copy.
+- **Still open, and named:** the other half of matrix row B3 —
+  `ObservedProcess` carrying container identity so the observer can assert
+  it independently — is a signed observe-protocol version bump and is not
+  part of this change.
+
 ### Added (RBI requirements coverage — E5: durability, exercised not assumed)
 - **`deploy/sql/restore_drill.sh` — the restore, run end to end.** Immutability
   is not durability: `hardening.sql` makes a packet impossible to delete or

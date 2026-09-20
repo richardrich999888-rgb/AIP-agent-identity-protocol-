@@ -198,8 +198,32 @@ source and the only one whose coverage licenses a process-lifecycle
 non-occurrence statement (`SourceMechanism::covers_process_lifecycle`);
 without it the pilot observer could never reach `PHANTOM_CLAIM`, only
 `CANNOT_PROVE`. `ENOBUFS` on the receive queue is recorded as a counted loss
-(a floor of one) and degrades the epoch like any other loss. fanotify and
-AF_PACKET remain Phase 1.x.
+(a floor of one) and degrades the epoch like any other loss.
+
+**fanotify and AF_PACKET are driven as of R8**, which makes the connector no
+longer the *only* gate-independent source — it remains the only one that
+licenses a **process-lifecycle** non-occurrence statement, which is the
+property `PHANTOM_CLAIM` rests on.
+
+- `fanotify` (`CAP_SYS_ADMIN`) marks the mount holding
+  `AIP_PROBE_FANOTIFY_PATH` for `FAN_CLOSE_WRITE`: one event per completed
+  write-and-close, carrying a pidfd the kernel created from the event's own
+  process reference, so the acting instance is bound by the kernel rather
+  than by a pid number. The probe reads nothing through the descriptor. The
+  path is required — `FAN_MARK_MOUNT` makes the choice of mount the choice
+  of how much of the host is watched, and there is no safe default.
+- `afpacket` (`CAP_NET_RAW`) binds a device tap and records TCP/IP
+  **headers only**: addresses, ports, flags, sequence numbers and the
+  payload *length*. No payload byte is copied, hashed or kept (I23). The
+  device layer knows no task, so a wire segment is never bound to an
+  instance — it proves bytes crossed a device, not who sent them.
+
+Neither owes an integrity report and neither is asked for one: neither
+reaches the probe through a perf tracepoint, so neither is exposed to the
+eBPF submission gate those reports exist to detect. A requested sensor that
+cannot be opened is a startup error, never a silent downgrade. Live tests
+drive both against the real kernel (`aip-probe/tests/live_sensors.rs`),
+including that no file content and no wire payload reaches a batch.
 
 ## What Phase 1 does not include (named, not hidden)
 

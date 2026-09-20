@@ -5,6 +5,10 @@ edition.workspace = true
 license.workspace = true
 description = "Phase 1: host-side observation probe daemon. Drives aip-observe's kernel-mediated sensors, ships unsigned observation batches to the off-host collector. Holds a transport-auth key only; never an evidence key."
 
+[lib]
+name = "aip_probe"
+path = "src/lib.rs"
+
 [[bin]]
 name = "aip-probe"
 path = "src/main.rs"

@@ -10,17 +10,13 @@
 //! the collector's registry and the reconciler's `CANNOT_PROVE` default bound);
 //! it cannot forge an attestation.
 
-mod config;
-mod keyfile;
-mod sensors;
-
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use aip_transport::TransportClient;
 
-use config::Config;
-use keyfile::TransportKey;
-use sensors::SensorSet;
+use aip_probe::config::Config;
+use aip_probe::keyfile::TransportKey;
+use aip_probe::sensors::SensorSet;
 
 /// Handshake/read/write timeout for the collector connection.
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);

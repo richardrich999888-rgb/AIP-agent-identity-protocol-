@@ -1,5 +1,6 @@
 //! The probe's sensor set: opens the configured kernel sources — the
-//! perf-tracepoint tracers and the netlink process-event connector — and
+//! perf-tracepoint tracers, the netlink process-event connector, the
+//! fanotify mount watch and the `AF_PACKET` device tap — and
 //! drains them into a [`ProcfsProbe`] each cycle, producing an
 //! [`ObservationBatch`]. The probe holds no key; the batch it produces is
 //! unsigned and becomes evidence only when the off-host collector attests it.
@@ -36,6 +37,19 @@ pub struct SensorSet {
     /// claim. `CAP_NET_ADMIN`.
     #[cfg(target_os = "linux")]
     connector: Option<aip_observe::ProcConnector>,
+    /// The fanotify mount watch: kernel-queued file events carrying a pidfd
+    /// the kernel made from the event's own process reference. Like the
+    /// connector, it is not exposed to the per-tracepoint eBPF submission
+    /// gate. `CAP_SYS_ADMIN`.
+    #[cfg(target_os = "linux")]
+    file: Option<aip_observe::FanotifyWatch>,
+    /// The `AF_PACKET` device tap: frame **headers only**, never a payload
+    /// byte (I23). Gate-independent for the same reason. The device layer
+    /// knows no process, so a wire segment is never bound to an instance —
+    /// it is evidence that bytes crossed a device, not that a given process
+    /// sent them. `CAP_NET_RAW`.
+    #[cfg(target_os = "linux")]
+    wire: Option<aip_observe::WireTap>,
 }
 
 /// Encode a monotonic counter into a 16-byte batch id (big-endian in the low 8
@@ -47,6 +61,41 @@ fn batch_id_bytes(counter: u64) -> [u8; 16] {
     id
 }
 
+/// Names which sensors are open, and nothing else. Useful in a startup log
+/// line and in a test failure; it holds descriptors, not secrets, so there
+/// is nothing here to redact — but there is also no reason to print a
+/// descriptor number.
+impl std::fmt::Debug for SensorSet {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut open: Vec<&str> = Vec::new();
+        #[cfg(target_os = "linux")]
+        {
+            if self.process.is_some() {
+                open.push("sched");
+            }
+            if self.sockstate.is_some() {
+                open.push("sockstate");
+            }
+            if self.socksend.is_some() {
+                open.push("socksend");
+            }
+            if self.connector.is_some() {
+                open.push("connector");
+            }
+            if self.file.is_some() {
+                open.push("fanotify");
+            }
+            if self.wire.is_some() {
+                open.push("afpacket");
+            }
+        }
+        f.debug_struct("SensorSet")
+            .field("open", &open)
+            .field("batches", &self.batch_counter)
+            .finish()
+    }
+}
+
 impl SensorSet {
     /// Open every configured sensor. Fails closed: a requested sensor that
     /// cannot be opened (no `CAP_PERFMON`, no tracefs, tracepoint absent) is a
@@ -55,8 +104,8 @@ impl SensorSet {
     #[cfg(target_os = "linux")]
     pub fn open(probe_id: &str, cfg: SensorConfig) -> Result<Self, String> {
         use aip_observe::{
-            boot_clock_anchor, ProcConnector, ProcessTracer, SockSendTracer, SockStateTracer,
-            SourceMechanism,
+            boot_clock_anchor, FanotifyWatch, ProcConnector, ProcessTracer, SockSendTracer,
+            SockStateTracer, SourceMechanism, WireTap, FAN_CLOSE_WRITE,
         };
 
         let mut probe = ProcfsProbe::new(probe_id);
@@ -96,6 +145,42 @@ impl SensorSet {
             None
         };
 
+        // Filesystem evidence. FAN_CLOSE_WRITE only: one event per completed
+        // write-and-close, not one per write (FAN_MODIFY), because the
+        // per-write firehose buys nothing the close does not already say and
+        // overflows the queue on a busy mount — and an overflow is counted
+        // loss, which degrades the epoch.
+        let file = if cfg.fanotify {
+            let path = cfg.fanotify_path.as_deref().ok_or_else(|| {
+                "sensor \"fanotify\" requires AIP_PROBE_FANOTIFY_PATH".to_string()
+            })?;
+            let w = FanotifyWatch::open(path, FAN_CLOSE_WRITE).map_err(|e| {
+                format!("open fanotify mount watch on {path:?} (needs CAP_SYS_ADMIN): {e:?}")
+            })?;
+            probe.declare_source(SourceMechanism::Fanotify);
+            probe.enable_loss_counter();
+            Some(w)
+        } else {
+            None
+        };
+
+        // Wire evidence. Headers only; no payload byte is copied, hashed or
+        // kept (I23).
+        let wire = if cfg.afpacket {
+            let iface = cfg.afpacket_interface.as_deref();
+            let t = WireTap::open(iface).map_err(|e| {
+                format!(
+                    "open AF_PACKET tap on {} (needs CAP_NET_RAW): {e:?}",
+                    iface.unwrap_or("every device")
+                )
+            })?;
+            probe.declare_source(SourceMechanism::WireTapAfPacket);
+            probe.enable_loss_counter();
+            Some(t)
+        } else {
+            None
+        };
+
         if let Ok(anchor) = boot_clock_anchor() {
             probe.declare_clock_anchor(anchor);
         }
@@ -107,6 +192,8 @@ impl SensorSet {
             sockstate,
             socksend,
             connector,
+            file,
+            wire,
         })
     }
 
@@ -153,6 +240,31 @@ impl SensorSet {
             drain_into_probe!(self.process, ingest_sched_event);
             drain_into_probe!(self.sockstate, ingest_socket_event);
             drain_into_probe!(self.socksend, ingest_send_event);
+            // The AF_PACKET tap yields the same `ProcEvent` shape as the
+            // tracers, so it drains identically; its loss counter is the
+            // kernel's own `PACKET_STATISTICS.tp_drops`.
+            drain_into_probe!(self.wire, ingest_wire_event);
+
+            // fanotify yields a `FileObservation` (event plus the kernel's
+            // pidfd), not a bare `ProcEvent`, so it does not fit the macro.
+            // The pidfd is consumed by `ingest_file_event`, which measures
+            // through it and applies the start-tick rule; an event whose
+            // process had already gone is recorded unbound — existence
+            // without identity — rather than guessed at from the pid.
+            if let Some(w) = self.file.as_mut() {
+                let mut n: u32 = 0;
+                while let Ok(Some(obs)) = w.next_event(POLL_MS) {
+                    self.probe.ingest_file_event(obs);
+                    n += 1;
+                    if n >= MAX_EVENTS_PER_SENSOR {
+                        break;
+                    }
+                }
+                let lost = w.take_lost();
+                if lost > 0 {
+                    self.probe.record_lost_events(lost);
+                }
+            }
 
             // The connector has no ring and no LOST record: the kernel signals
             // an overflowed receive queue with `ENOBUFS`, surfaced as
@@ -209,6 +321,14 @@ impl SensorSet {
                     t.mechanism_integrity(),
                 );
             }
+            // fanotify and the AF_PACKET tap get no integrity report, and
+            // owe none: neither reaches the probe through a perf tracepoint,
+            // so neither is exposed to the per-tracepoint eBPF submission
+            // gate that the reports above exist to detect
+            // (`SourceMechanism::shares_perf_tracepoint_gate` is false for
+            // both, and the collector's sink asks for a report only for the
+            // mechanisms where it is true). Declaring a finding for them
+            // would be inventing a check that was never run.
         }
         let _ = (from_ms, to_ms);
         self.batch_counter += 1;
