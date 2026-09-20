@@ -5,14 +5,16 @@ check it against the repository.
 
 ## The one-line answer
 
-**Phase 0 (the decisive phase) is built, wired, tested and committed, and
-Phase 1 has now been executed end-to-end against a real LangGraph agent.
-Phases 2–5 remain scaffolded as runbooks and were not executed, because they need
-infrastructure this build environment does not have (network installs, a live
-two-daemon run, and a dedicated VM), and because the safety rules forbid
-running a rootkit here at all.** TRL 4/5 is unchanged; B8 (institution
-hardware) and B2 (external assessor) are untouched, exactly as the plan says
-this program cannot move them.
+**Phases 0–4 are built, tested and committed. Phase 1 was executed end-to-end
+against a real LangGraph agent; Phase 3 derives the delegation chain from that
+same real evidence; Phase 4 grades the observer against an external
+(Atomic Red Team / ATT&CK) corpus. Phase 5 is document-only by rule: its
+output-parsing harness, per-tool runbook and VM-setup script are built and the
+harness is fixture-tested, but no rootkit is run in this environment.** The one
+thing that still needs infrastructure absent here is a live rootkit VM capture
+(Phase 5), which the safety rules forbid running on this host. TRL 5 is
+unchanged; B8 (institution hardware) and B2 (external assessor) are untouched,
+exactly as the plan says this program cannot move them.
 
 ## Now demonstrated (built, tested, committed)
 
@@ -31,10 +33,33 @@ this program cannot move them.
   load-bearing. The audit found the other four already existed; divergence was
   the genuine gap.
 - **Phase 1 — a real LangGraph agent observed end-to-end.** A genuine LangGraph 1.2.11 graph whose parent node spawns a child sub-agent process (real fork/exec) that writes a file and opens a TCP connection, observed by the two-daemon pair on a live kernel. **167 exec/fork events** reached the collector-signed archive; `aip-observe-verify` accepted it offline from the published `observer.pub` alone. Sealed in `integrations/agents/results/sealed/`; reproduce with `integrations/agents/run.sh`. The `VERIFIED_EXECUTION` reconciler verdict (join against a signed `ExpectedExecution`) is Phase 3 and is not claimed.
+- **Phase 2 — MCP tool boundary (B10).** `aip-mcp-gateway` countersigns every
+  `tools/call` with a gateway-signed `ToolReceipt` over its own recomputation
+  of the argument commitment (never the agent's key). A mis-parameterised call
+  is caught by `compare_tool_boundary` against the decision point's sealed
+  digest **with no agent claim in evidence**; the 2026-07-28 header/body
+  disagreement is refused before signing. 11 tests. The ContextForge adapter
+  (`integrations/mcp-gateway/`) shells to this binary rather than reimplementing
+  the crypto.
+- **Phase 3 — delegation-chain attribution.** `aip-lineage` verifies an
+  attested archive under the anchor and only then derives start-verified
+  parent→child edges (fail closed). Run against Phase 1's real sealed archive it
+  yields **21 edges including a genuine multi-level chain**; sealed at
+  `integrations/agents/results/sealed/delegation_chain.txt`. The exit-gate test
+  (`delegation_attribution.rs`) proves a dropped fork fabricates **no** edge
+  (the CANNOT_PROVE guarantee) and that attribution follows the kernel-bound
+  forking instance, not a decoy.
+- **Phase 4 — external ATT&CK corpus coverage.** A deterministic generator
+  (`adversarial/atomic/gen_layer.py`, 10 tests) turns an auditable coverage map
+  into a MITRE Navigator layer coloured by coverage class: of 20 techniques,
+  8 attributed / 6 effect-observed / **6 not-covered** (AIP's honest blind
+  spots). No atomic is executed here; only Phase-1 primitives carry live
+  evidence. Ledger rows in `docs/security/ADVERSARIAL_RESULTS.md`.
 - **Phase 5 output-parsing harness** — `adversarial/rootkit-runbooks/parse_health.py`
   ingests an observer health capture and asserts the attack forced an honest
   non-answer. Built and fixture-tested (`run.sh` passes; proven non-vacuous —
-  it fails on malformed input). It runs **no** rootkit.
+  it fails on malformed input). It runs **no** rootkit. The VM-setup script
+  (`vm_setup.sh`) provisions the disposable VM and fails closed off it.
 
 ## Demonstrated with a limit
 
@@ -48,14 +73,16 @@ this program cannot move them.
   rehearsal that is correct before it meets real data; it is not evidence of a
   live rootkit result.
 
-## Not demonstrated (runbooks only; needs infrastructure or a human)
+## Not demonstrated (needs a human and a disposable VM)
 
 | Phase | Deliverable | Why not done here | Where the runbook is |
 |-------|-------------|-------------------|----------------------|
-| 2 | ContextForge ToolReceipt plugin (B10) | needs ContextForge (network); gated on prior-art review | `integrations/mcp-gateway/README.md`, `PRIOR_ART_NOTES.md` |
-| 3 | Delegation-chain attribution | depends on Phases 1 + 2 | (covered by 1 & 2 runbooks) |
-| 4 | Atomic Red Team ATT&CK layer | needs corpus clone (network) | `adversarial/atomic/README.md` |
-| 5 | Rootkit runs | forbidden on host; needs snapshotted VM | `adversarial/rootkit-runbooks/README.md` |
+| 5 | A live rootkit VM capture | forbidden on host (rule 1); needs a snapshotted, isolated VM run by a human | `adversarial/rootkit-runbooks/README.md`, `vm_setup.sh` |
+
+The Phase 5 *harness*, per-tool runbook and VM-setup script are built and the
+harness is fixture-tested; only the act of running a rootkit and capturing the
+observer's health in a real VM remains, and that is deliberately left to a
+human in the isolated environment.
 
 ## Standing limits, unchanged by any of this
 
@@ -82,7 +109,13 @@ this program cannot move them.
 ## How to check the built parts
 
 ```bash
-cargo test -p aip-observe --lib divergence          # 10 unit tests
-cargo test -p aip-collector --lib                   # incl. the Phase 0 exit gate
+cargo test -p aip-observe --lib divergence          # Phase 0: 10 unit tests
+cargo test -p aip-collector --lib                   # Phase 0 exit gate
+cargo test -p aip-mcp-gateway                        # Phase 2: 11 tests
+cargo test -p aip-reconcile --test delegation_attribution  # Phase 3 exit gate
+./target/debug/aip-lineage --observer-id collector.phase1 --key-version 1 \
+  --pubkey-file integrations/agents/results/sealed/observer.pub \
+  --batches integrations/agents/results/sealed/attested.archive.jsonl  # Phase 3 on real evidence
+bash adversarial/atomic/run.sh                       # Phase 4 layer: tests + drift check
 adversarial/rootkit-runbooks/run.sh                 # Phase 5 harness vs fixtures
 ```
