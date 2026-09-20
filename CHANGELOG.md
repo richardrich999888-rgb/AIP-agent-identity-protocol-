@@ -6,6 +6,52 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (the OrbitalTrust accountability layer, audited and partly wired)
+- **`orbitaltrust-accountability/` merged and two of its four Rust crates
+  wired into the workspace.** The import had been sitting on a branch,
+  additive and unbuilt, since 2026-08-28.
+- **`ot-sentinel` is why this was worth doing.** Everything else in this
+  repository is *inline*: it proves what went through the funnel and has no
+  answer for an agent that declines to use the funnel at all — one that calls
+  a tool server directly, keeps running after revocation, or spawns a copy of
+  itself. Inline enforcement cannot see its own bypass. The sentinel
+  reconciles what independent sensors observed against what the ledger
+  sealed, one-to-one on the digest of the canonical call parameters, so a
+  ghost cannot hide behind a concurrent legitimate call of the same tool and
+  a replayed call has no second packet to account for it. **82 tests pass.**
+- **`ot-accountability-core` wired; 56 tests pass** — exactly the count the
+  import claimed.
+- **Two of the four crates cannot build here, and the import did not say so.**
+  `ot-mcp-gateway` (11 non-optional references across 6 files) and
+  `ot-verifier` (2) depend on `ot-pqc`, which the source workspace lists as a
+  sibling and which **was not brought across**. The import's own message said
+  only that the crates "will not build here until added to a workspace
+  carrying that block or pinned directly", which is true and is not the whole
+  obstacle. `ot-mcp-gateway` is the funnel on the MCP wire — directly the
+  capability blocker **B10** describes as outstanding — so this is the
+  expensive half of the gap.
+- `ot-sentinel/tests/ghost_hunt.rs` (31 tests) is **preserved verbatim and
+  excluded from compilation** via `autotests = false`, because it needs both
+  absent crates. A stated exclusion, not a deleted test.
+- **The import's SHA-256 manifest still holds, and it is checked rather than
+  claimed.** `verify_manifest.py` compares all 114 files and exits non-zero if
+  any but the two rewritten `Cargo.toml` files has moved: **112 byte-identical**.
+  A clippy lint on `runtime.rs` is exempted in the manifest rather than fixed
+  in the source, because silently rewriting imported code to satisfy a style
+  lint destroys the one property that manifest exists to give.
+- Dependencies are pinned directly in the two crates rather than inherited
+  from the source workspace's `[workspace.dependencies]`, so resolution for
+  the forty crates already here is unchanged. New third-party dependency:
+  `tempfile`, dev-only, reaching no shipped binary.
+- **Still open, and now more urgent rather than less.** The two hash-chain
+  constructions are not byte-compatible — `aip-core` chains raw 32-byte
+  digests, `ot-accountability-core` chains `SHA-256(previous ‖ canonical
+  JSON)` as hex. A packet sealed by one will not verify under the other.
+  Wiring made the incompatible construction *compiled* rather than dormant.
+  This is deliberately **not** reflected in the RBI submission documents:
+  two incompatible evidence chains is not something to put in front of a
+  regulator mid-resolution.
+
 ### Fixed (the TRL number in the RBI documents was wrong, and the repository contradicted itself)
 - **Three documents gave three different readiness levels.** The submission
   documents used **TRL 4**, taken from

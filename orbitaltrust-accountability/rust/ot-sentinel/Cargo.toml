@@ -1,19 +1,53 @@
+# Wired into this repository's workspace. See the note in
+# ot-accountability-core/Cargo.toml for why versions are pinned here rather
+# than inherited from a `[workspace.dependencies]` block.
+#
+# ── What is NOT wired, and why ────────────────────────────────────────────
+#
+# `tests/ghost_hunt.rs` (31 integration tests) is preserved verbatim and is
+# NOT compiled. It needs `ot-mcp-gateway` and `ot-pqc`, and `ot-pqc` was not
+# part of the import: the source workspace lists it as a sibling crate and
+# only four of that workspace's crates were brought across. Two of the four
+# — `ot-mcp-gateway` and `ot-verifier` — therefore cannot build here at all,
+# and this crate's integration tests are collateral.
+#
+# `autotests = false` is what stops Cargo discovering that file. It is a
+# deliberate, stated exclusion rather than a deleted test: when `ot-pqc`
+# arrives, removing this line and restoring the two dev-dependencies below
+# is the whole of the work.
+#
+# The library itself needs none of that. The single `ot_mcp_gateway` mention
+# in `src/sensors.rs` is a rustdoc link in a comment, not code.
 [package]
 name = "ot-sentinel"
 description = "Out-of-band detection of ungoverned agent activity: reconciles observed effects against sealed evidence to find agents acting outside the governed channel"
 edition.workspace = true
 version.workspace = true
-authors.workspace = true
 license.workspace = true
-repository.workspace = true
-rust-version.workspace = true
+autotests = false
 
 [dependencies]
-ot-accountability-core = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
+ot-accountability-core = { path = "../ot-accountability-core" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [dev-dependencies]
-tempfile = { workspace = true }
-ot-mcp-gateway = { workspace = true }
-ot-pqc = { workspace = true }
+tempfile = "3"
+# Absent from the import, so the integration tests that need them cannot run:
+# ot-mcp-gateway = { path = "../ot-mcp-gateway" }
+# ot-pqc         = <not imported>
+
+[lints.clippy]
+# `runtime.rs` writes `self.cycles % every == 0`, guarded by `every > 0`.
+# A recent clippy prefers `is_multiple_of`. The two are identical here, and
+# the edit is not worth making: this crate arrives with a `MANIFEST.md`
+# carrying a SHA-256 per file, and the point of that manifest is that a
+# recipient can prove nothing changed in transit. Silently rewriting imported
+# source to satisfy a style lint destroys exactly that property for the sake
+# of nothing.
+#
+# So the exemption lives here, in the one file this repository has already
+# rewritten and documented as rewritten, and every one of the 114 source
+# files still hashes to what the manifest says. If the upstream project
+# adopts `is_multiple_of`, this line goes away with the next import.
+manual_is_multiple_of = "allow"

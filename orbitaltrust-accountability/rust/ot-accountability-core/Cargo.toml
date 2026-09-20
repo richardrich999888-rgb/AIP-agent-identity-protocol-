@@ -1,27 +1,38 @@
+# Wired into this repository's workspace.
+#
+# The import arrived carrying the SOURCE workspace's `workspace-Cargo.toml`,
+# whose `[workspace.dependencies]` block this crate's manifest inherited from
+# (`serde = { workspace = true }` and so on). That block is not this
+# workspace's, and adopting it wholesale would change dependency resolution
+# for the forty crates already here to suit four that arrived later.
+#
+# So the versions are pinned directly instead, at the versions this repository
+# already resolves to. The crate is otherwise unmodified.
 [package]
 name = "ot-accountability-core"
 description = "Deterministic canonical serialization, hash chaining, Merkle roots, and the typestate NEXORA lifecycle — one core shared by the native verifier CLI and the browser (via WASM)"
 edition.workspace = true
 version.workspace = true
-authors.workspace = true
 license.workspace = true
-repository.workspace = true
-rust-version.workspace = true
 
 [lib]
-# rlib for native consumers (ot-verifier); cdylib for the wasm32 build the
-# browser loads through wasm-bindgen.
-crate-type = ["cdylib", "rlib"]
+# `rlib` only. The import declared `["cdylib", "rlib"]` for a browser build
+# through wasm-bindgen; that build is not wired here (the `wasm` feature
+# below still exists for whoever does wire it), and a cdylib target costs a
+# shared-object link on every workspace build for nothing.
+crate-type = ["rlib"]
 
 [features]
 # Browser bindings. Native builds stay free of wasm-bindgen entirely.
 wasm = ["dep:wasm-bindgen"]
 
 [dependencies]
-serde = { workspace = true }
-serde_json = { workspace = true }
-sha2 = { workspace = true }
-wasm-bindgen = { workspace = true, optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+wasm-bindgen = { version = "0.2", optional = true }
 
 [dev-dependencies]
-tempfile = { workspace = true }
+# New to this repository: nothing else here used tempfile. Test-only, so it
+# reaches no shipped binary.
+tempfile = "3"

@@ -8,6 +8,59 @@ This is an **import, not a merge**. It sits alongside `aip-standalone/` rather
 than replacing anything, because the two codebases overlap in part and
 complement each other in part. Read the next section before integrating.
 
+## Wiring status (audited and wired 2026-09-20)
+
+The import said these crates "will not build here until added to a workspace
+carrying that block or pinned directly". That was true and it was not the
+whole obstacle. **Two of the four Rust crates cannot build here at all**, for
+a reason the import did not state: they depend on `ot-pqc`, which the source
+workspace lists as a sibling crate and which **was not brought across**.
+
+| Crate | In the workspace? | Tests | State |
+|---|---|---|---|
+| `ot-accountability-core` | **yes** | **56 pass** | Wired. Versions pinned directly rather than inherited from the source workspace's `[workspace.dependencies]`, so resolution for the forty crates already here is unchanged. `crate-type` narrowed to `rlib`; the `wasm` feature is intact for whoever wires the browser build. |
+| `ot-sentinel` | **yes** | **82 pass** | Wired. The library needs nothing absent — the one `ot_mcp_gateway` mention in `src/sensors.rs` is a rustdoc link in a comment, not code. |
+| `ot-mcp-gateway` | **no** | — | Needs `ot-pqc`: 11 non-optional references across 6 files. Cannot compile. |
+| `ot-verifier` | **no** | — | Needs `ot-pqc`: 2 non-optional references. Cannot compile. |
+
+`ot-sentinel/tests/ghost_hunt.rs` — 31 integration tests — is **preserved
+verbatim and excluded from compilation** by `autotests = false`, because it
+needs both absent crates. It is a stated exclusion, not a deleted test: when
+`ot-pqc` arrives, removing that line and restoring the two dev-dependencies
+is the whole of the work. The import claimed 114 sentinel tests; 82 + 31 =
+113 are accounted for here.
+
+**What this costs.** `ot-mcp-gateway` is the funnel on the MCP wire that
+seals every `tools/call` before it reaches the upstream server. That is
+directly the capability blocker **B10** in the RBI technical brief describes
+as outstanding, and it is one of the two that cannot be built. Obtaining
+`ot-pqc` from the ASC-space source is what closes it.
+
+**Security skim performed before merging.** No `build.rs` anywhere in the
+import, so nothing executes at build time. Zero `unsafe` in the two wired
+crates. No network calls and no process spawning; every `fs::write` is inside
+a `#[cfg(test)]` body writing tamper fixtures for negative tests.
+
+**New third-party dependency:** `tempfile` (dev-dependency only, so it
+reaches no shipped binary). Nothing else here used it.
+
+**The manifest still holds, and that is checked rather than claimed.**
+Wiring required rewriting two `Cargo.toml` files, which necessarily breaks
+their hashes. Nothing else moved: **112 of the 114 files are byte-identical
+to `MANIFEST.md`**, and the two that are not are exactly those manifests,
+each carrying a header saying why. A clippy lint on `runtime.rs` is exempted
+in `ot-sentinel/Cargo.toml` rather than fixed in the source, for the same
+reason — silently rewriting imported code to satisfy a style lint destroys
+the one property the manifest exists to give. Verify with:
+
+```bash
+python3 orbitaltrust-accountability/verify_manifest.py
+```
+
+It exits non-zero if any file other than those two has changed.
+
+---
+
 ## How this relates to `aip-standalone/`
 
 The repository already has its own accountability implementation
@@ -25,7 +78,10 @@ roughly 9,700 lines of Rust). The honest breakdown:
 | Durable tamper-evident authority store | — | `authority_journal.rs` | **Absent here** |
 | Browser/WASM verifier + TS console | — | `typescript/` | **Absent here** |
 
-**The integration question this raises.** Two hash-chain constructions now
+**The integration question this raises — STILL OPEN, and now load-bearing.**
+Wiring two of these crates into the workspace does not answer it; it makes
+answering it more urgent, because the incompatible construction is now
+compiled rather than dormant. Two hash-chain constructions now
 live in one repository and they are not byte-compatible — `aip-core` chains
 raw 32-byte digests, this core chains `SHA-256(previous ‖ canonical JSON)` as
 hex. Both are sound; they are simply different. A packet sealed by one will

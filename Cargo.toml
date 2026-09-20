@@ -114,6 +114,20 @@ members = [
     "aip-standalone/banking_demo",
     # ── the HTTP service tier (B-10) ───────────────────────────────────
     "aip-service",
+    # ── the OrbitalTrust import (audited; two of its four crates wired) ──
+    # `ot-sentinel` is the reason this is here: everything else in this
+    # repository is inline — it proves what went through the funnel and has
+    # no answer for an agent that declines to use the funnel at all. The
+    # sentinel reconciles what independent sensors saw against what the
+    # ledger sealed, so a call that bypassed the channel has no packet to
+    # account for it.
+    #
+    # `ot-mcp-gateway` and `ot-verifier` are NOT members: both need `ot-pqc`,
+    # which the import did not include. See
+    # orbitaltrust-accountability/README.md for the full state, including the
+    # chain-format incompatibility that is still an open decision.
+    "orbitaltrust-accountability/rust/ot-accountability-core",
+    "orbitaltrust-accountability/rust/ot-sentinel",
 ]
 
 [workspace.package]
