@@ -6,6 +6,43 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (Phase 0 of the hostile-validation program: cross-sensor blinding detection)
+- **The gap the pre-RBI validation plan identified as decisive is now closed
+  in code.** The kernel increments the perf loss counter (`PERF_RECORD_LOST`)
+  only in the `fail:` path of `__perf_output_begin()`, when the ring is
+  genuinely full. A rootkit that hooks the submission path (`perf_event_output`,
+  `perf_trace_run_bpf_submit`, `bpf_ringbuf_submit`) and returns early produces
+  no sample **and** no loss record — an invisible drop that a sensor's own
+  books cannot see. Every public eBPF-blinding PoC works this way.
+- **`aip-observe::divergence`** — a pure detector for the one signal that
+  survives such a hook: a gate-independent netlink connector `Exec` that the
+  perf `sched` tracepoint, declared live in the same batch, did not corroborate
+  within a 50 ms window. It is expressed as `MechanismIntegrity::Unverifiable`
+  (not `ForeignTracepointGate` — the probe found no program; the collector
+  simply cannot establish the silent sensor was capable), which already drives
+  `IntegrityUnknown`. 10 unit tests: agreement, the decisive miss, the
+  fail-closed preconditions (silence is divergence only when the sensor was
+  live and the connector anchor was present), the window boundary, the
+  `(pid,tgid)` join key, aggregation, and exec-only comparability.
+- **Wired into the collector sink** before attest: the collector, as attesting
+  authority, records its cross-sensor finding into the batch's integrity
+  reports, overriding a probe's too-rosy self-report for that cycle; a later
+  clean batch restores `Verified` and recovery proceeds. **Exit-gate test:** a
+  batch shaped exactly as a delivery-path hook produces it — connector
+  delivered the exec, perf did not, probe reported perf `Verified` — still
+  lands on `IntegrityUnknown` with coverage withdrawn. Negative control (both
+  deliver) raises nothing.
+- **`docs/security/BLINDING_RESILIENCE.md`** scores all five honest signals
+  (perf `PERF_RECORD_LOST`, netlink `ENOBUFS`, cross-sensor divergence,
+  heartbeat/sequence-gap, the signed coverage rule): what each catches, what
+  each misses, and why signal 3 is load-bearing. The audit found the other
+  four already existed; divergence was the one genuine gap.
+- **Limit kept intact:** this defeats a *single-path* delivery hook, the common
+  case. An attacker who hooks both paths, or the connector alone, defeats it;
+  that is the standing kernel-compromise limit and is not narrowed. TRL 4/5
+  unchanged; nothing here ran on institution hardware or observed a real agent.
+
+
 ### Added (the OrbitalTrust accountability layer, audited and partly wired)
 - **`orbitaltrust-accountability/` merged and two of its four Rust crates
   wired into the workspace.** The import had been sitting on a branch,

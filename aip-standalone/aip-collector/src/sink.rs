@@ -104,6 +104,36 @@ impl BatchSink for RuntimeSink {
             )));
         }
 
+        let mut batch = batch;
+
+        // Cross-sensor divergence (Phase 0), applied BEFORE the runtime
+        // absorbs the batch's own integrity reports. The missing-report rule
+        // below catches a probe that declared a gate-able sensor active and
+        // said nothing about it. It does not catch a sensor hooked on its
+        // delivery path: there the probe reports the sensor live and
+        // `Verified`, because the kernel's loss counter is touched only on a
+        // genuinely full ring, not on a hook that drops above the accounting.
+        // The one signal that survives such a hook is a gate-independent
+        // connector exec with no corroborating perf exec. When the collector
+        // finds that, it records its own finding into the batch's integrity
+        // reports — as the attesting authority it may override a probe's
+        // too-rosy self-report — so the runtime absorbs `Unverifiable` rather
+        // than the probe's `Verified` and the signed state is
+        // `IntegrityUnknown`. A later batch with no divergence carries the
+        // probe's `Verified` again and recovery proceeds normally.
+        for report in
+            aip_observe::detect_cross_sensor_divergence_default(&batch).integrity_reports()
+        {
+            match batch
+                .mechanism_integrity
+                .iter_mut()
+                .find(|r| r.mechanism == report.mechanism)
+            {
+                Some(existing) => existing.integrity = report.integrity,
+                None => batch.mechanism_integrity.push(report),
+            }
+        }
+
         let mut rt = self
             .runtime
             .lock()
@@ -189,6 +219,76 @@ mod tests {
         let mut sink = RuntimeSink::new(dev_runtime("obs", "match"));
         let bytes = batch_bytes("probe-1");
         assert!(sink.accept_batch("probe-1", 1, &bytes).is_ok());
+    }
+
+    // ── Phase 0 exit gate: a delivery-path hook, caught cross-sensor ──────
+    //
+    // The scenario the report calls decisive. A rootkit hooks the perf
+    // submission path for a target pid: the exec never reaches the perf
+    // tracepoint consumer, but the kernel's loss counter is never touched, so
+    // the probe honestly reports SchedTracepoint live and `Verified`. The
+    // gate-independent netlink connector, on a different facility, still
+    // delivers the exec. Nothing in the probe's own books is wrong, so the
+    // missing-report rule above does not fire — the ONLY thing that can catch
+    // this is the cross-sensor divergence check.
+
+    use aip_observe::{KernelLifecycleKind, ProcEvent};
+
+    /// A batch in which the connector saw an exec the perf tracepoint did not,
+    /// with the probe still reporting the perf sensor healthy — the on-wire
+    /// picture a delivery-path hook produces.
+    fn hooked_perf_batch(probe_id: &str, connector_pid: u32, sched_delivers: bool) -> Vec<u8> {
+        let mut probe = ProcfsProbe::new(probe_id);
+        probe.declare_source(SourceMechanism::ProcConnector);
+        probe.declare_source(SourceMechanism::SchedTracepoint);
+        // The probe's own integrity check finds nothing wrong: the hook drops
+        // above the loss accounting, so from the sensor's books it is healthy.
+        probe.declare_mechanism_integrity(
+            SourceMechanism::SchedTracepoint,
+            MechanismIntegrity::Verified,
+        );
+        let exec = |pid, ts| ProcEvent {
+            kind: KernelLifecycleKind::Exec { pid, tgid: pid },
+            cpu: 0,
+            timestamp_ns: ts,
+        };
+        probe.ingest_kernel_event(exec(connector_pid, 1_000_000));
+        if sched_delivers {
+            probe.ingest_sched_event(exec(connector_pid, 1_001_000));
+        }
+        serde_json::to_vec(&probe.batch([9u8; 16], 100, 200, vec![])).unwrap()
+    }
+
+    #[test]
+    fn a_delivery_path_hook_that_fools_the_sensors_own_books_lands_on_integrity_unknown() {
+        let rt = dev_runtime("obs", "hook");
+        let mut sink = RuntimeSink::new(Arc::clone(&rt));
+        // Connector delivered the exec; perf did not; perf reported healthy.
+        let bytes = hooked_perf_batch("probe-1", 4242, false);
+        sink.accept_batch("probe-1", 1, &bytes).unwrap();
+        assert_eq!(
+            state_of(&rt),
+            ObserverState::IntegrityUnknown,
+            "a connector exec the perf tracepoint missed must force IntegrityUnknown even though \
+             the probe's own integrity report said Verified"
+        );
+        // The finding is in the signed bytes, and coverage is withdrawn.
+        let h = rt.lock().unwrap().health(300).unwrap();
+        assert_eq!(h.health.state, ObserverState::IntegrityUnknown);
+        assert_eq!(h.health.attested_coverage, None);
+    }
+
+    #[test]
+    fn when_both_sensors_deliver_the_exec_there_is_no_false_integrity_finding() {
+        let rt = dev_runtime("obs", "agree");
+        let mut sink = RuntimeSink::new(Arc::clone(&rt));
+        let bytes = hooked_perf_batch("probe-1", 4242, true);
+        sink.accept_batch("probe-1", 1, &bytes).unwrap();
+        assert_ne!(
+            state_of(&rt),
+            ObserverState::IntegrityUnknown,
+            "corroborated execs must not raise a divergence finding"
+        );
     }
 
     #[test]
