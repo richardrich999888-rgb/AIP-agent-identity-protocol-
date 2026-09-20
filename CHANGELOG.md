@@ -77,6 +77,32 @@ versioning is [SemVer](https://semver.org/).
   from "trust the operator's log" to "the key signed this claim" and no
   further (N1).
 
+### Fixed (a live test conflated "the image was wrong" with "we saw the image")
+- **`ghost-demo/tests/live_exec.rs` was intermittently red under load.**
+  `x_a_wrong_image_is_a_transition_mismatch_on_content` asserts the reason is
+  `ActionEvidenceDoesNotMatch`. On a loaded host the `fork`/`exec` pair can be
+  incomplete when the window closes, and the engine then answers
+  `ActionTransitionIncomplete` with the action `Unobservable`. **That is the
+  architecture working** — absence of evidence is not converted into a
+  finding — but a test asking *"is a wrong image reported as a content
+  mismatch?"* is asking something that only has an answer once the image was
+  seen.
+- Observation of the execution is now an explicit **precondition**: the run is
+  repeated (at most three times) while the action comes back `Unobservable`,
+  and the test fails loudly if it is never observed rather than passing on a
+  run that proved nothing. The retry never fires because the observer saw
+  something and the verdict disagreed, so a real regression still fails on the
+  first attempt.
+- Scoped to the three tests whose assertion is about the action comparison.
+  `x_b` and `x_c` deliberately keep the plain run: for
+  `ExecBeforeAuthorization`, `Unobservable` is the **correct** action outcome —
+  the exec fell outside the window and the verdict rests on
+  `temporal: BeforeWindow` — so applying the precondition there would reject
+  the result the test exists to pin. The precondition is also deliberately not
+  `availability.is_covered()`: in this demonstrator a run that reaches
+  `VerifiedExecution` on a matched exec transition still reports
+  `WindowNotCovered`, so coverage would have rejected passing runs.
+
 ### Fixed (the reference tests passed for the wrong reason)
 - **Five profile test crates depended on build order.** `aip-robotics`,
   `aip-industrial`, `aip-space`, `aip-uas` and `aip-enterprise` all drive

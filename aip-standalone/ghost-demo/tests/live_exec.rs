@@ -12,7 +12,7 @@
 #![cfg(target_os = "linux")]
 
 use aip_reconcile::ReconciliationResult;
-use ghost_demo::{run, tracer_available, Scenario};
+use ghost_demo::{run, tracer_available, Demo, Scenario};
 
 const AGENT: &str = env!("CARGO_BIN_EXE_ghost-demo-agent");
 
@@ -26,12 +26,85 @@ fn tracer_or_skip(test: &str) -> bool {
     }
 }
 
+/// How many times a run may be repeated while the observer fails to see the
+/// execution at all. Three is enough that a loaded host recovers, and small
+/// enough that a host which genuinely cannot observe still fails in seconds.
+const COVERAGE_ATTEMPTS: usize = 3;
+
+/// Did the observer see the execution at all?
+///
+/// `ActionComparison::Unobservable` is the engine saying the `fork`/`exec`
+/// pair was not there to compare. It is a correct output and it is a
+/// **precondition** of every assertion below that names a specific reason
+/// code — not a property under test.
+///
+/// Deliberately **not** `availability.is_covered()`. In this demonstrator the
+/// attested coverage window is a separate question from whether the action
+/// was seen, and a run that reaches `VerifiedExecution` on a matched exec
+/// transition still reports `WindowNotCovered`. Using coverage here would
+/// reject runs that proved exactly what the test asks about.
+fn observed(d: &Demo) -> bool {
+    !matches!(
+        d.reconciliation.action,
+        aip_reconcile::ActionComparison::Unobservable
+    )
+}
+
+/// Run `scenario` until the execution was observed as action evidence.
+///
+/// Only for the tests whose assertion is **about the action comparison**.
+/// `x_b` and `x_c` deliberately do not use it: for
+/// `Scenario::ExecBeforeAuthorization`, `Unobservable` is the correct action
+/// outcome — the exec fell outside the window, so it is never compared as
+/// action evidence, and the verdict rests on `temporal: BeforeWindow`.
+/// Applying this precondition there would reject the very result the test
+/// exists to pin.
+///
+/// # Why this retry is legitimate and a retry on the assertion would not be
+///
+/// These scenarios reconcile a real `fork`/`exec` pair delivered through perf
+/// tracepoints. On a loaded host — several test binaries and a compiler on
+/// four CPUs — the pair can be incomplete when the window closes, and the
+/// engine then answers `ActionTransitionIncomplete` with the action
+/// `Unobservable`. That is the architecture working: absence of evidence is not
+/// converted into a finding. But a test that asks *"is a wrong image reported
+/// as a content mismatch?"* is asking a question that only has an answer once
+/// the image was seen, and asserting the mismatch reason against a run that
+/// saw nothing conflates two different facts.
+///
+/// So the retry fires **only** when the run reports it could not see. It never
+/// fires because the observer saw something and the verdict disagreed with the
+/// test: a real regression still fails on the first attempt. If coverage is
+/// never established the test fails and says so, rather than passing quietly
+/// on a run that proved nothing.
+fn run_observed(scenario: Scenario, test: &str) -> Demo {
+    let mut d = run(scenario, AGENT);
+    for attempt in 1..COVERAGE_ATTEMPTS {
+        if observed(&d) {
+            return d;
+        }
+        eprintln!(
+            "{test}: attempt {attempt} did not observe the execution \
+             (action {:?}, reason {:?}); retrying the run, not the assertion",
+            d.reconciliation.action, d.reconciliation.reason
+        );
+        d = run(scenario, AGENT);
+    }
+    assert!(
+        observed(&d),
+        "{test}: the execution was never observed in {COVERAGE_ATTEMPTS} attempts, so there is \
+         nothing to assert about the action. This is not a pass. Last result:\n{:?}",
+        d.reconciliation
+    );
+    d
+}
+
 #[test]
 fn x_p_authorized_image_executed_by_a_child_of_the_agent_verifies() {
     if !tracer_or_skip("x_p") {
         return;
     }
-    let d = run(Scenario::ExecPositive, AGENT);
+    let d = run_observed(Scenario::ExecPositive, "x_p");
     let r = &d.reconciliation;
     assert_eq!(
         r.result,
@@ -94,7 +167,7 @@ fn x_p_verifies_on_the_kernel_fork_exec_pair_with_the_image_hash() {
     if !tracer_or_skip("x_p_kind") {
         return;
     }
-    let d = run(Scenario::ExecPositive, AGENT);
+    let d = run_observed(Scenario::ExecPositive, "x_p_kind");
     let r = &d.reconciliation;
     assert_eq!(
         r.reason,
@@ -120,7 +193,7 @@ fn x_a_wrong_image_is_a_transition_mismatch_on_content() {
     if !tracer_or_skip("x_a_reason") {
         return;
     }
-    let r = run(Scenario::ExecWrongBinary, AGENT).reconciliation;
+    let r = run_observed(Scenario::ExecWrongBinary, "x_a_reason").reconciliation;
     assert_eq!(
         r.reason,
         aip_reconcile::ReasonCode::ActionEvidenceDoesNotMatch,
