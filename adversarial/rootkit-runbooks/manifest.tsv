@@ -1,0 +1,5 @@
+# Phase 5 rootkit runbook manifest — DOCUMENT ONLY, validated against fixtures.
+# Each row: tool <TAB> kind(attack|control) <TAB> fixture <TAB> expected_state
+# Fixtures stand in for a VM capture until a real run replaces them.
+ebpfkit	attack	fixtures/ebpfkit.attack.health.jsonl	IntegrityUnknown
+baseline-no-attack	control	fixtures/control.health.jsonl	Active

@@ -1,0 +1,7 @@
+DO NOT RUN ANYTHING IN THIS TREE ON A LIVE HOST.
+
+This directory is for SOURCE REVIEW ONLY of offensive tools (eBPF rootkits,
+C2 agents). They load code into the kernel and are irreversible on a live
+host. Clone here for reading; run only in a dedicated, snapshotted,
+network-isolated VM per adversarial/rootkit-runbooks/. See NON-NEGOTIABLE
+SAFETY RULES in adversarial/README.md.

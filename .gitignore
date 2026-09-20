@@ -28,3 +28,7 @@ validation/pilot_e2e/results/sealed/interferer
 # The signed health archive IS the evidence the adversarial ledger cites, so
 # it overrides the global *.jsonl rule above.
 !validation/pilot_e2e/results/sealed/*.jsonl
+
+# Phase 5 harness fixtures: synthetic health captures, must be committed so
+# the parser has known-good input to validate against on a fresh checkout.
+!adversarial/rootkit-runbooks/fixtures/*.jsonl
