@@ -116,6 +116,7 @@ fn t_container_a_namespaced_workload_reports_a_pid_that_is_not_its_identity() {
     }
     let dir = scratch("ns");
     std::fs::create_dir_all(&dir).expect("state dir");
+    common::ensure_sibling_binaries();
     let workload = aip_edge::transport::sibling_binary("aip-edge-workload").expect("workload");
 
     // The workload runs as PID 1 of a fresh PID namespace. Its own

@@ -220,9 +220,12 @@ pub fn sibling_binary(name: &str) -> Result<PathBuf, EdgeError> {
         }
         dir = d.parent().map(Path::to_path_buf);
     }
+    // `cargo test --workspace` does not build it: a package's binaries are
+    // compiled for tests only when that package has integration tests of
+    // its own, and the sibling packages have none. The reference test
+    // harness builds them on demand; from a shell it is one command.
     Err(EdgeError::Transport(format!(
-        "{name} was not found next to {}; build it with \
-         `cargo build -p {name}` (a full `cargo test --workspace` builds it too)",
+        "{name} was not found next to {}; build it with `cargo build -p {name}`",
         exe.display()
     )))
 }
