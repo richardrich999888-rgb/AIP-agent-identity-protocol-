@@ -11,11 +11,16 @@ description = "Ghost Stage 4: reconcile ExpectedExecution against attested obser
 # on only in dev-dependencies; no production build enables it.
 test-fixtures = []
 
+[[bin]]
+name = "aip-lineage"
+path = "src/bin/aip-lineage.rs"
+
 [dependencies]
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
 aip-authorize = { path = "../aip-authorize" }
 aip-observe = { path = "../aip-observe" }
+aip-observe-verify = { path = "../aip-observe-verify" }
 aip-core = { path = "../aip-core" }
 serde = { version = "1.0", features = ["derive"] }
 

@@ -65,9 +65,9 @@ info "kernel $(uname -r), tracefs mounted, langgraph $LG_VER"
 uname -a > "$OUT/host.txt"; echo "langgraph=$LG_VER" >> "$OUT/host.txt"
 
 step "Build the daemons and the offline verifier"
-( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build -q -p aip-probe -p aip-collector -p aip-observe-verify 2>&1 ) \
+( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build -q -p aip-probe -p aip-collector -p aip-observe-verify --bin aip-lineage 2>&1 ) \
   | tee -a "$OUT/build.log" | grep -E "^error" && die "build failed"
-ok "aip-probe, aip-collector, aip-observe-verify built"
+ok "aip-probe, aip-collector, aip-observe-verify, aip-lineage built"
 
 W="$OUT/work"; mkdir -p "$W/state"
 PORT=$(python3 -c "import socket;s=socket.socket();s.bind(('127.0.0.1',0));print(s.getsockname()[1]);s.close()")
@@ -170,15 +170,39 @@ cat "$OUT/offline_verify.txt" >> "$OUT/transcript.txt"
 grep -q "^VERIFIED" "$OUT/offline_verify.txt" || die "verifier did not report VERIFIED"
 ok "offline: the real agent's attested batches verify under the published key alone"
 
+step "Derive the delegation chain from the SAME archive (Phase 3)"
+# aip-lineage re-verifies the archive under the anchor FIRST, then derives
+# start-verified parent->child edges. It fails closed: an archive that does
+# not verify derives nothing. This is observed lineage only — attribution to
+# an authorised identity is a reconciler verdict against a signed
+# ExpectedExecution, not claimed by this tool.
+LINEAGE="$REPO/target/debug/aip-lineage"
+"$LINEAGE" --observer-id collector.phase1 --key-version 1 \
+           --pubkey-file "$W/state/observer.pub" \
+           --batches "$ARCHIVE" \
+  > "$OUT/delegation_chain.txt" 2>&1
+LRC=$?
+sed 's/^/       /' "$OUT/delegation_chain.txt"
+cat "$OUT/delegation_chain.txt" >> "$OUT/transcript.txt"
+[ "$LRC" -eq 0 ] || die "aip-lineage refused the collector's own archive (exit $LRC)"
+EDGES=$(sed -n 's/^edges derived    : //p' "$OUT/delegation_chain.txt")
+[ "${EDGES:-0}" -ge 1 ] || die "no delegation edges derived from the real agent run"
+ok "delegation chain derived from the verified archive ($EDGES start-verified edges)"
+
 # Keep the evidence; drop the throwaway key material.
 cp "$W/state/attested.archive.jsonl" "$W/state/health.archive.jsonl" \
    "$W/state/observer.pub" "$W/collector.log" "$W/probe.log" "$OUT/" 2>/dev/null
 
-step "DEMONSTRATED (Phase 1)"
+step "DEMONSTRATED (Phases 1 and 3)"
 printf 'A real LangGraph agent -- a parent graph node spawning a child sub-agent\n'
 printf 'that wrote a file and opened a TCP connection -- was observed from the\n'
 printf 'kernel by a probe holding no key, attested by a collector in a separate\n'
 printf 'process holding the only key, and the resulting archive verified OFFLINE\n'
 printf 'by a separate binary given two files and the published public key.\n'
-printf '\nThe VERIFIED_EXECUTION reconciler verdict (join against a signed\n'
-printf 'ExpectedExecution) is Phase 3 and is not claimed here.\n'
+printf '\nPhase 3: the delegation chain (start-verified parent->child edges) was\n'
+printf 'derived from that same archive, after re-verifying it under the anchor.\n'
+printf 'The derivation is observed lineage only; it fabricates no edge when a\n'
+printf 'fork is dropped, and attributes to the kernel-bound forking instance.\n'
+printf '\nThe VERIFIED_EXECUTION reconciler verdict (join of this lineage against\n'
+printf 'a signed ExpectedExecution) is exercised in aip-reconcile'"'"'s test suite\n'
+printf '(lineage_violation.rs, delegation_attribution.rs), not by this script.\n'

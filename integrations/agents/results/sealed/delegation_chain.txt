@@ -1,0 +1,28 @@
+DELEGATION CHAIN (observed lineage, collector-signed evidence)
+batches examined : 2
+edges derived    : 21
+distinct parents : 16
+---
+seq=1 fork@9521041157125ns  parent pid=21667 start=337777  ->  child pid=3850 start=952104  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=1 fork@9521470930278ns  parent pid=6004 start=185535  ->  child pid=3852 start=952147  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=1 fork@9521667947842ns  parent pid=13735 start=289814  ->  child pid=3854 start=952166  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=1 fork@9522319988690ns  parent pid=8479 start=209443  ->  child pid=3856 start=952231  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=1 fork@9523307661086ns  parent pid=3822 start=951826  ->  child pid=3858 start=952330  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9528316296104ns  parent pid=17746 start=304595  ->  child pid=3886 start=952831  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9530656395390ns  parent pid=6269 start=193263  ->  child pid=3895 start=953065  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9531158150442ns  parent pid=32570 start=230722  ->  child pid=3898 start=953115  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9532148948250ns  parent pid=105 start=417  ->  child pid=3905 start=953214  image=bc5945feb8bd26203ebfafea5ce1878bb2e32cb8fb50ab7ae395cfb1e1aaaef1  path="/bin/bash"  via=SchedTracepoint
+seq=2 fork@9532329608144ns  parent pid=8479 start=209443  ->  child pid=3910 start=953232  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9532346514498ns  parent pid=29885 start=220841  ->  child pid=3912 start=953234  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9532725576666ns  parent pid=16874 start=295487  ->  child pid=3915 start=953272  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9535189223878ns  parent pid=21541 start=332299  ->  child pid=3937 start=953518  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9535332532846ns  parent pid=24191 start=218015  ->  child pid=3939 start=953533  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9536500836858ns  parent pid=6004 start=185535  ->  child pid=3942 start=953650  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9537218615635ns  parent pid=3905 start=953214  ->  child pid=3945 start=953721  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9538336121550ns  parent pid=3822 start=951826  ->  child pid=3954 start=953833  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9539297308511ns  parent pid=17195 start=299694  ->  child pid=3957 start=953929  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9540666255580ns  parent pid=6269 start=193263  ->  child pid=3962 start=954066  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9541051308915ns  parent pid=21667 start=337777  ->  child pid=3964 start=954105  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=2 fork@9541180911670ns  parent pid=3668 start=951295  ->  child pid=3967 start=954118  image=06d3927480c7554337818dbf5d91d78689bc8321237280e3d452028d5d1c3f43  path="/usr/bin/sleep"  via=SchedTracepoint
+---
+Each line is observed lineage only. Attribution to an authorised agent identity is a reconciler verdict against a signed ExpectedExecution, not asserted here.
