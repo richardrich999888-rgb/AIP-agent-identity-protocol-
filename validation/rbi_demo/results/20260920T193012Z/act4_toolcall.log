@@ -1,0 +1,36 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
+     Running unittests src/lib.rs (target/debug/deps/aip_mcp_gateway-bae6aace02db0310)
+
+running 6 tests
+test canonical::tests::nested_objects_are_canonicalised_recursively ... ok
+test canonical::tests::key_order_does_not_change_the_commitment ... ok
+test canonical::tests::array_order_is_significant ... ok
+test canonical::tests::a_changed_value_changes_the_commitment ... ok
+test canonical::tests::whitespace_and_compact_forms_agree ... ok
+test canonical::tests::strings_needing_escapes_round_trip_stably ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/aip-mcp-gateway.rs (target/debug/deps/aip_mcp_gateway-3266cece448d4711)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/tool_boundary.rs (target/debug/deps/tool_boundary-8d1d9088da084545)
+
+running 5 tests
+test a_header_that_disagrees_with_the_body_is_rejected_before_signing ... ok
+test a_receipt_signed_under_the_agents_key_is_refused ... ok
+test the_authorised_call_agrees ... ok
+test key_order_does_not_turn_an_honest_call_into_a_divergence ... ok
+test a_misparameterised_call_diverges_and_does_not_rest_on_the_agents_account ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Doc-tests aip_mcp_gateway
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
