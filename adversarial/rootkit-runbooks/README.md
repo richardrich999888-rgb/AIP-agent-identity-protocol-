@@ -15,8 +15,11 @@ foreclosures below. Nothing here is run on the machine that built this repo.
 
 ## Per-tool runbook
 
-For each tool: (1) clone into `../vendored/<tool>` for source review; (2) in
-the VM, build and load per the tool's own docs; (3) start `aip-probe` +
+First provision the VM: inside it, `AIP_ROOTKIT_VM=1 sudo -E ./vm_setup.sh`
+(installs the toolchain and prints the two hardening profiles; it fetches,
+builds and loads no rootkit, and refuses to run outside the disposable VM).
+Then, for each tool: (1) clone into `../vendored/<tool>` for source review;
+(2) in the VM, build and load per the tool's own docs; (3) start `aip-probe` +
 `aip-collector` (both `sched` and `connector` sensors live — the connector is
 the gate-independent anchor Phase 0 needs); (4) run the attack against a
 marked pid; (5) copy the collector's `health.archive.jsonl` out of the VM into
