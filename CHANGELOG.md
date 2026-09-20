@@ -49,6 +49,35 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — E5: durability, exercised not assumed)
+- **`deploy/sql/restore_drill.sh` — the restore, run end to end.** Immutability
+  is not durability: `hardening.sql` makes a packet impossible to delete or
+  alter, and does nothing about the disk under it failing. A table nobody can
+  delete from is still lost with its disk. Every DBA runs `pg_dump`; the claim
+  worth making is that a restore has been **exercised**, and this is it.
+- **It proves the half a naive drill skips.** Against a real PostgreSQL it
+  stands up a hardened vault, dumps it, restores into a *separate empty
+  cluster*, checks the evidence is byte-identical (including the verbatim
+  signed `evidence_json` that must re-verify offline), and then checks that
+  **every control survived the restore**: the append-only trigger still
+  refuses an `UPDATE` (owner included), the legal hold still refuses a
+  `DELETE`, the retention floor still refuses a sub-180-day policy, the
+  `aip_app` role still holds `SELECT`/`INSERT` only, and row-level security
+  still isolates tenants. A restore that brings the data back but leaves it
+  mutable has lost the control that made it evidence, and step 5 is where
+  that is caught. Verified passing on Linux 6.18.44.
+- **Root-safe and self-contained.** PostgreSQL refuses to run as root, so
+  when invoked as root the drill runs every server and client command as an
+  unprivileged user; it builds throwaway clusters under a temp dir, uses
+  Unix-socket auth only, changes no system state outside that dir, and exits
+  non-zero on any failed assertion.
+- **`docs/BACKUP_AND_RECOVERY.md`** states what the drill cannot decide for
+  the entity: RPO and RTO, off-site and off-host custody under a different
+  failure and administrative domain, backup encryption and key custody,
+  backup immutability (object-lock/WORM), and the restore-drill cadence —
+  and notes what a `pg_dump` does not carry (the cluster roles), which the
+  restore runbook recreates from provisioning, not from the backup.
+
 ### Added (RBI requirements coverage — R19: the adversarial ledger, reproducible by one command)
 - **`validation/red_suite/`.** A ledger of attacks is worth the attacks
   behind it, and an attack is worth re-running. This makes "reproducible by
