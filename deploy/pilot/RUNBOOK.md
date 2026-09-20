@@ -112,6 +112,36 @@ Symptom: `aip_evidence_stored_total` flat, no alerts.
    to backfill: the observations were never made. The gap is a fact and an
    incident bundle over that window will state it.
 
+### 2.2a The collector will not start: clock not synchronised
+
+Symptom: `aip-collector` exits at start with *"refusing to start: clock NOT
+synchronised"*, or the health log repeats it on a running collector.
+
+This host stamps and signs every attested batch. An undisciplined clock
+here does not produce one wrong timestamp — it produces an archive that is
+wrong **together** and internally consistent, which nothing in the sealed
+bytes afterwards reveals. That is why it is a refusal and not a warning.
+
+1. Check the time daemon: `systemctl status chronyd` and `chronyc
+   tracking`. A *Leap status* of `Not synchronised`, or a large *System
+   time* offset, is the cause.
+2. Check reachability of the configured sources: `chronyc sources -v`. A
+   pilot host firewalled away from NIC/NPL will never discipline; the
+   institution's internal stratum-2 servers are the usual fix.
+3. Let it converge, then restart the collector. Do **not** reach for
+   `AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0` to get past this in production:
+   evidence signed under it carries timestamps nobody has disciplined, and
+   the fact is not recorded in the sealed bytes for a verifier to find.
+4. If the clock was stepped while the collector was running, treat the
+   affected window the way §2.2 treats a gap — the wall-clock placement of
+   events in it is not trustworthy, and an incident bundle over that window
+   should say so.
+
+Note the limit of this control: it is operational, not attested. An offline
+verifier reading a sealed batch cannot confirm the collector's clock was
+disciplined when it signed. A root attacker on the collector can also clear
+the kernel's `STA_UNSYNC` flag on a clock it has just moved (N1).
+
 ### 2.3 CERT-In: a reportable incident, six-hour clock
 
 1. Decide the window and the agent.

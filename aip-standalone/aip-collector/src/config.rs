@@ -8,6 +8,72 @@ use std::path::PathBuf;
 
 use aip_observe::ContinuityPolicy;
 
+/// What the collector requires of its own clock before it will sign (E4).
+///
+/// CERT-In Direction 20(3)/2022 requires NTP-synchronised clocks. The
+/// collector is the host that stamps and signs, so an undisciplined clock
+/// here does not produce one wrong timestamp — it produces a whole archive
+/// of evidence that is wrong together and self-consistent, which is worse
+/// than an obvious gap because nothing in the sealed bytes reveals it.
+///
+/// So the default is to refuse to start. `required: false` is the explicit
+/// opt-out for a lab or a container with no time daemon, and it is a
+/// deliberate act rather than a silent fallback.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ClockPolicy {
+    /// Refuse to start when the clock is outside the budget. Default true.
+    pub required: bool,
+    /// Maximum acceptable kernel error bound, in milliseconds.
+    pub max_error_ms: i64,
+}
+
+impl Default for ClockPolicy {
+    fn default() -> Self {
+        // One second: far wider than a working NTP client needs (tens of
+        // milliseconds) and far tighter than the multi-second drift of a
+        // host nothing is steering.
+        Self {
+            required: true,
+            max_error_ms: 1000,
+        }
+    }
+}
+
+impl ClockPolicy {
+    pub fn from_env() -> Result<Self, String> {
+        let d = Self::default();
+        let required = match std::env::var("AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK").as_deref() {
+            Ok("0") | Ok("false") => false,
+            Ok("1") | Ok("true") | Err(_) => true,
+            Ok(other) => {
+                return Err(format!(
+                    "AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK={other:?} is not a boolean; \
+                     use 1/true or 0/false. A clock control disabled by a typo is worse \
+                     than none, because it reads as present"
+                ))
+            }
+        };
+        let max_error_ms = match std::env::var("AIP_COLLECTOR_CLOCK_MAX_ERROR_MS") {
+            Ok(v) if !v.trim().is_empty() => v
+                .trim()
+                .parse::<i64>()
+                .map_err(|e| format!("AIP_COLLECTOR_CLOCK_MAX_ERROR_MS={v:?}: {e}"))
+                .and_then(|n| {
+                    if n > 0 {
+                        Ok(n)
+                    } else {
+                        Err("AIP_COLLECTOR_CLOCK_MAX_ERROR_MS must be positive".to_string())
+                    }
+                })?,
+            _ => d.max_error_ms,
+        };
+        Ok(Self {
+            required,
+            max_error_ms,
+        })
+    }
+}
+
 /// Fully validated collector configuration.
 pub struct Config {
     pub observer_id: String,
@@ -20,6 +86,10 @@ pub struct Config {
     pub probes_path: PathBuf,
     /// The Noise static keypair file (R9). Generated 0600 on first start.
     pub noise_key_path: PathBuf,
+    /// Clock-discipline policy (E4). The collector stamps and signs, so an
+    /// undisciplined clock here poisons every `host_wall_clock_ms` it
+    /// attests — together, and invisibly.
+    pub clock: ClockPolicy,
 }
 
 fn require(key: &str) -> Result<String, String> {
@@ -90,6 +160,7 @@ impl Config {
             listen: require("AIP_COLLECTOR_LISTEN")?,
             probes_path: PathBuf::from(require("AIP_COLLECTOR_PROBES_PATH")?),
             noise_key_path: PathBuf::from(require("AIP_COLLECTOR_NOISE_KEY_PATH")?),
+            clock: ClockPolicy::from_env()?,
         })
     }
 }

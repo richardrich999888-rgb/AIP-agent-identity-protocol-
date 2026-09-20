@@ -48,6 +48,43 @@ fn now_ms() -> u64 {
 
 fn run() -> Result<(), String> {
     let cfg = Config::from_env()?;
+    // E4: the clock gate, before anything is signed. The collector stamps
+    // every attested batch, so starting with an undisciplined clock does not
+    // produce one wrong timestamp -- it produces an archive that is wrong
+    // together and self-consistent, which nothing in the sealed bytes
+    // afterwards reveals. Fail closed; the override is explicit.
+    match aip_observe::clock::clock_discipline() {
+        Ok(d) => {
+            eprintln!("aip-collector: {}", d.summary());
+            if cfg.clock.required && !d.within(cfg.clock.max_error_ms) {
+                return Err(format!(
+                    "refusing to start: {}, which exceeds the {} ms budget. This host stamps \
+                     and signs every attested batch, so its clock discipline is the accuracy \
+                     of all of it (CERT-In Direction 20(3)/2022 requires NTP-synchronised \
+                     clocks; see deploy/pilot/chrony-cert-in.conf). Fix the time daemon, \
+                     widen AIP_COLLECTOR_CLOCK_MAX_ERROR_MS, or set \
+                     AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 to accept the consequence \
+                     deliberately.",
+                    d.summary(),
+                    cfg.clock.max_error_ms
+                ));
+            }
+        }
+        Err(e) => {
+            // Unreadable is not the same as unsynchronised, and is not
+            // treated as one: it is reported, and the policy decides.
+            eprintln!("aip-collector: clock discipline unreadable: {e}");
+            if cfg.clock.required {
+                return Err(format!(
+                    "refusing to start: the clock's discipline could not be read ({e}), so it \
+                     cannot be shown to meet the {} ms budget. Set \
+                     AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 to proceed without the check.",
+                    cfg.clock.max_error_ms
+                ));
+            }
+        }
+    }
+
     let store = CollectorStore::open(&cfg.state_dir).map_err(|e| format!("open store: {e:?}"))?;
 
     // Load the wrapped signing key on the collector host. `production` refuses a
@@ -145,6 +182,16 @@ fn run() -> Result<(), String> {
 }
 
 /// Emit and persist one signed health record.
+/// Report clock discipline alongside health. A clock that was disciplined
+/// at start and has since lost its daemon is exactly the case a start-only
+/// check misses.
+fn report_clock() {
+    match aip_observe::clock::clock_discipline() {
+        Ok(d) => eprintln!("aip-collector: {}", d.summary()),
+        Err(e) => eprintln!("aip-collector: clock discipline unreadable: {e}"),
+    }
+}
+
 fn emit_health(runtime: &Arc<Mutex<CollectorRuntime>>) -> Result<(), String> {
     let rt = runtime
         .lock()
@@ -158,6 +205,7 @@ fn emit_health(runtime: &Arc<Mutex<CollectorRuntime>>) -> Result<(), String> {
 fn spawn_health_loop(runtime: Arc<Mutex<CollectorRuntime>>) {
     std::thread::spawn(move || loop {
         std::thread::sleep(HEALTH_INTERVAL);
+        report_clock();
         if let Err(e) = emit_health(&runtime) {
             eprintln!("aip-collector: {e}");
         }

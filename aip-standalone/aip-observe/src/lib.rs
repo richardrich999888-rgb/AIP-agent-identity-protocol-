@@ -58,6 +58,7 @@
 //! kernel timestamp come from the kernel, not from a procfs read.
 
 pub mod attest;
+pub mod clock;
 pub mod continuity;
 pub mod custody;
 pub mod fanotify;

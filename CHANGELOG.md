@@ -49,6 +49,47 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — E4: clock discipline, and what it does not prove)
+- **`aip_observe::clock`.** `BootClockAnchor` samples the realtime and boot
+  clocks together so a kernel-timestamped event can be *placed* on the wall
+  clock; it says nothing about whether that wall clock is right. An
+  undisciplined host hands out a perfectly self-consistent anchor while
+  being hours out. This module asks the kernel the other question through
+  `ntp_adjtime`: is a daemon steering this clock, and what does the kernel
+  believe its error bound to be. It reads and never sets — `modes: 0` is the
+  pure query, and a module that could adjust the clock it reports on would
+  be a poor witness.
+- **The collector refuses to start on a bad clock.** It stamps and signs
+  every attested batch, so an undisciplined clock there does not produce one
+  wrong timestamp — it produces an archive that is wrong *together* and
+  internally consistent, which nothing in the sealed bytes afterwards
+  reveals. Default budget 1000 ms: far wider than a working NTP client needs
+  and far tighter than the drift of a host nothing is steering. The reading
+  is repeated on every health cycle, because a clock that was disciplined at
+  start and has since lost its daemon is exactly what a start-only check
+  misses.
+- **Unsynchronised and unreadable are different, and are not conflated.** An
+  unreadable reading is reported as unreadable and the policy decides;
+  `within()` fails an unsynchronised clock *however small* its error bound
+  looks, because a stale bound from a daemon that died is not evidence of
+  accuracy. `AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0` is an explicit act, and a
+  malformed value is refused rather than read as "off".
+- **`deploy/pilot/chrony-cert-in.conf`** points at NIC and NPL time servers
+  per CERT-In Direction 20(3)/2022, requires two sources before steering,
+  and steps the clock only in the first updates after boot so a running
+  collector never has its clock jumped underneath it.
+- **Bounds, stated rather than implied.** The reading is an operational
+  control and is **not** inside the attested bytes, so an offline verifier
+  cannot confirm it — making it signed evidence would be another
+  observe-protocol change and is named as future work, not implied. And
+  root can call `adjtimex` to clear `STA_UNSYNC` on a clock it has just
+  moved: like every other syscall source here, this is honest about a
+  cooperative host and defeated by one whose kernel is owned (N1).
+- Tests: 7 in `aip-observe`, including a live `ntp_adjtime` read; the gate
+  was exercised end to end against the real binary — it refuses on this
+  unsynchronised host, proceeds under the explicit override, and rejects a
+  malformed policy value.
+
 ### Added (RBI requirements coverage — B3: the observer reads container placement itself)
 - **`ObservedProcess.container`, observe protocol 10 → 11.**
   `ExecutionBinding` has carried `ContainerIdentity` since v2, but only the

@@ -45,6 +45,12 @@ demonstrator with extra steps, and its guarantee does not hold.
 
 ## Order of operations
 
+0. Discipline the clocks first (E4). Install `chrony-cert-in.conf` on the
+   collector host and the agent hosts and confirm with `chronyc tracking`.
+   The collector **refuses to start** on an unsynchronised clock: it stamps
+   and signs every attested batch, so its clock discipline is the accuracy
+   of all of it, and an archive that is wrong together is worse than an
+   obvious gap because nothing in the sealed bytes reveals it.
 1. Provision the collector key on the collector host
    (`templates/collector-key-provisioning.md`). Never on an agent host.
 2. Stand up the evidence API (`deploy/docker/`) with TLS terminated at the
