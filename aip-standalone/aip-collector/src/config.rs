@@ -86,6 +86,11 @@ pub struct Config {
     pub probes_path: PathBuf,
     /// The Noise static keypair file (R9). Generated 0600 on first start.
     pub noise_key_path: PathBuf,
+    /// Where attested batches are appended (`attested.archive.jsonl` in the
+    /// state directory unless overridden). This file is the evidence an
+    /// auditor verifies offline; without it the Phase 1 exit gate cannot be
+    /// met, because nothing signed survives the acknowledgement.
+    pub attested_archive_path: PathBuf,
     /// Clock-discipline policy (E4). The collector stamps and signs, so an
     /// undisciplined clock here poisons every `host_wall_clock_ms` it
     /// attests — together, and invisibly.
@@ -160,6 +165,11 @@ impl Config {
             listen: require("AIP_COLLECTOR_LISTEN")?,
             probes_path: PathBuf::from(require("AIP_COLLECTOR_PROBES_PATH")?),
             noise_key_path: PathBuf::from(require("AIP_COLLECTOR_NOISE_KEY_PATH")?),
+            attested_archive_path: match std::env::var("AIP_COLLECTOR_ATTESTED_ARCHIVE_PATH") {
+                Ok(v) if !v.trim().is_empty() => PathBuf::from(v.trim()),
+                _ => PathBuf::from(require("AIP_COLLECTOR_STATE_DIR")?)
+                    .join("attested.archive.jsonl"),
+            },
             clock: ClockPolicy::from_env()?,
         })
     }

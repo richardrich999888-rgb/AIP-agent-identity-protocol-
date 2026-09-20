@@ -61,3 +61,22 @@ CI-08	none	aip-observe	--test container_identity the_placement_is_inside_the_can
 OI-13	pilot_e2e	-	-	NO_FALSE_POSITIVE
 OI-14	pilot_e2e	-	-	DETECTED
 OI-15	pilot_e2e	-	-	RECOVERS
+EA-01	none	aip-observe-verify	--test verify a_real_attested_chain_verifies_from_its_archives_and_a_public_key	NO_FALSE_POSITIVE
+EA-02	none	aip-observe-verify	--test verify a_batch_signed_by_another_key_is_refused	DETECTED
+EA-03	none	aip-observe-verify	--test verify an_edited_observation_no_longer_verifies	DETECTED
+EA-04	none	aip-observe-verify	--test verify a_record_removed_from_the_middle_breaks_the_chain	DETECTED
+EA-05	none	aip-observe-verify	--test verify reordered_records_are_caught_by_the_chain_even_though_each_signature_is_valid	DETECTED
+EA-06	none	aip-observe-verify	--test verify a_duplicated_record_is_refused	DETECTED
+EA-07	none	aip-observe-verify	--test verify a_corrupt_line_is_reported_not_skipped	DETECTED
+EA-08	none	aip-observe-verify	--test verify an_empty_archive_does_not_pass	REFUSED
+EA-09	none	aip-observe-verify	--test verify a_health_head_that_disagrees_with_the_batch_at_that_position_is_caught	DETECTED
+EA-10	none	aip-observe-verify	--test verify a_mid_chain_window_verifies_and_says_it_is_a_window	NO_FALSE_POSITIVE
+CL-01	none	aip-observe	--test attested_clock a_disciplined_clock_is_signed_and_verifies	CONTROL_VERIFIES
+CL-02	none	aip-observe	--test attested_clock editing_the_clock_reading_after_signing_breaks_the_signature	DETECTED
+CL-03	none	aip-observe	--test attested_clock dropping_the_clock_reading_after_signing_breaks_the_signature	DETECTED
+CL-04	none	aip-observe	--test attested_clock inserting_a_clock_reading_into_a_record_that_had_none_breaks_the_signature	DETECTED
+CL-05	none	aip-observe	--test attested_clock a_record_with_no_reading_differs_from_one_with_a_reading	DETECTED
+CL-06	none	aip-observe	--test attested_clock an_unsynchronised_reading_is_distinguishable_from_a_synchronised_one	DETECTED
+CL-07	none	aip-observe	--test attested_clock the_budget_predicate_requires_both_synchronisation_and_the_bound	PROPERTY
+CL-08	none	aip-observe	--test attested_clock a_negative_error_bound_encodes_and_compares_as_a_negative	PROPERTY
+CL-09	none	aip-observe	--test attested_clock this_hosts_real_clock_reading_round_trips_into_signed_evidence	CONTROL_VERIFIES

@@ -57,6 +57,14 @@ fn agent_run(tag: &str, scenario: Scenario) -> aip_edge::orchestrate::RunOutcome
         registered_platform: PlatformId::parse("host:node-14").expect("platform"),
         scenario,
     };
+    // The reference spawns `aip-edge-observer` and `aip-edge-workload`, which
+    // `cargo test --workspace` does not build: a package's binaries are
+    // compiled for tests only when that package has integration tests of its
+    // own, and those two have none. Without this, these tests pass only when
+    // something else in the same invocation happened to build them first --
+    // and worse, a binary left over from before a protocol change is found,
+    // spawned, and produces records the current engine refuses.
+    aip_edge::transport::ensure_sibling_binaries().unwrap_or_else(|e| panic!("{tag}: {e}"));
     let out = run(&cfg).unwrap_or_else(|e| panic!("{tag}: {e}"));
     let _ = std::fs::remove_dir_all(&dir);
     out

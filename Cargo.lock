@@ -420,6 +420,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-observe-verify"
+version = "0.4.0"
+dependencies = [
+ "aip-observe",
+ "hex",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-platform"
 version = "0.4.0"
 dependencies = [

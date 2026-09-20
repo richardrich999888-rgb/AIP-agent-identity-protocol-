@@ -87,9 +87,9 @@ pub use fanotify::{
 #[cfg(target_os = "linux")]
 pub use fanotify::{FanotifyWatch, FileObservation};
 pub use health::{
-    no_observer, ContinuityStatus, CoverageWindow, MechanismIntegrity, ObservationAvailability,
-    ObserverState, ProbePolicy, SensorHealth, SignedSensorHealth, UnavailableReason,
-    OBSERVER_HEALTH_DOMAIN,
+    no_observer, AttestedClock, ContinuityStatus, CoverageWindow, MechanismIntegrity,
+    ObservationAvailability, ObserverState, ProbePolicy, SensorHealth, SignedSensorHealth,
+    UnavailableReason, OBSERVER_HEALTH_DOMAIN,
 };
 pub use linux::{
     parse_proc_event, parse_proc_net_table, parse_socket_link, ProcEvent, SocketRecord, SourceError,

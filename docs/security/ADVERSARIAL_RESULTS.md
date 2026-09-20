@@ -181,6 +181,123 @@ outstanding**, and is what row C6 of the coverage matrix still tracks.
 
 ---
 
+## CL — Attested clock discipline (protocol 12)
+
+**Claim targeted.** *"A verifier reading a sealed record can establish
+whether the collector's wall clock was being steered when it signed, and by
+how much the collector's own kernel thought it might be out."*
+
+The collector stamps `attested_at_ms` on every batch and `emitted_at_ms` on
+every health record. Those stamps place the evidence in time. The clock
+behind them was checked — `ntp_adjtime` at daemon start and on every health
+cycle, a fail-closed startup gate, CERT-In Direction 20(3)/2022 — and the
+answer went to the daemon's log. **A log is not evidence a verifier holds.**
+The brief said so plainly: *"the clock-discipline reading is operational, not
+attested"*.
+
+The failure mode is what makes this worth a protocol bump rather than a
+documentation note. An undisciplined collector does not produce one wrong
+timestamp. It produces an archive that is wrong *together* and perfectly
+self-consistent, and nothing inside the sealed bytes reveals it.
+
+Protocol 12 puts the reading in `SensorHealth.clock` as
+[`AttestedClock`] — synchronised flag, the kernel's error bound, and the raw
+`ntp_adjtime` return code — inside the canonical bytes the key signs. The
+daemon reads the clock at its own boundary and hands the reading to the
+signer; the signing crate performs no syscalls on that path, so what is
+signed is what this process observed and not something the library fetched
+for itself.
+
+Tests: `aip-observe/tests/attested_clock.rs`.
+
+| id | attacker | attack | result |
+|----|----------|--------|--------|
+| CL-01 | — (control) | sign a real reading and verify it | **accepted**; the reading is in the record |
+| CL-02 | operator, no key | improve the error bound in an exported record | **DETECTED** — `PayloadHashMismatch` |
+| CL-03 | operator, no key | delete the reading from a record that carried one, so the archive says nothing about a clock that was adrift | **DETECTED** — `PayloadHashMismatch` |
+| CL-04 | operator, no key | insert a good reading into a record that carried none | **DETECTED** — `PayloadHashMismatch` |
+| CL-05 | — (encoding) | a record with no reading versus one with a good reading | **distinguishable**; absence is encoded, not omitted, so a collector that never read its clock cannot pass as one that read it and found it fine |
+| CL-06 | — (encoding) | an unsynchronised reading versus a synchronised one with the same bound | **distinguishable**; it is the `STA_UNSYNC` flag, not the number, that says anything is steering the clock |
+| CL-07 | — (predicate) | a stale bound on a clock nothing is steering | **refused by the budget predicate**, however small the bound; the verifier applies the same rule as the daemon's startup gate |
+| CL-08 | — (encoding) | a negative `maxerror`, which `c_long` permits | **round-trips exactly**; no saturation, no wrap to an enormous positive |
+| CL-09 | — (live) | this host's real `ntp_adjtime` reading, signed and verified | **round-trips into signed evidence** |
+
+**What signing it does not buy.** It is the kernel's own view, and root on the
+collector host can call `adjtimex` itself and clear `STA_UNSYNC` on a clock it
+has just moved. This raises the bar from "trust the operator's log" to "the
+key signed this claim"; it does not make the claim unforgeable by a party
+holding both the key and the kernel. That is the same boundary as every other
+`/proc` and syscall source here (N1), and it is not narrowed by being signed.
+
+**Reported, never judged.** `aip-observe-verify` prints three counts —
+records that said the clock was steered, records that said it was not, and
+records that said nothing — and the worst error bound any record asserted.
+It does not turn any of that into a pass or a failure, because what bound is
+acceptable is the institution's policy. What it will not do is let silence
+read as a good reading.
+
+---
+
+## EA — Evidence archive, verified offline (Phase 1 exit gate)
+
+**Claim targeted.** *"An auditor holding only the observer's public key and
+the collector's archive files can establish that these records are what the
+off-host collector signed, in this order, and that nothing has been added,
+removed or altered since."*
+
+Until now the collector attested a batch, returned its sequence number in the
+acknowledgement and **dropped it**. The chain position was persisted, which
+proves a batch existed; the batch itself was not, so there was nothing on
+disk for a verifier to accept. The Phase 1 exit gate's third clause — *the
+verifier accepts it offline* — was therefore not reachable, whatever the
+tests in this repository said about the library functions behind it.
+
+Two things close it. The collector appends every `AttestedBatch` to
+`attested.archive.jsonl` and publishes its evidence **public** key as
+`observer.pub` beside the state (the private half stays wrapped; an operator
+previously had to unwrap it with the passphrase to learn the anchor, which is
+what custody exists to prevent). And `aip-observe-verify` is the verifier: a
+separate binary, given two files and one public key, opening no socket and
+reading no environment.
+
+Attacks are executed as tests in `aip-observe-verify/tests/verify.rs` against
+a **real attested chain** — an actual `CollectorRuntime`, actual attestations,
+actual archive files. No hand-written fixture: a fixture the author wrote can
+agree with a verifier that is wrong in the same way.
+
+| id | attacker | attack | result |
+|----|----------|--------|--------|
+| EA-01 | — (control) | verify an untouched chain against the published key | **no false positive** — accepted; chain start reported as the observer's epoch |
+| EA-02 | forger, no key | present an archive signed by a different observer key | **DETECTED** — every record `SignatureRejected` |
+| EA-03 | host with root | edit one attested observation's content | **DETECTED** — `SignatureRejected` on that line; the attestation covers the batch's canonical bytes |
+| EA-04 | archive holder | delete one record from the middle | **DETECTED** — `SequenceNotContiguous` **and** `ChainBroken`; every surviving signature is still genuine, so only the chain catches it |
+| EA-05 | archive holder | reorder two records | **DETECTED** — `SequenceNotContiguous`; no signature finding, which is the point |
+| EA-06 | archive holder | duplicate a record | **DETECTED** — `SequenceNotContiguous` |
+| EA-07 | archive holder | truncate a line to garbage | **DETECTED** — `Unparseable`, reported rather than skipped; a verifier that skips bad lines passes a half-destroyed archive |
+| EA-08 | archive holder | present an empty archive | **REFUSED** — `Empty`; "nothing to verify" is never a pass |
+| EA-09 | collector (A4) | sign a health record whose head disagrees with the attested batch at the same chain position | **DETECTED** — `HealthHeadMismatch`; both signatures are valid in isolation and only the cross-archive comparison exposes it |
+| EA-10 | — (control) | verify a window that begins mid-chain | **accepted, and reported as a window** — the verifier does not claim to have seen what preceded the first record |
+
+**What a pass does not mean.** That the observations are true. A host with
+root can lie to its own probe; the collector attests what it received, not
+what happened. Nor that the window was continuously covered — that is what the
+health records state, including the windows the observer could not see
+(`IntegrityUnknown`, coverage withdrawn: rows OI-13..OI-15 above).
+
+**Heads are recomputed, never read.** `AttestedBatch::head()` derives the head
+from the record's own bytes, so a forged `prev_head` cannot be made to agree
+with a doctored predecessor. There is no supplied hash for the verifier to
+trust.
+
+**Live, not only in tests.** Phase D of `validation/pilot_e2e/run.sh` runs the
+verifier as a separate process against the archives the live collector just
+wrote, using only the published `observer.pub`, and then runs the same
+verifier against the same archive with one record deleted, which must be
+refused. A verifier that accepts everything is worth nothing, so the negative
+control is part of the demonstration rather than an appendix to it.
+
+---
+
 ## RA — Reconciliation attestation (SD-09)
 
 **Claim targeted.** *"A committed reconciliation verdict is attributable to the

@@ -79,11 +79,11 @@ info "kernel $(uname -r), tracefs mounted, sched_process_exec id=$TP_ID"
 uname -a > "$OUT/host.txt"; echo "tracepoint_id=$TP_ID" >> "$OUT/host.txt"
 
 step "Build the daemons and the interference instrument"
-( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build -q -p aip-probe -p aip-collector 2>&1 ) \
+( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build -q -p aip-probe -p aip-collector -p aip-observe-verify 2>&1 ) \
   | tee -a "$OUT/build.log" | grep -E "^error" && die "build failed"
 gcc -O2 -o "$OUT/interferer" "$REPO/validation/observation_integrity/tracepoint_interferer.c" \
   2>>"$OUT/build.log" || die "could not build the interference instrument"
-ok "aip-probe, aip-collector and the interferer built"
+ok "aip-probe, aip-collector, aip-observe-verify and the interferer built"
 
 # ── Bring up the pair ────────────────────────────────────────────────────────
 W="$OUT/work"; mkdir -p "$W/state"
@@ -118,7 +118,12 @@ for _ in $(seq 1 40); do
   grep -q "noise static public key" "$W/collector.log" && break
   sleep 0.25
 done
-NOISE_PUB=$(grep -oE "[0-9a-f]{64}" "$W/collector.log" | head -1)
+# Read the key from the file the collector writes, not from the log. A bare
+# "first 64 hex characters" match over the log pins whichever public value
+# the daemon happened to print first -- the evidence anchor and the Noise
+# static key are both 64 hex characters -- and the probe then fails the
+# handshake against a collector that is working perfectly.
+NOISE_PUB=$(cat "$W/state/noise.pub" 2>/dev/null)
 [ -n "$NOISE_PUB" ] || { cat "$W/collector.log"; die "collector did not publish a noise key"; }
 kill -0 "$COLLECTOR_PID" 2>/dev/null || { cat "$W/collector.log"; die "collector died"; }
 grep -q "listening on" "$W/collector.log" || sleep 1
@@ -245,6 +250,70 @@ info "signed ObserverState = $STATE_C"
 [ "$STATE_C" != '"Active"' ] && ok "the observer did not silently return to Active" \
   || info "NOTE: returned to $STATE_C; the window under attack remains recorded as unknown in the archive"
 
+# ── D. Offline verification ──────────────────────────────────────────────────
+# The Phase 1 exit gate: "a real agent process is observed; its batch is signed
+# by a collector on a different host; THE VERIFIER ACCEPTS IT OFFLINE".
+#
+# The first two clauses are what A-C established. This is the third, and it is
+# the one a demonstration usually skips, because it is the one that requires
+# the evidence to still exist after the acknowledgement. `aip-observe-verify`
+# is a SEPARATE PROCESS. It is given two files and one public key, and nothing
+# else: no collector, no socket, no state directory, no passphrase. The public
+# key is the one the collector publishes at every start (observer.pub); the
+# private half stays wrapped and is never unwrapped here.
+step "D. OFFLINE VERIFICATION - a separate process, two files and a public key"
+VERIFY="$REPO/target/debug/aip-observe-verify"
+BATCH_ARCHIVE="$W/state/attested.archive.jsonl"
+PUBFILE="$W/state/observer.pub"
+[ -s "$PUBFILE" ] || die "the collector did not publish observer.pub; an auditor would have no anchor"
+[ -s "$BATCH_ARCHIVE" ] || die "no attested batches survived to disk; there is nothing to verify offline"
+OBS_PUB=$(cat "$PUBFILE")
+info "anchor (published by the collector, private half never unwrapped): ${OBS_PUB:0:16}..."
+info "attested batches on disk: $(wc -l < "$BATCH_ARCHIVE")"
+
+"$VERIFY" --observer-id collector.pilot.e2e --key-version 1 \
+          --pubkey-file "$PUBFILE" \
+          --batches "$BATCH_ARCHIVE" \
+          --health "$W/state/health.archive.jsonl" \
+  > "$OUT/offline_verify.txt" 2>&1
+VERIFY_RC=$?
+cat "$OUT/offline_verify.txt" | tee -a "$OUT/transcript.txt" > /dev/null
+sed 's/^/       /' "$OUT/offline_verify.txt"
+[ "$VERIFY_RC" -eq 0 ] || die "the offline verifier rejected the collector's own archives (exit $VERIFY_RC)"
+grep -q "^VERIFIED" "$OUT/offline_verify.txt" || die "verifier did not report VERIFIED"
+ok "offline: every attested batch and health record verified under the published key alone"
+
+# The negative control. A verifier that accepts everything is worth nothing,
+# so the same verifier is run against a copy of the same archive with one
+# chain position altered. It must refuse. Without this line the PASS above
+# proves only that the binary exits zero.
+TAMPERED="$W/tampered.archive.jsonl"
+python3 - "$BATCH_ARCHIVE" "$TAMPERED" <<'PY'
+import json, sys
+lines = [l for l in open(sys.argv[1]) if l.strip()]
+recs = [json.loads(l) for l in lines]
+if len(recs) < 2:
+    sys.exit("need at least two attested batches to demonstrate a chain edit")
+# Remove one record from the middle: the deletion an append-only archive is
+# supposed to make visible. Nothing else is touched, so every remaining
+# signature is still genuine.
+del recs[len(recs) // 2]
+with open(sys.argv[2], "w") as f:
+    for r in recs:
+        f.write(json.dumps(r) + "\n")
+PY
+[ $? -eq 0 ] || die "could not build the tampered archive for the negative control"
+"$VERIFY" --observer-id collector.pilot.e2e --key-version 1 \
+          --pubkey-file "$PUBFILE" --batches "$TAMPERED" \
+  > "$OUT/offline_verify_tampered.txt" 2>&1
+TRC=$?
+sed 's/^/       /' "$OUT/offline_verify_tampered.txt"
+cat "$OUT/offline_verify_tampered.txt" >> "$OUT/transcript.txt"
+[ "$TRC" -eq 1 ] || die "negative control: a record deleted from the middle was NOT refused (exit $TRC)"
+grep -q "^NOT VERIFIED" "$OUT/offline_verify_tampered.txt" \
+  || die "negative control: verifier did not report NOT VERIFIED"
+ok "negative control: one record deleted from the middle - refused, chain break named"
+
 # ── Evidence ─────────────────────────────────────────────────────────────────
 step "Evidence"
 cp "$W/collector.log" "$W/probe.log" "$OUT/" 2>/dev/null
@@ -267,6 +336,10 @@ PY
 # transport key and the passphrase file -- and is never committed. What is
 # kept is the signed health archive, the daemon logs and the attack log.
 cp "$W/state/health.archive.jsonl" "$OUT/health.archive.jsonl" 2>/dev/null
+cp "$W/state/attested.archive.jsonl" "$OUT/attested.archive.jsonl" 2>/dev/null
+# The PUBLIC half only. The wrapped private key stays in work/ and is never
+# committed; this is the value an auditor is given, and it is not a secret.
+cp "$W/state/observer.pub" "$OUT/observer.pub" 2>/dev/null
 cp "$W/attack.log" "$OUT/attack.log" 2>/dev/null
 info "raw signed health archive and daemon logs written to:"
 info "  $OUT"
@@ -278,3 +351,7 @@ printf 'in a different process and holding the only signing key, signed\n'
 printf 'IntegrityUnknown and withdrew attested coverage. The attack was not\n'
 printf 'prevented -- a CAP_BPF adversary can blind the sensor -- but it could\n'
 printf 'not make the system report a clean window it could not justify.\n'
+printf '\nThe attested batches were then verified OFFLINE by a separate process\n'
+printf 'given two files and the published public key -- no collector, no socket,\n'
+printf 'no passphrase -- and the same verifier refused the same archive with one\n'
+printf 'record deleted. That is the Phase 1 exit gate, end to end.\n'

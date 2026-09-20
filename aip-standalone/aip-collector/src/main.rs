@@ -91,6 +91,19 @@ fn run() -> Result<(), String> {
     // development backend; the raw key is never exposed.
     let key = CollectorKey::production(&cfg.key_path, &cfg.passphrase)
         .map_err(|e| format!("load collector key: {e}"))?;
+
+    // Publish the evidence PUBLIC key. A verifier checks an attested batch
+    // against anchors the institution holds, so somebody has to be able to
+    // hand the auditor this value -- and until now the only way to obtain it
+    // was to unwrap the private key with the passphrase, which is precisely
+    // what custody exists to prevent. It is written beside the state and
+    // echoed at every start; it is public, and nothing about it is sensitive.
+    let evidence_pub = publish_public_value(&cfg.state_dir, "observer.pub", key.public_key());
+    eprintln!(
+        "aip-collector: evidence public key ({} v{}), give this to the auditor: {}",
+        cfg.observer_id, cfg.key_version, evidence_pub
+    );
+
     let custodian = key.into_custodian();
 
     let started = CollectorRuntime::start_with_custodian(
@@ -137,9 +150,13 @@ fn run() -> Result<(), String> {
     // public key; announce it at every start so an operator can find it
     // without reading the key file.
     let noise_key = Arc::new(NoiseKeyFile::load_or_generate(&cfg.noise_key_path)?);
+    // Written to a file as well as the log. Scraping a log for "the 64 hex
+    // characters" is how an operator ends up pinning whichever public value
+    // the daemon happened to print first; a named file cannot be confused
+    // with another key.
+    let noise_pub = publish_public_value(&cfg.state_dir, "noise.pub", noise_key.public());
     eprintln!(
-        "aip-collector: noise static public key (pin in AIP_PROBE_COLLECTOR_NOISE_PUBKEY): {}",
-        hex::encode(noise_key.public())
+        "aip-collector: noise static public key (pin in AIP_PROBE_COLLECTOR_NOISE_PUBKEY): {noise_pub}"
     );
 
     // Emit an initial signed health record, then keep it fresh on a timer so a
@@ -149,6 +166,10 @@ fn run() -> Result<(), String> {
 
     let listener =
         TcpListener::bind(&cfg.listen).map_err(|e| format!("bind {}: {e}", cfg.listen))?;
+    eprintln!(
+        "aip-collector: attested batches are appended to {}",
+        cfg.attested_archive_path.display()
+    );
     eprintln!("aip-collector: listening on {}", cfg.listen);
 
     for conn in listener.incoming() {
@@ -157,12 +178,13 @@ fn run() -> Result<(), String> {
                 let runtime = runtime.clone();
                 let authority = authority.clone();
                 let noise_key = noise_key.clone();
+                let archive_path = cfg.attested_archive_path.clone();
                 std::thread::spawn(move || {
                     let peer = stream
                         .peer_addr()
                         .map(|a| a.to_string())
                         .unwrap_or_else(|_| "<unknown>".into());
-                    let mut sink = RuntimeSink::new(runtime);
+                    let mut sink = RuntimeSink::with_archive(runtime, &archive_path);
                     match serve_connection_confidential(
                         stream,
                         READ_TIMEOUT,
@@ -181,6 +203,31 @@ fn run() -> Result<(), String> {
     Ok(())
 }
 
+/// Write a public key beside the collector's state and return it as hex.
+///
+/// These values are public by construction: the evidence-verification anchor
+/// and the Noise static public key a probe pins. Publishing them as files is
+/// an operational control, not a convenience. Before this existed the only
+/// way to obtain the evidence anchor was to unwrap the private key with the
+/// passphrase -- precisely what custody exists to prevent -- and the only way
+/// to obtain the Noise key was to parse it out of a log line.
+///
+/// A write failure is a warning, not a fatal error: the value is also printed,
+/// and a collector that can attest should not refuse to serve because a
+/// convenience file could not be created. Nothing downstream reads these
+/// files as authority; they are a copy of what the daemon already announced.
+fn publish_public_value(state_dir: &std::path::Path, name: &str, key: &[u8]) -> String {
+    let hex_text = hex::encode(key);
+    let path = state_dir.join(name);
+    if let Err(e) = std::fs::write(&path, format!("{hex_text}\n")) {
+        eprintln!(
+            "aip-collector: warning: could not write {}: {e}",
+            path.display()
+        );
+    }
+    hex_text
+}
+
 /// Emit and persist one signed health record.
 /// Report clock discipline alongside health. A clock that was disciplined
 /// at start and has since lost its daemon is exactly the case a start-only
@@ -193,10 +240,25 @@ fn report_clock() {
 }
 
 fn emit_health(runtime: &Arc<Mutex<CollectorRuntime>>) -> Result<(), String> {
+    // Read the clock HERE, at the daemon boundary, and hand the reading to
+    // the signer. The signing crate performs no syscalls on this path, so
+    // what it signs is exactly what this process observed and nothing it
+    // went and fetched for itself.
+    //
+    // A failed read becomes `None`, which a verifier reads as "the collector
+    // said nothing about its clock" -- never as "the clock was fine". The
+    // policy decision about an undisciplined clock belongs to the startup
+    // gate and to the operator, not to the health emitter, which must keep
+    // emitting: a collector that stops signing health because it could not
+    // read its clock would withdraw coverage for a reason unrelated to
+    // coverage.
+    let clock = aip_observe::clock::clock_discipline()
+        .ok()
+        .map(aip_observe::AttestedClock::from);
     let rt = runtime
         .lock()
         .map_err(|_| "runtime lock poisoned".to_string())?;
-    rt.health(now_ms())
+    rt.health_with_clock(now_ms(), clock)
         .map(|_| ())
         .map_err(|e| format!("emit health: {e:?}"))
 }

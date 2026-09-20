@@ -47,7 +47,7 @@ use crate::attest::{
     CollectorSigner, CollectorSnapshot, ObserverAttestor, ObserverTrustAnchors, VerifyError,
 };
 use crate::continuity::ContinuityBreak;
-use crate::health::{ObserverState, SignedSensorHealth};
+use crate::health::{AttestedClock, ObserverState, SignedSensorHealth};
 use crate::observed::{ObservationBatch, OBSERVE_PROTOCOL_VERSION};
 use crate::store::{CollectorStore, StoreError};
 
@@ -461,7 +461,18 @@ impl CollectorRuntime {
     /// Permitted while quarantined: a signed statement of quarantine is
     /// exactly what a verifier needs then.
     pub fn health(&self, emitted_at_ms: u64) -> Result<SignedSensorHealth, RuntimeError> {
-        let h = self.signer.health(emitted_at_ms)?;
+        self.health_with_clock(emitted_at_ms, None)
+    }
+
+    /// As [`Self::health`], carrying the collector's clock discipline inside
+    /// the attested bytes (protocol 12). Reading the clock is IO and stays
+    /// with the caller; this signs and persists what it is given.
+    pub fn health_with_clock(
+        &self,
+        emitted_at_ms: u64,
+        clock: Option<AttestedClock>,
+    ) -> Result<SignedSensorHealth, RuntimeError> {
+        let h = self.signer.health_with_clock(emitted_at_ms, clock)?;
         self.store.append_health(&h)?;
         self.store.save_snapshot(&self.signer.snapshot())?;
         Ok(h)

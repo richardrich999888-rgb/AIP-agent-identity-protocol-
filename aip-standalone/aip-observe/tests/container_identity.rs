@@ -40,12 +40,22 @@ fn process(container: Option<ContainerIdentity>) -> ObservedProcess {
     }
 }
 
-/// The protocol version carries the change, and the file's own changelog
-/// says what 11 added. A verifier refuses anything else, so this constant
-/// is the compatibility boundary.
+/// The protocol version carries B3's change.
+///
+/// This used to pin the constant to exactly 11. That made every later
+/// protocol change fail *here*, in a test about container identity, which
+/// says nothing about container identity and tells whoever hits it to edit a
+/// file they were not working on. The exact pin belongs with whatever change
+/// owns the current version -- today `attested_clock.rs` -- and what B3 needs
+/// is only that its field arrived in 11 and has not been withdrawn since.
 #[test]
 fn the_protocol_version_records_the_change() {
-    assert_eq!(OBSERVE_PROTOCOL_VERSION, 11);
+    const B3_INTRODUCED_IN: u16 = 11;
+    assert!(
+        OBSERVE_PROTOCOL_VERSION >= B3_INTRODUCED_IN,
+        "ObservedProcess::container is a protocol-{B3_INTRODUCED_IN} field; a version below \
+         that cannot carry it"
+    );
 }
 
 /// Two observers that both read the placement and agree: `Same`.

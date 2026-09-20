@@ -281,6 +281,7 @@ mod tests {
                 }),
                 covered_by,
                 emitted_at_ms: 10_000,
+                clock: None,
             },
             // The predicates under test never inspect the signature; a
             // placeholder keeps the test to the logic it is pinning.

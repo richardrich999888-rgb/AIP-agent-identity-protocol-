@@ -31,11 +31,16 @@
 //! syscall source here, this is honest about a cooperative host and
 //! defeated by one whose kernel is owned (N1).
 //!
-//! It is also **not inside the attested bytes**. A verifier reading a
-//! sealed batch cannot confirm this reading; it is an operational control
-//! that runs at daemon start and on each health cycle. Making it signed
-//! evidence would be an observe-protocol change, and is named as future
-//! work rather than implied.
+//! Since protocol 12 the reading **is inside the attested bytes**: the
+//! collector puts it in every signed health record as
+//! [`crate::AttestedClock`], so an offline verifier can confirm from a
+//! sealed record whether the clock producing its timestamps was being
+//! steered, and by how much the kernel thought it might be out. It was
+//! previously an operational control that ran at daemon start and on each
+//! health cycle and went only to a log -- and a log is not evidence anyone
+//! holds. Signing it raises the bar from "trust the operator's log" to "the
+//! key signed this claim"; it does not make the claim unforgeable by a party
+//! that holds both the key and the kernel.
 
 /// The kernel's view of whether this host's clock is disciplined.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -74,6 +79,23 @@ impl ClockDiscipline {
             self.max_error_us / 1000,
             self.state
         )
+    }
+}
+
+impl From<ClockDiscipline> for crate::health::AttestedClock {
+    /// The attested projection of a live reading.
+    ///
+    /// `est_error_us` is deliberately left out of the signed form. It is the
+    /// kernel's *estimate*, which moves continuously and carries no decision;
+    /// `max_error_us` is the kernel's *bound*, which is what the budget check
+    /// and CERT-In's requirement are about. Signing a field nothing decides on
+    /// would add bytes to every record and invite a verifier to reason from it.
+    fn from(d: ClockDiscipline) -> Self {
+        Self {
+            synchronized: d.synchronized,
+            max_error_us: d.max_error_us,
+            state: d.state,
+        }
     }
 }
 

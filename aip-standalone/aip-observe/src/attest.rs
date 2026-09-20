@@ -47,8 +47,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::continuity::{Admission, ContinuityBreak, ContinuityFault, ObserverLedger};
 use crate::health::{
-    ContinuityStatus, CoverageWindow, MechanismIntegrity, ObserverState, ProbePolicy, SensorHealth,
-    SignedSensorHealth,
+    AttestedClock, ContinuityStatus, CoverageWindow, MechanismIntegrity, ObserverState,
+    ProbePolicy, SensorHealth, SignedSensorHealth,
 };
 use crate::observed::{ObservationBatch, SourceMechanism, OBSERVE_PROTOCOL_VERSION};
 
@@ -339,9 +339,28 @@ pub trait ObserverAttestor {
         batch: ObservationBatch,
         attested_at_ms: u64,
     ) -> Result<AttestedBatch, AttestError>;
-    /// Current signed health. Absence of a recent health record must reduce
-    /// coverage at the verifier, never extend it.
-    fn health(&self, emitted_at_ms: u64) -> Result<SignedSensorHealth, AttestError>;
+    /// Current signed health, with no clock reading. Absence of a recent
+    /// health record must reduce coverage at the verifier, never extend it.
+    ///
+    /// Prefer [`Self::health_with_clock`] in a daemon. This exists for
+    /// callers with no clock source and for tests, and records `clock: None`
+    /// -- which a verifier reads as "the collector said nothing about its
+    /// clock", never as "the clock was fine".
+    fn health(&self, emitted_at_ms: u64) -> Result<SignedSensorHealth, AttestError> {
+        self.health_with_clock(emitted_at_ms, None)
+    }
+    /// Current signed health, carrying the collector's clock discipline
+    /// inside the attested bytes (protocol 12).
+    ///
+    /// Reading the clock is IO and therefore the caller's job: this crate
+    /// signs what it is given and performs no syscalls of its own on this
+    /// path. The daemon reads `aip_observe::clock::clock_discipline()` and
+    /// passes the result in.
+    fn health_with_clock(
+        &self,
+        emitted_at_ms: u64,
+        clock: Option<AttestedClock>,
+    ) -> Result<SignedSensorHealth, AttestError>;
 }
 
 /// Why the collector marked the probe stream degraded. Recorded for the
@@ -923,7 +942,11 @@ impl ObserverAttestor for CollectorSigner {
         })
     }
 
-    fn health(&self, emitted_at_ms: u64) -> Result<SignedSensorHealth, AttestError> {
+    fn health_with_clock(
+        &self,
+        emitted_at_ms: u64,
+        clock: Option<AttestedClock>,
+    ) -> Result<SignedSensorHealth, AttestError> {
         let state = self.state();
         let health = SensorHealth {
             version: OBSERVE_PROTOCOL_VERSION,
@@ -947,6 +970,7 @@ impl ObserverAttestor for CollectorSigner {
                 Vec::new()
             },
             emitted_at_ms,
+            clock,
         };
         let attestation = self
             .custodian

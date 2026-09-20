@@ -9,6 +9,15 @@
 > named in `docs/pilot/BFSI_PILOT_PLAN.md` §7 or to a row in
 > `docs/security/ADVERSARIAL_RESULTS.md`; where it does not, the row says so.
 
+> **What the "what this repository proves" rows are worth.** Each failure
+> class below states what is proven and what is not. The evidential weight of
+> those claims — which are true by construction, which were only tested
+> against attacks we designed, which were demonstrated live, and which have
+> never run outside a development host — is scored class by class in
+> `WHAT_THE_TESTS_PROVE.md`. No claim in this file reaches the rung that
+> matters most: demonstration on a regulated entity's hardware against a real
+> agent.
+
 ## 0. The one-paragraph answer
 
 Indian regulated entities (REs) are moving agents from answering questions to

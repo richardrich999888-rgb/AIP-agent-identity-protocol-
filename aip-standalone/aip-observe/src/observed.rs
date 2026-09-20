@@ -63,9 +63,19 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 ///   digest for the same process and manufacture a divergence out of a read
 ///   failure; `ObservedProcess::compare_container` answers
 ///   `ContainerNotComparable` instead.
+/// - `12` Attested clock discipline (matrix row E4):
+///   `SensorHealth.clock` — the kernel's `ntp_adjtime` view of whether the
+///   collector's wall clock was being steered when it signed, and the
+///   kernel's bound on its error. The collector stamps every attested batch
+///   and every health record, so an undisciplined clock does not produce one
+///   wrong timestamp: it produces an archive that is wrong *together* and
+///   self-consistent, which nothing in the sealed bytes afterwards reveals.
+///   The reading existed before this version as a startup gate and a log
+///   line, and a log is not evidence a verifier holds. `None` means **not
+///   read**, never "fine".
 ///
 /// Earlier versions never left this branch; all are refused.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 11;
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 12;
 
 /// Kernel TCP state bytes (`include/net/tcp_states.h`), as they appear in
 /// `/proc/net/tcp` and in the `sock:inet_sock_set_state` tracepoint.

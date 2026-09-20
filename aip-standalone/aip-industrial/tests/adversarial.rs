@@ -111,6 +111,7 @@ fn health(state: ObserverState, covered_by: Vec<SourceMechanism>) -> SignedSenso
             }),
             covered_by,
             emitted_at_ms: 10_000,
+            clock: None,
         },
         attestation: aip_types::Signature {
             algorithm: aip_types::AlgorithmId::Ed25519,

@@ -6,6 +6,147 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (an honest answer to "do the tests prove we solve the problem?")
+- **`docs/pilot/WHAT_THE_TESTS_PROVE.md`.** The answer is **no**, and the
+  document says so in its first paragraph. The tests prove an *evidentiary*
+  property — given evidence this system produced, tampering is detectable and
+  the system will not assert coverage it cannot justify — which is not an
+  outcome property and is not the same as preventing an agent from doing harm.
+- **A four-rung ladder** replaces the binary "tested / not tested" that a
+  matrix disposition implies: by construction, adversarially tested against
+  synthetic inputs, demonstrated live on a development host, and demonstrated
+  in the target environment. **Nothing in this repository is on the fourth
+  rung**, and the document says that is the honest headline.
+- **The ten failure classes of `RBI_AGENT_RISK_MAP.md` scored individually**,
+  each with what the tests establish and what is missing before the class is
+  actually solved. The weakest row is `PHANTOM_CLAIM` — the class regulated
+  entities are buying against — which is reachable by construction and on
+  synthetic inputs and has never been produced end to end on live hardware.
+- **Three structural limits stated up front**, none of which more testing
+  inside this repository removes: every attack in the ledger is one we thought
+  of; most of the suite constructs its inputs in one process; and nothing here
+  has run on a regulated entity's hardware or observed a real agent.
+- **The four claims that are supported**, written as sentences that can be
+  defended under questioning — and the sentence that must not be said.
+- Linked from `RBI_REQUIREMENTS_COVERAGE.md`, `RBI_AGENT_RISK_MAP.md` and
+  `BFSI_PILOT_PLAN.md`, each with a note that a disposition is not a proof. The
+  technical brief's section 10 carries the same three limits in the body rather
+  than in a footnote.
+
+### Added (observe protocol 12: the collector's clock discipline is signed evidence)
+- **The clock reading was a control nobody could check.** The collector
+  stamps `attested_at_ms` on every batch and `emitted_at_ms` on every health
+  record; those stamps are the evidence's placement in time. The clock behind
+  them *was* checked — `ntp_adjtime` at start and on every health cycle, a
+  fail-closed startup gate, CERT-In Direction 20(3)/2022 — and the answer went
+  to the daemon's log. A log is not evidence a verifier holds, and the brief
+  said so: *"the clock-discipline reading is operational, not attested."*
+  The failure mode is why this is a protocol change rather than a note: an
+  undisciplined collector does not produce one wrong timestamp, it produces an
+  archive that is wrong **together** and perfectly self-consistent, which
+  nothing inside the sealed bytes reveals.
+- **`SensorHealth.clock: Option<AttestedClock>`** — synchronised flag, the
+  kernel's error bound in microseconds, and the raw `ntp_adjtime` return code
+  — inside the canonical bytes the key signs (`OBSERVE_PROTOCOL_VERSION`
+  **11 → 12**; version-11 records are refused). `None` means **not read**,
+  never "fine", and is encoded distinctly, so a collector that never looked at
+  its clock cannot pass as one that looked and found it disciplined.
+- **The daemon reads; the signer signs.** `clock_discipline()` is called in
+  `aip-collector`, at the process boundary, and the reading is handed to
+  `CollectorRuntime::health_with_clock`. `aip-observe` performs no syscall on
+  that path, so what the key signs is what that process observed rather than
+  something the library fetched for itself. A failed read yields `None` and
+  health keeps being emitted: a collector that stopped signing health because
+  it could not read its clock would withdraw coverage for a reason unrelated
+  to coverage.
+- **`AttestedClock::within(budget_ms)`** is the same predicate the startup
+  gate applies, so a verifier reaches the daemon's answer instead of
+  re-deriving the rule. Both conditions must hold: a stale bound on a clock
+  nothing is steering fails however small it is.
+- **Ledger rows CL-01..CL-09**: editing, dropping and inserting the reading
+  after signing each fail verification; absence is distinguishable from a good
+  reading and an unsynchronised reading from a synchronised one with the same
+  bound; a negative `maxerror` (which `c_long` permits) round-trips exactly;
+  and this host's real reading round-trips into signed evidence.
+- `aip-observe-verify` reports three counts — steered, adrift, not stated —
+  and the worst bound any record asserted, and judges none of it. What bound
+  is acceptable is the institution's policy; what the verifier will not do is
+  let silence read as a good reading.
+- **Bounds, unchanged.** Root on the collector host can call `adjtimex` itself
+  and clear `STA_UNSYNC` on a clock it has just moved. Signing raises the bar
+  from "trust the operator's log" to "the key signed this claim" and no
+  further (N1).
+
+### Fixed (the reference tests passed for the wrong reason)
+- **Five profile test crates depended on build order.** `aip-robotics`,
+  `aip-industrial`, `aip-space`, `aip-uas` and `aip-enterprise` all drive
+  `aip_edge::orchestrate::run`, which spawns `aip-edge-observer` and
+  `aip-edge-workload`. `cargo test --workspace` does not build those: a
+  package's binaries are compiled for tests only when that package has
+  integration tests of its own, and neither has any. Only `aip-edge`'s own
+  harness built them, so the five profiles passed when `aip-edge` happened to
+  run first in the same invocation and failed on a clean checkout. The
+  protocol-12 bump exposed the worse half of the same defect: a binary left
+  over from before a protocol change is *found*, spawned, and emits records
+  the current engine refuses, so the failure surfaces as an evidence error
+  with nothing to do with evidence.
+- `aip_edge::transport::ensure_sibling_binaries()` is now one implementation
+  in the library that every consumer calls, and it **always** runs
+  `cargo build` rather than only building what is missing — a no-op when the
+  binaries are current, and the correct action when they are stale.
+
+### Added (the Phase 1 exit gate: the evidence survives, and an outside party can verify it)
+- **The collector kept nothing it signed.** `RuntimeSink` attested a batch,
+  took its sequence number for the acknowledgement and dropped it. The chain
+  position was persisted, which proves a batch existed; the batch itself was
+  not. The pilot's own Phase 1 exit gate — *"a real agent process is observed;
+  its batch is signed by a collector on a different host; **the verifier
+  accepts it offline**"* — was therefore unreachable, whatever this
+  repository's tests said about the library functions behind it. Every
+  `AttestedBatch` is now appended to `attested.archive.jsonl` (one JSON
+  object per line, in attestation order; path overridable with
+  `AIP_COLLECTOR_ATTESTED_ARCHIVE_PATH`). A write failure is returned to the
+  probe rather than logged and swallowed: a probe must learn that its batch
+  was not durably kept instead of being told everything is fine.
+- **The collector publishes its evidence *public* key.** `observer.pub` is
+  written beside the state at every start and echoed to stderr. Before this,
+  the only way to obtain the anchor an auditor needs was to unwrap the
+  private key with the passphrase — precisely what custody exists to prevent.
+  The Noise static public key is published the same way (`noise.pub`), so an
+  operator pins a named file instead of scraping a log for "the 64 hex
+  characters"; with two public keys now printed at start, that scrape pins
+  whichever the daemon happened to print first.
+- **`aip-observe-verify`** — the verifier an auditor actually runs.
+  `aip-verify` covers `EvidencePacket`s; nothing covered the **observer**
+  chain, so the gate's third clause had no tool behind it. Given two archive
+  files and one public key it checks every signature, then the chain that
+  links them: sequences contiguous, and each record's `prev_head` equal to the
+  **recomputed** head of the one before it (`AttestedBatch::head()` derives
+  the head from the record's own bytes, so there is no supplied hash to
+  trust). It cross-checks signed health heads against the attested batch at
+  the same chain position — both signatures are valid in isolation, and only
+  that comparison exposes a collector that signed two different answers about
+  one moment. It opens no socket, reads no environment, and has no
+  command-line parser dependency: the binary whose claim is a minimal trust
+  surface should not ask an auditor to account for a transitive dependency
+  tree. Exit 0 verified, 1 findings, 2 unusable arguments.
+- **Ledger rows EA-01..EA-10** in `ADVERSARIAL_RESULTS.md`, executed against a
+  **real** attested chain rather than hand-written fixtures: wrong key, edited
+  observation, a record deleted from the middle, reordering, duplication, a
+  corrupt line, an empty archive, a disagreeing health head, and two controls
+  (clean chain; a mid-chain window, accepted *and reported as a window*).
+  Deletion and reordering leave every surviving signature genuine, so only the
+  chain check catches them — which is why the chain check exists.
+- **Phase D of `validation/pilot_e2e/run.sh`.** The live demonstration now
+  ends by running the verifier as a separate process against the archives the
+  live collector just wrote, with only the published `observer.pub`, and then
+  running the same verifier against the same archive with one record deleted,
+  which must be refused. A verifier that accepts everything is worth nothing,
+  so the negative control is part of the demonstration.
+- RED suite: **46 rows**; 43 reproduced or runnable on a privileged host, one
+  deferred (`OI-08`), zero failing.
+
+
 ### Security (pre-evaluation fixes for a supervised BFSI pilot)
 - **The second authority engine in `aip-service` is gone.**
   `POST /v1/identity/delegate` and `POST /v1/identity/verify-chain` — unsigned
@@ -75,9 +216,8 @@ versioning is [SemVer](https://semver.org/).
   is keyed on the tracepoint, so the first attach installs the gate and later
   attaches are refused, and that one attach blinds every perf consumer of the
   tracepoint host-wide.
-- **Sealed as ledger rows OI-13 to OI-15** and wired into the RED suite, which
-  now carries 36 rows. On a privileged host with tracefs the suite reports 33
-  reproduced or runnable and one deferred (`OI-08`).
+- **Sealed as ledger rows OI-13 to OI-15** and wired into the RED suite as
+  `requires=pilot_e2e` rows, driven by that script rather than by `cargo test`.
 - **What this does not close, stated.** The attack is detected, not prevented
   — a CAP_BPF adversary can blind the sensor. It ran on a development virtual
   machine, so blocker B8 (the run on a regulated entity's own hosts) is

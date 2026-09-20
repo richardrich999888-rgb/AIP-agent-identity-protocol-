@@ -1,6 +1,22 @@
 //! The evidence layer behind the transport: deserialize an authenticated
 //! batch, bind it to the authenticated probe id, attest it under the wrapped
-//! evidence key, and persist the new chain position.
+//! evidence key, persist the new chain position, and **keep the attested
+//! batch**.
+//!
+//! # Why the attested batch is written down
+//!
+//! The collector used to attest a batch, take its sequence number for the
+//! acknowledgement, and drop it. That made the pilot's own Phase 1 exit gate
+//! unreachable: it asks that "a real agent process is observed; its batch is
+//! signed by a collector on a different host; **the verifier accepts it
+//! offline**" — and there was nothing left on disk for a verifier to accept.
+//! The chain position was persisted, which proves a batch existed, but a
+//! position is not the evidence; the signed batch is.
+//!
+//! So each `AttestedBatch` is appended to `attested.archive.jsonl` in the
+//! collector's state directory, one JSON object per line, in attestation
+//! order. That file is what an auditor verifies with the collector's public
+//! key and nothing else — no service, no network, no trust in this daemon.
 
 use std::sync::{Arc, Mutex};
 
@@ -12,11 +28,58 @@ use aip_transport::{BatchAckData, BatchSink, SinkError};
 /// probe connections serialize per batch rather than per connection.
 pub struct RuntimeSink {
     runtime: Arc<Mutex<CollectorRuntime>>,
+    /// Where attested batches are appended. `None` keeps the old
+    /// drop-after-ack behaviour, which exists only so a deployment that has
+    /// its own sink can opt out deliberately rather than by omission.
+    archive: Option<std::path::PathBuf>,
 }
 
 impl RuntimeSink {
+    /// A sink that attests and keeps nothing. Prefer [`Self::with_archive`];
+    /// this exists for tests and for a deployment that consumes batches by
+    /// another route and says so.
     pub fn new(runtime: Arc<Mutex<CollectorRuntime>>) -> Self {
-        Self { runtime }
+        Self {
+            runtime,
+            archive: None,
+        }
+    }
+
+    /// A sink that appends every attested batch to `archive`.
+    pub fn with_archive(
+        runtime: Arc<Mutex<CollectorRuntime>>,
+        archive: impl Into<std::path::PathBuf>,
+    ) -> Self {
+        Self {
+            runtime,
+            archive: Some(archive.into()),
+        }
+    }
+
+    /// Append one attested batch, one JSON object per line.
+    ///
+    /// A failure here is returned rather than logged and swallowed. The
+    /// batch has been attested and the chain has moved; if the evidence
+    /// cannot be written, the probe must learn that its batch was not
+    /// durably kept instead of being told everything is fine.
+    fn archive_batch(&self, attested: &aip_observe::AttestedBatch) -> Result<(), SinkError> {
+        let Some(path) = self.archive.as_ref() else {
+            return Ok(());
+        };
+        use std::io::Write;
+        let mut line = serde_json::to_vec(attested)
+            .map_err(|e| SinkError(format!("cannot encode attested batch: {e}")))?;
+        line.push(b'\n');
+        let mut f = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(path)
+            .map_err(|e| SinkError(format!("cannot open {}: {e}", path.display())))?;
+        f.write_all(&line)
+            .map_err(|e| SinkError(format!("cannot append to {}: {e}", path.display())))?;
+        f.sync_all()
+            .map_err(|e| SinkError(format!("cannot flush {}: {e}", path.display())))?;
+        Ok(())
     }
 }
 
@@ -74,6 +137,8 @@ impl BatchSink for RuntimeSink {
             .attest(batch)
             .map_err(|e| SinkError(format!("attest refused: {e:?}")))?;
         let head = rt.snapshot().head.unwrap_or([0u8; 32]);
+        // Keep the evidence, not just the position it advanced the chain to.
+        self.archive_batch(&attested)?;
         Ok(BatchAckData {
             attested_sequence: attested.sequence,
             head,

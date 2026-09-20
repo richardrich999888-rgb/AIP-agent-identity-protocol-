@@ -102,6 +102,14 @@ the honesty property on something recoverable, then widen.
 
 ---
 
+> **Before reading the exit gates as claims.** A gate that has been met on a
+> development host is not a gate met in an institution, and this plan says
+> which is which. `WHAT_THE_TESTS_PROVE.md` scores every property this system
+> asserts on a four-rung ladder and states plainly that **nothing reaches the
+> top rung** — demonstration on a regulated entity's hardware, against a real
+> agent, verified by that entity's auditor. Phases 1 and 5 of this plan are
+> what create the first such row.
+
 ## 1. Scope and sequencing (observer-first)
 
 The pilot is the full chain — agent → decision point → observer → reconciler →
@@ -111,7 +119,7 @@ phase does not start until the prior gate is met.
 
 | Phase | Deliverable | Exit gate |
 |---|---|---|
-| **1** | Off-host collector + host-side probe daemon + authenticated probe→collector transport | A real agent process on an institution host is observed; its batch is signed by a collector on a **different** host holding a wrapped key; `aip-verify` accepts the batch offline. **The three components are built (§7); the exit gate is running them on the institution's own hardware.** |
+| **1** | Off-host collector + host-side probe daemon + authenticated probe→collector transport | A real agent process on an institution host is observed; its batch is signed by a collector on a **different** host holding a wrapped key; `aip-observe-verify` accepts the batch offline from the collector's archive, given only the published `observer.pub`. **The four components are built (§7) and the gate has been run end to end on a development host — `validation/pilot_e2e/run.sh`, evidence in `validation/pilot_e2e/results/sealed/`. What remains for the pilot is running it on the institution's own hardware, with the collector on a genuinely separate host.** |
 | **2** | Decision point issues signed `ExpectedExecution` for the pilot's agent actions | An expectation and an observation join on `decision_id` + `ExecutionBinding`; reconciler emits `VerifiedExecution` (Attested) on the honest path. |
 | **3** | Reconciler + evidence API wired: verdicts land in `aip-service` | `POST /v1/evidence/*` stores and returns a verdict; `GET /v1/authority/{id}` rebuilds the chain; tenant isolation holds. |
 | **4** | Adversarial + honesty validation on the institution's hosts | The RED suite (§3) runs on pilot hardware: blinded observer → `ObserverIntegrityUnknown`; observer down → `CANNOT_PROVE`; no false `PhantomClaim`. |

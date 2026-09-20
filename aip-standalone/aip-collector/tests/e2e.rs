@@ -240,6 +240,73 @@ fn a_batch_shipped_through_the_confidential_session_is_attested_and_verifies() {
     assert_eq!(verify_attested_batch(&batches[0], &anchors), Ok(()));
 }
 
+/// **The Phase 1 exit gate.** "A real agent process is observed; its batch is
+/// signed by a collector on a different host; the verifier accepts it
+/// offline."
+///
+/// The last clause is the one that needs the archive. The collector used to
+/// attest a batch, take its sequence for the acknowledgement and drop it, so
+/// there was nothing on disk for an auditor to accept. This asserts the whole
+/// gate: the batch arrives over the transport, is attested under the wrapped
+/// key, is written to the archive, and the record read back **from the file**
+/// verifies under anchors the verifier supplies -- not under anything the
+/// collector hands over with it.
+#[test]
+fn an_attested_batch_survives_to_disk_and_verifies_offline_from_the_archive() {
+    let collector = build_collector("archive");
+    let probe_kp = generate_ed25519_keypair();
+    let probe_pub: [u8; 32] = probe_kp.public_key.as_slice().try_into().unwrap();
+    let (allow, _allow_dir) = allow_list(PROBE_ID, &probe_pub);
+
+    let dir = scratch("archive-out");
+    let archive = dir.join("attested.archive.jsonl");
+    let mut sink =
+        aip_collector::sink::RuntimeSink::with_archive(collector.runtime.clone(), archive.clone());
+
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let addr = listener.local_addr().unwrap();
+    let server = thread::spawn(move || -> Result<(), ServerError> {
+        let (stream, _) = listener.accept().unwrap();
+        serve_connection(stream, TIMEOUT, &allow, &mut sink)
+    });
+
+    let mut client =
+        TransportClient::connect(addr, PROBE_ID, &probe_kp.private_key, &probe_pub, TIMEOUT)
+            .unwrap();
+    client.send_batch(&a_batch(PROBE_ID)).unwrap();
+    client.send_batch(&a_batch(PROBE_ID)).unwrap();
+    drop(client);
+    server.join().unwrap().unwrap();
+
+    // Read the evidence back off disk, exactly as an auditor would.
+    let text = std::fs::read_to_string(&archive).expect("the archive must exist");
+    let batches: Vec<AttestedBatch> = text
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .map(|l| serde_json::from_str(l).expect("each line is an AttestedBatch"))
+        .collect();
+    assert_eq!(batches.len(), 2, "one line per attested batch, in order");
+    assert_eq!(batches[0].sequence, 1);
+    assert_eq!(batches[1].sequence, 2);
+
+    let anchors =
+        ObserverTrustAnchors::new().trust(OBSERVER_ID, KEY_VERSION, &collector.public_key);
+    for b in &batches {
+        assert_eq!(
+            verify_attested_batch(b, &anchors),
+            Ok(()),
+            "a batch read from the archive must verify offline"
+        );
+    }
+
+    // And the archive is evidence, not a copy that can be edited: a mutated
+    // line no longer verifies.
+    let mut tampered = batches[0].clone();
+    tampered.observer_id = "someone-else".into();
+    assert!(verify_attested_batch(&tampered, &anchors).is_err());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 #[test]
 fn a_probe_key_not_in_the_allow_list_is_refused_and_nothing_is_attested() {
     let collector = build_collector("reject");

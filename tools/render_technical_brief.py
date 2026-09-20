@@ -54,7 +54,7 @@ from reportlab.platypus import (
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = REPO / "docs" / "pilot" / "SNIFFER_DOG_TECHNICAL_BRIEF_RBI.pdf"
 
-REVISION = "Revision 4"
+REVISION = "Revision 5"
 PERIOD = "September 2026"
 RUNNING = (
     "VANIAN Technologies  |  Sniffer Dog / AIP: Technical Brief  |  "
@@ -157,6 +157,20 @@ def content(st, width):
         "never converted into an accusation.</b> When the observer was not watching, or "
         "was interfered with, or no gateway receipt exists, the system says so and stops. "
         "It does not guess."))
+    s.append(P(
+        "<b>What changed since Revision 4.</b> The Phase 1 exit gate is met end to end on a "
+        "development host. Its third clause -- <i>the verifier accepts the batch offline</i> "
+        "-- was previously unreachable for a reason no test in the repository could have "
+        "caught: the collector attested each batch, returned its position in the chain as an "
+        "acknowledgement, and then <b>discarded the batch</b>. The chain position proved a "
+        "batch had existed; the signed evidence itself did not survive. The collector now "
+        "keeps every attested batch, publishes its evidence <b>public</b> key so an auditor "
+        "can be given the anchor without anyone unwrapping the private half, and a separate "
+        "verifier reads the archives with no network, no service and nothing from us. "
+        "Two further items Revision 4 listed as not demonstrated have also moved: the "
+        "collector's clock discipline is now inside the signed bytes, and the observer path has "
+        "been measured rather than declined. Sections 10 and 12. <b>It ran on a development "
+        "virtual machine; B8, the run on the institution's own hardware, is unchanged.</b>"))
     s.append(P(
         "<b>What changed since Revision 3.</b> The foreign-eBPF gate attack, which "
         "Revision 3 listed as not yet run against the daemon pair, has been executed "
@@ -532,9 +546,11 @@ def content(st, width):
         "evidence yields CANNOT_PROVE; an observer fault never disturbs the institution's "
         "workload.",
         "Offline verification: the verifier is a pure function of the artefact and the "
-        "institution's trusted keys. There is no call-home in the trust path. Two offline "
-        "verifiers ship in releases, and release artefacts are now signed rather than only "
-        "checksummed.",
+        "institution's trusted keys. There is no call-home in the trust path. <b>Each of "
+        "the three evidence families now has one</b> (the third is new since Revision 4): "
+        "evidence packets, append-only log heads and proofs, and the observer's own chain "
+        "of attested batches and signed health records. Release artefacts are signed, not "
+        "only checksummed.",
         "Independence checks a verifier can make when it knows the agent's key: a decision "
         "point, an observer, a gateway or an approval surface anchored under the agent's own "
         "key is refused.",
@@ -575,6 +591,21 @@ def content(st, width):
         "a single command reproduces every row of it that the host's privileges allow</b>, "
         "reports the named reason for every row it cannot run, and fails if a detection the "
         "ledger claims no longer holds. Continuous integration runs it."))
+    s.append(P(
+        "<b>What a demonstration here is worth, said plainly.</b> Three limits apply to "
+        "everything in this section and none of them is removed by adding more tests. First, "
+        "every attack in the ledger is an attack <i>we</i> designed; a suite whose author "
+        "picks both the property and the adversary establishes that those properties hold "
+        "against those adversaries, and nothing about completeness — which is why an "
+        "independent CERT-In empanelled assessment is on the blocker list and stays there. "
+        "Second, most of the suite constructs its inputs in one process; the smaller set that "
+        "runs against a real kernel, real separate processes and real system calls is marked "
+        "as such. Third, and most important: <b>nothing in this repository has run on a "
+        "regulated entity's hardware, and nothing in it has observed a real agent.</b> The "
+        "strongest rung reached anywhere is a live demonstration on a development virtual "
+        "machine. A four-rung scoring of every property this system asserts, class by class "
+        "against the failure modes in the risk map, is published in the repository as "
+        "WHAT_THE_TESTS_PROVE.md, and it reaches the same conclusion this paragraph does."))
     for b in [
         "<b>Foreign eBPF tracepoint gate</b> attached to each perf sensor (an attacker with "
         "CAP_BPF): the observer signs an integrity-unknown state and the reconciler answers "
@@ -593,6 +624,42 @@ def content(st, width):
         "adversarial ledger, with the signed health archive as raw output, reproducible by "
         "one script. <b>It ran on a development virtual machine; the same run on a regulated "
         "entity's own hosts is still what Phase 4 asks for.</b>",
+        "<b>The signed evidence survives the acknowledgement, and an outside party can check "
+        "it</b> (new since Revision 4). This is stated as a demonstration rather than a "
+        "feature because the defect it fixes was invisible to testing: the collector attested "
+        "each batch, acknowledged it by chain position, and discarded it, so every library "
+        "test of offline verification passed while nothing was left on disk to verify. Every "
+        "attested batch is now appended to an archive; the collector publishes its evidence "
+        "public key beside its state, which previously could be obtained only by unwrapping "
+        "the private key with the passphrase -- exactly what key custody exists to prevent. "
+        "A separate verifier, given two files and that public key and opening no socket, "
+        "checks each signature and then the chain that links them: positions contiguous, and "
+        "each record's predecessor hash equal to the <b>recomputed</b> hash of the record "
+        "before it, so there is no supplied digest to trust. It also compares each signed "
+        "health record's head against the attested batch at the same position -- both "
+        "signatures are individually valid, and only that comparison would expose a collector "
+        "that signed two different answers about one moment. Ten ledger rows (EA-01 to EA-10) "
+        "cover wrong key, edited observation, a record deleted from the middle, reordering, "
+        "duplication, a corrupt line, an empty archive and a disagreeing health head; "
+        "deletion and reordering leave every surviving signature genuine, so only the chain "
+        "check catches them. The live run ends by verifying the archives the running "
+        "collector just wrote and then refusing the same archive with one record removed.",
+        "<b>The collector's clock discipline is now inside the signed bytes</b> (new since "
+        "Revision 4; Revision 4 listed it under 'not demonstrated'). The collector stamps and "
+        "signs every batch and every health record, so the clock behind those stamps is the "
+        "accuracy of the whole archive. It was checked at start and on every health cycle and "
+        "the answer went to a log — and a log is not evidence anyone holds. The kernel's own "
+        "view (whether a time daemon was steering the clock, and the kernel's bound on the "
+        "error) is now part of what the key signs. The specific failure this addresses: an "
+        "undisciplined collector does not produce one wrong timestamp, it produces an archive "
+        "that is wrong together and perfectly self-consistent, which nothing in the sealed "
+        "bytes would otherwise reveal. Editing, deleting or inserting the reading after signing "
+        "each fails verification; a record that carries no reading is encoded distinctly from "
+        "one that carries a good reading, so a collector that never looked at its clock cannot "
+        "pass as one that looked and found it fine. Nine ledger rows. <b>What it does not buy:</b> "
+        "root on the collector host can clear the kernel's synchronisation flag on a clock it "
+        "has just moved. This raises the bar from trusting an operator's log to trusting a "
+        "signature, and no further.",
         "Forged observer identity, altered observation after signing, altered measured boot "
         "after signing, unanchored key version, and deserialisation of a record from nothing: "
         "each is refused.",
@@ -656,10 +723,6 @@ def content(st, width):
         "<b>Gateway integration.</b> The receipt format and its verification exist; the "
         "institution's API or MCP gateway must be extended to compute and sign receipts. That "
         "is integration work at the institution, not a library the pilot ships.",
-        "<b>The clock-discipline reading is operational, not attested.</b> It gates the "
-        "collector's start and is logged, but it is not inside the signed bytes, so an offline "
-        "verifier cannot confirm from a sealed batch that the collector's clock was disciplined "
-        "when it signed.",
     ]:
         s.append(B(b))
 
@@ -757,7 +820,11 @@ def content(st, width):
             ["1", "Off-host collector, host-side probe, authenticated and confidential "
                   "transport on institution hardware",
              "A real agent process is observed; its batch is signed by a collector on a "
-             "different host; the verifier accepts it offline."],
+             "different host; the verifier accepts it offline. <b>All three clauses have "
+             "now been met end to end on a development host, including the third, which "
+             "required the collector to keep what it signs. What Phase 1 still asks for "
+             "is this run on the institution's own hardware, with the collector on a "
+             "genuinely separate host.</b>"],
             ["2", "Decision point issues signed expectations for the pilot agent's actions "
                   "against the institution's signed resource registry",
              "Expectation and observation join; the honest path yields VERIFIED_EXECUTION; a "

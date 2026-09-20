@@ -238,6 +238,73 @@ impl ProbePolicy {
     }
 }
 
+/// The collector's clock discipline **at the moment it signed this record**,
+/// inside the attested bytes.
+///
+/// # Why this is in the signed record rather than only in a log
+///
+/// The collector stamps `attested_at_ms` on every batch and `emitted_at_ms`
+/// on every health record. Those timestamps are the evidence's placement in
+/// time, and until now nothing signed said whether the clock producing them
+/// was being steered by anything. An undisciplined collector does not
+/// produce one wrong timestamp; it produces an archive that is wrong
+/// *together* and perfectly self-consistent, which no amount of reading the
+/// sealed bytes afterwards reveals. The daemon checked this at start and on
+/// every health cycle and wrote it to its log — but a log is not evidence a
+/// verifier holds, so an offline verifier could not confirm it.
+///
+/// It is now part of what the key signs, so the reading cannot be edited
+/// after the fact or omitted from an exported archive without the signature
+/// failing.
+///
+/// # What it proves, and what it does not
+///
+/// It is the **kernel's own view** (`ntp_adjtime`): whether `STA_UNSYNC` was
+/// clear, and the kernel's bound on the current error. That is real evidence
+/// about clock hygiene and is what CERT-In Direction 20(3)/2022 asks for.
+///
+/// It is not proof the clock was correct, and it is not proof against a root
+/// attacker on the collector host: root can call `adjtimex` itself and clear
+/// `STA_UNSYNC` on a clock it has just moved. Signing the reading raises the
+/// bar from "trust the operator's log" to "the key signed this claim"; it
+/// does not make the claim unforgeable by the party that holds both the key
+/// and the kernel.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AttestedClock {
+    /// `STA_UNSYNC` was clear: a time daemon was steering this clock.
+    pub synchronized: bool,
+    /// The kernel's bound on the current error, in microseconds. It grows on
+    /// its own once nothing updates the clock, so a large value means
+    /// "nobody has corrected me in a while", not merely "I was once set".
+    pub max_error_us: i64,
+    /// Raw `ntp_adjtime` return code, kept so a verifier sees exactly what
+    /// the kernel said rather than this crate's interpretation of it.
+    pub state: i32,
+}
+
+impl AttestedClock {
+    /// Whether this reading satisfies a maximum-error budget, in
+    /// milliseconds. Both conditions must hold: a clock nobody is steering
+    /// fails however small its stale error bound happens to be.
+    ///
+    /// This is the same predicate the collector's startup gate applies, so a
+    /// verifier reading a sealed record reaches the same answer the daemon
+    /// did rather than re-deriving a rule and getting it wrong.
+    pub fn within(&self, budget_ms: i64) -> bool {
+        self.synchronized && self.max_error_us <= budget_ms.saturating_mul(1000)
+    }
+
+    /// Canonical encoding. Signed integers are written as their two's
+    /// complement little-endian bytes, which is exact and reversible for
+    /// every value including negatives -- `maxerror` is a `c_long` and the
+    /// kernel may report a negative estimate.
+    fn encode(&self, buf: &mut Vec<u8>) {
+        put_u8(buf, u8::from(self.synchronized));
+        put_u64(buf, self.max_error_us as u64);
+        put_u32(buf, self.state as u32);
+    }
+}
+
 /// Signed statement of the observer's own condition.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SensorHealth {
@@ -263,6 +330,17 @@ pub struct SensorHealth {
     pub covered_by: Vec<SourceMechanism>,
     /// Collector wall clock when this health was emitted.
     pub emitted_at_ms: u64,
+    /// The collector's clock discipline when it signed this record.
+    ///
+    /// `None` means **not read** -- an unsupported platform, a failed
+    /// syscall, or a caller that did not supply one -- and never "fine".
+    /// The distinction is deliberate and matches
+    /// [`crate::ObservedProcess::container`]: a verifier must be able to
+    /// tell "the collector said its clock was disciplined" from "the
+    /// collector said nothing", because treating the second as the first is
+    /// how an unchecked control becomes an assumed one.
+    #[serde(default)]
+    pub clock: Option<AttestedClock>,
 }
 
 impl SensorHealth {
@@ -305,6 +383,16 @@ impl SensorHealth {
             put_u8(&mut buf, m.code());
         }
         put_u64(&mut buf, self.emitted_at_ms);
+        // Protocol 12: the clock discipline, inside the attested bytes. A
+        // `0` discriminant is itself evidence -- it says the collector
+        // signed without a reading, which a verifier must be able to see.
+        match &self.clock {
+            Some(c) => {
+                put_u8(&mut buf, 1);
+                c.encode(&mut buf);
+            }
+            None => put_u8(&mut buf, 0),
+        }
         buf
     }
 
@@ -471,6 +559,7 @@ mod tests {
                 attested_coverage: coverage,
                 covered_by,
                 emitted_at_ms: 1_000,
+                clock: None,
             },
             // The predicates under test never inspect the signature; a
             // placeholder keeps the test to the logic it is pinning.

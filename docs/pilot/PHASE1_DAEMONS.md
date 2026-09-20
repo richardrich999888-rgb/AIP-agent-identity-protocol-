@@ -229,9 +229,18 @@ including that no file content and no wire payload reaches a batch.
 
 - ~~TLS/mTLS as an in-process layer~~ — confidentiality is in-process since R9 (Noise NK); TLS at the *service* ingress remains a proxy concern (plan B1, R9b).
 - HSM/KMS custodian (plan B4; the `Custodian` trait is the seam).
-- Persistence of the attested batches themselves (the store persists snapshot,
-  health archive, continuity reports; batch persistence is plan-level future
-  work — the collector acks and the probe holds the batch until acked).
+- ~~Persistence of the attested batches themselves~~ — **done.** This was
+  listed here as future work, and it was the item that made the phase's own
+  exit gate unreachable: the collector attested a batch, returned its
+  sequence in the acknowledgement and dropped it, so *"the verifier accepts
+  it offline"* had nothing on disk to accept. `RuntimeSink` now appends every
+  `AttestedBatch` to `attested.archive.jsonl` in the state directory
+  (`AIP_COLLECTOR_ATTESTED_ARCHIVE_PATH` overrides the path), the collector
+  publishes its evidence **public** key as `observer.pub` so an auditor can
+  be given the anchor without anyone unwrapping the private half, and
+  `aip-observe-verify` reads the two archives offline. An archive write
+  failure is returned to the probe rather than logged: a probe must learn
+  that its batch was not durably kept.
 - Decision-point coverage statements (Phase 2).
 
 ## Test plan
@@ -247,3 +256,18 @@ including that no file content and no wire payload reaches a batch.
   an `AttestedBatch` that `verify_attested_batch` accepts; adversarial —
   wrong transport key, replayed frame, tampered frame each rejected and no
   attestation produced.
+- Exit gate (`aip-collector/tests/e2e.rs`): a batch shipped over the
+  transport is attested, written to the archive, read back **from the file**
+  and accepted under anchors the verifier supplies; a mutated line is
+  refused.
+- Offline verifier (`aip-observe-verify/tests/verify.rs`, ledger rows
+  EA-01..EA-10): built against a real attested chain, not fixtures. Wrong
+  key, edited observation, a record deleted from the middle, reordering,
+  duplication, a corrupt line, an empty archive, a health head that
+  disagrees with the batch at the same chain position — each refused; a
+  clean chain and a mid-chain window each accepted, the latter reported as
+  a window rather than as a chain complete from its origin.
+- Live (`validation/pilot_e2e/run.sh`, Phase D): the verifier runs as a
+  separate process against the archives the live collector just wrote, with
+  only the published `observer.pub`, and must refuse the same archive with
+  one record deleted.

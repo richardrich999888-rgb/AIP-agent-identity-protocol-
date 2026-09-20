@@ -206,6 +206,94 @@ impl Peer {
 /// Returns a descriptive error rather than skipping: a reference that quietly
 /// does nothing when its own binaries are missing is worse than one that stops
 /// and says which command builds them.
+/// The sibling binaries the orchestrator spawns, by package name.
+pub const SIBLING_BINARIES: [&str; 2] = ["aip-edge-observer", "aip-edge-workload"];
+
+/// Build the sibling binaries the orchestrator spawns, with the cargo and
+/// profile that built the caller, into the target directory
+/// [`sibling_binary`] searches.
+///
+/// # Why a library function and not a test helper
+///
+/// `cargo test --workspace` compiles a package's binaries only when that
+/// package has integration tests of its own, and `aip-edge-observer` and
+/// `aip-edge-workload` have none. Every crate that drives the reference —
+/// `aip-edge`, and the robotics, industrial, space, UAS and enterprise
+/// profiles — therefore depends on something else having built them first.
+/// A copy of this logic in each test harness is five copies to keep correct,
+/// and the profiles had none: their tests passed only when `aip-edge`'s tests
+/// happened to run first in the same invocation.
+///
+/// # Why it rebuilds rather than checking for existence
+///
+/// An earlier version built only the binaries that were *missing*. That left
+/// the worse failure in place: a binary present but built before a protocol
+/// change is found, spawned, and produces records the current engine refuses,
+/// so the test fails with an evidence error that has nothing to do with
+/// evidence. `cargo build` is a no-op when the binaries are current and the
+/// correct action when they are not, so it is always run.
+///
+/// Once per process. Returns a descriptive error rather than skipping: a
+/// reference that quietly does nothing when its own binaries are absent is
+/// worse than one that stops and names the command that builds them.
+pub fn ensure_sibling_binaries() -> Result<(), EdgeError> {
+    static BUILT: std::sync::OnceLock<Result<(), String>> = std::sync::OnceLock::new();
+    BUILT
+        .get_or_init(build_sibling_binaries)
+        .clone()
+        .map_err(EdgeError::Transport)
+}
+
+fn build_sibling_binaries() -> Result<(), String> {
+    let exe = std::env::current_exe().map_err(|e| format!("current_exe: {e}"))?;
+    // `<target>/<profile>/deps/<test>` for a test binary, `<target>/<profile>/<bin>`
+    // for a binary. The profile directory is the one holding `deps`, so walk
+    // up until a directory named `deps` is passed, at most one level.
+    let mut profile_dir = exe
+        .parent()
+        .ok_or_else(|| format!("{} has no parent directory", exe.display()))?
+        .to_path_buf();
+    if profile_dir.file_name().is_some_and(|n| n == "deps") {
+        profile_dir = profile_dir
+            .parent()
+            .ok_or_else(|| "deps directory has no parent".to_string())?
+            .to_path_buf();
+    }
+    let target_dir = profile_dir
+        .parent()
+        .ok_or_else(|| format!("{} has no target directory", profile_dir.display()))?
+        .to_path_buf();
+    let release = profile_dir.file_name().is_some_and(|p| p == "release");
+
+    let cargo = std::env::var_os("CARGO").unwrap_or_else(|| "cargo".into());
+    let mut cmd = std::process::Command::new(cargo);
+    cmd.arg("build").arg("--target-dir").arg(&target_dir);
+    if release {
+        cmd.arg("--release");
+    }
+    for name in SIBLING_BINARIES {
+        cmd.arg("-p").arg(name);
+    }
+    let status = cmd
+        .status()
+        .map_err(|e| format!("could not run cargo to build {SIBLING_BINARIES:?}: {e}"))?;
+    if !status.success() {
+        return Err(format!(
+            "building {SIBLING_BINARIES:?} failed; from a shell: cargo build -p {} -p {}",
+            SIBLING_BINARIES[0], SIBLING_BINARIES[1]
+        ));
+    }
+    for name in SIBLING_BINARIES {
+        if !profile_dir.join(name).exists() {
+            return Err(format!(
+                "{name} was built but did not appear in {}",
+                profile_dir.display()
+            ));
+        }
+    }
+    Ok(())
+}
+
 pub fn sibling_binary(name: &str) -> Result<PathBuf, EdgeError> {
     let exe =
         std::env::current_exe().map_err(|e| EdgeError::Transport(format!("current_exe: {e}")))?;

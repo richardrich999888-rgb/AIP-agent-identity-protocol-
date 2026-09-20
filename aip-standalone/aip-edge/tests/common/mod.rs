@@ -10,9 +10,8 @@
 
 #![allow(dead_code)]
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::OnceLock;
 
 use aip_edge::orchestrate::{run, RunConfig, RunOutcome, Scenario};
 use aip_system::{PlatformId, SystemId};
@@ -48,63 +47,15 @@ pub fn config(dir: PathBuf, scenario: Scenario) -> RunConfig {
     }
 }
 
-/// The binaries the reference drives, by package name. Each is its own
-/// workspace member so that the dependency isolation the reference exists to
-/// demonstrate is real, and each therefore has to be found on disk.
-const SIBLING_BINARIES: [&str; 2] = ["aip-edge-observer", "aip-edge-workload"];
-
-/// Build the sibling binaries if they are not already next to this test.
+/// Build the sibling binaries the reference spawns.
 ///
-/// `cargo test --workspace` compiles a package's binaries only when that
-/// package has integration tests of its own. `aip-edge-observer` and
-/// `aip-edge-workload` have none, so nothing uplifts them to
-/// `target/<profile>/` and a clean checkout fails at the first scenario —
-/// which is what happened, masked locally by artefacts of an earlier explicit
-/// build. Moving them into this package would defeat the reference, so they
-/// are built on demand with the cargo and the profile that built this test,
-/// into the target directory the lookup searches. Once per test binary.
+/// The logic moved into `aip_edge::transport` so the five profile crates that
+/// drive the same orchestrator share one copy rather than each needing their
+/// own -- which none of them had, so their tests passed only when this
+/// crate's tests happened to run first in the same invocation. This wrapper
+/// stays so the harness reads the same as before.
 pub fn ensure_sibling_binaries() {
-    static BUILT: OnceLock<()> = OnceLock::new();
-    BUILT.get_or_init(|| {
-        let exe = std::env::current_exe().expect("current_exe");
-        // `<target>/<profile>/deps/<test>`: the profile directory is two up.
-        let profile_dir = exe
-            .parent()
-            .and_then(Path::parent)
-            .expect("test binary lives under <target>/<profile>/deps")
-            .to_path_buf();
-        let missing: Vec<&str> = SIBLING_BINARIES
-            .iter()
-            .copied()
-            .filter(|name| !profile_dir.join(name).exists())
-            .collect();
-        if missing.is_empty() {
-            return;
-        }
-        let target_dir = profile_dir.parent().expect("<target>").to_path_buf();
-        let release = profile_dir.file_name().is_some_and(|p| p == "release");
-        let cargo = std::env::var_os("CARGO").unwrap_or_else(|| "cargo".into());
-        let mut cmd = std::process::Command::new(cargo);
-        cmd.arg("build").arg("--target-dir").arg(&target_dir);
-        if release {
-            cmd.arg("--release");
-        }
-        for name in &missing {
-            cmd.arg("-p").arg(name);
-        }
-        let status = cmd.status().expect("run cargo build for the sibling binaries");
-        assert!(
-            status.success(),
-            "building {missing:?} failed; from a shell: cargo build -p aip-edge-observer -p aip-edge-workload"
-        );
-        for name in &missing {
-            assert!(
-                profile_dir.join(name).exists(),
-                "{name} was built but did not appear in {}",
-                profile_dir.display()
-            );
-        }
-    });
+    aip_edge::transport::ensure_sibling_binaries().expect("build the sibling binaries");
 }
 
 /// Run one scenario end to end and clean up the state directory.
