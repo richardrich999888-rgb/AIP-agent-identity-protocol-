@@ -17,6 +17,13 @@
 > attributed to its owner. A vendor that claims all four columns as EXISTS is
 > the vendor RBI's own FREE-AI report warns REs about.
 
+> **PDF.** `RBI_REQUIREMENTS_COVERAGE.pdf` beside this file is a **build
+> product of this markdown**, not a separately maintained document. Rebuild it
+> with `python3 tools/render_coverage_pdf.py` after changing anything here.
+> Its cover records the commit it was rendered from and whether this file had
+> been modified since — a readiness brief that has drifted from its source is
+> worse than none, because a reader trusts the artefact in front of them.
+
 ## 1. The matrix
 
 ### A. Authority and mandate (who may do what)
