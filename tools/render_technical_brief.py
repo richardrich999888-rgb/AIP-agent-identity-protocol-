@@ -54,7 +54,7 @@ from reportlab.platypus import (
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = REPO / "docs" / "pilot" / "SNIFFER_DOG_TECHNICAL_BRIEF_RBI.pdf"
 
-REVISION = "Revision 3"
+REVISION = "Revision 4"
 PERIOD = "September 2026"
 RUNNING = (
     "VANIAN Technologies  |  Sniffer Dog / AIP: Technical Brief  |  "
@@ -157,6 +157,12 @@ def content(st, width):
         "never converted into an accusation.</b> When the observer was not watching, or "
         "was interfered with, or no gateway receipt exists, the system says so and stops. "
         "It does not guess."))
+    s.append(P(
+        "<b>What changed since Revision 3.</b> The foreign-eBPF gate attack, which "
+        "Revision 3 listed as not yet run against the daemon pair, has been executed "
+        "end to end against both real daemons with the collector signing "
+        "<b>IntegrityUnknown</b> off-host; see section 10. The run was on a development "
+        "virtual machine, so the institution-hardware gate (B8) is unchanged."))
     s.append(P(
         "<b>What changed since Revision 2.</b> The probe-to-collector link is now "
         "confidential as well as authenticated; the pilot probe drives the file and wire "
@@ -573,12 +579,20 @@ def content(st, width):
         "<b>Foreign eBPF tracepoint gate</b> attached to each perf sensor (an attacker with "
         "CAP_BPF): the observer signs an integrity-unknown state and the reconciler answers "
         "CANNOT_PROVE with reason ObserverIntegrityUnknown. Control run with no attack yields "
-        "VERIFIED_EXECUTION with no false positive. Demonstrated in the single-host "
-        "demonstrator by a recorded manual attack run with raw output. In the two-host pilot "
-        "topology the finding travels inside the signed batch and the collector fails closed "
-        "on a missing finding; that path is covered by automated tests against synthetic "
-        "batches. <b>The live attack against the two daemons on institution hardware remains "
-        "a pilot Phase 4 item.</b>",
+        "no integrity claim and no false positive.",
+        "<b>That attack has now been executed against the two real daemons</b> (new since "
+        "Revision 3; Revision 3 listed it as outstanding). `aip-probe` ran with four kernel "
+        "sensors open and no key, shipping over the authenticated and confidential transport "
+        "to `aip-collector` in a separate process holding the only signing key. With the "
+        "foreign program attached to `sched:sched_process_exec`, the collector signed "
+        "<b>IntegrityUnknown</b> and withdrew attested coverage; with it detached, coverage "
+        "returned. The observer's sequence advanced throughout, so this was neither loss nor "
+        "a continuity break but a live observer stating that it could not vouch for its own "
+        "capability. A single attach suffices: the BPF array is keyed on the tracepoint, so "
+        "one attach blinds every perf consumer of it host-wide. Rows OI-13 to OI-15 of the "
+        "adversarial ledger, with the signed health archive as raw output, reproducible by "
+        "one script. <b>It ran on a development virtual machine; the same run on a regulated "
+        "entity's own hosts is still what Phase 4 asks for.</b>",
         "Forged observer identity, altered observation after signing, altered measured boot "
         "after signing, unanchored key version, and deserialisation of a record from nothing: "
         "each is refused.",

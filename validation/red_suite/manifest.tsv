@@ -16,6 +16,9 @@
 #   the off-host half of the same property (OI-09..OI-12) with requires=none.
 # A row with requires=deferred is blocked on a component that does not exist
 #   yet; the ledger names it. Never reported as reproduced.
+# A row with requires=pilot_e2e is driven by validation/pilot_e2e/run.sh, the
+#   live two-daemon demonstration. It needs root (or CAP_BPF + CAP_PERFMON +
+#   CAP_NET_ADMIN) and a tracefs; the runner reports BLOCKED without them.
 # A row with requires=note records a boundary, not a runnable detection (e.g.
 #   what a key holder can and cannot do). Its selector names the closest
 #   asserting test, which the suite runs, but its ledger cell is the boundary
@@ -55,3 +58,6 @@ CI-05	note	aip-observe	--test container_identity one_side_blind_is_not_comparabl
 CI-06	none	aip-observe	--test container_identity the_identity_digest_does_not_move_when_only_the_placement_differs	DETECTED
 CI-07	none	aip-observe	--test container_identity the_cgroup_id_is_context_and_does_not_make_a_difference	NO_FALSE_POSITIVE
 CI-08	none	aip-observe	--test container_identity the_placement_is_inside_the_canonical_bytes	DETECTED
+OI-13	pilot_e2e	-	-	NO_FALSE_POSITIVE
+OI-14	pilot_e2e	-	-	DETECTED
+OI-15	pilot_e2e	-	-	RECOVERS

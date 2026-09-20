@@ -134,6 +134,51 @@ Bounds that must travel with the claim:
   narrow this and is **DEFERRED** (decision record option C), with its own
   documented false-assurance trap against a targeted gate.
 
+### OI live, two-daemon pair — the Phase 4 item, executed
+
+Rows OI-01..OI-08 were run against the single-host demonstrator; OI-09..OI-12
+cover the two-host path with **synthetic** batches. This block is the same
+attack against the **two real daemons**: `aip-collector` and `aip-probe` as
+separate processes, the probe holding no key, the link the authenticated and
+confidential transport, and the evidence examined afterwards the collector's
+own **signed health archive**.
+
+Reproduce with `validation/pilot_e2e/run.sh`; raw output in
+`validation/pilot_e2e/results/sealed/`. Host: Linux 6.18.44-fc-v37 (x86_64,
+4 CPU), tracefs mounted, `sched:sched_process_exec` id 256. Probe sensors
+open: `sched`, `sockstate`, `socksend`, `connector`.
+
+| id | attacker | attack | signed result | outcome |
+|----|----------|--------|---------------|---------|
+| OI-13 | — (control) | none; real workload of execs and TCP connects | health #2: `Active`, `attested_coverage` present, sequence 12 | **no false positive** |
+| OI-14 | A2+/A3 | foreign eBPF program returning 0 attached to `sched:sched_process_exec` while both daemons run | health #3: **`IntegrityUnknown`**, `attested_coverage` **withdrawn**, sequence 39 | **DETECTED** live, across the process and host boundary |
+| OI-15 | — (control) | attack detached, workload continues | health #4: `Active`, coverage present, sequence 66 | **recovers**; the attacked window stays `IntegrityUnknown` in the archive |
+
+**What makes OI-14 the load-bearing row.** The sequence number advances
+throughout — 12, 39, 66 — so the observer was never down and the chain never
+broke. This is not loss and not a continuity failure: it is a live,
+continuous observer stating, in a record signed by a *different process
+holding the only key*, that it cannot establish its own capability over that
+window. Absence of an exec in that window therefore carries no information,
+which is exactly what stops it from becoming a `PHANTOM_CLAIM` against an
+innocent workload.
+
+**One attach is enough.** The instrument reported
+`INTERFERER_ATTACHED tracepoint_id=256 cpus=1`, with `EEXIST` on the other
+three CPUs. That is the mechanism, not a partial failure: the BPF array is
+keyed on the tracepoint (`trace_event_call`), so the first attach installs the
+gate and every later attach to the same tracepoint is refused. A single
+successful attach suppresses the sample for **every** perf consumer of that
+tracepoint host-wide. The adversary needs one attach, not one per CPU per
+victim.
+
+**Bounds, unchanged.** The attack is *detected*, not *prevented* — a CAP_BPF
+adversary can blind the sensor and this demonstration does not claim
+otherwise. A full-root attacker can additionally hide the program from the
+detection query (OI-08, still deferred). And this ran on a development
+virtual machine: **the same run on a regulated entity's own hosts remains
+outstanding**, and is what row C6 of the coverage matrix still tracks.
+
 ---
 
 ## RA — Reconciliation attestation (SD-09)

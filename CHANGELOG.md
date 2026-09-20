@@ -49,6 +49,46 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Demonstrated (the Phase 4 attack, executed against the two real daemons)
+- **`validation/pilot_e2e/run.sh`.** The technical brief said, of the
+  foreign-eBPF tracepoint gate, that the two-host path was "covered by
+  automated tests against synthetic batches" and that "the live attack
+  against the two daemons ... is a pilot Phase 4 item". This runs that
+  attack. Not a synthetic batch and not an in-process shortcut:
+  `aip-collector` and `aip-probe` are separate processes, the probe holds no
+  key and has four kernel sensors open, the link is the authenticated and
+  confidential transport, and the evidence read afterwards is the collector's
+  own signed health archive.
+- **The result, sealed in `validation/pilot_e2e/results/sealed/`.** Control:
+  `Active`, attested coverage present, sequence 12. Under a foreign eBPF
+  program returning 0 on `sched:sched_process_exec`: **`IntegrityUnknown`,
+  coverage withdrawn**, sequence 39. Detached: `Active` again, sequence 66.
+- **Why the sequence numbers are the point.** They advance throughout, so the
+  observer was never down and the chain never broke. This is neither loss nor
+  a continuity failure: it is a live, continuous observer stating — in a
+  record signed by a *different process holding the only key* — that it
+  cannot establish its own capability over that window. Absence of an exec in
+  that window therefore carries no information, which is what stops it
+  becoming a `PHANTOM_CLAIM` against an innocent workload.
+- **One attach is enough.** The instrument reported `cpus=1` with `EEXIST` on
+  the other three. That is the mechanism, not a partial failure: the BPF array
+  is keyed on the tracepoint, so the first attach installs the gate and later
+  attaches are refused, and that one attach blinds every perf consumer of the
+  tracepoint host-wide.
+- **Sealed as ledger rows OI-13 to OI-15** and wired into the RED suite, which
+  now carries 36 rows. On a privileged host with tracefs the suite reports 33
+  reproduced or runnable and one deferred (`OI-08`).
+- **What this does not close, stated.** The attack is detected, not prevented
+  — a CAP_BPF adversary can blind the sensor. It ran on a development virtual
+  machine, so blocker B8 (the run on a regulated entity's own hosts) is
+  unchanged. And it is not `PHANTOM_CLAIM`: matrix row C6 additionally needs
+  the decision point issuing signed expectations into the same pipeline, which
+  is pilot Phases 2-3. C6 is narrowed, not closed.
+- Technical brief regenerated as **Revision 4** with the superseded claim
+  replaced. Throwaway key material from the run is gitignored; the signed
+  health archive, the daemon logs and the attack log are committed as the raw
+  output the ledger cites.
+
 ### Added (RBI requirements coverage — E4: clock discipline, and what it does not prove)
 - **`aip_observe::clock`.** `BootClockAnchor` samples the realtime and boot
   clocks together so a kernel-timestamped event can be *placed* on the wall

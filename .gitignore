@@ -18,3 +18,13 @@ __pycache__/
 
 # R19 RED suite per-host report (generated)
 validation/red_suite/report.json
+
+# Pilot e2e demonstration. Keep only the sealed evidence the adversarial
+# ledger cites; never the throwaway key material, and not every ad-hoc run.
+validation/pilot_e2e/results/*
+!validation/pilot_e2e/results/sealed
+validation/pilot_e2e/results/sealed/work/
+validation/pilot_e2e/results/sealed/interferer
+# The signed health archive IS the evidence the adversarial ledger cites, so
+# it overrides the global *.jsonl rule above.
+!validation/pilot_e2e/results/sealed/*.jsonl

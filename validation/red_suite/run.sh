@@ -119,6 +119,19 @@ while IFS=$'\t' read -r id requires package selector ledger; do
         BLOCKED=$((BLOCKED+1))
       fi
       ;;
+    pilot_e2e)
+      # The live two-daemon rows. Driven by their own harness, which needs
+      # kernel privileges; without them the row is BLOCKED with the reason,
+      # exactly as the kernel-gate rows are.
+      if [ "$KERNEL_GATE" -eq 1 ] && [ "$(id -u)" -eq 0 ]; then
+        status="RUNNABLE"; detail="run validation/pilot_e2e/run.sh; $ledger"
+        REPRODUCED=$((REPRODUCED+1))
+      else
+        status="BLOCKED"
+        detail="needs root + CAP_BPF + tracefs; sealed evidence in validation/pilot_e2e/results/sealed; $ledger"
+        BLOCKED=$((BLOCKED+1))
+      fi
+      ;;
     note)
       if run_selector "$package" "$selector"; then
         status="NOTE"; detail="boundary: $ledger"; NOTES=$((NOTES+1))
