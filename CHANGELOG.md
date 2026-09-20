@@ -43,6 +43,29 @@ versioning is [SemVer](https://semver.org/).
   from the source workspace's `[workspace.dependencies]`, so resolution for
   the forty crates already here is unchanged. New third-party dependency:
   `tempfile`, dev-only, reaching no shipped binary.
+- **`docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md`, status OPEN** — the decision
+  written down rather than made by accident. Four options with the reasoning,
+  including the one rejected on sight (porting `aip-core` onto the imported
+  chain would invalidate every shipped verifier, the NEXORA log, the
+  attested-batch chain and every sealed demonstration in
+  `ADVERSARIAL_RESULTS.md`) and the one rejected for now (a translation layer
+  makes the re-sealer a party the verifier must trust, which is the opposite
+  of the point).
+- **The interim rule is a test, not prose.**
+  `aip-test/tests/evidence_chain_boundary.rs` scans every `Cargo.toml`
+  outside the import and fails if any declares `ot-accountability-core`,
+  `[dev-dependencies]` included. A second test pins that the crate still
+  exists, so the guard cannot start forbidding something absent and pass
+  forever. Both were checked against a deliberate violation: adding the
+  dependency fails the guard, removing it passes.
+- **`WHAT_THE_TESTS_PROVE.md` gains the failure class it was missing.** Its
+  ten classes came from the risk map, which was written about agents that
+  *use* the accountability channel. **F11 — the agent declines to use it at
+  all** — was absent, and its absence is the worked example of §1.1's point
+  that tests written by the party being tested miss the class nobody thought
+  to name. `ot-sentinel` addresses it at rung R2; its 31 end-to-end ghost-hunt
+  tests cannot run here, so the reconciliation primitive is unit-tested and
+  the ghost hunt is not.
 - **Still open, and now more urgent rather than less.** The two hash-chain
   constructions are not byte-compatible — `aip-core` chains raw 32-byte
   digests, `ot-accountability-core` chains `SHA-256(previous ‖ canonical

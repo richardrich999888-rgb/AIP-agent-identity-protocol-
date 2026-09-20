@@ -156,6 +156,33 @@ reached, not the aspiration.
 
 ---
 
+## 3a. The failure class §3 was missing
+
+The ten classes above come from `RBI_AGENT_RISK_MAP.md`, which was written
+about agents that *use* the accountability channel. There is an eleventh, and
+its absence from that list was a real gap in a document whose purpose is to
+be honest about gaps.
+
+| # | Failure class | Highest rung | What exists | What is missing |
+|---|---|---|---|---|
+| **F11** | **The agent declines to use the channel at all** | **R2** | Everything else in this repository is *inline*: it proves what went through the funnel. An agent that calls a tool server directly, keeps running after its credentials were revoked, spawns a copy of itself, or has its identity borrowed never touches the funnel, so none of it appears in the ledger. **Inline enforcement cannot see its own bypass**, and a stricter gateway does not help, because a stricter gateway is still one an agent can decline to use. `ot-sentinel` (merged 2026-09-20, 82 tests passing) closes it by *reconciliation*: independent sensors report what happened, the sentinel compares that against what the ledger sealed, and the difference is the finding. Matching is one-to-one on the digest of the canonical call parameters, so a ghost cannot hide behind a concurrent legitimate call of the same tool, and a replayed call has no second packet to account for it. | Its 31 integration tests (`ghost_hunt.rs`) **cannot run here**: they need `ot-mcp-gateway` and `ot-pqc`, and `ot-pqc` was not part of the import. So the reconciliation primitive is unit-tested and the end-to-end ghost hunt is not. It has also never been run against a real deployment's sensors — the same limit as every other row. |
+
+**Why this belongs in this document rather than only in a changelog.** §1.1
+says the tests were written by the party being tested, and the worked example
+of that problem is this class: it went unlisted not because anyone decided to
+omit it, but because the risk map and the test suite were written from the
+same vantage point — inside the funnel. An outside assessment is what finds
+the class you did not think to name, which is why blocker B2 is on the list.
+
+**Not carried into the RBI submission.** `ot-sentinel` arrives with an
+evidence-chain format that is **not byte-compatible** with this system's
+(`docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md`, status OPEN). Until that decision
+is made, this capability is not described to the Department, and a
+dependency guard test stops any crate outside the import from reaching for
+it in the meantime.
+
+---
+
 ## 4. What is not in scope at all, and who owns it
 
 Claiming these would be false, and RBI would find it. They are listed so the

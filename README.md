@@ -163,6 +163,19 @@ Named here so nobody has to guess.
   was signed is true.
 - Autonomous containment (see below).
 - Any hosted service, SDK ecosystem, or console.
+- **A governed MCP wire.** `orbitaltrust-accountability/rust/ot-mcp-gateway`
+  would seal every `tools/call` before it reached the upstream server. It is
+  in the tree and **does not build here**: it needs `ot-pqc`, which the
+  import did not bring across.
+
+**Partly present, and bounded.** Out-of-band detection of an agent that
+bypasses the accountability channel entirely — everything above is *inline*
+enforcement, which cannot see its own bypass. `ot-sentinel` reconciles what
+independent sensors observed against what the ledger sealed (82 tests). It
+arrives with an evidence-chain format that is **not byte-compatible** with
+`aip-core`'s, so nothing outside `orbitaltrust-accountability/` may depend on
+it until `docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md` is closed — enforced by
+`aip-test/tests/evidence_chain_boundary.rs`, not by prose.
 
 ---
 
@@ -316,6 +329,18 @@ Start here if you are doing diligence:
   — the same system without the jargon, including what it does not do.
 - [`docs/IP/INVENTION_REGISTER.md`](docs/IP/INVENTION_REGISTER.md)
   — the distinctive mechanisms, each with its own disclosure status.
+- [`docs/pilot/WHAT_THE_TESTS_PROVE.md`](docs/pilot/WHAT_THE_TESTS_PROVE.md)
+  — whether the tests prove this system solves the problem (they do not, and
+  the document says so first), every failure class scored on a four-rung
+  ladder, and the three limits no further testing here removes.
+- [`docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md`](docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md)
+  — **status OPEN.** Two hash-chained evidence constructions now live in this
+  repository and they are not byte-compatible. The options, the one rejected
+  on sight, and the interim rule that is enforced by a test.
+- [`orbitaltrust-accountability/README.md`](orbitaltrust-accountability/README.md)
+  — the imported layer: which two of its four Rust crates are wired, why the
+  other two cannot build, and the manifest check that proves 112 of its 114
+  files are byte-identical to what was imported.
 - [`AIP_SPEC.md`](AIP_SPEC.md) — the EvidencePacket specification.
 - [`AUDIT_CORRECTIONS.md`](AUDIT_CORRECTIONS.md) — what this repository
   previously overstated and what was done about it.
