@@ -329,15 +329,25 @@ IRDAI for insurance) — CERT-In and DPDP apply sector-wide.
 
 | # | Blocker | Regulator (per §0.5) / framework | Status |
 |---|---|---|---|
-| B1 | TLS + rate limiting at ingress | segment regulator's cyber framework; CERT-In | ⬜ (proxy config) |
+| B1 | TLS + rate limiting at ingress; confidential probe→collector link | segment regulator's cyber framework; CERT-In | 🟡 in-process limits (body, timeout, in-flight) and Noise NK on the probe link are **done**; TLS termination and per-client rate limiting remain the entity's proxy config, reference file ships |
 | B2 | Independent security assessment (CERT-In empanelled) + remediation | CERT-In (all); segment regulator | ⬜ **hard gate, every segment** |
-| B3 | Durable, backed-up storage + DR/BCP | segment regulator's BCP/resilience rules (RBI BCP, SEBI CSCRF, IRDAI) | 🟡 (Postgres backend exists; backup/DR not) |
-| B4 | KMS/HSM for service **and** collector signing keys; API-key rotation | segment regulator's key-management expectations | 🟡 (wrapped-file custody exists; HSM not) |
-| B5 | Signed audit-export bundle + standalone verifier for the auditor | audit / evidence (all) | ✅ (`/export` bundle; `aip-verify` and `nexora-verify` both in `release.yml`; artifacts checksummed, not signed) |
-| B6 | Metrics / monitoring / SIEM export + runbook | SOC integration (all) | ⬜ |
-| B7 | Control-framework mapping (RBI / SEBI CSCRF / IRDAI / DPDP / ISO 27001) | compliance, **mapped per target segment** | ⬜ |
-| B8 | Off-host collector daemon + authenticated transport (§7.1–7.3) | the P3 guarantee in production (all) | 🟡 components built (incl. connector + integrity-across-split); **hard gate is the run on institution hardware** (Phase 1 exit) |
-| B9 | Client-side signing SDK + `/v1/evidence/ingest` (no agent key on the wire) | key custody (all) | ⬜ |
+| B3 | Durable, backed-up storage + DR/BCP; storage-enforced immutability and retention | segment regulator's BCP/resilience rules (RBI BCP, SEBI CSCRF, IRDAI) | 🟡 RLS, delete revocation, append-only triggers, legal hold, 180-day retention floor and an **exercised restore drill** are done; RPO/RTO, off-site custody, backup encryption and drill cadence are the entity's |
+| B4 | KMS/HSM for service **and** collector signing keys; API-key rotation | segment regulator's key-management expectations | 🟡 PKCS#11 custodian done and tested against a real module; module choice and certification, PIN custody, dual control and key ceremony are the entity's |
+| B5 | Signed audit-export bundle + standalone verifier for the auditor | audit / evidence (all) | ✅ **done** — the earlier caveat is closed: release artefacts are now Sigstore-signed, not only checksummed |
+| B6 | Metrics / monitoring / SIEM export + incident bundle + runbook | SOC integration (all) | 🟡 authenticated metrics endpoint, CEF-over-syslog export of *verified* verdicts, incident bundle and runbook exist; connecting them to the institution's SIEM and paging is integration work |
+| B7 | Control-framework mapping (RBI / SEBI CSCRF / IRDAI / DPDP / ISO 27001) | compliance, **mapped per target segment** | ✅ **done** — the conformance program emits the regulatory control dimension alongside the invariant matrix |
+| B8 | Off-host collector daemon + authenticated transport (§7.1–7.3) **running on institution hardware** | the P3 guarantee in production (all) | 🟡 components built (connector, file and wire sensors, confidential transport, integrity across the split); **the hard gate is the run on institution hardware** (Phase 1 exit), and no test coverage substitutes for it |
+| B9 | Client-side signing SDK (no agent key on the wire) + agent-framework adapters | key custody (all) | 🟡 agent-signed AIRI events exist as a library; framework adapters not done |
+| B10 | Gateway receipt issuance at the institution's API or MCP gateway | transaction-level accountability (all) | 🟡 format, countersigning and verification built (`aip-mcp-gateway`); gateway-side issuance is institution integration work |
+| B11 | External anchoring of log heads to an institution-controlled second system | evidence integrity (all) | 🟡 witness mechanism done — it countersigns heads holding a key the log operator does not have, and a rewritten log cannot produce a receipt for the head it discarded; **where it runs and who holds its key is the entity's deployment decision** |
+
+**This table is the same blocker set, in the same numbering, as §13 of
+`SNIFFER_DOG_TECHNICAL_BRIEF_RBI.pdf`.** Both are submitted; if they ever
+disagree, the brief is authoritative and this table is the defect. It carried
+stale statuses for B1, B3, B4, B5, B6 and B7 and omitted B10 and B11 until
+2026-09-20, which is exactly the failure mode the note in §18 of the
+requirements matrix warns about — two documents drifting, with the older one
+becoming the more flattering.
 
 ---
 
