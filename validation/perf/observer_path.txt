@@ -1,0 +1,27 @@
+Observer path, measured on: kernel 6.18.44-fc-v37, 4 CPU, Intel(R) Xeon(R) Processor @ 2.80GHz, release build
+N = 2000 batches (100 discarded as warm-up)
+
+  batch canonical size: 139 bytes
+  canonical encoding           6422958/s   mean      0.2 us   p50      0.2   p95      0.2   p99      0.2   max      0.6
+  sign + chain, no persist       23084/s   mean     43.3 us   p50     41.3   p95     61.1   p99     70.0   max    214.2
+  attest (persisted)              2534/s   mean    394.6 us   p50    384.5   p95    478.6   p99    548.9   max   1079.7
+  verify (offline)               21651/s   mean     46.2 us   p50     43.1   p95     64.7   p99     85.3   max    149.4
+
+  verifying 1,000,000 archived batches at this rate: 46.2 s single-threaded
+  attestation sustains ~2534 batches/s single-threaded; at the pilot's
+  1 s batch interval that is an upper bound of ~2534 observed hosts per
+  collector before attestation itself binds. Network and lock contention
+  are excluded and will bind first.
+  of the 395 us it takes to attest one batch, 43 us is signing and
+  chaining and 351 us (89%) is writing the new chain position to disk.
+
+  These are single-threaded, in-process, loopback-free figures on the host
+  named above. They exclude the network, the probe's sampling cost and the
+  disk the archive lands on. They are a floor for planning, not a service
+  level, and no figure here should be quoted without the host line.
+
+Reproduce:
+  cargo test --release -p aip-observe --test throughput -- --ignored --nocapture
+
+Sealed from commit: 
+b368fd2

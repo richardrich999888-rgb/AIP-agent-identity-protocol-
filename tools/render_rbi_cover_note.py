@@ -4,7 +4,7 @@
 Context: the FinTech Department asked for an email to cgmfintech@rbi.org.in,
 copied to the officer who responded, "stating your expectations and ask".
 This is the document that accompanies it. A Chief General Manager reads two
-pages; the nine-page technical brief is for whoever they hand it to.
+pages; the technical brief is for whoever they hand it to.
 
 The one editorial rule that matters here
 ----------------------------------------
@@ -36,6 +36,27 @@ from reportlab.platypus import (
 
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = REPO / "docs" / "pilot" / "RBI_FINTECH_COVER_NOTE.pdf"
+BRIEF = REPO / "docs" / "pilot" / "SNIFFER_DOG_TECHNICAL_BRIEF_RBI.pdf"
+
+
+def brief_pages() -> int:
+    """Page count of the enclosure, read from the enclosure.
+
+    It was hard-coded as nine and the brief grew to ten. A covering note that
+    misstates the length of the document attached to it is the first thing a
+    careful reader checks and the first thing that costs them confidence in
+    everything after it. Reading the real file means it cannot drift again;
+    a missing brief is a hard error, because rendering this note without
+    knowing what it encloses is how the mismatch happened.
+    """
+    import pypdf
+
+    if not BRIEF.exists():
+        raise SystemExit(
+            f"{BRIEF} is missing. Render the technical brief first: "
+            "python3 tools/render_technical_brief.py"
+        )
+    return len(pypdf.PdfReader(str(BRIEF)).pages)
 
 INK = colors.HexColor("#111111")
 MUTED = colors.HexColor("#555555")
@@ -192,7 +213,11 @@ def build(out: Path) -> None:
         "A <b>mis-parameterised tool call</b> caught against a gateway-countersigned receipt, "
         "where the finding does not rest on the agent's own account of what it asked for.",
         "<b>Offline verification performed by your side</b>, on your hardware, with keys you "
-        "hold and our software not in the trust path.",
+        "hold. To be exact about what that means: the verifier we ship is one "
+        "implementation of a published, canonically encoded format, it opens no network "
+        "connection and reads nothing from us at run time, and your side is free to write its "
+        "own against the same specification. The trust rests on the format and on your keys, "
+        "not on our binary being honest.",
     ]:
         s.append(B(b))
 
@@ -209,7 +234,7 @@ def build(out: Path) -> None:
 
     s.append(H("Enclosed"))
     s.append(Paragraph(
-        "<b>Sniffer Dog / AIP: Technical Brief</b> (9 pages) — architecture, independent "
+        f"<b>Sniffer Dog / AIP: Technical Brief</b> ({brief_pages()} pages) — architecture, independent "
         "authorities and key custody, what is observed and what is deliberately not, the "
         "verdict vocabulary, the security model, what has been demonstrated and what has not, "
         "the threat model, the proposed pilot with its exit gates, and the eleven "

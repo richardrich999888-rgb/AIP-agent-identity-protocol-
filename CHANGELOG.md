@@ -6,6 +6,49 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed (the RBI submission documents, redrafted for accuracy)
+- **The brief's "no performance figure has been measured" was false twice
+  over** — the evidence vault has had figures since `STORAGE_PERFORMANCE.md`,
+  and the observer path now has its own. Replaced with the measurement, its
+  host line, and the decomposition that matters.
+- **`docs/OBSERVER_PERFORMANCE.md`** and `validation/perf/observer_path.txt`.
+  On four cores at 2.80 GHz, single-threaded, 139-byte batch: attest 395 µs
+  (~2,500/s), verify offline 46 µs (~21,700/s), so a retained archive of one
+  million batches verifies in ~46 s on one core. **Of the 395 µs, 43 is
+  signing and chaining and 351 — 89% — is writing the chain position to
+  disk.** Attestation is bound by storage, not by cryptography: the lever for
+  more throughput is the storage path, and replacing Ed25519 would move 11%
+  of the cost. The benchmark measures the signer with and without the persist
+  precisely so that question is answered with a number.
+- **Two documents in the same email disagreed.** The brief said no
+  readiness-level figure was quoted; the covering note stated TRL 4. The brief
+  now states TRL 4 explicitly and says what TRL 5 would require. The covering
+  note said the brief was nine pages — it is ten — so the count is now read
+  from the rendered enclosure and cannot drift again; a missing brief is a
+  hard error rather than a stale number.
+- **"Our software not in the trust path" was not accurate**, because the
+  verifier we ship is our software. Replaced with the property that is true:
+  the format is published and canonically encoded, the verifier opens no
+  network connection and reads nothing from us at run time, and the
+  institution may write its own against the same specification. The trust
+  rests on the format and the institution's keys, not on our binary being
+  honest.
+- The brief now names `aip-observe-verify`, `attested.archive.jsonl` and
+  `observer.pub` where it previously described them in prose, so a technical
+  reviewer can ask for them by name.
+
+### Fixed (a guard that clippy was right to reject)
+- `container_identity.rs` asserted `OBSERVE_PROTOCOL_VERSION >= 11` at
+  runtime — a comparison between two constants, which is not a test. It is now
+  a `const` assertion, which is strictly stronger: a version that cannot carry
+  the protocol-11 field fails the **build**, for everyone, rather than only
+  when that test is run.
+- The throughput benchmark was briefly added to the RED suite manifest and
+  correctly failed: it is `#[ignore]`d, so its selector matches zero tests, and
+  the runner's "a filter matching nothing is not a pass" rule caught it.
+  Reverted rather than weakened — the suite's contract is one row per
+  adversarial ledger entry, and a measurement is not an attack.
+
 ### Added (an honest answer to "do the tests prove we solve the problem?")
 - **`docs/pilot/WHAT_THE_TESTS_PROVE.md`.** The answer is **no**, and the
   document says so in its first paragraph. The tests prove an *evidentiary*

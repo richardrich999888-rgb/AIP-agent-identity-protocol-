@@ -168,8 +168,9 @@ def content(st, width):
         "can be given the anchor without anyone unwrapping the private half, and a separate "
         "verifier reads the archives with no network, no service and nothing from us. "
         "Two further items Revision 4 listed as not demonstrated have also moved: the "
-        "collector's clock discipline is now inside the signed bytes, and the observer path has "
-        "been measured rather than declined. Sections 10 and 12. <b>It ran on a development "
+        "collector's clock discipline is now inside the signed bytes, and the signing and "
+        "verification path has been measured, with the result that attestation is bound by "
+        "storage rather than by cryptography. Sections 10 and 12. <b>It ran on a development "
         "virtual machine; B8, the run on the institution's own hardware, is unchanged.</b>"))
     s.append(P(
         "<b>What changed since Revision 3.</b> The foreign-eBPF gate attack, which "
@@ -548,9 +549,9 @@ def content(st, width):
         "Offline verification: the verifier is a pure function of the artefact and the "
         "institution's trusted keys. There is no call-home in the trust path. <b>Each of "
         "the three evidence families now has one</b> (the third is new since Revision 4): "
-        "evidence packets, append-only log heads and proofs, and the observer's own chain "
-        "of attested batches and signed health records. Release artefacts are signed, not "
-        "only checksummed.",
+        "`aip-verify` for evidence packets, `nexora-verify` for append-only log heads and "
+        "proofs, and `aip-observe-verify` for the observer's own chain of attested batches and "
+        "signed health records. Release artefacts are signed, not only checksummed.",
         "Independence checks a verifier can make when it knows the agent's key: a decision "
         "point, an observer, a gateway or an approval surface anchored under the agent's own "
         "key is refused.",
@@ -606,6 +607,13 @@ def content(st, width):
         "machine. A four-rung scoring of every property this system asserts, class by class "
         "against the failure modes in the risk map, is published in the repository as "
         "WHAT_THE_TESTS_PROVE.md, and it reaches the same conclusion this paragraph does."))
+    s.append(P(
+        "<b>Integrated-system maturity is TRL 4 — validated in a laboratory environment.</b> "
+        "The same figure appears in our covering note and in the repository, and we would "
+        "rather state it here than have the Department infer a higher one from the length of "
+        "this section. TRL 5 requires validation in a <i>relevant</i> environment, which for "
+        "this system means a regulated entity's own hosts; that is blocker B8 and it is what "
+        "the pilot in section 12 exists to do."))
     for b in [
         "<b>Foreign eBPF tracepoint gate</b> attached to each perf sensor (an attacker with "
         "CAP_BPF): the observer signs an integrity-unknown state and the reconciler answers "
@@ -629,10 +637,11 @@ def content(st, width):
         "feature because the defect it fixes was invisible to testing: the collector attested "
         "each batch, acknowledged it by chain position, and discarded it, so every library "
         "test of offline verification passed while nothing was left on disk to verify. Every "
-        "attested batch is now appended to an archive; the collector publishes its evidence "
-        "public key beside its state, which previously could be obtained only by unwrapping "
-        "the private key with the passphrase -- exactly what key custody exists to prevent. "
-        "A separate verifier, given two files and that public key and opening no socket, "
+        "attested batch is now appended to `attested.archive.jsonl`; the collector publishes "
+        "its evidence public key as `observer.pub` beside its state, which previously could be "
+        "obtained only by unwrapping the private key with the passphrase -- exactly what key "
+        "custody exists to prevent. `aip-observe-verify`, given those two files and that public "
+        "key and opening no socket, "
         "checks each signature and then the chain that links them: positions contiguous, and "
         "each record's predecessor hash equal to the <b>recomputed</b> hash of the record "
         "before it, so there is no supplied digest to trust. It also compares each signed "
@@ -660,6 +669,19 @@ def content(st, width):
         "root on the collector host can clear the kernel's synchronisation flag on a clock it "
         "has just moved. This raises the bar from trusting an operator's log to trusting a "
         "signature, and no further.",
+        "<b>The signing and verification path has been measured</b> (new since Revision 4; "
+        "Revision 4 declined to quote any figure). On a four-core Intel Xeon at 2.80 GHz, "
+        "single-threaded, with a 139-byte batch: attesting one batch takes <b>395 microseconds</b> "
+        "(about 2,500 per second) and verifying one offline takes <b>46 microseconds</b> (about "
+        "21,700 per second), so verifying a retained archive of one million attested batches "
+        "takes roughly <b>46 seconds</b> on one core, and verification parallelises trivially. "
+        "The figure worth the Department's attention is the decomposition: of those 395 "
+        "microseconds, 43 is signing and chaining and <b>351 — 89 per cent — is writing the new "
+        "chain position to disk</b>. Attestation is bound by storage, not by cryptography, so a "
+        "deployment that needs more throughput changes the storage path and not the signature "
+        "algorithm. Raw output with its host line is sealed in the repository and reproduced by "
+        "one command. These are in-process figures that exclude the network and the probe's own "
+        "sampling cost; they are a floor for planning and not a service level.",
         "Forged observer identity, altered observation after signing, altered measured boot "
         "after signing, unanchored key version, and deserialisation of a record from nothing: "
         "each is refused.",
@@ -706,8 +728,12 @@ def content(st, width):
         "off-host collector bounds tampering after collection; it does not make the host "
         "kernel trustworthy. Remedy paths are hardware-rooted or fully off-host observation, "
         "not yet built.",
-        "<b>Any performance, throughput, latency or readiness-level figure.</b> None has been "
-        "measured and none is quoted in this document.",
+        "<b>The overhead this system imposes on an institution's own workload.</b> The "
+        "signing and verification path has been measured and is quoted in section 10, and the "
+        "evidence store has been measured separately. What has not been measured, and cannot "
+        "be measured honestly from a synthetic benchmark, is what the observer costs the agent "
+        "it is watching. That is a pilot measurement on your hosts against your agent, and it "
+        "is one of the things a pilot is for.",
         "<b>Autonomous enforcement from a verdict.</b> Containment is designed but stays off. "
         "The enforcement and interlock tiers act on epochs and heartbeats, not on verdicts; no "
         "production evidence path today yields the evidence grade that verdict-driven "

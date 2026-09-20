@@ -20,7 +20,13 @@
 //!    Ed25519, advance the chain, persist the position. This is the
 //!    collector's per-batch cost and the one that bounds how many observed
 //!    hosts one collector can serve.
-//! 3. **Offline verification** — `verify_attested_batch`: re-encode,
+//! 3. **Signing alone** — `CollectorSigner::attest`: everything the
+//!    collector does to a batch *except* writing the new chain position to
+//!    disk. Measured separately because the first question a reviewer asks
+//!    about an attestation rate is whether it is bound by cryptography or by
+//!    storage, and that should be answered with a number rather than an
+//!    opinion.
+//! 4. **Offline verification** — `verify_attested_batch`: re-encode,
 //!    re-hash, check the Ed25519 signature. This is the auditor's cost per
 //!    record, and it bounds how long verifying a retained archive takes.
 //!
@@ -50,8 +56,9 @@
 use std::time::{Duration, Instant};
 
 use aip_observe::{
-    verify_attested_batch, AttestedBatch, CollectorKey, CollectorRuntime, CollectorStore,
-    ContinuityPolicy, ObservationBatch, ObserverTrustAnchors, ProcfsProbe, Started,
+    verify_attested_batch, AttestedBatch, CollectorKey, CollectorRuntime, CollectorSigner,
+    CollectorStore, ContinuityPolicy, ObservationBatch, ObserverAttestor, ObserverTrustAnchors,
+    ProcfsProbe, Started,
 };
 
 /// Batches attested and then verified. Large enough that per-iteration noise
@@ -228,7 +235,31 @@ fn observer_path_throughput() {
     }
     let attest = Samples::new(attest);
 
-    // ── 3. Offline verification, the auditor's cost ──────────────────────
+    // ── 3. Signing alone: the same work without the chain-position write ──
+    // `CollectorRuntime::attest` is `CollectorSigner::attest` followed by a
+    // snapshot write. Running the signer on its own separates the two, so
+    // the difference between this row and the one above is the persist, and
+    // nobody has to guess which one bounds the collector.
+    let mut bare = CollectorSigner::with_custodian(
+        "collector.bench.nostore",
+        KEY_VERSION,
+        CollectorKey::development().into_custodian(),
+    )
+    .unwrap();
+    for i in 0..WARMUP {
+        bare.attest(batch(&mut probe, i)).unwrap();
+    }
+    let mut sign = Vec::with_capacity(N);
+    for i in 0..N {
+        let b = batch(&mut probe, i);
+        let t = Instant::now();
+        let a = bare.attest(b).unwrap();
+        sign.push(t.elapsed());
+        std::hint::black_box(a);
+    }
+    let sign = Samples::new(sign);
+
+    // ── 4. Offline verification, the auditor's cost ──────────────────────
     let anchors = ObserverTrustAnchors::new().trust(OBSERVER_ID, KEY_VERSION, &public_key);
     for a in attested.iter().take(WARMUP.min(attested.len())) {
         verify_attested_batch(a, &anchors).unwrap();
@@ -244,7 +275,8 @@ fn observer_path_throughput() {
 
     println!("  batch canonical size: {encoded_len} bytes");
     encode.report("canonical encoding");
-    attest.report("attest (sign + chain)");
+    sign.report("sign + chain, no persist");
+    attest.report("attest (persisted)");
     verify.report("verify (offline)");
 
     // The two numbers an operator actually plans with. Printed rather than
@@ -265,9 +297,21 @@ fn observer_path_throughput() {
     println!(
         "  attestation sustains ~{rate:.0} batches/s single-threaded; at the pilot's\n  \
          1 s batch interval that is an upper bound of ~{rate:.0} observed hosts per\n  \
-         collector before attestation itself binds. Network, disk and lock\n  \
-         contention are excluded and will bind first.",
+         collector before attestation itself binds. Network and lock contention\n  \
+         are excluded and will bind first.",
         rate = attest.per_second()
+    );
+    // Where the time goes, measured rather than asserted. The persist is the
+    // difference between the two rows; if it dominates, the lever is the
+    // storage path and not the signature algorithm.
+    let persist = attest.mean().saturating_sub(sign.mean());
+    println!(
+        "  of the {:.0} us it takes to attest one batch, {:.0} us is signing and\n  \
+         chaining and {:.0} us ({:.0}%) is writing the new chain position to disk.",
+        us(attest.mean()),
+        us(sign.mean()),
+        us(persist),
+        100.0 * us(persist) / us(attest.mean()).max(f64::MIN_POSITIVE)
     );
     println!(
         "\n  These are single-threaded, in-process, loopback-free figures on the host\n  \

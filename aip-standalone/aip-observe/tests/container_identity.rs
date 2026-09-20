@@ -40,23 +40,21 @@ fn process(container: Option<ContainerIdentity>) -> ObservedProcess {
     }
 }
 
-/// The protocol version carries B3's change.
+/// The protocol version carries B3's change — checked at **compile time**.
 ///
-/// This used to pin the constant to exactly 11. That made every later
-/// protocol change fail *here*, in a test about container identity, which
-/// says nothing about container identity and tells whoever hits it to edit a
-/// file they were not working on. The exact pin belongs with whatever change
-/// owns the current version -- today `attested_clock.rs` -- and what B3 needs
-/// is only that its field arrived in 11 and has not been withdrawn since.
-#[test]
-fn the_protocol_version_records_the_change() {
-    const B3_INTRODUCED_IN: u16 = 11;
-    assert!(
-        OBSERVE_PROTOCOL_VERSION >= B3_INTRODUCED_IN,
-        "ObservedProcess::container is a protocol-{B3_INTRODUCED_IN} field; a version below \
-         that cannot carry it"
-    );
-}
+/// Two earlier shapes of this guard were both wrong. It first pinned the
+/// constant to exactly 11, which made every later protocol change fail here,
+/// in a test about container identity, telling whoever hit it to edit a file
+/// they were not working on; the exact pin belongs with whatever change owns
+/// the current version, today `attested_clock.rs`. It then became a runtime
+/// `assert!` on a comparison between two constants, which clippy correctly
+/// refused: an assertion whose value is known at compile time is not a test.
+///
+/// A `const` assertion is the right instrument and is strictly stronger than
+/// either. `ObservedProcess::container` is a protocol-11 field, so a version
+/// below 11 cannot carry it — and that now fails the **build**, for everyone,
+/// rather than only when this test happens to be run.
+const _: () = assert!(OBSERVE_PROTOCOL_VERSION >= 11);
 
 /// Two observers that both read the placement and agree: `Same`.
 #[test]
