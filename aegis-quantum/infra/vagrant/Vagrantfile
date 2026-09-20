@@ -1,0 +1,127 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+# ── AEGIS-QUANTUM Vagrant Multi-Node Testbed ─────────────────────────────────
+#
+# Orchestrates an isolated Linux kernel environment for TRL-5 live-fire
+# validation of eBPF/XDP programs on Apple Silicon (M4) hosts.
+#
+# Architecture:
+#
+#   ┌────────────────────────────────────────────────────────┐
+#   │                  MACBOOK AIR M4 (HOST)                 │
+#   │  [VS Code / Antigravity] ──► Write Rust & Python       │
+#   └───────────────────────────┬────────────────────────────┘
+#                               │ vnet0 (private network)
+#                               ▼
+#   ┌────────────────────────────────────────────────────────┐
+#   │          AEGIS-GATEWAY  (192.168.56.10)                │
+#   │  • XDP program attached to eth1                        │
+#   │  • Ring Buffer + AF_XDP zero-copy                      │
+#   │  • Circuit Breaker + PQC engine                        │
+#   └───────────────────────┬────────────────────────────────┘
+#                           │ private_network (192.168.56.x)
+#                           ▼
+#   ┌────────────────────────────────────────────────────────┐
+#   │          AEGIS-ATTACKER (192.168.56.20)                │
+#   │  • Scapy packet injection (rogue AI agent simulation)  │
+#   │  • Validation script (--live-fire mode)                 │
+#   └────────────────────────────────────────────────────────┘
+#
+# Usage:
+#   cd infra/vagrant && vagrant up
+#   vagrant ssh aegis-gateway
+#   vagrant ssh aegis-attacker
+
+Vagrant.configure("2") do |config|
+
+  # ── Common Configuration ─────────────────────────────────────────────────
+  config.vm.box = "bento/ubuntu-24.04-arm64"
+  config.vm.synced_folder "../..", "/home/vagrant/aegis-quantum",
+    type: "rsync",
+    rsync__exclude: [".git/", "target/"]
+
+  # ── Node 1: AEGIS Gateway (XDP Host) ────────────────────────────────────
+  config.vm.define "aegis-gateway" do |gateway|
+    gateway.vm.hostname = "aegis-gateway"
+    gateway.vm.network "private_network", ip: "192.168.56.10"
+
+    gateway.vm.provider "parallels" do |prl|
+      prl.memory = 4096
+      prl.cpus = 4
+      prl.name = "aegis-gateway"
+    end
+
+    gateway.vm.provider "virtualbox" do |vb|
+      vb.memory = 4096
+      vb.cpus = 4
+      vb.name = "aegis-gateway"
+    end
+
+    gateway.vm.provision "shell", inline: <<-SHELL
+      set -euxo pipefail
+
+      echo "╔══════════════════════════════════════════════════════════╗"
+      echo "║  AEGIS Gateway Node Provisioning                       ║"
+      echo "╚══════════════════════════════════════════════════════════╝"
+
+      apt-get update -qq
+      apt-get install -y --no-install-recommends \
+        build-essential pkg-config libssl-dev libelf-dev \
+        linux-headers-generic linux-tools-generic linux-tools-common \
+        bpftool iproute2 tcpdump \
+        stress-ng \
+        clang llvm \
+        python3 python3-pip python3-venv python3-scapy \
+        jq curl git
+
+      # Rust toolchain
+      if ! command -v rustup &>/dev/null; then
+        su - vagrant -c 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
+      fi
+      su - vagrant -c 'source ~/.cargo/env && rustup toolchain install nightly --component rust-src'
+
+      echo ""
+      echo "Gateway ready. XDP interface: eth1 (192.168.56.10)"
+      echo "Build: cd ~/aegis-quantum && cargo build --workspace"
+      echo "Live-fire: sudo python3 validation/validate_xdp.py --live-fire --iface eth1"
+      echo "Chaos: sudo python3 stress-tests/run_chaos_suite.py --live"
+    SHELL
+  end
+
+  # ── Node 2: AEGIS Attacker (Packet Injector) ───────────────────────────
+  config.vm.define "aegis-attacker" do |attacker|
+    attacker.vm.hostname = "aegis-attacker"
+    attacker.vm.network "private_network", ip: "192.168.56.20"
+
+    attacker.vm.provider "parallels" do |prl|
+      prl.memory = 2048
+      prl.cpus = 2
+      prl.name = "aegis-attacker"
+    end
+
+    attacker.vm.provider "virtualbox" do |vb|
+      vb.memory = 2048
+      vb.cpus = 2
+      vb.name = "aegis-attacker"
+    end
+
+    attacker.vm.provision "shell", inline: <<-SHELL
+      set -euxo pipefail
+
+      echo "╔══════════════════════════════════════════════════════════╗"
+      echo "║  AEGIS Attacker Node Provisioning                      ║"
+      echo "╚══════════════════════════════════════════════════════════╝"
+
+      apt-get update -qq
+      apt-get install -y --no-install-recommends \
+        python3 python3-pip python3-venv python3-scapy \
+        tcpdump iproute2 curl jq
+
+      echo ""
+      echo "Attacker ready. Inject packets to gateway: 192.168.56.10"
+      echo "Usage: sudo python3 ~/aegis-quantum/infra/vagrant/semantic_loop_injector.py --target 192.168.56.10 --iface eth1"
+    SHELL
+  end
+
+end

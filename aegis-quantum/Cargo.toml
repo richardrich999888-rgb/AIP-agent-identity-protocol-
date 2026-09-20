@@ -1,0 +1,21 @@
+[workspace]
+resolver = "2"
+members = [
+    "aegis-quantum-common",
+    "aegis-quantum-userspace",
+    "aegis-quantum-circuit-breaker",
+    "benchmarks",
+    "stress-tests",
+]
+exclude = [
+    "aegis-quantum-ebpf",
+]
+
+# NOTE: aegis-quantum-ebpf targets `bpfel-unknown-none` (eBPF bytecode) and
+# requires: cargo +nightly build --target bpfel-unknown-none -Z build-std=core
+# It is excluded from the workspace and built independently on Linux.
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"

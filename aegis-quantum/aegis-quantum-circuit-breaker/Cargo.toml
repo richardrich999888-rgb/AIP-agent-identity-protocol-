@@ -1,0 +1,9 @@
+[package]
+name = "aegis-quantum-circuit-breaker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Aegis-Quantum Agentic AI Circuit Breaker — sliding window loop detector for autonomous agent cascade prevention"
+
+[dependencies]
+aegis-quantum-common = { path = "../aegis-quantum-common" }

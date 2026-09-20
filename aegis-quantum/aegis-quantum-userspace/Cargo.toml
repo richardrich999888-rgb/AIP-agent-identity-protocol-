@@ -1,0 +1,42 @@
+[package]
+name = "aegis-quantum-userspace"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Aegis-Quantum user-space controller — loads eBPF, reads Ring Buffer events, performs Kyber PQC key exchange"
+
+[dependencies]
+# Shared event/map types
+aegis-quantum-common = { path = "../aegis-quantum-common" }
+
+# Circuit breaker (local crate)
+aegis-quantum-circuit-breaker = { path = "../aegis-quantum-circuit-breaker" }
+
+# Post-Quantum Cryptography: NIST ML-KEM (Kyber)
+pqcrypto-kyber = "0.8"
+pqcrypto-traits = "0.3"
+x25519-dalek = { version = "2.0.1", features = ["getrandom"] }
+
+# Hashing for session keys
+sha2 = "0.10"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Serialization for benchmark reports
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Timestamps
+chrono = "0.4"
+
+# eBPF loader & AF_XDP — Linux-only (requires kernel BPF/XDP syscalls)
+[target.'cfg(target_os = "linux")'.dependencies]
+aegis-quantum-common = { path = "../aegis-quantum-common", features = ["aya-pod"] }
+aya = "0.13"
+aya-log = "0.2"
+libc = "0.2"

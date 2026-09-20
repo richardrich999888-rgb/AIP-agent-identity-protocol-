@@ -1,0 +1,37 @@
+[package]
+name = "aegis-quantum-ebpf"
+version = "0.1.0"
+edition = "2021"
+description = "Aegis-Quantum XDP kernel-space program — intercepts TCP SYN packets and emits events via Ring Buffer"
+
+[dependencies]
+aya-ebpf = "0.1"
+aya-log-ebpf = "0.1"
+network-types = "0.0.7"
+
+# Reference the common types (no_std compatible)
+aegis-quantum-common = { path = "../aegis-quantum-common", default-features = false }
+
+[[bin]]
+name = "aegis-quantum-ebpf"
+path = "src/main.rs"
+
+# ── eBPF Compilation Constraints ──────────────────────────────────────────────
+# Target: bpfel-unknown-none (eBPF little-endian bytecode)
+# Build: cargo +nightly build --target bpfel-unknown-none -Z build-std=core --release
+
+[profile.dev]
+opt-level = 2             # eBPF verifier is stricter on unoptimized code
+overflow-checks = false   # No runtime overflow checks in kernel space
+debug = false             # eBPF doesn't support DWARF debug info
+debug-assertions = false  # Strip all debug assertions for verifier compliance
+
+[profile.release]
+lto = true                # Link-time optimization — critical for eBPF inlining
+panic = "abort"           # No unwinding in kernel space — immediate abort
+opt-level = "z"           # Size-optimize: smaller bytecode = faster verifier pass
+strip = true              # Strip all symbols from the final bytecode
+debug = false             # No debug info in release
+debug-assertions = false  # No debug assertions in release
+overflow-checks = false   # No overflow checks in kernel fast path
+codegen-units = 1         # Single codegen unit for maximum optimization

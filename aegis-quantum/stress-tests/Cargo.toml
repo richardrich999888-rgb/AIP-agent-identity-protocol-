@@ -1,0 +1,22 @@
+[package]
+name = "aegis-quantum-stress-tests"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aegis-quantum-circuit-breaker = { path = "../aegis-quantum-circuit-breaker" }
+aegis-quantum-common = { path = "../aegis-quantum-common" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "lru_exhaustion_bench"
+harness = false
+
+[[bench]]
+name = "circuit_breaker_isolation_bench"
+harness = false
