@@ -760,6 +760,7 @@ mod tests {
                 },
                 exe_content_sha256: [2; 32],
                 exe_path: "/x".into(),
+                container: None,
             },
             attribution: AgentAttribution::NotEstablished,
             effect,

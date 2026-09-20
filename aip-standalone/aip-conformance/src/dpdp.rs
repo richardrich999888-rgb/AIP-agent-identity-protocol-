@@ -196,6 +196,30 @@ pub fn inventory() -> Vec<FieldRecord> {
             purpose: "Context for an operator. A path under a home directory carries a username; the path is excluded from identity for that reason, and an institution that objects can run agents from a system path.",
         },
         FieldRecord {
+            path: "observations.observed.container.pid_ns_inode",
+            what: "Inode of the process's PID namespace.",
+            risk: PersonalDataRisk::IndirectViaHost,
+            purpose: "Distinguishes two processes that share a PID in different namespaces. A kernel inode number, not a name: it says which container, never who.",
+        },
+        FieldRecord {
+            path: "observations.observed.container.mnt_ns_inode",
+            what: "Inode of the process's mount namespace.",
+            risk: PersonalDataRisk::IndirectViaHost,
+            purpose: "Distinguishes two processes whose executables hash identically because they are one image mounted in different roots.",
+        },
+        FieldRecord {
+            path: "observations.observed.container.net_ns_inode",
+            what: "Inode of the process's network namespace.",
+            risk: PersonalDataRisk::IndirectViaHost,
+            purpose: "Distinguishes two processes whose sockets carry the same addresses in different network namespaces.",
+        },
+        FieldRecord {
+            path: "observations.observed.container.cgroup_id",
+            what: "Inode of the process's cgroup v2 directory, when the host has one.",
+            risk: PersonalDataRisk::IndirectViaHost,
+            purpose: "Context for an operator locating the workload. Deliberately not part of container identity, since a cgroup move is not a change of workload.",
+        },
+        FieldRecord {
             path: "observations.attribution",
             what: "The agent identifier claimed to the observer, and by whom.",
             risk: PersonalDataRisk::PossibleByConfiguration,

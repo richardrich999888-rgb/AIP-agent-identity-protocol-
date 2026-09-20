@@ -154,6 +154,8 @@ fn actor_of(ee: &ExpectedExecution) -> ObservedProcess {
         process: ee.execution_binding.process,
         exe_content_sha256: ee.execution_binding.exe_content_sha256,
         exe_path: ee.execution_binding.exe_path.clone(),
+
+        container: None,
     }
 }
 
@@ -168,6 +170,8 @@ fn child_at(fork_ns: u64, hash: [u8; 32]) -> ObservedProcess {
         },
         exe_content_sha256: hash,
         exe_path: "/usr/bin/sleep".into(),
+
+        container: None,
     }
 }
 
@@ -534,6 +538,7 @@ fn xe04_exec_of_another_pid_earlier_than_fork_or_recycled_child_does_not_pair() 
         },
         exe_content_sha256: image_hash(),
         exe_path: "/usr/bin/sleep".into(),
+        container: None,
     };
     let cases: [(&str, KernelLifecycleEvent); 3] = [
         (

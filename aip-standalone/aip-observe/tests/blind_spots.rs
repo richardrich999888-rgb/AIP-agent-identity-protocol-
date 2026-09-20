@@ -49,6 +49,7 @@ fn a_fabricated_measurement_is_indistinguishable_from_a_real_one_at_the_collecto
         },
         exe_content_sha256: [1; 32],
         exe_path: "/x".into(),
+        container: None,
     };
 
     // ...and a fabrication a root attacker could feed the probe (or submit as
@@ -62,6 +63,7 @@ fn a_fabricated_measurement_is_indistinguishable_from_a_real_one_at_the_collecto
         },
         exe_content_sha256: [0x5a; 32],
         exe_path: "/usr/bin/payments-agent".into(),
+        container: None,
     };
 
     let o1 = probe.observation(real, ObservedEffect::ProcessPresent, None, now_ms());
@@ -223,6 +225,7 @@ fn g_restart_leaves_the_outage_uncovered_and_says_nothing_about_execution() {
         },
         exe_content_sha256: [7; 32],
         exe_path: "/x".into(),
+        container: None,
     };
     for (id, from, to) in [(1u8, 100u64, 200u64), (2, 200, 300)] {
         let o = probe.observation(p.clone(), ObservedEffect::ProcessPresent, None, from);
@@ -284,6 +287,7 @@ fn i_observation_time_is_host_supplied_and_carries_no_kernel_timestamp() {
         },
         exe_content_sha256: [1; 32],
         exe_path: "/x".into(),
+        container: None,
     };
     // The probe records whatever wall clock it is handed; a host clock set to
     // the year 2000 is faithfully sealed.

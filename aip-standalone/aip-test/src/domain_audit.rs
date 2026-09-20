@@ -105,6 +105,7 @@ fn real_preimages_begin_with_their_tag() {
         process: b.process,
         exe_content_sha256: b.exe_content_sha256,
         exe_path: b.exe_path.clone(),
+        container: None,
     };
     assert!(starts_with(
         &obs.identity_bytes(),

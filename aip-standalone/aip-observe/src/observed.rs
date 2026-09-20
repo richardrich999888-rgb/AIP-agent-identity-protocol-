@@ -16,7 +16,7 @@
 
 use aip_crypto::sha256;
 use aip_types::canonical::*;
-use aip_types::{ExecutionBinding, ProcessInstance};
+use aip_types::{ContainerIdentity, ExecutionBinding, ExecutionMatch, ProcessInstance};
 use serde::{Deserialize, Serialize};
 
 use crate::health::MechanismIntegrity;
@@ -52,9 +52,20 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 ///   `ObservationBatch.mechanism_integrity` — the probe's per-mechanism
 ///   integrity finding (`MechanismIntegrityReport`) inside the attested
 ///   bytes, so the off-host collector can sign `IntegrityUnknown`.
+/// - `11` Independent container identity (matrix row B3):
+///   `ObservedProcess.container` — the kernel's namespace placement as the
+///   *observer* read it, inside the attested bytes. `ExecutionBinding` has
+///   carried this since v2, but only the authorizing side filled it in, so
+///   a "different container" claim rested on one party's word. It is in the
+///   full encoding and deliberately **not** in
+///   `ObservedProcess::identity_bytes`, because an observer that cannot
+///   read the namespaces would otherwise produce a different identity
+///   digest for the same process and manufacture a divergence out of a read
+///   failure; `ObservedProcess::compare_container` answers
+///   `ContainerNotComparable` instead.
 ///
 /// Earlier versions never left this branch; all are refused.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 10;
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 11;
 
 /// Kernel TCP state bytes (`include/net/tcp_states.h`), as they appear in
 /// `/proc/net/tcp` and in the `sock:inet_sock_set_state` tracepoint.
@@ -425,6 +436,25 @@ pub struct ObservedProcess {
     pub process: ProcessInstance,
     pub exe_content_sha256: [u8; 32],
     pub exe_path: String,
+    /// The kernel's container placement of this process, when the observer
+    /// could read it (B3, protocol 11).
+    ///
+    /// `None` means **not observed**, never "not in a container". An
+    /// observer that cannot read `/proc/<pid>/ns/*` — no permission, a
+    /// kernel that withholds them, a process that exited first — records
+    /// `None` and says so, because the alternative is a blind observer
+    /// asserting a placement it never saw.
+    ///
+    /// Why this exists on the *observed* side: `ExecutionBinding` has
+    /// carried container identity since v2, but only the party that
+    /// authorized the execution filled it in. Until now the observer could
+    /// not assert the placement independently, so a claim that two
+    /// workloads were in different containers rested on one side's word.
+    /// With this field both sides record what the kernel told them, and
+    /// [`ObservedProcess::compare_container`] says plainly when they cannot
+    /// be compared.
+    #[serde(default)]
+    pub container: Option<ContainerIdentity>,
 }
 
 impl ObservedProcess {
@@ -434,11 +464,29 @@ impl ObservedProcess {
         buf.extend_from_slice(&self.process.boot_id);
         buf.extend_from_slice(&self.exe_content_sha256);
         put_str(buf, &self.exe_path);
+        // Full encoding: namespaces and the cgroup id. This is the attested
+        // form, so what the observer saw of the placement is signed and
+        // non-repudiable — including the fact that it saw nothing (a `0`
+        // discriminant), which is itself evidence about the observer.
+        aip_types::put_container(buf, &self.container, true);
     }
 
     /// Domain-tagged encoding of the measured facts only. `exe_path` is
     /// excluded so two spellings of one binary compare equal, matching the
     /// Stage 1 identity rule.
+    ///
+    /// # Why `container` is *not* here
+    ///
+    /// An observer that can read `/proc/<pid>/ns/*` and one that cannot
+    /// would otherwise produce different identity digests for the very same
+    /// process, manufacturing a difference out of a read failure — the
+    /// exact error `ExecutionMatch::ContainerNotComparable` exists to
+    /// prevent, and which `aip-core` already refuses to make on the
+    /// authorized side. Container placement is therefore compared
+    /// explicitly, through [`ObservedProcess::compare_container`], where
+    /// "one side did not record one" is a distinct answer rather than a
+    /// silent inequality. The placement is still attested: it is in
+    /// [`Self::encode`], which is what gets signed.
     pub fn identity_bytes(&self) -> Vec<u8> {
         let mut buf = Vec::new();
         put_domain(&mut buf, OBSERVED_PROCESS_DOMAIN);
@@ -448,6 +496,34 @@ impl ObservedProcess {
         buf.extend_from_slice(&self.process.boot_id);
         buf.extend_from_slice(&self.exe_content_sha256);
         buf
+    }
+
+    /// Compare the container placement two observations recorded.
+    ///
+    /// Three outcomes, and the third is the point:
+    ///
+    /// * both recorded a placement and the namespaces agree → `Same`
+    /// * both recorded a placement and they differ → `DifferentContainer`,
+    ///   a **positive finding**: these are two workloads
+    /// * exactly one side recorded a placement → `ContainerNotComparable`
+    ///
+    /// The third case is never a divergence. An observer that could not
+    /// read the namespaces has told us about its own blindness, not about
+    /// the process, and treating that as a difference would let a degraded
+    /// observer manufacture an accusation. This mirrors
+    /// `ExecutionBinding::compare_execution` on the authorized side, so the
+    /// two halves of a reconciliation answer the same question the same
+    /// way.
+    ///
+    /// Only the namespaces are compared. The cgroup id is context: a
+    /// cgroup-v1-only host exposes none, and moving a process between
+    /// cgroups is not a change of workload.
+    pub fn compare_container(&self, other: &ObservedProcess) -> ExecutionMatch {
+        match (&self.container, &other.container) {
+            (Some(a), Some(b)) if !a.same_namespaces(b) => ExecutionMatch::DifferentContainer,
+            (Some(_), None) | (None, Some(_)) => ExecutionMatch::ContainerNotComparable,
+            _ => ExecutionMatch::Same,
+        }
     }
 
     pub fn identity_digest(&self) -> [u8; 32] {
@@ -1172,6 +1248,8 @@ mod tests {
             },
             exe_content_sha256: [exe; 32],
             exe_path: "/opt/agent".into(),
+
+            container: None,
         }
     }
 

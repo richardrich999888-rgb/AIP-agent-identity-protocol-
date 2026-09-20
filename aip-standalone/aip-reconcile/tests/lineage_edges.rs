@@ -37,6 +37,8 @@ fn parent() -> ObservedProcess {
         },
         exe_content_sha256: sha256(b"orchestrator binary"),
         exe_path: "/opt/agent/bin/orchestrator".into(),
+
+        container: None,
     }
 }
 
@@ -49,6 +51,8 @@ fn child(start_ticks: u64) -> ObservedProcess {
         },
         exe_content_sha256: sha256(b"worker binary"),
         exe_path: "/opt/agent/bin/worker".into(),
+
+        container: None,
     }
 }
 

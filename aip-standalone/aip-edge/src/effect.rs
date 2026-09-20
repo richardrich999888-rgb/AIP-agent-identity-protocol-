@@ -256,6 +256,7 @@ mod tests {
                 },
                 exe_content_sha256: [9u8; 32],
                 exe_path: "/x".into(),
+                container: None,
             },
             attribution: aip_observe::AgentAttribution::NotEstablished,
             effect,

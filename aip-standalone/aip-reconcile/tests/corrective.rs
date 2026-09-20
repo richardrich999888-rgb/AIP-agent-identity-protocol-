@@ -196,6 +196,8 @@ fn other_process() -> ObservedProcess {
         },
         exe_content_sha256: sha256(b"unrelated"),
         exe_path: "/usr/bin/unrelated".into(),
+
+        container: None,
     }
 }
 
@@ -606,6 +608,7 @@ fn unreachable_classes_cannot_be_produced_from_any_supported_input() {
         process: x.ee.execution_binding.process,
         exe_content_sha256: x.ee.execution_binding.exe_content_sha256,
         exe_path: x.ee.execution_binding.exe_path.clone(),
+        container: None,
     };
     let o1 = o.probe.observation(
         matching,

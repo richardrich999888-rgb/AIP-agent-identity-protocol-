@@ -912,7 +912,20 @@ impl ExecutionBinding {
 /// content) from the identity encoding (the reconciliation join key). The
 /// cgroup id appears only in the former; see [`ContainerIdentity::cgroup_id`]
 /// for why it must not take part in identity.
-fn put_container(buf: &mut Vec<u8>, c: &Option<ContainerIdentity>, full: bool) {
+/// The canonical encoding of an optional [`ContainerIdentity`].
+///
+/// Public because it is the **one** encoder for this shape: `ExecutionBinding`
+/// here and `ObservedProcess` in `aip-observe` both commit these bytes into
+/// signed evidence, and two encoders that drifted apart would silently make
+/// the same container compare unequal across the two sides of a
+/// reconciliation. One function, one layout.
+///
+/// `full` selects the complete encoding (namespaces **and** the cgroup id)
+/// over the identity-only encoding (namespaces alone). The cgroup id is
+/// context, not identity: a cgroup-v1-only host exposes none, and a cgroup
+/// move is not a change of workload, so including it in an identity would
+/// manufacture differences. See [`ContainerIdentity::cgroup_id`].
+pub fn put_container(buf: &mut Vec<u8>, c: &Option<ContainerIdentity>, full: bool) {
     use canonical::*;
     match c {
         None => put_u8(buf, 0),

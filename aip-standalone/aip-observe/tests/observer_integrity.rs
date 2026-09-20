@@ -57,6 +57,8 @@ fn process(pid: u32) -> ObservedProcess {
         },
         exe_content_sha256: [0xe0; 32],
         exe_path: "/opt/agent/bin/payments-agent".into(),
+
+        container: None,
     }
 }
 

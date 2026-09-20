@@ -200,3 +200,41 @@ real ledger) and synthetically against the producer
 (`aip-authorize/tests/coverage.rs`, P-01..P-14).
 
 | id | attack
+---
+
+### CI — container identity: a blind observer cannot manufacture a divergence
+
+**Claim targeted.** *"When the observer and the authorizing side disagree
+about which container a workload ran in, that is a positive finding; when
+one of them simply could not see, the system says so instead of accusing."*
+
+The attack here is not against the kernel — it is against the **comparison**.
+Before protocol 11 only the authorizing side recorded `ContainerIdentity`,
+so a "different container" claim rested on one party's word. Adding the
+observer's own reading (`ObservedProcess.container`, B3) creates a new way
+to be wrong: an observer that cannot read `/proc/<pid>/ns/*` records
+nothing, and if absence compared as inequality, **a degraded or hostile
+observer could manufacture `DifferentContainer` out of its own blindness** —
+an accusation with no fact behind it. These rows test the refusal.
+
+Attacker models: **A2** unprivileged adversarial agent; **A4** compromised
+observer (here, one that reports a partial or absent reading).
+
+| id | attacker | attack | classification emitted | result |
+|----|----------|--------|------------------------|--------|
+| CI-01 | — (control) | both sides read the placement and agree | `ExecutionMatch::Same` | **no false positive** |
+| CI-02 | A2 | two workloads genuinely in different namespaces (any one of pid/mnt/net differing) | `DifferentContainer` — a positive finding | **DETECTED** |
+| CI-03 | A4 (blind observer) | exactly one side recorded a placement; absence offered as a difference | `ContainerNotComparable`, **never** `DifferentContainer` | **DETECTED** (refused) |
+| CI-04 | A4 | neither side recorded a placement | `Same` — nothing to compare, no accusation | **no false positive** |
+| CI-05 | A4 (partial read) | a half-read identity (some namespaces, not all) offered as a placement | unreachable: `aip-core` records the namespaces all-or-nothing, so a partial read is `None` | **DETECTED** (by construction) |
+| CI-06 | A4 (privilege asymmetry) | a seeing observer and a blind one measuring **one** process, hoping the identity digests differ | identical `identity_digest` — the placement is deliberately excluded from `identity_bytes` | **DETECTED** (refused) |
+| CI-07 | A2 | move a process between cgroups and offer it as a changed workload | `Same` — the cgroup id is context, not identity | **no false positive** |
+| CI-08 | A4 | drop or edit the placement after the observer signed | inside the attested bytes (`ObservedProcess::encode`); changing it changes the canonical bytes | **DETECTED** |
+
+*Reproduced by `aip-observe/tests/container_identity.rs` (10, including a
+live reading of the host's own namespaces).* Bounds: this is a statement
+about the **comparison**, not about the kernel. A root attacker on the
+observed host can still lie to the observer about the namespaces it reads,
+exactly as it can about every other `/proc` source here (N1); what these
+rows establish is that an observer which cannot see is never able to turn
+that into an accusation.

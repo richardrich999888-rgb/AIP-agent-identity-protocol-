@@ -33,6 +33,8 @@ fn observed_process(boot_id: [u8; 16]) -> ObservedProcess {
         },
         exe_content_sha256: [0x11; 32],
         exe_path: "/opt/agent/bin/autonomy".into(),
+
+        container: None,
     }
 }
 

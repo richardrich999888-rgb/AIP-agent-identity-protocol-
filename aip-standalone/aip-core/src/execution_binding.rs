@@ -243,7 +243,7 @@ pub fn collect_binding_for_pid(agent_id: &str, pid: u32) -> Result<ExecutionBind
 /// not part of the identity, so its absence costs an auditor context and
 /// costs a verifier nothing.
 #[cfg(target_os = "linux")]
-fn collect_container_identity(pid: u32) -> Option<ContainerIdentity> {
+pub fn collect_container_identity(pid: u32) -> Option<ContainerIdentity> {
     // The three namespaces are the identity and are required together: a
     // partial reading would compare unequal against a complete one for the
     // same container, manufacturing a difference out of a read failure.
@@ -310,7 +310,7 @@ fn read_cgroup_id(pid: u32) -> Option<u64> {
 }
 
 #[cfg(not(target_os = "linux"))]
-fn collect_container_identity(_pid: u32) -> Option<ContainerIdentity> {
+pub fn collect_container_identity(_pid: u32) -> Option<ContainerIdentity> {
     None
 }
 

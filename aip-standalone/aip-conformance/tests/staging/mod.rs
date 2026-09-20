@@ -236,6 +236,8 @@ pub fn process_of(ee: &ExpectedExecution) -> ObservedProcess {
         process: ee.execution_binding.process,
         exe_content_sha256: ee.execution_binding.exe_content_sha256,
         exe_path: ee.execution_binding.exe_path.clone(),
+
+        container: None,
     }
 }
 
@@ -250,6 +252,8 @@ pub fn other_process() -> ObservedProcess {
         },
         exe_content_sha256: sha256(b"an unrelated binary"),
         exe_path: "/usr/bin/unrelated".into(),
+
+        container: None,
     }
 }
 

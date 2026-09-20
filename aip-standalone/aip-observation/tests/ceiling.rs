@@ -173,6 +173,7 @@ fn tests_support_batch(o: &mut Obs) -> aip_observe::AttestedBatch {
             },
             exe_content_sha256: [0x33; 32],
             exe_path: "/opt/agent/bin/autonomy".into(),
+            container: None,
         },
         ObservedEffect::ProcessPresent,
         SourceMechanism::PidFdAnchored,

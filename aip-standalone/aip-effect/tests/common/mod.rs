@@ -60,6 +60,7 @@ pub fn record_at(
         },
         exe_content_sha256: [0xe0; 32],
         exe_path: "/opt/agent/bin/agent".into(),
+        container: None,
     };
     let obs = o
         .probe

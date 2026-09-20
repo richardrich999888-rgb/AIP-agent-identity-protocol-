@@ -208,6 +208,8 @@ fn observed_process(b: &ExecutionBinding) -> ObservedProcess {
         process: b.process,
         exe_path: b.exe_path.clone(),
         exe_content_sha256: b.exe_content_sha256,
+
+        container: None,
     }
 }
 

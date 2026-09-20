@@ -225,6 +225,7 @@ fn probe_batch(
         },
         exe_content_sha256: [0xe0; 32],
         exe_path: "/opt/agent/bin/agent".into(),
+        container: None,
     };
     let obs = probe.observation(p, ObservedEffect::ProcessPresent, None, from);
     probe.batch([id; 16], from, to, vec![obs])

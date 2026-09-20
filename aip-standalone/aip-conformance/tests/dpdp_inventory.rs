@@ -13,7 +13,7 @@ use aip_observe::{
     ObservedExecution, ObservedProcess, SocketEndpoint, SocketProtocol, SourceMechanism,
     OBSERVE_PROTOCOL_VERSION,
 };
-use aip_types::ProcessInstance;
+use aip_types::{ContainerIdentity, ProcessInstance};
 use std::collections::BTreeSet;
 
 fn process() -> ObservedProcess {
@@ -25,6 +25,16 @@ fn process() -> ObservedProcess {
         },
         exe_content_sha256: [0x33; 32],
         exe_path: "/usr/local/bin/agent".into(),
+        // Populated, not `None`: this fixture is what the inventory is
+        // checked against, so it must show the shape that actually leaves
+        // the host. A `None` here would collapse the four namespace fields
+        // into one null leaf and the inventory would stop describing them.
+        container: Some(ContainerIdentity {
+            pid_ns_inode: 4_026_531_836,
+            mnt_ns_inode: 4_026_531_840,
+            net_ns_inode: 4_026_531_992,
+            cgroup_id: Some(1_234_567),
+        }),
     }
 }
 

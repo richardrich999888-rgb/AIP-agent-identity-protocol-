@@ -132,6 +132,30 @@
     "purpose": "Bounds the evidence strength a verdict may claim."
   },
   {
+    "path": "observations.observed.container.cgroup_id",
+    "what": "Inode of the process's cgroup v2 directory, when the host has one.",
+    "risk": "IndirectViaHost",
+    "purpose": "Context for an operator locating the workload. Deliberately not part of container identity, since a cgroup move is not a change of workload."
+  },
+  {
+    "path": "observations.observed.container.mnt_ns_inode",
+    "what": "Inode of the process's mount namespace.",
+    "risk": "IndirectViaHost",
+    "purpose": "Distinguishes two processes whose executables hash identically because they are one image mounted in different roots."
+  },
+  {
+    "path": "observations.observed.container.net_ns_inode",
+    "what": "Inode of the process's network namespace.",
+    "risk": "IndirectViaHost",
+    "purpose": "Distinguishes two processes whose sockets carry the same addresses in different network namespaces."
+  },
+  {
+    "path": "observations.observed.container.pid_ns_inode",
+    "what": "Inode of the process's PID namespace.",
+    "risk": "IndirectViaHost",
+    "purpose": "Distinguishes two processes that share a PID in different namespaces. A kernel inode number, not a name: it says which container, never who."
+  },
+  {
     "path": "observations.observed.exe_content_sha256",
     "what": "SHA-256 of the executable's contents.",
     "risk": "None",

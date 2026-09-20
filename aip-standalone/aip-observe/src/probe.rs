@@ -367,6 +367,14 @@ impl ProcfsProbe {
             },
             exe_content_sha256,
             exe_path,
+            // B3: the observer reads the kernel's placement itself rather
+            // than taking the authorizing side's word for it. `None` when it
+            // cannot — no permission, a kernel that withholds the files, or
+            // the process exited between the anchor and this read — and the
+            // namespaces are all-or-nothing, so a partial read records
+            // nothing rather than a placement that would compare unequal
+            // against a complete one for the same container.
+            container: aip_core::execution_binding::collect_container_identity(pid),
         })
     }
 
@@ -745,6 +753,8 @@ mod tests {
             },
             exe_content_sha256: [2u8; 32],
             exe_path: "/x".into(),
+
+            container: None,
         }
     }
 

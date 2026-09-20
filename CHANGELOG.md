@@ -49,6 +49,56 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — B3: the observer reads container placement itself)
+- **`ObservedProcess.container`, observe protocol 10 → 11.**
+  `ExecutionBinding` has carried `ContainerIdentity` since v2, but only the
+  party that *authorized* an execution filled it in, so a claim that two
+  workloads sat in different containers rested on one side's word. The
+  observer now reads the same kernel facts itself, from `/proc/<pid>/ns/*`,
+  on both the polled and the pidfd-anchored measurement paths.
+- **`None` means *not observed*, never "not in a container".** An observer
+  without permission, on a kernel that withholds the files, or measuring a
+  process that already exited, records `None` — and the namespaces are
+  all-or-nothing, so a partial read records nothing rather than a placement
+  that would compare unequal against a complete one for the same container.
+- **The delicate part is refusing to turn a read failure into an
+  accusation.** `ObservedProcess::compare_container` gives three answers:
+  agreeing placements are `Same`; differing placements are
+  `DifferentContainer`, a **positive finding**; and exactly one side having
+  read it is `ContainerNotComparable`, which is *not* a difference. A
+  degraded observer has told us about its own blindness, not about the
+  process. This mirrors `ExecutionBinding::compare_execution`, so both
+  halves of a reconciliation answer the same question the same way.
+- **Attested, but deliberately not in the identity digest.** The placement
+  is inside `ObservedProcess::encode`, so what the observer saw — including
+  that it saw nothing — is signed and non-repudiable. It is **not** in
+  `identity_bytes`, because an observer that could read the namespaces and
+  one that could not would otherwise produce different identity digests for
+  the very same process, manufacturing a divergence out of a read failure.
+  The cgroup id stays context, not identity: a cgroup-v1-only host exposes
+  none, and a cgroup move is not a change of workload.
+- **One encoder, not two.** `aip_types::put_container` becomes public and is
+  now the single canonical encoding for this shape on both the authorized
+  and the observed side. Two encoders that drifted apart would silently make
+  the same container compare unequal across a reconciliation.
+- **The privacy inventory caught it, which is the control working.** Adding
+  a field that leaves the host failed
+  `dpdp_inventory::every_field_that_leaves_the_host_is_in_the_inventory`
+  until the four namespace/cgroup fields were written down with their risk
+  and purpose. The DPDP fixture now carries a *populated* placement rather
+  than `None`, so the inventory is checked against the shape that actually
+  leaves the host, and `docs/compliance/` is regenerated.
+- **Tests:** 10 in `aip-observe/tests/container_identity.rs`, including a
+  live reading of this host's own namespaces, that the identity digest does
+  not move when only the placement differs, that the placement does change
+  the canonical bytes, and that a v10 observation without the field
+  deserializes as "not observed" rather than failing.
+- **Sealed in the adversarial ledger** as section `CI` (8 rows), because the
+  attack this opens is against the *comparison*, not the kernel: a degraded
+  or hostile observer trying to manufacture `DifferentContainer` out of its
+  own blindness. The RED suite (R19) reproduces all of them, taking it from
+  25 rows to 33.
+
 ### Added (RBI requirements coverage — R8: file and wire evidence in the pilot probe)
 - **`aip-probe` drives `fanotify` and `AF_PACKET`.** Both taps already
   existed in `aip-observe` and were exercised by `ghost-demo`; the pilot

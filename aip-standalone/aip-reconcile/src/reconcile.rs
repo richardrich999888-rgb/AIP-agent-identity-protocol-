@@ -1736,6 +1736,7 @@ pub fn reconcile_lineage(
                 process: ee.execution_binding.process,
                 exe_content_sha256: ee.execution_binding.exe_content_sha256,
                 exe_path: String::new(),
+                container: None,
             }
             .matches_process_of(&p.execution_binding)
     }) {

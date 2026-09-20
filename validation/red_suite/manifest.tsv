@@ -47,3 +47,11 @@ CV-04	none	aip-nexora	--test committed_verdict c05_an_untrusted_reconciler_is_re
 CV-05	none	aip-nexora	--test committed_verdict c06_a_verdict_tampered_after_commit_is_refused	DETECTED
 CV-06	none	aip-nexora	--test committed_verdict c07_a_head_the_verifier_does_not_anchor_is_refused	DETECTED
 CV-07	none	aip-nexora	--test committed_verdict c02_committed_bytes_are_not_the_signing_preimage	PROPERTY
+CI-01	none	aip-observe	--test container_identity two_readings_of_one_container_agree	NO_FALSE_POSITIVE
+CI-02	none	aip-observe	--test container_identity different_namespaces_are_a_positive_finding	DETECTED
+CI-03	none	aip-observe	--test container_identity one_side_blind_is_not_comparable_and_never_a_difference	DETECTED
+CI-04	none	aip-observe	--test container_identity neither_side_reading_it_is_not_a_difference	NO_FALSE_POSITIVE
+CI-05	note	aip-observe	--test container_identity one_side_blind_is_not_comparable_and_never_a_difference	BY_CONSTRUCTION
+CI-06	none	aip-observe	--test container_identity the_identity_digest_does_not_move_when_only_the_placement_differs	DETECTED
+CI-07	none	aip-observe	--test container_identity the_cgroup_id_is_context_and_does_not_make_a_difference	NO_FALSE_POSITIVE
+CI-08	none	aip-observe	--test container_identity the_placement_is_inside_the_canonical_bytes	DETECTED

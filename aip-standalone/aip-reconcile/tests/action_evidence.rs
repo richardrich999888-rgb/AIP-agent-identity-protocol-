@@ -205,6 +205,8 @@ fn process_of(ee: &ExpectedExecution) -> ObservedProcess {
         process: ee.execution_binding.process,
         exe_content_sha256: ee.execution_binding.exe_content_sha256,
         exe_path: ee.execution_binding.exe_path.clone(),
+
+        container: None,
     }
 }
 

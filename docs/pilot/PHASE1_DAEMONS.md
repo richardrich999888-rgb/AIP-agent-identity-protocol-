@@ -159,7 +159,7 @@ Phase-1 wire carried only an opaque batch — so the collector could not sign
 `IntegrityUnknown` from a probe-side gate. That gap is closed:
 
 - **The finding travels inside the batch.** `ObservationBatch` (protocol
-  version 10) carries `mechanism_integrity: Vec<MechanismIntegrityReport>`,
+  version 11) carries `mechanism_integrity: Vec<MechanismIntegrityReport>`,
   one `(mechanism, finding)` per perf-tracepoint sensor the probe has open.
   It is inside the transport frame signature (a network attacker cannot strip
   it) **and** inside the attested bytes (it cannot be edited or dropped after
