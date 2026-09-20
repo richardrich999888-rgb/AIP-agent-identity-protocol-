@@ -67,11 +67,14 @@ pub enum ServerError {
     Protocol(String),
     /// The evidence layer refused the batch.
     Sink(SinkError),
+    /// The confidential session could not be opened or was broken (R9).
+    Confidential(crate::confidential::ConfidentialError),
 }
 
 impl std::fmt::Display for ServerError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            ServerError::Confidential(e) => write!(f, "confidential session: {e}"),
             ServerError::Codec(e) => write!(f, "codec: {e}"),
             ServerError::Auth(e) => write!(f, "auth: {e}"),
             ServerError::Unauthorized { probe_id } => {
@@ -235,4 +238,27 @@ pub fn serve_connection(
     let mut nonce = [0u8; 32];
     rand::rngs::OsRng.fill_bytes(&mut nonce);
     run_server_session(&mut stream, nonce, authority, sink)
+}
+
+/// Serve one accepted TCP connection inside a confidential session (R9).
+///
+/// The Noise handshake runs first, with the collector as responder holding
+/// `static_key`; the authenticated session then runs inside it. A peer that
+/// did not pin this collector's static public key fails the handshake and
+/// never reaches the challenge.
+pub fn serve_connection_confidential(
+    stream: TcpStream,
+    read_timeout: Duration,
+    static_key: &crate::confidential::StaticKeypair,
+    authority: &dyn ProbeAuthority,
+    sink: &mut dyn BatchSink,
+) -> Result<(), ServerError> {
+    stream
+        .set_read_timeout(Some(read_timeout))
+        .map_err(|e| ServerError::Codec(CodecError::Io(e)))?;
+    let mut confidential = crate::confidential::ConfidentialStream::respond(stream, static_key)
+        .map_err(ServerError::Confidential)?;
+    let mut nonce = [0u8; 32];
+    rand::rngs::OsRng.fill_bytes(&mut nonce);
+    run_server_session(&mut confidential, nonce, authority, sink)
 }

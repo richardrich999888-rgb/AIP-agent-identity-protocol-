@@ -36,11 +36,14 @@ pub enum ClientError {
     },
     /// The configured transport key was not 32 bytes.
     BadKeyLength(usize),
+    /// The confidential session could not be opened or was broken (R9).
+    Confidential(crate::confidential::ConfidentialError),
 }
 
 impl std::fmt::Display for ClientError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            ClientError::Confidential(e) => write!(f, "confidential session: {e}"),
             ClientError::Codec(e) => write!(f, "codec: {e}"),
             ClientError::Auth(e) => write!(f, "auth: {e}"),
             ClientError::VersionMismatch { theirs, ours } => {
@@ -202,6 +205,36 @@ impl TransportClient<TcpStream> {
             .set_write_timeout(Some(timeout))
             .map_err(|e| ClientError::Codec(CodecError::Io(e)))?;
         Self::handshake(stream, probe_id, transport_priv, transport_pub)
+    }
+}
+
+impl TransportClient<crate::confidential::ConfidentialStream<TcpStream>> {
+    /// Connect over TCP, open a confidential session pinned to the
+    /// collector's static public key, and perform the authenticated
+    /// handshake inside it (R9).
+    ///
+    /// Every byte of the authenticated protocol — challenge, probe id,
+    /// transport public key, frames — is inside the session. The pilot
+    /// daemons use only this constructor.
+    pub fn connect_confidential(
+        addr: impl ToSocketAddrs,
+        collector_static_public: &[u8; 32],
+        probe_id: impl Into<String>,
+        transport_priv: &[u8],
+        transport_pub: &[u8; 32],
+        timeout: Duration,
+    ) -> Result<Self, ClientError> {
+        let stream = TcpStream::connect(addr).map_err(|e| ClientError::Codec(CodecError::Io(e)))?;
+        stream
+            .set_read_timeout(Some(timeout))
+            .map_err(|e| ClientError::Codec(CodecError::Io(e)))?;
+        stream
+            .set_write_timeout(Some(timeout))
+            .map_err(|e| ClientError::Codec(CodecError::Io(e)))?;
+        let confidential =
+            crate::confidential::ConfidentialStream::initiate(stream, collector_static_public)
+                .map_err(ClientError::Confidential)?;
+        Self::handshake(confidential, probe_id, transport_priv, transport_pub)
     }
 }
 

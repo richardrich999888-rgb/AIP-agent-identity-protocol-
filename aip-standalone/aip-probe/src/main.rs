@@ -58,8 +58,9 @@ fn run() -> Result<(), String> {
 
     // Outer loop: (re)connect. Inner loop: ship batches until a transport error.
     loop {
-        let mut client = match TransportClient::connect(
+        let mut client = match TransportClient::connect_confidential(
             &cfg.collector_endpoint,
+            &cfg.collector_noise_pubkey,
             &cfg.probe_id,
             &key.private,
             &key.public,

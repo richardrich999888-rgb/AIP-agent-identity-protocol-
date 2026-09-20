@@ -62,11 +62,15 @@ What the transport must do (defense-in-depth, not the evidence root):
 
 What the transport explicitly does **not** do:
 
-- It does not provide confidentiality. Observation batches carry no payload
-  content (invariant I23), only metadata and hashes; where the deployment wants
-  the metadata encrypted in transit, run this channel inside TLS/mTLS terminated
-  by the institution's proxy (plan B1). The channel's integrity does not depend
-  on that outer layer.
+- ~~It does not provide confidentiality.~~ **Superseded by R9.** The
+  authenticated channel now runs inside a `Noise_NK_25519_ChaChaPoly_SHA256`
+  session (`aip_transport::confidential`), with the probe pinning the
+  collector's static public key. The challenge, the probe's identity and
+  transport key, and every batch frame are inside the session; a capture of
+  the link shows none of them (`aip-transport/tests/confidential.rs`, with a
+  plaintext control). The daemons use it unconditionally. The channel's
+  integrity still does not depend on this layer: the Ed25519 frame
+  signatures hold even if the outer session were somehow stripped.
 - It does not make the host kernel trustworthy (N1). A root attacker on the
   probe host still lies to the probe; the transport faithfully delivers that
   lie, which the reconciler handles as it always has.
@@ -199,7 +203,7 @@ AF_PACKET remain Phase 1.x.
 
 ## What Phase 1 does not include (named, not hidden)
 
-- TLS/mTLS as an in-process layer (deployment concern — plan B1).
+- ~~TLS/mTLS as an in-process layer~~ — confidentiality is in-process since R9 (Noise NK); TLS at the *service* ingress remains a proxy concern (plan B1, R9b).
 - HSM/KMS custodian (plan B4; the `Custodian` trait is the seam).
 - Persistence of the attested batches themselves (the store persists snapshot,
   health archive, continuity reports; batch persistence is plan-level future

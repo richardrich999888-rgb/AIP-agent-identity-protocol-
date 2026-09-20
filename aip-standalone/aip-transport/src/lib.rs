@@ -26,19 +26,26 @@
 //!   sockets.
 //! - [`client`] / [`server`] — thin blocking-TCP adapters that drive the
 //!   handshake and batch loop through the pure layers above.
+//! - [`confidential`] — a Noise `NK` session (R9) that the authenticated
+//!   protocol runs *inside*, so a capture of the link shows neither the
+//!   probe's identity nor any batch metadata. The pilot daemons use it
+//!   unconditionally; the plaintext adapters remain for tests and for a
+//!   deployment that terminates confidentiality elsewhere and says so.
 
 pub mod auth;
 pub mod client;
 pub mod codec;
+pub mod confidential;
 pub mod server;
 pub mod wire;
 
 pub use auth::AuthError;
 pub use client::{ClientError, TransportClient};
 pub use codec::{read_frame, write_frame, CodecError};
+pub use confidential::{ConfidentialError, ConfidentialStream, StaticKeypair, NOISE_PATTERN};
 pub use server::{
-    run_server_session, serve_connection, BatchAckData, BatchSink, ProbeAuthority, ServerError,
-    SinkError,
+    run_server_session, serve_connection, serve_connection_confidential, BatchAckData, BatchSink,
+    ProbeAuthority, ServerError, SinkError,
 };
 pub use wire::{
     auth_preimage, frame_preimage, AuthResult, BatchAck, BatchFrame, Challenge, Message,

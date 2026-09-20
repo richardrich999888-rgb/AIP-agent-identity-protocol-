@@ -17,10 +17,11 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use aip_observe::{CollectorKey, CollectorRuntime, CollectorStore, SourceMechanism, Started};
-use aip_transport::serve_connection;
+use aip_transport::serve_connection_confidential;
 
 use aip_collector::authority::AllowList;
 use aip_collector::config::Config;
+use aip_collector::noise_key::NoiseKeyFile;
 use aip_collector::sink::RuntimeSink;
 
 /// Per-connection read timeout: a stalled peer cannot pin a worker thread.
@@ -95,6 +96,15 @@ fn run() -> Result<(), String> {
     let runtime = Arc::new(Mutex::new(rt));
     let authority = Arc::new(allow);
 
+    // R9: the link is confidential, unconditionally. Every probe pins this
+    // public key; announce it at every start so an operator can find it
+    // without reading the key file.
+    let noise_key = Arc::new(NoiseKeyFile::load_or_generate(&cfg.noise_key_path)?);
+    eprintln!(
+        "aip-collector: noise static public key (pin in AIP_PROBE_COLLECTOR_NOISE_PUBKEY): {}",
+        hex::encode(noise_key.public())
+    );
+
     // Emit an initial signed health record, then keep it fresh on a timer so a
     // verifier can bound coverage against a recent, signed statement.
     emit_health(&runtime)?;
@@ -109,13 +119,20 @@ fn run() -> Result<(), String> {
             Ok(stream) => {
                 let runtime = runtime.clone();
                 let authority = authority.clone();
+                let noise_key = noise_key.clone();
                 std::thread::spawn(move || {
                     let peer = stream
                         .peer_addr()
                         .map(|a| a.to_string())
                         .unwrap_or_else(|_| "<unknown>".into());
                     let mut sink = RuntimeSink::new(runtime);
-                    match serve_connection(stream, READ_TIMEOUT, authority.as_ref(), &mut sink) {
+                    match serve_connection_confidential(
+                        stream,
+                        READ_TIMEOUT,
+                        &noise_key,
+                        authority.as_ref(),
+                        &mut sink,
+                    ) {
                         Ok(()) => {}
                         Err(e) => eprintln!("aip-collector: session with {peer} ended: {e}"),
                     }

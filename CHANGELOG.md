@@ -49,6 +49,50 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R9a: a link a capture cannot read)
+- **`aip_transport::confidential` — the authenticated channel inside a Noise
+  session.** The Phase 1 channel authenticated which host may submit and
+  made every frame unforgeable; it sent the bytes in the clear. A batch
+  carries no payload content, but its metadata — probe identity, pids,
+  executable paths, socket endpoints, timestamps — is a map of what ran
+  where, and under DPDP that map is not for a network observer. The
+  authenticated protocol now runs unchanged inside
+  `Noise_NK_25519_ChaChaPoly_SHA256`: challenge, probe id, transport key
+  and every frame are encrypted.
+- **Why NK, and why a third key.** The probe pins the collector's static
+  public key, so an active attacker without the collector's static private
+  key cannot complete the handshake; forward secrecy comes from the
+  ephemeral step. The probe is anonymous at this layer on purpose: its
+  identity is the Ed25519 challenge inside the tunnel, where it is also
+  confidential. The collector's Noise key is separate from its Ed25519
+  evidence key and from any probe's transport-auth key — a signing key is
+  not a Diffie–Hellman key, and the Ed25519→X25519 map is exactly the kind
+  of cleverness custody should not rest on. A loaded key file is **proven
+  to be a pair** by a local handshake before use, so swapped halves are
+  refused at load rather than found as every probe failing to connect.
+- **The acceptance test is a capture.** A tap on the probe's socket records
+  the whole session; the recording contains neither the probe id, nor its
+  public key in any encoding, nor a wire field name, nor the batch. A
+  plaintext control runs the same search and finds all of them — and
+  caught a first draft of the test that searched for strings the wire never
+  carries byte-for-byte, which is what a control is for. Also: a wrong
+  pinned key fails before any authentication; a tampered message fails its
+  tag and **poisons the stream** so nothing after it is delivered; a 4 MiB
+  payload crosses ~65 messages intact; a clean close is EOF; two sessions
+  never share ciphertext. 12 unit + 7 integration tests.
+- **Both daemons use it unconditionally.** `aip-probe` requires
+  `AIP_PROBE_COLLECTOR_NOISE_PUBKEY` and refuses to start without it;
+  `aip-collector` requires `AIP_COLLECTOR_NOISE_KEY_PATH`, generates the key
+  `0600` on first start and prints the public half at every start. There
+  is no plaintext mode in either daemon; the plaintext adapters remain in
+  the library for tests and are named as such.
+- **Dependencies.** `snow` pinned exactly, default features off — its `std`
+  feature drags in `ring` through a legacy forward — on the curve25519,
+  ChaCha20-Poly1305 and SHA-256 crates the workspace already carries. No
+  TLS stack, no certificate authority to run.
+- Ingress limits and the reference proxy configuration for the *service*
+  (matrix E6) follow as R9b.
+
 ### Added (RBI requirements coverage — R16: the key that never leaves the module)
 - **A PKCS#11 `Custodian` (`aip-standalone/aip-hsm`).** With the wrapped-file
   custodian the signing key is decrypted into process memory for the life

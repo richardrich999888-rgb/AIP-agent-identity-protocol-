@@ -50,7 +50,14 @@ demonstrator with extra steps, and its guarantee does not hold.
 2. Stand up the evidence API (`deploy/docker/`) with TLS terminated at the
    institution's ingress proxy (plan B1) — the service speaks plain HTTP.
 3. Build and deploy the Phase-1 daemons (plan §7) — probe on agent hosts,
-   collector on its own host, authenticated transport between them.
+   collector on its own host, authenticated **and confidential** transport
+   between them (R9). Start the collector first: it generates its Noise
+   static key (`AIP_COLLECTOR_NOISE_KEY_PATH`, `0600`) and prints the public
+   half at every start. Pin that value in each probe's
+   `AIP_PROBE_COLLECTOR_NOISE_PUBKEY`; a probe refuses to start without it,
+   and a probe pinning the wrong key fails the handshake before it is ever
+   asked to authenticate. Then add each probe's transport public key (printed
+   at its first start) to the collector's allow-list.
 4. Run the RED suite on the pilot's own hardware (plan §3) and record results
    in `docs/security/ADVERSARIAL_RESULTS.md`. A pilot without this has not
    established the honesty property.

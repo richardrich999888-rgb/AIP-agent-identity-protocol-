@@ -51,6 +51,9 @@ impl SensorConfig {
 pub struct Config {
     pub probe_id: String,
     pub collector_endpoint: String,
+    /// The collector's Noise static public key, pinned (R9). Without it the
+    /// probe does not start: there is no plaintext mode in the daemon.
+    pub collector_noise_pubkey: [u8; 32],
     pub key_path: PathBuf,
     pub sensors: SensorConfig,
     pub batch_interval_ms: u64,
@@ -61,6 +64,19 @@ fn require(key: &str) -> Result<String, String> {
         Ok(v) if !v.is_empty() => Ok(v),
         _ => Err(format!("{key} is required and must be non-empty")),
     }
+}
+
+/// Exactly 32 bytes of hex, or a named error. The collector prints this value
+/// at every start; a truncated paste is the likely failure and is named.
+fn parse_pubkey_hex(key: &str, value: &str) -> Result<[u8; 32], String> {
+    let bytes = hex::decode(value.trim()).map_err(|e| format!("{key}: not hex: {e}"))?;
+    bytes.as_slice().try_into().map_err(|_| {
+        format!(
+            "{key}: expected 32 bytes (64 hex digits), got {} bytes; copy the full value the \
+             collector prints at start",
+            bytes.len()
+        )
+    })
 }
 
 impl Config {
@@ -75,6 +91,10 @@ impl Config {
         Ok(Self {
             probe_id: require("AIP_PROBE_ID")?,
             collector_endpoint: require("AIP_PROBE_COLLECTOR_ENDPOINT")?,
+            collector_noise_pubkey: parse_pubkey_hex(
+                "AIP_PROBE_COLLECTOR_NOISE_PUBKEY",
+                &require("AIP_PROBE_COLLECTOR_NOISE_PUBKEY")?,
+            )?,
             key_path: PathBuf::from(require("AIP_PROBE_KEY_PATH")?),
             sensors: SensorConfig::parse(&require("AIP_PROBE_SENSORS")?)?,
             batch_interval_ms,
@@ -85,6 +105,16 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_pinned_collector_key_must_be_exactly_32_bytes_of_hex() {
+        let ok = "ab".repeat(32);
+        assert_eq!(parse_pubkey_hex("K", &ok).unwrap(), [0xab; 32]);
+        assert!(parse_pubkey_hex("K", &"ab".repeat(31))
+            .unwrap_err()
+            .contains("got 31 bytes"));
+        assert!(parse_pubkey_hex("K", "zz").unwrap_err().contains("not hex"));
+    }
 
     #[test]
     fn parses_supported_sensors() {

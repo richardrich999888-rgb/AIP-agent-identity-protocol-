@@ -16,8 +16,8 @@ use aip_observe::{
     ContinuityPolicy, ObservationBatch, ObserverTrustAnchors, ProcfsProbe, Started,
 };
 use aip_transport::{
-    serve_connection, BatchAckData, BatchSink, ProbeAuthority, ServerError, SinkError,
-    TransportClient,
+    serve_connection, serve_connection_confidential, BatchAckData, BatchSink, ProbeAuthority,
+    ServerError, SinkError, StaticKeypair, TransportClient,
 };
 
 use aip_collector::authority::AllowList;
@@ -160,6 +160,84 @@ fn a_shipped_batch_is_attested_off_host_and_verifies_offline() {
         "the off-host-signed batch must verify offline"
     );
     assert_eq!(batches[0].observer_id, OBSERVER_ID);
+}
+
+/// The same round trip through the confidential session the daemons use
+/// (R9): the probe pins the collector's Noise static key, the authenticated
+/// handshake runs inside it, and the attested batch still verifies offline.
+/// A probe pinning a different key never reaches authentication.
+#[test]
+fn a_batch_shipped_through_the_confidential_session_is_attested_and_verifies() {
+    let collector = build_collector("confidential");
+    let noise = Arc::new(StaticKeypair::generate().unwrap());
+    let probe_kp = generate_ed25519_keypair();
+    let probe_pub: [u8; 32] = probe_kp.public_key.as_slice().try_into().unwrap();
+    let (allow, _allow_dir) = allow_list(PROBE_ID, &probe_pub);
+
+    let captured = Arc::new(Mutex::new(Vec::new()));
+    let mut sink = CapturingSink {
+        runtime: collector.runtime.clone(),
+        captured: captured.clone(),
+    };
+
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let addr = listener.local_addr().unwrap();
+    let noise_server = noise.clone();
+    let server = thread::spawn(move || -> Vec<Result<(), ServerError>> {
+        let mut outcomes = Vec::new();
+        for _ in 0..2 {
+            let (stream, _) = listener.accept().unwrap();
+            outcomes.push(serve_connection_confidential(
+                stream,
+                TIMEOUT,
+                &noise_server,
+                &allow,
+                &mut sink,
+            ));
+        }
+        outcomes
+    });
+
+    // 1. A probe pinning the wrong key: refused at the handshake, before the
+    //    challenge, so nothing is attested.
+    let impostor = StaticKeypair::generate().unwrap();
+    let wrong = TransportClient::connect_confidential(
+        addr,
+        impostor.public(),
+        PROBE_ID,
+        &probe_kp.private_key,
+        &probe_pub,
+        TIMEOUT,
+    );
+    assert!(wrong.is_err(), "a wrong pinned key must not connect");
+
+    // 2. The real probe.
+    let mut client = TransportClient::connect_confidential(
+        addr,
+        noise.public(),
+        PROBE_ID,
+        &probe_kp.private_key,
+        &probe_pub,
+        TIMEOUT,
+    )
+    .unwrap();
+    let ack = client.send_batch(&a_batch(PROBE_ID)).unwrap();
+    assert_eq!(ack.seq, 1);
+    drop(client);
+
+    let outcomes = server.join().unwrap();
+    assert!(
+        matches!(outcomes[0], Err(ServerError::Confidential(_))),
+        "{:?}",
+        outcomes[0]
+    );
+    outcomes[1].as_ref().unwrap();
+
+    let batches = captured.lock().unwrap();
+    assert_eq!(batches.len(), 1, "only the real probe's batch is attested");
+    let anchors =
+        ObserverTrustAnchors::new().trust(OBSERVER_ID, KEY_VERSION, &collector.public_key);
+    assert_eq!(verify_attested_batch(&batches[0], &anchors), Ok(()));
 }
 
 #[test]

@@ -12,6 +12,21 @@ serde_json = "1.0"
 # OS CSPRNG for the per-session challenge nonce only. Pinned to the workspace
 # version already in use elsewhere.
 rand = "0.8"
+# Confidentiality (R9): the Noise Protocol Framework, pattern
+# Noise_NK_25519_ChaChaPoly_SHA256, wrapped around the authenticated channel.
+# Pinned exactly. Default features are OFF because snow's `std` feature pulls
+# in `ring` through a legacy `ring/std` forward; the RustCrypto resolver below
+# builds pure Rust on primitives the workspace already carries (curve25519,
+# chacha20poly1305, sha2). `use-getrandom` is the OS CSPRNG for the ephemeral
+# handshake key, which must be fresh per session.
+snow = { version = "=0.10.0", default-features = false, features = [
+    "default-resolver",
+    "use-chacha20poly1305",
+    "use-sha2",
+    "use-curve25519",
+    "use-getrandom",
+] }
+zeroize = "1.8"
 
 [dev-dependencies]
 serde_json = "1.0"

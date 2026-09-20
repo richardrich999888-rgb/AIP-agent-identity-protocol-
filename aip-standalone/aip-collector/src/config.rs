@@ -18,6 +18,8 @@ pub struct Config {
     pub state_dir: PathBuf,
     pub listen: String,
     pub probes_path: PathBuf,
+    /// The Noise static keypair file (R9). Generated 0600 on first start.
+    pub noise_key_path: PathBuf,
 }
 
 fn require(key: &str) -> Result<String, String> {
@@ -87,6 +89,7 @@ impl Config {
             state_dir: PathBuf::from(require("AIP_COLLECTOR_STATE_DIR")?),
             listen: require("AIP_COLLECTOR_LISTEN")?,
             probes_path: PathBuf::from(require("AIP_COLLECTOR_PROBES_PATH")?),
+            noise_key_path: PathBuf::from(require("AIP_COLLECTOR_NOISE_KEY_PATH")?),
         })
     }
 }
