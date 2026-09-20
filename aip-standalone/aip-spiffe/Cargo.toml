@@ -1,0 +1,24 @@
+[package]
+name = "aip-spiffe"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Compare SPIRE's workload identity assertion against AIP's independently measured execution binding for the same process instance"
+
+[[bin]]
+name = "aip-spiffe-check"
+path = "src/bin/aip-spiffe-check.rs"
+
+[dependencies]
+aip-observe = { path = "../aip-observe" }
+aip-observe-verify = { path = "../aip-observe-verify" }
+# Reused for the signed-math wall-clock conversion. That arithmetic is already
+# written and tested there; duplicating it would create a second place for the
+# u64-underflow bug it exists to prevent.
+aip-corroborate = { path = "../aip-corroborate" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+aip-crypto = { path = "../aip-crypto" }
+aip-types = { path = "../aip-types" }
