@@ -54,7 +54,7 @@ from reportlab.platypus import (
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = REPO / "docs" / "pilot" / "SNIFFER_DOG_TECHNICAL_BRIEF_RBI.pdf"
 
-REVISION = "Revision 5"
+REVISION = "Revision 6"
 PERIOD = "September 2026"
 RUNNING = (
     "VANIAN Technologies  |  Sniffer Dog / AIP: Technical Brief  |  "
@@ -157,6 +157,27 @@ def content(st, width):
         "never converted into an accusation.</b> When the observer was not watching, or "
         "was interfered with, or no gateway receipt exists, the system says so and stops. "
         "It does not guess."))
+    s.append(P(
+        "<b>What changed since Revision 5.</b> The remaining phases of the hostile-validation "
+        "programme have been executed, and four things moved. <b>First, the agent on the other "
+        "end of the observer is no longer one of ours.</b> An unmodified third-party agent "
+        "framework -- LangGraph 1.2.11 -- ran a graph whose node spawned a child process that "
+        "wrote a file and opened a TCP connection; 167 process exec and fork events from that "
+        "run reached the collector-signed archive and were verified offline from the published "
+        "key alone. <b>Second, the tool boundary of section 6 now ships a working reference "
+        "gateway rather than a format.</b> It countersigns every MCP <i>tools/call</i> with a "
+        "gateway-signed receipt over its own recomputation of the argument commitment, and a "
+        "mis-parameterised call is caught against the decision point&#8217;s sealed digest "
+        "<i>with the agent&#8217;s own account absent from the evidence</i>. <b>Third, "
+        "delegation-chain attribution is demonstrated on that same real evidence</b>: the "
+        "parent-to-child chain is derived only after the archive re-verifies under the "
+        "published anchor, and the engine is tested to return nothing -- never a guessed "
+        "parent -- when the fork record is missing. <b>Fourth, coverage is now stated against "
+        "an external corpus we did not write</b>: Atomic Red Team, mapped to MITRE ATT&amp;CK "
+        "and published as a Navigator layer in which <b>6 of 20 techniques are marked not "
+        "covered</b>. Subsection 10a is new and states what independent corroboration must "
+        "still be added before TRL 6 is claimed. <b>All of it ran on a development virtual "
+        "machine; B8, the run on the institution&#8217;s own hardware, is unchanged.</b>"))
     s.append(P(
         "<b>What changed since Revision 4.</b> The Phase 1 exit gate is met end to end on a "
         "development host. Its third clause -- <i>the verifier accepts the batch offline</i> "
@@ -602,34 +623,46 @@ def content(st, width):
         "Second, most of the suite constructs its inputs in one process; the smaller set that "
         "runs against a real kernel, real separate processes and real system calls is marked "
         "as such. Third, and most important: <b>nothing in this repository has run on a "
-        "regulated entity's hardware, and nothing in it has observed a real agent.</b> The "
+        "regulated entity's hardware, and no agent performing an institution's real work has "
+        "been observed.</b> Since Revision 5 the framework on the other end has been real and "
+        "not ours -- an unmodified LangGraph 1.2.11 graph -- but the task it carried out was "
+        "written in order to be observed, and the load was not representative. The "
         "strongest rung reached anywhere is a live demonstration on a development virtual "
         "machine. A four-rung scoring of every property this system asserts, class by class "
         "against the failure modes in the risk map, is published in the repository as "
         "WHAT_THE_TESTS_PROVE.md, and it reaches the same conclusion this paragraph does."))
     s.append(P(
         "<b>Maturity: the software accountability core is at TRL 5 — validated in a relevant "
-        "environment — and approaching TRL 6.</b> We state it differentiated rather than as a "
+        "environment — and now at the 5/6 boundary.</b> We state it differentiated rather than as a "
         "single number, because a single number for this programme would be wrong in one "
         "direction or the other. The core that this brief describes — the observer, the "
         "off-host collector, the reconciler and the evidence chain — has been validated "
         "against a real Linux kernel, with an independently built external observer, under "
         "adversarial scenarios including a reproduced attack on the observation path itself "
-        "and a live attack against the two real daemons. A real Linux host running real "
+        "and a live attack against the two real daemons; and, since Revision 5, against an "
+        "unmodified third-party agent framework and an external attack corpus. "
+        "A real Linux host running real "
         "workloads is a relevant environment for <i>software</i> autonomy, which is what "
         "TRL 5 requires. The same assessment puts our physical-autonomy profiles (UAS, "
         "robotics) at TRL 4, and physical autonomous-system accountability at TRL 2–3 until a "
         "machine is actually in the loop; none of that is in scope for this brief and we do "
         "not carry its readiness into this one."))
     s.append(P(
-        "<b>We are not claiming TRL 6, and the gate is specific.</b> TRL 6 requires a "
-        "system or subsystem model demonstrated in a relevant environment, and our own "
-        "assessment names what is missing: a <i>non-synthetic agent under representative "
-        "load</i>. Every agent this system has observed so far was written by us for the "
-        "purpose of being observed. Until a real agent doing real work in a regulated entity "
-        "is on the other end of it, the honest number is 5 — and that single missing "
-        "condition is, precisely, what the pilot in section 12 exists to supply. It is the "
-        "same gap as blocker B8 expressed in readiness terms rather than deployment terms."))
+        "<b>We are not claiming TRL 6, and the two remaining conditions are specific.</b> "
+        "TRL 6 requires a fully functional prototype demonstrated in a relevant environment "
+        "and <i>partially integrated with existing systems</i>. The prototype exists, the "
+        "environment is relevant, and integration with existing systems is no longer absent: "
+        "an unmodified third-party agent framework, the MCP tool protocol, a PKCS#11 module, "
+        "PostgreSQL and the Linux audit subsystem are all on the integrated side of that "
+        "line. Two conditions are not met. <b>(i) A non-synthetic agent under representative "
+        "load.</b> The framework on the other end is now real; the work it performs is not, "
+        "and the load is not representative. That is blocker B8 expressed in readiness terms "
+        "rather than deployment terms, and it is precisely what the pilot in section 12 "
+        "exists to supply. <b>(ii) Independent corroboration of our observations by a runtime "
+        "observer we did not build.</b> Every sensor that has ever agreed with us is ours; "
+        "subsection 10a names the specific open-source systems that would end that and the "
+        "order in which we propose to add them. Until both conditions hold the honest number "
+        "is 5. We would rather be asked to defend a 5 we can evidence than a 6 we cannot."))
     for b in [
         "<b>Foreign eBPF tracepoint gate</b> attached to each perf sensor (an attacker with "
         "CAP_BPF): the observer signs an integrity-unknown state and the reconciler answers "
@@ -762,12 +795,80 @@ def content(st, width):
         "<b>Kernel-dependent tests in continuous integration.</b> CI runs unprivileged and the "
         "kernel sensor and seccomp tests skip there. Evidence for them is developer runs on "
         "capable hosts and the recorded attack ledger, not a green CI badge.",
-        "<b>Gateway integration.</b> The receipt format and its verification exist; the "
-        "institution's API or MCP gateway must be extended to compute and sign receipts. That "
-        "is integration work at the institution, not a library the pilot ships.",
+        "<b>Gateway integration at the institution.</b> Since Revision 5 a working reference "
+        "MCP gateway ships and signs receipts, with an adapter that calls it rather than "
+        "reimplementing the cryptography. What remains is extending the <i>institution's own</i> "
+        "API or MCP gateway to do the same. That is still integration work at the institution; "
+        "what has changed is that there is now a reference implementation to integrate against "
+        "and to test a candidate gateway's receipts for equality with.",
     ]:
         s.append(B(b))
 
+    s.append(Paragraph(
+        "10a. Independent corroboration: what is still missing before TRL 6 is claimed",
+        st["h2"]))
+    s.append(P(
+        "There is one criticism of everything above that we cannot answer with more of our "
+        "own tests, and we would rather raise it than be asked it. <b>Every sensor that has "
+        "ever agreed with this system is a sensor we built.</b> The cross-sensor divergence "
+        "check of section 9 is real and it is load-bearing, but it compares two of "
+        "<i>our</i> sensors against each other. An assessor is entitled to ask whether a "
+        "runtime observer built by someone else, watching the same kernel at the same moment, "
+        "records what we say it records. Until that question has an answer, the system is "
+        "internally consistent rather than externally corroborated, and internal consistency "
+        "is not what an Assurance-pillar control is for."))
+    s.append(P(
+        "We propose to close this with mature, widely deployed open-source systems, in the "
+        "order below, before claiming TRL 6. Each is chosen because it is independently "
+        "built, independently governed, and already accepted in the environments a regulated "
+        "entity operates. <b>Where an independent observer disagrees with ours, the "
+        "disagreement is reported, not suppressed</b> — which is the same rule the rest of "
+        "this system runs on."))
+    for b in [
+        "<b>1. An independent kernel observer: Falco or Tetragon.</b> Falco is the first "
+        "runtime-security project to graduate under the CNCF; Tetragon comes from the Cilium "
+        "team. Both watch the same kernel events by the same underlying mechanism and neither "
+        "is ours. The deliverable is a run in which our attested archive and an unmodified "
+        "third-party observer are compared event for event over the same window, with "
+        "agreement, disagreement and each observer's own blind spots stated. This is the "
+        "single strongest item on the list: it converts <i>trust our sensor</i> into "
+        "<i>two independently built sensors agree, and here is what happens when they do not</i>.",
+        "<b>2. Workload identity: SPIFFE/SPIRE.</b> SPIRE is the CNCF-graduated standard for "
+        "answering &#8220;which process is this?&#8221;, and it answers it, as we do, by asking "
+        "the kernel. Cross-checking our execution binding against SPIRE's attestation of the "
+        "same process is a direct, external check on the identity claim the whole system "
+        "rests on. We note, without asserting it as our own result, that a weakness in "
+        "SPIRE's workload attestation was publicly reported in September 2026, in which "
+        "forged container metadata could induce it to issue an identity belonging to a "
+        "different workload on the same host. Our binding treats container placement as "
+        "<i>context</i> and binds identity to the executable's content hash under a pidfd "
+        "anchor, so the same manipulation is designed to fail against us. We propose to "
+        "<i>demonstrate</i> that side by side rather than claim it in a document.",
+        "<b>3. A public transparency log: Sigstore Rekor.</b> An append-only, tamper-evident "
+        "log operated by a project with no relationship to VANIAN or to the entity. "
+        "Publishing the evidence chain's head into it gives the chain a timestamped existence "
+        "record that a third party can check without either of us. This complements, and does "
+        "not replace, the anchor into an RE-controlled second system that already exists "
+        "(blocker item R11): one defends against us, the other against the entity's own "
+        "infrastructure being the single place the record lives.",
+        "<b>4. The Linux audit subsystem: auditd.</b> Begun already and carried in the "
+        "repository as an external cross-check. It is the lowest-ceiling item technically and "
+        "the highest-value item procedurally, because it is the record an entity's own "
+        "compliance function already knows how to read.",
+        "<b>5. OpenTelemetry.</b> Lowest priority and stated for completeness: correlation of "
+        "our verdicts with the telemetry an entity already collects, so the evidence lands "
+        "where its operators already look.",
+    ]:
+        s.append(B(b))
+    s.append(P(
+        "<b>What this would and would not establish.</b> It would establish that our "
+        "observations survive comparison with observers we did not write, which is the "
+        "missing half of condition (ii) above and, with the pilot supplying condition (i), "
+        "what we would need before writing TRL 6 in a document of this kind. <b>It would not "
+        "make the host kernel trustworthy.</b> Two differently-built observers raise the cost "
+        "of a consistent lie; they do not eliminate it, because a sufficiently privileged "
+        "attacker on the observed host can in principle deceive both. That limit is the same "
+        "one stated in sections 9 and 11 and it is not narrowed by anything on this list."))
     s.append(Paragraph("Demonstrator versus pilot deployment", st["h2"]))
     s.append(P(
         "Two configurations exist and the difference matters for what a pilot can conclude. "

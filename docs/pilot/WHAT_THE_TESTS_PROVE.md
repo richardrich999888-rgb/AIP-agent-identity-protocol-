@@ -26,7 +26,13 @@ burden of proof on the bank, FREE-AI's AI inventory and incident reporting —
 and it is not the same as preventing an agent from doing harm. Two further
 limits are structural and no amount of additional testing inside this
 repository removes them: **no test here has ever run on a regulated entity's
-hardware, and no test here has ever observed a real agent.**
+hardware, and no test here has observed an agent doing an institution's real
+work.** Since the previous revision the *framework* on the other end has been
+real and not ours — an unmodified LangGraph 1.2.11 graph, observed end to end,
+with 167 process exec/fork events in the collector-signed archive and verified
+offline — but the task it carried out was written in order to be observed and
+the load was not representative. That narrows the second limit; it does not
+remove it.
 
 ---
 
@@ -36,7 +42,13 @@ Three independent reasons, in order of how badly each would mislead a
 supervisor.
 
 **1.1 The tests were written by the party being tested.** Every attack in
-`docs/security/ADVERSARIAL_RESULTS.md` is an attack we thought of. A suite in
+`docs/security/ADVERSARIAL_RESULTS.md` is an attack we thought of — **with one
+exception added since**: the Phase 4 section states the observer's coverage
+against *Atomic Red Team*, mapped to MITRE ATT&CK, a corpus we did not write.
+That section is a **coverage map, not a run log** — it says which techniques
+the observer's sensors record, not that each technique was executed here — and
+it marks 6 of 20 techniques **not covered**. It removes the "you only tested
+what you invented" objection for *scope*; it does not remove it for *outcome*. A suite in
 which the author picks both the property and the adversary cannot establish
 that the property set is complete; it establishes only that the properties
 chosen hold against the adversaries chosen. This is why blocker **B2** — an

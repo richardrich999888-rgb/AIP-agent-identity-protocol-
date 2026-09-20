@@ -29,6 +29,20 @@ overstate its own readiness to its regulator -- it is the single claim the
 reader is most likely to test -- and it cannot afford to understate it
 either, because a number that does not match its own repository is the same
 defect pointing the other way.
+
+Revision 6 update (2026-09-20)
+------------------------------
+Two pieces of evidence were added and the number did NOT move. The observer
+has now been run against an unmodified third-party agent framework (LangGraph
+1.2.11) rather than an agent harness of our own, and its coverage is stated
+against an external corpus (Atomic Red Team / MITRE ATT&CK) in which 6 of 20
+techniques are marked not covered. That narrows the gate but does not close
+it, so this note now names **two** remaining conditions rather than one:
+(i) a non-synthetic agent under representative load -- unchanged, and the
+thing a pilot supplies; and (ii) independent corroboration by a runtime
+observer we did not build, which is ours to deliver and is scheduled
+(subsection 10a of the brief). The rule in the paragraph above is unchanged:
+a vendor selling independent verification cannot round its own readiness up.
 """
 
 from __future__ import annotations
@@ -188,17 +202,25 @@ def build(out: Path) -> None:
     s.append(H("4. Maturity, stated plainly"))
     tbl = Table([[Paragraph(
         "<b>Maturity: the software accountability core is at TRL 5 — validated in a relevant "
-        "environment — and approaching TRL 6.</b> We state it by component rather than as one "
-        "number. The core described in the attached brief — the observer, the off-host "
+        "environment — and now at the 5/6 boundary.</b> We state it by component rather than as "
+        "one number. The core described in the attached brief — the observer, the off-host "
         "collector, the reconciler and the evidence chain — has been validated against a real "
         "Linux kernel with an independently built external observer, under adversarial "
         "scenarios including a live attack on the observation path itself, with the raw output "
-        "recorded. Our physical-autonomy profiles are assessed lower and are not in scope "
-        "here. <b>We are not claiming TRL 6.</b> Our own assessment names the one missing "
-        "condition: a non-synthetic agent under representative load. Every agent this system "
-        "has observed was written by us to be observed. <b>A real agent, doing real work, in a "
-        "regulated entity is the single thing standing between this and TRL 6 — and it is "
-        "exactly what we are asking the Department to help make possible.</b>",
+        "recorded. Since the previous revision it has also been run against an <b>unmodified "
+        "third-party agent framework</b> rather than an agent harness of our own, and its "
+        "coverage has been stated against an <b>external attack corpus we did not write</b> "
+        "(Atomic Red Team, mapped to MITRE ATT&amp;CK), in which 6 of 20 techniques are marked "
+        "<b>not covered</b>. Our physical-autonomy profiles are assessed lower and are not in "
+        "scope here. <b>We are still not claiming TRL 6, and we would rather tell the "
+        "Department why than round the number up.</b> Two conditions remain. <b>First</b>, a "
+        "non-synthetic agent under representative load: the framework on the other end is now "
+        "real, but the work it does is not, and that is precisely what a pilot supplies. "
+        "<b>Second</b>, independent corroboration — every sensor that has so far agreed with "
+        "ours is one we built, and we intend to place a third-party runtime observer alongside "
+        "ours and publish where the two agree and where they do not, before the number moves. "
+        "<b>The first of those two conditions is what we are asking the Department to help "
+        "make possible; the second is ours to deliver and is scheduled.</b>",
         st["p"])]], colWidths=[fw])
     tbl.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), BOX),

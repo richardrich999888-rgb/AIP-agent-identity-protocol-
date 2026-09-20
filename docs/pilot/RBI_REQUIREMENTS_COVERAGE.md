@@ -23,9 +23,12 @@
 > — and the three structural limits no further testing inside this repository
 > removes — is in `WHAT_THE_TESTS_PROVE.md` beside this file. Read that before
 > quoting any row here to a supervisor. Its short form: nothing in this
-> repository has run on a regulated entity's hardware, nothing here has
-> observed a real agent, and every attack in the ledger is an attack we
-> thought of.
+> repository has run on a regulated entity's hardware; no agent doing an
+> institution's real work has been observed (the *framework* is now real and
+> third-party, the workload is not); and every attack in the ledger is one we
+> thought of, except the Phase 4 coverage map, which is stated against an
+> external corpus (Atomic Red Team / MITRE ATT&CK) and marks 6 of 20
+> techniques not covered.
 
 > **PDF.** `RBI_REQUIREMENTS_COVERAGE.pdf` beside this file is a **build
 > product of this markdown**, not a separately maintained document. Rebuild it
