@@ -14,9 +14,9 @@ use aip_authorize::{
 };
 use aip_observe::{
     verify_attested_batch, verify_attested_batch_independent_of_agent, verify_signed_health,
-    AttestedBatch, CoverageWindow, KernelLifecycleEvent, ObservationAvailability,
-    ObservedExecution, ObserverState, ProbePolicy, SocketEndpoint, SocketProtocol, SourceMechanism,
-    UnavailableReason, VerifyError,
+    AttestedBatch, CoverageWindow, KernelLifecycleEvent, KernelLifecycleKind,
+    ObservationAvailability, ObservedExecution, ObserverState, ProbePolicy, SocketEndpoint,
+    SocketProtocol, SourceMechanism, UnavailableReason, VerifyError,
 };
 
 use crate::action::{
@@ -1114,6 +1114,35 @@ fn recompute_coverage(
         .any(SourceMechanism::covers_process_lifecycle);
     if !lifecycle_covered {
         return Err(ReasonCode::CoverageNotKernelPushed);
+    }
+    // An execution the observer saw and could not identify is not a hole in
+    // the *window* — the window is covered, the loss counter may be a counted
+    // zero — but it is a hole in **attribution**, and the verdict this
+    // function gates is precisely a statement that nothing happened.
+    //
+    // `PHANTOM_CLAIM` is reached from the absence of any reference to the
+    // expectation. An unbound process event inside the window is a candidate
+    // that absence cannot exclude: the authorised program may have been that
+    // very event, observed and unmeasurable. Drawing "it never happened" from
+    // the observer's own blind spot would be a false accusation, so the
+    // coverage claim is refused and the verdict falls back to CANNOT_PROVE.
+    //
+    // Only *process* events count here. An unbound socket event is a real gap
+    // of a different kind and bears on a different verdict; it cannot be the
+    // missing execution this one is about.
+    if used.iter().any(|b| {
+        b.batch.kernel_events.iter().any(|e| {
+            e.bound.is_none()
+                && matches!(
+                    e.kind,
+                    KernelLifecycleKind::ProcessExec { .. }
+                        | KernelLifecycleKind::ProcessSpawn { .. }
+                        | KernelLifecycleKind::Exec { .. }
+                        | KernelLifecycleKind::Fork { .. }
+                )
+        })
+    }) {
+        return Err(ReasonCode::CoverageUnboundProcessEvent);
     }
     Ok(())
 }

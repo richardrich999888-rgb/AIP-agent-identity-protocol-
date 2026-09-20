@@ -213,6 +213,22 @@ impl Observer {
             .unwrap()
     }
 
+    /// A batch that also carries raw kernel events, so a test can put an
+    /// **unbound** process event inside a perfectly covered window — the
+    /// case where the observer saw an execution and could not identify it.
+    fn batch_with_kernel(
+        &mut self,
+        id: u8,
+        from: u64,
+        to: u64,
+        obs: Vec<ObservedExecution>,
+        kernel: Vec<KernelLifecycleEvent>,
+    ) -> AttestedBatch {
+        let mut b = self.probe.batch([id; 16], from, to, obs);
+        b.kernel_events = kernel;
+        self.signer.attest(b).unwrap()
+    }
+
     fn health(&self, at: u64) -> SignedSensorHealth {
         self.signer.health(at).unwrap()
     }
@@ -1971,5 +1987,133 @@ fn t30_availability_on_the_observation_path_is_computed_from_the_health_record()
         !r.availability.is_covered(),
         "availability must follow the health record, not a constant: {:?}",
         r.availability
+    );
+}
+
+// ═══ 3h. The ghost the coverage predicate used to step over ═══
+
+/// An execution the observer **saw and could not bind** is not a dropped
+/// event: the loss counter is still a counted zero, the window is still
+/// gap-free, the probe still ran once. It is a hole in *attribution* rather
+/// than in *coverage*, and until this test it was invisible to the verdict
+/// path.
+///
+/// That matters for exactly one verdict. `PhantomClaim` says *the authorised
+/// execution never happened*, and it is derived from the absence of any
+/// reference to the expectation. An unattributable execution inside the same
+/// window is a candidate that absence cannot rule out — the authorised
+/// program may have been that very event, witnessed and unmeasurable. Drawing
+/// "it never happened" over it would be a false accusation manufactured from
+/// the observer's own blind spot.
+///
+/// This is not hypothetical arithmetic. On the sealed Phase-1 agent run,
+/// **84 of 105 `execve` events could not be bound** — short-lived children
+/// exiting before a pidfd-anchored measurement completes. A host of that
+/// shape is where this verdict would have been wrong.
+fn unbound_exec(pid: u32, ts_ns: u64) -> KernelLifecycleEvent {
+    KernelLifecycleEvent {
+        version: OBSERVE_PROTOCOL_VERSION,
+        probe_id: PROBE_ID.into(),
+        mechanism: SourceMechanism::SchedTracepoint,
+        kind: KernelLifecycleKind::ProcessExec {
+            pid,
+            old_pid: pid,
+            filename: "/usr/bin/something".into(),
+        },
+        cpu: 0,
+        kernel_timestamp_ns: ts_ns,
+        probe_seq: 1,
+        // The whole point: seen, not measured.
+        bound: None,
+        attribution: AgentAttribution::NotEstablished,
+        claimed_decision_id: None,
+    }
+}
+
+#[test]
+fn t03h_an_unbound_process_event_in_the_window_forbids_phantom_claim() {
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let at = at_of(&x);
+    let filler = o.present(other_process(), None, x.now + 10);
+
+    // Exactly t03's setup — which reaches PhantomClaim — except that the
+    // covering batch also carries one execution the observer could not bind.
+    let b1 = o.batch(1, x.now - 2_000, x.now - 1_000, vec![]);
+    let b2 = o.batch_with_kernel(
+        2,
+        x.now - 1_000,
+        at,
+        vec![filler],
+        vec![unbound_exec(4_242, 1_000)],
+    );
+    let ev = o.evidence(vec![b1, b2], at);
+
+    // Coverage itself is impeccable by the predicate's own standards:
+    // kernel-pushed and gap-free. `t03i` proves exactly that, by reaching
+    // PhantomClaim from the identical setup with the unbound event removed —
+    // so the refusal below is caused by the unattributable execution and by
+    // nothing else.
+    assert!(ev.health.covered_by_kernel_pushed_source());
+
+    let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at));
+    assert_eq!(
+        r.result,
+        ReconciliationResult::CannotProve,
+        "an unattributable execution in the window must not become a phantom claim"
+    );
+    assert_eq!(r.reason, ReasonCode::CoverageUnboundProcessEvent);
+}
+
+#[test]
+fn t03i_the_same_window_without_the_unbound_event_still_reaches_phantom_claim() {
+    // The companion that makes t03h non-vacuous. If the predicate had simply
+    // been broken, this would fail too and the tightening would be a denial
+    // of service on the system's central verdict rather than a correction.
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let at = at_of(&x);
+    let filler = o.present(other_process(), None, x.now + 10);
+
+    let b1 = o.batch(1, x.now - 2_000, x.now - 1_000, vec![]);
+    let b2 = o.batch_with_kernel(2, x.now - 1_000, at, vec![filler], vec![]);
+    let ev = o.evidence(vec![b1, b2], at);
+
+    let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at));
+    assert_eq!(r.result, ReconciliationResult::PhantomClaim);
+    assert_eq!(r.reason, ReasonCode::KernelCoverageWithNoReference);
+}
+
+#[test]
+fn t03j_a_bound_process_event_does_not_block_the_verdict() {
+    // The rule is about *unattributable* executions, not about kernel events
+    // being present at all. An execution the observer measured is accounted
+    // for; it narrows nothing.
+    let x = expected();
+    let mut o = Observer::new(true, true);
+    let at = at_of(&x);
+    let filler = o.present(other_process(), None, x.now + 10);
+
+    let mut bound_event = unbound_exec(4_242, 1_000);
+    bound_event.bound = Some(ObservedProcess {
+        process: aip_types::ProcessInstance {
+            pid: 4_242,
+            pid_start_time_ticks: 900,
+            boot_id: [0x11; 16],
+        },
+        exe_content_sha256: sha256(b"an unrelated program"),
+        exe_path: "/usr/bin/something".into(),
+        container: None,
+    });
+
+    let b1 = o.batch(1, x.now - 2_000, x.now - 1_000, vec![]);
+    let b2 = o.batch_with_kernel(2, x.now - 1_000, at, vec![filler], vec![bound_event]);
+    let ev = o.evidence(vec![b1, b2], at);
+
+    let r = reconcile_expectation(&x.ee, Some(&ev), &ctx(&x, &o, at));
+    assert_eq!(
+        r.result,
+        ReconciliationResult::PhantomClaim,
+        "a measured execution is accounted for and does not withhold the verdict"
     );
 }

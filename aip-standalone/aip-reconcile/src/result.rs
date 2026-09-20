@@ -242,6 +242,24 @@ pub enum ReasonCode {
     /// The probe restarted inside the window: `probe_run_id` is not constant
     /// across the batches that claim to cover it.
     CoverageProbeRunChanged = 0x55,
+    /// The window contains a process event the observer **saw and could not
+    /// bind** to a measured instance.
+    ///
+    /// This is not a dropped event — the probe's loss counter can be a
+    /// counted zero and this still hold. It is an execution that happened,
+    /// was witnessed, and whose identity the observer could not establish
+    /// (`bound: None`: it saw the exec and could not complete a
+    /// pidfd-anchored measurement before the process was gone).
+    ///
+    /// Such an event is fatal to `PHANTOM_CLAIM` specifically, because that
+    /// verdict says *the authorised execution never happened*, and it is
+    /// derived from the absence of any reference. An unattributable execution
+    /// inside the same window is a candidate that absence cannot rule out:
+    /// the authorised program may have been exactly that event. Saying
+    /// "never happened" over it would be a false accusation drawn from the
+    /// observer's own blind spot, which is the one thing this system exists
+    /// not to do.
+    CoverageUnboundProcessEvent = 0x57,
     // ── target ──
     TargetNotFound = 0x60,
     NoExpectationAttested = 0x61,

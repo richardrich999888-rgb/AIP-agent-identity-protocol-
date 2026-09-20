@@ -675,3 +675,79 @@ roadmap, not in any submission as a solved problem.
 *Reproduced by `cargo test -p aip-sentinel-feed` (34 tests) and
 `cargo test -p aip-feed-conformance` (4 tests). Sealed feed and its full
 coverage report: `integrations/agents/results/sealed/effect_feed.jsonl`.*
+
+---
+
+## GH — The false phantom: a ghost the coverage predicate stepped over
+
+**A defect in the central verdict, found and fixed.** Not in a harness this
+time — in `aip-reconcile` itself, on the path that produces the one verdict
+this product exists to produce.
+
+### The defect
+
+`PHANTOM_CLAIM` says *the authorised execution never happened*. It is reached
+from the **absence of any reference** to the expectation, gated behind
+`recompute_coverage`: a gap-free window, one probe run, `dropped_events` not
+indicating loss, and kernel-pushed **process-lifecycle** coverage.
+
+Every one of those checks is about whether the observer was **watching**.
+None was about whether what it watched could be **identified**.
+
+An execution recorded with `bound: None` — the probe saw the `execve` and
+could not complete a pidfd-anchored measurement before the process was gone —
+is not a dropped event. The loss counter is still clean, the window is still
+gap-free, the probe still ran once. Coverage passed. And the reconciler then
+drew "it never happened" across a window that contained an execution it had
+witnessed and could not name.
+
+**The authorised program may have been exactly that event.** The verdict was a
+false accusation manufactured from the observer's own blind spot, which is the
+single thing this system's design forbids.
+
+This is not a theoretical shape. On the sealed Phase-1 agent run, **84 of 105
+`execve` events were unbound** — a shell spawning short-lived children. A host
+of that shape is where the verdict would have been wrong.
+
+### The fix
+
+`recompute_coverage` now refuses when any batch covering the window carries a
+process event (`ProcessExec`, `ProcessSpawn`, `Exec`, `Fork`) with
+`bound: None`, returning `ReasonCode::CoverageUnboundProcessEvent` (`0x57`).
+The verdict falls back to `CANNOT_PROVE`.
+
+It needs **no protocol change**: the kernel events were already inside the
+signed bytes. The evidence was always there; the verdict path simply never
+consulted it. The change is a strict tightening — it can turn `PHANTOM_CLAIM`
+into `CANNOT_PROVE` and never the reverse.
+
+Only *process* events count. An unbound socket event is a real gap of a
+different kind and cannot be the missing execution this verdict is about.
+
+| id | case | result |
+|----|------|--------|
+| GH-01 | a perfectly covered window containing one unbound `ProcessExec`, no reference to the expectation | **CANNOT_PROVE**, `CoverageUnboundProcessEvent` — was `PHANTOM_CLAIM` before the fix |
+| GH-02 | the identical window with the unbound event removed | **PHANTOM_CLAIM** — the verdict is not denied, only withheld where it is unsound |
+| GH-03 | the identical window with that event *bound* to a measured instance | **PHANTOM_CLAIM** — a measured execution is accounted for and withholds nothing |
+
+### Proven non-vacuous
+
+The check was removed and `GH-01` re-run: the reconciler returned
+`PhantomClaim` where the test demands `CannotProve`. Restored, it passes.
+`GH-02` and `GH-03` exist so that a predicate which simply always failed would
+be caught — a denial of service on the central verdict would be a worse defect
+than the one being fixed.
+
+*Tests: `aip-reconcile/tests/adversarial.rs` `t03h`, `t03i`, `t03j`. Full
+workspace suite green.*
+
+### What this does and does not settle
+
+It closes a **false-positive** path: the system can no longer accuse an agent
+of not doing something it did, on the strength of a blind spot.
+
+It does **not** make the system complete against ghosts. An effect in a class
+the observer does not instrument at all, or on a host whose kernel is hostile,
+is outside every predicate here. What the fix buys is that the verdict is now
+honest about the blind spots it *does* have, rather than reasoning over them —
+which is the difference between a bounded claim and a false one.

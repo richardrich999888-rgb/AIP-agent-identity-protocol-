@@ -6,6 +6,32 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed (a false-accusation path in the central verdict)
+- **`PHANTOM_CLAIM` could be drawn over an execution the observer saw and
+  could not identify.** The verdict says *the authorised execution never
+  happened*, and `recompute_coverage` gated it on a gap-free window, one probe
+  run, a clean loss counter and kernel-pushed lifecycle coverage. Every one of
+  those checks asks whether the observer was **watching**; none asked whether
+  what it watched could be **identified**. An event with `bound: None` is not a
+  dropped event — the loss counter stays clean — so coverage passed and the
+  reconciler concluded "never happened" across a window containing an execution
+  it had witnessed and could not name. The authorised program may have been
+  exactly that event.
+- On the sealed Phase-1 run **84 of 105 `execve` events were unbound**, so this
+  is the ordinary shape of a busy host, not a corner case.
+- Fixed in `recompute_coverage`: any process event with `bound: None` in a
+  covering batch returns `ReasonCode::CoverageUnboundProcessEvent` (`0x57`) and
+  the verdict falls back to `CANNOT_PROVE`. **No protocol change** — the kernel
+  events were already inside the signed bytes; the verdict path had simply
+  never consulted them. A strict tightening: it can turn `PHANTOM_CLAIM` into
+  `CANNOT_PROVE`, never the reverse.
+- **Proven non-vacuous.** With the check removed the reconciler returns
+  `PhantomClaim` where the test demands `CannotProve`. Two companion tests
+  (`t03i`, `t03j`) prove the verdict is still reachable when the window is
+  genuinely clean and when the event is bound, so the fix is a correction
+  rather than a denial of service on the system's central verdict.
+- Ledger rows `GH-01`–`GH-03` in `docs/security/ADVERSARIAL_RESULTS.md`.
+
 ### Added (hybrid Ed25519 + ML-DSA-65 signatures — brief Revision 10)
 - **`aip_crypto::hybrid`** — the migration path for the evidence horizon §9a
   named one revision ago. Signs under **both** Ed25519 and ML-DSA-65
