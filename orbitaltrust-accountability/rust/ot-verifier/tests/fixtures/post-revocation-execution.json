@@ -1,0 +1,246 @@
+{
+  "standard": "ASC-SENTINEL-MISSION-DOSSIER-v1",
+  "generatedAtUtc": "2026-08-27T05:31:01.392Z",
+  "agent": {
+    "identity": {
+      "agentId": "AGT-0666-ROGUE",
+      "did": "did:syntriass:agent:AGT-0666-ROGUE",
+      "agentName": "Decommissioned Copilot",
+      "organization": "DEFENCE_SPACE_AGENCY",
+      "modelEngine": "groq-fast",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "systemPromptHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "enclaveType": "SOFTWARE_SANDBOX",
+      "department": "TACTICAL_C2",
+      "clearanceLevel": "SECRET",
+      "supervisorOperatorId": "OFFICER-IAF-882",
+      "supervisorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "assignedPermissions": [
+        "NAVIGATE_CAMERA"
+      ],
+      "requiresDualKeyAuthorization": [],
+      "revocationStatus": "REVOKED",
+      "issuedAtUtc": "2026-08-27T05:31:01.390Z",
+      "expiresAtUtc": "2026-08-27T06:31:01.390Z",
+      "credentialSignature": "e087b293fd5b2bb29dad74e738323922a454bf0c55f96312983d72c6b104113f"
+    },
+    "genesisAttestation": {
+      "anchorId": "0b40b150-cdfb-4f29-ab2d-d416ef245dcc",
+      "sequenceNumber": 1,
+      "anchorType": "AGENT_GENESIS",
+      "agentDid": "did:syntriass:agent:AGT-0666-ROGUE",
+      "actorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "timestampUtc": "2026-08-27T05:31:01.390Z",
+      "payload": {
+        "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "previousAnchorHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "anchorHash": "f8456b302638d8be8f6daa539631f3b52236cbf97fb5c6e1821c72cd2b97657b"
+    }
+  },
+  "lifecycleAnchors": [
+    {
+      "anchorId": "0b40b150-cdfb-4f29-ab2d-d416ef245dcc",
+      "sequenceNumber": 1,
+      "anchorType": "AGENT_GENESIS",
+      "agentDid": "did:syntriass:agent:AGT-0666-ROGUE",
+      "actorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "timestampUtc": "2026-08-27T05:31:01.390Z",
+      "payload": {
+        "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "previousAnchorHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "anchorHash": "f8456b302638d8be8f6daa539631f3b52236cbf97fb5c6e1821c72cd2b97657b"
+    },
+    {
+      "anchorId": "6fb35174-9a40-4ac4-950e-aacad905c47e",
+      "sequenceNumber": 2,
+      "anchorType": "SUPERVISOR_DELEGATION",
+      "agentDid": "did:syntriass:agent:AGT-0666-ROGUE",
+      "actorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "timestampUtc": "2026-08-27T05:31:01.391Z",
+      "payload": {
+        "scope": [
+          "fly_to_location"
+        ],
+        "multiSigTools": [],
+        "clearanceLevel": "SECRET"
+      },
+      "previousAnchorHash": "f8456b302638d8be8f6daa539631f3b52236cbf97fb5c6e1821c72cd2b97657b",
+      "anchorHash": "f2c91cf968a807241de22a7dc642b6dfdfd18b429c5eece8367a0953eb2de3f6"
+    },
+    {
+      "anchorId": "7a0e5b66-eb59-49b5-ac26-00df63284b2a",
+      "sequenceNumber": 3,
+      "anchorType": "ACTION_EXECUTION_SEAL",
+      "agentDid": "did:syntriass:agent:AGT-0666-ROGUE",
+      "actorDid": "did:syntriass:agent:AGT-0666-ROGUE",
+      "timestampUtc": "2026-08-27T05:31:01.391Z",
+      "payload": {
+        "packetId": "38499a4b-fedc-46f0-840f-05f8ada15e61",
+        "packetHash": "3a61ca93a4517307fa19eeaf1c23a2596e4e71b13bce3ac8dade131c6c5140ff",
+        "status": "SUCCESS"
+      },
+      "previousAnchorHash": "f2c91cf968a807241de22a7dc642b6dfdfd18b429c5eece8367a0953eb2de3f6",
+      "anchorHash": "59702d3a98792e01d72556dbd9528e7c25d90382601eb08368edf4ac94f6662c"
+    },
+    {
+      "anchorId": "8bab3755-5eff-487f-9ac0-3317eca9f950",
+      "sequenceNumber": 4,
+      "anchorType": "AUTHORITY_REVOCATION",
+      "agentDid": "did:syntriass:agent:AGT-0666-ROGUE",
+      "actorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "timestampUtc": "2026-08-27T05:31:01.392Z",
+      "payload": {
+        "terminal": true,
+        "reason": "kill-switch drill"
+      },
+      "previousAnchorHash": "59702d3a98792e01d72556dbd9528e7c25d90382601eb08368edf4ac94f6662c",
+      "anchorHash": "3589e8e0af57a9a90375f81f36ee55eb4503ba327d8e3832488e06cdbf6cf531"
+    }
+  ],
+  "evidencePackets": [
+    {
+      "id": "38499a4b-fedc-46f0-840f-05f8ada15e61",
+      "sequenceNumber": 1,
+      "timestampUtc": "2026-08-27T05:31:01.391Z",
+      "agentDid": "did:syntriass:agent:AGT-0666-ROGUE",
+      "anchorHash": "f2c91cf968a807241de22a7dc642b6dfdfd18b429c5eece8367a0953eb2de3f6",
+      "delegationPath": [
+        "did:syntriass:officer:OFFICER-IAF-882",
+        "did:syntriass:agent:AGT-0666-ROGUE"
+      ],
+      "edgeId": "939b7a0d-16e1-4b05-91a4-2f18b27c73b5",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "rawPrompt": "fly to hormuz",
+      "toolExecuted": {
+        "name": "fly_to_location",
+        "inputParams": {
+          "query": "hormuz"
+        },
+        "status": "SUCCESS"
+      },
+      "preStateHash": "a1954b127b9afe6dd897a7d4f8d2cf69a9a11c25cb61c32fd89b7784c2953cd9",
+      "postStateHash": "a1954b127b9afe6dd897a7d4f8d2cf69a9a11c25cb61c32fd89b7784c2953cd9",
+      "previousPacketHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "packetHash": "3a61ca93a4517307fa19eeaf1c23a2596e4e71b13bce3ac8dade131c6c5140ff"
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000f04d",
+      "sequenceNumber": 2,
+      "timestampUtc": "2026-08-27T05:32:01.392Z",
+      "agentDid": "did:syntriass:agent:AGT-0666-ROGUE",
+      "anchorHash": "3589e8e0af57a9a90375f81f36ee55eb4503ba327d8e3832488e06cdbf6cf531",
+      "delegationPath": [
+        "did:syntriass:officer:OFFICER-IAF-882",
+        "did:syntriass:agent:AGT-0666-ROGUE"
+      ],
+      "edgeId": "939b7a0d-16e1-4b05-91a4-2f18b27c73b5",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "rawPrompt": "fly to the launch site",
+      "toolExecuted": {
+        "name": "fly_to_location",
+        "inputParams": {
+          "query": "launch site"
+        },
+        "status": "SUCCESS"
+      },
+      "preStateHash": "a1954b127b9afe6dd897a7d4f8d2cf69a9a11c25cb61c32fd89b7784c2953cd9",
+      "postStateHash": "a1954b127b9afe6dd897a7d4f8d2cf69a9a11c25cb61c32fd89b7784c2953cd9",
+      "previousPacketHash": "3a61ca93a4517307fa19eeaf1c23a2596e4e71b13bce3ac8dade131c6c5140ff",
+      "packetHash": "e925ce47d06c5bc0b53c910679881ac6997dd9109be759997560b71389a26eab"
+    }
+  ],
+  "actionLedger": [],
+  "verification": {
+    "actionChain": {
+      "valid": true,
+      "entries": 0
+    }
+  },
+  "complianceMatrix": {
+    "standardsVersions": {
+      "nistAiRmf": "NIST AI 100-1 (AI RMF 1.0)",
+      "euAiAct": "Regulation (EU) 2024/1689",
+      "iso42001": "ISO/IEC 42001:2023"
+    },
+    "controls": [
+      {
+        "sequenceNumber": 1,
+        "toolName": "fly_to_location",
+        "executionStatus": "SUCCESS",
+        "timestampUtc": "2026-08-27T05:31:01.391Z",
+        "nistAiRmf": {
+          "functions": [
+            "GOVERN-1.2",
+            "MAP-1.5"
+          ],
+          "rationale": "executed under a signed credential with a named human supervisor, sealed into a hash-chained ledger"
+        },
+        "euAiAct": {
+          "articles": [
+            "Article 12 (Record-Keeping)"
+          ],
+          "conformityStatus": "CONFORMANT"
+        },
+        "iso42001": {
+          "clauses": [
+            "Clause 9 (Performance & Audit)"
+          ]
+        },
+        "auditProofHash": "3a61ca93a4517307fa19eeaf1c23a2596e4e71b13bce3ac8dade131c6c5140ff"
+      },
+      {
+        "sequenceNumber": 2,
+        "toolName": "fly_to_location",
+        "executionStatus": "SUCCESS",
+        "timestampUtc": "2026-08-27T05:32:01.392Z",
+        "nistAiRmf": {
+          "functions": [
+            "GOVERN-1.2",
+            "MAP-1.5"
+          ],
+          "rationale": "executed under a signed credential with a named human supervisor, sealed into a hash-chained ledger"
+        },
+        "euAiAct": {
+          "articles": [
+            "Article 12 (Record-Keeping)"
+          ],
+          "conformityStatus": "CONFORMANT"
+        },
+        "iso42001": {
+          "clauses": [
+            "Clause 9 (Performance & Audit)"
+          ]
+        },
+        "auditProofHash": "e925ce47d06c5bc0b53c910679881ac6997dd9109be759997560b71389a26eab"
+      }
+    ],
+    "aggregated": {
+      "nistAiRmfFunctions": [
+        "GOVERN-1.2",
+        "MAP-1.5"
+      ],
+      "euAiActArticles": [
+        "Article 12 (Record-Keeping)"
+      ],
+      "iso42001Clauses": [
+        "Clause 9 (Performance & Audit)"
+      ]
+    },
+    "humanOversight": {
+      "supervisorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "coSignedActions": 0,
+      "blockedByPolicy": 0,
+      "totalActions": 2
+    },
+    "attestationDigests": [
+      "3a61ca93a4517307fa19eeaf1c23a2596e4e71b13bce3ac8dade131c6c5140ff",
+      "e925ce47d06c5bc0b53c910679881ac6997dd9109be759997560b71389a26eab"
+    ]
+  },
+  "certification": {
+    "algorithm": "SHA-256 over canonical JSON (sorted keys)",
+    "rootDigest": "b53927b7e5ee772460725e1642dd40ebe4d517c26c688be92159d7fcc07230e7"
+  }
+}

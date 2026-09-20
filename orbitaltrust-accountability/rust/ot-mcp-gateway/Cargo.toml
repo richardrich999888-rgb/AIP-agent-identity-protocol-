@@ -1,0 +1,56 @@
+[package]
+name = "ot-mcp-gateway"
+description = "Governed Model Context Protocol gateway: every tools/call is adjudicated and sealed into the AIP forensic ledger before it reaches an upstream server"
+edition.workspace = true
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ot-accountability-core = { workspace = true }
+ot-pqc = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+getrandom = "0.3"
+clap = { workspace = true }
+
+# ── Optional mutual-TLS HTTP transport ────────────────────────────────────
+tokio = { workspace = true, optional = true }
+hyper = { version = "1", features = ["server", "http1"], optional = true }
+hyper-util = { version = "0.1", features = ["tokio"], optional = true }
+http-body-util = { version = "0.1", optional = true }
+rustls = { version = "0.23", features = ["ring"], optional = true }
+tokio-rustls = { version = "0.26", optional = true }
+
+[[bin]]
+name = "ot-mcp-gateway"
+path = "src/main.rs"
+
+[[bin]]
+name = "ot-provision"
+path = "src/bin/ot-provision.rs"
+
+[[bin]]
+name = "ot-mcp-gateway-http"
+path = "src/bin/ot-mcp-gateway-http.rs"
+required-features = ["http"]
+
+[features]
+default = []
+# The mutual-TLS HTTP transport. Off by default so a stdio deployment does
+# not carry an async runtime and a TLS stack it never executes.
+http = [
+    "dep:tokio",
+    "dep:hyper",
+    "dep:hyper-util",
+    "dep:http-body-util",
+    "dep:rustls",
+    "dep:tokio-rustls",
+]
+
+[dev-dependencies]
+ot-pqc = { workspace = true }
+tempfile = { workspace = true }

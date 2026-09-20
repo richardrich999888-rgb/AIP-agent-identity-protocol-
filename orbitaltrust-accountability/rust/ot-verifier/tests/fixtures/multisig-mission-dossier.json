@@ -1,0 +1,203 @@
+{
+  "standard": "ASC-SENTINEL-MISSION-DOSSIER-v1",
+  "generatedAtUtc": "2026-08-27T05:31:01.390Z",
+  "agent": {
+    "identity": {
+      "agentId": "AGT-0912-ORION",
+      "did": "did:syntriass:agent:AGT-0912-ORION",
+      "agentName": "ORION Maneuver Planner",
+      "organization": "DEFENCE_SPACE_AGENCY",
+      "modelEngine": "groq-fast",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "systemPromptHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "enclaveType": "SOFTWARE_SANDBOX",
+      "department": "CONJUNCTION_ANALYSIS",
+      "clearanceLevel": "SECRET",
+      "supervisorOperatorId": "OFFICER-IAF-882",
+      "supervisorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "assignedPermissions": [
+        "PLAN_MANEUVER",
+        "SCREEN_CONJUNCTIONS"
+      ],
+      "requiresDualKeyAuthorization": [
+        "compute_avoidance_maneuver"
+      ],
+      "revocationStatus": "ACTIVE",
+      "issuedAtUtc": "2026-08-27T05:31:01.388Z",
+      "expiresAtUtc": "2026-08-27T06:31:01.388Z",
+      "credentialSignature": "1f9de603e3d39a9c199c542ee49d9da3c9324f8b6b68e2f33f93916665ba3152"
+    },
+    "genesisAttestation": {
+      "anchorId": "8745ca01-8eb1-40d5-8443-27d444b5f494",
+      "sequenceNumber": 1,
+      "anchorType": "AGENT_GENESIS",
+      "agentDid": "did:syntriass:agent:AGT-0912-ORION",
+      "actorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "timestampUtc": "2026-08-27T05:31:01.388Z",
+      "payload": {
+        "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "systemPromptHash": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "previousAnchorHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "anchorHash": "c565c85af760fc17c445c55f39b473001b2ae59ff2aa5d44a348dfc5e17c3d44"
+    }
+  },
+  "lifecycleAnchors": [
+    {
+      "anchorId": "8745ca01-8eb1-40d5-8443-27d444b5f494",
+      "sequenceNumber": 1,
+      "anchorType": "AGENT_GENESIS",
+      "agentDid": "did:syntriass:agent:AGT-0912-ORION",
+      "actorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "timestampUtc": "2026-08-27T05:31:01.388Z",
+      "payload": {
+        "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "systemPromptHash": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "previousAnchorHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "anchorHash": "c565c85af760fc17c445c55f39b473001b2ae59ff2aa5d44a348dfc5e17c3d44"
+    },
+    {
+      "anchorId": "16878ba9-fcc5-4d9c-971d-3a3839e32809",
+      "sequenceNumber": 2,
+      "anchorType": "SUPERVISOR_DELEGATION",
+      "agentDid": "did:syntriass:agent:AGT-0912-ORION",
+      "actorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "timestampUtc": "2026-08-27T05:31:01.388Z",
+      "payload": {
+        "scope": [
+          "compute_avoidance_maneuver",
+          "screen_conjunction_threats"
+        ],
+        "multiSigTools": [
+          "compute_avoidance_maneuver"
+        ],
+        "clearanceLevel": "SECRET"
+      },
+      "previousAnchorHash": "c565c85af760fc17c445c55f39b473001b2ae59ff2aa5d44a348dfc5e17c3d44",
+      "anchorHash": "04fdede55aaa77fb4e59aaeaed9aa5734a9eecf61133a97c0f8d621e79b5ef5d"
+    },
+    {
+      "anchorId": "744e1b8b-4309-42d0-a9ec-6d8bf632f6b6",
+      "sequenceNumber": 3,
+      "anchorType": "ACTION_EXECUTION_SEAL",
+      "agentDid": "did:syntriass:agent:AGT-0912-ORION",
+      "actorDid": "did:syntriass:agent:AGT-0912-ORION",
+      "timestampUtc": "2026-08-27T05:31:01.389Z",
+      "payload": {
+        "packetId": "c037bc48-fe00-45c2-aad7-ccb6e5afa2a9",
+        "packetHash": "90f1e0466d4f545bdbad35baa17b4f6a42a2a25c7c17c783cd3ca5138f944bcb",
+        "status": "SUCCESS"
+      },
+      "previousAnchorHash": "04fdede55aaa77fb4e59aaeaed9aa5734a9eecf61133a97c0f8d621e79b5ef5d",
+      "anchorHash": "9945040ca8876047c1eab8fdf09533e5707f76f12b5f983822119d03f0e8dd54"
+    }
+  ],
+  "evidencePackets": [
+    {
+      "id": "c037bc48-fe00-45c2-aad7-ccb6e5afa2a9",
+      "sequenceNumber": 1,
+      "timestampUtc": "2026-08-27T05:31:01.389Z",
+      "agentDid": "did:syntriass:agent:AGT-0912-ORION",
+      "anchorHash": "04fdede55aaa77fb4e59aaeaed9aa5734a9eecf61133a97c0f8d621e79b5ef5d",
+      "delegationPath": [
+        "did:syntriass:officer:OFFICER-IAF-882",
+        "did:syntriass:agent:AGT-0912-ORION"
+      ],
+      "edgeId": "351c64fa-cb6d-4587-b52e-45d3677b85ea",
+      "modelDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "rawPrompt": "plan an avoidance burn for object 43013",
+      "toolExecuted": {
+        "name": "compute_avoidance_maneuver",
+        "inputParams": {
+          "satelliteId": "43013",
+          "missDistanceKm": 5
+        },
+        "status": "SUCCESS",
+        "supervisorCoSignature": "4f461b4e07268d8cbbb7ec819af64a16420a77a0532337ba298d498da1f8ebce"
+      },
+      "preStateHash": "0d12e305b24edd01d76506f8c925fc6fd89bc12f905a58583fd89c43eea2a2d2",
+      "postStateHash": "e97a4de8960ed245caadcc8b6aefb2e30a105602e2e5229dfecb7fb98cf380a9",
+      "previousPacketHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "packetHash": "90f1e0466d4f545bdbad35baa17b4f6a42a2a25c7c17c783cd3ca5138f944bcb"
+    }
+  ],
+  "actionLedger": [],
+  "verification": {
+    "actionChain": {
+      "valid": true,
+      "entries": 0
+    }
+  },
+  "complianceMatrix": {
+    "standardsVersions": {
+      "nistAiRmf": "NIST AI 100-1 (AI RMF 1.0)",
+      "euAiAct": "Regulation (EU) 2024/1689",
+      "iso42001": "ISO/IEC 42001:2023"
+    },
+    "controls": [
+      {
+        "sequenceNumber": 1,
+        "toolName": "compute_avoidance_maneuver",
+        "executionStatus": "SUCCESS",
+        "timestampUtc": "2026-08-27T05:31:01.389Z",
+        "nistAiRmf": {
+          "functions": [
+            "GOVERN-1.2",
+            "MAP-1.5",
+            "MEASURE-2.4",
+            "MANAGE-2.4"
+          ],
+          "rationale": "executed under a signed credential with a named human supervisor, sealed into a hash-chained ledger; plans a risk treatment; execution is excluded from the agent's grant and reserved to human authority; clearance-gated verb under per-invocation supervisor co-signature"
+        },
+        "euAiAct": {
+          "articles": [
+            "Article 12 (Record-Keeping)",
+            "Article 9 (Risk Management)",
+            "Article 14 (Human Oversight)"
+          ],
+          "conformityStatus": "GATED_BY_MULTISIG"
+        },
+        "iso42001": {
+          "clauses": [
+            "Clause 9 (Performance & Audit)",
+            "Clause 6 (Risk Treatment)",
+            "Clause 8.5 (Human Oversight)"
+          ]
+        },
+        "auditProofHash": "90f1e0466d4f545bdbad35baa17b4f6a42a2a25c7c17c783cd3ca5138f944bcb"
+      }
+    ],
+    "aggregated": {
+      "nistAiRmfFunctions": [
+        "GOVERN-1.2",
+        "MAP-1.5",
+        "MEASURE-2.4",
+        "MANAGE-2.4"
+      ],
+      "euAiActArticles": [
+        "Article 12 (Record-Keeping)",
+        "Article 9 (Risk Management)",
+        "Article 14 (Human Oversight)"
+      ],
+      "iso42001Clauses": [
+        "Clause 9 (Performance & Audit)",
+        "Clause 6 (Risk Treatment)",
+        "Clause 8.5 (Human Oversight)"
+      ]
+    },
+    "humanOversight": {
+      "supervisorDid": "did:syntriass:officer:OFFICER-IAF-882",
+      "coSignedActions": 1,
+      "blockedByPolicy": 0,
+      "totalActions": 1
+    },
+    "attestationDigests": [
+      "90f1e0466d4f545bdbad35baa17b4f6a42a2a25c7c17c783cd3ca5138f944bcb"
+    ]
+  },
+  "certification": {
+    "algorithm": "SHA-256 over canonical JSON (sorted keys)",
+    "rootDigest": "773d849ba4195e5795be5ab3c05831fb908fa7769d7cf9e917a6f3d7e34ebb16"
+  }
+}
