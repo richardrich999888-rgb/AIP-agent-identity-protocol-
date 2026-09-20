@@ -1,0 +1,18 @@
+aip-http-gateway: /home/user/AIP-agent-identity-protocol-/validation/http_gateway/results/route-map-tampered.json does not verify under did:aip:institution:BANK: PayloadHashMismatch
+
+aip-http-gateway — issue gateway-signed ToolReceipts at an HTTP API boundary
+
+USAGE:
+    aip-http-gateway --listen <ADDR> --upstream <URL>
+                     --route-map <FILE> --issuer-id <ID> --issuer-pubkey <FILE>
+                     --gateway-id <ID> --key-version <N> --gateway-key <FILE>
+                     --receipts <FILE>
+
+    --route-map     the institution's signed route map (JSON)
+    --issuer-id     the institution identity whose key signs that map
+    --issuer-pubkey hex ed25519 public key for --issuer-id
+    --gateway-key   hex ed25519 PRIVATE key this gateway signs receipts with
+    --receipts      JSONL sink; one signed receipt per line
+
+The gateway refuses to start if the route map does not verify.
+

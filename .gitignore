@@ -39,3 +39,9 @@ integrations/agents/.venv/
 integrations/agents/results/live/
 integrations/agents/**/__pycache__/
 !integrations/agents/results/sealed/*.jsonl
+
+# The B10 receipt stream: the artefact the whole run exists to produce, and
+# the one an auditor re-verifies from this repository. `results/` above stays
+# ignored because a run regenerates it and it holds fresh private keys.
+!validation/http_gateway/sealed/*.jsonl
+validation/http_gateway/results/

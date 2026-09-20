@@ -1,0 +1,5 @@
+[
+  {"tool_id": "tool.transfer.create",  "method": "POST", "path": "/v1/transfers"},
+  {"tool_id": "tool.account.read",     "method": "GET",  "path": "/v1/accounts/{account_id}"},
+  {"tool_id": "tool.beneficiary.list", "method": "GET",  "path": "/v1/beneficiaries"}
+]

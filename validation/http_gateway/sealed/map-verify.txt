@@ -1,0 +1,4 @@
+VERIFIED  bank-edge revision 1 — 3 routes signed by did:aip:institution:BANK
+  GET     /v1/accounts/{account_id}        tool.account.read
+  GET     /v1/beneficiaries                tool.beneficiary.list
+  POST    /v1/transfers                    tool.transfer.create

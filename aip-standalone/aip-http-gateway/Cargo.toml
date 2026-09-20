@@ -1,0 +1,38 @@
+[package]
+name = "aip-http-gateway"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "B10: issue gateway-signed ToolReceipts at an institution's HTTP API boundary, over the gateway's own recomputation of the request"
+
+[[bin]]
+name = "aip-http-gateway"
+path = "src/bin/aip-http-gateway.rs"
+
+[[bin]]
+name = "aip-route-map"
+path = "src/bin/aip-route-map.rs"
+
+[[bin]]
+name = "aip-receipt-verify"
+path = "src/bin/aip-receipt-verify.rs"
+
+[dependencies]
+# The receipt format and the gateway signer. Never reimplemented here.
+aip-airi = { path = "../aip-airi" }
+# `args_commitment` / `response_commitment`, shared with the MCP gateway so a
+# receipt for the same arguments is byte-identical whichever boundary issued it.
+aip-mcp-gateway = { path = "../aip-mcp-gateway" }
+aip-crypto = { path = "../aip-crypto" }
+aip-types = { path = "../aip-types" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# ── the adapter only ──────────────────────────────────────────────────────
+# hyper and hyper-util are already in the lockfile via axum; no HTTP client
+# dependency is added for this crate.
+axum = "0.7"
+hyper = { version = "1", features = ["client", "http1"] }
+hyper-util = { version = "0.1", features = ["client", "client-legacy", "http1", "tokio"] }
+http-body-util = "0.1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "signal"] }
