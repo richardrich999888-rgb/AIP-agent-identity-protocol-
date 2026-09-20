@@ -6,6 +6,50 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (the evidence horizon — brief Revision 9, matrix D8)
+- **A branch survey found the gap by accident.** `codex/val-ladder-sync` carries
+  an `ML-DSA-65` assembler-signature hook and a Kyber-768 network layer, and
+  checking whether any of it belonged in the RBI submission surfaced a
+  different question that did: post-quantum appeared **once** in the technical
+  brief, inside a list of things "not deployed", and **zero times** in the
+  requirements matrix and the cover note.
+- That is a gap because this submission asks a regulator to treat signed
+  artefacts as evidence re-verifiable later, and D7 puts a **180-day CERT-In
+  retention floor plus a legal hold that outlives it** into the database. An
+  artefact held for a proceeding may need to verify years after signing.
+  Everything is Ed25519, so **the non-repudiation of retained evidence has a
+  horizon**, and unlike confidentiality it cannot be repaired afterwards.
+- Brief **§9a "Cryptographic agility and the evidence horizon"** states it,
+  along with the part that is already right and is the hard part: the algorithm
+  identifier is *inside* the signed bytes so it cannot be rewritten, and an
+  unimplemented algorithm is **refused with an error — never checked as
+  Ed25519, never reported merely invalid**. A label may not become a
+  capability (`aip-nexora/tests/audit.rs` a07, plus a companion proving the
+  refusal reaches package level). Migration is therefore a change of
+  implementation, not of evidence format.
+- It also states, in the same section, what has **not** been done: no
+  post-quantum signature is implemented; **Kyber-768 is a KEM — session
+  confidentiality — and gives no signature path**, and conflating the two would
+  be exactly the kind of claim this brief exists not to make; no hybrid signing
+  has been exercised through the four authorities, the NEXORA log and the three
+  offline verifiers; and PKCS#11 custody was exercised for Ed25519 only.
+
+### Not added, and why
+- **Nothing else from `codex/val-ladder-sync` or `codex/aip-v4-accountability`
+  enters the submission.** Those branches carry the superseded AIRON design:
+  `/v1/identity/issue` JWT endpoints, `/.well-known/jwks.json`, and
+  `aip-service/src/delegation.rs` — the weak legacy delegation routes this
+  branch **deliberately removed** for the RBI submission. Their
+  `benchmark-results/*.json` are dated March 2026 and exercise those removed
+  routes, so they are not current performance evidence and must not be
+  presented as any.
+- The `python/airon-aip-sdk` LangChain, PyTorch, NumPy and pandas integrations
+  are **not** the framework adapters blocker B9 names. They attach identity
+  metadata and tags to a runnable against the legacy JWT service; they do not
+  sign AIRI events or feed the evidence pipeline. B9's status is unchanged and
+  correct, but the existence of adapter-shaped code on a branch is recorded
+  here so nobody reads it as a contradiction.
+
 ### Added (F11: out-of-band reconciliation fed from the kernel)
 - **`aip-sentinel-feed`** — renders verified AIP evidence as the effect log
   `ot-sentinel`'s out-of-band reconciler tails. Closes the one failure class

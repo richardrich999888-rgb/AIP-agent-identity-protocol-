@@ -54,7 +54,7 @@ from reportlab.platypus import (
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = REPO / "docs" / "pilot" / "SNIFFER_DOG_TECHNICAL_BRIEF_RBI.pdf"
 
-REVISION = "Revision 8"
+REVISION = "Revision 9"
 PERIOD = "September 2026"
 RUNNING = (
     "VANIAN Technologies  |  Sniffer Dog / AIP: Technical Brief  |  "
@@ -623,6 +623,74 @@ def content(st, width):
         s.append(B(b))
 
     # ── 10 ──────────────────────────────────────────────────────────────────
+    s.append(Paragraph(
+        "9a. Cryptographic agility and the evidence horizon", st["h2"]))
+    s.append(P(
+        "This submission asks the Department to treat signed artefacts as evidence that can "
+        "be re-verified later. Section 13's storage controls put a <b>180-day CERT-In "
+        "retention floor</b> in the database as a constraint, and a legal hold that "
+        "outlives retention. An artefact held for a fraud proceeding may need to verify "
+        "years after it was signed. So the question <i>how long does a signature on this "
+        "evidence remain meaningful</i> is not academic here, and we would rather answer it "
+        "than be asked it."))
+    s.append(P(
+        "<b>Every signature in this system today is Ed25519 over SHA-256.</b> There is one "
+        "implemented algorithm. That is a deliberate choice — one construction, one "
+        "verifier, no negotiation — and it carries a stated exposure: <b>the "
+        "non-repudiation of retained evidence has a horizon tied to Ed25519.</b> Unlike "
+        "confidentiality, this cannot be repaired after the fact. Evidence already signed "
+        "and retained cannot be re-signed into safety by a future migration; only evidence "
+        "signed after a migration benefits from it."))
+    s.append(Paragraph("What is already correct, and why it is the hard part", st["h2"]))
+    s.append(P(
+        "Migration fails in practice not for want of a new algorithm but because the old "
+        "format cannot express which one was used, or because a verifier quietly treats an "
+        "unknown algorithm as the one it knows. Neither is true here."))
+    for b in [
+        "<b>The algorithm identifier is inside the signed bytes.</b> Every signature carries "
+        "one of three values — Ed25519, ML-DSA-65, hybrid — and it is covered by the "
+        "signature, so it cannot be rewritten after the fact. The wire format does not need "
+        "to change to carry a post-quantum signature; only the implementation does.",
+        "<b>An unimplemented algorithm is refused, never coerced.</b> A signature labelled "
+        "ML-DSA-65 or hybrid does not get checked as Ed25519 and does not come back "
+        "'invalid'. The verifier returns an <b>error</b> — it declines to answer about bytes "
+        "it was never asked to read. The rule is that a label may never become a capability, "
+        "and it is a test, not a convention: `aip-nexora/tests/audit.rs` a07, with a "
+        "companion proving the same refusal reaches the package level so no component can "
+        "smuggle an unimplemented algorithm past the verifier.",
+    ]:
+        s.append(B(b))
+    s.append(P(
+        "That combination is what makes a future migration a change of implementation rather "
+        "than a change of evidence format, and it is why a verifier from either era cannot "
+        "silently accept the other era's artefact."))
+    s.append(Paragraph("What has NOT been done, stated plainly", st["h2"]))
+    for b in [
+        "<b>No post-quantum signature is implemented.</b> `ML-DSA-65` is a reserved "
+        "identifier and nothing more. Any document of ours that appears to claim otherwise is "
+        "wrong and should be read against this paragraph.",
+        "<b>The post-quantum work elsewhere in our codebase does not close this.</b> Our "
+        "network layer uses Kyber-768 for key establishment. That is a <b>key-encapsulation "
+        "mechanism — confidentiality of a session</b> — and it gives no post-quantum "
+        "signature path. Conflating the two would be the kind of claim this brief exists not "
+        "to make.",
+        "<b>No migration has been scheduled, costed or tested</b>, and no hybrid "
+        "(Ed25519 + ML-DSA) signing has been exercised end to end through the four "
+        "authorities, the NEXORA log and the three offline verifiers.",
+        "<b>Key custody for a second algorithm is unaddressed.</b> The PKCS#11 custodian of "
+        "section 13's B4 was exercised against an Ed25519 key; ML-DSA support in a given "
+        "HSM is the module vendor's, and the institution's choice of module would constrain "
+        "the migration.",
+    ]:
+        s.append(B(b))
+    s.append(P(
+        "<b>What we propose.</b> The decision belongs to the institution, not to us, because "
+        "it is their retention obligation and their evidence. We ask only that the pilot's "
+        "evidence-handling agreement records the horizon explicitly, so nobody later "
+        "discovers it in a proceeding. Where an institution's obligation is long enough to "
+        "need it, the migration is a dual-signature epoch — artefacts signed under both "
+        "algorithms for a transition window, with verifiers required to accept either and "
+        "the log recording which — and that is specified work, not built work."))
     s.append(H("10. What has been demonstrated, and what has not"))
     s.append(P(
         "Every claim below corresponds to an executed attack with recorded output, or to an "
