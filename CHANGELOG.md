@@ -6,6 +6,69 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (F11: out-of-band reconciliation fed from the kernel)
+- **`aip-sentinel-feed`** — renders verified AIP evidence as the effect log
+  `ot-sentinel`'s out-of-band reconciler tails. Closes the one failure class
+  no amount of additional strictness reaches: an agent that does not use the
+  governed path leaves no record to be missing from, and inline enforcement
+  cannot see its own bypass. The reconciler's effect sensor previously read a
+  JSONL log which, in the deployment it was designed for, is written by the
+  components being watched — its own source records that the detector behind
+  it "had nothing feeding it". The feed replaces that root with kernel-derived,
+  pidfd-bound, collector-signed evidence. Verifies the archive under the
+  observer's anchor **first** and writes nothing if that fails. 34 tests.
+- **`aip-feed-conformance`** — test-only crate, 4 tests, and the only place
+  the two evidence worlds link. Against the real Phase-1 archive: **0 malformed
+  lines** through `ot-sentinel`'s own tailer, an unapproved destination
+  becoming `UNAUTHORIZED_EGRESS` citing the feed's record id and carrying the
+  measured 81,920 bytes, and a soundness control proving the detector is not
+  always red. The 21 spawn records agree with the 21 delegation edges Phase 3
+  derives from the same archive.
+- **Sealed:** `integrations/agents/results/sealed/effect_feed.jsonl`.
+- Technical brief **Revision 8**, section 10c — filed as an architecture item,
+  explicitly **not** as a third corroboration axis, because `ot-sentinel` is
+  ours. Ledger rows `OB-01`–`OB-11`, `OB-H1`, `OB-H2` in
+  `docs/security/ADVERSARIAL_RESULTS.md`.
+
+### Changed
+- **`docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md` is CLOSED** — option A, bounded
+  coexistence. `aip-core` is the evidence format everywhere outside the
+  import; `ot-accountability-core` stays internal to the sentinel's
+  reconciliation path. Option B (porting the sentinel, 6,181 lines and 82
+  tests, forking from upstream) was rejected as a large regression risk
+  against no external gain. The feed made option A worth having by working on
+  the *observation* side, which carries no chain, so no packet crosses formats
+  and nothing is re-sealed — the objection that sank the translation-layer
+  option does not arise. The dependency guard is now permanent, its message
+  points to the two legitimate ways forward, and it was re-verified against a
+  deliberate violation.
+
+### Fixed
+- **The feed's coverage report undercounted its own blind spots.** It was
+  built only from derived values, and unbound events are discarded *before*
+  derivation — correctly, since an unbound event is not evidence of a process
+  instance. **Eight `connect()` attempts in the real Phase-1 archive were
+  counted nowhere** while the report implied full coverage. A direct scan now
+  counts them; `sf14` locks the regression and `sf15` asserts the accounting
+  balances exactly against real evidence. (`OB-H1`)
+- **RFC 5952 rendering dropped the trailing colon** on an address ending in a
+  zero run, so `2001:db8::` rendered as `2001:db8:`. A destination rendered in
+  a form an allow-list does not use is a false negative in the one check that
+  matters. Rewritten as a head/tail join; 11 tests including IPv4-mapped,
+  longest-run and leftmost-tie cases. (`OB-H2`)
+
+### Disclosed
+- **84 of 105 `execve` events in the Phase-1 run could not be bound to a
+  measured process instance** — a shell spawning short-lived children that
+  exited before a pidfd-anchored measurement could complete. The mechanism was
+  already recorded (`XI-H2`); the **magnitude on a workload of that shape** was
+  not, and became visible only after fixing `OB-H1`. The system reports the
+  remainder as unmeasured rather than guessing, which is `CANNOT_PROVE`
+  operating as specified — but the coverage ratio must be measured per
+  deployment, never assumed, and a pilot must report it for the institution's
+  own workload. Raising it is probe-side engineering (earlier pidfd
+  acquisition) and is on the roadmap, not presented anywhere as solved.
+
 ### Added (Phase 0 of the hostile-validation program: cross-sensor blinding detection)
 - **The gap the pre-RBI validation plan identified as decisive is now closed
   in code.** The kernel increments the perf loss counter (`PERF_RECORD_LOST`)
@@ -80,7 +143,7 @@ versioning is [SemVer](https://semver.org/).
   from the source workspace's `[workspace.dependencies]`, so resolution for
   the forty crates already here is unchanged. New third-party dependency:
   `tempfile`, dev-only, reaching no shipped binary.
-- **`docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md`, status OPEN** — the decision
+- **`docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md`, status OPEN** *(superseded — closed 2026-09-20 under option A; see the F11 entry below)* — the decision
   written down rather than made by accident. Four options with the reasoning,
   including the one rejected on sight (porting `aip-core` onto the imported
   chain would invalidate every shipped verifier, the NEXORA log, the
@@ -88,7 +151,7 @@ versioning is [SemVer](https://semver.org/).
   `ADVERSARIAL_RESULTS.md`) and the one rejected for now (a translation layer
   makes the re-sealer a party the verifier must trust, which is the opposite
   of the point).
-- **The interim rule is a test, not prose.**
+- **The rule is a test, not prose** *(now permanent, per the closed ADR)*.
   `aip-test/tests/evidence_chain_boundary.rs` scans every `Cargo.toml`
   outside the import and fails if any declares `ot-accountability-core`,
   `[dev-dependencies]` included. A second test pins that the crate still

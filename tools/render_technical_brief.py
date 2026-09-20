@@ -54,7 +54,7 @@ from reportlab.platypus import (
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = REPO / "docs" / "pilot" / "SNIFFER_DOG_TECHNICAL_BRIEF_RBI.pdf"
 
-REVISION = "Revision 7"
+REVISION = "Revision 8"
 PERIOD = "September 2026"
 RUNNING = (
     "VANIAN Technologies  |  Sniffer Dog / AIP: Technical Brief  |  "
@@ -1001,6 +1001,92 @@ def content(st, width):
         "false. The demonstration was dropped before it was written into this brief. We record "
         "it because the Department is entitled to know what we checked and discarded, not only "
         "what we kept: both systems document the same limit, which is a hostile host."))
+    s.append(Paragraph(
+        "10c. The funnel an agent can decline — out-of-band reconciliation",
+        st["h2"]))
+    s.append(P(
+        "Sections 6 and 10a-b concern what passed <i>through</i> the system. There is a "
+        "class of failure none of them reaches, and it is not closed by making any control "
+        "stricter: <b>an agent that does not use the governed path leaves no record to be "
+        "missing from.</b> The tool boundary adjudicates calls that arrive at it. A stricter "
+        "boundary is still one an agent can route around, and inline enforcement cannot see "
+        "its own bypass. Catching that requires comparing the ledger against a sensor "
+        "outside the governed channel."))
+    s.append(P(
+        "A reconciler for exactly this exists in our codebase and has for some time. Its "
+        "weakness was its input: it reads a log of process launches and network egress, and "
+        "in the deployment it was designed for, that log is written by the components being "
+        "watched. <b>A tool server's own access log is the tool server's account of "
+        "itself</b> — the weakest possible root for a detector whose entire purpose is to "
+        "catch something that is lying about what it did."));
+    s.append(P(
+        "AIP observes process launches and connections <b>from the kernel</b>, binds them to "
+        "process instances through pidfd, and has an off-host collector sign the result. "
+        "`aip-sentinel-feed` renders that evidence as the reconciler's input, replacing the "
+        "self-reported root with a kernel-derived and independently signed one. It verifies "
+        "the archive under the observer's anchor <b>before rendering anything</b> and writes "
+        "nothing at all if that fails; an effect log derived from unverified bytes would be a "
+        "statement about a file rather than about a machine, and it is handed to a detector "
+        "that raises critical findings from it."))
+    s.append(P(
+        "<b>This is not corroboration and we do not present it as such.</b> The reconciler on "
+        "the far side is ours. Sections 10a and 10b are corroboration because bpftrace, "
+        "auditd and SPIRE were built by other people; this is an architectural gap closed "
+        "with our own components, and the Department should weigh it as that and nothing "
+        "more."))
+    s.append(Paragraph("What was actually checked", st["h2"]))
+    s.append(P(
+        "The claim that two components interoperate is worth nothing asserted. The feed's "
+        "output is written to disk and read back by the reconciler's own reader, against the "
+        "real agent archive of section 10, not a fixture:"))
+    s.append(table(
+        ["Check", "Result"],
+        [
+            ["Every line of the real feed parses, through the consumer's own reader",
+             "<b>0 malformed</b> of 22 records"],
+            ["Spawn records agree with the delegation chain derived from the same archive",
+             "<b>21 and 21</b>"],
+            ["An unapproved destination becomes a finding naming it and citing the record id",
+             "Yes; the measured 81,920 bytes survive into the finding"],
+            ["An approved destination produces no finding <i>(soundness control)</i>",
+             "<b>None</b> — the detector is not simply always red"],
+        ],
+        [0.62, 0.38]))
+    s.append(Paragraph(
+        "The number in this section the Department should read first", st["h2"]))
+    s.append(P(
+        "Building the feed's coverage report exposed a defect in the report itself, and "
+        "fixing it produced the most useful measurement in this revision. The first version "
+        "counted only events that reached the attribution stage — and unbound events are "
+        "discarded before it, correctly, because an unbound event is not evidence of a "
+        "process instance. <b>Eight connection attempts in the real archive were therefore "
+        "counted nowhere, while the report implied full coverage.</b> A report that "
+        "undercounts what it could not see is worse than no report, because a reader takes "
+        "its silence for coverage. It now counts them by a direct scan, and two tests assert "
+        "the accounting balances exactly."))
+    s.append(P(
+        "What that then showed, on the same real agent run: <b>84 of 105 `execve` events "
+        "could not be bound to a measured process instance.</b> The workload was a shell "
+        "spawning short-lived children that exited before a pidfd-anchored measurement could "
+        "complete. This is the behaviour section 10b already reports — the probe saw the "
+        "exec and could not measure that instance — and nothing here is new about the "
+        "mechanism. What is new is its <b>magnitude on a workload of that shape</b>, which "
+        "no previous artefact of ours quantified."))
+    s.append(P(
+        "We state it plainly because it is the honest answer to a question an assessor "
+        "should ask: <i>what fraction of execution does this observer actually bind?</i> On "
+        "short-lived processes, a minority of it. The system's response is to report the "
+        "remainder as unmeasured rather than to guess — which is the CANNOT_PROVE discipline "
+        "of section 5 operating exactly as specified, not failing — but a control that binds "
+        "a fifth of execs on one workload shape and most of them on another is a control "
+        "whose coverage must be measured per deployment and not assumed. <b>A pilot must "
+        "report this ratio for the institution's own workload.</b> Raising it is probe-side "
+        "engineering (earlier pidfd acquisition), and it is on the roadmap rather than in "
+        "this brief as a solved problem."))
+    s.append(N(
+        "Reproduce: `cargo test -p aip-sentinel-feed` (34 tests) and "
+        "`cargo test -p aip-feed-conformance` (4). The sealed feed and its full coverage "
+        "report are at `integrations/agents/results/sealed/effect_feed.jsonl`."))
     s.append(Paragraph("Demonstrator versus pilot deployment", st["h2"]))
     s.append(P(
         "Two configurations exist and the difference matters for what a pilot can conclude. "

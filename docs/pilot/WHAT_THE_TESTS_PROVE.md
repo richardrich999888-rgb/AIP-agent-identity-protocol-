@@ -177,7 +177,7 @@ be honest about gaps.
 
 | # | Failure class | Highest rung | What exists | What is missing |
 |---|---|---|---|---|
-| **F11** | **The agent declines to use the channel at all** | **R2** | Everything else in this repository is *inline*: it proves what went through the funnel. An agent that calls a tool server directly, keeps running after its credentials were revoked, spawns a copy of itself, or has its identity borrowed never touches the funnel, so none of it appears in the ledger. **Inline enforcement cannot see its own bypass**, and a stricter gateway does not help, because a stricter gateway is still one an agent can decline to use. `ot-sentinel` (merged 2026-09-20, 82 tests passing) closes it by *reconciliation*: independent sensors report what happened, the sentinel compares that against what the ledger sealed, and the difference is the finding. Matching is one-to-one on the digest of the canonical call parameters, so a ghost cannot hide behind a concurrent legitimate call of the same tool, and a replayed call has no second packet to account for it. | Its 31 integration tests (`ghost_hunt.rs`) **cannot run here**: they need `ot-mcp-gateway` and `ot-pqc`, and `ot-pqc` was not part of the import. So the reconciliation primitive is unit-tested and the end-to-end ghost hunt is not. It has also never been run against a real deployment's sensors — the same limit as every other row. |
+| **F11** | **The agent declines to use the channel at all** | **R2** | Everything else in this repository is *inline*: it proves what went through the funnel. An agent that calls a tool server directly, keeps running after its credentials were revoked, spawns a copy of itself, or has its identity borrowed never touches the funnel, so none of it appears in the ledger. **Inline enforcement cannot see its own bypass**, and a stricter gateway does not help, because a stricter gateway is still one an agent can decline to use. `ot-sentinel` (merged 2026-09-20, 82 tests passing) closes it by *reconciliation*: independent sensors report what happened, the sentinel compares that against what the ledger sealed, and the difference is the finding. Matching is one-to-one on the digest of the canonical call parameters, so a ghost cannot hide behind a concurrent legitimate call of the same tool, and a replayed call has no second packet to account for it. **Since 2026-09-20 its effect sensor is fed from the kernel.** Its detector previously read a JSONL log of process launches and egress written, in the deployment it was designed for, *by the components being watched* — its own source says the detector "had nothing feeding it". `aip-sentinel-feed` (34 tests) now renders AIP's collector-signed, pidfd-bound kernel evidence into that sensor's schema, verifying the archive under its anchor first and emitting nothing if that fails. `aip-feed-conformance` (4 tests) proves the join against the real Phase-1 archive: **0 malformed lines** through the consumer's own tailer, an unapproved destination becoming a finding that cites the feed's record id, and an approved one producing none. | Its 31 integration tests (`ghost_hunt.rs`) **still cannot run here**: they need `ot-mcp-gateway` and `ot-pqc`, and `ot-pqc` was not part of the import, so the full ghost hunt remains unexercised in this workspace. It has also never been run against a real deployment's sensors — the same limit as every other row. |
 
 **Why this belongs in this document rather than only in a changelog.** §1.1
 says the tests were written by the party being tested, and the worked example
@@ -186,12 +186,22 @@ omit it, but because the risk map and the test suite were written from the
 same vantage point — inside the funnel. An outside assessment is what finds
 the class you did not think to name, which is why blocker B2 is on the list.
 
-**Not carried into the RBI submission.** `ot-sentinel` arrives with an
-evidence-chain format that is **not byte-compatible** with this system's
-(`docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md`, status OPEN). Until that decision
-is made, this capability is not described to the Department, and a
-dependency guard test stops any crate outside the import from reaching for
-it in the meantime.
+**Now carried into the submission — as an architecture item, not a validation
+result.** `ot-sentinel` arrives with an evidence-chain format that is **not
+byte-compatible** with this system's. That decision is now made:
+`docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md` is **closed** under bounded
+coexistence — `aip-core` is the evidence format everywhere outside the import,
+the second stays internal to the sentinel's reconciliation path, and the
+dependency guard test is permanent and was re-verified against a deliberate
+violation. The feed did not require resolving the conflict, because the
+conflict is on the *evidence* side and the feed touches only the *observation*
+side, which carries no chain: the coupling is a file, not a link.
+
+**And it is explicitly not corroboration.** `ot-sentinel` is ours. §10a and
+§10b of the technical brief are corroboration because bpftrace, auditd and
+SPIRE were built by other people. This is §10c, filed as an architectural gap
+closed with our own components, and the brief says so in those words. Anyone
+quoting it as a third corroboration axis is misreading it.
 
 ---
 
@@ -278,6 +288,14 @@ validation/pilot_e2e/run.sh
 # The storage controls, against a real PostgreSQL, including that they
 # survive a backup and restore.
 deploy/sql/restore_drill.sh
+
+# F11: AIP's kernel evidence rendered as the out-of-band reconciler's input,
+# and the reconciler actually parsing and acting on it.
+cargo test -p aip-sentinel-feed
+cargo test -p aip-feed-conformance
+
+# The closed ADR's boundary, still enforced.
+cargo test -p aip-test --test evidence_chain_boundary
 
 # The whole suite.
 cargo test --workspace

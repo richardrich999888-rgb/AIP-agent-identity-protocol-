@@ -168,14 +168,29 @@ Named here so nobody has to guess.
   in the tree and **does not build here**: it needs `ot-pqc`, which the
   import did not bring across.
 
-**Partly present, and bounded.** Out-of-band detection of an agent that
-bypasses the accountability channel entirely — everything above is *inline*
-enforcement, which cannot see its own bypass. `ot-sentinel` reconciles what
-independent sensors observed against what the ledger sealed (82 tests). It
-arrives with an evidence-chain format that is **not byte-compatible** with
-`aip-core`'s, so nothing outside `orbitaltrust-accountability/` may depend on
-it until `docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md` is closed — enforced by
-`aip-test/tests/evidence_chain_boundary.rs`, not by prose.
+**Present, and bounded.** Out-of-band detection of an agent that bypasses the
+accountability channel entirely — everything above is *inline* enforcement,
+which cannot see its own bypass. `ot-sentinel` reconciles what independent
+sensors observed against what the ledger sealed (82 tests), and since
+2026-09-20 its effect sensor is fed from the kernel: `aip-sentinel-feed`
+(34 tests) verifies an attested archive under the observer's anchor and renders
+the spawns and connections AIP measured into that sensor's schema, replacing a
+log the watched components write about themselves. `aip-feed-conformance`
+(4 tests) proves the join against the real Phase-1 archive — 0 malformed lines
+through the consumer's own tailer, with a soundness control.
+
+`ot-sentinel`'s evidence-chain format is **not byte-compatible** with
+`aip-core`'s, and `docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md` is now **closed**
+under bounded coexistence: nothing outside `orbitaltrust-accountability/` may
+depend on `ot-accountability-core`, permanently, enforced by
+`aip-test/tests/evidence_chain_boundary.rs` rather than by prose. The feed did
+not need that conflict resolved — it is on the evidence side, and the feed
+touches only the observation side, which carries no chain. The coupling is a
+file, not a link.
+
+This is **not** independent corroboration: `ot-sentinel` is ours. For
+corroboration by systems we did not build, see `aip-corroborate` (bpftrace,
+auditd) and `aip-spiffe` (SPIRE).
 
 ---
 
@@ -334,9 +349,10 @@ Start here if you are doing diligence:
   the document says so first), every failure class scored on a four-rung
   ladder, and the three limits no further testing here removes.
 - [`docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md`](docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md)
-  — **status OPEN.** Two hash-chained evidence constructions now live in this
-  repository and they are not byte-compatible. The options, the one rejected
-  on sight, and the interim rule that is enforced by a test.
+  — **status ACCEPTED (option A).** Two hash-chained evidence constructions
+  live in this repository and they are not byte-compatible. The options
+  weighed, the one rejected on sight, why porting the sentinel was rejected,
+  and the permanent rule that is enforced by a test rather than by prose.
 - [`orbitaltrust-accountability/README.md`](orbitaltrust-accountability/README.md)
   — the imported layer: which two of its four Rust crates are wired, why the
   other two cannot build, and the manifest check that proves 112 of its 114

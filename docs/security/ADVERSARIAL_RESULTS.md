@@ -587,3 +587,91 @@ the same limit: a hostile host.
 *Reproduced by `validation/external/spiffe/run.sh` (S1) and
 `validation/external/spiffe/joint_run.sh` (S3/S4); sealed evidence in
 `validation/external/spiffe/results/`. Comparison logic: `aip-spiffe`, 25 tests.*
+
+---
+
+## OB — Out-of-band reconciliation: the funnel an agent can decline
+
+The two sections above corroborate. **This one does not, and is filed here to
+be scored, not to be counted as a third corroboration axis.** The reconciler on
+the far side of this join is `ot-sentinel`, which we wrote. bpftrace, auditd and
+SPIRE were built by other people; this was not. What it closes is an
+architectural gap (F11), with our own components.
+
+The gap: every control described above adjudicates what reaches it. An agent
+that does not use the governed path leaves **no record to be missing from**, and
+no amount of additional strictness at the boundary changes that — inline
+enforcement cannot see its own bypass. `ot-sentinel` reconciles observed effects
+against sealed packets for exactly this reason, and its effect sensor reads a
+JSONL log of process launches and network egress. In the deployment it was
+designed for, that log is written by the components being watched; its own
+source records that the detector behind it "had nothing feeding it".
+
+`aip-sentinel-feed` replaces that root. It verifies an attested archive under
+the observer's anchor **first** and renders nothing if that fails, then maps the
+spawns and connections AIP derived from kernel evidence into the sensor's
+schema. The coupling is a **file, not a link**: no packet crosses evidence
+formats and nothing is re-sealed, which is why
+`docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md` could be closed under bounded
+coexistence rather than by a translation layer.
+
+### The join, checked against the real Phase-1 archive
+
+| id | case | result |
+|----|------|--------|
+| OB-01 | every line of the real feed parsed by the consumer's own tailer | **0 malformed** of 22 records; 22 observations, all of kinds its detectors act on |
+| OB-02 | spawn records vs. the delegation chain derived from the same archive | **21 and 21** — two independent derivations of the same evidence agree |
+| OB-03 | an unapproved destination observed only by the kernel | **UNAUTHORIZED_EGRESS**, naming `203.0.113.9`, citing the feed's own record id, carrying the measured 81,920 bytes |
+| OB-04 | soundness control: an approved destination and an approved image | **no finding** — the detector is not always red, so OB-03 means something |
+| OB-05 | an unapproved process image | **UNAUTHORIZED_PROCESS_SPAWN**, naming `/bin/sh`, citing the record id |
+| OB-06 | a tampered archive driven through the binary | **exit 1, nothing written** — not a partial feed, not a warning |
+
+### The drop rules, each with a test that fails if it is relaxed
+
+The feed hands evidence to a detector that raises **critical** findings from it,
+so every false record here is a false accusation there.
+
+| id | refused input | why it is refused |
+|----|---------------|-------------------|
+| OB-07 | a fork with no bound execution | nothing showed what image ran; there is no command to name |
+| OB-08 | an exec whose child start could not be checked against the clock anchor | the fork→exec pairing is unanchored, so a recycled pid could pose as the child |
+| OB-09 | a `connect()` the kernel never reported completing | it moved nothing; the consumer judges destinations at **critical** severity, so this would manufacture a critical finding out of a refused syscall — the same defect class as ARTK/XC counting failed `execve` attempts as observation gaps |
+| OB-10 | a batch with no clock anchor | the schema is wall time; a guessed timestamp reconciles against the wrong window **silently** |
+| OB-11 | a send on a reused socket key | bytes are attributed to the connection live at the time of the send, never by `sk` alone — otherwise one connection is credited with another's traffic |
+
+### Two defects this exercise found — in our code
+
+| id | symptom | root cause | resolution |
+|----|---------|------------|------------|
+| OB-H1 | the coverage report claimed zero unaccounted connection attempts while nine had been observed | the report was built only from derived values, and unbound events are discarded **before** derivation (correctly — an unbound event is not evidence of an instance), so **8 unbound `connect()` initiations were counted nowhere** | a direct scan now counts them; `sf14` locks the regression and `sf15` asserts the accounting balances exactly against the real archive |
+| OB-H2 | `2001:db8::` rendered as `2001:db8:` | the RFC 5952 writer dropped the trailing colon on an address ending in a zero run | rewritten as a head/tail join with no seam to get wrong; 11 tests including v4-mapped, longest-run and leftmost-tie cases. **A destination rendered in a form an allow-list does not use is a false negative in the one check that matters** |
+
+### The measurement OB-H1 made visible
+
+Fixing OB-H1 produced the most useful number in this section, and it is not a
+flattering one. On the same real agent run:
+
+```
+emitted 22 (21 spawn, 1 egress with 81,920 measured bytes)
+not rendered 188 — fork without bound execution 74;
+                   unbound: spawn 22, exec 84, connect 8
+```
+
+**84 of 105 `execve` events could not be bound to a measured process
+instance.** The workload was a shell spawning short-lived children that exited
+before a pidfd-anchored measurement could complete. The mechanism is already
+recorded as XI-H2 — the probe saw the exec and could not measure that instance.
+What is new is the **magnitude on a workload of that shape**, which no previous
+artefact of ours quantified.
+
+The system's response is to report the remainder as unmeasured rather than to
+guess, which is the `CANNOT_PROVE` discipline operating as specified. But a
+control that binds a fifth of execs on one workload shape and most of them on
+another has a coverage ratio that must be **measured per deployment, never
+assumed**, and a pilot must report it for the institution's own workload.
+Raising it is probe-side engineering (earlier pidfd acquisition) and is on the
+roadmap, not in any submission as a solved problem.
+
+*Reproduced by `cargo test -p aip-sentinel-feed` (34 tests) and
+`cargo test -p aip-feed-conformance` (4 tests). Sealed feed and its full
+coverage report: `integrations/agents/results/sealed/effect_feed.jsonl`.*
