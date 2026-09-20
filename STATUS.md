@@ -110,8 +110,9 @@ human in the isolated environment.
 
 ## Standing limits, unchanged by any of this
 
-- **Not past TRL 4/5.** TRL 5/6 needs the two-daemon stack on a regulated
-  entity's own hardware — B8, not in this lab.
+- **Not past TRL 5.** TRL 6 needs the two-daemon stack watching a real agent
+  under representative load on a regulated entity's own hardware — B8, not in
+  this lab. The other TRL 6 condition (independent corroboration) is now met.
 - **B2 not closed.** A CERT-In empanelled assessment is external. These
   artefacts give an assessor a baseline to audit; they do not self-certify.
 - **No survival against a full kernel attacker.** The claim stays narrow: when
