@@ -1,0 +1,1258 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1789926254854,
+  "window_to_ms": 1789926256979,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 2414,
+        "wall_ms": 1789926254857,
+        "image": "/usr/bin/tee",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254854,
+      "external_image": "/usr/bin/tee",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2415,
+        "wall_ms": 1789926254859,
+        "image": "/usr/bin/seq",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254854,
+      "external_image": "/usr/bin/seq",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2416,
+        "wall_ms": 1789926254861,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254858,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2417,
+        "wall_ms": 1789926254862,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254858,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2417,
+        "wall_ms": 1789926254863,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254858,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2418,
+        "wall_ms": 1789926254865,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254862,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2419,
+        "wall_ms": 1789926254866,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254862,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2420,
+        "wall_ms": 1789926254868,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254862,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -6
+    },
+    {
+      "aip": {
+        "pid": 2420,
+        "wall_ms": 1789926254869,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254866,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2421,
+        "wall_ms": 1789926254870,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254866,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2422,
+        "wall_ms": 1789926254872,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254866,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -6
+    },
+    {
+      "aip": {
+        "pid": 2423,
+        "wall_ms": 1789926254873,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254870,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2423,
+        "wall_ms": 1789926254874,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254870,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2424,
+        "wall_ms": 1789926254876,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254870,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -6
+    },
+    {
+      "aip": {
+        "pid": 2425,
+        "wall_ms": 1789926254877,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254874,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2426,
+        "wall_ms": 1789926254879,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254874,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2426,
+        "wall_ms": 1789926254880,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254878,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2427,
+        "wall_ms": 1789926254881,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254878,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2428,
+        "wall_ms": 1789926254883,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254878,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2429,
+        "wall_ms": 1789926254884,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254882,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2429,
+        "wall_ms": 1789926254885,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254882,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2430,
+        "wall_ms": 1789926254886,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254882,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2431,
+        "wall_ms": 1789926254888,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254886,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2432,
+        "wall_ms": 1789926254889,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254886,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2432,
+        "wall_ms": 1789926254890,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254886,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2433,
+        "wall_ms": 1789926254891,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254886,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2434,
+        "wall_ms": 1789926254893,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254890,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2435,
+        "wall_ms": 1789926254894,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254890,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2435,
+        "wall_ms": 1789926254895,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254890,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2436,
+        "wall_ms": 1789926254896,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254894,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2437,
+        "wall_ms": 1789926254897,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254894,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2438,
+        "wall_ms": 1789926254899,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254894,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2438,
+        "wall_ms": 1789926254900,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254898,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2439,
+        "wall_ms": 1789926254901,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254898,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2440,
+        "wall_ms": 1789926254903,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254898,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2441,
+        "wall_ms": 1789926254904,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254902,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2441,
+        "wall_ms": 1789926254905,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254902,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2442,
+        "wall_ms": 1789926254906,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254902,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2443,
+        "wall_ms": 1789926254907,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254902,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2444,
+        "wall_ms": 1789926254909,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254906,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2444,
+        "wall_ms": 1789926254910,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254906,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2445,
+        "wall_ms": 1789926254911,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254906,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2446,
+        "wall_ms": 1789926254912,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254910,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2447,
+        "wall_ms": 1789926254914,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254910,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2447,
+        "wall_ms": 1789926254915,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254910,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2448,
+        "wall_ms": 1789926254916,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254914,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2449,
+        "wall_ms": 1789926254918,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254914,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2450,
+        "wall_ms": 1789926254919,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254914,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2450,
+        "wall_ms": 1789926254920,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254918,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2451,
+        "wall_ms": 1789926254922,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254918,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2452,
+        "wall_ms": 1789926254924,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254918,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -6
+    },
+    {
+      "aip": {
+        "pid": 2453,
+        "wall_ms": 1789926254925,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254922,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2453,
+        "wall_ms": 1789926254926,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254922,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2454,
+        "wall_ms": 1789926254927,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254922,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2455,
+        "wall_ms": 1789926254929,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254926,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2456,
+        "wall_ms": 1789926254930,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254926,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2456,
+        "wall_ms": 1789926254931,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254926,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2457,
+        "wall_ms": 1789926254932,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254930,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2458,
+        "wall_ms": 1789926254934,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254930,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2459,
+        "wall_ms": 1789926254935,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254930,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2459,
+        "wall_ms": 1789926254936,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254934,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2460,
+        "wall_ms": 1789926254938,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254934,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2461,
+        "wall_ms": 1789926254939,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254934,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2462,
+        "wall_ms": 1789926254941,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254938,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2462,
+        "wall_ms": 1789926254941,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254938,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2463,
+        "wall_ms": 1789926254943,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254938,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2464,
+        "wall_ms": 1789926254944,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254942,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2465,
+        "wall_ms": 1789926254946,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254942,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2465,
+        "wall_ms": 1789926254947,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254942,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2466,
+        "wall_ms": 1789926254948,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254946,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2467,
+        "wall_ms": 1789926254950,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254946,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2468,
+        "wall_ms": 1789926254951,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254946,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2468,
+        "wall_ms": 1789926254952,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254950,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2469,
+        "wall_ms": 1789926254953,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254950,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2470,
+        "wall_ms": 1789926254955,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254950,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2471,
+        "wall_ms": 1789926254956,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254954,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2471,
+        "wall_ms": 1789926254958,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254954,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2472,
+        "wall_ms": 1789926254959,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254954,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2473,
+        "wall_ms": 1789926254961,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254958,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2474,
+        "wall_ms": 1789926254962,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254958,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2474,
+        "wall_ms": 1789926254963,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254958,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2475,
+        "wall_ms": 1789926254965,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254962,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2476,
+        "wall_ms": 1789926254967,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254962,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2477,
+        "wall_ms": 1789926254968,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254966,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2477,
+        "wall_ms": 1789926254969,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254966,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2478,
+        "wall_ms": 1789926254971,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254966,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2479,
+        "wall_ms": 1789926254973,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254970,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2480,
+        "wall_ms": 1789926254974,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254970,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2480,
+        "wall_ms": 1789926254975,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254970,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2481,
+        "wall_ms": 1789926254977,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254974,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2482,
+        "wall_ms": 1789926254978,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254974,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2483,
+        "wall_ms": 1789926254980,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254978,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2483,
+        "wall_ms": 1789926254981,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254978,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2484,
+        "wall_ms": 1789926254983,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254978,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2485,
+        "wall_ms": 1789926254984,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254982,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2486,
+        "wall_ms": 1789926254985,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254982,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2486,
+        "wall_ms": 1789926254986,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254982,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2487,
+        "wall_ms": 1789926254988,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254986,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2488,
+        "wall_ms": 1789926254989,
+        "image": "/bin/echo",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254986,
+      "external_image": "/usr/bin/echo",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2489,
+        "wall_ms": 1789926254991,
+        "image": "/usr/bin/env",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254986,
+      "external_image": "/usr/bin/env",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2489,
+        "wall_ms": 1789926254992,
+        "image": "/usr/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254990,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2490,
+        "wall_ms": 1789926254994,
+        "image": "/bin/true",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254990,
+      "external_image": "/usr/bin/true",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2491,
+        "wall_ms": 1789926254996,
+        "image": "/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926254990,
+      "external_image": "/usr/bin/python3.11",
+      "skew_ms": -6
+    },
+    {
+      "aip": {
+        "pid": 2492,
+        "wall_ms": 1789926255008,
+        "image": "/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926255006,
+      "external_image": "/usr/bin/python3.11",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2493,
+        "wall_ms": 1789926255548,
+        "image": "/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926255546,
+      "external_image": "/usr/bin/python3.11",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2494,
+        "wall_ms": 1789926255660,
+        "image": "/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python",
+        "batch_sequence": 4
+      },
+      "external_wall_ms": 1789926255658,
+      "external_image": "/usr/bin/python3.11",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2495,
+        "wall_ms": 1789926256205,
+        "image": "/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python",
+        "batch_sequence": 5
+      },
+      "external_wall_ms": 1789926256202,
+      "external_image": "/usr/bin/python3.11",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 2496,
+        "wall_ms": 1789926256315,
+        "image": "/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python",
+        "batch_sequence": 5
+      },
+      "external_wall_ms": 1789926256310,
+      "external_image": "/usr/bin/python3.11",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2497,
+        "wall_ms": 1789926256871,
+        "image": "/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python",
+        "batch_sequence": 5
+      },
+      "external_wall_ms": 1789926256866,
+      "external_image": "/usr/bin/python3.11",
+      "skew_ms": -5
+    },
+    {
+      "aip": {
+        "pid": 2499,
+        "wall_ms": 1789926256976,
+        "image": "/usr/bin/tee",
+        "batch_sequence": 5
+      },
+      "external_wall_ms": 1789926256974,
+      "external_image": "/usr/bin/tee",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 2500,
+        "wall_ms": 1789926256978,
+        "image": "/usr/bin/date",
+        "batch_sequence": 5
+      },
+      "external_wall_ms": 1789926256974,
+      "external_image": "/usr/bin/date",
+      "skew_ms": -4
+    },
+    {
+      "aip": {
+        "pid": 2501,
+        "wall_ms": 1789926256979,
+        "image": "/usr/bin/sleep",
+        "batch_sequence": 5
+      },
+      "external_wall_ms": 1789926256978,
+      "external_image": "/usr/bin/sleep",
+      "skew_ms": -1
+    }
+  ],
+  "aip_only": [
+    {
+      "pid": 2410,
+      "wall_ms": 1789926254854,
+      "image": "/usr/bin/date",
+      "batch_sequence": 4
+    },
+    {
+      "pid": 2412,
+      "wall_ms": 1789926254855,
+      "image": "/usr/bin/tee",
+      "batch_sequence": 4
+    }
+  ],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 938
+}

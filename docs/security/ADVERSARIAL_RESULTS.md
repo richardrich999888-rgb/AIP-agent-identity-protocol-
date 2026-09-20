@@ -468,3 +468,64 @@ map, asserts byte-identical, runs the generator's 10 tests). Bounds: this is a
 that every atomic executed and reconciled. The attributed/effect classes say
 what the observer records; the not-covered rows say where it is blind. Only the
 `phase1-sealed` primitives carry attested live evidence.*
+
+---
+
+## Independent corroboration — observers we did not build
+
+Every row above this section tests AIP against attacks AIP's authors wrote, and
+every sensor that had ever agreed with AIP was a sensor AIP's authors built.
+This section is the second half of the answer to that objection (the first is
+the external ATT&CK corpus above): **two independently built runtime observers
+watched the same kernel, over the same window, as AIP's own probe.**
+
+| | |
+|---|---|
+| Observer 1 | **bpftrace 0.20.2** — independent eBPF implementation on `sched:sched_process_exec` |
+| Observer 2 | **auditd 3.1.2** — the kernel audit subsystem (`-S execve`), a *different mechanism* |
+| Comparison | `aip-corroborate`, which verifies the archive under its anchor **before** comparing |
+| Evidence | `validation/external/corroborate/results/sealed/`, reproduced by `validation/external/corroborate/run.sh` |
+
+| id | observer | independence | agreed | AIP only | recorded by them, absent from AIP | result |
+|----|----------|--------------|--------|----------|-----------------------------------|--------|
+| XC-01 | bpftrace | independent implementation, **same** kernel mechanism | 113 | 1 | **0** | **no AIP blind spot** |
+| XC-02 | auditd | **different** kernel subsystem | 112 | 2 | **0** | **no AIP blind spot** |
+| XC-03 | auditd | scope difference, not a defect | — | — | 938 failed execve **attempts** excluded | **stated, not hidden** |
+
+"AIP only" is not a defect: the third-party tracers start and stop as processes
+of their own and are configured for a narrower scope.
+
+**The two independence classes are not equal, and the tool refuses to let them
+read as one claim.** bpftrace corroborates that AIP faithfully reported what
+the tracepoint emitted; a foreign eBPF gate on that tracepoint (rows OI-13 to
+OI-15 above) would blind **both** observers identically. auditd does not share
+that mechanism, so a tracepoint gate does not blind it — which is why it is
+carried alongside bpftrace rather than instead of it.
+
+### Two defects the exercise found — in the harness, not in AIP
+
+Recorded because the way they were found is the reason to trust the result.
+
+| id | defect | why it was not AIP's | guard |
+|----|--------|----------------------|-------|
+| XC-H1 | 275 fabricated "AIP blind spots" | auditd records every execve **attempt**; `/usr/bin/env true` makes `env` search `$PATH` and each miss returns ENOENT. AIP's tracepoint fires only on a **successful** exec, correctly. The split was exact: 106 successes against 106 agreed, 275 failures with `exit=-2` | `x15_a_failed_execve_attempt_is_not_an_aip_blind_spot`; `x16` proves the exclusion cannot hide a real **successful** gap |
+| XC-H2 | one apparent gap, a `/usr/bin/sleep` | recorded by auditd **3 ms** before the window closed. **bpftrace missed it too**, which identified it as a teardown boundary artefact: AIP batches on an interval, so an execution received milliseconds before the probe stops has not necessarily reached an attested batch | the window now closes at the end of the workload, with both observers still running through a settle period |
+
+Neither correction weakens a verdict. The first stops the tool demanding that
+AIP record executions that never happened; the second stops it measuring a
+flush race instead of observer agreement.
+
+### Bounds
+
+**Falco and Tetragon were not used.** They are the first-choice observers named
+in the pilot plan; their distribution channels are unreachable from this build
+environment and neither is in the distribution archive. The comparison core is
+source-agnostic and carries a `Falco` variant; an adapter for its JSON output
+is the only missing piece. Stated rather than quietly substituted.
+
+This establishes that AIP's observations survive comparison with observers it
+did not author, including one not sharing its kernel mechanism. **It does not
+make the host kernel trustworthy** — two observers raise the cost of a
+consistent lie, they do not eliminate it — and it is a single run of ~113
+executions over a few seconds on a development virtual machine: not a soak
+test, not representative load, and not an institution's hardware (B8).

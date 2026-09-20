@@ -216,11 +216,16 @@ def build(out: Path) -> None:
         "Department why than round the number up.</b> Two conditions remain. <b>First</b>, a "
         "non-synthetic agent under representative load: the framework on the other end is now "
         "real, but the work it does is not, and that is precisely what a pilot supplies. "
-        "<b>Second</b>, independent corroboration — every sensor that has so far agreed with "
-        "ours is one we built, and we intend to place a third-party runtime observer alongside "
-        "ours and publish where the two agree and where they do not, before the number moves. "
-        "<b>The first of those two conditions is what we are asking the Department to help "
-        "make possible; the second is ours to deliver and is scheduled.</b>",
+        "<b>Second</b>, independent corroboration — and <b>that one is now done</b>. "
+        "Two independently built runtime observers, one of them reaching the kernel by a "
+        "different mechanism than ours, watched the same kernel over the same window as our "
+        "own sensors. Neither recorded an execution that is absent from our signed evidence. "
+        "The exercise also found two defects — both in our own comparison harness, not in "
+        "the observer — and the attached brief reports them and the tests that now guard "
+        "them, because how they were found is the reason to trust the result. "
+        "<b>That leaves exactly one condition between this and TRL 6: a real agent, doing "
+        "real work, in a regulated entity — and it is the one only a pilot can supply, "
+        "which is precisely what we are asking the Department to help make possible.</b>",
         st["p"])]], colWidths=[fw])
     tbl.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), BOX),

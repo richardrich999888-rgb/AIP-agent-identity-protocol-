@@ -1,0 +1,27 @@
+INDEPENDENT CORROBORATION
+third-party observer : auditd
+independence         : DifferentMechanism  (different kernel subsystem; survives a gate on AIP's mechanism)
+window compared (ms) : 1789926254854 .. 1789926256979  (2125 ms)
+pairing tolerance    : +/- 250 ms
+---
+agreed (both saw it)        : 112
+AIP only                    : 2
+THIRD-PARTY ONLY (AIP gap)  : 0
+failed execve ATTEMPTS       : 938  (excluded: nothing executed)
+agreement                   : 98.2%
+---
+NO AIP BLIND SPOT: every execution the independent observer recorded inside the
+window AIP claims to have covered is present in AIP's signed evidence.
+---
+AIP recorded 2 execution(s) the third-party observer did not. This is not by
+itself a defect: the observers are configured for different scopes, and the
+third-party tracer starts and stops as a process of its own.
+---
+Scope difference (not a defect): the independent observer also recorded 938 failed
+execve ATTEMPT(s) — a $PATH search producing ENOENT, for example. Nothing executed,
+so AIP's scheduler tracepoint correctly does not report them and they are excluded
+from the comparison above. auditd sees attempts; AIP sees executions.
+---
+This compares reported executions. It does not make the host kernel trustworthy:
+a sufficiently privileged attacker may deceive both observers, and where both read
+the same kernel mechanism, one gate blinds both.

@@ -1,0 +1,40 @@
+corr-1
+corr-2
+corr-3
+corr-4
+corr-5
+corr-6
+corr-7
+corr-8
+corr-9
+corr-10
+corr-11
+corr-12
+corr-13
+corr-14
+corr-15
+corr-16
+corr-17
+corr-18
+corr-19
+corr-20
+corr-21
+corr-22
+corr-23
+corr-24
+corr-25
+PARENT pid=2492 node=plan marked_path=/tmp/aip_corr_marker_1
+CHILD pid=2493 ppid=2492
+CHILD done pid=2493
+PARENT pid=2492 node=act child_pid=2493 exit=0
+AGENT_RESULT parent_pid=2492 child_pid=2493 exit_code=0 marked_path=/tmp/aip_corr_marker_1
+PARENT pid=2494 node=plan marked_path=/tmp/aip_corr_marker_2
+CHILD pid=2495 ppid=2494
+CHILD done pid=2495
+PARENT pid=2494 node=act child_pid=2495 exit=0
+AGENT_RESULT parent_pid=2494 child_pid=2495 exit_code=0 marked_path=/tmp/aip_corr_marker_2
+PARENT pid=2496 node=plan marked_path=/tmp/aip_corr_marker_3
+CHILD pid=2497 ppid=2496
+CHILD done pid=2497
+PARENT pid=2496 node=act child_pid=2497 exit=0
+AGENT_RESULT parent_pid=2496 child_pid=2497 exit_code=0 marked_path=/tmp/aip_corr_marker_3

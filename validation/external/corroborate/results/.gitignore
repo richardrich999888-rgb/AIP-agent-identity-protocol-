@@ -1,0 +1,6 @@
+# Timestamped run directories are working output and contain throwaway key
+# material under work/. Only results/sealed/ is committed as evidence.
+*
+!.gitignore
+!sealed/
+!sealed/**

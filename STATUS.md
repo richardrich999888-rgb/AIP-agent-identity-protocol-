@@ -12,9 +12,15 @@ same real evidence; Phase 4 grades the observer against an external
 output-parsing harness, per-tool runbook and VM-setup script are built and the
 harness is fixture-tested, but no rootkit is run in this environment.** The one
 thing that still needs infrastructure absent here is a live rootkit VM capture
-(Phase 5), which the safety rules forbid running on this host. TRL 5 is
-unchanged; B8 (institution hardware) and B2 (external assessor) are untouched,
-exactly as the plan says this program cannot move them.
+(Phase 5), which the safety rules forbid running on this host. **AIP's
+observations have also now been corroborated by two runtime observers we did
+not build**, one of them reaching the kernel by a different mechanism; neither
+found an execution missing from AIP's signed evidence. TRL 5 is unchanged; B8
+(institution hardware) and B2 (external assessor) are untouched, exactly as the
+plan says this program cannot move them. **Of the two conditions the technical
+brief names for TRL 6, the second — independent corroboration by an observer we
+did not build — is now met and evidenced; the first, a non-synthetic agent
+under representative load, stands alone and is what a pilot supplies.**
 
 ## Now demonstrated (built, tested, committed)
 
@@ -55,6 +61,24 @@ exactly as the plan says this program cannot move them.
   8 attributed / 6 effect-observed / **6 not-covered** (AIP's honest blind
   spots). No atomic is executed here; only Phase-1 primitives carry live
   evidence. Ledger rows in `docs/security/ADVERSARIAL_RESULTS.md`.
+- **Independent corroboration — observers we did not build.** The one objection
+  more of our own tests could not answer: every sensor that had ever agreed with
+  AIP was one we built. Two independently built observers — **bpftrace 0.20.2**
+  (independent eBPF implementation, same tracepoint) and **auditd 3.1.2** (the
+  audit subsystem, a *different* kernel mechanism) — watched the same kernel over
+  the same window as AIP's probe. **Neither recorded an execution absent from
+  AIP's signed evidence** (bpftrace 113 agreed / 0 gaps; auditd 112 agreed / 0
+  gaps, with 938 failed execve *attempts* excluded and reported as a scope
+  difference). `aip-corroborate` (32 tests) verifies the archive under its anchor
+  before comparing anything, and labels each report with which class of
+  independence it represents — a gate on the shared tracepoint would blind both
+  bpftrace and AIP, which auditd is carried to cover. Sealed in
+  `validation/external/corroborate/results/sealed/`. The exercise found **two
+  defects in the comparison harness, not in AIP** — 275 failed execve attempts
+  counted as blind spots, and one 3 ms teardown boundary artefact that the
+  *other* observer also missed — both now guarded by tests and written up.
+  Falco/Tetragon were first choice and are unreachable from this environment;
+  stated, not substituted.
 - **Phase 5 output-parsing harness** — `adversarial/rootkit-runbooks/parse_health.py`
   ingests an observer health capture and asserts the attack forced an honest
   non-answer. Built and fixture-tested (`run.sh` passes; proven non-vacuous —
@@ -117,5 +141,7 @@ cargo test -p aip-reconcile --test delegation_attribution  # Phase 3 exit gate
   --pubkey-file integrations/agents/results/sealed/observer.pub \
   --batches integrations/agents/results/sealed/attested.archive.jsonl  # Phase 3 on real evidence
 bash adversarial/atomic/run.sh                       # Phase 4 layer: tests + drift check
+cargo test -p aip-corroborate                        # independent corroboration: 32 tests
+validation/external/corroborate/run.sh               # live: AIP vs bpftrace + auditd
 adversarial/rootkit-runbooks/run.sh                 # Phase 5 harness vs fixtures
 ```

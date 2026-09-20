@@ -1,0 +1,20 @@
+[package]
+name = "aip-corroborate"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Compare AIP's attested observations against an independently built runtime observer, and report where they agree, where they do not, and what each one missed"
+
+[[bin]]
+name = "aip-corroborate"
+path = "src/bin/aip-corroborate.rs"
+
+[dependencies]
+aip-observe = { path = "../aip-observe" }
+aip-observe-verify = { path = "../aip-observe-verify" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+aip-crypto = { path = "../aip-crypto" }
+aip-types = { path = "../aip-types" }

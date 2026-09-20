@@ -35,4 +35,5 @@ and what has not. See `STATUS.md` at the repository root for the register.
 | `../integrations/mcp-gateway/` | 2 | **built + tested**; `aip-mcp-gateway` signs a `ToolReceipt` per `tools/call`; ContextForge adapter shells to it |
 | `atomic/` | 4 | **built + tested**; Navigator layer generated from an ATT&CK coverage map (no atomic executed on host) |
 | `rootkit-runbooks/` | 5 | **document-only**; the output-parsing harness is built + fixture-tested |
+| `../validation/external/corroborate/` | 10a | **executed + sealed**; bpftrace + auditd corroboration, no AIP blind spot |
 | `vendored/` | 2,5 | source review only; `DO_NOT_RUN_ON_HOST` |

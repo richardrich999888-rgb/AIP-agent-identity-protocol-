@@ -175,8 +175,12 @@ def content(st, width):
         "parent -- when the fork record is missing. <b>Fourth, coverage is now stated against "
         "an external corpus we did not write</b>: Atomic Red Team, mapped to MITRE ATT&amp;CK "
         "and published as a Navigator layer in which <b>6 of 20 techniques are marked not "
-        "covered</b>. Subsection 10a is new and states what independent corroboration must "
-        "still be added before TRL 6 is claimed. <b>All of it ran on a development virtual "
+        "covered</b>. <b>Fifth, and the substantive one: AIP's observations have "
+        "been corroborated by two runtime observers we did not build</b> -- bpftrace and "
+        "auditd, the latter reaching the kernel by a different mechanism -- watching the "
+        "same kernel over the same window; neither recorded an execution absent from AIP's "
+        "signed evidence. Subsection 10a gives the numbers and the two defects the exercise "
+        "found in our own comparison harness. <b>All of it ran on a development virtual "
         "machine; B8, the run on the institution&#8217;s own hardware, is unchanged.</b>"))
     s.append(P(
         "<b>What changed since Revision 4.</b> The Phase 1 exit gate is met end to end on a "
@@ -659,10 +663,15 @@ def content(st, width):
         "and the load is not representative. That is blocker B8 expressed in readiness terms "
         "rather than deployment terms, and it is precisely what the pilot in section 12 "
         "exists to supply. <b>(ii) Independent corroboration of our observations by a runtime "
-        "observer we did not build.</b> Every sensor that has ever agreed with us is ours; "
-        "subsection 10a names the specific open-source systems that would end that and the "
-        "order in which we propose to add them. Until both conditions hold the honest number "
-        "is 5. We would rather be asked to defend a 5 we can evidence than a 6 we cannot."))
+        "observer we did not build.</b> <b>This condition has been met since Revision 5</b> "
+        "and is the substantive change in this revision: two independently built observers "
+        "-- one of them reaching the kernel by a different mechanism than ours -- watched "
+        "the same kernel over the same window, and neither recorded an execution absent "
+        "from AIP's signed evidence. Subsection 10a gives the numbers, the two defects the "
+        "run found in our own comparison harness, and what remains open on that front. "
+        "<b>Condition (i) therefore stands alone, and it is the one only a pilot can "
+        "supply.</b> Until it holds the honest number is 5. We would rather be asked to "
+        "defend a 5 we can evidence than a 6 we cannot."))
     for b in [
         "<b>Foreign eBPF tracepoint gate</b> attached to each perf sensor (an attacker with "
         "CAP_BPF): the observer signs an integrity-unknown state and the reconciler answers "
@@ -805,70 +814,98 @@ def content(st, width):
         s.append(B(b))
 
     s.append(Paragraph(
-        "10a. Independent corroboration: what is still missing before TRL 6 is claimed",
+        "10a. Independent corroboration by observers we did not build — executed",
         st["h2"]))
     s.append(P(
-        "There is one criticism of everything above that we cannot answer with more of our "
-        "own tests, and we would rather raise it than be asked it. <b>Every sensor that has "
-        "ever agreed with this system is a sensor we built.</b> The cross-sensor divergence "
-        "check of section 9 is real and it is load-bearing, but it compares two of "
+        "There is one criticism of everything above that we could not answer with more "
+        "of our own tests, and we would rather state it than be asked it: <b>every sensor "
+        "that had ever agreed with this system was a sensor we built.</b> The cross-sensor "
+        "divergence check of section 9 is real and load-bearing, but it compares two of "
         "<i>our</i> sensors against each other. An assessor is entitled to ask whether a "
-        "runtime observer built by someone else, watching the same kernel at the same moment, "
-        "records what we say it records. Until that question has an answer, the system is "
-        "internally consistent rather than externally corroborated, and internal consistency "
-        "is not what an Assurance-pillar control is for."))
+        "runtime observer built by someone else, watching the same kernel at the same "
+        "moment, records what we say it records. <b>That has now been run.</b>"))
     s.append(P(
-        "We propose to close this with mature, widely deployed open-source systems, in the "
-        "order below, before claiming TRL 6. Each is chosen because it is independently "
-        "built, independently governed, and already accepted in the environments a regulated "
-        "entity operates. <b>Where an independent observer disagrees with ours, the "
-        "disagreement is reported, not suppressed</b> — which is the same rule the rest of "
-        "this system runs on."))
+        "Two independently built observers ran alongside AIP's probe and collector over the "
+        "same kernel and the same window. <b>bpftrace 0.20.2</b> is an independent eBPF "
+        "implementation attached to the same `sched:sched_process_exec` tracepoint AIP's "
+        "perf sensor reads. <b>auditd 3.1.2</b> reaches the kernel through the audit "
+        "subsystem — a different mechanism entirely. Both results are sealed in "
+        "`validation/external/corroborate/results/sealed/` and reproduced by one script."))
+    s.append(table(
+        ["Independent observer", "Independence", "Agreed", "AIP only", "Recorded by them, absent from AIP"],
+        [
+            ["bpftrace 0.20.2", "independent implementation, <b>same</b> kernel mechanism",
+             "113", "1", "<b>0</b>"],
+            ["auditd 3.1.2", "<b>different</b> kernel subsystem",
+             "112", "2", "<b>0</b>"],
+        ],
+        [0.22, 0.34, 0.11, 0.11, 0.22]))
+    s.append(P(
+        "<b>Neither observer recorded an execution that is absent from AIP's signed "
+        "evidence.</b> The \"AIP only\" column is not a defect: the third-party tracers "
+        "start and stop as processes of their own and are configured for a narrower scope. "
+        "The archive was verified under its anchor <i>before</i> anything was compared; a "
+        "corroboration report over unverified bytes is a statement about a file, not a "
+        "system."))
+    s.append(P(
+        "<b>The two kinds of independence are not equal, and the tool does not let them be "
+        "read as one claim.</b> bpftrace corroborates that AIP faithfully reported what the "
+        "tracepoint emitted; a foreign eBPF gate on that tracepoint would blind both "
+        "observers identically, so it does not corroborate coverage. auditd does not share "
+        "that mechanism and a tracepoint gate does not blind it, which is why it is carried "
+        "alongside rather than instead. `aip-corroborate` labels every report with which of "
+        "the two it is."))
+    s.append(Paragraph("What the run found — in our own harness", st["h2"]))
+    s.append(P(
+        "Both defects below were in the comparison, not in AIP, and both are recorded "
+        "because the way they were found is the reason to trust the result."))
     for b in [
-        "<b>1. An independent kernel observer: Falco or Tetragon.</b> Falco is the first "
-        "runtime-security project to graduate under the CNCF; Tetragon comes from the Cilium "
-        "team. Both watch the same kernel events by the same underlying mechanism and neither "
-        "is ours. The deliverable is a run in which our attested archive and an unmodified "
-        "third-party observer are compared event for event over the same window, with "
-        "agreement, disagreement and each observer's own blind spots stated. This is the "
-        "single strongest item on the list: it converts <i>trust our sensor</i> into "
-        "<i>two independently built sensors agree, and here is what happens when they do not</i>.",
-        "<b>2. Workload identity: SPIFFE/SPIRE.</b> SPIRE is the CNCF-graduated standard for "
-        "answering &#8220;which process is this?&#8221;, and it answers it, as we do, by asking "
-        "the kernel. Cross-checking our execution binding against SPIRE's attestation of the "
-        "same process is a direct, external check on the identity claim the whole system "
-        "rests on. We note, without asserting it as our own result, that a weakness in "
-        "SPIRE's workload attestation was publicly reported in September 2026, in which "
-        "forged container metadata could induce it to issue an identity belonging to a "
-        "different workload on the same host. Our binding treats container placement as "
-        "<i>context</i> and binds identity to the executable's content hash under a pidfd "
-        "anchor, so the same manipulation is designed to fail against us. We propose to "
-        "<i>demonstrate</i> that side by side rather than claim it in a document.",
-        "<b>3. A public transparency log: Sigstore Rekor.</b> An append-only, tamper-evident "
-        "log operated by a project with no relationship to VANIAN or to the entity. "
-        "Publishing the evidence chain's head into it gives the chain a timestamped existence "
-        "record that a third party can check without either of us. This complements, and does "
-        "not replace, the anchor into an RE-controlled second system that already exists "
-        "(blocker item R11): one defends against us, the other against the entity's own "
-        "infrastructure being the single place the record lives.",
-        "<b>4. The Linux audit subsystem: auditd.</b> Begun already and carried in the "
-        "repository as an external cross-check. It is the lowest-ceiling item technically and "
-        "the highest-value item procedurally, because it is the record an entity's own "
-        "compliance function already knows how to read.",
-        "<b>5. OpenTelemetry.</b> Lowest priority and stated for completeness: correlation of "
-        "our verdicts with the telemetry an entity already collects, so the evidence lands "
-        "where its operators already look.",
+        "<b>275 fabricated AIP blind spots, from comparing different things.</b> auditd "
+        "audits the execve <i>syscall</i> and records every <i>attempt</i>: "
+        "`/usr/bin/env true` makes `env` search `$PATH`, and each miss is an execve "
+        "returning ENOENT. AIP's scheduler tracepoint fires only on a <b>successful</b> "
+        "exec, which is correct — a failed execve is not an execution and nothing ran. The "
+        "first run counted the failures against AIP. The split was exact: 106 successes "
+        "against 106 agreed, and 275 failures with exit=-2. The two classes are now "
+        "separated, and the attempts are still counted and reported, because \"auditd sees "
+        "attempts, AIP sees executions\" is a real difference a reader should know.",
+        "<b>One apparent gap that was a three-millisecond boundary artefact.</b> The second "
+        "run reported a single missing execution: a `/usr/bin/sleep` auditd recorded 3 ms "
+        "before the window closed. <b>bpftrace missed it too</b>, which is what identified "
+        "it — it was the harness's own teardown, and AIP batches on an interval, so an "
+        "execution received milliseconds before the probe stops has not necessarily reached "
+        "an attested batch. The window now closes at the end of the workload, with both "
+        "observers still running through a settle period.",
     ]:
         s.append(B(b))
     s.append(P(
-        "<b>What this would and would not establish.</b> It would establish that our "
-        "observations survive comparison with observers we did not write, which is the "
-        "missing half of condition (ii) above and, with the pilot supplying condition (i), "
-        "what we would need before writing TRL 6 in a document of this kind. <b>It would not "
-        "make the host kernel trustworthy.</b> Two differently-built observers raise the cost "
-        "of a consistent lie; they do not eliminate it, because a sufficiently privileged "
-        "attacker on the observed host can in principle deceive both. That limit is the same "
-        "one stated in sections 9 and 11 and it is not narrowed by anything on this list."))
+        "Neither correction weakens a verdict, and each is guarded by a test: the first "
+        "stops the tool demanding that AIP record executions that never happened, the "
+        "second stops it measuring a flush race instead of observer agreement, and a "
+        "further test proves the exclusion cannot hide a genuinely missed <i>successful</i> "
+        "execution."))
+    s.append(Paragraph("What is still open on this front", st["h2"]))
+    s.append(P(
+        "<b>Falco and Tetragon remain the first-choice observers and were not used.</b> "
+        "Their distribution channels are unreachable from the environment this was built in "
+        "— the egress proxy denies them and neither is in the distribution archive. The "
+        "comparison core is source-agnostic and already carries a Falco variant; an adapter "
+        "for its JSON output is the only missing piece. This is stated rather than quietly "
+        "substituted. Two further items on the corroboration plan strengthen <i>different</i> "
+        "claims and are not done: cross-checking our execution binding against "
+        "<b>SPIFFE/SPIRE</b>, the CNCF-graduated workload-identity standard, and anchoring "
+        "the evidence chain's head in a <b>public transparency log</b> (Sigstore Rekor) so "
+        "its existence is checkable by a party with no relationship to us or to the entity."))
+    s.append(P(
+        "<b>What this establishes, and what it does not.</b> It establishes that AIP's "
+        "observations survive comparison with observers it did not author, including one "
+        "that does not share its kernel mechanism. <b>It does not make the host kernel "
+        "trustworthy.</b> Two differently-built observers raise the cost of a consistent "
+        "lie; they do not eliminate it, and where both read the same mechanism one gate "
+        "blinds both. It is also a single run of ~113 executions over a few seconds on a "
+        "development virtual machine: not a soak test, not representative load, and not an "
+        "institution's hardware. That limit is the same one stated in sections 9 and 11 and "
+        "is not narrowed here."))
     s.append(Paragraph("Demonstrator versus pilot deployment", st["h2"]))
     s.append(P(
         "Two configurations exist and the difference matters for what a pilot can conclude. "

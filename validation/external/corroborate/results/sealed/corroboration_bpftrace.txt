@@ -1,0 +1,21 @@
+INDEPENDENT CORROBORATION
+third-party observer : bpftrace
+independence         : SameMechanism  (independent implementation, same kernel mechanism; a gate on it blinds both)
+window compared (ms) : 1789926254854 .. 1789926256979  (2125 ms)
+pairing tolerance    : +/- 250 ms
+---
+agreed (both saw it)        : 113
+AIP only                    : 1
+THIRD-PARTY ONLY (AIP gap)  : 0
+agreement                   : 99.1%
+---
+NO AIP BLIND SPOT: every execution the independent observer recorded inside the
+window AIP claims to have covered is present in AIP's signed evidence.
+---
+AIP recorded 1 execution(s) the third-party observer did not. This is not by
+itself a defect: the observers are configured for different scopes, and the
+third-party tracer starts and stops as a process of its own.
+---
+This compares reported executions. It does not make the host kernel trustworthy:
+a sufficiently privileged attacker may deceive both observers, and where both read
+the same kernel mechanism, one gate blinds both.

@@ -1,0 +1,28 @@
+
+[36m== Preconditions[0m
+       kernel 6.18.44-fc-v37; bpftrace bpftrace v0.20.2; auditctl version 3.1.2
+
+[36m== Build[0m
+  [32mPASS[0m aip-probe, aip-collector, aip-observe-verify, aip-corroborate built
+
+[36m== Start AIP: collector (holds the only key) and probe (holds none)[0m
+  [32mPASS[0m collector on 127.0.0.1:35763; probe connected over the confidential transport
+
+[36m== Start the two INDEPENDENT observers[0m
+  [32mPASS[0m bpftrace attached and auditd execve rule active (window opens at 1789926254854)
+
+[36m== Run the observed workload[0m
+       workload: 75 plain execs + 3 runs of the real LangGraph agent
+  [32mPASS[0m workload complete; observer window 1789926254854 .. 1789926256979 (settled 4s before teardown)
+
+[36m== Wait for the collector to attest and archive[0m
+       attested batches: 9
+
+[36m== Collect the independent observers' output[0m
+       bpftrace exec records: 117   |   auditd SYSCALL records: 1504
+
+[36m== Corroborate against bpftrace (independent implementation, same mechanism)[0m
+
+[36m== Corroborate against auditd (different kernel mechanism — the stronger class)[0m
+
+[36m== RESULT[0m
