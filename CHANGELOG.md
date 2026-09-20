@@ -6,6 +6,37 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed (the TRL number in the RBI documents was wrong, and the repository contradicted itself)
+- **Three documents gave three different readiness levels.** The submission
+  documents used **TRL 4**, taken from
+  `docs/idex_open_challenge/02_TECHNOLOGY_AND_TRL.md` (2026-06-14) — the
+  oldest of the three, and one that `TECH_AUDIT_AND_ROADMAP.md` (2026-08-23,
+  also TRL 4) already flags as stale for unrelated reasons. The current
+  assessment is `ENGINEERING_MATURITY_AND_STRATEGIC_READINESS.md`
+  (2026-09-07), a post-validation addendum that assesses maturity **by
+  component**: the AIRI/Sniffer Dog software accountability core at **~TRL 5,
+  approaching TRL 6**, physical-autonomy profiles at TRL 4, and physical
+  autonomous-system accountability at TRL 2–3.
+- **Neither 4 nor 6 is right.** The brief and covering note now state **TRL 5
+  for the software accountability core**, differentiated by component, and say
+  in terms that TRL 6 is not claimed. The gate is quoted from our own
+  assessment rather than paraphrased: *a non-synthetic agent under
+  representative load*. Every agent this system has observed was written by us
+  to be observed, and that single missing condition is exactly what the
+  proposed pilot supplies — the same gap as blocker B8, expressed in readiness
+  terms rather than deployment terms.
+- Understating a readiness level to a regulator is a smaller error than
+  overstating one, and it is still an error: a number that does not match the
+  vendor's own repository is the same defect pointing the other way, and the
+  repository is offered to the Department on request.
+- The two superseded documents now carry a note saying so and pointing at the
+  addendum, so a reader who asks for the repository does not find three
+  numbers. The addendum gains a dated record of what has been demonstrated
+  since it was written — the live two-daemon attack, the Phase 1 exit gate,
+  the attested clock, the measured signing path — **and why the band does not
+  move**: none of it supplies a non-synthetic agent, and all of it ran on the
+  same development host.
+
 ### Changed (the RBI submission documents, redrafted for accuracy)
 - **The brief's "no performance figure has been measured" was false twice
   over** — the evidence vault has had figures since `STORAGE_PERFORMANCE.md`,

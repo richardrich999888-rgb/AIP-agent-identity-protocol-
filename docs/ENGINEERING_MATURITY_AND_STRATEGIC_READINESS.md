@@ -198,6 +198,47 @@ environment for *software autonomy*. It is not a relevant environment for
 | Physical autonomous-system accountability | **~TRL 2–3 until actually demonstrated** | the concept is formulated and partially implemented in software; nothing physical has been observed. This stays at 2–3 regardless of code quality until a real machine is in the loop |
 | Full integrated autonomous-system product | **~TRL 4–5** | the integrated chain runs end to end in software; the physical half of the integration does not exist |
 
+## Progress since this addendum (2026-09-20) — the band is unchanged
+
+Recorded here so the assessment above stays the current one rather than
+quietly ageing, and so nobody has to infer from a commit log whether the
+number moved. It has not.
+
+**What has been demonstrated since 2026-09-07**
+
+- The foreign-eBPF gate attack was executed against the **two real daemons**,
+  not the single-host demonstrator: `aip-probe` with four kernel sensors and
+  no key, over the authenticated and confidential transport, to `aip-collector`
+  in a separate process holding the only key. The collector signed
+  `IntegrityUnknown` and withdrew attested coverage while the chain sequence
+  advanced throughout. Ledger rows OI-13..OI-15, raw output sealed.
+- The Phase 1 exit gate now closes end to end: attested batches survive to
+  disk, the collector publishes its evidence public key, and a separate
+  verifier accepts the archive offline given two files and that key — then
+  refuses the same archive with one record deleted. Rows EA-01..EA-10.
+- The collector's clock discipline moved inside the signed bytes
+  (`OBSERVE_PROTOCOL_VERSION` 11 → 12; this addendum was written at 9). Rows
+  CL-01..CL-09.
+- The signing and verification path was measured: attest 395 µs, verify
+  46 µs, and **89% of attestation cost is the chain-position write rather
+  than cryptography** (`docs/OBSERVER_PERFORMANCE.md`).
+
+**Why the band does not move.** The gate to TRL 6 stated below is *a
+non-synthetic agent under representative load*. None of the above supplies
+one. Every agent this system has observed was written by us to be observed,
+and every run above was on the same development host. The second gate —
+"the detector exercised outside the reproduction environment" — is partly
+narrowed, because the detector now runs against a two-daemon pair rather
+than the single-host demonstrator, but it is the same host and the same
+kernel.
+
+**~TRL 5, approaching TRL 6, unchanged.** The work since this addendum
+deepened the evidence inside the band; it did not cross out of it. Anyone
+quoting a readiness level for the software accountability core should quote
+5 and name the missing condition.
+
+---
+
 ## Why not TRL 6, 7, 8 or 9
 
 **Do not state that all of Vanian is TRL 6, 7, 8 or 9.** The reasons are

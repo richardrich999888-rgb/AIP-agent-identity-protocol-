@@ -1,5 +1,14 @@
 # AIP — Technical Audit, TRL Assessment & Production Roadmap
 
+> **⚠ Superseded on the TRL number.** This document's readiness assessment is
+> dated 2026-08-23 and has been superseded by
+> `docs/ENGINEERING_MATURITY_AND_STRATEGIC_READINESS.md` (2026-09-07), a
+> post-validation addendum that assesses maturity **by component** rather than
+> as one number: the AIRI/Sniffer Dog software accountability core at **~TRL 5,
+> approaching TRL 6**, physical-autonomy profiles at TRL 4, and physical
+> autonomous-system accountability at TRL 2–3. Everything else in this document
+> stands. Cite the addendum, not this file, for a readiness level.
+
 **Audit date:** 2026-08-23 · **Audited tree:** `main` @ `872dbf3` (+ nightly-CI fix)
 **Owner:** K. NAGA SRI GANESH
 **Method:** every claim below was re-verified against source, a clean local

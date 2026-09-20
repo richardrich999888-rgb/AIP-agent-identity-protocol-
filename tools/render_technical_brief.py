@@ -608,12 +608,28 @@ def content(st, width):
         "against the failure modes in the risk map, is published in the repository as "
         "WHAT_THE_TESTS_PROVE.md, and it reaches the same conclusion this paragraph does."))
     s.append(P(
-        "<b>Integrated-system maturity is TRL 4 — validated in a laboratory environment.</b> "
-        "The same figure appears in our covering note and in the repository, and we would "
-        "rather state it here than have the Department infer a higher one from the length of "
-        "this section. TRL 5 requires validation in a <i>relevant</i> environment, which for "
-        "this system means a regulated entity's own hosts; that is blocker B8 and it is what "
-        "the pilot in section 12 exists to do."))
+        "<b>Maturity: the software accountability core is at TRL 5 — validated in a relevant "
+        "environment — and approaching TRL 6.</b> We state it differentiated rather than as a "
+        "single number, because a single number for this programme would be wrong in one "
+        "direction or the other. The core that this brief describes — the observer, the "
+        "off-host collector, the reconciler and the evidence chain — has been validated "
+        "against a real Linux kernel, with an independently built external observer, under "
+        "adversarial scenarios including a reproduced attack on the observation path itself "
+        "and a live attack against the two real daemons. A real Linux host running real "
+        "workloads is a relevant environment for <i>software</i> autonomy, which is what "
+        "TRL 5 requires. The same assessment puts our physical-autonomy profiles (UAS, "
+        "robotics) at TRL 4, and physical autonomous-system accountability at TRL 2–3 until a "
+        "machine is actually in the loop; none of that is in scope for this brief and we do "
+        "not carry its readiness into this one."))
+    s.append(P(
+        "<b>We are not claiming TRL 6, and the gate is specific.</b> TRL 6 requires a "
+        "system or subsystem model demonstrated in a relevant environment, and our own "
+        "assessment names what is missing: a <i>non-synthetic agent under representative "
+        "load</i>. Every agent this system has observed so far was written by us for the "
+        "purpose of being observed. Until a real agent doing real work in a regulated entity "
+        "is on the other end of it, the honest number is 5 — and that single missing "
+        "condition is, precisely, what the pilot in section 12 exists to supply. It is the "
+        "same gap as blocker B8 expressed in readiness terms rather than deployment terms."))
     for b in [
         "<b>Foreign eBPF tracepoint gate</b> attached to each perf sensor (an attacker with "
         "CAP_BPF): the observer signs an integrity-unknown state and the reconciler answers "

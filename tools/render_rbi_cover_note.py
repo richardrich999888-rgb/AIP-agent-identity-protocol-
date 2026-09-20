@@ -8,17 +8,27 @@ pages; the technical brief is for whoever they hand it to.
 
 The one editorial rule that matters here
 ----------------------------------------
-Maturity is stated as the repository states it: TRL 4, validated in a
-laboratory environment, with demonstration in a relevant operational
-environment being the thing requested rather than a thing claimed. An
-earlier outreach message said "TRL 6". The repository does not support that
--- `docs/idex_open_challenge/02_TECHNOLOGY_AND_TRL.md` says TRL 4 and names
-TRL 6-7 as the target of a future programme, and the technical brief's
-blocker B8 says the run on institution hardware has not happened. A vendor
-selling independent verification of AI agents cannot afford to overstate its
-own readiness to its regulator: it is the single claim the reader is most
-likely to test, and the one whose failure would discredit everything else in
-the document.
+Maturity is stated as the repository's **most recent and best-evidenced**
+assessment states it, which took three readings of the repository to get
+right.
+
+An earlier outreach message said "TRL 6". The first draft of this note
+answered that with TRL 4, taken from
+`docs/idex_open_challenge/02_TECHNOLOGY_AND_TRL.md`. That was wrong: the
+iDEX document is dated 2026-06-14 and `TECH_AUDIT_AND_ROADMAP.md` flags it
+as stale. The current assessment is
+`docs/ENGINEERING_MATURITY_AND_STRATEGIC_READINESS.md` (2026-09-07), which
+is differentiated by component and puts the AIRI/Sniffer Dog software
+accountability core at **~TRL 5, approaching TRL 6**, with the gate to 6
+named explicitly as "a non-synthetic agent under representative load". The
+same document says in terms: *do not state that all of Vanian is TRL 6.*
+
+So neither 4 nor 6 is right, and this note says 5 with the gate named. A
+vendor selling independent verification of AI agents cannot afford to
+overstate its own readiness to its regulator -- it is the single claim the
+reader is most likely to test -- and it cannot afford to understate it
+either, because a number that does not match its own repository is the same
+defect pointing the other way.
 """
 
 from __future__ import annotations
@@ -177,14 +187,19 @@ def build(out: Path) -> None:
     # ── Maturity: the honest block. ────────────────────────────────────────
     s.append(H("4. Maturity, stated plainly"))
     tbl = Table([[Paragraph(
-        "<b>Integrated-system maturity: TRL 4 — validated in a laboratory environment.</b> "
-        "The cryptographic core, the observation pipeline, the reconciler and the adversarial "
-        "test suite are implemented and exercised, including recorded attacks against the "
-        "observer with their raw output. What has <i>not</i> happened is a demonstration in a "
-        "relevant operational environment: the two-daemon pilot has not yet run on a regulated "
-        "entity's own hosts, and until it does we do not claim a higher readiness level. "
-        "<b>That demonstration is precisely what we are asking the Department to help make "
-        "possible.</b>", st["p"])]], colWidths=[fw])
+        "<b>Maturity: the software accountability core is at TRL 5 — validated in a relevant "
+        "environment — and approaching TRL 6.</b> We state it by component rather than as one "
+        "number. The core described in the attached brief — the observer, the off-host "
+        "collector, the reconciler and the evidence chain — has been validated against a real "
+        "Linux kernel with an independently built external observer, under adversarial "
+        "scenarios including a live attack on the observation path itself, with the raw output "
+        "recorded. Our physical-autonomy profiles are assessed lower and are not in scope "
+        "here. <b>We are not claiming TRL 6.</b> Our own assessment names the one missing "
+        "condition: a non-synthetic agent under representative load. Every agent this system "
+        "has observed was written by us to be observed. <b>A real agent, doing real work, in a "
+        "regulated entity is the single thing standing between this and TRL 6 — and it is "
+        "exactly what we are asking the Department to help make possible.</b>",
+        st["p"])]], colWidths=[fw])
     tbl.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), BOX),
         ("BOX", (0, 0), (-1, -1), 0.5, RULE),

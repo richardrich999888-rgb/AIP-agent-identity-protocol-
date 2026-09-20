@@ -1,5 +1,14 @@
 # 02 — Technology & Technology Readiness Level
 
+> **⚠ Superseded on the TRL number.** This document's readiness assessment is
+> dated 2026-06-14 and has been superseded by
+> `docs/ENGINEERING_MATURITY_AND_STRATEGIC_READINESS.md` (2026-09-07), a
+> post-validation addendum that assesses maturity **by component** rather than
+> as one number: the AIRI/Sniffer Dog software accountability core at **~TRL 5,
+> approaching TRL 6**, physical-autonomy profiles at TRL 4, and physical
+> autonomous-system accountability at TRL 2–3. Everything else in this document
+> stands. Cite the addendum, not this file, for a readiness level.
+
 ## 1. Architecture
 
 AIP is implemented in **Rust** (memory-safe, no garbage collector, suitable
