@@ -81,6 +81,61 @@ readiness briefs become marketing.
 
 ---
 
+## 2a. "All twenty roadmap items are done" — and why that is not the answer
+
+It is true, and it is checkable. Every item **R1 to R20** in
+`RBI_REQUIREMENTS_COVERAGE.md` §2 is built, each with named code and an
+acceptance test, and the adversarial rows are reproduced by one command. Four
+carry an explicit qualifier that must travel with them: **R5** is done on the
+binding side, **R11** and **R16** are done as mechanisms whose *placement*
+(where the witness runs, which hardware module, whose PIN) is the
+institution's decision, and **R13** is done as controls whose *operation*
+(RPO/RTO, off-site custody, drill cadence) is likewise the institution's.
+
+**The roadmap is complete. The matrix is not, and the ecosystem is not.**
+Those are three different statements and only the first is finished.
+
+**2a.1 Completing a list you wrote yourself is a closed loop.** The twenty
+items were derived from our reading of the RBI instruments in
+`RBI_AGENT_RISK_MAP.md` §1. Finishing them establishes that we built what we
+said was needed. It does not establish that what we said was needed is
+sufficient, or that we read the instruments correctly. Only three things break
+that loop, and none has happened: a run on a regulated entity's hardware, an
+independent CERT-In empanelled assessment, and the institution's own auditor
+reproducing verification with their own keys.
+
+**2a.2 One matrix row is still open, and it is the load-bearing one.** Of
+every requirement in sections A to F, exactly one remains **BUILD**: **C6**,
+`PHANTOM_CLAIM` demonstrated on real hardware with the two-daemon pair. It is
+narrowed — the live foreign-eBPF attack against both real daemons has been
+executed and the collector signed `IntegrityUnknown` — but the verdict itself
+still needs the decision point issuing signed expectations into the same
+pipeline, and all of it on an institution's hosts. No roadmap item closes C6;
+pilot Phases 2–3 do. A reader who sees twenty green roadmap rows and concludes
+the matrix is green has drawn the wrong inference, which is why this section
+exists.
+
+Four further rows are `INTEGRATE` — the mechanism is built and the
+institution supplies the other half: where the anchoring witness runs (D3),
+what a kill-switch trigger is wired to (E3), and two governance artefacts the
+regulated entity must hold and maintain itself (F1, F3). Those are not
+defects and they are not ours to close.
+
+**2a.3 Twenty items cover the accountability domain, not the ecosystem.**
+Section **G** of the matrix is out of scope by design and lists the owner for
+each: model bias and drift, explainability of a model's decision, customer
+disclosure and grievance redress, transaction-content fraud scoring,
+concentration risk. Those are among the *critical* problems AI agents create
+in Indian financial services, and nothing in R1–R20 touches them. The
+accountability and evidence domain is covered completely; the ecosystem is
+covered partially and deliberately.
+
+**2a.4 Every one of the twenty is at rung R1, R2 or R3.** See §2. The roadmap
+was never capable of producing an R4 row, because an R4 row is produced by an
+institution, not by us.
+
+---
+
 ## 3. The ten failure classes, scored
 
 Classes are those in `RBI_AGENT_RISK_MAP.md` §2. "Verdict" is the highest rung

@@ -28,6 +28,17 @@ versioning is [SemVer](https://semver.org/).
   has run on a regulated entity's hardware or observed a real agent.
 - **The four claims that are supported**, written as sentences that can be
   defended under questioning — and the sentence that must not be said.
+- **"All twenty roadmap items are done" is answered separately**, because it
+  is true and is not the same answer. R1–R20 are built, four with qualifiers
+  that must travel with them (R5 binding side; R11 and R16 as mechanisms whose
+  placement is the institution's; R13 as controls whose operation is). But
+  completing a list derived from our own reading of the RBI instruments is a
+  closed loop: it shows we built what we said was needed, not that what we
+  said was needed is sufficient. Exactly one matrix row in sections A–F is
+  still `BUILD` — **C6**, `PHANTOM_CLAIM` on real hardware — and no roadmap
+  item closes it; pilot Phases 2–3 do. Section G is out of scope by design
+  and names an owner per row. The roadmap is complete; the matrix is not; the
+  ecosystem is not.
 - Linked from `RBI_REQUIREMENTS_COVERAGE.md`, `RBI_AGENT_RISK_MAP.md` and
   `BFSI_PILOT_PLAN.md`, each with a note that a disposition is not a proof. The
   technical brief's section 10 carries the same three limits in the body rather
