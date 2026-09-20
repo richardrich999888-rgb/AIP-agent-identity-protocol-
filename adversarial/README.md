@@ -31,8 +31,8 @@ and what has not. See `STATUS.md` at the repository root for the register.
 |------|-------|--------|
 | `../aip-standalone/aip-observe/src/divergence.rs` | 0 | **built + tested** |
 | `../docs/security/BLINDING_RESILIENCE.md` | 0 | **written** |
-| `../integrations/agents/` | 1 | runbook — needs network + live two-daemon run |
-| `../integrations/mcp-gateway/` | 2 | runbook — needs ContextForge; gated on `PRIOR_ART_NOTES.md` |
-| `atomic/` | 4 | runbook — needs Atomic Red Team clone; runs on host (not a rootkit) |
+| `../integrations/agents/` | 1 | **executed + sealed**; real LangGraph run observed end-to-end, verified offline (`results/sealed/`) |
+| `../integrations/mcp-gateway/` | 2 | **built + tested**; `aip-mcp-gateway` signs a `ToolReceipt` per `tools/call`; ContextForge adapter shells to it |
+| `atomic/` | 4 | **built + tested**; Navigator layer generated from an ATT&CK coverage map (no atomic executed on host) |
 | `rootkit-runbooks/` | 5 | **document-only**; the output-parsing harness is built + fixture-tested |
 | `vendored/` | 2,5 | source review only; `DO_NOT_RUN_ON_HOST` |

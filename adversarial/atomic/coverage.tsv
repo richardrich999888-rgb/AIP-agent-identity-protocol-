@@ -1,0 +1,48 @@
+# Phase 4 — AIP observer coverage against the ATT&CK techniques exercised by
+# the Atomic Red Team corpus (github.com/redcanaryco/atomic-red-team, MIT).
+#
+# This is a CAPABILITY map, not a run log. It states, per ATT&CK technique,
+# which kernel primitive the AIP observer records for that technique and how
+# strong the resulting attribution is. It does NOT claim each atomic was
+# executed here: destructive techniques (T1070, T1222, T1485, ...) are NOT run
+# on this host (safety rules 1/5). A "verdict" is only ever produced by
+# executing and reconciling; where that has genuinely happened it is cited as
+# phase1-sealed, and nowhere else.
+#
+# coverage_class:
+#   attributed      the observer records the primitive AND binds it to a
+#                   process instance (exec/fork via sched tracepoint +
+#                   pidfd anchor; lineage start-verified). Strongest.
+#   effect-observed the observer records the effect (socket/file) but
+#                   attribution to a bound instance may be partial.
+#   not-covered     no AIP sensor observes this technique's primitive. Stated
+#                   plainly — an all-green map would be a lie (blocker B2).
+#
+# evidence:
+#   phase1-sealed        primitive demonstrated live; see
+#                        integrations/agents/results/sealed/
+#   reconciler-tests     covered by aip-reconcile / aip-observe test suites
+#   reproduction-only    atomics/<ID>/ in the pinned corpus; NOT executed here
+#   blind-spot           deliberately listed as not-covered; AIP's known limit
+#
+# columns: technique_id <TAB> tactic <TAB> name <TAB> aip_primitive <TAB> coverage_class <TAB> evidence
+T1059	execution	Command and Scripting Interpreter	process_exec	attributed	phase1-sealed
+T1059.004	execution	Unix Shell	process_exec	attributed	phase1-sealed
+T1059.006	execution	Python	process_exec	attributed	phase1-sealed
+T1106	execution	Native API (execve)	process_exec	attributed	reconciler-tests
+T1053.003	execution	Scheduled Task/Job: Cron	process_fork_exec	attributed	reproduction-only
+T1543	persistence	Create or Modify System Process	process_fork_exec	attributed	reproduction-only
+T1036.003	defense-evasion	Masquerading: Rename System Utilities	exe_content_sha256	attributed	reconciler-tests
+T1548.001	privilege-escalation	Abuse Elevation Control: Setuid/Setgid	process_exec	attributed	reproduction-only
+T1071	command-and-control	Application Layer Protocol	socket_connect	effect-observed	phase1-sealed
+T1041	exfiltration	Exfiltration Over C2 Channel	socket_send	effect-observed	reproduction-only
+T1048	exfiltration	Exfiltration Over Alternative Protocol	socket_connect	effect-observed	reproduction-only
+T1105	command-and-control	Ingress Tool Transfer	socket_connect+file_write	effect-observed	reproduction-only
+T1070.006	defense-evasion	Indicator Removal: Timestomp	file_write	effect-observed	reproduction-only
+T1074.001	collection	Local Data Staging	file_write	effect-observed	phase1-sealed
+T1070.004	defense-evasion	Indicator Removal: File Deletion	none	not-covered	blind-spot
+T1222.002	defense-evasion	File/Dir Permissions Modification: Linux	none	not-covered	blind-spot
+T1027	defense-evasion	Obfuscated Files or Information	none	not-covered	blind-spot
+T1552.001	credential-access	Unsecured Credentials: Credentials In Files	none	not-covered	blind-spot
+T1055	defense-evasion	Process Injection	none	not-covered	blind-spot
+T1620	defense-evasion	Reflective Code Loading	none	not-covered	blind-spot

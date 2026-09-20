@@ -33,7 +33,7 @@ Full pinned set in `integrations/agents/requirements.lock` (38 packages).
 
 | Tool | Licence | Pin |
 |------|---------|-----|
-| Atomic Red Team | MIT | `TODO at setup` |
+| Atomic Red Team | MIT | referenced by stable ATT&CK technique layout (`atomics/<ID>/`) in `adversarial/atomic/coverage.tsv`; corpus not vendored, no atomic executed |
 | MITRE Caldera (optional) | Apache-2.0 | `TODO at setup` |
 | Stratus Red Team (optional, containers) | Apache-2.0 | `TODO at setup` |
 

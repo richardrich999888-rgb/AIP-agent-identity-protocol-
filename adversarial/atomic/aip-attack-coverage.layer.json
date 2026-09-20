@@ -1,0 +1,480 @@
+{
+  "description": "AIP kernel-observer coverage by technique, coloured by coverage class (attributed / effect-observed / not-covered). This is a capability map, not a run log: it asserts what the observer's sensors record, not that each atomic executed. Verdicts exist only for primitives demonstrated live (evidence=phase1-sealed).",
+  "domain": "enterprise-attack",
+  "gradient": {
+    "colors": [
+      "#9e9e9e",
+      "#f9a825",
+      "#2e7d32"
+    ],
+    "maxValue": 3,
+    "minValue": 0
+  },
+  "hideDisabled": false,
+  "legendItems": [
+    {
+      "color": "#2e7d32",
+      "label": "Attributed: primitive recorded and bound to a process instance"
+    },
+    {
+      "color": "#f9a825",
+      "label": "Effect observed: recorded, attribution may be partial"
+    },
+    {
+      "color": "#9e9e9e",
+      "label": "Not covered: no AIP sensor observes this primitive"
+    }
+  ],
+  "name": "AIP observer coverage vs Atomic Red Team (ATT&CK)",
+  "selectTechniquesAcrossTactics": true,
+  "showTacticRowBackground": false,
+  "sorting": 0,
+  "tacticRowBackground": "#dddddd",
+  "techniques": [
+    {
+      "color": "#9e9e9e",
+      "comment": "not-covered via none; evidence=blind-spot; corpus=atomics/T1027/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "not-covered"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "none"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "blind-spot"
+        }
+      ],
+      "score": 0,
+      "tactic": "defense-evasion",
+      "techniqueID": "T1027"
+    },
+    {
+      "color": "#2e7d32",
+      "comment": "attributed via exe_content_sha256; evidence=reconciler-tests; corpus=atomics/T1036.003/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "attributed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "exe_content_sha256"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "reconciler-tests"
+        }
+      ],
+      "score": 3,
+      "tactic": "defense-evasion",
+      "techniqueID": "T1036.003"
+    },
+    {
+      "color": "#f9a825",
+      "comment": "effect-observed via socket_send; evidence=reproduction-only; corpus=atomics/T1041/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "effect-observed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "socket_send"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "reproduction-only"
+        }
+      ],
+      "score": 2,
+      "tactic": "exfiltration",
+      "techniqueID": "T1041"
+    },
+    {
+      "color": "#f9a825",
+      "comment": "effect-observed via socket_connect; evidence=reproduction-only; corpus=atomics/T1048/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "effect-observed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "socket_connect"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "reproduction-only"
+        }
+      ],
+      "score": 2,
+      "tactic": "exfiltration",
+      "techniqueID": "T1048"
+    },
+    {
+      "color": "#2e7d32",
+      "comment": "attributed via process_fork_exec; evidence=reproduction-only; corpus=atomics/T1053.003/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "attributed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "process_fork_exec"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "reproduction-only"
+        }
+      ],
+      "score": 3,
+      "tactic": "execution",
+      "techniqueID": "T1053.003"
+    },
+    {
+      "color": "#9e9e9e",
+      "comment": "not-covered via none; evidence=blind-spot; corpus=atomics/T1055/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "not-covered"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "none"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "blind-spot"
+        }
+      ],
+      "score": 0,
+      "tactic": "defense-evasion",
+      "techniqueID": "T1055"
+    },
+    {
+      "color": "#2e7d32",
+      "comment": "attributed via process_exec; evidence=phase1-sealed; corpus=atomics/T1059/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "attributed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "process_exec"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "phase1-sealed"
+        }
+      ],
+      "score": 3,
+      "tactic": "execution",
+      "techniqueID": "T1059"
+    },
+    {
+      "color": "#2e7d32",
+      "comment": "attributed via process_exec; evidence=phase1-sealed; corpus=atomics/T1059.004/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "attributed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "process_exec"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "phase1-sealed"
+        }
+      ],
+      "score": 3,
+      "tactic": "execution",
+      "techniqueID": "T1059.004"
+    },
+    {
+      "color": "#2e7d32",
+      "comment": "attributed via process_exec; evidence=phase1-sealed; corpus=atomics/T1059.006/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "attributed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "process_exec"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "phase1-sealed"
+        }
+      ],
+      "score": 3,
+      "tactic": "execution",
+      "techniqueID": "T1059.006"
+    },
+    {
+      "color": "#9e9e9e",
+      "comment": "not-covered via none; evidence=blind-spot; corpus=atomics/T1070.004/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "not-covered"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "none"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "blind-spot"
+        }
+      ],
+      "score": 0,
+      "tactic": "defense-evasion",
+      "techniqueID": "T1070.004"
+    },
+    {
+      "color": "#f9a825",
+      "comment": "effect-observed via file_write; evidence=reproduction-only; corpus=atomics/T1070.006/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "effect-observed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "file_write"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "reproduction-only"
+        }
+      ],
+      "score": 2,
+      "tactic": "defense-evasion",
+      "techniqueID": "T1070.006"
+    },
+    {
+      "color": "#f9a825",
+      "comment": "effect-observed via socket_connect; evidence=phase1-sealed; corpus=atomics/T1071/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "effect-observed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "socket_connect"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "phase1-sealed"
+        }
+      ],
+      "score": 2,
+      "tactic": "command-and-control",
+      "techniqueID": "T1071"
+    },
+    {
+      "color": "#f9a825",
+      "comment": "effect-observed via file_write; evidence=phase1-sealed; corpus=atomics/T1074.001/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "effect-observed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "file_write"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "phase1-sealed"
+        }
+      ],
+      "score": 2,
+      "tactic": "collection",
+      "techniqueID": "T1074.001"
+    },
+    {
+      "color": "#f9a825",
+      "comment": "effect-observed via socket_connect+file_write; evidence=reproduction-only; corpus=atomics/T1105/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "effect-observed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "socket_connect+file_write"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "reproduction-only"
+        }
+      ],
+      "score": 2,
+      "tactic": "command-and-control",
+      "techniqueID": "T1105"
+    },
+    {
+      "color": "#2e7d32",
+      "comment": "attributed via process_exec; evidence=reconciler-tests; corpus=atomics/T1106/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "attributed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "process_exec"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "reconciler-tests"
+        }
+      ],
+      "score": 3,
+      "tactic": "execution",
+      "techniqueID": "T1106"
+    },
+    {
+      "color": "#9e9e9e",
+      "comment": "not-covered via none; evidence=blind-spot; corpus=atomics/T1222.002/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "not-covered"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "none"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "blind-spot"
+        }
+      ],
+      "score": 0,
+      "tactic": "defense-evasion",
+      "techniqueID": "T1222.002"
+    },
+    {
+      "color": "#2e7d32",
+      "comment": "attributed via process_fork_exec; evidence=reproduction-only; corpus=atomics/T1543/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "attributed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "process_fork_exec"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "reproduction-only"
+        }
+      ],
+      "score": 3,
+      "tactic": "persistence",
+      "techniqueID": "T1543"
+    },
+    {
+      "color": "#2e7d32",
+      "comment": "attributed via process_exec; evidence=reproduction-only; corpus=atomics/T1548.001/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "attributed"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "process_exec"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "reproduction-only"
+        }
+      ],
+      "score": 3,
+      "tactic": "privilege-escalation",
+      "techniqueID": "T1548.001"
+    },
+    {
+      "color": "#9e9e9e",
+      "comment": "not-covered via none; evidence=blind-spot; corpus=atomics/T1552.001/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "not-covered"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "none"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "blind-spot"
+        }
+      ],
+      "score": 0,
+      "tactic": "credential-access",
+      "techniqueID": "T1552.001"
+    },
+    {
+      "color": "#9e9e9e",
+      "comment": "not-covered via none; evidence=blind-spot; corpus=atomics/T1620/",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "aip_coverage_class",
+          "value": "not-covered"
+        },
+        {
+          "name": "aip_primitive",
+          "value": "none"
+        },
+        {
+          "name": "aip_evidence",
+          "value": "blind-spot"
+        }
+      ],
+      "score": 0,
+      "tactic": "defense-evasion",
+      "techniqueID": "T1620"
+    }
+  ],
+  "versions": {
+    "attack": "15",
+    "layer": "4.5",
+    "navigator": "4.9.5"
+  }
+}

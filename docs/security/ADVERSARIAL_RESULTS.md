@@ -400,3 +400,71 @@ observed host can still lie to the observer about the namespaces it reads,
 exactly as it can about every other `/proc` source here (N1); what these
 rows establish is that an observer which cannot see is never able to turn
 that into an accusation.
+
+---
+
+## Phase 4 — ATT&CK coverage against a third-party corpus (Atomic Red Team)
+
+Every row above tests AIP against attacks **AIP's authors wrote**. A CERT-In
+assessor's first objection (blocker B2) is that a system graded against its own
+red-team is graded on a curve. This section grades the observer against an
+**external, MIT-licensed corpus** — Atomic Red Team
+(`github.com/redcanaryco/atomic-red-team`) — mapped to MITRE ATT&CK.
+
+The artefact is an ATT&CK Navigator layer
+(`adversarial/atomic/aip-attack-coverage.layer.json`), generated
+deterministically from an auditable map (`adversarial/atomic/coverage.tsv`) by
+`adversarial/atomic/gen_layer.py` (10 unit tests). It colours each technique by
+the observer's **coverage class**, not by a fabricated verdict:
+
+| class | colour | meaning |
+|-------|--------|---------|
+| attributed | green | the primitive is recorded and bound to a process instance (strongest) |
+| effect-observed | amber | the effect is recorded; attribution may be partial |
+| not-covered | grey | no AIP sensor observes the primitive — shown, never hidden |
+
+**Honesty of the map.** Of 20 techniques mapped, 8 are attributed, 6 are
+effect-observed and **6 are not-covered**. The not-covered rows are the point:
+AIP is a runtime *execution* observer, so at-rest content (T1027, T1552.001),
+in-memory-only execution (T1055, T1620) and un-hooked syscalls (T1070.004,
+T1222.002) are genuine blind spots stated plainly. A coverage map with no grey
+would be the lie B2 warns against.
+
+**What was executed, and what was not.** No atomic is run on the build host.
+Destructive techniques (T1070 indicator removal, T1222 permission changes) fall
+under the adversarial safety rules and are reproduced only from `atomics/<ID>/`
+in the pinned corpus, in a controlled environment. The rows marked
+`phase1-sealed` are the exception: their **primitives** were demonstrated live
+by the real LangGraph run in Phase 1 and are attested in
+`integrations/agents/results/sealed/` (offline-verifiable) and derived as a
+delegation chain in `results/sealed/delegation_chain.txt`.
+
+| id | ATT&CK | technique | AIP primitive | class | executed? |
+|----|--------|-----------|---------------|-------|-----------|
+| ARTK-01 | T1059 | Command and Scripting Interpreter | process_exec | attributed | **live** (phase1-sealed) |
+| ARTK-02 | T1059.004 | Unix Shell | process_exec | attributed | **live** (phase1-sealed) |
+| ARTK-03 | T1059.006 | Python | process_exec | attributed | **live** (phase1-sealed) |
+| ARTK-04 | T1071 | Application Layer Protocol | socket_connect | effect-observed | **live** (phase1-sealed) |
+| ARTK-05 | T1074.001 | Local Data Staging | file_write | effect-observed | **live** (phase1-sealed) |
+| ARTK-06 | T1106 | Native API (execve) | process_exec | attributed | reconciler-tests |
+| ARTK-07 | T1036.003 | Masquerading: Rename System Utilities | exe_content_sha256 | attributed | reconciler-tests (content hash defeats rename) |
+| ARTK-08 | T1053.003 | Scheduled Task/Job: Cron | process_fork_exec | attributed | reproduction-only (`atomics/T1053.003/`) |
+| ARTK-09 | T1543 | Create or Modify System Process | process_fork_exec | attributed | reproduction-only |
+| ARTK-10 | T1548.001 | Setuid/Setgid | process_exec | attributed | reproduction-only |
+| ARTK-11 | T1041 | Exfiltration Over C2 Channel | socket_send | effect-observed | reproduction-only |
+| ARTK-12 | T1048 | Exfil Over Alternative Protocol | socket_connect | effect-observed | reproduction-only |
+| ARTK-13 | T1105 | Ingress Tool Transfer | socket_connect+file_write | effect-observed | reproduction-only |
+| ARTK-14 | T1070.006 | Indicator Removal: Timestomp | file_write | effect-observed | reproduction-only |
+| ARTK-15 | T1070.004 | Indicator Removal: File Deletion | — | **not-covered** | blind-spot |
+| ARTK-16 | T1222.002 | File/Dir Permissions Modification (Linux) | — | **not-covered** | blind-spot |
+| ARTK-17 | T1027 | Obfuscated Files or Information | — | **not-covered** | blind-spot |
+| ARTK-18 | T1552.001 | Credentials In Files | — | **not-covered** | blind-spot |
+| ARTK-19 | T1055 | Process Injection | — | **not-covered** | blind-spot |
+| ARTK-20 | T1620 | Reflective Code Loading | — | **not-covered** | blind-spot |
+
+*Reproduced by `bash adversarial/atomic/run.sh` (regenerates the layer from the
+map, asserts byte-identical, runs the generator's 10 tests). Bounds: this is a
+**coverage** statement about the observer's sensor architecture, not a claim
+that every atomic executed and reconciled. The attributed/effect classes say
+what the observer records; the not-covered rows say where it is blind. Only the
+`phase1-sealed` primitives carry attested live evidence.*
