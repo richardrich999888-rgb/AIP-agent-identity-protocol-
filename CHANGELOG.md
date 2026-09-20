@@ -49,6 +49,35 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R9b: ingress limits, split by what each layer can see)
+- **In-process, in `aip_service::ingress`, because the proxy cannot see it.**
+  A request body is streamed; a handler that deserializes a giant JSON body
+  has already spent the memory before any proxy rule on the *parsed* content
+  could apply. So the body cap (`413` above `AIP_MAX_BODY_BYTES`, default
+  1 MiB), the per-request timeout (`408` above `AIP_REQUEST_TIMEOUT_SECS`,
+  default 30 s) and a global in-flight cap (`AIP_MAX_IN_FLIGHT`, default 256)
+  live at the one place that owns the deserialization and the work. A
+  malformed limit **fails the start** rather than silently becoming
+  unlimited — a control turned off by a typo is worse than none, because it
+  reads as present.
+- **At the proxy, in `deploy/docker/reverse-proxy.conf`, because it is
+  per-connection and per-client.** TLS termination, per-client rate and
+  connection limits, and slow-loris header/body timeouts all need the
+  client's address and raw connection — which a reverse proxy has and an
+  application behind it does not, since every request arrives from the
+  proxy's address. The file is a commented reference, nginx syntax with the
+  intent of each rule spelled out so it translates to HAProxy or Envoy, and
+  compose points at it.
+- **Tests.** `tests/ingress_limits.rs` over the real hardened router: a body
+  over the cap is `413` before the handler; a body under it reaches the
+  handler (which then rejects the shape with `422`, proving admission); an
+  unauthenticated giant body is refused with `401` *without being read*,
+  which is a stronger guarantee than the cap firing; the hardened router
+  still serves. Plus four unit tests on the limit parsing, including that a
+  malformed value is refused. `tower` becomes a real dependency (it was
+  dev-only) with `limit`; `tower-http` is added with `timeout`. No new TLS
+  stack — TLS is the proxy's.
+
 ### Added (RBI requirements coverage — R9a: a link a capture cannot read)
 - **`aip_transport::confidential` — the authenticated channel inside a Noise
   session.** The Phase 1 channel authenticated which host may submit and

@@ -15,7 +15,7 @@ use std::sync::Arc;
 use tracing_subscriber::{fmt, EnvFilter};
 
 use airon_aip::store::{EvidenceStore, JsonlEvidenceStore};
-use airon_aip::{auth, keys::ServiceKey, revocation, router, AppState, ManagedSigning};
+use airon_aip::{auth, ingress, keys::ServiceKey, revocation, router, AppState, ManagedSigning};
 
 /// The evidence store's connection pool, when there is one.
 ///
@@ -233,7 +233,18 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .unwrap_or_else(|e| panic!("failed to bind {addr}: {e}"));
-    axum::serve(listener, router(state))
-        .await
-        .expect("server error");
+    let limits = ingress::IngressLimits::from_env().unwrap_or_else(|e| {
+        // A malformed ingress limit is a security control turned off by a
+        // typo. Refuse to start rather than serve without it.
+        eprintln!("aip-service: {e}");
+        std::process::exit(1);
+    });
+    tracing::info!(
+        max_body_bytes = limits.max_body_bytes,
+        request_timeout_secs = limits.request_timeout.as_secs(),
+        max_in_flight = limits.max_in_flight,
+        "ingress limits (R9b); per-client rate limiting and TLS are the proxy's"
+    );
+    let app = airon_aip::ingress::harden(router(state), limits);
+    axum::serve(listener, app).await.expect("server error");
 }

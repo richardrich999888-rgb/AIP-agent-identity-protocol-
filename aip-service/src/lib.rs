@@ -7,6 +7,7 @@ pub mod auth;
 pub mod authority;
 pub mod evidence;
 pub mod handlers;
+pub mod ingress;
 pub mod keys;
 pub mod metrics;
 pub mod models;

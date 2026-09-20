@@ -31,6 +31,11 @@ aip-ledger   = { path = "../aip-standalone/aip-ledger" }
 
 axum               = "0.7"
 tokio              = { version = "1", features = ["full"] }
+# Ingress hardening (R9b): a global in-flight cap (tower's ConcurrencyLimit)
+# and a per-request timeout (tower-http). Pinned to the versions already in the
+# lockfile. Per-client rate limiting is a proxy concern; see deploy/docker/.
+tower              = { version = "0.5", features = ["util", "limit"] }
+tower-http         = { version = "0.6", features = ["timeout"] }
 async-trait        = "0.1"
 serde              = { version = "1", features = ["derive"] }
 serde_json         = "1"
@@ -58,8 +63,7 @@ tokio-postgres     = { version = "0.7", optional = true }
 deadpool-postgres  = { version = "0.14", optional = true }
 
 [dev-dependencies]
-# In-process router testing (oneshot).
-tower = { version = "0.5", features = ["util"] }
+# In-process router testing (oneshot) uses the `tower` dependency declared above.
 # Real documents from the real producing crates, so the verdict-API tests
 # verify what an auditor would verify rather than a stand-in.
 aip-authorize = { path = "../aip-standalone/aip-authorize" }

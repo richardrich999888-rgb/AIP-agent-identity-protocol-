@@ -36,12 +36,21 @@ services:
       DATABASE_URL: postgresql://aip:${AIP_PG_PASSWORD:-change-me}@postgres:5432/aip
       # JSONL fallback path (used only if AIP_STORE_BACKEND=jsonl):
       AIP_VAULT_PATH: /var/lib/aip/evidence.jsonl
+      # Ingress limits the service enforces itself (R9b). A malformed value
+      # fails the start rather than disabling the control. Per-client rate
+      # limiting and TLS are the proxy's job (reverse-proxy.conf).
+      AIP_MAX_BODY_BYTES: "1048576"       # 1 MiB; a body above this is 413
+      AIP_REQUEST_TIMEOUT_SECS: "30"      # a request past this is 408
+      AIP_MAX_IN_FLIGHT: "256"            # global concurrent-request ceiling
       RUST_LOG: info
     volumes:
       - aip-data:/var/lib/aip
       - ./keys.json:/etc/aip/keys.json:ro     # provide an API keys file
-    # TLS terminates at an ingress/proxy in front of this service (the service
-    # speaks plain HTTP). Do not expose port 8081 directly to the internet.
+    # TLS, per-client rate limiting and slow-loris timeouts terminate at an
+    # ingress/proxy in front of this service (the service speaks plain HTTP
+    # and enforces only the limits it alone can see — body size, per-request
+    # timeout, global concurrency). deploy/docker/reverse-proxy.conf is the
+    # reference. Do not expose port 8081 directly to the internet.
     restart: unless-stopped
 
   # ── Durable Evidence Vault backend (primary store) ──
@@ -90,4 +99,7 @@ volumes:
 #                             (no keys => fail closed: authed routes return 401)
 #   AIP_STORE_BACKEND         "postgres" | "jsonl" (default jsonl)
 #   DATABASE_URL              PostgreSQL DSN (required when backend=postgres)
+#   AIP_MAX_BODY_BYTES        max request body in bytes (default 1048576) — R9b
+#   AIP_REQUEST_TIMEOUT_SECS  per-request timeout in seconds (default 30) — R9b
+#   AIP_MAX_IN_FLIGHT         global concurrent-request cap (default 256) — R9b
 #   RUST_LOG                  log filter (default info)
