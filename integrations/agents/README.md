@@ -1,9 +1,23 @@
-# Phase 1 — observe a real agent (runbook, NOT executed here)
+# Phase 1 — observe a real agent (EXECUTED)
 
-**Status: not executed in the build environment.** Running a real agent
-framework needs a network install (`pip`) and a live two-daemon run
-(`aip-probe` + `aip-collector`), neither available where this repo is built.
-This is the runbook a team executes; nothing here fakes a result.
+**Status: executed on a development host (kernel 6.18.44, root, tracefs).** A
+real LangGraph 1.2.11 agent was observed by the two-daemon pair and its signed
+evidence verified offline. Run it with `run.sh`; sealed output is in
+`results/sealed/`.
+
+## Result (results/sealed/)
+
+- The agent (`agent_subject.py`) ran 8 times; each run's parent graph node
+  spawned a child sub-agent process (`child_action.py`) that wrote a marked
+  file and opened one outbound TCP connection.
+- The probe (no key) observed it from the kernel and shipped to the collector
+  (holds the only key) over Noise_NK. **167 process exec/fork events** landed
+  in the collector-signed attested archive.
+- `aip-observe-verify`, a separate process given the archive and the published
+  `observer.pub` and nothing else, reported **VERIFIED**.
+- What this does NOT claim: the `VERIFIED_EXECUTION` reconciler verdict (join
+  against a signed `ExpectedExecution`), which is Phase 3. Phase 1 is
+  "observed, signed off-host, verified offline" — met.
 
 ## Subject
 

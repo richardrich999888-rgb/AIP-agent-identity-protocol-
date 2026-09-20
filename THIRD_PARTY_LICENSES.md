@@ -12,12 +12,15 @@ repo at fetch time (several PoCs are research code with ambiguous licensing).
 |-----------|---------|-------|
 | `orbitaltrust-accountability/` (imported) | LicenseRef-Proprietary (same as workspace) | `ot-accountability-core`, `ot-sentinel` wired; manifest verified 112/114 byte-identical |
 
-## Phase 1 — agent framework (not yet fetched)
+## Phase 1 — agent framework (installed, pinned, executed)
+
+Full pinned set in `integrations/agents/requirements.lock` (38 packages).
 
 | Tool | Licence | Pin |
 |------|---------|-----|
-| LangGraph | MIT | `TODO at setup` |
-| langchain-core | MIT | `TODO at setup` |
+| LangGraph | MIT | `1.2.11` |
+| langchain-core | MIT | `1.6.3` |
+| langgraph-checkpoint / -prebuilt / -sdk | MIT | `4.2.0 / 1.1.0 / 0.4.4` |
 
 ## Phase 2 — MCP gateway (not yet fetched)
 

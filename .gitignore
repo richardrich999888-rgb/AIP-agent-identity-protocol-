@@ -32,3 +32,10 @@ validation/pilot_e2e/results/sealed/interferer
 # Phase 5 harness fixtures: synthetic health captures, must be committed so
 # the parser has known-good input to validate against on a fresh checkout.
 !adversarial/rootkit-runbooks/fixtures/*.jsonl
+
+# Phase 1 (integrations/agents): keep the pinned lock and the sealed evidence,
+# never the venv or the working run dir (the latter holds key material under work/).
+integrations/agents/.venv/
+integrations/agents/results/live/
+integrations/agents/**/__pycache__/
+!integrations/agents/results/sealed/*.jsonl

@@ -1,0 +1,40 @@
+PARENT pid=3865 node=plan marked_path=/tmp/aip_phase1_marker_1
+CHILD pid=3866 ppid=3865
+CHILD done pid=3866
+PARENT pid=3865 node=act child_pid=3866 exit=0
+AGENT_RESULT parent_pid=3865 child_pid=3866 exit_code=0 marked_path=/tmp/aip_phase1_marker_1
+PARENT pid=3868 node=plan marked_path=/tmp/aip_phase1_marker_2
+CHILD pid=3869 ppid=3868
+CHILD done pid=3869
+PARENT pid=3868 node=act child_pid=3869 exit=0
+AGENT_RESULT parent_pid=3868 child_pid=3869 exit_code=0 marked_path=/tmp/aip_phase1_marker_2
+PARENT pid=3871 node=plan marked_path=/tmp/aip_phase1_marker_3
+CHILD pid=3876 ppid=3871
+CHILD done pid=3876
+PARENT pid=3871 node=act child_pid=3876 exit=0
+AGENT_RESULT parent_pid=3871 child_pid=3876 exit_code=0 marked_path=/tmp/aip_phase1_marker_3
+PARENT pid=3881 node=plan marked_path=/tmp/aip_phase1_marker_4
+CHILD pid=3882 ppid=3881
+CHILD done pid=3882
+PARENT pid=3881 node=act child_pid=3882 exit=0
+AGENT_RESULT parent_pid=3881 child_pid=3882 exit_code=0 marked_path=/tmp/aip_phase1_marker_4
+PARENT pid=3888 node=plan marked_path=/tmp/aip_phase1_marker_5
+CHILD pid=3889 ppid=3888
+CHILD done pid=3889
+PARENT pid=3888 node=act child_pid=3889 exit=0
+AGENT_RESULT parent_pid=3888 child_pid=3889 exit_code=0 marked_path=/tmp/aip_phase1_marker_5
+PARENT pid=3891 node=plan marked_path=/tmp/aip_phase1_marker_6
+CHILD pid=3892 ppid=3891
+CHILD done pid=3892
+PARENT pid=3891 node=act child_pid=3892 exit=0
+AGENT_RESULT parent_pid=3891 child_pid=3892 exit_code=0 marked_path=/tmp/aip_phase1_marker_6
+PARENT pid=3896 node=plan marked_path=/tmp/aip_phase1_marker_7
+CHILD pid=3899 ppid=3896
+CHILD done pid=3899
+PARENT pid=3896 node=act child_pid=3899 exit=0
+AGENT_RESULT parent_pid=3896 child_pid=3899 exit_code=0 marked_path=/tmp/aip_phase1_marker_7
+PARENT pid=3903 node=plan marked_path=/tmp/aip_phase1_marker_8
+CHILD pid=3913 ppid=3903
+CHILD done pid=3913
+PARENT pid=3903 node=act child_pid=3913 exit=0
+AGENT_RESULT parent_pid=3903 child_pid=3913 exit_code=0 marked_path=/tmp/aip_phase1_marker_8

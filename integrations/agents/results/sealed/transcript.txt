@@ -1,0 +1,52 @@
+
+[36m== Preconditions[0m
+       kernel 6.18.44-fc-v37, tracefs mounted, langgraph 1.2.11
+
+[36m== Build the daemons and the offline verifier[0m
+  [32mPASS[0m aip-probe, aip-collector, aip-observe-verify built
+
+[36m== Generate the probe's transport key (the probe holds no evidence key)[0m
+  [32mPASS[0m probe key f17e5a0a2a279843... written to the allow-list
+
+[36m== Start the collector (holds the only evidence key, wrapped at rest)[0m
+  [32mPASS[0m collector up on 127.0.0.1:33849; observer.pub and noise.pub published
+
+[36m== Start the probe with the kernel sensors[0m
+  [32mPASS[0m probe up, four kernel sensors open, connected over the confidential transport
+
+[36m== Run the REAL LangGraph agent as the observed workload[0m
+       ran the agent 8 times; observed pids: 3865 3866 3868 3869 3871 3876 3881 3882 3888 3889 3891 3892 3896 3899 3903 3913 
+  [32mPASS[0m the LangGraph agent executed: parent graph spawned a child that wrote a file and connected
+
+[36m== Wait for the collector to attest and archive the observation[0m
+       attested batches on disk: 2
+       process exec/fork events captured in the signed archive: 167
+  [32mPASS[0m the real agent's execution is inside the collector-signed evidence (167 exec/fork events)
+
+[36m== Verify the archive OFFLINE — separate process, two files and a public key[0m
+observer   : collector.phase1 (key version 1)
+anchor     : 46d5b0ff71645a32e1e069bdc744c6a3767a5450343f270eaf9ba5a84182d568
+
+ATTESTED BATCHES
+  records            : 2
+  chain positions    : 1..=2
+  chain start        : the observer's epoch (complete from origin)
+  final head         : 78041a47c41c73a631b4fe9af22bdddab20bcf47ddfe7743ade3bd4e3de0d266
+  observations       : 0
+  kernel events      : 556
+
+SIGNED HEALTH
+  records            : 1
+  states signed      : ContinuityUnverified
+  asserting coverage : 0
+  asserting none     : 1
+  heads cross-checked against batches : 0
+  clock, steered / adrift / not stated : 0 / 1 / 0
+  worst error bound the collector signed : 16000000 us (16000.0 ms)
+
+VERIFIED
+The anchored observer key signed exactly these records, in this order, and each record's prev_head equals the recomputed head of the one before it.
+This does not mean the observations are true: a host with root can lie to its own probe. It means these bytes are what the off-host collector received and recorded, and that nothing has been added, removed or altered since.
+  [32mPASS[0m offline: the real agent's attested batches verify under the published key alone
+
+[36m== DEMONSTRATED (Phase 1)[0m

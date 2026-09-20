@@ -5,9 +5,9 @@ check it against the repository.
 
 ## The one-line answer
 
-**Phase 0 — the decisive phase, the one the plan says "can falsify the core
-product claim outright" — is built, wired, tested and committed. Phases 1–5
-are scaffolded as runbooks and were not executed, because they need
+**Phase 0 (the decisive phase) is built, wired, tested and committed, and
+Phase 1 has now been executed end-to-end against a real LangGraph agent.
+Phases 2–5 remain scaffolded as runbooks and were not executed, because they need
 infrastructure this build environment does not have (network installs, a live
 two-daemon run, and a dedicated VM), and because the safety rules forbid
 running a rootkit here at all.** TRL 4/5 is unchanged; B8 (institution
@@ -30,6 +30,7 @@ this program cannot move them.
   what each catches, what each misses, why cross-sensor divergence is
   load-bearing. The audit found the other four already existed; divergence was
   the genuine gap.
+- **Phase 1 — a real LangGraph agent observed end-to-end.** A genuine LangGraph 1.2.11 graph whose parent node spawns a child sub-agent process (real fork/exec) that writes a file and opens a TCP connection, observed by the two-daemon pair on a live kernel. **167 exec/fork events** reached the collector-signed archive; `aip-observe-verify` accepted it offline from the published `observer.pub` alone. Sealed in `integrations/agents/results/sealed/`; reproduce with `integrations/agents/run.sh`. The `VERIFIED_EXECUTION` reconciler verdict (join against a signed `ExpectedExecution`) is Phase 3 and is not claimed.
 - **Phase 5 output-parsing harness** — `adversarial/rootkit-runbooks/parse_health.py`
   ingests an observer health capture and asserts the attack forced an honest
   non-answer. Built and fixture-tested (`run.sh` passes; proven non-vacuous —
@@ -51,7 +52,6 @@ this program cannot move them.
 
 | Phase | Deliverable | Why not done here | Where the runbook is |
 |-------|-------------|-------------------|----------------------|
-| 1 | Observe a real LangGraph agent | needs `pip` install + live two-daemon run | `integrations/agents/README.md` |
 | 2 | ContextForge ToolReceipt plugin (B10) | needs ContextForge (network); gated on prior-art review | `integrations/mcp-gateway/README.md`, `PRIOR_ART_NOTES.md` |
 | 3 | Delegation-chain attribution | depends on Phases 1 + 2 | (covered by 1 & 2 runbooks) |
 | 4 | Atomic Red Team ATT&CK layer | needs corpus clone (network) | `adversarial/atomic/README.md` |

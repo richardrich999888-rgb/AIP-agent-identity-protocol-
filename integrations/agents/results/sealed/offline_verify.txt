@@ -1,0 +1,23 @@
+observer   : collector.phase1 (key version 1)
+anchor     : 46d5b0ff71645a32e1e069bdc744c6a3767a5450343f270eaf9ba5a84182d568
+
+ATTESTED BATCHES
+  records            : 2
+  chain positions    : 1..=2
+  chain start        : the observer's epoch (complete from origin)
+  final head         : 78041a47c41c73a631b4fe9af22bdddab20bcf47ddfe7743ade3bd4e3de0d266
+  observations       : 0
+  kernel events      : 556
+
+SIGNED HEALTH
+  records            : 1
+  states signed      : ContinuityUnverified
+  asserting coverage : 0
+  asserting none     : 1
+  heads cross-checked against batches : 0
+  clock, steered / adrift / not stated : 0 / 1 / 0
+  worst error bound the collector signed : 16000000 us (16000.0 ms)
+
+VERIFIED
+The anchored observer key signed exactly these records, in this order, and each record's prev_head equals the recomputed head of the one before it.
+This does not mean the observations are true: a host with root can lie to its own probe. It means these bytes are what the off-host collector received and recorded, and that nothing has been added, removed or altered since.
