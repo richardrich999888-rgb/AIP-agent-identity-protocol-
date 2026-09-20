@@ -51,6 +51,7 @@ members = [
     "aip-standalone/aip-effect",
     "aip-standalone/aip-reconcile",
     "aip-standalone/aip-corroborate",
+    "aip-standalone/aip-sentinel-feed",
     "aip-standalone/aip-spiffe",
     "aip-standalone/aip-agent",
     "aip-standalone/aip-warrant",
@@ -135,6 +136,9 @@ members = [
     # chain-format incompatibility that is still an open decision.
     "orbitaltrust-accountability/rust/ot-accountability-core",
     "orbitaltrust-accountability/rust/ot-sentinel",
+    # Test-only: the one place the two evidence worlds are allowed to link.
+    # See ADR-EVIDENCE-CHAIN-FORMAT.md and that crate's own lib.rs.
+    "orbitaltrust-accountability/rust/aip-feed-conformance",
 ]
 
 [workspace.package]

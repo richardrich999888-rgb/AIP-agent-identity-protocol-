@@ -1,0 +1,19 @@
+[package]
+name = "aip-feed-conformance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Conformance tests proving the AIP effect feed is accepted by the out-of-band reconciler that consumes it"
+publish = false
+
+# Test-only crate: it ships no code. See src/lib.rs for why it exists at all
+# and why it lives on this side of the evidence-format boundary.
+
+[dev-dependencies]
+aip-sentinel-feed = { path = "../../../aip-standalone/aip-sentinel-feed" }
+aip-observe = { path = "../../../aip-standalone/aip-observe" }
+aip-observe-verify = { path = "../../../aip-standalone/aip-observe-verify" }
+aip-crypto = { path = "../../../aip-standalone/aip-crypto" }
+aip-types = { path = "../../../aip-standalone/aip-types" }
+ot-sentinel = { path = "../ot-sentinel" }
+serde_json = "1.0"

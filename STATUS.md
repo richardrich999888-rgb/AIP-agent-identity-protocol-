@@ -102,6 +102,41 @@ under representative load, stands alone and is what a pilot supplies.**
   post-exploitation research, Kubernetes attestor, no CVE, no advisory; and
   SPIRE's unix attestor reads `/proc/<pid>/exe`, the same source AIP measures
   from, so any immunity claim would have been false.
+- **Out-of-band reconciliation wired to the kernel (F11).** The one gap
+  inline enforcement cannot close by being stricter: an agent that declines to
+  use the funnel leaves no packet, so nothing in the ledger is missing.
+  `ot-sentinel` reconciles observed effects against sealed packets for exactly
+  this, and its effect sensor tails a JSONL log — which, in its own source's
+  words, "had nothing feeding it", and which in its intended deployment is
+  written by the components being watched. `aip-sentinel-feed` (34 tests)
+  replaces that root: it verifies an attested archive under the observer's
+  anchor, then renders the spawns and connections AIP observed **from the
+  kernel** as that effect log. Run against Phase 1's real archive it emits
+  **22 records — 21 spawns (agreeing with Phase 3's 21 delegation edges) and
+  1 established connection with a measured 81,920 bytes** — sealed at
+  `integrations/agents/results/sealed/effect_feed.jsonl`.
+  `aip-feed-conformance` (4 tests) settles the join with the consumer itself:
+  the real feed parses through `ot-sentinel`'s own tailer with **zero
+  malformed lines**, an unapproved destination becomes a finding citing the
+  feed's record id, and an approved one produces none, so the detector is not
+  always red. The coupling is a **file, not a link** — no packet crosses
+  evidence formats, nothing is re-sealed, and
+  `docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md` is now **closed** (option A,
+  bounded coexistence) with its boundary still enforced by a test that was
+  re-verified against a deliberate violation. **Not corroboration:**
+  `ot-sentinel` is ours, so this completes an architecture rather than
+  validating one, and the RBI documents say so.
+- **A coverage number that was not visible before.** Building the feed's
+  scope report exposed a defect in the report itself: it was built only from
+  derived values, and `aip-reconcile` discards unbound events before
+  derivation, so eight `connect()` attempts in the real archive were counted
+  nowhere while the report implied full coverage. Fixed with a direct scan and
+  locked by `sf14`/`sf15`, which assert the accounting balances exactly. What
+  it then showed: **84 of 105 `execve`s in the Phase-1 run could not be bound
+  to a measured instance** — `bash` spawning short-lived children that exited
+  before a pidfd-anchored measurement could complete. That is the documented
+  `bound: null` case, and this is the first artefact that shows its magnitude
+  on a busy host.
 - **Phase 5 output-parsing harness** — `adversarial/rootkit-runbooks/parse_health.py`
   ingests an observer health capture and asserts the attack forced an honest
   non-answer. Built and fixture-tested (`run.sh` passes; proven non-vacuous —
@@ -149,10 +184,14 @@ human in the isolated environment.
   measured — `docs/OBSERVER_PERFORMANCE.md`.)
 - **Kernel-dependent CI: still open.** Phase 0 unit tests are synthetic and run
   anywhere; the rootkit and live-sensor tests need capable hosts.
-- **Two evidence-chain formats.** `ot-sentinel` (the out-of-band reconciler the
-  plan's F11 gap wants) uses a chain not byte-compatible with `aip-core`'s;
-  `docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md` is OPEN and a guard test forbids
-  cross-dependency until it is closed.
+- **Two evidence-chain formats — decided, not merged.**
+  `ot-accountability-core` chains `SHA-256(previous ‖ canonical JSON)` as hex
+  where `aip-core` chains raw 32-byte digests; a packet sealed by one will not
+  verify under the other. `docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md` is now
+  **closed** under option A: `aip-core` is the evidence format everywhere
+  outside the import, the second stays internal to the sentinel's
+  reconciliation path, and the guard test is permanent. The duplication is
+  still there; what is gone is the risk of resolving it by accident.
 
 ## How to check the built parts
 
@@ -165,6 +204,9 @@ cargo test -p aip-reconcile --test delegation_attribution  # Phase 3 exit gate
   --pubkey-file integrations/agents/results/sealed/observer.pub \
   --batches integrations/agents/results/sealed/attested.archive.jsonl  # Phase 3 on real evidence
 bash adversarial/atomic/run.sh                       # Phase 4 layer: tests + drift check
+cargo test -p aip-sentinel-feed                      # F11 feed: 34 tests incl. the real archive
+cargo test -p aip-feed-conformance                   # the join: ot-sentinel parses and acts on it
+cargo test -p aip-test --test evidence_chain_boundary # the closed ADR's boundary, still enforced
 cargo test -p aip-corroborate                        # observation corroboration: 32 tests
 cargo test -p aip-spiffe                             # identity corroboration: 25 tests
 validation/external/spiffe/joint_run.sh              # live: AIP + SPIRE, agreement and divergence

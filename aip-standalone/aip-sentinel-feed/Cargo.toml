@@ -1,0 +1,33 @@
+[package]
+name = "aip-sentinel-feed"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Render AIP's attested kernel evidence as an out-of-band effect log an independent reconciler can tail"
+
+[[bin]]
+name = "aip-sentinel-feed"
+path = "src/bin/aip-sentinel-feed.rs"
+
+[dependencies]
+# Evidence types and the boot-clock anchor.
+aip-observe = { path = "../aip-observe" }
+# The verification gate: nothing is rendered from an archive that does not
+# verify under its anchor.
+aip-observe-verify = { path = "../aip-observe-verify" }
+# Derivation of bound spawns, connections and sends. This crate maps what
+# `aip-reconcile` already derives; it does not re-derive anything.
+aip-reconcile = { path = "../aip-reconcile" }
+# `monotonic_ns_to_wall_ms` — the i128 clock-domain conversion, reused rather
+# than reimplemented. See that module's own note on why a second copy is a
+# silent-failure risk.
+aip-corroborate = { path = "../aip-corroborate" }
+# `rfc3339_ms` — the tested civil-calendar formatter. Adds no transitive
+# weight: `aip-siem` depends only on `aip-reconcile`, which is already here.
+aip-siem = { path = "../aip-siem" }
+hex = "0.4"
+serde_json = "1.0"
+
+[dev-dependencies]
+aip-crypto = { path = "../aip-crypto" }
+aip-types = { path = "../aip-types" }

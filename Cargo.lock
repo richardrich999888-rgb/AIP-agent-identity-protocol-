@@ -316,6 +316,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-feed-conformance"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-observe",
+ "aip-observe-verify",
+ "aip-sentinel-feed",
+ "aip-types",
+ "ot-sentinel",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-hsm"
 version = "0.4.0"
 dependencies = [
@@ -549,6 +562,21 @@ dependencies = [
  "aip-types",
  "aip-uas",
  "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "aip-sentinel-feed"
+version = "0.4.0"
+dependencies = [
+ "aip-corroborate",
+ "aip-crypto",
+ "aip-observe",
+ "aip-observe-verify",
+ "aip-reconcile",
+ "aip-siem",
+ "aip-types",
+ "hex",
  "serde_json",
 ]
 

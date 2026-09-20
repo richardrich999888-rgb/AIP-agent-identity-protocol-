@@ -1,4 +1,4 @@
-//! The interim rule of `docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md`, enforced
+//! The permanent rule of `docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md`, enforced
 //! mechanically rather than believed.
 //!
 //! # What this guards
@@ -29,11 +29,21 @@
 //! `[build-dependencies]` are scanned too, because adding the dependency
 //! there is the cheapest way to reintroduce exactly what this forbids.
 //!
-//! # How to make this test pass legitimately
+//! # If you are here because this test failed
 //!
-//! By closing the ADR, not by editing this file. If the decision is that the
-//! imported format is adopted somewhere, that is option A or B in
-//! `ADR-EVIDENCE-CHAIN-FORMAT.md` and it changes what this test asserts.
+//! You added a dependency the closed ADR forbids. The two legitimate ways
+//! forward, in order of likelihood:
+//!
+//! 1. **You need AIP's observations on the sentinel's side.** That is what
+//!    `aip-sentinel-feed` is for, and it needs no dependency at all: it writes
+//!    a JSONL effect log and the sentinel tails it. The coupling is a file.
+//! 2. **You are writing a test that must link both worlds.** Those live under
+//!    `orbitaltrust-accountability/`, are test-only and seal nothing — see
+//!    `aip-feed-conformance`, which is the only one today. This scan skips
+//!    that tree, so such a crate does not trip the guard.
+//!
+//! Editing this file is not one of the ways forward. If neither of the above
+//! fits, amend the ADR first and change the test to follow it.
 
 use std::path::{Path, PathBuf};
 
@@ -136,9 +146,12 @@ fn no_crate_outside_the_import_depends_on_the_foreign_evidence_chain() {
         "{offenders:?} depend on `{FOREIGN_CHAIN}`, whose hash chain is not byte-compatible \
          with `aip-core`'s: it chains SHA-256(previous || canonical JSON) as hex where \
          aip-core chains raw 32-byte digests, so a packet sealed by one will not verify \
-         under the other. Which format this system settles on is open — see \
-         docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md — and is not a decision to make by adding a \
-         dependency. Close the ADR first."
+         under the other. docs/adr/ADR-EVIDENCE-CHAIN-FORMAT.md is CLOSED on this: aip-core \
+         is the evidence format outside the import, and the imported chain stays internal to \
+         the sentinel's reconciliation path. If you need AIP's observations on that side, use \
+         `aip-sentinel-feed` — it needs no dependency, because the coupling is a file. If you \
+         are writing a test that must link both, put it under orbitaltrust-accountability/ \
+         alongside `aip-feed-conformance`, which this scan skips."
     );
 }
 
@@ -156,7 +169,8 @@ fn the_foreign_chain_crate_still_exists_under_the_import() {
         manifest.exists(),
         "{} is missing, so the boundary test above forbids a dependency nothing could \
          declare and would pass whatever anyone did. If the crate moved, move this guard \
-         with it; if it was removed, the ADR is closed and both tests should go.",
+         with it; if it was deliberately removed, that is an ADR amendment (the decision \
+         recorded is coexistence, not removal) and both tests go with it.",
         manifest.display()
     );
 }
