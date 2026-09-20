@@ -49,6 +49,32 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R19: the adversarial ledger, reproducible by one command)
+- **`validation/red_suite/`.** A ledger of attacks is worth the attacks
+  behind it, and an attack is worth re-running. This makes "reproducible by
+  script" a checked fact: `manifest.tsv` maps each of the 25
+  `ADVERSARIAL_RESULTS.md` rows to the exact test that asserts its recorded
+  outcome, and `run.sh` runs them and reports, per row, `REPRODUCED`,
+  `BLOCKED` (with the capability it lacks named), `NOTE` (a boundary, not a
+  detection) or `FAILED`. The exit code is the contract: non-zero if any
+  row the ledger claims no longer reproduces.
+- **The trap it avoids.** A `cargo test` filter that matches nothing runs
+  zero tests and exits 0 — a vacuous pass. A harness trusting cargo's exit
+  code would let a stale selector read as a reproduced detection. `run.sh`
+  is stricter: a row passes only if the output shows at least one test
+  passed and zero failed, so a selector matching no test is a `FAILED` row.
+  That property is itself tested — renaming a selector turns the suite red.
+- **Honest about the host.** The six live foreign-eBPF rows need `CAP_BPF`,
+  `CAP_PERFMON` and `tracefs`; without them they are `BLOCKED` with the
+  reason, already sealed in the ledger from a host that had them. The
+  off-host half of the same integrity property (`OI-09`..`OI-12` — the
+  collector refusing to sign `Active` over a gate finding or over silence)
+  runs everywhere and is reproduced. `OI-08` is `deferred` on a component
+  that does not exist yet, and the ledger names it. A `BLOCKED` row is never
+  counted as a pass and never as a failure.
+- **CI runs it,** so a regression in any claimed detection turns the build
+  red rather than being discovered in an audit.
+
 ### Added (RBI requirements coverage — R9b: ingress limits, split by what each layer can see)
 - **In-process, in `aip_service::ingress`, because the proxy cannot see it.**
   A request body is streamed; a handler that deserializes a giant JSON body

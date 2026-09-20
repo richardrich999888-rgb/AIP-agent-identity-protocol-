@@ -56,6 +56,22 @@ jobs:
       - name: cargo test (release — perf gates)
         run: cargo test --workspace --release
 
+  red-suite:
+    name: RED suite (adversarial ledger reproducible)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+      # Reproduces every ADVERSARIAL_RESULTS.md row that does not need kernel
+      # capabilities the runner lacks; the kernel-gate rows report BLOCKED with
+      # the reason, which is not a failure. A detection the ledger claims but
+      # the code no longer delivers turns this job red.
+      - name: RED suite
+        run: validation/red_suite/run.sh
+
   postgres-backend:
     name: postgres backend integration
     runs-on: ubuntu-latest

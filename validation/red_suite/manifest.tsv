@@ -1,0 +1,49 @@
+# R19 RED suite manifest — one row per ADVERSARIAL_RESULTS.md ledger entry.
+#
+# Columns (tab-separated):
+#   id         ledger row id (docs/security/ADVERSARIAL_RESULTS.md)
+#   requires   what the row needs to run: none | cap_bpf | deferred
+#   package    cargo package, or "-" for a non-cargo/deferred row
+#   selector   cargo test filter that runs exactly the test(s) asserting
+#              this row's recorded outcome, or "-"
+#   ledger     the outcome the ledger records for this row
+#
+# A row with requires=none is REPRODUCED when its selector's tests pass.
+# A row with requires=cap_bpf is BLOCKED unless the host has CAP_BPF, CAP_PERFMON
+#   and tracefs — the live kernel-gate attack cannot run without them, and the
+#   suite says so rather than pretending. Those rows are already sealed in the
+#   ledger from a host that had them (Linux 6.18.44); this harness reproduces
+#   the off-host half of the same property (OI-09..OI-12) with requires=none.
+# A row with requires=deferred is blocked on a component that does not exist
+#   yet; the ledger names it. Never reported as reproduced.
+# A row with requires=note records a boundary, not a runnable detection (e.g.
+#   what a key holder can and cannot do). Its selector names the closest
+#   asserting test, which the suite runs, but its ledger cell is the boundary
+#   statement, not DETECTED. Reported as NOTE, never as a pass or a failure.
+#
+# id	requires	package	selector	ledger
+OI-01	cap_bpf	-	-	DETECTED
+OI-02	cap_bpf	-	-	MISSED(pre-fix)
+OI-03	cap_bpf	-	-	MISSED(pre-fix)
+OI-04	cap_bpf	-	-	DETECTED
+OI-05	cap_bpf	-	-	DETECTED
+OI-06	cap_bpf	-	-	NO_FALSE_POSITIVE
+OI-07	note	aip-observe	--test custody a_5_14_wrong_identity_and_wrong_key_are_both_rejected	KEY_CUSTODY_BOUNDARY
+OI-08	deferred	-	-	DEFERRED
+OI-09	none	aip-collector	sink::tests::a_gate_reported_by_the_probe_makes_the_off_host_state_integrity_unknown	DETECTED
+OI-10	none	aip-collector	sink::tests::a_missing_report_for_an_active_tracepoint_sensor_fails_closed	DETECTED
+OI-11	none	aip-collector	sink::tests::a_verified_report_for_an_inactive_sensor_does_not_clear_a_gate	DETECTED
+OI-12	none	aip-collector	sink::tests::a_verified_report_for_every_open_sensor_keeps_the_state_active	NO_FALSE_POSITIVE
+RA-01	none	aip-reconcile	attest::tests::a_mutated_verdict_no_longer_verifies	DETECTED
+RA-02	none	aip-reconcile	attest::tests::a_swapped_reconciler_id_is_refused	DETECTED
+RA-03	none	aip-reconcile	attest::tests::an_untrusted_key_version_is_refused	DETECTED
+RA-04	none	aip-reconcile	attest::tests::a_forger_with_another_key_does_not_verify	DETECTED
+RA-05	none	aip-reconcile	attest::tests::a_bare_verdict_signature_is_not_a_valid_attestation	DETECTED
+RA-06	none	aip-reconcile	attest::tests::an_unsupported_version_is_refused	DETECTED
+CV-01	none	aip-nexora	--test committed_verdict c01_a_signed_real_verdict_commits_and_verifies_offline	CONTROL_VERIFIES
+CV-02	none	aip-nexora	--test committed_verdict c03_a_bare_reconciliation_leaf_is_not_a_signed_verdict	DETECTED
+CV-03	none	aip-nexora	--test committed_verdict c04_a_proof_for_another_verdict_does_not_bind	DETECTED
+CV-04	none	aip-nexora	--test committed_verdict c05_an_untrusted_reconciler_is_refused_before_the_log_is_consulted	DETECTED
+CV-05	none	aip-nexora	--test committed_verdict c06_a_verdict_tampered_after_commit_is_refused	DETECTED
+CV-06	none	aip-nexora	--test committed_verdict c07_a_head_the_verifier_does_not_anchor_is_refused	DETECTED
+CV-07	none	aip-nexora	--test committed_verdict c02_committed_bytes_are_not_the_signing_preimage	PROPERTY
