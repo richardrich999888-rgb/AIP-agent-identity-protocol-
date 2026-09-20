@@ -1,0 +1,6 @@
+# Timestamped run directories are working output. Only results/sealed/ is
+# committed as evidence.
+*
+!.gitignore
+!sealed/
+!sealed/**

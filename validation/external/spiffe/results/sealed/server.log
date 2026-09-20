@@ -1,0 +1,22 @@
+time="2026-09-20T18:41:14Z" level=warning msg="Current umask 0022 is too permissive; setting umask 0027"
+time="2026-09-20T18:41:14Z" level=info msg=Configured admin_ids="[]" data_dir=/run/aip-spiffe-17254/server-data launch_log_level=info version=1.15.3-dev-unk
+time="2026-09-20T18:41:14Z" level=info msg="Opening SQL database" db_type=sqlite3 subsystem_name=sql
+time="2026-09-20T18:41:14Z" level=info msg="Initializing new database" subsystem_name=sql
+time="2026-09-20T18:41:14Z" level=info msg="Connected to SQL database" read_only=false subsystem_name=sql type=sqlite3 version=3.53.4
+time="2026-09-20T18:41:14Z" level=info msg="Configured DataStore" reconfigurable=false subsystem_name=catalog
+time="2026-09-20T18:41:14Z" level=info msg="Configured plugin" external=false plugin_name=join_token plugin_type=NodeAttestor reconfigurable=false subsystem_name=catalog
+time="2026-09-20T18:41:14Z" level=info msg="Plugin loaded" external=false plugin_name=join_token plugin_type=NodeAttestor subsystem_name=catalog
+time="2026-09-20T18:41:14Z" level=info msg="Plugin loaded" external=false plugin_name=memory plugin_type=KeyManager subsystem_name=catalog
+time="2026-09-20T18:41:14Z" level=info msg="There is not a CA journal record that matches any of the local X509 authority IDs" subsystem_name=ca_manager
+time="2026-09-20T18:41:14Z" level=info msg="Journal loaded" jwt_keys=0 subsystem_name=ca_manager wit_keys=0 x509_cas=0
+time="2026-09-20T18:41:14Z" level=info msg="X509 CA prepared" expiration="2026-09-21 18:41:14 +0000 UTC" issued_at="2026-09-20 18:41:14.95794593 +0000 UTC" local_authority_id=6e21744d0bf090f1f332700ebfc3161a51c84a77 self_signed=true slot=A subsystem_name=ca_manager upstream_authority_id=
+time="2026-09-20T18:41:14Z" level=info msg="X509 CA activated" expiration="2026-09-21 18:41:14 +0000 UTC" issued_at="2026-09-20 18:41:14.95794593 +0000 UTC" local_authority_id=6e21744d0bf090f1f332700ebfc3161a51c84a77 slot=A subsystem_name=ca_manager upstream_authority_id=
+time="2026-09-20T18:41:14Z" level=info msg="Creating a new CA journal entry" subsystem_name=ca_manager
+time="2026-09-20T18:41:14Z" level=info msg="JWT key prepared" expiration="2026-09-21 18:41:14.959300424 +0000 UTC" issued_at="2026-09-20 18:41:14.959300424 +0000 UTC" local_authority_id=3BvpjhDM0mYyc78VccLLaQlvpzMb8wcq slot=A subsystem_name=ca_manager
+time="2026-09-20T18:41:14Z" level=info msg="JWT key activated" expiration="2026-09-21 18:41:14.959300424 +0000 UTC" issued_at="2026-09-20 18:41:14.959300424 +0000 UTC" local_authority_id=3BvpjhDM0mYyc78VccLLaQlvpzMb8wcq slot=A subsystem_name=ca_manager
+time="2026-09-20T18:41:14Z" level=info msg="Building in-memory entry cache" subsystem_name=endpoints
+time="2026-09-20T18:41:14Z" level=info msg="Completed building in-memory entry cache" subsystem_name=endpoints
+time="2026-09-20T18:41:14Z" level=info msg="Logger service configured" launch_log_level=info
+time="2026-09-20T18:41:14Z" level=info msg="Starting Server APIs" address=/run/aip-spiffe-17254/server-api.sock network=unix subsystem_name=endpoints
+time="2026-09-20T18:41:14Z" level=info msg="Starting Server APIs" address="127.0.0.1:33031" network=tcp subsystem_name=endpoints
+time="2026-09-20T18:41:15Z" level=info msg="Agent attestation request completed" address="127.0.0.1:35316" agent_id="spiffe://aip.local/spire/agent/join_token/de9e36d5-d45d-4262-a1f7-998561da1017" authorized_as=nobody authorized_via= caller_addr="127.0.0.1:35316" method=AttestAgent node_attestor_type=join_token request_id=e5a74963-4364-4b21-8071-0e735b87277c service=agent.v1.Agent subsystem_name=api

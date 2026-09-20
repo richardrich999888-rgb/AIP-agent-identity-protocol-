@@ -33,6 +33,8 @@ Full pinned set in `integrations/agents/requirements.lock` (38 packages).
 
 | Tool | Licence | Pin |
 |------|---------|-----|
+| SPIRE (spiffe/spire) | Apache-2.0 | v1.15.3, built from the Go module proxy with checksum verification; used in `validation/external/spiffe/` |
+| go-spiffe | Apache-2.0 | v2.8.2, pinned in `validation/external/spiffe/workload/go.sum` |
 | Atomic Red Team | MIT | referenced by stable ATT&CK technique layout (`atomics/<ID>/`) in `adversarial/atomic/coverage.tsv`; corpus not vendored, no atomic executed |
 | MITRE Caldera (optional) | Apache-2.0 | `TODO at setup` |
 | Stratus Red Team (optional, containers) | Apache-2.0 | `TODO at setup` |

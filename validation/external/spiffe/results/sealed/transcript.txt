@@ -1,0 +1,37 @@
+
+[36m== Preconditions[0m
+       1.15.3-dev-unk  |  1.15.3-dev-unk
+
+[36m== Build the workload (it is the process SPIRE will measure)[0m
+  [32mPASS[0m workload built; its binary SHA-256 is 7783aa692dad5544...
+
+[36m== Configure and start the SPIRE server[0m
+       socket path length: 37 bytes (sun_path limit is 108)
+  [32mPASS[0m server up on 127.0.0.1:33031 (trust domain aip.local, self-minted CA)
+
+[36m== Export the trust bundle and mint a node join token[0m
+  [32mPASS[0m trust bundle exported (13 lines); join token minted
+
+[36m== Start the SPIRE agent (unix attestor, discover_workload_path = true)[0m
+  [32mPASS[0m agent attested to the server and is serving the Workload API
+
+[36m== Register the workload BY ITS BINARY DIGEST[0m
+       agent SPIFFE ID (parent for the workload entry): spiffe://aip.local/spire/agent/join_token/de9e36d5-d45d-4262-a1f7-998561da1017
+       selector: unix:sha256:7783aa692dad5544756825efbda0a2c48f760077e56d7b58f21287f1e564091c
+  [32mPASS[0m entry registered: spiffe://aip.local/workload/demo selected on its SHA-256
+
+[36m== The workload asks SPIRE who it is[0m
+       SVID obtained on attempt 3
+       SPIFFE ID   : spiffe://aip.local/workload/demo
+       pid         : 17478
+       serial      : 177720546780357803292657800909087223326
+       valid (ms)  : 1789929670000 .. 1789933280000
+       SVID chain  : 1 cert(s)
+       trust bundle: 1 CA cert(s)
+  [32mPASS[0m SPIRE issued an SVID for an entry selected on the binary's SHA-256
+
+[36m== NEGATIVE CONTROL: is the digest actually doing the work?[0m
+       imposter digest: 921c3ca1d9f7d0b6...  (registered: 7783aa692dad5544...)
+  [32mPASS[0m the same program with one byte changed was REFUSED — the digest is load-bearing
+
+[36m== S1 EXIT GATE MET[0m

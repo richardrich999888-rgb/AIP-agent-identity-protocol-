@@ -1,0 +1,18 @@
+time="2026-09-20T18:41:15Z" level=warning msg="Current umask 0022 is too permissive; setting umask 0027"
+time="2026-09-20T18:41:15Z" level=info msg="Starting agent" data_dir=/run/aip-spiffe-17254/agent-data version=1.15.3-dev-unk
+time="2026-09-20T18:41:15Z" level=info msg="Plugin loaded" external=false plugin_name=join_token plugin_type=NodeAttestor subsystem_name=catalog
+time="2026-09-20T18:41:15Z" level=info msg="Configured plugin" external=false plugin_name=disk plugin_type=KeyManager reconfigurable=false subsystem_name=catalog
+time="2026-09-20T18:41:15Z" level=info msg="Plugin loaded" external=false plugin_name=disk plugin_type=KeyManager subsystem_name=catalog
+time="2026-09-20T18:41:15Z" level=info msg="Configured plugin" external=false plugin_name=unix plugin_type=WorkloadAttestor reconfigurable=false subsystem_name=catalog
+time="2026-09-20T18:41:15Z" level=info msg="Plugin loaded" external=false plugin_name=unix plugin_type=WorkloadAttestor subsystem_name=catalog
+time="2026-09-20T18:41:15Z" level=info msg="Bundle loaded" subsystem_name=attestor trust_domain_id="spiffe://aip.local"
+time="2026-09-20T18:41:15Z" level=info msg="SVID is not found. Starting node attestation" subsystem_name=attestor trust_domain_id="spiffe://aip.local"
+time="2026-09-20T18:41:15Z" level=info msg="Node attestation was successful" reattestable=false spiffe_id="spiffe://aip.local/spire/agent/join_token/de9e36d5-d45d-4262-a1f7-998561da1017" subsystem_name=attestor trust_domain_id="spiffe://aip.local"
+time="2026-09-20T18:41:15Z" level=info msg="Success after 8.144416ms attempts=1" Logger=TrustBundleSources
+time="2026-09-20T18:41:15Z" level=info msg="Setting use." Logger=TrustBundleSources
+time="2026-09-20T18:41:15Z" level=info msg="Starting agent APIs" address=/run/aip-spiffe-17254/agent-api.sock apis="Workload and SDS APIs" network=unix subsystem_name=endpoints
+time="2026-09-20T18:41:16Z" level=error msg="No identity issued" method=FetchX509SVID pid=17464 registered=false service=WorkloadAPI subsystem_name=endpoints
+time="2026-09-20T18:41:19Z" level=error msg="No identity issued" method=FetchX509SVID pid=17471 registered=false service=WorkloadAPI subsystem_name=endpoints
+time="2026-09-20T18:41:20Z" level=info msg="Creating X509-SVID" entry_id=c8214b2f-47c3-413c-b77f-e943e0e107ee spiffe_id="spiffe://aip.local/workload/demo" subsystem_name=manager
+time="2026-09-20T18:41:20Z" level=info msg="Creating X509-SVID" entry_id=ba5cce14-26ea-4a76-b63c-cbf60d8ee140 spiffe_id="spiffe://aip.local/node/lab" subsystem_name=manager
+time="2026-09-20T18:41:22Z" level=error msg="No identity issued" method=FetchX509SVID pid=17500 registered=false service=WorkloadAPI subsystem_name=endpoints
