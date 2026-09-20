@@ -12,10 +12,11 @@ same real evidence; Phase 4 grades the observer against an external
 output-parsing harness, per-tool runbook and VM-setup script are built and the
 harness is fixture-tested, but no rootkit is run in this environment.** The one
 thing that still needs infrastructure absent here is a live rootkit VM capture
-(Phase 5), which the safety rules forbid running on this host. **AIP's
-observations have also now been corroborated by two runtime observers we did
-not build**, one of them reaching the kernel by a different mechanism; neither
-found an execution missing from AIP's signed evidence. TRL 5 is unchanged; B8
+(Phase 5), which the safety rules forbid running on this host. **AIP has now been corroborated
+by systems we did not build, on both axes**: two independent runtime observers
+found no execution missing from its signed evidence, and its identity binding
+cross-checks against SPIFFE/SPIRE — agreeing on a live workload and catching one
+re-pointed at unapproved code. TRL 5 is unchanged; B8
 (institution hardware) and B2 (external assessor) are untouched, exactly as the
 plan says this program cannot move them. **Of the two conditions the technical
 brief names for TRL 6, the second — independent corroboration by an observer we
@@ -79,6 +80,28 @@ under representative load, stands alone and is what a pilot supplies.**
   *other* observer also missed — both now guarded by tests and written up.
   Falco/Tetragon were first choice and are unreachable from this environment;
   stated, not substituted.
+- **Identity corroboration — cross-checked against SPIFFE/SPIRE.** The second
+  corroboration axis. Where bpftrace/auditd corroborate what AIP *observed*,
+  this corroborates what AIP *binds*. SPIRE v1.15.3 built from source, run
+  standalone with the `unix` attestor offering a `unix:sha256` selector — the
+  same digest AIP measures from the kernel, which is the join. Live: the two
+  **AGREE** on a workload; with the identity re-pointed at different code they
+  still agree against SPIRE's *current* registration (so the tool is not
+  always-red) and **DIVERGE** against the *approved* one — an unauthorised
+  change to a workload identity registration, caught. Soundness control: the
+  same program with one byte changed was **refused** by SPIRE, proving the
+  digest selector was load-bearing and not decoration. `aip-spiffe`, 25 tests.
+  Sealed in `validation/external/spiffe/results/`.
+  **Two more defects found, both ours:** the pid-reuse guard cried wolf on a
+  healthy workload because SPIRE *pre-mints* SVIDs (so `notBefore` is minting,
+  not attestation — re-anchored to the fetch, two tests lock it); and a run
+  failed where the probe recorded an exec it could not bind, which the
+  comparison correctly answered **NotComparable** rather than inventing an
+  agreement. **A claim withdrawn:** the September 2026 SPIRE weakness was
+  checked against its primary source and dropped — root-required
+  post-exploitation research, Kubernetes attestor, no CVE, no advisory; and
+  SPIRE's unix attestor reads `/proc/<pid>/exe`, the same source AIP measures
+  from, so any immunity claim would have been false.
 - **Phase 5 output-parsing harness** — `adversarial/rootkit-runbooks/parse_health.py`
   ingests an observer health capture and asserts the attack forced an honest
   non-answer. Built and fixture-tested (`run.sh` passes; proven non-vacuous —
@@ -142,7 +165,9 @@ cargo test -p aip-reconcile --test delegation_attribution  # Phase 3 exit gate
   --pubkey-file integrations/agents/results/sealed/observer.pub \
   --batches integrations/agents/results/sealed/attested.archive.jsonl  # Phase 3 on real evidence
 bash adversarial/atomic/run.sh                       # Phase 4 layer: tests + drift check
-cargo test -p aip-corroborate                        # independent corroboration: 32 tests
+cargo test -p aip-corroborate                        # observation corroboration: 32 tests
+cargo test -p aip-spiffe                             # identity corroboration: 25 tests
+validation/external/spiffe/joint_run.sh              # live: AIP + SPIRE, agreement and divergence
 validation/external/corroborate/run.sh               # live: AIP vs bpftrace + auditd
 adversarial/rootkit-runbooks/run.sh                 # Phase 5 harness vs fixtures
 ```

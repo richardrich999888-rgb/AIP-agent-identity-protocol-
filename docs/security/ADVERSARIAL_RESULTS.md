@@ -529,3 +529,61 @@ make the host kernel trustworthy** — two observers raise the cost of a
 consistent lie, they do not eliminate it — and it is a single run of ~113
 executions over a few seconds on a development virtual machine: not a soak
 test, not representative load, and not an institution's hardware (B8).
+
+---
+
+## Identity corroboration — cross-checked against SPIFFE/SPIRE
+
+The section above corroborates what AIP **observed**. This corroborates what AIP
+**binds**: its claim that a given process instance is running given code. The
+counterparty is **SPIRE v1.15.3** (CNCF-graduated workload identity), built from
+source and run standalone with the `unix` workload attestor and
+`discover_workload_path = true`.
+
+The join is the executable's SHA-256 — SPIRE offers it as a `unix:sha256`
+selector, AIP measures it from the kernel. **SPIRE issues an SVID for such an
+entry only if it measured that digest itself.**
+
+| id | case | registry compared against | result |
+|----|------|---------------------------|--------|
+| XI-01 | live workload, both authorities watching | the approved registration | **AGREES** — same digest, same process instance |
+| XI-02 | soundness control: same program, one byte changed, same uid | — | **REFUSED by SPIRE** — the digest selector is load-bearing, not decoration |
+| XI-03 | identity re-pointed at different code | SPIRE's *current* registration | **AGREES** — SPIRE stays self-consistent |
+| XI-04 | identity re-pointed at different code | the **approved** registration | **DIVERGES** — `DigestMismatch` |
+
+XI-02 is not optional. The entry also carried `unix:uid:0`; had uid alone been
+matching, every root process would have received the identity and XI-01 would
+rest on nothing.
+
+XI-03 is not optional either: a tool that reported divergence in both directions
+would be worthless. **Nothing is fabricated for XI-04** — both SVIDs were
+genuinely issued by SPIRE and both measurements are genuinely AIP's; only the
+registry record compared against differs, and both are real `entry show` output
+captured at different times. That is an unauthorised change to a workload
+identity registration.
+
+### Two defects this exercise found — in our code, not SPIRE's
+
+| id | defect | cause | guard |
+|----|--------|-------|-------|
+| XI-H1 | the pid-reuse guard reported a healthy workload as a reused pid | **SPIRE pre-mints SVIDs** for registered entries before any workload asks, so `notBefore` records minting, not attestation. The guard was anchored to `notBefore`; the process had started 12 s later | re-anchored to the fetch (the instant SPIRE attests *this* caller); `s14` locks that a pre-minted SVID is not a reuse, `s15` that the guard still fires when it should |
+| XI-H2 | a run failed with no AIP measurement of the workload | the probe recorded the exec with `bound: null` — it saw the exec but could not complete a pidfd-anchored measurement; `dropped_events: 0` throughout, so racing rather than loss | the comparison answered **NotComparable**, never a false agreement — the designed behaviour. The harness now requires a *bound* measurement and re-runs otherwise, reporting the attempt count |
+
+### A claim checked and withdrawn
+
+A weakness in SPIRE's workload attestation reported in September 2026 was
+considered as a differentiator and **dropped before it was written into any
+submission**. It is post-exploitation research requiring **root on the node**,
+targets the *Kubernetes* attestor's cgroup parsing rather than the `unix`
+attestor used here, carries **no CVE and no advisory**, and its authors state it
+is not a cryptographic or protocol break and matches a trust assumption SPIFFE
+has always documented.
+
+We also established that **SPIRE's `unix` attestor reads `/proc/<pid>/exe`, the
+same source AIP measures from** — so for that attestor the two share that attack
+surface, and any claim of immunity would have been false. Both systems document
+the same limit: a hostile host.
+
+*Reproduced by `validation/external/spiffe/run.sh` (S1) and
+`validation/external/spiffe/joint_run.sh` (S3/S4); sealed evidence in
+`validation/external/spiffe/results/`. Comparison logic: `aip-spiffe`, 25 tests.*

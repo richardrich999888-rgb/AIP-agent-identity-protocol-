@@ -54,7 +54,7 @@ from reportlab.platypus import (
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = REPO / "docs" / "pilot" / "SNIFFER_DOG_TECHNICAL_BRIEF_RBI.pdf"
 
-REVISION = "Revision 6"
+REVISION = "Revision 7"
 PERIOD = "September 2026"
 RUNNING = (
     "VANIAN Technologies  |  Sniffer Dog / AIP: Technical Brief  |  "
@@ -157,6 +157,20 @@ def content(st, width):
         "never converted into an accusation.</b> When the observer was not watching, or "
         "was interfered with, or no gateway receipt exists, the system says so and stops. "
         "It does not guess."))
+    s.append(P(
+        "<b>What changed since Revision 6.</b> The corroboration of Revision 6 established "
+        "that AIP's <i>observations</i> survive comparison with observers it did not author. "
+        "A second and distinct question is whether AIP's <b>identity binding</b> -- the claim "
+        "that a given process is running given code -- survives the same test. It has now "
+        "been run against <b>SPIFFE/SPIRE</b>, the CNCF-graduated workload-identity standard, "
+        "end to end: the two authorities agree on a live workload, and when the identity "
+        "registry is re-pointed at different code the running system is caught diverging from "
+        "the approved record. Subsection 10b is new and gives the numbers, the soundness "
+        "control, and the two defects the exercise found <i>in our own code</i>. One "
+        "correction is also recorded there: a claim we had considered making about a "
+        "published weakness in SPIRE was checked against its primary source and <b>withdrawn "
+        "before it was ever written into this brief</b>. <b>All of it ran on a development "
+        "virtual machine; B8 is unchanged.</b>"))
     s.append(P(
         "<b>What changed since Revision 5.</b> The remaining phases of the hostile-validation "
         "programme have been executed, and four things moved. <b>First, the agent on the other "
@@ -891,11 +905,11 @@ def content(st, width):
         "— the egress proxy denies them and neither is in the distribution archive. The "
         "comparison core is source-agnostic and already carries a Falco variant; an adapter "
         "for its JSON output is the only missing piece. This is stated rather than quietly "
-        "substituted. Two further items on the corroboration plan strengthen <i>different</i> "
-        "claims and are not done: cross-checking our execution binding against "
-        "<b>SPIFFE/SPIRE</b>, the CNCF-graduated workload-identity standard, and anchoring "
-        "the evidence chain's head in a <b>public transparency log</b> (Sigstore Rekor) so "
-        "its existence is checkable by a party with no relationship to us or to the entity."))
+        "substituted. Of the remaining items on the corroboration plan, the SPIFFE/SPIRE "
+        "cross-check <b>has since been executed</b> and is subsection 10b. One is still not "
+        "done: anchoring the evidence chain's head in a <b>public transparency log</b> "
+        "(Sigstore Rekor), so that the chain's existence at a time is checkable by a party "
+        "with no relationship to us or to the entity."))
     s.append(P(
         "<b>What this establishes, and what it does not.</b> It establishes that AIP's "
         "observations survive comparison with observers it did not author, including one "
@@ -906,6 +920,87 @@ def content(st, width):
         "development virtual machine: not a soak test, not representative load, and not an "
         "institution's hardware. That limit is the same one stated in sections 9 and 11 and "
         "is not narrowed here."))
+    s.append(Paragraph(
+        "10b. Identity corroboration: cross-checked against SPIFFE/SPIRE",
+        st["h2"]))
+    s.append(P(
+        "Subsection 10a corroborates what AIP <i>observed</i>. This corroborates what AIP "
+        "<i>binds</i> -- its claim that a given process instance is running given code -- "
+        "against <b>SPIFFE/SPIRE</b>, the CNCF-graduated workload-identity standard, built "
+        "from source at v1.15.3 and run standalone. The two systems answer adjacent "
+        "questions: SPIRE answers <i>which named workload is this process</i>, AIP answers "
+        "<i>what code is actually running in this process instance</i>. Neither asks the "
+        "agent."))
+    s.append(P(
+        "The join is the executable's SHA-256. SPIRE's `unix` workload attestor, configured "
+        "with `discover_workload_path`, offers it as a `unix:sha256` selector; AIP measures "
+        "the same quantity independently from the kernel. <b>SPIRE issues an SVID for such "
+        "an entry only if it measured that digest itself</b>, so the SVID's existence is "
+        "SPIRE's own assertion about the workload's code."))
+    s.append(table(
+        ["Case", "Registry compared against", "Result"],
+        [
+            ["A live workload, both authorities watching",
+             "the approved registration", "<b>AGREES</b> -- same digest, same process instance"],
+            ["The identity re-pointed at different code",
+             "SPIRE's <i>current</i> registration", "<b>AGREES</b> -- SPIRE remains self-consistent"],
+            ["The identity re-pointed at different code",
+             "the <b>approved</b> registration", "<b>DIVERGES</b> -- DigestMismatch"],
+        ],
+        [0.30, 0.28, 0.42]))
+    s.append(P(
+        "The third row is the finding: a workload identity registration was changed to point "
+        "at code that was never approved, and the running system no longer matches the "
+        "change-controlled record. <b>Nothing is fabricated to produce it.</b> Both SVIDs "
+        "were genuinely issued by SPIRE and both measurements are genuinely AIP kernel "
+        "observations; the only difference between the second and third rows is which "
+        "registry record the comparison is made against, and both are real "
+        "`spire-server entry show` output captured at different times. The second row exists "
+        "so the result is falsifiable: a tool that reported divergence in both directions "
+        "would be worthless."))
+    s.append(P(
+        "<b>The soundness control.</b> The registration carried two selectors, the digest and "
+        "`unix:uid:0`. If uid alone had been doing the matching, every root process would "
+        "have received the identity and the digest would have been decoration -- and the "
+        "comparison above would rest on nothing. So a byte-for-byte copy of the same "
+        "program, one byte changed, run as the same user, was <b>refused</b> by SPIRE. The "
+        "digest is load-bearing. Where an entry rests on no digest at all, the comparison "
+        "answers <i>not comparable</i> and never <i>agrees</i>."))
+    s.append(Paragraph("Two defects this exercise found -- in our code", st["h2"]))
+    for b in [
+        "<b>A control that cried wolf on a healthy workload.</b> The first joint run reported "
+        "an ordinary process as a reused pid, because the pid-reuse guard was anchored to the "
+        "SVID's `notBefore` and the process had started twelve seconds after it. The cause is "
+        "that <b>SPIRE pre-mints SVIDs for registered entries before any workload asks</b>, so "
+        "`notBefore` records minting rather than attestation; the instant SPIRE attests a "
+        "particular caller is when that caller fetches. The guard now compares against that, "
+        "and two tests lock both directions. A control that false-positives on every normal "
+        "deployment is one that gets switched off in its first week, which is worse than not "
+        "having it.",
+        "<b>AIP does not bind every execution, and that is correct.</b> A run failed because "
+        "the workload's exec was recorded with no bound measurement: the probe saw the exec "
+        "but could not complete a pidfd-anchored measurement of that instance, with the "
+        "probe's own dropped-event counter at zero throughout -- measurement racing, not "
+        "loss. The comparison answered <b>not comparable</b> rather than manufacturing an "
+        "agreement, which is the designed behaviour. The harness now requires a bound "
+        "measurement and re-runs the workload otherwise, reporting how many attempts it took; "
+        "each attempt is an independent genuine execution.",
+    ]:
+        s.append(B(b))
+    s.append(Paragraph("A claim we checked and withdrew", st["h2"]))
+    s.append(P(
+        "A weakness in SPIRE's workload attestation was reported publicly in September 2026, "
+        "and we considered demonstrating it beside our own binding. We checked it against its "
+        "primary source first. It is <b>post-exploitation research requiring root on the "
+        "node</b>, it targets the Kubernetes attestor's cgroup parsing rather than the unix "
+        "attestor used here, it carries <b>no CVE and no advisory</b>, and its authors state "
+        "it is not a cryptographic or protocol break and matches a trust assumption the "
+        "SPIFFE project has always documented. We also found that SPIRE's unix attestor reads "
+        "`/proc/&lt;pid&gt;/exe`, <b>the same source AIP measures from</b>, so for that "
+        "attestor the two share that attack surface and any claim of immunity would have been "
+        "false. The demonstration was dropped before it was written into this brief. We record "
+        "it because the Department is entitled to know what we checked and discarded, not only "
+        "what we kept: both systems document the same limit, which is a hostile host."))
     s.append(Paragraph("Demonstrator versus pilot deployment", st["h2"]))
     s.append(P(
         "Two configurations exist and the difference matters for what a pilot can conclude. "
