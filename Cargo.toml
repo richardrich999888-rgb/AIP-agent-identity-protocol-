@@ -105,6 +105,11 @@ members = [
     "aip-standalone/aip-test",
     "aip-standalone/aip-cli",
     "aip-standalone/aip-verify",
+    # The MCP tool boundary (R4/B10): a gateway that countersigns every
+    # tools/call with a ToolReceipt over the canonical body arguments, so a
+    # mis-parameterised call is caught against the receipt and not the agent's
+    # own account of what it asked for.
+    "aip-standalone/aip-mcp-gateway",
     # The auditor's verifier for the OBSERVER archives (attested batches
     # and signed health). `aip-verify` covers EvidencePackets; nothing
     # covered the observer chain, so the Phase 1 exit gate's "the verifier

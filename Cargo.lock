@@ -376,6 +376,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-mcp-gateway"
+version = "0.4.0"
+dependencies = [
+ "aip-airi",
+ "aip-authorize",
+ "aip-crypto",
+ "aip-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-nexora"
 version = "0.4.0"
 dependencies = [

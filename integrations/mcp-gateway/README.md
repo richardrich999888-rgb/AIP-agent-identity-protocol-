@@ -1,7 +1,35 @@
-# Phase 2 — MCP tool boundary → ToolReceipt (runbook, NOT executed here)
+# Phase 2 — MCP tool boundary → ToolReceipt (BUILT + tested; ContextForge adapter written)
 
-**Status: not executed. Gated on `PRIOR_ART_NOTES.md` (rule: prior-art review
-before any filing).** Needs an IBM ContextForge deployment (network).
+**Status: the gateway is built and tested; the ContextForge adapter is
+written but not exercised against a live ContextForge here.** The prior-art
+review (`PRIOR_ART_NOTES.md`) is done. The receipt-signing core is the
+`aip-mcp-gateway` crate, so the exit gate is met in first-party code and the
+ContextForge plugin is a thin adapter over it.
+
+## What is built and tested
+
+- **`aip-standalone/aip-mcp-gateway`** — a real MCP gateway. `issue_receipt`
+  signs a `ToolReceipt` over the **canonical** body arguments with the
+  gateway's own key; `check_header_body` enforces the 2026-07-28 spec's
+  header/body agreement before signing; the binary speaks JSON-RPC over stdio
+  and appends signed receipts to a sink.
+- **Exit gate proven** (`tests/tool_boundary.rs`, 5 tests + 6 canonical): a
+  mis-parameterised call `Diverges` via `compare_tool_boundary` **with no
+  agent claim supplied**, so the finding rests on the gateway receipt versus
+  the decision, not the agent's account. A receipt signed under the agent's
+  key is refused (`GatewayKeyIsAgentKey`). Argument key order does not
+  manufacture a divergence.
+- **Live smoke run**: `aip-mcp-gateway` fed real JSON-RPC over stdio emits a
+  `Forwarded` receipt for an honest call and a `Refused` receipt + JSON-RPC
+  error for a header/body mismatch.
+
+## The ContextForge adapter
+
+`contextforge_plugin.py` is the production adapter: a pre-forward hook on
+tools/call that shells to the `aip-mcp-gateway` binary rather than
+reimplementing the signing, so the two cannot drift. It is written and
+unit-shaped; running it inside a live ContextForge is the remaining
+integration step, and needs a ContextForge deployment.
 
 ## Gateway
 
