@@ -18,3 +18,7 @@ bs58 = "0.5"
 argon2 = "0.5"
 chacha20poly1305 = "0.10"
 zeroize = "1.8"
+# FIPS-204 ML-DSA-65, for the hybrid signature path only. RustCrypto, the same
+# ecosystem as ed25519-dalek. Pinned exactly; see src/hybrid.rs for the
+# maturity disclosure this dependency obliges.
+ml-dsa = "=0.1.1"

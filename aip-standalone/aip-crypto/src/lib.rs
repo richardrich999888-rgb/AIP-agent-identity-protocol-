@@ -1,5 +1,7 @@
 //! AIP Crypto — Ed25519 signing, SHA-256 hashing, Base58, AIP-ID derivation.
 
+pub mod hybrid;
+
 pub mod custody;
 
 use aip_types::{AlgorithmId, KeyPair, ProvenanceTriple, Signature};

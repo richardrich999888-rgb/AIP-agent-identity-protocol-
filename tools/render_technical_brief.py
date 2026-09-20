@@ -54,7 +54,7 @@ from reportlab.platypus import (
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = REPO / "docs" / "pilot" / "SNIFFER_DOG_TECHNICAL_BRIEF_RBI.pdf"
 
-REVISION = "Revision 9"
+REVISION = "Revision 10"
 PERIOD = "September 2026"
 RUNNING = (
     "VANIAN Technologies  |  Sniffer Dog / AIP: Technical Brief  |  "
@@ -664,23 +664,65 @@ def content(st, width):
         "That combination is what makes a future migration a change of implementation rather "
         "than a change of evidence format, and it is why a verifier from either era cannot "
         "silently accept the other era's artefact."))
+    s.append(Paragraph("The hybrid path is now built and exercised", st["h2"]))
+    s.append(P(
+        "Since Revision 9 the migration is no longer only specified. "
+        "<b>`aip_crypto::hybrid` signs under Ed25519 and ML-DSA-65 together</b> "
+        "(FIPS 204, via RustCrypto&#8217;s `ml-dsa`, pinned exactly), and "
+        "<b>verification requires both halves</b>. Accepting either would defeat the "
+        "construction: a break in Ed25519 alone would then forge a hybrid signature and the "
+        "second algorithm would be decoration. 15 tests, and the properties that matter are "
+        "the ones that could go wrong:"))
+    for b in [
+        "<b>Neither era can be mistaken for the other.</b> Because the algorithm identifier "
+        "is inside the signed bytes, the Ed25519 half of a hybrid signature does not verify "
+        "as a standalone Ed25519 signature, and a standalone signature relabelled `Hybrid` "
+        "and padded with ML-DSA-shaped bytes is caught — <b>by the mature algorithm</b>, not "
+        "only by the new one.",
+        "<b>Nothing already sealed changes.</b> The Ed25519 signing and verification paths "
+        "are untouched; the hybrid path is additive. Every artefact sealed before this "
+        "existed verifies byte-identically, which is the whole point — a migration that "
+        "invalidated the history it was meant to protect would be worse than none.",
+        "<b>The policy belongs to the verifier, not the artefact.</b> An institution runs "
+        "<i>transitional</i> (accept either) or <i>hybrid-required</i>. A strict verifier "
+        "refuses an Ed25519 artefact as <b>insufficient, not invalid</b> — a correctly "
+        "signed document under a superseded algorithm must not be logged as a bad signature, "
+        "or an estate mid-migration reads as though it were under attack.",
+        "<b>Demonstrated end to end on a real signed document:</b> an institution&#8217;s "
+        "route map (section 6) sealed hybrid, serialised, reloaded, and verified offline "
+        "under a strict policy; the same map sealed Ed25519 still accepted under a "
+        "transitional one; a route edited after hybrid signing still caught.",
+    ]:
+        s.append(B(b))
     s.append(Paragraph("What has NOT been done, stated plainly", st["h2"]))
     for b in [
-        "<b>No post-quantum signature is implemented.</b> `ML-DSA-65` is a reserved "
-        "identifier and nothing more. Any document of ours that appears to claim otherwise is "
-        "wrong and should be read against this paragraph.",
+        "<b>The four evidence-signing authorities are not migrated.</b> The collector, the "
+        "decision point, the reconciler and the gateway all still sign Ed25519. The "
+        "primitive and the transition policy exist and one document type is exercised "
+        "end to end; rolling that through the evidence families, the NEXORA log and the "
+        "three offline verifiers is mechanical but <b>unbuilt</b>, and until it is built no "
+        "evidence artefact carries a hybrid signature.",
+        "<b>Standalone ML-DSA-65 is still refused.</b> It remains a reserved identifier. A "
+        "post-quantum-only signature would trade a mature implementation for an unaudited "
+        "one rather than adding to it.",
+        "<b>The ML-DSA implementation is pre-1.0 and not independently audited.</b> "
+        "`ml-dsa` 0.1.1 is pinned exactly for that reason, and the hybrid construction is "
+        "the mitigation: a defect in that implementation cannot on its own produce a "
+        "signature that verifies, because the mature half must verify too.",
         "<b>The post-quantum work elsewhere in our codebase does not close this.</b> Our "
         "network layer uses Kyber-768 for key establishment. That is a <b>key-encapsulation "
         "mechanism — confidentiality of a session</b> — and it gives no post-quantum "
         "signature path. Conflating the two would be the kind of claim this brief exists not "
         "to make.",
-        "<b>No migration has been scheduled, costed or tested</b>, and no hybrid "
-        "(Ed25519 + ML-DSA) signing has been exercised end to end through the four "
-        "authorities, the NEXORA log and the three offline verifiers.",
         "<b>Key custody for a second algorithm is unaddressed.</b> The PKCS#11 custodian of "
-        "section 13's B4 was exercised against an Ed25519 key; ML-DSA support in a given "
-        "HSM is the module vendor's, and the institution's choice of module would constrain "
-        "the migration.",
+        "section 13&#8217;s B4 was exercised against an Ed25519 key; ML-DSA support in a "
+        "given HSM is the module vendor&#8217;s, and the institution&#8217;s choice of "
+        "module would constrain the migration. The ML-DSA key is derived from a 32-byte "
+        "seed, so the <i>shape</i> of custody is unchanged, but that is not the same as "
+        "having exercised it.",
+        "<b>No migration has been scheduled or costed</b>, and no performance cost has been "
+        "measured. An ML-DSA-65 signature is 3,309 bytes against Ed25519&#8217;s 64, which "
+        "is a storage and bandwidth change an institution should size before committing.",
     ]:
         s.append(B(b))
     s.append(P(

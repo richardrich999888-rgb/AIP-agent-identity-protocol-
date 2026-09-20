@@ -22,6 +22,20 @@ Full pinned set in `integrations/agents/requirements.lock` (38 packages).
 | langchain-core | MIT | `1.6.3` |
 | langgraph-checkpoint / -prebuilt / -sdk | MIT | `4.2.0 / 1.1.0 / 0.4.4` |
 
+## Cryptography in the shipped build (compiled, tested)
+
+Runtime dependencies of `aip-crypto`, which every signed artefact depends on.
+These are pinned in `Cargo.lock`; the exact-version pin below is in the
+manifest itself.
+
+| Crate | Licence | Pin | Notes |
+|-------|---------|-----|-------|
+| `ed25519-dalek` | BSD-3-Clause | `2.1` | Every signature shipped today. Mature, widely reviewed. |
+| `ml-dsa` | Apache-2.0 OR MIT | `=0.1.1` | FIPS-204 ML-DSA-65, RustCrypto. **Used only in the hybrid path** (`aip_crypto::hybrid`), never alone. **Pre-1.0 and not independently audited** — which is precisely why the construction verifies the mature half too, so a defect here cannot on its own produce a signature that verifies. Pinned exactly (`=`) rather than caret, because a pre-1.0 crate's patch releases may change behaviour. |
+| `sha2` | Apache-2.0 OR MIT | `0.10` | SHA-256 throughout. |
+| `argon2`, `chacha20poly1305`, `zeroize` | Apache-2.0 OR MIT | `0.5`, `0.10`, `1.8` | Phase A key custody at rest. |
+| `bs58` | Apache-2.0 OR MIT | `0.5` | AIP-ID encoding. |
+
 ## Phase 2 — MCP gateway (not yet fetched)
 
 | Tool | Licence | Pin |

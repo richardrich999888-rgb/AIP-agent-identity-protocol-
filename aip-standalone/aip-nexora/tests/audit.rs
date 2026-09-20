@@ -389,9 +389,17 @@ fn a06_versions_are_explicit_in_the_bytes_and_not_inferred() {
 
 // ═══ Unchecked algorithm enum ═══
 
-/// FINDING: none. Three algorithm identifiers exist in the type; exactly
-/// one is implemented, and the other two are refused rather than checked
-/// as Ed25519.
+/// FINDING: none. Three algorithm identifiers exist in the type. This
+/// verifier implements exactly one of them, and refuses the other two
+/// rather than checking them as Ed25519.
+///
+/// Since `aip_crypto::hybrid`, `Hybrid` IS implemented — by
+/// `verify_hybrid`, which is a different function taking a second key.
+/// This test is unchanged and still exactly right: `verify_ed25519` must
+/// refuse a `Hybrid`-labelled signature rather than check it, because a
+/// caller holding only the Ed25519 key must never verify half of a hybrid
+/// signature and believe it verified the whole. The layering is the
+/// guarantee.
 ///
 /// INVARIANT: a label is never allowed to become a capability. A signature
 /// declaring ML-DSA-65 or a hybrid scheme is not verified by this build,

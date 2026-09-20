@@ -616,3 +616,112 @@ fn rc08_the_signing_preimage_is_domain_separated() {
     );
     assert_eq!(map.signature.payload_hash, sha256(&preimage));
 }
+
+// ── 4. The migration, demonstrated end to end on a real signed document ───
+
+mod hybrid_migration {
+    //! The evidence-horizon claim, exercised rather than asserted.
+    //!
+    //! A route map is the institution's own signed statement, it goes over the
+    //! wire as JSON, and it is verified offline from a published key — the
+    //! same shape as every other signed artefact in this system. So it is a
+    //! fair end-to-end target for the migration: seal, serialise, deserialise,
+    //! verify under a policy.
+    //!
+    //! **Scope, stated so it is not overread:** this demonstrates the
+    //! signature path, the wire round trip and the transition policy on ONE
+    //! document type. The four evidence-signing authorities — collector,
+    //! decision point, reconciler, gateway — are **not** migrated, and the
+    //! technical brief's section 9a says so.
+
+    use super::*;
+    use aip_crypto::hybrid::{ml_dsa_public_key_from_seed, sign_hybrid, SignaturePolicy};
+
+    /// The same estate, sealed with a hybrid signature instead of Ed25519.
+    fn hybrid_signed(routes: Vec<RouteEntry>) -> (RouteMap, Vec<u8>, Vec<u8>) {
+        let ed = generate_ed25519_keypair();
+        let seed = [0x5eu8; 32];
+        let ml_public = ml_dsa_public_key_from_seed(&seed).unwrap();
+        let mut map = unsigned(routes);
+        let preimage = map.signing_preimage();
+        map.signature = sign_hybrid(&ed.private_key, &seed, ISSUER, &preimage).unwrap();
+        (map, ed.public_key.to_vec(), ml_public)
+    }
+
+    #[test]
+    fn hm01_a_hybrid_signed_map_survives_the_wire_and_verifies_under_a_strict_policy() {
+        let (map, ed_pub, ml_pub) = hybrid_signed(estate());
+        // Over the wire and back, exactly as the gateway loads it from disk.
+        let json = serde_json::to_string(&map).unwrap();
+        let loaded: RouteMap = serde_json::from_str(&json).unwrap();
+
+        let anchors = RouteMapAnchors::new().trust(ISSUER, &ed_pub);
+        loaded
+            .verify_under_policy(&anchors, SignaturePolicy::HybridRequired, Some(&ml_pub))
+            .expect("a hybrid map satisfies an institution that requires one");
+        // And it still resolves: the signature change is invisible above it.
+        assert!(matches!(
+            loaded.resolve("POST", "/avoidance"),
+            Resolution::Named { .. }
+        ));
+    }
+
+    #[test]
+    fn hm02_an_ed25519_map_still_verifies_during_the_transition() {
+        // The non-negotiable property: nothing already deployed breaks.
+        let (map, key) = signed(estate());
+        let anchors = RouteMapAnchors::new().trust(ISSUER, &key);
+        map.verify(&anchors)
+            .expect("the original path is untouched");
+        map.verify_under_policy(&anchors, SignaturePolicy::Transitional, None)
+            .expect("and a transitional verifier accepts it with no ML-DSA key at all");
+    }
+
+    #[test]
+    fn hm03_a_strict_verifier_refuses_an_ed25519_map_as_insufficient() {
+        // The migration's cut-over, and the distinction that keeps an estate
+        // mid-migration from reading as if it were under attack: this is
+        // "correctly signed, no longer sufficient", not "bad signature".
+        let (map, key) = signed(estate());
+        let anchors = RouteMapAnchors::new().trust(ISSUER, &key);
+        let refused = map
+            .verify_under_policy(&anchors, SignaturePolicy::HybridRequired, None)
+            .unwrap_err();
+        assert!(
+            matches!(
+                refused,
+                RouteMapError::Signature(aip_crypto::hybrid::HybridError::PolicyRequiresHybrid)
+            ),
+            "expected an insufficiency, got {refused:?}"
+        );
+        assert!(
+            map.verify(&anchors).is_ok(),
+            "the map itself is still valid"
+        );
+    }
+
+    #[test]
+    fn hm04_editing_a_route_after_hybrid_signing_is_still_caught() {
+        // The property the map exists for must survive the algorithm change.
+        let (mut map, ed_pub, ml_pub) = hybrid_signed(estate());
+        map.routes[0].tool_id = "tool.something.harmless".into();
+        let anchors = RouteMapAnchors::new().trust(ISSUER, &ed_pub);
+        assert_eq!(
+            map.verify_under_policy(&anchors, SignaturePolicy::HybridRequired, Some(&ml_pub)),
+            Err(RouteMapError::PayloadHashMismatch)
+        );
+    }
+
+    #[test]
+    fn hm05_a_hybrid_map_without_the_second_key_is_refused_not_half_checked() {
+        // A gateway provisioned with only the Ed25519 anchor must not verify
+        // half a hybrid signature and report success.
+        let (map, ed_pub, _ml_pub) = hybrid_signed(estate());
+        let anchors = RouteMapAnchors::new().trust(ISSUER, &ed_pub);
+        assert!(
+            map.verify_under_policy(&anchors, SignaturePolicy::Transitional, None)
+                .is_err(),
+            "half a hybrid signature is not a verification"
+        );
+    }
+}

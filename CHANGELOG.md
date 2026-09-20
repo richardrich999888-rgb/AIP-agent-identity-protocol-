@@ -6,6 +6,58 @@ versioning is [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (hybrid Ed25519 + ML-DSA-65 signatures — brief Revision 10)
+- **`aip_crypto::hybrid`** — the migration path for the evidence horizon §9a
+  named one revision ago. Signs under **both** Ed25519 and ML-DSA-65
+  (FIPS 204, RustCrypto `ml-dsa`, pinned `=0.1.1`) and **requires both halves
+  to verify**. Either-suffices would defeat the construction outright: a break
+  in Ed25519 alone would then forge a hybrid signature and the second
+  algorithm would be decoration. 15 tests.
+- **Neither era can be mistaken for the other**, and it costs nothing because
+  the `AlgorithmId` was already inside the signed bytes. The Ed25519 half of a
+  hybrid signature does not verify as a standalone signature (`h05`), and a
+  standalone signature relabelled `Hybrid` and padded with ML-DSA-shaped bytes
+  is caught **by the mature algorithm, not only by the new one** (`h06`).
+- **Nothing already sealed changes.** `sign_ed25519` and `verify_ed25519` are
+  untouched; the hybrid path is additive (`h09`). A migration that invalidated
+  the history it was meant to protect would be worse than none.
+- **`SignaturePolicy`** belongs to the verifier, not the artefact. A strict
+  verifier refuses an Ed25519 artefact as **insufficient, not invalid**
+  (`h10`) — logging a correctly signed document under a superseded algorithm
+  as a bad signature would make an estate mid-migration read as though it were
+  under attack.
+- **Demonstrated end to end** on a real signed document: `RouteMap::verify_under_policy`,
+  with a route map sealed hybrid, serialised, reloaded and verified offline
+  under a strict policy; the Ed25519 map still accepted under a transitional
+  one; a route edited after hybrid signing still caught. 5 tests
+  (`hybrid_migration::hm01`–`hm05`).
+- `THIRD_PARTY_LICENSES.md` records the shipped cryptography, including that
+  `ml-dsa` is **pre-1.0 and not independently audited** — which is exactly why
+  the construction verifies the mature half too, and why the pin is `=` rather
+  than caret.
+
+### Changed
+- `aip-nexora/tests/audit.rs` a07's **comment** corrected, its assertions
+  untouched. It said "exactly one is implemented"; `Hybrid` now is, by a
+  different function taking a second key. The test is still exactly right:
+  `verify_ed25519` must refuse a `Hybrid` label rather than check it, because
+  a caller holding only the Ed25519 key must never verify half a hybrid
+  signature and believe it verified the whole. The layering is the guarantee.
+
+### Still not done, and said so in the brief
+- **The four evidence-signing authorities are not migrated.** Collector,
+  decision point, reconciler and gateway all still sign Ed25519, so **no
+  evidence artefact carries a hybrid signature**. The primitive and the
+  transition policy exist and one document type is exercised end to end;
+  rolling that through the evidence families, the NEXORA log and the three
+  offline verifiers is mechanical but unbuilt. That work touches the most
+  safety-critical code in the repository and was deliberately not attempted in
+  the same pass as the primitive.
+- Standalone ML-DSA-65 remains a refused identifier. PKCS#11 custody was
+  exercised for Ed25519 only. The size cost — a 3,309-byte signature against
+  Ed25519's 64 — is unmeasured, and an institution should size it before
+  committing.
+
 ### Added (the evidence horizon — brief Revision 9, matrix D8)
 - **A branch survey found the gap by accident.** `codex/val-ladder-sync` carries
   an `ML-DSA-65` assembler-signature hook and a Kyber-768 network layer, and

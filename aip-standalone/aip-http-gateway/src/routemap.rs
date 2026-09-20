@@ -33,6 +33,7 @@
 
 use std::collections::BTreeSet;
 
+use aip_crypto::hybrid::{verify_under_policy, HybridError, SignaturePolicy};
 use aip_crypto::{sha256, verify_ed25519};
 use aip_types::canonical::*;
 use aip_types::Signature;
@@ -125,6 +126,8 @@ pub enum RouteMapError {
     SignerMismatch,
     PayloadHashMismatch,
     SignatureInvalid,
+    /// A hybrid or policy refusal, carrying which half or which rule.
+    Signature(HybridError),
 }
 
 /// Issuer keys a verifier was provisioned with. The map never carries the key
@@ -281,6 +284,35 @@ impl RouteMap {
             Ok(true) => Ok(()),
             _ => Err(RouteMapError::SignatureInvalid),
         }
+    }
+
+    /// Verify under a signature policy, so an institution mid-migration can
+    /// require a hybrid signature on its route map without invalidating the
+    /// Ed25519-signed maps already deployed.
+    ///
+    /// Additive: [`RouteMap::verify`] is unchanged and every map signed before
+    /// this existed verifies byte-identically through it. `ml_dsa_public` is
+    /// the issuer's ML-DSA-65 verifying key, absent while the institution is
+    /// still Ed25519-only — a hybrid map presented without one is refused
+    /// rather than half-checked.
+    pub fn verify_under_policy(
+        &self,
+        anchors: &RouteMapAnchors,
+        policy: SignaturePolicy,
+        ml_dsa_public: Option<&[u8]>,
+    ) -> Result<(), RouteMapError> {
+        self.check_well_formed()?;
+        let key = anchors
+            .get(&self.issuer_id)
+            .ok_or_else(|| RouteMapError::UntrustedIssuer(self.issuer_id.clone()))?;
+        if self.signature.signer_id != self.issuer_id {
+            return Err(RouteMapError::SignerMismatch);
+        }
+        if self.signature.payload_hash != sha256(&self.signing_preimage()) {
+            return Err(RouteMapError::PayloadHashMismatch);
+        }
+        verify_under_policy(policy, key, ml_dsa_public, &self.signature)
+            .map_err(RouteMapError::Signature)
     }
 
     /// Resolve one request. Total and deterministic: a well-formed map cannot
