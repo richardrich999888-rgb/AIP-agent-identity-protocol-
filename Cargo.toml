@@ -60,6 +60,9 @@ members = [
     # SIEM export (R15): CEF over RFC 5424, formatting only, emitted from a
     # verified verdict and never from an unverified one.
     "aip-standalone/aip-siem",
+    # PKCS#11 custody (R16): the signing key is generated inside the module
+    # and never leaves it. Tested against SoftHSM2 in CI.
+    "aip-standalone/aip-hsm",
     "aip-standalone/aip-containment",
     # ── the Linux autonomous edge reference (Skill 22) ─────────────────
     # Four members, and the split is the deliverable: the workload cannot

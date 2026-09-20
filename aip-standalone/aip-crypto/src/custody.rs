@@ -8,8 +8,9 @@
 //! ```text
 //!   Custodian
 //!     ├── DevelopmentInMemory   key in memory, never written, not production
-//!     └── WrappedFile           Argon2id + XChaCha20-Poly1305, mode 0600
-//!         (future: TPM, HSM, KMS — added with their implementations,
+//!     ├── WrappedFile           Argon2id + XChaCha20-Poly1305, mode 0600
+//!     └── Pkcs11                key generated inside an HSM; `aip-hsm`
+//!         (future: TPM, KMS — added with their implementations,
 //!          never as an empty variant that reads like a capability)
 //! ```
 //!
@@ -72,6 +73,16 @@ pub enum Backend {
     /// names something the repository actually does today, so that a policy
     /// check can refuse it.
     PlaintextFile,
+    /// A PKCS#11 module — an HSM, or SoftHSM2 in tests — holding a key
+    /// generated inside it as `CKA_SENSITIVE`, `CKA_EXTRACTABLE=false`.
+    /// The private scalar never exists in this process's memory: the
+    /// custodian sends the module 32 bytes and gets back a signature.
+    ///
+    /// Implemented in `aip-hsm`, which is why the variant exists. It says
+    /// **where the key lives**, and nothing about whether what was signed
+    /// is true — see the module documentation on custody versus
+    /// attestation.
+    Pkcs11,
 }
 
 impl Backend {
@@ -88,6 +99,7 @@ impl Backend {
             // or a backup has the key, and no passphrase stands in the way.
             Backend::PlaintextFile => false,
             Backend::WrappedFile => true,
+            Backend::Pkcs11 => true,
         }
     }
 }

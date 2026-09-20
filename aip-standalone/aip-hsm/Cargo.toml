@@ -1,0 +1,25 @@
+[package]
+name = "aip-hsm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "PKCS#11 custody for AIP signing keys: the key is generated inside the module and never leaves it"
+
+[features]
+# Lets a test provision a key with a *weak* policy (extractable, or not
+# sensitive) so it can prove the custodian refuses to use one. No production
+# build turns this on, and the function it gates is the only way this crate
+# will ever create such a key.
+test-fixtures = []
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+# The PKCS#11 binding maintained by the Parsec project. Pinned exactly: a
+# custody backend is not somewhere to pick up an unreviewed minor.
+cryptoki = "=0.12.1"
+zeroize = "1.8"
+
+[dev-dependencies]
+aip-hsm = { path = ".", features = ["test-fixtures"] }
+aip-reconcile = { path = "../aip-reconcile", features = ["test-fixtures"] }

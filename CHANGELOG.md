@@ -49,6 +49,57 @@ versioning is [SemVer](https://semver.org/).
   non-occurrence claim; without it `PHANTOM_CLAIM` was unreachable in the
   pilot topology. `ENOBUFS` is recorded as counted loss.
 
+### Added (RBI requirements coverage — R16: the key that never leaves the module)
+- **A PKCS#11 `Custodian` (`aip-standalone/aip-hsm`).** With the wrapped-file
+  custodian the signing key is decrypted into process memory for the life
+  of the process, and whoever can read that memory has it. Here the key is
+  generated *inside* the module with `CKA_SENSITIVE=true` and
+  `CKA_EXTRACTABLE=false`, and the module's own firmware refuses to return
+  it. This process sends 32 bytes and receives a signature. There is no
+  import path: a key that was ever outside the module cannot be shown
+  never to have been copied, and that is the property the backend exists
+  for.
+- **What is refused at open, once, so a bad deployment fails at start-up
+  and not at the first signature an audit needs.** A key whose policy would
+  let it leave the module — **read back from the module**, not assumed
+  from how the key was said to be created; two keys under one label,
+  rather than guessing; a public object that does not verify a probe
+  signature by the private object, so a mislabelled pair is caught at
+  commissioning; a PIN on the command line, or in a file another user can
+  read; a module that will not report the policy at all.
+- **The envelope is the software signer's, byte for byte.** Built with the
+  one `signature_signed_bytes` the signer and verifier already share;
+  `aip_crypto::verify_ed25519` accepts it and `ReconcilerSigner` signs a
+  verdict through the module with no change to any verifier. The nonce is
+  drawn from the module's RNG (`C_GenerateRandom`), not the host's.
+- **Two PKCS#11 facts handled and stated rather than met in production.**
+  Login state is per token per application: a second custodian on the same
+  token gets `CKR_USER_ALREADY_LOGGED_IN`, which is treated as success, and
+  the consequence — its PIN is not re-checked — is documented, because it
+  is the standard's model and not something the application can tighten.
+  SoftHSM2's file-backed object store fails intermittently with
+  `CKR_GENERAL_ERROR` when a key is generated while anything else is in
+  flight on the token; generation is serialised within a process, and the
+  cross-process case is stated as a commissioning rule (provision with the
+  signer stopped) rather than papered over. The test suite is structured
+  the same way — every key provisioned serially at setup, then opened and
+  signed with in parallel — because that is the deployment, not a harness
+  convenience.
+- **Tested against a real token.** `tests/softhsm.rs` runs against
+  SoftHSM2 through the same interface a hardware module presents,
+  including a second PIN-holding session asking for the private key and
+  not getting it. The tests **fail rather than skip** when the module is
+  absent, with the install command, because a custody test that passes on
+  a machine without the module has never run; `ci.yml` installs it.
+  `Backend::Pkcs11` is added to `aip-crypto` now that an implementation
+  exists, as the custody module always said it would be. 27 tests.
+- **`aip-hsm` CLI:** `provision`, `public-key`, `self-test`. The PIN comes
+  from an owner-only file or the environment, never an argument.
+- **Not covered by code, stated in `deploy/pilot/HSM_CUSTODY.md`:** which
+  module and its certification, who holds the PIN, dual control and key
+  ceremony, and key backup — a non-extractable key cannot be backed up by
+  copying it, and that choice has regulatory consequences (E5, open).
+
 ### Added (RBI requirements coverage — R15: metrics, SIEM, runbook)
 - **Verified verdicts as CEF over RFC 5424 syslog (`aip-standalone/aip-siem`).**
   A verdict nobody reads changes nothing, and an institution's analysts
