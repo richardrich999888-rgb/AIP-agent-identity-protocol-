@@ -1,7 +1,17 @@
-# SPIFFE/SPIRE cross-check — S1: the join quantity exists
+# SPIFFE/SPIRE cross-check — S1–S4 executed
 
-**Status: S1 executed. A workload is identified by SPIRE on the SHA-256 of its
-binary, and a one-byte-different copy of the same program is refused.**
+**Status: executed end to end. SPIRE and AIP independently measure the same
+workload and agree; when the identity registry is re-pointed at different code,
+the running system is caught diverging from the approved record.**
+
+```
+S3   AGREES    fd33ac17…  SPIRE and AIP measured the same executable
+S4a  AGREES    bc80d34c…  SPIRE stays self-consistent after the change
+S4b  DIVERGES  DigestMismatch — running code ≠ the approved record
+```
+
+Reproduce: `validation/external/spiffe/joint_run.sh`. Sealed at
+`results/sealed-joint/`.
 
 This is step one of the second corroboration axis named in subsection 10a of the
 RBI technical brief. The bpftrace/auditd work corroborates AIP's **observation**
@@ -76,9 +86,40 @@ Presenting it as a SPIRE break would be a cheap shot, and it would invite the
 same question back at AIP, whose own brief already concedes that a host with
 root can lie to its own probe. Both systems document the same limit.
 
+## S4: what is and is not demonstrated
+
+**S4 fabricates nothing.** Both SVIDs were genuinely issued by SPIRE, and both
+measurements are genuinely AIP kernel observations. The only thing that differs
+between S4a and S4b is *which registry record the comparison is made against* —
+and both are real `spire-server entry show` output captured at different times.
+That models an **unauthorised change to a workload identity registration**,
+which is a real threat, not a synthetic one.
+
+S4a exists so the result is falsifiable: against SPIRE's *current* registry the
+system is self-consistent and the tool says `AGREES`. A tool that reported
+divergence in both directions would be worthless.
+
+## Two findings the live runs produced — both in our code, not SPIRE's
+
+**1. The pid-reuse guard was anchored to the wrong instant.** The first joint
+run reported a perfectly healthy workload as a reused pid: its process started
+~12 s *after* the SVID's `notBefore`. Cause: **SPIRE's agent pre-mints SVIDs for
+registered entries before any workload asks**, so `notBefore` records minting,
+not attestation. The moment SPIRE attests *this caller* is the fetch. The guard
+now compares against that, and `s14`/`s15` lock both directions — a control that
+cries wolf on every normal deployment is a control that gets switched off.
+
+**2. AIP does not bind every exec, and that is correct behaviour.** A run failed
+because the workload's exec was recorded with `bound: null` — the probe saw the
+exec but could not complete a pidfd-anchored measurement of that instance, with
+`dropped_events: 0` throughout, so this is measurement racing rather than loss.
+The comparison then returned `NotComparable`, **not** a false agreement. The
+harness now requires a *bound* measurement and re-runs the workload otherwise,
+reporting how many attempts it took; each attempt is an independent genuine
+execution, so this selects a comparable run rather than massaging a result.
+
 ## Next
 
-- **S2** — compare SPIRE's assertion against AIP's `ExecutionBinding` for the
-  same process instance: `Agrees` / `IdentityDivergence` / `NotComparable` /
-  `CannotProve`, with tests.
-- **S3** — live joint run, sealed, offline-verifiable.
+- Bind AEGIS enforcement to a verified AIP identity (the CBOM's own named gap).
+- SPIRE node attestation here is `join_token`, the weakest option, chosen for a
+  single-host lab. Nothing in this tree makes a claim about node attestation.

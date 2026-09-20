@@ -195,10 +195,10 @@ fn s03_an_identity_that_never_rested_on_code_is_not_comparable_not_agreement() {
 // ── pid reuse ────────────────────────────────────────────────────────────
 
 #[test]
-fn s04_an_instance_that_started_after_issuance_is_a_reused_pid_not_a_match() {
-    // Same pid, same image — but this instance began 30 s AFTER the SVID was
-    // issued, so it cannot be the process SPIRE attested. Matching digests
-    // must not rescue it.
+fn s04_an_instance_that_started_after_attestation_is_a_reused_pid_not_a_match() {
+    // Same pid, same image — but this instance began well AFTER SPIRE attested
+    // the caller, so it cannot be that caller. Matching digests must not
+    // rescue it. (Reference is the fetch, not notBefore: SPIRE pre-mints.)
     let b = batch(vec![event(1, proc_at(PID, 35_000, b"real workload"))], true);
     let r = registry_with(&digest_selector(b"real workload"));
     let out = compare_workload_identity(&assertion(PID), &r, &[b]);
@@ -210,7 +210,7 @@ fn s04_an_instance_that_started_after_issuance_is_a_reused_pid_not_a_match() {
         matches!(
             out,
             WorkloadIdentityComparison::Diverges {
-                divergence: IdentityDivergence::InstanceStartedAfterIssuance { .. }
+                divergence: IdentityDivergence::InstanceStartedAfterAttestation { .. }
             }
         ),
         "{out:?}"
@@ -218,7 +218,7 @@ fn s04_an_instance_that_started_after_issuance_is_a_reused_pid_not_a_match() {
 }
 
 #[test]
-fn s05_an_instance_that_started_before_issuance_is_fine() {
+fn s05_an_instance_that_started_before_attestation_is_fine() {
     let b = batch(
         vec![event(1, proc_at(PID, -20_000, b"real workload"))],
         true,
@@ -365,4 +365,55 @@ fn s13_the_workload_never_testifies_about_itself() {
     let r = registry_with(&digest_selector(b"real workload"));
     let out: WorkloadIdentityComparison = compare_workload_identity(&assertion(PID), &r, &[b]);
     assert!(out.agrees());
+}
+
+// ── the bug the first live run found ─────────────────────────────────────
+
+/// SPIRE's agent **pre-mints** SVIDs for registered entries before any workload
+/// asks for one. A certificate's `notBefore` therefore records when it was
+/// minted, and can precede the workload's own start by many seconds.
+///
+/// The first live joint run reported a perfectly healthy workload as a reused
+/// pid for exactly this reason: the process began ~12 s after `notBefore`. The
+/// instant SPIRE actually attested *this caller* is the fetch. Anchoring the
+/// guard to `notBefore` makes the tool cry wolf on every normal deployment,
+/// which is the fastest way to have a control switched off in production.
+#[test]
+fn s14_a_pre_minted_svid_does_not_make_a_healthy_workload_look_like_a_reused_pid() {
+    // notBefore 60 s before the anchor; the process starts at the anchor and
+    // fetches 6 s later. That is the ordinary case, not a reuse.
+    let b = batch(vec![event(1, proc_at(PID, 0, b"real workload"))], true);
+    let r = registry_with(&digest_selector(b"real workload"));
+    let mut a = assertion(PID);
+    a.not_before_ms = ANCHOR_WALL_MS as i64 - 60_000;
+    assert!(
+        a.observed_at_ms > ANCHOR_WALL_MS as i64,
+        "fetch must follow the start"
+    );
+
+    let out = compare_workload_identity(&a, &r, &[b]);
+    assert!(
+        out.agrees(),
+        "a pre-minted SVID is normal SPIRE behaviour, not a reused pid: {out:?}"
+    );
+}
+
+/// The guard must still fire when it should: same pre-minted SVID, but the
+/// instance began after the fetch.
+#[test]
+fn s15_the_reuse_guard_still_fires_against_the_attestation_instant() {
+    let b = batch(vec![event(1, proc_at(PID, 40_000, b"real workload"))], true);
+    let r = registry_with(&digest_selector(b"real workload"));
+    let mut a = assertion(PID);
+    a.not_before_ms = ANCHOR_WALL_MS as i64 - 60_000; // pre-minted, as in the wild
+    let out = compare_workload_identity(&a, &r, &[b]);
+    assert!(
+        matches!(
+            out,
+            WorkloadIdentityComparison::Diverges {
+                divergence: IdentityDivergence::InstanceStartedAfterAttestation { .. }
+            }
+        ),
+        "{out:?}"
+    );
 }

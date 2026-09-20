@@ -1,0 +1,30 @@
+
+[36m== Preconditions[0m
+       kernel 6.18.44-fc-v37; spire 1.15.3-dev-unk
+
+[36m== Build[0m
+  [32mPASS[0m binaries built — A fd33ac17e1f5...  B bc80d34cd563...
+
+[36m== Start AIP (probe holds no key; collector off-process holds the only key)[0m
+  [32mPASS[0m AIP up: probe -> collector over the confidential transport
+
+[36m== Start SPIRE (unix attestor, discover_workload_path = true)[0m
+  [32mPASS[0m SPIRE up: server + agent attested
+
+[36m== S3 — register workload A by its digest; both authorities observe it[0m
+       change-controlled registry snapshot taken: 2 entry(ies)
+       A: attempt 1 -- AIP recorded pid 20606 but could not bind it; re-running
+       A: SPIRE issued to pid 20673 and AIP bound a measurement of it (attempt 2)
+  [32mPASS[0m S3: SPIRE and AIP independently measured the same executable for this process
+
+[36m== S4 — the registry is re-pointed at different code[0m
+       spiffe://aip.local/workload/demo now requires B (bc80d34cd563...), was A (fd33ac17e1f5...)
+       B: SPIRE issued to pid 20721 and AIP bound a measurement of it (attempt 1)
+
+[36m== S4a — against SPIRE's CURRENT registry, the system is self-consistent[0m
+  [32mPASS[0m S4a: SPIRE is internally consistent — the tool is not simply always-red
+
+[36m== S4b — against the APPROVED registry, the running system has DIVERGED[0m
+  [32mPASS[0m S4b: identity re-pointed at unapproved code — caught as DigestMismatch
+
+[36m== RESULT[0m

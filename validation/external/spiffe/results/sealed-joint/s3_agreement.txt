@@ -1,0 +1,19 @@
+WORKLOAD IDENTITY CROSS-CHECK
+asserting authority : SPIRE (unix workload attestor)
+measuring authority : AIP (kernel probe + off-host collector)
+SPIFFE ID           : spiffe://aip.local/workload/demo
+pid                 : 20673
+registry entries    : 2
+---
+AGREES
+Both authorities independently measured the same executable for this
+process instance:
+  fd33ac17e1f51018aabdacc68ed4c64ff610152635b2cb6847dee521f32f52d7
+
+The identity also rested on selectors AIP cannot check: unix:uid:0.
+Those are SPIRE's alone and are not corroborated here.
+---
+Bounds: SPIRE's unix attestor and AIP both measure from /proc/<pid>/exe, so
+for this attestor the two share that attack surface. Agreement means two
+independently built implementations concur; it does not make the host kernel
+trustworthy, and neither project claims it does.

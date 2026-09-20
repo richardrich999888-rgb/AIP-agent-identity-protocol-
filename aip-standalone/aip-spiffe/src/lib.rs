@@ -26,9 +26,19 @@
 //!
 //! SPIRE names a **pid**. AIP pins a **process instance** (pid + start tick +
 //! boot id). A pid can be reused. If the instance AIP measured began *after*
-//! the SVID was issued, then AIP is looking at a different, later process that
-//! inherited the number, and comparing their digests is meaningless. That case
-//! is [`IdentityDivergence::InstanceStartedAfterIssuance`] and never `Agrees`.
+//! SPIRE attested the caller, then AIP is looking at a different, later process
+//! that inherited the number, and comparing their digests is meaningless. That
+//! case is [`IdentityDivergence::InstanceStartedAfterAttestation`], never
+//! `Agrees`.
+//!
+//! **The reference instant is the fetch, not the SVID's `notBefore`.** This was
+//! found by the first live run, which reported a healthy workload as a reused
+//! pid: SPIRE's agent **pre-mints** SVIDs for registered entries before any
+//! workload asks for one, so `notBefore` records when the certificate was
+//! minted and can precede the workload's own start by many seconds. The moment
+//! SPIRE actually attested *this caller* is when the workload called the
+//! Workload API — `observed_at_ms`. A process that began after that instant
+//! cannot be the caller that was attested; one that began before it can.
 
 use aip_observe::{AttestedBatch, BootClockAnchor, ObservedProcess};
 
@@ -66,12 +76,16 @@ pub enum IdentityDivergence {
         spire_required_hex: String,
         aip_measured_hex: String,
     },
-    /// The process instance AIP measured started after the SVID was issued, so
-    /// it cannot be the process SPIRE attested. A reused pid, not a match.
-    InstanceStartedAfterIssuance {
+    /// The process instance AIP measured started after SPIRE attested the
+    /// caller, so it cannot be the process SPIRE attested. A reused pid.
+    ///
+    /// Compared against the **attestation** instant (when the workload called
+    /// the Workload API), not the SVID's `notBefore`: SPIRE pre-mints SVIDs for
+    /// registered entries, so `notBefore` can precede the workload's own start.
+    InstanceStartedAfterAttestation {
         spiffe_id: String,
         instance_started_ms: i64,
-        svid_not_before_ms: i64,
+        attested_at_ms: i64,
     },
 }
 
@@ -221,19 +235,22 @@ pub fn compare_workload_identity(
         return nc(R::NoClockAnchor);
     };
 
-    // Pid-reuse guard. The instance AIP measured must have existed when SPIRE
-    // issued the SVID; one that began later is a different process.
+    // Pid-reuse guard. The instance AIP measured must have existed at the
+    // moment SPIRE attested the caller — that is the fetch (`observed_at_ms`),
+    // NOT the SVID's `notBefore`, which records pre-minting. See the module
+    // docs: anchoring this to `notBefore` reports healthy workloads as reused
+    // pids, which the first live run demonstrated.
     let start_ns = anchor.start_ticks_to_ns(measured.process.pid_start_time_ticks);
     let started_ms = aip_corroborate::clock::monotonic_ns_to_wall_ms(&anchor, start_ns);
     // One tick of slack: the start tick has clk_tck granularity, so an instance
-    // that began in the same tick as issuance must not be called a reuse.
+    // beginning in the same tick as the attestation must not be called a reuse.
     let slack_ms = (anchor.tick_ns() / 1_000_000).max(1) as i64;
-    if started_ms > assertion.not_before_ms + slack_ms {
+    if started_ms > assertion.observed_at_ms + slack_ms {
         return WorkloadIdentityComparison::Diverges {
-            divergence: IdentityDivergence::InstanceStartedAfterIssuance {
+            divergence: IdentityDivergence::InstanceStartedAfterAttestation {
                 spiffe_id: assertion.spiffe_id.clone(),
                 instance_started_ms: started_ms,
-                svid_not_before_ms: assertion.not_before_ms,
+                attested_at_ms: assertion.observed_at_ms,
             },
         };
     }

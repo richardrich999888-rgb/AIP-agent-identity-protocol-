@@ -1,0 +1,18 @@
+Found 2 entries
+Entry ID                : 30fe3cb3-4e45-4d76-8af1-25d104c6e331
+SPIFFE ID               : spiffe://aip.local/node/lab
+Parent ID               : spiffe://aip.local/spire/agent/join_token/deda5f60-f5ca-4079-a66b-906f1fda56ed
+Revision                : 0
+X509-SVID TTL           : default
+JWT-SVID TTL            : default
+Selector                : spiffe_id:spiffe://aip.local/spire/agent/join_token/deda5f60-f5ca-4079-a66b-906f1fda56ed
+
+Entry ID                : 2cbc68a5-f495-4144-a294-d51e4166ae8d
+SPIFFE ID               : spiffe://aip.local/workload/demo
+Parent ID               : spiffe://aip.local/spire/agent/join_token/deda5f60-f5ca-4079-a66b-906f1fda56ed
+Revision                : 0
+X509-SVID TTL           : default
+JWT-SVID TTL            : default
+Selector                : unix:sha256:bc80d34cd563e461274772722dd818637a0da4fc59f714b70f59d6757aeedbc0
+Selector                : unix:uid:0
+
