@@ -54,7 +54,7 @@ from reportlab.platypus import (
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = REPO / "docs" / "pilot" / "SNIFFER_DOG_TECHNICAL_BRIEF_RBI.pdf"
 
-REVISION = "Revision 10"
+REVISION = "Revision 11"
 PERIOD = "September 2026"
 RUNNING = (
     "VANIAN Technologies  |  Sniffer Dog / AIP: Technical Brief  |  "
@@ -281,6 +281,71 @@ def content(st, width):
         [0.15, 0.30, 0.25, 0.30]))
 
     # ── 3 ───────────────────────────────────────────────────────────────────
+    s.append(Paragraph(
+        "2a. One core, five regulated domains — and what each is forbidden to say",
+        st["h2"]))
+    s.append(P(
+        "An assessor is entitled to ask whether this is a principled accountability model or "
+        "a set of special cases fitted to a BFSI checklist. The question is fair and it is "
+        "answerable from the repository rather than from assurance, so we answer it here."))
+    s.append(P(
+        "The same core carries <b>five deployment profiles across separate regulated "
+        "domains</b>. None of them has its own reconciler, its own verifier, its own "
+        "evidence hierarchy or its own trust score; each occupies an ordinary profile id "
+        "beside the others. And the primary contribution of every one of them is a statement "
+        "of <b>what it cannot establish</b>:"))
+    s.append(table(
+        ["Profile", "Tests", "What that domain's profile exists to refuse"],
+        [
+            ["Financial / enterprise", "99",
+             "The deployment class this submission concerns. No second evidence hierarchy; "
+             "the same verdict vocabulary as every other profile."],
+            ["Uncrewed aerial systems", "126",
+             "Its stated central contribution is &#8220;precisely how little that core can "
+             "honestly say about an aircraft&#8221;."],
+            ["Robotics autonomy", "131",
+             "Accounts for the autonomy runtime&#8217;s execution. <b>Motion, contact, object "
+             "state and task outcome resolve to CANNOT_PROVE</b> unless a deployment supplies "
+             "an independent physical mechanism, which this build does not."],
+            ["Industrial / critical edge", "172",
+             "Accounts for which binary ran, on which host-boot, which sockets it held, which "
+             "configuration it wrote. <b>A flow, a pressure or a completed shutdown resolves "
+             "to CANNOT_PROVE.</b>"],
+            ["Disconnected / space autonomy", "102",
+             "Collects evidence with no link and verifies it offline after contact. <b>Delayed "
+             "arrival is not non-occurrence</b>: evidence arriving in a second says exactly as "
+             "much about event time as evidence arriving in a month. Gaps are sticky and "
+             "record the <i>exact</i> missing sequences, because &#8220;three segments "
+             "missing&#8221; cannot be checked off later and &#8220;segments 7, 8 and 9 "
+             "missing&#8221; can."],
+        ],
+        [0.22, 0.08, 0.70]))
+    s.append(P(
+        "<b>Why this is evidence rather than breadth.</b> A system built only for banking can "
+        "be fitted to a banking checklist, and nothing in it would reveal the difference. A "
+        "core that must also tell an aviation regulator how little it can say about an "
+        "aircraft, and an industrial operator that it cannot evidence a pressure, is a core "
+        "whose limits are structural rather than negotiated. <b>The discipline the Department "
+        "is asked to rely on here is the same discipline, in the same code, that four other "
+        "regulated domains would test differently.</b>"))
+    s.append(P(
+        "Scale, for orientation only: <b>51 crates, ~163,000 lines of Rust, 2,690 tests</b> in "
+        "the accountability workspace. Those are inputs, not outcomes, and section 10 is where "
+        "this brief says what has actually been demonstrated."))
+    s.append(P(
+        "<b>The limit on this section.</b> None of the four non-financial profiles has been "
+        "deployed either. Section 12 already places the physical-autonomy profiles at TRL 4 "
+        "and physical autonomous-system accountability at TRL 2&#8211;3. Their value to this "
+        "submission is as evidence that the core&#8217;s refusals are principled, <b>not</b> "
+        "as evidence that anything has been run in an aircraft, a plant or a spacecraft."))
+    s.append(N(
+        "The mechanisms that make the core distinctive are catalogued for review in "
+        "`docs/IP/INVENTION_REGISTER.md` — nine entries, each with its problem, mechanism, "
+        "source location, invariant, tests and the alternative embodiments not taken. That "
+        "document asserts of itself that <b>no entry is claimed to be novel, non-obvious or "
+        "patentable</b>, that no prior-art search has been performed and no application "
+        "filed. It is cited here as a map for a technical reviewer, and for no stronger "
+        "purpose."))
     s.append(H("3. Deployment topology"))
     s.append(P(
         "The trust boundary is the deployment. Two boundaries carry the argument and must "

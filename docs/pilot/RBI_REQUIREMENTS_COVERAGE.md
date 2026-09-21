@@ -124,7 +124,7 @@
 | G4 | Transaction-content fraud scoring, mule detection | MuleHunter / IDPIC | RBIH, IDPIC, RE fraud teams |
 | G5 | What was said inside a TLS session or a chat | — | Agent framework (sign tool calls, R4) and gateway receipts |
 | G6 | Root or kernel compromise of the observed host | — | Host hardening, hardware attestation (ADR-002), off-host observation research |
-| G7 | Concentration risk across vendors | Governor's seven risks | RE board; RBI supervision |
+| G7 | Concentration risk across vendors | Governor's seven risks | RE board; RBI supervision | Relevant fact for that assessment, not a claim on it: the accountability core is **not BFSI-specific**. It carries five deployment profiles across separate regulated domains — financial/enterprise (99 tests), uncrewed aerial systems (126), robotics autonomy (131), industrial/critical edge (172), disconnected/space autonomy (102) — none of which has its own reconciler, verifier or evidence hierarchy. Each profile's primary contribution is a statement of what it **cannot** establish, which is why they are evidence that the core's refusals are structural rather than fitted to one checklist. See brief §2a. **None of the four non-financial profiles is deployed either**; §12 places physical autonomy at TRL 2–4. Whether that reduces concentration risk is the Department's and the RE board's judgement, not ours. |
 | G8 | Performance, throughput, latency figures | — | Benchmark on institution hardware; none quoted until then |
 
 ## 2. Roadmap (build items referenced above)
