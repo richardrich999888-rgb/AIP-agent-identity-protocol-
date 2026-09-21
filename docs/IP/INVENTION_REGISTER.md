@@ -511,6 +511,210 @@ separation itself.
 
 ---
 
+## IR-10 — Refusal of a non-occurrence verdict over an unattributable event
+
+**PROBLEM**
+A verdict of the form *"the authorised action never happened"* is drawn from
+absence. Every coverage predicate we know of asks whether the observer was
+**watching** — was the window continuous, did the source report loss, was the
+mechanism kernel-pushed. None asks whether what it watched could be
+**identified**. An execution the observer witnessed and could not attribute is
+not a lost event: the loss counter is a counted zero and the window is
+gap-free. Absence over such a window is not absence; it is the observer's own
+blind spot, and a system that reasons across it converts its own limitation
+into an accusation against a subject.
+
+**MECHANISM**
+`recompute_coverage` — the sole gate on `PhantomClaim` — refuses when any batch
+covering the window carries a process event (`ProcessExec`, `ProcessSpawn`,
+`Exec`, `Fork`) whose `bound` field is `None`, returning
+`ReasonCode::CoverageUnboundProcessEvent`. The verdict falls back to
+`CannotProve`. Only *process* events qualify: an unbound socket event is a gap
+of a different class and cannot be the missing execution this verdict concerns.
+
+The mechanism needs no protocol change. The kernel events are already inside
+the collector-signed bytes; the distinctive step is that the verdict path
+**consults the evidence of its own incompleteness** before drawing a
+conclusion from silence.
+
+**SOURCE**
+- `aip-standalone/aip-reconcile/src/reconcile.rs` — `recompute_coverage`
+  (tail), `ReasonCode::CoverageUnboundProcessEvent`
+- `aip-standalone/aip-reconcile/src/result.rs` — reason code `0x57`
+
+**PROTOCOL VERSION** No wire change. `OBSERVE_PROTOCOL_VERSION` 12 unchanged.
+
+**INVARIANT**
+A statement that something did not happen may not be drawn across a window in
+which the observer witnessed an event it could not name.
+
+**TESTS**
+- `aip-reconcile/tests/adversarial.rs::t03h` — a perfectly covered window with
+  one unbound `ProcessExec` yields `CannotProve`, not `PhantomClaim`
+- `t03i` — the identical window without that event still reaches
+  `PhantomClaim`, so the predicate withholds rather than denies
+- `t03j` — the same event *bound* does not withhold the verdict
+- Non-vacuity established by removing the check: the engine returns
+  `PhantomClaim` where `t03h` requires `CannotProve`
+
+**TECHNICAL EFFECT**
+The strongest negative verdict is gated on attribution completeness, not only
+on observation continuity — two properties that every prior coverage predicate
+we are aware of conflates.
+
+**SECURITY EFFECT**
+Closes a **false-accusation** path. Before it, a host whose workload defeats
+binding — short-lived processes exiting before a pidfd-anchored measurement
+completes — could produce a signed verdict that an agent did not perform an
+action it did perform. On the sealed Phase-1 agent run, 84 of 105 `execve`
+events were unbound, so the vulnerable configuration is an ordinary busy host
+rather than a contrived one.
+
+**ALTERNATIVE EMBODIMENTS**
+Attesting the unbound count as a first-class field in the batch, so a verifier
+reads the envelope's holes without re-deriving them (a wire change, not built);
+a per-window attribution ratio carried in signed health with a deployment
+threshold; refusing the verdict only when the unbound event's kind could match
+the expectation, which is narrower and requires the expectation's action class
+to be observable — it is not, today.
+
+**CURRENT STATUS** Implemented and tested. Found by reading the predicate
+against a measured binding ratio, not by a test failing.
+
+**DISCLOSURE STATUS** No prior-art search. No filing. Public in this
+repository's history from 2026-09-20.
+
+---
+
+## IR-11 — Independence class as a first-class property of corroboration
+
+**PROBLEM**
+"An independent observer agreed with us" is worth what the independence is
+worth, and the word conceals a distinction that decides the whole claim. Two
+observers can be independently *built* and still share the kernel mechanism
+they read from, in which case a single gate on that mechanism blinds both and
+their agreement is not corroboration at all — it is one observation counted
+twice.
+
+**MECHANISM**
+`IndependenceClass` is carried on every corroboration report:
+`SameMechanism` for an independently built observer reading the same kernel
+source (bpftrace on the same `sched` tracepoint), `DifferentMechanism` for one
+reaching the kernel by another path (auditd through the audit subsystem). The
+report states which class it represents rather than asserting independence as
+a single undifferentiated property, so a reader can see what a shared-mechanism
+gate would and would not have defeated.
+
+**SOURCE**
+- `aip-standalone/aip-corroborate/src/lib.rs` — `IndependenceClass`,
+  `corroborate`, `Corroboration`
+- `aip-standalone/aip-corroborate/src/clock.rs` — the i128 clock-domain
+  normalisation the comparison rests on
+
+**PROTOCOL VERSION** Not a wire artefact; a comparison-report property.
+
+**INVARIANT**
+A corroboration report names the class of independence it represents, and a
+same-mechanism agreement is never presented as though it were cross-mechanism.
+
+**TESTS**
+`aip-corroborate` — 32 tests, including that a failed `execve` attempt is not
+an observation gap (`x15`) and that an exclusion cannot hide a real successful
+gap (`x16`). Executed live: bpftrace 113 agreed / 0 gaps; auditd 112 agreed /
+0 gaps with 938 failed attempts excluded and reported as a scope difference.
+
+**TECHNICAL EFFECT**
+The corroboration claim carries its own defeat condition. A reviewer can
+compute what remains true if the shared mechanism is compromised.
+
+**SECURITY EFFECT**
+Prevents a correlated blind spot being sold as redundancy — the failure mode
+in which a fleet of "independent" sensors all read one tracepoint.
+
+**ALTERNATIVE EMBODIMENTS**
+A quantified independence score (rejected: it invites arithmetic where a
+taxonomy is honest); requiring at least one `DifferentMechanism` corroborator
+before any agreement is reportable, which is stricter and not implemented.
+
+**CURRENT STATUS** Implemented; executed live against two third-party
+observers.
+
+**DISCLOSURE STATUS** No prior-art search. No filing.
+
+---
+
+## IR-12 — A comparison whose third answer is "not comparable"
+
+**PROBLEM**
+Cross-checking one authority's identity binding against another's admits a
+third outcome that binary comparators collapse: the two may not be talking
+about the same thing. A registration that rests on no content digest, an
+ambiguous process instance, a credential outside its validity window — each
+produces "disagree" in a two-valued comparator, which is a false finding
+against a healthy system and the fastest route to a control being switched off.
+
+**MECHANISM**
+`compare_workload_identity` returns `Agrees`, `Diverges{DigestMismatch |
+InstanceStartedAfterAttestation}` or `NotComparable{NoSvid | UnknownSpiffeId |
+NoDigestSelector | ContradictoryDigestSelectors | NoAipMeasurement |
+AmbiguousProcessInstance | NoClockAnchor | SvidOutsideValidity}` — eight named
+reasons why a comparison could not be made, none of which is a finding against
+the subject. A registration carrying no digest selector is `NotComparable` and
+can never be `Agrees`; a registry offering two contradictory digests for one
+identity is likewise refused rather than resolved.
+
+The pid-reuse guard is anchored to the instant the second authority **attested
+a particular caller** (the workload's fetch), not to the instant its credential
+was minted. Credentials are pre-minted for registered entries before any
+workload asks, so anchoring to minting reports every healthy late-starting
+workload as a reused pid.
+
+**SOURCE**
+- `aip-standalone/aip-spiffe/src/lib.rs` — `compare_workload_identity`
+- `aip-standalone/aip-spiffe/src/registry.rs` — `required_digest`, which
+  returns `None` on zero or on multiple distinct digests
+
+**PROTOCOL VERSION** Not a wire artefact; a comparison result type.
+
+**INVARIANT**
+Absence of a comparable basis is never a divergence, and a comparison that
+cannot be made says so by name.
+
+**TESTS**
+`aip-spiffe` — 25 tests, including `s03` (a uid-only registration is
+`NotComparable`, never `Agrees`), `s14` (a pre-minted credential is not a pid
+reuse) and `s15` (the guard still fires on a genuine reuse). Executed live
+against SPIRE v1.15.3: agreement on a live workload, divergence when the
+identity is re-pointed at unapproved code, and a soundness control in which
+the same program with one byte changed was refused by SPIRE.
+
+**TECHNICAL EFFECT**
+The comparator's output distinguishes three epistemic states where the
+conventional form offers two, and the eight refusal reasons are actionable
+configuration findings rather than security findings.
+
+**SECURITY EFFECT**
+A control that false-positives on ordinary deployments is switched off in its
+first week, which is worse than not having it. Every `NotComparable` reason
+here is a case that would otherwise have produced a false divergence.
+
+**ALTERNATIVE EMBODIMENTS**
+A confidence value instead of a taxonomy (rejected for the same reason as
+IR-11); treating `NotComparable` as a deployment error that blocks startup,
+which is stricter and would prevent the partial-coverage deployments an
+institution actually runs.
+
+**CURRENT STATUS** Implemented; executed live against a third-party identity
+authority.
+
+**DISCLOSURE STATUS** No prior-art search. No filing. **Name caution:** the
+abbreviation "AIP" and the delegation layer it names collide with an IETF
+Internet-Draft and an arXiv paper by another author; see `PRIOR_ART_NOTES.md`.
+That collision concerns naming and delegation, not the mechanisms above, but
+it must be resolved before any filing references the term.
+
+---
+
 ## What this register does not claim
 
 - No entry is asserted to be novel or non-obvious. Several build directly
@@ -519,6 +723,14 @@ separation itself.
 - No entry is asserted to be patentable. That requires prior-art search and
   legal analysis, neither of which has been done.
 - Nothing was added to the system in order to appear in this register.
-- Post-quantum cryptography, hardware-backed key storage, kernel-resident
-  eBPF/XDP sensing and field deployment appear nowhere above, because none
-  of them is implemented.
+- Hardware-backed key storage, kernel-resident eBPF/XDP sensing and field
+  deployment appear nowhere above, because none of them is implemented.
+- **Post-quantum signing is now implemented** (`aip_crypto::hybrid`, hybrid
+  Ed25519 + ML-DSA-65, FIPS 204) and is deliberately **not** a register entry.
+  Hybrid signature constructions are established practice; what would be
+  distinctive is the migration discipline around it — an algorithm identifier
+  inside the signed bytes, an unimplemented algorithm refused rather than
+  coerced, and a verifier-held policy that refuses a superseded artefact as
+  *insufficient* rather than *invalid* — and that has not been prior-art
+  searched. It is recorded here so the omission is a decision rather than an
+  oversight.

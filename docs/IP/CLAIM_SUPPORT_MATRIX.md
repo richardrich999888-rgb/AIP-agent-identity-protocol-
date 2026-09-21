@@ -96,7 +96,7 @@ the observed effect diverges from a cryptographically sealed prior
 authorization"* — is a method this implementation cannot perform, for a
 principled reason it has written down. See §3 for what to do about it.
 
-### 1.3 There is no post-quantum cryptography in this codebase
+### 1.3 Post-quantum cryptography — superseded 2026-09-21, and the new position
 
 The brief spends a section on ML-DSA-87 signing latency, rejection-sampling
 variance, and batch-signing Merkle roots, and lists "post-quantum by design
@@ -112,10 +112,38 @@ verify. The six-branch audit reached the same conclusion independently
 post-quantum code"*), and `INVENTION_REGISTER.md` says post-quantum
 cryptography "appears nowhere above, because none of [it] is implemented."
 
-The brief's engineering advice is sound and should be kept on file for when
-PQC is built. It is currently advice about a system that does not exist, and
-**"post-quantum stack" must not appear in procurement or investor material**
-until it does.
+**The paragraphs above were true when written (2026-09-13) and are no longer
+true.** They are kept rather than deleted, because a claim-support document
+that silently rewrites its own findings is not evidence of anything. What
+changed, on 2026-09-21:
+
+`aip_crypto::hybrid` implements **hybrid Ed25519 + ML-DSA-65 signing**
+(FIPS 204, via RustCrypto `ml-dsa`, pinned `=0.1.1`), with verification
+requiring **both** halves. 15 tests in
+`aip-crypto/tests/hybrid_signature.rs`, plus 5 end-to-end tests exercising a
+real signed document sealed hybrid, serialised, reloaded and verified offline
+under a strict policy.
+
+**What may now be said, and what still may not:**
+
+| Claim | Status |
+|---|---|
+| "hybrid Ed25519 + ML-DSA-65 signing is implemented and tested" | **TRUE** |
+| "a migration path exists and is exercised end to end on a signed document" | **TRUE** |
+| "our evidence is post-quantum" / "post-quantum stack" | **FALSE — still forbidden.** The four evidence-signing authorities (collector, decision point, reconciler, gateway) all still sign Ed25519. **No evidence artefact carries a hybrid signature.** |
+| "standalone ML-DSA-65 signing" | **FALSE.** `MlDsa65` remains a reserved identifier that every verifier refuses. |
+| "post-quantum key establishment secures our evidence" | **FALSE and a category error.** The Kyber-768 work in `aegis-quantum` is a **KEM** — session confidentiality. It gives no signature path. |
+
+The prohibition in the original paragraph therefore **stands in substance**:
+"post-quantum stack" must not appear in procurement or investor material,
+because the stack is not post-quantum — one primitive is, and the evidence
+families are not migrated. The narrower true statement is the only one
+available: *the migration mechanism is built and tested; applying it to the
+evidence families is not.*
+
+A further constraint on any filing: the ML-DSA implementation is **pre-1.0 and
+not independently audited**, which is why the construction verifies the mature
+half too and why the dependency is pinned exactly rather than by caret.
 
 ### 1.4 Minor: the TRL figure
 
@@ -230,6 +258,37 @@ patents. Two consequences it does not draw out:
    the brief says. Note the actual relationship: SPICE chains *content
    provenance*; this system reconciles *sealed intent against independently
    observed execution*. The layer above is the part to claim.
+
+---
+
+## 4a. Name and scope collision found 2026-09-21 — blocks any filing that uses "AIP"
+
+Not a mechanism finding; a **naming and scope** finding, and material to every
+filing decision below.
+
+| | This repository | The collision |
+|---|---|---|
+| Name | AIP — Agent Identity Protocol | **AIP — Agent Identity Protocol** |
+| Artefact | this codebase | arXiv **2603.24775** (Sunil Prakash, 27 Mar 2026) **and IETF Internet-Draft `draft-prakash-aip-00`** |
+| Subject | observation, reconciliation, verdicts | "Verifiable Delegation Across MCP and A2A" |
+
+The Internet-Draft is the serious half: an I-D is a standards-track claim on
+the name **and** the problem space, not merely a publication. From its abstract
+the overlap is **authorisation and delegation** — Invocation-Bound Capability
+Tokens, JWT and Biscuit wire formats — with no apparent claim on runtime
+observation, on establishing whether an authorised action executed, or on
+reconciling the two. If that survives a full read, the collision touches the
+name and our delegation layer and **not** IR-01 through IR-12.
+
+**Verification limit:** `arxiv.org` and `www.ietf.org` are both blocked from
+the environment this was found in. Both documents are summarised from search
+metadata and abstracts, **not read**. Nobody may treat the scope distinction
+above as established until someone has read them in full.
+
+**Consequence for filing:** no application should reference "AIP" or claim the
+delegation layer until (a) both documents are read, and (b) counsel has ruled
+on the name. See `PRIOR_ART_NOTES.md` for the same finding with the AIRI
+collision beside it.
 
 ---
 
