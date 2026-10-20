@@ -94,6 +94,7 @@ class AiriEmitter:
         self._clock_ms = clock_ms
         self._sequence = 0
         self._head = _GENESIS
+        self._execution_id: Optional[bytes] = None
         self._lock = threading.Lock()
 
     # ── internals ───────────────────────────────────────────────────────
@@ -111,6 +112,8 @@ class AiriEmitter:
                 f"for {self._identity.aip_id!r}; an agent signs only for itself"
             )
         with self._lock:
+            if self._execution_id is not None and c.execution_id != self._execution_id:
+                raise AiriError("an emitter cannot be shared across executions")
             event = AiriEvent(
                 kind=kind,
                 agent_id=self._identity.aip_id,
@@ -126,6 +129,7 @@ class AiriEmitter:
             )
             preimage = event.signing_preimage()
             event.signature = self._identity.sign(preimage)
+            self._execution_id = c.execution_id
             self._sequence += 1
             self._head = event.event_hash()
         self._sink.emit(event)

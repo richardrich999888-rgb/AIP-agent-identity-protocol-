@@ -42,10 +42,13 @@ different self.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from copy import deepcopy
+from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from ..emitter import AiriEmitter
+from ..commitment import commit_json
+from ..errors import AiriError
 from ..events import ReportedOutcome
 
 __all__ = ["ToolAdapter", "ToolCall"]
@@ -67,6 +70,14 @@ class ToolCall:
     parameters: Any
     tool_call_id: Optional[str] = None
     target: Optional[str] = None
+    _parameter_commitment: bytes = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        # Client libraries may mutate the caller's arguments while executing.
+        # Keep the request's snapshot, including nested lists and dictionaries.
+        parameters = deepcopy(self.parameters)
+        object.__setattr__(self, "parameters", parameters)
+        object.__setattr__(self, "_parameter_commitment", commit_json(parameters))
 
 
 class ToolAdapter:
@@ -120,9 +131,14 @@ class ToolAdapter:
         Not evidence of layer 3. There is no argument to this method, and no
         other method on this class, that asserts the external effect occurred.
         """
+        # A frozen dataclass does not freeze nested dictionaries or lists.
+        # Refuse a changed handle rather than sign a contradictory report.
+        parameters = deepcopy(call.parameters)
+        if commit_json(parameters) != call._parameter_commitment:
+            raise AiriError("tool parameters changed after the request")
         self._em.tool_reported(
             tool_id=call.tool_id,
-            parameters=call.parameters,
+            parameters=parameters,
             outcome=outcome,
             result=result,
             transport_status=transport_status,
