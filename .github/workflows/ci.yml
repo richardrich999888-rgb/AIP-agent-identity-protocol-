@@ -122,6 +122,14 @@ jobs:
           AIP_TEST_DATABASE_URL: postgresql://aip:aip@127.0.0.1:5432/aip
         run: cargo test --features postgres --no-fail-fast
 
+      # These tests are explicitly ignored in an ordinary cargo test run.
+      # They provision restricted roles in a separate, disposable database.
+      - name: storage controls (restricted roles, live DB)
+        if: ${{ !cancelled() }}
+        env:
+          AIP_TEST_ADMIN_DATABASE_URL: postgresql://aip:aip@127.0.0.1:5432/aip
+        run: cargo test --features postgres --test storage_controls -- --ignored
+
   supply-chain:
     name: cargo audit · cargo deny
     runs-on: ubuntu-latest
@@ -139,6 +147,7 @@ jobs:
       - name: cargo audit
         run: cargo audit --ignore RUSTSEC-2026-0097
       - name: cargo deny check
+        if: ${{ !cancelled() }}
         run: cargo deny check
 
   coverage:

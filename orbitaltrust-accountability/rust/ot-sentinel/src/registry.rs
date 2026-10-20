@@ -103,14 +103,13 @@ impl AgentRegistry {
                     }
                 }
             }
-            "AUTHORITY_REVOCATION" => {
+            "AUTHORITY_REVOCATION"
                 if anchor
                     .pointer("/payload/terminal")
                     .and_then(Value::as_bool)
-                    .unwrap_or(false)
-                {
-                    entry.closed = true;
-                }
+                    .unwrap_or(false) =>
+            {
+                entry.closed = true;
             }
             _ => {}
         }
