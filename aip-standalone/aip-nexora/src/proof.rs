@@ -535,14 +535,12 @@ impl NexoraProof {
                         sequence,
                         emitted_at_ms,
                         ..
-                    } => {
-                        if o.health.health.sequence != sequence.0
-                            || o.health.health.emitted_at_ms != *emitted_at_ms
-                        {
-                            f.push(BindingFault::CitedHealthNotCarried {
-                                sequence: sequence.0,
-                            });
-                        }
+                    } if o.health.health.sequence != sequence.0
+                        || o.health.health.emitted_at_ms != *emitted_at_ms =>
+                    {
+                        f.push(BindingFault::CitedHealthNotCarried {
+                            sequence: sequence.0,
+                        });
                     }
                     _ => {}
                 }

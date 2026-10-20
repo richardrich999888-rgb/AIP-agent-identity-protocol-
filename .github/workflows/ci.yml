@@ -67,10 +67,12 @@ jobs:
       # the postgres-backend job below against a live database; running it here
       # without one would be a false failure.
       - name: cargo test
-        run: cargo test --workspace
+        if: ${{ !cancelled() }}
+        run: cargo test --workspace --no-fail-fast
 
       - name: cargo test (release — perf gates)
-        run: cargo test --workspace --release
+        if: ${{ !cancelled() }}
+        run: cargo test --workspace --release --no-fail-fast
 
   red-suite:
     name: RED suite (adversarial ledger reproducible)
@@ -115,9 +117,10 @@ jobs:
       - name: clippy (postgres feature)
         run: cargo clippy --all-targets --features postgres -- -D warnings
       - name: test (postgres feature, live DB)
+        if: ${{ !cancelled() }}
         env:
           AIP_TEST_DATABASE_URL: postgresql://aip:aip@127.0.0.1:5432/aip
-        run: cargo test --features postgres
+        run: cargo test --features postgres --no-fail-fast
 
   supply-chain:
     name: cargo audit · cargo deny

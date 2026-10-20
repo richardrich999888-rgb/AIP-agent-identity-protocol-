@@ -540,7 +540,7 @@ fn check_bundle_signer_trusted(
             format!(
                 "the manifest signer ({}) is not among the {} anchored bundle \
                  signer(s)",
-                &manifest.signer_public_key,
+                manifest.signer_public_key,
                 ctx.trusted_bundle_signers.len()
             ),
         );

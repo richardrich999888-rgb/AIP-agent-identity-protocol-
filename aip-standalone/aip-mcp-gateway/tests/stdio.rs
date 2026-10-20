@@ -73,13 +73,13 @@ fn run(mut command: Command, input: &str) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    child
-        .stdin
-        .take()
-        .unwrap()
-        .write_all(input.as_bytes())
-        .unwrap();
-    child.wait_with_output().unwrap()
+    let written = child.stdin.take().unwrap().write_all(input.as_bytes());
+    let output = child.wait_with_output().unwrap();
+    // A startup rejection may close stdin before the test finishes writing.
+    if output.status.success() {
+        written.unwrap();
+    }
+    output
 }
 
 fn responses(output: &Output) -> Vec<Value> {
