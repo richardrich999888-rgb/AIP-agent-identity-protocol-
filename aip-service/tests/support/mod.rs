@@ -136,7 +136,9 @@ pub fn packet_dated(offset_ms: u64) -> Fixture {
         ScopeAction::Standard(Action::Write),
         "POST /ledger/payments",
         sha256(b"{\"amount\":100}"),
-        decided_at_ms + 1,
+        // Equal timestamps are valid; a fixture for the present must not
+        // depend on signing taking at least one millisecond.
+        decided_at_ms,
     )
     .expect("action attestation");
 

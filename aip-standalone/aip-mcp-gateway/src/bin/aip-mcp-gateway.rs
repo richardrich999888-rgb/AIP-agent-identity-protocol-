@@ -48,6 +48,9 @@ fn hex32(s: &str) -> Result<[u8; 32], String> {
 }
 
 fn decode_hex(s: &str) -> Result<Vec<u8>, String> {
+    if !s.is_ascii() {
+        return Err("non-ASCII hex".into());
+    }
     if !s.len().is_multiple_of(2) {
         return Err("odd length".into());
     }
@@ -57,15 +60,20 @@ fn decode_hex(s: &str) -> Result<Vec<u8>, String> {
         .collect()
 }
 
-fn decision_id_from(auth: &Value) -> [u8; 16] {
-    // The request's authorisation carries the decision id as hex; absent or
-    // malformed, the gateway records all-zero (a join key that will not match
-    // any real expectation, which is the correct fail-closed default).
-    auth.get("decision_id")
+fn decision_id_from(auth: &Value) -> Result<[u8; 16], (i64, String)> {
+    // A join key is not proof of authorization, but it must be well formed.
+    // Fabricating a zero id would record a different claim than the request.
+    let raw = auth
+        .get("decision_id")
         .and_then(Value::as_str)
         .and_then(|h| decode_hex(h).ok())
-        .and_then(|b| <[u8; 16]>::try_from(b.as_slice()).ok())
-        .unwrap_or([0u8; 16])
+        .and_then(|b| <[u8; 16]>::try_from(b.as_slice()).ok());
+    raw.ok_or_else(|| {
+        (
+            -32602,
+            "authorization.decision_id must be 16-byte hex".into(),
+        )
+    })
 }
 
 fn run() -> Result<(), String> {
@@ -142,7 +150,13 @@ fn handle(
     let agent_id = auth
         .get("agent_id")
         .and_then(Value::as_str)
-        .unwrap_or("unknown-agent")
+        .filter(|id| !id.is_empty())
+        .ok_or_else(|| {
+            (
+                -32602,
+                "authorization.agent_id must be a nonempty string".to_string(),
+            )
+        })?
         .to_string();
     let tool_call_id = params
         .get("tool_call_id")
@@ -152,7 +166,7 @@ fn handle(
     let call = ToolCall {
         method: method.to_string(),
         tool_name,
-        decision_id: decision_id_from(&auth),
+        decision_id: decision_id_from(&auth)?,
         agent_id,
         tool_call_id,
         arguments,

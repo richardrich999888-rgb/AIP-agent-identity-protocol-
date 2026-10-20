@@ -283,6 +283,13 @@ fn now_ms() -> u64 {
 /// Build, sign, and return an EvidencePacket from a generate request.
 /// Pure: performs no I/O.
 pub fn generate_packet(req: &GenerateRequest) -> Result<EvidencePacket, String> {
+    generate_packet_with_clock(req, now_ms)
+}
+
+fn generate_packet_with_clock(
+    req: &GenerateRequest,
+    clock_ms: impl Fn() -> u64,
+) -> Result<EvidencePacket, String> {
     if req.actions.is_empty() {
         return Err("at least one action is required".into());
     }
@@ -307,7 +314,7 @@ pub fn generate_packet(req: &GenerateRequest) -> Result<EvidencePacket, String> 
         root_token: req.root_token.clone(),
     };
 
-    let decided_at = now_ms();
+    let decided_at = clock_ms();
     let decision = DecisionRecord {
         decision_id: aip_core::capability::random_jti(),
         action_kind: parse_scope_action(&req.decision.action_kind),
@@ -322,7 +329,7 @@ pub fn generate_packet(req: &GenerateRequest) -> Result<EvidencePacket, String> 
         .decision(decision.clone())
         .claimed_trust_floor(req.claimed_trust_floor.unwrap_or(TrustFloor::AgentSigned));
 
-    for (i, a) in req.actions.iter().enumerate() {
+    for a in &req.actions {
         let attestation = ActionAttestation::create(
             &agent_id,
             &agent_seed,
@@ -330,7 +337,9 @@ pub fn generate_packet(req: &GenerateRequest) -> Result<EvidencePacket, String> 
             parse_scope_action(&a.action_kind),
             &a.description,
             sha256(a.payload.as_bytes()),
-            decided_at + 1 + i as u64,
+            // Several records may share a millisecond. Inventing successive
+            // timestamps can put a fresh packet ahead of its verifier's clock.
+            clock_ms(),
         )
         .map_err(|e| format!("action attestation: {e}"))?;
         builder = builder.action(attestation);
@@ -789,6 +798,38 @@ mod tests {
         assert_eq!(resp2.status(), 404);
 
         let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn generating_multiple_actions_does_not_advance_a_frozen_clock() {
+        let (mut req, issuers) = sample_generate_request();
+        req.actions = (0..3)
+            .map(|index| ActionInput {
+                action_kind: "write".into(),
+                description: format!("record action {index}"),
+                payload: format!("payload-{index}"),
+            })
+            .collect();
+        let at = now_ms();
+        let packet = generate_packet_with_clock(&req, || at).unwrap();
+        assert_eq!(packet.decision.decided_at, at);
+        assert_eq!(packet.actions.len(), 3);
+        for action in &packet.actions {
+            assert_eq!(action.performed_at, at, "time must come from the clock");
+        }
+        let report = verify_request(&VerifyRequest {
+            packet,
+            trusted_issuers: issuers,
+            trusted_counterparties: HashMap::new(),
+            revoked_jtis: vec![],
+            trace_data: None,
+            receipt_data: None,
+            verification_time_ms: Some(at),
+            future_tolerance_ms: Some(0),
+            check_replay: false,
+        })
+        .unwrap();
+        assert!(report.valid, "failures: {:?}", report.failures());
     }
 
     #[test]

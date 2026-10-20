@@ -114,7 +114,7 @@ pub fn sample_packet() -> (EvidencePacket, HashMap<String, String>) {
         ScopeAction::Standard(Action::Write),
         "POST /ledger/payments",
         sha256(b"payload"),
-        now + 1,
+        now,
     )
     .unwrap();
 
