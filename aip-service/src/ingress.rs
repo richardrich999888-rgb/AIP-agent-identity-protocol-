@@ -139,6 +139,29 @@ pub fn harden(router: Router, limits: IngressLimits) -> Router {
 mod tests {
     use super::*;
 
+    /// The environment is process-wide and the test harness runs tests on
+    /// parallel threads. Three tests below set and read the same variables,
+    /// so without this lock one reads another's value mid-test: measured at
+    /// 31 failures in 60 runs before it was added.
+    static ENV: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    const VARS: [&str; 3] = [
+        "AIP_MAX_BODY_BYTES",
+        "AIP_REQUEST_TIMEOUT_SECS",
+        "AIP_MAX_IN_FLIGHT",
+    ];
+
+    /// Hold the lock and start from a clean environment. Poison is
+    /// tolerated: one failing test must not turn every later one into a
+    /// lock failure that hides the real assertion.
+    fn exclusive_env() -> std::sync::MutexGuard<'static, ()> {
+        let guard = ENV.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        for k in VARS {
+            std::env::remove_var(k);
+        }
+        guard
+    }
+
     #[test]
     fn the_defaults_are_conservative_and_finite() {
         let d = IngressLimits::default();
@@ -149,6 +172,7 @@ mod tests {
 
     #[test]
     fn env_overrides_are_read() {
+        let _env = exclusive_env();
         std::env::set_var("AIP_MAX_BODY_BYTES", "2048");
         std::env::set_var("AIP_REQUEST_TIMEOUT_SECS", "5");
         std::env::set_var("AIP_MAX_IN_FLIGHT", "16");
@@ -156,11 +180,7 @@ mod tests {
         assert_eq!(l.max_body_bytes, 2048);
         assert_eq!(l.request_timeout, Duration::from_secs(5));
         assert_eq!(l.max_in_flight, 16);
-        for k in [
-            "AIP_MAX_BODY_BYTES",
-            "AIP_REQUEST_TIMEOUT_SECS",
-            "AIP_MAX_IN_FLIGHT",
-        ] {
+        for k in VARS {
             std::env::remove_var(k);
         }
     }
@@ -170,6 +190,7 @@ mod tests {
     /// control that reads as present.
     #[test]
     fn a_malformed_limit_is_refused_not_ignored() {
+        let _env = exclusive_env();
         std::env::set_var("AIP_MAX_BODY_BYTES", "not-a-number");
         let err = IngressLimits::from_env().unwrap_err();
         assert!(err.contains("AIP_MAX_BODY_BYTES"), "{err}");
@@ -178,6 +199,7 @@ mod tests {
 
     #[test]
     fn an_empty_value_falls_back_to_the_default() {
+        let _env = exclusive_env();
         std::env::set_var("AIP_MAX_IN_FLIGHT", "");
         assert_eq!(
             IngressLimits::from_env().unwrap().max_in_flight,
