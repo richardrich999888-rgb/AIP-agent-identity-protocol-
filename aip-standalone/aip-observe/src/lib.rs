@@ -111,7 +111,9 @@ pub use observed::{
 };
 #[cfg(target_os = "linux")]
 pub use perf::PerfTracepoints;
-pub use perf::{data_loc, decode_sample, RawFormat, RawSample, TraceField};
+pub use perf::{
+    data_loc, decode_sample, decode_sample_with, RawFormat, RawSample, SampleLayout, TraceField,
+};
 #[cfg(target_os = "linux")]
 pub use probe::AnchoredMeasurement;
 pub use probe::{clk_tck, instance_started_no_later_than, AgentClaim, ProbeError, ProcfsProbe};
