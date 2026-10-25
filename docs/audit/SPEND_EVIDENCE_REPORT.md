@@ -120,5 +120,15 @@ drift was found, and is the check to repeat on any future commit.
 
 ## 8. Validation
 
-See §8 of the commit that lands this report for the exact workspace results;
-recorded here once the full run completes.
+On `e2fbac2`, after `cargo clean` (an earlier run failed four `ghost-demo`
+tests with `ENOSPC` — the disk had filled with mutation build artefacts,
+`os error 28` in the nested `nexora-verify` build; environmental, not code):
+
+```
+cargo fmt --all -- --check                                            exit 0
+cargo clippy --workspace --all-targets --all-features -- -D warnings  exit 0
+cargo test --workspace --no-fail-fast   321 suites · 3156 passed · 0 failed · 7 ignored
+```
+
+3,156 = the previous 3,095 + exactly the 61 tests in §3. SoftHSM2 installed;
+the `aip-hsm` custody tests ran.
