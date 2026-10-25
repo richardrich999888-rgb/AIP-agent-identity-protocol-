@@ -16,6 +16,7 @@ mod controls;
 mod execution;
 mod identity;
 mod inventory;
+mod spend;
 mod tools;
 mod validity;
 
@@ -153,7 +154,9 @@ pub fn assess(i: &Inputs<'_>) -> Assessment {
     let mut sheet = Sheet::new();
     let doc = identity::run(i, &mut sheet);
     authority::run(i, &mut sheet);
-    approvals::run(i, &mut sheet);
+    let spend = spend::gather(i, &mut sheet);
+    spend::limits(i, &spend, &mut sheet);
+    approvals::run(i, &spend, &mut sheet);
     execution::run(i, &mut sheet);
     inventory::run(i, &mut sheet);
     tools::run(i, &mut sheet);

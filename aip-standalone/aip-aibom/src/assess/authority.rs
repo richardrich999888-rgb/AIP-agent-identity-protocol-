@@ -201,16 +201,6 @@ fn permissions(i: &Inputs<'_>, chains: &[Evaluated<'_>], sheet: &mut Sheet) {
             FindingKind::UndeclaredAuthority { action },
         );
     }
-
-    for k in 0..p.limits.len() {
-        let path = format!("$.permissions.limits[{k}]");
-        sheet.finding(
-            Component::Permissions,
-            path.clone(),
-            FindingKind::LimitNotEnforceable,
-        );
-        sheet.field(Component::Permissions, path, Standing::SelfReported);
-    }
 }
 
 fn delegated_from(i: &Inputs<'_>, chains: &[Evaluated<'_>], sheet: &mut Sheet) {

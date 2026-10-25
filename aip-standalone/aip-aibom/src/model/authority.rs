@@ -25,9 +25,10 @@ pub enum LimitPeriod {
     PerMonth,
 }
 
-/// A cap on an action. No AIP artifact carries one: `CapabilityScope` has no
-/// amounts. A limit is therefore always `SelfReported`, and the assessment
-/// says so.
+/// A cap on an action. `CapabilityScope` has no amounts; a per-action cap is
+/// carried by a signed spend policy (ADR-018) and verified against it. A
+/// per-day or per-month cap is carried by no artifact and stays
+/// `SelfReported`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Limit {

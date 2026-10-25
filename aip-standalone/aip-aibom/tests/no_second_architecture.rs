@@ -184,6 +184,9 @@ fn the_bundle_carries_no_trust_input() {
             "identity",
             "parent_identity",
             "proofs",
+            "spend_attestations",
+            "spend_policies",
+            "spend_refusals",
             "tool_receipts",
         ]
     );

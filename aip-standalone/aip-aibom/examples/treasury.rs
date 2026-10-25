@@ -2,8 +2,14 @@
 //!
 //! An agent authorised to read balances and create payments, declared with a
 //! $1,000 limit and a $500 approval gate. Every artifact is real: the
-//! identity, the CFO's grant, the publisher's seal. The MCP configuration
+//! identity, the CFO's grant, the institution's signed spend policy, the
+//! decision point enforcing it, the publisher's seal. The MCP configuration
 //! carries an inline credential and a tool the manifest forgot.
+//!
+//! The agent asks to pay $400 (authorised and attested) and $5,000
+//! (refused, and the refusal signed with the amount). The assessment shows
+//! the $1,000 limit as verified against the institution's signature, and
+//! the $5,000 attempt from the decision point's signed bytes.
 //!
 //! ```text
 //! cargo run -p aip-aibom --example treasury [OUTPUT_DIR]
@@ -19,14 +25,26 @@ use aip_aibom::model::*;
 use aip_aibom::ports::DiscoverySource;
 use aip_aibom::seal::Publisher;
 use aip_aibom::{assess, report, Inputs};
+use aip_authorize::{
+    ActionParameters, AuthorizationRequest, DecisionPoint, SpendDecision, SpendRecord,
+};
 use aip_core::capability::issue_scoped_token;
 use aip_crypto::{derive_aip_id, generate_ed25519_keypair, sha256, sign_ed25519};
-use aip_types::{CapabilityScope, ProvenanceTriple, ScopeAction};
+use aip_spend::{SignedSpendPolicy, SpendPolicy, SpendPolicyAnchors, SpendRule};
+use aip_types::{
+    CapabilityScope, ExecutionBinding, ProcessInstance, ProvenanceTriple, ScopeAction,
+    EXECUTION_BINDING_VERSION,
+};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 const ONE_HOUR_MS: u64 = 3_600_000;
 const NINETY_DAYS_MS: u64 = 90 * 24 * ONE_HOUR_MS;
+const POLICY_ISSUER: &str = "bank.example/treasury-policy";
+/// $1,000.00 and $500.00, in cents.
+const LIMIT_CENTS: u64 = 100_000;
+const APPROVAL_ABOVE_CENTS: u64 = 50_000;
+const EXPECTATION_TTL_MS: u64 = 60_000;
 
 fn provenance(tag: &str) -> ProvenanceTriple {
     ProvenanceTriple {
@@ -46,6 +64,37 @@ fn usd(dollars: u64) -> Amount {
         currency: "USD".into(),
         exponent: 2,
     }
+}
+
+/// The institution's policy for this agent: $1,000 per payment, human
+/// approval above $500.
+fn spend_policy(agent_id: &str) -> SpendPolicy {
+    SpendPolicy {
+        version: aip_spend::SPEND_POLICY_VERSION,
+        policy_id: "treasury-payments".into(),
+        issuer_id: POLICY_ISSUER.into(),
+        revision: 3,
+        issued_at_ms: 1_700_000_000_000,
+        agent_id: agent_id.into(),
+        rules: vec![SpendRule {
+            action: act("create_payment"),
+            amount_parameter: "amount_cents".into(),
+            currency: "USD".into(),
+            exponent: 2,
+            max_per_action: LIMIT_CENTS,
+            approval_above: Some(APPROVAL_ABOVE_CENTS),
+        }],
+    }
+}
+
+fn payment(base: &AuthorizationRequest, cents: &str) -> AuthorizationRequest {
+    let mut r = base.clone();
+    r.parameters = ActionParameters::from_pairs([
+        ("payee", b"ACME-SUPPLIES-LTD".to_vec()),
+        ("amount_cents", cents.as_bytes().to_vec()),
+    ])
+    .expect("parameters");
+    r
 }
 
 fn write<T: serde::Serialize>(dir: &std::path::Path, name: &str, v: &T) -> PathBuf {
@@ -84,6 +133,59 @@ fn main() {
     )
     .expect("grant");
     let now = grant.issued_at + 1;
+
+    // ── The institution signs a spend policy; its decision point enforces it. ──
+    let policy_kp = generate_ed25519_keypair();
+    let policy_anchors = SpendPolicyAnchors::new().trust(POLICY_ISSUER, &policy_kp.public_key);
+    let signed_policy = SignedSpendPolicy::sign(spend_policy(&identity.id), &policy_kp.private_key)
+        .expect("policy");
+    let dp_kp = generate_ed25519_keypair();
+    let dp_id = derive_aip_id(&dp_kp.public_key, &provenance("decision-point"));
+    let dp = DecisionPoint::new(&dp_id, &dp_kp.private_key, &dp_kp.public_key, ONE_HOUR_MS)
+        .expect("decision point")
+        .trust_issuer(&cfo_id, &cfo.public_key)
+        .with_spend_policy(
+            signed_policy
+                .verify(&policy_anchors)
+                .expect("verified policy"),
+        )
+        .expect("adopt policy");
+    let base = AuthorizationRequest {
+        agent_id: identity.id.clone(),
+        root_token: grant.clone(),
+        delegation_chain: vec![],
+        action_kind: act("create_payment"),
+        parameters: ActionParameters::empty(),
+        execution_binding: ExecutionBinding {
+            version: EXECUTION_BINDING_VERSION,
+            agent_id: identity.id.clone(),
+            process: ProcessInstance {
+                pid: 41_207,
+                pid_start_time_ticks: 1_904_311,
+                boot_id: [0x5a; 16],
+            },
+            exe_content_sha256: sha256(b"treasury-agent 1.2.0"),
+            exe_path: "/opt/treasury/bin/agent".into(),
+            bound_at_ms: now,
+            container: None,
+        },
+        requested_ttl_ms: EXPECTATION_TTL_MS,
+    };
+    // $400: within the limit and below the approval threshold.
+    let SpendDecision {
+        decision: paid,
+        record: Some(SpendRecord::Attested(attestation)),
+    } = dp.authorize_spend_at(&payment(&base, "40000"), now)
+    else {
+        panic!("$400 is within the policy");
+    };
+    let expectation = paid.expected().expect("authorised").clone();
+    // $5,000: refused at the decision point, and the refusal signed.
+    let Some(SpendRecord::Refused(refusal)) =
+        dp.authorize_spend_at(&payment(&base, "500000"), now).record
+    else {
+        panic!("$5,000 exceeds the policy");
+    };
 
     // ── What the owner declares. ──
     let manifest = Manifest {
@@ -191,6 +293,10 @@ fn main() {
             root: grant,
             delegations: vec![],
         }],
+        expectations: vec![expectation],
+        spend_policies: vec![signed_policy],
+        spend_attestations: vec![attestation],
+        spend_refusals: vec![refusal],
         ..Default::default()
     };
     let mut issuers = BTreeMap::new();
@@ -200,9 +306,18 @@ fn main() {
         "platform-team".to_string(),
         hex::encode(&publisher_kp.public_key),
     );
+    let mut decision_points = BTreeMap::new();
+    decision_points.insert(dp_id, hex::encode(&dp_kp.public_key));
+    let mut spend_policy_issuers = BTreeMap::new();
+    spend_policy_issuers.insert(
+        POLICY_ISSUER.to_string(),
+        hex::encode(&policy_kp.public_key),
+    );
     let context_file = ContextFile {
         issuers,
         publishers,
+        decision_points,
+        spend_policy_issuers,
         ..Default::default()
     };
 

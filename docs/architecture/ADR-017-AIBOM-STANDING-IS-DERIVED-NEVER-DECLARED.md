@@ -114,6 +114,9 @@ agent reaches R". An adverse row is reported as its own finding, verbatim.
 **Inferring amount limits from tokens.** Rejected: `CapabilityScope` carries no
 amounts. A limit is `SelfReported` and the report says where it would have to be
 enforced. Pretending otherwise is the $1,000 / $5,000 demo that fails.
+*Amended by ADR-018:* a per-action limit is now verifiable — not from a token,
+but from an institution-signed spend policy the decision point enforces. The
+rejection of inference stands.
 
 ## Consequences
 

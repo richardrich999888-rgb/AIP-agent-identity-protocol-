@@ -1,0 +1,14 @@
+[package]
+name = "aip-spend"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Spend authority: institution-signed limits, enforced at the decision point, evidenced by signed attestations and refusals"
+
+# Formats and pure evaluation only. The decision point (`aip-authorize`)
+# depends on this crate, enforces the policy and signs the records with its
+# own key; this crate never holds a decision-point key and never decides.
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+serde = { version = "1.0", features = ["derive"] }

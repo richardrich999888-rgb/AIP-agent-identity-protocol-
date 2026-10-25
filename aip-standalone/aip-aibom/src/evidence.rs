@@ -15,6 +15,9 @@ use aip_approval::{ApprovalSurfaceAnchors, SignedApprovalArtifact};
 use aip_authorize::{DecisionPointTrustAnchors, ExpectedExecution};
 use aip_ledger::{AccessLedger, LedgerTrustAnchors};
 use aip_nexora::{NexoraProof, VerifierAnchors};
+use aip_spend::{
+    SignedSpendAttestation, SignedSpendPolicy, SignedSpendRefusal, SpendPolicyAnchors,
+};
 use aip_types::{AgentIdentityDocument, DelegationToken, ScopedToken};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -97,6 +100,15 @@ pub struct EvidenceBundle {
     /// reaching, as the institution's registry names them (C6).
     #[serde(default)]
     pub access_ledgers: Vec<AccessLedger>,
+    /// Institution-signed spend policies for the agent (C5 limits).
+    #[serde(default)]
+    pub spend_policies: Vec<SignedSpendPolicy>,
+    /// Decision-point attestations of authorised, spend-governed decisions.
+    #[serde(default)]
+    pub spend_attestations: Vec<SignedSpendAttestation>,
+    /// Decision-point refusals on spend authority, each with the amount.
+    #[serde(default)]
+    pub spend_refusals: Vec<SignedSpendRefusal>,
 }
 
 /// Why a bundle or context file was refused.
@@ -128,6 +140,9 @@ impl EvidenceBundle {
             ("tool_receipts", b.tool_receipts.len()),
             ("approvals", b.approvals.len()),
             ("access_ledgers", b.access_ledgers.len()),
+            ("spend_policies", b.spend_policies.len()),
+            ("spend_attestations", b.spend_attestations.len()),
+            ("spend_refusals", b.spend_refusals.len()),
         ] {
             if n > MAX_ITEMS {
                 return Err(InputError::TooMany {
@@ -161,6 +176,8 @@ pub struct AssessorContext {
     pub approval_surfaces: ApprovalSurfaceAnchors,
     /// Access-ledger signers the assessor accepts.
     pub ledger_signers: LedgerTrustAnchors,
+    /// Spend-policy issuers the assessor accepts.
+    pub spend_policy_anchors: SpendPolicyAnchors,
     /// The assessed agent's public key, when the assessor knows it. Used to
     /// refuse any gateway, surface or observer anchored under the agent's own
     /// key — a receipt the agent could sign is its self-report under another
@@ -182,6 +199,7 @@ impl AssessorContext {
             gateways: GatewayTrustAnchors::new(),
             approval_surfaces: ApprovalSurfaceAnchors::new(),
             ledger_signers: LedgerTrustAnchors::new(),
+            spend_policy_anchors: SpendPolicyAnchors::new(),
             agent_public_key: None,
         }
     }
@@ -224,6 +242,9 @@ pub struct ContextFile {
     /// Approval surface id → public key.
     #[serde(default)]
     pub approval_surfaces: BTreeMap<String, String>,
+    /// Spend-policy issuer id → public key.
+    #[serde(default)]
+    pub spend_policy_issuers: BTreeMap<String, String>,
     /// The assessed agent's public key, for every independence check.
     #[serde(default)]
     pub agent_public_key: Option<String>,
@@ -272,6 +293,10 @@ impl ContextFile {
         for (id, k) in &self.approval_surfaces {
             let key = decode(format!("approval_surfaces.{id}"), k)?;
             ctx.approval_surfaces = ctx.approval_surfaces.trust(id, &key);
+        }
+        for (id, k) in &self.spend_policy_issuers {
+            let key = decode(format!("spend_policy_issuers.{id}"), k)?;
+            ctx.spend_policy_anchors = ctx.spend_policy_anchors.trust(id, &key);
         }
         if let Some(k) = &self.agent_public_key {
             ctx.agent_public_key = Some(decode("agent_public_key".into(), k)?);

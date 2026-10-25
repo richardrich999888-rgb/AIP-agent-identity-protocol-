@@ -27,7 +27,12 @@ use crate::expected::{
     ActionParameters, AuthorityRef, ExpectedExecution, EXPECTED_EXECUTION_VERSION,
 };
 use crate::resource::{destination_of, ResourcePolicy};
+use crate::spend::{
+    sign_attestation, sign_refusal, RefusalContext, SpendCheck, SpendConfigError, SpendDecision,
+    SpendPolicies, SpendRecord,
+};
 use aip_registry::{granted_resources, Resolution};
+use aip_spend::{evaluate, SignedSpendAttestation, SignedSpendRefusal, VerifiedSpendPolicy};
 
 // ─── Request ───
 
@@ -130,6 +135,36 @@ pub enum DenialReason {
     /// does not grant (`res:<id>` absent from `allowed`, or present in
     /// `denied` anywhere in the chain).
     ResourceNotGranted,
+    /// A spend policy governs the action and the requested amount is above
+    /// its per-action maximum.
+    SpendLimitExceeded,
+    /// A spend policy governs the action and the amount parameter is
+    /// missing or not strict ASCII decimal minor units. Refused, not read
+    /// permissively.
+    SpendAmountUnreadable,
+}
+
+/// An issued expectation and, when a spend rule governed it, the
+/// attestation signed under the same ledger guard.
+struct Issued {
+    ee: ExpectedExecution,
+    attestation: Option<SignedSpendAttestation>,
+}
+
+/// A denial and, when spend authority refused, the signed refusal.
+struct Refused {
+    denial: Denial,
+    /// Boxed: a signed refusal is large and the error path is the rare one.
+    refusal: Option<Box<SignedSpendRefusal>>,
+}
+
+impl From<Denial> for Refused {
+    fn from(denial: Denial) -> Self {
+        Self {
+            denial,
+            refusal: None,
+        }
+    }
 }
 
 // ─── Decision point ───
@@ -163,6 +198,10 @@ pub struct DecisionPoint {
     /// effective scope grants. Without it, no resource check is performed —
     /// visible through [`DecisionPoint::resource_policy`].
     resource_policy: Option<ResourcePolicy>,
+    /// Verified spend policies, one per agent (ADR-018). An agent with none
+    /// is not spend-checked — visible through
+    /// [`DecisionPoint::spend_policy_for`].
+    spend_policies: SpendPolicies,
 }
 
 impl std::fmt::Debug for DecisionPoint {
@@ -181,6 +220,7 @@ impl std::fmt::Debug for DecisionPoint {
                     .as_ref()
                     .map(|p| p.registry().citation()),
             )
+            .field("spend_policies", &self.spend_policies.citations())
             .finish()
     }
 }
@@ -218,6 +258,7 @@ impl DecisionPoint {
             max_ttl_ms,
             ledger: Mutex::new(DecisionLedger::default()),
             resource_policy: None,
+            spend_policies: SpendPolicies::default(),
         })
     }
 
@@ -234,6 +275,26 @@ impl DecisionPoint {
     /// destinations are not resource-checked by this decision point.
     pub fn resource_policy(&self) -> Option<&ResourcePolicy> {
         self.resource_policy.as_ref()
+    }
+
+    /// Adopt an institution-signed spend policy, verified by the operator
+    /// against its policy anchors. From then on every request by the
+    /// policy's agent for a governed action is refused above the per-action
+    /// maximum or when its amount cannot be read (ADR-018). A revision not
+    /// strictly newer than the one held for that agent is refused, so
+    /// configuration cannot roll a limit back.
+    pub fn with_spend_policy(
+        mut self,
+        policy: VerifiedSpendPolicy,
+    ) -> Result<Self, SpendConfigError> {
+        self.spend_policies.adopt(policy)?;
+        Ok(self)
+    }
+
+    /// The spend policy enforced for `agent_id`, if any. `None` means this
+    /// decision point performs no spend check for that agent.
+    pub fn spend_policy_for(&self, agent_id: &str) -> Option<&VerifiedSpendPolicy> {
+        self.spend_policies.get(agent_id)
     }
 
     /// Declare from which instant this decision point vouches for the
@@ -338,19 +399,38 @@ impl DecisionPoint {
     }
 
     /// Adjudicate at an explicit decision time `now_ms`. Deterministic.
+    ///
+    /// Spend authority is enforced here exactly as in
+    /// [`DecisionPoint::authorize_spend_at`]; only the signed spend record is
+    /// dropped.
     pub fn authorize_at(&self, req: &AuthorizationRequest, now_ms: u64) -> Decision {
+        self.authorize_spend_at(req, now_ms).decision
+    }
+
+    /// Adjudicate at the current system time, returning the spend record.
+    pub fn authorize_spend(&self, req: &AuthorizationRequest) -> SpendDecision {
+        self.authorize_spend_at(req, now_ms())
+    }
+
+    /// Adjudicate at `now_ms` and return the decision together with the
+    /// signed spend record, when a spend rule governed the request: a
+    /// [`SpendRecord::Attested`] bound to the expectation, or a
+    /// [`SpendRecord::Refused`] carrying the requested amount.
+    pub fn authorize_spend_at(&self, req: &AuthorizationRequest, now_ms: u64) -> SpendDecision {
         match self.adjudicate(req, now_ms) {
-            Ok(ee) => Decision::Authorized(Box::new(ee)),
-            Err(d) => Decision::Denied(d),
+            Ok(i) => SpendDecision {
+                decision: Decision::Authorized(Box::new(i.ee)),
+                record: i.attestation.map(SpendRecord::Attested),
+            },
+            Err(r) => SpendDecision {
+                decision: Decision::Denied(r.denial),
+                record: r.refusal.map(|b| SpendRecord::Refused(*b)),
+            },
         }
     }
 
-    fn adjudicate(
-        &self,
-        req: &AuthorizationRequest,
-        now_ms: u64,
-    ) -> Result<ExpectedExecution, Denial> {
-        let deny = |reason: DenialReason, detail: String| Denial { reason, detail };
+    fn adjudicate(&self, req: &AuthorizationRequest, now_ms: u64) -> Result<Issued, Refused> {
+        let deny = |reason: DenialReason, detail: String| Refused::from(Denial { reason, detail });
 
         // 1. The decision point is not the agent, and the agent did not
         //    issue its own root authority (I1).
@@ -479,6 +559,25 @@ impl DecisionPoint {
             }
         }
 
+        // 5c. Spend authority (ADR-018). The amount is read from the same
+        //     parameter bytes the expectation will sign. Above the maximum,
+        //     or unreadable, is refused — and the refusal is signed, with the
+        //     amount, so the attempt is provable.
+        let spend = self.spend_policies.get(&req.agent_id).and_then(|policy| {
+            let rule = policy.rule_for(&req.action_kind)?;
+            let outcome = evaluate(policy, &req.agent_id, &req.action_kind, |k| {
+                req.parameters.get(k)
+            });
+            Some(SpendCheck {
+                policy,
+                rule,
+                outcome,
+            })
+        });
+        if let Some(check) = spend.as_ref().filter(|c| c.outcome.refuses()) {
+            return Err(self.refuse_spend(check, req, now_ms));
+        }
+
         // 6. Binding: names this agent and is not degenerate.
         let b = &req.execution_binding;
         if b.agent_id != req.agent_id {
@@ -581,6 +680,22 @@ impl DecisionPoint {
         let preimage = ee.signing_preimage();
         ee.decision_sig = sign_ed25519(&self.private_key, &self.id, &preimage)
             .map_err(|e| deny(DenialReason::SigningFailed, format!("signing failed: {e}")))?;
+        // The attestation is signed before the decision is recorded: if it
+        // cannot be signed, the decision is denied and never enters the
+        // ledger, so no governed expectation exists without its record.
+        let attestation = match spend
+            .as_ref()
+            .and_then(|c| sign_attestation(c, &ee, &self.private_key))
+        {
+            None => None,
+            Some(Ok(a)) => Some(a),
+            Some(Err(e)) => {
+                return Err(deny(
+                    DenialReason::SigningFailed,
+                    format!("spend attestation signing failed: {e}"),
+                ))
+            }
+        };
         ledger.record(LedgerEntry {
             agent_id: ee.agent_id.clone(),
             decision_id: ee.decision_id,
@@ -589,7 +704,54 @@ impl DecisionPoint {
                 to_ms: ee.valid_until,
             },
         });
-        Ok(ee)
+        Ok(Issued { ee, attestation })
+    }
+
+    /// The denial, and signed refusal, for a check whose outcome refuses.
+    /// A refusal that cannot be signed leaves the denial standing and says
+    /// so in its detail: the request is refused either way.
+    fn refuse_spend(
+        &self,
+        check: &SpendCheck<'_>,
+        req: &AuthorizationRequest,
+        now_ms: u64,
+    ) -> Refused {
+        let p = check.policy.policy();
+        let r = check.rule;
+        let under = format!(
+            "under spend policy {} revision {} ({}, exponent {})",
+            p.policy_id, p.revision, r.currency, r.exponent
+        );
+        let (reason, detail) = match check.outcome {
+            aip_spend::SpendOutcome::Exceeded { amount, limit } => (
+                DenialReason::SpendLimitExceeded,
+                format!("requested {amount} minor units exceeds the per-action limit {limit} {under}"),
+            ),
+            other => (
+                DenialReason::SpendAmountUnreadable,
+                format!(
+                    "amount parameter {} unreadable ({other:?}); refused, not read permissively, {under}",
+                    r.amount_parameter
+                ),
+            ),
+        };
+        let ctx = RefusalContext {
+            decision_point_id: &self.id,
+            agent_id: &req.agent_id,
+            request_digest: req.parameters.digest(),
+            refused_at_ms: now_ms,
+        };
+        match sign_refusal(check, &ctx, &self.private_key) {
+            Some(Ok(refusal)) => Refused {
+                denial: Denial { reason, detail },
+                refusal: Some(Box::new(refusal)),
+            },
+            Some(Err(e)) => Refused::from(Denial {
+                reason,
+                detail: format!("{detail}; refusal record not signed: {e}"),
+            }),
+            None => Refused::from(Denial { reason, detail }),
+        }
     }
 }
 

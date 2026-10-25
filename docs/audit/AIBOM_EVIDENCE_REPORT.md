@@ -179,9 +179,12 @@ are flagged, not edited: the limitations record is the owner's.
 
 1. **It assesses declarations, not behaviour.** It never observes an agent
    act; runtime evidence is NEXORA's and the ledger's.
-2. **Limits and approval gates are never raised.** No AIP artifact carries an
-   amount. The report counts approvals and catches divergences; it cannot
-   say every qualifying action was approved.
+2. ~~**Limits and approval gates are never raised.**~~ *Superseded by
+   ADR-018 — see `docs/audit/SPEND_EVIDENCE_REPORT.md`.* Per-action limits
+   and approval thresholds are now verified against an institution-signed
+   spend policy, and each approval-required decision offered is checked for
+   an agreeing approval. Per-day / per-month limits and the approver's
+   identity remain the author's word.
 3. **A ledger shows what was reached in its window**, not what may be
    reached; a declared resource it does not show is the author's word.
 4. **Naming must match** the gateway's tool ids and the registry's resource

@@ -87,7 +87,7 @@ has no word for an overclaim, and a structural test keeps it that way.
 | C2 | models | **never** — hosted: N-3; local weights loaded: N-4 |
 | C3 | frameworks | nothing yet |
 | C4 | tools | the assessor's own MCP-config discovery; a gateway-countersigned receipt for a forwarded call. A tool's *effect*: **never** (N-2) |
-| C5 | permissions | delegation chain, live at the assessor's present. Limits: **never** — no AIP artifact carries an amount. Approval gates: **never raised**, but agreeing approvals are counted and a shown-versus-authorised divergence is critical |
+| C5 | permissions | delegation chain, live at the assessor's present. Per-action limits and approval thresholds: the institution-signed spend policy (ADR-018); the decision point's signed attestations and refusals show it enforced. Per-day / per-month limits and the approver: **never**. A shown-versus-authorised divergence is critical |
 | C6 | data access | a signed access ledger showing the agent reached the resource, as the institution's registry names it. Access mode: **never** |
 | C7 | environment | decision-point expectation (authorised binary); NEXORA proof (observed binary) |
 | C8 | relationships | delegation chains; identity lineage |
@@ -101,11 +101,14 @@ has no word for an overclaim, and a structural test keeps it that way.
 
 The treasury agent from the AIBOM brief: authorised by a CFO to read balances
 and create payments, declared with a $1,000 per-payment limit and a $500
-approval gate, sealed by the platform team. Its MCP configuration carries an
-inline API key and a CRM export the manifest forgot.
+approval gate, sealed by the platform team. The institution signs a spend
+policy with the same terms, and its decision point enforces it. The agent asks
+to pay $400 (authorised, attested) and $5,000 (refused, refusal signed). Its
+MCP configuration carries an inline API key and a CRM export the manifest
+forgot.
 
 ```
-5 of 26 fields are backed by an independent verifier; 16 rest on the author's
+7 of 27 fields are backed by an independent verifier; 15 rest on the author's
 word; 3 cannot be established by any mechanism here.
 
 CRITICAL
@@ -114,20 +117,33 @@ CRITICAL
         held by this agent explicitly denies custom:refund_payment
 HIGH
   [C04] MCP server 'crm-export' is configured for the agent and absent from the manifest
-  [C05] $.permissions.approval_gates[0]  no evidence that approvals above this threshold occur
-  [C05] $.permissions.limits[0]  no authority artifact carries this limit; enforcement, if any,
-        happens where this assessment cannot see
+  [C05] bundle.spend_refusals[0]  the decision point refused custom:create_payment for 500000
+        minor units (USD, exponent 2) against a per-action limit of 100000 (LimitExceeded)
   [C09] $.security_controls[0]  security control claimed; nothing here can establish it exists
+MEDIUM
+  [C07] $.environment  an executable was authorised or observed and the manifest declares none
 INFO
   [C02] $.models[0]        N-3: That a provider served the model requested
   [C04] $.tools[0].effects N-2: That a claimed external effect landed
+
+FIELDS (excerpt)
+  [C05] $.permissions.approval_gates[0].above     VERIFIED       accepted by SpendPolicy
+  [C05] $.permissions.approval_gates[0].approver  SELF-REPORTED  the manifest author's word only
+  [C05] $.permissions.limits[0]                   VERIFIED       accepted by SpendPolicy
 ```
 
-That is the honest form of the "$1,000 authorised, $5,000 observed" story. The
-limit is the owner's word; nothing here — or in any inventory — can enforce
-it, and no mechanism here can observe a payment amount. What *is* established
-is real and narrower: the grant is genuine and live, it denies refunds the
-manifest claims, and the agent can reach a tool nobody declared.
+That is the "$1,000 authorised, $5,000 attempted" story, told from signed
+bytes. The $1,000 limit is the institution's signature, not the owner's word;
+the decision point refused $5,000 and signed what it was asked; the $400
+payment's attestation cites the same policy by digest, so the limit is shown
+*enforced*, not merely declared. Had the manifest said $5,000, the limit would
+be `CONTRADICTED` and critical.
+
+What it still does not establish: that every payment went through this
+decision point (that is its coverage statement), a daily or monthly limit
+(no artifact carries one), who the approver is, or that the payment system
+applied the amount (N-2). And the grant denies refunds the manifest claims,
+and the agent can reach a tool nobody declared — as before.
 
 The seal changed none of it. It says the platform team published this
 inventory, unaltered. It does not say the inventory is true.
@@ -186,11 +202,17 @@ The manifest does not contain its own digest. A seal is a separate object
   "gateways":          [{ "id": "mcp-gateway-1", "key_version": 1, "public_key": "<hex>" }],
   "ledger_signers":    [{ "id": "ledger-1",      "key_version": 1, "public_key": "<hex>" }],
   "approval_surfaces": { "approvals-ui": "<hex public key>" },
+  "spend_policy_issuers": { "bank.example/treasury-policy": "<hex public key>" },
   "evaluate_proofs":   true,
   "observers":         [{ "id": "collector-a", "key_version": 1, "public_key": "<hex>" }],
   "agent_public_key":  "<hex>"
 }
 ```
+
+`spend_policy_issuers` anchors the institution's spend-policy authority. The
+evidence bundle carries `spend_policies` (signed by it), and
+`spend_attestations` / `spend_refusals` (signed by a decision point in
+`decision_points`); none of them is trusted for its own key.
 
 Without `evaluate_proofs`, NEXORA proofs in the bundle are reported as not
 evaluated and never credited.
@@ -226,11 +248,12 @@ A file that parses but is not an MCP config is refused, rather than read as
 ## Limits, stated
 
 - **It assesses claims, not behaviour.** Nothing here observes an agent act.
-- **Limits and approval gates are never verifiable.** `CapabilityScope`
-  carries no amounts, and an expectation carries a parameter digest rather
-  than an amount. Enforcement belongs at the gateway that moves the money.
-  What *can* be established about an approval gate is that approvals happen,
-  and whether a human was shown what was sealed.
+- **Only per-action limits are verifiable, and only under a signed spend
+  policy** (ADR-018). Without one, a limit is the author's word.
+  Per-day and per-month limits are carried by no artifact. An approval
+  threshold is verified against the policy and each approval-required
+  decision offered is checked for an agreeing approval; the approver's
+  identity is not established, and decisions not offered are not seen.
 - **A ledger shows what was reached inside its window, not what may be
   reached.** A declared resource the ledger does not show is the author's
   word, never a contradiction.

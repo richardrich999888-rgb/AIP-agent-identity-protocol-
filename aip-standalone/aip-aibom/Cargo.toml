@@ -31,6 +31,8 @@ aip-warrant = { path = "../aip-warrant" }
 aip-airi = { path = "../aip-airi" }
 aip-approval = { path = "../aip-approval" }
 aip-ledger = { path = "../aip-ledger" }
+# Signed spend policies and the decision point's spend records (C5 limits).
+aip-spend = { path = "../aip-spend" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 hex = "0.4"

@@ -5,6 +5,7 @@
 #![allow(dead_code)]
 
 pub mod evidence;
+pub mod spend;
 pub mod staging;
 
 use aip_aibom::evidence::{AssessorContext, AuthorityChain, EvidenceBundle};

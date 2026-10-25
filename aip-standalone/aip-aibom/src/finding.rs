@@ -91,6 +91,30 @@ pub enum FindingKind {
     LapsedAuthority,
     /// A monetary or rate limit no authority artifact carries.
     LimitNotEnforceable,
+    /// A verified decision-point refusal: the agent asked to spend beyond its
+    /// signed per-action limit, or with an amount that could not be read.
+    /// Ranked with undeclared authority: the agent's requests and its
+    /// declared envelope disagree, whatever the refusal prevented.
+    SpendRefused {
+        action: String,
+        reason: String,
+        requested_minor_units: Option<u64>,
+        limit_minor_units: u64,
+        currency: String,
+        exponent: u8,
+    },
+    /// A verified decision-point record cites a spend policy other than the
+    /// current signed one: the decision point enforced different terms.
+    SpendPolicyMismatch {
+        cited_revision: u64,
+        current_revision: u64,
+    },
+    /// The decision point marked a decision approval-required and no
+    /// approval agreeing with that decision was offered.
+    RequiredApprovalNotEvidenced { decision_id: String },
+    /// The limit is signed; no verified decision-point record shows it being
+    /// enforced.
+    SpendEnforcementNotEvidenced,
     /// A human-approval requirement with no evidence that approvals occur.
     ApprovalGateNotEvidenced,
     /// Approvals were verified and agree with what was authorised, but that
@@ -153,6 +177,9 @@ impl FindingKind {
             | UndeclaredResourceReached { .. }
             | LapsedAuthority
             | LimitNotEnforceable
+            | SpendRefused { .. }
+            | SpendPolicyMismatch { .. }
+            | RequiredApprovalNotEvidenced { .. }
             | ApprovalGateNotEvidenced
             | ControlNotEvidenced
             | NoIdentityEvidence
@@ -167,6 +194,7 @@ impl FindingKind {
             | UndeclaredBinary
             | UnsignedIdentityExpiry
             | ApprovalGateNotEnforceable { .. }
+            | SpendEnforcementNotEvidenced
             | ApprovalNotEvaluated { .. }
             | GatewayRefusals { .. }
             | UnregisteredEndpointReached { .. }
@@ -215,7 +243,22 @@ impl FindingKind {
                 "MCP server '{server}' is configured for the agent and absent from the manifest"
             ),
             LapsedAuthority => "declared on authority that has expired or been revoked".into(),
-            LimitNotEnforceable => "no authority artifact carries this limit; enforcement, if any, happens where this assessment cannot see".into(),
+            LimitNotEnforceable => "no signed spend policy carries this limit; enforcement, if any, happens where this assessment cannot see".into(),
+            SpendRefused { action, reason, requested_minor_units, limit_minor_units, currency, exponent } => match requested_minor_units {
+                Some(n) => format!(
+                    "the decision point refused {action} for {n} minor units ({currency}, exponent {exponent}) against a per-action limit of {limit_minor_units} ({reason})"
+                ),
+                None => format!(
+                    "the decision point refused {action}: the amount could not be read ({reason}); limit {limit_minor_units} minor units ({currency}, exponent {exponent})"
+                ),
+            },
+            SpendPolicyMismatch { cited_revision, current_revision } => format!(
+                "the decision point enforced spend policy revision {cited_revision}, not the current signed revision {current_revision}"
+            ),
+            RequiredApprovalNotEvidenced { decision_id } => format!(
+                "decision {decision_id} was authorised on condition of human approval and no agreeing approval was offered"
+            ),
+            SpendEnforcementNotEvidenced => "the limit is signed by the institution; no verified decision-point record shows it enforced".into(),
             ApprovalGateNotEvidenced => "no evidence that approvals above this threshold occur".into(),
             ControlNotEvidenced => "security control claimed; nothing here can establish it exists".into(),
             PermissionNotBacked => "declared permission is not granted by any authority offered".into(),

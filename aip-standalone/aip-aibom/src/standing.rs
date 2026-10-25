@@ -40,6 +40,10 @@ pub enum Verifier {
     /// attested observation and the institution's signed registry, records
     /// the agent reaching this resource. Says nothing about read or write.
     AccessLedger,
+    /// `aip_spend::SignedSpendPolicy::verify`: the institution signed this
+    /// per-action maximum or approval threshold for this agent. Says what was
+    /// authorised; enforcement is shown by decision-point records citing it.
+    SpendPolicy,
 }
 
 /// A limit recorded in `docs/architecture/AIRI_LIMITATIONS.md` that no

@@ -13,11 +13,20 @@
 //! decisively — whether the human was shown what was sealed. A divergence is
 //! signature arithmetic and is reported as critical.
 //!
-//! It cannot show that *every* action above a threshold was approved: an
-//! expectation carries a parameter digest, not an amount. So a gate's standing
-//! stays `SelfReported` however many approvals agree, and the report says how
-//! many did.
+//! An expectation carries a parameter digest, not an amount, so on its own
+//! it cannot show that an action above a threshold was approved. With signed
+//! spend authority (ADR-018) it can, decision by decision:
+//!
+//! - the gate's threshold is `Verified` or `Contradicted` against the signed
+//!   policy rule for its action (the approver stays `SelfReported`: no policy
+//!   names one);
+//! - every verified spend attestation marked `ApprovalRequired` must have an
+//!   approval that agrees with its decision, or it is reported.
+//!
+//! That covers the decisions offered. That no other decision exists is the
+//! decision point's coverage statement, not this module.
 
+use super::spend::{gate_threshold, SpendEvidence};
 use super::{Inputs, Sheet};
 use crate::assess::authority_label;
 use crate::finding::FindingKind;
@@ -34,9 +43,27 @@ fn divergence_label(d: &Divergence) -> &'static str {
     }
 }
 
-pub(super) fn run(i: &Inputs<'_>, sheet: &mut Sheet) {
+pub(super) fn run(i: &Inputs<'_>, spend: &SpendEvidence, sheet: &mut Sheet) {
+    let agreed = verify_approvals(i, sheet);
+    gates(i, spend, &agreed, sheet);
+    for (k, decision_id) in &spend.approval_required {
+        if !agreed.iter().any(|(_, d)| d == decision_id) {
+            sheet.finding(
+                Component::Permissions,
+                format!("bundle.spend_attestations[{k}]"),
+                FindingKind::RequiredApprovalNotEvidenced {
+                    decision_id: hex::encode(decision_id),
+                },
+            );
+        }
+    }
+}
+
+/// Verify and compare every offered approval. Returns the action and
+/// decision id of each that agrees with what was authorised.
+fn verify_approvals(i: &Inputs<'_>, sheet: &mut Sheet) -> Vec<(ScopeAction, [u8; 16])> {
     let agent = i.manifest.agent.id.as_str();
-    let mut agreed: Vec<ScopeAction> = Vec::new();
+    let mut agreed = Vec::new();
 
     for (k, signed) in i.bundle.approvals.iter().enumerate() {
         let path = format!("bundle.approvals[{k}]");
@@ -76,7 +103,9 @@ pub(super) fn run(i: &Inputs<'_>, sheet: &mut Sheet) {
             }
         };
         match compare_shown_to_authorized(Some(&verified), ee, &i.context.decision_points) {
-            ShownVsAuthorized::Agrees { .. } => agreed.push(ee.action_kind.clone()),
+            ShownVsAuthorized::Agrees { .. } => {
+                agreed.push((ee.action_kind.clone(), ee.decision_id))
+            }
             ShownVsAuthorized::Diverges { divergence, .. } => sheet.finding(
                 Component::Permissions,
                 path,
@@ -94,12 +123,39 @@ pub(super) fn run(i: &Inputs<'_>, sheet: &mut Sheet) {
         }
     }
 
+    agreed
+}
+
+/// Standing of each declared gate: against the signed threshold when a rule
+/// governs its action, otherwise as the approvals alone allow.
+fn gates(
+    i: &Inputs<'_>,
+    spend: &SpendEvidence,
+    agreed: &[(ScopeAction, [u8; 16])],
+    sheet: &mut Sheet,
+) {
     for (k, gate) in i.manifest.permissions.approval_gates.iter().enumerate() {
         let path = format!("$.permissions.approval_gates[{k}]");
+        if let Some(threshold) = gate_threshold(spend, gate) {
+            if matches!(threshold, Standing::Verified { .. }) && !spend.enforced {
+                sheet.finding(
+                    Component::Permissions,
+                    path.clone(),
+                    FindingKind::SpendEnforcementNotEvidenced,
+                );
+            }
+            sheet.field(Component::Permissions, format!("{path}.above"), threshold);
+            sheet.field(
+                Component::Permissions,
+                format!("{path}.approver"),
+                Standing::SelfReported,
+            );
+            continue;
+        }
         let label = authority_label(&gate.action);
         let approvals = agreed
             .iter()
-            .filter(|a| authority_label(a) == label)
+            .filter(|(a, _)| authority_label(a) == label)
             .count();
         let kind = if approvals > 0 {
             FindingKind::ApprovalGateNotEnforceable { approvals }
