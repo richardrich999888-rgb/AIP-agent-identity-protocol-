@@ -90,6 +90,10 @@ members = [
     "aip-standalone/aip-industrial",
     "aip-standalone/aip-space",
     "aip-standalone/aip-enterprise",
+    # ── products over the core ─────────────────────────────────────────
+    # A product consumes the core and is consumed by nothing in it. Its
+    # standings are outputs of verifiers that already exist (ADR-017).
+    "aip-standalone/aip-aibom",
     # ── the conformance program over all of them (Skill 28) ───────────
     # Last in the order: it consumes every layer and nothing consumes it.
     "aip-standalone/aip-conformance",

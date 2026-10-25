@@ -43,6 +43,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-aibom"
+version = "0.4.0"
+dependencies = [
+ "aip-airi",
+ "aip-approval",
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-ledger",
+ "aip-nexora",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-registry",
+ "aip-types",
+ "aip-warrant",
+ "clap",
+ "hex",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-airi"
 version = "0.4.0"
 dependencies = [
