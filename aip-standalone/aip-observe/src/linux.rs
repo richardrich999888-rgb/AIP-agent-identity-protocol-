@@ -51,6 +51,10 @@ pub struct ProcEvent {
     pub cpu: u32,
     /// Kernel monotonic nanoseconds since boot (`timestamp_ns`).
     pub timestamp_ns: u64,
+    /// The cgroup v2 id the kernel wrote into the sample, when the source
+    /// samples it (`PERF_SAMPLE_CGROUP`, ADR-019 §4). `NotSampled` for every
+    /// source that cannot carry one — the netlink connector included.
+    pub cgroup: crate::observed::CgroupSample,
 }
 
 const NLMSG_HDR_LEN: usize = 16;
@@ -123,6 +127,7 @@ pub fn parse_proc_event(datagram: &[u8]) -> Result<ProcEvent, SourceError> {
         other => KernelLifecycleKind::Other { what: other },
     };
     Ok(ProcEvent {
+        cgroup: crate::observed::CgroupSample::NotSampled,
         kind,
         cpu,
         timestamp_ns,

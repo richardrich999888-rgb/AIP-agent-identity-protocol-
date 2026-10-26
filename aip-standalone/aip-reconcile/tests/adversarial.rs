@@ -292,6 +292,7 @@ fn claim_for(x: &Expected) -> AgentClaim {
 
 fn exec_event(pid: u32, ts_ns: u64) -> ProcEvent {
     ProcEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         kind: KernelLifecycleKind::Exec { pid, tgid: pid },
         cpu: 0,
         timestamp_ns: ts_ns,

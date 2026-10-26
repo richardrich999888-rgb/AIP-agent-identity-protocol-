@@ -436,6 +436,7 @@ mod sys {
                 kernel_realtime_ns,
             ) {
                 Ok(kind) => Ok(Some(ProcEvent {
+                    cgroup: crate::observed::CgroupSample::NotSampled,
                     kind,
                     cpu: 0,
                     timestamp_ns: probe_ns,

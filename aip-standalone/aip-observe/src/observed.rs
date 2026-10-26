@@ -78,7 +78,8 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 ///   the cgroup v2 id the kernel wrote into the tracepoint sample
 ///   (`PERF_SAMPLE_CGROUP`) at the event, in the task's own context;
 ///   `KernelLifecycleKind::{CgroupCreated, CgroupRemoved, CgroupAttach}` —
-///   placement birth, death and migration with the acting task; and
+///   placement birth, death and migration with the acting task, delivered
+///   as `SourceMechanism::CgroupTracepoint`; and
 ///   `SourceMechanism::ExecPermission` — a measurement taken while the
 ///   kernel held an exec at open (`FAN_OPEN_EXEC_PERM`). Every one is
 ///   encoded **only** in a version-13 record, so earlier records reproduce
@@ -208,6 +209,13 @@ pub enum SourceMechanism {
     /// as instance-anchored — M3 establishes what the hold proves before the
     /// reconciler may rely on it. Protocol 13.
     ExecPermission,
+    /// Cgroup creation, removal and task migration **pushed by the kernel**
+    /// through the `cgroup:cgroup_{mkdir,rmdir,attach_task}` tracepoints,
+    /// sampled with `perf_event_open` (no eBPF), each in the acting task's
+    /// context. Placement evidence for structural attribution (ADR-019 §3,
+    /// §6). Exposed to the per-tracepoint eBPF gate like every perf
+    /// tracepoint. Loss via `PERF_RECORD_LOST`. Protocol 13.
+    CgroupTracepoint,
 }
 
 impl SourceMechanism {
@@ -223,6 +231,7 @@ impl SourceMechanism {
             SourceMechanism::SockSendTracepoint => 0x08,
             SourceMechanism::Fanotify => 0x09,
             SourceMechanism::ExecPermission => 0x0a,
+            SourceMechanism::CgroupTracepoint => 0x0b,
         }
     }
 
@@ -238,6 +247,7 @@ impl SourceMechanism {
                 | SourceMechanism::SockSendTracepoint
                 | SourceMechanism::Fanotify
                 | SourceMechanism::ExecPermission
+                | SourceMechanism::CgroupTracepoint
         )
     }
 
@@ -275,6 +285,7 @@ impl SourceMechanism {
             SourceMechanism::SchedTracepoint
                 | SourceMechanism::SockStateTracepoint
                 | SourceMechanism::SockSendTracepoint
+                | SourceMechanism::CgroupTracepoint
         )
     }
 
@@ -293,7 +304,7 @@ impl SourceMechanism {
         matches!(self, SourceMechanism::PidFdAnchored)
     }
 
-    pub const ALL: [SourceMechanism; 10] = [
+    pub const ALL: [SourceMechanism; 11] = [
         SourceMechanism::ProcfsPoll,
         SourceMechanism::PidFdAnchored,
         SourceMechanism::ProcConnector,
@@ -304,12 +315,15 @@ impl SourceMechanism {
         SourceMechanism::SockSendTracepoint,
         SourceMechanism::Fanotify,
         SourceMechanism::ExecPermission,
+        SourceMechanism::CgroupTracepoint,
     ];
 
     /// The earliest protocol version that can carry this mechanism.
     pub fn introduced_in(&self) -> u16 {
         match self {
-            SourceMechanism::ExecPermission => CGROUP_PROTOCOL_VERSION,
+            SourceMechanism::ExecPermission | SourceMechanism::CgroupTracepoint => {
+                CGROUP_PROTOCOL_VERSION
+            }
             _ => 12,
         }
     }

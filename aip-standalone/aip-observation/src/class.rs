@@ -199,9 +199,11 @@ pub fn class_of(mechanism: SourceMechanism) -> ObservationClass {
         SourceMechanism::ProcfsPoll
         | SourceMechanism::PidFdAnchored
         | SourceMechanism::ExecPermission => ObservationClass::ProcessIdentity,
-        SourceMechanism::ProcConnector | SourceMechanism::SchedTracepoint => {
-            ObservationClass::ProcessLifecycle
-        }
+        // Cgroup creation and migration are lifecycle facts about where a
+        // process lives, as fork and exec are about what it is (ADR-019).
+        SourceMechanism::ProcConnector
+        | SourceMechanism::SchedTracepoint
+        | SourceMechanism::CgroupTracepoint => ObservationClass::ProcessLifecycle,
         SourceMechanism::ProcNetTable | SourceMechanism::SockStateTracepoint => {
             ObservationClass::NetworkSocket
         }

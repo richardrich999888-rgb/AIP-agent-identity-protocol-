@@ -342,6 +342,7 @@ fn wt07_the_probe_ingests_a_segment_unbound_with_no_attribution() {
     .unwrap();
     let e = probe
         .ingest_wire_event(ProcEvent {
+            cgroup: aip_observe::CgroupSample::NotSampled,
             kind,
             cpu: 0,
             timestamp_ns: 5,
@@ -379,6 +380,7 @@ fn wt08_the_collector_refuses_wire_provenance_from_a_probe_not_provisioned_for_i
     )
     .unwrap();
     probe.ingest_wire_event(ProcEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         kind,
         cpu: 0,
         timestamp_ns: 5,

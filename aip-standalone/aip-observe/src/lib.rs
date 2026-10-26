@@ -58,6 +58,7 @@
 //! kernel timestamp come from the kernel, not from a procfs read.
 
 pub mod attest;
+pub mod cgroupev;
 pub mod clock;
 pub mod continuity;
 pub mod custody;
@@ -79,6 +80,12 @@ pub use attest::{
     verify_attested_batch, verify_attested_batch_independent_of_agent, verify_continuity,
     verify_signed_health, AttestError, AttestedBatch, CollectorSigner, CollectorSnapshot,
     ObserverAttestor, ObserverTrustAnchors, ProbeStreamFault, VerifyError, OBSERVER_HEAD_DOMAIN,
+};
+#[cfg(target_os = "linux")]
+pub use cgroupev::CgroupTracer;
+pub use cgroupev::{
+    parse_attach_record, parse_mkdir_record, parse_rmdir_record, ATTACH_TRACEPOINT,
+    MKDIR_TRACEPOINT, RMDIR_TRACEPOINT,
 };
 pub use continuity::{Admission, ContinuityBreak, ContinuityFault, ObserverLedger};
 pub use custody::{CollectorKey, CollectorKeyError, CollectorKeyPolicy};

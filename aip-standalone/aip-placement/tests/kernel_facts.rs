@@ -61,7 +61,7 @@ fn root_or_skip(test: &str) -> Option<PlacementRoot> {
     match PlacementRoot::ensure(ROOT_NAME) {
         Ok(r) => Some(r),
         Err(e) => {
-            eprintln!("{test}: SKIPPED — no placement root: {e}");
+            common::skip(test, &format!("no placement root: {e}"));
             None
         }
     }
@@ -71,7 +71,10 @@ fn sampler_or_skip(test: &str, names: &[&str]) -> Option<PerfTracepoints> {
     match PerfTracepoints::open_with(names, SampleLayout::WITH_CGROUP) {
         Ok(t) => Some(t),
         Err(e) => {
-            eprintln!("{test}: SKIPPED — perf sampler with PERF_SAMPLE_CGROUP unavailable: {e:?}");
+            common::skip(
+                test,
+                &format!("perf sampler with PERF_SAMPLE_CGROUP unavailable: {e:?}"),
+            );
             None
         }
     }

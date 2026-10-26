@@ -29,6 +29,10 @@ use std::path::PathBuf;
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct SensorConfig {
     pub sched: bool,
+    /// Cgroup placement events — `cgroup:cgroup_{mkdir,rmdir,attach_task}`
+    /// with the acting task's cgroup id (ADR-019). Another perf tracepoint
+    /// sensor behind the same eBPF gate as `sched`.
+    pub cgroup: bool,
     pub sockstate: bool,
     pub socksend: bool,
     pub connector: bool,
@@ -54,6 +58,7 @@ impl SensorConfig {
     /// Any sensor at all is selected.
     fn any(&self) -> bool {
         self.sched
+            || self.cgroup
             || self.sockstate
             || self.socksend
             || self.connector
@@ -66,6 +71,7 @@ impl SensorConfig {
         for item in csv.split(',').map(str::trim).filter(|s| !s.is_empty()) {
             match item {
                 "sched" => c.sched = true,
+                "cgroup" => c.cgroup = true,
                 "sockstate" => c.sockstate = true,
                 "socksend" => c.socksend = true,
                 "connector" => c.connector = true,
@@ -200,6 +206,15 @@ mod tests {
         let all =
             SensorConfig::parse("sched,sockstate,socksend,connector,fanotify,afpacket").unwrap();
         assert!(all.any() && all.fanotify && all.afpacket && all.connector);
+    }
+
+    /// The placement sensor parses on its own and alongside `sched`.
+    #[test]
+    fn the_cgroup_placement_sensor_is_supported() {
+        let alone = SensorConfig::parse("cgroup").unwrap();
+        assert!(alone.cgroup && !alone.sched && alone.any());
+        let with = SensorConfig::parse("sched,cgroup").unwrap();
+        assert!(with.cgroup && with.sched);
     }
 
     /// An unknown sensor is still refused — accepting two new names must not

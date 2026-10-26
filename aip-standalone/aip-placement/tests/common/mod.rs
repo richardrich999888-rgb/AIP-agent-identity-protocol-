@@ -17,6 +17,20 @@ use aip_types::{
 };
 
 const MAX_TTL: u64 = 3_600_000;
+
+/// Set to make a missing kernel capability a test **failure** instead of a
+/// skip. Evidence runs set it: a skipped live test reports `ok`, and an
+/// `ok` that ran nothing must never be read as a result.
+pub const REQUIRE_LIVE_ENV: &str = "AIP_REQUIRE_LIVE";
+
+/// Report that a live test could not run here. Prints `SKIPPED — <why>`;
+/// panics instead when [`REQUIRE_LIVE_ENV`] is set.
+pub fn skip(test: &str, why: &str) {
+    if std::env::var_os(REQUIRE_LIVE_ENV).is_some() {
+        panic!("{test}: required live capability missing — {why}");
+    }
+    eprintln!("{test}: SKIPPED — {why}");
+}
 pub const TTL: u64 = 60_000;
 
 fn provenance(tag: &str) -> ProvenanceTriple {

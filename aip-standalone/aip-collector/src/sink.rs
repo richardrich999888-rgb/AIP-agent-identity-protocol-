@@ -248,6 +248,7 @@ mod tests {
             MechanismIntegrity::Verified,
         );
         let exec = |pid, ts| ProcEvent {
+            cgroup: aip_observe::CgroupSample::NotSampled,
             kind: KernelLifecycleKind::Exec { pid, tgid: pid },
             cpu: 0,
             timestamp_ns: ts,

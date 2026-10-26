@@ -312,6 +312,7 @@ mod sys {
             }
             FileObservation {
                 event: ProcEvent {
+                    cgroup: crate::observed::CgroupSample::NotSampled,
                     kind: KernelLifecycleKind::FileEvent {
                         mask: e.mask,
                         pid: e.pid,

@@ -34,6 +34,7 @@ fn process() -> ObservedProcess {
 
 fn exec_event(pid: u32, ts: u64) -> ProcEvent {
     ProcEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         kind: KernelLifecycleKind::Exec { pid, tgid: pid },
         cpu: 0,
         timestamp_ns: ts,
