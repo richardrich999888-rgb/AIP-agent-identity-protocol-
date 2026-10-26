@@ -51,10 +51,10 @@ jobs:
       # the postgres-backend job below against a live database; running it here
       # without one would be a false failure.
       - name: cargo test
-        run: bash validation/ci/with_cgroup.sh cargo test --locked --workspace --no-fail-fast
+        run: bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast
 
       - name: cargo test (release — perf gates)
-        run: bash validation/ci/with_cgroup.sh cargo test --locked --workspace --release --no-fail-fast
+        run: bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast
 
   red-suite:
     name: RED suite (adversarial ledger reproducible)
