@@ -58,21 +58,31 @@ act "PRECONDITIONS — check these on the ACTUAL demo host, not only here"
 # behaviour, and a terrible thing to discover live in front of the Department,
 # where it costs the session explaining clocks instead of showing
 # accountability.
-CLOCK_OK=0
-if command -v timedatectl >/dev/null 2>&1 && timedatectl 2>/dev/null | grep -qiE "System clock synchronized: yes"; then
-  CLOCK_OK=1
-elif pgrep -x "chronyd" >/dev/null 2>&1 || pgrep -x "ntpd" >/dev/null 2>&1      || pgrep -x "systemd-timesyncd" >/dev/null 2>&1; then
-  CLOCK_OK=1
-fi
-if [ "$CLOCK_OK" -eq 1 ]; then
-  ok "clock: a time daemon is running / the system clock reports synchronised"
+# A running time daemon is not evidence of synchronisation. Query the machine
+# property, requiring both a successful query and an exact affirmative value.
+# Missing/unusable evidence stays unknown; it must never become a PASS.
+CLOCK_STATE=unknown
+if command -v timedatectl >/dev/null 2>&1; then
+  if CLOCK_SYNC=$(LC_ALL=C timedatectl show --property=NTPSynchronized --value 2> "$OUT/clock.log"); then
+    printf 'NTPSynchronized=%s\n' "$CLOCK_SYNC" >> "$OUT/clock.log"
+    case "$CLOCK_SYNC" in
+      yes) CLOCK_STATE=synchronised ;;
+      no)  CLOCK_STATE=unsynchronised ;;
+    esac
+  else
+    info "clock query failed; see clock.log"
+  fi
 else
-  info "clock: NO time daemon and the system clock does NOT report synchronised."
-  info "CONSEQUENCE: Act 1 will show IntegrityUnknown, not Active, and attested"
-  info "coverage will be withheld. That is the observer being honest, not a"
-  info "fault -- but it is NOT the honest path the Department was promised."
-  info "FIX before the session: run chrony (deploy/pilot/chrony-cert-in.conf)"
-  info "and re-run this script until Act 1 reports Active."
+  info "clock query unavailable: timedatectl is missing"
+fi
+if [ "$CLOCK_STATE" = "synchronised" ]; then
+  ok "clock: synchronised (timedatectl NTPSynchronized=yes)"
+else
+  info "clock: $CLOCK_STATE; synchronisation has not been established."
+  info "Without synchronisation, the observer can withhold attested coverage."
+  info "Unknown here means missing evidence, not proof that the clock is wrong."
+  info "FIX before the session: check chrony (deploy/pilot/chrony-cert-in.conf)"
+  info "and the timedatectl query. Re-run until Act 1 reports Active."
   note_fail "clock precondition not met on this host"
 fi
 [ -r /sys/kernel/tracing/available_events ] || mount -t tracefs nodev /sys/kernel/tracing 2>/dev/null
@@ -84,10 +94,16 @@ fi
 [ "$(id -u)" -eq 0 ] && ok "running as root" || note_fail "not root; the kernel sensors need privilege"
 
 act "Build"
-( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build -q \
-    -p aip-probe -p aip-collector -p aip-observe-verify 2>&1 ) \
-  | tee -a "$OUT/build.log" | grep -E "^error" && { note_fail "build"; exit 1; }
-ok "daemons and offline verifier built"
+# Branch on the build command's exit status, never on its diagnostic text.
+# In particular, pipefail + grep can hide a Cargo failure from an && handler.
+if ( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build -q \
+    -p aip-probe -p aip-collector -p aip-observe-verify ) >> "$OUT/build.log" 2>&1; then
+  ok "daemons and offline verifier built"
+else
+  BUILD_STATUS=$?
+  note_fail "build failed (exit $BUILD_STATUS); see build.log"
+  exit 1
+fi
 
 # ── Acts 1, 2 and 5: the full-system run ─────────────────────────────────
 if [ "${AIP_DEMO_SKIP_SYSTEM:-0}" = "1" ]; then

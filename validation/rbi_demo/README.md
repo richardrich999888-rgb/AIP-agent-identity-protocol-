@@ -17,6 +17,47 @@ rehearsal happened.
 validation/rbi_demo/run.sh
 ```
 
+## Preliminary checks and local regression tests
+
+The clock precondition requires a successful
+`timedatectl show --property=NTPSynchronized --value` query returning `yes`.
+`no` is unsynchronised; missing `timedatectl`, a failed query, or any other
+value is unknown. Both states fail the precondition. A running chronyd, ntpd,
+or systemd-timesyncd process is **not** sufficient evidence. Successful query
+values and query errors are retained in `clock.log`. Hosts without
+an accessible systemd time-status query cannot pass this check; no daemon-only
+fallback is used.
+
+The initial daemon/verifier build is checked by exit status, with all output in
+`build.log`. A nonzero status stops the script before the acts and cannot print
+that the binaries were built, even if stale binaries are present. Diagnostic
+wording, colour, and empty output do not decide whether the build succeeded.
+
+Run the deterministic regression suite without privilege or new dependencies:
+
+```sh
+python3 -B validation/rbi_demo/test_run.py
+bash -n validation/rbi_demo/run.sh
+```
+
+The suite runs a copy of the actual script in a temporary tree with an
+allowlisted PATH and simulated commands. Its 10 test methods cover 17 scenarios:
+synchronised, unsynchronised and unknown clock evidence; missing/failed
+queries; failed builds with several diagnostic formats; successful builds
+with misleading log text; log redirection failure; and the full-system
+pass/fail/explicit-skip result gates. The daemon fixture reports running even
+when synchronisation is absent, to catch the former daemon-only fallback.
+
+These are **control-flow tests only**. They do not run Cargo, the real gateway,
+daemons, kernel sensors, the interference experiment, or offline verification.
+Passing them is not a rehearsal. On the authorised Linux demonstration host,
+run the complete script with system acts enabled and retain the transcript and
+logs. Actual clock discipline, sensor access, `Active` with attested coverage,
+interference/recovery, and independent offline verification still need that
+run. A preliminary clock PASS alone does not establish those properties.
+`AIP_DEMO_SKIP_SYSTEM=1` remains explicitly **skipped**, exits nonzero, and
+cannot produce `REHEARSED`.
+
 ## What each act actually is — and why that is labelled
 
 | Act | Promise | Level |
