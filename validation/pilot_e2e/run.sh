@@ -50,7 +50,8 @@ set -uo pipefail
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO=$(cd "$HERE/../.." && pwd)
 OUT="${1:-$HERE/results/$(date -u +%Y%m%dT%H%M%SZ)}"
-mkdir -p "$OUT"
+mkdir -p "$OUT" || exit 1
+OUT=$(cd "$OUT" && pwd) || exit 1
 
 step() { printf '\n\033[36m== %s\033[0m\n' "$*" | tee -a "$OUT/transcript.txt"; }
 ok()   { printf '  \033[32mPASS\033[0m %s\n' "$*" | tee -a "$OUT/transcript.txt"; }
@@ -79,8 +80,13 @@ info "kernel $(uname -r), tracefs mounted, sched_process_exec id=$TP_ID"
 uname -a > "$OUT/host.txt"; echo "tracepoint_id=$TP_ID" >> "$OUT/host.txt"
 
 step "Build the daemons and the interference instrument"
-( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build -q -p aip-probe -p aip-collector -p aip-observe-verify 2>&1 ) \
-  | tee -a "$OUT/build.log" | grep -E "^error" && die "build failed"
+if ( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build -q -p aip-probe -p aip-collector -p aip-observe-verify ) \
+     >> "$OUT/build.log" 2>&1; then
+  :
+else
+  BUILD_STATUS=$?
+  die "build failed (exit $BUILD_STATUS); see build.log"
+fi
 gcc -O2 -o "$OUT/interferer" "$REPO/validation/observation_integrity/tracepoint_interferer.c" \
   2>>"$OUT/build.log" || die "could not build the interference instrument"
 ok "aip-probe, aip-collector, aip-observe-verify and the interferer built"
@@ -111,7 +117,7 @@ env AIP_COLLECTOR_OBSERVER_ID=collector.pilot.e2e AIP_COLLECTOR_KEY_VERSION=1 \
     AIP_COLLECTOR_PASSPHRASE_FILE="$W/pass" AIP_COLLECTOR_STATE_DIR="$W/state" \
     AIP_COLLECTOR_LISTEN="127.0.0.1:$PORT" AIP_COLLECTOR_PROBES_PATH="$W/probes.json" \
     AIP_COLLECTOR_NOISE_KEY_PATH="$W/noise.key.json" \
-    AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 \
+    AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK="${AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK:-1}" \
     "$REPO/target/debug/aip-collector" > "$W/collector.log" 2>&1 &
 COLLECTOR_PID=$!
 for _ in $(seq 1 40); do

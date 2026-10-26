@@ -34,7 +34,8 @@ set -uo pipefail
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO=$(cd "$HERE/../.." && pwd)
 OUT="${1:-$HERE/results/$(date -u +%Y%m%dT%H%M%SZ)}"
-mkdir -p "$OUT"
+mkdir -p "$OUT" || exit 1
+OUT=$(cd "$OUT" && pwd) || exit 1
 T="$OUT/transcript.txt"
 
 act()  { printf '\n\033[36m== %s\033[0m\n' "$*" | tee -a "$T"; }
@@ -115,17 +116,20 @@ else
   act "ACTS 1, 2 and 5 — full-system run (two daemons, live kernel, live attack)"
   promise "the honest path, an interfered-with observer ... and offline verification"
   info "running validation/pilot_e2e/run.sh: control -> attack -> recovery -> offline verify"
-  if timeout 900 bash "$REPO/validation/pilot_e2e/run.sh" "$OUT/system" \
-       > "$OUT/system_run.log" 2>&1; then
+  if AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=1 timeout 900 bash "$REPO/validation/pilot_e2e/run.sh" "$OUT/system" \
+       > "$OUT/system_run.log" 2>&1 \
+     && python3 "$HERE/check_control.py" "$OUT/system/health.A.control.jsonl" \
+       > "$OUT/control_check.log" 2>&1; then
     SYSTEM_RUN="pass"
     grep -E "PASS|DEMONSTRATED" "$OUT/system_run.log" | sed 's/^/       /' | tee -a "$T" >/dev/null
-    grep -cE "PASS" "$OUT/system_run.log" | xargs -I{} info "{} checks passed in the system run"
+    SYSTEM_CHECKS=$(grep -cE "PASS" "$OUT/system_run.log")
+    info "$SYSTEM_CHECKS checks passed in the system run"
     ok "Act 1 honest path: observer Active, attested coverage present"
     ok "Act 2 interfered observer: collector signed IntegrityUnknown, coverage withdrawn"
     ok "Act 5 offline verification: separate process, two files, a public key"
   else
     SYSTEM_RUN="fail"
-    note_fail "the full-system run did not pass — see system_run.log"
+    note_fail "the full-system RBI requirements did not pass — see system_run.log and control_check.log"
     tail -20 "$OUT/system_run.log" | sed 's/^/       /' | tee -a "$T" >/dev/null
   fi
 fi
@@ -168,38 +172,51 @@ fi
 # ── Act 4b: the gateway is a real program, not only a format ─────────────
 act "ACT 4b — the gateway signing a receipt, live"
 GW="$REPO/target/debug/aip-mcp-gateway"
-( cd "$REPO" && cargo build -q -p aip-mcp-gateway 2>&1 ) >> "$OUT/build.log" 2>&1
-if [ -x "$GW" ]; then
-  KEY=$(python3 -c "import secrets;print(secrets.token_hex(32))")
-  RCPT="$OUT/receipts.jsonl"; : > "$RCPT"
-  printf '%s\n' \
+run_gateway_demo() {
+  if ( cd "$REPO" && cargo build -q -p aip-mcp-gateway ) >> "$OUT/build.log" 2>&1; then
+    [ -x "$GW" ] || { info "gateway executable is missing"; return 1; }
+  else
+    info "gateway build failed (exit $?); see build.log"
+    return 1
+  fi
+  KEY=$(python3 -c "import secrets;print(secrets.token_hex(32))") || return 1
+  RCPT="$OUT/receipts.jsonl"
+  : > "$RCPT" || return 1
+  if printf '%s\n' \
     '{"jsonrpc":"2.0","id":1,"method":"tools/call","authorization":{"agent_id":"agent.demo","decision_id":"07070707070707070707070707070707"},"params":{"name":"banking.transfer","arguments":{"amount":500,"beneficiary":"acct-9"}}}' \
     '{"jsonrpc":"2.0","id":2,"method":"tools/call","authorization":{"agent_id":"agent.demo","decision_id":"07070707070707070707070707070707"},"params":{"name":"banking.transfer","arguments":{"amount":5000000,"beneficiary":"acct-mule"}}}' \
   | env AIP_GATEWAY_KEY="$KEY" AIP_GATEWAY_ID=gateway.demo AIP_GATEWAY_RECEIPTS="$RCPT" \
-      timeout 30 "$GW" > "$OUT/act4b_gateway.out" 2> "$OUT/act4b_gateway.err"
-  N=$(wc -l < "$RCPT" 2>/dev/null || echo 0)
-  if [ "${N:-0}" -ge 2 ]; then
-    python3 - "$RCPT" <<'PY' | tee -a "$T" >/dev/null
-import json,sys
-for i,l in enumerate(open(sys.argv[1]),1):
-    r=json.loads(l)["receipt"]
-    pc=bytes(r["parameter_commitment"]).hex() if isinstance(r["parameter_commitment"],list) else str(r["parameter_commitment"])
-    print(f"       receipt {i}: tool={r['tool_id']} gateway={r['gateway_id']} commitment={pc[:24]}...")
-PY
-    C1=$(python3 -c "
-import json;ls=[json.loads(l) for l in open('$RCPT')]
-a,b=[bytes(x['receipt']['parameter_commitment']).hex() for x in ls[:2]]
-print('DIFFER' if a!=b else 'SAME')")
-    [ "$C1" = "DIFFER" ] || note_fail "the two calls produced the same commitment"
-    info "the two calls committed to DIFFERENT parameters — which is what the"
-    info "decision point's sealed digest is compared against"
-    ok "Act 4b: the gateway signed a receipt per call, live, with its own key"
+      timeout 30 "$GW" > "$OUT/act4b_gateway.out" 2> "$OUT/act4b_gateway.err"; then
+    :
   else
-    note_fail "the gateway produced $N receipts (expected 2)"
-    head -5 "$OUT/act4b_gateway.err" | sed 's/^/       /' | tee -a "$T" >/dev/null
+    info "gateway execution failed (exit $?); see act4b_gateway.err"
+    return 1
   fi
+  # Parse through argv, not interpolated Python source: output paths may contain
+  # quotes. Failed parsing or equal commitments must never be followed by PASS.
+  python3 - "$RCPT" >> "$T" 2> "$OUT/act4b_receipt_check.err" <<'PY'
+import json, sys
+records = [json.loads(line)["receipt"] for line in open(sys.argv[1]) if line.strip()]
+if len(records) != 2:
+    sys.exit(f"expected exactly 2 receipts, got {len(records)}")
+commitments = []
+for i, receipt in enumerate(records, 1):
+    value = receipt["parameter_commitment"]
+    commitment = bytes(value) if isinstance(value, list) else bytes.fromhex(value)
+    if len(commitment) != 32:
+        sys.exit("parameter commitment must be 32 bytes")
+    commitments.append(commitment)
+    print(f"       receipt {i}: tool={receipt['tool_id']} gateway={receipt['gateway_id']} commitment={commitment.hex()[:24]}...")
+if commitments[0] == commitments[1]:
+    sys.exit("the two calls produced the same commitment")
+PY
+}
+if run_gateway_demo; then
+  info "the two calls committed to DIFFERENT parameters — which is what the"
+  info "decision point's sealed digest is compared against"
+  ok "Act 4b: the gateway signed a receipt per call, live, with its own key"
 else
-  note_fail "aip-mcp-gateway binary not built"
+  note_fail "Act 4b failed; see build.log, act4b_gateway.err and act4b_receipt_check.err"
 fi
 
 # ── Result ───────────────────────────────────────────────────────────────

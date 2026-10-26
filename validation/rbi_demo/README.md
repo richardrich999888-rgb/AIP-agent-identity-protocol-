@@ -41,11 +41,14 @@ bash -n validation/rbi_demo/run.sh
 ```
 
 The suite runs a copy of the actual script in a temporary tree with an
-allowlisted PATH and simulated commands. Its 10 test methods cover 17 scenarios:
+allowlisted PATH and simulated commands. Its 16 test methods cover 31 scenarios:
 synchronised, unsynchronised and unknown clock evidence; missing/failed
 queries; failed builds with several diagnostic formats; successful builds
 with misleading log text; log redirection failure; and the full-system
-pass/fail/explicit-skip result gates. The daemon fixture reports running even
+pass/fail/explicit-skip result gates. Additional cases cover the child pilot's
+build failure, stale gateway binaries, gateway exit/timeout after writing
+receipts, malformed/missing/equal receipts, invalid or degraded control evidence,
+and quoted output paths. The daemon fixture reports running even
 when synchronisation is absent, to catch the former daemon-only fallback.
 
 These are **control-flow tests only**. They do not run Cargo, the real gateway,
@@ -57,6 +60,40 @@ interference/recovery, and independent offline verification still need that
 run. A preliminary clock PASS alone does not establish those properties.
 `AIP_DEMO_SKIP_SYSTEM=1` remains explicitly **skipped**, exits nonzero, and
 cannot produce `REHEARSED`.
+
+## Full-system RBI gate and hosted rehearsal
+
+The generic pilot experiment permits a degraded control window. That is not
+enough for the RBI wrapper's claim of an honest path with `Active` and attested
+coverage. After the pilot passes (including offline signature verification and
+the tampered-archive negative control), `check_control.py` also requires those
+two properties in the saved control health record. Missing or malformed
+evidence fails the RBI session. This JSON check supplements, and does not
+replace, the pilot's cryptographic verification.
+
+The RBI path forces `AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=1`; the generic pilot
+also now defaults to that production clock policy. No error budget is widened.
+The child build and gateway build/execute/receipt checks all fail by status;
+stale executables or receipts left before a failed process cannot earn a PASS.
+
+`.github/workflows/rbi-rehearsal.yml` runs the shell regressions without
+privilege and then the real rehearsal on a disposable GitHub-hosted Ubuntu VM.
+It establishes real NTP synchronization, builds the actual binaries, and runs
+the kernel observation/interference and offline verification paths. The job
+fails if any requirement is unmet. It is independent of the workspace's cgroup
+and coverage workflows. Its artifact allowlist retains diagnostics and signed
+evidence even on failure, but excludes private keys and passphrases.
+
+A hosted run is a development rehearsal on that VM, not a rehearsal of the
+presentation computer and not a two-host regulated-entity pilot. The same
+complete script must pass on the authorised machine used for the session.
+For evaluator-side offline verification, provide `attested.archive.jsonl`,
+`health.archive.jsonl`, and the public `observer.pub`; agree the public-key
+fingerprint independently before using it as a trust anchor. The evaluator
+runs their trusted build of `aip-observe-verify` with `--observer-id
+collector.pilot.e2e --key-version 1 --pubkey-file observer.pub --batches
+attested.archive.jsonl --health health.archive.jsonl`. A public key supplied
+only inside the same bundle is not independently established trust.
 
 ## What each act actually is — and why that is labelled
 
