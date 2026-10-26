@@ -51,10 +51,10 @@ jobs:
       # the postgres-backend job below against a live database; running it here
       # without one would be a false failure.
       - name: cargo test
-        run: cargo test --workspace
+        run: bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast
 
       - name: cargo test (release — perf gates)
-        run: cargo test --workspace --release
+        run: bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast
 
   red-suite:
     name: RED suite (adversarial ledger reproducible)
@@ -111,8 +111,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Install audit tools
         run: |
-          cargo install cargo-audit --locked || true
-          cargo install cargo-deny --locked || true
+          cargo install cargo-audit --locked
+          cargo install cargo-deny --locked
       # One workspace, one Cargo.lock at the root, one deny.toml at the root.
       # RUSTSEC-2026-0097 is assessed and ignored with justification in
       # ./deny.toml (rand::rng()+custom-logger unsoundness; AIP uses OsRng and
@@ -123,9 +123,8 @@ jobs:
         run: cargo deny check
 
   coverage:
-    name: coverage (best effort)
+    name: coverage
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -133,11 +132,13 @@ jobs:
           components: llvm-tools-preview
       - name: Install cargo-llvm-cov
         run: cargo install cargo-llvm-cov --locked
+      - name: Install SoftHSM2 (required by workspace custody tests)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq softhsm2
       - name: Generate coverage
-        run: cargo llvm-cov --workspace --lcov --output-path lcov.info
+        run: bash validation/ci/with_cgroup.sh cargo llvm-cov --locked --workspace --lcov --output-path lcov.info
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-lcov
           path: lcov.info
-          if-no-files-found: ignore
+          if-no-files-found: error
