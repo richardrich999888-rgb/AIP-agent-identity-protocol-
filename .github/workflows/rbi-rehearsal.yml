@@ -49,6 +49,8 @@ jobs:
       - name: Build real demonstration binaries
         run: |
           cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-mcp-gateway 2>&1 | tee "$RUNNER_TEMP/rbi-build.log"
+      - name: Cross-sensor regression tests with actual scheduler event shapes
+        run: cargo test --locked -p aip-observe --lib divergence::tests
       - name: Run all five acts with the real kernel and offline verifier
         run: |
           sudo env "PATH=$PATH" "CARGO_HOME=$HOME/.cargo" "RUSTUP_HOME=$HOME/.rustup" \

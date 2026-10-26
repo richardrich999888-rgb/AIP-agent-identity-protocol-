@@ -129,10 +129,12 @@ struct ExecEvent {
 
 /// Every exec reported by `mechanism` in this batch.
 ///
-/// Only [`KernelLifecycleKind::Exec`] is used as the comparable unit: it is
-/// the one lifecycle fact both the connector and `sched:sched_process_exec`
-/// emit for the same act, so it is the only kind on which a missing
-/// corroboration is meaningful. Fork and Exit are deliberately excluded — the
+/// The connector emits [`KernelLifecycleKind::Exec`], while the actual sched
+/// tracer emits [`KernelLifecycleKind::ProcessExec`]. Normalize both shapes
+/// before comparing. Linux exec has made the calling task the thread-group
+/// leader before either notification, so the sched event's post-exec `pid` is
+/// also its tgid; `old_pid` is not the join key for a non-leader exec.
+/// Fork and Exit are deliberately excluded — the
 /// perf sched sensor does not mirror the connector's fork/exit stream, and
 /// treating their absence as divergence would be a false positive by
 /// construction.
@@ -141,12 +143,21 @@ fn execs_of(batch: &ObservationBatch, mechanism: SourceMechanism) -> Vec<ExecEve
         .kernel_events
         .iter()
         .filter(|e| e.mechanism == mechanism)
-        .filter_map(|e| match e.kind {
+        .filter_map(|e| match &e.kind {
             KernelLifecycleKind::Exec { pid, tgid } => Some(ExecEvent {
-                pid,
-                tgid,
+                pid: *pid,
+                tgid: *tgid,
                 ts_ns: e.kernel_timestamp_ns,
             }),
+            KernelLifecycleKind::ProcessExec { pid, .. }
+                if mechanism == SourceMechanism::SchedTracepoint =>
+            {
+                Some(ExecEvent {
+                    pid: *pid,
+                    tgid: *pid,
+                    ts_ns: e.kernel_timestamp_ns,
+                })
+            }
             _ => None,
         })
         .collect()
@@ -271,6 +282,71 @@ mod tests {
         SourceMechanism::ProcConnector,
         SourceMechanism::SchedTracepoint,
     ];
+
+    // Use the actual tracer shape, not the connector-shaped perf fixtures
+    // below. The hosted rehearsal delivered matching events but previously
+    // discarded every ProcessExec from the comparison.
+    fn sched_exec(pid: u32, old_pid: u32, ts_ns: u64) -> KernelLifecycleEvent {
+        KernelLifecycleEvent {
+            kind: KernelLifecycleKind::ProcessExec {
+                pid,
+                old_pid,
+                filename: "/usr/bin/true".into(),
+            },
+            ..exec_event(SourceMechanism::SchedTracepoint, pid, ts_ns)
+        }
+    }
+
+    #[test]
+    fn actual_sched_process_exec_corroborates_connector_exec() {
+        let b = batch(
+            &BOTH,
+            vec![
+                exec_event(SourceMechanism::ProcConnector, 4242, 1_000_000),
+                sched_exec(4242, 4242, 1_002_000),
+            ],
+        );
+        assert!(detect_default(&b).is_empty());
+    }
+
+    #[test]
+    fn nonleader_exec_matches_post_exec_pid_not_old_tid() {
+        let b = batch(
+            &BOTH,
+            vec![
+                exec_event(SourceMechanism::ProcConnector, 4242, 1_000_000),
+                sched_exec(4242, 4243, 1_002_000),
+            ],
+        );
+        assert!(detect_default(&b).is_empty());
+        let wrong = batch(
+            &BOTH,
+            vec![
+                exec_event(SourceMechanism::ProcConnector, 4243, 1_000_000),
+                sched_exec(4242, 4243, 1_002_000),
+            ],
+        );
+        assert_eq!(detect_default(&wrong).divergences.len(), 1);
+    }
+
+    #[test]
+    fn actual_sched_shape_still_requires_matching_tgid_and_time() {
+        let mut anchor = exec_event(SourceMechanism::ProcConnector, 4242, 1_000_000);
+        anchor.kind = KernelLifecycleKind::Exec {
+            pid: 4242,
+            tgid: 99,
+        };
+        let wrong_tgid = batch(&BOTH, vec![anchor, sched_exec(4242, 4242, 1_002_000)]);
+        assert_eq!(detect_default(&wrong_tgid).divergences.len(), 1);
+        let late = batch(
+            &BOTH,
+            vec![
+                exec_event(SourceMechanism::ProcConnector, 4242, 1_000_000),
+                sched_exec(4242, 4242, 1_000_000 + DEFAULT_MATCH_WINDOW_NS + 1),
+            ],
+        );
+        assert_eq!(detect_default(&late).divergences.len(), 1);
+    }
 
     // ── The honest path: agreement is not divergence ─────────────────────
 
