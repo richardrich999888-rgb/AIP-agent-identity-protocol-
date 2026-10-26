@@ -18,16 +18,19 @@
 //! that is containment, gated on `Proven` evidence elsewhere.
 //!
 //! Modules:
+//! - [`authorize`]: whether a signed decision may be placed now; pure.
 //! - [`name`]: the cgroup name a decision id determines; pure.
 //! - [`mount`]: finding the cgroup v2 hierarchy; parsing is pure.
 //! - [`cgroup`]: creating and removing one decision cgroup.
 //! - [`spawn`]: starting a program inside it with `clone3`.
 
+pub mod authorize;
 pub mod cgroup;
 pub mod mount;
 pub mod name;
 pub mod spawn;
 
+pub use authorize::{authorize_placement, PlacementAuthority};
 pub use cgroup::{DecisionCgroup, PlacementError, PlacementRoot};
 pub use mount::{cgroup2_mount_from_mountinfo, find_cgroup2_mount};
 pub use name::{decision_cgroup_name, parse_decision_cgroup_name, NAME_LEN};

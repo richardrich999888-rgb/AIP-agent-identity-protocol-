@@ -6,6 +6,9 @@ license.workspace = true
 description = "Placement supervisor (ADR-019): one cgroup v2 per authorised decision, work started inside it with clone3(CLONE_INTO_CGROUP). Holds no key."
 
 [dependencies]
+# The supervisor places work only for a decision the decision point signed;
+# it verifies with the decision point's own verifier, never a copy.
+aip-authorize = { path = "../aip-authorize" }
 # Raw syscalls only: mkdir/rmdir on cgroup2, clone3, waitid on a pidfd.
 libc = "0.2"
 
@@ -13,3 +16,7 @@ libc = "0.2"
 # The live kernel-fact tests read the sensor's own perf sampler, so they test
 # the samples the observer will actually see.
 aip-observe = { path = "../aip-observe" }
+# A real decision point signs the expectations placements are made for.
+aip-core = { path = "../aip-core" }
+aip-crypto = { path = "../aip-crypto" }
+aip-types = { path = "../aip-types" }

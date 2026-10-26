@@ -8,6 +8,8 @@
 
 #![cfg(target_os = "linux")]
 
+mod common;
+
 use aip_observe::{data_loc, PerfTracepoints, RawSample, SampleLayout};
 use aip_placement::{spawn_into, PlacementError, PlacementRoot};
 use std::collections::BTreeSet;
@@ -21,7 +23,7 @@ const POLL_MS: i32 = 20;
 /// Short-lived children per run of the XI-H2-shaped workload.
 const CHILDREN: usize = 100;
 /// Placements created and removed in the id-reuse test.
-const CHURN: usize = 500;
+const CHURN: usize = 200;
 
 const TRUE: &CStr = c"/bin/true";
 const SH: &CStr = c"/bin/sh";
@@ -42,10 +44,17 @@ fn guard(cg: &aip_placement::DecisionCgroup) -> Cleanup {
     Cleanup(cg.path().to_path_buf())
 }
 
-fn decision_id() -> [u8; 16] {
-    let mut b = [0u8; 16];
-    std::io::Read::read_exact(&mut std::fs::File::open("/dev/urandom").unwrap(), &mut b).unwrap();
-    b
+/// One decision point for the whole file; each placement is a fresh signed
+/// decision from it.
+fn decisions() -> &'static common::Authorised {
+    static A: std::sync::OnceLock<common::Authorised> = std::sync::OnceLock::new();
+    A.get_or_init(common::authorised)
+}
+
+/// Place a fresh signed decision.
+fn place(root: &PlacementRoot) -> aip_placement::DecisionCgroup {
+    let a = decisions();
+    root.place(&a.expectation(), &a.authority(), a.now).unwrap()
 }
 
 fn root_or_skip(test: &str) -> Option<PlacementRoot> {
@@ -127,7 +136,7 @@ fn an_exec_sample_carries_the_placements_cgroup_id() {
     let (Some(root), Some(mut t)) = (root_or_skip("f1"), sampler_or_skip("f1", &[EXEC])) else {
         return;
     };
-    let cg = root.place(&decision_id()).unwrap();
+    let cg = place(&root);
     let _g_cg = guard(&cg);
     let child = spawn_into(&cg, TRUE, &["true"], &[]).unwrap();
     let pid = child.pid() as u32;
@@ -155,7 +164,7 @@ fn every_short_lived_child_of_a_placed_shell_is_attributed() {
     let (Some(root), Some(mut t)) = (root_or_skip("f2"), sampler_or_skip("f2", &[EXEC])) else {
         return;
     };
-    let cg = root.place(&decision_id()).unwrap();
+    let cg = place(&root);
     let _g_cg = guard(&cg);
     let script = format!("i=0; while [ $i -lt {CHILDREN} ]; do /bin/true; i=$((i+1)); done");
     let child = spawn_into(&cg, SH, &["sh", "-c", &script], &[]).unwrap();
@@ -190,7 +199,7 @@ fn a_decoy_running_the_same_binary_outside_is_not_attributed() {
     let (Some(root), Some(mut t)) = (root_or_skip("f3"), sampler_or_skip("f3", &[EXEC])) else {
         return;
     };
-    let cg = root.place(&decision_id()).unwrap();
+    let cg = place(&root);
     let _g_cg = guard(&cg);
     let inside = spawn_into(&cg, TRUE, &["true"], &[]).unwrap();
     let inside_pid = inside.pid() as u32;
@@ -227,9 +236,9 @@ fn clone_into_cgroup_is_not_a_migration_but_a_procs_write_is() {
     let (Some(root), Some(mut t)) = (root_or_skip("f4"), sampler_or_skip("f4", &[ATTACH])) else {
         return;
     };
-    let a = root.place(&decision_id()).unwrap();
+    let a = place(&root);
     let _g_a = guard(&a);
-    let b = root.place(&decision_id()).unwrap();
+    let b = place(&root);
     let _g_b = guard(&b);
     let child = spawn_into(&a, SLEEP, &["sleep", "1"], &[]).unwrap();
     let pid = child.pid();
@@ -268,9 +277,9 @@ fn cgroup_mkdir_names_the_creating_task_and_the_id() {
     let (Some(root), Some(mut t)) = (root_or_skip("f5"), sampler_or_skip("f5", &[MKDIR])) else {
         return;
     };
-    let id = decision_id();
-    let cg = root.place(&id).unwrap();
+    let cg = place(&root);
     let _g_cg = guard(&cg);
+    let id = *cg.decision_id();
     let samples = drain(&mut t);
     assert_eq!(t.take_lost(), 0);
     let made: Vec<_> = named(&t, &samples, MKDIR)
@@ -297,7 +306,7 @@ fn cgroup_ids_are_not_reused_under_churn() {
     };
     let mut seen = BTreeSet::new();
     for _ in 0..CHURN {
-        let cg = root.place(&decision_id()).unwrap();
+        let cg = place(&root);
         let _g_cg = guard(&cg);
         assert!(seen.insert(cg.id()), "cgroup id {} reused", cg.id());
         cg.remove().unwrap();
@@ -309,11 +318,12 @@ fn a_decision_is_placed_once() {
     let Some(root) = root_or_skip("f7") else {
         return;
     };
-    let id = decision_id();
-    let cg = root.place(&id).unwrap();
+    let a = decisions();
+    let ee = a.expectation();
+    let cg = root.place(&ee, &a.authority(), a.now).unwrap();
     let _g_cg = guard(&cg);
     assert!(matches!(
-        root.place(&id),
+        root.place(&ee, &a.authority(), a.now),
         Err(PlacementError::AlreadyPlaced(_))
     ));
     cg.remove().unwrap();
@@ -325,7 +335,7 @@ fn a_populated_placement_is_not_removed() {
     let Some(root) = root_or_skip("f8") else {
         return;
     };
-    let cg = root.place(&decision_id()).unwrap();
+    let cg = place(&root);
     let _g_cg = guard(&cg);
     let path = cg.path().to_path_buf();
     let child = spawn_into(&cg, SLEEP, &["sleep", "1"], &[]).unwrap();

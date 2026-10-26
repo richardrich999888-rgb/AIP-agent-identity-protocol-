@@ -19,6 +19,10 @@ pub enum PlacementError {
     /// No cgroup v2 hierarchy is mounted: structural attribution is not
     /// available on this host (ADR-019 §2).
     NoCgroup2,
+    /// The decision point's signature did not verify for this supervisor.
+    NotAuthorized(aip_authorize::ExpectedVerifyError),
+    /// The decision is not valid at the supervisor's present.
+    NotValidAt(aip_authorize::TemporalStatus),
     /// A cgroup for this decision already exists. Never reused.
     AlreadyPlaced(PathBuf),
     /// The cgroup still holds tasks and cannot be removed.
@@ -33,6 +37,8 @@ impl std::fmt::Display for PlacementError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::NoCgroup2 => write!(f, "no cgroup v2 hierarchy is mounted"),
+            Self::NotAuthorized(e) => write!(f, "decision not verified: {e:?}"),
+            Self::NotValidAt(t) => write!(f, "decision not valid now: {t:?}"),
             Self::AlreadyPlaced(p) => write!(
                 f,
                 "{} already exists; a decision is placed once",
@@ -83,9 +89,18 @@ impl PlacementRoot {
         &self.dir
     }
 
-    /// Create the cgroup for `decision_id`. Fails if it already exists.
-    pub fn place(&self, decision_id: &[u8; 16]) -> Result<DecisionCgroup, PlacementError> {
-        let path = self.dir.join(decision_cgroup_name(decision_id));
+    /// Create the cgroup for the signed decision `ee`, if
+    /// [`crate::authorize_placement`] accepts it at `now_ms`. There is no
+    /// unverified way to make a placement. Fails if the decision is already
+    /// placed.
+    pub fn place(
+        &self,
+        ee: &aip_authorize::ExpectedExecution,
+        authority: &crate::PlacementAuthority,
+        now_ms: u64,
+    ) -> Result<DecisionCgroup, PlacementError> {
+        let decision_id = crate::authorize_placement(ee, authority, now_ms)?;
+        let path = self.dir.join(decision_cgroup_name(&decision_id));
         match std::fs::create_dir(&path) {
             Ok(()) => {}
             Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
@@ -93,7 +108,7 @@ impl PlacementRoot {
             }
             Err(e) => return Err(io(&path, e)),
         }
-        DecisionCgroup::open(path, *decision_id)
+        DecisionCgroup::open(path, decision_id)
     }
 }
 
