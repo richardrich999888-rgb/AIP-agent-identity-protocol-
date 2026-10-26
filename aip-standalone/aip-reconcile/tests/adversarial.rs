@@ -2012,6 +2012,7 @@ fn t30_availability_on_the_observation_path_is_computed_from_the_health_record()
 /// shape is where this verdict would have been wrong.
 fn unbound_exec(pid: u32, ts_ns: u64) -> KernelLifecycleEvent {
     KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: PROBE_ID.into(),
         mechanism: SourceMechanism::SchedTracepoint,

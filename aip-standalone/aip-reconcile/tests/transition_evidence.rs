@@ -201,6 +201,7 @@ fn syn_sent(
 ) -> KernelLifecycleEvent {
     let (attribution, claimed_decision_id) = attribution(c);
     KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: PROBE_ID.into(),
         mechanism: SourceMechanism::SockStateTracepoint,
@@ -225,6 +226,7 @@ fn syn_sent(
 /// A `SYN_SENT → ESTABLISHED` event: softirq context, never bound.
 fn established(seq: u64, ts_ns: u64, remote: [u8; 4], port: u16, sk: u64) -> KernelLifecycleEvent {
     KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: PROBE_ID.into(),
         mechanism: SourceMechanism::SockStateTracepoint,

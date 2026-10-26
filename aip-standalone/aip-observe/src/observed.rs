@@ -74,8 +74,40 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 ///   line, and a log is not evidence a verifier holds. `None` means **not
 ///   read**, never "fine".
 ///
-/// Earlier versions never left this branch; all are refused.
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 12;
+/// - `13` Structural attribution (ADR-019): `KernelLifecycleEvent.cgroup` —
+///   the cgroup v2 id the kernel wrote into the tracepoint sample
+///   (`PERF_SAMPLE_CGROUP`) at the event, in the task's own context;
+///   `KernelLifecycleKind::{CgroupCreated, CgroupRemoved, CgroupAttach}` —
+///   placement birth, death and migration with the acting task; and
+///   `SourceMechanism::ExecPermission` — a measurement taken while the
+///   kernel held an exec at open (`FAN_OPEN_EXEC_PERM`). Every one is
+///   encoded **only** in a version-13 record, so earlier records reproduce
+///   their sealed bytes exactly, and a record claiming an earlier version
+///   while carrying any of them is refused ([`ObservationBatch::content_fits_version`]).
+///
+/// Versions 1–11 never left this branch and are refused. Version 12 has
+/// been **sealed** in committed evidence and stays verifiable
+/// ([`VERIFIABLE_PROTOCOL_VERSIONS`]).
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 13;
+
+/// Every version a verifier accepts: the current one, and every earlier
+/// version under which evidence has been sealed. New records are only ever
+/// produced at [`OBSERVE_PROTOCOL_VERSION`].
+pub const VERIFIABLE_PROTOCOL_VERSIONS: [u16; 2] = [12, 13];
+
+/// The version that introduced in-event cgroup ids, cgroup lifecycle kinds
+/// and `ExecPermission`.
+pub const CGROUP_PROTOCOL_VERSION: u16 = 13;
+
+/// The version written into [`ObservedProcess::identity_bytes`]. Frozen at
+/// the version that last changed the identity tuple, so a protocol bump that
+/// leaves the tuple alone does not change every process's identity digest.
+pub const OBSERVED_PROCESS_IDENTITY_VERSION: u16 = 12;
+
+/// Is `v` a version a verifier accepts?
+pub fn is_verifiable_version(v: u16) -> bool {
+    VERIFIABLE_PROTOCOL_VERSIONS.contains(&v)
+}
 
 /// Kernel TCP state bytes (`include/net/tcp_states.h`), as they appear in
 /// `/proc/net/tcp` and in the `sock:inet_sock_set_state` tracepoint.
@@ -169,6 +201,13 @@ pub enum SourceMechanism {
     /// file. Events carry no kernel timestamp; the probe stamps them at
     /// read time. Loss via `FAN_Q_OVERFLOW`. No eBPF, no syscall tracing.
     Fanotify,
+    /// A content measurement taken while the kernel **held an exec** at
+    /// open (`fanotify` `FAN_OPEN_EXEC_PERM`, ADR-019 §5): the probe hashed
+    /// the inode through the descriptor the kernel handed it before
+    /// allowing the exec to proceed. The probe never denies. Not yet treated
+    /// as instance-anchored — M3 establishes what the hold proves before the
+    /// reconciler may rely on it. Protocol 13.
+    ExecPermission,
 }
 
 impl SourceMechanism {
@@ -183,6 +222,7 @@ impl SourceMechanism {
             SourceMechanism::WireTapAfPacket => 0x07,
             SourceMechanism::SockSendTracepoint => 0x08,
             SourceMechanism::Fanotify => 0x09,
+            SourceMechanism::ExecPermission => 0x0a,
         }
     }
 
@@ -197,6 +237,7 @@ impl SourceMechanism {
                 | SourceMechanism::WireTapAfPacket
                 | SourceMechanism::SockSendTracepoint
                 | SourceMechanism::Fanotify
+                | SourceMechanism::ExecPermission
         )
     }
 
@@ -252,7 +293,7 @@ impl SourceMechanism {
         matches!(self, SourceMechanism::PidFdAnchored)
     }
 
-    pub const ALL: [SourceMechanism; 9] = [
+    pub const ALL: [SourceMechanism; 10] = [
         SourceMechanism::ProcfsPoll,
         SourceMechanism::PidFdAnchored,
         SourceMechanism::ProcConnector,
@@ -262,7 +303,16 @@ impl SourceMechanism {
         SourceMechanism::WireTapAfPacket,
         SourceMechanism::SockSendTracepoint,
         SourceMechanism::Fanotify,
+        SourceMechanism::ExecPermission,
     ];
+
+    /// The earliest protocol version that can carry this mechanism.
+    pub fn introduced_in(&self) -> u16 {
+        match self {
+            SourceMechanism::ExecPermission => CGROUP_PROTOCOL_VERSION,
+            _ => 12,
+        }
+    }
 
     /// Canonical ordering of a mechanism set: by code, deduplicated. Used
     /// wherever a set of mechanisms enters signed bytes, so two equal sets
@@ -500,7 +550,7 @@ impl ObservedProcess {
     pub fn identity_bytes(&self) -> Vec<u8> {
         let mut buf = Vec::new();
         put_domain(&mut buf, OBSERVED_PROCESS_DOMAIN);
-        put_u16(&mut buf, OBSERVE_PROTOCOL_VERSION);
+        put_u16(&mut buf, OBSERVED_PROCESS_IDENTITY_VERSION);
         put_u32(&mut buf, self.process.pid);
         put_u64(&mut buf, self.process.pid_start_time_ticks);
         buf.extend_from_slice(&self.process.boot_id);
@@ -727,6 +777,38 @@ pub enum KernelLifecycleKind {
         dev: u64,
         ino: u64,
     },
+    /// `cgroup:cgroup_mkdir`: the kernel created cgroup `cgroup_id` at
+    /// `path` in hierarchy `hierarchy`, in `creator_pid`'s context. The
+    /// path is a label; the id is the kernel's (ADR-019 §4). Protocol 13.
+    CgroupCreated {
+        hierarchy: u32,
+        level: u32,
+        cgroup_id: u64,
+        path: String,
+        creator_pid: u32,
+    },
+    /// `cgroup:cgroup_rmdir`, in `remover_pid`'s context. Protocol 13.
+    CgroupRemoved {
+        hierarchy: u32,
+        level: u32,
+        cgroup_id: u64,
+        path: String,
+        remover_pid: u32,
+    },
+    /// `cgroup:cgroup_attach_task`: task `pid` was **migrated** into
+    /// `dst_cgroup_id` by `writer_pid` (the task that wrote
+    /// `cgroup.procs`). Placement by `clone3(CLONE_INTO_CGROUP)` is not a
+    /// migration and produces none. `comm` is kernel-authored context, never
+    /// identity. Protocol 13.
+    CgroupAttach {
+        hierarchy: u32,
+        dst_level: u32,
+        dst_cgroup_id: u64,
+        dst_path: String,
+        pid: u32,
+        comm: String,
+        writer_pid: u32,
+    },
 }
 
 /// TCP flag bits as they appear in `WireSegment::flags`.
@@ -739,6 +821,16 @@ pub mod tcp_flags {
 }
 
 impl KernelLifecycleKind {
+    /// The earliest protocol version that can carry this kind.
+    pub fn introduced_in(&self) -> u16 {
+        match self {
+            KernelLifecycleKind::CgroupCreated { .. }
+            | KernelLifecycleKind::CgroupRemoved { .. }
+            | KernelLifecycleKind::CgroupAttach { .. } => CGROUP_PROTOCOL_VERSION,
+            _ => 12,
+        }
+    }
+
     /// A wire segment that is a SYN without ACK: a connection being opened.
     pub fn is_wire_syn(&self) -> bool {
         matches!(self, KernelLifecycleKind::WireSegment { flags, .. }
@@ -792,6 +884,11 @@ impl KernelLifecycleKind {
             KernelLifecycleKind::SocketSend { current_pid, .. } => Some(*current_pid),
             // The kernel names the acting process on the event.
             KernelLifecycleKind::FileEvent { pid, .. } => Some(*pid),
+            // mkdir/rmdir fire in the acting task's context.
+            KernelLifecycleKind::CgroupCreated { creator_pid, .. } => Some(*creator_pid),
+            KernelLifecycleKind::CgroupRemoved { remover_pid, .. } => Some(*remover_pid),
+            // A migration is about the task moved; the writer is the actor.
+            KernelLifecycleKind::CgroupAttach { pid, .. } => Some(*pid),
         }
     }
 
@@ -947,6 +1044,89 @@ impl KernelLifecycleKind {
                 put_u64(buf, *dev);
                 put_u64(buf, *ino);
             }
+            KernelLifecycleKind::CgroupCreated {
+                hierarchy,
+                level,
+                cgroup_id,
+                path,
+                creator_pid,
+            } => {
+                put_u8(buf, 0x0a);
+                put_u32(buf, *hierarchy);
+                put_u32(buf, *level);
+                put_u64(buf, *cgroup_id);
+                put_str(buf, path);
+                put_u32(buf, *creator_pid);
+            }
+            KernelLifecycleKind::CgroupRemoved {
+                hierarchy,
+                level,
+                cgroup_id,
+                path,
+                remover_pid,
+            } => {
+                put_u8(buf, 0x0b);
+                put_u32(buf, *hierarchy);
+                put_u32(buf, *level);
+                put_u64(buf, *cgroup_id);
+                put_str(buf, path);
+                put_u32(buf, *remover_pid);
+            }
+            KernelLifecycleKind::CgroupAttach {
+                hierarchy,
+                dst_level,
+                dst_cgroup_id,
+                dst_path,
+                pid,
+                comm,
+                writer_pid,
+            } => {
+                put_u8(buf, 0x0c);
+                put_u32(buf, *hierarchy);
+                put_u32(buf, *dst_level);
+                put_u64(buf, *dst_cgroup_id);
+                put_str(buf, dst_path);
+                put_u32(buf, *pid);
+                put_str(buf, comm);
+                put_u32(buf, *writer_pid);
+            }
+        }
+    }
+}
+
+/// The cgroup v2 id the kernel wrote into a tracepoint sample
+/// (`PERF_SAMPLE_CGROUP`), in the task's own context at the event
+/// (ADR-019 §4). Protocol 13.
+///
+/// `NotSampled` means **not recorded** — a source that cannot carry it (the
+/// netlink connector, procfs reads, a sampler opened without it, any record
+/// sealed before protocol 13) — never "in the root cgroup". It is never
+/// defaulted to an id.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub enum CgroupSample {
+    #[default]
+    NotSampled,
+    Sampled {
+        cgroup_id: u64,
+    },
+}
+
+impl CgroupSample {
+    fn encode(&self, buf: &mut Vec<u8>) {
+        match self {
+            CgroupSample::NotSampled => put_u8(buf, 0),
+            CgroupSample::Sampled { cgroup_id } => {
+                put_u8(buf, 1);
+                put_u64(buf, *cgroup_id);
+            }
+        }
+    }
+
+    /// The sampled id, if one was recorded.
+    pub fn id(&self) -> Option<u64> {
+        match self {
+            CgroupSample::NotSampled => None,
+            CgroupSample::Sampled { cgroup_id } => Some(*cgroup_id),
         }
     }
 }
@@ -978,6 +1158,10 @@ pub struct KernelLifecycleEvent {
     pub bound: Option<ObservedProcess>,
     pub attribution: AgentAttribution,
     pub claimed_decision_id: Option<[u8; 16]>,
+    /// The cgroup v2 id in the kernel's sample, if the source carried it.
+    /// Protocol 13; absent from earlier records, which read as `NotSampled`.
+    #[serde(default)]
+    pub cgroup: CgroupSample,
 }
 
 impl KernelLifecycleEvent {
@@ -1006,11 +1190,29 @@ impl KernelLifecycleEvent {
             }
             None => put_u8(&mut buf, 0),
         }
+        // Protocol 13. Gated by the record's own version so a sealed v12
+        // record reproduces its signed bytes; a v12 record carrying a sample
+        // is refused by `content_fits_version`, never silently unsigned.
+        if self.version >= CGROUP_PROTOCOL_VERSION {
+            self.cgroup.encode(&mut buf);
+        }
         buf
     }
 
     pub fn digest(&self) -> [u8; 32] {
         sha256(&self.canonical_bytes())
+    }
+
+    /// Does every field this event carries exist in its own version's
+    /// encoding? `false` means some content would be outside the signed
+    /// bytes.
+    pub fn content_fits_version(&self) -> bool {
+        if self.version >= CGROUP_PROTOCOL_VERSION {
+            return true;
+        }
+        self.cgroup == CgroupSample::NotSampled
+            && self.kind.introduced_in() <= self.version
+            && self.mechanism.introduced_in() <= self.version
     }
 
     /// Identity of the subject, if — and only if — an instance was bound.
@@ -1184,6 +1386,24 @@ impl BootClockAnchor {
 }
 
 impl ObservationBatch {
+    /// Does everything in this batch exist in the batch's own version's
+    /// encoding? A record claiming an earlier version while carrying later
+    /// content would put that content outside the signed bytes; verifiers
+    /// refuse it.
+    pub fn content_fits_version(&self) -> bool {
+        let v = self.version;
+        let mech_ok = |m: &SourceMechanism| m.introduced_in() <= v;
+        self.kernel_events
+            .iter()
+            .all(|e| e.version == v && e.content_fits_version())
+            && self.observations.iter().all(|o| mech_ok(&o.mechanism))
+            && self.active_mechanisms.iter().all(mech_ok)
+            && self
+                .mechanism_integrity
+                .iter()
+                .all(|r| mech_ok(&r.mechanism))
+    }
+
     pub fn canonical_bytes(&self) -> Vec<u8> {
         let mut buf = Vec::new();
         put_domain(&mut buf, OBSERVATION_BATCH_DOMAIN);
@@ -1431,6 +1651,7 @@ mod tests {
     #[test]
     fn kernel_event_kinds_with_equal_numbers_do_not_collide() {
         let base = KernelLifecycleEvent {
+            cgroup: crate::observed::CgroupSample::NotSampled,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: "p".into(),
             mechanism: SourceMechanism::ProcConnector,

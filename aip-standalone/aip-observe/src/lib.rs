@@ -103,11 +103,12 @@ pub use linux::{
 #[cfg(target_os = "linux")]
 pub use linux::{snapshot_socket_tables, socket_inodes_of, PidFd, ProcConnector};
 pub use observed::{
-    tcp_flags, tcp_state, AgentAttribution, BootClockAnchor, KernelLifecycleEvent,
-    KernelLifecycleKind, MechanismIntegrityReport, ObservationBatch, ObservedEffect,
-    ObservedExecution, ObservedProcess, SocketEndpoint, SocketProtocol, SourceMechanism,
-    WireDirection, KERNEL_EVENT_DOMAIN, OBSERVATION_BATCH_DOMAIN, OBSERVED_EXECUTION_DOMAIN,
-    OBSERVED_PROCESS_DOMAIN, OBSERVE_PROTOCOL_VERSION,
+    is_verifiable_version, tcp_flags, tcp_state, AgentAttribution, BootClockAnchor, CgroupSample,
+    KernelLifecycleEvent, KernelLifecycleKind, MechanismIntegrityReport, ObservationBatch,
+    ObservedEffect, ObservedExecution, ObservedProcess, SocketEndpoint, SocketProtocol,
+    SourceMechanism, WireDirection, CGROUP_PROTOCOL_VERSION, KERNEL_EVENT_DOMAIN,
+    OBSERVATION_BATCH_DOMAIN, OBSERVED_EXECUTION_DOMAIN, OBSERVED_PROCESS_DOMAIN,
+    OBSERVED_PROCESS_IDENTITY_VERSION, OBSERVE_PROTOCOL_VERSION, VERIFIABLE_PROTOCOL_VERSIONS,
 };
 #[cfg(target_os = "linux")]
 pub use perf::PerfTracepoints;

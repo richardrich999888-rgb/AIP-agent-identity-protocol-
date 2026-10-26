@@ -78,6 +78,7 @@ fn spawn(
     bound: Option<ObservedProcess>,
 ) -> KernelLifecycleEvent {
     KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: PROBE_ID.into(),
         mechanism: SourceMechanism::SchedTracepoint,
@@ -98,6 +99,7 @@ fn spawn(
 
 fn exec(seq: u64, ts_ns: u64, bound: Option<ObservedProcess>) -> KernelLifecycleEvent {
     KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: PROBE_ID.into(),
         mechanism: SourceMechanism::SchedTracepoint,

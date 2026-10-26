@@ -84,19 +84,10 @@ const DISCIPLINED: AttestedClock = AttestedClock {
     state: 0,
 };
 
-/// The compatibility boundary, pinned in exactly one place.
-///
-/// A verifier refuses any other version, so this constant is what decides
-/// whether an archive can be read at all. The assertion lives with the
-/// change that owns the current value -- protocol 12 is the attested clock --
-/// so a future bump fails here, where the person making it is already
-/// working, rather than in an unrelated test about some earlier field.
-/// Bumping it means: update the changelog on the constant, say what the new
-/// version adds, and accept that records at the old version stop verifying.
-#[test]
-fn the_protocol_version_is_twelve() {
-    assert_eq!(aip_observe::OBSERVE_PROTOCOL_VERSION, 12);
-}
+/// The attested clock arrived in protocol 12 and is in every later version.
+/// The pin on the *current* version moved to `tests/cgroup_wire.rs` with
+/// protocol 13, the change that owns it.
+const _: () = assert!(aip_observe::OBSERVE_PROTOCOL_VERSION >= 12);
 
 // ── The reading is evidence, not commentary ──────────────────────────────
 

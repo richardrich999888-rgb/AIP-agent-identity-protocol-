@@ -560,6 +560,7 @@ impl ProcfsProbe {
             .map(|pid| self.attribution_for(pid))
             .unwrap_or((AgentAttribution::NotEstablished, None));
         self.pending_kernel_events.push(KernelLifecycleEvent {
+            cgroup: crate::observed::CgroupSample::NotSampled,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: self.probe_id.clone(),
             mechanism: SourceMechanism::Fanotify,
@@ -616,6 +617,7 @@ impl ProcfsProbe {
             .map(|pid| self.attribution_for(pid))
             .unwrap_or((AgentAttribution::NotEstablished, None));
         self.pending_kernel_events.push(KernelLifecycleEvent {
+            cgroup: crate::observed::CgroupSample::NotSampled,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: self.probe_id.clone(),
             mechanism,

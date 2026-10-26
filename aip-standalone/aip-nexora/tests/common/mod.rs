@@ -276,6 +276,7 @@ pub fn verified_execution() -> Scenario {
     };
     let events = vec![
         KernelLifecycleEvent {
+            cgroup: aip_observe::CgroupSample::NotSampled,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: PROBE_ID.into(),
             mechanism: SourceMechanism::SockStateTracepoint,
@@ -299,6 +300,7 @@ pub fn verified_execution() -> Scenario {
             claimed_decision_id: claim.decision_id,
         },
         KernelLifecycleEvent {
+            cgroup: aip_observe::CgroupSample::NotSampled,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: PROBE_ID.into(),
             mechanism: SourceMechanism::SockStateTracepoint,

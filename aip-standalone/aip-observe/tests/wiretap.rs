@@ -212,6 +212,7 @@ fn wt04_payload_is_measured_by_length_never_carried_or_hashed() {
     let json = serde_json::to_string(&k).unwrap();
     assert!(!json.contains("transfer"));
     let event = KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: "p".into(),
         mechanism: SourceMechanism::WireTapAfPacket,
@@ -269,6 +270,7 @@ fn wt06_a_wire_segment_names_no_process_and_encodes_injectively() {
     assert!(!base.is_connect_established());
 
     let ev = |kind: KernelLifecycleKind| KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: "p".into(),
         mechanism: SourceMechanism::WireTapAfPacket,

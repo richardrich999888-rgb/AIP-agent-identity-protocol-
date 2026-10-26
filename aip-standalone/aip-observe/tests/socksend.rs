@@ -109,6 +109,7 @@ fn sk03_the_mechanism_is_kernel_pushed_and_covers_no_lifecycle() {
 #[test]
 fn sk04_a_send_event_encodes_injectively_and_carries_no_payload_field() {
     let ev = |kind: KernelLifecycleKind| KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: "p".into(),
         mechanism: SourceMechanism::SockSendTracepoint,
