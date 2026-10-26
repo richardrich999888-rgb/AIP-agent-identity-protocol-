@@ -1,10 +1,14 @@
-//! The cgroup name a decision id determines.
+//! The cgroup name a decision id determines (ADR-019 §3).
 //!
 //! A decision cgroup is named by its `decision_id` as 32 lowercase hex
 //! digits — nothing else, so the name can always be read back to exactly one
 //! id and no id has two names. The name is a **label**: attribution is by the
 //! kernel's cgroup id, never by this string (ADR-019 §4). The name only lets
 //! the reconciler recover which decision a creator meant.
+//!
+//! Defined once, here, because two parties depend on it agreeing: the
+//! placement supervisor that writes the name and the reconciler that reads
+//! it back.
 
 /// Length of a decision cgroup name: 16 bytes as hex.
 pub const NAME_LEN: usize = 32;

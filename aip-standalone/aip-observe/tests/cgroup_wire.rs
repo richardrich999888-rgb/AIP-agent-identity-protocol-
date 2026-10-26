@@ -182,19 +182,58 @@ fn a_v12_record_carrying_v13_content_is_refused() {
     );
 }
 
+/// Every protocol-13 mechanism and kind is refused in a v12 record — each
+/// one separately, so dropping one from the version gate fails here.
 #[test]
-fn a_v12_batch_declaring_exec_permission_is_refused() {
-    let mut f = fx();
-    let a = attested(&mut f, vec![]);
-    let mut v12 = resigned_at(&f, a, 12);
-    v12.batch
-        .active_mechanisms
-        .push(SourceMechanism::ExecPermission);
-    v12.attestation = sign_ed25519(&f.kp.private_key, OBSERVER, &v12.signing_preimage()).unwrap();
-    assert_eq!(
-        verify_attested_batch(&v12, &f.anchors),
-        Err(VerifyError::ContentNotInVersion(12))
-    );
+fn a_v12_batch_declaring_any_v13_mechanism_is_refused() {
+    for m in [
+        SourceMechanism::ExecPermission,
+        SourceMechanism::CgroupTracepoint,
+    ] {
+        let mut f = fx();
+        let a = attested(&mut f, vec![]);
+        let mut v12 = resigned_at(&f, a, 12);
+        v12.batch.active_mechanisms.push(m);
+        v12.attestation =
+            sign_ed25519(&f.kp.private_key, OBSERVER, &v12.signing_preimage()).unwrap();
+        assert_eq!(
+            verify_attested_batch(&v12, &f.anchors),
+            Err(VerifyError::ContentNotInVersion(12)),
+            "{m:?}"
+        );
+    }
+}
+
+#[test]
+fn a_v12_event_of_any_cgroup_kind_is_refused() {
+    let kinds = [
+        KernelLifecycleKind::CgroupCreated {
+            hierarchy: 0,
+            level: 2,
+            cgroup_id: 1,
+            path: "/a".into(),
+            creator_pid: 7,
+        },
+        KernelLifecycleKind::CgroupRemoved {
+            hierarchy: 0,
+            level: 2,
+            cgroup_id: 1,
+            path: "/a".into(),
+            remover_pid: 7,
+        },
+        attach(),
+    ];
+    for k in kinds {
+        let mut f = fx();
+        let mut e = exec_event(13, 0, CgroupSample::NotSampled);
+        e.kind = k.clone();
+        let a = attested(&mut f, vec![e]);
+        assert_eq!(
+            verify_attested_batch(&resigned_at(&f, a, 12), &f.anchors),
+            Err(VerifyError::ContentNotInVersion(12)),
+            "{k:?}"
+        );
+    }
 }
 
 /// Mixed versions inside one batch are refused: one record, one encoding.

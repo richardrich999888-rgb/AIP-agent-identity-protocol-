@@ -9,6 +9,8 @@ description = "Placement supervisor (ADR-019): one cgroup v2 per authorised deci
 # The supervisor places work only for a decision the decision point signed;
 # it verifies with the decision point's own verifier, never a copy.
 aip-authorize = { path = "../aip-authorize" }
+# The decision-cgroup name format, shared with the reconciler.
+aip-types = { path = "../aip-types" }
 # Raw syscalls only: mkdir/rmdir on cgroup2, clone3, waitid on a pidfd.
 libc = "0.2"
 
@@ -19,4 +21,3 @@ aip-observe = { path = "../aip-observe" }
 # A real decision point signs the expectations placements are made for.
 aip-core = { path = "../aip-core" }
 aip-crypto = { path = "../aip-crypto" }
-aip-types = { path = "../aip-types" }

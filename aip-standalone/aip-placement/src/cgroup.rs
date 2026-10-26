@@ -7,7 +7,7 @@
 //! with `EEXIST`, so "one cgroup per decision" is the kernel's guarantee, not
 //! a check this crate could get wrong.
 
-use crate::name::decision_cgroup_name;
+use aip_types::placement::decision_cgroup_name;
 use std::ffi::CString;
 use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
 use std::os::unix::fs::MetadataExt;

@@ -39,6 +39,7 @@ pub mod attest;
 pub mod ids;
 pub mod inputs;
 pub mod lineage_report;
+pub mod placement;
 pub mod reconcile;
 pub mod result;
 
@@ -60,6 +61,9 @@ pub use inputs::{
     ReconciliationContext, DECISION_POINT_COVERAGE_DOMAIN, DECISION_POINT_COVERAGE_VERSION,
 };
 pub use lineage_report::{distinct_parents, render_edge, render_report, sort_edges};
+pub use placement::{
+    attribute_event, derive_placement, EventAttribution, Placement, PlacementGap, PlacementPolicy,
+};
 pub use reconcile::{reconcile_expectation, reconcile_lineage, reconcile_observation};
 pub use result::{
     ActionComparison, ActionEvidenceKind, ActionEvidenceSeal, EvidenceRef, EvidenceStrength,
