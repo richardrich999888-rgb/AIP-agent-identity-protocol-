@@ -117,6 +117,7 @@ fn attach(t: u64, dst: u64, pid: u32) -> KernelLifecycleEvent {
 /// A collector and a probe that declares both sources live with a counted
 /// loss counter.
 struct Chain {
+    kp: aip_types::KeyPair,
     signer: CollectorSigner,
     probe: ProcfsProbe,
     batches: Vec<AttestedBatch>,
@@ -130,6 +131,7 @@ fn chain() -> Chain {
     probe.enable_loss_counter();
     Chain {
         signer: CollectorSigner::new(OBSERVER, 1, &kp.private_key, &kp.public_key).unwrap(),
+        kp,
         probe,
         batches: Vec::new(),
     }
@@ -454,6 +456,49 @@ fn a_spliced_batch_with_the_right_sequence_is_not_a_link() {
         derive_placement(&DECISION, &spliced, &policy()).unwrap_err(),
         G::ChainBroken {
             after_sequence: c.batches[0].sequence
+        }
+    );
+}
+
+/// A decision whose id differs from this one only in its last byte is
+/// another decision: the name is matched in full.
+#[test]
+fn a_decision_differing_only_in_its_last_byte_is_another_decision() {
+    let mut near = DECISION;
+    near[15] ^= 0x01;
+    let mut c = chain();
+    c.push(vec![created(1_000, &near, PLACEMENT_ID, supervisor())]);
+    assert_eq!(c.placement().unwrap_err(), G::NotObserved);
+}
+
+/// A validly signed batch whose sequence skips, even with its head link
+/// intact, is not the next link: a collector that numbers past a batch has
+/// lost one, however it chains.
+#[test]
+fn a_sequence_skip_is_a_gap_even_with_the_head_link_intact() {
+    let mut c = chain();
+    c.push(vec![created(1_000, &DECISION, PLACEMENT_ID, supervisor())]);
+    c.push(vec![exec(2_000, 5001, Some(PLACEMENT_ID))]);
+    let first_seq = c.batches[0].sequence;
+    let mut skipped = c.batches[1].clone();
+    skipped.sequence += 1;
+    assert_eq!(
+        skipped.prev_head,
+        c.batches[0].head(),
+        "the head link is intact"
+    );
+    skipped.attestation =
+        aip_crypto::sign_ed25519(&c.kp.private_key, OBSERVER, &skipped.signing_preimage()).unwrap();
+    let anchors = ObserverTrustAnchors::new().trust(OBSERVER, 1, &c.kp.public_key);
+    assert_eq!(
+        verify_attested_batch(&skipped, &anchors),
+        Ok(()),
+        "validly signed"
+    );
+    assert_eq!(
+        derive_placement(&DECISION, &[&c.batches[0], &skipped], &policy()).unwrap_err(),
+        G::ChainBroken {
+            after_sequence: first_seq
         }
     );
 }

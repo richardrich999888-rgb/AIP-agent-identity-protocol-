@@ -338,3 +338,26 @@ fn every_cgroup_kind_field_is_signed_and_the_kinds_are_distinct() {
         "a migration is about the task moved"
     );
 }
+
+/// The probe copies the kernel's sample into the signed event, unchanged,
+/// for every kind it ingests through a tracer.
+#[test]
+fn the_probe_copies_the_kernels_cgroup_sample_unchanged() {
+    let mut probe = ProcfsProbe::new(PROBE);
+    let sampled = CgroupSample::Sampled { cgroup_id: 9001 };
+    let ev = |kind| ProcEvent {
+        kind,
+        cpu: 0,
+        timestamp_ns: 1,
+        cgroup: sampled,
+    };
+    probe.ingest_sched_event(ev(KernelLifecycleKind::ProcessExec {
+        pid: u32::MAX,
+        old_pid: u32::MAX,
+        filename: "/bin/true".into(),
+    }));
+    probe.ingest_cgroup_event(ev(attach()));
+    let b = probe.batch([1; 16], 1, 2, vec![]);
+    assert_eq!(b.kernel_events.len(), 2);
+    assert!(b.kernel_events.iter().all(|e| e.cgroup == sampled));
+}
