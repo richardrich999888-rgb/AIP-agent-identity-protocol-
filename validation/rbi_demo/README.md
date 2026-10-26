@@ -41,14 +41,14 @@ bash -n validation/rbi_demo/run.sh
 ```
 
 The suite runs a copy of the actual script in a temporary tree with an
-allowlisted PATH and simulated commands. Its 16 test methods cover 31 scenarios:
+allowlisted PATH and simulated commands. Its 17 test methods cover 32 scenarios:
 synchronised, unsynchronised and unknown clock evidence; missing/failed
 queries; failed builds with several diagnostic formats; successful builds
 with misleading log text; log redirection failure; and the full-system
 pass/fail/explicit-skip result gates. Additional cases cover the child pilot's
 build failure, stale gateway binaries, gateway exit/timeout after writing
 receipts, malformed/missing/equal receipts, invalid or degraded control evidence,
-and quoted output paths. The daemon fixture reports running even
+quoted output paths, and recovery coverage spanning a blinded interval. The daemon fixture reports running even
 when synchronisation is absent, to catch the former daemon-only fallback.
 
 These are **control-flow tests only**. They do not run Cargo, the real gateway,
@@ -67,8 +67,10 @@ The generic pilot experiment permits a degraded control window. That is not
 enough for the RBI wrapper's claim of an honest path with `Active` and attested
 coverage. After the pilot passes (including offline signature verification and
 the tampered-archive negative control), `check_control.py` also requires those
-two properties in the saved control health record. Missing or malformed
-evidence fails the RBI session. This JSON check supplements, and does not
+two properties in the saved control health record. It also checks signed batch
+intervals against the health archive: recovery must not extend coverage across
+a recorded IntegrityUnknown interval. Missing or malformed evidence fails the
+RBI session. This JSON check supplements, and does not
 replace, the pilot's cryptographic verification.
 
 The RBI path forces `AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=1`; the generic pilot
@@ -108,7 +110,7 @@ Acts 3 and 4 are library-level because the decision point and the tool boundary
 Presenting them as a system demonstration would misrepresent what was shown,
 which is the one thing this programme cannot afford to do.
 
-## The finding this rehearsal produced
+## The 20 September rehearsal finding (historical)
 
 **The demo host must have a synchronised clock, or Act 1 does not show what you
 promised.**
@@ -144,7 +146,7 @@ Act 1 reports `Active`.
 > the real demo host. **Do not present a transcript from a host where Act 1 did
 > not report `Active`.**
 
-## Status of the last rehearsal on this host
+## Status recorded on 20 September (historical)
 
 - **Acts 3, 4, 4b — pass.** 11 resource-scoping assertions including outright
   refusal of an address the institution never named; 11 tool-boundary

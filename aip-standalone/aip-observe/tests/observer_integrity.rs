@@ -298,4 +298,3 @@ fn a_clean_mechanism_does_not_mask_a_gated_one() {
         ObserverState::Active
     );
 }
-

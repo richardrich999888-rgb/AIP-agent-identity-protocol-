@@ -1096,4 +1096,3 @@ pub fn verify_continuity(
         }
     }
 }
-
