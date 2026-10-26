@@ -64,6 +64,7 @@ cleanup() {
   [ -n "$PROBE_PID" ]     && kill "$PROBE_PID"     2>/dev/null
   [ -n "$COLLECTOR_PID" ] && kill "$COLLECTOR_PID" 2>/dev/null
   wait 2>/dev/null
+  ATTACK_PID=""; PROBE_PID=""; COLLECTOR_PID=""
 }
 trap cleanup EXIT
 
@@ -268,6 +269,11 @@ info "signed ObserverState = $STATE_C"
 # key is the one the collector publishes at every start (observer.pub); the
 # private half stays wrapped and is never unwrapped here.
 step "D. OFFLINE VERIFICATION - a separate process, two files and a public key"
+# Stop and reap the experiment's writers before reading or copying archives.
+# Otherwise verification and its negative control can inspect different
+# prefixes, and the exported bundle can contain later, unchecked records.
+cleanup
+info "probe and collector stopped; the evidence archives are now stable"
 VERIFY="$REPO/target/debug/aip-observe-verify"
 BATCH_ARCHIVE="$W/state/attested.archive.jsonl"
 PUBFILE="$W/state/observer.pub"
