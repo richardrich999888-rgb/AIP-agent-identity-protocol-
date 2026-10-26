@@ -119,6 +119,8 @@ else
   if AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=1 timeout 900 bash "$REPO/validation/pilot_e2e/run.sh" "$OUT/system" \
        > "$OUT/system_run.log" 2>&1 \
      && python3 "$HERE/check_control.py" "$OUT/system/health.A.control.jsonl" \
+          "$OUT/system/work/state/health.archive.jsonl" \
+          "$OUT/system/work/state/attested.archive.jsonl" \
        > "$OUT/control_check.log" 2>&1; then
     SYSTEM_RUN="pass"
     grep -E "PASS|DEMONSTRATED" "$OUT/system_run.log" | sed 's/^/       /' | tee -a "$T" >/dev/null

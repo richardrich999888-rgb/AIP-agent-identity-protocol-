@@ -527,6 +527,13 @@ impl CollectorSigner {
         mechanism: SourceMechanism,
         integrity: MechanismIntegrity,
     ) {
+        // End the coverage epoch immediately. Merely hiding it in health()
+        // would let a later Verified report resurrect coverage across the
+        // blinded window, including if no new batch had arrived yet.
+        if !integrity.is_capable() {
+            self.attested_coverage = None;
+            self.covered_by = None;
+        }
         self.mechanism_integrity.insert(mechanism, integrity);
     }
 
@@ -877,9 +884,13 @@ impl ObserverAttestor for CollectorSigner {
 
         // Coverage is only extended across a verified, contiguous link with a
         // clean probe stream, and only up to what the probe claimed. It is
-        // never widened by silence, loss, or a restart.
+        // never widened by silence, loss, a restart, or unknown integrity.
+        let integrity_unknown = self
+            .mechanism_integrity
+            .values()
+            .any(|integrity| !integrity.is_capable());
         match admission {
-            _ if faulted_now || !self.probe_faults.is_empty() => {
+            _ if integrity_unknown || faulted_now || !self.probe_faults.is_empty() => {
                 self.attested_coverage = None;
                 self.covered_by = None;
             }
@@ -1085,3 +1096,4 @@ pub fn verify_continuity(
         }
     }
 }
+

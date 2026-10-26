@@ -60,6 +60,18 @@ elif name == "timeout":
         control = os.environ["FIXTURE_CONTROL"]
         if control != "missing":
             (output / "health.A.control.jsonl").write_text(control + "\n")
+        state = output / "work/state"
+        state.mkdir(parents=True)
+        start = 200 if os.environ["FIXTURE_BACKFILL"] == "1" else 400
+        health = [
+            {"state": "Active", "sequence": 2, "attested_coverage": {"from_ms": 200, "to_ms": 300}},
+            {"state": "IntegrityUnknown", "sequence": 3, "attested_coverage": None},
+            {"state": "Active", "sequence": 4, "attested_coverage": {"from_ms": start, "to_ms": 500}},
+        ]
+        (state / "health.archive.jsonl").write_text("".join(json.dumps({"health": h}) + "\n" for h in health))
+        (state / "attested.archive.jsonl").write_text(json.dumps({
+            "sequence": 3, "batch": {"claimed_from_ms": 300, "claimed_to_ms": 400},
+        }) + "\n")
         print("PASS fixture system result -- not a live run")
         raise SystemExit(int(os.environ["FIXTURE_SYSTEM_RC"]))
     if args[0] == "30":
@@ -125,7 +137,8 @@ class RehearsalControlFlowTests(unittest.TestCase):
     def run_fixture(self, *, clock="yes", clock_rc=0, missing_clock=False,
                     build_rc=0, build_output="", skip=False, system_rc=0,
                     bad_build_log=False, gateway_build_rc=0, gateway_rc=0,
-                    receipts="valid", control=None, pilot=False, quoted_path=False):
+                    receipts="valid", control=None, pilot=False, quoted_path=False,
+                    backfill=False):
         with tempfile.TemporaryDirectory(prefix="rbi-demo-test-") as tmp:
             root = Path(tmp)
             demo = root / "validation/rbi_demo"
@@ -175,8 +188,9 @@ class RehearsalControlFlowTests(unittest.TestCase):
                 "FIXTURE_GATEWAY_BUILD_RC": str(gateway_build_rc),
                 "FIXTURE_GATEWAY_RC": str(gateway_rc),
                 "FIXTURE_RECEIPTS": receipts,
+                "FIXTURE_BACKFILL": str(int(backfill)),
                 "FIXTURE_CONTROL": control if control is not None else json.dumps({
-                    "health": {"state": "Active", "attested_coverage": {"fixture": True}}}),
+                    "health": {"state": "Active", "attested_coverage": {"from_ms": 200, "to_ms": 300}}}),
                 "FIXTURE_CAT": shutil.which("cat"),
             }
             result = subprocess.run(
@@ -311,6 +325,12 @@ class RehearsalControlFlowTests(unittest.TestCase):
         result = self.run_fixture(quoted_path=True)
         self.assertEqual(result[0], 0, result[1])
         self.assertIn("1 checks passed in the system run", result[1])
+
+    def test_recovery_cannot_backfill_the_blinded_interval(self):
+        result = self.run_fixture(backfill=True)
+        self.assert_not_rehearsed(result)
+        self.assertIn("1 check(s) failed; system run: fail", result[1])
+        self.assertNotIn("PASS Act 1 honest path:", result[1])
 
 
 if __name__ == "__main__":
