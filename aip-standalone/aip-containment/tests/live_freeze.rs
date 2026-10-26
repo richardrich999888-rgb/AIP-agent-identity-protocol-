@@ -189,6 +189,13 @@ fn policy() -> ContainmentPolicy {
 }
 
 fn freezer() -> Option<CgroupV2Freezer> {
+    if let Some(root) = std::env::var_os("AIP_TEST_CGROUP_ROOT") {
+        let root = std::path::PathBuf::from(root);
+        // An explicitly provisioned CI hierarchy is required, never skipped.
+        assert!(root.join("cgroup.controllers").is_file());
+        assert!(root.join("cgroup.procs").is_file());
+        return Some(CgroupV2Freezer::at(&root));
+    }
     match CgroupV2Freezer::detect() {
         Ok(f) => Some(f),
         Err(e) => {
