@@ -113,8 +113,10 @@ def main():
         start = now()
         # Real OS operations strictly labeled as component testing. No LLM,
         # generated agent response, or framework validation is asserted here.
-        subprocess.run(['/usr/bin/setpriv', '--reuid=10001', '--regid=10001', '--clear-groups',
-                        '/bin/sleep', '2'], check=True)
+        child = subprocess.Popen(['/bin/sleep', '2'], user=10001, group=10001, extra_groups=())
+        workload_pid = child.pid
+        if child.wait() != 0:
+            raise Refused('OS component test failed')
         end = now()
         for _ in range(25):
             time.sleep(2)
@@ -130,6 +132,17 @@ def main():
         cp = checkpoint(); save(out / 'checkpoint.json', cp)
         save(public / 'verification.json', verify(public, args.tools, anchor, cp))
         save(public / 'tamper.json', tamper(public, args.tools, anchor, cp))
+        (public / 'observer.pub').write_text(anchor['public_key'] + '\n')
+        comparison = json.loads(command([args.tools / 'aip-corroborate',
+            '--observer-id', anchor['observer_id'], '--key-version', '1',
+            '--pubkey-file', public / 'observer.pub', '--batches', public / ARCHIVES[0],
+            '--external', public / 'auditd.log', '--source', 'auditd',
+            '--from-ms', start, '--to-ms', end, '--json']))
+        save(public / 'corroboration.json', comparison)
+        if (not any(x['aip']['pid'] == workload_pid for x in comparison['agreed'])
+                or any(x['pid'] == workload_pid for x in comparison['aip_only'])
+                or comparison['external_only'] or comparison['external_unparsed']):
+            raise Refused('OS component exec did not corroborate without gaps')
         result.update(status='PASS', from_ms=start, to_ms=end,
                       signed_batches=len(records(public / ARCHIVES[0])))
     finally:

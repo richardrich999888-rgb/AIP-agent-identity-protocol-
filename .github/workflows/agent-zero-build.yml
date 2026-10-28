@@ -92,7 +92,7 @@ jobs:
           if sudo auditctl -l | grep -Fxq -- '-a never,task'; then
             sudo auditctl -d never,task
           fi
-      - run: cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify
+      - run: cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate
       - name: Exercise actual sensors, strict collector, audit and offline verification
         run: |
           sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" python3 \

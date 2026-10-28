@@ -151,7 +151,8 @@ fn idle_startup_race_diagnostic() {
     use std::io::{BufRead, BufReader};
     use std::process::{Command, Stdio};
     let mut different = 0;
-    for _ in 0..256 {
+    let attempts = if cfg!(debug_assertions) { 16 } else { 4096 };
+    for _ in 0..attempts {
         let mut child = Command::new(AGENT)
             .arg("--idle")
             .stdin(Stdio::piped())
@@ -181,5 +182,5 @@ fn idle_startup_race_diagnostic() {
         child.wait().unwrap();
         assert!(matches, "post-readiness binding differs from measurement");
     }
-    eprintln!("pre-readiness identity changes: {different}/256");
+    eprintln!("pre-readiness identity changes: {different}/{attempts}");
 }

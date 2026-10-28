@@ -33,7 +33,7 @@ def main():
         try:
             result = context.communicate(UserMessage(prompt)).result_sync(timeout=request["timeout_s"])
         finally:
-            emit("framework_log", context.log.logs)
+            emit("framework_log", [item.output() for item in context.log.logs])
             context.kill_process()
     elif name == "deerflow":
         os.chdir("/opt/framework/backend")

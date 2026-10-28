@@ -28,7 +28,9 @@ This branch combines:
   delegated cgroup execution, locked dependencies and independent test stages.
 
 The new harness source and report are committed after that merge. Test logs
-and the exact tested file hashes are in [checks](checks/). Historical archives
+and the original implementation file-hash snapshot are in [checks](checks/).
+Subsequent executions below are identified by immutable commit and CI run; the
+original hash snapshot is historical, not a claim about later files. Historical archives
 and their reported limitations were not rewritten. The user's original dirty
 checkout was not changed.
 
@@ -37,7 +39,7 @@ checkout was not changed.
 | Check | Result and scope |
 | --- | --- |
 | Portable Rust observer, verifier, protocol, reconciler, corroborator, sentinel-feed, feed-conformance and OT sentinel suites | **701 passed**, 2 explicitly ignored. Includes unit/integration/doc tests. Linux-specific cfg-disabled tests are not live passes. |
-| New harness policy and import-mutation tests | **28 passed**. Ordinary unit fixtures, not execution evidence. |
+| New harness policy, audit and import-mutation tests | **37 passed**. Ordinary unit fixtures, not execution evidence. |
 | Existing RBI control-flow tests | **17 passed**. These exercise harness control flow, not the five live demonstrations. |
 | Formatting and whitespace | Passed. |
 | Complete workspace `cargo test --workspace --locked` | **Failed to compile on macOS**: `aip-placement` references Linux `libc::SYS_clone3`. The original RBI baseline also failed in Linux-only ghost-demo imports on macOS. No complete-workspace green result claimed. |
@@ -53,24 +55,90 @@ measurement) and `emit_sample_bundle` (fixture generation). The approximately
 0.02-second historical archive verification timing is a local regression
 measurement, not observer overhead or agent-task performance.
 
-## CI follow-up
+## Current CI and container follow-up
 
-The first PR run at `faf5ed0` passed the harness-contract, Python SDK,
-RBI script-regression and RED-suite jobs. The PostgreSQL test stages passed,
-but the job failed its strict lint stage: Rust 1.99 requires `as_chunks::<2>`
-for the new placement-name parser. The parser was updated without a lint
-suppression; its 11 existing tests and local strict clippy check passed.
-The full Linux quality, coverage, supply-chain and live RBI jobs were still
-running when this follow-up was recorded. They are not counted as passes.
-See [the CI run](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40650571944)
-and the PR's current checks for subsequent results. This does not change the
-blocked status of the three new real-agent workloads.
+The reported release failure at `f025a57` is confirmed in
+[run 40651335714](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40651335714):
+`g14_04` returned `IdentityDivergence` while its debug run returned `CannotProve`.
+The idle path had no child-readiness handshake, unlike the other scenarios.
+It now waits for userspace readiness before independently measuring the binding;
+no identity, signature, coverage or reconciliation predicate was relaxed.
+The test additionally requires matching identity and `ActionEvidenceUnavailable`.
+The offline verifier helper now builds the same profile it executes, fixing its
+previous debug-build/release-binary mismatch.
+
+The old failure did not log the differing identity fields. A startup diagnostic
+on `3e15d31` saw **0 identity changes in 256 attempts**, so the precise original
+race is not independently reproduced. The corrected boundary passed 64 live
+identity checks, the genuine wrong-instance `IdentityDivergence` negative case,
+and 20 repetitions of release `g14_04`. A longer release diagnostic is included
+in subsequent runs; results must be read from those runs, not assumed.
+
+[Complete CI at 5489260](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672365945)
+passed all six jobs: fmt/clippy/debug/release workspace tests, PostgreSQL,
+Python SDK, RED suite, audit/deny and coverage. `g14_04` passed in both profiles.
+Later commits rerun the same complete suite; PR checks identify their status.
+The main job logged 6,434 passing tests across both profiles and 12 ignored
+test instances; these totals include crate integration and documentation tests.
+
+[Hosted build/capability run at 75d349f](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40675095033)
+passed all three jobs: release regression, Agent Zero image/runtime smoke,
+and actual kernel/collector/audit capability testing.
+
+- Agent Zero source: `ff2a5b9c9c4e490ba38dd7c313e779510bb2071a`.
+- Tested image: `sha256:be627589ed4929bb88dc515ce1d94b5b4e3da6207af99bcfd2c88a2132676c7c`.
+- 314 installed packages checked. Actual upstream context initialization and
+  local terminal file creation passed with networking disabled, UID 10001,
+  no capabilities and a read-only root filesystem. **Model calls: 0.**
+- [Image artifact](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40675095033/artifacts/12809694755):
+  1,593,329,137 bytes, GitHub artifact SHA-256
+  `45fb373ad6ed583f74c65227d19c6c6ba9d31666608c45abd0588aef2256093b`,
+  retained for 14 days. Includes the tested image, image metadata, dependency
+  inventory and smoke output. No model secret was present during build.
+
+Earlier image builds succeeded but runtime checks exposed a read-only-filesystem
+assertion, missing upstream state directories, attempted root-password setup,
+and an uncached tokenizer. These were repaired while retaining the sandbox.
+The first workflow falsely reported success because a pipeline masked the smoke
+failure; explicit bash pipefail now makes it fatal. That first green workflow
+is **not** counted as a successful runtime check.
+
+## Real hosted kernel evidence, distinct from an agent workload
+
+The capability run used Linux `6.17.0-1022-azure`, synchronized clocks, the real
+probe/Noise transport/wrapped-key collector, and real Linux audit. It preserved
+49 signed batches, 968 kernel events, and three signed health records; two
+health records carried Active coverage and the initial record did not.
+Worst reported clock error was 3,021 microseconds. The component interval was
+`1793184659333..1793184661349` ms. Audit recorded no loss, backlog or restart.
+
+The exported archive passed the existing Rust verifier on the runner and again
+in a separate local process after download, with **zero findings**. The
+observer public anchor was
+`056b2697da3bc105efd8593cb7cc0d6690885e5cdfcd1e7f3ac5f72120bfe3d4`;
+final chain head was
+`fdf15ce9ec7482ed7ba6cca4eace73d2d972f315294c61dbf243995c73f7244e`.
+Seven offline mutations were detected with the separately retained checkpoint;
+five were also rejected by the signature/chain verifier. Valid prefix/suffix
+windows still require the independent checkpoint for completeness.
+
+[Public evidence artifact](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40675095033/artifacts/12810321073)
+SHA-256: `a6e5384d715f0f4987e70fb5820df8779bf2886cc34e71b44bcac42d38182991`.
+This is an ephemeral CI key under GitHub-host custody, not an institutionally
+provisioned anchor. There was **no autonomous model-driven workload**.
+
+A local corroboration of the first component run found one PID/time agreement,
+one additional AIP exec and zero external-only records: the UID-changing
+`setpriv` wrapper produced two same-PID execs but audit filtered out its root
+exec. This is recorded as a comparison limitation, not complete agreement.
+The follow-up test directly starts the child as UID 10001 and requires explicit
+corroboration without an unmatched workload exec; its CI result remains separate.
 
 ## Per-framework execution record
 
 | Framework commit | Model/task | Agents/processes/effects | Result |
 | --- | --- | --- | --- |
-| Agent Zero `ff2a5b9c9c4e490ba38dd7c313e779510bb2071a` | Model unavailable; public Linux documentation research task prepared | Not executed; all counts unknown | Source/API inspected; launcher written; image build and integration blocked |
+| Agent Zero `ff2a5b9c9c4e490ba38dd7c313e779510bb2071a` | Approved model credentials unavailable; genuine Click issue 3652 task prepared | Not executed; all counts unknown | Image and offline runtime/tool smoke passed; autonomous integration blocked |
 | DeerFlow `f79debed59ca6b1a31628e6b5ce55c8507793a4c` | Model unavailable; same task with subagents enabled | Not executed; all counts unknown | Source/API inspected; launcher written; multi-container deployment unimplemented |
 | OpenHands SDK `46b1fa5cb91ada17e6ec938c7e8624a4fa19fa98` | Model unavailable; public Click issue 3652 prepared | Not executed; all counts unknown | Source/API inspected; launcher written; issue resolution unexecuted |
 
@@ -80,17 +148,21 @@ patch, real research report or browser-navigation result is claimed.
 
 ## Limitations and remaining acceptance gates
 
-1. **Infrastructure and access:** the user selected an existing Linux host,
-   but its connection alias/hostname, user and restricted model configuration
-   location have not been supplied. Docker is stopped locally, and no model
-   API credential was available in this session. No guessed host was contacted.
-2. **Runtime installation:** Docker images have not built. Source pins and APIs
-   were inspected; additional upstream native/system dependencies or settings
-   may require corrections after the first actual image build. Agent Zero's
-   transitive dependency lock is incomplete upstream.
-3. **Provisioning:** institution-controlled collector units/keys, probe trust,
-   egress policy, model budget enforcement, image digests and workspace quotas
-   must be deployed. The controller does not manufacture these trust controls.
+1. **Model and network provisioning:** GitHub reported zero repository secrets
+   and zero environments on 2026-10-28. Approved restricted model credentials,
+   exact model/endpoint configuration, hard budget enforcement and tested
+   restricted egress are not supplied. These block the actual task, not the
+   rest of the implementation. SSH details are unnecessary for initial hosted
+   integration. See [HOSTED_VALIDATION.md](HOSTED_VALIDATION.md) for exact needs.
+2. **Runtime installation:** Agent Zero built and its offline runtime check
+   passed. DeerFlow and OpenHands images have not built or run. Agent Zero's
+   transitive requirements are not fully locked upstream; the tested image
+   and package inventory are retained as an artifact.
+3. **Custody and provisioning:** hosted component checks use a fresh wrapped
+   key outside the workload's reach. Institution-owned keys, independent
+   retention, gateway budget controls and workspace quotas remain to provision.
+   Explicit local-isolated mode trusts host root/kernel; the default off-host
+   mode continues to reject a same-machine collector.
 4. **Attribution/authority:** adapters preserve self-reported framework records.
    Authenticated logical delegation and real decision/gateway receipt plumbing
    are not connected. Kernel attribution never identifies an in-process agent.
@@ -101,14 +173,16 @@ patch, real research report or browser-navigation result is claimed.
    container. Separate configurations/collector instances can be provisioned,
    but concurrent multi-agent experiments, multi-container DeerFlow sandboxes
    and native non-container Linux launches have not been implemented/validated.
-7. **Degradation:** RBI control-flow regressions pass, but no new live observer
-   degradation experiment ran. No new interference outcome is claimed.
+7. **Degradation:** the actual five-act RBI rehearsal passed, including
+   interference/uncertainty and recovery. No degradation experiment has yet
+   run during a genuine third-party autonomous workload.
 8. **Performance:** bounded resource sampling exists, but observer CPU/RSS,
    ingestion rate, collector latency, reconciliation latency, storage growth
    and matched observed/unobserved agent-task overhead are not measured.
-9. **Coverage:** bpftrace shares the scheduler tracepoint. Auditd comparison
-   and independent ground truth remain open; no complete-coverage percentage
-   is reported. Namespace selection can leave nested/unshared sandboxes unknown.
+9. **Coverage:** Linux audit avoids attaching a foreign program to the
+   monitored tracepoint. Both still trust the kernel. Complete ground truth
+   and real-agent comparison remain open; no complete-coverage percentage is
+   reported. Nested/unshared workload namespaces can remain unknown.
 10. **Archive completeness:** signatures bind supplied records. Independent
     checkpoint custody is required for edge-deletion detection; a checkpoint
     supplied by an untrusted archive sender provides no such guarantee.
@@ -122,10 +196,10 @@ execution; interference with uncertainty; unregistered destination refusal;
 parameter mismatch detection; offline verification. Existing acts 3 and 4
 include library-level checks and must retain that qualification; the newer
 real gateway subcase remains distinct. The 17 tests above establish control
-flow preservation only. Run the existing complete RBI rehearsal on its
-authorized disposable Linux environment before claiming current live results.
+flow preservation. The actual hosted RBI rehearsal also passed at `5489260`,
+`3e15d31` and `0773e09`; these remain controlled demonstration results.
 
-The next concrete gate is a successful pinned image build and Agent Zero
-delegated research run on the specified Linux infrastructure, with an off-host
-collector and independent task review. Only then proceed to DeerFlow and the
-OpenHands issue run, followed by concurrency, degradation and performance.
+The next gate is the genuine Agent Zero Click task using approved restricted
+model credentials, tested egress/budget enforcement, and independent task
+review. Then execute DeerFlow and OpenHands, delegation/research/browser,
+concurrency, workload degradation and performance gates. Keep PR #6 in draft.

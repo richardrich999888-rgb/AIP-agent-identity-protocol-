@@ -3,8 +3,8 @@
 This directory adds source-pinned launchers for **Agent Zero, DeerFlow and the
 OpenHands SDK**, a Linux controller, an off-host collector control helper,
 offline archive checks and a loopback status viewer. **None of these three
-frameworks has yet executed under this harness.** Image builds, live model
-calls, deployment and complete end-to-end validation remain untested.
+frameworks has yet executed under this harness.** Live model calls and complete end-to-end validation remain pending.
+Image and runtime component checks are recorded in VALIDATION.md.
 
 See [VALIDATION.md](VALIDATION.md) for the current results and missing gates.
 A local unit-test pass or a historical signature check is not a real-agent run.
@@ -29,7 +29,10 @@ avoid expanding scope before a first real run.
 
 ## Trust and attribution
 
-The controller executes on a **dedicated disposable Linux host**. It launches
+The controller executes on a **disposable Linux host**, including a GitHub-hosted VM.
+See [HOSTED_VALIDATION.md](HOSTED_VALIDATION.md) for capabilities and exact remaining access.
+The default topology is off-host; an explicit `local-isolated` mode records its
+shared-kernel trust limit and does not claim institutional custody. It launches
 the existing `aip-probe` outside the agent containers. A separately provisioned
 collector host runs `aip-collector` with its existing wrapped institutional key
 and strict continuity/clock policy. Noise transport and all Rust signature
@@ -62,7 +65,7 @@ receipts is not part of this first controller implementation.
 
 Do this on disposable validation infrastructure. The workload host needs
 cgroup v2, tracefs, scheduler/cgroup/socket tracepoints, connector, fanotify,
-root privileges for the probe, Docker, bpftrace, Python 3.12+, synchronized
+root privileges for the probe, Docker, auditd, Python 3.12+, synchronized
 time, and the built AIP binaries. There is no macOS fallback or fake probe.
 
 Build from this feature branch using the root Cargo workspace:
@@ -109,10 +112,10 @@ Build each runtime with `build_image.py`, supplying a digest-pinned Python 3.12
 Debian image, exact uv version and local tag. It checks out the exact framework
 commit and uses the upstream frozen uv lock where available. Agent Zero's
 requirements do not fully lock transitive packages: retain the built image by
-digest and its dependency inventory. Image installation has not run here.
+digest and its dependency inventory. The CI image build records installed dependencies and its image ID; see the validation record.
 
 Create root-controlled model configuration readable only by the workload UID
-10001: `agent-zero.json` containing upstream settings, or `deerflow.yaml`
+10001: `agent-zero.json` containing `settings` and a complete explicit `preset` as described in HOSTED_VALIDATION.md, or `deerflow.yaml`
 containing model and local-sandbox settings. Set `DEER_FLOW_HOME` under `/work`.
 OpenHands uses `LLM_API_KEY` and `LLM_BASE_URL` from its restricted env file.
 Use upstream field names from the pinned source, not guessed provider settings.
@@ -144,13 +147,13 @@ The current research workload satisfies neither a live browser-navigation
 claim nor a demonstrated multi-container claim until those actions execute.
 
 The controller verifies fresh signed health before launching, starts an
-independent bpftrace observer, bounds resources/runtime, records controller
+independent Linux audit observer, bounds resources/runtime, records controller
 identity and status, waits for signed end coverage, stops writers and exports
-stable archives. bpftrace shares the scheduler mechanism: it is an independent
-implementation, **not an independent kernel**. Agreement must include every
-bound workload exec, not just background host processes. All gaps remain in
-the comparison report. Auditd remains available via the existing corroborator
-but this launcher does not install or remove machine-wide audit rules.
+stable archives. Linux audit uses a distinct observation mechanism on the same
+kernel. Agreement must include every bound workload exec. All gaps remain in
+the comparison report. The launcher refuses suppressed or lossy audit and
+removes only its own uniquely keyed rule. It never attaches a foreign eBPF
+program to the scheduler tracepoint or suppresses the integrity gate.
 
 `run` currently ends `REVIEW_REQUIRED` with exit 1 even if the observation gate
 passes: task acceptance, authenticated delegation and the remaining assignment
