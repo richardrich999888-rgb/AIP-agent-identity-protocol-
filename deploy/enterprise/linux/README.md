@@ -7,6 +7,13 @@ AF_PACKET. Historical development evidence names Linux 6.18.44; it does not
 qualify a distribution, Kubernetes runtime, or production workload. This new
 installer has **not** been installed on a clean Linux host in this run.
 
+Hosted enterprise CI built an actual x86_64 Linux archive from PR review tree
+`076b22c` on 28 October 2026. Its downloaded digest, manifest, payload modes and
+ELF architecture passed verification; see `docs/enterprise/VALIDATION_REPORT.md`
+and `validation/enterprise/results/CI_20261028T103950Z/` for exact provenance.
+This is an evaluation build, not an institution-approved signed release or an
+executed package-installation test.
+
 The package builder accepts x86_64 and aarch64 Linux GNU targets and validates
 each input's ELF architecture. This is a packaging target check, not a
 compatibility certification. Build on the oldest approved distribution and

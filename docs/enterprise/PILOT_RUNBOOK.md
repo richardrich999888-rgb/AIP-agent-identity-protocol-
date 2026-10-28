@@ -26,6 +26,13 @@ rehearsal for `0991fb1` succeeded at GitHub run `40409155305`; it does not
 prove the actual presentation computer, a separate collector host or this
 branch's new integrations.
 
+A fresh direct-head rehearsal at `e9da413` subsequently passed in run
+`40672603812` on a disposable Ubuntu 24.04 VM. Public signed archives,
+transcripts, exact host conditions and independently rerun offline checks are
+retained in `validation/enterprise/results/RBI_20261028T103930Z/`. This removes
+the development-rehearsal gap, not the requirement to rehearse the actual
+presentation host or establish genuinely independent collector custody.
+
 Export stable archives and the independently agreed observer public anchor.
 Have the evaluator run its own trusted `aip-observe-verify` build offline.
 Record verification failure, `IntegrityUnknown`, clock error and coverage gaps

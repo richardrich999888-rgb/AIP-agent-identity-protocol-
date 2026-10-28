@@ -1,10 +1,16 @@
-# Kubernetes node-sensor template — unvalidated
+# Kubernetes node-sensor template — runtime unvalidated
 
 This Helm chart is an opt-in **deployment template**, not a supported or
 validated Kubernetes release. No node runtime, cluster, image build or
 privileged installation has been exercised in this run. Both components are
 disabled by default. Enabling them requires institution-supplied immutable
 images, configuration and an explicit trust-boundary confirmation.
+
+Helm 3.18.6 lint/render checks, six invalid-configuration refusals and static
+rendered-YAML assertions passed on 28 October 2026. The exact commands and
+public fixture output are retained under
+`validation/enterprise/results/HELM_20261028T103133Z/`. Rendering does not
+qualify images, node privileges, the collection pipeline or the cluster.
 
 Use this only after the Linux VM deployment passes on an approved test node.
 The images must contain `/usr/local/bin/aip-probe` or

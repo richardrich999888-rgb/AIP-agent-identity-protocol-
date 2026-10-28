@@ -46,6 +46,15 @@ conservative observation harness) and `f025a57` (placement-parser Linux lint
 fix). Both were preserved by the feature-branch merge before final tests;
 their historical validation is not relabeled as a new runtime capture.
 
+During hosted validation, the PR's development base independently advanced to
+`5489260b96124b95a7973233e69d9e5a44cb6bf5` (idle process-readiness regression
+and Agent Zero container tooling). The PR jobs for head `e9da413` checked out
+GitHub's synthetic merge `076b22c27d663a87dfd62d91df20583f417b383a`, not the
+head's standalone tree. That concurrent change was inspected but neither
+rewritten nor attributed to this integration's commits. The manual RBI run
+checked out the feature head directly. Exact source identities are retained
+with the hosted validation evidence.
+
 ## Required document reconciliation
 
 The assessment inspected `STATUS.md`, `AUDIT_CORRECTIONS.md`,
@@ -87,12 +96,12 @@ gate, never a skipped test counted as a pass.
 | D — first-party MCP receipt signer | `IMPLEMENTED_AND_TESTED` for the bounded Rust receipt path | Existing `aip-mcp-gateway::issue_receipt`, `check_header_body`, `aip-airi::compare_tool_boundary`; the enterprise adapter invokes the existing Rust core through `aip-tool-receipt`, preserving the ToolReceipt format. Current gateway-specific evidence and the limits of `Forwarded` are recorded in the validation report. |
 | D — actual IBM ContextForge integration | `IMPLEMENTED_AND_TESTED` for the pinned evaluation profile | Actual pinned deployment, real MCP upstream, receipt verification, replay/restart/concurrency/failure and signed-intent mismatch checks executed under `integrations/mcp-gateway/`. See exact run artifacts and metadata-transport limits in the gateway validation result; no bank production compatibility is implied. |
 | E — enterprise evidence REST API | `PARTIALLY_IMPLEMENTED` | Extends `aip-service` and the existing stores with tenant-scoped read models, Reader scope, historical observation-archive admission/verification and API-derived operational UI. Agent/workload summaries are packet-derived, not a complete independently registered host inventory. Current coverage/off-host separation/business outcome are not established by archive integrity. |
-| E — PostgreSQL provisioning/hardening | `PARTIALLY_IMPLEMENTED` pending real DB execution | `deploy/sql/schema.sql` now exactly matches the existing `store/pg.rs` table schema, including `signed_artifacts`. Hardening adds its SELECT/INSERT-only grants, forced tenant RLS, append-only UPDATE refusal and legal-hold guard. One source-parity test passes; real negative `storage_controls` tests require PostgreSQL and are not represented by compilation alone. |
+| E — PostgreSQL provisioning/hardening | `IMPLEMENTED_AND_TESTED` for the tested storage controls | `deploy/sql/schema.sql` matches the existing `store/pg.rs` table schema, including `signed_artifacts`. Hardening adds SELECT/INSERT-only grants, forced tenant RLS, append-only UPDATE refusal and the legal-hold guard. Source parity and 14 explicitly executed restricted-role `storage_controls` tests passed against hosted PostgreSQL 16.15 in CI run `40672558568`; this is not a bank database deployment qualification. |
 | F — Python customer SDK | `IMPLEMENTED_AND_TESTED` for the read-only retrieval subset | `sdk/python/vanian` uses actual `/v1` routes, bearer callback, TLS verification, finite timeouts, bounded GET retry/reads, redacted structured errors and pagination. Actual service interoperability is separate from local transport negatives; no SDK call supplies kernel evidence. |
 | F — TypeScript customer SDK | `IMPLEMENTED_AND_TESTED` for the read-only retrieval subset | `sdk/typescript` uses the same REST routes and native Node fetch with redirect refusal, timeout and response bounds. It is a private/source package, not a published registry release or another cryptographic implementation. |
 | G — optional MCP evidence server | `IMPLEMENTED_AND_TESTED` for per-client stdio read access | `integrations/evidence-mcp/server.py` exposes eight allowlisted read/computation tools to a process using a tenant-bound Reader credential; actual official-client/service authorization smoke is recorded separately. No HTTP transport, shell, collector control or signing-key operation is exposed. |
 | H — Linux installation tooling | `IMPLEMENTED_AND_TESTED` only for package/control-flow behavior | Deterministic tar/file manifest, independently anchored digest verification, ELF-target guard, no shell config sourcing, safe role-separated staging install and software-only retained-data uninstall. Real Linux/OS/libc/service qualification remains `BLOCKED_BY_INFRASTRUCTURE`. |
-| H — Kubernetes | `PARTIALLY_IMPLEMENTED` | Opt-in Helm templates default to no runtime pods, require pinned images and a separate-administration assertion, and retain the collector PVC. Helm rendering, image build/scanning, CNI and kernel/node behavior have not executed here. No supported Kubernetes distribution/runtime combination is qualified. |
+| H — Kubernetes | `PARTIALLY_IMPLEMENTED` | Opt-in Helm templates default to no runtime pods, require pinned images and a separate-administration assertion, and retain the collector PVC. Pinned Helm 3.18.6 lint/render, six configuration refusals and rendered-YAML assertions passed. Image build/scanning, cluster application, CNI and kernel/node behavior remain unexecuted. No supported Kubernetes distribution/runtime combination is qualified. |
 | H — air-gapped delivery | `PARTIALLY_IMPLEMENTED` | Offline binary package/verification and dependency-transfer procedures exist. No complete signed OS dependency bundle, vendored-build exercise, installed air-gap test or new runtime release signature is supplied by these scripts. |
 | Qualified independent assessment / bank approval | `BLOCKED_BY_EXTERNAL_APPROVAL` | An institution and its qualified assessor must commission and perform this; source tests cannot self-certify it. |
 | Production HA, measured institutional overhead and complete multi-framework banking demonstration | `MISSING` as validated product capabilities | No result is inferred from package structure, synthetic data, an old run or the existence of a framework adapter. |
@@ -146,11 +155,12 @@ LangGraph 1.2.11 development run on Linux 6.18.44, observed process events and
 offline archive verification. Those artifacts preserve their original
 protocol/run dates; they are not overwritten or represented as a new run.
 
-Current host: Darwin. Docker CLI presence does not provide a running Docker
-engine or a privileged Linux node. No supported Linux distribution/kernel,
-container runtime, Kubernetes combination or clean Linux installation was
-qualified by this implementation session. Helm and local PostgreSQL server
-binaries were not found in the inspected environment.
+Local host: Darwin. Docker CLI presence does not provide a running Docker
+engine or a privileged Linux node. A temporary pinned Helm binary subsequently
+validated chart rendering; PostgreSQL controls and an RBI rehearsal ran on
+disposable hosted Linux infrastructure, not this Mac. See the validation report
+for exact commits and run IDs. No clean Linux package installation, institution
+host/kernel support matrix or Kubernetes combination was qualified.
 
 ## Remaining runtime and trust limits
 

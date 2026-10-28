@@ -9,7 +9,9 @@ preserves concurrent swarm work through `f025a57`.
 Host: Darwin/macOS arm64, Rust 1.91.1, Python 3.12.12, Node 25.2.1.
 Privileged Linux sensors, a genuine separate collector host, live PostgreSQL
 and a Kubernetes cluster were unavailable locally. Docker's daemon was not
-running. Those facts are blockers, never passing/skipped acceptance results.
+running. Hosted Linux/PostgreSQL checks were subsequently executed as recorded
+below; local absence is not a successful test, and institutional deployment
+gates remain separate.
 
 ## Executed evidence
 
@@ -90,8 +92,64 @@ result. No old transcript was rewritten or relabelled as a new kernel run.
 The RBI branch's actual hosted Linux rehearsal at `0991fb1` completed
 successfully in [run 40409155305](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40409155305).
 That historical VM result does not qualify the presentation computer or a
-two-host institution deployment. A fresh complete run on authorized Linux
-infrastructure is still required for those claims.
+two-host institution deployment.
+
+## Fresh hosted Linux, database and packaging evidence
+
+The manual [RBI run 40672603812](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672603812)
+checked out feature head `e9da41314c3851a92388a8ce80f1db9a3a696520` and
+passed both script regressions and the complete five-act rehearsal. Retained
+public evidence is under `results/RBI_20261028T103930Z/` relative to
+`validation/enterprise/`. The disposable Ubuntu 24.04 x86_64 VM ran kernel
+`6.17.0-1022-azure` with real synchronized clock, tracefs and root privileges.
+The control reported `Active` with coverage; the deliberate interference
+reported `IntegrityUnknown` with unavailable coverage; recovery returned to
+`Active` without backfilling the blinded interval. The checker passed. Current
+offline verification accepted 77 signed batches containing 3,475 events and
+four health records; deletion of interior record 39 was rejected.
+
+Acts 1/2/5 ran the actual kernel/collector interference experiment. Act 3
+executed 11 destination-comparison library tests; Act 4 executed 26 gateway
+tests and Act 4b exercised two actual stdio gateway receipts. These are not
+claims of a live loan transaction, the separate LangGraph workload, a fresh
+ContextForge deployment on that VM, or independent collector administration.
+Both processes remained on the disposable VM. The actual presentation host
+and institutional two-host installation still require their own rehearsal.
+
+The successful [enterprise run 40672558666](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558666)
+executed the Linux contract/client checks, real pinned ContextForge checks and
+built an actual x86_64 Linux runtime archive. The
+[PostgreSQL job in run 40672558568](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558568)
+explicitly executed all 14 restricted-role storage controls against PostgreSQL
+16.15, including forced tenant isolation, artifact immutability, legal hold and
+concurrent idempotency. The default test step's ignored controls were not
+counted as execution; the separate `--ignored` invocation passed all 14.
+
+The concise hosted manifests and filtered test transcripts are retained under
+`results/CI_20261028T103950Z/`. Hosted ContextForge passed 27/27 checks; the
+separate local 28/28 run additionally includes the genuine model-driven
+LangGraph workload. The downloaded Linux artifact's ZIP hash matched GitHub's
+published digest, its tar hash matched the public build transcript, and the
+repository verifier accepted all eight payload hashes/modes and the three
+x86_64 Linux ELF headers. The runtime tar SHA-256 is
+`18c8ab104842eb9d806ea4952a5104c368a2f5344f6c0d21aa75a93a3d87a86a`.
+These integrity/provenance checks are not an independent reproducible build
+or an institution-approved release signature. Downloaded binaries stay in
+ignored local storage rather than this evidence commit.
+
+These pull-request jobs report head `e9da413` but actually checked out GitHub's
+synthetic merge `076b22c27d663a87dfd62d91df20583f417b383a` (tree
+`c2ea29de5e04487706aae9dd9d0f7f2a1ff91fb7`) with the concurrently advanced
+development base `5489260b96124b95a7973233e69d9e5a44cb6bf5`. They must not be
+described as tests of the feature head's standalone tree. The manual RBI run
+above is a separate direct-head execution. Building/verifying the runtime
+archive does not qualify installation, systemd startup or an OS support matrix.
+
+Pinned Helm 3.18.6 passed default/enabled lint and rendering, six expected
+configuration refusals and static rendered-YAML assertions. Exact chart hashes,
+commands, output and tool checksum are under `results/HELM_20261028T103133Z/`.
+No cluster was contacted; example images/configuration are rendering fixtures,
+not built or approved runtime images.
 
 ## Failures, remediation and remaining limits
 
@@ -119,5 +177,5 @@ API/SDK/MCP banking milestone is not met by joining separate fixtures. Clean
 Linux installation, independent host administration, additional real
 framework/coding workload runs, bank HSM/KMS, HA/backup restoration,
 Kubernetes/air-gap qualification, supply-chain release evidence and independent
-security assessment remain open. Current CI results, when available, must be
-reported by exact run/commit, not inferred from workflow files.
+security assessment remain open. Every hosted result above is scoped to its
+exact run/commit and does not imply those remaining gates have passed.
