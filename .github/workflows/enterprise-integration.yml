@@ -55,7 +55,10 @@ jobs:
           node --test sdk/typescript/test/client.test.ts
           npm ci --prefix sdk/typescript --ignore-scripts
           npm run build --prefix sdk/typescript
-          npm pack --prefix sdk/typescript --ignore-scripts --pack-destination "$RUNNER_TEMP"
+          npm pack ./sdk/typescript --ignore-scripts --pack-destination "$RUNNER_TEMP"
+          python -m pip install setuptools==84.1.0 wheel==0.48.0
+          python -m pip wheel --no-deps --no-build-isolation ./sdk/python --wheel-dir "$RUNNER_TEMP"
+          python validation/enterprise/verify_sdk_packages.py --wheel "$RUNNER_TEMP/vanian_sdk-0.1.0-py3-none-any.whl" --typescript "$RUNNER_TEMP/vanian-evidence-client-0.1.0.tgz"
           npm exec --yes --package typescript@5.9.3 -- tsc --noEmit --target ES2022 --lib ES2022,DOM --module NodeNext --moduleResolution NodeNext --strict sdk/typescript/src/index.ts
       - name: Rust checks
         run: |
