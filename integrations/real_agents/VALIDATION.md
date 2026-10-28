@@ -53,6 +53,19 @@ measurement) and `emit_sample_bundle` (fixture generation). The approximately
 0.02-second historical archive verification timing is a local regression
 measurement, not observer overhead or agent-task performance.
 
+## CI follow-up
+
+The first PR run at `faf5ed0` passed the harness-contract, Python SDK,
+RBI script-regression and RED-suite jobs. The PostgreSQL test stages passed,
+but the job failed its strict lint stage: Rust 1.99 requires `as_chunks::<2>`
+for the new placement-name parser. The parser was updated without a lint
+suppression; its 11 existing tests and local strict clippy check passed.
+The full Linux quality, coverage, supply-chain and live RBI jobs were still
+running when this follow-up was recorded. They are not counted as passes.
+See [the CI run](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40650571944)
+and the PR's current checks for subsequent results. This does not change the
+blocked status of the three new real-agent workloads.
+
 ## Per-framework execution record
 
 | Framework commit | Model/task | Agents/processes/effects | Result |
