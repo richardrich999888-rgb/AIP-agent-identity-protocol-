@@ -31,6 +31,8 @@ class AuditCrosscheck:
 
     def start(self):
         self.initial = parse_status(command(["auditctl", "-s"]))
+        if 'never,task' in command(["auditctl", "-l"]):
+            raise Refused("audit never,task rule suppresses observation; provision the disposable host first")
         command(["auditctl", "-a", *self.rule])
         self.started = True
         if self.key not in command(["auditctl", "-l"]):

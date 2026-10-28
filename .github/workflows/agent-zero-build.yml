@@ -79,6 +79,12 @@ jobs:
           sudo systemctl restart chrony
           sudo chronyc waitsync 30 0.1 0.0 2
           sudo service auditd start
+          # This is a fresh disposable VM. Remove only its packaged opt-out;
+          # the harness itself refuses suppressed audit and never clears rules.
+          sudo auditctl -l | tee "$RUNNER_TEMP/audit-initial-rules.txt"
+          if sudo auditctl -l | grep -Fxq -- '-a never,task'; then
+            sudo auditctl -d never,task
+          fi
       - run: cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify
       - name: Exercise actual sensors, strict collector, audit and offline verification
         run: |

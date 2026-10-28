@@ -26,7 +26,8 @@ def configure(config, requested_model):
     if preset["chat"]["name"] != requested_model:
         raise ValueError("requested model does not match the configured chat model")
     settings.set_settings_delta({**config.get("settings", {}), "workdir_path": "/work",
-                                "update_check_enabled": False, "rfc_auto_docker": False}, apply=False)
+                                "update_check_enabled": False, "rfc_auto_docker": False,
+                                "root_password": settings.PASSWORD_PLACEHOLDER}, apply=False)
     model_config.save_presets([preset])
     plugins.save_plugin_config("_model_config", "", "", {"model_preset": "Default"})
     plugins.save_plugin_config("_code_execution", "", "", {"ssh_enabled": False})

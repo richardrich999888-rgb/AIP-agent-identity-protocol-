@@ -26,7 +26,7 @@ def main():
     if os.geteuid() != 0 or os.environ.get('RUNNER_ENVIRONMENT') != 'github-hosted':
         raise Refused('requires root on an explicitly disposable GitHub-hosted runner')
     args.tools = args.tools.resolve()
-    out = args.out.resolve(); out.mkdir(mode=0o700)
+    out = args.out.resolve(); out.mkdir(mode=0o755)
     private = out / 'private'; private.mkdir(mode=0o700)
     state = private / 'state'; state.mkdir()
     public = out / 'public'; public.mkdir()
@@ -93,6 +93,7 @@ def main():
                          AIP_PROBE_SENSORS='sched,cgroup,connector,fanotify,sockstate,socksend',
                          AIP_PROBE_FANOTIFY_PATH=str(workload), AIP_PROBE_BATCH_INTERVAL_MS='1000')
         probe = spawn('aip-probe', probe_env)
+        save(public / 'audit-rules-before.json', {'rules': command(['auditctl', '-l'])})
         audit.start()
         ready = False
         for _ in range(40):
