@@ -145,6 +145,18 @@ described as tests of the feature head's standalone tree. The manual RBI run
 above is a separate direct-head execution. Building/verifying the runtime
 archive does not qualify installation, systemd startup or an OS support matrix.
 
+The complete [workspace CI run 40672558568](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558568)
+subsequently finished successfully: formatting, strict workspace/all-feature
+Clippy, locked debug and release workspace tests, coverage generation,
+adversarial RED suite, Python SDK, PostgreSQL and configured dependency
+audit/policy checks passed. `results/CI_20261028T103950Z/workspace-final.json`
+and its filtered transcript retain the final job/step outcomes. The configured
+advisory exception remains an exception, not a claim of no known advisories.
+These results still belong to the exact synthetic merge above. Later
+documentation/evidence-only commits do not change the runtime implementation
+or retroactively change the source attached to this test run; their automatic
+reruns are separate and are not counted here as passed.
+
 Pinned Helm 3.18.6 passed default/enabled lint and rendering, six expected
 configuration refusals and static rendered-YAML assertions. Exact chart hashes,
 commands, output and tool checksum are under `results/HELM_20261028T103133Z/`.
