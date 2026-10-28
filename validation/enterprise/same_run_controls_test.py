@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from prepare_local_model import (CPU_FILE, MANIFEST_SHA256, MANIFEST_SIZE,
     publish_runtime, read_reviewed_manifest, validate_manifest_bytes,
@@ -17,6 +18,21 @@ MODEL_REVIEW = HERE.parent / 'final_acceptance/model-review'
 
 
 class SameRunControls(unittest.TestCase):
+    def test_synthetic_database_bootstrap_closes_its_mount_handle(self):
+        import same_run_validation as validation
+        with tempfile.TemporaryDirectory() as temporary:
+            database = Path(temporary) / 'loans.sqlite3'
+            connection = sqlite3.connect(database)
+            with patch.object(validation.sqlite3, 'connect', return_value=connection):
+                validation.create_synthetic_database(database)
+            # sqlite3.Connection's transaction context manager does not close
+            # the connection; leaving it live prevents the Linux mount cleanup.
+            with self.assertRaises(sqlite3.ProgrammingError):
+                connection.execute('SELECT 1')
+            with sqlite3.connect(database) as reader:
+                self.assertEqual(reader.execute('SELECT count(*) FROM loan_documents').fetchone()[0], 2)
+            reader.close()
+
     def test_original_reviewed_manifest_exact_bytes_are_accepted(self):
         # Authentic public metadata only; this test does not substitute fake
         # weights or claim that a model/runtime was provisioned or executed.

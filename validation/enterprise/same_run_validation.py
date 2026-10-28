@@ -6,6 +6,7 @@ administration or host-compromise resistance. No API/model secrets are loaded.
 """
 from __future__ import annotations
 import argparse
+from contextlib import closing
 import ctypes
 import hashlib
 import json
@@ -84,6 +85,16 @@ def directory(path, uid=0, mode=0o700):
 def protected_json(path, value, uid=0):
     path.write_text(json.dumps(value, indent=2) + '\n')
     path.chmod(0o600); os.chown(path, uid, uid)
+
+
+def create_synthetic_database(path):
+    """Commit and close bootstrap handles before any mounted-workload cleanup."""
+    with closing(sqlite3.connect(path)) as connection:
+        with connection:
+            connection.execute('CREATE TABLE loan_documents (loan_id INTEGER PRIMARY KEY, document_status TEXT NOT NULL)')
+            connection.executemany('INSERT INTO loan_documents VALUES (?,?)', [
+                (1, 'Synthetic document: identity and income evidence require human review.'),
+                (2, 'Synthetic alternative record, outside the issued loan1 authorization.')])
 
 
 def runtime_access(paths_by_uid, public):
@@ -310,9 +321,7 @@ def main():
         agent_work = directory(workload / 'agent', UID_AGENT)
         tool_work = directory(workload / 'tool', UID_TOOL)
         db = tool_work / 'synthetic-loans.sqlite3'
-        with sqlite3.connect(db) as connection:
-            connection.execute('CREATE TABLE loan_documents (loan_id INTEGER PRIMARY KEY, document_status TEXT NOT NULL)')
-            connection.executemany('INSERT INTO loan_documents VALUES (?,?)',[(1,'Synthetic document: identity and income evidence require human review.'),(2,'Synthetic alternative record, outside the issued loan1 authorization.')])
+        create_synthetic_database(db)
         db.chmod(0o444); os.chown(db, UID_TOOL, UID_TOOL)
         available = set(Path('/sys/fs/cgroup/cgroup.controllers').read_text().split())
         required = {'cpu', 'memory', 'pids'}
@@ -377,6 +386,9 @@ def main():
         shutil.copyfile(initialized['gateway_key_path'],gateway_dir/'gateway.key')
         os.chown(gateway_dir/'gateway.key',UID_GATEWAY,UID_GATEWAY); (gateway_dir/'gateway.key').chmod(0o600)
         trust_path = Path(initialized['run_trust_path'])
+        # Public operator trust is retained even if a later runtime gate fails;
+        # no private key/configuration path is exported from initialized.
+        save(out/'run-trust.json', json.loads(trust_path.read_text()))
         protected_json(gateway_dir/'trust.json',json.loads(trust_path.read_text()),UID_GATEWAY)
         decisions = directory(gateway_dir/'decisions',UID_GATEWAY)
         import jwt
@@ -467,7 +479,7 @@ def main():
         command(['iptables','-A','OUTPUT','-m','owner','--uid-owner',str(UID_AGENT),'-d','127.0.0.1','-p','tcp','-m','multiport','--dports','11434,19992','-j','ACCEPT'])
         command(['iptables','-A','OUTPUT','-m','owner','--uid-owner',str(UID_AGENT),'-j','REJECT'])
         save(public/'agent-egress-policy.json',{'source_authority':'root_namespace_network_policy','rules':command(['iptables','-S','OUTPUT']),'allowed_agent_tcp_destinations':['127.0.0.1:11434','127.0.0.1:19992'],'direct_mcp_upstream':'DENIED_BY_UID_OUTPUT_RULE'})
-        start=now(); time.sleep(1)
+        start=now(); result['from_ms']=start; time.sleep(1)
         agent_env={'HOME':str(agent_work),'PYTHONUNBUFFERED':'1','VANIAN_BANK_MEASURED':'1','VANIAN_BANK_MODEL':MODEL,
             'VANIAN_BANK_GATEWAY_BASE_URL':base,'VANIAN_BANK_GATEWAY_TOKEN':agent_token,'VANIAN_BANK_TOOL_NAME':TOOL,
             'VANIAN_BANK_AGENT_ID':initialized['agent_id'],'VANIAN_BANK_AUTHORITY_SOCKET':str(control/'authority.sock'),
@@ -506,7 +518,7 @@ def main():
         agent.stdin.write(b'finish\n'); agent.stdin.flush()
         if agent.wait(timeout=10) != 0: raise Refused('genuine agent returned failure')
         result['autonomous_workload_executed']=True
-        time.sleep(1); end=now()
+        time.sleep(1); end=now(); result['to_ms']=end
         for _ in range(30):
             time.sleep(2); cp=checkpoint(state); verify(public,tools,anchor,cp)
             if covered(records(public/ARCHIVES[1]),start,end,MECHANISMS): break
@@ -641,6 +653,11 @@ def main():
         state=private/'collector-state'
         for name in ARCHIVES:
             if (state/name).is_file(): cleanup('retain_archive', lambda: shutil.copyfile(state/name,public/name))
+        # Retain only explicit public evidence after writers stop, even when
+        # a later coverage gate fails. Never copy gateway keys, DBs or logs.
+        receipt_path = gateway_dir/'receipts.jsonl'
+        if receipt_path.is_file():
+            cleanup('retain_signed_receipts', lambda: shutil.copyfile(receipt_path,public/'receipts.jsonl'))
         cleanup('restore_host_network',lambda: os.setns(original_net,0))
         cleanup('close_host_network',lambda: os.close(original_net))
         # A child can leave descendants behind. Kill the whole dedicated
