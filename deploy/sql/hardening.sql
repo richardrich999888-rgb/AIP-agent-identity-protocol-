@@ -45,8 +45,8 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 
 GRANT USAGE ON SCHEMA public TO aip_app;
 
-REVOKE ALL ON evidence_packets, authority_nodes, authority_edges FROM aip_app;
-GRANT SELECT, INSERT ON evidence_packets, authority_nodes, authority_edges TO aip_app;
+REVOKE ALL ON evidence_packets, authority_nodes, authority_edges, signed_artifacts FROM aip_app;
+GRANT SELECT, INSERT ON evidence_packets, authority_nodes, authority_edges, signed_artifacts TO aip_app;
 
 -- Future tables created by the owner default to the same shape, so a
 -- migration that adds a table does not silently hand the service DELETE.
@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS evidence_retention (
 -- may not, and the hold wins.
 CREATE TABLE IF NOT EXISTS evidence_legal_hold (
     tenant_id   TEXT NOT NULL,
-    -- NULL means "every packet of this tenant": the shape a regulator's
+    -- Evidence packet or signed-artifact ID. NULL means "every evidence
+    -- record of this tenant": the shape a regulator's
     -- direction usually takes.
     packet_id   TEXT,
     reason      TEXT NOT NULL,
@@ -114,7 +115,7 @@ BEGIN
 
     IF hold_reason IS NOT NULL THEN
         RAISE EXCEPTION
-            'evidence packet % is under legal hold (%) and cannot be deleted',
+            'evidence record % is under legal hold (%) and cannot be deleted',
             OLD.id, hold_reason
             USING ERRCODE = 'restrict_violation';
     END IF;
@@ -125,6 +126,13 @@ $$;
 DROP TRIGGER IF EXISTS trg_refuse_delete_under_legal_hold ON evidence_packets;
 CREATE TRIGGER trg_refuse_delete_under_legal_hold
     BEFORE DELETE ON evidence_packets
+    FOR EACH ROW EXECUTE FUNCTION refuse_delete_under_legal_hold();
+
+-- A signed verdict, access ledger or observation must not lose the same
+-- legal-hold protection merely because it lives in the artifact table.
+DROP TRIGGER IF EXISTS trg_refuse_delete_under_legal_hold ON signed_artifacts;
+CREATE TRIGGER trg_refuse_delete_under_legal_hold
+    BEFORE DELETE ON signed_artifacts
     FOR EACH ROW EXECUTE FUNCTION refuse_delete_under_legal_hold();
 
 -- Evidence is append-only. An UPDATE would let a packet's stored JSON be
@@ -147,6 +155,22 @@ CREATE TRIGGER trg_refuse_update_of_evidence
     BEFORE UPDATE ON evidence_packets
     FOR EACH ROW EXECUTE FUNCTION refuse_update_of_evidence();
 
+CREATE OR REPLACE FUNCTION refuse_update_of_signed_artifact()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RAISE EXCEPTION
+        'signed_artifacts is append-only; % record % cannot be modified', OLD.kind, OLD.id
+        USING ERRCODE = 'restrict_violation';
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_refuse_update_of_signed_artifact ON signed_artifacts;
+CREATE TRIGGER trg_refuse_update_of_signed_artifact
+    BEFORE UPDATE ON signed_artifacts
+    FOR EACH ROW EXECUTE FUNCTION refuse_update_of_signed_artifact();
+
 -- ─── 4. Row-level security ─────────────────────────────────────────────────
 --
 -- Defence in depth behind the application's WHERE clause. The service sets
@@ -160,9 +184,11 @@ CREATE TRIGGER trg_refuse_update_of_evidence
 ALTER TABLE evidence_packets  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE authority_nodes   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE authority_edges   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE signed_artifacts  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE evidence_packets  FORCE ROW LEVEL SECURITY;
 ALTER TABLE authority_nodes   FORCE ROW LEVEL SECURITY;
 ALTER TABLE authority_edges   FORCE ROW LEVEL SECURITY;
+ALTER TABLE signed_artifacts  FORCE ROW LEVEL SECURITY;
 
 -- `current_setting(..., true)` returns NULL rather than erroring when the
 -- GUC is unset, and NULL = tenant_id is never true — so a connection that
@@ -180,6 +206,11 @@ CREATE POLICY tenant_isolation ON authority_nodes
 
 DROP POLICY IF EXISTS tenant_isolation ON authority_edges;
 CREATE POLICY tenant_isolation ON authority_edges
+    USING (tenant_id = current_setting('aip.tenant_id', true))
+    WITH CHECK (tenant_id = current_setting('aip.tenant_id', true));
+
+DROP POLICY IF EXISTS tenant_isolation ON signed_artifacts;
+CREATE POLICY tenant_isolation ON signed_artifacts
     USING (tenant_id = current_setting('aip.tenant_id', true))
     WITH CHECK (tenant_id = current_setting('aip.tenant_id', true));
 
