@@ -1,14 +1,15 @@
 //! Read-only offline composition of existing verifiers, with separately
 //! supplied assessor anchors. No interoperability event can become an AIP
 //! observation, authorization, or receipt by passing through this program.
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::io::Read;
 
 use aip_airi::{
     compare_tool_boundary, verify_tool_receipt, GatewayTrustAnchors, SignedToolReceipt,
 };
 use aip_authorize::{
-    verify_expected_execution_for_agent, DecisionPointTrustAnchors, ExpectedExecution,
+    verify_authority_reference, verify_expected_execution_for_agent, AuthorityTrustAnchors,
+    DecisionPointTrustAnchors, ExpectedExecution,
 };
 use aip_observe::{AttestedBatch, ObserverTrustAnchors, SignedSensorHealth};
 use aip_reconcile::{
@@ -32,6 +33,10 @@ struct Anchors {
     verification_time_ms: u64,
     health_max_age_ms: u64,
     window_tolerance_ms: u64,
+    #[serde(default)]
+    authority_roots: HashMap<String, Vec<u8>>,
+    #[serde(default)]
+    authority_delegators: HashMap<String, Vec<u8>>,
 }
 
 impl Anchors {
@@ -47,6 +52,11 @@ impl Anchors {
         }
         if keys.into_iter().collect::<HashSet<_>>().len() != 4 {
             return Err("agent, decision point, gateway and observer keys must differ".into());
+        }
+        for key in self.authority_roots.values() {
+            if keys.contains(&key) {
+                return Err("authority root key must differ from all four execution roles".into());
+            }
         }
         if self.decision_point_id.is_empty()
             || self.gateway_id.is_empty()
@@ -71,6 +81,14 @@ struct Bundle {
     expectation: ExpectedExecution,
     receipt: Option<SignedToolReceipt>,
     observation: Option<Observation>,
+    authority: Option<Authority>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Authority {
+    root_token: aip_types::ScopedToken,
+    delegation_chain: Vec<aip_types::DelegationToken>,
 }
 
 fn verify(bundle: Bundle, anchors: Anchors) -> Result<Value, String> {
@@ -79,6 +97,28 @@ fn verify(bundle: Bundle, anchors: Anchors) -> Result<Value, String> {
         .trust(&anchors.decision_point_id, &anchors.decision_point_key);
     verify_expected_execution_for_agent(&bundle.expectation, &decisions, &anchors.agent_key)
         .map_err(|e| format!("expected execution rejected: {e:?}"))?;
+    let mut authority_anchors = AuthorityTrustAnchors::new();
+    for (id, key) in &anchors.authority_roots {
+        authority_anchors = authority_anchors.trust_root(id, key);
+    }
+    for (id, key) in &anchors.authority_delegators {
+        authority_anchors = authority_anchors.trust_delegator(id, key);
+    }
+    let authority = bundle
+        .authority
+        .as_ref()
+        .map(|a| {
+            verify_authority_reference(
+                &bundle.expectation,
+                &a.root_token,
+                &a.delegation_chain,
+                &decisions,
+                &anchors.agent_key,
+                &authority_anchors,
+            )
+        })
+        .transpose()
+        .map_err(|e| format!("authority reference rejected: {e:?}"))?;
     let gateways = GatewayTrustAnchors::new().trust(
         &anchors.gateway_id,
         anchors.gateway_version,
@@ -114,7 +154,10 @@ fn verify(bundle: Bundle, anchors: Anchors) -> Result<Value, String> {
         "expected_execution_signature": "VERIFIED",
         "tool_boundary": boundary,
         "runtime_reconciliation": reconciliation,
-        "authority_chain": "NOT_ASSESSED_BY_THIS_COMPOSITION",
+        "authority_chain": if authority.is_some() { "VERIFIED_SCOPE_CHAIN_AT_ISSUANCE" } else { "NOT_ASSESSED_BY_THIS_COMPOSITION" },
+        "authority_reference": authority,
+        "authority_revocation": "NOT_ASSESSED",
+        "resource_and_spend_policy": "NOT_ASSESSED",
         "external_identity_mapping": "NOT_ASSESSED_BY_THIS_COMPOSITION",
         "key_administrative_independence": "REQUIRES_DEPLOYMENT_EVIDENCE",
         "note": "Distinct keys do not prove separate administration. Policy references and application traces are not accepted as native evidence. Tool receipts do not prove downstream business outcomes."
@@ -172,6 +215,8 @@ mod tests {
             verification_time_ms: 100,
             health_max_age_ms: 100,
             window_tolerance_ms: 0,
+            authority_roots: HashMap::new(),
+            authority_delegators: HashMap::new(),
         }
     }
     #[test]
@@ -195,5 +240,99 @@ mod tests {
             r#"{"expectation":{"allow":true},"receipt":null,"observation":null}"#
         )
         .is_err());
+    }
+
+    #[test]
+    fn authentic_authority_without_observation_still_cannot_prove_execution() {
+        use aip_authorize::{
+            tool_invoke_action, tool_invoke_parameters, AuthorizationRequest, DecisionPoint,
+        };
+        use aip_core::capability::issue_scoped_token;
+        use aip_crypto::generate_ed25519_keypair;
+        use aip_types::{
+            CapabilityScope, ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION,
+        };
+        let agent = generate_ed25519_keypair();
+        let bank = generate_ed25519_keypair();
+        let dp = generate_ed25519_keypair();
+        let gateway = generate_ed25519_keypair();
+        let observer = generate_ed25519_keypair();
+        let root = issue_scoped_token(
+            "bank",
+            &bank.private_key,
+            "agent",
+            CapabilityScope {
+                allowed: vec![tool_invoke_action()],
+                denied: vec![],
+            },
+            Some(60_000),
+        )
+        .unwrap();
+        let binding = ExecutionBinding {
+            version: EXECUTION_BINDING_VERSION,
+            agent_id: "agent".into(),
+            process: ProcessInstance {
+                pid: 42,
+                pid_start_time_ticks: 100,
+                boot_id: [1; 16],
+            },
+            exe_content_sha256: [2; 32],
+            exe_path: "fixture-not-observed".into(),
+            bound_at_ms: root.issued_at,
+            container: None,
+        };
+        let request = AuthorizationRequest {
+            agent_id: "agent".into(),
+            root_token: root.clone(),
+            delegation_chain: vec![],
+            action_kind: tool_invoke_action(),
+            parameters: tool_invoke_parameters("read", [7; 32]).unwrap(),
+            execution_binding: binding,
+            requested_ttl_ms: 100,
+        };
+        let point = DecisionPoint::new("dp", &dp.private_key, &dp.public_key, 1000)
+            .unwrap()
+            .trust_issuer("bank", &bank.public_key);
+        let expectation = point
+            .authorize_at(&request, root.issued_at)
+            .expected()
+            .unwrap()
+            .clone();
+        let mut a = anchors();
+        a.agent_key = agent.public_key;
+        a.decision_point_key = dp.public_key;
+        a.gateway_key = gateway.public_key;
+        a.observer_key = observer.public_key;
+        a.verification_time_ms = root.issued_at;
+        a.authority_roots.insert("bank".into(), bank.public_key);
+        let result = verify(
+            Bundle {
+                expectation,
+                receipt: None,
+                observation: None,
+                authority: Some(Authority {
+                    root_token: root,
+                    delegation_chain: vec![],
+                }),
+            },
+            a,
+        )
+        .unwrap();
+        assert_eq!(
+            result["authority_chain"],
+            "VERIFIED_SCOPE_CHAIN_AT_ISSUANCE"
+        );
+        assert_eq!(result["authority_revocation"], "NOT_ASSESSED");
+        assert!(result["runtime_reconciliation"]
+            .to_string()
+            .contains("CannotProve"));
+    }
+
+    #[test]
+    fn root_authority_cannot_reuse_an_execution_role_key() {
+        let mut a = anchors();
+        a.authority_roots
+            .insert("bank".into(), a.gateway_key.clone());
+        assert!(a.check().is_err());
     }
 }

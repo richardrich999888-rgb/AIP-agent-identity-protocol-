@@ -5,6 +5,7 @@ on:
       - 'integrations/interoperability/**'
       - 'integrations/mcp-gateway/**'
       - 'aip-standalone/aip-airi/**'
+      - 'aip-standalone/aip-authorize/**'
       - 'validation/interoperability/**'
       - '.github/workflows/interoperability.yml'
   workflow_dispatch:
@@ -18,6 +19,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - run: rustup toolchain install 1.99.1 --profile minimal && rustup default 1.99.1
       - run: cargo test --locked -p aip-airi --example interop_verify
+      - run: cargo test --locked -p aip-authorize --test authority_reference
       - run: cargo build --locked -p aip-airi --example interop_verify
       - run: cargo build --locked -p aip-mcp-gateway --bin aip-tool-receipt
       - run: python3 validation/interoperability/test_offline_composition.py --verifier target/debug/examples/interop_verify

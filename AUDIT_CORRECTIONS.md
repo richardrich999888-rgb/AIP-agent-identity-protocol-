@@ -7,6 +7,20 @@ doing diligence finds the truth here first — not by discovering it themselves.
 
 Date: 2026-06-09
 
+### Dated qualification — 2026-10-28 interoperability work
+
+The sections below retain their historical context. Current enterprise and
+interoperability implementation/evidence is indexed in
+[`docs/interoperability/VALIDATION_REPORT.md`](docs/interoperability/VALIDATION_REPORT.md).
+Real ADK/A2A/Microsoft-governed gateway traffic does not establish the complete
+same-run institutional authorization and kernel-observation chain. The new
+offline authority-reference verifier authenticates native signatures, exact
+chain references, scope and validity at issuance; it does not establish
+revocation, resource/spend policy, institutional key custody or execution.
+Missing observations remain `CannotProve`, including with a valid authority
+chain. Historical RBI evidence is preserved separately. Local host limitations,
+the full-workspace test failures and unexecuted CI jobs remain disclosed.
+
 ---
 
 ## 1. What was overstated (now corrected)

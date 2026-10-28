@@ -2,6 +2,8 @@
 
 The requested first milestone is open. This is an engineering increment, not a production support declaration.
 
+Continuation: native offline authority-reference verification is implemented and tested, including exact chain linkage to ExpectedExecution. This closes a verifier capability gap; it does not supply the still-missing institutional authority for the model's actual request. Use `validation/interoperability/host_preflight.py --require-ready` before live host qualification. Its checks do not replace actual observation or independent assessment.
+
 | Priority | Gap / current status | Required exit evidence |
 |---|---|---|
 | P0 | BLOCKED: no BPF capabilities, kernel BTF or approved off-host collector here | Same-run supported events, health/coverage, independent collector signature and offline verification on authorized isolated Linux |

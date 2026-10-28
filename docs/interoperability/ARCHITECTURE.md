@@ -27,7 +27,7 @@ ADK BasePlugin records application correlation. The official A2A SDK performs di
 
 The reference-only OCSF adapter imports OpenShell records without inventing authentication. OpenShell already has external enforcement; VANIAN's intended addition is corroboration under separately established observer coverage.
 
-The offline Rust composition accepts native signed evidence only, with assessor-supplied keys. It exposes tool-boundary comparison separately from runtime reconciliation and explicitly does not verify an institutional authority chain or external identity mapping.
+The offline Rust composition accepts native signed evidence only, with assessor-supplied keys. It exposes tool-boundary comparison separately from runtime reconciliation. Its optional authority verification authenticates the exact native delegation chain and action scope at issuance using existing core rules. Institutional ownership, revocation, external identity mapping and policy context remain separate unverified properties.
 
 ## Deployment boundary
 

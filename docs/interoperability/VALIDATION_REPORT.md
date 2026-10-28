@@ -2,6 +2,16 @@
 
 Overall: **PARTIALLY_VERIFIED. The requested first interoperability milestone is not achieved.** No new independently observed kernel execution or off-host signed observation archive is claimed.
 
+## Continuation — offline authority-reference verification
+
+Starting from PR #9 commit `04df31229a0eb2d534b4ff34d1aede4a0f609ebc`, the offline composition now optionally verifies the exact native ScopedToken/DelegationToken chain referenced by ExpectedExecution. It uses existing `aip_core` signatures and attenuation, separately configured root/delegator keys, leaf and action checks, and the native inclusive validity window. No signing format or issuing policy changed. This verifies scope at issuance, not revocation, resource/spend constraints, institutional custody or current execution authority.
+
+The new authority suite has 12 passing tests. The authorize/AIRI regression run has 183 passes and 1 existing ignored test; the offline example has 5 passes, including a real-signature fixture that still returns CannotProve without observations. Scoped Clippy and formatting pass. The archived gateway signatures (28) and offline composition/tamper checks (3) continue to pass. These are explicitly cryptographic fixtures and historical receipts, not a new live-agent run.
+
+Exact source hashes, logs and the [continuation report](../../validation/interoperability/results/20261028-authority/report.json) are under `validation/interoperability/results/20261028-authority/`. The [host prerequisite report](../../validation/interoperability/results/20261028-authority/host-preflight.json) confirms unavailable self/child process binding metadata, BPF/perf capabilities, BTF, exec tracepoint access and Unix sockets. The read-only preflight script is available for an authorized isolated Linux host; even a successful preflight would not prove sensor coverage.
+
+The full-workspace failure and blocked GitHub runner execution below remain disclosed; this scoped continuation does not erase either result. The earlier live evidence is unchanged and is not retroactively supplied with a different authority chain.
+
 Exact base: `e3aa195def7524d6ec84d37a934beebe18b6c794`, the existing draft PR #8 combining #6 and #7. The complete machine-readable [validation matrix](../../validation/interoperability/validation-matrix.json) records every inspected project. Exact upstream/release/model locks and license findings accompany it.
 
 ## Genuine executed workloads

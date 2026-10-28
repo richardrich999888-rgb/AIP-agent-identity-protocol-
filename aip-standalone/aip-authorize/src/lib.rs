@@ -38,6 +38,7 @@
 //! `docs/architecture/DECISION_POINT.md`.
 
 pub mod actions;
+pub mod authority;
 pub mod coverage;
 pub mod decision;
 pub mod expected;
@@ -51,6 +52,10 @@ pub use actions::{
     ToolInvokeError, FS_WRITE_ACTION, MAX_TOOL_ID_LEN, NET_CONNECT_ACTION, NET_SEND_ACTION,
     PARAM_EXE_SHA256, PARAM_PARAMS_COMMITMENT, PARAM_PATH, PARAM_PROTOCOL, PARAM_REMOTE_ADDR,
     PARAM_REMOTE_PORT, PARAM_TOOL_ID, PROCESS_EXEC_ACTION, TOOL_INVOKE_ACTION,
+};
+pub use authority::{
+    verify_authority_reference, AuthorityReferenceError, AuthorityTrustAnchors,
+    VerifiedAuthorityReference,
 };
 pub use coverage::{
     CoverageIssueError, CoverageStatementError, DecisionPointCoverageStatement,

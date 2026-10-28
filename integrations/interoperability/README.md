@@ -69,6 +69,14 @@ cargo run --locked -p aip-airi --example interop_verify -- \
   /assessor/anchors.json /untrusted/native-bundle.json
 ```
 
-The bundled lab public anchor can reproduce receipt verification. Establish its authority independently before relying on it. The Rust example accepts ExpectedExecution, optional SignedToolReceipt and optional attested batches/health; see its explicit JSON structs. Signature verification is separate from authority-chain assessment and execution reconciliation.
+The bundled lab public anchor can reproduce receipt verification. Establish its authority independently before relying on it. The Rust example accepts ExpectedExecution, optional SignedToolReceipt, optional attested batches/health and an optional native authority bundle; see its explicit JSON structs. Add `authority: {root_token: <ScopedToken>, delegation_chain: [<DelegationToken>, ...]}` to the untrusted bundle. Independently supply `authority_roots` and `authority_delegators` maps of issuer ID to 32-byte public-key arrays in assessor anchors. No keys are accepted from the untrusted bundle. The verifier authenticates the referenced chain and effective action scope at issuance; missing authority stays unassessed. Revocation, resource/spend policy, institutional custody and actual execution are not established by this chain check. Existing archived fixture-only runs are not retroactively upgraded.
+
+Before running an observation lab on an authorized isolated host:
+
+```sh
+python validation/interoperability/host_preflight.py --output /tmp/host-prerequisites.json --require-ready
+```
+
+This checks local process visibility, Linux capabilities, BTF, tracepoint access and Unix socket availability. A nonzero exit identifies a blocked prerequisite; even a successful check establishes no sensor coverage or independent key custody. The script neither installs nor starts an observer. The managed workspace's report is retained under `validation/interoperability/results/20261028-authority/`.
 
 See [architecture](../../docs/interoperability/ARCHITECTURE.md), [validation](../../docs/interoperability/VALIDATION_REPORT.md), and [production gaps](../../docs/interoperability/PRODUCTION_GAPS.md). This is not an advertised production support matrix.
