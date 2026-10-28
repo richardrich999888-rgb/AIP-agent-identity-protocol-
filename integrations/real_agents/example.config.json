@@ -1,0 +1,26 @@
+{
+  "framework": "agent_zero",
+  "model": "REPLACE_WITH_RESTRICTED_MODEL_ID",
+  "image": "REPLACE_WITH_SHA256_IMAGE_ID",
+  "task": "/opt/validation/integrations/real_agents/tasks/research.txt",
+  "tools": "/opt/validation/target/release",
+  "model_env": "/etc/snifferdog/model.env",
+  "model_config": "/etc/snifferdog/models",
+  "probe_env": "/etc/snifferdog/probe.env",
+  "policy_check": "/etc/snifferdog/check-egress-and-model-budget",
+  "network": "snifferdog-restricted",
+  "timeout_s": 900,
+  "cpus": 2,
+  "memory_mb": 4096,
+  "pids_limit": 256,
+  "collector": {
+    "ssh": "REPLACE_COLLECTOR_SSH_ALIAS",
+    "helper": "/opt/validation/integrations/real_agents/collector_control.py",
+    "config": "/etc/snifferdog/collector-control.json"
+  },
+  "anchor": {
+    "observer_id": "collector.real-agents",
+    "key_version": 1,
+    "public_key": "REPLACE_WITH_INDEPENDENTLY_PROVISIONED_PUBLIC_KEY"
+  }
+}

@@ -36,7 +36,7 @@ pub fn parse_decision_cgroup_name(name: &str) -> Option<[u8; 16]> {
         return None;
     }
     let mut out = [0u8; 16];
-    for (i, pair) in b.chunks_exact(2).enumerate() {
+    for (i, pair) in b.as_chunks::<2>().0.iter().enumerate() {
         out[i] = (hex(pair[0])? << 4) | hex(pair[1])?;
     }
     Some(out)

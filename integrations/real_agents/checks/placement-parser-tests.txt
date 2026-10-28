@@ -1,0 +1,18 @@
+   Compiling aip-types v0.4.0 (<isolated-worktree>/aip-standalone/aip-types)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.61s
+     Running unittests src/lib.rs (target/debug/deps/aip_types-62b29dca46f22615)
+
+running 11 tests
+test canonical::tests::adjacent_strings_are_injective ... ok
+test canonical::tests::domain_tag_leads_payload ... ok
+test window::tests::contains_is_inclusive_at_both_ends ... ok
+test canonical::tests::option_presence_is_explicit ... ok
+test placement::tests::only_the_one_canonical_spelling_is_a_decision_name ... ok
+test placement::tests::a_name_round_trips_to_exactly_its_decision ... ok
+test window::tests::covers_requires_full_containment ... ok
+test window::tests::intersects_is_symmetric_and_inclusive ... ok
+test canonical::tests::scope_counts_prevent_allowed_denied_migration ... ok
+test canonical::tests::interior_nul_is_unambiguous ... ok
+test window::tests::well_formedness ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

@@ -1,0 +1,120 @@
+   Compiling aip-types v0.4.0 (<isolated-worktree>/aip-standalone/aip-types)
+   Compiling utf8parse v0.2.2
+   Compiling colorchoice v1.0.5
+   Compiling anstyle v1.0.14
+   Compiling anstyle-query v1.1.5
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling strsim v0.11.1
+   Compiling heck v0.5.0
+   Compiling clap_lex v1.1.0
+   Compiling simple_asn1 v0.6.4
+   Compiling anstyle-parse v1.0.0
+   Compiling cryptoki-sys v0.5.0
+   Compiling ot-accountability-core v0.4.0 (<isolated-worktree>/orbitaltrust-accountability/rust/ot-accountability-core)
+   Compiling libloading v0.8.9
+   Compiling secrecy v0.10.3
+   Compiling clap_derive v4.6.4
+   Compiling anstream v1.0.0
+   Compiling rustix v1.1.5
+   Compiling jsonwebtoken v9.3.1
+   Compiling clap_builder v4.6.6
+   Compiling ot-sentinel v0.4.0 (<isolated-worktree>/orbitaltrust-accountability/rust/ot-sentinel)
+   Compiling tempfile v3.27.0
+   Compiling aip-crypto v0.4.0 (<isolated-worktree>/aip-standalone/aip-crypto)
+   Compiling aip-edge-contract v0.4.0 (<isolated-worktree>/aip-standalone/aip-edge-contract)
+   Compiling aip-core v0.4.0 (<isolated-worktree>/aip-standalone/aip-core)
+   Compiling aip-spend v0.4.0 (<isolated-worktree>/aip-standalone/aip-spend)
+   Compiling aip-registry v0.4.0 (<isolated-worktree>/aip-standalone/aip-registry)
+warning: unused imports: `EXECUTION_BINDING_VERSION` and `ProcessInstance`
+  --> aip-standalone/aip-core/src/execution_binding.rs:28:54
+   |
+28 | use aip_types::{ContainerIdentity, ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION};
+   |                                                      ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling aip-observe v0.4.0 (<isolated-worktree>/aip-standalone/aip-observe)
+   Compiling aip-authorize v0.4.0 (<isolated-worktree>/aip-standalone/aip-authorize)
+   Compiling aip-system v0.4.0 (<isolated-worktree>/aip-standalone/aip-system)
+   Compiling aip-protocol v0.4.0 (<isolated-worktree>/aip-standalone/aip-protocol)
+   Compiling clap v4.6.6
+warning: unused import: `crate::probe::ProbeError`
+  --> aip-standalone/aip-observe/src/linux.rs:21:5
+   |
+21 | use crate::probe::ProbeError;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/sched.rs:19:20
+   |
+19 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/socksend.rs:22:20
+   |
+22 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/sockstate.rs:33:20
+   |
+33 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `BootClockAnchor`
+  --> aip-standalone/aip-observe/src/sockstate.rs:34:23
+   |
+34 | use crate::observed::{BootClockAnchor, KernelLifecycleKind, SocketEndpoint, SocketProtocol};
+   |                       ^^^^^^^^^^^^^^^
+
+   Compiling aip-execution v0.4.0 (<isolated-worktree>/aip-standalone/aip-execution)
+warning: `aip-core` (lib) generated 1 warning (run `cargo fix --lib -p aip-core` to apply 1 suggestion)
+   Compiling aip-approval v0.4.0 (<isolated-worktree>/aip-standalone/aip-approval)
+   Compiling aip-transport v0.4.0 (<isolated-worktree>/aip-standalone/aip-transport)
+   Compiling cryptoki v0.12.1
+   Compiling aip-placement v0.4.0 (<isolated-worktree>/aip-standalone/aip-placement)
+   Compiling aip-enforce v0.4.0 (<isolated-worktree>/aip-standalone/aip-enforce)
+error[E0425]: cannot find value `SYS_clone3` in crate `libc`
+   --> aip-standalone/aip-placement/src/spawn.rs:145:19
+    |
+145 |             libc::SYS_clone3,
+    |                   ^^^^^^^^^^ not found in `libc`
+
+   Compiling aip-real-tests v0.4.0 (<isolated-worktree>/aip-standalone/aip-real-tests)
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `aip-placement` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+warning: field `image_cache` is never read
+   --> aip-standalone/aip-observe/src/probe.rs:158:5
+    |
+122 | pub struct ProcfsProbe {
+    |            ----------- field in this struct
+...
+158 |     image_cache: std::cell::RefCell<HashMap<u32, CachedImage>>,
+    |     ^^^^^^^^^^^
+    |
+    = note: `ProcfsProbe` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `still_describes` is never used
+   --> aip-standalone/aip-observe/src/probe.rs:177:8
+    |
+172 | impl CachedImage {
+    | ---------------- method in this implementation
+...
+177 |     fn still_describes(
+    |        ^^^^^^^^^^^^^^^
+
+warning: method `read_process` is never used
+   --> aip-standalone/aip-observe/src/probe.rs:306:8
+    |
+193 | impl ProcfsProbe {
+    | ---------------- method in this implementation
+...
+306 |     fn read_process(&self, pid: u32) -> Result<ObservedProcess, ProbeError> {
+    |        ^^^^^^^^^^^^
+
+warning: `aip-observe` (lib) generated 8 warnings (run `cargo fix --lib -p aip-observe` to apply 5 suggestions)

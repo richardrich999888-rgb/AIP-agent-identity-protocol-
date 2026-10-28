@@ -155,7 +155,9 @@ fn print_text(r: &ChainReport) {
         println!(
             "This does not mean the observations are true: a host with root can lie to its own \
              probe. It means these bytes are what the off-host collector received and recorded, \
-             and that nothing has been added, removed or altered since."
+             and that the supplied records link without internal gaps or alterations. A valid \
+             prefix or suffix is still a valid window: detecting truncation requires an \
+             independently retained boundary checkpoint."
         );
     } else {
         println!("NOT VERIFIED — {} finding(s)", r.findings.len());

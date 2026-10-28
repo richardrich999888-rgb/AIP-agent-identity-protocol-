@@ -3,13 +3,10 @@
 
 The import arrived with `MANIFEST.md`, a SHA-256 per file, so a recipient can
 prove nothing changed in transit. Wiring the crates into this workspace
-required rewriting two `Cargo.toml` files, which necessarily breaks their
-hashes. This script exists so that deviation stays *measured* rather than
-asserted: it prints every file whose content no longer matches, and exits
-non-zero if any file other than the two known ones has moved.
-
-That is the difference between "we only changed the manifests" as a claim and
-as a fact. Run:
+required rewriting two Cargo manifests. The RBI branch also applied a
+semantics-preserving clippy match-guard refactor in registry.rs. Those three
+reviewed deviations are pinned below by FULL current SHA-256, so an additional
+change to any of them is a finding, not an unlimited path exemption. Run:
 
     python3 orbitaltrust-accountability/verify_manifest.py
 """
@@ -23,11 +20,12 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 
-# The two files this repository rewrote to wire the crates into its workspace,
-# each carrying a comment saying so. Any *other* deviation is a finding.
+# Workspace wiring plus the reviewed RBI clippy refactor (22293d0).
+# MANIFEST.md remains unchanged as evidence of the original import.
 EXPECTED_DEVIATIONS = {
-    "rust/ot-accountability-core/Cargo.toml",
-    "rust/ot-sentinel/Cargo.toml",
+    "rust/ot-accountability-core/Cargo.toml": "cbe6665d88d2c670edcf90c6fbeb08457bd0a9c6b1b9d94e3f3bf36b2f2726fc",
+    "rust/ot-sentinel/Cargo.toml": "ee5f354f2920b5fe940e6085ae0d13141bd5a4d10d71bd5275a8414b362f9ba5",
+    "rust/ot-sentinel/src/registry.rs": "9765e6507d8aad595801663f0dd75a2b8ca6aa5ab2df27ef52d5f9f750b24da9",
 }
 
 # `| `path` | 123 | `abcdef…` |` — the manifest truncates each digest, so the
@@ -43,6 +41,7 @@ def main() -> int:
         return 2
 
     unchanged, deviated, missing = 0, [], []
+    approved = set()
     for rel, prefix in rows:
         path = HERE / rel
         if not path.exists():
@@ -53,25 +52,25 @@ def main() -> int:
             unchanged += 1
         else:
             deviated.append(rel)
+            if EXPECTED_DEVIATIONS.get(rel) == digest:
+                approved.add(rel)
 
     print(f"files in manifest : {len(rows)}")
     print(f"byte-identical    : {unchanged}")
     print(f"deviated          : {len(deviated)}")
     print(f"missing           : {len(missing)}")
 
-    unexpected = sorted(set(deviated) - EXPECTED_DEVIATIONS)
+    unexpected = sorted(set(deviated) - approved)
     for rel in sorted(deviated):
-        note = "expected (workspace wiring)" if rel in EXPECTED_DEVIATIONS else "UNEXPECTED"
+        note = "reviewed deviation (exact SHA-256)" if rel in approved else "UNEXPECTED"
         print(f"  {note}: {rel}")
     for rel in missing:
         print(f"  MISSING: {rel}")
 
     if unexpected or missing:
-        print("\nFAIL: the import deviates from its manifest beyond the two wired manifests.")
+        print("\nFAIL: the import deviates from its manifest beyond the exact reviewed revisions.")
         return 1
-    print("\nPASS: every imported source file is byte-identical to the manifest;")
-    print("the only deviations are the two Cargo.toml files rewritten to wire")
-    print("the crates into this workspace, each documented in its own header.")
+    print("\nPASS: original import matches except for the exact reviewed deviations above.")
     return 0
 
 

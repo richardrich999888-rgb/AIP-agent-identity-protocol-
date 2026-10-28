@@ -1,0 +1,23 @@
+{
+  "agent_zero": {
+    "repository": "https://github.com/agent0ai/agent-zero",
+    "commit": "ff2a5b9c9c4e490ba38dd7c313e779510bb2071a",
+    "entrypoint": "AgentContext(initialize_agent()).communicate(UserMessage(...)).result_sync()",
+    "install": "python -m pip install -r requirements.txt",
+    "status": "source-inspected; image build and autonomous execution pending"
+  },
+  "deerflow": {
+    "repository": "https://github.com/bytedance/deer-flow",
+    "commit": "f79debed59ca6b1a31628e6b5ce55c8507793a4c",
+    "entrypoint": "DeerFlowClient(subagent_enabled=True).stream(...)" ,
+    "install": "cd backend && uv sync --frozen",
+    "status": "source-inspected; image build and autonomous execution pending"
+  },
+  "openhands": {
+    "repository": "https://github.com/OpenHands/software-agent-sdk",
+    "commit": "46b1fa5cb91ada17e6ec938c7e8624a4fa19fa98",
+    "entrypoint": "Conversation(agent=Agent(...), workspace='/work').run()",
+    "install": "uv sync --frozen --all-packages",
+    "status": "source-inspected; image build and autonomous execution pending"
+  }
+}

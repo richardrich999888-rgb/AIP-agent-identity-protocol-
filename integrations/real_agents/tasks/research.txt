@@ -1,0 +1,15 @@
+Research a practical engineering question using real public primary documents:
+what evidence can Linux cgroup v2, procfs and fanotify independently supply
+about an AI workload, and what can they not establish about an in-process
+logical agent? Start from https://docs.kernel.org/admin-guide/cgroup-v2.html,
+https://docs.kernel.org/filesystems/proc.html and
+https://man7.org/linux/man-pages/man7/fanotify.7.html.
+
+Delegate document research to separate subordinate agents if the framework
+supports it. Ask another subordinate to review conflicting claims. Fetch the
+actual documents, run any useful analysis in the disposable workspace, and
+write /work/research-report.md with source URLs, retrieval dates, a comparison
+table, explicit unknowns and named logical roles. Save downloaded documents
+and a source manifest with SHA-256 hashes under /work. Explain when delegation
+or retrieval failed. A role name is a declaration, not cryptographic identity.
+Do not access private services or perform account operations.
