@@ -122,3 +122,65 @@ fn g_tampered_evidence_is_sensor_integrity_failure_proven() {
     );
     assert_eq!(r.strength, EvidenceStrength::Proven);
 }
+
+// This checks the startup boundary against independently measured procfs
+// identity. A readiness string is never used as the measured executable hash.
+#[test]
+fn idle_readiness_precedes_binding_collection() {
+    let image = ghost_demo::hash_binary(AGENT);
+    for _ in 0..64 {
+        let agent = ghost_demo::Agent::idle(AGENT);
+        let binding =
+            aip_core::execution_binding::collect_binding_for_pid("idle-test", agent.pid).unwrap();
+        let observed = aip_observe::ProcfsProbe::new("idle-test")
+            .measure(agent.pid)
+            .unwrap();
+        assert_eq!(binding.exe_content_sha256, image);
+        assert!(
+            observed.matches_process_of(&binding),
+            "{binding:?} != {observed:?}"
+        );
+    }
+}
+
+/// Capture the old unsynchronized boundary as a diagnostic, then check the
+/// post-handshake measurements. A zero count means the race did not reproduce
+/// on this host; it is not a claim that spawn completion guarantees readiness.
+#[test]
+fn idle_startup_race_diagnostic() {
+    use std::io::{BufRead, BufReader};
+    use std::process::{Command, Stdio};
+    let mut different = 0;
+    let attempts = if cfg!(debug_assertions) { 16 } else { 4096 };
+    for _ in 0..attempts {
+        let mut child = Command::new(AGENT)
+            .arg("--idle")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let before =
+            aip_core::execution_binding::collect_binding_for_pid("idle-test", child.id()).unwrap();
+        let mut line = String::new();
+        BufReader::new(child.stdout.take().unwrap())
+            .read_line(&mut line)
+            .unwrap();
+        assert_eq!(line.trim(), "ghost-demo-agent idle");
+        let after =
+            aip_core::execution_binding::collect_binding_for_pid("idle-test", child.id()).unwrap();
+        if !before.same_execution(&after) {
+            different += 1;
+            if different == 1 {
+                eprintln!("startup binding changed: before={before:?}; after={after:?}");
+            }
+        }
+        let measured = aip_observe::ProcfsProbe::new("idle-test")
+            .measure(child.id())
+            .unwrap();
+        let matches = measured.matches_process_of(&after);
+        child.kill().unwrap();
+        child.wait().unwrap();
+        assert!(matches, "post-readiness binding differs from measurement");
+    }
+    eprintln!("pre-readiness identity changes: {different}/{attempts}");
+}

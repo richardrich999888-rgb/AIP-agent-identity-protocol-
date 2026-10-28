@@ -63,7 +63,7 @@ pub fn parse_bpftrace(text: &str) -> Parsed {
     Parsed { events, unparsed }
 }
 
-/// Parse raw `auditd` log lines for `execve` SYSCALL records.
+/// Parse raw `auditd` log lines for x86-64 exec SYSCALL records.
 ///
 /// A record looks like
 ///
@@ -71,7 +71,8 @@ pub fn parse_bpftrace(text: &str) -> Parsed {
 /// type=SYSCALL msg=audit(1789914920.810:123): arch=c000003e syscall=59 ... pid=456 ... comm="echo" exe="/bin/echo" key="aipxcheck"
 /// ```
 ///
-/// Only `type=SYSCALL` records for syscall 59 (`execve` on x86-64) are taken.
+/// Only x86-64 `type=SYSCALL` records for 59 (`execve`) or 322 (`execveat`)
+/// are taken. Unsupported or absent architectures are reported as unparsed.
 /// The stamp inside `audit(...)` is wall-clock seconds with millisecond
 /// precision, so these events arrive already in the comparison domain.
 ///
@@ -89,9 +90,14 @@ pub fn parse_auditd(text: &str) -> Parsed {
         if !l.starts_with("type=SYSCALL") {
             continue; // a companion record of the same event, not a failure
         }
-        // execve is syscall 59 on x86-64; anything else is a different rule's
-        // record sharing the log and is not an exec.
-        if field(l, "syscall=").is_none_or(|v| v != "59") {
+        // Syscall numbers are architecture-specific. Do not silently treat a
+        // different architecture as x86-64 or hide an unsupported record.
+        if field(l, "arch=") != Some("c000003e") {
+            unparsed += 1;
+            continue;
+        }
+        // Both operations are requested by the independent audit rule.
+        if field(l, "syscall=").is_none_or(|v| !matches!(v, "59" | "322")) {
             continue;
         }
         let (Some(wall_ms), Some(pid)) = (
@@ -210,6 +216,31 @@ mod tests {
         assert_eq!(e.pid, 456);
         assert_eq!(e.wall_ms, Some(1_789_914_920_810));
         assert_eq!(e.image, "/bin/echo");
+    }
+
+    #[test]
+    fn auditd_execveat_is_not_silently_dropped() {
+        let p = parse_auditd(&SYSCALL.replace("syscall=59", "syscall=322"));
+        assert_eq!(p.unparsed, 0);
+        assert_eq!(p.events.len(), 1);
+        assert_eq!(p.events[0].pid, 456);
+        assert!(p.events[0].is_execution());
+        let failed = SYSCALL
+            .replace("syscall=59", "syscall=322")
+            .replace("success=yes", "success=no");
+        assert!(!parse_auditd(&failed).events[0].is_execution());
+    }
+
+    #[test]
+    fn unsupported_or_missing_audit_architecture_is_visible() {
+        for line in [
+            SYSCALL.replace("c000003e", "c00000b7"),
+            SYSCALL.replace("arch=c000003e ", ""),
+        ] {
+            let p = parse_auditd(&line);
+            assert!(p.events.is_empty());
+            assert_eq!(p.unparsed, 1);
+        }
     }
 
     /// The bug this guards: `pid=` also occurs inside `ppid=`. Taking the first

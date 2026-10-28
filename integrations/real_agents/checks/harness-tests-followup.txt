@@ -1,0 +1,42 @@
+test_disabled_locked_or_incomplete_audit_refused (test_audit.AuditTests.test_disabled_locked_or_incomplete_audit_refused) ... ok
+test_loss_or_daemon_restart_refuses_export (test_audit.AuditTests.test_loss_or_daemon_restart_refuses_export) ... ok
+test_no_syscalls_is_not_success (test_audit.AuditTests.test_no_syscalls_is_not_success) ... ok
+test_own_rule_only_is_removed (test_audit.AuditTests.test_own_rule_only_is_removed) ... ok
+test_task_suppression_is_not_silently_removed (test_audit.AuditTests.test_task_suppression_is_not_silently_removed) ... ok
+test_reviewed_tree_passes_but_extra_change_fails (test_import_manifest.ImportManifestTests.test_reviewed_tree_passes_but_extra_change_fails) ... ok
+test_environment_is_data_not_shell (test_policy.ControllerTests.test_environment_is_data_not_shell) ... ok
+test_isolated_mode_is_explicit_and_keeps_trust_limit (test_policy.ControllerTests.test_isolated_mode_is_explicit_and_keeps_trust_limit) ... ok
+test_isolated_mode_never_waives_clock_checks (test_policy.ControllerTests.test_isolated_mode_never_waives_clock_checks) ... ok
+test_non_linux_preflight_fails_before_any_launch (test_policy.ControllerTests.test_non_linux_preflight_fails_before_any_launch) ... ok
+test_off_host_mode_still_refuses_same_machine (test_policy.ControllerTests.test_off_host_mode_still_refuses_same_machine) ... ok
+test_remote_shell_metacharacters_refused (test_policy.ControllerTests.test_remote_shell_metacharacters_refused) ... ok
+test_unknown_isolation_mode_fails_before_helper (test_policy.ControllerTests.test_unknown_isolation_mode_fails_before_helper) ... ok
+test_absent_sensor_is_not_coverage (test_policy.EvidencePolicyTests.test_absent_sensor_is_not_coverage) ... ok
+test_bad_health_vetoes_overlapping_claim (test_policy.EvidencePolicyTests.test_bad_health_vetoes_overlapping_claim) ... ok
+test_checkpoint_mismatch_precedes_external_verifier (test_policy.EvidencePolicyTests.test_checkpoint_mismatch_precedes_external_verifier) ... ok
+test_clock_conversion_saturates_like_rust (test_policy.EvidencePolicyTests.test_clock_conversion_saturates_like_rust) ... ok
+test_covered_requires_one_complete_epoch (test_policy.EvidencePolicyTests.test_covered_requires_one_complete_epoch) ... ok
+test_crosscheck_references_use_rust_first_exec_anchor (test_policy.EvidencePolicyTests.test_crosscheck_references_use_rust_first_exec_anchor) ... ok
+test_empty_and_partial_archives_refused (test_policy.EvidencePolicyTests.test_empty_and_partial_archives_refused) ... ok
+test_host_only_crosscheck_is_not_workload_corroboration (test_policy.EvidencePolicyTests.test_host_only_crosscheck_is_not_workload_corroboration) ... ok
+test_loss_is_visible_even_when_events_bind (test_policy.EvidencePolicyTests.test_loss_is_visible_even_when_events_bind) ... ok
+test_matching_observed_namespace_does_not_prove_logical_agent (test_policy.EvidencePolicyTests.test_matching_observed_namespace_does_not_prove_logical_agent) ... ok
+test_missing_or_unsynchronized_clock_is_not_coverage (test_policy.EvidencePolicyTests.test_missing_or_unsynchronized_clock_is_not_coverage) ... ok
+test_monotonic_anchor_not_boottime_places_event (test_policy.EvidencePolicyTests.test_monotonic_anchor_not_boottime_places_event) ... ok
+test_mutations_cover_edge_deletions (test_policy.EvidencePolicyTests.test_mutations_cover_edge_deletions) ... ok
+test_one_agreement_cannot_cover_repeated_execs_in_same_millisecond (test_policy.EvidencePolicyTests.test_one_agreement_cannot_cover_repeated_execs_in_same_millisecond) ... ok
+test_other_container_is_excluded (test_policy.EvidencePolicyTests.test_other_container_is_excluded) ... ok
+test_other_host_boot_is_not_workload (test_policy.EvidencePolicyTests.test_other_host_boot_is_not_workload) ... ok
+test_other_probe_is_excluded (test_policy.EvidencePolicyTests.test_other_probe_is_excluded) ... ok
+test_out_of_window_host_activity_does_not_count (test_policy.EvidencePolicyTests.test_out_of_window_host_activity_does_not_count) ... ok
+test_pre_anchor_fractional_timestamp_matches_rust_truncation (test_policy.EvidencePolicyTests.test_pre_anchor_fractional_timestamp_matches_rust_truncation) ... ok
+test_reused_pid_is_not_original_instance (test_policy.EvidencePolicyTests.test_reused_pid_is_not_original_instance) ... ok
+test_small_mutation_input_is_blocked_not_passed (test_policy.EvidencePolicyTests.test_small_mutation_input_is_blocked_not_passed) ... ok
+test_unbound_events_are_visible_never_pid_attributed (test_policy.EvidencePolicyTests.test_unbound_events_are_visible_never_pid_attributed) ... ok
+test_unclocked_events_are_visible (test_policy.EvidencePolicyTests.test_unclocked_events_are_visible) ... ok
+test_zero_exit_is_not_workload_acceptance (test_policy.EvidencePolicyTests.test_zero_exit_is_not_workload_acceptance) ... ok
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.036s
+
+OK

@@ -132,7 +132,7 @@ pub fn unzip(bytes: &[u8]) -> HashMap<String, Vec<u8>> {
     let mut m = HashMap::new();
     for i in 0..a.len() {
         let mut f = a.by_index(i).unwrap();
-        let name = f.name().to_string();
+        let name = f.name().unwrap().into_owned();
         let mut buf = Vec::new();
         f.read_to_end(&mut buf).unwrap();
         m.insert(name, buf);

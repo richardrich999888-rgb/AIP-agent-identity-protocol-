@@ -195,6 +195,59 @@ fn integrity_recovers_on_the_next_clean_cycle() {
 }
 
 #[test]
+fn recovery_never_backfills_coverage_across_unknown_integrity() {
+    for integrity in [
+        MechanismIntegrity::Unverifiable,
+        MechanismIntegrity::ForeignTracepointGate {
+            foreign_programs: 1,
+        },
+    ] {
+        let mut f = fixture();
+        warm_up_to_active(&mut f, SourceMechanism::ProcConnector);
+        f.signer
+            .note_mechanism_integrity(SourceMechanism::SchedTracepoint, integrity);
+        // Contiguous signed batches do not imply capable observation. The
+        // unknown slot persists even when a later batch has no new report.
+        attest_batch(&mut f, 3, 300, 400, SourceMechanism::ProcConnector);
+        attest_batch(&mut f, 4, 400, 500, SourceMechanism::ProcConnector);
+        let blinded = f.signer.health(500).unwrap();
+        assert_eq!(blinded.health.state, ObserverState::IntegrityUnknown);
+        assert!(blinded.health.attested_coverage.is_none());
+
+        f.signer.note_mechanism_integrity(
+            SourceMechanism::SchedTracepoint,
+            MechanismIntegrity::Verified,
+        );
+        let before_new_batch = f.signer.health(500).unwrap();
+        assert!(before_new_batch.health.attested_coverage.is_none());
+        assert!(before_new_batch.health.covered_by.is_empty());
+
+        attest_batch(&mut f, 5, 500, 600, SourceMechanism::ProcConnector);
+        let recovered = f.signer.health(600).unwrap();
+        assert_eq!(recovered.health.state, ObserverState::Active);
+        assert_eq!(
+            recovered.health.attested_coverage,
+            Some(CoverageWindow {
+                from_ms: 500,
+                to_ms: 600,
+            })
+        );
+        assert_eq!(verify_signed_health(&recovered, &f.anchors), Ok(()));
+        assert!(matches!(
+            recovered.availability_for(
+                &CoverageWindow {
+                    from_ms: 300,
+                    to_ms: 500,
+                },
+                600,
+                60_000,
+            ),
+            ObservationAvailability::Unavailable { .. }
+        ));
+    }
+}
+
+#[test]
 fn an_unverifiable_query_fails_closed_like_a_found_gate() {
     // A refused kernel query (no CAP_PERFMON) is not evidence of a clean
     // mechanism. It must fail closed identically to a found gate: the observer

@@ -49,7 +49,14 @@ fn main() {
         return;
     }
     let _held = match args.first().map(String::as_str) {
-        Some("--idle") => None,
+        Some("--idle") => {
+            // Synchronization only: the parent independently measures every
+            // identity field through procfs after this message. It is never
+            // signed evidence or an identity assertion.
+            println!("ghost-demo-agent idle");
+            std::io::stdout().flush().expect("idle readiness");
+            None
+        }
         Some("--connect-close") => {
             let mut s = TcpStream::connect(&args[1]).expect("connect");
             s.write_all(b"ghost-demo-agent connected\n").expect("hello");

@@ -243,7 +243,10 @@ fn read_zip(bytes: &[u8]) -> Result<HashMap<String, Vec<u8>>, BundleError> {
         let mut f = archive
             .by_index(i)
             .map_err(|e| BundleError::Zip(e.to_string()))?;
-        let name = f.name().to_string();
+        let name = f
+            .name()
+            .map_err(|e| BundleError::Zip(e.to_string()))?
+            .into_owned();
         let mut buf = Vec::new();
         f.read_to_end(&mut buf)
             .map_err(|e| BundleError::Zip(e.to_string()))?;

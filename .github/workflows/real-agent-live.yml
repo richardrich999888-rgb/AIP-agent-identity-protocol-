@@ -1,0 +1,30 @@
+name: Real-agent privileged validation (manual)
+on:
+  workflow_dispatch:
+    inputs:
+      framework:
+        description: Provisioned framework configuration
+        required: true
+        type: choice
+        options: [agent_zero, deerflow, openhands]
+permissions:
+  contents: read
+jobs:
+  live:
+    # A dedicated disposable runner and protected environment are required.
+    # Never run this job automatically for pull requests/untrusted fork code.
+    environment: snifferdog-validation
+    runs-on: [self-hosted, linux, snifferdog-disposable]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run real workload and independent observation
+        env:
+          FRAMEWORK: ${{ inputs.framework }}
+        run: |
+          sudo -n python3 integrations/real_agents/harness.py run \
+            --config "/etc/snifferdog/${FRAMEWORK}.json" \
+            --out "/var/lib/snifferdog/runs/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            --checkpoint "/var/lib/snifferdog/checkpoints/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
+      # No blanket artifact upload: model logs/workspaces may contain credentials.
+      # Public evidence is exported only after explicit review on the runner.

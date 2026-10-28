@@ -1,0 +1,98 @@
+name: RBI rehearsal
+
+on:
+  pull_request:
+    paths:
+      - 'validation/rbi_demo/**'
+      - 'validation/pilot_e2e/**'
+      - 'aip-standalone/aip-observe/**'
+      - '.github/workflows/rbi-rehearsal.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  script-regressions:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Deterministic unprivileged shell regressions
+        run: |
+          bash -n validation/rbi_demo/run.sh
+          bash -n validation/pilot_e2e/run.sh
+          python3 -B validation/rbi_demo/test_run.py
+
+  live-rehearsal:
+    needs: script-regressions
+    # Run the interference experiment only on a disposable GitHub-hosted VM,
+    # never a self-hosted runner or unreviewed fork with repository credentials.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Establish real clock synchronization on this disposable VM
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chrony
+          sudo systemctl restart chrony
+          sudo chronyc waitsync 30 0.1 0.0 2
+          sudo chronyc tracking | tee "$RUNNER_TEMP/rbi-clock.txt"
+          timedatectl show --property=NTPSynchronized --value | tee -a "$RUNNER_TEMP/rbi-clock.txt"
+      - name: Build real demonstration binaries
+        run: |
+          cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-mcp-gateway 2>&1 | tee "$RUNNER_TEMP/rbi-build.log"
+      - name: Cross-sensor regression tests with actual scheduler event shapes
+        run: cargo test --locked -p aip-observe --lib divergence::tests
+      - name: Integrity recovery must never backfill blinded coverage
+        run: cargo test --locked -p aip-observe --test observer_integrity
+      - name: Run all five acts with the real kernel and offline verifier
+        run: |
+          sudo env "PATH=$PATH" "CARGO_HOME=$HOME/.cargo" "RUSTUP_HOME=$HOME/.rustup" \
+            CARGO_INCREMENTAL=0 \
+            AIP_DEMO_SKIP_SYSTEM=0 \
+            bash validation/rbi_demo/run.sh "$RUNNER_TEMP/rbi-rehearsal"
+      - name: Retain evidence and failure diagnostics, never private keys
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rbi-rehearsal-${{ github.run_id }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/rbi-clock.txt
+            ${{ runner.temp }}/rbi-build.log
+            ${{ runner.temp }}/rbi-rehearsal/transcript.txt
+            ${{ runner.temp }}/rbi-rehearsal/clock.log
+            ${{ runner.temp }}/rbi-rehearsal/build.log
+            ${{ runner.temp }}/rbi-rehearsal/system_run.log
+            ${{ runner.temp }}/rbi-rehearsal/control_check.log
+            ${{ runner.temp }}/rbi-rehearsal/act3_destination.log
+            ${{ runner.temp }}/rbi-rehearsal/act4_toolcall.log
+            ${{ runner.temp }}/rbi-rehearsal/act4b_gateway.out
+            ${{ runner.temp }}/rbi-rehearsal/act4b_gateway.err
+            ${{ runner.temp }}/rbi-rehearsal/act4b_receipt_check.err
+            ${{ runner.temp }}/rbi-rehearsal/receipts.jsonl
+            ${{ runner.temp }}/rbi-rehearsal/system/transcript.txt
+            ${{ runner.temp }}/rbi-rehearsal/system/build.log
+            ${{ runner.temp }}/rbi-rehearsal/system/host.txt
+            ${{ runner.temp }}/rbi-rehearsal/system/summary.json
+            ${{ runner.temp }}/rbi-rehearsal/system/health.A.control.jsonl
+            ${{ runner.temp }}/rbi-rehearsal/system/health.B.under_attack.jsonl
+            ${{ runner.temp }}/rbi-rehearsal/system/health.C.recovery.jsonl
+            ${{ runner.temp }}/rbi-rehearsal/system/offline_verify.txt
+            ${{ runner.temp }}/rbi-rehearsal/system/offline_verify_tampered.txt
+            ${{ runner.temp }}/rbi-rehearsal/system/work/collector.log
+            ${{ runner.temp }}/rbi-rehearsal/system/work/probe.log
+            ${{ runner.temp }}/rbi-rehearsal/system/work/attack.log
+            ${{ runner.temp }}/rbi-rehearsal/system/work/state/health.archive.jsonl
+            ${{ runner.temp }}/rbi-rehearsal/system/work/state/attested.archive.jsonl
+            ${{ runner.temp }}/rbi-rehearsal/system/work/state/observer.pub

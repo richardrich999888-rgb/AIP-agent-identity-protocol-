@@ -1,0 +1,110 @@
+name: Agent Zero container and Linux regression
+on:
+  pull_request:
+    paths:
+      - 'integrations/real_agents/**'
+      - 'aip-standalone/ghost-demo/**'
+      - '.github/workflows/agent-zero-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+jobs:
+  release-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Repeated release startup and offline-verification regression
+        run: |
+          cargo test --locked --release -p ghost-demo --test live idle_readiness_precedes_binding_collection
+          cargo test --locked --release -p ghost-demo --test live idle_startup_race_diagnostic -- --nocapture
+          cargo test --locked --release -p ghost-demo --test live d_wrong_process_instance_is_identity_divergence_never_verified
+          for iteration in $(seq 1 20); do
+            cargo test --locked --release -p ghost-demo --test live_nexora g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too
+          done
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build pinned Agent Zero (no credentials available to build)
+        run: |
+          python3 integrations/real_agents/build_image.py agent_zero \
+            --python-image python:3.12-slim-bookworm@sha256:62ed8e07e544e8555c5d93748d5275015136b7f5c52b5e8679b4de339c3779d3 \
+            --uv-version 0.13.6 --tag snifferdog-agent-zero:validation
+          docker image inspect snifferdog-agent-zero:validation > "$RUNNER_TEMP/image.json"
+          docker run --rm --network none --entrypoint /opt/framework/.venv/bin/python \
+            snifferdog-agent-zero:validation -m pip list --format=json > "$RUNNER_TEMP/dependencies.json"
+      - name: Exercise real upstream initialization and local terminal without a model
+        run: |
+          docker run --rm --network none --user 10001:10001 --cap-drop ALL \
+            --security-opt no-new-privileges --read-only --memory 4g --cpus 2 --pids-limit 256 \
+            --tmpfs /tmp:rw,nosuid,size=1g,mode=1777 \
+            --tmpfs /work:rw,nosuid,size=1g,uid=10001,gid=10001 \
+            --tmpfs /opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001 \
+            --entrypoint /opt/framework/.venv/bin/python \
+            snifferdog-agent-zero:validation /opt/snifferdog/smoke.py 2>&1 | tee "$RUNNER_TEMP/smoke.txt"
+      - name: Preserve the tested image for reproduction (no model secrets)
+        run: |
+          docker save snifferdog-agent-zero:validation | gzip -1 > "$RUNNER_TEMP/agent-zero-image.tar.gz"
+          cd "$RUNNER_TEMP"
+          sha256sum agent-zero-image.tar.gz > agent-zero-image.sha256
+      - name: Retain build evidence only (no model keys or workload logs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-zero-build-${{ github.run_id }}
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/image.json
+            ${{ runner.temp }}/dependencies.json
+            ${{ runner.temp }}/smoke.txt
+            ${{ runner.temp }}/agent-zero-image.tar.gz
+            ${{ runner.temp }}/agent-zero-image.sha256
+  hosted-observer-capabilities:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Prepare synchronized clock and independent Linux audit
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chrony auditd
+          sudo systemctl restart chrony
+          sudo chronyc waitsync 30 0.1 0.0 2
+          sudo service auditd start
+          # This is a fresh disposable VM. Remove only its packaged opt-out;
+          # the harness itself refuses suppressed audit and never clears rules.
+          sudo auditctl -l | tee "$RUNNER_TEMP/audit-initial-rules.txt"
+          if sudo auditctl -l | grep -Fxq -- '-a never,task'; then
+            sudo auditctl -d never,task
+          fi
+      - run: cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate
+      - name: Exercise actual sensors, strict collector, audit and offline verification
+        run: |
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" python3 \
+            integrations/real_agents/hosted_observer_smoke.py --tools target/debug \
+            --out "$RUNNER_TEMP/hosted-observer"
+      - name: Preserve public component-test evidence (never agent validation)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hosted-observer-smoke-${{ github.run_id }}
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/hosted-observer/public/
+            ${{ runner.temp }}/hosted-observer/anchor.json
+            ${{ runner.temp }}/hosted-observer/checkpoint.json

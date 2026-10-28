@@ -845,14 +845,22 @@ impl Agent {
         }
     }
 
-    /// Spawn the agent binary without any connection.
+    /// Spawn the agent binary without any connection. Wait for its userspace
+    /// readiness message before callers measure its execution binding. Spawn
+    /// completion alone is not the application readiness boundary; unlike the
+    /// connection/write/spawn scenarios this path used to have no handshake.
     pub fn idle(agent_bin: &str) -> Agent {
-        let child = Command::new(agent_bin)
+        let mut child = Command::new(agent_bin)
             .arg("--idle")
             .stdin(Stdio::piped())
-            .stdout(Stdio::null())
+            .stdout(Stdio::piped())
             .spawn()
             .expect("spawn idle agent");
+        let mut line = String::new();
+        BufReader::new(child.stdout.take().unwrap())
+            .read_line(&mut line)
+            .expect("idle readiness");
+        assert_eq!(line.trim(), "ghost-demo-agent idle");
         let pid = child.id();
         Agent {
             child,

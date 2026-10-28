@@ -1,0 +1,8 @@
+Classification: locally reproduced baseline; not an autonomous-agent run
+Repository: https://github.com/pallets/click
+Commit: 2247b35ea1c47c727d7a06e51fa280e12a863ff6
+Issue: https://github.com/pallets/click/issues/3652
+Python: 3.12
+CliRunner.invoke([--help]) exit: 0
+Observed option line: --foo TEXT  A list of foo strings.
+TEXT... present: false
