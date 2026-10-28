@@ -51,6 +51,20 @@ def verify_model(models):
     return value
 
 
+def publish_runtime(root):
+    """Expose verified public assets; keep bootstrap HOME and logs private."""
+    root.chmod(0o755)
+    for name in ('bin', 'lib', 'models'):
+        tree = root / name
+        tree.chmod(0o755)
+        for path in tree.rglob('*'):
+            if path.is_symlink():
+                if not path.resolve(strict=True).is_relative_to(tree.resolve()):
+                    raise ValueError('public runtime symlink escapes its asset tree')
+                continue
+            path.chmod(0o755 if path.is_dir() or name == 'bin' or path.name == 'llama-server' else 0o644)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--root', type=Path, required=True)
@@ -121,6 +135,7 @@ def main():
            'manifest_sha256': MANIFEST_SHA256, 'manifest': manifest, 'every_blob_hash_verified': True,
            'cloud_inference': 'disabled', 'api_credentials_used': False, 'model_api_spend_cap': 0,
            'source_authority': 'operator_verified_public_distribution'}
+    publish_runtime(root)
     (root / 'model-pin.json').write_text(json.dumps(pin, indent=2) + '\n')
     print(json.dumps({'status': 'PASS', 'model_pin': str(root / 'model-pin.json')}))
 

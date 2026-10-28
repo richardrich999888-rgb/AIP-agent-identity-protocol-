@@ -18,7 +18,37 @@ custody; ephemeral GitHub keys do not satisfy that condition.
 The initial automated local-isolation profile runs on `ubuntu-24.04` in GitHub
 Actions. It proves software interfaces only to the extent supported by its
 actual artifacts, with host root/kernel and the GitHub account trusted. SSH is
-not needed for that profile. No separate-administration assertion is made.
+not needed for that profile. The public repository now receives allocated
+GitHub runners; each execution must still pass its own capability and evidence
+checks. A separately controlled collector is needed to establish independent
+custody and the stronger workload-host-compromise boundary. No
+separate-administration assertion is made for the hosted profile.
+
+The hosted profile requires all of the following on the actual runner:
+
+* Root for provisioning tracefs, a dedicated workload mount, network namespaces,
+  UID-based firewall rules, audit rules and cgroup limits; the agent, model,
+  gateway and tool subsequently run as distinct unprivileged accounts.
+* cgroup v2 with enabled `cpu`, `memory` and `pids` controllers. The workload
+  group is limited to two CPUs, 8 GiB and 512 tasks, with a 360-second agent
+  deadline and a 45-minute workflow timeout.
+* Accessible tracefs and working perf tracepoints for scheduler fork/exec,
+  cgroup creation/removal/task attachment, `sock/inet_sock_set_state` and
+  `sock/sock_send_length`. Perf observation requires `CAP_PERFMON` or an
+  equivalent host policy; unavailable requested sensors fail startup.
+* Kernel process-connector support (`CONFIG_CONNECTOR` and
+  `CONFIG_PROC_EVENTS`), `CAP_NET_ADMIN` in the initial network namespace,
+  and fanotify support with `CAP_SYS_ADMIN` and access to the workload mount.
+  The probe and collector remain in the host network namespace while the
+  model, agent, gateway and tool use an isolated loopback-only namespace.
+* A synchronized host clock, working chrony checks, and auditd with permission
+  to add and export the independent agent/tool execution rules. Retain actual
+  loss, integrity, binding and signed coverage results; having privileges does
+  not establish healthy observation.
+
+The current profile selects `sched,cgroup,connector,fanotify,sockstate,socksend`.
+It does not select AF_PACKET. A kernel feature absent from a runner image
+cannot be supplied by granting additional capabilities.
 
 ## Reproduce the initial run
 
@@ -61,6 +91,15 @@ Never provide that confirmation merely to run both roles on one disposable VM.
 Provision wrapped signing/passphrase and Noise keys only through the approved
 operator/secret process. The installer does not start services automatically.
 Complete the existing preflight, enrollment, resource-limit and coverage checks.
+
+The installer currently refuses a configuration containing `fanotify`: its
+shipped systemd restrictions do not grant `CAP_SYS_ADMIN` or the required host
+mount view. Reproducing the full hosted six-sensor profile as an installed
+service therefore requires a reviewed deployment change that supplies those
+permissions and mount visibility, followed by actual startup and coverage
+validation. A manual override alone does not bypass the installer's config
+refusal. A package installed with fewer sensors has a different coverage
+profile and cannot be reported as qualification of the full hosted profile.
 
 Package CI also installs actual Linux binaries into staged filesystems,
 executes the installed verifier, uninstalls/reinstalls and checks retained
