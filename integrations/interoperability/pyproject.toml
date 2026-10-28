@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vanian-interoperability"
+version = "0.1.0"
+description = "External identity and governance references for the existing VANIAN evidence core"
+requires-python = ">=3.11"
+license = "LicenseRef-Proprietary"
+dependencies = ["PyJWT[crypto]==2.10.1", "httpx==0.28.1"]
+
+[project.optional-dependencies]
+adk = ["google-adk[a2a]==2.13.0", "a2a-sdk[http-server]==1.3.0"]
+test = ["pytest==8.4.2"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
