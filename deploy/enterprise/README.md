@@ -4,6 +4,10 @@ This directory packages the existing `aip-probe`, `aip-collector` and
 `aip-observe-verify`. The package runs in **OBSERVER_ONLY** mode. It has no
 actuator, transaction gate, firewall change, or automatic containment.
 
+For customer onboarding, see the [enterprise service model](../../docs/enterprise/SERVICE_DELIVERY_MODEL.md)
+and the [offline service manifest planner](../../integrations/service_delivery/README.md).
+The preflight report is a plan, not proof that any security control was deployed.
+
 The installer and verifier are Python standard-library programs. Their
 deterministic tests install fixture files into a temporary directory; they do
 not establish that a Linux sensor opens or that a live deployment works.
