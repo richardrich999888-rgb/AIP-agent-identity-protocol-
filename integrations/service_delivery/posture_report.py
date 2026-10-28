@@ -47,7 +47,7 @@ def collect(client):
     return {
         "report_type": "VANIAN_EVALUATION_POSTURE_ONLY",
         "tenant_id": tenant,
-        "service_health": "reported_healthy" if health.get("status") == "ok" else "reported_unhealthy_or_unknown",
+        "service_health": "api_reported_ok" if health.get("status") == "ok" else "api_reported_unhealthy_or_unknown",
         "observer_health": health.get("probe_health", "unknown"),
         "collector_health": health.get("collector_health", "unknown"),
         "coverage": {
@@ -57,7 +57,7 @@ def collect(client):
         },
         "agent_inventory": {
             "provenance": "AGENT_SIGNED_EVIDENCE_PACKET_IDENTIFIERS_ONLY",
-            "total_inventory_complete": page.next_offset is None,
+            "source_pagination_complete": page.next_offset is None,
             "page_limit": page.limit,
             "items": agents,
         },
