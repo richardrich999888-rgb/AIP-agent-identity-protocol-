@@ -1,0 +1,112 @@
+{
+  "observed_at_utc": "2026-10-28T18:48:12Z",
+  "repository": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+  "scope": "Read-only audit; no workflow reruns, dispatches, source edits, checkout, commit or push",
+  "pr11": {
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/11",
+    "state": "OPEN",
+    "draft": true,
+    "branch": "integration/vanian-enterprise-service-delivery",
+    "head": "a933fdc327e8744dc8a8441ea3d5b2d75063b91f",
+    "base": "feature/vanian-agent-governance-interoperability",
+    "latest_ci_run": 40742409670,
+    "run_attempt": 1,
+    "event": "pull_request",
+    "conclusion": "failure",
+    "created_at_utc": "2026-10-28T18:09:03Z",
+    "updated_at_utc": "2026-10-28T18:09:07Z",
+    "all_six_ci_jobs_have_zero_steps": true,
+    "example_job": {
+      "id": 123007198181,
+      "name": "fmt · clippy · test",
+      "runner_id": 0,
+      "runner_name": "",
+      "labels": ["ubuntu-latest"],
+      "steps": []
+    },
+    "classification": "Account billing or spending-limit restriction before runner allocation; no Rust, Python, coverage, database or security test executed in this run",
+    "exact_failure_annotation": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings",
+    "separate_latest_workflow_same_annotation": {
+      "run_id": 40742409818,
+      "job_id": 123007197020,
+      "workflow": "Enterprise service delivery contracts"
+    },
+    "earlier_independently_triggered_ci_same_blocker": {
+      "run_id": 40741903535,
+      "head": "f0966992c5b9eb0b902314af38d3aee7eb36ca8b",
+      "created_at_utc": "2026-10-28T18:05:48Z",
+      "job_id": 123005415486,
+      "runner_id": 0,
+      "runner_name": "",
+      "steps": [],
+      "identical_failure_annotation_confirmed": true
+    },
+    "latest_workflows": [
+      {"id": 40742409515, "workflow": "Enterprise integration", "conclusion": "failure"},
+      {"id": 40742409632, "workflow": "Real-agent harness contracts (no live agent claim)", "conclusion": "failure"},
+      {"id": 40742409818, "workflow": "Enterprise service delivery contracts", "conclusion": "failure"},
+      {"id": 40742409670, "workflow": "CI", "conclusion": "failure"}
+    ],
+    "action": "Account owner should inspect Billing & plans if restriction recurs on the combined head. Do not disable checks or change test expectations to resolve this provider block. The annotation does not distinguish payment failure from spending limit."
+  },
+  "exact_older_model_failure": {
+    "run_id": 40740307858,
+    "run_attempt": 2,
+    "event": "pull_request",
+    "job_id": 123008593400,
+    "job": "local-model-linux",
+    "head": "64e3cd056d0003747c3690a3719e92f65e08da89",
+    "actual_checkout": "30a2129c8c778bddd158e00508e86658438209df",
+    "actual_checkout_tree": "c9d6c4e37d0e8228a891356cfb28e975d7dbb7ff",
+    "actual_checkout_parents": ["65b6ff7fdad5ae70546a57216a497399091c7dc7", "64e3cd056d0003747c3690a3719e92f65e08da89"],
+    "runner": {"version": "2.338.0", "os": "Ubuntu 24.04.5", "image": "ubuntu-24.04", "image_version": "20261025.353.1"},
+    "portable_controls": {"passed": 3, "failed": 0},
+    "failed_step": "Provision public pinned CPU model (no API credentials or cloud spending)",
+    "failed_at_utc": "2026-10-28T18:13:20Z",
+    "source": "validation/enterprise/prepare_local_model.py:31",
+    "exception": "ValueError: model tag changed; reviewed manifest digest required",
+    "exit_code": 1,
+    "classification": "Executed dependency provisioning failure at manifest integrity comparison; not runner provisioning, compilation or an end-to-end test failure",
+    "build_and_same_run_steps": "skipped",
+    "source_behavior": "Pull mutable llama3.2:1b tag through pinned Ollama 0.40.11, then compare SHA-256 of the locally serialized manifest file with baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878 before validating all blob hashes and sizes",
+    "limit": "The failed log contains no actual manifest bytes, observed manifest digest or layer/config comparison. It cannot establish that upstream weights changed; serialization differences also require investigation."
+  },
+  "pr8_latest_snapshot": {
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/8",
+    "state": "OPEN",
+    "draft": true,
+    "branch": "integration/snifferdog-complete-enterprise-validation",
+    "head": "3f025d230a457c0a4221f6d660e5538e40d37212",
+    "head_parent": "e2cd2d6f41b25515c01647ee95943bca23af93ce",
+    "base": "codex/snifferdog-real-agent-swarm-validation",
+    "same_run": {
+      "run_id": 40748072732,
+      "job_id": 123027066332,
+      "runner_id": 1000004185,
+      "labels": ["ubuntu-24.04"],
+      "status": "in_progress",
+      "portable_controls": "success",
+      "model_provisioning": "success",
+      "model_provisioning_completed_at_utc": "2026-10-28T18:47:29Z",
+      "build": "in_progress",
+      "genuine_agent_execution": "pending"
+    },
+    "ci_run": 40748072742,
+    "python_sdk_job": {"id": 123027067108, "conclusion": "success"},
+    "real_agent_harness_contracts": {"run_id": 40748072813, "job_id": 123027066792, "conclusion": "success"},
+    "rbi_script_regressions": {"run_id": 40748072809, "job_id": 123027066449, "conclusion": "success"},
+    "remaining_ci": "in_progress at snapshot",
+    "limit": "This source advanced after the originally requested PR8 head and is not the combined recovery head. Its successes do not validate the combined source or prove the complete same-run path."
+  },
+  "source_attribution_rule": "Always retain both run head_sha and actual checkout SHA; pull_request runs may execute a synthetic merge. PR11 blocked jobs did not perform checkout.",
+  "read_only_reproduction": [
+    "gh run view 40742409670 --repo richardrich999888-rgb/AIP-agent-identity-protocol- --json databaseId,headSha,headBranch,event,status,conclusion,jobs",
+    "gh api repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/jobs/123007198181",
+    "gh api repos/richardrich999888-rgb/AIP-agent-identity-protocol-/check-runs/123007198181/annotations",
+    "gh api repos/richardrich999888-rgb/AIP-agent-identity-protocol-/check-runs/123005415486/annotations",
+    "gh api repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/jobs/123008593400/logs",
+    "gh pr view 11 --repo richardrich999888-rgb/AIP-agent-identity-protocol- --json headRefOid,statusCheckRollup",
+    "gh pr view 8 --repo richardrich999888-rgb/AIP-agent-identity-protocol- --json headRefOid,statusCheckRollup",
+    "gh api repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/jobs/123027066332"
+  ]
+}

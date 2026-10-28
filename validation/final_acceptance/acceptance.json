@@ -1,0 +1,24 @@
+{
+  "schema_version": "vanian.final_acceptance.v1",
+  "branch": "fix/vanian-end-to-end-green",
+  "implementation_snapshot": "24688d0cc89e79a03dcac81d9c72025d635a7165",
+  "target_branch": "integration/vanian-enterprise-service-delivery",
+  "scope": "Combined-source acceptance. Component or fixture tests never substitute for a genuine same-run Linux execution.",
+  "gates": [
+    {"id":"model_provisioning","status":"NOT_EXECUTED","claim":"Immutable artifact review and local complete cached-blob verification passed; fresh combined-head Linux provisioning is pending.","evidence":["validation/final_acceptance/model-review/review.json","validation/final_acceptance/model-review/local-check.json","validation/final_acceptance/model-review/portable-controls.log"]},
+    {"id":"combined_source","status":"PASS","claim":"Verified PR11 and both observed newer PR8 heads are preserved by normal merge ancestry; conflict resolutions retain both interface sets.","evidence":["validation/final_acceptance/source-history.json","validation/final_acceptance/source-history.log"]},
+    {"id":"debug_release_workspace","status":"NOT_EXECUTED","claim":"Complete supported-Linux debug/release results on the combined source are pending; macOS compile diagnostics are not Linux test results.","evidence":[]},
+    {"id":"github_ci","status":"NOT_EXECUTED","claim":"Runner-executed tests on this combined head are pending. Historical PR11 payment/spending blocks are distinct from current PR8 runner execution.","evidence":["validation/final_acceptance/ci/initial-audit.json"]},
+    {"id":"real_ai_agent","status":"NOT_EXECUTED","claim":"Requires a genuine local-model decision and approved tool execution in the combined-head run.","evidence":[]},
+    {"id":"authorization","status":"NOT_EXECUTED","claim":"Requires the actual workload proposal signed outside the agent boundary with independently measured process binding.","evidence":[]},
+    {"id":"mcp_gateway","status":"NOT_EXECUTED","claim":"Requires original signed request receipts from that same genuine execution.","evidence":[]},
+    {"id":"kernel_observation","status":"NOT_EXECUTED","claim":"Requires genuine supported Linux events and adequate signed coverage for the same execution window.","evidence":[]},
+    {"id":"collector","status":"NOT_EXECUTED","claim":"Requires valid original signed batch and health records from the same run.","evidence":[]},
+    {"id":"reconciliation","status":"NOT_EXECUTED","claim":"Requires the unchanged engine finding justified by that run, preserving CannotProve and separate tool-boundary findings.","evidence":[]},
+    {"id":"api_sdk_mcp","status":"NOT_EXECUTED","claim":"Fixture retrieval tests pass separately; acceptance requires retrieval of the genuine run through the service and all customer clients.","evidence":[]},
+    {"id":"offline_verification","status":"NOT_EXECUTED","claim":"Requires independent verification and mutation refusal for the genuine run under separately approved anchors/checkpoints.","evidence":[]},
+    {"id":"deployment","status":"BLOCKED","claim":"No approved clean supported Linux systemd installation hosts were supplied. Package construction or staging cannot qualify installation, restart, upgrade or retained-data uninstall.","evidence":[]},
+    {"id":"separate_administration","status":"BLOCKED","claim":"No genuinely independently administered collector trust domain was supplied. Hosted local isolation cannot prove this.","evidence":[]},
+    {"id":"independent_bank_acceptance","status":"BLOCKED","claim":"Requires explicit external institutional assessment and acceptance; engineering tests cannot self-approve it.","evidence":[]}
+  ]
+}

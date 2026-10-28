@@ -1,0 +1,18 @@
+Source: GitHub Actions job 123008593400, run 40740307858, attempt 1.
+Only public runner/source/test/error lines retained. No credentials or private logs.
+
+2026-10-28T18:11:43.7463675Z Current runner version: '2.338.0'
+2026-10-28T18:11:43.7499910Z 24.04.5
+2026-10-28T18:11:43.7502219Z Image: ubuntu-24.04
+2026-10-28T18:11:43.7502876Z Version: 20261025.353.1
+2026-10-28T18:11:52.2204306Z HEAD is now at 30a2129 Merge 64e3cd056d0003747c3690a3719e92f65e08da89 into 65b6ff7fdad5ae70546a57216a497399091c7dc7
+2026-10-28T18:12:59.4194907Z test_mutable_model_tag_cannot_replace_reviewed_manifest (__main__.SameRunControls.test_mutable_model_tag_cannot_replace_reviewed_manifest) ... ok
+2026-10-28T18:12:59.4199355Z Ran 3 tests in 3.560s
+2026-10-28T18:13:20.2062416Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/validation/enterprise/prepare_local_model.py", line 109, in <module>
+2026-10-28T18:13:20.2063740Z     main()
+2026-10-28T18:13:20.2065273Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/validation/enterprise/prepare_local_model.py", line 93, in main
+2026-10-28T18:13:20.2066636Z     manifest = verify_model(models)
+2026-10-28T18:13:20.2068270Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/validation/enterprise/prepare_local_model.py", line 31, in verify_model
+2026-10-28T18:13:20.2097361Z ##[error]    raise ValueError('model tag changed; reviewed manifest digest required')
+2026-10-28T18:13:20.2105669Z ValueError: model tag changed; reviewed manifest digest required
+2026-10-28T18:13:20.2180258Z ##[error]Process completed with exit code 1.

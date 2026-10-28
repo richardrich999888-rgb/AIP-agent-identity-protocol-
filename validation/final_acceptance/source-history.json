@@ -1,0 +1,15 @@
+{
+  "recovery_branch": "fix/vanian-end-to-end-green",
+  "based_on_pr11_head": "a933fdc327e8744dc8a8441ea3d5b2d75063b91f",
+  "initial_verified_pr8_head": "e2cd2d6f41b25515c01647ee95943bca23af93ce",
+  "subsequent_reviewed_pr8_head": "3f025d230a457c0a4221f6d660e5538e40d37212",
+  "merge_commits": ["0c881824003f14029ee7674d534ee3045839742e", "0f31b8ac74570af953e2bee38008019892ead0e8"],
+  "implementation_snapshot": "24688d0cc89e79a03dcac81d9c72025d635a7165",
+  "all_three_source_heads_verified_as_ancestors": true,
+  "verification": "git merge-base --is-ancestor SOURCE HEAD returned zero for each named source head; exact parent records are retained in source-history.log",
+  "resolved_conflicts": [".github/workflows/enterprise-integration.yml", "docs/enterprise/SDK_GUIDE.md", "docs/enterprise/openapi.yaml", "integrations/enterprise-console/app.js", "validation/enterprise/openapi_contract.py"],
+  "preserved": ["deployment registry", "compiled SDK distributions", "Debian packaging and enrollment", "ADK/A2A and Microsoft adapters", "same-run authorization and evidence routes", "original cryptographic formats", "historical RBI evidence"],
+  "default_branch_modified": false,
+  "draft_prs_merged_to_main": false,
+  "scope": "Source ancestry and reviewed integration only; not runtime or institutional acceptance. Later changes require separate validation provenance."
+}
