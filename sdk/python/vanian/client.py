@@ -222,5 +222,21 @@ class VanianClient:
         """Verify the admitted historical archive, not current host coverage."""
         return self._get("/v1/observations/" + _identifier(observation_id) + "/verification")
 
+    def get_run_metadata(self, run_artifact_id: str) -> dict[str, Any]:
+        """Read server-reevaluated same-run metadata, including all limitations."""
+        return self._get("/v1/runs/" + _identifier(run_artifact_id) + "/metadata")
+
+    def get_run_verdict(self, run_artifact_id: str) -> dict[str, Any]:
+        """Retrieve the original signed verdict, checked against run recomputation."""
+        return self._get("/v1/runs/" + _identifier(run_artifact_id) + "/verdict")
+
+    def evaluate_run(self, run_artifact_id: str) -> dict[str, Any]:
+        """Reevaluate immutable inputs using configured public anchors/checkpoints."""
+        return self._get("/v1/runs/" + _identifier(run_artifact_id) + "/evaluation")
+
+    def get_agent_runs(self, agent_id: str, *, limit: int = 25, offset: int = 0) -> Page[dict[str, Any]]:
+        return Page.parse(self._get("/v1/agents/" + _identifier(agent_id) + "/runs"
+                                    + self._page_query(limit, offset)))
+
     def get_health(self) -> dict[str, Any]:
         return self._get("/v1/health")

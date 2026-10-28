@@ -18,6 +18,7 @@ export interface EvidenceMetadata {
 export interface Page<T> {items: T[]; limit: number; offset: number; next_offset: number | null}
 export interface Coverage {status: "unavailable"; reason: string; independent_execution_verified: false}
 export interface Verification {evidence_id: string; verification_scope: "integrity_only"; report: Record<string, unknown>; limitations: string[]}
+export interface RunMetadata {run_artifact_id: string; run_id: string; agent_id: string; bundle_sha256: string; batches_sha256: string; health_sha256: string; verification_scope: "same_run_evaluation"; evaluation: Record<string, unknown>}
 export interface Access {tenant_id: string; key_id: string; role: "reader" | "machine" | "admin"}
 export interface Options {timeoutMs?: number; retries?: number; maxResponseBytes?: number; allowLoopbackHttp?: boolean}
 
@@ -128,5 +129,9 @@ export class VanianClient {
   getCoverage(): Promise<Coverage> {return this.get("/v1/coverage");}
   getObservationMetadata(observationId: string): Promise<Record<string, unknown>> {return this.get("/v1/observations/" + identifier(observationId) + "/metadata");}
   verifyObservation(observationId: string): Promise<Record<string, unknown>> {return this.get("/v1/observations/" + identifier(observationId) + "/verification");}
+  getRunMetadata(runArtifactId: string): Promise<RunMetadata> {return this.get("/v1/runs/" + identifier(runArtifactId) + "/metadata");}
+  getRunVerdict(runArtifactId: string): Promise<Record<string, unknown>> {return this.get("/v1/runs/" + identifier(runArtifactId) + "/verdict");}
+  evaluateRun(runArtifactId: string): Promise<Record<string, unknown>> {return this.get("/v1/runs/" + identifier(runArtifactId) + "/evaluation");}
+  getAgentRuns(agentId: string, limit = 25, offset = 0): Promise<Page<RunMetadata>> {return this.get("/v1/agents/" + identifier(agentId) + "/runs" + pageQuery(limit, offset));}
   getHealth(): Promise<Record<string, unknown>> {return this.get("/v1/health");}
 }

@@ -83,7 +83,10 @@ pub async fn scope_and_audit(
         ) && !calculation;
         let raw_evidence = matches!(
             route.as_str(),
-            "/v1/evidence/:id" | "/v1/evidence/:id/export" | "/v1/observations/:id"
+            "/v1/evidence/:id"
+                | "/v1/evidence/:id/export"
+                | "/v1/observations/:id"
+                | "/v1/runs/:id"
         );
         if p.role == Role::Reader && (mutation || raw_evidence) {
             tracing::info!(tenant = %p.tenant_id, key_id = %p.key_id, route, status = 403, "evidence access");
@@ -122,7 +125,7 @@ fn default_limit() -> usize {
     50
 }
 impl PageQuery {
-    fn validate(&self) -> Result<(), ApiError> {
+    pub(crate) fn validate(&self) -> Result<(), ApiError> {
         if !(1..=100).contains(&self.limit) || self.offset > 100_000 {
             return Err(error(
                 StatusCode::BAD_REQUEST,
@@ -141,7 +144,7 @@ pub struct Page<T> {
     pub next_offset: Option<usize>,
 }
 impl<T> Page<T> {
-    fn from_items(items: Vec<T>, query: &PageQuery) -> Self {
+    pub(crate) fn from_items(items: Vec<T>, query: &PageQuery) -> Self {
         let more = items.len() > query.limit;
         Self {
             items: items.into_iter().take(query.limit).collect(),

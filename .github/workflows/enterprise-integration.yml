@@ -64,11 +64,18 @@ jobs:
         run: |
           export AIP_ENTERPRISE_PYTHON="$(command -v python)"
           cargo test --locked -p airon-aip --test enterprise_api real_http_clients_use_the_service_boundary -- --ignored --nocapture
+          cargo test --locked -p airon-aip --test enterprise_api real_same_run_clients_use_the_service_boundary -- --ignored --nocapture
       - name: Build verifiable Linux package
         run: |
           cargo build --locked --release -p aip-probe --bin aip-probe -p aip-collector --bin aip-collector -p aip-observe-verify --bin aip-observe-verify
           python deploy/enterprise/linux/package.py build --bin-dir target/release --target x86_64-unknown-linux-gnu --source-commit "$(git rev-parse HEAD)" --output dist/vanian-runtime-x86_64-linux.tar
           sha256sum dist/vanian-runtime-x86_64-linux.tar > dist/SHA256SUMS
+      - name: Actual Linux executable package install/uninstall/reinstall (staging only)
+        run: |
+          python validation/enterprise/package_lifecycle.py \
+            --archive dist/vanian-runtime-x86_64-linux.tar \
+            --expected-sha256 "$(cut -d ' ' -f 1 dist/SHA256SUMS)" \
+            --output dist/package-lifecycle
       - uses: actions/upload-artifact@v4
         with:
           name: enterprise-linux-runtime-${{ github.sha }}
@@ -94,9 +101,10 @@ jobs:
           git clone https://github.com/IBM/mcp-context-forge.git "$RUNNER_TEMP/contextforge"
           git -C "$RUNNER_TEMP/contextforge" checkout ff6a566a4b5c098093db90bbb4d5df483e108026
           uv sync --project "$RUNNER_TEMP/contextforge" --locked --no-dev --no-install-project --python python3.12
-          cargo build --locked -p aip-mcp-gateway --bin aip-tool-receipt --example contextforge_fixture
+          cargo build --locked -p aip-mcp-gateway --bin aip-tool-receipt --bin aip-execution-assurance --example contextforge_fixture
       - name: Actual gateway and upstream interoperability
         run: |
+          "$RUNNER_TEMP/contextforge/.venv/bin/python" integrations/mcp-gateway/test_authorization_policy.py
           "$RUNNER_TEMP/contextforge/.venv/bin/python" integrations/mcp-gateway/validate_contextforge.py --contextforge-source "$RUNNER_TEMP/contextforge" --signer-binary target/debug/aip-tool-receipt --output "$RUNNER_TEMP/contextforge-results"
       - uses: actions/upload-artifact@v4
         if: always()

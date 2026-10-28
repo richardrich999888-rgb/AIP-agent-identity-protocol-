@@ -71,3 +71,37 @@ separate integration test does not attach those fixtures to this LangGraph
 run. A complete observation/authorization/gateway/verdict/API/SDK/MCP join
 remains an open acceptance gate, as does real multi-framework/coding-agent
 Linux execution. Do not present this subset as that completed milestone.
+
+## Same-run Linux integration
+
+`validation/enterprise/same_run_validation.py` now connects this actual graph to
+external measured authorization, the strict ContextForge hook, the real MCP
+read subprocess, Linux observation, signed collector archives, retained
+checkpoints, the offline evaluator and the enterprise clients. Its executable
+workflow is `.github/workflows/same-run-validation.yml`. A successful historical
+subset above does not establish that this newer workflow has executed.
+
+The Linux controller starts the agent as UID 10001, tool server as 10002,
+gateway as 10003 and cloud-disabled local model as 10004. The application
+services share a fresh network namespace containing only loopback. An actual
+UID output rule permits the agent to reach only the model and gateway ports;
+the agent tests that direct upstream access, external access, administrator
+operations and signing-file reads fail. Authority and collector secrets remain
+under root-controlled paths. Kernel/audit observers remain in the initial host
+network namespace. All those roles still trust the shared host root/kernel;
+this is explicitly **local isolation**, with separate administrative collector
+custody incomplete.
+
+`prepare_local_model.py` verifies the pinned official Ollama archive, extracts
+an explicit CPU runtime allowlist, then verifies the reviewed manifest and all
+model blob hashes. It loads no account credentials and permits no cloud model
+path. Actual model token counts and response content are supporting agent
+reports; independent observer/gateway/authority signatures remain distinct.
+The real read child includes an explicit three-second validation hold after
+performing its SQLite read so the existing probe can bind its process before
+it exits. This hold is instrumentation, never a substitute for the read.
+
+A gateway parameter match cannot upgrade the kernel verdict. A logical
+LangGraph node is not independently proven as a separate Linux agent. The
+run's exact signed reconciliation and any `CANNOT_PROVE` reasons must remain
+visible through the API, SDKs, restricted MCP and existing console.

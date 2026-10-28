@@ -33,7 +33,7 @@
     byId("credential").value = "";
     byId("refresh").disabled = true;
     byId("agents").replaceChildren();
-    for (const id of ["health", "coverage", "activity", "evidence", "verdict"]) display(id, "Disconnected");
+    for (const id of ["health", "coverage", "activity", "evidence", "verdict", "run"]) display(id, "Disconnected");
     display("status", "Disconnected");
   }
   async function refresh() {
@@ -73,6 +73,15 @@
   byId("verdict-form").addEventListener("submit", event => {
     event.preventDefault(); read("/v1/verdicts/" + encodeURIComponent(byId("verdict-id").value))
       .then(value => display("verdict", value)).catch(error => display("verdict", error.message));
+  });
+  byId("run-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    try {
+      const id = encodeURIComponent(byId("run-id").value);
+      const [metadata, evaluation] = await Promise.all([read("/v1/runs/" + id + "/metadata"), read("/v1/runs/" + id + "/evaluation")]);
+      const signed_verdict = evaluation.signed_reconciliation_verified ? await read("/v1/runs/" + id + "/verdict") : null;
+      display("run", {metadata, evaluation, signed_verdict});
+    } catch (error) {display("run", error.message);}
   });
   setInterval(() => {if (credential && !document.hidden) refresh().catch(error => display("status", error.message));}, 15000);
 })();

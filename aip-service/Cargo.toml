@@ -29,6 +29,7 @@ aip-protocol = { path = "../aip-standalone/aip-protocol" }
 aip-reconcile = { path = "../aip-standalone/aip-reconcile" }
 aip-ledger   = { path = "../aip-standalone/aip-ledger" }
 aip-observe-verify = { path = "../aip-standalone/aip-observe-verify" }
+aip-mcp-gateway = { path = "../aip-standalone/aip-mcp-gateway" }
 
 axum               = "0.7"
 tokio              = { version = "1", features = ["full"] }

@@ -113,6 +113,18 @@ class FakeBackend:
         self.reads += 1
         return self.payload
 
+    def get_run_metadata(self, run_artifact_id):
+        self.reads += 1
+        return {"run_artifact_id":run_artifact_id,"evaluation":self.payload}
+
+    def evaluate_run(self, run_artifact_id):
+        self.reads += 1
+        return self.payload
+
+    def get_run_verdict(self, run_artifact_id):
+        self.reads += 1
+        return {"reconciliation":self.payload,"attestation":{"fixture":True}}
+
 
 class McpBoundaries(unittest.TestCase):
     def setUp(self):
@@ -187,6 +199,28 @@ class McpBoundaries(unittest.TestCase):
         with self.assertRaises(ApiError) as caught:
             self.call()
         self.assertEqual(caught.exception.code, "output_limit")
+
+    def test_same_run_tools_preserve_uncertainty_and_reject_scope_injection(self):
+        self.assertEqual(len(MCP.TOOLS), 8)
+        self.backend.payload = {"reconciliation":{"execution":"CannotProve"},
+                                "limitations":["fixture missing independent attribution"]}
+        metadata = self.tools.call("vanian_get_evidence_metadata", {"evidence_id":"run-1","kind":"run_bundle"})
+        evaluation = self.tools.call("vanian_verify_stored_evidence", {"evidence_id":"run-1","kind":"run_bundle"})
+        verdict = self.tools.call("vanian_get_execution_verdict", {"verdict_id":"run-1","kind":"run_bundle"})
+        self.assertEqual(metadata["evaluation"], self.backend.payload)
+        self.assertEqual(evaluation, self.backend.payload)
+        self.assertEqual(verdict["reconciliation"], self.backend.payload)
+        calls = self.backend.reads
+        for tool, args in [
+            ("vanian_get_evidence_metadata", {"evidence_id":"run-1","kind":"run_bundle","trust":{}}),
+            ("vanian_get_execution_verdict", {"verdict_id":"run-1","kind":"run_bundle","tenant_id":"b"}),
+        ]:
+            with self.assertRaises(ValidationError):
+                self.tools.call(tool, args)
+        self.backend.scope["tenant_id"] = "tenant-b"
+        with self.assertRaises(ApiError):
+            self.tools.call("vanian_verify_stored_evidence", {"evidence_id":"run-1","kind":"run_bundle"})
+        self.assertEqual(self.backend.reads, calls)
 
     def test_bounded_input_refuses_oversized_or_invalid_utf8_frames(self):
         async def next_frame():
