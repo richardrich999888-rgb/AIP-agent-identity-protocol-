@@ -1,0 +1,9 @@
+files in manifest : 114
+byte-identical    : 111
+deviated          : 3
+missing           : 0
+  reviewed deviation (exact SHA-256): rust/ot-accountability-core/Cargo.toml
+  reviewed deviation (exact SHA-256): rust/ot-sentinel/Cargo.toml
+  reviewed deviation (exact SHA-256): rust/ot-sentinel/src/registry.rs
+
+PASS: original import matches except for the exact reviewed deviations above.

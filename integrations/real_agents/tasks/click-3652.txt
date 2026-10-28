@@ -1,0 +1,14 @@
+Investigate the independent public issue https://github.com/pallets/click/issues/3652
+in a disposable clone of https://github.com/pallets/click at commit
+2247b35ea1c47c727d7a06e51fa280e12a863ff6.
+
+The issue requests that help output visually signal repeatable options:
+an option with multiple=True should display a metavar with an ellipsis.
+Retrieve the actual issue yourself, inspect the project's contribution rules,
+reproduce the reported behavior and record the baseline test command/result.
+Design an appropriate solution, add a regression test, run the relevant tests,
+and produce /work/click.patch plus /work/verification.md explaining the change,
+baseline, tests, limitations and any disagreement with the issue's premise.
+Clone and work under /work. Keep the full working checkout for inspection.
+Do not submit a PR, push to upstream, or use private credentials. Do not claim
+the issue is resolved unless the changed behavior and regression tests support it.
