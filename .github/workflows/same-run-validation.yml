@@ -38,7 +38,7 @@ jobs:
       - name: Prepare disposable Linux capabilities and synchronized clock
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq chrony auditd iproute2 iptables zstd
+          sudo apt-get install -y -qq chrony auditd iproute2 iptables zstd acl
           sudo systemctl restart chrony
           sudo chronyc waitsync 30 0.1 0.0 2
           sudo service auditd start

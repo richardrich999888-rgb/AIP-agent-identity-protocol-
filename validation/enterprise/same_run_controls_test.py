@@ -8,12 +8,29 @@ import sys
 import tempfile
 import unittest
 
-from prepare_local_model import CPU_FILE, verify_model
+from prepare_local_model import CPU_FILE, publish_runtime, verify_model
 
 HERE = Path(__file__).resolve().parent
 
 
 class SameRunControls(unittest.TestCase):
+    def test_public_runtime_permissions_do_not_publish_bootstrap_home_or_logs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for name in ('bin','lib/ollama','models/blobs','bootstrap-home'):
+                (root/name).mkdir(parents=True,mode=0o700)
+            executable=root/'bin/ollama'; executable.write_text('public runtime'); executable.chmod(0o700)
+            blob=root/'models/blobs/public-model'; blob.write_text('public weights'); blob.chmod(0o600)
+            private=root/'bootstrap-home/private-key'; private.write_text('private'); private.chmod(0o600)
+            log=root/'bootstrap.log'; log.write_text('private diagnostics'); log.chmod(0o600)
+            publish_runtime(root)
+            self.assertEqual(executable.stat().st_mode & 0o777,0o755)
+            self.assertEqual(blob.stat().st_mode & 0o777,0o644)
+            self.assertEqual((root/'models/blobs').stat().st_mode & 0o777,0o755)
+            self.assertEqual((root/'bootstrap-home').stat().st_mode & 0o777,0o700)
+            self.assertEqual(private.stat().st_mode & 0o777,0o600)
+            self.assertEqual(log.stat().st_mode & 0o777,0o600)
+
     def test_public_runtime_allowlist_excludes_accelerator_and_traversal_members(self):
         for member in ('lib/ollama/libggml-base.so', 'lib/ollama/libggml-cpu-haswell.so',
                        'lib/ollama/libggml-cpu.so', 'lib/ollama/libllama.so.0',

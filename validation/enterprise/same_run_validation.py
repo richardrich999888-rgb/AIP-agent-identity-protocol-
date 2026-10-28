@@ -86,6 +86,39 @@ def protected_json(path, value, uid=0):
     path.chmod(0o600); os.chown(path, uid, uid)
 
 
+def runtime_access(paths_by_uid, public):
+    """Grant only ancestor traversal; preflight as each actual runtime UID."""
+    changes, checked = [], set()
+    for uid, paths in paths_by_uid.items():
+        for path, access in paths:
+            path = Path(path).absolute()
+            for target in (path, path.resolve(strict=True)):
+                ancestors = ([target] if target.is_dir() else []) + list(target.parents)
+                for ancestor in ancestors:
+                    key = (uid, ancestor)
+                    if key in checked:
+                        continue
+                    checked.add(key)
+                    status = ancestor.stat()
+                    if status.st_uid == uid or status.st_mode & 0o001:
+                        continue
+                    # A hosted runner parent may be private. Add execute only
+                    # to this UID, never directory listing or file-read access.
+                    command(['setfacl', '-m', f'u:{uid}:--x', ancestor])
+                    changes.append({'uid':uid, 'path':str(ancestor), 'permission':'traverse_only',
+                                    'original_mode':oct(status.st_mode & 0o777)})
+            probe = subprocess.run(['/usr/bin/python3', '-c',
+                'import os,sys; sys.exit(0 if os.access(sys.argv[1],int(sys.argv[2])) else 1)',
+                str(path), str(access)], user=uid, group=uid, extra_groups=[],
+                cwd='/', env={'PATH':os.defpath}, capture_output=True, timeout=10)
+            if probe.returncode:
+                save(public/'runtime-access.json', {'ancestor_acl_changes':changes,
+                    'failure':{'uid':uid,'public_asset':str(path),'required_access':access}})
+                raise Refused('isolated UID cannot access declared public runtime asset')
+    save(public/'runtime-access.json', {'status':'PASS','ancestor_acl_changes':changes,
+        'scope':'ancestor traversal only; no runner HOME listing/read grant; private service/key directories unchanged'})
+
+
 class AgentOutput:
     def __init__(self, process, public_log):
         self.process, self.log = process, public_log.open('wb')
@@ -252,6 +285,19 @@ def main():
             shutil.copyfile(state / name, public / name)
         return {'sha256':{name:sha256(public/name) for name in ARCHIVES}}
     try:
+        python = source/'.venv/bin/python'
+        runtime_access({
+            UID_MODEL:[(model_root/'bin/ollama',os.R_OK|os.X_OK),
+                       (model_root/'lib/ollama',os.R_OK|os.X_OK),
+                       (model_root/'models',os.R_OK|os.X_OK)],
+            UID_TOOL:[(python,os.R_OK|os.X_OK),(ROOT/'validation/enterprise/same_run_upstream.py',os.R_OK),
+                      (workload,os.X_OK)],
+            UID_GATEWAY:[(python,os.R_OK|os.X_OK),(source,os.R_OK|os.X_OK),
+                         (ROOT/'integrations/mcp-gateway',os.R_OK|os.X_OK),(trusted_bin,os.R_OK|os.X_OK),
+                         (workload,os.X_OK)],
+            UID_AGENT:[(args.agent_python.absolute(),os.R_OK|os.X_OK),
+                       (ROOT/'examples/bank-ai-execution-assurance/loan_agent.py',os.R_OK),(workload,os.X_OK)],
+        },public)
         if command(['timedatectl','show','--property=NTPSynchronized','--value']).strip() != 'yes':
             raise Refused('host clock not synchronized')
         trace = Path('/sys/kernel/tracing/available_events')
@@ -580,31 +626,50 @@ def main():
         result['failure']={'type':type(error).__name__,'detail':str(error)}
         raise
     finally:
+        cleanup_errors = []
+        def cleanup(step, operation):
+            try:
+                return operation()
+            except Exception as error:
+                cleanup_errors.append({'step':step,'type':type(error).__name__,'detail':str(error)})
         for audit in audits:
-            try: in_host(audit.close)
-            except Exception: pass
-        for child in reversed(processes): terminate(child)
-        if agent_output: agent_output.close()
-        for stream in streams: stream.close()
+            cleanup('remove_audit_rule', lambda: in_host(audit.close))
+        for child in reversed(processes): cleanup('terminate_child', lambda: terminate(child))
+        if agent_output: cleanup('close_agent_output', agent_output.close)
+        for stream in streams: cleanup('close_log', stream.close)
         # Preserve any independently signed partial archives from a failed run.
         state=private/'collector-state'
         for name in ARCHIVES:
-            if (state/name).is_file(): shutil.copyfile(state/name,public/name)
-        save(public/'run-manifest.json',result)
-        os.setns(original_net,0); os.close(original_net)
-        if namespace_created: command(['ip','netns','delete',namespace])
-        if mounted: command(['umount',workload])
+            if (state/name).is_file(): cleanup('retain_archive', lambda: shutil.copyfile(state/name,public/name))
+        cleanup('restore_host_network',lambda: os.setns(original_net,0))
+        cleanup('close_host_network',lambda: os.close(original_net))
+        # A child can leave descendants behind. Kill the whole dedicated
+        # cgroup before unmounting the working directory, and ensure the
+        # controller itself holds no cwd reference to that mount.
+        cleanup('restore_controller_cwd',lambda: os.chdir(ROOT))
         if cg.exists():
             usage = {}
             for name in ('memory.peak','memory.events','cpu.stat','pids.peak'):
                 if (cg/name).exists(): usage[name] = (cg/name).read_text()
             save(public/'resource-usage.json',usage)
-            if (cg/'cgroup.kill').exists(): (cg/'cgroup.kill').write_text('1')
+            if (cg/'cgroup.kill').exists(): cleanup('kill_cgroup',lambda: (cg/'cgroup.kill').write_text('1'))
             for _ in range(40):
                 try:
                     cg.rmdir(); break
                 except OSError:
                     time.sleep(0.1)
+            if cg.exists(): cleanup_errors.append({'step':'remove_cgroup','type':'Busy','detail':'dedicated cgroup remained after termination'})
+        if namespace_created: cleanup('delete_network_namespace',lambda: command(['ip','netns','delete',namespace]))
+        if mounted: cleanup('unmount_workload',lambda: command(['umount',workload]))
+        result['cleanup_errors']=cleanup_errors
+        if cleanup_errors and result['status']=='PASS':
+            result['status']='FAIL'
+            result['failure']={'type':'CleanupFailure','detail':'disposable runtime cleanup did not complete'}
+        save(public/'run-manifest.json',result)
+        # Preserve the original execution exception when both work and
+        # cleanup fail. A successful run still requires successful cleanup.
+        if cleanup_errors and sys.exc_info()[0] is None:
+            raise Refused('disposable runtime cleanup did not complete')
     print(json.dumps(result))
 
 if __name__=='__main__':
