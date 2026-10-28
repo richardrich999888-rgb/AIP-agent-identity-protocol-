@@ -63,3 +63,35 @@ jobs:
             ${{ runner.temp }}/image.json
             ${{ runner.temp }}/dependencies.json
             ${{ runner.temp }}/smoke.txt
+  hosted-observer-capabilities:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Prepare synchronized clock and independent Linux audit
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chrony auditd
+          sudo systemctl restart chrony
+          sudo chronyc waitsync 30 0.1 0.0 2
+          sudo service auditd start
+      - run: cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify
+      - name: Exercise actual sensors, strict collector, audit and offline verification
+        run: |
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" python3 \
+            integrations/real_agents/hosted_observer_smoke.py --tools target/debug \
+            --out "$RUNNER_TEMP/hosted-observer"
+      - name: Preserve public component-test evidence (never agent validation)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hosted-observer-smoke-${{ github.run_id }}
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/hosted-observer/public/
+            ${{ runner.temp }}/hosted-observer/anchor.json
+            ${{ runner.temp }}/hosted-observer/checkpoint.json

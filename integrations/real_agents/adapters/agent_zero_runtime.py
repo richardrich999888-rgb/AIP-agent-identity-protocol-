@@ -1,9 +1,12 @@
 """Configure the pinned upstream runtime without falling back to another model."""
 import os
 import sys
+from pathlib import Path
 
 
 def configure(config, requested_model):
+    for name in ("plugins", "agents", "chats", "projects"):
+        Path("/opt/framework/usr", name).mkdir(parents=True, exist_ok=True)
     os.chdir("/opt/framework")
     sys.path.insert(0, os.getcwd())
     from helpers import runtime, settings, plugins

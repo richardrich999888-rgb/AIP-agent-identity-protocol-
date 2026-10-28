@@ -28,6 +28,7 @@ COPY adapters/launch.py /opt/snifferdog/launch.py
 COPY adapters/agent_zero_runtime.py adapters/smoke.py /opt/snifferdog/
 COPY adapters/entrypoint.sh /opt/snifferdog/entrypoint.sh
 ENV PATH="/opt/framework/.venv/bin:${PATH}" PYTHONDONTWRITEBYTECODE=1
+ENV LITELLM_LOCAL_MODEL_COST_MAP=True
 ENV HOME=/tmp/home UV_CACHE_DIR=/tmp/uv-cache
 ENV DEER_FLOW_HOME=/work/deerflow-state
 ENV FRAMEWORK=${FRAMEWORK}

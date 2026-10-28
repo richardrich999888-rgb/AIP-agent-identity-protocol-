@@ -10,7 +10,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from evidence import (Refused, acceptance, covered, event_time, mutations,
                       records, summarize, verify)
-from harness import preflight, read_env, remote
+from harness import preflight, read_env, remote, validate_collector_boundary
 
 
 def health(start=10, end=100):
@@ -184,6 +184,28 @@ class ControllerTests(unittest.TestCase):
         with patch("harness.command") as called:
             with self.assertRaises(Refused):
                 remote(c, "status", "sd-" + "0" * 32)
+            called.assert_not_called()
+
+    def test_off_host_mode_still_refuses_same_machine(self):
+        with self.assertRaisesRegex(Refused, "distinct host"):
+            validate_collector_boundary({"collector": {}},
+                {"machine_id": "one", "clock_synchronized": True}, "one")
+
+    def test_isolated_mode_is_explicit_and_keeps_trust_limit(self):
+        value = validate_collector_boundary({"collector": {"mode": "local-isolated"}},
+            {"machine_id": "one", "clock_synchronized": True}, "one")
+        self.assertIn("not off-host custody", value)
+        self.assertIn("host root trusted", value)
+
+    def test_isolated_mode_never_waives_clock_checks(self):
+        with self.assertRaisesRegex(Refused, "not synchronized"):
+            validate_collector_boundary({"collector": {"mode": "local-isolated"}},
+                {"machine_id": "one", "clock_synchronized": False}, "one")
+
+    def test_unknown_isolation_mode_fails_before_helper(self):
+        with patch("harness.command") as called:
+            with self.assertRaises(Refused):
+                remote({"collector": {"mode": "anything"}}, "status", "sd-" + "0" * 32)
             called.assert_not_called()
 
     def test_environment_is_data_not_shell(self):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Controller on a dedicated disposable Linux host. Never run agents on macOS.
+"""Controller on a disposable Linux host. Never run agents on macOS.
 
 Exit 0: requested command passed its stated gates. Run exit 1: failed stages.
 Exit 2: blocked preflight/configuration. A run is never assignment completion.
@@ -19,6 +19,8 @@ import tempfile
 import time
 import uuid
 from pathlib import Path
+
+from audit_crosscheck import AuditCrosscheck, parse_status
 
 from evidence import (ARCHIVES, Refused, acceptance, anchors_args, command, covered,
                       mutations, records, sha256, summarize, verify)
@@ -46,6 +48,16 @@ def protected(path):
 
 def remote(config, action, token):
     c = config["collector"]
+    mode = c.get("mode", "off-host")
+    if mode == "local-isolated":
+        # Explicitly scoped to a nonprivileged container under a trusted host
+        # kernel. This is not off-host custody and cannot resist host root.
+        helper, control = protected(c["helper"]), protected(c["config"])
+        output = command([sys.executable, helper, control],
+                         input=json.dumps({"action": action, "token": token}), timeout=60)
+        return json.loads(output)
+    if mode != "off-host":
+        raise Refused("unknown collector isolation mode")
     # SSH assembles remote commands through a shell. Restrict every argument
     # to a safe alphabet before passing it, rather than quoting JSON as shell.
     for value in (c["ssh"], c["helper"], c["config"]):
@@ -58,6 +70,21 @@ def remote(config, action, token):
     return json.loads(output)
 
 
+def validate_collector_boundary(config, response, local_id):
+    if not response["clock_synchronized"]:
+        raise Refused("collector clock is not synchronized")
+    mode = config["collector"].get("mode", "off-host")
+    if mode == "off-host":
+        if response["machine_id"] == local_id:
+            raise Refused("off-host collector must be on a distinct host")
+        return "OFF_HOST; separately provisioned trust anchor"
+    if mode == "local-isolated":
+        if response["machine_id"] != local_id:
+            raise Refused("local collector returned a different machine identity")
+        return "ISOLATED_FROM_CONTAINER; shared kernel and host root trusted; not off-host custody"
+    raise Refused("unknown collector isolation mode")
+
+
 def snapshot(config, directory, token, *, stop=False):
     response = remote(config, "stop" if stop else "snapshot", token)
     for name in ARCHIVES:
@@ -65,7 +92,9 @@ def snapshot(config, directory, token, *, stop=False):
         (Path(directory) / name).write_bytes(data)
     return {"run_id": token, "collector_machine_id": response["machine_id"],
             "sha256": response["sha256"], "received_at_ms": now(),
-            "provenance": "controller custody over pinned-host-key SSH; not an observer signature"}
+            "provenance": ("root-controlled local isolated collector; trusts this host kernel"
+                if config["collector"].get("mode") == "local-isolated" else
+                "controller custody over pinned-host-key SSH; not an observer signature")}
 
 
 def preflight(config):
@@ -106,7 +135,8 @@ def preflight(config):
     for binary in ("aip-probe", "aip-observe-verify", "aip-lineage", "aip-sentinel-feed", "aip-corroborate"):
         if not os.access(Path(config["tools"]) / binary, os.X_OK):
             raise Refused(f"build required binary: {binary}")
-    command(["bpftrace", "--version"])
+    parse_status(command(["auditctl", "-s"]))
+    command(["ausearch", "--version"])
     return framework
 
 
@@ -179,7 +209,8 @@ def run(config, out, checkpoint_path):
               "logical_agent_attribution": "CANNOT_PROVE", "authority": "CANNOT_PROVE",
               "reconciliation": "CANNOT_PROVE", "failures": []}
     save(out / "status.json", status)
-    probe = tracer = None
+    probe = None
+    audit = AuditCrosscheck()
     collector_started = container_created = False
     token = "sd-" + uuid.uuid4().hex
     logs = []
@@ -191,8 +222,7 @@ def run(config, out, checkpoint_path):
         status["kernel"] = platform.release()
         remote_status = remote(config, "status", token)
         local_id = Path("/etc/machine-id").read_text().strip()
-        if remote_status["machine_id"] == local_id or not remote_status["clock_synchronized"]:
-            raise Refused("collector must be on a distinct host with synchronized time")
+        status["collector_trust_boundary"] = validate_collector_boundary(config, remote_status, local_id)
         if remote_status["state"] != "inactive":
             raise Refused("dedicated collector service must be inactive")
         task = Path(config["task"]).read_text()
@@ -239,17 +269,7 @@ def run(config, out, checkpoint_path):
                 break
         if not ready:
             raise Refused("no fresh verified Active health with required sensors")
-        tracer = subprocess.Popen(["bpftrace", "-e",
-            'tracepoint:sched:sched_process_exec { printf("AIPX %llu %d %s\\n", nsecs, pid, str(args.filename)); }'],
-            stdout=log("bpftrace.out"), stderr=log("bpftrace.err"))
-        for _ in range(50):
-            if tracer.poll() is not None:
-                raise Refused("independent tracer failed")
-            if "Attaching" in (out / "bpftrace.out").read_text():
-                break
-            time.sleep(0.2)
-        else:
-            raise Refused("independent tracer did not attach")
+        audit.start()
         create = ["docker", "create", "--name", token, "--user", "10001:10001",
                   "--cap-drop=ALL", "--security-opt=no-new-privileges", "--read-only",
                   "--pids-limit", str(config["pids_limit"]), "--memory", f'{config["memory_mb"]}m',
@@ -276,7 +296,7 @@ def run(config, out, checkpoint_path):
         last_refresh = 0.0
         samples = []
         while command(["docker", "inspect", "--format", "{{.State.Running}}", token]).strip() == "true":
-            if probe.poll() is not None or tracer.poll() is not None:
+            if probe.poll() is not None:
                 raise Refused("observer or independent tracer exited during workload")
             if time.monotonic() - started > config["timeout_s"]:
                 raise Refused("workload exceeded runtime budget")
@@ -312,7 +332,8 @@ def run(config, out, checkpoint_path):
             if covered(records(archive / ARCHIVES[1]), start, end,
                        ["SchedTracepoint", "Fanotify", "SockSendTracepoint"]):
                 break
-        terminate(tracer)
+        save(out / "audit-status.json", audit.export(out / "auditd.log"))
+        audit.close()
         terminate(probe)
         cp = snapshot(config, archive, token, stop=True)
         collector_started = False
@@ -331,7 +352,7 @@ def run(config, out, checkpoint_path):
         (out / "sentinel-feed-report.txt").write_text(command([
             Path(config["tools"]) / "aip-sentinel-feed", *common, "--out", out / "effects.jsonl"]))
         comparison = json.loads(command([Path(config["tools"]) / "aip-corroborate", *common,
-            "--external", out / "bpftrace.out", "--source", "bpftrace",
+            "--external", out / "auditd.log", "--source", "auditd",
             "--from-ms", start, "--to-ms", end, "--json"]))
         save(out / "corroboration.json", comparison)
         save(out / "tamper.json", tamper(archive, config["tools"], config["anchor"], cp))
@@ -353,7 +374,11 @@ def run(config, out, checkpoint_path):
             except (Refused, subprocess.SubprocessError) as exc:
                 status["failures"].append(f"container cleanup: {exc}")
                 code = 1
-        terminate(tracer)
+        try:
+            audit.close()
+        except (Refused, subprocess.SubprocessError) as exc:
+            status["failures"].append(f"audit rule cleanup: {exc}")
+            code = 1
         terminate(probe)
         if collector_started:
             try:
