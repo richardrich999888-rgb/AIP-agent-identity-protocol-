@@ -52,7 +52,7 @@ class PostureTests(unittest.TestCase):
 
     def test_paginated_inventory_does_not_claim_completion(self):
         c=Stub(); c.page.next_offset=25
-        self.assertFalse(collect(c)['agent_inventory']['total_inventory_complete'])
+        self.assertFalse(collect(c)['agent_inventory']['source_pagination_complete'])
 
     def test_invalid_agent_record_fails(self):
         c=Stub(); c.page.items=[{"name":"not agent"}]
@@ -62,7 +62,7 @@ class PostureTests(unittest.TestCase):
     def test_service_unavailable_is_explicit(self):
         c=Stub(); c.coverage={'status':'unavailable'}; c.health={'status':'not_connected'}
         r=collect(c)
-        self.assertEqual(r['service_health'],'reported_unhealthy_or_unknown')
+        self.assertEqual(r['service_health'],'api_reported_unhealthy_or_unknown')
         self.assertEqual(r['coverage']['service_reported_status'],'unavailable')
         self.assertFalse(r['coverage']['independently_verified_execution'])
 
