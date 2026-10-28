@@ -58,11 +58,8 @@ fn build_artifact_store(
             Arc::new(s)
         }
         Err(e) => {
-            // In memory rather than refusing to start: this tier is additive,
-            // and an unwritable path must not take down evidence ingest. It
-            // is logged at warn because anything filed here is lost on exit.
-            tracing::warn!(path, error = %e, "verdict/ledger store unavailable; using memory");
-            Arc::new(airon_aip::artifacts::JsonlArtifactStore::in_memory())
+            tracing::error!(path, error = %e, "verdict/ledger store unavailable; refusing to start");
+            std::process::exit(1);
         }
     }
 }
@@ -177,6 +174,15 @@ async fn main() {
     let (store, evidence_pool) = build_store().await;
     let artifacts = build_artifact_store(evidence_pool);
     let api_keys = auth::ApiKeyStore::load(&api_keys_path);
+    let observer_trust_path = std::env::var("AIP_OBSERVER_TRUST_PATH").ok();
+    let observer_trust =
+        airon_aip::observations::ObserverTrustStore::load(observer_trust_path.as_deref())
+            .unwrap_or_else(|e| {
+                eprintln!("aip-service: observer trust configuration: {e}");
+                std::process::exit(1)
+            });
+    tracing::info!(source_sha256 = observer_trust.source_sha256(),
+        "observer public trust configuration loaded; no caller-provided observer anchors are admitted");
     if api_keys.is_empty() {
         tracing::warn!(
             "no API keys configured (AIP_API_KEYS_PATH) — authenticated routes \
@@ -225,6 +231,7 @@ async fn main() {
         signer: Arc::new(kp),
         metrics: Arc::new(Default::default()),
         managed_signing,
+        observer_trust,
     });
 
     let addr = format!("0.0.0.0:{port}");
