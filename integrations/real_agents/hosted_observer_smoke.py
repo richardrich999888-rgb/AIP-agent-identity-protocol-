@@ -111,12 +111,17 @@ def main():
         if not ready:
             raise Refused('signed Active coverage unavailable with audit cross-check running')
         start = now()
+        # Establish the window prospectively, before dispatch. Audit uses a
+        # coarser clock than userspace; do not put the exec on the boundary.
+        # Both observers remain active and signed coverage must include guards.
+        time.sleep(1)
         # Real OS operations strictly labeled as component testing. No LLM,
         # generated agent response, or framework validation is asserted here.
         child = subprocess.Popen(['/bin/sleep', '2'], user=10001, group=10001, extra_groups=())
         workload_pid = child.pid
         if child.wait() != 0:
             raise Refused('OS component test failed')
+        time.sleep(1)
         end = now()
         for _ in range(25):
             time.sleep(2)

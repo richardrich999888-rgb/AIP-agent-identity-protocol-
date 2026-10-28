@@ -283,6 +283,9 @@ def run(config, out, checkpoint_path):
         command(create)
         container_created = True
         start = now()
+        # Prospective guard for coarse audit timestamps; this entire interval
+        # still requires signed coverage. Never widen it after seeing events.
+        time.sleep(1)
         command(["docker", "start", token])
         pid = int(command(["docker", "inspect", "--format", "{{.State.Pid}}", token]))
         launch = proc_identity(pid)
@@ -316,6 +319,7 @@ def run(config, out, checkpoint_path):
                     status["live_evidence"] = "INTEGRITY_UNKNOWN; current snapshot unavailable or rejected"
             save(out / "status.json", status)
             time.sleep(2)
+        time.sleep(1)
         end = now()
         exit_code = int(command(["docker", "inspect", "--format", "{{.State.ExitCode}}", token]))
         status.update(status="VERIFYING", workload_to_ms=end, workload_exit=exit_code)

@@ -67,12 +67,24 @@ The test additionally requires matching identity and `ActionEvidenceUnavailable`
 The offline verifier helper now builds the same profile it executes, fixing its
 previous debug-build/release-binary mismatch.
 
-The old failure did not log the differing identity fields. A startup diagnostic
-on `3e15d31` saw **0 identity changes in 256 attempts**, so the precise original
-race is not independently reproduced. The corrected boundary passed 64 live
-identity checks, the genuine wrong-instance `IdentityDivergence` negative case,
-and 20 repetitions of release `g14_04`. A longer release diagnostic is included
-in subsequent runs; results must be read from those runs, not assumed.
+The original failing log omitted the differing identity fields. The longer
+[diagnostic at c980449](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40676428606)
+reproduced the race **38 times in 4,096 release starts**: before readiness,
+`/proc/<pid>/exe` identified the parent test executable; after readiness it
+identified `ghost-demo-agent`. PID, start ticks and boot ID stayed the same,
+but the executable hash changed. The reconciler's `IdentityDivergence` was
+correct for that raced binding. All post-readiness identity checks, the genuine
+wrong-instance negative case, and 20 repeated release `g14_04` tests passed.
+
+This is consistent with the Linux/glibc spawn path: Rust uses `posix_spawn`,
+glibc waits for vfork completion, and Linux signals that completion before
+switching the task's memory mapping during exec. Sources:
+[Rust 1.99 spawn](https://github.com/rust-lang/rust/blob/1.99.0/library/std/src/sys/process/unix/unix.rs),
+[glibc 2.39](https://github.com/bminor/glibc/blob/glibc-2.39/sysdeps/unix/sysv/linux/spawni.c),
+[Linux exec](https://github.com/torvalds/linux/blob/v6.17/fs/exec.c),
+[Linux vfork completion](https://github.com/torvalds/linux/blob/v6.17/kernel/fork.c).
+The handshake closes that measurement boundary without trusting a child-supplied
+identity or changing the evidence comparison.
 
 [Complete CI at 5489260](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672365945)
 passed all six jobs: fmt/clippy/debug/release workspace tests, PostgreSQL,
@@ -132,7 +144,19 @@ one additional AIP exec and zero external-only records: the UID-changing
 `setpriv` wrapper produced two same-PID execs but audit filtered out its root
 exec. This is recorded as a comparison limitation, not complete agreement.
 The follow-up test directly starts the child as UID 10001 and requires explicit
-corroboration without an unmatched workload exec; its CI result remains separate.
+corroboration without an unmatched workload exec. At `c980449` this stricter gate
+correctly failed: audit stamped the actual sleep exec at `1793185273022` ms,
+AIP at `1793185273025` ms, but the declared interval began at `1793185273023` ms.
+The external event was excluded by the unchanged interval filter. The next
+revision establishes the interval before a one-second pre-launch guard and
+ends it after a one-second post-exit guard; signed coverage must include both.
+It neither changes captured timestamps nor relaxes matching tolerance.
+
+The audit parser also now accepts the rule's x86-64 `execveat` (322), in addition
+to `execve` (59), and exposes unsupported architectures as unparsed. Failed
+attempts remain failed. Source: [Linux syscall table](https://github.com/torvalds/linux/blob/v6.17/arch/x86/entry/syscalls/syscall_64.tbl).
+The fresh hosted run, rather than retrospective changes to old archives, is the
+acceptance check for these corrections.
 
 ## Per-framework execution record
 
