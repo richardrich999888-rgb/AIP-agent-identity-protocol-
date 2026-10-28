@@ -6,6 +6,7 @@ administration or host-compromise resistance. No API/model secrets are loaded.
 """
 from __future__ import annotations
 import argparse
+from contextlib import closing
 import ctypes
 import hashlib
 import json
@@ -313,9 +314,10 @@ def main():
         agent_work = directory(workload / 'agent', UID_AGENT)
         tool_work = directory(workload / 'tool', UID_TOOL)
         db = tool_work / 'synthetic-loans.sqlite3'
-        with sqlite3.connect(db) as connection:
+        with closing(sqlite3.connect(db)) as connection:
             connection.execute('CREATE TABLE loan_documents (loan_id INTEGER PRIMARY KEY, document_status TEXT NOT NULL)')
             connection.executemany('INSERT INTO loan_documents VALUES (?,?)',[(1,'Synthetic document: identity and income evidence require human review.'),(2,'Synthetic alternative record, outside the issued loan1 authorization.')])
+            connection.commit()
         db.chmod(0o444); os.chown(db, UID_TOOL, UID_TOOL)
         available = set(Path('/sys/fs/cgroup/cgroup.controllers').read_text().split())
         required = {'cpu', 'memory', 'pids'}
@@ -613,6 +615,7 @@ def main():
         protected_json(api_dir/'keys.json',{'keys':keys})
         protected_json(api_dir/'trust.json',{'tenants':[{'tenant_id':'same-run-a','trust':trust}]})
         api=spawn('api',[tools/'airon-aip'],{'AIP_PORT':'19994','AIP_KEY_PATH':str(api_dir/'service.key'),
+            'AIP_KEY_PASSPHRASE':secrets.token_urlsafe(48),
             'AIP_REVOCATION_LOG_PATH':str(api_dir/'revocations.jsonl'),'AIP_VAULT_PATH':str(api_dir/'evidence.jsonl'),
             'AIP_ARTIFACT_PATH':str(api_dir/'artifacts.jsonl'),'AIP_API_KEYS_PATH':str(api_dir/'keys.json'),
             'AIP_RUN_TRUST_PATH':str(api_dir/'trust.json'),'AIP_STORE_BACKEND':'jsonl'})

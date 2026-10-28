@@ -1,0 +1,308 @@
+{
+  "schema": "snifferdog-ci-provenance-v1",
+  "source_head": "4ca5a4d3003c385f7312c65c1053b03f48f94143",
+  "scope": "Completed CI for 4ca5a4d3 only. Subsequent e0f881ee diagnostic/fix CI is pending and is not covered by these results. Agent Zero container/Linux regression workflow was not rerun on this revision. These checks do not establish complete genuine agent-workload acceptance.",
+  "provenance": {
+    "pull_request": 8,
+    "pull_request_checkout": "eed9ba35a93b61d0748d95de726dfd398a6afd9d",
+    "checkout_parents": [
+      "65b6ff7fdad5ae70546a57216a497399091c7dc7",
+      "4ca5a4d3003c385f7312c65c1053b03f48f94143"
+    ],
+    "source_tree": "ac69f45e16054a0bdb60b5ef42dc18e24dff8a53",
+    "checkout_tree": "ac69f45e16054a0bdb60b5ef42dc18e24dff8a53",
+    "trees_equal": true,
+    "base_is_source_ancestor": true,
+    "method": "PR checkout SHA verified in completed job logs; GitHub git-commit tree compared with local source tree.",
+    "pr_workflows_checkout": "eed9ba35a93b61d0748d95de726dfd398a6afd9d",
+    "rust_version": "1.99.1",
+    "hosted_os": "Ubuntu 24.04.5",
+    "agent_zero_workflow_status": "NOT_RERUN_ON_4CA5A4D3"
+  },
+  "runs": [
+    {
+      "id": 40749929001,
+      "name": "CI",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929001",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 123033607578,
+          "name": "fmt · clippy · test",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929001/job/123033607578",
+          "conclusion": "success",
+          "formatting": "PASS",
+          "strict_clippy": "PASS: --workspace --all-targets --all-features -- -D warnings",
+          "debug": {
+            "unit_and_integration": {
+              "passed": 3254,
+              "failed": 0,
+              "ignored": 7
+            },
+            "doctests": {
+              "passed": 2,
+              "failed": 0,
+              "ignored": 2
+            },
+            "g14_04": "PASS"
+          },
+          "release": {
+            "unit_and_integration": {
+              "passed": 3256,
+              "failed": 0,
+              "ignored": 5
+            },
+            "doctests": {
+              "passed": 2,
+              "failed": 0,
+              "ignored": 2
+            },
+            "g14_04": "PASS"
+          },
+          "ignored_unit_and_integration_common": [
+            "emit_parity_vectors (regeneration helper)",
+            "observer_path_throughput (explicit timing measurement)",
+            "emit_sample_bundle (CLI sample helper)",
+            "real_http_clients_use_the_service_boundary (executed separately in enterprise workflow)",
+            "real_same_run_clients_use_the_service_boundary (executed separately in enterprise workflow)"
+          ],
+          "ignored_debug_additional": [
+            "stress::test_signing_throughput (release-only wall-clock gate; passed in release)",
+            "stress::test_verification_throughput (release-only wall-clock gate; passed in release)"
+          ],
+          "ignored_doctests": [
+            "aip-execution/src/profile.rs: ExecutionProfile::authorization_parameter",
+            "aip-reconcile/src/result.rs: Reconciliation::fixture_default"
+          ]
+        },
+        {
+          "id": 123033607232,
+          "name": "Python SDK regression and parity tests",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929001/job/123033607232",
+          "conclusion": "success",
+          "tests": {
+            "passed": 76,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "id": 123033607545,
+          "name": "coverage",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929001/job/123033607545",
+          "conclusion": "success",
+          "instrumented_unit_and_integration": {
+            "passed": 3254,
+            "failed": 0,
+            "ignored": 7
+          },
+          "artifact": {
+            "id": 12844541108,
+            "name": "coverage-lcov",
+            "zip_sha256": "c47e6ebabc6b36ca9924045999632af1ddd9b87f570d56091eeafb37db3c7004",
+            "bytes": 387603
+          }
+        },
+        {
+          "id": 123033607559,
+          "name": "RED suite (adversarial ledger reproducible)",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929001/job/123033607559",
+          "conclusion": "success",
+          "reproduced_runnable": 43,
+          "notes": 2,
+          "blocked": 10,
+          "failed": 0,
+          "note_ids": [
+            "OI-07: KEY_CUSTODY_BOUNDARY",
+            "CI-05: BY_CONSTRUCTION"
+          ],
+          "blocked_ids": [
+            "OI-01",
+            "OI-02",
+            "OI-03",
+            "OI-04",
+            "OI-05",
+            "OI-06",
+            "OI-08",
+            "OI-13",
+            "OI-14",
+            "OI-15"
+          ],
+          "blocked_reasons": {
+            "OI-01..06": "This unprivileged job lacks CAP_BPF/CAP_PERFMON/tracefs; historical ledger results are not re-execution.",
+            "OI-08": "DEFERRED",
+            "OI-13..15": "Requires root/CAP_BPF/tracefs; historical sealed evidence is not re-execution."
+          }
+        },
+        {
+          "id": 123033606893,
+          "name": "postgres backend integration",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929001/job/123033606893",
+          "conclusion": "success",
+          "default_tests": {
+            "passed": 142,
+            "failed": 0,
+            "ignored": 17
+          },
+          "explicit_storage_controls": {
+            "passed": 14,
+            "failed": 0,
+            "ignored": 0
+          },
+          "ignored_default": {
+            "storage_controls": 14,
+            "http_client_tests": 2,
+            "pg_benchmark_10k": 1
+          },
+          "remaining_unexecuted": "pg_benchmark_10k; HTTP tests execute in enterprise workflow and storage controls execute explicitly in this job."
+        },
+        {
+          "id": 123033607720,
+          "name": "cargo audit · cargo deny",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929001/job/123033607720",
+          "conclusion": "success",
+          "cargo_audit": "PASS",
+          "dependencies_scanned": null,
+          "advisories_loaded": null,
+          "cargo_deny": "advisories ok, bans ok, licenses ok, sources ok",
+          "existing_ignore": "RUSTSEC-2026-0097",
+          "ignore_status": "cargo-deny advisory-not-detected warning: no crate matched advisory criteria",
+          "visible_warnings": [
+            "workspace wildcard dependencies",
+            "duplicate dependency versions"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 40749929565,
+      "name": "Enterprise integration",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929565",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 123033608203,
+          "name": "contracts",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929565/job/123033608203",
+          "conclusion": "success",
+          "rust_default": {
+            "passed": 414,
+            "failed": 0,
+            "ignored": 3
+          },
+          "rust_explicit_http_clients": {
+            "passed": 2,
+            "failed": 0,
+            "ignored": 0
+          },
+          "rust_ignored_default": [
+            "emit_parity_vectors",
+            "real_http_clients_use_the_service_boundary (subsequently executed)",
+            "real_same_run_clients_use_the_service_boundary (subsequently executed)"
+          ],
+          "python": {
+            "packaging": 16,
+            "harness_controls": 3,
+            "sql_provisioning": 1,
+            "rbi_shell_regressions": 17,
+            "sdk": 76,
+            "mcp_and_openapi_boundaries": 12,
+            "failed": 0,
+            "skipped": 0
+          },
+          "typescript": {
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "strict_typecheck": "PASS"
+          },
+          "package_lifecycle": {
+            "status": "PASS",
+            "scope": "Actual Linux executable package staging install/uninstall/reinstall",
+            "live_clean_host_installation": false
+          },
+          "real_http_scope": "Actual loopback API/SDK/official MCP and tenant refusal checks over fixture evidence; kernel observation and browser not exercised; same-run fixture did not supply signed runtime verdict."
+        },
+        {
+          "id": 123033608633,
+          "name": "contextforge",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929565/job/123033608633",
+          "conclusion": "success",
+          "independent_authorization_policy_tests": {
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0
+          },
+          "real_gateway_interoperability": {
+            "passed": 27,
+            "failed": 0
+          },
+          "scope": "Pinned actual ContextForge and MCP upstream, signed receipts and offline public-key verification; fixture authorizations distinct from genuine workload."
+        }
+      ]
+    },
+    {
+      "id": 40749928935,
+      "name": "RBI rehearsal",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749928935",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 123033606330,
+          "name": "script-regressions",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749928935/job/123033606330",
+          "conclusion": "success",
+          "tests": {
+            "passed": 17,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "id": 123033825009,
+          "name": "live-rehearsal",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749928935/job/123033825009",
+          "conclusion": "success",
+          "cross_sensor_tests": {
+            "passed": 13,
+            "failed": 0,
+            "ignored": 0,
+            "filtered_out": 56
+          },
+          "no_backfill_tests": {
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0
+          },
+          "live_system_checks": 10,
+          "act3_resource_assertions": 11,
+          "act4_tool_boundary_assertions": 38,
+          "acts_rehearsed": 5,
+          "scope": "Actual existing five-act kernel/collector/offline rehearsal; component evidence, not genuine autonomous model workload."
+        }
+      ]
+    },
+    {
+      "id": 40749929100,
+      "name": "Real-agent harness contracts (no live agent claim)",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929100",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 123033607296,
+          "name": "contracts",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929100/job/123033607296",
+          "conclusion": "success",
+          "python_tests": {
+            "passed": 37,
+            "failed": 0,
+            "skipped": 0
+          },
+          "compileall": "PASS",
+          "autonomous_workload_executed": false
+        }
+      ]
+    }
+  ],
+  "totals_policy": "Counts belong to individual test invocations. Do not sum across jobs/profiles as unique tests. Ignored, filtered, blocked and fixture scope remain separate."
+}
