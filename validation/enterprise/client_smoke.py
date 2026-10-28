@@ -16,6 +16,8 @@ from vanian import ApiError, VanianClient
 from openapi_contract import validate_live_reads
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "integrations/service_delivery"))
+from posture_report import collect as collect_posture
 BASE = os.environ["VANIAN_TEST_BASE_URL"]
 EVIDENCE = os.environ["VANIAN_TEST_EVIDENCE_ID"]
 AGENT = os.environ["VANIAN_TEST_AGENT_ID"]
@@ -99,6 +101,11 @@ def main():
     validate_live_reads(a, b, client("VANIAN_TEST_WRITER_A"), evidence_id=EVIDENCE,
         agent_id=AGENT, verdict_id=VERDICT, observation_id=OBSERVATION)
     assert a.access()["role"] == "reader"
+    posture = collect_posture(a)
+    assert posture["tenant_id"] == "tenant-a"
+    assert posture["coverage"]["independently_verified_execution"] is False
+    assert posture["audit_qualification"] == "NOT_ESTABLISHED"
+    assert collect_posture(b)["agent_inventory"]["items"] == []
     assert a.get_agent(AGENT)["independent_identity_verified"] is False
     assert a.get_evidence_metadata(EVIDENCE)["independent_execution_verified"] is False
     assert any(item["evidence_id"] == EVIDENCE for item in a.get_agent_activity(AGENT, limit=100).items)
@@ -128,7 +135,7 @@ def main():
     assert oversize.returncode != 0
     subprocess.run(["node", str(ROOT / "validation/enterprise/typescript_smoke.ts")], check=True, timeout=30)
     print(json.dumps({"sdk": "PASS", "real_mcp_client": "PASS", "cross_tenant": "PASS",
-        "openapi_contract": "PASS",
+        "openapi_contract": "PASS", "service_delivery_posture": "PASS",
         "mcp_privilege_refusal": "PASS", "input_limit": "PASS", "kernel_observation": "NOT_EXERCISED"}))
 
 

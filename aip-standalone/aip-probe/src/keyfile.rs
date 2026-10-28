@@ -30,7 +30,19 @@ impl TransportKey {
     /// public key is announced to the operator so it can be added to the
     /// collector's allow-list.
     pub fn load_or_generate(path: &Path) -> Result<LoadedKey, String> {
-        if path.exists() {
+        if let Ok(metadata) = std::fs::symlink_metadata(path) {
+            if !metadata.is_file() || metadata.len() > 4096 {
+                return Err("transport key must be a bounded regular file, not a symlink".into());
+            }
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::PermissionsExt;
+                if metadata.permissions().mode() & 0o077 != 0 {
+                    return Err(
+                        "transport key must not be accessible to group or other users".into(),
+                    );
+                }
+            }
             let bytes = std::fs::read(path)
                 .map_err(|e| format!("cannot read transport key {}: {e}", path.display()))?;
             let key: TransportKey = serde_json::from_slice(&bytes)
@@ -71,6 +83,11 @@ impl TransportKey {
                 public_raw.len()
             )
         })?;
+        if aip_crypto::public_key_from_private(&private).map_err(|_| "invalid transport key")?
+            != public
+        {
+            return Err("transport public key does not match its private key".into());
+        }
         Ok(LoadedKey { private, public })
     }
 }
@@ -78,14 +95,20 @@ impl TransportKey {
 /// Write a file with `0600` permissions where the platform supports it. The key
 /// is a credential; it is never world-readable.
 fn write_private(path: &Path, bytes: &[u8]) -> Result<(), String> {
-    std::fs::write(path, bytes)
-        .map_err(|e| format!("cannot write transport key {}: {e}", path.display()))?;
+    use std::io::Write;
+    let mut options = std::fs::OpenOptions::new();
+    options.write(true).create_new(true);
     #[cfg(unix)]
     {
-        use std::os::unix::fs::PermissionsExt;
-        std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o600))
-            .map_err(|e| format!("cannot chmod transport key {}: {e}", path.display()))?;
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
     }
+    let mut file = options
+        .open(path)
+        .map_err(|_| "cannot exclusively create transport key; review existing path")?;
+    file.write_all(bytes)
+        .map_err(|_| "cannot write transport key")?;
+    file.sync_all().map_err(|_| "cannot sync transport key")?;
     Ok(())
 }
 

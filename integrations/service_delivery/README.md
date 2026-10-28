@@ -1,5 +1,12 @@
 # VANIAN service-delivery evaluation planner
 
+The planner is now reused by a runnable [customer installation-kit composer](../../docs/enterprise/CUSTOMER_ONBOARDING.md).
+`onboarding_bundle.py` validates actual role configs and public enrollment records
+against the existing software archive verifier. `enrollments.py` writes the
+collector's native public allow-list. Only configuration can be validated offline;
+all higher assurance stages remain unassessed. See [installation](../../docs/enterprise/INSTALLATION.md)
+for the implemented native enrollment and Debian commands.
+
 **Purpose:** Make enterprise onboarding repeatable without inventing security coverage. This is an offline JSON configuration preflight for customer-managed deployments. It does **not** install sensors, discover agents, contact the evidence API, authorize tools, verify signatures or certify a pilot.
 
 Design and competitor comparison: [SERVICE_DELIVERY_MODEL.md](../../docs/enterprise/SERVICE_DELIVERY_MODEL.md).

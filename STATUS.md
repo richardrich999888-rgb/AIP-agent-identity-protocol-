@@ -5,6 +5,13 @@ check it against the repository.
 
 ## Interoperability continuation — 2026-10-28
 
+The subsequent enterprise service-delivery branch reconciles #10 with #9 and
+adds role-specific Debian packaging, public-only probe enrollment and a real
+configuration-kit workflow. See [delivery inventory](docs/enterprise/DELIVERY_INVENTORY.md),
+[customer installation](docs/enterprise/INSTALLATION.md) and
+[readiness](docs/enterprise/PRODUCT_READINESS.md). Native package construction
+and staged tests do not close clean-host or separate-collector acceptance.
+
 Draft PR #9 builds on the already-combined draft PR #8. Actual ADK/A2A and
 Microsoft-governed ContextForge runs retain verified gateway receipts, while
 the complete institutional same-run acceptance gate remains open. The offline

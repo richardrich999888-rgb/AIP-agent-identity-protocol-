@@ -1,5 +1,43 @@
 # Enterprise product readiness
 
+## Service-delivery continuation — 28 October 2026
+
+`integration/vanian-enterprise-service-delivery` reconciles PR #10 at
+`52a18830f6607ac6677e6fcbb6f6a085ac5d413f` with PR #9 at
+`9d52c68c93e634479dd82b012f7ef941b796d551`, retaining the #6/#7/#8 history.
+See `DELIVERY_INVENTORY.md` for discovery before development. New Debian role
+packages reuse the verified tar, native daemons and systemd hardening; public
+transport-key enrollment no longer needs a temporary pin or sensor startup.
+The offline onboarding kit checks actual configuration/public references and
+keeps all assurance stages above configuration unassessed. The existing
+HTTP/SDK/MCP smoke now exercises #10's posture report against the real service.
+
+Available for a **scoped paid engineering evaluation**: package/configuration
+review, approved-host installation qualification, tenant-scoped API/SDK/MCP
+integration and tested gateway receipt verification. This is a proposed
+engineering scope, not an already accepted bank deployment or production
+assurance offering. Obtain institutional approvals and agree exit criteria.
+
+Still required before an execution-assurance pilot can be accepted:
+
+- A genuinely separate collector host/admin boundary; actual same-run native
+  authority, gateway receipt, supported kernel events, signed health/coverage,
+  reconciliation, API readback and independent offline verification.
+- Clean supported Linux/systemd package install, sensor/resource/upgrade/remove
+  and recovery testing. DEB extraction and staged configuration do not satisfy it.
+- Approved distribution license terms (the repository declares
+  LicenseRef-Proprietary but includes no distribution license text), complete
+  dependency notices, vulnerability checks, signed/reviewed release provenance
+  and institution-approved artifact distribution. No package registry is published.
+- Docker image build/scanning, Kubernetes runtime qualification, PostgreSQL
+  runtime revalidation, capacity, retention/deletion/backup/rotation exercises
+  and independent security assessment. Existing historical results stay separate.
+
+The first vendor-neutral network-ingestion connector, authenticated enrollment
+backend, full SDK registry distributions, and additional agent profiles remain
+deferred. No traffic interception, agentless discovery, inline AI firewall,
+certification, HSM deployment or universal compatibility claim is introduced.
+
 **Milestone: PARTIAL. Suitable for engineering evaluation of the implemented
 interfaces; the complete enterprise/bank deployment acceptance is not met.**
 
