@@ -9,7 +9,9 @@
 
 use aip_types::placement::decision_cgroup_name;
 use std::ffi::CString;
-use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
+#[cfg(target_os = "linux")]
+use std::os::fd::AsRawFd;
+use std::os::fd::{FromRawFd, OwnedFd};
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
@@ -119,7 +121,8 @@ pub struct DecisionCgroup {
     path: PathBuf,
     decision_id: [u8; 16],
     id: u64,
-    dir: OwnedFd,
+    // Retain descriptor ownership even on targets without clone3.
+    _dir: OwnedFd,
 }
 
 impl DecisionCgroup {
@@ -152,7 +155,7 @@ impl DecisionCgroup {
             path,
             decision_id,
             id,
-            dir,
+            _dir: dir,
         })
     }
 
@@ -169,8 +172,9 @@ impl DecisionCgroup {
         self.id
     }
 
+    #[cfg(target_os = "linux")]
     pub(crate) fn dir_fd(&self) -> i32 {
-        self.dir.as_raw_fd()
+        self._dir.as_raw_fd()
     }
 
     /// Remove the cgroup. The kernel refuses while it holds tasks; that is

@@ -23,15 +23,17 @@
 //!   shared with the reconciler that reads it back.
 //! - [`mount`]: finding the cgroup v2 hierarchy; parsing is pure.
 //! - [`cgroup`]: creating and removing one decision cgroup.
-//! - [`spawn`]: starting a program inside it with `clone3`.
+//! - `spawn` (Linux only): starting a program inside it with `clone3`.
 
 pub mod authorize;
 pub mod cgroup;
 pub mod mount;
+#[cfg(target_os = "linux")]
 pub mod spawn;
 
 pub use aip_types::placement::{decision_cgroup_name, parse_decision_cgroup_name, NAME_LEN};
 pub use authorize::{authorize_placement, PlacementAuthority};
 pub use cgroup::{DecisionCgroup, PlacementError, PlacementRoot};
 pub use mount::{cgroup2_mount_from_mountinfo, find_cgroup2_mount};
+#[cfg(target_os = "linux")]
 pub use spawn::{spawn_into, Child, SpawnError};

@@ -71,7 +71,10 @@ fn batch_id_bytes(counter: u64) -> [u8; 16] {
 /// descriptor number.
 impl std::fmt::Debug for SensorSet {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        #[cfg(target_os = "linux")]
         let mut open: Vec<&str> = Vec::new();
+        #[cfg(not(target_os = "linux"))]
+        let open: Vec<&str> = Vec::new();
         #[cfg(target_os = "linux")]
         {
             if self.process.is_some() {
