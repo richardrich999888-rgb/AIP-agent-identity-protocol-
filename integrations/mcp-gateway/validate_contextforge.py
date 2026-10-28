@@ -86,8 +86,12 @@ def main() -> int:
     parser.add_argument("--contextforge-source", type=Path, required=True)
     parser.add_argument("--signer-binary", type=Path, required=True)
     parser.add_argument("--fixture-binary", type=Path, help="Rust contextforge_fixture example (test authorization only)")
-    parser.add_argument("--agent-script", type=Path, help="Optional real LangGraph/model workload")
+    parser.add_argument("--agent-script", type=Path, help="Optional real model workload")
     parser.add_argument("--agent-python", type=Path)
+    parser.add_argument("--agent-kind", choices=("langgraph", "adk-a2a"), default="langgraph")
+    parser.add_argument("--agent-model-directory", type=Path, help="Pre-downloaded model directory for the ADK lab")
+    parser.add_argument("--agent-governance-manifest", type=Path, help="Optional native Microsoft ACS manifest")
+    parser.add_argument("--agent-opa-binary", type=Path, help="OPA executable for the native ACS dispatcher")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     source, binary, output = args.contextforge_source.resolve(), args.signer_binary.resolve(), args.output.resolve()
@@ -159,6 +163,11 @@ def main() -> int:
         configuration = run / "plugins.yaml"
         configuration.write_text(yaml.safe_dump(config))
         env = dict(os.environ)
+        # This harness dispatches only to its own loopback servers. Ambient
+        # developer proxy settings must not route those credentials elsewhere.
+        for name in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
+            env.pop(name, None)
+        env["NO_PROXY"] = env["no_proxy"] = "127.0.0.1,localhost"
         env.update({
             "PYTHONPATH": os.pathsep.join([str(source), str(HERE)]), "PYTHONUNBUFFERED": "1",
             "DATABASE_URL": "sqlite:///" + str(run / "contextforge.sqlite3"),
@@ -305,7 +314,7 @@ def main() -> int:
             async def official_client():
                 headers = {"Authorization":"Bearer " + token, "X-AIP-Agent-Id":AGENT,
                            "X-AIP-Decision-Id":secrets.token_hex(16), "X-AIP-Request-Id":secrets.token_hex(16)}
-                async with httpx2.AsyncClient(headers=headers, timeout=20) as http_client:
+                async with httpx2.AsyncClient(headers=headers, timeout=20, trust_env=False) as http_client:
                     async with Client(streamable_http_client(base + "/mcp", http_client=http_client),
                                       mode="2026-07-28", cache=None) as client:
                         await client.list_tools()
@@ -403,12 +412,22 @@ def main() -> int:
                 agent_env = {"PATH":os.defpath, "PYTHONUNBUFFERED":"1",
                              "VANIAN_BANK_GATEWAY_BASE_URL":base, "VANIAN_BANK_GATEWAY_TOKEN":token,
                              "VANIAN_BANK_TOOL_NAME":tools["loan_read"], "VANIAN_BANK_MODEL":"llama3.2:1b"}
+                if args.agent_kind == "adk-a2a":
+                    if not args.agent_model_directory or not args.agent_model_directory.is_dir():
+                        raise ValueError("ADK workload requires a pre-downloaded model directory")
+                    agent_env["VANIAN_LOCAL_MODEL_DIR"] = str(args.agent_model_directory.resolve())
+                    agent_env["VANIAN_INTEROP_RESULTS"] = str(output / "adk-a2a")
+                    if args.agent_governance_manifest:
+                        if not args.agent_opa_binary:
+                            raise ValueError("native governance requires --agent-opa-binary")
+                        agent_env["VANIAN_MICROSOFT_MANIFEST"] = str(args.agent_governance_manifest.resolve())
+                        agent_env["ACS_OPA_PATH"] = str(args.agent_opa_binary.resolve())
                 # Preserve the venv executable path: resolving its symlink
                 # would launch the base interpreter without the framework.
                 agent = subprocess.run([str(args.agent_python.absolute()), str(args.agent_script.resolve())],
                                        env=agent_env, cwd=run, capture_output=True, timeout=240)
-                (output / "langgraph-agent.log").write_bytes(agent.stdout + agent.stderr)
-                check("real_langgraph_model_chooses_gateway_tool_with_independent_receipt",
+                (output / f"{args.agent_kind}-agent.log").write_bytes(agent.stdout + agent.stderr)
+                check(f"real_{args.agent_kind}_model_chooses_gateway_tool_with_independent_receipt",
                       agent.returncode == 0 and event_count() == before_events + 1 and len(receipt_list()) == before_receipts + 1
                       and receipt_list()[-1]["receipt"]["disposition"] == "Forwarded",
                       "No kernel observation or signed execution verdict is claimed.")
