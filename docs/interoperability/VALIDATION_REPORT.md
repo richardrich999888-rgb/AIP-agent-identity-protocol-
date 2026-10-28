@@ -55,12 +55,14 @@ The original RBI/enterprise archives remain untouched. Their successful historic
 | Enterprise packaging, harness and SQL parity | Passed | Existing tests retained |
 | Existing MCP client boundary tests | 9 passed | Executed using the pinned ContextForge MCP environment |
 | Native Rego tests | 4 passed | Actual pinned OPA binary |
+| Frozen uv dependency environment | 47 passed | Independently installed from committed `uv.lock` |
+| Historical archive offline regression | Passed, including mutation refusal | Explicitly historical; no new live-agent or kernel claim |
 | `cargo test --locked --workspace --no-fail-fast` | **Failed: 3078 passed, 161 failed, 8 ignored; 28 failed targets** | Full log retained; failures include unavailable `/proc` process metadata, host observation/cgroup facilities and SoftHSM prerequisites. No blanket green claim |
 
 The complete workspace failure is not reclassified as a pass. The new code does not alter those host-dependent implementations. A clean supported runner is required to distinguish every environmental failure from other baseline defects. Release-mode, PostgreSQL runtime and privileged clean-host validation are NOT_EXECUTED locally.
 
 ## CI and reproduction
 
-The new workflow pins actions and OPA/SPIRE release assets, runs locked adapter tests, real OPA/SPIRE attempts and offline native verification. Existing repository workflows remain enabled. CI results apply only to the exact PR head and must be inspected there; configuring a workflow is not evidence it passed. See the PR for current execution results.
+The new workflow pins actions and OPA/SPIRE release assets, and is configured for locked adapter tests, real OPA/SPIRE attempts and offline native verification. Existing repository workflows remain enabled. At code head `a1f4bfbc798c2bd7be734f75c8b3aa7eb7a7a3e3`, GitHub marked all four workflows failed: all 11 jobs had runner ID 0 and zero steps. Logs were unavailable (`BlobNotFound`). This is **BLOCKED CI execution**, not test failure evidence or a passing run. The provider cause was not exposed by the available connector. Exact run IDs and job records are in [ci-attempt.json](../../validation/interoperability/ci-attempt.json). SPIRE therefore remains unexecuted on CI too. See the PR for the current head's checks.
 
 [Package instructions](../../integrations/interoperability/README.md) reproduce the model/native-framework run. The official A2A TCK was inspected and pinned but not run against this custom authenticated task profile. Full MCP conformance, AGNTCY credentials, NeMo, Cedar, OpenFGA, OpenTelemetry exports and CycloneDX schema export remain NOT_EXECUTED.
