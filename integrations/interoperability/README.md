@@ -80,3 +80,27 @@ python validation/interoperability/host_preflight.py --output /tmp/host-prerequi
 This checks local process visibility, Linux capabilities, BTF, tracepoint access and Unix socket availability. A nonzero exit identifies a blocked prerequisite; even a successful check establishes no sensor coverage or independent key custody. The script neither installs nor starts an observer. The managed workspace's report is retained under `validation/interoperability/results/20261028-authority/`.
 
 See [architecture](../../docs/interoperability/ARCHITECTURE.md), [validation](../../docs/interoperability/VALIDATION_REPORT.md), and [production gaps](../../docs/interoperability/PRODUCTION_GAPS.md). This is not an advertised production support matrix.
+
+## Microsoft input to gateway receipt comparison
+
+The native SDK is optional. Build the previously pinned Microsoft source with `maturin==1.8.7` and `maturin build --locked --release`, then install its wheel and `PyYAML==6.0.3` in a separate environment. The new CI job contains exact commands. No upstream SDK is copied into VANIAN or the observer.
+
+The combined harness now emits `governance-comparison-context.json` containing the lab tenant, expected agent references, policy version and tool aliases. Review or independently provision these inputs before institutional use. The gateway public anchor also remains an assessor decision; an untrusted record cannot choose its own key or tenant.
+
+```sh
+cargo build --locked -p aip-mcp-gateway --bin aip-tool-receipt
+python validation/interoperability/verify_microsoft_archive.py \
+  --result /tmp/combined-new-run/adk-a2a/result.json \
+  --receipts /tmp/combined-new-run/receipts.jsonl \
+  --context /assessor/governance-comparison-context.json \
+  --anchor /assessor/trust-anchor.json \
+  --verifier target/debug/aip-tool-receipt \
+  --output /tmp/new-microsoft-comparison.json
+python -m pytest validation/interoperability/test_microsoft_receipt.py -q
+```
+
+The tests default to the new committed `20261028-receipt-join/combined` archive. To exercise a fresh archive, set `VANIAN_MICROSOFT_ARCHIVE` to that combined output directory. They require the real pinned SDK and native binary; missing prerequisites do not become passing mocks.
+
+For general native request correlation, `aip-tool-receipt compare-request` reads `{signed_receipt, request}` from stdin, where request contains `method`, `tool_name`, `arguments`, `agent_id`, a 16-byte hex `decision_id`, and `tool_call_id`. Supply the same public `AIP_GATEWAY_ID`, `AIP_GATEWAY_KEY_VERSION` and `AIP_GATEWAY_PUBLIC_KEY` variables as `verify`. It never reads a signer key or receipt sink. `Matches` means only that those request fields match a signature-verified receipt. It does not authenticate caller-supplied identity or decision references, grant authority, infer a tenant, or prove downstream execution.
+
+The ACS profile supports untransformed pre-tool allow/deny with integer JSON arguments only. The bridge preserves Refused/Failed dispositions and reports unsupported transforms, approvals and other profiles as insufficient. Reported policy input may match an authentic gateway receipt even if the policy record itself was fabricated: policy-source authenticity therefore stays unestablished. No comparison gates the banking workload or controls an observer.

@@ -422,6 +422,12 @@ def main() -> int:
                             raise ValueError("native governance requires --agent-opa-binary")
                         agent_env["VANIAN_MICROSOFT_MANIFEST"] = str(args.agent_governance_manifest.resolve())
                         agent_env["ACS_OPA_PATH"] = str(args.agent_opa_binary.resolve())
+                        (output / "governance-comparison-context.json").write_text(json.dumps({
+                            "tenant": "synthetic-provider", "expected_gateway_agent": AGENT,
+                            "expected_framework_agent": "provider_research",
+                            "expected_policy_version": "vanian-synthetic-research-v2",
+                            "tool_aliases": {"read_loan": tools["loan_read"]},
+                        }, indent=2) + "\n")
                 # Preserve the venv executable path: resolving its symlink
                 # would launch the base interpreter without the framework.
                 agent = subprocess.run([str(args.agent_python.absolute()), str(args.agent_script.resolve())],

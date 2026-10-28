@@ -2,6 +2,25 @@
 
 Overall: **PARTIALLY_VERIFIED. The requested first interoperability milestone is not achieved.** No new independently observed kernel execution or off-host signed observation archive is claimed.
 
+## Continuation — reported ACS input to signed gateway request
+
+Starting from PR #9 commit `ff52c2a47462244560502fc1587ada721c82e2a8`, a read-only bridge now checks the exact native ACS input against the signed gateway request. The model's synthetic record selection is translated before ACS policy evaluation; the unchanged evaluated MCP arguments and request ID reach ContextForge. Rust verifies the existing receipt signature and recomputes its original commitment. The pinned upstream ACS SDK supplies its own input-identity encoding. No new policy evaluator or signing format is introduced.
+
+Two fresh real ADK/A2A/Microsoft/ContextForge lab runs completed. The final run, retained under [20261028-receipt-join](../../validation/interoperability/results/20261028-receipt-join/), contains four genuine model generations, 28 successful gateway checks, 28 gateway receipts and five live governance/authentication negatives. All 18 adapter source hashes captured by that run match the retained code. Offline comparison of its untransformed pre-tool input reports `AGREEMENT`, while policy-source authenticity, policy-version authenticity, agent mapping and institutional authorization remain unestablished. No separate fixture authorization is attached to the model request.
+
+| Executed check | Result | Evidence below `20261028-receipt-join/` |
+|---|---|---|
+| `cargo test --offline --locked -p aip-mcp-gateway` | 34 passed, including 8 new public-key-only comparison tests | `checks/native-gateway-tests.log` |
+| Native Microsoft archive adversarial tests | 25 passed; actual installed SDK and Rust verifier, no mocks | `checks/microsoft-adversarial.log` |
+| Existing optional adapter suite | 47 passed | `checks/adapter-tests.log` |
+| Revised native ACS Rego scope | 4 passed | `checks/acs-rego.log` |
+| Full workspace Clippy, all targets/features, warnings denied | Passed | `checks/workspace-clippy.log` |
+| Formatting | Passed | `report.json` |
+| Public-key-only verification of new gateway archive | 28 signatures verified, altered commitment refused | `checks/receipts-offline.log` |
+| Same-run native ACS input/receipt comparison | Content matches; execution remains `CANNOT_PROVE` | `combined/microsoft-receipt-comparison.json` |
+
+The archive keeps the real model transcript, framework events, native ACS records, public gateway anchor, receipts and source manifests separately. Its SHA-256 inventory is an integrity aid, not a signature by an independent assessor. The new CI job is configured to build the exact pinned native Microsoft SDK with its Cargo lock and reproduce the offline comparison tests; local success is not remote CI success. See the PR for exact-head runner status. The earlier full-workspace test failures and all institutional/kernel/collector/SPIRE/OpenShell blockers below remain unchanged.
+
 ## Continuation — offline authority-reference verification
 
 Starting from PR #9 commit `04df31229a0eb2d534b4ff34d1aede4a0f609ebc`, the offline composition now optionally verifies the exact native ScopedToken/DelegationToken chain referenced by ExpectedExecution. It uses existing `aip_core` signatures and attenuation, separately configured root/delegator keys, leaf and action checks, and the native inclusive validity window. No signing format or issuing policy changed. This verifies scope at issuance, not revocation, resource/spend constraints, institutional custody or current execution authority.
@@ -19,7 +38,7 @@ Exact base: `e3aa195def7524d6ec84d37a934beebe18b6c794`, the existing draft PR #8
 | Integration | Actual workload and source authentication | Authorization / gateway / signatures | Coverage and status |
 |---|---|---|---|
 | Google ADK + A2A | Two real ADK agents, four Qwen inference calls, mTLS, pinned issuer/audience JWT and request-bound signed task credential | Provider selected a real tool through ContextForge; native gateway receipts verified offline | PARTIALLY_VERIFIED: single process, framework logical attribution, lab key custody, remote kernel unobserved |
-| Microsoft ACS + ADK + A2A + ContextForge | Native Rust-backed SDK `run_tool`, actual pre/post Rego decisions around the model-selected gateway call | Native out-of-scope request denied before dispatch; two valid native governance results; gateway receipt verified | PARTIALLY_VERIFIED: same-process hook, no decision signature or verified institutional chain; exact ACS→gateway digest mapping not established |
+| Microsoft ACS + ADK + A2A + ContextForge | Native Rust-backed SDK `run_tool`, actual pre/post Rego decisions around the model-selected gateway call | Native out-of-scope request denied before dispatch; native governance records and gateway receipts | PARTIALLY_VERIFIED: the initial archive lacked the exact argument join; the newer continuation above verifies content consistency for its explicit profile. Policy signatures and institutional authority remain absent |
 | OPA | Real 1.21.4 service over mTLS, allowed research read and denied write | TLS-authenticated service reference, preserved native response/version; no signed ExpectedExecution | PARTIALLY_VERIFIED; separate run, not spliced into the combined agent run |
 | SPIFFE/SPIRE | Actual pinned server attempted | Unit-tested JWT-SVID verifier; no locally issued SVID from successful service | BLOCKED locally by unavailable Unix sockets. CI is configured to attempt a genuine service on Ubuntu |
 | OpenShell | Documented native OCSF parser contract tested | Imported events remain unauthenticated; no genuine sandbox run | IMPLEMENTED parser; workload BLOCKED by missing runtime/host capabilities |

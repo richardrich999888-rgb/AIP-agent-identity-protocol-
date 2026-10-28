@@ -13,7 +13,7 @@ Continuation: native offline authority-reference verification is implemented and
 | P1 | PARTIALLY_VERIFIED: A2A endpoint/task profile | External organization trust policy, delegated issuer custody, durable distributed replay, TCK compatibility and negative transport/lifecycle coverage |
 | P1 | PARTIALLY_VERIFIED: OPA and ContextForge | Bind authenticated policy input/version to native signed authorization and gateway receipt in the same operation |
 | P2 | BLOCKED: OpenShell runtime | Genuine sandbox workload, native policy outcomes, sandbox ancestry binding and separate qualified sensor evidence |
-| P2 | PARTIALLY_VERIFIED: Microsoft ACS | Authenticated source/signature profile, policy-version provenance and exact native-input→gateway commitment join |
+| P2 | PARTIALLY_VERIFIED: Microsoft ACS; exact reported input→signed gateway content match now executed for the untransformed integer-JSON profile | Authenticated policy source/signature, policy-version provenance, institution-approved tool/identity mapping and qualification of additional native decision profiles |
 | P3 | NOT_EXECUTED: AGNTCY/NeMo/Cedar/OpenFGA/OTel/CycloneDX | Small justified adapters after reference acceptance; no cloned frameworks |
 | P4 | NOT_EXECUTED: clean-host/customer acceptance | Scoped deployment credentials, independent security validation, rotation/backup/failure drills, measured overhead and supported Linux matrix |
 

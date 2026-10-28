@@ -27,6 +27,8 @@ ADK BasePlugin records application correlation. The official A2A SDK performs di
 
 The reference-only OCSF adapter imports OpenShell records without inventing authentication. OpenShell already has external enforcement; VANIAN's intended addition is corroboration under separately established observer coverage.
 
+The optional Microsoft receipt bridge now recomputes native ACS input identities through its pinned SDK and compares the evaluated tool arguments to a verified native receipt through Rust. This read-only comparison is tenant-scoped by operator configuration. Matching content does not authenticate the policy producer, the alias between tool names or the logical-agent mapping, and does not create signed authorization. The live reference workload evaluates the exact MCP arguments before sending them.
+
 The offline Rust composition accepts native signed evidence only, with assessor-supplied keys. It exposes tool-boundary comparison separately from runtime reconciliation. Its optional authority verification authenticates the exact native delegation chain and action scope at issuance using existing core rules. Institutional ownership, revocation, external identity mapping and policy context remain separate unverified properties.
 
 ## Deployment boundary

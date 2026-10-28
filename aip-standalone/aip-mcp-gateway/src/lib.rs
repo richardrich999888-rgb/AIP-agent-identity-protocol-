@@ -45,8 +45,12 @@ use aip_crypto::sha256;
 use serde_json::Value;
 
 pub mod canonical;
+pub mod comparison;
 
 pub use canonical::{args_commitment, canonical_json_bytes};
+pub use comparison::{
+    compare_received_call, ReceivedCallComparison, RequestAgreement, RequestDifference,
+};
 
 /// The AIRI protocol version a receipt is stamped with is owned by `aip-airi`;
 /// nothing here sets it. This constant is only the MCP method this gateway

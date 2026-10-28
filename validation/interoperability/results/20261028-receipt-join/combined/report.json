@@ -1,0 +1,172 @@
+{
+  "started_at": "2026-10-28T15:47:28Z",
+  "finished_at": "2026-10-28T15:48:15Z",
+  "contextforge": {
+    "repository": "https://github.com/IBM/mcp-context-forge.git",
+    "revision": "ff6a566a4b5c098093db90bbb4d5df483e108026",
+    "gateway_version": "1.1.0",
+    "cpex": "0.1.4",
+    "mcp": "2.3.0",
+    "mcp_types": "2.3.0",
+    "uv_lock_sha256": "76ef83096d34d7a95aca91407cbf085c3da1e0c937616d86da393b9549117f0c",
+    "runtime_dependencies": "upstream uv.lock at the pinned revision; uv sync --locked --no-dev --no-install-project",
+    "plugin_api": "cpex.framework.Plugin; tool_pre_invoke and tool_post_invoke",
+    "license": "Apache-2.0"
+  },
+  "checks": [
+    {
+      "name": "replay_journal_symlink_refused_without_creating_target",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "nonprivate_replay_journal_refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "actual_contextforge_registers_real_mcp_upstream",
+      "status": "PASS",
+      "detail": "200: {'id': '7bb9a7fe2e1d4218a1eee899ec53e18d', 'name': 'receipt-test', 'url': 'http://localhost:51797/mcp', 'description': None, 'transport': 'STREAMABLEHTTP', 'capabilities': {'prompts': {'listChanged': True}, 'resources': {'subscribe': True, 'listChanged': True}, 'tools': {'listChanged': True}}, 'createdAt': '2026-10-28T15:47:38.417299', 'updatedAt': '2026-10-28T15:47:38.417302', 'status': 'active',"
+    },
+    {
+      "name": "valid_tool_invocation_reaches_upstream_and_has_signed_receipt",
+      "status": "PASS",
+      "detail": "200; signed receipt and one real upstream invocation"
+    },
+    {
+      "name": "live_receipt_agrees_with_preissued_signed_authorization_via_real_comparator",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "duplicate_request_refused_without_second_dispatch",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "decision_replay_with_new_request_id_refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "missing_decision_refused_without_dispatch",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "principal_agent_mismatch_refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "header_body_disagreement_refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "method_header_body_disagreement_refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "unsupported_tool_refused_before_dispatch",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "malformed_json_rpc_cannot_dispatch",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "unauthenticated_client_rejected",
+      "status": "PASS",
+      "detail": "401"
+    },
+    {
+      "name": "mcp_ingress_rejects_unapproved_origin",
+      "status": "PASS",
+      "detail": "403"
+    },
+    {
+      "name": "official_mcp_2_3_client_uses_2026_07_28_transport_and_signed_receipt",
+      "status": "PASS",
+      "detail": "{\"protocol_version\": \"2026-07-28\", \"isError\": false, \"actual_dispatches\": 1, \"receipt_persisted\": true, \"upstream_compatibility\": \"Pinned ContextForge strips successful top-level result metadata on /mcp; receipt remains in gateway sink.\"}"
+    },
+    {
+      "name": "real_upstream_error_has_failed_receipt",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "gateway_timeout_has_no_success_receipt",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "concurrent_calls_have_distinct_signed_receipts",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "concurrent_duplicate_calls_dispatch_exactly_once",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "live_parameter_mismatch_diverges_via_real_rust_comparator_without_agent_claim",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "gateway_restart_preserves_replay_protection",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "wrong_signing_key_refused_before_dispatch",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "receipt_sink_failure_refused_before_dispatch",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "post_dispatch_signing_failure_reports_cannot_prove_without_success_receipt",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "journal_failure_cannot_mask_post_dispatch_receipt_uncertainty",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "real_adk-a2a_model_chooses_gateway_tool_with_independent_receipt",
+      "status": "PASS",
+      "detail": "No kernel observation or signed execution verdict is claimed."
+    },
+    {
+      "name": "every_exported_receipt_verifies_offline_with_public_anchor_only",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "journal_states": {
+    "Failed": 2,
+    "Forwarded": 13,
+    "pending": 1,
+    "receipt_error": 1
+  },
+  "host": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "python": "3.12.14"
+  },
+  "scope": "Actual ContextForge + real MCP upstream + HTTP JSON-RPC client. No kernel observation, no banking outcome proof.",
+  "receipt_count": 28,
+  "upstream_invocation_count": 17
+}

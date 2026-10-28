@@ -62,6 +62,7 @@ async def run():
         hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(sources)}, indent=2) + "\n")
     model = LocalQwen(model_path, transcript)
     events, interactions, tool_results, a2a_replies, governance_results = [], [], [], [], []
+    governance_requests = []
     control = None
     negative_checks = []
     if os.environ.get("VANIAN_MICROSOFT_MANIFEST"):
@@ -70,7 +71,7 @@ async def run():
         from agent_control_specification import AgentControlBlocked
         dispatched = []
         try:
-            await control.run_tool("read_loan", {"record_id": "OUTSIDE-SCOPE"},
+            await control.run_tool("read_loan", {"loan_id": 999, "amount": 0},
                 lambda value: dispatched.append(value), snapshot={"agent": {"id": "provider_research"}})
         except AgentControlBlocked as error:
             if dispatched:
@@ -98,18 +99,16 @@ async def run():
         guard = DelegationGuard(delegation_trust, str(temp / "replay.db"),
             allowed_subjects=frozenset({"research-agent"}), allowed_actions=frozenset({"research.read"}))
 
-        def read_loan_core(record_id: str) -> dict:
-            """Read a synthetic loan record by its record_id, such as SYN-001."""
-            if record_id not in ("SYN-001", "SYN-002"):
-                raise ValueError("record outside lab scope")
+        def read_loan_core(arguments: dict, request_id: str, decision_id: str) -> dict:
+            """Dispatch the exact arguments evaluated by ACS, without translation."""
             gateway = os.environ.get("VANIAN_BANK_GATEWAY_BASE_URL")
             if gateway:
                 tool = os.environ["VANIAN_BANK_TOOL_NAME"]
                 payload = {"jsonrpc": "2.0", "id": str(uuid.uuid4()), "method": "tools/call",
-                           "params": {"name": tool, "arguments": {"loan_id": {"SYN-001": 17, "SYN-002": 18}[record_id], "amount": 0}}}
+                           "params": {"name": tool, "arguments": arguments}}
                 headers = {"Content-Type": "application/json", "Authorization": "Bearer " + os.environ["VANIAN_BANK_GATEWAY_TOKEN"],
-                           "X-AIP-Agent-Id": "agent.bank-evaluation", "X-AIP-Decision-Id": uuid.uuid4().hex,
-                           "X-AIP-Request-Id": str(uuid.uuid4()), "Mcp-Method": "tools/call", "Mcp-Name": tool}
+                           "X-AIP-Agent-Id": "agent.bank-evaluation", "X-AIP-Decision-Id": decision_id,
+                           "X-AIP-Request-Id": request_id, "Mcp-Method": "tools/call", "Mcp-Name": tool}
                 with urlopen(Request(gateway + "/rpc", data=json.dumps(payload).encode(), headers=headers), timeout=30) as response:
                     record = json.load(response)
                 if "error" in record or record.get("result", {}).get("isError"):
@@ -117,22 +116,31 @@ async def run():
                 # Keep only the synthetic tool result and its signed receipt.
                 tool_results.append(record)
                 return {name: value for name, value in record["result"].items() if name != "_meta"}
-            record = {"record_id": record_id, "currency": "INR", "amount": 1000, "synthetic": True}
+            record = {"loan_id": arguments["loan_id"], "currency": "INR", "amount": 1000, "synthetic": True}
             tool_results.append(record)
             return record
 
         async def read_loan(record_id: str) -> dict:
             """Read a synthetic loan record by its record_id, such as SYN-001."""
+            if record_id not in ("SYN-001", "SYN-002"):
+                raise ValueError("record outside lab scope")
+            arguments = {"loan_id": {"SYN-001": 17, "SYN-002": 18}[record_id], "amount": 0}
+            request_id, decision_id = str(uuid.uuid4()), uuid.uuid4().hex
             if control is None:
-                return read_loan_core(record_id)
+                return read_loan_core(arguments, request_id, decision_id)
             from vanian_interop.governance import microsoft_result
-            governed = await control.run_tool("read_loan", {"record_id": record_id},
-                lambda arguments: read_loan_core(arguments["record_id"]),
+            governed = await control.run_tool("read_loan", arguments,
+                lambda effective: read_loan_core(effective, request_id, decision_id),
+                tool_call_id=request_id,
                 snapshot={"agent": {"id": "provider_research"}})
+            governance_requests.append({"request_id": request_id, "decision_id": decision_id,
+                "receipt_result_index": len(tool_results) - 1,
+                "context_provenance": "APPLICATION_REPORTED_NOT_AUTHORITY"})
             for point, native in [("pre", governed.pre_tool_call_result), ("post", governed.post_tool_call_result)]:
                 governance_results.append(asdict(microsoft_result(native, tenant="synthetic-provider",
-                    request_id=point + "-" + str(uuid.uuid4()), evaluated_at_ms=time.time_ns()//1_000_000,
-                    policy_version="vanian-synthetic-research-v1", agent_id="provider_research")))
+                    request_id=request_id if point == "pre" else "post-" + request_id,
+                    evaluated_at_ms=time.time_ns()//1_000_000,
+                    policy_version="vanian-synthetic-research-v2", agent_id="provider_research")))
             return governed.value
 
         provider = LlmAgent(name="provider_research", model=model, tools=[read_loan],
@@ -272,6 +280,7 @@ async def run():
                 a2a_interactions=interactions, gateway="ContextForge" if os.environ.get("VANIAN_BANK_GATEWAY_BASE_URL") else "NOT_CONNECTED",
                 tool_results=tool_results, agent_responses=replies, a2a_replies=a2a_replies,
                 microsoft_governance=governance_results,
+                governance_requests=governance_requests,
                 negative_checks=negative_checks,
                 model_calls=len(transcript.read_text().splitlines()),
                 scope="Real local inference and authenticated A2A; same-process logical agents; no independent runtime observation.")

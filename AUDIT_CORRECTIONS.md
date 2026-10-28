@@ -21,6 +21,11 @@ Missing observations remain `CannotProve`, including with a valid authority
 chain. Historical RBI evidence is preserved separately. Local host limitations,
 the full-workspace test failures and unexecuted CI jobs remain disclosed.
 
+The subsequent ACS→gateway comparison checks exact reported input content
+against the gateway's verified signature. ACS input digests are unkeyed and
+cannot authenticate their producer. This result does not close institutional
+authorization, logical-agent mapping, sensor coverage or independent custody.
+
 ---
 
 ## 1. What was overstated (now corrected)
