@@ -1,0 +1,22 @@
+{
+  "protocol_version": "2026-07-28",
+  "result": {
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "ContextForge",
+        "version": "1.1.0"
+      }
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"loan_id\": 2,\n  \"amount_seen\": 0,\n  \"document_status\": \"synthetic-documents-require-human-review\",\n  \"recommendation\": \"review-only\"\n}",
+        "annotations": null,
+        "_meta": null
+      }
+    ],
+    "structuredContent": null,
+    "isError": false,
+    "resultType": "complete"
+  }
+}
