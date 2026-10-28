@@ -41,7 +41,7 @@ MODEL_ID = 'ollama:' + MODEL + '@sha256:' + MANIFEST_SHA256
 TOOL = 'same-run-loan-read'
 
 
-def request(base, path, token=None, body=None, method=None, extra_headers=None):
+def request(base, path, token=None, body=None, method=None, extra_headers=None, safe_error=False):
     headers = {'Content-Type': 'application/json'}
     if token:
         headers['Authorization'] = 'Bearer ' + token
@@ -59,8 +59,31 @@ def request(base, path, token=None, body=None, method=None, extra_headers=None):
                 value = None
             return response.status, value
     except HTTPError as error:
+        summary = None
+        if safe_error:
+            # Classify fixed upstream policy messages only. Pydantic's raw
+            # response can echo password input and must never be retained.
+            try:
+                detail=json.loads(error.read(65536)).get('detail')
+                classes={
+                    'Password contains too many sequential characters':'password_sequence_policy',
+                    'Password must not be based on your username':'password_username_policy',
+                    'Password is too common or easily guessable':'password_common_policy',
+                    'User creation failed':'user_creation_failed',
+                }
+                summary={'error_class':classes.get(detail,'unclassified_http_error') if isinstance(detail,str) else 'validation_or_unclassified_http_error'}
+            except (ValueError,AttributeError):
+                summary={'error_class':'unclassified_http_error'}
         error.close()
-        return error.code, None
+        return error.code, summary
+
+
+def gateway_password():
+    # At least 256 random bits while satisfying the pinned gateway's enabled
+    # policy: no three letters or digits are adjacent, so random sequential
+    # triples cannot intermittently reject disposable account provisioning.
+    alphabets=('ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz','0123456789','!@#$%^&*?+')
+    return ''.join(secrets.choice(alphabet) for _ in range(16) for alphabet in alphabets)
 
 
 def ready_http(base, process, path='/health'):
@@ -406,7 +429,7 @@ def main():
         gateway_env = {'HOME':str(gateway_dir),'PYTHONPATH':os.pathsep.join([str(source),str(ROOT/'integrations/mcp-gateway')]),
             'PYTHONUNBUFFERED':'1','DATABASE_URL':'sqlite:///'+str(gateway_dir/'gateway.sqlite3'),
             'JWT_SECRET_KEY':secret,'AUTH_ENCRYPTION_SECRET':secrets.token_hex(32),'PLATFORM_ADMIN_EMAIL':admin,
-            'PLATFORM_ADMIN_PASSWORD':secrets.token_urlsafe(32),'DEFAULT_USER_PASSWORD':secrets.token_urlsafe(32),'BASIC_AUTH_PASSWORD':secrets.token_urlsafe(32),
+            'PLATFORM_ADMIN_PASSWORD':gateway_password(),'DEFAULT_USER_PASSWORD':gateway_password(),'BASIC_AUTH_PASSWORD':gateway_password(),
             'AUTH_REQUIRED':'true','MCP_REQUIRE_AUTH':'true','EMAIL_AUTH_ENABLED':'true','MCP_ALLOWED_ORIGINS':json.dumps(['http://127.0.0.1:19992']),
             'SECURE_COOKIES':'false','ENVIRONMENT':'development','EMBED_ENVIRONMENT_IN_TOKENS':'false','VALIDATE_TOKEN_ENVIRONMENT':'false',
             'PLUGINS_ENABLED':'true','PLUGINS_CONFIG_FILE':str(gateway_dir/'plugins.json'),'ENABLE_HEADER_PASSTHROUGH':'true',
@@ -430,9 +453,12 @@ def main():
         save(public/'registered-tool-identities.json',{'source_authority':'gateway_admin_registration_response','tools':[{k:t.get(k) for k in ('name','original_name','id','gateway_id')} for t in registered_tools]})
         if status != 200 or not any(tool.get('name')==TOOL for tool in registered_tools):
             raise Refused('actual registered canonical MCP tool identity differs from exact authority policy')
-        status, _ = request(base,'/auth/email/admin/users',admin_token,{'email':principal,'password':secrets.token_urlsafe(32)+'Aa1!',
-            'full_name':'Disposable read-only agent','is_admin':False})
-        if status != 201: raise Refused('non-admin gateway principal creation failed')
+        status, creation = request(base,'/auth/email/admin/users',admin_token,{'email':principal,'password':gateway_password(),
+            'full_name':'Disposable read-only agent','is_admin':False},safe_error=True)
+        if status != 201:
+            save(public/'gateway-principal-creation.json',{'http_status':status,
+                'error_class':(creation or {}).get('error_class','unclassified_http_error')})
+            raise Refused(f'non-admin gateway principal creation failed (HTTP {status})')
         status, role = request(base,'/rbac/roles',admin_token,{'name':'same_run_tool_reader','scope':'global',
             'permissions':['tools.read','tools.execute'],'description':'Only read/execute public allowlisted test tools.'})
         if status not in (200,201): raise Refused('restricted gateway role creation failed')
