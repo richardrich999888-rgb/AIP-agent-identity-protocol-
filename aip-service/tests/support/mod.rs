@@ -312,6 +312,7 @@ pub fn app_state(
         signer: std::sync::Arc::new(kp),
         metrics: std::sync::Arc::new(Default::default()),
         managed_signing,
+        observer_trust: Default::default(),
     })
 }
 

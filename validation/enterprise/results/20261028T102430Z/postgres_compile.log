@@ -1,0 +1,87 @@
+warning: unused imports: `EXECUTION_BINDING_VERSION` and `ProcessInstance`
+  --> aip-standalone/aip-core/src/execution_binding.rs:28:54
+   |
+28 | use aip_types::{ContainerIdentity, ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION};
+   |                                                      ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `aip-core` (lib) generated 1 warning (run `cargo fix --lib -p aip-core` to apply 1 suggestion)
+warning: unused import: `crate::probe::ProbeError`
+  --> aip-standalone/aip-observe/src/linux.rs:21:5
+   |
+21 | use crate::probe::ProbeError;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/sched.rs:19:20
+   |
+19 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/socksend.rs:22:20
+   |
+22 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/sockstate.rs:33:20
+   |
+33 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `BootClockAnchor`
+  --> aip-standalone/aip-observe/src/sockstate.rs:34:23
+   |
+34 | use crate::observed::{BootClockAnchor, KernelLifecycleKind, SocketEndpoint, SocketProtocol};
+   |                       ^^^^^^^^^^^^^^^
+
+warning: field `image_cache` is never read
+   --> aip-standalone/aip-observe/src/probe.rs:158:5
+    |
+122 | pub struct ProcfsProbe {
+    |            ----------- field in this struct
+...
+158 |     image_cache: std::cell::RefCell<HashMap<u32, CachedImage>>,
+    |     ^^^^^^^^^^^
+    |
+    = note: `ProcfsProbe` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `still_describes` is never used
+   --> aip-standalone/aip-observe/src/probe.rs:177:8
+    |
+172 | impl CachedImage {
+    | ---------------- method in this implementation
+...
+177 |     fn still_describes(
+    |        ^^^^^^^^^^^^^^^
+
+warning: method `read_process` is never used
+   --> aip-standalone/aip-observe/src/probe.rs:306:8
+    |
+193 | impl ProcfsProbe {
+    | ---------------- method in this implementation
+...
+306 |     fn read_process(&self, pid: u32) -> Result<ObservedProcess, ProbeError> {
+    |        ^^^^^^^^^^^^
+
+warning: `aip-observe` (lib) generated 8 warnings (run `cargo fix --lib -p aip-observe` to apply 5 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+  Executable unittests src/lib.rs (target/debug/deps/airon_aip-e6eafb10ad54cf91)
+  Executable unittests src/bin/aip_migrate.rs (target/debug/deps/aip_migrate-fa43153c1f95b6b6)
+  Executable unittests src/main.rs (target/debug/deps/airon_aip-994201b15595205b)
+  Executable tests/build_boundary.rs (target/debug/deps/build_boundary-26a1a5b02a82a8ba)
+  Executable tests/enterprise_api.rs (target/debug/deps/enterprise_api-a59aa00256ab003d)
+  Executable tests/ingress_limits.rs (target/debug/deps/ingress_limits-31c1a80937f6e9d8)
+  Executable tests/key_custody.rs (target/debug/deps/key_custody-92b9fab1337fecec)
+  Executable tests/managed_signing.rs (target/debug/deps/managed_signing-a2f4d927e58b7255)
+  Executable tests/metrics_api.rs (target/debug/deps/metrics_api-1896057408b53751)
+  Executable tests/replay_ingest.rs (target/debug/deps/replay_ingest-86b784f14d5a1e9e)
+  Executable tests/revocation_scope.rs (target/debug/deps/revocation_scope-ca02b218fafa9588)
+  Executable tests/storage_controls.rs (target/debug/deps/storage_controls-599a00a26feb7839)
+  Executable tests/temporal_bound.rs (target/debug/deps/temporal_bound-50e055756486b2a3)
+  Executable tests/verdict_api.rs (target/debug/deps/verdict_api-13fb582b1407fbbb)
