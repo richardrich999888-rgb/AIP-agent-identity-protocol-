@@ -1,0 +1,81 @@
+   Compiling airon-aip v0.2.0 (/workspace/scratch/749b2e514413/vanian/aip-service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.33s
+     Running tests/deployment_api.rs (target/debug/deps/deployment_api-78e6d222f45130d6)
+
+running 1 test
+Traceback (most recent call last):
+  File "/workspace/scratch/749b2e514413/vanian/validation/enterprise/registry_smoke.py", line 14, in <module>
+    contract = OpenAPIContract()
+               ^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/vanian/validation/enterprise/openapi_contract.py", line 32, in __init__
+    self.document = yaml.safe_load(self.specification.read_text())
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/__init__.py", line 125, in safe_load
+    return load(stream, SafeLoader)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/__init__.py", line 81, in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/constructor.py", line 49, in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 36, in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 55, in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 84, in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 133, in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 84, in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 133, in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 84, in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 133, in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 84, in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 133, in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 84, in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 133, in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/749b2e514413/contextforge/.venv/lib/python3.12/site-packages/yaml/composer.py", line 75, in compose_node
+    raise ComposerError("found duplicate anchor %r; first occurrence"
+yaml.composer.ComposerError: found duplicate anchor 'id001'; first occurrence
+  in "<unicode string>", line 37, column 16:
+            '400': &id001
+                   ^
+second occurrence
+  in "<unicode string>", line 655, column 27:
+            registered_at_ms: &id001
+                              ^
+
+thread 'real_http_registry_clients' (317) panicked at aip-service/tests/deployment_api.rs:429:5:
+assertion failed: status.unwrap().success()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test real_http_registry_clients ... FAILED
+
+failures:
+
+failures:
+    real_http_registry_clients
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.18s
+
+error: test failed, to rerun pass `-p airon-aip --test deployment_api`

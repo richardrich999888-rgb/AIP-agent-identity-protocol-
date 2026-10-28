@@ -1,0 +1,29 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 13.65s
+     Running tests/enterprise_api.rs (target/debug/deps/enterprise_api-d23d7ae4c112447e)
+
+running 1 test
+Traceback (most recent call last):
+  File "/workspace/scratch/749b2e514413/vanian/validation/enterprise/client_smoke.py", line 143, in <module>
+    main()
+  File "/workspace/scratch/749b2e514413/vanian/validation/enterprise/client_smoke.py", line 101, in main
+    validate_live_reads(a, b, client("VANIAN_TEST_WRITER_A"), evidence_id=EVIDENCE,
+  File "/workspace/scratch/749b2e514413/vanian/validation/enterprise/openapi_contract.py", line 158, in validate_live_reads
+    assert covered == documented_gets, "a documented read operation has no live contract case"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a documented read operation has no live contract case
+
+thread 'real_http_clients_use_the_service_boundary' (24) panicked at aip-service/tests/enterprise_api.rs:935:5:
+enterprise client smoke failed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test real_http_clients_use_the_service_boundary ... FAILED
+
+failures:
+
+failures:
+    real_http_clients_use_the_service_boundary
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 1.12s
+
+error: test failed, to rerun pass `-p airon-aip --test enterprise_api`

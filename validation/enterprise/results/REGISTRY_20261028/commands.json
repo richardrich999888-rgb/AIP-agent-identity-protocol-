@@ -1,0 +1,52 @@
+{
+  "client_environment": {
+    "AIP_ENTERPRISE_CLIENT_SMOKE": "validation/enterprise/client_smoke.py",
+    "AIP_ENTERPRISE_PYTHON": "/workspace/scratch/749b2e514413/contextforge/.venv/bin/python",
+    "PYTHONPATH": "sdk/python",
+    "VANIAN_REGISTRY_PYTHON": "/workspace/scratch/749b2e514413/contextforge/.venv/bin/python",
+    "VANIAN_REGISTRY_SMOKE": "validation/enterprise/registry_smoke.py"
+  },
+  "not_executed": [
+    "Clean systemd host install/upgrade/uninstall",
+    "PostgreSQL runtime",
+    "Privileged sensor execution",
+    "Independent second-host collector",
+    "New model run",
+    "Browser interaction with registry section",
+    "Network connector",
+    "Release signing/publication",
+    "Capacity/power-loss qualification",
+    "Institutional security assessment"
+  ],
+  "rust_environment": {
+    "CARGO_HOME": "/workspace/scratch/6d31714e17cd/toolchain/cargo",
+    "PATH_prefix": "/workspace/scratch/6d31714e17cd/toolchain/cargo/bin",
+    "RUSTUP_HOME": "/workspace/scratch/6d31714e17cd/toolchain/rustup"
+  },
+  "source_commit": "f0966992c5b9eb0b902314af38d3aee7eb36ca8b",
+  "successful_commands": [
+    "cargo check --locked -p airon-aip",
+    "cargo clippy --offline --locked -p airon-aip --all-targets --all-features -- -D warnings",
+    "cargo fmt --all -- --check",
+    "cargo test --offline --locked -p airon-aip --lib --test deployment_api --test enterprise_api",
+    "cargo test --offline --locked --release -p airon-aip --lib deployments::tests",
+    "cargo test --offline --locked --release -p airon-aip --test deployment_api",
+    "cargo test --offline --locked --release -p airon-aip --test enterprise_api",
+    "cargo test --offline --locked -p airon-aip --test deployment_api real_http_registry_clients -- --ignored --nocapture",
+    "cargo test --offline --locked -p airon-aip --test enterprise_api real_http_clients_use_the_service_boundary -- --ignored --nocapture",
+    "/workspace/scratch/749b2e514413/sdk-venv/bin/python -m unittest discover -s sdk/python/tests",
+    "/workspace/scratch/749b2e514413/sdk-venv/bin/python -m unittest discover -s integrations/service_delivery/tests",
+    "npm run test --prefix sdk/typescript",
+    "npm run build --prefix sdk/typescript",
+    "node --check integrations/enterprise-console/app.js",
+    "/workspace/scratch/749b2e514413/sdk-venv/bin/python -m pip wheel --no-deps --no-build-isolation ./sdk/python --wheel-dir /workspace/scratch/749b2e514413/registry-sdk-artifacts",
+    "npm pack ./sdk/typescript --ignore-scripts --pack-destination /workspace/scratch/749b2e514413/registry-sdk-artifacts",
+    "/workspace/scratch/749b2e514413/sdk-venv/bin/python validation/enterprise/verify_sdk_packages.py --wheel /workspace/scratch/749b2e514413/registry-sdk-artifacts/vanian_sdk-0.1.0-py3-none-any.whl --typescript /workspace/scratch/749b2e514413/registry-sdk-artifacts/vanian-evidence-client-0.1.0.tgz",
+    "python3 validation/interoperability/verify_gateway_archive.py --archive validation/enterprise/results/DELIVERY_20261028/gateway/receipts.jsonl --anchor validation/enterprise/results/DELIVERY_20261028/gateway/trust-anchor.json --verifier target/debug/aip-tool-receipt",
+    "python3 integrations/real_agents/tests/offline_archive_check.py --repo /workspace/scratch/749b2e514413/vanian --tools /workspace/scratch/749b2e514413/vanian/target/debug",
+    "/workspace/scratch/749b2e514413/contextforge/.venv/bin/python validation/enterprise/test_client_boundaries.py",
+    "python3 validation/rbi_demo/test_run.py",
+    "python3 validation/enterprise/test_sql_provisioning.py"
+  ],
+  "working_directory": "repository root"
+}

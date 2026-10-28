@@ -1,0 +1,94 @@
+   Compiling airon-aip v0.2.0 (/workspace/scratch/749b2e514413/vanian/aip-service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.45s
+     Running unittests src/lib.rs (target/debug/deps/airon_aip-6913c4b824975a65)
+
+running 55 tests
+test artifacts::tests::damaged_records_are_preserved_and_refused_instead_of_skipped ... ok
+test artifacts::tests::a_kind_does_not_answer_for_another_kind ... ok
+test artifacts::tests::an_id_already_held_by_another_tenant_is_refused ... ok
+test artifacts::tests::the_same_document_filed_twice_is_one_row ... ok
+test artifacts::tests::an_agent_listing_is_ordered_by_window_and_scoped_to_one_agent ... ok
+test auth::tests::test_authenticate_known_and_unknown ... ok
+test artifacts::tests::a_cross_tenant_read_is_empty_not_an_error ... ok
+test auth::tests::test_empty_store_fails_closed ... ok
+test artifacts::tests::a_failed_append_never_publishes_or_acknowledges_a_retry ... ok
+test auth::tests::test_keys_bind_distinct_tenants ... ok
+test deployments::tests::append_failure_never_creates_a_readable_or_acknowledged_registration ... ok
+test artifacts::tests::acknowledged_filings_survive_reopening ... ok
+test evidence::tests::test_generate_requires_action ... ok
+test deployments::tests::repeated_or_incomplete_journal_records_are_not_repaired_into_success ... ok
+test authority::tests::test_who_authorized_resolves_chain ... ok
+test authority::tests::test_principal_and_agent_indexes ... ok
+test ingress::tests::a_malformed_limit_is_refused_not_ignored ... ok
+test authority::tests::test_tamper_breaks_integrity_flag ... ok
+test ingress::tests::an_empty_value_falls_back_to_the_default ... ok
+test ingress::tests::env_overrides_are_read ... ok
+test ingress::tests::the_defaults_are_conservative_and_finite ... ok
+test metrics::tests::counters_increment_and_render ... ok
+test metrics::tests::no_metric_carries_a_label ... ok
+test metrics::tests::concurrent_increments_are_not_lost ... ok
+test metrics::tests::rendering_is_deterministic ... ok
+test metrics::tests::the_exposition_format_is_well_formed ... ok
+test observations::tests::configured_observer_trust_fails_closed_and_rejects_ambiguous_anchors ... ok
+test revocation::tests::a_tampered_line_is_not_loaded ... ok
+test revocation::tests::evidence_jtis_are_exported_per_tenant_in_16_byte_form ... ok
+test revocation::tests::legacy_lines_load_under_the_legacy_tenant_with_their_old_hash ... ok
+test revocation::tests::normalize_rejects_everything_that_is_not_a_token_id ... ok
+test revocation::tests::lookup_normalises_case_and_form ... ok
+test revocation::tests::persisted_entries_reload_under_their_tenant ... ok
+test evidence::tests::test_generate_then_verify_roundtrip ... ok
+test revocation::tests::revoke_and_lookup_are_tenant_scoped ... ok
+test authority::tests::test_authority_graph_scoped_to_supplied_packets ... ok
+test evidence::tests::generating_multiple_actions_does_not_advance_a_frozen_clock ... ok
+test evidence::tests::test_verify_detects_tamper ... ok
+test evidence::tests::weakness_generate_then_verify_accepts_self_issued_authority ... ok
+test tokens::tests::test_each_token_has_unique_jti ... ok
+test tokens::tests::test_issue_verify_roundtrip ... ok
+test tokens::tests::test_metadata_in_claims ... ok
+test tokens::tests::test_tampered_token_rejected ... ok
+test store::tests::test_cross_tenant_get_is_denied ... ok
+test tokens::tests::test_wrong_algorithm_rejected ... ok
+test store::tests::test_persist_and_reload_preserves_tenant ... ok
+test tokens::tests::test_wrong_keypair_rejected ... ok
+test wellknown::tests::test_jwks_x_decodes_to_32_bytes ... ok
+test wellknown::tests::test_jwks_x_is_32_bytes ... ok
+test store::tests::test_store_get_roundtrip ... ok
+test evidence::tests::test_export_endpoint_roundtrip_and_tenant_isolation ... ok
+test store::tests::test_store_rejects_id_reuse_across_tenants ... ok
+test store::tests::test_all_for_tenant_isolates ... ok
+test tokens::tests::test_verify_latency_under_1ms_mean ... ok
+test tokens::tests::test_expired_token ... ok
+
+test result: ok. 55 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.12s
+
+     Running tests/deployment_api.rs (target/debug/deps/deployment_api-78e6d222f45130d6)
+
+running 8 tests
+test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments
+test journal_refuses_symlinks_and_world_readable_configuration ... ok
+test journal_refuses_corruption_repeated_records_and_concurrent_writers ... ok
+test default_is_disabled_and_authentication_remains_required ... ok
+test registration_is_tenant_scoped_and_never_upgrades_assurance ... ok
+test invalid_topology_collisions_and_oversize_requests_are_refused ... ok
+test only_administrator_can_register_and_caller_cannot_set_tenant_or_assurance ... ok
+test idempotency_conflicts_restart_and_pagination_preserve_records ... ok
+
+test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/enterprise_api.rs (target/debug/deps/enterprise_api-d23d7ae4c112447e)
+
+running 11 tests
+test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener
+test service_readiness_refuses_an_unavailable_artifact_path_without_creating_files ... ok
+test stored_verification_detects_actual_post_signature_tampering ... ok
+test unconfigured_collector_admission_is_unavailable_and_caller_anchors_are_refused ... ok
+test console_shell_is_public_but_contains_no_records_and_data_stays_authenticated ... ok
+test explicitly_shared_observer_anchors_keep_each_tenants_archive_index_private ... ok
+test read_routes_authenticate_and_cross_tenant_ids_are_indistinguishable_from_absent ... ok
+test accepted_collector_archives_survive_a_service_store_restart ... ok
+test pagination_is_bounded_and_agent_claims_are_not_upgraded_into_observation ... ok
+test reader_refuses_every_mutation_and_raw_export_before_parsing_the_body ... ok
+test collector_archives_are_verified_stored_idempotently_and_tenant_scoped ... ok
+
+test result: ok. 10 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.61s
+

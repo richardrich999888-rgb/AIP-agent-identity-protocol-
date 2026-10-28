@@ -1,5 +1,58 @@
 # Enterprise integration validation — 28 October 2026
 
+## Administrator configuration registration
+
+Implementation `b9eb4bd6de2a26842b869490af15c24927024fcc` extends the existing
+service; `f0966992c5b9eb0b902314af38d3aee7eb36ca8b` normalizes exported public
+pin text without changing key bytes. Base was
+`d030fbf5e717cb690847ab2f056a8c189f4c7ca5`. Exact source hashes, commands,
+logs, initial failures, build hashes and limits are in
+`validation/enterprise/results/REGISTRY_20261028/`. No new third-party runtime
+dependency or cryptographic document format is introduced.
+
+| Check | Executed result and scope |
+|---|---|
+| Scoped Rust debug | 55 service library + 7 registry API + 10 evidence API passed; 2 live fixtures ignored here and explicitly executed separately |
+| Scoped Rust release | 2 registry library + 7 registry API + 10 evidence API passed; the same 2 live fixtures ignored in this profile |
+| Registry real HTTP | Python Admin registration, 8 simultaneous identical resubmissions, both SDKs, OpenAPI, role refusals, tenant hiding, conflict refusal and unchanged unavailable coverage passed |
+| Existing evidence real HTTP | Both SDKs, official restricted MCP client, real native signed protocol fixtures, integrity verification, tenant refusals and posture passed; no new kernel run |
+| Client and onboarding suites | Python SDK 78; TypeScript 3; planner/kit 35; MCP boundaries 9; RBI control-flow 17; SQL source parity 1 passed. Counts overlap |
+| Distribution | Python wheel and compiled JavaScript/declarations archive built; fresh isolated installs/imports exposed all three registry methods. No package registry publication |
+| Static checks | Service Clippy all targets/features with warnings denied, workspace formatting, TypeScript build and console JavaScript syntax passed |
+| Preservation and offline verification | All 59 previously recorded delivery-archive digests unchanged; all 28 retained gateway receipts verify and altered commitment is refused; historical observer mutation regression passed under its stated checkpoint limits |
+| Browser | Updated HTML/JavaScript served by the real service; interactive/visual registry-section validation NOT_EXECUTED |
+
+The initial wire-schema test found duplicate YAML anchors in the new fragments;
+the corrected schemas use no fragment aliases. The existing exhaustive GET test
+then found missing coverage for the optional routes; it now checks their default
+503 and unauthenticated 401, while the new fixture checks enabled success. Initial
+packaging/boundary invocations also stopped on missing build tools/module path;
+the corrected pinned environments pass. Original failures remain in `checks/`.
+
+The registered journal is **unsigned operator-controlled configuration**. API
+authentication establishes the registering credential's tenant/role only. It
+does not verify public-key possession, actual administrator separation or a
+logical-agent/workload binding. Registration never changes observation anchors,
+grants execution authority, admits evidence, enforces retention or upgrades
+assurance. Read the single-process JSONL capacity and recovery limits in
+[onboarding](CUSTOMER_ONBOARDING.md). Its file/append/restart controls are not
+power-loss, HA or institutional capacity qualification.
+
+At registry implementation commit `b9eb4bd`, all ten remote jobs failed with
+runner ID 0 and no steps. No remote tests executed; the provider cause is absent
+from the retrieved metadata. `ci-attempt.json` retains the exact run/job records.
+Fresh local preflight remains blocked by unavailable process binding, BPF/perf,
+BTF/tracepoints and Unix sockets. No second administered collector, clean systemd
+install, new model run, PostgreSQL runtime revalidation or complete same-run
+institutional-authority/kernel/gateway reconciliation is established. The first
+commercial execution-assurance milestone remains incomplete.
+
+The updated engineering kit retains unchanged native evaluation DEBs/runtime,
+new SDK builds, revised customer instructions and a **non-deployable lab**
+registration example. Its exact digest and source attribution are in
+`download-artifact.json`. It remains unsigned and unpublished; distribution
+terms, full dependency notices/security review and release approval remain open.
+
 ## Service-delivery continuation on Linux
 
 Current delivery code: `a23798dbd6f90c81b365f339430ed9c42bccde08`.
