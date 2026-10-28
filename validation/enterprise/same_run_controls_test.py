@@ -8,12 +8,104 @@ import sys
 import tempfile
 import unittest
 
-from prepare_local_model import CPU_FILE, publish_runtime, verify_model
+from prepare_local_model import (CPU_FILE, MANIFEST_SHA256, MANIFEST_SIZE,
+    publish_runtime, read_reviewed_manifest, validate_manifest_bytes,
+    verify_model, verify_model_blob)
 
 HERE = Path(__file__).resolve().parent
+MODEL_REVIEW = HERE.parent / 'final_acceptance/model-review'
 
 
 class SameRunControls(unittest.TestCase):
+    def test_original_reviewed_manifest_exact_bytes_are_accepted(self):
+        # Authentic public metadata only; this test does not substitute fake
+        # weights or claim that a model/runtime was provisioned or executed.
+        original = (MODEL_REVIEW/'llama3.2-1b.manifest.json').read_bytes()
+        self.assertEqual(len(original), MANIFEST_SIZE)
+        self.assertEqual(hashlib.sha256(original).hexdigest(), MANIFEST_SHA256)
+        value = validate_manifest_bytes(original)
+        self.assertEqual(value['config']['size'], 485)
+        self.assertEqual(value['layers'][0]['size'], 1321082688)
+        with tempfile.TemporaryDirectory() as temporary:
+            models = Path(temporary)
+            legacy = models/'manifests/registry.ollama.ai/library/llama3.2/1b'
+            legacy.parent.mkdir(parents=True)
+            legacy.write_bytes(original)
+            self.assertEqual(read_reviewed_manifest(models), value)
+            with self.assertRaises(FileNotFoundError):
+                # Metadata acceptance alone must never pass full blob checks.
+                verify_model(models)
+
+    def test_v2_original_is_selected_instead_of_rewritten_legacy_gc_anchor(self):
+        original = (MODEL_REVIEW/'llama3.2-1b.manifest.json').read_bytes()
+        value = validate_manifest_bytes(original)
+        anchor = json.loads(original)
+        anchor['layers'].append({'mediaType':value['mediaType'],
+            'digest':'sha256:'+MANIFEST_SHA256, 'size':MANIFEST_SIZE})
+        rewritten = json.dumps(anchor, separators=(',', ':')).encode()
+        self.assertEqual(len(rewritten), 1023)
+        self.assertEqual(hashlib.sha256(rewritten).hexdigest(),
+            '728ac54eed40c4c447b407828c1f1c633033657245fe8fd42931efc7eab30743')
+        with tempfile.TemporaryDirectory() as temporary:
+            models = Path(temporary)
+            legacy = models/'manifests/registry.ollama.ai/library/llama3.2/1b'
+            legacy.parent.mkdir(parents=True)
+            legacy.write_bytes(rewritten)
+            with self.assertRaisesRegex(ValueError, 'model tag changed'):
+                read_reviewed_manifest(models)
+            blob = models/'blobs'/('sha256-'+MANIFEST_SHA256)
+            blob.parent.mkdir()
+            blob.write_bytes(original)
+            current = models/'manifests-v2/ollama.com/library/llama3.2/1b'
+            current.parent.mkdir(parents=True)
+            current.symlink_to(blob)
+            self.assertEqual(read_reviewed_manifest(models), value)
+
+    def test_changed_v2_manifest_bytes_are_refused_even_at_the_reviewed_blob_path(self):
+        original = (MODEL_REVIEW/'llama3.2-1b.manifest.json').read_bytes()
+        with tempfile.TemporaryDirectory() as temporary:
+            models = Path(temporary)
+            blob = models/'blobs'/('sha256-'+MANIFEST_SHA256)
+            blob.parent.mkdir()
+            current = models/'manifests-v2/ollama.com/library/llama3.2/1b'
+            current.parent.mkdir(parents=True)
+            current.symlink_to(blob)
+            for changed in (original.replace(b'"schemaVersion":2', b'"schemaVersion":3'),
+                            original+b'\n', original[:-1]):
+                blob.write_bytes(changed)
+                with self.assertRaisesRegex(ValueError, 'model tag changed'):
+                    read_reviewed_manifest(models)
+
+    def test_v2_reference_to_unreviewed_digest_is_refused_even_with_original_bytes(self):
+        original = (MODEL_REVIEW/'llama3.2-1b.manifest.json').read_bytes()
+        with tempfile.TemporaryDirectory() as temporary:
+            models = Path(temporary)
+            blobs = models/'blobs'
+            blobs.mkdir()
+            (blobs/('sha256-'+MANIFEST_SHA256)).write_bytes(original)
+            unreviewed = blobs/('sha256-'+'0'*64)
+            unreviewed.write_bytes(original)
+            current = models/'manifests-v2/ollama.com/library/llama3.2/1b'
+            current.parent.mkdir(parents=True)
+            current.symlink_to(unreviewed)
+            with self.assertRaisesRegex(ValueError, 'does not reference the reviewed'):
+                read_reviewed_manifest(models)
+
+    def test_original_config_blob_requires_exact_size_and_full_content_hash(self):
+        # This is the actual 485-byte public config, not fake model weights.
+        original = (MODEL_REVIEW/'llama3.2-1b.config.json').read_bytes()
+        descriptor = validate_manifest_bytes((MODEL_REVIEW/'llama3.2-1b.manifest.json').read_bytes())['config']
+        with tempfile.TemporaryDirectory() as temporary:
+            models = Path(temporary)
+            blob = models/'blobs'/descriptor['digest'].replace(':', '-')
+            blob.parent.mkdir()
+            blob.write_bytes(original)
+            verify_model_blob(models, descriptor)
+            for changed in (original+b' ', bytes([original[0]^1])+original[1:]):
+                blob.write_bytes(changed)
+                with self.assertRaisesRegex(ValueError, 'content/size mismatch'):
+                    verify_model_blob(models, descriptor)
+
     def test_public_runtime_permissions_do_not_publish_bootstrap_home_or_logs(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

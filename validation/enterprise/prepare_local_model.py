@@ -16,6 +16,13 @@ ARCHIVE_SHA256 = '7bedab90dd122661be78798e9f0edf37fccf0cccf2699d2c58ea1a3afdc04b
 ARCHIVE_SIZE = 1508659610
 MODEL = 'llama3.2:1b'
 MANIFEST_SHA256 = 'baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878'
+MANIFEST_SIZE = 860
+MANIFEST_MEDIA_TYPE = 'application/vnd.docker.distribution.manifest.v2+json'
+# The registry's /manifests/sha256:... route returns MANIFEST_UNKNOWN for
+# this artifact. Its immutable /blobs/sha256:... route serves the original
+# reviewed bytes; do not invent digest-qualified `ollama pull` semantics.
+MANIFEST_URL = ('https://registry.ollama.ai/v2/library/llama3.2/blobs/sha256:'
+                + MANIFEST_SHA256)
 URL = f'https://github.com/ollama/ollama/releases/download/v{VERSION}/ollama-linux-amd64.tar.zst'
 CPU_FILE = re.compile(r'lib/ollama/(?:llama-server|lib(?:ggml(?:-(?:base|cpu[^/]*|blas))?|llama(?:-common|-server-impl)?|mtmd|gomp|omp|stdc\+\+|gcc_s)\.so(?:\.[0-9.]+)?)\Z')
 
@@ -25,7 +32,27 @@ def sha(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
-def verify_model(models):
+def validate_manifest_bytes(data):
+    """Accept only the original reviewed document, never a rewritten GC anchor."""
+    if len(data) != MANIFEST_SIZE or hashlib.sha256(data).hexdigest() != MANIFEST_SHA256:
+        raise ValueError('model tag changed; reviewed manifest digest/length required')
+    value = json.loads(data)
+    if value.get('schemaVersion') != 2 or value.get('mediaType') != MANIFEST_MEDIA_TYPE:
+        raise ValueError('reviewed model manifest schema/media type mismatch')
+    return value
+
+
+def fetch_reviewed_manifest():
+    """Bound the immutable public metadata fetch before downloading any weights."""
+    request = urllib.request.Request(MANIFEST_URL, headers={'Accept': 'application/octet-stream'})
+    with urllib.request.urlopen(request, timeout=30) as response:
+        data = response.read(MANIFEST_SIZE + 1)
+    validate_manifest_bytes(data)
+    return data
+
+
+def read_reviewed_manifest(models):
+    """Validate the runtime's selected manifest; does not attest model blobs."""
     legacy = models / 'manifests/registry.ollama.ai/library/llama3.2/1b'
     current = models / 'manifests-v2/ollama.com/library/llama3.2/1b'
     if current.exists() or current.is_symlink():
@@ -38,16 +65,24 @@ def verify_model(models):
         manifest = current
     else:
         manifest = legacy
-    if sha(manifest) != MANIFEST_SHA256:
-        raise ValueError('model tag changed; reviewed manifest digest required')
-    value = json.loads(manifest.read_bytes())
+    with manifest.open('rb') as stream:
+        return validate_manifest_bytes(stream.read(MANIFEST_SIZE + 1))
+
+
+def verify_model_blob(models, layer):
+    """Verify every config/layer's original complete byte length and SHA-256."""
+    digest = layer['digest']
+    if not re.fullmatch(r'sha256:[0-9a-f]{64}', digest):
+        raise ValueError('invalid model layer digest')
+    blob = models / 'blobs' / digest.replace(':', '-')
+    if blob.stat().st_size != layer['size'] or sha(blob) != digest.split(':')[1]:
+        raise ValueError('model layer content/size mismatch')
+
+
+def verify_model(models):
+    value = read_reviewed_manifest(models)
     for layer in [value['config'], *value['layers']]:
-        digest = layer['digest']
-        if not re.fullmatch(r'sha256:[0-9a-f]{64}', digest):
-            raise ValueError('invalid model layer digest')
-        blob = models / 'blobs' / digest.replace(':', '-')
-        if blob.stat().st_size != layer['size'] or sha(blob) != digest.split(':')[1]:
-            raise ValueError('model layer content/size mismatch')
+        verify_model_blob(models, layer)
     return value
 
 
@@ -72,6 +107,8 @@ def main():
     if platform.system() != 'Linux' or platform.machine() != 'x86_64':
         raise ValueError('this pin is Linux x86_64 only')
     root = args.root.resolve(); root.mkdir(parents=True, exist_ok=False)
+    reviewed_manifest = fetch_reviewed_manifest()
+    (root / 'reviewed-manifest.json').write_bytes(reviewed_manifest)
     archive = root / 'ollama-linux-amd64.tar.zst'
     digest = hashlib.sha256(); total = 0
     with urllib.request.urlopen(URL, timeout=90) as response, archive.open('wb') as output:
@@ -132,7 +169,8 @@ def main():
                 server.kill(); server.wait()
     pin = {'ollama_version': VERSION, 'archive_url': URL, 'archive_sha256': ARCHIVE_SHA256,
            'archive_bytes': ARCHIVE_SIZE, 'extracted_cpu_members': selected, 'model': MODEL,
-           'manifest_sha256': MANIFEST_SHA256, 'manifest': manifest, 'every_blob_hash_verified': True,
+           'manifest_sha256': MANIFEST_SHA256, 'manifest_bytes': MANIFEST_SIZE,
+           'manifest_source_url': MANIFEST_URL, 'manifest': manifest, 'every_blob_hash_verified': True,
            'cloud_inference': 'disabled', 'api_credentials_used': False, 'model_api_spend_cap': 0,
            'source_authority': 'operator_verified_public_distribution'}
     publish_runtime(root)

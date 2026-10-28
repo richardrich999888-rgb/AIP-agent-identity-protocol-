@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "reviewed_at_utc": "2026-10-28T18:47:35.953769+00:00",
+  "rechecked_with_new_validator_at_utc": "2026-10-28T18:52:52.594376+00:00",
+  "decision": "PRESERVE_EXISTING_MODEL_AND_RUNTIME_PINS",
+  "source": {
+    "failed_implementation": "64e3cd056d0003747c3690a3719e92f65e08da89",
+    "existing_v2_layout_fix": "e2cd2d6f41b25515c01647ee95943bca23af93ce",
+    "preserved_runtime_permission_fix": "3f025d230a457c0a4221f6d660e5538e40d37212",
+    "combined_recovery_base": "0f31b8ac74570af953e2bee38008019892ead0e8",
+    "upstream_ollama_tag": "v0.40.11",
+    "upstream_ollama_commit": "675150d6ad2747df1e218ef59de9194bc4a7e538"
+  },
+  "original_failure": {
+    "classification": "LOCAL_MANIFEST_LAYOUT_MISMATCH",
+    "workflow_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40740307858/attempts/2",
+    "job_id": 123008593400,
+    "error": "ValueError: model tag changed; reviewed manifest digest required",
+    "agent_executed": false,
+    "new_kernel_observation_executed": false,
+    "explanation": "The verifier hashed the 1023-byte legacy downgrade/GC anchor rather than the original 860-byte content-addressed v2 manifest. The current official manifest, config and weight digests remain the approved ones."
+  },
+  "approved_manifest": {
+    "model": "llama3.2:1b",
+    "sha256": "baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+    "bytes": 860,
+    "schema_version": 2,
+    "document_media_type": "application/vnd.docker.distribution.manifest.v2+json",
+    "immutable_source_url": "https://registry.ollama.ai/v2/library/llama3.2/blobs/sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+    "immutable_source_http_status": 200,
+    "immutable_source_response_content_type": null,
+    "tag_sources_checked": [
+      "https://registry.ollama.ai/v2/library/llama3.2/manifests/1b",
+      "https://ollama.com/v2/library/llama3.2/manifests/1b"
+    ],
+    "tag_source_http_status": 200,
+    "tag_source_response_content_type": "application/vnd.docker.distribution.manifest.v2+json",
+    "tag_content_matches_original_exact_bytes": true,
+    "accept_header_used": "application/vnd.ollama.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json",
+    "unsupported_digest_manifest_routes": [
+      "https://registry.ollama.ai/v2/library/llama3.2/manifests/sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+      "https://ollama.com/v2/library/llama3.2/manifests/sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878"
+    ],
+    "unsupported_digest_manifest_http_status": 404,
+    "unsupported_digest_manifest_error": "MANIFEST_UNKNOWN"
+  },
+  "legacy_compatibility_anchor": {
+    "sha256": "728ac54eed40c4c447b407828c1f1c633033657245fe8fd42931efc7eab30743",
+    "bytes": 1023,
+    "extra_layer": {
+      "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+      "digest": "sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+      "size": 860
+    },
+    "purpose": "Retain original manifest blob across garbage collection by downgraded Ollama releases; not changed model weights or an alternate accepted pin.",
+    "retained_hosted_layout_evidence": "validation/enterprise/results/E2E_40745805805/local-model/model-manifest-layout.json"
+  },
+  "runtime": {
+    "version": "0.40.11",
+    "platform": "Linux x86_64 CPU-only extracted members",
+    "url": "https://github.com/ollama/ollama/releases/download/v0.40.11/ollama-linux-amd64.tar.zst",
+    "sha256": "7bedab90dd122661be78798e9f0edf37fccf0cccf2699d2c58ea1a3afdc04b6d",
+    "bytes": 1508659610,
+    "release_api_url": "https://api.github.com/repos/ollama/ollama/releases/tags/v0.40.11",
+    "release_id": 422414238,
+    "asset_id": 672866959,
+    "release_api_digest_and_size_match_existing_pin": true,
+    "fresh_archive_downloaded_in_this_review": false
+  },
+  "config_and_layers": [
+    {
+      "kind": "config",
+      "digest": "sha256:4f659a1e86d7f5a33c389f7991e7224b7ee6ad0358b53437d54c02d2e1b1118d",
+      "bytes": 485,
+      "immutable_source_url": "https://registry.ollama.ai/v2/library/llama3.2/blobs/sha256:4f659a1e86d7f5a33c389f7991e7224b7ee6ad0358b53437d54c02d2e1b1118d",
+      "fresh_remote_get_hash_and_size_verified": true,
+      "existing_cache_full_hash_and_size_verified": true
+    },
+    {
+      "kind": "gguf_weights",
+      "digest": "sha256:74701a8c35f6c8d9a4b91f3f3497643001d63e0c7a84e085bed452548fa88d45",
+      "bytes": 1321082688,
+      "immutable_source_url": "https://registry.ollama.ai/v2/library/llama3.2/blobs/sha256:74701a8c35f6c8d9a4b91f3f3497643001d63e0c7a84e085bed452548fa88d45",
+      "fresh_remote_head_status": 200,
+      "fresh_remote_head_content_length": 1321082688,
+      "fresh_weights_downloaded": false,
+      "existing_cache_full_hash_and_size_verified": true
+    },
+    {
+      "kind": "template",
+      "digest": "sha256:966de95ca8a62200913e3f8bfbf84c8494536f1b94b49166851e76644e966396",
+      "bytes": 1429,
+      "existing_cache_full_hash_and_size_verified": true
+    },
+    {
+      "kind": "license",
+      "digest": "sha256:fcc5a6bec9daf9b561a68827b67ab6088e1dba9d1fa2a50d7bbcc8384e0a265d",
+      "bytes": 7711,
+      "existing_cache_full_hash_and_size_verified": true
+    },
+    {
+      "kind": "license",
+      "digest": "sha256:a70ff7e570d97baaf4e62ac6e6ad9975e04caa6d900d3742d37698494479e0cd",
+      "bytes": 6016,
+      "existing_cache_full_hash_and_size_verified": true
+    }
+  ],
+  "compatibility": {
+    "config_model_format": "gguf",
+    "config_model_family": "llama",
+    "config_model_type": "1.2B",
+    "config_file_type": "Q8_0",
+    "config_architecture": "amd64",
+    "config_os": "linux",
+    "actual_hosted_pinned_runtime_and_model_integrity_passed_previously": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40745805805",
+    "that_hosted_run_completed_agent_inference": false,
+    "no_new_digest_qualified_pull_cli_assumption": true
+  },
+  "validation_scope": {
+    "host": "Darwin arm64",
+    "portable_controls": "PASS",
+    "portable_control_count": 10,
+    "actual_immutable_metadata_preflight": "PASS",
+    "existing_model_cache_full_integrity": "PASS",
+    "fresh_linux_runtime_provisioning": "NOT_EXECUTED",
+    "cloud_model_inference_used": false,
+    "cloud_model_api_spend": 0,
+    "account_credentials_read_by_review_code": false
+  }
+}

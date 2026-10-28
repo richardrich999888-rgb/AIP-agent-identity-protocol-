@@ -1,0 +1,15 @@
+test_actual_read_subprocess_preserves_database_and_returns_selected_document (same_run_controls_test.SameRunControls.test_actual_read_subprocess_preserves_database_and_returns_selected_document) ... ok
+test_changed_v2_manifest_bytes_are_refused_even_at_the_reviewed_blob_path (same_run_controls_test.SameRunControls.test_changed_v2_manifest_bytes_are_refused_even_at_the_reviewed_blob_path) ... ok
+test_mutable_model_tag_cannot_replace_reviewed_manifest (same_run_controls_test.SameRunControls.test_mutable_model_tag_cannot_replace_reviewed_manifest) ... ok
+test_original_config_blob_requires_exact_size_and_full_content_hash (same_run_controls_test.SameRunControls.test_original_config_blob_requires_exact_size_and_full_content_hash) ... ok
+test_original_reviewed_manifest_exact_bytes_are_accepted (same_run_controls_test.SameRunControls.test_original_reviewed_manifest_exact_bytes_are_accepted) ... ok
+test_public_runtime_allowlist_excludes_accelerator_and_traversal_members (same_run_controls_test.SameRunControls.test_public_runtime_allowlist_excludes_accelerator_and_traversal_members) ... ok
+test_public_runtime_permissions_do_not_publish_bootstrap_home_or_logs (same_run_controls_test.SameRunControls.test_public_runtime_permissions_do_not_publish_bootstrap_home_or_logs) ... ok
+test_v2_model_reference_cannot_escape_content_addressed_store (same_run_controls_test.SameRunControls.test_v2_model_reference_cannot_escape_content_addressed_store) ... ok
+test_v2_original_is_selected_instead_of_rewritten_legacy_gc_anchor (same_run_controls_test.SameRunControls.test_v2_original_is_selected_instead_of_rewritten_legacy_gc_anchor) ... ok
+test_v2_reference_to_unreviewed_digest_is_refused_even_with_original_bytes (same_run_controls_test.SameRunControls.test_v2_reference_to_unreviewed_digest_is_refused_even_with_original_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 3.149s
+
+OK
