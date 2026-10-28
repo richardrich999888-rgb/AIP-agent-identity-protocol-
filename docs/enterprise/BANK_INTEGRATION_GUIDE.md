@@ -6,6 +6,12 @@ Start with a non-production read-only workload and an institution-approved
 collection/privacy scope. No automatic containment or banking transaction
 gate is installed by the runtime package.
 
+For repeatable CISO/onboarding scoping, review the [enterprise service delivery
+model](SERVICE_DELIVERY_MODEL.md) and run the offline
+[service manifest planner](../../integrations/service_delivery/README.md).
+That planner validates the intended installation topology; it cannot establish
+live coverage, signed authorization or pilot acceptance.
+
 ## Install and enroll
 
 1. Review [architecture](ARCHITECTURE.md), [inventory](INVENTORY.md) and
