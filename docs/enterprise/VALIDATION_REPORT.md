@@ -1,5 +1,56 @@
 # Enterprise integration validation — 28 October 2026
 
+## Service-delivery continuation on Linux
+
+Current delivery code: `a23798dbd6f90c81b365f339430ed9c42bccde08`.
+Native runtime artifact source: `5875ba2b1912d0d3f9030e061988dd980b38380d`.
+Integration merge `0569e8a57c7be3c514f636f6e588df5ba4b6bdcf` preserves PR #9
+and PR #10 as parents; #9 already retains #6/#7/#8. Discovery was recorded
+before development in `DELIVERY_INVENTORY.md`. Older results below retain
+their original host, dates and scope.
+
+New reproducible evidence is under
+`validation/enterprise/results/DELIVERY_20261028/`: exact source hashes,
+artifact inventories, dependency declarations, logs, live model/gateway
+records, public signing anchor, receipts, offline comparisons and a report.
+The actual x86_64 release tar and separate probe/collector DEBs were built;
+identical DEB inputs reproduce identical bytes. Package checks exercised
+extraction and staged configuration only, not clean-host installation.
+
+Executed: 6 enrollment cases in each debug/release profile; 60 scoped native
+library release tests; 13 DEB/container-input tests; 33 onboarding/planner tests;
+16 original tar tests; 10 API contracts plus 1 explicitly executed actual HTTP
+test with both SDKs, official MCP client, tenant refusals and the #10 posture
+report; 76 Python SDK, 2 TypeScript, 9 MCP boundary, 17 RBI control-flow and
+1 SQL-source-parity tests. Suite totals overlap. Full-workspace Clippy and
+formatting passed. The Python wheel and private TypeScript tgz were built and
+installed/imported in isolated environments; no registry release was published.
+The initial TypeScript archive failed installed import because Node refuses
+type stripping in node_modules. This exposed a distribution defect that source
+tests missed. The corrected package ships JavaScript/declarations from locked
+TypeScript 5.9.3; isolated import and actual HTTP retrieval now pass. The
+original failure is retained alongside the corrected results.
+
+A fresh genuine ADK/A2A/model/ContextForge run produced four model generations
+and 28 verified gateway receipts, passed 28 gateway checks and five live
+auth/governance negatives, and matched native ACS-reported input to its signed
+gateway request offline. That run is **not** joined to the separate HTTP test
+fixtures, historical observer data or fixture comparator authorizations.
+
+The requested first commercial milestone remains **incomplete**. Fresh host
+preflight failed: process metadata, sensor capabilities, BTF/tracepoints and
+Unix sockets are unavailable. No separately administered collector host,
+same-run kernel evidence or institutional authorization is established.
+Clean systemd install/upgrade/removal, Docker/cluster execution, PostgreSQL
+runtime revalidation, capacity/recovery, complete standardized SBOM/security
+clearance and external assessment remain unexecuted. Distribution license
+terms and release signing/approval remain open. The earlier full-workspace
+test failures remain disclosed; scoped tests do not override them.
+
+At code commit `5875ba2`, all ten GitHub jobs failed before runner allocation
+or steps. Exact run/job records are in the new `ci-attempt.json`. No remote
+test execution or cause beyond the available provider evidence is claimed.
+
 Source implementation: feature branch `feature/snifferdog-enterprise-integration`;
 committed customer interface baseline `cdbd91781ac74e206f50131db20a755f91eadb29`
 (also recorded in the retained final check report). Initial base `3a029aec83fa2aa57ea8bb0a2c28968f3be037a4` preserves
