@@ -8,6 +8,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+defaults:
+  run:
+    shell: bash
 jobs:
   release-regression:
     runs-on: ubuntu-24.04
@@ -21,6 +24,7 @@ jobs:
       - name: Repeated release startup and offline-verification regression
         run: |
           cargo test --locked --release -p ghost-demo --test live idle_readiness_precedes_binding_collection
+          cargo test --locked --release -p ghost-demo --test live idle_startup_race_diagnostic -- --nocapture
           cargo test --locked --release -p ghost-demo --test live d_wrong_process_instance_is_identity_divergence_never_verified
           for iteration in $(seq 1 20); do
             cargo test --locked --release -p ghost-demo --test live_nexora g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too
@@ -48,7 +52,7 @@ jobs:
             --tmpfs /work:rw,nosuid,size=1g,uid=10001,gid=10001 \
             --tmpfs /opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001 \
             --entrypoint /opt/framework/.venv/bin/python \
-            snifferdog-agent-zero:validation /opt/snifferdog/smoke.py | tee "$RUNNER_TEMP/smoke.txt"
+            snifferdog-agent-zero:validation /opt/snifferdog/smoke.py 2>&1 | tee "$RUNNER_TEMP/smoke.txt"
       - name: Retain build evidence only (no model keys or workload logs)
         if: always()
         uses: actions/upload-artifact@v4

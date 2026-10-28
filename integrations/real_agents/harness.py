@@ -255,6 +255,7 @@ def run(config, out, checkpoint_path):
                   "--pids-limit", str(config["pids_limit"]), "--memory", f'{config["memory_mb"]}m',
                   "--cpus", str(config["cpus"]), "--network", config["network"],
                   "--env-file", config["model_env"], "--tmpfs", "/tmp:rw,nosuid,size=1g,mode=1777",
+                  "--tmpfs", "/opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001",
                   "--mount", f"type=bind,src={control},dst=/input,readonly",
                   "--mount", f"type=bind,src={workspace},dst=/work",
                   "--mount", f'type=bind,src={config["model_config"]},dst=/model-config,readonly',

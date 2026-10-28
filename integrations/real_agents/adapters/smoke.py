@@ -1,5 +1,6 @@
 """Offline container compatibility check. This is NOT an autonomous workload."""
 import asyncio
+import errno
 import json
 import os
 from pathlib import Path
@@ -11,8 +12,9 @@ assert os.geteuid() == 10001
 assert not Path("/var/run/docker.sock").exists()
 try:
     Path("/opt/framework/.write-check").touch()
-except PermissionError:
-    pass
+except OSError as exc:
+    if exc.errno not in (errno.EACCES, errno.EROFS):
+        raise
 else:
     raise AssertionError("framework source must be read-only")
 slot = {"provider": "openai", "name": "offline-smoke-no-model-call",
