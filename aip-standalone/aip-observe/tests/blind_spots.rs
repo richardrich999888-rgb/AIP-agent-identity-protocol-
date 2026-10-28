@@ -11,6 +11,7 @@
 use aip_crypto::generate_ed25519_keypair;
 use aip_observe::*;
 use aip_types::ProcessInstance;
+#[cfg(target_os = "linux")]
 use std::process::Command;
 
 fn collector() -> (CollectorSigner, ObserverTrustAnchors) {

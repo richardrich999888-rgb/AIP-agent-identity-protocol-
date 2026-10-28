@@ -14,7 +14,9 @@
 //!   availability         → `ObservationAvailability::Unavailable`
 //!   authorization        → does not exist in this crate, by design
 
-use aip_crypto::{generate_ed25519_keypair, sha256, sign_ed25519};
+#[cfg(target_os = "linux")]
+use aip_crypto::sha256;
+use aip_crypto::{generate_ed25519_keypair, sign_ed25519};
 use aip_observe::*;
 use aip_types::{ExecutionBinding, KeyPair, ProcessInstance, EXECUTION_BINDING_VERSION};
 
@@ -103,6 +105,7 @@ fn kernel_exit(pid: u32, ts: u64) -> ProcEvent {
     }
 }
 
+#[cfg(target_os = "linux")]
 fn now_ms() -> u64 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)

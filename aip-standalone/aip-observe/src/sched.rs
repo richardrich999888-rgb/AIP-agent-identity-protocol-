@@ -16,7 +16,7 @@
 //! **What they do not prove.** Arguments, environment, what the child did,
 //! or anything on a host whose root disables or starves the ring.
 
-use crate::linux::{ProcEvent, SourceError};
+use crate::linux::SourceError;
 use crate::observed::KernelLifecycleKind;
 use crate::perf::{data_loc, i32_at, RawFormat};
 
@@ -94,6 +94,7 @@ pub fn parse_exec_record(fmt: &RawFormat, raw: &[u8]) -> Result<KernelLifecycleK
 mod sys {
     use super::*;
     use crate::health::MechanismIntegrity;
+    use crate::linux::ProcEvent;
     use crate::observed::CgroupSample;
     use crate::perf::{PerfTracepoints, SampleLayout};
 

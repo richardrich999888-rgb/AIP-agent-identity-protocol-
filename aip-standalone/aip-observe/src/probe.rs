@@ -35,6 +35,7 @@ use std::collections::HashMap;
 
 use aip_core::capability::random_jti;
 use aip_core::execution_binding::BindingError;
+#[cfg(any(target_os = "linux", test))]
 use aip_types::ProcessInstance;
 
 use crate::health::MechanismIntegrity;
@@ -155,11 +156,13 @@ pub struct ProcfsProbe {
     /// same inode, size and modification time of the file `/proc/<pid>/exe`
     /// resolves to (the same image); any change re-hashes. The pidfd anchor
     /// around every measurement is unchanged.
+    #[cfg(target_os = "linux")]
     image_cache: std::cell::RefCell<HashMap<u32, CachedImage>>,
 }
 
 /// What an image hash in the probe's cache was taken of.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg(any(target_os = "linux", test))]
 struct CachedImage {
     pid_start_time_ticks: u64,
     exe_ino: u64,
@@ -169,6 +172,7 @@ struct CachedImage {
     exe_content_sha256: [u8; 32],
 }
 
+#[cfg(any(target_os = "linux", test))]
 impl CachedImage {
     /// Does a cached hash still describe what `/proc/<pid>/exe` now resolves
     /// to, for the same instance? Every field must agree: a recycled pid
@@ -203,6 +207,7 @@ impl ProcfsProbe {
             declared_sources: Vec::new(),
             mechanism_integrity: Vec::new(),
             clock_anchor: None,
+            #[cfg(target_os = "linux")]
             image_cache: std::cell::RefCell::new(HashMap::new()),
         }
     }
@@ -303,6 +308,7 @@ impl ProcfsProbe {
 
     // ─── Measurement ───
 
+    #[cfg(target_os = "linux")]
     fn read_process(&self, pid: u32) -> Result<ObservedProcess, ProbeError> {
         use aip_core::execution_binding::{
             hash_file_contents, parse_boot_id, parse_proc_stat_start_time,

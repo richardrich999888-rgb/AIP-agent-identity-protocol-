@@ -30,8 +30,10 @@
 //! field offsets differ between kernels, and a wrong offset would silently
 //! mislabel endpoints.
 
-use crate::linux::{ProcEvent, SourceError};
-use crate::observed::{BootClockAnchor, KernelLifecycleKind, SocketEndpoint, SocketProtocol};
+use crate::linux::SourceError;
+#[cfg(any(target_os = "linux", test))]
+use crate::observed::BootClockAnchor;
+use crate::observed::{KernelLifecycleKind, SocketEndpoint, SocketProtocol};
 
 pub use crate::perf::TraceField;
 use crate::perf::{i32_at, u16_at, u64_at, RawFormat};
@@ -193,6 +195,7 @@ pub fn boot_clock_anchor() -> Result<BootClockAnchor, SourceError> {
 mod sys {
     use super::*;
     use crate::health::MechanismIntegrity;
+    use crate::linux::ProcEvent;
     use crate::perf::PerfTracepoints;
 
     /// The tracepoint source: the shared perf rings, one tracepoint.

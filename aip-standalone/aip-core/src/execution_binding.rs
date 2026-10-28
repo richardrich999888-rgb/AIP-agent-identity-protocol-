@@ -25,7 +25,9 @@
 //! [`BindingError::UnsupportedPlatform`] rather than a degraded binding.
 
 use aip_crypto::sha256;
-use aip_types::{ContainerIdentity, ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION};
+use aip_types::{ContainerIdentity, ExecutionBinding};
+#[cfg(any(target_os = "linux", test))]
+use aip_types::{ProcessInstance, EXECUTION_BINDING_VERSION};
 
 /// Why a binding could not be established. Never silently recoverable.
 #[derive(Debug, Clone, PartialEq, Eq)]
