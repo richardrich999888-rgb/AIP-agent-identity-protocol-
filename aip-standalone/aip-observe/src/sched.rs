@@ -94,7 +94,8 @@ pub fn parse_exec_record(fmt: &RawFormat, raw: &[u8]) -> Result<KernelLifecycleK
 mod sys {
     use super::*;
     use crate::health::MechanismIntegrity;
-    use crate::perf::PerfTracepoints;
+    use crate::observed::CgroupSample;
+    use crate::perf::{PerfTracepoints, SampleLayout};
 
     /// The fork + exec tracepoint source.
     #[derive(Debug)]
@@ -102,13 +103,25 @@ mod sys {
         perf: PerfTracepoints,
         fork_id: u32,
         exec_id: u32,
+        samples_cgroup: bool,
     }
 
     impl ProcessTracer {
-        /// Open both tracepoints on every online CPU. `Unavailable` when
-        /// tracefs or the perf permission is missing; nothing is simulated.
+        /// Open both tracepoints on every online CPU, asking the kernel for
+        /// each task's cgroup v2 id in every sample (ADR-019 §4). A kernel
+        /// that refuses `PERF_SAMPLE_CGROUP` (no `CONFIG_CGROUP_PERF`, or
+        /// older than 5.7) gets the base layout: the tracer still runs, its
+        /// events say `NotSampled`, and [`ProcessTracer::samples_cgroup`]
+        /// reports it — attribution is then not established, never guessed.
+        /// `Unavailable` when tracefs or the perf permission is missing;
+        /// nothing is simulated.
         pub fn open() -> Result<ProcessTracer, SourceError> {
-            let perf = PerfTracepoints::open(&[FORK_TRACEPOINT, EXEC_TRACEPOINT])?;
+            let names = [FORK_TRACEPOINT, EXEC_TRACEPOINT];
+            let (perf, samples_cgroup) =
+                match PerfTracepoints::open_with(&names, SampleLayout::WITH_CGROUP) {
+                    Ok(p) => (p, true),
+                    Err(_) => (PerfTracepoints::open(&names)?, false),
+                };
             let fork_id = perf
                 .format_named(FORK_TRACEPOINT)
                 .map(|f| f.id)
@@ -121,7 +134,13 @@ mod sys {
                 perf,
                 fork_id,
                 exec_id,
+                samples_cgroup,
             })
+        }
+
+        /// Whether this tracer's events carry the kernel's cgroup id.
+        pub fn samples_cgroup(&self) -> bool {
+            self.samples_cgroup
         }
 
         pub fn take_lost(&mut self) -> u64 {
@@ -169,6 +188,9 @@ mod sys {
                             kind,
                             cpu: s.cpu,
                             timestamp_ns: s.timestamp_ns,
+                            cgroup: s.cgroup_id.map_or(CgroupSample::NotSampled, |cgroup_id| {
+                                CgroupSample::Sampled { cgroup_id }
+                            }),
                         }))
                     }
                     None => {

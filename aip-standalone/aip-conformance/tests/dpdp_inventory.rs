@@ -89,6 +89,7 @@ fn populated_batch() -> ObservationBatch {
             probe_monotonic_ns: 5_000,
         }],
         kernel_events: vec![KernelLifecycleEvent {
+            cgroup: aip_observe::CgroupSample::NotSampled,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: "probe-1".into(),
             mechanism: SourceMechanism::SockStateTracepoint,

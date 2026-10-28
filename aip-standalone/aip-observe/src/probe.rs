@@ -519,6 +519,15 @@ impl ProcfsProbe {
         self.ingest_event(ev, SourceMechanism::SchedTracepoint)
     }
 
+    /// Ingest a kernel-pushed cgroup placement event (`CgroupTracepoint`,
+    /// ADR-019). The acting task — creator, remover, or the task migrated —
+    /// is anchored under the start-tick rule, so the reconciler can later
+    /// ask *which instance* created a decision placement, never just which
+    /// pid number.
+    pub fn ingest_cgroup_event(&mut self, ev: ProcEvent) -> &KernelLifecycleEvent {
+        self.ingest_event(ev, SourceMechanism::CgroupTracepoint)
+    }
+
     /// Ingest a TCP segment copied from a network device
     /// (`WireTapAfPacket`). The device layer has no task context, so the
     /// event is recorded **unbound** with no attribution and no claim,
@@ -560,6 +569,7 @@ impl ProcfsProbe {
             .map(|pid| self.attribution_for(pid))
             .unwrap_or((AgentAttribution::NotEstablished, None));
         self.pending_kernel_events.push(KernelLifecycleEvent {
+            cgroup: crate::observed::CgroupSample::NotSampled,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: self.probe_id.clone(),
             mechanism: SourceMechanism::Fanotify,
@@ -605,7 +615,10 @@ impl ProcfsProbe {
             (KernelLifecycleKind::SocketState { .. }, Some(pid))
             | (KernelLifecycleKind::SocketSend { .. }, Some(pid))
             | (KernelLifecycleKind::ProcessSpawn { .. }, Some(pid))
-            | (KernelLifecycleKind::ProcessExec { .. }, Some(pid)) => {
+            | (KernelLifecycleKind::ProcessExec { .. }, Some(pid))
+            | (KernelLifecycleKind::CgroupCreated { .. }, Some(pid))
+            | (KernelLifecycleKind::CgroupRemoved { .. }, Some(pid))
+            | (KernelLifecycleKind::CgroupAttach { .. }, Some(pid)) => {
                 let anchor = self.clock_anchor;
                 self.try_anchor(pid)
                     .filter(|p| instance_started_no_later_than(p, ev.timestamp_ns, anchor.as_ref()))
@@ -616,6 +629,8 @@ impl ProcfsProbe {
             .map(|pid| self.attribution_for(pid))
             .unwrap_or((AgentAttribution::NotEstablished, None));
         self.pending_kernel_events.push(KernelLifecycleEvent {
+            // The kernel's own sample, copied, never derived.
+            cgroup: ev.cgroup,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: self.probe_id.clone(),
             mechanism,
@@ -912,6 +927,7 @@ mod tests {
         probe.bound_by_exec.insert(77, fake_process(77));
         probe.record_lost_events(1);
         let ev = probe.ingest_kernel_event(ProcEvent {
+            cgroup: crate::observed::CgroupSample::NotSampled,
             kind: KernelLifecycleKind::Exit {
                 pid: 77,
                 tgid: 77,
@@ -930,6 +946,7 @@ mod tests {
         let mut probe = ProcfsProbe::new("probe-1");
         probe.bound_by_exec.insert(77, fake_process(77));
         let ev = probe.ingest_kernel_event(ProcEvent {
+            cgroup: crate::observed::CgroupSample::NotSampled,
             kind: KernelLifecycleKind::Exit {
                 pid: 77,
                 tgid: 77,
@@ -943,6 +960,7 @@ mod tests {
         assert_eq!(ev.mechanism, SourceMechanism::ProcConnector);
         // Consumed: a second exit for the same pid is a different instance.
         let ev2 = probe.ingest_kernel_event(ProcEvent {
+            cgroup: crate::observed::CgroupSample::NotSampled,
             kind: KernelLifecycleKind::Exit {
                 pid: 77,
                 tgid: 77,

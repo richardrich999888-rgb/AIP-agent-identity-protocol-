@@ -50,6 +50,7 @@ fn bound(pid: u32) -> ObservedProcess {
 fn exec(seq: u64, pid: u32, offset_ms: i64) -> KernelLifecycleEvent {
     let ns = (ANCHOR_MONO_NS as i128 + offset_ms as i128 * 1_000_000) as u64;
     KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: PROBE_ID.into(),
         mechanism: SourceMechanism::SchedTracepoint,

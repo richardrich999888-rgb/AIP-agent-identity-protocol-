@@ -146,6 +146,7 @@ mod sys {
                 match parse_sock_send_record(fmt, &s.raw, s.pid) {
                     Ok(kind) => {
                         return Ok(Some(ProcEvent {
+                            cgroup: crate::observed::CgroupSample::NotSampled,
                             kind,
                             cpu: s.cpu,
                             timestamp_ns: s.timestamp_ns,

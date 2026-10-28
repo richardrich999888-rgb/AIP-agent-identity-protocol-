@@ -37,6 +37,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-aibom"
+version = "0.4.0"
+dependencies = [
+ "aip-airi",
+ "aip-approval",
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-ledger",
+ "aip-nexora",
+ "aip-observe",
+ "aip-reconcile",
+ "aip-registry",
+ "aip-spend",
+ "aip-types",
+ "aip-warrant",
+ "clap",
+ "hex",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "aip-airi"
 version = "0.4.0"
 dependencies = [
@@ -81,6 +104,7 @@ dependencies = [
  "aip-core",
  "aip-crypto",
  "aip-registry",
+ "aip-spend",
  "aip-types",
  "serde",
  "serde_json",
@@ -479,6 +503,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-placement"
+version = "0.4.0"
+dependencies = [
+ "aip-authorize",
+ "aip-core",
+ "aip-crypto",
+ "aip-observe",
+ "aip-types",
+ "libc",
+]
+
+[[package]]
 name = "aip-platform"
 version = "0.4.0"
 dependencies = [
@@ -618,6 +654,15 @@ dependencies = [
  "aip-types",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "aip-spend"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-types",
+ "serde",
 ]
 
 [[package]]

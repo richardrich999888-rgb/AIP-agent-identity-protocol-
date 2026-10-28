@@ -194,12 +194,16 @@ impl ObservationClass {
 /// property that keeps "declared" from being mistaken for "implemented".
 pub fn class_of(mechanism: SourceMechanism) -> ObservationClass {
     match mechanism {
-        SourceMechanism::ProcfsPoll | SourceMechanism::PidFdAnchored => {
-            ObservationClass::ProcessIdentity
-        }
-        SourceMechanism::ProcConnector | SourceMechanism::SchedTracepoint => {
-            ObservationClass::ProcessLifecycle
-        }
+        // ExecPermission measures the content of an image the kernel held
+        // at exec (ADR-019 §5): identity of what ran, like the pidfd read.
+        SourceMechanism::ProcfsPoll
+        | SourceMechanism::PidFdAnchored
+        | SourceMechanism::ExecPermission => ObservationClass::ProcessIdentity,
+        // Cgroup creation and migration are lifecycle facts about where a
+        // process lives, as fork and exec are about what it is (ADR-019).
+        SourceMechanism::ProcConnector
+        | SourceMechanism::SchedTracepoint
+        | SourceMechanism::CgroupTracepoint => ObservationClass::ProcessLifecycle,
         SourceMechanism::ProcNetTable | SourceMechanism::SockStateTracepoint => {
             ObservationClass::NetworkSocket
         }

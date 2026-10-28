@@ -82,6 +82,7 @@ fn event(
     bound: Option<ObservedProcess>,
 ) -> KernelLifecycleEvent {
     KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: PROBE_ID.into(),
         mechanism,

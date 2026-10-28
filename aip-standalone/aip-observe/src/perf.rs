@@ -133,8 +133,25 @@ pub fn u64_at(raw: &[u8], f: &TraceField) -> Option<u64> {
         .map(|b| u64::from_ne_bytes(b.try_into().unwrap()))
 }
 
+/// Which optional fields a sampler asks the kernel to write into each
+/// sample, beyond the fixed `TID | TIME | CPU | RAW`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct SampleLayout {
+    /// `PERF_SAMPLE_CGROUP`: the cgroup v2 id of the task in whose context
+    /// the event fired, written by the kernel at the event (ADR-019 §4).
+    pub cgroup: bool,
+}
+
+impl SampleLayout {
+    /// The fixed fields only.
+    pub const BASE: SampleLayout = SampleLayout { cgroup: false };
+    /// The fixed fields plus the task's cgroup v2 id.
+    pub const WITH_CGROUP: SampleLayout = SampleLayout { cgroup: true };
+}
+
 /// One decoded `PERF_RECORD_SAMPLE`: which tracepoint, the current task's
-/// pid, the kernel's `CLOCK_MONOTONIC` stamp, the CPU, and the raw record.
+/// pid, the kernel's `CLOCK_MONOTONIC` stamp, the CPU, the raw record, and —
+/// when the sampler asked for it — the task's cgroup v2 id.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RawSample {
     pub tracepoint_id: u32,
@@ -142,12 +159,25 @@ pub struct RawSample {
     pub timestamp_ns: u64,
     pub cpu: u32,
     pub raw: Vec<u8>,
+    /// `None` when the layout did not request it — never a default id.
+    pub cgroup_id: Option<u64>,
 }
 
 /// Decode a `PERF_RECORD_SAMPLE` body laid out as
 /// header(8) pid(4) tid(4) time(8) cpu(4) res(4) raw_size(4) raw[...].
 /// The tracepoint id is the record's `common_type` (first two bytes of raw).
 pub fn decode_sample(rec: &[u8], ring_cpu: u32) -> Option<RawSample> {
+    decode_sample_with(rec, ring_cpu, SampleLayout::BASE)
+}
+
+/// As [`decode_sample`], for a sampler opened with `layout`.
+///
+/// Field order is the kernel's (`perf_event.h`, `PERF_RECORD_SAMPLE`): the
+/// optional `u64 cgroup` follows the raw block. The kernel pads the raw block
+/// so that its 4-byte size plus its bytes end on an 8-byte boundary, so the
+/// cgroup id begins exactly at `36 + raw_size`. A record too short to hold it
+/// is refused, never read as id 0.
+pub fn decode_sample_with(rec: &[u8], ring_cpu: u32, layout: SampleLayout) -> Option<RawSample> {
     if rec.len() < 36 {
         return None;
     }
@@ -160,6 +190,12 @@ pub fn decode_sample(rec: &[u8], ring_cpu: u32) -> Option<RawSample> {
         return None;
     }
     let tracepoint_id = u16::from_ne_bytes([raw[0], raw[1]]) as u32;
+    let cgroup_id = if layout.cgroup {
+        let at = 36 + raw_size;
+        Some(u64::from_ne_bytes(rec.get(at..at + 8)?.try_into().ok()?))
+    } else {
+        None
+    };
     Some(RawSample {
         tracepoint_id,
         pid,
@@ -170,6 +206,7 @@ pub fn decode_sample(rec: &[u8], ring_cpu: u32) -> Option<RawSample> {
             cpu
         },
         raw: raw.to_vec(),
+        cgroup_id,
     })
 }
 
@@ -215,6 +252,10 @@ mod sys {
     const PERF_SAMPLE_TIME: u64 = 1 << 2;
     const PERF_SAMPLE_CPU: u64 = 1 << 7;
     const PERF_SAMPLE_RAW: u64 = 1 << 10;
+    /// Requires `CONFIG_CGROUP_PERF` and Linux ≥ 5.7; the kernel rejects
+    /// the attribute with `EINVAL` otherwise, and `open_with` reports that
+    /// as unavailable rather than falling back to a layout without it.
+    const PERF_SAMPLE_CGROUP: u64 = 1 << 21;
     const ATTR_FLAG_DISABLED: u64 = 1;
     // Bitfield position of `use_clockid` in `perf_event_attr` (uapi order:
     // disabled=0 … mmap2=23, comm_exec=24, use_clockid=25). Getting this bit
@@ -293,6 +334,7 @@ mod sys {
 
     /// A set of tracepoints sampled together, one ring per (tracepoint, CPU).
     pub struct PerfTracepoints {
+        layout: SampleLayout,
         formats: HashMap<u32, RawFormat>,
         rings: Vec<Ring>,
         lost: u64,
@@ -317,8 +359,18 @@ mod sys {
     }
 
     impl PerfTracepoints {
-        /// Open `names` (as `subsystem/event`) on every online CPU.
+        /// Open `names` (as `subsystem/event`) on every online CPU, with the
+        /// fixed sample fields.
         pub fn open(names: &[&str]) -> Result<PerfTracepoints, SourceError> {
+            Self::open_with(names, SampleLayout::BASE)
+        }
+
+        /// Open `names` asking the kernel for `layout`'s optional fields in
+        /// every sample.
+        pub fn open_with(
+            names: &[&str],
+            layout: SampleLayout,
+        ) -> Result<PerfTracepoints, SourceError> {
             let root = tracefs_root().ok_or_else(|| {
                 SourceError::Unavailable(
                     "tracefs is not mounted (/sys/kernel/tracing); mount -t tracefs nodev /sys/kernel/tracing"
@@ -360,7 +412,8 @@ mod sys {
                         sample_type: PERF_SAMPLE_TID
                             | PERF_SAMPLE_TIME
                             | PERF_SAMPLE_CPU
-                            | PERF_SAMPLE_RAW,
+                            | PERF_SAMPLE_RAW
+                            | if layout.cgroup { PERF_SAMPLE_CGROUP } else { 0 },
                         flags: ATTR_FLAG_DISABLED | ATTR_FLAG_USE_CLOCKID,
                         wakeup_events: 1,
                         clockid: libc::CLOCK_MONOTONIC,
@@ -421,6 +474,7 @@ mod sys {
                 }
             }
             Ok(PerfTracepoints {
+                layout,
                 formats,
                 rings,
                 lost: 0,
@@ -558,7 +612,7 @@ mod sys {
                                 lost += u64::from_ne_bytes(rec[16..24].try_into().unwrap());
                             }
                         }
-                        PERF_RECORD_SAMPLE => match decode_sample(&rec, r.cpu) {
+                        PERF_RECORD_SAMPLE => match decode_sample_with(&rec, r.cpu, self.layout) {
                             Some(s) => out.push(s),
                             None => lost += 1,
                         },
@@ -622,5 +676,27 @@ mod tests {
         assert_eq!(s.timestamp_ns, 777);
         assert_eq!(s.cpu, 2);
         assert!(decode_sample(&rec[..30], 0).is_none());
+        assert_eq!(s.cgroup_id, None, "a base layout never reports a cgroup");
+    }
+
+    /// The cgroup id is read from after the raw block, and a record that
+    /// stops short of it is refused rather than read as id 0.
+    #[test]
+    fn a_cgroup_sample_carries_the_id_after_the_raw_block() {
+        const RAW: u32 = 12; // 4 + 12 = 16: already 8-aligned, as the kernel pads it
+        let mut rec = vec![0u8; 36 + RAW as usize + 8];
+        rec[8..12].copy_from_slice(&4242u32.to_ne_bytes());
+        rec[32..36].copy_from_slice(&RAW.to_ne_bytes());
+        rec[36..38].copy_from_slice(&365u16.to_ne_bytes());
+        let at = 36 + RAW as usize;
+        rec[at..at + 8].copy_from_slice(&0x0000_1234_5678_9abcu64.to_ne_bytes());
+        let s = decode_sample_with(&rec, 0, SampleLayout::WITH_CGROUP).unwrap();
+        assert_eq!(s.cgroup_id, Some(0x0000_1234_5678_9abc));
+        assert_eq!(s.tracepoint_id, 365);
+        assert_eq!(s.raw.len(), RAW as usize);
+        // The same bytes under the base layout do not invent a cgroup.
+        assert_eq!(decode_sample(&rec, 0).unwrap().cgroup_id, None);
+        // Truncated before the id: refused.
+        assert!(decode_sample_with(&rec[..rec.len() - 1], 0, SampleLayout::WITH_CGROUP).is_none());
     }
 }

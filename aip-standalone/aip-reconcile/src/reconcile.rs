@@ -212,7 +212,10 @@ fn classify_observer_error(e: &VerifyError) -> ObserverCheck<'static> {
         VerifyError::UntrustedObserverKey { .. } => {
             ObserverCheck::CannotProve(ReasonCode::ObserverUntrusted)
         }
-        VerifyError::UnsupportedVersion(_) => {
+        // A record whose claimed version cannot carry its content is
+        // structural, like an unknown version: nothing the signature could
+        // show was forged, so it is not an integrity failure (ADR-019 §10).
+        VerifyError::UnsupportedVersion(_) | VerifyError::ContentNotInVersion(_) => {
             ObserverCheck::CannotProve(ReasonCode::ObserverProtocolUnsupported)
         }
         VerifyError::ObserverKeyIsAgentKey => {

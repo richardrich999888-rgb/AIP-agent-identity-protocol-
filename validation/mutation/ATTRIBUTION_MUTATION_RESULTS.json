@@ -1,0 +1,605 @@
+{
+  "harness": "validation/mutation/mutate_core.py",
+  "targets": [
+    "aip-reconcile",
+    "aip-placement",
+    "aip-observe"
+  ],
+  "total": 34,
+  "killed": 34,
+  "survivors": [],
+  "harness_defects": [],
+  "all_files_restored_byte_identical": true,
+  "restored": {
+    "aip-standalone/aip-reconcile/src/placement.rs": true,
+    "aip-standalone/aip-placement/src/authorize.rs": true,
+    "aip-standalone/aip-placement/src/spawn.rs": true,
+    "aip-standalone/aip-placement/src/cgroup.rs": true,
+    "aip-standalone/aip-placement/src/mount.rs": true,
+    "aip-standalone/aip-observe/src/perf.rs": true,
+    "aip-standalone/aip-observe/src/probe.rs": true,
+    "aip-standalone/aip-observe/src/sched.rs": true,
+    "aip-standalone/aip-observe/src/cgroupev.rs": true,
+    "aip-standalone/aip-observe/src/attest.rs": true,
+    "aip-standalone/aip-observe/src/observed.rs": true
+  },
+  "mutations": [
+    {
+      "id": "PA-01",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "a chain is contiguous by sequence",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "461190b534bb7139",
+      "killed_by": [
+        "a_sequence_skip_is_a_gap_even_with_the_head_link_intact"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-02",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "a chain is joined by head, not by counter",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "08bc1c99ef4d5ed7",
+      "killed_by": [
+        "a_spliced_batch_with_the_right_sequence_is_not_a_link"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-03",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "a probe restart breaks coverage",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "361a469e2ce660b0",
+      "killed_by": [
+        "a_probe_restart_inside_the_chain_is_not_covered"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-04",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "the placement source must be live in every batch",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "37f078f63d3d987c",
+      "killed_by": [
+        "a_batch_without_the_placement_source_or_with_loss_is_not_covered"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-05",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "counted zero loss in every batch",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "000165394d7755c3",
+      "killed_by": [
+        "a_batch_without_the_placement_source_or_with_loss_is_not_covered"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-06",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "only the verifier's hierarchy holds placements",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "89f15fcf9c5466dd",
+      "killed_by": [
+        "another_decisions_or_another_hierarchys_cgroup_is_not_this_placement"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-07",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "a creation counts only if it names this decision",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "23efcc58081e6a69",
+      "killed_by": [
+        "a_descendant_created_after_the_placement_is_attributed_and_a_sibling_is_not",
+        "a_lookalike_name_is_not_the_decision",
+        "another_decisions_or_another_hierarchys_cgroup_is_not_this_placement"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "PA-08",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "the creator must run the supervisor binary",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "1bd0f221df43c2ca",
+      "killed_by": [
+        "a_placement_created_by_anything_but_the_supervisor_is_not_one"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-09",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "an unanchored creator is not a creator",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "fdd42ea64c4e52da",
+      "killed_by": [
+        "a_placement_created_by_anything_but_the_supervisor_is_not_one"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-10",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "two creations for one decision are ambiguous",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "686bf8f1efb2dde2",
+      "killed_by": [
+        "two_creations_naming_one_decision_are_ambiguous"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-11",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "a descendant is under the placement's path, not a lookalike",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "dbff1149a7190d2d",
+      "killed_by": [
+        "a_descendant_created_after_the_placement_is_attributed_and_a_sibling_is_not"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-12",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "a migration into the placement ends attribution",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "da492b3e49341f27",
+      "killed_by": [
+        "nothing_is_attributed_from_a_migration_into_the_placement_onwards"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-13",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "an event outside the placement is not attributed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "4ecfb233cc0e4518",
+      "killed_by": [
+        "a_decoy_with_the_same_binary_is_not_attributed",
+        "a_descendant_created_after_the_placement_is_attributed_and_a_sibling_is_not",
+        "pid_reuse_never_transfers_identity"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "PA-14",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "nothing precedes the placement's creation",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "10dd34e9a892256f",
+      "killed_by": [
+        "an_event_before_the_placement_existed_is_not_attributed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-15",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "an event at the migration instant is not attributed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "f5a41d47f172c5ed",
+      "killed_by": [
+        "nothing_is_attributed_from_a_migration_into_the_placement_onwards"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-16",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "an unsampled event is not attributed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "45fb492bc95dc526",
+      "killed_by": [
+        "an_unsampled_event_is_not_attributed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PA-17",
+      "package": "aip-reconcile",
+      "file": "aip-standalone/aip-reconcile/src/placement.rs",
+      "invariant": "a name is matched in full",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c82b6185385031e5",
+      "sha256_after": "d8e798607c0968c6",
+      "killed_by": [
+        "a_decision_differing_only_in_its_last_byte_is_another_decision"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PL-01",
+      "package": "aip-placement",
+      "file": "aip-standalone/aip-placement/src/authorize.rs",
+      "invariant": "an unverified decision is not placed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "a69fdd60e5097c22",
+      "sha256_after": "ca6336f9e1caab41",
+      "killed_by": [
+        "a_decision_point_anchored_under_the_agents_key_is_refused",
+        "a_decision_from_an_untrusted_decision_point_is_not_placed",
+        "a_rewritten_decision_is_not_placed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "PL-02",
+      "package": "aip-placement",
+      "file": "aip-standalone/aip-placement/src/authorize.rs",
+      "invariant": "a decision outside its window is not placed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "a69fdd60e5097c22",
+      "sha256_after": "03f1eeb1a5c7e577",
+      "killed_by": [
+        "a_decision_outside_its_window_is_not_placed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PL-03",
+      "package": "aip-placement",
+      "file": "aip-standalone/aip-placement/src/authorize.rs",
+      "invariant": "a decision point under the agent's key is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "a69fdd60e5097c22",
+      "sha256_after": "9783e73a6a9f98f9",
+      "killed_by": [
+        "a_decision_point_anchored_under_the_agents_key_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PL-04",
+      "package": "aip-placement",
+      "file": "aip-standalone/aip-placement/src/spawn.rs",
+      "invariant": "work starts inside its placement",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f119ded788b81f3a",
+      "sha256_after": "5cd9a664664dd271",
+      "killed_by": [
+        "a_populated_placement_is_not_removed",
+        "a_decoy_running_the_same_binary_outside_is_not_attributed",
+        "an_exec_sample_carries_the_placements_cgroup_id",
+        "every_short_lived_child_of_a_placed_shell_is_attributed",
+        "signed_exec_events_carry_the_placement_and_its_creator_is_an_instance"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 5
+    },
+    {
+      "id": "PL-05",
+      "package": "aip-placement",
+      "file": "aip-standalone/aip-placement/src/cgroup.rs",
+      "invariant": "a populated placement is reported, never forced",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "15b31fc0a9786068",
+      "sha256_after": "cb3f5aed3314189a",
+      "killed_by": [
+        "a_populated_placement_is_not_removed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "PL-06",
+      "package": "aip-placement",
+      "file": "aip-standalone/aip-placement/src/mount.rs",
+      "invariant": "the v2 hierarchy is found by filesystem type",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "4eed814fef4dea7b",
+      "sha256_after": "6aa8c2f3f23c8abf",
+      "killed_by": [
+        "mount::tests::optional_fields_do_not_shift_the_filesystem_type",
+        "mount::tests::the_v2_hierarchy_is_found_by_filesystem_type_not_by_path",
+        "mount::tests::an_escaped_mount_point_is_unescaped",
+        "mount::tests::a_v1_only_host_has_no_v2_hierarchy",
+        "a_decoy_running_the_same_binary_outside_is_not_attributed",
+        "a_populated_placement_is_not_removed",
+        "an_exec_sample_carries_the_placements_cgroup_id",
+        "every_short_lived_child_of_a_placed_shell_is_attributed",
+        "clone_into_cgroup_is_not_a_migration_but_a_procs_write_is",
+        "signed_exec_events_carry_the_placement_and_its_creator_is_an_instance"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 10
+    },
+    {
+      "id": "OB-01",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/perf.rs",
+      "invariant": "the cgroup id follows the raw block",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "67d8eb145c964d04",
+      "sha256_after": "c959ef332c5b9e40",
+      "killed_by": [
+        "perf::tests::a_cgroup_sample_carries_the_id_after_the_raw_block"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "OB-02",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/probe.rs",
+      "invariant": "the probe copies the kernel's sample into signed evidence",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "f03bc862c23405d2",
+      "sha256_after": "d7677f070c9a73c9",
+      "killed_by": [
+        "the_probe_copies_the_kernels_cgroup_sample_unchanged"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "OB-03",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/sched.rs",
+      "invariant": "the sched tracer asks the kernel for the cgroup id",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "17330aa59a124df9",
+      "sha256_after": "4da385e85fbb167a",
+      "killed_by": [
+        "an_exec_sample_carries_the_execing_tasks_cgroup_id"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "OB-04",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/cgroupev.rs",
+      "invariant": "a negative tracepoint field is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "852bbd66b324b001",
+      "sha256_after": "a5bd5f62b87eaeb2",
+      "killed_by": [
+        "cgroupev::tests::malformed_records_are_refused_not_guessed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "OB-05",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/attest.rs",
+      "invariant": "a v12 record cannot carry v13 content",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "64a1d90122b698a3",
+      "sha256_after": "fd00f296e3747b06",
+      "killed_by": [
+        "a_batch_mixing_event_versions_is_refused",
+        "a_v12_batch_declaring_any_v13_mechanism_is_refused",
+        "a_v12_record_carrying_v13_content_is_refused",
+        "a_v12_event_of_any_cgroup_kind_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 4
+    },
+    {
+      "id": "OB-06",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/observed.rs",
+      "invariant": "a v12 record encodes no cgroup field",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "4cfcdb121c818c2d",
+      "sha256_after": "8181289407de33fa",
+      "killed_by": [
+        "a_v12_event_encodes_no_cgroup_field",
+        "every_sealed_batch_verifies_at_the_version_it_was_sealed_under"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "OB-07",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/observed.rs",
+      "invariant": "one batch, one version",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "4cfcdb121c818c2d",
+      "sha256_after": "34c5f1bcba3c7f84",
+      "killed_by": [
+        "a_batch_mixing_event_versions_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "OB-08",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/observed.rs",
+      "invariant": "the cgroup mechanism is a v13 mechanism",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "4cfcdb121c818c2d",
+      "sha256_after": "d3951011839d08c8",
+      "killed_by": [
+        "a_v12_batch_declaring_any_v13_mechanism_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "OB-09",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/observed.rs",
+      "invariant": "every cgroup kind is a v13 kind",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "4cfcdb121c818c2d",
+      "sha256_after": "ad9bd213ed7d0f02",
+      "killed_by": [
+        "a_v12_event_of_any_cgroup_kind_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "OB-10",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/observed.rs",
+      "invariant": "sealed v12 identity digests do not move",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "4cfcdb121c818c2d",
+      "sha256_after": "4f2126554a3d573b",
+      "killed_by": [
+        "the_protocol_version_is_thirteen_and_twelve_stays_verifiable"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "OB-11",
+      "package": "aip-observe",
+      "file": "aip-standalone/aip-observe/src/observed.rs",
+      "invariant": "only sealed versions verify",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "4cfcdb121c818c2d",
+      "sha256_after": "6156df321cfc7d42",
+      "killed_by": [
+        "a_v12_batch_declaring_any_v13_mechanism_is_refused",
+        "a_v12_record_carrying_v13_content_is_refused",
+        "a_v12_event_of_any_cgroup_kind_is_refused",
+        "the_protocol_version_is_thirteen_and_twelve_stays_verifiable",
+        "every_sealed_batch_verifies_at_the_version_it_was_sealed_under"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 5
+    }
+  ],
+  "reran_in_last_pass": [
+    "OB-02",
+    "OB-03",
+    "PA-01",
+    "PA-17"
+  ]
+}

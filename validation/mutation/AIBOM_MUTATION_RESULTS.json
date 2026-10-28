@@ -1,0 +1,1065 @@
+{
+  "harness": "validation/mutation/mutate_core.py",
+  "targets": [
+    "aip-aibom"
+  ],
+  "total": 63,
+  "killed": 63,
+  "survivors": [],
+  "harness_defects": [],
+  "all_files_restored_byte_identical": true,
+  "restored": {
+    "aip-standalone/aip-aibom/src/standing.rs": true,
+    "aip-standalone/aip-aibom/src/assess/authority.rs": true,
+    "aip-standalone/aip-aibom/src/evidence.rs": true,
+    "aip-standalone/aip-aibom/src/assess/spend.rs": true,
+    "aip-standalone/aip-aibom/src/assess/identity.rs": true,
+    "aip-standalone/aip-aibom/src/assess/controls.rs": true,
+    "aip-standalone/aip-aibom/src/assess/execution.rs": true,
+    "aip-standalone/aip-aibom/src/assess/inventory.rs": true,
+    "aip-standalone/aip-aibom/src/assess/tools.rs": true,
+    "aip-standalone/aip-aibom/src/assess/access.rs": true,
+    "aip-standalone/aip-aibom/src/assess/approvals.rs": true,
+    "aip-standalone/aip-aibom/src/assess/validity.rs": true,
+    "aip-standalone/aip-aibom/src/seal.rs": true,
+    "aip-standalone/aip-aibom/src/canonical.rs": true,
+    "aip-standalone/aip-aibom/src/adapters/mcp_config.rs": true,
+    "aip-standalone/aip-aibom/src/bin/aibom.rs": true,
+    "aip-standalone/aip-aibom/src/report.rs": true,
+    "aip-standalone/aip-aibom/src/diff.rs": true
+  },
+  "mutations": [
+    {
+      "id": "AB-01",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/standing.rs",
+      "invariant": "a rejected artifact is never outvoted",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5031340f68910f3b",
+      "sha256_after": "13c40a5778fad0bd",
+      "killed_by": [
+        "a_forged_chain_is_rejected_and_never_outvoted",
+        "an_unanchored_issuer_verifies_nothing",
+        "a_gateway_anchored_under_the_agents_own_key_is_refused",
+        "a_receipt_from_an_unanchored_gateway_is_rejected",
+        "a_ledger_from_an_unanchored_signer_is_rejected_for_what_it_claimed",
+        "an_expectation_from_an_untrusted_decision_point_is_rejected",
+        "a_proof_nexora_refuses_is_rejected",
+        "identity_lineage_is_verified_through_the_parents_key"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 8
+    },
+    {
+      "id": "AB-02",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/standing.rs",
+      "invariant": "one live grant outranks a lapsed one",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5031340f68910f3b",
+      "sha256_after": "110cfb1033131a6e",
+      "killed_by": [
+        "one_live_grant_outranks_a_lapsed_one"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-03",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "an explicitly denied declared action is a contradiction",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "30c0fd51f15362f3",
+      "killed_by": [
+        "an_explicitly_denied_action_is_contradicted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-04",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "the assessor's revocation set is applied",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "aa774069eeca61c6",
+      "killed_by": [
+        "revocation_is_the_assessors_and_cannot_be_omitted_by_the_bundle",
+        "revoking_a_delegation_hop_revokes_the_chain"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AB-05",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "a revoked delegation hop revokes the whole chain",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "74213f653dfe83c7",
+      "killed_by": [
+        "revoking_a_delegation_hop_revokes_the_chain"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-06",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "an expired chain is lapsed at the assessor's present",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "2e50a6049d9c4de8",
+      "killed_by": [
+        "a_chain_lapses_at_its_earliest_link_expiry",
+        "expired_authority_is_lapsed_at_the_assessors_present"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AB-07",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "a chain before its issuance is not yet valid",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "ce2392a833800cd5",
+      "killed_by": [
+        "authority_before_its_issuance_is_not_yet_valid"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-08",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/evidence.rs",
+      "invariant": "a chain's window ends at its earliest expiry",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "6d49b505a1f03922",
+      "sha256_after": "23ee6872a919336d",
+      "killed_by": [
+        "a_chain_lapses_at_its_earliest_link_expiry"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-09",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "another agent's authority does not count for this one",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "267547c9e9abcd1a",
+      "killed_by": [
+        "another_agents_authority_is_ignored",
+        "onward_delegation_is_verified_from_the_hop_the_agent_issued",
+        "onward_delegation_by_someone_else_is_not_the_agents"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "AB-10",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "foreign evidence is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "08cac0347650b731",
+      "killed_by": [
+        "another_agents_authority_is_ignored"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-11",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "an unbacked declared permission is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "094766e052445620",
+      "killed_by": [
+        "an_ungranted_action_is_self_reported_not_contradicted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-12",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "undeclared live authority is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "0cca24b43cbc587e",
+      "killed_by": [
+        "undeclared_live_authority_is_a_finding"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-13",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "a forged chain is charged against the action it claimed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "0fff7393c04a7d20",
+      "killed_by": [
+        "a_forged_chain_is_rejected_and_never_outvoted",
+        "an_unanchored_issuer_verifies_nothing"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AB-14",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "a limit no artifact carries is reported as unenforceable",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "a699cb6ab1d05dc5",
+      "killed_by": [
+        "a_monetary_limit_and_an_approval_gate_are_never_verified",
+        "a_per_day_limit_is_carried_by_nothing_and_stays_self_reported",
+        "without_a_policy_a_limit_is_the_authors_word"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "AB-15",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "an undeclared delegator is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "0821ac22e58ca99f",
+      "killed_by": [
+        "an_undeclared_delegator_is_a_finding"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-16",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/authority.rs",
+      "invariant": "onward delegation is credited only for a hop this agent issued",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "cd7dbb30e7116aa3",
+      "sha256_after": "8aae19f6a6ccfc5a",
+      "killed_by": [
+        "onward_delegation_by_someone_else_is_not_the_agents"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-17",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/identity.rs",
+      "invariant": "a valid document for another agent is a contradiction",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "06b258869c827ec7",
+      "sha256_after": "8e950af61f8b53c0",
+      "killed_by": [
+        "a_valid_document_for_a_different_agent_is_a_contradiction"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-18",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/identity.rs",
+      "invariant": "an identity whose signed status is not Active is not live",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "06b258869c827ec7",
+      "sha256_after": "f04a888ccf41f85f",
+      "killed_by": [
+        "a_pending_identity_is_not_live"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-19",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/identity.rs",
+      "invariant": "an identity document must pass validate_aid",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "06b258869c827ec7",
+      "sha256_after": "1d20e42b55766608",
+      "killed_by": [
+        "a_tampered_document_is_rejected",
+        "an_unsigned_document_is_rejected_by_the_core"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AB-20",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/controls.rs",
+      "invariant": "the identity-key algorithm is compared with the validated key",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "1838358714cc15c0",
+      "sha256_after": "af6c411a79a98935",
+      "killed_by": [
+        "the_identity_key_algorithm_is_checked_against_the_validated_document"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-21",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/execution.rs",
+      "invariant": "a declared binary the decision point did not authorise is contradicted",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "1c02ef1713932a4e",
+      "sha256_after": "c765bfdef9cd0439",
+      "killed_by": [
+        "a_declared_binary_the_decision_point_did_not_authorise_is_contradicted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-22",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/execution.rs",
+      "invariant": "an expectation must verify under the assessor's anchors",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "1c02ef1713932a4e",
+      "sha256_after": "0281dfecce6bc206",
+      "killed_by": [
+        "an_expectation_from_an_untrusted_decision_point_is_rejected"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-23",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/execution.rs",
+      "invariant": "a proof NEXORA refuses is rejected",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "1c02ef1713932a4e",
+      "sha256_after": "9edb35881cf8cdb0",
+      "killed_by": [
+        "a_proof_nexora_refuses_is_rejected"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-24",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/execution.rs",
+      "invariant": "Observed carries NEXORA's strength, never raised",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "1c02ef1713932a4e",
+      "sha256_after": "ae6f649798a2c76c",
+      "killed_by": [
+        "an_observed_binary_carries_nexoras_verdict_and_strength_unraised"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-25",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/execution.rs",
+      "invariant": "a NEXORA identity divergence is a contradiction",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "1c02ef1713932a4e",
+      "sha256_after": "01b1a946b5f17cc4",
+      "killed_by": [
+        "nexora_observing_a_different_binary_is_contradicted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-26",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/execution.rs",
+      "invariant": "proofs offered without verifier anchors are reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "1c02ef1713932a4e",
+      "sha256_after": "7cbcc819209be09e",
+      "killed_by": [
+        "proofs_without_verifier_anchors_are_reported_and_never_credited"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-27",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/inventory.rs",
+      "invariant": "hosted model identity cites N-3",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "81edbc7c064a4eef",
+      "sha256_after": "975737d10d6d1673",
+      "killed_by": [
+        "model_identity_is_unknowable_and_says_which_limit_applies"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-28",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/tools.rs",
+      "invariant": "only an MCP tool can be discovered from an MCP config",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "16648bf697ae8a44",
+      "sha256_after": "dd2e1779722b9069",
+      "killed_by": [
+        "an_api_tool_sharing_a_server_name_is_not_discovered"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-29",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/tools.rs",
+      "invariant": "a shadow tool is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "16648bf697ae8a44",
+      "sha256_after": "ab55a5bf688cdd7f",
+      "killed_by": [
+        "a_discovered_tool_is_discovered_and_a_shadow_tool_is_flagged",
+        "an_api_tool_sharing_a_server_name_is_not_discovered"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AB-30",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/tools.rs",
+      "invariant": "an inline credential becomes a finding",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "16648bf697ae8a44",
+      "sha256_after": "6bb8e43178c1b235",
+      "killed_by": [
+        "a_discovered_tool_is_discovered_and_a_shadow_tool_is_flagged",
+        "assess_verifies_through_the_context_and_gates_on_critical_findings"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AB-47",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/access.rs",
+      "invariant": "a resource a verified ledger shows reached is credited",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "2674d23a01210120",
+      "sha256_after": "edf5ca17b27448c5",
+      "killed_by": [
+        "a_resource_the_ledger_shows_reached_is_verified_and_its_mode_is_not",
+        "an_adverse_row_is_critical_and_does_not_unverify_the_reach"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AB-48",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/access.rs",
+      "invariant": "a ledger must verify under the assessor's ledger-signer anchors",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "2674d23a01210120",
+      "sha256_after": "0b7867a28039e1ec",
+      "killed_by": [
+        "a_ledger_from_an_unanchored_signer_is_rejected_for_what_it_claimed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-49",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/access.rs",
+      "invariant": "another agent's ledger does not count for this one",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "2674d23a01210120",
+      "sha256_after": "f1bcd5d211f02ccd",
+      "killed_by": [
+        "another_agents_ledger_is_ignored"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-50",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/access.rs",
+      "invariant": "an adverse ledger row is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "2674d23a01210120",
+      "sha256_after": "6afbbd5ea17ecc23",
+      "killed_by": [
+        "an_adverse_row_is_critical_and_does_not_unverify_the_reach"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-51",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/access.rs",
+      "invariant": "an undeclared resource reached is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "2674d23a01210120",
+      "sha256_after": "40655217e41a0177",
+      "killed_by": [
+        "an_undeclared_resource_and_an_unregistered_endpoint_are_findings"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-52",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/access.rs",
+      "invariant": "an unregistered endpoint reached is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "2674d23a01210120",
+      "sha256_after": "5e5bccc0f19dedd1",
+      "killed_by": [
+        "an_undeclared_resource_and_an_unregistered_endpoint_are_findings"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-53",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/access.rs",
+      "invariant": "a failed ledger is charged against the resources it claimed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "2674d23a01210120",
+      "sha256_after": "92b67e6144a9ba88",
+      "killed_by": [
+        "a_ledger_from_an_unanchored_signer_is_rejected_for_what_it_claimed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-54",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/tools.rs",
+      "invariant": "a gateway anchored under the agent's own key is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "16648bf697ae8a44",
+      "sha256_after": "048d2c1f4ad9bb9f",
+      "killed_by": [
+        "a_gateway_anchored_under_the_agents_own_key_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-55",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/tools.rs",
+      "invariant": "a refused call is not credited as use",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "16648bf697ae8a44",
+      "sha256_after": "b8f27e27675c40d1",
+      "killed_by": [
+        "a_refused_call_is_reported_and_not_credited"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-56",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/tools.rs",
+      "invariant": "another agent's receipt does not count for this one",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "16648bf697ae8a44",
+      "sha256_after": "41f656ee452fcfac",
+      "killed_by": [
+        "another_agents_receipt_is_ignored"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-57",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/tools.rs",
+      "invariant": "a tool used at the gateway and undeclared is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "16648bf697ae8a44",
+      "sha256_after": "274b5de8349bb5dd",
+      "killed_by": [
+        "a_tool_used_at_the_gateway_and_undeclared_is_a_finding"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-58",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/tools.rs",
+      "invariant": "a verified gateway receipt credits the declared tool",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "16648bf697ae8a44",
+      "sha256_after": "8587d90d7dc3bc54",
+      "killed_by": [
+        "a_tool_the_gateway_forwarded_for_this_agent_is_verified_and_its_effect_is_not"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-59",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/approvals.rs",
+      "invariant": "an agreeing approval is counted",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "efa7bddce2a0d4f7",
+      "sha256_after": "ffa014a4fb7cfe80",
+      "killed_by": [
+        "an_agreeing_approval_is_counted_and_the_gate_stays_the_authors_word",
+        "an_approval_required_decision_with_an_agreeing_approval_is_not_reported"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AB-60",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/approvals.rs",
+      "invariant": "a shown-versus-authorised divergence is critical",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "efa7bddce2a0d4f7",
+      "sha256_after": "88bf44d63e598bda",
+      "killed_by": [
+        "an_approval_of_different_parameters_is_critical"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-61",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/approvals.rs",
+      "invariant": "another agent's approval does not count for this one",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "efa7bddce2a0d4f7",
+      "sha256_after": "5497a464b809f678",
+      "killed_by": [
+        "an_approval_counts_only_for_this_agents_gate_on_the_same_action"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-62",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/approvals.rs",
+      "invariant": "an approval counts only for a gate on its own action",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "efa7bddce2a0d4f7",
+      "sha256_after": "22a74309ea9be271",
+      "killed_by": [
+        "an_approval_counts_only_for_this_agents_gate_on_the_same_action"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-63",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/approvals.rs",
+      "invariant": "an approval surface anchored under the agent's own key is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "efa7bddce2a0d4f7",
+      "sha256_after": "fb4dac1342d78695",
+      "killed_by": [
+        "an_approval_surface_anchored_under_the_agents_own_key_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-31",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/validity.rs",
+      "invariant": "a lapsed manifest is lapsed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "96d14a8c0737fc9a",
+      "sha256_after": "eeb2e4be6d336f21",
+      "killed_by": [
+        "the_manifests_own_window_is_enforced"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-32",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/seal.rs",
+      "invariant": "a seal is over exactly one manifest",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "a5c2bf8aa752fd9f",
+      "sha256_after": "592698cca58d3df7",
+      "killed_by": [
+        "a_seal_over_a_different_manifest_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-33",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/seal.rs",
+      "invariant": "a seal's fields are covered by its signature",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "a5c2bf8aa752fd9f",
+      "sha256_after": "577ae79c836d901f",
+      "killed_by": [
+        "every_sealed_field_is_covered_by_the_signature"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-34",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/canonical.rs",
+      "invariant": "sets are order-independent",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c1f8a8c141b2d5a7",
+      "sha256_after": "2dc2e094e2ee8497",
+      "killed_by": [
+        "sets_are_order_independent"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-35",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/canonical.rs",
+      "invariant": "every field is in the digest",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c1f8a8c141b2d5a7",
+      "sha256_after": "128dce056d698191",
+      "killed_by": [
+        "every_field_is_covered_by_the_digest"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-36",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/adapters/mcp_config.rs",
+      "invariant": "a `${...}` template is a reference, not a secret",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "3afc26f9f06dd0d2",
+      "sha256_after": "ff07135945e40ffb",
+      "killed_by": [
+        "a_template_under_a_credential_name_is_not_flagged"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-37",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/adapters/mcp_config.rs",
+      "invariant": "URL userinfo never reaches the recorded endpoint",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "3afc26f9f06dd0d2",
+      "sha256_after": "d1ff633e0fe698dd",
+      "killed_by": [
+        "servers_are_discovered_with_their_transport",
+        "no_secret_value_reaches_the_output"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AB-38",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/adapters/mcp_config.rs",
+      "invariant": "a credential-named env value is located",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "3afc26f9f06dd0d2",
+      "sha256_after": "f8e521898bdcd3d4",
+      "killed_by": [
+        "a_discovered_tool_is_discovered_and_a_shadow_tool_is_flagged",
+        "assess_verifies_through_the_context_and_gates_on_critical_findings",
+        "inline_credentials_are_located"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "AB-39",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/adapters/mcp_config.rs",
+      "invariant": "a value after a credential flag is located",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "3afc26f9f06dd0d2",
+      "sha256_after": "4ae51f3df94895af",
+      "killed_by": [
+        "a_prefixless_value_after_a_credential_flag_is_located"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-40",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/adapters/mcp_config.rs",
+      "invariant": "a file that is not an MCP config is refused, not read as empty",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "3afc26f9f06dd0d2",
+      "sha256_after": "ab8a6b57175ae31f",
+      "killed_by": [
+        "a_file_that_is_not_an_mcp_config_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-41",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/bin/aibom.rs",
+      "invariant": "a usage error is never the gate status",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c68d9ccaa08b60bb",
+      "sha256_after": "4b20c459cd6f3103",
+      "killed_by": [
+        "a_usage_error_is_not_the_gate_status"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-42",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/bin/aibom.rs",
+      "invariant": "a critical finding trips the gate",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c68d9ccaa08b60bb",
+      "sha256_after": "0d543b9bef7d2117",
+      "killed_by": [
+        "assess_verifies_through_the_context_and_gates_on_critical_findings"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-43",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/report.rs",
+      "invariant": "a CSV cell cannot become a formula",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "47adcd1b987d4468",
+      "sha256_after": "a2a7d23e5120b7c8",
+      "killed_by": [
+        "csv_cells_cannot_become_formulas"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-44",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/diff.rs",
+      "invariant": "a redenominated limit widens",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "1d6522c71b83d9ae",
+      "sha256_after": "1f3270e0247f7ef4",
+      "killed_by": [
+        "redenominating_a_limit_widens"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AB-45",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/diff.rs",
+      "invariant": "raising a cap widens",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "1d6522c71b83d9ae",
+      "sha256_after": "20dfd0b6d5694838",
+      "killed_by": [
+        "raising_a_limit_widens_and_lowering_it_narrows",
+        "raising_an_approval_threshold_widens",
+        "removing_a_limit_or_an_approval_gate_widens"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "AB-46",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/diff.rs",
+      "invariant": "removing a security control widens",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "1d6522c71b83d9ae",
+      "sha256_after": "6685e73d3d677677",
+      "killed_by": [
+        "removing_a_security_control_widens"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    }
+  ]
+}

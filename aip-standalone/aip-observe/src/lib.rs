@@ -58,6 +58,7 @@
 //! kernel timestamp come from the kernel, not from a procfs read.
 
 pub mod attest;
+pub mod cgroupev;
 pub mod clock;
 pub mod continuity;
 pub mod custody;
@@ -79,6 +80,12 @@ pub use attest::{
     verify_attested_batch, verify_attested_batch_independent_of_agent, verify_continuity,
     verify_signed_health, AttestError, AttestedBatch, CollectorSigner, CollectorSnapshot,
     ObserverAttestor, ObserverTrustAnchors, ProbeStreamFault, VerifyError, OBSERVER_HEAD_DOMAIN,
+};
+#[cfg(target_os = "linux")]
+pub use cgroupev::CgroupTracer;
+pub use cgroupev::{
+    parse_attach_record, parse_mkdir_record, parse_rmdir_record, ATTACH_TRACEPOINT,
+    MKDIR_TRACEPOINT, RMDIR_TRACEPOINT,
 };
 pub use continuity::{Admission, ContinuityBreak, ContinuityFault, ObserverLedger};
 pub use custody::{CollectorKey, CollectorKeyError, CollectorKeyPolicy};
@@ -103,15 +110,18 @@ pub use linux::{
 #[cfg(target_os = "linux")]
 pub use linux::{snapshot_socket_tables, socket_inodes_of, PidFd, ProcConnector};
 pub use observed::{
-    tcp_flags, tcp_state, AgentAttribution, BootClockAnchor, KernelLifecycleEvent,
-    KernelLifecycleKind, MechanismIntegrityReport, ObservationBatch, ObservedEffect,
-    ObservedExecution, ObservedProcess, SocketEndpoint, SocketProtocol, SourceMechanism,
-    WireDirection, KERNEL_EVENT_DOMAIN, OBSERVATION_BATCH_DOMAIN, OBSERVED_EXECUTION_DOMAIN,
-    OBSERVED_PROCESS_DOMAIN, OBSERVE_PROTOCOL_VERSION,
+    is_verifiable_version, tcp_flags, tcp_state, AgentAttribution, BootClockAnchor, CgroupSample,
+    KernelLifecycleEvent, KernelLifecycleKind, MechanismIntegrityReport, ObservationBatch,
+    ObservedEffect, ObservedExecution, ObservedProcess, SocketEndpoint, SocketProtocol,
+    SourceMechanism, WireDirection, CGROUP_PROTOCOL_VERSION, KERNEL_EVENT_DOMAIN,
+    OBSERVATION_BATCH_DOMAIN, OBSERVED_EXECUTION_DOMAIN, OBSERVED_PROCESS_DOMAIN,
+    OBSERVED_PROCESS_IDENTITY_VERSION, OBSERVE_PROTOCOL_VERSION, VERIFIABLE_PROTOCOL_VERSIONS,
 };
 #[cfg(target_os = "linux")]
 pub use perf::PerfTracepoints;
-pub use perf::{data_loc, decode_sample, RawFormat, RawSample, TraceField};
+pub use perf::{
+    data_loc, decode_sample, decode_sample_with, RawFormat, RawSample, SampleLayout, TraceField,
+};
 #[cfg(target_os = "linux")]
 pub use probe::AnchoredMeasurement;
 pub use probe::{clk_tck, instance_started_no_later_than, AgentClaim, ProbeError, ProcfsProbe};

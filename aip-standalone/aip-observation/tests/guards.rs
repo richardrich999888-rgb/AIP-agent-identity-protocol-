@@ -232,7 +232,9 @@ fn the_mechanism_to_class_mapping_is_total_and_excludes_physical_effect() {
         assert_ne!(c, ObservationClass::PhysicalEffect);
         seen.insert(c.code());
     }
-    assert_eq!(SourceMechanism::ALL.len(), 9, "mapping must stay total");
+    // 11 since protocol 13 added ExecPermission (ProcessIdentity) and
+    // CgroupTracepoint (ProcessLifecycle), ADR-019.
+    assert_eq!(SourceMechanism::ALL.len(), 11, "mapping must stay total");
     assert!(!seen.is_empty());
 }
 

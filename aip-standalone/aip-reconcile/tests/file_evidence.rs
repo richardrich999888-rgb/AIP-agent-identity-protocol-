@@ -207,6 +207,7 @@ fn write_event(
 ) -> KernelLifecycleEvent {
     let (attribution, claimed_decision_id) = attribution(c);
     KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: PROBE_ID.into(),
         mechanism: SourceMechanism::Fanotify,

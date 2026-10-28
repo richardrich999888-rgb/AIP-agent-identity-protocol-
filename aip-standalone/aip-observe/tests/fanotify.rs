@@ -128,6 +128,7 @@ fn fa04_the_mechanism_and_the_event_kind() {
     );
 
     let ev = |kind: KernelLifecycleKind| KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: "p".into(),
         mechanism: SourceMechanism::Fanotify,

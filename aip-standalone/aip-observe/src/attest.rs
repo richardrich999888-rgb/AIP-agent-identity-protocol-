@@ -50,7 +50,9 @@ use crate::health::{
     AttestedClock, ContinuityStatus, CoverageWindow, MechanismIntegrity, ObserverState,
     ProbePolicy, SensorHealth, SignedSensorHealth,
 };
-use crate::observed::{ObservationBatch, SourceMechanism, OBSERVE_PROTOCOL_VERSION};
+use crate::observed::{
+    is_verifiable_version, ObservationBatch, SourceMechanism, OBSERVE_PROTOCOL_VERSION,
+};
 
 /// Domain tag leading the attested-batch (chain head) preimage.
 pub const OBSERVER_HEAD_DOMAIN: &str = "SYNTRIASS/GHOST/OBSERVER_HEAD/v1";
@@ -176,6 +178,11 @@ impl ObserverTrustAnchors {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum VerifyError {
     UnsupportedVersion(u16),
+    /// The record claims a protocol version whose encoding cannot carry
+    /// content it holds (ADR-019 §10): that content would sit outside the
+    /// signed bytes. Structural, not cryptographic — nothing was forged that
+    /// the signature could show.
+    ContentNotInVersion(u16),
     /// No anchor for this `(observer_id, key_version)`. The signature may be
     /// perfectly valid — the verifier does not trust the signer, or the key
     /// version is revoked.
@@ -239,8 +246,11 @@ pub fn verify_attested_batch(
     b: &AttestedBatch,
     anchors: &ObserverTrustAnchors,
 ) -> Result<(), VerifyError> {
-    if b.version != OBSERVE_PROTOCOL_VERSION || b.batch.version != OBSERVE_PROTOCOL_VERSION {
+    if !is_verifiable_version(b.version) || b.batch.version != b.version {
         return Err(VerifyError::UnsupportedVersion(b.version));
+    }
+    if !b.batch.content_fits_version() {
+        return Err(VerifyError::ContentNotInVersion(b.version));
     }
     verify_signature_over(
         &b.signing_preimage(),
@@ -271,7 +281,7 @@ pub fn verify_signed_health(
     h: &SignedSensorHealth,
     anchors: &ObserverTrustAnchors,
 ) -> Result<(), VerifyError> {
-    if h.health.version != OBSERVE_PROTOCOL_VERSION {
+    if !is_verifiable_version(h.health.version) {
         return Err(VerifyError::UnsupportedVersion(h.health.version));
     }
     verify_signature_over(

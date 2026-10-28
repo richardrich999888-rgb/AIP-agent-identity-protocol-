@@ -276,9 +276,9 @@ pub fn inventory() -> Vec<FieldRecord> {
         },
         FieldRecord {
             path: "kernel_events.kind",
-            what: "The event: fork, exec, exit, socket state change, send, file write.",
+            what: "The event: fork, exec, exit, socket state change, send, file write, and (protocol 13) cgroup creation, removal and migration. A cgroup event carries the cgroup path — for a decision placement, the decision id in hex — and a migration also carries the moved task's `comm`, a process name the program chose.",
             risk: PersonalDataRisk::IndirectViaHost,
-            purpose: "The event itself. Carries endpoints, byte counts and paths; never payload.",
+            purpose: "The event itself. Carries endpoints, byte counts and paths; never payload. Cgroup events let a verdict say which decision placement work ran in and whether a task left or joined it (ADR-019).",
         },
         FieldRecord {
             path: "kernel_events.cpu",
@@ -309,6 +309,12 @@ pub fn inventory() -> Vec<FieldRecord> {
             what: "The agent identifier claimed for the event.",
             risk: PersonalDataRisk::PossibleByConfiguration,
             purpose: "Lets a verdict be about an agent. The observer attests that the claim was made, never that it is true.",
+        },
+        FieldRecord {
+            path: "kernel_events.cgroup",
+            what: "The cgroup v2 id the kernel wrote into the sample for the task the event fired in, or that none was recorded (protocol 13). A number the kernel assigns; no name or path.",
+            risk: PersonalDataRisk::None,
+            purpose: "Attributes the event to the decision placement it ran in, captured by the kernel at the event, so a process that has already exited is still attributed (ADR-019).",
         },
         FieldRecord {
             path: "kernel_events.claimed_decision_id",
@@ -409,4 +415,5 @@ pub const AGGREGATED_PATHS: &[&str] = &[
     "kernel_events.kind",
     "kernel_events.mechanism",
     "kernel_events.bound",
+    "kernel_events.cgroup",
 ];

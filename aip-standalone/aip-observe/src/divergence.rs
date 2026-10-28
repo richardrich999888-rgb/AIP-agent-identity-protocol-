@@ -234,6 +234,7 @@ mod tests {
 
     fn exec_event(mechanism: SourceMechanism, pid: u32, ts_ns: u64) -> KernelLifecycleEvent {
         KernelLifecycleEvent {
+            cgroup: crate::observed::CgroupSample::NotSampled,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: "probe-1".into(),
             mechanism,

@@ -109,6 +109,7 @@ fn sk03_the_mechanism_is_kernel_pushed_and_covers_no_lifecycle() {
 #[test]
 fn sk04_a_send_event_encodes_injectively_and_carries_no_payload_field() {
     let ev = |kind: KernelLifecycleKind| KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: "p".into(),
         mechanism: SourceMechanism::SockSendTracepoint,
@@ -171,6 +172,7 @@ fn sk05_the_probe_anchors_the_sending_task_under_the_start_tick_rule() {
     let kind = parse_sock_send_record(&fmt(), &record(2, 6, 19, 0), me).unwrap();
     let e = probe
         .ingest_send_event(ProcEvent {
+            cgroup: aip_observe::CgroupSample::NotSampled,
             kind: kind.clone(),
             cpu: 0,
             timestamp_ns: now_ns,
@@ -184,6 +186,7 @@ fn sk05_the_probe_anchors_the_sending_task_under_the_start_tick_rule() {
     // An event stamped before this process started cannot be its send.
     let e2 = probe
         .ingest_send_event(ProcEvent {
+            cgroup: aip_observe::CgroupSample::NotSampled,
             kind,
             cpu: 0,
             timestamp_ns: 1,
@@ -206,6 +209,7 @@ fn sk06_the_collector_refuses_send_provenance_from_a_probe_not_provisioned_for_i
     let mut probe = ProcfsProbe::new("probe-s");
     let kind = parse_sock_send_record(&fmt(), &record(2, 6, 19, 0), u32::MAX).unwrap();
     probe.ingest_send_event(ProcEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         kind,
         cpu: 0,
         timestamp_ns: 5,

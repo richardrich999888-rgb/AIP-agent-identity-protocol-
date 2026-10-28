@@ -27,6 +27,10 @@ pub struct SensorSet {
     batch_counter: u64,
     #[cfg(target_os = "linux")]
     process: Option<aip_observe::ProcessTracer>,
+    /// Cgroup placement events (ADR-019): decision-cgroup creation, removal
+    /// and migration, each with the acting task.
+    #[cfg(target_os = "linux")]
+    cgroup: Option<aip_observe::CgroupTracer>,
     #[cfg(target_os = "linux")]
     sockstate: Option<aip_observe::SockStateTracer>,
     #[cfg(target_os = "linux")]
@@ -73,6 +77,9 @@ impl std::fmt::Debug for SensorSet {
             if self.process.is_some() {
                 open.push("sched");
             }
+            if self.cgroup.is_some() {
+                open.push("cgroup");
+            }
             if self.sockstate.is_some() {
                 open.push("sockstate");
             }
@@ -104,8 +111,8 @@ impl SensorSet {
     #[cfg(target_os = "linux")]
     pub fn open(probe_id: &str, cfg: SensorConfig) -> Result<Self, String> {
         use aip_observe::{
-            boot_clock_anchor, FanotifyWatch, ProcConnector, ProcessTracer, SockSendTracer,
-            SockStateTracer, SourceMechanism, WireTap, FAN_CLOSE_WRITE,
+            boot_clock_anchor, CgroupTracer, FanotifyWatch, ProcConnector, ProcessTracer,
+            SockSendTracer, SockStateTracer, SourceMechanism, WireTap, FAN_CLOSE_WRITE,
         };
 
         let mut probe = ProcfsProbe::new(probe_id);
@@ -113,6 +120,14 @@ impl SensorSet {
         let process = if cfg.sched {
             let t = ProcessTracer::open().map_err(|e| format!("open sched tracer: {e:?}"))?;
             probe.declare_source(SourceMechanism::SchedTracepoint);
+            probe.enable_loss_counter();
+            Some(t)
+        } else {
+            None
+        };
+        let cgroup = if cfg.cgroup {
+            let t = CgroupTracer::open().map_err(|e| format!("open cgroup tracer: {e:?}"))?;
+            probe.declare_source(SourceMechanism::CgroupTracepoint);
             probe.enable_loss_counter();
             Some(t)
         } else {
@@ -189,6 +204,7 @@ impl SensorSet {
             probe,
             batch_counter: 0,
             process,
+            cgroup,
             sockstate,
             socksend,
             connector,
@@ -238,6 +254,7 @@ impl SensorSet {
                 };
             }
             drain_into_probe!(self.process, ingest_sched_event);
+            drain_into_probe!(self.cgroup, ingest_cgroup_event);
             drain_into_probe!(self.sockstate, ingest_socket_event);
             drain_into_probe!(self.socksend, ingest_send_event);
             // The AF_PACKET tap yields the same `ProcEvent` shape as the
@@ -306,6 +323,12 @@ impl SensorSet {
             if let Some(t) = self.process.as_ref() {
                 self.probe.declare_mechanism_integrity(
                     SourceMechanism::SchedTracepoint,
+                    t.mechanism_integrity(),
+                );
+            }
+            if let Some(t) = self.cgroup.as_ref() {
+                self.probe.declare_mechanism_integrity(
+                    SourceMechanism::CgroupTracepoint,
                     t.mechanism_integrity(),
                 );
             }

@@ -1,0 +1,47 @@
+[package]
+name = "aip-aibom"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "AI Agent Bill of Materials: an inventory whose every field says who vouches for it"
+
+# ── A product over the core, consumed by nothing in it ────────────────────
+#
+# Every standing this crate reports is the output of a verifier that already
+# exists below it: identity derivation and delegation chains in `aip-core`,
+# decision-point signatures in `aip-authorize`, re-derived verdicts in
+# `aip-nexora`. It defines no verification of its own, and
+# `tests/no_second_architecture.rs` fails if it starts to (ADR-017).
+#
+# No new third-party dependency: `serde`, `serde_json`, `hex` and `clap` are
+# already in the workspace lockfile through sibling crates.
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-core = { path = "../aip-core" }
+aip-authorize = { path = "../aip-authorize" }
+aip-reconcile = { path = "../aip-reconcile" }
+aip-nexora = { path = "../aip-nexora" }
+# Needed only to build NEXORA verifier anchors from an assessor context file.
+aip-observe = { path = "../aip-observe" }
+aip-warrant = { path = "../aip-warrant" }
+# The newer verifiers the assessment consumes, never restates:
+# gateway-countersigned tool receipts (C4), the shown-versus-authorised
+# approval tier (C5), and the signed per-agent access ledger (C6).
+aip-airi = { path = "../aip-airi" }
+aip-approval = { path = "../aip-approval" }
+aip-ledger = { path = "../aip-ledger" }
+# Signed spend policies and the decision point's spend records (C5 limits).
+aip-spend = { path = "../aip-spend" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+clap = { version = "4", features = ["derive"] }
+
+[dev-dependencies]
+# Builds the signed registry an access-ledger fixture resolves against.
+aip-registry = { path = "../aip-registry" }
+
+[[bin]]
+name = "aibom"
+path = "src/bin/aibom.rs"

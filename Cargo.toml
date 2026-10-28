@@ -36,6 +36,7 @@ members = [
     "aip-standalone/aip-crypto",
     "aip-standalone/aip-core",
     "aip-standalone/aip-protocol",
+    "aip-standalone/aip-spend",
     "aip-standalone/aip-authorize",
     "aip-standalone/aip-registry",
     "aip-standalone/aip-ledger",
@@ -43,6 +44,7 @@ members = [
     # agent and window and states the coverage it does not have.
     "aip-standalone/aip-incident",
     "aip-standalone/aip-observe",
+    "aip-standalone/aip-placement",
     "aip-standalone/aip-airi",
     "aip-standalone/aip-system",
     "aip-standalone/aip-execution",
@@ -90,6 +92,10 @@ members = [
     "aip-standalone/aip-industrial",
     "aip-standalone/aip-space",
     "aip-standalone/aip-enterprise",
+    # ── products over the core ─────────────────────────────────────────
+    # A product consumes the core and is consumed by nothing in it. Its
+    # standings are outputs of verifiers that already exist (ADR-017).
+    "aip-standalone/aip-aibom",
     # ── the conformance program over all of them (Skill 28) ───────────
     # Last in the order: it consumes every layer and nothing consumes it.
     "aip-standalone/aip-conformance",

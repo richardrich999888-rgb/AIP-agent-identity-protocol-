@@ -46,6 +46,7 @@ fn proc_at(pid: u32, start_offset_ms: i64, image: &[u8]) -> ObservedProcess {
 
 fn event(seq: u64, bound: ObservedProcess) -> KernelLifecycleEvent {
     KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: PROBE.into(),
         mechanism: SourceMechanism::SchedTracepoint,

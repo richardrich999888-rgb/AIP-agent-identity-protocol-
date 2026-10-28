@@ -212,6 +212,7 @@ fn wt04_payload_is_measured_by_length_never_carried_or_hashed() {
     let json = serde_json::to_string(&k).unwrap();
     assert!(!json.contains("transfer"));
     let event = KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: "p".into(),
         mechanism: SourceMechanism::WireTapAfPacket,
@@ -269,6 +270,7 @@ fn wt06_a_wire_segment_names_no_process_and_encodes_injectively() {
     assert!(!base.is_connect_established());
 
     let ev = |kind: KernelLifecycleKind| KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: "p".into(),
         mechanism: SourceMechanism::WireTapAfPacket,
@@ -340,6 +342,7 @@ fn wt07_the_probe_ingests_a_segment_unbound_with_no_attribution() {
     .unwrap();
     let e = probe
         .ingest_wire_event(ProcEvent {
+            cgroup: aip_observe::CgroupSample::NotSampled,
             kind,
             cpu: 0,
             timestamp_ns: 5,
@@ -377,6 +380,7 @@ fn wt08_the_collector_refuses_wire_provenance_from_a_probe_not_provisioned_for_i
     )
     .unwrap();
     probe.ingest_wire_event(ProcEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         kind,
         cpu: 0,
         timestamp_ns: 5,

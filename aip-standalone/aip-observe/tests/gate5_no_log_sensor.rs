@@ -170,6 +170,7 @@ fn g5b_events_and_effects_cannot_represent_a_log_record() {
 #[test]
 fn g5c_a_writers_word_confers_no_identity() {
     let e = KernelLifecycleEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: "p".into(),
         mechanism: SourceMechanism::Fanotify,

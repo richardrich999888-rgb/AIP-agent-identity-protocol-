@@ -1,0 +1,967 @@
+{
+  "harness": "validation/mutation/mutate_core.py",
+  "targets": [
+    "aip-spend",
+    "aip-authorize",
+    "aip-aibom"
+  ],
+  "total": 56,
+  "killed": 56,
+  "survivors": [],
+  "harness_defects": [],
+  "all_files_restored_byte_identical": true,
+  "restored": {
+    "aip-standalone/aip-spend/src/evaluate.rs": true,
+    "aip-standalone/aip-spend/src/policy.rs": true,
+    "aip-standalone/aip-spend/src/record.rs": true,
+    "aip-standalone/aip-authorize/src/decision.rs": true,
+    "aip-standalone/aip-authorize/src/spend.rs": true,
+    "aip-standalone/aip-aibom/src/assess/spend.rs": true,
+    "aip-standalone/aip-aibom/src/assess/approvals.rs": true,
+    "aip-standalone/aip-aibom/src/evidence.rs": true
+  },
+  "mutations": [
+    {
+      "id": "SP-01",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/evaluate.rs",
+      "invariant": "an amount equal to the maximum is within it",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "ddc0090eab2ffba3",
+      "sha256_after": "43ce492dda9c9ae4",
+      "killed_by": [
+        "a_policy_without_an_approval_threshold_never_requires_approval",
+        "the_boundaries_are_exact"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "SP-02",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/evaluate.rs",
+      "invariant": "an amount equal to the threshold needs no approval",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "ddc0090eab2ffba3",
+      "sha256_after": "e5c5e73735464aa5",
+      "killed_by": [
+        "the_boundaries_are_exact"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-03",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/evaluate.rs",
+      "invariant": "an unreadable amount is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "ddc0090eab2ffba3",
+      "sha256_after": "8ffac7cc1b3171a6",
+      "killed_by": [
+        "an_unreadable_amount_is_refused_not_read_permissively"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-04",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/evaluate.rs",
+      "invariant": "only ASCII digits are an amount",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "ddc0090eab2ffba3",
+      "sha256_after": "30948d4bbe410f2e",
+      "killed_by": [
+        "amounts_are_parsed_strictly",
+        "an_unreadable_amount_is_refused_not_read_permissively"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "SP-05",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/evaluate.rs",
+      "invariant": "more digits than a u64 holds is out of range",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "ddc0090eab2ffba3",
+      "sha256_after": "35e8d560b67f90ab",
+      "killed_by": [
+        "amounts_are_parsed_strictly"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-06",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/evaluate.rs",
+      "invariant": "an amount never wraps",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "ddc0090eab2ffba3",
+      "sha256_after": "8eceb7f89ff90dc8",
+      "killed_by": [
+        "amounts_are_parsed_strictly"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-07",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/evaluate.rs",
+      "invariant": "a policy governs only its own agent",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "ddc0090eab2ffba3",
+      "sha256_after": "0b10f3c69668f02b",
+      "killed_by": [
+        "another_agent_or_an_ungoverned_action_is_not_governed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-08",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/evaluate.rs",
+      "invariant": "a missing amount is not read as zero",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "ddc0090eab2ffba3",
+      "sha256_after": "969b8185bb8b5b6e",
+      "killed_by": [
+        "an_unreadable_amount_is_refused_not_read_permissively"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-09",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/policy.rs",
+      "invariant": "a threshold above the maximum is malformed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c224dd82092fb87b",
+      "sha256_after": "e8d597beeba8ef3c",
+      "killed_by": [
+        "a_policy_must_be_well_formed_to_sign_or_verify",
+        "verify_refuses_a_malformed_policy_however_it_was_signed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "SP-10",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/policy.rs",
+      "invariant": "one rule per action",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c224dd82092fb87b",
+      "sha256_after": "2e33da99cf4e3e6f",
+      "killed_by": [
+        "a_policy_must_be_well_formed_to_sign_or_verify"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-11",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/policy.rs",
+      "invariant": "a currency is three uppercase letters",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c224dd82092fb87b",
+      "sha256_after": "88b9eff45c6f8a75",
+      "killed_by": [
+        "a_policy_must_be_well_formed_to_sign_or_verify"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-12",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/policy.rs",
+      "invariant": "a policy changed after signing is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c224dd82092fb87b",
+      "sha256_after": "2c6be5c6c1fffac3",
+      "killed_by": [
+        "a_policy_cannot_be_raised_after_signing"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-13",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/policy.rs",
+      "invariant": "verify validates, whoever signed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c224dd82092fb87b",
+      "sha256_after": "dcb37debcdcb9de8",
+      "killed_by": [
+        "verify_refuses_a_malformed_policy_however_it_was_signed"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-14",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/policy.rs",
+      "invariant": "rule order is not a change",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c224dd82092fb87b",
+      "sha256_after": "bfdf0331755ba0cd",
+      "killed_by": [
+        "rule_order_is_not_a_change_and_every_field_is_in_the_digest"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-15",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/policy.rs",
+      "invariant": "the maximum is in the digest",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c224dd82092fb87b",
+      "sha256_after": "a5c90ce0d0d66d7e",
+      "killed_by": [
+        "a_policy_cannot_be_raised_after_signing",
+        "rule_order_is_not_a_change_and_every_field_is_in_the_digest"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "SP-16",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/record.rs",
+      "invariant": "a record changed after signing is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "69acc03cb7287290",
+      "sha256_after": "bd820d0bd7f4ebba",
+      "killed_by": [
+        "an_attestation_verifies_and_its_verdict_cannot_be_rewritten",
+        "a_refusal_verifies_and_its_amount_cannot_be_rewritten"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "SP-17",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/record.rs",
+      "invariant": "a record's signature names its decision point",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "69acc03cb7287290",
+      "sha256_after": "b321d2dcf21e5e94",
+      "killed_by": [
+        "a_record_whose_signature_names_another_signer_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-18",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/record.rs",
+      "invariant": "the refused amount is signed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "69acc03cb7287290",
+      "sha256_after": "32c827c5d70c2d53",
+      "killed_by": [
+        "a_refusal_verifies_and_its_amount_cannot_be_rewritten"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-19",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/record.rs",
+      "invariant": "the attestation verdict is signed",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "69acc03cb7287290",
+      "sha256_after": "996fb6ce03e9d5eb",
+      "killed_by": [
+        "an_attestation_verifies_and_its_verdict_cannot_be_rewritten"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "SP-20",
+      "package": "aip-spend",
+      "file": "aip-standalone/aip-spend/src/record.rs",
+      "invariant": "an unknown record version is refused as such",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "69acc03cb7287290",
+      "sha256_after": "4e9eb14e656f8407",
+      "killed_by": [
+        "a_record_of_an_unknown_version_is_refused_as_such"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "DP-01",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/decision.rs",
+      "invariant": "a refusing outcome is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c52d83991b7b2f64",
+      "sha256_after": "abc2f38aa9adf24f",
+      "killed_by": [
+        "a_refused_request_never_enters_the_decision_ledger",
+        "a_spend_record_verifies_only_under_its_own_decision_point",
+        "an_amount_that_cannot_be_read_is_refused_not_read_permissively",
+        "five_thousand_against_one_thousand_is_refused_and_provably_so",
+        "an_omitted_amount_is_refused",
+        "the_plain_entry_point_enforces_the_same_limit",
+        "the_limit_is_inclusive_and_one_cent_over_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 7
+    },
+    {
+      "id": "DP-02",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/decision.rs",
+      "invariant": "a held policy is consulted",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c52d83991b7b2f64",
+      "sha256_after": "46acec0b4e8a880d",
+      "killed_by": [
+        "a_refused_request_never_enters_the_decision_ledger",
+        "a_spend_above_the_threshold_is_authorised_and_marked_approval_required",
+        "a_policy_cannot_be_rolled_back_and_a_newer_revision_takes_effect",
+        "a_spend_record_verifies_only_under_its_own_decision_point",
+        "an_amount_that_cannot_be_read_is_refused_not_read_permissively",
+        "a_spend_within_the_limit_is_authorised_and_attested",
+        "an_omitted_amount_is_refused",
+        "an_attestation_names_only_its_own_expectation",
+        "five_thousand_against_one_thousand_is_refused_and_provably_so",
+        "the_limit_is_inclusive_and_one_cent_over_is_refused",
+        "the_plain_entry_point_enforces_the_same_limit"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 11
+    },
+    {
+      "id": "DP-03",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/decision.rs",
+      "invariant": "the amount is read from the request's own parameters",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c52d83991b7b2f64",
+      "sha256_after": "02d8810cfd80a8d0",
+      "killed_by": [
+        "a_refused_request_never_enters_the_decision_ledger",
+        "a_spend_above_the_threshold_is_authorised_and_marked_approval_required",
+        "a_spend_record_verifies_only_under_its_own_decision_point",
+        "an_amount_that_cannot_be_read_is_refused_not_read_permissively",
+        "five_thousand_against_one_thousand_is_refused_and_provably_so",
+        "the_plain_entry_point_enforces_the_same_limit",
+        "the_limit_is_inclusive_and_one_cent_over_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 7
+    },
+    {
+      "id": "DP-04",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/decision.rs",
+      "invariant": "an authorised governed decision is attested",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c52d83991b7b2f64",
+      "sha256_after": "9bb6fe844a8664b7",
+      "killed_by": [
+        "a_spend_above_the_threshold_is_authorised_and_marked_approval_required",
+        "a_spend_within_the_limit_is_authorised_and_attested",
+        "a_policy_cannot_be_rolled_back_and_a_newer_revision_takes_effect",
+        "an_attestation_names_only_its_own_expectation",
+        "the_limit_is_inclusive_and_one_cent_over_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 5
+    },
+    {
+      "id": "DP-05",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/decision.rs",
+      "invariant": "an exceeded limit is denied as such",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c52d83991b7b2f64",
+      "sha256_after": "62284ad761e37ce8",
+      "killed_by": [
+        "five_thousand_against_one_thousand_is_refused_and_provably_so",
+        "the_plain_entry_point_enforces_the_same_limit",
+        "the_limit_is_inclusive_and_one_cent_over_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "DP-06",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/decision.rs",
+      "invariant": "a refusal is timed at the decision",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "c52d83991b7b2f64",
+      "sha256_after": "573fba16c24ccc43",
+      "killed_by": [
+        "five_thousand_against_one_thousand_is_refused_and_provably_so"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "DP-07",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/spend.rs",
+      "invariant": "configuration cannot roll a limit back",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "e383c068e10c3574",
+      "sha256_after": "032f1b2fc8f17400",
+      "killed_by": [
+        "a_policy_cannot_be_rolled_back_and_a_newer_revision_takes_effect"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "DP-08",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/spend.rs",
+      "invariant": "a refusal carries the requested amount",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "e383c068e10c3574",
+      "sha256_after": "973df7a7991541bc",
+      "killed_by": [
+        "five_thousand_against_one_thousand_is_refused_and_provably_so",
+        "the_limit_is_inclusive_and_one_cent_over_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "DP-09",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/spend.rs",
+      "invariant": "a refusal binds the exact request",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "e383c068e10c3574",
+      "sha256_after": "135ff1d864899d41",
+      "killed_by": [
+        "five_thousand_against_one_thousand_is_refused_and_provably_so"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "DP-10",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/spend.rs",
+      "invariant": "an approval-required decision is marked so",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "e383c068e10c3574",
+      "sha256_after": "ee24e7107db52cc2",
+      "killed_by": [
+        "spend::tests::every_outcome_maps_to_exactly_one_record_kind",
+        "a_spend_above_the_threshold_is_authorised_and_marked_approval_required",
+        "the_limit_is_inclusive_and_one_cent_over_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "DP-11",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/spend.rs",
+      "invariant": "an attestation binds its expectation",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "e383c068e10c3574",
+      "sha256_after": "378b0a30e07d2f16",
+      "killed_by": [
+        "a_spend_within_the_limit_is_authorised_and_attested",
+        "an_attestation_names_only_its_own_expectation"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "DP-12",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/spend.rs",
+      "invariant": "an attestation is timed at its decision",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "e383c068e10c3574",
+      "sha256_after": "2cc6d08acf59fecd",
+      "killed_by": [
+        "a_spend_within_the_limit_is_authorised_and_attested"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "DP-13",
+      "package": "aip-authorize",
+      "file": "aip-standalone/aip-authorize/src/spend.rs",
+      "invariant": "an attestation carries the threshold applied",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "e383c068e10c3574",
+      "sha256_after": "7b5c93fe35340518",
+      "killed_by": [
+        "a_spend_within_the_limit_is_authorised_and_attested"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-01",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "a limit differing from the signed one is contradicted",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "038e609f83492239",
+      "killed_by": [
+        "a_declared_limit_above_the_signed_one_is_contradicted",
+        "a_limit_in_another_currency_or_scale_is_contradicted_not_converted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AS-02",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "another currency is not the same amount",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "d88a2be8b279a8cb",
+      "killed_by": [
+        "a_limit_in_another_currency_or_scale_is_contradicted_not_converted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-03",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "another scale is not the same amount",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "99f6df9c7cd39f68",
+      "killed_by": [
+        "a_limit_in_another_currency_or_scale_is_contradicted_not_converted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-04",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "a per-day limit is governed by no per-action rule",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "11f2f9def08f7daa",
+      "killed_by": [
+        "a_per_day_limit_is_carried_by_nothing_and_stays_self_reported"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-05",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "a record citing another policy is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "c245c208e890026e",
+      "killed_by": [
+        "a_decision_point_enforcing_a_superseded_revision_is_reported"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-06",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "a signed limit nobody is shown enforcing is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "0e44a74287f14488",
+      "killed_by": [
+        "a_decision_point_enforcing_a_superseded_revision_is_reported",
+        "a_signed_limit_with_no_decision_point_record_is_verified_but_not_shown_enforced",
+        "an_attestation_offered_with_a_different_expectation_is_rejected"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 3
+    },
+    {
+      "id": "AS-07",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "equivocating policies are not relied on",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "9883adbc45bbcf08",
+      "killed_by": [
+        "two_different_policies_at_one_revision_are_not_relied_on"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-08",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "the highest revision governs",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "1f7a263bfef50c57",
+      "killed_by": [
+        "a_decision_point_enforcing_a_superseded_revision_is_reported"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-09",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "another agent's policy does not count",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "eeb2f577ebdfc401",
+      "killed_by": [
+        "a_policy_for_another_agent_does_not_verify_this_agents_limit"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-10",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "an issuer or decision point under the agent's key is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "d705a537e3addc91",
+      "killed_by": [
+        "a_policy_issuer_anchored_under_the_agents_key_is_rejected",
+        "a_record_from_a_decision_point_anchored_under_the_agents_key_is_rejected"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AS-11",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "another agent's refusal does not count",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "1803d71f5c8c013a",
+      "killed_by": [
+        "records_about_another_agent_are_ignored_and_counted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-12",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "another agent's attestation does not count",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "e10f2a787204a101",
+      "killed_by": [
+        "records_about_another_agent_are_ignored_and_counted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-13",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "an attestation offered with a different expectation is refused",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "e501c39bca856f2b",
+      "killed_by": [
+        "an_attestation_offered_with_a_different_expectation_is_rejected"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-14",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "a record must verify to count",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "506cf6bd40595a68",
+      "killed_by": [
+        "a_refusal_whose_amount_was_rewritten_is_rejected"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-15",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "an approval-required decision is tracked",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "8aaf90cfcca98b69",
+      "killed_by": [
+        "an_approval_required_decision_without_an_agreeing_approval_is_reported",
+        "an_approval_for_another_decision_does_not_count"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 2
+    },
+    {
+      "id": "AS-16",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "the refused amount is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "f7c0a131826fd97b",
+      "killed_by": [
+        "the_five_thousand_dollar_attempt_is_reported_from_the_signed_refusal"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-17",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "a gate differing from the signed threshold is contradicted",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "71a30f44ac50cc3c",
+      "killed_by": [
+        "a_gate_the_signed_policy_disagrees_with_is_contradicted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-18",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/spend.rs",
+      "invariant": "a gate the policy does not require is contradicted",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "5abddec85278108d",
+      "sha256_after": "1ee1375565547f3f",
+      "killed_by": [
+        "a_gate_the_signed_policy_disagrees_with_is_contradicted"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-19",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/approvals.rs",
+      "invariant": "an approval for another decision does not satisfy this one",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "efa7bddce2a0d4f7",
+      "sha256_after": "2352c188fbd00991",
+      "killed_by": [
+        "an_approval_for_another_decision_does_not_count"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-20",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/approvals.rs",
+      "invariant": "the approver is the author's word",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "efa7bddce2a0d4f7",
+      "sha256_after": "70461746b7d82014",
+      "killed_by": [
+        "a_gate_matching_the_signed_threshold_is_verified_and_its_approver_is_not"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-21",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/assess/approvals.rs",
+      "invariant": "a signed threshold nobody is shown enforcing is reported",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "efa7bddce2a0d4f7",
+      "sha256_after": "aa4e0ea931b96b63",
+      "killed_by": [
+        "a_gate_matching_the_signed_threshold_is_verified_and_its_approver_is_not"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-22",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/evidence.rs",
+      "invariant": "a context file anchors spend-policy issuers",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "6d49b505a1f03922",
+      "sha256_after": "81860afbf6b47b30",
+      "killed_by": [
+        "a_context_file_anchors_spend_policy_issuers"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    },
+    {
+      "id": "AS-23",
+      "package": "aip-aibom",
+      "file": "aip-standalone/aip-aibom/src/evidence.rs",
+      "invariant": "spend refusals in a bundle are bounded",
+      "fragment_occurrences": 1,
+      "patch_applied": true,
+      "compiled": true,
+      "sha256_before": "6d49b505a1f03922",
+      "sha256_after": "ec396df13c1e90f3",
+      "killed_by": [
+        "a_bundle_with_too_many_spend_records_is_refused"
+      ],
+      "result": "KILLED",
+      "failing_test_count": 1
+    }
+  ],
+  "reran_in_last_pass": [
+    "AS-14",
+    "SP-06"
+  ]
+}

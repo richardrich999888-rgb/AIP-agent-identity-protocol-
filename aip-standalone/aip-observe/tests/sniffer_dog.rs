@@ -82,6 +82,7 @@ fn binding(agent_id: &str, pid: u32, start: u64, boot: u8, exe: u8) -> Execution
 
 fn kernel_exec(pid: u32, ts: u64) -> ProcEvent {
     ProcEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         kind: KernelLifecycleKind::Exec { pid, tgid: pid },
         cpu: 0,
         timestamp_ns: ts,
@@ -90,6 +91,7 @@ fn kernel_exec(pid: u32, ts: u64) -> ProcEvent {
 
 fn kernel_exit(pid: u32, ts: u64) -> ProcEvent {
     ProcEvent {
+        cgroup: aip_observe::CgroupSample::NotSampled,
         kind: KernelLifecycleKind::Exit {
             pid,
             tgid: pid,
@@ -804,6 +806,7 @@ fn t18_malformed_kernel_event_bytes_never_panic_and_are_never_interpreted() {
     let mut probe = ProcfsProbe::new(PROBE_ID);
     let ev = probe
         .ingest_kernel_event(ProcEvent {
+            cgroup: aip_observe::CgroupSample::NotSampled,
             kind: KernelLifecycleKind::Other { what: 0x40 },
             cpu: 0,
             timestamp_ns: 1,

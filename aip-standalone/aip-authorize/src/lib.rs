@@ -42,6 +42,7 @@ pub mod coverage;
 pub mod decision;
 pub mod expected;
 pub mod resource;
+pub mod spend;
 
 pub use actions::{
     fs_write_action, fs_write_parameters, net_connect_action, net_connect_parameters,
@@ -65,3 +66,4 @@ pub use expected::{
     EXPECTED_EXECUTION_VERSION,
 };
 pub use resource::{destination_of, Destination, DestinationError, ResourcePolicy};
+pub use spend::{expectation_digest, SpendConfigError, SpendDecision, SpendRecord};

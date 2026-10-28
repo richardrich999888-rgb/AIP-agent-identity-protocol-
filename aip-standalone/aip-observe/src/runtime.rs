@@ -228,7 +228,7 @@ pub fn verify_continuity_report(
     r: &SignedContinuityReport,
     anchors: &ObserverTrustAnchors,
 ) -> Result<(), VerifyError> {
-    if r.report.version != OBSERVE_PROTOCOL_VERSION {
+    if !crate::observed::is_verifiable_version(r.report.version) {
         return Err(VerifyError::UnsupportedVersion(r.report.version));
     }
     verify_signature_over(

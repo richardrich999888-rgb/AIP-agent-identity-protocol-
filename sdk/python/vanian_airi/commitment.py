@@ -43,7 +43,8 @@ def commit_json(value: Any) -> bytes:
     """
     try:
         encoded = json.dumps(
-            value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+            value, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+            allow_nan=False,
         ).encode("utf-8")
     except (TypeError, ValueError) as exc:
         raise CommitmentError(f"value is not JSON-serialisable: {exc}") from exc
