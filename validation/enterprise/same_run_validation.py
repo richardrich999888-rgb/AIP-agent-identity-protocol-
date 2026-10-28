@@ -31,6 +31,7 @@ from audit_crosscheck import AuditCrosscheck
 from evidence import ARCHIVES, Refused, command, covered, event_time, records, sha256, verify
 from harness import now, save, tamper, terminate
 from prepare_local_model import MANIFEST_SHA256, MODEL, verify_model
+from resource_metrics import snapshot as resource_snapshot, report as resource_report
 
 UID_AGENT, UID_TOOL, UID_GATEWAY, UID_MODEL = 10001, 10002, 10003, 10004
 MECHANISMS = ['SchedTracepoint', 'Fanotify', 'SockSendTracepoint']
@@ -430,6 +431,8 @@ def main():
         actual_ready=agent_output.until('ready',30)
         if actual_ready['pid'] != agent.pid or actual_ready['uid'] != UID_AGENT:
             raise Refused('readiness process did not match externally launched instance')
+        metric_processes={'probe':probe.pid,'collector':collector.pid,'model':model.pid,'gateway':gateway.pid,'upstream':upstream.pid,'agent':agent.pid}
+        metrics_before=resource_snapshot(metric_processes,cg)
         broker=AuthorityBroker(control/'authority.sock',agent,binary,initialized,decisions,public)
         broker.start(); agent.stdin.write(b'start\n'); agent.stdin.flush()
         agent_deadline=time.monotonic()+360
@@ -453,6 +456,7 @@ def main():
         broker.thread.join(timeout=10)
         if broker.failure or broker.expectation is None:
             raise Refused(broker.failure or 'authority did not issue an expectation')
+        metrics_after=resource_snapshot(metric_processes,cg)
         agent.stdin.write(b'finish\n'); agent.stdin.flush()
         if agent.wait(timeout=10) != 0: raise Refused('genuine agent returned failure')
         result['autonomous_workload_executed']=True
@@ -479,6 +483,8 @@ def main():
         terminate(collector)
         cp=checkpoint(state); save(out/'checkpoint.json',cp)
         save(public/'offline-verification.json',verify(public,tools,anchor,cp))
+        performance=resource_report(metrics_before,metrics_after,public)
+        save(public/'performance.json',performance)
         save(public/'tamper.json',tamper(public,tools,anchor,cp))
         (public/'observer.pub').write_text(anchor['public_key']+'\n')
         tool_events=records(tool_work/'tool-events.jsonl')
@@ -528,12 +534,17 @@ def main():
             'signed_receipt':matching[0],'batches_jsonl':(public/ARCHIVES[0]).read_text(),
             'health_jsonl':(public/ARCHIVES[1]).read_text(),'verification_time_ms':now()}
         env={'PATH':os.environ['PATH'],'AIP_RUN_TRUST_FILE':str(trust_path)}
+        sign_started=time.perf_counter()
         signed=json.loads(command([binary,'evaluate-and-sign'],input=json.dumps(bundle),env={**env,
             'AIP_RECONCILER_KEY_FILE':initialized['reconciler_key_path'],'AIP_RECONCILER_ID':initialized['reconciler_id'],
             'AIP_RECONCILER_PUBLIC_KEY':initialized['reconciler_public_key_hex']}))
+        sign_elapsed=(time.perf_counter()-sign_started)*1000
         bundle['signed_reconciliation']=signed['signed_reconciliation']
         save(public/'run-bundle.json',bundle)
+        evaluation_started=time.perf_counter()
         evaluation=json.loads(command([binary,'evaluate'],input=json.dumps(bundle),env=env))
+        performance['reconciliation_cli_wall_time_ms']={'evaluate_and_sign':sign_elapsed,'offline_evaluate':(time.perf_counter()-evaluation_started)*1000,'scope':'controller wall time including CLI process startup and all verification work; not isolated reconciler CPU'}
+        save(public/'performance.json',performance)
         save(public/'evaluation.json',evaluation)
         save(public/'signed-reconciliation.json',signed['signed_reconciliation'])
         command([sys.executable,ROOT/'validation/enterprise/evaluate_captured_negatives.py',

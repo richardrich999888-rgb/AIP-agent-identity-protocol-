@@ -87,4 +87,5 @@ jobs:
             ${{ runner.temp }}/same-run/checkpoint.json
             ${{ runner.temp }}/same-run/run-trust.json
             ${{ runner.temp }}/local-model/model-pin.json
+            ${{ runner.temp }}/local-model/model-manifest-layout.json
             ${{ runner.temp }}/same-run-audit-initial.txt

@@ -26,7 +26,18 @@ def sha(path):
 
 
 def verify_model(models):
-    manifest = models / 'manifests/registry.ollama.ai/library/llama3.2/1b'
+    legacy = models / 'manifests/registry.ollama.ai/library/llama3.2/1b'
+    current = models / 'manifests-v2/ollama.com/library/llama3.2/1b'
+    if current.exists() or current.is_symlink():
+        # Ollama 0.40 stores the original registry document as a blob and
+        # links its v2 name to it. The legacy file is a DIFFERENT downgrade
+        # anchor with extra GC-reference layers, not the running manifest.
+        expected_blob = models / 'blobs' / ('sha256-' + MANIFEST_SHA256)
+        if current.resolve(strict=True) != expected_blob.resolve(strict=True):
+            raise ValueError('v2 model name does not reference the reviewed content-addressed blob')
+        manifest = current
+    else:
+        manifest = legacy
     if sha(manifest) != MANIFEST_SHA256:
         raise ValueError('model tag changed; reviewed manifest digest required')
     value = json.loads(manifest.read_bytes())
@@ -90,6 +101,14 @@ def main():
                 raise TimeoutError('local CPU runtime readiness timeout')
             subprocess.run([str(root / 'bin/ollama'), 'pull', MODEL], env=environment,
                            stdout=log, stderr=log, check=True, timeout=600)
+            layout = []
+            for relative in ('manifests/registry.ollama.ai/library/llama3.2/1b', 'manifests-v2/ollama.com/library/llama3.2/1b'):
+                candidate = models / relative
+                if candidate.exists():
+                    layout.append({'path':relative,'target':str(candidate.resolve().relative_to(models)),
+                                   'sha256':sha(candidate),'bytes':candidate.stat().st_size,
+                                   'public_manifest':json.loads(candidate.read_text())})
+            (root / 'model-manifest-layout.json').write_text(json.dumps(layout,indent=2)+'\n')
             manifest = verify_model(models)
         finally:
             server.terminate()

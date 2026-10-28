@@ -17,6 +17,7 @@ from urllib.request import Request
 
 from mcp import Client, StdioServerParameters
 from vanian import ApiError, VanianClient
+from openapi_contract import validate_run_reads
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -44,7 +45,8 @@ def main():
     writer_key, reader_key, other_key = [path.read_text().strip() for path in
         (args.writer_key_file, args.reader_key_file, args.other_key_file)]
     writer, reader, other = [VanianClient(args.url, lambda key=key: key,
-        retries=0, allow_loopback_http=True) for key in (writer_key, reader_key, other_key)]
+        retries=0, allow_loopback_http=True, max_response_bytes=16 * 1024 * 1024)
+        for key in (writer_key, reader_key, other_key)]
     assert writer.access()["role"] in ("machine", "admin")
     assert reader.access()["role"] == other.access()["role"] == "reader"
     assert reader.access()["tenant_id"] != other.access()["tenant_id"]
@@ -62,6 +64,7 @@ def main():
 
     admitted = post(writer_key, raw)
     artifact_id = admitted["run_artifact_id"]
+    validate_run_reads(reader, other, writer, bundle=bundle, admitted=admitted)
     assert admitted["run_id"] == bundle["run_id"]
     assert admitted["bundle_sha256"] == hashlib.sha256(raw).hexdigest()
     assert post(writer_key, raw) == admitted
@@ -147,7 +150,7 @@ def main():
         console = "PASS"
     report = {"run_id":bundle["run_id"],"run_artifact_id":artifact_id,
         "source_bundle_sha256":hashlib.sha256(raw).hexdigest(),
-        "api_admission":"PASS","exact_bundle_retrieval":"PASS","python_sdk":"PASS",
+        "api_admission":"PASS","exact_bundle_retrieval":"PASS","openapi_contract":"PASS","python_sdk":"PASS",
         "typescript_sdk":"PASS","official_mcp_client":"PASS","cross_tenant_refusal":"PASS",
         "reader_write_and_raw_refusal":"PASS","console_browser":console,
         "signed_runtime_verdict_retrieval":"PASS" if bundle.get("signed_reconciliation") else "NOT_SUPPLIED",

@@ -20,6 +20,7 @@ import anyio
 from jsonschema import ValidationError
 from mcp import types
 from vanian import ApiError, Page, VanianClient
+from openapi_contract import OpenAPIContract, RUN_OPERATIONS
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("vanian_mcp_boundaries", ROOT / "integrations/evidence-mcp/server.py")
@@ -96,6 +97,46 @@ class TransportBoundaries(unittest.TestCase):
                 Page.parse(document)
             self.assertEqual(caught.exception.code, "invalid_page")
         self.assertIsNone(Page.parse(valid).next_offset)
+
+
+class OpenAPIContracts(unittest.TestCase):
+    def test_all_same_run_routes_are_documented_and_match_actual_rust_handlers(self):
+        contract = OpenAPIContract()
+        contract.assert_route_alignment()
+        self.assertEqual(len(RUN_OPERATIONS), 6)
+        source = (ROOT / "aip-service/src/lib.rs").read_text()
+        with self.assertRaises(AssertionError):
+            contract.assert_route_alignment(source.replace('"/v1/runs/:id/evaluation"',
+                                                          '"/v1/undocumented-evaluation"'))
+        # Omitting a new read cannot silently remove it from coverage.
+        del contract.operations[("GET", "/v1/runs/{run_artifact_id}/metadata")]
+        with self.assertRaises(AssertionError):
+            contract.assert_route_alignment()
+
+    def test_same_run_wire_schema_refuses_caller_trust_and_preserves_limitations(self):
+        contract = OpenAPIContract()
+        bundle = {"run_id":"schema-fixture","agent_id":"schema-agent", "expectation":None,
+                  "signed_receipt":None,"signed_reconciliation":None,
+                  "batches_jsonl":"schema-only\n","health_jsonl":"schema-only\n","verification_time_ms":1}
+        contract.validate_request("POST", "/v1/runs", bundle)
+        with self.assertRaises(AssertionError):
+            contract.validate_request("POST", "/v1/runs", {**bundle,"trust":{"approved":True}})
+        evaluation = {"run_id":"schema-fixture","agent_id":"schema-agent",
+            "archive_integrity_verified":False,"checkpoint_verified":False,
+            "authorization_verified":False,"gateway_receipt_verified":False,
+            "signed_reconciliation_verified":False,"receipt_within_authorization":None,
+            "gateway_disposition":None,"reconciliation":None,"tool_boundary":None,
+            "limitations":["Schema-only values do not establish signature validity or workload execution."]}
+        metadata = {"run_artifact_id":"a"*64,"run_id":"schema-fixture","agent_id":"schema-agent",
+                    "bundle_sha256":"b"*64,"batches_sha256":"c"*64,"health_sha256":"d"*64,
+                    "verification_scope":"same_run_evaluation","evaluation":evaluation}
+        path = "/v1/runs/" + metadata["run_artifact_id"] + "/metadata"
+        contract.validate_response("GET", path, 200, metadata)
+        for altered in ({**metadata,"verification_scope":"verified_execution"},
+                        {**metadata,"bundle_sha256":"not-a-digest"},
+                        {**metadata,"evaluation":{key:value for key,value in evaluation.items() if key != "limitations"}}):
+            with self.subTest(keys=altered.keys()), self.assertRaises(AssertionError):
+                contract.validate_response("GET", path, 200, altered)
 
 
 class FakeBackend:

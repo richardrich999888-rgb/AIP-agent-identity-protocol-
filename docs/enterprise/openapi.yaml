@@ -9,7 +9,12 @@ info:
     results, but cannot mutate, retrieve raw packets or export bundles.
     Inventory describes identities named in stored agent-signed packets;
     it does not establish workload registration, independent identity or
-    observed execution. Historical collector archive admission requires
+    observed execution. Same-run admission reevaluates original signed authorization,
+    gateway receipt, collector archives and an optional signed reconciliation
+    under tenant/admin-configured anchors and a separately retained checkpoint.
+    Kernel findings, tool-boundary comparison and limitations remain separate;
+    filing does not establish live coverage or a business outcome.
+    Historical collector archive admission requires
     institution-configured observer anchors; current coverage and workload
     registry ingestion are not integrated. Signed protocol documents remain opaque to clients
     and must be verified with institution-held public anchors.
@@ -258,6 +263,159 @@ paths:
           description: Observer anchor no longer approved for this tenant
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/runs:
+    post:
+      operationId: submitRunBundle
+      x-contract-suite: same-run
+      summary: Reevaluate and file an immutable same-run bundle
+      description: >-
+        Machine or Admin only. AIP_RUN_TRUST_PATH is configured separately by
+        the administrator as {tenants:[{tenant_id,trust:RunTrustConfig}]}.
+        Configured trust binds agent, authority, gateway, observer and reconciler
+        public anchors and independently retained per-run archive SHA-256 values.
+        Caller-supplied trust, keys and checkpoints are not admitted. The existing
+        Rust evaluator verifies signed records, archive continuity/checkpoints,
+        health chronology, tool-boundary comparison and kernel reconciliation.
+        An included signed reconciliation must verify under the configured
+        reconciler anchor and match the recomputed canonical finding exactly.
+        Missing evidence retains explicit uncertainty. The exact submitted UTF-8
+        JSON bytes are filed in the existing tenant-scoped artifact store; the
+        domain-separated identifier includes tenant and bytes, so a byte-identical
+        resubmission is idempotent. run_id is a label, not a database uniqueness key.
+        This route has a 16 MiB serialized body cap; decoded archives together
+        have an 8 MiB cap and each has 1..2048 complete JSONL records. Other
+        endpoint body limits are unchanged. Admission creates no new signature.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RunBundle' }
+      responses:
+        '200':
+          description: Immutable inputs verified, evaluated and filed; read the findings and limitations
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunMetadata' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/runs/{run_artifact_id}:
+    get:
+      operationId: getRunBundle
+      x-contract-suite: same-run
+      summary: Retrieve the exact admitted run JSON for offline verification
+      description: >-
+        Machine or Admin only. Before returning the original bytes the service
+        verifies the stored digest and reevaluates the bundle under current
+        configured public anchors/checkpoints. Reader credentials cannot retrieve
+        raw archives or authorization inputs through this route.
+      parameters:
+        - { $ref: '#/components/parameters/RunArtifactId' }
+      responses:
+        '200':
+          description: Byte-identical original submitted JSON, including all signed records
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunBundle' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/runs/{run_artifact_id}/metadata:
+    get:
+      operationId: getRunMetadata
+      x-contract-suite: same-run
+      summary: Retrieve tenant-scoped same-run references and recomputed evaluation
+      parameters:
+        - { $ref: '#/components/parameters/RunArtifactId' }
+      responses:
+        '200':
+          description: Immutable input hashes and the current reevaluation under configured trust
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunMetadata' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/runs/{run_artifact_id}/evaluation:
+    get:
+      operationId: evaluateRun
+      x-contract-suite: same-run
+      summary: Recompute the run evaluation without signing or upgrading a verdict
+      description: >-
+        Reader access is permitted. verification_time_ms is the bundle's retained
+        historical evaluation time, not a live service-coverage assertion.
+        Kernel reconciliation, gateway disposition, timely authorization and
+        signed-document parameter agreement are separate findings. Logical
+        sub-agent attribution, independent administration and business outcomes
+        are not inferred from successful signatures or retrieval.
+      parameters:
+        - { $ref: '#/components/parameters/RunArtifactId' }
+      responses:
+        '200':
+          description: Existing Rust evaluator output, including incomplete-evidence findings
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunEvaluation' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/runs/{run_artifact_id}/verdict:
+    get:
+      operationId: getRunVerdict
+      x-contract-suite: same-run
+      summary: Retrieve the original verified signed reconciliation for this run
+      description: >-
+        Reader access is permitted. The configured reconciler signature must verify
+        and the complete canonical reconciliation must match reevaluation of this
+        run's original inputs. An absent signed reconciliation returns 404;
+        it is never replaced by an unsigned service-authored success document.
+        This is stricter admission than the existing submitter-anchored verdicts
+        filing route and adds no new cryptographic protocol.
+      parameters:
+        - { $ref: '#/components/parameters/RunArtifactId' }
+      responses:
+        '200':
+          description: Original signed protocol document, preserving the engine result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SignedReconciliation' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/agents/{agent_id}/runs:
+    get:
+      operationId: getAgentRuns
+      x-contract-suite: same-run
+      summary: List this tenant's admitted run metadata for the named agent
+      description: >-
+        Reader access is permitted. Every returned item is reevaluated under
+        configured trust. Listing stored run labels does not enroll a workload
+        or establish independently verified logical identity. A different tenant
+        sees an empty page. Unknown query fields and invalid pagination are refused.
+      parameters:
+        - { $ref: '#/components/parameters/AgentId' }
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Tenant-scoped run metadata in existing artifact-store order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunPage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 components:
   securitySchemes:
     bearerAuth:
@@ -288,7 +446,24 @@ components:
       in: path
       required: true
       schema: { type: string, pattern: '^[0-9a-fA-F]{64}$' }
+    RunArtifactId:
+      name: run_artifact_id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Sha256Hex' }
   responses:
+    Forbidden:
+      description: Reader attempted a restricted operation or tenant/agent trust is not approved
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    PayloadTooLarge:
+      description: Serialized request or decoded archive bound exceeded
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+        text/plain:
+          schema: { type: string }
     Unauthorized:
       description: Missing, malformed or unknown bearer credential
       content:
@@ -312,6 +487,112 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
   schemas:
+    Sha256Hex:
+      type: string
+      pattern: '^[0-9a-f]{64}$'
+    ExpectedExecution:
+      type: object
+      description: >-
+        Original signed authorization protocol document. Preserve all fields;
+        canonical encoding and verification remain in aip-authorize/src/expected.rs.
+      additionalProperties: true
+      x-rust-type: aip_authorize::ExpectedExecution
+    SignedToolReceipt:
+      type: object
+      description: >-
+        Original gateway-signed receipt. Preserve all fields; canonical encoding
+        and verification remain in aip-airi/src/receipt.rs. Forwarded does not
+        establish a downstream effect or banking outcome.
+      additionalProperties: true
+      x-rust-type: aip_airi::SignedToolReceipt
+    SignedReconciliation:
+      type: object
+      description: >-
+        Original signed reconciliation using the existing aip-reconcile protocol.
+        Preserve all protocol fields; the service creates no replacement signature.
+      required: [version, reconciler_id, key_version, reconciliation, attestation]
+      additionalProperties: true
+      x-rust-type: aip_reconcile::SignedReconciliation
+    RunBundle:
+      type: object
+      required: [run_id, agent_id, batches_jsonl, health_jsonl, verification_time_ms]
+      properties:
+        run_id: { $ref: '#/components/schemas/Identifier' }
+        agent_id: { $ref: '#/components/schemas/Identifier' }
+        expectation:
+          oneOf:
+            - { $ref: '#/components/schemas/ExpectedExecution' }
+            - { type: 'null' }
+        signed_receipt:
+          oneOf:
+            - { $ref: '#/components/schemas/SignedToolReceipt' }
+            - { type: 'null' }
+        signed_reconciliation:
+          oneOf:
+            - { $ref: '#/components/schemas/SignedReconciliation' }
+            - { type: 'null' }
+        batches_jsonl: { type: string, minLength: 1 }
+        health_jsonl: { type: string, minLength: 1 }
+        verification_time_ms: { type: integer, minimum: 0, maximum: 18446744073709551615 }
+      additionalProperties: false
+      description: >-
+        Exact input bytes are retained on admission. Archive strings contain signed
+        records, not file paths or caller-selected anchors. Size, record, signature,
+        checkpoint, chronology and process-binding rules are enforced by Rust.
+      x-rust-type: aip_mcp_gateway::assurance::RunBundle
+    RunEvaluation:
+      type: object
+      required: [run_id, agent_id, archive_integrity_verified, checkpoint_verified, authorization_verified, gateway_receipt_verified, signed_reconciliation_verified, receipt_within_authorization, gateway_disposition, reconciliation, tool_boundary, limitations]
+      properties:
+        run_id: { $ref: '#/components/schemas/Identifier' }
+        agent_id: { $ref: '#/components/schemas/Identifier' }
+        archive_integrity_verified: { type: boolean }
+        checkpoint_verified: { type: boolean }
+        authorization_verified: { type: boolean }
+        gateway_receipt_verified: { type: boolean }
+        signed_reconciliation_verified: { type: boolean }
+        receipt_within_authorization: { type: [boolean, 'null'] }
+        gateway_disposition: { enum: [Forwarded, Refused, Failed, null] }
+        reconciliation:
+          type: [object, 'null']
+          additionalProperties: true
+          x-rust-type: aip_reconcile::Reconciliation
+          description: Unchanged kernel-engine finding, separate from tool-boundary comparison.
+        tool_boundary:
+          type: [object, 'null']
+          additionalProperties: true
+          x-rust-type: aip_airi::ToolBoundary
+          description: Signed-document parameter comparison; it cannot upgrade the kernel finding.
+        limitations:
+          type: array
+          items: { type: string }
+      additionalProperties: false
+      x-rust-type: aip_mcp_gateway::assurance::RunEvaluation
+    RunMetadata:
+      type: object
+      required: [run_artifact_id, run_id, agent_id, bundle_sha256, batches_sha256, health_sha256, verification_scope, evaluation]
+      properties:
+        run_artifact_id: { $ref: '#/components/schemas/Sha256Hex' }
+        run_id: { $ref: '#/components/schemas/Identifier' }
+        agent_id: { $ref: '#/components/schemas/Identifier' }
+        bundle_sha256: { $ref: '#/components/schemas/Sha256Hex' }
+        batches_sha256: { $ref: '#/components/schemas/Sha256Hex' }
+        health_sha256: { $ref: '#/components/schemas/Sha256Hex' }
+        verification_scope: { const: same_run_evaluation }
+        evaluation: { $ref: '#/components/schemas/RunEvaluation' }
+      additionalProperties: false
+    RunPage:
+      type: object
+      required: [items, limit, offset, next_offset]
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/RunMetadata' }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0, maximum: 100000 }
+        next_offset: { type: [integer, 'null'], minimum: 1 }
+      additionalProperties: false
     ObservationArchive:
       type: object
       required: [observer_id, key_version, batches_jsonl, health_jsonl]

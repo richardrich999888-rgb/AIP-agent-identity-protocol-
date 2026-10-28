@@ -34,6 +34,20 @@ class SameRunControls(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'model tag changed'):
                 verify_model(models)
 
+    def test_v2_model_reference_cannot_escape_content_addressed_store(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            models = Path(temporary)
+            current = models / 'manifests-v2/ollama.com/library/llama3.2/1b'
+            current.parent.mkdir(parents=True)
+            outside = models / 'unexpected.json'
+            outside.write_text('{}')
+            (models / 'blobs').mkdir()
+            from prepare_local_model import MANIFEST_SHA256
+            (models/'blobs'/('sha256-'+MANIFEST_SHA256)).write_text('{}')
+            current.symlink_to(outside)
+            with self.assertRaisesRegex(ValueError,'does not reference the reviewed'):
+                verify_model(models)
+
     def test_actual_read_subprocess_preserves_database_and_returns_selected_document(self):
         with tempfile.TemporaryDirectory() as temporary:
             work = Path(temporary)
