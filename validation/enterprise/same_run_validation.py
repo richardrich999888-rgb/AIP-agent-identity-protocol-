@@ -695,6 +695,10 @@ def main():
             def unmount():
                 status=subprocess.run(['umount',str(workload)],cwd='/',capture_output=True,text=True,timeout=10)
                 if status.returncode:
+                    if shutil.which('fuser'):
+                        holders=subprocess.run(['fuser','-m',str(workload)],cwd='/',capture_output=True,text=True,timeout=10)
+                        save(public/'mount-busy.json',{'holder_pids':[int(value) for value in holders.stdout.split() if value.isdecimal()],
+                            'source_authority':'host_fuser_mount_reference_check','scope':'PIDs only; no command lines or credentials retained'})
                     # This fixed command reports only the public mount path;
                     # it cannot contain framework credentials.
                     raise Refused(f'umount exited {status.returncode}: {status.stderr.strip()[:512]}')

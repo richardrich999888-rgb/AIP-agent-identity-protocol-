@@ -311,6 +311,14 @@ impl SensorSet {
                 }
             }
 
+            // An exec can arrive after the first sched drain but before the
+            // connector drain. Its connector notification is then already in
+            // this batch while its earlier perf sample is still in the ring.
+            // Drain sched once more before the collector's strict same-batch
+            // comparison. This is bounded by the same per-sensor cap; a
+            // missing sample still produces Unverifiable, never a match.
+            drain_into_probe!(self.process, ingest_sched_event);
+
             // Integrity check for every open perf-tracepoint sensor, every
             // cycle, carried in the batch. A foreign eBPF program on a sampled
             // tracepoint suppresses events host-wide with no loss accounting;
