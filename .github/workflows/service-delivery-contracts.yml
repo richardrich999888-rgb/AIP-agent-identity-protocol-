@@ -1,0 +1,35 @@
+name: Enterprise service delivery contracts
+on:
+  pull_request:
+    paths:
+      - 'integrations/service_delivery/**'
+      - 'docs/enterprise/SERVICE_DELIVERY_MODEL.md'
+      - '.github/workflows/service-delivery-contracts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate service planner unit tests
+        run: python3 -B -m unittest discover -s integrations/service_delivery/tests -v
+      - name: Validate safe customer evaluation example
+        run: |
+          python3 -B integrations/service_delivery/service_onboard.py \
+            integrations/service_delivery/example.json \
+            --output /tmp/vanian-service-plan.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/vanian-service-plan.json'))
+          assert p['institutional_pilot']=='NOT_VERIFIED'
+          assert p['coverage'].startswith('UNAVAILABLE_')
+          assert p['service_planes']['PROTECT']['status']=='NOT_IMPLEMENTED'
+          PY
