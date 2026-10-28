@@ -34,3 +34,19 @@ CREATE TABLE IF NOT EXISTS authority_edges (
     relation   TEXT NOT NULL    -- Issues | Delegates | ActsUnder | Decides | Performs | Produces
 );
 CREATE INDEX IF NOT EXISTS idx_edges_tenant ON authority_edges(tenant_id);
+
+-- Existing signed verdicts, access ledgers and observation records. This is
+-- the same table used by aip-service's artifact store, not a second vault.
+CREATE TABLE IF NOT EXISTS signed_artifacts (
+    id            TEXT   NOT NULL,
+    kind          TEXT   NOT NULL,
+    tenant_id     TEXT   NOT NULL,
+    agent_id      TEXT,
+    from_ms       BIGINT,
+    to_ms         BIGINT,
+    stored_at_ms  BIGINT NOT NULL,
+    body          TEXT   NOT NULL,
+    PRIMARY KEY (kind, id)
+);
+CREATE INDEX IF NOT EXISTS idx_artifacts_tenant ON signed_artifacts(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_artifacts_agent  ON signed_artifacts(tenant_id, kind, agent_id);

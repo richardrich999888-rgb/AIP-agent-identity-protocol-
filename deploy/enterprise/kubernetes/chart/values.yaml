@@ -1,0 +1,19 @@
+# No pods are rendered without explicit enabling and approved immutable images.
+confirmSeparateAdministration: false
+probe:
+  enabled: false
+  image: ""
+  configMap: ""
+  nodeLabel: vanian-observed-host
+  # Host scope is intentional. Only sched/cgroup/sockstate/socksend/connector
+  # are permitted by this template; no fanotify or CAP_SYS_ADMIN.
+  statePath: /var/lib/aip-probe
+collector:
+  enabled: false
+  image: ""
+  configMap: ""
+  allowListConfigMap: ""
+  passphraseSecret: ""
+  nodeLabel: vanian-independent-collector
+  storageClass: ""
+  storageSize: 20Gi

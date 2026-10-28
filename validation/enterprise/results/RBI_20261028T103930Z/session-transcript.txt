@@ -1,0 +1,76 @@
+RBI evaluation session — rehearsal transcript
+2026-10-28T10:31:55Z
+Linux runnervmtai0g 6.17.0-1022-azure #22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+repo e9da413
+
+[36m== PRECONDITIONS — check these on the ACTUAL demo host, not only here[0m
+  [32mPASS[0m clock: synchronised (timedatectl NTPSynchronized=yes)
+  [32mPASS[0m tracefs available (the perf sensors can open)
+  [32mPASS[0m running as root
+
+[36m== Build[0m
+  [32mPASS[0m daemons and offline verifier built
+
+[36m== ACTS 1, 2 and 5 — full-system run (two daemons, live kernel, live attack)[0m
+       brief §14 promises: "the honest path, an interfered-with observer ... and offline verification"
+       running validation/pilot_e2e/run.sh: control -> attack -> recovery -> offline verify
+         [32mPASS[0m aip-probe, aip-collector, aip-observe-verify and the interferer built
+         [32mPASS[0m probe transport public key 4f1a3fab3facdbdf... written to the allow-list
+         [32mPASS[0m collector up on 127.0.0.1:43033; noise static public key 44cddfeea0353088...
+         [32mPASS[0m probe up, four kernel sensors open, connected over the confidential transport
+         [32mPASS[0m control: "Active" - no integrity failure claimed without an attack
+         [32mPASS[0m control: attested coverage present
+         [32mPASS[0m under attack: the COLLECTOR - other process, other key - signed IntegrityUnknown
+         [32mPASS[0m under attack: attested_coverage withdrawn; absence in this window proves nothing
+         [32mPASS[0m offline: every attested batch and health record verified under the published key alone
+         [32mPASS[0m negative control: one record deleted from the middle - refused, chain break named
+       [36m== DEMONSTRATED[0m
+       10 checks passed in the system run
+  [32mPASS[0m Act 1 honest path: observer Active, attested coverage present
+  [32mPASS[0m Act 2 interfered observer: collector signed IntegrityUnknown, coverage withdrawn
+  [32mPASS[0m Act 5 offline verification: separate process, two files, a public key
+
+[36m== ACT 3 — a refused unregistered destination (library-level)[0m
+       brief §14 promises: "a refused unregistered destination"
+       The decision point resolves every network destination against a registry
+       the institution's infrastructure owner SIGNED. An address that registry
+       never named is denied outright — DestinationUnregistered is a denial,
+       never a pass-through.
+       test a_named_resource_the_chain_never_granted_is_refused ... ok
+       test an_address_the_institution_never_named_is_refused_outright ... ok
+       test the_right_host_on_an_unnamed_port_is_still_unregistered ... ok
+  [32mPASS[0m Act 3: 11 resource-scoping assertions hold, including outright refusal of an unnamed address
+
+[36m== ACT 4 — a mis-parameterised tool call against a signed receipt (library-level)[0m
+       brief §14 promises: "a mis-parameterised tool call against a signed receipt"
+       The decision point seals the digest of the AUTHORISED arguments. The
+       gateway signs a receipt over its own recomputation of what it RECEIVED.
+       The two are compared. The decisive property: the finding stands with the
+       agent's own claim ABSENT from the evidence.
+       test a_receipt_signed_under_the_agents_key_is_refused ... ok
+       test a_misparameterised_call_diverges_and_does_not_rest_on_the_agents_account ... ok
+       test key_order_does_not_turn_an_honest_call_into_a_divergence ... ok
+       test the_authorised_call_agrees ... ok
+  [32mPASS[0m Act 4: 26 tool-boundary assertions hold, including divergence with no agent claim in evidence
+
+[36m== ACT 4b — the gateway signing a receipt, live[0m
+       receipt 1: tool=banking.transfer gateway=gateway.demo commitment=ca7640d27babb2001d61c5d3...
+       receipt 2: tool=banking.transfer gateway=gateway.demo commitment=71182423ba2d2360803ecfde...
+       the two calls committed to DIFFERENT parameters — which is what the
+       decision point's sealed digest is compared against
+  [32mPASS[0m Act 4b: the gateway signed a receipt per call, live, with its own key
+
+[36m== SESSION REHEARSAL RESULT[0m
+Brief §14 promises five demonstrations. This run covered:
+
+  1. the honest path .......................... pass (full system)
+  2. an interfered-with observer .............. pass (full system)
+  3. a refused unregistered destination ....... see Act 3 (library)
+  4. a mis-parameterised tool call ............ see Act 4 / 4b
+  5. offline verification by your side ........ pass (full system)
+
+Acts 3 and 4 are library-level and are labelled as such. The decision
+point and the tool boundary are libraries; the institution integrates
+them (blockers B9 and B10). Presenting them as a system demonstration
+would misrepresent what was shown.
+  [32mPASS[0m REHEARSED: all five promises demonstrated in one run

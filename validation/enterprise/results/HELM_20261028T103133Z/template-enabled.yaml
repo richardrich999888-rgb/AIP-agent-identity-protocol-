@@ -1,0 +1,160 @@
+---
+# Source: vanian-runtime/templates/runtime.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vanian-runtime-collector-state
+  annotations:
+    # Removing software must not remove evidence or collector key material.
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: "20Gi"
+---
+# Source: vanian-runtime/templates/runtime.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: vanian-runtime-collector
+spec:
+  selector:
+    app: vanian-runtime-collector
+  ports: [{name: transport, port: 8443, targetPort: transport}]
+---
+# Source: vanian-runtime/templates/runtime.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: vanian-runtime-probe
+  labels:
+    app.kubernetes.io/component: observer-only-probe
+spec:
+  selector:
+    matchLabels:
+      app: vanian-runtime-probe
+  template:
+    metadata:
+      labels:
+        app: vanian-runtime-probe
+      annotations:
+        vanian.example/validation: unvalidated-template
+    spec:
+      automountServiceAccountToken: false
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/os: linux
+        vanian.example/runtime-role: "vanian-observed-host"
+      containers:
+        - name: probe
+          image: "registry.example.invalid/vanian/probe@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+          command: ["/usr/local/bin/aip-probe"]
+          envFrom:
+            - configMapRef:
+                name: "probe-environment-fixture"
+          env:
+            - name: AIP_PROBE_SENSORS
+              value: sched,cgroup,sockstate,connector
+            - name: AIP_PROBE_KEY_PATH
+              value: /var/lib/aip-probe/transport.key.json
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            privileged: false
+            capabilities:
+              drop: ["ALL"]
+              add: ["PERFMON", "NET_ADMIN"]
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - {name: tracefs, mountPath: /sys/kernel/tracing, readOnly: true}
+            - {name: procfs, mountPath: /proc, readOnly: true}
+            - {name: cgroups, mountPath: /sys/fs/cgroup, readOnly: true}
+            - {name: state, mountPath: /var/lib/aip-probe}
+      volumes:
+        - name: tracefs
+          hostPath: {path: /sys/kernel/tracing, type: Directory}
+        - name: procfs
+          hostPath: {path: /proc, type: Directory}
+        - name: cgroups
+          hostPath: {path: /sys/fs/cgroup, type: Directory}
+        - name: state
+          hostPath:
+            path: "/var/lib/aip-probe"
+            type: DirectoryOrCreate
+---
+# Source: vanian-runtime/templates/runtime.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vanian-runtime-collector
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels:
+      app: vanian-runtime-collector
+  template:
+    metadata:
+      labels:
+        app: vanian-runtime-collector
+      annotations:
+        vanian.example/validation: unvalidated-template
+    spec:
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/os: linux
+        vanian.example/runtime-role: "vanian-independent-collector"
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: collector
+          image: "registry.example.invalid/vanian/collector@sha256:1111111111111111111111111111111111111111111111111111111111111111"
+          command: ["/usr/local/bin/aip-collector"]
+          envFrom:
+            - configMapRef:
+                name: "collector-environment-fixture"
+          env:
+            - {name: AIP_COLLECTOR_LISTEN, value: "0.0.0.0:8443"}
+            - {name: AIP_COLLECTOR_KEY_PATH, value: /var/lib/aip-collector/collector.key.wrapped}
+            - {name: AIP_COLLECTOR_NOISE_KEY_PATH, value: /var/lib/aip-collector/noise.key.json}
+            - {name: AIP_COLLECTOR_STATE_DIR, value: /var/lib/aip-collector/state}
+            - {name: AIP_COLLECTOR_PROBES_PATH, value: /etc/aip/probes.json}
+            - {name: AIP_COLLECTOR_PASSPHRASE_FILE, value: /run/secrets/collector-passphrase}
+            - {name: AIP_COLLECTOR_CONTINUITY, value: strict}
+            - {name: AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK, value: "1"}
+          ports: [{name: transport, containerPort: 8443}]
+          # Listener reachability only, never signed coverage or evidence health.
+          readinessProbe:
+            tcpSocket: {port: transport}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - {name: state, mountPath: /var/lib/aip-collector}
+            - {name: passphrase, mountPath: /run/secrets, readOnly: true}
+            - {name: probes, mountPath: /etc/aip, readOnly: true}
+      volumes:
+        - name: state
+          persistentVolumeClaim:
+            claimName: vanian-runtime-collector-state
+        - name: passphrase
+          secret:
+            secretName: "collector-passphrase-fixture"
+            defaultMode: 0440
+            items: [{key: collector-passphrase, path: collector-passphrase}]
+        - name: probes
+          configMap:
+            name: "approved-probes-fixture"

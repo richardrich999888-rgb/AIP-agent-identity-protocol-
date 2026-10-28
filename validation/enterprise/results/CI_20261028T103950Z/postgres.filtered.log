@@ -1,0 +1,36 @@
+# Selected public GitHub job-log records; original timestamps retained, ANSI formatting omitted.
+# Source: https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558568/job/122762762654
+# Both phases below belong to the same successful completed job. The first skipped controls; the second explicitly ran them.
+2026-10-28T10:29:49.3766693Z 16-alpine: Pulling from library/postgres
+2026-10-28T10:29:57.0268877Z Digest: sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab
+2026-10-28T10:30:05.2998259Z HEAD is now at 076b22c Merge e9da41314c3851a92388a8ce80f1db9a3a696520 into 5489260b96124b95a7973233e69d9e5a44cb6bf5
+2026-10-28T10:30:05.3096100Z 076b22c27d663a87dfd62d91df20583f417b383a
+2026-10-28T10:30:16.0967200Z ##[group]Run cargo clippy --all-targets --features postgres -- -D warnings
+2026-10-28T10:31:12.6937162Z ##[group]Run cargo test --features postgres --no-fail-fast
+2026-10-28T10:32:55.4259524Z running 14 tests
+2026-10-28T10:32:55.4278075Z test artifact_owner_cannot_rewrite_documents_or_delete_under_legal_hold ... ignored, needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored
+2026-10-28T10:32:55.4280434Z test concurrent_filings_are_idempotent_and_hidden_collisions_are_generic ... ignored, needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored
+2026-10-28T10:32:55.4282681Z test service_cannot_update_delete_or_truncate_signed_artifacts ... ignored, needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored
+2026-10-28T10:32:55.4284869Z test signed_artifact_reads_and_insertions_are_bound_to_the_database_tenant ... ignored, needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored
+2026-10-28T10:32:55.4296075Z test result: ok. 0 passed; 0 failed; 14 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T10:32:56.4379034Z ##[group]Run cargo test --features postgres --test storage_controls -- --ignored
+2026-10-28T10:32:56.5950466Z      Running tests/storage_controls.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/storage_controls-2ecb200143401631)
+2026-10-28T10:32:56.5978767Z running 14 tests
+2026-10-28T10:32:57.1678601Z test a_held_packet_cannot_be_deleted_even_by_the_owner ... ok
+2026-10-28T10:32:57.1680212Z test a_connection_with_no_declared_tenant_sees_nothing ... ok
+2026-10-28T10:32:57.2887571Z test a_query_that_forgets_its_tenant_filter_still_cannot_cross_tenants ... ok
+2026-10-28T10:32:57.2990801Z test a_retention_policy_below_the_180_day_floor_is_refused ... ok
+2026-10-28T10:32:57.4095860Z test a_write_into_another_tenant_is_refused_by_the_policy ... ok
+2026-10-28T10:32:57.5229493Z test a_tenant_wide_hold_covers_packets_it_never_named ... ok
+2026-10-28T10:32:57.6349133Z test artifact_owner_cannot_rewrite_documents_or_delete_under_legal_hold ... ok
+2026-10-28T10:32:57.7501816Z test service_cannot_update_delete_or_truncate_signed_artifacts ... ok
+2026-10-28T10:32:57.8590084Z test concurrent_filings_are_idempotent_and_hidden_collisions_are_generic ... ok
+2026-10-28T10:32:57.8734112Z test signed_artifact_reads_and_insertions_are_bound_to_the_database_tenant ... ok
+2026-10-28T10:32:57.9717110Z test the_service_role_cannot_delete_evidence ... ok
+2026-10-28T10:32:57.9843365Z test the_service_role_cannot_modify_stored_evidence ... ok
+2026-10-28T10:32:58.0826970Z test the_service_role_cannot_truncate_or_drop ... ok
+2026-10-28T10:32:58.2411859Z test the_store_operates_normally_as_the_restricted_role ... ok
+2026-10-28T10:32:58.2413244Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.64s
+2026-10-28T10:33:07.4091510Z  2026-10-28 10:29:58.766 UTC [1] LOG:  starting PostgreSQL 16.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-10-28T10:33:07.4158672Z  2026-10-28 10:32:57.745 UTC [331] ERROR:  permission denied for table signed_artifacts
+2026-10-28T10:33:07.4162829Z  2026-10-28 10:32:57.869 UTC [333] ERROR:  new row violates row-level security policy for table "signed_artifacts"

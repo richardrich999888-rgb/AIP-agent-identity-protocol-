@@ -9,6 +9,10 @@ description = "MCP tool-boundary gateway (R4/B10): countersigns every tools/call
 name = "aip-mcp-gateway"
 path = "src/bin/aip-mcp-gateway.rs"
 
+[[bin]]
+name = "aip-tool-receipt"
+path = "src/bin/aip-tool-receipt.rs"
+
 [dependencies]
 aip-airi = { path = "../aip-airi" }
 aip-authorize = { path = "../aip-authorize" }
