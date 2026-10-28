@@ -51,8 +51,9 @@ opt-in. No client logs record payloads or credentials.
 ## TypeScript
 
 `sdk/typescript/src/index.ts` exposes the corresponding typed read methods.
-This source distribution targets a TypeScript-aware bundler or Node 22.18+
-with native type stripping. It is private and has not been published to npm.
+The installable package exports compiled JavaScript and type declarations.
+It is private and has not been published to npm; see the engineering package
+build/install procedure below.
 Use institution trust configuration for Node TLS; never disable certificate
 verification. The real service integration tests exercise both clients.
 
@@ -82,3 +83,24 @@ tools. Input frames are limited to 64 KiB, outbound replies to 256 KiB with
 envelope allowance, pages to 25, calls to 120/minute and service calls are
 serialized. A changed tenant/role or revoked credential fails subsequent
 reads. The institutional service role remains the final authorization boundary.
+# SDK engineering packages
+
+The current Python wheel is `vanian_sdk-0.1.0-py3-none-any.whl` (module
+`vanian`); the TypeScript archive is `vanian-evidence-client-0.1.0.tgz`
+(`@vanian/evidence-client`). They remain unpublished engineering packages,
+subject to approved license terms, artifact approval and dependency review.
+
+Build the TypeScript package with `npm ci --prefix sdk/typescript`,
+`npm run build --prefix sdk/typescript`, then run `npm pack` from that directory.
+The pinned TypeScript 5.9.3 compiler produces `dist/index.js` and
+`dist/index.d.ts`. Package exports point to those files; `.ts` source is not
+used as a runtime dependency inside node_modules. An isolated install caught
+that earlier distribution defect; the retained failure and corrected install
+test are in the delivery validation archive. The real HTTP smoke also uses
+the compiled JavaScript.
+
+Install institution-approved artifacts with `python -m pip install
+/approved/vanian_sdk-0.1.0-py3-none-any.whl` or `npm install
+/approved/vanian-evidence-client-0.1.0.tgz`. Verify the artifact origin/digest
+before installation. These clients retrieve existing evidence; they do not
+provide independent execution observation.
