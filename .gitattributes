@@ -1,0 +1,3 @@
+# Preserve generated executable transcripts byte-for-byte, including Cargo's
+# trailing blank line. Source whitespace checks remain unchanged.
+validation/enterprise/results/**/*.log whitespace=-blank-at-eof

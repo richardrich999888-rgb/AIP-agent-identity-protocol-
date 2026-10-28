@@ -20,10 +20,12 @@ The monitored host and collector require separate administrative boundaries.
 Two containers sharing an administrator-controlled host do not establish that
 separation. Runtime observation operates without a customer SDK or MCP server.
 
-This package does not connect the collector's archive to the evidence API
-automatically. The existing authenticated evidence and verdict ingestion
-interfaces remain separate; submitting a verdict still requires the existing
-signed authorization, observation and reconciler trust anchors.
+This package does not synchronize the collector's archive to the evidence API
+automatically. A stable signed snapshot can be admitted through the new
+tenant-anchored `POST /v1/observations` path described in
+`docs/enterprise/BANK_INTEGRATION_GUIDE.md`. The existing signed-verdict
+filing interface remains separate; the complete same-run authorization,
+observation, receipt and reconciliation join is still an acceptance gate.
 
 Run the packaging and harness regressions from the repository root:
 

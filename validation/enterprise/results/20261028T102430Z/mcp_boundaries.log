@@ -1,0 +1,14 @@
+test_bounded_input_refuses_oversized_or_invalid_utf8_frames (__main__.McpBoundaries.test_bounded_input_refuses_oversized_or_invalid_utf8_frames) ... ok
+test_large_structured_payload_is_not_duplicated_in_text (__main__.McpBoundaries.test_large_structured_payload_is_not_duplicated_in_text) ... ok
+test_rate_limit_resets_after_window_and_never_reads_after_limit (__main__.McpBoundaries.test_rate_limit_resets_after_window_and_never_reads_after_limit) ... ok
+test_serialization_envelope_and_upstream_payload_limits_are_enforced (__main__.McpBoundaries.test_serialization_envelope_and_upstream_payload_limits_are_enforced) ... ok
+test_startup_requires_tenant_bound_reader_and_scope_changes_refuse_before_read (__main__.McpBoundaries.test_startup_requires_tenant_bound_reader_and_scope_changes_refuse_before_read) ... ok
+test_unsupported_tools_and_extra_tenant_arguments_are_refused (__main__.McpBoundaries.test_unsupported_tools_and_extra_tenant_arguments_are_refused) ... ok
+test_invalid_pagination_never_leaks_keyerror_or_accepts_an_invalid_cursor (__main__.TransportBoundaries.test_invalid_pagination_never_leaks_keyerror_or_accepts_an_invalid_cursor) ... ok
+test_truncated_chunk_get_retry_is_bounded_and_recovers (__main__.TransportBoundaries.test_truncated_chunk_get_retry_is_bounded_and_recovers) ... ok
+test_truncated_chunk_is_a_redacted_structured_transport_error (__main__.TransportBoundaries.test_truncated_chunk_is_a_redacted_structured_transport_error) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.635s
+
+OK
