@@ -27,3 +27,20 @@ A successful plan says `VALIDATED_PLANNING_INPUT_ONLY`, `NOT_VERIFIED` instituti
 3. Make SIEM forwarding and customer retention policies easy to configure under approved access controls.
 4. Complete one genuine model-backed same-run authorization/observation/gateway/reconciliation flow verified offline by the institution.
 5. Only then qualify optional network connectors, external guardrails and customer-managed cloud offering.
+
+## Read-only evidence posture report
+
+Once the institution has configured its existing `aip-service` API and a **Reader** credential, a security engineer can query its actual enrolled-record inventory and health without granting write or raw-export powers:
+
+```bash
+# Provide the URL and Reader token through the institution's secret manager.
+export VANIAN_BASE_URL=https://vanian.bank.internal
+# VANIAN_API_TOKEN must be injected from the approved credential source.
+python3 -B integrations/service_delivery/posture_report.py \
+  --ca-file /etc/institution/approved-ca.pem \
+  --out /secure/bank-evaluation-posture.json
+```
+
+The tool reuses the existing Python customer SDK (HTTPS, redirect refusal, bounded reads, credential callback). It reads `/v1/access`, the first paginated 25-record `/v1/agents` page, `/v1/coverage` and `/v1/health`. It **never** claims full-enterprise discovery or independent verification based on those API statements. It reports API-advertised health separately from unverified coverage and reports only agent IDs originating in stored EvidencePackets.
+
+It does not fetch transaction bodies or raw evidence. The output contains customer-specific agent identifiers and must remain under the institution's access/retention policy. Unit tests use an explicit API stub and are not live bank integration evidence.
