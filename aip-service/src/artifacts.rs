@@ -53,6 +53,8 @@ pub enum ArtifactKind {
     /// Original collector archive strings, verified before admission under
     /// the institution's configured tenant-bound observer anchors.
     ObserverArchive,
+    /// Immutable same-run input, reevaluated under tenant-configured anchors.
+    RunBundle,
 }
 
 impl ArtifactKind {
@@ -61,6 +63,7 @@ impl ArtifactKind {
             Self::Verdict => "verdict",
             Self::AccessLedger => "access_ledger",
             Self::ObserverArchive => "observer_archive",
+            Self::RunBundle => "run_bundle",
         }
     }
 
@@ -69,6 +72,7 @@ impl ArtifactKind {
             "verdict" => Some(Self::Verdict),
             "access_ledger" => Some(Self::AccessLedger),
             "observer_archive" => Some(Self::ObserverArchive),
+            "run_bundle" => Some(Self::RunBundle),
             _ => None,
         }
     }

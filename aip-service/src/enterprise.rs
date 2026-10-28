@@ -83,7 +83,10 @@ pub async fn scope_and_audit(
         ) && !calculation;
         let raw_evidence = matches!(
             route.as_str(),
-            "/v1/evidence/:id" | "/v1/evidence/:id/export" | "/v1/observations/:id"
+            "/v1/evidence/:id"
+                | "/v1/evidence/:id/export"
+                | "/v1/observations/:id"
+                | "/v1/runs/:id"
         );
         if p.role == Role::Reader && (mutation || raw_evidence) {
             tracing::info!(tenant = %p.tenant_id, key_id = %p.key_id, route, status = 403, "evidence access");

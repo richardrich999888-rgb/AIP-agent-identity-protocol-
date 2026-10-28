@@ -1,0 +1,91 @@
+name: Genuine same-run execution assurance
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'examples/bank-ai-execution-assurance/**'
+      - 'validation/enterprise/same_run*.py'
+      - 'validation/enterprise/prepare_local_model.py'
+      - 'validation/enterprise/run_*smoke*'
+      - 'aip-standalone/aip-mcp-gateway/**'
+      - 'aip-service/**'
+      - 'integrations/mcp-gateway/**'
+      - '.github/workflows/same-run-validation.yml'
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+jobs:
+  local-model-linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.13.6'
+      - name: Prepare disposable Linux capabilities and synchronized clock
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chrony auditd iproute2 iptables zstd
+          sudo systemctl restart chrony
+          sudo chronyc waitsync 30 0.1 0.0 2
+          sudo service auditd start
+          sudo auditctl -l | tee "$RUNNER_TEMP/same-run-audit-initial.txt"
+          if sudo auditctl -l | grep -Fxq -- '-a never,task'; then
+            sudo auditctl -d never,task
+          fi
+      - name: Prepare exact framework, gateway, independent clients and browser
+        run: |
+          git init "$RUNNER_TEMP/contextforge"
+          git -C "$RUNNER_TEMP/contextforge" remote add origin https://github.com/IBM/mcp-context-forge.git
+          git -C "$RUNNER_TEMP/contextforge" fetch --depth 1 origin ff6a566a4b5c098093db90bbb4d5df483e108026
+          git -C "$RUNNER_TEMP/contextforge" checkout --detach FETCH_HEAD
+          uv sync --project "$RUNNER_TEMP/contextforge" --locked --no-dev --no-install-project --python python3.12
+          uv venv --python python3.12 "$RUNNER_TEMP/bank-agent"
+          uv pip install --python "$RUNNER_TEMP/bank-agent/bin/python" -r examples/bank-ai-execution-assurance/requirements.lock
+          uv venv --python python3.12 "$RUNNER_TEMP/evidence-clients"
+          uv pip install --python "$RUNNER_TEMP/evidence-clients/bin/python" -r integrations/evidence-mcp/requirements.lock playwright==1.56.0
+          PLAYWRIGHT_BROWSERS_PATH="$RUNNER_TEMP/playwright" "$RUNNER_TEMP/evidence-clients/bin/python" -m playwright install --with-deps chromium
+      - name: Portable model/runtime/read-only tool boundaries
+        run: python -B validation/enterprise/same_run_controls_test.py
+      - name: Provision public pinned CPU model (no API credentials or cloud spending)
+        run: |
+          python validation/enterprise/prepare_local_model.py --root "$RUNNER_TEMP/local-model"
+          df -h "$RUNNER_TEMP"
+      - name: Build existing observer, authority, verifier and enterprise service
+        run: |
+          cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate -p aip-mcp-gateway --bin aip-probe --bin aip-collector --bin aip-observe-verify --bin aip-corroborate --bin aip-tool-receipt --bin aip-execution-assurance -p airon-aip --bin airon-aip
+      - name: Execute genuine agent and verify the same actual evidence through all clients
+        run: |
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/playwright" \
+            "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
+            --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
+            --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
+            --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
+            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run" --browser
+      - name: Preserve only public same-run evidence and independent public anchors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: same-run-evidence-${{ github.run_id }}
+          retention-days: 30
+          path: |
+            ${{ runner.temp }}/same-run/public/
+            ${{ runner.temp }}/same-run/observer-anchor.json
+            ${{ runner.temp }}/same-run/checkpoint.json
+            ${{ runner.temp }}/same-run/run-trust.json
+            ${{ runner.temp }}/local-model/model-pin.json
+            ${{ runner.temp }}/local-model/model-manifest-layout.json
+            ${{ runner.temp }}/same-run-audit-initial.txt

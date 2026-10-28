@@ -216,6 +216,12 @@ async fn main() {
         "AIP v2 state loaded"
     );
 
+    let run_trust =
+        airon_aip::runs::RunTrustStore::load(std::env::var("AIP_RUN_TRUST_PATH").ok().as_deref())
+            .unwrap_or_else(|e| {
+                eprintln!("aip-service: same-run trust configuration: {e}");
+                std::process::exit(1)
+            });
     let state = Arc::new(AppState {
         encoding_key,
         decoding_key,
@@ -233,6 +239,7 @@ async fn main() {
         metrics: Arc::new(Default::default()),
         managed_signing,
         observer_trust,
+        run_trust,
     });
 
     let addr = format!("0.0.0.0:{port}");

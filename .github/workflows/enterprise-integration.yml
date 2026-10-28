@@ -76,6 +76,7 @@ jobs:
           export VANIAN_REGISTRY_SMOKE="$GITHUB_WORKSPACE/validation/enterprise/registry_smoke.py"
           export VANIAN_REGISTRY_PYTHON="$AIP_ENTERPRISE_PYTHON"
           cargo test --locked -p airon-aip --test deployment_api real_http_registry_clients -- --ignored --nocapture
+          cargo test --locked -p airon-aip --test enterprise_api real_same_run_clients_use_the_service_boundary -- --ignored --nocapture
       - name: Build verifiable Linux package
         run: |
           cargo build --locked --release -p aip-probe --bin aip-probe -p aip-collector --bin aip-collector -p aip-observe-verify --bin aip-observe-verify
@@ -87,6 +88,12 @@ jobs:
           python deploy/enterprise/linux/deb.py --archive dist/vanian-runtime-x86_64-linux.tar --expected-sha256 "$runtime_digest" --role collector --version 0.4.0~eval.1 --output dist/vanian-evidence-collector_0.4.0-eval_amd64.deb
           sha256sum dist/*.deb > dist/DEB_SHA256SUMS
           sha256sum dist/vanian-runtime-x86_64-linux.tar > dist/SHA256SUMS
+      - name: Actual Linux executable package install/uninstall/reinstall (staging only)
+        run: |
+          python validation/enterprise/package_lifecycle.py \
+            --archive dist/vanian-runtime-x86_64-linux.tar \
+            --expected-sha256 "$(cut -d ' ' -f 1 dist/SHA256SUMS)" \
+            --output dist/package-lifecycle
       - uses: actions/upload-artifact@v4
         with:
           name: enterprise-linux-runtime-${{ github.sha }}
@@ -112,9 +119,10 @@ jobs:
           git clone https://github.com/IBM/mcp-context-forge.git "$RUNNER_TEMP/contextforge"
           git -C "$RUNNER_TEMP/contextforge" checkout ff6a566a4b5c098093db90bbb4d5df483e108026
           uv sync --project "$RUNNER_TEMP/contextforge" --locked --no-dev --no-install-project --python python3.12
-          cargo build --locked -p aip-mcp-gateway --bin aip-tool-receipt --example contextforge_fixture
+          cargo build --locked -p aip-mcp-gateway --bin aip-tool-receipt --bin aip-execution-assurance --example contextforge_fixture
       - name: Actual gateway and upstream interoperability
         run: |
+          "$RUNNER_TEMP/contextforge/.venv/bin/python" integrations/mcp-gateway/test_authorization_policy.py
           "$RUNNER_TEMP/contextforge/.venv/bin/python" integrations/mcp-gateway/validate_contextforge.py --contextforge-source "$RUNNER_TEMP/contextforge" --signer-binary target/debug/aip-tool-receipt --output "$RUNNER_TEMP/contextforge-results"
       - uses: actions/upload-artifact@v4
         if: always()
