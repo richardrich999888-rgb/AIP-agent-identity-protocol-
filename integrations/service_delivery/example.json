@@ -1,0 +1,17 @@
+{
+  "schema_version": "vanian.enterprise-service.v1",
+  "tenant_id": "bank-evaluation",
+  "deployment_name": "loan-agent-evaluation",
+  "deployment_mode": "customer_on_prem",
+  "agent_hosts": [
+    {"host_id": "agent-linux-01", "admin_group": "agent-platform", "os": "linux"}
+  ],
+  "collector": {"host_id": "evidence-linux-01", "admin_group": "security-audit", "key_custody": "wrapped_file"},
+  "integrations": {
+    "linux_probe": true, "contextforge": true, "evidence_api": true,
+    "python_sdk": true, "typescript_sdk": false, "evidence_mcp": true,
+    "siem_cef": false, "network_connector": false, "inline_guardrails": false
+  },
+  "safety": {"mode": "observer_only", "transaction_gating": false, "automatic_containment": false},
+  "data_policy": {"residency": "customer_controlled", "capture_prompts": false, "capture_transaction_payloads": false}
+}
