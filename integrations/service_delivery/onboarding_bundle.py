@@ -78,7 +78,7 @@ def prepare(args):
                 "transport_public_key_hex": enrollment[host["host_id"]]["transport_pubkey_hex"],
                 "logical_agent_ids": []} for host in manifest["agent_hosts"]],
             "collector": {"host_id": manifest["collector"]["host_id"], "admin_group": manifest["collector"]["admin_group"],
-                "observer_id": collector["AIP_COLLECTOR_OBSERVER_ID"], "noise_public_key_hex": next(iter(pins))},
+                "observer_id": collector["AIP_COLLECTOR_OBSERVER_ID"], "noise_public_key_hex": next(iter(pins)).lower()},
             "retention_days_requested": args.retention_days,
             "contextforge": manifest["integrations"]["contextforge"], "evidence_mcp": manifest["integrations"]["evidence_mcp"]}),
         "requested-retention.json": runtime.canonical({"days": args.retention_days,

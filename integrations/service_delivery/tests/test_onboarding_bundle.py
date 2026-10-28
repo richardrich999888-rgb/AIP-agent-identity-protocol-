@@ -92,6 +92,16 @@ class OnboardingBundle(unittest.TestCase):
         self.assertEqual(policy["enforcement"], "NOT_CONFIGURED_BY_THIS_TOOL")
         self.assertFalse(any("private_hex" in p.read_text() for p in out.rglob("*") if p.is_file()))
 
+    def test_native_uppercase_pin_exports_same_key_in_registry_wire_format(self):
+        text = self.probe.read_text()
+        name = "AIP_PROBE_COLLECTOR_NOISE_PUBKEY="
+        original = next(line.split("=", 1)[1] for line in text.splitlines() if line.startswith(name))
+        self.probe.write_text(text.replace(name + original, name + original.upper()))
+        self.prepare()
+        registration = json.loads((self.work / "output/deployment-registration.json").read_text())
+        self.assertEqual(registration["collector"]["noise_public_key_hex"], original.lower())
+        self.assertEqual(bytes.fromhex(registration["collector"]["noise_public_key_hex"]), bytes.fromhex(original))
+
     def test_missing_or_duplicate_host_config_refused(self):
         for values in ([], self.args().probe_config * 2):
             args = self.args()
