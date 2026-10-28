@@ -23,4 +23,3 @@ The final lab contains genuine model/tool traffic and gateway signatures but tes
 Evidence hashes in the archive manifest detect changed bytes only when the manifest is independently retained. They are not new observer signatures. Offline receipt verification trusts an externally supplied public anchor; the co-located lab anchor demonstrates reproducibility, not third-party identity validation.
 
 Tetragon, Falco and auditd remain comparison candidates. Shared Linux kernel/capability failures must be recorded. Never feed a reconciliation output back into either source and call the resulting agreement independent corroboration.
-

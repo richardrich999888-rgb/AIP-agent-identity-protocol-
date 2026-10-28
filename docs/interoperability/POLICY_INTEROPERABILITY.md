@@ -11,4 +11,3 @@ The real OPA 1.21.4 mTLS test executed allow, deny and missing-client-certificat
 Microsoft ACS invokes its existing Rego evaluator; the bridge records its result, transformations, warnings, approvals and original/enforced input identities. It does not implement a second evaluator. The initial unavailable-executable failure blocked execution and was not recorded as approval.
 
 Cedar's typed principal/action/resource/context model and OpenFGA's relationship tuples require separate adapters preserving native diagnostics, conditions, authorization model IDs and consistency semantics. They are evaluated, NOT_EXECUTED, and deliberately deferred until the reference same-run chain is complete. Relationship checks such as organization→agent, owner→agent, agent→tool/resource and parent→child do not by themselves authenticate a delegated execution. Removing a relationship is not proof that an already-issued bearer credential was revoked.
-

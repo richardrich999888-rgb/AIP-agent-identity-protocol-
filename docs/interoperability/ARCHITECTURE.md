@@ -34,4 +34,3 @@ The offline Rust composition accepts native signed evidence only, with assessor-
 Institutions retain their IdP, policy engine, gateway, collector, trust anchors and evidence service. No VANIAN-operated central service is required. The initial banking deployment remains observer-only and non-gating. The ADK telemetry hook counts/logs lost events without altering tool outcomes. Upstream governance can still enforce its own configured policy.
 
 Existing enterprise API/SDK routes expose native evidence. This increment does **not** add external-reference ingestion or present these lab records as admitted enterprise evidence. Admission, tenant authorization and source validation remain a production gap. See [PRODUCTION_GAPS.md](PRODUCTION_GAPS.md).
-

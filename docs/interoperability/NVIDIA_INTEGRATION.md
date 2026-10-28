@@ -11,4 +11,3 @@ Imported JSON is UNVERIFIED_IMPORT. No producer signature or collector identity 
 The managed host has no container runtime, usable BPF capabilities or kernel BTF. We did not install a sandbox onto customer infrastructure, simulate its runtime output or call fixture OCSF a live workload. A real isolated deployment must exercise allowed and denied file/network operations, lifecycle/restart, policy updates, missing coverage and sensor degradation before promotion.
 
 NeMo Guardrails supplies application governance decisions and configurable rails. Any future hook must preserve input/output/tool rejection and inconclusive evaluation without converting them into OS facts. NeMo Agent Toolkit already provides framework/tool/workflow instrumentation and telemetry; a future correlation bridge should consume those identifiers rather than duplicate profiling. No executable adapter was added merely to increase integration count.
-

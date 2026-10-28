@@ -15,4 +15,3 @@ Existing `aip-spiffe` compares registry and runtime executable measurements. It 
 The A2A lab has ephemeral local PKI under one administrator. It exercises real TLS and JWT verification, not organizational separation. Its two logical agents share one process. Their framework names cannot prove separate kernel attribution.
 
 OpenA2A AIP is an independent proposal, unrelated to VANIAN AIP. Its inspected specification and Internet-Draft are not an approved IETF standard. No acronym-based wire compatibility or trust-score translation is implemented. Sources and pins are in [ECOSYSTEM_MATRIX.md](ECOSYSTEM_MATRIX.md).
-

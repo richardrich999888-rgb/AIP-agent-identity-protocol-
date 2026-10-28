@@ -21,4 +21,3 @@ Live negatives cover absent client certificate, absent bearer, wrong audience an
 Follow [the package README](../../integrations/interoperability/README.md). The final combined workload and public gateway receipts are under `validation/interoperability/results/20261028/combined/`. It runs two real model-driven ADK agents. It does not establish two independent organizations or remote sensor access.
 
 The official [A2A TCK](https://github.com/a2aproject/a2a-tck) was identified separately. Its pinned compatibility/coverage assessment is recorded in the upstream lock. It was not substituted with this adapter's unit tests.
-

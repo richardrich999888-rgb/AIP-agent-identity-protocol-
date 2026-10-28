@@ -11,4 +11,3 @@ The local Qwen model performs four genuine inference calls. No fixed response, s
 Both logical agents run within one process. No trustworthy kernel boundary distinguishes their individual execution. A callback correlation is FRAMEWORK_REPORTED and not a verified `ExecutionBinding`. Local mTLS verifies the test endpoints and credentials, not institutional ownership.
 
 Multi-agent session/task metadata is demonstrated. ADK confirmation/approval flows, arbitrary workflow types, provider-specific cloud models and all MCP/A2A transport combinations are not validated. The supported extension points do not make the full end-to-end acceptance gate green. Reproduction and evidence links are in [VALIDATION_REPORT.md](VALIDATION_REPORT.md).
-

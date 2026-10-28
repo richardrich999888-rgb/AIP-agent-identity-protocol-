@@ -72,4 +72,3 @@ cargo run --locked -p aip-airi --example interop_verify -- \
 The bundled lab public anchor can reproduce receipt verification. Establish its authority independently before relying on it. The Rust example accepts ExpectedExecution, optional SignedToolReceipt and optional attested batches/health; see its explicit JSON structs. Signature verification is separate from authority-chain assessment and execution reconciliation.
 
 See [architecture](../../docs/interoperability/ARCHITECTURE.md), [validation](../../docs/interoperability/VALIDATION_REPORT.md), and [production gaps](../../docs/interoperability/PRODUCTION_GAPS.md). This is not an advertised production support matrix.
-

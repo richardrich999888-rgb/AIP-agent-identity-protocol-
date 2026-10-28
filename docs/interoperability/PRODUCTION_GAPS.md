@@ -22,4 +22,3 @@ Use existing `deploy/pilot/` and `deploy/enterprise/` procedures for customer co
 CycloneDX mapping is proposed, not standardized AIBOM: use native components/services/dependencies, supported model cards/external references, and namespaced properties for VANIAN claim status/evidence links. Retain DECLARED, DISCOVERED, AUTHENTICATED, INDEPENDENTLY_OBSERVED, VERIFIED and UNKNOWN per claim; validate against an exact upstream schema before exporting. No custom field is represented as an official CycloneDX extension.
 
 No vendor, foundation, banking regulator, UPI/NPCI or government endorsement is asserted. Interoperability is the architectural analogy; no marketplace, token/payment network or central proprietary trust authority is introduced.
-

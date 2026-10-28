@@ -13,4 +13,3 @@ In the test the ACS hook runs in the workload process and OPA is a local child e
 Microsoft supplies the implemented governance controls. VANIAN reuses gateway signatures and adds separately qualified evidence references; independent kernel observation remains absent. Agent Mesh identities, all framework integrations, gateway enforcement and the toolkit's entire audit subsystem were not executed.
 
 Failure history is retained: an incorrect OPA executable environment setting produced a native blocked verdict; native tuple-valued warnings initially required JSON-container normalization. Neither failure was converted into successful governance.
-
