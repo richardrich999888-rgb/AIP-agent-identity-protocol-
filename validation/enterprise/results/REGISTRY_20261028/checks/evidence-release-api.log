@@ -1,0 +1,19 @@
+   Compiling airon-aip v0.2.0 (/workspace/scratch/749b2e514413/vanian/aip-service)
+    Finished `release` profile [optimized] target(s) in 2.55s
+     Running tests/enterprise_api.rs (target/release/deps/enterprise_api-98034aa7feea5aac)
+
+running 11 tests
+test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener
+test service_readiness_refuses_an_unavailable_artifact_path_without_creating_files ... ok
+test stored_verification_detects_actual_post_signature_tampering ... ok
+test unconfigured_collector_admission_is_unavailable_and_caller_anchors_are_refused ... ok
+test explicitly_shared_observer_anchors_keep_each_tenants_archive_index_private ... ok
+test accepted_collector_archives_survive_a_service_store_restart ... ok
+test pagination_is_bounded_and_agent_claims_are_not_upgraded_into_observation ... ok
+test read_routes_authenticate_and_cross_tenant_ids_are_indistinguishable_from_absent ... ok
+test console_shell_is_public_but_contains_no_records_and_data_stays_authenticated ... ok
+test reader_refuses_every_mutation_and_raw_export_before_parsing_the_body ... ok
+test collector_archives_are_verified_stored_idempotently_and_tenant_scoped ... ok
+
+test result: ok. 10 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

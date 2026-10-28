@@ -70,12 +70,17 @@ class OpenAPIContract:
             source,
         )
         implemented = {(method.upper(), _normalized(path)) for path, method, _ in matches}
+        # A MethodRouter may add a second operation with get(...).post(...).
+        for match in re.finditer(r'\.route\(\s*"([^"\n]+)"\s*,\s*(?:get|post)\(\s*[\w:]+', source):
+            chained = re.match(r'\)\s*\.(get|post|put|patch|delete|head|options)\(\s*[\w:]+\s*\)', source[match.end():])
+            if chained:
+                implemented.add((chained.group(1).upper(), _normalized(match.group(1))))
         documented = {(method, _normalized(path)) for method, path in self.operations}
         missing = documented - implemented
         assert not missing, "OpenAPI documents routes/methods absent from the Rust router: " + repr(sorted(missing))
         new_service_reads = {
             (method.upper(), _normalized(path)) for path, method, handler in matches
-            if method == "get" and handler.startswith(("enterprise::", "observations::"))
+            if method == "get" and handler.startswith(("enterprise::", "observations::", "deployments::"))
         }
         assert not new_service_reads - documented, "enterprise read route is missing from OpenAPI"
         identifiers = [operation["operationId"] for operation in self.operations.values()]
@@ -148,6 +153,17 @@ def validate_live_reads(reader, other_tenant_reader, writer, *, evidence_id, age
         covered.add(("GET", contract.operation("GET", path)[0]))
         status, payload, content_type = _get(caller, path, authenticated=False)
         assert status == 401, "unauthenticated contract request was not refused"
+        contract.validate_response("GET", path, status, payload, content_type)
+    # This fixture deliberately uses the default router: configuration
+    # registration is disabled and must not silently fall back to RAM. The
+    # registry-specific HTTP fixture separately exercises enabled success.
+    for path in ("/v1/deployments", "/v1/deployments/not-configured"):
+        status, payload, content_type = _get(reader, path)
+        assert status == 503, "registry unexpectedly enabled by the default router"
+        contract.validate_response("GET", path, status, payload, content_type)
+        covered.add(("GET", contract.operation("GET", path)[0]))
+        status, payload, content_type = _get(reader, path, authenticated=False)
+        assert status == 401, "unauthenticated registry read was not refused"
         contract.validate_response("GET", path, status, payload, content_type)
     documented_gets = {key for key in contract.operations if key[0] == "GET"}
     assert covered == documented_gets, "a documented read operation has no live contract case"

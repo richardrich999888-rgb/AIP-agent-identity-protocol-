@@ -1,5 +1,109 @@
 # Enterprise integration validation — 28 October 2026
 
+## Administrator configuration registration
+
+Implementation `b9eb4bd6de2a26842b869490af15c24927024fcc` extends the existing
+service; `f0966992c5b9eb0b902314af38d3aee7eb36ca8b` normalizes exported public
+pin text without changing key bytes. Base was
+`d030fbf5e717cb690847ab2f056a8c189f4c7ca5`. Exact source hashes, commands,
+logs, initial failures, build hashes and limits are in
+`validation/enterprise/results/REGISTRY_20261028/`. No new third-party runtime
+dependency or cryptographic document format is introduced.
+
+| Check | Executed result and scope |
+|---|---|
+| Scoped Rust debug | 55 service library + 7 registry API + 10 evidence API passed; 2 live fixtures ignored here and explicitly executed separately |
+| Scoped Rust release | 2 registry library + 7 registry API + 10 evidence API passed; the same 2 live fixtures ignored in this profile |
+| Registry real HTTP | Python Admin registration, 8 simultaneous identical resubmissions, both SDKs, OpenAPI, role refusals, tenant hiding, conflict refusal and unchanged unavailable coverage passed |
+| Existing evidence real HTTP | Both SDKs, official restricted MCP client, real native signed protocol fixtures, integrity verification, tenant refusals and posture passed; no new kernel run |
+| Client and onboarding suites | Python SDK 78; TypeScript 3; planner/kit 35; MCP boundaries 9; RBI control-flow 17; SQL source parity 1 passed. Counts overlap |
+| Distribution | Python wheel and compiled JavaScript/declarations archive built; fresh isolated installs/imports exposed all three registry methods. No package registry publication |
+| Static checks | Service Clippy all targets/features with warnings denied, workspace formatting, TypeScript build and console JavaScript syntax passed |
+| Preservation and offline verification | All 59 previously recorded delivery-archive digests unchanged; all 28 retained gateway receipts verify and altered commitment is refused; historical observer mutation regression passed under its stated checkpoint limits |
+| Browser | Updated HTML/JavaScript served by the real service; interactive/visual registry-section validation NOT_EXECUTED |
+
+The initial wire-schema test found duplicate YAML anchors in the new fragments;
+the corrected schemas use no fragment aliases. The existing exhaustive GET test
+then found missing coverage for the optional routes; it now checks their default
+503 and unauthenticated 401, while the new fixture checks enabled success. Initial
+packaging/boundary invocations also stopped on missing build tools/module path;
+the corrected pinned environments pass. Original failures remain in `checks/`.
+
+The registered journal is **unsigned operator-controlled configuration**. API
+authentication establishes the registering credential's tenant/role only. It
+does not verify public-key possession, actual administrator separation or a
+logical-agent/workload binding. Registration never changes observation anchors,
+grants execution authority, admits evidence, enforces retention or upgrades
+assurance. Read the single-process JSONL capacity and recovery limits in
+[onboarding](CUSTOMER_ONBOARDING.md). Its file/append/restart controls are not
+power-loss, HA or institutional capacity qualification.
+
+At registry implementation commit `b9eb4bd`, all ten remote jobs failed with
+runner ID 0 and no steps. No remote tests executed; the provider cause is absent
+from the retrieved metadata. `ci-attempt.json` retains the exact run/job records.
+Fresh local preflight remains blocked by unavailable process binding, BPF/perf,
+BTF/tracepoints and Unix sockets. No second administered collector, clean systemd
+install, new model run, PostgreSQL runtime revalidation or complete same-run
+institutional-authority/kernel/gateway reconciliation is established. The first
+commercial execution-assurance milestone remains incomplete.
+
+The updated engineering kit retains unchanged native evaluation DEBs/runtime,
+new SDK builds, revised customer instructions and a **non-deployable lab**
+registration example. Its exact digest and source attribution are in
+`download-artifact.json`. It remains unsigned and unpublished; distribution
+terms, full dependency notices/security review and release approval remain open.
+
+## Service-delivery continuation on Linux
+
+Current delivery code: `a23798dbd6f90c81b365f339430ed9c42bccde08`.
+Native runtime artifact source: `5875ba2b1912d0d3f9030e061988dd980b38380d`.
+Integration merge `0569e8a57c7be3c514f636f6e588df5ba4b6bdcf` preserves PR #9
+and PR #10 as parents; #9 already retains #6/#7/#8. Discovery was recorded
+before development in `DELIVERY_INVENTORY.md`. Older results below retain
+their original host, dates and scope.
+
+New reproducible evidence is under
+`validation/enterprise/results/DELIVERY_20261028/`: exact source hashes,
+artifact inventories, dependency declarations, logs, live model/gateway
+records, public signing anchor, receipts, offline comparisons and a report.
+The actual x86_64 release tar and separate probe/collector DEBs were built;
+identical DEB inputs reproduce identical bytes. Package checks exercised
+extraction and staged configuration only, not clean-host installation.
+
+Executed: 6 enrollment cases in each debug/release profile; 60 scoped native
+library release tests; 13 DEB/container-input tests; 33 onboarding/planner tests;
+16 original tar tests; 10 API contracts plus 1 explicitly executed actual HTTP
+test with both SDKs, official MCP client, tenant refusals and the #10 posture
+report; 76 Python SDK, 2 TypeScript, 9 MCP boundary, 17 RBI control-flow and
+1 SQL-source-parity tests. Suite totals overlap. Full-workspace Clippy and
+formatting passed. The Python wheel and private TypeScript tgz were built and
+installed/imported in isolated environments; no registry release was published.
+The initial TypeScript archive failed installed import because Node refuses
+type stripping in node_modules. This exposed a distribution defect that source
+tests missed. The corrected package ships JavaScript/declarations from locked
+TypeScript 5.9.3; isolated import and actual HTTP retrieval now pass. The
+original failure is retained alongside the corrected results.
+
+A fresh genuine ADK/A2A/model/ContextForge run produced four model generations
+and 28 verified gateway receipts, passed 28 gateway checks and five live
+auth/governance negatives, and matched native ACS-reported input to its signed
+gateway request offline. That run is **not** joined to the separate HTTP test
+fixtures, historical observer data or fixture comparator authorizations.
+
+The requested first commercial milestone remains **incomplete**. Fresh host
+preflight failed: process metadata, sensor capabilities, BTF/tracepoints and
+Unix sockets are unavailable. No separately administered collector host,
+same-run kernel evidence or institutional authorization is established.
+Clean systemd install/upgrade/removal, Docker/cluster execution, PostgreSQL
+runtime revalidation, capacity/recovery, complete standardized SBOM/security
+clearance and external assessment remain unexecuted. Distribution license
+terms and release signing/approval remain open. The earlier full-workspace
+test failures remain disclosed; scoped tests do not override them.
+
+At code commit `5875ba2`, all ten GitHub jobs failed before runner allocation
+or steps. Exact run/job records are in the new `ci-attempt.json`. No remote
+test execution or cause beyond the available provider evidence is claimed.
+
 Source implementation: feature branch `feature/snifferdog-enterprise-integration`;
 committed customer interface baseline `cdbd91781ac74e206f50131db20a755f91eadb29`
 (also recorded in the retained final check report). Initial base `3a029aec83fa2aa57ea8bb0a2c28968f3be037a4` preserves

@@ -1,6 +1,6 @@
 # Customer clients and optional evidence MCP
 
-The customer SDK reads the implemented `/v1` service contract in
+The customer SDK reads the implemented `/v1` service contract and supports optional Admin deployment configuration registration in
 `openapi.yaml`. It is separate from `sdk/python/vanian_airi`, which emits
 application telemetry. Neither SDK is required by the runtime sensor or is an
 independent observation authority.
@@ -43,6 +43,14 @@ Methods: `access`, `list_agents`, `iter_agents`, `get_agent`,
 `get_coverage`, `get_health`. Pages have `items`, `limit`, `offset`,
 `next_offset`. `ApiError` exposes redacted `status` and `code`.
 
+Optional configuration methods are `list_deployments`, `get_deployment` and
+Admin-only `register_deployment`. They require the operator-enabled registry
+described in [onboarding](CUSTOMER_ONBOARDING.md). Registration takes the kit's
+`deployment-registration.json`; responses retain explicit unassessed execution,
+identity and coverage fields. It neither admits nor edits signed evidence.
+There are no automatic POST retries, including after a timeout or 503. Query
+the immutable name before an operator chooses to resubmit.
+
 TLS validation stays enabled, redirects are refused, timeouts and response
 sizes are bounded, only GETs are retried and the credential callback is
 re-evaluated for rotation. Plain HTTP is restricted to explicit loopback test
@@ -50,9 +58,11 @@ opt-in. No client logs record payloads or credentials.
 
 ## TypeScript
 
-`sdk/typescript/src/index.ts` exposes the corresponding typed read methods.
-This source distribution targets a TypeScript-aware bundler or Node 22.18+
-with native type stripping. It is private and has not been published to npm.
+`sdk/typescript/src/index.ts` exposes the corresponding typed read methods and
+`listDeployments`, `getDeployment`, `registerDeployment` configuration methods.
+The installable package exports compiled JavaScript and type declarations.
+It is private and has not been published to npm; see the engineering package
+build/install procedure below.
 Use institution trust configuration for Node TLS; never disable certificate
 verification. The real service integration tests exercise both clients.
 
@@ -82,3 +92,24 @@ tools. Input frames are limited to 64 KiB, outbound replies to 256 KiB with
 envelope allowance, pages to 25, calls to 120/minute and service calls are
 serialized. A changed tenant/role or revoked credential fails subsequent
 reads. The institutional service role remains the final authorization boundary.
+# SDK engineering packages
+
+The current Python wheel is `vanian_sdk-0.1.0-py3-none-any.whl` (module
+`vanian`); the TypeScript archive is `vanian-evidence-client-0.1.0.tgz`
+(`@vanian/evidence-client`). They remain unpublished engineering packages,
+subject to approved license terms, artifact approval and dependency review.
+
+Build the TypeScript package with `npm ci --prefix sdk/typescript`,
+`npm run build --prefix sdk/typescript`, then run `npm pack` from that directory.
+The pinned TypeScript 5.9.3 compiler produces `dist/index.js` and
+`dist/index.d.ts`. Package exports point to those files; `.ts` source is not
+used as a runtime dependency inside node_modules. An isolated install caught
+that earlier distribution defect; the retained failure and corrected install
+test are in the delivery validation archive. The real HTTP smoke also uses
+the compiled JavaScript.
+
+Install institution-approved artifacts with `python -m pip install
+/approved/vanian_sdk-0.1.0-py3-none-any.whl` or `npm install
+/approved/vanian-evidence-client-0.1.0.tgz`. Verify the artifact origin/digest
+before installation. These clients retrieve existing evidence; they do not
+provide independent execution observation.

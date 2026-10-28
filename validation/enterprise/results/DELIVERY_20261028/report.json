@@ -1,0 +1,115 @@
+{
+  "schema": "vanian.enterprise.delivery-validation.v1",
+  "date": "2026-10-28",
+  "source_commit": "a23798dbd6f90c81b365f339430ed9c42bccde08",
+  "integration_merge": "0569e8a57c7be3c514f636f6e588df5ba4b6bdcf",
+  "preserved_pr_heads": {
+    "6": "65b6ff7fdad5ae70546a57216a497399091c7dc7",
+    "7": "bd15b8e627e5ef67ba259559ed81feb6894cde48",
+    "9": "9d52c68c93e634479dd82b012f7ef941b796d551",
+    "10": "52a18830f6607ac6677e6fcbb6f6a085ac5d413f"
+  },
+  "overall_status": "PARTIALLY_VERIFIED",
+  "commercial_execution_milestone_complete": false,
+  "results": {
+    "enrollment_debug": {
+      "passed": 6,
+      "scope": "Real transport credentials, no sensors/network"
+    },
+    "enrollment_release": {
+      "passed": 6,
+      "scope": "Same six cases optimized"
+    },
+    "native_libraries_release": {
+      "passed": 60,
+      "scope": "authorize/collector/observe-verify/probe/transport libraries; totals overlap enrollment dependencies"
+    },
+    "native_debian_and_container_context": {
+      "passed": 13,
+      "scope": "Real release ELF, package construction/extraction, staged config and build-context preparation; no dpkg install or Docker execution"
+    },
+    "onboarding": {
+      "passed": 33,
+      "scope": "Planner/posture and kit configuration unit tests; includes 22 preserved tests"
+    },
+    "tar_packaging": {
+      "passed": 16,
+      "scope": "Labeled ELF fixtures/control flow"
+    },
+    "api_contracts": {
+      "passed": 10,
+      "ignored": 1
+    },
+    "real_http_client_smoke": {
+      "passed": 1,
+      "scope": "Actually executed ignored HTTP fixture: both SDKs, official MCP client, OpenAPI, cross-tenant refusal and posture. Signed protocol fixtures, no new kernel observation."
+    },
+    "python_sdk": {
+      "passed": 76
+    },
+    "typescript_sdk": {
+      "passed": 2
+    },
+    "mcp_boundaries": {
+      "passed": 9
+    },
+    "rbi_control_flow": {
+      "passed": 17,
+      "scope": "Control-flow fixtures only"
+    },
+    "sql_source_parity": {
+      "passed": 1,
+      "database_runtime": "NOT_EXECUTED"
+    },
+    "packaged_sdks": {
+      "python_wheel": "INSTALLED_AND_IMPORTED_IN_CLEAN_VENV",
+      "typescript_tgz": "INSTALLED_AND_IMPORTED_IN_CLEAN_PREFIX",
+      "registry_publication": "NOT_PERFORMED",
+      "distribution_fix": "Initial TypeScript archive failed installed import because Node refuses type stripping in node_modules; now ships JavaScript and declarations built with locked TypeScript 5.9.3. Corrected package import and real HTTP retrieval pass.",
+      "reproducible_check": "validation/enterprise/verify_sdk_packages.py"
+    },
+    "workspace_clippy_all_targets_all_features": "PASS",
+    "formatting": "PASS",
+    "genuine_agent_gateway": {
+      "model_generations": 4,
+      "gateway_checks": 28,
+      "gateway_receipts_verified_offline": 28,
+      "live_auth_governance_negatives": 5,
+      "native_acs_input_comparison": "AGREEMENT_CONTENT_ONLY",
+      "kernel_observation": "NOT_EXECUTED",
+      "institutional_authorization": "NOT_ESTABLISHED",
+      "archive": "gateway"
+    }
+  },
+  "acceptance_gates": {
+    "same_run_identity_authority_kernel_collector_receipt_reconciliation": "BLOCKED",
+    "separate_administration": "NOT_ESTABLISHED",
+    "clean_host_install_upgrade_uninstall": "NOT_EXECUTED",
+    "onboarding_status": "CONFIGURATION_VALID_ONLY",
+    "signed_runtime_release": "NOT_EXECUTED",
+    "formal_standard_SBOM_and_vulnerability_clearance": "NOT_EXECUTED",
+    "docker_kubernetes_runtime": "NOT_EXECUTED",
+    "postgresql_runtime_revalidation": "NOT_EXECUTED",
+    "capacity_recovery_external_security_assessment": "NOT_EXECUTED"
+  },
+  "ci": "BLOCKED: 10 jobs without runner allocation or steps; see ci-attempt.json",
+  "historical_full_workspace_failure": "Preserved: 3078 passed, 161 failed, 8 ignored. This scoped increment does not reclassify it.",
+  "not_implemented": [
+    "Authenticated enrollment backend",
+    "Vendor-neutral network ingestion connector",
+    "Qualified vendor connector/certification",
+    "Validated collector daemon HSM backend",
+    "RPM and automatic rollback",
+    "Production HA and measured institutional capacity"
+  ],
+  "limitations": [
+    "Artifacts are unsigned engineering evaluation builds requiring independent release approval and approved license/distribution terms.",
+    "Cargo dependency inventory covers declared sources; it is not a validated standard SBOM or vulnerability clearance.",
+    "New live gateway evidence is separate from HTTP signed-record fixtures; no cross-run security join is asserted.",
+    "Configuration, enrollment references and administrative confirmation do not establish running sensors, independent custody or execution.",
+    "The probe has no durable resend buffer; collector downtime can lose events.",
+    "The collector still uses one thread per connection; resource limits are not a validated capacity envelope."
+  ],
+  "native_artifact_source_commit": "5875ba2b1912d0d3f9030e061988dd980b38380d",
+  "sdk_compilation_source_commit": "f08e649812986916aeccd596e65784d7742f2280"
+}

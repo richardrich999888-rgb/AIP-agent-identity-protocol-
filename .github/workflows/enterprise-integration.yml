@@ -5,6 +5,7 @@ on:
     paths:
       - 'aip-service/**'
       - 'aip-standalone/aip-mcp-gateway/**'
+      - 'aip-standalone/aip-probe/**'
       - 'deploy/enterprise/**'
       - 'deploy/sql/**'
       - 'sdk/**'
@@ -12,6 +13,7 @@ on:
       - 'integrations/enterprise-console/**'
       - 'integrations/mcp-gateway/**'
       - 'integrations/agents/**'
+      - 'integrations/service_delivery/**'
       - 'validation/enterprise/**'
       - '.github/workflows/enterprise-integration.yml'
 permissions:
@@ -51,12 +53,19 @@ jobs:
           python -m unittest discover -s sdk/python/tests -v
           python validation/enterprise/test_client_boundaries.py
           node --test sdk/typescript/test/client.test.ts
+          npm ci --prefix sdk/typescript --ignore-scripts
+          npm run build --prefix sdk/typescript
+          npm pack ./sdk/typescript --ignore-scripts --pack-destination "$RUNNER_TEMP"
+          python -m pip install setuptools==84.1.0 wheel==0.48.0
+          python -m pip wheel --no-deps --no-build-isolation ./sdk/python --wheel-dir "$RUNNER_TEMP"
+          python validation/enterprise/verify_sdk_packages.py --wheel "$RUNNER_TEMP/vanian_sdk-0.1.0-py3-none-any.whl" --typescript "$RUNNER_TEMP/vanian-evidence-client-0.1.0.tgz"
           npm exec --yes --package typescript@5.9.3 -- tsc --noEmit --target ES2022 --lib ES2022,DOM --module NodeNext --moduleResolution NodeNext --strict sdk/typescript/src/index.ts
       - name: Rust checks
         run: |
           cargo fmt --all -- --check
           cargo clippy --locked -p airon-aip -p aip-mcp-gateway --all-targets --all-features -- -D warnings
           cargo test --locked -p airon-aip -p aip-mcp-gateway -p aip-airi -p aip-authorize -p aip-observe-verify -p aip-transport -p aip-collector
+          cargo test --locked -p aip-probe --lib --test enrollment
       - name: Real service, both SDKs, official MCP client and tenant isolation
         env:
           PYTHONPATH: ${{ github.workspace }}/sdk/python
@@ -64,10 +73,19 @@ jobs:
         run: |
           export AIP_ENTERPRISE_PYTHON="$(command -v python)"
           cargo test --locked -p airon-aip --test enterprise_api real_http_clients_use_the_service_boundary -- --ignored --nocapture
+          export VANIAN_REGISTRY_SMOKE="$GITHUB_WORKSPACE/validation/enterprise/registry_smoke.py"
+          export VANIAN_REGISTRY_PYTHON="$AIP_ENTERPRISE_PYTHON"
+          cargo test --locked -p airon-aip --test deployment_api real_http_registry_clients -- --ignored --nocapture
       - name: Build verifiable Linux package
         run: |
           cargo build --locked --release -p aip-probe --bin aip-probe -p aip-collector --bin aip-collector -p aip-observe-verify --bin aip-observe-verify
+          cargo test --locked --release -p aip-probe --test enrollment
           python deploy/enterprise/linux/package.py build --bin-dir target/release --target x86_64-unknown-linux-gnu --source-commit "$(git rev-parse HEAD)" --output dist/vanian-runtime-x86_64-linux.tar
+          python -B validation/enterprise/test_deb.py
+          runtime_digest=$(sha256sum dist/vanian-runtime-x86_64-linux.tar | cut -d ' ' -f 1)
+          python deploy/enterprise/linux/deb.py --archive dist/vanian-runtime-x86_64-linux.tar --expected-sha256 "$runtime_digest" --role probe --version 0.4.0~eval.1 --output dist/vanian-snifferdog-agent_0.4.0-eval_amd64.deb
+          python deploy/enterprise/linux/deb.py --archive dist/vanian-runtime-x86_64-linux.tar --expected-sha256 "$runtime_digest" --role collector --version 0.4.0~eval.1 --output dist/vanian-evidence-collector_0.4.0-eval_amd64.deb
+          sha256sum dist/*.deb > dist/DEB_SHA256SUMS
           sha256sum dist/vanian-runtime-x86_64-linux.tar > dist/SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:

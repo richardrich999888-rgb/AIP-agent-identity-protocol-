@@ -1,0 +1,14 @@
+   Compiling aip-probe v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-probe)
+    Finished `release` profile [optimized] target(s) in 1.24s
+     Running tests/enrollment.rs (target/release/deps/enrollment-b4be6391a71c099f)
+
+running 6 tests
+test bootstrap_needs_no_collector_or_sensor_and_exports_only_public_material ... ok
+test malformed_cli_refused_without_starting_daemon ... ok
+test reenrollment_keeps_the_existing_key ... ok
+test mismatched_key_pair_refused_and_not_replaced ... ok
+test invalid_identity_and_relative_path_refused_before_key_creation ... ok
+test symlink_and_readable_private_keys_refused ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

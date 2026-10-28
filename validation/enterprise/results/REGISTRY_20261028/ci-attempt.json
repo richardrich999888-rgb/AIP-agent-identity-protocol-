@@ -1,0 +1,185 @@
+{
+  "source_commit": "b9eb4bd6de2a26842b869490af15c24927024fcc",
+  "status": "BLOCKED_BEFORE_TEST_EXECUTION",
+  "jobs": 10,
+  "remote_test_execution": false,
+  "provider_cause": "Unavailable from run/job metadata; no inference about account, billing or runner policy",
+  "runs": [
+    {
+      "run": {
+        "id": 40741304430,
+        "name": "Real-agent harness contracts (no live agent claim)",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 31,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304430/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304430/logs",
+        "workflow_id": 399123351
+      },
+      "jobs": [
+        {
+          "id": 123003307049,
+          "name": "contracts",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "runner_name": "",
+          "started_at": "2026-10-28T18:02:02Z",
+          "completed_at": "2026-10-28T18:02:05Z",
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304430/job/123003307049"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 40741304733,
+        "name": "Enterprise integration",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 22,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304733/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304733/logs",
+        "workflow_id": 399274576
+      },
+      "jobs": [
+        {
+          "id": 123003308652,
+          "name": "contracts",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "runner_name": "",
+          "started_at": "2026-10-28T18:02:03Z",
+          "completed_at": "2026-10-28T18:02:05Z",
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304733/job/123003308652"
+        },
+        {
+          "id": 123003308970,
+          "name": "contextforge",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "runner_name": "",
+          "started_at": "2026-10-28T18:02:03Z",
+          "completed_at": "2026-10-28T18:02:05Z",
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304733/job/123003308970"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 40741304904,
+        "name": "Enterprise service delivery contracts",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 12,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304904/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304904/logs",
+        "workflow_id": 399558880
+      },
+      "jobs": [
+        {
+          "id": 123003309501,
+          "name": "contracts",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "runner_name": "",
+          "started_at": "2026-10-28T18:02:03Z",
+          "completed_at": "2026-10-28T18:02:05Z",
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304904/job/123003309501"
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": 40741304819,
+        "name": "CI",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 54,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304819/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304819/logs",
+        "workflow_id": 297111051
+      },
+      "jobs": [
+        {
+          "id": 123003309088,
+          "name": "Python SDK regression and parity tests",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "runner_name": "",
+          "started_at": "2026-10-28T18:02:03Z",
+          "completed_at": "2026-10-28T18:02:05Z",
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304819/job/123003309088"
+        },
+        {
+          "id": 123003309391,
+          "name": "coverage",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "runner_name": "",
+          "started_at": "2026-10-28T18:02:03Z",
+          "completed_at": "2026-10-28T18:02:05Z",
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304819/job/123003309391"
+        },
+        {
+          "id": 123003309470,
+          "name": "fmt · clippy · test",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "runner_name": "",
+          "started_at": "2026-10-28T18:02:03Z",
+          "completed_at": "2026-10-28T18:02:05Z",
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304819/job/123003309470"
+        },
+        {
+          "id": 123003309572,
+          "name": "postgres backend integration",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "runner_name": "",
+          "started_at": "2026-10-28T18:02:03Z",
+          "completed_at": "2026-10-28T18:02:05Z",
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304819/job/123003309572"
+        },
+        {
+          "id": 123003309639,
+          "name": "cargo audit · cargo deny",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "runner_name": "",
+          "started_at": "2026-10-28T18:02:03Z",
+          "completed_at": "2026-10-28T18:02:05Z",
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304819/job/123003309639"
+        },
+        {
+          "id": 123003309755,
+          "name": "RED suite (adversarial ledger reproducible)",
+          "status": "completed",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "runner_name": "",
+          "started_at": "2026-10-28T18:02:03Z",
+          "completed_at": "2026-10-28T18:02:06Z",
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40741304819/job/123003309755"
+        }
+      ]
+    }
+  ]
+}

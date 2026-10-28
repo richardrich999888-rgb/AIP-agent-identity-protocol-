@@ -29,6 +29,14 @@ class ClientTests(unittest.TestCase):
                 self.end_headers()
                 self.wfile.write(json.dumps({"items": [], "limit": 50, "offset": 0, "next_offset": None}).encode())
 
+            def do_POST(self):
+                type(self).calls.append((self.path, self.headers.get("Authorization")))
+                self.rfile.read(int(self.headers["Content-Length"]))
+                self.send_response(503)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"error":"unavailable"}')
+
         cls.handler = Handler
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
@@ -79,6 +87,25 @@ class ClientTests(unittest.TestCase):
         for value in ["", "..", "x\nheader", "x" * 257]:
             with self.assertRaises(ValueError):
                 client.get_agent(value)
+
+    def test_registration_is_not_automatically_retried(self):
+        client = VanianClient(self.base, lambda: "admin-secret", allow_loopback_http=True, retries=3)
+        self.handler.calls.clear()
+        with self.assertRaises(ApiError) as caught:
+            client.register_deployment({"schema_version": "vanian.deployment.v1"})
+        self.assertEqual(caught.exception.status, 503)
+        self.assertEqual(self.handler.calls, [("/v1/deployments", "Bearer admin-secret")])
+        self.assertNotIn("admin-secret", str(caught.exception))
+        with self.assertRaises(ValueError):
+            client.register_deployment({"large": "x" * 24576})
+        with self.assertRaises(ValueError):
+            client.register_deployment({"number": float("nan")})
+
+    def test_deployment_read_methods_reuse_safe_pagination(self):
+        client = VanianClient(self.base, lambda: "reader-secret", allow_loopback_http=True)
+        self.assertEqual(client.list_deployments().items, [])
+        with self.assertRaises(ValueError):
+            client.list_deployments(limit=101)
 
     def test_invalid_page_is_a_structured_error(self):
         for page in [{}, {"items": [], "limit": 1, "offset": 0, "next_offset": 0}]:

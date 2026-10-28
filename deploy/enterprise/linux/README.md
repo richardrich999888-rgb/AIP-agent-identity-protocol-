@@ -1,5 +1,11 @@
 # Linux runtime package
 
+The role-specific Debian wrapper and implemented enrollment command are documented
+in [customer installation](../../../docs/enterprise/INSTALLATION.md). The
+tar format and retained-data installer below remain supported for engineering
+evaluation. Debian extraction/configuration tests do not establish clean-host
+systemd or kernel qualification.
+
 ## Compatibility status
 
 The source supports Linux perf tracepoints, proc connector, fanotify and

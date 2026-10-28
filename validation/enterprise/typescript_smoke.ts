@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {VanianClient, VanianError} from "../../sdk/typescript/src/index.ts";
+import {VanianClient, VanianError} from "../../sdk/typescript/dist/index.js";
 
 const base = process.env.VANIAN_TEST_BASE_URL!;
 const a = new VanianClient(base, () => process.env.VANIAN_TEST_READER_A!, {allowLoopbackHttp: true, retries: 0});

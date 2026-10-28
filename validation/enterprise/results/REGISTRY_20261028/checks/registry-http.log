@@ -1,0 +1,10 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/deployment_api.rs (target/debug/deps/deployment_api-78e6d222f45130d6)
+
+running 1 test
+Compiled TypeScript registry HTTP and tenant/role refusals: PASS
+{"registry_http": "PASS", "python_sdk": "PASS", "typescript_sdk": "PASS", "openapi": "PASS", "tenant_and_role_negatives": "PASS", "configuration_only": true, "concurrent_idempotent_resubmissions": 8, "kernel_observation": "NOT_EXECUTED", "browser_interaction": "NOT_EXECUTED"}
+test real_http_registry_clients ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.42s
+

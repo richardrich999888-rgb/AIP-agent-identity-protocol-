@@ -1,0 +1,106 @@
+{
+  "schema": "vanian.enterprise-delivery.ci-attempt.v1",
+  "commit": "5875ba2b1912d0d3f9030e061988dd980b38380d",
+  "status": "BLOCKED_BEFORE_TEST_EXECUTION",
+  "reason": "Provider cause not exposed. Every observed job has runner_id 0 and no steps.",
+  "workflows": [
+    {
+      "run_id": 40725536144,
+      "name": "Real-agent harness contracts (no live agent claim)",
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "contracts",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40725536144/job/122947651324"
+        }
+      ]
+    },
+    {
+      "run_id": 40725534992,
+      "name": "Enterprise service delivery contracts",
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "contracts",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40725534992/job/122947647618"
+        }
+      ]
+    },
+    {
+      "run_id": 40725534980,
+      "name": "Enterprise integration",
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "contextforge",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40725534980/job/122947647961"
+        },
+        {
+          "name": "contracts",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40725534980/job/122947648453"
+        }
+      ]
+    },
+    {
+      "run_id": 40725535126,
+      "name": "CI",
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "fmt · clippy · test",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40725535126/job/122947649086"
+        },
+        {
+          "name": "cargo audit · cargo deny",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40725535126/job/122947649279"
+        },
+        {
+          "name": "RED suite (adversarial ledger reproducible)",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40725535126/job/122947649318"
+        },
+        {
+          "name": "coverage",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40725535126/job/122947649651"
+        },
+        {
+          "name": "postgres backend integration",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40725535126/job/122947649739"
+        },
+        {
+          "name": "Python SDK regression and parity tests",
+          "conclusion": "failure",
+          "runner_id": 0,
+          "steps": [],
+          "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40725535126/job/122947649774"
+        }
+      ]
+    }
+  ]
+}

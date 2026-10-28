@@ -1,0 +1,122 @@
+{
+  "acceptance": {
+    "clean_host_install": "NOT_EXECUTED",
+    "local_kernel_preflight": "BLOCKED",
+    "off_host_collector_administration": "NOT_ESTABLISHED",
+    "production_qualification": "NOT_ESTABLISHED",
+    "same_run_institutional_authority_gateway_kernel_reconciliation": "BLOCKED"
+  },
+  "base_commit": "d030fbf5e717cb690847ab2f056a8c189f4c7ca5",
+  "ci": "Ten jobs failed with runner_id 0 and no steps at registry implementation commit b9eb4bd6de2a26842b869490af15c24927024fcc; no remote tests executed. See ci-attempt.json; provider cause unavailable.",
+  "commercial_execution_milestone_complete": false,
+  "counts_overlap": true,
+  "date": "2026-10-28",
+  "failures_and_corrections": [
+    "OpenAPI YAML fragments initially duplicated anchor IDs; new chunks now emit no aliases. Actual response schema validation passes.",
+    "Existing exhaustive GET contract exposed missing cases for new optional routes; it now verifies disabled-route 503 and unauthenticated 401. Positive responses use the separate enabled HTTP fixture.",
+    "Missing pip/setuptools in the restored SDK environment and an omitted PYTHONPATH interrupted initial packaging/boundary attempts. Pinned packaging tools and the documented module path restored the checks; initial failures retained.",
+    "Strict Clippy byte-char-slices finding corrected without changing behavior; final service all-target/all-feature check passes.",
+    "Native configuration permits uppercase hexadecimal pins; registration export now normalizes case without changing key bytes, with a regression test."
+  ],
+  "implemented": [
+    "Optional Admin configuration registry in existing aip-service",
+    "Tenant-bound immutable registration with durable append before acknowledgment",
+    "Bounded read metadata and named retrieval",
+    "Default disabled; no RAM fallback",
+    "Python/TypeScript clients without automatic POST retry",
+    "Onboarding public registration export",
+    "Existing Reader console registration section",
+    "OpenAPI wire schemas and CI HTTP cases"
+  ],
+  "inherited_limitations": [
+    "Existing full-workspace failures remain unresolved/disclosed",
+    "Native artifacts remain unsigned evaluation builds with distribution/license review open",
+    "No durable probe resend or qualified collector capacity",
+    "No new identity issuer, observer control API, institutional trust service or network connector"
+  ],
+  "overall_status": "PARTIALLY_VERIFIED",
+  "paid_engineering_scope": "Configuration/onboarding and API/SDK/MCP/gateway evaluation under approved terms; no accepted execution-assurance deployment",
+  "registration_trust": {
+    "authority": "NOT_ASSESSED",
+    "execution": "NOT_ASSESSED",
+    "host_administration": "DECLARED_NOT_INDEPENDENTLY_VERIFIED",
+    "journal": "Unsigned operator-controlled local configuration; not tamper-evident execution evidence",
+    "logical_agent_binding": "NOT_ESTABLISHED",
+    "observer_active": "NOT_ASSESSED",
+    "public_key_possession": "NOT_ESTABLISHED",
+    "retention_enforced": false,
+    "source": "Authenticated Admin bearer credential under existing tenant key store",
+    "trust_anchors_modified": false
+  },
+  "registry_limits": {
+    "definition_bytes": 24576,
+    "http_body_bytes": 32768,
+    "journal_bytes": 67108864,
+    "mode": "Single-process JSONL evaluation profile",
+    "per_tenant_records": 500,
+    "postgresql_or_ha_registry": "NOT_IMPLEMENTED",
+    "total_records": 10000,
+    "updates_deletes_repair": "NOT_IMPLEMENTED"
+  },
+  "results": {
+    "console_syntax": "PASS",
+    "historical_observer_mutations": "PASS; prefix/suffix requires separately retained checkpoint",
+    "mcp_boundaries": {
+      "passed": 9
+    },
+    "old_delivery_archive_digests": {
+      "all_unchanged": true,
+      "checked": 59
+    },
+    "onboarding_planner": {
+      "passed": 35
+    },
+    "python_sdk": {
+      "passed": 78
+    },
+    "rbi_control_flow": {
+      "passed": 17,
+      "scope": "Fixture/control flow only"
+    },
+    "real_http": {
+      "passed": 2,
+      "scope": "Both ignored fixtures explicitly executed separately; positive registration, eight simultaneous idempotent resubmissions, both SDKs, negative roles/tenants, official evidence MCP client, signed protocol fixtures and OpenAPI. No new kernel observation."
+    },
+    "retained_gateway_receipts": {
+      "altered_commitment_refused": true,
+      "new_run": false,
+      "verified": 28
+    },
+    "rust_debug": {
+      "composition": {
+        "evidence_api": 10,
+        "registry_api": 7,
+        "service_library": 55
+      },
+      "ignored": 2,
+      "passed": 72
+    },
+    "rust_release": {
+      "composition": {
+        "evidence_api": 10,
+        "registry_api": 7,
+        "registry_library": 2
+      },
+      "ignored": 2,
+      "passed": 19
+    },
+    "sdk_distributions": "INSTALLED_AND_IMPORTED_IN_ISOLATED_ENVIRONMENTS",
+    "service_clippy_all_targets_all_features": "PASS",
+    "sql_source_parity": {
+      "database_runtime": "NOT_EXECUTED",
+      "passed": 1
+    },
+    "typescript_compilation": "PASS",
+    "typescript_sdk": {
+      "passed": 3
+    },
+    "workspace_format": "PASS"
+  },
+  "schema": "vanian.enterprise.registry-validation.v1",
+  "source_commit": "f0966992c5b9eb0b902314af38d3aee7eb36ca8b"
+}

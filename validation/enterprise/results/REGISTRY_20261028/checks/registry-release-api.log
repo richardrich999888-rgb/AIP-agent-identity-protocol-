@@ -1,0 +1,16 @@
+   Compiling airon-aip v0.2.0 (/workspace/scratch/749b2e514413/vanian/aip-service)
+    Finished `release` profile [optimized] target(s) in 13.11s
+     Running tests/deployment_api.rs (target/release/deps/deployment_api-69e6d621f9e6f5b7)
+
+running 8 tests
+test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments
+test default_is_disabled_and_authentication_remains_required ... ok
+test journal_refuses_symlinks_and_world_readable_configuration ... ok
+test journal_refuses_corruption_repeated_records_and_concurrent_writers ... ok
+test only_administrator_can_register_and_caller_cannot_set_tenant_or_assurance ... ok
+test invalid_topology_collisions_and_oversize_requests_are_refused ... ok
+test registration_is_tenant_scoped_and_never_upgrades_assurance ... ok
+test idempotency_conflicts_restart_and_pagination_preserve_records ... ok
+
+test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

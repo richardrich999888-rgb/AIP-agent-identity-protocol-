@@ -1,0 +1,31 @@
+{
+  "schema": "vanian.interop.host-prerequisites.v1",
+  "status": "BLOCKED",
+  "checks": {
+    "linux": true,
+    "self_proc_binding_visible": false,
+    "child_proc_binding_visible": false,
+    "bpf_perf_capabilities": false,
+    "kernel_btf_readable": false,
+    "exec_tracepoint_readable": false,
+    "unix_socket_available": false
+  },
+  "missing": [
+    "self_proc_binding_visible",
+    "child_proc_binding_visible",
+    "bpf_perf_capabilities",
+    "kernel_btf_readable",
+    "exec_tracepoint_readable",
+    "unix_socket_available"
+  ],
+  "scope": "Local Linux/SPIRE prerequisites only; no kernel event captured or evidence signed.",
+  "not_assessed": [
+    "institutional_authority",
+    "independent_key_custody",
+    "off_host_collector",
+    "revocation",
+    "clock_synchronization",
+    "sensor_coverage",
+    "enterprise_admission"
+  ]
+}

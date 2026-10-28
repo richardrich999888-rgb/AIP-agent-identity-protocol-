@@ -279,6 +279,32 @@ def installation_root(args):
     return root
 
 
+def render_unit(role, template, config):
+    """Reuse the pilot unit and one hardening/capability policy across formats."""
+    unit = template.decode().replace("/usr/local/bin/", "/opt/vanian/snifferdog/bin/")
+    unit = unit.replace("[Service]\n", "[Service]\nMemoryMax=512M\nTasksMax=128\nLimitNOFILE=8192\nCPUQuota=100%\nUMask=0077\n")
+    if role == "collector":
+        unit = unit.replace("LoadCredential=collector-passphrase\n",
+                            "LoadCredential=collector-passphrase:/etc/aip/collector-passphrase\n")
+    else:
+        sensors = config.get("AIP_PROBE_SENSORS", "").split(",")
+        capabilities = probe_capabilities([sensor for sensor in sensors if sensor])
+        unit = re.sub(r"(?m)^(AmbientCapabilities|CapabilityBoundingSet)=.*$",
+                      lambda match: match.group(1) + "=" + " ".join(capabilities), unit)
+    return unit.encode()
+
+
+def probe_capabilities(sensors):
+    capabilities = []
+    if any(SENSORS[sensor] for sensor in sensors):
+        capabilities.append("CAP_PERFMON")
+    if "connector" in sensors:
+        capabilities.append("CAP_NET_ADMIN")
+    if "afpacket" in sensors:
+        capabilities.append("CAP_NET_RAW")
+    return capabilities
+
+
 def install(args):
     manifest, package = verified_package(args.archive, args.expected_sha256)
     root = installation_root(args)
@@ -302,25 +328,8 @@ def install(args):
         "/opt/vanian/snifferdog/bin/aip-observe-verify": package["bin/aip-observe-verify"],
         "/opt/vanian/snifferdog/package.py": package["package.py"],
     }
-    unit = package[f"systemd/aip-{args.role}.service"][0].decode().replace(
-        "/usr/local/bin/", "/opt/vanian/snifferdog/bin/")
-    # Bound daemon resource use; sensor availability/coverage remain runtime facts.
-    unit = unit.replace("[Service]\n", "[Service]\nMemoryMax=512M\nTasksMax=128\nLimitNOFILE=8192\nCPUQuota=100%\nUMask=0077\n")
-    if args.role == "collector":
-        unit = unit.replace("LoadCredential=collector-passphrase\n",
-                            "LoadCredential=collector-passphrase:/etc/aip/collector-passphrase\n")
-    else:
-        sensors = config["AIP_PROBE_SENSORS"].split(",")
-        capabilities = []
-        if any(SENSORS[sensor] for sensor in sensors):
-            capabilities.append("CAP_PERFMON")
-        if "connector" in sensors:
-            capabilities.append("CAP_NET_ADMIN")
-        if "afpacket" in sensors:
-            capabilities.append("CAP_NET_RAW")
-        unit = re.sub(r"(?m)^(AmbientCapabilities|CapabilityBoundingSet)=.*$",
-                      lambda match: match.group(1) + "=" + " ".join(capabilities), unit)
-    mapping[f"/etc/systemd/system/aip-{args.role}.service"] = (unit.encode(), 0o644)
+    mapping[f"/etc/systemd/system/aip-{args.role}.service"] = (
+        render_unit(args.role, package[f"systemd/aip-{args.role}.service"][0], config), 0o644)
     config_path = f"/etc/aip/{args.role}.env"
     previous_config = safe_destination(root, config_path)
     if previous_config.exists():

@@ -1,0 +1,101 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling aip-registry v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-registry)
+   Compiling aip-spend v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-spend)
+   Compiling aip-transport v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-transport)
+   Compiling aip-collector v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-collector)
+   Compiling aip-probe v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-probe)
+   Compiling aip-observe-verify v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-observe-verify)
+   Compiling aip-authorize v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-authorize)
+    Finished `release` profile [optimized] target(s) in 3.67s
+     Running unittests src/lib.rs (target/release/deps/aip_authorize-9f7feb1cef2cc2ca)
+
+running 15 tests
+test actions::tests::exec_parameters_are_the_content_hash_and_nothing_else ... ok
+test actions::tests::action_is_a_custom_scope_action_within_the_length_bound ... ok
+test actions::tests::malformed_endpoints_are_refused ... ok
+test actions::tests::parameters_are_a_fixed_injective_encoding ... ok
+test actions::tests::tool_identifiers_are_bounded_and_non_empty ... ok
+test actions::tests::tool_invocations_are_named_by_tool_and_commitment_only ... ok
+test coverage::tests::decisions_for_filters_by_agent_and_intersection_and_sorts ... ok
+test expected::tests::duplicate_parameter_key_is_an_error_not_an_overwrite ... ok
+test expected::tests::parameter_encoding_leads_with_domain ... ok
+test expected::tests::parameters_are_order_independent_and_content_sensitive ... ok
+test resource::tests::a_non_network_action_names_no_destination ... ok
+test resource::tests::a_malformed_destination_is_an_error_not_a_pass ... ok
+test spend::tests::every_outcome_maps_to_exactly_one_record_kind ... ok
+test coverage::tests::close_is_monotone_and_per_agent ... ok
+test resource::tests::a_connect_parameter_set_names_its_destination ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/release/deps/aip_collector-bb8cfa37e2cbf9fa)
+
+running 16 tests
+test authority::tests::rejects_a_duplicate_probe_id ... ok
+test authority::tests::loads_and_authorizes_only_the_listed_pair ... ok
+test authority::tests::rejects_a_short_key ... ok
+test authority::tests::rejects_an_empty_list ... ok
+test noise_key::tests::a_file_with_mismatched_halves_is_refused ... ok
+test noise_key::tests::generate_then_load_returns_the_same_public_key ... ok
+test sink::tests::accepts_a_batch_whose_probe_id_matches_the_authenticated_probe ... ok
+test sink::tests::a_batch_without_tracepoint_sensors_owes_no_report ... ok
+test sink::tests::a_verified_report_for_every_open_sensor_keeps_the_state_active ... ok
+test sink::tests::a_missing_report_for_an_active_tracepoint_sensor_fails_closed ... ok
+test sink::tests::refuses_a_batch_labelled_with_a_different_probe_id ... ok
+test sink::tests::a_gate_reported_by_the_probe_makes_the_off_host_state_integrity_unknown ... ok
+test sink::tests::refuses_bytes_that_are_not_an_observation_batch ... ok
+test sink::tests::a_delivery_path_hook_that_fools_the_sensors_own_books_lands_on_integrity_unknown ... ok
+test sink::tests::a_verified_report_for_an_inactive_sensor_does_not_clear_a_gate ... ok
+test sink::tests::when_both_sensors_deliver_the_exec_there_is_no_false_integrity_finding ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/release/deps/aip_observe_verify-1ac1f306ec284be1)
+
+running 9 tests
+test cli::tests::a_flag_without_its_value_is_refused ... ok
+test cli::tests::a_key_of_the_wrong_length_is_refused ... ok
+test cli::tests::a_key_version_that_is_not_a_number_is_refused ... ok
+test cli::tests::a_non_hex_key_is_refused ... ok
+test cli::tests::an_unknown_flag_is_refused ... ok
+test cli::tests::help_and_version_are_outcomes_not_errors ... ok
+test cli::tests::parses_a_complete_invocation ... ok
+test cli::tests::two_sources_for_one_key_are_refused ... ok
+test cli::tests::nothing_to_verify_is_a_usage_error ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/release/deps/aip_probe-29fb6e3439fef43b)
+
+running 8 tests
+test config::tests::the_cgroup_placement_sensor_is_supported ... ok
+test config::tests::rejects_unknown_and_empty_sensor_selections ... ok
+test config::tests::parses_supported_sensors ... ok
+test config::tests::the_connector_is_a_supported_sensor_on_its_own_or_with_tracepoints ... ok
+test config::tests::an_unknown_sensor_is_still_refused ... ok
+test config::tests::the_file_and_wire_sensors_are_supported ... ok
+test config::tests::the_pinned_collector_key_must_be_exactly_32_bytes_of_hex ... ok
+test keyfile::tests::generate_then_load_is_stable ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/release/deps/aip_transport-f045866d83625ea9)
+
+running 12 tests
+test codec::tests::an_oversized_declared_length_is_refused_before_allocation ... ok
+test auth::tests::frame_roundtrip_and_tamper_detection ... ok
+test auth::tests::version_skew_is_refused_at_the_handshake ... ok
+test codec::tests::roundtrip_through_a_byte_buffer ... ok
+test codec::tests::a_truncated_frame_is_an_io_error_not_a_hang ... ok
+test confidential::tests::message_framing_round_trips_and_refuses_empty_and_truncated ... ok
+test confidential::tests::debug_never_shows_the_private_key ... ok
+test wire::tests::frame_preimage_binds_nonce_seq_and_bytes ... ok
+test auth::tests::auth_roundtrip_accepts_the_holder_and_rejects_everyone_else ... ok
+test wire::tests::auth_and_frame_preimages_are_domain_separated ... ok
+test wire::tests::auth_preimage_binds_version_nonce_and_id ... ok
+test confidential::tests::a_generated_pair_proves_itself_and_mixed_halves_are_refused ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -6,6 +6,7 @@
 //!   AIP_REVOCATION_LOG_PATH — revocation JSONL log (default /var/lib/aip/revocation.jsonl)
 //!   AIP_VAULT_PATH          — JSONL evidence vault (jsonl backend)
 //!   AIP_API_KEYS_PATH       — API keys file (no keys ⇒ fail closed)
+//!   AIP_DEPLOYMENTS_PATH    — optional unsigned configuration registry JSONL
 //!   AIP_STORE_BACKEND       — "jsonl" (default) | "postgres"
 //!   DATABASE_URL            — PostgreSQL DSN (required when backend=postgres)
 //!   RUST_LOG                — log filter (default info)
@@ -15,7 +16,7 @@ use std::sync::Arc;
 use tracing_subscriber::{fmt, EnvFilter};
 
 use airon_aip::store::{EvidenceStore, JsonlEvidenceStore};
-use airon_aip::{auth, ingress, keys::ServiceKey, revocation, router, AppState, ManagedSigning};
+use airon_aip::{auth, ingress, keys::ServiceKey, revocation, AppState, ManagedSigning};
 
 /// The evidence store's connection pool, when there is one.
 ///
@@ -252,6 +253,17 @@ async fn main() {
         max_in_flight = limits.max_in_flight,
         "ingress limits (R9b); per-client rate limiting and TLS are the proxy's"
     );
-    let app = airon_aip::ingress::harden(router(state), limits);
+    let registry = match std::env::var("AIP_DEPLOYMENTS_PATH") {
+        Ok(path) => Arc::new(
+            airon_aip::deployments::DeploymentRegistry::open(std::path::Path::new(&path))
+                .unwrap_or_else(|e| {
+                    eprintln!("aip-service: deployment registry: {e}");
+                    std::process::exit(1)
+                }),
+        ),
+        Err(_) => Arc::new(airon_aip::deployments::DeploymentRegistry::disabled()),
+    };
+    let app =
+        airon_aip::ingress::harden(airon_aip::router_with_deployments(state, registry), limits);
     axum::serve(listener, app).await.expect("server error");
 }

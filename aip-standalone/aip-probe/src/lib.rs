@@ -10,5 +10,6 @@
 //! See `docs/pilot/PHASE1_DAEMONS.md` for the design and the trust model.
 
 pub mod config;
+pub mod enrollment;
 pub mod keyfile;
 pub mod sensors;

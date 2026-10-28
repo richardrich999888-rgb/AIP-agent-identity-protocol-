@@ -2,6 +2,7 @@
 
 Routes and response fields are specified in docs/enterprise/openapi.yaml.
 This library neither issues authorization nor asserts execution coverage.
+Admin configuration registration is distinct from the evidence read methods.
 """
 
 from __future__ import annotations
@@ -38,6 +39,35 @@ class Activity(TypedDict):
 
 class EvidenceMetadata(Activity):
     agent_id: str
+
+
+class DeploymentSummary(TypedDict):
+    deployment_name: str
+    workload_count: int
+    registered_at_ms: int
+    provenance: str
+    configuration_status: str
+    observer_active: str
+    execution_reconciled: str
+    identity_binding: str
+
+
+class Deployment(TypedDict):
+    tenant_id: str
+    definition: dict[str, Any]
+    registered_at_ms: int
+    registered_by_key_id: str
+    provenance: str
+    configuration_status: str
+    installed: str
+    observer_active: str
+    signed_evidence_available: str
+    authorization_verified: str
+    execution_reconciled: str
+    pilot_accepted: str
+    identity_binding: str
+    trust_anchors_modified: bool
+    retention_enforced: bool
 
 
 T = TypeVar("T")
@@ -133,14 +163,19 @@ class VanianClient:
         )
 
     def _get(self, path: str) -> dict[str, Any]:
-        for attempt in range(self.retries + 1):
+        return self._request(path)
+
+    def _request(self, path: str, data: bytes | None = None) -> dict[str, Any]:
+        retries = self.retries if data is None else 0
+        for attempt in range(retries + 1):
             token = self.credential_provider()
             if not isinstance(token, str) or not token or any(c.isspace() for c in token):
                 raise ValueError("credential provider must return a nonempty bearer credential")
-            req = Request(self.base_url + path, headers={
+            req = Request(self.base_url + path, data=data, headers={
                 "Authorization": "Bearer " + token,
                 "Accept": "application/json",
                 "User-Agent": "vanian-python/0.1.0",
+                **({"Content-Type": "application/json"} if data is not None else {}),
             })
             try:
                 with self._opener.open(req, timeout=self.timeout) as response:
@@ -159,10 +194,10 @@ class VanianClient:
             except HTTPError as exc:
                 status = exc.code
                 exc.close()
-                if status not in (429, 502, 503, 504) or attempt == self.retries:
+                if status not in (429, 502, 503, 504) or attempt == retries:
                     raise ApiError(status, "request_refused") from None
             except (URLError, TimeoutError, OSError, HTTPException):
-                if attempt == self.retries:
+                if attempt == retries:
                     raise ApiError(0, "transport_failed") from None
             time.sleep(0.1 * (2 ** attempt))
         raise AssertionError("unreachable")
@@ -180,6 +215,21 @@ class VanianClient:
 
     def list_agents(self, *, limit: int = 50, offset: int = 0) -> Page[Agent]:
         return Page.parse(self._get("/v1/agents" + self._page_query(limit, offset)))
+
+    def list_deployments(self, *, limit: int = 50, offset: int = 0) -> Page[DeploymentSummary]:
+        return Page.parse(self._get("/v1/deployments" + self._page_query(limit, offset)))
+
+    def get_deployment(self, deployment_name: str) -> Deployment:
+        return self._get("/v1/deployments/" + _identifier(deployment_name))
+
+    def register_deployment(self, definition: dict[str, Any]) -> Deployment:
+        """Admin-only configuration registration. Never retried automatically."""
+        if not isinstance(definition, dict):
+            raise ValueError("deployment definition must be an object")
+        data = json.dumps(definition, allow_nan=False, separators=(",", ":")).encode()
+        if len(data) > 24 * 1024:
+            raise ValueError("deployment definition exceeds 24 KiB")
+        return self._request("/v1/deployments", data)
 
     def iter_agents(self, *, limit: int = 50, max_pages: int = 100) -> Iterator[Agent]:
         if type(max_pages) is not int or not 1 <= max_pages <= 10_000:

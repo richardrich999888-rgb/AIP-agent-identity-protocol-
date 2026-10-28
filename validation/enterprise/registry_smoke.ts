@@ -1,0 +1,17 @@
+import assert from "node:assert/strict";
+import { VanianClient, VanianError } from "../../sdk/typescript/dist/index.js";
+const base = process.env.VANIAN_REGISTRY_URL!;
+const reader = new VanianClient(base, () => process.env.VANIAN_REGISTRY_READER!, {allowLoopbackHttp:true});
+const other = new VanianClient(base, () => process.env.VANIAN_REGISTRY_OTHER!, {allowLoopbackHttp:true});
+const admin = new VanianClient(base, () => process.env.VANIAN_REGISTRY_ADMIN!, {allowLoopbackHttp:true});
+const record = await reader.getDeployment("research");
+assert.equal(record.observer_active, "NOT_ASSESSED");
+assert.equal(record.pilot_accepted, "NOT_ASSESSED");
+assert.equal(record.identity_binding, "NOT_ESTABLISHED");
+assert.equal(record.trust_anchors_modified, false);
+assert.equal((await reader.listDeployments(1)).items[0].deployment_name, "research");
+assert.deepEqual(await admin.registerDeployment(record.definition), record);
+await assert.rejects(other.getDeployment("research"), (e: unknown) => e instanceof VanianError && e.status === 404);
+await assert.rejects(reader.registerDeployment(record.definition), (e: unknown) => e instanceof VanianError && e.status === 403);
+assert.equal((await reader.getCoverage()).status, "unavailable");
+console.log("Compiled TypeScript registry HTTP and tenant/role refusals: PASS");

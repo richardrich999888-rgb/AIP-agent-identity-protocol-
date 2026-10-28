@@ -1,0 +1,188 @@
+{
+  "source_commit": "a23798dbd6f90c81b365f339430ed9c42bccde08",
+  "native_artifact_source_commit": "5875ba2b1912d0d3f9030e061988dd980b38380d",
+  "status": "UNPUBLISHED_ENGINEERING_ARTIFACTS",
+  "release_signature": "NOT_PRESENT",
+  "files": {
+    "README.txt": {
+      "sha256": "7ed49bd86e82a3cb79fe3d9f06835d0cdcbeef68b3f12735199ce08b78bc3785",
+      "bytes": 1222
+    },
+    "collector-deb-build.json": {
+      "sha256": "3532a72a45f5e8f84a204c78ee4e3b1a2db673f09fb7ae822f92db1de6541751",
+      "bytes": 510
+    },
+    "dependency-inventory.json": {
+      "sha256": "31f70c7fe145248029d9e61947424c760623b94b6171ec47daf9d87c45674d5c",
+      "bytes": 24277
+    },
+    "example-inputs/SCOPE.txt": {
+      "sha256": "16989673f6afc6c5594fb747c3ae698f2ce6b4c51b5fcf97898f1b649ea039c3",
+      "bytes": 307
+    },
+    "example-inputs/collector.env": {
+      "sha256": "201d83d97dafab997e5ecdaace96bb35f5607a8dac3d7e2b91707afa887b7ad9",
+      "bytes": 313
+    },
+    "example-inputs/institution-plan.json": {
+      "sha256": "2c81752846097b17545bac8454ba1588401947613d3a0ca7794c0ceb42f34778",
+      "bytes": 954
+    },
+    "example-inputs/probe.env": {
+      "sha256": "466b35175c15c8a5ce44cabb4cfea0b102debb013c60ad647e41922606755237",
+      "bytes": 274
+    },
+    "example-inputs/public-enrollment.json": {
+      "sha256": "f5ace29d1438b1f0128ce2569c16cbb2865b110d8514e7cb25f0199f43408d3d",
+      "bytes": 260
+    },
+    "example-onboarding-kit/INSTALL.md": {
+      "sha256": "cc2a980a6c04ac0c6ee94c7e1744b7a7360c3a5db260bfbe409c146968278369",
+      "bytes": 1569
+    },
+    "example-onboarding-kit/SHA256SUMS.json": {
+      "sha256": "98ba5c25d722bb3b8bf0835801f0a61cf198662392451a419c476a4394723b1d",
+      "bytes": 930
+    },
+    "example-onboarding-kit/collector/collector.env": {
+      "sha256": "201d83d97dafab997e5ecdaace96bb35f5607a8dac3d7e2b91707afa887b7ad9",
+      "bytes": 313
+    },
+    "example-onboarding-kit/collector/probes.json": {
+      "sha256": "94a2e8bae9fd82c8ec06da3094cc11af88919edb976843d19502d2b87eaa4a09",
+      "bytes": 122
+    },
+    "example-onboarding-kit/customer-manifest.json": {
+      "sha256": "5b96a08c4ff5ade0f4c01cfa296142bdee7c3dedf4dc698db3f1c460efea22c5",
+      "bytes": 760
+    },
+    "example-onboarding-kit/probes/agent-linux-01/probe.env": {
+      "sha256": "466b35175c15c8a5ce44cabb4cfea0b102debb013c60ad647e41922606755237",
+      "bytes": 274
+    },
+    "example-onboarding-kit/probes/agent-linux-01/public-enrollment.json": {
+      "sha256": "f5ace29d1438b1f0128ce2569c16cbb2865b110d8514e7cb25f0199f43408d3d",
+      "bytes": 260
+    },
+    "example-onboarding-kit/readiness.json": {
+      "sha256": "f249b5f21d8d658d4250e3e021848b1973d40363712662111a7feb7ba6b76568",
+      "bytes": 702
+    },
+    "example-onboarding-kit/requested-retention.json": {
+      "sha256": "464cfd84d742a002804a2d056f136154ba39a74cd3ed8c79f8e72d1af4c27042",
+      "bytes": 176
+    },
+    "example-onboarding-kit/service-plan.json": {
+      "sha256": "b5e889def3c091314220b010895f9cc62426cfe173b59f756d79d33a8430d779",
+      "bytes": 1832
+    },
+    "example-onboarding-kit/software-manifest.json": {
+      "sha256": "e5a080f96541d394a5213511fc89c4f437cdca141d93304edb9a11fd54d53ba2",
+      "bytes": 1162
+    },
+    "onboarding-result.json": {
+      "sha256": "fd5c6c8be7ad3fcbcca68e073c88a2c8ec16a8ae834d9da2e0dad6f082a6c07d",
+      "bytes": 734
+    },
+    "probe-abi.txt": {
+      "sha256": "9218946d7be4cc82ee7565260a497f93b7ee3be765e8890d741cdf6a831a3a55",
+      "bytes": 3319
+    },
+    "probe-deb-build.json": {
+      "sha256": "9ccf16c1ab161d71c2c26ce631d36e9a2008041e59a5dc116e850093ead1e99b",
+      "bytes": 508
+    },
+    "reviewed-source/THIRD_PARTY_LICENSES.md": {
+      "sha256": "d46172d8c1dde6f46c92daeee508b32c40ad9ef6c437e91ece38fbf9af3c0b60",
+      "bytes": 3939
+    },
+    "reviewed-source/deploy/enterprise/linux/container_context.py": {
+      "sha256": "92874a371d809b6670366419e50653e25bfe1966824a5f2396bcca777fa7be3b",
+      "bytes": 2456
+    },
+    "reviewed-source/deploy/enterprise/linux/deb.py": {
+      "sha256": "3d32e7d704c5245aded1de8db77b5ef3b50e3741f9b7f4cfc7bd0277f3345353",
+      "bytes": 13382
+    },
+    "reviewed-source/deploy/enterprise/linux/package.py": {
+      "sha256": "c6a8df51ce5b0212ca83923972246c65ce94c6faf0d71fd68307f090d5023974",
+      "bytes": 22167
+    },
+    "reviewed-source/deploy/pilot/collector.env.example": {
+      "sha256": "43400f68dabe077f9362fdc0b014d7e0e5acb8b97a0c9075ac5c2ecbed1b8a6a",
+      "bytes": 3753
+    },
+    "reviewed-source/deploy/pilot/probe.env.example": {
+      "sha256": "e1eead2bae925d6d52d76d8118bb7d29c886e07eb06889c6076ddbc9b48d5177",
+      "bytes": 4726
+    },
+    "reviewed-source/deploy/pilot/systemd/aip-collector.service": {
+      "sha256": "1cc550abb3d67d08d0f1505e9a7a810b0d16a1673a10807f0e2682fb6f07ab8d",
+      "bytes": 1380
+    },
+    "reviewed-source/deploy/pilot/systemd/aip-probe.service": {
+      "sha256": "9abf3d96d93d3b3d44f97d555afc0f921ce441cf5951e099859618e44cdb2dc9",
+      "bytes": 2477
+    },
+    "reviewed-source/docs/enterprise/CUSTOMER_ONBOARDING.md": {
+      "sha256": "bc354009472a7498c185cd53235d87f338614bf3188148d7ee4874f5da08d675",
+      "bytes": 4326
+    },
+    "reviewed-source/docs/enterprise/INSTALLATION.md": {
+      "sha256": "e5a09baddf91f0adc4c821b82c41bced4fda6eef3b642f611bb3d8829e665f21",
+      "bytes": 7830
+    },
+    "reviewed-source/docs/enterprise/PRODUCT_READINESS.md": {
+      "sha256": "d082e3cd27d89fbfb80b35c4d9f2af6ffbdbf75f8539d80a9fac3a18d41e4023",
+      "bytes": 8601
+    },
+    "reviewed-source/docs/enterprise/SDK_GUIDE.md": {
+      "sha256": "2f225f2e6b1ed803c578919189835362a1fc5185bbd02282fab0810d9a4cb263",
+      "bytes": 5091
+    },
+    "reviewed-source/integrations/service_delivery/enrollments.py": {
+      "sha256": "975de0e47c10302650182bfd55c6f90df879f607fb532f4d0d670f0aca2564d9",
+      "bytes": 2697
+    },
+    "reviewed-source/integrations/service_delivery/example.json": {
+      "sha256": "478d408dab54a2c341febe832203cb1cb59320b0500a4dad71098861a4a3303f",
+      "bytes": 858
+    },
+    "reviewed-source/integrations/service_delivery/onboarding_bundle.py": {
+      "sha256": "1a6b6c7a837bf3f4479416a4db20b0d23996d02bac451576ec4416787f918731",
+      "bytes": 7812
+    },
+    "reviewed-source/integrations/service_delivery/service_onboard.py": {
+      "sha256": "535c2c0a89f6e6799117a8262c7e93df26bab76e943a958b21f14f8c650c9b69",
+      "bytes": 8722
+    },
+    "runtime-build.json": {
+      "sha256": "b60168a2db2aff237825227b601acf09f907264a8bf1d87fdbc850061d3df467",
+      "bytes": 275
+    },
+    "rust-toolchain.txt": {
+      "sha256": "f22d5e4e9ced367e774ce5bc140d9e6b1235c1882fec80d011044851f3ae6369",
+      "bytes": 196
+    },
+    "sdk/vanian-evidence-client-0.1.0.tgz": {
+      "sha256": "077bb97d8fea4a6ffb4f2dc051aaf8fbbff4221df42a6b6e63e653a0f276d839",
+      "bytes": 2724
+    },
+    "sdk/vanian_sdk-0.1.0-py3-none-any.whl": {
+      "sha256": "35f57cb30b75c8f059232c4c06f7949879f51d28aa18f90ed0b246defef9848f",
+      "bytes": 4445
+    },
+    "vanian-evidence-collector_amd64.deb": {
+      "sha256": "71c4c5316f92da009822bbc75209acb4fc52593cd7cf175d10ef024b200ac62c",
+      "bytes": 657636
+    },
+    "vanian-runtime-x86_64-linux.tar": {
+      "sha256": "02f177cebab6422fdddf5e565aa8e20584a0d78343b4ec8d3569d9544e8c702b",
+      "bytes": 4331520
+    },
+    "vanian-snifferdog-agent_amd64.deb": {
+      "sha256": "61a77e2e52ab775380301f412b2a7b02b40a83992511c1f4877a830fb2e50eca",
+      "bytes": 610952
+    }
+  }
+}

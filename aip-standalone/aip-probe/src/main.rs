@@ -41,6 +41,19 @@ fn now_ms() -> u64 {
 }
 
 fn run() -> Result<(), String> {
+    let args: Vec<_> = std::env::args().skip(1).collect();
+    if !args.is_empty() {
+        if args.len() != 5
+            || args[0] != "enroll"
+            || args[1] != "--probe-id"
+            || args[3] != "--key-path"
+        {
+            return Err("usage: aip-probe [enroll --probe-id ID --key-path ABSOLUTE_PATH]".into());
+        }
+        let enrollment = aip_probe::enrollment::enroll(&args[2], std::path::Path::new(&args[4]))?;
+        println!("{enrollment}");
+        return Ok(());
+    }
     let cfg = Config::from_env()?;
     let key = TransportKey::load_or_generate(&cfg.key_path)?;
     // Opening the sensors is fail-closed: a requested-but-unavailable sensor

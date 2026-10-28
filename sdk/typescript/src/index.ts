@@ -1,4 +1,4 @@
-/** Read-only service client. No cryptography or agent telemetry implementation. */
+/** Evidence reads and explicit Admin configuration registration. No observer or authority issuer. */
 export interface Agent {
   agent_id: string;
   evidence_count: number;
@@ -20,6 +20,25 @@ export interface Coverage {status: "unavailable"; reason: string; independent_ex
 export interface Verification {evidence_id: string; verification_scope: "integrity_only"; report: Record<string, unknown>; limitations: string[]}
 export interface Access {tenant_id: string; key_id: string; role: "reader" | "machine" | "admin"}
 export interface Options {timeoutMs?: number; retries?: number; maxResponseBytes?: number; allowLoopbackHttp?: boolean}
+export interface DeploymentDefinition {
+  schema_version: "vanian.deployment.v1";
+  deployment_name: string;
+  workloads: {host_id: string; admin_group: string; probe_id: string; transport_public_key_hex: string; logical_agent_ids: string[]}[];
+  collector: {host_id: string; admin_group: string; observer_id: string; noise_public_key_hex: string};
+  retention_days_requested: number;
+  contextforge: boolean;
+  evidence_mcp: boolean;
+}
+export interface DeploymentSummary {
+  deployment_name: string; workload_count: number; registered_at_ms: number;
+  provenance: "ADMIN_API_REGISTRATION"; configuration_status: "CONFIGURATION_VALID";
+  observer_active: "NOT_ASSESSED"; execution_reconciled: "NOT_ASSESSED"; identity_binding: "NOT_ESTABLISHED";
+}
+export interface Deployment extends Omit<DeploymentSummary, "deployment_name" | "workload_count"> {
+  tenant_id: string; definition: DeploymentDefinition; registered_by_key_id: string;
+  installed: "NOT_ASSESSED"; signed_evidence_available: "NOT_ASSESSED"; authorization_verified: "NOT_ASSESSED";
+  pilot_accepted: "NOT_ASSESSED"; trust_anchors_modified: false; retention_enforced: false;
+}
 
 export class VanianError extends Error {
   readonly status: number;
@@ -66,17 +85,23 @@ export class VanianClient {
   }
 
   private async get<T>(path: string): Promise<T> {
-    for (let attempt = 0; attempt <= this.retries; attempt++) {
+    return this.request<T>(path);
+  }
+
+  private async request<T>(path: string, body?: string): Promise<T> {
+    const retries = body === undefined ? this.retries : 0;
+    for (let attempt = 0; attempt <= retries; attempt++) {
       const token = await this.credentialProvider();
       if (typeof token !== "string" || !token || /\s/.test(token)) throw new Error("invalid bearer credential");
       try {
         const response = await fetch(this.origin + path, {
-          headers: {Authorization: `Bearer ${token}`, Accept: "application/json"},
+          method: body === undefined ? "GET" : "POST", body,
+          headers: {Authorization: `Bearer ${token}`, Accept: "application/json", ...(body === undefined ? {} : {"Content-Type": "application/json"})},
           redirect: "error", signal: AbortSignal.timeout(this.timeoutMs),
         });
         if (!response.ok) {
           await response.body?.cancel();
-          if ([429, 502, 503, 504].includes(response.status) && attempt < this.retries) {
+          if ([429, 502, 503, 504].includes(response.status) && attempt < retries) {
             await new Promise(resolve => setTimeout(resolve, 100 * 2 ** attempt));
             continue;
           }
@@ -111,7 +136,7 @@ export class VanianClient {
         return data as T;
       } catch (error) {
         if (error instanceof VanianError) throw error;
-        if (attempt === this.retries) throw new VanianError(0, "transport_failed");
+        if (attempt === retries) throw new VanianError(0, "transport_failed");
         await new Promise(resolve => setTimeout(resolve, 100 * 2 ** attempt));
       }
     }
@@ -119,6 +144,13 @@ export class VanianClient {
   }
 
   access(): Promise<Access> {return this.get("/v1/access");}
+  listDeployments(limit = 50, offset = 0): Promise<Page<DeploymentSummary>> {return this.get("/v1/deployments" + pageQuery(limit, offset));}
+  getDeployment(name: string): Promise<Deployment> {return this.get("/v1/deployments/" + identifier(name));}
+  registerDeployment(definition: DeploymentDefinition): Promise<Deployment> {
+    const body = JSON.stringify(definition);
+    if (!body || new TextEncoder().encode(body).length > 24576) throw new Error("deployment definition exceeds limit");
+    return this.request("/v1/deployments", body);
+  }
   listAgents(limit = 50, offset = 0): Promise<Page<Agent>> {return this.get("/v1/agents" + pageQuery(limit, offset));}
   getAgent(agentId: string): Promise<Agent> {return this.get("/v1/agents/" + identifier(agentId));}
   getAgentActivity(agentId: string, limit = 50, offset = 0): Promise<Page<EvidenceMetadata> & {agent_id: string}> {return this.get("/v1/agents/" + identifier(agentId) + "/activity" + pageQuery(limit, offset));}

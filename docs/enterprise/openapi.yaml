@@ -1,17 +1,17 @@
 openapi: 3.1.0
 info:
-  title: VANIAN Evidence Service Read API
+  title: VANIAN Evidence Service API
   version: 0.2.0
   description: >-
-    Implemented read and verification scope of aip-service. Existing /v1
+    Implemented read, verification and optional configuration scope of aip-service. Existing /v1
     routes remain unchanged. Bearer credentials bind exactly one tenant.
     Reader credentials can query metadata, signed verdicts and verification
     results, but cannot mutate, retrieve raw packets or export bundles.
     Inventory describes identities named in stored agent-signed packets;
     it does not establish workload registration, independent identity or
     observed execution. Historical collector archive admission requires
-    institution-configured observer anchors; current coverage and workload
-    registry ingestion are not integrated. Signed protocol documents remain opaque to clients
+    institution-configured observer anchors; current coverage remains unavailable. Optional Admin deployment registration is configuration
+    metadata only and does not modify verifier trust anchors or grant authority. Signed protocol documents remain opaque to clients
     and must be verified with institution-held public anchors.
     Pagination bounds responses; inventory currently scans tenant packets
     and is intended for evaluation-scale datasets.
@@ -20,6 +20,105 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /v1/deployments:
+    get:
+      operationId: listDeployments
+      summary: List tenant-bound administrator configuration registrations
+      parameters:
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Bounded metadata summary, no live assurance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+    post:
+      operationId: registerDeployment
+      summary: Admin-only immutable configuration registration; never grants authority
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentDefinition'
+      responses:
+        '201':
+          description: Created configuration record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+        '200':
+          description: Idempotent existing configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Configuration conflict or registry capacity reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Input exceeds 32 KiB body limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: JSON content type required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Invalid input shape or unknown field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/deployments/{name}:
+    get:
+      operationId: getDeployment
+      summary: Retrieve registered configuration; all higher assurance remains unassessed
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/DeploymentIdentifier'
+      responses:
+        '200':
+          description: Tenant-bound registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /v1/access:
     get:
       operationId: getAccess
@@ -456,6 +555,208 @@ components:
             kind: { const: Empty }
             what: { type: string }
           additionalProperties: false
+    DeploymentIdentifier:
+      type: string
+      minLength: 1
+      maxLength: 128
+      pattern: ^[A-Za-z0-9_.:-]+$
+      not:
+        enum:
+        - .
+        - ..
+    DeploymentPublicKey:
+      type: string
+      pattern: ^[0-9a-f]{64}$
+      not:
+        const: '0000000000000000000000000000000000000000000000000000000000000000'
+    RegisteredWorkload:
+      type: object
+      required:
+      - host_id
+      - admin_group
+      - probe_id
+      - transport_public_key_hex
+      - logical_agent_ids
+      properties:
+        host_id:
+          $ref: '#/components/schemas/DeploymentIdentifier'
+        admin_group:
+          $ref: '#/components/schemas/DeploymentIdentifier'
+        probe_id:
+          $ref: '#/components/schemas/DeploymentIdentifier'
+        transport_public_key_hex:
+          $ref: '#/components/schemas/DeploymentPublicKey'
+        logical_agent_ids:
+          type: array
+          maxItems: 20
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/DeploymentIdentifier'
+      additionalProperties: false
+    RegisteredCollector:
+      type: object
+      required:
+      - host_id
+      - admin_group
+      - observer_id
+      - noise_public_key_hex
+      properties:
+        host_id:
+          $ref: '#/components/schemas/DeploymentIdentifier'
+        admin_group:
+          $ref: '#/components/schemas/DeploymentIdentifier'
+        observer_id:
+          $ref: '#/components/schemas/DeploymentIdentifier'
+        noise_public_key_hex:
+          $ref: '#/components/schemas/DeploymentPublicKey'
+      additionalProperties: false
+    DeploymentDefinition:
+      type: object
+      required:
+      - schema_version
+      - deployment_name
+      - workloads
+      - collector
+      - retention_days_requested
+      - contextforge
+      - evidence_mcp
+      properties:
+        schema_version:
+          const: vanian.deployment.v1
+        deployment_name:
+          $ref: '#/components/schemas/DeploymentIdentifier'
+        workloads:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/RegisteredWorkload'
+        collector:
+          $ref: '#/components/schemas/RegisteredCollector'
+        retention_days_requested:
+          type: integer
+          minimum: 1
+          maximum: 3650
+        contextforge:
+          type: boolean
+        evidence_mcp:
+          type: boolean
+      additionalProperties: false
+    DeploymentSummary:
+      type: object
+      required:
+      - deployment_name
+      - workload_count
+      - registered_at_ms
+      - provenance
+      - configuration_status
+      - observer_active
+      - execution_reconciled
+      - identity_binding
+      properties:
+        deployment_name:
+          $ref: '#/components/schemas/DeploymentIdentifier'
+        workload_count:
+          type: integer
+          minimum: 1
+          maximum: 20
+        registered_at_ms:
+          type: integer
+          minimum: 0
+        provenance:
+          const: ADMIN_API_REGISTRATION
+        configuration_status:
+          const: CONFIGURATION_VALID
+        observer_active:
+          const: NOT_ASSESSED
+        execution_reconciled:
+          const: NOT_ASSESSED
+        identity_binding:
+          const: NOT_ESTABLISHED
+      additionalProperties: false
+    Deployment:
+      type: object
+      required:
+      - registered_at_ms
+      - provenance
+      - configuration_status
+      - observer_active
+      - execution_reconciled
+      - identity_binding
+      - tenant_id
+      - definition
+      - registered_by_key_id
+      - installed
+      - signed_evidence_available
+      - authorization_verified
+      - pilot_accepted
+      - trust_anchors_modified
+      - retention_enforced
+      properties:
+        registered_at_ms:
+          type: integer
+          minimum: 0
+        provenance:
+          const: ADMIN_API_REGISTRATION
+        configuration_status:
+          const: CONFIGURATION_VALID
+        observer_active:
+          const: NOT_ASSESSED
+        execution_reconciled:
+          const: NOT_ASSESSED
+        identity_binding:
+          const: NOT_ESTABLISHED
+        tenant_id:
+          type: string
+          minLength: 1
+          maxLength: 256
+        definition:
+          $ref: '#/components/schemas/DeploymentDefinition'
+        registered_by_key_id:
+          type: string
+          minLength: 1
+          maxLength: 256
+        installed:
+          const: NOT_ASSESSED
+        signed_evidence_available:
+          const: NOT_ASSESSED
+        authorization_verified:
+          const: NOT_ASSESSED
+        pilot_accepted:
+          const: NOT_ASSESSED
+        trust_anchors_modified:
+          const: false
+        retention_enforced:
+          const: false
+      additionalProperties: false
+    DeploymentPage:
+      type: object
+      required:
+      - items
+      - limit
+      - offset
+      - next_offset
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/DeploymentSummary'
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        offset:
+          type: integer
+          minimum: 0
+          maximum: 100000
+        next_offset:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 100000
+      additionalProperties: false
     Identifier:
       type: string
       minLength: 1

@@ -1,0 +1,18 @@
+   Compiling snow v0.10.0
+   Compiling aip-transport v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-transport)
+   Compiling aip-probe v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-probe)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.13s
+     Running unittests src/lib.rs (target/debug/deps/aip_probe-0d0b9c9c012a4fbc)
+
+running 8 tests
+test config::tests::parses_supported_sensors ... ok
+test config::tests::the_cgroup_placement_sensor_is_supported ... ok
+test config::tests::the_file_and_wire_sensors_are_supported ... ok
+test config::tests::the_pinned_collector_key_must_be_exactly_32_bytes_of_hex ... ok
+test config::tests::an_unknown_sensor_is_still_refused ... ok
+test config::tests::rejects_unknown_and_empty_sensor_selections ... ok
+test config::tests::the_connector_is_a_supported_sensor_on_its_own_or_with_tracepoints ... ok
+test keyfile::tests::generate_then_load_is_stable ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

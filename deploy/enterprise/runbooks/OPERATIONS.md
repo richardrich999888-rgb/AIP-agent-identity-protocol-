@@ -14,15 +14,12 @@ archive does not satisfy them.
    have the secret manager provision root-owned mode-0600
    `/etc/aip/collector-passphrase`. Maintain an encrypted, independently
    administered backup; copying a passphrase into an example is forbidden.
-3. Bootstrap the probe transport key on the probe host. The existing daemon
-   loads/generates that key before opening sensors or connecting. If the
-   collector has no Noise key yet, use a temporary **public-only**, random
-   32-byte pin in the probe config and start the probe. It cannot authenticate
-   a collector under that temporary pin. Stop the probe once
-   `/var/lib/aip-probe/transport.key.json` exists. Read only its `public_hex`
-   into the institutional enrollment procedure; never transfer `private_hex`.
-   A failed sensor startup at this stage is a failure to resolve, not evidence
-   that observation works.
+3. Bootstrap the probe transport key under its service account using the
+   implemented `aip-probe enroll --probe-id ID --key-path ABSOLUTE_PATH`
+   command. It emits a public-only record without opening sensors or connecting.
+   Generate the native allow-list using `integrations/service_delivery/enrollments.py`
+   after institutional approval. See `docs/enterprise/INSTALLATION.md` for exact
+   commands. No temporary collector pin or sensor startup is needed for enrollment.
 4. On the collector host, provision `/etc/aip/probes.json` as a nonempty JSON
    array whose entries are exactly `probe_id` and `transport_pubkey_hex`.
    Protect ownership and permissions; this allow-list determines which probes
@@ -30,7 +27,7 @@ archive does not satisfy them.
    It generates its own wrapped evidence and Noise transport keys, and
    publishes only `state/observer.pub` and `state/noise.pub`.
 5. Pin the real collector `noise.pub` in each probe's
-   `AIP_PROBE_COLLECTOR_NOISE_PUBKEY`, discard the temporary public pin, and
+   `AIP_PROBE_COLLECTOR_NOISE_PUBKEY`, revalidate configuration, and
    start the probe with `systemctl start aip-probe`. Independently agree the
    observer public key fingerprint with the auditor. These are different
    public keys for different purposes; no evidence private key is copied.

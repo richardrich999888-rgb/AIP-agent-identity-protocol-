@@ -25,6 +25,8 @@ def main():
     env["PYTHONPATH"] = str(ROOT / "sdk/python")
     env["AIP_ENTERPRISE_CLIENT_SMOKE"] = str(ROOT / "validation/enterprise/client_smoke.py")
     env["AIP_ENTERPRISE_PYTHON"] = sys.executable
+    env["VANIAN_REGISTRY_SMOKE"] = str(ROOT / "validation/enterprise/registry_smoke.py")
+    env["VANIAN_REGISTRY_PYTHON"] = sys.executable
     commands = [
         ("format", ["cargo", "fmt", "--all", "--", "--check"]),
         ("rust", ["cargo", "test", "--locked", "-p", "airon-aip", "-p", "aip-mcp-gateway", "-p", "aip-airi", "-p", "aip-authorize", "-p", "aip-observe-verify", "-p", "aip-transport", "-p", "aip-collector", "-p", "aip-reconcile", "--no-fail-fast"]),
@@ -36,8 +38,11 @@ def main():
         ("python_sdk", [sys.executable, "-m", "unittest", "discover", "-s", "sdk/python/tests", "-v"]),
         ("mcp_boundaries", [sys.executable, "validation/enterprise/test_client_boundaries.py"]),
         ("typescript_sdk", ["node", "--test", "sdk/typescript/test/client.test.ts"]),
+        ("typescript_dependencies", ["npm", "ci", "--prefix", "sdk/typescript", "--ignore-scripts"]),
+        ("typescript_build", ["npm", "run", "build", "--prefix", "sdk/typescript"]),
         ("console_syntax", ["node", "--check", "integrations/enterprise-console/app.js"]),
         ("real_api_mcp_clients", ["cargo", "test", "--locked", "-p", "airon-aip", "--test", "enterprise_api", "real_http_clients_use_the_service_boundary", "--", "--ignored", "--nocapture"]),
+        ("real_registry_clients", ["cargo", "test", "--locked", "-p", "airon-aip", "--test", "deployment_api", "real_http_registry_clients", "--", "--ignored", "--nocapture"]),
         ("offline_build", ["cargo", "build", "--locked", "-p", "aip-observe-verify", "-p", "aip-reconcile", "--bin", "aip-lineage", "--bin", "aip-observe-verify"]),
         ("historical_offline", [sys.executable, "integrations/real_agents/tests/offline_archive_check.py", "--repo", str(ROOT), "--tools", str(ROOT / "target/debug")]),
         ("shell_syntax", ["bash", "-n", "integrations/agents/run.sh"]),
