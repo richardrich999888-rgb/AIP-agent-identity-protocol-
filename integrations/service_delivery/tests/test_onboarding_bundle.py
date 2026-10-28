@@ -74,6 +74,15 @@ class OnboardingBundle(unittest.TestCase):
         result = json.loads((self.work / "output/collector/probes.json").read_text())
         self.assertEqual(result, [{"probe_id": "agent-linux-01", "transport_pubkey_hex": "cd"*32}])
 
+    def test_registration_export_keeps_tenant_and_assurance_out_of_admin_request(self):
+        self.prepare()
+        registration = json.loads((self.work / "output/deployment-registration.json").read_text())
+        self.assertEqual(registration["schema_version"], "vanian.deployment.v1")
+        self.assertEqual(registration["workloads"][0]["logical_agent_ids"], [])
+        self.assertEqual(registration["retention_days_requested"], 90)
+        self.assertNotIn("tenant_id", registration)
+        self.assertNotIn("observer_active", registration)
+
     def test_every_output_has_integrity_digest_and_retention_is_only_requested(self):
         self.prepare()
         out = self.work / "output"

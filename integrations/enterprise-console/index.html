@@ -11,6 +11,11 @@
 <section><h2>Stored agent identities</h2><p>These identities come from signed packets. They are not a monitored-workload registry or independent process attribution.</p>
 <button id="refresh" disabled>Refresh</button><ul id="agents"></ul></section>
 <section><h2>Agent activity</h2><pre id="activity">Select an agent</pre></section>
+<section><h2>Registered deployments</h2>
+<p>These are administrator-approved configuration records. Registration does not prove host identity, installed sensors, live coverage or execution. Listed public keys do not change verifier trust anchors.</p>
+<pre id="deployments">No query yet</pre>
+<form id="deployment-form"><label>Deployment name <input id="deployment-name" maxlength="128" required></label><button>Retrieve registration</button></form>
+<pre id="deployment">No registration selected</pre></section>
 <section><h2>Evidence and verification</h2><form id="evidence-form"><label>Record type <select id="evidence-kind"><option value="evidence">Agent packet</option><option value="observations">Collector archive</option></select></label><label>Evidence identifier <input id="evidence-id" maxlength="256" required></label><button>Retrieve metadata and verify</button></form>
 <p>Verification checks historical integrity with the existing verifier. Its stated scope and unevaluated rules matter; it does not establish current coverage or off-host key custody.</p><pre id="evidence">No query yet</pre></section>
 <section><h2>Signed execution verdict</h2><form id="verdict-form"><label>Verdict identifier <input id="verdict-id" maxlength="256" required></label><button>Retrieve signed document</button></form>

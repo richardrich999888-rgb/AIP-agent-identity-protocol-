@@ -1,6 +1,6 @@
 # Customer clients and optional evidence MCP
 
-The customer SDK reads the implemented `/v1` service contract in
+The customer SDK reads the implemented `/v1` service contract and supports optional Admin deployment configuration registration in
 `openapi.yaml`. It is separate from `sdk/python/vanian_airi`, which emits
 application telemetry. Neither SDK is required by the runtime sensor or is an
 independent observation authority.
@@ -43,6 +43,14 @@ Methods: `access`, `list_agents`, `iter_agents`, `get_agent`,
 `get_coverage`, `get_health`. Pages have `items`, `limit`, `offset`,
 `next_offset`. `ApiError` exposes redacted `status` and `code`.
 
+Optional configuration methods are `list_deployments`, `get_deployment` and
+Admin-only `register_deployment`. They require the operator-enabled registry
+described in [onboarding](CUSTOMER_ONBOARDING.md). Registration takes the kit's
+`deployment-registration.json`; responses retain explicit unassessed execution,
+identity and coverage fields. It neither admits nor edits signed evidence.
+There are no automatic POST retries, including after a timeout or 503. Query
+the immutable name before an operator chooses to resubmit.
+
 TLS validation stays enabled, redirects are refused, timeouts and response
 sizes are bounded, only GETs are retried and the credential callback is
 re-evaluated for rotation. Plain HTTP is restricted to explicit loopback test
@@ -50,7 +58,8 @@ opt-in. No client logs record payloads or credentials.
 
 ## TypeScript
 
-`sdk/typescript/src/index.ts` exposes the corresponding typed read methods.
+`sdk/typescript/src/index.ts` exposes the corresponding typed read methods and
+`listDeployments`, `getDeployment`, `registerDeployment` configuration methods.
 The installable package exports compiled JavaScript and type declarations.
 It is private and has not been published to npm; see the engineering package
 build/install procedure below.

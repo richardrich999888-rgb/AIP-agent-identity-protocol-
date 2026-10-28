@@ -1,4 +1,4 @@
-"""Read-only client for the AIP evidence service, independent of AIRI telemetry."""
+"""Evidence reads and Admin configuration registration, separate from AIRI telemetry."""
 
 from .client import ApiError, Page, VanianClient
 

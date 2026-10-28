@@ -36,6 +36,11 @@ live coverage, signed authorization or pilot acceptance.
    Configure service signing custody and durable vault/artifact paths as in
    the existing service/runbook. Terminate TLS at the reviewed institutional
    ingress; do not expose the raw HTTP port to an untrusted network.
+6. Optionally enable the existing service's private configuration registry with
+   `AIP_DEPLOYMENTS_PATH` and register the reviewed kit through a separate Admin
+   credential as described in [onboarding](CUSTOMER_ONBOARDING.md). This records
+   declared topology only; actual host enrollment, independent key custody and
+   verifier-anchor provisioning remain separate operator procedures.
 
 ## Admit collector evidence
 
@@ -90,7 +95,7 @@ authorization.
 
 Retrieve existing signed verdicts and ledgers through the original service
 routes. Automatic collector/authority/receipt reconciliation scheduling,
-registered-workload inventory and a production signed-packet admission policy
+independently authenticated running-workload inventory and a production signed-packet admission policy
 are not delivered by this slice. Do not equate archived evidence retrieval
 with the complete final acceptance milestone.
 
@@ -100,7 +105,8 @@ Use `/console` with a Reader credential for actual API metadata, historical
 verification, signed verdicts and explicit unavailable coverage. Credentials
 remain in memory; disconnect/reload clears them. The console refreshes every
 15 seconds while visible, lists the first 25 packet identities and is not a
-complete monitored-workload inventory. Use SDK pagination for larger sets.
+complete monitored-workload inventory. Optional deployment registrations appear
+separately with unassessed execution status. Use SDK pagination for larger sets.
 
 Agree retention, encrypted backups, data residency, anchor rotation,
 revocation, incident handling and an independent security assessment before

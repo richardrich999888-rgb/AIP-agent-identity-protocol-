@@ -11,6 +11,12 @@ transport-key enrollment no longer needs a temporary pin or sensor startup.
 The offline onboarding kit checks actual configuration/public references and
 keeps all assurance stages above configuration unassessed. The existing
 HTTP/SDK/MCP smoke now exercises #10's posture report against the real service.
+The next increment adds an optional tenant-bound Admin configuration registry
+inside that same service, matching SDK methods, a kit registration export and
+Reader console views. Authenticated registration is not authenticated workload
+enrollment: public-key possession, real administration, installation, authority
+and execution remain unassessed. See [onboarding](CUSTOMER_ONBOARDING.md) for
+its single-process JSONL limits and recovery procedure.
 
 Available for a **scoped paid engineering evaluation**: package/configuration
 review, approved-host installation qualification, tenant-scoped API/SDK/MCP
@@ -33,7 +39,7 @@ Still required before an execution-assurance pilot can be accepted:
   runtime revalidation, capacity, retention/deletion/backup/rotation exercises
   and independent security assessment. Existing historical results stay separate.
 
-The first vendor-neutral network-ingestion connector, authenticated enrollment
+The first vendor-neutral network-ingestion connector, cryptographically authenticated workload enrollment
 backend, full SDK registry distributions, and additional agent profiles remain
 deferred. No traffic interception, agentless discovery, inline AI firewall,
 certification, HSM deployment or universal compatibility claim is introduced.

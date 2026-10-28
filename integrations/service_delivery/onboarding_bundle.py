@@ -71,6 +71,16 @@ def prepare(args):
         "software-manifest.json": runtime.canonical(archive_manifest),
         "collector/collector.env": Path(args.collector_config).read_bytes(),
         "collector/probes.json": runtime.canonical(allowlist(enrollment)),
+        "deployment-registration.json": runtime.canonical({
+            "schema_version": "vanian.deployment.v1", "deployment_name": manifest["deployment_name"],
+            "workloads": [{"host_id": host["host_id"], "admin_group": host["admin_group"],
+                "probe_id": configs[host["host_id"]][0]["AIP_PROBE_ID"],
+                "transport_public_key_hex": enrollment[host["host_id"]]["transport_pubkey_hex"],
+                "logical_agent_ids": []} for host in manifest["agent_hosts"]],
+            "collector": {"host_id": manifest["collector"]["host_id"], "admin_group": manifest["collector"]["admin_group"],
+                "observer_id": collector["AIP_COLLECTOR_OBSERVER_ID"], "noise_public_key_hex": next(iter(pins))},
+            "retention_days_requested": args.retention_days,
+            "contextforge": manifest["integrations"]["contextforge"], "evidence_mcp": manifest["integrations"]["evidence_mcp"]}),
         "requested-retention.json": runtime.canonical({"days": args.retention_days,
             "enforcement": "NOT_CONFIGURED_BY_THIS_TOOL", "legal_hold": "REQUIRES_INSTITUTION_POLICY",
             "raw_export_authorization": "REQUIRES_EXISTING_API_ADMIN_OR_MACHINE_CONTROLS"})}

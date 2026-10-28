@@ -33,10 +33,14 @@
     byId("credential").value = "";
     byId("refresh").disabled = true;
     byId("agents").replaceChildren();
-    for (const id of ["health", "coverage", "activity", "evidence", "verdict"]) display(id, "Disconnected");
+    for (const id of ["health", "coverage", "activity", "evidence", "verdict", "deployments", "deployment"]) display(id, "Disconnected");
     display("status", "Disconnected");
   }
   async function refresh() {
+    const requestGeneration = generation;
+    read("/v1/deployments?limit=25&offset=0")
+      .then(value => {if (generation === requestGeneration) display("deployments", value);})
+      .catch(error => {if (generation === requestGeneration) display("deployments", error.message);});
     const [health, coverage, page] = await Promise.all([read("/v1/health"), read("/v1/coverage"), read("/v1/agents?limit=25&offset=0")]);
     display("health", health); display("coverage", coverage);
     const items = page.items.map(agent => {
@@ -61,6 +65,13 @@
   });
   byId("refresh").addEventListener("click", () => refresh().catch(error => display("status", error.message)));
   byId("disconnect").addEventListener("click", disconnect);
+  byId("deployment-form").addEventListener("submit", async event => {
+    event.preventDefault(); const current = generation;
+    try {
+      const value = await read("/v1/deployments/" + encodeURIComponent(byId("deployment-name").value));
+      if (current === generation) display("deployment", value);
+    } catch (error) {if (current === generation) display("deployment", error.message);}
+  });
   byId("evidence-form").addEventListener("submit", async event => {
     event.preventDefault();
     try {

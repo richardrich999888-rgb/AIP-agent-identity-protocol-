@@ -4,7 +4,10 @@ The planner is now reused by a runnable [customer installation-kit composer](../
 `onboarding_bundle.py` validates actual role configs and public enrollment records
 against the existing software archive verifier. `enrollments.py` writes the
 collector's native public allow-list. Only configuration can be validated offline;
-all higher assurance stages remain unassessed. See [installation](../../docs/enterprise/INSTALLATION.md)
+all higher assurance stages remain unassessed. It also exports a bounded public
+`deployment-registration.json` for the optional Admin configuration registry in
+the existing API. Registration does not verify a host or modify trust anchors.
+See [installation](../../docs/enterprise/INSTALLATION.md)
 for the implemented native enrollment and Debian commands.
 
 **Purpose:** Make enterprise onboarding repeatable without inventing security coverage. This is an offline JSON configuration preflight for customer-managed deployments. It does **not** install sensors, discover agents, contact the evidence API, authorize tools, verify signatures or certify a pilot.
@@ -29,7 +32,7 @@ A successful plan says `VALIDATED_PLANNING_INPUT_ONLY`, `NOT_VERIFIED` instituti
 
 ## Remaining engineering
 
-1. Add tenant-scoped enrolled workload and authenticated connector inventories to the existing evidence service.
+1. Extend the implemented tenant-scoped configuration registry only after independently authenticated workload enrollment and connector identities can be verified. Configuration registration alone does not establish them.
 2. Connect signed live health to a read-only coverage summary; do not label historical signature verification as live observation.
 3. Make SIEM forwarding and customer retention policies easy to configure under approved access controls.
 4. Complete one genuine model-backed same-run authorization/observation/gateway/reconciliation flow verified offline by the institution.

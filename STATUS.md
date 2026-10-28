@@ -11,6 +11,11 @@ configuration-kit workflow. See [delivery inventory](docs/enterprise/DELIVERY_IN
 [customer installation](docs/enterprise/INSTALLATION.md) and
 [readiness](docs/enterprise/PRODUCT_READINESS.md). Native package construction
 and staged tests do not close clean-host or separate-collector acceptance.
+The existing enterprise service now optionally stores immutable tenant-bound
+Admin deployment configuration, exported by the kit composer and retrievable
+through both SDKs and the Reader console. It is unsigned operational metadata,
+not workload authentication or observer evidence. Registration never upgrades
+coverage, authority or execution, and does not modify verification anchors.
 
 Draft PR #9 builds on the already-combined draft PR #8. Actual ADK/A2A and
 Microsoft-governed ContextForge runs retain verified gateway receipts, while

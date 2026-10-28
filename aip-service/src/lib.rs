@@ -6,6 +6,7 @@ pub mod artifacts;
 pub mod auth;
 pub mod authority;
 pub mod console;
+pub mod deployments;
 pub mod enterprise;
 pub mod evidence;
 pub mod handlers;
@@ -137,6 +138,14 @@ impl ManagedSigning {
 
 /// Build the full router from shared state.
 pub fn router(state: Arc<AppState>) -> Router {
+    router_with_deployments(state, Arc::new(deployments::DeploymentRegistry::disabled()))
+}
+
+/// Explicit optional configuration registry; no change to evidence or anchors.
+pub fn router_with_deployments(
+    state: Arc<AppState>,
+    registry: Arc<deployments::DeploymentRegistry>,
+) -> Router {
     Router::new()
         .route("/console", get(console::index))
         .route("/console/app.js", get(console::script))
@@ -188,6 +197,13 @@ pub fn router(state: Arc<AppState>) -> Router {
             get(enterprise::verify_stored),
         )
         .route("/v1/access", get(enterprise::access))
+        .route(
+            "/v1/deployments",
+            get(deployments::list)
+                .post(deployments::register)
+                .layer(axum::extract::DefaultBodyLimit::max(32 * 1024)),
+        )
+        .route("/v1/deployments/:name", get(deployments::get))
         .route("/v1/agents", get(enterprise::agents))
         .route("/v1/agents/:agent_id", get(enterprise::agent))
         .route("/v1/agents/:agent_id/activity", get(enterprise::activity))
@@ -218,5 +234,6 @@ pub fn router(state: Arc<AppState>) -> Router {
             state.clone(),
             enterprise::scope_and_audit,
         ))
+        .layer(axum::Extension(registry))
         .with_state(state)
 }

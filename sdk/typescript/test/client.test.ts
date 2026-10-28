@@ -1,13 +1,30 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {createServer} from "node:http";
-import {VanianClient, VanianError} from "../src/index.ts";
+import {VanianClient, VanianError, type DeploymentDefinition} from "../src/index.ts";
 
 test("secure origin and bounds", () => {
   for (const url of ["http://bank.internal", "https://user:secret@bank.internal", "https://bank.internal/path"]) {
     assert.throws(() => new VanianClient(url, () => "credential"));
   }
   assert.throws(() => new VanianClient("https://bank.internal", () => "credential", {retries: 4}));
+});
+
+test("configuration POST is bounded and never automatically retried", async () => {
+  let calls = 0;
+  const server = createServer((req, res) => {
+    calls++; req.resume(); res.writeHead(503, {"Content-Type": "application/json"}); res.end('{"error":"unavailable"}');
+  });
+  await new Promise<void>(resolve => server.listen(0, "127.0.0.1", resolve));
+  const address = server.address(); assert.ok(address && typeof address !== "string");
+  const client = new VanianClient(`http://127.0.0.1:${address.port}`, () => "admin-secret", {allowLoopbackHttp: true, retries: 3});
+  try {
+    const definition = {schema_version: "vanian.deployment.v1"} as DeploymentDefinition;
+    await assert.rejects(client.registerDeployment(definition), (e: unknown) => e instanceof VanianError && e.status === 503 && !e.message.includes("admin-secret"));
+    assert.equal(calls, 1);
+    assert.throws(() => client.registerDeployment({deployment_name: "x".repeat(25000)} as DeploymentDefinition));
+    assert.throws(() => client.listDeployments(101));
+  } finally {await new Promise<void>(resolve => server.close(() => resolve()));}
 });
 
 test("auth rotation, bounded response, redirect refusal", async () => {

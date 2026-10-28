@@ -73,6 +73,9 @@ jobs:
         run: |
           export AIP_ENTERPRISE_PYTHON="$(command -v python)"
           cargo test --locked -p airon-aip --test enterprise_api real_http_clients_use_the_service_boundary -- --ignored --nocapture
+          export VANIAN_REGISTRY_SMOKE="$GITHUB_WORKSPACE/validation/enterprise/registry_smoke.py"
+          export VANIAN_REGISTRY_PYTHON="$AIP_ENTERPRISE_PYTHON"
+          cargo test --locked -p airon-aip --test deployment_api real_http_registry_clients -- --ignored --nocapture
       - name: Build verifiable Linux package
         run: |
           cargo build --locked --release -p aip-probe --bin aip-probe -p aip-collector --bin aip-collector -p aip-observe-verify --bin aip-observe-verify
