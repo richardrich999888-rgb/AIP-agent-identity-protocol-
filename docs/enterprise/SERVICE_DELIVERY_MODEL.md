@@ -84,3 +84,6 @@ Before regulated production: demonstrate approved clean-host installation and ke
 ## Recommended product positioning
 
 **WitnessAI-style enterprise buying and deployment experience; VANIAN-specific independent execution evidence.** Complement security-policy platforms rather than claiming those systems cannot observe or govern agents.
+### Read-only customer posture summary
+
+The [Reader posture report](../../integrations/service_delivery/README.md) uses the existing enterprise SDK to inspect a customer's actual `/v1` API health, historical packet identity list and coverage status. It never treats application-signed identity or API-reported health as independently proven runtime coverage. This is a supporting customer security workflow, not a network discovery engine or completed live integration.
