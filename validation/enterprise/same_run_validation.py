@@ -11,6 +11,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import select
 import secrets
 import shutil
@@ -244,6 +245,8 @@ def main():
     mounted = False
     namespace_created = False
     agent_output = None
+    trust_path = None
+    tool_work = None
     result = {'status':'FAIL', 'autonomous_workload_executed':False, 'run_id':'same-run-'+secrets.token_hex(12),
         'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         'model_id':MODEL_ID, 'task':'Read synthetic loan 1 and recommend human review, without approving/changing records.',
@@ -377,6 +380,7 @@ def main():
         shutil.copyfile(initialized['gateway_key_path'],gateway_dir/'gateway.key')
         os.chown(gateway_dir/'gateway.key',UID_GATEWAY,UID_GATEWAY); (gateway_dir/'gateway.key').chmod(0o600)
         trust_path = Path(initialized['run_trust_path'])
+        save(out/'run-trust.json',json.loads(trust_path.read_text()))
         protected_json(gateway_dir/'trust.json',json.loads(trust_path.read_text()),UID_GATEWAY)
         decisions = directory(gateway_dir/'decisions',UID_GATEWAY)
         import jwt
@@ -507,6 +511,8 @@ def main():
         if agent.wait(timeout=10) != 0: raise Refused('genuine agent returned failure')
         result['autonomous_workload_executed']=True
         time.sleep(1); end=now()
+        result.update(agent_id=initialized['agent_id'],agent_pid=agent.pid,from_ms=start,to_ms=end,
+            elapsed_ms=end-start,model_calls=len([e for e in agent_output.events if e.get('event')=='model_response']))
         for _ in range(30):
             time.sleep(2); cp=checkpoint(state); verify(public,tools,anchor,cp)
             if covered(records(public/ARCHIVES[1]),start,end,MECHANISMS): break
@@ -637,10 +643,35 @@ def main():
         for child in reversed(processes): cleanup('terminate_child', lambda: terminate(child))
         if agent_output: cleanup('close_agent_output', agent_output.close)
         for stream in streams: cleanup('close_log', stream.close)
+        probe_log=private/'probe.log'
+        if probe_log.is_file():
+            # Retain only the fixed numeric diagnostic, never framework logs,
+            # authentication data or arbitrary probe stderr.
+            diagnostics=[line for line in probe_log.read_text(errors='replace').splitlines()
+                if re.fullmatch(r'AIP_PERF_QUERY_BPF_ERROR errno=-?\d+ cpu=\d+ fd=\d+',line)]
+            save(public/'probe-query-diagnostics.json',{'source_authority':'probe_kernel_query_diagnostic',
+                'lines':diagnostics,'effect':'failed query remains Unverifiable and resets signed coverage'})
         # Preserve any independently signed partial archives from a failed run.
         state=private/'collector-state'
         for name in ARCHIVES:
             if (state/name).is_file(): cleanup('retain_archive', lambda: shutil.copyfile(state/name,public/name))
+        # Public anchors and the controller's checkpoint survive a coverage
+        # refusal too. They establish retained bytes, never successful scope.
+        if all((public/name).is_file() for name in ARCHIVES):
+            failure_cp={'sha256':{name:sha256(public/name) for name in ARCHIVES}}
+            save(out/'checkpoint.json',failure_cp)
+            if trust_path is not None and trust_path.is_file():
+                retained_trust=json.loads(trust_path.read_text())
+                retained_trust['checkpoints'][result['run_id']]={
+                    'batches_sha256':failure_cp['sha256'][ARCHIVES[0]],
+                    'health_sha256':failure_cp['sha256'][ARCHIVES[1]]}
+                save(out/'run-trust.json',retained_trust)
+        if (gateway_dir/'receipts.jsonl').is_file():
+            cleanup('retain_gateway_receipts',lambda: shutil.copyfile(gateway_dir/'receipts.jsonl',public/'receipts.jsonl'))
+        if tool_work is not None:
+            for source_name,target_name in [('tool-events.jsonl','tool-events.jsonl'),('loan-1-review.json','loan-1-review.json')]:
+                if (tool_work/source_name).is_file():
+                    cleanup('retain_synthetic_tool_result',lambda: shutil.copyfile(tool_work/source_name,public/target_name))
         cleanup('restore_host_network',lambda: os.setns(original_net,0))
         cleanup('close_host_network',lambda: os.close(original_net))
         # A child can leave descendants behind. Kill the whole dedicated
@@ -660,8 +691,16 @@ def main():
                     time.sleep(0.1)
             if cg.exists(): cleanup_errors.append({'step':'remove_cgroup','type':'Busy','detail':'dedicated cgroup remained after termination'})
         if namespace_created: cleanup('delete_network_namespace',lambda: command(['ip','netns','delete',namespace]))
-        if mounted: cleanup('unmount_workload',lambda: command(['umount',workload]))
+        if mounted:
+            def unmount():
+                status=subprocess.run(['umount',str(workload)],cwd='/',capture_output=True,text=True,timeout=10)
+                if status.returncode:
+                    # This fixed command reports only the public mount path;
+                    # it cannot contain framework credentials.
+                    raise Refused(f'umount exited {status.returncode}: {status.stderr.strip()[:512]}')
+            cleanup('unmount_workload',unmount)
         result['cleanup_errors']=cleanup_errors
+        result['finished_at_ms']=now()
         if cleanup_errors and result['status']=='PASS':
             result['status']='FAIL'
             result['failure']={'type':'CleanupFailure','detail':'disposable runtime cleanup did not complete'}
