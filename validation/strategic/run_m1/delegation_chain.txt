@@ -1,0 +1,8 @@
+DELEGATION CHAIN (observed lineage, collector-signed evidence)
+batches examined : 2
+edges derived    : 1
+distinct parents : 1
+---
+seq=2 fork@446384984798ns  parent pid=1799 start=41619  ->  child pid=1910 start=44638  image=8ac215ec4c1ce4a9c23a10cd3e5898d60419bdfab1ac7444d6bdd1690701de24  path="/usr/bin/sleep"  via=SchedTracepoint
+---
+Each line is observed lineage only. Attribution to an authorised agent identity is a reconciler verdict against a signed ExpectedExecution, not asserted here.

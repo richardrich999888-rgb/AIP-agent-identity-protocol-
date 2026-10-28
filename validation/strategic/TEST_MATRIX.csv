@@ -1,0 +1,13 @@
+cycle,test_id,description,required_experiment,result,evidence_path,source_commit,notes
+0,baseline,branch survey + host/kernel + harness read,source inspection,PASS,validation/strategic/BASELINE.md,4ca5a4d,most-complete branch selected; kernel lacks kprobes
+1,M1-phase1-observe,LangGraph agent observed->attested->offline-verified->lineage (live),integrations/agents/run.sh live,PASS,validation/strategic/run_m1/,4ca5a4d,112 exec/fork + 347 kernel events signed; VERIFIED offline; 1 lineage edge; clock-sync enforcement disabled (host unsynced) and the 16s bound is signed into the evidence
+1,M1-neg-wrong-observer,verify under wrong observer id,negative control,PASS,validation/strategic/run_m1/,4ca5a4d,NOT VERIFIED (correctly rejected)
+1,M1-neg-mut-timestamp,mutate signed attested_at_ms,negative control,PASS,validation/strategic/,4ca5a4d,NOT VERIFIED (correctly rejected)
+1,M1-neg-mut-observerid,mutate signed observer_id,negative control,PASS,validation/strategic/,4ca5a4d,NOT VERIFIED (correctly rejected)
+1,M1-neg-mut-kernelpid,mutate kernel-event child_pid,negative control,PASS,validation/strategic/,4ca5a4d,NOT VERIFIED (correctly rejected)
+1,M1-neg-cosmetic-byte,raw byte flip outside canonical preimage,negative control,PASS,validation/strategic/,4ca5a4d,VERIFIED (correct: byte not in signed canonical bytes)
+-,M2-sameRun-authz-receipt-reconcile,signed ExpectedExecution join -> VERIFIED_EXECUTION with MCP receipt,aip-mcp-gateway + decision point + reconciler, same run,NOT_RUN,,4ca5a4d,Phase 3; harness stops before the reconciler verdict; component tests exist in aip-reconcile
+-,M3-three-frameworks,repeat live corroboration across >=3 real agent frameworks,per-framework harness,NOT_RUN,,4ca5a4d,smolagents/goose/aider/etc.; needs per-framework envs (and model creds for genuinely model-backed tasks)
+-,RBI-five-act,rerun five-act RBI demo,validation/rbi_demo,NOT_RUN,,4ca5a4d,enumerated not executed this invocation
+-,clock-sync-production,collector starts with NTP-synced clock,chrony per deploy/pilot/chrony-cert-in.conf,BLOCKED,,4ca5a4d,no time daemon / no NTP egress in sandbox; production requirement correct and unmet here
+-,kprobe-observation,syscall-level kprobe sensors,kprobe eBPF,BLOCKED,,4ca5a4d,CONFIG_KPROBES unset on this kernel

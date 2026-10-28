@@ -1,0 +1,29 @@
+{
+  "schema": "vanian.strategic.evidence/v1",
+  "source_commit": "4ca5a4d3003c385f7312c65c1053b03f48f94143",
+  "branch": "claude/strategic-validation-loop",
+  "experiment": "M1 — Phase 1 real-agent observation + offline verification + lineage",
+  "host": {"kernel": "6.18.44-fc-v180", "root": true, "config_kprobes": false},
+  "subject": "integrations/agents/agent_subject.py (LangGraph 1.2.11, no LLM by design)",
+  "harness": "integrations/agents/run.sh, run via scratchpad copy differing only in AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=1->0",
+  "clock_caveat": "host is NTP-unsynchronized (no time daemon, no NTP egress); the collector SIGNED a 16000000 us (16 s) worst error bound and ContinuityUnverified, so the degraded timestamp assurance is recorded inside the evidence, not hidden. Signature/observation/offline-verify assurance is unaffected.",
+  "measurements": {
+    "agent_runs": 8,
+    "exec_fork_events_in_signed_archive": 112,
+    "kernel_events_in_archive": 347,
+    "attested_batches": 2,
+    "lineage_edges_start_verified": 1,
+    "offline_verify": "VERIFIED",
+    "signed_clock_error_bound_us": 16000000,
+    "signed_observer_state": "ContinuityUnverified",
+    "coverage_asserted": 0
+  },
+  "negative_controls": {
+    "wrong_observer_id": "NOT VERIFIED (rejected)",
+    "mutated_signed_attested_at_ms": "NOT VERIFIED (rejected)",
+    "mutated_signed_observer_id": "NOT VERIFIED (rejected)",
+    "mutated_kernel_event_child_pid": "NOT VERIFIED (rejected)",
+    "raw_cosmetic_byte_flip": "VERIFIED (correct: byte was outside the canonical signed preimage)"
+  },
+  "artifacts_sha256_file": "validation/strategic/run_m1/SHA256SUMS"
+}

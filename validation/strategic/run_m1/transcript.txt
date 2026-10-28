@@ -1,0 +1,63 @@
+
+[36m== Preconditions[0m
+       kernel 6.18.44-fc-v180, tracefs mounted, langgraph 1.2.11
+
+[36m== Build the daemons and the offline verifier[0m
+  [32mPASS[0m aip-probe, aip-collector, aip-observe-verify, aip-lineage built
+
+[36m== Generate the probe's transport key (the probe holds no evidence key)[0m
+  [32mPASS[0m probe key 9722342d77153a02... written to the allow-list
+
+[36m== Start the collector (holds the only evidence key, wrapped at rest)[0m
+  [32mPASS[0m collector up on 127.0.0.1:45451; observer.pub and noise.pub published
+
+[36m== Start the probe with the kernel sensors[0m
+  [32mPASS[0m probe up, four kernel sensors open, connected over the confidential transport
+
+[36m== Run the REAL LangGraph agent as the observed workload[0m
+       ran the agent 8 times; observed pids: 1858 1859 1861 1862 1864 1865 1867 1868 1870 1871 1873 1874 1876 1877 1879 1880 
+  [32mPASS[0m the LangGraph agent executed: parent graph spawned a child that wrote a file and connected
+
+[36m== Wait for the collector to attest and archive the observation[0m
+       attested batches on disk: 2
+       process exec/fork events captured in the signed archive: 112
+  [32mPASS[0m the real agent's execution is inside the collector-signed evidence (112 exec/fork events)
+
+[36m== Verify the archive OFFLINE — separate process, two files and a public key[0m
+observer   : collector.phase1 (key version 1)
+anchor     : c844bbefe0ebb45dcfaef2e6599b63cd1ed75579846da860482179a5f4af9ec4
+
+ATTESTED BATCHES
+  records            : 2
+  chain positions    : 1..=2
+  chain start        : the observer's epoch (complete from origin)
+  final head         : a73ba9d98e5f2320e8c85416c3a80effbf9aa883e94ffcab4ee0702e7a29ae3b
+  observations       : 0
+  kernel events      : 347
+
+SIGNED HEALTH
+  records            : 1
+  states signed      : ContinuityUnverified
+  asserting coverage : 0
+  asserting none     : 1
+  heads cross-checked against batches : 0
+  clock, steered / adrift / not stated : 0 / 1 / 0
+  worst error bound the collector signed : 16000000 us (16000.0 ms)
+
+VERIFIED
+The anchored observer key signed exactly these records, in this order, and each record's prev_head equals the recomputed head of the one before it.
+This does not mean the observations are true: a host with root can lie to its own probe. It means these bytes are what the off-host collector received and recorded, and that the supplied records link without internal gaps or alterations. A valid prefix or suffix is still a valid window: detecting truncation requires an independently retained boundary checkpoint.
+  [32mPASS[0m offline: the real agent's attested batches verify under the published key alone
+
+[36m== Derive the delegation chain from the SAME archive (Phase 3)[0m
+DELEGATION CHAIN (observed lineage, collector-signed evidence)
+batches examined : 2
+edges derived    : 1
+distinct parents : 1
+---
+seq=2 fork@446384984798ns  parent pid=1799 start=41619  ->  child pid=1910 start=44638  image=8ac215ec4c1ce4a9c23a10cd3e5898d60419bdfab1ac7444d6bdd1690701de24  path="/usr/bin/sleep"  via=SchedTracepoint
+---
+Each line is observed lineage only. Attribution to an authorised agent identity is a reconciler verdict against a signed ExpectedExecution, not asserted here.
+  [32mPASS[0m delegation chain derived from the verified archive (1 start-verified edges)
+
+[36m== DEMONSTRATED (Phases 1 and 3)[0m

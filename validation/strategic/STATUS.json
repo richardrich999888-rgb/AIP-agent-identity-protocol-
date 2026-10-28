@@ -1,0 +1,32 @@
+{
+  "schema": "vanian.strategic.status/v1",
+  "invocation_utc": "2026-10-28",
+  "branch": "claude/strategic-validation-loop",
+  "base_branch": "origin/integration/snifferdog-complete-enterprise-validation",
+  "commit": "4ca5a4d3003c385f7312c65c1053b03f48f94143",
+  "host": {
+    "kernel": "6.18.44-fc-v180",
+    "config_kprobes": false,
+    "config_uprobe_events": true,
+    "tracefs": true,
+    "root": true
+  },
+  "anti_fabrication": "No result is PASS unless the experiment actually ran and its evidence supports it. BLOCKED/NOT_RUN are never promoted.",
+  "milestones": {
+    "M1_one_real_agent_observed_and_offline_verified": "PASS",
+    "M2_same_run_authz_receipt_kernel_observe_offline_chain": "NOT_RUN",
+    "M3_three_frameworks_corroborated": "NOT_RUN"
+  },
+  "acceptance": {
+    "rbi_readiness": "PARTIAL",
+    "enterprise_pilot_readiness": "PARTIAL"
+  },
+  "blockers": {
+    "model_backed_agent_task": "No LLM credentials or local model. Phase 1 harness is designed not to need one, so M1 is not blocked by this; a genuinely model-driven task is.",
+    "kprobe_observation": "Kernel built without CONFIG_KPROBES; kprobe-based observation out of reach on this host.",
+    "off_host_collector_custody": "Collector runs on the same host (separate process, sole key holder). Host-separated administrative custody not available here."
+  },
+  "cycles_used": 1,
+  "cycles_budget": 12,
+  "m1_evidence": "validation/strategic/run_m1/ (sealed); EVIDENCE_MANIFEST.json"
+}

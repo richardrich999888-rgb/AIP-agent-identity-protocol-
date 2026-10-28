@@ -1,0 +1,13 @@
+metric,value,unit,denominator_or_note,source_commit
+agent_runs,8,count,harness loop,4ca5a4d
+exec_fork_events_signed,112,count,events reaching the collector-signed archive,4ca5a4d
+kernel_events_signed,347,count,all kernel events in the 2 attested batches,4ca5a4d
+attested_batches,2,count,chain positions 1..=2,4ca5a4d
+lineage_edges,1,count,start-verified parent->child edges,4ca5a4d
+offline_verify,PASS,verdict,VERIFIED under observer.pub alone in a separate process,4ca5a4d
+signed_clock_error_bound,16000000,us,collector-signed worst-case (host unsynchronized),4ca5a4d
+coverage_asserted,0,count,collector asserted NO kernel-pushed coverage (ContinuityUnverified; honest),4ca5a4d
+recall,NOT_MEASURED,ratio,needs independent ftrace ground-truth harness over a counted window (next step),4ca5a4d
+precision,NOT_MEASURED,ratio,same,4ca5a4d
+attribution_accuracy,NOT_MEASURED,ratio,needs ExpectedExecution join (Phase 3 reconciler),4ca5a4d
+latency_overhead,NOT_MEASURED,ms,needs monitored-vs-unmonitored A/B under equal conditions,4ca5a4d
