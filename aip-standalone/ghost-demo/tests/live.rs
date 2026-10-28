@@ -122,3 +122,23 @@ fn g_tampered_evidence_is_sensor_integrity_failure_proven() {
     );
     assert_eq!(r.strength, EvidenceStrength::Proven);
 }
+
+// This checks the startup boundary against independently measured procfs
+// identity. A readiness string is never used as the measured executable hash.
+#[test]
+fn idle_readiness_precedes_binding_collection() {
+    let image = ghost_demo::hash_binary(AGENT);
+    for _ in 0..64 {
+        let agent = ghost_demo::Agent::idle(AGENT);
+        let binding =
+            aip_core::execution_binding::collect_binding_for_pid("idle-test", agent.pid).unwrap();
+        let observed = aip_observe::ProcfsProbe::new("idle-test")
+            .measure(agent.pid)
+            .unwrap();
+        assert_eq!(binding.exe_content_sha256, image);
+        assert!(
+            observed.matches_process_of(&binding),
+            "{binding:?} != {observed:?}"
+        );
+    }
+}

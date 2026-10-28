@@ -26,20 +26,15 @@ def main():
     name, prompt = request["framework"], request["prompt"]
     emit("start", {"framework": name, "model": request["model"], "logical_agent": "lead"})
     if name == "agent_zero":
-        os.chdir("/opt/framework")
-        sys.path.insert(0, os.getcwd())
-        from helpers import settings
-        from initialize import initialize_agent
-        from agent import AgentContext, UserMessage
-
-        # Runtime settings persist only in this disposable container. Secrets
-        # remain restricted model credentials; never collector signing keys.
-        overrides = json.loads(Path("/model-config/agent-zero.json").read_text())
-        settings.set_settings_delta(overrides)
-        context = AgentContext(initialize_agent())
-        result = context.communicate(UserMessage(prompt)).result_sync(timeout=request["timeout_s"])
-        emit("framework_log", context.log.logs)
-        context.kill_process()
+        from agent_zero_runtime import configure
+        context = configure(json.loads(Path("/model-config/agent-zero.json").read_text()),
+                            request["model"])
+        from agent import UserMessage
+        try:
+            result = context.communicate(UserMessage(prompt)).result_sync(timeout=request["timeout_s"])
+        finally:
+            emit("framework_log", context.log.logs)
+            context.kill_process()
     elif name == "deerflow":
         os.chdir("/opt/framework/backend")
         from deerflow.client import DeerFlowClient

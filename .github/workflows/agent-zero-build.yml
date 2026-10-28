@@ -1,0 +1,61 @@
+name: Agent Zero container and Linux regression
+on:
+  pull_request:
+    paths:
+      - 'integrations/real_agents/**'
+      - 'aip-standalone/ghost-demo/**'
+      - '.github/workflows/agent-zero-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  release-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Repeated release startup and offline-verification regression
+        run: |
+          cargo test --locked --release -p ghost-demo --test live idle_readiness_precedes_binding_collection
+          cargo test --locked --release -p ghost-demo --test live d_wrong_process_instance_is_identity_divergence_never_verified
+          for iteration in $(seq 1 20); do
+            cargo test --locked --release -p ghost-demo --test live_nexora g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too
+          done
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build pinned Agent Zero (no credentials available to build)
+        run: |
+          python3 integrations/real_agents/build_image.py agent_zero \
+            --python-image python:3.12-slim-bookworm@sha256:62ed8e07e544e8555c5d93748d5275015136b7f5c52b5e8679b4de339c3779d3 \
+            --uv-version 0.13.6 --tag snifferdog-agent-zero:validation
+          docker image inspect snifferdog-agent-zero:validation > "$RUNNER_TEMP/image.json"
+          docker run --rm --network none --entrypoint /opt/framework/.venv/bin/python \
+            snifferdog-agent-zero:validation -m pip list --format=json > "$RUNNER_TEMP/dependencies.json"
+      - name: Exercise real upstream initialization and local terminal without a model
+        run: |
+          docker run --rm --network none --user 10001:10001 --cap-drop ALL \
+            --security-opt no-new-privileges --read-only --memory 4g --cpus 2 --pids-limit 256 \
+            --tmpfs /tmp:rw,nosuid,size=1g,mode=1777 \
+            --tmpfs /work:rw,nosuid,size=1g,uid=10001,gid=10001 \
+            --tmpfs /opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001 \
+            --entrypoint /opt/framework/.venv/bin/python \
+            snifferdog-agent-zero:validation /opt/snifferdog/smoke.py | tee "$RUNNER_TEMP/smoke.txt"
+      - name: Retain build evidence only (no model keys or workload logs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-zero-build-${{ github.run_id }}
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/image.json
+            ${{ runner.temp }}/dependencies.json
+            ${{ runner.temp }}/smoke.txt

@@ -53,11 +53,26 @@ const AGENT: &str = env!("CARGO_BIN_EXE_ghost-demo-agent");
 /// built here rather than assumed. Cargo has released the target lock by
 /// the time tests run, so the nested build is safe.
 fn verifier_path() -> std::path::PathBuf {
+    let exe = std::env::current_exe().expect("the test binary has a path");
+    let profile_dir = exe
+        .parent()
+        .and_then(|deps| deps.parent())
+        .expect("target/<profile>/deps/<test>");
+    let profile = profile_dir.file_name().unwrap().to_str().unwrap();
     static BUILD: std::sync::Once = std::sync::Once::new();
     BUILD.call_once(|| {
         let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".into());
         let out = std::process::Command::new(cargo)
-            .args(["build", "-p", "aip-nexora", "--bin", "nexora-verify"])
+            .args([
+                "build",
+                "--locked",
+                "-p",
+                "aip-nexora",
+                "--bin",
+                "nexora-verify",
+                "--profile",
+                if profile == "debug" { "dev" } else { profile },
+            ])
             .output()
             .expect("cargo must be runnable to build the offline verifier");
         assert!(
@@ -66,11 +81,6 @@ fn verifier_path() -> std::path::PathBuf {
             String::from_utf8_lossy(&out.stderr)
         );
     });
-    let exe = std::env::current_exe().expect("the test binary has a path");
-    let profile_dir = exe
-        .parent()
-        .and_then(|deps| deps.parent())
-        .expect("target/<profile>/deps/<test>");
     let p = profile_dir.join("nexora-verify");
     assert!(p.is_file(), "no offline verifier at {}", p.display());
     p
@@ -258,7 +268,22 @@ fn g14_03_live_socket_table_evidence_is_attested_and_deliberately_not_proven() {
 #[test]
 fn g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too() {
     let d = run(Scenario::ExpectedNotExecuted, AGENT);
-    assert_eq!(d.reconciliation.result, ReconciliationResult::CannotProve);
+    assert_eq!(
+        d.reconciliation.result,
+        ReconciliationResult::CannotProve,
+        "reconciliation={:?}; expectation={:?}; observations={:?}",
+        d.reconciliation,
+        d.inputs.as_ref().unwrap().expectation.execution_binding,
+        d.inputs.as_ref().unwrap().evidence.batches
+    );
+    assert_eq!(
+        d.reconciliation.reason,
+        aip_reconcile::ReasonCode::ActionEvidenceUnavailable
+    );
+    assert!(matches!(
+        d.reconciliation.identity,
+        aip_reconcile::IdentityComparison::Match { .. }
+    ));
     assert_ne!(
         d.reconciliation.result,
         ReconciliationResult::PhantomClaim,
