@@ -50,8 +50,10 @@ class AuditCrosscheck:
             raise Refused("Linux audit backlog did not drain")
         if final["pid"] != self.initial["pid"]:
             raise Refused("auditd restarted during the observed window")
+        # In CI stdin is not a terminal: explicitly read auditd.conf logs,
+        # not the inherited empty stdin pipe.
         # Exit 1/no matching records is a failed, not vacuous, cross-check.
-        data = command(["ausearch", "-k", self.key, "--raw"])
+        data = command(["ausearch", "--input-logs", "-k", self.key, "--raw"])
         if "type=SYSCALL" not in data:
             raise Refused("auditd produced no syscall records")
         Path(destination).write_text(data)

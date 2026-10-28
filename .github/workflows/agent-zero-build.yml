@@ -53,6 +53,11 @@ jobs:
             --tmpfs /opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001 \
             --entrypoint /opt/framework/.venv/bin/python \
             snifferdog-agent-zero:validation /opt/snifferdog/smoke.py 2>&1 | tee "$RUNNER_TEMP/smoke.txt"
+      - name: Preserve the tested image for reproduction (no model secrets)
+        run: |
+          docker save snifferdog-agent-zero:validation | gzip -1 > "$RUNNER_TEMP/agent-zero-image.tar.gz"
+          cd "$RUNNER_TEMP"
+          sha256sum agent-zero-image.tar.gz > agent-zero-image.sha256
       - name: Retain build evidence only (no model keys or workload logs)
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,6 +68,8 @@ jobs:
             ${{ runner.temp }}/image.json
             ${{ runner.temp }}/dependencies.json
             ${{ runner.temp }}/smoke.txt
+            ${{ runner.temp }}/agent-zero-image.tar.gz
+            ${{ runner.temp }}/agent-zero-image.sha256
   hosted-observer-capabilities:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

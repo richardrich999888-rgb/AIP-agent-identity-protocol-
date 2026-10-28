@@ -20,6 +20,8 @@ RUN if [ "$FRAMEWORK" = agent_zero ]; then python -m venv .venv && \
     elif [ "$FRAMEWORK" = deerflow ]; then cd backend && uv sync --frozen; \
     elif [ "$FRAMEWORK" = openhands ]; then uv sync --frozen --all-packages; \
     else exit 1; fi
+ENV TIKTOKEN_CACHE_DIR=/opt/tiktoken-cache
+RUN if [ "$FRAMEWORK" = agent_zero ]; then .venv/bin/python -c 'import tiktoken; tiktoken.get_encoding("cl100k_base"); tiktoken.get_encoding("o200k_base")'; fi
 RUN useradd --uid 10001 --create-home agent && mkdir -p /opt/snifferdog /work && \
     ln -s /opt/framework /a0 && \
     rm -rf /opt/framework/tmp /opt/framework/logs && \
