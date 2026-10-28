@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {VanianClient, VanianError} from "../../sdk/typescript/src/index.ts";
+import {VanianClient, VanianError} from "../../sdk/typescript/dist/index.js";
 
 const base = process.env.VANIAN_RUN_BASE_URL!;
 const id = process.env.VANIAN_RUN_ARTIFACT_ID!;

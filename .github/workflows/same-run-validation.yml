@@ -58,6 +58,10 @@ jobs:
           uv venv --python python3.12 "$RUNNER_TEMP/evidence-clients"
           uv pip install --python "$RUNNER_TEMP/evidence-clients/bin/python" -r integrations/evidence-mcp/requirements.lock playwright==1.56.0
           PLAYWRIGHT_BROWSERS_PATH="$RUNNER_TEMP/playwright" "$RUNNER_TEMP/evidence-clients/bin/python" -m playwright install --with-deps chromium
+      - name: Build the compiled customer TypeScript client
+        run: |
+          npm ci --prefix sdk/typescript --ignore-scripts
+          npm run build --prefix sdk/typescript
       - name: Portable model/runtime/read-only tool boundaries
         run: python -B validation/enterprise/same_run_controls_test.py
       - name: Provision public pinned CPU model (no API credentials or cloud spending)

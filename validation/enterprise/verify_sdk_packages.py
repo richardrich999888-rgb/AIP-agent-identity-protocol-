@@ -17,12 +17,12 @@ def verify(wheel, typescript):
         subprocess.run([directory + "/bin/python", "-m", "pip", "install", "--no-index", "--no-deps", str(wheel)],
                        check=True, capture_output=True)
         subprocess.run([directory + "/bin/python", "-c",
-            "from vanian import VanianClient; import importlib.metadata; assert importlib.metadata.version('vanian-sdk') == '0.1.0'; assert all(callable(getattr(VanianClient, name, None)) for name in ('register_deployment', 'list_deployments', 'get_deployment'))"],
+            "from vanian import VanianClient; import importlib.metadata; assert importlib.metadata.version('vanian-sdk') == '0.1.0'; assert all(callable(getattr(VanianClient, name, None)) for name in ('register_deployment', 'list_deployments', 'get_deployment', 'get_run_metadata', 'get_run_verdict', 'evaluate_run', 'get_agent_runs'))"],
             cwd=directory, check=True, capture_output=True)
         subprocess.run(["npm", "install", "--ignore-scripts", "--offline", "--no-audit", "--no-fund",
             "--prefix", directory, str(typescript)], check=True, capture_output=True)
         subprocess.run(["node", "--input-type=module", "-e",
-            "import { VanianClient } from '@vanian/evidence-client'; if (typeof VanianClient !== 'function' || !['registerDeployment', 'listDeployments', 'getDeployment'].every(name => typeof VanianClient.prototype[name] === 'function')) process.exit(1);"],
+            "import { VanianClient } from '@vanian/evidence-client'; if (typeof VanianClient !== 'function' || !['registerDeployment', 'listDeployments', 'getDeployment', 'getRunMetadata', 'getRunVerdict', 'evaluateRun', 'getAgentRuns'].every(name => typeof VanianClient.prototype[name] === 'function')) process.exit(1);"],
             cwd=directory, check=True, capture_output=True)
     return {"python_wheel": "INSTALLED_AND_IMPORTED", "typescript_tgz": "INSTALLED_AND_IMPORTED",
             "network_calls_to_evidence_service": 0, "kernel_observation": "NOT_EXERCISED"}
