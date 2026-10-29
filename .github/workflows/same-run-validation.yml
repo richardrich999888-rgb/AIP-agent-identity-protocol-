@@ -69,6 +69,16 @@ jobs:
         run: |
           python -B validation/enterprise/test_client_smoke_diagnostics.py
           python -B integrations/real_agents/tests/test_frameworks.py
+          python -B validation/kernel_capability/tests/test_btf.py
+      # Runtime capability evidence, not CONFIG strings (ADR-008's trap).
+      # Non-fatal: an unavailable capability is a fact to record, not a
+      # reason to fail an acceptance run that does not depend on it.
+      - name: Record runtime kernel capabilities
+        continue-on-error: true
+        run: |
+          python -B validation/kernel_capability/landlock_probe.py \
+            --fixture-dir "$RUNNER_TEMP" || echo "landlock exit $?"
+          python -B validation/kernel_capability/bpf_lsm_probe.py || echo "bpf-lsm exit $?"
       - name: Provision public pinned CPU model (no API credentials or cloud spending)
         run: |
           python validation/enterprise/prepare_local_model.py --root "$RUNNER_TEMP/local-model"

@@ -40,7 +40,40 @@ _CLASSES = {
     "CalledProcessError": "subordinate_client_exited_nonzero",
     "FileNotFoundError": "required_runtime_missing",
     "ModuleNotFoundError": "required_client_dependency_missing",
+    # Playwright raises this one class for a missing browser executable, a
+    # sandbox refusal, a launch crash and a navigation failure alike, so the
+    # class is a category and not a cause. `browser_facts` below is what
+    # separates them.
+    "Error": "browser_launch_or_navigation_error",
+    "TimeoutError": "browser_wait_timed_out",
 }
+
+# Self-computed facts about the browser runtime, attached to a failure record
+# only for the console stage. Every value here is something this script
+# observes directly -- a uid, a path, whether a path exists, directory NAMES
+# under a path we were told to use. None of it is upstream text, so the rule
+# that no exception message is ever retained still holds.
+def browser_facts():
+    facts = {"euid": os.geteuid(),
+             "browsers_path_env": os.environ.get("PLAYWRIGHT_BROWSERS_PATH")}
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as runtime:
+            executable = runtime.chromium.executable_path
+        facts["chromium_executable_path"] = executable
+        facts["chromium_executable_exists"] = Path(executable).is_file()
+    except Exception as error:
+        facts["chromium_executable_path"] = None
+        facts["chromium_executable_exists"] = None
+        facts["executable_path_lookup_error_type"] = type(error).__name__
+    root = facts["browsers_path_env"]
+    if root and Path(root).is_dir():
+        # Names only. These are Playwright's own version directories.
+        facts["browsers_path_entries"] = sorted(
+            entry.name for entry in Path(root).iterdir())[:20]
+    else:
+        facts["browsers_path_entries"] = None
+    return facts
 
 
 def mark(name):
@@ -57,13 +90,20 @@ def write_failure(output, error):
     and outside the stream that may contain credentials.
     """
     name = type(error).__name__
+    stage = _STAGE["name"]
     record = {
         "source_authority": "enterprise_client_readback_self_report",
-        "stage": _STAGE["name"],
+        "stage": stage,
         "error_type": name,
         "error_class": _CLASSES.get(name, "unclassified_client_error"),
-        "scope": "Stage and error class only; no message, no key material, no bundle bytes.",
+        "scope": "Stage, error class and self-observed runtime facts only; "
+                 "no message, no key material, no bundle bytes.",
     }
+    if stage.startswith("console_browser"):
+        try:
+            record["browser_facts"] = browser_facts()
+        except Exception as probe_error:
+            record["browser_facts"] = {"probe_failed": type(probe_error).__name__}
     try:
         path = Path(output).parent / "client-smoke-failure.json"
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -187,14 +227,17 @@ def main():
     subprocess.run(["node", str(ROOT / "validation/enterprise/run_typescript_smoke.ts")],
         env=env, check=True, timeout=30)
 
-    mark("console_browser")
+    mark("console_browser_import")
     console = "NOT_EXERCISED"
     if args.browser:
         from playwright.sync_api import sync_playwright
+        mark("console_browser_launch")
         with sync_playwright() as browser_runtime:
             browser = browser_runtime.chromium.launch(headless=True)
+            mark("console_browser_navigate")
             page = browser.new_page()
             page.goto(args.url.rstrip("/") + "/console")
+            mark("console_browser_assert")
             page.locator("#credential").fill(reader_key)
             page.locator("#connect button").first.click()
             page.wait_for_function("document.querySelector('#status').textContent.startsWith('Connected')")

@@ -72,9 +72,16 @@ class StageRecording(unittest.TestCase):
 
 
 class ClassificationNotEcho(unittest.TestCase):
+    def setUp(self):
+        # Stage is module state. Pin it per test so these cases cannot depend
+        # on the order unittest happens to run them in, and so none of them
+        # accidentally lands on a console sub-stage.
+        MODULE.mark("python_sdk_readback")
+
     def test_known_exception_types_classify(self):
         cases = {AssertionError: "assurance_predicate_failed",
-                 TimeoutError: "unclassified_client_error"}
+                 TimeoutError: "browser_wait_timed_out",
+                 ValueError: "unclassified_client_error"}
         for error_type, expected in cases.items():
             with tempfile.TemporaryDirectory() as temporary:
                 output = Path(temporary) / "public" / "out.json"
@@ -101,11 +108,23 @@ class ClassificationNotEcho(unittest.TestCase):
             self.assertNotIn(secret, str(value))
 
     def test_the_record_carries_no_free_text_field_an_upstream_could_fill(self):
+        """A non-console failure carries exactly five fixed keys and no more."""
         with tempfile.TemporaryDirectory() as temporary:
             record = MODULE.write_failure(Path(temporary) / "out.json",
                                           AssertionError("x" * 500))
         self.assertEqual(set(record),
                          {"source_authority", "stage", "error_type", "error_class", "scope"})
+
+    def test_a_console_failure_adds_browser_facts_and_nothing_else(self):
+        """The one permitted extra key, and it holds observations only."""
+        MODULE.mark("console_browser_launch")
+        with tempfile.TemporaryDirectory() as temporary:
+            record = MODULE.write_failure(Path(temporary) / "out.json",
+                                          AssertionError("y" * 500))
+        self.assertEqual(set(record),
+                         {"source_authority", "stage", "error_type", "error_class",
+                          "scope", "browser_facts"})
+        self.assertNotIn("y" * 50, json.dumps(record))
 
 
 class RetentionBehaviour(unittest.TestCase):
@@ -125,6 +144,68 @@ class RetentionBehaviour(unittest.TestCase):
 
     def test_the_script_reraises_so_the_controller_still_sees_a_nonzero_exit(self):
         self.assertIn("raise", SOURCE.rsplit("write_failure(destination, error)", 1)[1])
+
+
+class BrowserStageFacts(unittest.TestCase):
+    """The console stage needs more than a class name to be diagnosable.
+
+    CI run 40833025313 reported stage=console_browser, error_type=Error,
+    error_class=unclassified_client_error. That was already a large
+    improvement on `python exited 1`, but Playwright raises `Error` for a
+    missing executable, a sandbox refusal, a launch crash and a navigation
+    failure alike. A local reproduction produced the same class from a
+    missing headless-shell binary, and a separate local test DISPROVED the
+    root-sandbox theory by launching Chromium headless as uid 0 with no
+    args. So the class is a category, not a cause.
+    """
+
+    def test_playwright_error_is_classified_rather_than_unclassified(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            MODULE.mark("console_browser_launch")
+            record = MODULE.write_failure(Path(temporary) / "out.json",
+                                          type("Error", (Exception,), {})())
+        self.assertEqual(record["error_class"], "browser_launch_or_navigation_error")
+
+    def test_a_console_stage_failure_attaches_self_observed_facts(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            MODULE.mark("console_browser_navigate")
+            record = MODULE.write_failure(Path(temporary) / "out.json", AssertionError())
+        self.assertIn("browser_facts", record)
+        facts = record["browser_facts"]
+        self.assertIn("euid", facts)
+        self.assertIn("chromium_executable_exists", facts)
+
+    def test_a_non_console_stage_does_not_pay_for_the_browser_probe(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            MODULE.mark("api_admission")
+            record = MODULE.write_failure(Path(temporary) / "out.json", AssertionError())
+        self.assertNotIn("browser_facts", record)
+
+    def test_browser_facts_are_observations_not_upstream_text(self):
+        """Every value must be a uid, a path, a bool, or a list of names."""
+        facts = MODULE.browser_facts()
+        allowed = (int, bool, str, type(None), list)
+        for key, value in facts.items():
+            self.assertIsInstance(value, allowed, key)
+            if isinstance(value, list):
+                for entry in value:
+                    self.assertIsInstance(entry, str, key)
+                    self.assertLess(len(entry), 256, key)
+
+    def test_browser_facts_never_leak_an_exception_message(self):
+        secret = "sk-live-must-not-appear"
+        with tempfile.TemporaryDirectory() as temporary:
+            MODULE.mark("console_browser_launch")
+            record = MODULE.write_failure(Path(temporary) / "out.json",
+                                          AssertionError(secret))
+        self.assertNotIn(secret, json.dumps(record))
+
+    def test_the_console_substages_are_ordered_and_distinct(self):
+        names = [line.split('mark("', 1)[1].split('"', 1)[0]
+                 for line in SOURCE.splitlines() if line.strip().startswith('mark("')]
+        console = [name for name in names if name.startswith("console_browser")]
+        self.assertEqual(console, ["console_browser_import", "console_browser_launch",
+                                   "console_browser_navigate", "console_browser_assert"])
 
 
 class NoAssuranceWeakened(unittest.TestCase):
