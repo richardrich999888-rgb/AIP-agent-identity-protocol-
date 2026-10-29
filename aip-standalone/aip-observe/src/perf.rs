@@ -546,6 +546,15 @@ mod sys {
                     // kernel still wrote the true `prog_cnt`, which is all we
                     // need. Any other error means we could not establish it.
                     if err.raw_os_error() != Some(libc::ENOSPC) {
+                        // Numeric-only diagnostics let operators distinguish
+                        // a refused kernel query without publishing arbitrary
+                        // process data. The error still withdraws integrity.
+                        eprintln!(
+                            "AIP_PERF_QUERY_BPF_ERROR errno={} cpu={} fd={}",
+                            err.raw_os_error().unwrap_or(-1),
+                            r.cpu,
+                            r.fd
+                        );
                         return Err(err);
                     }
                 }

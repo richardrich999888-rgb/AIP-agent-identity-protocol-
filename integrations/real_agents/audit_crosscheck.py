@@ -58,7 +58,8 @@ class AuditCrosscheck:
             raise Refused("auditd produced no syscall records")
         Path(destination).write_text(data)
         return {"source": "Linux audit", "key": self.key, "initial": self.initial, "final": final,
-                "scope": "host uid 10001 execve/execveat; independent implementation/mechanism, shared kernel"}
+                "scope": "host " + next(value for value in self.rule if value.startswith("euid="))
+                + " execve/execveat; independent implementation/mechanism, shared kernel"}
 
     def close(self):
         if self.started:

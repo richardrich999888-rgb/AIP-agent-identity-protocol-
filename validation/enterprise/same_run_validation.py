@@ -6,11 +6,13 @@ administration or host-compromise resistance. No API/model secrets are loaded.
 """
 from __future__ import annotations
 import argparse
+from contextlib import closing
 import ctypes
 import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import select
 import secrets
 import shutil
@@ -39,7 +41,7 @@ MODEL_ID = 'ollama:' + MODEL + '@sha256:' + MANIFEST_SHA256
 TOOL = 'same-run-loan-read'
 
 
-def request(base, path, token=None, body=None, method=None, extra_headers=None):
+def request(base, path, token=None, body=None, method=None, extra_headers=None, safe_error=False):
     headers = {'Content-Type': 'application/json'}
     if token:
         headers['Authorization'] = 'Bearer ' + token
@@ -57,8 +59,31 @@ def request(base, path, token=None, body=None, method=None, extra_headers=None):
                 value = None
             return response.status, value
     except HTTPError as error:
+        summary = None
+        if safe_error:
+            # Classify fixed upstream policy messages only. Pydantic's raw
+            # response can echo password input and must never be retained.
+            try:
+                detail=json.loads(error.read(65536)).get('detail')
+                classes={
+                    'Password contains too many sequential characters':'password_sequence_policy',
+                    'Password must not be based on your username':'password_username_policy',
+                    'Password is too common or easily guessable':'password_common_policy',
+                    'User creation failed':'user_creation_failed',
+                }
+                summary={'error_class':classes.get(detail,'unclassified_http_error') if isinstance(detail,str) else 'validation_or_unclassified_http_error'}
+            except (ValueError,AttributeError):
+                summary={'error_class':'unclassified_http_error'}
         error.close()
-        return error.code, None
+        return error.code, summary
+
+
+def gateway_password():
+    # At least 256 random bits while satisfying the pinned gateway's enabled
+    # policy: no three letters or digits are adjacent, so random sequential
+    # triples cannot intermittently reject disposable account provisioning.
+    alphabets=('ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz','0123456789','!@#$%^&*?+')
+    return ''.join(secrets.choice(alphabet) for _ in range(16) for alphabet in alphabets)
 
 
 def ready_http(base, process, path='/health'):
@@ -244,6 +269,8 @@ def main():
     mounted = False
     namespace_created = False
     agent_output = None
+    trust_path = None
+    tool_work = None
     result = {'status':'FAIL', 'autonomous_workload_executed':False, 'run_id':'same-run-'+secrets.token_hex(12),
         'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         'model_id':MODEL_ID, 'task':'Read synthetic loan 1 and recommend human review, without approving/changing records.',
@@ -310,9 +337,10 @@ def main():
         agent_work = directory(workload / 'agent', UID_AGENT)
         tool_work = directory(workload / 'tool', UID_TOOL)
         db = tool_work / 'synthetic-loans.sqlite3'
-        with sqlite3.connect(db) as connection:
+        with closing(sqlite3.connect(db)) as connection:
             connection.execute('CREATE TABLE loan_documents (loan_id INTEGER PRIMARY KEY, document_status TEXT NOT NULL)')
             connection.executemany('INSERT INTO loan_documents VALUES (?,?)',[(1,'Synthetic document: identity and income evidence require human review.'),(2,'Synthetic alternative record, outside the issued loan1 authorization.')])
+            connection.commit()
         db.chmod(0o444); os.chown(db, UID_TOOL, UID_TOOL)
         available = set(Path('/sys/fs/cgroup/cgroup.controllers').read_text().split())
         required = {'cpu', 'memory', 'pids'}
@@ -377,6 +405,7 @@ def main():
         shutil.copyfile(initialized['gateway_key_path'],gateway_dir/'gateway.key')
         os.chown(gateway_dir/'gateway.key',UID_GATEWAY,UID_GATEWAY); (gateway_dir/'gateway.key').chmod(0o600)
         trust_path = Path(initialized['run_trust_path'])
+        save(out/'run-trust.json',json.loads(trust_path.read_text()))
         protected_json(gateway_dir/'trust.json',json.loads(trust_path.read_text()),UID_GATEWAY)
         decisions = directory(gateway_dir/'decisions',UID_GATEWAY)
         import jwt
@@ -400,7 +429,7 @@ def main():
         gateway_env = {'HOME':str(gateway_dir),'PYTHONPATH':os.pathsep.join([str(source),str(ROOT/'integrations/mcp-gateway')]),
             'PYTHONUNBUFFERED':'1','DATABASE_URL':'sqlite:///'+str(gateway_dir/'gateway.sqlite3'),
             'JWT_SECRET_KEY':secret,'AUTH_ENCRYPTION_SECRET':secrets.token_hex(32),'PLATFORM_ADMIN_EMAIL':admin,
-            'PLATFORM_ADMIN_PASSWORD':secrets.token_urlsafe(32),'DEFAULT_USER_PASSWORD':secrets.token_urlsafe(32),'BASIC_AUTH_PASSWORD':secrets.token_urlsafe(32),
+            'PLATFORM_ADMIN_PASSWORD':gateway_password(),'DEFAULT_USER_PASSWORD':gateway_password(),'BASIC_AUTH_PASSWORD':gateway_password(),
             'AUTH_REQUIRED':'true','MCP_REQUIRE_AUTH':'true','EMAIL_AUTH_ENABLED':'true','MCP_ALLOWED_ORIGINS':json.dumps(['http://127.0.0.1:19992']),
             'SECURE_COOKIES':'false','ENVIRONMENT':'development','EMBED_ENVIRONMENT_IN_TOKENS':'false','VALIDATE_TOKEN_ENVIRONMENT':'false',
             'PLUGINS_ENABLED':'true','PLUGINS_CONFIG_FILE':str(gateway_dir/'plugins.json'),'ENABLE_HEADER_PASSTHROUGH':'true',
@@ -424,9 +453,12 @@ def main():
         save(public/'registered-tool-identities.json',{'source_authority':'gateway_admin_registration_response','tools':[{k:t.get(k) for k in ('name','original_name','id','gateway_id')} for t in registered_tools]})
         if status != 200 or not any(tool.get('name')==TOOL for tool in registered_tools):
             raise Refused('actual registered canonical MCP tool identity differs from exact authority policy')
-        status, _ = request(base,'/auth/email/admin/users',admin_token,{'email':principal,'password':secrets.token_urlsafe(32)+'Aa1!',
-            'full_name':'Disposable read-only agent','is_admin':False})
-        if status != 201: raise Refused('non-admin gateway principal creation failed')
+        status, creation = request(base,'/auth/email/admin/users',admin_token,{'email':principal,'password':gateway_password(),
+            'full_name':'Disposable read-only agent','is_admin':False},safe_error=True)
+        if status != 201:
+            save(public/'gateway-principal-creation.json',{'http_status':status,
+                'error_class':(creation or {}).get('error_class','unclassified_http_error')})
+            raise Refused(f'non-admin gateway principal creation failed (HTTP {status})')
         status, role = request(base,'/rbac/roles',admin_token,{'name':'same_run_tool_reader','scope':'global',
             'permissions':['tools.read','tools.execute'],'description':'Only read/execute public allowlisted test tools.'})
         if status not in (200,201): raise Refused('restricted gateway role creation failed')
@@ -507,6 +539,8 @@ def main():
         if agent.wait(timeout=10) != 0: raise Refused('genuine agent returned failure')
         result['autonomous_workload_executed']=True
         time.sleep(1); end=now()
+        result.update(agent_id=initialized['agent_id'],agent_pid=agent.pid,from_ms=start,to_ms=end,
+            elapsed_ms=end-start,model_calls=len([e for e in agent_output.events if e.get('event')=='model_response']))
         for _ in range(30):
             time.sleep(2); cp=checkpoint(state); verify(public,tools,anchor,cp)
             if covered(records(public/ARCHIVES[1]),start,end,MECHANISMS): break
@@ -607,6 +641,7 @@ def main():
         protected_json(api_dir/'keys.json',{'keys':keys})
         protected_json(api_dir/'trust.json',{'tenants':[{'tenant_id':'same-run-a','trust':trust}]})
         api=spawn('api',[tools/'airon-aip'],{'AIP_PORT':'19994','AIP_KEY_PATH':str(api_dir/'service.key'),
+            'AIP_KEY_PASSPHRASE':secrets.token_urlsafe(48),
             'AIP_REVOCATION_LOG_PATH':str(api_dir/'revocations.jsonl'),'AIP_VAULT_PATH':str(api_dir/'evidence.jsonl'),
             'AIP_ARTIFACT_PATH':str(api_dir/'artifacts.jsonl'),'AIP_API_KEYS_PATH':str(api_dir/'keys.json'),
             'AIP_RUN_TRUST_PATH':str(api_dir/'trust.json'),'AIP_STORE_BACKEND':'jsonl'})
@@ -637,10 +672,35 @@ def main():
         for child in reversed(processes): cleanup('terminate_child', lambda: terminate(child))
         if agent_output: cleanup('close_agent_output', agent_output.close)
         for stream in streams: cleanup('close_log', stream.close)
+        probe_log=private/'probe.log'
+        if probe_log.is_file():
+            # Retain only the fixed numeric diagnostic, never framework logs,
+            # authentication data or arbitrary probe stderr.
+            diagnostics=[line for line in probe_log.read_text(errors='replace').splitlines()
+                if re.fullmatch(r'AIP_PERF_QUERY_BPF_ERROR errno=-?\d+ cpu=\d+ fd=\d+',line)]
+            save(public/'probe-query-diagnostics.json',{'source_authority':'probe_kernel_query_diagnostic',
+                'lines':diagnostics,'effect':'failed query remains Unverifiable and resets signed coverage'})
         # Preserve any independently signed partial archives from a failed run.
         state=private/'collector-state'
         for name in ARCHIVES:
             if (state/name).is_file(): cleanup('retain_archive', lambda: shutil.copyfile(state/name,public/name))
+        # Public anchors and the controller's checkpoint survive a coverage
+        # refusal too. They establish retained bytes, never successful scope.
+        if all((public/name).is_file() for name in ARCHIVES):
+            failure_cp={'sha256':{name:sha256(public/name) for name in ARCHIVES}}
+            save(out/'checkpoint.json',failure_cp)
+            if trust_path is not None and trust_path.is_file():
+                retained_trust=json.loads(trust_path.read_text())
+                retained_trust['checkpoints'][result['run_id']]={
+                    'batches_sha256':failure_cp['sha256'][ARCHIVES[0]],
+                    'health_sha256':failure_cp['sha256'][ARCHIVES[1]]}
+                save(out/'run-trust.json',retained_trust)
+        if (gateway_dir/'receipts.jsonl').is_file():
+            cleanup('retain_gateway_receipts',lambda: shutil.copyfile(gateway_dir/'receipts.jsonl',public/'receipts.jsonl'))
+        if tool_work is not None:
+            for source_name,target_name in [('tool-events.jsonl','tool-events.jsonl'),('loan-1-review.json','loan-1-review.json')]:
+                if (tool_work/source_name).is_file():
+                    cleanup('retain_synthetic_tool_result',lambda: shutil.copyfile(tool_work/source_name,public/target_name))
         cleanup('restore_host_network',lambda: os.setns(original_net,0))
         cleanup('close_host_network',lambda: os.close(original_net))
         # A child can leave descendants behind. Kill the whole dedicated
@@ -660,8 +720,20 @@ def main():
                     time.sleep(0.1)
             if cg.exists(): cleanup_errors.append({'step':'remove_cgroup','type':'Busy','detail':'dedicated cgroup remained after termination'})
         if namespace_created: cleanup('delete_network_namespace',lambda: command(['ip','netns','delete',namespace]))
-        if mounted: cleanup('unmount_workload',lambda: command(['umount',workload]))
+        if mounted:
+            def unmount():
+                status=subprocess.run(['umount',str(workload)],cwd='/',capture_output=True,text=True,timeout=10)
+                if status.returncode:
+                    if shutil.which('fuser'):
+                        holders=subprocess.run(['fuser','-m',str(workload)],cwd='/',capture_output=True,text=True,timeout=10)
+                        save(public/'mount-busy.json',{'holder_pids':[int(value) for value in holders.stdout.split() if value.isdecimal()],
+                            'source_authority':'host_fuser_mount_reference_check','scope':'PIDs only; no command lines or credentials retained'})
+                    # This fixed command reports only the public mount path;
+                    # it cannot contain framework credentials.
+                    raise Refused(f'umount exited {status.returncode}: {status.stderr.strip()[:512]}')
+            cleanup('unmount_workload',unmount)
         result['cleanup_errors']=cleanup_errors
+        result['finished_at_ms']=now()
         if cleanup_errors and result['status']=='PASS':
             result['status']='FAIL'
             result['failure']={'type':'CleanupFailure','detail':'disposable runtime cleanup did not complete'}
