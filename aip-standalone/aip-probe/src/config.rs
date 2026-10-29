@@ -116,6 +116,11 @@ pub struct Config {
     pub key_path: PathBuf,
     pub sensors: SensorConfig,
     pub batch_interval_ms: u64,
+    /// How often sensors are drained (and processes measured) between
+    /// batches. From `AIP_PROBE_DRAIN_INTERVAL_MS`; default 20 ms, clamped to
+    /// `[1, batch_interval_ms]`. Setting it equal to the batch interval
+    /// restores the old once-per-batch ingest.
+    pub drain_interval_ms: u64,
 }
 
 /// An optional, non-empty environment value. An empty string is treated as
@@ -179,6 +184,13 @@ impl Config {
                 .max(100),
             _ => 2000,
         };
+        let drain_interval_ms = match std::env::var("AIP_PROBE_DRAIN_INTERVAL_MS") {
+            Ok(v) if !v.is_empty() => v
+                .parse::<u64>()
+                .map_err(|e| format!("AIP_PROBE_DRAIN_INTERVAL_MS: {e}"))?,
+            _ => 20,
+        }
+        .clamp(1, batch_interval_ms);
         let mut sensors = SensorConfig::parse(&require("AIP_PROBE_SENSORS")?)?;
         sensors.fanotify_path = optional("AIP_PROBE_FANOTIFY_PATH");
         sensors.afpacket_interface = optional("AIP_PROBE_AFPACKET_INTERFACE");
@@ -207,6 +219,7 @@ impl Config {
             key_path: PathBuf::from(require("AIP_PROBE_KEY_PATH")?),
             sensors,
             batch_interval_ms,
+            drain_interval_ms,
         })
     }
 }

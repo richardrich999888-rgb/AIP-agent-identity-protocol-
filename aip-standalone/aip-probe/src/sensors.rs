@@ -237,6 +237,127 @@ impl SensorSet {
         Err("aip-probe requires Linux (perf tracepoints); this build cannot open sensors".into())
     }
 
+    /// Drain every open sensor into the probe without building a batch.
+    ///
+    /// Called between batches so each event is ingested — and its process
+    /// measured through a pidfd under the start-tick rule — while the process
+    /// is still likely to exist. Ingest is where identity is bound; a probe
+    /// that ingests only once per batch interval records every process that
+    /// lived shorter than that interval *unbound* (existence without
+    /// identity). Measured: every 8/8 agent child in the Phase 1 run was
+    /// unbound at a 1 s interval, so no agent lineage edge could be derived.
+    /// Nothing about the binding rules changes here; only when they run.
+    /// Non-blocking: an empty sensor costs one poll with a zero timeout.
+    pub fn drain(&mut self) {
+        #[cfg(target_os = "linux")]
+        self.drain_sensors(0);
+    }
+
+    #[cfg(target_os = "linux")]
+    fn drain_sensors(&mut self, poll_ms: i32) {
+        // Drain one tracer into the probe: pull events until the ring is
+        // quiet (`Ok(None)`), a source error, or the per-cycle cap; then
+        // fold any reported ring loss into counted loss. A `while let Ok`
+        // ends the loop on both `Ok(None)` and `Err` — the same terminal
+        // behavior as the explicit match, without a busy spin.
+        macro_rules! drain_into_probe {
+            ($slot:expr, $ingest:ident) => {
+                if let Some(t) = $slot.as_mut() {
+                    let mut n: u32 = 0;
+                    while let Ok(Some(ev)) = t.next_event(poll_ms) {
+                        self.probe.$ingest(ev);
+                        n += 1;
+                        if n >= MAX_EVENTS_PER_SENSOR {
+                            break;
+                        }
+                    }
+                    let lost = t.take_lost();
+                    if lost > 0 {
+                        eprintln!("AIP_SENSOR_LOSS sensor={} n={lost}", stringify!($ingest));
+                        self.probe.record_lost_events(lost);
+                    }
+                }
+            };
+        }
+        // The connector is drained FIRST, before any perf ring. The kernel
+        // fires `sched_process_exec` before it sends the connector's exec
+        // message, so every connector exec drained here already has its
+        // perf record in the ring drained next — this batch or, at the
+        // boundary, the previous one, which the collector's divergence
+        // check also consults. Draining it last (the old order) let a
+        // perf exec fall into the NEXT batch while its connector exec sat
+        // in this one: a healthy sensor judged blinded (measured on the
+        // pilot control run, every divergence was that boundary case).
+        //
+        // The connector has no ring and no LOST record: the kernel signals
+        // an overflowed receive queue with `ENOBUFS`, surfaced as
+        // `SourceError::EventsLost`. How many events were lost is unknown,
+        // so the count recorded is a floor of one, and it does what any
+        // counted loss does: the collector marks the epoch degraded and
+        // the probe forgets its exec-time bindings (a pid may have been
+        // recycled across the gap). Nothing is inferred to fill the hole.
+        if let Some(c) = self.connector.as_ref() {
+            let mut n: u32 = 0;
+            loop {
+                match c.next_event(poll_ms) {
+                    Ok(Some(ev)) => {
+                        self.probe.ingest_kernel_event(ev);
+                        n += 1;
+                        if n >= MAX_EVENTS_PER_SENSOR {
+                            break;
+                        }
+                    }
+                    Ok(None) => break,
+                    // `ENOBUFS` is reported once per overflow and then
+                    // cleared; the messages still queued are readable.
+                    // Keep draining them (within the cap) so they are not
+                    // pushed into the next batch behind their perf
+                    // counterparts.
+                    Err(aip_observe::SourceError::EventsLost) => {
+                        eprintln!("AIP_SENSOR_LOSS sensor=connector n=1");
+                        self.probe.record_lost_events(1);
+                        n += 1;
+                        if n >= MAX_EVENTS_PER_SENSOR {
+                            break;
+                        }
+                    }
+                    Err(_) => break,
+                }
+            }
+        }
+
+        drain_into_probe!(self.process, ingest_sched_event);
+        drain_into_probe!(self.cgroup, ingest_cgroup_event);
+        drain_into_probe!(self.sockstate, ingest_socket_event);
+        drain_into_probe!(self.socksend, ingest_send_event);
+        // The AF_PACKET tap yields the same `ProcEvent` shape as the
+        // tracers, so it drains identically; its loss counter is the
+        // kernel's own `PACKET_STATISTICS.tp_drops`.
+        drain_into_probe!(self.wire, ingest_wire_event);
+
+        // fanotify yields a `FileObservation` (event plus the kernel's
+        // pidfd), not a bare `ProcEvent`, so it does not fit the macro.
+        // The pidfd is consumed by `ingest_file_event`, which measures
+        // through it and applies the start-tick rule; an event whose
+        // process had already gone is recorded unbound — existence
+        // without identity — rather than guessed at from the pid.
+        if let Some(w) = self.file.as_mut() {
+            let mut n: u32 = 0;
+            while let Ok(Some(obs)) = w.next_event(poll_ms) {
+                self.probe.ingest_file_event(obs);
+                n += 1;
+                if n >= MAX_EVENTS_PER_SENSOR {
+                    break;
+                }
+            }
+            let lost = w.take_lost();
+            if lost > 0 {
+                eprintln!("AIP_SENSOR_LOSS sensor=fanotify n={lost}");
+                self.probe.record_lost_events(lost);
+            }
+        }
+    }
+
     /// Drain the open sensors and build one batch covering `[from_ms, to_ms]`.
     /// Reported ring loss becomes counted loss on the batch; nothing is
     /// inferred to fill a gap.
@@ -249,107 +370,7 @@ impl SensorSet {
             if let Ok(anchor) = boot_clock_anchor() {
                 self.probe.declare_clock_anchor(anchor);
             }
-            // Drain one tracer into the probe: pull events until the ring is
-            // quiet (`Ok(None)`), a source error, or the per-cycle cap; then
-            // fold any reported ring loss into counted loss. A `while let Ok`
-            // ends the loop on both `Ok(None)` and `Err` — the same terminal
-            // behavior as the explicit match, without a busy spin.
-            macro_rules! drain_into_probe {
-                ($slot:expr, $ingest:ident) => {
-                    if let Some(t) = $slot.as_mut() {
-                        let mut n: u32 = 0;
-                        while let Ok(Some(ev)) = t.next_event(POLL_MS) {
-                            self.probe.$ingest(ev);
-                            n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
-                                break;
-                            }
-                        }
-                        let lost = t.take_lost();
-                        if lost > 0 {
-                            eprintln!("AIP_SENSOR_LOSS sensor={} n={lost}", stringify!($ingest));
-                            self.probe.record_lost_events(lost);
-                        }
-                    }
-                };
-            }
-            // The connector is drained FIRST, before any perf ring. The kernel
-            // fires `sched_process_exec` before it sends the connector's exec
-            // message, so every connector exec drained here already has its
-            // perf record in the ring drained next — this batch or, at the
-            // boundary, the previous one, which the collector's divergence
-            // check also consults. Draining it last (the old order) let a
-            // perf exec fall into the NEXT batch while its connector exec sat
-            // in this one: a healthy sensor judged blinded (measured on the
-            // pilot control run, every divergence was that boundary case).
-            //
-            // The connector has no ring and no LOST record: the kernel signals
-            // an overflowed receive queue with `ENOBUFS`, surfaced as
-            // `SourceError::EventsLost`. How many events were lost is unknown,
-            // so the count recorded is a floor of one, and it does what any
-            // counted loss does: the collector marks the epoch degraded and
-            // the probe forgets its exec-time bindings (a pid may have been
-            // recycled across the gap). Nothing is inferred to fill the hole.
-            if let Some(c) = self.connector.as_ref() {
-                let mut n: u32 = 0;
-                loop {
-                    match c.next_event(POLL_MS) {
-                        Ok(Some(ev)) => {
-                            self.probe.ingest_kernel_event(ev);
-                            n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
-                                break;
-                            }
-                        }
-                        Ok(None) => break,
-                        // `ENOBUFS` is reported once per overflow and then
-                        // cleared; the messages still queued are readable.
-                        // Keep draining them (within the cap) so they are not
-                        // pushed into the next batch behind their perf
-                        // counterparts.
-                        Err(aip_observe::SourceError::EventsLost) => {
-                            eprintln!("AIP_SENSOR_LOSS sensor=connector n=1");
-                            self.probe.record_lost_events(1);
-                            n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
-                                break;
-                            }
-                        }
-                        Err(_) => break,
-                    }
-                }
-            }
-
-            drain_into_probe!(self.process, ingest_sched_event);
-            drain_into_probe!(self.cgroup, ingest_cgroup_event);
-            drain_into_probe!(self.sockstate, ingest_socket_event);
-            drain_into_probe!(self.socksend, ingest_send_event);
-            // The AF_PACKET tap yields the same `ProcEvent` shape as the
-            // tracers, so it drains identically; its loss counter is the
-            // kernel's own `PACKET_STATISTICS.tp_drops`.
-            drain_into_probe!(self.wire, ingest_wire_event);
-
-            // fanotify yields a `FileObservation` (event plus the kernel's
-            // pidfd), not a bare `ProcEvent`, so it does not fit the macro.
-            // The pidfd is consumed by `ingest_file_event`, which measures
-            // through it and applies the start-tick rule; an event whose
-            // process had already gone is recorded unbound — existence
-            // without identity — rather than guessed at from the pid.
-            if let Some(w) = self.file.as_mut() {
-                let mut n: u32 = 0;
-                while let Ok(Some(obs)) = w.next_event(POLL_MS) {
-                    self.probe.ingest_file_event(obs);
-                    n += 1;
-                    if n >= MAX_EVENTS_PER_SENSOR {
-                        break;
-                    }
-                }
-                let lost = w.take_lost();
-                if lost > 0 {
-                    eprintln!("AIP_SENSOR_LOSS sensor=fanotify n={lost}");
-                    self.probe.record_lost_events(lost);
-                }
-            }
+            self.drain_sensors(POLL_MS);
 
             // Integrity check for every open perf-tracepoint sensor, every
             // cycle, carried in the batch. A foreign eBPF program on a sampled

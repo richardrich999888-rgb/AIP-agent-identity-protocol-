@@ -207,8 +207,20 @@ sed 's/^/       /' "$OUT/delegation_chain.txt"
 cat "$OUT/delegation_chain.txt" >> "$OUT/transcript.txt"
 [ "$LRC" -eq 0 ] || die "aip-lineage refused the collector's own archive (exit $LRC)"
 EDGES=$(sed -n 's/^edges derived    : //p' "$OUT/delegation_chain.txt")
-[ "${EDGES:-0}" -ge 1 ] || die "no delegation edges derived from the real agent run"
-ok "delegation chain derived from the verified archive ($EDGES start-verified edges)"
+# Only an edge between a pair the agent itself reported counts. Any other
+# edge in the archive (this script's own `sleep`, host activity) says
+# nothing about the agent; counting it was a false PASS (an edge from the
+# harness shell to /usr/bin/sleep once satisfied this gate).
+AGENT_EDGES=$(python3 - "$OUT/agent.log" "$OUT/delegation_chain.txt" <<'PY'
+import re, sys
+pairs = {(int(a), int(b)) for a, b in re.findall(r"AGENT_RESULT parent_pid=(\d+) child_pid=(\d+)", open(sys.argv[1]).read())}
+edges = {(int(a), int(b)) for a, b in re.findall(r"parent pid=(\d+) .*?->\s+child pid=(\d+)", open(sys.argv[2]).read())}
+print(len(pairs & edges))
+PY
+)
+info "edges derived: ${EDGES:-0} in total, $AGENT_EDGES between an agent parent and its own child (of $RUNS runs)"
+[ "${AGENT_EDGES:-0}" -ge 1 ] || die "no delegation edge between an agent and its own child was derived (a child that exits before the probe measures it is recorded unbound)"
+ok "delegation chain derived from the verified archive ($AGENT_EDGES of $RUNS agent parent->child edges)"
 
 # Keep the evidence; drop the throwaway key material.
 cp "$W/state/attested.archive.jsonl" "$W/state/health.archive.jsonl" \

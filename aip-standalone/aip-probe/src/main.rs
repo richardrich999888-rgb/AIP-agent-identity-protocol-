@@ -51,6 +51,7 @@ fn run() -> Result<(), String> {
         cfg.probe_id, cfg.collector_endpoint, cfg.batch_interval_ms
     );
     let interval = Duration::from_millis(cfg.batch_interval_ms);
+    let drain_interval = Duration::from_millis(cfg.drain_interval_ms);
 
     // Outer loop: (re)connect. Inner loop: ship batches until a transport error.
     loop {
@@ -75,7 +76,14 @@ fn run() -> Result<(), String> {
 
         let mut window_open = now_ms();
         loop {
-            std::thread::sleep(interval);
+            // Drain between batches so identity is bound while processes
+            // still exist (see `SensorSet::drain`); ship once per interval.
+            let deadline = std::time::Instant::now() + interval;
+            while std::time::Instant::now() + drain_interval < deadline {
+                std::thread::sleep(drain_interval);
+                sensors.drain();
+            }
+            std::thread::sleep(deadline.saturating_duration_since(std::time::Instant::now()));
             let window_close = now_ms();
             let batch = sensors.collect_batch(window_open, window_close);
             let bytes = match serde_json::to_vec(&batch) {

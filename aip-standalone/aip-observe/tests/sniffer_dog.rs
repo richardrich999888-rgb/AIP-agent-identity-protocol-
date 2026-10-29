@@ -788,6 +788,71 @@ fn t15c_an_enlarged_connector_buffer_absorbs_the_burst_that_overflows_a_small_on
     assert!(received >= 1200, "received only {received} events");
 }
 
+/// Regression for thread-originated actions: a framework that runs a tool on
+/// a worker thread forks from that thread, and the sched tracepoint names the
+/// thread id. `pidfd_open` refuses a non-leader tid, so the spawn used to be
+/// recorded unbound and no lineage edge could exist (measured: 0 of 10
+/// pydantic-ai tool spawns). The probe now binds it to the owning process.
+#[cfg(target_os = "linux")]
+#[test]
+fn t15d_a_spawn_from_a_worker_thread_binds_to_the_owning_process() {
+    let (tx, rx) = std::sync::mpsc::channel();
+    let (done_tx, done_rx) = std::sync::mpsc::channel::<()>();
+    let worker = std::thread::spawn(move || {
+        // SAFETY: gettid has no preconditions.
+        tx.send(unsafe { libc::gettid() } as u32).unwrap();
+        done_rx.recv().unwrap();
+    });
+    let tid = rx.recv().unwrap();
+    assert_ne!(
+        tid,
+        std::process::id(),
+        "the worker must be a non-leader thread"
+    );
+
+    let owner = thread_owner(tid).expect("live thread owner");
+    assert_eq!(owner.tgid, std::process::id());
+
+    let anchor = boot_clock_anchor().unwrap();
+    let mut probe = ProcfsProbe::new("probe-t15d");
+    probe.declare_clock_anchor(anchor);
+    let spawn = |ts| ProcEvent {
+        cgroup: CgroupSample::NotSampled,
+        kind: KernelLifecycleKind::ProcessSpawn {
+            parent_pid: tid,
+            child_pid: 1,
+            parent_comm: "worker".into(),
+            child_comm: "child".into(),
+        },
+        cpu: 0,
+        timestamp_ns: ts,
+    };
+    // An event after the thread started binds to THIS process instance.
+    let bound = probe
+        .ingest_sched_event(spawn(anchor.monotonic_ns))
+        .bound
+        .clone()
+        .expect("thread-originated spawn must bind to its owning process");
+    assert_eq!(bound.process.pid, std::process::id());
+
+    // An event dated before the thread existed cannot be this thread's:
+    // the tid must be a reused one, so nothing is bound.
+    let before_thread = anchor.start_ticks_to_ns(owner.thread_start_ticks) - anchor.tick_ns() - 1;
+    assert!(probe
+        .ingest_sched_event(spawn(before_thread))
+        .bound
+        .is_none());
+
+    done_tx.send(()).unwrap();
+    worker.join().unwrap();
+    // The thread is gone: nothing to resolve, nothing bound.
+    assert!(thread_owner(tid).is_none());
+    assert!(probe
+        .ingest_sched_event(spawn(anchor.monotonic_ns))
+        .bound
+        .is_none());
+}
+
 // ─── 16/17. Observer key substitution and compromise boundary ───
 
 #[test]

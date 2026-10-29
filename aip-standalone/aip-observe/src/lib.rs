@@ -110,7 +110,9 @@ pub use linux::{
     parse_proc_event, parse_proc_net_table, parse_socket_link, ProcEvent, SocketRecord, SourceError,
 };
 #[cfg(target_os = "linux")]
-pub use linux::{snapshot_socket_tables, socket_inodes_of, PidFd, ProcConnector};
+pub use linux::{
+    snapshot_socket_tables, socket_inodes_of, thread_owner, PidFd, ProcConnector, ThreadOwner,
+};
 pub use observed::{
     is_verifiable_version, tcp_flags, tcp_state, AgentAttribution, BootClockAnchor, CgroupSample,
     KernelLifecycleEvent, KernelLifecycleKind, MechanismIntegrityReport, ObservationBatch,

@@ -622,6 +622,7 @@ impl ProcfsProbe {
                 let anchor = self.clock_anchor;
                 self.try_anchor(pid)
                     .filter(|p| instance_started_no_later_than(p, ev.timestamp_ns, anchor.as_ref()))
+                    .or_else(|| self.try_anchor_thread(pid, ev.timestamp_ns, anchor.as_ref()))
             }
             _ => None,
         };
@@ -652,6 +653,50 @@ impl ProcfsProbe {
 
     #[cfg(not(target_os = "linux"))]
     fn try_anchor(&self, _pid: u32) -> Option<ObservedProcess> {
+        None
+    }
+
+    /// Bind a task-context event whose acting task is a **non-leader
+    /// thread** to the process that owns it.
+    ///
+    /// The fork, socket and send tracepoints report the acting *task*, which
+    /// is a thread id whenever the work ran on a worker thread — as every
+    /// framework that dispatches tools on a thread pool does. `pidfd_open`
+    /// refuses a non-leader tid, so such events used to be recorded unbound
+    /// and no lineage edge could ever be derived for them (measured: 0 of 10
+    /// pydantic-ai tool spawns).
+    ///
+    /// The owner is read from `/proc/<tid>` and then measured exactly as any
+    /// process is (pidfd anchor, start tick no later than the event). One
+    /// extra rule closes the recycled-tid case the process start check alone
+    /// would miss: the **thread's own** start tick must also be no later than
+    /// the event — a tid reused by a thread of an *older* process would pass
+    /// the process check but fails this one. The tid's owner and start are
+    /// read again after measuring, and any change discards the binding.
+    #[cfg(target_os = "linux")]
+    fn try_anchor_thread(
+        &self,
+        tid: u32,
+        event_ns: u64,
+        anchor: Option<&BootClockAnchor>,
+    ) -> Option<ObservedProcess> {
+        let owner = crate::linux::thread_owner(tid)?;
+        if owner.tgid == tid || ticks_to_ns(owner.thread_start_ticks, anchor) > event_ns {
+            return None;
+        }
+        let p = self
+            .try_anchor(owner.tgid)
+            .filter(|p| instance_started_no_later_than(p, event_ns, anchor))?;
+        (crate::linux::thread_owner(tid) == Some(owner)).then_some(p)
+    }
+
+    #[cfg(not(target_os = "linux"))]
+    fn try_anchor_thread(
+        &self,
+        _tid: u32,
+        _event_ns: u64,
+        _anchor: Option<&BootClockAnchor>,
+    ) -> Option<ObservedProcess> {
         None
     }
 
@@ -728,14 +773,15 @@ pub fn instance_started_no_later_than(
     event_ns: u64,
     anchor: Option<&BootClockAnchor>,
 ) -> bool {
-    let start_ns = match anchor {
-        Some(a) => a.start_ticks_to_ns(p.process.pid_start_time_ticks),
-        None => p
-            .process
-            .pid_start_time_ticks
-            .saturating_mul(1_000_000_000 / clk_tck()),
-    };
-    start_ns <= event_ns
+    ticks_to_ns(p.process.pid_start_time_ticks, anchor) <= event_ns
+}
+
+/// A `/proc/<pid>/stat` start time in nanoseconds on the event clock.
+fn ticks_to_ns(ticks: u64, anchor: Option<&BootClockAnchor>) -> u64 {
+    match anchor {
+        Some(a) => a.start_ticks_to_ns(ticks),
+        None => ticks.saturating_mul(1_000_000_000 / clk_tck()),
+    }
 }
 
 /// Clock ticks per second on this host (`sysconf(_SC_CLK_TCK)`).

@@ -310,6 +310,33 @@ mod sys {
     const PROC_CN_MCAST_LISTEN: u32 = 1;
     const NLMSG_DONE: u16 = 3;
 
+    /// The process (thread group) a task belongs to, and the task's own
+    /// start time, read from `/proc/<tid>`. `/proc/<tid>` resolves for a
+    /// non-leader thread although it is not listed. `None` if the task is
+    /// gone or the files cannot be parsed.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct ThreadOwner {
+        pub tgid: u32,
+        pub thread_start_ticks: u64,
+    }
+
+    pub fn thread_owner(tid: u32) -> Option<ThreadOwner> {
+        let status = std::fs::read_to_string(format!("/proc/{tid}/status")).ok()?;
+        let tgid = status
+            .lines()
+            .find_map(|l| l.strip_prefix("Tgid:"))?
+            .trim()
+            .parse()
+            .ok()?;
+        let stat = std::fs::read_to_string(format!("/proc/{tid}/stat")).ok()?;
+        let thread_start_ticks =
+            aip_core::execution_binding::parse_proc_stat_start_time(&stat).ok()?;
+        Some(ThreadOwner {
+            tgid,
+            thread_start_ticks,
+        })
+    }
+
     /// A subscription to the kernel's process-event multicast group.
     #[derive(Debug)]
     pub struct ProcConnector {
@@ -553,7 +580,9 @@ mod sys {
 }
 
 #[cfg(target_os = "linux")]
-pub use sys::{snapshot_socket_tables, socket_inodes_of, PidFd, ProcConnector};
+pub use sys::{
+    snapshot_socket_tables, socket_inodes_of, thread_owner, PidFd, ProcConnector, ThreadOwner,
+};
 
 #[cfg(test)]
 mod tests {
