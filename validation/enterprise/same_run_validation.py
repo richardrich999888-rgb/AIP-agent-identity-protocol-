@@ -248,6 +248,8 @@ def main():
     parser.add_argument('--model-root', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--browser', action='store_true')
+    parser.add_argument('--observer-interruption', action='store_true',
+        help='authorized negative trial: stop the probe before the genuine agent starts')
     args = parser.parse_args()
     if os.geteuid() != 0 or os.environ.get('RUNNER_ENVIRONMENT') != 'github-hosted' or sys.platform != 'linux':
         raise Refused('root on explicitly disposable GitHub Linux required')
@@ -286,6 +288,7 @@ def main():
         'model_id':MODEL_ID, 'task':'Read synthetic loan 1 and recommend human review, without approving/changing records.',
         'collector_custody':'LOCAL_ISOLATION_SHARED_KERNEL_AND_ROOT', 'separate_administrative_custody':'INCOMPLETE',
         'model_cloud_api_spend':0, 'model_api_credentials_used':False,
+        'validation_profile':'OBSERVER_INTERRUPTION' if args.observer_interruption else 'OBSERVED_EXECUTION',
         'kernel':os.uname().release, 'started_at_ms':now()}
     save(public / 'run-manifest.json', result)
     def in_host(operation):
@@ -503,8 +506,37 @@ def main():
             if not all((state/name).exists() for name in ARCHIVES): continue
             cp=checkpoint(state); verify(public,tools,anchor,cp)
             health=records(public/ARCHIVES[1]); window=health[-1]['health'].get('attested_coverage')
-            if window and covered(health,window['to_ms']-1,window['to_ms'],MECHANISMS): break
+            if (window and covered(health,window['to_ms']-1,window['to_ms'],MECHANISMS)
+                    and (not args.observer_interruption or len(records(public/ARCHIVES[0])) >= 3)): break
         else: raise Refused('signed Active coverage unavailable')
+        interruption = None
+        if args.observer_interruption:
+            # A stopped process could buffer sensor events; fully terminate it
+            # before a fresh agent instance exists. The collector stays alive.
+            stop_requested_at = now()
+            terminate(probe)
+            if probe.poll() is None:
+                raise Refused('negative trial probe did not terminate')
+            for _ in range(25):
+                time.sleep(2); cp=checkpoint(state); verify(public,tools,anchor,cp)
+                frozen_batch=records(public/ARCHIVES[0])[-1]
+                frozen_health=records(public/ARCHIVES[1])[-1]['health']
+                if (frozen_health['sequence']==frozen_batch['sequence']
+                        and frozen_health['head']==frozen_batch['attestation']['payload_hash']):
+                    break
+            else: raise Refused('negative trial collector did not acknowledge the frozen chain')
+            interruption={'source_authority':'root_validation_controller',
+                'stimulus':'fully terminate probe before launching the genuine agent',
+                'probe_pid':probe.pid,'probe_exit_code':probe.returncode,
+                'stop_requested_at_ms':stop_requested_at,'termination_confirmed_at_ms':now(),
+                'frozen_batches_sha256':cp['sha256'][ARCHIVES[0]],
+                'frozen_sequence':frozen_batch['sequence'],
+                'frozen_coverage':frozen_health.get('attested_coverage'),
+                'collector_continued_running':collector.poll() is None,
+                'recovery':'separate fresh capture profile only; no backfill of this trial'}
+            if not interruption['collector_continued_running']:
+                raise Refused('negative trial collector exited')
+            save(public/'observer-interruption.json',interruption)
         command(['iptables','-A','OUTPUT','-m','owner','--uid-owner',str(UID_AGENT),'-d','127.0.0.1','-p','tcp','-m','multiport','--dports','11434,19992','-j','ACCEPT'])
         command(['iptables','-A','OUTPUT','-m','owner','--uid-owner',str(UID_AGENT),'-j','REJECT'])
         save(public/'agent-egress-policy.json',{'source_authority':'root_namespace_network_policy','rules':command(['iptables','-S','OUTPUT']),'allowed_agent_tcp_destinations':['127.0.0.1:11434','127.0.0.1:19992'],'direct_mcp_upstream':'DENIED_BY_UID_OUTPUT_RULE'})
@@ -550,10 +582,21 @@ def main():
         time.sleep(1); end=now()
         result.update(agent_id=initialized['agent_id'],agent_pid=agent.pid,from_ms=start,to_ms=end,
             elapsed_ms=end-start,model_calls=len([e for e in agent_output.events if e.get('event')=='model_response']))
-        for _ in range(30):
-            time.sleep(2); cp=checkpoint(state); verify(public,tools,anchor,cp)
-            if covered(records(public/ARCHIVES[1]),start,end,MECHANISMS): break
-        else: raise Refused('actual workload window lacks signed Active coverage')
+        if args.observer_interruption:
+            if probe.poll() is None or collector.poll() is not None:
+                raise Refused('negative trial process state changed unexpectedly')
+            cp=checkpoint(state); verify(public,tools,anchor,cp)
+            if cp['sha256'][ARCHIVES[0]] != interruption['frozen_batches_sha256']:
+                raise Refused('negative trial received observations after the probe was terminated')
+            if any(item['batch']['claimed_to_ms'] >= start for item in records(public/ARCHIVES[0])):
+                raise Refused('negative trial frozen batches overlap the actual task window')
+            if covered(records(public/ARCHIVES[1]),start,end,MECHANISMS):
+                raise Refused('interrupted observer incorrectly covered the actual task window')
+        else:
+            for _ in range(30):
+                time.sleep(2); cp=checkpoint(state); verify(public,tools,anchor,cp)
+                if covered(records(public/ARCHIVES[1]),start,end,MECHANISMS): break
+            else: raise Refused('actual workload window lacks signed Active coverage')
         for index,audit in enumerate(audits):
             save(public/f'audit-{index}-status.json',in_host(lambda: audit.export(public/f'audit-{index}.log')))
             in_host(audit.close)
@@ -566,13 +609,17 @@ def main():
             final_batch=records(public/ARCHIVES[0])[-1]
             final_health=records(public/ARCHIVES[1])[-1]['health']
             if (final_health['sequence']==final_batch['sequence']
-                    and final_health['head']==final_batch['attestation']['payload_hash']):
+                    and final_health['head']==final_batch['attestation']['payload_hash']
+                    and (not args.observer_interruption or final_health['emitted_at_ms'] >= end)):
                 break
         else: raise Refused('collector did not sign health for the complete frozen observation chain')
         terminate(collector)
         cp=checkpoint(state); save(out/'checkpoint.json',cp)
         save(public/'offline-verification.json',verify(public,tools,anchor,cp))
         performance=resource_report(metrics_before,metrics_after,public)
+        if args.observer_interruption:
+            performance['classification']='MEASURED_INTERRUPTED_OBSERVER_TRIAL_WITHOUT_MATCHED_BASELINE'
+            performance['limitations'].append('Signed kernel archive ends before the actual negative trial task; its event rate/latency do not describe this task.')
         save(public/'performance.json',performance)
         save(public/'tamper.json',tamper(public,tools,anchor,cp))
         (public/'observer.pub').write_text(anchor['public_key']+'\n')
@@ -594,10 +641,26 @@ def main():
                     raise Refused('independently observed agent binding differs from actual signed authority binding')
                 if bound['process']['pid_start_time_ticks'] > 0:
                     bound_instances[str(process_id)] = bound
-        if set(bound_instances) != {str(pid) for pid in target_pids}:
-            raise Refused('actual agent or tool child lacks independent full process-instance binding')
-        save(public/'kernel-bound-instances.json',{'source_authority':'signed_collector_kernel_observations','instances':bound_instances,'logical_tool_to_kernel_causality':'not established by PID/self-report alone'})
-        for index,pid in enumerate(target_pids):
+        if args.observer_interruption:
+            if bound_instances:
+                raise Refused('stopped observer unexpectedly bound an actual workload instance')
+            save(public/'kernel-bound-instances.json',{
+                'source_authority':'signed_collector_kernel_observations','instances':{},
+                'process_attribution':'CANNOT_PROVE_OBSERVER_STOPPED_BEFORE_TASK',
+                'logical_tool_to_kernel_causality':'not established'})
+            # Linux audit is supporting evidence with a different implementation.
+            # Its raw records cannot fill Sniffer Dog's missing signed coverage.
+            save(public/'interruption-audit-scope.json',{
+                'source_authority':'root_validation_controller',
+                'actual_agent_pid':agent.pid,'actual_tool_child_pid':target_pids[1],
+                'audit_files':['audit-0.log','audit-1.log'],
+                'sniffer_comparison':'not run: actual task is outside frozen Sniffer Dog capture',
+                'promoted_to_sniffer_observation':False})
+        else:
+            if set(bound_instances) != {str(pid) for pid in target_pids}:
+                raise Refused('actual agent or tool child lacks independent full process-instance binding')
+            save(public/'kernel-bound-instances.json',{'source_authority':'signed_collector_kernel_observations','instances':bound_instances,'logical_tool_to_kernel_causality':'not established by PID/self-report alone'})
+        for index,pid in enumerate([] if args.observer_interruption else target_pids):
             comparison=json.loads(command([tools/'aip-corroborate','--observer-id',anchor['observer_id'],'--key-version','1',
                 '--pubkey-file',public/'observer.pub','--batches',public/ARCHIVES[0],'--external',public/f'audit-{index}.log',
                 '--source','auditd','--from-ms',start,'--to-ms',end,'--json']))
@@ -636,6 +699,32 @@ def main():
         save(public/'performance.json',performance)
         save(public/'evaluation.json',evaluation)
         save(public/'signed-reconciliation.json',signed['signed_reconciliation'])
+        if args.observer_interruption:
+            finding=evaluation.get('reconciliation') or {}
+            boundary=evaluation.get('tool_boundary') or {}
+            availability=finding.get('availability') or {}
+            coverage=final_health.get('attested_coverage')
+            if not (evaluation['authorization_verified'] and evaluation['gateway_receipt_verified']
+                    and evaluation['signed_reconciliation_verified']
+                    and evaluation['receipt_within_authorization'] is True
+                    and evaluation['gateway_disposition']=='Forwarded' and 'Agrees' in boundary
+                    and finding.get('result')=='CannotProve'
+                    and finding.get('identity')=='NoReference'
+                    and finding.get('reason')=='WindowNotCovered'
+                    and availability=={'Unavailable':{'reason':'WindowNotCovered'}}
+                    and coverage and coverage['to_ms'] < start
+                    and cp['sha256'][ARCHIVES[0]]==interruption['frozen_batches_sha256']):
+                raise Refused('observer interruption did not produce the required supported limitation')
+            interruption.update(status='PASS',actual_task_from_ms=start,actual_task_to_ms=end,
+                final_health_state=final_health['state'],final_signed_coverage=coverage,
+                final_health_emitted_at_ms=final_health['emitted_at_ms'],
+                actual_model_calls=len([e for e in agent_output.events if e.get('event')=='model_response']),
+                authorization_verified=True,gateway_request_comparison='Agrees',
+                kernel_result=finding['result'],kernel_reason=finding['reason'],
+                kernel_process_identity=finding['identity'],coverage_backfilled=False)
+            if interruption['actual_model_calls'] != 2:
+                raise Refused('negative trial lacks the two actual agent model calls')
+            save(public/'observer-interruption.json',interruption)
         command([sys.executable,ROOT/'validation/enterprise/evaluate_captured_negatives.py',
             '--binary',binary,'--bundle',public/'run-bundle.json','--trust',trust_path,
             '--output',public/'captured-negatives.json'],timeout=120)
@@ -659,12 +748,18 @@ def main():
             '--writer-key-file',credentials['writer'],'--reader-key-file',credentials['reader'],'--other-key-file',credentials['other'],
             '--bundle',public/'run-bundle.json','--output',public/'enterprise-clients.json']
         if args.browser: clients += ['--browser','--screenshot',public/'console.png']
-        command(clients,timeout=120,env={**os.environ,'PYTHONPATH':str(ROOT/'sdk/python')})
+        with (private/'client-validation.log').open('wb') as client_log:
+            client_result=subprocess.run([str(value) for value in clients],timeout=120,
+                env={**os.environ,'PYTHONPATH':str(ROOT/'sdk/python')},
+                stdout=client_log,stderr=subprocess.STDOUT)
+        if client_result.returncode:
+            raise Refused('client interface validation failed; fixed stage retained publicly, diagnostics private')
         result.update(status='PASS',agent_id=initialized['agent_id'],agent_pid=agent.pid,tool_child_pid=target_pids[1],
             from_ms=start,to_ms=end,elapsed_ms=end-start,signed_batches=len(records(public/ARCHIVES[0])),
             signed_health_records=len(records(public/ARCHIVES[1])),model_calls=len([e for e in agent_output.events if e.get('event')=='model_response']),
             signed_receipts=len(signed_receipts),evaluation=evaluation,
-            observation_coverage='SIGNED_ACTIVE_FOR_WINDOW',logical_subagent_attribution='NOT_ESTABLISHED',
+            observation_coverage='UNAVAILABLE_OBSERVER_INTERRUPTED' if args.observer_interruption else 'SIGNED_ACTIVE_FOR_WINDOW',
+            logical_subagent_attribution='NOT_ESTABLISHED',
             business_outcome='Synthetic read only; no loan approval or bank transaction',finished_at_ms=now())
     except Exception as error:
         result['failure']={'type':type(error).__name__,'detail':str(error)}

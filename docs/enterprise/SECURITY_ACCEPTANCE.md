@@ -55,3 +55,22 @@ record cannot replace a later degraded record. Backwards health chronology is
 rejected, and the collector must seal the frozen final batch head before export.
 Neither signed archive tails nor adverse health records may be trimmed to
 produce a favorable result.
+
+## Executed status
+
+Retained genuine run `40755309307` at `a6da6e5` establishes A's actual model,
+authority, receipt, process binding and task-window checks. Its canonical kernel
+finding remains `CannotProve/ActionEvidenceUnavailable`; full authorization TTL
+is `WindowNotCovered`. B ran an actual gateway mismatch/refusal stimulus.
+C, E and G passed controlled verification of those same captured bytes. D needs
+a genuine interrupted workload and fresh-capture recovery. F's typed trust
+prerequisite and live wrong-process regressions pass; a genuine daemon-observed,
+correctly claimed wrong-identity workload has not been established. No claim
+registration API or fabricated claims are introduced to hide that limitation.
+
+The actual controller checks cover distinct UIDs, zero bounding capabilities,
+no-new-privileges, signing-key access denial, permitted model/gateway traffic,
+direct-tool/external egress denial and forbidden gateway administration. This
+uses Unix permissions and UID firewall rules, not a filesystem allowlist or a
+separate kernel administrator. Audit agreement is supporting same-kernel
+evidence. Original failure archives and complete checkpointed tails are retained.

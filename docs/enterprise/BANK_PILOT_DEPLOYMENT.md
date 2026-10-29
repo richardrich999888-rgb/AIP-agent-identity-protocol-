@@ -111,3 +111,29 @@ services, query its evidence via tenant-scoped clients, verify offline, restart
 and recover with no silent backfill, test loss/backups/capacity and uninstall
 software while preserving institution-owned state. Kubernetes, air-gap and
 production ingress remain unvalidated until executed on the intended platform.
+
+## Independent review of retained evidence
+
+For example, `validation/enterprise/results/E2E_40755309307/` retains original
+public bytes, GitHub source/run/artifact digest and separate local-verifier
+outputs. Approve public authorities and checkpoint separately from the bundle;
+check GitHub metadata and the file inventory. GitHub/controller provenance is
+not institutional administrative separation.
+
+With reviewed binaries and approved public trust copies, another process can
+run (no model, live agent or API is needed):
+
+```sh
+aip-observe-verify --observer-id collector.same-run --key-version 1 \
+  --pubkey-file /approved/observer.pub \
+  --batches /evidence/attested.archive.jsonl \
+  --health /evidence/health.archive.jsonl --json
+AIP_RUN_TRUST_FILE=/approved/run-trust.json \
+  aip-execution-assurance evaluate < /evidence/run-bundle.json
+```
+
+Require zero archive findings and inspect authorization, receipt, checkpoint
+and signed-reconciliation flags. Inspect identity, action, availability, reason
+and tool-boundary annotations separately. Successful verification preserves a
+supported `CannotProve`; it does not upgrade it to `Verified`. Preserve original
+bytes separately from review notes and check which client gates the run reached.

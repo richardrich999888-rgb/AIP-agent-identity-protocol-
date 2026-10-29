@@ -304,5 +304,21 @@
       ]
     }
   ],
-  "totals_policy": "Counts belong to individual test invocations. Do not sum across jobs/profiles as unique tests. Ignored, filtered, blocked and fixture scope remain separate."
+  "totals_policy": "Counts belong to individual test invocations. Do not sum across jobs/profiles as unique tests. Ignored, filtered, blocked and fixture scope remain separate. The five component/CI workflows exclude the separately recorded dynamic security review and the genuine same-run workload workflow.",
+  "additional_security_check": {
+    "workflow_id": 399757896,
+    "workflow_name": "GitHub Advanced Security",
+    "workflow_path": "dynamic/agents/github-advanced-security",
+    "workflow_state": "active",
+    "repository_yaml": false,
+    "scope": "GitHub-managed Copilot/Autofind AI review of PR changed regions. This does not run Gitleaks/Trivy, qualify a complete repository security audit, or establish Sniffer Dog workload acceptance.",
+    "conclusion": "NO_RUN_FOUND_IN_WORKFLOW_LIST",
+    "evidence": "dynamic workflow run listing returned six runs and none on 4ca5a4d3"
+  },
+  "repository_security_workflow": {
+    "workflow_id": 297111055,
+    "path": ".github/workflows/security.yml",
+    "state": "disabled_inactivity",
+    "gitleaks_trivy_execution_on_this_source": "NOT_ESTABLISHED"
+  }
 }

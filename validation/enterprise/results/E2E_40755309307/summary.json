@@ -1,0 +1,281 @@
+{
+  "source_commit": "a6da6e590030a41b6b8ef025bc6c050f6fe03dfe",
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40755309307",
+  "job_id": 123052528645,
+  "artifact_id": 12845702823,
+  "artifact_sha256": "2014cbcca7a37244b3021648d3ecfe787060d00c8b682ef8e0771ad61c90ea31",
+  "status": "FAILED_ENTERPRISE_CLIENT_ROLE_REFUSAL_TRANSPORT_CHECK",
+  "genuine_agent_completed": true,
+  "model_calls": 2,
+  "actual_task_signed_coverage": "PASS",
+  "bound_agent_and_tool_child": "PASS",
+  "independent_audit_corroboration": "PASS",
+  "offline_archive_and_signed_join": "PASS",
+  "independent_local_verification": {
+    "exit_code": 0,
+    "signature_and_chain_findings": 0,
+    "signed_batches": 39,
+    "kernel_events": 1116,
+    "archive_integrity_verified": true,
+    "authorization_verified": true,
+    "gateway_receipt_verified": true,
+    "checkpoint_verified": true,
+    "signed_reconciliation_verified": true,
+    "tool_boundary": {
+      "Agrees": {
+        "claim": "NotSupplied"
+      }
+    },
+    "kernel_result": "CannotProve",
+    "kernel_identity": {
+      "Match": {
+        "observations": 4
+      }
+    },
+    "kernel_availability": {
+      "Unavailable": {
+        "reason": "WindowNotCovered"
+      }
+    }
+  },
+  "controlled_negatives": "PASS; captured-record mutations and actual gateway Refused parameter mismatch",
+  "enterprise_clients": "PARTIAL; actual writer admission and Python reads completed; Reader large-body POST response race stopped client before TypeScript/MCP/browser",
+  "failure_root_cause": "Service refuses unauthorized Reader before consuming full upload body; urllib send races returned403 and raises BrokenPipe/URLError. Client must inspect refusal robustly; no service or verification weakening.",
+  "cleanup_errors": [],
+  "separate_collector_custody": "INCOMPLETE_SHARED_KERNEL_AND_ROOT",
+  "files": {
+    "local-model/model-manifest-layout.json": {
+      "sha256": "99035f9bde0aefc994c03ed1b22ee9b828f55e50b88176a63033e711bf9c157e",
+      "bytes": 3085,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "local-model/model-pin.json": {
+      "sha256": "b9ed9640cfe30be524d3e42098302c9b4ca003bd8da8b17fe0d0f9e3ee69f4b9",
+      "bytes": 2984,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/checkpoint.json": {
+      "sha256": "686e67ea7134ac339e79a05ed7173fc74bd49b08adecdf0cddb455e5fcbfa319",
+      "bytes": 215,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/observer-anchor.json": {
+      "sha256": "2c63284674c2d999c4097e4cd9e9636566877f510fbbfb4f4b765b3862fe0810",
+      "bytes": 146,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/agent-egress-policy.json": {
+      "sha256": "f0953dbe6f06ade6e82a303a35272a78c2beb56466ec00d3faf044f79f35d29a",
+      "bytes": 422,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/agent-events.jsonl": {
+      "sha256": "1a6acf15b45e45528e154dddd24cca2502f90fd56bac286dcac4ed1ad043acb5",
+      "bytes": 3513,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/attested.archive.jsonl": {
+      "sha256": "9eb6edcbacb4e4ddcb64f3d9dec79eb0b4fafc926dba93376a699bc13ae507da",
+      "bytes": 776317,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/audit-0-status.json": {
+      "sha256": "afa03b29493ce35f96175da000e1dbe9eaad1057fcfc0eaf492d1798d055c597",
+      "bytes": 336,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/audit-0.log": {
+      "sha256": "3822b300167d6a0b157582a137e275da1b95f3e6ddc383f524dc52dcb4302537",
+      "bytes": 2641,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/audit-1-status.json": {
+      "sha256": "1569e572bed1cf125e1dd499b04f7223be865c8aa326c2ea6dc23e2b13ca4fe5",
+      "bytes": 336,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/audit-1.log": {
+      "sha256": "8f6f38d6c5dadca0ce41adbfa15b602d79cf3a52e729dbdcc8340034959880db",
+      "bytes": 2947,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/authority-request.json": {
+      "sha256": "19a0c77a6e221175a37d7efb013593be0494a88f3a73a5fc9e4e6687b750a16d",
+      "bytes": 1647,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/captured-negatives.json": {
+      "sha256": "ffb6a37758bb73e952951d322570bde1b0032097faa00f74179f236fa34731bb",
+      "bytes": 1532,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/corroboration-0.json": {
+      "sha256": "29882fa1ccf3212fc0104a97edcdafceed886802bc1bf621ee009575793000e6",
+      "bytes": 1819,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/corroboration-1.json": {
+      "sha256": "e63aa6e3c556f5b37ec2980f4068da65ce7814807a50274f4c28983c76bd4130",
+      "bytes": 1818,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/evaluation.json": {
+      "sha256": "1e012efdf666465b7eaab19760a825cfe7d5251d7a4786d3335eba628f5d83ea",
+      "bytes": 54518,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/expectation.json": {
+      "sha256": "242716fa87b3ecaaf6cc827de4045292ad1939f8f76e1f3e8b73d7ad636b674a",
+      "bytes": 3443,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/gateway-agent-permissions.json": {
+      "sha256": "419c78b2fedea319c69f68da603c1b580d45c1b4bb51f5f1a381c8d175dff346",
+      "bytes": 158,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/health.archive.jsonl": {
+      "sha256": "660e6d68bbd7aa8b25b28ae462a108a923cbc67ca9520d81c0cef2ecbf9da156",
+      "bytes": 4407,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/independent-local-archive-verification.json": {
+      "sha256": "c71465900b1b0b28b8371286db9840242865f88a7c726125e4b31f2e836e1c38",
+      "bytes": 730,
+      "origin": "separate local offline verifier"
+    },
+    "same-run/public/independent-local-run-evaluation.json": {
+      "sha256": "6633c6c5a073dbf1a98e1611d6ec72b0dc191d745932fcba2c73392547f9c3a6",
+      "bytes": 15289,
+      "origin": "separate local offline verifier"
+    },
+    "same-run/public/kernel-bound-instances.json": {
+      "sha256": "abe6a6b33eef445476fbc560108651170ef943b92663d6675026e044d685c924",
+      "bytes": 2270,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/loan-1-review.json": {
+      "sha256": "b654fdfe48d20caf36b3c88c81f8725ddfcc36266fde69e3b6fbb2dde962b114",
+      "bytes": 182,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/model-pin.json": {
+      "sha256": "b9ed9640cfe30be524d3e42098302c9b4ca003bd8da8b17fe0d0f9e3ee69f4b9",
+      "bytes": 2984,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/model-tags.json": {
+      "sha256": "8324d3cac9c6455b2e5f9eb099bc681c16e4372e9c523d517a296e43f7a1f5a0",
+      "bytes": 652,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/network-isolation.json": {
+      "sha256": "1244404665ff35a8b14e48a6be2cbe7ec41b600fdf8458b7a8b4411e81f27799",
+      "bytes": 1022,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/observer.pub": {
+      "sha256": "bfde38f0aaeeb49c1a918225fdb4d0b8e7db3e1a60c1655179e8930acf706f39",
+      "bytes": 65,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/offline-verification.json": {
+      "sha256": "c71465900b1b0b28b8371286db9840242865f88a7c726125e4b31f2e836e1c38",
+      "bytes": 730,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/parameter-mismatch-receipt.json": {
+      "sha256": "cf72b1f931dd632a0cb16d7fa0717daeb0e3742f02d9fc27e20498d8383868b3",
+      "bytes": 2370,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/parameter-mismatch-stimulus.json": {
+      "sha256": "91016e678404916fb0654b74dddfeef5858b5292f55e48161a43726aa5265da3",
+      "bytes": 690,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/performance.json": {
+      "sha256": "02d506f052dfa6025db8df514af27c778c807149c80e4cce5eb7aa95e7ec56d6",
+      "bytes": 3269,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/probe-query-diagnostics.json": {
+      "sha256": "b8acb75657c24c1ed693d7ad8d78e8926af1bb9c9a7431880bc0e28ff4bf9709",
+      "bytes": 149,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/receipts.jsonl": {
+      "sha256": "d77708912d8675d315d2a56036b91decde4b41ae5628badf05485e4ee9a2f002",
+      "bytes": 2336,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/registered-tool-identities.json": {
+      "sha256": "b9569b14588ee596ea2932ec280e0df468e682924f4cbe033e08e3de4e70c42d",
+      "bytes": 232,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/resource-limits.json": {
+      "sha256": "10b7b60e22c4d4d602c63eb924d015ba48b64f24cdc4c66d6861643e9d5de318",
+      "bytes": 111,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/resource-usage.json": {
+      "sha256": "c6c571ea649c196af571291c30dbb68b4eff7c6e18e09f25e9906142438ef415",
+      "bytes": 365,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/run-bundle.json": {
+      "sha256": "44669786c5127422216b2586f40b5cf55f261c6d45c3938e02f5672b72eaf077",
+      "bytes": 923955,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/run-manifest.json": {
+      "sha256": "c9c9efda1d0ee2a55ffe79d938164ffbf6d4a0128cbcb59b18d7e6f0f21fdc80",
+      "bytes": 948,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/runtime-access.json": {
+      "sha256": "94104221dc3bd0b40bdcb05d0e0aa1fa98c9524577e40a0e3af6ec073d90b8ab",
+      "bytes": 695,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/signed-reconciliation.json": {
+      "sha256": "2564a7d782ff3c243a9b2aee53e1e8a735bde6033193161b786d40da860239f3",
+      "bytes": 55250,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/tamper.json": {
+      "sha256": "a19a6644fe05466faec296b5e4fb3147d5d7191c82e707aa292e4537485179f4",
+      "bytes": 654,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/tool-events.json": {
+      "sha256": "0138758f9cc71d7452e52dfaa587cf99ff02e55c92d9c5079059ba4f38088b21",
+      "bytes": 396,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/public/tool-events.jsonl": {
+      "sha256": "c9d288da06a5bc7c8abfaf13726a5bd871a605056c6e52a13b6afa39727b06c7",
+      "bytes": 328,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run/run-trust.json": {
+      "sha256": "93333d5f3a0e11232ea2ae9b07845f03716de84129c69701dd7b070b128010ee",
+      "bytes": 1203,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "same-run-audit-initial.txt": {
+      "sha256": "61501e69a61dbbc1a41605ea15c34807e6b1d3992bee195dde36a7ebdd95dd87",
+      "bytes": 9,
+      "origin": "unaltered GitHub public artifact"
+    }
+  },
+  "independent_client_replay": {
+    "status": "PASS",
+    "path": "independent-client-replay/provenance.json",
+    "host": "separate Mac process",
+    "same_original_bundle": true,
+    "additional_agent_or_model_executed": false,
+    "original_workflow_result_unchanged": "failure"
+  }
+}

@@ -16,10 +16,10 @@ use crate::config::SensorConfig;
 /// Per-poll wait when draining a tracer's ring (milliseconds).
 #[cfg(target_os = "linux")]
 const POLL_MS: i32 = 5;
-/// Cap on events drained from one sensor per cycle, so a burst cannot make a
+/// Cap on each bounded sensor drain, so a burst cannot make a
 /// single batch unbounded; the remainder is carried by the next cycle.
 #[cfg(target_os = "linux")]
-const MAX_EVENTS_PER_SENSOR: u32 = 4096;
+const MAX_EVENTS_PER_DRAIN: u32 = 4096;
 
 /// Owns the open tracers and the batch-building probe.
 pub struct SensorSet {
@@ -261,7 +261,7 @@ impl SensorSet {
                                 Ok(Some(ev)) => {
                                     self.probe.$ingest(ev);
                                     n += 1;
-                                    if n >= MAX_EVENTS_PER_SENSOR {
+                                    if n >= MAX_EVENTS_PER_DRAIN {
                                         self.probe.record_source_fault($mechanism);
                                         break;
                                     }
@@ -336,7 +336,7 @@ impl SensorSet {
                         Ok(Some(obs)) => {
                             self.probe.ingest_file_event(obs);
                             n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
+                            if n >= MAX_EVENTS_PER_DRAIN {
                                 self.probe.record_source_fault(SourceMechanism::Fanotify);
                                 break;
                             }
@@ -383,7 +383,7 @@ impl SensorSet {
                         Ok(Some(ev)) => {
                             self.probe.ingest_kernel_event(ev);
                             n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
+                            if n >= MAX_EVENTS_PER_DRAIN {
                                 self.probe
                                     .record_source_fault(SourceMechanism::ProcConnector);
                                 break;

@@ -7,13 +7,16 @@ that a fixture or supplied record was produced by an autonomous workload.
 import argparse
 import asyncio
 import hashlib
+import http.client
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 from urllib.error import HTTPError
 from urllib.request import Request
+from urllib.parse import urlsplit
 
 from mcp import Client, StdioServerParameters
 from vanian import ApiError, VanianClient
@@ -42,6 +45,14 @@ def main():
     parser.add_argument("--browser", action="store_true", help="requires installed Playwright Chromium")
     parser.add_argument("--screenshot", type=Path)
     args = parser.parse_args()
+    def progress(stage):
+        # Fixed stage names only; no response bodies, credentials or arbitrary
+        # exception text are published when a client subprocess fails.
+        args.output.parent.mkdir(parents=True,exist_ok=True)
+        args.output.with_name('client-progress.json').write_text(json.dumps({
+            'classification':'CLIENT_INTERFACE_CHECK_PROGRESS','stage':stage,
+            'status':'PASS' if stage=='COMPLETE' else 'IN_PROGRESS'})+'\n')
+    progress('ACCESS_AND_CREDENTIAL_SCOPE')
     writer_key, reader_key, other_key = [path.read_text().strip() for path in
         (args.writer_key_file, args.reader_key_file, args.other_key_file)]
     writer, reader, other = [VanianClient(args.url, lambda key=key: key,
@@ -62,6 +73,7 @@ def main():
             assert len(value) <= 262144
             return json.loads(value)
 
+    progress('API_ADMISSION_OPENAPI_AND_PYTHON_SDK')
     admitted = post(writer_key, raw)
     artifact_id = admitted["run_artifact_id"]
     validate_run_reads(reader, other, writer, bundle=bundle, admitted=admitted)
@@ -80,17 +92,37 @@ def main():
     refused(lambda: reader._get("/v1/runs/" + artifact_id), 403)
     for key, status in [(reader_key, 403)]:
         try:
-            post(key, raw)
+            # The role gate precedes JSON decoding. A small body keeps this
+            # authorization check independent of early-close upload races.
+            post(key, b'{}')
         except HTTPError as error:
             assert error.code == status
             error.close()
         else:
             raise AssertionError("Reader filed a run")
+    # Offer the exact full captured bundle with the Reader credential too.
+    # Read the actual final refusal if the server closes during upload; a
+    # broken pipe alone never proves an authorization denial.
+    endpoint=urlsplit(args.url)
+    connection_type=http.client.HTTPSConnection if endpoint.scheme=='https' else http.client.HTTPConnection
+    connection=connection_type(endpoint.hostname,endpoint.port,timeout=10)
+    try:
+        try:
+            connection.request('POST',endpoint.path.rstrip('/')+'/v1/runs',body=raw,
+                headers={'Authorization':'Bearer '+reader_key,'Content-Type':'application/json'})
+        except BrokenPipeError:
+            pass
+        response=connection.getresponse()
+        assert response.status==403, f'Reader full-bundle refusal returned HTTP {response.status}'
+        response.read(65536)
+    finally:
+        connection.close()
     request = Request(args.url.rstrip("/") + "/v1/runs/" + artifact_id,
         headers={"Authorization":"Bearer " + writer_key})
     with writer._opener.open(request, timeout=10) as response:
         assert response.read(16 * 1024 * 1024 + 1) == raw
 
+    progress('RESTRICTED_OFFICIAL_MCP_CLIENT')
     async def mcp_checks():
         def parameters(key):
             return StdioServerParameters(command=sys.executable,
@@ -122,23 +154,25 @@ def main():
         VANIAN_RUN_READER=reader_key, VANIAN_RUN_OTHER_READER=other_key,
         VANIAN_RUN_EXPECTED=json.dumps(admitted, separators=(",", ":")),
         VANIAN_RUN_SIGNED_VERDICT=json.dumps(bundle.get("signed_reconciliation")))
+    progress('TYPESCRIPT_SDK')
     subprocess.run(["node", str(ROOT / "validation/enterprise/run_typescript_smoke.ts")],
         env=env, check=True, timeout=30)
 
     console = "NOT_EXERCISED"
     if args.browser:
-        from playwright.sync_api import sync_playwright
+        progress('CONSOLE_BROWSER')
+        from playwright.sync_api import expect, sync_playwright
         with sync_playwright() as browser_runtime:
             browser = browser_runtime.chromium.launch(headless=True)
             page = browser.new_page()
             page.goto(args.url.rstrip("/") + "/console")
             page.locator("#credential").fill(reader_key)
             page.locator("#connect button").first.click()
-            page.wait_for_function("document.querySelector('#status').textContent.startsWith('Connected')")
+            expect(page.locator('#status')).to_have_text(re.compile(r'^Connected'))
             assert page.locator("#credential").input_value() == ""
             page.locator("#run-id").fill(artifact_id)
             page.locator("#run-form button").click()
-            page.wait_for_function("document.querySelector('#run').textContent.includes(" + json.dumps(artifact_id) + ")")
+            expect(page.locator('#run')).to_contain_text(artifact_id)
             displayed = json.loads(page.locator("#run").inner_text())
             assert displayed == {"metadata":admitted,"evaluation":admitted["evaluation"],
                                  "signed_verdict":bundle.get("signed_reconciliation")}
@@ -158,6 +192,7 @@ def main():
         "scope":"Retrieval of this exact caller-provided run; workload provenance requires independent run evidence."}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report,indent=2)+"\n")
+    progress('COMPLETE')
     print(json.dumps({key:value for key,value in report.items() if key != "evaluation"}))
 
 

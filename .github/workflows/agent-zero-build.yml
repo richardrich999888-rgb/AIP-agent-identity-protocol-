@@ -6,6 +6,12 @@ on:
       - 'aip-standalone/ghost-demo/**'
       - '.github/workflows/agent-zero-build.yml'
   workflow_dispatch:
+    inputs:
+      genuine_task:
+        description: Run the genuine local-model software task after all component gates pass
+        required: true
+        type: boolean
+        default: false
 permissions:
   contents: read
 defaults:
@@ -108,3 +114,64 @@ jobs:
             ${{ runner.temp }}/hosted-observer/public/
             ${{ runner.temp }}/hosted-observer/anchor.json
             ${{ runner.temp }}/hosted-observer/checkpoint.json
+  genuine-task:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.genuine_task == true }}
+    needs: [image, release-regression, hosted-observer-capabilities]
+    environment: snifferdog-validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.13.6'
+      - name: Prepare synchronized disposable Linux and independent audit
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chrony auditd zstd iptables
+          sudo systemctl restart chrony
+          sudo chronyc waitsync 30 0.1 0.0 2
+          sudo service auditd start
+          sudo auditctl -l | tee "$RUNNER_TEMP/agent-zero-initial-audit.txt"
+          if sudo auditctl -l | grep -Fxq -- '-a never,task'; then
+            sudo auditctl -d never,task
+          fi
+      - uses: actions/download-artifact@v4
+        with:
+          name: agent-zero-build-${{ github.run_id }}
+          path: ${{ runner.temp }}/reviewed-image
+      - name: Verify and load the actual image built by this workflow
+        run: |
+          cd "$RUNNER_TEMP/reviewed-image"
+          sha256sum -c agent-zero-image.sha256
+          gzip -dc agent-zero-image.tar.gz | docker load
+          docker image inspect snifferdog-agent-zero:validation > "$RUNNER_TEMP/agent-zero-image.json"
+      - name: Provision the existing verified public CPU model with zero cloud credentials
+        run: python validation/enterprise/prepare_local_model.py --root "$RUNNER_TEMP/agent-zero-local-model"
+      - name: Build existing observation, lineage, interoperability and offline verification binaries
+        run: cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate -p aip-reconcile -p aip-sentinel-feed
+      - name: Execute the actual GitHub software task and preserve its explicit review requirement
+        run: |
+          image_id="$(docker image inspect --format '{{.Id}}' snifferdog-agent-zero:validation)"
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" \
+            python integrations/real_agents/hosted_agent_zero.py run \
+            --image "$image_id" --tools target/debug \
+            --model-root "$RUNNER_TEMP/agent-zero-local-model" --out "$RUNNER_TEMP/agent-zero-genuine"
+      - name: Retain selected public evidence only, including failed attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-zero-genuine-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          path: |
+            ${{ runner.temp }}/agent-zero-genuine/public/
+            ${{ runner.temp }}/agent-zero-image.json
+            ${{ runner.temp }}/agent-zero-local-model/model-pin.json
+            ${{ runner.temp }}/agent-zero-initial-audit.txt
