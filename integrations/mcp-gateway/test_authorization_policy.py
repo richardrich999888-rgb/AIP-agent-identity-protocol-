@@ -8,6 +8,7 @@ binaries and the contextforge_fixture example.
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
 import os
 from pathlib import Path
@@ -18,9 +19,11 @@ from unittest.mock import patch
 import uuid
 
 from cpex.framework import GlobalContext, HttpHeaderPayload, PluginConfig, PluginContext
-from cpex.framework.hooks.tools import ToolPreInvokePayload
+from cpex.framework.hooks.tools import ToolPreInvokePayload, ToolPostInvokePayload
+from cpex.framework.manager import TenantPluginManager
+from cpex.framework.models import Config
 
-from vanian_contextforge import VanianToolReceiptPlugin
+from vanian_contextforge import ReceiptUnavailable, VanianToolReceiptPlugin
 
 REPO = Path(__file__).resolve().parents[2]
 BIN = Path(os.environ.get("AIP_ASSURANCE_TEST_BIN_DIR", str(REPO / "target/debug"))).resolve()
@@ -137,6 +140,142 @@ class AuthorizationPolicy(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.plugin()
         self.decisions.chmod(0o700)
+
+
+    async def manager(self):
+        # Actual pinned CPEX manager/signers, controlled callback fixtures only:
+        # no agent, model, or real upstream execution is implied by these tests.
+        options = self.plugin().config.model_dump()
+        config = PluginConfig(**{**options, "hooks": ["tool_pre_invoke", "tool_post_invoke"],
+                                 "mode": "sequential", "on_error": "fail"})
+        manager = TenantPluginManager(config=Config(
+            plugin_dirs=[str(REPO / "integrations/mcp-gateway")], plugins=[config]))
+        await manager.initialize()
+        return manager
+
+    def callback_context(self, *, state=None, request_id=None):
+        return GlobalContext(request_id=request_id or uuid.uuid4().hex,
+                             user={"email": "validator@example.com"}, state=state or {})
+
+    def callback_payload(self, *, arguments=None):
+        return ToolPreInvokePayload(name=self.tool, args=arguments or self.arguments,
+            headers=HttpHeaderPayload(root={"X-AIP-Agent-Id": self.agent,
+                "X-AIP-Decision-Id": self.decision, "X-AIP-Request-Id": uuid.uuid4().hex}))
+
+    def callback_result(self, *, refused=False):
+        return ToolPostInvokePayload(name=self.tool, result={"isError": refused, "content": []})
+
+    def dispositions(self):
+        sink = self.directory / "receipts.jsonl"
+        return [json.loads(line)["receipt"]["disposition"] for line in sink.read_text().splitlines()] if sink.exists() else []
+
+    def assert_unavailable(self, result):
+        self.assertTrue(result.modified_payload.result["isError"])
+        self.assertEqual(result.modified_payload.result["_meta"]["vanian"],
+                         {"receipt_persisted": False, "coverage": "CANNOT_PROVE"})
+
+    def test_real_cpex_replacement_preserves_owned_request_handoff(self):
+        async def scenario():
+            first = await self.manager()
+            second = None
+            try:
+                context = self.callback_context()
+                pre, local = await first.invoke_hook("tool_pre_invoke", self.callback_payload(), context)
+                self.assertTrue(pre.continue_processing)
+                await first.shutdown()
+                second = await self.manager()
+                post, new_local = await second.invoke_hook("tool_post_invoke", self.callback_result(), context,
+                                                           local_contexts=local)
+                self.assertNotEqual(set(local), set(new_local))
+                self.assertTrue(post.modified_payload.result["_meta"]["vanian"]["receipt_persisted"])
+                self.assertEqual(self.dispositions(), ["Forwarded"])
+            finally:
+                await first.shutdown()
+                if second:
+                    await second.shutdown()
+        asyncio.run(scenario())
+
+    def test_real_cpex_missing_pre_has_no_success_receipt(self):
+        async def scenario():
+            manager = await self.manager()
+            try:
+                post, _ = await manager.invoke_hook("tool_post_invoke", self.callback_result(), self.callback_context())
+                self.assert_unavailable(post)
+                self.assertEqual(self.dispositions(), [])
+            finally:
+                await manager.shutdown()
+        asyncio.run(scenario())
+
+    def test_real_cpex_refused_pre_preserves_denial_without_forwarded_receipt(self):
+        async def scenario():
+            manager = await self.manager()
+            try:
+                context = self.callback_context()
+                pre, local = await manager.invoke_hook("tool_pre_invoke",
+                    self.callback_payload(arguments={"loan_id": 2, "amount": 0}), context)
+                self.assertFalse(pre.continue_processing)
+                post, _ = await manager.invoke_hook("tool_post_invoke", self.callback_result(refused=True),
+                                                    context, local_contexts=local)
+                self.assertIsNone(post.modified_payload)
+                self.assertEqual(self.dispositions(), ["Refused"])
+            finally:
+                await manager.shutdown()
+        asyncio.run(scenario())
+
+    def test_real_cpex_copied_state_for_other_request_cannot_consume_reservation(self):
+        async def scenario():
+            manager = await self.manager()
+            try:
+                context = self.callback_context()
+                pre, local = await manager.invoke_hook("tool_pre_invoke", self.callback_payload(), context)
+                self.assertTrue(pre.continue_processing)
+                other = self.callback_context(state=copy.deepcopy(context.state))
+                wrong, _ = await manager.invoke_hook("tool_post_invoke", self.callback_result(), other,
+                                                     local_contexts=local)
+                self.assert_unavailable(wrong)
+                self.assertEqual(self.dispositions(), [])
+                correct, _ = await manager.invoke_hook("tool_post_invoke", self.callback_result(), context)
+                self.assertTrue(correct.modified_payload.result["_meta"]["vanian"]["receipt_persisted"])
+                self.assertEqual(self.dispositions(), ["Forwarded"])
+            finally:
+                await manager.shutdown()
+        asyncio.run(scenario())
+
+    def test_real_cpex_concurrent_and_repeated_posts_issue_exactly_once(self):
+        async def scenario():
+            manager = await self.manager()
+            try:
+                context = self.callback_context()
+                pre, _ = await manager.invoke_hook("tool_pre_invoke", self.callback_payload(), context)
+                self.assertTrue(pre.continue_processing)
+                duplicate = self.callback_context(state=copy.deepcopy(context.state), request_id=context.request_id)
+                results = await asyncio.gather(*[manager.invoke_hook("tool_post_invoke", self.callback_result(), c)
+                                                  for c in (context, duplicate)])
+                persisted = [post.modified_payload.result["_meta"]["vanian"]["receipt_persisted"]
+                             for post, _ in results]
+                self.assertCountEqual(persisted, [True, False])
+                again, _ = await manager.invoke_hook("tool_post_invoke", self.callback_result(), context)
+                self.assert_unavailable(again)
+                self.assertEqual(self.dispositions(), ["Forwarded"])
+            finally:
+                await manager.shutdown()
+        asyncio.run(scenario())
+
+    def test_failed_post_claim_stays_unavailable_and_cannot_be_reissued(self):
+        async def scenario():
+            plugin = self.plugin()
+            context = PluginContext(global_context=self.callback_context())
+            pre = await plugin.tool_pre_invoke(self.callback_payload(), context)
+            self.assertTrue(pre.continue_processing)
+            saved = copy.deepcopy(context.global_context.state)
+            with patch.object(plugin, "_signer", side_effect=ReceiptUnavailable("controlled signer failure")):
+                failed = await plugin.tool_post_invoke(self.callback_result(), context)
+            self.assert_unavailable(failed)
+            context.global_context.state = saved
+            repeated = await plugin.tool_post_invoke(self.callback_result(), context)
+            self.assert_unavailable(repeated)
+            self.assertEqual(self.dispositions(), [])
+        asyncio.run(scenario())
 
 
 if __name__ == "__main__":

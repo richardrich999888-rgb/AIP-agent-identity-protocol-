@@ -1,6 +1,9 @@
 # Validation record — original 2026-10-28, updated 2026-10-29
 
-**Assignment incomplete.** Agent Zero's second actual Click-task attempt at
+**Assignment incomplete.** The third actual attempt at e4cd07d (40857993677)
+made six model requests but exceeded 900 seconds, produced no patch and has
+unestablished final coverage/task acceptance despite valid archive signatures.
+Its underlying framework/model cause is UNKNOWN. Agent Zero's second attempt at
 7625b1d (run40854020439) made five real model requests. Its original signed
 archives/checkpoint verify and cover the task, including a bound file event,
 but no bound successful ProcessExec or patch was produced. Its retained

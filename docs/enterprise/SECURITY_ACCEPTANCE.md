@@ -91,3 +91,13 @@ component execution evidence, not a retained same-run Sniffer F package. The
 probe has no trusted claim-registration interface and placement derivation is
 not connected to this same-run reconciliation path. Filling that boundary
 requires reviewed full-instance/agent/decision linkage, not editing observations.
+
+
+The subsequent e4cd07d core positive and interruption paths passed, but its
+recovery lacked a Forwarded receipt and remains failed. A controlled pinned
+CPEX reproduction exposed UUID-local context loss on manager replacement.
+The integration now uses owned request-global handoff and a one-use durable
+post-callback transition, preserving cache invalidation and authorization.
+Missing state remains CannotProve; fresh exact-source Linux validation is
+required. See [the execution record](END_TO_END_VALIDATION.md) for original
+failed evidence, component repairs and the separate Agent Zero timeout.

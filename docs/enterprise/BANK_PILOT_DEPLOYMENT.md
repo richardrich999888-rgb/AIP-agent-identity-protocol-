@@ -144,3 +144,13 @@ profile has its own original public trust/checkpoint and bundle; use matching
 material when verifying. This is the runnable engineering package for the
 local-isolation demonstration. It does not satisfy the separate-host installer,
 institution-owned custody or production deployment acceptance gates above.
+
+
+The subsequent e4cd07d core positive and interruption paths passed, but its
+recovery lacked a Forwarded receipt and remains failed. A controlled pinned
+CPEX reproduction exposed UUID-local context loss on manager replacement.
+The integration now uses owned request-global handoff and a one-use durable
+post-callback transition, preserving cache invalidation and authorization.
+Missing state remains CannotProve; fresh exact-source Linux validation is
+required. See [the execution record](END_TO_END_VALIDATION.md) for original
+failed evidence, component repairs and the separate Agent Zero timeout.

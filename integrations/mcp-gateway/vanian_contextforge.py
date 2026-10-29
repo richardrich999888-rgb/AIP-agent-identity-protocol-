@@ -175,10 +175,24 @@ class VanianToolReceiptPlugin(Plugin):
                                 call["received_at_ms"], bytes(commitment).hex()))
         return None
 
+    def _claim_post(self, call: dict[str, Any]) -> bool:
+        # A copied request context or repeated callback cannot issue twice.
+        # The committed pending reservation is the only eligible transition.
+        with self._connect() as connection:
+            updated = connection.execute(
+                "UPDATE requests SET state='receipting' WHERE agent_id=? AND decision_id=? "
+                "AND request_id=? AND state='pending'",
+                (call["agent_id"], call["decision_id"], call["tool_call_id"]))
+            return updated.rowcount == 1
+
     def _finish(self, call: dict[str, Any], state: str) -> None:
         with self._connect() as connection:
-            connection.execute("UPDATE requests SET state=? WHERE agent_id=? AND decision_id=?",
-                               (state, call["agent_id"], call["decision_id"]))
+            updated = connection.execute(
+                "UPDATE requests SET state=? WHERE agent_id=? AND decision_id=? "
+                "AND request_id=? AND state='receipting'",
+                (state, call["agent_id"], call["decision_id"], call["tool_call_id"]))
+            if updated.rowcount != 1:
+                raise ReceiptUnavailable("receipt reservation transition unavailable")
 
     async def _signer(self, operation: str, call: dict[str, Any]) -> dict[str, Any]:
         encoded = json.dumps(call, allow_nan=False, separators=(",", ":")).encode()
@@ -216,7 +230,12 @@ class VanianToolReceiptPlugin(Plugin):
         return self._violation(code)
 
     async def tool_pre_invoke(self, payload: ToolPreInvokePayload, context: PluginContext) -> ToolPreInvokeResult:
-        context.set_state(_STATE, None)
+        # CPEX PluginRef UUIDs change when ContextForge replaces a cached
+        # manager. Its public request-global state survives that replacement;
+        # plugin-local contexts keyed by the old UUID do not. This namespaced
+        # value is written only by trusted hooks, never from request payloads.
+        invocation_request_id = context.global_context.request_id
+        context.global_context.state[_STATE] = {"request_id": invocation_request_id, "pre_refused": True}
         try:
             headers: dict[str, str] = {}
             for name, value in (payload.headers.root.items() if payload.headers else []):
@@ -253,7 +272,7 @@ class VanianToolReceiptPlugin(Plugin):
             refusal = await asyncio.to_thread(self._reserve, call, checked["parameter_commitment"])
             if refusal:
                 return await self._refuse(call, refusal)
-            context.set_state(_STATE, call)
+            context.global_context.state[_STATE] = {"request_id": invocation_request_id, "call": call}
             # These headers belong to this gateway's receipt boundary. In
             # particular, its namespaced Mcp-Name is not the upstream name.
             # The gateway's MCP client supplies upstream protocol headers.
@@ -265,33 +284,52 @@ class VanianToolReceiptPlugin(Plugin):
             return self._violation("RECEIPT_UNAVAILABLE")
 
     async def tool_post_invoke(self, payload: ToolPostInvokePayload, context: PluginContext) -> ToolPostInvokeResult:
-        call = context.get_state(_STATE)
-        if call is None:
-            # ContextForge invokes post hooks for pre-hook refusals as well.
-            return ToolPostInvokeResult(continue_processing=True)
-        # Clear before I/O: ContextForge may invoke error post hooks again when
-        # a later plugin fails. Never turn that second callback into success.
-        context.set_state(_STATE, None)
+        handoff = context.global_context.state.get(_STATE)
+        # Assign a sentinel before I/O. CPEX merges state with dict.update, so
+        # deleting the key would not propagate consumption to the request.
+        context.global_context.state[_STATE] = None
+        if not isinstance(handoff, dict) or handoff.get("request_id") != context.global_context.request_id:
+            return self._unavailable_post(payload)
+        if handoff.get("pre_refused") is True:
+            # ContextForge invokes error post hooks for pre-hook refusals too.
+            # Preserve an existing denial; never allow an unannotated success.
+            result = payload.result
+            if isinstance(result, dict) and result.get("isError", result.get("is_error", False)):
+                return ToolPostInvokeResult(continue_processing=True)
+            return self._unavailable_post(payload)
+        call = handoff.get("call")
+        if not isinstance(call, dict):
+            return self._unavailable_post(payload)
         result = payload.result
         if not isinstance(result, dict):
             result = {"isError": True, "content": []}
         disposition = "Failed" if result.get("isError", result.get("is_error", False)) else "Forwarded"
+        claimed = False
         try:
+            claimed = await asyncio.to_thread(self._claim_post, call)
+            if not claimed:
+                return self._unavailable_post(payload)
             signed = await self._signer("issue", {**call, "disposition": disposition, "response": result})
             await asyncio.to_thread(self._finish, call, disposition)
             metadata = dict(result.get("_meta") or {})
             metadata["vanian"] = {"receipt_persisted": True, "signed_receipt": signed["signed_receipt"]}
             result = {**result, "_meta": metadata}
         except Exception:
-            try:
-                await asyncio.to_thread(self._finish, call, "receipt_error")
-            except Exception:
-                # A simultaneous journal outage must not mask uncertainty.
-                # The previously committed pending record remains a gap.
-                pass
+            if claimed:
+                try:
+                    await asyncio.to_thread(self._finish, call, "receipt_error")
+                except Exception:
+                    # A simultaneous journal outage must not mask uncertainty.
+                    # The committed reservation remains an unresolved gap.
+                    pass
             # The underlying effect may already have occurred. Tell the caller
             # precisely that receipt coverage is unavailable; never retry it.
-            result = {"isError": True, "content": [{"type": "text", "text":
-                      "Gateway receipt unavailable. The tool may have executed; do not automatically retry."}],
-                      "_meta": {"vanian": {"receipt_persisted": False, "coverage": "CANNOT_PROVE"}}}
+            return self._unavailable_post(payload)
+        return ToolPostInvokeResult(continue_processing=True, modified_payload=payload.model_copy(update={"result": result}))
+
+    @staticmethod
+    def _unavailable_post(payload: ToolPostInvokePayload) -> ToolPostInvokeResult:
+        result = {"isError": True, "content": [{"type": "text", "text":
+                  "Gateway receipt unavailable. The tool may have executed; do not automatically retry."}],
+                  "_meta": {"vanian": {"receipt_persisted": False, "coverage": "CANNOT_PROVE"}}}
         return ToolPostInvokeResult(continue_processing=True, modified_payload=payload.model_copy(update={"result": result}))

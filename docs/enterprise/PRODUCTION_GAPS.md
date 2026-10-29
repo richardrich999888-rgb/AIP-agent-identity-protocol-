@@ -70,3 +70,22 @@ pre-flush acquisition is implemented with unchanged verification predicates;
 fresh Linux execution is still required. No successful genuine workflow erases
 that failed component check. Relevant observer, harness and client dependency
 changes now trigger the real Linux integration workflows.
+
+
+At e4cd07d, fresh core positive/interruption passed but recovery lacked its
+Forwarded receipt. A separately reproduced CPEX manager-replacement state
+loss has a request-scoped integration repair; no missing old receipt is
+reconstructed and the original runner's exact lifecycle remains unknown.
+Main release CI also exposed a timestamp-colliding health fixture, repaired
+without changing production verification and with an added cryptographic
+collision regression. Fresh complete CI and genuine recovery are required.
+
+Agent Zero's third actual attempt made six model requests but hit its 900-second
+budget, with no patch or bound successful exec. Original archives verify, but
+full coverage/task acceptance and the timeout's underlying cause remain
+unestablished. Its one-shot adapter log did not preserve intermediate framework
+responses. A suitable approved model/task configuration and incremental
+diagnostics need validation; no three-framework or swarm success is claimed.
+These are software/task gaps as well as the separately recorded infrastructure
+requirements. A remote model needs approved restricted secrets and a tested
+hard budget; the failed local CPU-model route used no credentials.

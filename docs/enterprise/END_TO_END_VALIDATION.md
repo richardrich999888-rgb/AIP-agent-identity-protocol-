@@ -214,8 +214,8 @@ a6 success remains historical. Further source changes require final-head checks.
 At source 7625b1d the three-profile genuine workflow passed and its three
 original bundles independently verified offline. A separate PR observer component
 job failed and remains a failure: [original artifact and analysis](../../validation/enterprise/results/OBSERVER_40854007255_FAILURE/summary.json).
-A real scheduler exec in batch32 and its connector witness 5,838 ns later in
-batch33 crossed the acquisition boundary. Strict same-batch verification marked
+A real scheduler exec in batch 32 and its connector witness 5,838 ns later in
+batch 33 crossed the acquisition boundary. Strict same-batch verification marked
 scheduler integrity Unverifiable and reset coverage, with zero counted drops.
 The original controller did not retain its exact failed task interval, so that
 interval remains unknown. No old Active health record or rewritten archive is
@@ -323,7 +323,7 @@ integration**, despite real inference and valid archive signatures.
 retain 545 signed batches, 34,050 kernel events, 35 health records and the
 external checkpoint. Another local verifier found zero integrity findings.
 That does not establish task success, full coverage, business semantics or
-logical delegation. A real cross-sensor boundary mismatch in batch291 reset
+logical delegation. A real cross-sensor boundary mismatch in batch 291 reset
 its coverage epoch; it was not waived. The missing-patch cause remains unknown
 because the original framework response/log was not exported.
 
@@ -383,3 +383,75 @@ preflight uses that same route and parses an actual ready JSON response. No
 tool name, action or software solution is supplied. Context truncation is not
 established by the retained logs. This configuration needs a fresh genuine
 task and independent acceptance; JSON validity alone proves neither.
+
+
+## Later e4cd07d failures and repaired component checks
+
+At `e4cd07d906ed2c5661e7909e2c02559e100b26bf`, the fresh hosted observer
+component passed: 52 signed batches, 988 kernel events, zero reported loss,
+zero nonverified integrity entries and a final sequence 52 health seal. Original
+ZIP artifact12889932975 has SHA-256
+`427c431dec5e1f8575640be66d2879fee0ef3e5c65b16416cc6fa03f839eacdb`.
+[Originals and separate offline verification](../../validation/enterprise/results/OBSERVER_40857979569_SUCCESS/summary.json)
+verify the original public anchor, checkpoint and zero archive findings. This
+is an OS component test, not another autonomous agent workload.
+
+[Fresh core workflow40857979540](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979540)
+failed overall. Its actual positive profile and interruption trial passed all
+clients and separate offline verification; recovery executed two real model
+calls and the real loan1 tool, but had no Forwarded receipt. Its only retained
+receipt is the signed controller mismatch refusal. No missing receipt, bundle
+or signed reconciliation is reconstructed. Original artifact12889854470,
+SHA-256 `68738de03bde84ec0a52fd185dee28440d6f609f01e1842cfa28addc69388a03`,
+and all 124 original files remain in [the failed workflow register](../../validation/enterprise/results/E2E_40857979540/summary.json).
+Recovery archive integrity/checkpoint verification passes, but the complete
+join remains unavailable. Passing profiles do not turn the workflow green.
+
+A separate controlled reproduction using the exact pinned CPEX0.1.4 showed
+that replacing ContextForge's cached tenant manager changes PluginRef UUIDs,
+losing pre-call data stored in plugin-local context. The actual failed runner's
+TTL crossing was not retained and remains unproven. The necessary integration
+repair uses public request-global state, scoped to the outer request, and a
+None consumption sentinel. An atomic existing-journal pending-to-receipting
+transition prevents duplicate callbacks from issuing twice. Missing/consumed
+state explicitly reports CannotProve. Cache expiry, authorization, trust and
+cryptographic rules are unchanged. Eleven real-CPEX authorization tests and
+all 27 actual ContextForge/MCP interoperability checks pass locally; these are
+component tests without model/kernel claims. [Reproduction and repair evidence](../../validation/enterprise/results/REPAIR_e4cd07d/summary.json)
+keep that distinction visible. Fresh genuine Linux execution is still required.
+
+The e4cd07d main CI also failed a release fixture: `b05_another_observers_records_do_not_bind`.
+The unchanged failure reproduced locally. Two fast fixtures shared sequence
+and millisecond health metadata, so a metadata-only structural assertion had
+no mismatch. The fixture now signs explicitly distinct metadata, retaining the
+original assertion; an added collision regression requires actual other-key
+signature refusal and proof-envelope refusal when metadata intentionally
+coincides. Production verification is untouched. Release binding13/13,
+128 repetitions each of the repaired test and collision test, and strict
+Linux-target Clippy pass. The [e4cd07d CI register](../../validation/enterprise/results/CI_e4cd07d/summary.json)
+remains failed: debug 3261/0/7 ignored; release 3262/1 failed/5 ignored; each profile
+also 2 passed/2 ignored doctests. g14_04 passed both profiles and 20 focused repeats.
+
+### Third actual Agent Zero attempt
+
+[Run40857993677](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857993677)
+at e4cd07d passed all prerequisites, then exceeded the actual 900-second runtime
+budget. Six successful framework-period generation requests occurred, excluding
+two real capability probes. Native JSON configuration was requested and the
+preflight returned valid JSON; the actual framework response bodies were not
+retained, so their validity/tool behavior is unknown. No patch, verification
+report, completed response or bound successful ProcessExec was produced.
+The bounded adapter diagnostic contains only its self-reported start record;
+the timeout's underlying framework/model cause remains UNKNOWN.
+
+[Original ZIP, 18 original files and fresh offline verification](../../validation/enterprise/results/AGENT_ZERO_40857993677/summary.json)
+retain artifact12890644634, SHA-256
+`2a1b5f1852a1e3205b81b6e6175fb217b331f860d3dc105b00716e224663fefa`.
+Its453 signed batches,29,436 kernel events and 32 health records verify with zero
+findings and matching original checkpoint hashes. Timeout prevented normal
+final task/audit acceptance; latest signed health seals sequence 452 while the
+final batch is453. Integrity alone cannot promote this incomplete coverage or
+the unaccepted software task. Agent Zero, DeerFlow/OpenHands and swarms remain
+unvalidated. An approved model/task configuration and retained incremental
+framework diagnostics are separate follow-up requirements; no API secret is
+needed to reproduce the failed public CPU-model profile.

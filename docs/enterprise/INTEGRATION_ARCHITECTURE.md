@@ -114,3 +114,13 @@ fresh recovery profiles. The off-host/separate-administration arrow remains
 incomplete: the executed collector is a separate process/key on the same kernel
 under shared root/GitHub administration. No separate-host custody is implied by
 that software-path success.
+
+
+The subsequent e4cd07d core positive and interruption paths passed, but its
+recovery lacked a Forwarded receipt and remains failed. A controlled pinned
+CPEX reproduction exposed UUID-local context loss on manager replacement.
+The integration now uses owned request-global handoff and a one-use durable
+post-callback transition, preserving cache invalidation and authorization.
+Missing state remains CannotProve; fresh exact-source Linux validation is
+required. See [the execution record](END_TO_END_VALIDATION.md) for original
+failed evidence, component repairs and the separate Agent Zero timeout.
