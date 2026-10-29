@@ -140,6 +140,27 @@ fn v04_the_observer_key_may_not_be_the_agents_own() {
     assert!(matches!(v.observer, ComponentVerdict::Unverifiable(_)));
 }
 
+#[test]
+fn v04b_matching_health_reference_fields_do_not_trust_an_unanchored_signature() {
+    let s = common::verified_execution();
+    let mut p = package(&s);
+    let other_key = aip_crypto::generate_ed25519_keypair();
+    let health = &mut p.observer.as_mut().unwrap().health;
+    health.attestation = aip_crypto::sign_ed25519(
+        &other_key.private_key,
+        common::OBSERVER_ID,
+        &health.health.canonical_bytes(),
+    )
+    .unwrap();
+
+    // The cited record coordinates agree; only anchored cryptographic
+    // verification can establish who signed the unchanged health bytes.
+    assert!(p.binding_faults().is_empty());
+    let v = verify_nexora_proof(&p, &anchors(&s));
+    assert!(matches!(v.observer, ComponentVerdict::Unverifiable(_)));
+    assert_ne!(v.verdict, ProofVerdict::Valid);
+}
+
 // ═══ Gate 5 — the claim is re-derived, never believed ═══
 
 #[test]

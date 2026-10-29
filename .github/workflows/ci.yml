@@ -61,7 +61,7 @@ jobs:
       # deadpool-postgres are pure Rust and build without a database). clippy
       # only compiles, so this widens coverage without needing a live DB.
       - name: cargo clippy (deny warnings)
-        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+        run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
 
       # Default features only. aip-service's `postgres` feature is exercised by
       # the postgres-backend job below against a live database; running it here
