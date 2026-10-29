@@ -29,7 +29,7 @@
       "jobs": [
         {
           "id": 123052529929,
-          "name": "fmt · clippy · test",
+          "name": "fmt \u00b7 clippy \u00b7 test",
           "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40755309658/job/123052529929",
           "conclusion": "success",
           "formatting": "PASS",
@@ -160,7 +160,7 @@
         },
         {
           "id": 123052529985,
-          "name": "cargo audit · cargo deny",
+          "name": "cargo audit \u00b7 cargo deny",
           "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40755309658/job/123052529985",
           "conclusion": "success",
           "cargo_audit": "PASS",
@@ -343,7 +343,10 @@
             "id": 12844979388,
             "name": "agent-zero-build-40755309313",
             "zip_sha256": "1c9105f438ea387f428eb93a8711d3c7f6368bdf90947d6a3e3099b3c6aa6448",
-            "bytes": 8388608
+            "bytes": 1593587517,
+            "size_origin": "GitHub artifact API and final upload marker; earlier incremental progress-size annotation corrected where applicable",
+            "digest_origin": "GitHub artifact API and final upload log; not a local full-ZIP download/hash",
+            "local_full_zip_downloaded_for_registry": false
           }
         },
         {
@@ -428,5 +431,6 @@
     "path": ".github/workflows/security.yml",
     "state": "disabled_inactivity",
     "gitleaks_trivy_execution_on_this_source": "NOT_ESTABLISHED"
-  }
+  },
+  "artifact_annotation_audit": "See validation/enterprise/results/ARTIFACT_PROVENANCE_CORRECTIONS/summary.json. Derived image size/origin annotations only; historical test statuses and original signed evidence unchanged."
 }

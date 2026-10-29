@@ -1,0 +1,28 @@
+{
+  "classification": "CONTROLLED_COMPONENT_TESTS_NOT_A_GENUINE_AGENT_WORKLOAD",
+  "base_source": "d5c39dd846c17114f6bb4a8693100e02af8a80d0",
+  "finding": "The root workload deadline can preempt the former final-only framework log export. This explains a diagnostic-loss possibility, not the underlying cause of the historical model/task timeout.",
+  "repair": "Incremental bounded original SELF_REPORTED log snapshots using the pinned public cursor API, flushed and fsynced before task completion; allowlisted resolved configuration and stage markers; explicit limit/fault states.",
+  "outer_workload_deadline_seconds": 900,
+  "deadline_resource_security_evidence_controls": "UNCHANGED",
+  "journal_bytes_cap": 4194304,
+  "record_bytes_cap": 65536,
+  "reserved_marker_bytes": 2048,
+  "snapshot_atomic": false,
+  "portable_tests": {
+    "passed": 60,
+    "failed": 0,
+    "new_diagnostic_tests": 12,
+    "includes": "Actual controlled subprocess SIGKILL before finally; original prefix retained, short/no-progress writes, cursor updates/epoch changes, bounded failure markers and secret-field projection."
+  },
+  "actual_pinned_container_api_smoke": "REQUIRED_ON_FRESH_IMAGE_CI",
+  "new_genuine_agent_execution": "NOT_ESTABLISHED_BY_THIS_COMPONENT_RECORD",
+  "independent_patch_review": "Root and B read-only reviews passed; no blocking findings after short-write repair.",
+  "source_file_sha256": {
+    "integrations/real_agents/adapters/launch.py": "843b8902932eea847bd50e3e1f5922a6d66f15ad7d454d851d3458f0eecc0bd8",
+    "integrations/real_agents/adapters/agent_zero_runtime.py": "1a8ce1f79124e14d508b7721f00441d0e886ec17f573cedb2446d49ab6542d84",
+    "integrations/real_agents/adapters/smoke.py": "65b53a4ab50d2f431abca2145c1ba68c3e76c238ea5d1cc76758919ead6d315a",
+    "integrations/real_agents/harness.py": "36e4d424d1fddad6323e909f31c2ce59ec109f6b453cb5c451893d344535902b",
+    "integrations/real_agents/tests/test_agent_zero_diagnostics.py": "33614d783758a963f31151fcd15f50ced2a96891ec13603afeddc409312cfe38"
+  }
+}

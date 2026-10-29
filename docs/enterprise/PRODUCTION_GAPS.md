@@ -101,7 +101,7 @@ accepted tool protocol or completed software repair. A remote model also needs
 approved restricted secrets and a tested hard budget; the failed public CPU-model
 route used no credentials. No fourth unchanged-profile task is claimed.
 
-At current execution source `8d38d77fa3bf1c3b0670f584feaf75f34bf69a07`, all
+At retained execution source `8d38d77fa3bf1c3b0670f584feaf75f34bf69a07`, all
 three genuine core profiles and independent offline verification **PASS**.
 Complete component CI also **PASS: five workflows / fourteen jobs**, confirmed
 2026-10-29 16:04 UTC, with one separately guarded manual-task skip. Final-HEAD
@@ -109,3 +109,17 @@ CI is required after the documentation/evidence-only snapshot.
 Historical fourteen-job component successes and the three failed manual Agent
 Zero tasks have distinct scopes. No three-framework, swarm, independent custody
 or installed-customer acceptance is inferred.
+
+
+The subsequent d5c39dd publication check passed all fourteen component-CI jobs
+and the complete three-profile genuine core workflow, with separate offline
+verification. Its originals and exact CI register are linked in
+[the later publication and diagnostic record](END_TO_END_VALIDATION.md#later-publication-check-and-diagnostic-repair).
+A further bounded incremental Agent Zero diagnostics repair passes 60 portable
+component tests; fresh image smoke and genuine task acceptance remain separate.
+The original 900-second deadline and security/evidence controls are unchanged.
+Derived image size/origin annotations were corrected without changing signed
+records or historical outcomes. The existing Security workflow was restored
+from its inactivity pause; its next-revision scans and all exact-final-HEAD CI
+still require actual results. Separate collector custody, successful framework
+repairs/swarms and installed-customer qualification remain incomplete.

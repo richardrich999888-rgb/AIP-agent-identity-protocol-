@@ -29,7 +29,7 @@
       "jobs": [
         {
           "id": 123452539474,
-          "name": "fmt · clippy · test",
+          "name": "fmt \u00b7 clippy \u00b7 test",
           "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40875322994/job/123452539474",
           "conclusion": "success",
           "formatting": "PASS",
@@ -165,7 +165,7 @@
         },
         {
           "id": 123452539046,
-          "name": "cargo audit · cargo deny",
+          "name": "cargo audit \u00b7 cargo deny",
           "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40875322994/job/123452539046",
           "conclusion": "success",
           "cargo_audit": "PASS",
@@ -348,7 +348,10 @@
             "id": 12898027129,
             "name": "agent-zero-build-40875322915",
             "zip_sha256": "f53e2bc7dcc85e361fc2defc973c77777b2184f8f11e17408e3aa193d246aeb8",
-            "bytes": 8388608
+            "bytes": 1593659693,
+            "size_origin": "GitHub artifact API and final upload marker; earlier incremental progress-size annotation corrected where applicable",
+            "digest_origin": "GitHub artifact API and final upload log; not a local full-ZIP download/hash",
+            "local_full_zip_downloaded_for_registry": false
           }
         },
         {
@@ -470,5 +473,6 @@
       ],
       "evidence_scope": "Three historical failed manual tasks retained separately. Passing image/tool smoke has zero model calls and does not validate these tasks."
     }
-  }
+  },
+  "artifact_annotation_audit": "See validation/enterprise/results/ARTIFACT_PROVENANCE_CORRECTIONS/summary.json. Derived image size/origin annotations only; historical test statuses and original signed evidence unchanged."
 }

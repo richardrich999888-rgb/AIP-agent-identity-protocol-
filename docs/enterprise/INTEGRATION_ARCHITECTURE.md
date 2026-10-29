@@ -142,3 +142,17 @@ without protection rules or branch restriction and allowed administrator bypass.
 The failed local-model profile uses no model API credentials. Remote inference
 requires approved restricted configuration/secrets and tested hard spending and
 egress controls, alongside genuine model/task and diagnostic validation.
+
+
+The subsequent d5c39dd publication check passed all fourteen component-CI jobs
+and the complete three-profile genuine core workflow, with separate offline
+verification. Its originals and exact CI register are linked in
+[the later publication and diagnostic record](END_TO_END_VALIDATION.md#later-publication-check-and-diagnostic-repair).
+A further bounded incremental Agent Zero diagnostics repair passes 60 portable
+component tests; fresh image smoke and genuine task acceptance remain separate.
+The original 900-second deadline and security/evidence controls are unchanged.
+Derived image size/origin annotations were corrected without changing signed
+records or historical outcomes. The existing Security workflow was restored
+from its inactivity pause; its next-revision scans and all exact-final-HEAD CI
+still require actual results. Separate collector custody, successful framework
+repairs/swarms and installed-customer qualification remain incomplete.

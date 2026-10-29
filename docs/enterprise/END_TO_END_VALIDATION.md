@@ -8,7 +8,7 @@ bundles passed a separate offline verification process. Separate collector
 administration, framework swarms and installed customer deployment remain
 independent incomplete acceptance criteria. PRs #6, #7 and #8 remain drafts.
 
-The genuine three-profile core repeat at current source
+The genuine three-profile core repeat at retained source
 `8d38d77fa3bf1c3b0670f584feaf75f34bf69a07` has **PASSED**, including separate
 offline verification of every original bundle. Complete component CI also
 **PASS: all five workflows / fourteen jobs** at that source, confirmed
@@ -36,7 +36,7 @@ modified. Later implementation and exact CI source revisions are recorded by
 GitHub run metadata and the retained source/run manifests, rather than inferred
 from a prior synthetic merge.
 
-## Latest complete hosted execution
+## Retained complete 8d38d77 hosted execution
 
 [Workflow 40875323001](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40875323001)
 completed successfully at exact source `8d38d77fa3bf1c3b0670f584feaf75f34bf69a07`.
@@ -215,7 +215,7 @@ maximum. CLI evaluate-and-sign/offline-evaluate wall times were
 935.667376/940.655304 ms. These are observed counters and timings, with no
 matched baseline or causal overhead claim.
 
-Latest 8d38d77 positive measurements: actual task 19.700 seconds; metric interval
+Retained 8d38d77 positive measurements: actual task 19.700 seconds; metric interval
 16.022 seconds; probe/collector CPU 2.31/0.49 seconds and lifetime peak RSS
 4,860/24,048 KiB. Workload cgroup CPU was 24.299519 seconds and lifetime peak
 memory 2,167,963,648 bytes. Archives used 737,693 bytes for 1,049 events over a
@@ -306,7 +306,7 @@ Parity/sample/timing helpers and two documentation examples remain ignored;
 two debug timing skips pass in release. RED reports 43 runnable reproductions,
 two notes and ten blocked rows, not re-execution of those privileged rows.
 Cargo audit/deny retain existing policy and visible duplicate/wildcard warnings.
-The separate Security workflow is `disabled_inactivity`; these runs did not
+At those historical inspections the separate Security workflow was `disabled_inactivity`; those runs did not
 execute Gitleaks or Trivy.
 
 ## Acceptance register
@@ -527,3 +527,48 @@ local-model attempts consumed no model API credential. Any remote model path
 requires approved restricted secrets, exact model/endpoint configuration, expiry,
 tested hard spending limits and controlled egress; model/task suitability and
 incremental diagnostic retention also require software validation.
+
+
+## Later publication check and diagnostic repair
+
+The later publication revision `d5c39dd846c17114f6bb4a8693100e02af8a80d0`
+passed all five component workflows / fourteen jobs, with one separately guarded
+manual-task skip. Debug had 3,262 passed / seven ignored; release had 3,264 /
+five ignored, and each profile separately passed two doctests with two ignored.
+[Its CI register](../../validation/enterprise/results/CI_d5c39dd/summary.json)
+records exact source/PR tree equality and all remaining ignored/blocked scopes.
+[Core workflow 40908849601](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40908849601)
+also passed all three genuine profiles, all ten client checks per profile and
+separate offline verification of each original bundle. The exact original ZIP,
+all 132 originals and separately labeled verification outputs are retained in
+[E2E_40908849601](../../validation/enterprise/results/E2E_40908849601/summary.json).
+Positive/recovery had 32/36 signed batches and 1,144/988 kernel events with four
+matched process references each and actual-task coverage. The interruption
+profile had 11 batches / 296 events, no process reference and no task coverage.
+Kernel application findings remain CannotProve/ActionEvidenceUnavailable for
+positive/recovery; their longer authorization TTL is still WindowNotCovered.
+This is shared-root/kernel local isolation, with no new framework/swarm or
+independent-custody acceptance.
+
+This follow-up repairs Agent Zero diagnostic loss: the unchanged 900-second
+root controller could preempt the former finally-only log export. That design
+race does not establish the underlying cause of the old task timeout. The
+adapter now fsyncs bounded incremental original SELF_REPORTED snapshots using
+the pinned public update-cursor API, plus allowlisted configuration/stage
+markers. Updates are explicitly non-atomic and cannot become independent
+execution evidence. Limits, typed failure markers and original-record retention
+are tested; no rejected payload or exception text is exported. All 60 portable
+harness tests pass, including 12 focused diagnostics tests and an actual
+controlled subprocess kill before finally. [Component repair record](../../validation/enterprise/results/DIAGNOSTICS_REPAIR_d5c39dd/summary.json).
+Fresh image API smoke and a new genuine task are separate requirements; model,
+900-second deadline, resources, network restrictions and evidence/acceptance
+rules are unchanged. Three historical Agent Zero task failures remain failures.
+
+Seven derived CI image-size annotations were corrected after their parser
+selected the first upload progress marker. All eight audited image digests
+match GitHub metadata and final upload logs; these are service-reported digests,
+not locally downloaded full-image hashes. [Correction register](../../validation/enterprise/results/ARTIFACT_PROVENANCE_CORRECTIONS/summary.json).
+No historical test outcome, original archive or signed record was changed.
+The existing Security workflow was restored from GitHub's inactivity pause;
+Gitleaks/Trivy did not run on d5c39dd and require fresh results on the next
+revision. Every code follow-up still requires exact-final-HEAD CI.

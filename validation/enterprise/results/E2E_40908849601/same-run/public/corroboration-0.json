@@ -1,0 +1,115 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1793290352728,
+  "window_to_ms": 1793290377842,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 4839,
+        "wall_ms": 1793290353737,
+        "image": "/home/runner/work/_temp/bank-agent/bin/python",
+        "batch_sequence": 10
+      },
+      "external_wall_ms": 1793290353734,
+      "external_image": "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python3.12",
+      "skew_ms": -3
+    }
+  ],
+  "aip_only": [
+    {
+      "pid": 4841,
+      "wall_ms": 1793290357767,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-execution-assurance",
+      "batch_sequence": 12
+    },
+    {
+      "pid": 4842,
+      "wall_ms": 1793290358425,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-execution-assurance",
+      "batch_sequence": 13
+    },
+    {
+      "pid": 4843,
+      "wall_ms": 1793290358451,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-tool-receipt",
+      "batch_sequence": 13
+    },
+    {
+      "pid": 4844,
+      "wall_ms": 1793290358478,
+      "image": "/home/runner/work/_temp/contextforge/.venv/bin/python",
+      "batch_sequence": 13
+    },
+    {
+      "pid": 4845,
+      "wall_ms": 1793290361590,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-tool-receipt",
+      "batch_sequence": 15
+    },
+    {
+      "pid": 4846,
+      "wall_ms": 1793290361663,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-execution-assurance",
+      "batch_sequence": 15
+    },
+    {
+      "pid": 4847,
+      "wall_ms": 1793290361729,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-tool-receipt",
+      "batch_sequence": 15
+    },
+    {
+      "pid": 4848,
+      "wall_ms": 1793290363764,
+      "image": "/proc/self/fd/9",
+      "batch_sequence": 17
+    },
+    {
+      "pid": 4848,
+      "wall_ms": 1793290363771,
+      "image": "/usr/lib/update-notifier/package-data-downloader",
+      "batch_sequence": 17
+    },
+    {
+      "pid": 4855,
+      "wall_ms": 1793290375589,
+      "image": "/usr/bin/systemd-run",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 4855,
+      "wall_ms": 1793290375605,
+      "image": "/usr/bin/python3",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 4856,
+      "wall_ms": 1793290375698,
+      "image": "/usr/sbin/iptables",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 4857,
+      "wall_ms": 1793290375701,
+      "image": "/usr/sbin/iptables",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 4858,
+      "wall_ms": 1793290375707,
+      "image": "/usr/sbin/iptables",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 4859,
+      "wall_ms": 1793290375710,
+      "image": "/usr/sbin/iptables",
+      "batch_sequence": 28
+    }
+  ],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 0
+}

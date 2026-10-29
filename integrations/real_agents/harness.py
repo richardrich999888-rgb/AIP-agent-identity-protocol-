@@ -234,7 +234,8 @@ def run(config, out, checkpoint_path):
             directory.mkdir()
         os.chown(workspace, 10001, 10001)
         save(control / "request.json", {"framework": config["framework"], "model": config["model"],
-             "timeout_s": config["timeout_s"], "prompt": task, "run_id": token})
+             "timeout_s": config["timeout_s"], "prompt": task, "run_id": token,
+             "framework_source_commit": pin["commit"]})
         probe_env = read_env(config["probe_env"])
         # The reviewed launcher waits on /input/start before loading the
         # framework/model task. Start only that waiting launcher so its actual

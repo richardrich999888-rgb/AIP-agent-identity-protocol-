@@ -177,3 +177,17 @@ Remote inference would additionally require approved restricted model secrets,
 exact endpoints/models, expiry, tested hard spend limits and controlled egress.
 A suitable model/task configuration and retained incremental diagnostics also
 need validation; credentials alone do not establish task acceptance.
+
+
+The subsequent d5c39dd publication check passed all fourteen component-CI jobs
+and the complete three-profile genuine core workflow, with separate offline
+verification. Its originals and exact CI register are linked in
+[the later publication and diagnostic record](END_TO_END_VALIDATION.md#later-publication-check-and-diagnostic-repair).
+A further bounded incremental Agent Zero diagnostics repair passes 60 portable
+component tests; fresh image smoke and genuine task acceptance remain separate.
+The original 900-second deadline and security/evidence controls are unchanged.
+Derived image size/origin annotations were corrected without changing signed
+records or historical outcomes. The existing Security workflow was restored
+from its inactivity pause; its next-revision scans and all exact-final-HEAD CI
+still require actual results. Separate collector custody, successful framework
+repairs/swarms and installed-customer qualification remain incomplete.
