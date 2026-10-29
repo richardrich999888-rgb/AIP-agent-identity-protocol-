@@ -1,12 +1,22 @@
 # End-to-end validation record
 
 Status: **Core software path PASS in local isolation; assignment PARTIAL.**
-At source `7625b1d60e54bc9d4ab4d935fb4e488b0ae30dc7`, one Linux workflow
+At source `8d38d77fa3bf1c3b0670f584feaf75f34bf69a07`, one Linux workflow
 executed the complete genuine agent-to-enterprise-client path, a genuine
 observer-interruption trial and a fresh recovery capture. All three original
 bundles passed a separate offline verification process. Separate collector
 administration, framework swarms and installed customer deployment remain
 independent incomplete acceptance criteria. PRs #6, #7 and #8 remain drafts.
+
+The genuine three-profile core repeat at current source
+`8d38d77fa3bf1c3b0670f584feaf75f34bf69a07` has **PASSED**, including separate
+offline verification of every original bundle. Complete component CI also
+**PASS: all five workflows / fourteen jobs** at that source, confirmed
+2026-10-29 16:04 UTC. The earlier e4cd07d core workflow and
+main CI failures remain recorded below. Three separate manual Agent Zero task
+attempts also failed; they are not included in component-CI success counts.
+Current documentation/evidence changes do not modify runtime program files;
+final-HEAD CI remains a separate requirement after their publication.
 
 ## Source reconciliation
 
@@ -28,11 +38,11 @@ from a prior synthetic merge.
 
 ## Latest complete hosted execution
 
-[Workflow 40854007527](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40854007527)
-completed successfully at exact source `7625b1d60e54bc9d4ab4d935fb4e488b0ae30dc7`.
-Original public artifact `12889066400` has SHA-256
-`9f4b2bedda88972468ccd76277a40f29d02fb141f25d8ece1d5a221041f46aa7`.
-[Retained originals and independent verification](../../validation/enterprise/results/E2E_40854007527/summary.json)
+[Workflow 40875323001](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40875323001)
+completed successfully at exact source `8d38d77fa3bf1c3b0670f584feaf75f34bf69a07`.
+Original public artifact `12897823323` has SHA-256
+`2a64618ec126cc3a052fc9df3b52c6a49e71ddaa46c4f997aa643bf0133e34c2`.
+[Retained originals and independent verification](../../validation/enterprise/results/E2E_40875323001/summary.json)
 include the exact downloaded ZIP, all 132 original public files, original
 authorization, actual receipts, signed archives/health, checkpoints, signed
 reconciliation, API/SDK/MCP/browser reports and actual console captures.
@@ -41,11 +51,14 @@ is substituted for these three executions.
 
 | Actual profile | Run ID | Model calls | Signed batches / kernel events | Result |
 | --- | --- | --- | --- | --- |
-| Observed execution | `same-run-d375a31ea8f9748e5b102319` | 2 | 33 / 1,024 | PASS; final signed health covers the task; seven matched process references |
-| Probe terminated before task | `same-run-1a4c4083b299abdf3bba83e5` | 2 | 11 / 347, all before task | PASS negative trial; no task coverage, no process reference, CannotProve/WindowNotCovered |
-| Fresh capture recovery | `same-run-1f1dfd76fc9703aec8c083d1` | 2 | 36 / 1,016 | PASS; new keys/capture epoch; final signed health covers task; four matched references |
+| Observed execution | `same-run-13d83a3d4c7d4afaf4e35abe` | 2 | 38 / 1,049 | PASS; final signed health covers the task; seven matched process references |
+| Probe terminated before task | `same-run-c4e0a2ff3132eec90d0d9483` | 2 | 11 / 290, all before task | PASS negative trial; no task coverage, no process reference, CannotProve/WindowNotCovered |
+| Fresh capture recovery | `same-run-51d854230c91ebb7899c520c` | 2 | 40 / 1,117 | PASS; new keys/capture epoch; final signed health covers task; seven matched references |
 
-The earlier successful d6eb35e execution remains separately retained in
+The earlier fully passing 7625b1d execution remains separately retained in
+[E2E_40854007527](../../validation/enterprise/results/E2E_40854007527/summary.json).
+Its original 132-file package and historical outcomes are unchanged. The earlier
+successful d6eb35e execution remains separately retained in
 [E2E_40847427090](../../validation/enterprise/results/E2E_40847427090/summary.json).
 Its exact original ZIP has 132 files. One inventory annotation was corrected:
 `independent-mac-verification.json` is a separate local verifier report, not an
@@ -59,7 +72,7 @@ receipt, checkpoint and canonical signed reconciliation, with zero archive
 findings on another Mac process and no model/API/network dependency. All cleanup
 checks passed. Original public bytes and separate derived outputs are labeled.
 
-Observed and recovery process identities are `Match` (seven and four references), and
+Observed and recovery process identities are `Match` (seven references each), and
 actual tool request comparison is `Agrees`. Kernel findings remain
 `CannotProve/ActionEvidenceUnavailable`, with full authorization TTL
 `WindowNotCovered`; actual-task coverage was evaluated separately. During D,
@@ -138,7 +151,10 @@ the original records without an invented match. Collector comparison, trust and
 coverage rules are unchanged; missing evidence can still produce conservative
 unknown. Seven acquisition regressions pass, including the actual original
 5,838 ns witness ordering and refusal after an exhausted missing-witness case.
-Fresh Linux execution is required for this source change.
+The e4cd07d hosted observer component subsequently passed on Linux, as
+recorded below; its separate core workflow still failed recovery receipt
+acceptance. The later 8d38d77 three-profile core repeat now passes, including
+fresh recovery; all fourteen component-CI jobs at that source also pass.
 
 The API harness now provides a random private wrapping passphrase, preserving
 the existing production custody guard. The revised gateway password generator
@@ -190,7 +206,7 @@ own `performance.json`. D's archive ends before its task, so archive event rate
 and latency cannot measure that interrupted task. A matched unobserved baseline,
 causal overhead and isolated reconciler CPU remain unknown.
 
-Latest 7625b1d positive measurements: actual task 25.799 seconds; metric
+Historical 7625b1d positive measurements: actual task 25.799 seconds; metric
 interval 21.728 seconds; probe/collector CPU 4.46/0.81 seconds and lifetime peak
 RSS 4,840/23,864 KiB. Workload cgroup CPU was 36.578885 seconds and lifetime
 peak memory 2,166,460,416 bytes. Archives used 708,886 bytes for 1,024 events;
@@ -199,11 +215,42 @@ maximum. CLI evaluate-and-sign/offline-evaluate wall times were
 935.667376/940.655304 ms. These are observed counters and timings, with no
 matched baseline or causal overhead claim.
 
+Latest 8d38d77 positive measurements: actual task 19.700 seconds; metric interval
+16.022 seconds; probe/collector CPU 2.31/0.49 seconds and lifetime peak RSS
+4,860/24,048 KiB. Workload cgroup CPU was 24.299519 seconds and lifetime peak
+memory 2,167,963,648 bytes. Archives used 737,693 bytes for 1,049 events over a
+47.121-second claimed capture span. Event-to-attestation latency was 60 ms
+minimum, 1,087 ms median, 2,798 ms p95 and 2,804 ms maximum. CLI
+evaluate-and-sign/offline-evaluate wall times were 1,004.273759/1,013.344772 ms,
+including startup and all verification. Recovery's actual task was 19.153
+seconds with a 15.533-second metric interval; its own
+[performance.json](../../validation/enterprise/results/E2E_40875323001/same-run-recovery/public/performance.json)
+retains separately scoped counters. Service memory peaks include initialization;
+CPU deltas cover only their declared metric interval. No matched unobserved
+baseline exists, so causal observer overhead and task impact remain unknown.
+D's archive still ends before its task and cannot measure that task's event rate
+or latency.
+
 ## CI evidence and unexecuted checks
+
+The 8d38d77 core workflow 40875323001 and all three independent offline bundle
+checks passed. All five component-CI workflows / fourteen jobs also passed at
+that source, including [main CI 40875322994](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40875322994).
+Debug had 3,262 passed / zero failed / seven ignored; release had 3,264 / zero /
+five. Each profile separately had two passed / two ignored doctests. `g14_04`,
+`b05` and `b13` passed both profiles; twenty focused release `g14_04` repetitions
+also passed. ContextForge policy tests were 11/11, with 27 actual MCP
+interoperability checks; harness contracts were 48 and Python SDK tests 76.
+One PR-event Agent Zero genuine task was skipped by its manual guard and is
+excluded from those fourteen successful jobs. Three separate manually executed
+Agent Zero tasks remain failures. Final-HEAD CI is required after the
+documentation/evidence-only snapshot. [The retained CI registry](../../validation/enterprise/results/CI_8d38d77/summary.json)
+records exact jobs, source/PR tree equality and ignored checks. Historical results
+below keep their actual source and scope; passing current checks do not rewrite older failures.
 
 At exact source `d6eb35e4de11fbec10953e5ed00bd934f1cc02d7`, all five
 component/CI workflows and 14 jobs passed, plus the complete three-profile
-genuine workflow40847427090. The PR-event-only Agent Zero genuine task is
+genuine workflow 40847427090. The PR-event-only Agent Zero genuine task is
 separately skipped by its manual-input guard; manual run40848104456 is a
 different execution, not part of those 14 successes. The
 [d6eb35e registry](../../validation/enterprise/results/CI_d6eb35e/summary.json)
@@ -219,7 +266,9 @@ batch 33 crossed the acquisition boundary. Strict same-batch verification marked
 scheduler integrity Unverifiable and reset coverage, with zero counted drops.
 The original controller did not retain its exact failed task interval, so that
 interval remains unknown. No old Active health record or rewritten archive is
-used to turn this result green. The bounded acquisition fix is unit-tested and needs fresh Linux CI.
+used to turn this result green. The bounded acquisition fix subsequently passed
+the e4cd07d hosted observer component; that later component success does not
+erase the original failure.
 The [7625b1d CI registry](../../validation/enterprise/results/CI_7625b1d/summary.json)
 records 13 passing jobs, this one failed observer job and one guarded manual-task
 skip; it is explicitly not all green.
@@ -234,15 +283,17 @@ source, PR checkout tree, jobs, artifacts and scopes are in the retained
 Those green checks do not erase failed genuine integration jobs. Further source
 changes require final-head CI again.
 
-Per debug invocation: 3,254 passed / zero failed / seven ignored. Per release:
-3,256 / zero / five; each profile separately ran two passing and two ignored
-doctests. Coverage reran debug. Do not sum profiles/jobs as unique tests.
+At historical source d6eb35e, each debug invocation had 3,254 passed / zero
+failed / seven ignored; release had 3,256 / zero / five. Each profile separately
+ran two passing and two ignored doctests. Coverage reran debug. Do not sum
+profiles/jobs as unique tests; later e4cd07d failures/counts are recorded below.
 `g14_04` passed 20/20 focused release repetitions; 4,096 startup-race trials
 had zero pre-readiness identity changes, and wrong-process regression passed.
 The fix waits for actual child readiness before binding, preserving identity
 verification.
 
-Executed checks include formatting, strict Clippy, Python SDK (76), PostgreSQL
+Retained historical executed checks include formatting, strict Clippy, Python
+SDK (76), PostgreSQL
 (142 default passes plus 14 explicit storage controls), enterprise Rust (414
 default plus two explicit HTTP tests), strict TypeScript and two tests, actual
 ContextForge interoperability (27) and five policy tests, harness contracts
@@ -260,9 +311,14 @@ execute Gitleaks or Trivy.
 
 ## Acceptance register
 
-| Property | Current evidence requirement/status |
+The execution/client PASS rows below refer to the fully passing retained
+8d38d77 workflow 40875323001. All fourteen component-CI jobs also passed that
+source. The earlier e4cd07d recovery/release failures remain retained; final-HEAD
+CI after the documentation/evidence-only snapshot is a separate gate.
+
+| Property | Retained evidence and remaining requirement/status |
 | --- | --- |
-| Combined source build and CI | PASS on retained revisions above; final-head rerun required after further changes |
+| Combined source build and CI | PASS at 8d38d77: five workflows / fourteen jobs, separate guarded manual-task skip; 7625b1d observer and e4cd07d release failures retained; final-HEAD CI after documentation/evidence-only snapshot remains required |
 | Genuine model/tool workload | EXECUTED: two model responses and actual synthetic read/output retained |
 | Independent signed authorization | PASS on actual run under distinct decision keys in shared-root profile |
 | Actual signed gateway receipt | PASS: actual Forwarded request and controlled Refused mismatch |
@@ -307,7 +363,8 @@ now provides a restricted zero-cloud-spend attempt at the actual Click issue
 issue/repository/test dependencies before network isolation; no solution is
 supplied. Memory recall is explicitly disabled through upstream configuration,
 and embedding is unvalidated. A returned patch remains `REVIEW_REQUIRED` until
-independent restricted patch/baseline/regression review passes. Two actual attempts are retained below; neither establishes a passing software task.
+independent restricted patch/baseline/regression review passes. Three actual
+attempts are retained below; none establishes a passing software task.
 
 ## Actual Agent Zero attempt and follow-up
 
@@ -346,10 +403,11 @@ cannot satisfy its tool-execution gate. This follows the
 The second actual attempt below confirms a bound file event through that mount.
 No previous archive is rewritten.
 
-The second zero-credential attempt retains bounded original response and
-adapter diagnostics marked SELF_REPORTED. Neither they nor framework exit0
-satisfy independent patch/baseline/regression acceptance. No remote API secret,
-cloud inference, memory/embedding validation, DeerFlow or OpenHands execution
+The second zero-credential attempt retains bounded original adapter diagnostics
+marked SELF_REPORTED; no response artifact was produced and the framework exited
+1. Those diagnostics do not satisfy independent patch/baseline/regression
+acceptance. No remote API secret, cloud inference, memory/embedding validation,
+DeerFlow or OpenHands execution
 is claimed by this run.
 
 
@@ -375,14 +433,15 @@ records five plain-text replies, tool-call reminders and termination after five
 unusable model responses. This establishes this preset's observed protocol
 failure, not a general model-capability result. No patch, accepted software
 repair, authority/gateway join for this framework or swarm validation is claimed.
-The next preset requests native JSON-object generation for chat only, with
+The third attempt requested native JSON-object generation for chat only, with
 utility text generation unchanged. Exact pinned Agent Zero forwards model
 kwargs to LiteLLM1.104.0; that provider maps response_format json_object to
 Ollama's native top-level format=json on /api/generate. The real capability
 preflight uses that same route and parses an actual ready JSON response. No
 tool name, action or software solution is supplied. Context truncation is not
-established by the retained logs. This configuration needs a fresh genuine
-task and independent acceptance; JSON validity alone proves neither.
+established by the retained logs. The third attempt actually exercised this
+configuration and timed out, as recorded below; JSON validity alone establishes
+neither framework tool behavior nor independent task acceptance.
 
 
 ## Later e4cd07d failures and repaired component checks
@@ -396,7 +455,7 @@ ZIP artifact12889932975 has SHA-256
 verify the original public anchor, checkpoint and zero archive findings. This
 is an OS component test, not another autonomous agent workload.
 
-[Fresh core workflow40857979540](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979540)
+[Fresh core workflow 40857979540](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979540)
 failed overall. Its actual positive profile and interruption trial passed all
 clients and separate offline verification; recovery executed two real model
 calls and the real loan1 tool, but had no Forwarded receipt. Its only retained
@@ -418,7 +477,10 @@ state explicitly reports CannotProve. Cache expiry, authorization, trust and
 cryptographic rules are unchanged. Eleven real-CPEX authorization tests and
 all 27 actual ContextForge/MCP interoperability checks pass locally; these are
 component tests without model/kernel claims. [Reproduction and repair evidence](../../validation/enterprise/results/REPAIR_e4cd07d/summary.json)
-keep that distinction visible. Fresh genuine Linux execution is still required.
+keep that distinction visible. The subsequent 8d38d77 Linux repeat passed all
+three genuine core profiles, including recovery and all enterprise clients,
+with independent offline verification. That fresh result does not reconstruct
+the missing receipt in the older failed run.
 
 The e4cd07d main CI also failed a release fixture: `b05_another_observers_records_do_not_bind`.
 The unchanged failure reproduced locally. Two fast fixtures shared sequence
@@ -454,4 +516,14 @@ final batch is453. Integrity alone cannot promote this incomplete coverage or
 the unaccepted software task. Agent Zero, DeerFlow/OpenHands and swarms remain
 unvalidated. An approved model/task configuration and retained incremental
 framework diagnostics are separate follow-up requirements; no API secret is
-needed to reproduce the failed public CPU-model profile.
+needed to reproduce the failed public CPU-model profile. The unchanged profile
+has not been dispatched for a fourth task in this validation cycle.
+
+Read-only GitHub API inspection at 2026-10-29 12:43 UTC, rechecked at 12:44 UTC,
+showed an empty repository secret-name list. The named `snifferdog-validation`
+environment still had no protection rules or branch restriction and allowed
+administrator bypass. It is not protected model-credential approval. The failed
+local-model attempts consumed no model API credential. Any remote model path
+requires approved restricted secrets, exact model/endpoint configuration, expiry,
+tested hard spending limits and controlled egress; model/task suitability and
+incremental diagnostic retention also require software validation.

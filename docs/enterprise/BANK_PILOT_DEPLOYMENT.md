@@ -138,8 +138,9 @@ and tool-boundary annotations separately. Successful verification preserves a
 supported `CannotProve`; it does not upgrade it to `Verified`. Preserve original
 bytes separately from review notes and check which client gates the run reached.
 
-The first complete hosted positive/interruption/fresh-recovery evidence package
-is `validation/enterprise/results/E2E_40854007527/` at source 7625b1d. Each
+The latest complete hosted positive/interruption/fresh-recovery evidence package
+is `validation/enterprise/results/E2E_40875323001/` at execution source 8d38d77;
+the earlier 7625b1d and d6eb35e packages are retained separately as well. Each
 profile has its own original public trust/checkpoint and bundle; use matching
 material when verifying. This is the runnable engineering package for the
 local-isolation demonstration. It does not satisfy the separate-host installer,
@@ -151,6 +152,28 @@ recovery lacked a Forwarded receipt and remains failed. A controlled pinned
 CPEX reproduction exposed UUID-local context loss on manager replacement.
 The integration now uses owned request-global handoff and a one-use durable
 post-callback transition, preserving cache invalidation and authorization.
-Missing state remains CannotProve; fresh exact-source Linux validation is
-required. See [the execution record](END_TO_END_VALIDATION.md) for original
-failed evidence, component repairs and the separate Agent Zero timeout.
+Missing state remains CannotProve. The subsequent 8d38d77 core repeat in
+workflow 40875323001 passed all three profiles, including fresh recovery, all
+enterprise clients and separate offline verification; it does not reconstruct
+the older missing receipt. See [the execution record](END_TO_END_VALIDATION.md)
+for original failed evidence, the successful fresh repeat and the separate
+Agent Zero timeout.
+
+The genuine core repeat for source
+`8d38d77fa3bf1c3b0670f584feaf75f34bf69a07` passed all three profiles and
+independent offline checks of their original bundles. All five component-CI
+workflows / fourteen jobs also passed that source, confirmed 2026-10-29
+16:04 UTC. Final-HEAD CI remains required after the documentation/evidence-only
+snapshot. The three failed Agent Zero tasks are separate from
+historical component-CI successes. Its latest attempt made six model requests
+but timed out after 900 seconds, with no accepted tool protocol, patch or full
+coverage; this is not an accepted framework or installed-service test.
+
+Read-only GitHub API inspection at 2026-10-29 12:43 UTC, rechecked at 12:44 UTC,
+showed no repository secret names. The named `snifferdog-validation` environment
+still had no protection rules or branch restriction and allowed administrator
+bypass. The failed public local-model tasks used no model API credentials.
+Remote inference would additionally require approved restricted model secrets,
+exact endpoints/models, expiry, tested hard spend limits and controlled egress.
+A suitable model/task configuration and retained incremental diagnostics also
+need validation; credentials alone do not establish task acceptance.

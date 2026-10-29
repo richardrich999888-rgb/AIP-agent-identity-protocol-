@@ -105,7 +105,7 @@ administrator, even when its signing keys belong to distinct processes.
 
 ## Executed connection status
 
-At `7625b1d60e54bc9d4ab4d935fb4e488b0ae30dc7`, workflow40854007527 actually
+At `8d38d77fa3bf1c3b0670f584feaf75f34bf69a07`, workflow 40875323001 actually
 executed the authorization, gateway, tool, kernel/probe, authenticated transport,
 collector signing, canonical reconciliation, tenant API, both SDKs, restricted
 MCP, existing console and separate offline-verifier connections for one genuine
@@ -121,6 +121,24 @@ recovery lacked a Forwarded receipt and remains failed. A controlled pinned
 CPEX reproduction exposed UUID-local context loss on manager replacement.
 The integration now uses owned request-global handoff and a one-use durable
 post-callback transition, preserving cache invalidation and authorization.
-Missing state remains CannotProve; fresh exact-source Linux validation is
-required. See [the execution record](END_TO_END_VALIDATION.md) for original
-failed evidence, component repairs and the separate Agent Zero timeout.
+Missing state remains CannotProve. The subsequent 8d38d77 core repeat in
+workflow 40875323001 passed all three profiles, including fresh recovery, all
+enterprise clients and separate offline verification; it does not reconstruct
+the older missing receipt. See [the execution record](END_TO_END_VALIDATION.md)
+for original failed evidence, the successful fresh repeat and the separate
+Agent Zero timeout.
+
+All three core profiles at execution source
+`8d38d77fa3bf1c3b0670f584feaf75f34bf69a07` **PASS**, including independent
+offline verification of each original bundle. All five component-CI workflows /
+fourteen jobs also passed that source, confirmed 2026-10-29 16:04 UTC. Final-HEAD
+CI remains required after the documentation/evidence-only snapshot. The six successful model requests in the latest separate Agent Zero attempt do not establish accepted tools, a patch, full task coverage,
+an authorization/gateway join for that framework or a swarm. Separate collector
+custody and installed-service qualification remain incomplete.
+
+Read-only GitHub API inspection at 2026-10-29 12:43 UTC, rechecked at 12:44 UTC,
+found no repository secret names; the named validation environment remained
+without protection rules or branch restriction and allowed administrator bypass.
+The failed local-model profile uses no model API credentials. Remote inference
+requires approved restricted configuration/secrets and tested hard spending and
+egress controls, alongside genuine model/task and diagnostic validation.

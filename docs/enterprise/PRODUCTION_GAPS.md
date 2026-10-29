@@ -6,14 +6,14 @@ by combining historical component successes.
 
 | Gate | Requirement / present limit |
 | --- | --- |
-| Same-run autonomous execution | PASS in local isolation at 7625b1d: actual model/tool/kernel/receipt/authority/signed join, all clients/browser and separate offline verifier passed in workflow40854007527. Separate collector custody remains incomplete. Original failures remain visible |
+| Same-run autonomous execution | PASS in local isolation at 8d38d77: actual model/tool/kernel/receipt/authority/signed join, all clients/browser and separate offline verifier passed in workflow 40875323001 for positive, genuine interruption and fresh recovery. Separate collector custody remains incomplete. Original failures remain visible |
 | Independent administration | Separate control of the collector host, signing keys and durable storage is required for independent custody and resistance to workload-host root/kernel compromise; one-VM isolation cannot establish this |
 | Institution-owned identity/keys | Operator-reviewed issuer, authority, gateway, collector/reconciler anchors, rotation/revocation, secret-manager custody and retention; ephemeral CI keys are not institutional enrollment |
 | Logical-agent delegation | Physical process binding and gateway principal checks do not prove in-process sub-agent delegation |
 | Business effect | Read result and inspectable synthetic output are not loan approval, settlement or authoritative bank outcome proof |
 | Authorization completeness | Missing signed completeness prevents automatic unauthorized/unattributed-effect conclusions |
-| Genuine swarms | Agent Zero ran four model requests in40848104456 and five in40854020439. The second has signed coverage and a bound file event, but failed its tool protocol and supplied no patch. Native structured-generation configuration requires genuine validation. DeerFlow/OpenHands have not executed. No swarm validation is established |
-| Live negative and performance coverage | Actual gateway mismatch, captured-record negatives, genuine interrupted-observer workload and fresh-capture recovery passed. Same-key daemon restart, concurrency/soak, loss and matched observed/unobserved overhead remain separate gates; counters are not causal overhead |
+| Genuine swarms | Agent Zero made four model requests in40848104456, five in40854020439 and six in40857993677. The second has signed task coverage and a bound file event but failed its observed tool protocol. The third requested native JSON generation and exceeded its 900-second budget; response/tool behavior, full coverage and task acceptance remain unestablished. None supplied a patch. DeerFlow/OpenHands have not executed. No swarm validation is established |
+| Live negative and performance coverage | At 8d38d77, actual gateway mismatch, captured-record negatives, genuine interrupted-observer workload and fresh-capture recovery passed. The earlier e4cd07d missing-receipt failure remains retained. Same-key daemon restart, concurrency/soak, loss and matched observed/unobserved overhead remain separate gates; counters are not causal overhead |
 | Clean host | Real supported Linux installation, startup, restart continuity, backup/recovery and retained-data uninstall under actual separation |
 | Installed sensor profile | The current installer refuses fanotify; the full hosted six-sensor profile needs a reviewed installer/systemd deployment change for `CAP_SYS_ADMIN` and host-mount visibility, followed by actual installed-service validation |
 | Release delivery | Independently approved/signed package provenance; checksum alongside an untrusted package is insufficient |
@@ -50,26 +50,33 @@ Secret values must never enter chat, repository or public artifacts. No SSH
 alias is needed to continue the hosted local-model profile.
 
 The manual local-model workflow created the named `snifferdog-validation`
-environment when its task job started. Read-only inspection showed no protection
-rules, no branch restriction and administrator bypass enabled. Its existence is
-not protected-secret approval. This attempt uses no model API credentials;
-remote-model work requires the approved protection/secret/budget configuration.
+environment when its task job started. Read-only GitHub API inspection at
+2026-10-29 12:43 UTC, rechecked at 12:44 UTC, showed an empty repository
+secret-name list. The environment still had no protection rules or branch
+restriction and allowed administrator bypass. Its existence is not
+protected-secret approval. The local-model attempts used no model API
+credentials; remote-model work requires approved protection, restricted secrets,
+exact endpoints/models, expiry, tested hard budgets and controlled egress.
 
-The current Agent Zero attempt also exposes software validation gaps, beyond
-infrastructure: a genuine cross-sensor boundary gap prevents full-run coverage,
+The first Agent Zero attempt at d6eb35e exposed software validation gaps beyond
+infrastructure: a genuine cross-sensor boundary gap prevented full-run coverage,
 the initial container fanotify mount was incorrect, and a Python audit-reference
-clock bug produced a false mismatch. The second run validates the mount and per-batch comparison fixes, but no
-invalid coverage is promoted to a pass. Its retained self-reported framework
-log establishes five unusable plain-text responses for this preset; the first
-run's missing-patch cause remains unknown.
+clock bug produced a false mismatch. The second attempt at 7625b1d supplies
+runtime evidence for the mount and per-batch comparison fixes, with signed task
+coverage; no invalid old coverage is promoted to a pass. Its retained
+self-reported framework log records five unusable plain-text responses for that
+preset. The first run's missing-patch cause remains unknown.
 
-The latest core repeat at 7625b1d passed all three actual profiles and their
+The retained core repeat at 7625b1d passed all three actual profiles and their
 separate offline verification. Its component suite nevertheless has a retained
 observer failure: two real exec witnesses crossed adjacent batches. Bounded
-pre-flush acquisition is implemented with unchanged verification predicates;
-fresh Linux execution is still required. No successful genuine workflow erases
-that failed component check. Relevant observer, harness and client dependency
-changes now trigger the real Linux integration workflows.
+pre-flush acquisition was subsequently exercised successfully by the e4cd07d
+hosted observer component, with unchanged verification predicates. That component
+success does not erase the 7625b1d failure. The subsequent 8d38d77 core repeat
+passed all three profiles and independent offline checks, as recorded in
+[E2E_40875323001](../../validation/enterprise/results/E2E_40875323001/summary.json).
+Relevant observer, harness and client dependency changes trigger the real Linux
+integration workflows.
 
 
 At e4cd07d, fresh core positive/interruption passed but recovery lacked its
@@ -78,7 +85,9 @@ loss has a request-scoped integration repair; no missing old receipt is
 reconstructed and the original runner's exact lifecycle remains unknown.
 Main release CI also exposed a timestamp-colliding health fixture, repaired
 without changing production verification and with an added cryptographic
-collision regression. Fresh complete CI and genuine recovery are required.
+collision regression. Fresh genuine recovery subsequently passed in the complete
+8d38d77 core repeat. All fourteen component-CI jobs at 8d38d77 also pass; the
+original e4cd07d failures are unchanged.
 
 Agent Zero's third actual attempt made six model requests but hit its 900-second
 budget, with no patch or bound successful exec. Original archives verify, but
@@ -87,5 +96,16 @@ unestablished. Its one-shot adapter log did not preserve intermediate framework
 responses. A suitable approved model/task configuration and incremental
 diagnostics need validation; no three-framework or swarm success is claimed.
 These are software/task gaps as well as the separately recorded infrastructure
-requirements. A remote model needs approved restricted secrets and a tested
-hard budget; the failed local CPU-model route used no credentials.
+requirements. Secrets alone would not establish a suitable model configuration,
+accepted tool protocol or completed software repair. A remote model also needs
+approved restricted secrets and a tested hard budget; the failed public CPU-model
+route used no credentials. No fourth unchanged-profile task is claimed.
+
+At current execution source `8d38d77fa3bf1c3b0670f584feaf75f34bf69a07`, all
+three genuine core profiles and independent offline verification **PASS**.
+Complete component CI also **PASS: five workflows / fourteen jobs**, confirmed
+2026-10-29 16:04 UTC, with one separately guarded manual-task skip. Final-HEAD
+CI is required after the documentation/evidence-only snapshot.
+Historical fourteen-job component successes and the three failed manual Agent
+Zero tasks have distinct scopes. No three-framework, swarm, independent custody
+or installed-customer acceptance is inferred.

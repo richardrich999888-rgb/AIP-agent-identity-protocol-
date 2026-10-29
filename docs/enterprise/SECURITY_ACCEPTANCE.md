@@ -28,7 +28,7 @@ Missing authority is not automatically unauthorized execution.
 | A: authorized action | Genuine model chooses allowed read; independent authority signs; gateway verifies actual parameters; original kernel records/coverage and supported finding retained |
 | B: parameter mismatch | Controlled changed request reaches actual gateway under original signed decision; signed Refused receipt and document divergence, with no extra upstream read |
 | C: missing authorization | Evaluate captured records without expectation/completeness; explicit inability to prove; no unauthorized classification |
-| D: observer interruption | Actual authorized isolated degradation; signed coverage withdrawn, recovery does not backfill. Typed regressions/RBI history are distinct from a genuine-workload interruption |
+| D: observer interruption | Actual authorized interruption; retained signed health cannot cover the later missing-observation interval, and recovery does not backfill. A historical Active state is not coverage of that gap. Typed regressions/RBI history are distinct from a genuine-workload interruption |
 | E: missing receipt | Kernel result cannot acquire application-level proof; tool boundary is NotEvaluated/NoReceipt |
 | F: wrong process | IdentityDivergence only after valid signatures, process/claim and integrity prerequisites; insufficient linkage stays CannotProve |
 | G: tamper/truncation | Altered signed expectation/receipt/verdict, interior mutations, duplication/reordering/corruption rejected; valid prefix/suffix deletion requires independent checkpoint |
@@ -63,7 +63,7 @@ authority, receipt, process binding and task-window checks. Its canonical kernel
 finding remains `CannotProve/ActionEvidenceUnavailable`; full authorization TTL
 is `WindowNotCovered`. B ran an actual gateway mismatch/refusal stimulus.
 C, E and G passed controlled verification of those same captured bytes.
-Subsequent exact-source 7625b1d workflow 40854007527 passed all three complete
+Latest exact-source 8d38d77 workflow 40875323001 passed all three complete
 Linux profiles: A positive, D actual probe termination before a fresh model
 workload, and a fresh-capture recovery. All clients/browser and separate offline
 verification passed each actual bundle. D retained a final signed Active health
@@ -82,7 +82,7 @@ evidence. Original failure archives and complete checkpointed tails are retained
 
 F's actual reference-control test is
 `aip-edge::end_to_end::t7_and_t13_an_observation_of_another_instance_is_excluded_not_downgraded`,
-passed in debug and release by CI40847427070/job123358253851. It spawns real
+passed in debug and release by CI 40847427070/job123358253851. It spawns real
 workload/observer processes and independently measures another PID under explicit
 controller-supplied Claimed metadata, requiring IdentityDivergence with zero
 correlated records. The private observer pipe is not claimant authentication.
@@ -98,6 +98,27 @@ recovery lacked a Forwarded receipt and remains failed. A controlled pinned
 CPEX reproduction exposed UUID-local context loss on manager replacement.
 The integration now uses owned request-global handoff and a one-use durable
 post-callback transition, preserving cache invalidation and authorization.
-Missing state remains CannotProve; fresh exact-source Linux validation is
-required. See [the execution record](END_TO_END_VALIDATION.md) for original
-failed evidence, component repairs and the separate Agent Zero timeout.
+Missing state remains CannotProve. The subsequent 8d38d77 core repeat in
+workflow 40875323001 passed all three profiles, including fresh recovery, all
+enterprise clients and separate offline verification; it does not reconstruct
+the older missing receipt. See [the execution record](END_TO_END_VALIDATION.md)
+for original failed evidence, the successful fresh repeat and the separate
+Agent Zero timeout.
+
+At execution source `8d38d77fa3bf1c3b0670f584feaf75f34bf69a07`, all three
+core profiles and independent offline verification **PASS**. All five
+component-CI workflows / fourteen jobs also passed that source, confirmed
+2026-10-29 16:04 UTC. Final-HEAD CI remains required after the
+documentation/evidence-only snapshot. The fourteen-job component-CI success
+excludes the guarded PR manual-task skip and the three separately failed manual
+Agent Zero tasks. Six model-service requests in the latest attempt establish
+neither accepted tool execution nor software-task completion, full coverage,
+three-framework validation or a swarm.
+
+Read-only GitHub API inspection at 2026-10-29 12:43 UTC, rechecked at 12:44 UTC,
+found no repository secret names. The named validation environment still had no
+protection rules or branch restriction and allowed administrator bypass. The
+local-model tasks used no model API credential; a remote model would require
+approved restricted secrets/configuration, tested hard spending and egress
+controls, and actual task acceptance. This does not resolve separate collector
+administration, institutional keys or installed-service acceptance.
