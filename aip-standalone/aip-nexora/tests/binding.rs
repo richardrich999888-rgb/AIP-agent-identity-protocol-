@@ -134,7 +134,7 @@ fn b04_another_executions_expectation_does_not_bind() {
 
 #[test]
 fn b05_another_observers_records_do_not_bind() {
-    let (a, mut b) = two();
+    let (a, b) = two();
     let mut p = package(&a);
     // B's batches and health, on A's claim. Same observer id (the fixture
     // uses one), but different signed batch heads — so the claim's

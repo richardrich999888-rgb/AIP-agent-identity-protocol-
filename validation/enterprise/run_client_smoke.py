@@ -23,6 +23,76 @@ from vanian import ApiError, VanianClient
 from openapi_contract import validate_run_reads
 
 ROOT = Path(__file__).resolve().parents[2]
+BROWSER_TIMEOUT_MS = 30_000
+PROGRESS_STAGES = frozenset({
+    'ACCESS_AND_CREDENTIAL_SCOPE', 'API_ADMISSION_OPENAPI_AND_PYTHON_SDK',
+    'RESTRICTED_OFFICIAL_MCP_CLIENT', 'TYPESCRIPT_SDK', 'CONSOLE_BROWSER',
+    'CONSOLE_BROWSER_LAUNCH', 'CONSOLE_BROWSER_NAVIGATE',
+    'CONSOLE_BROWSER_CONNECT', 'CONSOLE_BROWSER_CONNECT_READY',
+    'CONSOLE_BROWSER_CREDENTIAL_CLEARED', 'CONSOLE_BROWSER_QUERY',
+    'CONSOLE_BROWSER_QUERY_READY', 'CONSOLE_BROWSER_EXACT_MATCH',
+    'CONSOLE_BROWSER_SCREENSHOT', 'CONSOLE_BROWSER_LOGOUT', 'COMPLETE',
+})
+SAFE_ERROR_CLASSES = frozenset({
+    'AssertionError', 'TimeoutError', 'Error', 'JSONDecodeError',
+    'ImportError', 'ModuleNotFoundError', 'OSError',
+})
+
+
+def write_progress(path, stage, *, error=None):
+    if stage not in PROGRESS_STAGES:
+        raise ValueError('unknown client progress stage')
+    record = {'classification': 'CLIENT_INTERFACE_CHECK_PROGRESS', 'stage': stage,
+              'status': 'FAIL' if error is not None else 'PASS' if stage == 'COMPLETE' else 'IN_PROGRESS'}
+    if error is not None:
+        name = type(error).__name__
+        record['error_class'] = name if name in SAFE_ERROR_CLASSES else 'OtherError'
+        record['configured_browser_timeout_ms'] = BROWSER_TIMEOUT_MS
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(record) + '\n')
+
+
+def check_console(url, reader_key, artifact_id, admitted, bundle, screenshot, progress):
+    stage = 'CONSOLE_BROWSER_LAUNCH'
+    try:
+        progress(stage)
+        from playwright.sync_api import expect, sync_playwright
+        with sync_playwright() as browser_runtime:
+            browser = browser_runtime.chromium.launch(headless=True, timeout=BROWSER_TIMEOUT_MS)
+            page = browser.new_page()
+            stage = 'CONSOLE_BROWSER_NAVIGATE'; progress(stage)
+            page.goto(url.rstrip('/') + '/console', timeout=BROWSER_TIMEOUT_MS)
+            stage = 'CONSOLE_BROWSER_CONNECT'; progress(stage)
+            page.locator('#credential').fill(reader_key)
+            page.locator('#connect button').first.click()
+            stage = 'CONSOLE_BROWSER_CONNECT_READY'; progress(stage)
+            # Connect performs an access check followed by independent reads;
+            # each console fetch already permits 10 seconds. CI readiness is
+            # explicitly bounded instead of using expect's 5-second default.
+            expect(page.locator('#status')).to_have_text(re.compile(r'^Connected'), timeout=BROWSER_TIMEOUT_MS)
+            stage = 'CONSOLE_BROWSER_CREDENTIAL_CLEARED'; progress(stage)
+            assert page.locator('#credential').input_value() == ''
+            stage = 'CONSOLE_BROWSER_QUERY'; progress(stage)
+            page.locator('#run-id').fill(artifact_id)
+            page.locator('#run-form button').click()
+            stage = 'CONSOLE_BROWSER_QUERY_READY'; progress(stage)
+            expect(page.locator('#run')).to_contain_text(artifact_id, timeout=BROWSER_TIMEOUT_MS)
+            stage = 'CONSOLE_BROWSER_EXACT_MATCH'; progress(stage)
+            displayed = json.loads(page.locator('#run').inner_text())
+            assert displayed == {'metadata': admitted, 'evaluation': admitted['evaluation'],
+                                 'signed_verdict': bundle.get('signed_reconciliation')}
+            if screenshot:
+                stage = 'CONSOLE_BROWSER_SCREENSHOT'; progress(stage)
+                page.screenshot(path=str(screenshot), full_page=True)
+            stage = 'CONSOLE_BROWSER_LOGOUT'; progress(stage)
+            page.locator('#disconnect').click()
+            expect(page.locator('#run')).to_have_text('Disconnected', timeout=BROWSER_TIMEOUT_MS)
+            browser.close()
+    except Exception as error:
+        # Exception messages and Playwright call logs can contain credentials,
+        # response bodies and user paths. Publish only fixed diagnostic fields.
+        progress(stage, error=error)
+        raise
 
 
 def refused(operation, status):
@@ -45,13 +115,8 @@ def main():
     parser.add_argument("--browser", action="store_true", help="requires installed Playwright Chromium")
     parser.add_argument("--screenshot", type=Path)
     args = parser.parse_args()
-    def progress(stage):
-        # Fixed stage names only; no response bodies, credentials or arbitrary
-        # exception text are published when a client subprocess fails.
-        args.output.parent.mkdir(parents=True,exist_ok=True)
-        args.output.with_name('client-progress.json').write_text(json.dumps({
-            'classification':'CLIENT_INTERFACE_CHECK_PROGRESS','stage':stage,
-            'status':'PASS' if stage=='COMPLETE' else 'IN_PROGRESS'})+'\n')
+    def progress(stage, *, error=None):
+        write_progress(args.output.with_name('client-progress.json'), stage, error=error)
     progress('ACCESS_AND_CREDENTIAL_SCOPE')
     writer_key, reader_key, other_key = [path.read_text().strip() for path in
         (args.writer_key_file, args.reader_key_file, args.other_key_file)]
@@ -161,26 +226,7 @@ def main():
     console = "NOT_EXERCISED"
     if args.browser:
         progress('CONSOLE_BROWSER')
-        from playwright.sync_api import expect, sync_playwright
-        with sync_playwright() as browser_runtime:
-            browser = browser_runtime.chromium.launch(headless=True)
-            page = browser.new_page()
-            page.goto(args.url.rstrip("/") + "/console")
-            page.locator("#credential").fill(reader_key)
-            page.locator("#connect button").first.click()
-            expect(page.locator('#status')).to_have_text(re.compile(r'^Connected'))
-            assert page.locator("#credential").input_value() == ""
-            page.locator("#run-id").fill(artifact_id)
-            page.locator("#run-form button").click()
-            expect(page.locator('#run')).to_contain_text(artifact_id)
-            displayed = json.loads(page.locator("#run").inner_text())
-            assert displayed == {"metadata":admitted,"evaluation":admitted["evaluation"],
-                                 "signed_verdict":bundle.get("signed_reconciliation")}
-            if args.screenshot:
-                page.screenshot(path=str(args.screenshot), full_page=True)
-            page.locator("#disconnect").click()
-            assert page.locator("#run").inner_text() == "Disconnected"
-            browser.close()
+        check_console(args.url, reader_key, artifact_id, admitted, bundle, args.screenshot, progress)
         console = "PASS"
     report = {"run_id":bundle["run_id"],"run_artifact_id":artifact_id,
         "source_bundle_sha256":hashlib.sha256(raw).hexdigest(),
