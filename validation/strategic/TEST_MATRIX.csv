@@ -30,3 +30,4 @@ cycle,test_id,description,required_experiment,result,evidence_path,source_commit
 3,M1-lineage-gate,agent parent->child edge in verified archive,integrations/agents/run.sh (fixed gate),FAIL 0/8,validation/strategic/run_m1_rerun_lineage_gate/,5590075,corrects cycle-1 claim
 3,pilot-regression,pilot after probe changes,repeat_pilot.sh x2,PASS 2/2,validation/strategic/e2_pilot_repeats/arm_after_threadfix/,5590075,
 3,workspace-tests,cargo test --workspace,full workspace,PASS-except-env,scratchpad log,5590075,3249 passed; 15 failed all aip-hsm softhsm (SoftHSM2 absent)
+4,M3-drain-tradeoff,agent edges and probe CPU at 1000/20/5 ms drain,run_m3.sh (cost capture added),MEASURED,validation/strategic/m3/runs/c1..c5,76d606c,5 ms 26/30 vs 20 ms 21/30 pooled; CPU ~0.03 s/s in all arms; default kept at 20 ms

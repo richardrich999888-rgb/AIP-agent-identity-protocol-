@@ -44,6 +44,11 @@ result = {'offline_verified': verified, 'edges_total_in_archive': len(edges),
           'edges_not_from_any_agent_run': len(edges - {(r['parent'], r['child']) for r in runs}),
           'per_framework': per_fw, 'runs': runs,
           'params': open(os.path.join(OUT, 'params.txt')).read().splitlines()}
+cost = os.path.join(OUT, 'probe_cost.txt')
+if os.path.exists(cost):
+    c = dict(kv.split('=') for kv in open(cost).read().split())
+    result['probe_cpu_s'] = int(c['probe_cpu_ticks']) / int(c['clk_tck'])
+    result['probe_wall_s'] = int(c['probe_wall_s'])
 json.dump(result, open(os.path.join(OUT, 'results.json'), 'w'), indent=2)
-print(json.dumps({k: result[k] for k in ('offline_verified', 'edges_total_in_archive',
+print(json.dumps({k: result.get(k) for k in ('offline_verified', 'probe_cpu_s', 'probe_wall_s', 'edges_total_in_archive',
                                          'edges_not_from_any_agent_run', 'per_framework')}, indent=2))

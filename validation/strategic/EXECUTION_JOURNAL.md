@@ -127,3 +127,11 @@ and the four binaries (`aip-probe`, `aip-collector`, `aip-observe-verify`,
   5/15 edges, pydantic-ai 2/2 of bound children; the rest is the ~16 ms
   child lifetime vs the 20 ms drain — recorded unbound, never guessed.
 - **Regression:** workspace 3249 pass / 15 env-fail (SoftHSM2); pilot 2/2 PASS.
+
+## Cycle 4 — drain-interval tradeoff
+Probe CPU capture added to `m3/run_m3.sh`. Arms (5 runs × 3 frameworks each):
+1000 ms 0/15 edges; 20 ms 9/15 then 12/15; 5 ms 14/15 then 12/15. Probe CPU
+≈0.03 CPU-s per wall-second in every arm. 5 ms is not distinguishable from
+20 ms at this n, so the default stays 20 ms. Run-to-run variance at 20 ms is
+large across this session (0, 6, 5, 5, 9, 12 of 15); short-lived-process
+binding remains probabilistic and is never guessed when missed.

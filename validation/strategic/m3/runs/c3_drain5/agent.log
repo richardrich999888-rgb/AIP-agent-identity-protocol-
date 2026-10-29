@@ -1,0 +1,65 @@
+[langgraph] PARENT pid=664 node=plan marked_path=/tmp/aip_m3_langgraph_1
+[langgraph] CHILD pid=666 ppid=664
+[langgraph] CHILD done pid=666
+[langgraph] PARENT pid=664 node=act child_pid=666 exit=0
+[langgraph] AGENT_RESULT parent_pid=664 child_pid=666 exit_code=0 marked_path=/tmp/aip_m3_langgraph_1
+[llamaindex] PARENT pid=669 step=plan marked_path=/tmp/aip_m3_llamaindex_1
+[llamaindex] CHILD pid=671 ppid=669
+[llamaindex] CHILD done pid=671
+[llamaindex] AGENT_RESULT parent_pid=669 child_pid=671 exit_code=0 marked_path=/tmp/aip_m3_llamaindex_1
+[pydanticai] PARENT pid=674 framework=pydantic-ai
+[pydanticai] CHILD pid=677 ppid=674
+[pydanticai] CHILD done pid=677
+[pydanticai] AGENT_RESULT parent_pid=674 child_pid=677 exit_code=0 marked_path=/tmp/aip_m3_pydanticai_1
+[langgraph] PARENT pid=680 node=plan marked_path=/tmp/aip_m3_langgraph_2
+[langgraph] CHILD pid=682 ppid=680
+[langgraph] CHILD done pid=682
+[langgraph] PARENT pid=680 node=act child_pid=682 exit=0
+[langgraph] AGENT_RESULT parent_pid=680 child_pid=682 exit_code=0 marked_path=/tmp/aip_m3_langgraph_2
+[llamaindex] PARENT pid=685 step=plan marked_path=/tmp/aip_m3_llamaindex_2
+[llamaindex] CHILD pid=687 ppid=685
+[llamaindex] CHILD done pid=687
+[llamaindex] AGENT_RESULT parent_pid=685 child_pid=687 exit_code=0 marked_path=/tmp/aip_m3_llamaindex_2
+[pydanticai] PARENT pid=690 framework=pydantic-ai
+[pydanticai] CHILD pid=693 ppid=690
+[pydanticai] CHILD done pid=693
+[pydanticai] AGENT_RESULT parent_pid=690 child_pid=693 exit_code=0 marked_path=/tmp/aip_m3_pydanticai_2
+[langgraph] PARENT pid=696 node=plan marked_path=/tmp/aip_m3_langgraph_3
+[langgraph] CHILD pid=698 ppid=696
+[langgraph] CHILD done pid=698
+[langgraph] PARENT pid=696 node=act child_pid=698 exit=0
+[langgraph] AGENT_RESULT parent_pid=696 child_pid=698 exit_code=0 marked_path=/tmp/aip_m3_langgraph_3
+[llamaindex] PARENT pid=701 step=plan marked_path=/tmp/aip_m3_llamaindex_3
+[llamaindex] CHILD pid=703 ppid=701
+[llamaindex] CHILD done pid=703
+[llamaindex] AGENT_RESULT parent_pid=701 child_pid=703 exit_code=0 marked_path=/tmp/aip_m3_llamaindex_3
+[pydanticai] PARENT pid=706 framework=pydantic-ai
+[pydanticai] CHILD pid=709 ppid=706
+[pydanticai] CHILD done pid=709
+[pydanticai] AGENT_RESULT parent_pid=706 child_pid=709 exit_code=0 marked_path=/tmp/aip_m3_pydanticai_3
+[langgraph] PARENT pid=712 node=plan marked_path=/tmp/aip_m3_langgraph_4
+[langgraph] CHILD pid=714 ppid=712
+[langgraph] CHILD done pid=714
+[langgraph] PARENT pid=712 node=act child_pid=714 exit=0
+[langgraph] AGENT_RESULT parent_pid=712 child_pid=714 exit_code=0 marked_path=/tmp/aip_m3_langgraph_4
+[llamaindex] PARENT pid=717 step=plan marked_path=/tmp/aip_m3_llamaindex_4
+[llamaindex] CHILD pid=719 ppid=717
+[llamaindex] CHILD done pid=719
+[llamaindex] AGENT_RESULT parent_pid=717 child_pid=719 exit_code=0 marked_path=/tmp/aip_m3_llamaindex_4
+[pydanticai] PARENT pid=722 framework=pydantic-ai
+[pydanticai] CHILD pid=725 ppid=722
+[pydanticai] CHILD done pid=725
+[pydanticai] AGENT_RESULT parent_pid=722 child_pid=725 exit_code=0 marked_path=/tmp/aip_m3_pydanticai_4
+[langgraph] PARENT pid=728 node=plan marked_path=/tmp/aip_m3_langgraph_5
+[langgraph] CHILD pid=730 ppid=728
+[langgraph] CHILD done pid=730
+[langgraph] PARENT pid=728 node=act child_pid=730 exit=0
+[langgraph] AGENT_RESULT parent_pid=728 child_pid=730 exit_code=0 marked_path=/tmp/aip_m3_langgraph_5
+[llamaindex] PARENT pid=735 step=plan marked_path=/tmp/aip_m3_llamaindex_5
+[llamaindex] CHILD pid=737 ppid=735
+[llamaindex] CHILD done pid=737
+[llamaindex] AGENT_RESULT parent_pid=735 child_pid=737 exit_code=0 marked_path=/tmp/aip_m3_llamaindex_5
+[pydanticai] PARENT pid=740 framework=pydantic-ai
+[pydanticai] CHILD pid=743 ppid=740
+[pydanticai] CHILD done pid=743
+[pydanticai] AGENT_RESULT parent_pid=740 child_pid=743 exit_code=0 marked_path=/tmp/aip_m3_pydanticai_5

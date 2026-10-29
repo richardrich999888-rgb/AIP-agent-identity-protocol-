@@ -57,7 +57,7 @@ for _ in $(seq 1 40); do [ -s "$W/state/noise.pub" ] && break; sleep 0.25; done
 env AIP_PROBE_ID=probe.m3 AIP_PROBE_COLLECTOR_ENDPOINT="127.0.0.1:$PORT" AIP_PROBE_COLLECTOR_NOISE_PUBKEY="$(cat "$W/state/noise.pub")" \
     AIP_PROBE_KEY_PATH="$W/probe.key.json" AIP_PROBE_SENSORS=sched,sockstate,socksend,connector \
     AIP_PROBE_BATCH_INTERVAL_MS=1000 AIP_PROBE_DRAIN_INTERVAL_MS="$DRAIN" "$B/aip-probe" > "$W/probe.log" 2>&1 &
-PRB=$!
+PRB=$!; PRB_T0=$(date +%s)
 trap 'kill $PRB $COLL 2>/dev/null' EXIT
 for _ in $(seq 1 40); do grep -q connected "$W/probe.log" && break; sleep 0.25; done
 grep -q connected "$W/probe.log" || die "probe did not connect: $(tail -2 "$W/probe.log")"
@@ -73,6 +73,10 @@ for i in $(seq 1 "$N"); do
 done
 A0=$(grep -c "batch acked" "$W/probe.log")
 for _ in $(seq 1 300); do [ "$(grep -c "batch acked" "$W/probe.log")" -ge $((A0 + 2)) ] && break; sleep 0.1; done
+# Probe CPU over the whole run (utime+stime ticks) and wall time, for the
+# drain-interval cost tradeoff.
+read -r UT ST < <(awk '{print $14, $15}' /proc/$PRB/stat)
+echo "probe_cpu_ticks=$((UT + ST)) clk_tck=$(getconf CLK_TCK) probe_wall_s=$(( $(date +%s) - PRB_T0 ))" > "$OUT/probe_cost.txt"
 kill $PRB; wait $PRB 2>/dev/null; kill $COLL; wait $COLL 2>/dev/null; trap - EXIT
 
 S="$W/state"

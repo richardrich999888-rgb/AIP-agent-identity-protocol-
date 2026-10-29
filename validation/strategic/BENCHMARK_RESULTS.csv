@@ -30,3 +30,6 @@ m3_presence,45/45 per arm,runs,parent and child pid in offline-verified evidence
 m3_agent_edges_1s_drain,1/15,runs,old once-per-batch ingest,5590075
 m3_agent_edges_20ms_drain,"0/15, 6/15, 5/15, 5/15",runs,four 20 ms arms; child lifetime ~16 ms so binding is probabilistic; last arm includes the thread fix,5590075
 m2_identity_match,3/3,runs,agent alive 3 s; 0/2 (UnboundReferencesOnly) for a ~40 ms agent,8fe92b8
+m3_drain_tradeoff_1000ms,0/15,agent edges,probe 0.86 CPU-s over 23 s,76d606c+harness cost capture
+m3_drain_tradeoff_20ms,"9/15, 12/15",agent edges,probe 0.46 and 0.40 CPU-s over 14 s each,76d606c+harness cost capture
+m3_drain_tradeoff_5ms,"14/15, 12/15",agent edges,probe 0.44 and 0.42 CPU-s over 14 s each; not distinguishable from 20 ms at n=2 -> default unchanged,76d606c+harness cost capture
