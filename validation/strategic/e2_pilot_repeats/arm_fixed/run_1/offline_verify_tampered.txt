@@ -1,0 +1,14 @@
+observer   : collector.pilot.e2e (key version 1)
+anchor     : c20c08d2d51b0fe8485e87931c203cf90faf7d806dce8bf0b9c85a892f3a864c
+
+ATTESTED BATCHES
+  records            : 76
+  chain positions    : 1..=77
+  chain start        : the observer's epoch (complete from origin)
+  final head         : 2588f66ef6b39d1c8f5b5361f8cb753250bef86d80f690c501971b8f00e2999c
+  observations       : 0
+  kernel events      : 2967
+
+NOT VERIFIED — 2 finding(s)
+  line 39: chain position 40 where 39 was expected — a record is missing, repeated or out of order
+  line 39 (sequence 40): prev_head e9712d69987dec5290aab1e5d2b9d2683f6c797398f5d2418ca68a4cf9ba6c09 does not match the recomputed head 0b74de045f3f2e5558a3a29405cd8cf761c937bf2c2a20e9ddb10b76ce21a90d of the preceding record — the chain is forked or spliced

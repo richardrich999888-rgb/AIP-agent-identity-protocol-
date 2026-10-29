@@ -1,0 +1,87 @@
+
+[36m== Preconditions[0m
+       kernel 6.18.44-fc-v185, tracefs mounted, sched_process_exec id=365
+
+[36m== Build the daemons and the interference instrument[0m
+  [32mPASS[0m aip-probe, aip-collector, aip-observe-verify and the interferer built
+
+[36m== Generate the probe's transport-auth key (the probe holds no evidence key)[0m
+  [32mPASS[0m probe transport public key d19595799ceeedf9... written to the allow-list
+
+[36m== Start the collector (holds the only evidence key; wrapped at rest)[0m
+  [32mPASS[0m collector up on 127.0.0.1:49207; noise static public key f2ef297bbedba2c4...
+
+[36m== Start the probe (holds NO evidence key) with the kernel sensors[0m
+  [32mPASS[0m probe up, four kernel sensors open, connected over the confidential transport
+
+[36m== A. CONTROL - real workload, no attack[0m
+       waiting for the collector's next signed health record (timer is 30 s)
+       signed ObserverState = "Active"
+       attested_coverage    = {"from_ms": 1793252922183, "to_ms": 1793252950053}
+  [32mPASS[0m control: "Active" - no integrity failure claimed without an attack
+  [32mPASS[0m control: attested coverage present
+
+[36m== B. ATTACK - foreign eBPF program gating sched:sched_process_exec[0m
+       INTERFERER_ATTACHED tracepoint_id=365 cpus=1
+       3 further attach(es) refused EEXIST - the gate was already installed on the tracepoint
+       waiting for the next signed health record
+       signed ObserverState = "IntegrityUnknown"
+       attested_coverage    = null
+  [32mPASS[0m under attack: the COLLECTOR - other process, other key - signed IntegrityUnknown
+  [32mPASS[0m under attack: attested_coverage withdrawn; absence in this window proves nothing
+
+[36m== C. RECOVERY - attack detached[0m
+       interferer detached
+       waiting for the next signed health record
+       signed ObserverState = "Active"
+       NOTE: returned to "Active"; the window under attack remains recorded as unknown in the archive
+
+[36m== D. OFFLINE VERIFICATION - a separate process, two files and a public key[0m
+       probe and collector stopped; the evidence archives are now stable
+       anchor (published by the collector, private half never unwrapped): 1ce7d55257689a5e...
+       attested batches on disk: 78
+observer   : collector.pilot.e2e (key version 1)
+anchor     : 1ce7d55257689a5eddf6af3796d7ecd51222ec8e17b38640e5a14f7835cfe4d3
+
+ATTESTED BATCHES
+  records            : 78
+  chain positions    : 1..=78
+  chain start        : the observer's epoch (complete from origin)
+  final head         : 4d0bee0fc57bf90d2027cde85bbd3376a409bd446f391497f76e5566a6467bd1
+  observations       : 0
+  kernel events      : 3021
+
+SIGNED HEALTH
+  records            : 4
+  states signed      : ContinuityUnverified, Active, IntegrityUnknown
+  asserting coverage : 2
+  asserting none     : 2
+  heads cross-checked against batches : 3
+  clock, steered / adrift / not stated : 0 / 4 / 0
+  worst error bound the collector signed : 16000000 us (16000.0 ms)
+
+VERIFIED
+The anchored observer key signed exactly these records, in this order, and each record's prev_head equals the recomputed head of the one before it.
+This does not mean the observations are true: a host with root can lie to its own probe. It means these bytes are what the off-host collector received and recorded, and that the supplied records link without internal gaps or alterations. A valid prefix or suffix is still a valid window: detecting truncation requires an independently retained boundary checkpoint.
+  [32mPASS[0m offline: every attested batch and health record verified under the published key alone
+observer   : collector.pilot.e2e (key version 1)
+anchor     : 1ce7d55257689a5eddf6af3796d7ecd51222ec8e17b38640e5a14f7835cfe4d3
+
+ATTESTED BATCHES
+  records            : 77
+  chain positions    : 1..=78
+  chain start        : the observer's epoch (complete from origin)
+  final head         : 4d0bee0fc57bf90d2027cde85bbd3376a409bd446f391497f76e5566a6467bd1
+  observations       : 0
+  kernel events      : 3002
+
+NOT VERIFIED — 2 finding(s)
+  line 40: chain position 41 where 40 was expected — a record is missing, repeated or out of order
+  line 40 (sequence 41): prev_head 9dfae8697178f711bad93e56ad2449302929e3ce0ea311d2dfd4a79f7ee687d7 does not match the recomputed head 3a55b8696029d847c83bc4749db73d48d7da12b4d5b3a1b1cc0ca7d0eb58a591 of the preceding record — the chain is forked or spliced
+  [32mPASS[0m negative control: one record deleted from the middle - refused, chain break named
+
+[36m== Evidence[0m
+       raw signed health archive and daemon logs written to:
+         /home/user/AIP-agent-identity-protocol-/validation/strategic/e2_pilot_repeats/arm_fixed/run_2
+
+[36m== DEMONSTRATED[0m

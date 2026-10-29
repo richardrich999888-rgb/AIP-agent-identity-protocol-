@@ -1,0 +1,23 @@
+observer   : collector.pilot.e2e (key version 1)
+anchor     : 1ce7d55257689a5eddf6af3796d7ecd51222ec8e17b38640e5a14f7835cfe4d3
+
+ATTESTED BATCHES
+  records            : 78
+  chain positions    : 1..=78
+  chain start        : the observer's epoch (complete from origin)
+  final head         : 4d0bee0fc57bf90d2027cde85bbd3376a409bd446f391497f76e5566a6467bd1
+  observations       : 0
+  kernel events      : 3021
+
+SIGNED HEALTH
+  records            : 4
+  states signed      : ContinuityUnverified, Active, IntegrityUnknown
+  asserting coverage : 2
+  asserting none     : 2
+  heads cross-checked against batches : 3
+  clock, steered / adrift / not stated : 0 / 4 / 0
+  worst error bound the collector signed : 16000000 us (16000.0 ms)
+
+VERIFIED
+The anchored observer key signed exactly these records, in this order, and each record's prev_head equals the recomputed head of the one before it.
+This does not mean the observations are true: a host with root can lie to its own probe. It means these bytes are what the off-host collector received and recorded, and that the supplied records link without internal gaps or alterations. A valid prefix or suffix is still a valid window: detecting truncation requires an independently retained boundary checkpoint.
