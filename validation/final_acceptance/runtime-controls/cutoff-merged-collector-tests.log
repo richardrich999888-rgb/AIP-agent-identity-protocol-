@@ -1,0 +1,31 @@
+   Compiling aip-collector v0.4.0 (/Users/richardrich/.codex/worktrees/88b4/AIP/aip-standalone/aip-collector)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.62s
+     Running unittests src/lib.rs (target/debug/deps/aip_collector-d6683ebf87e41a0c)
+
+running 16 tests
+test authority::tests::rejects_an_empty_list ... ok
+test authority::tests::rejects_a_short_key ... ok
+test authority::tests::loads_and_authorizes_only_the_listed_pair ... ok
+test authority::tests::rejects_a_duplicate_probe_id ... ok
+test noise_key::tests::generate_then_load_returns_the_same_public_key ... ok
+test noise_key::tests::a_file_with_mismatched_halves_is_refused ... ok
+test sink::tests::a_batch_without_tracepoint_sensors_owes_no_report ... ok
+test sink::tests::a_missing_report_for_an_active_tracepoint_sensor_fails_closed ... ok
+test sink::tests::refuses_bytes_that_are_not_an_observation_batch ... ok
+test sink::tests::refuses_a_batch_labelled_with_a_different_probe_id ... ok
+test sink::tests::a_verified_report_for_every_open_sensor_keeps_the_state_active ... ok
+test sink::tests::accepts_a_batch_whose_probe_id_matches_the_authenticated_probe ... ok
+test sink::tests::when_both_sensors_deliver_the_exec_there_is_no_false_integrity_finding ... ok
+test sink::tests::a_verified_report_for_an_inactive_sensor_does_not_clear_a_gate ... ok
+test sink::tests::a_gate_reported_by_the_probe_makes_the_off_host_state_integrity_unknown ... ok
+test sink::tests::a_delivery_path_hook_that_fools_the_sensors_own_books_lands_on_integrity_unknown ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/live_cutoff.rs (target/debug/deps/live_cutoff-ff0ca9bca6084a16)
+
+running 1 test
+test live_empty_deferred_flushed_ranges_survive_the_runtime_sink_and_faults_never_backfill ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+

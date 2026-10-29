@@ -1,0 +1,11 @@
+# Bounded identity/browser readiness
+
+Source correction: `9ed1662af95ce83bbbee69c9387d5bd638713575`.
+
+The ba8417e SPIRE attempt enrolled but exhausted30 short polls; stderr was discarded, so its exact reason is unknown. The pinned [SPIRE1.15.3 configuration reference](https://github.com/spiffe/spire/blob/v1.15.3/doc/spire_agent.md) documents a5-second synchronization interval with backoff. A six-second nominal retry window is not a reliable initialization bound. The new helper uses a60-second monotonic deadline, caps child calls to remaining time, checks daemon liveness and stops without sleeping past the deadline. Fixed diagnostic classes and numeric return codes are retained; raw stderr, tokens, JWTs, command arguments and private logs are excluded. CLI success must still pass the existing separate-server-bundle JWT signature, audience, domain and workload-subject checks.
+
+Nine portable SPIRE tests pass, including delayed readiness beyond the old window, bounded permanent failure, per-call timeout, process death and secret redaction/classification. They establish control flow, not actual enrollment; exact-source live CI is separately recorded.
+
+The ba8417e genuine run reached the coarse console stage after API/Python/MCP/TypeScript checks completed, then failed. Private logs were correctly withheld, leaving its exact failed browser operation unknown. Browser progress now distinguishes launch, navigation, connection, readiness, credential clearing, query, exact JSON match, screenshot and logout. Public failures retain only fixed stage/class fields. Explicit30-second readiness assertions cover existing10-second console request budgets. Exact rendered JSON equality, Reader credential clearing, logout, CSP and all tenant/role restrictions remain mandatory.
+
+Four portable browser controls pass: redacted connection/query failure locations, refusal of changed JSON despite a matching artifact ID, and rejection of arbitrary diagnostic names. Twelve adjacent client-boundary tests also pass. These are mocks and do not establish browser execution; the exact pinned Playwright/Chromium Linux run must do so. Source hashes and commands are retained in the accompanying logs/report. No newer cached browser or simulated production response was substituted.

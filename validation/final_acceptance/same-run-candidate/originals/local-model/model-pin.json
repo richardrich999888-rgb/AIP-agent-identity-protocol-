@@ -1,0 +1,82 @@
+{
+  "ollama_version": "0.40.11",
+  "archive_url": "https://github.com/ollama/ollama/releases/download/v0.40.11/ollama-linux-amd64.tar.zst",
+  "archive_sha256": "7bedab90dd122661be78798e9f0edf37fccf0cccf2699d2c58ea1a3afdc04b6d",
+  "archive_bytes": 1508659610,
+  "extracted_cpu_members": [
+    "bin/ollama",
+    "lib/ollama/libggml-base.so",
+    "lib/ollama/libggml-base.so.0",
+    "lib/ollama/libggml-base.so.0.27.0",
+    "lib/ollama/libggml-cpu-alderlake.so",
+    "lib/ollama/libggml-cpu-cannonlake.so",
+    "lib/ollama/libggml-cpu-cascadelake.so",
+    "lib/ollama/libggml-cpu-cooperlake.so",
+    "lib/ollama/libggml-cpu-haswell.so",
+    "lib/ollama/libggml-cpu-icelake.so",
+    "lib/ollama/libggml-cpu-ivybridge.so",
+    "lib/ollama/libggml-cpu-piledriver.so",
+    "lib/ollama/libggml-cpu-sandybridge.so",
+    "lib/ollama/libggml-cpu-sapphirerapids.so",
+    "lib/ollama/libggml-cpu-skylakex.so",
+    "lib/ollama/libggml-cpu-sse42.so",
+    "lib/ollama/libggml-cpu-x64.so",
+    "lib/ollama/libggml-cpu-zen4.so",
+    "lib/ollama/libggml.so",
+    "lib/ollama/libggml.so.0",
+    "lib/ollama/libggml.so.0.27.0",
+    "lib/ollama/libgomp.so.1",
+    "lib/ollama/libgomp.so.1.0.0",
+    "lib/ollama/libllama-common.so",
+    "lib/ollama/libllama-common.so.0",
+    "lib/ollama/libllama-common.so.0.7.0",
+    "lib/ollama/libllama-server-impl.so",
+    "lib/ollama/libllama.so",
+    "lib/ollama/libllama.so.0",
+    "lib/ollama/libllama.so.0.7.0",
+    "lib/ollama/libmtmd.so",
+    "lib/ollama/libmtmd.so.0",
+    "lib/ollama/libmtmd.so.0.7.0",
+    "lib/ollama/llama-server"
+  ],
+  "model": "llama3.2:1b",
+  "manifest_sha256": "baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+  "manifest_bytes": 860,
+  "manifest_source_url": "https://registry.ollama.ai/v2/library/llama3.2/blobs/sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+  "manifest": {
+    "schemaVersion": 2,
+    "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+    "config": {
+      "mediaType": "application/vnd.docker.container.image.v1+json",
+      "digest": "sha256:4f659a1e86d7f5a33c389f7991e7224b7ee6ad0358b53437d54c02d2e1b1118d",
+      "size": 485
+    },
+    "layers": [
+      {
+        "mediaType": "application/vnd.ollama.image.model",
+        "digest": "sha256:74701a8c35f6c8d9a4b91f3f3497643001d63e0c7a84e085bed452548fa88d45",
+        "size": 1321082688
+      },
+      {
+        "mediaType": "application/vnd.ollama.image.template",
+        "digest": "sha256:966de95ca8a62200913e3f8bfbf84c8494536f1b94b49166851e76644e966396",
+        "size": 1429
+      },
+      {
+        "mediaType": "application/vnd.ollama.image.license",
+        "digest": "sha256:fcc5a6bec9daf9b561a68827b67ab6088e1dba9d1fa2a50d7bbcc8384e0a265d",
+        "size": 7711
+      },
+      {
+        "mediaType": "application/vnd.ollama.image.license",
+        "digest": "sha256:a70ff7e570d97baaf4e62ac6e6ad9975e04caa6d900d3742d37698494479e0cd",
+        "size": 6016
+      }
+    ]
+  },
+  "every_blob_hash_verified": true,
+  "cloud_inference": "disabled",
+  "api_credentials_used": false,
+  "model_api_spend_cap": 0,
+  "source_authority": "operator_verified_public_distribution"
+}

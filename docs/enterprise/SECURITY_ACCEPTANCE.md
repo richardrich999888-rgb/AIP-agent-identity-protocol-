@@ -4,6 +4,12 @@ Each property has an independent status. Signature validity does not establish
 live coverage, logical-agent identity, a completed bank transaction, independent
 administration or production approval.
 
+The hosted combined-source demo runs probe and collector as root. It does not
+enforce probe-to-collector key inaccessibility; agent-UID file refusals do not
+establish that boundary. This requirement remains **BLOCKED** for the local
+profile even when signed records and software checks pass. Exact source
+evidence is in [the custody review](../../validation/final_acceptance/infrastructure/probe-key-boundary.md).
+
 | Property | What can establish it | What remains outside that proof |
 | --- | --- | --- |
 | Evidence integrity | Existing signatures/chains plus independently retained checkpoint | Host honesty, complete ground truth and institutional custody |

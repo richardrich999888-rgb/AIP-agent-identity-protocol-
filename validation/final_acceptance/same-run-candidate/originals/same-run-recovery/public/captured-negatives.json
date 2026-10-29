@@ -1,0 +1,56 @@
+{
+  "classification": "CONTROLLED_NEGATIVE_VERIFICATION_OF_CAPTURED_RECORDS",
+  "source_bundle": "run-bundle.json",
+  "run_id": "same-run-2756716e614d0bdca038bb3b",
+  "status": "PASS",
+  "checks": {
+    "original": {
+      "status": "PASS",
+      "source": "unaltered captured records"
+    },
+    "missing_authorization": {
+      "status": "PASS",
+      "verdict": "CANNOT_PROVE",
+      "expected_side_completeness": "UNKNOWN",
+      "unauthorized_execution_claimed": false
+    },
+    "missing_gateway_receipt": {
+      "status": "PASS",
+      "tool_boundary": "NotEvaluated/NoReceipt",
+      "kernel_finding_not_upgraded": true
+    },
+    "authorization_signature": {
+      "status": "PASS",
+      "rejected": true,
+      "exit_code": 1
+    },
+    "gateway_signature": {
+      "status": "PASS",
+      "rejected": true,
+      "exit_code": 1
+    },
+    "reconciler_signature": {
+      "status": "PASS",
+      "rejected": true,
+      "exit_code": 1
+    },
+    "caller_supplied_trust_rejected": {
+      "status": "PASS",
+      "rejected": true,
+      "exit_code": 1
+    },
+    "prefix_truncation_checkpoint": {
+      "status": "PASS",
+      "rejected": true,
+      "exit_code": 1
+    },
+    "suffix_truncation_checkpoint": {
+      "status": "PASS",
+      "rejected": true,
+      "exit_code": 1
+    }
+  },
+  "no_additional_agent_execution_claimed": true,
+  "live_observer_interruption": "NOT_EXERCISED_BY_THIS_OFFLINE_CHECK",
+  "wrong_instance_trust_prerequisites": "separate typed reconciler regression; no fabricated kernel claims"
+}

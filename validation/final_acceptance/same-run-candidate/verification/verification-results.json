@@ -1,0 +1,268 @@
+{
+  "capture_source_commit": "42d0d96c9cc9d3075c792a195cc74e4171b0e817",
+  "capture_source_sha256": {
+    ".github/workflows/same-run-validation.yml": "895f2f7256657a43c5e9ccb6f0b68f86bc28ed3bb6f6e049dc24f67158597649",
+    "aip-standalone/aip-collector/src/sink.rs": "90ad9128019a23f81bc5ddc4fb8c68481f19c622b85b72788076eb9da0c65935",
+    "aip-standalone/aip-mcp-gateway/src/assurance.rs": "caf5aef7ed5b518f91ffff804fbc483a59b9cac8af6d8803fb25faf3a0b30c2b",
+    "aip-standalone/aip-mcp-gateway/src/bin/aip-execution-assurance.rs": "5319a49ef8dbb08d4e50b45846df7ac35b08b5554ff02f6ab3a4e2863b883a8e",
+    "aip-standalone/aip-observe-verify/src/cli.rs": "d56afb329d7de731b406149519cd4aa0b01e519f96faaab83687714759d408b8",
+    "aip-standalone/aip-observe-verify/src/lib.rs": "b13cb7aaab648cacb5f49375a31a2a70f416fb2d2914704af715e3835d3f913d",
+    "aip-standalone/aip-observe-verify/src/main.rs": "d2e71311f84b06644d1410cecc1e289bf3a4def4a5ec7dd6f2114acaf789a1fd",
+    "aip-standalone/aip-observe/src/probe.rs": "854b55ba472606b1286731b4f2005799e4c334e965c226227039157ad82cb8ab",
+    "aip-standalone/aip-probe/src/main.rs": "6fb764b6d45bc3c42afb53ce040f1002710aa0bd48f4d89d5d708b5b40222a4b",
+    "aip-standalone/aip-probe/src/sensors.rs": "dd5d58200b72f0c0882b9d1fa8ed2017a86287fb4907d629217ef3c558ecc474",
+    "aip-standalone/aip-reconcile/src/reconcile.rs": "f8c45c44773b121a6cc60f3126980964ab503a3f01849c8dea04a863907c3022",
+    "validation/enterprise/same_run_validation.py": "30f2804023a91787c37bae9bab1241a2423c4f3ff1a210eea1d3dfb88752d722"
+  },
+  "limits": [
+    "Offline verification uses native local binaries identified by SHA256; host platform is recorded separately.",
+    "Separately retained parent public anchors/checkpoints/trust were used; original archives were not rewritten.",
+    "Checksums identify bytes; they do not authenticate the artifact download origin by themselves.",
+    "Positive captures verify identity and time coverage, but retain CannotProve/ActionEvidenceUnavailable.",
+    "Interruption capture retains CannotProve/WindowNotCovered and is not backfilled by fresh recovery.",
+    "Local isolation shares kernel/root; separate administrative custody and logical tool-to-kernel causality are not established."
+  ],
+  "native_binary_sha256": {
+    "aip-execution-assurance": "a4a4d86e419b9981f8b5e523fbbf2f96f52908bbd53fec706a53e71d268ae6a8",
+    "aip-observe-verify": "096bc3e1c2e96725a0b801e67bb73d0097105931603b784316fbddc20fcc1615"
+  },
+  "profiles": {
+    "same-run": {
+      "archive_records": {
+        "batches": 34,
+        "health": 3
+      },
+      "authorization_window": {
+        "issued_at": 1793266583516,
+        "valid_until": 1793266613516
+      },
+      "cleanup_errors": [],
+      "final_signed_health": {
+        "attested_coverage": {
+          "from_ms": 1793266566817,
+          "to_ms": 1793266607748
+        },
+        "clock": {
+          "max_error_us": 2535,
+          "state": 0,
+          "synchronized": true
+        },
+        "continuity": "Verified",
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "emitted_at_ms": 1793266607977,
+        "sequence": 34,
+        "state": "Active"
+      },
+      "kernel_bound_instance_count": 2,
+      "kernel_events": 1011,
+      "model_calls": 2,
+      "public_input_sha256": {
+        "attested.archive.jsonl": "c5bb791c880201bc5ea4a9a86d1e503e224a32c33454fc66af3f4ffe5f6042b1",
+        "evaluation.json": "91aeef02973c3b3870be485a5d87247cc505098e3d5dcdb497319253709aa53c",
+        "expectation.json": "39bf6196a458fabdd6cdef9f6b64def26c5885e5fa5568ccf1e5d5da67b7315d",
+        "health.archive.jsonl": "9027fc87a89b0aeefcad22cfceb11def2dfe74cf9f4a8c6f14b1747b288b76c1",
+        "kernel-bound-instances.json": "7a107d9601d23e4560390526749c6e39542981522eebb446ace8d9d55601e479",
+        "run-bundle.json": "02cbb9c3c2cc08b965476246ebb4b285c300afff846f7d583b5025e14da12e4b",
+        "run-manifest.json": "05515c3a395f301c7104f1bf544c232ae9b938ff4a5bc04958b1d5bc232cb484"
+      },
+      "reconciliation": {
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "identity": {
+          "Match": {
+            "observations": 7
+          }
+        },
+        "lineage": "NotEvaluated",
+        "reason": "ActionEvidenceUnavailable",
+        "result": "CannotProve",
+        "temporal": "WithinWindow",
+        "wire": "NotEvaluated"
+      },
+      "source_hashes": {
+        "checkpoint.json": "50263ad42d5d1e95c24e7a808c46c5c99b5917a42939402960a259f467981440",
+        "observer-anchor.json": "6a971c689cd8657e440d7a921176aa741654e478232eced658b336926f8de73a",
+        "run-trust.json": "8694606b1210924c8809965b866e499f0d92b79f5f379c23e98dd00036b16f73"
+      },
+      "status": "PASS",
+      "task_has_single_signed_active_coverage": true,
+      "task_window": {
+        "from_ms": 1793266578228,
+        "to_ms": 1793266603693
+      }
+    },
+    "same-run-interruption": {
+      "archive_records": {
+        "batches": 9,
+        "health": 3
+      },
+      "authorization_window": {
+        "issued_at": 1793266694880,
+        "valid_until": 1793266724880
+      },
+      "cleanup_errors": [],
+      "final_signed_health": {
+        "attested_coverage": {
+          "from_ms": 1793266674046,
+          "to_ms": 1793266686429
+        },
+        "clock": {
+          "max_error_us": 1008,
+          "state": 0,
+          "synchronized": true
+        },
+        "continuity": "Verified",
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "emitted_at_ms": 1793266716891,
+        "sequence": 9,
+        "state": "Active"
+      },
+      "kernel_bound_instance_count": 0,
+      "kernel_events": 283,
+      "model_calls": 2,
+      "public_input_sha256": {
+        "attested.archive.jsonl": "b9577c2eb5c62926d5a972e7673c0251cb3b141962159e497ca7fd5335d444df",
+        "evaluation.json": "bd8e30f58e94ceaa9a14c20ce58f64dc69eba32c88097e6cd756888ee6717324",
+        "expectation.json": "aa3844a4e5088ada419a11f1a88e31c81f8470cb70ed14b13f18b914d6666c34",
+        "health.archive.jsonl": "6488ac38497363b4d70e269c015196db41b28c6bdd0e164cae3a6ea1dded7818",
+        "kernel-bound-instances.json": "ae1d900b5a85b6b4edd52e021d0515cdcf2ef07d412d1720b028ab294322888c",
+        "run-bundle.json": "3ef863fc6d756017fbf1047384281ac20a3f9235414b58596115d7ceb55f4a7c",
+        "run-manifest.json": "e83e7ac3fa99f2402847b132ae0dab6dd92c9b3066e176130430180c3c78a55c"
+      },
+      "reconciliation": {
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "identity": "NoReference",
+        "lineage": "NotEvaluated",
+        "reason": "WindowNotCovered",
+        "result": "CannotProve",
+        "temporal": "Indeterminate",
+        "wire": "NotEvaluated"
+      },
+      "source_hashes": {
+        "checkpoint.json": "5782441bcb67a02810fad48b7cb6982c793a7228f38f753135f5ff46b9c3322e",
+        "observer-anchor.json": "8f5613dcb1b0783ab37fb9f29c28cbd144bf78313f2e9664203c1bb0774ae089",
+        "run-trust.json": "f3eaa42644ca2e2fbeae89dd927899519e538e7620e79c297e326d0e7bf9409d"
+      },
+      "status": "PASS",
+      "task_has_single_signed_active_coverage": false,
+      "task_window": {
+        "from_ms": 1793266689763,
+        "to_ms": 1793266714739
+      }
+    },
+    "same-run-recovery": {
+      "archive_records": {
+        "batches": 34,
+        "health": 4
+      },
+      "authorization_window": {
+        "issued_at": 1793266776325,
+        "valid_until": 1793266806325
+      },
+      "cleanup_errors": [],
+      "final_signed_health": {
+        "attested_coverage": {
+          "from_ms": 1793266757640,
+          "to_ms": 1793266800535
+        },
+        "clock": {
+          "max_error_us": 2012,
+          "state": 0,
+          "synchronized": true
+        },
+        "continuity": "Verified",
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "emitted_at_ms": 1793266830663,
+        "sequence": 34,
+        "state": "Active"
+      },
+      "kernel_bound_instance_count": 2,
+      "kernel_events": 1045,
+      "model_calls": 2,
+      "public_input_sha256": {
+        "attested.archive.jsonl": "003eef5b2052ef0bcc3cde21dd0379349c074ae7016df37f7f68a94338578acc",
+        "evaluation.json": "18df526cd39651c9483998c4f143e1eca8616b9f5ab8ec4661235002b4425674",
+        "expectation.json": "38d455d3d7d3b9fa02a6bab154f56f0bae05eed907baf0bd4ca2e882855d257b",
+        "health.archive.jsonl": "0abebfe04566e0d642296f67ef361ac8f2184bca3572993dec4aae39a0656e6b",
+        "kernel-bound-instances.json": "af54fd8ed04d0bc222493388d7a9718fba03c657a7512b117346e58089033884",
+        "run-bundle.json": "a41105490668db4c4d787df9a2fb001281b33a797a1b926f66431db32a0867c7",
+        "run-manifest.json": "afea2003011419153df508f0759c7d8500d2cba67f40f54240d651a0ddc32645"
+      },
+      "reconciliation": {
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "identity": {
+          "Match": {
+            "observations": 7
+          }
+        },
+        "lineage": "NotEvaluated",
+        "reason": "ActionEvidenceUnavailable",
+        "result": "CannotProve",
+        "temporal": "WithinWindow",
+        "wire": "NotEvaluated"
+      },
+      "source_hashes": {
+        "checkpoint.json": "65472473f43afbf11951b8187f43980f484210e97f7ea3e0e629a7c9ec422bf1",
+        "observer-anchor.json": "b656bb4e59c06436665dc8b3f5bd29fadf8c75b1b7ff40123f86d069f25b0492",
+        "run-trust.json": "cf5748bb90a45ddce877c8045208b7d7f0a4d8b4b12aed243a7f56947eb43045"
+      },
+      "status": "PASS",
+      "task_has_single_signed_active_coverage": true,
+      "task_window": {
+        "from_ms": 1793266771085,
+        "to_ms": 1793266796730
+      }
+    }
+  },
+  "status": "PASS",
+  "verification_host": {
+    "machine": "arm64",
+    "system": "Darwin"
+  },
+  "verification_input": {
+    "files_manifest_sha256": "b7c74c1ab24f7493b429fecb307d50bb0389771e1312b52d433ab7c86d65299b",
+    "gzip_original_files": 6,
+    "kind": "MANIFEST_VALIDATED_TEMPORARY_MATERIALIZATION",
+    "originals_modified": false,
+    "source": "tracked originals/files.json (default)",
+    "validated_original_bytes": 5128015,
+    "validated_original_files": 131
+  },
+  "verification_script_sha256": "490e54119534321c79a5286dbe8ebe71b35b51d128ebc6f47dc9efb2f807f7be",
+  "workflow_run_id": 40850559136
+}

@@ -1,0 +1,21 @@
+test_altered_binary_refused_even_with_new_archive_digest (__main__.Packaging.test_altered_binary_refused_even_with_new_archive_digest) ... ok
+test_config_placeholders_shell_expansion_duplicates_and_cross_role_refused (__main__.Packaging.test_config_placeholders_shell_expansion_duplicates_and_cross_role_refused) ... ok
+test_kubernetes_template_requires_opt_in_and_retains_collector_state (__main__.Packaging.test_kubernetes_template_requires_opt_in_and_retains_collector_state) ... ok
+test_macos_or_wrong_arch_binary_and_invalid_commit_refused (__main__.Packaging.test_macos_or_wrong_arch_binary_and_invalid_commit_refused) ... ok
+test_no_loopback_collector_or_silent_sensor_fallback (__main__.Packaging.test_no_loopback_collector_or_silent_sensor_fallback) ... ok
+test_other_role_configuration_refused (__main__.Packaging.test_other_role_configuration_refused) ... ok
+test_preflight_never_reports_runtime_pass_on_darwin (__main__.Packaging.test_preflight_never_reports_runtime_pass_on_darwin) ... ok
+test_reproducible_archive_manifest_and_exact_members (__main__.Packaging.test_reproducible_archive_manifest_and_exact_members) ... ok
+test_staged_install_is_role_separate_bounded_and_no_service_start (__main__.Packaging.test_staged_install_is_role_separate_bounded_and_no_service_start) ... ok
+test_strict_clock_continuity_key_separation_and_unit_paths_enforced (__main__.Packaging.test_strict_clock_continuity_key_separation_and_unit_paths_enforced) ... ok
+test_symlink_and_existing_file_are_refused_before_writes (__main__.Packaging.test_symlink_and_existing_file_are_refused_before_writes) ... ok
+test_uninstall_refuses_locally_modified_software_and_forged_paths (__main__.Packaging.test_uninstall_refuses_locally_modified_software_and_forged_paths) ... ok
+test_uninstall_retains_keys_evidence_config_and_service_account (__main__.Packaging.test_uninstall_retains_keys_evidence_config_and_service_account) ... ok
+test_unsafe_paths_symlinks_duplicates_extra_files_and_modes_refused (__main__.Packaging.test_unsafe_paths_symlinks_duplicates_extra_files_and_modes_refused) ... ok
+test_valid_probe_and_collector_config (__main__.Packaging.test_valid_probe_and_collector_config) ... ok
+test_wrong_or_absent_trusted_hash_refused (__main__.Packaging.test_wrong_or_absent_trusted_hash_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.050s
+
+OK

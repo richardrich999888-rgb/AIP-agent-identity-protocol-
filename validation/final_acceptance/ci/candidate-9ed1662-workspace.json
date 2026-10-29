@@ -1,0 +1,546 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "Complete hosted Linux CI at candidate 9ed1662; not collector-custody or clean-host-installation approval.",
+  "source": {
+    "head": {
+      "sha": "9ed1662af95ce83bbbee69c9387d5bd638713575",
+      "tree": "9ab6eceb5eb11391ffba9fd447e5f1011483d621",
+      "parents": [
+        "ba8417ef6a7a954c681f7de830fe84bd78faf25b"
+      ],
+      "message": "Bound live identity and browser readiness and preserve safe failure diagnostics"
+    },
+    "checkout": {
+      "sha": "38b20d92f1bb0981161f5859a713d3483873d010",
+      "tree": "9ab6eceb5eb11391ffba9fd447e5f1011483d621",
+      "parents": [
+        "a933fdc327e8744dc8a8441ea3d5b2d75063b91f",
+        "9ed1662af95ce83bbbee69c9387d5bd638713575"
+      ],
+      "message": "Merge 9ed1662af95ce83bbbee69c9387d5bd638713575 into a933fdc327e8744dc8a8441ea3d5b2d75063b91f"
+    },
+    "tree_identical": true,
+    "proof": "Exact checkout SHA is in the quality and identity job transcripts. Both Git commit objects have the same tree."
+  },
+  "run": {
+    "id": 40854983581,
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40854983581",
+    "path": ".github/workflows/ci.yml",
+    "head_sha": "9ed1662af95ce83bbbee69c9387d5bd638713575",
+    "head_branch": "fix/vanian-end-to-end-green",
+    "event": "pull_request",
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-29T10:07:09Z",
+    "updated_at": "2026-10-29T10:20:52Z",
+    "jobs": [
+      {
+        "id": 123383586341,
+        "name": "fmt · clippy · test",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40854983581,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Install Rust toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Cache cargo",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install SoftHSM2 (PKCS#11 module for aip-hsm tests)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "cargo fmt --check",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "cargo clippy (deny warnings)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "cargo test",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "cargo test (release — perf gates)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Cache cargo",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 123383586541,
+        "name": "postgres backend integration",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40854983581,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "clippy (postgres feature)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "test (postgres feature, live DB)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "storage controls (restricted roles, live DB)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      },
+      {
+        "id": 123383586593,
+        "name": "coverage",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40854983581,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install cargo-llvm-cov",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install SoftHSM2 (required by workspace custody tests)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Generate coverage",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Upload coverage artifact",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          }
+        ]
+      },
+      {
+        "id": 123383586611,
+        "name": "RED suite (adversarial ledger reproducible)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40854983581,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Install Rust toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Cache cargo",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "RED suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Cache cargo",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      },
+      {
+        "id": 123383586651,
+        "name": "cargo audit · cargo deny",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40854983581,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install audit tools",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "cargo audit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "cargo deny check",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      },
+      {
+        "id": 123383586900,
+        "name": "Python SDK regression and parity tests",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40854983581,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run python -m pip install cryptography==41.0.7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Test SDK, adapters, canonical fixtures and schemas",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      }
+    ]
+  },
+  "workspace": [
+    {
+      "profile": "debug",
+      "passed": 3304,
+      "failed": 0,
+      "ignored": 10,
+      "result_summaries": 338,
+      "command_started_at": "2026-10-29T10:07:55.8388889Z",
+      "last_test_summary_at": "2026-10-29T10:16:31.5912154Z"
+    },
+    {
+      "profile": "release",
+      "passed": 3306,
+      "failed": 0,
+      "ignored": 8,
+      "result_summaries": 338,
+      "command_started_at": "2026-10-29T10:16:31.6115130Z",
+      "last_test_summary_at": "2026-10-29T10:20:50.5887707Z"
+    }
+  ],
+  "command_evidence": [
+    "2026-10-29T10:07:34.3940305Z ##[group]Run cargo fmt --all -- --check",
+    "2026-10-29T10:07:36.0590747Z ##[group]Run cargo clippy --locked --workspace --all-targets --all-features -- -D warnings",
+    "2026-10-29T10:07:55.8388889Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast",
+    "2026-10-29T10:16:31.6115130Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast"
+  ],
+  "count_method": "Split the complete quality transcript at the two actual command groups. Sum each standard Rust result record for passed/failed/ignored. Each profile has 338 records, including empty targets and doctests. Counts are not unique across profiles.",
+  "new_regression_evidence": [
+    "2026-10-29T10:11:21.3958094Z test b05_another_observers_records_do_not_bind ... ok",
+    "2026-10-29T10:11:36.3029221Z test v04b_matching_health_reference_fields_do_not_trust_an_unanchored_signature ... ok",
+    "2026-10-29T10:20:00.2634171Z test b05_another_observers_records_do_not_bind ... ok",
+    "2026-10-29T10:20:00.3803863Z test v04b_matching_health_reference_fields_do_not_trust_an_unanchored_signature ... ok"
+  ],
+  "postgres": {
+    "job_id": 123383586541,
+    "status": "PASS",
+    "version": "PostgreSQL 16.15 x86_64-pc-linux-musl, compiled with Alpine gcc 15.2.0",
+    "default_storage_controls": {
+      "passed": 0,
+      "failed": 0,
+      "ignored": 14
+    },
+    "explicit_command": "cargo test --features postgres --test storage_controls -- --ignored",
+    "explicit_storage_controls": {
+      "passed": 14,
+      "failed": 0,
+      "ignored": 0
+    },
+    "explicit_completed_at_utc": "2026-10-29T10:08:39Z",
+    "tests": [
+      "a_query_that_forgets_its_tenant_filter_still_cannot_cross_tenants",
+      "a_retention_policy_below_the_180_day_floor_is_refused",
+      "a_connection_with_no_declared_tenant_sees_nothing",
+      "a_write_into_another_tenant_is_refused_by_the_policy",
+      "a_held_packet_cannot_be_deleted_even_by_the_owner",
+      "a_tenant_wide_hold_covers_packets_it_never_named",
+      "service_cannot_update_delete_or_truncate_signed_artifacts",
+      "artifact_owner_cannot_rewrite_documents_or_delete_under_legal_hold",
+      "signed_artifact_reads_and_insertions_are_bound_to_the_database_tenant",
+      "the_service_role_cannot_delete_evidence",
+      "the_service_role_cannot_modify_stored_evidence",
+      "the_service_role_cannot_truncate_or_drop",
+      "concurrent_filings_are_idempotent_and_hidden_collisions_are_generic",
+      "the_store_operates_normally_as_the_restricted_role"
+    ],
+    "scope": "Disposable live database controls, not production database qualification."
+  },
+  "ignored_test_evidence": [
+    "2026-10-29T10:09:05.3556017Z test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture",
+    "2026-10-29T10:11:45.9247363Z test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture",
+    "2026-10-29T10:11:46.6455513Z test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing",
+    "2026-10-29T10:11:51.9077871Z test stress::test_signing_throughput ... ignored, wall-clock throughput gate — meaningful only under `cargo test --release`",
+    "2026-10-29T10:11:57.4916670Z test stress::test_verification_throughput ... ignored, wall-clock throughput gate — meaningful only under `cargo test --release`",
+    "2026-10-29T10:15:56.5824284Z test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments",
+    "2026-10-29T10:15:56.7877089Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener",
+    "2026-10-29T10:15:56.7878597Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener",
+    "2026-10-29T10:16:29.2904569Z test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored",
+    "2026-10-29T10:16:30.4155780Z test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored",
+    "2026-10-29T10:19:48.6058472Z test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture",
+    "2026-10-29T10:20:02.2816382Z test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture",
+    "2026-10-29T10:20:02.4612674Z test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing",
+    "2026-10-29T10:20:32.5801111Z test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments",
+    "2026-10-29T10:20:32.6038943Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener",
+    "2026-10-29T10:20:32.6040107Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener",
+    "2026-10-29T10:20:48.3396313Z test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored",
+    "2026-10-29T10:20:49.4517293Z test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored"
+  ],
+  "explicit_client_tests": "Three HTTP service/registry/run tests ignored by default were separately executed and passed in enterprise40854983680. See candidate-9ed1662-enterprise.json.",
+  "private_transcript": {
+    "path": ".local/final-acceptance/candidate-9ed1662-workspace.raw.log",
+    "sha256": "135196c50fdfc81d532a6d7e299305aaf4da7ea4de35f076955cd01752218cfc",
+    "scope": "Complete decoded quality-job transcript retained locally; not committed."
+  },
+  "historical_attempts": [
+    "candidate-workspace.json retains42d0d96 release fixture failure.",
+    "candidate-ba8417e-attempt.json retains unused-mut compilation and SPIRE readiness failures.",
+    "initial-161-classification.json retains all161 original failure blocks with explicit provenance limitations."
+  ],
+  "limitations": [
+    "Passing CI does not establish that the probe cannot access collector keys under the same root authority. Custody and administration boundaries require their separate assessment.",
+    "Runtime package staging is not clean-host systemd installation.",
+    "Genuine-model execution and browser evidence belong to the separately verified same-run workflow; fixture-only API tests are not promoted into those claims."
+  ]
+}

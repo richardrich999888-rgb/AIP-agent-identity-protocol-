@@ -1,10 +1,13 @@
 # End-to-end validation record
 
-Status: **PARTIAL.** Genuine model/tool execution and signed offline verification
-have run. The latest retained attempt passed authorization, receipt, kernel
-binding, task-window coverage and signed reconciliation, then failed during
-the enterprise-client checks. A separate Mac replay now passes all clients over
-that exact Linux bundle; a fresh complete Linux workflow retry remains required.
+Status: **HOSTED SOFTWARE PATH PASSED; DEPLOYMENT PARTIAL.** Combined-source
+workflow [40854983596](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40854983596)
+on `9ed1662` passed genuine model/tool execution, independently issued
+authorization, signed receipts and task coverage, API/SDK/MCP/browser retrieval,
+offline verification, actual observer interruption and fresh recovery. Positive
+runs retain `CannotProve / ActionEvidenceUnavailable`; interruption retains
+`CannotProve / WindowNotCovered`. See the current [acceptance report](../../validation/final_acceptance/REPORT.md)
+for exact sources, original evidence, subsequent CI repairs and claim limits.
 The entire assignment is not complete. Separate-host
 administration, swarm qualification and production qualification have their own
 status and cannot be inferred from a hosted software run.

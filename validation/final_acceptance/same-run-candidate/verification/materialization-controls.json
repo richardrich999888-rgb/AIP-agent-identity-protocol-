@@ -1,0 +1,12 @@
+{
+  "checks": {
+    "decompressed_bytes_exceed_manifest": "PASS_REJECTED",
+    "duplicate_original_path": "PASS_REJECTED",
+    "original_path_traversal": "PASS_REJECTED",
+    "retained_symlink_escape": "PASS_REJECTED",
+    "valid_gzip": "PASS_EXACT_BYTES",
+    "wrong_original_hash": "PASS_REJECTED"
+  },
+  "scope": "Temporary synthetic bytes test materialization boundaries only; they are not runtime evidence or substituted signed records.",
+  "status": "PASS"
+}

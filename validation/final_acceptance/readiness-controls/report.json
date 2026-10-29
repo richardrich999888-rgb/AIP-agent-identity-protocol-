@@ -1,0 +1,17 @@
+{
+  "classification": "PORTABLE_CONSOLE_HARNESS_DIAGNOSTIC_CONTROLS",
+  "status": "PASS",
+  "new_tests_passed": 4,
+  "existing_client_boundary_tests_passed": 12,
+  "actual_browser_replay": "NOT_EXECUTED_PINNED_BROWSER_ABSENT",
+  "old_failure_cause": "UNKNOWN",
+  "original_run_id": 40852816962,
+  "scope": "Fixed browser sub-stages, allowlisted failure classification and bounded readiness; existing exact JSON, credential and authorization checks retained. Mock tests create no workload or browser evidence.",
+  "syntax_checks": "PASS",
+  "whitespace_check": "PASS",
+  "sources_sha256": {
+    "validation/enterprise/run_client_smoke.py": "83c856d31a265e7bfa7d2a0cfa757adfebb9bceb2ff7c395df9b952b9abdaa33",
+    "validation/enterprise/test_console_progress.py": "776e2df245e2a64f19d72ebe475639847e686ac8b03c2902ec713542444d13bc"
+  },
+  "result_log": "portable-results.log"
+}

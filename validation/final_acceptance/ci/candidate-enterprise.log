@@ -1,0 +1,19 @@
+Exact source and complete step metadata: candidate-enterprise.json.
+Scope: all enterprise steps passed; package staging is not a clean-host install; client evidence here is explicitly fixture-scoped.
+2026-10-29T09:33:31.9716399Z HEAD is now at eeefd33 Merge 42d0d96c9cc9d3075c792a195cc74e4171b0e817 into a933fdc327e8744dc8a8441ea3d5b2d75063b91f
+2026-10-29T09:33:38.9762039Z Ran 1 test in 0.000s
+2026-10-29T09:33:53.4817296Z Ran 1 test in 2.242s
+2026-10-29T09:33:59.3674580Z {"python_wheel": "INSTALLED_AND_IMPORTED", "typescript_tgz": "INSTALLED_AND_IMPORTED", "network_calls_to_evidence_service": 0, "kernel_observation": "NOT_EXERCISED"}
+2026-10-29T09:35:31.4834232Z {"sdk": "PASS", "real_mcp_client": "PASS", "cross_tenant": "PASS", "openapi_contract": "PASS", "service_delivery_posture": "PASS", "mcp_privilege_refusal": "PASS", "input_limit": "PASS", "kernel_observation": "NOT_EXERCISED"}
+2026-10-29T09:35:31.6386724Z test real_http_clients_use_the_service_boundary ... ok
+2026-10-29T09:35:32.1668999Z test real_http_registry_clients ... ok
+2026-10-29T09:35:34.7015543Z {"run_id": "fixture-empty-run", "run_artifact_id": "a947685879df47af2df17a5420273dfba50c78e1eab8bdd0379f8b2be725021e", "source_bundle_sha256": "e444c8510da2291487d32894182acf92b2468e3a4d7d02c1ff2a5c88da34f634", "api_admission": "PASS", "exact_bundle_retrieval": "PASS", "openapi_contract": "PASS", "python_sdk": "PASS", "typescript_sdk": "PASS", "official_mcp_client": "PASS", "cross_tenant_refusal": "PASS", "reader_write_and_raw_refusal": "PASS", "console_browser": "NOT_EXERCISED", "signed_runtime_verdict_retrieval": "NOT_SUPPLIED", "scope": "Retrieval of this exact caller-provided run; workload provenance requires independent run evidence."}
+2026-10-29T09:35:34.8485796Z test real_same_run_clients_use_the_service_boundary ... ok
+2026-10-29T09:35:55.0804945Z {"archive": "dist/vanian-runtime-x86_64-linux.tar", "sha256": "41a69c95d2e9967a5c1ddd948bdd42f7c7eee0bd7d2a4faf3a08a4a2ac236740", "source_commit": "eeefd3344b691c250e651f778bc3c079bbe0a437", "target": "x86_64-unknown-linux-gnu"}
+2026-10-29T09:35:57.9601510Z {"product": "vanian-snifferdog-agent", "version": "0.4.0~eval.1", "architecture": "amd64", "sha256": "48e56e43655bfd4aed2db2f965be683e41860329e3506b18981e473d26aeb594", "archive_sha256": "41a69c95d2e9967a5c1ddd948bdd42f7c7eee0bd7d2a4faf3a08a4a2ac236740", "source_commit": "eeefd3344b691c250e651f778bc3c079bbe0a437", "mode": "OBSERVER_ONLY", "release_authenticity": "REQUIRES_INDEPENDENT_APPROVAL", "runtime_validation": "NOT_EXECUTED", "distribution_license": "REQUIRES_APPROVED_TERMS_AND_COMPLETE_NOTICES"}
+2026-10-29T09:35:58.8683887Z {"product": "vanian-evidence-collector", "version": "0.4.0~eval.1", "architecture": "amd64", "sha256": "a71b44017c2ea8595ff976b92d0140edf7a9579dbfd92efec4c9f5488996b0c8", "archive_sha256": "41a69c95d2e9967a5c1ddd948bdd42f7c7eee0bd7d2a4faf3a08a4a2ac236740", "source_commit": "eeefd3344b691c250e651f778bc3c079bbe0a437", "mode": "OBSERVER_ONLY", "release_authenticity": "REQUIRES_INDEPENDENT_APPROVAL", "runtime_validation": "NOT_EXECUTED", "distribution_license": "REQUIRES_APPROVED_TERMS_AND_COMPLETE_NOTICES"}
+2026-10-29T09:35:59.4680196Z {"status": "PASS", "scope": "actual Linux binary package staging lifecycle", "live_clean_host_installation": false}
+2026-10-29T09:36:00.6536321Z SHA256 digest of uploaded artifact zip is b5cab6dacf8215082529b512ac16ccb20e79e0bfe6be924c9f469908cb4f8b70
+2026-10-29T09:36:01.2200669Z Artifact enterprise-linux-runtime-eeefd3344b691c250e651f778bc3c079bbe0a437.zip successfully finalized. Artifact ID 12886872493
+2026-10-29T09:36:01.2201428Z Artifact enterprise-linux-runtime-eeefd3344b691c250e651f778bc3c079bbe0a437 has been successfully uploaded! Final size is 3032810 bytes. Artifact ID is 12886872493
+ContextForge actual gateway checks: 27 passed; 5 authorization-policy tests passed.

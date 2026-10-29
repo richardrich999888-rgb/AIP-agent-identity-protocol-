@@ -1,0 +1,33 @@
+{
+  "workflow_run": 40753613519,
+  "job_id": 123046534768,
+  "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40753613519",
+  "head": "edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c",
+  "actual_checkout": "99bec0661b1484c27dc58cffcbdd4b7714e01567",
+  "checkout_tree": "bdd11581ff49f0531a0eaa20ee1ca94c3dc537e4",
+  "checkout_tree_equals_head_tree": true,
+  "result": "FAIL",
+  "model_provisioning": "PASS",
+  "controller_reported_autonomous_workload_executed": true,
+  "complete_same_run_acceptance": false,
+  "failure": "actual workload window lacks signed Active coverage",
+  "cleanup_failure": "umount exited 32",
+  "original_archive_verification": {"binary":"target/debug/aip-observe-verify","exit_code":0,"batches":90,"kernel_events":2203,"health_records":5,"findings":[],"anchor_source":"separately retained workflow-controller observer-anchor.json; not an independently approved institutional anchor"},
+  "boundary_race": {
+    "connector_batch":32,
+    "connector_pid":6841,
+    "connector_tgid":6841,
+    "connector_kernel_timestamp_ns":221339445596,
+    "scheduler_batch":33,
+    "scheduler_kind":"ProcessExec",
+    "scheduler_pid":6841,
+    "scheduler_kernel_timestamp_ns":221339432992,
+    "timestamp_difference_ns":12604,
+    "existing_match_window_ns":50000000,
+    "dropped_events":0,
+    "finding":"The connector event was drained after the batch's claimed cutoff; its real scheduler counterpart was retained in the next signed batch. The collector's strict batch-local comparison caused a conservative Unverifiable finding and coverage reset."
+  },
+  "preservation":"Two original JSONL archives are losslessly compressed with gzip -n. Their signed contents are unchanged. No private keys, credentials, databases or general service logs are retained here.",
+  "claims_not_established":["complete execution assurance","successful same-run service/client retrieval","off-host administrative custody","institutional anchor approval","bank transaction completion"],
+  "rule":"Do not rewrite this signed health or promote its recovered interval into coverage of the original workload. A fix requires a new execution."
+}

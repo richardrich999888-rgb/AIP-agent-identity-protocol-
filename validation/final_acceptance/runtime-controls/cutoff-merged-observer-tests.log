@@ -1,0 +1,158 @@
+    Blocking waiting for file lock on build directory
+   Compiling aip-observe v0.4.0 (/Users/richardrich/.codex/worktrees/88b4/AIP/aip-standalone/aip-observe)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.33s
+     Running unittests src/lib.rs (target/debug/deps/aip_observe-fb089bc8fcd3aff8)
+
+running 65 tests
+test clock::tests::a_synchronized_clock_outside_budget_fails ... ok
+test clock::tests::a_synchronized_clock_within_budget_passes ... ok
+test clock::tests::an_unsynchronized_clock_fails_however_small_its_error_bound ... ok
+test clock::tests::the_budget_is_milliseconds_and_does_not_overflow ... ok
+test continuity::tests::first_batch_is_never_verified_continuity ... ok
+test continuity::tests::exact_replay_is_refused ... ok
+test continuity::tests::contiguous_chain_verifies ... ok
+test clock::tests::the_summary_names_an_unsynchronized_clock ... ok
+test continuity::tests::fork_at_one_sequence_quarantines_permanently ... ok
+test continuity::tests::gap_status_is_not_silently_upgraded_by_later_contiguity ... ok
+test continuity::tests::restart_does_not_imply_continuity ... ok
+test cgroupev::tests::attach_decodes_the_moved_task_apart_from_the_writer ... ok
+test cgroupev::tests::malformed_records_are_refused_not_guessed ... ok
+test cgroupev::tests::mkdir_and_rmdir_decode_with_the_acting_task ... ok
+test continuity::tests::rollback_and_gap_and_head_mismatch_are_distinct ... ok
+test divergence::tests::a_connector_exec_the_perf_tracepoint_also_delivered_is_not_divergence ... ok
+test divergence::tests::a_connector_fork_without_a_perf_fork_is_not_divergence ... ok
+test divergence::tests::a_connector_exec_the_perf_tracepoint_missed_is_divergence ... ok
+test divergence::tests::a_perf_exec_for_a_different_pid_does_not_corroborate ... ok
+test divergence::tests::a_perf_exec_just_inside_the_window_corroborates ... ok
+test divergence::tests::a_perf_exec_just_outside_the_window_does_not_corroborate ... ok
+test divergence::tests::actual_sched_process_exec_corroborates_connector_exec ... ok
+test divergence::tests::actual_sched_shape_still_requires_matching_tgid_and_time ... ok
+test divergence::tests::an_idle_window_diverges_from_nothing ... ok
+test divergence::tests::nonleader_exec_matches_post_exec_pid_not_old_tid ... ok
+test divergence::tests::nothing_diverges_without_the_connector_anchor ... ok
+test divergence::tests::perf_silence_is_not_divergence_when_perf_was_not_declared_active ... ok
+test divergence::tests::several_unmatched_execs_yield_one_integrity_report ... ok
+test health::tests::coverage_window_is_inclusive ... ok
+test health::tests::gate_independent_mechanism_is_kernel_pushed_coverage ... ok
+test health::tests::independent_mechanism_alongside_a_gate_able_one_still_counts ... ok
+test health::tests::integrity_unknown_does_not_permit_attested_use ... ok
+test health::tests::integrity_unknown_reports_unavailable_not_covered ... ok
+test health::tests::lone_gate_able_tracepoint_is_not_kernel_pushed_coverage ... ok
+test health::tests::only_active_permits_attested_use ... ok
+test health::tests::state_codes_are_distinct ... ok
+test linux::tests::malformed_datagrams_are_rejected_without_panicking ... ok
+test linux::tests::parses_fork_exec_exit_and_unknown ... ok
+test linux::tests::socket_table_parser_handles_v4_v6_and_garbage ... ok
+test observed::tests::attribution_encoding_is_injective_and_has_no_verified_variant ... ok
+test observed::tests::active_mechanisms_are_canonically_ordered_and_signed ... ok
+test observed::tests::batch_encoding_is_domain_tagged_and_count_prefixed ... ok
+test observed::tests::mechanism_codes_are_distinct_and_change_the_encoding ... ok
+test observed::tests::kernel_event_kinds_with_equal_numbers_do_not_collide ... ok
+test observed::tests::perf_tracepoint_mechanisms_are_the_gate_able_ones ... ok
+test observed::tests::socket_endpoint_v4_and_v6_with_same_bytes_differ ... ok
+test perf::tests::a_cgroup_sample_carries_the_id_after_the_raw_block ... ok
+test observed::tests::process_identity_excludes_path_and_survives_pid_reuse ... ok
+test perf::tests::data_loc_fields_are_decoded_by_their_locator_word ... ok
+test perf::tests::sample_decoding_takes_the_tracepoint_id_from_common_type ... ok
+test probe::tests::a_claim_is_recorded_as_a_claim ... ok
+test probe::tests::an_image_hash_is_reused_only_for_the_same_instance_and_the_same_file ... ok
+test probe::tests::batch_reports_run_id_sequence_range_and_loss ... ok
+test probe::tests::kernel_exit_after_loss_is_not_attributed_to_an_earlier_exec ... ok
+test sched::tests::exec_decodes_the_kernel_filename_and_the_new_image_task ... ok
+test probe::tests::kernel_exit_without_loss_is_attributed_to_the_bound_exec_instance ... ok
+test sched::tests::fork_decodes_parent_as_the_actor_and_child_as_the_subject_of_the_spawn ... ok
+test sched::tests::malformed_records_are_refused_not_guessed ... ok
+test sockstate::tests::boot_clock_anchor_places_boot_time_on_the_wall_clock ... ok
+test wiretap::tests::direction_follows_pkttype_and_nothing_else ... ok
+test sockstate::tests::connect_initiation_and_completion_decode_with_kernel_semantics ... ok
+test wiretap::tests::ipv4_options_and_tcp_options_are_skipped_by_their_length_fields ... ok
+test sockstate::tests::non_tcp_unknown_family_and_short_records_are_refused_not_guessed ... ok
+test sockstate::tests::v6_records_take_the_v6_addresses ... ok
+test sockstate::tests::format_is_parsed_from_tracefs_text_not_assumed ... ok
+
+test result: ok. 65 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/attested_clock.rs (target/debug/deps/attested_clock-b1886f9af97940ee)
+
+running 8 tests
+test the_budget_predicate_requires_both_synchronisation_and_the_bound ... ok
+test inserting_a_clock_reading_into_a_record_that_had_none_breaks_the_signature ... ok
+test dropping_the_clock_reading_after_signing_breaks_the_signature ... ok
+test a_disciplined_clock_is_signed_and_verifies ... ok
+test editing_the_clock_reading_after_signing_breaks_the_signature ... ok
+test an_unsynchronised_reading_is_distinguishable_from_a_synchronised_one ... ok
+test a_record_with_no_reading_differs_from_one_with_a_reading ... ok
+test a_negative_error_bound_encodes_and_compares_as_a_negative ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/blind_spots.rs (target/debug/deps/blind_spots-a3c42a732af3bdfa)
+
+running 5 tests
+test f_no_syscall_or_effect_observation_path_exists ... ok
+test h_polling_exposes_no_loss_counter ... ok
+test i_observation_time_is_host_supplied_and_carries_no_kernel_timestamp ... ok
+test a_fabricated_measurement_is_indistinguishable_from_a_real_one_at_the_collector ... ok
+test g_restart_leaves_the_outage_uncovered_and_says_nothing_about_execution ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/continuity_runtime.rs (target/debug/deps/continuity_runtime-44df4368227fdd25)
+
+running 10 tests
+test cr10_policy_and_outcome_vocabulary ... ok
+test cr09_a_continuity_report_is_signed_domain_separated_and_names_no_subject ... ok
+test cr08_forged_archive_records_are_ignored_so_amnesia_is_still_detected_from_the_real_ones ... ok
+test cr07_foreign_state_and_corrupt_files_are_errors_never_a_fresh_chain ... ok
+test cr01_a_fresh_directory_starts_a_fresh_chain_and_persists_every_signature ... ok
+test cr05_fork_is_quarantined_under_every_policy_and_never_signs_a_batch_again ... ok
+test cr03_amnesia_strict_refuses_advisory_adopts_the_archive_head_and_reports ... ok
+test cr06_a_truncated_archive_keeps_the_state_reports_and_runs_recovering ... ok
+test cr02_a_clean_restart_continues_one_chain_and_does_not_claim_continuity ... ok
+test cr04_rollback_strict_refuses_advisory_adopts_the_archive_head_and_reports ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+
+     Running tests/live_cutoff.rs (target/debug/deps/live_cutoff-ed52d5a851c841ba)
+
+running 11 tests
+test late_before_finalized_cutoff_and_clock_failure_are_explicit_uncertainty ... ok
+test publication_reorders_only_by_finalized_window_and_preserves_captured_fields ... ok
+test pair_retreat_keeps_every_retained_record_outside_inclusive_ms_coverage ... ok
+test reverse_timestamp_straddle_and_overlapping_pairs_retreat_to_a_fixed_point ... ok
+test boot_origin_rounding_that_cannot_represent_a_safe_frontier_is_unknown ... ok
+test deferred_records_do_not_cross_probe_restart_and_loss_is_never_erased ... ok
+test true_missing_scheduler_path_still_triggers_the_unchanged_strict_detector ... ok
+test exact_signed_run_event_shapes_survive_forward_and_reverse_drain_splits ... ok
+test empty_deferred_flushed_empty_published_ranges_keep_collector_continuity ... ok
+test explicit_successful_read_recovery_never_backfills_the_failed_window ... ok
+test capacity_and_read_failures_retain_records_and_override_clean_gate_readings ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/observer_integrity.rs (target/debug/deps/observer_integrity-f841a676dcd97018)
+
+running 6 tests
+test an_unverifiable_query_fails_closed_like_a_found_gate ... ok
+test a_clean_mechanism_does_not_mask_a_gated_one ... ok
+test integrity_recovers_on_the_next_clean_cycle ... ok
+test a_foreign_tracepoint_gate_makes_the_signed_state_integrity_unknown ... ok
+test a_forger_with_the_key_cannot_relabel_integrity_unknown_as_active ... ok
+test recovery_never_backfills_coverage_across_unknown_integrity ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/restart_continuity.rs (target/debug/deps/restart_continuity-99ffbb2c6ec269d9)
+
+running 8 tests
+test rc06_fresh_start_is_clean_and_foreign_state_is_refused ... ok
+test rc08_a_break_names_no_subject ... ok
+test rc05_truncated_archive_is_reported_and_the_state_is_kept ... ok
+test rc04_forked_state_quarantines_the_collector ... ok
+test rc02_amnesia_is_reported_and_the_archive_head_is_adopted ... ok
+test rc01_correct_resume_continues_one_chain_without_claiming_continuity ... ok
+test rc03_rolled_back_state_is_reported_and_the_archive_head_is_adopted ... ok
+test rc07_forged_or_foreign_archive_records_are_ignored ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

@@ -1,0 +1,581 @@
+{
+  "schema_version": 1,
+  "source": {
+    "head": {
+      "sha": "42d0d96c9cc9d3075c792a195cc74e4171b0e817",
+      "tree": "f0595d7af13bd91232585e2a93148dc6893128db",
+      "parents": [
+        "3a5550560ff6d26ad1fd53964deb013fa207b8a0"
+      ],
+      "message": "Isolate installed wheel checks from source package metadata"
+    },
+    "checkout": {
+      "sha": "eeefd3344b691c250e651f778bc3c079bbe0a437",
+      "tree": "f0595d7af13bd91232585e2a93148dc6893128db",
+      "parents": [
+        "a933fdc327e8744dc8a8441ea3d5b2d75063b91f",
+        "42d0d96c9cc9d3075c792a195cc74e4171b0e817"
+      ],
+      "message": "Merge 42d0d96c9cc9d3075c792a195cc74e4171b0e817 into a933fdc327e8744dc8a8441ea3d5b2d75063b91f"
+    },
+    "tree_identical": true
+  },
+  "run": {
+    "id": 40850559163,
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40850559163",
+    "event": "pull_request",
+    "head_sha": "42d0d96c9cc9d3075c792a195cc74e4171b0e817",
+    "head_branch": "fix/vanian-end-to-end-green",
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-29T09:33:25Z",
+    "updated_at": "2026-10-29T09:43:05Z",
+    "jobs": [
+      {
+        "id": 123368676249,
+        "name": "coverage",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40850559163,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install cargo-llvm-cov",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install SoftHSM2 (required by workspace custody tests)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Generate coverage",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Upload coverage artifact",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          }
+        ]
+      },
+      {
+        "id": 123368676522,
+        "name": "RED suite (adversarial ledger reproducible)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40850559163,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Install Rust toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Cache cargo",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "RED suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Cache cargo",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      },
+      {
+        "id": 123368676574,
+        "name": "cargo audit · cargo deny",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40850559163,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install audit tools",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "cargo audit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "cargo deny check",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      },
+      {
+        "id": 123368676647,
+        "name": "Python SDK regression and parity tests",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40850559163,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run python -m pip install cryptography==41.0.7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Test SDK, adapters, canonical fixtures and schemas",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      },
+      {
+        "id": 123368676672,
+        "name": "postgres backend integration",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40850559163,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "clippy (postgres feature)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "test (postgres feature, live DB)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "storage controls (restricted roles, live DB)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      },
+      {
+        "id": 123368676692,
+        "name": "fmt · clippy · test",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_id": 40850559163,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Install Rust toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Cache cargo",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install SoftHSM2 (PKCS#11 module for aip-hsm tests)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "cargo fmt --check",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "cargo clippy (deny warnings)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "cargo test",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "cargo test (release — perf gates)",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 9
+          },
+          {
+            "name": "Post Cache cargo",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 17
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      }
+    ]
+  },
+  "status": "FAIL",
+  "workspace": [
+    {
+      "profile": "debug",
+      "passed": 3303,
+      "failed": 0,
+      "ignored": 10,
+      "result_summaries": 338
+    },
+    {
+      "profile": "release",
+      "passed": 3304,
+      "failed": 1,
+      "ignored": 8,
+      "result_summaries": 338
+    }
+  ],
+  "command_evidence": [
+    "2026-10-29T09:33:48.6946502Z ##[group]Run cargo fmt --all -- --check",
+    "2026-10-29T09:33:50.7654048Z ##[group]Run cargo clippy --workspace --all-targets --all-features -- -D warnings",
+    "2026-10-29T09:34:09.6267038Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast",
+    "2026-10-29T09:39:36.8514132Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast"
+  ],
+  "count_method": "Sum standard Rust result records within the actual debug and release command groups of the complete quality-job transcript. Counts include empty targets and doctests; repeated profiles are not unique test names.",
+  "quality": {
+    "job_id": 123368676692,
+    "fmt": "PASS",
+    "clippy": "PASS",
+    "debug": "PASS",
+    "release": "FAIL",
+    "only_failed_target": "-p aip-nexora --test binding",
+    "failed_target_counts": {
+      "passed": 11,
+      "failed": 1,
+      "ignored": 0
+    },
+    "failed_test": "b05_another_observers_records_do_not_bind",
+    "panic_source_at_candidate": "aip-standalone/aip-nexora/tests/binding.rs:173",
+    "panic_output": "[]",
+    "process_exit": 101
+  },
+  "failure_classification": {
+    "kind": "Test fixture millisecond timestamp collision in the health-only substitution assertion",
+    "evidence": [
+      "The panic is at the third b05 assertion, after both batch substitution and batch omission assertions passed.",
+      "Both independent scenarios use observer id collector-n, batch sequence2 and health emitted_at_ms derived from wall-clock milliseconds.",
+      "The noncryptographic binding check compares cited health sequence and emitted_at_ms. Separate anchored verification checks the health signature.",
+      "When both fixture creations share the timestamp, the replacement health has matching reference coordinates and correctly produces no structural binding fault."
+    ],
+    "production_crypto_or_protocol_change": false
+  },
+  "local_repair": {
+    "status": "TEST_ONLY_TARGETED_PASS_FULL_CI_RERUN_REQUIRED",
+    "files": [
+      "aip-standalone/aip-nexora/tests/binding.rs",
+      "aip-standalone/aip-nexora/tests/verify.rs"
+    ],
+    "change": "Make the uncited-health fixture signed at max(A.at,B.at)+1. Add a deterministic negative control that signs identical health bytes with a different real key and verifies that the full anchored verifier refuses it.",
+    "format_check": "PASS",
+    "whitespace_check": "PASS",
+    "focused_command": "cargo test --locked --release -p aip-nexora --test binding --test verify",
+    "focused_results": [
+      {
+        "suite": "binding",
+        "passed": 12,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "suite": "verify",
+        "passed": 15,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "repeated_command": "cargo test --locked --release -p aip-nexora --test binding",
+    "repeated_runs": 20,
+    "each_run": {
+      "passed": 12,
+      "failed": 0,
+      "ignored": 0
+    },
+    "total_repeated_test_executions": 240,
+    "scope": "Portable optimized fixture tests on Darwin; not a new complete Linux workspace or genuine-model execution result.",
+    "source_sha256": {
+      "aip-standalone/aip-nexora/tests/binding.rs": "aaa4a84bec70754d316da1e2c63b2fd241efba3db29e2101355148bd8dc13df1",
+      "aip-standalone/aip-nexora/tests/verify.rs": "aadd85eacb8475f496c76b89a1a161b1a3efe7392944865f02355025c413961e"
+    }
+  },
+  "postgres": {
+    "job_id": 123368676672,
+    "status": "PASS",
+    "version": "PostgreSQL16.15 x86_64-pc-linux-musl, Alpine gcc15.2.0",
+    "default_storage_controls": {
+      "passed": 0,
+      "failed": 0,
+      "ignored": 14
+    },
+    "explicit_command": "cargo test --features postgres --test storage_controls -- --ignored",
+    "explicit_storage_controls": {
+      "passed": 14,
+      "failed": 0,
+      "ignored": 0
+    },
+    "tests": [
+      "a_query_that_forgets_its_tenant_filter_still_cannot_cross_tenants",
+      "a_retention_policy_below_the_180_day_floor_is_refused",
+      "a_connection_with_no_declared_tenant_sees_nothing",
+      "a_held_packet_cannot_be_deleted_even_by_the_owner",
+      "a_write_into_another_tenant_is_refused_by_the_policy",
+      "a_tenant_wide_hold_covers_packets_it_never_named",
+      "service_cannot_update_delete_or_truncate_signed_artifacts",
+      "artifact_owner_cannot_rewrite_documents_or_delete_under_legal_hold",
+      "signed_artifact_reads_and_insertions_are_bound_to_the_database_tenant",
+      "the_service_role_cannot_delete_evidence",
+      "the_service_role_cannot_modify_stored_evidence",
+      "concurrent_filings_are_idempotent_and_hidden_collisions_are_generic",
+      "the_service_role_cannot_truncate_or_drop",
+      "the_store_operates_normally_as_the_restricted_role"
+    ],
+    "scope": "Disposable hosted database control tests; not production database qualification."
+  },
+  "private_evidence": [
+    {
+      "path": ".local/final-acceptance/candidate-workspace.raw.log",
+      "sha256": "b7ce0addc811b6668a7f05a6a5610abe63d39ad4447011d49a072ae554c82c85",
+      "scope": "Complete decoded quality-job transcript"
+    },
+    {
+      "path": ".local/final-acceptance/nexora-release-focused.log",
+      "sha256": "cd75f5ba1a30fa27c96067fce43d7860f2bf646895bc2cbd895e7c6049817002"
+    },
+    {
+      "path": ".local/final-acceptance/nexora-binding-repetitions/summary.json",
+      "sha256": "d9399f961e3733e638cf0db0e9fea5666cbf2ecc4352c5dcc845baf3efa2fb5f"
+    }
+  ],
+  "limits": [
+    "Exactly five of six CI jobs passed. This run is not CI green because the complete release workspace had one failing test.",
+    "Enterprise and interoperability successes at the same candidate remain separate scoped results.",
+    "The test-only local repair must receive a new complete Linux CI result at its new source SHA."
+  ]
+}

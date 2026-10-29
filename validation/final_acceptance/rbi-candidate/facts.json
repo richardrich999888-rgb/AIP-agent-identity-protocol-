@@ -1,0 +1,318 @@
+{
+  "archive_counts": {
+    "batches": 81,
+    "first_sequence": 1,
+    "last_sequence": 81,
+    "kernel_events": 3538,
+    "polled_observations": 0,
+    "signed_health_records": 4
+  },
+  "latest_health_sequence": 80,
+  "signed_batch_tail_after_latest_health": 1,
+  "health_timeline": [
+    {
+      "state": "ContinuityUnverified",
+      "sequence": 0,
+      "coverage": null,
+      "emitted_at_ms": 1793266492684,
+      "clock": {
+        "synchronized": true,
+        "max_error_us": 2240,
+        "state": 0
+      }
+    },
+    {
+      "state": "Active",
+      "sequence": 25,
+      "coverage": {
+        "from_ms": 1793266493976,
+        "to_ms": 1793266521636
+      },
+      "emitted_at_ms": 1793266522686,
+      "clock": {
+        "synchronized": true,
+        "max_error_us": 1019,
+        "state": 0
+      }
+    },
+    {
+      "state": "IntegrityUnknown",
+      "sequence": 52,
+      "coverage": null,
+      "emitted_at_ms": 1793266552687,
+      "clock": {
+        "synchronized": true,
+        "max_error_us": 11,
+        "state": 0
+      }
+    },
+    {
+      "state": "Active",
+      "sequence": 80,
+      "coverage": {
+        "from_ms": 1793266553729,
+        "to_ms": 1793266581832
+      },
+      "emitted_at_ms": 1793266582688,
+      "clock": {
+        "synchronized": true,
+        "max_error_us": 3009,
+        "state": 0
+      }
+    }
+  ],
+  "phase_snapshots": {
+    "health.A.control.jsonl": {
+      "records": 2,
+      "is_exact_prefix_of_final_health_archive": true,
+      "last_state": "Active",
+      "last_sequence": 25,
+      "source_sha256": "dde4bf0462d86ea9071178865244fae11b993f7b6c6308fc1d070338c7d43dd9"
+    },
+    "health.B.under_attack.jsonl": {
+      "records": 3,
+      "is_exact_prefix_of_final_health_archive": true,
+      "last_state": "IntegrityUnknown",
+      "last_sequence": 52,
+      "source_sha256": "62d124d01796595aee602f3e6643cfc98222f0f7c2ed215f8858ca9fc87a053f"
+    },
+    "health.C.recovery.jsonl": {
+      "records": 4,
+      "is_exact_prefix_of_final_health_archive": true,
+      "last_state": "Active",
+      "last_sequence": 80,
+      "source_sha256": "8886740148db38e36e3e4f08f0bde99624abe91459e88a27fb485242c6cbcb52"
+    }
+  },
+  "library_tests": {
+    "act3-destination-tests.log": {
+      "test_results": [
+        {
+          "passed": 11,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "passed_total": 11,
+      "failed_total": 0,
+      "ignored_total": 0,
+      "test_ok_lines": 11
+    },
+    "act4-gateway-tests.log": {
+      "test_results": [
+        {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ],
+      "passed_total": 46,
+      "failed_total": 0,
+      "ignored_total": 0,
+      "test_ok_lines": 46
+    }
+  },
+  "gateway_receipts": {
+    "records": 2,
+    "gateway_ids": [
+      "gateway.demo"
+    ],
+    "key_versions": [
+      1
+    ],
+    "signature_algorithms": [
+      "Ed25519"
+    ],
+    "distinct_parameter_commitments": 2,
+    "independent_signature_verification_status": "NOT_EXECUTED",
+    "reason": "No separately retained gateway public anchor is published in the artifact; no key was inferred or invented."
+  },
+  "local_control_check_exit_code": 0,
+  "compressed_original_streams": {
+    "attested.archive.jsonl": {
+      "original_sha256": "caa1e9a3dca3de26cf120319c043241b8e850a98411b1c88a330ba7edd33d7ce",
+      "original_bytes": 2048383,
+      "gzip_file": "attested.archive.jsonl.gz",
+      "gzip_sha256": "be9410e63327ad2b2907c9709c03ad34327d8147368ba90f55d0e3360c692ef5",
+      "gzip_bytes": 114094,
+      "decompressed_bytes_equal_original": true
+    },
+    "health.archive.jsonl": {
+      "original_sha256": "8886740148db38e36e3e4f08f0bde99624abe91459e88a27fb485242c6cbcb52",
+      "original_bytes": 4236,
+      "gzip_file": "health.archive.jsonl.gz",
+      "gzip_sha256": "e86df493656248c33cd60d7742c336147d3c9b7a3911330c7a229c3e6fc33bc1",
+      "gzip_bytes": 1490,
+      "decompressed_bytes_equal_original": true
+    },
+    "gateway-receipts.jsonl": {
+      "original_sha256": "723b24e7e58bf9e6b997fd0c4707194a0a986ef16bb8fed4c851bcc912de94b6",
+      "original_bytes": 2116,
+      "gzip_file": "gateway-receipts.jsonl.gz",
+      "gzip_sha256": "0636a522824863b6c1e4faec5da42fc626bed0c00a94476809cede5ed5bbf678",
+      "gzip_bytes": 910,
+      "decompressed_bytes_equal_original": true
+    }
+  },
+  "retained_files": {
+    "README.md": {
+      "sha256": "e868d8aeab065bd5cf8409fdda3548e2037859a4c8b9e752939b3e49b12854fc",
+      "bytes": 3026
+    },
+    "act3-destination-tests.log": {
+      "sha256": "6d366631e9aa6463d407b4a42f78ddd26481d74880580c86ad7f469952683ee8",
+      "bytes": 1739
+    },
+    "act4-gateway-tests.log": {
+      "sha256": "3fec09bd67a646ca81804cd6e7704bc66e09ab7954271403a4ead72ed84391d4",
+      "bytes": 5529
+    },
+    "attested.archive.jsonl.gz": {
+      "sha256": "be9410e63327ad2b2907c9709c03ad34327d8147368ba90f55d0e3360c692ef5",
+      "bytes": 114094
+    },
+    "clock.txt": {
+      "sha256": "66c5ee89e8ee27d83218435acad50287d4c404754844a8eaa204e77d04cecc16",
+      "bytes": 455
+    },
+    "control-check-original.log": {
+      "sha256": "ba94b58d07d5663f04b4c3984da261a72b18b2c003186f6e1383935bcc4f9de7",
+      "bytes": 93
+    },
+    "gateway-receipts.jsonl.gz": {
+      "sha256": "0636a522824863b6c1e4faec5da42fc626bed0c00a94476809cede5ed5bbf678",
+      "bytes": 910
+    },
+    "gateway-response.log": {
+      "sha256": "4d89604f822018099fd2fbd12f15f28a6352cd22aa3a8cdbe8df48f990534106",
+      "bytes": 518
+    },
+    "health.archive.jsonl.gz": {
+      "sha256": "e86df493656248c33cd60d7742c336147d3c9b7a3911330c7a229c3e6fc33bc1",
+      "bytes": 1490
+    },
+    "host.txt": {
+      "sha256": "ca85daa87170565f9fddbc4169d9ade2ac164c18e0f38c39d9e9f3bae6396f3b",
+      "bytes": 146
+    },
+    "local-control-check.log": {
+      "sha256": "ba94b58d07d5663f04b4c3984da261a72b18b2c003186f6e1383935bcc4f9de7",
+      "bytes": 93
+    },
+    "local-middle-deletion-verification.json": {
+      "sha256": "1c3f57284789f429d6ce0360d26178dc16038f8bafbbd73343624c7ea5f9b8e7",
+      "bytes": 1139
+    },
+    "local-offline-verification.json": {
+      "sha256": "360696b08a7a39c93de5f528187c4b3d22e1186fda5dde9cd69960b54d42e505",
+      "bytes": 757
+    },
+    "local-verification-status.json": {
+      "sha256": "8242ce565acdc8bba26ecc837e299571aa252acbf194481aefe35ff2a6a6c6a6",
+      "bytes": 770
+    },
+    "manifest.json": {
+      "sha256": "60a166f826c577e3522248dd66d95c58b9259391df3beea867a1dbc8d55e6c00",
+      "bytes": 5616
+    },
+    "observer.pub": {
+      "sha256": "51f395463cdf173af401f94ac909214b595b58389dc0e3c89ed056de4f8f19a8",
+      "bytes": 65
+    },
+    "offline-middle-deletion-original.log": {
+      "sha256": "ae01fe6f1d1e5d44e4f14b96c6a939661fe5de66625af73934fc404b4de91129",
+      "bytes": 800
+    },
+    "offline-verify-original.log": {
+      "sha256": "ca122bfce2bc01a603d15d3b80aa05462738ac285616b7850aba5c697f06ce94",
+      "bytes": 1245
+    },
+    "run-summary-original.json": {
+      "sha256": "aa765101fe20f7f237f819b9eda39054795b82499b8a2f9c6318306135724c6f",
+      "bytes": 238
+    },
+    "session-transcript.txt": {
+      "sha256": "1cb9b8551ae72cd84191001e861fc353ed971a2072b7e7d3b09bcb5ddb0e670d",
+      "bytes": 4929
+    },
+    "system-transcript.txt": {
+      "sha256": "a123efdd41d67badb14afa17b5488edbe000d6a9be23f301cf7f94b2de4b1d08",
+      "bytes": 4662
+    },
+    "workflow-artifacts.json": {
+      "sha256": "a62ab806c577649ad607c3f8c2ea87c455f92ea42d172a77793730088c7974dd",
+      "bytes": 911
+    },
+    "workflow-jobs.json": {
+      "sha256": "052b4fd4cf3f6b1ca1923654a1bd2f17d5cd372db690442730d45d248789d4d3",
+      "bytes": 3445
+    },
+    "workflow-selected-lines.log": {
+      "sha256": "9dea1e9e12b7dd44e6c9377fc66d0508c6668c33d6024439a8f4f052b1f7f706",
+      "bytes": 6233
+    }
+  },
+  "workflow_suites": {
+    "script_regressions": {
+      "passed": 17,
+      "failed": 0
+    },
+    "cross_sensor_divergence": {
+      "passed": 13,
+      "failed": 0,
+      "filtered_out": 56
+    },
+    "observer_integrity": {
+      "passed": 6,
+      "failed": 0
+    },
+    "full_system_checks": 10,
+    "evidence": "workflow-selected-lines.log"
+  },
+  "retained_file_inventory_excludes_itself": true
+}

@@ -1,0 +1,26 @@
+{
+  "authorization_verified": true,
+  "gateway_disposition": "Forwarded",
+  "gateway_receipt_verified": true,
+  "receipt_within_authorization": true,
+  "reconciliation": {
+    "action": "Unobservable",
+    "availability": {
+      "Unavailable": {
+        "reason": "WindowNotCovered"
+      }
+    },
+    "identity": "NoReference",
+    "lineage": "NotEvaluated",
+    "reason": "WindowNotCovered",
+    "result": "CannotProve",
+    "temporal": "Indeterminate",
+    "wire": "NotEvaluated"
+  },
+  "signed_reconciliation_verified": true,
+  "tool_boundary": {
+    "Agrees": {
+      "claim": "NotSupplied"
+    }
+  }
+}

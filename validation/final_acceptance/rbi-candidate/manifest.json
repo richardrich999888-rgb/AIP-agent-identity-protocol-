@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "classification": "CANDIDATE_RBI_COMPONENT_REHEARSAL",
+  "status": "PASS",
+  "scope": "Five-act component rehearsal with synthetic Linux process/network activity; no genuine AI workload or independent bank acceptance is established.",
+  "source": {
+    "candidate_head": "42d0d96c9cc9d3075c792a195cc74e4171b0e817",
+    "runner_checkout": "eeefd3344b691c250e651f778bc3c079bbe0a437",
+    "runner_checkout_kind": "GitHub pull request 12 synthetic merge checkout",
+    "candidate_tree": "f0595d7af13bd91232585e2a93148dc6893128db",
+    "runner_tree": "f0595d7af13bd91232585e2a93148dc6893128db",
+    "tree_identical": true,
+    "tree_comparison_evidence": "../ci/candidate-enterprise.json",
+    "checkout_log_evidence": "workflow-selected-lines.log"
+  },
+  "workflow": {
+    "run_id": 40850559118,
+    "name": "RBI rehearsal",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40850559118",
+    "jobs": [
+      {"id": 123368675421, "name": "script-regressions", "conclusion": "success"},
+      {"id": 123368825765, "name": "live-rehearsal", "conclusion": "success"}
+    ],
+    "metadata_evidence": "workflow-jobs.json"
+  },
+  "artifact": {
+    "id": 12886852676,
+    "name": "rbi-rehearsal-40850559118",
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40850559118/artifacts/12886852676",
+    "github_reported_zip_sha256": "ec17a198d2237ac58589b8f784f50043c739462268c9b76ba3f6c438dee2a38a",
+    "github_reported_zip_bytes": 135283,
+    "zip_digest_locally_rechecked": false,
+    "expires_at": "2026-11-12T09:36:29Z",
+    "downloaded_public_files": 28,
+    "metadata_evidence": "workflow-artifacts.json",
+    "upload_digest_log_evidence": "workflow-selected-lines.log"
+  },
+  "acts": {
+    "1": {"status": "PASS", "scope": "Live daemons and synthetic kernel workload", "claim": "Signed control health Active with coverage"},
+    "2": {"status": "PASS", "scope": "Live foreign-eBPF tracepoint interference", "claim": "Signed IntegrityUnknown withdraws coverage; clean recovery does not backfill the unknown interval"},
+    "3": {"status": "PASS", "scope": "Library tests for signed destination/resource policy", "tests_passed": 11},
+    "4": {"status": "PASS", "scope": "Gateway/authority/tool-boundary library and executable tests", "tests_passed": 46, "actual_stdio_receipts": 2, "distinct_parameter_commitments": 2},
+    "5": {"status": "PASS", "scope": "Offline observer verification under a separately supplied public anchor", "signed_batches": 81, "kernel_events": 3538, "signed_health_records": 4, "original_archive_findings": 0, "middle_deletion_rejected": true}
+  },
+  "other_executed_controls": {
+    "shell_script_regressions_passed": 17,
+    "cross_sensor_divergence_tests_passed": 13,
+    "observer_integrity_tests_passed": 6,
+    "full_system_checks_passed": 10,
+    "scope": "Per-suite counts; the full-system checks are not additional Rust test cases. The captured middle-deletion control was repeated locally, not a second distinct attack."
+  },
+  "observer_signature_recheck": {
+    "status": "PASS",
+    "baseline_exit_code": 0,
+    "findings": 0,
+    "middle_deletion_exit_code": 1,
+    "deleted_original_line": 41,
+    "mutation_findings": ["SequenceNotContiguous", "ChainBroken"],
+    "observer_id": "collector.pilot.e2e",
+    "key_version": 1,
+    "public_key_hex": "46866c54d9814107c264bee597e7d8381de950c1237dbc13069527c5d63279f6",
+    "anchor_file": "observer.pub",
+    "anchor_provenance": "Original public file from the GitHub artifact, supplied separately from signed archive records. Institutional approval of this anchor is not established.",
+    "details": "local-verification-status.json"
+  },
+  "captured_gateway_signature_recheck": {
+    "status": "NOT_EXECUTED",
+    "reason": "No independently supplied gateway public anchor was retained for the two captured stdio receipts. The actual gateway/library tests are separate evidence; no key was inferred from a receipt."
+  },
+  "health_boundary": {
+    "final_signed_batch_sequence": 81,
+    "latest_signed_health_sequence": 80,
+    "signed_batches_after_latest_health": 1,
+    "claim": "All retained batch signatures and links verify. Latest health does not seal the last batch; no complete final-head coverage claim is inferred."
+  },
+  "preservation": {
+    "method": "Exact public-file copies and gzip -n -c of the original batch, health and gateway-receipt streams. Decompression equality was checked against every original stream.",
+    "facts_and_hashes": "facts.json",
+    "original_signed_bytes_modified": false,
+    "private_keys_or_passphrases_retained": false,
+    "excluded": ["Private signing and transport material", "JWT/API credentials and databases", "General build logs", "Raw collector, probe and attack logs"]
+  },
+  "limits": [
+    "This is a component rehearsal on one disposable GitHub-hosted Linux VM, not the genuine same-run banking AI workflow.",
+    "Separate processes sharing one root and kernel do not establish separate collector administration.",
+    "Acts 3 and 4 do not establish bank transaction settlement or a complete production MCP deployment.",
+    "Anchor-relative signature verification proves signed bytes and linkage; it does not make a compromised workload kernel truthful.",
+    "A valid prefix or suffix can still verify without an independently retained archive-boundary checkpoint.",
+    "Institutional anchor approval, clean-host customer installation and independent bank acceptance remain separate gates."
+  ]
+}

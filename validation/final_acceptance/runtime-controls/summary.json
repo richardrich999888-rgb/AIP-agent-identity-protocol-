@@ -1,0 +1,98 @@
+{
+  "status": "PORTABLE_CONTROLS_PASS_LINUX_RUNTIME_PENDING",
+  "frozen_source_commit": "3a5550560ff6d26ad1fd53964deb013fa207b8a0",
+  "host": "Darwin arm64",
+  "scope": "Common-cutoff live publication and existing strict collector controls; no live Linux kernel execution on this host.",
+  "evidence_relationship": {
+    "test_and_merged_lint_source": "bf926fac379874dc1ec2b24a3f63718eeed7601a",
+    "execution_context": "The 130 tests and cutoff-merged checks ran against the merged Rust working files before that merge was committed. The corresponding Rust content is retained in bf926fa.",
+    "later_rust_delta": "Between bf926fa and frozen 3a55505, the only Rust change is the MAX_EVENTS_PER_SENSOR to MAX_EVENTS_PER_DRAIN constant rename at its declaration and three checks, plus the corresponding comment. Its value and behavior are unchanged.",
+    "latest_cross_check": "The exact three-crate Linux cross-target strict Clippy command and cargo fmt check passed again after the rename. The Clippy log is cutoff-d6-clippy-linux.log; the coordinating agent confirmed exit 0 from tool session 28110. Cached dependencies explain why only aip-probe appears in its incremental output.",
+    "tests_not_relabelled": "The 130 test results are the pre-rename merged-source results, not a claim that tests were rerun after the rename.",
+    "hash_limit": "SHA256 values identify retained bytes for comparison; checksums alone do not authenticate origin or qualify runtime support. No signed historical archives were modified."
+  },
+  "validation": [
+    {
+      "command": "cargo test --locked --offline -p aip-observe --lib --test observer_integrity --test continuity_runtime --test attested_clock --test blind_spots --test restart_continuity --test live_cutoff",
+      "source": "pre-rename merged Rust",
+      "exit_code": 0,
+      "passed": 113,
+      "failed": 0,
+      "ignored": 0,
+      "log": "cutoff-merged-observer-tests.log"
+    },
+    {
+      "command": "cargo test --locked --offline -p aip-collector --lib --test live_cutoff",
+      "source": "pre-rename merged Rust",
+      "exit_code": 0,
+      "passed": 17,
+      "failed": 0,
+      "ignored": 0,
+      "log": "cutoff-merged-collector-tests.log"
+    },
+    {
+      "command": "cargo clippy --locked --offline -p aip-observe -p aip-probe -p aip-collector --all-targets --all-features -- -D warnings",
+      "source": "pre-rename merged Rust",
+      "exit_code": 0,
+      "log": "cutoff-merged-clippy-macos.log"
+    },
+    {
+      "command": "cargo clippy --locked --offline --target x86_64-unknown-linux-gnu -p aip-observe -p aip-probe -p aip-collector --all-targets --all-features -- -D warnings",
+      "source": "pre-rename merged Rust",
+      "exit_code": 0,
+      "log": "cutoff-merged-clippy-linux.log"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "source": "pre-rename merged Rust",
+      "exit_code": 0,
+      "log": "cutoff-merged-fmt.log",
+      "log_note": "Successful formatting check produces an empty log."
+    },
+    {
+      "command": "cargo clippy --locked --offline --target x86_64-unknown-linux-gnu -p aip-observe -p aip-probe -p aip-collector --all-targets --all-features -- -D warnings",
+      "source": "post-rename Rust retained in 3a55505",
+      "exit_code": 0,
+      "log": "cutoff-d6-clippy-linux.log",
+      "companion_check": "cargo fmt --all -- --check passed immediately before this command; confirmed by the coordinating agent from tool session 28110."
+    }
+  ],
+  "test_total": {"passed": 130, "failed": 0, "ignored": 0},
+  "new_regression_scope": [
+    "Exact historical signed-run timestamp shapes in both drain arrival orders, true reverse timestamp straddle and overlapping pair fixed point, with the unchanged strict 50ms comparator.",
+    "Inclusive millisecond cutoff alignment and boot-origin fail-closed guard; deferred records stay outside positive signed coverage.",
+    "Captured fields retained, emitted probe sequence contiguous, bounded pending capacity, explicit read/cap/loss/missing-clock/late-record uncertainty and restart isolation.",
+    "Actual CollectorSigner and RuntimeSink empty/deferred-to-flushed-to-empty continuity, exact coverage endpoints and explicit successful read recovery without backfilling fault windows.",
+    "Existing collector delivery-path-hook and missing-integrity-report controls remain unchanged and pass."
+  ],
+  "required_external_gates": [
+    "Execute the genuine agent workflow on capable disposable synchronized Linux; cross-target lint is not runtime validation.",
+    "Run Linux live sensor tests; unavailable capability is reported separately, while an opened sensor must capture required events within the bounded follow-up cycles.",
+    "Re-evaluate the complete original signed actual workload window with the strict collector and offline verifier; do not shift its start, trim historical tails or weaken matching."
+  ],
+  "unchanged_limits": [
+    "No durable resend: a send/ACK failure can leave a gap. Retention and once-only publication refer to the successful publication/ACK path, not crash-safe delivery.",
+    "Forward realtime jumps while monotonic time advances are not newly detected by this fix; clock discontinuity qualification remains incomplete.",
+    "Observer events are host-wide and independent process measurements; logical tool-to-kernel causality and logical subagent attribution are not established by PID/self-report alone.",
+    "No claim of separate administrative custody, host-compromise resistance, production approval or Linux installation qualification follows from these tests."
+  ],
+  "source_sha256_at_frozen_commit": {
+    "aip-standalone/aip-observe/src/probe.rs": "854b55ba472606b1286731b4f2005799e4c334e965c226227039157ad82cb8ab",
+    "aip-standalone/aip-observe/src/perf.rs": "abcce54310413093419ebc46f332707ae3260c8b8776c3e6c821903fd636edee",
+    "aip-standalone/aip-observe/tests/live_cutoff.rs": "b63a632a79b9ce37154138dea2c68eb8baeb15f3baf2c8577faac198b7291a25",
+    "aip-standalone/aip-probe/src/sensors.rs": "dd5d58200b72f0c0882b9d1fa8ed2017a86287fb4907d629217ef3c558ecc474",
+    "aip-standalone/aip-probe/src/main.rs": "6fb764b6d45bc3c42afb53ce040f1002710aa0bd48f4d89d5d708b5b40222a4b",
+    "aip-standalone/aip-probe/tests/live_sensors.rs": "2f8a9ca069e53f650bf93fffcc889a08d19ff3404f410063f76cb5f0b28c44a4",
+    "aip-standalone/aip-collector/tests/live_cutoff.rs": "fe42a2911bdf183218a2586be3ae8e229bd0bf7b3ce1b3f936f0dbb1f2a85ee9",
+    ".github/workflows/same-run-validation.yml": "895f2f7256657a43c5e9ccb6f0b68f86bc28ed3bb6f6e049dc24f67158597649",
+    "validation/enterprise/same_run_validation.py": "30f2804023a91787c37bae9bab1241a2423c4f3ff1a210eea1d3dfb88752d722"
+  },
+  "retained_log_sha256": {
+    "cutoff-merged-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cutoff-merged-clippy-macos.log": "536b7e34aee6dc3ef6fa6e33d214c097f28067a9fc1f23bc51dfa42ede5ed8d9",
+    "cutoff-merged-clippy-linux.log": "0048a8d4c22dc1b5d99ac8a3e686a7235d8099d51a0c15fcdb66e1339d936e27",
+    "cutoff-merged-observer-tests.log": "9c1a84c3d72211e4d1e030225ecf523c8246406b20a66826e681b994825dd869",
+    "cutoff-merged-collector-tests.log": "e38d057a2085688b19f256934d6a7ecaf02a9a8567cfad146bee081d3d56b998",
+    "cutoff-d6-clippy-linux.log": "c5c40970c35d36184e8a60cc8636a109d0be9c1eff7b432758618f6a60dd4b03"
+  }
+}

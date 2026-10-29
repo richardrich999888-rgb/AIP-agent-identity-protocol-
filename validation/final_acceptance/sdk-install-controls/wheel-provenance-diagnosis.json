@@ -1,0 +1,28 @@
+{
+  "scope": "Offline disposable Python3.12 venv reproduction with existing local wheel; no service, kernel or CI rerun",
+  "python": "3.12.12",
+  "results": [
+    {
+      "isolated": false,
+      "install_exit": 0,
+      "install_evidence": [
+        "vanian-sdk is already installed with the same version as the provided wheel. Use --force-reinstall to force an installation of the wheel."
+      ],
+      "install_error": "WARNING: The directory '/Users/richardrich/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.",
+      "probe_exit": 1,
+      "probe_error": [
+        "ModuleNotFoundError: No module named 'vanian'"
+      ]
+    },
+    {
+      "isolated": true,
+      "install_exit": 0,
+      "install_evidence": [
+        "Successfully installed vanian-sdk-0.1.0"
+      ],
+      "install_error": "WARNING: The directory '/Users/richardrich/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.",
+      "probe_exit": 0,
+      "probe_error": []
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+Initial historical workspace result: 3,078 passed / 161 failed / 8 ignored; 28 failed targets.
+Raw log SHA256 b9ab39acac79934d893b3e64fbd0ef0e446da107a9588070a95854d32e3fe4e1
+Immutable retention commit a1f4bfbc798c2bd7be734f75c8b3aa7eb7a7a3e3; blob 7e1f2b4e9d98d7282addaa159779ff7ec9dbe462.
+Declared base e3aa195def7524d6ec84d37a934beebe18b6c794; exact tested dirty/clean tree, host and GitHub job are not recorded.
+
+process_measurement_not_visible: 35 failures
+test a_declared_resource_the_ledger_does_not_show_is_self_reported
+raw_log_line 313; panic aip-standalone/aip-aibom/tests/common/evidence.rs:108:48
+called `Result::unwrap()` on an `Err` value: ProcessNotVisible { pid: 29486 }
+
+proc_stat_unavailable: 107 failures
+test c01_heuristic_correlated_attested_cannot_contain
+raw_log_line 1124; panic aip-standalone/aip-containment/tests/containment.rs:236:66
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/30021/stat: No such file or directory (os error 2)" }
+
+namespace_inode_unavailable: 1 failures
+test execution_binding::tests::a_namespace_link_this_build_cannot_parse_yields_nothing
+raw_log_line 1462; panic aip-standalone/aip-core/src/execution_binding.rs:571:9
+assertion failed: read_ns_inode(std::process::id(), "pid").is_some()
+
+enforcement_allowed_program_exit_127: 1 failures
+test l01_an_allowed_program_execs_and_a_disallowed_one_is_refused_with_eperm
+raw_log_line 2041; panic aip-standalone/aip-enforce/tests/live.rs:92:5
+assertion `left == right` failed: true should have run
+  left: Some(127)
+ right: Some(0)
+
+missing_softhsm: 15 failures
+test a_missing_key_is_refused_by_name
+raw_log_line 2357; panic aip-standalone/aip-hsm/tests/softhsm.rs:65:5
+SoftHSM2 is required for the aip-hsm tests and was not found.
+
+xdp_program_load_eperm_not_verifier_eacces: 1 failures
+test x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused
+raw_log_line 3777; panic aip-standalone/aip-observe/tests/gate10_xdp_evaluation.rs:326:13
+assertion `left == right` failed: a rejected program is EACCES, not Operation not permitted (os error 1)
+  left: Some(1)
+ right: Some(13)
+
+socket_task_anchor_unavailable: 1 failures
+test sk05_the_probe_anchors_the_sending_task_under_the_start_tick_rule
+raw_log_line 3900; panic aip-standalone/aip-observe/tests/socksend.rs:184:10
+this process is alive and started before now
+
+Classification limits and target list: initial-161-classification.json.
+No blanket environmental conclusion or historical PASS is asserted.
+

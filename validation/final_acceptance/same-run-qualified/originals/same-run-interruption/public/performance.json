@@ -1,0 +1,75 @@
+{
+  "classification": "MEASURED_INTERRUPTED_OBSERVER_TRIAL_WITHOUT_MATCHED_BASELINE",
+  "measurement_from_ms": 1793268725028,
+  "measurement_to_ms": 1793268745961,
+  "elapsed_seconds": 20.933,
+  "processes": {
+    "probe": {
+      "measurement": "UNAVAILABLE_OR_PROCESS_CHANGED"
+    },
+    "collector": {
+      "controller_measured_cpu_seconds": 0.0,
+      "cpu_percent_of_one_core_during_interval": 0.0,
+      "lifetime_peak_rss_kib": 23852,
+      "scope": "named service process only; excludes child-process CPU"
+    },
+    "model": {
+      "controller_measured_cpu_seconds": 0.02,
+      "cpu_percent_of_one_core_during_interval": 0.09554292265800411,
+      "lifetime_peak_rss_kib": 37680,
+      "scope": "named service process only; excludes child-process CPU"
+    },
+    "gateway": {
+      "controller_measured_cpu_seconds": 0.82,
+      "cpu_percent_of_one_core_during_interval": 3.917259828978168,
+      "lifetime_peak_rss_kib": 354444,
+      "scope": "named service process only; excludes child-process CPU"
+    },
+    "upstream": {
+      "controller_measured_cpu_seconds": 0.04,
+      "cpu_percent_of_one_core_during_interval": 0.19108584531600822,
+      "lifetime_peak_rss_kib": 82928,
+      "scope": "named service process only; excludes child-process CPU"
+    },
+    "agent": {
+      "controller_measured_cpu_seconds": 0.03,
+      "cpu_percent_of_one_core_during_interval": 0.14331438398700616,
+      "lifetime_peak_rss_kib": 82464,
+      "scope": "named service process only; excludes child-process CPU"
+    }
+  },
+  "workload_cgroup": {
+    "controller_measured_cpu_seconds": 35.15434,
+    "lifetime_peak_memory_bytes": 2159972352,
+    "scope": "all constrained model/gateway/tool/agent descendants; includes service work in interval"
+  },
+  "archive_storage_bytes": 204761,
+  "signed_kernel_events": 311,
+  "archive_claimed_span_seconds": 13.825,
+  "archive_event_rate_per_second": 22.495479204339965,
+  "event_to_attestation_latency": {
+    "samples": 311,
+    "unknown_event_time": 0,
+    "scope": "signed clock-anchor event time to collector attestation; includes queue/transport/signing; not isolated collector processing",
+    "min_ms": 204,
+    "median_ms": 1151,
+    "p95_ms": 3044,
+    "max_ms": 3047,
+    "negative_clock_uncertainty_samples": 0
+  },
+  "reconciliation_processing_latency_ms": null,
+  "matched_observer_overhead_percent": null,
+  "agent_task_completion_impact_percent": null,
+  "limitations": [
+    "No matched unobserved task baseline; CPU consumption is not causal task overhead.",
+    "RSS/memory peaks cover service lifetime, including initialization; CPU deltas cover only declared interval.",
+    "Archive rate covers all captured host events, not independently complete workload ground truth.",
+    "Latency is estimated from held signed clocks; uncertainty/negative samples remain visible.",
+    "Signed kernel archive ends before the actual negative trial task; its event rate/latency do not describe this task."
+  ],
+  "reconciliation_cli_wall_time_ms": {
+    "evaluate_and_sign": 356.07510700003786,
+    "offline_evaluate": 364.9293699999703,
+    "scope": "controller wall time including CLI process startup and all verification work; not isolated reconciler CPU"
+  }
+}

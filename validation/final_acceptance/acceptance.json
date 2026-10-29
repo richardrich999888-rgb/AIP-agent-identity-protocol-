@@ -1,24 +1,153 @@
 {
   "schema_version": "vanian.final_acceptance.v1",
   "branch": "fix/vanian-end-to-end-green",
-  "implementation_snapshot": "24688d0cc89e79a03dcac81d9c72025d635a7165",
+  "implementation_snapshot": "9ed1662af95ce83bbbee69c9387d5bd638713575",
   "target_branch": "integration/vanian-enterprise-service-delivery",
-  "scope": "Combined-source acceptance. Component or fixture tests never substitute for a genuine same-run Linux execution.",
+  "scope": "Exact-source software acceptance; each gate preserves its evidence source. Local isolation and ephemeral CI operator anchors do not qualify institutional acceptance.",
   "gates": [
-    {"id":"model_provisioning","status":"NOT_EXECUTED","claim":"Immutable artifact review and local complete cached-blob verification passed; fresh combined-head Linux provisioning is pending.","evidence":["validation/final_acceptance/model-review/review.json","validation/final_acceptance/model-review/local-check.json","validation/final_acceptance/model-review/portable-controls.log"]},
-    {"id":"combined_source","status":"PASS","claim":"Verified PR11 and both observed newer PR8 heads are preserved by normal merge ancestry; conflict resolutions retain both interface sets.","evidence":["validation/final_acceptance/source-history.json","validation/final_acceptance/source-history.log"]},
-    {"id":"debug_release_workspace","status":"NOT_EXECUTED","claim":"Complete supported-Linux debug/release results on the combined source are pending; macOS compile diagnostics are not Linux test results.","evidence":[]},
-    {"id":"github_ci","status":"NOT_EXECUTED","claim":"Runner-executed tests on this combined head are pending. Historical PR11 payment/spending blocks are distinct from current PR8 runner execution.","evidence":["validation/final_acceptance/ci/initial-audit.json"]},
-    {"id":"real_ai_agent","status":"NOT_EXECUTED","claim":"Requires a genuine local-model decision and approved tool execution in the combined-head run.","evidence":[]},
-    {"id":"authorization","status":"NOT_EXECUTED","claim":"Requires the actual workload proposal signed outside the agent boundary with independently measured process binding.","evidence":[]},
-    {"id":"mcp_gateway","status":"NOT_EXECUTED","claim":"Requires original signed request receipts from that same genuine execution.","evidence":[]},
-    {"id":"kernel_observation","status":"NOT_EXECUTED","claim":"Requires genuine supported Linux events and adequate signed coverage for the same execution window.","evidence":[]},
-    {"id":"collector","status":"NOT_EXECUTED","claim":"Requires valid original signed batch and health records from the same run.","evidence":[]},
-    {"id":"reconciliation","status":"NOT_EXECUTED","claim":"Requires the unchanged engine finding justified by that run, preserving CannotProve and separate tool-boundary findings.","evidence":[]},
-    {"id":"api_sdk_mcp","status":"NOT_EXECUTED","claim":"Fixture retrieval tests pass separately; acceptance requires retrieval of the genuine run through the service and all customer clients.","evidence":[]},
-    {"id":"offline_verification","status":"NOT_EXECUTED","claim":"Requires independent verification and mutation refusal for the genuine run under separately approved anchors/checkpoints.","evidence":[]},
-    {"id":"deployment","status":"BLOCKED","claim":"No approved clean supported Linux systemd installation hosts were supplied. Package construction or staging cannot qualify installation, restart, upgrade or retained-data uninstall.","evidence":[]},
-    {"id":"separate_administration","status":"BLOCKED","claim":"No genuinely independently administered collector trust domain was supplied. Hosted local isolation cannot prove this.","evidence":[]},
-    {"id":"independent_bank_acceptance","status":"BLOCKED","claim":"Requires explicit external institutional assessment and acceptance; engineering tests cannot self-approve it.","evidence":[]}
-  ]
+    {
+      "id": "model_provisioning",
+      "status": "PASS",
+      "claim": "Reviewed immutable metadata and full blob digest/size checks passed, followed by fresh Linux provisioning and genuine local inference on9ed1662; no cloud credentials.",
+      "evidence": [
+        "validation/final_acceptance/model-review/review.json",
+        "validation/final_acceptance/same-run-qualified/README.md",
+        "validation/final_acceptance/attempts/40852816962/README.md"
+      ]
+    },
+    {
+      "id": "combined_source",
+      "status": "PASS",
+      "claim": "PR11 a933fdc and reviewed PR8 d6eb35e are preserved by verified normal-merge ancestry and combined interface regressions.",
+      "evidence": [
+        "validation/final_acceptance/source-history.json",
+        "validation/final_acceptance/candidate-source-history.log"
+      ]
+    },
+    {
+      "id": "debug_release_workspace",
+      "status": "PASS",
+      "claim": "Exact9ed1662 supported Linux workspace: debug3304 passed/0failed/10ignored; release3306 passed/0failed/8ignored. Full locked strict Clippy and formatting passed; explicit PostgreSQL14 passed separately. Historical failures remain unchanged.",
+      "evidence": [
+        "validation/final_acceptance/ci/candidate-9ed1662-workspace.json",
+        "validation/final_acceptance/ci/candidate-workspace.json",
+        "validation/final_acceptance/ci/candidate-ba8417e-attempt.json"
+      ]
+    },
+    {
+      "id": "github_ci",
+      "status": "PASS",
+      "claim": "All seven connected9ed1662 workflow runs completed successfully, including complete six-job CI, enterprise packages, interoperability, RBI and genuine observed/interruption/recovery profiles. Manual Agent Zero model task is not established.",
+      "evidence": [
+        "validation/final_acceptance/ci/candidate-9ed1662-workflows.json",
+        "validation/final_acceptance/ci/candidate-9ed1662-workspace.json",
+        "validation/final_acceptance/ci/candidate-9ed1662-enterprise.json",
+        "validation/final_acceptance/ci/candidate-9ed1662-interoperability.json",
+        "validation/final_acceptance/same-run-qualified/README.md"
+      ]
+    },
+    {
+      "id": "real_ai_agent",
+      "status": "PASS",
+      "claim": "Each of three9ed1662 profiles executed two genuine local-model calls and one actual approved synthetic-document read-only tool call.",
+      "evidence": [
+        "validation/final_acceptance/same-run-qualified/README.md",
+        "validation/final_acceptance/same-run-qualified/originals/same-run/public/run-manifest.json",
+        "validation/final_acceptance/same-run-qualified/originals/same-run/public/agent-events.jsonl"
+      ]
+    },
+    {
+      "id": "authorization",
+      "status": "PASS",
+      "claim": "Real proposals were signed outside the monitored UID boundary and independently evaluated with separately retained parent CI operator trust; institutional authority enrollment is not established.",
+      "evidence": [
+        "validation/final_acceptance/same-run-qualified/verification/summary.md",
+        "validation/final_acceptance/same-run-qualified/originals/same-run/public/authority-request.json"
+      ]
+    },
+    {
+      "id": "mcp_gateway",
+      "status": "PASS",
+      "claim": "Each genuine9ed1662 profile retained one Forwarded signed receipt and one controlled parameter-mismatch Refused receipt. Gateway comparison agrees without claiming settlement.",
+      "evidence": [
+        "validation/final_acceptance/same-run-qualified/originals/same-run/public/receipts.jsonl",
+        "validation/final_acceptance/same-run-qualified/verification/summary.md"
+      ]
+    },
+    {
+      "id": "kernel_observation",
+      "status": "PASS",
+      "claim": "9ed1662 observed/recovery original Linux records have signed Active coverage enclosing actual tasks and matching process/executable bindings. Interrupted profile has no task coverage or binding; nothing is backfilled.",
+      "evidence": [
+        "validation/final_acceptance/same-run-qualified/verification/verification-results.json",
+        "validation/final_acceptance/same-run-qualified/originals/files.json"
+      ]
+    },
+    {
+      "id": "collector",
+      "status": "BLOCKED",
+      "claim": "Original signed records verify, but hosted probe and collector share root and no probe key-access boundary is enforced. Valid cryptography cannot qualify the required probe-to-collector key inaccessibility; approved separate deployment remains required.",
+      "evidence": [
+        "validation/final_acceptance/infrastructure/probe-key-boundary.md",
+        "validation/final_acceptance/same-run-qualified/verification/verification-results.json"
+      ]
+    },
+    {
+      "id": "reconciliation",
+      "status": "PASS",
+      "claim": "Independent evaluation exactly reproduces9ed1662 positive/recovery CannotProve/ActionEvidenceUnavailable, identity Match7, WithinWindow; interruption CannotProve/WindowNotCovered and NoReference. No unavailable action evidence becomes Verified.",
+      "evidence": [
+        "validation/final_acceptance/same-run-qualified/verification/summary.md",
+        "validation/final_acceptance/same-run-qualified/originals/same-run/public/evaluation.json"
+      ]
+    },
+    {
+      "id": "api_sdk_mcp",
+      "status": "PASS",
+      "claim": "All three genuine9ed1662 profiles passed exact API/Python/compiled TypeScript/official MCP/browser retrieval, tenant/Reader refusals and signed verdict readback. ba8417e later browser failure remains failed and separately retained.",
+      "evidence": [
+        "validation/final_acceptance/same-run-qualified/originals/same-run/public/enterprise-clients.json",
+        "validation/final_acceptance/same-run-qualified/originals/same-run-interruption/public/enterprise-clients.json",
+        "validation/final_acceptance/same-run-qualified/originals/same-run-recovery/public/enterprise-clients.json",
+        "validation/final_acceptance/attempts/40852816962/README.md"
+      ]
+    },
+    {
+      "id": "offline_verification",
+      "status": "PASS",
+      "claim": "Native verification/evaluation reran against original9ed1662 bytes under separately retained parent trust/checkpoints, not embedded bundle keys. Seven mutation classes are refused under external checkpoints; institutional approval is separate.",
+      "evidence": [
+        "validation/final_acceptance/same-run-qualified/verification/summary.md",
+        "validation/final_acceptance/same-run-qualified/originals/same-run/public/tamper.json",
+        "validation/final_acceptance/same-run-qualified/verification/verify.py"
+      ]
+    },
+    {
+      "id": "deployment",
+      "status": "BLOCKED",
+      "claim": "Both Debian packages and actual Linux binary staging lifecycle passed. No approved clean supported Linux/systemd customer hosts were supplied for real installation/enrollment/restart/upgrade/recovery/uninstall.",
+      "evidence": [
+        "validation/final_acceptance/ci/candidate-9ed1662-enterprise.json",
+        "validation/final_acceptance/infrastructure/README.md"
+      ]
+    },
+    {
+      "id": "separate_administration",
+      "status": "BLOCKED",
+      "claim": "No independently administered collector domain was supplied. Hosted UID isolation shares kernel/root and cannot qualify it.",
+      "evidence": [
+        "validation/final_acceptance/infrastructure/README.md",
+        "validation/final_acceptance/same-run-candidate/originals/same-run/public/run-manifest.json"
+      ]
+    },
+    {
+      "id": "independent_bank_acceptance",
+      "status": "BLOCKED",
+      "claim": "Explicit external institutional assessment, approved anchors and acceptance are required; engineering tests cannot self-approve them.",
+      "evidence": [
+        "validation/final_acceptance/infrastructure/README.md"
+      ]
+    }
+  ],
+  "genuine_evidence_snapshot": "9ed1662af95ce83bbbee69c9387d5bd638713575"
 }

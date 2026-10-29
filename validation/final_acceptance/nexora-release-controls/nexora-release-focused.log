@@ -1,0 +1,52 @@
+   Compiling aip-nexora v0.4.0 (/Users/richardrich/.codex/worktrees/88b4/AIP/aip-standalone/aip-nexora)
+warning: variable does not need to be mutable
+   --> aip-standalone/aip-nexora/tests/binding.rs:137:13
+    |
+137 |     let (a, mut b) = two();
+    |             ----^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `aip-nexora` (test "binding") generated 1 warning (run `cargo fix --test "binding"` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.65s
+     Running tests/binding.rs (target/release/deps/binding-1b67a687969d364f)
+
+running 12 tests
+test b01_a_package_whose_components_come_from_one_execution_binds ... ok
+test b03_an_authority_the_expectation_was_not_issued_under_does_not_bind ... ok
+test b05_another_observers_records_do_not_bind ... ok
+test b04_another_executions_expectation_does_not_bind ... ok
+test b08_another_executions_verdict_does_not_bind ... ok
+test b06_a_continuity_report_from_another_observer_does_not_bind ... ok
+test b07_lineage_that_names_the_subject_as_its_own_parent_does_not_bind ... ok
+test b02_another_agents_identity_document_does_not_bind ... ok
+test b09_a_warrant_for_another_record_or_another_subject_does_not_bind ... ok
+test b10_a_commitment_to_other_bytes_does_not_bind ... ok
+test b11_a_signature_declaring_an_algorithm_nobody_implements_is_a_fault ... ok
+test b12_a_seal_is_broken_by_every_component_substitution ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/verify.rs (target/release/deps/verify-5d6c51cbad93427d)
+
+running 15 tests
+test v05_a_claim_that_does_not_come_out_of_the_evidence_is_refused ... ok
+test v08_a_cannot_prove_package_verifies_as_cannot_prove_and_is_never_upgraded ... ok
+test v03_an_unanchored_authority_is_unverifiable_not_assumed ... ok
+test v04_the_observer_key_may_not_be_the_agents_own ... ok
+test v01_a_complete_package_verifies_offline_against_supplied_anchors ... ok
+test v09_a_package_assembled_without_the_agent_key_reports_that_it_was_unchecked ... ok
+test v07_mutating_the_evidence_changes_what_comes_out_and_the_proof_fails ... ok
+test v04b_matching_health_reference_fields_do_not_trust_an_unanchored_signature ... ok
+test v02_verification_reads_no_clock_no_network_and_no_state ... ok
+test v06_every_single_field_mutation_of_the_claim_is_refused ... ok
+test v10_a_commitment_is_checked_against_the_head_and_the_verifiers_anchors ... ok
+test v13_structural_and_binding_faults_stop_verification_before_any_verdict ... ok
+test v11_a_commitment_of_other_bytes_or_under_a_broken_head_is_refused ... ok
+test v12_a_sealed_package_reports_who_sealed_it_and_an_unsealed_one_is_no_weaker ... ok
+test v14_the_verifier_states_nothing_the_evidence_does_not_carry ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
