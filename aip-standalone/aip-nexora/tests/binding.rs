@@ -23,6 +23,7 @@ mod common;
 
 use aip_nexora::proof::*;
 use aip_nexora::{LeafKind, NexoraTrustAnchors};
+use aip_observe::ObserverAttestor;
 
 /// Two independent scenarios: A is the package under test, B is where a
 /// transplanted component comes from.
@@ -136,7 +137,7 @@ fn b05_another_observers_records_do_not_bind() {
     let (a, b) = two();
     let mut p = package(&a);
     // B's batches and health, on A's claim. Same observer id (the fixture
-    // uses one), but different keys, heads and sequences — so the claim's
+    // uses one), but different signed batch heads — so the claim's
     // cited heads no longer match anything carried.
     p.observer = Some(ObserverBundle {
         batches: b.evidence.batches.clone(),
@@ -164,11 +165,19 @@ fn b05_another_observers_records_do_not_bind() {
         p.binding_faults()
     );
 
-    // A health record the claim does not cite.
+    // A health record the claim does not cite. Its reference includes the
+    // sequence and millisecond timestamp, so make the timestamp distinct
+    // without relying on two fixture constructions crossing a clock tick.
+    let emitted_at = a.at.max(b.at) + 1;
+    let other_health = b.o.signer.health(emitted_at).unwrap();
+    assert_ne!(
+        other_health.health.emitted_at_ms,
+        a.evidence.health.health.emitted_at_ms
+    );
     let mut p = package(&a);
     p.observer = Some(ObserverBundle {
         batches: a.evidence.batches.clone(),
-        health: b.evidence.health.clone(),
+        health: other_health,
     });
     assert!(
         p.binding_faults()

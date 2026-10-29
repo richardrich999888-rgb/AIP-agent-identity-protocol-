@@ -934,3 +934,355 @@ async fn real_http_clients_use_the_service_boundary() {
     server.abort();
     assert!(result.unwrap().success(), "enterprise client smoke failed");
 }
+
+// These are deliberately empty signed collector fixtures. They exercise
+// admission/role/tenant controls and must never be reported as a real workload.
+async fn same_run_fixture() -> (axum::Router, Value, Value) {
+    let store = Arc::new(JsonlEvidenceStore::load(
+        std::env::temp_dir()
+            .join(format!("run_vault_{}", uuid::Uuid::new_v4()))
+            .to_str()
+            .unwrap(),
+    ));
+    let mut state = support::app_state(store, keys(), ManagedSigning::Refused);
+    let (archive, observer_key) = collector_archive();
+    let agent_key = aip_crypto::generate_ed25519_keypair().public_key;
+    let authority_key = aip_crypto::generate_ed25519_keypair().public_key;
+    let gateway_key = aip_crypto::generate_ed25519_keypair().public_key;
+    let reconciler_key = aip_crypto::generate_ed25519_keypair().public_key;
+    let bundle = json!({"run_id":"fixture-empty-run", "agent_id":"fixture-agent",
+        "expectation":null,"signed_receipt":null,
+        "batches_jsonl":archive.batches_jsonl,"health_jsonl":archive.health_jsonl,
+        "verification_time_ms":2000});
+    let trust = json!({"tenants":[{"tenant_id":"tenant-a","trust":{
+        "agent_id":"fixture-agent", "agent_public_key_hex":hex::encode(&agent_key),
+        "decision_point_id":"fixture-authority", "decision_point_public_key_hex":hex::encode(&authority_key),
+        "gateway_id":"fixture-gateway", "gateway_key_version":1,"gateway_public_key_hex":hex::encode(&gateway_key),
+        "observer_id":"enterprise-test-collector","observer_key_version":1,"observer_public_key_hex":hex::encode(observer_key),
+        "reconciler_id":"fixture-reconciler","reconciler_key_version":1,"reconciler_public_key_hex":hex::encode(reconciler_key),
+        "checkpoints":{"fixture-empty-run":{
+            "batches_sha256":hex::encode(aip_crypto::sha256(bundle["batches_jsonl"].as_str().unwrap().as_bytes())),
+            "health_sha256":hex::encode(aip_crypto::sha256(bundle["health_jsonl"].as_str().unwrap().as_bytes()))}},
+        "health_max_age_ms":60000,"window_tolerance_ms":0}}]});
+    Arc::get_mut(&mut state).unwrap().run_trust =
+        airon_aip::runs::RunTrustStore::from_json(&trust.to_string()).unwrap();
+    (
+        airon_aip::ingress::harden(airon_aip::router(state), Default::default()),
+        bundle,
+        trust,
+    )
+}
+
+#[tokio::test]
+async fn same_run_admission_preserves_uncertainty_and_enforces_tenant_reader_boundaries() {
+    let (app, bundle, _) = same_run_fixture().await;
+    let (status, filed) = call(
+        &app,
+        "POST",
+        "/v1/runs",
+        Some(WRITER_A),
+        Some(bundle.clone()),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK, "{filed}");
+    assert_eq!(filed["evaluation"]["archive_integrity_verified"], true);
+    assert_eq!(filed["evaluation"]["checkpoint_verified"], true);
+    assert_eq!(filed["evaluation"]["authorization_verified"], false);
+    assert_eq!(filed["evaluation"]["gateway_receipt_verified"], false);
+    assert!(filed["evaluation"]["reconciliation"].is_null());
+    let id = filed["run_artifact_id"].as_str().unwrap();
+    let path = format!("/v1/runs/{id}");
+    assert_eq!(
+        call(
+            &app,
+            "GET",
+            &(path.clone() + "/metadata"),
+            Some(READER_A),
+            None
+        )
+        .await
+        .1,
+        filed
+    );
+    assert_eq!(
+        call(
+            &app,
+            "GET",
+            &(path.clone() + "/evaluation"),
+            Some(READER_A),
+            None
+        )
+        .await
+        .1,
+        filed["evaluation"]
+    );
+    for key in [READER_B, WRITER_B] {
+        assert_eq!(
+            call(&app, "GET", &(path.clone() + "/metadata"), Some(key), None)
+                .await
+                .0,
+            StatusCode::NOT_FOUND
+        );
+    }
+    assert_eq!(
+        call(&app, "GET", &path, Some(READER_A), None).await.0,
+        StatusCode::FORBIDDEN
+    );
+    assert_eq!(
+        call(&app, "GET", &path, Some(WRITER_A), None).await.1,
+        bundle
+    );
+    assert_eq!(
+        call(
+            &app,
+            "POST",
+            "/v1/runs",
+            Some(READER_A),
+            Some(bundle.clone())
+        )
+        .await
+        .0,
+        StatusCode::FORBIDDEN
+    );
+    assert_eq!(
+        call(
+            &app,
+            "POST",
+            "/v1/runs",
+            Some(WRITER_B),
+            Some(bundle.clone())
+        )
+        .await
+        .0,
+        StatusCode::FORBIDDEN
+    );
+    assert_eq!(
+        call(&app, "POST", "/v1/runs", None, Some(bundle.clone()))
+            .await
+            .0,
+        StatusCode::UNAUTHORIZED
+    );
+    let page = call(
+        &app,
+        "GET",
+        "/v1/agents/fixture-agent/runs?limit=1&offset=0",
+        Some(READER_A),
+        None,
+    )
+    .await;
+    assert_eq!(page.0, StatusCode::OK);
+    assert_eq!(page.1["items"][0], filed);
+    assert!(call(
+        &app,
+        "GET",
+        "/v1/agents/fixture-agent/runs",
+        Some(READER_B),
+        None
+    )
+    .await
+    .1["items"]
+        .as_array()
+        .unwrap()
+        .is_empty());
+    assert_eq!(
+        call(&app, "POST", "/v1/runs", Some(WRITER_A), Some(bundle))
+            .await
+            .1,
+        filed
+    );
+}
+
+#[tokio::test]
+async fn same_run_caller_cannot_replace_keys_checkpoint_or_signed_inputs() {
+    let (app, bundle, _) = same_run_fixture().await;
+    let mut tampered = bundle.clone();
+    tampered["batches_jsonl"] = json!(format!("{} ", bundle["batches_jsonl"].as_str().unwrap()));
+    assert_eq!(
+        call(&app, "POST", "/v1/runs", Some(WRITER_A), Some(tampered))
+            .await
+            .0,
+        StatusCode::BAD_REQUEST
+    );
+    let mut tampered = bundle.clone();
+    tampered["run_id"] = json!("unconfigured-checkpoint");
+    assert_eq!(
+        call(&app, "POST", "/v1/runs", Some(WRITER_A), Some(tampered))
+            .await
+            .0,
+        StatusCode::BAD_REQUEST
+    );
+    for field in ["trust", "agent_public_key_hex", "checkpoint"] {
+        let mut tampered = bundle.clone();
+        tampered[field] = json!({"approved":true});
+        assert_eq!(
+            call(&app, "POST", "/v1/runs", Some(WRITER_A), Some(tampered))
+                .await
+                .0,
+            StatusCode::BAD_REQUEST
+        );
+    }
+    let page = call(
+        &app,
+        "GET",
+        "/v1/agents/fixture-agent/runs",
+        Some(READER_A),
+        None,
+    )
+    .await
+    .1;
+    assert!(
+        page["items"].as_array().unwrap().is_empty(),
+        "rejected bundles must never be filed"
+    );
+}
+
+#[tokio::test]
+async fn same_run_raw_retrieval_preserves_exact_submitted_bytes() {
+    let (app, bundle, _) = same_run_fixture().await;
+    let raw = format!("{}\n", serde_json::to_string_pretty(&bundle).unwrap());
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/v1/runs")
+                .header("authorization", format!("Bearer {WRITER_A}"))
+                .header("content-type", "application/json")
+                .body(Body::from(raw.clone()))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let bytes = axum::body::to_bytes(response.into_body(), 1024 * 1024)
+        .await
+        .unwrap();
+    let filed: Value = serde_json::from_slice(&bytes).unwrap();
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri(format!(
+                    "/v1/runs/{}",
+                    filed["run_artifact_id"].as_str().unwrap()
+                ))
+                .header("authorization", format!("Bearer {WRITER_A}"))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(
+        axum::body::to_bytes(response.into_body(), 1024 * 1024)
+            .await
+            .unwrap()
+            .as_ref(),
+        raw.as_bytes()
+    );
+}
+
+#[tokio::test]
+async fn same_run_body_limit_is_explicit_and_does_not_relax_other_endpoints() {
+    let (app, bundle, _) = same_run_fixture().await;
+    let padded = format!(
+        "{}{}",
+        " ".repeat(1024 * 1024 + 1024),
+        serde_json::to_string(&bundle).unwrap()
+    );
+    let make_request = |path: &str, body: String| {
+        Request::builder()
+            .method("POST")
+            .uri(path)
+            .header("authorization", format!("Bearer {WRITER_A}"))
+            .header("content-type", "application/json")
+            .body(Body::from(body))
+            .unwrap()
+    };
+    let allowed = app
+        .clone()
+        .oneshot(make_request("/v1/runs", padded.clone()))
+        .await
+        .unwrap();
+    assert_eq!(
+        allowed.status(),
+        StatusCode::OK,
+        "dedicated run limit must support complete archives"
+    );
+    let refused = app
+        .clone()
+        .oneshot(make_request("/v1/observations", padded))
+        .await
+        .unwrap();
+    assert_eq!(
+        refused.status(),
+        StatusCode::PAYLOAD_TOO_LARGE,
+        "other routes retain the 1 MiB limit"
+    );
+    let oversized = " ".repeat(airon_aip::runs::MAX_BUNDLE_BYTES + 1);
+    let refused = app
+        .oneshot(make_request("/v1/runs", oversized))
+        .await
+        .unwrap();
+    assert_eq!(refused.status(), StatusCode::PAYLOAD_TOO_LARGE);
+}
+
+/// This cross-language test uses a signed empty fixture, not a workload. The
+/// genuine Linux run invokes the same client CLI with its actual run bundle.
+#[tokio::test]
+#[ignore = "requires pinned Python MCP dependencies, Node and a loopback listener"]
+async fn real_same_run_clients_use_the_service_boundary() {
+    let python = std::env::var("AIP_ENTERPRISE_PYTHON").unwrap_or_else(|_| "python3".into());
+    let (app, bundle, _) = same_run_fixture().await;
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let server = tokio::spawn(async move { axum::serve(listener, app).await.unwrap() });
+    let directory = std::env::temp_dir().join(format!("same_run_clients_{}", uuid::Uuid::new_v4()));
+    std::fs::create_dir(&directory).unwrap();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&directory, std::fs::Permissions::from_mode(0o700)).unwrap();
+    }
+    for (name, value) in [
+        ("writer", WRITER_A),
+        ("reader", READER_A),
+        ("other", READER_B),
+    ] {
+        std::fs::write(directory.join(name), value).unwrap();
+    }
+    std::fs::write(
+        directory.join("bundle.json"),
+        serde_json::to_string_pretty(&bundle).unwrap(),
+    )
+    .unwrap();
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap();
+    let result = tokio::process::Command::new(python)
+        .arg(root.join("validation/enterprise/run_client_smoke.py"))
+        .args(["--url", &format!("http://{address}")])
+        .arg("--writer-key-file")
+        .arg(directory.join("writer"))
+        .arg("--reader-key-file")
+        .arg(directory.join("reader"))
+        .arg("--other-key-file")
+        .arg(directory.join("other"))
+        .arg("--bundle")
+        .arg(directory.join("bundle.json"))
+        .arg("--output")
+        .arg(directory.join("report.json"))
+        .env("PYTHONPATH", root.join("sdk/python"))
+        .status()
+        .await;
+    server.abort();
+    let passed = result.unwrap().success();
+    if passed {
+        let report: Value =
+            serde_json::from_str(&std::fs::read_to_string(directory.join("report.json")).unwrap())
+                .unwrap();
+        assert_eq!(report["console_browser"], "NOT_EXERCISED");
+        assert_eq!(report["signed_runtime_verdict_retrieval"], "NOT_SUPPLIED");
+    }
+    std::fs::remove_dir_all(directory).unwrap();
+    assert!(passed, "same-run fixture client smoke failed");
+}

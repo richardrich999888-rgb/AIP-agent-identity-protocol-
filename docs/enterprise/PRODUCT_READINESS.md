@@ -1,5 +1,11 @@
 # Enterprise product readiness
 
+Combined recovery evidence is in the [acceptance report](../../validation/final_acceptance/REPORT.md).
+Workflow40854983596 on `9ed1662` passed genuine observed/interrupted/recovery
+software profiles and the same-run API/SDK/MCP/browser path. It preserves
+`CannotProve` for unavailable action evidence and establishes local isolation,
+not independent collector administration or customer installation.
+
 ## Service-delivery continuation — 28 October 2026
 
 `integration/vanian-enterprise-service-delivery` reconciles PR #10 at
@@ -26,21 +32,20 @@ assurance offering. Obtain institutional approvals and agree exit criteria.
 
 Still required before an execution-assurance pilot can be accepted:
 
-- A genuinely separate collector host/admin boundary; actual same-run native
-  authority, gateway receipt, supported kernel events, signed health/coverage,
-  reconciliation, API readback and independent offline verification.
+- A genuinely separate collector host/admin boundary and institution-approved
+  trust, with the tested same-run software path repeated under that deployment.
 - Clean supported Linux/systemd package install, sensor/resource/upgrade/remove
   and recovery testing. DEB extraction and staged configuration do not satisfy it.
 - Approved distribution license terms (the repository declares
   LicenseRef-Proprietary but includes no distribution license text), complete
   dependency notices, vulnerability checks, signed/reviewed release provenance
   and institution-approved artifact distribution. No package registry is published.
-- Docker image build/scanning, Kubernetes runtime qualification, PostgreSQL
-  runtime revalidation, capacity, retention/deletion/backup/rotation exercises
+- Customer image scanning, Kubernetes runtime qualification, PostgreSQL
+  operational qualification on customer infrastructure, capacity, retention/deletion/backup/rotation exercises
   and independent security assessment. Existing historical results stay separate.
 
 The first vendor-neutral network-ingestion connector, cryptographically authenticated workload enrollment
-backend, full SDK registry distributions, and additional agent profiles remain
+backend, approved SDK distribution/publication, and additional agent profiles remain
 deferred. No traffic interception, agentless discovery, inline AI firewall,
 certification, HSM deployment or universal compatibility claim is introduced.
 

@@ -1,0 +1,63 @@
+{
+  "classification": "HISTORICAL_ARCHIVE_OFFLINE_REGRESSION",
+  "live_agent_run": false,
+  "verification_seconds": 0.5370314169995254,
+  "verifier": {
+    "observer_id": "collector.phase1",
+    "key_version": 1,
+    "public_key": "46d5b0ff71645a32e1e069bdc744c6a3767a5450343f270eaf9ba5a84182d568",
+    "batches": {
+      "records": 2,
+      "first_sequence": 1,
+      "last_sequence": 2,
+      "start": "Epoch",
+      "final_head": "78041a47c41c73a631b4fe9af22bdddab20bcf47ddfe7743ade3bd4e3de0d266",
+      "observations": 0,
+      "kernel_events": 556
+    },
+    "health": {
+      "records": 1,
+      "states": [
+        "ContinuityUnverified"
+      ],
+      "with_coverage": 0,
+      "without_coverage": 1,
+      "cross_checked_against_batches": 0,
+      "clock_synchronised": 0,
+      "clock_unsynchronised": 1,
+      "clock_not_stated": 0,
+      "clock_worst_max_error_us": 16000000
+    },
+    "findings": []
+  },
+  "mutations": {
+    "modify": {
+      "signature_chain_rejected": true,
+      "separately_retained_checksum_rejected": true
+    },
+    "remove_middle": {
+      "signature_chain_rejected": true,
+      "separately_retained_checksum_rejected": true
+    },
+    "remove_suffix": {
+      "signature_chain_rejected": false,
+      "separately_retained_checksum_rejected": true
+    },
+    "remove_prefix": {
+      "signature_chain_rejected": false,
+      "separately_retained_checksum_rejected": true
+    },
+    "reorder": {
+      "signature_chain_rejected": true,
+      "separately_retained_checksum_rejected": true
+    },
+    "duplicate": {
+      "signature_chain_rejected": true,
+      "separately_retained_checksum_rejected": true
+    },
+    "corrupt": {
+      "signature_chain_rejected": true,
+      "separately_retained_checksum_rejected": true
+    }
+  }
+}

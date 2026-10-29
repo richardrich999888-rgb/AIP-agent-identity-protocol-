@@ -18,7 +18,6 @@
 //! opened here. Those remain NOT_IMPLEMENTED.
 
 use crate::observed::{KernelLifecycleKind, SocketEndpoint, SocketProtocol};
-use crate::probe::ProbeError;
 
 /// Why a kernel source could not deliver.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -223,6 +222,7 @@ pub fn parse_socket_link(target: &str) -> Option<u64> {
 #[cfg(target_os = "linux")]
 mod sys {
     use super::*;
+    use crate::probe::ProbeError;
     use std::os::fd::RawFd;
 
     /// A kernel handle bound to one process *instance*. Unlike a pid, a

@@ -1,0 +1,18 @@
+{
+  "status": "PASS_NATIVE_IN_PROCESS_ROUTE_REGRESSION",
+  "source_commit": "9ed1662af95ce83bbbee69c9387d5bd638713575",
+  "command": "cargo test --locked --offline -p airon-aip --test enterprise_api console_shell_is_public_but_contains_no_records_and_data_stays_authenticated -- --exact",
+  "exit_code": 0,
+  "passed": 1,
+  "failed": 0,
+  "ignored": 0,
+  "filtered_out": 15,
+  "log": "console-csp-test.log",
+  "log_sha256": "f5e28b2cc0188e39b81d613fa19b449ba263f90c2c4732ae07ae6687df52947e",
+  "coverage": [
+    "Actual router responses for /console, /console/app.js and /console/style.css carry required Content-Security-Policy directives.",
+    "Policy restricts default/script/style/connect sources to self, blocks framing, base URI and form actions, and excludes unsafe-inline and unsafe-eval.",
+    "Public assets carry no stored records or fixture credentials; protected data routes remain authenticated."
+  ],
+  "limitation": "This is a native in-process router regression on Darwin. The Linux workflow separately retained console functional PASS and screenshots, but did not retain an independent raw HTTP CSP header capture."
+}

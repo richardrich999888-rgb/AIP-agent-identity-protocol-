@@ -1,0 +1,609 @@
+{
+  "scope": "Allowlisted evidence from exact historical edfd runs; no artifact ZIPs downloaded or digests independently recomputed.",
+  "source": {
+    "head": "edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c",
+    "checkout": "99bec0661b1484c27dc58cffcbdd4b7714e01567",
+    "tree": "bdd11581ff49f0531a0eaa20ee1ca94c3dc537e4",
+    "checkout_confirmed_in_all_four_job_logs": true
+  },
+  "runs": [
+    {
+      "id": 40753630941,
+      "path": ".github/workflows/enterprise-integration.yml",
+      "event": "pull_request",
+      "head": "edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-28T19:21:54Z",
+      "updated_at": "2026-10-28T19:23:42Z",
+      "jobs": [
+        {
+          "id": 123046594410,
+          "name": "contracts",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 40753630941,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run dtolnay/rust-toolchain@stable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run Swatinem/rust-cache@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Pinned evidence client dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Packaging and harness controls",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Clients and restricted MCP boundaries",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 9
+            },
+            {
+              "name": "Rust checks",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "Real service, both SDKs, official MCP client and tenant isolation",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 11
+            },
+            {
+              "name": "Build verifiable Linux package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Actual Linux executable package install/uninstall/reinstall (staging only)",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Post Run Swatinem/rust-cache@v2",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 27
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            }
+          ]
+        },
+        {
+          "id": 123046594452,
+          "name": "contextforge",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 40753630941,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run dtolnay/rust-toolchain@stable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run Swatinem/rust-cache@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run astral-sh/setup-uv@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Prepare actual pinned ContextForge",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Actual gateway and upstream interoperability",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run astral-sh/setup-uv@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run Swatinem/rust-cache@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 12843793822,
+          "name": "contextforge-integration-99bec0661b1484c27dc58cffcbdd4b7714e01567",
+          "size_in_bytes": 13729,
+          "digest": "sha256:54e5e62b300ea26d8f01f6c8ecf581c2d54e479cc647ff5e731e2607bcb7a4c5",
+          "expired": false,
+          "created_at": "2026-10-28T19:23:34Z",
+          "expires_at": "2026-11-11T19:23:33Z"
+        }
+      ]
+    },
+    {
+      "id": 40753613528,
+      "path": ".github/workflows/rbi-rehearsal.yml",
+      "event": "pull_request",
+      "head": "edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-28T19:21:47Z",
+      "updated_at": "2026-10-28T19:25:21Z",
+      "jobs": [
+        {
+          "id": 123046534830,
+          "name": "script-regressions",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 40753613528,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Deterministic unprivileged shell regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            }
+          ]
+        },
+        {
+          "id": 123046722909,
+          "name": "live-rehearsal",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 40753613528,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run dtolnay/rust-toolchain@stable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run Swatinem/rust-cache@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Establish real clock synchronization on this disposable VM",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Build real demonstration binaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Cross-sensor regression tests with actual scheduler event shapes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Integrity recovery must never backfill blinded coverage",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run all five acts with the real kernel and offline verifier",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Retain evidence and failure diagnostics, never private keys",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run Swatinem/rust-cache@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 12845332433,
+          "name": "rbi-rehearsal-40753613528",
+          "size_in_bytes": 137822,
+          "digest": "sha256:8db8a9c4cf15ee72cc3f4a4a7ed4038c637e5a54c7b60b3c193c7510c10ae4d6",
+          "expired": false,
+          "created_at": "2026-10-28T19:25:09Z",
+          "expires_at": "2026-11-11T19:25:08Z"
+        }
+      ]
+    }
+  ],
+  "enterprise": {
+    "contracts_job": 123046594410,
+    "failed_step": 9,
+    "passed_controls": {
+      "packaging": 16,
+      "harness": 3,
+      "rbi_shell_regressions": 17,
+      "python_sdk": 78,
+      "client_boundaries": 12,
+      "combined_contracts": 3,
+      "node_client": 3
+    },
+    "failed_file": "validation/enterprise/verify_sdk_packages.py",
+    "error": "Python clean-wheel import/capability subprocess returned exit1; inner stderr was captured but not emitted.",
+    "wheel_build": "vanian_sdk-0.1.0-py3-none-any.whl built successfully; size5100, logged SHA256f114b9573eb15aab15bc773007a099c50b14bf2abc97eaa78ec0175f99e24e9a",
+    "reproduced_source_cause": "Inherited relative PYTHONPATH=sdk/python made pip detect source egg-info as installed and skip the wheel; changing probe cwd to temporary venv then raised ModuleNotFoundError. Isolated Python installation and probe clear this defect.",
+    "runtime_package_build": "SKIPPED",
+    "runtime_package_lifecycle": "SKIPPED",
+    "real_service_sdk_mcp_smoke": "SKIPPED",
+    "runtime_package_artifact": "NONE",
+    "contextforge": {
+      "job": 123046594452,
+      "authorization_policy_tests": 5,
+      "live_gateway_checks": 27,
+      "check_results": [
+        {
+          "name": "replay_journal_symlink_refused_without_creating_target",
+          "status": "PASS"
+        },
+        {
+          "name": "nonprivate_replay_journal_refused",
+          "status": "PASS"
+        },
+        {
+          "name": "actual_contextforge_registers_real_mcp_upstream",
+          "status": "PASS"
+        },
+        {
+          "name": "valid_tool_invocation_reaches_upstream_and_has_signed_receipt",
+          "status": "PASS"
+        },
+        {
+          "name": "live_receipt_agrees_with_preissued_signed_authorization_via_real_comparator",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate_request_refused_without_second_dispatch",
+          "status": "PASS"
+        },
+        {
+          "name": "decision_replay_with_new_request_id_refused",
+          "status": "PASS"
+        },
+        {
+          "name": "missing_decision_refused_without_dispatch",
+          "status": "PASS"
+        },
+        {
+          "name": "principal_agent_mismatch_refused",
+          "status": "PASS"
+        },
+        {
+          "name": "header_body_disagreement_refused",
+          "status": "PASS"
+        },
+        {
+          "name": "method_header_body_disagreement_refused",
+          "status": "PASS"
+        },
+        {
+          "name": "unsupported_tool_refused_before_dispatch",
+          "status": "PASS"
+        },
+        {
+          "name": "malformed_json_rpc_cannot_dispatch",
+          "status": "PASS"
+        },
+        {
+          "name": "unauthenticated_client_rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "mcp_ingress_rejects_unapproved_origin",
+          "status": "PASS"
+        },
+        {
+          "name": "official_mcp_2_3_client_uses_2026_07_28_transport_and_signed_receipt",
+          "status": "PASS"
+        },
+        {
+          "name": "real_upstream_error_has_failed_receipt",
+          "status": "PASS"
+        },
+        {
+          "name": "gateway_timeout_has_no_success_receipt",
+          "status": "PASS"
+        },
+        {
+          "name": "concurrent_calls_have_distinct_signed_receipts",
+          "status": "PASS"
+        },
+        {
+          "name": "concurrent_duplicate_calls_dispatch_exactly_once",
+          "status": "PASS"
+        },
+        {
+          "name": "live_parameter_mismatch_diverges_via_real_rust_comparator_without_agent_claim",
+          "status": "PASS"
+        },
+        {
+          "name": "gateway_restart_preserves_replay_protection",
+          "status": "PASS"
+        },
+        {
+          "name": "wrong_signing_key_refused_before_dispatch",
+          "status": "PASS"
+        },
+        {
+          "name": "receipt_sink_failure_refused_before_dispatch",
+          "status": "PASS"
+        },
+        {
+          "name": "post_dispatch_signing_failure_reports_cannot_prove_without_success_receipt",
+          "status": "PASS"
+        },
+        {
+          "name": "journal_failure_cannot_mask_post_dispatch_receipt_uncertainty",
+          "status": "PASS"
+        },
+        {
+          "name": "every_exported_receipt_verifies_offline_with_public_anchor_only",
+          "status": "PASS"
+        }
+      ],
+      "scope": "Actual pinned gateway, upstream and signed receipts; no browser or kernel-application correlation claim."
+    }
+  },
+  "rbi": {
+    "script_job": 123046534830,
+    "script_regressions": 17,
+    "live_job": 123046722909,
+    "divergence_regressions": {
+      "passed": 13,
+      "failed": 0,
+      "filtered_out": 56
+    },
+    "observer_integrity_regressions": {
+      "passed": 6,
+      "failed": 0
+    },
+    "system_run_checks": 10,
+    "destination_assertions": 11,
+    "tool_boundary_assertions": 46,
+    "acts": "Honest Active/coverage; signed IntegrityUnknown/coverage withdrawal under interference; resource-scoped authorization; tool boundary and real signed gateway receipts; separate-process offline verification.",
+    "scope": "Disposable Linux rehearsal of existing observer-only demonstration, not a customer clean-host install or a complete genuine-model same-run result."
+  },
+  "browser": {
+    "status": "NOT_EXECUTED_IN_THESE_RUNS",
+    "reason": "Neither exact workflow contains a browser execution step. Console JavaScript syntax check passed in enterprise controls; that is not browser acceptance."
+  },
+  "interoperability_rerun_dependencies": {
+    "runner": "ubuntu-24.04",
+    "python": "3.12",
+    "uv": "0.13.4",
+    "lock": "integrations/interoperability/uv.lock",
+    "lock_sha256": "59f56689f4e805a77bb5a614be4885474a0c25c6a9453dcb6e6a35ec63a55171",
+    "extras": [
+      "adk",
+      "test"
+    ],
+    "locked": {
+      "PyJWT": "2.10.1",
+      "httpx": "0.28.1",
+      "google-adk": "2.13.0",
+      "a2a-sdk": "1.3.0",
+      "pytest": "8.4.2"
+    },
+    "OPA": {
+      "version": "1.21.4",
+      "sha256": "2ab571f367f293bb19523b76f92f1945bbf245003392c7f392903f95c2b9b630"
+    },
+    "SPIRE": {
+      "version": "1.15.3",
+      "sha256": "ca1a4d1155317bdd2afc7f36663828a10410c7c840e54725b90b4064b0a301c7"
+    },
+    "rust": "1.99.1",
+    "microsoft": {
+      "source": "4eca1f5b44d30ebe5e9745ac36ca394f887e617b",
+      "maturin": "1.8.7",
+      "PyYAML": "6.0.3",
+      "pytest": "8.4.2"
+    },
+    "new_spire_parser_dependencies": "stdlib only; existing JWT live path retains PyJWT and locked crypto dependencies",
+    "runtime_requirements": [
+      "Linux /proc executable selectors",
+      "Local loopback ports and Unix sockets",
+      "No cloud model/API credentials needed by these identity/OPA gates"
+    ]
+  },
+  "limits": [
+    "Old edfd enterprise packaging was not exercised after the SDK verifier failed.",
+    "Artifact digests above are public API/upload values, not downloaded-byte verification.",
+    "All test counts retain their own suite scope; they are not summed into a product acceptance percentage."
+  ]
+}

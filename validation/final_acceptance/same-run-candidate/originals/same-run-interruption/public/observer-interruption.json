@@ -1,0 +1,32 @@
+{
+  "source_authority": "root_validation_controller",
+  "stimulus": "fully terminate probe before launching the genuine agent",
+  "probe_pid": 7097,
+  "probe_exit_code": -15,
+  "stop_requested_at_ms": 1793266687407,
+  "termination_confirmed_at_ms": 1793266689756,
+  "frozen_batches_sha256": "b9577c2eb5c62926d5a972e7673c0251cb3b141962159e497ca7fd5335d444df",
+  "frozen_sequence": 9,
+  "frozen_coverage": {
+    "from_ms": 1793266674046,
+    "to_ms": 1793266686429
+  },
+  "collector_continued_running": true,
+  "recovery": "separate fresh capture profile only; no backfill of this trial",
+  "status": "PASS",
+  "actual_task_from_ms": 1793266689763,
+  "actual_task_to_ms": 1793266714739,
+  "final_health_state": "Active",
+  "final_signed_coverage": {
+    "from_ms": 1793266674046,
+    "to_ms": 1793266686429
+  },
+  "final_health_emitted_at_ms": 1793266716891,
+  "actual_model_calls": 2,
+  "authorization_verified": true,
+  "gateway_request_comparison": "Agrees",
+  "kernel_result": "CannotProve",
+  "kernel_reason": "WindowNotCovered",
+  "kernel_process_identity": "NoReference",
+  "coverage_backfilled": false
+}

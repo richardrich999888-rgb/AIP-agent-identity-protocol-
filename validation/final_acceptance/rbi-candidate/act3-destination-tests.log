@@ -1,0 +1,23 @@
+   Compiling aip-crypto v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-crypto)
+   Compiling aip-registry v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-registry)
+   Compiling aip-core v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-core)
+   Compiling aip-spend v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spend)
+   Compiling aip-authorize v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-authorize)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.41s
+     Running tests/resources.rs (target/debug/deps/resources-9db7e3bf8ba96266)
+
+running 11 tests
+test a_hop_cannot_add_a_resource_its_parent_did_not_hold ... ok
+test a_named_resource_the_chain_never_granted_is_refused ... ok
+test a_granted_resource_is_authorized_and_the_expectation_binds_the_endpoint ... ok
+test a_registry_edited_after_signing_cannot_become_policy ... ok
+test a_non_network_action_is_not_resource_checked ... ok
+test a_registry_nobody_the_decision_point_trusts_signed_cannot_become_policy ... ok
+test a_deny_anywhere_in_the_chain_withholds_the_resource ... ok
+test an_action_grant_alone_grants_no_resource_once_a_policy_is_configured ... ok
+test an_address_the_institution_never_named_is_refused_outright ... ok
+test the_right_host_on_an_unnamed_port_is_still_unregistered ... ok
+test without_a_policy_no_resource_check_is_performed_and_the_decision_point_says_so ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+

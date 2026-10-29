@@ -1,0 +1,15 @@
+$ /Users/richardrich/.codex/worktrees/88b4/AIP/.local/enterprise-venv/bin/python -m unittest discover -s validation/interoperability -p test_spire_cli.py -v
+source_commit=3a5550560ff6d26ad1fd53964deb013fa207b8a0
+working_tree_source=true
+runner_sha256=30f2804023a91787c37bae9bab1241a2423c4f3ff1a210eea1d3dfb88752d722
+
+test_missing_duplicate_or_malformed_token_is_refused_without_echo (test_spire_cli.SpireTokenResponseTests.test_missing_duplicate_or_malformed_token_is_refused_without_echo) ... ok
+test_missing_spiffe_id_warning_is_not_part_of_the_join_token (test_spire_cli.SpireTokenResponseTests.test_missing_spiffe_id_warning_is_not_part_of_the_join_token) ... ok
+test_token_line_without_a_warning_is_accepted (test_spire_cli.SpireTokenResponseTests.test_token_line_without_a_warning_is_accepted) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK
+
+exit_code=0

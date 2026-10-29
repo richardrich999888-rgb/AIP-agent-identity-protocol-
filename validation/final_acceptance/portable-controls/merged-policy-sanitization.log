@@ -1,0 +1,17 @@
+{
+  "checked_utc": "2026-10-29T09:31:55.161299+00:00",
+  "source_commit": "3a5550560ff6d26ad1fd53964deb013fa207b8a0",
+  "scope": "Portable generator versus exact pinned upstream password validation methods; HTTPError classification only; not live gateway or Linux custody execution",
+  "runner_sha256": "30f2804023a91787c37bae9bab1241a2423c4f3ff1a210eea1d3dfb88752d722",
+  "contextforge_commit": "ff6a566a4b5c098093db90bbb4d5df483e108026",
+  "policy_source_sha256": "a47c3b85344afa71dcdeebc29799bb9fda264fc880aaa9f95b351d8af575e1f2",
+  "password_samples": 256
+}
+
+test_error_classification_does_not_echo_password_or_raw_response (__main__.MergedPolicyControls.test_error_classification_does_not_echo_password_or_raw_response) ... ok
+test_generated_passwords_satisfy_exact_pinned_policy_methods (__main__.MergedPolicyControls.test_generated_passwords_satisfy_exact_pinned_policy_methods) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.021s
+
+OK

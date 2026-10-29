@@ -1,0 +1,75 @@
+RUN 40753630941 head=edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c checkout=99bec0661b1484c27dc58cffcbdd4b7714e01567 conclusion=failure
+JOB 123046594410 contracts failure
+  1 success Set up job
+  2 success Run actions/checkout@v4
+  3 success Run actions/setup-python@v5
+  4 success Run actions/setup-node@v4
+  5 success Run dtolnay/rust-toolchain@stable
+  6 success Run Swatinem/rust-cache@v2
+  7 success Pinned evidence client dependencies
+  8 success Packaging and harness controls
+  9 failure Clients and restricted MCP boundaries
+  10 skipped Rust checks
+  11 skipped Real service, both SDKs, official MCP client and tenant isolation
+  12 skipped Build verifiable Linux package
+  13 skipped Actual Linux executable package install/uninstall/reinstall (staging only)
+  14 skipped Run actions/upload-artifact@v4
+  25 skipped Post Run Swatinem/rust-cache@v2
+  26 skipped Post Run actions/setup-node@v4
+  27 skipped Post Run actions/setup-python@v5
+  28 success Post Run actions/checkout@v4
+  29 success Complete job
+JOB 123046594452 contextforge success
+  1 success Set up job
+  2 success Run actions/checkout@v4
+  3 success Run actions/setup-python@v5
+  4 success Run dtolnay/rust-toolchain@stable
+  5 success Run Swatinem/rust-cache@v2
+  6 success Run astral-sh/setup-uv@v6
+  7 success Prepare actual pinned ContextForge
+  8 success Actual gateway and upstream interoperability
+  9 success Run actions/upload-artifact@v4
+  15 success Post Run astral-sh/setup-uv@v6
+  16 success Post Run Swatinem/rust-cache@v2
+  17 success Post Run actions/setup-python@v5
+  18 success Post Run actions/checkout@v4
+  19 success Complete job
+ARTIFACT 12843793822 contextforge-integration-99bec0661b1484c27dc58cffcbdd4b7714e01567 13729B sha256:54e5e62b300ea26d8f01f6c8ecf581c2d54e479cc647ff5e731e2607bcb7a4c5
+RUN 40753613528 head=edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c checkout=99bec0661b1484c27dc58cffcbdd4b7714e01567 conclusion=success
+JOB 123046534830 script-regressions success
+  1 success Set up job
+  2 success Run actions/checkout@v4
+  3 success Deterministic unprivileged shell regressions
+  6 success Post Run actions/checkout@v4
+  7 success Complete job
+JOB 123046722909 live-rehearsal success
+  1 success Set up job
+  2 success Run actions/checkout@v4
+  3 success Run dtolnay/rust-toolchain@stable
+  4 success Run Swatinem/rust-cache@v2
+  5 success Establish real clock synchronization on this disposable VM
+  6 success Build real demonstration binaries
+  7 success Cross-sensor regression tests with actual scheduler event shapes
+  8 success Integrity recovery must never backfill blinded coverage
+  9 success Run all five acts with the real kernel and offline verifier
+  10 success Retain evidence and failure diagnostics, never private keys
+  19 success Post Run Swatinem/rust-cache@v2
+  20 success Post Run actions/checkout@v4
+  21 success Complete job
+ARTIFACT 12845332433 rbi-rehearsal-40753613528 137822B sha256:8db8a9c4cf15ee72cc3f4a4a7ed4038c637e5a54c7b60b3c193c7510c10ae4d6
+COUNTS: enterprise16packaging/3harness/17rehearsal/78SDK/12boundaries/3combined/3Node; ContextForge5policy+27gateway.
+COUNTS: RBI17shell;13divergence(56filtered);6integrity;10systemchecks;11destinationassertions;46tool-boundaryassertions.
+BROWSER: no browser step executed in either workflow. Runtime package build/lifecycle were skipped in enterprise.
+2026-10-28T19:22:16.9209466Z HEAD is now at 99bec06 Merge edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c into a933fdc327e8744dc8a8441ea3d5b2d75063b91f
+2026-10-28T19:24:58.2594089Z        10 checks passed in the system run
+2026-10-28T19:24:58.2606997Z   PASS Act 1 honest path: observer Active, attested coverage present
+2026-10-28T19:24:58.2620554Z   PASS Act 2 interfered observer: collector signed IntegrityUnknown, coverage withdrawn
+2026-10-28T19:24:58.2633652Z   PASS Act 5 offline verification: separate process, two files, a public key
+2026-10-28T19:25:03.9597363Z   PASS Act 3: 11 resource-scoping assertions hold, including outright refusal of an unnamed address
+2026-10-28T19:25:08.1264146Z   PASS Act 4: 46 tool-boundary assertions hold, including divergence with no agent claim in evidence
+2026-10-28T19:25:08.2847480Z   PASS Act 4b: the gateway signed a receipt per call, live, with its own key
+2026-10-28T19:25:08.2889404Z   PASS REHEARSED: all five promises demonstrated in one run
+2026-10-28T19:25:09.5934693Z SHA256 digest of uploaded artifact zip is 8db8a9c4cf15ee72cc3f4a4a7ed4038c637e5a54c7b60b3c193c7510c10ae4d6
+2026-10-28T19:25:10.1175287Z Artifact rbi-rehearsal-40753613528.zip successfully finalized. Artifact ID 12845332433
+2026-10-28T19:25:10.1176876Z Artifact rbi-rehearsal-40753613528 has been successfully uploaded! Final size is 137822 bytes. Artifact ID is 12845332433
+

@@ -1,0 +1,18 @@
+test_relative_pythonpath_and_source_egg_info_cannot_replace_installed_wheel (old_verifier_control.CleanWheelInstallationTests.test_relative_pythonpath_and_source_egg_info_cannot_replace_installed_wheel) ... ERROR
+
+======================================================================
+ERROR: test_relative_pythonpath_and_source_egg_info_cannot_replace_installed_wheel (old_verifier_control.CleanWheelInstallationTests.test_relative_pythonpath_and_source_egg_info_cannot_replace_installed_wheel)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "validation/enterprise/test_sdk_package_verifier.py", line 61, in test_relative_pythonpath_and_source_egg_info_cannot_replace_installed_wheel
+    MODULE.verify_python_wheel(wheel, root / "clean-venv")
+  File "<stdin>", line 7, in old_python_check
+  File "/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/var/folders/5t/djnvnhyx4ng3sybn024trl680000gn/T/vanian-wheel-regression-njm_isum/clean-venv/bin/python', '-c', "from vanian import VanianClient; import importlib.metadata; assert importlib.metadata.version('vanian-sdk') == '0.1.0'; assert all(callable(getattr(VanianClient,name,None)) for name in ('register_deployment','list_deployments','get_deployment','get_run_metadata','get_run_verdict','evaluate_run','get_agent_runs'))"]' returned non-zero exit status 1.
+
+----------------------------------------------------------------------
+Ran 1 test in 1.226s
+
+FAILED (errors=1)
+NEGATIVE_CONTROL_PASS: historical unisolated verifier fails actual source-metadata pollution regression as expected

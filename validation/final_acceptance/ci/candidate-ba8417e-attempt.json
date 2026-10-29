@@ -1,0 +1,998 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-29T09:58:04Z",
+  "source": {
+    "head": {
+      "sha": "ba8417ef6a7a954c681f7de830fe84bd78faf25b",
+      "tree": "af9e9c6022dd0ba35ae18714b3c25d45f44ea9be",
+      "parents": [
+        "42d0d96c9cc9d3075c792a195cc74e4171b0e817"
+      ],
+      "message": "Make health binding fixtures deterministic and retain anchored signature refusal"
+    },
+    "checkout": {
+      "sha": "431051da0598db1dff3ae2c5d6b6f55100c92f45",
+      "tree": "af9e9c6022dd0ba35ae18714b3c25d45f44ea9be",
+      "parents": [
+        "a933fdc327e8744dc8a8441ea3d5b2d75063b91f",
+        "ba8417ef6a7a954c681f7de830fe84bd78faf25b"
+      ],
+      "message": "Merge ba8417ef6a7a954c681f7de830fe84bd78faf25b into a933fdc327e8744dc8a8441ea3d5b2d75063b91f"
+    },
+    "tree_identical": true,
+    "source_evidence": "Quality and SPIRE checkout transcripts; GitHub Git commit tree metadata"
+  },
+  "status": "FAIL",
+  "ci": {
+    "id": 40852816995,
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40852816995",
+    "head": "ba8417ef6a7a954c681f7de830fe84bd78faf25b",
+    "attempt": 1,
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-29T09:50:44Z",
+    "updated_at": "2026-10-29T09:54:44Z",
+    "jobs": [
+      {
+        "id": 123376260435,
+        "name": "postgres backend integration",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40852816995,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "clippy (postgres feature)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "test (postgres feature, live DB)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "storage controls (restricted roles, live DB)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      },
+      {
+        "id": 123376260847,
+        "name": "Python SDK regression and parity tests",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40852816995,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run python -m pip install cryptography==41.0.7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Test SDK, adapters, canonical fixtures and schemas",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      },
+      {
+        "id": 123376260868,
+        "name": "fmt · clippy · test",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_id": 40852816995,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Install Rust toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Cache cargo",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install SoftHSM2 (PKCS#11 module for aip-hsm tests)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "cargo fmt --check",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "cargo clippy (deny warnings)",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 7
+          },
+          {
+            "name": "cargo test",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 8
+          },
+          {
+            "name": "cargo test (release — perf gates)",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 9
+          },
+          {
+            "name": "Post Cache cargo",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 17
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 123376260948,
+        "name": "cargo audit · cargo deny",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40852816995,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install audit tools",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "cargo audit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "cargo deny check",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      },
+      {
+        "id": 123376261032,
+        "name": "coverage",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_id": 40852816995,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install cargo-llvm-cov",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install SoftHSM2 (required by workspace custody tests)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Generate coverage",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 6
+          },
+          {
+            "name": "Upload coverage artifact",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          }
+        ]
+      },
+      {
+        "id": 123376261122,
+        "name": "RED suite (adversarial ledger reproducible)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40852816995,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Install Rust toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Cache cargo",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "RED suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Cache cargo",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      }
+    ]
+  },
+  "enterprise": {
+    "id": 40852817063,
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40852817063",
+    "head": "ba8417ef6a7a954c681f7de830fe84bd78faf25b",
+    "attempt": 1,
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-29T09:50:45Z",
+    "updated_at": "2026-10-29T09:53:17Z",
+    "jobs": [
+      {
+        "id": 123376261539,
+        "name": "contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40852817063,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Pinned evidence client dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Packaging and harness controls",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Clients and restricted MCP boundaries",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Rust checks",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Real service, both SDKs, official MCP client and tenant isolation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Build verifiable Linux package",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Actual Linux executable package install/uninstall/reinstall (staging only)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 28
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 29
+          }
+        ]
+      },
+      {
+        "id": 123376261887,
+        "name": "contextforge",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40852817063,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run astral-sh/setup-uv@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Prepare actual pinned ContextForge",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Actual gateway and upstream interoperability",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run astral-sh/setup-uv@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      }
+    ]
+  },
+  "interoperability": {
+    "id": 40852817013,
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40852817013",
+    "head": "ba8417ef6a7a954c681f7de830fe84bd78faf25b",
+    "attempt": 1,
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-29T09:50:44Z",
+    "updated_at": "2026-10-29T09:54:04Z",
+    "jobs": [
+      {
+        "id": 123376260635,
+        "name": "native-offline",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40852817013,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run rustup toolchain install 1.99.1 --profile minimal && rustup default 1.99.1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run cargo test --locked -p aip-airi --example interop_verify",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run cargo test --locked -p aip-authorize --test authority_reference",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run cargo test --locked -p aip-mcp-gateway --test received_call",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run cargo build --locked -p aip-airi --example interop_verify",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Run cargo build --locked -p aip-mcp-gateway --bin aip-tool-receipt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Run python3 validation/interoperability/test_offline_composition.py --verifier target/debug/examples/interop_verify",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Run python3 validation/interoperability/verify_gateway_archive.py --archive validation/interoperability/results/20261028/combined/receipts.jsonl --anchor validation/interoperability/results/20261028/combined/trust-anchor.json --verifier target/debug/aip-tool-receipt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          }
+        ]
+      },
+      {
+        "id": 123376261004,
+        "name": "microsoft-receipt-offline",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40852817013,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run rustup toolchain install 1.99.1 --profile minimal && rustup default 1.99.1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Pinned native Microsoft SDK",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run cargo build --locked -p aip-mcp-gateway --bin aip-tool-receipt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run python -m pytest validation/interoperability/test_microsoft_receipt.py -q",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          }
+        ]
+      },
+      {
+        "id": 123376261114,
+        "name": "python-policy-identity",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_id": 40852817013,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run python -m pip install uv==0.13.4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Locked adapter tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Exact OPA release and live mTLS",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Exact SPIRE release and genuine JWT-SVID",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 7
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 15
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      }
+    ]
+  },
+  "compiler_failure": {
+    "quality_job": 123376260868,
+    "coverage_job": 123376261032,
+    "path": "aip-standalone/aip-nexora/tests/binding.rs:137",
+    "exact_source": "let (a, mut b) = two();",
+    "error": "variable does not need to be mutable",
+    "fatal_flag": "-D warnings",
+    "classification": "Unused-mut warning introduced by the preceding test-only repair; not a Rust test assertion or provider failure.",
+    "debug_workspace": "NOT_EXECUTED: attempted cargo command failed during compilation",
+    "release_workspace": "NOT_EXECUTED: attempted cargo command failed during compilation",
+    "quality_log_test_summary_records": 0,
+    "local_correction": {
+      "change": "Remove the single unnecessary mut; ObserverAttestor::health uses shared self",
+      "source_sha256": "933e2acb1780a5435d1f2a47cde57562c4ae9ad6ea44d36a3bda5b6b1e713304",
+      "strict_clippy_command": "cargo clippy --locked -p aip-nexora --test binding --test verify --all-features -- -D warnings",
+      "strict_clippy": "PASS",
+      "format": "PASS",
+      "scope": "Local targeted lint; next exact-source Linux CI remains required"
+    }
+  },
+  "postgres": {
+    "job_id": 123376260435,
+    "status": "PASS",
+    "default_storage_controls": {
+      "passed": 0,
+      "failed": 0,
+      "ignored": 14
+    },
+    "explicit_command": "cargo test --features postgres --test storage_controls -- --ignored",
+    "explicit_storage_controls": {
+      "passed": 14,
+      "failed": 0,
+      "ignored": 0
+    },
+    "explicit_completed_at_utc": "2026-10-29T09:52:04Z"
+  },
+  "spire_failure": {
+    "job_id": 123376261114,
+    "archive_digest_check": "PASS",
+    "agent_start_and_registration": "COMPLETED before failing fetch loop",
+    "failed_stage": "JWT-SVID retrieval",
+    "error": "RuntimeError: no JWT-SVID issued",
+    "path": "integrations/interoperability/examples/spire_jwt_live.py:88",
+    "retry_budget": "30 attempts with0.2s sleep, plus subprocess runtime",
+    "diagnostic_limit": "Each CalledProcessError.stderr is discarded; the log does not prove whether registration propagation or another enrollment/authorization issue caused the nonzero fetches.",
+    "classification": "Native live test failure after enrollment; not a runner/account restriction. A readiness timing issue is plausible but not established by this log.",
+    "prior_source_comparison": "The same SPIRE script passed its actual pinned native check on42d0d96; that does not turn this failing ba8417e attempt into PASS."
+  },
+  "artifacts": {
+    "enterprise": [
+      {
+        "id": 12888126681,
+        "name": "enterprise-linux-runtime-431051da0598db1dff3ae2c5d6b6f55100c92f45",
+        "size_in_bytes": 3032806,
+        "digest": "sha256:f09e6ee24cdcaaac76ecd06a77e6f63303eed1b156a4bf4d37d8cfc4bb0cee39",
+        "expired": false,
+        "created_at": "2026-10-29T09:53:14Z"
+      },
+      {
+        "id": 12888016394,
+        "name": "contextforge-integration-431051da0598db1dff3ae2c5d6b6f55100c92f45",
+        "size_in_bytes": 13721,
+        "digest": "sha256:5cd1d04a88dc6c807a1f568f886954324f9ebf7ffb3f269f1db4c49830a0161b",
+        "expired": false,
+        "created_at": "2026-10-29T09:51:53Z"
+      }
+    ],
+    "interoperability": [
+      {
+        "id": 12887254287,
+        "name": "interoperability-public-results",
+        "size_in_bytes": 1666,
+        "digest": "sha256:31259771795e88e628d3e73379c7eb3e4a9f81239fe116388b862203325fcf9c",
+        "expired": false,
+        "created_at": "2026-10-29T09:51:09Z"
+      }
+    ],
+    "digest_scope": "GitHub API metadata, not independently recomputed downloaded archives"
+  },
+  "limits": [
+    "This ba8417e source is not accepted as CI green.",
+    "Separate enterprise success and PostgreSQL14pass do not replace unavailable debug/release test results at this source.",
+    "No recorded SIG/JWT data or raw credentials are included in this allowlisted receipt.",
+    "The next candidate must pass actual complete workspace and live SPIRE checks."
+  ]
+}

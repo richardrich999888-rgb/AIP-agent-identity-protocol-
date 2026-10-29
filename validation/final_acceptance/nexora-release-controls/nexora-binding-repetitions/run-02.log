@@ -1,0 +1,30 @@
+warning: variable does not need to be mutable
+   --> aip-standalone/aip-nexora/tests/binding.rs:137:13
+    |
+137 |     let (a, mut b) = two();
+    |             ----^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `aip-nexora` (test "binding") generated 1 warning (run `cargo fix --test "binding"` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running tests/binding.rs (target/release/deps/binding-1b67a687969d364f)
+
+running 12 tests
+test b01_a_package_whose_components_come_from_one_execution_binds ... ok
+test b07_lineage_that_names_the_subject_as_its_own_parent_does_not_bind ... ok
+test b03_an_authority_the_expectation_was_not_issued_under_does_not_bind ... ok
+test b02_another_agents_identity_document_does_not_bind ... ok
+test b10_a_commitment_to_other_bytes_does_not_bind ... ok
+test b05_another_observers_records_do_not_bind ... ok
+test b06_a_continuity_report_from_another_observer_does_not_bind ... ok
+test b11_a_signature_declaring_an_algorithm_nobody_implements_is_a_fault ... ok
+test b09_a_warrant_for_another_record_or_another_subject_does_not_bind ... ok
+test b08_another_executions_verdict_does_not_bind ... ok
+test b04_another_executions_expectation_does_not_bind ... ok
+test b12_a_seal_is_broken_by_every_component_substitution ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

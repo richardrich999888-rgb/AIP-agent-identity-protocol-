@@ -1,0 +1,34 @@
+Exact source and complete step outcomes: candidate-ba8417e-attempt.json.
+CI FAIL: unused-mut under denied warnings. No full workspace test summaries were emitted; debug/release attempted commands failed while compiling.
+2026-10-29T09:50:50.9731937Z HEAD is now at 431051d Merge ba8417ef6a7a954c681f7de830fe84bd78faf25b into a933fdc327e8744dc8a8441ea3d5b2d75063b91f
+2026-10-29T09:51:07.6057938Z ##[group]Run cargo fmt --all -- --check
+2026-10-29T09:51:09.5801926Z ##[group]Run cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
+2026-10-29T09:51:28.3517852Z    --> aip-standalone/aip-nexora/tests/binding.rs:137:13
+2026-10-29T09:51:28.6301371Z ##[error]Process completed with exit code 101.
+2026-10-29T09:51:28.6361153Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast
+2026-10-29T09:52:06.0448907Z error: variable does not need to be mutable
+2026-10-29T09:52:06.0449765Z    --> aip-standalone/aip-nexora/tests/binding.rs:137:13
+2026-10-29T09:52:06.0848374Z error: could not compile `aip-nexora` (test "binding") due to 1 previous error
+2026-10-29T09:52:06.8783363Z ##[error]Process completed with exit code 101.
+2026-10-29T09:52:07.0135845Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast
+2026-10-29T09:54:40.6825792Z error: variable does not need to be mutable
+2026-10-29T09:54:40.6826950Z    --> aip-standalone/aip-nexora/tests/binding.rs:137:13
+2026-10-29T09:54:40.7135879Z error: could not compile `aip-nexora` (test "binding") due to 1 previous error
+2026-10-29T09:54:42.9253638Z ##[error]Process completed with exit code 101.
+COVERAGE:
+2026-10-29T09:53:29.2592338Z error: variable does not need to be mutable
+2026-10-29T09:53:29.2593316Z    --> aip-standalone/aip-nexora/tests/binding.rs:137:13
+2026-10-29T09:53:29.2599327Z     = note: `-D unused-mut` implied by `-D warnings`
+2026-10-29T09:53:29.2673376Z error: could not compile `aip-nexora` (test "binding") due to 1 previous error
+2026-10-29T09:53:30.7041541Z ##[error]Process completed with exit code 101.
+SPIRE:
+2026-10-29T09:50:50.9753240Z HEAD is now at 431051d Merge ba8417ef6a7a954c681f7de830fe84bd78faf25b into a933fdc327e8744dc8a8441ea3d5b2d75063b91f
+2026-10-29T09:50:56.7863315Z 47 passed in 1.41s
+2026-10-29T09:50:58.3158371Z /tmp/vanian-interop/spire.tar.gz: OK
+2026-10-29T09:51:08.6308111Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/integrations/interoperability/examples/spire_jwt_live.py", line 88, in main
+2026-10-29T09:51:08.6310840Z RuntimeError: no JWT-SVID issued
+2026-10-29T09:51:08.6474080Z ##[error]Process completed with exit code 1.
+POSTGRES: default14ignored; explicit separate --ignored invocation14passed,0failed,0ignored.
+LOCAL CORRECTION: one unnecessary mut removed; strict locked Clippy for both Nexora test targets passed. No production semantics changed.
+SPIRE LIMIT: fetch stderr was discarded; precise original fetch failure reason is unknown.
+

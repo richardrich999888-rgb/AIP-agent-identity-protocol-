@@ -1,5 +1,16 @@
 # Enterprise integration validation — 28 October 2026
 
+## Combined recovery continuation — 29 October 2026
+
+The [current acceptance report](../../validation/final_acceptance/REPORT.md)
+records combined PR #8/#11 source, concrete defects and exact-revision results.
+Genuine workflow40854983596 on9ed1662 passed observed, interrupted and fresh-recovery
+profiles, including all clients and browser checks. Original signed evidence
+and separately retained public trust/checkpoints can be reverified from the
+repository. Debian build/staging passed; clean-host installation, separate
+administration and bank acceptance remain external gates. Earlier records below
+retain their original source and scope.
+
 ## Administrator configuration registration
 
 Implementation `b9eb4bd6de2a26842b869490af15c24927024fcc` extends the existing

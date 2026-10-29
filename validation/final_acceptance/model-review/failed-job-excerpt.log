@@ -1,0 +1,12 @@
+Source: https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40740307858/attempts/2
+Job ID: 123008593400
+2026-10-28T18:13:20.2060788Z Traceback (most recent call last):
+2026-10-28T18:13:20.2062416Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/validation/enterprise/prepare_local_model.py", line 109, in <module>
+2026-10-28T18:13:20.2063740Z     main()
+2026-10-28T18:13:20.2065273Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/validation/enterprise/prepare_local_model.py", line 93, in main
+2026-10-28T18:13:20.2066636Z     manifest = verify_model(models)
+2026-10-28T18:13:20.2067168Z                ^^^^^^^^^^^^^^^^^^^^
+2026-10-28T18:13:20.2068270Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/validation/enterprise/prepare_local_model.py", line 31, in verify_model
+2026-10-28T18:13:20.2097361Z ##[error]    raise ValueError('model tag changed; reviewed manifest digest required')
+2026-10-28T18:13:20.2105669Z ValueError: model tag changed; reviewed manifest digest required
+2026-10-28T18:13:20.2180258Z ##[error]Process completed with exit code 1.

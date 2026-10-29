@@ -1,0 +1,11 @@
+# External acceptance gates
+
+The current local host is Darwin arm64. `host-preflight.json` records the missing Linux/procfs/BPF/tracepoint prerequisites; installed cross-compilation targets do not execute a Linux kernel. Docker's daemon was unavailable. Real Linux execution was therefore performed on the repository's disposable GitHub runners, with exact workflow evidence retained separately.
+
+No approved customer Linux/systemd installation host, workload enrollment target, independently administered collector domain, or institutional signing-authority provisioning channel was supplied in this session. No customer host was installed, reconfigured or enrolled. The enterprise workflow built both Debian packages and exercised actual Linux binaries in a staging lifecycle, explicitly reporting `live_clean_host_installation=false`. The actual hosted collector shares kernel/root administration with its workload and cannot qualify separate administration.
+
+Clean-host install/start/restart/upgrade/uninstall with retained evidence requires approved host access and operating authority. Separate administration requires an independently controlled collector host, key custody and storage; a second container under the same root cannot satisfy it. Institutional/bank acceptance requires an explicit external assessment and approved trust anchors. These three matrix gates remain `BLOCKED`.
+
+The hosted probe and collector both use root. Their shared OS principal can access the root-owned collector wrapped-key/passphrase files; the agent-only file-refusal check does not test the probe. This is a confirmed static boundary gap in the local demonstration, not a claim that a key was extracted. See `probe-key-boundary.md` for exact source evidence. Collector record integrity can pass while required probe-to-collector key inaccessibility remains `BLOCKED` for this profile.
+
+This records absent infrastructure/authority and an unqualified shared-root boundary rather than an unexecuted software test being called a failure. No installer separation guard or branch/security check was bypassed. Production independent custody requires the approved separate deployment; a same-root local demonstration cannot qualify it.

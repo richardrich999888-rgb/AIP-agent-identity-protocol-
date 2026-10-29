@@ -51,6 +51,11 @@ class VanianToolReceiptPlugin(Plugin):
         self.timeout = float(options.get("signer_timeout_seconds", 5))
         self.max_requests = int(options.get("max_requests", 100_000))
         self.max_bytes = int(options.get("max_request_bytes", 524_288))
+        self.require_authorization = options.get("require_authorization", False)
+        if type(self.require_authorization) is not bool:
+            raise ValueError("require_authorization must be an explicit boolean")
+        self.authorization_binary = str(options.get(
+            "authorization_binary", str(Path(self.binary).with_name("aip-execution-assurance"))))
         if not Path(self.binary).is_absolute() or not Path(self.database).is_absolute():
             raise ValueError("signer_binary and replay_database must be absolute paths")
         if not self.tools or not self.principals or not (0 < self.timeout <= 30):
@@ -65,7 +70,71 @@ class VanianToolReceiptPlugin(Plugin):
                  "AIP_GATEWAY_KEY_VERSION", "AIP_GATEWAY_RECEIPTS")
         self.signer_env = {name: os.environ[name] for name in names}
         self.signer_env["PATH"] = os.defpath
+        self.authorization_directory: Path | None = None
+        self.authorization_env: dict[str, str] = {"PATH": os.defpath}
+        if self.require_authorization:
+            self.authorization_directory = Path(os.environ["AIP_AUTHORIZATION_DIR"])
+            trust_file = Path(os.environ["AIP_RUN_TRUST_FILE"])
+            if (not self.authorization_directory.is_absolute() or not trust_file.is_absolute()
+                    or not Path(self.authorization_binary).is_absolute()):
+                raise ValueError("authorization paths must be administrator-configured absolute paths")
+            self._check_admin_path(self.authorization_directory, directory=True)
+            self._check_admin_path(trust_file)
+            self._check_admin_path(Path(self.authorization_binary))
+            self.authorization_env["AIP_RUN_TRUST_FILE"] = str(trust_file)
         self._initialize_database()
+
+    @staticmethod
+    def _check_admin_path(path: Path, *, directory: bool = False) -> None:
+        metadata = path.lstat()
+        correct_type = stat.S_ISDIR(metadata.st_mode) if directory else stat.S_ISREG(metadata.st_mode)
+        if (not correct_type or metadata.st_mode & 0o022
+                or (hasattr(os, "getuid") and metadata.st_uid not in (0, os.getuid()))):
+            raise ValueError("authorization files and directories must be controlled by the gateway administrator")
+
+    async def _check_authorization(self, call: dict[str, Any]) -> bool:
+        """Lookup a signed decision from gateway-owned storage, never a path
+        or trust anchor supplied by the monitored client. A reference alone
+        grants nothing; Rust verifies the actual received call before dispatch.
+        """
+        assert self.authorization_directory is not None
+        decision_path = self.authorization_directory / (call["decision_id"] + ".json")
+        try:
+            self._check_admin_path(decision_path)
+            descriptor = os.open(decision_path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+            with os.fdopen(descriptor, "rb") as stream:
+                metadata = os.fstat(stream.fileno())
+                if (not stat.S_ISREG(metadata.st_mode) or metadata.st_size > 65_536
+                        or metadata.st_mode & 0o022
+                        or (hasattr(os, "getuid") and metadata.st_uid not in (0, os.getuid()))):
+                    return False
+                raw = stream.read(65_537)
+            if len(raw) > 65_536:
+                return False
+            expectation = json.loads(raw)
+            # Avoid aliasing a decision reference to another signed record.
+            if bytes(expectation["decision_id"]).hex() != call["decision_id"]:
+                return False
+            request = {"expectation": expectation, "agent_id": call["agent_id"],
+                       "tool_id": call["tool_name"], "arguments": call["arguments"],
+                       "received_at_ms": call["received_at_ms"]}
+            process = await asyncio.create_subprocess_exec(
+                self.authorization_binary, "check-authorization", stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+                env=self.authorization_env,
+            )
+            try:
+                stdout, _stderr = await asyncio.wait_for(process.communicate(
+                    json.dumps(request, allow_nan=False, separators=(",", ":")).encode()), timeout=self.timeout)
+            except BaseException:
+                if process.returncode is None:
+                    process.kill()
+                    await process.wait()
+                raise
+            return (process.returncode == 0 and len(stdout) <= 1024
+                    and json.loads(stdout).get("authorized") is True)
+        except (OSError, ValueError, TypeError, KeyError, OverflowError):
+            return False
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.database, timeout=5)
@@ -176,6 +245,8 @@ class VanianToolReceiptPlugin(Plugin):
                 return await self._refuse(call, "UNSUPPORTED_TOOL")
             if headers.get("mcp-method", "tools/call") != "tools/call" or headers.get("mcp-name", payload.name) != payload.name:
                 return await self._refuse(call, "HEADER_BODY_DISAGREEMENT")
+            if self.require_authorization and not await self._check_authorization(call):
+                return await self._refuse(call, "AUTHORIZATION_REFUSED")
             checked = await self._signer("check", call)
             if checked.get("ready") is not True:
                 raise ReceiptUnavailable("signer readiness not established")

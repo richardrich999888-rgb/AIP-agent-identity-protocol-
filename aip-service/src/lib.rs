@@ -16,6 +16,7 @@ pub mod metrics;
 pub mod models;
 pub mod observations;
 pub mod revocation;
+pub mod runs;
 pub mod store;
 pub mod tokens;
 pub mod verdicts;
@@ -85,6 +86,8 @@ pub struct AppState {
     /// Institution-configured public observer anchors, bound to one tenant.
     /// Archive submitters cannot choose or replace these anchors.
     pub observer_trust: observations::ObserverTrustStore,
+    /// Tenant/admin supplied same-run anchors and independently retained checkpoints.
+    pub run_trust: runs::RunTrustStore,
 }
 
 /// Whether the service will sign on an agent's behalf using a key the caller
@@ -207,6 +210,15 @@ pub fn router_with_deployments(
         .route("/v1/agents", get(enterprise::agents))
         .route("/v1/agents/:agent_id", get(enterprise::agent))
         .route("/v1/agents/:agent_id/activity", get(enterprise::activity))
+        .route(
+            "/v1/runs",
+            post(runs::submit).layer(axum::extract::DefaultBodyLimit::max(runs::MAX_BUNDLE_BYTES)),
+        )
+        .route("/v1/runs/:id", get(runs::raw))
+        .route("/v1/runs/:id/metadata", get(runs::metadata))
+        .route("/v1/runs/:id/evaluation", get(runs::evaluation))
+        .route("/v1/runs/:id/verdict", get(runs::verdict))
+        .route("/v1/agents/:agent_id/runs", get(runs::for_agent))
         .route("/v1/coverage", get(enterprise::coverage))
         .route("/v1/health", get(enterprise::health))
         .route("/v1/observations", post(observations::submit))

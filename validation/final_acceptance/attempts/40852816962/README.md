@@ -1,0 +1,7 @@
+# Browser-stage refusal on ba8417e
+
+Workflow40852816962, job123376260790, direct source `ba8417ef6a7a954c681f7de830fe84bd78faf25b` failed its genuine observed profile at the console-browser stage. Interruption/recovery steps were skipped. Public artifact12887768199 (181443 ZIP bytes) has GitHub-published SHA256 `09c247fbd0a819d52f053b8710304c54199777114a298d39f1e7d2fc9e84b57e`.
+
+The actual agent executed two local-model calls and its real read-only tool. Source control flow and `client-progress.json` establish that API/Python, official MCP and compiled TypeScript checks completed before the browser stage. The parent controller retained `FAIL`, `client interface validation failed`, and an empty cleanup-error list. A broad browser stage without retained safe substage diagnostics does not identify the failed browser operation or prove a startup/timing cause. Private client logs were correctly excluded from the public artifact.
+
+The exact original public artifact files are retained here, with large JSON/JSONL losslessly compressed. `files.json` records original size/hash and retained names. The native archive verifier accepted the original signed streams with zero findings under the separately retained parent observer anchor; both original hashes match the parent checkpoint. This proves archive integrity, not successful browser or full workflow acceptance. No signed record or verdict was rewritten to turn the failure into a success.

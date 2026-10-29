@@ -1,0 +1,43 @@
+{
+  "checked_utc": "2026-10-29T10:06:16.718907+00:00",
+  "base_commit": "ba8417ef6a7a954c681f7de830fe84bd78faf25b",
+  "working_tree_source": true,
+  "sha256": {
+    "integrations/interoperability/examples/spire_jwt_live.py": "638c32c30365db165504abc7b4b474e04fbaedfb2383536558839fc26af5d83b",
+    "validation/interoperability/test_spire_cli.py": "299ed6622dfa2ace5b80bcd144b00e92a216038f1ccaed4a95afe104dcf6cc8c"
+  },
+  "scope": "Portable fake-clock/CLI regressions only; live Linux SPIRE JWT-SVID rerun still required",
+  "stderr_retention": "Only fixed category labels retained; classifier inspects at most4096UTF8bytes of transient captured pinnedCLI stderr",
+  "primary_sources": [
+    "https://github.com/spiffe/spire/blob/v1.15.3/pkg/agent/endpoints/workload/handler.go",
+    "https://github.com/spiffe/spire/blob/v1.15.3/cmd/spire-agent/cli/api/api_test.go",
+    "https://github.com/spiffe/spire/blob/v1.15.3/doc/spire_agent.md"
+  ],
+  "previous_failure": "JWT issuance was not observed; stderr was discarded, so no exact upstream failure cause is asserted"
+}
+
+$ python3.12 -m unittest discover -s validation/interoperability -p test_spire_cli.py -v
+test_delayed_readiness_after_old_six_second_window_is_accepted (test_spire_cli.SpireReadinessTests.test_delayed_readiness_after_old_six_second_window_is_accepted) ... ok
+test_failure_diagnostics_and_tracebacks_never_retain_cli_secrets (test_spire_cli.SpireReadinessTests.test_failure_diagnostics_and_tracebacks_never_retain_cli_secrets) ... ok
+test_individual_call_timeouts_use_only_remaining_deadline (test_spire_cli.SpireReadinessTests.test_individual_call_timeouts_use_only_remaining_deadline) ... ok
+test_permanent_cli_failure_times_out_without_sleeping_past_deadline (test_spire_cli.SpireReadinessTests.test_permanent_cli_failure_times_out_without_sleeping_past_deadline) ... ok
+test_process_death_is_refused_before_call_or_before_returning_success (test_spire_cli.SpireReadinessTests.test_process_death_is_refused_before_call_or_before_returning_success) ... ok
+test_stderr_classifier_retains_only_allowlisted_categories (test_spire_cli.SpireReadinessTests.test_stderr_classifier_retains_only_allowlisted_categories) ... ok
+test_missing_duplicate_or_malformed_token_is_refused_without_echo (test_spire_cli.SpireTokenResponseTests.test_missing_duplicate_or_malformed_token_is_refused_without_echo) ... ok
+test_missing_spiffe_id_warning_is_not_part_of_the_join_token (test_spire_cli.SpireTokenResponseTests.test_missing_spiffe_id_warning_is_not_part_of_the_join_token) ... ok
+test_token_line_without_a_warning_is_accepted (test_spire_cli.SpireTokenResponseTests.test_token_line_without_a_warning_is_accepted) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.007s
+
+OK
+
+exit_code=0
+
+$ python3.12 -m py_compile integrations/interoperability/examples/spire_jwt_live.py validation/interoperability/test_spire_cli.py
+
+exit_code=0
+
+$ git diff --check -- integrations/interoperability/examples/spire_jwt_live.py validation/interoperability/test_spire_cli.py
+
+exit_code=0

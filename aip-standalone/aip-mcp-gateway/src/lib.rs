@@ -44,6 +44,7 @@ use aip_airi::{GatewayDisposition, GatewaySigner, SignedToolReceipt, ToolCallId,
 use aip_crypto::sha256;
 use serde_json::Value;
 
+pub mod assurance;
 pub mod canonical;
 pub mod comparison;
 

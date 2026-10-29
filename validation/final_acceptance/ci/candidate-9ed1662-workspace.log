@@ -1,0 +1,38 @@
+CI 40854983581 FINAL SUCCESS: all six jobs passed on 9ed1662af95ce83bbbee69c9387d5bd638713575.
+Actual checkout 38b20d92f1bb0981161f5859a713d3483873d010; checkout/head tree 9ab6eceb5eb11391ffba9fd447e5f1011483d621 identical.
+DEBUG: 3,304 passed / 0 failed / 10 ignored. RELEASE: 3,306 passed / 0 failed / 8 ignored. Each has 338 standard Rust result records.
+Exact job/step metadata, counting rule and ignored scopes: candidate-9ed1662-workspace.json.
+2026-10-29T10:07:34.3940305Z ##[group]Run cargo fmt --all -- --check
+2026-10-29T10:07:36.0590747Z ##[group]Run cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
+2026-10-29T10:07:55.8388889Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast
+2026-10-29T10:16:31.6115130Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast
+2026-10-29T10:11:21.3958094Z test b05_another_observers_records_do_not_bind ... ok
+2026-10-29T10:11:36.3029221Z test v04b_matching_health_reference_fields_do_not_trust_an_unanchored_signature ... ok
+2026-10-29T10:20:00.2634171Z test b05_another_observers_records_do_not_bind ... ok
+2026-10-29T10:20:00.3803863Z test v04b_matching_health_reference_fields_do_not_trust_an_unanchored_signature ... ok
+2026-10-29T10:09:05.3556017Z test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture
+2026-10-29T10:11:45.9247363Z test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture
+2026-10-29T10:11:46.6455513Z test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing
+2026-10-29T10:11:51.9077871Z test stress::test_signing_throughput ... ignored, wall-clock throughput gate — meaningful only under `cargo test --release`
+2026-10-29T10:11:57.4916670Z test stress::test_verification_throughput ... ignored, wall-clock throughput gate — meaningful only under `cargo test --release`
+2026-10-29T10:15:56.5824284Z test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments
+2026-10-29T10:15:56.7877089Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener
+2026-10-29T10:15:56.7878597Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener
+2026-10-29T10:16:29.2904569Z test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored
+2026-10-29T10:16:30.4155780Z test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored
+2026-10-29T10:19:48.6058472Z test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture
+2026-10-29T10:20:02.2816382Z test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture
+2026-10-29T10:20:02.4612674Z test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing
+2026-10-29T10:20:32.5801111Z test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments
+2026-10-29T10:20:32.6038943Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener
+2026-10-29T10:20:32.6040107Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener
+2026-10-29T10:20:48.3396313Z test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored
+2026-10-29T10:20:49.4517293Z test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored
+POSTGRES:
+2026-10-29T10:08:37.3915415Z test result: ok. 0 passed; 0 failed; 14 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-29T10:08:39.0349867Z ##[group]Run cargo test --features postgres --test storage_controls -- --ignored
+2026-10-29T10:08:39.9854328Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.82s
+Explicit separate PostgreSQL storage-controls invocation: 14 passed / 0 failed / 0 ignored.
+Private complete decoded transcript SHA256: 135196c50fdfc81d532a6d7e299305aaf4da7ea4de35f076955cd01752218cfc.
+Limits: these results do not establish collector key custody, separate administration or clean-host installation.
+

@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "scope": "Read-only classification of the retained initial 3,078 passed / 161 failed / 8 ignored workspace transcript; no historical failure is converted to PASS.",
+  "provenance": {
+    "raw_log": "validation/interoperability/results/20261028/checks/workspace-tests.log",
+    "raw_log_sha256": "b9ab39acac79934d893b3e64fbd0ef0e446da107a9588070a95854d32e3fe4e1",
+    "raw_log_bytes": 376983,
+    "checksum_manifest": "validation/interoperability/results/20261028/SHA256SUMS.json",
+    "manifest_matches": true,
+    "retention_commit": "a1f4bfbc798c2bd7be734f75c8b3aa7eb7a7a3e3",
+    "git_blob": "7e1f2b4e9d98d7282addaa159779ff7ec9dbe462",
+    "declared_base_commit": "e3aa195def7524d6ec84d37a934beebe18b6c794",
+    "declared_base_source": "validation/interoperability/results/20261028/run-summary.json",
+    "actual_tested_head_or_tree": "NOT_RECORDED in the raw transcript; declared base is not proof that the checkout was clean or identical",
+    "github_run_or_job_id": "NOT_RECORDED for this historical workspace command",
+    "host_os_and_capabilities": "NOT_RECORDED sufficiently to assign all failures to an OS/capability cause"
+  },
+  "totals": {
+    "passed": 3078,
+    "failed": 161,
+    "ignored": 8,
+    "failed_targets": 28,
+    "classified_failure_blocks": 161,
+    "unclassified_failure_blocks": 0
+  },
+  "groups": [
+    {
+      "category": "process_measurement_not_visible",
+      "count": 35,
+      "examples": [
+        {
+          "test": "a_declared_resource_the_ledger_does_not_show_is_self_reported",
+          "log_line": 313,
+          "panic_source": "aip-standalone/aip-aibom/tests/common/evidence.rs:108:48",
+          "message": "called `Result::unwrap()` on an `Err` value: ProcessNotVisible { pid: 29486 }",
+          "comparison": []
+        }
+      ],
+      "interpretation": "The measurement layer returns ProcessNotVisible for 35 fixture process lookups. This establishes unavailable measurement, not its underlying host/process cause."
+    },
+    {
+      "category": "proc_stat_unavailable",
+      "count": 107,
+      "examples": [
+        {
+          "test": "c01_heuristic_correlated_attested_cannot_contain",
+          "log_line": 1124,
+          "panic_source": "aip-standalone/aip-containment/tests/containment.rs:236:66",
+          "message": "called `Result::unwrap()` on an `Err` value: Unavailable { field: \"pid_start_time_ticks\", reason: \"read /proc/30021/stat: No such file or directory (os error 2)\" }",
+          "comparison": []
+        }
+      ],
+      "interpretation": "Execution-binding collection fails because the named /proc/<pid>/stat file cannot be read (ENOENT). These 107 failures occur while constructing live-process inputs, not at their named policy/security assertion. The log alone cannot distinguish absent/inaccessible procfs, namespace visibility or process lifetime."
+    },
+    {
+      "category": "namespace_inode_unavailable",
+      "count": 1,
+      "examples": [
+        {
+          "test": "execution_binding::tests::a_namespace_link_this_build_cannot_parse_yields_nothing",
+          "log_line": 1462,
+          "panic_source": "aip-standalone/aip-core/src/execution_binding.rs:571:9",
+          "message": "assertion failed: read_ns_inode(std::process::id(), \"pid\").is_some()",
+          "comparison": []
+        }
+      ],
+      "interpretation": "One self namespace-inode assertion fails. The required namespace link was not established; the log does not identify the host or mount configuration."
+    },
+    {
+      "category": "enforcement_allowed_program_exit_127",
+      "count": 1,
+      "examples": [
+        {
+          "test": "l01_an_allowed_program_execs_and_a_disallowed_one_is_refused_with_eperm",
+          "log_line": 2041,
+          "panic_source": "aip-standalone/aip-enforce/tests/live.rs:92:5",
+          "message": "assertion `left == right` failed: true should have run",
+          "comparison": [
+            "  left: Some(127)",
+            " right: Some(0)"
+          ]
+        }
+      ],
+      "interpretation": "An allowed real program was expected to exit 0 but instead exited 127; four other enforcement live tests passed. The retained output lacks the enforcement decision/child diagnostics needed to classify this as a source bug versus a host/capability/configuration issue. Keep it an unresolved historical test failure."
+    },
+    {
+      "category": "missing_softhsm",
+      "count": 15,
+      "examples": [
+        {
+          "test": "a_missing_key_is_refused_by_name",
+          "log_line": 2357,
+          "panic_source": "aip-standalone/aip-hsm/tests/softhsm.rs:65:5",
+          "message": "SoftHSM2 is required for the aip-hsm tests and was not found.",
+          "comparison": []
+        }
+      ],
+      "interpretation": "Explicit unmet SoftHSM2/PKCS#11 dependency. All 15 fail in the shared module-discovery setup before custody assertions run. The tests intentionally refuse to skip this dependency."
+    },
+    {
+      "category": "xdp_program_load_eperm_not_verifier_eacces",
+      "count": 1,
+      "examples": [
+        {
+          "test": "x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused",
+          "log_line": 3777,
+          "panic_source": "aip-standalone/aip-observe/tests/gate10_xdp_evaluation.rs:326:13",
+          "message": "assertion `left == right` failed: a rejected program is EACCES, not Operation not permitted (os error 1)",
+          "comparison": [
+            "  left: Some(1)",
+            " right: Some(13)"
+          ]
+        }
+      ],
+      "interpretation": "Map creation succeeded, but unsafe-program loading returned EPERM (1) while the test expected verifier EACCES (13). The test only guards map creation before requiring a verifier rejection, so program-load availability is not separately established. EPERM does not prove that the kernel verifier evaluated and rejected the unsafe access; this is a concrete test/harness availability distinction, not evidence of an accepted unsafe program."
+    },
+    {
+      "category": "socket_task_anchor_unavailable",
+      "count": 1,
+      "examples": [
+        {
+          "test": "sk05_the_probe_anchors_the_sending_task_under_the_start_tick_rule",
+          "log_line": 3900,
+          "panic_source": "aip-standalone/aip-observe/tests/socksend.rs:184:10",
+          "message": "this process is alive and started before now",
+          "comparison": []
+        }
+      ],
+      "interpretation": "One socket-sending-task start-tick anchor returns no value. The message alone does not distinguish unavailable /proc inputs from clock/instance timing."
+    }
+  ],
+  "failed_target_commands": [
+    "-p aip-aibom --test assess_evidence",
+    "-p aip-containment --test containment",
+    "-p aip-containment --test engine_to_containment",
+    "-p aip-containment --test live_freeze",
+    "-p aip-core --lib",
+    "-p aip-edge --test adversarial",
+    "-p aip-edge --test end_to_end",
+    "-p aip-edge --test lifecycle",
+    "-p aip-edge --test nexora",
+    "-p aip-enforce --test live",
+    "-p aip-enterprise --test integration",
+    "-p aip-hsm --test softhsm",
+    "-p aip-industrial --test integration",
+    "-p aip-ledger --test inventory",
+    "-p aip-ledger --test ledger",
+    "-p aip-observe --lib",
+    "-p aip-observe --test blind_spots",
+    "-p aip-observe --test container_identity",
+    "-p aip-observe --test gate10_xdp_evaluation",
+    "-p aip-observe --test sniffer_dog",
+    "-p aip-observe --test socksend",
+    "-p aip-robotics --test integration",
+    "-p aip-space --test mission",
+    "-p aip-uas --test integration",
+    "-p ghost-demo --test live",
+    "-p ghost-demo --test live_coverage",
+    "-p ghost-demo --test live_nexora",
+    "-p ghost-demo --test signed_verdict"
+  ],
+  "conclusions": [
+    "142 failures explicitly report unavailable /proc stat/process measurement; the namespace-inode failure and socket-task-anchor failure are tracked separately rather than assumed to share an identical cause.",
+    "15 explicitly require the missing SoftHSM module. The two remaining exceptions are enforcement exit127 and XDP program-load EPERM, retained individually with unresolved/limited causes.",
+    "The initial run remains failed. These categories describe observed failure mechanisms and do not prove every underlying root cause was environmental.",
+    "No new source fixes are made from this historical classification. Current supported Linux results must be linked separately at their exact source; optional capability-return paths do not by themselves prove kernel functionality."
+  ]
+}

@@ -1,0 +1,47 @@
+Source: CI40850559163, quality job123368676692, head42d0d96c9cc9d3075c792a195cc74e4171b0e817.
+Actual checkout: eeefd3344b691c250e651f778bc3c079bbe0a437; treef0595d7af13bd91232585e2a93148dc6893128db equals the head tree.
+FINAL: FAIL. Five jobs passed; quality release test step failed. Debug, fmt and strict Clippy passed.
+DEBUG: 3303 passed /0failed /10ignored across338 standard result records.
+RELEASE: 3304 passed /1failed /8ignored across338 standard result records.
+Full decoded transcript and precise hash retained locally; see JSON for counting rule and complete step outcomes.
+2026-10-29T09:33:48.6946502Z ##[group]Run cargo fmt --all -- --check
+2026-10-29T09:33:50.7654048Z ##[group]Run cargo clippy --workspace --all-targets --all-features -- -D warnings
+2026-10-29T09:34:09.6267038Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast
+2026-10-29T09:39:36.8514132Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast
+2026-10-29T09:42:26.3263981Z ---- b05_another_observers_records_do_not_bind stdout ----
+2026-10-29T09:42:26.3264181Z 
+2026-10-29T09:42:26.3264494Z thread 'b05_another_observers_records_do_not_bind' (25696) panicked at aip-standalone/aip-nexora/tests/binding.rs:173:5:
+2026-10-29T09:42:26.3264966Z []
+2026-10-29T09:42:26.3265229Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-10-29T09:42:26.3265420Z 
+2026-10-29T09:42:26.3265422Z 
+2026-10-29T09:42:26.3265469Z failures:
+2026-10-29T09:42:26.3265596Z     b05_another_observers_records_do_not_bind
+2026-10-29T09:42:26.3265707Z 
+2026-10-29T09:42:26.3265851Z test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-29T09:42:26.3266192Z 
+2026-10-29T09:42:26.3650062Z error: test failed, to rerun pass `-p aip-nexora --test binding`
+2026-10-29T09:42:26.3650433Z      Running tests/capability.rs (target/release/deps/capability-742fb9353bc26d06)
+2026-10-29T09:42:26.3657030Z 
+2026-10-29T09:42:26.3657111Z running 17 tests
+2026-10-29T09:42:26.3661092Z test adv04_a_missing_bound_is_not_constructible ... ok
+Only failed target: -p aip-nexora --test binding; complete release invocation continued with --no-fail-fast and exited101.
+PostgreSQL default storage_controls:0passed/0failed/14ignored. Separate explicit --ignored invocation:14passed/0failed/0ignored.
+PG_PASS a_query_that_forgets_its_tenant_filter_still_cannot_cross_tenants
+PG_PASS a_retention_policy_below_the_180_day_floor_is_refused
+PG_PASS a_connection_with_no_declared_tenant_sees_nothing
+PG_PASS a_held_packet_cannot_be_deleted_even_by_the_owner
+PG_PASS a_write_into_another_tenant_is_refused_by_the_policy
+PG_PASS a_tenant_wide_hold_covers_packets_it_never_named
+PG_PASS service_cannot_update_delete_or_truncate_signed_artifacts
+PG_PASS artifact_owner_cannot_rewrite_documents_or_delete_under_legal_hold
+PG_PASS signed_artifact_reads_and_insertions_are_bound_to_the_database_tenant
+PG_PASS the_service_role_cannot_delete_evidence
+PG_PASS the_service_role_cannot_modify_stored_evidence
+PG_PASS concurrent_filings_are_idempotent_and_hidden_collisions_are_generic
+PG_PASS the_service_role_cannot_truncate_or_drop
+PG_PASS the_store_operates_normally_as_the_restricted_role
+LOCAL TEST-ONLY REPAIR: health fixture timestamp max(A.at,B.at)+1; full verifier wrong-key/same-coordinate negative control added.
+FOCUSED RELEASE: binding12/0/0 +verify15/0/0. REPEATED RELEASE binding:20runs, each12/0/0, total240test executions.
+LOCAL LIMIT: Darwin portable fixture validation; a new complete Linux CI run is required for the repair.
+

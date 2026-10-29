@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-29T09:08:22Z",
+  "scope": "Completed Linux CI and separately failed interoperability at the exact edfd source. This is not complete same-run or customer-installation acceptance.",
+  "run": {
+    "id": 40753613660,
+    "name": "CI",
+    "head_branch": "fix/vanian-end-to-end-green",
+    "head_sha": "edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c",
+    "event": "pull_request",
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T19:21:47Z",
+    "updated_at": "2026-10-28T19:40:05Z",
+    "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40753613660",
+    "path": ".github/workflows/ci.yml"
+  },
+  "checkout": {
+    "sha": "99bec0661b1484c27dc58cffcbdd4b7714e01567",
+    "tree": "bdd11581ff49f0531a0eaa20ee1ca94c3dc537e4",
+    "parents": [
+      "a933fdc327e8744dc8a8441ea3d5b2d75063b91f",
+      "edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c"
+    ],
+    "head_tree": "bdd11581ff49f0531a0eaa20ee1ca94c3dc537e4",
+    "identical_to_head_tree": true,
+    "proof": "Both job checkout transcripts record refs/remotes/pull/12/merge at this exact SHA; GitHub Git commit metadata supplies tree and parents."
+  },
+  "runner": {
+    "version": "2.338.0",
+    "image": "ubuntu-24.04",
+    "image_version": "20261025.353.1",
+    "softhsm2": "installed before workspace tests",
+    "cgroup": "each command ran through the repository's cgroup delegation helper"
+  },
+  "jobs": [
+    {
+      "id": 123046536641,
+      "name": "fmt · clippy · test",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "number": 2,
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Install Rust toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Cache cargo",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Install SoftHSM2 (PKCS#11 module for aip-hsm tests)",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "cargo fmt --check",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "cargo clippy (deny warnings)",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "cargo test",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "cargo test (release — perf gates)",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 123046536828,
+      "name": "Python SDK regression and parity tests",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "number": 2,
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Run python -m pip install cryptography==41.0.7",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Test SDK, adapters, canonical fixtures and schemas",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 123046536977,
+      "name": "postgres backend integration",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "number": 3,
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Run Swatinem/rust-cache@v2",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "clippy (postgres feature)",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "test (postgres feature, live DB)",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "storage controls (restricted roles, live DB)",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 123046537181,
+      "name": "cargo audit · cargo deny",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "number": 2,
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Install audit tools",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "cargo audit",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "cargo deny check",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 123046537238,
+      "name": "coverage",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "number": 2,
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Install cargo-llvm-cov",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Install SoftHSM2 (required by workspace custody tests)",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Generate coverage",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Upload coverage artifact",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 123046537326,
+      "name": "RED suite (adversarial ledger reproducible)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "number": 2,
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Install Rust toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Cache cargo",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "RED suite",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "workspace": [
+    {
+      "profile": "debug",
+      "command": "bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast",
+      "started_at_utc": "2026-10-28T19:23:01Z",
+      "completed_at_utc": "2026-10-28T19:33:21Z",
+      "passed": 3291,
+      "failed": 0,
+      "ignored": 10,
+      "measured": 0,
+      "filtered_out": 0,
+      "result_summaries": 336
+    },
+    {
+      "profile": "release",
+      "command": "bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast",
+      "started_at_utc": "2026-10-28T19:33:21Z",
+      "completed_at_utc": "2026-10-28T19:39:49Z",
+      "passed": 3293,
+      "failed": 0,
+      "ignored": 8,
+      "measured": 0,
+      "filtered_out": 0,
+      "result_summaries": 336
+    }
+  ],
+  "count_method": "Split the complete quality-job transcript at the two actual Run command groups, then sum each standard Rust 'test result: STATUS. N passed; N failed; N ignored; N measured; N filtered out' record. result_summaries counts records, including zero-test targets and doctests. These are command-scoped totals, not unique test names across profiles.",
+  "ignored_scope": [
+    "Parity/sample regeneration helpers",
+    "Observer-path throughput measurement remains explicitly ignored",
+    "Three real HTTP service/registry/same-run client tests require separate explicit execution",
+    "Two documentation examples",
+    "Two throughput gates ignored in debug execute in release"
+  ],
+  "postgres": {
+    "job_id": 123046536977,
+    "version": "16.15 x86_64-pc-linux-musl (Alpine gcc 15.2.0)",
+    "default_command": "cargo test --features postgres --no-fail-fast",
+    "storage_controls_default": {
+      "passed": 0,
+      "failed": 0,
+      "ignored": 14
+    },
+    "explicit_command": "cargo test --features postgres --test storage_controls -- --ignored",
+    "explicit_storage_controls": {
+      "passed": 14,
+      "failed": 0,
+      "ignored": 0,
+      "completed_at_utc": "2026-10-28T19:23:41Z"
+    },
+    "qualification": "Disposable hosted database controls; not production database qualification"
+  },
+  "private_transcripts": [
+    {
+      "path": ".local/final-acceptance/edfd-workspace.raw.log",
+      "sha256": "a6156e62383baf2b57516eaa7712af84ac513ab12e128d88f55a581aafef25f6",
+      "scope": "Complete decoded quality-job log, retained locally; not committed"
+    },
+    {
+      "path": ".local/final-acceptance/edfd-workspace.summary.log",
+      "scope": "All test target headers, standard summaries, ignored reasons and command/source lines"
+    },
+    {
+      "path": ".local/final-acceptance/edfd-postgres.raw.log",
+      "sha256": "51a77b8a11d6633bd3ee5589c40ac23455d7c5740b32fb1862a3ddd96c0e0116",
+      "scope": "Complete decoded PostgreSQL job log, retained locally; not committed"
+    },
+    {
+      "path": ".local/final-acceptance/edfd-ci.raw.json",
+      "scope": "Exact GitHub run API response"
+    },
+    {
+      "path": ".local/final-acceptance/edfd-ci-jobs.raw.json",
+      "scope": "Exact connector job/step metadata"
+    }
+  ],
+  "interoperability": {
+    "run_id": 40753614141,
+    "head": "edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c",
+    "actual_checkout": "99bec0661b1484c27dc58cffcbdd4b7714e01567",
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40753614141",
+    "failed_job": {
+      "id": 123046536248,
+      "name": "python-policy-identity",
+      "failed_step_number": 7,
+      "failed_step": "Exact SPIRE release and genuine JWT-SVID"
+    },
+    "passed": {
+      "adapter_tests": 47,
+      "opa_policy_and_live_mtls": true,
+      "native_offline_job": 123046536459,
+      "microsoft_receipt_offline_job": 123046536753
+    },
+    "pinned_spire_archive_hash_check": "PASS",
+    "exact_error": "RuntimeError: SPIRE agent readiness timeout; failed to attest: join token does not exist or has already been used",
+    "classification": "Actual source parsing defect in the live enrollment harness; runner execution, dependency digest verification, adapter tests and OPA/mTLS completed. Not an account or provider block.",
+    "source_defect": {
+      "path": "integrations/interoperability/examples/spire_jwt_live.py",
+      "line_in_edfd": 63,
+      "old_expression": "call(...).split(\"Token: \")[1].strip()",
+      "effect": "Pinned SPIRE prints a second stdout warning when no -spiffeID is supplied. The old expression includes that warning in the join-token argument and subsequent parentID."
+    },
+    "primary_sources": [
+      {
+        "url": "https://github.com/spiffe/spire/blob/v1.15.3/cmd/spire-server/cli/token/generate.go",
+        "git_blob_sha": "230d47c4b16d3d182af81de265078af8c832556c",
+        "warning_line": 97
+      },
+      {
+        "url": "https://github.com/spiffe/spire/blob/v1.15.3/cmd/spire-server/cli/token/generate_test.go",
+        "git_blob_sha": "cf369b37963529426288d479c287bc02e7f9dc08",
+        "fixture_line": 55,
+        "exact_pretty_fixture": "Token: token\nWarning: Missing SPIFFE ID.\n",
+        "exact_json_fixture": {
+          "value": "token",
+          "expires_at": "0"
+        }
+      }
+    ],
+    "local_fix": {
+      "status": "PORTABLE_TESTS_PASS_LIVE_NOT_EXECUTED",
+      "approach": "Extract exactly one anchored Token line with a bounded nonempty printable ASCII value. Refuse missing, duplicate or malformed token lines without echoing the response. JWT imports remain inside main so parser tests need no identity dependencies; runtime selector and trust checks are unchanged.",
+      "source_files": [
+        "integrations/interoperability/examples/spire_jwt_live.py",
+        "validation/interoperability/test_spire_cli.py",
+        ".github/workflows/interoperability.yml"
+      ],
+      "command": ".local/interop-validation/bin/python -m unittest discover -s validation/interoperability -p test_spire_cli.py -v",
+      "passed": 3,
+      "failed": 0,
+      "old_parser_negative_control": "The exact historical expression was substituted only in the isolated regression-test process; its warning-fixture test failed as expected.",
+      "live_requirement": "The actual pinned native SPIRE Linux enrollment must pass on the new source before this gate can be marked live PASS."
+    },
+    "private_log": {
+      "path": ".local/final-acceptance/edfd-interop.raw.log",
+      "sha256": "7d1dcf1d44c873c75b0ce279a92d6cfbb34ed61c838f374d774a74b2473b6df6"
+    }
+  },
+  "limitations": [
+    "This CI source predates subsequent sensor/cross-batch fixes and does not validate later commits.",
+    "Successful workspace tests do not establish completion of the separately failed same-run workflow.",
+    "The three ignored real HTTP client tests are not counted as executed by the default workspace commands.",
+    "No workspace command or workflow was rerun, no workflow was dispatched, and no package was installed during this evidence audit. Only the separately described portable SPIRE parser tests were executed."
+  ]
+}

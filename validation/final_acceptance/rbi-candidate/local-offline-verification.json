@@ -1,0 +1,30 @@
+{
+  "observer_id": "collector.pilot.e2e",
+  "key_version": 1,
+  "public_key": "46866c54d9814107c264bee597e7d8381de950c1237dbc13069527c5d63279f6",
+  "batches": {
+    "records": 81,
+    "first_sequence": 1,
+    "last_sequence": 81,
+    "start": "Epoch",
+    "final_head": "9fbb26a76703280bbb445b8ea9cc0d9f256e7130e3d61cca71e9908fe74ea875",
+    "observations": 0,
+    "kernel_events": 3538
+  },
+  "health": {
+    "records": 4,
+    "states": [
+      "ContinuityUnverified",
+      "Active",
+      "IntegrityUnknown"
+    ],
+    "with_coverage": 2,
+    "without_coverage": 2,
+    "cross_checked_against_batches": 3,
+    "clock_synchronised": 4,
+    "clock_unsynchronised": 0,
+    "clock_not_stated": 0,
+    "clock_worst_max_error_us": 3009
+  },
+  "findings": []
+}

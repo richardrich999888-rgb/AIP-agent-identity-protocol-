@@ -1,0 +1,354 @@
+{
+  "capture_source_commit": "9ed1662af95ce83bbbee69c9387d5bd638713575",
+  "capture_source_sha256": {
+    ".github/workflows/same-run-validation.yml": "895f2f7256657a43c5e9ccb6f0b68f86bc28ed3bb6f6e049dc24f67158597649",
+    "aip-service/src/console.rs": "0fee6b0b13fd9b27f97e618bdaf07e6b89454af493daf013917fe87b655b0690",
+    "aip-service/tests/enterprise_api.rs": "6aace87e21021627ceabe22842f5fb430bdc1d38538065ae07393ae5932fc3ca",
+    "aip-standalone/aip-collector/src/sink.rs": "90ad9128019a23f81bc5ddc4fb8c68481f19c622b85b72788076eb9da0c65935",
+    "aip-standalone/aip-mcp-gateway/src/assurance.rs": "caf5aef7ed5b518f91ffff804fbc483a59b9cac8af6d8803fb25faf3a0b30c2b",
+    "aip-standalone/aip-mcp-gateway/src/bin/aip-execution-assurance.rs": "5319a49ef8dbb08d4e50b45846df7ac35b08b5554ff02f6ab3a4e2863b883a8e",
+    "aip-standalone/aip-observe-verify/src/cli.rs": "d56afb329d7de731b406149519cd4aa0b01e519f96faaab83687714759d408b8",
+    "aip-standalone/aip-observe-verify/src/lib.rs": "b13cb7aaab648cacb5f49375a31a2a70f416fb2d2914704af715e3835d3f913d",
+    "aip-standalone/aip-observe-verify/src/main.rs": "d2e71311f84b06644d1410cecc1e289bf3a4def4a5ec7dd6f2114acaf789a1fd",
+    "aip-standalone/aip-observe/src/probe.rs": "854b55ba472606b1286731b4f2005799e4c334e965c226227039157ad82cb8ab",
+    "aip-standalone/aip-probe/src/main.rs": "6fb764b6d45bc3c42afb53ce040f1002710aa0bd48f4d89d5d708b5b40222a4b",
+    "aip-standalone/aip-probe/src/sensors.rs": "dd5d58200b72f0c0882b9d1fa8ed2017a86287fb4907d629217ef3c558ecc474",
+    "aip-standalone/aip-reconcile/src/reconcile.rs": "f8c45c44773b121a6cc60f3126980964ab503a3f01849c8dea04a863907c3022",
+    "validation/enterprise/run_client_smoke.py": "83c856d31a265e7bfa7d2a0cfa757adfebb9bceb2ff7c395df9b952b9abdaa33",
+    "validation/enterprise/same_run_validation.py": "30f2804023a91787c37bae9bab1241a2423c4f3ff1a210eea1d3dfb88752d722"
+  },
+  "custody_gate": {
+    "probe_to_collector_key_inaccessibility": "NOT_MET_BLOCKED",
+    "separate_administrative_custody": "BLOCKED"
+  },
+  "download_provenance_supplied_by_coordinating_agent": {
+    "artifact_id": 12888619380,
+    "zip_bytes": 1223840,
+    "zip_sha256": "2fdbaca4bc39acc5580e2ce7a497aa31f49c5e254ec40a597225b67e55b87c3c"
+  },
+  "limits": [
+    "Offline verification uses native local binaries identified by SHA256; host platform is recorded separately.",
+    "Separately retained parent public anchors/checkpoints/trust were used; original archives were not rewritten.",
+    "Checksums identify bytes; they do not authenticate the artifact download origin by themselves.",
+    "Positive captures verify identity and time coverage, but retain CannotProve/ActionEvidenceUnavailable.",
+    "Interruption capture retains CannotProve/WindowNotCovered and is not backfilled by fresh recovery.",
+    "Probe and collector run as UID0 in this local profile; probe-to-collector key inaccessibility is NOT_MET/BLOCKED.",
+    "Local isolation shares kernel/root; separate administrative custody and logical tool-to-kernel causality are not established.",
+    "Live workflow artifacts retain console functional PASS, not an independent captured CSP header; the separate native CSP route regression is identified in summary.md."
+  ],
+  "native_binary_sha256": {
+    "aip-execution-assurance": "a4a4d86e419b9981f8b5e523fbbf2f96f52908bbd53fec706a53e71d268ae6a8",
+    "aip-observe-verify": "096bc3e1c2e96725a0b801e67bb73d0097105931603b784316fbddc20fcc1615"
+  },
+  "profiles": {
+    "same-run": {
+      "archive_records": {
+        "batches": 37,
+        "health": 4
+      },
+      "authorization_window": {
+        "issued_at": 1793268583726,
+        "valid_until": 1793268613726
+      },
+      "cleanup_errors": [],
+      "client_checks": {
+        "api_admission": "PASS",
+        "console_browser": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "official_mcp_client": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS",
+        "typescript_sdk": "PASS"
+      },
+      "client_progress": {
+        "classification": "CLIENT_INTERFACE_CHECK_PROGRESS",
+        "stage": "COMPLETE",
+        "status": "PASS"
+      },
+      "custody_gate": {
+        "probe_to_collector_key_inaccessibility": "NOT_MET_BLOCKED",
+        "reason": "Harness launches probe and collector as UID0 in one shared kernel/root domain; agent-only file denial does not isolate the probe.",
+        "separate_administrative_custody": "BLOCKED"
+      },
+      "final_signed_health": {
+        "attested_coverage": {
+          "from_ms": 1793268564982,
+          "to_ms": 1793268610088
+        },
+        "clock": {
+          "max_error_us": 2511,
+          "state": 0,
+          "synchronized": true
+        },
+        "continuity": "Verified",
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "emitted_at_ms": 1793268638167,
+        "sequence": 37,
+        "state": "Active"
+      },
+      "kernel_bound_instance_count": 2,
+      "kernel_events": 1046,
+      "model_calls": 2,
+      "public_input_sha256": {
+        "attested.archive.jsonl": "99da44d30a0541a8cc1a5ad357707421455f3cb98ddea2a3669cd8b5aee5789e",
+        "client-progress.json": "5873d7241bef1cdde53109fdf87f1b38a99600c8bd8eca4d03e3cad7003c11d4",
+        "enterprise-clients.json": "a227d04867e63adf7ba61afae0391f7069089923b138d470d5b0f10e9acb5a5b",
+        "evaluation.json": "5183b2d0133ad454043fca1672401a964b2c2f0afad2012414ccac49958890a1",
+        "expectation.json": "f2a8a4135d795ab06ff539891e30ac89fc15e025bc558014110e8eccb7e5b3cd",
+        "health.archive.jsonl": "1f83087882d854a2ee8927d84a28aadd96b26aff7e97003b58c72ea1fb1cd251",
+        "kernel-bound-instances.json": "a189c89cbbe925fd60a56c8b4de516baced9f24302030ae2c0c94234e5b38c1c",
+        "run-bundle.json": "4c9492e122fbeb90c0daa59d37727f740ea8aa01e802446cf94e2fc6845bab86",
+        "run-manifest.json": "646a865defc7b477bee1df3e7008f9857dcd796e20aa91c356798ff0baad537f"
+      },
+      "reconciliation": {
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "identity": {
+          "Match": {
+            "observations": 7
+          }
+        },
+        "lineage": "NotEvaluated",
+        "reason": "ActionEvidenceUnavailable",
+        "result": "CannotProve",
+        "temporal": "WithinWindow",
+        "wire": "NotEvaluated"
+      },
+      "source_hashes": {
+        "checkpoint.json": "cad7ab6e5f21dc8f04a1cd5fbe16a372c780bdb81367c6c762107ca73acc038e",
+        "observer-anchor.json": "ca36ceabf4145b3fb49ac003c07709230b62473dd084d816ae34534da683e6a6",
+        "run-trust.json": "b6a56fead2e583408238f20472f99e27bee3d9d1879e88ad54e64954a3d09bb4"
+      },
+      "status": "PASS",
+      "task_has_single_signed_active_coverage": true,
+      "task_window": {
+        "from_ms": 1793268578504,
+        "to_ms": 1793268603570
+      }
+    },
+    "same-run-interruption": {
+      "archive_records": {
+        "batches": 11,
+        "health": 3
+      },
+      "authorization_window": {
+        "issued_at": 1793268727017,
+        "valid_until": 1793268757017
+      },
+      "cleanup_errors": [],
+      "client_checks": {
+        "api_admission": "PASS",
+        "console_browser": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "official_mcp_client": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS",
+        "typescript_sdk": "PASS"
+      },
+      "client_progress": {
+        "classification": "CLIENT_INTERFACE_CHECK_PROGRESS",
+        "stage": "COMPLETE",
+        "status": "PASS"
+      },
+      "custody_gate": {
+        "probe_to_collector_key_inaccessibility": "NOT_MET_BLOCKED",
+        "reason": "Harness launches probe and collector as UID0 in one shared kernel/root domain; agent-only file denial does not isolate the probe.",
+        "separate_administrative_custody": "BLOCKED"
+      },
+      "final_signed_health": {
+        "attested_coverage": {
+          "from_ms": 1793268706216,
+          "to_ms": 1793268719091
+        },
+        "clock": {
+          "max_error_us": 2017,
+          "state": 0,
+          "synchronized": true
+        },
+        "continuity": "Verified",
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "emitted_at_ms": 1793268749514,
+        "sequence": 11,
+        "state": "Active"
+      },
+      "kernel_bound_instance_count": 0,
+      "kernel_events": 311,
+      "model_calls": 2,
+      "public_input_sha256": {
+        "attested.archive.jsonl": "ad219460430e1f15f08c5549f82af99716a2efe03b5cfa468e513b2cf4aeaca5",
+        "client-progress.json": "5873d7241bef1cdde53109fdf87f1b38a99600c8bd8eca4d03e3cad7003c11d4",
+        "enterprise-clients.json": "6e76ea7e48050f631be01b668fb4c81f419f29f160906541ec2ee3c6536471c4",
+        "evaluation.json": "ba6f577f6e8acd4d8b8efe2b5aae74c590e538f3c2114f223723c2fa9e74ce07",
+        "expectation.json": "40141042aad1100d1a7e7ac9b6b07b3d088f02fae832852bd9f55326a9a50258",
+        "health.archive.jsonl": "707d94e289910b134f8ba8e2c5dce2cfdb24e7c334bf1ad350bb02bf92ee073f",
+        "kernel-bound-instances.json": "ae1d900b5a85b6b4edd52e021d0515cdcf2ef07d412d1720b028ab294322888c",
+        "run-bundle.json": "7686ae0be4bf09e7bfe2312ab9393d699c261e9fc18170b59c379f9f622aa938",
+        "run-manifest.json": "32fa271ec3284ae97ab526f59f0135c4d59d6502a8d07260ed506b205b810fd2"
+      },
+      "reconciliation": {
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "identity": "NoReference",
+        "lineage": "NotEvaluated",
+        "reason": "WindowNotCovered",
+        "result": "CannotProve",
+        "temporal": "Indeterminate",
+        "wire": "NotEvaluated"
+      },
+      "source_hashes": {
+        "checkpoint.json": "e3a5ead3f34793ad6cfcb1f2a92cd6fa8c84eb904693fbe8a676acd679add0c0",
+        "observer-anchor.json": "ec62d143f01fe096d5256a654c42df2b504e8195c6fcada2a1f10b095953fa8a",
+        "run-trust.json": "39234a01a08d1e19ef192ea3403988ab6f7465005a4ff9e46e26f15916a3a9ab"
+      },
+      "status": "PASS",
+      "task_has_single_signed_active_coverage": false,
+      "task_window": {
+        "from_ms": 1793268722075,
+        "to_ms": 1793268747076
+      }
+    },
+    "same-run-recovery": {
+      "archive_records": {
+        "batches": 35,
+        "health": 4
+      },
+      "authorization_window": {
+        "issued_at": 1793268810709,
+        "valid_until": 1793268840709
+      },
+      "cleanup_errors": [],
+      "client_checks": {
+        "api_admission": "PASS",
+        "console_browser": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "official_mcp_client": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS",
+        "typescript_sdk": "PASS"
+      },
+      "client_progress": {
+        "classification": "CLIENT_INTERFACE_CHECK_PROGRESS",
+        "stage": "COMPLETE",
+        "status": "PASS"
+      },
+      "custody_gate": {
+        "probe_to_collector_key_inaccessibility": "NOT_MET_BLOCKED",
+        "reason": "Harness launches probe and collector as UID0 in one shared kernel/root domain; agent-only file denial does not isolate the probe.",
+        "separate_administrative_custody": "BLOCKED"
+      },
+      "final_signed_health": {
+        "attested_coverage": {
+          "from_ms": 1793268790209,
+          "to_ms": 1793268834807
+        },
+        "clock": {
+          "max_error_us": 3508,
+          "state": 0,
+          "synchronized": true
+        },
+        "continuity": "Verified",
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "emitted_at_ms": 1793268864152,
+        "sequence": 35,
+        "state": "Active"
+      },
+      "kernel_bound_instance_count": 2,
+      "kernel_events": 1062,
+      "model_calls": 2,
+      "public_input_sha256": {
+        "attested.archive.jsonl": "5c57ec8c70e63de73899affaf392ac4155585117e8c2796f673d3fb021dd659d",
+        "client-progress.json": "5873d7241bef1cdde53109fdf87f1b38a99600c8bd8eca4d03e3cad7003c11d4",
+        "enterprise-clients.json": "057f529052c2721ee95b7601b8944a6f8c31e170ec470541f9bae438fde96f9e",
+        "evaluation.json": "751dacf006b4380e4afe7c6a01311a929423f4d50adc219905fdbcbe23f23805",
+        "expectation.json": "b40b223cd86ba567150e214b625579eef49b1c6bf32cee80cba65d63bd14acfc",
+        "health.archive.jsonl": "6cc91d7509f5cd99e39e1cb51e54363206a2efa74536f4de935b224623ae1cac",
+        "kernel-bound-instances.json": "e8844b1a4a5788ef85da1359f9eee56636c19d6cf634a699f3d32039ac3d20bd",
+        "run-bundle.json": "e54e434b7a2fe2243f98e27c5b361a011da623ad7bb7112ecc187d3e7e7b8eab",
+        "run-manifest.json": "cd99f233a5a0769621c105319dc50578d6cf01d8385e9c6ed46d63da454f4c5b"
+      },
+      "reconciliation": {
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "identity": {
+          "Match": {
+            "observations": 7
+          }
+        },
+        "lineage": "NotEvaluated",
+        "reason": "ActionEvidenceUnavailable",
+        "result": "CannotProve",
+        "temporal": "WithinWindow",
+        "wire": "NotEvaluated"
+      },
+      "source_hashes": {
+        "checkpoint.json": "37f44dd9a8927206988723024fcef91a35572ab35335b457d843c8cc5bd21445",
+        "observer-anchor.json": "403dc54859d8aa723fab439e907fc3c26cb4c0b174fe7c347ab2289664e9e8a1",
+        "run-trust.json": "7043934ea0c716433300cb3958cbcb63d339c150a47bba88f569698213fd84aa"
+      },
+      "status": "PASS",
+      "task_has_single_signed_active_coverage": true,
+      "task_window": {
+        "from_ms": 1793268805716,
+        "to_ms": 1793268830898
+      }
+    }
+  },
+  "status": "PASS_FUNCTIONAL_AND_OFFLINE_VERIFICATION_WITH_CUSTODY_BLOCKED",
+  "verification_host": {
+    "machine": "arm64",
+    "system": "Darwin"
+  },
+  "verification_input": {
+    "files_manifest_sha256": "e035b4c195df70bb5837f42d0012eef449116bc721d77bd87c6ccea6ca7c4fd5",
+    "gzip_original_files": 6,
+    "kind": "MANIFEST_VALIDATED_TEMPORARY_MATERIALIZATION",
+    "originals_modified": false,
+    "source": "tracked originals/files.json (default)",
+    "validated_original_bytes": 5276580,
+    "validated_original_files": 131
+  },
+  "verification_script_sha256": "3fcde8f782ee3c38500e34728986382df09711c1a66d50bd5b76c9630b2c4d4e",
+  "workflow_run_id": 40854983596
+}

@@ -91,6 +91,7 @@ fn run() -> Result<(), String> {
             std::thread::sleep(interval);
             let window_close = now_ms();
             let batch = sensors.collect_batch(window_open, window_close);
+            let published_close = batch.claimed_to_ms;
             let bytes = match serde_json::to_vec(&batch) {
                 Ok(b) => b,
                 Err(e) => {
@@ -104,7 +105,7 @@ fn run() -> Result<(), String> {
                     // failed cycle's events are not re-sent in this cut; the
                     // collector sees the gap and reports it (never a
                     // fabrication). Durable buffering is Phase 1.x.
-                    window_open = window_close;
+                    window_open = published_close;
                     eprintln!(
                         "aip-probe: batch acked (frame seq {}, attested_sequence {})",
                         ack.seq, ack.attested_sequence

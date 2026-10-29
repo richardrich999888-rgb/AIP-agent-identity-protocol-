@@ -1,0 +1,49 @@
+Selected original GitHub job log lines; environment, credentials and general logs omitted.
+
+SCRIPT-REGRESSIONS JOB 123368675421
+2026-10-29T09:33:30.0155928Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +eeefd3344b691c250e651f778bc3c079bbe0a437:refs/remotes/pull/12/merge
+2026-10-29T09:33:31.2038016Z  * [new ref]         eeefd3344b691c250e651f778bc3c079bbe0a437 -> pull/12/merge
+2026-10-29T09:33:31.4407040Z [command]/usr/bin/git log -1 --format=%H
+2026-10-29T09:33:31.4441122Z eeefd3344b691c250e651f778bc3c079bbe0a437
+2026-10-29T09:33:33.2285911Z test_bad_gateway_receipts_are_not_a_pass (__main__.RehearsalControlFlowTests.test_bad_gateway_receipts_are_not_a_pass) ... ok
+2026-10-29T09:33:33.6423077Z test_explicit_skip_is_never_a_successful_rehearsal (__main__.RehearsalControlFlowTests.test_explicit_skip_is_never_a_successful_rehearsal) ... ok
+2026-10-29T09:33:34.3893915Z test_failed_build_stops_before_acts_regardless_of_diagnostics (__main__.RehearsalControlFlowTests.test_failed_build_stops_before_acts_regardless_of_diagnostics) ... ok
+2026-10-29T09:33:34.8957646Z test_failed_clock_query_cannot_pass_even_if_it_prints_yes (__main__.RehearsalControlFlowTests.test_failed_clock_query_cannot_pass_even_if_it_prints_yes) ... ok
+2026-10-29T09:33:35.3411816Z test_failed_system_run_cannot_be_hidden_by_other_passing_checks (__main__.RehearsalControlFlowTests.test_failed_system_run_cannot_be_hidden_by_other_passing_checks) ... ok
+2026-10-29T09:33:35.7286235Z test_gateway_build_failure_never_uses_stale_executable (__main__.RehearsalControlFlowTests.test_gateway_build_failure_never_uses_stale_executable) ... ok
+2026-10-29T09:33:36.6325314Z test_gateway_failure_after_writing_receipts_is_not_a_pass (__main__.RehearsalControlFlowTests.test_gateway_failure_after_writing_receipts_is_not_a_pass) ... ok
+2026-10-29T09:33:39.6075027Z test_generic_pilot_success_requires_stronger_rbi_control_evidence (__main__.RehearsalControlFlowTests.test_generic_pilot_success_requires_stronger_rbi_control_evidence) ... ok
+2026-10-29T09:33:40.0832393Z test_missing_clock_query_fails_despite_running_daemon (__main__.RehearsalControlFlowTests.test_missing_clock_query_fails_despite_running_daemon) ... ok
+2026-10-29T09:33:40.2395221Z test_pilot_build_failure_stops_before_compiling_interferer (__main__.RehearsalControlFlowTests.test_pilot_build_failure_stops_before_compiling_interferer) ... ok
+2026-10-29T09:33:40.7424671Z test_quoted_output_path_is_not_interpolated_as_python_code (__main__.RehearsalControlFlowTests.test_quoted_output_path_is_not_interpolated_as_python_code) ... ok
+2026-10-29T09:33:41.2405381Z test_recovery_cannot_backfill_the_blinded_interval (__main__.RehearsalControlFlowTests.test_recovery_cannot_backfill_the_blinded_interval) ... ok
+2026-10-29T09:33:41.7424258Z test_successful_build_is_not_rejected_for_error_shaped_log_text (__main__.RehearsalControlFlowTests.test_successful_build_is_not_rejected_for_error_shaped_log_text) ... ok
+2026-10-29T09:33:42.2475760Z test_synchronised_clock_can_pass_with_all_simulated_acts (__main__.RehearsalControlFlowTests.test_synchronised_clock_can_pass_with_all_simulated_acts) ... ok
+2026-10-29T09:33:44.7780125Z test_unknown_clock_values_fail_despite_running_daemon (__main__.RehearsalControlFlowTests.test_unknown_clock_values_fail_despite_running_daemon) ... ok
+2026-10-29T09:33:45.2821925Z test_unsynchronised_clock_fails_despite_running_daemon (__main__.RehearsalControlFlowTests.test_unsynchronised_clock_fails_despite_running_daemon) ... ok
+2026-10-29T09:33:45.4418787Z test_unwritable_build_log_cannot_report_built (__main__.RehearsalControlFlowTests.test_unwritable_build_log_cannot_report_built) ... ok
+2026-10-29T09:33:45.4421127Z Ran 17 tests in 13.815s
+2026-10-29T09:33:45.4421468Z OK
+
+LIVE-REHEARSAL JOB 123368825765
+2026-10-29T09:33:54.5601824Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +eeefd3344b691c250e651f778bc3c079bbe0a437:refs/remotes/pull/12/merge
+2026-10-29T09:33:55.3542637Z  * [new ref]         eeefd3344b691c250e651f778bc3c079bbe0a437 -> pull/12/merge
+2026-10-29T09:33:55.5377615Z HEAD is now at eeefd33 Merge 42d0d96c9cc9d3075c792a195cc74e4171b0e817 into a933fdc327e8744dc8a8441ea3d5b2d75063b91f
+2026-10-29T09:33:55.5581083Z eeefd3344b691c250e651f778bc3c079bbe0a437
+2026-10-29T09:34:44.7756795Z ##[group]Run cargo test --locked -p aip-observe --lib divergence::tests
+2026-10-29T09:34:46.2996044Z test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+2026-10-29T09:34:46.3060083Z ##[group]Run cargo test --locked -p aip-observe --test observer_integrity
+2026-10-29T09:34:46.5470494Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-10-29T09:36:24.7043174Z        10 checks passed in the system run
+2026-10-29T09:36:24.7052339Z   [32mPASS[0m Act 1 honest path: observer Active, attested coverage present
+2026-10-29T09:36:24.7062246Z   [32mPASS[0m Act 2 interfered observer: collector signed IntegrityUnknown, coverage withdrawn
+2026-10-29T09:36:24.7071993Z   [32mPASS[0m Act 5 offline verification: separate process, two files, a public key
+2026-10-29T09:36:26.2167373Z   [32mPASS[0m Act 3: 11 resource-scoping assertions hold, including outright refusal of an unnamed address
+2026-10-29T09:36:29.3182126Z   [32mPASS[0m Act 4: 46 tool-boundary assertions hold, including divergence with no agent claim in evidence
+2026-10-29T09:36:29.4201936Z   [32mPASS[0m Act 4b: the gateway signed a receipt per call, live, with its own key
+2026-10-29T09:36:29.4222933Z   3. a refused unregistered destination ....... see Act 3 (library)
+2026-10-29T09:36:29.4223272Z   4. a mis-parameterised tool call ............ see Act 4 / 4b
+2026-10-29T09:36:29.4232369Z   [32mPASS[0m REHEARSED: all five promises demonstrated in one run
+2026-10-29T09:36:30.2729696Z Uploaded bytes 135283
+2026-10-29T09:36:30.3248813Z SHA256 digest of uploaded artifact zip is ec17a198d2237ac58589b8f784f50043c739462268c9b76ba3f6c438dee2a38a
+2026-10-29T09:36:30.8042880Z Artifact rbi-rehearsal-40850559118.zip successfully finalized. Artifact ID 12886852676

@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-29T09:39:41Z",
+  "source": {
+    "head": {
+      "sha": "42d0d96c9cc9d3075c792a195cc74e4171b0e817",
+      "tree": "f0595d7af13bd91232585e2a93148dc6893128db",
+      "parents": [
+        "3a5550560ff6d26ad1fd53964deb013fa207b8a0"
+      ],
+      "message": "Isolate installed wheel checks from source package metadata"
+    },
+    "checkout": {
+      "sha": "eeefd3344b691c250e651f778bc3c079bbe0a437",
+      "tree": "f0595d7af13bd91232585e2a93148dc6893128db",
+      "parents": [
+        "a933fdc327e8744dc8a8441ea3d5b2d75063b91f",
+        "42d0d96c9cc9d3075c792a195cc74e4171b0e817"
+      ],
+      "message": "Merge 42d0d96c9cc9d3075c792a195cc74e4171b0e817 into a933fdc327e8744dc8a8441ea3d5b2d75063b91f"
+    },
+    "tree_identical": true
+  },
+  "run": {
+    "id": 40850559277,
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40850559277",
+    "path": ".github/workflows/interoperability.yml",
+    "head_sha": "42d0d96c9cc9d3075c792a195cc74e4171b0e817",
+    "head_branch": "fix/vanian-end-to-end-green",
+    "event": "pull_request",
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-29T09:33:25Z",
+    "updated_at": "2026-10-29T09:36:58Z",
+    "jobs": [
+      {
+        "id": 123368675727,
+        "name": "native-offline",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40850559277,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run rustup toolchain install 1.99.1 --profile minimal && rustup default 1.99.1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run cargo test --locked -p aip-airi --example interop_verify",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run cargo test --locked -p aip-authorize --test authority_reference",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run cargo test --locked -p aip-mcp-gateway --test received_call",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run cargo build --locked -p aip-airi --example interop_verify",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Run cargo build --locked -p aip-mcp-gateway --bin aip-tool-receipt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Run python3 validation/interoperability/test_offline_composition.py --verifier target/debug/examples/interop_verify",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Run python3 validation/interoperability/verify_gateway_archive.py --archive validation/interoperability/results/20261028/combined/receipts.jsonl --anchor validation/interoperability/results/20261028/combined/trust-anchor.json --verifier target/debug/aip-tool-receipt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          }
+        ]
+      },
+      {
+        "id": 123368676197,
+        "name": "microsoft-receipt-offline",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40850559277,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run rustup toolchain install 1.99.1 --profile minimal && rustup default 1.99.1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Pinned native Microsoft SDK",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run cargo build --locked -p aip-mcp-gateway --bin aip-tool-receipt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run python -m pytest validation/interoperability/test_microsoft_receipt.py -q",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          }
+        ]
+      },
+      {
+        "id": 123368676290,
+        "name": "python-policy-identity",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40850559277,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run python -m pip install uv==0.13.4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Locked adapter tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Exact OPA release and live mTLS",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Exact SPIRE release and genuine JWT-SVID",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      }
+    ]
+  },
+  "status": "PASS",
+  "artifacts": [
+    {
+      "id": 12887111694,
+      "name": "interoperability-public-results",
+      "size_in_bytes": 3073,
+      "digest": "sha256:d2380467fc838be9538e145900264d200c15047ce9e920347f9f3b2f66cc3c30",
+      "created_at": "2026-10-29T09:33:49Z",
+      "expired": false,
+      "expires_at": "2027-01-27T09:33:25Z",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40850559277/artifacts/12887111694"
+    }
+  ],
+  "artifact_digest_scope": "Published GitHub API metadata; ZIP not downloaded or independently hashed.",
+  "python_policy_identity": {
+    "job_id": 123368676290,
+    "new_spire_parser_regressions": 3,
+    "locked_adapter_tests": 47,
+    "opa_policy_and_live_mtls": "PASS",
+    "spire_archive_digest": "PASS",
+    "spire_native_enrollment": "PASS",
+    "spire_version": "1.15.3",
+    "script_stdout": {
+      "output": "/tmp/vanian-interop/spire-results",
+      "status": "PARTIALLY_VERIFIED"
+    },
+    "script_completed_at_utc": "2026-10-29T09:33:47Z",
+    "scope": "Genuine JWT-SVID for the SPIRE agent CLI executable, checked against separately exported server bundle. This is not ADK logical-agent or independent kernel execution binding."
+  },
+  "native_offline": {
+    "job_id": 123368675727,
+    "interop_verify_example_tests": 5,
+    "authority_reference_tests": 12,
+    "received_call_tests": 8,
+    "composition_cases": 3,
+    "historical_gateway_archive_verification": "PASS",
+    "scope": "Native offline verification and composition; no new runtime observation"
+  },
+  "microsoft_receipt_offline": {
+    "job_id": 123368676197,
+    "source_commit": "4eca1f5b44d30ebe5e9745ac36ca394f887e617b",
+    "tests": 25,
+    "failures": 0
+  },
+  "limits": [
+    "All three actual jobs passed at this exact source.",
+    "The specific historical SPIRE token parser blocker cleared with the pinned native release.",
+    "Identity/governance reference validation does not prove current observer coverage or downstream banking settlement."
+  ]
+}

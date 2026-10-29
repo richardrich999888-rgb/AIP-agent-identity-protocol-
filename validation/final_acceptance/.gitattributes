@@ -1,0 +1,3 @@
+# Preserve generated diagnostic transcripts without rewriting their bytes.
+*.log whitespace=-blank-at-eof
+model-review/*.log whitespace=-blank-at-eof

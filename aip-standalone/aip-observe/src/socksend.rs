@@ -19,7 +19,7 @@
 //! or anything on a host whose root disables or starves the ring. A failed
 //! send (`ret ≤ 0`) accepted nothing and is not a send.
 
-use crate::linux::{ProcEvent, SourceError};
+use crate::linux::SourceError;
 use crate::observed::{KernelLifecycleKind, SocketProtocol};
 use crate::perf::{i32_at, u16_at, u64_at, RawFormat};
 
@@ -81,6 +81,7 @@ pub fn parse_sock_send_record(
 mod sys {
     use super::*;
     use crate::health::MechanismIntegrity;
+    use crate::linux::ProcEvent;
     use crate::perf::PerfTracepoints;
 
     /// The send tracepoint source.

@@ -57,6 +57,7 @@ jobs:
       - name: Locked adapter tests
         run: |
           uv sync --project integrations/interoperability --frozen --extra adk --extra test
+          uv run --project integrations/interoperability --frozen --extra adk --extra test python -m unittest discover -s validation/interoperability -p test_spire_cli.py -v
           uv run --project integrations/interoperability --frozen --extra adk --extra test pytest integrations/interoperability/tests -q
       - name: Exact OPA release and live mTLS
         run: |

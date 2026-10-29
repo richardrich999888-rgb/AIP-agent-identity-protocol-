@@ -57,6 +57,7 @@ pub fn test_app_state_with(
         metrics: Arc::new(Default::default()),
         managed_signing,
         observer_trust: Default::default(),
+        run_trust: Default::default(),
     })
 }
 

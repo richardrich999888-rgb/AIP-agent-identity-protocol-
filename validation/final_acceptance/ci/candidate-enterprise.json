@@ -1,0 +1,491 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-29T09:39:41Z",
+  "source": {
+    "head": {
+      "sha": "42d0d96c9cc9d3075c792a195cc74e4171b0e817",
+      "tree": "f0595d7af13bd91232585e2a93148dc6893128db",
+      "parents": [
+        "3a5550560ff6d26ad1fd53964deb013fa207b8a0"
+      ],
+      "message": "Isolate installed wheel checks from source package metadata"
+    },
+    "checkout": {
+      "sha": "eeefd3344b691c250e651f778bc3c079bbe0a437",
+      "tree": "f0595d7af13bd91232585e2a93148dc6893128db",
+      "parents": [
+        "a933fdc327e8744dc8a8441ea3d5b2d75063b91f",
+        "42d0d96c9cc9d3075c792a195cc74e4171b0e817"
+      ],
+      "message": "Merge 42d0d96c9cc9d3075c792a195cc74e4171b0e817 into a933fdc327e8744dc8a8441ea3d5b2d75063b91f"
+    },
+    "tree_identical": true
+  },
+  "run": {
+    "id": 40850559213,
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40850559213",
+    "path": ".github/workflows/enterprise-integration.yml",
+    "head_sha": "42d0d96c9cc9d3075c792a195cc74e4171b0e817",
+    "head_branch": "fix/vanian-end-to-end-green",
+    "event": "pull_request",
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-29T09:33:25Z",
+    "updated_at": "2026-10-29T09:36:10Z",
+    "jobs": [
+      {
+        "id": 123368675834,
+        "name": "contextforge",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40850559213,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run astral-sh/setup-uv@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Prepare actual pinned ContextForge",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Actual gateway and upstream interoperability",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run astral-sh/setup-uv@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 123368676113,
+        "name": "contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40850559213,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Pinned evidence client dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Packaging and harness controls",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Clients and restricted MCP boundaries",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Rust checks",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Real service, both SDKs, official MCP client and tenant isolation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Build verifiable Linux package",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Actual Linux executable package install/uninstall/reinstall (staging only)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 28
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 29
+          }
+        ]
+      }
+    ]
+  },
+  "status": "PASS",
+  "artifacts": [
+    {
+      "id": 12887136868,
+      "name": "contextforge-integration-eeefd3344b691c250e651f778bc3c079bbe0a437",
+      "size_in_bytes": 13705,
+      "digest": "sha256:71134e46ba4399b928bfd8c9789bb15e9b68265af7523898ef9a3ece06c750dd",
+      "created_at": "2026-10-29T09:34:54Z",
+      "expired": false,
+      "expires_at": "2026-11-12T09:34:53Z",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40850559213/artifacts/12887136868"
+    },
+    {
+      "id": 12886872493,
+      "name": "enterprise-linux-runtime-eeefd3344b691c250e651f778bc3c079bbe0a437",
+      "size_in_bytes": 3032810,
+      "digest": "sha256:b5cab6dacf8215082529b512ac16ccb20e79e0bfe6be924c9f469908cb4f8b70",
+      "created_at": "2026-10-29T09:36:00Z",
+      "expired": false,
+      "expires_at": "2026-11-12T09:35:59Z",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40850559213/artifacts/12886872493"
+    }
+  ],
+  "artifact_digest_scope": "Published GitHub API and upload transcript values; ZIP bytes not independently downloaded or recomputed in this audit.",
+  "contracts": {
+    "job_id": 123368676113,
+    "all_steps_success": true,
+    "python_wheel_installation": "PASS in isolated temporary venv under inherited PYTHONPATH=sdk/python; imported module asserted beneath child sys.prefix",
+    "python_source_tests": 78,
+    "client_boundary_tests": 12,
+    "combined_contract_tests": 3,
+    "new_source_pollution_regression_tests": 1,
+    "node_client_tests": 3,
+    "explicit_real_http_tests": [
+      "real_http_clients_use_the_service_boundary",
+      "real_http_registry_clients",
+      "real_same_run_clients_use_the_service_boundary"
+    ],
+    "package_control_tests": 16,
+    "harness_control_tests": 3,
+    "shell_rehearsal_control_tests": 17,
+    "debian_packaging_tests": 13,
+    "stdout_results": [
+      {
+        "python_wheel": "INSTALLED_AND_IMPORTED",
+        "typescript_tgz": "INSTALLED_AND_IMPORTED",
+        "network_calls_to_evidence_service": 0,
+        "kernel_observation": "NOT_EXERCISED"
+      },
+      {
+        "sdk": "PASS",
+        "real_mcp_client": "PASS",
+        "cross_tenant": "PASS",
+        "openapi_contract": "PASS",
+        "service_delivery_posture": "PASS",
+        "mcp_privilege_refusal": "PASS",
+        "input_limit": "PASS",
+        "kernel_observation": "NOT_EXERCISED"
+      },
+      {
+        "run_id": "fixture-empty-run",
+        "run_artifact_id": "a947685879df47af2df17a5420273dfba50c78e1eab8bdd0379f8b2be725021e",
+        "source_bundle_sha256": "e444c8510da2291487d32894182acf92b2468e3a4d7d02c1ff2a5c88da34f634",
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "NOT_EXERCISED",
+        "signed_runtime_verdict_retrieval": "NOT_SUPPLIED",
+        "scope": "Retrieval of this exact caller-provided run; workload provenance requires independent run evidence."
+      },
+      {
+        "archive": "dist/vanian-runtime-x86_64-linux.tar",
+        "sha256": "41a69c95d2e9967a5c1ddd948bdd42f7c7eee0bd7d2a4faf3a08a4a2ac236740",
+        "source_commit": "eeefd3344b691c250e651f778bc3c079bbe0a437",
+        "target": "x86_64-unknown-linux-gnu"
+      },
+      {
+        "product": "vanian-snifferdog-agent",
+        "version": "0.4.0~eval.1",
+        "architecture": "amd64",
+        "sha256": "48e56e43655bfd4aed2db2f965be683e41860329e3506b18981e473d26aeb594",
+        "archive_sha256": "41a69c95d2e9967a5c1ddd948bdd42f7c7eee0bd7d2a4faf3a08a4a2ac236740",
+        "source_commit": "eeefd3344b691c250e651f778bc3c079bbe0a437",
+        "mode": "OBSERVER_ONLY",
+        "release_authenticity": "REQUIRES_INDEPENDENT_APPROVAL",
+        "runtime_validation": "NOT_EXECUTED",
+        "distribution_license": "REQUIRES_APPROVED_TERMS_AND_COMPLETE_NOTICES"
+      },
+      {
+        "product": "vanian-evidence-collector",
+        "version": "0.4.0~eval.1",
+        "architecture": "amd64",
+        "sha256": "a71b44017c2ea8595ff976b92d0140edf7a9579dbfd92efec4c9f5488996b0c8",
+        "archive_sha256": "41a69c95d2e9967a5c1ddd948bdd42f7c7eee0bd7d2a4faf3a08a4a2ac236740",
+        "source_commit": "eeefd3344b691c250e651f778bc3c079bbe0a437",
+        "mode": "OBSERVER_ONLY",
+        "release_authenticity": "REQUIRES_INDEPENDENT_APPROVAL",
+        "runtime_validation": "NOT_EXECUTED",
+        "distribution_license": "REQUIRES_APPROVED_TERMS_AND_COMPLETE_NOTICES"
+      },
+      {
+        "status": "PASS",
+        "scope": "actual Linux binary package staging lifecycle",
+        "live_clean_host_installation": false
+      }
+    ]
+  },
+  "contextforge": {
+    "job_id": 123368675834,
+    "source_commit": "ff6a566a4b5c098093db90bbb4d5df483e108026",
+    "authorization_policy_tests": 5,
+    "actual_gateway_checks": 27,
+    "checks": [
+      {
+        "name": "replay_journal_symlink_refused_without_creating_target",
+        "status": "PASS"
+      },
+      {
+        "name": "nonprivate_replay_journal_refused",
+        "status": "PASS"
+      },
+      {
+        "name": "actual_contextforge_registers_real_mcp_upstream",
+        "status": "PASS"
+      },
+      {
+        "name": "valid_tool_invocation_reaches_upstream_and_has_signed_receipt",
+        "status": "PASS"
+      },
+      {
+        "name": "live_receipt_agrees_with_preissued_signed_authorization_via_real_comparator",
+        "status": "PASS"
+      },
+      {
+        "name": "duplicate_request_refused_without_second_dispatch",
+        "status": "PASS"
+      },
+      {
+        "name": "decision_replay_with_new_request_id_refused",
+        "status": "PASS"
+      },
+      {
+        "name": "missing_decision_refused_without_dispatch",
+        "status": "PASS"
+      },
+      {
+        "name": "principal_agent_mismatch_refused",
+        "status": "PASS"
+      },
+      {
+        "name": "header_body_disagreement_refused",
+        "status": "PASS"
+      },
+      {
+        "name": "method_header_body_disagreement_refused",
+        "status": "PASS"
+      },
+      {
+        "name": "unsupported_tool_refused_before_dispatch",
+        "status": "PASS"
+      },
+      {
+        "name": "malformed_json_rpc_cannot_dispatch",
+        "status": "PASS"
+      },
+      {
+        "name": "unauthenticated_client_rejected",
+        "status": "PASS"
+      },
+      {
+        "name": "mcp_ingress_rejects_unapproved_origin",
+        "status": "PASS"
+      },
+      {
+        "name": "official_mcp_2_3_client_uses_2026_07_28_transport_and_signed_receipt",
+        "status": "PASS"
+      },
+      {
+        "name": "real_upstream_error_has_failed_receipt",
+        "status": "PASS"
+      },
+      {
+        "name": "gateway_timeout_has_no_success_receipt",
+        "status": "PASS"
+      },
+      {
+        "name": "concurrent_calls_have_distinct_signed_receipts",
+        "status": "PASS"
+      },
+      {
+        "name": "concurrent_duplicate_calls_dispatch_exactly_once",
+        "status": "PASS"
+      },
+      {
+        "name": "live_parameter_mismatch_diverges_via_real_rust_comparator_without_agent_claim",
+        "status": "PASS"
+      },
+      {
+        "name": "gateway_restart_preserves_replay_protection",
+        "status": "PASS"
+      },
+      {
+        "name": "wrong_signing_key_refused_before_dispatch",
+        "status": "PASS"
+      },
+      {
+        "name": "receipt_sink_failure_refused_before_dispatch",
+        "status": "PASS"
+      },
+      {
+        "name": "post_dispatch_signing_failure_reports_cannot_prove_without_success_receipt",
+        "status": "PASS"
+      },
+      {
+        "name": "journal_failure_cannot_mask_post_dispatch_receipt_uncertainty",
+        "status": "PASS"
+      },
+      {
+        "name": "every_exported_receipt_verifies_offline_with_public_anchor_only",
+        "status": "PASS"
+      }
+    ],
+    "limit": "Pinned ContextForge strips successful top-level MCP result metadata; signed receipt remains in the gateway sink."
+  },
+  "limits": [
+    "The Linux runtime and both Debian packages were built; staging lifecycle executed Linux binaries and returned live_clean_host_installation=false. This is not a clean-host installation or systemd service enrollment.",
+    "Explicit real HTTP fixture retrieval covers SDK/MCP/contracts/tenant boundaries. Its stdout retains kernel_observation=NOT_EXERCISED, console_browser=NOT_EXERCISED and signed_runtime_verdict_retrieval=NOT_SUPPLIED.",
+    "These results do not substitute for the independently monitored genuine-model same-run workflow or external bank acceptance."
+  ]
+}

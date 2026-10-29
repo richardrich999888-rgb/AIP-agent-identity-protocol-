@@ -1,0 +1,41 @@
+[
+  {
+    "command": "target/debug/aip-observe-verify --observer-id <parent anchor observer_id> --key-version <parent anchor key_version> --pubkey <parent anchor public_key> --batches <profile>/public/attested.archive.jsonl --health <profile>/public/health.archive.jsonl --json",
+    "exit_code": 0,
+    "input_preparation": "MANIFEST_VALIDATED_TEMPORARY_MATERIALIZATION",
+    "profile": "same-run"
+  },
+  {
+    "command": "AIP_RUN_TRUST_FILE=<separately retained profile parent>/run-trust.json target/debug/aip-execution-assurance evaluate < <profile>/public/run-bundle.json",
+    "exit_code": 0,
+    "input_preparation": "MANIFEST_VALIDATED_TEMPORARY_MATERIALIZATION",
+    "matches_original_evaluation": true,
+    "profile": "same-run"
+  },
+  {
+    "command": "target/debug/aip-observe-verify --observer-id <parent anchor observer_id> --key-version <parent anchor key_version> --pubkey <parent anchor public_key> --batches <profile>/public/attested.archive.jsonl --health <profile>/public/health.archive.jsonl --json",
+    "exit_code": 0,
+    "input_preparation": "MANIFEST_VALIDATED_TEMPORARY_MATERIALIZATION",
+    "profile": "same-run-interruption"
+  },
+  {
+    "command": "AIP_RUN_TRUST_FILE=<separately retained profile parent>/run-trust.json target/debug/aip-execution-assurance evaluate < <profile>/public/run-bundle.json",
+    "exit_code": 0,
+    "input_preparation": "MANIFEST_VALIDATED_TEMPORARY_MATERIALIZATION",
+    "matches_original_evaluation": true,
+    "profile": "same-run-interruption"
+  },
+  {
+    "command": "target/debug/aip-observe-verify --observer-id <parent anchor observer_id> --key-version <parent anchor key_version> --pubkey <parent anchor public_key> --batches <profile>/public/attested.archive.jsonl --health <profile>/public/health.archive.jsonl --json",
+    "exit_code": 0,
+    "input_preparation": "MANIFEST_VALIDATED_TEMPORARY_MATERIALIZATION",
+    "profile": "same-run-recovery"
+  },
+  {
+    "command": "AIP_RUN_TRUST_FILE=<separately retained profile parent>/run-trust.json target/debug/aip-execution-assurance evaluate < <profile>/public/run-bundle.json",
+    "exit_code": 0,
+    "input_preparation": "MANIFEST_VALIDATED_TEMPORARY_MATERIALIZATION",
+    "matches_original_evaluation": true,
+    "profile": "same-run-recovery"
+  }
+]
