@@ -1,34 +1,26 @@
 # Enterprise design-partner readiness — evidence-backed
 
-Source: `4ca5a4d`. 
+Source: code under test `5b146be`.
 
-## VERIFIED (reproducible evidence this invocation)
-- A real agent's execution is independently observed from the kernel and sealed
-  into collector-signed evidence that verifies **offline** under a published
-  key, with tamper rejection (M1 + negative controls).
+## VERIFIED (reproducible, live, this host)
+- Independent kernel observation of a real agent, sealed into collector-signed
+  evidence that verifies offline, with tamper rejection (M1).
+- Honest control path reaches `Active`; live tracepoint interference becomes a
+  signed `IntegrityUnknown` (E2, 6/6, clock enforcement off).
+- Against an independent ftrace ground truth (E3, 10 × 200 execs, release
+  build): sched and connector recall 2000/2000, precision 1.0, 0 fabricated
+  records, pid attribution 2000/2000, 0 counted loss, 10/10 trials verified
+  offline; exec→signed p50 795 ms / p95 909 ms at a 1 s batch interval;
+  overhead median ×1.09 on a short synthetic workload (upper bound, n=10).
 
-## PARTIAL (component- or limited-integration level only)
-- Reconciler `VERIFIED_EXECUTION` verdict: exists as `aip-reconcile` component
-  tests; not exercised end-to-end against a live agent here (M2 NOT_RUN).
-- MCP gateway signed tool-receipt (`aip-mcp-gateway`, `integrations/mcp-gateway`)
-  present in-tree; not run in the same-run chain here.
-- SDKs (`sdk/`), evidence API/MCP, enterprise console: present in-tree; not
-  installation-tested this invocation.
+## PARTIAL
+- Reconciler `VERIFIED_EXECUTION`, MCP signed receipt in the same run (M2),
+  SDKs, console, installation: component-level only.
+- E3 measured signed observations; it did **not** reach attested coverage
+  (every trial `ContinuityUnverified` in its short window).
 
-## BLOCKED (environment / external provision)
-- Independently administered **off-host collector** custody — not available in
-  a single sandbox host.
-- **NTP-synchronized clock** for the collector's default posture — no time
-  daemon / NTP egress here.
-- Genuinely **model-backed** agent task — no LLM credentials / local model
-  (M1 deliberately needs none; a model-driven pilot workflow would need one).
-- **kprobe** syscall-level sensors — kernel built without `CONFIG_KPROBES`.
+## BLOCKED (environment)
+- Host-separated collector custody; NTP-synchronized clock; model-backed agent
+  task (no credentials); kprobe sensors (`CONFIG_KPROBES` unset); SoftHSM2.
 
-## 30-day evaluation structure (unchanged, gated by the above)
-Week 1 environment qualification + controlled install; Week 2 integrate one
-approved agent workflow; Week 3 measurement + negative tests + performance;
-Week 4 independent verification + acceptance review.
-
-**Pilot readiness verdict: PARTIAL** — the independent-evidence core is
-demonstrable live; installation, same-run authz/receipt/reconcile, and
-host-separated custody are not yet evidenced here.
+**Pilot readiness: PARTIAL.**

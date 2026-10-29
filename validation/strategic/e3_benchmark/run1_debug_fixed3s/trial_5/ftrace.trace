@@ -1,0 +1,640 @@
+# vanian reference observer capture
+# instrument: ftrace tracepoint reader (kernel-owned rendering)
+# NOT a Vanian observer. Produces no attested observation.
+# clock: local global counter uptime perf [mono] mono_raw boot tai x86-tsc
+# kernel: 6.18.44-fc-v185
+# boot_id: 19b00ed2-fee4-47b3-9029-6c77aece0da5
+# captured_realtime_ns: 1793253184141783204
+# events: sched/sched_process_fork sched/sched_process_exec sched/sched_process_exit
+#
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 619/619   #P:4
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+            bash-12728   [001] .....  1460.761495: sched_process_exit: comm=bash pid=12728 prio=120 group_dead=true
+            bash-10683   [003] .....  1460.762018: sched_process_fork: comm=bash pid=10683 child_comm=bash child_pid=12732
+         python3-12732   [000] .....  1460.764276: sched_process_exec: filename=/usr/local/bin/python3 pid=12732 old_pid=12732
+         python3-12732   [000] .....  1460.808723: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12733
+       vgt_00000-12733   [001] .....  1460.809009: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00000 pid=12733 old_pid=12733
+         python3-12732   [000] .....  1460.809072: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12734
+       vgt_00001-12734   [003] .....  1460.809332: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00001 pid=12734 old_pid=12734
+         python3-12732   [000] .....  1460.809336: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12735
+         python3-12732   [000] .....  1460.809567: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12736
+       vgt_00002-12735   [002] .....  1460.809576: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00002 pid=12735 old_pid=12735
+       vgt_00000-12733   [001] .....  1460.809807: sched_process_exit: comm=vgt_00000 pid=12733 prio=120 group_dead=true
+       vgt_00003-12736   [001] .....  1460.810060: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00003 pid=12736 old_pid=12736
+       vgt_00001-12734   [003] .....  1460.810062: sched_process_exit: comm=vgt_00001 pid=12734 prio=120 group_dead=true
+       vgt_00002-12735   [002] .....  1460.810311: sched_process_exit: comm=vgt_00002 pid=12735 prio=120 group_dead=true
+       vgt_00003-12736   [001] .....  1460.810757: sched_process_exit: comm=vgt_00003 pid=12736 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.810948: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12737
+       vgt_00004-12737   [001] .....  1460.811146: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00004 pid=12737 old_pid=12737
+         python3-12732   [000] .....  1460.811174: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12738
+       vgt_00005-12738   [003] .....  1460.811379: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00005 pid=12738 old_pid=12738
+         python3-12732   [000] .....  1460.811390: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12739
+       vgt_00006-12739   [002] .....  1460.811569: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00006 pid=12739 old_pid=12739
+         python3-12732   [000] .....  1460.811600: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12740
+       vgt_00007-12740   [000] .....  1460.811789: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00007 pid=12740 old_pid=12740
+       vgt_00004-12737   [001] .....  1460.811996: sched_process_exit: comm=vgt_00004 pid=12737 prio=120 group_dead=true
+       vgt_00005-12738   [003] .....  1460.812177: sched_process_exit: comm=vgt_00005 pid=12738 prio=120 group_dead=true
+       vgt_00006-12739   [002] .....  1460.812282: sched_process_exit: comm=vgt_00006 pid=12739 prio=120 group_dead=true
+       vgt_00007-12740   [000] .....  1460.812641: sched_process_exit: comm=vgt_00007 pid=12740 prio=120 group_dead=true
+         python3-12732   [001] .....  1460.812818: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12741
+       vgt_00008-12741   [000] .....  1460.813035: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00008 pid=12741 old_pid=12741
+         python3-12732   [001] .....  1460.813054: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12742
+       vgt_00009-12742   [003] .....  1460.813241: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00009 pid=12742 old_pid=12742
+         python3-12732   [001] .....  1460.813259: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12743
+       vgt_00010-12743   [002] .....  1460.813432: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00010 pid=12743 old_pid=12743
+         python3-12732   [001] .....  1460.813446: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12744
+       vgt_00011-12744   [001] .....  1460.813625: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00011 pid=12744 old_pid=12744
+       vgt_00008-12741   [000] .....  1460.813902: sched_process_exit: comm=vgt_00008 pid=12741 prio=120 group_dead=true
+       vgt_00009-12742   [003] .....  1460.813938: sched_process_exit: comm=vgt_00009 pid=12742 prio=120 group_dead=true
+       vgt_00010-12743   [002] .....  1460.814101: sched_process_exit: comm=vgt_00010 pid=12743 prio=120 group_dead=true
+       vgt_00011-12744   [001] .....  1460.814513: sched_process_exit: comm=vgt_00011 pid=12744 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.814694: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12745
+       vgt_00012-12745   [001] .....  1460.814878: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00012 pid=12745 old_pid=12745
+         python3-12732   [003] .....  1460.814899: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12746
+         python3-12732   [003] .....  1460.815080: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12747
+       vgt_00013-12746   [000] .....  1460.815082: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00013 pid=12746 old_pid=12746
+       vgt_00014-12747   [002] .....  1460.815239: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00014 pid=12747 old_pid=12747
+         python3-12732   [003] .....  1460.815244: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12748
+       vgt_00015-12748   [003] .....  1460.815408: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00015 pid=12748 old_pid=12748
+       vgt_00012-12745   [001] .....  1460.815678: sched_process_exit: comm=vgt_00012 pid=12745 prio=120 group_dead=true
+       vgt_00013-12746   [000] .....  1460.815912: sched_process_exit: comm=vgt_00013 pid=12746 prio=120 group_dead=true
+       vgt_00014-12747   [002] .....  1460.815919: sched_process_exit: comm=vgt_00014 pid=12747 prio=120 group_dead=true
+       vgt_00015-12748   [003] .....  1460.816134: sched_process_exit: comm=vgt_00015 pid=12748 prio=120 group_dead=true
+         python3-12732   [001] .....  1460.816335: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12749
+       vgt_00016-12749   [000] .....  1460.816536: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00016 pid=12749 old_pid=12749
+         python3-12732   [001] .....  1460.816557: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12750
+       vgt_00017-12750   [002] .....  1460.816721: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00017 pid=12750 old_pid=12750
+         python3-12732   [001] .....  1460.816741: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12751
+       vgt_00018-12751   [003] .....  1460.816937: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00018 pid=12751 old_pid=12751
+         python3-12732   [001] .....  1460.816941: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12752
+       vgt_00019-12752   [001] .....  1460.817113: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00019 pid=12752 old_pid=12752
+       vgt_00017-12750   [002] .....  1460.817383: sched_process_exit: comm=vgt_00017 pid=12750 prio=120 group_dead=true
+       vgt_00016-12749   [000] .....  1460.817398: sched_process_exit: comm=vgt_00016 pid=12749 prio=120 group_dead=true
+       vgt_00018-12751   [003] .....  1460.817589: sched_process_exit: comm=vgt_00018 pid=12751 prio=120 group_dead=true
+       vgt_00019-12752   [001] .....  1460.817866: sched_process_exit: comm=vgt_00019 pid=12752 prio=120 group_dead=true
+         python3-12732   [002] .....  1460.818024: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12753
+       vgt_00020-12753   [001] .....  1460.818191: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00020 pid=12753 old_pid=12753
+         python3-12732   [002] .....  1460.818211: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12754
+       vgt_00021-12754   [003] .....  1460.818369: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00021 pid=12754 old_pid=12754
+         python3-12732   [002] .....  1460.818369: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12755
+         python3-12732   [002] .....  1460.818547: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12756
+       vgt_00022-12755   [000] .....  1460.818570: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00022 pid=12755 old_pid=12755
+       vgt_00023-12756   [002] .....  1460.818711: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00023 pid=12756 old_pid=12756
+       vgt_00021-12754   [003] .....  1460.819025: sched_process_exit: comm=vgt_00021 pid=12754 prio=120 group_dead=true
+       vgt_00020-12753   [001] .....  1460.819099: sched_process_exit: comm=vgt_00020 pid=12753 prio=120 group_dead=true
+       vgt_00022-12755   [000] .....  1460.819406: sched_process_exit: comm=vgt_00022 pid=12755 prio=120 group_dead=true
+       vgt_00023-12756   [002] .....  1460.819415: sched_process_exit: comm=vgt_00023 pid=12756 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.819588: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12757
+       vgt_00024-12757   [002] .....  1460.819767: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00024 pid=12757 old_pid=12757
+         python3-12732   [003] .....  1460.819785: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12758
+       vgt_00025-12758   [000] .....  1460.819990: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00025 pid=12758 old_pid=12758
+         python3-12732   [003] .....  1460.819993: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12759
+       vgt_00026-12759   [001] .....  1460.820198: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00026 pid=12759 old_pid=12759
+         python3-12732   [003] .....  1460.820213: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12760
+       vgt_00027-12760   [003] .....  1460.820381: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00027 pid=12760 old_pid=12760
+       vgt_00024-12757   [002] .....  1460.820462: sched_process_exit: comm=vgt_00024 pid=12757 prio=120 group_dead=true
+       vgt_00025-12758   [000] .....  1460.820875: sched_process_exit: comm=vgt_00025 pid=12758 prio=120 group_dead=true
+       vgt_00026-12759   [001] .....  1460.821001: sched_process_exit: comm=vgt_00026 pid=12759 prio=120 group_dead=true
+       vgt_00027-12760   [003] .....  1460.821107: sched_process_exit: comm=vgt_00027 pid=12760 prio=120 group_dead=true
+         python3-12732   [002] .....  1460.821276: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12761
+       vgt_00028-12761   [003] .....  1460.821439: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00028 pid=12761 old_pid=12761
+         python3-12732   [002] .....  1460.821447: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12762
+         python3-12732   [002] .....  1460.821619: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12763
+       vgt_00029-12762   [000] .....  1460.821634: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00029 pid=12762 old_pid=12762
+         python3-12732   [002] .....  1460.821771: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12764
+       vgt_00030-12763   [001] .....  1460.821796: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00030 pid=12763 old_pid=12763
+       vgt_00031-12764   [002] .....  1460.821967: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00031 pid=12764 old_pid=12764
+       vgt_00028-12761   [003] .....  1460.822105: sched_process_exit: comm=vgt_00028 pid=12761 prio=120 group_dead=true
+       vgt_00029-12762   [000] .....  1460.822482: sched_process_exit: comm=vgt_00029 pid=12762 prio=120 group_dead=true
+       vgt_00030-12763   [001] .....  1460.822576: sched_process_exit: comm=vgt_00030 pid=12763 prio=120 group_dead=true
+       vgt_00031-12764   [002] .....  1460.822661: sched_process_exit: comm=vgt_00031 pid=12764 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.822812: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12765
+       vgt_00032-12765   [002] .....  1460.822988: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00032 pid=12765 old_pid=12765
+         python3-12732   [003] .....  1460.823018: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12766
+         python3-12732   [003] .....  1460.823181: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12767
+       vgt_00033-12766   [000] .....  1460.823197: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00033 pid=12766 old_pid=12766
+         python3-12732   [003] .....  1460.823331: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12768
+       vgt_00034-12767   [001] .....  1460.823344: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00034 pid=12767 old_pid=12767
+       vgt_00035-12768   [003] .....  1460.823492: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00035 pid=12768 old_pid=12768
+       vgt_00032-12765   [002] .....  1460.823631: sched_process_exit: comm=vgt_00032 pid=12765 prio=120 group_dead=true
+       vgt_00033-12766   [000] .....  1460.824090: sched_process_exit: comm=vgt_00033 pid=12766 prio=120 group_dead=true
+       vgt_00034-12767   [001] .....  1460.824167: sched_process_exit: comm=vgt_00034 pid=12767 prio=120 group_dead=true
+       vgt_00035-12768   [003] .....  1460.824299: sched_process_exit: comm=vgt_00035 pid=12768 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.824425: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12769
+       vgt_00036-12769   [002] .....  1460.824568: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00036 pid=12769 old_pid=12769
+         python3-12732   [003] .....  1460.824576: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12770
+       vgt_00037-12770   [000] .....  1460.825024: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00037 pid=12770 old_pid=12770
+         python3-12732   [003] .....  1460.825042: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12771
+         python3-12732   [003] .....  1460.825225: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12772
+       vgt_00038-12771   [001] .....  1460.825230: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00038 pid=12771 old_pid=12771
+       vgt_00036-12769   [002] .....  1460.825251: sched_process_exit: comm=vgt_00036 pid=12769 prio=120 group_dead=true
+       vgt_00039-12772   [003] .....  1460.825388: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00039 pid=12772 old_pid=12772
+       vgt_00037-12770   [000] .....  1460.825844: sched_process_exit: comm=vgt_00037 pid=12770 prio=120 group_dead=true
+       vgt_00038-12771   [001] .....  1460.826017: sched_process_exit: comm=vgt_00038 pid=12771 prio=120 group_dead=true
+       vgt_00039-12772   [003] .....  1460.826104: sched_process_exit: comm=vgt_00039 pid=12772 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.826287: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12773
+       vgt_00040-12773   [003] .....  1460.826437: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00040 pid=12773 old_pid=12773
+         python3-12732   [000] .....  1460.826467: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12774
+         python3-12732   [000] .....  1460.826653: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12775
+       vgt_00041-12774   [001] .....  1460.826654: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00041 pid=12774 old_pid=12774
+       vgt_00042-12775   [002] .....  1460.826809: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00042 pid=12775 old_pid=12775
+         python3-12732   [000] .....  1460.826887: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12776
+       vgt_00043-12776   [000] .....  1460.827069: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00043 pid=12776 old_pid=12776
+       vgt_00040-12773   [003] .....  1460.827095: sched_process_exit: comm=vgt_00040 pid=12773 prio=120 group_dead=true
+       vgt_00042-12775   [002] .....  1460.827484: sched_process_exit: comm=vgt_00042 pid=12775 prio=120 group_dead=true
+       vgt_00041-12774   [001] .....  1460.827522: sched_process_exit: comm=vgt_00041 pid=12774 prio=120 group_dead=true
+       vgt_00043-12776   [000] .....  1460.827843: sched_process_exit: comm=vgt_00043 pid=12776 prio=120 group_dead=true
+         python3-12732   [002] .....  1460.828050: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12777
+       vgt_00044-12777   [003] .....  1460.828198: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00044 pid=12777 old_pid=12777
+         python3-12732   [002] .....  1460.828226: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12778
+       vgt_00045-12778   [000] .....  1460.828404: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00045 pid=12778 old_pid=12778
+         python3-12732   [002] .....  1460.828408: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12779
+       vgt_00046-12779   [001] .....  1460.828584: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00046 pid=12779 old_pid=12779
+         python3-12732   [002] .....  1460.828587: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12780
+       vgt_00047-12780   [002] .....  1460.828755: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00047 pid=12780 old_pid=12780
+       vgt_00044-12777   [003] .....  1460.828842: sched_process_exit: comm=vgt_00044 pid=12777 prio=120 group_dead=true
+       vgt_00045-12778   [000] .....  1460.829248: sched_process_exit: comm=vgt_00045 pid=12778 prio=120 group_dead=true
+       vgt_00046-12779   [001] .....  1460.829375: sched_process_exit: comm=vgt_00046 pid=12779 prio=120 group_dead=true
+       vgt_00047-12780   [002] .....  1460.829491: sched_process_exit: comm=vgt_00047 pid=12780 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.829668: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12781
+       vgt_00048-12781   [002] .....  1460.829807: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00048 pid=12781 old_pid=12781
+         python3-12732   [003] .....  1460.829817: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12782
+       vgt_00049-12782   [000] .....  1460.830092: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00049 pid=12782 old_pid=12782
+         python3-12732   [003] .....  1460.830096: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12783
+       vgt_00048-12781   [002] .....  1460.830460: sched_process_exit: comm=vgt_00048 pid=12781 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.830464: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12784
+       vgt_00050-12783   [001] .....  1460.830505: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00050 pid=12783 old_pid=12783
+       vgt_00051-12784   [002] .....  1460.830632: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00051 pid=12784 old_pid=12784
+       vgt_00049-12782   [000] .....  1460.830768: sched_process_exit: comm=vgt_00049 pid=12782 prio=120 group_dead=true
+       vgt_00051-12784   [002] .....  1460.831299: sched_process_exit: comm=vgt_00051 pid=12784 prio=120 group_dead=true
+       vgt_00050-12783   [001] .....  1460.831394: sched_process_exit: comm=vgt_00050 pid=12783 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.831553: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12785
+       vgt_00052-12785   [002] .....  1460.831710: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00052 pid=12785 old_pid=12785
+         python3-12732   [003] .....  1460.831721: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12786
+       vgt_00053-12786   [000] .....  1460.831919: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00053 pid=12786 old_pid=12786
+         python3-12732   [003] .....  1460.831924: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12787
+         python3-12732   [003] .....  1460.832187: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12788
+       vgt_00054-12787   [001] .....  1460.832245: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00054 pid=12787 old_pid=12787
+       vgt_00055-12788   [003] .....  1460.832343: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00055 pid=12788 old_pid=12788
+       vgt_00052-12785   [002] .....  1460.832394: sched_process_exit: comm=vgt_00052 pid=12785 prio=120 group_dead=true
+       vgt_00053-12786   [000] .....  1460.832594: sched_process_exit: comm=vgt_00053 pid=12786 prio=120 group_dead=true
+       vgt_00055-12788   [003] .....  1460.833074: sched_process_exit: comm=vgt_00055 pid=12788 prio=120 group_dead=true
+       vgt_00054-12787   [001] .....  1460.833211: sched_process_exit: comm=vgt_00054 pid=12787 prio=120 group_dead=true
+         python3-12732   [002] .....  1460.833443: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12789
+       vgt_00056-12789   [003] .....  1460.833619: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00056 pid=12789 old_pid=12789
+         python3-12732   [002] .....  1460.833642: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12790
+       vgt_00057-12790   [000] .....  1460.833806: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00057 pid=12790 old_pid=12790
+         python3-12732   [002] .....  1460.833811: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12791
+         python3-12732   [002] .....  1460.834114: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12792
+       vgt_00058-12791   [001] .....  1460.834161: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00058 pid=12791 old_pid=12791
+       vgt_00056-12789   [003] .....  1460.834270: sched_process_exit: comm=vgt_00056 pid=12789 prio=120 group_dead=true
+       vgt_00059-12792   [002] .....  1460.834270: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00059 pid=12792 old_pid=12792
+       vgt_00057-12790   [000] .....  1460.834465: sched_process_exit: comm=vgt_00057 pid=12790 prio=120 group_dead=true
+       vgt_00059-12792   [002] .....  1460.834987: sched_process_exit: comm=vgt_00059 pid=12792 prio=120 group_dead=true
+       vgt_00058-12791   [001] .....  1460.835122: sched_process_exit: comm=vgt_00058 pid=12791 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.835340: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12793
+       vgt_00060-12793   [002] .....  1460.835511: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00060 pid=12793 old_pid=12793
+         python3-12732   [003] .....  1460.835534: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12794
+         python3-12732   [003] .....  1460.835801: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12795
+       vgt_00061-12794   [000] .....  1460.835811: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00061 pid=12794 old_pid=12794
+         python3-12732   [003] .....  1460.836133: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12796
+       vgt_00062-12795   [001] .....  1460.836184: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00062 pid=12795 old_pid=12795
+       vgt_00060-12793   [002] .....  1460.836193: sched_process_exit: comm=vgt_00060 pid=12793 prio=120 group_dead=true
+       vgt_00063-12796   [003] .....  1460.836310: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00063 pid=12796 old_pid=12796
+       vgt_00061-12794   [000] .....  1460.836531: sched_process_exit: comm=vgt_00061 pid=12794 prio=120 group_dead=true
+       vgt_00063-12796   [003] .....  1460.837011: sched_process_exit: comm=vgt_00063 pid=12796 prio=120 group_dead=true
+       vgt_00062-12795   [001] .....  1460.837230: sched_process_exit: comm=vgt_00062 pid=12795 prio=120 group_dead=true
+         python3-12732   [002] .....  1460.837488: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12797
+         python3-12732   [002] .....  1460.837686: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12798
+       vgt_00064-12797   [003] .....  1460.838051: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00064 pid=12797 old_pid=12797
+       vgt_00065-12798   [000] .....  1460.838143: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00065 pid=12798 old_pid=12798
+         python3-12732   [002] .....  1460.838153: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12799
+         python3-12732   [002] .....  1460.838483: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12800
+       vgt_00067-12800   [002] .....  1460.838657: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00067 pid=12800 old_pid=12800
+       vgt_00064-12797   [003] .....  1460.838699: sched_process_exit: comm=vgt_00064 pid=12797 prio=120 group_dead=true
+       vgt_00066-12799   [001] .....  1460.838699: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00066 pid=12799 old_pid=12799
+       vgt_00065-12798   [000] .....  1460.838822: sched_process_exit: comm=vgt_00065 pid=12798 prio=120 group_dead=true
+       vgt_00067-12800   [002] .....  1460.839374: sched_process_exit: comm=vgt_00067 pid=12800 prio=120 group_dead=true
+       vgt_00066-12799   [001] .....  1460.839686: sched_process_exit: comm=vgt_00066 pid=12799 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.839932: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12801
+       vgt_00068-12801   [000] .....  1460.840233: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00068 pid=12801 old_pid=12801
+         python3-12732   [003] .....  1460.840239: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12802
+         python3-12732   [003] .....  1460.840444: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12803
+       vgt_00069-12802   [001] .....  1460.840454: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00069 pid=12802 old_pid=12802
+         python3-12732   [003] .....  1460.840595: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12804
+       vgt_00070-12803   [002] .....  1460.840608: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00070 pid=12803 old_pid=12803
+       vgt_00071-12804   [003] .....  1460.840763: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00071 pid=12804 old_pid=12804
+       vgt_00068-12801   [000] .....  1460.840893: sched_process_exit: comm=vgt_00068 pid=12801 prio=120 group_dead=true
+       vgt_00069-12802   [001] .....  1460.841161: sched_process_exit: comm=vgt_00069 pid=12802 prio=120 group_dead=true
+       vgt_00070-12803   [002] .....  1460.841306: sched_process_exit: comm=vgt_00070 pid=12803 prio=120 group_dead=true
+       vgt_00071-12804   [003] .....  1460.841476: sched_process_exit: comm=vgt_00071 pid=12804 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.841649: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12805
+       vgt_00072-12805   [003] .....  1460.841798: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00072 pid=12805 old_pid=12805
+         python3-12732   [000] .....  1460.841816: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12806
+       vgt_00073-12806   [002] .....  1460.841994: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00073 pid=12806 old_pid=12806
+         python3-12732   [000] .....  1460.842002: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12807
+         python3-12732   [000] .....  1460.842146: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12808
+       vgt_00074-12807   [001] .....  1460.842159: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00074 pid=12807 old_pid=12807
+       vgt_00075-12808   [000] .....  1460.842304: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00075 pid=12808 old_pid=12808
+       vgt_00072-12805   [003] .....  1460.842447: sched_process_exit: comm=vgt_00072 pid=12805 prio=120 group_dead=true
+       vgt_00073-12806   [002] .....  1460.842639: sched_process_exit: comm=vgt_00073 pid=12806 prio=120 group_dead=true
+       vgt_00074-12807   [001] .....  1460.842953: sched_process_exit: comm=vgt_00074 pid=12807 prio=120 group_dead=true
+       vgt_00075-12808   [000] .....  1460.843025: sched_process_exit: comm=vgt_00075 pid=12808 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.843182: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12809
+       vgt_00076-12809   [000] .....  1460.843346: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00076 pid=12809 old_pid=12809
+         python3-12732   [003] .....  1460.843352: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12810
+         python3-12732   [003] .....  1460.843501: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12811
+       vgt_00077-12810   [002] .....  1460.843510: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00077 pid=12810 old_pid=12810
+         python3-12732   [003] .....  1460.843731: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12812
+       vgt_00078-12811   [001] .....  1460.843772: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00078 pid=12811 old_pid=12811
+       vgt_00079-12812   [003] .....  1460.843903: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00079 pid=12812 old_pid=12812
+       vgt_00076-12809   [000] .....  1460.844000: sched_process_exit: comm=vgt_00076 pid=12809 prio=120 group_dead=true
+       vgt_00077-12810   [002] .....  1460.844198: sched_process_exit: comm=vgt_00077 pid=12810 prio=120 group_dead=true
+       vgt_00079-12812   [003] .....  1460.844632: sched_process_exit: comm=vgt_00079 pid=12812 prio=120 group_dead=true
+       vgt_00078-12811   [001] .....  1460.844735: sched_process_exit: comm=vgt_00078 pid=12811 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.844972: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12813
+       vgt_00080-12813   [003] .....  1460.845147: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00080 pid=12813 old_pid=12813
+         python3-12732   [000] .....  1460.845174: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12814
+       vgt_00081-12814   [001] .....  1460.845466: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00081 pid=12814 old_pid=12814
+         python3-12732   [000] .....  1460.845533: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12815
+         python3-12732   [000] .....  1460.845686: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12816
+       vgt_00082-12815   [002] .....  1460.845692: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00082 pid=12815 old_pid=12815
+       vgt_00080-12813   [003] .....  1460.845782: sched_process_exit: comm=vgt_00080 pid=12813 prio=120 group_dead=true
+       vgt_00083-12816   [000] .N...  1460.845881: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00083 pid=12816 old_pid=12816
+       vgt_00082-12815   [002] .....  1460.846365: sched_process_exit: comm=vgt_00082 pid=12815 prio=120 group_dead=true
+       vgt_00081-12814   [001] .....  1460.846447: sched_process_exit: comm=vgt_00081 pid=12814 prio=120 group_dead=true
+       vgt_00083-12816   [000] .....  1460.846621: sched_process_exit: comm=vgt_00083 pid=12816 prio=120 group_dead=true
+         python3-12732   [001] .....  1460.846911: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12817
+       vgt_00084-12817   [000] .....  1460.847084: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00084 pid=12817 old_pid=12817
+         python3-12732   [001] .....  1460.847160: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12818
+       vgt_00085-12818   [003] .....  1460.847322: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00085 pid=12818 old_pid=12818
+         python3-12732   [001] .....  1460.847363: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12819
+       vgt_00084-12817   [000] .....  1460.847728: sched_process_exit: comm=vgt_00084 pid=12817 prio=120 group_dead=true
+         python3-12732   [001] .....  1460.847794: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12820
+       vgt_00086-12819   [002] .....  1460.847807: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00086 pid=12819 old_pid=12819
+       vgt_00087-12820   [000] .....  1460.847961: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00087 pid=12820 old_pid=12820
+       vgt_00085-12818   [003] .....  1460.847976: sched_process_exit: comm=vgt_00085 pid=12818 prio=120 group_dead=true
+       vgt_00087-12820   [000] .....  1460.848718: sched_process_exit: comm=vgt_00087 pid=12820 prio=120 group_dead=true
+       vgt_00086-12819   [002] .....  1460.848946: sched_process_exit: comm=vgt_00086 pid=12819 prio=120 group_dead=true
+         python3-12732   [001] .....  1460.849184: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12821
+       vgt_00088-12821   [003] .....  1460.849361: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00088 pid=12821 old_pid=12821
+         python3-12732   [001] .....  1460.849405: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12822
+       vgt_00089-12822   [000] .....  1460.849577: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00089 pid=12822 old_pid=12822
+         python3-12732   [001] .....  1460.849612: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12823
+       vgt_00090-12823   [002] .....  1460.849902: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00090 pid=12823 old_pid=12823
+         python3-12732   [001] .....  1460.849933: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12824
+       vgt_00088-12821   [003] .....  1460.850015: sched_process_exit: comm=vgt_00088 pid=12821 prio=120 group_dead=true
+       vgt_00091-12824   [001] .....  1460.850218: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00091 pid=12824 old_pid=12824
+       vgt_00089-12822   [000] .....  1460.850240: sched_process_exit: comm=vgt_00089 pid=12822 prio=120 group_dead=true
+       vgt_00090-12823   [002] .....  1460.850891: sched_process_exit: comm=vgt_00090 pid=12823 prio=120 group_dead=true
+       vgt_00091-12824   [001] .....  1460.851142: sched_process_exit: comm=vgt_00091 pid=12824 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.851346: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12825
+         python3-12732   [003] .....  1460.851565: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12826
+       vgt_00092-12825   [001] .....  1460.851576: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00092 pid=12825 old_pid=12825
+       vgt_00093-12826   [000] .....  1460.851720: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00093 pid=12826 old_pid=12826
+         python3-12732   [003] .....  1460.851731: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12827
+         python3-12732   [003] .N...  1460.852070: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12828
+       vgt_00094-12827   [002] .....  1460.852094: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00094 pid=12827 old_pid=12827
+       vgt_00095-12828   [003] .....  1460.852238: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00095 pid=12828 old_pid=12828
+       vgt_00093-12826   [000] .....  1460.852409: sched_process_exit: comm=vgt_00093 pid=12826 prio=120 group_dead=true
+       vgt_00092-12825   [001] .....  1460.852558: sched_process_exit: comm=vgt_00092 pid=12825 prio=120 group_dead=true
+       vgt_00095-12828   [003] .....  1460.852927: sched_process_exit: comm=vgt_00095 pid=12828 prio=120 group_dead=true
+       vgt_00094-12827   [002] .....  1460.853085: sched_process_exit: comm=vgt_00094 pid=12827 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.853266: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12829
+       vgt_00096-12829   [000] .....  1460.853423: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00096 pid=12829 old_pid=12829
+         python3-12732   [003] .....  1460.853432: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12830
+         python3-12732   [003] .....  1460.853647: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12831
+       vgt_00097-12830   [002] .....  1460.853691: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00097 pid=12830 old_pid=12830
+         python3-12732   [003] .....  1460.853951: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12832
+       vgt_00098-12831   [001] .....  1460.854014: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00098 pid=12831 old_pid=12831
+       vgt_00096-12829   [000] .....  1460.854076: sched_process_exit: comm=vgt_00096 pid=12829 prio=120 group_dead=true
+       vgt_00099-12832   [003] .....  1460.854202: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00099 pid=12832 old_pid=12832
+       vgt_00097-12830   [002] .....  1460.854656: sched_process_exit: comm=vgt_00097 pid=12830 prio=120 group_dead=true
+       vgt_00098-12831   [001] .....  1460.854956: sched_process_exit: comm=vgt_00098 pid=12831 prio=120 group_dead=true
+       vgt_00099-12832   [003] .....  1460.854965: sched_process_exit: comm=vgt_00099 pid=12832 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.855148: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12833
+       vgt_00100-12833   [000] .....  1460.855297: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00100 pid=12833 old_pid=12833
+         python3-12732   [003] .....  1460.855308: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12834
+         python3-12732   [003] .....  1460.855549: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12835
+       vgt_00101-12834   [002] .....  1460.855587: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00101 pid=12834 old_pid=12834
+       vgt_00102-12835   [001] .....  1460.855824: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00102 pid=12835 old_pid=12835
+         python3-12732   [003] .....  1460.855914: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12836
+       vgt_00100-12833   [000] .....  1460.855944: sched_process_exit: comm=vgt_00100 pid=12833 prio=120 group_dead=true
+       vgt_00103-12836   [003] .....  1460.856157: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00103 pid=12836 old_pid=12836
+       vgt_00101-12834   [002] .....  1460.856818: sched_process_exit: comm=vgt_00101 pid=12834 prio=120 group_dead=true
+       vgt_00103-12836   [003] .....  1460.856833: sched_process_exit: comm=vgt_00103 pid=12836 prio=120 group_dead=true
+       vgt_00102-12835   [001] .....  1460.857082: sched_process_exit: comm=vgt_00102 pid=12835 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.857272: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12837
+       vgt_00104-12837   [000] .....  1460.857430: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00104 pid=12837 old_pid=12837
+         python3-12732   [003] .....  1460.857435: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12838
+         python3-12732   [003] .....  1460.857669: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12839
+       vgt_00105-12838   [002] .....  1460.857711: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00105 pid=12838 old_pid=12838
+         python3-12732   [003] .....  1460.857967: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12840
+       vgt_00106-12839   [001] .....  1460.858012: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00106 pid=12839 old_pid=12839
+       vgt_00104-12837   [000] .....  1460.858070: sched_process_exit: comm=vgt_00104 pid=12837 prio=120 group_dead=true
+       vgt_00107-12840   [003] .N...  1460.858143: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00107 pid=12840 old_pid=12840
+       vgt_00105-12838   [002] .....  1460.858686: sched_process_exit: comm=vgt_00105 pid=12838 prio=120 group_dead=true
+       vgt_00107-12840   [003] .....  1460.858883: sched_process_exit: comm=vgt_00107 pid=12840 prio=120 group_dead=true
+       vgt_00106-12839   [001] .....  1460.859200: sched_process_exit: comm=vgt_00106 pid=12839 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.859496: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12841
+         python3-12732   [000] .....  1460.859744: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12842
+       vgt_00108-12841   [002] .....  1460.859766: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00108 pid=12841 old_pid=12841
+       vgt_00109-12842   [003] .....  1460.859934: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00109 pid=12842 old_pid=12842
+         python3-12732   [000] .....  1460.859948: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12843
+       vgt_00110-12843   [000] .....  1460.860227: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00110 pid=12843 old_pid=12843
+       vgt_00109-12842   [003] .....  1460.860675: sched_process_exit: comm=vgt_00109 pid=12842 prio=120 group_dead=true
+       vgt_00108-12841   [002] .....  1460.860805: sched_process_exit: comm=vgt_00108 pid=12841 prio=120 group_dead=true
+       vgt_00110-12843   [000] .....  1460.860914: sched_process_exit: comm=vgt_00110 pid=12843 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.861074: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12844
+       vgt_00111-12844   [001] .....  1460.861251: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00111 pid=12844 old_pid=12844
+       vgt_00111-12844   [001] .....  1460.862017: sched_process_exit: comm=vgt_00111 pid=12844 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.862130: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12845
+         python3-12732   [000] .....  1460.862309: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12846
+       vgt_00112-12845   [003] .....  1460.862321: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00112 pid=12845 old_pid=12845
+       vgt_00113-12846   [001] .....  1460.862478: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00113 pid=12846 old_pid=12846
+         python3-12732   [000] .....  1460.862490: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12847
+         python3-12732   [000] .....  1460.862748: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12848
+       vgt_00114-12847   [002] .....  1460.862806: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00114 pid=12847 old_pid=12847
+       vgt_00115-12848   [000] .....  1460.862923: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00115 pid=12848 old_pid=12848
+       vgt_00112-12845   [003] .....  1460.862998: sched_process_exit: comm=vgt_00112 pid=12845 prio=120 group_dead=true
+       vgt_00113-12846   [001] .....  1460.863355: sched_process_exit: comm=vgt_00113 pid=12846 prio=120 group_dead=true
+       vgt_00115-12848   [000] .....  1460.863638: sched_process_exit: comm=vgt_00115 pid=12848 prio=120 group_dead=true
+       vgt_00114-12847   [002] .....  1460.863793: sched_process_exit: comm=vgt_00114 pid=12847 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.864083: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12849
+         python3-12732   [000] .....  1460.864255: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12850
+       vgt_00116-12849   [003] .....  1460.864256: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00116 pid=12849 old_pid=12849
+         python3-12732   [000] .....  1460.864481: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12851
+       vgt_00117-12850   [001] .....  1460.864520: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00117 pid=12850 old_pid=12850
+         python3-12732   [000] .....  1460.864690: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12852
+       vgt_00118-12851   [002] .....  1460.864751: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00118 pid=12851 old_pid=12851
+       vgt_00119-12852   [000] .....  1460.864859: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00119 pid=12852 old_pid=12852
+       vgt_00116-12849   [003] .....  1460.864941: sched_process_exit: comm=vgt_00116 pid=12849 prio=120 group_dead=true
+       vgt_00117-12850   [001] .....  1460.865401: sched_process_exit: comm=vgt_00117 pid=12850 prio=120 group_dead=true
+       vgt_00119-12852   [000] .....  1460.865543: sched_process_exit: comm=vgt_00119 pid=12852 prio=120 group_dead=true
+       vgt_00118-12851   [002] .....  1460.865799: sched_process_exit: comm=vgt_00118 pid=12851 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.866061: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12853
+       vgt_00120-12853   [000] .....  1460.866229: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00120 pid=12853 old_pid=12853
+         python3-12732   [003] .....  1460.866251: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12854
+         python3-12732   [003] .....  1460.866486: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12855
+       vgt_00121-12854   [001] .....  1460.866517: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00121 pid=12854 old_pid=12854
+         python3-12732   [003] .....  1460.866696: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12856
+       vgt_00122-12855   [002] .....  1460.866765: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00122 pid=12855 old_pid=12855
+       vgt_00123-12856   [003] .....  1460.866874: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00123 pid=12856 old_pid=12856
+       vgt_00120-12853   [000] .....  1460.866898: sched_process_exit: comm=vgt_00120 pid=12853 prio=120 group_dead=true
+       vgt_00121-12854   [001] .....  1460.867237: sched_process_exit: comm=vgt_00121 pid=12854 prio=120 group_dead=true
+       vgt_00122-12855   [002] .....  1460.867827: sched_process_exit: comm=vgt_00122 pid=12855 prio=120 group_dead=true
+       vgt_00123-12856   [003] .....  1460.867918: sched_process_exit: comm=vgt_00123 pid=12856 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.868123: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12857
+       vgt_00124-12857   [001] .....  1460.868297: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00124 pid=12857 old_pid=12857
+         python3-12732   [000] .....  1460.868318: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12858
+         python3-12732   [000] .....  1460.868553: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12859
+       vgt_00125-12858   [002] .....  1460.868592: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00125 pid=12858 old_pid=12858
+         python3-12732   [000] .....  1460.868720: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12860
+       vgt_00126-12859   [003] .....  1460.868736: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00126 pid=12859 old_pid=12859
+       vgt_00127-12860   [000] .....  1460.868900: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00127 pid=12860 old_pid=12860
+       vgt_00124-12857   [001] .....  1460.869011: sched_process_exit: comm=vgt_00124 pid=12857 prio=120 group_dead=true
+       vgt_00126-12859   [003] .....  1460.869406: sched_process_exit: comm=vgt_00126 pid=12859 prio=120 group_dead=true
+       vgt_00127-12860   [000] .....  1460.869600: sched_process_exit: comm=vgt_00127 pid=12860 prio=120 group_dead=true
+       vgt_00125-12858   [002] .....  1460.869615: sched_process_exit: comm=vgt_00125 pid=12858 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.869808: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12861
+       vgt_00128-12861   [001] .....  1460.869997: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00128 pid=12861 old_pid=12861
+         python3-12732   [000] .....  1460.870002: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12862
+         python3-12732   [000] .....  1460.870141: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12863
+       vgt_00129-12862   [003] .....  1460.870149: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00129 pid=12862 old_pid=12862
+         python3-12732   [000] .....  1460.870359: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12864
+       vgt_00130-12863   [002] .....  1460.870419: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00130 pid=12863 old_pid=12863
+       vgt_00131-12864   [000] .....  1460.870511: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00131 pid=12864 old_pid=12864
+       vgt_00128-12861   [001] .....  1460.870646: sched_process_exit: comm=vgt_00128 pid=12861 prio=120 group_dead=true
+       vgt_00129-12862   [003] .....  1460.870785: sched_process_exit: comm=vgt_00129 pid=12862 prio=120 group_dead=true
+       vgt_00131-12864   [000] .....  1460.871218: sched_process_exit: comm=vgt_00131 pid=12864 prio=120 group_dead=true
+       vgt_00130-12863   [002] .....  1460.871402: sched_process_exit: comm=vgt_00130 pid=12863 prio=120 group_dead=true
+         python3-12732   [001] .....  1460.871617: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12865
+       vgt_00132-12865   [000] .....  1460.871790: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00132 pid=12865 old_pid=12865
+         python3-12732   [001] .....  1460.871818: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12866
+         python3-12732   [001] .....  1460.872049: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12867
+       vgt_00133-12866   [003] .....  1460.872061: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00133 pid=12866 old_pid=12866
+       vgt_00134-12867   [001] .....  1460.872323: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00134 pid=12867 old_pid=12867
+         python3-12732   [002] .....  1460.872467: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12868
+       vgt_00132-12865   [000] .....  1460.872485: sched_process_exit: comm=vgt_00132 pid=12865 prio=120 group_dead=true
+       vgt_00135-12868   [000] .....  1460.872643: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00135 pid=12868 old_pid=12868
+       vgt_00133-12866   [003] .....  1460.872717: sched_process_exit: comm=vgt_00133 pid=12866 prio=120 group_dead=true
+       vgt_00134-12867   [001] .....  1460.873007: sched_process_exit: comm=vgt_00134 pid=12867 prio=120 group_dead=true
+       vgt_00135-12868   [000] .....  1460.873274: sched_process_exit: comm=vgt_00135 pid=12868 prio=120 group_dead=true
+         python3-12732   [002] .....  1460.873462: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12869
+       vgt_00136-12869   [000] .....  1460.873619: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00136 pid=12869 old_pid=12869
+         python3-12732   [002] .....  1460.873694: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12870
+       vgt_00137-12870   [001] .....  1460.873934: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00137 pid=12870 old_pid=12870
+         python3-12732   [002] .....  1460.873968: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12871
+       vgt_00138-12871   [003] .....  1460.874136: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00138 pid=12871 old_pid=12871
+         python3-12732   [002] .....  1460.874178: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12872
+       vgt_00136-12869   [000] .....  1460.874267: sched_process_exit: comm=vgt_00136 pid=12869 prio=120 group_dead=true
+       vgt_00139-12872   [002] .....  1460.874451: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00139 pid=12872 old_pid=12872
+       vgt_00138-12871   [003] .....  1460.874775: sched_process_exit: comm=vgt_00138 pid=12871 prio=120 group_dead=true
+       vgt_00137-12870   [001] .....  1460.874784: sched_process_exit: comm=vgt_00137 pid=12870 prio=120 group_dead=true
+       vgt_00139-12872   [002] .....  1460.875530: sched_process_exit: comm=vgt_00139 pid=12872 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.875734: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12873
+         python3-12732   [003] .....  1460.875993: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12874
+       vgt_00140-12873   [002] .....  1460.876156: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00140 pid=12873 old_pid=12873
+       vgt_00141-12874   [000] .....  1460.876297: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00141 pid=12874 old_pid=12874
+         python3-12732   [003] .....  1460.876312: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12875
+         python3-12732   [003] .....  1460.876518: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12876
+       vgt_00142-12875   [001] .....  1460.876534: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00142 pid=12875 old_pid=12875
+       vgt_00143-12876   [003] .....  1460.876675: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00143 pid=12876 old_pid=12876
+       vgt_00141-12874   [000] .....  1460.876948: sched_process_exit: comm=vgt_00141 pid=12874 prio=120 group_dead=true
+       vgt_00140-12873   [002] .....  1460.877168: sched_process_exit: comm=vgt_00140 pid=12873 prio=120 group_dead=true
+       vgt_00142-12875   [001] .....  1460.877213: sched_process_exit: comm=vgt_00142 pid=12875 prio=120 group_dead=true
+       vgt_00143-12876   [003] .....  1460.877352: sched_process_exit: comm=vgt_00143 pid=12876 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.877522: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12877
+         python3-12732   [000] .....  1460.877759: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12878
+       vgt_00144-12877   [002] .....  1460.877778: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00144 pid=12877 old_pid=12877
+         python3-12732   [000] .....  1460.877932: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12879
+       vgt_00145-12878   [003] .....  1460.877938: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00145 pid=12878 old_pid=12878
+         python3-12732   [000] .....  1460.878077: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12880
+       vgt_00146-12879   [001] .....  1460.878092: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00146 pid=12879 old_pid=12879
+       vgt_00147-12880   [000] .....  1460.878242: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00147 pid=12880 old_pid=12880
+       vgt_00145-12878   [003] .....  1460.878579: sched_process_exit: comm=vgt_00145 pid=12878 prio=120 group_dead=true
+       vgt_00146-12879   [001] .....  1460.878776: sched_process_exit: comm=vgt_00146 pid=12879 prio=120 group_dead=true
+       vgt_00144-12877   [002] .....  1460.878778: sched_process_exit: comm=vgt_00144 pid=12877 prio=120 group_dead=true
+       vgt_00147-12880   [000] .....  1460.878938: sched_process_exit: comm=vgt_00147 pid=12880 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.879092: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12881
+       vgt_00148-12881   [000] .....  1460.879237: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00148 pid=12881 old_pid=12881
+         python3-12732   [003] .....  1460.879266: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12882
+       vgt_00149-12882   [001] .....  1460.879436: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00149 pid=12882 old_pid=12882
+         python3-12732   [003] .....  1460.879441: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12883
+         python3-12732   [003] .....  1460.879661: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12884
+       vgt_00150-12883   [002] .....  1460.879704: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00150 pid=12883 old_pid=12883
+       vgt_00151-12884   [003] .....  1460.879806: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00151 pid=12884 old_pid=12884
+       vgt_00148-12881   [000] .....  1460.879891: sched_process_exit: comm=vgt_00148 pid=12881 prio=120 group_dead=true
+       vgt_00149-12882   [001] .....  1460.880193: sched_process_exit: comm=vgt_00149 pid=12882 prio=120 group_dead=true
+       vgt_00151-12884   [003] .....  1460.880608: sched_process_exit: comm=vgt_00151 pid=12884 prio=120 group_dead=true
+       vgt_00150-12883   [002] .....  1460.880735: sched_process_exit: comm=vgt_00150 pid=12883 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.880962: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12885
+       vgt_00152-12885   [003] .....  1460.881132: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00152 pid=12885 old_pid=12885
+         python3-12732   [000] .....  1460.881145: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12886
+         python3-12732   [000] .....  1460.881296: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12887
+       vgt_00153-12886   [001] .....  1460.881303: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00153 pid=12886 old_pid=12886
+         python3-12732   [000] .....  1460.881515: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12888
+       vgt_00154-12887   [002] .....  1460.881552: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00154 pid=12887 old_pid=12887
+       vgt_00155-12888   [000] .....  1460.881672: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00155 pid=12888 old_pid=12888
+       vgt_00152-12885   [003] .....  1460.881788: sched_process_exit: comm=vgt_00152 pid=12885 prio=120 group_dead=true
+       vgt_00153-12886   [001] .....  1460.881972: sched_process_exit: comm=vgt_00153 pid=12886 prio=120 group_dead=true
+       vgt_00155-12888   [000] .....  1460.882384: sched_process_exit: comm=vgt_00155 pid=12888 prio=120 group_dead=true
+       vgt_00154-12887   [002] .....  1460.882542: sched_process_exit: comm=vgt_00154 pid=12887 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.882732: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12889
+       vgt_00156-12889   [003] .....  1460.882909: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00156 pid=12889 old_pid=12889
+         python3-12732   [000] .....  1460.882923: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12890
+         python3-12732   [000] .....  1460.883143: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12891
+       vgt_00157-12890   [001] .....  1460.883198: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00157 pid=12890 old_pid=12890
+         python3-12732   [000] .....  1460.883347: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12892
+       vgt_00158-12891   [002] .....  1460.883399: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00158 pid=12891 old_pid=12891
+       vgt_00159-12892   [000] .....  1460.883494: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00159 pid=12892 old_pid=12892
+       vgt_00156-12889   [003] .....  1460.883534: sched_process_exit: comm=vgt_00156 pid=12889 prio=120 group_dead=true
+       vgt_00157-12890   [001] .....  1460.884245: sched_process_exit: comm=vgt_00157 pid=12890 prio=120 group_dead=true
+       vgt_00159-12892   [000] .....  1460.884253: sched_process_exit: comm=vgt_00159 pid=12892 prio=120 group_dead=true
+       vgt_00158-12891   [002] .....  1460.884447: sched_process_exit: comm=vgt_00158 pid=12891 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.884621: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12893
+         python3-12732   [000] .....  1460.884794: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12894
+       vgt_00160-12893   [003] .....  1460.884807: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00160 pid=12893 old_pid=12893
+         python3-12732   [000] .....  1460.885056: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12895
+       vgt_00161-12894   [001] .....  1460.885118: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00161 pid=12894 old_pid=12894
+         python3-12732   [000] .....  1460.885288: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12896
+       vgt_00162-12895   [002] .....  1460.885352: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00162 pid=12895 old_pid=12895
+       vgt_00163-12896   [000] .....  1460.885430: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00163 pid=12896 old_pid=12896
+       vgt_00160-12893   [003] .....  1460.885460: sched_process_exit: comm=vgt_00160 pid=12893 prio=120 group_dead=true
+       vgt_00161-12894   [001] .....  1460.886032: sched_process_exit: comm=vgt_00161 pid=12894 prio=120 group_dead=true
+       vgt_00163-12896   [000] .....  1460.886170: sched_process_exit: comm=vgt_00163 pid=12896 prio=120 group_dead=true
+       vgt_00162-12895   [002] .....  1460.886356: sched_process_exit: comm=vgt_00162 pid=12895 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.886546: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12897
+       vgt_00164-12897   [003] .....  1460.886694: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00164 pid=12897 old_pid=12897
+         python3-12732   [000] .....  1460.886699: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12898
+         python3-12732   [000] .....  1460.886975: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12899
+       vgt_00165-12898   [001] .....  1460.887013: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00165 pid=12898 old_pid=12898
+         python3-12732   [000] .....  1460.887219: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12900
+       vgt_00166-12899   [002] .....  1460.887257: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00166 pid=12899 old_pid=12899
+       vgt_00164-12897   [003] .....  1460.887355: sched_process_exit: comm=vgt_00164 pid=12897 prio=120 group_dead=true
+       vgt_00167-12900   [000] .....  1460.887365: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00167 pid=12900 old_pid=12900
+       vgt_00165-12898   [001] .....  1460.887961: sched_process_exit: comm=vgt_00165 pid=12898 prio=120 group_dead=true
+       vgt_00167-12900   [000] .....  1460.888139: sched_process_exit: comm=vgt_00167 pid=12900 prio=120 group_dead=true
+       vgt_00166-12899   [002] .....  1460.888153: sched_process_exit: comm=vgt_00166 pid=12899 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.888326: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12901
+       vgt_00168-12901   [003] .....  1460.888490: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00168 pid=12901 old_pid=12901
+         python3-12732   [000] .....  1460.888495: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12902
+       vgt_00169-12902   [002] .....  1460.888707: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00169 pid=12902 old_pid=12902
+         python3-12732   [000] .....  1460.888708: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12903
+         python3-12732   [000] .....  1460.889016: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12904
+       vgt_00170-12903   [001] .....  1460.889063: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00170 pid=12903 old_pid=12903
+       vgt_00168-12901   [003] .....  1460.889156: sched_process_exit: comm=vgt_00168 pid=12901 prio=120 group_dead=true
+       vgt_00171-12904   [000] .....  1460.889179: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00171 pid=12904 old_pid=12904
+       vgt_00169-12902   [002] .....  1460.889496: sched_process_exit: comm=vgt_00169 pid=12902 prio=120 group_dead=true
+       vgt_00171-12904   [000] .....  1460.889913: sched_process_exit: comm=vgt_00171 pid=12904 prio=120 group_dead=true
+       vgt_00170-12903   [001] .....  1460.890012: sched_process_exit: comm=vgt_00170 pid=12903 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.890214: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12905
+       vgt_00172-12905   [003] .....  1460.890359: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00172 pid=12905 old_pid=12905
+         python3-12732   [000] .....  1460.890365: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12906
+         python3-12732   [000] .....  1460.890542: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12907
+       vgt_00173-12906   [002] .....  1460.890584: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00173 pid=12906 old_pid=12906
+         python3-12732   [000] .....  1460.890782: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12908
+       vgt_00174-12907   [001] .....  1460.890832: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00174 pid=12907 old_pid=12907
+       vgt_00175-12908   [000] .....  1460.890962: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00175 pid=12908 old_pid=12908
+       vgt_00172-12905   [003] .....  1460.891005: sched_process_exit: comm=vgt_00172 pid=12905 prio=120 group_dead=true
+       vgt_00173-12906   [002] .....  1460.891393: sched_process_exit: comm=vgt_00173 pid=12906 prio=120 group_dead=true
+       vgt_00175-12908   [000] .....  1460.891659: sched_process_exit: comm=vgt_00175 pid=12908 prio=120 group_dead=true
+       vgt_00174-12907   [001] .....  1460.891780: sched_process_exit: comm=vgt_00174 pid=12907 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.892388: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12909
+       vgt_00176-12909   [001] .....  1460.892606: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00176 pid=12909 old_pid=12909
+         python3-12732   [000] .....  1460.892607: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12910
+         python3-12732   [000] .....  1460.892809: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12911
+       vgt_00177-12910   [002] .....  1460.892830: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00177 pid=12910 old_pid=12910
+         python3-12732   [000] .....  1460.892976: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12912
+       vgt_00178-12911   [003] .....  1460.892981: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00178 pid=12911 old_pid=12911
+       vgt_00179-12912   [000] .....  1460.893194: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00179 pid=12912 old_pid=12912
+       vgt_00176-12909   [001] .....  1460.893288: sched_process_exit: comm=vgt_00176 pid=12909 prio=120 group_dead=true
+       vgt_00178-12911   [003] .....  1460.893636: sched_process_exit: comm=vgt_00178 pid=12911 prio=120 group_dead=true
+       vgt_00177-12910   [002] .....  1460.893665: sched_process_exit: comm=vgt_00177 pid=12910 prio=120 group_dead=true
+       vgt_00179-12912   [000] .....  1460.893938: sched_process_exit: comm=vgt_00179 pid=12912 prio=120 group_dead=true
+         python3-12732   [001] .....  1460.894139: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12913
+       vgt_00180-12913   [000] .....  1460.894285: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00180 pid=12913 old_pid=12913
+         python3-12732   [001] .....  1460.894313: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12914
+       vgt_00181-12914   [003] .....  1460.894459: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00181 pid=12914 old_pid=12914
+         python3-12732   [001] .....  1460.894470: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12915
+         python3-12732   [001] .....  1460.894710: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12916
+       vgt_00182-12915   [002] .....  1460.894749: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00182 pid=12915 old_pid=12915
+       vgt_00183-12916   [001] .....  1460.894935: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00183 pid=12916 old_pid=12916
+       vgt_00180-12913   [000] .....  1460.894946: sched_process_exit: comm=vgt_00180 pid=12913 prio=120 group_dead=true
+       vgt_00181-12914   [003] .....  1460.895105: sched_process_exit: comm=vgt_00181 pid=12914 prio=120 group_dead=true
+       vgt_00183-12916   [001] .....  1460.895638: sched_process_exit: comm=vgt_00183 pid=12916 prio=120 group_dead=true
+       vgt_00182-12915   [002] .....  1460.895661: sched_process_exit: comm=vgt_00182 pid=12915 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.895906: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12917
+       vgt_00184-12917   [001] .....  1460.896101: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00184 pid=12917 old_pid=12917
+         python3-12732   [000] .....  1460.896110: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12918
+         python3-12732   [000] .....  1460.896255: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12919
+       vgt_00185-12918   [003] .....  1460.896264: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00185 pid=12918 old_pid=12918
+         python3-12732   [000] .....  1460.896472: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12920
+       vgt_00186-12919   [002] .....  1460.896510: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00186 pid=12919 old_pid=12919
+       vgt_00187-12920   [000] .....  1460.896622: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00187 pid=12920 old_pid=12920
+       vgt_00184-12917   [001] .....  1460.896744: sched_process_exit: comm=vgt_00184 pid=12917 prio=120 group_dead=true
+       vgt_00185-12918   [003] .....  1460.896919: sched_process_exit: comm=vgt_00185 pid=12918 prio=120 group_dead=true
+       vgt_00187-12920   [000] .....  1460.897318: sched_process_exit: comm=vgt_00187 pid=12920 prio=120 group_dead=true
+       vgt_00186-12919   [002] .....  1460.897397: sched_process_exit: comm=vgt_00186 pid=12919 prio=120 group_dead=true
+         python3-12732   [001] .....  1460.897603: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12921
+       vgt_00188-12921   [000] .....  1460.897779: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00188 pid=12921 old_pid=12921
+         python3-12732   [001] .....  1460.897801: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12922
+       vgt_00189-12922   [003] .....  1460.897975: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00189 pid=12922 old_pid=12922
+         python3-12732   [001] .....  1460.897975: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12923
+         python3-12732   [001] .....  1460.898205: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12924
+       vgt_00190-12923   [002] .....  1460.898246: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00190 pid=12923 old_pid=12923
+       vgt_00191-12924   [001] .....  1460.898391: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00191 pid=12924 old_pid=12924
+       vgt_00188-12921   [000] .....  1460.898432: sched_process_exit: comm=vgt_00188 pid=12921 prio=120 group_dead=true
+       vgt_00189-12922   [003] .....  1460.898619: sched_process_exit: comm=vgt_00189 pid=12922 prio=120 group_dead=true
+       vgt_00191-12924   [001] .....  1460.899132: sched_process_exit: comm=vgt_00191 pid=12924 prio=120 group_dead=true
+       vgt_00190-12923   [002] .....  1460.899159: sched_process_exit: comm=vgt_00190 pid=12923 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.899364: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12925
+       vgt_00192-12925   [001] .....  1460.899536: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00192 pid=12925 old_pid=12925
+         python3-12732   [000] .....  1460.899537: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12926
+         python3-12732   [000] .....  1460.899683: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12927
+       vgt_00193-12926   [003] .....  1460.899687: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00193 pid=12926 old_pid=12926
+         python3-12732   [000] .....  1460.899955: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12928
+       vgt_00194-12927   [002] .....  1460.899992: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00194 pid=12927 old_pid=12927
+       vgt_00195-12928   [000] .....  1460.900134: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00195 pid=12928 old_pid=12928
+       vgt_00192-12925   [001] .....  1460.900230: sched_process_exit: comm=vgt_00192 pid=12925 prio=120 group_dead=true
+       vgt_00193-12926   [003] .....  1460.900429: sched_process_exit: comm=vgt_00193 pid=12926 prio=120 group_dead=true
+       vgt_00195-12928   [000] .....  1460.900831: sched_process_exit: comm=vgt_00195 pid=12928 prio=120 group_dead=true
+       vgt_00194-12927   [002] .....  1460.901020: sched_process_exit: comm=vgt_00194 pid=12927 prio=120 group_dead=true
+         python3-12732   [000] .....  1460.901195: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12929
+       vgt_00196-12929   [003] .....  1460.901336: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00196 pid=12929 old_pid=12929
+         python3-12732   [000] .....  1460.901350: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12930
+         python3-12732   [000] .....  1460.901504: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12931
+       vgt_00197-12930   [001] .....  1460.901511: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00197 pid=12930 old_pid=12930
+         python3-12732   [000] .....  1460.901791: sched_process_fork: comm=python3 pid=12732 child_comm=python3 child_pid=12932
+       vgt_00198-12931   [002] .....  1460.901895: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00198 pid=12931 old_pid=12931
+       vgt_00199-12932   [000] .....  1460.901956: sched_process_exec: filename=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3/trial_5/bins_on/vgt_00199 pid=12932 old_pid=12932
+       vgt_00196-12929   [003] .....  1460.901987: sched_process_exit: comm=vgt_00196 pid=12929 prio=120 group_dead=true
+       vgt_00197-12930   [001] .....  1460.902157: sched_process_exit: comm=vgt_00197 pid=12930 prio=120 group_dead=true
+       vgt_00199-12932   [000] .....  1460.902650: sched_process_exit: comm=vgt_00199 pid=12932 prio=120 group_dead=true
+       vgt_00198-12931   [002] .....  1460.902909: sched_process_exit: comm=vgt_00198 pid=12931 prio=120 group_dead=true
+         python3-12732   [003] .....  1460.907999: sched_process_exit: comm=python3 pid=12732 prio=120 group_dead=true
+            bash-10683   [001] .....  1460.908913: sched_process_fork: comm=bash pid=10683 child_comm=bash child_pid=12933
+           sleep-12933   [000] .....  1460.909241: sched_process_exec: filename=/usr/bin/sleep pid=12933 old_pid=12933
+           sleep-12724   [003] .....  1461.523722: sched_process_exit: comm=sleep pid=12724 prio=120 group_dead=true
+            bash-12273   [001] .....  1461.524274: sched_process_fork: comm=bash pid=12273 child_comm=bash child_pid=12934
+            grep-12934   [000] .....  1461.524623: sched_process_exec: filename=/usr/bin/grep pid=12934 old_pid=12934
+            grep-12934   [000] .....  1461.525548: sched_process_exit: comm=grep pid=12934 prio=120 group_dead=true
+            bash-12273   [001] .....  1461.526012: sched_process_fork: comm=bash pid=12273 child_comm=bash child_pid=12935
+           sleep-12935   [003] .....  1461.526356: sched_process_exec: filename=/usr/bin/sleep pid=12935 old_pid=12935
+           sleep-12933   [000] .....  1463.910171: sched_process_exit: comm=sleep pid=12933 prio=120 group_dead=true
+            bash-10683   [001] .....  1463.910882: sched_process_fork: comm=bash pid=10683 child_comm=bash child_pid=12936
+            bash-12936   [002] .....  1463.911434: sched_process_exec: filename=/home/user/AIP-agent-identity-protocol-/validation/linux/ftrace_observer.sh pid=12936 old_pid=12936
+            bash-12936   [002] .....  1463.912434: sched_process_exec: filename=/usr/bin/bash pid=12936 old_pid=12936
+            bash-12936   [002] .....  1463.913990: sched_process_fork: comm=bash pid=12936 child_comm=bash child_pid=12937
+              id-12937   [003] .....  1463.914632: sched_process_exec: filename=/usr/bin/id pid=12937 old_pid=12937
+              id-12937   [003] .....  1463.915632: sched_process_exit: comm=id pid=12937 prio=120 group_dead=true

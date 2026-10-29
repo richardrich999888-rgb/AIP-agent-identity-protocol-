@@ -1,0 +1,24 @@
+observer   : collector.m (key version 1)
+anchor     : 8394079c678ea2629d362db95aaa248a8223192fcf656e9a1cd1bad26f1f5ba0
+
+ATTESTED BATCHES
+  records            : 4
+  chain positions    : 1..=4
+  chain start        : the observer's epoch (complete from origin)
+  final head         : 3cbf80d1af49295eec4dcbdc2aebc902f98a2ed7ec32abb175b620d819899323
+  observations       : 0
+  kernel events      : 1050
+
+SIGNED HEALTH
+  records            : 1
+  states signed      : ContinuityUnverified
+  asserting coverage : 0
+  asserting none     : 1
+  heads cross-checked against batches : 0
+  clock, steered / adrift / not stated : 0 / 1 / 0
+  worst error bound the collector signed : 16000000 us (16000.0 ms)
+
+VERIFIED
+The anchored observer key signed exactly these records, in this order, and each record's prev_head equals the recomputed head of the one before it.
+This does not mean the observations are true: a host with root can lie to its own probe. It means these bytes are what the off-host collector received and recorded, and that the supplied records link without internal gaps or alterations. A valid prefix or suffix is still a valid window: detecting truncation requires an independently retained boundary checkpoint.
+verify_exit=0

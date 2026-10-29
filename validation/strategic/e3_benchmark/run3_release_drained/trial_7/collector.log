@@ -1,0 +1,9 @@
+aip-collector: clock NOT synchronized (STA_UNSYNC), max_error 16000 ms (kernel state 5)
+aip-collector: evidence public key (collector.m v1), give this to the auditor: 78fa118b843c830dbc7698245f9d69c5a9400d1744882cd828712e1da245c963
+aip-collector: started (Fresh)
+aip-collector: 1 probe(s) registered; observer "collector.m"
+aip-collector: generated a new noise static key at /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3c/trial_7/work/noise.key.json. Pin this public key in every probe's AIP_PROBE_COLLECTOR_NOISE_PUBKEY:
+  bd19a6cdc8070c9a17aa367e0f07b6fed1c4aaa008ef8220e4c617f82561870b
+aip-collector: noise static public key (pin in AIP_PROBE_COLLECTOR_NOISE_PUBKEY): bd19a6cdc8070c9a17aa367e0f07b6fed1c4aaa008ef8220e4c617f82561870b
+aip-collector: attested batches are appended to /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/e3c/trial_7/work/state/attested.archive.jsonl
+aip-collector: listening on 127.0.0.1:49575

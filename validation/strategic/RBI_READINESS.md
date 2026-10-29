@@ -1,41 +1,41 @@
 # RBI demonstration readiness — evidence-backed
 
-Source: `claude/strategic-validation-loop` @ `4ca5a4d`. Assurance levels kept
-separate; nothing here is promoted from a lower level.
+Source: `claude/strategic-validation-loop`; code under test `5b146be`.
+Assurance levels kept separate; nothing promoted from a lower level.
 
-## What is live-proven this invocation
+## Live-proven on this host
 
-- **Real-agent execution observed, attested, and offline-verified (M1).**
-  A genuine LangGraph agent spawning a real child process (file write + TCP
-  connect) was observed from the kernel by a key-less probe, attested by a
-  separate-process collector holding the only key, and the archive **VERIFIED**
-  offline from the published `observer.pub` alone. Negative controls reject
-  tampering (wrong observer, mutated signed timestamp/observer-id/pid). Evidence:
-  `validation/strategic/run_m1/` (sealed, `SHA256SUMS`).
+- **Real agent observed → attested → offline-verified (M1, cycle 1).**
+  LangGraph agent with a real child process; key-less probe; separate-process
+  collector holding the only key; VERIFIED from `observer.pub` alone; tamper
+  rejected. `run_m1/`.
+- **Acts 1, 2, 5 core, repeated (E2, cycle 2) — with clock enforcement off.**
+  6/6 runs: honest control `Active` with attested coverage (RBI
+  `check_control.py` PASS); live foreign BPF program on the sched tracepoint →
+  the collector (other process, other key) signs `IntegrityUnknown` and
+  withdraws coverage; recovery never backfills coverage over the unknown
+  interval; every record verifies offline; deleting one record is refused.
+  `e2_pilot_repeats/`.
+- **Acts 3, 4, 4b** (library-level scoping and tool-boundary assertions; live
+  gateway receipt signing): PASS in the unmodified rehearsal.
 
-## The five-act RBI demo
+## Not passing here, and why
 
-`validation/rbi_demo/` exists on this branch but was **NOT_RUN** this
-invocation (budget). It is the next RBI action. The five acts (honest path,
-observer interference, unregistered-destination refusal, modified-argument
-detection, offline verification) are not re-asserted from any historical bundle.
+- **The unmodified five-act rehearsal FAILS on this host** — by design. The
+  collector refuses to start on an unsynchronized clock (`STA_UNSYNC`, 16 s
+  max error; no time daemon, no NTP egress). `run_rbi_postfix_unmodified/`.
+  Before cycle 2 the system acts would also have failed on a synced host
+  (defects D1, D2); that is now repaired and evidenced with enforcement off,
+  **not yet on a synced host**.
 
 ## Honest boundaries for an RBI presentation
+- Timestamp assurance is reduced in every run here (16 s bound, signed into
+  the evidence). A presentation host must run chrony
+  (`deploy/pilot/chrony-cert-in.conf`) and pass the unmodified rehearsal.
+- Process-separated, not host-separated, collector custody.
+- Observation, not reconciler `VERIFIED_EXECUTION` (M2 NOT_RUN).
+- Detection of a *perf-path* gate. A hook on both the tracepoint and the
+  connector, or any kernel-level adversary, is out of boundary.
 
-- **Clock/timestamp assurance is REDUCED on this host.** It has no NTP sync;
-  the collector correctly refuses to start under its default
-  (`AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=1`). M1 ran with that switch off, and
-  the resulting evidence **signs a 16 s clock error bound**. A real RBI host
-  must run chrony (`deploy/pilot/chrony-cert-in.conf`); that is a
-  presentation-host readiness item, distinct from hosted-rehearsal readiness.
-- **Process-separated, not host-separated.** The collector ran on the same host
-  as the probe (separate process, sole key holder). Independent *administrative*
-  custody on a separate host is not demonstrated here.
-- **Observation, not attribution-to-identity.** M1 proves the execution is in
-  the signed evidence and that lineage is derivable; it does **not** prove the
-  `VERIFIED_EXECUTION` reconciler verdict (join against a signed
-  `ExpectedExecution`). That is Phase 3 / M2, NOT_RUN here.
-
-**RBI readiness verdict: PARTIAL** — the observe→attest→offline-verify core is
-live-proven on a real agent; the full five-act demo and a synced-clock,
-host-separated presentation rehearsal remain to run.
+**RBI readiness: PARTIAL.** Next gate: the unmodified `validation/rbi_demo/run.sh`
+passing on an NTP-synchronized host.

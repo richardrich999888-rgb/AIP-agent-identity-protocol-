@@ -1,118 +1,113 @@
 # VANIAN strategic validation report
 
-**Invocation date:** 2026-10-28
-**Source revision:** `claude/strategic-validation-loop` @ `4ca5a4d`
-(based on the most complete remote branch
-`integration/snifferdog-complete-enterprise-validation`, 2026-10-29, 54 crates).
+**Dates:** 2026-10-28 (cycle 1), 2026-10-29 (cycle 2)
+**Branch:** `claude/strategic-validation-loop`, based on
+`integration/snifferdog-complete-enterprise-validation` @ `4ca5a4d`.
+**Code under test (cycle 2):** `5b146be`. Cycles used: 2 of 12.
 
-This is an evidence report, not a plan. Assurance levels are kept separate and
-nothing is promoted from a lower level. The one genuine experiment that ran is
-backed by sealed artifacts; everything not run says so.
+This is an evidence report. Assurance levels are kept separate; nothing is
+promoted from a lower level; failed and superseded runs are kept beside the
+ones that passed.
 
-## Engineering changes
+## Engineering changes (5b146be)
 
-None to production Rust this invocation. The work was: branch discovery and
-selection, host/kernel grounding, and a **live** end-to-end execution of the
-existing Phase 1 real-agent harness with negative controls. New files are under
-`validation/strategic/` only. The committed harness was not modified; the one
-operator switch needed for an unsynchronized-clock host was applied via a
-scratchpad copy whose sole difference is that one line (diff recorded in the
-journal).
+Two defects stopped the RBI honest path from ever reaching `Active`. Both were
+reproduced before repair (`run_rbi_repro_1/`, `run_rbi_repro_2/`).
+
+| Defect | Root cause (evidence) | Repair | Regression test |
+|---|---|---|---|
+| D1 control `Degraded` | batch 1 carried counted loss in 3/3 runs (connector `ENOBUFS`); Degraded is sticky for the epoch | connector drained first; keep reading after `ENOBUFS` (bounded); buffer enlarged to 8 MiB via `SO_RCVBUFFORCE` (`AIP_PROBE_CONNECTOR_RCVBUF_BYTES`, `0` = old) | `t15c` (live) |
+| D2 control `IntegrityUnknown` with no attack | connector drained last → a sched exec fell into the next batch while its connector exec sat in this one; every control divergence had its counterpart in an adjacent batch; connector ts trails sched 591/591 | connector drained first; collector lets the previous **attested** batch of the **same probe run** corroborate (same pid/tgid, same 50 ms window) | sink + divergence unit tests; the boundary test fails with the carry removed |
+
+Also: `AIP_SENSOR_LOSS sensor=<name> n=<n>` diagnostics. Loss is still
+counted; detection of a blinded tracepoint is unchanged (negative tests N9).
+Not shown: that the larger buffer is what fixed D1 — the kernel-default arm
+also had zero loss in E2. It is kept as defence in depth and claimed as nothing
+more.
+
+Workspace tests: 3248 passed, 15 failed — all in `aip-hsm` softhsm, because
+SoftHSM2 is not installed (environmental).
 
 ## Real agents executed
 
-- **LangGraph 1.2.11** (`integrations/agents/agent_subject.py`) — a genuine
-  `plan → act → report` graph whose `act` node spawns `child_action.py` as a
-  **real separate process** that writes a marked file and opens one outbound
-  TCP connection. No LLM, by deliberate design (the observer watches kernel
-  execution, not model I/O; the explicit graph is the independent ground truth).
-  Ran 8 times.
+LangGraph 1.2.11 subject with a real child process (M1, 8 runs, cycle 1). The
+pilot workload (E2) and the synthetic exec workload (E3) are not agents and
+are not presented as such.
 
 ## Independent evidence
 
-Observed from the kernel by `aip-probe` (holds no key; sched/sockstate/
-socksend/connector sensors) → attested by `aip-collector` in a separate process
-holding the only key (Noise_NK transport) → **112 exec/fork events and 347
-kernel events** sealed into a collector-signed archive (2 attested batches) →
-**VERIFIED offline** by `aip-observe-verify` from the published `observer.pub`
-alone, in a separate process, with no network → **1 start-verified parent→child
-lineage edge** derived by `aip-lineage` after re-verifying under the anchor.
+- **M1:** real agent → key-less probe → separate-process collector (sole key)
+  → VERIFIED offline under `observer.pub` alone → lineage edge. `run_m1/`.
+- **E2 (6 live pilot runs):** 6/6 control `Active` with coverage (RBI
+  `check_control` PASS), live attack → signed `IntegrityUnknown` + coverage
+  withdrawn, recovery without backfill, offline verify, deletion refused.
+- **E3 (benchmark):** ground truth = workload-launched AND ftrace-confirmed
+  (`GROUND_TRUTH.json`). ftrace is interface-independent from the sched sensor
+  (same tracepoint) and facility-independent from the connector.
 
-The collector stayed honest about the degraded clock: it **signed** a 16 s
-worst-case error bound and `ContinuityUnverified` with `coverage asserted = 0`.
-The reduced timestamp assurance is inside the evidence, not hidden.
-Sealed: `validation/strategic/run_m1/` + `SHA256SUMS`.
+## Security results
+`NEGATIVE_TESTS.md`: 11 negative tests, all behaved as required — tamper
+rejection, deletion refusal, live interference → `IntegrityUnknown`, no
+recovery backfill, unsynced-clock refusal, carry cannot mask blinding, starved
+buffer counted, 0 fabricated records in 2000.
 
-## Security results (negative controls)
+## Benchmark results (E3 run 3: release, drained window, 10 × 200)
 
-| Attack | Result |
-|---|---|
-| Verify under wrong observer id | **NOT VERIFIED** (rejected) |
-| Mutate signed `attested_at_ms` | **NOT VERIFIED** (rejected) |
-| Mutate signed `observer_id` | **NOT VERIFIED** (rejected) |
-| Mutate kernel-event `child_pid` | **NOT VERIFIED** (rejected) |
-| Raw byte-flip at a JSON-cosmetic offset | VERIFIED — **correct**: the signature covers canonical bytes recomputed from the typed structure, not the JSON text; confirmed by the semantic mutations above being caught |
+| Metric | Result | Denominator / caveat |
+|---|---|---|
+| Sched recall | 1.0 | 2000/2000 |
+| Connector recall | 1.0 | 2000/2000 |
+| Sched precision | 1.0 | 0 duplicates, 0 fabricated |
+| Attribution (pid) | 1.0 | pid only, not `ExecutionBinding` |
+| Counted loss | 0 | |
+| Offline verify | 10/10 | |
+| exec→signed latency | p50 795 ms, p95 909 ms, max 950 | 1 s batch interval dominates; unsynced clock |
+| Capture latency | NOT_RESOLVABLE | below ~1 ms anchor resolution |
+| Overhead ON/OFF | median ×1.09 (0.91–1.51) | upper bound (includes ftrace); ~80 ms workload; n=10 |
+| Attested coverage | 0 trials | all `ContinuityUnverified`: signed observations, not coverage |
 
-## Benchmark results
+Superseded and kept: runs 1 and 2 (debug, fixed 3 s window) had whole trials
+with no signed batch (1/5, 3/10). gdb showed the probe CPU-bound, not hung; the
+window closed before shipping. Harness amended (`METHODOLOGY.md`, Amendment 1).
+These are numbers for one host, a synthetic workload and small n, not
+general performance claims.
 
-Counts measured and sealed (`BENCHMARK_RESULTS.csv`): 8 agent runs; 112
-exec/fork and 347 kernel events signed; 2 batches; 1 lineage edge; offline
-verify PASS; signed clock error bound 16 s; coverage asserted 0.
-Recall / precision / attribution-accuracy / latency-overhead are **NOT_MEASURED**
-— they require an independent ftrace ground-truth harness over a counted window
-and a monitored-vs-unmonitored A/B, which is the next measurement step. No
-coverage, recall or performance number is invented.
+## RBI readiness — PARTIAL
+The unmodified five-act rehearsal **fails on this host** because the collector
+correctly refuses an unsynchronized clock (acts 3, 4, 4b pass). With clock
+enforcement off, the system acts' requirements now pass 6/6. Gate: the
+unmodified rehearsal on an NTP-synced host. (`RBI_READINESS.md`)
 
-## RBI readiness
-
-**PARTIAL.** The observe→attest→offline-verify core is live-proven on a real
-agent with tamper rejection. The five-act RBI demo (`validation/rbi_demo/`) was
-NOT_RUN this invocation. A presentation host must additionally run chrony and,
-for custody claims, a host-separated collector. (`RBI_READINESS.md`.)
-
-## Enterprise design-partner readiness
-
-**PARTIAL.** VERIFIED: independent, offline-verifiable execution evidence with
-tamper rejection. PARTIAL (component-level only): reconciler verdict, MCP
-signed receipt, SDKs, console. BLOCKED (environment): off-host custody, NTP
-sync, model-backed task, kprobe sensors. (`PILOT_READINESS.md`.)
+## Enterprise design-partner readiness — PARTIAL
+See `PILOT_READINESS.md`.
 
 ## Production readiness
-
-Not claimed. Explicit limitations: no synchronized clock on this host (default
-collector posture unmet); `CONFIG_KPROBES` unset; same-run
-authorization→receipt→`VERIFIED_EXECUTION` not exercised end-to-end; single
-host (no independent custody); no model-backed workload.
+Not claimed. Open: synced-clock rehearsal; host-separated custody; M2
+same-run authz→receipt→`VERIFIED_EXECUTION`; M3 multi-framework; installation;
+kprobe sensors; HSM path; minor finding (collector overwrites a probe's
+`ForeignTracepointGate` with generic `Unverifiable` — diagnostic only).
 
 ## Artifacts
+`run_m1/`, `run_rbi_*` (pre-fix and post-fix), `e2_pilot_repeats/`,
+`e3_benchmark/`, `measure/`, `STATUS.json`, `EVIDENCE_MANIFEST.json`,
+`TEST_MATRIX.csv`, `BENCHMARK_RESULTS.csv`, `GROUND_TRUTH.json`,
+`METHODOLOGY.md`, `NEGATIVE_TESTS.md`, `EXECUTION_JOURNAL.md`, `BLOCKERS.md`.
+All throwaway key material removed before commit.
 
-- `validation/strategic/run_m1/` — sealed evidence + `SHA256SUMS`
-  (archive `2889153b…`, health `caea075f…`, observer.pub
-  `c844bbef…`, offline_verify `7a19816c…`, lineage `9d39b5a0…`).
-- `validation/strategic/{BASELINE,STATUS.json,EXECUTION_JOURNAL,TEST_MATRIX.csv,EVIDENCE_MANIFEST.json,BENCHMARK_RESULTS.csv,RBI_READINESS,PILOT_READINESS,BLOCKERS}`.
-
-**Reproduce:**
+Reproduce (root, Linux, tracefs, `CAP_NET_ADMIN`):
 ```
-git checkout claude/strategic-validation-loop        # @ 4ca5a4d
-python3 -m venv integrations/agents/.venv && \
-  integrations/agents/.venv/bin/pip install -r integrations/agents/requirements.lock
-sudo integrations/agents/run.sh <outdir>             # needs an NTP-synced clock
-# On a host without NTP: set AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 and accept the
-# signed clock-error bound (as this run did).
+cargo build -p aip-probe -p aip-collector -p aip-observe-verify            # debug: pilot
+cargo build --release -p aip-probe -p aip-collector -p aip-observe-verify  # release: benchmark
+validation/strategic/measure/repeat_pilot.sh <out> 3 fixed                 # E2
+validation/strategic/measure/measure.sh <out> 10 200 4                     # E3
+validation/rbi_demo/run.sh <out>                                           # needs NTP sync
+# Unsynced host only: AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 (signs the error bound)
 ```
-
-## Code delivery
-
-Committed to `claude/strategic-validation-loop`; pushed. No change to `main`,
-no change to the source integration branch, no production Rust modified.
 
 ## Next three actions
-
-1. **M2 — same-run chain:** drive one task instance through authorization →
-   `aip-mcp-gateway` signed receipt → kernel observation → reconciler
-   `VERIFIED_EXECUTION` against a signed `ExpectedExecution`, all one run.
-2. **Measurement harness:** independent ftrace ground truth over a counted
-   window → recall/precision/attribution with explicit denominators, plus a
-   monitored-vs-unmonitored overhead A/B.
-3. **RBI five-act rerun** on this branch, then begin M3 (≥3 frameworks),
-   recording per-framework what genuinely executes vs. needs model credentials.
+1. Run the unmodified RBI rehearsal on an NTP-synchronized host (ideally with
+   the collector on a second host).
+2. M2: one task through authorization → MCP gateway receipt → kernel
+   observation → reconciler `VERIFIED_EXECUTION`, same run.
+3. E3 over a longer window that reaches attested coverage, plus a real agent
+   workload; then M3 across ≥3 frameworks.

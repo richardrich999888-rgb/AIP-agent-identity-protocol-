@@ -1,11 +1,11 @@
 {
   "schema": "vanian.strategic.status/v1",
-  "invocation_utc": "2026-10-28",
+  "invocation_utc": "2026-10-29",
   "branch": "claude/strategic-validation-loop",
   "base_branch": "origin/integration/snifferdog-complete-enterprise-validation",
-  "commit": "4ca5a4d3003c385f7312c65c1053b03f48f94143",
+  "commit": "5b146be (code under test); evidence commits follow on the same branch",
   "host": {
-    "kernel": "6.18.44-fc-v180",
+    "kernel": "6.18.44-fc-v185 (cycle 2; v180 in cycle 1)",
     "config_kprobes": false,
     "config_uprobe_events": true,
     "tracefs": true,
@@ -15,7 +15,10 @@
   "milestones": {
     "M1_one_real_agent_observed_and_offline_verified": "PASS",
     "M2_same_run_authz_receipt_kernel_observe_offline_chain": "NOT_RUN",
-    "M3_three_frameworks_corroborated": "NOT_RUN"
+    "M3_three_frameworks_corroborated": "NOT_RUN",
+    "RBI_honest_path_control_Active": "PASS (6/6 pilot runs, clock enforcement off) after defect repair",
+    "RBI_five_act_unmodified": "FAIL (environment: collector correctly refuses unsynchronized clock)",
+    "benchmark_vs_independent_ground_truth": "PASS (E3 run3; 2000/2000 sched and connector recall; superseded runs kept)"
   },
   "acceptance": {
     "rbi_readiness": "PARTIAL",
@@ -24,9 +27,17 @@
   "blockers": {
     "model_backed_agent_task": "No LLM credentials or local model. Phase 1 harness is designed not to need one, so M1 is not blocked by this; a genuinely model-driven task is.",
     "kprobe_observation": "Kernel built without CONFIG_KPROBES; kprobe-based observation out of reach on this host.",
-    "off_host_collector_custody": "Collector runs on the same host (separate process, sole key holder). Host-separated administrative custody not available here."
+    "off_host_collector_custody": "Collector runs on the same host (separate process, sole key holder). Host-separated administrative custody not available here.",
+    "ntp_clock": "No time daemon / NTP egress; unmodified RBI rehearsal cannot pass here by design.",
+    "softhsm": "SoftHSM2 not installed: 15 aip-hsm tests fail environmentally."
   },
-  "cycles_used": 1,
+  "cycles_used": 2,
   "cycles_budget": 12,
-  "m1_evidence": "validation/strategic/run_m1/ (sealed); EVIDENCE_MANIFEST.json"
+  "m1_evidence": "validation/strategic/run_m1/ (sealed); EVIDENCE_MANIFEST.json",
+  "defects": {
+    "D1_first_batch_counted_loss": "REPAIRED: control Degraded pre-fix; 0 loss 6/6 post-fix. Larger connector buffer NOT shown causal (kernel-default arm also 0 loss); drain order/ENOBUFS-continue is the supported explanation",
+    "D2_batch_boundary_false_IntegrityUnknown": "REPAIRED: connector drained first + collector accepts previous attested batch of same probe run; regression test fails without fix",
+    "D3_harness_window_closed_before_shipping": "REPAIRED (measurement harness only)",
+    "minor_collector_overwrites_ForeignTracepointGate_with_Unverifiable": "OPEN (diagnostic loss only; state still IntegrityUnknown)"
+  }
 }

@@ -2,8 +2,12 @@
   "schema": "vanian.strategic.evidence/v1",
   "source_commit": "4ca5a4d3003c385f7312c65c1053b03f48f94143",
   "branch": "claude/strategic-validation-loop",
-  "experiment": "M1 — Phase 1 real-agent observation + offline verification + lineage",
-  "host": {"kernel": "6.18.44-fc-v180", "root": true, "config_kprobes": false},
+  "experiment": "M1 \u2014 Phase 1 real-agent observation + offline verification + lineage",
+  "host": {
+    "kernel": "6.18.44-fc-v180",
+    "root": true,
+    "config_kprobes": false
+  },
   "subject": "integrations/agents/agent_subject.py (LangGraph 1.2.11, no LLM by design)",
   "harness": "integrations/agents/run.sh, run via scratchpad copy differing only in AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=1->0",
   "clock_caveat": "host is NTP-unsynchronized (no time daemon, no NTP egress); the collector SIGNED a 16000000 us (16 s) worst error bound and ContinuityUnverified, so the degraded timestamp assurance is recorded inside the evidence, not hidden. Signature/observation/offline-verify assurance is unaffected.",
@@ -25,5 +29,37 @@
     "mutated_kernel_event_child_pid": "NOT VERIFIED (rejected)",
     "raw_cosmetic_byte_flip": "VERIFIED (correct: byte was outside the canonical signed preimage)"
   },
-  "artifacts_sha256_file": "validation/strategic/run_m1/SHA256SUMS"
+  "artifacts_sha256_file": "validation/strategic/run_m1/SHA256SUMS",
+  "cycle2": {
+    "pre_fix_reproductions": [
+      "run_rbi_unmodified/",
+      "run_rbi_sys_noclock/",
+      "run_rbi_repro_1/",
+      "run_rbi_repro_2/"
+    ],
+    "repair_commit": "5b146be",
+    "E2_pilot_repeats": {
+      "path": "e2_pilot_repeats/",
+      "arms": {
+        "kernel_default": "3/3 PASS, 0 loss",
+        "fixed": "3/3 PASS, 0 loss"
+      },
+      "summary_sha256_prefix": {
+        "arm_fixed": "6cf28bdbd22a1aab",
+        "arm_kernel_default": "e070032b548175c2"
+      }
+    },
+    "E3_benchmark": {
+      "path": "e3_benchmark/run3_release_drained/",
+      "results_sha256_prefix": "f743e8a357767300",
+      "per_trial_sha256_prefix": "d2171ac7f39939d6",
+      "superseded": [
+        "run1_debug_fixed3s",
+        "run2_debug_fixed3s_logs"
+      ]
+    },
+    "RBI_postfix_unmodified": "run_rbi_postfix_unmodified/",
+    "key_material": "all work/ directories (throwaway keys) removed before commit; interferer build artifacts untracked from cycle 2 on",
+    "not_combined": "Each directory is one live run; no result here is assembled from separate bundles."
+  }
 }

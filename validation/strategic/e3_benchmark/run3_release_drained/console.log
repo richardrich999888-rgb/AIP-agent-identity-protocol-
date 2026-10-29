@@ -1,0 +1,52 @@
+trial 1 done
+trial 2 done
+trial 3 done
+trial 4 done
+trial 5 done
+trial 6 done
+trial 7 done
+trial 8 done
+trial 9 done
+trial 10 done
+{
+  "trials_completed": 10,
+  "GT_total": 2000,
+  "workload_execs_ok_total": 2000,
+  "workload_not_in_ftrace_total": 0,
+  "sched_recall": 1.0,
+  "sched_precision": 1.0,
+  "sched_records_not_real_exec_total": 0,
+  "sched_duplicates_total": 0,
+  "conn_recall": 1.0,
+  "attribution_acc": 1.0,
+  "dropped_events_total": 0,
+  "all_trials_verified_offline": true,
+  "trials_not_drained": 0,
+  "latency_capture_ms": {
+    "p50": -0.371143,
+    "p95": 0.207457,
+    "max": 1.825774
+  },
+  "latency_exec_to_signed_ms": {
+    "p50": 794.5498046875,
+    "p95": 909.466064453125,
+    "max": 949.979736328125
+  },
+  "overhead_ratio_on_over_off": {
+    "mean": 1.1111762611226188,
+    "median": 1.0905267716530265,
+    "per_trial": [
+      1.0858500679488858,
+      1.095203475357167,
+      1.0133328991127166,
+      0.9134229339344221,
+      1.120431807920058,
+      1.5115296721525875,
+      0.9933688848829589,
+      1.1249958765639605,
+      1.191975999685256,
+      1.0616509936681757
+    ],
+    "note": "ON includes probe+collector+ftrace reference: an UPPER BOUND for the pipeline alone"
+  }
+}

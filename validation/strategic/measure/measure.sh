@@ -27,9 +27,21 @@
 # (interface-independent only) while ProcConnector is a different kernel
 # facility; the clock is unsynchronized here unless the host provides NTP.
 #
+# Amendment 1 (made after the first two runs, before this one; both earlier
+# runs are kept and reported): the window used to close on a fixed 3 s
+# sleep. In a debug build the probe can need longer than that to ship the
+# batches covering the workload, and stopping it then discards them unsent —
+# measured as whole trials with no signed batch, not as missed events. The
+# window now closes only once the probe has had TWO further batches
+# acknowledged after the workload ended (so the batch whose interval
+# contains the workload end is signed), with a 60 s ceiling; a trial that
+# hits the ceiling is recorded as drained=0, not dropped. The build profile
+# is a parameter and is recorded.
+#
 # Usage: measure.sh <outdir> [TRIALS] [K] [CONC]
 # Env:   AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK (default 1; recorded in results)
 #        AIP_MEASURE_SENSORS (default sched,connector)
+#        AIP_MEASURE_PROFILE (default release; debug|release)
 set -uo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -39,14 +51,15 @@ TRIALS=${2:-5}; K=${3:-200}; CONC=${4:-4}
 CLOCKREQ=${AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK:-1}
 SENSORS=${AIP_MEASURE_SENSORS:-sched,connector}
 FT="$REPO/validation/linux/ftrace_observer.sh"
-B="$REPO/target/debug"
+PROFILE=${AIP_MEASURE_PROFILE:-release}
+B="$REPO/target/$PROFILE"
 die() { echo "measure: FAIL $*" >&2; exit 1; }
 
 [ "$(id -u)" -eq 0 ] || die "needs root"
 for x in aip-probe aip-collector aip-observe-verify; do [ -x "$B/$x" ] || die "missing $B/$x (build first)"; done
 "$FT" preflight >/dev/null || die "ftrace reference unavailable"
 { echo "commit=$(git -C "$REPO" rev-parse HEAD)"; echo "kernel=$(uname -r)"; echo "trials=$TRIALS k=$K conc=$CONC";
-  echo "require_synced_clock=$CLOCKREQ"; echo "sensors=$SENSORS"; nproc | sed 's/^/nproc=/'; } > "$OUT/params.txt"
+  echo "require_synced_clock=$CLOCKREQ"; echo "sensors=$SENSORS"; echo "profile=$PROFILE"; nproc | sed 's/^/nproc=/'; } > "$OUT/params.txt"
 
 start_pipeline() {  # $1 = trial dir
   local W="$1/work"; mkdir -p "$W/state"
@@ -90,7 +103,12 @@ for t in $(seq 1 "$TRIALS"); do
   start_pipeline "$TD" || { stop_pipeline; echo "trial $t: pipeline failed to start" >> "$OUT/errors.txt"; continue; }
   VANIAN_FTRACE_INSTANCE="vm_$t" "$FT" start > /dev/null
   python3 "$HERE/workload.py" "$TD/bins_on" "$K" "$CONC" "$TD/on.json" > /dev/null
-  sleep 3   # >= 2 batch intervals so the window is fully batched
+  A0=$(grep -c "batch acked" "$TD/work/probe.log"); T0=$(date +%s%N); DRAINED=0
+  for _ in $(seq 1 600); do
+    [ "$(grep -c "batch acked" "$TD/work/probe.log")" -ge $((A0 + 2)) ] && { DRAINED=1; break; }
+    sleep 0.1
+  done
+  echo "drained=$DRAINED drain_ms=$(( ($(date +%s%N) - T0) / 1000000 )) acks_at_workload_end=$A0" > "$TD/drain.txt"
   VANIAN_FTRACE_INSTANCE="vm_$t" "$FT" stop "$TD/ftrace.trace" > /dev/null
   stop_pipeline
   rm -rf "$TD/bins_on"
@@ -99,6 +117,9 @@ for t in $(seq 1 "$TRIALS"); do
       --batches "$W/attested.archive.jsonl" --health "$W/health.archive.jsonl" > "$TD/verify.txt" 2>&1
   echo "verify_exit=$?" >> "$TD/verify.txt"
   cp "$W/attested.archive.jsonl" "$W/health.archive.jsonl" "$W/observer.pub" "$TD/" 2>/dev/null
+  # Logs are evidence too (a trial with no signed batch is undiagnosable
+  # without them); only key material is discarded.
+  cp "$TD/work/collector.log" "$TD/work/probe.log" "$TD/work/keygen.log" "$TD/" 2>/dev/null
   rm -rf "$TD/work"   # throwaway keys
   echo "trial $t done"
 done

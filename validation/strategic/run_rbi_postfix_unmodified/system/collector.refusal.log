@@ -1,0 +1,2 @@
+aip-collector: clock NOT synchronized (STA_UNSYNC), max_error 16000 ms (kernel state 5)
+aip-collector: refusing to start: clock NOT synchronized (STA_UNSYNC), max_error 16000 ms (kernel state 5), which exceeds the 1000 ms budget. This host stamps and signs every attested batch, so its clock discipline is the accuracy of all of it (CERT-In Direction 20(3)/2022 requires NTP-synchronised clocks; see deploy/pilot/chrony-cert-in.conf). Fix the time daemon, widen AIP_COLLECTOR_CLOCK_MAX_ERROR_MS, or set AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 to accept the consequence deliberately.

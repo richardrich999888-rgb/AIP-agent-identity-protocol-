@@ -11,3 +11,18 @@ recall,NOT_MEASURED,ratio,needs independent ftrace ground-truth harness over a c
 precision,NOT_MEASURED,ratio,same,4ca5a4d
 attribution_accuracy,NOT_MEASURED,ratio,needs ExpectedExecution join (Phase 3 reconciler),4ca5a4d
 latency_overhead,NOT_MEASURED,ms,needs monitored-vs-unmonitored A/B under equal conditions,4ca5a4d
+sched_recall,1.0,ratio,2000/2000 ftrace-confirmed execs; E3 run3 (release; drained window; 10 trials x 200),5b146be
+connector_recall,1.0,ratio,2000/2000 matched by pid; different kernel facility from the ftrace reference,5b146be
+sched_precision,1.0,ratio,2000/2000 marker-path records matched; 0 duplicates; 0 records for execs that did not occur,5b146be
+attribution_accuracy_pid,1.0,ratio,2000/2000 matched records carry the workload-recorded pid (pid only; not ExecutionBinding identity),5b146be
+counted_loss_benchmark,0,events,dropped_events over all 10 trials,5b146be
+offline_verify_benchmark,10/10,trials,aip-observe-verify VERIFIED per trial under its own observer.pub,5b146be
+latency_exec_to_signed_p50,794.5,ms,kernel exec -> collector attested_at; 1000 ms batch interval dominates; clock unsynced (16 s signed bound) so absolute offsets carry that caveat,5b146be
+latency_exec_to_signed_p95,909.5,ms,same; max 950,5b146be
+latency_capture,NOT_RESOLVABLE,ms,launch->kernel-exec differences straddle zero (p50 -0.37 ms) below the ~1 ms clock-anchor resolution; no number claimed,5b146be
+overhead_ratio_median,1.09,ratio ON/OFF,10 paired trials; range 0.91-1.51; UPPER BOUND (ON includes ftrace reference); ~80 ms workload so noisy; debug-vs-release not compared,5b146be
+attested_coverage_in_benchmark,0,health records with coverage,every trial stayed ContinuityUnverified (short window); the benchmark measures signed observations not attested coverage,5b146be
+benchmark_superseded_run1,0.8,ratio,debug + fixed 3 s window: 1/5 trials had NO signed batch (window closed before shipping) - kept as evidence of a harness defect,0fa8c89
+benchmark_superseded_run2,0.7,ratio,debug + fixed 3 s window: 3/10 trials no signed batch; gdb showed probe CPU-bound shipping not hung,0fa8c89
+pilot_control_active,6/6,runs,RBI check_control PASS (Active + coverage; recovery does not backfill) with AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0,381343c
+pilot_attack_detected,6/6,runs,live interferer -> collector-signed IntegrityUnknown + coverage withdrawn; 148 no-counterpart divergences per run,381343c

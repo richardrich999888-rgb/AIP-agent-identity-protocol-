@@ -11,3 +11,13 @@ cycle,test_id,description,required_experiment,result,evidence_path,source_commit
 -,RBI-five-act,rerun five-act RBI demo,validation/rbi_demo,NOT_RUN,,4ca5a4d,enumerated not executed this invocation
 -,clock-sync-production,collector starts with NTP-synced clock,chrony per deploy/pilot/chrony-cert-in.conf,BLOCKED,,4ca5a4d,no time daemon / no NTP egress in sandbox; production requirement correct and unmet here
 -,kprobe-observation,syscall-level kprobe sensors,kprobe eBPF,BLOCKED,,4ca5a4d,CONFIG_KPROBES unset on this kernel
+2,D1-repro-startup-loss,pilot control Degraded from first-batch counted loss,pilot_e2e x2 (pre-fix),FAIL(reproduced),validation/strategic/run_rbi_repro_1/,4ca5a4d,original failure preserved
+2,D2-repro-boundary-fp,control IntegrityUnknown from batch-boundary divergence,pilot_e2e + divergence_replay (pre-fix),FAIL(reproduced),validation/strategic/run_rbi_repro_2/,4ca5a4d,every control divergence had its counterpart in an adjacent batch; connector ts after sched ts 591/591
+2,D2-regression-unit,perf exec one batch before its connector exec is corroborated,cargo test aip-collector sink,PASS,aip-standalone/aip-collector/src/sink.rs,5b146be,fails with the carry removed (mutation check)
+2,D2-negative-unit,carry does not hide a blinded tracepoint (reverse order; other probe run; other pid; outside window),cargo test aip-observe divergence + sink,PASS,aip-standalone/aip-observe/src/divergence.rs,5b146be,
+2,D1-regression-live,8 MiB connector buffer absorbs the 400-exec burst that overflows a 1-byte buffer,cargo test t15c (root; CAP_NET_ADMIN),PASS,aip-standalone/aip-observe/tests/sniffer_dog.rs,5b146be,effective 16 MiB
+2,workspace-tests,cargo test --workspace,full workspace,PASS-except-env,scratchpad log,5b146be,3248 passed; 15 failed all in aip-hsm softhsm (SoftHSM2 not installed - environmental)
+2,E2-pilot-kernel-default,pilot x3 at kernel-default rcvbuf after fix,repeat_pilot.sh,PASS 3/3,validation/strategic/e2_pilot_repeats/arm_kernel_default/,381343c,0 loss lines: buffer size NOT shown causal
+2,E2-pilot-fixed,pilot x3 at new default rcvbuf,repeat_pilot.sh,PASS 3/3,validation/strategic/e2_pilot_repeats/arm_fixed/,381343c,
+2,E3-benchmark,recall/precision/attribution/latency/overhead vs ftrace ground truth,measure.sh 10x200 release drained,PASS,validation/strategic/e3_benchmark/run3_release_drained/,5b146be,earlier runs with harness defect kept (run1/run2)
+2,RBI-five-act-postfix,unmodified rbi_demo/run.sh after fix,validation/rbi_demo/run.sh,FAIL(environment),validation/strategic/run_rbi_postfix_unmodified/,0fa8c89,collector refuses unsynced clock (correct); acts 3 4 4b PASS; system acts not reached

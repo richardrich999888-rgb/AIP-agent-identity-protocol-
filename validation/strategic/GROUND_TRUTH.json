@@ -1,0 +1,19 @@
+{
+  "schema": "vanian.strategic.ground_truth/v1",
+  "experiment": "E3 run3_release_drained",
+  "source_commit_under_test": "5b146be",
+  "definition": "An exec is ground truth iff (a) the measurement workload launched it under a unique path and recorded its Popen pid and exit 0, AND (b) the independent ftrace reference instance recorded sched_process_exec for that path. Launched-but-not-in-ftrace execs are reported separately and excluded from the denominator.",
+  "workload": "validation/strategic/measure/workload.py — K uniquely named copies of /bin/true, CONC concurrent",
+  "reference": "validation/linux/ftrace_observer.sh — a private tracefs instance, read by a separate process from the pipeline",
+  "independence": {
+    "SchedTracepoint_vs_ftrace": "INTERFACE-INDEPENDENT ONLY: both read sched:sched_process_exec; ftrace uses the trace ring not perf, so a perf-only gate would separate them, but a hook on the tracepoint itself would blind both",
+    "ProcConnector_vs_ftrace": "FACILITY-INDEPENDENT: netlink connector vs tracepoint",
+    "workload_record": "the experimenter's control, written before any observer output was read; not an agent self-report"
+  },
+  "counts": {
+    "trials": 10, "k_per_trial": 200, "conc": 4,
+    "workload_execs_ok": 2000, "ftrace_confirmed": 2000, "workload_not_in_ftrace": 0
+  },
+  "per_trial": "e3_benchmark/run3_release_drained/per_trial.csv",
+  "results": "e3_benchmark/run3_release_drained/results.json"
+}

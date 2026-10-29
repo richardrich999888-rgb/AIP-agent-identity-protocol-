@@ -89,6 +89,10 @@ for name, td in trials():
         s = by_path[p][0]
         agg["latency_capture_ms"].append((s[2] - GT[p]["launch_rt_ns"]) / 1e6)
         agg["latency_exec_to_signed_ms"].append(s[3] - s[2] / 1e6)
+    drain = {}
+    dp = os.path.join(td, "drain.txt")
+    if os.path.exists(dp):
+        drain = dict(kv.split("=") for kv in open(dp).read().split())
     ovh = ratio(on["wall_ms"], off["wall_ms"])
     if ovh:
         agg["overhead_ratio"].append(ovh)
@@ -104,6 +108,7 @@ for name, td in trials():
         "conn_matched": len(conn_matched), "conn_recall": ratio(len(conn_matched), len(GT)),
         "attribution_ok": attr_ok, "attribution_acc": ratio(attr_ok, len(sched_matched)),
         "dropped_events": dropped, "verified_offline": verified,
+        "drained": drain.get("drained"), "drain_ms": drain.get("drain_ms"),
         "health_states": "|".join(sorted(set(states))), "health_records_with_coverage": cov,
         "mechanism_integrity": "|".join(sorted(set(integ))),
         "wall_ms_off": round(off["wall_ms"], 1), "wall_ms_on": round(on["wall_ms"], 1),
@@ -139,6 +144,7 @@ summary = {
     "attribution_acc": ratio(tot("attribution_ok"), tot("sched_matched")),
     "dropped_events_total": tot("dropped_events"),
     "all_trials_verified_offline": all(r["verified_offline"] for r in rows),
+    "trials_not_drained": sum(1 for r in rows if r["drained"] not in (None, "1")),
     "latency_capture_ms": {"p50": pct(agg["latency_capture_ms"], .5), "p95": pct(agg["latency_capture_ms"], .95),
                            "max": max(agg["latency_capture_ms"]) if agg["latency_capture_ms"] else None},
     "latency_exec_to_signed_ms": {"p50": pct(agg["latency_exec_to_signed_ms"], .5),

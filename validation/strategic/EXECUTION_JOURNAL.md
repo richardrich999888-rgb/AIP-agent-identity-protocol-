@@ -54,3 +54,40 @@ and the four binaries (`aip-probe`, `aip-collector`, `aip-observe-verify`,
 - Measurement harness: independent ftrace ground truth over a counted window →
   recall/precision/attribution with explicit denominators; monitored-vs-unmonitored overhead.
 - RBI five-act rerun; multi-framework (M3).
+
+## Cycle 2 — 2026-10-29 — RBI honest path, two defects, benchmark
+
+- **DISCOVER/EXECUTE (pre-fix):** unmodified RBI rehearsal FAIL (clock refusal,
+  correct). With clock enforcement off, the pilot passed its own checks but the
+  RBI `check_control` failed twice in two distinct ways:
+  - **D1** control `Degraded`: batch 1 carried `dropped_events=1` in 3/3 runs
+    (connector `ENOBUFS`), and Degraded is sticky for the epoch.
+  - **D2** control `IntegrityUnknown` with no attack: `divergence_replay.py`
+    found every control-phase divergence had its sched counterpart in an
+    adjacent batch; connector exec timestamps trail sched 591/591 (27–168 µs).
+    Root cause: connector drained last, so a sched exec could fall into the
+    next batch while its connector exec sat in this one.
+- **REPAIR (5b146be):** connector drained first; after `ENOBUFS` keep reading
+  (bounded); collector lets the previous *attested* batch of the same probe run
+  corroborate (same pid/tgid, same 50 ms window); connector buffer enlarged to
+  8 MiB via `SO_RCVBUFFORCE` (`AIP_PROBE_CONNECTOR_RCVBUF_BYTES`, `0` = old);
+  `AIP_SENSOR_LOSS` diagnostics. Regression tests incl. a mutation check (the
+  boundary test fails with the carry removed). Workspace: 3248 pass, 15 fail —
+  all `aip-hsm` softhsm, SoftHSM2 absent.
+- **MEASURE/FALSIFY (E2):** 6 live pilot runs, two arms. 6/6 PASS
+  (control Active+coverage, live attack → IntegrityUnknown, offline verify,
+  deletion refused, no recovery backfill). **Kernel-default arm also had 0
+  loss**, so the buffer enlargement is not shown to be the cause; it stays as
+  defence in depth, claimed as nothing more.
+- **MEASURE (E3):** first two benchmark runs had whole trials with no signed
+  batch. Not hidden: gdb showed the debug-build probe CPU-bound, not hung; the
+  fixed 3 s window closed before shipping. Harness amended (drain rule, release
+  build, logs kept), both earlier runs kept. Run 3: 2000/2000 recall on both
+  sensors, precision 1.0, 0 fabricated, pid attribution 1.0, 10/10 verified,
+  exec→signed p50 795 ms, overhead median ×1.09 (upper bound).
+- **VERIFY:** unmodified RBI rehearsal re-run post-fix: still FAIL on the
+  clock precondition only; acts 3, 4, 4b PASS. The system acts cannot run on
+  this host without the documented clock switch.
+- **Minor finding, open:** the collector's divergence override replaces a
+  probe's specific `ForeignTracepointGate` with generic `Unverifiable` —
+  diagnostic precision lost, signed state unchanged.
