@@ -33,8 +33,21 @@
       "call": "evidence.command(clients, timeout=120, env={..., PYTHONPATH: sdk/python})",
       "raised": "evidence.Refused: python exited 1",
       "stage_in_pipeline": "enterprise client readback (Python SDK / OpenAPI / MCP / TypeScript / console), i.e. AFTER agent, authority, MCP, kernel observation and reconciliation",
-      "underlying_cause": "UNKNOWN_PENDING_NEXT_RUN",
-      "why_unknown": "evidence.command discards child stderr by design because the child receives three API key files; run_client_smoke.py executed 25 bare predicates and retained no failure record"
+      "underlying_cause": "LOCALISED_TO_STAGE_console_browser_CAUSE_STILL_AMBIGUOUS",
+      "why_unknown": "evidence.command discards child stderr by design because the child receives three API key files; run_client_smoke.py executed 25 bare predicates and retained no failure record",
+      "stages_that_passed": [
+        "load_disposable_credentials",
+        "role_and_tenant_separation",
+        "read_caller_bundle",
+        "api_admission",
+        "openapi_contract",
+        "python_sdk_readback",
+        "cross_tenant_and_write_refusal",
+        "exact_bundle_retrieval",
+        "official_mcp_client",
+        "typescript_sdk"
+      ],
+      "why_still_ambiguous": "Playwright raises one `Error` class for a missing browser executable, a sandbox refusal, a launch crash and a navigation failure alike. A local reproduction produced the same class from a missing headless-shell binary."
     },
     "progress_vs_previously_recorded_failure": {
       "previous": "FAILED_GATEWAY_ACCOUNT_PROVISIONING_BEFORE_AGENT, autonomous_workload_executed=false (run 40753922392)",
@@ -52,6 +65,50 @@
       "commit": "7c633e5",
       "change": "stage recording (12 unique stages) plus a redaction-safe client-smoke-failure.json written into public/",
       "insert_only_proof": "predicate count 25 before (measured on 35f215d) and 25 after; asserted by test against git history",
+      "retested": "re-dispatched; outcome pending"
+    },
+    "runs_executed": [
+      {
+        "run": 40825279520,
+        "commit": "35f215d",
+        "conclusion": "failure",
+        "failure_visibility": "evidence.Refused: python exited 1 \u2014 no stage, no cause",
+        "artifact_files": 43
+      },
+      {
+        "run": 40826294455,
+        "commit": "7c633e5",
+        "conclusion": "failure",
+        "failure_visibility": "diagnostic retained on the runner (44 files) but unreadable here: blob.core.windows.net is 403 under this environment's network policy",
+        "artifact_files": 44
+      },
+      {
+        "run": 40833025313,
+        "commit": "3e03636",
+        "conclusion": "failure",
+        "failure_visibility": "LOCALISED. Job log carries the classified record.",
+        "artifact_files": 44,
+        "client_smoke_failure": {
+          "stage": "console_browser",
+          "error_type": "Error",
+          "error_class": "unclassified_client_error"
+        }
+      }
+    ],
+    "hypothesis_tested_and_disproved": {
+      "hypothesis": "Chromium refuses to launch as root without --no-sandbox, and the readback runs under sudo",
+      "test": "launched Playwright 1.56.0 chromium headless as uid 0 with no args in this container",
+      "result": "DISPROVED \u2014 launched successfully, version 153.0.8010.12",
+      "consequence": "no change in this work rests on that theory"
+    },
+    "second_repair_applied": {
+      "commit": "a93870e",
+      "change": "console stage split into _import/_launch/_navigate/_assert, plus a browser_facts block of self-observed values (euid, browsers path, the chromium executable path Playwright reports, whether it exists, directory names) \u2014 observations, never upstream text",
+      "classes_named": [
+        "Error -> browser_launch_or_navigation_error",
+        "TimeoutError -> browser_wait_timed_out"
+      ],
+      "insert_only_proof": "predicate count 25 before and after, asserted against git history",
       "retested": "re-dispatched; outcome pending"
     }
   },
@@ -175,7 +232,7 @@
     "material_correction_to_the_forensic_record": {
       "finding": "CONFIG_BPF_LSM=y and CONFIG_SECURITY_LANDLOCK=y on this kernel, and securityfs reports lsm=lockdown,capability,landlock,selinux,bpf",
       "contrast": "the kernel of record in the maturity addendum (6.18.44-fc-v24) had CONFIG_BPF_LSM and CONFIG_SECURITY_LANDLOCK both unset",
-      "status": "CONFIG-OBSERVED and LSM-LIST-OBSERVED only. Per the trap already recorded in ADR-008, neither is evidence that BPF-LSM attach works. A runtime attach test has NOT been performed.",
+      "status": "SUPERSEDED BY RUNTIME EVIDENCE \u2014 see kernel_capability_probes. Landlock is now EXECUTION-PROVEN; BPF-LSM is proven NOT loadable here, by host policy rather than by build.",
       "still_absent": [
         "CONFIG_KPROBES",
         "CONFIG_TCG_TPM",
@@ -197,6 +254,51 @@
     "no bank acceptance or production approval is claimed from any internal test suite",
     "no framework is claimed to have executed; four are NOT_EXECUTED and one is BLOCKED",
     "no coverage, attribution, latency or overhead figure is reported, because none was measured",
-    "no observation-integrity or BPF-LSM capability claim is made from kernel config strings alone"
-  ]
+    "no observation-integrity or BPF-LSM capability claim is made from kernel config strings alone",
+    "no claim that BPF-LSM works on any host: it is proven refused here, and untested elsewhere"
+  ],
+  "kernel_capability_probes": {
+    "classification": "EXECUTED",
+    "where": "this container, kernel 6.18.44-fc-v185",
+    "record": "validation/kernel_capability/",
+    "landlock": {
+      "status": "ENFORCEMENT_PROVEN",
+      "abi_version": 7,
+      "strength": "EXECUTION-PROVEN",
+      "predicates_all_true": [
+        "baseline both files readable before restriction",
+        "allowed subtree still readable after",
+        "read outside subtree denied EACCES",
+        "write outside subtree denied EACCES"
+      ],
+      "notable": "the probe ran as uid 0 with CAP_SYS_ADMIN effective and was still denied",
+      "scope_limit": "filesystem read/write under ABI v7 on this kernel only; nothing about network rules, other hooks, or detachment from outside the sandbox"
+    },
+    "bpf_lsm": {
+      "status": "LOAD_REFUSED",
+      "errno": "EPERM",
+      "verifier_log": "empty",
+      "strength": "EXECUTION-PROVEN (negative)",
+      "differential": {
+        "BPF_MAP_CREATE": "loads",
+        "SOCKET_FILTER": "loads",
+        "KPROBE": "loads",
+        "SCHED_CLS": "loads",
+        "LSM": "EPERM, empty log",
+        "TRACING_fentry": "EPERM, empty log"
+      },
+      "not_a_capability_gate": "CAP_BPF, CAP_SYS_ADMIN, CAP_MAC_ADMIN, CAP_PERFMON all effective; only CAP_SYS_RESOURCE dropped; Seccomp=0",
+      "invariant_to": "attach_btf_id in {0, bpf_lsm_file_open}; expected_attach_type in {0, BPF_LSM_MAC}",
+      "attribution": "kernel lockdown reads `none [integrity] confidentiality`; integrity mode is the only active policy separating the two refused BTF-attached, kernel-memory-reading program types",
+      "residual_uncertainty": "the probe did not toggle lockdown, so the specific kernel check was not isolated. selinuxfs is not mounted.",
+      "consequence_for_the_record": "This changes the KIND of conclusion, not just its value. The addendum recorded CONFIG_BPF_LSM as NOT SET on 6.18.44-fc-v24, making the active-interception tier architecturally unavailable. Here the option is set, the bpf_lsm_* hooks are in BTF, bpf is in the active LSM list, and loading is refused by HOST POLICY. Correct status: DEPLOYMENT-GATED, not architecturally unavailable. External phrasing stays 'designed to support' until the probe is run on a lockdown-off host.",
+      "enforcement_stage_not_reached": "Stage B would have denied a connect and required recovery after detach. It never ran because the load was refused first. It is retained and bounded three ways: one connect attempt, a link fd the kernel releases on close, and a forked child so even a crash releases it."
+    },
+    "still_absent": [
+      "CONFIG_KPROBES",
+      "CONFIG_TCG_TPM",
+      "CONFIG_IMA",
+      "CONFIG_INTEGRITY"
+    ]
+  }
 }
