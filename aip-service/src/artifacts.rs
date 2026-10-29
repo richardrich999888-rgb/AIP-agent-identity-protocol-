@@ -50,6 +50,11 @@ pub enum ArtifactKind {
     Verdict,
     /// `aip_ledger::AccessLedger` — one agent, one window.
     AccessLedger,
+    /// Original collector archive strings, verified before admission under
+    /// the institution's configured tenant-bound observer anchors.
+    ObserverArchive,
+    /// Immutable same-run input, reevaluated under tenant-configured anchors.
+    RunBundle,
 }
 
 impl ArtifactKind {
@@ -57,6 +62,8 @@ impl ArtifactKind {
         match self {
             Self::Verdict => "verdict",
             Self::AccessLedger => "access_ledger",
+            Self::ObserverArchive => "observer_archive",
+            Self::RunBundle => "run_bundle",
         }
     }
 
@@ -64,6 +71,8 @@ impl ArtifactKind {
         match s {
             "verdict" => Some(Self::Verdict),
             "access_ledger" => Some(Self::AccessLedger),
+            "observer_archive" => Some(Self::ObserverArchive),
+            "run_bundle" => Some(Self::RunBundle),
             _ => None,
         }
     }
@@ -117,6 +126,8 @@ impl std::error::Error for ArtifactStoreError {}
 
 #[async_trait::async_trait]
 pub trait ArtifactStore: Send + Sync {
+    /// Read/write readiness without filing a document or changing evidence.
+    async fn check_health(&self) -> Result<(), ArtifactStoreError>;
     /// File a document. Idempotent within a tenant: the id is a digest of
     /// the document, so re-submitting the same bytes is a no-op rather than
     /// a duplicate row.
@@ -159,6 +170,9 @@ struct Inner {
     by_key: HashMap<(String, String, String), StoredArtifact>,
     /// `id` → tenant, so a cross-tenant id collision is detectable.
     owner: HashMap<String, String>,
+    /// An unsuccessful append can leave a partial record. Refuse further
+    /// writes until an operator repairs/reopens the store.
+    write_failed: bool,
 }
 
 impl JsonlArtifactStore {
@@ -172,27 +186,46 @@ impl JsonlArtifactStore {
     /// Open (creating if absent) and replay an append-only file.
     pub fn open(path: impl AsRef<Path>) -> Result<Self, ArtifactStoreError> {
         let path = path.as_ref().to_path_buf();
+        // Check writability at startup, not after acknowledging a filing.
+        std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&path)
+            .map_err(|e| ArtifactStoreError::Backend(format!("open {}: {e}", path.display())))?;
         let mut inner = Inner::default();
         if path.exists() {
             let text = std::fs::read_to_string(&path).map_err(|e| {
                 ArtifactStoreError::Backend(format!("read {}: {e}", path.display()))
             })?;
-            for line in text.lines().filter(|l| !l.trim().is_empty()) {
-                // A line that will not parse is skipped rather than fatal:
-                // a truncated final write must not make the whole history
-                // unreadable. It is not silently lost, because the file is
-                // append-only and the operator still holds the bytes.
-                if let Ok(a) = serde_json::from_str::<StoredArtifact>(line) {
-                    inner.owner.insert(a.id.clone(), a.tenant_id.clone());
-                    inner.by_key.insert(
-                        (
-                            a.tenant_id.clone(),
-                            a.kind.as_str().to_string(),
-                            a.id.clone(),
-                        ),
-                        a,
-                    );
-                }
+            if !text.is_empty() && !text.ends_with('\n') {
+                return Err(ArtifactStoreError::Backend(
+                    "artifact file has an incomplete final append; recover it before reopening"
+                        .into(),
+                ));
+            }
+            for (index, line) in text
+                .lines()
+                .enumerate()
+                .filter(|(_, l)| !l.trim().is_empty())
+            {
+                // Skipping a damaged line would advertise a complete store
+                // after losing evidence. Preserve the bytes and refuse to
+                // open until recovery is reviewed.
+                let a = serde_json::from_str::<StoredArtifact>(line).map_err(|e| {
+                    ArtifactStoreError::Backend(format!(
+                        "invalid artifact record at line {}: {e}",
+                        index + 1
+                    ))
+                })?;
+                inner.owner.insert(a.id.clone(), a.tenant_id.clone());
+                inner.by_key.insert(
+                    (
+                        a.tenant_id.clone(),
+                        a.kind.as_str().to_string(),
+                        a.id.clone(),
+                    ),
+                    a,
+                );
             }
         }
         Ok(Self {
@@ -204,38 +237,68 @@ impl JsonlArtifactStore {
 
 #[async_trait::async_trait]
 impl ArtifactStore for JsonlArtifactStore {
+    async fn check_health(&self) -> Result<(), ArtifactStoreError> {
+        if self.inner.lock().unwrap().write_failed {
+            return Err(ArtifactStoreError::Backend(
+                "artifact store requires recovery after failed append".into(),
+            ));
+        }
+        if let Some(path) = &self.path {
+            // No create flag: a Reader health request never creates files.
+            std::fs::OpenOptions::new()
+                .read(true)
+                .append(true)
+                .open(path)
+                .map_err(|e| ArtifactStoreError::Backend(format!("artifact readiness: {e}")))?;
+        }
+        Ok(())
+    }
     async fn put(&self, artifact: StoredArtifact) -> Result<String, ArtifactStoreError> {
         let id = artifact.id.clone();
-        {
-            let mut inner = self.inner.lock().unwrap();
-            if let Some(existing) = inner.owner.get(&id) {
-                if existing != &artifact.tenant_id {
-                    return Err(ArtifactStoreError::TenantConflict);
-                }
-                // Same tenant, same bytes: already filed.
-                return Ok(id);
+        let mut inner = self.inner.lock().unwrap();
+        if inner.write_failed {
+            return Err(ArtifactStoreError::Backend(
+                "artifact append failed; recover the store before retrying".into(),
+            ));
+        }
+        if let Some(existing) = inner.owner.get(&id) {
+            if existing != &artifact.tenant_id {
+                return Err(ArtifactStoreError::TenantConflict);
             }
-            inner.owner.insert(id.clone(), artifact.tenant_id.clone());
-            inner.by_key.insert(
-                (
-                    artifact.tenant_id.clone(),
-                    artifact.kind.as_str().to_string(),
-                    id.clone(),
-                ),
-                artifact.clone(),
-            );
+            // Same tenant, same bytes: already filed.
+            return Ok(id);
         }
         if let Some(path) = &self.path {
             let line = serde_json::to_string(&artifact)
                 .map_err(|e| ArtifactStoreError::Backend(e.to_string()))?;
-            let mut f = std::fs::OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(path)
-                .map_err(|e| ArtifactStoreError::Backend(format!("open: {e}")))?;
-            writeln!(f, "{line}")
-                .map_err(|e| ArtifactStoreError::Backend(format!("write: {e}")))?;
+            let append = (|| -> Result<(), ArtifactStoreError> {
+                let mut f = std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(path)
+                    .map_err(|e| ArtifactStoreError::Backend(format!("open: {e}")))?;
+                writeln!(f, "{line}")
+                    .map_err(|e| ArtifactStoreError::Backend(format!("write: {e}")))?;
+                f.sync_data()
+                    .map_err(|e| ArtifactStoreError::Backend(format!("sync: {e}")))?;
+                Ok(())
+            })();
+            if let Err(e) = append {
+                inner.write_failed = true;
+                return Err(e);
+            }
         }
+        // Publish only after persistence succeeds. A failed filing must
+        // never turn into a successful in-memory idempotency response.
+        inner.owner.insert(id.clone(), artifact.tenant_id.clone());
+        inner.by_key.insert(
+            (
+                artifact.tenant_id.clone(),
+                artifact.kind.as_str().to_string(),
+                id.clone(),
+            ),
+            artifact,
+        );
         Ok(id)
     }
 
@@ -326,6 +389,16 @@ pub mod pg {
 
     #[async_trait::async_trait]
     impl ArtifactStore for PostgresArtifactStore {
+        async fn check_health(&self) -> Result<(), ArtifactStoreError> {
+            let c = self.pool.get().await.map_err(be)?;
+            let row = c.query_one("SELECT has_table_privilege(current_user, 'signed_artifacts', 'SELECT') AND has_table_privilege(current_user, 'signed_artifacts', 'INSERT')", &[]).await.map_err(be)?;
+            if !row.get::<_, bool>(0) {
+                return Err(ArtifactStoreError::Backend(
+                    "artifact store lacks read/write privileges".into(),
+                ));
+            }
+            Ok(())
+        }
         async fn put(&self, a: StoredArtifact) -> Result<String, ArtifactStoreError> {
             let mut c = self.pool.get().await.map_err(be)?;
             let tx = c.transaction().await.map_err(be)?;
@@ -354,23 +427,38 @@ pub mod pg {
                 return Ok(a.id);
             }
 
-            tx.execute(
-                "INSERT INTO signed_artifacts
+            let inserted = tx
+                .execute(
+                    "INSERT INTO signed_artifacts
                      (id, kind, tenant_id, agent_id, from_ms, to_ms, stored_at_ms, body)
-                 VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
-                &[
-                    &a.id,
-                    &a.kind.as_str(),
-                    &a.tenant_id,
-                    &a.agent_id,
-                    &a.from_ms,
-                    &a.to_ms,
-                    &a.stored_at_ms,
-                    &a.body,
-                ],
-            )
-            .await
-            .map_err(be)?;
+                 VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (kind,id) DO NOTHING",
+                    &[
+                        &a.id,
+                        &a.kind.as_str(),
+                        &a.tenant_id,
+                        &a.agent_id,
+                        &a.from_ms,
+                        &a.to_ms,
+                        &a.stored_at_ms,
+                        &a.body,
+                    ],
+                )
+                .await
+                .map_err(be)?;
+            if inserted == 0 {
+                // A concurrent same-tenant insertion is idempotent; an
+                // invisible other-tenant row is a generic tenant conflict.
+                let owned = tx
+                    .query_opt(
+                        "SELECT id FROM signed_artifacts WHERE kind=$1 AND id=$2 AND tenant_id=$3",
+                        &[&a.kind.as_str(), &a.id, &a.tenant_id],
+                    )
+                    .await
+                    .map_err(be)?;
+                if owned.is_none() {
+                    return Err(ArtifactStoreError::TenantConflict);
+                }
+            }
             tx.commit().await.map_err(be)?;
             Ok(a.id)
         }
@@ -527,5 +615,61 @@ mod tests {
             .map(|a| a.id)
             .collect();
         assert_eq!(ids, vec!["earlier".to_string(), "later".to_string()]);
+    }
+
+    #[tokio::test]
+    async fn a_failed_append_never_publishes_or_acknowledges_a_retry() {
+        let path = std::env::temp_dir().join(format!("artifact_failure_{}", uuid::Uuid::new_v4()));
+        let s = JsonlArtifactStore::open(&path).unwrap();
+        // Replace the destination with a directory to force an actual I/O
+        // failure even when the test runs as a privileged user.
+        std::fs::remove_file(&path).unwrap();
+        std::fs::create_dir(&path).unwrap();
+        let a = artifact("acme", "failed", Some("agent"), 0);
+        assert!(s.put(a.clone()).await.is_err());
+        assert!(s.check_health().await.is_err());
+        assert!(s
+            .get("acme", ArtifactKind::AccessLedger, "failed")
+            .await
+            .unwrap()
+            .is_none());
+        std::fs::remove_dir(&path).unwrap();
+        assert!(
+            s.put(a).await.is_err(),
+            "a failed store must require recovery"
+        );
+        let reopened = JsonlArtifactStore::open(&path).unwrap();
+        assert!(reopened
+            .get("acme", ArtifactKind::AccessLedger, "failed")
+            .await
+            .unwrap()
+            .is_none());
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn damaged_records_are_preserved_and_refused_instead_of_skipped() {
+        let path = std::env::temp_dir().join(format!("artifact_damaged_{}", uuid::Uuid::new_v4()));
+        std::fs::write(&path, b"{truncated").unwrap();
+        assert!(JsonlArtifactStore::open(&path).is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), b"{truncated");
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn acknowledged_filings_survive_reopening() {
+        let path = std::env::temp_dir().join(format!("artifact_restart_{}", uuid::Uuid::new_v4()));
+        let s = JsonlArtifactStore::open(&path).unwrap();
+        s.put(artifact("acme", "persisted", Some("agent"), 0))
+            .await
+            .unwrap();
+        drop(s);
+        let s = JsonlArtifactStore::open(&path).unwrap();
+        assert!(s
+            .get("acme", ArtifactKind::AccessLedger, "persisted")
+            .await
+            .unwrap()
+            .is_some());
+        std::fs::remove_file(path).unwrap();
     }
 }

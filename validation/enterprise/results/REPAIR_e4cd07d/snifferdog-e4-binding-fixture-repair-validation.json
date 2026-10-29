@@ -1,0 +1,18 @@
+{
+  "base_source_head": "e4cd07d906ed2c5661e7909e2c02559e100b26bf",
+  "uncommitted_change": "binding.rs fixture-only timestamp repair and explicit collision regression",
+  "profile": "release",
+  "platform": "aarch64-apple-darwin",
+  "tests": {
+    "b05_another_observers_records_do_not_bind": {
+      "passed": 128,
+      "failed": 0
+    },
+    "b13_coincident_health_metadata_does_not_bypass_signature_or_envelope_verification": {
+      "passed": 128,
+      "failed": 0
+    }
+  },
+  "production_verifier_changes": false,
+  "elapsed_seconds": 0.7269728340033907
+}

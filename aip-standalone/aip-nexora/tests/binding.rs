@@ -23,6 +23,7 @@ mod common;
 
 use aip_nexora::proof::*;
 use aip_nexora::{LeafKind, NexoraTrustAnchors};
+use aip_observe::ObserverAttestor;
 
 /// Two independent scenarios: A is the package under test, B is where a
 /// transplanted component comes from.
@@ -135,9 +136,9 @@ fn b04_another_executions_expectation_does_not_bind() {
 fn b05_another_observers_records_do_not_bind() {
     let (a, b) = two();
     let mut p = package(&a);
-    // B's batches and health, on A's claim. Same observer id (the fixture
-    // uses one), but different keys, heads and sequences — so the claim's
-    // cited heads no longer match anything carried.
+    // B's batches and health, on A's claim. The observer id is shared,
+    // but its keys and batch heads differ. Sequence counters and millisecond
+    // timestamps can coincide; neither is a cryptographic identity.
     p.observer = Some(ObserverBundle {
         batches: b.evidence.batches.clone(),
         health: b.evidence.health.clone(),
@@ -164,11 +165,27 @@ fn b05_another_observers_records_do_not_bind() {
         p.binding_faults()
     );
 
-    // A health record the claim does not cite.
+    // A health record with explicitly different cited metadata. Two fast
+    // release scenarios can otherwise share both sequence and millisecond.
+    let other_health =
+        b.o.signer
+            .health(
+                a.evidence
+                    .health
+                    .health
+                    .emitted_at_ms
+                    .checked_add(1)
+                    .unwrap(),
+            )
+            .unwrap();
+    assert_ne!(
+        other_health.health.emitted_at_ms,
+        a.evidence.health.health.emitted_at_ms
+    );
     let mut p = package(&a);
     p.observer = Some(ObserverBundle {
         batches: a.evidence.batches.clone(),
-        health: b.evidence.health.clone(),
+        health: other_health,
     });
     assert!(
         p.binding_faults()
@@ -409,4 +426,33 @@ fn b12_a_seal_is_broken_by_every_component_substitution() {
             "the seal survived a {name} substitution"
         );
     }
+}
+
+#[test]
+fn b13_coincident_health_metadata_does_not_bypass_signature_or_envelope_verification() {
+    let (a, b) = two();
+    let collision =
+        b.o.signer
+            .health(a.evidence.health.health.emitted_at_ms)
+            .unwrap();
+    assert_eq!(collision.health.sequence, a.evidence.health.health.sequence);
+    assert_eq!(
+        collision.health.emitted_at_ms,
+        a.evidence.health.health.emitted_at_ms
+    );
+    assert_ne!(a.o.public_key, b.o.public_key);
+    assert!(aip_observe::verify_signed_health(&collision, &b.o.anchors).is_ok());
+    assert!(aip_observe::verify_signed_health(&collision, &a.o.anchors).is_err());
+
+    let kp = aip_crypto::generate_ed25519_keypair();
+    let assembler = ProofAssembler::new("asm", 1, &kp.private_key, &kp.public_key).unwrap();
+    let anchors = NexoraTrustAnchors::new().trust("asm", 1, &kp.public_key);
+    let sealed = assembler.seal(package(&a)).unwrap();
+    assert!(verify_envelope(&sealed, &anchors).is_ok());
+    let mut transplanted = sealed.clone();
+    transplanted.observer.as_mut().unwrap().health = collision;
+    // Structural sequence/time agreement cannot authenticate another key's
+    // record. Existing health signatures and the sealed bytes still refuse it.
+    assert!(transplanted.binding_faults().is_empty());
+    assert!(verify_envelope(&transplanted, &anchors).is_err());
 }

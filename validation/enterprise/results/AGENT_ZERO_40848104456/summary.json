@@ -1,0 +1,133 @@
+{
+  "classification": "ACTUAL_AGENT_ZERO_ATTEMPT_NOT_ACCEPTED",
+  "source_commit": "d6eb35e4de11fbec10953e5ed00bd934f1cc02d7",
+  "workflow_run_id": 40848104456,
+  "job_id": 123362172951,
+  "workflow_conclusion": "failure",
+  "workflow_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40848104456",
+  "artifact_id": 12887920232,
+  "artifact_sha256": "599a88a4757b0f1e65dfe47479acc5f4e32d4e92e611fab7df0a65dc412b11bf",
+  "artifact_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40848104456/artifacts/12887920232",
+  "original_public_bytes_retained": true,
+  "assignment_complete": false,
+  "successful_framework_model_requests_excluding_policy": 4,
+  "policy_model_requests": 2,
+  "framework_exit_code": 0,
+  "actual_patch_supplied": false,
+  "independent_task_acceptance": "NOT_ESTABLISHED_NO_PATCH",
+  "why_no_patch": "UNKNOWN_FRAMEWORK_RESPONSE_AND_LOG_NOT_EXPORTED",
+  "observation_validation": "FAILED",
+  "failures": [
+    "no signed Active epoch encloses the workload",
+    "no workload-bound FileEvent",
+    "not every bound workload exec was independently corroborated"
+  ],
+  "original_runner_archive_integrity_report": {
+    "observer_id": "collector.hosted-agent-zero",
+    "key_version": 1,
+    "public_key": "54451d5e979a252223239cfc2ed36955f461ba21228843b6fa82d7df02c362cb",
+    "batches": {
+      "records": 545,
+      "first_sequence": 1,
+      "last_sequence": 545,
+      "start": "Epoch",
+      "final_head": "f0e7b7f086403fd1af01a59abe2972298c6a993cadacba07830b1c32a9e0147b",
+      "observations": 0,
+      "kernel_events": 34050
+    },
+    "health": {
+      "records": 35,
+      "states": [
+        "ContinuityUnverified",
+        "Active"
+      ],
+      "with_coverage": 34,
+      "without_coverage": 1,
+      "cross_checked_against_batches": 34,
+      "clock_synchronised": 35,
+      "clock_unsynchronised": 0,
+      "clock_not_stated": 0,
+      "clock_worst_max_error_us": 4012
+    },
+    "findings": []
+  },
+  "fresh_local_archive_verification": {
+    "status": "PASS_INTEGRITY_ONLY",
+    "findings": [],
+    "verifier_sha256": "916f770e88153a0683d295532da40261b4d76eb46aec67e200edab237b0c3701",
+    "build_command": "cargo build --locked -p aip-observe-verify",
+    "rust_source_revision": "d6eb35e4de11fbec10953e5ed00bd934f1cc02d7",
+    "rust_source_worktree_changes": "none",
+    "external_checkpoint": "original/agent-zero-genuine/public/checkpoint.json",
+    "independent_anchor": "original/agent-zero-genuine/public/anchor.json"
+  },
+  "custody": "LOCAL_ISOLATION_SHARED_KERNEL_AND_ROOT",
+  "separate_host_validation": "INCOMPLETE",
+  "logical_agent_attribution": "UNKNOWN",
+  "authorization_gateway_join": "NOT_CONNECTED_FOR_THIS_FRAMEWORK",
+  "model_api_credentials_used": false,
+  "external_model_api_spend_cap": 0,
+  "memory_recall": "DISABLED_UNVALIDATED",
+  "embedding": "UNVALIDATED_NOT_INVOKED",
+  "github_environment": {
+    "name": "snifferdog-validation",
+    "created_at": "2026-10-29T09:18:31Z",
+    "protection_rules": [],
+    "deployment_branch_policy": null,
+    "meaning": "named environment was auto-created; no approval protection established"
+  },
+  "cleanup_errors": [],
+  "original_files_sha256": {
+    "agent-zero-initial-audit.txt": "61501e69a61dbbc1a41605ea15c34807e6b1d3992bee195dde36a7ebdd95dd87",
+    "agent-zero-image.json": "67b5acfd2915e4793e0990c65c2333abcac8fe90cc97f4a073f0603a63f1d4e1",
+    "agent-zero-local-model/model-pin.json": "b9ed9640cfe30be524d3e42098302c9b4ca003bd8da8b17fe0d0f9e3ee69f4b9",
+    "agent-zero-genuine/public/anchor.json": "70ad917aef8ad741cdcbaedf373f021fb8561ed5f3b4df0f0eaae9d9a7bf4627",
+    "agent-zero-genuine/public/network-model-policy.json": "d11d4085349284761afdbb6e63095c774e3198d6b6f7cc036fc02bd4b10dfa28",
+    "agent-zero-genuine/public/checkpoint.json": "ea672b06e54802826da003fe0f1bc4c6c4750c3655f34d5f842c24366c07f8cd",
+    "agent-zero-genuine/public/corroboration.json": "efec8817929e550dbb2a85f85dd9bbfebeedc2eed64f0ac69f0999fb0347bd4e",
+    "agent-zero-genuine/public/offline-verification.json": "b2497c8f4724b266024220df40eeedb9f4a1e0f806d3c6de84f4e4ca1cd3dee5",
+    "agent-zero-genuine/public/health.archive.jsonl": "df0d1a0d8fd6967c2e1676694d370e4c50d1fcc417acc15584676f54a0fac1b7",
+    "agent-zero-genuine/public/audit-status.json": "01b1a5b3b9b3894009a1d6942d3d597d580bee59c23a2973e84b0a140e0cdbda",
+    "agent-zero-genuine/public/model-calls.json": "6d09bb09c145a070b9c04169fd3f501cbc9f6c2f80cddbacbc2029e2bf8b18ee",
+    "agent-zero-genuine/public/harness-status.json": "35411082759dc9157f4c3cb22c0f2dcdcfeaa98fdc585d8ea4a1395f0b2e9b36",
+    "agent-zero-genuine/public/attested.archive.jsonl": "007d8ab3d60bcf899bc30c201ce2c785cacbdbdf6c0343eaf46d8b313a50710d",
+    "agent-zero-genuine/public/tamper.json": "a19a6644fe05466faec296b5e4fb3147d5d7191c82e707aa292e4537485179f4",
+    "agent-zero-genuine/public/task-provenance.json": "0d29e936f5ae48b0d8124d66b626b13d5c2a2ab05c0dbf22c2d9aad8e6cd40c6",
+    "agent-zero-genuine/public/click-3652.json": "820687b6af3951b019a6418ae198ef241edc1f970be794348e8d1708c2c95122",
+    "agent-zero-genuine/public/policy-inferences.jsonl": "0d3339c697736a6a95043e932c91d9b49985db5ff21ab40dae97060aa6fa7267",
+    "agent-zero-genuine/public/launch.json": "7bfd07654379915eb91f24075be3bb8e66ef1fe2152cc63e10a67009192234d1",
+    "agent-zero-genuine/public/auditd.log": "931000a14a271164bfae91bf2acf83231ace7507ee01454dfacfc1ce0321a480",
+    "agent-zero-genuine/public/profile.json": "7740888ba01ac0bc9cbda0a4dfffa9d68027eb8e8a2595ba507048a953f7d8a5"
+  },
+  "derived_timestamp_fix_diagnostic": {
+    "classification": "DERIVED_REEVALUATION_ORIGINAL_BYTES_UNCHANGED",
+    "code_changes": "per-batch timestamp conversion matches Rust; current stronger final-health coverage gate",
+    "coverage": "INTEGRITY_UNKNOWN",
+    "workload_events_by_kind": {
+      "ProcessSpawn": 17,
+      "ProcessExec": 2,
+      "Fork": 1,
+      "Exec": 2,
+      "SocketState": 22,
+      "SocketSend": 6,
+      "Exit": 1
+    },
+    "workload_executions": [
+      {
+        "pid": 5289,
+        "wall_ms": 1793265764208,
+        "batch_sequence": 24
+      },
+      {
+        "pid": 5289,
+        "wall_ms": 1793265764212,
+        "batch_sequence": 24
+      }
+    ],
+    "acceptance_failures": [
+      "no signed Active epoch encloses the workload",
+      "no workload-bound FileEvent"
+    ],
+    "task_acceptance": "NOT_ESTABLISHED_NO_PATCH"
+  }
+}

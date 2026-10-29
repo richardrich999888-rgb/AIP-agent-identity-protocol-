@@ -56,7 +56,7 @@ fn admin_url() -> String {
 async fn connect(url: &str) -> Client {
     let (client, conn) = tokio_postgres::connect(url, NoTls)
         .await
-        .unwrap_or_else(|e| panic!("connect {url}: {e}"));
+        .unwrap_or_else(|e| panic!("database connection failed: {e}"));
     tokio::spawn(async move {
         let _ = conn.await;
     });
@@ -147,7 +147,7 @@ async fn provision_once() {
     admin
         .batch_execute(
             "DROP TABLE IF EXISTS evidence_legal_hold, evidence_retention,
-                                  authority_edges, authority_nodes, evidence_packets CASCADE;",
+                                  authority_edges, authority_nodes, evidence_packets, signed_artifacts CASCADE;",
         )
         .await
         .expect("drop");
@@ -209,6 +209,156 @@ async fn insert_packet(c: &Client, tenant: &str, id: &str) -> Result<u64, tokio_
         &[&id, &tenant],
     )
     .await
+}
+
+async fn insert_artifact(c: &Client, tenant: &str, id: &str) {
+    c.execute("SELECT set_config('aip.tenant_id',$1,false)", &[&tenant])
+        .await
+        .unwrap();
+    c.execute("INSERT INTO signed_artifacts (id,kind,tenant_id,stored_at_ms,body) VALUES ($1,'observer_archive',$2,1,'{}')",
+        &[&id,&tenant]).await.expect("insert artifact as restricted app");
+}
+
+#[tokio::test]
+#[ignore = "needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored"]
+async fn signed_artifact_reads_and_insertions_are_bound_to_the_database_tenant() {
+    provision().await;
+    let app = connect(&role_url(APP)).await;
+    insert_artifact(&app, "t-artifact-scope", "artifact-scope").await;
+    for tenant in ["t-other-artifact", ""] {
+        app.execute("SELECT set_config('aip.tenant_id',$1,false)", &[&tenant])
+            .await
+            .unwrap();
+        let count: i64 = app
+            .query_one(
+                "SELECT count(*) FROM signed_artifacts WHERE id='artifact-scope'",
+                &[],
+            )
+            .await
+            .unwrap()
+            .get(0);
+        assert_eq!(
+            count, 0,
+            "cross-tenant and unscoped reads must see no artifact"
+        );
+    }
+    let err=app.execute("INSERT INTO signed_artifacts (id,kind,tenant_id,stored_at_ms,body) VALUES ('artifact-forged','observer_archive','t-artifact-scope',1,'{}')",&[])
+        .await.expect_err("an unscoped connection must not insert into another tenant");
+    assert_eq!(
+        err.code(),
+        Some(&tokio_postgres::error::SqlState::INSUFFICIENT_PRIVILEGE)
+    );
+}
+
+#[tokio::test]
+#[ignore = "needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored"]
+async fn service_cannot_update_delete_or_truncate_signed_artifacts() {
+    provision().await;
+    let app = connect(&role_url(APP)).await;
+    insert_artifact(&app, "t-artifact-mutation", "artifact-mutation").await;
+    for sql in [
+        "UPDATE signed_artifacts SET body='tampered' WHERE id='artifact-mutation'",
+        "DELETE FROM signed_artifacts WHERE id='artifact-mutation'",
+        "TRUNCATE signed_artifacts",
+    ] {
+        let err = app
+            .execute(sql, &[])
+            .await
+            .expect_err("artifact mutation must be denied by database privileges");
+        assert_eq!(
+            err.code(),
+            Some(&tokio_postgres::error::SqlState::INSUFFICIENT_PRIVILEGE)
+        );
+    }
+}
+
+#[tokio::test]
+#[ignore = "needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored"]
+async fn artifact_owner_cannot_rewrite_documents_or_delete_under_legal_hold() {
+    provision().await;
+    let app = connect(&role_url(APP)).await;
+    insert_artifact(&app, "t-artifact-hold", "artifact-held").await;
+    let owner = connect(&role_url(OWNER)).await;
+    owner
+        .execute(
+            "SELECT set_config('aip.tenant_id','t-artifact-hold',false)",
+            &[],
+        )
+        .await
+        .unwrap();
+    let err = owner
+        .execute(
+            "UPDATE signed_artifacts SET body='tampered' WHERE id='artifact-held'",
+            &[],
+        )
+        .await
+        .expect_err("the table owner is also bound by append-only trigger");
+    assert!(
+        db_message(&err).contains("append-only"),
+        "{}",
+        db_message(&err)
+    );
+    owner.execute("INSERT INTO evidence_legal_hold (tenant_id,packet_id,reason,placed_by) VALUES ('t-artifact-hold','artifact-held','test hold','test-dpo')",&[]).await.unwrap();
+    let err = owner
+        .execute("DELETE FROM signed_artifacts WHERE id='artifact-held'", &[])
+        .await
+        .expect_err("held artifact must survive owner deletion");
+    assert!(
+        db_message(&err).contains("legal hold"),
+        "{}",
+        db_message(&err)
+    );
+}
+
+#[tokio::test]
+#[ignore = "needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored"]
+async fn concurrent_filings_are_idempotent_and_hidden_collisions_are_generic() {
+    use airon_aip::artifacts::{ArtifactKind, ArtifactStore, ArtifactStoreError, StoredArtifact};
+    use airon_aip::store::{EvidenceStore, StoreError};
+    use std::sync::Arc;
+    provision().await;
+    let evidence = airon_aip::store::PostgresEvidenceStore::connect(&role_url(APP))
+        .await
+        .unwrap();
+    let artifact = Arc::new(airon_aip::artifacts::pg::PostgresArtifactStore::with_pool(
+        evidence.pool(),
+    ));
+    artifact.check_health().await.unwrap();
+    let row = StoredArtifact {
+        id: "artifact-concurrent".into(),
+        kind: ArtifactKind::ObserverArchive,
+        tenant_id: "t-artifact-race".into(),
+        agent_id: Some("test-agent".into()),
+        from_ms: None,
+        to_ms: None,
+        stored_at_ms: 1,
+        body: "{}".into(),
+    };
+    let (left, right) = tokio::join!(artifact.put(row.clone()), artifact.put(row.clone()));
+    assert_eq!(left.unwrap(), row.id);
+    assert_eq!(right.unwrap(), row.id);
+    let mut other = row.clone();
+    other.tenant_id = "t-artifact-other".into();
+    assert_eq!(
+        artifact.put(other).await,
+        Err(ArtifactStoreError::TenantConflict)
+    );
+    assert!(artifact
+        .get("t-artifact-other", ArtifactKind::ObserverArchive, &row.id)
+        .await
+        .unwrap()
+        .is_none());
+    let (packet, _) = airon_aip::test_support::sample_packet();
+    let (left, right) = tokio::join!(
+        evidence.store("t-packet-race", &packet),
+        evidence.store("t-packet-race", &packet)
+    );
+    assert_eq!(left.unwrap(), packet.packet_id_hex());
+    assert_eq!(right.unwrap(), packet.packet_id_hex());
+    assert!(matches!(
+        evidence.store("t-packet-other", &packet).await,
+        Err(StoreError::TenantConflict)
+    ));
 }
 
 // ─── The privilege the service does not hold ───────────────────────────────

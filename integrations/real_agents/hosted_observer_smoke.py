@@ -46,7 +46,10 @@ def main():
     def checkpoint():
         for name in ARCHIVES:
             shutil.copyfile(state / name, public / name)
-        return {'sha256': {name: sha256(public / name) for name in ARCHIVES}}
+        cp = {'sha256': {name: sha256(public / name) for name in ARCHIVES}}
+        # Preserve the controller's actual snapshot even if a later gate refuses.
+        save(out / 'checkpoint.json', cp)
+        return cp
     try:
         if command(['timedatectl', 'show', '--property=NTPSynchronized', '--value']).strip() != 'yes':
             raise Refused('host clock not synchronized')
@@ -111,6 +114,7 @@ def main():
         if not ready:
             raise Refused('signed Active coverage unavailable with audit cross-check running')
         start = now()
+        result['coverage_requested_from_ms'] = start
         # Establish the window prospectively, before dispatch. Audit uses a
         # coarser clock than userspace; do not put the exec on the boundary.
         # Both observers remain active and signed coverage must include guards.
@@ -119,10 +123,13 @@ def main():
         # generated agent response, or framework validation is asserted here.
         child = subprocess.Popen(['/bin/sleep', '2'], user=10001, group=10001, extra_groups=())
         workload_pid = child.pid
-        if child.wait() != 0:
+        result['component_child_pid'] = workload_pid
+        result['component_child_exit_code'] = child.wait()
+        if result['component_child_exit_code'] != 0:
             raise Refused('OS component test failed')
         time.sleep(1)
         end = now()
+        result['coverage_requested_to_ms'] = end
         for _ in range(25):
             time.sleep(2)
             cp = checkpoint(); verify(public, args.tools, anchor, cp)

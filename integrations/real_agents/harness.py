@@ -234,10 +234,42 @@ def run(config, out, checkpoint_path):
             directory.mkdir()
         os.chown(workspace, 10001, 10001)
         save(control / "request.json", {"framework": config["framework"], "model": config["model"],
-             "timeout_s": config["timeout_s"], "prompt": task, "run_id": token})
+             "timeout_s": config["timeout_s"], "prompt": task, "run_id": token,
+             "framework_source_commit": pin["commit"]})
         probe_env = read_env(config["probe_env"])
-        # Fanotify must watch the real bind-mounted work filesystem.
-        probe_env.update(AIP_PROBE_FANOTIFY_PATH=str(workspace),
+        # The reviewed launcher waits on /input/start before loading the
+        # framework/model task. Start only that waiting launcher so its actual
+        # bind mount exists before marking it; capture begins before release.
+        create = ["docker", "create", "--name", token, "--user", "10001:10001",
+                  "--cap-drop=ALL", "--security-opt=no-new-privileges", "--read-only",
+                  "--pids-limit", str(config["pids_limit"]), "--memory", f'{config["memory_mb"]}m',
+                  "--cpus", str(config["cpus"]), "--network", config["network"],
+                  "--env-file", config["model_env"], "--tmpfs", "/tmp:rw,nosuid,size=1g,mode=1777",
+                  "--tmpfs", "/opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001",
+                  "--mount", f"type=bind,src={control},dst=/input,readonly",
+                  "--mount", f"type=bind,src={workspace},dst=/work",
+                  "--mount", f'type=bind,src={config["model_config"]},dst=/model-config,readonly',
+                  config["image"]]
+        command(create)
+        container_created = True
+        command(["docker", "start", token])
+        pid = int(command(["docker", "inspect", "--format", "{{.State.Pid}}", token]))
+        launch = proc_identity(pid)
+        launch["probe_id"] = probe_env["AIP_PROBE_ID"]
+        save(out / "launch.json", launch)
+        watch_path = Path(f"/proc/{pid}/root/work")
+        host_work, container_work = workspace.stat(), watch_path.stat()
+        if (host_work.st_dev, host_work.st_ino) != (container_work.st_dev, container_work.st_ino):
+            raise Refused("container work mount does not resolve to the provisioned workspace")
+        save(out / "fanotify-watch.json", {
+            "source_authority": "root_controller_container_mount_resolution",
+            "path": str(watch_path), "scope": "FAN_MARK_MOUNT on actual container /work mount",
+            "workspace_device": host_work.st_dev, "workspace_inode": host_work.st_ino,
+            "launcher_started_before_capture": True,
+            "configured_before_task_gate_release": True})
+        # A host-side mount mark does not see accesses via another bind mount.
+        # Retain the existing mount-only scope rather than watch all filesystems.
+        probe_env.update(AIP_PROBE_FANOTIFY_PATH=str(watch_path),
                          AIP_PROBE_SENSORS="sched,cgroup,connector,fanotify,sockstate,socksend",
                          AIP_PROBE_BATCH_INTERVAL_MS="1000")
         collector_started = True
@@ -269,28 +301,13 @@ def run(config, out, checkpoint_path):
                 break
         if not ready:
             raise Refused("no fresh verified Active health with required sensors")
+        if proc_identity(pid) != {key:value for key,value in launch.items() if key != "probe_id"}:
+            raise Refused("waiting launcher process instance changed before task release")
         audit.start()
-        create = ["docker", "create", "--name", token, "--user", "10001:10001",
-                  "--cap-drop=ALL", "--security-opt=no-new-privileges", "--read-only",
-                  "--pids-limit", str(config["pids_limit"]), "--memory", f'{config["memory_mb"]}m',
-                  "--cpus", str(config["cpus"]), "--network", config["network"],
-                  "--env-file", config["model_env"], "--tmpfs", "/tmp:rw,nosuid,size=1g,mode=1777",
-                  "--tmpfs", "/opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001",
-                  "--mount", f"type=bind,src={control},dst=/input,readonly",
-                  "--mount", f"type=bind,src={workspace},dst=/work",
-                  "--mount", f'type=bind,src={config["model_config"]},dst=/model-config,readonly',
-                  config["image"]]
-        command(create)
-        container_created = True
         start = now()
         # Prospective guard for coarse audit timestamps; this entire interval
         # still requires signed coverage. Never widen it after seeing events.
         time.sleep(1)
-        command(["docker", "start", token])
-        pid = int(command(["docker", "inspect", "--format", "{{.State.Pid}}", token]))
-        launch = proc_identity(pid)
-        launch["probe_id"] = probe_env["AIP_PROBE_ID"]
-        save(out / "launch.json", launch)
         status.update(status="RUNNING", launch=launch, workload_from_ms=start,
                       live_evidence="PENDING_OFFLINE_VERIFICATION")
         save(out / "status.json", status)

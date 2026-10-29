@@ -1,0 +1,135 @@
+{
+  "classification": "ACTUAL_AGENT_ZERO_ATTEMPT_NOT_ACCEPTED",
+  "source_commit": "7625b1d60e54bc9d4ab4d935fb4e488b0ae30dc7",
+  "workflow_run_id": 40854020439,
+  "job_id": 123382017660,
+  "workflow_conclusion": "failure",
+  "workflow_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40854020439",
+  "artifact_id": 12889386620,
+  "artifact_sha256": "62f70f533e3b1bc26b2bc1a1189cab3ca6e14fc55a197ee21a909e56c8121773",
+  "artifact_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40854020439/artifacts/12889386620",
+  "original_public_bytes_retained": true,
+  "assignment_complete": false,
+  "successful_framework_model_requests_excluding_policy": 5,
+  "policy_model_requests": 2,
+  "framework_exit_code": 1,
+  "actual_patch_supplied": false,
+  "independent_task_acceptance": "NOT_ESTABLISHED_NO_PATCH",
+  "observed_framework_protocol_outcome": {
+    "source_authority": "AGENT_SELF_REPORTED_FRAMEWORK_LOG",
+    "log_record_types": {
+      "response": 1,
+      "agent": 5,
+      "warning": 5
+    },
+    "warnings": [
+      {
+        "no": 2,
+        "timestamp": 1793268611.416987,
+        "content": "A0: Plain-text reply was kept as thoughts. Retrying with a tool-call reminder."
+      },
+      {
+        "no": 4,
+        "timestamp": 1793268694.9992023,
+        "content": "A0: Plain-text reply was kept as thoughts. Retrying with a tool-call reminder."
+      },
+      {
+        "no": 6,
+        "timestamp": 1793268788.3261783,
+        "content": "A0: Plain-text reply was kept as thoughts. Retrying with a tool-call reminder."
+      },
+      {
+        "no": 8,
+        "timestamp": 1793268895.9354146,
+        "content": "A0: Plain-text reply was kept as thoughts. Retrying with a tool-call reminder."
+      },
+      {
+        "no": 10,
+        "timestamp": 1793268993.4321353,
+        "content": "Agent stopped after 5 consecutive unusable model responses to prevent further API charges. Send a new message to try again."
+      }
+    ],
+    "accepted_tool_execution_or_task_success": false,
+    "bounded_conclusion": "The tested runtime recorded five unusable plain-text responses and stopped; no passing software task, generated patch, or general model-capability conclusion is claimed."
+  },
+  "observation_validation": "FAILED",
+  "failures": [
+    "framework process failed",
+    "no workload-bound ProcessExec",
+    "not every bound workload exec was independently corroborated"
+  ],
+  "actual_signed_capture_summary": {
+    "coverage": "COVERED",
+    "workload_events_by_kind": {
+      "FileEvent": 1,
+      "ProcessSpawn": 13,
+      "SocketState": 26,
+      "SocketSend": 7,
+      "Fork": 1,
+      "Exit": 1
+    },
+    "process_instances": 2,
+    "launch_instance_events": 47,
+    "probe_reported_drops": 0
+  },
+  "fanotify_mount": {
+    "source_authority": "root_controller_container_mount_resolution",
+    "path": "/proc/4960/root/work",
+    "scope": "FAN_MARK_MOUNT on actual container /work mount",
+    "workspace_device": 53,
+    "workspace_inode": 5,
+    "launcher_started_before_capture": true,
+    "configured_before_task_gate_release": true
+  },
+  "fresh_local_archive_verification": {
+    "status": "PASS_INTEGRITY_ONLY",
+    "report": "independent-local-archive-verification.json",
+    "verifier_sha256": "916f770e88153a0683d295532da40261b4d76eb46aec67e200edab237b0c3701",
+    "build_command": "cargo build --locked -p aip-observe-verify",
+    "verifier_rust_source_revision": "7625b1d60e54bc9d4ab4d935fb4e488b0ae30dc7",
+    "independent_anchor": "original/agent-zero-genuine/public/anchor.json",
+    "external_checkpoint": "original/agent-zero-genuine/public/checkpoint.json"
+  },
+  "audit_comparison": {
+    "agreed": 31,
+    "aip_only": 485,
+    "external_only": 0,
+    "external_unparsed": 0,
+    "external_failed_attempts": 150
+  },
+  "custody": "LOCAL_ISOLATION_SHARED_KERNEL_AND_ROOT",
+  "separate_host_validation": "INCOMPLETE",
+  "logical_agent_attribution": "UNKNOWN",
+  "authorization_gateway_join": "NOT_CONNECTED_FOR_THIS_FRAMEWORK",
+  "model_api_credentials_used": false,
+  "external_model_api_spend_cap": 0,
+  "memory_recall": "DISABLED_UNVALIDATED",
+  "embedding": "UNVALIDATED_NOT_INVOKED",
+  "github_environment_protection": "NOT_ESTABLISHED_NAMED_ENVIRONMENT_HAS_NO_PROTECTION_RULES",
+  "cleanup_errors": [],
+  "original_files_sha256": {
+    "agent-zero-initial-audit.txt": "61501e69a61dbbc1a41605ea15c34807e6b1d3992bee195dde36a7ebdd95dd87",
+    "agent-zero-image.json": "ccbc83a3b1ccbd5e02a5a9766f38e9463fb13d1ac25d6152eecedc1e166a7ab8",
+    "agent-zero-local-model/model-pin.json": "b9ed9640cfe30be524d3e42098302c9b4ca003bd8da8b17fe0d0f9e3ee69f4b9",
+    "agent-zero-genuine/public/anchor.json": "6477fc89d3dac7c6c33a7e43ca911acb11a33428afb97eb8ed16b64ff95647f8",
+    "agent-zero-genuine/public/network-model-policy.json": "aa56ac8a5c7361b7203e8c7a16083e96e34ebf413775fa29e11c319dccd4f243",
+    "agent-zero-genuine/public/checkpoint.json": "33ffb7aa1314247c67e34d10cb8930e224b7759ca2ec0c6cb692291ce09d3290",
+    "agent-zero-genuine/public/corroboration.json": "9665f55b0c08665b0c6b7e8bda14978a0f5062276776e87feb573c3061867205",
+    "agent-zero-genuine/public/offline-verification.json": "be8f317fd694cf77f1fa0ff2dcb183c8eb5e528f6861c1ccf1f07af3c9480301",
+    "agent-zero-genuine/public/agent-self-reported-adapter.jsonl": "78a6b10b0ac73d517f8d26d0c370d1e1cf593a6f822ab6ad3a30f0acf0eb0e97",
+    "agent-zero-genuine/public/health.archive.jsonl": "12c8996a25fd5f494d4a7a1987a04bdd1b15dd16e5d3f1ca76d1e52552f7d965",
+    "agent-zero-genuine/public/audit-status.json": "8f57aa0d21fc812c6c203b2c68ea48c1855f570344f5f624c475cd175aa15305",
+    "agent-zero-genuine/public/model-calls.json": "531de257b816db3fb9adecadfa6c4b11705fe0e2d67fd6278cbd2a9780a1d61b",
+    "agent-zero-genuine/public/harness-status.json": "b4115df150b3569ee086f4f3209e593d9a835fee416adbeada87c18d61851b2d",
+    "agent-zero-genuine/public/attested.archive.jsonl": "674682b75805c634e820a91dc91d3d7f8f65e17f5cc4aefefc2d9e252c18ff10",
+    "agent-zero-genuine/public/tamper.json": "a19a6644fe05466faec296b5e4fb3147d5d7191c82e707aa292e4537485179f4",
+    "agent-zero-genuine/public/agent-self-reported-artifact-provenance.json": "a141b2add5d54aca2cc54eaa8e45937dec98526864fb515f40af9570134b3288",
+    "agent-zero-genuine/public/task-provenance.json": "0d29e936f5ae48b0d8124d66b626b13d5c2a2ab05c0dbf22c2d9aad8e6cd40c6",
+    "agent-zero-genuine/public/click-3652.json": "820687b6af3951b019a6418ae198ef241edc1f970be794348e8d1708c2c95122",
+    "agent-zero-genuine/public/policy-inferences.jsonl": "465d075fb6b909f719022a64cc10302c3c6794c2364fdab7848416e6241a20f8",
+    "agent-zero-genuine/public/launch.json": "3411a1e4846740805e27715e45fa7b54d075530f23589e43fc66efec32d2966c",
+    "agent-zero-genuine/public/auditd.log": "6d4ce55effe0676871681634515b48a78d82ee84488b7c17743a0721af74b6ba",
+    "agent-zero-genuine/public/profile.json": "e861d02229c198e0bf711ebd72d1f4979caed3e2f8b2861dcab6a19ac8795d8c",
+    "agent-zero-genuine/public/fanotify-watch.json": "b6e1a610ea2ab97819874c2e18646c3066e81580d2e55b34312671116bc2ee55"
+  }
+}

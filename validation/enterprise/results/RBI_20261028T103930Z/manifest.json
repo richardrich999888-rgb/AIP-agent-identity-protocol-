@@ -1,0 +1,156 @@
+{
+  "inspected_utc": "2026-10-28T10:39:30Z",
+  "workflow": {
+    "run_id": 40672603812,
+    "name": "RBI rehearsal",
+    "event": "workflow_dispatch",
+    "head_branch": "feature/snifferdog-enterprise-integration",
+    "source_commit": "e9da41314c3851a92388a8ce80f1db9a3a696520",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T10:30:03Z",
+    "completed_at": "2026-10-28T10:33:55Z",
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672603812",
+    "successful_jobs": [
+      "script-regressions",
+      "live-rehearsal"
+    ]
+  },
+  "artifact": {
+    "id": 12809192247,
+    "name": "rbi-rehearsal-40672603812",
+    "github_reported_zip_sha256": "c33168825f21a289d877043b813f28878eed87ff37db6f77f591c2f477cbd210",
+    "github_reported_zip_bytes": 132342,
+    "zip_digest_locally_rechecked": false,
+    "expires_at": "2026-11-11T10:33:43Z",
+    "downloaded_allowlisted_files": 28,
+    "original_local_directory": ".local/rbi-rehearsal-40672603812"
+  },
+  "preservation": {
+    "method": "Exact mechanical copies; three signed JSONL streams compressed losslessly using gzip -n -c. Original archives and local logs remain in ignored .local only.",
+    "files_sha256": {
+      "act3-destination-tests.txt": "5e21638ce9ae2e106cb57ef42f2f6fc477083c8ea7642f36cca341525f14e8ca",
+      "act4-gateway-tests.txt": "5de0e36f53a561139326432529fab6bf9461e30a3db841657165eac1000f5391",
+      "attested.archive.jsonl.gz": "42be93c4d74179f25b6d38c4d257066b2c385d82501ea7abe89476a5dffbddf4",
+      "clock-gate.txt": "c35c4aa439992b1fa6edde557f0713d0c3abd08cd25a810c56d889f7d7539bbc",
+      "clock.txt": "9e5bb7edb4347a4fd4f9d32bfe60b9ef30f2af61a7ee2c52007a291f229771ea",
+      "control-check.txt": "ba94b58d07d5663f04b4c3984da261a72b18b2c003186f6e1383935bcc4f9de7",
+      "gateway-receipts.jsonl.gz": "2ac6e96c49f36489ba4849e77bcb560a636ed1e42a3cb1385141341408e1173a",
+      "gateway-response.txt": "4d89604f822018099fd2fbd12f15f28a6352cd22aa3a8cdbe8df48f990534106",
+      "health.archive.jsonl.gz": "7f1c762729356a0fd34f9770f201dc8a5b49a86b1c821d9f2afb10a9f9a9776d",
+      "host.txt": "c9d8abcd3921595f4245926bf7820ecdce398d95956833f043696de0d0fcd648",
+      "observer.pub": "36e2cdab5c70d8a1bdaa6c6e2c1b4cde646b14a940b654b634e36611143f69f3",
+      "offline-negative.txt": "11c1568fdc4bb36aa1e8b087c54fcb4498759c4827c60a6ee866c12058165b34",
+      "offline-verify.txt": "afd0ef94aeda07f9c868f290529f82da8513853d828f13e0b2fe587cf2e07c29",
+      "run-summary.json": "12b9944969fb4c3cccda011ff15ad697a0a285290d2b2457e8fa86bc8707cb30",
+      "session-transcript.txt": "c056ae0ff80350a0b205f633e445d085ac3f8fe671e3eccb0c771bbe0c02204d",
+      "system-transcript.txt": "c6b1f21a5f5340e1842c6e0c6b3357a0aadc374e0eb86eb67efa0726fcc885c1"
+    },
+    "uncompressed_archive_sha256": {
+      "attested.archive.jsonl": "f9ae31a487332cf02b1a644eff0f29c7cea906587a0ba2909bf99e3f0b52d529",
+      "health.archive.jsonl": "862dcf1f6f7940c41e976007ffb071a2144c1f5c59b60a5b0fe25e8547194bfd"
+    },
+    "excluded": [
+      "private keys and passphrases (not in uploaded workflow allowlist)",
+      "JWTs, API credentials and databases",
+      "collector.log, probe.log, attack.log and general build/system raw logs"
+    ]
+  },
+  "host": {
+    "workflow_runner": "ubuntu-24.04 GitHub-hosted disposable VM",
+    "kernel": "6.17.0-1022-azure",
+    "architecture": "x86_64",
+    "tracefs_available": true,
+    "tracepoint_id": 272,
+    "root": true,
+    "clock_gate": "NTPSynchronized=yes",
+    "chrony_leap_status": "Normal"
+  },
+  "acts": {
+    "1": {
+      "level": "full-system, synthetic process/network workload",
+      "result": "PASS",
+      "evidence": "control signed Active with attested coverage"
+    },
+    "2": {
+      "level": "full-system, live foreign eBPF tracepoint interference",
+      "result": "PASS",
+      "evidence": "signed IntegrityUnknown and null coverage during attack; recovery Active without backfill"
+    },
+    "3": {
+      "level": "library",
+      "result": "PASS",
+      "tests_passed": 11,
+      "evidence": "unregistered/ungranted resource refusal under signed policy"
+    },
+    "4": {
+      "level": "library plus actual Rust stdio gateway smoke",
+      "result": "PASS",
+      "tests_passed": 26,
+      "stdio_receipts": 2,
+      "evidence": "receipt-versus-authorization mismatch with no agent account; two differing signed commitments"
+    },
+    "5": {
+      "level": "actual offline observer verifier",
+      "result": "PASS",
+      "batches": 77,
+      "kernel_events": 3475,
+      "signed_health_records": 4,
+      "evidence": "chain/health signatures accepted; deletion of middle record 39 rejected"
+    }
+  },
+  "health_timeline": [
+    {
+      "state": "ContinuityUnverified",
+      "sequence": 0,
+      "coverage": null,
+      "emitted_at_ms": 1793183520387
+    },
+    {
+      "state": "Active",
+      "sequence": 24,
+      "coverage": {
+        "from_ms": 1793183521728,
+        "to_ms": 1793183549373
+      },
+      "emitted_at_ms": 1793183550389
+    },
+    {
+      "state": "IntegrityUnknown",
+      "sequence": 50,
+      "coverage": null,
+      "emitted_at_ms": 1793183580391
+    },
+    {
+      "state": "Active",
+      "sequence": 77,
+      "coverage": {
+        "from_ms": 1793183582140,
+        "to_ms": 1793183609615
+      },
+      "emitted_at_ms": 1793183610393
+    }
+  ],
+  "observer_anchor": {
+    "observer_id": "collector.pilot.e2e",
+    "key_version": 1,
+    "public_key_hex": "42182ecf93d51273d99c7b80968237f61d1af353a995baebd06977019af921cc",
+    "source": "workflow artifact; independently agree this trust anchor with the evaluator before relying on it"
+  },
+  "local_rechecks": {
+    "observer_verifier_exit": 0,
+    "observer_verifier_binary_sha256": "fa49a8fb80ce0e438d025e5875c53444a73ab2b5be7ad54d654babd571281f90",
+    "control_checker_exit": 0,
+    "report": "local-offline-verification.json",
+    "findings": []
+  },
+  "limits": [
+    "Same-host daemons in separate processes do not prove independent two-host administrative control.",
+    "This is a development rehearsal on a hosted Linux VM, not an institutional pilot or demonstration-computer rehearsal.",
+    "The observed process/network workload is synthetic, not the required end-to-end real autonomous banking agent.",
+    "Acts 3 and 4 remain library-level; actual first-party stdio receipts do not establish a real bank transfer or complete ContextForge integration.",
+    "Offline verification proves signed bytes and internal linkage under the supplied anchor, not truthful input from a compromised kernel.",
+    "A valid prefix or suffix can still verify: detecting archive truncation requires an independently retained boundary checkpoint.",
+    "No clean package installation, supported container/Kubernetes runtime, production HSM, institutional performance or external assessment is established."
+  ]
+}

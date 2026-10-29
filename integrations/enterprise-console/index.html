@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VANIAN evidence console</title><link rel="stylesheet" href="/console/style.css"><script src="/console/app.js" defer></script></head>
+<body><main><header><p>VANIAN / SNIFFER DOG</p><h1>Evidence console</h1><p>Read the record. Preserve the uncertainty.</p></header>
+<section aria-labelledby="connect-title"><h2 id="connect-title">Institutional access</h2>
+<p>Use a tenant-scoped Reader credential. It stays in this page's memory and is cleared on disconnect or reload.</p>
+<form id="connect"><label>Reader credential <input id="credential" type="password" autocomplete="off" required></label>
+<button>Connect</button><button id="disconnect" type="button">Disconnect</button></form><p id="status" role="status">Disconnected</p></section>
+<div class="columns"><section><h2>Service health</h2><pre id="health">No query yet</pre></section>
+<section><h2>Observation coverage</h2><pre id="coverage">No query yet</pre></section></div>
+<section><h2>Stored agent identities</h2><p>These identities come from signed packets. They are not a monitored-workload registry or independent process attribution.</p>
+<button id="refresh" disabled>Refresh</button><ul id="agents"></ul></section>
+<section><h2>Agent activity</h2><pre id="activity">Select an agent</pre></section>
+<section><h2>Evidence and verification</h2><form id="evidence-form"><label>Record type <select id="evidence-kind"><option value="evidence">Agent packet</option><option value="observations">Collector archive</option></select></label><label>Evidence identifier <input id="evidence-id" maxlength="256" required></label><button>Retrieve metadata and verify</button></form>
+<p>Verification checks historical integrity with the existing verifier. Its stated scope and unevaluated rules matter; it does not establish current coverage or off-host key custody.</p><pre id="evidence">No query yet</pre></section>
+<section><h2>Signed execution verdict</h2><form id="verdict-form"><label>Verdict identifier <input id="verdict-id" maxlength="256" required></label><button>Retrieve signed document</button></form>
+<p>CANNOT_PROVE means the evidence does not establish execution. Verify signatures offline with institution-held public anchors.</p><pre id="verdict">No query yet</pre></section>
+<section><h2>Same-run evaluation</h2><form id="run-form"><label>Run artifact identifier <input id="run-id" maxlength="64" required></label><button>Retrieve same-run record</button></form>
+<p>The service reevaluates the original signed authorization, gateway receipt and observer archives under configured public anchors and a retained checkpoint. The kernel verdict, tool boundary and limitations remain distinct.</p><pre id="run">No query yet</pre></section>
+<footer>No sample records, model judgments, raw packet export, or control operations are provided by this interface.</footer></main></body></html>

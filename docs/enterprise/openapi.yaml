@@ -1,0 +1,871 @@
+openapi: 3.1.0
+info:
+  title: VANIAN Evidence Service Read API
+  version: 0.2.0
+  description: >-
+    Implemented read and verification scope of aip-service. Existing /v1
+    routes remain unchanged. Bearer credentials bind exactly one tenant.
+    Reader credentials can query metadata, signed verdicts and verification
+    results, but cannot mutate, retrieve raw packets or export bundles.
+    Inventory describes identities named in stored agent-signed packets;
+    it does not establish workload registration, independent identity or
+    observed execution. Same-run admission reevaluates original signed authorization,
+    gateway receipt, collector archives and an optional signed reconciliation
+    under tenant/admin-configured anchors and a separately retained checkpoint.
+    Kernel findings, tool-boundary comparison and limitations remain separate;
+    filing does not establish live coverage or a business outcome.
+    Historical collector archive admission requires
+    institution-configured observer anchors; current coverage and workload
+    registry ingestion are not integrated. Signed protocol documents remain opaque to clients
+    and must be verified with institution-held public anchors.
+    Pagination bounds responses; inventory currently scans tenant packets
+    and is intended for evaluation-scale datasets.
+servers:
+  - url: https://vanian.institution.example
+security:
+  - bearerAuth: []
+paths:
+  /v1/access:
+    get:
+      operationId: getAccess
+      summary: Inspect the current credential's tenant and role
+      responses:
+        '200':
+          description: Authenticated access scope
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Access' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v1/agents:
+    get:
+      operationId: listAgents
+      summary: List agent identities named in this tenant's stored packets
+      parameters:
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Ordered by agent identifier; unknown query parameters refused
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AgentPage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/agents/{agent_id}:
+    get:
+      operationId: getAgentIdentity
+      summary: Retrieve a stored packet identity summary
+      parameters:
+        - { $ref: '#/components/parameters/AgentId' }
+      responses:
+        '200':
+          description: Packet identity summary, not independently verified attribution
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AgentSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/agents/{agent_id}/activity:
+    get:
+      operationId: getAgentActivity
+      summary: Retrieve metadata about the agent's stored statements
+      parameters:
+        - { $ref: '#/components/parameters/AgentId' }
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Ordered by packet creation time then packet identifier
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AgentActivity' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/evidence/{evidence_id}/metadata:
+    get:
+      operationId: getEvidenceMetadata
+      summary: Retrieve packet references without raw transaction contents
+      parameters:
+        - { $ref: '#/components/parameters/EvidenceId' }
+      responses:
+        '200':
+          description: Metadata from the tenant-scoped signed packet
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EvidenceMetadata' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/evidence/{evidence_id}/verification:
+    get:
+      operationId: verifyStoredEvidence
+      summary: Run the existing cryptographic verifier on a stored packet
+      description: >-
+        Read-only computation using the real protocol verifier, service time
+        and tenant-scoped revocations. No issuer or counterparty anchors are
+        configured on this route. It cannot establish institutional authority
+        or independent execution. Replay history, trace and receipt contents
+        are not supplied. No signed verdict is created or stored.
+      parameters:
+        - { $ref: '#/components/parameters/EvidenceId' }
+      responses:
+        '200':
+          description: Actual verifier output and explicit limitations
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StoredVerification' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/verdicts/{verdict_id}:
+    get:
+      operationId: getExecutionVerdict
+      summary: Retrieve an existing signed reconciliation document
+      description: >-
+        Existing route. The service verifies documents under submitter-supplied
+        anchors before filing. Retrieval does not establish that those anchors
+        are approved by the institution. Consumers must independently verify
+        the document with approved public anchors.
+      parameters:
+        - name: verdict_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Complete SignedReconciliation, unchanged protocol fields
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >-
+                  Opaque signed protocol document. Canonical definition and
+                  verifier are aip-reconcile/src/attest.rs and result.rs.
+                  Clients must preserve all fields rather than reimplement
+                  the protocol schema or infer verified execution from storage.
+                additionalProperties: true
+                x-rust-type: aip_reconcile::SignedReconciliation
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /v1/coverage:
+    get:
+      operationId: getObservationCoverage
+      summary: Report the unavailable collector-to-service observation pipeline
+      responses:
+        '200':
+          description: Explicit absence of integrated coverage; never a fabricated pass
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Coverage' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /v1/health:
+    get:
+      operationId: getObserverHealth
+      summary: Check service storage readiness and state unintegrated sensor health
+      responses:
+        '200':
+          description: Service status; probe and collector health remain unavailable
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/observations:
+    post:
+      operationId: submitObserverArchive
+      summary: File a collector archive under institution-configured observer anchors
+      description: >-
+        Machine or Admin only. AIP_OBSERVER_TRUST_PATH is configured by the
+        institution as {anchors:[{tenant_id,observer_id,key_version,public_key_hex}]}.
+        Caller-supplied anchors and unknown fields are refused. Both JSONL
+        strings are preserved exactly. Admission verifies every signed record
+        and chain linkage with aip-observe-verify. The domain-separated archive
+        tenant-bound digest makes repeated identical submissions idempotent. This is not
+        cross-upload stream replay prevention or a current coverage assertion.
+        Decoded archives together are at most 512 KiB with 1..2048 records each;
+        the service ingress also bounds the complete request body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ObservationArchive' }
+      responses:
+        '200':
+          description: Historical archive verified and durably filed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ArchiveFiled' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Reader credential or observer anchor not approved for this tenant
+        '413':
+          description: Archive or request body too large
+        '422':
+          description: JSON schema or unknown fields refused
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/observations/{observation_id}:
+    get:
+      operationId: getRawObserverArchive
+      summary: Retrieve unchanged archive strings for an offline auditor
+      description: Machine or Admin only; Reader credentials are refused.
+      parameters:
+        - { $ref: '#/components/parameters/ObservationId' }
+      responses:
+        '200':
+          description: Original observer archive strings
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ObservationArchive' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Raw archive retrieval requires Machine or Admin
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/observations/{observation_id}/metadata:
+    get:
+      operationId: getObservationMetadata
+      summary: Retrieve tenant-scoped metadata of an anchored collector archive
+      parameters:
+        - { $ref: '#/components/parameters/ObservationId' }
+      responses:
+        '200':
+          description: Reverified historical archive metadata with explicit assurance bounds
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ArchiveMetadata' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Observer anchor no longer approved for this tenant
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/observations/{observation_id}/verification:
+    get:
+      operationId: verifyObserverArchive
+      summary: Run the real offline archive verifier with configured observer anchors
+      parameters:
+        - { $ref: '#/components/parameters/ObservationId' }
+      responses:
+        '200':
+          description: Exact ChainReport plus historical-integrity scope
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ArchiveVerification' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Observer anchor no longer approved for this tenant
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/runs:
+    post:
+      operationId: submitRunBundle
+      x-contract-suite: same-run
+      summary: Reevaluate and file an immutable same-run bundle
+      description: >-
+        Machine or Admin only. AIP_RUN_TRUST_PATH is configured separately by
+        the administrator as {tenants:[{tenant_id,trust:RunTrustConfig}]}.
+        Configured trust binds agent, authority, gateway, observer and reconciler
+        public anchors and independently retained per-run archive SHA-256 values.
+        Caller-supplied trust, keys and checkpoints are not admitted. The existing
+        Rust evaluator verifies signed records, archive continuity/checkpoints,
+        health chronology, tool-boundary comparison and kernel reconciliation.
+        An included signed reconciliation must verify under the configured
+        reconciler anchor and match the recomputed canonical finding exactly.
+        Missing evidence retains explicit uncertainty. The exact submitted UTF-8
+        JSON bytes are filed in the existing tenant-scoped artifact store; the
+        domain-separated identifier includes tenant and bytes, so a byte-identical
+        resubmission is idempotent. run_id is a label, not a database uniqueness key.
+        This route has a 16 MiB serialized body cap; decoded archives together
+        have an 8 MiB cap and each has 1..2048 complete JSONL records. Other
+        endpoint body limits are unchanged. Admission creates no new signature.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RunBundle' }
+      responses:
+        '200':
+          description: Immutable inputs verified, evaluated and filed; read the findings and limitations
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunMetadata' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/runs/{run_artifact_id}:
+    get:
+      operationId: getRunBundle
+      x-contract-suite: same-run
+      summary: Retrieve the exact admitted run JSON for offline verification
+      description: >-
+        Machine or Admin only. Before returning the original bytes the service
+        verifies the stored digest and reevaluates the bundle under current
+        configured public anchors/checkpoints. Reader credentials cannot retrieve
+        raw archives or authorization inputs through this route.
+      parameters:
+        - { $ref: '#/components/parameters/RunArtifactId' }
+      responses:
+        '200':
+          description: Byte-identical original submitted JSON, including all signed records
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunBundle' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/runs/{run_artifact_id}/metadata:
+    get:
+      operationId: getRunMetadata
+      x-contract-suite: same-run
+      summary: Retrieve tenant-scoped same-run references and recomputed evaluation
+      parameters:
+        - { $ref: '#/components/parameters/RunArtifactId' }
+      responses:
+        '200':
+          description: Immutable input hashes and the current reevaluation under configured trust
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunMetadata' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/runs/{run_artifact_id}/evaluation:
+    get:
+      operationId: evaluateRun
+      x-contract-suite: same-run
+      summary: Recompute the run evaluation without signing or upgrading a verdict
+      description: >-
+        Reader access is permitted. verification_time_ms is the bundle's retained
+        historical evaluation time, not a live service-coverage assertion.
+        Kernel reconciliation, gateway disposition, timely authorization and
+        signed-document parameter agreement are separate findings. Logical
+        sub-agent attribution, independent administration and business outcomes
+        are not inferred from successful signatures or retrieval.
+      parameters:
+        - { $ref: '#/components/parameters/RunArtifactId' }
+      responses:
+        '200':
+          description: Existing Rust evaluator output, including incomplete-evidence findings
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunEvaluation' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/runs/{run_artifact_id}/verdict:
+    get:
+      operationId: getRunVerdict
+      x-contract-suite: same-run
+      summary: Retrieve the original verified signed reconciliation for this run
+      description: >-
+        Reader access is permitted. The configured reconciler signature must verify
+        and the complete canonical reconciliation must match reevaluation of this
+        run's original inputs. An absent signed reconciliation returns 404;
+        it is never replaced by an unsigned service-authored success document.
+        This is stricter admission than the existing submitter-anchored verdicts
+        filing route and adds no new cryptographic protocol.
+      parameters:
+        - { $ref: '#/components/parameters/RunArtifactId' }
+      responses:
+        '200':
+          description: Original signed protocol document, preserving the engine result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SignedReconciliation' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /v1/agents/{agent_id}/runs:
+    get:
+      operationId: getAgentRuns
+      x-contract-suite: same-run
+      summary: List this tenant's admitted run metadata for the named agent
+      description: >-
+        Reader access is permitted. Every returned item is reevaluated under
+        configured trust. Listing stored run labels does not enroll a workload
+        or establish independently verified logical identity. A different tenant
+        sees an empty page. Unknown query fields and invalid pagination are refused.
+      parameters:
+        - { $ref: '#/components/parameters/AgentId' }
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: Tenant-scoped run metadata in existing artifact-store order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunPage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Institution-issued API secret hashed in AIP_API_KEYS_PATH
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+    Offset:
+      name: offset
+      in: query
+      schema: { type: integer, minimum: 0, maximum: 100000, default: 0 }
+    AgentId:
+      name: agent_id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Identifier' }
+    EvidenceId:
+      name: evidence_id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Identifier' }
+    ObservationId:
+      name: observation_id
+      in: path
+      required: true
+      schema: { type: string, pattern: '^[0-9a-fA-F]{64}$' }
+    RunArtifactId:
+      name: run_artifact_id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Sha256Hex' }
+  responses:
+    Forbidden:
+      description: Reader attempted a restricted operation or tenant/agent trust is not approved
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    PayloadTooLarge:
+      description: Serialized request or decoded archive bound exceeded
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+        text/plain:
+          schema: { type: string }
+    Unauthorized:
+      description: Missing, malformed or unknown bearer credential
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    BadRequest:
+      description: Invalid identifier, query, pagination or unknown query field
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+        text/plain:
+          schema: { type: string }
+    NotFound:
+      description: Missing and wrong-tenant identifiers produce the same response
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unavailable:
+      description: Storage unavailable; internal details appear only in service logs
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    Sha256Hex:
+      type: string
+      pattern: '^[0-9a-f]{64}$'
+    ExpectedExecution:
+      type: object
+      description: >-
+        Original signed authorization protocol document. Preserve all fields;
+        canonical encoding and verification remain in aip-authorize/src/expected.rs.
+      additionalProperties: true
+      x-rust-type: aip_authorize::ExpectedExecution
+    SignedToolReceipt:
+      type: object
+      description: >-
+        Original gateway-signed receipt. Preserve all fields; canonical encoding
+        and verification remain in aip-airi/src/receipt.rs. Forwarded does not
+        establish a downstream effect or banking outcome.
+      additionalProperties: true
+      x-rust-type: aip_airi::SignedToolReceipt
+    SignedReconciliation:
+      type: object
+      description: >-
+        Original signed reconciliation using the existing aip-reconcile protocol.
+        Preserve all protocol fields; the service creates no replacement signature.
+      required: [version, reconciler_id, key_version, reconciliation, attestation]
+      additionalProperties: true
+      x-rust-type: aip_reconcile::SignedReconciliation
+    RunBundle:
+      type: object
+      required: [run_id, agent_id, batches_jsonl, health_jsonl, verification_time_ms]
+      properties:
+        run_id: { $ref: '#/components/schemas/Identifier' }
+        agent_id: { $ref: '#/components/schemas/Identifier' }
+        expectation:
+          oneOf:
+            - { $ref: '#/components/schemas/ExpectedExecution' }
+            - { type: 'null' }
+        signed_receipt:
+          oneOf:
+            - { $ref: '#/components/schemas/SignedToolReceipt' }
+            - { type: 'null' }
+        signed_reconciliation:
+          oneOf:
+            - { $ref: '#/components/schemas/SignedReconciliation' }
+            - { type: 'null' }
+        batches_jsonl: { type: string, minLength: 1 }
+        health_jsonl: { type: string, minLength: 1 }
+        verification_time_ms: { type: integer, minimum: 0, maximum: 18446744073709551615 }
+      additionalProperties: false
+      description: >-
+        Exact input bytes are retained on admission. Archive strings contain signed
+        records, not file paths or caller-selected anchors. Size, record, signature,
+        checkpoint, chronology and process-binding rules are enforced by Rust.
+      x-rust-type: aip_mcp_gateway::assurance::RunBundle
+    RunEvaluation:
+      type: object
+      required: [run_id, agent_id, archive_integrity_verified, checkpoint_verified, authorization_verified, gateway_receipt_verified, signed_reconciliation_verified, receipt_within_authorization, gateway_disposition, reconciliation, tool_boundary, limitations]
+      properties:
+        run_id: { $ref: '#/components/schemas/Identifier' }
+        agent_id: { $ref: '#/components/schemas/Identifier' }
+        archive_integrity_verified: { type: boolean }
+        checkpoint_verified: { type: boolean }
+        authorization_verified: { type: boolean }
+        gateway_receipt_verified: { type: boolean }
+        signed_reconciliation_verified: { type: boolean }
+        receipt_within_authorization: { type: [boolean, 'null'] }
+        gateway_disposition: { enum: [Forwarded, Refused, Failed, null] }
+        reconciliation:
+          type: [object, 'null']
+          additionalProperties: true
+          x-rust-type: aip_reconcile::Reconciliation
+          description: Unchanged kernel-engine finding, separate from tool-boundary comparison.
+        tool_boundary:
+          type: [object, 'null']
+          additionalProperties: true
+          x-rust-type: aip_airi::ToolBoundary
+          description: Signed-document parameter comparison; it cannot upgrade the kernel finding.
+        limitations:
+          type: array
+          items: { type: string }
+      additionalProperties: false
+      x-rust-type: aip_mcp_gateway::assurance::RunEvaluation
+    RunMetadata:
+      type: object
+      required: [run_artifact_id, run_id, agent_id, bundle_sha256, batches_sha256, health_sha256, verification_scope, evaluation]
+      properties:
+        run_artifact_id: { $ref: '#/components/schemas/Sha256Hex' }
+        run_id: { $ref: '#/components/schemas/Identifier' }
+        agent_id: { $ref: '#/components/schemas/Identifier' }
+        bundle_sha256: { $ref: '#/components/schemas/Sha256Hex' }
+        batches_sha256: { $ref: '#/components/schemas/Sha256Hex' }
+        health_sha256: { $ref: '#/components/schemas/Sha256Hex' }
+        verification_scope: { const: same_run_evaluation }
+        evaluation: { $ref: '#/components/schemas/RunEvaluation' }
+      additionalProperties: false
+    RunPage:
+      type: object
+      required: [items, limit, offset, next_offset]
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/RunMetadata' }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0, maximum: 100000 }
+        next_offset: { type: [integer, 'null'], minimum: 1 }
+      additionalProperties: false
+    ObservationArchive:
+      type: object
+      required: [observer_id, key_version, batches_jsonl, health_jsonl]
+      properties:
+        observer_id: { $ref: '#/components/schemas/Identifier' }
+        key_version: { type: integer, minimum: 1, maximum: 4294967295 }
+        batches_jsonl: { type: string }
+        health_jsonl: { type: string }
+      additionalProperties: false
+    ArchiveFiled:
+      type: object
+      required: [observation_id, kind, verification_scope]
+      properties:
+        observation_id: { type: string }
+        kind: { const: observer_archive }
+        verification_scope: { const: historical_signature_integrity }
+      additionalProperties: false
+    ArchiveMetadata:
+      type: object
+      required: [observation_id, observer_id, key_version, batch_records, health_records, archive_bytes, verification_scope, current_coverage_established, offhost_separation_established, execution_correlation_established]
+      properties:
+        observation_id: { type: string }
+        observer_id: { type: string }
+        key_version: { type: integer, minimum: 1 }
+        batch_records: { type: integer, minimum: 1, maximum: 2048 }
+        health_records: { type: integer, minimum: 1, maximum: 2048 }
+        archive_bytes: { type: integer, minimum: 1, maximum: 524288 }
+        verification_scope: { const: historical_signature_integrity }
+        current_coverage_established: { const: false }
+        offhost_separation_established: { const: false }
+        execution_correlation_established: { const: false }
+      additionalProperties: false
+    ArchiveVerification:
+      type: object
+      required: [observation_id, verification_scope, verified, report, limitations]
+      properties:
+        observation_id: { type: string }
+        verification_scope: { const: historical_signature_integrity }
+        verified: { type: boolean }
+        report: { $ref: '#/components/schemas/ChainReport' }
+        limitations:
+          type: array
+          items: { type: string }
+      additionalProperties: false
+    ChainReport:
+      type: object
+      required: [observer_id, key_version, public_key, batches, health, findings]
+      properties:
+        observer_id: { type: string }
+        key_version: { type: integer, minimum: 0 }
+        public_key: { type: string }
+        batches:
+          oneOf:
+            - { $ref: '#/components/schemas/BatchReport' }
+            - { type: 'null' }
+        health:
+          oneOf:
+            - { $ref: '#/components/schemas/HealthReport' }
+            - { type: 'null' }
+        findings:
+          type: array
+          items: { $ref: '#/components/schemas/ArchiveFinding' }
+      additionalProperties: false
+    BatchReport:
+      type: object
+      required: [records, first_sequence, last_sequence, start, final_head, observations, kernel_events]
+      properties:
+        records: { type: integer, minimum: 0 }
+        first_sequence: { type: [integer, 'null'], minimum: 0 }
+        last_sequence: { type: [integer, 'null'], minimum: 0 }
+        start: { enum: [Epoch, MidChain, null] }
+        final_head: { type: [string, 'null'] }
+        observations: { type: integer, minimum: 0 }
+        kernel_events: { type: integer, minimum: 0 }
+      additionalProperties: false
+    HealthReport:
+      type: object
+      required: [records, states, with_coverage, without_coverage, cross_checked_against_batches, clock_synchronised, clock_unsynchronised, clock_not_stated, clock_worst_max_error_us]
+      properties:
+        records: { type: integer, minimum: 0 }
+        states: { type: array, items: {type: string} }
+        with_coverage: { type: integer, minimum: 0 }
+        without_coverage: { type: integer, minimum: 0 }
+        cross_checked_against_batches: { type: integer, minimum: 0 }
+        clock_synchronised: { type: integer, minimum: 0 }
+        clock_unsynchronised: { type: integer, minimum: 0 }
+        clock_not_stated: { type: integer, minimum: 0 }
+        clock_worst_max_error_us: { type: [integer, 'null'] }
+      additionalProperties: false
+    ArchiveFinding:
+      description: Exact tagged Finding variants from aip-observe-verify/src/report.rs
+      oneOf:
+        - type: object
+          required: [kind, line, error]
+          properties:
+            kind: { const: Unparseable }
+            line: { type: integer }
+            error: { type: string }
+          additionalProperties: false
+        - type: object
+          required: [kind, line, sequence, error]
+          properties:
+            kind: { const: SignatureRejected }
+            line: { type: integer }
+            sequence: { type: integer }
+            error: { type: string }
+          additionalProperties: false
+        - type: object
+          required: [kind, line, expected, found]
+          properties:
+            kind: { const: SequenceNotContiguous }
+            line: { type: integer }
+            expected: { type: integer }
+            found: { type: integer }
+          additionalProperties: false
+        - type: object
+          required: [kind, line, sequence, expected_prev_head, found_prev_head]
+          properties:
+            kind: { const: ChainBroken }
+            line: { type: integer }
+            sequence: { type: integer }
+            expected_prev_head: { type: string }
+            found_prev_head: { type: string }
+          additionalProperties: false
+        - type: object
+          required: [kind, sequence, health_head, batch_head]
+          properties:
+            kind: { const: HealthHeadMismatch }
+            sequence: { type: integer }
+            health_head: { type: string }
+            batch_head: { type: string }
+          additionalProperties: false
+        - type: object
+          required: [kind, sequence]
+          properties:
+            kind: { const: HealthHeadHasNoBatch }
+            sequence: { type: integer }
+          additionalProperties: false
+        - type: object
+          required: [kind, what]
+          properties:
+            kind: { const: Empty }
+            what: { type: string }
+          additionalProperties: false
+    Identifier:
+      type: string
+      minLength: 1
+      maxLength: 256
+      pattern: '^[A-Za-z0-9_.:-]+$'
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+      additionalProperties: false
+    Access:
+      type: object
+      required: [tenant_id, key_id, role]
+      properties:
+        tenant_id: { type: string }
+        key_id: { type: string }
+        role: { type: string, enum: [reader, machine, admin] }
+      additionalProperties: false
+    AgentSummary:
+      type: object
+      required: [agent_id, evidence_count, latest_created_at_ms, identity_source, independent_identity_verified]
+      properties:
+        agent_id: { type: string }
+        evidence_count: { type: integer, minimum: 1 }
+        latest_created_at_ms: { type: integer, minimum: 0 }
+        identity_source: { const: agent_signed_evidence_packet }
+        independent_identity_verified: { const: false }
+      additionalProperties: false
+    AgentPage:
+      type: object
+      required: [items, limit, offset, next_offset]
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/AgentSummary' }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0, maximum: 100000 }
+        next_offset: { type: [integer, 'null'], minimum: 1 }
+      additionalProperties: false
+    EvidenceMetadata:
+      type: object
+      required: [evidence_id, agent_id, created_at_ms, decision_id, action_count, evidence_source, independent_execution_verified]
+      properties:
+        evidence_id: { type: string }
+        agent_id: { type: string }
+        created_at_ms: { type: integer, minimum: 0 }
+        decision_id: { type: string, pattern: '^[0-9a-f]{32}$' }
+        action_count: { type: integer, minimum: 0 }
+        evidence_source: { const: agent_signed_evidence_packet }
+        independent_execution_verified: { const: false }
+      additionalProperties: false
+    AgentActivity:
+      type: object
+      required: [agent_id, items, limit, offset, next_offset]
+      properties:
+        agent_id: { type: string }
+        items:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/EvidenceMetadata' }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0, maximum: 100000 }
+        next_offset: { type: [integer, 'null'], minimum: 1 }
+      additionalProperties: false
+    Coverage:
+      type: object
+      required: [status, reason, independent_execution_verified]
+      properties:
+        status: { const: unavailable }
+        reason: { const: collector_observation_pipeline_not_connected }
+        independent_execution_verified: { const: false }
+      additionalProperties: false
+    Health:
+      type: object
+      required: [status, service, version, evidence_store, observation_pipeline, probe_health, collector_health]
+      properties:
+        status: { const: ok }
+        service: { const: aip }
+        version: { type: string }
+        evidence_store: { const: reachable }
+        observation_pipeline: { const: not_connected }
+        probe_health: { const: unavailable }
+        collector_health: { const: unavailable }
+      additionalProperties: false
+    StoredVerification:
+      type: object
+      required: [evidence_id, verification_scope, report, limitations]
+      properties:
+        evidence_id: { type: string }
+        verification_scope: { const: integrity_only }
+        report: { $ref: '#/components/schemas/VerificationReport' }
+        limitations:
+          type: array
+          items: { type: string }
+      additionalProperties: false
+    TrustFloor:
+      type: string
+      enum: [UNVERIFIED, AGENT_SIGNED, AUTHORITY_BOUND, COUNTERPARTY_SIGNED]
+    RuleResult:
+      type: object
+      required: [rule, pass, detail, evaluated]
+      properties:
+        rule: { type: string }
+        pass: { type: boolean }
+        detail: { type: string }
+        evaluated: { type: boolean }
+      additionalProperties: false
+    VerificationReport:
+      type: object
+      required: [valid, trust_floor, claimed_trust_floor, tampered, authority_chain_verified, delegation_chain_verified, scope_verified, receipt_verified, trace_verified, revocation_clear, packet_id, agent_id, verified_at, verification_time_ms, verification_time_checked, checks]
+      properties:
+        valid: { type: boolean }
+        trust_floor: { $ref: '#/components/schemas/TrustFloor' }
+        claimed_trust_floor: { $ref: '#/components/schemas/TrustFloor' }
+        tampered: { type: boolean }
+        authority_chain_verified: { type: boolean }
+        delegation_chain_verified: { type: boolean }
+        scope_verified: { type: boolean }
+        receipt_verified: { type: boolean }
+        trace_verified: { type: boolean }
+        revocation_clear: { type: boolean }
+        packet_id: { type: string }
+        agent_id: { type: string }
+        verified_at: { type: integer, minimum: 0 }
+        verification_time_ms: { type: [integer, 'null'], minimum: 0 }
+        verification_time_checked: { type: boolean }
+        checks:
+          type: array
+          items: { $ref: '#/components/schemas/RuleResult' }
+      additionalProperties: false

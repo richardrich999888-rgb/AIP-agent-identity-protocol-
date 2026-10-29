@@ -1,0 +1,31 @@
+{
+  "classification": "UNTRUSTED_AGENT_DIAGNOSTICS_FROM_ZERO_CREDENTIAL_PUBLIC_TASK",
+  "original_bytes_unmodified": true,
+  "independent_task_acceptance": false,
+  "artifacts": [
+    {
+      "source_authority": "AGENT_SELF_REPORTED",
+      "source_file": "click.patch",
+      "status": "NOT_PRODUCED"
+    },
+    {
+      "source_authority": "AGENT_SELF_REPORTED",
+      "source_file": "verification.md",
+      "status": "NOT_PRODUCED"
+    },
+    {
+      "source_authority": "AGENT_SELF_REPORTED",
+      "source_file": "response.json",
+      "status": "NOT_PRODUCED"
+    },
+    {
+      "source_authority": "AGENT_SELF_REPORTED",
+      "source_file": "adapter.jsonl",
+      "published_file": "agent-self-reported-adapter.jsonl",
+      "status": "ORIGINAL_BYTES_RETAINED",
+      "bytes": 162,
+      "sha256": "19a4956999d8aaa5e108a85a33d1fe7e5af12347ca2656304c5aacea6c9e27c8",
+      "claim_standing": "untrusted agent diagnostic; not independent execution or task acceptance"
+    }
+  ]
+}

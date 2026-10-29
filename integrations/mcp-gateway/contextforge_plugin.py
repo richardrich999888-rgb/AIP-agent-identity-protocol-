@@ -1,20 +1,9 @@
-"""IBM ContextForge adapter for the AIP tool boundary (Phase 2).
+"""ContextForge's reference-stdio helper; retained for existing callers.
 
-This is the thin production adapter. It does NOT reimplement the cryptography:
-for each tools/call, it canonicalises the arguments and shells out to the
-`aip-mcp-gateway` binary (this repo's `aip-mcp-gateway` crate), which computes
-the commitment and signs the ToolReceipt with the gateway's own key. Keeping
-the signing in one place — the crate that owns the ToolReceipt format — is why
-the reference gateway and this adapter cannot drift.
-
-Wire it into ContextForge's plugin pipeline as a pre-forward hook on
-tools/call. The binary reads AIP_GATEWAY_KEY / AIP_GATEWAY_ID /
-AIP_GATEWAY_KEY_VERSION / AIP_GATEWAY_RECEIPTS from the environment, exactly as
-in integrations/mcp-gateway/README.md.
-
-Status: adapter written; not exercised against a live ContextForge in this
-environment (ContextForge is not installed here). The receipt-signing it calls
-IS exercised — see the reference gateway's tests and smoke run.
+This function uses the original echo demonstration gateway. It does not
+dispatch a ContextForge tool or establish a downstream business result.
+The registered real-gateway plugin is ``vanian_contextforge.py``; it uses
+the additive Rust ``aip-tool-receipt`` interface and actual pre/post hooks.
 """
 
 from __future__ import annotations

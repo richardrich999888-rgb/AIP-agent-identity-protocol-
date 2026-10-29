@@ -1,0 +1,168 @@
+{
+  "classification": "SEPARATE_LOCAL_EVALUATION_OF_ORIGINAL_FAILED_RUN_RECORDS",
+  "no_new_agent_execution_claimed": true,
+  "whole_task_coverage_gate": "FAILED",
+  "verification_time_ms": 1793214169807,
+  "evaluation": {
+    "agent_id": "aip15W4cNS5gkgjXtbwY7KJvztSXHZFj7u4bACC3ibd7E",
+    "archive_integrity_verified": true,
+    "authorization_verified": true,
+    "checkpoint_verified": true,
+    "gateway_disposition": "Refused",
+    "gateway_receipt_verified": true,
+    "limitations": [
+      "Archive signatures establish integrity; collector administrative separation requires deployment evidence.",
+      "Kernel process identity does not establish logical sub-agent attribution or a business outcome.",
+      "Tool request comparison is separate from the kernel reconciliation and cannot upgrade its verdict.",
+      "Gateway disposition does not establish a successful tool dispatch.",
+      "Kernel reconciliation has not been attested by the configured reconciler."
+    ],
+    "receipt_within_authorization": true,
+    "reconciliation": {
+      "action": "Unobservable",
+      "availability": {
+        "Unavailable": {
+          "reason": "NoObserver"
+        }
+      },
+      "decision_id": [
+        182,
+        12,
+        94,
+        163,
+        183,
+        91,
+        79,
+        28,
+        130,
+        122,
+        62,
+        122,
+        61,
+        39,
+        213,
+        185
+      ],
+      "evidence": [
+        {
+          "Expected": {
+            "decision_id": [
+              182,
+              12,
+              94,
+              163,
+              183,
+              91,
+              79,
+              28,
+              130,
+              122,
+              62,
+              122,
+              61,
+              39,
+              213,
+              185
+            ],
+            "decision_point_id": "aip16LgtDP7zuS4kZk5yY3oKo5NHJTocj8XDSq1X26Wrsv"
+          }
+        },
+        {
+          "Health": {
+            "emitted_at_ms": 1793214148737,
+            "observer_id": "collector.same-run",
+            "sequence": 78
+          }
+        }
+      ],
+      "identity": "NoReference",
+      "lineage": "NotEvaluated",
+      "reason": "ObservationSetIncomplete",
+      "replay_detected": false,
+      "result": "CannotProve",
+      "strength": "Heuristic",
+      "temporal": "Indeterminate",
+      "verification_time_ms": 1793214169807,
+      "version": 5,
+      "wire": "NotEvaluated"
+    },
+    "run_id": "same-run-c8f5d268fa6c06f07859f3cf",
+    "signed_reconciliation_verified": false,
+    "tool_boundary": {
+      "Diverges": {
+        "divergence": {
+          "ReceiptDoesNotMatchAuthorization": {
+            "authorized": [
+              240,
+              189,
+              183,
+              133,
+              178,
+              131,
+              58,
+              161,
+              97,
+              112,
+              15,
+              214,
+              74,
+              124,
+              70,
+              159,
+              135,
+              56,
+              248,
+              64,
+              13,
+              163,
+              38,
+              30,
+              216,
+              185,
+              236,
+              195,
+              243,
+              53,
+              137,
+              118
+            ],
+            "received": [
+              107,
+              140,
+              84,
+              178,
+              75,
+              131,
+              126,
+              157,
+              57,
+              163,
+              31,
+              191,
+              38,
+              186,
+              140,
+              244,
+              95,
+              105,
+              0,
+              42,
+              30,
+              233,
+              231,
+              70,
+              238,
+              181,
+              160,
+              14,
+              29,
+              224,
+              13,
+              137
+            ]
+          }
+        }
+      }
+    }
+  }
+}

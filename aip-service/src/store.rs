@@ -198,6 +198,8 @@ impl EvidenceStore for JsonlEvidenceStore {
             .open(&self.path)
             .map_err(|e| StoreError::Backend(format!("open vault: {e}")))?;
         writeln!(file, "{line}").map_err(|e| StoreError::Backend(format!("write vault: {e}")))?;
+        file.sync_data()
+            .map_err(|e| StoreError::Backend(format!("sync vault: {e}")))?;
         inner.by_id.insert(id.clone(), record);
         inner.order.push(id.clone());
         Ok(id)

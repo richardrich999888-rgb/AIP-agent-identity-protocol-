@@ -5,13 +5,17 @@
 pub mod artifacts;
 pub mod auth;
 pub mod authority;
+pub mod console;
+pub mod enterprise;
 pub mod evidence;
 pub mod handlers;
 pub mod ingress;
 pub mod keys;
 pub mod metrics;
 pub mod models;
+pub mod observations;
 pub mod revocation;
+pub mod runs;
 pub mod store;
 pub mod tokens;
 pub mod verdicts;
@@ -78,6 +82,11 @@ pub struct AppState {
     /// Off unless a deployment sets `AIP_ALLOW_MANAGED_SIGNING=1` (AUDIT
     /// B-7). See [`ManagedSigning`] for what enabling it costs.
     pub managed_signing: ManagedSigning,
+    /// Institution-configured public observer anchors, bound to one tenant.
+    /// Archive submitters cannot choose or replace these anchors.
+    pub observer_trust: observations::ObserverTrustStore,
+    /// Tenant/admin supplied same-run anchors and independently retained checkpoints.
+    pub run_trust: runs::RunTrustStore,
 }
 
 /// Whether the service will sign on an agent's behalf using a key the caller
@@ -132,6 +141,9 @@ impl ManagedSigning {
 /// Build the full router from shared state.
 pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
+        .route("/console", get(console::index))
+        .route("/console/app.js", get(console::script))
+        .route("/console/style.css", get(console::style))
         .route("/health", get(handlers::health))
         // Operational metrics (R15).
         //
@@ -170,6 +182,36 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/v1/evidence/verify", post(evidence::verify))
         .route("/v1/evidence/:id", get(evidence::get_evidence))
         .route("/v1/evidence/:id/export", get(evidence::export_evidence))
+        .route(
+            "/v1/evidence/:id/metadata",
+            get(enterprise::evidence_metadata),
+        )
+        .route(
+            "/v1/evidence/:id/verification",
+            get(enterprise::verify_stored),
+        )
+        .route("/v1/access", get(enterprise::access))
+        .route("/v1/agents", get(enterprise::agents))
+        .route("/v1/agents/:agent_id", get(enterprise::agent))
+        .route("/v1/agents/:agent_id/activity", get(enterprise::activity))
+        .route(
+            "/v1/runs",
+            post(runs::submit).layer(axum::extract::DefaultBodyLimit::max(runs::MAX_BUNDLE_BYTES)),
+        )
+        .route("/v1/runs/:id", get(runs::raw))
+        .route("/v1/runs/:id/metadata", get(runs::metadata))
+        .route("/v1/runs/:id/evaluation", get(runs::evaluation))
+        .route("/v1/runs/:id/verdict", get(runs::verdict))
+        .route("/v1/agents/:agent_id/runs", get(runs::for_agent))
+        .route("/v1/coverage", get(enterprise::coverage))
+        .route("/v1/health", get(enterprise::health))
+        .route("/v1/observations", post(observations::submit))
+        .route("/v1/observations/:id", get(observations::raw))
+        .route("/v1/observations/:id/metadata", get(observations::metadata))
+        .route(
+            "/v1/observations/:id/verification",
+            get(observations::verification),
+        )
         .route("/v1/authority/:id", get(evidence::get_authority))
         // Verdicts and access ledgers (R10). Every one is verified under the
         // caller's anchors before it is stored, and returned verbatim, so
@@ -184,5 +226,9 @@ pub fn router(state: Arc<AppState>) -> Router {
             get(wellknown::aip_configuration),
         )
         .route("/.well-known/jwks.json", get(wellknown::jwks))
+        .layer(axum::middleware::from_fn_with_state(
+            state.clone(),
+            enterprise::scope_and_audit,
+        ))
         .with_state(state)
 }

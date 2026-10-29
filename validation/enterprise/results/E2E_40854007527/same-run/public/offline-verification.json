@@ -1,0 +1,29 @@
+{
+  "observer_id": "collector.same-run",
+  "key_version": 1,
+  "public_key": "0050730a723547c3837d1906bcfd4728e27ff9e277e6360515fdf97ef084b0cb",
+  "batches": {
+    "records": 33,
+    "first_sequence": 1,
+    "last_sequence": 33,
+    "start": "Epoch",
+    "final_head": "a2a1db529086f534b1b21f79b5e775ca41c4d4e0cc3cf8bd81809bb617dda540",
+    "observations": 0,
+    "kernel_events": 1024
+  },
+  "health": {
+    "records": 4,
+    "states": [
+      "ContinuityUnverified",
+      "Active"
+    ],
+    "with_coverage": 3,
+    "without_coverage": 1,
+    "cross_checked_against_batches": 3,
+    "clock_synchronised": 4,
+    "clock_unsynchronised": 0,
+    "clock_not_stated": 0,
+    "clock_worst_max_error_us": 3062
+  },
+  "findings": []
+}

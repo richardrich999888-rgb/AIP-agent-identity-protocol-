@@ -28,6 +28,8 @@ aip-core     = { path = "../aip-standalone/aip-core" }
 aip-protocol = { path = "../aip-standalone/aip-protocol" }
 aip-reconcile = { path = "../aip-standalone/aip-reconcile" }
 aip-ledger   = { path = "../aip-standalone/aip-ledger" }
+aip-observe-verify = { path = "../aip-standalone/aip-observe-verify" }
+aip-mcp-gateway = { path = "../aip-standalone/aip-mcp-gateway" }
 
 axum               = "0.7"
 tokio              = { version = "1", features = ["full"] }
@@ -73,4 +75,3 @@ aip-registry  = { path = "../aip-standalone/aip-registry" }
 # so a test can exercise a class the engine cannot currently reach. The
 # feature is dev-only and no production build turns it on.
 aip-reconcile = { path = "../aip-standalone/aip-reconcile", features = ["test-fixtures"] }
-

@@ -16,10 +16,79 @@ use crate::config::SensorConfig;
 /// Per-poll wait when draining a tracer's ring (milliseconds).
 #[cfg(target_os = "linux")]
 const POLL_MS: i32 = 5;
-/// Cap on events drained from one sensor per cycle, so a burst cannot make a
+/// Cap on each bounded sensor drain, so a burst cannot make a
 /// single batch unbounded; the remainder is carried by the next cycle.
 #[cfg(target_os = "linux")]
-const MAX_EVENTS_PER_SENSOR: u32 = 4096;
+const MAX_EVENTS_PER_DRAIN: u32 = 4096;
+
+// Acquisition grace only: no evidence-validity or coverage decision. Across
+// BOTH exec sources this adds at most 256 real events to the initial two
+// 4096-event drains (8448 total), at most eight additional drain rounds, and
+// a 20 ms elapsed-time budget. Each round gives each source at most 16 events
+// before switching, so a sched burst cannot spend the connector's entire
+// acquisition opportunity. Reads are nonblocking; the requested idle wait
+// is at most 1 ms per round. OS scheduling/measurement can finish late, but no
+// further read starts after any budget expires. The existing batch interval
+// and each event's original kernel timestamp/sequence remain unchanged.
+#[cfg(any(target_os = "linux", test))]
+const EXEC_RENDEZVOUS_EVENTS: usize = 256;
+#[cfg(any(target_os = "linux", test))]
+const EXEC_RENDEZVOUS_ROUNDS: usize = 8;
+#[cfg(any(target_os = "linux", test))]
+const EXEC_RENDEZVOUS_SOURCE_CHUNK: usize = 16;
+#[cfg(any(target_os = "linux", test))]
+const EXEC_RENDEZVOUS_TIME: std::time::Duration = std::time::Duration::from_millis(20);
+
+#[cfg(any(target_os = "linux", test))]
+fn exec_rendezvous_has_budget(rounds: usize, events: usize, elapsed: std::time::Duration) -> bool {
+    rounds < EXEC_RENDEZVOUS_ROUNDS
+        && events < EXEC_RENDEZVOUS_EVENTS
+        && elapsed < EXEC_RENDEZVOUS_TIME
+}
+
+/// Whether the current unsent exec witnesses have their real counterpart in
+/// both directions. This private readiness hint only requests more acquisition;
+/// it never changes events or decides integrity, attribution or coverage. The
+/// collector still applies its existing strict predicate to the actual batch.
+#[cfg(any(target_os = "linux", test))]
+fn pending_exec_witnesses_paired(events: &[aip_observe::KernelLifecycleEvent]) -> bool {
+    use aip_observe::{KernelLifecycleKind, SourceMechanism, DEFAULT_MATCH_WINDOW_NS};
+    use std::collections::BTreeMap;
+
+    // Index by the same PID/TGID predicate as the collector, then sort times.
+    // Avoid an all-pairs scan when a burst fills the bounded sensor drains.
+    let mut witnesses: BTreeMap<(u32, u32), [Vec<u64>; 2]> = BTreeMap::new();
+    for event in events {
+        let (side, pid, tgid) = match (&event.mechanism, &event.kind) {
+            (SourceMechanism::SchedTracepoint, KernelLifecycleKind::ProcessExec { pid, .. }) => {
+                (0, *pid, *pid)
+            }
+            (SourceMechanism::SchedTracepoint, KernelLifecycleKind::Exec { pid, tgid }) => {
+                (0, *pid, *tgid)
+            }
+            (SourceMechanism::ProcConnector, KernelLifecycleKind::Exec { pid, tgid }) => {
+                (1, *pid, *tgid)
+            }
+            _ => continue,
+        };
+        witnesses.entry((pid, tgid)).or_default()[side].push(event.kernel_timestamp_ns);
+    }
+    witnesses.values_mut().all(|sides| {
+        sides[0].sort_unstable();
+        sides[1].sort_unstable();
+        let has_counterparts = |source: &[u64], other: &[u64]| {
+            source.iter().all(|stamp| {
+                let lower = stamp.saturating_sub(DEFAULT_MATCH_WINDOW_NS);
+                let upper = stamp.saturating_add(DEFAULT_MATCH_WINDOW_NS);
+                let first = other.partition_point(|candidate| *candidate < lower);
+                other
+                    .get(first)
+                    .is_some_and(|candidate| *candidate <= upper)
+            })
+        };
+        has_counterparts(&sides[0], &sides[1]) && has_counterparts(&sides[1], &sides[0])
+    })
+}
 
 /// Owns the open tracers and the batch-building probe.
 pub struct SensorSet {
@@ -242,7 +311,7 @@ impl SensorSet {
                         while let Ok(Some(ev)) = t.next_event(POLL_MS) {
                             self.probe.$ingest(ev);
                             n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
+                            if n >= MAX_EVENTS_PER_DRAIN {
                                 break;
                             }
                         }
@@ -273,7 +342,7 @@ impl SensorSet {
                 while let Ok(Some(obs)) = w.next_event(POLL_MS) {
                     self.probe.ingest_file_event(obs);
                     n += 1;
-                    if n >= MAX_EVENTS_PER_SENSOR {
+                    if n >= MAX_EVENTS_PER_DRAIN {
                         break;
                     }
                 }
@@ -297,7 +366,7 @@ impl SensorSet {
                         Ok(Some(ev)) => {
                             self.probe.ingest_kernel_event(ev);
                             n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
+                            if n >= MAX_EVENTS_PER_DRAIN {
                                 break;
                             }
                         }
@@ -307,6 +376,70 @@ impl SensorSet {
                             break;
                         }
                         Err(_) => break,
+                    }
+                }
+            }
+
+            // Either source can deliver its counterpart after the other's
+            // initial drain. Keep acquiring into this SAME unsent batch for a
+            // bounded grace period; never borrow an earlier signed batch or
+            // fabricate a match. Exhaustion emits every original event as-is.
+            // A connector exec still missing perf is refused by the collector;
+            // a perf-only event does not invent a new collector finding.
+            if self.process.is_some() && self.connector.is_some() {
+                let started = std::time::Instant::now();
+                let mut rounds = 0;
+                let mut acquired = 0;
+                while exec_rendezvous_has_budget(rounds, acquired, started.elapsed())
+                    && !pending_exec_witnesses_paired(self.probe.pending_kernel_events())
+                {
+                    if let Some(t) = self.process.as_mut() {
+                        let mut source_events = 0;
+                        while source_events < EXEC_RENDEZVOUS_SOURCE_CHUNK
+                            && exec_rendezvous_has_budget(rounds, acquired, started.elapsed())
+                        {
+                            match t.next_event(0) {
+                                Ok(Some(event)) => {
+                                    self.probe.ingest_sched_event(event);
+                                    acquired += 1;
+                                    source_events += 1;
+                                }
+                                Ok(None) | Err(_) => break,
+                            }
+                        }
+                        let lost = t.take_lost();
+                        if lost > 0 {
+                            self.probe.record_lost_events(lost);
+                        }
+                    }
+                    if let Some(c) = self.connector.as_ref() {
+                        let mut source_events = 0;
+                        while source_events < EXEC_RENDEZVOUS_SOURCE_CHUNK
+                            && exec_rendezvous_has_budget(rounds, acquired, started.elapsed())
+                        {
+                            match c.next_event(0) {
+                                Ok(Some(event)) => {
+                                    self.probe.ingest_kernel_event(event);
+                                    acquired += 1;
+                                    source_events += 1;
+                                }
+                                Ok(None) => break,
+                                Err(aip_observe::SourceError::EventsLost) => {
+                                    self.probe.record_lost_events(1);
+                                    break;
+                                }
+                                Err(_) => break,
+                            }
+                        }
+                    }
+                    rounds += 1;
+                    if exec_rendezvous_has_budget(rounds, acquired, started.elapsed())
+                        && !pending_exec_witnesses_paired(self.probe.pending_kernel_events())
+                    {
+                        std::thread::sleep(
+                            std::time::Duration::from_millis(1)
+                                .min(EXEC_RENDEZVOUS_TIME.saturating_sub(started.elapsed())),
+                        );
                     }
                 }
             }
@@ -357,5 +490,192 @@ impl SensorSet {
         self.batch_counter += 1;
         self.probe
             .batch(batch_id_bytes(self.batch_counter), from_ms, to_ms, vec![])
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use aip_observe::{
+        AgentAttribution, CgroupSample, KernelLifecycleEvent, KernelLifecycleKind, SourceMechanism,
+        DEFAULT_MATCH_WINDOW_NS, OBSERVE_PROTOCOL_VERSION,
+    };
+
+    fn event(
+        mechanism: SourceMechanism,
+        kind: KernelLifecycleKind,
+        stamp: u64,
+    ) -> KernelLifecycleEvent {
+        KernelLifecycleEvent {
+            version: OBSERVE_PROTOCOL_VERSION,
+            probe_id: "acquisition-readiness-test".into(),
+            mechanism,
+            kind,
+            cpu: 0,
+            kernel_timestamp_ns: stamp,
+            probe_seq: stamp,
+            bound: None,
+            attribution: AgentAttribution::NotEstablished,
+            claimed_decision_id: None,
+            cgroup: CgroupSample::NotSampled,
+        }
+    }
+
+    fn sched(pid: u32, stamp: u64) -> KernelLifecycleEvent {
+        event(
+            SourceMechanism::SchedTracepoint,
+            KernelLifecycleKind::ProcessExec {
+                pid,
+                old_pid: pid + 100,
+                filename: "/test/real-event-shape".into(),
+            },
+            stamp,
+        )
+    }
+
+    fn connector(pid: u32, tgid: u32, stamp: u64) -> KernelLifecycleEvent {
+        event(
+            SourceMechanism::ProcConnector,
+            KernelLifecycleKind::Exec { pid, tgid },
+            stamp,
+        )
+    }
+
+    #[test]
+    fn sched_first_waits_for_actual_connector_without_rewriting_events() {
+        let first = sched(42, 95_977_404_365);
+        let mut pending = vec![first.clone()];
+        assert!(!pending_exec_witnesses_paired(&pending));
+        pending.push(connector(42, 42, 95_977_410_203));
+        let originals = pending.clone();
+        assert!(pending_exec_witnesses_paired(&pending));
+        assert_eq!(pending, originals);
+        assert_eq!(pending[0], first);
+    }
+
+    #[test]
+    fn connector_first_waits_for_actual_sched_and_each_extra_exec() {
+        let mut pending = vec![connector(42, 42, 100)];
+        assert!(!pending_exec_witnesses_paired(&pending));
+        pending.push(sched(42, 99));
+        assert!(pending_exec_witnesses_paired(&pending));
+        pending.push(sched(43, 110));
+        assert!(!pending_exec_witnesses_paired(&pending));
+        pending.push(connector(43, 43, 111));
+        assert!(pending_exec_witnesses_paired(&pending));
+    }
+
+    #[test]
+    fn wrong_pid_or_tgid_never_satisfies_readiness() {
+        for other in [connector(43, 43, 100), connector(42, 43, 100)] {
+            assert!(!pending_exec_witnesses_paired(&[sched(42, 100), other]));
+        }
+    }
+
+    #[test]
+    fn uses_existing_timestamp_window_without_expanding_it() {
+        let stamp = DEFAULT_MATCH_WINDOW_NS + 10;
+        assert!(pending_exec_witnesses_paired(&[
+            sched(42, stamp),
+            connector(42, 42, stamp + DEFAULT_MATCH_WINDOW_NS),
+        ]));
+        assert!(!pending_exec_witnesses_paired(&[
+            sched(42, stamp),
+            connector(42, 42, stamp + DEFAULT_MATCH_WINDOW_NS + 1),
+        ]));
+    }
+
+    #[test]
+    fn missing_witness_remains_unready_and_no_exec_requires_no_wait() {
+        let pending = vec![connector(42, 42, 100)];
+        for _ in 0..EXEC_RENDEZVOUS_ROUNDS {
+            assert!(!pending_exec_witnesses_paired(&pending));
+        }
+        assert_eq!(pending.len(), 1);
+        assert!(pending_exec_witnesses_paired(&[]));
+        assert!(pending_exec_witnesses_paired(&[event(
+            SourceMechanism::ProcConnector,
+            KernelLifecycleKind::Exit {
+                pid: 42,
+                tgid: 42,
+                exit_code: 0,
+                exit_signal: 0
+            },
+            100,
+        )]));
+    }
+
+    #[test]
+    fn exhaustion_preserves_original_batch_and_collector_still_requires_witness() {
+        use aip_observe::{detect_cross_sensor_divergence_default, MechanismIntegrity, ProcEvent};
+
+        let mut probe = ProcfsProbe::new("acquisition-unit-fixture");
+        probe.declare_source(SourceMechanism::SchedTracepoint);
+        probe.declare_source(SourceMechanism::ProcConnector);
+        probe.enable_loss_counter();
+        probe.ingest_kernel_event(ProcEvent {
+            kind: KernelLifecycleKind::Exec { pid: 42, tgid: 42 },
+            cpu: 0,
+            timestamp_ns: 95_977_410_203,
+            cgroup: CgroupSample::NotSampled,
+        });
+        let originals = probe.pending_kernel_events().to_vec();
+        assert!(!pending_exec_witnesses_paired(&originals));
+        assert!(!exec_rendezvous_has_budget(
+            EXEC_RENDEZVOUS_ROUNDS,
+            EXEC_RENDEZVOUS_EVENTS,
+            EXEC_RENDEZVOUS_TIME,
+        ));
+        // Two unit scenarios from the same unsent fixture. Neither batch is
+        // signed; no previous attested batch contributes a matching witness.
+        let exhausted = probe.clone().batch([1; 16], 1, 2, vec![]);
+        assert_eq!(exhausted.kernel_events, originals);
+        let reports = detect_cross_sensor_divergence_default(&exhausted).integrity_reports();
+        assert_eq!(reports.len(), 1);
+        assert_eq!(reports[0].mechanism, SourceMechanism::SchedTracepoint);
+        assert_eq!(reports[0].integrity, MechanismIntegrity::Unverifiable);
+
+        probe.ingest_sched_event(ProcEvent {
+            kind: KernelLifecycleKind::ProcessExec {
+                pid: 42,
+                old_pid: 142,
+                filename: "/test/real-event-shape".into(),
+            },
+            cpu: 0,
+            timestamp_ns: 95_977_404_365,
+            cgroup: CgroupSample::NotSampled,
+        });
+        assert!(pending_exec_witnesses_paired(probe.pending_kernel_events()));
+        let paired = probe.batch([2; 16], 1, 2, vec![]);
+        assert_eq!(paired.kernel_events.len(), 2);
+        assert_eq!(paired.kernel_events[0], originals[0]);
+        assert_eq!(paired.kernel_events[1].kernel_timestamp_ns, 95_977_404_365);
+        assert!(detect_cross_sensor_divergence_default(&paired).is_empty());
+    }
+
+    #[test]
+    fn acquisition_stops_at_each_aggregate_budget_boundary() {
+        assert_eq!(
+            EXEC_RENDEZVOUS_SOURCE_CHUNK * 2 * EXEC_RENDEZVOUS_ROUNDS,
+            EXEC_RENDEZVOUS_EVENTS
+        );
+        let before = EXEC_RENDEZVOUS_TIME - std::time::Duration::from_nanos(1);
+        assert!(exec_rendezvous_has_budget(
+            EXEC_RENDEZVOUS_ROUNDS - 1,
+            EXEC_RENDEZVOUS_EVENTS - 1,
+            before,
+        ));
+        assert!(!exec_rendezvous_has_budget(
+            EXEC_RENDEZVOUS_ROUNDS,
+            0,
+            before
+        ));
+        assert!(!exec_rendezvous_has_budget(
+            0,
+            EXEC_RENDEZVOUS_EVENTS,
+            before
+        ));
+        assert!(!exec_rendezvous_has_budget(0, 0, EXEC_RENDEZVOUS_TIME));
+        assert!(!pending_exec_witnesses_paired(&[connector(42, 42, 100)]));
     }
 }

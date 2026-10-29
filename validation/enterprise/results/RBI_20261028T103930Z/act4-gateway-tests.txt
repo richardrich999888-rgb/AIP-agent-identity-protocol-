@@ -1,0 +1,70 @@
+   Compiling aip-mcp-gateway v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-mcp-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.57s
+     Running unittests src/lib.rs (target/debug/deps/aip_mcp_gateway-ce84620ebaa6b51d)
+
+running 6 tests
+test canonical::tests::a_changed_value_changes_the_commitment ... ok
+test canonical::tests::array_order_is_significant ... ok
+test canonical::tests::key_order_does_not_change_the_commitment ... ok
+test canonical::tests::nested_objects_are_canonicalised_recursively ... ok
+test canonical::tests::strings_needing_escapes_round_trip_stably ... ok
+test canonical::tests::whitespace_and_compact_forms_agree ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/aip-mcp-gateway.rs (target/debug/deps/aip_mcp_gateway-28dae048ae5336d8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/aip-tool-receipt.rs (target/debug/deps/aip_tool_receipt-9eb69dd4ab131792)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/receipt_cli.rs (target/debug/deps/receipt_cli-7e7234e2bd66c481)
+
+running 6 tests
+test a_directory_cannot_be_used_as_a_receipt_sink ... ok
+test check_does_not_emit_a_receipt_and_issue_requires_an_explicit_outcome ... ok
+test actual_dispositions_are_signed_and_verified_offline_without_the_private_key ... ok
+test header_disagreement_only_allows_a_refusal ... ok
+test incorrect_anchor_and_invalid_identity_fail_before_receipt_creation ... ok
+test concurrent_signers_append_complete_verifiable_records_and_restart_preserves_them ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+
+     Running tests/stdio.rs (target/debug/deps/stdio-d054d3591ca1fcc4)
+
+running 9 tests
+test absent_or_invalid_agent_attribution_is_rejected ... ok
+test an_unopenable_receipt_sink_fails_before_processing_requests ... ok
+test a_successful_call_persists_a_verifiable_receipt_over_the_body ... ok
+test invalid_startup_keys_fail_without_creating_a_receipt_sink ... ok
+test malformed_decision_ids_are_errors_not_zero_id_receipts_or_panics ... ok
+test both_header_mismatches_produce_signed_refusals_and_the_stream_recovers ... ok
+test missing_tool_name_is_rejected_without_a_receipt ... ok
+test receipt_write_failure_returns_an_error_instead_of_success ... ok
+test malformed_json_does_not_terminate_the_stream_or_create_a_receipt ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/tool_boundary.rs (target/debug/deps/tool_boundary-7bc9109850eae259)
+
+running 5 tests
+test a_header_that_disagrees_with_the_body_is_rejected_before_signing ... ok
+test a_receipt_signed_under_the_agents_key_is_refused ... ok
+test a_misparameterised_call_diverges_and_does_not_rest_on_the_agents_account ... ok
+test key_order_does_not_turn_an_honest_call_into_a_divergence ... ok
+test the_authorised_call_agrees ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+   Doc-tests aip_mcp_gateway
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
