@@ -77,7 +77,9 @@ The repository secret-name listing and environment listing on 2026-10-28 both
 returned zero entries. No secret values were requested, read or invented.
 The subsequent 2026-10-29 local-model attempt ran without any model API
 credential or cloud API spending. Its real model calls did not establish task
-or observation acceptance; see the retained failed run40848104456. The named
+or observation acceptance; see retained failed runs40848104456 and40854020439. The latter has signed
+coverage and a bound file event, but no bound successful exec or patch; its
+framework log records five unusable plain-text model responses. The named
 environment was auto-created with no protection rules or branch policy, so it
 is not an approved protected-secret environment.
 

@@ -3,7 +3,7 @@ on:
   pull_request:
     paths:
       - 'integrations/real_agents/**'
-      - 'aip-standalone/ghost-demo/**'
+      - 'aip-standalone/**'
       - '.github/workflows/agent-zero-build.yml'
   workflow_dispatch:
     inputs:

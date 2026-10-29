@@ -424,7 +424,7 @@
     "independent-mac-verification.json": {
       "sha256": "0ba5a51350b0d9f0aa33961c3453ea103ba51a71311a97ba8ce08fdc21622658",
       "bytes": 1702,
-      "origin": "unaltered GitHub public artifact"
+      "origin": "separate local offline verifier"
     },
     "local-model/model-manifest-layout.json": {
       "sha256": "99035f9bde0aefc994c03ed1b22ee9b828f55e50b88176a63033e711bf9c157e",
@@ -1130,6 +1130,13 @@
       "sha256": "644bddfc7b1d46a6bcbddefd1ac9aa258208746941d6d72a9a65d298b2bc4da5",
       "bytes": 15462,
       "origin": "separate local offline evaluator using original actual Refused receipt"
+    },
+    "original-artifact.zip": {
+      "sha256": "022338b3bcad4255123987e61d13bf0e8e0b316579adc3902e32feac70694268",
+      "bytes": 1125499,
+      "origin": "unaltered downloaded GitHub artifact ZIP"
     }
-  }
+  },
+  "original_artifact_file_count": 132,
+  "provenance_correction": "independent-mac-verification.json is a separately generated local verifier report; all 132 original ZIP members match byte-for-byte. Original ZIP retained separately."
 }

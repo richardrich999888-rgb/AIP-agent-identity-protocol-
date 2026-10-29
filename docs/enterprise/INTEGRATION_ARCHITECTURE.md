@@ -105,7 +105,7 @@ administrator, even when its signing keys belong to distinct processes.
 
 ## Executed connection status
 
-At `d6eb35e4de11fbec10953e5ed00bd934f1cc02d7`, workflow40847427090 actually
+At `7625b1d60e54bc9d4ab4d935fb4e488b0ae30dc7`, workflow40854007527 actually
 executed the authorization, gateway, tool, kernel/probe, authenticated transport,
 collector signing, canonical reconciliation, tenant API, both SDKs, restricted
 MCP, existing console and separate offline-verifier connections for one genuine

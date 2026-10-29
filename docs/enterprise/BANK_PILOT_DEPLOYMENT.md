@@ -139,7 +139,7 @@ supported `CannotProve`; it does not upgrade it to `Verified`. Preserve original
 bytes separately from review notes and check which client gates the run reached.
 
 The first complete hosted positive/interruption/fresh-recovery evidence package
-is `validation/enterprise/results/E2E_40847427090/` at source d6eb35e. Each
+is `validation/enterprise/results/E2E_40854007527/` at source 7625b1d. Each
 profile has its own original public trust/checkpoint and bundle; use matching
 material when verifying. This is the runnable engineering package for the
 local-isolation demonstration. It does not satisfy the separate-host installer,

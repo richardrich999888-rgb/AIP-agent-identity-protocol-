@@ -4,10 +4,11 @@ on:
   pull_request:
     paths:
       - 'examples/bank-ai-execution-assurance/**'
-      - 'validation/enterprise/same_run*.py'
-      - 'validation/enterprise/prepare_local_model.py'
-      - 'validation/enterprise/run_*smoke*'
-      - 'aip-standalone/aip-mcp-gateway/**'
+      - 'validation/enterprise/**'
+      - 'aip-standalone/**'
+      - 'integrations/real_agents/**'
+      - 'integrations/evidence-mcp/**'
+      - 'sdk/**'
       - 'aip-service/**'
       - 'integrations/mcp-gateway/**'
       - '.github/workflows/same-run-validation.yml'

@@ -1,12 +1,14 @@
 # Validation record — original 2026-10-28, updated 2026-10-29
 
-**Assignment incomplete.** Agent Zero executed an actual task attempt at d6eb35e
-(run40848104456, four genuine model requests) but supplied no patch and failed
-observation acceptance. Its original signatures verify; coverage/file gates do
-not pass. DeerFlow and OpenHands remain unexecuted. No framework-swarm,
-readiness-level, external-assessment or institutional-pilot advancement is
-claimed. See [original evidence](../../validation/enterprise/results/AGENT_ZERO_40848104456/summary.json)
-and the [latest integration register](../../docs/enterprise/END_TO_END_VALIDATION.md).
+**Assignment incomplete.** Agent Zero's second actual Click-task attempt at
+7625b1d (run40854020439) made five real model requests. Its original signed
+archives/checkpoint verify and cover the task, including a bound file event,
+but no bound successful ProcessExec or patch was produced. Its retained
+framework log records five unusable plain-text responses before stopping.
+The first failed attempt remains preserved separately. DeerFlow and OpenHands
+remain unexecuted; no framework-swarm or institutional-pilot advancement is
+claimed. See [latest original evidence](../../validation/enterprise/results/AGENT_ZERO_40854020439/summary.json)
+and the [integration register](../../docs/enterprise/END_TO_END_VALIDATION.md).
 Historical checks below retain their original dates and scope.
 
 ## Source baseline and branch discovery

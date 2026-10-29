@@ -88,14 +88,15 @@ for host,port in [(cfg['gateway'],cfg['host_probe_port']),('169.254.169.254',80)
         connection.close(); raise RuntimeError('forbidden destination connected')
 # This is a separate capability inference, before the measured agent run.
 # Memory is explicitly disabled; no embedding result is invented or claimed.
-request=Request(base+'/api/chat',data=json.dumps({'model':cfg['model'],'messages':[{'role':'user','content':'Reply with ready.'}],'stream':False,'options':{'temperature':0,'num_predict':32,'num_ctx':8192,'num_thread':2}}).encode(),headers={'Content-Type':'application/json'})
+request=Request(base+'/api/generate',data=json.dumps({'model':cfg['model'],'prompt':'Return one JSON object with ready set to true.','format':'json','stream':False,'options':{'temperature':0,'num_predict':32,'num_ctx':8192,'num_thread':2}}).encode(),headers={'Content-Type':'application/json'})
 try:
     with urlopen(request,timeout=cfg['chat_timeout_seconds']) as response:
         reply=json.load(response)
 except HTTPError as error:
-    raise RuntimeError('approved local model chat capability unavailable: HTTP '+str(error.code)) from error
-assert reply.get('done') and reply.get('done_reason')!='length' and reply.get('message',{}).get('content')
-print(json.dumps({'status':'PASS','real_chat_capability_checked':True,'embedding_capability':'UNVALIDATED_NOT_INVOKED_MEMORY_DISABLED','denied_destinations':denials,'model_manifest_verified':True,'external_model_api_spend_cap':0,'api_credentials_used':False}))
+    raise RuntimeError('approved local model generation capability unavailable: HTTP '+str(error.code)) from error
+assert reply.get('done') and reply.get('done_reason')!='length'
+assert json.loads(reply['response']).get('ready') is True
+print(json.dumps({'status':'PASS','real_generation_capability_checked':True,'native_json_generation_checked':True,'inference_route':'/api/generate','embedding_capability':'UNVALIDATED_NOT_INVOKED_MEMORY_DISABLED','denied_destinations':denials,'model_manifest_verified':True,'external_model_api_spend_cap':0,'api_credentials_used':False}))
 '''
     probe = docker(cfg['image'], cfg['network'], ['-c',client,json.dumps(cfg)], timeout=cfg['chat_timeout_seconds']+20)
     if probe.returncode:
@@ -108,7 +109,7 @@ print(json.dumps({'status':'PASS','real_chat_capability_checked':True,'embedding
     result['classification']='ACTUAL_RESTRICTED_CONTAINER_CAPABILITY_CHECK'
     save(Path(cfg['public'])/'network-model-policy.json',result)
     with (Path(cfg['public'])/'policy-inferences.jsonl').open('a') as log:
-        log.write(json.dumps({'source_authority':'root_policy_controller','completed_at_ms':time.time_ns()//1_000_000,'successful_chat_capability_requests':1})+'\n')
+        log.write(json.dumps({'source_authority':'root_policy_controller','completed_at_ms':time.time_ns()//1_000_000,'successful_generation_capability_requests':1})+'\n')
 
 
 
@@ -298,7 +299,10 @@ def main():
         private_json(private/'policy.json',policy_cfg)
         slot={'provider':'ollama','name':MODEL,'api_base':'http://'+model_ip+':11434',
             'ctx_length':8192,'vision':False,'kwargs':{'temperature':0,'num_ctx':8192,'num_predict':1024}}
-        private_json(inputs/'agent-zero.json',{'preset':{'name':'Default','chat':slot,'utility':slot,
+        # The pinned LiteLLM Ollama provider maps this to native format=json.
+        # Constrain syntax only; the genuine model still chooses every action.
+        chat_slot={**slot,'kwargs':{**slot['kwargs'],'response_format':{'type':'json_object'}}}
+        private_json(inputs/'agent-zero.json',{'preset':{'name':'Default','chat':chat_slot,'utility':slot,
             'embedding':{'provider':'ollama','name':MODEL,'api_base':slot['api_base']}},
             'settings':{},'disable_memory':True})
         (inputs/'agent-zero.json').chmod(0o644)
@@ -354,12 +358,12 @@ def main():
         model_result=subprocess.run(['docker','logs',model_name],capture_output=True,text=True,timeout=20,check=True)
         model_log=model_result.stdout+model_result.stderr
         calls=[line for line in model_log.splitlines() if re.search(r'\b200\b.*POST.*"/api/(?:chat|generate)"',line)]
-        policy_calls=sum(json.loads(line)['successful_chat_capability_requests'] for line in (public/'policy-inferences.jsonl').read_text().splitlines())
+        policy_calls=sum(json.loads(line)['successful_generation_capability_requests'] for line in (public/'policy-inferences.jsonl').read_text().splitlines())
         agent_calls=len(calls)-policy_calls
         if agent_calls<0: raise Refused('local model access log is incomplete relative to actual policy inferences')
         save(public/'model-calls.json',{'source_authority':'separate_local_model_container_access_log',
             'successful_chat_or_generate_requests_including_policy':len(calls),
-            'successful_policy_chat_capability_requests':policy_calls,
+            'successful_policy_generation_capability_requests':policy_calls,
             'successful_framework_period_requests_excluding_policy':agent_calls,
             'original_access_lines':calls,'not_cryptographically_signed':True,
             'scope':'exact model service used only by the restricted workload and the counted root policy probes; does not prove logical subagent attribution'})

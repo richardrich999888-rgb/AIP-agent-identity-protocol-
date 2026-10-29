@@ -63,7 +63,7 @@ authority, receipt, process binding and task-window checks. Its canonical kernel
 finding remains `CannotProve/ActionEvidenceUnavailable`; full authorization TTL
 is `WindowNotCovered`. B ran an actual gateway mismatch/refusal stimulus.
 C, E and G passed controlled verification of those same captured bytes.
-Subsequent exact-source d6eb35e workflow 40847427090 passed all three complete
+Subsequent exact-source 7625b1d workflow 40854007527 passed all three complete
 Linux profiles: A positive, D actual probe termination before a fresh model
 workload, and a fresh-capture recovery. All clients/browser and separate offline
 verification passed each actual bundle. D retained a final signed Active health

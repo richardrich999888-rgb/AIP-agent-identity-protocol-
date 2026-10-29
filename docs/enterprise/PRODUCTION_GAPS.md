@@ -6,13 +6,13 @@ by combining historical component successes.
 
 | Gate | Requirement / present limit |
 | --- | --- |
-| Same-run autonomous execution | PASS in local isolation at d6eb35e: actual model/tool/kernel/receipt/authority/signed join, all clients/browser and separate offline verifier passed in workflow40847427090. Separate collector custody remains incomplete. Original failures remain visible |
+| Same-run autonomous execution | PASS in local isolation at 7625b1d: actual model/tool/kernel/receipt/authority/signed join, all clients/browser and separate offline verifier passed in workflow40854007527. Separate collector custody remains incomplete. Original failures remain visible |
 | Independent administration | Separate control of the collector host, signing keys and durable storage is required for independent custody and resistance to workload-host root/kernel compromise; one-VM isolation cannot establish this |
 | Institution-owned identity/keys | Operator-reviewed issuer, authority, gateway, collector/reconciler anchors, rotation/revocation, secret-manager custody and retention; ephemeral CI keys are not institutional enrollment |
 | Logical-agent delegation | Physical process binding and gateway principal checks do not prove in-process sub-agent delegation |
 | Business effect | Read result and inspectable synthetic output are not loan approval, settlement or authoritative bank outcome proof |
 | Authorization completeness | Missing signed completeness prevents automatic unauthorized/unattributed-effect conclusions |
-| Genuine swarms | Agent Zero actually executed four model requests but failed Click-task and observation acceptance in run40848104456. A corrected capture/diagnostic retry is required. DeerFlow/OpenHands have not executed. No swarm validation is established |
+| Genuine swarms | Agent Zero ran four model requests in40848104456 and five in40854020439. The second has signed coverage and a bound file event, but failed its tool protocol and supplied no patch. Native structured-generation configuration requires genuine validation. DeerFlow/OpenHands have not executed. No swarm validation is established |
 | Live negative and performance coverage | Actual gateway mismatch, captured-record negatives, genuine interrupted-observer workload and fresh-capture recovery passed. Same-key daemon restart, concurrency/soak, loss and matched observed/unobserved overhead remain separate gates; counters are not causal overhead |
 | Clean host | Real supported Linux installation, startup, restart continuity, backup/recovery and retained-data uninstall under actual separation |
 | Installed sensor profile | The current installer refuses fanotify; the full hosted six-sensor profile needs a reviewed installer/systemd deployment change for `CAP_SYS_ADMIN` and host-mount visibility, followed by actual installed-service validation |
@@ -58,6 +58,15 @@ remote-model work requires the approved protection/secret/budget configuration.
 The current Agent Zero attempt also exposes software validation gaps, beyond
 infrastructure: a genuine cross-sensor boundary gap prevents full-run coverage,
 the initial container fanotify mount was incorrect, and a Python audit-reference
-clock bug produced a false mismatch. Capture and comparison fixes require fresh
-Linux validation; no invalid coverage will be promoted to a pass. Its missing
-patch has no established cause until framework diagnostics are retained.
+clock bug produced a false mismatch. The second run validates the mount and per-batch comparison fixes, but no
+invalid coverage is promoted to a pass. Its retained self-reported framework
+log establishes five unusable plain-text responses for this preset; the first
+run's missing-patch cause remains unknown.
+
+The latest core repeat at 7625b1d passed all three actual profiles and their
+separate offline verification. Its component suite nevertheless has a retained
+observer failure: two real exec witnesses crossed adjacent batches. Bounded
+pre-flush acquisition is implemented with unchanged verification predicates;
+fresh Linux execution is still required. No successful genuine workflow erases
+that failed component check. Relevant observer, harness and client dependency
+changes now trigger the real Linux integration workflows.
