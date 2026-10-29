@@ -31,6 +31,12 @@ def configure(config, requested_model):
     model_config.save_presets([preset])
     plugins.save_plugin_config("_model_config", "", "", {"model_preset": "Default"})
     plugins.save_plugin_config("_code_execution", "", "", {"ssh_enabled": False})
+    if config.get("disable_memory") is True:
+        # Explicit narrow workload profile. An unused embedding slot is not
+        # evidence of embedding capability or validated memory behavior.
+        plugins.toggle_plugin("_memory", False)
+        if plugins.get_toggle_state("_memory") != "disabled":
+            raise ValueError("explicit memory-disabled profile did not take effect")
     actual = model_config.get_config()
     for slot in ("chat", "utility", "embedding"):
         for field in ("provider", "name", "api_base"):

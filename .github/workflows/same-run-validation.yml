@@ -76,6 +76,23 @@ jobs:
             --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
             --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
             --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run" --browser
+      - name: Execute genuine observer interruption after the observed execution passed
+        run: |
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/playwright" \
+            "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
+            --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
+            --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
+            --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
+            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run-interruption" \
+            --observer-interruption --browser
+      - name: Execute fresh recovery profile with new trust and capture epoch
+        run: |
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/playwright" \
+            "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
+            --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
+            --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
+            --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
+            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run-recovery" --browser
       - name: Preserve only public same-run evidence and independent public anchors
         if: always()
         uses: actions/upload-artifact@v4
@@ -87,6 +104,14 @@ jobs:
             ${{ runner.temp }}/same-run/observer-anchor.json
             ${{ runner.temp }}/same-run/checkpoint.json
             ${{ runner.temp }}/same-run/run-trust.json
+            ${{ runner.temp }}/same-run-interruption/public/
+            ${{ runner.temp }}/same-run-interruption/observer-anchor.json
+            ${{ runner.temp }}/same-run-interruption/checkpoint.json
+            ${{ runner.temp }}/same-run-interruption/run-trust.json
+            ${{ runner.temp }}/same-run-recovery/public/
+            ${{ runner.temp }}/same-run-recovery/observer-anchor.json
+            ${{ runner.temp }}/same-run-recovery/checkpoint.json
+            ${{ runner.temp }}/same-run-recovery/run-trust.json
             ${{ runner.temp }}/local-model/model-pin.json
             ${{ runner.temp }}/local-model/model-manifest-layout.json
             ${{ runner.temp }}/same-run-audit-initial.txt

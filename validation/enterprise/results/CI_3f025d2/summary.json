@@ -1,7 +1,7 @@
 {
   "schema": "snifferdog-ci-provenance-v1",
   "source_head": "3f025d230a457c0a4221f6d660e5538e40d37212",
-  "scope": "Completed CI for 3f025d2 only. Subsequent 4ca diagnostic CI is pending and is not covered by these results. These checks do not establish complete genuine agent-workload acceptance.",
+  "scope": "Completed CI for 3f025d2 only. Subsequent revisions are not covered by these results. These checks do not establish complete genuine agent-workload acceptance.",
   "provenance": {
     "pull_request": 8,
     "pull_request_checkout": "039c8ebe8e8d0a94bec3f18c3fd64b204cd93ac7",
@@ -366,5 +366,26 @@
       ]
     }
   ],
-  "totals_policy": "Counts belong to individual test invocations. Do not sum across jobs/profiles as unique tests. Ignored, filtered, blocked and fixture scope remain separate."
+  "totals_policy": "Counts belong to individual test invocations. Do not sum across jobs/profiles as unique tests. Ignored, filtered, blocked and fixture scope remain separate. The five component/CI workflows exclude the separately recorded dynamic security review and the genuine same-run workload workflow.",
+  "additional_security_check": {
+    "workflow_id": 399757896,
+    "workflow_name": "GitHub Advanced Security",
+    "workflow_path": "dynamic/agents/github-advanced-security",
+    "workflow_state": "active",
+    "repository_yaml": false,
+    "scope": "GitHub-managed Copilot/Autofind AI review of PR changed regions. This does not run Gitleaks/Trivy, qualify a complete repository security audit, or establish Sniffer Dog workload acceptance.",
+    "run_id": 40748078679,
+    "job_id": 123027096087,
+    "conclusion": "failure",
+    "failure": "Processing Request (Linux) failed: SessionModelError monthly quota exceeded; no successful completed security review is established by this run.",
+    "evidence": "completed job log inspected",
+    "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40748078679",
+    "job_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40748078679/job/123027096087"
+  },
+  "repository_security_workflow": {
+    "workflow_id": 297111055,
+    "path": ".github/workflows/security.yml",
+    "state": "disabled_inactivity",
+    "gitleaks_trivy_execution_on_this_source": "NOT_ESTABLISHED"
+  }
 }
