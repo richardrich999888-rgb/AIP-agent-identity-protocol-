@@ -1,0 +1,60 @@
+Source: CI run 40753613660, quality job 123046536641; PR head edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c.
+Actual checkout: synthetic merge 99bec0661b1484c27dc58cffcbdd4b7714e01567; identical tree bdd11581ff49f0531a0eaa20ee1ca94c3dc537e4.
+All six CI jobs completed successfully. Detailed IDs and passed steps are recorded in edfd-workspace.json.
+Computed from the full raw transcript: debug 3291 passed / 0 failed / 10 ignored; release 3293 passed / 0 failed / 8 ignored.
+Each profile contains 336 standard Rust summary records, including empty targets and doctests. Counts are not unique across profiles.
+Complete decoded transcripts remain in ignored .local/final-acceptance; their SHA-256 digests and counting rule are in the JSON.
+No package-installation, production-database or complete same-run acceptance claim is made.
+
+﻿2026-10-28T19:21:52.0669578Z Current runner version: '2.338.0'
+2026-10-28T19:21:52.0704996Z Image: ubuntu-24.04
+2026-10-28T19:21:52.0705705Z Version: 20261025.353.1
+2026-10-28T19:21:55.2069797Z HEAD is now at 99bec06 Merge edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c into a933fdc327e8744dc8a8441ea3d5b2d75063b91f
+2026-10-28T19:22:05.5885270Z ##[group]Run cargo fmt --all -- --check
+2026-10-28T19:22:07.3868720Z ##[group]Run cargo clippy --workspace --all-targets --all-features -- -D warnings
+2026-10-28T19:23:01.0482009Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast
+2026-10-28T19:23:01.0907416Z Testing with delegated cgroup: /sys/fs/cgroup/system.slice/run-u25.service
+2026-10-28T19:24:54.1783422Z test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture
+2026-10-28T19:27:57.8515882Z test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture
+2026-10-28T19:27:58.6415486Z test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing
+2026-10-28T19:28:05.3083663Z test stress::test_signing_throughput ... ignored, wall-clock throughput gate — meaningful only under `cargo test --release`
+2026-10-28T19:28:11.7337635Z test stress::test_verification_throughput ... ignored, wall-clock throughput gate — meaningful only under `cargo test --release`
+2026-10-28T19:32:42.5773303Z test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments
+2026-10-28T19:32:42.7957011Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener
+2026-10-28T19:32:42.7958673Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener
+2026-10-28T19:33:18.5509651Z test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored
+2026-10-28T19:33:19.8836980Z test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored
+2026-10-28T19:33:21.2817354Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast
+2026-10-28T19:33:21.3184103Z Testing with delegated cgroup: /sys/fs/cgroup/system.slice/run-u26.service
+2026-10-28T19:38:28.3185924Z test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture
+2026-10-28T19:38:50.3326424Z test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture
+2026-10-28T19:38:50.4107855Z test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing
+2026-10-28T19:39:26.7601004Z test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments
+2026-10-28T19:39:26.7813058Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener
+2026-10-28T19:39:26.7815003Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener
+2026-10-28T19:39:46.9961246Z test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored
+2026-10-28T19:39:48.3005992Z test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored
+
+PostgreSQL job 123046536977: default storage-controls target ignored all 14; explicit subsequent invocation executed all 14.
+2026-10-28T19:23:39.2081230Z test result: ok. 0 passed; 0 failed; 14 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-28T19:23:39.9962212Z ##[group]Run cargo test --features postgres --test storage_controls -- --ignored
+2026-10-28T19:23:41.1529704Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.02s
+2026-10-28T19:23:48.6526313Z  waiting for server to start....2026-10-28 19:21:59.367 UTC [41] LOG:  starting PostgreSQL 16.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-10-28T19:23:48.6532260Z  2026-10-28 19:21:59.637 UTC [1] LOG:  starting PostgreSQL 16.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+
+Separate interoperability run 40753614141 / job 123046536248 failed after real SPIRE startup.
+2026-10-28T19:21:54.4874047Z HEAD is now at 99bec06 Merge edfd0a12de6df7d63c63dbb6d1ce8d2ce0a8132c into a933fdc327e8744dc8a8441ea3d5b2d75063b91f
+2026-10-28T19:22:00.0003770Z 47 passed in 1.34s
+2026-10-28T19:22:01.5581846Z /tmp/vanian-interop/spire.tar.gz: OK
+2026-10-28T19:22:33.4170658Z RuntimeError: SPIRE agent readiness timeout: time="2026-10-28T19:22:03Z" level=warning msg="Current umask 0022 is too permissive; setting umask 0027"
+2026-10-28T19:22:33.4179611Z time="2026-10-28T19:22:03Z" level=warning msg="Failed to retrieve attestation result" error="failed to receive attestation response: rpc error: code = InvalidArgument desc = failed to attest: join token does not exist or has already been used" retry_interval=5.428680402s
+2026-10-28T19:22:33.4183690Z time="2026-10-28T19:22:08Z" level=warning msg="Failed to retrieve attestation result" error="failed to receive attestation response: rpc error: code = InvalidArgument desc = failed to attest: join token does not exist or has already been used" retry_interval=7.524022676s
+2026-10-28T19:22:33.4190478Z time="2026-10-28T19:22:16Z" level=warning msg="Failed to retrieve attestation result" error="failed to receive attestation response: rpc error: code = InvalidArgument desc = failed to attest: join token does not exist or has already been used" retry_interval=11.418391899s
+2026-10-28T19:22:33.4194490Z time="2026-10-28T19:22:27Z" level=warning msg="Failed to retrieve attestation result" error="failed to receive attestation response: rpc error: code = InvalidArgument desc = failed to attest: join token does not exist or has already been used" retry_interval=16.80272244s
+2026-10-28T19:22:33.4326437Z ##[error]Process completed with exit code 1.
+
+Pinned upstream SPIRE1.15.3 generate.go and generate_test.go prove that omitted -spiffeID adds a warning on stdout after the Token line.
+The old split(...)[1].strip() expression therefore incorporates that warning into the credential.
+Portable fix: three tests passed; the exact old parser fails the warning fixture under the isolated negative control.
+Actual fixed native SPIRE Linux enrollment is NOT_EXECUTED here. See the JSON for source URLs, blob IDs, local checks and limits.
+

@@ -11,6 +11,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import socket
 import subprocess
 import sys
@@ -19,11 +20,21 @@ import time
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "src"))
-import jwt
-from vanian_interop.identity import JwtTrust, verify_identity
+
+
+def parse_join_token(output):
+    """Read only the single token line from the pinned SPIRE CLI output."""
+    lines = [line for line in output.splitlines() if line.startswith("Token:")]
+    match = re.fullmatch(r"Token: ([!-~]{1,1024})", lines[0]) if len(lines) == 1 else None
+    if match is None:
+        raise ValueError("invalid SPIRE join-token response")
+    return match.group(1)
 
 
 def main():
+    import jwt
+    from vanian_interop.identity import JwtTrust, verify_identity
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--spire-directory", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -60,7 +71,7 @@ def main():
             launch(server, "server")
             server_socket, agent_socket = str(root / "server-api.sock"), str(root / "agent-api.sock")
             (root / "bundle.crt").write_text(call(server, "bundle", "show", "-socketPath", server_socket))
-            token = call(server, "token", "generate", "-socketPath", server_socket).split("Token: ")[1].strip()
+            token = parse_join_token(call(server, "token", "generate", "-socketPath", server_socket))
             launch(agent, "agent", "-joinToken", token)
             digest = hashlib.sha256(Path(agent).read_bytes()).hexdigest()
             registration = call(server, "entry", "create", "-socketPath", server_socket,
