@@ -3,7 +3,7 @@
 **Dates:** 2026-10-28 (cycle 1), 2026-10-29 (cycle 2)
 **Branch:** `claude/strategic-validation-loop`, based on
 `integration/snifferdog-complete-enterprise-validation` @ `4ca5a4d`.
-**Code under test (cycle 2):** `5b146be`. Cycles used: 2 of 12.
+**Code under test:** `5b146be` (cycle 2), `5590075` (cycle 3). Cycles used: 3 of 12.
 
 This is an evidence report. Assurance levels are kept separate; nothing is
 promoted from a lower level; failed and superseded runs are kept beside the
@@ -28,11 +28,59 @@ more.
 Workspace tests: 3248 passed, 15 failed — all in `aip-hsm` softhsm, because
 SoftHSM2 is not installed (environmental).
 
+## Cycle 3 engineering changes (5590075)
+
+| Defect | Evidence | Repair | Test |
+|---|---|---|---|
+| D4 thread-originated fork/connect/send never bound | pydantic-ai: fork by worker tid; `pidfd_open` refuses non-leader tids; 0 edges from 6 bound children | resolve tid → owning process via `/proc/<tid>`; thread start ≤ event (recycled-tid guard); re-read after measuring | `t15d` (fails without fix) |
+| D5 identity measured once per 1 s batch | short children exit first (`ESRCH`) | non-blocking drain every 20 ms (`AIP_PROBE_DRAIN_INTERVAL_MS`) | M3 arms; binding rules unchanged |
+| D6 M1 lineage gate false PASS | cycle-1 "agent edge" was the harness's own `bash → /usr/bin/sleep` | `run.sh` counts only the agent's own parent→child pairs | rerun: honest FAIL 0/8 |
+
+D5 only mitigates. A child that lives ~16 ms against a 20 ms drain is bound
+by chance, and when it is missed it is recorded unbound, never guessed.
+
+## Correction to cycle 1
+M1's "1 start-verified lineage edge" was **not** the agent's. Re-checked
+against the same sealed archive: all 16 agent pids (8 parents, 8 children)
+are in the signed evidence with fork/exec/exit/socket events, but 0/8 agent
+parent→child edges were derived. M1 stands for observation and offline
+verification; it never established agent lineage.
+
+## M2 — same-run chain (local; no model; no ContextForge)
+6 runs (`m2/runs/`). Each run has the following:
+- the decision point measures the live agent and signs `ExpectedExecution`;
+- the gateway signer forwards the authorized call (real tool process) and
+  refuses a mismatched one, each with a signed receipt;
+- the collector is `Active`;
+- `aip-execution-assurance` verifies the archive, the retained checkpoint, the
+  authorization, the receipt (inside the window) and its own signed
+  reconciliation.
+
+All 5 tampering controls were refused in every run. The verdict is `CANNOT_PROVE`
+by design: `tool_invoke` has no kernel-observable action class. Identity is
+`Match` 3/3 when the agent lives 3 s and `UnboundReferencesOnly` 2/2 at ~40 ms.
+`VERIFIED_EXECUTION` from the deployed pipeline is **BLOCKED on a design
+decision**: `aip-probe` has no decision-claim intake. `ghost-demo` (single
+process, self-labelled NOT_PRODUCTION) shows that the engine reaches it live
+for connect/exec/send/write, and that every negative lands in its class.
+
+## M3 — three frameworks (no LLM)
+LangGraph, LlamaIndex Workflows 1.3.0, pydantic-ai-slim 1.0.10
+(FunctionModel). Every arm: 15/15 runs present in offline-verified evidence.
+Agent edges: 1/15 at 1 s drain; 0/15, 6/15, 5/15 at 20 ms; 5/15 after the
+thread fix (pydantic-ai 2/2 of bound children, 0 before). Model-backed
+frameworks (Agent Zero, DeerFlow, OpenHands) remain BLOCKED.
+
+Regression after cycle-3 changes: workspace 3249 pass / 15 environmental
+fail (SoftHSM2); pilot 2/2 PASS (control Active, attack detected, 0 loss).
+
 ## Real agents executed
 
-LangGraph 1.2.11 subject with a real child process (M1, 8 runs, cycle 1). The
-pilot workload (E2) and the synthetic exec workload (E3) are not agents and
-are not presented as such.
+LangGraph 1.2.11 subject with a real child process (M1, 8 runs, cycle 1).
+LangGraph, LlamaIndex Workflows and pydantic-ai subjects (M3, 75 runs over 5
+arms), and a deterministic M2 agent. No language model ran anywhere. The pilot
+workload (E2) and the synthetic exec workload (E3) are not agents and are not
+presented as such.
 
 ## Independent evidence
 
@@ -82,8 +130,9 @@ unmodified rehearsal on an NTP-synced host. (`RBI_READINESS.md`)
 See `PILOT_READINESS.md`.
 
 ## Production readiness
-Not claimed. Open: synced-clock rehearsal; host-separated custody; M2
-same-run authz→receipt→`VERIFIED_EXECUTION`; M3 multi-framework; installation;
+Not claimed. Open: synced-clock rehearsal; host-separated custody;
+`VERIFIED_EXECUTION` in the deployed pipeline (claim intake design); reliable
+lineage for sub-20 ms processes; model-backed frameworks; installation;
 kprobe sensors; HSM path; minor finding (collector overwrites a probe's
 `ForeignTracepointGate` with generic `Unverifiable` — diagnostic only).
 
@@ -106,8 +155,11 @@ validation/rbi_demo/run.sh <out>                                           # nee
 
 ## Next three actions
 1. Run the unmodified RBI rehearsal on an NTP-synchronized host (ideally with
-   the collector on a second host).
-2. M2: one task through authorization → MCP gateway receipt → kernel
-   observation → reconciler `VERIFIED_EXECUTION`, same run.
-3. E3 over a longer window that reaches attested coverage, plus a real agent
-   workload; then M3 across ≥3 frameworks.
+   the collector on a second host); re-run the CI same-run workflow there to
+   test whether D2 explains run 40748072732.
+2. Decide the agent→probe decision-claim channel (design decision for the
+   owner), then authorize a kernel-observable action (e.g. one TCP connect) so
+   the deployed pipeline can reach `VERIFIED_EXECUTION`.
+3. Make short-lived-process binding deterministic (e.g. a dedicated exec
+   handler instead of drain polling) and repeat M3 with model-backed
+   frameworks once model access is provisioned.

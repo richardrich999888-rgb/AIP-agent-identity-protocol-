@@ -91,3 +91,39 @@ and the four binaries (`aip-probe`, `aip-collector`, `aip-observe-verify`,
 - **Minor finding, open:** the collector's divergence override replaces a
   probe's specific `ForeignTracepointGate` with generic `Unverifiable` —
   diagnostic precision lost, signed state unchanged.
+
+## Cycle 3 — 2026-10-29 — M2 same-run chain, M3 three frameworks, two probe defects
+
+- **M2 discovery:** `validation/enterprise/same_run_validation.py` refuses to
+  run outside GitHub-hosted runners (`RUNNER_ENVIRONMENT`), needs an NTP clock,
+  a pinned ContextForge checkout and a 1.5 GB local model. Not spoofed. CI run
+  40748072732 failed with sched `Unverifiable` in two batches, "root cause
+  not yet established"; symptom matches D2 but its archive (Actions artifact)
+  is behind this session's egress policy — UNCONFIRMED.
+- **M2 local harness** (`m2/run_m2.py`): live agent; decision point measures
+  its instance and signs `ExpectedExecution`; gateway signer forwards the
+  matching call and refuses a mismatched one; observer Active; offline
+  evaluation verifies archive, checkpoint, authorization, receipt (inside the
+  window) and the signed reconciliation. Harness defects found on the way and
+  kept: tracefs unmounted (run 0, not retained), chain not frozen at the
+  attested head (run 1 → `ObservationSetIncomplete`, a correct refusal).
+  Verdict: `CannotProve` — identity `UnboundReferencesOnly` for a ~40 ms agent,
+  `Match` 3/3 for an agent alive 3 s; `ActionEvidenceUnavailable` because
+  `tool_invoke` has no kernel-observable class. VERIFIED_EXECUTION in the
+  daemon pipeline is unreachable: `aip-probe` never calls `register_claim`.
+  `ghost-demo` (single process, self-labelled NOT_PRODUCTION) reaches it live.
+- **M1 correction:** cycle 1's "1 start-verified lineage edge" was
+  bash → `/usr/bin/sleep` from the harness itself. All 16 agent pids are in
+  the signed evidence, but 0/8 agent edges. `run.sh` counted any edge — fixed
+  to count only the agent's own pairs; it now FAILs honestly (0/8).
+- **M3** (`m3/run_m3.sh`): LangGraph, LlamaIndex Workflows, pydantic-ai
+  (FunctionModel; no LLM). Presence 15/15 in every arm. Edges low.
+  Hypothesis 1 (ingest once per 1 s batch → child gone before measured):
+  20 ms drain implemented; first 20 ms arm 0/15 — **falsified as sole cause**.
+  Instrumented build (not committed): misses are `pidfd_open` ESRCH (gone)
+  and, for pydantic-ai, the fork is by a **worker thread**: `pidfd_open`
+  refuses a non-leader tid → never bound. Fix: resolve tid → owning process
+  with a thread-start ≤ event check (recycled-tid guard). After both fixes:
+  5/15 edges, pydantic-ai 2/2 of bound children; the rest is the ~16 ms
+  child lifetime vs the 20 ms drain — recorded unbound, never guessed.
+- **Regression:** workspace 3249 pass / 15 env-fail (SoftHSM2); pilot 2/2 PASS.

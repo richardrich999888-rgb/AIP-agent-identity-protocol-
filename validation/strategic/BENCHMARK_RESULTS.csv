@@ -26,3 +26,7 @@ benchmark_superseded_run1,0.8,ratio,debug + fixed 3 s window: 1/5 trials had NO 
 benchmark_superseded_run2,0.7,ratio,debug + fixed 3 s window: 3/10 trials no signed batch; gdb showed probe CPU-bound shipping not hung,0fa8c89
 pilot_control_active,6/6,runs,RBI check_control PASS (Active + coverage; recovery does not backfill) with AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0,381343c
 pilot_attack_detected,6/6,runs,live interferer -> collector-signed IntegrityUnknown + coverage withdrawn; 148 no-counterpart divergences per run,381343c
+m3_presence,45/45 per arm,runs,parent and child pid in offline-verified evidence (3 frameworks x 5 runs x every arm),5590075
+m3_agent_edges_1s_drain,1/15,runs,old once-per-batch ingest,5590075
+m3_agent_edges_20ms_drain,"0/15, 6/15, 5/15, 5/15",runs,four 20 ms arms; child lifetime ~16 ms so binding is probabilistic; last arm includes the thread fix,5590075
+m2_identity_match,3/3,runs,agent alive 3 s; 0/2 (UnboundReferencesOnly) for a ~40 ms agent,8fe92b8

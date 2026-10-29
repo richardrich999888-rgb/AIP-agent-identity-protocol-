@@ -3,7 +3,7 @@
   "invocation_utc": "2026-10-29",
   "branch": "claude/strategic-validation-loop",
   "base_branch": "origin/integration/snifferdog-complete-enterprise-validation",
-  "commit": "5b146be (code under test); evidence commits follow on the same branch",
+  "commit": "5590075 (code under test, cycle 3); evidence commits follow",
   "host": {
     "kernel": "6.18.44-fc-v185 (cycle 2; v180 in cycle 1)",
     "config_kprobes": false,
@@ -13,12 +13,13 @@
   },
   "anti_fabrication": "No result is PASS unless the experiment actually ran and its evidence supports it. BLOCKED/NOT_RUN are never promoted.",
   "milestones": {
-    "M1_one_real_agent_observed_and_offline_verified": "PASS",
-    "M2_same_run_authz_receipt_kernel_observe_offline_chain": "NOT_RUN",
-    "M3_three_frameworks_corroborated": "NOT_RUN",
+    "M1_one_real_agent_observed_and_offline_verified": "PASS for observation + offline verification (16/16 agent pids in signed evidence). CORRECTED: the cycle-1 lineage edge was the harness sleep, not the agent; agent lineage 0/8 under the fixed gate",
+    "M2_same_run_authz_receipt_kernel_observe_offline_chain": "PASS (local, no model): chain verified end to end 6/6, negative controls 5/5 each run; verdict CannotProve by design for tool_invoke; identity Match 3/3 (agent alive 3 s)",
+    "M3_three_frameworks_corroborated": "PARTIAL: LangGraph, LlamaIndex Workflows, pydantic-ai (no LLM) all 15/15 present in verified evidence; agent lineage edges 5/15 at 20 ms drain (child lives ~16 ms). Model-backed frameworks (Agent Zero, DeerFlow, OpenHands) BLOCKED",
     "RBI_honest_path_control_Active": "PASS (6/6 pilot runs, clock enforcement off) after defect repair",
     "RBI_five_act_unmodified": "FAIL (environment: collector correctly refuses unsynchronized clock)",
-    "benchmark_vs_independent_ground_truth": "PASS (E3 run3; 2000/2000 sched and connector recall; superseded runs kept)"
+    "benchmark_vs_independent_ground_truth": "PASS (E3 run3; 2000/2000 sched and connector recall; superseded runs kept)",
+    "M2_VERIFIED_EXECUTION_in_daemon_pipeline": "BLOCKED (design): aip-probe daemon has no decision-claim intake and the authority tool signs only tool_invoke; engine reaches VERIFIED_EXECUTION only in single-process ghost-demo (component level)"
   },
   "acceptance": {
     "rbi_readiness": "PARTIAL",
@@ -31,13 +32,17 @@
     "ntp_clock": "No time daemon / NTP egress; unmodified RBI rehearsal cannot pass here by design.",
     "softhsm": "SoftHSM2 not installed: 15 aip-hsm tests fail environmentally."
   },
-  "cycles_used": 2,
+  "cycles_used": 3,
   "cycles_budget": 12,
   "m1_evidence": "validation/strategic/run_m1/ (sealed); EVIDENCE_MANIFEST.json",
   "defects": {
     "D1_first_batch_counted_loss": "REPAIRED: control Degraded pre-fix; 0 loss 6/6 post-fix. Larger connector buffer NOT shown causal (kernel-default arm also 0 loss); drain order/ENOBUFS-continue is the supported explanation",
     "D2_batch_boundary_false_IntegrityUnknown": "REPAIRED: connector drained first + collector accepts previous attested batch of same probe run; regression test fails without fix",
     "D3_harness_window_closed_before_shipping": "REPAIRED (measurement harness only)",
-    "minor_collector_overwrites_ForeignTracepointGate_with_Unverifiable": "OPEN (diagnostic loss only; state still IntegrityUnknown)"
+    "minor_collector_overwrites_ForeignTracepointGate_with_Unverifiable": "OPEN (diagnostic loss only; state still IntegrityUnknown)",
+    "D4_thread_originated_actions_never_bound": "REPAIRED 5590075 (pydantic-ai edges 0 -> 2/2 of bound children); test t15d",
+    "D5_identity_bound_only_once_per_batch": "MITIGATED 5590075 (20 ms drain); processes shorter than the drain interval stay probabilistic, recorded unbound",
+    "D6_M1_lineage_gate_false_pass": "REPAIRED 5590075 (integrations/agents/run.sh)",
+    "CI_same_run_40748072732_sched_Unverifiable": "UNCONFIRMED: symptom matches D2; artifact unreachable (egress policy), root cause not established"
   }
 }

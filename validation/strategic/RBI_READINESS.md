@@ -1,6 +1,6 @@
 # RBI demonstration readiness — evidence-backed
 
-Source: `claude/strategic-validation-loop`; code under test `5b146be`.
+Source: `claude/strategic-validation-loop`; code under test `5590075`.
 Assurance levels kept separate; nothing promoted from a lower level.
 
 ## Live-proven on this host
@@ -33,7 +33,14 @@ Assurance levels kept separate; nothing promoted from a lower level.
   the evidence). A presentation host must run chrony
   (`deploy/pilot/chrony-cert-in.conf`) and pass the unmodified rehearsal.
 - Process-separated, not host-separated, collector custody.
-- Observation, not reconciler `VERIFIED_EXECUTION` (M2 NOT_RUN).
+- The same-run chain (authorization → gateway receipt → observation →
+  signed reconciliation) runs and verifies end to end locally (M2, 6/6), but
+  its verdict is `CANNOT_PROVE`: a tool call has no kernel-observable action
+  class, and the deployed probe cannot carry a decision claim. Do not present
+  `VERIFIED_EXECUTION` from the deployed pipeline; it exists only in the
+  single-process `ghost-demo`.
+- Lineage of short-lived child processes is not reliable: a child that exits
+  within ~20 ms is recorded unbound (5/15 agent edges in M3).
 - Detection of a *perf-path* gate. A hook on both the tracepoint and the
   connector, or any kernel-level adversary, is out of boundary.
 

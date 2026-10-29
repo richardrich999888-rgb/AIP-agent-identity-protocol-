@@ -21,3 +21,12 @@ cycle,test_id,description,required_experiment,result,evidence_path,source_commit
 2,E2-pilot-fixed,pilot x3 at new default rcvbuf,repeat_pilot.sh,PASS 3/3,validation/strategic/e2_pilot_repeats/arm_fixed/,381343c,
 2,E3-benchmark,recall/precision/attribution/latency/overhead vs ftrace ground truth,measure.sh 10x200 release drained,PASS,validation/strategic/e3_benchmark/run3_release_drained/,5b146be,earlier runs with harness defect kept (run1/run2)
 2,RBI-five-act-postfix,unmodified rbi_demo/run.sh after fix,validation/rbi_demo/run.sh,FAIL(environment),validation/strategic/run_rbi_postfix_unmodified/,0fa8c89,collector refuses unsynced clock (correct); acts 3 4 4b PASS; system acts not reached
+3,M2-same-run-chain,authz -> gateway receipt -> observe -> offline eval -> signed reconciliation (local; no model),validation/strategic/m2/run_m2.py x6,PASS 6/6,validation/strategic/m2/runs/,8fe92b8,verdict CannotProve by design (tool_invoke unobservable); identity Match 3/3 at 3 s agent lifetime
+3,M2-neg-N1..N5,mismatched args; mutated batch; checkpoint mismatch; unanchored gateway key; substituted verdict,run_m2.py,PASS 5/5 x6,validation/strategic/m2/runs/,8fe92b8,
+3,M2-VERIFIED_EXECUTION-daemon,VERIFIED_EXECUTION via deployed probe/collector,n/a,BLOCKED(design),,5590075,no decision-claim intake in aip-probe; authority signs tool_invoke only
+3,ghost-demo,engine reaches VERIFIED_EXECUTION live + negatives classed,target/release/ghost-demo,PASS(component; single process),validation/strategic/m2/ghost_demo_component_level.txt,5590075,NOT_PRODUCTION_CAPABILITY by its own label
+3,M3-three-frameworks,LangGraph/LlamaIndex/pydantic-ai presence + binding + agent edge per run,validation/strategic/m3/run_m3.sh,PARTIAL,validation/strategic/m3/runs/,5590075,presence 15/15 every arm; agent edges 1/15 (1 s) vs 0/15 6/15 5/15 5/15 (20 ms)
+3,D4-thread-binding,spawn from worker thread binds to owning process; pre-thread event rejected,cargo test t15d,PASS,aip-standalone/aip-observe/tests/sniffer_dog.rs,5590075,fails without fix (mutation check)
+3,M1-lineage-gate,agent parent->child edge in verified archive,integrations/agents/run.sh (fixed gate),FAIL 0/8,validation/strategic/run_m1_rerun_lineage_gate/,5590075,corrects cycle-1 claim
+3,pilot-regression,pilot after probe changes,repeat_pilot.sh x2,PASS 2/2,validation/strategic/e2_pilot_repeats/arm_after_threadfix/,5590075,
+3,workspace-tests,cargo test --workspace,full workspace,PASS-except-env,scratchpad log,5590075,3249 passed; 15 failed all aip-hsm softhsm (SoftHSM2 absent)

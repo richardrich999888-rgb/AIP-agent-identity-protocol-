@@ -61,5 +61,13 @@
     "RBI_postfix_unmodified": "run_rbi_postfix_unmodified/",
     "key_material": "all work/ directories (throwaway keys) removed before commit; interferer build artifacts untracked from cycle 2 on",
     "not_combined": "Each directory is one live run; no result here is assembled from separate bundles."
+  },
+  "cycle3": {
+    "code": "5590075",
+    "M2": "m2/runs/ (run1 harness defect: unfrozen chain; run2,run6 linger0; run3-5 linger3); m2/ghost_demo_component_level.txt (single-process, NOT_PRODUCTION)",
+    "M3": "m3/runs/ (a1 1 s drain; a2-a4 20 ms drain, a3/a4 diagnostic build; a0 instrumented 2 rounds; b1/b2 after thread fix)",
+    "M1_rerun": "run_m1_rerun_lineage_gate/ (fixed gate: 0/8 agent edges, FAIL)",
+    "pilot_regression": "e2_pilot_repeats/arm_after_threadfix/ (2/2 PASS)",
+    "key_material": "work/ dirs removed; no private key strings present"
   }
 }
