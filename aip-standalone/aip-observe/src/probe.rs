@@ -46,6 +46,13 @@ use crate::observed::{
     ObservedEffect, ObservedExecution, ObservedProcess, SourceMechanism, OBSERVE_PROTOCOL_VERSION,
 };
 
+/// Bounds for the live daemon's deferred records. Leave room for one kernel
+/// record before reading another source; capacity exhaustion is uncertainty,
+/// never permission to discard an already ingested record.
+pub const MAX_LIVE_PENDING_EVENTS: usize = 4096;
+pub const MAX_LIVE_PENDING_BYTES: usize = 512 * 1024;
+const LIVE_EVENT_RESERVE_BYTES: usize = 64 * 1024;
+
 /// Why a measurement could not be taken. Never silently substituted with a
 /// weaker identifier, and never turned into a statement about the workload.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -135,6 +142,10 @@ pub struct ProcfsProbe {
     /// source reports loss: after a gap the pid may have been recycled.
     bound_by_exec: HashMap<u32, ObservedProcess>,
     pending_kernel_events: Vec<KernelLifecycleEvent>,
+    pending_kernel_bytes: usize,
+    live_published_seq: u64,
+    live_finalized_ns: Option<u64>,
+    live_faults: Vec<SourceMechanism>,
     /// Sources the operator has wired to this probe and declares live. Added
     /// to every batch's `active_mechanisms` together with the mechanisms
     /// actually used in that batch.
@@ -204,6 +215,10 @@ impl ProcfsProbe {
             claims: HashMap::new(),
             bound_by_exec: HashMap::new(),
             pending_kernel_events: Vec::new(),
+            pending_kernel_bytes: 0,
+            live_published_seq: 0,
+            live_finalized_ns: None,
+            live_faults: Vec::new(),
             declared_sources: Vec::new(),
             mechanism_integrity: Vec::new(),
             clock_anchor: None,
@@ -574,7 +589,7 @@ impl ProcfsProbe {
         let (attribution, claimed_decision_id) = subject
             .map(|pid| self.attribution_for(pid))
             .unwrap_or((AgentAttribution::NotEstablished, None));
-        self.pending_kernel_events.push(KernelLifecycleEvent {
+        self.queue_kernel_event(KernelLifecycleEvent {
             cgroup: crate::observed::CgroupSample::NotSampled,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: self.probe_id.clone(),
@@ -634,7 +649,7 @@ impl ProcfsProbe {
         let (attribution, claimed_decision_id) = subject
             .map(|pid| self.attribution_for(pid))
             .unwrap_or((AgentAttribution::NotEstablished, None));
-        self.pending_kernel_events.push(KernelLifecycleEvent {
+        self.queue_kernel_event(KernelLifecycleEvent {
             // The kernel's own sample, copied, never derived.
             cgroup: ev.cgroup,
             version: OBSERVE_PROTOCOL_VERSION,
@@ -666,6 +681,193 @@ impl ProcfsProbe {
         &self.pending_kernel_events
     }
 
+    fn queue_kernel_event(&mut self, event: KernelLifecycleEvent) {
+        self.pending_kernel_bytes = self
+            .pending_kernel_bytes
+            .saturating_add(Self::event_bytes(&event));
+        self.pending_kernel_events.push(event);
+    }
+
+    fn event_bytes(event: &KernelLifecycleEvent) -> usize {
+        serde_json::to_vec(event).map_or(usize::MAX, |bytes| bytes.len())
+    }
+
+    /// The live driver checks this BEFORE polling a source. Unread records
+    /// remain in their kernel queue, whose own loss accounting still applies.
+    pub fn live_event_capacity_available(&self) -> bool {
+        self.pending_kernel_events.len() < MAX_LIVE_PENDING_EVENTS
+            && self.pending_kernel_bytes
+                <= MAX_LIVE_PENDING_BYTES.saturating_sub(LIVE_EVENT_RESERVE_BYTES)
+    }
+
+    /// A source could not be completely drained for the candidate window.
+    /// Applied to the outgoing live batch after normal integrity readings, so
+    /// a successful gate query cannot erase a queue/read failure.
+    pub fn record_source_fault(&mut self, mechanism: SourceMechanism) {
+        if !self.live_faults.contains(&mechanism) {
+            self.live_faults.push(mechanism);
+        }
+        self.bound_by_exec.clear();
+    }
+
+    /// Finalize the live sensor stream through ONE common monotonic cutoff.
+    /// Capture and clock-anchor that cutoff before draining any source. The
+    /// driver leaves a matching-window holdback so ordinary asynchronous
+    /// delivery can settle; a late record behind a finalized cutoff still
+    /// withdraws coverage rather than repairing already published history.
+    ///
+    /// Matched connector/scheduler execs straddling the cutoff are retained
+    /// together, and the coverage frontier retreats before their first event.
+    /// Bindings were captured at ingestion and are moved verbatim. Published
+    /// sequence numbers are assigned only now, avoiding gaps from deferred
+    /// records. This live-only API must not be mixed with legacy `batch()` on
+    /// one probe run; that API's fixture semantics are unchanged.
+    pub fn batch_through(
+        &mut self,
+        batch_id: [u8; 16],
+        claimed_from_ms: u64,
+        claimed_to_ms: u64,
+        cutoff_ns: Option<u64>,
+    ) -> ObservationBatch {
+        let mut batch = self.batch(batch_id, claimed_from_ms, claimed_to_ms, vec![]);
+        let mut faults = std::mem::take(&mut self.live_faults);
+        if let (Some(mut frontier), Some(anchor)) = (cutoff_ns, self.clock_anchor) {
+            if frontier >= anchor.monotonic_ns {
+                faults.extend(batch.active_mechanisms.iter().copied());
+                frontier = anchor.monotonic_ns.saturating_sub(1_000_000);
+            }
+            let both = batch
+                .active_mechanisms
+                .contains(&SourceMechanism::ProcConnector)
+                && batch
+                    .active_mechanisms
+                    .contains(&SourceMechanism::SchedTracepoint);
+            if both {
+                // Each connector exec chooses its nearest scheduler mate under
+                // the existing exact (pid,tgid,50 ms) comparison. Neither the
+                // match window nor the collector's strict check is changed.
+                let mut sched: HashMap<(u32, u32), Vec<u64>> = HashMap::new();
+                for event in &batch.kernel_events {
+                    if event.mechanism == SourceMechanism::SchedTracepoint {
+                        if let Some(key) = exec_key(&event.kind) {
+                            sched
+                                .entry(key)
+                                .or_default()
+                                .push(event.kernel_timestamp_ns);
+                        }
+                    }
+                }
+                for times in sched.values_mut() {
+                    times.sort_unstable();
+                }
+                let mut pairs = Vec::new();
+                for event in &batch.kernel_events {
+                    if event.mechanism != SourceMechanism::ProcConnector {
+                        continue;
+                    }
+                    let Some(times) = exec_key(&event.kind).and_then(|key| sched.get(&key)) else {
+                        continue;
+                    };
+                    let stamp = event.kernel_timestamp_ns;
+                    let position = times.partition_point(|time| *time < stamp);
+                    let mate = times
+                        .get(position)
+                        .into_iter()
+                        .chain(position.checked_sub(1).and_then(|p| times.get(p)))
+                        .min_by_key(|time| time.abs_diff(stamp));
+                    if let Some(mate) = mate.filter(|time| {
+                        time.abs_diff(stamp) <= crate::divergence::DEFAULT_MATCH_WINDOW_NS
+                    }) {
+                        pairs.push((stamp.min(*mate), stamp.max(*mate)));
+                    }
+                }
+                loop {
+                    let previous = frontier;
+                    for (first, last) in &pairs {
+                        if *first <= frontier && *last > frontier {
+                            // Signed coverage has millisecond resolution.
+                            // Retreat a whole millisecond so a retained event
+                            // cannot still round into the claimed interval.
+                            frontier = frontier.min(first.saturating_sub(1_000_000));
+                        }
+                    }
+                    frontier = align_cutoff_before_anchor(frontier, anchor.monotonic_ns);
+                    if previous == frontier {
+                        break;
+                    }
+                }
+            }
+            frontier = align_cutoff_before_anchor(frontier, anchor.monotonic_ns);
+            let late = self.live_finalized_ns.is_some_and(|last| {
+                frontier < last
+                    || batch
+                        .kernel_events
+                        .iter()
+                        .any(|e| e.kernel_timestamp_ns <= last)
+            });
+            let close = anchor.wall_ms(frontier).min(claimed_to_ms);
+            if late || close < claimed_from_ms {
+                faults.extend(batch.active_mechanisms.iter().copied());
+            }
+            batch.claimed_to_ms = close.max(claimed_from_ms);
+            let (ready, pending): (Vec<_>, Vec<_>) = std::mem::take(&mut batch.kernel_events)
+                .into_iter()
+                .partition(|event| event.kernel_timestamp_ns <= frontier);
+            batch.kernel_events = ready;
+            self.pending_kernel_bytes = pending
+                .iter()
+                .map(Self::event_bytes)
+                .fold(0usize, usize::saturating_add);
+            self.pending_kernel_events = pending;
+            if self
+                .pending_kernel_events
+                .iter()
+                .any(|event| anchor.wall_ms(event.kernel_timestamp_ns) <= batch.claimed_to_ms)
+            {
+                // Includes boot-origin saturation and unrepresentable clock
+                // edges: retained evidence may not sit inside Active coverage.
+                faults.extend(batch.active_mechanisms.iter().copied());
+            }
+            self.live_finalized_ns = Some(
+                self.live_finalized_ns
+                    .map_or(frontier, |last| last.max(frontier)),
+            );
+        } else {
+            // No usable common clock/cutoff: preserve every captured record,
+            // but make no positive coverage claim on that batch.
+            faults.extend(batch.active_mechanisms.iter().copied());
+        }
+        if self.pending_kernel_bytes > MAX_LIVE_PENDING_BYTES
+            || self.pending_kernel_events.len() > MAX_LIVE_PENDING_EVENTS
+        {
+            faults.extend(batch.active_mechanisms.iter().copied());
+        }
+        for mechanism in SourceMechanism::canonical_set(faults) {
+            match batch
+                .mechanism_integrity
+                .iter_mut()
+                .find(|r| r.mechanism == mechanism)
+            {
+                Some(report) => report.integrity = MechanismIntegrity::Unverifiable,
+                None => batch.mechanism_integrity.push(MechanismIntegrityReport {
+                    mechanism,
+                    integrity: MechanismIntegrity::Unverifiable,
+                }),
+            }
+        }
+        let first = self.live_published_seq + 1;
+        for event in &mut batch.kernel_events {
+            self.live_published_seq += 1;
+            event.probe_seq = self.live_published_seq;
+        }
+        (batch.probe_seq_first, batch.probe_seq_last) = if batch.kernel_events.is_empty() {
+            (self.live_published_seq, self.live_published_seq)
+        } else {
+            (first, self.live_published_seq)
+        };
+        batch
+    }
+
     /// Assemble an unsigned batch containing `observations` and every kernel
     /// event ingested since the previous batch. The probe cannot sign it,
     /// cannot assign it a chain position, and cannot decide what coverage
@@ -678,6 +880,7 @@ impl ProcfsProbe {
         observations: Vec<ObservedExecution>,
     ) -> ObservationBatch {
         let kernel_events = std::mem::take(&mut self.pending_kernel_events);
+        self.pending_kernel_bytes = 0;
         let seqs = observations
             .iter()
             .map(|o| o.probe_monotonic_ns)
@@ -718,6 +921,26 @@ impl ProcfsProbe {
             kernel_events,
             clock_anchor: self.clock_anchor,
         }
+    }
+}
+
+fn exec_key(kind: &KernelLifecycleKind) -> Option<(u32, u32)> {
+    match kind {
+        KernelLifecycleKind::Exec { pid, tgid } => Some((*pid, *tgid)),
+        KernelLifecycleKind::ProcessExec { pid, .. } => Some((*pid, *pid)),
+        _ => None,
+    }
+}
+
+fn align_cutoff_before_anchor(frontier: u64, anchor_ns: u64) -> u64 {
+    // wall_ms() rounds older stamps toward the anchor. A cutoff between its
+    // millisecond boundaries would leave retained records inside the inclusive
+    // signed coverage. Round DOWN on the monotonic axis, never widen coverage.
+    let remainder = anchor_ns.saturating_sub(frontier) % 1_000_000;
+    if remainder == 0 {
+        frontier
+    } else {
+        frontier.saturating_sub(1_000_000 - remainder)
     }
 }
 

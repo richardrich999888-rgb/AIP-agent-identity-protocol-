@@ -13,7 +13,7 @@
 //! everywhere, because fail-closed startup is a property of the probe, not
 //! of the host it runs on.
 
-use aip_observe::{KernelLifecycleKind, SourceMechanism};
+use aip_observe::{KernelLifecycleKind, MechanismIntegrity, ObservationBatch, SourceMechanism};
 use aip_probe::config::SensorConfig;
 use aip_probe::sensors::SensorSet;
 
@@ -42,6 +42,27 @@ fn only(f: impl FnOnce(&mut SensorConfig)) -> SensorConfig {
     let mut c = SensorConfig::default();
     f(&mut c);
     c
+}
+
+/// Publication deliberately trails source reads. Once a real source opens,
+/// absence after this bounded follow-up is a failure, never a vacuous skip.
+fn collect_until(
+    sensors: &mut SensorSet,
+    mut from: u64,
+    found: impl Fn(&ObservationBatch) -> bool,
+) -> Vec<ObservationBatch> {
+    let mut batches = Vec::new();
+    for _ in 0..20 {
+        std::thread::sleep(std::time::Duration::from_millis(60));
+        let batch = sensors.collect_batch(from, now_ms());
+        from = batch.claimed_to_ms;
+        let complete = found(&batch);
+        batches.push(batch);
+        if complete {
+            return batches;
+        }
+    }
+    panic!("opened sensor did not publish the required real event after bounded follow-up: {batches:?}");
 }
 
 // ─── fanotify ───────────────────────────────────────────────────────────────
@@ -73,9 +94,14 @@ fn fanotify_observes_a_completed_write_and_binds_it_by_pidfd() {
     let path = dir.join("evidence.txt");
     let from = now_ms();
     std::fs::write(&path, b"a completed write").expect("write");
-    let to = now_ms();
-
-    let batch = sensors.collect_batch(from, to);
+    let me = std::process::id();
+    let batches = collect_until(&mut sensors, from, |batch| {
+        batch.kernel_events.iter().any(|event| {
+            matches!(&event.kind, KernelLifecycleKind::FileEvent { pid, path, .. }
+            if *pid == me && path.ends_with("evidence.txt"))
+        })
+    });
+    let batch = batches.last().unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 
     assert!(
@@ -84,24 +110,12 @@ fn fanotify_observes_a_completed_write_and_binds_it_by_pidfd() {
         batch.active_mechanisms
     );
 
-    let me = std::process::id();
     let mine = batch.kernel_events.iter().find(|e| {
         matches!(&e.kind, KernelLifecycleKind::FileEvent { pid, path: p, .. }
             if *pid == me && p.ends_with("evidence.txt"))
     });
 
-    // A shared mount can be busy enough to overflow the queue; that is
-    // counted loss, not a failed assertion, and the probe reports it rather
-    // than inventing the event.
-    let Some(ev) = mine else {
-        eprintln!(
-            "SKIPPED — no fanotify event for this write ({} events, {:?} lost); \
-             on a shared, busy mount the queue overflows and the loss is counted",
-            batch.kernel_events.len(),
-            batch.dropped_events
-        );
-        return;
-    };
+    let ev = mine.expect("successful opened-source collection must contain the write");
 
     assert_eq!(ev.mechanism, SourceMechanism::Fanotify);
     assert!(
@@ -138,12 +152,14 @@ fn fanotify_carries_no_file_content() {
     const SECRET: &str = "ACCOUNT-8817-BALANCE-4423190-DO-NOT-COPY";
     let from = now_ms();
     std::fs::write(dir.join("statement.txt"), SECRET.as_bytes()).expect("write");
-    let to = now_ms();
-
-    let batch = sensors.collect_batch(from, to);
+    let batches = collect_until(&mut sensors, from, |batch| {
+        batch.kernel_events.iter().any(|event| {
+        matches!(&event.kind, KernelLifecycleKind::FileEvent { path, .. } if path.ends_with("statement.txt"))
+    })
+    });
     let _ = std::fs::remove_dir_all(&dir);
 
-    let serialized = serde_json::to_string(&batch).expect("serialize batch");
+    let serialized = serde_json::to_string(&batches).expect("serialize captured batches");
     assert!(
         !serialized.contains(SECRET),
         "file content must never enter the observation batch (I23)"
@@ -190,9 +206,14 @@ fn the_af_packet_tap_records_headers_and_never_the_payload() {
         c.flush().ok();
     }
     server.join().ok();
-    let to = now_ms();
-
-    let batch = sensors.collect_batch(from, to);
+    let port = addr.port();
+    let batches = collect_until(&mut sensors, from, |batch| {
+        batch.kernel_events.iter().any(|event| {
+            matches!(&event.kind, KernelLifecycleKind::WireSegment { src, dst, .. }
+            if src.port == port || dst.port == port)
+        })
+    });
+    let batch = batches.last().unwrap();
 
     assert!(
         batch
@@ -202,27 +223,19 @@ fn the_af_packet_tap_records_headers_and_never_the_payload() {
         batch.active_mechanisms
     );
 
-    // The I23 assertion holds whether or not a segment was captured: the
-    // payload must never be present, and an empty capture trivially
-    // satisfies that. The capture assertion is separate and skippable.
-    let serialized = serde_json::to_string(&batch).expect("serialize batch");
+    // Check every emitted batch and require this actual connection below;
+    // an empty capture cannot make the privacy assertion pass vacuously.
+    let serialized = serde_json::to_string(&batches).expect("serialize captured batches");
     assert!(
         !serialized.contains(PAYLOAD),
         "a payload byte must never enter the observation batch (I23)"
     );
 
-    let segment = batch
-        .kernel_events
-        .iter()
-        .find(|e| matches!(e.kind, KernelLifecycleKind::WireSegment { .. }));
-    let Some(ev) = segment else {
-        eprintln!(
-            "SKIPPED — no TCP segment captured in the window ({} events); \
-             the I23 assertion above still held",
-            batch.kernel_events.len()
-        );
-        return;
-    };
+    let segment = batch.kernel_events.iter().find(|e| {
+        matches!(&e.kind, KernelLifecycleKind::WireSegment { src, dst, .. }
+            if src.port == port || dst.port == port)
+    });
+    let ev = segment.expect("opened tap must publish the real test connection");
 
     assert_eq!(ev.mechanism, SourceMechanism::WireTapAfPacket);
     assert!(
@@ -243,13 +256,10 @@ fn the_af_packet_tap_records_headers_and_never_the_payload() {
 
 // ─── Gate independence ──────────────────────────────────────────────────────
 
-/// Neither new sensor owes an integrity report, and neither is asked for
-/// one. Both reach the probe by a facility no per-tracepoint eBPF program
-/// array gates, so a finding for them would be inventing a check that was
-/// never run — and the collector's sink asks for a report only where
-/// `shares_perf_tracepoint_gate` is true.
+/// Gate-independent read reports describe a fully drained queue, never a
+/// foreign-tracepoint query. The sources still owe no such gate query.
 #[test]
-fn the_file_and_wire_sensors_are_gate_independent_and_owe_no_report() {
+fn the_file_and_wire_read_reports_never_invent_a_foreign_gate_query() {
     for m in [SourceMechanism::Fanotify, SourceMechanism::WireTapAfPacket] {
         assert!(
             !m.shares_perf_tracepoint_gate(),
@@ -271,15 +281,20 @@ fn the_file_and_wire_sensors_are_gate_independent_and_owe_no_report() {
         let _ = std::fs::remove_dir_all(&dir);
         return;
     };
-    let batch = sensors.collect_batch(now_ms(), now_ms());
+    let batches = collect_until(&mut sensors, now_ms(), |_| true);
+    let batch = batches.last().unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 
     assert!(
         batch
             .mechanism_integrity
             .iter()
-            .all(|r| r.mechanism != SourceMechanism::Fanotify),
-        "a mechanism outside the tracepoint gate must carry no integrity finding"
+            .all(|r| r.mechanism != SourceMechanism::Fanotify
+                || !matches!(
+                    r.integrity,
+                    MechanismIntegrity::ForeignTracepointGate { .. }
+                )),
+        "queue-read capability must not invent a foreign tracepoint gate"
     );
 }
 

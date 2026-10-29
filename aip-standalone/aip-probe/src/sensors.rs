@@ -118,6 +118,9 @@ impl SensorSet {
             SockSendTracer, SockStateTracer, SourceMechanism, WireTap, FAN_CLOSE_WRITE,
         };
 
+        if probe_id.is_empty() || probe_id.len() > 256 {
+            return Err("probe id must contain 1..256 bytes".into());
+        }
         let mut probe = ProcfsProbe::new(probe_id);
 
         let process = if cfg.sched {
@@ -225,45 +228,95 @@ impl SensorSet {
     /// Reported ring loss becomes counted loss on the batch; nothing is
     /// inferred to fill a gap.
     pub fn collect_batch(&mut self, from_ms: u64, to_ms: u64) -> ObservationBatch {
+        // Capture the common cutoff BEFORE any source is drained. Keep one
+        // existing match window of delivery holdback; this delays publication,
+        // not the workload's start/end or the collector's matching rule.
+        #[cfg(target_os = "linux")]
+        let cutoff = aip_observe::boot_clock_anchor().ok().map(|anchor| {
+            self.probe.declare_clock_anchor(anchor);
+            anchor
+                .monotonic_ns
+                .saturating_sub(aip_observe::divergence::DEFAULT_MATCH_WINDOW_NS)
+        });
+        #[cfg(not(target_os = "linux"))]
+        let cutoff = None;
         #[cfg(target_os = "linux")]
         {
-            use aip_observe::boot_clock_anchor;
-            // Re-anchor each cycle so a suspend cannot silently shift the
-            // boot↔monotonic relation the collector uses to place events.
-            if let Ok(anchor) = boot_clock_anchor() {
-                self.probe.declare_clock_anchor(anchor);
-            }
+            use aip_observe::SourceMechanism;
             // Drain one tracer into the probe: pull events until the ring is
             // quiet (`Ok(None)`), a source error, or the per-cycle cap; then
-            // fold any reported ring loss into counted loss. A `while let Ok`
-            // ends the loop on both `Ok(None)` and `Err` — the same terminal
-            // behavior as the explicit match, without a busy spin.
+            // fold any reported ring loss into counted loss. An error or cap
+            // is not an empty queue: it explicitly withdraws capability.
             macro_rules! drain_into_probe {
-                ($slot:expr, $ingest:ident) => {
+                ($slot:expr, $ingest:ident, $mechanism:expr) => {
                     if let Some(t) = $slot.as_mut() {
                         let mut n: u32 = 0;
-                        while let Ok(Some(ev)) = t.next_event(POLL_MS) {
-                            self.probe.$ingest(ev);
-                            n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
+                        let mut drained = false;
+                        loop {
+                            if !self.probe.live_event_capacity_available() {
+                                self.probe.record_source_fault($mechanism);
                                 break;
+                            }
+                            match t.next_event(POLL_MS) {
+                                Ok(Some(ev)) => {
+                                    self.probe.$ingest(ev);
+                                    n += 1;
+                                    if n >= MAX_EVENTS_PER_SENSOR {
+                                        self.probe.record_source_fault($mechanism);
+                                        break;
+                                    }
+                                }
+                                Ok(None) => {
+                                    drained = true;
+                                    break;
+                                }
+                                Err(_) => {
+                                    self.probe.record_source_fault($mechanism);
+                                    break;
+                                }
                             }
                         }
                         let lost = t.take_lost();
                         if lost > 0 {
                             self.probe.record_lost_events(lost);
                         }
+                        if !$mechanism.shares_perf_tracepoint_gate() && drained && lost == 0 {
+                            self.probe.declare_mechanism_integrity(
+                                $mechanism,
+                                aip_observe::MechanismIntegrity::Verified,
+                            );
+                        }
                     }
                 };
             }
-            drain_into_probe!(self.process, ingest_sched_event);
-            drain_into_probe!(self.cgroup, ingest_cgroup_event);
-            drain_into_probe!(self.sockstate, ingest_socket_event);
-            drain_into_probe!(self.socksend, ingest_send_event);
+            drain_into_probe!(
+                self.process,
+                ingest_sched_event,
+                SourceMechanism::SchedTracepoint
+            );
+            drain_into_probe!(
+                self.cgroup,
+                ingest_cgroup_event,
+                SourceMechanism::CgroupTracepoint
+            );
+            drain_into_probe!(
+                self.sockstate,
+                ingest_socket_event,
+                SourceMechanism::SockStateTracepoint
+            );
+            drain_into_probe!(
+                self.socksend,
+                ingest_send_event,
+                SourceMechanism::SockSendTracepoint
+            );
             // The AF_PACKET tap yields the same `ProcEvent` shape as the
             // tracers, so it drains identically; its loss counter is the
             // kernel's own `PACKET_STATISTICS.tp_drops`.
-            drain_into_probe!(self.wire, ingest_wire_event);
+            drain_into_probe!(
+                self.wire,
+                ingest_wire_event,
+                SourceMechanism::WireTapAfPacket
+            );
 
             // fanotify yields a `FileObservation` (event plus the kernel's
             // pidfd), not a bare `ProcEvent`, so it does not fit the macro.
@@ -273,16 +326,40 @@ impl SensorSet {
             // without identity — rather than guessed at from the pid.
             if let Some(w) = self.file.as_mut() {
                 let mut n: u32 = 0;
-                while let Ok(Some(obs)) = w.next_event(POLL_MS) {
-                    self.probe.ingest_file_event(obs);
-                    n += 1;
-                    if n >= MAX_EVENTS_PER_SENSOR {
+                let mut drained = false;
+                loop {
+                    if !self.probe.live_event_capacity_available() {
+                        self.probe.record_source_fault(SourceMechanism::Fanotify);
                         break;
+                    }
+                    match w.next_event(POLL_MS) {
+                        Ok(Some(obs)) => {
+                            self.probe.ingest_file_event(obs);
+                            n += 1;
+                            if n >= MAX_EVENTS_PER_SENSOR {
+                                self.probe.record_source_fault(SourceMechanism::Fanotify);
+                                break;
+                            }
+                        }
+                        Ok(None) => {
+                            drained = true;
+                            break;
+                        }
+                        Err(_) => {
+                            self.probe.record_source_fault(SourceMechanism::Fanotify);
+                            break;
+                        }
                     }
                 }
                 let lost = w.take_lost();
                 if lost > 0 {
                     self.probe.record_lost_events(lost);
+                }
+                if drained && lost == 0 {
+                    self.probe.declare_mechanism_integrity(
+                        SourceMechanism::Fanotify,
+                        aip_observe::MechanismIntegrity::Verified,
+                    );
                 }
             }
 
@@ -295,22 +372,45 @@ impl SensorSet {
             // recycled across the gap). Nothing is inferred to fill the hole.
             if let Some(c) = self.connector.as_ref() {
                 let mut n: u32 = 0;
+                let mut drained = false;
                 loop {
+                    if !self.probe.live_event_capacity_available() {
+                        self.probe
+                            .record_source_fault(SourceMechanism::ProcConnector);
+                        break;
+                    }
                     match c.next_event(POLL_MS) {
                         Ok(Some(ev)) => {
                             self.probe.ingest_kernel_event(ev);
                             n += 1;
                             if n >= MAX_EVENTS_PER_SENSOR {
+                                self.probe
+                                    .record_source_fault(SourceMechanism::ProcConnector);
                                 break;
                             }
                         }
-                        Ok(None) => break,
-                        Err(aip_observe::SourceError::EventsLost) => {
-                            self.probe.record_lost_events(1);
+                        Ok(None) => {
+                            drained = true;
                             break;
                         }
-                        Err(_) => break,
+                        Err(aip_observe::SourceError::EventsLost) => {
+                            self.probe.record_lost_events(1);
+                            self.probe
+                                .record_source_fault(SourceMechanism::ProcConnector);
+                            break;
+                        }
+                        Err(_) => {
+                            self.probe
+                                .record_source_fault(SourceMechanism::ProcConnector);
+                            break;
+                        }
                     }
+                }
+                if drained {
+                    self.probe.declare_mechanism_integrity(
+                        SourceMechanism::ProcConnector,
+                        aip_observe::MechanismIntegrity::Verified,
+                    );
                 }
             }
 
@@ -322,7 +422,6 @@ impl SensorSet {
             // is reported as `Unverifiable`, which the collector treats like
             // a found gate. Nothing here is signed: it is a probe claim the
             // collector can lower the state on, never raise it.
-            use aip_observe::SourceMechanism;
             if let Some(t) = self.process.as_ref() {
                 self.probe.declare_mechanism_integrity(
                     SourceMechanism::SchedTracepoint,
@@ -347,18 +446,13 @@ impl SensorSet {
                     t.mechanism_integrity(),
                 );
             }
-            // fanotify and the AF_PACKET tap get no integrity report, and
-            // owe none: neither reaches the probe through a perf tracepoint,
-            // so neither is exposed to the per-tracepoint eBPF submission
-            // gate that the reports above exist to detect
-            // (`SourceMechanism::shares_perf_tracepoint_gate` is false for
-            // both, and the collector's sink asks for a report only for the
-            // mechanisms where it is true). Declaring a finding for them
-            // would be inventing a check that was never run.
+            // Non-perf sources report only completed loss-free queue reads
+            // above, never an invented foreign-tracepoint query. A read/cap
+            // fault overrides these readings in batch_through; a later fully
+            // drained cycle can explicitly recover without backfilling it.
         }
-        let _ = (from_ms, to_ms);
         self.batch_counter += 1;
         self.probe
-            .batch(batch_id_bytes(self.batch_counter), from_ms, to_ms, vec![])
+            .batch_through(batch_id_bytes(self.batch_counter), from_ms, to_ms, cutoff)
     }
 }
