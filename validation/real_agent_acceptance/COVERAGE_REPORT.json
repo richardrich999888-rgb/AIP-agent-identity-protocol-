@@ -1,0 +1,53 @@
+{
+  "schema": "vanian.real_agent_acceptance.coverage/1",
+  "status": "NOT_EXECUTED",
+  "reason": "no genuine agent run was executed, so there is no observation window to score",
+  "per_framework": {
+    "smolagents": {
+      "status": "NOT_EXECUTED",
+      "eligible_events": "NOT_MEASURED",
+      "matched_events": "NOT_MEASURED",
+      "missed_events": "NOT_MEASURED",
+      "unexpected_events": "NOT_MEASURED",
+      "coverage_intervals": "NOT_MEASURED",
+      "clock_continuity_problems": "NOT_MEASURED"
+    },
+    "aider": {
+      "status": "NOT_EXECUTED",
+      "eligible_events": "NOT_MEASURED",
+      "matched_events": "NOT_MEASURED",
+      "missed_events": "NOT_MEASURED",
+      "unexpected_events": "NOT_MEASURED",
+      "coverage_intervals": "NOT_MEASURED",
+      "clock_continuity_problems": "NOT_MEASURED"
+    },
+    "goose": {
+      "status": "NOT_EXECUTED",
+      "eligible_events": "NOT_MEASURED",
+      "matched_events": "NOT_MEASURED",
+      "missed_events": "NOT_MEASURED",
+      "unexpected_events": "NOT_MEASURED",
+      "coverage_intervals": "NOT_MEASURED",
+      "clock_continuity_problems": "NOT_MEASURED"
+    },
+    "browser_use": {
+      "status": "NOT_EXECUTED",
+      "eligible_events": "NOT_MEASURED",
+      "matched_events": "NOT_MEASURED",
+      "missed_events": "NOT_MEASURED",
+      "unexpected_events": "NOT_MEASURED",
+      "coverage_intervals": "NOT_MEASURED",
+      "clock_continuity_problems": "NOT_MEASURED"
+    },
+    "open_interpreter": {
+      "status": "NOT_EXECUTED",
+      "eligible_events": "NOT_MEASURED",
+      "matched_events": "NOT_MEASURED",
+      "missed_events": "NOT_MEASURED",
+      "unexpected_events": "NOT_MEASURED",
+      "coverage_intervals": "NOT_MEASURED",
+      "clock_continuity_problems": "NOT_MEASURED"
+    }
+  },
+  "discipline": "An unmeasured metric is NOT_MEASURED. Zero is a measurement and is never used as a placeholder."
+}

@@ -1,0 +1,202 @@
+{
+  "schema": "vanian.real_agent_acceptance.execution_results/1",
+  "generated_at_utc": "2026-10-29",
+  "branch": "claude/real-agent-acceptance-n5ysvd",
+  "reconciled_from": {
+    "pr_12_head": "fix/vanian-end-to-end-green @ edfd0a1 (contains PRs #6, #7, #9, #11)",
+    "pr_8_head": "integration/snifferdog-complete-enterprise-validation @ a6da6e5",
+    "merge_commit": "1efbb06",
+    "direction_and_reason": "PR #8 into PR #12. All four commits unique to #8 raise assurance; #12 lacked them."
+  },
+  "classification_legend": {
+    "PASS": "real task executed and every defined acceptance predicate satisfied",
+    "PARTIAL": "real execution occurred but some assurance property remains unproven",
+    "FAIL": "a required predicate was tested and failed",
+    "BLOCKED": "required infrastructure or authorisation unavailable",
+    "NOT_EXECUTED": "the experiment never ran"
+  },
+  "p0_same_run_acceptance_test": {
+    "classification": "FAIL",
+    "executed": true,
+    "where": "GitHub Actions ubuntu-24.04, run 40825279520, job 123286786032, commit 35f215d",
+    "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40825279520",
+    "stages_that_succeeded": [
+      "disposable Linux capabilities, chrony clock sync, auditd started and ruleset captured",
+      "pinned IBM/mcp-context-forge @ ff6a566a fetched and uv-synced against its locked deps",
+      "compiled TypeScript customer client built",
+      "portable model/runtime/read-only boundary controls: 10/10",
+      "public pinned CPU model provisioned (llama3.2:1b by reviewed manifest digest)",
+      "aip-probe, aip-collector, aip-observe-verify, aip-corroborate, aip-mcp-gateway, airon-aip built"
+    ],
+    "failure": {
+      "location": "validation/enterprise/same_run_validation.py line 653",
+      "call": "evidence.command(clients, timeout=120, env={..., PYTHONPATH: sdk/python})",
+      "raised": "evidence.Refused: python exited 1",
+      "stage_in_pipeline": "enterprise client readback (Python SDK / OpenAPI / MCP / TypeScript / console), i.e. AFTER agent, authority, MCP, kernel observation and reconciliation",
+      "underlying_cause": "UNKNOWN_PENDING_NEXT_RUN",
+      "why_unknown": "evidence.command discards child stderr by design because the child receives three API key files; run_client_smoke.py executed 25 bare predicates and retained no failure record"
+    },
+    "progress_vs_previously_recorded_failure": {
+      "previous": "FAILED_GATEWAY_ACCOUNT_PROVISIONING_BEFORE_AGENT, autonomous_workload_executed=false (run 40753922392)",
+      "now": "past gateway provisioning entirely; failed at client readback",
+      "interpretation": "the PR #8 gateway_password fix took effect; the reconciliation direction is confirmed correct"
+    },
+    "evidence_retained_by_the_failed_run": {
+      "artifact_id": 12876193962,
+      "files": 43,
+      "bytes": 127257,
+      "artifact_zip_sha256": "a9bc42e01e2514c0c15a36b6ec20f42c4798ca2f097b8cdaebdc78bb2ba32455",
+      "note": "retention on the failure path is itself one of the four reconciled PR #8 behaviours working"
+    },
+    "repair_applied": {
+      "commit": "7c633e5",
+      "change": "stage recording (12 unique stages) plus a redaction-safe client-smoke-failure.json written into public/",
+      "insert_only_proof": "predicate count 25 before (measured on 35f215d) and 25 after; asserted by test against git history",
+      "retested": "re-dispatched; outcome pending"
+    }
+  },
+  "p1_five_genuine_agent_runs": {
+    "classification_overall": "NOT_EXECUTED",
+    "per_framework": {
+      "smolagents": {
+        "classification": "NOT_EXECUTED",
+        "api_verification": "PASS",
+        "reason": "no reachable model endpoint in this container; the assignment does not accept a non-model-backed run",
+        "ready": "adapter written against the verified 1.26.0 API; effect contract declared"
+      },
+      "aider": {
+        "classification": "NOT_EXECUTED",
+        "api_verification": "PASS",
+        "reason": "same model-endpoint blocker",
+        "ready": "adapter written against verified 0.86.2 CLI flags; synthetic repo fixture starts genuinely failing (unit-tested)"
+      },
+      "goose": {
+        "classification": "BLOCKED",
+        "api_verification": "NOT_ATTEMPTED",
+        "reason": "aaif-goose/goose v1.57.0 is a Rust binary with no PyPI package and no verified non-interactive invocation contract",
+        "supply_chain_finding": "PyPI 'goose-ai' 0.1.0 is an unrelated upload and must never be installed as goose",
+        "ready": "adapter refuses explicitly rather than inventing an argv"
+      },
+      "browser_use": {
+        "classification": "NOT_EXECUTED",
+        "api_verification": "PASS",
+        "reason": "same model-endpoint blocker",
+        "ready": "adapter written against verified 0.13.14 API; needs a Chromium binary (0.13.14 drives CDP directly, no playwright dependency)"
+      },
+      "open_interpreter": {
+        "classification": "NOT_EXECUTED",
+        "api_verification": "PASS (PyPI artifact only)",
+        "reason": "same model-endpoint blocker",
+        "defect_found_and_fixed": "0.4.3 fails to import on a current environment (pkg_resources removed in setuptools>=81); remediated by pinning setuptools<81, re-verified",
+        "identity_finding": "openinterpreter/openinterpreter is now a Rust rewrite with no Python API; the Python project continues as a community fork"
+      }
+    }
+  },
+  "p2_ground_truth_corroboration": {
+    "classification": "NOT_EXECUTED",
+    "reason": "depends on P1",
+    "eligible_events": "NOT_MEASURED",
+    "matched_events": "NOT_MEASURED",
+    "missed_events": "NOT_MEASURED",
+    "unexpected_events": "NOT_MEASURED",
+    "attribution_correctness": "NOT_MEASURED",
+    "coverage_intervals": "NOT_MEASURED",
+    "clock_continuity_problems": "NOT_MEASURED",
+    "runtime_overhead": "NOT_MEASURED",
+    "note": "auditd is confirmed startable and its ruleset captured on the CI runner, so the independent capture path exists"
+  },
+  "p3_security_and_accountability_negatives": {
+    "classification": "NOT_EXECUTED",
+    "reason": "depends on P1",
+    "cases_defined_not_run": [
+      "wrong execution identity",
+      "unauthorized tool action",
+      "modified tool arguments",
+      "replayed gateway receipt",
+      "revoked/expired authorization",
+      "missing collector evidence",
+      "altered signed records",
+      "interrupted observation",
+      "ghost agent",
+      "parent-child delegation"
+    ],
+    "identity_layers_to_distinguish": [
+      "OS process identity",
+      "workload identity",
+      "logical agent identity",
+      "parent-child logical delegation",
+      "signed authority"
+    ],
+    "standing_constraint": "logical delegation must never be inferred from PID ancestry; the existing same-run result already records logical_subagent_attribution=NOT_ESTABLISHED"
+  },
+  "p4_repeatability_and_performance": {
+    "classification": "NOT_EXECUTED",
+    "reason": "depends on P1",
+    "trials_per_scenario_target": 10,
+    "trials_completed": "NOT_MEASURED",
+    "task_completion_rate": "NOT_MEASURED",
+    "event_match_rate": "NOT_MEASURED",
+    "cpu": "NOT_MEASURED",
+    "memory": "NOT_MEASURED",
+    "observation_latency": "NOT_MEASURED",
+    "evidence_size": "NOT_MEASURED",
+    "concurrency_agents_tested": "NOT_MEASURED"
+  },
+  "blockers": {
+    "model_endpoint_unreachable_in_this_container": {
+      "evidence": "agent proxy status reports connect_rejected / 'gateway answered 403 to CONNECT' for huggingface.co:443 and registry.ollama.ai:443; api.anthropic.com/v1/models returns 401 and no model credential is present in the environment",
+      "consequence": "no actual model-backed decision can be made here, so every framework run in this container would be a smoke test, which the assignment explicitly does not accept as a pass",
+      "remedy": "either allow-list registry.ollama.ai (the repository already pins llama3.2:1b by manifest digest and provisions it with validation/enterprise/prepare_local_model.py) or provide a model API key as an environment secret",
+      "already_proven_solvable": "YES on a GitHub-hosted runner: step 12 'Provision public pinned CPU model' succeeded in run 40825279520, so the pinned local model is reachable there"
+    },
+    "cgroup_v2_absent_in_this_container": {
+      "evidence": "/proc/self/cgroup and /proc/self/mountinfo show cgroup v1 with per-controller mounts under a tmpfs; /sys/fs/cgroup/cgroup.controllers exposes only 'hugetlb'",
+      "consequence": "same_run_validation.py requires {cpu, memory, pids} delegated under cgroup v2 and harness.py requires cgroup v2 at preflight",
+      "remedy": "run on a host with cgroup v2 (GitHub-hosted ubuntu-24.04 has it)"
+    },
+    "no_ntp_synchronised_clock_in_this_container": {
+      "evidence": "timedatectl reports 'System has not been booted with systemd as init system (PID 1)'",
+      "consequence": "harness.py preflight requires NTPSynchronized=yes; the collector boundary check requires clock_synchronized",
+      "remedy": "the CI workflow already installs and waits on chrony; keep that path"
+    },
+    "same_run_test_refuses_non_github_hosts_by_design": {
+      "evidence": "same_run_validation.py main(): refuses unless RUNNER_ENVIRONMENT == 'github-hosted'",
+      "consequence": "the acceptance test cannot run in this container at all",
+      "assessment": "this is an assurance criterion, not a defect. It was NOT weakened. The test was dispatched to GitHub Actions instead."
+    },
+    "no_self_hosted_disposable_runner": {
+      "evidence": ".github/workflows/real-agent-live.yml requires runs-on [self-hosted, linux, snifferdog-disposable] and environment 'snifferdog-validation'",
+      "consequence": "the existing privileged real-agent path has no runner to execute on",
+      "remedy": "either provision that runner, or add a GitHub-hosted workflow for the five frameworks (the model, auditd, chrony and cgroup v2 facts above show this is feasible)"
+    }
+  },
+  "environment_of_record": {
+    "container_kernel": "6.18.44-fc-v185",
+    "material_correction_to_the_forensic_record": {
+      "finding": "CONFIG_BPF_LSM=y and CONFIG_SECURITY_LANDLOCK=y on this kernel, and securityfs reports lsm=lockdown,capability,landlock,selinux,bpf",
+      "contrast": "the kernel of record in the maturity addendum (6.18.44-fc-v24) had CONFIG_BPF_LSM and CONFIG_SECURITY_LANDLOCK both unset",
+      "status": "CONFIG-OBSERVED and LSM-LIST-OBSERVED only. Per the trap already recorded in ADR-008, neither is evidence that BPF-LSM attach works. A runtime attach test has NOT been performed.",
+      "still_absent": [
+        "CONFIG_KPROBES",
+        "CONFIG_TCG_TPM",
+        "CONFIG_IMA"
+      ]
+    },
+    "mounted_by_hand_to_test": [
+      "tracefs (2305 events; sched_process_exec, sched_process_fork, sock_send_length all present)",
+      "securityfs",
+      "debugfs"
+    ],
+    "docker": "29.9.2 started, overlayfs",
+    "host": {
+      "cpus": 4,
+      "memory_mb": 16091
+    }
+  },
+  "claims_explicitly_not_made": [
+    "no bank acceptance or production approval is claimed from any internal test suite",
+    "no framework is claimed to have executed; four are NOT_EXECUTED and one is BLOCKED",
+    "no coverage, attribution, latency or overhead figure is reported, because none was measured",
+    "no observation-integrity or BPF-LSM capability claim is made from kernel config strings alone"
+  ]
+}

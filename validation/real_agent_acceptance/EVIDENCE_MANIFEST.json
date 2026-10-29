@@ -1,0 +1,50 @@
+{
+  "schema": "vanian.real_agent_acceptance.manifest/1",
+  "branch": "claude/real-agent-acceptance-n5ysvd",
+  "generated_at_utc": "2026-10-29",
+  "scope": "Verification and acceptance-test records. Contains NO agent-execution evidence; see FINAL_ASSESSMENT.md section 0.",
+  "external_evidence_not_held_here": [
+    {
+      "what": "the executed acceptance run and its retained public evidence",
+      "where": "GitHub Actions run 40825279520, artifact 12876193962",
+      "zip_sha256": "a9bc42e01e2514c0c15a36b6ec20f42c4798ca2f097b8cdaebdc78bb2ba32455",
+      "files": 43,
+      "bytes": 127257,
+      "note": "hash it yourself after download; do not take this digest on trust"
+    }
+  ],
+  "files": {
+    "ATTRIBUTION_REPORT.json": {
+      "sha256": "5816507c0d55d3cf37ee736b8731ed2ad01455efd3812962b2782dbb601c82fa",
+      "bytes": 538
+    },
+    "COVERAGE_REPORT.json": {
+      "sha256": "a3258d4cfca32b711dca41b158c268803360a0e87a49e27da1956604a245c172",
+      "bytes": 1896
+    },
+    "EXECUTION_RESULTS.json": {
+      "sha256": "c50929d148aa1e5055bc1f80ada08c2149bd1544a04ebbee540ac5c880b5796e",
+      "bytes": 11438
+    },
+    "FINAL_ASSESSMENT.md": {
+      "sha256": "d7272fe6b0fe05a8caa6579c8eed0fbb83e43851eb4d6c135bded736afa1f82f",
+      "bytes": 14588
+    },
+    "FRAMEWORK_MATRIX.csv": {
+      "sha256": "4abdac0773735aabfd56ba162fed8163af90d797eb7c1bc0c932206263571c6a",
+      "bytes": 4456
+    },
+    "INDEPENDENT_VERIFICATION.md": {
+      "sha256": "d758f85ebb5e0406a6c539cd20361037885f39b1e6f1c4bda7ddfa7d20a9c2e7",
+      "bytes": 8116
+    },
+    "PERFORMANCE_REPORT.csv": {
+      "sha256": "8cc68a942aad3d313f1434349a6354ba00e0f76d9c7cd887e762531d83a3270a",
+      "bytes": 1094
+    },
+    "SECURITY_NEGATIVES.json": {
+      "sha256": "c19f9514ad9a7a5c99715b70633ca5c3c39b43288461e2b1dfee40b838661ed3",
+      "bytes": 3208
+    }
+  }
+}

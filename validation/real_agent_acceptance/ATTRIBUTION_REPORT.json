@@ -1,0 +1,13 @@
+{
+  "schema": "vanian.real_agent_acceptance.attribution/1",
+  "status": "NOT_EXECUTED",
+  "layers": {
+    "os_process_identity": "NOT_MEASURED",
+    "workload_identity": "NOT_MEASURED",
+    "logical_agent_identity": "NOT_MEASURED",
+    "parent_child_logical_delegation": "NOT_MEASURED",
+    "signed_authority": "NOT_MEASURED"
+  },
+  "standing_rule": "logical delegation is never inferred from PID ancestry",
+  "prior_recorded_state": "the same-run result records logical_subagent_attribution=NOT_ESTABLISHED; nothing here changes that"
+}

@@ -1,0 +1,107 @@
+{
+  "schema": "vanian.real_agent_acceptance.security_negatives/1",
+  "status": "NOT_EXECUTED",
+  "cases": {
+    "wrong_execution_identity": {
+      "status": "NOT_EXECUTED",
+      "per_framework": {
+        "smolagents": "NOT_EXECUTED",
+        "aider": "NOT_EXECUTED",
+        "goose": "NOT_EXECUTED",
+        "browser_use": "NOT_EXECUTED",
+        "open_interpreter": "NOT_EXECUTED"
+      }
+    },
+    "unauthorized_tool_action": {
+      "status": "NOT_EXECUTED",
+      "per_framework": {
+        "smolagents": "NOT_EXECUTED",
+        "aider": "NOT_EXECUTED",
+        "goose": "NOT_EXECUTED",
+        "browser_use": "NOT_EXECUTED",
+        "open_interpreter": "NOT_EXECUTED"
+      }
+    },
+    "modified_tool_arguments": {
+      "status": "NOT_EXECUTED",
+      "per_framework": {
+        "smolagents": "NOT_EXECUTED",
+        "aider": "NOT_EXECUTED",
+        "goose": "NOT_EXECUTED",
+        "browser_use": "NOT_EXECUTED",
+        "open_interpreter": "NOT_EXECUTED"
+      }
+    },
+    "replayed_gateway_receipt": {
+      "status": "NOT_EXECUTED",
+      "per_framework": {
+        "smolagents": "NOT_EXECUTED",
+        "aider": "NOT_EXECUTED",
+        "goose": "NOT_EXECUTED",
+        "browser_use": "NOT_EXECUTED",
+        "open_interpreter": "NOT_EXECUTED"
+      }
+    },
+    "revoked_or_expired_authorization": {
+      "status": "NOT_EXECUTED",
+      "per_framework": {
+        "smolagents": "NOT_EXECUTED",
+        "aider": "NOT_EXECUTED",
+        "goose": "NOT_EXECUTED",
+        "browser_use": "NOT_EXECUTED",
+        "open_interpreter": "NOT_EXECUTED"
+      }
+    },
+    "missing_collector_evidence": {
+      "status": "NOT_EXECUTED",
+      "per_framework": {
+        "smolagents": "NOT_EXECUTED",
+        "aider": "NOT_EXECUTED",
+        "goose": "NOT_EXECUTED",
+        "browser_use": "NOT_EXECUTED",
+        "open_interpreter": "NOT_EXECUTED"
+      }
+    },
+    "altered_signed_records": {
+      "status": "NOT_EXECUTED",
+      "per_framework": {
+        "smolagents": "NOT_EXECUTED",
+        "aider": "NOT_EXECUTED",
+        "goose": "NOT_EXECUTED",
+        "browser_use": "NOT_EXECUTED",
+        "open_interpreter": "NOT_EXECUTED"
+      }
+    },
+    "interrupted_observation": {
+      "status": "NOT_EXECUTED",
+      "per_framework": {
+        "smolagents": "NOT_EXECUTED",
+        "aider": "NOT_EXECUTED",
+        "goose": "NOT_EXECUTED",
+        "browser_use": "NOT_EXECUTED",
+        "open_interpreter": "NOT_EXECUTED"
+      }
+    },
+    "ghost_agent": {
+      "status": "NOT_EXECUTED",
+      "per_framework": {
+        "smolagents": "NOT_EXECUTED",
+        "aider": "NOT_EXECUTED",
+        "goose": "NOT_EXECUTED",
+        "browser_use": "NOT_EXECUTED",
+        "open_interpreter": "NOT_EXECUTED"
+      }
+    },
+    "parent_child_delegation": {
+      "status": "NOT_EXECUTED",
+      "per_framework": {
+        "smolagents": "NOT_EXECUTED",
+        "aider": "NOT_EXECUTED",
+        "goose": "NOT_EXECUTED",
+        "browser_use": "NOT_EXECUTED",
+        "open_interpreter": "NOT_EXECUTED"
+      }
+    }
+  },
+  "note": "The repository already holds independent negative-control evidence for the bank-agent path; none of it is evidence about these five frameworks and it is not reused here."
+}
