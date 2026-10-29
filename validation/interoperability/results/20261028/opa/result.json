@@ -1,0 +1,66 @@
+{
+  "status": "PARTIALLY_VERIFIED",
+  "decisions": [
+    {
+      "engine": "OPA",
+      "engine_version": "1.21.4",
+      "policy_version": "synthetic-research-v1",
+      "principal": "research-agent",
+      "tenant": "synthetic-bank",
+      "resource": "synthetic-loans",
+      "action": "research.read",
+      "request_id": "research.read",
+      "execution_context_ref": null,
+      "input_commitment": "a31c1dea43758213cd2dde81bd97235b5953528230422797a8f4e1051b2ded97",
+      "native_result_json": "{\"result\":{\"allow\":true,\"policy_version\":\"synthetic-research-v1\"}}",
+      "decision": "ALLOW",
+      "evaluated_at_ms": 1793196604415,
+      "source": {
+        "mechanism": "HTTPS",
+        "authority": "ephemeral-lab-policy-service",
+        "trust_anchor": "ca-file-sha256:27787f47a28963b4e079286dbf25cc65fd39fbb5026daa6221f5f38ecb5d2eac",
+        "authenticated_at_ms": 1793196604415,
+        "signature_status": "NOT_PRESENT",
+        "boundary": "EXTERNAL_POLICY_SERVICE"
+      },
+      "evidence": [],
+      "conditions": [
+        "External decision reference; signed ExpectedExecution is still required.",
+        "Credential revocation is not established by offline JWT verification."
+      ],
+      "authorization_status": "REFERENCE_ONLY"
+    },
+    {
+      "engine": "OPA",
+      "engine_version": "1.21.4",
+      "policy_version": "synthetic-research-v1",
+      "principal": "research-agent",
+      "tenant": "synthetic-bank",
+      "resource": "synthetic-loans",
+      "action": "payment.write",
+      "request_id": "payment.write",
+      "execution_context_ref": null,
+      "input_commitment": "aad4d3d3381ce76ff095773b4e206e8bd8c44e718a158ec3d984668d652d8cc0",
+      "native_result_json": "{\"result\":{\"allow\":false,\"policy_version\":\"synthetic-research-v1\"}}",
+      "decision": "DENY",
+      "evaluated_at_ms": 1793196604418,
+      "source": {
+        "mechanism": "HTTPS",
+        "authority": "ephemeral-lab-policy-service",
+        "trust_anchor": "ca-file-sha256:27787f47a28963b4e079286dbf25cc65fd39fbb5026daa6221f5f38ecb5d2eac",
+        "authenticated_at_ms": 1793196604418,
+        "signature_status": "NOT_PRESENT",
+        "boundary": "EXTERNAL_POLICY_SERVICE"
+      },
+      "evidence": [],
+      "conditions": [
+        "External decision reference; signed ExpectedExecution is still required.",
+        "Credential revocation is not established by offline JWT verification."
+      ],
+      "authorization_status": "REFERENCE_ONLY"
+    }
+  ],
+  "missing_client_certificate_refused": true,
+  "authorization": "NO_SIGNED_EXPECTED_EXECUTION",
+  "version": "Version: 1.21.4\nBuild Commit: 05c845177c80747a2aabb607f9318f981993cc76-dirty\nBuild Timestamp: 2026-10-23T13:00:56Z\nBuild Hostname: \nGo Version: go1.27.3\nPlatform: linux/amd64\nRego Version: v1\nWebAssembly: available\n"
+}

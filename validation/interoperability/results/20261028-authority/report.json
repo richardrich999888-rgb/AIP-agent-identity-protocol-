@@ -1,0 +1,25 @@
+{
+  "base_commit": "04df31229a0eb2d534b4ff34d1aede4a0f609ebc",
+  "status": "IMPLEMENTED",
+  "scope": "Native offline authority-reference verification, not a new runtime capture",
+  "tests": {
+    "authorize_and_airi": {
+      "passed": 183,
+      "failed": 0,
+      "ignored": 1
+    },
+    "new_authority_reference_tests": 12,
+    "offline_example_tests": 5,
+    "offline_composition_checks": 3,
+    "archived_receipt_signatures": 28,
+    "clippy": "PASS",
+    "format": "PASS",
+    "workspace_all_targets_all_features_clippy": "PASS"
+  },
+  "host": "BLOCKED; see host-preflight.json",
+  "same_run_milestone": "NOT_COMPLETE",
+  "revocation": "NOT_ASSESSED",
+  "institutional_key_custody": "NOT_ESTABLISHED",
+  "new_kernel_evidence": "NONE",
+  "validated_code_commit": "e961d68b41a5cea29455ad8fa74c4570592dd122"
+}

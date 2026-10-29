@@ -1,0 +1,13 @@
+   Compiling aip-airi v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-airi)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.62s
+     Running unittests examples/interop_verify.rs (target/debug/examples/interop_verify-33b989aa59270cfa)
+
+running 5 tests
+test tests::root_authority_cannot_reuse_an_execution_role_key ... ok
+test tests::duplicate_roles_are_refused_including_observer_gateway ... ok
+test tests::external_allow_cannot_deserialize_as_core_authorization ... ok
+test tests::malformed_keys_are_refused ... ok
+test tests::authentic_authority_without_observation_still_cannot_prove_execution ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+

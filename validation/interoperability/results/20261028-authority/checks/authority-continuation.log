@@ -1,0 +1,293 @@
+   Compiling aip-authorize v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-authorize)
+   Compiling aip-reconcile v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-reconcile)
+   Compiling aip-airi v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-airi)
+   Compiling aip-ledger v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-ledger)
+   Compiling aip-warrant v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-warrant)
+   Compiling aip-nexora v0.4.0 (/workspace/scratch/749b2e514413/vanian/aip-standalone/aip-nexora)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.90s
+     Running unittests src/lib.rs (target/debug/deps/aip_airi-6da829b7aadabaa9)
+
+running 4 tests
+test receipt::tests::a_receipt_with_empty_or_oversized_fields_is_refused_at_signing ... ok
+test receipt::tests::canonical_bytes_lead_with_the_domain_tag_and_cover_every_field ... ok
+test receipt::tests::a_signer_cannot_sign_in_another_gateways_name ... ok
+test receipt::tests::the_receipt_round_trips_through_json_and_still_verifies ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/adversarial.rs (target/debug/deps/adversarial-714af01879669d7a)
+
+running 23 tests
+test a_malformed_commitment_cannot_be_smuggled_in_as_a_foreign_digest ... ok
+test a_claim_relabelled_to_another_framework_fails_verification ... ok
+test a_claim_without_a_runtime_binding_cannot_be_joined ... ok
+test a_kernel_event_the_probe_could_not_bind_does_not_corroborate ... ok
+test a_successful_tool_response_is_not_evidence_of_the_external_effect ... ok
+test a_batch_outside_the_window_is_not_evaluated ... ok
+test an_empty_framework_name_is_refused ... ok
+test a_model_invocation_is_never_corroborated_by_a_host_observer ... ok
+test an_event_signed_for_a_different_agent_id_is_refused ... ok
+test an_observation_of_a_different_instance_does_not_corroborate ... ok
+test an_observation_of_the_wrong_class_does_not_corroborate ... ok
+test an_unmappable_action_class_is_not_evaluated_rather_than_accused ... ok
+test corroboration_never_yields_a_verdict_or_a_strength ... ok
+test claim_corroborated_when_the_observer_saw_a_matching_kernel_event ... ok
+test framework_claims_a_tool_call_but_the_observer_saw_nothing ... ok
+test no_observer_evidence_is_not_evaluated ... ok
+test an_oversized_field_is_refused_rather_than_allocated ... ok
+test observer_unavailable_is_not_evaluated_and_is_not_a_finding ... ok
+test process_presence_alone_never_corroborates_an_act ... ok
+test application_lineage_is_not_identity_or_authority_lineage ... ok
+test a_handoff_binds_parent_and_child_executions ... ok
+test a_forged_event_signed_by_a_key_the_verifier_does_not_anchor_fails ... ok
+test no_framework_is_a_trust_anchor ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/binding.rs (target/debug/deps/binding-dfcd9f0d297af4f0)
+
+running 17 tests
+test an_event_cannot_be_moved_to_another_execution ... ok
+test an_airi_preimage_is_not_a_valid_preimage_in_any_other_aip_domain ... ok
+test an_event_cannot_be_moved_to_another_expected_execution ... ok
+test an_event_of_one_kind_cannot_be_presented_as_another ... ok
+test an_unsupported_version_is_refused ... ok
+test model_digest_substitution_is_detected ... ok
+test model_substitution_is_detected ... ok
+test optional_fields_distinguish_absent_from_present ... ok
+test the_parameter_commitment_is_domain_separated_from_a_bare_hash ... ok
+test the_preimage_is_injective_across_adjacent_string_fields ... ok
+test parameter_substitution_is_detected ... ok
+test framework_identity_substitution_is_detected ... ok
+test relabelling_an_event_to_another_agent_fails_even_with_that_agents_key ... ok
+test the_signature_covers_every_field_the_verifier_later_reads ... ok
+test a_malformed_public_key_is_an_error_not_a_pass ... ok
+test an_event_does_not_verify_under_another_agents_key ... ok
+test a_well_formed_event_verifies_against_the_signing_agent ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/chain.rs (target/debug/deps/chain-8341d62fa9e0d731)
+
+running 13 tests
+test an_empty_run_is_a_defect_not_an_intact_chain ... ok
+test a_chain_must_start_at_zero_with_a_zero_genesis ... ok
+test an_event_with_a_broken_signature_fails_the_chain ... ok
+test a_verified_chain_cannot_be_constructed_by_a_caller ... ok
+test reordering_is_detected ... ok
+test renumbering_after_a_deletion_is_caught_by_the_hash_link ... ok
+test a_dropped_event_is_detected ... ok
+test dropping_the_last_event_is_not_detectable_and_that_is_documented ... ok
+test splicing_an_event_from_another_agent_is_detected ... ok
+test a_replayed_event_is_detected ... ok
+test splicing_an_event_from_another_execution_is_detected ... ok
+test the_verifier_does_not_sort_its_way_out_of_a_reordering ... ok
+test an_untouched_chain_is_intact ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/nexora_commitment.rs (target/debug/deps/nexora_commitment-faa026b84c0ebca6)
+
+running 5 tests
+test an_airi_leaf_cannot_be_replayed_as_another_kind ... ok
+test an_airi_event_commits_under_its_own_leaf_kind ... ok
+test distinct_events_commit_to_distinct_leaves ... ok
+test a_whole_chain_commits_leaf_by_leaf_and_order_matters ... ok
+test the_committed_bytes_are_the_bytes_that_were_signed ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/parity_vectors.rs (target/debug/deps/parity_vectors-771aebafffc00a0c)
+
+running 2 tests
+test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture
+test parity_vectors_are_domain_tagged_and_distinct ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/python_interop.rs (target/debug/deps/python_interop-e159706152ee4549)
+
+running 1 test
+test rust_verifies_signatures_produced_by_the_python_sdk ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/reconcile_integration.rs (target/debug/deps/reconcile_integration-1bf849fb973db169)
+
+running 7 tests
+test the_engine_still_defaults_to_cannot_prove_with_no_observer ... ok
+test the_engines_verdict_is_identical_with_and_without_airi_evidence ... ok
+test not_evaluated_is_counted_separately_from_corroborated ... ok
+test an_uncorroborated_claim_is_surfaced_but_is_not_itself_a_verdict ... ok
+test annotating_cannot_mutate_the_reconciliation ... ok
+test a_corroborated_claim_does_not_produce_verified_execution ... ok
+test no_amount_of_airi_evidence_reaches_proven ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/tool_boundary.rs (target/debug/deps/tool_boundary-1f6ce2943ace2347)
+
+running 12 tests
+test a_receipt_the_verifier_does_not_anchor_or_that_the_agent_could_have_signed_is_refused ... ok
+test a_receipt_altered_after_signing_or_signed_by_an_impostor_is_refused ... ok
+test an_expectation_that_is_not_a_tool_invocation_or_is_unanchored_is_not_compared ... ok
+test a_gateway_that_received_a_call_to_another_tool_is_a_divergence ... ok
+test an_agent_that_misreports_a_request_the_gateway_received_correctly_is_named_separately ... ok
+test the_transaction_arguments_appear_in_no_signed_document ... ok
+test no_receipt_is_not_evaluated_never_a_divergence ... ok
+test a_gateway_that_received_other_parameters_is_the_named_divergence ... ok
+test a_claim_about_another_decision_or_another_kind_is_not_comparable_and_not_a_finding ... ok
+test a_receipt_matching_the_authorization_agrees_and_so_does_the_claim ... ok
+test a_receipt_for_another_decision_or_another_agent_is_not_comparable ... ok
+test the_reconciler_derives_no_action_evidence_for_a_tool_invocation ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running unittests src/lib.rs (target/debug/deps/aip_authorize-269d1fbb81fcf31b)
+
+running 15 tests
+test actions::tests::action_is_a_custom_scope_action_within_the_length_bound ... ok
+test actions::tests::malformed_endpoints_are_refused ... ok
+test actions::tests::exec_parameters_are_the_content_hash_and_nothing_else ... ok
+test actions::tests::parameters_are_a_fixed_injective_encoding ... ok
+test actions::tests::tool_invocations_are_named_by_tool_and_commitment_only ... ok
+test coverage::tests::close_is_monotone_and_per_agent ... ok
+test actions::tests::tool_identifiers_are_bounded_and_non_empty ... ok
+test expected::tests::duplicate_parameter_key_is_an_error_not_an_overwrite ... ok
+test coverage::tests::decisions_for_filters_by_agent_and_intersection_and_sorts ... ok
+test resource::tests::a_malformed_destination_is_an_error_not_a_pass ... ok
+test resource::tests::a_non_network_action_names_no_destination ... ok
+test expected::tests::parameter_encoding_leads_with_domain ... ok
+test spend::tests::every_outcome_maps_to_exactly_one_record_kind ... ok
+test expected::tests::parameters_are_order_independent_and_content_sensitive ... ok
+test resource::tests::a_connect_parameter_set_names_its_destination ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/adversarial.rs (target/debug/deps/adversarial-1dd24911f12e17cb)
+
+running 32 tests
+test decision_point_constructor_rejects_bad_material ... ok
+test chain_leaf_must_be_the_requesting_agent ... ok
+test a_denial_carries_no_expectation ... ok
+test expectation_never_outlives_the_authority_chain ... ok
+test invalid_window_is_rejected_structurally ... ok
+test self_issued_root_authority_is_denied_even_if_the_agent_key_is_trusted ... ok
+test request_type_carries_no_key_material ... ok
+test tampered_root_token_is_denied ... ok
+test each_decision_gets_a_fresh_decision_id ... ok
+test tampered_delegation_hop_is_denied ... ok
+test out_of_scope_action_is_denied ... ok
+test test_b_issued_at_mutation_rejected ... ok
+test honest_request_is_authorized_and_verifies_offline ... ok
+test test_d_parameter_digest_mutation_rejected ... ok
+test test_h_agent_running_its_own_decision_point_is_denied ... ok
+test test_c_action_kind_mutation_rejected ... ok
+test test_a_valid_until_mutation_rejected ... ok
+test binding_for_another_agent_or_degenerate_binding_is_denied ... ok
+test test_g_expected_execution_signature_cannot_verify_as_scoped_token ... ok
+test test_h_agent_key_under_a_fake_decision_point_id_is_not_trusted ... ok
+test test_i_decision_before_authority_issuance_is_denied ... ok
+test test_i_window_is_inclusive_at_both_ends ... ok
+test unknown_root_issuer_is_denied ... ok
+test test_h_handcrafted_expectation_naming_agent_as_decision_point_rejected ... ok
+test unknown_hop_issuer_is_denied ... ok
+test test_j_expectation_covers_only_its_own_decision_and_execution ... ok
+test test_e_execution_binding_mutation_rejected ... ok
+test test_i_decision_after_authority_expiry_is_denied ... ok
+test test_f_decision_id_and_authority_mutation_rejected ... ok
+test version_mutation_is_rejected_structurally ... ok
+test wrong_anchor_key_or_signer_id_is_rejected_distinctly ... ok
+test ttl_policy_is_enforced ... ok
+
+test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+     Running tests/authority_reference.rs (target/debug/deps/authority_reference-d418c1408c8e5ee2)
+
+running 12 tests
+test decision_signature_is_checked_before_chain_claims ... ok
+test conflicting_issuer_pins_are_not_silently_overwritten ... ok
+test an_alias_does_not_hide_a_self_issued_root_key ... ok
+test known_delegator_is_not_a_trusted_root ... ok
+test direct_root_grant_and_inclusive_expiry_use_native_semantics ... ok
+test chain_leaf_must_be_the_expectations_agent ... ok
+test native_issued_chain_verifies_with_exact_references ... ok
+test signed_decision_cannot_expand_the_chains_action_scope ... ok
+test forged_root_or_hop_is_refused_even_under_a_valid_decision_signature ... ok
+test decision_before_issuance_or_after_chain_expiry_is_refused ... ok
+test missing_delegator_and_malformed_anchors_cannot_verify ... ok
+test swapped_root_and_missing_or_reordered_hops_are_refused ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests/coverage.rs (target/debug/deps/coverage-b25203ae754cc28d)
+
+running 14 tests
+test p03_window_not_yet_closed_at_issue_time_is_refused ... ok
+test p02_window_before_the_ledger_epoch_is_refused ... ok
+test p07_an_empty_window_is_an_honest_empty_statement ... ok
+test p01_no_ledger_epoch_no_statement ... ok
+test p04_malformed_inputs_are_refused_before_the_ledger_is_consulted ... ok
+test p08_a_denied_request_is_not_in_the_ledger ... ok
+test p06_a_decision_whose_validity_ends_before_the_window_is_not_listed ... ok
+test p11_closure_is_monotone_a_narrower_later_statement_does_not_reopen ... ok
+test p13_a_statement_forged_under_another_key_does_not_verify ... ok
+test p12_a_refused_statement_closes_nothing ... ok
+test p09_two_statements_over_the_same_ledger_state_have_identical_preimages ... ok
+test p05_statement_lists_exactly_the_intersecting_decisions_for_that_agent ... ok
+test p14_every_signed_field_is_bound ... ok
+test p10_a_decision_back_issued_into_an_attested_window_is_denied ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/resources.rs (target/debug/deps/resources-339709343e0cd4e7)
+
+running 11 tests
+test a_registry_edited_after_signing_cannot_become_policy ... ok
+test a_hop_cannot_add_a_resource_its_parent_did_not_hold ... ok
+test a_registry_nobody_the_decision_point_trusts_signed_cannot_become_policy ... ok
+test a_non_network_action_is_not_resource_checked ... ok
+test a_named_resource_the_chain_never_granted_is_refused ... ok
+test an_action_grant_alone_grants_no_resource_once_a_policy_is_configured ... ok
+test the_right_host_on_an_unnamed_port_is_still_unregistered ... ok
+test without_a_policy_no_resource_check_is_performed_and_the_decision_point_says_so ... ok
+test an_address_the_institution_never_named_is_refused_outright ... ok
+test a_deny_anywhere_in_the_chain_withholds_the_resource ... ok
+test a_granted_resource_is_authorized_and_the_expectation_binds_the_endpoint ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/spend.rs (target/debug/deps/spend-a5cabd325545b118)
+
+running 16 tests
+test a_request_denied_earlier_carries_no_spend_record ... ok
+test a_request_denied_after_spend_authority_carries_no_attestation ... ok
+test a_refused_request_never_enters_the_decision_ledger ... ok
+test a_spend_above_the_threshold_is_authorised_and_marked_approval_required ... ok
+test a_spend_record_verifies_only_under_its_own_decision_point ... ok
+test the_decision_point_debug_names_the_policy_but_never_the_key ... ok
+test an_omitted_amount_is_refused ... ok
+test a_spend_within_the_limit_is_authorised_and_attested ... ok
+test an_attestation_names_only_its_own_expectation ... ok
+test five_thousand_against_one_thousand_is_refused_and_provably_so ... ok
+test a_policy_cannot_be_rolled_back_and_a_newer_revision_takes_effect ... ok
+test without_a_policy_nothing_changes_and_the_gap_is_visible ... ok
+test an_ungoverned_action_or_another_agents_policy_is_not_checked ... ok
+test the_plain_entry_point_enforces_the_same_limit ... ok
+test an_amount_that_cannot_be_read_is_refused_not_read_permissively ... ok
+test the_limit_is_inclusive_and_one_cent_over_is_refused ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+   Doc-tests aip_airi
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests aip_authorize
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

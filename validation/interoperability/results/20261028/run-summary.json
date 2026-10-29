@@ -1,0 +1,38 @@
+{
+  "base_commit": "e3aa195def7524d6ec84d37a934beebe18b6c794",
+  "status": "PARTIALLY_VERIFIED",
+  "model_calls": 4,
+  "contextforge_checks": 28,
+  "verified_gateway_receipts": 28,
+  "live_negative_checks": 5,
+  "kernel_observation": "NOT_EXECUTED",
+  "institutional_authority": "NOT_ESTABLISHED",
+  "spire": "BLOCKED: Unix sockets unavailable",
+  "openshell": "BLOCKED: no container runtime or required host capabilities",
+  "full_workspace_tests": {
+    "passed": 3078,
+    "failed": 161,
+    "ignored": 8,
+    "failed_targets": 28
+  },
+  "failed_attempts": [
+    "ContextForge loopback proxy configuration failed; scoped trust_env=False fixed transport.",
+    "ADK echoed delegation credentials into task history; authentication boundary now removes credentials before ADK. No such transcript is exported.",
+    "Small model emitted unsupported tool selection when raw task history was returned; model receives provider artifact text, full replies are archived separately.",
+    "Microsoft native dispatcher blocked when OPA path was misconfigured; ACS_OPA_PATH corrected.",
+    "Microsoft tuple-valued native labels required lossless JSON container normalization.",
+    "Python SDK parity test in model venv differed because installed PyTorch changes metadata; clean CI-prescribed SDK venv passes all 76 tests.",
+    "Full workspace Rust test command failed on managed host; no tests weakened or ignored to conceal failures."
+  ],
+  "same_run_gate": {
+    "complete": false,
+    "missing": [
+      "workload-to-logical-agent binding",
+      "independent institutional authority for actual model request",
+      "kernel observation",
+      "off-host collector",
+      "enterprise admission and API/SDK same-run read",
+      "offline verification of complete chain"
+    ]
+  }
+}

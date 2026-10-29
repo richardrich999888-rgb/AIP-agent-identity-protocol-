@@ -1,0 +1,514 @@
+{
+  "schema": "vanian.interop.upstreams.v1",
+  "inspected_on": "2026-10-28",
+  "base_commit": "e3aa195def7524d6ec84d37a934beebe18b6c794",
+  "projects": [
+    {
+      "repository": "a2aproject/A2A",
+      "inspected_commit": "89699392a324fb24ac19824041f3bbda131789ad",
+      "repository_owner": "a2aproject",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
+      "source_url": "https://github.com/a2aproject/A2A/tree/89699392a324fb24ac19824041f3bbda131789ad",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "a2aproject/a2a-python",
+      "inspected_commit": "43d1eff1b726af7a42874e212683396f62fbcaa3",
+      "repository_owner": "a2aproject",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
+      "source_url": "https://github.com/a2aproject/a2a-python/tree/43d1eff1b726af7a42874e212683396f62fbcaa3",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "agntcy/identity",
+      "inspected_commit": "8f7c1b52b5c4585cbd6308053ff43e076d96927e",
+      "repository_owner": "agntcy",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "17e8e31c464301b5d2359a79a573e53b9c7e7704ddd81daca72493e65d1ea55b"
+        }
+      ],
+      "source_url": "https://github.com/agntcy/identity/tree/8f7c1b52b5c4585cbd6308053ff43e076d96927e",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "agntcy/oasf",
+      "inspected_commit": "9f370e8ca1cc0d1b73cb61328198868ead55dbbb",
+      "repository_owner": "agntcy",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "94b4e826a54f5e12ac1b1df992642cdde5e2aac2027333588dec11ebcb367910"
+        }
+      ],
+      "source_url": "https://github.com/agntcy/oasf/tree/9f370e8ca1cc0d1b73cb61328198868ead55dbbb",
+      "read_sources": [
+        "README.md",
+        "SECURITY.md",
+        "LICENSE.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "agntcy/slim",
+      "inspected_commit": "03eb7cce8ae7df2113d8cac2ee3b8eda9f0ab6d4",
+      "repository_owner": "agntcy",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        }
+      ],
+      "source_url": "https://github.com/agntcy/slim/tree/03eb7cce8ae7df2113d8cac2ee3b8eda9f0ab6d4",
+      "read_sources": [
+        "README.md",
+        "SECURITY.md",
+        "LICENSE.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "agntcy/dir",
+      "inspected_commit": "a46fa138d8d6b713f4816279cba170eb2cde2d40",
+      "repository_owner": "agntcy",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        }
+      ],
+      "source_url": "https://github.com/agntcy/dir/tree/a46fa138d8d6b713f4816279cba170eb2cde2d40",
+      "read_sources": [
+        "README.md",
+        "SECURITY.md",
+        "LICENSE.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "spiffe/spire",
+      "inspected_commit": "a33d43d3c1cd734b6eca0c6ec6582353a5d35eb0",
+      "repository_owner": "spiffe",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "39ce806fa2687a8d8d6a8a8d57bfec8b2fc29fe2a9ae2023020390aabb2de82d"
+        }
+      ],
+      "source_url": "https://github.com/spiffe/spire/tree/a33d43d3c1cd734b6eca0c6ec6582353a5d35eb0",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "spiffe/go-spiffe",
+      "inspected_commit": "77c6d2e0c1203e36804e26a02faa8f893d72e7e5",
+      "repository_owner": "spiffe",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        }
+      ],
+      "source_url": "https://github.com/spiffe/go-spiffe/tree/77c6d2e0c1203e36804e26a02faa8f893d72e7e5",
+      "read_sources": [
+        "README.md",
+        "LICENSE"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "NVIDIA/OpenShell",
+      "inspected_commit": "44ef984b58f9badf79f2ff5b9982054017b01ca8",
+      "repository_owner": "NVIDIA",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "d07c0367e2861e7fe70fa1b679f879f4fa2f9138ade4457d44ecf8b2e135bb45"
+        }
+      ],
+      "source_url": "https://github.com/NVIDIA/OpenShell/tree/44ef984b58f9badf79f2ff5b9982054017b01ca8",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "NVIDIA-NeMo/Guardrails",
+      "inspected_commit": "e6b1c2bb1c6072279f9d7566b08e5567d1693ce8",
+      "repository_owner": "NVIDIA-NeMo",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "7c137905972e6199e4120716851edf334e211008c0ef3693eb269578b8a2ac2a"
+        }
+      ],
+      "source_url": "https://github.com/NVIDIA-NeMo/Guardrails/tree/e6b1c2bb1c6072279f9d7566b08e5567d1693ce8",
+      "read_sources": [
+        "README.md",
+        "SECURITY.md",
+        "LICENSE.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "NVIDIA/NeMo-Agent-Toolkit",
+      "inspected_commit": "79e18491fa9fef7677ed9b55d85013cafa95779b",
+      "repository_owner": "NVIDIA",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1"
+        }
+      ],
+      "source_url": "https://github.com/NVIDIA/NeMo-Agent-Toolkit/tree/79e18491fa9fef7677ed9b55d85013cafa95779b",
+      "read_sources": [
+        "README.md",
+        "SECURITY.md",
+        "LICENSE.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "google/adk-python",
+      "inspected_commit": "34750dcb85f4cdefefe002f8c3f156c471d29b52",
+      "repository_owner": "google",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
+      "source_url": "https://github.com/google/adk-python/tree/34750dcb85f4cdefefe002f8c3f156c471d29b52",
+      "read_sources": [
+        "README.md",
+        "LICENSE"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "microsoft/agent-governance-toolkit",
+      "inspected_commit": "4eca1f5b44d30ebe5e9745ac36ca394f887e617b",
+      "repository_owner": "microsoft",
+      "license": "MIT",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "7df20dcdf9197e9945c14858d41c60f11b52b93e5b69e2b63416b874d598d322"
+        }
+      ],
+      "source_url": "https://github.com/microsoft/agent-governance-toolkit/tree/4eca1f5b44d30ebe5e9745ac36ca394f887e617b",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "open-policy-agent/opa",
+      "inspected_commit": "ca660665cc95b0fce665b71192aac938889719c9",
+      "repository_owner": "open-policy-agent",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        }
+      ],
+      "source_url": "https://github.com/open-policy-agent/opa/tree/ca660665cc95b0fce665b71192aac938889719c9",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "cedar-policy/cedar",
+      "inspected_commit": "710fa6e6a33d93e58845a73861c364c25202037c",
+      "repository_owner": "cedar-policy",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b"
+        }
+      ],
+      "source_url": "https://github.com/cedar-policy/cedar/tree/710fa6e6a33d93e58845a73861c364c25202037c",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "openfga/openfga",
+      "inspected_commit": "44054f542f64e9b9589dd26a595081b3d2cfd942",
+      "repository_owner": "openfga",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "1c46d7b2bed94d457d745f28cabeb31f8d6c81dd9035bc5d24039989ee1e1bff"
+        }
+      ],
+      "source_url": "https://github.com/openfga/openfga/tree/44054f542f64e9b9589dd26a595081b3d2cfd942",
+      "read_sources": [
+        "README.md",
+        "LICENSE"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "modelcontextprotocol/modelcontextprotocol",
+      "inspected_commit": "ccaf9102ec5eb656eab50ca8333ef49dcd259c26",
+      "repository_owner": "modelcontextprotocol",
+      "license": "Apache-2.0 / MIT transition; docs CC-BY-4.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a"
+        }
+      ],
+      "source_url": "https://github.com/modelcontextprotocol/modelcontextprotocol/tree/ccaf9102ec5eb656eab50ca8333ef49dcd259c26",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "IBM/mcp-context-forge",
+      "inspected_commit": "cea3b88aa4e34ce2e922e7073f6884c97f3fcb19",
+      "repository_owner": "IBM",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        }
+      ],
+      "source_url": "https://github.com/IBM/mcp-context-forge/tree/cea3b88aa4e34ce2e922e7073f6884c97f3fcb19",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "open-telemetry/semantic-conventions-genai",
+      "inspected_commit": "51a0f580f8a6ad804ca4de5e033683c6fbbe5906",
+      "repository_owner": "open-telemetry",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        }
+      ],
+      "source_url": "https://github.com/open-telemetry/semantic-conventions-genai/tree/51a0f580f8a6ad804ca4de5e033683c6fbbe5906",
+      "read_sources": [
+        "README.md",
+        "LICENSE"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "CycloneDX/specification",
+      "inspected_commit": "ad83dae28b236b8760286399da4daba77592de86",
+      "repository_owner": "CycloneDX",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "6c29f22a4a7385285c6f579ec9f33c5e989f00739d6b257243a0b082ec9447ae"
+        }
+      ],
+      "source_url": "https://github.com/CycloneDX/specification/tree/ad83dae28b236b8760286399da4daba77592de86",
+      "read_sources": [
+        "README.md",
+        "LICENSE"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "cilium/tetragon",
+      "inspected_commit": "31fa5abdddab20cd2cf7452f61b63f0fa6758c64",
+      "repository_owner": "cilium",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "f096c31ac0fb2e66df5b7ec20049741ae15accd50c8cd4d100b4db6c9353f6aa"
+        }
+      ],
+      "source_url": "https://github.com/cilium/tetragon/tree/31fa5abdddab20cd2cf7452f61b63f0fa6758c64",
+      "read_sources": [
+        "README.md",
+        "LICENSE",
+        "SECURITY.md"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "falcosecurity/falco",
+      "inspected_commit": "2433beca300b9afc03d90ea2b8a169cf508e045a",
+      "repository_owner": "falcosecurity",
+      "license": "Apache-2.0",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "908a8e97d551fac9b859f653b53ac905d9de0e22d2f3099ca3120cc2525e7159"
+        }
+      ],
+      "source_url": "https://github.com/falcosecurity/falco/tree/2433beca300b9afc03d90ea2b8a169cf508e045a",
+      "read_sources": [
+        "README.md",
+        "LICENSE"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "linux-audit/audit-userspace",
+      "inspected_commit": "280cb8c07c431439ff85771988b9656780b8ef2b",
+      "repository_owner": "linux-audit",
+      "license": "GPL-2.0; library LGPL-2.1 (COPYING.LIB)",
+      "license_files": [
+        {
+          "path": "COPYING",
+          "sha256": "32b1062f7da84967e7019d01ab805935caa7ab7321a7ced0e30ebe75e5df1670"
+        },
+        {
+          "path": "COPYING.LIB",
+          "sha256": "f18a0811fa0e220ccbc42f661545e77f0388631e209585ed582a1c693029c6aa"
+        }
+      ],
+      "source_url": "https://github.com/linux-audit/audit-userspace/tree/280cb8c07c431439ff85771988b9656780b8ef2b",
+      "read_sources": [
+        "README.md",
+        "SECURITY.md",
+        "COPYING",
+        "COPYING.LIB"
+      ],
+      "runtime_test_status": "See docs/interoperability/VALIDATION_REPORT.md; inspection is not execution"
+    },
+    {
+      "repository": "opena2a-standards/agent-identity-protocol",
+      "inspected_commit": "8e641ebd3fc2e7eac56641db4a50d1e9ea1a8b40",
+      "license": "Apache-2.0",
+      "status": "Proposal; NOT_EXECUTED"
+    },
+    {
+      "repository": "a2aproject/a2a-tck",
+      "inspected_commit": "d4d6fae7887f88ef607fb461c13e3b0e1802f19b",
+      "license": "Apache-2.0",
+      "status": "Official compatibility suite; NOT_EXECUTED"
+    }
+  ],
+  "executed": {
+    "google-adk": {
+      "version": "2.13.0",
+      "commit": "d68ca857d5e3bab8e968d4e5f98ef028eb37dc87",
+      "a2a_extension": "experimental"
+    },
+    "a2a-sdk": {
+      "version": "1.3.0",
+      "commit": "0d9dafb92328144384eca58a6e8ab80cb8f7d445"
+    },
+    "opa": {
+      "version": "1.21.4",
+      "release_commit": "05c845177c80747a2aabb607f9318f981993cc76",
+      "binary_sha256": "2ab571f367f293bb19523b76f92f1945bbf245003392c7f392903f95c2b9b630",
+      "binary_build_reports": "05c845177c80747a2aabb607f9318f981993cc76-dirty"
+    },
+    "spire": {
+      "version": "1.15.3",
+      "release_commit": "2f7861ae3923caf1f57eb087fc2928d58c0fb1d2",
+      "archive_sha256": "ca1a4d1155317bdd2afc7f36663828a10410c7c840e54725b90b4064b0a301c7",
+      "execution": "BLOCKED locally; attempted real server"
+    },
+    "contextforge": {
+      "version": "1.1.0",
+      "commit": "ff6a566a4b5c098093db90bbb4d5df483e108026",
+      "uv_lock_sha256": "76ef83096d34d7a95aca91407cbf085c3da1e0c937616d86da393b9549117f0c",
+      "mcp": "2.3.0",
+      "mcp_protocol_negotiated": "2026-07-28"
+    },
+    "microsoft_acs": {
+      "sdk_version": "0.4.0b0",
+      "commit": "4eca1f5b44d30ebe5e9745ac36ca394f887e617b",
+      "native_core": "agent-control-spec 0.4.0-alpha.4",
+      "native_core_repository": "https://github.com/responsibleai/agent-control-spec",
+      "crate_sha256": "ce7cef7009046fda4752cf68911b6fa4076b6a7dcb5f6e0ef629b45dab7006f8"
+    },
+    "model": {
+      "repository": "Qwen/Qwen2.5-0.5B-Instruct",
+      "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+      "license": "Apache-2.0",
+      "trust_remote_code": false,
+      "file_sha256": {
+        "LICENSE": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e",
+        "README.md": "b19c806a904db6dc878a0462e70b551f6b7ac78dfbb88c2eb966ca2b9109ae15",
+        "config.json": "18e18afcaccafade98daf13a54092927904649e1dd4eba8299ab717d5d94ff45",
+        "generation_config.json": "e558847a8b4402616f1273797b015104dc266fe4b520056fca88823ba8f8ebe6",
+        "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "model.safetensors": "fdf756fa7fcbe7404d5c60e26bff1a0c8b8aa1f72ced49e7dd0210fe288fb7fe",
+        "tokenizer.json": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+        "tokenizer_config.json": "5b5d4f65d0acd3b2d56a35b56d374a36cbc1c8fa5cf3b3febbbfabf22f359583",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      }
+    }
+  },
+  "notes": [
+    "Inspected main commits and installed releases are intentionally separate.",
+    "No upstream source or binary is redistributed by this increment.",
+    "Dependency lock and runtime inventory do not establish vulnerability clearance or license compatibility of a future distribution."
+  ]
+}

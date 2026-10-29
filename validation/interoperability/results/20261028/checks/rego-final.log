@@ -1,0 +1,10 @@
+integrations/interoperability/examples/policy/vanian_test.rego:19:
+data.vanian_test.test_wrong_issuer_refused: PASS (403.097µs)
+integrations/interoperability/examples/policy/vanian_test.rego:15:
+data.vanian_test.test_write_refused: PASS (413.662µs)
+integrations/interoperability/examples/policy/vanian_test.rego:11:
+data.vanian_test.test_cross_tenant_refused: PASS (523.787µs)
+integrations/interoperability/examples/policy/vanian_test.rego:7:
+data.vanian_test.test_allowed_read: PASS (631.399µs)
+--------------------------------------------------------------------------------
+PASS: 4/4

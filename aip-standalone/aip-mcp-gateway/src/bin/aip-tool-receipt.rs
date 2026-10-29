@@ -14,7 +14,9 @@ use aip_airi::{
     GatewayTrustAnchors, SignedToolReceipt,
 };
 use aip_authorize::{DecisionPointTrustAnchors, ExpectedExecution};
-use aip_mcp_gateway::{check_header_body, issue_receipt, ToolCall, MCP_TOOLS_CALL};
+use aip_mcp_gateway::{
+    check_header_body, compare_received_call, issue_receipt, ToolCall, MCP_TOOLS_CALL,
+};
 use serde::Deserialize;
 use serde_json::{json, Value};
 
@@ -41,6 +43,24 @@ struct Request {
 struct Comparison {
     signed_receipt: SignedToolReceipt,
     expectation: ExpectedExecution,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ComparedRequest {
+    method: String,
+    tool_name: String,
+    arguments: Value,
+    agent_id: String,
+    decision_id: String,
+    tool_call_id: String,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ReceivedComparison {
+    signed_receipt: SignedToolReceipt,
+    request: ComparedRequest,
 }
 
 fn hex<const N: usize>(value: &str) -> Result<[u8; N], String> {
@@ -123,9 +143,9 @@ fn sink() -> Result<std::fs::File, String> {
 fn run() -> Result<Value, String> {
     let mode = std::env::args()
         .nth(1)
-        .ok_or("expected check, issue, verify, or compare")?;
-    if !["check", "issue", "verify", "compare"].contains(&mode.as_str()) {
-        return Err("expected check, issue, verify, or compare".into());
+        .ok_or("expected check, issue, verify, compare, or compare-request")?;
+    if !["check", "issue", "verify", "compare", "compare-request"].contains(&mode.as_str()) {
+        return Err("expected check, issue, verify, compare, or compare-request".into());
     }
     let gateway_id = std::env::var("AIP_GATEWAY_ID").map_err(|_| "AIP_GATEWAY_ID is required")?;
     let key_version = std::env::var("AIP_GATEWAY_KEY_VERSION")
@@ -151,6 +171,25 @@ fn run() -> Result<Value, String> {
         verify_tool_receipt(&signed, &anchors, None)
             .map_err(|error| format!("receipt: {error}"))?;
         return Ok(json!({"verified": true, "receipt": signed.receipt}));
+    }
+    if mode == "compare-request" {
+        let input: ReceivedComparison =
+            serde_json::from_slice(&input).map_err(|_| "invalid received-call comparison")?;
+        let receipt = verify_tool_receipt(&input.signed_receipt, &anchors, None)
+            .map_err(|error| format!("receipt: {error}"))?;
+        let request = ToolCall {
+            method: input.request.method,
+            tool_name: input.request.tool_name,
+            arguments: input.request.arguments,
+            agent_id: input.request.agent_id,
+            decision_id: hex(&input.request.decision_id)?,
+            tool_call_id: Some(input.request.tool_call_id),
+        };
+        let comparison = compare_received_call(&request, &receipt)?;
+        return Ok(json!({
+            "receipt_signature": "VERIFIED", "request_comparison": comparison,
+            "authorization": "NOT_ASSESSED", "kernel_execution": "CANNOT_PROVE"
+        }));
     }
     if mode == "compare" {
         let comparison: Comparison =

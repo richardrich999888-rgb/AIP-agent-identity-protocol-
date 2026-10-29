@@ -3,6 +3,20 @@
 Same self-critical register we use with the RBI. Written for a reader who will
 check it against the repository.
 
+## Interoperability continuation — 2026-10-28
+
+Draft PR #9 builds on the already-combined draft PR #8. Actual ADK/A2A and
+Microsoft-governed ContextForge runs retain verified gateway receipts, while
+the complete institutional same-run acceptance gate remains open. The offline
+verifier now optionally authenticates the exact native authority chain and
+action scope at issuance; this does not establish revocation, resource policy,
+key custody or observed execution. Local host prerequisites and GitHub runner
+execution remain blocked. A subsequent genuine agent run now verifies content
+consistency between reported native ACS input and its signed gateway receipt;
+it does not authenticate the policy producer or prove execution. See [the current validation report](docs/interoperability/VALIDATION_REPORT.md)
+for exact tests, failures, evidence and remaining guarantees. The historical
+observations below are separate runs and are not proof of this new milestone.
+
 ## The one-line answer
 
 **Phases 0–4 are built, tested and committed. Phase 1 was executed end-to-end
