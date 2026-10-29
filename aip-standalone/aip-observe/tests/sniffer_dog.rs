@@ -741,6 +741,53 @@ fn t15b_reported_loss_degrades_even_without_a_live_connector() {
     assert_eq!(f.signer.health(4).unwrap().health.attested_coverage, None);
 }
 
+/// Regression for the startup-loss defect: at the kernel default receive
+/// buffer the pilot's first batch always lost a connector event, so the
+/// honest path could never be `Active`. The probe now enlarges the buffer at
+/// open. This proves the enlargement takes effect (the kernel reports at
+/// least what was asked) and that the same burst t15 uses to force `ENOBUFS`
+/// is then received without loss. It does not prove overflow is impossible —
+/// a large enough burst still overflows, and is still counted (t15).
+#[cfg(target_os = "linux")]
+#[test]
+fn t15c_an_enlarged_connector_buffer_absorbs_the_burst_that_overflows_a_small_one() {
+    let Some(conn) = connector_or_skip("t15c") else {
+        return;
+    };
+    let want: i32 = 8 * 1024 * 1024;
+    let got = match conn.enlarge_receive_buffer(want) {
+        Ok(g) => g,
+        Err(e) => {
+            eprintln!("SKIP t15c: cannot enlarge receive buffer here ({e}); property NOT established in this environment");
+            return;
+        }
+    };
+    if got < want {
+        eprintln!("SKIP t15c: kernel granted only {got} of {want} bytes (no CAP_NET_ADMIN for SO_RCVBUFFORCE, clamped by rmem_max); property NOT established in this environment");
+        return;
+    }
+    for _ in 0..400 {
+        std::process::Command::new("/bin/true")
+            .spawn()
+            .unwrap()
+            .wait()
+            .unwrap();
+    }
+    let mut received = 0u64;
+    loop {
+        match conn.next_event(200) {
+            Ok(Some(_)) => received += 1,
+            Ok(None) => break,
+            Err(SourceError::EventsLost) => {
+                panic!("ENOBUFS with a {got}-byte receive buffer after {received} events")
+            }
+            Err(e) => panic!("{e}"),
+        }
+    }
+    // fork + exec + exit for each of 400 children, at least.
+    assert!(received >= 1200, "received only {received} events");
+}
+
 // ─── 16/17. Observer key substitution and compromise boundary ───
 
 #[test]

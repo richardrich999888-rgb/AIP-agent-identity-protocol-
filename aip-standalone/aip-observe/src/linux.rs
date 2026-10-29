@@ -403,6 +403,58 @@ mod sys {
             Ok(())
         }
 
+        /// Enlarge the kernel receive buffer to `bytes`. Tries
+        /// `SO_RCVBUFFORCE` first (needs `CAP_NET_ADMIN`, which opening the
+        /// connector already required, and is not clamped by
+        /// `net.core.rmem_max`), then falls back to `SO_RCVBUF`, which the
+        /// kernel clamps. Returns the effective size the kernel reports, so
+        /// the caller can log what it actually got rather than what it asked
+        /// for. A larger buffer does not hide loss: overflow is still
+        /// `ENOBUFS` and still counted.
+        pub fn enlarge_receive_buffer(&self, bytes: i32) -> Result<i32, SourceError> {
+            for opt in [libc::SO_RCVBUFFORCE, libc::SO_RCVBUF] {
+                // SAFETY: optval points to an i32 of the stated length.
+                let r = unsafe {
+                    libc::setsockopt(
+                        self.fd,
+                        libc::SOL_SOCKET,
+                        opt,
+                        &bytes as *const i32 as *const libc::c_void,
+                        std::mem::size_of::<i32>() as libc::socklen_t,
+                    )
+                };
+                if r == 0 {
+                    return self.receive_buffer();
+                }
+            }
+            Err(SourceError::Unavailable(
+                std::io::Error::last_os_error().to_string(),
+            ))
+        }
+
+        /// The kernel's current receive-buffer size for this socket (the
+        /// doubled value `SO_RCVBUF` reports, including bookkeeping).
+        pub fn receive_buffer(&self) -> Result<i32, SourceError> {
+            let mut v: i32 = 0;
+            let mut len = std::mem::size_of::<i32>() as libc::socklen_t;
+            // SAFETY: optval points to an i32 and len holds its size.
+            let r = unsafe {
+                libc::getsockopt(
+                    self.fd,
+                    libc::SOL_SOCKET,
+                    libc::SO_RCVBUF,
+                    &mut v as *mut i32 as *mut libc::c_void,
+                    &mut len,
+                )
+            };
+            if r < 0 {
+                return Err(SourceError::Unavailable(
+                    std::io::Error::last_os_error().to_string(),
+                ));
+            }
+            Ok(v)
+        }
+
         /// Receive the next event, waiting at most `timeout_ms`.
         /// `Ok(None)` on timeout; `Err(EventsLost)` when the kernel reports
         /// the receive queue overflowed; `Err(Malformed)` for bytes this

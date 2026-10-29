@@ -121,10 +121,14 @@ impl CrossSensorReport {
 }
 
 /// One exec, reduced to the fields the join needs.
-struct ExecEvent {
-    pid: u32,
-    tgid: u32,
-    ts_ns: u64,
+///
+/// Public so a caller can carry one batch's perf-tracepoint execs into the
+/// check of the next ([`measured_execs`], [`detect_with_preceding`]).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExecEvent {
+    pub pid: u32,
+    pub tgid: u32,
+    pub ts_ns: u64,
 }
 
 /// Every exec reported by `mechanism` in this batch.
@@ -187,6 +191,50 @@ fn execs_of(batch: &ObservationBatch, mechanism: SourceMechanism) -> Vec<ExecEve
 /// opened, there is no anchor to measure against. An idle window with no
 /// connector execs likewise diverges from nothing.
 pub fn detect(batch: &ObservationBatch, window_ns: u64) -> CrossSensorReport {
+    detect_with_preceding(batch, &[], window_ns)
+}
+
+/// The perf-tracepoint execs of `batch`, in the shape
+/// [`detect_with_preceding`] takes as `preceding`. Empty unless the
+/// tracepoint was declared live in the batch.
+pub fn measured_execs(batch: &ObservationBatch) -> Vec<ExecEvent> {
+    if !batch
+        .active_mechanisms
+        .contains(&SourceMechanism::SchedTracepoint)
+    {
+        return Vec::new();
+    }
+    execs_of(batch, SourceMechanism::SchedTracepoint)
+}
+
+/// [`detect`], additionally accepting corroboration from the perf execs of
+/// the batch that immediately preceded this one from the same probe run.
+///
+/// # Why the preceding batch, and only it
+///
+/// The kernel fires `sched:sched_process_exec` before it sends the
+/// connector's exec message (`exec_binprm`: the tracepoint, then
+/// `proc_exec_connector`), so the perf record is already in its ring when the
+/// connector message reaches its socket. A probe that drains the connector
+/// *before* the perf rings therefore never puts a connector exec in an
+/// earlier batch than its perf counterpart — but the counterpart can land one
+/// batch *earlier*: perf event at `s`, then the connector drained at `t_c`,
+/// then the perf ring drained at `t_s`, with `t_c < s < t_s`. Its connector
+/// message arrives after `t_c` and goes into the next batch. Judging that
+/// next batch alone accuses a healthy sensor of being blinded (measured on
+/// the pilot's control run: every divergence was this boundary case, each
+/// with its counterpart one batch away).
+///
+/// Corroboration still requires the same `(pid, tgid)` within `window_ns`,
+/// so a blinded tracepoint — which delivers nothing in any batch — is
+/// detected exactly as before. `preceding` must come from the same probe run
+/// (the caller checks `probe_run_id`); across a restart there is no adjacent
+/// batch, and an empty slice is the conservative answer.
+pub fn detect_with_preceding(
+    batch: &ObservationBatch,
+    preceding: &[ExecEvent],
+    window_ns: u64,
+) -> CrossSensorReport {
     let anchor = SourceMechanism::ProcConnector;
     let measured = SourceMechanism::SchedTracepoint;
 
@@ -197,7 +245,8 @@ pub fn detect(batch: &ObservationBatch, window_ns: u64) -> CrossSensorReport {
     }
 
     let anchor_execs = execs_of(batch, anchor);
-    let measured_execs = execs_of(batch, measured);
+    let mut measured_execs = execs_of(batch, measured);
+    measured_execs.extend_from_slice(preceding);
 
     let divergences = anchor_execs
         .into_iter()
@@ -493,6 +542,72 @@ mod tests {
             1,
             "but they are one capability failure of one sensor"
         );
+    }
+
+    // ── Batch boundary: the counterpart one batch earlier ────────────────
+
+    /// Regression for the pilot control-run false positive: the perf exec was
+    /// drained into batch N, its connector exec into batch N+1. With the
+    /// preceding batch's perf execs carried in, it corroborates.
+    #[test]
+    fn a_perf_exec_in_the_preceding_batch_corroborates() {
+        let prev = batch(&BOTH, vec![sched_exec(4242, 4242, 1_000_000)]);
+        let next = batch(
+            &BOTH,
+            vec![exec_event(SourceMechanism::ProcConnector, 4242, 1_100_000)],
+        );
+        // The original failure is preserved when judged alone.
+        assert_eq!(detect_default(&next).divergences.len(), 1);
+        let carried = measured_execs(&prev);
+        assert!(detect_with_preceding(&next, &carried, DEFAULT_MATCH_WINDOW_NS).is_empty());
+    }
+
+    /// The carry does not weaken detection: a blinded tracepoint delivered
+    /// nothing in the preceding batch either, and an unrelated pid or a
+    /// time outside the window in the preceding batch does not corroborate.
+    #[test]
+    fn the_preceding_batch_corroborates_only_the_same_exec() {
+        let blinded_prev = batch(&BOTH, vec![]);
+        let next = batch(
+            &BOTH,
+            vec![exec_event(
+                SourceMechanism::ProcConnector,
+                4242,
+                1_000_000_000,
+            )],
+        );
+        let r = detect_with_preceding(
+            &next,
+            &measured_execs(&blinded_prev),
+            DEFAULT_MATCH_WINDOW_NS,
+        );
+        assert_eq!(r.divergences.len(), 1);
+
+        let other_pid = batch(&BOTH, vec![sched_exec(4243, 4243, 1_000_000_000)]);
+        let r = detect_with_preceding(&next, &measured_execs(&other_pid), DEFAULT_MATCH_WINDOW_NS);
+        assert_eq!(r.divergences.len(), 1);
+
+        let too_old = batch(
+            &BOTH,
+            vec![sched_exec(
+                4242,
+                4242,
+                1_000_000_000 - DEFAULT_MATCH_WINDOW_NS - 1,
+            )],
+        );
+        let r = detect_with_preceding(&next, &measured_execs(&too_old), DEFAULT_MATCH_WINDOW_NS);
+        assert_eq!(r.divergences.len(), 1);
+    }
+
+    /// A preceding batch whose tracepoint was not declared live contributes
+    /// nothing: its silence is not evidence either way.
+    #[test]
+    fn measured_execs_is_empty_when_the_tracepoint_was_not_live() {
+        let b = batch(
+            &[SourceMechanism::ProcConnector],
+            vec![sched_exec(4242, 4242, 1_000_000)],
+        );
+        assert!(measured_execs(&b).is_empty());
     }
 
     // ── Only execs are comparable ────────────────────────────────────────

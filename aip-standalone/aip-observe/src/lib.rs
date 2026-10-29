@@ -91,8 +91,10 @@ pub use continuity::{Admission, ContinuityBreak, ContinuityFault, ObserverLedger
 pub use custody::{CollectorKey, CollectorKeyError, CollectorKeyPolicy};
 pub use divergence::{
     detect as detect_cross_sensor_divergence,
-    detect_default as detect_cross_sensor_divergence_default, CrossSensorReport, Divergence,
-    DEFAULT_MATCH_WINDOW_NS,
+    detect_default as detect_cross_sensor_divergence_default,
+    detect_with_preceding as detect_cross_sensor_divergence_with_preceding,
+    measured_execs as cross_sensor_measured_execs, CrossSensorReport, Divergence,
+    ExecEvent as CrossSensorExec, DEFAULT_MATCH_WINDOW_NS,
 };
 pub use fanotify::{
     parse_fanotify_buffer, RawFileEvent, FAN_CLOSE_WRITE, FAN_MODIFY, FAN_Q_OVERFLOW,

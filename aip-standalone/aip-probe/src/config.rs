@@ -52,7 +52,26 @@ pub struct SensorConfig {
     /// silently stop seeing the traffic it was configured for. From
     /// `AIP_PROBE_AFPACKET_INTERFACE`.
     pub afpacket_interface: Option<String>,
+    /// Receive-buffer size requested for the netlink process connector, in
+    /// bytes. `None` leaves the kernel default (`net.core.rmem_default`,
+    /// typically 208 KiB).
+    ///
+    /// The connector has no ring and no LOST record: when its socket queue
+    /// overflows between two drains the kernel returns `ENOBUFS`, which is
+    /// counted loss and degrades the whole epoch. At the kernel default a
+    /// burst of a few hundred process events inside one batch interval
+    /// overflows it — measured: every pilot run lost an event in its first
+    /// batch, so the honest path could never reach `Active`. From
+    /// `AIP_PROBE_CONNECTOR_RCVBUF_BYTES`; unset means
+    /// [`DEFAULT_CONNECTOR_RCVBUF_BYTES`], `0` means the kernel default.
+    pub connector_rcvbuf_bytes: Option<u32>,
 }
+
+/// Production default connector receive buffer: 8 MiB. Requested with
+/// `SO_RCVBUFFORCE` (the probe already holds `CAP_NET_ADMIN` to open the
+/// connector), so it is not clamped by `net.core.rmem_max`. Loss is still
+/// counted if it still occurs; this only makes genuine overflow rarer.
+pub const DEFAULT_CONNECTOR_RCVBUF_BYTES: u32 = 8 * 1024 * 1024;
 
 impl SensorConfig {
     /// Any sensor at all is selected.
@@ -129,6 +148,28 @@ fn parse_pubkey_hex(key: &str, value: &str) -> Result<[u8; 32], String> {
     })
 }
 
+/// `AIP_PROBE_CONNECTOR_RCVBUF_BYTES`: unset → the production default, `0` →
+/// the kernel default (kept so the old behavior can be reproduced), any other
+/// value → that many bytes. Not a number, or above `i32::MAX` (the socket
+/// option's type), refuses to start.
+fn parse_connector_rcvbuf(value: Option<&str>) -> Result<Option<u32>, String> {
+    match value {
+        None => Ok(Some(DEFAULT_CONNECTOR_RCVBUF_BYTES)),
+        Some(v) => {
+            let n = v
+                .parse::<u32>()
+                .map_err(|e| format!("AIP_PROBE_CONNECTOR_RCVBUF_BYTES: {e}"))?;
+            if n > i32::MAX as u32 {
+                return Err(format!(
+                    "AIP_PROBE_CONNECTOR_RCVBUF_BYTES: {n} exceeds {}",
+                    i32::MAX
+                ));
+            }
+            Ok((n != 0).then_some(n))
+        }
+    }
+}
+
 impl Config {
     pub fn from_env() -> Result<Self, String> {
         let batch_interval_ms = match std::env::var("AIP_PROBE_BATCH_INTERVAL_MS") {
@@ -141,6 +182,8 @@ impl Config {
         let mut sensors = SensorConfig::parse(&require("AIP_PROBE_SENSORS")?)?;
         sensors.fanotify_path = optional("AIP_PROBE_FANOTIFY_PATH");
         sensors.afpacket_interface = optional("AIP_PROBE_AFPACKET_INTERFACE");
+        sensors.connector_rcvbuf_bytes =
+            parse_connector_rcvbuf(optional("AIP_PROBE_CONNECTOR_RCVBUF_BYTES").as_deref())?;
         // Fail closed on a fanotify sensor with no mount to mark. The mark is
         // FAN_MARK_MOUNT; without an explicit path the probe would either
         // watch `/` or watch nothing, and both are worse than refusing to
@@ -180,6 +223,22 @@ mod tests {
             .unwrap_err()
             .contains("got 31 bytes"));
         assert!(parse_pubkey_hex("K", "zz").unwrap_err().contains("not hex"));
+    }
+
+    #[test]
+    fn the_connector_receive_buffer_defaults_large_and_zero_means_kernel_default() {
+        assert_eq!(
+            parse_connector_rcvbuf(None).unwrap(),
+            Some(DEFAULT_CONNECTOR_RCVBUF_BYTES)
+        );
+        assert_eq!(parse_connector_rcvbuf(Some("0")).unwrap(), None);
+        assert_eq!(
+            parse_connector_rcvbuf(Some("1048576")).unwrap(),
+            Some(1_048_576)
+        );
+        assert!(parse_connector_rcvbuf(Some("big")).is_err());
+        assert!(parse_connector_rcvbuf(Some("-1")).is_err());
+        assert!(parse_connector_rcvbuf(Some("3000000000")).is_err());
     }
 
     #[test]

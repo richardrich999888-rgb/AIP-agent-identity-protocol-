@@ -153,6 +153,25 @@ impl SensorSet {
         let connector = if cfg.connector {
             let c = ProcConnector::open()
                 .map_err(|e| format!("open netlink process connector (needs CAP_NET_ADMIN in the initial network namespace): {e}"))?;
+            // The kernel default receive buffer overflowed in every pilot run
+            // during the first batch (counted loss, a degraded epoch, no
+            // `Active`). Enlarge it; report what the kernel actually granted.
+            // A refusal is not fatal — the sensor still counts its loss — but
+            // it is said, not swallowed.
+            if let Some(bytes) = cfg.connector_rcvbuf_bytes {
+                let want = i32::try_from(bytes).unwrap_or(i32::MAX);
+                match c.enlarge_receive_buffer(want) {
+                    Ok(got) => eprintln!(
+                        "aip-probe: connector receive buffer requested={bytes} effective={got}"
+                    ),
+                    Err(e) => eprintln!(
+                        "aip-probe: connector receive buffer requested={bytes} refused: {e}; \
+                         kernel default kept, overflow is still counted"
+                    ),
+                }
+            } else if let Ok(got) = c.receive_buffer() {
+                eprintln!("aip-probe: connector receive buffer kernel_default effective={got}");
+            }
             probe.declare_source(SourceMechanism::ProcConnector);
             probe.enable_loss_counter();
             Some(c)
@@ -248,11 +267,59 @@ impl SensorSet {
                         }
                         let lost = t.take_lost();
                         if lost > 0 {
+                            eprintln!("AIP_SENSOR_LOSS sensor={} n={lost}", stringify!($ingest));
                             self.probe.record_lost_events(lost);
                         }
                     }
                 };
             }
+            // The connector is drained FIRST, before any perf ring. The kernel
+            // fires `sched_process_exec` before it sends the connector's exec
+            // message, so every connector exec drained here already has its
+            // perf record in the ring drained next — this batch or, at the
+            // boundary, the previous one, which the collector's divergence
+            // check also consults. Draining it last (the old order) let a
+            // perf exec fall into the NEXT batch while its connector exec sat
+            // in this one: a healthy sensor judged blinded (measured on the
+            // pilot control run, every divergence was that boundary case).
+            //
+            // The connector has no ring and no LOST record: the kernel signals
+            // an overflowed receive queue with `ENOBUFS`, surfaced as
+            // `SourceError::EventsLost`. How many events were lost is unknown,
+            // so the count recorded is a floor of one, and it does what any
+            // counted loss does: the collector marks the epoch degraded and
+            // the probe forgets its exec-time bindings (a pid may have been
+            // recycled across the gap). Nothing is inferred to fill the hole.
+            if let Some(c) = self.connector.as_ref() {
+                let mut n: u32 = 0;
+                loop {
+                    match c.next_event(POLL_MS) {
+                        Ok(Some(ev)) => {
+                            self.probe.ingest_kernel_event(ev);
+                            n += 1;
+                            if n >= MAX_EVENTS_PER_SENSOR {
+                                break;
+                            }
+                        }
+                        Ok(None) => break,
+                        // `ENOBUFS` is reported once per overflow and then
+                        // cleared; the messages still queued are readable.
+                        // Keep draining them (within the cap) so they are not
+                        // pushed into the next batch behind their perf
+                        // counterparts.
+                        Err(aip_observe::SourceError::EventsLost) => {
+                            eprintln!("AIP_SENSOR_LOSS sensor=connector n=1");
+                            self.probe.record_lost_events(1);
+                            n += 1;
+                            if n >= MAX_EVENTS_PER_SENSOR {
+                                break;
+                            }
+                        }
+                        Err(_) => break,
+                    }
+                }
+            }
+
             drain_into_probe!(self.process, ingest_sched_event);
             drain_into_probe!(self.cgroup, ingest_cgroup_event);
             drain_into_probe!(self.sockstate, ingest_socket_event);
@@ -279,35 +346,8 @@ impl SensorSet {
                 }
                 let lost = w.take_lost();
                 if lost > 0 {
+                    eprintln!("AIP_SENSOR_LOSS sensor=fanotify n={lost}");
                     self.probe.record_lost_events(lost);
-                }
-            }
-
-            // The connector has no ring and no LOST record: the kernel signals
-            // an overflowed receive queue with `ENOBUFS`, surfaced as
-            // `SourceError::EventsLost`. How many events were lost is unknown,
-            // so the count recorded is a floor of one, and it does what any
-            // counted loss does: the collector marks the epoch degraded and
-            // the probe forgets its exec-time bindings (a pid may have been
-            // recycled across the gap). Nothing is inferred to fill the hole.
-            if let Some(c) = self.connector.as_ref() {
-                let mut n: u32 = 0;
-                loop {
-                    match c.next_event(POLL_MS) {
-                        Ok(Some(ev)) => {
-                            self.probe.ingest_kernel_event(ev);
-                            n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
-                                break;
-                            }
-                        }
-                        Ok(None) => break,
-                        Err(aip_observe::SourceError::EventsLost) => {
-                            self.probe.record_lost_events(1);
-                            break;
-                        }
-                        Err(_) => break,
-                    }
                 }
             }
 

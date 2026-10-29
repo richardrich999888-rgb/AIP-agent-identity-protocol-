@@ -20,7 +20,9 @@
 
 use std::sync::{Arc, Mutex};
 
-use aip_observe::{CollectorRuntime, MechanismIntegrity, ObservationBatch, SourceMechanism};
+use aip_observe::{
+    CollectorRuntime, CrossSensorExec, MechanismIntegrity, ObservationBatch, SourceMechanism,
+};
 use aip_transport::{BatchAckData, BatchSink, SinkError};
 
 /// Bridges [`aip_transport`]'s [`BatchSink`] to a shared [`CollectorRuntime`].
@@ -32,6 +34,12 @@ pub struct RuntimeSink {
     /// drop-after-ack behaviour, which exists only so a deployment that has
     /// its own sink can opt out deliberately rather than by omission.
     archive: Option<std::path::PathBuf>,
+    /// The perf-tracepoint execs of the last batch this connection accepted,
+    /// keyed by its probe run, so the divergence check can find a counterpart
+    /// that landed one batch earlier than its connector exec (see
+    /// `aip_observe::detect_cross_sensor_divergence_with_preceding`). One
+    /// sink serves one connection, so this is one probe's previous batch.
+    preceding_sched: Option<([u8; 16], Vec<CrossSensorExec>)>,
 }
 
 impl RuntimeSink {
@@ -42,6 +50,7 @@ impl RuntimeSink {
         Self {
             runtime,
             archive: None,
+            preceding_sched: None,
         }
     }
 
@@ -53,6 +62,7 @@ impl RuntimeSink {
         Self {
             runtime,
             archive: Some(archive.into()),
+            preceding_sched: None,
         }
     }
 
@@ -121,9 +131,28 @@ impl BatchSink for RuntimeSink {
         // than the probe's `Verified` and the signed state is
         // `IntegrityUnknown`. A later batch with no divergence carries the
         // probe's `Verified` again and recovery proceeds normally.
-        for report in
-            aip_observe::detect_cross_sensor_divergence_default(&batch).integrity_reports()
-        {
+        //
+        // The previous batch's perf execs from the same probe run are allowed
+        // to corroborate: the probe drains the connector before the perf
+        // rings, so a perf exec can be drained one batch before its connector
+        // exec and judging the batch alone falsely accuses a healthy sensor.
+        // A different run (a restart) gets no carry.
+        let preceding: &[CrossSensorExec] = match &self.preceding_sched {
+            Some((run, execs)) if *run == batch.probe_run_id => execs,
+            _ => &[],
+        };
+        let divergence = aip_observe::detect_cross_sensor_divergence_with_preceding(
+            &batch,
+            preceding,
+            aip_observe::DEFAULT_MATCH_WINDOW_NS,
+        );
+        // Carried forward only once this batch is attested (below): an
+        // unattested batch must not corroborate anything.
+        let carry = (
+            batch.probe_run_id,
+            aip_observe::cross_sensor_measured_execs(&batch),
+        );
+        for report in divergence.integrity_reports() {
             match batch
                 .mechanism_integrity
                 .iter_mut()
@@ -134,8 +163,8 @@ impl BatchSink for RuntimeSink {
             }
         }
 
-        let mut rt = self
-            .runtime
+        let runtime = Arc::clone(&self.runtime);
+        let mut rt = runtime
             .lock()
             .map_err(|_| SinkError("collector runtime lock poisoned".into()))?;
 
@@ -166,6 +195,7 @@ impl BatchSink for RuntimeSink {
         let attested = rt
             .attest(batch)
             .map_err(|e| SinkError(format!("attest refused: {e:?}")))?;
+        self.preceding_sched = Some(carry);
         let head = rt.snapshot().head.unwrap_or([0u8; 32]);
         // Keep the evidence, not just the position it advanced the chain to.
         self.archive_batch(&attested)?;
@@ -290,6 +320,75 @@ mod tests {
             ObserverState::IntegrityUnknown,
             "corroborated execs must not raise a divergence finding"
         );
+    }
+
+    /// Two consecutive batches from one probe run: the perf exec was drained
+    /// into the first, its connector exec into the second. One probe run.
+    fn split_across_batches(probe: &mut ProcfsProbe, sched_first: bool) -> (Vec<u8>, Vec<u8>) {
+        let exec = |pid, ts| ProcEvent {
+            cgroup: aip_observe::CgroupSample::NotSampled,
+            kind: KernelLifecycleKind::Exec { pid, tgid: pid },
+            cpu: 0,
+            timestamp_ns: ts,
+        };
+        let one = |probe: &mut ProcfsProbe, sched: bool| {
+            probe.declare_mechanism_integrity(
+                SourceMechanism::SchedTracepoint,
+                MechanismIntegrity::Verified,
+            );
+            if sched {
+                probe.ingest_sched_event(exec(4242, 1_000_000));
+            } else {
+                probe.ingest_kernel_event(exec(4242, 1_100_000));
+            }
+            serde_json::to_vec(&probe.batch([9u8; 16], 100, 200, vec![])).unwrap()
+        };
+        let a = one(probe, sched_first);
+        let b = one(probe, !sched_first);
+        (a, b)
+    }
+
+    fn live_probe(id: &str) -> ProcfsProbe {
+        let mut probe = ProcfsProbe::new(id);
+        probe.declare_source(SourceMechanism::ProcConnector);
+        probe.declare_source(SourceMechanism::SchedTracepoint);
+        probe
+    }
+
+    /// Regression for the pilot control-run false positive: a perf exec in
+    /// batch N whose connector exec landed in batch N+1 is corroborated, not
+    /// a blinding finding.
+    #[test]
+    fn a_perf_exec_one_batch_before_its_connector_exec_is_not_a_finding() {
+        let rt = dev_runtime("obs", "boundary");
+        let mut sink = RuntimeSink::new(Arc::clone(&rt));
+        let (a, b) = split_across_batches(&mut live_probe("probe-1"), true);
+        sink.accept_batch("probe-1", 1, &a).unwrap();
+        sink.accept_batch("probe-1", 2, &b).unwrap();
+        assert_ne!(state_of(&rt), ObserverState::IntegrityUnknown);
+    }
+
+    /// The carry is one-directional and run-scoped: a perf exec that would
+    /// arrive only AFTER its connector exec, or one from a different probe
+    /// run, corroborates nothing, so a blinded tracepoint is still caught.
+    #[test]
+    fn the_batch_boundary_carry_does_not_hide_a_blinded_tracepoint() {
+        // Connector first, perf one batch later: the earlier batch is judged
+        // alone and diverges.
+        let rt = dev_runtime("obs", "boundary-rev");
+        let mut sink = RuntimeSink::new(Arc::clone(&rt));
+        let (a, _) = split_across_batches(&mut live_probe("probe-1"), false);
+        sink.accept_batch("probe-1", 1, &a).unwrap();
+        assert_eq!(state_of(&rt), ObserverState::IntegrityUnknown);
+
+        // Perf exec from another probe run does not corroborate.
+        let rt = dev_runtime("obs", "boundary-run");
+        let mut sink = RuntimeSink::new(Arc::clone(&rt));
+        let (a, _) = split_across_batches(&mut live_probe("probe-1"), true);
+        let (_, b) = split_across_batches(&mut live_probe("probe-1"), true);
+        sink.accept_batch("probe-1", 1, &a).unwrap();
+        sink.accept_batch("probe-1", 2, &b).unwrap();
+        assert_eq!(state_of(&rt), ObserverState::IntegrityUnknown);
     }
 
     #[test]
