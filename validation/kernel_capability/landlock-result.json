@@ -1,0 +1,46 @@
+{
+  "probe": "landlock_runtime_enforcement",
+  "kernel": "6.18.44-fc-v185",
+  "lsm_list": "lockdown,capability,landlock,selinux,bpf",
+  "abi_version": 7,
+  "abi_errno": null,
+  "baseline": {
+    "allowed": {
+      "path": "/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/9788f004-efc3-5687-ba2e-f67ae9d1044d/scratchpad/landlock-fixture/tmphhd7101z/inside/permitted.txt",
+      "outcome": "READ_SUCCEEDED",
+      "errno": null
+    },
+    "denied_target": {
+      "path": "/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/9788f004-efc3-5687-ba2e-f67ae9d1044d/scratchpad/landlock-fixture/tmphhd7101z/forbidden.txt",
+      "outcome": "READ_SUCCEEDED",
+      "errno": null
+    }
+  },
+  "child_exit_status": 0,
+  "child": {
+    "restricted": true,
+    "allowed_attempt": {
+      "path": "/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/9788f004-efc3-5687-ba2e-f67ae9d1044d/scratchpad/landlock-fixture/tmphhd7101z/inside/permitted.txt",
+      "outcome": "READ_SUCCEEDED",
+      "errno": null
+    },
+    "denied_attempt": {
+      "path": "/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/9788f004-efc3-5687-ba2e-f67ae9d1044d/scratchpad/landlock-fixture/tmphhd7101z/forbidden.txt",
+      "outcome": "READ_DENIED",
+      "errno": "EACCES"
+    },
+    "denied_write_attempt": {
+      "outcome": "WRITE_DENIED",
+      "errno": "EACCES"
+    }
+  },
+  "predicates": {
+    "baseline_both_files_readable_before_restriction": true,
+    "allowed_subtree_still_readable_after_restriction": true,
+    "path_outside_subtree_denied_with_EACCES": true,
+    "write_outside_subtree_denied_with_EACCES": true
+  },
+  "status": "ENFORCEMENT_PROVEN",
+  "conclusion": "Landlock actually enforced: a path outside the allowed subtree was denied EACCES in a process that could read it moments earlier, while the allowed subtree stayed readable. This is EXECUTION-PROVEN, not CONFIG-OBSERVED.",
+  "scope_limit": "Proves filesystem-read enforcement under ABI v7 on this kernel only. It says nothing about network rules, about any other hook, or about whether root can detach the sandbox from outside the restricted process."
+}

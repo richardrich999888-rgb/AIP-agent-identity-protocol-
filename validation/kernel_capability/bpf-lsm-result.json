@@ -1,0 +1,29 @@
+{
+  "probe": "bpf_lsm_runtime_attach_and_enforce",
+  "kernel": "6.18.44-fc-v185",
+  "lsm_list": "lockdown,capability,landlock,selinux,bpf",
+  "uid": 0,
+  "note": "CONFIG_LSM and the LSM list are not capabilities. Only the stage results below are evidence.",
+  "stage_a": {
+    "stage": "A_attachability",
+    "hook": "bpf_lsm_file_open",
+    "attach_btf_id": 65288,
+    "status": "LOAD_REFUSED",
+    "load_errno": "EPERM",
+    "verifier_log": ""
+  },
+  "stage_b": {
+    "stage": "B_enforcement",
+    "hook": "bpf_lsm_socket_connect",
+    "attach_btf_id": 65574,
+    "baseline_connect": {
+      "outcome": "PERMITTED_BY_LSM",
+      "errno": "ECONNREFUSED"
+    },
+    "status": "LOAD_REFUSED",
+    "load_errno": "EPERM",
+    "verifier_log": ""
+  },
+  "status": "LOAD_REFUSED",
+  "conclusion": "BPF-LSM is not usable here: stage A returned LOAD_REFUSED"
+}
