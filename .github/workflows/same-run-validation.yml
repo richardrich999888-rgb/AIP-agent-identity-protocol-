@@ -8,6 +8,9 @@ on:
       - 'validation/enterprise/prepare_local_model.py'
       - 'validation/enterprise/run_*smoke*'
       - 'aip-standalone/aip-mcp-gateway/**'
+      - 'aip-standalone/aip-observe/**'
+      - 'aip-standalone/aip-probe/**'
+      - 'aip-standalone/aip-collector/**'
       - 'aip-service/**'
       - 'integrations/mcp-gateway/**'
       - '.github/workflows/same-run-validation.yml'
@@ -24,6 +27,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
