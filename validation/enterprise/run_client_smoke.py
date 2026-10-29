@@ -21,6 +21,58 @@ from openapi_contract import validate_run_reads
 
 ROOT = Path(__file__).resolve().parents[2]
 
+# Which stage is executing. Updated by `mark` and read only by the failure
+# writer, so a refusal names where it happened without any caller passing
+# state around.
+_STAGE = {"name": "startup"}
+
+# Exception type -> fixed classification. The exception MESSAGE is never
+# retained: this script is invoked with three API key files and compares full
+# run bundles, so an upstream message can carry key material or evidence
+# bytes. Same discipline as `safe_error` in same_run_validation.py.
+_CLASSES = {
+    "AssertionError": "assurance_predicate_failed",
+    "ApiError": "service_rejected_request",
+    "HTTPError": "unexpected_http_status",
+    "URLError": "service_unreachable",
+    "JSONDecodeError": "malformed_service_response",
+    "TimeoutExpired": "subordinate_client_timeout",
+    "CalledProcessError": "subordinate_client_exited_nonzero",
+    "FileNotFoundError": "required_runtime_missing",
+    "ModuleNotFoundError": "required_client_dependency_missing",
+}
+
+
+def mark(name):
+    """Record the stage about to run. Costs nothing and makes exit 1 legible."""
+    _STAGE["name"] = name
+
+
+def write_failure(output, error):
+    """Retain stage + classified type only. Never the message, never values.
+
+    The controller discards this child's stderr on purpose, so without this
+    record a failed readback reports only "python exited 1". Writing the
+    record here keeps the diagnostics inside the process that knows the stage
+    and outside the stream that may contain credentials.
+    """
+    name = type(error).__name__
+    record = {
+        "source_authority": "enterprise_client_readback_self_report",
+        "stage": _STAGE["name"],
+        "error_type": name,
+        "error_class": _CLASSES.get(name, "unclassified_client_error"),
+        "scope": "Stage and error class only; no message, no key material, no bundle bytes.",
+    }
+    try:
+        path = Path(output).parent / "client-smoke-failure.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(record, indent=2) + "\n")
+    except OSError:
+        # A diagnostics write must never mask the original refusal.
+        pass
+    return record
+
 
 def refused(operation, status):
     try:
@@ -42,14 +94,17 @@ def main():
     parser.add_argument("--browser", action="store_true", help="requires installed Playwright Chromium")
     parser.add_argument("--screenshot", type=Path)
     args = parser.parse_args()
+    mark("load_disposable_credentials")
     writer_key, reader_key, other_key = [path.read_text().strip() for path in
         (args.writer_key_file, args.reader_key_file, args.other_key_file)]
     writer, reader, other = [VanianClient(args.url, lambda key=key: key,
         retries=0, allow_loopback_http=True, max_response_bytes=16 * 1024 * 1024)
         for key in (writer_key, reader_key, other_key)]
+    mark("role_and_tenant_separation")
     assert writer.access()["role"] in ("machine", "admin")
     assert reader.access()["role"] == other.access()["role"] == "reader"
     assert reader.access()["tenant_id"] != other.access()["tenant_id"]
+    mark("read_caller_bundle")
     raw = args.bundle.read_bytes()
     assert len(raw) <= 16 * 1024 * 1024
     bundle = json.loads(raw)
@@ -62,9 +117,12 @@ def main():
             assert len(value) <= 262144
             return json.loads(value)
 
+    mark("api_admission")
     admitted = post(writer_key, raw)
     artifact_id = admitted["run_artifact_id"]
+    mark("openapi_contract")
     validate_run_reads(reader, other, writer, bundle=bundle, admitted=admitted)
+    mark("python_sdk_readback")
     assert admitted["run_id"] == bundle["run_id"]
     assert admitted["bundle_sha256"] == hashlib.sha256(raw).hexdigest()
     assert post(writer_key, raw) == admitted
@@ -75,6 +133,7 @@ def main():
         assert admitted["evaluation"]["signed_reconciliation_verified"] is True
     assert any(row["run_artifact_id"] == artifact_id
                for row in reader.get_agent_runs(bundle["agent_id"], limit=100).items)
+    mark("cross_tenant_and_write_refusal")
     refused(lambda: other.get_run_metadata(artifact_id), 404)
     refused(lambda: other.evaluate_run(artifact_id), 404)
     refused(lambda: reader._get("/v1/runs/" + artifact_id), 403)
@@ -86,6 +145,7 @@ def main():
             error.close()
         else:
             raise AssertionError("Reader filed a run")
+    mark("exact_bundle_retrieval")
     request = Request(args.url.rstrip("/") + "/v1/runs/" + artifact_id,
         headers={"Authorization":"Bearer " + writer_key})
     with writer._opener.open(request, timeout=10) as response:
@@ -117,14 +177,17 @@ def main():
             for name in ("vanian_get_evidence_metadata","vanian_verify_stored_evidence"):
                 result = await client.call_tool(name,{"evidence_id":artifact_id,"kind":"run_bundle"})
                 assert result.is_error
+    mark("official_mcp_client")
     asyncio.run(mcp_checks())
     env = dict(os.environ, VANIAN_RUN_BASE_URL=args.url, VANIAN_RUN_ARTIFACT_ID=artifact_id,
         VANIAN_RUN_READER=reader_key, VANIAN_RUN_OTHER_READER=other_key,
         VANIAN_RUN_EXPECTED=json.dumps(admitted, separators=(",", ":")),
         VANIAN_RUN_SIGNED_VERDICT=json.dumps(bundle.get("signed_reconciliation")))
+    mark("typescript_sdk")
     subprocess.run(["node", str(ROOT / "validation/enterprise/run_typescript_smoke.ts")],
         env=env, check=True, timeout=30)
 
+    mark("console_browser")
     console = "NOT_EXERCISED"
     if args.browser:
         from playwright.sync_api import sync_playwright
@@ -148,6 +211,7 @@ def main():
             assert page.locator("#run").inner_text() == "Disconnected"
             browser.close()
         console = "PASS"
+    mark("write_report")
     report = {"run_id":bundle["run_id"],"run_artifact_id":artifact_id,
         "source_bundle_sha256":hashlib.sha256(raw).hexdigest(),
         "api_admission":"PASS","exact_bundle_retrieval":"PASS","openapi_contract":"PASS","python_sdk":"PASS",
@@ -162,4 +226,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as error:
+        # The output path is positional in argv; recover it without re-parsing
+        # so a diagnostics write cannot itself fail on a parse error.
+        argv = sys.argv
+        destination = argv[argv.index("--output") + 1] if "--output" in argv else "."
+        record = write_failure(destination, error)
+        print(json.dumps({"client_smoke_failure": record}), file=sys.stderr)
+        raise

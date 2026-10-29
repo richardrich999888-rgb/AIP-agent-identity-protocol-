@@ -9,7 +9,7 @@
   "deerflow": {
     "repository": "https://github.com/bytedance/deer-flow",
     "commit": "f79debed59ca6b1a31628e6b5ce55c8507793a4c",
-    "entrypoint": "DeerFlowClient(subagent_enabled=True).stream(...)" ,
+    "entrypoint": "DeerFlowClient(subagent_enabled=True).stream(...)",
     "install": "cd backend && uv sync --frozen",
     "status": "source-inspected; image build and autonomous execution pending"
   },
@@ -19,5 +19,57 @@
     "entrypoint": "Conversation(agent=Agent(...), workspace='/work').run()",
     "install": "uv sync --frozen --all-packages",
     "status": "source-inspected; image build and autonomous execution pending"
+  },
+  "_note": "agent_zero/deerflow/openhands are the pre-existing pins and are left exactly as found. The five entries below are the assigned targets, each verified against the named artifact; see validation/real_agent_acceptance/FRAMEWORK_MATRIX.csv for the evidence.",
+  "smolagents": {
+    "upstream": "https://github.com/huggingface/smolagents",
+    "artifact": "pypi:smolagents==1.26.0",
+    "install": "uv pip install 'smolagents==1.26.0'",
+    "license": "Apache-2.0 (upstream LICENSE; the wheel declares no licence metadata)",
+    "entrypoint": "CodeAgent(tools=[], model=OpenAIServerModel(model_id, api_base, api_key), executor_type='local').run(task)",
+    "api_verified": "inspect.signature against the installed 1.26.0 wheel",
+    "status": "api-verified; execution pending a reachable pinned model endpoint"
+  },
+  "aider": {
+    "upstream": "https://github.com/Aider-AI/aider",
+    "artifact": "pypi:aider-chat==0.86.2",
+    "install": "uv pip install 'aider-chat==0.86.2'  # requires python <3.13,>=3.10",
+    "license": "Apache-2.0 (PyPI and wheel classifier)",
+    "entrypoint": "aider --model M --openai-api-base U --message TEXT --yes-always calc.py",
+    "api_verified": "aider --help and aider --version against the installed 0.86.2 wheel",
+    "status": "cli-verified; execution pending a reachable pinned model endpoint"
+  },
+  "goose": {
+    "upstream": "https://github.com/aaif-goose/goose",
+    "renamed_from": "https://github.com/block/goose",
+    "artifact": "github-release:aaif-goose/goose@v1.57.0 (Rust binary; no PyPI package)",
+    "install": "curl -fsSL https://github.com/aaif-goose/goose/releases/download/stable/download_cli.sh | bash  # NOT pinned to v1.57.0 by that URL",
+    "license": "Apache-2.0 (upstream sidebar and README badge)",
+    "entrypoint": "UNVERIFIED - no non-interactive invocation contract confirmed upstream",
+    "api_verified": "no",
+    "do_not_install": "pypi:goose-ai is a DIFFERENT, unrelated project (0.1.0, 2026-05-13, summary 'anupamas0x1'). Never install it as goose.",
+    "status": "BLOCKED - headless contract unverified and the stable installer URL is not version-pinned"
+  },
+  "browser_use": {
+    "upstream": "https://github.com/browser-use/browser-use",
+    "artifact": "pypi:browser-use==0.13.14",
+    "install": "uv pip install 'browser-use==0.13.14'  # requires python <4.0,>=3.11; Chromium provisioned separately",
+    "license": "MIT (PyPI and wheel classifier)",
+    "entrypoint": "asyncio.run(Agent(task, llm=ChatOpenAI(model, base_url, api_key), browser=Browser(executable_path, headless=True)).run(max_steps))",
+    "api_verified": "inspect.signature against the installed 0.13.14 wheel",
+    "note": "0.13.14 does not depend on playwright; it drives Chromium over CDP via cdp-use 1.4.5",
+    "status": "api-verified; execution pending a reachable pinned model endpoint and a Chromium binary"
+  },
+  "open_interpreter": {
+    "upstream_current": "https://github.com/openinterpreter/openinterpreter",
+    "upstream_current_note": "rust-v0.0.56 (2026-10-07) is a RUST REWRITE based on Codex with no Python API; not the artifact targeted here",
+    "upstream_python_fork": "https://github.com/endolith/open-interpreter",
+    "artifact": "pypi:open-interpreter==0.4.3",
+    "install": "uv pip install 'open-interpreter==0.4.3' 'setuptools<81'",
+    "install_reason": "0.4.3 interpreter/core/utils/system_debug_info.py:4 imports pkg_resources, which setuptools>=81 removed; without the pin the package does not import at all",
+    "license": "the wheel declares no licence metadata; read the upstream LICENSE before any distribution",
+    "entrypoint": "interpreter.offline=True; interpreter.auto_run=True; interpreter.llm.api_base=U; interpreter.chat(task, display=False, stream=False, blocking=True)",
+    "api_verified": "inspect.signature against the installed 0.4.3 wheel with setuptools 80.10.2",
+    "status": "api-verified after remediation; execution pending a reachable pinned model endpoint"
   }
 }
