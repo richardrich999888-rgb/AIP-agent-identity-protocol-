@@ -1,0 +1,173 @@
+{
+  "offline_verified": true,
+  "edges_total_in_archive": 21,
+  "edges_not_from_any_agent_run": 20,
+  "per_framework": {
+    "langgraph": {
+      "runs": 5,
+      "agent_exit_0": 5,
+      "present": 5,
+      "child_exec_bound": 0,
+      "edge": 0
+    },
+    "llamaindex": {
+      "runs": 5,
+      "agent_exit_0": 5,
+      "present": 5,
+      "child_exec_bound": 1,
+      "edge": 1
+    },
+    "pydanticai": {
+      "runs": 5,
+      "agent_exit_0": 5,
+      "present": 5,
+      "child_exec_bound": 0,
+      "edge": 0
+    }
+  },
+  "runs": [
+    {
+      "framework": "langgraph",
+      "parent": 1702,
+      "child": 1704,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "llamaindex",
+      "parent": 1707,
+      "child": 1709,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "pydanticai",
+      "parent": 1712,
+      "child": 1715,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "langgraph",
+      "parent": 1718,
+      "child": 1720,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "llamaindex",
+      "parent": 1726,
+      "child": 1728,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": true,
+      "edge": true
+    },
+    {
+      "framework": "pydanticai",
+      "parent": 1731,
+      "child": 1734,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "langgraph",
+      "parent": 1737,
+      "child": 1739,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "llamaindex",
+      "parent": 1742,
+      "child": 1744,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "pydanticai",
+      "parent": 1747,
+      "child": 1750,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "langgraph",
+      "parent": 1753,
+      "child": 1755,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "llamaindex",
+      "parent": 1758,
+      "child": 1760,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "pydanticai",
+      "parent": 1763,
+      "child": 1766,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "langgraph",
+      "parent": 1769,
+      "child": 1771,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "llamaindex",
+      "parent": 1774,
+      "child": 1776,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    },
+    {
+      "framework": "pydanticai",
+      "parent": 1779,
+      "child": 1782,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    }
+  ],
+  "params": [
+    "commit=e9210daf09201d9ae8c7e69caaf9cd7302bfe256 dirty_src=3",
+    "kernel=6.18.44-fc-v185 runs_per_framework=5 drain_interval_ms=1000 batch_interval_ms=1000",
+    "langgraph=1.2.11",
+    "llama-index-workflows=1.3.0",
+    "pydantic-ai-slim=1.0.10",
+    "require_synced_clock=0 (host unsynchronized; bound signed)"
+  ]
+}

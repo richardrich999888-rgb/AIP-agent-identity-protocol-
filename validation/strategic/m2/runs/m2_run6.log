@@ -1,0 +1,64 @@
+observer collector.m2 up; observer.pub 6f929a6ee6581423…
+first signed health: Active
+decision point aip14R4khxKsM537jmp2E7hb… gateway aip1s972YqaV9hky1JRzX7mv… reconciler aip15KGahmYwHhT2CmnxPXcT…
+agent pid 814 proposed {'tool_id': 'loan-read', 'arguments': {'loan_id': 'L-1001'}}
+signed ExpectedExecution decision_id 96b7c485a35f4e1b925c06f5a0be7eb0
+gateway call-1: authorized=True disposition=Forwarded
+gateway call-2-mismatch: authorized=False disposition=Refused (refusal: aip-execution-assurance: gateway-received tool/parameters differ from signed authorization)
+signed health after task: Active
+reconciliation: {"result": "CannotProve", "strength": "Heuristic", "reason": "UnboundReferencesOnly", "identity": {"UnboundReferencesOnly": {"references": 4}}, "action": "Unobservable", "temporal": "WithinWindow"}
+N2 mutated batch: exit=1 aip-execution-assurance: collector archive signature or continuity verification failed
+N3 checkpoint mismatch: exit=1 aip-execution-assurance: independently retained archive checkpoint mismatch
+N4 forged receipt: exit=1 aip-execution-assurance: gateway receipt verification failed: SignatureInvalid
+N5 substituted verdict: exit=1 aip-execution-assurance: signed reconciliation: PayloadHashMismatch
+{
+  "checks": {
+    "archive_integrity_verified": true,
+    "checkpoint_verified": true,
+    "authorization_verified": true,
+    "gateway_receipt_verified": true,
+    "signed_reconciliation_verified": true,
+    "receipt_within_authorization": true,
+    "gateway_disposition": "Forwarded"
+  },
+  "negative_controls": {
+    "N1_mismatched_arguments_refused": true,
+    "N2_mutated_batch_refused": true,
+    "N3_checkpoint_mismatch_refused": true,
+    "N4_unanchored_gateway_key_refused": true,
+    "N5_substituted_reconciliation_refused": true
+  },
+  "observer_state_before_task": "Active",
+  "observer_state_after_task": "Active",
+  "chain_frozen_at_sequence": 56,
+  "batches_after_freeze_excluded": 2,
+  "reconciliation": {
+    "result": "CannotProve",
+    "strength": "Heuristic",
+    "reason": "UnboundReferencesOnly",
+    "identity": {
+      "UnboundReferencesOnly": {
+        "references": 4
+      }
+    },
+    "action": "Unobservable",
+    "temporal": "WithinWindow"
+  },
+  "tool_boundary": {
+    "Agrees": {
+      "claim": "NotSupplied"
+    }
+  },
+  "limitations": [
+    "Archive signatures establish integrity; collector administrative separation requires deployment evidence.",
+    "Kernel process identity does not establish logical sub-agent attribution or a business outcome.",
+    "Tool request comparison is separate from the kernel reconciliation and cannot upgrade its verdict."
+  ],
+  "positive_path_pass": true,
+  "negative_controls_pass": true,
+  "task_window_ms": [
+    1793258209588,
+    1793258209630
+  ],
+  "agent_linger_s": 0.0
+}

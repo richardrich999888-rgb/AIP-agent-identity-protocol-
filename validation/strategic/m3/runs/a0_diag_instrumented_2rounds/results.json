@@ -1,0 +1,92 @@
+{
+  "offline_verified": true,
+  "edges_total_in_archive": 45,
+  "edges_not_from_any_agent_run": 41,
+  "per_framework": {
+    "langgraph": {
+      "runs": 2,
+      "agent_exit_0": 2,
+      "present": 2,
+      "child_exec_bound": 2,
+      "edge": 2
+    },
+    "llamaindex": {
+      "runs": 2,
+      "agent_exit_0": 2,
+      "present": 2,
+      "child_exec_bound": 2,
+      "edge": 2
+    },
+    "pydanticai": {
+      "runs": 2,
+      "agent_exit_0": 2,
+      "present": 2,
+      "child_exec_bound": 1,
+      "edge": 0
+    }
+  },
+  "runs": [
+    {
+      "framework": "langgraph",
+      "parent": 3633,
+      "child": 3635,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": true,
+      "edge": true
+    },
+    {
+      "framework": "llamaindex",
+      "parent": 3638,
+      "child": 3640,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": true,
+      "edge": true
+    },
+    {
+      "framework": "pydanticai",
+      "parent": 3643,
+      "child": 3646,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": true,
+      "edge": false
+    },
+    {
+      "framework": "langgraph",
+      "parent": 3649,
+      "child": 3651,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": true,
+      "edge": true
+    },
+    {
+      "framework": "llamaindex",
+      "parent": 3654,
+      "child": 3656,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": true,
+      "edge": true
+    },
+    {
+      "framework": "pydanticai",
+      "parent": 3659,
+      "child": 3662,
+      "exit": 0,
+      "present": true,
+      "child_exec_bound": false,
+      "edge": false
+    }
+  ],
+  "params": [
+    "commit=e9210daf09201d9ae8c7e69caaf9cd7302bfe256 dirty_src=4",
+    "kernel=6.18.44-fc-v185 runs_per_framework=2 drain_interval_ms=20 batch_interval_ms=1000",
+    "langgraph=1.2.11",
+    "llama-index-workflows=1.3.0",
+    "pydantic-ai-slim=1.0.10",
+    "require_synced_clock=0 (host unsynchronized; bound signed)"
+  ]
+}

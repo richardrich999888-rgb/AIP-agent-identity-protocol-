@@ -1,0 +1,89 @@
+{
+  "agent_id": "aip16Kj3YoMC6zwk9jjVXKMmDNMqQ14hTnyA2kNm5QwskN",
+  "archive_integrity_verified": true,
+  "authorization_verified": true,
+  "checkpoint_verified": true,
+  "gateway_disposition": "Forwarded",
+  "gateway_receipt_verified": true,
+  "limitations": [
+    "Archive signatures establish integrity; collector administrative separation requires deployment evidence.",
+    "Kernel process identity does not establish logical sub-agent attribution or a business outcome.",
+    "Tool request comparison is separate from the kernel reconciliation and cannot upgrade its verdict."
+  ],
+  "receipt_within_authorization": true,
+  "reconciliation": {
+    "action": "Unobservable",
+    "availability": {
+      "Unavailable": {
+        "reason": "NoObserver"
+      }
+    },
+    "decision_id": [
+      171,
+      59,
+      196,
+      87,
+      148,
+      89,
+      70,
+      174,
+      149,
+      47,
+      164,
+      196,
+      161,
+      177,
+      110,
+      240
+    ],
+    "evidence": [
+      {
+        "Expected": {
+          "decision_id": [
+            171,
+            59,
+            196,
+            87,
+            148,
+            89,
+            70,
+            174,
+            149,
+            47,
+            164,
+            196,
+            161,
+            177,
+            110,
+            240
+          ],
+          "decision_point_id": "aip1536zvfpdQNMxMp4EzHDjTr2sMtvGPCiAfKL85b1KWQ"
+        }
+      },
+      {
+        "Health": {
+          "emitted_at_ms": 1793257860413,
+          "observer_id": "collector.m2",
+          "sequence": 55
+        }
+      }
+    ],
+    "identity": "NoReference",
+    "lineage": "NotEvaluated",
+    "reason": "ObservationSetIncomplete",
+    "replay_detected": false,
+    "result": "CannotProve",
+    "strength": "Heuristic",
+    "temporal": "Indeterminate",
+    "verification_time_ms": 1793257863573,
+    "version": 5,
+    "wire": "NotEvaluated"
+  },
+  "run_id": "m2-ab3bc457945946ae",
+  "signed_reconciliation_verified": true,
+  "tool_boundary": {
+    "Agrees": {
+      "claim": "NotSupplied"
+    }
+  }
+}

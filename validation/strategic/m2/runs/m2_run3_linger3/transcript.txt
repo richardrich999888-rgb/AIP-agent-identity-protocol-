@@ -1,0 +1,13 @@
+observer collector.m2 up; observer.pub 50dea878110dac71…
+first signed health: Active
+decision point aip18Nhk51nF5meEGf46AiDt… gateway aip13i93L3fanAuTtGAMzo4K… reconciler aip13sAf6QMCEQ2bTxWCWgop…
+agent pid 716 proposed {'tool_id': 'loan-read', 'arguments': {'loan_id': 'L-1001'}}
+signed ExpectedExecution decision_id 6be3a685b0c14738b0acce27047751a7
+gateway call-1: authorized=True disposition=Forwarded
+gateway call-2-mismatch: authorized=False disposition=Refused (refusal: aip-execution-assurance: gateway-received tool/parameters differ from signed authorization)
+signed health after task: Active
+reconciliation: {"result": "CannotProve", "strength": "Heuristic", "reason": "ActionEvidenceUnavailable", "identity": {"Match": {"observations": 4}}, "action": "Unobservable", "temporal": "WithinWindow"}
+N2 mutated batch: exit=1 aip-execution-assurance: collector archive signature or continuity verification failed
+N3 checkpoint mismatch: exit=1 aip-execution-assurance: independently retained archive checkpoint mismatch
+N4 forged receipt: exit=1 aip-execution-assurance: gateway receipt verification failed: SignatureInvalid
+N5 substituted verdict: exit=1 aip-execution-assurance: signed reconciliation: PayloadHashMismatch

@@ -1,0 +1,14 @@
+DELEGATION CHAIN (observed lineage, collector-signed evidence)
+batches examined : 5
+edges derived    : 7
+distinct parents : 1
+---
+seq=2 fork@109815436084ns  parent pid=642 start=9240  ->  child pid=855 start=10981  image=73bf4b06fad87996a59b3c0810eb127b91e84846d21e563862fb4acf74fbcb99  path="/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python"  via=SchedTracepoint
+seq=3 fork@110413252089ns  parent pid=642 start=9240  ->  child pid=857 start=11041  image=8ac215ec4c1ce4a9c23a10cd3e5898d60419bdfab1ac7444d6bdd1690701de24  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=3 fork@110815555929ns  parent pid=642 start=9240  ->  child pid=858 start=11081  image=73bf4b06fad87996a59b3c0810eb127b91e84846d21e563862fb4acf74fbcb99  path="/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python"  via=SchedTracepoint
+seq=4 fork@111405259763ns  parent pid=642 start=9240  ->  child pid=860 start=11140  image=8ac215ec4c1ce4a9c23a10cd3e5898d60419bdfab1ac7444d6bdd1690701de24  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=4 fork@111807139047ns  parent pid=642 start=9240  ->  child pid=861 start=11180  image=73bf4b06fad87996a59b3c0810eb127b91e84846d21e563862fb4acf74fbcb99  path="/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python"  via=SchedTracepoint
+seq=5 fork@112409351113ns  parent pid=642 start=9240  ->  child pid=863 start=11240  image=8ac215ec4c1ce4a9c23a10cd3e5898d60419bdfab1ac7444d6bdd1690701de24  path="/usr/bin/sleep"  via=SchedTracepoint
+seq=5 fork@112811246372ns  parent pid=642 start=9240  ->  child pid=864 start=11281  image=73bf4b06fad87996a59b3c0810eb127b91e84846d21e563862fb4acf74fbcb99  path="/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python"  via=SchedTracepoint
+---
+Each line is observed lineage only. Attribution to an authorised agent identity is a reconciler verdict against a signed ExpectedExecution, not asserted here.

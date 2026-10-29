@@ -1,0 +1,68 @@
+
+[36m== Preconditions[0m
+       kernel 6.18.44-fc-v185, tracefs mounted, langgraph 1.2.11
+
+[36m== Build the daemons and the offline verifier[0m
+  [32mPASS[0m aip-probe, aip-collector, aip-observe-verify, aip-lineage built
+
+[36m== Generate the probe's transport key (the probe holds no evidence key)[0m
+  [32mPASS[0m probe key 884e0fa29e63e7cb... written to the allow-list
+
+[36m== Start the collector (holds the only evidence key, wrapped at rest)[0m
+  [32mPASS[0m collector up on 127.0.0.1:37359; observer.pub and noise.pub published
+
+[36m== Start the probe with the kernel sensors[0m
+  [32mPASS[0m probe up, four kernel sensors open, connected over the confidential transport
+
+[36m== Run the REAL LangGraph agent as the observed workload[0m
+       ran the agent 8 times; observed pids: 843 844 846 847 849 850 852 853 855 856 858 859 861 862 864 865 
+  [32mPASS[0m the LangGraph agent executed: parent graph spawned a child that wrote a file and connected
+
+[36m== Wait for the collector to attest and archive the observation[0m
+       attested batches on disk: 5
+       process exec/fork events captured in the signed archive: 55
+  [32mPASS[0m the real agent's execution is inside the collector-signed evidence (55 exec/fork events)
+
+[36m== Verify the archive OFFLINE — separate process, two files and a public key[0m
+       observer   : collector.phase1 (key version 1)
+       anchor     : beb91b66c8668298a6816deef6847058889b4cc87522b2fb6b96a3948b2be213
+       
+       ATTESTED BATCHES
+         records            : 5
+         chain positions    : 1..=5
+         chain start        : the observer's epoch (complete from origin)
+         final head         : 2254409ff7864823ffa12742a1473cb38e51997f328a8eb4f9377b8762db2588
+         observations       : 0
+         kernel events      : 218
+       
+       SIGNED HEALTH
+         records            : 1
+         states signed      : ContinuityUnverified
+         asserting coverage : 0
+         asserting none     : 1
+         heads cross-checked against batches : 0
+         clock, steered / adrift / not stated : 0 / 1 / 0
+         worst error bound the collector signed : 16000000 us (16000.0 ms)
+       
+       VERIFIED
+       The anchored observer key signed exactly these records, in this order, and each record's prev_head equals the recomputed head of the one before it.
+       This does not mean the observations are true: a host with root can lie to its own probe. It means these bytes are what the off-host collector received and recorded, and that the supplied records link without internal gaps or alterations. A valid prefix or suffix is still a valid window: detecting truncation requires an independently retained boundary checkpoint.
+  [32mPASS[0m offline: the real agent's attested batches verify under the published key alone
+
+[36m== Derive the delegation chain from the SAME archive (Phase 3)[0m
+       DELEGATION CHAIN (observed lineage, collector-signed evidence)
+       batches examined : 5
+       edges derived    : 7
+       distinct parents : 1
+       ---
+       seq=2 fork@109815436084ns  parent pid=642 start=9240  ->  child pid=855 start=10981  image=73bf4b06fad87996a59b3c0810eb127b91e84846d21e563862fb4acf74fbcb99  path="/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python"  via=SchedTracepoint
+       seq=3 fork@110413252089ns  parent pid=642 start=9240  ->  child pid=857 start=11041  image=8ac215ec4c1ce4a9c23a10cd3e5898d60419bdfab1ac7444d6bdd1690701de24  path="/usr/bin/sleep"  via=SchedTracepoint
+       seq=3 fork@110815555929ns  parent pid=642 start=9240  ->  child pid=858 start=11081  image=73bf4b06fad87996a59b3c0810eb127b91e84846d21e563862fb4acf74fbcb99  path="/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python"  via=SchedTracepoint
+       seq=4 fork@111405259763ns  parent pid=642 start=9240  ->  child pid=860 start=11140  image=8ac215ec4c1ce4a9c23a10cd3e5898d60419bdfab1ac7444d6bdd1690701de24  path="/usr/bin/sleep"  via=SchedTracepoint
+       seq=4 fork@111807139047ns  parent pid=642 start=9240  ->  child pid=861 start=11180  image=73bf4b06fad87996a59b3c0810eb127b91e84846d21e563862fb4acf74fbcb99  path="/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python"  via=SchedTracepoint
+       seq=5 fork@112409351113ns  parent pid=642 start=9240  ->  child pid=863 start=11240  image=8ac215ec4c1ce4a9c23a10cd3e5898d60419bdfab1ac7444d6bdd1690701de24  path="/usr/bin/sleep"  via=SchedTracepoint
+       seq=5 fork@112811246372ns  parent pid=642 start=9240  ->  child pid=864 start=11281  image=73bf4b06fad87996a59b3c0810eb127b91e84846d21e563862fb4acf74fbcb99  path="/home/user/AIP-agent-identity-protocol-/integrations/agents/.venv/bin/python"  via=SchedTracepoint
+       ---
+       Each line is observed lineage only. Attribution to an authorised agent identity is a reconciler verdict against a signed ExpectedExecution, not asserted here.
+       edges derived: 7 in total, 0 between an agent parent and its own child (of 8 runs)
+  [31mFAIL[0m no delegation edge between an agent and its own child was derived (a child that exits before the probe measures it is recorded unbound)

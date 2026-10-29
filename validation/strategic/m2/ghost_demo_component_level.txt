@@ -1,0 +1,135 @@
+ghost-demo — action-level evidence, live (NOT_PRODUCTION_CAPABILITY)
+agent binary: /home/user/AIP-agent-identity-protocol-/target/release/ghost-demo-agent
+
+positive: authorized connection observed
+    agent pid 946 → 127.0.0.1:34557; 1 established connection(s) read from the socket table
+    result=VERIFIED_EXECUTION strength=Attested reason=ActionEvidenceMatches
+    identity=Match { observations: 2 } action=Match(ActionEvidenceSeal { mechanism: ProcNetTable, kind: Presence }) temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+A. expected but not executed
+    agent pid 947 never connected; 0 established connection(s); polled coverage cannot support PHANTOM_CLAIM
+    result=CANNOT_PROVE strength=Heuristic reason=ActionEvidenceUnavailable
+    identity=Match { observations: 1 } action=Unobservable temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+B. executed but not expected, absence attested
+    agent pid 948 connected with no decision; 1 connection(s); decision point attests no decision exists for the window
+    result=UNATTRIBUTED_EFFECT strength=Attested reason=NoExpectationAttested
+    identity=Match { observations: 1 } action=Unobservable temporal=WithinWindow replay_detected=false
+    availability=Covered { window: CoverageWindow { from_ms: 1793258265273, to_ms: 1793258265275 } } wire=NotEvaluated
+
+B-U. executed but not expected, completeness unknown
+    agent pid 949 connected with no decision; 1 connection(s); expected-side completeness is unknown
+    result=CANNOT_PROVE strength=Heuristic reason=ExpectedSideCompletenessUnknown
+    identity=Match { observations: 1 } action=Unobservable temporal=WithinWindow replay_detected=false
+    availability=Covered { window: CoverageWindow { from_ms: 1793258265278, to_ms: 1793258265279 } } wire=NotEvaluated
+
+C. expected action, different parameters
+    authorized 127.0.0.1:45786, agent connected to 127.0.0.1:45785; 1 connection(s)
+    result=CANNOT_PROVE strength=Heuristic reason=ActionEvidenceDoesNotMatch
+    identity=Match { observations: 2 } action=Mismatch(ActionEvidenceSeal { mechanism: ProcNetTable, kind: Presence }) temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+D. correct action, wrong process instance
+    decision bound to pid 951, connection made by pid 952 (same binary); 1 connection(s)
+    result=IDENTITY_DIVERGENCE strength=Attested reason=IdentityDiverged
+    identity=Divergent { observations: 2 } action=Unobservable temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+E. observation lost
+    1 connection(s) observed, but the probe reported 1 lost event over the window
+    result=CANNOT_PROVE strength=Heuristic reason=ObserverDegraded
+    identity=Match { observations: 2 } action=Unobservable temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: ObserverDegraded } wire=NotEvaluated
+
+F. replayed evidence
+    the batch claimed under decision 1 was duplicated and offered against decision 2
+    result=CANNOT_PROVE strength=Heuristic reason=ActionEvidenceUnclaimed
+    identity=Match { observations: 2 } action=Unobservable temporal=WithinWindow replay_detected=true
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+G. tampered evidence
+    remote port flipped inside the attested batch after signing
+    result=SENSOR_INTEGRITY_FAILURE strength=Proven reason=ObserverSignatureInvalid
+    identity=NoReference action=Unobservable temporal=Indeterminate replay_detected=false
+    availability=Unavailable { reason: NoObserver } wire=NotEvaluated
+
+T-A. connection established and attested before authorization
+    connection to 127.0.0.1:37199 observed (1) and attested before the decision at 1793258265535; observed again (1) inside the window
+    result=CANNOT_PROVE strength=Heuristic reason=ActionPrecedesAuthorization
+    identity=Match { observations: 2 } action=Unobservable temporal=BeforeWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+T-C. connection made and closed before any poll
+    agent pid 957 connected to 127.0.0.1:38497 and closed before the table was read; 0 established connection(s) in the poll
+    result=VERIFIED_EXECUTION strength=Attested reason=ActionEvidenceMatches
+    identity=Match { observations: 3 } action=Match(ActionEvidenceSeal { mechanism: SockStateTracepoint, kind: Transition }) temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=Unavailable
+
+T-P. authorized connection, kernel-reported transition
+    agent pid 958 → 127.0.0.1:41685; 1 established connection(s) in the table, 6 kernel socket transition(s) captured, 10 wire segment(s) captured (tap open)
+    result=VERIFIED_EXECUTION strength=Attested reason=ActionEvidenceMatches
+    identity=Match { observations: 4 } action=Match(ActionEvidenceSeal { mechanism: SockStateTracepoint, kind: Transition }) temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=Corroborated
+
+X-P. authorized image executed by a child of the agent
+    agent pid 959 spawned pid 960 running /bin/sleep; 4 kernel event(s) captured
+    result=VERIFIED_EXECUTION strength=Attested reason=ActionEvidenceMatches
+    identity=Match { observations: 3 } action=Match(ActionEvidenceSeal { mechanism: SchedTracepoint, kind: Transition }) temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+X-A. child executes a different image
+    authorized /bin/true; agent pid 961 spawned pid 962 running /bin/sleep
+    result=CANNOT_PROVE strength=Heuristic reason=ActionEvidenceDoesNotMatch
+    identity=Match { observations: 3 } action=Mismatch(ActionEvidenceSeal { mechanism: SchedTracepoint, kind: Transition }) temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+X-B. another instance spawns the authorized image
+    decision bound to pid 963, spawn of pid 965 made by pid 964 (same binary)
+    result=CANNOT_PROVE strength=Heuristic reason=AmbiguousObservations
+    identity=Ambiguous { matching: 1, divergent: 3 } action=Unobservable temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+X-C. spawn attested before the decision
+    agent pid 966 spawned pid 967 and it was attested before the decision at 1793258267898
+    result=CANNOT_PROVE strength=Heuristic reason=ActionPrecedesAuthorization
+    identity=Match { observations: 1 } action=Unobservable temporal=BeforeWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+S-P. authorized send, kernel-reported byte count
+    agent pid 968 sent its hello to 127.0.0.1:39989; authorized send to 127.0.0.1:39989; 1 send event(s) captured (send tracer open)
+    result=VERIFIED_EXECUTION strength=Attested reason=ActionEvidenceMatches
+    identity=Match { observations: 5 } action=Match(ActionEvidenceSeal { mechanism: SockSendTracepoint, kind: Transition }) temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+S-A. send authorized to a different endpoint
+    agent pid 969 sent its hello to 127.0.0.1:38903; authorized send to 127.0.0.1:38904; 1 send event(s) captured (send tracer open)
+    result=CANNOT_PROVE strength=Heuristic reason=ActionEvidenceDoesNotMatch
+    identity=Match { observations: 5 } action=Mismatch(ActionEvidenceSeal { mechanism: SockSendTracepoint, kind: Transition }) temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+F-P. authorized file write, kernel-bound writer
+    agent pid 970 wrote /tmp/ghost-demo-945-76a9cefc633d4d728b70a4a14bc0fea0/f-p.txt; authorized write to /tmp/ghost-demo-945-76a9cefc633d4d728b70a4a14bc0fea0/f-p.txt; 1 file event(s) captured on the mount (fanotify open)
+    result=VERIFIED_EXECUTION strength=Attested reason=ActionEvidenceMatches
+    identity=Match { observations: 2 } action=Match(ActionEvidenceSeal { mechanism: Fanotify, kind: Transition }) temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+F-A. write authorized for a different path
+    agent pid 971 wrote /tmp/ghost-demo-945-5976431a2e0f4a97982cacc5ab30700e/f-a.txt; authorized write to /tmp/ghost-demo-945-5976431a2e0f4a97982cacc5ab30700e/elsewhere.txt; 1 file event(s) captured on the mount (fanotify open)
+    result=CANNOT_PROVE strength=Heuristic reason=ActionEvidenceDoesNotMatch
+    identity=Match { observations: 2 } action=Mismatch(ActionEvidenceSeal { mechanism: Fanotify, kind: Transition }) temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+F-N. write authorized, never done
+    agent pid 972 wrote nothing; authorized write to /tmp/ghost-demo-945-650f948ad817473eb75138c25a68d896/f-n.txt; 0 file event(s) captured on the mount (fanotify open)
+    result=CANNOT_PROVE strength=Heuristic reason=ActionEvidenceUnavailable
+    identity=Match { observations: 1 } action=Unobservable temporal=WithinWindow replay_detected=false
+    availability=Unavailable { reason: WindowNotCovered } wire=NotEvaluated
+
+Nothing above proves payload or bytes, or anything a root host could not have written
+into procfs or suppressed in the perf ring. Positive results are Attested, never Proven.
+Presence evidence shows a connection existed at the sample; transition evidence shows
+the kernel reported it being made, placed in time by signed collector and anchored
+kernel clocks. A wire corroboration is the device layer agreeing with the socket
+layer under the same host root: it changes neither the verdict nor the strength.
