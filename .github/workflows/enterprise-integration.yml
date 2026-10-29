@@ -53,6 +53,7 @@ jobs:
           python -m unittest discover -s sdk/python/tests -v
           python validation/enterprise/test_client_boundaries.py
           python validation/enterprise/test_combined_contracts.py
+          python -B validation/enterprise/test_sdk_package_verifier.py
           node --test sdk/typescript/test/client.test.ts
           npm ci --prefix sdk/typescript --ignore-scripts
           npm run build --prefix sdk/typescript
