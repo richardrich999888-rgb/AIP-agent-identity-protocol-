@@ -1,0 +1,12 @@
+
+[36m== Preconditions[0m
+       kernel 6.18.44-fc-v180, tracefs mounted, sched_process_exec id=365
+
+[36m== Build the daemons and the interference instrument[0m
+  [32mPASS[0m aip-probe, aip-collector, aip-observe-verify and the interferer built
+
+[36m== Generate the probe's transport-auth key (the probe holds no evidence key)[0m
+  [32mPASS[0m probe transport public key 95ad6c2909431c53... written to the allow-list
+
+[36m== Start the collector (holds the only evidence key; wrapped at rest)[0m
+  [31mFAIL[0m collector did not publish a noise key

@@ -1,0 +1,82 @@
+RBI evaluation session — rehearsal transcript
+2026-10-28T19:22:48Z
+Linux vm 6.18.44-fc-v180 #1 SMP PREEMPT_DYNAMIC @0 x86_64 x86_64 x86_64 GNU/Linux
+repo e4e1ae5
+
+[36m== PRECONDITIONS — check these on the ACTUAL demo host, not only here[0m
+       clock query failed; see clock.log
+       clock: unknown; synchronisation has not been established.
+       Without synchronisation, the observer can withhold attested coverage.
+       Unknown here means missing evidence, not proof that the clock is wrong.
+       FIX before the session: check chrony (deploy/pilot/chrony-cert-in.conf)
+       and the timedatectl query. Re-run until Act 1 reports Active.
+  [31mFAIL[0m clock precondition not met on this host
+  [32mPASS[0m tracefs available (the perf sensors can open)
+  [32mPASS[0m running as root
+
+[36m== Build[0m
+  [32mPASS[0m daemons and offline verifier built
+
+[36m== ACTS 1, 2 and 5 — full-system run (two daemons, live kernel, live attack)[0m
+       brief §14 promises: "the honest path, an interfered-with observer ... and offline verification"
+       running validation/pilot_e2e/run.sh: control -> attack -> recovery -> offline verify
+  [31mFAIL[0m the full-system RBI requirements did not pass — see system_run.log and control_check.log
+       
+       [36m== Preconditions[0m
+              kernel 6.18.44-fc-v180, tracefs mounted, sched_process_exec id=365
+       
+       [36m== Build the daemons and the interference instrument[0m
+         [32mPASS[0m aip-probe, aip-collector, aip-observe-verify and the interferer built
+       
+       [36m== Generate the probe's transport-auth key (the probe holds no evidence key)[0m
+         [32mPASS[0m probe transport public key 95ad6c2909431c53... written to the allow-list
+       
+       [36m== Start the collector (holds the only evidence key; wrapped at rest)[0m
+       aip-collector: clock NOT synchronized (STA_UNSYNC), max_error 16000 ms (kernel state 5)
+       aip-collector: refusing to start: clock NOT synchronized (STA_UNSYNC), max_error 16000 ms (kernel state 5), which exceeds the 1000 ms budget. This host stamps and signs every attested batch, so its clock discipline is the accuracy of all of it (CERT-In Direction 20(3)/2022 requires NTP-synchronised clocks; see deploy/pilot/chrony-cert-in.conf). Fix the time daemon, widen AIP_COLLECTOR_CLOCK_MAX_ERROR_MS, or set AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 to accept the consequence deliberately.
+         [31mFAIL[0m collector did not publish a noise key
+
+[36m== ACT 3 — a refused unregistered destination (library-level)[0m
+       brief §14 promises: "a refused unregistered destination"
+       The decision point resolves every network destination against a registry
+       the institution's infrastructure owner SIGNED. An address that registry
+       never named is denied outright — DestinationUnregistered is a denial,
+       never a pass-through.
+       test a_named_resource_the_chain_never_granted_is_refused ... ok
+       test the_right_host_on_an_unnamed_port_is_still_unregistered ... ok
+       test an_address_the_institution_never_named_is_refused_outright ... ok
+  [32mPASS[0m Act 3: 11 resource-scoping assertions hold, including outright refusal of an unnamed address
+
+[36m== ACT 4 — a mis-parameterised tool call against a signed receipt (library-level)[0m
+       brief §14 promises: "a mis-parameterised tool call against a signed receipt"
+       The decision point seals the digest of the AUTHORISED arguments. The
+       gateway signs a receipt over its own recomputation of what it RECEIVED.
+       The two are compared. The decisive property: the finding stands with the
+       agent's own claim ABSENT from the evidence.
+       test a_receipt_signed_under_the_agents_key_is_refused ... ok
+       test key_order_does_not_turn_an_honest_call_into_a_divergence ... ok
+       test a_misparameterised_call_diverges_and_does_not_rest_on_the_agents_account ... ok
+       test the_authorised_call_agrees ... ok
+  [32mPASS[0m Act 4: 38 tool-boundary assertions hold, including divergence with no agent claim in evidence
+
+[36m== ACT 4b — the gateway signing a receipt, live[0m
+       receipt 1: tool=banking.transfer gateway=gateway.demo commitment=ca7640d27babb2001d61c5d3...
+       receipt 2: tool=banking.transfer gateway=gateway.demo commitment=71182423ba2d2360803ecfde...
+       the two calls committed to DIFFERENT parameters — which is what the
+       decision point's sealed digest is compared against
+  [32mPASS[0m Act 4b: the gateway signed a receipt per call, live, with its own key
+
+[36m== SESSION REHEARSAL RESULT[0m
+Brief §14 promises five demonstrations. This run covered:
+
+  1. the honest path .......................... fail (full system)
+  2. an interfered-with observer .............. fail (full system)
+  3. a refused unregistered destination ....... see Act 3 (library)
+  4. a mis-parameterised tool call ............ see Act 4 / 4b
+  5. offline verification by your side ........ fail (full system)
+
+Acts 3 and 4 are library-level and are labelled as such. The decision
+point and the tool boundary are libraries; the institution integrates
+them (blockers B9 and B10). Presenting them as a system demonstration
+would misrepresent what was shown.
+  [31mFAIL[0m 2 check(s) failed; system run: fail — the session is NOT rehearsed

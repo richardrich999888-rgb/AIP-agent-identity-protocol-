@@ -1,0 +1,14 @@
+
+[36m== Preconditions[0m
+       kernel 6.18.44-fc-v180, tracefs mounted, sched_process_exec id=365
+
+[36m== Build the daemons and the interference instrument[0m
+  [32mPASS[0m aip-probe, aip-collector, aip-observe-verify and the interferer built
+
+[36m== Generate the probe's transport-auth key (the probe holds no evidence key)[0m
+  [32mPASS[0m probe transport public key 95ad6c2909431c53... written to the allow-list
+
+[36m== Start the collector (holds the only evidence key; wrapped at rest)[0m
+aip-collector: clock NOT synchronized (STA_UNSYNC), max_error 16000 ms (kernel state 5)
+aip-collector: refusing to start: clock NOT synchronized (STA_UNSYNC), max_error 16000 ms (kernel state 5), which exceeds the 1000 ms budget. This host stamps and signs every attested batch, so its clock discipline is the accuracy of all of it (CERT-In Direction 20(3)/2022 requires NTP-synchronised clocks; see deploy/pilot/chrony-cert-in.conf). Fix the time daemon, widen AIP_COLLECTOR_CLOCK_MAX_ERROR_MS, or set AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 to accept the consequence deliberately.
+  [31mFAIL[0m collector did not publish a noise key
