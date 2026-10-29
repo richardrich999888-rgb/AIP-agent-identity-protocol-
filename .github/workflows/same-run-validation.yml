@@ -84,6 +84,23 @@ jobs:
             --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
             --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
             --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run" --browser
+      # The readback's failure record is classified-by-construction: stage,
+      # exception type and a class from a fixed table, never a message. That
+      # property is pinned by test_client_smoke_diagnostics.py, including a
+      # test that plants a credential-shaped string in an exception and
+      # asserts it appears nowhere in the record. Printing it is therefore
+      # safe, and it is the only way the diagnostic reaches an operator who
+      # cannot download the artifact.
+      - name: Surface the classified readback failure record
+        if: failure()
+        run: |
+          record="$RUNNER_TEMP/same-run/public/client-smoke-failure.json"
+          if [ -f "$record" ]; then
+            echo "--- client-smoke-failure.json ---"
+            cat "$record"
+          else
+            echo "no client-smoke-failure.json: the readback was not reached, or it exited without raising"
+          fi
       - name: Preserve only public same-run evidence and independent public anchors
         if: always()
         uses: actions/upload-artifact@v4
