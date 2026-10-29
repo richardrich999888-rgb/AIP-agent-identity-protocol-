@@ -25,7 +25,11 @@ set -uo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 VALIDATION=$(cd "$HERE/.." && pwd)
-RECORDER="$VALIDATION/scenarios/exp01_linux_runtime_observation/recorder/target/release/exp01-recorder"
+# The crate directory is named explicitly. Deriving it by walking up from
+# the binary path cannot work on a clean checkout, because `target/` does
+# not exist until after the build this fallback is here to perform.
+RECORDER_CRATE="$VALIDATION/scenarios/exp01_linux_runtime_observation/recorder"
+RECORDER="$RECORDER_CRATE/target/release/exp01-recorder"
 INTERFERER="$HERE/tracepoint_interferer"
 TP=sched/sched_process_exec
 TP_ID_FILE=/sys/kernel/tracing/events/$TP/id
@@ -40,7 +44,7 @@ die() { echo "repro: $*" >&2; exit 1; }
 
 [ "$(id -u)" -eq 0 ] || die "must run as root (perf_event_open + BPF load)"
 [ -r "$TP_ID_FILE" ] || die "tracepoint $TP not present at $TP_ID_FILE"
-[ -x "$RECORDER" ] || { echo "repro: building recorder..."; (cd "$(dirname "$(dirname "$RECORDER")")/.." && cargo build --release) || die "recorder build failed"; }
+[ -x "$RECORDER" ] || { echo "repro: building recorder..."; (cd "$RECORDER_CRATE" && cargo build --release) || die "recorder build failed"; }
 [ -x "$INTERFERER" ] || { echo "repro: building interferer..."; (cd "$HERE" && gcc -O2 -o tracepoint_interferer tracepoint_interferer.c) || die "interferer build failed"; }
 
 mkdir -p "$RUN"
