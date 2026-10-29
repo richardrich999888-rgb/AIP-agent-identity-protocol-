@@ -1,8 +1,13 @@
-# Validation record — 2026-10-28
+# Validation record — original 2026-10-28, updated 2026-10-29
 
-**Assignment incomplete. Zero of the three new framework integrations has
-executed under Sniffer Dog. No readiness-level, external-assessment or
-institutional-pilot advancement is claimed.**
+**Assignment incomplete.** Agent Zero executed an actual task attempt at d6eb35e
+(run40848104456, four genuine model requests) but supplied no patch and failed
+observation acceptance. Its original signatures verify; coverage/file gates do
+not pass. DeerFlow and OpenHands remain unexecuted. No framework-swarm,
+readiness-level, external-assessment or institutional-pilot advancement is
+claimed. See [original evidence](../../validation/enterprise/results/AGENT_ZERO_40848104456/summary.json)
+and the [latest integration register](../../docs/enterprise/END_TO_END_VALIDATION.md).
+Historical checks below retain their original dates and scope.
 
 ## Source baseline and branch discovery
 
@@ -158,7 +163,7 @@ attempts remain failed. Source: [Linux syscall table](https://github.com/torvald
 The fresh hosted run, rather than retrospective changes to old archives, is the
 acceptance check for these corrections.
 
-## Per-framework execution record
+## Historical per-framework record — before the 2026-10-29 attempt
 
 | Framework commit | Model/task | Agents/processes/effects | Result |
 | --- | --- | --- | --- |
@@ -166,17 +171,19 @@ acceptance check for these corrections.
 | DeerFlow `f79debed59ca6b1a31628e6b5ce55c8507793a4c` | Model unavailable; same task with subagents enabled | Not executed; all counts unknown | Source/API inspected; launcher written; multi-container deployment unimplemented |
 | OpenHands SDK `46b1fa5cb91ada17e6ec938c7e8624a4fa19fa98` | Model unavailable; public Click issue 3652 prepared | Not executed; all counts unknown | Source/API inspected; launcher written; issue resolution unexecuted |
 
-No new signed execution archive exists for these frameworks. No live process
-lineage, delegated logical-agent identity, tool receipt, independently accepted
-patch, real research report or browser-navigation result is claimed.
+At that historical checkpoint no new signed execution archive existed for
+these frameworks. The later Agent Zero archive and failed acceptance are now
+retained above; no accepted patch, authenticated logical delegation or framework
+swarm validation is established by that attempt.
 
-## Limitations and remaining acceptance gates
+## Original limitations and subsequent acceptance status
 
 1. **Model and network provisioning:** GitHub reported zero repository secrets
    and zero environments on 2026-10-28. Approved restricted model credentials,
    exact model/endpoint configuration, hard budget enforcement and tested
-   restricted egress are not supplied. These block the actual task, not the
-   rest of the implementation. SSH details are unnecessary for initial hosted
+   restricted egress are not supplied. These block credentialed remote-model tasks. A later zero-credential public
+   CPU model attempt executed but failed acceptance; it did not establish this
+   remote-model configuration. SSH details are unnecessary for initial hosted
    integration. See [HOSTED_VALIDATION.md](HOSTED_VALIDATION.md) for exact needs.
 2. **Runtime installation:** Agent Zero built and its offline runtime check
    passed. DeerFlow and OpenHands images have not built or run. Agent Zero's
@@ -227,3 +234,8 @@ The next gate is the genuine Agent Zero Click task using approved restricted
 model credentials, tested egress/budget enforcement, and independent task
 review. Then execute DeerFlow and OpenHands, delegation/research/browser,
 concurrency, workload degradation and performance gates. Keep PR #6 in draft.
+
+The current engineering status, including the complete local-isolation core
+LangGraph path and the later failed Agent Zero attempt, is recorded in
+[END_TO_END_VALIDATION.md](../../docs/enterprise/END_TO_END_VALIDATION.md).
+The original branch-discovery and component test history above is preserved.

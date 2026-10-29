@@ -4,7 +4,7 @@
   "job_id": 123052528645,
   "artifact_id": 12845702823,
   "artifact_sha256": "2014cbcca7a37244b3021648d3ecfe787060d00c8b682ef8e0771ad61c90ea31",
-  "status": "FAILED_ENTERPRISE_CLIENT_ROLE_REFUSAL_TRANSPORT_CHECK",
+  "status": "FAILED_CLIENT_COMMAND_EXACT_ORIGINAL_SUBSTAGE_UNKNOWN",
   "genuine_agent_completed": true,
   "model_calls": 2,
   "actual_task_signed_coverage": "PASS",
@@ -39,8 +39,8 @@
     }
   },
   "controlled_negatives": "PASS; captured-record mutations and actual gateway Refused parameter mismatch",
-  "enterprise_clients": "PARTIAL; actual writer admission and Python reads completed; Reader large-body POST response race stopped client before TypeScript/MCP/browser",
-  "failure_root_cause": "Service refuses unauthorized Reader before consuming full upload body; urllib send races returned403 and raises BrokenPipe/URLError. Client must inspect refusal robustly; no service or verification weakening.",
+  "enterprise_clients": "Original Linux client command exited1 with no retained substage diagnostics. A separate Mac replay now passes API, both SDKs, official MCP and real Chromium console over the same actual Linux bundle.",
+  "failure_root_cause": "Exact original Linux substage is unknown. Separate Mac reproduction over the actual bundle found a full-body Reader refusal/urllib early-close race and a CSP-incompatible browser string-eval wait. These concrete client defects were fixed without service or verifier changes; the original failed Linux trace did not retain proof of either exact failure phase.",
   "cleanup_errors": [],
   "separate_collector_custody": "INCOMPLETE_SHARED_KERNEL_AND_ROOT",
   "files": {

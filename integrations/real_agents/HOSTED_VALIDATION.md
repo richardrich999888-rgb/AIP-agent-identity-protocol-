@@ -43,7 +43,8 @@ the same root-owned collector-control helper on the disposable VM. The helper,
 configuration, service, wrapped key, passphrase and evidence directories must
 remain outside the workload mounts. The workload runs with separate PID/mount/
 network namespaces, UID 10001, no capabilities and no privilege escalation.
-Its only configuration credential is the approved restricted model credential.
+Remote-model profiles supply only the approved restricted model credential.
+The hosted public local-model profile supplies no API credential.
 
 This boundary protects the signing key from the unprivileged workload under a
 trusted host kernel. It **does not protect against compromised host root or a
@@ -70,11 +71,17 @@ gate correctly withdraws coverage for that attachment. Linux audit uses a
 different mechanism but still trusts the same kernel; it is not complete ground
 truth, and unbound or missed events remain visible.
 
-## Remaining access for a genuine workload
+## Remote-model configuration and remaining access
 
 The repository secret-name listing and environment listing on 2026-10-28 both
 returned zero entries. No secret values were requested, read or invented.
-Before the genuine Click issue run, provision:
+The subsequent 2026-10-29 local-model attempt ran without any model API
+credential or cloud API spending. Its real model calls did not establish task
+or observation acceptance; see the retained failed run40848104456. The named
+environment was auto-created with no protection rules or branch policy, so it
+is not an approved protected-secret environment.
+
+Before a credentialed remote-model task, provision:
 
 1. A protected GitHub environment named `snifferdog-validation`, limited to the
    reviewed feature branch and requiring the appropriate reviewer approval.
@@ -122,3 +129,18 @@ authenticated orchestration/gateway evidence is connected.
 Three-framework execution, delegated work, software-task acceptance, browser/
 research execution, concurrency, degradation during genuine agent execution,
 and a measured performance run remain acceptance gates until actually executed.
+
+## Container mount and task window
+
+The harness now starts only the trusted launcher waiting on its root-controlled
+`/input/start` gate. Before releasing framework/model work it measures that
+process, marks the actual container `/work` mount through `/proc/<pid>/root/work`,
+checks workspace device/inode equality, waits for signed Active sensor readiness
+and verifies the same process instance. Audit and the prospective task window
+start before release. Initial Docker/launcher bootstrap is outside that window
+and cannot satisfy the task execution gate. The watch remains mount-scoped;
+fanotify mount marks do not cross into another bind mount merely because it has
+the same files ([Linux manual](https://man7.org/linux/man-pages/man7/fanotify.7.html)).
+The next actual Linux task must demonstrate this change; historical archives
+are retained unchanged. The final signed health record controls coverage, and
+per-batch clock anchors control exact audit references.

@@ -16,6 +16,7 @@ import secrets
 import shlex
 import shutil
 import socket
+import stat
 import subprocess
 import sys
 import time
@@ -109,6 +110,34 @@ print(json.dumps({'status':'PASS','real_chat_capability_checked':True,'embedding
     with (Path(cfg['public'])/'policy-inferences.jsonl').open('a') as log:
         log.write(json.dumps({'source_authority':'root_policy_controller','completed_at_ms':time.time_ns()//1_000_000,'successful_chat_capability_requests':1})+'\n')
 
+
+
+def publish_self_reported_file(workspace, public, name, limit):
+    """Copy bounded original bytes after the workload container has stopped."""
+    if Path(name).name != name or name in ('.', '..'):
+        raise Refused('self-reported artifact must be a single permitted filename')
+    source=workspace/name
+    try:
+        info=source.lstat()
+    except FileNotFoundError:
+        return {'source_authority':'AGENT_SELF_REPORTED','source_file':name,'status':'NOT_PRODUCED'}
+    if not stat.S_ISREG(info.st_mode):
+        raise Refused('refusing nonregular or symlink self-reported artifact: '+name)
+    if info.st_size>limit:
+        raise Refused('self-reported artifact exceeds publication limit: '+name)
+    descriptor=os.open(source,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
+    with os.fdopen(descriptor,'rb') as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise Refused('self-reported artifact changed type before reading: '+name)
+        data=stream.read(limit+1)
+    if len(data)>limit:
+        raise Refused('self-reported artifact grew beyond publication limit: '+name)
+    destination=public/('agent-self-reported-'+name)
+    destination.write_bytes(data)
+    return {'source_authority':'AGENT_SELF_REPORTED','source_file':name,
+        'published_file':destination.name,'status':'ORIGINAL_BYTES_RETAINED',
+        'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),
+        'claim_standing':'untrusted agent diagnostic; not independent execution or task acceptance'}
 
 def prepare_inputs(inputs, public):
     inputs.mkdir(mode=0o755)
@@ -336,7 +365,8 @@ def main():
             'scope':'exact model service used only by the restricted workload and the counted root policy probes; does not prove logical subagent attribution'})
         for source_name,target_name in [('status.json','harness-status.json'),('verification.json','offline-verification.json'),
                 ('summary.json','observation-summary.json'),('corroboration.json','corroboration.json'),('tamper.json','tamper.json'),
-                ('audit-status.json','audit-status.json'),('auditd.log','auditd.log'),('launch.json','launch.json')]:
+                ('audit-status.json','audit-status.json'),('auditd.log','auditd.log'),('launch.json','launch.json'),
+                ('fanotify-watch.json','fanotify-watch.json')]:
             source=runs/'agent-zero'/source_name
             if source.is_file(): shutil.copyfile(source,public/target_name)
         for name in ('attested.archive.jsonl','health.archive.jsonl'):
@@ -344,10 +374,16 @@ def main():
             if source.is_file(): shutil.copyfile(source,public/name)
         # Do not execute agent-owned git configuration or code in the root controller.
         # Its complete workspace stays on the runner for separate restricted review.
-        for name in ('click.patch','verification.md'):
-            source=runs/'agent-zero/work'/name
-            if source.is_file() and not source.is_symlink() and source.stat().st_size<=1024*1024:
-                shutil.copyfile(source,public/('agent-self-reported-'+name))
+        # This dedicated profile supplies only public task data and an empty
+        # credential environment. These bounded diagnostics retain original
+        # bytes and their self-reported standing; no full workspace is exported.
+        published=[publish_self_reported_file(runs/'agent-zero/work',public,name,limit)
+            for name,limit in [('click.patch',1024*1024),('verification.md',1024*1024),
+                              ('response.json',1024*1024),('adapter.jsonl',8*1024*1024)]]
+        save(public/'agent-self-reported-artifact-provenance.json',{
+            'classification':'UNTRUSTED_AGENT_DIAGNOSTICS_FROM_ZERO_CREDENTIAL_PUBLIC_TASK',
+            'original_bytes_unmodified':True,'independent_task_acceptance':False,
+            'artifacts':published})
         profile.update(status='REVIEW_REQUIRED' if not status.get('failures') and agent_calls>0 and (public/'agent-self-reported-click.patch').is_file() else 'FAIL',
             harness_exit_code=code,harness_status=status.get('status'),
             observation_validation=status.get('observation_validation','NOT_ESTABLISHED'),

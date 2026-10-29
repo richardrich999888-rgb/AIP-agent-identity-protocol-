@@ -137,3 +137,10 @@ and signed-reconciliation flags. Inspect identity, action, availability, reason
 and tool-boundary annotations separately. Successful verification preserves a
 supported `CannotProve`; it does not upgrade it to `Verified`. Preserve original
 bytes separately from review notes and check which client gates the run reached.
+
+The first complete hosted positive/interruption/fresh-recovery evidence package
+is `validation/enterprise/results/E2E_40847427090/` at source d6eb35e. Each
+profile has its own original public trust/checkpoint and bundle; use matching
+material when verifying. This is the runnable engineering package for the
+local-isolation demonstration. It does not satisfy the separate-host installer,
+institution-owned custody or production deployment acceptance gates above.

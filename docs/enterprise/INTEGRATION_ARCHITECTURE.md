@@ -102,3 +102,15 @@ Unsupported logical attribution, business effects and intervals without
 adequate coverage remain explicitly unknown or `CannotProve`. The shared-host
 profile cannot establish resistance to compromise of its kernel or root
 administrator, even when its signing keys belong to distinct processes.
+
+## Executed connection status
+
+At `d6eb35e4de11fbec10953e5ed00bd934f1cc02d7`, workflow40847427090 actually
+executed the authorization, gateway, tool, kernel/probe, authenticated transport,
+collector signing, canonical reconciliation, tenant API, both SDKs, restricted
+MCP, existing console and separate offline-verifier connections for one genuine
+model workload. It also repeated the client path over genuine interruption and
+fresh recovery profiles. The off-host/separate-administration arrow remains
+incomplete: the executed collector is a separate process/key on the same kernel
+under shared root/GitHub administration. No separate-host custody is implied by
+that software-path success.

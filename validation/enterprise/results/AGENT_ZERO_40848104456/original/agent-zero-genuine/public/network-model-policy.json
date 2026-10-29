@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "real_chat_capability_checked": true,
+  "embedding_capability": "UNVALIDATED_NOT_INVOKED_MEMORY_DISABLED",
+  "denied_destinations": [
+    {
+      "host": "172.18.0.1",
+      "port": 35529,
+      "errno": 111
+    },
+    {
+      "host": "169.254.169.254",
+      "port": 80,
+      "errno": 101
+    },
+    {
+      "host": "1.1.1.1",
+      "port": 443,
+      "errno": 101
+    }
+  ],
+  "model_manifest_verified": true,
+  "external_model_api_spend_cap": 0,
+  "api_credentials_used": false,
+  "classification": "ACTUAL_RESTRICTED_CONTAINER_CAPABILITY_CHECK"
+}

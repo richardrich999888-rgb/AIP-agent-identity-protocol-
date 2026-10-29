@@ -62,9 +62,14 @@ Retained genuine run `40755309307` at `a6da6e5` establishes A's actual model,
 authority, receipt, process binding and task-window checks. Its canonical kernel
 finding remains `CannotProve/ActionEvidenceUnavailable`; full authorization TTL
 is `WindowNotCovered`. B ran an actual gateway mismatch/refusal stimulus.
-C, E and G passed controlled verification of those same captured bytes. D needs
-a genuine interrupted workload and fresh-capture recovery. F's typed trust
-prerequisite and live wrong-process regressions pass; a genuine daemon-observed,
+C, E and G passed controlled verification of those same captured bytes.
+Subsequent exact-source d6eb35e workflow 40847427090 passed all three complete
+Linux profiles: A positive, D actual probe termination before a fresh model
+workload, and a fresh-capture recovery. All clients/browser and separate offline
+verification passed each actual bundle. D retained a final signed Active health
+record with old coverage; the evaluator correctly returned NoReference and
+CannotProve/WindowNotCovered. Fresh recovery does not establish same-key daemon
+restart continuity. F's predicate and real pidfd/procfs reference-control regressions pass; a genuine daemon-observed,
 correctly claimed wrong-identity workload has not been established. No claim
 registration API or fabricated claims are introduced to hide that limitation.
 
@@ -74,3 +79,15 @@ direct-tool/external egress denial and forbidden gateway administration. This
 uses Unix permissions and UID firewall rules, not a filesystem allowlist or a
 separate kernel administrator. Audit agreement is supporting same-kernel
 evidence. Original failure archives and complete checkpointed tails are retained.
+
+F's actual reference-control test is
+`aip-edge::end_to_end::t7_and_t13_an_observation_of_another_instance_is_excluded_not_downgraded`,
+passed in debug and release by CI40847427070/job123358253851. It spawns real
+workload/observer processes and independently measures another PID under explicit
+controller-supplied Claimed metadata, requiring IdentityDivergence with zero
+correlated records. The private observer pipe is not claimant authentication.
+Its temporary signed evidence is deleted by the existing test, so CI logs are
+component execution evidence, not a retained same-run Sniffer F package. The
+probe has no trusted claim-registration interface and placement derivation is
+not connected to this same-run reconciliation path. Filling that boundary
+requires reviewed full-instance/agent/decision linkage, not editing observations.

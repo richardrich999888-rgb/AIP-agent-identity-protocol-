@@ -2,8 +2,11 @@
 
 This directory adds source-pinned launchers for **Agent Zero, DeerFlow and the
 OpenHands SDK**, a Linux controller, an off-host collector control helper,
-offline archive checks and a loopback status viewer. **None of these three
-frameworks has yet executed under this harness.** Live model calls and complete end-to-end validation remain pending.
+offline archive checks and a loopback status viewer. **Agent Zero has executed an actual Click task attempt with four model requests,
+but task and observation acceptance failed. DeerFlow and OpenHands have not
+executed. None of the three framework integrations is validated.** See the
+[actual attempt](../../validation/enterprise/results/AGENT_ZERO_40848104456/summary.json)
+and [complete core integration record](../../docs/enterprise/END_TO_END_VALIDATION.md).
 Image and runtime component checks are recorded in VALIDATION.md.
 
 See [VALIDATION.md](VALIDATION.md) for the current results and missing gates.
