@@ -13,6 +13,7 @@ classification is retained, and the exception MESSAGE never is.
 """
 import importlib.util
 import json
+import re
 import sys
 import tempfile
 import types
@@ -206,6 +207,97 @@ class BrowserStageFacts(unittest.TestCase):
         console = [name for name in names if name.startswith("console_browser")]
         self.assertEqual(console, ["console_browser_import", "console_browser_launch",
                                    "console_browser_navigate", "console_browser_assert"])
+
+
+class ConsoleDomFacts(unittest.TestCase):
+    """CI run 40834240488 narrowed the failure to console_browser_assert with
+    chromium present and navigation complete, which left the DOM as the only
+    thing nobody could see. Selector counts are the smallest fact that
+    separates "the console did not render" from "it rendered and an assertion
+    about its contents failed".
+    """
+
+    class FakePage:
+        """Minimal stand-in. Playwright is not installed on every host that
+        needs to run these tests, and the contract under test is ours."""
+
+        def __init__(self, counts, url="http://127.0.0.1:19994/console",
+                     content="<html>x</html>"):
+            self._counts, self.url, self._content = counts, url, content
+
+        def content(self):
+            return self._content
+
+        def locator(self, selector):
+            counts, page = self._counts, self
+
+            class Located:
+                def count(self):
+                    value = counts.get(selector, 0)
+                    if isinstance(value, Exception):
+                        raise value
+                    return value
+
+            return Located()
+
+    def setUp(self):
+        MODULE._CONSOLE_DOM.clear()
+
+    def tearDown(self):
+        MODULE._CONSOLE_DOM.clear()
+
+    def test_every_driven_selector_is_counted(self):
+        page = self.FakePage({name: 1 for name in MODULE.CONSOLE_SELECTORS})
+        MODULE.record_console_dom(page, 200)
+        counts = MODULE._CONSOLE_DOM["selector_counts"]
+        self.assertEqual(set(counts), set(MODULE.CONSOLE_SELECTORS))
+        self.assertEqual(MODULE._CONSOLE_DOM["goto_http_status"], 200)
+
+    def test_a_missing_element_is_reported_as_zero_not_omitted(self):
+        """Zero here is a measurement, which is exactly what is wanted."""
+        page = self.FakePage({**{n: 1 for n in MODULE.CONSOLE_SELECTORS}, "#run": 0})
+        MODULE.record_console_dom(page, 200)
+        self.assertEqual(MODULE._CONSOLE_DOM["selector_counts"]["#run"], 0)
+
+    def test_one_failing_selector_probe_does_not_lose_the_others(self):
+        page = self.FakePage({**{n: 2 for n in MODULE.CONSOLE_SELECTORS},
+                              "#status": RuntimeError("boom")})
+        MODULE.record_console_dom(page, None)
+        counts = MODULE._CONSOLE_DOM["selector_counts"]
+        self.assertEqual(counts["#status"], "probe_error:RuntimeError")
+        self.assertEqual(counts["#credential"], 2)
+
+    def test_page_text_is_never_retained_only_its_length(self):
+        secret = "SERVER-CONTROLLED-TEXT-sk-live-nope"
+        page = self.FakePage({n: 1 for n in MODULE.CONSOLE_SELECTORS},
+                             content="<html>" + secret + "</html>")
+        MODULE.record_console_dom(page, 200)
+        blob = json.dumps(MODULE._CONSOLE_DOM)
+        self.assertNotIn(secret, blob)
+        self.assertNotIn("sk-live", blob)
+        self.assertIsInstance(MODULE._CONSOLE_DOM["content_length"], int)
+
+    def test_the_facts_reach_the_failure_record(self):
+        page = self.FakePage({n: 1 for n in MODULE.CONSOLE_SELECTORS})
+        MODULE.record_console_dom(page, 200)
+        MODULE.mark("console_browser_assert")
+        with tempfile.TemporaryDirectory() as temporary:
+            record = MODULE.write_failure(Path(temporary) / "out.json", AssertionError())
+        self.assertIn("console_dom", record)
+        self.assertIn("selector_counts", record["console_dom"])
+
+    def test_no_console_dom_key_when_nothing_was_observed(self):
+        MODULE.mark("console_browser_launch")
+        with tempfile.TemporaryDirectory() as temporary:
+            record = MODULE.write_failure(Path(temporary) / "out.json", AssertionError())
+        self.assertNotIn("console_dom", record)
+
+    def test_the_selector_list_matches_what_console_flow_actually_drives(self):
+        """If the flow gains a selector, the facts must gain it too."""
+        flow = SOURCE.split("def console_flow(", 1)[1].split("\ndef ", 1)[0]
+        driven = set(re.findall(r'locator\("([^"]+)"\)', flow))
+        self.assertTrue(driven.issubset(set(MODULE.CONSOLE_SELECTORS)),
+                        driven - set(MODULE.CONSOLE_SELECTORS))
 
 
 class NoAssuranceWeakened(unittest.TestCase):

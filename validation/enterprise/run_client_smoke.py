@@ -76,9 +76,45 @@ def browser_facts():
     return facts
 
 
+# DOM observations captured at the console failure site. Only code holding a
+# live page can see these, so they are recorded there and merged by the
+# failure writer. Counts, a URL this script constructed, and a length --
+# never page text, which a server controls.
+_CONSOLE_DOM = {}
+
+#: The element ids the console flow drives. Listed once so the facts and the
+#: flow cannot drift apart.
+CONSOLE_SELECTORS = ("#credential", "#connect button", "#status", "#run-id",
+                     "#run-form button", "#run", "#disconnect")
+
+
 def mark(name):
     """Record the stage about to run. Costs nothing and makes exit 1 legible."""
     _STAGE["name"] = name
+
+
+def record_console_dom(page, response_status=None):
+    """Count the expected elements. Says which the page is missing, not why.
+
+    CI run 40834240488 narrowed the failure to console_browser_assert with
+    the chromium executable present and navigation complete, which leaves
+    the DOM as the thing nobody could see. A selector count is the smallest
+    fact that distinguishes "the console did not render" from "the console
+    rendered and an assertion about its contents failed".
+    """
+    _CONSOLE_DOM["goto_http_status"] = response_status
+    try:
+        _CONSOLE_DOM["page_url"] = page.url
+        _CONSOLE_DOM["content_length"] = len(page.content())
+    except Exception as error:
+        _CONSOLE_DOM["page_probe_error_type"] = type(error).__name__
+    counts = {}
+    for selector in CONSOLE_SELECTORS:
+        try:
+            counts[selector] = page.locator(selector).count()
+        except Exception as error:
+            counts[selector] = "probe_error:" + type(error).__name__
+    _CONSOLE_DOM["selector_counts"] = counts
 
 
 def write_failure(output, error):
@@ -104,6 +140,8 @@ def write_failure(output, error):
             record["browser_facts"] = browser_facts()
         except Exception as probe_error:
             record["browser_facts"] = {"probe_failed": type(probe_error).__name__}
+        if _CONSOLE_DOM:
+            record["console_dom"] = dict(_CONSOLE_DOM)
     try:
         path = Path(output).parent / "client-smoke-failure.json"
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -121,6 +159,25 @@ def refused(operation, status):
         assert error.status == status
     else:
         raise AssertionError("restricted read succeeded")
+
+
+
+
+def console_flow(page, reader_key, artifact_id, admitted, bundle, args):
+    """The console interaction, unchanged. Extracted only so a failure
+    inside it can be observed before it unwinds."""
+    page.locator("#credential").fill(reader_key)
+    page.locator("#connect button").first.click()
+    page.wait_for_function("document.querySelector('#status').textContent.startsWith('Connected')")
+    assert page.locator("#credential").input_value() == ""
+    page.locator("#run-id").fill(artifact_id)
+    page.locator("#run-form button").click()
+    page.wait_for_function("document.querySelector('#run').textContent.includes(" + json.dumps(artifact_id) + ")")
+    displayed = json.loads(page.locator("#run").inner_text())
+    assert displayed == {"metadata":admitted,"evaluation":admitted["evaluation"],
+                         "signed_verdict":bundle.get("signed_reconciliation")}
+    page.locator("#disconnect").click()
+    assert page.locator("#run").inner_text() == "Disconnected"
 
 
 def main():
@@ -236,24 +293,23 @@ def main():
             browser = browser_runtime.chromium.launch(headless=True)
             mark("console_browser_navigate")
             page = browser.new_page()
-            page.goto(args.url.rstrip("/") + "/console")
+            navigation = page.goto(args.url.rstrip("/") + "/console")
             mark("console_browser_assert")
-            page.locator("#credential").fill(reader_key)
-            page.locator("#connect button").first.click()
-            page.wait_for_function("document.querySelector('#status').textContent.startsWith('Connected')")
-            assert page.locator("#credential").input_value() == ""
-            page.locator("#run-id").fill(artifact_id)
-            page.locator("#run-form button").click()
-            page.wait_for_function("document.querySelector('#run').textContent.includes(" + json.dumps(artifact_id) + ")")
-            displayed = json.loads(page.locator("#run").inner_text())
-            assert displayed == {"metadata":admitted,"evaluation":admitted["evaluation"],
-                                 "signed_verdict":bundle.get("signed_reconciliation")}
+            try:
+                console_flow(page, reader_key, artifact_id, admitted, bundle, args)
+            except BaseException:
+                # Observe the page before unwinding; the exception is
+                # re-raised untouched so the refusal is unchanged.
+                try:
+                    record_console_dom(page, getattr(navigation, "status", None))
+                except Exception:
+                    pass
+                raise
             if args.screenshot:
                 page.screenshot(path=str(args.screenshot), full_page=True)
-            page.locator("#disconnect").click()
-            assert page.locator("#run").inner_text() == "Disconnected"
             browser.close()
         console = "PASS"
+
     mark("write_report")
     report = {"run_id":bundle["run_id"],"run_artifact_id":artifact_id,
         "source_bundle_sha256":hashlib.sha256(raw).hexdigest(),
