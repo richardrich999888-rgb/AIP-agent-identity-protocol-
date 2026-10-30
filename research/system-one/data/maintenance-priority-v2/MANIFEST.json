@@ -1,0 +1,67 @@
+{
+  "checks": {
+    "cross_split_text_overlap": {
+      "test_id&test_ood": 0,
+      "test_id&test_para": 0,
+      "test_id&train": 0,
+      "test_id&val": 0,
+      "test_ood&test_para": 0,
+      "test_ood&train": 0,
+      "test_ood&val": 0,
+      "test_para&train": 0,
+      "test_para&val": 0,
+      "train&val": 0
+    },
+    "ood_templates_disjoint_from_id": true,
+    "paraphrases_absent_from_sop_and_training": true
+  },
+  "class_counts": {
+    "test_id": {
+      "1": 72,
+      "2": 43,
+      "3": 56,
+      "4": 129
+    },
+    "test_ood": {
+      "1": 119,
+      "2": 62,
+      "3": 48,
+      "4": 71
+    },
+    "test_para": {
+      "1": 65,
+      "2": 49,
+      "3": 67,
+      "4": 119
+    },
+    "train": {
+      "1": 249,
+      "2": 174,
+      "3": 210,
+      "4": 567
+    },
+    "val": {
+      "1": 79,
+      "2": 30,
+      "3": 65,
+      "4": 126
+    }
+  },
+  "files": {
+    "test_id": "2a31629153bf9f4da022bc93b2c90cc74613a7b9f9e235e7ee3c26a3d770300d",
+    "test_ood": "6e8eced69b2bb016846ae694daf83ea55533e4783e9402faa62c0fae7199e0c7",
+    "test_para": "d4103088d94cd775c29a2da3b87037dd121306a76414c1087452cac0f0928016",
+    "train": "de1acd44cf5924d1756fc7b3dcae41b62bc45e3ff9c79151474c5e83333268fb",
+    "val": "c4755127f32d537fa573b0b97861826a205bc77cd1e2ec76870abec288d0660f"
+  },
+  "seed": 20261031,
+  "sizes": {
+    "test_id": 300,
+    "test_ood": 300,
+    "test_para": 300,
+    "train": 1200,
+    "val": 300
+  },
+  "sop_text_sha256": "9607e99f8558683db36c693a52d3c6926aa1a232740d4c4e578c6e9a9490b083",
+  "version": "maintenance-priority-v2"
+}
