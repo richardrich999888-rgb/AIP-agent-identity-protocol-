@@ -136,7 +136,7 @@ pub fn chat_request_body(messages: &[ChatMessage], p: &GenerationParams) -> Vec<
         .iter()
         .map(|m| json!({"role": m.role, "content": m.content}))
         .collect();
-    json!({
+    let mut body = json!({
         "messages": msgs,
         "max_tokens": p.max_tokens,
         "temperature": p.temperature,
@@ -144,9 +144,19 @@ pub fn chat_request_body(messages: &[ChatMessage], p: &GenerationParams) -> Vec<
         "top_k": 1,
         "seed": p.seed,
         "stream": false
-    })
-    .to_string()
-    .into_bytes()
+    });
+    if let Some(schema) = &p.response_schema {
+        // An unparsable schema is a programming error in this crate, not
+        // user input; send none rather than a malformed constraint, and let
+        // the caller's validator withhold the unconstrained output.
+        if let Ok(v) = serde_json::from_str::<Value>(schema) {
+            body["response_format"] = json!({
+                "type": "json_schema",
+                "json_schema": {"name": "grounded_answer", "schema": v}
+            });
+        }
+    }
+    body.to_string().into_bytes()
 }
 
 /// Extract `choices[0].message.content` from a response body.
@@ -225,6 +235,25 @@ mod tests {
         assert_eq!(v["temperature"], 0.0);
         assert_eq!(v["top_k"], 1);
         assert_eq!(v["stream"], false);
+        assert!(v.get("response_format").is_none());
+    }
+
+    #[test]
+    fn schema_is_forwarded_as_response_format() {
+        let m = [ChatMessage {
+            role: "user",
+            content: "x".into(),
+        }];
+        let p = GenerationParams {
+            response_schema: Some(r#"{"type":"object"}"#.into()),
+            ..GenerationParams::default()
+        };
+        let v: Value = serde_json::from_slice(&chat_request_body(&m, &p)).unwrap();
+        assert_eq!(v["response_format"]["type"], "json_schema");
+        assert_eq!(
+            v["response_format"]["json_schema"]["schema"]["type"],
+            "object"
+        );
     }
 
     #[test]
@@ -237,14 +266,41 @@ mod tests {
         assert!(extract_content(b"not json").is_err());
     }
 
+    /// Test helper: consume headers and a Content-Length body.
+    fn read_full_request(s: &mut std::net::TcpStream) {
+        let mut buf = Vec::new();
+        let mut chunk = [0u8; 4096];
+        loop {
+            let n = s.read(&mut chunk).unwrap();
+            buf.extend_from_slice(&chunk[..n]);
+            if let Some(end) = buf.windows(4).position(|w| w == b"\r\n\r\n") {
+                let head = String::from_utf8_lossy(&buf[..end]).to_ascii_lowercase();
+                let len: usize = head
+                    .lines()
+                    .find_map(|l| l.strip_prefix("content-length:"))
+                    .map(|v| v.trim().parse().unwrap())
+                    .unwrap_or(0);
+                if buf.len() >= end + 4 + len {
+                    return;
+                }
+            }
+            if n == 0 {
+                return;
+            }
+        }
+    }
+
     #[test]
     fn end_to_end_against_a_local_fake_server() {
         let l = TcpListener::bind("127.0.0.1:0").unwrap();
         let addr = l.local_addr().unwrap();
         let h = thread::spawn(move || {
             let (mut s, _) = l.accept().unwrap();
-            let mut buf = [0u8; 8192];
-            let _ = s.read(&mut buf).unwrap();
+            // Read the *whole* request before replying. Closing a socket
+            // with unread bytes makes the kernel send RST, which surfaced as
+            // a flaky "connection reset" (1 in ~35 runs) in an earlier
+            // version of this test.
+            read_full_request(&mut s);
             let body = br#"{"choices":[{"message":{"content":"answer [S1]"}}]}"#;
             let resp = format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n", body.len());
             s.write_all(resp.as_bytes()).unwrap();

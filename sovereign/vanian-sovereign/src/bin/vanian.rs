@@ -8,12 +8,14 @@ use std::process::ExitCode;
 
 use vanian_sovereign::agent::evidence::Verdict;
 use vanian_sovereign::app::{self, ActOutcome};
-use vanian_sovereign::domain::citation::Grounding;
+use vanian_sovereign::domain::grounding::Validation;
+use vanian_sovereign::ports::IngestOutcome;
+use vanian_sovereign::rag::Outcome;
 
 const USAGE: &str = "usage:
   vanian init   --state DIR --tools tools.json --grant id[,id..] --model-sha256 HEX
   vanian ingest --state DIR FILE...
-  vanian ask    --state DIR --endpoint IP:PORT [--k N] [--show-withheld yes] QUESTION
+  vanian ask    --state DIR --endpoint IP:PORT [--k N] [--show-withheld yes] [--format json] QUESTION
   vanian act    --state DIR --tool ID --evidence OUT.json [-- ARG...]
   vanian verify --public public.json --bundle bundle.json";
 
@@ -79,7 +81,12 @@ fn run(cmd: &str, a: &Args) -> Result<ExitCode, String> {
         "ingest" => {
             let state = PathBuf::from(a.get("state")?);
             for f in &a.positional {
-                println!("ingested {}", app::ingest_file(&state, &PathBuf::from(f))?);
+                match app::ingest_file(&state, &PathBuf::from(f))? {
+                    (id, IngestOutcome::Indexed) => println!("ingested {id}"),
+                    (id, IngestOutcome::Quarantined { marker }) => {
+                        println!("QUARANTINED {id} (instruction-like text: {marker:?}); stored, not retrievable")
+                    }
+                }
             }
             Ok(ExitCode::SUCCESS)
         }
@@ -91,6 +98,28 @@ fn run(cmd: &str, a: &Args) -> Result<ExitCode, String> {
                 .map_err(|_| "--k must be an integer")?;
             let q = a.positional.join(" ");
             let (p, ans) = app::ask(&PathBuf::from(a.get("state")?), a.get("endpoint")?, &q, k)?;
+            let (status, detail) = describe(&ans.outcome);
+            if a.opt("format") == Some("json") {
+                let v = serde_json::json!({
+                    "principal": {"tenant": p.tenant.as_str(), "clearance": format!("{:?}", p.clearance)},
+                    "sources": ans.sources.iter().map(|s| serde_json::json!({
+                        "index": s.index, "doc_id": s.doc_id, "title": s.title,
+                        "classification": format!("{:?}", s.classification)})).collect::<Vec<_>>(),
+                    "model_called": ans.model_called(),
+                    "status": status,
+                    "detail": detail,
+                    "answer": ans.released(),
+                    "citations": match &ans.outcome {
+                        Outcome::Validated(Validation::Released { citations, .. }) => {
+                            citations.iter().copied().collect::<Vec<_>>()
+                        }
+                        _ => vec![],
+                    },
+                    "raw_model_output": ans.raw_model_output,
+                });
+                println!("{v}");
+                return Ok(ExitCode::SUCCESS);
+            }
             println!(
                 "principal: tenant={} clearance={:?}",
                 p.tenant.as_str(),
@@ -103,19 +132,13 @@ fn run(cmd: &str, a: &Args) -> Result<ExitCode, String> {
                     s.index, s.doc_id, s.classification, s.title
                 );
             }
-            println!("model called: {}", ans.model_called);
-            match &ans.grounding {
-                Grounding::Grounded(c) => println!("grounding: GROUNDED cites {c:?}"),
-                Grounding::Ungrounded => println!("grounding: UNGROUNDED (no citation)"),
-                Grounding::InvalidCitation(c) => {
-                    println!("grounding: INVALID_CITATION {c:?} — answer withheld")
-                }
-            }
-            match &ans.text {
+            println!("model called: {}", ans.model_called());
+            println!("status: {status} {detail}");
+            match ans.released() {
                 Some(t) => println!("---\n{t}"),
-                None => println!("--- ANSWER WITHHELD (not source-backed)"),
+                None => println!("--- NO ANSWER RELEASED"),
             }
-            if ans.text.is_none() && a.opt("show-withheld") == Some("yes") {
+            if ans.released().is_none() && a.opt("show-withheld") == Some("yes") {
                 if let Some(raw) = &ans.raw_model_output {
                     println!("--- withheld model output (audit only, NOT an answer) ---\n{raw}");
                 }
@@ -168,6 +191,18 @@ fn run(cmd: &str, a: &Args) -> Result<ExitCode, String> {
             }
         },
         _ => Err(USAGE.into()),
+    }
+}
+
+/// Stable status label and detail for an answer outcome.
+fn describe(o: &Outcome) -> (&'static str, String) {
+    match o {
+        Outcome::NoAuthorizedSource => ("NO_AUTHORIZED_SOURCE", String::new()),
+        Outcome::Validated(Validation::Released { citations, .. }) => {
+            ("RELEASED", format!("cites {citations:?}"))
+        }
+        Outcome::Validated(Validation::Abstained) => ("ABSTAINED", "sources insufficient".into()),
+        Outcome::Validated(Validation::Withheld(r)) => ("WITHHELD", format!("{r:?}")),
     }
 }
 

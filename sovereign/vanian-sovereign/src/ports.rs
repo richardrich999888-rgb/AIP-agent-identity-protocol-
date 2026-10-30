@@ -39,10 +39,20 @@ impl std::fmt::Display for PortError {
 
 impl std::error::Error for PortError {}
 
+/// What ingestion did with a document.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum IngestOutcome {
+    /// Stored and retrievable.
+    Indexed,
+    /// Stored but excluded from retrieval: an instruction-like phrase was
+    /// found. The document is not deleted; an operator can review it.
+    Quarantined { marker: &'static str },
+}
+
 /// Access-controlled document store.
 pub trait CorpusStore {
     /// Insert or replace a document version.
-    fn ingest(&mut self, doc: &Document) -> Result<(), PortError>;
+    fn ingest(&mut self, doc: &Document) -> Result<IngestOutcome, PortError>;
 
     /// Full-text search restricted **inside the query** to documents the
     /// principal may read. Returns at most `limit` passages, best first.
@@ -68,6 +78,9 @@ pub struct GenerationParams {
     pub max_tokens: u32,
     pub temperature: f32,
     pub seed: u32,
+    /// JSON schema (as JSON text) the output must conform to. The inference
+    /// server compiles it to a grammar; the caller still validates.
+    pub response_schema: Option<String>,
 }
 
 impl Default for GenerationParams {
@@ -77,6 +90,7 @@ impl Default for GenerationParams {
             max_tokens: 384,
             temperature: 0.0,
             seed: 42,
+            response_schema: None,
         }
     }
 }

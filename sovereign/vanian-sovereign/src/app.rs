@@ -40,7 +40,7 @@ use crate::agent::replay::FileReplayGuard;
 use crate::agent::tool::{action_for, ToolInvocation, ToolManifest};
 use crate::domain::corpus::{Classification, Document, Ident, Principal};
 use crate::policy::egress::LoopbackEndpoint;
-use crate::ports::{CorpusStore, GenerationParams};
+use crate::ports::{CorpusStore, GenerationParams, IngestOutcome};
 use crate::rag::{self, RagAnswer};
 
 /// Expectation lifetime requested by `act` (ms). Short: authorize-then-run.
@@ -229,7 +229,7 @@ pub fn current_uid() -> AppResult<u32> {
 }
 
 /// Ingest a document file. Front matter: first line `tenant|doc_id|class|title`.
-pub fn ingest_file(state: &Path, file: &Path) -> AppResult<String> {
+pub fn ingest_file(state: &Path, file: &Path) -> AppResult<(String, IngestOutcome)> {
     let text = std::fs::read_to_string(file).map_err(|e| format!("{}: {e}", file.display()))?;
     let (head, body) = text.split_once('\n').ok_or("missing header line")?;
     let f: Vec<&str> = head.splitn(4, '|').collect();
@@ -247,8 +247,8 @@ pub fn ingest_file(state: &Path, file: &Path) -> AppResult<String> {
         body: body.to_string(),
     };
     let mut c = SqliteCorpus::open(&state.join("corpus.db")).map_err(|e| e.to_string())?;
-    c.ingest(&doc).map_err(|e| e.to_string())?;
-    Ok(doc.doc_id.as_str().to_string())
+    let outcome = c.ingest(&doc).map_err(|e| e.to_string())?;
+    Ok((doc.doc_id.as_str().to_string(), outcome))
 }
 
 /// Grounded question for the calling OS user.
