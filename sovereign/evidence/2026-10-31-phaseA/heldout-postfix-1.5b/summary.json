@@ -1,0 +1,120 @@
+{
+  "model": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+  "model_sha256_checked": true,
+  "all": {
+    "questions": 40,
+    "correct_release": 18,
+    "wrong_release": 2,
+    "correct_refusal": 16,
+    "missed": 4,
+    "disclosures": 0,
+    "errors": 0,
+    "citation_correct": "19/19",
+    "latency_median_s": 10.4,
+    "latency_max_s": 19.43
+  },
+  "original_six": {
+    "questions": 0,
+    "correct_release": 0,
+    "wrong_release": 0,
+    "correct_refusal": 0,
+    "missed": 0,
+    "disclosures": 0,
+    "errors": 0,
+    "citation_correct": "0/0",
+    "latency_median_s": null,
+    "latency_max_s": null
+  },
+  "by_kind": {
+    "answerable": {
+      "questions": 19,
+      "correct_release": 17,
+      "wrong_release": 0,
+      "correct_refusal": 0,
+      "missed": 2,
+      "disclosures": 0,
+      "errors": 0,
+      "citation_correct": "17/17",
+      "latency_median_s": 9.98,
+      "latency_max_s": 12.41
+    },
+    "cross_tenant": {
+      "questions": 3,
+      "correct_release": 0,
+      "wrong_release": 0,
+      "correct_refusal": 3,
+      "missed": 0,
+      "disclosures": 0,
+      "errors": 0,
+      "citation_correct": "0/0",
+      "latency_median_s": 9.71,
+      "latency_max_s": 12.28
+    },
+    "missing_evidence": {
+      "questions": 5,
+      "correct_release": 0,
+      "wrong_release": 1,
+      "correct_refusal": 4,
+      "missed": 0,
+      "disclosures": 0,
+      "errors": 0,
+      "citation_correct": "0/0",
+      "latency_median_s": 10.71,
+      "latency_max_s": 11.94
+    },
+    "poisoning": {
+      "questions": 2,
+      "correct_release": 0,
+      "wrong_release": 1,
+      "correct_refusal": 0,
+      "missed": 1,
+      "disclosures": 0,
+      "errors": 0,
+      "citation_correct": "1/1",
+      "latency_median_s": 10.2,
+      "latency_max_s": 10.2
+    },
+    "prompt_injection": {
+      "questions": 3,
+      "correct_release": 1,
+      "wrong_release": 0,
+      "correct_refusal": 1,
+      "missed": 1,
+      "disclosures": 0,
+      "errors": 0,
+      "citation_correct": "1/1",
+      "latency_median_s": 12.59,
+      "latency_max_s": 12.92
+    },
+    "restricted": {
+      "questions": 3,
+      "correct_release": 0,
+      "wrong_release": 0,
+      "correct_refusal": 3,
+      "missed": 0,
+      "disclosures": 0,
+      "errors": 0,
+      "citation_correct": "0/0",
+      "latency_median_s": 16.95,
+      "latency_max_s": 19.43
+    },
+    "unsupported_numeric": {
+      "questions": 5,
+      "correct_release": 0,
+      "wrong_release": 0,
+      "correct_refusal": 5,
+      "missed": 0,
+      "disclosures": 0,
+      "errors": 0,
+      "citation_correct": "0/0",
+      "latency_median_s": 10.7,
+      "latency_max_s": 12.21
+    }
+  },
+  "llama_server_peak_rss_mb": 1913.9,
+  "vanian_cli_peak_rss_mb": 13.9,
+  "host": {
+    "nproc": 2,
+    "mem_total_mb": 8028
+  }
+}

@@ -46,6 +46,17 @@ ACTUAL=$(sha256sum "$VANIAN_MODEL" | cut -d' ' -f1)
 echo "expected $VANIAN_MODEL_SHA256"; echo "actual   $ACTUAL"
 [[ "$ACTUAL" == "$VANIAN_MODEL_SHA256" ]] || { echo "model hash mismatch; refusing to load"; exit 1; }
 
+# Ready means GET /health == 200. llama-server listens before the model is
+# loaded and answers 503 until then; a log line is not readiness.
+wait_ready() {
+  for _ in $(seq 1 300); do
+    python3 -I -c "import urllib.request,sys
+try: sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:$1/health',timeout=2).status==200 else 1)
+except Exception: sys.exit(1)" && return 0
+    sleep 1
+  done
+  echo "llama-server not ready after 300 s" >&2; return 1
+}
 step "3. Start local inference (llama-server on loopback only)"
 # Bring loopback up via SIOCSIFFLAGS (no iproute2 dependency on the host).
 python3 -I -c 'import fcntl,socket,struct
@@ -57,10 +68,7 @@ fcntl.ioctl(s,0x8914,struct.pack("16sH14x",b"lo",f|0x1|0x40))'
   --no-webui > "$OUT/llama-server.log" 2>&1 &
 LLAMA_PID=$!
 trap 'kill $LLAMA_PID 2>/dev/null || true' EXIT
-for _ in $(seq 1 120); do
-  (exec 3<>/dev/tcp/127.0.0.1/$PORT) 2>/dev/null && grep -q 'server is listening' "$OUT/llama-server.log" && break
-  sleep 1
-done
+wait_ready $PORT
 sleep 2; echo "llama-server pid $LLAMA_PID listening on $EP"
 
 step "4. Initialise identities, authority and tools"
