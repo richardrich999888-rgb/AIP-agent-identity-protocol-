@@ -1,0 +1,4 @@
+[
+  {"id":"count-alarms","program":"/usr/bin/grep","program_sha256":"20a35a4c18f2fe9e6305c1cbf866b9c0fcc3f957132ae66028c99ec353bb0a80","fixed_args":["-c","ALARM"],"timeout_ms":5000},
+  {"id":"restart-controller","program":"/bin/echo","program_sha256":"5c63567e30e1e9c99aabecc1b87a3780b3c134e3854de88c4ed48bedab736bf7","fixed_args":["RESTART","P-7"],"timeout_ms":5000}
+]

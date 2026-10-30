@@ -1,0 +1,27 @@
+[package]
+name = "vanian-sovereign"
+description = "VANIAN Sovereign AI OS slice 1: access-controlled local retrieval, loopback-only local inference, AIP-authorized sandboxed tools, signed run records"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+aip-types = { path = "../../aip-standalone/aip-types" }
+aip-crypto = { path = "../../aip-standalone/aip-crypto" }
+aip-core = { path = "../../aip-standalone/aip-core" }
+aip-authorize = { path = "../../aip-standalone/aip-authorize" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+# SQLite with FTS5, compiled from the crate's bundled amalgamation so the
+# destination needs no system SQLite and the engine version is pinned by the
+# lockfile. Exact pin: the storage format is part of the evidence surface.
+rusqlite = { version = "=0.32.1", features = ["bundled"] }
+
+[dev-dependencies]
+tempfile = "3"
+
+[[bin]]
+name = "vanian"
+path = "src/bin/vanian.rs"
