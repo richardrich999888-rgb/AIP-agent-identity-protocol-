@@ -35,7 +35,7 @@ inter-batch drain. These touch the same files (`aip-probe/src/{sensors,main}.rs`
 reconciled deliberately, not textually merged.
 
 ## Phase A — consolidate the code line
-- [ ] A1. Branch inventory → `docs/release/BRANCH_INVENTORY.md` (all 20 remote branches)
+- [x] A1. Branch inventory → `docs/release/BRANCH_INVENTORY.md` (all 20 remote branches) — 5 with unique work, 14 contained; `codex/val-ladder-sync` awaits owner decision
 - [ ] A2. `release/aip-1.0-rc` from the `9ed1662` line; reviewed merge of `integration/snifferdog-complete-enterprise-validation`; workspace CI 0 failed
 - [ ] A3. Fold in remaining keep-branches one at a time (incl. reconciling the strategic-loop probe fixes with repair 4)
 - [ ] A4. All seven workflows on the RC head → `validation/final_acceptance/RC_REPORT.md`
@@ -74,3 +74,4 @@ reconciled deliberately, not textually merged.
 | # | Item | Result | Evidence |
 |---|---|---|---|
 | 1 | Ground-truth verification + checklist seed | DONE, 2 corrections (divergence size; 20 branches) and 1 overlap recorded | this file |
+| 2 | A1 branch inventory | DONE (docs only; no CI-affecting change) | `docs/release/BRANCH_INVENTORY.md` |
