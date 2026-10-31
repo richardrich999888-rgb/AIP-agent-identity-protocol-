@@ -66,14 +66,16 @@ def make(out):
             json.dump({**spec, "data": os.path.relpath(d, CL)}, open(os.path.join(d, "task.json"), "w"))
 
 
-def score(out):
+def score(out, prefix="run"):
     import atomic as A
     res = {}
     for fam, (_, ref) in FAMS.items():
         R = json.load(open(os.path.join(CL, ref)))
         pts = [p["inputs"] for p in A.boundary_points(R)]
         for k in [0] + list(LEVELS):
-            run = os.path.join(out, f"run_{fam}_L{k}")
+            run = os.path.join(out, f"{prefix}_{fam}_L{k}")
+            if prefix == "model" and k == 0:
+                run = os.path.join(CL, {"ir": "results/v02/attempt3_ir", "bt": "results/v02/attempt3_bt", "tx": "results/v02/postfix/holdout_tx"}[fam])
             if not os.path.exists(os.path.join(run, "ir.json")):
                 continue
             I = json.load(open(os.path.join(run, "ir.json")))
@@ -85,8 +87,8 @@ def score(out):
             res[f"{fam}_L{k}"] = {"status": tri["status"], "agree_on_boundary_points": agree, "points": len(pts),
                                   "issues": len(tri["claim_issues"]) + len(tri["assembly_issues"]) + len(tri["coverage_issues"]),
                                   "demos": tri.get("demo_agreement")}
-    json.dump(res, open(os.path.join(out, "score.json"), "w"), indent=1); print(json.dumps(res, indent=1))
+    json.dump(res, open(os.path.join(out, f"score_{prefix}.json"), "w"), indent=1); print(json.dumps(res, indent=1))
 
 
 if __name__ == "__main__":
-    score(sys.argv[2]) if sys.argv[1] == "--score" else make(sys.argv[1])
+    score(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else "run") if sys.argv[1] == "--score" else make(sys.argv[1])

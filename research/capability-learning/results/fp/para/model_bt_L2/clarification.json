@@ -1,0 +1,28 @@
+{
+ "questions": [
+  {
+   "clause": null,
+   "issue": "default_outcome not stated by any claim"
+  }
+ ],
+ "demo_disagreements": [],
+ "hypothesis_fields": [
+  {
+   "clause": "L5.S3",
+   "kind": "decision_rule",
+   "field": "conditions[0].subject",
+   "value": {
+    "conditions": [
+     {
+      "subject": "corrected",
+      "op": "<",
+      "against": "number",
+      "number": 1.2,
+      "unit": "none"
+     }
+    ],
+    "outcome": "EQUALIZE"
+   }
+  }
+ ]
+}

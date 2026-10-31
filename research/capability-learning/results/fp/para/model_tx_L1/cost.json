@@ -1,0 +1,37 @@
+{
+ "method": "atomic-claims-v3",
+ "task": "tx-tasks-v1",
+ "clauses": 15,
+ "claims": 13,
+ "tiers": [
+  {
+   "tier": "small",
+   "model": "qwen2.5-0.5b-instruct-q8_0.gguf",
+   "sha256": "ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e",
+   "loaded": true,
+   "load_s": 2.33,
+   "calls": 13,
+   "cpu_s": 52.21,
+   "prompt_tokens": 2574,
+   "completion_tokens": 803,
+   "peak_rss_mib": 1263.4
+  },
+  {
+   "tier": "large",
+   "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+   "sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8",
+   "loaded": true,
+   "load_s": 5.49,
+   "calls": 2,
+   "cpu_s": 20.4,
+   "prompt_tokens": 542,
+   "completion_tokens": 92,
+   "peak_rss_mib": 3614.4
+  }
+ ],
+ "model_calls": 15,
+ "model_cpu_s": 72.61,
+ "load_s": 7.82,
+ "acquisition_wall_s": 46.6,
+ "peak_rss_mib": 3614.4
+}

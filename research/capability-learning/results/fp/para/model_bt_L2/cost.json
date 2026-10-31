@@ -1,0 +1,37 @@
+{
+ "method": "atomic-claims-v3",
+ "task": "bt-tasks-v1",
+ "clauses": 14,
+ "claims": 11,
+ "tiers": [
+  {
+   "tier": "small",
+   "model": "qwen2.5-0.5b-instruct-q8_0.gguf",
+   "sha256": "ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e",
+   "loaded": true,
+   "load_s": 1.36,
+   "calls": 11,
+   "cpu_s": 45.14,
+   "prompt_tokens": 2193,
+   "completion_tokens": 778,
+   "peak_rss_mib": 1263.4
+  },
+  {
+   "tier": "large",
+   "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+   "sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8",
+   "loaded": false,
+   "load_s": 0,
+   "calls": 0,
+   "cpu_s": 0.0,
+   "prompt_tokens": 0,
+   "completion_tokens": 0,
+   "peak_rss_mib": 0.0
+  }
+ ],
+ "model_calls": 11,
+ "model_cpu_s": 45.14,
+ "load_s": 1.36,
+ "acquisition_wall_s": 25.31,
+ "peak_rss_mib": 1263.4
+}

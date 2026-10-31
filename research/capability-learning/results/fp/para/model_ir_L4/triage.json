@@ -1,0 +1,25 @@
+{
+ "simplifications": [],
+ "claim_issues": [],
+ "assembly_issues": [
+  {
+   "clause": null,
+   "issue": "default_outcome not stated by any claim"
+  }
+ ],
+ "coverage_issues": [
+  {
+   "clause": "L6.S3",
+   "issue": "clause states a condition but no claim was made",
+   "text": "Accept for service with a retest in 30 days when PI is no lower than 1.5 but beneath 2.0."
+  }
+ ],
+ "field_provenance": {
+  "evidence": 14,
+  "repaired": 8,
+  "hypothesis": 0,
+  "issues": 0
+ },
+ "compile_error": "IRError: assembly incomplete",
+ "status": "NEEDS_EXPERT_CLARIFICATION"
+}

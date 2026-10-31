@@ -1,0 +1,39 @@
+{
+ "questions": [
+  {
+   "clause": "L6.S3",
+   "issue": "2 independent conditions; the IR has no conjunction"
+  },
+  {
+   "clause": null,
+   "issue": "default_outcome not stated by any claim"
+  }
+ ],
+ "demo_disagreements": [],
+ "hypothesis_fields": [
+  {
+   "clause": "L6.S3",
+   "kind": "decision_rule",
+   "field": "conditions[0].subject",
+   "value": {
+    "conditions": [
+     {
+      "subject": "corrected",
+      "op": ">=",
+      "against": "number",
+      "number": 1.5,
+      "unit": "none"
+     },
+     {
+      "subject": "corrected",
+      "op": "<",
+      "against": "number",
+      "number": 2.0,
+      "unit": "none"
+     }
+    ],
+    "outcome": "RETEST_30D"
+   }
+  }
+ ]
+}

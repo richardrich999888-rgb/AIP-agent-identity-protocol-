@@ -1,0 +1,31 @@
+{
+ "simplifications": [
+  {
+   "clause": "L6.S3",
+   "dropped_condition": {
+    "subject": "cued_1",
+    "op": ">=",
+    "against": "number",
+    "number": 1.25,
+    "unit": "none"
+   },
+   "basis": "implied by an earlier rule (precedence)"
+  }
+ ],
+ "claim_issues": [],
+ "assembly_issues": [
+  {
+   "clause": null,
+   "issue": "default_outcome not stated by any claim"
+  }
+ ],
+ "coverage_issues": [],
+ "field_provenance": {
+  "evidence": 33,
+  "repaired": 18,
+  "hypothesis": 0,
+  "issues": 0
+ },
+ "compile_error": "IRError: assembly incomplete",
+ "status": "NEEDS_EXPERT_CLARIFICATION"
+}

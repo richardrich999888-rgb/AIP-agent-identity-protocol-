@@ -1,0 +1,18 @@
+{
+ "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+ "n_actual": 86,
+ "n_non_actual": 344,
+ "specificity_actual_kept": 2,
+ "sensitivity_non_actual_caught": 339,
+ "by_template": {
+  "If we were to test it, we migh": 85,
+  "Test planned next week, readin": 82,
+  "Expected values after the repa": 86,
+  "Training example only, not a r": 86
+ },
+ "unparsed": 0,
+ "cpu_s_per_call": 1.618,
+ "wall_s": 354.7,
+ "load_s": 6.4,
+ "peak_rss_mib": 3614.3
+}

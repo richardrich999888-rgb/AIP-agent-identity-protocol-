@@ -1,0 +1,414 @@
+build: 1 (4227c9b) with cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0 for x86_64-linux-gnu
+system info: n_threads = 2, n_threads_batch = 2, total_threads = 2
+
+system_info: n_threads = 2 (n_threads_batch = 2) / 2 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX_VNNI = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | AVX512 = 1 | AVX512_VBMI = 1 | AVX512_VNNI = 1 | AVX512_BF16 = 1 | AMX_INT8 = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | 
+
+Web UI is disabled
+main: binding port with default address family
+main: HTTP server is listening, hostname: 127.0.0.1, port: 8440, http threads: 3
+main: loading model
+srv    load_model: loading model '/home/claude/vanian-build/models/qwen2.5-0.5b-instruct-q8_0.gguf'
+llama_model_loader: loaded meta data with 26 key-value pairs and 291 tensors from /home/claude/vanian-build/models/qwen2.5-0.5b-instruct-q8_0.gguf (version GGUF V3 (latest))
+llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
+llama_model_loader: - kv   0:                       general.architecture str              = qwen2
+llama_model_loader: - kv   1:                               general.type str              = model
+llama_model_loader: - kv   2:                               general.name str              = qwen2.5-0.5b-instruct
+llama_model_loader: - kv   3:                            general.version str              = v0.1
+llama_model_loader: - kv   4:                           general.finetune str              = qwen2.5-0.5b-instruct
+llama_model_loader: - kv   5:                         general.size_label str              = 630M
+llama_model_loader: - kv   6:                          qwen2.block_count u32              = 24
+llama_model_loader: - kv   7:                       qwen2.context_length u32              = 32768
+llama_model_loader: - kv   8:                     qwen2.embedding_length u32              = 896
+llama_model_loader: - kv   9:                  qwen2.feed_forward_length u32              = 4864
+llama_model_loader: - kv  10:                 qwen2.attention.head_count u32              = 14
+llama_model_loader: - kv  11:              qwen2.attention.head_count_kv u32              = 2
+llama_model_loader: - kv  12:                       qwen2.rope.freq_base f32              = 1000000.000000
+llama_model_loader: - kv  13:     qwen2.attention.layer_norm_rms_epsilon f32              = 0.000001
+llama_model_loader: - kv  14:                          general.file_type u32              = 7
+llama_model_loader: - kv  15:                       tokenizer.ggml.model str              = gpt2
+llama_model_loader: - kv  16:                         tokenizer.ggml.pre str              = qwen2
+srv  log_server_r: request: GET /health 127.0.0.1 503
+llama_model_loader: - kv  17:                      tokenizer.ggml.tokens arr[str,151936]  = ["!", "\"", "#", "$", "%", "&", "'", ...
+llama_model_loader: - kv  18:                  tokenizer.ggml.token_type arr[i32,151936]  = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+llama_model_loader: - kv  19:                      tokenizer.ggml.merges arr[str,151387]  = ["Ġ Ġ", "ĠĠ ĠĠ", "i n", "Ġ t",...
+llama_model_loader: - kv  20:                tokenizer.ggml.eos_token_id u32              = 151645
+llama_model_loader: - kv  21:            tokenizer.ggml.padding_token_id u32              = 151643
+llama_model_loader: - kv  22:                tokenizer.ggml.bos_token_id u32              = 151643
+llama_model_loader: - kv  23:               tokenizer.ggml.add_bos_token bool             = false
+llama_model_loader: - kv  24:                    tokenizer.chat_template str              = {%- if tools %}\n    {{- '<|im_start|>...
+llama_model_loader: - kv  25:               general.quantization_version u32              = 2
+llama_model_loader: - type  f32:  121 tensors
+llama_model_loader: - type q8_0:  170 tensors
+print_info: file format = GGUF V3 (latest)
+print_info: file type   = Q8_0
+print_info: file size   = 638.74 MiB (8.50 BPW) 
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv  log_server_r: request: GET /health 127.0.0.1 503
+load: printing all EOG tokens:
+load:   - 151643 ('<|endoftext|>')
+load:   - 151645 ('<|im_end|>')
+load:   - 151662 ('<|fim_pad|>')
+load:   - 151663 ('<|repo_name|>')
+load:   - 151664 ('<|file_sep|>')
+load: special tokens cache size = 22
+srv  log_server_r: request: GET /health 127.0.0.1 503
+load: token to piece cache size = 0.9310 MB
+print_info: arch             = qwen2
+print_info: vocab_only       = 0
+print_info: n_ctx_train      = 32768
+print_info: n_embd           = 896
+print_info: n_layer          = 24
+print_info: n_head           = 14
+print_info: n_head_kv        = 2
+print_info: n_rot            = 64
+print_info: n_swa            = 0
+print_info: is_swa_any       = 0
+print_info: n_embd_head_k    = 64
+print_info: n_embd_head_v    = 64
+print_info: n_gqa            = 7
+print_info: n_embd_k_gqa     = 128
+print_info: n_embd_v_gqa     = 128
+print_info: f_norm_eps       = 0.0e+00
+print_info: f_norm_rms_eps   = 1.0e-06
+print_info: f_clamp_kqv      = 0.0e+00
+print_info: f_max_alibi_bias = 0.0e+00
+print_info: f_logit_scale    = 0.0e+00
+print_info: f_attn_scale     = 0.0e+00
+print_info: n_ff             = 4864
+print_info: n_expert         = 0
+print_info: n_expert_used    = 0
+print_info: causal attn      = 1
+print_info: pooling type     = -1
+print_info: rope type        = 2
+print_info: rope scaling     = linear
+print_info: freq_base_train  = 1000000.0
+print_info: freq_scale_train = 1
+print_info: n_ctx_orig_yarn  = 32768
+print_info: rope_finetuned   = unknown
+print_info: model type       = 1B
+print_info: model params     = 630.17 M
+print_info: general.name     = qwen2.5-0.5b-instruct
+print_info: vocab type       = BPE
+print_info: n_vocab          = 151936
+print_info: n_merges         = 151387
+print_info: BOS token        = 151643 '<|endoftext|>'
+print_info: EOS token        = 151645 '<|im_end|>'
+print_info: EOT token        = 151645 '<|im_end|>'
+print_info: PAD token        = 151643 '<|endoftext|>'
+print_info: LF token         = 198 'Ċ'
+print_info: FIM PRE token    = 151659 '<|fim_prefix|>'
+print_info: FIM SUF token    = 151661 '<|fim_suffix|>'
+print_info: FIM MID token    = 151660 '<|fim_middle|>'
+print_info: FIM PAD token    = 151662 '<|fim_pad|>'
+print_info: FIM REP token    = 151663 '<|repo_name|>'
+print_info: FIM SEP token    = 151664 '<|file_sep|>'
+print_info: EOG token        = 151643 '<|endoftext|>'
+print_info: EOG token        = 151645 '<|im_end|>'
+print_info: EOG token        = 151662 '<|fim_pad|>'
+print_info: EOG token        = 151663 '<|repo_name|>'
+print_info: EOG token        = 151664 '<|file_sep|>'
+print_info: max token length = 256
+load_tensors: loading model tensors, this can take a while... (mmap = true)
+load_tensors:          AMX model buffer size =   559.41 MiB
+load_tensors:   CPU_Mapped model buffer size =   500.79 MiB
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+...srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+.srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+..srv  log_server_r: request: GET /health 127.0.0.1 503
+....
+llama_context: constructing llama_context
+llama_context: n_seq_max     = 1
+llama_context: n_ctx         = 4096
+llama_context: n_ctx_per_seq = 4096
+llama_context: n_batch       = 2048
+llama_context: n_ubatch      = 512
+llama_context: causal_attn   = 1
+llama_context: flash_attn    = 0
+llama_context: kv_unified    = false
+llama_context: freq_base     = 1000000.0
+llama_context: freq_scale    = 1
+llama_context: n_ctx_per_seq (4096) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
+llama_context:        CPU  output buffer size =     0.58 MiB
+llama_kv_cache_unified:        CPU KV buffer size =    48.00 MiB
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv  log_server_r: request: GET /health 127.0.0.1 503
+llama_kv_cache_unified: size =   48.00 MiB (  4096 cells,  24 layers,  1/1 seqs), K (f16):   24.00 MiB, V (f16):   24.00 MiB
+llama_context:        CPU compute buffer size =   300.25 MiB
+llama_context: graph nodes  = 918
+llama_context: graph splits = 1
+common_init_from_params: added <|endoftext|> logit bias = -inf
+common_init_from_params: added <|im_end|> logit bias = -inf
+common_init_from_params: added <|fim_pad|> logit bias = -inf
+common_init_from_params: added <|repo_name|> logit bias = -inf
+common_init_from_params: added <|file_sep|> logit bias = -inf
+common_init_from_params: setting dry_penalty_last_n to ctx_size = 4096
+common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+srv  log_server_r: request: GET /health 127.0.0.1 503
+srv          init: initializing slots, n_slots = 1
+slot         init: id  0 | task -1 | new slot n_ctx_slot = 4096
+main: model loaded
+main: chat template, chat_template: {%- if tools %}
+    {{- '<|im_start|>system\n' }}
+    {%- if messages[0]['role'] == 'system' %}
+        {{- messages[0]['content'] }}
+    {%- else %}
+        {{- 'You are Qwen, created by Alibaba Cloud. You are a helpful assistant.' }}
+    {%- endif %}
+    {{- "\n\n# Tools\n\nYou may call one or more functions to assist with the user query.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>" }}
+    {%- for tool in tools %}
+        {{- "\n" }}
+        {{- tool | tojson }}
+    {%- endfor %}
+    {{- "\n</tools>\n\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\n<tool_call>\n{{\"name\": <function-name>, \"arguments\": <args-json-object>}}\n</tool_call><|im_end|>\n" }}
+{%- else %}
+    {%- if messages[0]['role'] == 'system' %}
+        {{- '<|im_start|>system\n' + messages[0]['content'] + '<|im_end|>\n' }}
+    {%- else %}
+        {{- '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n' }}
+    {%- endif %}
+{%- endif %}
+{%- for message in messages %}
+    {%- if (message.role == "user") or (message.role == "system" and not loop.first) or (message.role == "assistant" and not message.tool_calls) %}
+        {{- '<|im_start|>' + message.role + '\n' + message.content + '<|im_end|>' + '\n' }}
+    {%- elif message.role == "assistant" %}
+        {{- '<|im_start|>' + message.role }}
+        {%- if message.content %}
+            {{- '\n' + message.content }}
+        {%- endif %}
+        {%- for tool_call in message.tool_calls %}
+            {%- if tool_call.function is defined %}
+                {%- set tool_call = tool_call.function %}
+            {%- endif %}
+            {{- '\n<tool_call>\n{"name": "' }}
+            {{- tool_call.name }}
+            {{- '", "arguments": ' }}
+            {{- tool_call.arguments | tojson }}
+            {{- '}\n</tool_call>' }}
+        {%- endfor %}
+        {{- '<|im_end|>\n' }}
+    {%- elif message.role == "tool" %}
+        {%- if (loop.index0 == 0) or (messages[loop.index0 - 1].role != "tool") %}
+            {{- '<|im_start|>user' }}
+        {%- endif %}
+        {{- '\n<tool_response>\n' }}
+        {{- message.content }}
+        {{- '\n</tool_response>' }}
+        {%- if loop.last or (messages[loop.index0 + 1].role != "tool") %}
+            {{- '<|im_end|>\n' }}
+        {%- endif %}
+    {%- endif %}
+{%- endfor %}
+{%- if add_generation_prompt %}
+    {{- '<|im_start|>assistant\n' }}
+{%- endif %}
+, example_format: '<|im_start|>system
+You are a helpful assistant<|im_end|>
+<|im_start|>user
+Hello<|im_end|>
+<|im_start|>assistant
+Hi there<|im_end|>
+<|im_start|>user
+How are you?<|im_end|>
+<|im_start|>assistant
+'
+main: server is listening on http://127.0.0.1:8440 - starting the main loop
+srv  update_slots: all slots are idle
+srv  log_server_r: request: GET /health 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 0 | processing task
+slot update_slots: id  0 | task 0 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 142
+slot update_slots: id  0 | task 0 | kv cache rm [0, end)
+slot update_slots: id  0 | task 0 | prompt processing progress, n_past = 142, n_tokens = 142, progress = 1.000000
+slot update_slots: id  0 | task 0 | prompt done, n_past = 142, n_tokens = 142
+slot      release: id  0 | task 0 | stop processing: n_past = 165, truncated = 0
+slot print_timing: id  0 | task 0 | 
+prompt eval time =     301.11 ms /   142 tokens (    2.12 ms per token,   471.58 tokens per second)
+       eval time =     754.30 ms /    24 tokens (   31.43 ms per token,    31.82 tokens per second)
+      total time =    1055.41 ms /   166 tokens
+srv  update_slots: all slots are idle
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 25 | processing task
+slot update_slots: id  0 | task 25 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 165
+slot update_slots: id  0 | task 25 | kv cache rm [122, end)
+slot update_slots: id  0 | task 25 | prompt processing progress, n_past = 165, n_tokens = 43, progress = 0.260606
+slot update_slots: id  0 | task 25 | prompt done, n_past = 165, n_tokens = 43
+slot      release: id  0 | task 25 | stop processing: n_past = 207, truncated = 0
+slot print_timing: id  0 | task 25 | 
+prompt eval time =     115.32 ms /    43 tokens (    2.68 ms per token,   372.87 tokens per second)
+       eval time =    1412.14 ms /    43 tokens (   32.84 ms per token,    30.45 tokens per second)
+      total time =    1527.47 ms /    86 tokens
+srv  update_slots: all slots are idle
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 69 | processing task
+slot update_slots: id  0 | task 69 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 165
+slot update_slots: id  0 | task 69 | kv cache rm [93, end)
+slot update_slots: id  0 | task 69 | prompt processing progress, n_past = 165, n_tokens = 72, progress = 0.436364
+slot update_slots: id  0 | task 69 | prompt done, n_past = 165, n_tokens = 72
+slot      release: id  0 | task 69 | stop processing: n_past = 195, truncated = 0
+slot print_timing: id  0 | task 69 | 
+prompt eval time =     292.78 ms /    72 tokens (    4.07 ms per token,   245.92 tokens per second)
+       eval time =     835.45 ms /    31 tokens (   26.95 ms per token,    37.11 tokens per second)
+      total time =    1128.23 ms /   103 tokens
+srv  update_slots: all slots are idle
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 101 | processing task
+slot update_slots: id  0 | task 101 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 182
+slot update_slots: id  0 | task 101 | kv cache rm [93, end)
+slot update_slots: id  0 | task 101 | prompt processing progress, n_past = 182, n_tokens = 89, progress = 0.489011
+slot update_slots: id  0 | task 101 | prompt done, n_past = 182, n_tokens = 89
+slot      release: id  0 | task 101 | stop processing: n_past = 226, truncated = 0
+slot print_timing: id  0 | task 101 | 
+prompt eval time =     235.22 ms /    89 tokens (    2.64 ms per token,   378.37 tokens per second)
+       eval time =    1480.63 ms /    45 tokens (   32.90 ms per token,    30.39 tokens per second)
+      total time =    1715.86 ms /   134 tokens
+srv  update_slots: all slots are idle
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 147 | processing task
+slot update_slots: id  0 | task 147 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 215
+slot update_slots: id  0 | task 147 | kv cache rm [93, end)
+slot update_slots: id  0 | task 147 | prompt processing progress, n_past = 215, n_tokens = 122, progress = 0.567442
+slot update_slots: id  0 | task 147 | prompt done, n_past = 215, n_tokens = 122
+slot      release: id  0 | task 147 | stop processing: n_past = 380, truncated = 0
+slot print_timing: id  0 | task 147 | 
+prompt eval time =     300.20 ms /   122 tokens (    2.46 ms per token,   406.40 tokens per second)
+       eval time =    4979.81 ms /   166 tokens (   30.00 ms per token,    33.33 tokens per second)
+      total time =    5280.01 ms /   288 tokens
+srv  update_slots: all slots are idle
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 314 | processing task
+slot update_slots: id  0 | task 314 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 196
+slot update_slots: id  0 | task 314 | kv cache rm [85, end)
+slot update_slots: id  0 | task 314 | prompt processing progress, n_past = 196, n_tokens = 111, progress = 0.566327
+slot update_slots: id  0 | task 314 | prompt done, n_past = 196, n_tokens = 111
+slot      release: id  0 | task 314 | stop processing: n_past = 208, truncated = 0
+slot print_timing: id  0 | task 314 | 
+prompt eval time =     232.50 ms /   111 tokens (    2.09 ms per token,   477.42 tokens per second)
+       eval time =     315.79 ms /    13 tokens (   24.29 ms per token,    41.17 tokens per second)
+      total time =     548.29 ms /   124 tokens
+srv  update_slots: all slots are idle
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 328 | processing task
+slot update_slots: id  0 | task 328 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 187
+slot update_slots: id  0 | task 328 | kv cache rm [112, end)
+slot update_slots: id  0 | task 328 | prompt processing progress, n_past = 187, n_tokens = 75, progress = 0.401070
+slot update_slots: id  0 | task 328 | prompt done, n_past = 187, n_tokens = 75
+slot      release: id  0 | task 328 | stop processing: n_past = 230, truncated = 0
+slot print_timing: id  0 | task 328 | 
+prompt eval time =     245.78 ms /    75 tokens (    3.28 ms per token,   305.15 tokens per second)
+       eval time =    1189.07 ms /    44 tokens (   27.02 ms per token,    37.00 tokens per second)
+      total time =    1434.85 ms /   119 tokens
+srv  update_slots: all slots are idle
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 373 | processing task
+slot update_slots: id  0 | task 373 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 247
+slot update_slots: id  0 | task 373 | kv cache rm [112, end)
+slot update_slots: id  0 | task 373 | prompt processing progress, n_past = 247, n_tokens = 135, progress = 0.546559
+slot update_slots: id  0 | task 373 | prompt done, n_past = 247, n_tokens = 135
+slot      release: id  0 | task 373 | stop processing: n_past = 313, truncated = 0
+slot print_timing: id  0 | task 373 | 
+prompt eval time =     294.60 ms /   135 tokens (    2.18 ms per token,   458.24 tokens per second)
+       eval time =    2005.45 ms /    67 tokens (   29.93 ms per token,    33.41 tokens per second)
+      total time =    2300.06 ms /   202 tokens
+srv  update_slots: all slots are idle
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 441 | processing task
+slot update_slots: id  0 | task 441 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 220
+slot update_slots: id  0 | task 441 | kv cache rm [114, end)
+slot update_slots: id  0 | task 441 | prompt processing progress, n_past = 220, n_tokens = 106, progress = 0.481818
+slot update_slots: id  0 | task 441 | prompt done, n_past = 220, n_tokens = 106
+slot      release: id  0 | task 441 | stop processing: n_past = 261, truncated = 0
+slot print_timing: id  0 | task 441 | 
+prompt eval time =     245.84 ms /   106 tokens (    2.32 ms per token,   431.17 tokens per second)
+       eval time =    1218.37 ms /    42 tokens (   29.01 ms per token,    34.47 tokens per second)
+      total time =    1464.22 ms /   148 tokens
+srv  update_slots: all slots are idle
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 484 | processing task
+slot update_slots: id  0 | task 484 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 226
+slot update_slots: id  0 | task 484 | kv cache rm [114, end)
+slot update_slots: id  0 | task 484 | prompt processing progress, n_past = 226, n_tokens = 112, progress = 0.495575
+slot update_slots: id  0 | task 484 | prompt done, n_past = 226, n_tokens = 112
+slot      release: id  0 | task 484 | stop processing: n_past = 297, truncated = 0
+slot print_timing: id  0 | task 484 | 
+prompt eval time =     255.51 ms /   112 tokens (    2.28 ms per token,   438.34 tokens per second)
+       eval time =    2117.26 ms /    72 tokens (   29.41 ms per token,    34.01 tokens per second)
+      total time =    2372.76 ms /   184 tokens
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  update_slots: all slots are idle
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 557 | processing task
+slot update_slots: id  0 | task 557 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 216
+slot update_slots: id  0 | task 557 | kv cache rm [114, end)
+slot update_slots: id  0 | task 557 | prompt processing progress, n_past = 216, n_tokens = 102, progress = 0.472222
+slot update_slots: id  0 | task 557 | prompt done, n_past = 216, n_tokens = 102
+slot      release: id  0 | task 557 | stop processing: n_past = 311, truncated = 0
+slot print_timing: id  0 | task 557 | 
+prompt eval time =     258.04 ms /   102 tokens (    2.53 ms per token,   395.29 tokens per second)
+       eval time =    2880.26 ms /    96 tokens (   30.00 ms per token,    33.33 tokens per second)
+      total time =    3138.30 ms /   198 tokens
+srv  update_slots: all slots are idle
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 654 | processing task
+slot update_slots: id  0 | task 654 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 205
+slot update_slots: id  0 | task 654 | kv cache rm [112, end)
+slot update_slots: id  0 | task 654 | prompt processing progress, n_past = 205, n_tokens = 93, progress = 0.453659
+slot update_slots: id  0 | task 654 | prompt done, n_past = 205, n_tokens = 93
+slot      release: id  0 | task 654 | stop processing: n_past = 264, truncated = 0
+slot print_timing: id  0 | task 654 | 
+prompt eval time =     216.66 ms /    93 tokens (    2.33 ms per token,   429.23 tokens per second)
+       eval time =    1686.45 ms /    60 tokens (   28.11 ms per token,    35.58 tokens per second)
+      total time =    1903.12 ms /   153 tokens
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  update_slots: all slots are idle
+srv  params_from_: Chat format: Content-only
+slot launch_slot_: id  0 | task 715 | processing task
+slot update_slots: id  0 | task 715 | new prompt, n_ctx_slot = 4096, n_keep = 0, n_prompt_tokens = 218
+slot update_slots: id  0 | task 715 | kv cache rm [113, end)
+slot update_slots: id  0 | task 715 | prompt processing progress, n_past = 218, n_tokens = 105, progress = 0.481651
+slot update_slots: id  0 | task 715 | prompt done, n_past = 218, n_tokens = 105
+slot      release: id  0 | task 715 | stop processing: n_past = 316, truncated = 0
+slot print_timing: id  0 | task 715 | 
+prompt eval time =     242.87 ms /   105 tokens (    2.31 ms per token,   432.32 tokens per second)
+       eval time =    2776.50 ms /    99 tokens (   28.05 ms per token,    35.66 tokens per second)
+      total time =    3019.38 ms /   204 tokens
+srv  log_server_r: request: POST /v1/chat/completions 127.0.0.1 200
+srv  update_slots: all slots are idle
+srv    operator(): operator(): cleaning up before exit...
