@@ -1,0 +1,199 @@
+{
+  "capability": {
+    "id": "koravi.ep114.ir-acceptance.learned",
+    "version": 1,
+    "intended_task": "Motor winding insulation-resistance acceptance per Koravi EP-114 rev C",
+    "outcomes": [
+      "PASS",
+      "RETEST_30D",
+      "DRY_OUT",
+      "REJECT",
+      "INVALID_TEST",
+      "OUT_OF_SCOPE",
+      "INSUFFICIENT_INPUT"
+    ],
+    "applicability": {
+      "any_terms": [
+        "insulation",
+        "IR",
+        "megohm",
+        "megohms",
+        "MΩ",
+        "Mohm",
+        "megger"
+      ],
+      "min_inputs_present": 2
+    },
+    "procedure": {
+      "inputs": [
+        {
+          "name": "rated_voltage",
+          "kind": "voltage",
+          "cues": []
+        },
+        {
+          "name": "measured_insulation",
+          "kind": "resistance",
+          "cues": []
+        },
+        {
+          "name": "winding_temperature",
+          "kind": "temperature",
+          "cues": []
+        },
+        {
+          "name": "polarization_index",
+          "kind": "cued",
+          "cues": [
+            "PI",
+            "polarization index"
+          ]
+        }
+      ],
+      "text_guards": [
+        {
+          "any_terms": [
+            "transformer",
+            "transformers",
+            "cable",
+            "cables",
+            "generator",
+            "generators"
+          ],
+          "outcome": "OUT_OF_SCOPE"
+        }
+      ],
+      "numeric_guards": [
+        {
+          "when": "rated_voltage > 11",
+          "outcome": "OUT_OF_SCOPE"
+        }
+      ],
+      "missing_input_outcome": "INSUFFICIENT_INPUT",
+      "derive": [
+        {
+          "name": "corrected_resistance",
+          "expr": "measured_insulation * 2 ^ ((winding_temperature - 40) / 10)"
+        },
+        {
+          "name": "minimum",
+          "expr": "10 * (rated_voltage + 1)"
+        }
+      ],
+      "rules": [
+        {
+          "when": "winding_temperature < 10 or winding_temperature > 75",
+          "outcome": "INVALID_TEST"
+        },
+        {
+          "when": "corrected_resistance < 0.5 * minimum",
+          "outcome": "REJECT"
+        },
+        {
+          "when": "corrected_resistance < minimum",
+          "outcome": "DRY_OUT"
+        },
+        {
+          "when": "polarization_index < 1.5",
+          "outcome": "DRY_OUT"
+        },
+        {
+          "when": "polarization_index < 2.0",
+          "outcome": "RETEST_30D"
+        }
+      ],
+      "default_outcome": "PASS"
+    },
+    "required": {
+      "tenant": "koravi-process",
+      "min_clearance": "restricted",
+      "security_domain": "koravi-ot"
+    },
+    "dependencies": {
+      "knowledge": {
+        "ep-114": "de9d5083066d1ce909150516a0e46f52341f527925df250ba5dfa0d8ab91d36c"
+      },
+      "policy_version": "ep-114-revC",
+      "execution_model_sha256": null
+    },
+    "evidence_refs": [
+      "ep-114",
+      "demo-000",
+      "demo-001",
+      "demo-002",
+      "demo-003",
+      "demo-004",
+      "demo-005"
+    ],
+    "failure_conditions": [
+      "an input appears twice with different values",
+      "a unit the runtime does not recognise"
+    ],
+    "tests": [],
+    "proposed_by": "model:d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8"
+  },
+  "capability_hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+  "state": "ACTIVE",
+  "validation": {
+    "capability_hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+    "suite_hash": "813b893ec2a43e7e61e8d8d70ca1df6c0c5138dcdb57a48b9e4fdc78ecbae908",
+    "suite_expert": "expert:koravi-elec-lead",
+    "suite_signature_ok": true,
+    "suite_independent": true,
+    "compiled": true,
+    "compile_error": null,
+    "expert_cases": 14,
+    "expert_passed": 14,
+    "counterexamples": 4,
+    "counterexamples_passed": 4,
+    "artifact_cases": 0,
+    "artifact_passed": 0,
+    "artifact_claimed_expert": 0,
+    "evidence_scope_ok": true,
+    "failures": [],
+    "passed": true,
+    "wall_micros": 367
+  },
+  "approval": {
+    "capability_hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+    "validation_report_hash": "31caf6cca6e8cc53aee69d06ef0d50ae2d34496362f15c88a94f5061a4700e1f",
+    "approver_id": "user:koravi-elec-authority",
+    "consequential": false,
+    "decided_at_ms": 1793441650295,
+    "signature_hex": "81d003ed3c3ffd7a4caf275c73b92265ec477f180703c181cc10bec635a0df91ceabd4a2bafa07fbe5359b3f08b26857f8c7dab9bc039ad31ac29b52b57f7103"
+  },
+  "history": [
+    {
+      "from": "PROPOSED",
+      "to": "TESTING",
+      "actor": "validator:runtime",
+      "role": "validator",
+      "at_ms": 1793441650291,
+      "reason": "validation started"
+    },
+    {
+      "from": "TESTING",
+      "to": "VALIDATED",
+      "actor": "validator:runtime",
+      "role": "validator",
+      "at_ms": 1793441650291,
+      "reason": "all independent expert cases passed"
+    },
+    {
+      "from": "VALIDATED",
+      "to": "APPROVED",
+      "actor": "user:koravi-elec-authority",
+      "role": "approver",
+      "at_ms": 1793441650295,
+      "reason": "signed approval"
+    },
+    {
+      "from": "APPROVED",
+      "to": "ACTIVE",
+      "actor": "operator:koravi-ot",
+      "role": "operator",
+      "at_ms": 1793441650299,
+      "reason": "approved for service"
+    }
+  ]
+}

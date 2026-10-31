@@ -1,0 +1,1124 @@
+{
+ "research/capability-learning/results/run1/no_capability/state/config.json": {
+  "n": 37,
+  "correct": 29,
+  "wrong_release": 7,
+  "capability_decided": 0,
+  "model_calls": 0,
+  "items": [
+   {
+    "id": "hold-000",
+    "category": "descriptive",
+    "label": "3",
+    "got": "3",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 2.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-001",
+    "category": "descriptive",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 4.3,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-002",
+    "category": "descriptive",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.9,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-003",
+    "category": "descriptive",
+    "label": "3",
+    "got": "3",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-004",
+    "category": "descriptive",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.02,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-005",
+    "category": "no_unit",
+    "label": "2",
+    "got": "2",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 4.9,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-006",
+    "category": "no_unit",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.9,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-007",
+    "category": "noisy",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.7,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-008",
+    "category": "noisy",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-009",
+    "category": "noisy",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-010",
+    "category": "noisy",
+    "label": "3",
+    "got": "ABSTAIN",
+    "ok": false,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-011",
+    "category": "mixed_lang",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 2.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-012",
+    "category": "mixed_lang",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.2,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-013",
+    "category": "distractor",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 3.7,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-014",
+    "category": "distractor",
+    "label": "2",
+    "got": "2",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-015",
+    "category": "distractor",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-016",
+    "category": "distractor",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.9,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-017",
+    "category": "conversion",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 3.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-018",
+    "category": "conversion",
+    "label": "4",
+    "got": "3",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.9,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-019",
+    "category": "multi",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-020",
+    "category": "multi",
+    "label": "2",
+    "got": "3",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.2,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-021",
+    "category": "multi",
+    "label": "3",
+    "got": "3",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 4.9,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-022",
+    "category": "multi",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.9,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-023",
+    "category": "multi",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-024",
+    "category": "multi",
+    "label": "2",
+    "got": "4",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.9,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-025",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": {
+      "UnregisteredEquipment": [
+       "P-8"
+      ]
+     }
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 2.6,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-026",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": {
+      "UnregisteredEquipment": [
+       "T-4"
+      ]
+     }
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.7,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-027",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": {
+      "UnregisteredEquipment": [
+       "CH-55"
+      ]
+     }
+    },
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-028",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "1",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 2.3,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-029",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "4",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-030",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": {
+      "UnregisteredEquipment": [
+       "V-2"
+      ]
+     }
+    },
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 2.9,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-031",
+    "category": "abstain_no_value",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-032",
+    "category": "abstain_no_value",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-033",
+    "category": "abstain_no_value",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 3.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-034",
+    "category": "abstain_ambiguous",
+    "label": "ABSTAIN",
+    "got": "4",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-035",
+    "category": "abstain_ambiguous",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 0.8,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-036",
+    "category": "abstain_ambiguous",
+    "label": "ABSTAIN",
+    "got": "1",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 0.7,
+    "model_calls": 0,
+    "load_ms": 0.0
+   }
+  ]
+ },
+ "research/capability-learning/results/run1/with_capability/state/config.json": {
+  "n": 37,
+  "correct": 29,
+  "wrong_release": 7,
+  "capability_decided": 0,
+  "model_calls": 0,
+  "items": [
+   {
+    "id": "hold-000",
+    "category": "descriptive",
+    "label": "3",
+    "got": "3",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 2.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-001",
+    "category": "descriptive",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.3,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-002",
+    "category": "descriptive",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.2,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-003",
+    "category": "descriptive",
+    "label": "3",
+    "got": "3",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-004",
+    "category": "descriptive",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-005",
+    "category": "no_unit",
+    "label": "2",
+    "got": "2",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-006",
+    "category": "no_unit",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-007",
+    "category": "noisy",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-008",
+    "category": "noisy",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-009",
+    "category": "noisy",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-010",
+    "category": "noisy",
+    "label": "3",
+    "got": "ABSTAIN",
+    "ok": false,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-011",
+    "category": "mixed_lang",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-012",
+    "category": "mixed_lang",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-013",
+    "category": "distractor",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-014",
+    "category": "distractor",
+    "label": "2",
+    "got": "2",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.2,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-015",
+    "category": "distractor",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.3,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-016",
+    "category": "distractor",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-017",
+    "category": "conversion",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.2,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-018",
+    "category": "conversion",
+    "label": "4",
+    "got": "3",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-019",
+    "category": "multi",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.2,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-020",
+    "category": "multi",
+    "label": "2",
+    "got": "3",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-021",
+    "category": "multi",
+    "label": "3",
+    "got": "3",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.2,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-022",
+    "category": "multi",
+    "label": "4",
+    "got": "4",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-023",
+    "category": "multi",
+    "label": "1",
+    "got": "1",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.2,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-024",
+    "category": "multi",
+    "label": "2",
+    "got": "4",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Exact",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-025",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": {
+      "UnregisteredEquipment": [
+       "P-8"
+      ]
+     }
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-026",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": {
+      "UnregisteredEquipment": [
+       "T-4"
+      ]
+     }
+    },
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-027",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": {
+      "UnregisteredEquipment": [
+       "CH-55"
+      ]
+     }
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-028",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "1",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.4,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-029",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "4",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.2,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-030",
+    "category": "abstain_unknown_equipment",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": {
+      "UnregisteredEquipment": [
+       "V-2"
+      ]
+     }
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-031",
+    "category": "abstain_no_value",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-032",
+    "category": "abstain_no_value",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-033",
+    "category": "abstain_no_value",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-034",
+    "category": "abstain_ambiguous",
+    "label": "ABSTAIN",
+    "got": "4",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-035",
+    "category": "abstain_ambiguous",
+    "label": "ABSTAIN",
+    "got": "ABSTAIN",
+    "ok": true,
+    "wrong_release": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "capability": null,
+    "cpu_s": 0.0,
+    "wall_ms": 1.0,
+    "model_calls": 0,
+    "load_ms": 0.0
+   },
+   {
+    "id": "hold-036",
+    "category": "abstain_ambiguous",
+    "label": "ABSTAIN",
+    "got": "1",
+    "ok": false,
+    "wrong_release": true,
+    "strategy": "Interpreter",
+    "capability": null,
+    "cpu_s": 0.01,
+    "wall_ms": 1.1,
+    "model_calls": 0,
+    "load_ms": 0.0
+   }
+  ]
+ }
+}

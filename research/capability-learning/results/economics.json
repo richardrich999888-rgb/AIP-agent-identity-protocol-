@@ -1,0 +1,52 @@
+{
+ "acquisition": {
+  "proposer_runs": 2,
+  "proposer_rounds": 6,
+  "model_cpu_s": 484.3,
+  "wall_s": 259.8,
+  "validation_wall_us": 379,
+  "human_inputs": {
+   "demonstrations": 6,
+   "engineer_corrections": 7,
+   "signed_expert_cases": 14,
+   "approvals": 1,
+   "human_time": "not measured"
+  }
+ },
+ "capability": {
+  "decision_items": 32,
+  "via_capability": 30,
+  "accuracy": 0.906,
+  "per_task_cpu_s_upper_bound": 0.01,
+  "median_wall_ms": 0.4
+ },
+ "baselines": {
+  "B1": {
+   "per_task_cpu_s": 3.23,
+   "accuracy": 0.094,
+   "cpu_per_correct_s": 34.45
+  },
+  "B2": {
+   "per_task_cpu_s": 9.077,
+   "accuracy": 0.125,
+   "cpu_per_correct_s": 72.62
+  },
+  "B3": {
+   "per_task_cpu_s": 15.866,
+   "accuracy": 0.156,
+   "cpu_per_correct_s": 101.54
+  }
+ },
+ "break_even_uses": {
+  "B1": 151,
+  "B2": 54,
+  "B3": 31
+ },
+ "cost_per_correct_after_n_uses_cpu_s": {
+  "1": 534.433,
+  "10": 53.453,
+  "32": 16.712,
+  "100": 5.355,
+  "1000": 0.545
+ }
+}

@@ -1,0 +1,821 @@
+{
+ "e1_speed_q8": {
+  "n": 40,
+  "correct": 37,
+  "false_activation": 0,
+  "errors": 0,
+  "items": [
+   {
+    "id": "test-000",
+    "label": "PASS",
+    "got": "PASS",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.6,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.1,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-001",
+    "label": "REJECT",
+    "got": "REJECT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.1,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-002",
+    "label": "PASS",
+    "got": "INSUFFICIENT_INPUT",
+    "ok": false,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.1,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-003",
+    "label": "DRY_OUT",
+    "got": "DRY_OUT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.1,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-004",
+    "label": "RETEST_30D",
+    "got": "RETEST_30D",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-005",
+    "label": "REJECT",
+    "got": "REJECT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.02,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-006",
+    "label": "REJECT",
+    "got": "REJECT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-007",
+    "label": "DRY_OUT",
+    "got": "DRY_OUT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-008",
+    "label": "REJECT",
+    "got": "REJECT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-009",
+    "label": "PASS",
+    "got": "PASS",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.2,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-010",
+    "label": "RETEST_30D",
+    "got": "RETEST_30D",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-011",
+    "label": "PASS",
+    "got": "PASS",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.2,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-012",
+    "label": "PASS",
+    "got": "PASS",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.2,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-013",
+    "label": "REJECT",
+    "got": "REJECT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.2,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-014",
+    "label": "REJECT",
+    "got": "REJECT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-015",
+    "label": "DRY_OUT",
+    "got": "DRY_OUT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-016",
+    "label": "REJECT",
+    "got": "REJECT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-017",
+    "label": "INVALID_TEST",
+    "got": "INVALID_TEST",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.2,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-018",
+    "label": "INVALID_TEST",
+    "got": "INVALID_TEST",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.4,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-019",
+    "label": "OUT_OF_SCOPE",
+    "got": "OUT_OF_SCOPE",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-020",
+    "label": "OUT_OF_SCOPE",
+    "got": "OUT_OF_SCOPE",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-021",
+    "label": "OUT_OF_SCOPE",
+    "got": "OUT_OF_SCOPE",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-022",
+    "label": "OUT_OF_SCOPE",
+    "got": "OUT_OF_SCOPE",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.2,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-023",
+    "label": "INSUFFICIENT_INPUT",
+    "got": "INSUFFICIENT_INPUT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    }
+   },
+   {
+    "id": "test-024",
+    "label": "INSUFFICIENT_INPUT",
+    "got": "REFUSED",
+    "ok": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 2.2,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "test-025",
+    "label": "INSUFFICIENT_INPUT",
+    "got": "INSUFFICIENT_INPUT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "test-026",
+    "label": "PASS",
+    "got": "REFUSED",
+    "ok": false,
+    "strategy": {
+     "Refuse": "NoApplicableStrategy"
+    },
+    "cpu_s": 0.01,
+    "wall_ms": 1.2,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "test-027",
+    "label": "DRY_OUT",
+    "got": "DRY_OUT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "test-028",
+    "label": "PASS",
+    "got": "PASS",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "test-029",
+    "label": "RETEST_30D",
+    "got": "RETEST_30D",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "test-030",
+    "label": "RETEST_30D",
+    "got": "RETEST_30D",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.3,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "test-031",
+    "label": "REJECT",
+    "got": "REJECT",
+    "ok": true,
+    "strategy": {
+     "Capability": {
+      "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "id": "koravi.ep114.ir-acceptance.learned"
+     }
+    },
+    "cpu_s": 0.0,
+    "wall_ms": 0.4,
+    "model_calls": 0,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "fa-000",
+    "label": "NOT_APPLICABLE",
+    "got": "NONE",
+    "ok": true,
+    "strategy": {
+     "GroundedQa": "Small"
+    },
+    "cpu_s": 23.14,
+    "wall_ms": 13415.7,
+    "model_calls": 1,
+    "load_ms": 6653.3,
+    "rss_mib": {
+     "llama-small": 3689.7,
+     "runtime": 7.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "fa-001",
+    "label": "NOT_APPLICABLE",
+    "got": "NONE",
+    "ok": true,
+    "strategy": {
+     "GroundedQa": "Small"
+    },
+    "cpu_s": 3.62,
+    "wall_ms": 1896.0,
+    "model_calls": 1,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "llama-small": 3690.0,
+     "runtime": 7.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "fa-002",
+    "label": "NOT_APPLICABLE",
+    "got": "WITHHELD",
+    "ok": true,
+    "strategy": {
+     "GroundedQa": "Small"
+    },
+    "cpu_s": 9.63,
+    "wall_ms": 4959.7,
+    "model_calls": 1,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "llama-small": 3692.3,
+     "runtime": 7.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "fa-003",
+    "label": "NOT_APPLICABLE",
+    "got": "WITHHELD",
+    "ok": true,
+    "strategy": {
+     "GroundedQa": "Small"
+    },
+    "cpu_s": 10.25,
+    "wall_ms": 5252.9,
+    "model_calls": 1,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "llama-small": 3694.6,
+     "runtime": 7.2,
+     "sidecar": 153.3
+    }
+   },
+   {
+    "id": "fa-004",
+    "label": "NOT_APPLICABLE",
+    "got": "WITHHELD",
+    "ok": true,
+    "strategy": {
+     "GroundedQa": "Small"
+    },
+    "cpu_s": 10.57,
+    "wall_ms": 5395.3,
+    "model_calls": 1,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "llama-small": 3694.6,
+     "runtime": 7.2,
+     "sidecar": 153.4
+    }
+   },
+   {
+    "id": "fa-005",
+    "label": "NOT_APPLICABLE",
+    "got": "WITHHELD",
+    "ok": true,
+    "strategy": {
+     "GroundedQa": "Small"
+    },
+    "cpu_s": 4.43,
+    "wall_ms": 2251.4,
+    "model_calls": 1,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "llama-small": 3694.6,
+     "runtime": 7.2,
+     "sidecar": 153.4
+    }
+   },
+   {
+    "id": "fa-006",
+    "label": "NOT_APPLICABLE",
+    "got": "WITHHELD",
+    "ok": true,
+    "strategy": {
+     "GroundedQa": "Small"
+    },
+    "cpu_s": 18.7,
+    "wall_ms": 9491.5,
+    "model_calls": 1,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "llama-small": 3694.6,
+     "runtime": 7.2,
+     "sidecar": 153.4
+    }
+   },
+   {
+    "id": "fa-007",
+    "label": "NOT_APPLICABLE",
+    "got": "WITHHELD",
+    "ok": true,
+    "strategy": {
+     "GroundedQa": "Small"
+    },
+    "cpu_s": 10.04,
+    "wall_ms": 5212.4,
+    "model_calls": 1,
+    "load_ms": 0.0,
+    "rss_mib": {
+     "llama-small": 3694.6,
+     "runtime": 7.2,
+     "sidecar": 153.4
+    }
+   }
+  ]
+ },
+ "e1_validation_passed": true,
+ "e2_balanced": {
+  "validation_passed": true,
+  "n": 8,
+  "ran_capability": 8,
+  "refused_stale": 0,
+  "strategies": [
+   "{\"Capability\": {\"hash\": \"5c47778657651a3a1a607d17150a26209d61df384ecfb65084560b4610b8e968\", \"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\"}}",
+   "{\"Capability\": {\"hash\": \"5c47778657651a3a1a607d17150a26209d61df384ecfb65084560b4610b8e968\", \"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\"}}",
+   "{\"Capability\": {\"hash\": \"5c47778657651a3a1a607d17150a26209d61df384ecfb65084560b4610b8e968\", \"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\"}}",
+   "{\"Capability\": {\"hash\": \"5c47778657651a3a1a607d17150a26209d61df384ecfb65084560b4610b8e968\", \"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\"}}",
+   "{\"Capability\": {\"hash\": \"5c47778657651a3a1a607d17150a26209d61df384ecfb65084560b4610b8e968\", \"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\"}}",
+   "{\"Capability\": {\"hash\": \"5c47778657651a3a1a607d17150a26209d61df384ecfb65084560b4610b8e968\", \"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\"}}",
+   "{\"Capability\": {\"hash\": \"5c47778657651a3a1a607d17150a26209d61df384ecfb65084560b4610b8e968\", \"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\"}}",
+   "{\"Capability\": {\"hash\": \"5c47778657651a3a1a607d17150a26209d61df384ecfb65084560b4610b8e968\", \"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\"}}"
+  ]
+ },
+ "e2_speed": {
+  "validation_passed": true,
+  "n": 8,
+  "ran_capability": 0,
+  "refused_stale": 8,
+  "strategies": [
+   "{\"Refuse\": {\"CapabilityStale\": {\"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\", \"reason\": \"execution model changed; compatibility re-validation required\"}}}",
+   "{\"Refuse\": {\"CapabilityStale\": {\"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\", \"reason\": \"execution model changed; compatibility re-validation required\"}}}",
+   "{\"Refuse\": {\"CapabilityStale\": {\"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\", \"reason\": \"execution model changed; compatibility re-validation required\"}}}",
+   "{\"Refuse\": {\"CapabilityStale\": {\"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\", \"reason\": \"execution model changed; compatibility re-validation required\"}}}",
+   "{\"Refuse\": {\"CapabilityStale\": {\"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\", \"reason\": \"execution model changed; compatibility re-validation required\"}}}",
+   "{\"Refuse\": {\"CapabilityStale\": {\"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\", \"reason\": \"execution model changed; compatibility re-validation required\"}}}",
+   "{\"Refuse\": {\"CapabilityStale\": {\"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\", \"reason\": \"execution model changed; compatibility re-validation required\"}}}",
+   "{\"Refuse\": {\"CapabilityStale\": {\"id\": \"koravi.ep114.ir-acceptance.learned.model-bound\", \"reason\": \"execution model changed; compatibility re-validation required\"}}}"
+  ]
+ }
+}

@@ -10,7 +10,10 @@
 //!    but is stale (knowledge, policy or model changed) → refuse and flag
 //!    for re-validation; never fall back to an unvalidated answer.
 //! 2. An unregistered equipment code is named → refuse (registry gate).
-//! 3. Exact equipment-code + unit rules produced readings → Strategy A.
+//! 3. Exact equipment-code + unit rules produced readings *for every
+//!    registered asset named* → Strategy A. (Fix after the v5 held-out run:
+//!    rules that read one of two assets used to decide on partial evidence —
+//!    hold-020, hold-024.)
 //! 4. Two or more registered assets are named → Strategy C (SLM extraction).
 //! 5. The compact interpreter produced a reading → Strategy B.
 //! 6. The text is a question → grounded QA over authorized documents
@@ -130,6 +133,18 @@ pub fn is_question(text: &str) -> bool {
             .is_some_and(|w| QUESTION_OPENERS.contains(&w.as_str()))
 }
 
+/// Distinct assets covered by a set of readings. Reading keys are
+/// `<asset>_<quantity>` (e.g. `p7_vib`), so the asset is the key's prefix.
+fn assets_covered(readings: &[crate::domain::maintenance::Reading]) -> usize {
+    let mut a: Vec<&str> = readings
+        .iter()
+        .map(|r| r.key.split('_').next().unwrap_or(""))
+        .collect();
+    a.sort_unstable();
+    a.dedup();
+    a.len()
+}
+
 fn tier(f: &Features) -> Option<Tier> {
     if f.small_model {
         Some(Tier::Small)
@@ -171,7 +186,7 @@ pub fn route(f: &Features) -> Strategy {
         if !i.unregistered.is_empty() {
             return Strategy::Refuse(Refusal::UnregisteredEquipment(i.unregistered.clone()));
         }
-        if !i.rules.is_empty() {
+        if !i.rules.is_empty() && assets_covered(&i.rules) >= i.registered_codes {
             return Strategy::Exact;
         }
         if i.registered_codes >= 2 {
@@ -238,7 +253,12 @@ mod tests {
             route(&x),
             Strategy::Refuse(Refusal::UnregisteredEquipment(_))
         ));
-        assert_eq!(route(&f(Some(interp(1, 1, 2, &[])))), Strategy::Exact);
+        assert_eq!(route(&f(Some(interp(1, 1, 1, &[])))), Strategy::Exact);
+        // One rule reading cannot decide a report naming two assets.
+        assert_eq!(
+            route(&f(Some(interp(1, 1, 2, &[])))),
+            Strategy::ModelExtraction(Tier::Small)
+        );
         assert_eq!(
             route(&f(Some(interp(0, 1, 2, &[])))),
             Strategy::ModelExtraction(Tier::Small)
@@ -250,6 +270,33 @@ mod tests {
         assert_eq!(
             route(&f(Some(interp(0, 0, 1, &[])))),
             Strategy::Refuse(Refusal::NoApplicableStrategy)
+        );
+    }
+
+    #[test]
+    fn partial_rule_coverage_of_a_multi_asset_report_is_not_exact() {
+        let rd = |k: &str| Reading {
+            key: k.into(),
+            value: 1.0,
+        };
+        let mut i = interp(0, 1, 2, &[]);
+        i.rules = vec![rd("p7_vib")]; // one of two named assets read
+        assert_eq!(
+            route(&f(Some(i.clone()))),
+            Strategy::ModelExtraction(Tier::Small)
+        );
+        i.rules = vec![rd("p7_vib"), rd("v12_stroke")]; // both assets read
+        assert_eq!(route(&f(Some(i.clone()))), Strategy::Exact);
+        i.rules = vec![rd("p7_vib"), rd("p7_temp")]; // two readings, one asset
+        assert_eq!(
+            route(&f(Some(i.clone()))),
+            Strategy::ModelExtraction(Tier::Small)
+        );
+        let mut no_model = f(Some(i));
+        no_model.small_model = false;
+        assert_eq!(
+            route(&no_model),
+            Strategy::Refuse(Refusal::ModelUnavailable)
         );
     }
 

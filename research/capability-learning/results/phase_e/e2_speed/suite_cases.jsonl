@@ -1,0 +1,14 @@
+{"equipment": "motor", "id": "val-000", "inputs": {"ir_mohm": 76, "kv": 6.6, "pi": 2.0, "temp_c": 40}, "label": "PASS", "text": "M-201 6.6 kV, 76 megohms at 40 C, PI 2.0", "counterexample": false}
+{"equipment": "motor", "id": "val-001", "inputs": {"ir_mohm": 75.9, "kv": 6.6, "pi": 2.5, "temp_c": 40}, "label": "DRY_OUT", "text": "M-202 6.6 kV, 75.9 megohms at 40 C, PI 2.5", "counterexample": false}
+{"equipment": "motor", "id": "val-002", "inputs": {"ir_mohm": 38, "kv": 6.6, "pi": 2.5, "temp_c": 40}, "label": "DRY_OUT", "text": "M-203 6.6 kV, 38 megohms at 40 C, PI 2.5", "counterexample": false}
+{"equipment": "motor", "id": "val-003", "inputs": {"ir_mohm": 37.9, "kv": 6.6, "pi": 2.5, "temp_c": 40}, "label": "REJECT", "text": "M-204 6.6 kV, 37.9 megohms at 40 C, PI 2.5", "counterexample": false}
+{"equipment": "motor", "id": "val-004", "inputs": {"ir_mohm": 100, "kv": 3.3, "pi": 1.5, "temp_c": 40}, "label": "RETEST_30D", "text": "M-205 3.3 kV, 100 megohms at 40 C, PI 1.5", "counterexample": false}
+{"equipment": "motor", "id": "val-005", "inputs": {"ir_mohm": 100, "kv": 3.3, "pi": 1.49, "temp_c": 40}, "label": "DRY_OUT", "text": "M-206 3.3 kV, 100 megohms at 40 C, PI 1.49", "counterexample": false}
+{"equipment": "motor", "id": "val-006", "inputs": {"ir_mohm": 100, "kv": 3.3, "pi": 2.2, "temp_c": 75}, "label": "PASS", "text": "M-207 3.3 kV, 100 megohms at 75 C, PI 2.2", "counterexample": false}
+{"equipment": "motor", "id": "val-007", "inputs": {"ir_mohm": 100, "kv": 3.3, "pi": 2.2, "temp_c": 9}, "label": "INVALID_TEST", "text": "M-208 3.3 kV, 100 megohms at 9 C, PI 2.2", "counterexample": true}
+{"equipment": "motor", "id": "val-008", "inputs": {"ir_mohm": 500, "kv": 11, "pi": 2.3, "temp_c": 40}, "label": "PASS", "text": "M-209 11 kV, 500 megohms at 40 C, PI 2.3", "counterexample": false}
+{"equipment": "motor", "id": "val-009", "inputs": {"ir_mohm": 900, "kv": 13.8, "pi": 2.6, "temp_c": 40}, "label": "OUT_OF_SCOPE", "text": "M-210 13.8 kV, 900 megohms at 40 C, PI 2.6", "counterexample": true}
+{"equipment": "transformer", "id": "val-010", "inputs": {"ir_mohm": 400, "kv": null, "pi": 2.2, "temp_c": 40}, "label": "OUT_OF_SCOPE", "text": "Transformer TR-3 HV winding 400 megohms at 40 C, PI 2.2", "counterexample": true}
+{"equipment": "motor", "id": "val-011", "inputs": {"ir_mohm": 150, "kv": 6.6, "pi": null, "temp_c": 40}, "label": "INSUFFICIENT_INPUT", "text": "M-211 6.6 kV, 150 megohms at 40 C, PI not recorded", "counterexample": true}
+{"equipment": "motor", "id": "val-012", "inputs": {"ir_mohm": 6, "kv": 0.415, "pi": 2.1, "temp_c": 20}, "label": "REJECT", "text": "M-212 0.415 kV, 6 megohms at 20 C, PI 2.1", "counterexample": false}
+{"equipment": "motor", "id": "val-013", "inputs": {"ir_mohm": 25, "kv": 3.3, "pi": 1.9, "temp_c": 60}, "label": "RETEST_30D", "text": "M-213 3.3 kV, 25 megohms at 60 C, PI 1.9", "counterexample": false}

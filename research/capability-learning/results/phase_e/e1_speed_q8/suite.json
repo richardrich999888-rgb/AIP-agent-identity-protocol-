@@ -1,0 +1,93 @@
+{
+  "suite_id": "ir-tasks-v1/validation",
+  "tenant": "koravi-process",
+  "task": "motor IR acceptance (EP-114 rev C)",
+  "expert_id": "expert:koravi-elec-lead",
+  "cases": [
+    {
+      "id": "val-000",
+      "text": "M-201 6.6 kV, 76 megohms at 40 C, PI 2.0",
+      "expected": "PASS",
+      "counterexample": false
+    },
+    {
+      "id": "val-001",
+      "text": "M-202 6.6 kV, 75.9 megohms at 40 C, PI 2.5",
+      "expected": "DRY_OUT",
+      "counterexample": false
+    },
+    {
+      "id": "val-002",
+      "text": "M-203 6.6 kV, 38 megohms at 40 C, PI 2.5",
+      "expected": "DRY_OUT",
+      "counterexample": false
+    },
+    {
+      "id": "val-003",
+      "text": "M-204 6.6 kV, 37.9 megohms at 40 C, PI 2.5",
+      "expected": "REJECT",
+      "counterexample": false
+    },
+    {
+      "id": "val-004",
+      "text": "M-205 3.3 kV, 100 megohms at 40 C, PI 1.5",
+      "expected": "RETEST_30D",
+      "counterexample": false
+    },
+    {
+      "id": "val-005",
+      "text": "M-206 3.3 kV, 100 megohms at 40 C, PI 1.49",
+      "expected": "DRY_OUT",
+      "counterexample": false
+    },
+    {
+      "id": "val-006",
+      "text": "M-207 3.3 kV, 100 megohms at 75 C, PI 2.2",
+      "expected": "PASS",
+      "counterexample": false
+    },
+    {
+      "id": "val-007",
+      "text": "M-208 3.3 kV, 100 megohms at 9 C, PI 2.2",
+      "expected": "INVALID_TEST",
+      "counterexample": true
+    },
+    {
+      "id": "val-008",
+      "text": "M-209 11 kV, 500 megohms at 40 C, PI 2.3",
+      "expected": "PASS",
+      "counterexample": false
+    },
+    {
+      "id": "val-009",
+      "text": "M-210 13.8 kV, 900 megohms at 40 C, PI 2.6",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "val-010",
+      "text": "Transformer TR-3 HV winding 400 megohms at 40 C, PI 2.2",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "val-011",
+      "text": "M-211 6.6 kV, 150 megohms at 40 C, PI not recorded",
+      "expected": "INSUFFICIENT_INPUT",
+      "counterexample": true
+    },
+    {
+      "id": "val-012",
+      "text": "M-212 0.415 kV, 6 megohms at 20 C, PI 2.1",
+      "expected": "REJECT",
+      "counterexample": false
+    },
+    {
+      "id": "val-013",
+      "text": "M-213 3.3 kV, 25 megohms at 60 C, PI 1.9",
+      "expected": "RETEST_30D",
+      "counterexample": false
+    }
+  ],
+  "signature_hex": "d515a0ff2a2724505750d777895246608dfc0e69aea21c2e3e3855bde1d5f0b892ae8cade038d37f9e127b2cb60c207af2f561fc52523caef0e4aa122d850300"
+}
