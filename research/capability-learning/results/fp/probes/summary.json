@@ -1,0 +1,137 @@
+{
+ "ir": {
+  "capability": "results/corrected/capability.json",
+  "total": {
+   "n": 330,
+   "unsafe_release": 18,
+   "false_activation": 38
+  },
+  "by_rule": {
+   "scope_swap": {
+    "n": 87,
+    "unsafe_release": 0,
+    "false_activation": 0
+   },
+   "drop_quantity": {
+    "n": 90,
+    "unsafe_release": 0,
+    "false_activation": 0
+   },
+   "hypothetical": {
+    "n": 32,
+    "unsafe_release": 9,
+    "false_activation": 0
+   },
+   "planned": {
+    "n": 32,
+    "unsafe_release": 9,
+    "false_activation": 0
+   },
+   "no_data": {
+    "n": 5,
+    "unsafe_release": 0,
+    "false_activation": 0
+   },
+   "cross_domain_bt": {
+    "n": 42,
+    "unsafe_release": 0,
+    "false_activation": 0
+   },
+   "cross_domain_tx": {
+    "n": 42,
+    "unsafe_release": 0,
+    "false_activation": 38
+   }
+  }
+ },
+ "bt": {
+  "capability": "results/sprint/corrected_bt/capability.json",
+  "total": {
+   "n": 246,
+   "unsafe_release": 22,
+   "false_activation": 77
+  },
+  "by_rule": {
+   "scope_swap": {
+    "n": 50,
+    "unsafe_release": 0,
+    "false_activation": 0
+   },
+   "drop_quantity": {
+    "n": 49,
+    "unsafe_release": 0,
+    "false_activation": 0
+   },
+   "hypothetical": {
+    "n": 27,
+    "unsafe_release": 11,
+    "false_activation": 0
+   },
+   "planned": {
+    "n": 27,
+    "unsafe_release": 11,
+    "false_activation": 0
+   },
+   "no_data": {
+    "n": 5,
+    "unsafe_release": 0,
+    "false_activation": 0
+   },
+   "cross_domain_ir": {
+    "n": 46,
+    "unsafe_release": 0,
+    "false_activation": 38
+   },
+   "cross_domain_tx": {
+    "n": 42,
+    "unsafe_release": 0,
+    "false_activation": 39
+   }
+  }
+ },
+ "tx": {
+  "capability": "results/v02/engineer_tx/capability.json",
+  "total": {
+   "n": 329,
+   "unsafe_release": 18,
+   "false_activation": 82
+  },
+  "by_rule": {
+   "scope_swap": {
+    "n": 104,
+    "unsafe_release": 0,
+    "false_activation": 0
+   },
+   "drop_quantity": {
+    "n": 78,
+    "unsafe_release": 0,
+    "false_activation": 0
+   },
+   "hypothetical": {
+    "n": 27,
+    "unsafe_release": 9,
+    "false_activation": 0
+   },
+   "planned": {
+    "n": 27,
+    "unsafe_release": 9,
+    "false_activation": 0
+   },
+   "no_data": {
+    "n": 5,
+    "unsafe_release": 0,
+    "false_activation": 0
+   },
+   "cross_domain_ir": {
+    "n": 46,
+    "unsafe_release": 0,
+    "false_activation": 45
+   },
+   "cross_domain_bt": {
+    "n": 42,
+    "unsafe_release": 0,
+    "false_activation": 37
+   }
+  }
+ }
+}

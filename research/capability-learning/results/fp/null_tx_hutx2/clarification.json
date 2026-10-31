@@ -1,0 +1,36 @@
+{
+ "questions": [
+  {
+   "clause": "L1.S0",
+   "kind": "scope_subject",
+   "text": "Scope: oil-immersed distribution transformers rated up to and including 33 kV.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": "L1.S1",
+   "kind": "scope_exclusion_terms",
+   "text": "This procedure does not apply to motors, cables, generators or dry-type transformers; such requests are out of scope.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": "L4.S0",
+   "kind": "correction",
+   "text": "Step 2 temperature correction: correct the insulation resistance to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15.",
+   "field": "base",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L4.S0",
+   "kind": "correction",
+   "text": "Step 2 temperature correction: correct the insulation resistance to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15.",
+   "field": "step",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  }
+ ],
+ "demo_disagreements": [],
+ "hypothesis_fields": []
+}

@@ -1,0 +1,60 @@
+{
+ "topic_terms": [],
+ "inputs": [
+  {
+   "ref": "voltage",
+   "unit": "kV",
+   "cues": []
+  },
+  {
+   "ref": "resistance",
+   "unit": "MΩ",
+   "cues": []
+  },
+  {
+   "ref": "temperature",
+   "unit": "°C",
+   "cues": []
+  },
+  {
+   "ref": "cued_1",
+   "unit": "none",
+   "cues": [
+    "PI",
+    "polarization index"
+   ]
+  }
+ ],
+ "out_of_scope_terms": [],
+ "out_of_scope_limits": [],
+ "missing_input_outcome": "INSUFFICIENT_INPUT",
+ "validity": [
+  {
+   "ref": "temperature",
+   "min": 10.0,
+   "max": 75.0,
+   "unit": "°C",
+   "outcome": "INVALID_TEST"
+  }
+ ],
+ "correction": {
+  "template": "none",
+  "target": "temperature",
+  "by": "temperature",
+  "reference": 0,
+  "reference_unit": "°C",
+  "rate": 0,
+  "rate_unit": "°C",
+  "base": 1,
+  "step": 1
+ },
+ "limit": {
+  "template": "coefficient_times_input_plus_offset",
+  "coefficient": 10.0,
+  "input": "voltage",
+  "offset": 1.0,
+  "unit": "MΩ"
+ },
+ "rules": [],
+ "default_outcome": null
+}

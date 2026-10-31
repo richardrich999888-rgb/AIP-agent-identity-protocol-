@@ -1,0 +1,34 @@
+{
+ "simplifications": [],
+ "claim_issues": [
+  {
+   "clause": "L1.S0",
+   "kind": "scope_subject",
+   "text": "Scope: vented lead-acid cells in substation and UPS battery banks.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": "L1.S1",
+   "kind": "scope_exclusion_terms",
+   "text": "This procedure does not apply to lithium, nickel-cadmium or NiCd batteries; such requests are out of scope.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  }
+ ],
+ "assembly_issues": [
+  {
+   "clause": null,
+   "issue": "default_outcome not stated by any claim"
+  }
+ ],
+ "coverage_issues": [],
+ "field_provenance": {
+  "evidence": 12,
+  "repaired": 23,
+  "hypothesis": 1,
+  "issues": 2
+ },
+ "compile_error": "IRError: assembly incomplete",
+ "status": "NEEDS_EXPERT_CLARIFICATION"
+}

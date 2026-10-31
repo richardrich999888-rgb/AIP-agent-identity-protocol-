@@ -1,0 +1,56 @@
+{
+ "simplifications": [],
+ "claim_issues": [
+  {
+   "clause": "L1.S0",
+   "kind": "scope_subject",
+   "text": "Scope: oil-immersed distribution transformers rated up to and including 33 kV.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": "L1.S1",
+   "kind": "scope_exclusion_terms",
+   "text": "This procedure does not apply to motors, cables, generators or dry-type transformers; such requests are out of scope.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": "L4.S0",
+   "kind": "correction",
+   "text": "Step 2 temperature correction: correct the insulation resistance to 20 °C by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15.",
+   "field": "base",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L4.S0",
+   "kind": "correction",
+   "text": "Step 2 temperature correction: correct the insulation resistance to 20 °C by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15.",
+   "field": "step",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  }
+ ],
+ "assembly_issues": [
+  {
+   "clause": null,
+   "issue": "default_outcome not stated by any claim"
+  }
+ ],
+ "coverage_issues": [
+  {
+   "clause": "L6.S3",
+   "issue": "clause states a condition but no claim was made",
+   "text": "Monitor and retest in 90 days when DAR is no lower than 1.25 but beneath 1.4."
+  }
+ ],
+ "field_provenance": {
+  "evidence": 3,
+  "repaired": 15,
+  "hypothesis": 0,
+  "issues": 4
+ },
+ "compile_error": "IRError: assembly incomplete",
+ "status": "NEEDS_EXPERT_CLARIFICATION"
+}

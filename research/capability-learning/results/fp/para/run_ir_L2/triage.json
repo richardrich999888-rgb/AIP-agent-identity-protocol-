@@ -1,0 +1,62 @@
+{
+ "simplifications": [
+  {
+   "clause": "L6.S3",
+   "dropped_condition": {
+    "subject": "cued_1",
+    "op": ">=",
+    "against": "number",
+    "number": 1.5,
+    "unit": "none"
+   },
+   "basis": "implied by an earlier rule (precedence)"
+  }
+ ],
+ "claim_issues": [
+  {
+   "clause": "L1.S0",
+   "kind": "scope_subject",
+   "text": "Scope: induction motors rated up to and including 11 kV.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": "L1.S1",
+   "kind": "scope_exclusion_terms",
+   "text": "This procedure does not apply to transformers, cables, generators or motors rated greater than 11 kV; such requests are out of scope and must be referred to the electrical authority.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": "L4.S0",
+   "kind": "correction",
+   "text": "Step 2 temperature correction: correct the measured resistance to 40 °C by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10.",
+   "field": "base",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L4.S0",
+   "kind": "correction",
+   "text": "Step 2 temperature correction: correct the measured resistance to 40 °C by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10.",
+   "field": "step",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  }
+ ],
+ "assembly_issues": [
+  {
+   "clause": null,
+   "issue": "default_outcome not stated by any claim"
+  }
+ ],
+ "coverage_issues": [],
+ "field_provenance": {
+  "evidence": 11,
+  "repaired": 32,
+  "hypothesis": 0,
+  "issues": 4
+ },
+ "compile_error": "IRError: assembly incomplete",
+ "status": "NEEDS_EXPERT_CLARIFICATION"
+}

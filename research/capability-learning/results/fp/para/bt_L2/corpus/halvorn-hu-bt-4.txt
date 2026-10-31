@@ -1,0 +1,7 @@
+halvorn-power|hu-bt-4|restricted|HU-BT-4 rev B Stationary battery cell float acceptance
+Halvorn Power procedure HU-BT-4 revision B. Confidential.
+Scope: vented lead-acid cells in substation and UPS battery banks. This procedure does not apply to lithium, nickel-cadmium or NiCd batteries; such requests are out of scope. A voltage greater than 3 V is a block or string voltage, not a cell voltage, and is out of scope.
+Required inputs: cell float voltage in V, electrolyte temperature in °C, and specific gravity (SG) of the electrolyte. If any input is missing the result is insufficient input.
+Step 1 validity: the electrolyte temperature must be between 5 and 45 °C inclusive; otherwise the reading is invalid and must be repeated.
+Step 2 temperature correction: correct the cell voltage to 25 °C by adding 0.003 V for every degree Celsius greater than 25 and subtracting 0.003 V for every degree less than 25.
+Step 3 decision: if the corrected voltage is less than 2.10 V, replace the cell. If it is less than 2.17 V, equalize charge the bank. If it is greater than 2.30 V, reduce the float voltage (overcharge). Otherwise, if the specific gravity is less than 1.200, equalize charge. In all other cases, accept.

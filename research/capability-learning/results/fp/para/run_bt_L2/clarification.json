@@ -1,0 +1,52 @@
+{
+ "questions": [
+  {
+   "clause": "L1.S0",
+   "kind": "scope_subject",
+   "text": "Scope: vented lead-acid cells in substation and UPS battery banks.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": "L1.S1",
+   "kind": "scope_exclusion_terms",
+   "text": "This procedure does not apply to lithium, nickel-cadmium or NiCd batteries; such requests are out of scope.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": null,
+   "issue": "default_outcome not stated by any claim"
+  }
+ ],
+ "demo_disagreements": [],
+ "hypothesis_fields": [
+  {
+   "clause": "L2.S0",
+   "kind": "required_inputs",
+   "field": "inputs[0].unit",
+   "value": {
+    "inputs": [
+     {
+      "ref": "voltage",
+      "unit": "kV",
+      "cues": []
+     },
+     {
+      "ref": "temperature",
+      "unit": "°C",
+      "cues": []
+     },
+     {
+      "ref": "cued_1",
+      "unit": "none",
+      "cues": [
+       "SG",
+       "specific gravity"
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

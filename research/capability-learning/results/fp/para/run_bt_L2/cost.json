@@ -1,0 +1,37 @@
+{
+ "method": "atomic-claims-v3",
+ "task": "bt-tasks-v1",
+ "clauses": 14,
+ "claims": 11,
+ "tiers": [
+  {
+   "tier": "small",
+   "model": "null-model",
+   "sha256": "null",
+   "loaded": false,
+   "load_s": 0,
+   "calls": 11,
+   "cpu_s": 0.0,
+   "prompt_tokens": 0,
+   "completion_tokens": 0,
+   "peak_rss_mib": 0.0
+  },
+  {
+   "tier": "large",
+   "model": "null-model",
+   "sha256": "null",
+   "loaded": false,
+   "load_s": 0,
+   "calls": 4,
+   "cpu_s": 0.0,
+   "prompt_tokens": 0,
+   "completion_tokens": 0,
+   "peak_rss_mib": 0.0
+  }
+ ],
+ "model_calls": 15,
+ "model_cpu_s": 0.0,
+ "load_s": 0,
+ "acquisition_wall_s": 0.01,
+ "peak_rss_mib": 0.0
+}

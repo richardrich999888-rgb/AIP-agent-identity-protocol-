@@ -109,6 +109,37 @@ class Tier:
             self.srv.stop()
 
 
+class NullTier(Tier):
+    """Control arm (first-principles research R1): answers every question with
+    the schema's default value — first enum option, minimum-length arrays,
+    zero, empty string — and never runs a model. If the pipeline does as
+    well with this as with a real model, the model contributes nothing."""
+
+    def __init__(self, name: str):  # noqa: D107 — no model, no server
+        self.name, self.model, self.sha = name, "null-model", "null"
+        self.load_s = None
+        self.calls = self.prompt_tokens = self.completion_tokens = 0
+        self.cpu_s = self.peak = 0.0
+
+    @staticmethod
+    def default(schema: dict):
+        if "enum" in schema:
+            return schema["enum"][0]
+        t = schema.get("type")
+        if t == "object":
+            return {k: NullTier.default(v) for k, v in schema.get("properties", {}).items()}
+        if t == "array":
+            return [NullTier.default(schema["items"]) for _ in range(schema.get("minItems", 0))]
+        return {"string": "", "number": 0, "integer": 0, "boolean": False}.get(t)
+
+    def ask(self, user: str, schema: dict) -> dict:
+        self.calls += 1
+        return self.default(schema)
+
+    def stop(self) -> None:
+        pass
+
+
 def context(doc_title: str, prev: str, clause: A.Clause, outcomes: list[str], declared: dict) -> str:
     dec = ", ".join(f"{r} (cues {c})" if c else r for r, c in declared.items()) or "not yet known"
     return (f"Procedure: {doc_title}\nOutcome labels: {', '.join(outcomes)}\nDeclared measurements: {dec}\n"
@@ -125,14 +156,18 @@ def main() -> None:
     ap.add_argument("--large", help="GGUF:SHA256 (optional larger model)")
     ap.add_argument("--no-repair", action="store_true", help="ablation: keep model values even when the clause determines them")
     ap.add_argument("--port", type=int, default=8440)
+    ap.add_argument("--null-model", action="store_true", help="control: replace every model answer with the schema default")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     spec = json.load(open(a.task))
     doc, demos = load(spec)
     title = open(os.path.join(ROOT, "research/capability-learning", spec["data"], spec["doc_file"])).readline().split("|")[-1].strip()
     outcomes = spec["outcomes"]
-    small = Tier("small", a.server, a.small, a.port, a.out)
-    large = Tier("large", a.server, a.large, a.port + 1, a.out) if a.large else None
+    if a.null_model:
+        small, large = NullTier("small"), NullTier("large")
+    else:
+        small = Tier("small", a.server, a.small, a.port, a.out)
+        large = Tier("large", a.server, a.large, a.port + 1, a.out) if a.large else None
     t0 = time.monotonic()
     clauses = A.segment(doc)
     records, claims, claimed, kind_log = [], [], {}, []

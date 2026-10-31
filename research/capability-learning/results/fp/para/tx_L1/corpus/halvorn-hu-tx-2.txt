@@ -1,0 +1,8 @@
+halvorn-power|hu-tx-2|restricted|HU-TX-2 rev A Distribution transformer insulation acceptance
+Halvorn Power procedure HU-TX-2 revision A. Confidential.
+Scope: oil-immersed distribution transformers rated up to and including 33 kV. This procedure does not apply to motors, cables, generators or dry-type transformers; such requests are out of scope. Transformers rated above 33 kV are out of scope.
+Required inputs: rated high-voltage winding voltage in kV, insulation resistance from the high-voltage winding to earth in MΩ, top-oil temperature in °C, and dielectric absorption ratio (DAR). If any input is missing the result is insufficient input.
+Step 1 validity: the top-oil temperature must be between 0 and 90 °C inclusive; otherwise the test is invalid.
+Step 2 temperature correction: correct the insulation resistance to 20 °C by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15.
+Step 3 minimum: the minimum acceptable corrected resistance is 20 times (rated kV plus 2) MΩ.
+Step 4 decision: if the corrected resistance is below one third of the minimum, remove the transformer from service. If it is below the minimum, dry out the oil and retest. If DAR is below 1.25, investigate. If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days. In all other cases, accept.

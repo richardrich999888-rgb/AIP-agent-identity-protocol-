@@ -1,0 +1,104 @@
+{
+ "topic_terms": [],
+ "inputs": [
+  {
+   "ref": "voltage",
+   "unit": "kV",
+   "cues": []
+  },
+  {
+   "ref": "resistance",
+   "unit": "MΩ",
+   "cues": []
+  },
+  {
+   "ref": "temperature",
+   "unit": "°C",
+   "cues": []
+  },
+  {
+   "ref": "cued_1",
+   "unit": "none",
+   "cues": [
+    "DAR",
+    "dielectric absorption ratio"
+   ]
+  }
+ ],
+ "out_of_scope_terms": [],
+ "out_of_scope_limits": [
+  {
+   "ref": "voltage",
+   "op": ">",
+   "value": 33.0,
+   "unit": "kV"
+  }
+ ],
+ "missing_input_outcome": "INSUFFICIENT_INPUT",
+ "validity": [
+  {
+   "ref": "temperature",
+   "min": 0.0,
+   "max": 90.0,
+   "unit": "°C",
+   "outcome": "INVALID_TEST"
+  }
+ ],
+ "correction": {
+  "template": "none",
+  "target": "temperature",
+  "by": "temperature",
+  "reference": 0,
+  "reference_unit": "°C",
+  "rate": 0,
+  "rate_unit": "°C",
+  "base": 1,
+  "step": 1
+ },
+ "limit": {
+  "template": "coefficient_times_input_plus_offset",
+  "coefficient": 20.0,
+  "input": "voltage",
+  "offset": 2.0,
+  "unit": "MΩ"
+ },
+ "rules": [
+  {
+   "value": "corrected",
+   "op": "<",
+   "against": "limit",
+   "number": 0,
+   "unit": "none",
+   "limit_fraction": 0.3333333333333333,
+   "outcome": "REMOVE_FROM_SERVICE"
+  },
+  {
+   "value": "corrected",
+   "op": "<",
+   "against": "limit",
+   "number": 0,
+   "unit": "none",
+   "limit_fraction": 1.0,
+   "outcome": "DRY_OUT_OIL"
+  },
+  {
+   "value": "cued_1",
+   "op": "<",
+   "against": "number",
+   "number": 1.25,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "INVESTIGATE"
+  },
+  {
+   "value": "cued_1",
+   "op": "<",
+   "against": "number",
+   "number": 1.4,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "MONITOR_90D"
+  }
+ ],
+ "default_outcome": null
+}

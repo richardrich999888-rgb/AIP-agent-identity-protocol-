@@ -1,0 +1,8 @@
+koravi-process|ep-114|restricted|EP-114 rev C Motor winding insulation resistance acceptance
+Koravi Process Industries engineering procedure EP-114 revision C. Confidential.
+Scope: induction motors rated up to and including 11 kV. This procedure does not apply to transformers, cables, generators or motors rated in excess of 11 kV; such requests are out of scope and must be referred to the electrical authority.
+Required inputs: motor rated voltage in kV, measured insulation resistance in MΩ, winding temperature in °C at the time of test, and polarization index (PI). If any input is missing the result is insufficient input and the test must be repeated with full records.
+Step 1 validity: the winding temperature must be between 10 and 75 °C inclusive. Outside that range the test is invalid and must be repeated.
+Step 2 temperature correction: correct the measured resistance to 40 °C by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10.
+Step 3 minimum: the minimum acceptable corrected resistance is 10 times (rated kV plus 1) MΩ.
+Step 4 decision: Reject the motor for rewind when the corrected resistance is beneath half of the minimum. Dry out the winding and retest when it is beneath the minimum. Dry out when the resistance is acceptable but PI is beneath 1.5. Accept for service with a retest in 30 days when PI is no lower than 1.5 but beneath 2.0. In all other cases, pass.

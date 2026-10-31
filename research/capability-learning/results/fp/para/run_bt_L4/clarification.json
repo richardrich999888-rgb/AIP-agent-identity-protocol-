@@ -1,0 +1,85 @@
+{
+ "questions": [
+  {
+   "clause": "L1.S0",
+   "kind": "scope_subject",
+   "text": "Scope: vented lead-acid cells in substation and UPS battery banks.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": "L1.S1",
+   "kind": "scope_exclusion_terms",
+   "text": "This procedure does not apply to lithium, nickel-cadmium or NiCd batteries; such requests are out of scope.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "outcome": "OUT_OF_SCOPE",
+   "issue": "named by the document but unreachable"
+  },
+  {
+   "outcome": "REPLACE_CELL",
+   "issue": "named by the document but unreachable"
+  },
+  {
+   "outcome": "REDUCE_FLOAT",
+   "issue": "named by the document but unreachable"
+  },
+  {
+   "outcome": "ACCEPT",
+   "issue": "named by the document but unreachable"
+  }
+ ],
+ "demo_disagreements": [
+  {
+   "expected": "ACCEPT",
+   "got": "EQUALIZE",
+   "id": "demo-0"
+  },
+  {
+   "expected": "ACCEPT",
+   "got": "EQUALIZE",
+   "id": "demo-2"
+  },
+  {
+   "expected": "REDUCE_FLOAT",
+   "got": "EQUALIZE",
+   "id": "demo-3"
+  },
+  {
+   "expected": "EQUALIZE",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-4"
+  }
+ ],
+ "hypothesis_fields": [
+  {
+   "clause": "L2.S0",
+   "kind": "required_inputs",
+   "field": "inputs[0].unit",
+   "value": {
+    "inputs": [
+     {
+      "ref": "voltage",
+      "unit": "kV",
+      "cues": []
+     },
+     {
+      "ref": "temperature",
+      "unit": "°C",
+      "cues": []
+     },
+     {
+      "ref": "cued_1",
+      "unit": "none",
+      "cues": [
+       "SG",
+       "specific gravity"
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}
