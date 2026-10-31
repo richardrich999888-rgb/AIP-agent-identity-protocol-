@@ -56,3 +56,13 @@ escalations are frequent or latency-critical.
   memory-limited host.
 - Not tested: a learned router, concurrency, a genuinely harder task where
   the larger model is necessary, and a fresh held-out set.
+
+## Correction (2026-10-31, intelligence-runtime loop)
+
+1. The "load on demand: +1.1–2.0 s" figure is host-page-cache-warm. A real
+   cold read on this VM's disk is ~15 MB/s, so a cold 1.1 GB model costs
+   ~75 s (observed 78.8 s). On-demand loading is cheap only while the file
+   stays cached.
+2. The exploratory R3 result (0.872) did not reproduce on the fresh
+   hard-reports-v5 set with the live runtime controller: 0.784 (29/37),
+   equal to encoder+gate. See docs/intelligence-runtime/COMPUTE_MEMORY_RESULTS.md.

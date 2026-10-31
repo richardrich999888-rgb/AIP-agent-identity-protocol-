@@ -35,11 +35,11 @@ preserved.
 | AIP crypto | Ed25519 signatures for approvals and suites, SHA-256 identities |
 | BitTorrent research | present on the branch as an optional research subsystem; not in the runtime |
 
-## Tests (all passing at 647cb8e)
+## Tests (all passing at HEAD)
 
 | Suite | Command | Result |
 |---|---|---|
-| runtime (unit, capability engine, learning flow, orchestration attacks) | `cargo test --offline -p syntriass-runtime` | 66 passed |
+| runtime (unit, capability engine, learning flow, parity, orchestration attacks) | `cargo test --offline -p syntriass-runtime` | 67 passed |
 | Sovereign + AIP authorize/core/reconcile | `cargo test --offline -p vanian-sovereign -p aip-authorize -p aip-core -p aip-reconcile` | 580 passed |
 | lint | `cargo fmt --check`, `cargo clippy -p syntriass-runtime --all-targets -- -D warnings` | clean |
 | Python | `pytest research/{system-one,compute-memory,bittorrent-p2p}/tests` | 18 + 32 + 9 passed |

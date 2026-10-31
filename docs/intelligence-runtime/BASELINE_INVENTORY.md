@@ -116,3 +116,14 @@ serving). No result here validates GPU paths, ≥ 7B models or energy.
   documents does not establish ownership of any existing code or patent.
   Settlement requires founder/legal documentation; nothing in this branch
   changes existing notices or authorship.
+
+## 10. Addendum — state found when the second loop resumed (15:00 IST)
+
+The branch already held 986a19e … 80753ef from an earlier attempt in the same
+session (inventory, frozen data, capability core, controller, adapters; 51
+runtime tests passing) plus an uncommitted CLI. Before building further it
+was reviewed; two defects were found in it and fixed first: capabilities
+could certify themselves (c15c3f2) and a module claimed a parity test that
+did not exist (b6c8bf0). Heads verified at resumption: main 872dbf3,
+release-completion-loop 104e191, vanian-sovereign-slice1 60b75e9,
+syntriass-airgap-intelligence a04b864, syntriass-compute-memory 9f88335.
