@@ -1,0 +1,19 @@
+{
+  "method": "readout",
+  "model": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+  "dataset_manifest_sha256": "caff9161080fbbecb2d14610a1752b344e7fee072827df38dbf946ea12f2da86",
+  "host": {
+    "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39",
+    "nproc": 2,
+    "python": "3.13.18"
+  },
+  "started": "2026-10-30T22:04:01Z",
+  "cache_prompt": false,
+  "readout_version": "v2",
+  "temperature": 1.0,
+  "note": "latency ablation; uncalibrated (T=1); accuracy comparable to cached run",
+  "wall_seconds": 1476.2388791239991,
+  "client_peak_rss_mb": 150.31640625,
+  "server_peak_rss_mb": 1877.69921875,
+  "energy": "not measured: no RAPL/powercap interface on this host"
+}

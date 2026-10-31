@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Run the LLM decision methods for one GGUF model inside a loopback-only
 # user+net namespace (no route off the host).
-#   usage: run_llm.sh LLAMA_SERVER MODEL_GGUF MODEL_SHA256 DATA OUT_DIR JSON_LIMIT [readout-nocache]
-# Produces OUT_DIR/readout/, OUT_DIR/json/ and optionally OUT_DIR/readout_nocache/.
+#   usage: run_llm.sh LLAMA_SERVER MODEL_GGUF MODEL_SHA256 DATA OUT_DIR JSON_LIMIT STEP...
+#   STEP: readout | nocache | json:decision_first | json:reason_first
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ "${VANIAN_IN_NETNS:-0}" != "1" ]]; then
   exec env VANIAN_IN_NETNS=1 unshare --user --map-root-user --net -- "$0" "$@"
 fi
-LLAMA=$1; MODEL=$2; SHA=$3; DATA=$4; OUT=$5; JLIMIT=$6; EXTRA=${7:-}
+LLAMA=$1; MODEL=$2; SHA=$3; DATA=$4; OUT=$5; JLIMIT=$6
 [[ "$(sha256sum "$MODEL" | cut -d' ' -f1)" == "$SHA" ]] || { echo "model hash mismatch" >&2; exit 1; }
 python3 -I -c 'import fcntl,socket,struct
 s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
@@ -30,8 +30,16 @@ except Exception: sys.exit(1)" && break
 done
 M=$(basename "$MODEL")
 cd "$HERE/.."
-python3 harness/run.py readout "$DATA" "$OUT/readout" --endpoint $EP --server-pid $LP --model "$M" | tail -c 200; echo
-python3 harness/run.py json "$DATA" "$OUT/json" --endpoint $EP --server-pid $LP --model "$M" --limit "$JLIMIT" | tail -c 200; echo
-if [[ "$EXTRA" == "readout-nocache" ]]; then
-  python3 harness/run.py readout "$DATA" "$OUT/readout_nocache" --endpoint $EP --server-pid $LP --model "$M" --no-cache --limit 60 | tail -c 200; echo
-fi
+# Steps are passed as remaining args, e.g. readout json:reason_first nocache
+shift 6
+for step in "$@"; do
+  case "$step" in
+    readout) python3 harness/run.py readout "$DATA" "$OUT/readout" --endpoint $EP --server-pid $LP --model "$M" | tail -c 160; echo ;;
+    nocache) python3 harness/run.py readout "$DATA" "$OUT/readout_nocache" --endpoint $EP --server-pid $LP --model "$M" --no-cache --limit 60 | tail -c 160; echo ;;
+    json:*)  o=${step#json:}; python3 harness/run.py json "$DATA" "$OUT/json_$o" --endpoint $EP --server-pid $LP --model "$M" --limit "$JLIMIT" --json-order "$o" | tail -c 160; echo ;;
+    extract:*) spec=${step#extract:}; v=${spec%%@*}; sp=test_id,test_para,test_ood; [[ "$spec" == *@* ]] && sp=${spec#*@}
+               python3 harness/run.py extract "$DATA" "$OUT/extract_$v" --endpoint $EP --server-pid $LP --model "$M" --extract-variant "$v" --splits "$sp" | tail -c 160; echo ;;
+    *) echo "unknown step $step" >&2; exit 2 ;;
+  esac
+done
+echo ALL-STEPS-DONE

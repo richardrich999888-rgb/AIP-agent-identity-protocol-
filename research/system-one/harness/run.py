@@ -102,31 +102,39 @@ def run_tfidf(a, meta):
 
 
 def run_readout(a, meta):
+    """Hypothesis A: one constrained token, no text generation. Scored on the
+    emitted token (see the instrument warning in methods/llm.py); probabilities
+    are one-hot, so ECE equals the error rate and no calibration is fitted."""
     cache = not a.no_cache
     meta["cache_prompt"] = cache
-    va = load(a.data, "val")
-    vl = np.array([llm.readout(a.endpoint, r["text"], cache)[0] for r in va])
-    meta["temperature"] = M.temperature_fit(vl, np.array([r["label"] for r in va]))
+    meta["readout_version"] = a.readout_version
+    meta["scoring"] = "emitted token; logprob probabilities unreliable in this llama.cpp build"
+    agree = total = 0
     for split in TEST_SPLITS:
         rows = load(a.data, split)
         if a.limit:
             rows = stratified_head(rows, a.limit)
         probs, lat, extra = [], [], []
         for r in rows:
-            lg, dt, ntok = llm.readout(a.endpoint, r["text"], cache)
-            probs.append(M.softmax(lg[None, :], meta["temperature"])[0])
+            lg, dt, ntok, mass, em = llm.readout(a.endpoint, r["text"], cache, a.readout_version)
+            label = int(em) if em in llm.LABELS else None
+            probs.append(np.full(4, 0.25) if label is None else np.eye(4)[label - 1])
             lat.append(dt)
-            extra.append({"raw_logprobs": [round(float(x), 4) for x in lg], "completion_tokens": ntok})
+            agree += label is not None and int(np.argmax(lg)) + 1 == label
+            total += 1
+            extra.append({"emitted": em, "raw_logprobs": [round(float(x), 4) for x in lg], "label_mass": round(mass, 4), "completion_tokens": ntok})
         write_preds(a.out, split, rows, np.array(probs), lat, extra)
+    meta["instrument_logprob_argmax_equals_emitted"] = agree / max(total, 1)
 
 
 def run_json(a, meta):
     meta["limit_per_split"] = a.limit
+    meta["json_order"] = a.json_order
     for split in TEST_SPLITS:
         rows = stratified_head(load(a.data, split), a.limit)
         probs, lat, extra = [], [], []
         for r in rows:
-            label, dt, ntok, raw = llm.json_gen(a.endpoint, r["text"])
+            label, dt, ntok, raw = llm.json_gen(a.endpoint, r["text"], a.json_order)
             p = np.full(4, 0.25) if label is None else np.eye(4)[label - 1]
             probs.append(p)
             lat.append(dt)
@@ -134,9 +142,46 @@ def run_json(a, meta):
         write_preds(a.out, split, rows, np.array(probs), lat, extra)
 
 
+def run_extract(a, meta):
+    """Candidate 4. 'readout' variant: model picks the quantity (1 token);
+    value = the single standalone number in the text, else abstain.
+    'json' variant: model emits every (quantity, value); policy applied exactly.
+    Probabilities: the decision distribution induced by the quantity
+    distribution through the exact policy (readout variant), or one-hot (json)."""
+    from datasets.maintenance_priority import METRICS, priority
+    meta["extract_variant"] = a.extract_variant
+    for split in a.splits.split(","):
+        rows = load(a.data, split)
+        probs, lat, extra = [], [], []
+        for r in rows:
+            if a.extract_variant == "readout":
+                q, dt, mass, em = llm.metric_readout(a.endpoint, r["text"])
+                nums = symbolic.standalone_numbers(r["text"])
+                qi = llm.METRIC_LETTERS.find(em) if len(em) == 1 else -1
+                if len(nums) != 1 or qi < 0:
+                    p = np.full(4, 0.25)  # not exactly one reading, or no valid letter: abstain
+                    ex = {"abstained": True, "emitted": em, "label_mass": round(mass, 4)}
+                else:
+                    # Scored on the emitted quantity (instrument warning in
+                    # methods/llm.py); the exact policy maps it to a decision.
+                    p = np.eye(4)[priority(METRICS[qi], nums[0]) - 1]
+                    ex = {"quantity": METRICS[qi].key, "emitted": em, "logprob_quantity": METRICS[int(np.argmax(q))].key, "label_mass": round(mass, 4)}
+            else:
+                rd, dt, ntok, raw = llm.extract_json(a.endpoint, r["text"])
+                if not rd:
+                    p, ex = np.full(4, 0.25), {"abstained": True, "raw": raw}
+                else:
+                    p = np.eye(4)[min(priority(m, v) for m, v in rd) - 1]
+                    ex = {"readings": [[m.key, v] for m, v in rd], "completion_tokens": ntok}
+            probs.append(p)
+            lat.append(dt)
+            extra.append(ex)
+        write_preds(a.out, split, rows, np.array(probs), lat, extra)
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("method", choices=("symbolic", "tfidf", "readout", "json"))
+    ap.add_argument("method", choices=("symbolic", "tfidf", "readout", "json", "extract"))
     ap.add_argument("data")
     ap.add_argument("out")
     ap.add_argument("--endpoint")
@@ -144,6 +189,10 @@ def main():
     ap.add_argument("--model", default="")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--no-cache", action="store_true")
+    ap.add_argument("--readout-version", default="v2", choices=("v1", "v2"))
+    ap.add_argument("--extract-variant", default="readout", choices=("readout", "json"))
+    ap.add_argument("--splits", default=",".join(TEST_SPLITS))
+    ap.add_argument("--json-order", default="decision_first", choices=("decision_first", "reason_first"))
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     manifest = os.path.join(a.data, "MANIFEST.json")
@@ -155,7 +204,7 @@ def main():
         "started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
     t = time.perf_counter()
-    {"symbolic": run_symbolic, "tfidf": run_tfidf, "readout": run_readout, "json": run_json}[a.method](a, meta)
+    {"symbolic": run_symbolic, "tfidf": run_tfidf, "readout": run_readout, "json": run_json, "extract": run_extract}[a.method](a, meta)
     meta["wall_seconds"] = time.perf_counter() - t
     meta["client_peak_rss_mb"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
     meta["server_peak_rss_mb"] = vm_hwm_mb(a.server_pid)

@@ -46,3 +46,8 @@ def predict(text: str) -> tuple:
     p = np.zeros(4)
     p[label - 1] = 1.0
     return p, False
+
+
+def standalone_numbers(text: str) -> list:
+    """Every standalone number in the text (not part of a code like P-7)."""
+    return [float(x) for x in _NUM.findall(text)]

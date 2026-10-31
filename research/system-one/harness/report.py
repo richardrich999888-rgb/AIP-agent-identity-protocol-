@@ -78,36 +78,44 @@ def compose_cascade(sym: dict, llm: dict) -> dict:
 
 def main(root: str) -> None:
     methods = {}
-    for d in sorted(glob.glob(os.path.join(root, "**", "preds_test_id.jsonl"), recursive=True)):
-        mdir = os.path.dirname(d)
+    dirs = sorted({os.path.dirname(d) for d in glob.glob(os.path.join(root, "**", "preds_*.jsonl"), recursive=True)})
+    for mdir in dirs:
         name = os.path.relpath(mdir, root)
         methods[name] = load_method(mdir)
     sym = methods.get("symbolic", {}).get("preds", {})
+    # Cascade: exact rules first; a learned method answers only where the
+    # rules abstain. Built for every learned method that covered a full split.
     for name in list(methods):
-        if name.endswith("/readout") and sym:
-            casc = compose_cascade(sym, methods[name]["preds"])
-            if casc:
-                methods[name.replace("/readout", "/cascade")] = {"preds": casc, "meta": {**methods[name]["meta"], "method": "cascade(symbolic→readout)"}}
+        leaf = name.split("/")[-1]
+        if not sym or "invalid" in name or not (leaf == "readout" or leaf.startswith("extract_") or name == "tfidf"):
+            continue
+        casc = compose_cascade(sym, methods[name]["preds"])
+        if casc:
+            methods[f"cascade[symbolic→{name}]"] = {"preds": casc, "meta": {**methods[name]["meta"], "method": f"cascade(symbolic→{name})"}}
 
     summary = {}
     for name, m in methods.items():
         summary[name] = {"meta": {k: m["meta"].get(k) for k in ("method", "model", "temperature", "server_peak_rss_mb", "client_peak_rss_mb", "cache_prompt", "limit_per_split")}}
         for s, rows in m["preds"].items():
             ev = evaluate(list(rows.values()))
-            if name.endswith("/cascade"):
+            if name.startswith("cascade["):
                 ev["escalated"] = sum(r["extra"]["escalated"] for r in rows.values())
-            if name.endswith("/json"):
+            if "/json" in name:
                 ev["completion_tokens_mean"] = float(np.mean([r["extra"].get("completion_tokens") or 0 for r in rows.values()]))
                 ev["unparsed"] = sum(not r["extra"].get("parsed", True) for r in rows.values())
+            masses = [r.get("extra", {}).get("label_mass") for r in rows.values()]
+            masses = [x for x in masses if x is not None]
+            if masses:
+                ev["label_mass_median"] = float(np.median(masses))
             summary[name][s] = ev
 
     # Paired comparisons on shared items: readout vs json (same model), and
     # every method vs symbolic.
     comps = {}
     for name, m in methods.items():
-        if not name.endswith("/json"):
+        if "/json" not in name:
             continue
-        base = name[: -len("/json")]
+        base, variant = name.split("/json", 1)
         ro = methods.get(base + "/readout")
         if not ro:
             continue
@@ -120,7 +128,7 @@ def main(root: str) -> None:
             b = np.array([m["preds"][s][i]["pred"] for i in ids])
             la = M.latency_summary([ro["preds"][s][i]["latency_s"] for i in ids])
             lb = M.latency_summary([m["preds"][s][i]["latency_s"] for i in ids])
-            comps[f"{base}: readout vs json [{s}]"] = {
+            comps[f"{base}: readout vs json{variant} [{s}]"] = {
                 "n": len(ids),
                 "accuracy_readout_minus_json": M.paired_bootstrap_diff(y, a, b),
                 "p95_ms_readout": la["p95_ms"],
@@ -145,6 +153,10 @@ def main(root: str) -> None:
                 note.append(f"escalated {e['escalated']}")
             if "unparsed" in e and e["unparsed"]:
                 note.append(f"unparsed {e['unparsed']}")
+            if "label_mass_median" in e:
+                note.append(f"label mass {e['label_mass_median']:.2f}")
+            if "completion_tokens_mean" in e:
+                note.append(f"{e['completion_tokens_mean']:.0f} gen tokens")
             lines.append(
                 f"| {name} | {s} | {e['n']} | {e['accuracy']:.3f} [{e['accuracy_ci95'][0]:.3f}, {e['accuracy_ci95'][1]:.3f}] | "
                 f"{e['macro_f1']:.3f} | {e['ece']:.3f} | {e['brier']:.3f} | {e['aurc']:.3f} | {e['p50_ms']:.2f} | {e['p95_ms']:.2f} | "
