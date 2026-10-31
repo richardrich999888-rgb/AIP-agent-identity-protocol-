@@ -67,6 +67,75 @@ fn storage(e: rusqlite::Error) -> PortError {
 }
 
 impl SqliteCorpus {
+    /// SHA-256 of the body of `doc_id` **if the principal may read it**
+    /// (same tenant, clearance and quarantine filter as `search`). Returns
+    /// `None` both when the document is absent and when it is not readable,
+    /// so the digest cannot be used to probe for documents the caller may
+    /// not see. Added for the intelligence runtime's dependency binding.
+    pub fn document_digest(
+        &self,
+        principal: &Principal,
+        doc_id: &str,
+    ) -> Result<Option<[u8; 32]>, PortError> {
+        let mut stmt = self
+            .conn
+            .prepare_cached(
+                "SELECT body FROM documents WHERE doc_id = ?1 AND tenant = ?2
+                   AND class_rank <= ?3 AND quarantine IS NULL",
+            )
+            .map_err(storage)?;
+        let mut rows = stmt
+            .query(params![
+                doc_id,
+                principal.tenant.as_str(),
+                principal.clearance.rank()
+            ])
+            .map_err(storage)?;
+        match rows.next().map_err(storage)? {
+            Some(r) => {
+                let body: String = r.get(0).map_err(storage)?;
+                Ok(Some(aip_crypto::sha256(body.as_bytes())))
+            }
+            None => Ok(None),
+        }
+    }
+
+    /// Digest of every document the principal may read: SHA-256 over sorted
+    /// `doc_id 0x1f version 0x1f sha256(body) 0x0a` lines. Changes whenever an
+    /// authorized document is added, replaced or quarantined.
+    pub fn snapshot_digest(&self, principal: &Principal) -> Result<[u8; 32], PortError> {
+        let mut stmt = self
+            .conn
+            .prepare_cached(
+                "SELECT doc_id, version, body FROM documents WHERE tenant = ?1
+                   AND class_rank <= ?2 AND quarantine IS NULL ORDER BY doc_id",
+            )
+            .map_err(storage)?;
+        let rows = stmt
+            .query_map(
+                params![principal.tenant.as_str(), principal.clearance.rank()],
+                |r| {
+                    Ok((
+                        r.get::<_, String>(0)?,
+                        r.get::<_, i64>(1)?,
+                        r.get::<_, String>(2)?,
+                    ))
+                },
+            )
+            .map_err(storage)?;
+        let mut acc = Vec::new();
+        for row in rows {
+            let (id, v, body) = row.map_err(storage)?;
+            acc.extend_from_slice(id.as_bytes());
+            acc.push(0x1f);
+            acc.extend_from_slice(v.to_string().as_bytes());
+            acc.push(0x1f);
+            acc.extend_from_slice(hex::encode(aip_crypto::sha256(body.as_bytes())).as_bytes());
+            acc.push(b'\n');
+        }
+        Ok(aip_crypto::sha256(&acc))
+    }
+
     /// Open (creating if absent) a corpus database file.
     pub fn open(path: &Path) -> Result<Self, PortError> {
         let conn = Connection::open_with_flags(
@@ -488,6 +557,52 @@ mod tests {
                 .unwrap()
                 .len(),
             1
+        );
+    }
+
+    #[test]
+    fn digests_respect_the_acl_and_track_changes() {
+        let mut c = SqliteCorpus::in_memory().unwrap();
+        c.ingest(&doc("a", "d1", Classification::Restricted, "secret body"))
+            .unwrap();
+        c.ingest(&doc("a", "d2", Classification::Internal, "internal body"))
+            .unwrap();
+        c.ingest(&doc("b", "d1", Classification::Public, "other tenant"))
+            .unwrap();
+        let hi = principal("a", Classification::Restricted);
+        let lo = principal("a", Classification::Internal);
+        let other = principal("b", Classification::Restricted);
+        assert_eq!(
+            c.document_digest(&hi, "d1").unwrap(),
+            Some(aip_crypto::sha256(b"secret body"))
+        );
+        assert_eq!(
+            c.document_digest(&lo, "d1").unwrap(),
+            None,
+            "clearance too low"
+        );
+        assert_eq!(
+            c.document_digest(&other, "d2").unwrap(),
+            None,
+            "other tenant"
+        );
+        let before = c.snapshot_digest(&hi).unwrap();
+        assert_ne!(before, c.snapshot_digest(&lo).unwrap());
+        c.ingest(&doc(
+            "a",
+            "d1",
+            Classification::Restricted,
+            "secret body v2",
+        ))
+        .unwrap();
+        assert_ne!(
+            before,
+            c.snapshot_digest(&hi).unwrap(),
+            "replacement changes the snapshot"
+        );
+        assert_eq!(
+            c.snapshot_digest(&other).unwrap(),
+            c.snapshot_digest(&other).unwrap()
         );
     }
 }
