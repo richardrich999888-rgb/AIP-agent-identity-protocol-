@@ -1,0 +1,81 @@
+{
+  "suite_id": "bt-tasks-v1/validation",
+  "tenant": "halvorn-power",
+  "task": "battery cell float acceptance (HU-BT-4 rev B)",
+  "expert_id": "expert:halvorn-power-lead",
+  "cases": [
+    {
+      "id": "val-00",
+      "text": "Cell 1, 2.17 V at 25 C, SG 1.200",
+      "expected": "ACCEPT",
+      "counterexample": false
+    },
+    {
+      "id": "val-01",
+      "text": "Cell 1, 2.169 V at 25 C, SG 1.230",
+      "expected": "EQUALIZE",
+      "counterexample": false
+    },
+    {
+      "id": "val-02",
+      "text": "Cell 4: 2.10 V at 25 C, SG 1.210",
+      "expected": "EQUALIZE",
+      "counterexample": false
+    },
+    {
+      "id": "val-03",
+      "text": "Cell 5: 2.099 V, 25 C, SG 1.210",
+      "expected": "REPLACE_CELL",
+      "counterexample": false
+    },
+    {
+      "id": "val-04",
+      "text": "Cell 6 floats at 2.30 V, 25 C, SG 1.220",
+      "expected": "ACCEPT",
+      "counterexample": false
+    },
+    {
+      "id": "val-05",
+      "text": "Cell 8: 2.26 V at 40 C, SG 1.215",
+      "expected": "REDUCE_FLOAT",
+      "counterexample": false
+    },
+    {
+      "id": "val-06",
+      "text": "Cell 10: 2.25 V at 5 C, SG 1.215",
+      "expected": "ACCEPT",
+      "counterexample": true
+    },
+    {
+      "id": "val-07",
+      "text": "Cell 11: 2.25 V at 4 C, SG 1.215",
+      "expected": "INVALID_TEST",
+      "counterexample": true
+    },
+    {
+      "id": "val-08",
+      "text": "NiCd cell 2: 1.42 V at 25 C, SG 1.200",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "val-09",
+      "text": "UPS string reads 26.8 V at 25 C, SG 1.215",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "val-10",
+      "text": "Cell 12 at 2.23 V and 24 C; SG not recorded",
+      "expected": "INSUFFICIENT_INPUT",
+      "counterexample": true
+    },
+    {
+      "id": "val-11",
+      "text": "Cell 13: 2.21 V at 25 C, SG 1.199",
+      "expected": "EQUALIZE",
+      "counterexample": false
+    }
+  ],
+  "signature_hex": "d69c26574feae7e42d203670650a588a19ffd8966d31e860cf14dcb676d5cd30a8ba1cac34bfc0a1a84b57142619fa765c43468301ccc2f7b20924eac1613c0b"
+}

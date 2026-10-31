@@ -1,0 +1,136 @@
+{
+ "method": "constrained-ir",
+ "task": "bt-tasks-v1",
+ "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+ "model_sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8",
+ "load_s": 7.98,
+ "total_wall_s": 252.7,
+ "rounds": [
+  {
+   "round": 1,
+   "wall_s": 77.09,
+   "usage": {
+    "completion_tokens": 766,
+    "prompt_tokens": 1403,
+    "total_tokens": 2169
+   },
+   "llama_cpu_s": 151.46,
+   "compiled": true,
+   "demo_agreement": 0,
+   "demos": 6,
+   "repairs": [
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_1",
+     "added": [
+      "SPECIFIC_GRAVITY"
+     ]
+    },
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_2",
+     "added": [
+      "ELECTROLYTE_TEMPERATURE"
+     ]
+    },
+    {
+     "kind": "applicability_unit_and_cue_terms",
+     "added": [
+      "V",
+      "volt",
+      "volts",
+      "kV",
+      "SPECIFIC_GRAVITY",
+      "electrolyte_temperature",
+      "ELECTROLYTE_TEMPERATURE"
+     ]
+    }
+   ]
+  },
+  {
+   "round": 2,
+   "wall_s": 79.37,
+   "usage": {
+    "completion_tokens": 766,
+    "prompt_tokens": 2645,
+    "total_tokens": 3411
+   },
+   "llama_cpu_s": 156.17,
+   "compiled": true,
+   "demo_agreement": 0,
+   "demos": 6,
+   "repairs": [
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_1",
+     "added": [
+      "SPECIFIC_GRAVITY"
+     ]
+    },
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_2",
+     "added": [
+      "ELECTROLYTE_TEMPERATURE"
+     ]
+    },
+    {
+     "kind": "applicability_unit_and_cue_terms",
+     "added": [
+      "V",
+      "volt",
+      "volts",
+      "kV",
+      "SPECIFIC_GRAVITY",
+      "electrolyte_temperature",
+      "ELECTROLYTE_TEMPERATURE"
+     ]
+    }
+   ]
+  },
+  {
+   "round": 3,
+   "wall_s": 87.89,
+   "usage": {
+    "completion_tokens": 766,
+    "prompt_tokens": 3887,
+    "total_tokens": 4653
+   },
+   "llama_cpu_s": 173.23,
+   "compiled": true,
+   "demo_agreement": 0,
+   "demos": 6,
+   "repairs": [
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_1",
+     "added": [
+      "SPECIFIC_GRAVITY"
+     ]
+    },
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_2",
+     "added": [
+      "ELECTROLYTE_TEMPERATURE"
+     ]
+    },
+    {
+     "kind": "applicability_unit_and_cue_terms",
+     "added": [
+      "V",
+      "volt",
+      "volts",
+      "kV",
+      "SPECIFIC_GRAVITY",
+      "electrolyte_temperature",
+      "ELECTROLYTE_TEMPERATURE"
+     ]
+    }
+   ]
+  }
+ ],
+ "llama_cpu_s": 480.86,
+ "completion_tokens": 2298,
+ "llama_peak_rss_mib": 3781.9
+}

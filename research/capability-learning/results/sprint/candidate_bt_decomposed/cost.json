@@ -1,0 +1,49 @@
+{
+ "method": "constrained-ir-decomposed",
+ "task": "bt-tasks-v1",
+ "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+ "model_sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8",
+ "load_s": 6.75,
+ "total_wall_s": 319.75,
+ "rounds": [
+  {
+   "round": 1,
+   "wall_s": 106.18,
+   "usage": {
+    "prompt_tokens": 9866,
+    "completion_tokens": 1028,
+    "calls": 6
+   },
+   "llama_cpu_s": 206.63,
+   "compiled": false,
+   "error": "IRError: validity[2]: unit \u00b0C is not a cued unit"
+  },
+  {
+   "round": 2,
+   "wall_s": 100.82,
+   "usage": {
+    "prompt_tokens": 10903,
+    "completion_tokens": 1001,
+    "calls": 6
+   },
+   "llama_cpu_s": 198.76,
+   "compiled": false,
+   "error": "IRError: validity[2]: unit \u00b0C is not a cued unit"
+  },
+  {
+   "round": 3,
+   "wall_s": 105.67,
+   "usage": {
+    "prompt_tokens": 10903,
+    "completion_tokens": 1001,
+    "calls": 6
+   },
+   "llama_cpu_s": 207.62,
+   "compiled": false,
+   "error": "IRError: validity[2]: unit \u00b0C is not a cued unit"
+  }
+ ],
+ "llama_cpu_s": 613.01,
+ "completion_tokens": 3030,
+ "llama_peak_rss_mib": 3729.4
+}

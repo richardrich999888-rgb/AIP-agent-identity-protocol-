@@ -1,0 +1,130 @@
+{
+ "method": "constrained-ir-decomposed",
+ "task": "ir-tasks-v1",
+ "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+ "model_sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8",
+ "load_s": 1.87,
+ "total_wall_s": 323.98,
+ "rounds": [
+  {
+   "round": 1,
+   "wall_s": 87.44,
+   "usage": {
+    "prompt_tokens": 10250,
+    "completion_tokens": 784,
+    "calls": 6
+   },
+   "llama_cpu_s": 171.5,
+   "compiled": true,
+   "demo_agreement": 0,
+   "demos": 6,
+   "repairs": [
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_1",
+     "added": [
+      "HOURS"
+     ]
+    },
+    {
+     "kind": "applicability_unit_and_cue_terms",
+     "added": [
+      "V",
+      "volt",
+      "volts",
+      "kV",
+      "megohm",
+      "megohms",
+      "M\u03a9",
+      "Mohm",
+      "G\u03a9",
+      "k\u03a9",
+      "hours",
+      "HOURS"
+     ]
+    }
+   ]
+  },
+  {
+   "round": 2,
+   "wall_s": 116.41,
+   "usage": {
+    "prompt_tokens": 13847,
+    "completion_tokens": 784,
+    "calls": 6
+   },
+   "llama_cpu_s": 228.58,
+   "compiled": true,
+   "demo_agreement": 0,
+   "demos": 6,
+   "repairs": [
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_1",
+     "added": [
+      "HOURS"
+     ]
+    },
+    {
+     "kind": "applicability_unit_and_cue_terms",
+     "added": [
+      "V",
+      "volt",
+      "volts",
+      "kV",
+      "megohm",
+      "megohms",
+      "M\u03a9",
+      "Mohm",
+      "G\u03a9",
+      "k\u03a9",
+      "hours",
+      "HOURS"
+     ]
+    }
+   ]
+  },
+  {
+   "round": 3,
+   "wall_s": 117.91,
+   "usage": {
+    "prompt_tokens": 13847,
+    "completion_tokens": 784,
+    "calls": 6
+   },
+   "llama_cpu_s": 231.39,
+   "compiled": true,
+   "demo_agreement": 0,
+   "demos": 6,
+   "repairs": [
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_1",
+     "added": [
+      "HOURS"
+     ]
+    },
+    {
+     "kind": "applicability_unit_and_cue_terms",
+     "added": [
+      "V",
+      "volt",
+      "volts",
+      "kV",
+      "megohm",
+      "megohms",
+      "M\u03a9",
+      "Mohm",
+      "G\u03a9",
+      "k\u03a9",
+      "hours",
+      "HOURS"
+     ]
+    }
+   ]
+  }
+ ],
+ "llama_cpu_s": 631.47,
+ "completion_tokens": 2352,
+ "llama_peak_rss_mib": 3734.9
+}

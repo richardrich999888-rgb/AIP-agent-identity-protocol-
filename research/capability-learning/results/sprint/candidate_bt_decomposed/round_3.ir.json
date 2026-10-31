@@ -1,0 +1,168 @@
+{
+ "topic_terms": [
+  "cell",
+  "float",
+  "voltage",
+  "electrolyte",
+  "temperature",
+  "specific gravity"
+ ],
+ "inputs": [
+  {
+   "ref": "voltage",
+   "unit": "V",
+   "cues": []
+  },
+  {
+   "ref": "temperature",
+   "unit": "°C",
+   "cues": []
+  },
+  {
+   "ref": "cued_1",
+   "unit": "none",
+   "cues": [
+    "°C"
+   ]
+  },
+  {
+   "ref": "cued_2",
+   "unit": "none",
+   "cues": [
+    "°C"
+   ]
+  }
+ ],
+ "out_of_scope_terms": [
+  "lithium",
+  "nickel-cadmium",
+  "NiCd"
+ ],
+ "out_of_scope_limits": [],
+ "missing_input_outcome": "INSUFFICIENT_INPUT",
+ "validity": [
+  {
+   "ref": "voltage",
+   "min": 0,
+   "max": 100,
+   "unit": "V",
+   "outcome": "INVALID_TEST"
+  },
+  {
+   "ref": "temperature",
+   "min": 5,
+   "max": 45,
+   "unit": "°C",
+   "outcome": "INVALID_TEST"
+  },
+  {
+   "ref": "cued_1",
+   "min": 0,
+   "max": 100,
+   "unit": "°C",
+   "outcome": "INVALID_TEST"
+  }
+ ],
+ "correction": {
+  "template": "multiply_power_per_degree",
+  "target": "voltage",
+  "by": "temperature",
+  "reference": 0,
+  "reference_unit": "°C",
+  "rate": 0,
+  "rate_unit": "°C",
+  "base": 1,
+  "step": 1
+ },
+ "limit": {
+  "template": "coefficient_times_input_plus_offset",
+  "coefficient": 0,
+  "input": "voltage",
+  "offset": 0,
+  "unit": "V"
+ },
+ "rules": [
+  {
+   "value": "voltage",
+   "op": ">",
+   "against": "number",
+   "number": 2.1,
+   "unit": "V",
+   "limit_fraction": 1,
+   "outcome": "REPLACE_CELL"
+  },
+  {
+   "value": "voltage",
+   "op": ">",
+   "against": "number",
+   "number": 2.17,
+   "unit": "V",
+   "limit_fraction": 1,
+   "outcome": "EQUALIZE"
+  },
+  {
+   "value": "voltage",
+   "op": ">",
+   "against": "number",
+   "number": 2.3,
+   "unit": "V",
+   "limit_fraction": 1,
+   "outcome": "REDUCE_FLOAT"
+  },
+  {
+   "value": "cued_1",
+   "op": ">",
+   "against": "number",
+   "number": 200,
+   "unit": "°C",
+   "limit_fraction": 1,
+   "outcome": "EQUALIZE"
+  },
+  {
+   "value": "cued_2",
+   "op": ">",
+   "against": "number",
+   "number": 35,
+   "unit": "°C",
+   "limit_fraction": 1,
+   "outcome": "EQUALIZE"
+  },
+  {
+   "value": "cued_1",
+   "op": ">",
+   "against": "number",
+   "number": 35,
+   "unit": "°C",
+   "limit_fraction": 1,
+   "outcome": "EQUALIZE"
+  },
+  {
+   "value": "cued_2",
+   "op": ">",
+   "against": "number",
+   "number": 35,
+   "unit": "°C",
+   "limit_fraction": 1,
+   "outcome": "EQUALIZE"
+  },
+  {
+   "value": "cued_1",
+   "op": ">",
+   "against": "number",
+   "number": 1.2,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "EQUALIZE"
+  },
+  {
+   "value": "cued_2",
+   "op": ">",
+   "against": "number",
+   "number": 1.2,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "EQUALIZE"
+  }
+ ],
+ "default_outcome": "INSUFFICIENT_INPUT"
+}

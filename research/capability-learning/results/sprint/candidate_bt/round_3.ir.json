@@ -1,0 +1,136 @@
+{
+ "topic_terms": [
+  "cell",
+  "float",
+  "voltage",
+  "temperature",
+  "specific_gravity"
+ ],
+ "inputs": [
+  {
+   "ref": "voltage",
+   "unit": "V",
+   "cues": [
+    "cell",
+    "float_voltage"
+   ]
+  },
+  {
+   "ref": "temperature",
+   "unit": "°C",
+   "cues": [
+    "electrolyte_temperature"
+   ]
+  },
+  {
+   "ref": "cued_1",
+   "unit": "none",
+   "cues": [
+    "specific_gravity"
+   ]
+  },
+  {
+   "ref": "cued_2",
+   "unit": "none",
+   "cues": [
+    "electrolyte_temperature"
+   ]
+  }
+ ],
+ "out_of_scope_terms": [
+  "lithium",
+  "nickel-cadmium",
+  "NiCd"
+ ],
+ "out_of_scope_limits": [],
+ "missing_input_outcome": "INSUFFICIENT_INPUT",
+ "validity": [
+  {
+   "ref": "temperature",
+   "min": 5,
+   "max": 45,
+   "unit": "°C",
+   "outcome": "INVALID_TEST"
+  },
+  {
+   "ref": "voltage",
+   "min": 2.1,
+   "max": 2.3,
+   "unit": "V",
+   "outcome": "INVALID_TEST"
+  },
+  {
+   "ref": "cued_1",
+   "min": 1.2,
+   "max": 1.225,
+   "unit": "none",
+   "outcome": "INVALID_TEST"
+  }
+ ],
+ "correction": {
+  "template": "none",
+  "target": "voltage",
+  "by": "temperature",
+  "reference": 25,
+  "reference_unit": "°C",
+  "rate": 0,
+  "rate_unit": "°C",
+  "base": 1,
+  "step": 1
+ },
+ "limit": {
+  "template": "none",
+  "coefficient": 0,
+  "input": "voltage",
+  "offset": 0,
+  "unit": "V"
+ },
+ "rules": [
+  {
+   "value": "temperature",
+   "op": ">",
+   "against": "number",
+   "number": 52,
+   "unit": "°C",
+   "limit_fraction": 1,
+   "outcome": "INVALID_TEST"
+  },
+  {
+   "value": "voltage",
+   "op": "<",
+   "against": "number",
+   "number": 2.17,
+   "unit": "V",
+   "limit_fraction": 1,
+   "outcome": "REPLACE_CELL"
+  },
+  {
+   "value": "cued_1",
+   "op": "<",
+   "against": "number",
+   "number": 2.17,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "REPLACE_CELL"
+  },
+  {
+   "value": "voltage",
+   "op": "<",
+   "against": "number",
+   "number": 2.3,
+   "unit": "V",
+   "limit_fraction": 1,
+   "outcome": "REDUCE_FLOAT"
+  },
+  {
+   "value": "cued_1",
+   "op": "<",
+   "against": "number",
+   "number": 1.2,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "EQUALIZE"
+  }
+ ],
+ "default_outcome": "INSUFFICIENT_INPUT"
+}

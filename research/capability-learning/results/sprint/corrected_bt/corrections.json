@@ -1,0 +1,15 @@
+{
+ "draft": "results/sprint/candidate_bt/round_1.ir.json",
+ "sections_corrected": 6,
+ "cites": [
+  "inputs: SG is the cue used in requests ('specific gravity (SG)'); no second cued input exists",
+  "out_of_scope_limits: 'A voltage above 3 volts is a block or string voltage ... out of scope'",
+  "validity: only 'electrolyte temperature must be between 5 and 45'; no voltage or SG validity range",
+  "correction: 'adding 0.003 volts for every degree Celsius above 25' -> add_per_degree, rate 0.003 V, reference 25 \u00b0C",
+  "rules: '< 2.10 replace; < 2.17 equalize; > 2.30 reduce float; SG < 1.200 equalize', on the corrected voltage",
+  "default_outcome: 'Otherwise accept'"
+ ],
+ "leaf_edits": 49,
+ "draft_leaves": 87,
+ "corrected_leaves": 69
+}

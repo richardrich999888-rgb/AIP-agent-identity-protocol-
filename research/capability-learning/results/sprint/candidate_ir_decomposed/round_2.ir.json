@@ -1,0 +1,130 @@
+{
+ "topic_terms": [
+  "motor",
+  "rated voltage",
+  "measured insulation resistance",
+  "winding temperature",
+  "polarization index"
+ ],
+ "inputs": [
+  {
+   "ref": "voltage",
+   "unit": "kV",
+   "cues": []
+  },
+  {
+   "ref": "resistance",
+   "unit": "MΩ",
+   "cues": []
+  },
+  {
+   "ref": "temperature",
+   "unit": "°C",
+   "cues": []
+  },
+  {
+   "ref": "cued_1",
+   "unit": "none",
+   "cues": [
+    "hours"
+   ]
+  }
+ ],
+ "out_of_scope_terms": [
+  "transformers",
+  "cables",
+  "generators",
+  "motors rated above 11 kV"
+ ],
+ "out_of_scope_limits": [],
+ "missing_input_outcome": "INSUFFICIENT_INPUT",
+ "validity": [
+  {
+   "ref": "voltage",
+   "min": 0,
+   "max": 11,
+   "unit": "kV",
+   "outcome": "INVALID_TEST"
+  },
+  {
+   "ref": "resistance",
+   "min": 0,
+   "max": 1000000,
+   "unit": "MΩ",
+   "outcome": "INVALID_TEST"
+  },
+  {
+   "ref": "temperature",
+   "min": 10,
+   "max": 75,
+   "unit": "°C",
+   "outcome": "INVALID_TEST"
+  }
+ ],
+ "correction": {
+  "template": "multiply_power_per_degree",
+  "target": "resistance",
+  "by": "temperature",
+  "reference": 0,
+  "reference_unit": "°C",
+  "rate": 0,
+  "rate_unit": "°C",
+  "base": 1,
+  "step": 1
+ },
+ "limit": {
+  "template": "coefficient_times_input_plus_offset",
+  "coefficient": 10,
+  "input": "resistance",
+  "offset": 0,
+  "unit": "MΩ"
+ },
+ "rules": [
+  {
+   "value": "temperature",
+   "op": ">",
+   "against": "number",
+   "number": 75,
+   "unit": "°C",
+   "limit_fraction": 1,
+   "outcome": "PASS"
+  },
+  {
+   "value": "temperature",
+   "op": ">",
+   "against": "number",
+   "number": 10,
+   "unit": "°C",
+   "limit_fraction": 1,
+   "outcome": "PASS"
+  },
+  {
+   "value": "resistance",
+   "op": ">",
+   "against": "number",
+   "number": 120,
+   "unit": "MΩ",
+   "limit_fraction": 1,
+   "outcome": "PASS"
+  },
+  {
+   "value": "resistance",
+   "op": ">",
+   "against": "number",
+   "number": 76,
+   "unit": "MΩ",
+   "limit_fraction": 1,
+   "outcome": "PASS"
+  },
+  {
+   "value": "cued_1",
+   "op": ">",
+   "against": "number",
+   "number": 2000,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "PASS"
+  }
+ ],
+ "default_outcome": "INSUFFICIENT_INPUT"
+}

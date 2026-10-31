@@ -1,0 +1,127 @@
+{
+ "topic_terms": [
+  "induction motor"
+ ],
+ "inputs": [
+  {
+   "ref": "voltage",
+   "unit": "kV",
+   "cues": [
+    "rated"
+   ]
+  },
+  {
+   "ref": "resistance",
+   "unit": "MΩ",
+   "cues": [
+    "measured"
+   ]
+  },
+  {
+   "ref": "temperature",
+   "unit": "°C",
+   "cues": [
+    "winding"
+   ]
+  },
+  {
+   "ref": "cued_1",
+   "unit": "none",
+   "cues": [
+    "PI"
+   ]
+  }
+ ],
+ "out_of_scope_terms": [
+  "transformers",
+  "cables",
+  "generators",
+  "motors rated above 11 kV"
+ ],
+ "out_of_scope_limits": [],
+ "missing_input_outcome": "INSUFFICIENT_INPUT",
+ "validity": [
+  {
+   "ref": "temperature",
+   "min": 10,
+   "max": 75,
+   "unit": "°C",
+   "outcome": "INVALID_TEST"
+  }
+ ],
+ "correction": {
+  "template": "multiply_power_per_degree",
+  "target": "resistance",
+  "by": "temperature",
+  "reference": 40,
+  "reference_unit": "°C",
+  "rate": 0,
+  "rate_unit": "°C",
+  "base": 2,
+  "step": 10
+ },
+ "limit": {
+  "template": "coefficient_times_input_plus_offset",
+  "coefficient": 10,
+  "input": "resistance",
+  "offset": 0,
+  "unit": "MΩ"
+ },
+ "rules": [
+  {
+   "value": "resistance",
+   "op": ">",
+   "against": "number",
+   "number": 10,
+   "unit": "MΩ",
+   "limit_fraction": 1,
+   "outcome": "REJECT"
+  },
+  {
+   "value": "temperature",
+   "op": ">",
+   "against": "number",
+   "number": 40,
+   "unit": "°C",
+   "limit_fraction": 1,
+   "outcome": "RETEST_30D"
+  },
+  {
+   "value": "resistance",
+   "op": ">",
+   "against": "number",
+   "number": 120,
+   "unit": "MΩ",
+   "limit_fraction": 1,
+   "outcome": "PASS"
+  },
+  {
+   "value": "cued_1",
+   "op": ">",
+   "against": "number",
+   "number": 1.5,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "PASS"
+  },
+  {
+   "value": "cued_1",
+   "op": ">",
+   "against": "number",
+   "number": 2.0,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "PASS"
+  },
+  {
+   "value": "cued_1",
+   "op": ">",
+   "against": "number",
+   "number": 2.0,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "PASS"
+  }
+ ],
+ "default_outcome": "PASS"
+}

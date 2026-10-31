@@ -1,0 +1,30 @@
+{
+ "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+ "model_sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8",
+ "load_s": 5.58,
+ "B1": {
+  "n": 36,
+  "correct": 8,
+  "false_activation": 0,
+  "cpu_s_total": 131.91,
+  "wall_s_total": 67.75,
+  "prompt_tokens": 4936
+ },
+ "B2": {
+  "n": 36,
+  "correct": 5,
+  "false_activation": 2,
+  "cpu_s_total": 293.54,
+  "wall_s_total": 151.44,
+  "prompt_tokens": 16096
+ },
+ "B3": {
+  "n": 36,
+  "correct": 10,
+  "false_activation": 3,
+  "cpu_s_total": 483.53,
+  "wall_s_total": 247.08,
+  "prompt_tokens": 29776
+ },
+ "llama_peak_rss_mib": 3690.4
+}

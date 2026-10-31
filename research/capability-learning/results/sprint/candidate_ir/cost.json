@@ -1,0 +1,130 @@
+{
+ "method": "constrained-ir",
+ "task": "ir-tasks-v1",
+ "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+ "model_sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8",
+ "load_s": 1.77,
+ "total_wall_s": 236.18,
+ "rounds": [
+  {
+   "round": 1,
+   "wall_s": 80.99,
+   "usage": {
+    "completion_tokens": 769,
+    "prompt_tokens": 1463,
+    "total_tokens": 2232
+   },
+   "llama_cpu_s": 159.14,
+   "compiled": true,
+   "demo_agreement": 2,
+   "demos": 6,
+   "repairs": [
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_1",
+     "added": [
+      "pi"
+     ]
+    },
+    {
+     "kind": "applicability_unit_and_cue_terms",
+     "added": [
+      "V",
+      "volt",
+      "volts",
+      "kV",
+      "megohm",
+      "megohms",
+      "M\u03a9",
+      "Mohm",
+      "G\u03a9",
+      "k\u03a9",
+      "PI",
+      "pi"
+     ]
+    }
+   ]
+  },
+  {
+   "round": 2,
+   "wall_s": 73.65,
+   "usage": {
+    "completion_tokens": 711,
+    "prompt_tokens": 2581,
+    "total_tokens": 3292
+   },
+   "llama_cpu_s": 145.21,
+   "compiled": true,
+   "demo_agreement": 2,
+   "demos": 6,
+   "repairs": [
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_1",
+     "added": [
+      "pi"
+     ]
+    },
+    {
+     "kind": "applicability_unit_and_cue_terms",
+     "added": [
+      "V",
+      "volt",
+      "volts",
+      "kV",
+      "megohm",
+      "megohms",
+      "M\u03a9",
+      "Mohm",
+      "G\u03a9",
+      "k\u03a9",
+      "PI",
+      "pi"
+     ]
+    }
+   ]
+  },
+  {
+   "round": 3,
+   "wall_s": 79.44,
+   "usage": {
+    "completion_tokens": 711,
+    "prompt_tokens": 3641,
+    "total_tokens": 4352
+   },
+   "llama_cpu_s": 156.64,
+   "compiled": true,
+   "demo_agreement": 2,
+   "demos": 6,
+   "repairs": [
+    {
+     "kind": "cue_case_variants",
+     "input": "cued_1",
+     "added": [
+      "pi"
+     ]
+    },
+    {
+     "kind": "applicability_unit_and_cue_terms",
+     "added": [
+      "V",
+      "volt",
+      "volts",
+      "kV",
+      "megohm",
+      "megohms",
+      "M\u03a9",
+      "Mohm",
+      "G\u03a9",
+      "k\u03a9",
+      "PI",
+      "pi"
+     ]
+    }
+   ]
+  }
+ ],
+ "llama_cpu_s": 460.99,
+ "completion_tokens": 2191,
+ "llama_peak_rss_mib": 3738.7
+}

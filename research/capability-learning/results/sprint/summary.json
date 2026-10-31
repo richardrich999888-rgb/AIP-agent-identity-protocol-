@@ -1,0 +1,125 @@
+{
+ "proposal_validity": {
+  "baseline_A_old_proposer/ir-tasks-v1": {
+   "rounds": 6,
+   "compiling_rounds": 0,
+   "best_demo_agreement": 0,
+   "demos": 6,
+   "validated_without_manual_correction": 0,
+   "model_cpu_s": 484.3,
+   "peak_rss_mib": 3692.8
+  },
+  "baseline_A_old_proposer/bt-tasks-v1": {
+   "rounds": 3,
+   "compiling_rounds": 3,
+   "best_demo_agreement": 1,
+   "demos": 6,
+   "validated_without_manual_correction": 0,
+   "model_cpu_s": 366.2,
+   "peak_rss_mib": 3744.5
+  },
+  "candidate_ir_single/ir-tasks-v1": {
+   "rounds": 3,
+   "compiling_rounds": 3,
+   "best_demo_agreement": 2,
+   "demos": 6,
+   "validated_without_manual_correction": 0,
+   "model_cpu_s": 461.0,
+   "peak_rss_mib": 3738.7
+  },
+  "candidate_ir_single/bt-tasks-v1": {
+   "rounds": 3,
+   "compiling_rounds": 3,
+   "best_demo_agreement": 0,
+   "demos": 6,
+   "validated_without_manual_correction": 0,
+   "model_cpu_s": 480.9,
+   "peak_rss_mib": 3781.9
+  },
+  "candidate_ir_decomposed/ir-tasks-v1": {
+   "rounds": 3,
+   "compiling_rounds": 3,
+   "best_demo_agreement": 0,
+   "demos": 6,
+   "validated_without_manual_correction": 0,
+   "model_cpu_s": 631.5,
+   "peak_rss_mib": 3734.9
+  },
+  "candidate_ir_decomposed/bt-tasks-v1": {
+   "rounds": 3,
+   "compiling_rounds": 0,
+   "best_demo_agreement": 0,
+   "demos": 6,
+   "validated_without_manual_correction": 0,
+   "model_cpu_s": 613.0,
+   "peak_rss_mib": 3729.4
+  }
+ },
+ "fresh_family_bt_tasks_v1": {
+  "workflow": "model fills typed IR (1 run, 3 rounds) -> engineer corrects IR fields -> compiler -> signed expert suite -> approval -> ACTIVE",
+  "engineer_corrections": {
+   "sections": 6,
+   "leaf_field_edits": 49,
+   "of_draft_leaves": 87,
+   "human_time": "not measured"
+  },
+  "validation": {
+   "passed": true,
+   "expert_cases": 12,
+   "expert_passed": 12,
+   "counterexamples": 5,
+   "counterexamples_passed": 5
+  },
+  "unseen_decisions": 30,
+  "correct_strict": 26,
+  "correct_intended": 29,
+  "incorrect_positive_decisions": 0,
+  "correct_refusals": 10,
+  "false_activations": 0,
+  "false_activation_probes": 6,
+  "unauthorized_probes": 18,
+  "unauthorized_capability_used": 0,
+  "via_capability": 30,
+  "model_calls_on_capability_path": 0,
+  "median_wall_ms_capability": 0.2,
+  "acquisition_model_cpu_s": 480.86,
+  "baselines": {
+   "B1": {
+    "correct": 2,
+    "n": 30,
+    "per_task_cpu_s": 3.741,
+    "wrong_positive": 3,
+    "false_activation": 0
+   },
+   "B2": {
+    "correct": 1,
+    "n": 30,
+    "per_task_cpu_s": 8.251,
+    "wrong_positive": 20,
+    "false_activation": 2
+   },
+   "B3": {
+    "correct": 7,
+    "n": 30,
+    "per_task_cpu_s": 13.466,
+    "wrong_positive": 4,
+    "false_activation": 3
+   }
+  },
+  "break_even_uses_compute_only": {
+   "B1": 129,
+   "B2": 59,
+   "B3": 36
+  }
+ },
+ "headline": {
+  "valid capabilities proposed without manual correction (all methods, both families)": "0",
+  "compiling proposal rounds: old proposer vs typed-IR compiler (single form)": "3/9 vs 6/6",
+  "fresh family after engineer IR corrections: expert suite": "12/12",
+  "fresh family unseen decisions correct (strict / intended)": "26/30 / 29/30",
+  "incorrect positive decisions": 0,
+  "false activations": "0/6",
+  "unauthorized uses": "0/18",
+  "model calls during reuse": 0
+ }
+}

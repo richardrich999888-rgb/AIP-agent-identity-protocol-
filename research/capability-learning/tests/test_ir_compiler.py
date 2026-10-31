@@ -148,3 +148,24 @@ def test_identifier_style_cues_are_respelled_without_changing_rules():
     assert "specific gravity" in cues and "specific_gravity" not in cues
     assert out.capability["procedure"]["rules"] == compile_ir(BT_IR, spec("bt_hubt4.json")).capability["procedure"]["rules"]
     assert any(r["kind"] == "cue_underscore_to_space" for r in out.repairs)
+
+
+def _doc(task):
+    s = spec(task)
+    return open(os.path.join(HERE, "..", s["data"], s["doc_file"])).read()
+
+
+@pytest.mark.parametrize("ir, task", [(EP114_IR, "ir_ep114.json"), (BT_IR, "bt_hubt4.json")])
+def test_correct_procedures_have_full_document_provenance(ir, task):
+    from ir_compiler import provenance_check
+    assert provenance_check(ir, _doc(task)) == []
+
+
+def test_invented_threshold_is_flagged_and_needs_expert_correction():
+    from ir_compiler import triage
+    ir = copy.deepcopy(BT_IR)
+    ir["rules"][1]["number"] = 2.15  # not in HU-BT-4
+    t = triage(ir, spec("bt_hubt4.json"), _doc("bt_hubt4.json"), demo_agreement=6, demos=6)
+    assert t["status"] == "NEEDS_EXPERT_CORRECTION"
+    assert t["unsupported_numbers"] == [{"field": "rules[1].number", "value": 2.15}]
+    assert triage(BT_IR, spec("bt_hubt4.json"), _doc("bt_hubt4.json"), 6, 6)["status"] == "CANDIDATE_FOR_EXPERT_VALIDATION"

@@ -1,0 +1,118 @@
+[
+ {
+  "draft": "candidate_bt/round_1.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 2,
+  "reasons": [
+   "2 number(s) not stated in the document: [{'field': 'validity[2].max', 'value': 1.225}, {'field': 'rules[0].number', 'value': 52}]",
+   "disagrees with 6/6 expert demonstrations"
+  ]
+ },
+ {
+  "draft": "candidate_bt/round_2.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 2,
+  "reasons": [
+   "2 number(s) not stated in the document: [{'field': 'validity[2].max', 'value': 1.225}, {'field': 'rules[0].number', 'value': 52}]",
+   "disagrees with 6/6 expert demonstrations"
+  ]
+ },
+ {
+  "draft": "candidate_bt/round_3.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 2,
+  "reasons": [
+   "2 number(s) not stated in the document: [{'field': 'validity[2].max', 'value': 1.225}, {'field': 'rules[0].number', 'value': 52}]",
+   "disagrees with 6/6 expert demonstrations"
+  ]
+ },
+ {
+  "draft": "candidate_bt_decomposed/round_1.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 10,
+  "reasons": [
+   "does not compile: validity[2]: unit °C is not a cued unit",
+   "10 number(s) not stated in the document: [{'field': 'validity[0].min', 'value': 0}, {'field': 'validity[0].max', 'value': 100}, {'field': 'validity[2].min', 'value': 0}, {'field': 'validity[2].max', 'value': 100}, {'field': 'correction.reference', 'value': 0}, {'field': 'limit.coefficient', 'value': 0}, {'field': 'rules[3].number', 'value': 200}, {'field': 'rules[4].number', 'value': 35}, {'field': 'rules[5].number', 'value': 35}, {'field': 'rules[6].number', 'value': 35}]"
+  ]
+ },
+ {
+  "draft": "candidate_bt_decomposed/round_2.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 10,
+  "reasons": [
+   "does not compile: validity[2]: unit °C is not a cued unit",
+   "10 number(s) not stated in the document: [{'field': 'validity[0].min', 'value': 0}, {'field': 'validity[0].max', 'value': 100}, {'field': 'validity[2].min', 'value': 0}, {'field': 'validity[2].max', 'value': 100}, {'field': 'correction.reference', 'value': 0}, {'field': 'limit.coefficient', 'value': 0}, {'field': 'rules[3].number', 'value': 200}, {'field': 'rules[4].number', 'value': 35}, {'field': 'rules[5].number', 'value': 35}, {'field': 'rules[6].number', 'value': 35}]"
+  ]
+ },
+ {
+  "draft": "candidate_bt_decomposed/round_3.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 10,
+  "reasons": [
+   "does not compile: validity[2]: unit °C is not a cued unit",
+   "10 number(s) not stated in the document: [{'field': 'validity[0].min', 'value': 0}, {'field': 'validity[0].max', 'value': 100}, {'field': 'validity[2].min', 'value': 0}, {'field': 'validity[2].max', 'value': 100}, {'field': 'correction.reference', 'value': 0}, {'field': 'limit.coefficient', 'value': 0}, {'field': 'rules[3].number', 'value': 200}, {'field': 'rules[4].number', 'value': 35}, {'field': 'rules[5].number', 'value': 35}, {'field': 'rules[6].number', 'value': 35}]"
+  ]
+ },
+ {
+  "draft": "candidate_ir/round_1.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 1,
+  "reasons": [
+   "1 number(s) not stated in the document: [{'field': 'rules[2].number', 'value': 120}]",
+   "disagrees with 4/6 expert demonstrations"
+  ]
+ },
+ {
+  "draft": "candidate_ir/round_2.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 1,
+  "reasons": [
+   "1 number(s) not stated in the document: [{'field': 'rules[2].number', 'value': 120}]",
+   "disagrees with 4/6 expert demonstrations"
+  ]
+ },
+ {
+  "draft": "candidate_ir/round_3.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 1,
+  "reasons": [
+   "1 number(s) not stated in the document: [{'field': 'rules[2].number', 'value': 120}]",
+   "disagrees with 4/6 expert demonstrations"
+  ]
+ },
+ {
+  "draft": "candidate_ir_decomposed/round_1.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 7,
+  "reasons": [
+   "7 number(s) not stated in the document: [{'field': 'validity[0].min', 'value': 0}, {'field': 'validity[1].min', 'value': 0}, {'field': 'validity[1].max', 'value': 1000000}, {'field': 'correction.reference', 'value': 0}, {'field': 'rules[2].number', 'value': 120}, {'field': 'rules[3].number', 'value': 76}, {'field': 'rules[4].number', 'value': 2000}]",
+   "disagrees with 6/6 expert demonstrations"
+  ]
+ },
+ {
+  "draft": "candidate_ir_decomposed/round_2.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 7,
+  "reasons": [
+   "7 number(s) not stated in the document: [{'field': 'validity[0].min', 'value': 0}, {'field': 'validity[1].min', 'value': 0}, {'field': 'validity[1].max', 'value': 1000000}, {'field': 'correction.reference', 'value': 0}, {'field': 'rules[2].number', 'value': 120}, {'field': 'rules[3].number', 'value': 76}, {'field': 'rules[4].number', 'value': 2000}]",
+   "disagrees with 6/6 expert demonstrations"
+  ]
+ },
+ {
+  "draft": "candidate_ir_decomposed/round_3.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 7,
+  "reasons": [
+   "7 number(s) not stated in the document: [{'field': 'validity[0].min', 'value': 0}, {'field': 'validity[1].min', 'value': 0}, {'field': 'validity[1].max', 'value': 1000000}, {'field': 'correction.reference', 'value': 0}, {'field': 'rules[2].number', 'value': 120}, {'field': 'rules[3].number', 'value': 76}, {'field': 'rules[4].number', 'value': 2000}]",
+   "disagrees with 6/6 expert demonstrations"
+  ]
+ },
+ {
+  "draft": "corrected_bt/corrected.ir.json",
+  "status": "NEEDS_EXPERT_CORRECTION",
+  "unsupported_numbers": 0,
+  "reasons": [
+   "disagrees with 1/6 expert demonstrations"
+  ]
+ }
+]

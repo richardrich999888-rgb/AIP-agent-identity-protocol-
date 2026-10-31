@@ -267,3 +267,69 @@ def compile_ir(ir: dict, spec: dict) -> Compiled:
         "proposed_by": spec["proposed_by"],
     }
     return Compiled(cap, repairs)
+
+
+# ── Step C: deterministic evidence checks (no repair) ─────────────────────────
+
+NUMBER_WORDS = {"half": 0.5, "one": 1.0, "two": 2.0, "three": 3.0, "four": 4.0, "five": 5.0,
+                "ten": 10.0, "twice": 2.0, "double": 2.0}
+
+
+def document_numbers(doc: str) -> set:
+    """Every numeric value stated in the document (literals and number words)."""
+    import re
+
+    vals = {float(x) for x in re.findall(r"(?<![\w.])\d+(?:\.\d+)?", doc)}
+    vals |= {v for w, v in NUMBER_WORDS.items() if re.search(rf"\b{w}\b", doc, re.IGNORECASE)}
+    return vals
+
+
+def used_numbers(ir: dict) -> list:
+    """(path, value) of every number the procedure actually depends on."""
+    out = [(f"out_of_scope_limits[{k}].value", x["value"]) for k, x in enumerate(ir["out_of_scope_limits"])]
+    for k, v in enumerate(ir["validity"]):
+        out += [(f"validity[{k}].min", v["min"]), (f"validity[{k}].max", v["max"])]
+    c = ir["correction"]
+    if c["template"] == "add_per_degree":
+        out += [("correction.reference", c["reference"]), ("correction.rate", c["rate"])]
+    elif c["template"] == "multiply_power_per_degree":
+        out += [("correction.reference", c["reference"]), ("correction.base", c["base"]), ("correction.step", c["step"])]
+    lim = ir["limit"]
+    if lim["template"] == "constant":
+        out.append(("limit.coefficient", lim["coefficient"]))
+    elif lim["template"] == "coefficient_times_input_plus_offset":
+        out += [("limit.coefficient", lim["coefficient"]), ("limit.offset", lim["offset"])]
+    for k, r in enumerate(ir["rules"]):
+        out.append((f"rules[{k}].number", r["number"]) if r["against"] == "number" else (f"rules[{k}].limit_fraction", r["limit_fraction"]))
+    return out
+
+
+def provenance_check(ir: dict, doc: str) -> list:
+    """Numbers in the IR that the document does not state (offset 0 and
+    limit_fraction 1 are the identity and need no source)."""
+    stated = document_numbers(doc)
+    bad = []
+    for path, v in used_numbers(ir):
+        if (path.endswith(".offset") and v == 0) or (path.endswith("limit_fraction") and v == 1):
+            continue
+        if float(v) not in stated:
+            bad.append({"field": path, "value": v})
+    return bad
+
+
+def triage(ir: dict, spec: dict, doc: str, demo_agreement: int | None, demos: int) -> dict:
+    """Step E: CANDIDATE_FOR_EXPERT_VALIDATION only when the IR compiles, every
+    number has document provenance and every demonstration agrees; otherwise
+    NEEDS_EXPERT_CORRECTION with the reasons. Nothing is repaired here."""
+    reasons = []
+    try:
+        compile_ir(ir, spec)
+    except (IRError, KeyError) as e:
+        reasons.append(f"does not compile: {e}")
+    unsupported = provenance_check(ir, doc)
+    if unsupported:
+        reasons.append(f"{len(unsupported)} number(s) not stated in the document: {unsupported}")
+    if demo_agreement is not None and demo_agreement < demos:
+        reasons.append(f"disagrees with {demos - demo_agreement}/{demos} expert demonstrations")
+    return {"status": "NEEDS_EXPERT_CORRECTION" if reasons else "CANDIDATE_FOR_EXPERT_VALIDATION", "reasons": reasons,
+            "unsupported_numbers": unsupported}

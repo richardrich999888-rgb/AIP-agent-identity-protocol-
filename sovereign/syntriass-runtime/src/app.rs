@@ -164,6 +164,13 @@ impl<'a> Runtime<'a> {
         if a.capability_hash != r.capability_hash {
             return Some("approval is for different content".into());
         }
+        // Consequential capabilities would need AIP action authorization bound to
+        // the capability version, inputs and scope, executed by the authorized
+        // runner. That path is not integrated in this runtime, so they are
+        // disabled (fail closed) rather than run without it.
+        if a.consequential {
+            return Some("consequential capabilities are disabled: AIP action authorization is not integrated in this runtime".into());
+        }
         match self.cfg.approvers.get(&a.approver_id) {
             Some(pk) if a.verify(pk) => {}
             _ => return Some("approval not signed by a trusted approver".into()),
@@ -454,11 +461,19 @@ impl<'a> Runtime<'a> {
         cost.model_load_ms += load;
         Self::record_calls(cost, &calls);
         let a = result.ok_or_else(|| other("no answer"))?;
-        let sources = a.sources.iter().map(|s| s.doc_id.clone()).collect();
+        let sources: Vec<String> = a.sources.iter().map(|s| s.doc_id.clone()).collect();
         Ok(match (&a.outcome, a.released()) {
             (RagOutcome::NoAuthorizedSource, _) => Outcome::Withheld {
                 reason: "no authorized source".into(),
             },
+            (_, Some(t)) if crate::domain::answer_check::unfinished_calculation(text, t) => {
+                Outcome::Withheld {
+                    reason: format!(
+                        "calculation not completed: the authorised source gives the rule \"{t}\" ({}), but the value for this request was not computed",
+                        sources.join(", ")
+                    ),
+                }
+            }
             (_, Some(t)) => Outcome::Answer {
                 text: t.to_string(),
                 sources,

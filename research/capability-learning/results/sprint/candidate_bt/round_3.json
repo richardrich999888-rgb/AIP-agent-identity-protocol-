@@ -1,0 +1,136 @@
+{
+ "id": "halvorn.hubt4.cell-float.compiled",
+ "version": 1,
+ "intended_task": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B",
+ "outcomes": [
+  "ACCEPT",
+  "EQUALIZE",
+  "REPLACE_CELL",
+  "REDUCE_FLOAT",
+  "INVALID_TEST",
+  "OUT_OF_SCOPE",
+  "INSUFFICIENT_INPUT"
+ ],
+ "applicability": {
+  "any_terms": [
+   "cell",
+   "float",
+   "voltage",
+   "temperature",
+   "specific_gravity",
+   "V",
+   "volt",
+   "volts",
+   "kV",
+   "SPECIFIC_GRAVITY",
+   "electrolyte_temperature",
+   "ELECTROLYTE_TEMPERATURE"
+  ],
+  "min_inputs_present": 2
+ },
+ "procedure": {
+  "inputs": [
+   {
+    "name": "voltage",
+    "kind": "voltage",
+    "cues": []
+   },
+   {
+    "name": "temperature",
+    "kind": "temperature",
+    "cues": []
+   },
+   {
+    "name": "cued_1",
+    "kind": "cued",
+    "cues": [
+     "specific_gravity",
+     "SPECIFIC_GRAVITY"
+    ]
+   },
+   {
+    "name": "cued_2",
+    "kind": "cued",
+    "cues": [
+     "electrolyte_temperature",
+     "ELECTROLYTE_TEMPERATURE"
+    ]
+   }
+  ],
+  "text_guards": [
+   {
+    "any_terms": [
+     "lithium",
+     "nickel-cadmium",
+     "NiCd"
+    ],
+    "outcome": "OUT_OF_SCOPE"
+   }
+  ],
+  "numeric_guards": [],
+  "missing_input_outcome": "INSUFFICIENT_INPUT",
+  "derive": [],
+  "rules": [
+   {
+    "when": "temperature < 5.0 or temperature > 45.0",
+    "outcome": "INVALID_TEST"
+   },
+   {
+    "when": "voltage < 0.0021000000000000003 or voltage > 0.0023",
+    "outcome": "INVALID_TEST"
+   },
+   {
+    "when": "cued_1 < 1.2 or cued_1 > 1.225",
+    "outcome": "INVALID_TEST"
+   },
+   {
+    "when": "temperature > 52.0",
+    "outcome": "INVALID_TEST"
+   },
+   {
+    "when": "voltage < 0.00217",
+    "outcome": "REPLACE_CELL"
+   },
+   {
+    "when": "cued_1 < 2.17",
+    "outcome": "REPLACE_CELL"
+   },
+   {
+    "when": "voltage < 0.0023",
+    "outcome": "REDUCE_FLOAT"
+   },
+   {
+    "when": "cued_1 < 1.2",
+    "outcome": "EQUALIZE"
+   }
+  ],
+  "default_outcome": "INSUFFICIENT_INPUT"
+ },
+ "required": {
+  "tenant": "halvorn-power",
+  "min_clearance": "restricted",
+  "security_domain": "halvorn-ot"
+ },
+ "dependencies": {
+  "knowledge": {
+   "hu-bt-4": ""
+  },
+  "policy_version": "hu-bt-4-revB",
+  "execution_model_sha256": null
+ },
+ "evidence_refs": [
+  "hu-bt-4",
+  "demo-0",
+  "demo-1",
+  "demo-2",
+  "demo-3",
+  "demo-4",
+  "demo-5"
+ ],
+ "failure_conditions": [
+  "an input appears twice with different values",
+  "a unit the runtime does not recognise"
+ ],
+ "tests": [],
+ "proposed_by": "model:d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8"
+}

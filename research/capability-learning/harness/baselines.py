@@ -35,6 +35,7 @@ SCHEMA = {"type": "object", "properties": {"label": {"enum": LABELS}}, "required
 RANK = {"public": 0, "internal": 1, "restricted": 2}
 TOP_K = 2
 PRINCIPAL = ("koravi-process", "restricted")
+TASK_NOUN = "motor insulation-resistance test"
 
 
 def rows(name: str) -> list[dict]:
@@ -71,7 +72,7 @@ def demo_block() -> str:
 
 
 def messages(kind: str, text: str, db) -> tuple[list[dict], list[str]]:
-    instr = ("Classify the request about a motor insulation-resistance test into exactly one label. "
+    instr = (f"Classify the request about a {TASK_NOUN} into exactly one label. "
              f"Labels: {', '.join(LABELS)}. Use NOT_APPLICABLE when the request does not ask for a test decision.")
     parts, docs = [instr], []
     if kind in ("B2", "B3"):
@@ -92,7 +93,16 @@ def main() -> None:
     ap.add_argument("--model-sha", required=True)
     ap.add_argument("--server", required=True)
     ap.add_argument("--port", type=int, default=8420)
+    ap.add_argument("--task", help="task spec JSON (default: ir-tasks-v1, as originally run)")
     a = ap.parse_args()
+    if a.task:
+        global DATA, LABELS, SCHEMA, PRINCIPAL, TASK_NOUN
+        t = json.load(open(a.task))
+        DATA = os.path.join(ROOT, "research/capability-learning", t["data"])
+        LABELS = t["outcomes"] + ["NOT_APPLICABLE", "AMBIGUOUS"]
+        SCHEMA = {"type": "object", "properties": {"label": {"enum": LABELS}}, "required": ["label"]}
+        PRINCIPAL = (t["tenant"], t["clearance"])
+        TASK_NOUN = t["intended_task"]
     os.makedirs(a.out, exist_ok=True)
     h = hashlib.sha256()
     with open(a.model, "rb") as f:

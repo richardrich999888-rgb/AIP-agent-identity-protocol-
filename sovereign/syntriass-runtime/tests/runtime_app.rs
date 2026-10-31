@@ -185,6 +185,10 @@ struct World {
 }
 
 fn world(execution_model: Option<&str>) -> World {
+    world_with(execution_model, false)
+}
+
+fn world_with(execution_model: Option<&str>, consequential: bool) -> World {
     let mut corpus = SqliteCorpus::in_memory().unwrap();
     let h = ingest_file(&mut corpus, "koravi-ep-114.txt");
     ingest_file(&mut corpus, "koravi-ep-090.txt");
@@ -206,7 +210,7 @@ fn world(execution_model: Option<&str>) -> World {
         &rec.capability_hash,
         rec.validation.as_ref().unwrap(),
         approver,
-        false,
+        consequential,
         3,
         &kp.private_key,
     )
@@ -510,4 +514,25 @@ fn audit_chain_verifies_and_detects_tampering() {
     assert!(log.contains("CannotProve"));
     std::fs::write(w.audit.path(), log.replacen("PASS", "REJECT", 1)).unwrap();
     assert!(verify_audit_chain(w.audit.path()).is_err());
+}
+
+#[test]
+fn consequential_capabilities_are_disabled_until_aip_action_authorization_exists() {
+    let w = world_with(None, true);
+    let m = models("{}");
+    let rt = Runtime::new(cfg(&w), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let p = principal("koravi-process", Classification::Restricted);
+    let r = rt.handle(&p, IR_TASK).unwrap();
+    assert!(
+        !matches!(r.strategy, Strategy::Capability { .. }),
+        "a consequential capability must not run without AIP action authorization"
+    );
+    let id = w.store.0[0].capability.id.clone();
+    let r = rt.invoke(&p, &id, IR_TASK).unwrap();
+    match r.strategy {
+        Strategy::Refuse(Refusal::NotPermitted { reason, .. }) => {
+            assert!(reason.contains("consequential"))
+        }
+        other => panic!("expected NotPermitted, got {other:?}"),
+    }
 }

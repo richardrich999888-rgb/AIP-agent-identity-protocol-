@@ -1,0 +1,143 @@
+{
+ "id": "halvorn.hubt4.cell-float.baseline-a",
+ "version": 1,
+ "intended_task": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B",
+ "outcomes": [
+  "ACCEPT",
+  "EQUALIZE",
+  "REPLACE_CELL",
+  "REDUCE_FLOAT",
+  "INVALID_TEST",
+  "OUT_OF_SCOPE",
+  "INSUFFICIENT_INPUT"
+ ],
+ "applicability": {
+  "any_terms": [
+   "cell",
+   "float",
+   "voltage",
+   "electrolyte",
+   "temperature",
+   "specific gravity"
+  ],
+  "min_inputs_present": 2
+ },
+ "procedure": {
+  "inputs": [
+   {
+    "name": "cell_float_voltage",
+    "kind": "voltage",
+    "cues": []
+   },
+   {
+    "name": "electrolyte_temp",
+    "kind": "temperature",
+    "cues": [
+     "temperature",
+     "electrolyte"
+    ]
+   },
+   {
+    "name": "specific_gravity",
+    "kind": "cued",
+    "cues": [
+     "SG",
+     "specific gravity"
+    ]
+   }
+  ],
+  "text_guards": [
+   {
+    "any_terms": [
+     "lithium",
+     "nickel-cadmium",
+     "NiCd"
+    ],
+    "outcome": "OUT_OF_SCOPE"
+   }
+  ],
+  "numeric_guards": [
+   {
+    "when": "cell_float_voltage > 3",
+    "outcome": "OUT_OF_SCOPE"
+   }
+  ],
+  "missing_input_outcome": "INSUFFICIENT_INPUT",
+  "derive": [
+   {
+    "name": "cell_float_voltage_2",
+    "expr": "cell_float_voltage + 0.003 * (25 - electrolyte_temp)"
+   },
+   {
+    "name": "cell_float_voltage_3",
+    "expr": "cell_float_voltage - 0.003 * (25 - electrolyte_temp)"
+   },
+   {
+    "name": "cell_float_voltage_4",
+    "expr": "cell_float_voltage + 0.03 * (electrolyte_temp - 25)"
+   },
+   {
+    "name": "cell_float_voltage_5",
+    "expr": "cell_float_voltage - 0.03 * (electrolyte_temp - 25)"
+   },
+   {
+    "name": "cell_float_voltage_6",
+    "expr": "cell_float_voltage + 0.003 * (electrolyte_temp - 25)"
+   },
+   {
+    "name": "cell_float_voltage_7",
+    "expr": "cell_float_voltage - 0.003 * (electrolyte_temp - 25)"
+   }
+  ],
+  "rules": [
+   {
+    "when": "electrolyte_temp < 5 or electrolyte_temp > 45",
+    "outcome": "INVALID_TEST"
+   },
+   {
+    "when": "cell_float_voltage_2 < 2.17",
+    "outcome": "REPLACE_CELL"
+   },
+   {
+    "when": "cell_float_voltage_2 < 2.17 and cell_float_voltage_3 > 2.30",
+    "outcome": "EQUALIZE"
+   },
+   {
+    "when": "cell_float_voltage_4 > 2.30",
+    "outcome": "REDUCE_FLOAT"
+   },
+   {
+    "when": "specific_gravity < 1.200",
+    "outcome": "EQUALIZE"
+   }
+  ],
+  "default_outcome": "ACCEPT"
+ },
+ "required": {
+  "tenant": "halvorn-power",
+  "min_clearance": "restricted",
+  "security_domain": "halvorn-ot"
+ },
+ "dependencies": {
+  "knowledge": {
+   "hu-bt-4": ""
+  },
+  "policy_version": "hu-bt-4-revB",
+  "execution_model_sha256": null
+ },
+ "evidence_refs": [
+  "hu-bt-4",
+  "demo-0",
+  "demo-1",
+  "demo-2",
+  "demo-3",
+  "demo-4",
+  "demo-5"
+ ],
+ "failure_conditions": [
+  "an input appears twice with different values",
+  "a unit the runtime does not recognise"
+ ],
+ "tests": [],
+ "proposed_by": "model:d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8"
+}
