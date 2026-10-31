@@ -1,6 +1,7 @@
 """Write a runtime config and ingest the evaluation corpora into a fresh state dir.
 
 usage: mkconfig.py STATE_DIR PROFILE [--approvers approvers.json] [--experts experts.json] [--port N]
+                   [--domain D] [--policy P] [--corpus DIR ...]
 Corpora: Sovereign eval corpus (plant-alpha/beta), ir-tasks-v1 (koravi-process,
 tarvel-grid). Model paths/hashes are the pinned ones from
 research/compute-memory/bench/run_all.sh.
@@ -29,10 +30,14 @@ def main() -> None:
     if "--experts" in sys.argv:
         experts = json.load(open(sys.argv[sys.argv.index("--experts") + 1]))
     port = int(sys.argv[sys.argv.index("--port") + 1]) if "--port" in sys.argv else 8301
+    def opt(name, default):
+        return sys.argv[sys.argv.index(name) + 1] if name in sys.argv else default
+    domain, policy = opt("--domain", "koravi-ot"), opt("--policy", "ep-114-revC")
+    extra = [sys.argv[i + 1] for i, x in enumerate(sys.argv) if x == "--corpus"]
     shutil.rmtree(state, ignore_errors=True)
     os.makedirs(state)
     cfg = {
-        "state": os.path.abspath(state), "policy_version": "ep-114-revC", "security_domain": "koravi-ot", "rag_k": 3,
+        "state": os.path.abspath(state), "policy_version": policy, "security_domain": domain, "rag_k": 3,
         "approvers": approvers, "experts": experts, "python": "/usr/local/bin/python3",
         "sidecar_script": os.path.join(ROOT, "research/system-one/harness/sidecar.py"),
         "llama_server": LLAMA, "profile": profile, "port": port,
@@ -41,7 +46,8 @@ def main() -> None:
     }
     path = os.path.join(state, "config.json")
     json.dump(cfg, open(path, "w"), indent=1)
-    docs = sorted(glob.glob(os.path.join(ROOT, "sovereign/eval/corpus/*.txt"))) + sorted(glob.glob(os.path.join(ROOT, "research/capability-learning/data/ir-tasks-v1/corpus/*.txt")))
+    docs = sorted(glob.glob(os.path.join(ROOT, "sovereign/eval/corpus/*.txt"))) + sorted(glob.glob(os.path.join(ROOT, "research/capability-learning/data/ir-tasks-v1/corpus/*.txt"))) + \
+        [f for d in extra for f in sorted(glob.glob(os.path.join(d, "*.txt")))]
     out = subprocess.run([BIN, "ingest", "--config", path, *docs], capture_output=True, text=True, check=True)
     print(json.dumps({"config": path, "ingested": len(out.stdout.splitlines())}))
 
