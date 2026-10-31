@@ -1,0 +1,43 @@
+{
+  "method": "http_plain",
+  "size_mib": 256,
+  "peers": 5,
+  "peer_mbit": 100,
+  "src_mbit": 100.0,
+  "kill": null,
+  "corrupt": null,
+  "restart": false,
+  "killed_at_progress": null,
+  "completed": [
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "p5"
+  ],
+  "timed_out": false,
+  "fleet_seconds": 113.07,
+  "per_peer_seconds": {
+    "p1": 89.54,
+    "p2": 110.87,
+    "p3": 112.07,
+    "p4": 112.47,
+    "p5": 113.07
+  },
+  "src_tx_bytes": 1345767483,
+  "total_tx_bytes": 1349351676,
+  "payload_bytes": 268435456,
+  "cpu_seconds": 10.03,
+  "peak_rss_mb": 29.7,
+  "verified": {
+    "p1": true,
+    "p2": true,
+    "p3": true,
+    "p4": true,
+    "p5": true
+  },
+  "all_verified": true,
+  "hash_failures": 0,
+  "restarted_peer_bytes_received": null,
+  "sha256": "d0fbc7b218c5eb0a623a1eec2a80a14ca71e9aec32c21ba12c4ffa688343993f"
+}
