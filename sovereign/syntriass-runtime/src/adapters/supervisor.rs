@@ -83,13 +83,29 @@ fn perr(m: impl Into<String>) -> PortError {
     PortError::new(PortErrorKind::Inference, m)
 }
 
-/// SHA-256 of a file (streamed).
+/// Read buffer for streaming hashes (bounded memory regardless of file size).
+const HASH_CHUNK: usize = 1 << 20;
+
+/// SHA-256 of a file, streamed in [`HASH_CHUNK`] blocks.
+///
+/// Rationale: the earlier one-shot version read the whole model into memory
+/// (measured: runtime RSS 6 → 838 MB while verifying a 1.1 GB model).
 pub fn file_sha256(path: &Path) -> Result<String, PortError> {
-    // aip_crypto exposes one-shot sha256 only; a model file is read whole.
-    // Peak cost: file size in RAM, briefly — acceptable for ≤ 2 GB weights on
-    // the research host, and the page cache is warm for the load right after.
-    let b = std::fs::read(path).map_err(|e| perr(format!("{}: {e}", path.display())))?;
-    Ok(hex::encode(aip_crypto::sha256(&b)))
+    use sha2::{Digest, Sha256};
+    use std::io::Read;
+    let mut f = std::fs::File::open(path).map_err(|e| perr(format!("{}: {e}", path.display())))?;
+    let mut h = Sha256::new();
+    let mut buf = vec![0u8; HASH_CHUNK];
+    loop {
+        let n = f
+            .read(&mut buf)
+            .map_err(|e| perr(format!("{}: {e}", path.display())))?;
+        if n == 0 {
+            break;
+        }
+        h.update(&buf[..n]);
+    }
+    Ok(hex::encode(h.finalize()))
 }
 
 /// A running, verified model server.
@@ -227,4 +243,35 @@ fn set_mode_0700(p: &Path) -> Result<(), PortError> {
     use std::os::unix::fs::PermissionsExt;
     std::fs::set_permissions(p, std::fs::Permissions::from_mode(0o700))
         .map_err(|e| perr(e.to_string()))
+}
+
+#[cfg(test)]
+mod hash_tests {
+    use super::*;
+
+    #[test]
+    fn streamed_hash_matches_one_shot_across_chunk_boundaries() {
+        for len in [
+            0usize,
+            1,
+            HASH_CHUNK - 1,
+            HASH_CHUNK,
+            HASH_CHUNK + 1,
+            3 * HASH_CHUNK + 7,
+        ] {
+            let data: Vec<u8> = (0..len).map(|i| (i * 31 % 251) as u8).collect();
+            let f = tempfile::NamedTempFile::new().unwrap();
+            std::fs::write(f.path(), &data).unwrap();
+            assert_eq!(
+                file_sha256(f.path()).unwrap(),
+                hex::encode(aip_crypto::sha256(&data)),
+                "len {len}"
+            );
+        }
+    }
+
+    #[test]
+    fn missing_file_is_an_error() {
+        assert!(file_sha256(Path::new("/nonexistent/model.gguf")).is_err());
+    }
 }
