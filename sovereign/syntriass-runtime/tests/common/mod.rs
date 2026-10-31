@@ -170,5 +170,6 @@ pub fn expert_fixture() -> Capability {
         // separately signed expert suite (see `expert_suite`).
         tests: vec![],
         proposed_by: "user:koravi-engineer-7".into(),
+        evidence: Default::default(),
     }
 }

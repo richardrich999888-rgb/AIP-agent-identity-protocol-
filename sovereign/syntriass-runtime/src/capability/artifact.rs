@@ -17,6 +17,7 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
+use super::evidence::{values_from_record, EvidencePolicy, MeasurementRecord};
 use super::expr::{
     eval, eval_cond, parse_cond, parse_expr, vars_cond, vars_expr, Cond, Expr, ExprError,
 };
@@ -153,6 +154,10 @@ pub struct Capability {
     pub tests: Vec<TestCase>,
     /// Who proposed it: principal id, or `model:<sha256>` for a model proposal.
     pub proposed_by: String,
+    /// Where input numbers may come from (S1). Omitted when `Text`, so the
+    /// content hash of every pre-existing capability is unchanged.
+    #[serde(default, skip_serializing_if = "EvidencePolicy::is_text")]
+    pub evidence: EvidencePolicy,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -197,6 +202,9 @@ pub enum Execution {
     },
     /// Evaluation error (division by zero, non-finite…). Never guessed past.
     Failed(String),
+    /// The capability decides only on a signed measurement record (S1) and
+    /// none was supplied; text numbers are never used instead.
+    EvidenceRequired,
 }
 
 impl Capability {
@@ -345,6 +353,32 @@ impl Capability {
         terms.iter().any(|t| !find_term(text_lower, t).is_empty())
     }
 
+    /// Strength of match for routing among several applicable capabilities
+    /// (S2, strongest-fit router): number of this capability's inputs found
+    /// in the text, plus one if a topic term (an applicability term that is
+    /// not a unit spelling) occurs. Unit spellings are shared by every
+    /// capability on the same physics and so cannot discriminate between them
+    /// (round-1 collision experiment: 4/130 → 117/130 decided correctly).
+    pub fn fit(&self, text: &str) -> u32 {
+        let lower: Vec<char> = text
+            .chars()
+            .take(MAX_TEXT_CHARS)
+            .flat_map(|c| c.to_lowercase())
+            .collect();
+        let topic: Vec<String> = self
+            .applicability
+            .any_terms
+            .iter()
+            .filter(|t| quantities(&format!("1 {t}")).is_empty())
+            .cloned()
+            .collect();
+        let inputs = match self.extract(text) {
+            Ok(m) => m.len(),
+            Err(_) => self.procedure.inputs.len(),
+        };
+        inputs as u32 + u32::from(Self::has_any(&lower, &topic))
+    }
+
     /// Does the capability apply to this text? (No decision is made.)
     pub fn applies(&self, text: &str) -> bool {
         let lower: Vec<char> = text
@@ -369,15 +403,67 @@ impl Capability {
         if !self.applies(text) {
             return Execution::NotApplicable;
         }
+        if self.evidence == EvidencePolicy::SignedRecord {
+            return Execution::EvidenceRequired;
+        }
+        let env = match self.extract(text) {
+            Ok(m) => m,
+            Err(input) => return Execution::Ambiguous { input },
+        };
+        self.decide(c, text, env)
+    }
+
+    /// Run the procedure on numbers in text whatever the evidence policy.
+    /// Only for text whose numbers are vouched for by a signature other than
+    /// an instrument's: cases in an expert-signed validation suite, and
+    /// independently verified experience under review. Never on requests.
+    pub fn execute_attested_text(&self, c: &Compiled, text: &str) -> Execution {
+        if !self.applies(text) {
+            return Execution::NotApplicable;
+        }
+        match self.extract(text) {
+            Ok(env) => self.decide(c, text, env),
+            Err(input) => Execution::Ambiguous { input },
+        }
+    }
+
+    /// S1: run on a record the caller has ALREADY verified
+    /// (`MeasurementRecord::verify`). The text selects and scope-checks;
+    /// every number comes from the record. Applicability: a topic or cue
+    /// term in the text and at least `min_inputs_present` inputs in the record.
+    pub fn execute_with_record(
+        &self,
+        c: &Compiled,
+        text: &str,
+        rec: &MeasurementRecord,
+    ) -> Execution {
+        let env = match values_from_record(self, rec) {
+            Ok(m) => m,
+            Err(super::evidence::RecordError::Conflict(input)) => {
+                return Execution::Ambiguous { input }
+            }
+            Err(e) => return Execution::Failed(format!("record: {e:?}")),
+        };
         let lower: Vec<char> = text
             .chars()
             .take(MAX_TEXT_CHARS)
             .flat_map(|c| c.to_lowercase())
             .collect();
-        let mut env = match self.extract(text) {
-            Ok(m) => m,
-            Err(input) => return Execution::Ambiguous { input },
-        };
+        if !Self::has_any(&lower, &self.applicability.any_terms)
+            || env.len() < self.applicability.min_inputs_present
+        {
+            return Execution::NotApplicable;
+        }
+        self.decide(c, text, env)
+    }
+
+    /// Guards, missing inputs, derived values, rules, default — on `env`.
+    fn decide(&self, c: &Compiled, text: &str, mut env: BTreeMap<String, f64>) -> Execution {
+        let lower: Vec<char> = text
+            .chars()
+            .take(MAX_TEXT_CHARS)
+            .flat_map(|c| c.to_lowercase())
+            .collect();
         for (k, g) in self.procedure.text_guards.iter().enumerate() {
             if Self::has_any(&lower, &g.any_terms) {
                 return Execution::Decided {

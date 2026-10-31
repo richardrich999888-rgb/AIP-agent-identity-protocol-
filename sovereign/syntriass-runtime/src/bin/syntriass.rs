@@ -22,7 +22,10 @@
 //! syntriass cap-history  --config CFG --id ID              versions, transitions, audited uses per version
 //! syntriass health --config CFG [--quick]                   install/health checks; exit 1 if any fails
 //!                                                           (--quick: skip model hashing, reported as unverified)
-//! syntriass cap-check --file CAP.json --cases JSONL   dry run: compile + label each case (no state change)
+//! syntriass cap-check --file CAP.json --cases JSONL [--instruments KEYS.json]
+//!                                                 dry run: compile + label each case (no state change);
+//!                                                 a case may carry a signed "record" (S1)
+//! syntriass record-sign --key INSTRUMENT_KEY --in RECORDS.jsonl   sign measurement records (S1)
 //! ```
 //!
 //! Run inside a network namespace with only loopback (see
@@ -43,6 +46,8 @@ use syntriass_runtime::adapters::store::FileStore;
 use syntriass_runtime::adapters::supervisor::Profile;
 use syntriass_runtime::app::{verify_audit_chain, Config, Runtime};
 use syntriass_runtime::capability::artifact::Capability;
+use syntriass_runtime::capability::artifact::Execution;
+use syntriass_runtime::capability::evidence::MeasurementRecord;
 use syntriass_runtime::capability::experience::Experience;
 use syntriass_runtime::capability::lifecycle::{Record, Role, State};
 use syntriass_runtime::capability::memory;
@@ -70,6 +75,9 @@ struct FileConfig {
     /// expert id → public key hex (trust anchors for validation suites)
     #[serde(default)]
     experts: BTreeMap<String, String>,
+    /// instrument id → public key hex (who may sign measurement records, S1)
+    #[serde(default)]
+    instruments: BTreeMap<String, String>,
     python: PathBuf,
     sidecar_script: PathBuf,
     llama_server: PathBuf,
@@ -334,6 +342,29 @@ fn standalone(cmd: &str, args: &[String]) -> bool {
             );
             true
         }
+        "record-sign" => {
+            // Sign unsigned measurement records (one JSON per line) with an instrument key.
+            let k = read_key(req(args, "--key"));
+            let input = req(args, "--in");
+            for l in std::fs::read_to_string(input)
+                .unwrap_or_else(|e| die(format!("{input}: {e}")))
+                .lines()
+                .filter(|l| !l.trim().is_empty())
+            {
+                let mut r: MeasurementRecord =
+                    serde_json::from_str(l).unwrap_or_else(|e| die(format!("record: {e}")));
+                if r.instrument_id != k.id {
+                    die(format!(
+                        "record {} names instrument {}, key is {}",
+                        r.record_id, r.instrument_id, k.id
+                    ));
+                }
+                r.signature_hex = String::new();
+                let r = r.sign(&hexkey(&k.private_hex)).unwrap_or_else(|e| die(e));
+                println!("{}", serde_json::to_string(&r).unwrap_or_default());
+            }
+            true
+        }
         "cap-check" => {
             use syntriass_runtime::capability::validate::label;
             let f = req(args, "--file");
@@ -349,6 +380,17 @@ fn standalone(cmd: &str, args: &[String]) -> bool {
                 }
             };
             let cp = req(args, "--cases");
+            // Optional instrument trust anchors for cases that carry a signed record.
+            let instruments: BTreeMap<String, Vec<u8>> = opt(args, "--instruments")
+                .map(|f| {
+                    keys(
+                        &serde_json::from_slice(
+                            &std::fs::read(f).unwrap_or_else(|e| die(format!("{f}: {e}"))),
+                        )
+                        .unwrap_or_else(|e| die(format!("{f}: {e}"))),
+                    )
+                })
+                .unwrap_or_default();
             for l in std::fs::read_to_string(cp)
                 .unwrap_or_else(|e| die(format!("{cp}: {e}")))
                 .lines()
@@ -358,9 +400,20 @@ fn standalone(cmd: &str, args: &[String]) -> bool {
                 }
                 let v: Value = serde_json::from_str(l).unwrap_or_else(|e| die(e));
                 let text = v["text"].as_str().unwrap_or_default();
+                let exec = match v.get("record").filter(|x| !x.is_null()) {
+                    None => cap.execute(&compiled, text),
+                    Some(x) => {
+                        let rec: MeasurementRecord = serde_json::from_value(x.clone())
+                            .unwrap_or_else(|e| die(format!("record: {e}")));
+                        match rec.verify(&cap.required.tenant, &instruments) {
+                            Ok(()) => cap.execute_with_record(&compiled, text, &rec),
+                            Err(e) => Execution::Failed(format!("record rejected: {e:?}")),
+                        }
+                    }
+                };
                 println!(
                     "{}",
-                    json!({"id": v["id"], "got": label(&cap.execute(&compiled, text)), "expected": v["label"]})
+                    json!({"id": v["id"], "got": label(&exec), "expected": v["label"]})
                 );
             }
             true
@@ -563,6 +616,7 @@ fn main() {
                 audit_log: audit.clone(),
                 rag_k: c.rag_k,
                 approvers,
+                instruments: keys(&c.instruments),
             };
             let rt = Runtime::new(rt_cfg, &corpus, &sidecar, &pool, &store, &meter);
             eprintln!("{}", json!({"sidecar": health, "profile": c.profile}));
@@ -591,9 +645,13 @@ fn main() {
                         let v: Value = serde_json::from_str(&line).map_err(|e| e.to_string())?;
                         let p = principal_from(&v["principal"])?;
                         let text = v["text"].as_str().ok_or("text")?;
+                        let record: Option<MeasurementRecord> = match v.get("record") {
+                            None | Some(Value::Null) => None,
+                            Some(x) => Some(serde_json::from_value(x.clone()).map_err(|e| format!("record: {e}"))?),
+                        };
                         let r = match v["capability"].as_str() {
                             Some(id) => rt.invoke(&p, id, text),
-                            None => rt.handle(&p, text),
+                            None => rt.handle_with_record(&p, text, record.as_ref()),
                         }
                         .map_err(|e| e.to_string())?;
                         Ok(json!({"id": v["id"], "response": r}))

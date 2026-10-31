@@ -17,6 +17,7 @@ use vanian_sovereign::ports::{GenerationParams, PortError, PortErrorKind};
 use vanian_sovereign::rag::{self, Outcome as RagOutcome};
 
 use crate::capability::artifact::Execution;
+use crate::capability::evidence::{EvidencePolicy, MeasurementRecord};
 use crate::capability::lifecycle::Record;
 use crate::controller::{
     escalate, is_question, route, Candidate, Features, Refusal, Strategy, Tier, Withhold,
@@ -52,6 +53,8 @@ pub struct Config {
     pub rag_k: usize,
     /// approver id → Ed25519 public key (operator-configured trust anchors).
     pub approvers: BTreeMap<String, Vec<u8>>,
+    /// instrument id → Ed25519 public key: who may sign measurement records (S1).
+    pub instruments: BTreeMap<String, Vec<u8>>,
 }
 
 /// What the caller receives.
@@ -236,6 +239,7 @@ impl<'a> Runtime<'a> {
                 id: r.capability.id.clone(),
                 hash: r.capability_hash.clone(),
                 stale,
+                fit: r.capability.fit(text),
             });
             recs.push(r);
         }
@@ -291,7 +295,7 @@ impl<'a> Runtime<'a> {
                     None,
                 ),
                 None => {
-                    let (o, h) = self.run_capability(r, text);
+                    let (o, h) = self.run_capability(r, p, text, None);
                     (
                         Strategy::Capability {
                             id: r.capability.id.clone(),
@@ -315,12 +319,29 @@ impl<'a> Runtime<'a> {
         )
     }
 
-    fn run_capability(&self, r: &Record, text: &str) -> (Outcome, Option<String>) {
+    fn run_capability(
+        &self,
+        r: &Record,
+        p: &Principal,
+        text: &str,
+        record: Option<&MeasurementRecord>,
+    ) -> (Outcome, Option<String>) {
+        let signed = r.capability.evidence == EvidencePolicy::SignedRecord;
         let o = match r.capability.compile() {
             Err(e) => Outcome::Withheld {
                 reason: format!("capability no longer compiles: {e:?}"),
             },
-            Ok(c) => match r.capability.execute(&c, text) {
+            Ok(c) => match match (signed, record) {
+                (false, _) => r.capability.execute(&c, text),
+                (true, None) => Execution::EvidenceRequired,
+                (true, Some(rec)) => match rec.verify(p.tenant.as_str(), &self.cfg.instruments) {
+                    Ok(()) => r.capability.execute_with_record(&c, text, rec),
+                    Err(e) => Execution::Failed(format!("measurement record rejected: {e:?}")),
+                },
+            } {
+                Execution::EvidenceRequired => Outcome::Withheld {
+                    reason: "no signed measurement record: this capability decides only on instrument-signed readings, never on numbers in text".into(),
+                },
                 Execution::Decided {
                     outcome,
                     values,
@@ -345,6 +366,18 @@ impl<'a> Runtime<'a> {
 
     /// Handle one request from an authenticated principal.
     pub fn handle(&self, p: &Principal, text: &str) -> Result<Response, PortError> {
+        self.handle_with_record(p, text, None)
+    }
+
+    /// As [`Runtime::handle`], with an optional signed measurement record
+    /// (S1). The record is used only by capabilities whose evidence policy
+    /// requires it, and only after verification for the caller's tenant.
+    pub fn handle_with_record(
+        &self,
+        p: &Principal,
+        text: &str,
+        record: Option<&MeasurementRecord>,
+    ) -> Result<Response, PortError> {
         let t0 = Instant::now();
         let before = self.meter.snapshot();
         let mut cost = Cost::default();
@@ -368,7 +401,7 @@ impl<'a> Runtime<'a> {
                     .iter()
                     .find(|r| &r.capability_hash == hash)
                     .ok_or_else(|| other("capability vanished"))?;
-                let (o, h) = self.run_capability(r, text);
+                let (o, h) = self.run_capability(r, p, text, record);
                 cap_hash = h;
                 o
             }

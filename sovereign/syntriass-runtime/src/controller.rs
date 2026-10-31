@@ -82,6 +82,8 @@ pub struct Candidate {
     pub hash: String,
     /// `Some(reason)` when it applies but must not run (stale dependency).
     pub stale: Option<String>,
+    /// Strength of match (`Capability::fit`); routing picks the unique maximum.
+    pub fit: u32,
 }
 
 /// Everything the controller may look at.
@@ -157,30 +159,27 @@ fn tier(f: &Features) -> Option<Tier> {
 
 /// Select a strategy.
 pub fn route(f: &Features) -> Strategy {
-    let fresh: Vec<&Candidate> = f
-        .capabilities
-        .iter()
-        .filter(|c| c.stale.is_none())
-        .collect();
-    match fresh.len() {
-        1 => {
-            return Strategy::Capability {
-                id: fresh[0].id.clone(),
-                hash: fresh[0].hash.clone(),
-            }
-        }
-        n if n > 1 => {
+    // S2 strongest-fit routing: the unique best-matching capability runs;
+    // a tie at the top is refused as ambiguous; if the best match is stale
+    // it is refused rather than falling back to a weaker match.
+    if let Some(best) = f.capabilities.iter().map(|c| c.fit).max() {
+        let top: Vec<&Candidate> = f.capabilities.iter().filter(|c| c.fit == best).collect();
+        if top.len() > 1 {
             return Strategy::Refuse(Refusal::AmbiguousCapability(
-                fresh.iter().map(|c| c.id.clone()).collect(),
-            ))
+                top.iter().map(|c| c.id.clone()).collect(),
+            ));
         }
-        _ => {}
-    }
-    if let Some(c) = f.capabilities.iter().find(|c| c.stale.is_some()) {
-        return Strategy::Refuse(Refusal::CapabilityStale {
-            id: c.id.clone(),
-            reason: c.stale.clone().unwrap_or_default(),
-        });
+        let c = top[0];
+        return match &c.stale {
+            None => Strategy::Capability {
+                id: c.id.clone(),
+                hash: c.hash.clone(),
+            },
+            Some(reason) => Strategy::Refuse(Refusal::CapabilityStale {
+                id: c.id.clone(),
+                reason: reason.clone(),
+            }),
+        };
     }
     if let Some(i) = &f.interpretation {
         if !i.unregistered.is_empty() {
@@ -259,6 +258,7 @@ mod tests {
             id: id.into(),
             hash: format!("h-{id}"),
             stale: stale.map(String::from),
+            fit: 3,
         }
     }
 
@@ -340,6 +340,34 @@ mod tests {
         assert!(
             matches!(route(&x), Strategy::Refuse(Refusal::CapabilityStale { .. })),
             "never falls back to an unvalidated answer"
+        );
+    }
+
+    #[test]
+    fn strongest_fit_wins_ties_refuse_and_a_stale_best_is_never_bypassed() {
+        let mut x = f(None);
+        let mut strong = cand("tx", None);
+        strong.fit = 5;
+        x.capabilities = vec![cand("ir", None), strong.clone(), cand("bt", None)];
+        assert_eq!(
+            route(&x),
+            Strategy::Capability {
+                id: "tx".into(),
+                hash: "h-tx".into()
+            }
+        );
+        let mut rival = cand("other", None);
+        rival.fit = 5;
+        x.capabilities = vec![strong.clone(), rival];
+        assert!(
+            matches!(route(&x), Strategy::Refuse(Refusal::AmbiguousCapability(ids)) if ids.len() == 2)
+        );
+        let mut stale_best = cand("tx", Some("policy changed"));
+        stale_best.fit = 5;
+        x.capabilities = vec![stale_best, cand("ir", None)];
+        assert!(
+            matches!(route(&x), Strategy::Refuse(Refusal::CapabilityStale { .. })),
+            "a weaker match is not used when the best one is stale"
         );
     }
 

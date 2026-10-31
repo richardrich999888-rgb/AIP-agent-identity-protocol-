@@ -74,7 +74,7 @@ pub fn review(cap: &Capability, experiences: &[Experience]) -> Result<Review, St
             continue;
         };
         r.considered += 1;
-        let got = label(&cap.execute(&compiled, &e.task));
+        let got = label(&cap.execute_attested_text(&compiled, &e.task));
         if got == expected {
             r.agreed += 1;
         } else {
@@ -204,8 +204,8 @@ pub fn upgrade_check(
         return check;
     };
     for c in &suite.cases {
-        let o = label(&old.execute(&co, &c.text));
-        let n = label(&new.execute(&cn, &c.text));
+        let o = label(&old.execute_attested_text(&co, &c.text));
+        let n = label(&new.execute_attested_text(&cn, &c.text));
         check.old_passed += usize::from(o == c.expected);
         check.new_passed += usize::from(n == c.expected);
         if o != n {

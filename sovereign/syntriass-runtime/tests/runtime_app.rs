@@ -6,6 +6,7 @@ use std::collections::BTreeMap;
 
 use serde_json::Value;
 use syntriass_runtime::app::*;
+use syntriass_runtime::capability::evidence::{EvidencePolicy, MeasurementRecord, RecordQuantity};
 use syntriass_runtime::capability::lifecycle::*;
 use syntriass_runtime::capability::validate::validate;
 use syntriass_runtime::controller::{Refusal, Strategy, Tier};
@@ -181,6 +182,7 @@ struct World {
     corpus: SqliteCorpus,
     store: MemStore,
     approvers: BTreeMap<String, Vec<u8>>,
+    instruments: BTreeMap<String, Vec<u8>>,
     audit: tempfile::NamedTempFile,
 }
 
@@ -189,6 +191,14 @@ fn world(execution_model: Option<&str>) -> World {
 }
 
 fn world_with(execution_model: Option<&str>, consequential: bool) -> World {
+    world_full(execution_model, consequential, EvidencePolicy::Text)
+}
+
+fn world_full(
+    execution_model: Option<&str>,
+    consequential: bool,
+    evidence: EvidencePolicy,
+) -> World {
     let mut corpus = SqliteCorpus::in_memory().unwrap();
     let h = ingest_file(&mut corpus, "koravi-ep-114.txt");
     ingest_file(&mut corpus, "koravi-ep-090.txt");
@@ -196,6 +206,7 @@ fn world_with(execution_model: Option<&str>, consequential: bool) -> World {
     let mut cap = expert_fixture();
     cap.dependencies.knowledge.insert("ep-114".into(), h);
     cap.dependencies.execution_model_sha256 = execution_model.map(String::from);
+    cap.evidence = evidence;
     let tenant_of =
         |d: &str| matches!(d, "ep-114" | "ep-090").then(|| "koravi-process".to_string());
     let mut rec = Record::propose(cap);
@@ -224,6 +235,7 @@ fn world_with(execution_model: Option<&str>, consequential: bool) -> World {
         corpus,
         store: MemStore(vec![rec]),
         approvers,
+        instruments: BTreeMap::new(),
         audit: tempfile::NamedTempFile::new().unwrap(),
     }
 }
@@ -235,6 +247,7 @@ fn cfg(w: &World) -> Config {
         audit_log: w.audit.path().into(),
         rag_k: 3,
         approvers: w.approvers.clone(),
+        instruments: w.instruments.clone(),
     }
 }
 
@@ -642,4 +655,200 @@ fn no_authorized_source_is_not_escalated_and_capabilities_need_no_model() {
     assert!(matches!(r.strategy, Strategy::Capability { .. }));
     assert_eq!(r.cost.model_calls, 0);
     assert!(m.small.seen.borrow().is_empty() && m.large.seen.borrow().is_empty());
+}
+
+// ── S1: evidence-bound execution ──────────────────────────────────────────
+
+fn record(
+    tenant: &str,
+    instrument: &str,
+    kv: &str,
+    mohm: &str,
+    temp: &str,
+    pi: f64,
+) -> MeasurementRecord {
+    MeasurementRecord {
+        record_id: "rec-1".into(),
+        tenant: tenant.into(),
+        asset_id: "M-101".into(),
+        instrument_id: instrument.into(),
+        taken_at_ms: 1,
+        quantities: vec![
+            RecordQuantity::Physical { reading: kv.into() },
+            RecordQuantity::Physical {
+                reading: mohm.into(),
+            },
+            RecordQuantity::Physical {
+                reading: temp.into(),
+            },
+            RecordQuantity::Cued {
+                cue: "PI".into(),
+                value: pi,
+            },
+        ],
+        signature_hex: String::new(),
+    }
+}
+
+fn signed_world() -> (World, aip_types::KeyPair) {
+    let mut w = world_full(None, false, EvidencePolicy::SignedRecord);
+    let kp = aip_crypto::generate_ed25519_keypair();
+    w.instruments
+        .insert("megger:MIT-1025-7".into(), kp.public_key.clone());
+    (w, kp)
+}
+
+#[test]
+fn hypothetical_text_cannot_release_without_a_signed_record() {
+    let (w, _) = signed_world();
+    let m = models("{}");
+    let rt = Runtime::new(cfg(&w), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let k = principal("koravi-process", Classification::Restricted);
+    for t in [
+        IR_TASK,
+        &format!("If we were to test it, we might expect: {IR_TASK}") as &str,
+    ] {
+        let r = rt.handle(&k, t).unwrap();
+        assert!(
+            matches!(r.strategy, Strategy::Capability { .. }),
+            "the capability is selected by text"
+        );
+        assert!(
+            matches!(&r.outcome, Outcome::Withheld { reason } if reason.contains("signed measurement record")),
+            "{:?}",
+            r.outcome
+        );
+        assert_eq!(r.cost.model_calls, 0);
+    }
+}
+
+#[test]
+fn a_verified_record_decides_and_text_numbers_are_ignored() {
+    let (w, kp) = signed_world();
+    let m = models("{}");
+    let rt = Runtime::new(cfg(&w), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let k = principal("koravi-process", Classification::Restricted);
+    // Text claims a passing reading; the signed record says 9 MΩ (REJECT territory for 6.6 kV).
+    let rec = record(
+        "koravi-process",
+        "megger:MIT-1025-7",
+        "6.6 kV",
+        "9 MΩ",
+        "40 °C",
+        2.4,
+    )
+    .sign(&kp.private_key)
+    .unwrap();
+    let r = rt.handle_with_record(&k, IR_TASK, Some(&rec)).unwrap();
+    assert_eq!(
+        label(&r),
+        "REJECT",
+        "numbers come from the record, not the text"
+    );
+    let good = record(
+        "koravi-process",
+        "megger:MIT-1025-7",
+        "6.6 kV",
+        "220 MΩ",
+        "40 °C",
+        2.4,
+    )
+    .sign(&kp.private_key)
+    .unwrap();
+    assert_eq!(
+        label(&rt.handle_with_record(&k, IR_TASK, Some(&good)).unwrap()),
+        "PASS"
+    );
+}
+
+#[test]
+fn forged_foreign_or_unregistered_records_are_rejected() {
+    let (w, kp) = signed_world();
+    let m = models("{}");
+    let rt = Runtime::new(cfg(&w), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let k = principal("koravi-process", Classification::Restricted);
+    let good = record(
+        "koravi-process",
+        "megger:MIT-1025-7",
+        "6.6 kV",
+        "220 MΩ",
+        "40 °C",
+        2.4,
+    )
+    .sign(&kp.private_key)
+    .unwrap();
+    let mut tampered = good.clone();
+    tampered.quantities[1] = RecordQuantity::Physical {
+        reading: "2200 MΩ".into(),
+    };
+    let other_key = aip_crypto::generate_ed25519_keypair();
+    let unregistered = record(
+        "koravi-process",
+        "megger:unknown",
+        "6.6 kV",
+        "220 MΩ",
+        "40 °C",
+        2.4,
+    )
+    .sign(&other_key.private_key)
+    .unwrap();
+    let foreign = record(
+        "tarvel-grid",
+        "megger:MIT-1025-7",
+        "6.6 kV",
+        "220 MΩ",
+        "40 °C",
+        2.4,
+    )
+    .sign(&kp.private_key)
+    .unwrap();
+    let wrong_signer = record(
+        "koravi-process",
+        "megger:MIT-1025-7",
+        "6.6 kV",
+        "220 MΩ",
+        "40 °C",
+        2.4,
+    )
+    .sign(&other_key.private_key)
+    .unwrap();
+    for (rec, why) in [
+        (tampered, "BadSignature"),
+        (unregistered, "UnknownInstrument"),
+        (foreign, "WrongTenant"),
+        (wrong_signer, "BadSignature"),
+    ] {
+        let r = rt.handle_with_record(&k, IR_TASK, Some(&rec)).unwrap();
+        assert!(
+            matches!(&r.outcome, Outcome::Withheld { reason } if reason.contains(why)),
+            "{why}: {:?}",
+            r.outcome
+        );
+    }
+}
+
+#[test]
+fn conflicting_values_in_a_record_are_withheld_not_averaged() {
+    let (w, kp) = signed_world();
+    let m = models("{}");
+    let rt = Runtime::new(cfg(&w), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let k = principal("koravi-process", Classification::Restricted);
+    let mut rec = record(
+        "koravi-process",
+        "megger:MIT-1025-7",
+        "6.6 kV",
+        "220 MΩ",
+        "40 °C",
+        2.4,
+    );
+    rec.quantities.push(RecordQuantity::Physical {
+        reading: "150 MΩ".into(),
+    });
+    let rec = rec.sign(&kp.private_key).unwrap();
+    let r = rt.handle_with_record(&k, IR_TASK, Some(&rec)).unwrap();
+    assert!(
+        matches!(r.outcome, Outcome::Withheld { .. }),
+        "{:?}",
+        r.outcome
+    );
 }

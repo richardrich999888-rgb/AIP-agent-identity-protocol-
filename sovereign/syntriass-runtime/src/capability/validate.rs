@@ -81,6 +81,7 @@ pub fn label(e: &Execution) -> String {
         Execution::Ambiguous { .. } => AMBIGUOUS.into(),
         Execution::Decided { outcome, .. } => outcome.clone(),
         Execution::Failed(m) => format!("FAILED:{m}"),
+        Execution::EvidenceRequired => "EVIDENCE_REQUIRED".into(),
     }
 }
 
@@ -133,7 +134,7 @@ pub fn validate(
     // Suite cases count only when the suite is authentic and independent.
     if r.suite_signature_ok && r.suite_independent {
         for t in &suite.cases {
-            let got = label(&cap.execute(&compiled, &t.text));
+            let got = label(&cap.execute_attested_text(&compiled, &t.text));
             let ok = got == t.expected;
             r.expert_cases += 1;
             r.expert_passed += ok as usize;
@@ -153,7 +154,7 @@ pub fn validate(
     }
     for t in &cap.tests {
         r.artifact_claimed_expert += (t.source == TestSource::Expert) as usize;
-        let got = label(&cap.execute(&compiled, &t.text));
+        let got = label(&cap.execute_attested_text(&compiled, &t.text));
         let ok = got == t.expected;
         r.artifact_cases += 1;
         r.artifact_passed += ok as usize;
