@@ -207,3 +207,57 @@ def extract_json(endpoint: str, text: str) -> tuple:
     except (ValueError, KeyError, TypeError, IndexError):
         rd = None
     return rd, dt, o.get("usage", {}).get("completion_tokens"), raw
+
+
+# ─── Iteration 2: extraction with explicit abstention ───
+# v1 (EXTRACT_SCHEMA, minItems 1) could not say "nothing covered here", so it
+# was forced to invent a reading for out-of-policy equipment. v2 allows an
+# empty list and states when to use it; values are requested in the listed
+# unit. Same model, same menu; only abstention and unit instructions differ.
+EXTRACT_SCHEMA_V2 = {
+    "type": "object",
+    "properties": {
+        "readings": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 3,
+            "items": {
+                "type": "object",
+                "properties": {"quantity": {"type": "string", "enum": list(METRIC_LETTERS)}, "value": {"type": "number"}},
+                "required": ["quantity", "value"],
+                "additionalProperties": False,
+            },
+        }
+    },
+    "required": ["readings"],
+    "additionalProperties": False,
+}
+EXTRACT_V2_INSTRUCTION = (
+    "List every reading of a listed quantity as JSON {\"readings\": [{\"quantity\": letter, \"value\": number}]}. "
+    "The equipment must be exactly the listed equipment (P-9 is not P-7). Convert the value to the unit shown in the list. "
+    "If the equipment is not listed, there is no numeric value, or you cannot tell which quantity is meant, return {\"readings\": []}."
+)
+
+
+def extract_json_v2(endpoint: str, text: str) -> tuple:
+    """Return (readings list (possibly empty) | None on parse failure, latency_s, tokens, raw)."""
+    body = {
+        "messages": [
+            {"role": "system", "content": EXTRACT_SYSTEM},
+            {"role": "user", "content": f"Report: {text}\n{EXTRACT_V2_INSTRUCTION}"},
+        ],
+        "max_tokens": 120,
+        "temperature": 0,
+        "seed": 42,
+        "cache_prompt": True,
+        "response_format": {"type": "json_schema", "json_schema": {"name": "extraction", "schema": EXTRACT_SCHEMA_V2}},
+    }
+    t = time.perf_counter()
+    o = _post(endpoint, body)
+    dt = time.perf_counter() - t
+    raw = o["choices"][0]["message"]["content"]
+    try:
+        rd = [(METRICS[METRIC_LETTERS.index(r["quantity"])].key, float(r["value"])) for r in json.loads(raw)["readings"]]
+    except (ValueError, KeyError, TypeError, IndexError):
+        rd = None
+    return rd, dt, o.get("usage", {}).get("completion_tokens"), raw

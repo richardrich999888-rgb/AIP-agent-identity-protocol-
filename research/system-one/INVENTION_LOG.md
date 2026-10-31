@@ -37,4 +37,23 @@ implementation does not establish novelty; prior art is listed first.
 - **Limitations:** needs a policy that can be stated as variables and
   thresholds; does not cover open-ended judgements.
 
-Do not publish or disclose IL-001 externally without authorization.
+- **Iteration 2 correction:** the 0.977 above came from a split that an
+  (equipment, unit) lookup solves at 1.000; it does not show paraphrase
+  understanding. On hand-written held-out reports (v4, n = 39) the principle
+  still holds — interpretation by a compact encoder + exact policy reached
+  0.821 vs 0.692 for 1.5B extraction (difference not significant) at ~100×
+  lower latency — but the SLM interpreter fabricated readings and never
+  abstained.
+
+## IL-002 — Asset-registry gate for learned interpreters (status: validated in scope, iteration 2b)
+
+- **Problem:** a learned interpreter trained on covered assets maps uncovered
+  assets onto covered ones ("P-9" → P-7) and releases a confident wrong decision.
+- **Mechanism:** abstain when the text names an equipment-family code that is
+  not in the organisation's asset registry. Deterministic, µs.
+- **Prior art:** gazetteers / entity linking with NIL detection; allow-lists.
+  Almost certainly not novel on its own.
+- **Evidence:** held-out +0.128 [+0.026, +0.231] for both encoder and SLM.
+- **Limits:** misses uncoded unknown assets and codes outside the known families.
+
+Do not publish or disclose IL-001/IL-002 externally without authorization.
