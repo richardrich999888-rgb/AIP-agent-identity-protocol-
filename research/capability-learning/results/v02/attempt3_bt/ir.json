@@ -1,0 +1,107 @@
+{
+ "topic_terms": [
+  "vented lead-acid cells",
+  "substation",
+  "UPS battery banks"
+ ],
+ "inputs": [
+  {
+   "ref": "voltage",
+   "unit": "V",
+   "cues": []
+  },
+  {
+   "ref": "temperature",
+   "unit": "°C",
+   "cues": []
+  },
+  {
+   "ref": "cued_1",
+   "unit": "none",
+   "cues": [
+    "SG",
+    "specific gravity"
+   ]
+  }
+ ],
+ "out_of_scope_terms": [
+  "lithium",
+  "nickel-cadmium",
+  "NiCd"
+ ],
+ "out_of_scope_limits": [
+  {
+   "ref": "voltage",
+   "op": ">",
+   "value": 3.0,
+   "unit": "V"
+  }
+ ],
+ "missing_input_outcome": "INSUFFICIENT_INPUT",
+ "validity": [
+  {
+   "ref": "temperature",
+   "min": 5.0,
+   "max": 45.0,
+   "unit": "°C",
+   "outcome": "INVALID_TEST"
+  }
+ ],
+ "correction": {
+  "template": "add_per_degree",
+  "target": "voltage",
+  "by": "temperature",
+  "reference": 25.0,
+  "reference_unit": "°C",
+  "rate": 0.003,
+  "rate_unit": "V",
+  "base": 1,
+  "step": 1
+ },
+ "limit": {
+  "template": "none",
+  "coefficient": 0,
+  "input": "temperature",
+  "offset": 0,
+  "unit": "°C"
+ },
+ "rules": [
+  {
+   "value": "corrected",
+   "op": "<",
+   "against": "number",
+   "number": 2.1,
+   "unit": "V",
+   "limit_fraction": 1,
+   "outcome": "REPLACE_CELL"
+  },
+  {
+   "value": "corrected",
+   "op": "<",
+   "against": "number",
+   "number": 2.17,
+   "unit": "V",
+   "limit_fraction": 1,
+   "outcome": "EQUALIZE"
+  },
+  {
+   "value": "corrected",
+   "op": ">",
+   "against": "number",
+   "number": 2.3,
+   "unit": "V",
+   "limit_fraction": 1,
+   "outcome": "REDUCE_FLOAT"
+  },
+  {
+   "value": "cued_1",
+   "op": "<",
+   "against": "number",
+   "number": 1.2,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "EQUALIZE"
+  }
+ ],
+ "default_outcome": "ACCEPT"
+}

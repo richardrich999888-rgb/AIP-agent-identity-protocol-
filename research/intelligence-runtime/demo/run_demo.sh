@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SYNTRIASS intelligence runtime v0.1 — offline demonstration (six scenes).
+# SYNTRIASS intelligence runtime v0.2 — offline demonstration (seven scenes).
 #
 #   usage: run_demo.sh OUT_DIR [--propose]
 #
@@ -93,11 +93,53 @@ print({'B2_per_task_cpu_s': e['baselines']['B2']['per_task_cpu_s'], 'B2_accuracy
        'capability_accuracy': e['capability']['accuracy'], 'capability_per_task_cpu_s_upper_bound': e['capability']['per_task_cpu_s_upper_bound'],
        'break_even_uses_vs_B2': e['break_even_uses']['B2']})"
 
+SCENE=scene7; say "Scene 7 — organisational memory: experience -> new version -> regression check -> approval -> supersede -> rollback"
+python3 -c "
+import json,os; json.dump({str(os.getuid()): {'tenant':'koravi-process','clearance':'restricted'}}, open('$OUT/state/principals.json','w'))"
+mk_exp() { python3 -c "
+import json,sys
+print(json.dumps({'id':sys.argv[1],'tenant':'koravi-process','security_domain':'koravi-ot','classification':'restricted','task':sys.argv[2],
+ 'evidence_refs':['ep-114'],'actions_attempted':['capability v1'],'observed_outcome':sys.argv[3],'human_correction':'expert re-decided from EP-114',
+ 'expected_outcome':sys.argv[4],'actor':'agent:runtime','verification':{'verified':{'verifier':'expert:koravi-elec-lead','at_ms':1}},
+ 'policies':['ep-114-revC'],'provenance':'field report (demo)'}))" "$@"; }
+mk_exp field-001 "Motor 3.3 kV at 40 C: resistance reading lost, polarization index 2.3" NOT_APPLICABLE INSUFFICIENT_INPUT > "$OUT/exp1.json"
+mk_exp field-002 "Motor M-7 3.3 kV, insulation resistance 300 megohm at 40 C, polarisation index 2.4" INSUFFICIENT_INPUT PASS > "$OUT/exp2.json"
+"$BIN" exp-record --config "$CFG" --file "$OUT/exp1.json"; "$BIN" exp-record --config "$CFG" --file "$OUT/exp2.json"
+echo "-- recording an experience changes nothing; review compares the ACTIVE v1 with verified experience:"
+"$BIN" cap-review --config "$CFG" --hash "$HASH" | tee "$OUT/scenes/scene7-review.json"
+echo "-- engineer proposes v2 (two typed edits: applicability term 'resistance', cue 'polarisation index'):"
+python3 -c "
+import json; c=json.load(open('$OUT/capability.json')); c['version']=2
+c['applicability']['any_terms'].append('resistance')
+next(i for i in c['procedure']['inputs'] if 'PI' in i['cues'])['cues'].append('polarisation index')
+json.dump(c, open('$OUT/capability_v2.json','w'), indent=1)"
+python3 -c "
+import json
+for f in ('$OUT/exp1.json','$OUT/exp2.json'):
+    e=json.load(open(f)); print(json.dumps({'id':e['id'],'text':e['task'],'label':e['expected_outcome'],'counterexample':e['expected_outcome']=='INSUFFICIENT_INPUT'}))" > "$OUT/new_cases.jsonl"
+cat "$OUT/suite_cases.jsonl" "$OUT/new_cases.jsonl" > "$OUT/regression_cases.jsonl"
+"$BIN" suite-sign --key "$OUT/keys/expert.json" --cases "$OUT/regression_cases.jsonl" --suite-id ir-tasks-v1/regression-v2 \
+  --tenant koravi-process --task "motor IR acceptance (EP-114 rev C)" --out "$OUT/suite_v2.json"
+H2=$("$BIN" cap-propose --config "$CFG" --file "$OUT/capability_v2.json" | python3 -c 'import json,sys;print(json.load(sys.stdin)["hash"])')
+echo "-- old vs new on the expert-signed regression suite (old cases + the two field cases):"
+"$BIN" cap-upgrade-check --config "$CFG" --from "$HASH" --to "$H2" --suite "$OUT/suite_v2.json" | tee "$OUT/scenes/scene7-upgrade.json" | python3 -c '
+import json,sys; r=json.load(sys.stdin); print({k:r[k] for k in ("cases","old_passed","new_passed","acceptable","scope_notes")}, "regressions:", len(r["regressions"]), "fixes:", [f["case_id"] for f in r["fixes"]])'
+"$BIN" cap-validate --config "$CFG" --hash "$H2" --suite "$OUT/suite_v2.json" | python3 -c 'import json,sys; r=json.load(sys.stdin); print({"v2 validated": r["passed"], "expert_cases": r["expert_cases"]})'
+"$BIN" cap-approve --config "$CFG" --hash "$H2" --key "$OUT/keys/approver.json"
+"$BIN" cap-activate --config "$CFG" --hash "$H2" --actor operator:koravi-ot --reason "v2 fixes field-001/002" --supersede
+echo "-- a new request in the field-002 style is now decided by v2, still with no model call:"
+ask "$KORAVI" "Motor M-9 6.6 kV, insulation resistance 400 megohm at 40 C, polarisation index 2.5"
+echo "-- rollback to v1 (approver), then history:"
+"$BIN" cap-rollback --config "$CFG" --to "$HASH" --actor user:koravi-elec-authority --reason "demo rollback"
+"$BIN" cap-history --config "$CFG" --id koravi.ep114.ir-acceptance.learned | tee "$OUT/scenes/scene7-history.jsonl" | python3 -c '
+import json,sys
+for l in sys.stdin: r=json.loads(l); print({k:r[k] for k in ("version","state","executable","uses","outcomes")})'
+
 SCENE=scene5; say "Scene 5 — security: unauthorised principals and a tampered capability"
 echo "-- another organisation invokes the capability explicitly:"; ask "$TARVEL" "M-1 6.6 kV IR 180 megohms at 35 C, PI 2.6" koravi.ep114.ir-acceptance.learned
 echo "-- same organisation, lower clearance, same request:"; ask "$KORAVI_LOW" "M-1 6.6 kV IR 180 megohms at 35 C, PI 2.6"
 echo "-- tamper with the stored capability (weaken REJECT threshold) and retry:"
-F=$(ls "$OUT"/state/capabilities/*.json | head -1)
+F=$(grep -l '"state": "ACTIVE"' "$OUT"/state/capabilities/*.json | head -1)
 python3 -c "
 import json; r=json.load(open('$F')); r['capability']['procedure']['rules'][1]['when']='corrected_resistance < 0'; json.dump(r, open('$F','w'))"
 ask "$KORAVI" "Motor M-122 (11 kV) IR 70 megohms at 30 C, PI 1.8."

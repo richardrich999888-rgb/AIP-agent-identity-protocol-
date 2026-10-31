@@ -281,6 +281,10 @@ def document_numbers(doc: str) -> set:
 
     vals = {float(x) for x in re.findall(r"(?<![\w.])\d+(?:\.\d+)?", doc)}
     vals |= {v for w, v in NUMBER_WORDS.items() if re.search(rf"\b{w}\b", doc, re.IGNORECASE)}
+    # v0.2: fraction words stated in the text (exact value of the float the IR carries).
+    for w, (a, b) in {"one third": (1, 3), "two thirds": (2, 3), "one quarter": (1, 4)}.items():
+        if re.search(rf"\b{w}\b", doc, re.IGNORECASE):
+            vals.add(a / b)
     return vals
 
 

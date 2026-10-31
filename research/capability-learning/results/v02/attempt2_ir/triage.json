@@ -1,0 +1,89 @@
+{
+ "simplifications": [
+  {
+   "clause": "L6.S3",
+   "dropped_condition": {
+    "subject": "resistance",
+    "op": ">=",
+    "against": "number",
+    "number": 1.5,
+    "unit": "none"
+   },
+   "basis": "implied by an earlier rule (precedence)"
+  }
+ ],
+ "claim_issues": [
+  {
+   "clause": "L6.S1",
+   "kind": "decision_rule",
+   "text": "If it is below the minimum, dry out the winding and retest.",
+   "field": "conditions",
+   "issue": "2 condition(s) but clause has 1 comparator(s)"
+  },
+  {
+   "clause": "L6.S1",
+   "kind": "decision_rule",
+   "text": "If it is below the minimum, dry out the winding and retest.",
+   "field": "conditions[0].number",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L6.S1",
+   "kind": "decision_rule",
+   "text": "If it is below the minimum, dry out the winding and retest.",
+   "field": "conditions[1].number",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  }
+ ],
+ "assembly_issues": [],
+ "coverage_issues": [],
+ "field_provenance": {
+  "evidence": 23,
+  "repaired": 17,
+  "hypothesis": 1,
+  "issues": 3
+ },
+ "unsupported_numbers": [],
+ "consistency_issues": [],
+ "demo_agreement": [
+  0,
+  6
+ ],
+ "demo_disagreements": [
+  {
+   "expected": "PASS",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-000"
+  },
+  {
+   "expected": "PASS",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-001"
+  },
+  {
+   "expected": "REJECT",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-002"
+  },
+  {
+   "expected": "RETEST_30D",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-003"
+  },
+  {
+   "expected": "PASS",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-004"
+  },
+  {
+   "expected": "INVALID_TEST",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-005"
+  }
+ ],
+ "boundary_probes": 22,
+ "boundary_runtime_mismatch": [],
+ "status": "NEEDS_EXPERT_CLARIFICATION"
+}

@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/home/claude/rt-wt/research/capability-learning/harness/propose_atomic.py", line 253, in <module>
+    main()
+    ~~~~^^
+  File "/home/claude/rt-wt/research/capability-learning/harness/propose_atomic.py", line 240, in main
+    costs = [small.cost()] + ([large.cost()] if large else [])
+             ~~~~~~~~~~^^
+  File "/home/claude/rt-wt/research/capability-learning/harness/propose_atomic.py", line 99, in cost
+    peak = self.srv.stats()["VmHWM"] if self.load_s is not None else 0
+           ~~~~~~~~~~~~~~^^
+  File "/home/claude/rt-wt/research/compute-memory/bench/llama_proc.py", line 111, in stats
+    return proc_snapshot(self.proc.pid)
+  File "/home/claude/rt-wt/research/compute-memory/bench/llama_proc.py", line 25, in proc_snapshot
+    st = open(f"/proc/{pid}/stat").read().rsplit(")", 1)[1].split()
+         ~~~~^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/proc/461/stat'

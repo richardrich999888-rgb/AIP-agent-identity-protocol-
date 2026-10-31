@@ -1,0 +1,71 @@
+{
+ "questions": [
+  {
+   "clause": "L5.S2",
+   "kind": "decision_rule",
+   "text": "If it is above 2.30 volts, reduce the float voltage (overcharge).",
+   "field": "conditions",
+   "issue": "2 condition(s) but clause has 1 comparator(s)"
+  },
+  {
+   "clause": "L5.S3",
+   "kind": "decision_rule",
+   "text": "Otherwise, if the specific gravity is below 1.200, equalize charge.",
+   "field": "conditions",
+   "issue": "2 condition(s) but clause has 1 comparator(s)"
+  },
+  {
+   "clause": "L5.S3",
+   "kind": "decision_rule",
+   "text": "Otherwise, if the specific gravity is below 1.200, equalize charge.",
+   "field": "conditions[0].number",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L5.S3",
+   "kind": "decision_rule",
+   "text": "Otherwise, if the specific gravity is below 1.200, equalize charge.",
+   "field": "conditions[1].number",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "outcome": "REDUCE_FLOAT",
+   "issue": "named by the document but unreachable"
+  }
+ ],
+ "demo_disagreements": [
+  {
+   "expected": "ACCEPT",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-0"
+  },
+  {
+   "expected": "EQUALIZE",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-1"
+  },
+  {
+   "expected": "ACCEPT",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-2"
+  },
+  {
+   "expected": "REDUCE_FLOAT",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-3"
+  },
+  {
+   "expected": "EQUALIZE",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-4"
+  },
+  {
+   "expected": "INVALID_TEST",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-5"
+  }
+ ],
+ "hypothesis_fields": []
+}

@@ -1,0 +1,113 @@
+{
+ "topic_terms": [
+  "scope",
+  "induction motors",
+  "rated up to and including 11 kV"
+ ],
+ "inputs": [
+  {
+   "ref": "voltage",
+   "unit": "kV",
+   "cues": []
+  },
+  {
+   "ref": "resistance",
+   "unit": "MΩ",
+   "cues": []
+  },
+  {
+   "ref": "temperature",
+   "unit": "°C",
+   "cues": []
+  },
+  {
+   "ref": "cued_1",
+   "unit": "none",
+   "cues": [
+    "PI",
+    "polarization index"
+   ]
+  }
+ ],
+ "out_of_scope_terms": [
+  "transformers",
+  "cables",
+  "generators",
+  "motors"
+ ],
+ "out_of_scope_limits": [
+  {
+   "ref": "voltage",
+   "op": ">",
+   "value": 11.0,
+   "unit": "kV"
+  }
+ ],
+ "missing_input_outcome": "INSUFFICIENT_INPUT",
+ "validity": [
+  {
+   "ref": "temperature",
+   "min": 10.0,
+   "max": 75.0,
+   "unit": "°C",
+   "outcome": "INVALID_TEST"
+  }
+ ],
+ "correction": {
+  "template": "multiply_power_per_degree",
+  "target": "resistance",
+  "by": "temperature",
+  "reference": 40.0,
+  "reference_unit": "°C",
+  "rate": 0,
+  "rate_unit": "°C",
+  "base": 2.0,
+  "step": 10.0
+ },
+ "limit": {
+  "template": "coefficient_times_input_plus_offset",
+  "coefficient": 10.0,
+  "input": "voltage",
+  "offset": 1.0,
+  "unit": "MΩ"
+ },
+ "rules": [
+  {
+   "value": "corrected",
+   "op": "<",
+   "against": "limit",
+   "number": 0,
+   "unit": "none",
+   "limit_fraction": 0.5,
+   "outcome": "REJECT"
+  },
+  {
+   "value": "corrected",
+   "op": "<",
+   "against": "limit",
+   "number": 0,
+   "unit": "none",
+   "limit_fraction": 1.0,
+   "outcome": "DRY_OUT"
+  },
+  {
+   "value": "cued_1",
+   "op": "<",
+   "against": "number",
+   "number": 1.5,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "DRY_OUT"
+  },
+  {
+   "value": "cued_1",
+   "op": "<",
+   "against": "number",
+   "number": 2.0,
+   "unit": "none",
+   "limit_fraction": 1,
+   "outcome": "RETEST_30D"
+  }
+ ],
+ "default_outcome": "PASS"
+}

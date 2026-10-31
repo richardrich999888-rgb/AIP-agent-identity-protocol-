@@ -1,0 +1,150 @@
+{
+ "topic_terms": [
+  "EP-114",
+  "C",
+  "Koravi Process Industries",
+  "engineering procedure",
+  "EP-114 revision C"
+ ],
+ "inputs": [
+  {
+   "ref": "cued_1",
+   "unit": "none",
+   "cues": [
+    "Koravi Process Industries"
+   ]
+  },
+  {
+   "ref": "cued_2",
+   "unit": "none",
+   "cues": [
+    "Koravi Process Industries"
+   ]
+  }
+ ],
+ "out_of_scope_terms": [
+  "EP-114",
+  "C",
+  "Koravi Process Industries",
+  "engineering procedure",
+  "process industries",
+  "Koravi Process Industries engineering",
+  "procedure",
+  "EP-114 revision C",
+  "Confidential",
+  "induction motors",
+  "rated up to and including 11 kV",
+  "transformers",
+  "cables",
+  "generators",
+  "motors",
+  "motor rated voltage",
+  "insulation resistance",
+  "winding temperature",
+  "polarization index",
+  "outside",
+  "repeated",
+  "rated kV",
+  "winding",
+  "PI",
+  "2.0"
+ ],
+ "out_of_scope_limits": [
+  {
+   "ref": "voltage",
+   "op": ">",
+   "value": 11.0,
+   "unit": "kV"
+  },
+  {
+   "ref": "temperature",
+   "op": "<",
+   "value": 10.0,
+   "unit": "none"
+  },
+  {
+   "ref": "temperature",
+   "op": ">=",
+   "value": 40.0,
+   "unit": "°C"
+  },
+  {
+   "ref": "temperature",
+   "op": ">=",
+   "value": 10.0,
+   "unit": "none"
+  },
+  {
+   "ref": "resistance",
+   "op": "<",
+   "value": 0.5,
+   "unit": "none"
+  },
+  {
+   "ref": "resistance",
+   "op": "<",
+   "value": 1.5,
+   "unit": "none"
+  },
+  {
+   "ref": "resistance",
+   "op": ">=",
+   "value": 2.0,
+   "unit": "none"
+  }
+ ],
+ "missing_input_outcome": null,
+ "validity": [
+  {
+   "ref": "cued_1",
+   "min": 11.0,
+   "max": 11.0,
+   "unit": "kV",
+   "outcome": "PASS"
+  },
+  {
+   "ref": "temperature",
+   "min": 10.0,
+   "max": 75.0,
+   "unit": "°C",
+   "outcome": "PASS"
+  },
+  {
+   "ref": "resistance",
+   "min": 10.0,
+   "max": 10.0,
+   "unit": "none",
+   "outcome": "PASS"
+  }
+ ],
+ "correction": {
+  "template": "multiply_power_per_degree",
+  "target": "resistance",
+  "by": "temperature",
+  "reference": 40.0,
+  "reference_unit": "°C",
+  "rate": 0,
+  "rate_unit": "°C",
+  "base": 2.0,
+  "step": 10.0
+ },
+ "limit": {
+  "template": "none",
+  "coefficient": 0,
+  "input": "temperature",
+  "offset": 0,
+  "unit": "°C"
+ },
+ "rules": [
+  {
+   "value": "corrected",
+   "op": "<",
+   "against": "limit",
+   "number": 0,
+   "unit": "none",
+   "limit_fraction": 0.5,
+   "outcome": "REJECT"
+  }
+ ],
+ "default_outcome": "REJECT"
+}

@@ -1,0 +1,143 @@
+{
+ "id": "koravi.ep114.ir-acceptance.compiled",
+ "version": 1,
+ "intended_task": "Motor winding insulation-resistance acceptance per Koravi EP-114 rev C",
+ "outcomes": [
+  "PASS",
+  "RETEST_30D",
+  "DRY_OUT",
+  "REJECT",
+  "INVALID_TEST",
+  "OUT_OF_SCOPE",
+  "INSUFFICIENT_INPUT"
+ ],
+ "applicability": {
+  "any_terms": [
+   "scope",
+   "induction motors",
+   "rated up to and including 11 kV",
+   "V",
+   "volt",
+   "volts",
+   "kV",
+   "megohm",
+   "megohms",
+   "MΩ",
+   "Mohm",
+   "GΩ",
+   "kΩ",
+   "PI",
+   "polarization index",
+   "POLARIZATION INDEX",
+   "pi"
+  ],
+  "min_inputs_present": 2
+ },
+ "procedure": {
+  "inputs": [
+   {
+    "name": "voltage",
+    "kind": "voltage",
+    "cues": []
+   },
+   {
+    "name": "resistance",
+    "kind": "resistance",
+    "cues": []
+   },
+   {
+    "name": "temperature",
+    "kind": "temperature",
+    "cues": []
+   },
+   {
+    "name": "cued_1",
+    "kind": "cued",
+    "cues": [
+     "PI",
+     "polarization index",
+     "POLARIZATION INDEX",
+     "pi"
+    ]
+   }
+  ],
+  "text_guards": [
+   {
+    "any_terms": [
+     "transformers",
+     "cables",
+     "generators",
+     "motors"
+    ],
+    "outcome": "OUT_OF_SCOPE"
+   }
+  ],
+  "numeric_guards": [
+   {
+    "when": "voltage > 11.0",
+    "outcome": "OUT_OF_SCOPE"
+   }
+  ],
+  "missing_input_outcome": "INSUFFICIENT_INPUT",
+  "derive": [
+   {
+    "name": "corrected",
+    "expr": "resistance * 2.0 ^ ((temperature - 40.0) / 10.0)"
+   },
+   {
+    "name": "limit",
+    "expr": "10.0 * (voltage + 1.0)"
+   }
+  ],
+  "rules": [
+   {
+    "when": "temperature < 10.0 or temperature > 75.0",
+    "outcome": "INVALID_TEST"
+   },
+   {
+    "when": "corrected < 0.5 * limit",
+    "outcome": "REJECT"
+   },
+   {
+    "when": "corrected < limit",
+    "outcome": "DRY_OUT"
+   },
+   {
+    "when": "cued_1 < 1.5",
+    "outcome": "DRY_OUT"
+   },
+   {
+    "when": "cued_1 < 2.0",
+    "outcome": "RETEST_30D"
+   }
+  ],
+  "default_outcome": "PASS"
+ },
+ "required": {
+  "tenant": "koravi-process",
+  "min_clearance": "restricted",
+  "security_domain": "koravi-ot"
+ },
+ "dependencies": {
+  "knowledge": {
+   "ep-114": ""
+  },
+  "policy_version": "ep-114-revC",
+  "execution_model_sha256": null
+ },
+ "evidence_refs": [
+  "ep-114",
+  "demo-000",
+  "demo-001",
+  "demo-002",
+  "demo-003",
+  "demo-004",
+  "demo-005"
+ ],
+ "failure_conditions": [
+  "an input appears twice with different values",
+  "a unit the runtime does not recognise"
+ ],
+ "tests": [],
+ "proposed_by": "model:ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e+d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8"
+}

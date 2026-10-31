@@ -1,0 +1,85 @@
+{
+ "questions": [
+  {
+   "clause": "L6.S1",
+   "kind": "decision_rule",
+   "text": "If it is below the minimum, dry out the winding and retest.",
+   "field": "conditions",
+   "issue": "2 condition(s) but clause has 1 comparator(s)"
+  },
+  {
+   "clause": "L6.S1",
+   "kind": "decision_rule",
+   "text": "If it is below the minimum, dry out the winding and retest.",
+   "field": "conditions[0].number",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L6.S1",
+   "kind": "decision_rule",
+   "text": "If it is below the minimum, dry out the winding and retest.",
+   "field": "conditions[1].number",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  }
+ ],
+ "demo_disagreements": [
+  {
+   "expected": "PASS",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-000"
+  },
+  {
+   "expected": "PASS",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-001"
+  },
+  {
+   "expected": "REJECT",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-002"
+  },
+  {
+   "expected": "RETEST_30D",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-003"
+  },
+  {
+   "expected": "PASS",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-004"
+  },
+  {
+   "expected": "INVALID_TEST",
+   "got": "INSUFFICIENT_INPUT",
+   "id": "demo-005"
+  }
+ ],
+ "hypothesis_fields": [
+  {
+   "clause": "L6.S3",
+   "kind": "decision_rule",
+   "field": "conditions[0].subject",
+   "value": {
+    "conditions": [
+     {
+      "subject": "resistance",
+      "op": ">=",
+      "against": "number",
+      "number": 1.5,
+      "unit": "none"
+     },
+     {
+      "subject": "resistance",
+      "op": "<",
+      "against": "number",
+      "number": 2.0,
+      "unit": "none"
+     }
+    ],
+    "outcome": "RETEST_30D"
+   }
+  }
+ ]
+}

@@ -1,0 +1,282 @@
+{
+ "simplifications": [],
+ "claim_issues": [
+  {
+   "clause": "L0.S1",
+   "kind": "scope_limit",
+   "text": "Confidential.",
+   "field": "value",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L0.S1",
+   "kind": "required_inputs",
+   "text": "Confidential.",
+   "field": "inputs[0].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L0.S1",
+   "kind": "required_inputs",
+   "text": "Confidential.",
+   "field": "inputs[1].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L1.S1",
+   "kind": "required_inputs",
+   "text": "This procedure does not apply to transformers, cables, generators or motors rated above 11 kV; such requests are out of scope and must be referred to the electrical authority.",
+   "field": "inputs[0].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L1.S1",
+   "kind": "required_inputs",
+   "text": "This procedure does not apply to transformers, cables, generators or motors rated above 11 kV; such requests are out of scope and must be referred to the electrical authority.",
+   "field": "inputs[1].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L2.S0",
+   "kind": "required_inputs",
+   "text": "Required inputs: motor rated voltage in kV, measured insulation resistance in megohms, winding temperature in degrees Celsius at the time of test, and polarization index (PI).",
+   "field": "inputs[0].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L2.S0",
+   "kind": "required_inputs",
+   "text": "Required inputs: motor rated voltage in kV, measured insulation resistance in megohms, winding temperature in degrees Celsius at the time of test, and polarization index (PI).",
+   "field": "inputs[1].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L2.S0",
+   "kind": "required_inputs",
+   "text": "Required inputs: motor rated voltage in kV, measured insulation resistance in megohms, winding temperature in degrees Celsius at the time of test, and polarization index (PI).",
+   "field": "inputs[2].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L2.S0",
+   "kind": "required_inputs",
+   "text": "Required inputs: motor rated voltage in kV, measured insulation resistance in megohms, winding temperature in degrees Celsius at the time of test, and polarization index (PI).",
+   "field": "inputs[3].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L2.S0",
+   "kind": "required_inputs",
+   "text": "Required inputs: motor rated voltage in kV, measured insulation resistance in megohms, winding temperature in degrees Celsius at the time of test, and polarization index (PI).",
+   "field": "inputs",
+   "issue": "an input is declared twice"
+  },
+  {
+   "clause": "L2.S0",
+   "kind": "scope_limit",
+   "text": "Required inputs: motor rated voltage in kV, measured insulation resistance in megohms, winding temperature in degrees Celsius at the time of test, and polarization index (PI).",
+   "field": "value",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L2.S1",
+   "kind": "scope_limit",
+   "text": "If any input is missing the result is insufficient input and the test must be repeated with full records.",
+   "field": "value",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L2.S1",
+   "kind": "required_inputs",
+   "text": "If any input is missing the result is insufficient input and the test must be repeated with full records.",
+   "field": "inputs[0].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L2.S1",
+   "kind": "required_inputs",
+   "text": "If any input is missing the result is insufficient input and the test must be repeated with full records.",
+   "field": "inputs[1].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L2.S1",
+   "kind": "required_inputs",
+   "text": "If any input is missing the result is insufficient input and the test must be repeated with full records.",
+   "field": "inputs[2].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L2.S1",
+   "kind": "required_inputs",
+   "text": "If any input is missing the result is insufficient input and the test must be repeated with full records.",
+   "field": "inputs[3].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L2.S1",
+   "kind": "required_inputs",
+   "text": "If any input is missing the result is insufficient input and the test must be repeated with full records.",
+   "field": "inputs",
+   "issue": "an input is declared twice"
+  },
+  {
+   "clause": "L2.S1",
+   "kind": "validity",
+   "text": "If any input is missing the result is insufficient input and the test must be repeated with full records.",
+   "field": "min",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L2.S1",
+   "kind": "validity",
+   "text": "If any input is missing the result is insufficient input and the test must be repeated with full records.",
+   "field": "max",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L3.S0",
+   "kind": "required_inputs",
+   "text": "Step 1 validity: the winding temperature must be between 10 and 75 degrees Celsius inclusive.",
+   "field": "inputs[0].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L3.S0",
+   "kind": "required_inputs",
+   "text": "Step 1 validity: the winding temperature must be between 10 and 75 degrees Celsius inclusive.",
+   "field": "inputs[1].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L3.S1",
+   "kind": "scope_limit",
+   "text": "Outside that range the test is invalid and must be repeated.",
+   "field": "value",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L3.S1",
+   "kind": "validity",
+   "text": "Outside that range the test is invalid and must be repeated.",
+   "field": "min",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L3.S1",
+   "kind": "validity",
+   "text": "Outside that range the test is invalid and must be repeated.",
+   "field": "max",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L5.S0",
+   "kind": "required_inputs",
+   "text": "Step 3 minimum: the minimum acceptable corrected resistance is 10 times (rated kV plus 1) megohms.",
+   "field": "inputs[1].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L6.S1",
+   "kind": "scope_limit",
+   "text": "If it is below the minimum, dry out the winding and retest.",
+   "field": "value",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L6.S1",
+   "kind": "required_inputs",
+   "text": "If it is below the minimum, dry out the winding and retest.",
+   "field": "inputs[0].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L6.S1",
+   "kind": "required_inputs",
+   "text": "If it is below the minimum, dry out the winding and retest.",
+   "field": "inputs[1].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L6.S2",
+   "kind": "required_inputs",
+   "text": "If the resistance is acceptable but PI is below 1.5, dry out.",
+   "field": "inputs[0].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L6.S2",
+   "kind": "required_inputs",
+   "text": "If the resistance is acceptable but PI is below 1.5, dry out.",
+   "field": "inputs[1].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L6.S3",
+   "kind": "required_inputs",
+   "text": "If PI is at least 1.5 but below 2.0, accept for service with a retest in 30 days.",
+   "field": "inputs[0].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L6.S3",
+   "kind": "required_inputs",
+   "text": "If PI is at least 1.5 but below 2.0, accept for service with a retest in 30 days.",
+   "field": "inputs[1].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L6.S4",
+   "kind": "scope_limit",
+   "text": "Otherwise pass.",
+   "field": "value",
+   "value": 0.0,
+   "issue": "number not stated in clause"
+  },
+  {
+   "clause": "L6.S4",
+   "kind": "scope_exclusion_terms",
+   "text": "Otherwise pass.",
+   "field": "terms",
+   "issue": "no term present in clause"
+  },
+  {
+   "clause": "L6.S4",
+   "kind": "required_inputs",
+   "text": "Otherwise pass.",
+   "field": "inputs[0].cues",
+   "issue": "cued input without a cue present in clause"
+  },
+  {
+   "clause": "L6.S4",
+   "kind": "required_inputs",
+   "text": "Otherwise pass.",
+   "field": "inputs[1].cues",
+   "issue": "cued input without a cue present in clause"
+  }
+ ],
+ "assembly_issues": [
+  {
+   "clause": null,
+   "issue": "missing_input_outcome not stated by any claim"
+  }
+ ],
+ "coverage_issues": [],
+ "field_provenance": {
+  "evidence": 27,
+  "repaired": 38,
+  "hypothesis": 35,
+  "issues": 36
+ },
+ "compile_error": "IRError: assembly incomplete",
+ "status": "NEEDS_EXPERT_CLARIFICATION"
+}
