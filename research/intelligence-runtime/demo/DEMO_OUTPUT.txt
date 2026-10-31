@@ -1,0 +1,186 @@
+
+=== Scene 6 — offline operation (checked first; every later model call runs the same way) ===
+1.1.1.1 unreachable: OSError
+8.8.8.8 unreachable: OSError
+
+=== Setup — fresh installation, keys, ingest (19 documents, 3 organisations) ===
+{"config": "/tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo/state/config.json", "ingested": 19}
+
+=== Scene 1 — private intelligence: an authorised engineer asks about a confidential procedure ===
+{
+ "strategy": {
+  "GroundedQa": "Small"
+ },
+ "outcome": {
+  "kind": "answer",
+  "sources": [
+   "ep-114",
+   "ep-090"
+  ],
+  "text": "10 times (rated kV plus 1) megohms"
+ },
+ "wall_ms": 14120.7,
+ "model_calls": 1,
+ "cpu_s": {
+  "llama-small": 23.73,
+  "runtime": 1.06,
+  "sidecar": 0.18
+ },
+ "rss_mib": {
+  "llama-small": 2198.1,
+  "runtime": 7.1,
+  "sidecar": 153.4
+ },
+ "error": null
+}
+
+=== Scene 2 — efficient computation: a structured report decided by exact rules, no model ===
+{
+ "strategy": "Exact",
+ "outcome": {
+  "detail": {
+   "via": "exact rules"
+  },
+  "kind": "decision",
+  "label": "1"
+ },
+ "wall_ms": 2.0,
+ "model_calls": 0,
+ "cpu_s": {
+  "runtime": 0.0,
+  "sidecar": 0.0
+ },
+ "rss_mib": {
+  "runtime": 5.9,
+  "sidecar": 153.1
+ },
+ "error": null
+}
+
+=== Scene 3 — learning: draft -> corrections -> signed expert suite -> validation -> approval -> active ===
+using recorded model draft: /home/claude/rt-wt/research/capability-learning/results/propose_qwen1.5b-q8/round_1.json
+-- model draft on the demonstrations:
+{"compiled":false,"error":"UndefinedVariable { field: \"rules[1]\", var: \"minimum\" }"}
+{"corrections": 7, "out": "/tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo/capability.json"}
+{"cases":14,"hash":"813b893ec2a43e7e61e8d8d70ca1df6c0c5138dcdb57a48b9e4fdc78ecbae908","suite":"ir-tasks-v1/validation"}
+{'passed': True, 'expert_cases': 14, 'expert_passed': 14, 'counterexamples': 4, 'suite_signature_ok': True, 'suite_independent': True, 'evidence_scope_ok': True}
+{"approver":"user:koravi-elec-authority","hash":"9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842","state":"APPROVED"}
+{"hash":"9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842","state":"ACTIVE"}
+{"executable":true,"hash":"9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842","id":"koravi.ep114.ir-acceptance.learned","state":"ACTIVE","version":1}
+
+=== Scene 4 — reuse on a new example (not in the demos or the validation suite), no fine-tuning ===
+{
+ "strategy": {
+  "Capability": {
+   "hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+   "id": "koravi.ep114.ir-acceptance.learned"
+  }
+ },
+ "outcome": {
+  "detail": {
+   "step": "default",
+   "values": {
+    "corrected_resistance": 127.27922061357856,
+    "measured_insulation": 180.0,
+    "minimum": 76.0,
+    "polarization_index": 2.6,
+    "rated_voltage": 6.6,
+    "winding_temperature": 35.0
+   }
+  },
+  "kind": "decision",
+  "label": "PASS"
+ },
+ "wall_ms": 0.5,
+ "model_calls": 0,
+ "cpu_s": {
+  "runtime": 0.0,
+  "sidecar": 0.0
+ },
+ "rss_mib": {
+  "runtime": 6.2,
+  "sidecar": 153.3
+ },
+ "error": null
+}
+-- for comparison, recorded baseline B2 (1.5B + conventional RAG) on the 32 unseen decision items:
+{'B2_per_task_cpu_s': 9.077, 'B2_accuracy': 0.125, 'capability_accuracy': 0.906, 'capability_per_task_cpu_s_upper_bound': 0.01, 'break_even_uses_vs_B2': 54}
+
+=== Scene 5 — security: unauthorised principals and a tampered capability ===
+-- another organisation invokes the capability explicitly:
+{
+ "strategy": {
+  "Refuse": {
+   "NotPermitted": {
+    "id": "koravi.ep114.ir-acceptance.learned",
+    "reason": "not authorized for this tenant or domain"
+   }
+  }
+ },
+ "outcome": {
+  "kind": "refused",
+  "refusal": {
+   "NotPermitted": {
+    "id": "koravi.ep114.ir-acceptance.learned",
+    "reason": "not authorized for this tenant or domain"
+   }
+  }
+ },
+ "wall_ms": 0.4,
+ "model_calls": 0,
+ "cpu_s": {
+  "runtime": 0.0,
+  "sidecar": 0.0
+ },
+ "rss_mib": {
+  "runtime": 5.9,
+  "sidecar": 153.1
+ },
+ "error": null
+}
+-- same organisation, lower clearance, same request:
+{
+ "strategy": {
+  "Refuse": "NoApplicableStrategy"
+ },
+ "outcome": {
+  "kind": "refused",
+  "refusal": "NoApplicableStrategy"
+ },
+ "wall_ms": 5.8,
+ "model_calls": 0,
+ "cpu_s": {
+  "runtime": 0.0,
+  "sidecar": 0.01
+ },
+ "rss_mib": {
+  "runtime": 5.8,
+  "sidecar": 153.1
+ },
+ "error": null
+}
+-- tamper with the stored capability (weaken REJECT threshold) and retry:
+{
+ "strategy": {
+  "Refuse": "NoApplicableStrategy"
+ },
+ "outcome": {
+  "kind": "refused",
+  "refusal": "NoApplicableStrategy"
+ },
+ "wall_ms": 1.9,
+ "model_calls": 0,
+ "cpu_s": {
+  "runtime": 0.0,
+  "sidecar": 0.0
+ },
+ "rss_mib": {
+  "runtime": 5.9,
+  "sidecar": 153.2
+ },
+ "error": null
+}
+{"executable":false,"hash":"9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842","id":"koravi.ep114.ir-acceptance.learned","state":"ACTIVE","version":1}
+
+=== Audit chain ===
+{"chain":"ok","records":6}
