@@ -10,28 +10,29 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
 .answer{font-size:17px} .decision b{color:var(--ok)} .refused{color:var(--bad)} .warn{color:var(--bad);font-size:14px}
 .src{color:var(--mute);font-size:13px} pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px} details{margin:6px 0;color:var(--mute)}
 </style></head><body><main><h1>SYNTRIASS — private AI, offline</h1>
-<p class=lede>Every value on this page is copied from the runtime's own output for this run (/tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo-final), or from a recorded benchmark file named next to it.</p>
-<section><h2><span>1</span>Private AI</h2><p class=why>An authorised engineer asks about a confidential procedure. The answer comes from local documents the engineer may read, with the evidence cited.</p><p class=answer>“The test is invalid and must be repeated with full records.”</p><p>Evidence: ep-114, ep-090</p><table><tr><th>How it was executed</th><td>Local language model, grounded in documents</td></tr><tr><th>Language-model calls</th><td>1</td></tr><tr><th>Latency</th><td>14956.1 ms</td></tr><tr><th>CPU seconds (per process)</th><td>llama-small 25.14, runtime 1.03, sidecar 0.17</td></tr><tr><th>Resident memory (MiB)</th><td>llama-small 2198.3, runtime 7.0, sidecar 153.8</td></tr></table><details><summary>raw runtime output</summary><pre>{
- &quot;audit_hash&quot;: &quot;520942d9db934b87ab957c7931b3277d34570050a786ac761bf0f3b343ea2806&quot;,
+<p class=lede>Every value on this page is copied from the runtime's own output for this run (/home/claude/syntriass-demo-v02), or from a recorded benchmark file named next to it.</p>
+<section><h2><span>1</span>Private AI</h2><p class=why>An authorised engineer asks about a confidential procedure. The answer comes from local documents the engineer may read, with the evidence cited.</p><p class=answer>“The test is invalid and must be repeated with full records.”</p><p>Evidence: ep-114, ep-090</p><table><tr><th>How it was executed</th><td>Local language model, grounded in documents</td></tr><tr><th>Language-model calls</th><td>1</td></tr><tr><th>Latency</th><td>11310.6 ms</td></tr><tr><th>CPU seconds (per process)</th><td>llama-small 19.36, runtime 1.02, sidecar 0.13</td></tr><tr><th>Resident memory (MiB)</th><td>llama-small 2197.8, runtime 7.0, sidecar 154.3</td></tr></table><details><summary>raw runtime output</summary><pre>{
+ &quot;audit_hash&quot;: &quot;f8cb885c0ef3c771a6b8ae8d4353df3236874b5f6a404ca64dd4f5b7c0537f0b&quot;,
  &quot;capability_hash&quot;: null,
  &quot;cost&quot;: {
   &quot;cached_tokens&quot;: 0,
   &quot;completion_tokens&quot;: 35,
   &quot;cpu_s&quot;: {
-   &quot;llama-small&quot;: 25.14,
-   &quot;runtime&quot;: 1.03,
-   &quot;sidecar&quot;: 0.17
+   &quot;llama-small&quot;: 19.36,
+   &quot;runtime&quot;: 1.02,
+   &quot;sidecar&quot;: 0.13
   },
+  &quot;escalations&quot;: 0,
   &quot;interpreter_calls&quot;: 1,
   &quot;model_calls&quot;: 1,
-  &quot;model_load_ms&quot;: 5664.451231,
+  &quot;model_load_ms&quot;: 2060.622886,
   &quot;prompt_tokens&quot;: 562,
   &quot;rss_mib&quot;: {
-   &quot;llama-small&quot;: 2198.3,
+   &quot;llama-small&quot;: 2197.8,
    &quot;runtime&quot;: 7.0,
-   &quot;sidecar&quot;: 153.8
+   &quot;sidecar&quot;: 154.3
   },
-  &quot;wall_ms&quot;: 14956.120755
+  &quot;wall_ms&quot;: 11310.590241
  },
  &quot;outcome&quot;: {
   &quot;kind&quot;: &quot;answer&quot;,
@@ -44,27 +45,28 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
  &quot;strategy&quot;: {
   &quot;GroundedQa&quot;: &quot;Small&quot;
  }
-}</pre></details><h3>Question that needs a calculation</h3><p>The local model only restated the rule, so the runtime says the calculation was not completed instead of presenting it as an answer.</p><p class=refused>Withheld: calculation not completed: the authorised source gives the rule &quot;10 times (rated kV plus 1) megohms&quot; (ep-114, ep-090), but the value for this request was not computed</p><table><tr><th>How it was executed</th><td>Local language model, grounded in documents</td></tr><tr><th>Language-model calls</th><td>1</td></tr><tr><th>Latency</th><td>12812.6 ms</td></tr><tr><th>CPU seconds (per process)</th><td>llama-small 21.27, runtime 1.01, sidecar 0.14</td></tr><tr><th>Resident memory (MiB)</th><td>llama-small 2198.3, runtime 7.1, sidecar 154.0</td></tr></table><details><summary>raw runtime output</summary><pre>{
- &quot;audit_hash&quot;: &quot;ddc312282039cae2aad66c3a6a937c766732e5f2be9f77c80e6830bf163456cc&quot;,
+}</pre></details><h3>Question that needs a calculation</h3><p>The local model only restated the rule, so the runtime says the calculation was not completed instead of presenting it as an answer.</p><p class=refused>Withheld: calculation not completed: the authorised source gives the rule &quot;10 times (rated kV plus 1) megohms&quot; (ep-114, ep-090), but the value for this request was not computed</p><table><tr><th>How it was executed</th><td>Local language model, grounded in documents</td></tr><tr><th>Language-model calls</th><td>1</td></tr><tr><th>Latency</th><td>11926.6 ms</td></tr><tr><th>CPU seconds (per process)</th><td>llama-small 20.4, runtime 1.03, sidecar 0.19</td></tr><tr><th>Resident memory (MiB)</th><td>llama-small 2197.7, runtime 7.1, sidecar 154.2</td></tr></table><details><summary>raw runtime output</summary><pre>{
+ &quot;audit_hash&quot;: &quot;217886e0b869b51a37a6c0b9833d71e9f4774eb4680b0a91e8a0eaa977b70453&quot;,
  &quot;capability_hash&quot;: null,
  &quot;cost&quot;: {
   &quot;cached_tokens&quot;: 0,
   &quot;completion_tokens&quot;: 38,
   &quot;cpu_s&quot;: {
-   &quot;llama-small&quot;: 21.27,
-   &quot;runtime&quot;: 1.01,
-   &quot;sidecar&quot;: 0.14
+   &quot;llama-small&quot;: 20.4,
+   &quot;runtime&quot;: 1.03,
+   &quot;sidecar&quot;: 0.19
   },
+  &quot;escalations&quot;: 0,
   &quot;interpreter_calls&quot;: 1,
   &quot;model_calls&quot;: 1,
-  &quot;model_load_ms&quot;: 3213.690926,
+  &quot;model_load_ms&quot;: 2127.4905500000004,
   &quot;prompt_tokens&quot;: 559,
   &quot;rss_mib&quot;: {
-   &quot;llama-small&quot;: 2198.3,
+   &quot;llama-small&quot;: 2197.7,
    &quot;runtime&quot;: 7.1,
-   &quot;sidecar&quot;: 154.0
+   &quot;sidecar&quot;: 154.2
   },
-  &quot;wall_ms&quot;: 12812.582300999999
+  &quot;wall_ms&quot;: 11926.640902000001
  },
  &quot;outcome&quot;: {
   &quot;kind&quot;: &quot;withheld&quot;,
@@ -73,8 +75,8 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
  &quot;strategy&quot;: {
   &quot;GroundedQa&quot;: &quot;Small&quot;
  }
-}</pre></details></section><section><h2><span>2</span>Efficient execution</h2><p class=why>A routine structured report does not need a language model: deterministic rules decide it.</p><p class=decision>Decision: <b>1</b></p><table><tr><th>How it was executed</th><td>Exact computation (deterministic rules)</td></tr><tr><th>Language-model calls</th><td>0</td></tr><tr><th>Latency</th><td>2.6 ms</td></tr><tr><th>CPU seconds (per process)</th><td>runtime 0.0, sidecar 0.01</td></tr><tr><th>Resident memory (MiB)</th><td>runtime 5.9, sidecar 154.0</td></tr></table><details><summary>raw runtime output</summary><pre>{
- &quot;audit_hash&quot;: &quot;f61218a078a90b5a1cb01de4d251d89a51f64b0b6ef06cbefa3ca1c6a6aef636&quot;,
+}</pre></details></section><section><h2><span>2</span>Efficient execution</h2><p class=why>A routine structured report does not need a language model: deterministic rules decide it.</p><p class=decision>Decision: <b>1</b></p><table><tr><th>How it was executed</th><td>Exact computation (deterministic rules)</td></tr><tr><th>Language-model calls</th><td>0</td></tr><tr><th>Latency</th><td>5.6 ms</td></tr><tr><th>CPU seconds (per process)</th><td>runtime 0.0, sidecar 0.01</td></tr><tr><th>Resident memory (MiB)</th><td>runtime 5.9, sidecar 153.9</td></tr></table><details><summary>raw runtime output</summary><pre>{
+ &quot;audit_hash&quot;: &quot;f6aa978d226c8827e1030beb62dff2e2fa59eb616ce1758eb95978b271565795&quot;,
  &quot;capability_hash&quot;: null,
  &quot;cost&quot;: {
   &quot;cached_tokens&quot;: 0,
@@ -83,15 +85,16 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
    &quot;runtime&quot;: 0.0,
    &quot;sidecar&quot;: 0.01
   },
+  &quot;escalations&quot;: 0,
   &quot;interpreter_calls&quot;: 1,
   &quot;model_calls&quot;: 0,
   &quot;model_load_ms&quot;: 0.0,
   &quot;prompt_tokens&quot;: 0,
   &quot;rss_mib&quot;: {
    &quot;runtime&quot;: 5.9,
-   &quot;sidecar&quot;: 154.0
+   &quot;sidecar&quot;: 153.9
   },
-  &quot;wall_ms&quot;: 2.550549
+  &quot;wall_ms&quot;: 5.563618
  },
  &quot;outcome&quot;: {
   &quot;detail&quot;: {
@@ -101,7 +104,7 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
   &quot;label&quot;: &quot;1&quot;
  },
  &quot;strategy&quot;: &quot;Exact&quot;
-}</pre></details></section><section><h2><span>3</span>Teach the AI</h2><p class=why>An organisation&#x27;s procedure becomes a typed, versioned capability. It cannot approve itself: an independent expert&#x27;s signed tests and a separate approver are required.</p><h3>What the local model proposed</h3><p>The model's own draft did not compile: UndefinedVariable { field: &quot;rules[1]&quot;, var: &quot;minimum&quot; }</p><p>An engineer applied 7 cited corrections (recorded). The capability was then validated against a test suite signed by an independent expert:</p><table><tr><th>passed</th><td>True</td></tr><tr><th>expert_cases</th><td>14</td></tr><tr><th>expert_passed</th><td>14</td></tr><tr><th>counterexamples</th><td>4</td></tr><tr><th>counterexamples_passed</th><td>4</td></tr><tr><th>suite_signature_ok</th><td>True</td></tr><tr><th>suite_independent</th><td>True</td></tr><tr><th>evidence_scope_ok</th><td>True</td></tr></table><p>Lifecycle record: koravi.ep114.ir-acceptance.learned v1 ACTIVE (executable=True)</p><h3>New in this sprint: constrained capability compiler (research result)</h3><table><tr><th>valid capabilities proposed without manual correction (all methods, both families)</th><td>0</td></tr><tr><th>compiling proposal rounds: old proposer vs typed-IR compiler (single form)</th><td>3/9 vs 6/6</td></tr><tr><th>fresh family after engineer IR corrections: expert suite</th><td>12/12</td></tr><tr><th>fresh family unseen decisions correct (strict / intended)</th><td>26/30 / 29/30</td></tr><tr><th>incorrect positive decisions</th><td>0</td></tr><tr><th>false activations</th><td>0/6</td></tr><tr><th>unauthorized uses</th><td>0/18</td></tr><tr><th>model calls during reuse</th><td>0</td></tr></table><p class=src>source: research/capability-learning/results/sprint/summary.json</p><details><summary>raw runtime output</summary><pre>{
+}</pre></details></section><section><h2><span>3</span>Teach the AI</h2><p class=why>An organisation&#x27;s procedure becomes a typed, versioned capability. It cannot approve itself: an independent expert&#x27;s signed tests and a separate approver are required.</p><h3>What the local model proposed</h3><p>The model's own draft did not compile: UndefinedVariable { field: &quot;rules[1]&quot;, var: &quot;minimum&quot; }</p><p>An engineer applied 7 cited corrections (recorded). The capability was then validated against a test suite signed by an independent expert:</p><table><tr><th>passed</th><td>True</td></tr><tr><th>expert_cases</th><td>14</td></tr><tr><th>expert_passed</th><td>14</td></tr><tr><th>counterexamples</th><td>4</td></tr><tr><th>counterexamples_passed</th><td>4</td></tr><tr><th>suite_signature_ok</th><td>True</td></tr><tr><th>suite_independent</th><td>True</td></tr><tr><th>evidence_scope_ok</th><td>True</td></tr></table><p>Lifecycle record: koravi.ep114.ir-acceptance.learned v1 ACTIVE (executable=True)</p><h3>New in this sprint: constrained capability compiler (research result)</h3><table><tr><th>valid capabilities proposed without manual correction (all methods, both families)</th><td>0</td></tr><tr><th>compiling proposal rounds: old proposer vs typed-IR compiler (single form)</th><td>3/9 vs 6/6</td></tr><tr><th>fresh family after engineer IR corrections: expert suite</th><td>12/12</td></tr><tr><th>fresh family unseen decisions correct (strict / intended)</th><td>26/30 / 29/30</td></tr><tr><th>incorrect positive decisions</th><td>0</td></tr><tr><th>false activations</th><td>0/6</td></tr><tr><th>unauthorized uses</th><td>0/18</td></tr><tr><th>model calls during reuse</th><td>0</td></tr></table><p class=src>source: research/capability-learning/results/sprint/summary.json</p><h3>v0.2: atomic-claim acquisition on a fresh family (research result)</h3><table><tr><th>Fresh family (frozen before pipeline code)</th><td>tx-tasks-v1 (frozen 4072971, before any v0.2 pipeline code; single author)</td></tr><tr><th>Atomic pipeline: model calls / CPU-s</th><td>16 / 69.17</td></tr><tr><th>Atomic pipeline status (primary run)</th><td>NEEDS_EXPERT_CLARIFICATION — boundary probe b-003 (runtime did not read -0.001 °C)</td></tr><tr><th>Engineer-taught, primary run</th><td>rejected by signed suite (same parser defect)</td></tr><tr><th>After parser fix: atomic as proposed</th><td>rejected by signed suite (plural exclusion terms)</td></tr><tr><th>After 3 expert edits (vs 68 hand-authored)</th><td>validated; 25/30 strict, 0 wrong releases</td></tr><tr><th>Local model baselines B1/B2/B3</th><td>1/30 / 3/30 / 4/30</td></tr></table><p class=src>source: research/capability-learning/results/v02/summary.json</p><details><summary>raw runtime output</summary><pre>{
  &quot;capability_hash&quot;: &quot;9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842&quot;,
  &quot;suite_hash&quot;: &quot;813b893ec2a43e7e61e8d8d70ca1df6c0c5138dcdb57a48b9e4fdc78ecbae908&quot;,
  &quot;suite_expert&quot;: &quot;expert:koravi-elec-lead&quot;,
@@ -119,9 +122,9 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
  &quot;evidence_scope_ok&quot;: true,
  &quot;failures&quot;: [],
  &quot;passed&quot;: true,
- &quot;wall_micros&quot;: 382
-}</pre></details></section><section><h2><span>4</span>Reuse intelligence</h2><p class=why>A new request the capability has never seen. It runs the approved procedure exactly, with no language-model call and no fine-tuning.</p><p class=decision>Decision: <b>PASS</b></p><p>Values used: corrected_resistance=127.2792, measured_insulation=180.0, minimum=76.0, polarization_index=2.6, rated_voltage=6.6, winding_temperature=35.0</p><table><tr><th>How it was executed</th><td>Approved capability (no language model)</td></tr><tr><th>Language-model calls</th><td>0</td></tr><tr><th>Latency</th><td>0.5 ms</td></tr><tr><th>CPU seconds (per process)</th><td>runtime 0.0, sidecar 0.0</td></tr><tr><th>Resident memory (MiB)</th><td>runtime 6.1, sidecar 154.1</td></tr></table><details><summary>raw runtime output</summary><pre>{
- &quot;audit_hash&quot;: &quot;97484c4ec1e15dcfc8aae733e279a54dbd82aa6f3f69257e906bc7c66a9e2f19&quot;,
+ &quot;wall_micros&quot;: 378
+}</pre></details></section><section><h2><span>4</span>Reuse intelligence</h2><p class=why>A new request the capability has never seen. It runs the approved procedure exactly, with no language-model call and no fine-tuning.</p><p class=decision>Decision: <b>PASS</b></p><p>Values used: corrected_resistance=127.2792, measured_insulation=180.0, minimum=76.0, polarization_index=2.6, rated_voltage=6.6, winding_temperature=35.0</p><table><tr><th>How it was executed</th><td>Approved capability (no language model)</td></tr><tr><th>Language-model calls</th><td>0</td></tr><tr><th>Latency</th><td>0.5 ms</td></tr><tr><th>CPU seconds (per process)</th><td>runtime 0.0, sidecar 0.0</td></tr><tr><th>Resident memory (MiB)</th><td>runtime 6.1, sidecar 154.2</td></tr></table><details><summary>raw runtime output</summary><pre>{
+ &quot;audit_hash&quot;: &quot;e59da52fb87923a049a99508fbe03154e9ca7e207d44d3d4188b4cfa0d66467c&quot;,
  &quot;capability_hash&quot;: &quot;9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842&quot;,
  &quot;cost&quot;: {
   &quot;cached_tokens&quot;: 0,
@@ -130,15 +133,16 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
    &quot;runtime&quot;: 0.0,
    &quot;sidecar&quot;: 0.0
   },
+  &quot;escalations&quot;: 0,
   &quot;interpreter_calls&quot;: 0,
   &quot;model_calls&quot;: 0,
   &quot;model_load_ms&quot;: 0.0,
   &quot;prompt_tokens&quot;: 0,
   &quot;rss_mib&quot;: {
    &quot;runtime&quot;: 6.1,
-   &quot;sidecar&quot;: 154.1
+   &quot;sidecar&quot;: 154.2
   },
-  &quot;wall_ms&quot;: 0.49996100000000004
+  &quot;wall_ms&quot;: 0.502541
  },
  &quot;outcome&quot;: {
   &quot;detail&quot;: {
@@ -161,10 +165,56 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
    &quot;id&quot;: &quot;koravi.ep114.ir-acceptance.learned&quot;
   }
  }
-}</pre></details></section><section><h2><span>5</span>Compare cost</h2><p class=why>Measured cost per correct answer against conventional local-model approaches on the same machine and tasks.</p><table><tr><th>System</th><th>Accuracy (32 unseen decisions)</th><th>CPU-s per task</th><th>CPU-s per correct answer</th></tr><tr><td>Local model alone (B1)</td><td>0.094</td><td>3.23</td><td>34.45</td></tr><tr><td>Local model + document retrieval (B2)</td><td>0.125</td><td>9.077</td><td>72.62</td></tr><tr><td>Local model + prompt-based skills (B3)</td><td>0.156</td><td>15.866</td><td>101.54</td></tr><tr><td><b>Approved capability</b></td><td>0.906</td><td>≤ 0.01</td><td>see break-even</td></tr></table><p>Acquisition: 484.3 model CPU-s plus human inputs {&#x27;demonstrations&#x27;: 6, &#x27;engineer_corrections&#x27;: 7, &#x27;signed_expert_cases&#x27;: 14, &#x27;approvals&#x27;: 1, &#x27;human_time&#x27;: &#x27;not measured&#x27;}. Break-even uses (compute only): {&#x27;B1&#x27;: 151, &#x27;B2&#x27;: 54, &#x27;B3&#x27;: 31}.</p><p class=warn>CPU-only research results on a 2-core, 8 GB virtual machine with 0.5–1.5B models. Human time was not measured; these are not total-cost figures.</p><p class=src>source: research/capability-learning/results/economics.json</p></section><section><h2><span>6</span>Offline operation</h2><p class=why>Every model call runs inside a network namespace with no route out; the check below ran in that namespace.</p><pre>1.1.1.1 unreachable: OSError
+}</pre></details></section><section><h2><span>5</span>Organisational memory</h2><p class=why>Verified field experience exposes a gap. An engineer proposes v2; it must pass every old and new expert case without regression, be approved, and supersede v1 — which stays available for rollback.</p><h3>Experience is recorded, not applied</h3><table><tr><th>considered</th><td>2</td></tr><tr><th>agreed</th><td>0</td></tr><tr><th>skipped_unverified</th><td>0</td></tr><tr><th>skipped_other_tenant</th><td>0</td></tr></table><p>Disagreements with the active version: field-001: expected INSUFFICIENT_INPUT, got NOT_APPLICABLE, field-002: expected PASS, got INSUFFICIENT_INPUT</p><h3>New version checked against old and new expert cases</h3><table><tr><th>from_version</th><td>1</td></tr><tr><th>to_version</th><td>2</td></tr><tr><th>cases</th><td>16</td></tr><tr><th>old_passed</th><td>14</td></tr><tr><th>new_passed</th><td>16</td></tr><tr><th>acceptable</th><td>True</td></tr><tr><th>scope_notes</th><td>[&#x27;applicability terms added: [&quot;resistance&quot;]&#x27;]</td></tr><tr><th>regressions</th><td>0</td></tr><tr><th>fixes</th><td>field-001, field-002</td></tr></table><h3>Request decided by the new version</h3><p class=decision>Decision: <b>PASS</b></p><p>Values used: corrected_resistance=400.0, measured_insulation=400.0, minimum=76.0, polarization_index=2.5, rated_voltage=6.6, winding_temperature=40.0</p><table><tr><th>How it was executed</th><td>Approved capability (no language model)</td></tr><tr><th>Language-model calls</th><td>0</td></tr><tr><th>Latency</th><td>0.5 ms</td></tr><tr><th>CPU seconds (per process)</th><td>runtime 0.0, sidecar 0.0</td></tr><tr><th>Resident memory (MiB)</th><td>runtime 6.2, sidecar 154.1</td></tr></table><h3>After rollback (approver)</h3><table><tr><th>version</th><th>state</th><th>executable</th><th>audited uses</th></tr><tr><td>v1</td><td>ACTIVE</td><td>True</td><td>1</td></tr><tr><td>v2</td><td>SUSPENDED</td><td>False</td><td>1</td></tr></table><details><summary>raw runtime output</summary><pre>{
+ &quot;capability_id&quot;: &quot;koravi.ep114.ir-acceptance.learned&quot;,
+ &quot;from_version&quot;: 1,
+ &quot;to_version&quot;: 2,
+ &quot;from_hash&quot;: &quot;9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842&quot;,
+ &quot;to_hash&quot;: &quot;b9a5d462f6be4e0b8dcee828c89090bcbeb868b044203f6298837588a1fad2d4&quot;,
+ &quot;suite_hash&quot;: &quot;1100eafe25f6706ab0f32e32ddca97ef71aea7879253531fab0d91f2f98962ab&quot;,
+ &quot;suite_signature_ok&quot;: true,
+ &quot;cases&quot;: 16,
+ &quot;old_passed&quot;: 14,
+ &quot;new_passed&quot;: 16,
+ &quot;regressions&quot;: [],
+ &quot;fixes&quot;: [
+  {
+   &quot;case_id&quot;: &quot;field-001&quot;,
+   &quot;expected&quot;: &quot;INSUFFICIENT_INPUT&quot;,
+   &quot;old&quot;: &quot;NOT_APPLICABLE&quot;,
+   &quot;new&quot;: &quot;INSUFFICIENT_INPUT&quot;
+  },
+  {
+   &quot;case_id&quot;: &quot;field-002&quot;,
+   &quot;expected&quot;: &quot;PASS&quot;,
+   &quot;old&quot;: &quot;INSUFFICIENT_INPUT&quot;,
+   &quot;new&quot;: &quot;PASS&quot;
+  }
+ ],
+ &quot;changes&quot;: [
+  {
+   &quot;case_id&quot;: &quot;field-001&quot;,
+   &quot;expected&quot;: &quot;INSUFFICIENT_INPUT&quot;,
+   &quot;old&quot;: &quot;NOT_APPLICABLE&quot;,
+   &quot;new&quot;: &quot;INSUFFICIENT_INPUT&quot;
+  },
+  {
+   &quot;case_id&quot;: &quot;field-002&quot;,
+   &quot;expected&quot;: &quot;PASS&quot;,
+   &quot;old&quot;: &quot;INSUFFICIENT_INPUT&quot;,
+   &quot;new&quot;: &quot;PASS&quot;
+  }
+ ],
+ &quot;scope_violations&quot;: [],
+ &quot;scope_notes&quot;: [
+  &quot;applicability terms added: [\&quot;resistance\&quot;]&quot;
+ ],
+ &quot;acceptable&quot;: true,
+ &quot;reasons&quot;: []
+}</pre></details></section><section><h2><span>6</span>Compare cost</h2><p class=why>Measured cost per correct answer against conventional local-model approaches on the same machine and tasks.</p><table><tr><th>System</th><th>Accuracy (32 unseen decisions)</th><th>CPU-s per task</th><th>CPU-s per correct answer</th></tr><tr><td>Local model alone (B1)</td><td>0.094</td><td>3.23</td><td>34.45</td></tr><tr><td>Local model + document retrieval (B2)</td><td>0.125</td><td>9.077</td><td>72.62</td></tr><tr><td>Local model + prompt-based skills (B3)</td><td>0.156</td><td>15.866</td><td>101.54</td></tr><tr><td><b>Approved capability</b></td><td>0.906</td><td>≤ 0.01</td><td>see break-even</td></tr></table><p>Acquisition: 484.3 model CPU-s plus human inputs {&#x27;demonstrations&#x27;: 6, &#x27;engineer_corrections&#x27;: 7, &#x27;signed_expert_cases&#x27;: 14, &#x27;approvals&#x27;: 1, &#x27;human_time&#x27;: &#x27;not measured&#x27;}. Break-even uses (compute only): {&#x27;B1&#x27;: 151, &#x27;B2&#x27;: 54, &#x27;B3&#x27;: 31}.</p><p class=warn>CPU-only research results on a 2-core, 8 GB virtual machine with 0.5–1.5B models. Human time was not measured; these are not total-cost figures.</p><p class=src>source: research/capability-learning/results/economics.json</p></section><section><h2><span>7</span>Offline operation</h2><p class=why>Every model call runs inside a network namespace with no route out; the check below ran in that namespace.</p><pre>1.1.1.1 unreachable: OSError
 8.8.8.8 unreachable: OSError
-</pre></section><section><h2><span>7</span>Security</h2><p class=why>Requests without authority are refused; a modified capability stops working.</p><h3>Another organisation invokes the capability</h3><p class=refused>Refused: {&quot;NotPermitted&quot;: {&quot;id&quot;: &quot;koravi.ep114.ir-acceptance.learned&quot;, &quot;reason&quot;: &quot;not authorized for this tenant or domain&quot;}}</p><details><summary>raw runtime output</summary><pre>{
- &quot;audit_hash&quot;: &quot;43b8e8decff24c043c9f23a921d33e867df009f1eec12573e87c297fbbe755fb&quot;,
+</pre></section><section><h2><span>8</span>Security</h2><p class=why>Requests without authority are refused; a modified capability stops working.</p><h3>Another organisation invokes the capability</h3><p class=refused>Refused: {&quot;NotPermitted&quot;: {&quot;id&quot;: &quot;koravi.ep114.ir-acceptance.learned&quot;, &quot;reason&quot;: &quot;not authorized for this tenant or domain&quot;}}</p><details><summary>raw runtime output</summary><pre>{
+ &quot;audit_hash&quot;: &quot;472aea11e22cd8a2edcb82ec0291751a45acada78114f59186607b16db44de9d&quot;,
  &quot;capability_hash&quot;: null,
  &quot;cost&quot;: {
   &quot;cached_tokens&quot;: 0,
@@ -173,15 +223,16 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
    &quot;runtime&quot;: 0.0,
    &quot;sidecar&quot;: 0.0
   },
+  &quot;escalations&quot;: 0,
   &quot;interpreter_calls&quot;: 0,
   &quot;model_calls&quot;: 0,
   &quot;model_load_ms&quot;: 0.0,
   &quot;prompt_tokens&quot;: 0,
   &quot;rss_mib&quot;: {
-   &quot;runtime&quot;: 5.8,
-   &quot;sidecar&quot;: 154.0
+   &quot;runtime&quot;: 6.0,
+   &quot;sidecar&quot;: 154.1
   },
-  &quot;wall_ms&quot;: 0.33022999999999997
+  &quot;wall_ms&quot;: 0.366261
  },
  &quot;outcome&quot;: {
   &quot;kind&quot;: &quot;refused&quot;,
@@ -201,7 +252,7 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
   }
  }
 }</pre></details><h3>Same organisation, lower clearance</h3><p class=refused>Refused: &quot;NoApplicableStrategy&quot;</p><details><summary>raw runtime output</summary><pre>{
- &quot;audit_hash&quot;: &quot;e142def3c7d376fcb756e3c61bb98a9ad356e0f1cd41e8166898744fa62aaba2&quot;,
+ &quot;audit_hash&quot;: &quot;8730c6bc162b6518706d0a707822ef69956b6b21086085af33cb2e03afd93349&quot;,
  &quot;capability_hash&quot;: null,
  &quot;cost&quot;: {
   &quot;cached_tokens&quot;: 0,
@@ -210,6 +261,7 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
    &quot;runtime&quot;: 0.0,
    &quot;sidecar&quot;: 0.0
   },
+  &quot;escalations&quot;: 0,
   &quot;interpreter_calls&quot;: 1,
   &quot;model_calls&quot;: 0,
   &quot;model_load_ms&quot;: 0.0,
@@ -218,7 +270,7 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
    &quot;runtime&quot;: 6.0,
    &quot;sidecar&quot;: 154.1
   },
-  &quot;wall_ms&quot;: 3.257516
+  &quot;wall_ms&quot;: 3.2630250000000003
  },
  &quot;outcome&quot;: {
   &quot;kind&quot;: &quot;refused&quot;,
@@ -228,24 +280,25 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
   &quot;Refuse&quot;: &quot;NoApplicableStrategy&quot;
  }
 }</pre></details><h3>After tampering with the stored capability</h3><p class=refused>Refused: &quot;NoApplicableStrategy&quot;</p><details><summary>raw runtime output</summary><pre>{
- &quot;audit_hash&quot;: &quot;b03834c03ec851b7493c194327fb717d977cf53c6f07017b2dd42cc2c61491f4&quot;,
+ &quot;audit_hash&quot;: &quot;26e1eb5a6729697ef16fb6f889a9ea03c269e7efeb48761e92cafd8169cec174&quot;,
  &quot;capability_hash&quot;: null,
  &quot;cost&quot;: {
   &quot;cached_tokens&quot;: 0,
   &quot;completion_tokens&quot;: 0,
   &quot;cpu_s&quot;: {
    &quot;runtime&quot;: 0.0,
-   &quot;sidecar&quot;: 0.01
+   &quot;sidecar&quot;: 0.0
   },
+  &quot;escalations&quot;: 0,
   &quot;interpreter_calls&quot;: 1,
   &quot;model_calls&quot;: 0,
   &quot;model_load_ms&quot;: 0.0,
   &quot;prompt_tokens&quot;: 0,
   &quot;rss_mib&quot;: {
-   &quot;runtime&quot;: 5.9,
-   &quot;sidecar&quot;: 153.9
+   &quot;runtime&quot;: 6.1,
+   &quot;sidecar&quot;: 154.2
   },
-  &quot;wall_ms&quot;: 3.377301
+  &quot;wall_ms&quot;: 3.2207160000000004
  },
  &quot;outcome&quot;: {
   &quot;kind&quot;: &quot;refused&quot;,
@@ -254,4 +307,4 @@ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertic
  &quot;strategy&quot;: {
   &quot;Refuse&quot;: &quot;NoApplicableStrategy&quot;
  }
-}</pre></details><p>Capability record after tampering: executable=False</p><p>Audit log hash chain: {&#x27;chain&#x27;: &#x27;ok&#x27;, &#x27;records&#x27;: 7}</p></section></main></body></html>
+}</pre></details><p>Capability record after tampering: executable=False, executable=False</p><p>Audit log hash chain: {&#x27;chain&#x27;: &#x27;ok&#x27;, &#x27;records&#x27;: 8}</p></section></main></body></html>

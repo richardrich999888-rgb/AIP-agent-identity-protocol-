@@ -4,7 +4,7 @@
 8.8.8.8 unreachable: OSError
 
 === Setup — fresh installation, keys, ingest (19 documents, 3 organisations) ===
-{"config": "/tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo-final/state/config.json", "ingested": 19}
+{"config": "/home/claude/syntriass-demo-v02/state/config.json", "ingested": 19}
 
 === Scene 1 — private intelligence: an authorised engineer asks about a confidential procedure ===
 {
@@ -19,17 +19,17 @@
   ],
   "text": "The test is invalid and must be repeated with full records."
  },
- "wall_ms": 14956.1,
+ "wall_ms": 11310.6,
  "model_calls": 1,
  "cpu_s": {
-  "llama-small": 25.14,
-  "runtime": 1.03,
-  "sidecar": 0.17
+  "llama-small": 19.36,
+  "runtime": 1.02,
+  "sidecar": 0.13
  },
  "rss_mib": {
-  "llama-small": 2198.3,
+  "llama-small": 2197.8,
   "runtime": 7.0,
-  "sidecar": 153.8
+  "sidecar": 154.3
  },
  "error": null
 }
@@ -42,17 +42,17 @@
   "kind": "withheld",
   "reason": "calculation not completed: the authorised source gives the rule \"10 times (rated kV plus 1) megohms\" (ep-114, ep-090), but the value for this request was not computed"
  },
- "wall_ms": 12812.6,
+ "wall_ms": 11926.6,
  "model_calls": 1,
  "cpu_s": {
-  "llama-small": 21.27,
-  "runtime": 1.01,
-  "sidecar": 0.14
+  "llama-small": 20.4,
+  "runtime": 1.03,
+  "sidecar": 0.19
  },
  "rss_mib": {
-  "llama-small": 2198.3,
+  "llama-small": 2197.7,
   "runtime": 7.1,
-  "sidecar": 154.0
+  "sidecar": 154.2
  },
  "error": null
 }
@@ -67,7 +67,7 @@
   "kind": "decision",
   "label": "1"
  },
- "wall_ms": 2.6,
+ "wall_ms": 5.6,
  "model_calls": 0,
  "cpu_s": {
   "runtime": 0.0,
@@ -75,7 +75,7 @@
  },
  "rss_mib": {
   "runtime": 5.9,
-  "sidecar": 154.0
+  "sidecar": 153.9
  },
  "error": null
 }
@@ -84,7 +84,7 @@
 using recorded model draft: /home/claude/rt-wt/research/capability-learning/results/propose_qwen1.5b-q8/round_1.json
 -- model draft on the demonstrations:
 {"compiled":false,"error":"UndefinedVariable { field: \"rules[1]\", var: \"minimum\" }"}
-{"corrections": 7, "out": "/tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo-final/capability.json"}
+{"corrections": 7, "out": "/home/claude/syntriass-demo-v02/capability.json"}
 {"cases":14,"hash":"813b893ec2a43e7e61e8d8d70ca1df6c0c5138dcdb57a48b9e4fdc78ecbae908","suite":"ir-tasks-v1/validation"}
 {'passed': True, 'expert_cases': 14, 'expert_passed': 14, 'counterexamples': 4, 'suite_signature_ok': True, 'suite_independent': True, 'evidence_scope_ok': True}
 {"approver":"user:koravi-elec-authority","hash":"9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842","state":"APPROVED"}
@@ -122,12 +122,64 @@ using recorded model draft: /home/claude/rt-wt/research/capability-learning/resu
  },
  "rss_mib": {
   "runtime": 6.1,
-  "sidecar": 154.1
+  "sidecar": 154.2
  },
  "error": null
 }
 -- for comparison, recorded baseline B2 (1.5B + conventional RAG) on the 32 unseen decision items:
 {'B2_per_task_cpu_s': 9.077, 'B2_accuracy': 0.125, 'capability_accuracy': 0.906, 'capability_per_task_cpu_s_upper_bound': 0.01, 'break_even_uses_vs_B2': 54}
+
+=== Scene 7 — organisational memory: experience -> new version -> regression check -> approval -> supersede -> rollback ===
+{"experience":"field-001","recorded_by_tenant":"koravi-process","verification":{"verified":{"at_ms":1,"verifier":"expert:koravi-elec-lead"}}}
+{"experience":"field-002","recorded_by_tenant":"koravi-process","verification":{"verified":{"at_ms":1,"verifier":"expert:koravi-elec-lead"}}}
+-- recording an experience changes nothing; review compares the ACTIVE v1 with verified experience:
+{"capability_id":"koravi.ep114.ir-acceptance.learned","capability_version":1,"considered":2,"agreed":0,"disagreements":[{"experience_id":"field-001","expected":"INSUFFICIENT_INPUT","got":"NOT_APPLICABLE"},{"experience_id":"field-002","expected":"PASS","got":"INSUFFICIENT_INPUT"}],"skipped_unverified":0,"skipped_other_tenant":0}
+-- engineer proposes v2 (two typed edits: applicability term 'resistance', cue 'polarisation index'):
+{"cases":16,"hash":"1100eafe25f6706ab0f32e32ddca97ef71aea7879253531fab0d91f2f98962ab","suite":"ir-tasks-v1/regression-v2"}
+-- old vs new on the expert-signed regression suite (old cases + the two field cases):
+{'cases': 16, 'old_passed': 14, 'new_passed': 16, 'acceptable': True, 'scope_notes': ['applicability terms added: ["resistance"]']} regressions: 0 fixes: ['field-001', 'field-002']
+{'v2 validated': True, 'expert_cases': 16}
+{"approver":"user:koravi-elec-authority","hash":"b9a5d462f6be4e0b8dcee828c89090bcbeb868b044203f6298837588a1fad2d4","state":"APPROVED"}
+{"hash":"b9a5d462f6be4e0b8dcee828c89090bcbeb868b044203f6298837588a1fad2d4","state":"ACTIVE","superseded":["9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842"]}
+-- a new request in the field-002 style is now decided by v2, still with no model call:
+{
+ "strategy": {
+  "Capability": {
+   "hash": "b9a5d462f6be4e0b8dcee828c89090bcbeb868b044203f6298837588a1fad2d4",
+   "id": "koravi.ep114.ir-acceptance.learned"
+  }
+ },
+ "outcome": {
+  "detail": {
+   "step": "default",
+   "values": {
+    "corrected_resistance": 400.0,
+    "measured_insulation": 400.0,
+    "minimum": 76.0,
+    "polarization_index": 2.5,
+    "rated_voltage": 6.6,
+    "winding_temperature": 40.0
+   }
+  },
+  "kind": "decision",
+  "label": "PASS"
+ },
+ "wall_ms": 0.5,
+ "model_calls": 0,
+ "cpu_s": {
+  "runtime": 0.0,
+  "sidecar": 0.0
+ },
+ "rss_mib": {
+  "runtime": 6.2,
+  "sidecar": 154.1
+ },
+ "error": null
+}
+-- rollback to v1 (approver), then history:
+{"hash":"9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842","state":"ACTIVE","suspended":["b9a5d462f6be4e0b8dcee828c89090bcbeb868b044203f6298837588a1fad2d4"]}
+{'version': 1, 'state': 'ACTIVE', 'executable': True, 'uses': 1, 'outcomes': {'PASS': 1}}
+{'version': 2, 'state': 'SUSPENDED', 'executable': False, 'uses': 1, 'outcomes': {'PASS': 1}}
 
 === Scene 5 — security: unauthorised principals and a tampered capability ===
 -- another organisation invokes the capability explicitly:
@@ -149,15 +201,15 @@ using recorded model draft: /home/claude/rt-wt/research/capability-learning/resu
    }
   }
  },
- "wall_ms": 0.3,
+ "wall_ms": 0.4,
  "model_calls": 0,
  "cpu_s": {
   "runtime": 0.0,
   "sidecar": 0.0
  },
  "rss_mib": {
-  "runtime": 5.8,
-  "sidecar": 154.0
+  "runtime": 6.0,
+  "sidecar": 154.1
  },
  "error": null
 }
@@ -191,20 +243,21 @@ using recorded model draft: /home/claude/rt-wt/research/capability-learning/resu
   "kind": "refused",
   "refusal": "NoApplicableStrategy"
  },
- "wall_ms": 3.4,
+ "wall_ms": 3.2,
  "model_calls": 0,
  "cpu_s": {
   "runtime": 0.0,
-  "sidecar": 0.01
+  "sidecar": 0.0
  },
  "rss_mib": {
-  "runtime": 5.9,
-  "sidecar": 153.9
+  "runtime": 6.1,
+  "sidecar": 154.2
  },
  "error": null
 }
 {"executable":false,"hash":"9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842","id":"koravi.ep114.ir-acceptance.learned","state":"ACTIVE","version":1}
+{"executable":false,"hash":"b9a5d462f6be4e0b8dcee828c89090bcbeb868b044203f6298837588a1fad2d4","id":"koravi.ep114.ir-acceptance.learned","state":"SUSPENDED","version":2}
 
 === Audit chain ===
-{"chain":"ok","records":7}
-page: /tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo-final/demo.html
+{"chain":"ok","records":8}
+page: /home/claude/syntriass-demo-v02/demo.html

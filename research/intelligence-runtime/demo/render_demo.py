@@ -18,6 +18,7 @@ import sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 ECON = "research/capability-learning/results/economics.json"
 SPRINT = "research/capability-learning/results/sprint/summary.json"
+V02 = "research/capability-learning/results/v02/summary.json"
 
 
 def load(path: str):
@@ -125,6 +126,18 @@ def main() -> None:
         teach += "<h3>New in this sprint: constrained capability compiler (research result)</h3><table>"
         teach += "".join(f"<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>" for k, v in sprint.get("headline", {}).items()) + "</table>"
         teach += f"<p class=src>source: {esc(SPRINT)}</p>"
+    v2 = load(os.path.join(ROOT, V02))
+    if v2:
+        a, pf = v2["arms"]["primary_pre_fix"], v2["arms"]["secondary_post_fix"]
+        rows2 = [("Fresh family (frozen before pipeline code)", v2["family"]),
+                 ("Atomic pipeline: model calls / CPU-s", f"{v2['acquisition']['atomic_model_calls']} / {v2['acquisition']['atomic_model_cpu_s']}"),
+                 ("Atomic pipeline status (primary run)", a["atomic_pipeline"]["status"] + " — " + a["atomic_pipeline"]["blocking"]),
+                 ("Engineer-taught, primary run", "rejected by signed suite (same parser defect)"),
+                 ("After parser fix: atomic as proposed", "rejected by signed suite (plural exclusion terms)"),
+                 ("After 3 expert edits (vs 68 hand-authored)", f"validated; {pf['atomic_plus_3_expert_edits']['strict']}/30 strict, {pf['atomic_plus_3_expert_edits']['wrong_release_decisions']} wrong releases"),
+                 ("Local model baselines B1/B2/B3", " / ".join(f"{v2['baselines'][k]['strict']}/30" for k in ("B1", "B2", "B3")))]
+        teach += "<h3>v0.2: atomic-claim acquisition on a fresh family (research result)</h3><table>" + \
+            "".join(f"<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>" for k, v in rows2) + f"</table><p class=src>source: {esc(V02)}</p>"
     parts.append(section(3, "Teach the AI", "An organisation's procedure becomes a typed, versioned capability. It cannot approve itself: an independent expert's signed tests and a separate approver are required.", teach + raw(val)))
     parts.append(section(4, "Reuse intelligence", "A new request the capability has never seen. It runs the approved procedure exactly, with no language-model call and no fine-tuning.",
                          outcome(s4) + facts(s4) + raw(s4)))

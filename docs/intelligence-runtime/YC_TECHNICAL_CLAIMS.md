@@ -40,6 +40,15 @@ patents is as recorded in the repository; the SYNTRIASS name changes nothing.
    an evidence gate now flags every unsupported number before an expert
    reviews it.
 
+9. **v0.2 (see V02_REPORT.md).** On a third family frozen before the new
+   code, a small local model plus deterministic evidence checks drafted a
+   procedure whose logic matched the engineer's; the system's own boundary
+   probe and the signed expert suite stopped it until 3 typed expert edits
+   (vs 68 hand-authored). Validated: 25/30 strict, 0 wrong releases, vs
+   1–4/30 and 1–14 wrong releases for local 1.5B baselines. Capabilities
+   are versioned, regression-checked against old and new expert cases,
+   superseded and rolled back without retraining. Offline install verified.
+
 ## Claims that must not be made
 
 - That it learns new skills autonomously (the local model's drafts all failed).
