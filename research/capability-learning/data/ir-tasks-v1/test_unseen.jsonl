@@ -1,0 +1,32 @@
+{"equipment": "motor", "id": "test-000", "inputs": {"ir_mohm": 180, "kv": 6.6, "pi": 2.6, "temp_c": 35}, "label": "PASS", "text": "Can we put the 6.6 kV ID fan motor back in service? Megger gave 180 M\u03a9 at 35 \u00b0C, PI 2.6."}
+{"equipment": "motor", "id": "test-001", "inputs": {"ir_mohm": 9, "kv": 0.415, "pi": 2.3, "temp_c": 28}, "label": "REJECT", "text": "Cooling tower fan motor CT-F2, 0.415 kV: 9 M\u03a9 measured, winding at 28 \u00b0C, PI 2.3."}
+{"equipment": "motor", "id": "test-002", "inputs": {"ir_mohm": 18, "kv": 3.3, "pi": 2.4, "temp_c": 55}, "label": "PASS", "text": "BFW pump motor 3.3kV \u2014 IR 18 Mohm @ 55C, polarisation index 2.4"}
+{"equipment": "motor", "id": "test-003", "inputs": {"ir_mohm": 12, "kv": 0.69, "pi": 1.6, "temp_c": 41}, "label": "DRY_OUT", "text": "Agitator motor 0.69 kV insulation 12 Mohm at 41 C PI 1.6"}
+{"equipment": "motor", "id": "test-004", "inputs": {"ir_mohm": 300, "kv": 11, "pi": 1.9, "temp_c": 42}, "label": "RETEST_30D", "text": "HT motor 11kV crusher drive: 300 megohm, 42 degC, PI 1.9"}
+{"equipment": "motor", "id": "test-005", "inputs": {"ir_mohm": 21, "kv": 3.3, "pi": 2.2, "temp_c": 30}, "label": "REJECT", "text": "Conveyor motor 3.3 kV IR 21 Mohm at 30 C, PI 2.2"}
+{"equipment": "motor", "id": "test-006", "inputs": {"ir_mohm": 33, "kv": 6.6, "pi": 2.7, "temp_c": 40}, "label": "REJECT", "text": "6.6 kV compressor motor: 33 megohms at 40 C, PI 2.7 - accept?"}
+{"equipment": "motor", "id": "test-007", "inputs": {"ir_mohm": 120, "kv": 6.6, "pi": 1.4, "temp_c": 62}, "label": "DRY_OUT", "text": "Motor feeding mill 2, 6.6 kV, 120 M\u03a9 at 62 \u00b0C, PI 1.4"}
+{"equipment": "motor", "id": "test-008", "inputs": {"ir_mohm": 4, "kv": 0.415, "pi": 2.0, "temp_c": 33}, "label": "REJECT", "text": "LV motor 0.415 kV, 4 megohm at 33 C, PI 2.0"}
+{"equipment": "motor", "id": "test-009", "inputs": {"ir_mohm": 95, "kv": 11, "pi": 2.3, "temp_c": 48}, "label": "PASS", "text": "Primary air fan motor 11 kV, IR 95 Mohm at 48 C, PI 2.3"}
+{"equipment": "motor", "id": "test-010", "inputs": {"ir_mohm": 46, "kv": 3.3, "pi": 1.5, "temp_c": 40}, "label": "RETEST_30D", "text": "Ash slurry pump motor 3.3 kV: 46 M\u03a9, 40 \u00b0C, PI 1.5"}
+{"equipment": "motor", "id": "test-011", "inputs": {"ir_mohm": 70, "kv": 6.6, "pi": 2.1, "temp_c": 52}, "label": "PASS", "text": "Kiln drive motor 6.6 kV 70 megohms 52C PI 2.1"}
+{"equipment": "motor", "id": "test-012", "inputs": {"ir_mohm": 25, "kv": 6.6, "pi": 2.2, "temp_c": 70}, "label": "PASS", "text": "Boiler feed motor at 6.6 kV: megger 25 M\u03a9, winding temperature 70 \u00b0C, PI 2.2"}
+{"equipment": "motor", "id": "test-013", "inputs": {"ir_mohm": 8, "kv": 3.3, "pi": 2.5, "temp_c": 15}, "label": "REJECT", "text": "Spare motor from store, 3.3 kV, 8 megohms at 15 C, PI 2.5"}
+{"equipment": "motor", "id": "test-014", "inputs": {"ir_mohm": 30, "kv": 0.415, "pi": 2.8, "temp_c": 12}, "label": "REJECT", "text": "Raw water pump motor 0.415 kV, 30 Mohm at 12 C, PI 2.8"}
+{"equipment": "motor", "id": "test-015", "inputs": {"ir_mohm": 61, "kv": 11, "pi": 2.0, "temp_c": 40}, "label": "DRY_OUT", "text": "Induced draft fan motor, 11 kV rating, 61 M\u03a9 at 40 \u00b0C, PI 2.0"}
+{"equipment": "motor", "id": "test-016", "inputs": {"ir_mohm": 5, "kv": 3.3, "pi": 1.1, "temp_c": 30}, "label": "REJECT", "text": "Motor M-7 3.3 kV after flooding: 5 megohms at 30 C, PI 1.1"}
+{"equipment": "motor", "id": "test-017", "inputs": {"ir_mohm": 160, "kv": 6.6, "pi": 2.4, "temp_c": 78}, "label": "INVALID_TEST", "text": "Coal mill motor 6.6kV IR 160Mohm temp 78C PI 2.4"}
+{"equipment": "motor", "id": "test-018", "inputs": {"ir_mohm": 52, "kv": 3.3, "pi": 2.2, "temp_c": 8}, "label": "INVALID_TEST", "text": "Sea water pump motor 3.3 kV, 52 megohms at 8 C, PI 2.2"}
+{"equipment": "motor", "id": "test-019", "inputs": {"ir_mohm": 2000, "kv": 15, "pi": 3.0, "temp_c": 40}, "label": "OUT_OF_SCOPE", "text": "15 kV synchronous motor: 2000 megohms at 40 C, PI 3.0"}
+{"equipment": "generator", "id": "test-020", "inputs": {"ir_mohm": 500, "kv": null, "pi": 2.5, "temp_c": 40}, "label": "OUT_OF_SCOPE", "text": "Generator G-2 stator: IR 500 megohms at 40 C, PI 2.5"}
+{"equipment": "cable", "id": "test-021", "inputs": {"ir_mohm": 1200, "kv": null, "pi": 2.1, "temp_c": 30}, "label": "OUT_OF_SCOPE", "text": "HV cable to feeder 4: 1200 M\u03a9 at 30 \u00b0C, PI 2.1"}
+{"equipment": "transformer", "id": "test-022", "inputs": {"ir_mohm": 350, "kv": null, "pi": 1.8, "temp_c": 45}, "label": "OUT_OF_SCOPE", "text": "Transformer T-3 LV winding megger 350 megohm at 45 C, PI 1.8"}
+{"equipment": "motor", "id": "test-023", "inputs": {"ir_mohm": 140, "kv": 6.6, "pi": null, "temp_c": 40}, "label": "INSUFFICIENT_INPUT", "text": "Motor 6.6 kV, IR 140 megohms at 40 C \u2014 PI test not done yet"}
+{"equipment": "motor", "id": "test-024", "inputs": {"ir_mohm": null, "kv": 3.3, "pi": 2.3, "temp_c": 40}, "label": "INSUFFICIENT_INPUT", "text": "Motor 3.3 kV PI 2.3 at 40 C, resistance reading lost"}
+{"equipment": "motor", "id": "test-025", "inputs": {"ir_mohm": 80, "kv": null, "pi": 2.2, "temp_c": 40}, "label": "INSUFFICIENT_INPUT", "text": "Fan motor IR 80 megohms at 40 C, PI 2.2 (rating plate unreadable)"}
+{"equipment": "motor", "id": "test-026", "inputs": {"ir_mohm": 1200, "kv": 0.415, "pi": 2.4, "temp_c": 40}, "label": "PASS", "text": "Pump motor 0.415 kV, 1.2 G\u03a9 at 40 \u00b0C, PI 2.4"}
+{"equipment": "motor", "id": "test-027", "inputs": {"ir_mohm": 10, "kv": 0.415, "pi": 1.8, "temp_c": 40}, "label": "DRY_OUT", "text": "Blower motor 415 V: 10 megohms at 40 C, PI 1.8"}
+{"equipment": "motor", "id": "test-028", "inputs": {"ir_mohm": 60, "kv": 3.3, "pi": 2.1, "temp_c": 40}, "label": "PASS", "text": "Motor 3.3 kV: 60 M\u03a9 at 104 \u00b0F, PI 2.1"}
+{"equipment": "motor", "id": "test-029", "inputs": {"ir_mohm": 90, "kv": 6.6, "pi": 1.7, "temp_c": 50}, "label": "RETEST_30D", "text": "Mixer motor 6.6 kV IR 0.09 G\u03a9 at 50 \u00b0C PI 1.7"}
+{"equipment": "motor", "id": "test-030", "inputs": {"ir_mohm": 43, "kv": 3.3, "pi": 1.99, "temp_c": 40}, "label": "RETEST_30D", "text": "Condensate pump motor 3.3 kV, 43 megohms at 40 C, PI 1.99"}
+{"equipment": "motor", "id": "test-031", "inputs": {"ir_mohm": 37, "kv": 6.6, "pi": 2.2, "temp_c": 39}, "label": "REJECT", "text": "Stacker motor 6.6 kV, IR 37 megohms at 39 C, PI 2.2"}

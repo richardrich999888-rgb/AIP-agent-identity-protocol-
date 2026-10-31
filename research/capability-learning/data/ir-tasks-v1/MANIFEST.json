@@ -1,0 +1,48 @@
+{
+  "counts": {
+    "demos.jsonl": 6,
+    "false_activation.jsonl": 8,
+    "test_unseen.jsonl": 32,
+    "validation.jsonl": 14
+  },
+  "label_counts": {
+    "demos.jsonl": {
+      "INVALID_TEST": 1,
+      "PASS": 3,
+      "REJECT": 1,
+      "RETEST_30D": 1
+    },
+    "false_activation.jsonl": {
+      "NOT_APPLICABLE": 8
+    },
+    "test_unseen.jsonl": {
+      "DRY_OUT": 4,
+      "INSUFFICIENT_INPUT": 3,
+      "INVALID_TEST": 2,
+      "OUT_OF_SCOPE": 4,
+      "PASS": 7,
+      "REJECT": 8,
+      "RETEST_30D": 4
+    },
+    "validation.jsonl": {
+      "DRY_OUT": 3,
+      "INSUFFICIENT_INPUT": 1,
+      "INVALID_TEST": 1,
+      "OUT_OF_SCOPE": 2,
+      "PASS": 3,
+      "REJECT": 2,
+      "RETEST_30D": 2
+    }
+  },
+  "provenance": "hand-authored before any learner/controller code; single author; fictional organisations",
+  "sha256": {
+    "corpus/koravi-ep-090.txt": "6eb42d034771096400b443f87bc9e7e07a6278653ad73d9a112ca4052364d1a9",
+    "corpus/koravi-ep-114.txt": "655c9d1920951a8cb49e23ea450e4beaa7565a60cc19a7cf98b1fdc1ddcc91eb",
+    "corpus/tarvel-tg-ir-02.txt": "daae0065d32c2afd445043391d9270f516aab29e99dba683dd4e47eef25756f2",
+    "demos.jsonl": "2d33465692875f38a463fd86fd5dc88154064a103677701c790473ffdac1e9a2",
+    "false_activation.jsonl": "681e55e59a7efcc1d0638a18b43d8508ba58659b99aed594c359334aeb3e1e0a",
+    "test_unseen.jsonl": "59231cb78220f8d96a682c540fd4ec338479aa7321f7bba40aecba8d65e53369",
+    "validation.jsonl": "66ce9479c3a2b47370297f19f654368b026fc8aa81b22c5699337d9076db5b33"
+  },
+  "version": "ir-tasks-v1"
+}
