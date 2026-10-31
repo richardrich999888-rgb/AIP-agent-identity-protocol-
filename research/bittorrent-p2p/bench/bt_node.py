@@ -1,6 +1,10 @@
 """One BitTorrent node (libtorrent 2.1.1) for the closed-network experiment.
 
-usage: bt_node.py TORRENT SAVE_DIR LISTEN_IP PEERS_CSV REPORT_JSON [--ssl CERT KEY DH]
+usage: bt_node.py TORRENT SAVE_DIR LISTEN_IP PEERS_CSV REPORT_JSON [--ssl CERT KEY DH] [--seed-mode]
+
+--seed-mode makes the node announce every piece WITHOUT hashing its local
+data (libtorrent seed_mode). Used only to emulate a malicious or faulty
+seeder serving corrupted bytes; receivers must reject them by hash.
 
 Air-gap settings: DHT, local service discovery, UPnP, NAT-PMP and peer
 exchange are disabled; the torrent is private; peers are given statically
@@ -36,6 +40,9 @@ def main() -> None:
         "alert_mask": lt.alert.category_t.error_notification | lt.alert.category_t.status_notification
         | lt.alert.category_t.peer_notification,
         "connections_limit": 50,
+        # Bound queued-but-unwritten piece data so a crash loses little (default
+        # 100 MiB would hold an entire small test file in memory until the end).
+        "max_queued_disk_bytes": int(os.environ.get("BT_MAX_QUEUED_DISK_BYTES", str(4 << 20))),
     }
     ses = lt.session(settings)
     ses.add_extension("smart_ban")  # bans peers whose data fails hash checks
@@ -44,6 +51,8 @@ def main() -> None:
     atp.save_path = save
     atp.flags &= ~lt.torrent_flags.auto_managed
     atp.flags &= ~lt.torrent_flags.paused
+    if "--seed-mode" in sys.argv:
+        atp.flags |= lt.torrent_flags.seed_mode
     h = ses.add_torrent(atp)
     if ssl:
         i = sys.argv.index("--ssl")
@@ -58,6 +67,7 @@ def main() -> None:
     hash_fail = 0
     last_connect = 0.0
     events = []
+    resumed_progress = None  # progress when the initial file check finished
     while not stop["v"]:
         now = time.monotonic()
         if now - last_connect > 1.0:
@@ -70,12 +80,14 @@ def main() -> None:
             if isinstance(a, (lt.peer_error_alert, lt.peer_disconnected_alert)) and len(events) < 50:
                 events.append(a.message()[:160])
         s = h.status()
+        if resumed_progress is None and s.state not in (lt.torrent_status.checking_files, lt.torrent_status.checking_resume_data):
+            resumed_progress = s.progress
         if done_at is None and s.is_seeding:
             done_at = now - t0
         json.dump({"progress": s.progress, "seconds_to_complete": done_at, "elapsed": now - t0,
                    "payload_down": s.total_payload_download, "payload_up": s.total_payload_upload,
                    "all_time_up": s.all_time_upload, "peers": s.num_peers, "hash_failures": hash_fail,
-                   "state": str(s.state), "events": events}, open(report + ".tmp", "w"))
+                   "state": str(s.state), "resumed_progress": resumed_progress, "events": events}, open(report + ".tmp", "w"))
         os.replace(report + ".tmp", report)
         time.sleep(0.5)
 

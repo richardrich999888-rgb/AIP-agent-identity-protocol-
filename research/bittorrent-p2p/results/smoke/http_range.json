@@ -1,0 +1,42 @@
+{
+  "method": "http_range",
+  "size_mib": 64,
+  "peers": 5,
+  "peer_mbit": 100.0,
+  "src_mbit": 100.0,
+  "kill": null,
+  "restart": false,
+  "killed_at_progress": null,
+  "completed": [
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "p5"
+  ],
+  "timed_out": false,
+  "fleet_seconds": 28.92,
+  "per_peer_seconds": {
+    "p1": 28.32,
+    "p2": 28.72,
+    "p3": 17.89,
+    "p4": 28.72,
+    "p5": 28.92
+  },
+  "src_tx_bytes": 336584883,
+  "total_tx_bytes": 337623462,
+  "payload_bytes": 67108864,
+  "cpu_seconds": 3.74,
+  "peak_rss_mb": 32.3,
+  "verified": {
+    "p1": true,
+    "p2": true,
+    "p3": true,
+    "p4": true,
+    "p5": true
+  },
+  "all_verified": true,
+  "hash_failures": 0,
+  "restarted_peer_bytes_received": null,
+  "sha256": "6421a08a31d05825f20f4353073428a6136cce529bb84858f12c706aba16e346"
+}

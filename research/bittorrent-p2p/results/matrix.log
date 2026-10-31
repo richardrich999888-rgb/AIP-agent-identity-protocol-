@@ -1,0 +1,73 @@
+{"method": "http_plain", "size_mib": 256, "src_mbit": 100.0, "fleet_seconds": 113.09, "src_tx_bytes": 1345629477, "total_tx_bytes": 1349070186, "cpu_seconds": 9.24, "all_verified": true, "timed_out": false}
+{"method": "http_range", "size_mib": 256, "src_mbit": 100.0, "fleet_seconds": 113.26, "src_tx_bytes": 1345854874, "total_tx_bytes": 1349509615, "cpu_seconds": 10.18, "all_verified": true, "timed_out": false}
+{"method": "bittorrent", "size_mib": 256, "src_mbit": 100.0, "fleet_seconds": 51.19, "src_tx_bytes": 518357239, "total_tx_bytes": 1585876730, "cpu_seconds": 66.36, "all_verified": true, "timed_out": false}
+{"method": "http_plain", "size_mib": 256, "src_mbit": 500.0, "fleet_seconds": 23.12, "src_tx_bytes": 1344117637, "total_tx_bytes": 1345979230, "cpu_seconds": 8.5, "all_verified": true, "timed_out": false}
+{"method": "http_range", "size_mib": 256, "src_mbit": 500.0, "fleet_seconds": 23.32, "src_tx_bytes": 1344379604, "total_tx_bytes": 1346496317, "cpu_seconds": 8.52, "all_verified": true, "timed_out": false}
+{"method": "bittorrent", "size_mib": 256, "src_mbit": 500.0, "fleet_seconds": 28.46, "src_tx_bytes": 928211466, "total_tx_bytes": 1475010285, "cpu_seconds": 39.77, "all_verified": true, "timed_out": false}
+{"method": "http_plain", "size_mib": 256, "src_mbit": 100.0, "fleet_seconds": 113.07, "src_tx_bytes": 1345767483, "total_tx_bytes": 1349351676, "cpu_seconds": 10.03, "all_verified": true, "timed_out": false}
+{"method": "http_range", "size_mib": 256, "src_mbit": 100.0, "fleet_seconds": 113.02, "src_tx_bytes": 1347483494, "total_tx_bytes": 1352782967, "cpu_seconds": 9.71, "all_verified": true, "timed_out": false}
+{"method": "bittorrent", "size_mib": 256, "src_mbit": 100.0, "fleet_seconds": 47.12, "src_tx_bytes": 460839679, "total_tx_bytes": 1577944669, "cpu_seconds": 65.29, "all_verified": true, "timed_out": false}
+{"method": "http_plain", "size_mib": 256, "src_mbit": 500.0, "fleet_seconds": 23.11, "src_tx_bytes": 1344125871, "total_tx_bytes": 1346043306, "cpu_seconds": 7.86, "all_verified": true, "timed_out": false}
+{"method": "http_range", "size_mib": 256, "src_mbit": 500.0, "fleet_seconds": 23.14, "src_tx_bytes": 1344670796, "total_tx_bytes": 1347088799, "cpu_seconds": 8.21, "all_verified": true, "timed_out": false}
+{"method": "bittorrent", "size_mib": 256, "src_mbit": 500.0, "fleet_seconds": 25.05, "src_tx_bytes": 1070725870, "total_tx_bytes": 1463824833, "cpu_seconds": 38.03, "all_verified": true, "timed_out": false}
+{"method": "http_plain", "size_mib": 256, "src_mbit": 100.0, "fleet_seconds": 113.01, "src_tx_bytes": 1346725749, "total_tx_bytes": 1351268010, "cpu_seconds": 10.07, "all_verified": true, "timed_out": false}
+{"method": "http_range", "size_mib": 256, "src_mbit": 100.0, "fleet_seconds": 112.99, "src_tx_bytes": 1346204870, "total_tx_bytes": 1350230207, "cpu_seconds": 9.75, "all_verified": true, "timed_out": false}
+{"method": "bittorrent", "size_mib": 256, "src_mbit": 100.0, "fleet_seconds": 47.7, "src_tx_bytes": 492250437, "total_tx_bytes": 1579831145, "cpu_seconds": 68.72, "all_verified": true, "timed_out": false}
+{"method": "http_plain", "size_mib": 256, "src_mbit": 500.0, "fleet_seconds": 23.17, "src_tx_bytes": 1344387387, "total_tx_bytes": 1346558628, "cpu_seconds": 7.44, "all_verified": true, "timed_out": false}
+{"method": "http_range", "size_mib": 256, "src_mbit": 500.0, "fleet_seconds": 23.11, "src_tx_bytes": 1344741680, "total_tx_bytes": 1347237035, "cpu_seconds": 7.24, "all_verified": true, "timed_out": false}
+{"method": "bittorrent", "size_mib": 256, "src_mbit": 500.0, "fleet_seconds": 31.13, "src_tx_bytes": 820890232, "total_tx_bytes": 1516721391, "cpu_seconds": 43.28, "all_verified": true, "timed_out": false}
+{"method": "http_plain", "size_mib": 64, "src_mbit": 100, "fleet_seconds": 28.92, "src_tx_bytes": 337009678, "total_tx_bytes": 338474707, "cpu_seconds": 2.4, "all_verified": true, "timed_out": false}
+{"method": "http_plain", "size_mib": 256, "src_mbit": 100, "fleet_seconds": 67.8, "src_tx_bytes": 807388749, "total_tx_bytes": 809469570, "cpu_seconds": 5.38, "all_verified": true, "timed_out": false}
+----------------------------------------
+Exception occurred during processing of request from ('10.77.0.3', 38402)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.13/socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "/usr/local/lib/python3.13/http/server.py", line 451, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/local/lib/python3.13/http/server.py", line 439, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "/home/claude/aip-agent-identity-protocol-/research/bittorrent-p2p/bench/http_node.py", line 55, in do_GET
+    n = os.sendfile(self.connection.fileno(), f.fileno(), off, min(CHUNK * 8, size - off))
+BrokenPipeError: [Errno 32] Broken pipe
+----------------------------------------
+{"method": "http_plain", "size_mib": 128, "src_mbit": 100, "fleet_seconds": 62.63, "src_tx_bytes": 740592860, "total_tx_bytes": 742724636, "cpu_seconds": 4.82, "all_verified": true, "timed_out": false}
+{"method": "http_range", "size_mib": 64, "src_mbit": 100, "fleet_seconds": 28.72, "src_tx_bytes": 337130529, "total_tx_bytes": 338716536, "cpu_seconds": 2.57, "all_verified": true, "timed_out": false}
+{"method": "http_range", "size_mib": 256, "src_mbit": 100, "fleet_seconds": 68.01, "src_tx_bytes": 806951832, "total_tx_bytes": 808595601, "cpu_seconds": 5.46, "all_verified": true, "timed_out": false}
+----------------------------------------
+Exception occurred during processing of request from ('10.77.0.3', 34872)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.13/socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "/usr/local/lib/python3.13/http/server.py", line 451, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/local/lib/python3.13/http/server.py", line 439, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "/home/claude/aip-agent-identity-protocol-/research/bittorrent-p2p/bench/http_node.py", line 55, in do_GET
+    n = os.sendfile(self.connection.fileno(), f.fileno(), off, min(CHUNK * 8, size - off))
+BrokenPipeError: [Errno 32] Broken pipe
+----------------------------------------
+{"method": "http_range", "size_mib": 128, "src_mbit": 100, "fleet_seconds": 57.0, "src_tx_bytes": 673599863, "total_tx_bytes": 675529361, "cpu_seconds": 4.39, "all_verified": true, "timed_out": false}
+{"method": "bittorrent", "size_mib": 64, "src_mbit": 100, "fleet_seconds": 11.14, "src_tx_bytes": 119612452, "total_tx_bytes": 405644901, "cpu_seconds": 14.61, "all_verified": true, "timed_out": false}
+{"method": "bittorrent", "size_mib": 256, "src_mbit": 100, "fleet_seconds": 47.79, "src_tx_bytes": 470409356, "total_tx_bytes": 967606397, "cpu_seconds": 49.05, "all_verified": true, "timed_out": false}
+{"method": "bittorrent", "size_mib": 128, "src_mbit": 100, "fleet_seconds": 29.53, "src_tx_bytes": 262444049, "total_tx_bytes": 883449008, "cpu_seconds": 34.96, "all_verified": true, "timed_out": false}
+{"method": "bittorrent", "size_mib": 128, "src_mbit": 100, "fleet_seconds": 22.33, "src_tx_bytes": 240828068, "total_tx_bytes": 675758709, "cpu_seconds": 29.54, "all_verified": true, "timed_out": false}
+MATRIX_DONE

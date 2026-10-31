@@ -1,0 +1,46 @@
+{
+  "ssl": false,
+  "intruders": [],
+  "intruder_payload_bytes": {},
+  "method": "bittorrent",
+  "size_mib": 256,
+  "peers": 5,
+  "peer_mbit": 100,
+  "src_mbit": 500.0,
+  "kill": null,
+  "corrupt": null,
+  "restart": false,
+  "killed_at_progress": null,
+  "completed": [
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "p5"
+  ],
+  "timed_out": false,
+  "fleet_seconds": 28.9,
+  "per_peer_seconds": {
+    "p1": 16.81,
+    "p2": 18.22,
+    "p3": 20.24,
+    "p4": 28.9,
+    "p5": 21.25
+  },
+  "src_tx_bytes": 1039660439,
+  "total_tx_bytes": 1488182319,
+  "payload_bytes": 268435456,
+  "cpu_seconds": 36.97,
+  "peak_rss_mb": 51.3,
+  "verified": {
+    "p1": true,
+    "p2": true,
+    "p3": true,
+    "p4": true,
+    "p5": true
+  },
+  "all_verified": true,
+  "hash_failures": 0,
+  "restarted_peer_bytes_received": null,
+  "sha256": "d0fbc7b218c5eb0a623a1eec2a80a14ca71e9aec32c21ba12c4ffa688343993f"
+}
