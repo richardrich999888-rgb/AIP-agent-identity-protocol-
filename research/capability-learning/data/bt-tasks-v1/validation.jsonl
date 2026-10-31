@@ -1,0 +1,12 @@
+{"category": "boundary", "counterexample": false, "id": "val-00", "inputs": {"sg": 1.2, "t": 25, "v": 2.17}, "label": "ACCEPT", "text": "Cell 1, 2.17 V at 25 C, SG 1.200"}
+{"category": "boundary", "counterexample": false, "id": "val-01", "inputs": {"sg": 1.23, "t": 25, "v": 2.169}, "label": "EQUALIZE", "text": "Cell 1, 2.169 V at 25 C, SG 1.230"}
+{"category": "boundary", "counterexample": false, "id": "val-02", "inputs": {"sg": 1.21, "t": 25, "v": 2.1}, "label": "EQUALIZE", "text": "Cell 4: 2.10 V at 25 C, SG 1.210"}
+{"category": "boundary", "counterexample": false, "id": "val-03", "inputs": {"sg": 1.21, "t": 25, "v": 2.099}, "label": "REPLACE_CELL", "text": "Cell 5: 2.099 V, 25 C, SG 1.210"}
+{"category": "boundary", "counterexample": false, "id": "val-04", "inputs": {"sg": 1.22, "t": 25, "v": 2.3}, "label": "ACCEPT", "text": "Cell 6 floats at 2.30 V, 25 C, SG 1.220"}
+{"category": "correction", "counterexample": false, "id": "val-05", "inputs": {"sg": 1.215, "t": 40, "v": 2.26}, "label": "REDUCE_FLOAT", "text": "Cell 8: 2.26 V at 40 C, SG 1.215"}
+{"category": "validity-edge", "counterexample": true, "id": "val-06", "inputs": {"sg": 1.215, "t": 5, "v": 2.25}, "label": "ACCEPT", "text": "Cell 10: 2.25 V at 5 C, SG 1.215"}
+{"category": "validity", "counterexample": true, "id": "val-07", "inputs": {"sg": 1.215, "t": 4, "v": 2.25}, "label": "INVALID_TEST", "text": "Cell 11: 2.25 V at 4 C, SG 1.215"}
+{"category": "scope", "counterexample": true, "id": "val-08", "inputs": {"sg": 1.2, "t": 25, "v": 1.42}, "label": "OUT_OF_SCOPE", "text": "NiCd cell 2: 1.42 V at 25 C, SG 1.200"}
+{"category": "scope-numeric", "counterexample": true, "id": "val-09", "inputs": {"sg": 1.215, "t": 25, "v": 26.8}, "label": "OUT_OF_SCOPE", "text": "UPS string reads 26.8 V at 25 C, SG 1.215"}
+{"category": "missing", "counterexample": true, "id": "val-10", "inputs": {"sg": null, "t": 24, "v": 2.23}, "label": "INSUFFICIENT_INPUT", "text": "Cell 12 at 2.23 V and 24 C; SG not recorded"}
+{"category": "sg-boundary", "counterexample": false, "id": "val-11", "inputs": {"sg": 1.199, "t": 25, "v": 2.21}, "label": "EQUALIZE", "text": "Cell 13: 2.21 V at 25 C, SG 1.199"}

@@ -1,0 +1,30 @@
+{"category": "wording", "id": "t-00", "inputs": {"sg": 1.218, "t": 22, "v": 2.23}, "label": "ACCEPT", "text": "Battery room check: cell 21 sits at 2.23 V, electrolyte 22 °C, SG 1.218 — OK to leave in service?"}
+{"category": "correction", "id": "t-01", "inputs": {"sg": 1.215, "t": 18, "v": 2.19}, "label": "EQUALIZE", "text": "Is UPS-B cell 4 acceptable? 2.19 volts at 18 deg C, specific gravity 1.215."}
+{"category": "replace", "id": "t-02", "inputs": {"sg": 1.19, "t": 25, "v": 2.06}, "label": "REPLACE_CELL", "text": "Cell 16 dropped to 2.06 V (electrolyte 25 C, SG 1.190)."}
+{"category": "equalize", "id": "t-03", "inputs": {"sg": 1.205, "t": 30, "v": 2.12}, "label": "EQUALIZE", "text": "Cell 17: 2.12 V, 30 C, SG 1.205"}
+{"category": "overcharge-corrected", "id": "t-04", "inputs": {"sg": 1.23, "t": 38, "v": 2.29}, "label": "REDUCE_FLOAT", "text": "Cell 18 float 2.29 V at 38 °C, SG 1.230"}
+{"category": "correction-down", "id": "t-05", "inputs": {"sg": 1.23, "t": 12, "v": 2.28}, "label": "ACCEPT", "text": "Cell 19 float 2.28 V at 12 C, SG 1.230"}
+{"category": "sg", "id": "t-06", "inputs": {"sg": 1.195, "t": 25, "v": 2.22}, "label": "EQUALIZE", "text": "Cell 20: 2.22 V, 25 C, SG 1.195"}
+{"category": "unit-F", "id": "t-07", "inputs": {"sg": 1.215, "t": 20, "v": 2.22}, "label": "ACCEPT", "text": "Cell 22 reading 2.22 V at 68 °F, SG 1.215"}
+{"category": "unit-F-edge", "id": "t-08", "inputs": {"sg": 1.215, "t": 45, "v": 2.22}, "label": "ACCEPT", "text": "Cell 23 reading 2.22 V at 113 °F, SG 1.215"}
+{"category": "unit-fused", "id": "t-09", "inputs": {"sg": 1.215, "t": 25, "v": 2.25}, "label": "ACCEPT", "text": "Cell 24: 2.25V at 25C, SG 1.215"}
+{"category": "missing-temp", "id": "t-10", "inputs": {"sg": 1.22, "t": null, "v": 2.24}, "label": "INSUFFICIENT_INPUT", "text": "Cell 25 float 2.24 volts, SG 1.220"}
+{"category": "missing-voltage", "id": "t-11", "inputs": {"sg": 1.212, "t": 26, "v": null}, "label": "INSUFFICIENT_INPUT", "text": "Cell 26 electrolyte 26 C, SG 1.212, voltage not taken"}
+{"category": "scope", "id": "t-12", "inputs": {"sg": null, "t": 25, "v": 3.32}, "label": "OUT_OF_SCOPE", "text": "Lithium UPS module 3 shows 3.32 V at 25 C, SG n/a"}
+{"category": "scope", "id": "t-13", "inputs": {"sg": 1.19, "t": 20, "v": 1.38}, "label": "OUT_OF_SCOPE", "text": "Nickel-cadmium cell 6: 1.38 V at 20 C, SG 1.190"}
+{"category": "scope-numeric", "id": "t-14", "inputs": {"sg": 1.215, "t": 25, "v": 129.6}, "label": "OUT_OF_SCOPE", "text": "Bank voltage 129.6 V at 25 C, SG 1.215"}
+{"category": "validity", "id": "t-15", "inputs": {"sg": 1.22, "t": 2, "v": 2.21}, "label": "INVALID_TEST", "text": "Cell 27: 2.21 V at 2 C, SG 1.220 (outdoor enclosure in winter)"}
+{"category": "validity", "id": "t-16", "inputs": {"sg": 1.215, "t": 47, "v": 2.2}, "label": "INVALID_TEST", "text": "Cell 28 at 2.20 V and 47 C, SG 1.215"}
+{"category": "boundary-corrected", "id": "t-17", "inputs": {"sg": 1.21, "t": 22, "v": 2.18}, "label": "ACCEPT", "text": "Cell 29: 2.18 V at 22 C, SG 1.210"}
+{"category": "boundary-corrected", "id": "t-18", "inputs": {"sg": 1.215, "t": 35, "v": 2.27}, "label": "ACCEPT", "text": "Cell 31: 2.27 V at 35 C, SG 1.215"}
+{"category": "overcharge-correction-down", "id": "t-19", "inputs": {"sg": 1.23, "t": 20, "v": 2.31}, "label": "ACCEPT", "text": "Cell 32 shows 2.31 V at 20 C, SG 1.230"}
+{"category": "correction-up", "id": "t-20", "inputs": {"sg": 1.2, "t": 40, "v": 2.08}, "label": "EQUALIZE", "text": "Cell 33: 2.08 V at 40 C, SG 1.200"}
+{"category": "sg", "id": "t-21", "inputs": {"sg": 1.18, "t": 25, "v": 2.23}, "label": "EQUALIZE", "text": "Cell 34, float 2.23 V, 25 °C, specific gravity 1.180"}
+{"category": "contradictory", "id": "t-22", "inputs": {"sg": 1.212, "t": 25, "v": null}, "label": "AMBIGUOUS", "text": "Cell 35 2.24 V at 25 C, SG 1.212 — remeasured 2.16 V ten minutes later"}
+{"category": "multi-entity", "id": "t-23", "inputs": {"sg": null, "t": 25, "v": null}, "label": "AMBIGUOUS", "text": "Cells 36 and 37: 2.21 V and 2.09 V at 25 C, SG 1.215 and 1.205"}
+{"category": "contradictory-sg", "id": "t-24", "inputs": {"sg": null, "t": 25, "v": 2.23}, "label": "AMBIGUOUS", "text": "Cell 38: 2.23 V at 25 C, SG 1.215, SG 1.198 on second hydrometer"}
+{"category": "wording", "id": "t-25", "inputs": {"sg": 1.23, "t": 25, "v": 2.165}, "label": "EQUALIZE", "text": "Equalize or not? Cell 39 is at 2.165 V, electrolyte 25 C, SG 1.230"}
+{"category": "unit-decimal-comma", "id": "t-26", "inputs": {"sg": 1.215, "t": 25, "v": 2.23}, "label": "ACCEPT", "text": "Cell 40 at 2,23 V, 25 C, SG 1.215"}
+{"category": "unit-F", "id": "t-27", "inputs": {"sg": 1.205, "t": 25, "v": 2.21}, "label": "ACCEPT", "text": "Cell 41: float 2.21 V, 77 °F electrolyte, specific gravity 1.205"}
+{"category": "terse", "id": "t-28", "inputs": {"sg": 1.212, "t": 30, "v": 2.26}, "label": "ACCEPT", "text": "Cell 42 2.26 V 30 C SG 1.212"}
+{"category": "wording-negation", "id": "t-29", "inputs": {"sg": 1.22, "t": 25, "v": 2.22}, "label": "ACCEPT", "text": "VRLA? No — vented cell 43, 2.22 V at 25 C, SG 1.220"}

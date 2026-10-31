@@ -1,0 +1,42 @@
+{
+ "label_counts": {
+  "demos.jsonl": {
+   "ACCEPT": 2,
+   "EQUALIZE": 2,
+   "INVALID_TEST": 1,
+   "REDUCE_FLOAT": 1
+  },
+  "false_activation.jsonl": {
+   "NOT_APPLICABLE": 6
+  },
+  "test_unseen.jsonl": {
+   "ACCEPT": 12,
+   "AMBIGUOUS": 3,
+   "EQUALIZE": 6,
+   "INSUFFICIENT_INPUT": 2,
+   "INVALID_TEST": 2,
+   "OUT_OF_SCOPE": 3,
+   "REDUCE_FLOAT": 1,
+   "REPLACE_CELL": 1
+  },
+  "validation.jsonl": {
+   "ACCEPT": 3,
+   "EQUALIZE": 3,
+   "INSUFFICIENT_INPUT": 1,
+   "INVALID_TEST": 1,
+   "OUT_OF_SCOPE": 2,
+   "REDUCE_FLOAT": 1,
+   "REPLACE_CELL": 1
+  }
+ },
+ "provenance": "hand-authored in sprint iteration 1, before any compiler code; single author; fictional organisations",
+ "sha256": {
+  "corpus/halvorn-hu-bt-4.txt": "59319b937fa152cd64bd8be271014306ef652da3f74cfc0f41ab983a7c677264",
+  "corpus/tarvel-tg-bt-01.txt": "9e4aa155039d5d0b4b48cd5ab492881c0987caff16ed4fda61f6a077265bddf1",
+  "demos.jsonl": "fe6ed2d80a7e611869c38e78c5a88ad6f05fc770ce4028c461b52e3a09d33c54",
+  "false_activation.jsonl": "80ebc429c1a6e42380dc831f9bd6c7c04af2a724a4e86859ff7ec8540e020b6e",
+  "test_unseen.jsonl": "29167377ded463b6cb23fc26d47050ad50be1c2dd70bf795203d4671560eeead",
+  "validation.jsonl": "b5af18d62c84243dc53d81cb7e446ca2f5bc348eeee65f5d5b3353377844bb21"
+ },
+ "version": "bt-tasks-v1"
+}
