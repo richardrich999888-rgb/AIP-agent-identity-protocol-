@@ -536,3 +536,110 @@ fn consequential_capabilities_are_disabled_until_aip_action_authorization_exists
         other => panic!("expected NotPermitted, got {other:?}"),
     }
 }
+
+// ── phase 2: bounded small → large escalation ─────────────────────────────
+
+struct TwoTier {
+    small: FakeGen,
+    large: FakeGen,
+}
+impl ModelProvider for TwoTier {
+    fn configured(&self, _t: Tier) -> bool {
+        true
+    }
+    fn with<'a>(
+        &'a self,
+        t: Tier,
+        f: &mut dyn FnMut(&dyn ScopedGenerator) -> Result<(), PortError>,
+    ) -> Result<f64, PortError> {
+        match t {
+            Tier::Small => f(&self.small).map(|_| 0.0),
+            Tier::Large => f(&self.large).map(|_| 25.0), // simulated on-demand load
+        }
+    }
+    fn model_sha256(&self, t: Tier) -> Option<String> {
+        Some(match t {
+            Tier::Small => self.small.sha.clone(),
+            Tier::Large => self.large.sha.clone(),
+        })
+    }
+}
+
+fn gen(sha: &str, reply: &str) -> FakeGen {
+    FakeGen {
+        sha: sha.into(),
+        reply: reply.into(),
+        seen: RefCell::new(vec![]),
+    }
+}
+
+#[test]
+fn unparseable_small_output_escalates_once_and_charges_both_attempts() {
+    let w = world(None);
+    let m = TwoTier {
+        small: gen("small-sha", "not json"),
+        large: gen(
+            "large-sha",
+            r#"{"readings":[["v12_stroke",13.1],["g2_tank",72.0]]}"#,
+        ),
+    };
+    let rt = Runtime::new(cfg(&w), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let k = principal("koravi-process", Classification::Restricted);
+    let r = rt
+        .handle(&k, "V-12 stroke 13.1 s; G-2 day tank 72 percent.")
+        .unwrap();
+    assert_eq!(r.strategy, Strategy::ModelExtraction(Tier::Large));
+    assert_eq!(label(&r), "2");
+    assert_eq!(r.cost.escalations, 1);
+    assert_eq!(r.cost.model_calls, 2, "the failed small attempt is charged");
+    assert_eq!(
+        r.cost.model_load_ms, 25.0,
+        "the large model's load is charged"
+    );
+    let (s, l) = (m.small.seen.borrow(), m.large.seen.borrow());
+    assert_eq!((s.len(), l.len()), (1, 1));
+    assert_ne!(s[0].0, l[0].0, "each model has its own cache scope");
+}
+
+#[test]
+fn both_tiers_failing_is_withheld_after_exactly_two_attempts() {
+    let w = world(None);
+    let m = TwoTier {
+        small: gen("small-sha", "not json"),
+        large: gen("large-sha", "still not json"),
+    };
+    let rt = Runtime::new(cfg(&w), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let k = principal("koravi-process", Classification::Restricted);
+    let r = rt
+        .handle(&k, "V-12 stroke 13.1 s; G-2 day tank 72 percent.")
+        .unwrap();
+    assert!(matches!(r.outcome, Outcome::Withheld { .. }));
+    assert_eq!((r.cost.model_calls, r.cost.escalations), (2, 1));
+}
+
+#[test]
+fn no_authorized_source_is_not_escalated_and_capabilities_need_no_model() {
+    let w = world(None);
+    let m = TwoTier {
+        small: gen("small-sha", "{}"),
+        large: gen("large-sha", "{}"),
+    };
+    let rt = Runtime::new(cfg(&w), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let r = rt
+        .handle(
+            &principal("nobody-inc", Classification::Restricted),
+            "What is the minimum insulation resistance?",
+        )
+        .unwrap();
+    assert!(matches!(r.outcome, Outcome::Withheld { .. }));
+    assert_eq!(r.cost.escalations, 0);
+    let r = rt
+        .handle(
+            &principal("koravi-process", Classification::Restricted),
+            IR_TASK,
+        )
+        .unwrap();
+    assert!(matches!(r.strategy, Strategy::Capability { .. }));
+    assert_eq!(r.cost.model_calls, 0);
+    assert!(m.small.seen.borrow().is_empty() && m.large.seen.borrow().is_empty());
+}

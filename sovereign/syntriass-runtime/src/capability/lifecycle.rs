@@ -6,6 +6,8 @@
 //!                    REJECTED          SUSPENDED / REVOKED / SUPERSEDED
 //! ```
 //!
+//! SUPERSEDED → ACTIVE (approver only) is the rollback edge.
+//!
 //! Only ACTIVE capabilities execute. Every transition names an actor and a
 //! role; the table in [`allowed`] is the whole policy. TESTING → VALIDATED
 //! requires a passing [`ValidationReport`] for the *same content hash*;
@@ -57,6 +59,11 @@ pub fn allowed(from: State, to: State) -> &'static [Role] {
         (Active | Suspended | Approved, Revoked) => &[Approver],
         (Suspended, Active) => &[Approver],
         (Active, Superseded) => &[Operator],
+        // Rollback: a previously approved version is re-activated by an
+        // approver (its validation and approval records are unchanged and
+        // still required by `executable`).
+        (Superseded, Active) => &[Approver],
+        (Superseded, Revoked) => &[Approver],
         _ => &[],
     }
 }

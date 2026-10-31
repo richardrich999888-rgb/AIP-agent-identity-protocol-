@@ -18,7 +18,9 @@ use vanian_sovereign::rag::{self, Outcome as RagOutcome};
 
 use crate::capability::artifact::Execution;
 use crate::capability::lifecycle::Record;
-use crate::controller::{is_question, route, Candidate, Features, Refusal, Strategy, Tier};
+use crate::controller::{
+    escalate, is_question, route, Candidate, Features, Refusal, Strategy, Tier, Withhold,
+};
 use crate::domain::maintenance::{decide, Decision};
 use crate::domain::scope::CacheScope;
 use crate::ports::{
@@ -76,6 +78,9 @@ pub struct Cost {
     pub cached_tokens: u64,
     pub model_load_ms: f64,
     pub interpreter_calls: usize,
+    /// Small → large retries in this request (failed attempt's cost included above).
+    #[serde(default)]
+    pub escalations: usize,
 }
 
 /// Full response.
@@ -387,6 +392,21 @@ impl<'a> Runtime<'a> {
             Strategy::GroundedQa(tier) => self.grounded(p, text, *tier, &mut cost)?,
             Strategy::Refuse(r) => Outcome::Refused { refusal: r.clone() },
         };
+        let (strategy, outcome) =
+            match escalate(&strategy, withhold_kind(&outcome), feats.large_model) {
+                Some(next) => {
+                    cost.escalations += 1;
+                    let o = match &next {
+                        Strategy::ModelExtraction(t) => {
+                            self.model_extraction(p, text, *t, &mut cost)?
+                        }
+                        Strategy::GroundedQa(t) => self.grounded(p, text, *t, &mut cost)?,
+                        _ => return Err(other("escalation to a non-model strategy")),
+                    };
+                    (next, o)
+                }
+                None => (strategy, outcome),
+            };
         self.finish(p, text, strategy, outcome, cost, cap_hash, t0, before)
     }
 
@@ -464,7 +484,7 @@ impl<'a> Runtime<'a> {
         let sources: Vec<String> = a.sources.iter().map(|s| s.doc_id.clone()).collect();
         Ok(match (&a.outcome, a.released()) {
             (RagOutcome::NoAuthorizedSource, _) => Outcome::Withheld {
-                reason: "no authorized source".into(),
+                reason: NO_AUTHORIZED_SOURCE.into(),
             },
             (_, Some(t)) if crate::domain::answer_check::unfinished_calculation(text, t) => {
                 Outcome::Withheld {
@@ -554,6 +574,20 @@ impl<'a> Runtime<'a> {
         Ok(h)
     }
 }
+
+/// Classify a withheld model outcome for [`escalate`]. Only reasons a
+/// stronger model could plausibly fix are `ModelQuality`.
+fn withhold_kind(o: &Outcome) -> Option<Withhold> {
+    match o {
+        Outcome::Withheld { reason } if reason == NO_AUTHORIZED_SOURCE => {
+            Some(Withhold::NotModelFixable)
+        }
+        Outcome::Withheld { .. } => Some(Withhold::ModelQuality),
+        _ => None,
+    }
+}
+
+const NO_AUTHORIZED_SOURCE: &str = "no authorized source";
 
 fn decision(d: &Decision, via: &str) -> Outcome {
     Outcome::Decision {

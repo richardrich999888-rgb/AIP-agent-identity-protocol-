@@ -1,5 +1,6 @@
 //! IO adapters (sidecar process, scoped llama-server client, supervisor,
 //! capability store, /proc meter).
+pub mod experience_store;
 pub mod llama_scoped;
 pub mod meter;
 pub mod pool;

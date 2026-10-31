@@ -163,9 +163,132 @@ pub fn transition(
     reason: &str,
 ) -> Result<(), PortError> {
     let mut rec = find(store, hash)?;
+    if to == State::Active && !active_of(store, &rec.capability.id, hash)?.is_empty() {
+        return Err(err(
+            PortErrorKind::ContractViolation,
+            format!(
+                "{} already has an active version (use activate with supersede, or rollback)",
+                rec.capability.id
+            ),
+        ));
+    }
     rec.transition(to, actor, role, at_ms, reason)
         .map_err(life)?;
     store.put(&rec)
+}
+
+fn active_of(
+    store: &dyn CapabilityStore,
+    id: &str,
+    except: &str,
+) -> Result<Vec<Record>, PortError> {
+    Ok(store
+        .all()?
+        .into_iter()
+        .filter(|r| {
+            r.capability.id == id && r.state == State::Active && r.capability_hash != except
+        })
+        .collect())
+}
+
+/// Activate an APPROVED version (operator). At most one version of a
+/// capability id is ACTIVE: if another version is active, this fails unless
+/// `supersede` is set, in which case that version goes ACTIVE → SUPERSEDED
+/// first (it stays approved, so it can be rolled back to). Returns the
+/// superseded hashes.
+pub fn activate(
+    store: &mut dyn CapabilityStore,
+    hash: &str,
+    actor: &str,
+    supersede: bool,
+    at_ms: u64,
+    reason: &str,
+) -> Result<Vec<String>, PortError> {
+    let rec = find(store, hash)?;
+    let others = active_of(store, &rec.capability.id, hash)?;
+    if !others.is_empty() && !supersede {
+        return Err(err(
+            PortErrorKind::ContractViolation,
+            format!(
+                "{} already has an active version; activate with supersede",
+                rec.capability.id
+            ),
+        ));
+    }
+    if rec.state != State::Approved {
+        return Err(err(
+            PortErrorKind::ContractViolation,
+            format!("{hash} is {:?}, not APPROVED", rec.state),
+        ));
+    }
+    let mut done = vec![];
+    for mut o in others {
+        o.transition(
+            State::Superseded,
+            actor,
+            Role::Operator,
+            at_ms,
+            &format!("superseded by {hash}"),
+        )
+        .map_err(life)?;
+        store.put(&o)?;
+        done.push(o.capability_hash.clone());
+    }
+    let mut rec = rec;
+    rec.transition(State::Active, actor, Role::Operator, at_ms, reason)
+        .map_err(life)?;
+    store.put(&rec)?;
+    Ok(done)
+}
+
+/// Roll back to a SUPERSEDED version (approver): the currently ACTIVE
+/// version of the same id is SUSPENDED, then the target is re-activated.
+/// The target must still be executable-if-active (validation + approval
+/// intact, hash unchanged); staleness checks still apply at request time.
+/// Returns the suspended hashes.
+pub fn rollback(
+    store: &mut dyn CapabilityStore,
+    target: &str,
+    approver: &str,
+    at_ms: u64,
+    reason: &str,
+) -> Result<Vec<String>, PortError> {
+    let mut rec = find(store, target)?;
+    if rec.state != State::Superseded {
+        return Err(err(
+            PortErrorKind::ContractViolation,
+            format!("{target} is {:?}, not SUPERSEDED", rec.state),
+        ));
+    }
+    if rec.approval.is_none() || !rec.validation.as_ref().is_some_and(|v| v.passed) {
+        return Err(err(
+            PortErrorKind::ContractViolation,
+            "rollback target lacks validation or approval",
+        ));
+    }
+    let mut done = vec![];
+    for mut o in active_of(store, &rec.capability.id, target)? {
+        o.transition(
+            State::Suspended,
+            approver,
+            Role::Approver,
+            at_ms,
+            &format!("rolled back to {target}: {reason}"),
+        )
+        .map_err(life)?;
+        store.put(&o)?;
+        done.push(o.capability_hash.clone());
+    }
+    rec.transition(
+        State::Active,
+        approver,
+        Role::Approver,
+        at_ms,
+        &format!("rollback: {reason}"),
+    )
+    .map_err(life)?;
+    store.put(&rec)?;
+    Ok(done)
 }
 
 /// Milliseconds since the Unix epoch (lifecycle timestamps).

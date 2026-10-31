@@ -65,6 +65,20 @@ impl Profile {
             resident: true,
         }
     }
+    /// Large tier: loaded on demand for an escalated request and stopped
+    /// afterwards, so a rarely needed model costs no idle memory. Its load
+    /// time is charged to the request that needed it.
+    pub fn large_on_demand(model: &Path, sha: &str) -> Self {
+        Self {
+            name: "large-on-demand".into(),
+            model: model.into(),
+            model_sha256: sha.into(),
+            extra_args: vec![],
+            n_slots: 1,
+            ctx_per_slot: 4096,
+            resident: false,
+        }
+    }
     /// Speed profile: Q8_0 (faster than Q4 on the measured CPU), resident.
     pub fn speed(model_q8: &Path, sha: &str) -> Self {
         Self {

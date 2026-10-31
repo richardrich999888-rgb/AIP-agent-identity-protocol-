@@ -208,6 +208,33 @@ pub fn route(f: &Features) -> Strategy {
     Strategy::Refuse(Refusal::NoApplicableStrategy)
 }
 
+/// Why a model strategy's output was withheld (input to [`escalate`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Withhold {
+    /// The model's output did not parse or failed validation, or a grounded
+    /// answer restated a rule instead of computing the value: a stronger
+    /// model may succeed.
+    ModelQuality,
+    /// No authorized source / nothing a model could fix: never escalated.
+    NotModelFixable,
+}
+
+/// One-step escalation after a small-tier model strategy was withheld for a
+/// model-quality reason: retry the same strategy on the large tier, if one
+/// is configured. Never escalates a decision, an answer, a refusal, a
+/// capability or exact strategy, or a large-tier attempt (at most one retry,
+/// so cost is bounded at two model attempts per request).
+pub fn escalate(s: &Strategy, withheld: Option<Withhold>, large_model: bool) -> Option<Strategy> {
+    if !large_model || withheld != Some(Withhold::ModelQuality) {
+        return None;
+    }
+    match s {
+        Strategy::ModelExtraction(Tier::Small) => Some(Strategy::ModelExtraction(Tier::Large)),
+        Strategy::GroundedQa(Tier::Small) => Some(Strategy::GroundedQa(Tier::Large)),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -342,5 +369,36 @@ mod tests {
         ] {
             assert!(!is_question(r), "{r}");
         }
+    }
+
+    #[test]
+    fn escalation_is_one_bounded_step_and_only_for_model_quality() {
+        use super::{escalate, Withhold};
+        let q = Some(Withhold::ModelQuality);
+        assert_eq!(
+            escalate(&Strategy::ModelExtraction(Tier::Small), q, true),
+            Some(Strategy::ModelExtraction(Tier::Large))
+        );
+        assert_eq!(
+            escalate(&Strategy::GroundedQa(Tier::Small), q, true),
+            Some(Strategy::GroundedQa(Tier::Large))
+        );
+        // no large model, not withheld, not model-fixable, already large, non-model strategies
+        assert_eq!(escalate(&Strategy::GroundedQa(Tier::Small), q, false), None);
+        assert_eq!(
+            escalate(&Strategy::GroundedQa(Tier::Small), None, true),
+            None
+        );
+        assert_eq!(
+            escalate(
+                &Strategy::GroundedQa(Tier::Small),
+                Some(Withhold::NotModelFixable),
+                true
+            ),
+            None
+        );
+        assert_eq!(escalate(&Strategy::GroundedQa(Tier::Large), q, true), None);
+        assert_eq!(escalate(&Strategy::Exact, q, true), None);
+        assert_eq!(escalate(&Strategy::Interpreter, q, true), None);
     }
 }

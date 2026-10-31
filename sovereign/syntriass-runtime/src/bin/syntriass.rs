@@ -14,6 +14,12 @@
 //! syntriass cap-approve  --config CFG --hash H --key KEYFILE [--consequential]
 //! syntriass cap-transition --config CFG --hash H --to STATE --role ROLE --actor A --reason R
 //! syntriass cap-list     --config CFG
+//! syntriass cap-activate --config CFG --hash H --actor A --reason R [--supersede]   (one ACTIVE version per id)
+//! syntriass cap-rollback --config CFG --to H --actor APPROVER --reason R         SUPERSEDED → ACTIVE, current → SUSPENDED
+//! syntriass exp-record   --config CFG --file EXP.json      record an experience as the calling OS user (uid map)
+//! syntriass cap-review   --config CFG --hash H             active capability vs verified experience (read-only)
+//! syntriass cap-upgrade-check --config CFG --from H1 --to H2 --suite SUITE   regressions / fixes / scope changes
+//! syntriass cap-history  --config CFG --id ID              versions, transitions, audited uses per version
 //! syntriass cap-check --file CAP.json --cases JSONL   dry run: compile + label each case (no state change)
 //! ```
 //!
@@ -27,6 +33,7 @@ use std::path::{Path, PathBuf};
 
 use serde::Deserialize;
 use serde_json::{json, Value};
+use syntriass_runtime::adapters::experience_store::ExperienceLog;
 use syntriass_runtime::adapters::meter::ProcMeter;
 use syntriass_runtime::adapters::pool::{Pool, TierSlot};
 use syntriass_runtime::adapters::sidecar::Sidecar;
@@ -34,7 +41,9 @@ use syntriass_runtime::adapters::store::FileStore;
 use syntriass_runtime::adapters::supervisor::Profile;
 use syntriass_runtime::app::{verify_audit_chain, Config, Runtime};
 use syntriass_runtime::capability::artifact::Capability;
-use syntriass_runtime::capability::lifecycle::{Role, State};
+use syntriass_runtime::capability::experience::Experience;
+use syntriass_runtime::capability::lifecycle::{Record, Role, State};
+use syntriass_runtime::capability::memory;
 use syntriass_runtime::capability::suite::{ExpertSuite, SuiteCase};
 use syntriass_runtime::learning;
 use syntriass_runtime::ports::CapabilityStore;
@@ -67,6 +76,10 @@ struct FileConfig {
     q4: ModelRef,
     q8: ModelRef,
     port: u16,
+    /// Optional larger model for one-step escalation (loaded on demand, port + 1).
+    /// Any GGUF model the configured llama-server can run; hash-verified before load.
+    #[serde(default)]
+    large: Option<ModelRef>,
 }
 
 fn die(m: impl std::fmt::Display) -> ! {
@@ -144,6 +157,15 @@ fn hexkey(v: &str) -> Vec<u8> {
 
 fn keys(m: &BTreeMap<String, String>) -> BTreeMap<String, Vec<u8>> {
     m.iter().map(|(k, v)| (k.clone(), hexkey(v))).collect()
+}
+
+fn record(c: &FileConfig, hash: &str) -> Record {
+    FileStore::open(&c.state.join("capabilities"))
+        .and_then(|s| s.all())
+        .unwrap_or_else(|e| die(e))
+        .into_iter()
+        .find(|r| r.capability_hash == hash)
+        .unwrap_or_else(|| die(format!("no record {hash}")))
 }
 
 fn parse_enum<T: serde::de::DeserializeOwned>(v: &str) -> T {
@@ -325,6 +347,67 @@ fn main() {
                 println!("{}", json!({"id": r.capability.id, "version": r.capability.version, "hash": r.capability_hash, "state": r.state, "executable": r.executable()}));
             }
         }
+        "cap-activate" => {
+            let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
+            let sup = learning::activate(&mut store, req(&args, "--hash"), req(&args, "--actor"), args.iter().any(|a| a == "--supersede"), learning::now_ms(), req(&args, "--reason"))
+                .unwrap_or_else(|e| die(e));
+            println!("{}", json!({"hash": req(&args, "--hash"), "state": "ACTIVE", "superseded": sup}));
+        }
+        "cap-rollback" => {
+            let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
+            let sus = learning::rollback(&mut store, req(&args, "--to"), req(&args, "--actor"), learning::now_ms(), req(&args, "--reason"))
+                .unwrap_or_else(|e| die(e));
+            println!("{}", json!({"hash": req(&args, "--to"), "state": "ACTIVE", "suspended": sus}));
+        }
+        "exp-record" => {
+            let f = req(&args, "--file");
+            let e: Experience = serde_json::from_slice(&std::fs::read(f).unwrap_or_else(|e| die(format!("{f}: {e}"))))
+                .unwrap_or_else(|e| die(format!("{f}: {e}")));
+            let uid = vanian_sovereign::app::current_uid().unwrap_or_else(|e| die(e));
+            let p = vanian_sovereign::app::principal_for_uid(&c.state, uid).unwrap_or_else(|e| die(e));
+            ExperienceLog::open(&c.state.join("experiences.jsonl"))
+                .record(&e, p.tenant.as_str(), &c.security_domain)
+                .unwrap_or_else(|e| die(e));
+            println!("{}", json!({"experience": e.id, "recorded_by_tenant": p.tenant.as_str(), "verification": e.verification}));
+        }
+        "cap-review" => {
+            let rec = record(&c, req(&args, "--hash"));
+            let exps = ExperienceLog::open(&c.state.join("experiences.jsonl"))
+                .for_tenant(&rec.capability.required.tenant)
+                .unwrap_or_else(|e| die(e));
+            let r = memory::review(&rec.capability, &exps).unwrap_or_else(|e| die(e));
+            println!("{}", serde_json::to_string(&r).unwrap_or_default());
+        }
+        "cap-upgrade-check" => {
+            let (old, new) = (record(&c, req(&args, "--from")), record(&c, req(&args, "--to")));
+            let sp = req(&args, "--suite");
+            let suite: ExpertSuite = serde_json::from_slice(&std::fs::read(sp).unwrap_or_else(|e| die(format!("{sp}: {e}"))))
+                .unwrap_or_else(|e| die(format!("{sp}: {e}")));
+            let key = keys(&c.experts).remove(&suite.expert_id).unwrap_or_else(|| die(format!("{} is not a trusted expert", suite.expert_id)));
+            let r = memory::upgrade_check(&old.capability, &new.capability, &suite, &key);
+            println!("{}", serde_json::to_string(&r).unwrap_or_default());
+        }
+        "cap-history" => {
+            let id = req(&args, "--id");
+            let store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
+            let mut uses: BTreeMap<String, BTreeMap<String, usize>> = BTreeMap::new();
+            if let Ok(log) = std::fs::read_to_string(&audit) {
+                for l in log.lines() {
+                    let Ok(v) = serde_json::from_str::<Value>(l) else { continue };
+                    if let Some(h) = v["capability_hash"].as_str() {
+                        let o = v["outcome"]["decision"].as_str().map(String::from).unwrap_or_else(|| v["outcome"].to_string());
+                        *uses.entry(h.into()).or_default().entry(o).or_default() += 1;
+                    }
+                }
+            }
+            for r in store.all().unwrap_or_else(|e| die(e)).into_iter().filter(|r| r.capability.id == id) {
+                let u = uses.remove(&r.capability_hash).unwrap_or_default();
+                println!("{}", json!({"version": r.capability.version, "hash": r.capability_hash, "state": r.state,
+                    "executable": r.executable(), "uses": u.values().sum::<usize>(), "outcomes": u,
+                    "history": r.history, "approved_by": r.approval.as_ref().map(|a| a.approver_id.clone()),
+                    "suite": r.validation.as_ref().map(|v| v.suite_hash.clone())}));
+            }
+        }
         "audit-verify" => match verify_audit_chain(&audit) {
             Ok(n) => println!("{}", json!({"records": n, "chain": "ok"})),
             Err(e) => die(format!("audit chain broken: {e}")),
@@ -345,7 +428,10 @@ fn main() {
                 binary: c.llama_server.clone(),
                 workdir: work,
                 small: profile(&c).map(|p| TierSlot::new(p, c.port)),
-                large: None,
+                large: c
+                    .large
+                    .as_ref()
+                    .map(|m| TierSlot::new(Profile::large_on_demand(&m.path, &m.sha256), c.port + 1)),
                 meter: &meter,
             };
             let store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
@@ -407,6 +493,6 @@ fn main() {
             }
             pool.shutdown().unwrap_or_else(|e| die(e));
         }
-        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-approve|cap-transition|cap-list} …"),
+        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-approve|cap-transition|cap-list|cap-activate|cap-rollback|exp-record|cap-review|cap-upgrade-check|cap-history} …"),
     }
 }
