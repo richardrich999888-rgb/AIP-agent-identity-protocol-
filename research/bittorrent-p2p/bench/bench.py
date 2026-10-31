@@ -77,13 +77,17 @@ def make_corrupt_copy(src: str, dst: str, piece: int) -> int:
     return n
 
 
-def make_torrent(payload: str, out: str, piece_kib: int = PIECE_KIB) -> None:
+def make_torrent(payload: str, out: str, piece_kib: int = PIECE_KIB, root_cert: str | None = None) -> None:
+    """Private BEP 52 (v2-only) torrent; with root_cert an SSL torrent whose
+    peers must present a certificate signed by that CA."""
     import libtorrent as lt
 
     fs = lt.file_storage()
     lt.add_files(fs, payload)
     ct = lt.create_torrent(fs, piece_kib * 1024, flags=lt.create_torrent.v2_only)
     ct.set_priv(True)
+    if root_cert:
+        ct.set_root_cert(open(root_cert).read())
     lt.set_piece_hashes(ct, os.path.dirname(payload))
     open(out, "wb").write(lt.bencode(ct.generate()))
 
@@ -130,21 +134,32 @@ def run(a) -> dict:
     killed, restarted = None, None
     kill_name, kill_frac = (a.kill.split("@")[0], float(a.kill.split("@")[1])) if a.kill else (None, None)
 
+    def ssl_args(name):
+        if not a.ssl or name not in pki:
+            return []
+        return ["--ssl", pki[name][0], pki[name][1], ""]
+
     def start_peer(p):
         if a.method == "bittorrent":
             return testbed.spawn(p, [PY, "-I", os.path.join(HERE, "bt_node.py"), tor, dirs[p.name], p.ip,
                                      ",".join(n.ip for n in nodes), reports[p.name]]
-                                 + (["--seed-mode"] if p.name == a.corrupt else []))
+                                 + (["--seed-mode"] if p.name == a.corrupt else []) + ssl_args(p.name))
         return testbed.spawn(p, [PY, "-I", os.path.join(HERE, "http_node.py"), "get",
                                  f"http://{src.ip}:8080/{name}", os.path.join(dirs[p.name], name), reports[p.name]])
 
+    pki = {}
+    intruders = [x for x in (a.intruder or "").split(",") if x]
+    if a.ssl:
+        import pki as pkimod
+        pki = pkimod.build(os.path.join(WORK, "pki"), name, ["src"] + [p.name for p in peers if p.name not in intruders],
+                           intruders, a.intruder_kind)
     if a.method == "bittorrent":
         tor = os.path.join(WORK, "model.torrent")
-        make_torrent(payload, tor)
+        make_torrent(payload, tor, root_cert=pki.get("ca"))
         if a.corrupt:
             make_corrupt_copy(payload, os.path.join(dirs[a.corrupt], name), PIECE_KIB << 10)
         procs["src"] = testbed.spawn(src, [PY, "-I", os.path.join(HERE, "bt_node.py"), tor, pub, src.ip,
-                                           ",".join(n.ip for n in nodes), os.path.join(WORK, "report-src.json")])
+                                           ",".join(n.ip for n in nodes), os.path.join(WORK, "report-src.json")] + ssl_args("src"))
         time.sleep(1.0)
     else:
         procs["src"] = testbed.spawn(src, [PY, "-I", os.path.join(HERE, "http_node.py"), "serve", pub, "8080"]
@@ -163,7 +178,7 @@ def run(a) -> dict:
                 pc, ph = cpu_hwm.get(name_, (0, 0))
                 cpu_hwm[name_] = (max(pc, c), max(ph, h))
         for p in peers:
-            if p.name in done or p.name == killed and not restarted or p.name == a.corrupt:
+            if p.name in done or p.name == killed and not restarted or p.name == a.corrupt or p.name in intruders:
                 continue
             path = os.path.join(dirs[p.name], name)
             if a.method == "bittorrent":
@@ -187,7 +202,7 @@ def run(a) -> dict:
                     time.sleep(2.0)
                     procs[p.name] = start_peer(p)
                     restarted = True
-        expected = len(peers) - (1 if killed and not restarted else 0) - (1 if a.corrupt else 0)
+        expected = len(peers) - (1 if killed and not restarted else 0) - (1 if a.corrupt else 0) - len(intruders)
         if len(done) >= expected:
             break
         time.sleep(0.2)
@@ -204,7 +219,7 @@ def run(a) -> dict:
             pr.wait(timeout=10)
         except subprocess.TimeoutExpired:
             pr.kill()
-    verified = {p.name: sha256(os.path.join(dirs[p.name], name)) == digest for p in peers if (p.name != killed or restarted) and p.name != a.corrupt}
+    verified = {p.name: sha256(os.path.join(dirs[p.name], name)) == digest for p in peers if (p.name != killed or restarted) and p.name != a.corrupt and p.name not in intruders}
     hash_failures = 0
     if a.method == "bittorrent":
         for p in peers:
@@ -212,11 +227,18 @@ def run(a) -> dict:
                 hash_failures += json.load(open(reports[p.name])).get("hash_failures", 0)
             except (OSError, ValueError):
                 pass
+    intruder_bytes = {}
+    for n in intruders:
+        try:
+            intruder_bytes[n] = json.load(open(reports[n])).get("payload_down", 0)
+        except (OSError, ValueError):
+            intruder_bytes[n] = None
+    shutil.rmtree(os.path.join(WORK, "pki"), ignore_errors=True)  # test keys never persist
     testbed.teardown()
-    return {
+    return {"ssl": a.ssl, "intruders": intruders, "intruder_kind": a.intruder_kind if intruders else None, "intruder_payload_bytes": intruder_bytes,
         "method": a.method, "size_mib": a.size_mib, "peers": a.peers, "peer_mbit": a.peer_mbit, "src_mbit": a.src_mbit,
         "kill": a.kill, "corrupt": a.corrupt, "restart": a.restart, "killed_at_progress": locals().get("killed_at"),
-        "completed": sorted(done), "timed_out": len(done) < len(peers) - (1 if killed and not restarted else 0) - (1 if a.corrupt else 0),
+        "completed": sorted(done), "timed_out": len(done) < len(peers) - (1 if killed and not restarted else 0) - (1 if a.corrupt else 0) - len(intruders),
         "fleet_seconds": round(fleet, 2), "per_peer_seconds": {k: round(v, 2) for k, v in sorted(done.items())},
         "src_tx_bytes": tx1["src"] - tx0["src"], "total_tx_bytes": sum(tx1[n] - tx0[n] for n in tx1),
         "payload_bytes": a.size_mib << 20,
@@ -239,6 +261,9 @@ def main():
     ap.add_argument("--kill")
     ap.add_argument("--restart", action="store_true")
     ap.add_argument("--corrupt")
+    ap.add_argument("--ssl", action="store_true", help="SSL torrent; peers need publisher-CA certificates")
+    ap.add_argument("--intruder-kind", default="rogue", choices=("rogue", "wrongscope"))
+    ap.add_argument("--intruder", help="comma list of nodes that are NOT authorised (rogue CA cert under --ssl)")
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--timeout", type=float, default=900)
     a = ap.parse_args()
