@@ -150,6 +150,10 @@ members = [
     # Local-only retrieval + inference + AIP-authorized sandboxed tools.
     # See sovereign/vanian-sovereign/README.md for the verified scope.
     "sovereign/vanian-sovereign",
+    # Intelligence runtime v0.1: controller, scoped inference cache and the
+    # experience-to-capability engine over the Sovereign slice. See
+    # docs/intelligence-runtime/ARCHITECTURE.md.
+    "sovereign/syntriass-runtime",
 ]
 
 [workspace.package]
