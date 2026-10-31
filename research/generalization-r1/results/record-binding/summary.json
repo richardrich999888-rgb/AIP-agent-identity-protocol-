@@ -1,0 +1,34 @@
+{
+  "cross_tenant": {
+    "runtime": 0,
+    "bound_baseline": 0,
+    "n": 7
+  },
+  "hypothetical": {
+    "runtime": 6,
+    "bound_baseline": 0,
+    "n": 7
+  },
+  "stale": {
+    "runtime": 6,
+    "bound_baseline": 0,
+    "n": 7
+  },
+  "tampered": {
+    "runtime": 0,
+    "bound_baseline": 0,
+    "n": 7
+  },
+  "valid": {
+    "runtime": 6,
+    "bound_baseline": 6,
+    "n": 7
+  },
+  "wrong_asset": {
+    "runtime": 6,
+    "bound_baseline": 0,
+    "n": 7
+  },
+  "batch_wall_ns": 3462946,
+  "scope": "cap-check only; no tool activation; explicit context trusted externally; timestamps synthetic; baseline is conventional binding, not semantic intelligence"
+}

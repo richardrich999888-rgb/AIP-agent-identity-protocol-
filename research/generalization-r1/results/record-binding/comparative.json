@@ -1,0 +1,296 @@
+[
+ {
+  "id": "test-000-valid",
+  "kind": "valid",
+  "expected": "PASS",
+  "runtime": "PASS",
+  "bound_baseline": "PASS"
+ },
+ {
+  "id": "test-000-hypothetical",
+  "kind": "hypothetical",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-000-wrong_asset",
+  "kind": "wrong_asset",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-000-stale",
+  "kind": "stale",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-000-cross_tenant",
+  "kind": "cross_tenant",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: WrongTenant",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-000-tampered",
+  "kind": "tampered",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: BadSignature",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-002-valid",
+  "kind": "valid",
+  "expected": "PASS",
+  "runtime": "PASS",
+  "bound_baseline": "PASS"
+ },
+ {
+  "id": "test-002-hypothetical",
+  "kind": "hypothetical",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-002-wrong_asset",
+  "kind": "wrong_asset",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-002-stale",
+  "kind": "stale",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-002-cross_tenant",
+  "kind": "cross_tenant",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: WrongTenant",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-002-tampered",
+  "kind": "tampered",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: BadSignature",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-009-valid",
+  "kind": "valid",
+  "expected": "PASS",
+  "runtime": "PASS",
+  "bound_baseline": "PASS"
+ },
+ {
+  "id": "test-009-hypothetical",
+  "kind": "hypothetical",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-009-wrong_asset",
+  "kind": "wrong_asset",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-009-stale",
+  "kind": "stale",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-009-cross_tenant",
+  "kind": "cross_tenant",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: WrongTenant",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-009-tampered",
+  "kind": "tampered",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: BadSignature",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-011-valid",
+  "kind": "valid",
+  "expected": "PASS",
+  "runtime": "PASS",
+  "bound_baseline": "PASS"
+ },
+ {
+  "id": "test-011-hypothetical",
+  "kind": "hypothetical",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-011-wrong_asset",
+  "kind": "wrong_asset",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-011-stale",
+  "kind": "stale",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-011-cross_tenant",
+  "kind": "cross_tenant",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: WrongTenant",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-011-tampered",
+  "kind": "tampered",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: BadSignature",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-012-valid",
+  "kind": "valid",
+  "expected": "PASS",
+  "runtime": "PASS",
+  "bound_baseline": "PASS"
+ },
+ {
+  "id": "test-012-hypothetical",
+  "kind": "hypothetical",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-012-wrong_asset",
+  "kind": "wrong_asset",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-012-stale",
+  "kind": "stale",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-012-cross_tenant",
+  "kind": "cross_tenant",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: WrongTenant",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-012-tampered",
+  "kind": "tampered",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: BadSignature",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-026-valid",
+  "kind": "valid",
+  "expected": "PASS",
+  "runtime": "NOT_APPLICABLE",
+  "bound_baseline": "NOT_APPLICABLE"
+ },
+ {
+  "id": "test-026-hypothetical",
+  "kind": "hypothetical",
+  "expected": "ABSTAIN",
+  "runtime": "NOT_APPLICABLE",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-026-wrong_asset",
+  "kind": "wrong_asset",
+  "expected": "ABSTAIN",
+  "runtime": "NOT_APPLICABLE",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-026-stale",
+  "kind": "stale",
+  "expected": "ABSTAIN",
+  "runtime": "NOT_APPLICABLE",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-026-cross_tenant",
+  "kind": "cross_tenant",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: WrongTenant",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-026-tampered",
+  "kind": "tampered",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: BadSignature",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-028-valid",
+  "kind": "valid",
+  "expected": "PASS",
+  "runtime": "PASS",
+  "bound_baseline": "PASS"
+ },
+ {
+  "id": "test-028-hypothetical",
+  "kind": "hypothetical",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-028-wrong_asset",
+  "kind": "wrong_asset",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-028-stale",
+  "kind": "stale",
+  "expected": "ABSTAIN",
+  "runtime": "PASS",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-028-cross_tenant",
+  "kind": "cross_tenant",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: WrongTenant",
+  "bound_baseline": "ABSTAIN"
+ },
+ {
+  "id": "test-028-tampered",
+  "kind": "tampered",
+  "expected": "ABSTAIN",
+  "runtime": "FAILED:record rejected: BadSignature",
+  "bound_baseline": "ABSTAIN"
+ }
+]

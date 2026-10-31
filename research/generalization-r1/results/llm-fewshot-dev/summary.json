@@ -1,0 +1,29 @@
+{
+  "results": {
+    "few_shot_skill": {
+      "n": 14,
+      "correct": 0,
+      "incorrect_positive": 0
+    }
+  },
+  "model_sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+  "cmd": [
+    "/workspace/scratch/9d8d2a7e0bb0/syntriass-research/.local/runtime/build/bin/llama-server",
+    "-m",
+    "/workspace/scratch/9d8d2a7e0bb0/syntriass-research/.local/runtime/qwen3-4b.gguf",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "18129",
+    "-t",
+    "8",
+    "-c",
+    "4096",
+    "-ngl",
+    "0"
+  ],
+  "subset": "first 70 frozen cases, diagnostic only",
+  "rag": "single policy retrieval supplied, no retrieval cost measured",
+  "threads": "8 fixed from CPU quota; not tuned",
+  "energy": "unmeasured"
+}

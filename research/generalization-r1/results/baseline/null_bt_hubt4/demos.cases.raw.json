@@ -1,0 +1,32 @@
+[
+ {
+  "id": "demo-0",
+  "text": "Cell 7, UPS bank A: float 2.22 V at 25 C, SG 1.215. Decision?",
+  "label": "ACCEPT"
+ },
+ {
+  "id": "demo-1",
+  "text": "Substation battery cell 12 reads 2.15 volts, electrolyte 25 C, SG 1.210.",
+  "label": "EQUALIZE"
+ },
+ {
+  "id": "demo-2",
+  "text": "Cell 3: 2.20 V at 15 C, specific gravity 1.220.",
+  "label": "ACCEPT"
+ },
+ {
+  "id": "demo-3",
+  "text": "Cell 30 float 2.33 V, 35 C electrolyte, SG 1.225.",
+  "label": "REDUCE_FLOAT"
+ },
+ {
+  "id": "demo-4",
+  "text": "Cell 9: 2.24 V at 26 C but SG only 1.185.",
+  "label": "EQUALIZE"
+ },
+ {
+  "id": "demo-5",
+  "text": "Cell 2 at 2.21 V, electrolyte 52 C, SG 1.215.",
+  "label": "INVALID_TEST"
+ }
+]

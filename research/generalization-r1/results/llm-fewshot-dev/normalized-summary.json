@@ -1,0 +1,94 @@
+{
+ "policy": "post-run diagnostic removes only EMPTY leading think wrapper; no label search, no gold-dependent corrections; strict results retained",
+ "modes": {
+  "few_shot_skill": {
+   "n": 14,
+   "strict_correct": 0,
+   "normalized_correct": 9,
+   "accuracy_ci95": [
+    0.38764423103907397,
+    0.8365526824644587
+   ],
+   "released": 5,
+   "correct_released": 1,
+   "incorrect_positive": 4,
+   "invalid": 0,
+   "p50_wall_seconds": 1.176008880500035,
+   "p95_wall_seconds": 3.5530320759999086,
+   "prompt_tokens": 4682,
+   "completion_tokens": 102,
+   "predictions": [
+    {
+     "id": "712-0",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "712-1",
+     "expected": "ABSTAIN",
+     "got": "SHIP"
+    },
+    {
+     "id": "712-2",
+     "expected": "ABSTAIN",
+     "got": "SHIP"
+    },
+    {
+     "id": "712-3",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "712-4",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "712-5",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "712-6",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "712-7",
+     "expected": "HOLD",
+     "got": "SHIP"
+    },
+    {
+     "id": "712-8",
+     "expected": "SHIP",
+     "got": "SHIP"
+    },
+    {
+     "id": "712-9",
+     "expected": "ABSTAIN",
+     "got": "SHIP"
+    },
+    {
+     "id": "712-10",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "712-11",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "712-12",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "712-13",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    }
+   ]
+  }
+ }
+}

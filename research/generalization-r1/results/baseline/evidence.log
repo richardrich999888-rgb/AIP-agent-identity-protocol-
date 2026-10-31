@@ -1,0 +1,95 @@
+{
+ "limitation": "records built from dataset ground-truth inputs; measures logic given correct readings",
+ "ir": {
+  "A_text": {
+   "real_strict": "29/32",
+   "real_wrong_release": 0,
+   "probe_unsafe_release": "18/64",
+   "misses": [
+    [
+     "test-002",
+     "PASS",
+     "INSUFFICIENT_INPUT"
+    ],
+    [
+     "test-024",
+     "INSUFFICIENT_INPUT",
+     "NOT_APPLICABLE"
+    ],
+    [
+     "test-026",
+     "PASS",
+     "NOT_APPLICABLE"
+    ]
+   ]
+  },
+  "B_signed_record": {
+   "real_strict": "30/32",
+   "real_wrong_release": 0,
+   "probe_unsafe_release": "0/64",
+   "misses": [
+    [
+     "test-024",
+     "INSUFFICIENT_INPUT",
+     "NOT_APPLICABLE"
+    ],
+    [
+     "test-026",
+     "PASS",
+     "NOT_APPLICABLE"
+    ]
+   ]
+  }
+ },
+ "bt": {
+  "A_text": {
+   "real_strict": "26/27",
+   "real_wrong_release": 0,
+   "probe_unsafe_release": "22/54",
+   "misses": [
+    [
+     "t-26",
+     "ACCEPT",
+     "OUT_OF_SCOPE"
+    ]
+   ]
+  },
+  "B_signed_record": {
+   "real_strict": "27/27",
+   "real_wrong_release": 0,
+   "probe_unsafe_release": "0/54",
+   "misses": []
+  }
+ },
+ "tx": {
+  "A_text": {
+   "real_strict": "25/27",
+   "real_wrong_release": 0,
+   "probe_unsafe_release": "18/54",
+   "misses": [
+    [
+     "t-27",
+     "ACCEPT",
+     "DRY_OUT_OIL"
+    ],
+    [
+     "t-29",
+     "ACCEPT",
+     "OUT_OF_SCOPE"
+    ]
+   ]
+  },
+  "B_signed_record": {
+   "real_strict": "26/27",
+   "real_wrong_release": 0,
+   "probe_unsafe_release": "0/54",
+   "misses": [
+    [
+     "t-29",
+     "ACCEPT",
+     "OUT_OF_SCOPE"
+    ]
+   ]
+  }
+ }
+}

@@ -1,0 +1,212 @@
+[
+ {
+  "expected": "PASS",
+  "got": "PASS",
+  "id": "test-000-valid"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-000-hypothetical"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-000-wrong_asset"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-000-stale"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: WrongTenant",
+  "id": "test-000-cross_tenant"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: BadSignature",
+  "id": "test-000-tampered"
+ },
+ {
+  "expected": "PASS",
+  "got": "PASS",
+  "id": "test-002-valid"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-002-hypothetical"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-002-wrong_asset"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-002-stale"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: WrongTenant",
+  "id": "test-002-cross_tenant"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: BadSignature",
+  "id": "test-002-tampered"
+ },
+ {
+  "expected": "PASS",
+  "got": "PASS",
+  "id": "test-009-valid"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-009-hypothetical"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-009-wrong_asset"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-009-stale"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: WrongTenant",
+  "id": "test-009-cross_tenant"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: BadSignature",
+  "id": "test-009-tampered"
+ },
+ {
+  "expected": "PASS",
+  "got": "PASS",
+  "id": "test-011-valid"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-011-hypothetical"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-011-wrong_asset"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-011-stale"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: WrongTenant",
+  "id": "test-011-cross_tenant"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: BadSignature",
+  "id": "test-011-tampered"
+ },
+ {
+  "expected": "PASS",
+  "got": "PASS",
+  "id": "test-012-valid"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-012-hypothetical"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-012-wrong_asset"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-012-stale"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: WrongTenant",
+  "id": "test-012-cross_tenant"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: BadSignature",
+  "id": "test-012-tampered"
+ },
+ {
+  "expected": "PASS",
+  "got": "NOT_APPLICABLE",
+  "id": "test-026-valid"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "NOT_APPLICABLE",
+  "id": "test-026-hypothetical"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "NOT_APPLICABLE",
+  "id": "test-026-wrong_asset"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "NOT_APPLICABLE",
+  "id": "test-026-stale"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: WrongTenant",
+  "id": "test-026-cross_tenant"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: BadSignature",
+  "id": "test-026-tampered"
+ },
+ {
+  "expected": "PASS",
+  "got": "PASS",
+  "id": "test-028-valid"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-028-hypothetical"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-028-wrong_asset"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "PASS",
+  "id": "test-028-stale"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: WrongTenant",
+  "id": "test-028-cross_tenant"
+ },
+ {
+  "expected": "ABSTAIN",
+  "got": "FAILED:record rejected: BadSignature",
+  "id": "test-028-tampered"
+ }
+]

@@ -1,0 +1,110 @@
+{
+  "methods": {
+    "eager": {
+      "n": 280,
+      "correct": 189,
+      "accuracy_ci95": [
+        0.6180917718320376,
+        0.7271713916507423
+      ],
+      "released": 160,
+      "correct_releases": 69,
+      "wrong_releases": 91,
+      "false_ship": 8,
+      "correct_abstentions": 120,
+      "missed": 0,
+      "precision_ci95": [
+        0.3570112358013636,
+        0.5087126160347185
+      ],
+      "median_batch_cpu_ns": 115161.0,
+      "p95_latency_ns": 1302
+    },
+    "conservative": {
+      "n": 280,
+      "correct": 211,
+      "accuracy_ci95": [
+        0.6998899819994673,
+        0.8003892957000707
+      ],
+      "released": 0,
+      "correct_releases": 0,
+      "wrong_releases": 0,
+      "false_ship": 0,
+      "correct_abstentions": 211,
+      "missed": 69,
+      "precision_ci95": null,
+      "median_batch_cpu_ns": 110214.5,
+      "p95_latency_ns": 1342
+    },
+    "exhaustive": {
+      "n": 280,
+      "correct": 280,
+      "accuracy_ci95": [
+        0.9864661813793707,
+        1
+      ],
+      "released": 69,
+      "correct_releases": 69,
+      "wrong_releases": 0,
+      "false_ship": 0,
+      "correct_abstentions": 211,
+      "missed": 0,
+      "precision_ci95": [
+        0.9472627418109483,
+        1
+      ],
+      "median_batch_cpu_ns": 55388951.0,
+      "p95_latency_ns": 1391819
+    },
+    "interval": {
+      "n": 280,
+      "correct": 280,
+      "accuracy_ci95": [
+        0.9864661813793707,
+        1
+      ],
+      "released": 69,
+      "correct_releases": 69,
+      "wrong_releases": 0,
+      "false_ship": 0,
+      "correct_abstentions": 211,
+      "missed": 0,
+      "precision_ci95": [
+        0.9472627418109483,
+        1
+      ],
+      "median_batch_cpu_ns": 1480837.0,
+      "p95_latency_ns": 30796
+    },
+    "short_circuit": {
+      "n": 280,
+      "correct": 280,
+      "accuracy_ci95": [
+        0.9864661813793707,
+        1
+      ],
+      "released": 69,
+      "correct_releases": 69,
+      "wrong_releases": 0,
+      "false_ship": 0,
+      "correct_abstentions": 211,
+      "missed": 0,
+      "precision_ci95": [
+        0.9472627418109483,
+        1
+      ],
+      "median_batch_cpu_ns": 3055203.5,
+      "p95_latency_ns": 36455
+    }
+  },
+  "exhaustive_to_interval_cpu_ratio_ci95": [
+    35.99319156846825,
+    38.771775504820134
+  ],
+  "process_peak_rss_kib": 16648,
+  "memory_scope": "whole Python process; not per method; Linux ru_maxrss",
+  "energy": "unmeasured",
+  "quality_scope": "synthetic typed alternatives, not text understanding",
+  "holdout": "consumed by this run"
+}

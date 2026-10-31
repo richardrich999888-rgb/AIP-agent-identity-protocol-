@@ -1,0 +1,290 @@
+[
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.002997,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "scope_limit[0] below",
+  "id": "b-000",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.002997 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "REDUCE_FLOAT",
+  "runtime_says": "REDUCE_FLOAT"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.003,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "scope_limit[0] at",
+  "id": "b-001",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.003 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "REDUCE_FLOAT",
+  "runtime_says": "REDUCE_FLOAT"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.003003,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "scope_limit[0] above",
+  "id": "b-002",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.003003 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "OUT_OF_SCOPE",
+  "runtime_says": "OUT_OF_SCOPE"
+ },
+ {
+  "inputs": {
+   "temperature": 4.995,
+   "voltage": 0.001,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "validity[0].min below",
+  "id": "b-003",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, 4.995 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "INVALID_TEST",
+  "runtime_says": "INVALID_TEST"
+ },
+ {
+  "inputs": {
+   "temperature": 5.0,
+   "voltage": 0.001,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "validity[0].min at",
+  "id": "b-004",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, 5 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "REPLACE_CELL",
+  "runtime_says": "REPLACE_CELL"
+ },
+ {
+  "inputs": {
+   "temperature": 5.005,
+   "voltage": 0.001,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "validity[0].min above",
+  "id": "b-005",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, 5.005 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "REPLACE_CELL",
+  "runtime_says": "REPLACE_CELL"
+ },
+ {
+  "inputs": {
+   "temperature": 44.955,
+   "voltage": 0.001,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "validity[0].max below",
+  "id": "b-006",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, 44.955 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "REPLACE_CELL",
+  "runtime_says": "REPLACE_CELL"
+ },
+ {
+  "inputs": {
+   "temperature": 45.0,
+   "voltage": 0.001,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "validity[0].max at",
+  "id": "b-007",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, 45 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "REPLACE_CELL",
+  "runtime_says": "REPLACE_CELL"
+ },
+ {
+  "inputs": {
+   "temperature": 45.045,
+   "voltage": 0.001,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "validity[0].max above",
+  "id": "b-008",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, 45.045 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "INVALID_TEST",
+  "runtime_says": "INVALID_TEST"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.0020979,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "rule[0] below",
+  "id": "b-009",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.0020979 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "REPLACE_CELL",
+  "runtime_says": "REPLACE_CELL"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.0021000000000000003,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "rule[0] at",
+  "id": "b-010",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.0021000000000000003 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "EQUALIZE",
+  "runtime_says": "EQUALIZE"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.0021021000000000004,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "rule[0] above",
+  "id": "b-011",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.0021021000000000004 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "EQUALIZE",
+  "runtime_says": "EQUALIZE"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.00216783,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "rule[1] below",
+  "id": "b-012",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.00216783 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "EQUALIZE",
+  "runtime_says": "EQUALIZE"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.00217,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "rule[1] at",
+  "id": "b-013",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.00217 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "ACCEPT",
+  "runtime_says": "ACCEPT"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.00217217,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "rule[1] above",
+  "id": "b-014",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.00217217 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "ACCEPT",
+  "runtime_says": "ACCEPT"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.0022977,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "rule[2] below",
+  "id": "b-015",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.0022977 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "ACCEPT",
+  "runtime_says": "ACCEPT"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.0023,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "rule[2] at",
+  "id": "b-016",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.0023 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "ACCEPT",
+  "runtime_says": "ACCEPT"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.0023022999999999997,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "rule[2] above",
+  "id": "b-017",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.0023022999999999997 kV, 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "REDUCE_FLOAT",
+  "runtime_says": "REDUCE_FLOAT"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.001,
+   "cued_1": 1.1987999999999999
+  },
+  "probe": "rule[3] below",
+  "id": "b-018",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, 25 \u00b0C, SG 1.1987999999999999.",
+  "ir_says": "REPLACE_CELL",
+  "runtime_says": "REPLACE_CELL"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.001,
+   "cued_1": 1.2
+  },
+  "probe": "rule[3] at",
+  "id": "b-019",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, 25 \u00b0C, SG 1.2.",
+  "ir_says": "REPLACE_CELL",
+  "runtime_says": "REPLACE_CELL"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.001,
+   "cued_1": 1.2012
+  },
+  "probe": "rule[3] above",
+  "id": "b-020",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, 25 \u00b0C, SG 1.2012.",
+  "ir_says": "REPLACE_CELL",
+  "runtime_says": "REPLACE_CELL"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": null,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "missing voltage",
+  "id": "b-021",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 25 \u00b0C, SG 1.7999999999999998.",
+  "ir_says": "INSUFFICIENT_INPUT",
+  "runtime_says": "INSUFFICIENT_INPUT"
+ },
+ {
+  "inputs": {
+   "temperature": null,
+   "voltage": 0.001,
+   "cued_1": 1.7999999999999998
+  },
+  "probe": "missing temperature",
+  "id": "b-022",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, SG 1.7999999999999998.",
+  "ir_says": "INSUFFICIENT_INPUT",
+  "runtime_says": "INSUFFICIENT_INPUT"
+ },
+ {
+  "inputs": {
+   "temperature": 25.0,
+   "voltage": 0.001,
+   "cued_1": null
+  },
+  "probe": "missing cued_1",
+  "id": "b-023",
+  "text": "Stationary battery cell float acceptance per Halvorn HU-BT-4 rev B: 0.001 kV, 25 \u00b0C.",
+  "ir_says": "INSUFFICIENT_INPUT",
+  "runtime_says": "INSUFFICIENT_INPUT"
+ }
+]

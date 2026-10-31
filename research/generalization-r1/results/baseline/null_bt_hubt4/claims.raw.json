@@ -1,0 +1,644 @@
+[
+ {
+  "clause": "L1.S0",
+  "span": [
+   58,
+   124
+  ],
+  "text": "Scope: vented lead-acid cells in substation and UPS battery banks.",
+  "kind": "scope_subject",
+  "raw": {
+   "terms": [
+    ""
+   ]
+  },
+  "claim": {
+   "terms": []
+  },
+  "fields": {
+   "terms": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "terms",
+    "from": [
+     ""
+    ],
+    "to": [],
+    "basis": "terms not present in clause removed"
+   }
+  ],
+  "issues": [
+   {
+    "field": "terms",
+    "issue": "no term present in clause"
+   }
+  ],
+  "tiers": [
+   "small",
+   "large",
+   "large"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L1.S1",
+  "span": [
+   125,
+   232
+  ],
+  "text": "This procedure does not apply to lithium, nickel-cadmium or NiCd batteries; such requests are out of scope.",
+  "kind": "scope_exclusion_terms",
+  "raw": {
+   "terms": [
+    ""
+   ]
+  },
+  "claim": {
+   "terms": []
+  },
+  "fields": {
+   "terms": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "terms",
+    "from": [
+     ""
+    ],
+    "to": [],
+    "basis": "terms not present in clause removed"
+   }
+  ],
+  "issues": [
+   {
+    "field": "terms",
+    "issue": "no term present in clause"
+   }
+  ],
+  "tiers": [
+   "small",
+   "large",
+   "large"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L1.S2",
+  "span": [
+   233,
+   327
+  ],
+  "text": "A voltage above 3 volts is a block or string voltage, not a cell voltage, and is out of scope.",
+  "kind": "scope_limit",
+  "raw": {
+   "ref": "voltage",
+   "op": "<",
+   "value": 3.0,
+   "meaning": "out_of_scope_when_true"
+  },
+  "claim": {
+   "ref": "voltage",
+   "op": ">",
+   "value": 3.0,
+   "meaning": "out_of_scope_when_true",
+   "unit": "V"
+  },
+  "fields": {
+   "ref": "evidence",
+   "op": "repaired",
+   "meaning": "evidence"
+  },
+  "repairs": [
+   {
+    "field": "op",
+    "from": "<",
+    "to": ">",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L2.S0",
+  "span": [
+   328,
+   463
+  ],
+  "text": "Required inputs: cell float voltage in volts, electrolyte temperature in degrees Celsius, and specific gravity (SG) of the electrolyte.",
+  "kind": "required_inputs",
+  "raw": {
+   "inputs": [
+    {
+     "ref": "voltage",
+     "unit": "kV",
+     "cues": []
+    }
+   ]
+  },
+  "claim": {
+   "inputs": [
+    {
+     "ref": "voltage",
+     "unit": "V",
+     "cues": []
+    },
+    {
+     "ref": "temperature",
+     "unit": "\u00b0C",
+     "cues": []
+    },
+    {
+     "ref": "cued_1",
+     "unit": "none",
+     "cues": [
+      "SG",
+      "specific gravity"
+     ]
+    }
+   ]
+  },
+  "fields": {
+   "inputs[0].unit": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "inputs[0].unit",
+    "from": "kV",
+    "to": "V",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "inputs",
+    "from": [
+     {
+      "ref": "voltage",
+      "unit": "V",
+      "cues": []
+     }
+    ],
+    "to": [
+     {
+      "ref": "voltage",
+      "unit": "V",
+      "cues": []
+     },
+     {
+      "ref": "temperature",
+      "unit": "\u00b0C",
+      "cues": []
+     },
+     {
+      "ref": "cued_1",
+      "unit": "none",
+      "cues": [
+       "SG",
+       "specific gravity"
+      ]
+     }
+    ],
+    "basis": "units and abbreviation named in clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L2.S1",
+  "span": [
+   464,
+   521
+  ],
+  "text": "If any input is missing the result is insufficient input.",
+  "kind": "missing_input",
+  "raw": {
+   "outcome": "ACCEPT"
+  },
+  "claim": {
+   "outcome": "INSUFFICIENT_INPUT"
+  },
+  "fields": {
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "outcome",
+    "from": "ACCEPT",
+    "to": "INSUFFICIENT_INPUT",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L3.S0",
+  "span": [
+   522,
+   673
+  ],
+  "text": "Step 1 validity: the electrolyte temperature must be between 5 and 45 degrees Celsius inclusive; otherwise the reading is invalid and must be repeated.",
+  "kind": "validity",
+  "raw": {
+   "ref": "voltage",
+   "min": 5.0,
+   "max": 5.0,
+   "outcome": "ACCEPT"
+  },
+  "claim": {
+   "ref": "temperature",
+   "min": 5.0,
+   "max": 45.0,
+   "outcome": "INVALID_TEST",
+   "unit": "\u00b0C"
+  },
+  "fields": {
+   "min": "evidence",
+   "max": "repaired",
+   "ref": "repaired",
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "max",
+    "from": 5.0,
+    "to": 45.0,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "ref",
+    "from": "voltage",
+    "to": "temperature",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "outcome",
+    "from": "ACCEPT",
+    "to": "INVALID_TEST",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L4.S0",
+  "span": [
+   674,
+   862
+  ],
+  "text": "Step 2 temperature correction: correct the cell voltage to 25 degrees Celsius by adding 0.003 volts for every degree Celsius above 25 and subtracting 0.003 volts for every degree below 25.",
+  "kind": "correction",
+  "raw": {
+   "template": "add_per_degree",
+   "target": "voltage",
+   "by": "voltage",
+   "reference": 0.003,
+   "rate": 0.0,
+   "base": 0.0,
+   "step": 0.0
+  },
+  "claim": {
+   "template": "add_per_degree",
+   "target": "voltage",
+   "by": "temperature",
+   "reference": 25.0,
+   "rate": 0.003,
+   "base": 1,
+   "step": 1,
+   "reference_unit": "\u00b0C",
+   "rate_unit": "V"
+  },
+  "fields": {
+   "template": "evidence",
+   "reference": "repaired",
+   "by": "repaired",
+   "target": "evidence",
+   "rate": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "reference",
+    "from": 0.003,
+    "to": 25.0,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "by",
+    "from": "voltage",
+    "to": "temperature",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "rate",
+    "from": 0.0,
+    "to": 0.003,
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L5.S0",
+  "span": [
+   863,
+   943
+  ],
+  "text": "Step 3 decision: if the corrected voltage is below 2.10 volts, replace the cell.",
+  "kind": "decision_rule",
+  "raw": {
+   "conditions": [
+    {
+     "subject": "voltage",
+     "op": "<",
+     "against": "number",
+     "number": 0.0
+    }
+   ],
+   "outcome": "ACCEPT"
+  },
+  "claim": {
+   "conditions": [
+    {
+     "subject": "corrected",
+     "op": "<",
+     "against": "number",
+     "number": 2.1,
+     "unit": "V"
+    }
+   ],
+   "outcome": "REPLACE_CELL"
+  },
+  "fields": {
+   "conditions[0].op": "evidence",
+   "conditions[0].subject": "repaired",
+   "conditions[0].against": "evidence",
+   "conditions[0].number": "repaired",
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "conditions[0].subject",
+    "from": "voltage",
+    "to": "corrected",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].number",
+    "from": 0.0,
+    "to": 2.1,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "outcome",
+    "from": "ACCEPT",
+    "to": "REPLACE_CELL",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L5.S1",
+  "span": [
+   944,
+   996
+  ],
+  "text": "If it is below 2.17 volts, equalize charge the bank.",
+  "kind": "decision_rule",
+  "raw": {
+   "conditions": [
+    {
+     "subject": "voltage",
+     "op": "<",
+     "against": "number",
+     "number": 0.0
+    }
+   ],
+   "outcome": "ACCEPT"
+  },
+  "claim": {
+   "conditions": [
+    {
+     "subject": "corrected",
+     "op": "<",
+     "against": "number",
+     "number": 2.17,
+     "unit": "V"
+    }
+   ],
+   "outcome": "EQUALIZE"
+  },
+  "fields": {
+   "conditions[0].op": "evidence",
+   "conditions[0].subject": "repaired",
+   "conditions[0].against": "evidence",
+   "conditions[0].number": "repaired",
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "conditions[0].subject",
+    "from": "voltage",
+    "to": "corrected",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].number",
+    "from": 0.0,
+    "to": 2.17,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "outcome",
+    "from": "ACCEPT",
+    "to": "EQUALIZE",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L5.S2",
+  "span": [
+   997,
+   1062
+  ],
+  "text": "If it is above 2.30 volts, reduce the float voltage (overcharge).",
+  "kind": "decision_rule",
+  "raw": {
+   "conditions": [
+    {
+     "subject": "voltage",
+     "op": "<",
+     "against": "number",
+     "number": 0.0
+    }
+   ],
+   "outcome": "ACCEPT"
+  },
+  "claim": {
+   "conditions": [
+    {
+     "subject": "corrected",
+     "op": ">",
+     "against": "number",
+     "number": 2.3,
+     "unit": "V"
+    }
+   ],
+   "outcome": "REDUCE_FLOAT"
+  },
+  "fields": {
+   "conditions[0].op": "repaired",
+   "conditions[0].subject": "repaired",
+   "conditions[0].against": "evidence",
+   "conditions[0].number": "repaired",
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "conditions[0].op",
+    "from": "<",
+    "to": ">",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].subject",
+    "from": "voltage",
+    "to": "corrected",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].number",
+    "from": 0.0,
+    "to": 2.3,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "outcome",
+    "from": "ACCEPT",
+    "to": "REDUCE_FLOAT",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L5.S3",
+  "span": [
+   1063,
+   1130
+  ],
+  "text": "Otherwise, if the specific gravity is below 1.200, equalize charge.",
+  "kind": "decision_rule",
+  "raw": {
+   "conditions": [
+    {
+     "subject": "voltage",
+     "op": "<",
+     "against": "number",
+     "number": 0.0
+    }
+   ],
+   "outcome": "ACCEPT"
+  },
+  "claim": {
+   "conditions": [
+    {
+     "subject": "cued_1",
+     "op": "<",
+     "against": "number",
+     "number": 1.2,
+     "unit": "none"
+    }
+   ],
+   "outcome": "EQUALIZE"
+  },
+  "fields": {
+   "conditions[0].op": "evidence",
+   "conditions[0].subject": "repaired",
+   "conditions[0].against": "evidence",
+   "conditions[0].number": "repaired",
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "conditions[0].subject",
+    "from": "voltage",
+    "to": "cued_1",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].number",
+    "from": 0.0,
+    "to": 1.2,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "outcome",
+    "from": "ACCEPT",
+    "to": "EQUALIZE",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L5.S4",
+  "span": [
+   1131,
+   1148
+  ],
+  "text": "Otherwise accept.",
+  "kind": "default_outcome",
+  "raw": {
+   "outcome": "ACCEPT"
+  },
+  "claim": {
+   "outcome": "ACCEPT"
+  },
+  "fields": {
+   "outcome": "evidence"
+  },
+  "repairs": [],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ }
+]

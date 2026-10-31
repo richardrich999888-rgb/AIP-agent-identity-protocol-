@@ -1,0 +1,515 @@
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded fallible-streaming-iterator v0.1.9
+  Downloaded fallible-iterator v0.3.0
+  Downloaded hashbrown v0.14.5
+  Downloaded errno v0.3.14
+  Downloaded shlex v2.0.1
+  Downloaded cc v1.4.5
+  Downloaded pkg-config v0.3.34
+  Downloaded hashlink v0.9.1
+  Downloaded once_cell v1.21.4
+  Downloaded rustix v1.1.5
+  Downloaded smallvec v1.16.0
+  Downloaded tempfile v3.27.0
+  Downloaded fastrand v2.5.0
+  Downloaded ahash v0.8.12
+  Downloaded bitflags v2.13.1
+  Downloaded find-msvc-tools v0.1.12
+  Downloaded rusqlite v0.32.1
+  Downloaded vcpkg v0.2.15
+  Downloaded linux-raw-sys v0.12.1
+  Downloaded libsqlite3-sys v0.30.1
+   Compiling cfg-if v1.0.4
+   Compiling libc v0.2.189
+   Compiling version_check v0.9.5
+   Compiling typenum v1.20.1
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling subtle v2.6.1
+   Compiling unicode-ident v1.0.24
+   Compiling zeroize v1.9.0
+   Compiling zerocopy v0.8.56
+   Compiling cmov v0.5.4
+   Compiling getrandom v0.4.3
+   Compiling generic-array v0.14.7
+   Compiling ctutils v0.4.6
+   Compiling rand_core v0.10.1
+   Compiling cpufeatures v0.2.17
+   Compiling serde_core v1.0.229
+   Compiling autocfg v1.5.1
+   Compiling semver v1.0.28
+   Compiling const-oid v0.10.2
+   Compiling num-traits v0.2.19
+   Compiling rustc_version v0.4.1
+   Compiling serde v1.0.229
+   Compiling syn v3.0.5
+   Compiling hybrid-array v0.4.14
+   Compiling syn v2.0.119
+   Compiling getrandom v0.2.17
+   Compiling rand_core v0.6.4
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling inout v0.1.4
+   Compiling curve25519-dalek v4.1.3
+   Compiling cipher v0.4.4
+   Compiling crypto-common v0.2.2
+   Compiling universal-hash v0.5.1
+   Compiling keccak v0.2.2
+   Compiling base64ct v1.8.3
+   Compiling signature v2.2.0
+   Compiling sponge-cursor v0.1.0
+   Compiling opaque-debug v0.3.1
+   Compiling poly1305 v0.8.0
+   Compiling module-lattice v0.2.3
+   Compiling digest v0.11.3
+   Compiling shake v0.1.0
+   Compiling signature v3.0.0
+   Compiling ed25519 v2.2.3
+   Compiling password-hash v0.5.0
+   Compiling chacha20 v0.9.1
+   Compiling sha2 v0.10.9
+   Compiling blake2 v0.10.6
+   Compiling aead v0.5.2
+   Compiling der v0.8.2
+   Compiling chacha20poly1305 v0.10.1
+   Compiling argon2 v0.5.3
+   Compiling ahash v0.8.12
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.12
+   Compiling bs58 v0.5.1
+   Compiling zmij v1.0.23
+   Compiling serde_derive v1.0.229
+   Compiling once_cell v1.21.4
+   Compiling cc v1.4.5
+   Compiling vcpkg v0.2.15
+   Compiling serde_json v1.0.151
+   Compiling pkg-config v0.3.34
+   Compiling ppv-lite86 v0.2.21
+   Compiling spki v0.8.0
+   Compiling rand_chacha v0.3.1
+   Compiling pkcs8 v0.11.0
+   Compiling bitflags v2.13.1
+   Compiling itoa v1.0.18
+   Compiling ml-dsa v0.1.1
+   Compiling rand v0.8.8
+   Compiling memchr v2.8.3
+   Compiling hashbrown v0.14.5
+   Compiling base64 v0.22.1
+   Compiling curve25519-dalek-derive v0.1.1
+   Compiling smallvec v1.16.0
+   Compiling hashlink v0.9.1
+   Compiling libsqlite3-sys v0.30.1
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling fallible-iterator v0.3.0
+   Compiling hex v0.4.3
+   Compiling rustix v1.1.5
+   Compiling linux-raw-sys v0.12.1
+   Compiling fastrand v2.5.0
+   Compiling ed25519-dalek v2.2.0
+   Compiling aip-types v0.4.0 (/workspace/scratch/9d8d2a7e0bb0/syntriass-research/aip-standalone/aip-types)
+   Compiling tempfile v3.27.0
+   Compiling aip-crypto v0.4.0 (/workspace/scratch/9d8d2a7e0bb0/syntriass-research/aip-standalone/aip-crypto)
+   Compiling aip-spend v0.4.0 (/workspace/scratch/9d8d2a7e0bb0/syntriass-research/aip-standalone/aip-spend)
+   Compiling aip-registry v0.4.0 (/workspace/scratch/9d8d2a7e0bb0/syntriass-research/aip-standalone/aip-registry)
+   Compiling aip-core v0.4.0 (/workspace/scratch/9d8d2a7e0bb0/syntriass-research/aip-standalone/aip-core)
+   Compiling aip-authorize v0.4.0 (/workspace/scratch/9d8d2a7e0bb0/syntriass-research/aip-standalone/aip-authorize)
+   Compiling rusqlite v0.32.1
+   Compiling vanian-sovereign v0.4.0 (/workspace/scratch/9d8d2a7e0bb0/syntriass-research/sovereign/vanian-sovereign)
+   Compiling syntriass-runtime v0.1.0 (/workspace/scratch/9d8d2a7e0bb0/syntriass-research/sovereign/syntriass-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 30.16s
+     Running unittests src/lib.rs (target/debug/deps/syntriass_runtime-ccc6615866cf993b)
+
+running 44 tests
+test adapters::llama_scoped::tests::body_pins_slot_and_caches_prompt ... ok
+test capability::experience::tests::only_independently_verified_experience_becomes_a_test ... ok
+test capability::experience::tests::no_cross_tenant_or_cross_domain_ingestion ... ok
+test capability::expr::tests::conditions_dnf ... ok
+test adapters::supervisor::hash_tests::missing_file_is_an_error ... ok
+test adapters::meter::tests::reads_own_process ... FAILED
+test adapters::llama_scoped::tests::stats_parse_usage_and_cache ... ok
+test capability::quantity::tests::codes_times_and_bare_numbers_are_not_quantities ... ok
+test capability::quantity::tests::cue_numbers ... ok
+test capability::quantity::tests::hostile_input_is_bounded ... ok
+test capability::expr::tests::temperature_correction_matches_reference_arithmetic ... ok
+test capability::expr::tests::failure_modes_fail_closed ... ok
+test capability::expr::tests::precedence_and_right_associative_power ... ok
+test capability::quantity::tests::negative_temperatures_are_read_but_codes_and_ranges_are_not ... ok
+test capability::expr::tests::rejects_code_and_hostile_input ... ok
+test capability::quantity::tests::typed_units_and_conversions ... ok
+test controller::tests::capability_conflicts_and_staleness_fail_closed ... ok
+test capability::suite::tests::structural_limits ... ok
+test controller::tests::escalation_is_one_bounded_step_and_only_for_model_quality ... ok
+test controller::tests::missing_models_refuse_instead_of_guessing ... ok
+test controller::tests::order_is_capability_gate_rules_multi_interp_question ... ok
+test controller::tests::partial_rule_coverage_of_a_multi_asset_report_is_not_exact ... ok
+test controller::tests::question_detection ... ok
+test controller::tests::strongest_fit_wins_ties_refuse_and_a_stale_best_is_never_bypassed ... ok
+test domain::answer_check::tests::rule_without_value_is_unfinished ... ok
+test domain::answer_check::tests::computed_values_and_general_questions_pass ... ok
+test domain::health::tests::default_routes_detected_loopback_ignored ... ok
+test domain::health::tests::memory_estimate_matches_the_measured_case_and_fails_closed ... ok
+test domain::health::tests::parses_hardware ... ok
+test domain::maintenance::tests::band_edges_are_half_open ... ok
+test domain::maintenance::tests::fails_closed ... ok
+test domain::maintenance::tests::decision_is_most_urgent_reading ... ok
+test domain::health::tests::private_mode_rejects_group_or_world_access ... ok
+test domain::scope::tests::empty_slot_before_eviction_then_lru ... ok
+test domain::scope::tests::invalidate_forces_recompute ... ok
+test domain::scope::tests::every_field_change_is_a_miss_that_erases ... ok
+test domain::scope::tests::matches_python_reference_key ... ok
+test domain::scope::tests::key_has_no_concatenation_collision ... ok
+test domain::scope::tests::rejects_bad_fields_and_zero_slots ... ok
+test domain::scope::tests::same_scope_reuses_after_first_use ... ok
+test capability::suite::tests::wrong_key_or_malformed_signature_fails_closed ... ok
+test capability::suite::tests::signed_suite_verifies_and_hash_is_stable ... ok
+test capability::suite::tests::any_edit_breaks_the_signature ... ok
+test adapters::supervisor::hash_tests::streamed_hash_matches_one_shot_across_chunk_boundaries ... ok
+
+failures:
+
+---- adapters::meter::tests::reads_own_process stdout ----
+
+thread 'adapters::meter::tests::reads_own_process' (3393) panicked at sovereign/syntriass-runtime/src/adapters/meter.rs:79:46:
+called `Option::unwrap()` on a `None` value
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    adapters::meter::tests::reads_own_process
+
+test result: FAILED. 43 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s
+
+error: test failed, to rerun pass `-p syntriass-runtime --lib`
+     Running unittests src/bin/syntriass.rs (target/debug/deps/syntriass-0bbbccc6e3f923d0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/capability_engine.rs (target/debug/deps/capability_engine-7e177b2a9ed29f48)
+
+running 16 tests
+test compile_rejects_bad_artifacts ... ok
+test fixture_on_unseen_and_false_activation_sets ... ok
+test cross_tenant_evidence_fails_validation ... ok
+test fixture_compiles_and_validates ... ok
+test edges_and_roles_are_enforced ... ok
+test a_wrong_threshold_is_caught_by_validation ... ok
+test failing_artifact_cases_fail_validation ... ok
+test artifact_cases_claiming_expert_authorship_cannot_certify_it ... ok
+test other_tenants_suite_does_not_count ... ok
+test proposer_signed_suite_does_not_count ... ok
+test tampered_suite_does_not_count ... ok
+test full_lifecycle_requires_signed_independent_approval ... ok
+test too_few_suite_cases_fail_validation ... ok
+test validation_report_for_other_content_is_refused ... ok
+test proposer_cannot_approve_and_forged_signatures_fail ... ok
+test tampering_after_approval_disables_execution ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/capability_memory.rs (target/debug/deps/capability_memory-1b2f8f628829cab3)
+
+running 6 tests
+test experience_log_refuses_foreign_tenant_domain_self_verification_and_rewrites ... ok
+test review_reports_disagreement_and_ignores_unverified_and_foreign_experience ... ok
+test improvement_passes_old_and_new_cases_with_no_regression ... ok
+test a_version_that_breaks_an_old_case_is_a_regression ... ok
+test scope_change_forged_suite_or_same_version_is_not_acceptable ... ok
+test upgrade_supersedes_keeps_one_active_version_and_rolls_back ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/learning_flow.rs (target/debug/deps/learning_flow-4a8aab6a12199579)
+
+running 4 tests
+test proposal_naming_another_tenants_document_is_refused ... ok
+test evidence_digests_are_bound_by_the_system_not_the_proposer ... ok
+test a_wrong_procedure_is_rejected_and_rejection_is_terminal ... ok
+test full_flow_and_every_gate ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/parity.rs (target/debug/deps/parity-db0e3d184f411f53)
+
+running 1 test
+test rust_policy_matches_python_reference_on_every_labelled_item ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/runtime_app.rs (target/debug/deps/runtime_app-31e8205a9fa21643)
+
+running 19 tests
+test consequential_capabilities_are_disabled_until_aip_action_authorization_exists ... ok
+test authorized_principal_gets_the_capability_without_any_model_call ... ok
+test both_tiers_failing_is_withheld_after_exactly_two_attempts ... ok
+test conflicting_values_in_a_record_are_withheld_not_averaged ... ok
+test audit_chain_verifies_and_detects_tampering ... ok
+test explicit_invocation_by_an_unauthorized_principal_is_refused ... ok
+test a_verified_record_decides_and_text_numbers_are_ignored ... ok
+test changed_evidence_or_policy_makes_it_stale_and_refused ... ok
+test grounded_qa_sees_only_the_callers_documents ... ok
+test hypothetical_text_cannot_release_without_a_signed_record ... ok
+test model_output_cannot_escalate_authority_or_change_policy ... ok
+test model_dependent_capability_needs_revalidation_after_model_change ... ok
+test question_without_authorized_source_never_calls_the_model ... ok
+test no_authorized_source_is_not_escalated_and_capabilities_need_no_model ... ok
+test other_tenant_and_lower_clearance_cannot_see_the_capability ... ok
+test untrusted_approver_makes_the_capability_invisible ... ok
+test unparseable_small_output_escalates_once_and_charges_both_attempts ... ok
+test forged_foreign_or_unregistered_records_are_rejected ... ok
+test maintenance_routes_gate_exact_and_scoped_model_extraction ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running unittests src/lib.rs (target/debug/deps/vanian_sovereign-520caaa1d5f38880)
+
+running 76 tests
+test adapters::llama_http::tests::malformed_responses_are_errors_not_panics ... ok
+test adapters::llama_http::tests::content_extraction_requires_expected_shape ... ok
+test adapters::llama_http::tests::parses_identity_and_chunked_bodies ... ok
+test adapters::llama_http::tests::request_body_is_deterministic_and_greedy ... ok
+test adapters::llama_http::tests::schema_is_forwarded_as_response_format ... ok
+test adapters::llama_http::tests::unreachable_endpoint_fails_closed ... ok
+test adapters::llama_http::tests::end_to_end_against_a_local_fake_server ... ok
+test adapters::sqlite_corpus::tests::reingest_increments_version_and_replaces_index ... ok
+test adapters::sqlite_corpus::tests::empty_or_symbol_only_query_returns_nothing ... ok
+test adapters::sqlite_corpus::tests::fts5_is_compiled_in ... ok
+test agent::evidence::tests::unknown_observation_variant_cannot_be_deserialized ... ok
+test adapters::sqlite_corpus::tests::digests_respect_the_acl_and_track_changes ... ok
+test agent::replay::tests::file_guard_survives_restart ... ok
+test agent::replay::tests::memory_guard_refuses_second_use ... ok
+test agent::tool::tests::action_kind_is_namespaced ... ok
+test agent::tool::tests::argv_encoding_is_unambiguous ... ok
+test agent::tool::tests::invalid_manifests_and_args_refused ... ok
+test agent::tool::tests::invocation_for_another_tool_refused ... ok
+test domain::citation::tests::extracts_valid_markers_only ... ok
+test domain::citation::tests::fabricated_reference_detected ... ok
+test agent::tool::tests::parameters_bind_args_and_program_digest ... ok
+test domain::citation::tests::grounded_when_all_citations_in_range ... ok
+test domain::citation::tests::non_ascii_text_does_not_panic ... ok
+test domain::citation::tests::ungrounded_when_no_citation ... ok
+test domain::corpus::tests::classification_order_is_total_and_ranked ... ok
+test domain::citation::tests::overlong_digits_are_ignored_not_overflowed ... ok
+test domain::corpus::tests::ident_rejects_injection_characters ... ok
+test domain::corpus::tests::unknown_classification_is_refused_not_defaulted ... ok
+test domain::grounding::tests::abstention_is_not_release ... ok
+test adapters::sqlite_corpus::tests::fts_operators_in_user_text_are_neutralised ... ok
+test domain::grounding::tests::citation_rules ... ok
+test domain::grounding::tests::digit_inside_equipment_code_is_not_evidence ... ok
+test domain::corpus::tests::oversized_body_rejected ... ok
+test domain::grounding::tests::empty_and_overlong_withheld ... ok
+test domain::grounding::tests::malformed_and_extra_fields_withheld ... ok
+test domain::grounding::tests::fabricated_number_refused_even_with_valid_citation ... ok
+test domain::grounding::tests::numbers_extracted_and_normalised ... ok
+test domain::grounding::tests::marker_digits_are_not_claims ... ok
+test domain::grounding::tests::number_from_uncited_source_is_refused ... ok
+test adapters::sqlite_corpus::tests::retrieval_never_crosses_tenants ... ok
+test domain::grounding::tests::on_topic_supported_answer_released ... ok
+test domain::grounding::tests::other_entity_withheld ... ok
+test domain::grounding::tests::off_topic_and_non_answers_withheld ... ok
+test domain::grounding::tests::schema_bounds_citations_to_supplied_sources ... ok
+test domain::grounding::tests::schema_property_order_is_generation_order ... ok
+test domain::grounding::tests::requested_unit_absent_withheld ... ok
+test domain::grounding::tests::supported_answer_released ... ok
+test domain::support::tests::code_digits_are_not_numeric_claims ... ok
+test domain::grounding::tests::wrong_unit_withheld ... ok
+test domain::support::tests::coverage_uses_prefix_stems ... ok
+test domain::support::tests::injection_markers_detected_case_insensitively ... ok
+test domain::support::tests::entities_extracted_and_checked ... ok
+test domain::support::tests::non_ascii_input_does_not_panic ... ok
+test domain::support::tests::quantities_bind_units ... ok
+test domain::support::tests::requested_unit_enforced ... ok
+test domain::support::tests::unit_elsewhere_in_source_supports_bare_source_number ... ok
+test domain::support::tests::wrong_unit_is_unsupported ... ok
+test policy::egress::tests::hostnames_refused_without_resolution ... ok
+test policy::egress::tests::loopback_literals_accepted ... ok
+test policy::egress::tests::non_loopback_refused ... ok
+test policy::egress::tests::port_zero_and_garbage_refused ... ok
+test policy::retrieval::tests::cross_tenant_always_denied_even_at_max_clearance ... ok
+test policy::retrieval::tests::enforce_reports_contract_violations ... ok
+test policy::retrieval::tests::same_tenant_at_or_below_clearance ... ok
+test adapters::sqlite_corpus::tests::retrieval_respects_clearance ... ok
+test adapters::sqlite_corpus::tests::injection_suspect_is_stored_but_never_retrieved ... ok
+test rag::tests::source_fence_cannot_be_closed_by_document_text ... ok
+test rag::tests::abstention_is_reported_not_released ... ok
+test rag::tests::no_authorized_match_skips_the_model ... ok
+test rag::tests::hallucinated_number_withheld ... ok
+test rag::tests::restricted_text_never_reaches_the_model ... ok
+test rag::tests::schema_is_requested_and_bounded_to_supplied_sources ... ok
+test rag::tests::supported_answer_released ... ok
+test rag::tests::unconstrained_free_text_is_withheld_but_auditable ... ok
+test adapters::sqlite_corpus::tests::slice1_database_is_migrated ... ok
+test adapters::sqlite_corpus::tests::corrupted_database_is_refused ... ok
+
+test result: ok. 76 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running unittests src/bin/vanian.rs (target/debug/deps/vanian-cc6a8f85bf51872f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/agent_execution.rs (target/debug/deps/agent_execution-44fe390b3c1b2629)
+
+running 19 tests
+test expectation_swapped_for_another_valid_one_rejected ... FAILED
+test expired_expectation_is_refused ... FAILED
+test argument_substitution_after_authorization_is_refused_and_not_consumed ... FAILED
+test deadline_kills_the_tool ... FAILED
+test decision_moved_to_another_process_is_refused ... FAILED
+test authorized_tool_runs_and_verifies_offline_without_claiming_observation ... FAILED
+test expectation_from_untrusted_decision_point_is_refused ... FAILED
+test forged_observation_upgrade_cannot_deserialize ... FAILED
+test replayed_decision_is_refused ... FAILED
+test missing_sandbox_fails_closed_before_consuming ... FAILED
+test record_signed_by_unknown_runner_rejected ... FAILED
+test sandbox_environment_is_empty ... FAILED
+test resigned_with_forged_hash_rejected ... FAILED
+test sandbox_has_no_network_interface_but_loopback ... FAILED
+test tampered_exit_code_rejected ... FAILED
+test swapped_program_binary_is_refused ... FAILED
+test tampered_expectation_rejected ... FAILED
+test unsigned_record_rejected ... FAILED
+test ungranted_tool_is_denied_by_the_decision_point ... FAILED
+
+failures:
+
+---- expectation_swapped_for_another_valid_one_rejected stdout ----
+
+thread 'expectation_swapped_for_another_valid_one_rejected' (3572) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- expired_expectation_is_refused stdout ----
+
+thread 'expired_expectation_is_refused' (3573) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- argument_substitution_after_authorization_is_refused_and_not_consumed stdout ----
+
+thread 'argument_substitution_after_authorization_is_refused_and_not_consumed' (3567) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- deadline_kills_the_tool stdout ----
+
+thread 'deadline_kills_the_tool' (3569) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- decision_moved_to_another_process_is_refused stdout ----
+
+thread 'decision_moved_to_another_process_is_refused' (3570) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- authorized_tool_runs_and_verifies_offline_without_claiming_observation stdout ----
+
+thread 'authorized_tool_runs_and_verifies_offline_without_claiming_observation' (3568) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- expectation_from_untrusted_decision_point_is_refused stdout ----
+
+thread 'expectation_from_untrusted_decision_point_is_refused' (3571) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- forged_observation_upgrade_cannot_deserialize stdout ----
+
+thread 'forged_observation_upgrade_cannot_deserialize' (3574) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- replayed_decision_is_refused stdout ----
+
+thread 'replayed_decision_is_refused' (3577) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- missing_sandbox_fails_closed_before_consuming stdout ----
+
+thread 'missing_sandbox_fails_closed_before_consuming' (3575) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- record_signed_by_unknown_runner_rejected stdout ----
+
+thread 'record_signed_by_unknown_runner_rejected' (3576) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- sandbox_environment_is_empty stdout ----
+
+thread 'sandbox_environment_is_empty' (3579) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- resigned_with_forged_hash_rejected stdout ----
+
+thread 'resigned_with_forged_hash_rejected' (3578) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- sandbox_has_no_network_interface_but_loopback stdout ----
+
+thread 'sandbox_has_no_network_interface_but_loopback' (3580) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- tampered_exit_code_rejected stdout ----
+
+thread 'tampered_exit_code_rejected' (3582) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- swapped_program_binary_is_refused stdout ----
+
+thread 'swapped_program_binary_is_refused' (3581) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- tampered_expectation_rejected stdout ----
+
+thread 'tampered_expectation_rejected' (3583) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- unsigned_record_rejected stdout ----
+
+thread 'unsigned_record_rejected' (3585) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+---- ungranted_tool_is_denied_by_the_decision_point stdout ----
+
+thread 'ungranted_tool_is_denied_by_the_decision_point' (3584) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:89:51:
+called `Result::unwrap()` on an `Err` value: Unavailable { field: "pid_start_time_ticks", reason: "read /proc/3566/stat: No such file or directory (os error 2)" }
+
+
+failures:
+    argument_substitution_after_authorization_is_refused_and_not_consumed
+    authorized_tool_runs_and_verifies_offline_without_claiming_observation
+    deadline_kills_the_tool
+    decision_moved_to_another_process_is_refused
+    expectation_from_untrusted_decision_point_is_refused
+    expectation_swapped_for_another_valid_one_rejected
+    expired_expectation_is_refused
+    forged_observation_upgrade_cannot_deserialize
+    missing_sandbox_fails_closed_before_consuming
+    record_signed_by_unknown_runner_rejected
+    replayed_decision_is_refused
+    resigned_with_forged_hash_rejected
+    sandbox_environment_is_empty
+    sandbox_has_no_network_interface_but_loopback
+    swapped_program_binary_is_refused
+    tampered_exit_code_rejected
+    tampered_expectation_rejected
+    ungranted_tool_is_denied_by_the_decision_point
+    unsigned_record_rejected
+
+test result: FAILED. 0 passed; 19 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p vanian-sovereign --test agent_execution`
+   Doc-tests syntriass_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests vanian_sovereign
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: 2 targets failed:
+    `-p syntriass-runtime --lib`
+    `-p vanian-sovereign --test agent_execution`

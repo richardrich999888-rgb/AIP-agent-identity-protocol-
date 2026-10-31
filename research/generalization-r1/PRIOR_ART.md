@@ -1,0 +1,8 @@
+# Mechanism review (2026-10-31)
+
+- [Cousot & Cousot, POPL 1977](https://www.di.ens.fr/~cousot/COUSOTpapers/POPL77.shtml): abstract interpretation replaces concrete computation with sound abstract computation. Our monotone endpoint evaluator is a straightforward special case, not a new principle. Exhaustive possible-world evaluation and interval extrema are conventional competitors; neither warrants an invention claim here.
+- [DreamCoder](https://arxiv.org/abs/2006.08381): learns reusable program abstractions and composes them. Existing SYNTRIASS approved procedural reuse does not establish a novel claim to competence outside weights or compositional learning.
+- [Voyager](https://arxiv.org/abs/2305.16291): reusable executable skill library and feedback-driven skill acquisition. A signed capability store adds a governance boundary but is not by itself a novel learning architecture.
+- Current strongest-fit routing is feature scoring with abstention on ties. Atomic acquisition is constrained extraction, deterministic repair and compilation. Signed measurements authenticate an attester; they cannot establish physical truth or request relevance merely through a signature.
+
+No proprietary Jev implementation or unpublished architecture was used. No exhaustive patent search, claim construction or legal ownership review was performed. No candidate in this round has established novelty over these conventional mechanisms. Consequently no patent disclosure or exclusivity claim is justified. Founder and counsel must establish contributor assignments and VANIAN/SYNTRIASS rights before any future filing. The public patch contains standard-method replication and negative findings only; there is no identified enabling invention withheld in this round.

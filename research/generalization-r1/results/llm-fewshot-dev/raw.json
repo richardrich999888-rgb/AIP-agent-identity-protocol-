@@ -1,0 +1,744 @@
+[
+ {
+  "id": "712-0",
+  "mode": "few_shot_skill",
+  "expected": "HOLD",
+  "got": "INVALID",
+  "wall_seconds": 3.5530320759999086,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nABSTAIN"
+     }
+    }
+   ],
+   "created": 1793461803,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 8,
+    "prompt_tokens": 331,
+    "total_tokens": 339
+   },
+   "id": "chatcmpl-sJMetfiYKj5JYe80A16hIDs4ky7WMpN9",
+   "timings": {
+    "prompt_n": 331,
+    "prompt_ms": 3288.058,
+    "prompt_per_token_ms": 9.93370996978852,
+    "prompt_per_second": 100.66732399489304,
+    "predicted_n": 8,
+    "predicted_ms": 258.02,
+    "predicted_per_token_ms": 32.2525,
+    "predicted_per_second": 31.0053484226029
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [73, 83], \"intent\": \"assess\", \"limit\": 225, \"need\": 80, \"record_tenant\": \"alpha\", \"stock\": [47], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-1",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 1.045344145000172,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nSHIP"
+     }
+    }
+   ],
+   "created": 1793461804,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 6,
+    "prompt_tokens": 338,
+    "total_tokens": 344
+   },
+   "id": "chatcmpl-JEA1At67UzVpclrDxiPonKKm9jVN3Abd",
+   "timings": {
+    "prompt_n": 81,
+    "prompt_ms": 836.448,
+    "prompt_per_token_ms": 10.326518518518519,
+    "prompt_per_second": 96.83805807414208,
+    "predicted_n": 6,
+    "predicted_ms": 203.143,
+    "predicted_per_token_ms": 33.857166666666664,
+    "predicted_per_second": 29.53584420826708
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [119, 129], \"intent\": \"assess\", \"limit\": 150, \"need\": 89, \"record_tenant\": \"alpha\", \"stock\": [90, 109], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-2",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 0.9860438229998181,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nSHIP"
+     }
+    }
+   ],
+   "created": 1793461805,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 6,
+    "prompt_tokens": 337,
+    "total_tokens": 343
+   },
+   "id": "chatcmpl-Ok1ENNlAI1NsPF4JIimRWGf1iFJRzP6O",
+   "timings": {
+    "prompt_n": 78,
+    "prompt_ms": 797.932,
+    "prompt_per_token_ms": 10.229897435897437,
+    "prompt_per_second": 97.75269070547364,
+    "predicted_n": 6,
+    "predicted_ms": 181.333,
+    "predicted_per_token_ms": 30.222166666666666,
+    "predicted_per_second": 33.088296118191394
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [113, 123], \"intent\": \"assess\", \"limit\": 213, \"need\": 83, \"record_tenant\": \"alpha\", \"stock\": [82, 84], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-3",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 1.2746862690000853,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nABSTAIN"
+     }
+    }
+   ],
+   "created": 1793461807,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 8,
+    "prompt_tokens": 329,
+    "total_tokens": 337
+   },
+   "id": "chatcmpl-d2Abos9IZx51GbqJkQQ7ZLgCdD1o7l61",
+   "timings": {
+    "prompt_n": 72,
+    "prompt_ms": 968.31,
+    "prompt_per_token_ms": 13.448749999999999,
+    "prompt_per_second": 74.35635282089414,
+    "predicted_n": 8,
+    "predicted_ms": 300.933,
+    "predicted_per_token_ms": 37.616625,
+    "predicted_per_second": 26.583990456347426
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [44, 54], \"intent\": \"assess\", \"limit\": 242, \"need\": 114, \"record_tenant\": \"alpha\", \"stock\": [], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-4",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 1.2120536969998739,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nABSTAIN"
+     }
+    }
+   ],
+   "created": 1793461808,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 8,
+    "prompt_tokens": 336,
+    "total_tokens": 344
+   },
+   "id": "chatcmpl-w5DU9DXO1hFuHrTXLsJUfewLBDIOflRq",
+   "timings": {
+    "prompt_n": 79,
+    "prompt_ms": 846.773,
+    "prompt_per_token_ms": 10.718645569620254,
+    "prompt_per_second": 93.29536959728286,
+    "predicted_n": 8,
+    "predicted_ms": 358.546,
+    "predicted_per_token_ms": 44.81825,
+    "predicted_per_second": 22.312339281431115
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [99, 109], \"intent\": \"assess\", \"limit\": 102, \"need\": 85, \"record_tenant\": \"beta\", \"stock\": [25, 45], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-5",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 1.1588921620000292,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nABSTAIN"
+     }
+    }
+   ],
+   "created": 1793461809,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 8,
+    "prompt_tokens": 334,
+    "total_tokens": 342
+   },
+   "id": "chatcmpl-GzfzbQgvMKPy2yqLepQOfe0dBCwWWLg1",
+   "timings": {
+    "prompt_n": 77,
+    "prompt_ms": 836.164,
+    "prompt_per_token_ms": 10.859272727272726,
+    "prompt_per_second": 92.08719820513679,
+    "predicted_n": 8,
+    "predicted_ms": 315.765,
+    "predicted_per_token_ms": 39.470625,
+    "predicted_per_second": 25.335296818836795
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [69, 79], \"intent\": \"simulate\", \"limit\": 107, \"need\": 46, \"record_tenant\": \"alpha\", \"stock\": [17, 37], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-6",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 1.219653836000134,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nABSTAIN"
+     }
+    }
+   ],
+   "created": 1793461810,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 8,
+    "prompt_tokens": 339,
+    "total_tokens": 347
+   },
+   "id": "chatcmpl-OyWwrwoSn55ooMalclqhb5UHTRS5tn6k",
+   "timings": {
+    "prompt_n": 82,
+    "prompt_ms": 923.35,
+    "prompt_per_token_ms": 11.260365853658536,
+    "prompt_per_second": 88.80706124438187,
+    "predicted_n": 8,
+    "predicted_ms": 287.688,
+    "predicted_per_token_ms": 35.961,
+    "predicted_per_second": 27.807903006034316
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [138, 148], \"intent\": \"assess\", \"limit\": 192, \"need\": 108, \"record_tenant\": \"alpha\", \"stock\": [1, 2000], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-7",
+  "mode": "few_shot_skill",
+  "expected": "HOLD",
+  "got": "INVALID",
+  "wall_seconds": 1.0516368359999433,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nSHIP"
+     }
+    }
+   ],
+   "created": 1793461811,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 6,
+    "prompt_tokens": 331,
+    "total_tokens": 337
+   },
+   "id": "chatcmpl-i4pOuzCJXkgzz5LVNjhRlE9nZhsjH9tM",
+   "timings": {
+    "prompt_n": 74,
+    "prompt_ms": 847.547,
+    "prompt_per_token_ms": 11.453337837837838,
+    "prompt_per_second": 87.31079220385418,
+    "predicted_n": 6,
+    "predicted_ms": 197.934,
+    "predicted_per_token_ms": 32.989,
+    "predicted_per_second": 30.313134681257388
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [76, 86], \"intent\": \"assess\", \"limit\": 258, \"need\": 62, \"record_tenant\": \"alpha\", \"stock\": [39], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-8",
+  "mode": "few_shot_skill",
+  "expected": "SHIP",
+  "got": "INVALID",
+  "wall_seconds": 1.0724234280000928,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nSHIP"
+     }
+    }
+   ],
+   "created": 1793461812,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 6,
+    "prompt_tokens": 335,
+    "total_tokens": 341
+   },
+   "id": "chatcmpl-H5u4s5kxwna7gfRmNxsS066Qgv7l2BrZ",
+   "timings": {
+    "prompt_n": 78,
+    "prompt_ms": 840.008,
+    "prompt_per_token_ms": 10.769333333333334,
+    "prompt_per_second": 92.8562585118237,
+    "predicted_n": 6,
+    "predicted_ms": 222.643,
+    "predicted_per_token_ms": 37.107166666666664,
+    "predicted_per_second": 26.948972121288342
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [60, 70], \"intent\": \"assess\", \"limit\": 300, \"need\": 30, \"record_tenant\": \"alpha\", \"stock\": [31, 50], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-9",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 1.0658227530000204,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nSHIP"
+     }
+    }
+   ],
+   "created": 1793461813,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 6,
+    "prompt_tokens": 335,
+    "total_tokens": 341
+   },
+   "id": "chatcmpl-xYwTdK29fveiAn4XKttTU1KfV6Mb11ls",
+   "timings": {
+    "prompt_n": 78,
+    "prompt_ms": 882.299,
+    "prompt_per_token_ms": 11.311525641025641,
+    "prompt_per_second": 88.4054045170628,
+    "predicted_n": 6,
+    "predicted_ms": 180.071,
+    "predicted_per_token_ms": 30.011833333333332,
+    "predicted_per_second": 33.32019036935431
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [58, 68], \"intent\": \"assess\", \"limit\": 295, \"need\": 28, \"record_tenant\": \"alpha\", \"stock\": [27, 29], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-10",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 1.0015374209999663,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nABSTAIN"
+     }
+    }
+   ],
+   "created": 1793461814,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 8,
+    "prompt_tokens": 329,
+    "total_tokens": 337
+   },
+   "id": "chatcmpl-Z3WGWmTWrLRpwB75NvLYx1lu3aE948k9",
+   "timings": {
+    "prompt_n": 72,
+    "prompt_ms": 742.833,
+    "prompt_per_token_ms": 10.317124999999999,
+    "prompt_per_second": 96.92622702545525,
+    "predicted_n": 8,
+    "predicted_ms": 255.104,
+    "predicted_per_token_ms": 31.888,
+    "predicted_per_second": 31.359759157049673
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [90, 100], \"intent\": \"assess\", \"limit\": 104, \"need\": 58, \"record_tenant\": \"alpha\", \"stock\": [], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-11",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 1.2010051030001705,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nABSTAIN"
+     }
+    }
+   ],
+   "created": 1793461816,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 8,
+    "prompt_tokens": 335,
+    "total_tokens": 343
+   },
+   "id": "chatcmpl-tx8PjNJ1JwENFKkRrVBx0mjfNKZUWOe4",
+   "timings": {
+    "prompt_n": 78,
+    "prompt_ms": 904.956,
+    "prompt_per_token_ms": 11.602,
+    "prompt_per_second": 86.19203585588691,
+    "predicted_n": 8,
+    "predicted_ms": 288.0,
+    "predicted_per_token_ms": 36.0,
+    "predicted_per_second": 27.77777777777778
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [59, 69], \"intent\": \"assess\", \"limit\": 209, \"need\": 28, \"record_tenant\": \"beta\", \"stock\": [52, 72], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-12",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 1.3027500830000918,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nABSTAIN"
+     }
+    }
+   ],
+   "created": 1793461817,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 8,
+    "prompt_tokens": 334,
+    "total_tokens": 342
+   },
+   "id": "chatcmpl-Wwy7TqSF9KbEWmHXxCQhonuz7H5i5MXT",
+   "timings": {
+    "prompt_n": 76,
+    "prompt_ms": 1030.508,
+    "prompt_per_token_ms": 13.559315789473684,
+    "prompt_per_second": 73.75003396383143,
+    "predicted_n": 8,
+    "predicted_ms": 268.76,
+    "predicted_per_token_ms": 33.595,
+    "predicted_per_second": 29.766334275933918
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [54, 64], \"intent\": \"simulate\", \"limit\": 185, \"need\": 81, \"record_tenant\": \"alpha\", \"stock\": [47, 67], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ },
+ {
+  "id": "712-13",
+  "mode": "few_shot_skill",
+  "expected": "ABSTAIN",
+  "got": "INVALID",
+  "wall_seconds": 1.193125599000041,
+  "response": {
+   "choices": [
+    {
+     "finish_reason": "stop",
+     "index": 0,
+     "message": {
+      "role": "assistant",
+      "content": "<think>\n\n</think>\n\nABSTAIN"
+     }
+    }
+   ],
+   "created": 1793461818,
+   "model": "local",
+   "system_fingerprint": "b1-4227c9b",
+   "object": "chat.completion",
+   "usage": {
+    "completion_tokens": 8,
+    "prompt_tokens": 339,
+    "total_tokens": 347
+   },
+   "id": "chatcmpl-Otgf2yqLTEy8oOV1YDRQm0zyPKtp8zow",
+   "timings": {
+    "prompt_n": 82,
+    "prompt_ms": 913.124,
+    "prompt_per_token_ms": 11.135658536585366,
+    "prompt_per_second": 89.80160416328998,
+    "predicted_n": 8,
+    "predicted_ms": 273.699,
+    "predicted_per_token_ms": 34.212375,
+    "predicted_per_second": 29.229189730324187
+   }
+  },
+  "request": {
+   "model": "local",
+   "messages": [
+    {
+     "role": "user",
+     "content": "Assess dispatch. SHIP iff stock >= need AND capacity >= need AND need * unit_weight <= limit. Each list contains possible values; consider all combinations. Return SHIP if all combinations ship; HOLD if none ships; ABSTAIN if outcomes differ. Also ABSTAIN on empty lists, tenant mismatch or intent other than assess. Respond with exactly one label: SHIP, HOLD, ABSTAIN.\nEquivalent monotone check: worst = min(stock)>=need and min(capacity)>=need and need*max(unit_weight)<=limit; best = max(stock)>=need and max(capacity)>=need and need*min(unit_weight)<=limit. If worst then SHIP; else if not best then HOLD; else ABSTAIN. Apply authorization/missing checks first.\nExample: tenant=a, record_tenant=a, intent=assess, stock=[20,30], capacity=[20,40], unit_weight=[1,2], need=10, limit=30. Answer: SHIP.\nExample: same context but need=50. Answer: HOLD.\nExample: same context but stock=[5,20], need=10. Answer: ABSTAIN.\nNow solve this case:\n{\"capacity\": [144, 154], \"intent\": \"assess\", \"limit\": 211, \"need\": 114, \"record_tenant\": \"alpha\", \"stock\": [1, 2000], \"tenant\": \"alpha\", \"unit_weight\": [1, 2]}\nAnswer with one label. /no_think"
+    }
+   ],
+   "temperature": 0,
+   "max_tokens": 32,
+   "chat_template_kwargs": {
+    "enable_thinking": false
+   }
+  }
+ }
+]

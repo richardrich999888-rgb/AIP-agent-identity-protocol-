@@ -1,0 +1,1112 @@
+{
+ "policy": "post-run diagnostic removes only EMPTY leading think wrapper; no label search, no gold-dependent corrections; strict results retained",
+ "modes": {
+  "direct": {
+   "n": 70,
+   "strict_correct": 0,
+   "normalized_correct": 50,
+   "accuracy_ci95": [
+    0.5994980341827975,
+    0.8067777962128025
+   ],
+   "released": 0,
+   "correct_released": 0,
+   "incorrect_positive": 0,
+   "invalid": 0,
+   "p50_wall_seconds": 1.0560998205000942,
+   "p95_wall_seconds": 1.3096340750000763,
+   "prompt_tokens": 11702,
+   "completion_tokens": 560,
+   "predictions": [
+    {
+     "id": "941-0",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-1",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-2",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-3",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-4",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-5",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-6",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-7",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-8",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-9",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-10",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-11",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-12",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-13",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-14",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-15",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-16",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-17",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-18",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-19",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-20",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-21",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-22",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-23",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-24",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-25",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-26",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-27",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-28",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-29",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-30",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-31",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-32",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-33",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-34",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-35",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-36",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-37",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-38",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-39",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-40",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-41",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-42",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-43",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-44",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-45",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-46",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-47",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-48",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-49",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-50",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-51",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-52",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-53",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-54",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-55",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-56",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-57",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-58",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-59",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-60",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-61",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-62",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-63",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-64",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-65",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-66",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-67",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-68",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-69",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    }
+   ]
+  },
+  "rag": {
+   "n": 70,
+   "strict_correct": 0,
+   "normalized_correct": 50,
+   "accuracy_ci95": [
+    0.5994980341827975,
+    0.8067777962128025
+   ],
+   "released": 0,
+   "correct_released": 0,
+   "incorrect_positive": 0,
+   "invalid": 0,
+   "p50_wall_seconds": 1.065570597500141,
+   "p95_wall_seconds": 1.3595807410001726,
+   "prompt_tokens": 12752,
+   "completion_tokens": 560,
+   "predictions": [
+    {
+     "id": "941-0",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-1",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-2",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-3",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-4",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-5",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-6",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-7",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-8",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-9",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-10",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-11",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-12",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-13",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-14",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-15",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-16",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-17",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-18",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-19",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-20",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-21",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-22",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-23",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-24",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-25",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-26",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-27",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-28",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-29",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-30",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-31",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-32",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-33",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-34",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-35",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-36",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-37",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-38",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-39",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-40",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-41",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-42",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-43",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-44",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-45",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-46",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-47",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-48",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-49",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-50",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-51",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-52",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-53",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-54",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-55",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-56",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-57",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-58",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-59",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-60",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-61",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-62",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-63",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-64",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-65",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-66",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-67",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-68",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-69",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    }
+   ]
+  },
+  "structured_skill": {
+   "n": 70,
+   "strict_correct": 0,
+   "normalized_correct": 50,
+   "accuracy_ci95": [
+    0.5994980341827975,
+    0.8067777962128025
+   ],
+   "released": 0,
+   "correct_released": 0,
+   "incorrect_positive": 0,
+   "invalid": 0,
+   "p50_wall_seconds": 1.0687384735000478,
+   "p95_wall_seconds": 1.29282536300002,
+   "prompt_tokens": 16742,
+   "completion_tokens": 560,
+   "predictions": [
+    {
+     "id": "941-0",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-1",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-2",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-3",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-4",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-5",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-6",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-7",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-8",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-9",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-10",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-11",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-12",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-13",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-14",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-15",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-16",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-17",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-18",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-19",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-20",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-21",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-22",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-23",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-24",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-25",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-26",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-27",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-28",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-29",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-30",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-31",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-32",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-33",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-34",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-35",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-36",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-37",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-38",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-39",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-40",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-41",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-42",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-43",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-44",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-45",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-46",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-47",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-48",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-49",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-50",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-51",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-52",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-53",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-54",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-55",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-56",
+     "expected": "HOLD",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-57",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-58",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-59",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-60",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-61",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-62",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-63",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-64",
+     "expected": "SHIP",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-65",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-66",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-67",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-68",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    },
+    {
+     "id": "941-69",
+     "expected": "ABSTAIN",
+     "got": "ABSTAIN"
+    }
+   ]
+  }
+ }
+}

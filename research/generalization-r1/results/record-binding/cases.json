@@ -1,0 +1,1514 @@
+[
+ {
+  "id": "test-000-valid",
+  "text": "Can we put the 6.6 kV ID fan motor back in service? Megger gave 180 M\u03a9 at 35 \u00b0C, PI 2.6.",
+  "label": "PASS",
+  "record": {
+   "record_id": "test-000",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "180 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.6
+     }
+    },
+    {
+     "physical": {
+      "reading": "35 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "873445c149c93158d1370f0de90b32478c5f496cfc9ba31332a6d220b824c51d67bdfef429eb5d6f28d9d9bc2ec5041a04161c24b3eb7761e26c914827bd8408"
+  }
+ },
+ {
+  "id": "test-000-hypothetical",
+  "text": "This is a hypothetical simulation, not an actual assessment: Can we put the 6.6 kV ID fan motor back in service? Megger gave 180 M\u03a9 at 35 \u00b0C, PI 2.6.",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-000",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "180 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.6
+     }
+    },
+    {
+     "physical": {
+      "reading": "35 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "873445c149c93158d1370f0de90b32478c5f496cfc9ba31332a6d220b824c51d67bdfef429eb5d6f28d9d9bc2ec5041a04161c24b3eb7761e26c914827bd8408"
+  }
+ },
+ {
+  "id": "test-000-wrong_asset",
+  "text": "Can we put the 6.6 kV ID fan motor back in service? Megger gave 180 M\u03a9 at 35 \u00b0C, PI 2.6.",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-000",
+   "tenant": "koravi-process",
+   "asset_id": "motor-99",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "180 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.6
+     }
+    },
+    {
+     "physical": {
+      "reading": "35 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "c062145a0205f7099ed01cbaabf12acbab9fd603ff2ca6a73ae5fcc0cb1cb1097d89ad95fe5f41911ec1b8d03915efd9b276e9d957bae611a2e20efdbb05750f"
+  }
+ },
+ {
+  "id": "test-000-stale",
+  "text": "Can we put the 6.6 kV ID fan motor back in service? Megger gave 180 M\u03a9 at 35 \u00b0C, PI 2.6.",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-000",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 1,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "180 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.6
+     }
+    },
+    {
+     "physical": {
+      "reading": "35 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "bf1f9db3f66b874556e719ebe44f0042545399d2efc2b1bc57d4c5a2b3503a18726fdddc1471fd831cfdb2886f1e00c8660628affcafe4d43b46582bac576700"
+  }
+ },
+ {
+  "id": "test-000-cross_tenant",
+  "text": "Can we put the 6.6 kV ID fan motor back in service? Megger gave 180 M\u03a9 at 35 \u00b0C, PI 2.6.",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-000",
+   "tenant": "other-company",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "180 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.6
+     }
+    },
+    {
+     "physical": {
+      "reading": "35 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "a122afd3984fac2873ce8825ec391b910980f614991eff05882bbd9aa57c0e970686a5ec0f2d08cc37af185a3c2ff8680965dac0a8e2e8ddf5ebca581e753f0a"
+  }
+ },
+ {
+  "id": "test-000-tampered",
+  "text": "Can we put the 6.6 kV ID fan motor back in service? Megger gave 180 M\u03a9 at 35 \u00b0C, PI 2.6.",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-000",
+   "tenant": "koravi-process",
+   "asset_id": "changed-after-signing",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "180 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.6
+     }
+    },
+    {
+     "physical": {
+      "reading": "35 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "873445c149c93158d1370f0de90b32478c5f496cfc9ba31332a6d220b824c51d67bdfef429eb5d6f28d9d9bc2ec5041a04161c24b3eb7761e26c914827bd8408"
+  }
+ },
+ {
+  "id": "test-002-valid",
+  "text": "BFW pump motor 3.3kV \u2014 IR 18 Mohm @ 55C, polarisation index 2.4",
+  "label": "PASS",
+  "record": {
+   "record_id": "test-002",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "18 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "55 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "0b162f8ada575e2ecdd4d54dc0236c9e42824c1c462d11c39a2b6a19ec2d129368d091add4dc0390fd7aa4df19cc049841a586637f3ba6b77d87382b95e4cb0f"
+  }
+ },
+ {
+  "id": "test-002-hypothetical",
+  "text": "This is a hypothetical simulation, not an actual assessment: BFW pump motor 3.3kV \u2014 IR 18 Mohm @ 55C, polarisation index 2.4",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-002",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "18 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "55 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "0b162f8ada575e2ecdd4d54dc0236c9e42824c1c462d11c39a2b6a19ec2d129368d091add4dc0390fd7aa4df19cc049841a586637f3ba6b77d87382b95e4cb0f"
+  }
+ },
+ {
+  "id": "test-002-wrong_asset",
+  "text": "BFW pump motor 3.3kV \u2014 IR 18 Mohm @ 55C, polarisation index 2.4",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-002",
+   "tenant": "koravi-process",
+   "asset_id": "motor-99",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "18 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "55 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "e23913e41d4b3e865a47176e244d93c394a5a25a73e439ac2e06e6b993f1b49034ce058002315bf6532e83db766353087bc2d00c5c5f16fff6f8f0b15c5d4a0c"
+  }
+ },
+ {
+  "id": "test-002-stale",
+  "text": "BFW pump motor 3.3kV \u2014 IR 18 Mohm @ 55C, polarisation index 2.4",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-002",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 1,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "18 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "55 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "5e304f1e654fc5b5a03ba44b976f2424941ab23ab9b5e4235642b12ab074efca8b38511c1ae85bf51ae345fba238dea33fd89bc11d1380a6ac00c7cbacca620e"
+  }
+ },
+ {
+  "id": "test-002-cross_tenant",
+  "text": "BFW pump motor 3.3kV \u2014 IR 18 Mohm @ 55C, polarisation index 2.4",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-002",
+   "tenant": "other-company",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "18 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "55 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "a9cf85aa47bb1ed2384b7193d665bcf5061ed95368255243de0c46ed7c0caf5352c564eaeee5da187635fc4c6b47b3da324139c3dd49097741c1cadeb1684504"
+  }
+ },
+ {
+  "id": "test-002-tampered",
+  "text": "BFW pump motor 3.3kV \u2014 IR 18 Mohm @ 55C, polarisation index 2.4",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-002",
+   "tenant": "koravi-process",
+   "asset_id": "changed-after-signing",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "18 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "55 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "0b162f8ada575e2ecdd4d54dc0236c9e42824c1c462d11c39a2b6a19ec2d129368d091add4dc0390fd7aa4df19cc049841a586637f3ba6b77d87382b95e4cb0f"
+  }
+ },
+ {
+  "id": "test-009-valid",
+  "text": "Primary air fan motor 11 kV, IR 95 Mohm at 48 C, PI 2.3",
+  "label": "PASS",
+  "record": {
+   "record_id": "test-009",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "95 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "11 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.3
+     }
+    },
+    {
+     "physical": {
+      "reading": "48 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "c837a35dec9f080530ae2a6794157d5185717f88f298fceb15f531b7a95fb9699af604b4c2332a5fb8dfd4a9f95dfeb1850b9b854450b7fc99458de3225e0e00"
+  }
+ },
+ {
+  "id": "test-009-hypothetical",
+  "text": "This is a hypothetical simulation, not an actual assessment: Primary air fan motor 11 kV, IR 95 Mohm at 48 C, PI 2.3",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-009",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "95 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "11 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.3
+     }
+    },
+    {
+     "physical": {
+      "reading": "48 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "c837a35dec9f080530ae2a6794157d5185717f88f298fceb15f531b7a95fb9699af604b4c2332a5fb8dfd4a9f95dfeb1850b9b854450b7fc99458de3225e0e00"
+  }
+ },
+ {
+  "id": "test-009-wrong_asset",
+  "text": "Primary air fan motor 11 kV, IR 95 Mohm at 48 C, PI 2.3",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-009",
+   "tenant": "koravi-process",
+   "asset_id": "motor-99",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "95 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "11 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.3
+     }
+    },
+    {
+     "physical": {
+      "reading": "48 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "8aa11b95d3e2956459eff54a6e2470fcd0a2b72a323b723c1d454a5bf91813a464143aa448881003c00a4a1a0b772cf8a2c3a8c4e9021be60c9ad141e56de904"
+  }
+ },
+ {
+  "id": "test-009-stale",
+  "text": "Primary air fan motor 11 kV, IR 95 Mohm at 48 C, PI 2.3",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-009",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 1,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "95 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "11 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.3
+     }
+    },
+    {
+     "physical": {
+      "reading": "48 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "cf907e06adb3fd75412ef5091ab2178f705dafb76efa2f2e1b2bb9a4d8aa40bb01b2e77703263005ccc286d1285d526b3b48e81eb883fff541b402410f3bf20b"
+  }
+ },
+ {
+  "id": "test-009-cross_tenant",
+  "text": "Primary air fan motor 11 kV, IR 95 Mohm at 48 C, PI 2.3",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-009",
+   "tenant": "other-company",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "95 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "11 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.3
+     }
+    },
+    {
+     "physical": {
+      "reading": "48 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "ba40372595fce9f6c4bd6072c00928f62df1440c311237aac6fa06c6a00fd9fe8ab55053909eedf5fca9ca43b37adf3c6f272f2fd006bcd9a102d5b340889a02"
+  }
+ },
+ {
+  "id": "test-009-tampered",
+  "text": "Primary air fan motor 11 kV, IR 95 Mohm at 48 C, PI 2.3",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-009",
+   "tenant": "koravi-process",
+   "asset_id": "changed-after-signing",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "95 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "11 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.3
+     }
+    },
+    {
+     "physical": {
+      "reading": "48 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "c837a35dec9f080530ae2a6794157d5185717f88f298fceb15f531b7a95fb9699af604b4c2332a5fb8dfd4a9f95dfeb1850b9b854450b7fc99458de3225e0e00"
+  }
+ },
+ {
+  "id": "test-011-valid",
+  "text": "Kiln drive motor 6.6 kV 70 megohms 52C PI 2.1",
+  "label": "PASS",
+  "record": {
+   "record_id": "test-011",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "70 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "52 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "c0190ac59cdee8e81c8e0a593e64bf571c0fc98eaadf59741d0c8ba2f20bf2ed52062c395bc7fa5a9a5bf8e0465bd8c6ecbe5227d59d7f0e2878b9641110990b"
+  }
+ },
+ {
+  "id": "test-011-hypothetical",
+  "text": "This is a hypothetical simulation, not an actual assessment: Kiln drive motor 6.6 kV 70 megohms 52C PI 2.1",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-011",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "70 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "52 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "c0190ac59cdee8e81c8e0a593e64bf571c0fc98eaadf59741d0c8ba2f20bf2ed52062c395bc7fa5a9a5bf8e0465bd8c6ecbe5227d59d7f0e2878b9641110990b"
+  }
+ },
+ {
+  "id": "test-011-wrong_asset",
+  "text": "Kiln drive motor 6.6 kV 70 megohms 52C PI 2.1",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-011",
+   "tenant": "koravi-process",
+   "asset_id": "motor-99",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "70 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "52 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "af78ff1fddbc0d645eacef26d35048f542daa2e891d28f1cd6f88706f86ab9a13445abd5d29d1a190154e60a36e08612f763eb735c90e0a1806e78ee4cb5c000"
+  }
+ },
+ {
+  "id": "test-011-stale",
+  "text": "Kiln drive motor 6.6 kV 70 megohms 52C PI 2.1",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-011",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 1,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "70 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "52 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "69899197db5126062113a772df4c664951ad515722f76544f215ecbabcfcec50ddc61ed5181c8f16b3e037606b7e51f2e3a0064d3c4a52a020f7a8da0fe6630d"
+  }
+ },
+ {
+  "id": "test-011-cross_tenant",
+  "text": "Kiln drive motor 6.6 kV 70 megohms 52C PI 2.1",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-011",
+   "tenant": "other-company",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "70 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "52 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "1e0fb46bb567ef9ba3329bdec79b44532ac3055bdcbfafeead836218932ff886580dcc839acd15070ece171cf8ef24e2378150e650c1b516df34a9dea44cc300"
+  }
+ },
+ {
+  "id": "test-011-tampered",
+  "text": "Kiln drive motor 6.6 kV 70 megohms 52C PI 2.1",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-011",
+   "tenant": "koravi-process",
+   "asset_id": "changed-after-signing",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "70 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "52 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "c0190ac59cdee8e81c8e0a593e64bf571c0fc98eaadf59741d0c8ba2f20bf2ed52062c395bc7fa5a9a5bf8e0465bd8c6ecbe5227d59d7f0e2878b9641110990b"
+  }
+ },
+ {
+  "id": "test-012-valid",
+  "text": "Boiler feed motor at 6.6 kV: megger 25 M\u03a9, winding temperature 70 \u00b0C, PI 2.2",
+  "label": "PASS",
+  "record": {
+   "record_id": "test-012",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "25 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.2
+     }
+    },
+    {
+     "physical": {
+      "reading": "70 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "f1735e235a86cc9485a2152e2866319f170ff6ab6510cd7099081cd15adcdcb9f58b2687ea0093f4d4547f13be9d85efbfbfcf5c9fb2db12419d0e04b8e4dc09"
+  }
+ },
+ {
+  "id": "test-012-hypothetical",
+  "text": "This is a hypothetical simulation, not an actual assessment: Boiler feed motor at 6.6 kV: megger 25 M\u03a9, winding temperature 70 \u00b0C, PI 2.2",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-012",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "25 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.2
+     }
+    },
+    {
+     "physical": {
+      "reading": "70 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "f1735e235a86cc9485a2152e2866319f170ff6ab6510cd7099081cd15adcdcb9f58b2687ea0093f4d4547f13be9d85efbfbfcf5c9fb2db12419d0e04b8e4dc09"
+  }
+ },
+ {
+  "id": "test-012-wrong_asset",
+  "text": "Boiler feed motor at 6.6 kV: megger 25 M\u03a9, winding temperature 70 \u00b0C, PI 2.2",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-012",
+   "tenant": "koravi-process",
+   "asset_id": "motor-99",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "25 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.2
+     }
+    },
+    {
+     "physical": {
+      "reading": "70 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "7618431e39ec118b5bbca1b36daa8f8322906608c3eca3b856f731138550eae17b9e0b0457d1418caa725d98a0d40806c1347255349fca64c8404f6ec9762a0d"
+  }
+ },
+ {
+  "id": "test-012-stale",
+  "text": "Boiler feed motor at 6.6 kV: megger 25 M\u03a9, winding temperature 70 \u00b0C, PI 2.2",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-012",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 1,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "25 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.2
+     }
+    },
+    {
+     "physical": {
+      "reading": "70 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "8ddaa02c96eeeb9dfddacbe3cd98f979e9b91f39d583f675c42edce1874b1ae4c8fffa2c584035382e370a8adf8f4cdccc4235607c3a29054756236d7f77eb0d"
+  }
+ },
+ {
+  "id": "test-012-cross_tenant",
+  "text": "Boiler feed motor at 6.6 kV: megger 25 M\u03a9, winding temperature 70 \u00b0C, PI 2.2",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-012",
+   "tenant": "other-company",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "25 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.2
+     }
+    },
+    {
+     "physical": {
+      "reading": "70 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "1499cb629879239592a34376894711f70734c56abd4eec011d810adc6b796e638525f5c118033153081d88c8527cb156619e6698998f2d7d549a175a0b23fa0c"
+  }
+ },
+ {
+  "id": "test-012-tampered",
+  "text": "Boiler feed motor at 6.6 kV: megger 25 M\u03a9, winding temperature 70 \u00b0C, PI 2.2",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-012",
+   "tenant": "koravi-process",
+   "asset_id": "changed-after-signing",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "25 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "6.6 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.2
+     }
+    },
+    {
+     "physical": {
+      "reading": "70 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "f1735e235a86cc9485a2152e2866319f170ff6ab6510cd7099081cd15adcdcb9f58b2687ea0093f4d4547f13be9d85efbfbfcf5c9fb2db12419d0e04b8e4dc09"
+  }
+ },
+ {
+  "id": "test-026-valid",
+  "text": "Pump motor 0.415 kV, 1.2 G\u03a9 at 40 \u00b0C, PI 2.4",
+  "label": "PASS",
+  "record": {
+   "record_id": "test-026",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "1200 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "0.415 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "b5ec4ece5428cbe8e96927841846a60be93e8cc57f239e44c6ba43eecd1a9cb52f3dbc09876bbf15a9e858c44125dfd5c19fbb632245c6f14bb3c0f44e3eea06"
+  }
+ },
+ {
+  "id": "test-026-hypothetical",
+  "text": "This is a hypothetical simulation, not an actual assessment: Pump motor 0.415 kV, 1.2 G\u03a9 at 40 \u00b0C, PI 2.4",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-026",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "1200 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "0.415 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "b5ec4ece5428cbe8e96927841846a60be93e8cc57f239e44c6ba43eecd1a9cb52f3dbc09876bbf15a9e858c44125dfd5c19fbb632245c6f14bb3c0f44e3eea06"
+  }
+ },
+ {
+  "id": "test-026-wrong_asset",
+  "text": "Pump motor 0.415 kV, 1.2 G\u03a9 at 40 \u00b0C, PI 2.4",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-026",
+   "tenant": "koravi-process",
+   "asset_id": "motor-99",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "1200 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "0.415 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "36ffb86e67800390a3bd3f7729ba090e5f9c3bbd2594f0b211fad00407e57c245b3cf072aaf62ff20787097ff2f47516a980a432adccaa1eaf21cd2bf7f02003"
+  }
+ },
+ {
+  "id": "test-026-stale",
+  "text": "Pump motor 0.415 kV, 1.2 G\u03a9 at 40 \u00b0C, PI 2.4",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-026",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 1,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "1200 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "0.415 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "a1a4d44e60d9262d0be8f3779ced7dbc85542f427b479390d64dd72abcafdda97bd95ab763e1b6353fac410d0ed0e8e90c31aa737c8d81d601b78d6d95ce4909"
+  }
+ },
+ {
+  "id": "test-026-cross_tenant",
+  "text": "Pump motor 0.415 kV, 1.2 G\u03a9 at 40 \u00b0C, PI 2.4",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-026",
+   "tenant": "other-company",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "1200 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "0.415 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "4f9879357c5afa917d8316e9aaaad69e9039721741437bbdaa2d138e17951ced82252dbb368a87f5a2fddc4c7ea24ad2a2bf88d1b83ecea85d4daf890d155101"
+  }
+ },
+ {
+  "id": "test-026-tampered",
+  "text": "Pump motor 0.415 kV, 1.2 G\u03a9 at 40 \u00b0C, PI 2.4",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-026",
+   "tenant": "koravi-process",
+   "asset_id": "changed-after-signing",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "1200 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "0.415 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.4
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "b5ec4ece5428cbe8e96927841846a60be93e8cc57f239e44c6ba43eecd1a9cb52f3dbc09876bbf15a9e858c44125dfd5c19fbb632245c6f14bb3c0f44e3eea06"
+  }
+ },
+ {
+  "id": "test-028-valid",
+  "text": "Motor 3.3 kV: 60 M\u03a9 at 104 \u00b0F, PI 2.1",
+  "label": "PASS",
+  "record": {
+   "record_id": "test-028",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "60 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "54247dd3b779093112e62abdf1c6f1a52e8ffbc535a8d6d3f8f990c52b9a78cb2b0df20b345b3b575b25d0e3b64a8350751bdbf4813df4175f705d97e71d3803"
+  }
+ },
+ {
+  "id": "test-028-hypothetical",
+  "text": "This is a hypothetical simulation, not an actual assessment: Motor 3.3 kV: 60 M\u03a9 at 104 \u00b0F, PI 2.1",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-028",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "60 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "54247dd3b779093112e62abdf1c6f1a52e8ffbc535a8d6d3f8f990c52b9a78cb2b0df20b345b3b575b25d0e3b64a8350751bdbf4813df4175f705d97e71d3803"
+  }
+ },
+ {
+  "id": "test-028-wrong_asset",
+  "text": "Motor 3.3 kV: 60 M\u03a9 at 104 \u00b0F, PI 2.1",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-028",
+   "tenant": "koravi-process",
+   "asset_id": "motor-99",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "60 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "c7d3ac8862ab6cfe6f619e5e7e294a5eda297ff2c72ef515e4a488c27eb9cfa396b82bfbeedf7000927a77706dd86cd577776ad5d8a90364d56067fa6cacec06"
+  }
+ },
+ {
+  "id": "test-028-stale",
+  "text": "Motor 3.3 kV: 60 M\u03a9 at 104 \u00b0F, PI 2.1",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-028",
+   "tenant": "koravi-process",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 1,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "60 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "fa2225194d6ab28ac440e33bd6bcabd8ef0ddc902a4aa36b7f32715cc88cb65086ca85ef0701db0f03af88149d21099477a31143128a80e3bf4aae639b609e01"
+  }
+ },
+ {
+  "id": "test-028-cross_tenant",
+  "text": "Motor 3.3 kV: 60 M\u03a9 at 104 \u00b0F, PI 2.1",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-028",
+   "tenant": "other-company",
+   "asset_id": "motor-17",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "60 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "3ec2bf809f5dbdcd46f266b3cd73cef3219624c00501cccbfe9064197147231e08dc5ce89730c535a5e8086adba6380f4598bef99aa07eed1df10da73d049303"
+  }
+ },
+ {
+  "id": "test-028-tampered",
+  "text": "Motor 3.3 kV: 60 M\u03a9 at 104 \u00b0F, PI 2.1",
+  "label": "ABSTAIN",
+  "record": {
+   "record_id": "test-028",
+   "tenant": "koravi-process",
+   "asset_id": "changed-after-signing",
+   "instrument_id": "instrument:test-set-1",
+   "taken_at_ms": 100000,
+   "quantities": [
+    {
+     "physical": {
+      "reading": "60 M\u03a9"
+     }
+    },
+    {
+     "physical": {
+      "reading": "3.3 kV"
+     }
+    },
+    {
+     "cued": {
+      "cue": "PI",
+      "value": 2.1
+     }
+    },
+    {
+     "physical": {
+      "reading": "40 \u00b0C"
+     }
+    }
+   ],
+   "signature_hex": "54247dd3b779093112e62abdf1c6f1a52e8ffbc535a8d6d3f8f990c52b9a78cb2b0df20b345b3b575b25d0e3b64a8350751bdbf4813df4175f705d97e71d3803"
+  }
+ }
+]

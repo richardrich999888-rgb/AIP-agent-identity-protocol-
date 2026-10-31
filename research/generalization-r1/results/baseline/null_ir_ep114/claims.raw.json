@@ -1,0 +1,740 @@
+[
+ {
+  "clause": "L1.S0",
+  "span": [
+   81,
+   137
+  ],
+  "text": "Scope: induction motors rated up to and including 11 kV.",
+  "kind": "scope_subject",
+  "raw": {
+   "terms": [
+    ""
+   ]
+  },
+  "claim": {
+   "terms": []
+  },
+  "fields": {
+   "terms": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "terms",
+    "from": [
+     ""
+    ],
+    "to": [],
+    "basis": "terms not present in clause removed"
+   }
+  ],
+  "issues": [
+   {
+    "field": "terms",
+    "issue": "no term present in clause"
+   }
+  ],
+  "tiers": [
+   "small",
+   "large",
+   "large"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L1.S1",
+  "span": [
+   138,
+   313
+  ],
+  "text": "This procedure does not apply to transformers, cables, generators or motors rated above 11 kV; such requests are out of scope and must be referred to the electrical authority.",
+  "kind": "scope_exclusion_terms",
+  "raw": {
+   "terms": [
+    ""
+   ]
+  },
+  "claim": {
+   "terms": []
+  },
+  "fields": {
+   "terms": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "terms",
+    "from": [
+     ""
+    ],
+    "to": [],
+    "basis": "terms not present in clause removed"
+   }
+  ],
+  "issues": [
+   {
+    "field": "terms",
+    "issue": "no term present in clause"
+   }
+  ],
+  "tiers": [
+   "small",
+   "large",
+   "large"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L2.S0",
+  "span": [
+   314,
+   489
+  ],
+  "text": "Required inputs: motor rated voltage in kV, measured insulation resistance in megohms, winding temperature in degrees Celsius at the time of test, and polarization index (PI).",
+  "kind": "required_inputs",
+  "raw": {
+   "inputs": [
+    {
+     "ref": "voltage",
+     "unit": "kV",
+     "cues": []
+    }
+   ]
+  },
+  "claim": {
+   "inputs": [
+    {
+     "ref": "voltage",
+     "unit": "kV",
+     "cues": []
+    },
+    {
+     "ref": "resistance",
+     "unit": "M\u03a9",
+     "cues": []
+    },
+    {
+     "ref": "temperature",
+     "unit": "\u00b0C",
+     "cues": []
+    },
+    {
+     "ref": "cued_1",
+     "unit": "none",
+     "cues": [
+      "PI",
+      "polarization index"
+     ]
+    }
+   ]
+  },
+  "fields": {
+   "inputs[0].unit": "evidence"
+  },
+  "repairs": [
+   {
+    "field": "inputs",
+    "from": [
+     {
+      "ref": "voltage",
+      "unit": "kV",
+      "cues": []
+     }
+    ],
+    "to": [
+     {
+      "ref": "voltage",
+      "unit": "kV",
+      "cues": []
+     },
+     {
+      "ref": "resistance",
+      "unit": "M\u03a9",
+      "cues": []
+     },
+     {
+      "ref": "temperature",
+      "unit": "\u00b0C",
+      "cues": []
+     },
+     {
+      "ref": "cued_1",
+      "unit": "none",
+      "cues": [
+       "PI",
+       "polarization index"
+      ]
+     }
+    ],
+    "basis": "units and abbreviation named in clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L2.S1",
+  "span": [
+   490,
+   595
+  ],
+  "text": "If any input is missing the result is insufficient input and the test must be repeated with full records.",
+  "kind": "missing_input",
+  "raw": {
+   "outcome": "PASS"
+  },
+  "claim": {
+   "outcome": "INSUFFICIENT_INPUT"
+  },
+  "fields": {
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "outcome",
+    "from": "PASS",
+    "to": "INSUFFICIENT_INPUT",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L3.S0",
+  "span": [
+   596,
+   689
+  ],
+  "text": "Step 1 validity: the winding temperature must be between 10 and 75 degrees Celsius inclusive.",
+  "kind": "validity",
+  "raw": {
+   "ref": "voltage",
+   "min": 10.0,
+   "max": 10.0,
+   "outcome": "PASS"
+  },
+  "claim": {
+   "ref": "temperature",
+   "min": 10.0,
+   "max": 75.0,
+   "outcome": "INVALID_TEST",
+   "unit": "\u00b0C"
+  },
+  "fields": {
+   "min": "evidence",
+   "max": "repaired",
+   "ref": "repaired",
+   "outcome.cited_next_clause": "evidence",
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "max",
+    "from": 10.0,
+    "to": 75.0,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "ref",
+    "from": "voltage",
+    "to": "temperature",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "outcome",
+    "from": "PASS",
+    "to": "INVALID_TEST",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L4.S0",
+  "span": [
+   751,
+   929
+  ],
+  "text": "Step 2 temperature correction: correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10.",
+  "kind": "correction",
+  "raw": {
+   "template": "add_per_degree",
+   "target": "voltage",
+   "by": "voltage",
+   "reference": 2.0,
+   "rate": 0.0,
+   "base": 0.0,
+   "step": 0.0
+  },
+  "claim": {
+   "template": "multiply_power_per_degree",
+   "target": "resistance",
+   "by": "temperature",
+   "reference": 40.0,
+   "rate": 0,
+   "base": 2.0,
+   "step": 10.0,
+   "reference_unit": "\u00b0C",
+   "rate_unit": "\u00b0C"
+  },
+  "fields": {
+   "template": "repaired",
+   "reference": "repaired",
+   "by": "repaired",
+   "target": "repaired",
+   "base": "repaired",
+   "step": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "template",
+    "from": "add_per_degree",
+    "to": "multiply_power_per_degree",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "reference",
+    "from": 2.0,
+    "to": 40.0,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "by",
+    "from": "voltage",
+    "to": "temperature",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "target",
+    "from": "voltage",
+    "to": "resistance",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "step",
+    "from": 0.0,
+    "to": 10.0,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "base",
+    "from": 0.0,
+    "to": 2.0,
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [
+   {
+    "field": "base",
+    "value": 0.0,
+    "issue": "number not stated in clause"
+   },
+   {
+    "field": "step",
+    "value": 0.0,
+    "issue": "number not stated in clause"
+   }
+  ],
+  "tiers": [
+   "small",
+   "large",
+   "large"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L5.S0",
+  "span": [
+   930,
+   1028
+  ],
+  "text": "Step 3 minimum: the minimum acceptable corrected resistance is 10 times (rated kV plus 1) megohms.",
+  "kind": "limit",
+  "raw": {
+   "template": "constant",
+   "coefficient": 1.0,
+   "input": "voltage",
+   "offset": 0.0
+  },
+  "claim": {
+   "template": "coefficient_times_input_plus_offset",
+   "coefficient": 10.0,
+   "input": "voltage",
+   "offset": 1.0,
+   "unit": "M\u03a9"
+  },
+  "fields": {
+   "template": "repaired",
+   "coefficient": "repaired",
+   "offset": "repaired",
+   "input": "evidence"
+  },
+  "repairs": [
+   {
+    "field": "template",
+    "from": "constant",
+    "to": "coefficient_times_input_plus_offset",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "coefficient",
+    "from": 1.0,
+    "to": 10.0,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "offset",
+    "from": 0.0,
+    "to": 1.0,
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L6.S0",
+  "span": [
+   1029,
+   1132
+  ],
+  "text": "Step 4 decision: if the corrected resistance is below half of the minimum, reject the motor for rewind.",
+  "kind": "decision_rule",
+  "raw": {
+   "conditions": [
+    {
+     "subject": "voltage",
+     "op": "<",
+     "against": "number",
+     "number": 0.0
+    }
+   ],
+   "outcome": "PASS"
+  },
+  "claim": {
+   "conditions": [
+    {
+     "subject": "corrected",
+     "op": "<",
+     "against": "limit",
+     "number": 0.5
+    }
+   ],
+   "outcome": "REJECT"
+  },
+  "fields": {
+   "conditions[0].op": "evidence",
+   "conditions[0].subject": "repaired",
+   "conditions[0].against": "repaired",
+   "conditions[0].number": "repaired",
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "conditions[0].subject",
+    "from": "voltage",
+    "to": "corrected",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].against",
+    "from": "number",
+    "to": "limit",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].number",
+    "from": 0.0,
+    "to": 0.5,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "outcome",
+    "from": "PASS",
+    "to": "REJECT",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L6.S1",
+  "span": [
+   1133,
+   1192
+  ],
+  "text": "If it is below the minimum, dry out the winding and retest.",
+  "kind": "decision_rule",
+  "raw": {
+   "conditions": [
+    {
+     "subject": "voltage",
+     "op": "<",
+     "against": "number",
+     "number": 0.0
+    }
+   ],
+   "outcome": "PASS"
+  },
+  "claim": {
+   "conditions": [
+    {
+     "subject": "corrected",
+     "op": "<",
+     "against": "limit",
+     "number": 1.0
+    }
+   ],
+   "outcome": "DRY_OUT"
+  },
+  "fields": {
+   "conditions[0].op": "evidence",
+   "conditions[0].subject": "repaired",
+   "conditions[0].against": "repaired",
+   "conditions[0].number": "repaired",
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "conditions[0].subject",
+    "from": "voltage",
+    "to": "corrected",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].against",
+    "from": "number",
+    "to": "limit",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].number",
+    "from": 0.0,
+    "to": 1.0,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "outcome",
+    "from": "PASS",
+    "to": "DRY_OUT",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L6.S2",
+  "span": [
+   1193,
+   1254
+  ],
+  "text": "If the resistance is acceptable but PI is below 1.5, dry out.",
+  "kind": "decision_rule",
+  "raw": {
+   "conditions": [
+    {
+     "subject": "voltage",
+     "op": "<",
+     "against": "number",
+     "number": 0.0
+    }
+   ],
+   "outcome": "PASS"
+  },
+  "claim": {
+   "conditions": [
+    {
+     "subject": "cued_1",
+     "op": "<",
+     "against": "number",
+     "number": 1.5,
+     "unit": "none"
+    }
+   ],
+   "outcome": "DRY_OUT"
+  },
+  "fields": {
+   "conditions[0].op": "evidence",
+   "conditions[0].subject": "repaired",
+   "conditions[0].against": "evidence",
+   "conditions[0].number": "repaired",
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "conditions[0].subject",
+    "from": "voltage",
+    "to": "cued_1",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].number",
+    "from": 0.0,
+    "to": 1.5,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "outcome",
+    "from": "PASS",
+    "to": "DRY_OUT",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L6.S3",
+  "span": [
+   1255,
+   1336
+  ],
+  "text": "If PI is at least 1.5 but below 2.0, accept for service with a retest in 30 days.",
+  "kind": "decision_rule",
+  "raw": {
+   "conditions": [
+    {
+     "subject": "voltage",
+     "op": "<",
+     "against": "number",
+     "number": 0.0
+    }
+   ],
+   "outcome": "PASS"
+  },
+  "claim": {
+   "conditions": [
+    {
+     "subject": "cued_1",
+     "op": ">=",
+     "against": "number",
+     "number": 1.5,
+     "unit": "none"
+    },
+    {
+     "subject": "cued_1",
+     "op": "<",
+     "against": "number",
+     "number": 2.0,
+     "unit": "none"
+    }
+   ],
+   "outcome": "RETEST_30D"
+  },
+  "fields": {
+   "conditions[0].op": "repaired",
+   "conditions[0].subject": "repaired",
+   "conditions[0].against": "evidence",
+   "conditions[0].number": "repaired",
+   "conditions[1].op": "evidence",
+   "conditions[1].subject": "repaired",
+   "conditions[1].against": "evidence",
+   "conditions[1].number": "repaired",
+   "outcome": "repaired"
+  },
+  "repairs": [
+   {
+    "field": "conditions",
+    "from": [
+     {
+      "subject": "voltage",
+      "op": "<",
+      "against": "number",
+      "number": 0.0
+     }
+    ],
+    "to": "one condition per comparator phrase",
+    "basis": "clause has 2 comparator(s)"
+   },
+   {
+    "field": "conditions[0].op",
+    "from": "<",
+    "to": ">=",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].subject",
+    "from": "voltage",
+    "to": "cued_1",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[0].number",
+    "from": 0.0,
+    "to": 1.5,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[1].subject",
+    "from": "voltage",
+    "to": "cued_1",
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "conditions[1].number",
+    "from": 0.0,
+    "to": 2.0,
+    "basis": "uniquely determined by clause"
+   },
+   {
+    "field": "outcome",
+    "from": "PASS",
+    "to": "RETEST_30D",
+    "basis": "uniquely determined by clause"
+   }
+  ],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ },
+ {
+  "clause": "L6.S4",
+  "span": [
+   1337,
+   1352
+  ],
+  "text": "Otherwise pass.",
+  "kind": "default_outcome",
+  "raw": {
+   "outcome": "PASS"
+  },
+  "claim": {
+   "outcome": "PASS"
+  },
+  "fields": {
+   "outcome": "evidence"
+  },
+  "repairs": [],
+  "issues": [],
+  "tiers": [
+   "small"
+  ],
+  "status": "evidence"
+ }
+]
