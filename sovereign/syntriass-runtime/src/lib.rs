@@ -21,4 +21,5 @@ pub mod app;
 pub mod capability;
 pub mod controller;
 pub mod domain;
+pub mod learning;
 pub mod ports;

@@ -7,6 +7,14 @@
 //!                                                 EVALUATION HARNESS: principals come from the
 //!                                                 input lines, not from authentication
 //! syntriass audit-verify --config CFG             verify the audit hash chain
+//! syntriass keygen --id ID --out KEYFILE          Ed25519 key pair (file mode 0600)
+//! syntriass suite-sign --key KEYFILE --cases JSONL --suite-id S --tenant T --task X --out SUITE
+//! syntriass cap-propose  --config CFG --file CAP.json            → PROPOSED (evidence bound from corpus)
+//! syntriass cap-validate --config CFG --hash H --suite SUITE     → VALIDATED | REJECTED (trusted experts only)
+//! syntriass cap-approve  --config CFG --hash H --key KEYFILE [--consequential]
+//! syntriass cap-transition --config CFG --hash H --to STATE --role ROLE --actor A --reason R
+//! syntriass cap-list     --config CFG
+//! syntriass cap-check --file CAP.json --cases JSONL   dry run: compile + label each case (no state change)
 //! ```
 //!
 //! Run inside a network namespace with only loopback (see
@@ -25,6 +33,11 @@ use syntriass_runtime::adapters::sidecar::Sidecar;
 use syntriass_runtime::adapters::store::FileStore;
 use syntriass_runtime::adapters::supervisor::Profile;
 use syntriass_runtime::app::{verify_audit_chain, Config, Runtime};
+use syntriass_runtime::capability::artifact::Capability;
+use syntriass_runtime::capability::lifecycle::{Role, State};
+use syntriass_runtime::capability::suite::{ExpertSuite, SuiteCase};
+use syntriass_runtime::learning;
+use syntriass_runtime::ports::CapabilityStore;
 use vanian_sovereign::adapters::sqlite_corpus::SqliteCorpus;
 use vanian_sovereign::domain::corpus::{Classification, Document, Ident, Principal};
 use vanian_sovereign::ports::CorpusStore;
@@ -43,6 +56,9 @@ struct FileConfig {
     rag_k: usize,
     /// approver id → public key hex
     approvers: BTreeMap<String, String>,
+    /// expert id → public key hex (trust anchors for validation suites)
+    #[serde(default)]
+    experts: BTreeMap<String, String>,
     python: PathBuf,
     sidecar_script: PathBuf,
     llama_server: PathBuf,
@@ -99,9 +115,152 @@ fn principal_from(v: &Value) -> Result<Principal, String> {
     })
 }
 
+fn opt<'a>(args: &'a [String], name: &str) -> Option<&'a str> {
+    args.iter()
+        .position(|a| a == name)
+        .and_then(|i| args.get(i + 1))
+        .map(String::as_str)
+}
+
+fn req<'a>(args: &'a [String], name: &str) -> &'a str {
+    opt(args, name).unwrap_or_else(|| die(format!("{name} required")))
+}
+
+#[derive(serde::Serialize, Deserialize)]
+struct KeyFile {
+    id: String,
+    public_hex: String,
+    private_hex: String,
+}
+
+fn read_key(path: &str) -> KeyFile {
+    let b = std::fs::read(path).unwrap_or_else(|e| die(format!("{path}: {e}")));
+    serde_json::from_slice(&b).unwrap_or_else(|e| die(format!("{path}: {e}")))
+}
+
+fn hexkey(v: &str) -> Vec<u8> {
+    hex::decode(v).unwrap_or_else(|e| die(format!("key: {e}")))
+}
+
+fn keys(m: &BTreeMap<String, String>) -> BTreeMap<String, Vec<u8>> {
+    m.iter().map(|(k, v)| (k.clone(), hexkey(v))).collect()
+}
+
+fn parse_enum<T: serde::de::DeserializeOwned>(v: &str) -> T {
+    serde_json::from_value(Value::String(v.into())).unwrap_or_else(|e| die(format!("{v}: {e}")))
+}
+
+/// Commands that need no runtime config.
+fn standalone(cmd: &str, args: &[String]) -> bool {
+    match cmd {
+        "keygen" => {
+            let kp = aip_crypto::generate_ed25519_keypair();
+            let k = KeyFile {
+                id: req(args, "--id").into(),
+                public_hex: hex::encode(&kp.public_key),
+                private_hex: hex::encode(&kp.private_key),
+            };
+            let out = req(args, "--out");
+            write_private(
+                Path::new(out),
+                &serde_json::to_vec_pretty(&k).unwrap_or_default(),
+            );
+            println!("{}", json!({"id": k.id, "public_hex": k.public_hex}));
+            true
+        }
+        "suite-sign" => {
+            let k = read_key(req(args, "--key"));
+            let cases_path = req(args, "--cases");
+            let cases: Vec<SuiteCase> = std::fs::read_to_string(cases_path)
+                .unwrap_or_else(|e| die(format!("{cases_path}: {e}")))
+                .lines()
+                .filter(|l| !l.trim().is_empty())
+                .map(|l| {
+                    let v: Value = serde_json::from_str(l).unwrap_or_else(|e| die(e));
+                    let s = |f: &str| {
+                        v[f].as_str()
+                            .unwrap_or_else(|| die(format!("case.{f}")))
+                            .to_string()
+                    };
+                    SuiteCase {
+                        id: s("id"),
+                        text: s("text"),
+                        expected: s("label"),
+                        counterexample: v["counterexample"].as_bool().unwrap_or(false),
+                    }
+                })
+                .collect();
+            let suite = ExpertSuite::sign(
+                req(args, "--suite-id"),
+                req(args, "--tenant"),
+                req(args, "--task"),
+                &k.id,
+                cases,
+                &hexkey(&k.private_hex),
+            )
+            .unwrap_or_else(|e| die(format!("{e:?}")));
+            let out = req(args, "--out");
+            std::fs::write(out, serde_json::to_vec_pretty(&suite).unwrap_or_default())
+                .unwrap_or_else(|e| die(e));
+            println!(
+                "{}",
+                json!({"suite": suite.suite_id, "hash": suite.hash(), "cases": suite.cases.len()})
+            );
+            true
+        }
+        "cap-check" => {
+            use syntriass_runtime::capability::validate::label;
+            let f = req(args, "--file");
+            let cap: Capability = serde_json::from_slice(
+                &std::fs::read(f).unwrap_or_else(|e| die(format!("{f}: {e}"))),
+            )
+            .unwrap_or_else(|e| die(format!("{f}: {e}")));
+            let compiled = match cap.compile() {
+                Ok(c) => c,
+                Err(e) => {
+                    println!("{}", json!({"compiled": false, "error": format!("{e:?}")}));
+                    return true;
+                }
+            };
+            let cp = req(args, "--cases");
+            for l in std::fs::read_to_string(cp)
+                .unwrap_or_else(|e| die(format!("{cp}: {e}")))
+                .lines()
+            {
+                if l.trim().is_empty() {
+                    continue;
+                }
+                let v: Value = serde_json::from_str(l).unwrap_or_else(|e| die(e));
+                let text = v["text"].as_str().unwrap_or_default();
+                println!(
+                    "{}",
+                    json!({"id": v["id"], "got": label(&cap.execute(&compiled, text)), "expected": v["label"]})
+                );
+            }
+            true
+        }
+        _ => false,
+    }
+}
+
+fn write_private(p: &Path, b: &[u8]) {
+    use std::io::Write as _;
+    use std::os::unix::fs::OpenOptionsExt;
+    let mut f = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .mode(0o600)
+        .open(p)
+        .unwrap_or_else(|e| die(format!("{}: {e}", p.display())));
+    f.write_all(b).unwrap_or_else(|e| die(e));
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let cmd = args.get(1).map(String::as_str).unwrap_or("");
+    if standalone(cmd, &args) {
+        return;
+    }
     let cfg_path = args
         .iter()
         .position(|a| a == "--config")
@@ -125,6 +284,45 @@ fn main() {
                     "{}",
                     json!({"doc": d.doc_id.as_str(), "tenant": d.tenant.as_str(), "outcome": format!("{o:?}")})
                 );
+            }
+        }
+        "cap-propose" => {
+            let f = req(&args, "--file");
+            let cap: Capability = serde_json::from_slice(&std::fs::read(f).unwrap_or_else(|e| die(format!("{f}: {e}"))))
+                .unwrap_or_else(|e| die(format!("{f}: {e}")));
+            let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
+            let h = learning::propose(&mut store, &corpus, cap).unwrap_or_else(|e| die(e));
+            println!("{}", json!({"hash": h, "state": "PROPOSED"}));
+        }
+        "cap-validate" => {
+            let sp = req(&args, "--suite");
+            let suite: ExpertSuite = serde_json::from_slice(&std::fs::read(sp).unwrap_or_else(|e| die(format!("{sp}: {e}"))))
+                .unwrap_or_else(|e| die(format!("{sp}: {e}")));
+            let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
+            let r = learning::validate_record(&mut store, &corpus, req(&args, "--hash"), &suite, &keys(&c.experts), "validator:runtime", learning::now_ms())
+                .unwrap_or_else(|e| die(e));
+            println!("{}", serde_json::to_string(&r).unwrap_or_default());
+        }
+        "cap-approve" => {
+            let k = read_key(req(&args, "--key"));
+            let trusted = c.approvers.get(&k.id).unwrap_or_else(|| die(format!("{} is not a configured approver", k.id)));
+            let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
+            learning::approve_record(&mut store, req(&args, "--hash"), &k.id, &hexkey(&k.private_hex), &hexkey(trusted), args.iter().any(|a| a == "--consequential"), learning::now_ms())
+                .unwrap_or_else(|e| die(e));
+            println!("{}", json!({"hash": req(&args, "--hash"), "state": "APPROVED", "approver": k.id}));
+        }
+        "cap-transition" => {
+            let to: State = parse_enum(req(&args, "--to"));
+            let role: Role = parse_enum(req(&args, "--role"));
+            let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
+            learning::transition(&mut store, req(&args, "--hash"), to, req(&args, "--actor"), role, learning::now_ms(), req(&args, "--reason"))
+                .unwrap_or_else(|e| die(e));
+            println!("{}", json!({"hash": req(&args, "--hash"), "state": to}));
+        }
+        "cap-list" => {
+            let store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
+            for r in store.all().unwrap_or_else(|e| die(e)) {
+                println!("{}", json!({"id": r.capability.id, "version": r.capability.version, "hash": r.capability_hash, "state": r.state, "executable": r.executable()}));
             }
         }
         "audit-verify" => match verify_audit_chain(&audit) {
@@ -209,6 +407,6 @@ fn main() {
             }
             pool.shutdown().unwrap_or_else(|e| die(e));
         }
-        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify} --config CFG"),
+        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-approve|cap-transition|cap-list} …"),
     }
 }

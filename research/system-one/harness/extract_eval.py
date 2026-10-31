@@ -26,6 +26,8 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SPLITS = {
     "hard_v3": os.path.join(HERE, "data/hard-reports-v3/test_hard.jsonl"),
     "hard_v4": os.path.join(HERE, "data/hard-reports-v4/test_hard.jsonl"),
+    # Fresh held-out set for the live runtime controller (frozen in 46485eb).
+    "hard_v5": os.path.join(HERE, "data/hard-reports-v5/test_hard.jsonl"),
     "v2_test_para": os.path.join(HERE, "data/maintenance-priority-v2/test_para.jsonl"),
     "v2_test_ood": os.path.join(HERE, "data/maintenance-priority-v2/test_ood.jsonl"),
 }

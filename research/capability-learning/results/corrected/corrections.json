@@ -1,0 +1,48 @@
+{
+ "draft": "results/propose_qwen1.5b-q8/round_1.json",
+ "corrections": [
+  {
+   "id": "C1",
+   "field": "procedure.derive[corrected_resistance]",
+   "cite": "multiplying it by two raised to the power of (winding temperature minus 40) divided by 10",
+   "why": "operator precedence: the exponent is ((t - 40) / 10)"
+  },
+  {
+   "id": "C2",
+   "field": "procedure.derive[+minimum]",
+   "cite": "the minimum acceptable corrected resistance is 10 times (rated kV plus 1) megohms",
+   "why": "draft used `minimum` without defining it"
+  },
+  {
+   "id": "C3",
+   "field": "procedure.rules[*]",
+   "cite": "polarization index (PI)",
+   "why": "draft referenced `PI`; its input is `polarization_index`"
+  },
+  {
+   "id": "C4",
+   "field": "procedure.numeric_guards",
+   "cite": "does not apply to ... motors rated above 11 kV",
+   "why": "draft made out-of-range temperature OUT_OF_SCOPE (it is INVALID per Step 1) and missed the >11 kV scope limit"
+  },
+  {
+   "id": "C5",
+   "field": "procedure.text_guards",
+   "cite": "does not apply to transformers, cables, generators",
+   "why": "terms are matched as words; the phrase 'motors rated above 11 kV' can never match and singular forms were missing"
+  },
+  {
+   "id": "C6",
+   "field": "procedure.rules[PI bands]",
+   "cite": "acceptable but PI is below 1.5, dry out. If PI is at least 1.5 but below 2.0, accept ... retest in 30 days. Otherwise pass",
+   "why": "draft mapped PI < 1.5 to RETEST_30D and 1.5 <= PI < 2.0 to PASS"
+  },
+  {
+   "id": "C7",
+   "field": "applicability.any_terms",
+   "cite": "measured insulation resistance in megohms",
+   "why": "draft required 'induction motor' or 'rated voltage'; requests say IR / megohms / megger"
+  }
+ ],
+ "n_corrections": 7
+}
