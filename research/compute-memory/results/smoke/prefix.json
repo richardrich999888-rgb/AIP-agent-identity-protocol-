@@ -1,0 +1,67 @@
+{
+ "experiment": "prefix",
+ "env": {
+  "model": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+  "model_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+  "host": "vm",
+  "cpus": 2,
+  "kernel": "6.18.44-fc-v185",
+  "seed": 20261031,
+  "ctx": 4096,
+  "time": "2026-10-31T06:04:46Z"
+ },
+ "result": {
+  "cache_off": [
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 13990.719,
+    "wall_s": 14.326532807999683,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 14130.395,
+    "wall_s": 14.489974486999927,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 14202.999,
+    "wall_s": 14.536546530000123,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 14272.005,
+    "wall_s": 14.602160136999373,
+    "tokens_cached": 1243
+   }
+  ],
+  "cache_on": [
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 14557.112,
+    "wall_s": 14.893977706999976,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 33,
+    "prompt_ms": 417.745,
+    "wall_s": 0.7524740479993852,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 33,
+    "prompt_ms": 475.126,
+    "wall_s": 0.8471557719994962,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 33,
+    "prompt_ms": 440.272,
+    "wall_s": 0.7678699850002886,
+    "tokens_cached": 1243
+   }
+  ]
+ }
+}

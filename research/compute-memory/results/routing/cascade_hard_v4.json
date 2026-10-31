@@ -1,0 +1,58 @@
+{
+ "rules_equnit": {
+  "n": 39,
+  "decision_acc": 0.538,
+  "wrong_release": 0,
+  "compute_s_total": 0.0,
+  "correct_per_compute_s": 25098.782,
+  "slm_calls": 0
+ },
+ "tfidf+gate": {
+  "n": 39,
+  "decision_acc": 0.795,
+  "wrong_release": 4,
+  "compute_s_total": 0.02,
+  "correct_per_compute_s": 1345.457,
+  "slm_calls": 0
+ },
+ "enc+gate": {
+  "n": 39,
+  "decision_acc": 0.821,
+  "wrong_release": 4,
+  "compute_s_total": 1.84,
+  "correct_per_compute_s": 17.36,
+  "slm_calls": 0
+ },
+ "slm+gate": {
+  "n": 39,
+  "decision_acc": 0.692,
+  "wrong_release": 12,
+  "compute_s_total": 190.69,
+  "correct_per_compute_s": 0.142,
+  "slm_calls": 39
+ },
+ "R1": {
+  "n": 39,
+  "decision_acc": 0.821,
+  "wrong_release": 4,
+  "compute_s_total": 1.42,
+  "correct_per_compute_s": 22.548,
+  "slm_calls": 0
+ },
+ "R2": {
+  "n": 39,
+  "decision_acc": 0.872,
+  "wrong_release": 4,
+  "compute_s_total": 13.17,
+  "correct_per_compute_s": 2.582,
+  "slm_calls": 2
+ },
+ "R3": {
+  "n": 39,
+  "decision_acc": 0.872,
+  "wrong_release": 4,
+  "compute_s_total": 12.74,
+  "correct_per_compute_s": 2.668,
+  "slm_calls": 2
+ }
+}

@@ -1,0 +1,71 @@
+{
+ "experiment": "throughput",
+ "env": {
+  "model": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+  "model_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+  "host": "vm",
+  "cpus": 2,
+  "kernel": "6.18.44-fc-v185",
+  "seed": 20261031,
+  "ctx": 4096,
+  "time": "2026-10-31T06:03:33Z"
+ },
+ "result": {
+  "rows": [
+   {
+    "n_prompt": 128,
+    "n_gen": 64,
+    "rep": 0,
+    "prefill_tok_s": 103.38672288319724,
+    "decode_tok_s": 25.423015137816577,
+    "prompt_ms": 1238.07,
+    "predicted_ms": 2517.404,
+    "wall_s": 3.758144710999659
+   },
+   {
+    "n_prompt": 512,
+    "n_gen": 64,
+    "rep": 0,
+    "prefill_tok_s": 94.60855065428649,
+    "decode_tok_s": 22.58034811134793,
+    "prompt_ms": 5411.773,
+    "predicted_ms": 2834.323,
+    "wall_s": 8.254008668999631
+   },
+   {
+    "n_prompt": 1536,
+    "n_gen": 64,
+    "rep": 0,
+    "prefill_tok_s": 86.95036373952456,
+    "decode_tok_s": 20.855281616362532,
+    "prompt_ms": 17665.251,
+    "predicted_ms": 3068.767,
+    "wall_s": 20.741741374999947
+   },
+   {
+    "n_prompt": 128,
+    "n_gen": 256,
+    "rep": 0,
+    "prefill_tok_s": 96.88550933393485,
+    "decode_tok_s": 23.39033814571267,
+    "prompt_ms": 1321.147,
+    "predicted_ms": 10944.69,
+    "wall_s": 12.272072421999837
+   }
+  ],
+  "server_after": {
+   "minflt": 65097,
+   "majflt": 99,
+   "cpu_s": 141.42,
+   "VmSize": 1307.80078125,
+   "VmHWM": 673.87109375,
+   "VmRSS": 673.87109375,
+   "RssAnon": 201.8125,
+   "RssFile": 472.05859375,
+   "RssShmem": 0.0,
+   "Pss": 671.8779296875,
+   "Pss_Anon": 201.8125,
+   "Pss_File": 470.0654296875
+  }
+ }
+}

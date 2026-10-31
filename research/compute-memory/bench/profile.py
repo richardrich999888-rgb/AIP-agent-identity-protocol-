@@ -8,6 +8,7 @@ usage: profile.py EXPERIMENT OUT_JSON --server BIN --model GGUF [--draft GGUF] [
   restore   E4 slot save/restore vs recompute (hypothesis B4)
   shared    E5 two resident servers on one GGUF: RSS vs PSS (hypothesis B2)
   specdec   E6 speculative decoding with a draft model: equality + decode rate
+  builds    E0 two llama-server builds on one model: output equality + rates
 
 Prompts are deterministic (seeded word sampler; seed recorded). Greedy decoding.
 """
@@ -67,7 +68,7 @@ def env(a) -> dict:
 
 
 def srv(a, port=8190, extra=(), model=None, log=None) -> L.Server:
-    return L.Server(a.server, model or a.model, port, ("-c", str(CTX), *extra), log or a.out + ".llama.log")
+    return L.Server(a.server, model or a.model, port, ("-c", str(CTX), *a.llama_arg, *extra), log or a.out + ".llama.log")
 
 
 def exp_load(a) -> dict:
@@ -230,7 +231,25 @@ def exp_specdec(a) -> dict:
     return out
 
 
-EXPS = {"load": exp_load, "throughput": exp_throughput, "prefix": exp_prefix, "sidechan": exp_sidechan,
+def exp_builds(a) -> dict:
+    """Same model, two llama-server builds: greedy outputs must be identical."""
+    out = {}
+    prompts = [text(300, SEED + i) + "\nSummarise the shift report:" for i in range(a.reps * 2)]
+    for tag, binary in (("baseline", a.server), ("candidate", a.server2)):
+        s = L.Server(binary, a.model, 8190, ("-c", str(CTX)), a.out + f".{tag}.llama.log")
+        load = s.start()
+        s.complete("warm", 4, cache_prompt=False)
+        rows = [s.complete(p, 64, cache_prompt=False) for p in prompts]
+        st = s.stats()
+        s.stop()
+        out[tag] = {"binary": binary, "load_s": load, "server": st, "rows": rows,
+                    "prefill_tok_s": statistics.median(r["prompt_n"] / (r["prompt_ms"] / 1000) for r in rows),
+                    "decode_tok_s": statistics.median(r["predicted_n"] / (r["predicted_ms"] / 1000) for r in rows)}
+    out["outputs_identical"] = [x["content"] == y["content"] for x, y in zip(out["baseline"]["rows"], out["candidate"]["rows"])]
+    return out
+
+
+EXPS = {"builds": exp_builds, "load": exp_load, "throughput": exp_throughput, "prefix": exp_prefix, "sidechan": exp_sidechan,
         "restore": exp_restore, "shared": exp_shared, "specdec": exp_specdec}
 
 
@@ -241,12 +260,17 @@ def main() -> None:
     ap.add_argument("--server", required=True)
     ap.add_argument("--model", required=True)
     ap.add_argument("--draft")
+    ap.add_argument("--llama-arg", action="append", default=[], help="extra llama-server flag (repeatable)")
+    ap.add_argument("--server2", help="second llama-server build (experiment 'builds')")
     ap.add_argument("--reps", type=int, default=3)
     a = ap.parse_args()
     if a.experiment == "specdec" and not a.draft:
         ap.error("specdec needs --draft")
+    if a.experiment == "builds" and not a.server2:
+        ap.error("builds needs --server2")
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
-    r = {"experiment": a.experiment, "env": env(a), "result": EXPS[a.experiment](a)}
+    r = {"experiment": a.experiment, "env": {**env(a), "server": a.server, "llama_args": a.llama_arg},
+         "result": EXPS[a.experiment](a)}
     json.dump(r, open(a.out, "w"), indent=1)
     print(a.experiment, "done", a.out)
 

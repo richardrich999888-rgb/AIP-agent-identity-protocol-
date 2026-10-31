@@ -1,0 +1,153 @@
+{
+ "experiment": "builds",
+ "env": {
+  "model": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+  "model_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+  "host": "vm",
+  "cpus": 2,
+  "kernel": "6.18.44-fc-v185",
+  "seed": 20261031,
+  "ctx": 4096,
+  "time": "2026-10-31T06:09:32Z"
+ },
+ "result": {
+  "baseline": {
+   "binary": "/home/claude/vanian-build/build-llama/bin/llama-server",
+   "load_s": 0.47911094299979595,
+   "server": {
+    "minflt": 41613,
+    "majflt": 0,
+    "cpu_s": 47.55,
+    "VmSize": 1286.80078125,
+    "VmHWM": 623.96875,
+    "VmRSS": 623.96875,
+    "RssAnon": 151.90625,
+    "RssFile": 472.0625,
+    "RssShmem": 0.0,
+    "Pss": 622.0517578125,
+    "Pss_Anon": 151.90625,
+    "Pss_File": 470.1455078125
+   },
+   "rows": [
+    {
+     "wall_s": 6.011098842999672,
+     "prompt_n": 308,
+     "prompt_ms": 3195.628,
+     "predicted_n": 64,
+     "predicted_ms": 2811.29,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 371,
+     "content": " The shift report is a summary of the current status of the shift, including the shift supervisor, shift date, shift time, shift status, shift record, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor,"
+    },
+    {
+     "wall_s": 5.722072230999402,
+     "prompt_n": 308,
+     "prompt_ms": 3010.317,
+     "predicted_n": 64,
+     "predicted_ms": 2705.351,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 371,
+     "content": " The shift report is a summary of the current status of the equipment and its related parameters. It is used to track the progress of maintenance work and to identify any issues or problems that need to be addressed. The report is typically prepared by the shift supervisor and is sent to the maintenance manager for review and approval. The report"
+    },
+    {
+     "wall_s": 6.336488717000066,
+     "prompt_n": 309,
+     "prompt_ms": 3500.175,
+     "predicted_n": 64,
+     "predicted_ms": 2832.827,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 372,
+     "content": " The shift report is a summary of the daily shift report, which is a summary of the weekly shift report. The shift report is used to track the progress of the shift and to identify any deviations or issues that may arise. It is also used to provide feedback to the shift supervisor and to help them identify areas for improvement"
+    },
+    {
+     "wall_s": 5.809402928999589,
+     "prompt_n": 309,
+     "prompt_ms": 3028.695,
+     "predicted_n": 64,
+     "predicted_ms": 2769.734,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 372,
+     "content": " \"The shift report is a summary of the daily shift activities of the plant. It includes the daily temperature, pressure, and other parameters of the plant. The shift report is used to track the performance of the plant and to identify any issues or anomalies. The shift report is typically updated at the end of each shift and"
+    }
+   ],
+   "prefill_tok_s": 99.20291029086496,
+   "decode_tok_s": 22.936130893300156
+  },
+  "candidate": {
+   "binary": "/home/claude/vanian-build/build-llama-native/bin/llama-server",
+   "load_s": 0.47607196799981466,
+   "server": {
+    "minflt": 92330,
+    "majflt": 0,
+    "cpu_s": 33.56,
+    "VmSize": 1347.48046875,
+    "VmHWM": 752.1328125,
+    "VmRSS": 685.421875,
+    "RssAnon": 349.83984375,
+    "RssFile": 335.58203125,
+    "RssShmem": 0.0,
+    "Pss": 683.501953125,
+    "Pss_Anon": 349.83984375,
+    "Pss_File": 333.662109375
+   },
+   "rows": [
+    {
+     "wall_s": 4.0447140690002925,
+     "prompt_n": 308,
+     "prompt_ms": 1869.529,
+     "predicted_n": 64,
+     "predicted_ms": 2168.63,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 371,
+     "content": " The shift report is a summary of the current status of the shift, including the shift supervisor, shift date, shift time, shift status, shift record, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor, shift supervisor,"
+    },
+    {
+     "wall_s": 4.1680970689994865,
+     "prompt_n": 308,
+     "prompt_ms": 1979.856,
+     "predicted_n": 64,
+     "predicted_ms": 2183.195,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 371,
+     "content": " The shift report is a summary of the current status of the equipment and its components. It includes the current status of the equipment and its components, the current temperature, current pressure, current flow, current voltage, current deviation, current limit, current unit deviation, current unit deviation, current unit deviation, current unit deviation,"
+    },
+    {
+     "wall_s": 4.080463522000173,
+     "prompt_n": 309,
+     "prompt_ms": 1860.172,
+     "predicted_n": 64,
+     "predicted_ms": 2216.893,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 372,
+     "content": " The shift report is a summary of the daily shift report, which is a summary of the weekly shift report. The shift report is used to track the progress of the shift and to identify any issues or deviations that may have occurred during the shift. The shift report is typically used by shift supervisors to communicate with the shift,"
+    },
+    {
+     "wall_s": 4.232874235000054,
+     "prompt_n": 309,
+     "prompt_ms": 1916.753,
+     "predicted_n": 64,
+     "predicted_ms": 2312.559,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 372,
+     "content": " \"The shift report is a summary of the daily shift activities of the plant. It includes the daily temperature, pressure, and other parameters of the plant. The shift report is used to track the performance of the plant and to identify any issues or anomalies. The shift report is typically updated at the end of each shift and"
+    }
+   ],
+   "prefill_tok_s": 162.9787536937019,
+   "decode_tok_s": 29.092033600931877
+  },
+  "outputs_identical": [
+   true,
+   false,
+   false,
+   true
+  ]
+ }
+}

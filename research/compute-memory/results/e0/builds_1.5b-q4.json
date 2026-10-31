@@ -1,0 +1,153 @@
+{
+ "experiment": "builds",
+ "env": {
+  "model": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+  "model_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+  "host": "vm",
+  "cpus": 2,
+  "kernel": "6.18.44-fc-v185",
+  "seed": 20261031,
+  "ctx": 4096,
+  "time": "2026-10-31T06:10:15Z"
+ },
+ "result": {
+  "baseline": {
+   "binary": "/home/claude/vanian-build/build-llama/bin/llama-server",
+   "load_s": 1.137285172000702,
+   "server": {
+    "minflt": 211818,
+    "majflt": 0,
+    "cpu_s": 97.81,
+    "VmSize": 2524.25390625,
+    "VmHWM": 1870.74609375,
+    "VmRSS": 1870.74609375,
+    "RssAnon": 801.90234375,
+    "RssFile": 1068.84375,
+    "RssShmem": 0.0,
+    "Pss": 1868.8310546875,
+    "Pss_Anon": 801.90234375,
+    "Pss_File": 1066.9287109375
+   },
+   "rows": [
+    {
+     "wall_s": 12.094779809000102,
+     "prompt_n": 308,
+     "prompt_ms": 6053.405,
+     "predicted_n": 64,
+     "predicted_ms": 6038.033,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 371,
+     "content": " 1. Shift: 2. Supervisor: 3. Reading: 4. Valve: 5. Part: 6. Pressure: 7. Current: 8. Temperature: 9. Voltage: 10. Water: 11. Seal: 12. Threshold: "
+    },
+    {
+     "wall_s": 11.893323907000195,
+     "prompt_n": 308,
+     "prompt_ms": 5820.723,
+     "predicted_n": 64,
+     "predicted_ms": 6069.266,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 371,
+     "content": " The shift report is a document that records the activities and events that occurred during a shift, typically a 8-hour shift. It is used to track the progress of the shift and to identify any issues or problems that may have occurred. The shift report typically includes information about the equipment and systems that were operated during the shift"
+    },
+    {
+     "wall_s": 12.37845051900058,
+     "prompt_n": 309,
+     "prompt_ms": 6245.881,
+     "predicted_n": 64,
+     "predicted_ms": 6129.095,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 372,
+     "content": " Shift report for 2023-01-15\n\nThe shift report for 2023-01-15 is as follows:\n\n- **Operator**: Shift 1\n- **Operator**: Shift 2\n- **Operator**: Shift 3\n- **Operator**: Shift "
+    },
+    {
+     "wall_s": 12.230413910000607,
+     "prompt_n": 309,
+     "prompt_ms": 6138.834,
+     "predicted_n": 64,
+     "predicted_ms": 6087.545,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 372,
+     "content": " The shift report is a document that summarizes the activities and events that occurred during a shift. It typically includes information such as the start and end times of the shift, the number of employees on duty, the tasks performed, any issues encountered, and the actions taken to resolve them. The report may also include details about the"
+    }
+   ],
+   "prefill_tok_s": 50.607873285083656,
+   "decode_tok_s": 10.529100878948771
+  },
+  "candidate": {
+   "binary": "/home/claude/vanian-build/build-llama-native/bin/llama-server",
+   "load_s": 1.4508919019999666,
+   "server": {
+    "minflt": 302135,
+    "majflt": 0,
+    "cpu_s": 72.03,
+    "VmSize": 2697.0625,
+    "VmHWM": 2076.42578125,
+    "VmRSS": 2044.50390625,
+    "RssAnon": 1156.6015625,
+    "RssFile": 887.90234375,
+    "RssShmem": 0.0,
+    "Pss": 2042.5322265625,
+    "Pss_Anon": 1156.6015625,
+    "Pss_File": 885.9306640625
+   },
+   "rows": [
+    {
+     "wall_s": 8.989439361999757,
+     "prompt_n": 308,
+     "prompt_ms": 3200.764,
+     "predicted_n": 64,
+     "predicted_ms": 5785.203,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 371,
+     "content": " 1. Shift: 12/12/2023 2. Supervisor: Supervisor 3. Reading: 4. Supervisor: Supervisor 5. Reading: 6. Supervisor: Supervisor 7. Reading: 8. Supervisor: Supervisor 9. Reading: 10."
+    },
+    {
+     "wall_s": 8.546596709999903,
+     "prompt_n": 308,
+     "prompt_ms": 2994.08,
+     "predicted_n": 64,
+     "predicted_ms": 5548.827,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 371,
+     "content": " The shift report is a document that summarizes the activities and events that occurred during a shift, typically in a manufacturing or service setting. It is used to provide a summary of the day's work, including any issues that arose and how they were resolved. The shift report typically includes information about the equipment and systems that were used"
+    },
+    {
+     "wall_s": 8.848764813999878,
+     "prompt_n": 309,
+     "prompt_ms": 3049.874,
+     "predicted_n": 64,
+     "predicted_ms": 5792.188,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 372,
+     "content": " Shift report: 2023-04-01\n\nAssistant: The shift report for April 1, 2023, includes various operational details and maintenance activities across different equipment and systems. Here is a summary of the key points:\n\n1. **Operator Shifts:**\n   - **"
+    },
+    {
+     "wall_s": 8.825041017999865,
+     "prompt_n": 309,
+     "prompt_ms": 3203.066,
+     "predicted_n": 64,
+     "predicted_ms": 5613.977,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 372,
+     "content": " The shift report is a summary of the activities and events that occurred during a shift, typically in a manufacturing or industrial setting. It provides a snapshot of the day's operations, including the tasks performed, equipment maintenance, and any issues or problems encountered. The report is usually prepared by the shift supervisor or a designated person and"
+    }
+   ],
+   "prefill_tok_s": 98.89286526191046,
+   "decode_tok_s": 11.231411983042323
+  },
+  "outputs_identical": [
+   false,
+   false,
+   false,
+   false
+  ]
+ }
+}
