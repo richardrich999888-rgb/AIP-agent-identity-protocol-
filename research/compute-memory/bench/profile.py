@@ -137,7 +137,10 @@ def exp_sidechan(a) -> dict:
     vs a different prefix of identical length (miss). Score for AUC is
     -latency (faster ⇒ predicted 'victim prefix present').
     """
-    s = srv(a)
+    # llama-server refuses every /slots action (incl. erase) without a save path.
+    d = os.path.join(os.path.dirname(os.path.abspath(a.out)), "slots_sidechan")
+    os.makedirs(d, exist_ok=True)
+    s = srv(a, extra=("--slot-save-path", d + "/"))
     s.start()
     secret = text_tokens(s, 800, SEED + 7)
     decoy = text_tokens(s, 800, SEED + 8)
@@ -163,6 +166,8 @@ def exp_sidechan(a) -> dict:
             (hit if i % 2 == 0 else miss).append(r["wall_s"])
             v2 = send(victim, secret + "\nQ: payroll total for November?")
             victim_reuse.append(v2["prompt_n"])
+            if mode == "scoped" and i == 0:
+                assert os.listdir(d) == [], "erase must not write slot files"
         res[mode] = {"hit_wall_s": hit, "miss_wall_s": miss,
                      "auc_attacker": auc([-x for x in hit], [-x for x in miss]),
                      "median_hit_s": statistics.median(hit), "median_miss_s": statistics.median(miss),
