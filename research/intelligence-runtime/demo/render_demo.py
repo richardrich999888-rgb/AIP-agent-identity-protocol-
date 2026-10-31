@@ -95,7 +95,8 @@ def main() -> None:
     out = sys.argv[1]
     S = os.path.join(out, "scenes")
     first = lambda pat: (sorted(glob.glob(os.path.join(S, pat))) or [""])[0]
-    s1, s2, s4 = resp(first("scene1-*.json")), resp(first("scene2-*.json")), resp(first("scene4-*.json"))
+    s1s = [resp(p) for p in sorted(glob.glob(os.path.join(S, "scene1-*.json")), key=lambda p: int(p.rsplit("-", 1)[1].split(".")[0]))]
+    s2, s4 = resp(first("scene2-*.json")), resp(first("scene4-*.json"))
     s5 = [resp(p) for p in sorted(glob.glob(os.path.join(S, "scene5-*.json")))]
     val = load(os.path.join(S, "scene3-validation.json")) or {}
     draft = jsonl(os.path.join(S, "scene3-draft-check.jsonl"))
@@ -106,8 +107,11 @@ def main() -> None:
     offline = open(os.path.join(S, "scene6.txt")).read() if os.path.exists(os.path.join(S, "scene6.txt")) else "not run"
     audit = load(os.path.join(S, "audit.json")) or {}
     parts = []
-    parts.append(section(1, "Private AI", "An authorised engineer asks about a confidential procedure. The answer comes from local documents the engineer may read, with the evidence cited.",
-                         outcome(s1) + facts(s1) + raw(s1)))
+    p1 = ""
+    for k, r in enumerate(s1s):
+        p1 += ("<h3>Question that needs a calculation</h3><p>The local model only restated the rule, so the runtime says the calculation was not completed instead of presenting it as an answer.</p>" if k else "")
+        p1 += outcome(r) + facts(r) + raw(r)
+    parts.append(section(1, "Private AI", "An authorised engineer asks about a confidential procedure. The answer comes from local documents the engineer may read, with the evidence cited.", p1))
     parts.append(section(2, "Efficient execution", "A routine structured report does not need a language model: deterministic rules decide it.",
                          outcome(s2) + facts(s2) + raw(s2)))
     teach = "<h3>What the local model proposed</h3>"

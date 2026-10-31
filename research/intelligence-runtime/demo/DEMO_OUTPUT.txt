@@ -4,7 +4,7 @@
 8.8.8.8 unreachable: OSError
 
 === Setup — fresh installation, keys, ingest (19 documents, 3 organisations) ===
-{"config": "/tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo/state/config.json", "ingested": 19}
+{"config": "/tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo-final/state/config.json", "ingested": 19}
 
 === Scene 1 — private intelligence: an authorised engineer asks about a confidential procedure ===
 {
@@ -17,19 +17,42 @@
    "ep-114",
    "ep-090"
   ],
-  "text": "10 times (rated kV plus 1) megohms"
+  "text": "The test is invalid and must be repeated with full records."
  },
- "wall_ms": 14120.7,
+ "wall_ms": 14956.1,
  "model_calls": 1,
  "cpu_s": {
-  "llama-small": 23.73,
-  "runtime": 1.06,
-  "sidecar": 0.18
+  "llama-small": 25.14,
+  "runtime": 1.03,
+  "sidecar": 0.17
  },
  "rss_mib": {
-  "llama-small": 2198.1,
+  "llama-small": 2198.3,
+  "runtime": 7.0,
+  "sidecar": 153.8
+ },
+ "error": null
+}
+-- a question that needs arithmetic the language model did not do:
+{
+ "strategy": {
+  "GroundedQa": "Small"
+ },
+ "outcome": {
+  "kind": "withheld",
+  "reason": "calculation not completed: the authorised source gives the rule \"10 times (rated kV plus 1) megohms\" (ep-114, ep-090), but the value for this request was not computed"
+ },
+ "wall_ms": 12812.6,
+ "model_calls": 1,
+ "cpu_s": {
+  "llama-small": 21.27,
+  "runtime": 1.01,
+  "sidecar": 0.14
+ },
+ "rss_mib": {
+  "llama-small": 2198.3,
   "runtime": 7.1,
-  "sidecar": 153.4
+  "sidecar": 154.0
  },
  "error": null
 }
@@ -44,15 +67,15 @@
   "kind": "decision",
   "label": "1"
  },
- "wall_ms": 2.0,
+ "wall_ms": 2.6,
  "model_calls": 0,
  "cpu_s": {
   "runtime": 0.0,
-  "sidecar": 0.0
+  "sidecar": 0.01
  },
  "rss_mib": {
   "runtime": 5.9,
-  "sidecar": 153.1
+  "sidecar": 154.0
  },
  "error": null
 }
@@ -61,7 +84,7 @@
 using recorded model draft: /home/claude/rt-wt/research/capability-learning/results/propose_qwen1.5b-q8/round_1.json
 -- model draft on the demonstrations:
 {"compiled":false,"error":"UndefinedVariable { field: \"rules[1]\", var: \"minimum\" }"}
-{"corrections": 7, "out": "/tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo/capability.json"}
+{"corrections": 7, "out": "/tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo-final/capability.json"}
 {"cases":14,"hash":"813b893ec2a43e7e61e8d8d70ca1df6c0c5138dcdb57a48b9e4fdc78ecbae908","suite":"ir-tasks-v1/validation"}
 {'passed': True, 'expert_cases': 14, 'expert_passed': 14, 'counterexamples': 4, 'suite_signature_ok': True, 'suite_independent': True, 'evidence_scope_ok': True}
 {"approver":"user:koravi-elec-authority","hash":"9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842","state":"APPROVED"}
@@ -98,8 +121,8 @@ using recorded model draft: /home/claude/rt-wt/research/capability-learning/resu
   "sidecar": 0.0
  },
  "rss_mib": {
-  "runtime": 6.2,
-  "sidecar": 153.3
+  "runtime": 6.1,
+  "sidecar": 154.1
  },
  "error": null
 }
@@ -126,15 +149,15 @@ using recorded model draft: /home/claude/rt-wt/research/capability-learning/resu
    }
   }
  },
- "wall_ms": 0.4,
+ "wall_ms": 0.3,
  "model_calls": 0,
  "cpu_s": {
   "runtime": 0.0,
   "sidecar": 0.0
  },
  "rss_mib": {
-  "runtime": 5.9,
-  "sidecar": 153.1
+  "runtime": 5.8,
+  "sidecar": 154.0
  },
  "error": null
 }
@@ -147,15 +170,15 @@ using recorded model draft: /home/claude/rt-wt/research/capability-learning/resu
   "kind": "refused",
   "refusal": "NoApplicableStrategy"
  },
- "wall_ms": 5.8,
+ "wall_ms": 3.3,
  "model_calls": 0,
  "cpu_s": {
   "runtime": 0.0,
-  "sidecar": 0.01
+  "sidecar": 0.0
  },
  "rss_mib": {
-  "runtime": 5.8,
-  "sidecar": 153.1
+  "runtime": 6.0,
+  "sidecar": 154.1
  },
  "error": null
 }
@@ -168,19 +191,20 @@ using recorded model draft: /home/claude/rt-wt/research/capability-learning/resu
   "kind": "refused",
   "refusal": "NoApplicableStrategy"
  },
- "wall_ms": 1.9,
+ "wall_ms": 3.4,
  "model_calls": 0,
  "cpu_s": {
   "runtime": 0.0,
-  "sidecar": 0.0
+  "sidecar": 0.01
  },
  "rss_mib": {
   "runtime": 5.9,
-  "sidecar": 153.2
+  "sidecar": 153.9
  },
  "error": null
 }
 {"executable":false,"hash":"9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842","id":"koravi.ep114.ir-acceptance.learned","state":"ACTIVE","version":1}
 
 === Audit chain ===
-{"chain":"ok","records":6}
+{"chain":"ok","records":7}
+page: /tmp/claude-0/-home-claude/53233163-81df-58d2-906b-c3e481129a27/scratchpad/demo-final/demo.html

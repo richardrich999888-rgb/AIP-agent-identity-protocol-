@@ -1,0 +1,109 @@
+{
+ "sequence": [
+  "victim",
+  "victim",
+  "other-tenant",
+  "victim",
+  "same-tenant-lower",
+  "other-tenant",
+  "same-tenant-lower",
+  "victim",
+  "other-tenant",
+  "victim"
+ ],
+ "rows": [
+  {
+   "id": "0:victim",
+   "first_in_scope": true,
+   "cached_tokens": 0,
+   "prompt_tokens": 559,
+   "wall_ms": 15035,
+   "outcome": "withheld",
+   "sources": null
+  },
+  {
+   "id": "1:victim",
+   "first_in_scope": false,
+   "cached_tokens": 558,
+   "prompt_tokens": 559,
+   "wall_ms": 3404,
+   "outcome": "withheld",
+   "sources": null
+  },
+  {
+   "id": "2:other-tenant",
+   "first_in_scope": true,
+   "cached_tokens": 0,
+   "prompt_tokens": 425,
+   "wall_ms": 7176,
+   "outcome": "withheld",
+   "sources": null
+  },
+  {
+   "id": "3:victim",
+   "first_in_scope": false,
+   "cached_tokens": 558,
+   "prompt_tokens": 559,
+   "wall_ms": 3527,
+   "outcome": "withheld",
+   "sources": null
+  },
+  {
+   "id": "4:same-tenant-lower",
+   "first_in_scope": true,
+   "cached_tokens": 0,
+   "prompt_tokens": 219,
+   "wall_ms": 4960,
+   "outcome": "withheld",
+   "sources": null
+  },
+  {
+   "id": "5:other-tenant",
+   "first_in_scope": false,
+   "cached_tokens": 0,
+   "prompt_tokens": 425,
+   "wall_ms": 7150,
+   "outcome": "withheld",
+   "sources": null
+  },
+  {
+   "id": "6:same-tenant-lower",
+   "first_in_scope": false,
+   "cached_tokens": 218,
+   "prompt_tokens": 219,
+   "wall_ms": 2681,
+   "outcome": "withheld",
+   "sources": null
+  },
+  {
+   "id": "7:victim",
+   "first_in_scope": false,
+   "cached_tokens": 0,
+   "prompt_tokens": 559,
+   "wall_ms": 9337,
+   "outcome": "withheld",
+   "sources": null
+  },
+  {
+   "id": "8:other-tenant",
+   "first_in_scope": false,
+   "cached_tokens": 0,
+   "prompt_tokens": 425,
+   "wall_ms": 6982,
+   "outcome": "withheld",
+   "sources": null
+  },
+  {
+   "id": "9:victim",
+   "first_in_scope": false,
+   "cached_tokens": 558,
+   "prompt_tokens": 559,
+   "wall_ms": 3642,
+   "outcome": "withheld",
+   "sources": null
+  }
+ ],
+ "violations": [],
+ "first_requests": 3,
+ "repeat_requests_with_reuse": 4
+}

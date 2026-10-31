@@ -53,6 +53,8 @@ SYNTRIASS_BIN="$BIN" python3 "$H/mkconfig.py" "$OUT/state" balanced --approvers 
 CFG="$OUT/state/config.json"
 
 SCENE=scene1; say "Scene 1 — private intelligence: an authorised engineer asks about a confidential procedure"
+ask "$KORAVI" "Under EP-114, what must happen if the winding temperature at the time of test is outside the allowed range?"
+echo "-- a question that needs arithmetic the language model did not do:"
 ask "$KORAVI" "What is the minimum insulation resistance for a 6.6 kV motor under EP-114?"
 
 SCENE=scene2; say "Scene 2 — efficient computation: a structured report decided by exact rules, no model"

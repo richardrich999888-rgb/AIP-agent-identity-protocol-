@@ -32,6 +32,14 @@ patents is as recorded in the repository; the SYNTRIASS name changes nothing.
 7. **Every tested path runs with no network route** and verifies model
    hashes before loading.
 
+8. **Pre-YC sprint (see FINAL_REPORT.md).** On a second, fresh task family
+   the engineer-taught workflow validated 12/12 and decided 26/30 unseen
+   requests (29/30 counting withholds on contradictory readings) with 0
+   incorrect positive decisions, against 1–7/30 for local-model baselines.
+   A constrained compiler made every model draft compile but none correct;
+   an evidence gate now flags every unsupported number before an expert
+   reviews it.
+
 ## Claims that must not be made
 
 - That it learns new skills autonomously (the local model's drafts all failed).
