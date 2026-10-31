@@ -1,6 +1,10 @@
 """One BitTorrent node (libtorrent 2.1.1) for the closed-network experiment.
 
-usage: bt_node.py TORRENT SAVE_DIR LISTEN_IP PEERS_CSV REPORT_JSON [--ssl CERT KEY DH]
+usage: bt_node.py TORRENT SAVE_DIR LISTEN_IP PEERS_CSV REPORT_JSON [--ssl CERT KEY DH] [--seed-mode]
+
+--seed-mode makes the node announce every piece WITHOUT hashing its local
+data (libtorrent seed_mode). Used only to emulate a malicious or faulty
+seeder serving corrupted bytes; receivers must reject them by hash.
 
 Air-gap settings: DHT, local service discovery, UPnP, NAT-PMP and peer
 exchange are disabled; the torrent is private; peers are given statically
@@ -44,6 +48,8 @@ def main() -> None:
     atp.save_path = save
     atp.flags &= ~lt.torrent_flags.auto_managed
     atp.flags &= ~lt.torrent_flags.paused
+    if "--seed-mode" in sys.argv:
+        atp.flags |= lt.torrent_flags.seed_mode
     h = ses.add_torrent(atp)
     if ssl:
         i = sys.argv.index("--ssl")

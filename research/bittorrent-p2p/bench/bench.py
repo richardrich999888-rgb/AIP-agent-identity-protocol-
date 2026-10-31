@@ -16,6 +16,9 @@ Recorded (kernel counters and /proc, not self-reports):
   peak_rss_mb           max VmHWM over node processes
   verified              every peer's file SHA-256 == published SHA-256
 Fault injection:
+  --corrupt p1         p1 starts with a full copy in which every 4th piece has
+                        flipped bytes and announces all pieces unchecked
+                        (malicious seeder; bittorrent only)
   --kill p2@0.5         SIGKILL peer p2 when it reaches 50 % (fleet time then
                         excludes p2 unless --restart, which restarts it on the
                         same partial data and measures bytes re-received)
@@ -56,7 +59,25 @@ def make_payload(path: str, size_mib: int, seed: int) -> str:
     return h.hexdigest()
 
 
-def make_torrent(payload: str, out: str, piece_kib: int = 1024) -> None:
+PIECE_KIB = 1024
+CORRUPT_EVERY = 4  # every 4th piece of the malicious copy is corrupted
+
+
+def make_corrupt_copy(src: str, dst: str, piece: int) -> int:
+    """Copy src to dst flipping one 4 KiB run in every CORRUPT_EVERY-th piece."""
+    n = 0
+    with open(src, "rb") as fi, open(dst, "wb") as fo:
+        i = 0
+        while b := fi.read(piece):
+            if i % CORRUPT_EVERY == 0:
+                b = bytes(x ^ 0xFF for x in b[:4096]) + b[4096:]
+                n += 1
+            fo.write(b)
+            i += 1
+    return n
+
+
+def make_torrent(payload: str, out: str, piece_kib: int = PIECE_KIB) -> None:
     import libtorrent as lt
 
     fs = lt.file_storage()
@@ -112,13 +133,16 @@ def run(a) -> dict:
     def start_peer(p):
         if a.method == "bittorrent":
             return testbed.spawn(p, [PY, "-I", os.path.join(HERE, "bt_node.py"), tor, dirs[p.name], p.ip,
-                                     ",".join(n.ip for n in nodes), reports[p.name]])
+                                     ",".join(n.ip for n in nodes), reports[p.name]]
+                                 + (["--seed-mode"] if p.name == a.corrupt else []))
         return testbed.spawn(p, [PY, "-I", os.path.join(HERE, "http_node.py"), "get",
                                  f"http://{src.ip}:8080/{name}", os.path.join(dirs[p.name], name), reports[p.name]])
 
     if a.method == "bittorrent":
         tor = os.path.join(WORK, "model.torrent")
         make_torrent(payload, tor)
+        if a.corrupt:
+            make_corrupt_copy(payload, os.path.join(dirs[a.corrupt], name), PIECE_KIB << 10)
         procs["src"] = testbed.spawn(src, [PY, "-I", os.path.join(HERE, "bt_node.py"), tor, pub, src.ip,
                                            ",".join(n.ip for n in nodes), os.path.join(WORK, "report-src.json")])
         time.sleep(1.0)
@@ -139,7 +163,7 @@ def run(a) -> dict:
                 pc, ph = cpu_hwm.get(name_, (0, 0))
                 cpu_hwm[name_] = (max(pc, c), max(ph, h))
         for p in peers:
-            if p.name in done or p.name == killed and not restarted:
+            if p.name in done or p.name == killed and not restarted or p.name == a.corrupt:
                 continue
             path = os.path.join(dirs[p.name], name)
             if a.method == "bittorrent":
@@ -163,7 +187,7 @@ def run(a) -> dict:
                     time.sleep(2.0)
                     procs[p.name] = start_peer(p)
                     restarted = True
-        expected = len(peers) - (1 if killed and not restarted else 0)
+        expected = len(peers) - (1 if killed and not restarted else 0) - (1 if a.corrupt else 0)
         if len(done) >= expected:
             break
         time.sleep(0.2)
@@ -180,7 +204,7 @@ def run(a) -> dict:
             pr.wait(timeout=10)
         except subprocess.TimeoutExpired:
             pr.kill()
-    verified = {p.name: sha256(os.path.join(dirs[p.name], name)) == digest for p in peers if p.name != killed or restarted}
+    verified = {p.name: sha256(os.path.join(dirs[p.name], name)) == digest for p in peers if (p.name != killed or restarted) and p.name != a.corrupt}
     hash_failures = 0
     if a.method == "bittorrent":
         for p in peers:
@@ -191,8 +215,8 @@ def run(a) -> dict:
     testbed.teardown()
     return {
         "method": a.method, "size_mib": a.size_mib, "peers": a.peers, "peer_mbit": a.peer_mbit, "src_mbit": a.src_mbit,
-        "kill": a.kill, "restart": a.restart, "killed_at_progress": locals().get("killed_at"),
-        "completed": sorted(done), "timed_out": len(done) < len(peers) - (1 if killed and not restarted else 0),
+        "kill": a.kill, "corrupt": a.corrupt, "restart": a.restart, "killed_at_progress": locals().get("killed_at"),
+        "completed": sorted(done), "timed_out": len(done) < len(peers) - (1 if killed and not restarted else 0) - (1 if a.corrupt else 0),
         "fleet_seconds": round(fleet, 2), "per_peer_seconds": {k: round(v, 2) for k, v in sorted(done.items())},
         "src_tx_bytes": tx1["src"] - tx0["src"], "total_tx_bytes": sum(tx1[n] - tx0[n] for n in tx1),
         "payload_bytes": a.size_mib << 20,
@@ -214,6 +238,7 @@ def main():
     ap.add_argument("--src-mbit", type=float, default=100)
     ap.add_argument("--kill")
     ap.add_argument("--restart", action="store_true")
+    ap.add_argument("--corrupt")
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--timeout", type=float, default=900)
     a = ap.parse_args()
