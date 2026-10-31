@@ -20,6 +20,8 @@
 //! syntriass cap-review   --config CFG --hash H             active capability vs verified experience (read-only)
 //! syntriass cap-upgrade-check --config CFG --from H1 --to H2 --suite SUITE   regressions / fixes / scope changes
 //! syntriass cap-history  --config CFG --id ID              versions, transitions, audited uses per version
+//! syntriass health --config CFG [--quick]                   install/health checks; exit 1 if any fails
+//!                                                           (--quick: skip model hashing, reported as unverified)
 //! syntriass cap-check --file CAP.json --cases JSONL   dry run: compile + label each case (no state change)
 //! ```
 //!
@@ -157,6 +159,108 @@ fn hexkey(v: &str) -> Vec<u8> {
 
 fn keys(m: &BTreeMap<String, String>) -> BTreeMap<String, Vec<u8>> {
     m.iter().map(|(k, v)| (k.clone(), hexkey(v))).collect()
+}
+
+/// Installation health: configuration files, permissions, models (hash),
+/// hardware fit for the configured profile, capability tamper state, audit
+/// chain, and absence of a default route. Each verdict is a pure function in
+/// `domain::health`; this function only gathers the inputs.
+fn health(
+    c: &FileConfig,
+    audit: &Path,
+    quick: bool,
+) -> Vec<syntriass_runtime::domain::health::Check> {
+    use std::os::unix::fs::PermissionsExt;
+    use syntriass_runtime::adapters::supervisor::file_sha256;
+    use syntriass_runtime::domain::health as h;
+    let rd = |p: &str| std::fs::read_to_string(p).unwrap_or_default();
+    let hw = h::hardware(&rd("/proc/cpuinfo"), &rd("/proc/meminfo"));
+    let mut out = vec![
+        h::cpu_ok(&hw),
+        h::offline(&rd("/proc/net/route"), &rd("/proc/net/ipv6_route")),
+    ];
+    let mode = std::fs::metadata(&c.state)
+        .map(|m| m.permissions().mode())
+        .unwrap_or(0o777);
+    out.push(h::private_mode(mode, "state"));
+    for (what, p) in [
+        ("llama_server", &c.llama_server),
+        ("python", &c.python),
+        ("sidecar_script", &c.sidecar_script),
+    ] {
+        out.push(h::Check::new(
+            &format!("file:{what}"),
+            p.is_file(),
+            p.display().to_string(),
+        ));
+    }
+    out.push(h::Check::new(
+        "corpus",
+        c.state.join("corpus.db").is_file(),
+        "corpus.db present and opened at startup",
+    ));
+    let mut models: Vec<(&str, &ModelRef)> = match c.profile.as_str() {
+        "memory" | "balanced" => vec![("q4", &c.q4)],
+        "speed" => vec![("q8", &c.q8)],
+        _ => vec![],
+    };
+    if let Some(l) = &c.large {
+        models.push(("large", l));
+    }
+    for (what, m) in models {
+        let size = std::fs::metadata(&m.path).map(|x| x.len());
+        match size {
+            Err(e) => out.push(h::Check::new(
+                &format!("model:{what}"),
+                false,
+                format!("{}: {e}", m.path.display()),
+            )),
+            Ok(n) => {
+                out.push(h::memory_fits(&hw, n, what));
+                if quick {
+                    out.push(h::Check::new(
+                        &format!("model:{what}"),
+                        false,
+                        "hash NOT verified (--quick)",
+                    ));
+                } else {
+                    let ok = file_sha256(&m.path).map(|x| x == m.sha256).unwrap_or(false);
+                    out.push(h::Check::new(
+                        &format!("model:{what}"),
+                        ok,
+                        format!(
+                            "sha256 {} {}",
+                            if ok { "matches" } else { "MISMATCH" },
+                            m.path.display()
+                        ),
+                    ));
+                }
+            }
+        }
+    }
+    match FileStore::open(&c.state.join("capabilities")).and_then(|s| Ok((s.tampered()?, s.all()?)))
+    {
+        Ok((t, all)) => {
+            let active = all.iter().filter(|r| r.executable()).count();
+            out.push(h::Check::new(
+                "capabilities",
+                t.is_empty(),
+                format!(
+                    "{} records, {active} executable, tampered: {t:?}",
+                    all.len()
+                ),
+            ));
+        }
+        Err(e) => out.push(h::Check::new("capabilities", false, e.to_string())),
+    }
+    out.push(match verify_audit_chain(audit) {
+        Ok(n) => h::Check::new("audit_chain", true, format!("{n} records verify")),
+        Err(e) if !audit.exists() => {
+            h::Check::new("audit_chain", true, format!("no audit log yet ({e})"))
+        }
+        Err(e) => h::Check::new("audit_chain", false, e),
+    });
+    out
 }
 
 fn record(c: &FileConfig, hash: &str) -> Record {
@@ -408,6 +512,14 @@ fn main() {
                     "suite": r.validation.as_ref().map(|v| v.suite_hash.clone())}));
             }
         }
+        "health" => {
+            let checks = health(&c, &audit, args.iter().any(|a| a == "--quick"));
+            let ok = checks.iter().all(|k| k.ok);
+            println!("{}", json!({"ok": ok, "checks": checks}));
+            if !ok {
+                std::process::exit(1);
+            }
+        }
         "audit-verify" => match verify_audit_chain(&audit) {
             Ok(n) => println!("{}", json!({"records": n, "chain": "ok"})),
             Err(e) => die(format!("audit chain broken: {e}")),
@@ -493,6 +605,6 @@ fn main() {
             }
             pool.shutdown().unwrap_or_else(|e| die(e));
         }
-        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-approve|cap-transition|cap-list|cap-activate|cap-rollback|exp-record|cap-review|cap-upgrade-check|cap-history} …"),
+        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-approve|cap-transition|cap-list|cap-activate|cap-rollback|exp-record|cap-review|cap-upgrade-check|cap-history|health} …"),
     }
 }
