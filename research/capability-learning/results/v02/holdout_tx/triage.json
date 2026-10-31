@@ -1,0 +1,36 @@
+{
+ "simplifications": [
+  {
+   "clause": "L6.S3",
+   "dropped_condition": {
+    "subject": "cued_1",
+    "op": ">=",
+    "against": "number",
+    "number": 1.25,
+    "unit": "none"
+   },
+   "basis": "implied by an earlier rule (precedence)"
+  }
+ ],
+ "claim_issues": [],
+ "assembly_issues": [],
+ "coverage_issues": [],
+ "field_provenance": {
+  "evidence": 32,
+  "repaired": 20,
+  "hypothesis": 0,
+  "issues": 0
+ },
+ "unsupported_numbers": [],
+ "consistency_issues": [],
+ "demo_agreement": [
+  6,
+  6
+ ],
+ "demo_disagreements": [],
+ "boundary_probes": 25,
+ "boundary_runtime_mismatch": [
+  "b-003"
+ ],
+ "status": "NEEDS_EXPERT_CLARIFICATION"
+}

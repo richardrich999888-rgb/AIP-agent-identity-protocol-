@@ -1,0 +1,78 @@
+{
+ "topic_terms": [
+  "scope",
+  "oil-immersed distribution transformers"
+ ],
+ "inputs": [
+  {
+   "ref": "voltage",
+   "unit": "kV",
+   "cues": []
+  },
+  {
+   "ref": "resistance",
+   "unit": "MΩ",
+   "cues": []
+  },
+  {
+   "ref": "temperature",
+   "unit": "°C",
+   "cues": []
+  },
+  {
+   "ref": "cued_1",
+   "unit": "none",
+   "cues": [
+    "DAR",
+    "dielectric absorption ratio"
+   ]
+  }
+ ],
+ "out_of_scope_terms": [
+  "motor",
+  "cables",
+  "generators",
+  "dry-type transformers"
+ ],
+ "out_of_scope_limits": [],
+ "missing_input_outcome": "INSUFFICIENT_INPUT",
+ "validity": [
+  {
+   "ref": "temperature",
+   "min": 0.0,
+   "max": 90.0,
+   "unit": "°C",
+   "outcome": "INVALID_TEST"
+  }
+ ],
+ "correction": {
+  "template": "none",
+  "target": "temperature",
+  "by": "temperature",
+  "reference": 0,
+  "reference_unit": "°C",
+  "rate": 0,
+  "rate_unit": "°C",
+  "base": 1,
+  "step": 1
+ },
+ "limit": {
+  "template": "none",
+  "coefficient": 0,
+  "input": "temperature",
+  "offset": 0,
+  "unit": "°C"
+ },
+ "rules": [
+  {
+   "value": "corrected",
+   "op": "<",
+   "against": "limit",
+   "number": 0,
+   "unit": "none",
+   "limit_fraction": 0.3333333333333333,
+   "outcome": "REMOVE_FROM_SERVICE"
+  }
+ ],
+ "default_outcome": "ACCEPT"
+}

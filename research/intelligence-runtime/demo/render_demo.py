@@ -140,8 +140,22 @@ def main() -> None:
              f"Break-even uses (compute only): {esc(econ.get('break_even_uses'))}.</p>"
              "<p class=warn>CPU-only research results on a 2-core, 8 GB virtual machine with 0.5–1.5B models. Human time was not measured; these are not total-cost figures.</p>"
              f"<p class=src>source: {esc(ECON)}</p>")
-    parts.append(section(5, "Compare cost", "Measured cost per correct answer against conventional local-model approaches on the same machine and tasks.", cost))
-    parts.append(section(6, "Offline operation", "Every model call runs inside a network namespace with no route out; the check below ran in that namespace.",
+    rv = load(os.path.join(S, "scene7-review.json")) or {}
+    up = load(os.path.join(S, "scene7-upgrade.json")) or {}
+    hist = jsonl(os.path.join(S, "scene7-history.jsonl"))
+    s7 = resp(first("scene7-*.json") if glob.glob(os.path.join(S, "scene7-[0-9]*.json")) else "")
+    mem = "<h3>Experience is recorded, not applied</h3>"
+    mem += "<table>" + "".join(f"<tr><th>{esc(k)}</th><td>{esc(rv.get(k))}</td></tr>" for k in ("considered", "agreed", "skipped_unverified", "skipped_other_tenant")) + "</table>"
+    mem += "<p>Disagreements with the active version: " + esc(", ".join(f"{d['experience_id']}: expected {d['expected']}, got {d['got']}" for d in rv.get("disagreements", []))) + "</p>"
+    mem += "<h3>New version checked against old and new expert cases</h3><table>"
+    mem += "".join(f"<tr><th>{esc(k)}</th><td>{esc(up.get(k))}</td></tr>" for k in ("from_version", "to_version", "cases", "old_passed", "new_passed", "acceptable", "scope_notes"))
+    mem += f"<tr><th>regressions</th><td>{len(up.get('regressions', []))}</td></tr><tr><th>fixes</th><td>{esc(', '.join(f['case_id'] for f in up.get('fixes', [])))}</td></tr></table>"
+    mem += "<h3>Request decided by the new version</h3>" + outcome(s7) + facts(s7)
+    mem += "<h3>After rollback (approver)</h3><table><tr><th>version</th><th>state</th><th>executable</th><th>audited uses</th></tr>"
+    mem += "".join(f"<tr><td>v{esc(h['version'])}</td><td>{esc(h['state'])}</td><td>{esc(h['executable'])}</td><td>{esc(h['uses'])}</td></tr>" for h in hist) + "</table>"
+    parts.append(section(5, "Organisational memory", "Verified field experience exposes a gap. An engineer proposes v2; it must pass every old and new expert case without regression, be approved, and supersede v1 — which stays available for rollback.", mem + raw(up)))
+    parts.append(section(6, "Compare cost", "Measured cost per correct answer against conventional local-model approaches on the same machine and tasks.", cost))
+    parts.append(section(7, "Offline operation", "Every model call runs inside a network namespace with no route out; the check below ran in that namespace.",
                          f"<pre>{esc(offline)}</pre>"))
     sec = ""
     labels = ["Another organisation invokes the capability", "Same organisation, lower clearance", "After tampering with the stored capability"]
@@ -149,7 +163,7 @@ def main() -> None:
         sec += f"<h3>{esc(lab)}</h3>" + outcome(r) + raw(r)
     sec += "<p>Capability record after tampering: " + esc(", ".join(f"executable={r['executable']}" for r in after)) + "</p>"
     sec += f"<p>Audit log hash chain: {esc(audit)}</p>"
-    parts.append(section(7, "Security", "Requests without authority are refused; a modified capability stops working.", sec))
+    parts.append(section(8, "Security", "Requests without authority are refused; a modified capability stops working.", sec))
     page = f"""<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
 <title>SYNTRIASS Offline Demo</title><style>
 :root{{--bg:#fbfaf7;--fg:#1d1d1b;--mute:#5f5e58;--line:#dedbd2;--acc:#1f5f8b;--ok:#2d6a3e;--bad:#9b2c2c}}

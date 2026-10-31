@@ -1,0 +1,208 @@
+{
+ "simplifications": [],
+ "claim_issues": [
+  {
+   "clause": "L1.S0",
+   "kind": "scope_limit",
+   "text": "Scope: oil-immersed distribution transformers rated up to and including 33 kV.",
+   "field": "ref",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "resistance",
+   "clause_value": "voltage"
+  },
+  {
+   "clause": "L1.S0",
+   "kind": "scope_limit",
+   "text": "Scope: oil-immersed distribution transformers rated up to and including 33 kV.",
+   "field": "op",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": ">",
+   "clause_value": "<="
+  },
+  {
+   "clause": "L1.S0",
+   "kind": "scope_limit",
+   "text": "Scope: oil-immersed distribution transformers rated up to and including 33 kV.",
+   "field": "meaning",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "out_of_scope_when_true",
+   "clause_value": "in_scope_when_true"
+  },
+  {
+   "clause": "L1.S2",
+   "kind": "scope_limit",
+   "text": "Transformers rated above 33 kV are out of scope.",
+   "field": "ref",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "temperature",
+   "clause_value": "voltage"
+  },
+  {
+   "clause": "L4.S0",
+   "kind": "correction",
+   "text": "Step 2 temperature correction: correct the insulation resistance to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15.",
+   "field": "base",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": 15.0,
+   "clause_value": 2.0
+  },
+  {
+   "clause": "L5.S0",
+   "kind": "limit",
+   "text": "Step 3 minimum: the minimum acceptable corrected resistance is 20 times (rated kV plus 2) megohms.",
+   "field": "template",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "constant",
+   "clause_value": "coefficient_times_input_plus_offset"
+  },
+  {
+   "clause": "L5.S0",
+   "kind": "limit",
+   "text": "Step 3 minimum: the minimum acceptable corrected resistance is 20 times (rated kV plus 2) megohms.",
+   "field": "coefficient",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": 2.0,
+   "clause_value": 20.0
+  },
+  {
+   "clause": "L5.S0",
+   "kind": "limit",
+   "text": "Step 3 minimum: the minimum acceptable corrected resistance is 20 times (rated kV plus 2) megohms.",
+   "field": "offset",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": 20.0,
+   "clause_value": 2.0
+  },
+  {
+   "clause": "L5.S0",
+   "kind": "limit",
+   "text": "Step 3 minimum: the minimum acceptable corrected resistance is 20 times (rated kV plus 2) megohms.",
+   "field": "input",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "temperature",
+   "clause_value": "voltage"
+  },
+  {
+   "clause": "L6.S1",
+   "kind": "decision_rule",
+   "text": "If it is below the minimum, dry out the oil and retest.",
+   "field": "outcome",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "REMOVE_FROM_SERVICE",
+   "clause_value": "DRY_OUT_OIL"
+  },
+  {
+   "clause": "L6.S2",
+   "kind": "decision_rule",
+   "text": "If DAR is below 1.25, investigate.",
+   "field": "conditions",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": [
+    {
+     "subject": "corrected",
+     "op": "<",
+     "against": "limit",
+     "number": 0.0
+    },
+    {
+     "subject": "corrected",
+     "op": "<",
+     "against": "limit",
+     "number": 1.25
+    }
+   ],
+   "clause_value": "one condition per comparator phrase"
+  },
+  {
+   "clause": "L6.S2",
+   "kind": "decision_rule",
+   "text": "If DAR is below 1.25, investigate.",
+   "field": "conditions[0].subject",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "corrected",
+   "clause_value": "cued_1"
+  },
+  {
+   "clause": "L6.S2",
+   "kind": "decision_rule",
+   "text": "If DAR is below 1.25, investigate.",
+   "field": "conditions[0].against",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "limit",
+   "clause_value": "number"
+  },
+  {
+   "clause": "L6.S2",
+   "kind": "decision_rule",
+   "text": "If DAR is below 1.25, investigate.",
+   "field": "conditions[0].number",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": 0.0,
+   "clause_value": 1.25
+  },
+  {
+   "clause": "L6.S2",
+   "kind": "decision_rule",
+   "text": "If DAR is below 1.25, investigate.",
+   "field": "outcome",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "INSUFFICIENT_INPUT",
+   "clause_value": "INVESTIGATE"
+  },
+  {
+   "clause": "L6.S3",
+   "kind": "decision_rule",
+   "text": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+   "field": "conditions[0].subject",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "corrected",
+   "clause_value": "cued_1"
+  },
+  {
+   "clause": "L6.S3",
+   "kind": "decision_rule",
+   "text": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+   "field": "conditions[0].against",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "limit",
+   "clause_value": "number"
+  },
+  {
+   "clause": "L6.S3",
+   "kind": "decision_rule",
+   "text": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+   "field": "conditions[1].op",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": ">=",
+   "clause_value": "<"
+  },
+  {
+   "clause": "L6.S3",
+   "kind": "decision_rule",
+   "text": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+   "field": "conditions[1].subject",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "corrected",
+   "clause_value": "cued_1"
+  },
+  {
+   "clause": "L6.S3",
+   "kind": "decision_rule",
+   "text": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+   "field": "conditions[1].against",
+   "issue": "model value differs from clause (repair disabled)",
+   "value": "limit",
+   "clause_value": "number"
+  }
+ ],
+ "assembly_issues": [],
+ "coverage_issues": [],
+ "field_provenance": {
+  "evidence": 33,
+  "repaired": 19,
+  "hypothesis": 0,
+  "issues": 20
+ },
+ "compile_error": "IRError: rules use 'corrected' but correction.template is 'none'",
+ "status": "NEEDS_EXPERT_CLARIFICATION"
+}

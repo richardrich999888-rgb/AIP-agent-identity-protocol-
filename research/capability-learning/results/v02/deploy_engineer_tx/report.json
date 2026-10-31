@@ -1,0 +1,34 @@
+{
+ "task": "tx-tasks-v1",
+ "capability_file": "results/v02/engineer_tx/capability.json",
+ "lifecycle": {
+  "hash": "6c99e5b4a6342170a1e87fbff8977b9f24346c043afcca2679747f598b424420",
+  "validation": {
+   "capability_hash": "6c99e5b4a6342170a1e87fbff8977b9f24346c043afcca2679747f598b424420",
+   "suite_hash": "b5415cd7732f666dc3941e1d1bcc7d5b74c39ae5405a6ec1207ffddd2102fffc",
+   "suite_expert": "expert:halvorn-power-lead",
+   "suite_signature_ok": true,
+   "suite_independent": true,
+   "compiled": true,
+   "compile_error": null,
+   "expert_cases": 12,
+   "expert_passed": 11,
+   "counterexamples": 5,
+   "counterexamples_passed": 4,
+   "artifact_cases": 0,
+   "artifact_passed": 0,
+   "artifact_claimed_expert": 0,
+   "evidence_scope_ok": true,
+   "failures": [
+    {
+     "id": "val-08",
+     "expected": "INVALID_TEST",
+     "got": "INSUFFICIENT_INPUT",
+     "origin": "suite"
+    }
+   ],
+   "passed": false,
+   "wall_micros": 377
+  }
+ }
+}

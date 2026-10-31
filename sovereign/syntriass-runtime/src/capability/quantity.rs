@@ -100,12 +100,24 @@ pub fn numbers(chars: &[char]) -> Vec<NumberAt> {
     let mut i = 0;
     while i < chars.len() {
         let c = chars[i];
-        let prev_ok = i == 0 || {
+        // A minus sign ('-' or U+2212) is part of the number only when it
+        // starts a token ("at -5 °C", "(-2 C)"): codes ("M-7") and ranges
+        // ("90-100") keep the digit-adjacent '-' and stay excluded below.
+        let sign_here = (c == '-' || c == '\u{2212}')
+            && i + 1 < chars.len()
+            && chars[i + 1].is_ascii_digit()
+            && (i == 0 || chars[i - 1].is_whitespace() || chars[i - 1] == '(');
+        if sign_here {
+            i += 1;
+        }
+        let negative = sign_here;
+        let prev_ok = negative || i == 0 || {
             let p = chars[i - 1];
             !(p.is_alphanumeric() || p == '-' || p == '.' || p == ':')
         };
-        if c.is_ascii_digit() && prev_ok {
-            let start = i;
+        if chars[i].is_ascii_digit() && prev_ok {
+            let start = if negative { i - 1 } else { i };
+            let digits = i;
             while i < chars.len() && chars[i].is_ascii_digit() {
                 i += 1;
             }
@@ -120,10 +132,10 @@ pub fn numbers(chars: &[char]) -> Vec<NumberAt> {
             if i < chars.len() && (chars[i] == ':' || chars[i].is_ascii_digit()) {
                 continue;
             }
-            let s: String = chars[start..i].iter().collect();
+            let s: String = chars[digits..i].iter().collect();
             if let Ok(v) = s.parse::<f64>() {
                 out.push(NumberAt {
-                    value: v,
+                    value: if negative { -v } else { v },
                     start,
                     end: i,
                 });
@@ -271,6 +283,29 @@ mod tests {
             vec![(Kind::Resistance, 300.0), (Kind::Temperature, 42.0)]
         );
         assert_eq!(kinds("50 deg C"), vec![(Kind::Temperature, 50.0)]);
+    }
+
+    /// Regression (v0.2 holdout): "-2 C" was not read, so an out-of-range
+    /// temperature became INSUFFICIENT_INPUT instead of INVALID_TEST. Found
+    /// first by a generated boundary probe, then by the expert suite (val-08).
+    #[test]
+    fn negative_temperatures_are_read_but_codes_and_ranges_are_not() {
+        assert_eq!(
+            kinds("700 megohms at -2 C"),
+            vec![(Kind::Resistance, 700.0), (Kind::Temperature, -2.0)]
+        );
+        assert_eq!(kinds("oil at −5 °C"), vec![(Kind::Temperature, -5.0)]);
+        assert_eq!(kinds("(-40 °F)"), vec![(Kind::Temperature, -40.0)]);
+        assert!(kinds("TX-38 M-7 at 14:30").is_empty());
+        assert!(
+            kinds("range 90-100 C").iter().all(|q| q.1 >= 0.0),
+            "a range dash is not a sign"
+        );
+        assert_eq!(
+            kinds("- 5 C"),
+            vec![(Kind::Temperature, 5.0)],
+            "a detached dash is not a sign"
+        );
     }
 
     #[test]
