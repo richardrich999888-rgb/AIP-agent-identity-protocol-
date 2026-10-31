@@ -1,0 +1,126 @@
+{
+ "experiment": "specdec",
+ "env": {
+  "model": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+  "model_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+  "host": "vm",
+  "cpus": 2,
+  "kernel": "6.18.44-fc-v185",
+  "seed": 20261031,
+  "ctx": 4096,
+  "time": "2026-10-31T07:11:39Z",
+  "server": "/home/claude/vanian-build/build-llama-native/bin/llama-server",
+  "llama_args": []
+ },
+ "result": {
+  "baseline": {
+   "load_s": 1.7668388619986217,
+   "rows": [
+    {
+     "wall_s": 12.109508478999487,
+     "prompt_n": 66,
+     "prompt_ms": 939.025,
+     "predicted_n": 128,
+     "predicted_ms": 11168.259,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 193,
+     "content": " 1. Sensor inspection: 2. Motor maintenance: 3. Transformer maintenance: 4. Generator maintenance: 5. Water level monitoring: 6. Motor calibration: 7. Valve maintenance: 8. Pressure monitoring: 9. Current monitoring: 10. Vibration monitoring: 11. Seal maintenance: 12. Part deviation: 13. Part replacement: 14. Part reading: 15. Part deviation: 16. Part replacement: 17. Part reading: 18. Part deviation: 19. Part replacement: 2"
+    },
+    {
+     "wall_s": 12.066862233999927,
+     "prompt_n": 66,
+     "prompt_ms": 900.021,
+     "predicted_n": 128,
+     "predicted_ms": 11164.519,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 193,
+     "content": " The maintenance summary is a document that summarizes the maintenance activities and results of a specific period. It is typically used to provide a comprehensive overview of the maintenance activities and their outcomes. The maintenance summary is usually prepared by the maintenance team or a designated person. The summary should include the following information: 1. The period for which the maintenance summary is prepared. 2. The maintenance activities carried out during the period. 3. The results of the maintenance activities. 4. Any issues or problems encountered during the maintenance activities. 5. Any corrective actions taken to address the issues or problems. 6. Any lessons learned from the"
+    },
+    {
+     "wall_s": 11.661528090999127,
+     "prompt_n": 67,
+     "prompt_ms": 905.012,
+     "predicted_n": 128,
+     "predicted_ms": 10753.965,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 194,
+     "content": " The summary should include the following: the equipment, the problem, the action taken, the outcome, and the next steps. The summary should be written in a clear and concise style. The summary should be written in a clear and concise style. The equipment is the transformer. The problem is the transformer is overheating. The action taken is to check the cooling system and adjust the cooling settings. The outcome is that the transformer is now within acceptable temperature limits. The next steps are to continue monitoring the transformer and make any necessary adjustments to the cooling system. The summary should be written in a clear and concise style. The equipment is the transformer"
+    }
+   ],
+   "server": {
+    "minflt": 297355,
+    "majflt": 0,
+    "cpu_s": 74.15,
+    "VmSize": 2694.05078125,
+    "VmHWM": 2074.18359375,
+    "VmRSS": 2010.9453125,
+    "RssAnon": 1123.75390625,
+    "RssFile": 887.19140625,
+    "RssShmem": 0.0,
+    "Pss": 1603.4599609375,
+    "Pss_Anon": 1123.75390625,
+    "Pss_File": 479.7060546875
+   }
+  },
+  "draft": {
+   "load_s": 1.4969775560002745,
+   "rows": [
+    {
+     "wall_s": 11.442136002999177,
+     "prompt_n": 66,
+     "prompt_ms": 940.585,
+     "predicted_n": 128,
+     "predicted_ms": 10499.238,
+     "draft_n": 94,
+     "draft_n_accepted": 84,
+     "tokens_cached": 193,
+     "content": " 1. Check the sensor seal. 2. Check the current trend. 3. Check the motor voltage. 4. Check the water level. 5. Check the transformer pressure. 6. Check the motor shift. 7. Check the vibration. 8. Check the seal procedure. 9. Check the sensor reading. 10. Check the motor current. 11. Check the motor low voltage. 12. Check the motor shift. 13. Check the transformer pressure. 14. Check the transformer maintenance. 15. Check the transformer calibration."
+    },
+    {
+     "wall_s": 15.34169995800039,
+     "prompt_n": 66,
+     "prompt_ms": 868.991,
+     "predicted_n": 128,
+     "predicted_ms": 14470.025,
+     "draft_n": 69,
+     "draft_n_accepted": 43,
+     "tokens_cached": 193,
+     "content": " The maintenance summary for the week is as follows: The alarm valve shift was approved, and the spare operator level was low. The high temperature and high voltage were corrected, and the spare motor pump was calibrated. The corrective reading was approved, and the calibration was calibrated. The unit current generator seal was reported, and the trend deviation threshold was set. The vibration oil was oil approved, and the oil was calibrated. The operator maintenance record was checked, and the bearing alarm was checked. The unit high operator maintenance record was checked, and the seal level was low. The corrective inspection was approved, and the unit current deviation was low."
+    },
+    {
+     "wall_s": 12.778548067999509,
+     "prompt_n": 67,
+     "prompt_ms": 875.081,
+     "predicted_n": 128,
+     "predicted_ms": 11900.083,
+     "draft_n": 88,
+     "draft_n_accepted": 72,
+     "tokens_cached": 194,
+     "content": " The summary should include the following: the equipment, the maintenance activities, the maintenance schedule, the maintenance personnel, the maintenance tools, the maintenance equipment, the maintenance frequency, the maintenance cost, the maintenance time, the maintenance quality, the maintenance personnel's qualifications, the maintenance personnel's experience, the maintenance personnel's training, the maintenance personnel's certification, the maintenance personnel's performance, the maintenance personnel's attitude, the maintenance personnel's motivation, the maintenance personnel's communication skills, the maintenance personnel's problem-solving skills, the maintenance personnel's decision-making skills, the maintenance personnel's ability to work under pressure"
+    }
+   ],
+   "server": {
+    "minflt": 386264,
+    "majflt": 2,
+    "cpu_s": 80.93,
+    "VmSize": 3655.29296875,
+    "VmHWM": 2735.6875,
+    "VmRSS": 2667.13671875,
+    "RssAnon": 1455.2265625,
+    "RssFile": 1211.91015625,
+    "RssShmem": 0.0,
+    "Pss": 2259.7177734375,
+    "Pss_Anon": 1455.2265625,
+    "Pss_File": 804.4912109375
+   }
+  },
+  "outputs_identical": [
+   false,
+   false,
+   false
+  ]
+ }
+}

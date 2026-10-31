@@ -1,0 +1,113 @@
+{
+ "experiment": "throughput",
+ "env": {
+  "model": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+  "model_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+  "host": "vm",
+  "cpus": 2,
+  "kernel": "6.18.44-fc-v185",
+  "seed": 20261031,
+  "ctx": 4096,
+  "time": "2026-10-31T06:44:39Z",
+  "server": "/home/claude/vanian-build/build-llama-native/bin/llama-server",
+  "llama_args": []
+ },
+ "result": {
+  "rows": [
+   {
+    "n_prompt": 128,
+    "n_gen": 64,
+    "rep": 0,
+    "prefill_tok_s": 109.85238585650532,
+    "decode_tok_s": 11.955220228232625,
+    "prompt_ms": 1165.2,
+    "predicted_ms": 5353.31,
+    "wall_s": 6.52388076600073
+   },
+   {
+    "n_prompt": 128,
+    "n_gen": 64,
+    "rep": 1,
+    "prefill_tok_s": 108.57671199178888,
+    "decode_tok_s": 11.622638357067427,
+    "prompt_ms": 1178.89,
+    "predicted_ms": 5506.495,
+    "wall_s": 6.688070677000724
+   },
+   {
+    "n_prompt": 512,
+    "n_gen": 64,
+    "rep": 0,
+    "prefill_tok_s": 98.23544580473249,
+    "decode_tok_s": 10.949763681858038,
+    "prompt_ms": 5211.968,
+    "predicted_ms": 5844.875,
+    "wall_s": 11.060918498998944
+   },
+   {
+    "n_prompt": 512,
+    "n_gen": 64,
+    "rep": 1,
+    "prefill_tok_s": 99.37504354936601,
+    "decode_tok_s": 11.011963293685104,
+    "prompt_ms": 5152.199,
+    "predicted_ms": 5811.861,
+    "wall_s": 10.968186169000546
+   },
+   {
+    "n_prompt": 1536,
+    "n_gen": 64,
+    "rep": 0,
+    "prefill_tok_s": 91.84758777798022,
+    "decode_tok_s": 10.566259029198536,
+    "prompt_ms": 16723.357,
+    "predicted_ms": 6057.016,
+    "wall_s": 22.792013176998807
+   },
+   {
+    "n_prompt": 1536,
+    "n_gen": 64,
+    "rep": 1,
+    "prefill_tok_s": 89.81143107732788,
+    "decode_tok_s": 10.419095075544952,
+    "prompt_ms": 17102.5,
+    "predicted_ms": 6142.568,
+    "wall_s": 23.256000063998727
+   },
+   {
+    "n_prompt": 128,
+    "n_gen": 256,
+    "rep": 0,
+    "prefill_tok_s": 103.18037380314796,
+    "decode_tok_s": 10.753448790648667,
+    "prompt_ms": 1240.546,
+    "predicted_ms": 23806.316,
+    "wall_s": 25.049431871000706
+   },
+   {
+    "n_prompt": 128,
+    "n_gen": 256,
+    "rep": 1,
+    "prefill_tok_s": 100.74504106147494,
+    "decode_tok_s": 10.320256506750395,
+    "prompt_ms": 1270.534,
+    "predicted_ms": 24805.585,
+    "wall_s": 26.079108251000434
+   }
+  ],
+  "server_after": {
+   "minflt": 323853,
+   "majflt": 0,
+   "cpu_s": 311.93,
+   "VmSize": 2712.05078125,
+   "VmHWM": 2084.6015625,
+   "VmRSS": 2084.6015625,
+   "RssAnon": 1198.0625,
+   "RssFile": 886.5390625,
+   "RssShmem": 0.0,
+   "Pss": 2082.62890625,
+   "Pss_Anon": 1198.0625,
+   "Pss_File": 884.56640625
+  }
+ }
+}

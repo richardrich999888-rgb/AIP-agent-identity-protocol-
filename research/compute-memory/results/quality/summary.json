@@ -1,4 +1,168 @@
 {
+  "qwen0.5b_q4_native_repack": {
+    "meta": {
+      "model": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+      "client_peak_rss_mb": 38.13671875,
+      "server_peak_rss_mb": 753.7421875,
+      "load_seconds": 0.0165755040015938,
+      "train_seconds": null
+    },
+    "hard_v4": {
+      "n": 39,
+      "decision_acc": 0.1794871794871795,
+      "released": 39,
+      "correct_release": 7,
+      "wrong_release": 32,
+      "correct_abstain": 0,
+      "abstain_items": 13,
+      "coverage": 0.2692307692307692,
+      "coverage_ci95": [
+        0.11538461538461539,
+        0.46153846153846156
+      ],
+      "release_precision": 0.1794871794871795,
+      "extraction_exact": 0.07692307692307693,
+      "tokens_mean": 21.53846153846154,
+      "p50_ms": 1351.6868959995918,
+      "p95_ms": 2135.739921300047,
+      "p99_ms": 2669.8297764604645,
+      "decisions_per_s": 0.6907598753174522,
+      "by_category": {
+        "abstain_ambiguous": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_no_value": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_unknown_equipment": {
+          "n": 7,
+          "correct": 0,
+          "wrong_release": 7
+        },
+        "conversion": {
+          "n": 2,
+          "correct": 0,
+          "wrong_release": 2
+        },
+        "descriptive": {
+          "n": 5,
+          "correct": 2,
+          "wrong_release": 3
+        },
+        "distractor": {
+          "n": 6,
+          "correct": 1,
+          "wrong_release": 5
+        },
+        "mixed_lang": {
+          "n": 3,
+          "correct": 2,
+          "wrong_release": 1
+        },
+        "multi": {
+          "n": 3,
+          "correct": 1,
+          "wrong_release": 2
+        },
+        "no_unit": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "noisy": {
+          "n": 4,
+          "correct": 1,
+          "wrong_release": 3
+        }
+      }
+    }
+  },
+  "qwen0.5b_q8_native_repack": {
+    "meta": {
+      "model": "qwen2.5-0.5b-instruct-q8_0.gguf",
+      "client_peak_rss_mb": 38.08984375,
+      "server_peak_rss_mb": 1263.8203125,
+      "load_seconds": 0.017239107999557746,
+      "train_seconds": null
+    },
+    "hard_v4": {
+      "n": 39,
+      "decision_acc": 0.15384615384615385,
+      "released": 39,
+      "correct_release": 6,
+      "wrong_release": 33,
+      "correct_abstain": 0,
+      "abstain_items": 13,
+      "coverage": 0.23076923076923078,
+      "coverage_ci95": [
+        0.07692307692307693,
+        0.4230769230769231
+      ],
+      "release_precision": 0.15384615384615385,
+      "extraction_exact": 0.07692307692307693,
+      "tokens_mean": 19.794871794871796,
+      "p50_ms": 689.3219779994979,
+      "p95_ms": 790.6607160000933,
+      "p99_ms": 996.7912879601496,
+      "decisions_per_s": 1.4070976328912177,
+      "by_category": {
+        "abstain_ambiguous": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_no_value": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_unknown_equipment": {
+          "n": 7,
+          "correct": 0,
+          "wrong_release": 7
+        },
+        "conversion": {
+          "n": 2,
+          "correct": 0,
+          "wrong_release": 2
+        },
+        "descriptive": {
+          "n": 5,
+          "correct": 2,
+          "wrong_release": 3
+        },
+        "distractor": {
+          "n": 6,
+          "correct": 1,
+          "wrong_release": 5
+        },
+        "mixed_lang": {
+          "n": 3,
+          "correct": 1,
+          "wrong_release": 2
+        },
+        "multi": {
+          "n": 3,
+          "correct": 1,
+          "wrong_release": 2
+        },
+        "no_unit": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "noisy": {
+          "n": 4,
+          "correct": 1,
+          "wrong_release": 3
+        }
+      }
+    }
+  },
   "qwen1.5b_base_norepack": {
     "meta": {
       "model": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
@@ -323,6 +487,252 @@
           "n": 4,
           "correct": 2,
           "wrong_release": 2
+        }
+      }
+    }
+  },
+  "qwen1.5b_q8_native_repack": {
+    "meta": {
+      "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+      "client_peak_rss_mb": 37.80078125,
+      "server_peak_rss_mb": 3303.5234375,
+      "load_seconds": 0.020550867999190814,
+      "train_seconds": null
+    },
+    "hard_v4": {
+      "n": 39,
+      "decision_acc": 0.6153846153846154,
+      "released": 39,
+      "correct_release": 24,
+      "wrong_release": 15,
+      "correct_abstain": 0,
+      "abstain_items": 13,
+      "coverage": 0.9230769230769231,
+      "coverage_ci95": [
+        0.7298076923076924,
+        1.1538461538461537
+      ],
+      "release_precision": 0.6153846153846154,
+      "extraction_exact": 0.5897435897435898,
+      "tokens_mean": 24.94871794871795,
+      "p50_ms": 2316.974224999285,
+      "p95_ms": 3639.1328964986315,
+      "p99_ms": 4248.793274779562,
+      "decisions_per_s": 0.3907996710992316,
+      "by_category": {
+        "abstain_ambiguous": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_no_value": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_unknown_equipment": {
+          "n": 7,
+          "correct": 0,
+          "wrong_release": 7
+        },
+        "conversion": {
+          "n": 2,
+          "correct": 1,
+          "wrong_release": 1
+        },
+        "descriptive": {
+          "n": 5,
+          "correct": 5,
+          "wrong_release": 0
+        },
+        "distractor": {
+          "n": 6,
+          "correct": 6,
+          "wrong_release": 0
+        },
+        "mixed_lang": {
+          "n": 3,
+          "correct": 3,
+          "wrong_release": 0
+        },
+        "multi": {
+          "n": 3,
+          "correct": 3,
+          "wrong_release": 0
+        },
+        "no_unit": {
+          "n": 3,
+          "correct": 3,
+          "wrong_release": 0
+        },
+        "noisy": {
+          "n": 4,
+          "correct": 3,
+          "wrong_release": 1
+        }
+      }
+    }
+  },
+  "qwen0.5b_q4_native_repack+gate": {
+    "meta": {
+      "model": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+      "client_peak_rss_mb": 38.13671875,
+      "server_peak_rss_mb": 753.7421875,
+      "load_seconds": 0.0165755040015938,
+      "train_seconds": null
+    },
+    "hard_v4": {
+      "n": 39,
+      "decision_acc": 0.3076923076923077,
+      "released": 34,
+      "correct_release": 7,
+      "wrong_release": 27,
+      "correct_abstain": 5,
+      "abstain_items": 13,
+      "coverage": 0.2692307692307692,
+      "coverage_ci95": [
+        0.11538461538461539,
+        0.46153846153846156
+      ],
+      "release_precision": 0.20588235294117646,
+      "extraction_exact": 0.20512820512820512,
+      "tokens_mean": 21.53846153846154,
+      "p50_ms": 1351.6868959995918,
+      "p95_ms": 2135.739921300047,
+      "p99_ms": 2669.8297764604645,
+      "decisions_per_s": 0.6907598753174522,
+      "by_category": {
+        "abstain_ambiguous": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_no_value": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_unknown_equipment": {
+          "n": 7,
+          "correct": 5,
+          "wrong_release": 2
+        },
+        "conversion": {
+          "n": 2,
+          "correct": 0,
+          "wrong_release": 2
+        },
+        "descriptive": {
+          "n": 5,
+          "correct": 2,
+          "wrong_release": 3
+        },
+        "distractor": {
+          "n": 6,
+          "correct": 1,
+          "wrong_release": 5
+        },
+        "mixed_lang": {
+          "n": 3,
+          "correct": 2,
+          "wrong_release": 1
+        },
+        "multi": {
+          "n": 3,
+          "correct": 1,
+          "wrong_release": 2
+        },
+        "no_unit": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "noisy": {
+          "n": 4,
+          "correct": 1,
+          "wrong_release": 3
+        }
+      }
+    }
+  },
+  "qwen0.5b_q8_native_repack+gate": {
+    "meta": {
+      "model": "qwen2.5-0.5b-instruct-q8_0.gguf",
+      "client_peak_rss_mb": 38.08984375,
+      "server_peak_rss_mb": 1263.8203125,
+      "load_seconds": 0.017239107999557746,
+      "train_seconds": null
+    },
+    "hard_v4": {
+      "n": 39,
+      "decision_acc": 0.28205128205128205,
+      "released": 34,
+      "correct_release": 6,
+      "wrong_release": 28,
+      "correct_abstain": 5,
+      "abstain_items": 13,
+      "coverage": 0.23076923076923078,
+      "coverage_ci95": [
+        0.07692307692307693,
+        0.4230769230769231
+      ],
+      "release_precision": 0.17647058823529413,
+      "extraction_exact": 0.20512820512820512,
+      "tokens_mean": 19.794871794871796,
+      "p50_ms": 689.3219779994979,
+      "p95_ms": 790.6607160000933,
+      "p99_ms": 996.7912879601496,
+      "decisions_per_s": 1.4070976328912177,
+      "by_category": {
+        "abstain_ambiguous": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_no_value": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_unknown_equipment": {
+          "n": 7,
+          "correct": 5,
+          "wrong_release": 2
+        },
+        "conversion": {
+          "n": 2,
+          "correct": 0,
+          "wrong_release": 2
+        },
+        "descriptive": {
+          "n": 5,
+          "correct": 2,
+          "wrong_release": 3
+        },
+        "distractor": {
+          "n": 6,
+          "correct": 1,
+          "wrong_release": 5
+        },
+        "mixed_lang": {
+          "n": 3,
+          "correct": 1,
+          "wrong_release": 2
+        },
+        "multi": {
+          "n": 3,
+          "correct": 1,
+          "wrong_release": 2
+        },
+        "no_unit": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "noisy": {
+          "n": 4,
+          "correct": 1,
+          "wrong_release": 3
         }
       }
     }
@@ -655,7 +1065,281 @@
       }
     }
   },
+  "qwen1.5b_q8_native_repack+gate": {
+    "meta": {
+      "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+      "client_peak_rss_mb": 37.80078125,
+      "server_peak_rss_mb": 3303.5234375,
+      "load_seconds": 0.020550867999190814,
+      "train_seconds": null
+    },
+    "hard_v4": {
+      "n": 39,
+      "decision_acc": 0.7435897435897436,
+      "released": 34,
+      "correct_release": 24,
+      "wrong_release": 10,
+      "correct_abstain": 5,
+      "abstain_items": 13,
+      "coverage": 0.9230769230769231,
+      "coverage_ci95": [
+        0.7298076923076924,
+        1.1538461538461537
+      ],
+      "release_precision": 0.7058823529411765,
+      "extraction_exact": 0.717948717948718,
+      "tokens_mean": 24.94871794871795,
+      "p50_ms": 2316.974224999285,
+      "p95_ms": 3639.1328964986315,
+      "p99_ms": 4248.793274779562,
+      "decisions_per_s": 0.3907996710992316,
+      "by_category": {
+        "abstain_ambiguous": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_no_value": {
+          "n": 3,
+          "correct": 0,
+          "wrong_release": 3
+        },
+        "abstain_unknown_equipment": {
+          "n": 7,
+          "correct": 5,
+          "wrong_release": 2
+        },
+        "conversion": {
+          "n": 2,
+          "correct": 1,
+          "wrong_release": 1
+        },
+        "descriptive": {
+          "n": 5,
+          "correct": 5,
+          "wrong_release": 0
+        },
+        "distractor": {
+          "n": 6,
+          "correct": 6,
+          "wrong_release": 0
+        },
+        "mixed_lang": {
+          "n": 3,
+          "correct": 3,
+          "wrong_release": 0
+        },
+        "multi": {
+          "n": 3,
+          "correct": 3,
+          "wrong_release": 0
+        },
+        "no_unit": {
+          "n": 3,
+          "correct": 3,
+          "wrong_release": 0
+        },
+        "noisy": {
+          "n": 4,
+          "correct": 3,
+          "wrong_release": 1
+        }
+      }
+    }
+  },
   "_paired_decision_acc": {
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen0.5b_q8_native_repack": {
+      "diff": 0.025641025641025633,
+      "ci95": [
+        0.0,
+        0.07692307692307693
+      ],
+      "p_a_not_better": 0.3785
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen1.5b_base_norepack": {
+      "diff": -0.3589743589743589,
+      "ci95": [
+        -0.5128205128205129,
+        -0.20512820512820512
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen1.5b_base_repack_iter2": {
+      "diff": -0.3846153846153846,
+      "ci95": [
+        -0.5384615384615385,
+        -0.23076923076923073
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen1.5b_native_norepack": {
+      "diff": -0.3589743589743589,
+      "ci95": [
+        -0.5134615384615385,
+        -0.20512820512820512
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen1.5b_native_repack": {
+      "diff": -0.3846153846153846,
+      "ci95": [
+        -0.5384615384615385,
+        -0.23076923076923073
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen1.5b_q8_native_repack": {
+      "diff": -0.4358974358974359,
+      "ci95": [
+        -0.5897435897435898,
+        -0.28205128205128205
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen0.5b_q4_native_repack+gate": {
+      "diff": -0.12820512820512822,
+      "ci95": [
+        -0.23076923076923078,
+        -0.02564102564102566
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen0.5b_q8_native_repack+gate": {
+      "diff": -0.10256410256410256,
+      "ci95": [
+        -0.23076923076923078,
+        0.0
+      ],
+      "p_a_not_better": 0.9765
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen1.5b_base_norepack+gate": {
+      "diff": -0.4871794871794871,
+      "ci95": [
+        -0.6410256410256411,
+        -0.3333333333333333
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen1.5b_base_repack_iter2+gate": {
+      "diff": -0.5128205128205128,
+      "ci95": [
+        -0.6666666666666667,
+        -0.3589743589743589
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen1.5b_native_norepack+gate": {
+      "diff": -0.4871794871794871,
+      "ci95": [
+        -0.6410256410256411,
+        -0.3333333333333333
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen1.5b_native_repack+gate": {
+      "diff": -0.5128205128205128,
+      "ci95": [
+        -0.6666666666666667,
+        -0.3589743589743589
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.5641025641025641,
+      "ci95": [
+        -0.717948717948718,
+        -0.4102564102564103
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen1.5b_base_norepack": {
+      "diff": -0.3846153846153846,
+      "ci95": [
+        -0.5384615384615385,
+        -0.23076923076923075
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen1.5b_base_repack_iter2": {
+      "diff": -0.41025641025641024,
+      "ci95": [
+        -0.5641025641025641,
+        -0.2564102564102564
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen1.5b_native_norepack": {
+      "diff": -0.3846153846153846,
+      "ci95": [
+        -0.5384615384615385,
+        -0.23076923076923075
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen1.5b_native_repack": {
+      "diff": -0.41025641025641024,
+      "ci95": [
+        -0.5641025641025641,
+        -0.2564102564102564
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen1.5b_q8_native_repack": {
+      "diff": -0.46153846153846156,
+      "ci95": [
+        -0.6153846153846154,
+        -0.3076923076923077
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen0.5b_q8_native_repack+gate": {
+      "diff": -0.1282051282051282,
+      "ci95": [
+        -0.23076923076923078,
+        -0.02564102564102566
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen1.5b_base_norepack+gate": {
+      "diff": -0.5128205128205128,
+      "ci95": [
+        -0.6666666666666667,
+        -0.3589743589743589
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen1.5b_base_repack_iter2+gate": {
+      "diff": -0.5384615384615384,
+      "ci95": [
+        -0.6923076923076923,
+        -0.3846153846153846
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen1.5b_native_norepack+gate": {
+      "diff": -0.5128205128205128,
+      "ci95": [
+        -0.6666666666666667,
+        -0.3589743589743589
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen1.5b_native_repack+gate": {
+      "diff": -0.5384615384615384,
+      "ci95": [
+        -0.6923076923076923,
+        -0.3846153846153846
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.5897435897435898,
+      "ci95": [
+        -0.7435897435897436,
+        -0.4358974358974359
+      ],
+      "p_a_not_better": 1.0
+    },
     "[hard_v4] qwen1.5b_base_norepack vs qwen1.5b_base_repack_iter2": {
       "diff": -0.02564102564102566,
       "ci95": [
@@ -676,6 +1360,14 @@
       "diff": -0.02564102564102566,
       "ci95": [
         -0.07692307692307698,
+        0.0
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen1.5b_base_norepack vs qwen1.5b_q8_native_repack": {
+      "diff": -0.07692307692307698,
+      "ci95": [
+        -0.17948717948717946,
         0.0
       ],
       "p_a_not_better": 1.0
@@ -712,6 +1404,14 @@
       ],
       "p_a_not_better": 1.0
     },
+    "[hard_v4] qwen1.5b_base_norepack vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.20512820512820518,
+      "ci95": [
+        -0.33333333333333337,
+        -0.07692307692307698
+      ],
+      "p_a_not_better": 1.0
+    },
     "[hard_v4] qwen1.5b_base_repack_iter2 vs qwen1.5b_native_norepack": {
       "diff": 0.02564102564102566,
       "ci95": [
@@ -724,6 +1424,14 @@
       "diff": 0.0,
       "ci95": [
         0.0,
+        0.0
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen1.5b_base_repack_iter2 vs qwen1.5b_q8_native_repack": {
+      "diff": -0.05128205128205132,
+      "ci95": [
+        -0.12820512820512825,
         0.0
       ],
       "p_a_not_better": 1.0
@@ -752,10 +1460,26 @@
       ],
       "p_a_not_better": 1.0
     },
+    "[hard_v4] qwen1.5b_base_repack_iter2 vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.17948717948717952,
+      "ci95": [
+        -0.3076923076923077,
+        -0.07692307692307687
+      ],
+      "p_a_not_better": 1.0
+    },
     "[hard_v4] qwen1.5b_native_norepack vs qwen1.5b_native_repack": {
       "diff": -0.02564102564102566,
       "ci95": [
         -0.07692307692307698,
+        0.0
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen1.5b_native_norepack vs qwen1.5b_q8_native_repack": {
+      "diff": -0.07692307692307698,
+      "ci95": [
+        -0.17948717948717952,
         0.0
       ],
       "p_a_not_better": 1.0
@@ -776,11 +1500,219 @@
       ],
       "p_a_not_better": 1.0
     },
+    "[hard_v4] qwen1.5b_native_norepack vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.20512820512820518,
+      "ci95": [
+        -0.33333333333333337,
+        -0.07692307692307698
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen1.5b_native_repack vs qwen1.5b_q8_native_repack": {
+      "diff": -0.05128205128205132,
+      "ci95": [
+        -0.12820512820512825,
+        0.0
+      ],
+      "p_a_not_better": 1.0
+    },
     "[hard_v4] qwen1.5b_native_repack vs qwen1.5b_native_repack+gate": {
       "diff": -0.1282051282051282,
       "ci95": [
         -0.23076923076923084,
         -0.02564102564102566
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen1.5b_native_repack vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.17948717948717952,
+      "ci95": [
+        -0.3076923076923077,
+        -0.07692307692307687
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen1.5b_q8_native_repack vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.1282051282051282,
+      "ci95": [
+        -0.23076923076923084,
+        -0.02564102564102566
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen0.5b_q8_native_repack": {
+      "diff": 0.15384615384615385,
+      "ci95": [
+        0.051282051282051266,
+        0.2570512820512786
+      ],
+      "p_a_not_better": 0.0005
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen1.5b_base_norepack": {
+      "diff": -0.23076923076923073,
+      "ci95": [
+        -0.4358974358974359,
+        0.0
+      ],
+      "p_a_not_better": 0.983
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen1.5b_base_repack_iter2": {
+      "diff": -0.2564102564102564,
+      "ci95": [
+        -0.46153846153846156,
+        -0.025641025641025605
+      ],
+      "p_a_not_better": 0.9895
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen1.5b_native_norepack": {
+      "diff": -0.23076923076923073,
+      "ci95": [
+        -0.43589743589743596,
+        0.0
+      ],
+      "p_a_not_better": 0.9835
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen1.5b_native_repack": {
+      "diff": -0.2564102564102564,
+      "ci95": [
+        -0.46153846153846156,
+        -0.025641025641025605
+      ],
+      "p_a_not_better": 0.9895
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen1.5b_q8_native_repack": {
+      "diff": -0.3076923076923077,
+      "ci95": [
+        -0.5128205128205128,
+        -0.10192307692308039
+      ],
+      "p_a_not_better": 0.997
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen0.5b_q8_native_repack+gate": {
+      "diff": 0.02564102564102566,
+      "ci95": [
+        0.0,
+        0.07692307692307693
+      ],
+      "p_a_not_better": 0.3785
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen1.5b_base_norepack+gate": {
+      "diff": -0.3589743589743589,
+      "ci95": [
+        -0.5128205128205128,
+        -0.20512820512820512
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen1.5b_base_repack_iter2+gate": {
+      "diff": -0.3846153846153846,
+      "ci95": [
+        -0.5384615384615385,
+        -0.23076923076923073
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen1.5b_native_norepack+gate": {
+      "diff": -0.3589743589743589,
+      "ci95": [
+        -0.5134615384615385,
+        -0.20512820512820512
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen1.5b_native_repack+gate": {
+      "diff": -0.3846153846153846,
+      "ci95": [
+        -0.5384615384615385,
+        -0.23076923076923073
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q4_native_repack+gate vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.4358974358974359,
+      "ci95": [
+        -0.5897435897435898,
+        -0.28205128205128205
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack+gate vs qwen1.5b_base_norepack": {
+      "diff": -0.2564102564102564,
+      "ci95": [
+        -0.46153846153846156,
+        -0.02564102564102566
+      ],
+      "p_a_not_better": 0.9885
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack+gate vs qwen1.5b_base_repack_iter2": {
+      "diff": -0.28205128205128205,
+      "ci95": [
+        -0.4871794871794872,
+        -0.051282051282051266
+      ],
+      "p_a_not_better": 0.9935
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack+gate vs qwen1.5b_native_norepack": {
+      "diff": -0.2564102564102564,
+      "ci95": [
+        -0.46153846153846156,
+        -0.02564102564102566
+      ],
+      "p_a_not_better": 0.9905
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack+gate vs qwen1.5b_native_repack": {
+      "diff": -0.28205128205128205,
+      "ci95": [
+        -0.4871794871794872,
+        -0.051282051282051266
+      ],
+      "p_a_not_better": 0.9935
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack+gate vs qwen1.5b_q8_native_repack": {
+      "diff": -0.33333333333333337,
+      "ci95": [
+        -0.5384615384615385,
+        -0.10256410256410259
+      ],
+      "p_a_not_better": 0.9975
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack+gate vs qwen1.5b_base_norepack+gate": {
+      "diff": -0.3846153846153846,
+      "ci95": [
+        -0.5384615384615385,
+        -0.23076923076923073
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack+gate vs qwen1.5b_base_repack_iter2+gate": {
+      "diff": -0.41025641025641024,
+      "ci95": [
+        -0.5641025641025641,
+        -0.2564102564102564
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack+gate vs qwen1.5b_native_norepack+gate": {
+      "diff": -0.3846153846153846,
+      "ci95": [
+        -0.5384615384615385,
+        -0.23076923076923073
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack+gate vs qwen1.5b_native_repack+gate": {
+      "diff": -0.41025641025641024,
+      "ci95": [
+        -0.5641025641025641,
+        -0.2564102564102564
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen0.5b_q8_native_repack+gate vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.46153846153846156,
+      "ci95": [
+        -0.6153846153846154,
+        -0.3076923076923077
       ],
       "p_a_not_better": 1.0
     },
@@ -808,6 +1740,14 @@
       ],
       "p_a_not_better": 0.056
     },
+    "[hard_v4] qwen1.5b_base_norepack+gate vs qwen1.5b_q8_native_repack": {
+      "diff": 0.05128205128205121,
+      "ci95": [
+        -0.07692307692307698,
+        0.20512820512820507
+      ],
+      "p_a_not_better": 0.2785
+    },
     "[hard_v4] qwen1.5b_base_norepack+gate vs qwen1.5b_base_repack_iter2+gate": {
       "diff": -0.02564102564102566,
       "ci95": [
@@ -832,6 +1772,14 @@
       ],
       "p_a_not_better": 1.0
     },
+    "[hard_v4] qwen1.5b_base_norepack+gate vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.07692307692307698,
+      "ci95": [
+        -0.1794871794871794,
+        0.0
+      ],
+      "p_a_not_better": 1.0
+    },
     "[hard_v4] qwen1.5b_base_repack_iter2+gate vs qwen1.5b_native_norepack": {
       "diff": 0.15384615384615385,
       "ci95": [
@@ -847,6 +1795,14 @@
         0.23076923076923084
       ],
       "p_a_not_better": 0.005
+    },
+    "[hard_v4] qwen1.5b_base_repack_iter2+gate vs qwen1.5b_q8_native_repack": {
+      "diff": 0.07692307692307687,
+      "ci95": [
+        -0.05128205128205132,
+        0.20512820512820518
+      ],
+      "p_a_not_better": 0.1645
     },
     "[hard_v4] qwen1.5b_base_repack_iter2+gate vs qwen1.5b_native_norepack+gate": {
       "diff": 0.02564102564102566,
@@ -864,6 +1820,14 @@
       ],
       "p_a_not_better": 1.0
     },
+    "[hard_v4] qwen1.5b_base_repack_iter2+gate vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.05128205128205132,
+      "ci95": [
+        -0.1282051282051282,
+        0.0
+      ],
+      "p_a_not_better": 1.0
+    },
     "[hard_v4] qwen1.5b_native_norepack+gate vs qwen1.5b_native_repack": {
       "diff": 0.10256410256410253,
       "ci95": [
@@ -872,10 +1836,42 @@
       ],
       "p_a_not_better": 0.064
     },
+    "[hard_v4] qwen1.5b_native_norepack+gate vs qwen1.5b_q8_native_repack": {
+      "diff": 0.05128205128205121,
+      "ci95": [
+        -0.10256410256410253,
+        0.20512820512820507
+      ],
+      "p_a_not_better": 0.2905
+    },
     "[hard_v4] qwen1.5b_native_norepack+gate vs qwen1.5b_native_repack+gate": {
       "diff": -0.02564102564102566,
       "ci95": [
         -0.07692307692307698,
+        0.0
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen1.5b_native_norepack+gate vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.07692307692307698,
+      "ci95": [
+        -0.17948717948717952,
+        0.0
+      ],
+      "p_a_not_better": 1.0
+    },
+    "[hard_v4] qwen1.5b_native_repack+gate vs qwen1.5b_q8_native_repack": {
+      "diff": 0.07692307692307687,
+      "ci95": [
+        -0.05128205128205132,
+        0.20512820512820518
+      ],
+      "p_a_not_better": 0.1645
+    },
+    "[hard_v4] qwen1.5b_native_repack+gate vs qwen1.5b_q8_native_repack+gate": {
+      "diff": -0.05128205128205132,
+      "ci95": [
+        -0.1282051282051282,
         0.0
       ],
       "p_a_not_better": 1.0

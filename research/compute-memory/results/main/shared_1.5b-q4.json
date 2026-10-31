@@ -1,0 +1,61 @@
+{
+ "experiment": "shared",
+ "env": {
+  "model": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+  "model_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+  "host": "vm",
+  "cpus": 2,
+  "kernel": "6.18.44-fc-v185",
+  "seed": 20261031,
+  "ctx": 4096,
+  "time": "2026-10-31T07:09:23Z",
+  "server": "/home/claude/vanian-build/build-llama-native/bin/llama-server",
+  "llama_args": []
+ },
+ "result": {
+  "solo": {
+   "minflt": 298568,
+   "majflt": 0,
+   "cpu_s": 4.41,
+   "VmSize": 2694.05078125,
+   "VmHWM": 2074.22265625,
+   "VmRSS": 2013.984375,
+   "RssAnon": 1127.90234375,
+   "RssFile": 886.08203125,
+   "RssShmem": 0.0,
+   "Pss": 1606.6513671875,
+   "Pss_Anon": 1127.90234375,
+   "Pss_File": 478.7490234375
+  },
+  "pair": {
+   "a": {
+    "minflt": 298568,
+    "majflt": 0,
+    "cpu_s": 4.41,
+    "VmSize": 2694.05078125,
+    "VmHWM": 2074.22265625,
+    "VmRSS": 2013.984375,
+    "RssAnon": 1127.90234375,
+    "RssFile": 886.08203125,
+    "RssShmem": 0.0,
+    "Pss": 1434.9580078125,
+    "Pss_Anon": 1127.90234375,
+    "Pss_File": 307.0556640625
+   },
+   "b": {
+    "minflt": 298548,
+    "majflt": 0,
+    "cpu_s": 8.5,
+    "VmSize": 2694.05078125,
+    "VmHWM": 2074.1875,
+    "VmRSS": 2014.15234375,
+    "RssAnon": 1127.90234375,
+    "RssFile": 886.25,
+    "RssShmem": 0.0,
+    "Pss": 1435.0849609375,
+    "Pss_Anon": 1127.90234375,
+    "Pss_File": 307.1826171875
+   }
+  }
+ }
+}

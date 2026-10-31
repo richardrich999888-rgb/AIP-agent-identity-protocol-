@@ -1,0 +1,48 @@
+load done results/main/load_0.5b-q4.json
+throughput done results/main/throughput_0.5b-q4.json
+load done results/main/load_0.5b-q8.json
+throughput done results/main/throughput_0.5b-q8.json
+load done results/main/load_1.5b-q4.json
+throughput done results/main/throughput_1.5b-q4.json
+load done results/main/load_1.5b-q8.json
+throughput done results/main/throughput_1.5b-q8.json
+prefix done results/main/prefix_1.5b-q4.json
+Traceback (most recent call last):
+  File "/home/claude/cm-wt/research/compute-memory/bench/profile.py", line 279, in <module>
+    main()
+    ~~~~^^
+  File "/home/claude/cm-wt/research/compute-memory/bench/profile.py", line 273, in main
+    "result": EXPS[a.experiment](a)}
+              ~~~~~~~~~~~~~~~~~~^^^
+  File "/home/claude/cm-wt/research/compute-memory/bench/profile.py", line 162, in exp_sidechan
+    r = send(attacker, guess + "\nQ: what is cached?")
+  File "/home/claude/cm-wt/research/compute-memory/bench/profile.py", line 154, in send
+    s.slot_action(d.slot, "erase")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/claude/cm-wt/research/compute-memory/bench/llama_proc.py", line 138, in slot_action
+    return self.post(f"/slots/{slot}?action={action}", {"filename": filename} if filename else {})
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/cm-wt/research/compute-memory/bench/llama_proc.py", line 118, in post
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/urllib/request.py", line 189, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/urllib/request.py", line 495, in open
+    response = meth(req, response)
+  File "/usr/local/lib/python3.13/urllib/request.py", line 604, in http_response
+    response = self.parent.error(
+        'http', request, response, code, msg, hdrs)
+  File "/usr/local/lib/python3.13/urllib/request.py", line 533, in error
+    return self._call_chain(*args)
+           ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/usr/local/lib/python3.13/urllib/request.py", line 466, in _call_chain
+    result = func(*args)
+  File "/usr/local/lib/python3.13/urllib/request.py", line 613, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 501: Not Implemented
+sidechan done results/main/sidechan_1.5b-q4.json
+restore done results/main/restore_1.5b-q4.json
+shared done results/main/shared_1.5b-q4.json
+specdec done results/main/specdec_1.5b-q4.json
+RUN_ALL_DONE

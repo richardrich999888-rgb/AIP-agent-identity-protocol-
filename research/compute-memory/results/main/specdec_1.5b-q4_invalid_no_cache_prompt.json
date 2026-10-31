@@ -1,0 +1,103 @@
+{
+ "experiment": "specdec",
+ "env": {
+  "model": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+  "model_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+  "host": "vm",
+  "cpus": 2,
+  "kernel": "6.18.44-fc-v185",
+  "seed": 20261031,
+  "ctx": 4096,
+  "time": "2026-10-31T07:09:33Z",
+  "server": "/home/claude/vanian-build/build-llama-native/bin/llama-server",
+  "llama_args": []
+ },
+ "result": {
+  "baseline": {
+   "load_s": 1.0012037710002915,
+   "rows": [
+    {
+     "wall_s": 12.399123139999574,
+     "prompt_n": 66,
+     "prompt_ms": 949.198,
+     "predicted_n": 128,
+     "predicted_ms": 11444.72,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 193,
+     "content": " 1. Sensor inspection: 2. Motor maintenance: 3. Transformer maintenance: 4. Generator maintenance: 5. Water level monitoring: 6. Motor calibration: 7. Valve maintenance: 8. Pressure monitoring: 9. Current monitoring: 10. Vibration monitoring: 11. Seal maintenance: 12. Part deviation: 13. Part replacement: 14. Part reading: 15. Part deviation: 16. Part replacement: 17. Part reading: 18. Part deviation: 19. Part replacement: 2"
+    },
+    {
+     "wall_s": 12.613899911000772,
+     "prompt_n": 66,
+     "prompt_ms": 912.737,
+     "predicted_n": 128,
+     "predicted_ms": 11698.893,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 193,
+     "content": " The maintenance summary is a document that summarizes the maintenance activities and results of a specific period. It is typically used to provide a comprehensive overview of the maintenance activities and their outcomes. The maintenance summary is usually prepared by the maintenance team or a designated person. The summary should include the following information: 1. The period for which the maintenance summary is prepared. 2. The maintenance activities carried out during the period. 3. The results of the maintenance activities. 4. Any issues or problems encountered during the maintenance activities. 5. Any corrective actions taken to address the issues or problems. 6. Any lessons learned from the"
+    }
+   ],
+   "server": {
+    "minflt": 297309,
+    "majflt": 10,
+    "cpu_s": 51.66,
+    "VmSize": 2694.05078125,
+    "VmHWM": 2074.19921875,
+    "VmRSS": 2010.72265625,
+    "RssAnon": 1123.6171875,
+    "RssFile": 887.10546875,
+    "RssShmem": 0.0,
+    "Pss": 1603.2568359375,
+    "Pss_Anon": 1123.6171875,
+    "Pss_File": 479.6396484375
+   }
+  },
+  "draft": {
+   "load_s": 3.013734371999817,
+   "rows": [
+    {
+     "wall_s": 12.367563783998776,
+     "prompt_n": 66,
+     "prompt_ms": 905.842,
+     "predicted_n": 128,
+     "predicted_ms": 11457.876,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 193,
+     "content": " 1. Sensor inspection: 2. Motor maintenance: 3. Transformer maintenance: 4. Generator maintenance: 5. Water level monitoring: 6. Motor calibration: 7. Valve maintenance: 8. Pressure monitoring: 9. Current monitoring: 10. Vibration monitoring: 11. Seal maintenance: 12. Part deviation: 13. Part replacement: 14. Part reading: 15. Part deviation: 16. Part replacement: 17. Part reading: 18. Part deviation: 19. Part replacement: 2"
+    },
+    {
+     "wall_s": 12.264961808999942,
+     "prompt_n": 66,
+     "prompt_ms": 877.562,
+     "predicted_n": 128,
+     "predicted_ms": 11384.857,
+     "draft_n": null,
+     "draft_n_accepted": null,
+     "tokens_cached": 193,
+     "content": " The maintenance summary is a document that summarizes the maintenance activities and results of a specific period. It is typically used to provide a comprehensive overview of the maintenance activities and their outcomes. The maintenance summary is usually prepared by the maintenance team or a designated person. The summary should include the following information: 1. The period for which the maintenance summary is prepared. 2. The maintenance activities carried out during the period. 3. The results of the maintenance activities. 4. Any issues or problems encountered during the maintenance activities. 5. Any corrective actions taken to address the issues or problems. 6. Any lessons learned from the"
+    }
+   ],
+   "server": {
+    "minflt": 382181,
+    "majflt": 2,
+    "cpu_s": 53.45,
+    "VmSize": 3650.078125,
+    "VmHWM": 2735.55078125,
+    "VmRSS": 2651.20703125,
+    "RssAnon": 1439.1953125,
+    "RssFile": 1212.01171875,
+    "RssShmem": 0.0,
+    "Pss": 2243.8046875,
+    "Pss_Anon": 1439.1953125,
+    "Pss_File": 804.609375
+   }
+  },
+  "outputs_identical": [
+   true,
+   true
+  ]
+ }
+}

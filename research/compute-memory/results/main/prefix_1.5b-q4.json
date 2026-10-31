@@ -1,0 +1,117 @@
+{
+ "experiment": "prefix",
+ "env": {
+  "model": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+  "model_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+  "host": "vm",
+  "cpus": 2,
+  "kernel": "6.18.44-fc-v185",
+  "seed": 20261031,
+  "ctx": 4096,
+  "time": "2026-10-31T06:50:21Z",
+  "server": "/home/claude/vanian-build/build-llama-native/bin/llama-server",
+  "llama_args": []
+ },
+ "result": {
+  "cache_off": [
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 14056.163,
+    "wall_s": 14.891483020001033,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 13794.872,
+    "wall_s": 14.535781941000096,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 13451.618,
+    "wall_s": 14.12823274999937,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 13973.044,
+    "wall_s": 14.656772709000506,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 13313.298,
+    "wall_s": 14.012663415000134,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 13622.526,
+    "wall_s": 14.388075030001346,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 13412.718,
+    "wall_s": 14.069193260000247,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 13640.523,
+    "wall_s": 14.424456329999884,
+    "tokens_cached": 1243
+   }
+  ],
+  "cache_on": [
+   {
+    "prompt_n": 1236,
+    "prompt_ms": 13597.048,
+    "wall_s": 14.314518893999775,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 33,
+    "prompt_ms": 695.182,
+    "wall_s": 1.3545820199997252,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 33,
+    "prompt_ms": 642.189,
+    "wall_s": 1.351465673000348,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 33,
+    "prompt_ms": 671.01,
+    "wall_s": 1.3829092449996097,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 33,
+    "prompt_ms": 700.398,
+    "wall_s": 1.4194940430006682,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 33,
+    "prompt_ms": 653.835,
+    "wall_s": 1.3603276390003884,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 33,
+    "prompt_ms": 665.139,
+    "wall_s": 1.4160814169990772,
+    "tokens_cached": 1243
+   },
+   {
+    "prompt_n": 33,
+    "prompt_ms": 667.536,
+    "wall_s": 1.3521254370007227,
+    "tokens_cached": 1243
+   }
+  ]
+ }
+}

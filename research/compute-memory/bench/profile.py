@@ -228,9 +228,13 @@ def exp_specdec(a) -> dict:
         s = srv(a, extra=extra)
         load = s.start()
         s.complete("warm", 4, cache_prompt=False)
-        rows = [s.complete(p, 128, cache_prompt=False) for p in prompts]
+        # llama-server only speculates when cache_prompt is true (server.cpp
+        # can_speculate); both modes use it so they differ only in the draft.
+        rows = [s.complete(p, 128, cache_prompt=True) for p in prompts]
         st = s.stats()
         s.stop()
+        if mode == "draft" and not all(r["draft_n"] for r in rows):
+            raise RuntimeError("draft mode ran without speculation; result would be invalid")
         out[mode] = {"load_s": load, "rows": rows, "server": st}
     out["outputs_identical"] = [x["content"] == y["content"] for x, y in zip(out["baseline"]["rows"], out["draft"]["rows"])]
     return out

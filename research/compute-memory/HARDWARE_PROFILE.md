@@ -3,7 +3,7 @@
 | Item | Value | Source |
 |---|---|---|
 | CPU | Intel Xeon @ 2.10 GHz, **2 vCPU**, 1 thread/core, 1 socket | `lscpu` |
-| ISA extensions | AVX2, FMA, F16C, AVX-512F, AVX-512 VNNI, AVX-VNNI | `/proc/cpuinfo` |
+| ISA extensions | AVX2, FMA, F16C, AVX-512F/VBMI/VNNI/BF16, AVX-VNNI, **AMX-INT8** | `/proc/cpuinfo`; llama.cpp native build `system_info` |
 | Cache | L1d 48 KiB/core, L2 2 MiB/core, L3 260 MiB reported (virtualised; host value, not a guarantee) | `lscpu` |
 | RAM | 8,027 MiB total, ~7.3 GiB available at idle | `free -m` |
 | Swap | none | `swapon --show` |
@@ -11,6 +11,7 @@
 | Disk | virtio block, 252 GB device, ~26 GB free | `df -h` |
 | Kernel | Linux 6.18.44 (Firecracker VM) | `uname -r` |
 | THP | `madvise` | sysfs |
+| Page faults on cold load | major faults = 0 even with the model evicted from the guest page cache (likely causes, not verified: the loader pre-populates or reads the mapping, and the virtual disk is host-cached), so cold-load times here are optimistic | `/proc/<pid>/stat` |
 | Page-cache control | `posix_fadvise(DONTNEED)` on a file works; `/proc/sys/vm/drop_caches` is writable | tested |
 | Power instrumentation | **none** (no RAPL exposed in the VM) — energy is not reported anywhere in this workspace | |
 
