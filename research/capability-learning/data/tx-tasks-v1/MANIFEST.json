@@ -1,0 +1,45 @@
+{
+ "label_counts": {
+  "demos.jsonl": {
+   "ACCEPT": 1,
+   "DRY_OUT_OIL": 1,
+   "INVALID_TEST": 1,
+   "INVESTIGATE": 1,
+   "MONITOR_90D": 1,
+   "REMOVE_FROM_SERVICE": 1
+  },
+  "false_activation.jsonl": {
+   "NOT_APPLICABLE": 6
+  },
+  "test_unseen.jsonl": {
+   "ACCEPT": 8,
+   "AMBIGUOUS": 3,
+   "DRY_OUT_OIL": 4,
+   "INSUFFICIENT_INPUT": 2,
+   "INVALID_TEST": 2,
+   "INVESTIGATE": 2,
+   "MONITOR_90D": 3,
+   "OUT_OF_SCOPE": 3,
+   "REMOVE_FROM_SERVICE": 3
+  },
+  "validation.jsonl": {
+   "ACCEPT": 3,
+   "DRY_OUT_OIL": 2,
+   "INSUFFICIENT_INPUT": 1,
+   "INVALID_TEST": 1,
+   "INVESTIGATE": 1,
+   "MONITOR_90D": 1,
+   "OUT_OF_SCOPE": 2,
+   "REMOVE_FROM_SERVICE": 1
+  }
+ },
+ "provenance": "hand-authored in v0.2 phase 0, before any atomic-claim pipeline code; single author; fictional organisation",
+ "sha256": {
+  "corpus/halvorn-hu-tx-2.txt": "1c502b5940db2b1524b73bba60c77505863b19db1c0047547ec06caeb0233bbf",
+  "demos.jsonl": "5bb92516ae3b6cd11087ad7be92c75b9e93569e3eb4ef94debaf403aaabc3443",
+  "false_activation.jsonl": "a59c55b7d4d35b37f3d558a1e07b85b9f9d31a4f104ac50942e6586415d1fa3c",
+  "test_unseen.jsonl": "3382a317966e452982cb36d4e9792cb7945ae8d923fb88351ab26a90202e3da3",
+  "validation.jsonl": "6c30ba867affac93a287a90fe349e7e52f07852d336c8108b194d811e85ceb5d"
+ },
+ "version": "tx-tasks-v1"
+}
