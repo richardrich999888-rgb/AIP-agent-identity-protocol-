@@ -1,0 +1,137 @@
+{
+ "id": "halvorn.hutx2.insulation.compiled",
+ "version": 1,
+ "intended_task": "Distribution transformer insulation acceptance per Halvorn HU-TX-2 rev A",
+ "outcomes": [
+  "ACCEPT",
+  "MONITOR_90D",
+  "INVESTIGATE",
+  "DRY_OUT_OIL",
+  "REMOVE_FROM_SERVICE",
+  "INVALID_TEST",
+  "OUT_OF_SCOPE",
+  "INSUFFICIENT_INPUT"
+ ],
+ "applicability": {
+  "any_terms": [
+   "scope",
+   "oil-immersed distribution transformers",
+   "V",
+   "volt",
+   "volts",
+   "kV",
+   "megohm",
+   "megohms",
+   "MΩ",
+   "Mohm",
+   "GΩ",
+   "kΩ",
+   "DAR",
+   "dielectric absorption ratio",
+   "DIELECTRIC ABSORPTION RATIO",
+   "dar"
+  ],
+  "min_inputs_present": 2
+ },
+ "procedure": {
+  "inputs": [
+   {
+    "name": "voltage",
+    "kind": "voltage",
+    "cues": []
+   },
+   {
+    "name": "resistance",
+    "kind": "resistance",
+    "cues": []
+   },
+   {
+    "name": "temperature",
+    "kind": "temperature",
+    "cues": []
+   },
+   {
+    "name": "cued_1",
+    "kind": "cued",
+    "cues": [
+     "DAR",
+     "dielectric absorption ratio",
+     "DIELECTRIC ABSORPTION RATIO",
+     "dar"
+    ]
+   }
+  ],
+  "text_guards": [
+   {
+    "any_terms": [
+     "motor",
+     "cable",
+     "generator",
+     "dry-type"
+    ],
+    "outcome": "OUT_OF_SCOPE"
+   }
+  ],
+  "numeric_guards": [
+   {
+    "when": "voltage > 33.0",
+    "outcome": "OUT_OF_SCOPE"
+   }
+  ],
+  "missing_input_outcome": "INSUFFICIENT_INPUT",
+  "derive": [
+   {
+    "name": "corrected",
+    "expr": "resistance * 2.0 ^ ((temperature - 20.0) / 15.0)"
+   },
+   {
+    "name": "limit",
+    "expr": "20.0 * (voltage + 2.0)"
+   }
+  ],
+  "rules": [
+   {
+    "when": "temperature < 0.0 or temperature > 90.0",
+    "outcome": "INVALID_TEST"
+   },
+   {
+    "when": "corrected < 0.3333333333333333 * limit",
+    "outcome": "REMOVE_FROM_SERVICE"
+   },
+   {
+    "when": "corrected < limit",
+    "outcome": "DRY_OUT_OIL"
+   },
+   {
+    "when": "cued_1 < 1.25",
+    "outcome": "INVESTIGATE"
+   },
+   {
+    "when": "cued_1 < 1.4",
+    "outcome": "MONITOR_90D"
+   }
+  ],
+  "default_outcome": "ACCEPT"
+ },
+ "required": {
+  "tenant": "halvorn-power",
+  "min_clearance": "restricted",
+  "security_domain": "halvorn-ot"
+ },
+ "dependencies": {
+  "knowledge": {
+   "hu-tx-2": ""
+  },
+  "policy_version": "hu-tx-2-revA",
+  "execution_model_sha256": null
+ },
+ "evidence_refs": [
+  "hu-tx-2"
+ ],
+ "failure_conditions": [
+  "an input appears twice with different values",
+  "a unit the runtime does not recognise"
+ ],
+ "tests": [],
+ "proposed_by": "model:ca59ca7f+d7efb072 (atomic v0.2) corrected by user:halvorn-power-engineer"
+}

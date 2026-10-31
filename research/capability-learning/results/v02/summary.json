@@ -1,0 +1,197 @@
+{
+ "family": "tx-tasks-v1 (frozen 4072971, before any v0.2 pipeline code; single author)",
+ "pipeline_commit": "b4371a1 (frozen after 3 dev attempts)",
+ "baselines": {
+  "B1": {
+   "strict": 1,
+   "withhold_mapped": 1,
+   "n": 30,
+   "wrong_release_decisions": 1,
+   "false_activations": 0,
+   "fa_n": 6,
+   "cpu_s_total": 154.1,
+   "per_task_cpu_s": 4.28,
+   "cpu_per_correct_s": 154.1,
+   "model_calls": 36
+  },
+  "B2": {
+   "strict": 3,
+   "withhold_mapped": 3,
+   "n": 30,
+   "wrong_release_decisions": 13,
+   "false_activations": 0,
+   "fa_n": 6,
+   "cpu_s_total": 312.4,
+   "per_task_cpu_s": 8.68,
+   "cpu_per_correct_s": 104.1,
+   "model_calls": 36
+  },
+  "B3": {
+   "strict": 4,
+   "withhold_mapped": 4,
+   "n": 30,
+   "wrong_release_decisions": 14,
+   "false_activations": 1,
+   "fa_n": 6,
+   "cpu_s_total": 570.3,
+   "per_task_cpu_s": 15.84,
+   "cpu_per_correct_s": 142.6,
+   "model_calls": 36
+  }
+ },
+ "baseline_meta": {
+  "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+  "load_s": 1.53,
+  "peak_rss_mib": 3689.8
+ },
+ "arms": {
+  "primary_pre_fix": {
+   "atomic_pipeline": {
+    "status": "NEEDS_EXPERT_CLARIFICATION",
+    "blocking": "boundary probe b-003 (runtime did not read -0.001 °C)",
+    "demos": [
+     6,
+     6
+    ],
+    "fields": {
+     "evidence": 32,
+     "repaired": 20,
+     "hypothesis": 0,
+     "issues": 0
+    },
+    "unapproved_dry_run": {
+     "strict": 25,
+     "withhold_mapped": 25,
+     "n": 30,
+     "wrong_release_decisions": 2,
+     "false_activations": 1,
+     "fa_n": 6
+    }
+   },
+   "engineer_taught": {
+    "validated": false,
+    "suite_failures": [
+     {
+      "id": "val-08",
+      "expected": "INVALID_TEST",
+      "got": "INSUFFICIENT_INPUT",
+      "origin": "suite"
+     }
+    ]
+   }
+  },
+  "secondary_post_fix": {
+   "atomic_pipeline_uncorrected": {
+    "validated": false,
+    "suite_failures": [
+     {
+      "id": "val-09",
+      "expected": "OUT_OF_SCOPE",
+      "got": "ACCEPT",
+      "origin": "suite"
+     }
+    ]
+   },
+   "atomic_plus_3_expert_edits": {
+    "validated": true,
+    "suite_failures": [],
+    "strict": 25,
+    "withhold_mapped": 27,
+    "n": 30,
+    "wrong_release_decisions": 0,
+    "false_activations": 1,
+    "fa_n": 6,
+    "model_calls": 0,
+    "median_ms": 0.2,
+    "per_task_cpu_s_upper": 0.01,
+    "rss_mib": {
+     "runtime": 6.3,
+     "sidecar": 153.9
+    },
+    "unauthorized": {
+     "n": 18,
+     "capability_used": 0
+    },
+    "leaf_edits": 3,
+    "draft_leaves": 68,
+    "cite": "HU-TX-2 'does not apply to motors, cables, generators or dry-type transformers'",
+    "informed_by": "signed-suite failure val-09 (same suite used for re-validation; disclosed)"
+   },
+   "engineer_taught": {
+    "validated": true,
+    "suite_failures": [],
+    "strict": 25,
+    "withhold_mapped": 27,
+    "n": 30,
+    "wrong_release_decisions": 0,
+    "false_activations": 1,
+    "fa_n": 6,
+    "model_calls": 0,
+    "median_ms": 0.2,
+    "per_task_cpu_s_upper": 0.01,
+    "rss_mib": {
+     "runtime": 6.2,
+     "sidecar": 153.2
+    },
+    "unauthorized": {
+     "n": 18,
+     "capability_used": 0
+    },
+    "authored_leaves": 68
+   }
+  }
+ },
+ "acquisition": {
+  "atomic_model_calls": 16,
+  "atomic_model_cpu_s": 69.17,
+  "atomic_load_s": 2.18,
+  "atomic_wall_s": 39.58,
+  "tiers": [
+   {
+    "tier": "small",
+    "model": "qwen2.5-0.5b-instruct-q8_0.gguf",
+    "sha256": "ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e",
+    "loaded": true,
+    "load_s": 0.98,
+    "calls": 14,
+    "cpu_s": 49.0,
+    "prompt_tokens": 2748,
+    "completion_tokens": 812,
+    "peak_rss_mib": 1263.1
+   },
+   {
+    "tier": "large",
+    "model": "qwen2.5-1.5b-instruct-q8_0.gguf",
+    "sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8",
+    "loaded": true,
+    "load_s": 1.2,
+    "calls": 2,
+    "cpu_s": 20.17,
+    "prompt_tokens": 542,
+    "completion_tokens": 92,
+    "peak_rss_mib": 3614.1
+   }
+  ],
+  "model_agreed_with_clause_evidence": "32/52 uniquely determined fields",
+  "no_repair_ablation": {
+   "status": "NEEDS_EXPERT_CLARIFICATION",
+   "model_calls": 34,
+   "model_cpu_s": 272.18,
+   "issues": 20
+  },
+  "human_inputs": {
+   "engineer_taught": "68 authored IR leaves + 12 signed cases + 1 approval",
+   "atomic": "3 leaf edits (after a signed-suite failure) + 12 signed cases + 1 approval + 6 demonstrations"
+  }
+ },
+ "break_even_uses_compute_only_atomic_vs": {
+  "B1": 16.2,
+  "B2": 8.0,
+  "B3": 4.4
+ },
+ "notes": [
+  "CPU-only, 2 vCPU / 8 GB, Qwen2.5 0.5B+1.5B Q8_0; no GPU, no energy measurement",
+  "human time not measured; break-even counts model CPU only",
+  "post-fix results follow a runtime parser fix made after the primary run; labels unchanged"
+ ]
+}
