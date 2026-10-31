@@ -8,6 +8,7 @@
 
 use syntriass_runtime::capability::artifact::*;
 use syntriass_runtime::capability::lifecycle::*;
+use syntriass_runtime::capability::suite::ExpertSuite;
 use syntriass_runtime::capability::validate::*;
 
 mod common;
@@ -17,9 +18,14 @@ fn koravi_docs(d: &str) -> Option<String> {
     matches!(d, "ep-114" | "ep-090").then(|| "koravi-process".to_string())
 }
 
+fn v(cap: &Capability, docs: &dyn Fn(&str) -> Option<String>) -> ValidationReport {
+    let (kp, suite) = expert_suite();
+    validate(cap, &suite, &kp.public_key, docs)
+}
+
 #[test]
 fn fixture_compiles_and_validates() {
-    let r = validate(&expert_fixture(), &koravi_docs);
+    let r = v(&expert_fixture(), &koravi_docs);
     assert!(r.compiled && r.evidence_scope_ok, "{r:?}");
     assert_eq!(r.failures, vec![], "validation suite must pass");
     assert!(r.passed);
@@ -51,25 +57,102 @@ fn fixture_on_unseen_and_false_activation_sets() {
     }
 }
 
+/// Regression for the iteration-1 defect: cases carried inside the artifact
+/// that *claim* to be expert-authored must not count, whatever they claim.
 #[test]
-fn self_authored_tests_do_not_count() {
+fn artifact_cases_claiming_expert_authorship_cannot_certify_it() {
     let mut cap = expert_fixture();
-    for t in &mut cap.tests {
-        t.author = cap.proposed_by.clone();
-    }
-    let r = validate(&cap, &koravi_docs);
+    cap.tests = suite_cases("validation.jsonl")
+        .into_iter()
+        .map(|c| TestCase {
+            id: c.id,
+            text: c.text,
+            expected: c.expected,
+            source: TestSource::Expert,
+            author: EXPERT.into(), // forged: the proposer wrote these
+            counterexample: c.counterexample,
+        })
+        .collect();
+    // Without an authentic suite (wrong key), nothing counts.
+    let (_, suite) = expert_suite();
+    let stranger = aip_crypto::generate_ed25519_keypair();
+    let r = validate(&cap, &suite, &stranger.public_key, &koravi_docs);
+    assert!(!r.suite_signature_ok);
     assert_eq!(r.expert_cases, 0);
-    assert_eq!(r.self_authored_ignored, 14);
+    assert_eq!(r.artifact_claimed_expert, 14);
     assert!(!r.passed, "a capability must not certify itself");
 }
 
 #[test]
-fn generated_tests_cannot_make_it_pass() {
+fn proposer_signed_suite_does_not_count() {
+    let cap = expert_fixture();
+    let kp = aip_crypto::generate_ed25519_keypair();
+    let suite = ExpertSuite::sign(
+        "self",
+        "koravi-process",
+        "ir",
+        &cap.proposed_by,
+        suite_cases("validation.jsonl"),
+        &kp.private_key,
+    )
+    .unwrap();
+    let r = validate(&cap, &suite, &kp.public_key, &koravi_docs);
+    assert!(r.suite_signature_ok && !r.suite_independent && !r.passed);
+}
+
+#[test]
+fn other_tenants_suite_does_not_count() {
+    let cap = expert_fixture();
+    let kp = aip_crypto::generate_ed25519_keypair();
+    let suite = ExpertSuite::sign(
+        "x",
+        "tarvel-grid",
+        "ir",
+        EXPERT,
+        suite_cases("validation.jsonl"),
+        &kp.private_key,
+    )
+    .unwrap();
+    assert!(!validate(&cap, &suite, &kp.public_key, &koravi_docs).passed);
+}
+
+#[test]
+fn tampered_suite_does_not_count() {
+    let cap = expert_fixture();
+    let (kp, mut suite) = expert_suite();
+    suite.cases[0].expected = "REJECT".into();
+    let r = validate(&cap, &suite, &kp.public_key, &koravi_docs);
+    assert!(!r.suite_signature_ok && !r.passed);
+}
+
+#[test]
+fn failing_artifact_cases_fail_validation() {
     let mut cap = expert_fixture();
-    for t in &mut cap.tests {
-        t.source = TestSource::Generated;
-    }
-    assert!(!validate(&cap, &koravi_docs).passed);
+    cap.tests = vec![TestCase {
+        id: "gen-1".into(),
+        text: "M-1 6.6 kV 220 megohms at 40 C, PI 2.4".into(),
+        expected: "REJECT".into(), // wrong on purpose
+        source: TestSource::Generated,
+        author: cap.proposed_by.clone(),
+        counterexample: false,
+    }];
+    let r = v(&cap, &koravi_docs);
+    assert!(!r.passed);
+    assert_eq!(r.failures[0].origin, CaseOrigin::Artifact);
+}
+
+#[test]
+fn too_few_suite_cases_fail_validation() {
+    let cap = expert_fixture();
+    let kp = aip_crypto::generate_ed25519_keypair();
+    let few: Vec<_> = suite_cases("validation.jsonl")
+        .into_iter()
+        .take(MIN_EXPERT_TESTS - 1)
+        .collect();
+    let suite =
+        ExpertSuite::sign("few", "koravi-process", "ir", EXPERT, few, &kp.private_key).unwrap();
+    let r = validate(&cap, &suite, &kp.public_key, &koravi_docs);
+    assert!(r.expert_passed == r.expert_cases && !r.passed);
 }
 
 #[test]
@@ -85,7 +168,7 @@ fn cross_tenant_evidence_fails_validation() {
             koravi_docs(d)
         }
     };
-    let r = validate(&cap, &tarvel);
+    let r = v(&cap, &tarvel);
     assert!(!r.evidence_scope_ok && !r.passed);
 }
 
@@ -93,7 +176,7 @@ fn cross_tenant_evidence_fails_validation() {
 fn a_wrong_threshold_is_caught_by_validation() {
     let mut cap = expert_fixture();
     cap.procedure.rules[4].when = "pi < 2.5".into();
-    let r = validate(&cap, &koravi_docs);
+    let r = v(&cap, &koravi_docs);
     assert!(!r.passed && !r.failures.is_empty());
 }
 
@@ -126,7 +209,7 @@ fn approver() -> (String, aip_types::KeyPair) {
 fn validated_record() -> Record {
     let mut rec = Record::propose(expert_fixture());
     rec.start_testing("validator", 1).unwrap();
-    let rep = validate(&rec.capability, &koravi_docs);
+    let rep = v(&rec.capability, &koravi_docs);
     rec.record_validation(rep, "validator", 2).unwrap();
     assert_eq!(rec.state, State::Validated);
     rec
@@ -231,7 +314,7 @@ fn edges_and_roles_are_enforced() {
         .transition(State::Approved, "boss", Role::Approver, 1, "skip")
         .is_err());
     rec.start_testing("validator", 1).unwrap();
-    let mut failing = validate(&rec.capability, &koravi_docs);
+    let mut failing = v(&rec.capability, &koravi_docs);
     failing.passed = false;
     rec.record_validation(failing, "validator", 2).unwrap();
     assert_eq!(rec.state, State::Rejected);
@@ -248,7 +331,7 @@ fn validation_report_for_other_content_is_refused() {
     rec.start_testing("validator", 1).unwrap();
     let mut other = expert_fixture();
     other.version = 2;
-    let rep = validate(&other, &koravi_docs);
+    let rep = v(&other, &koravi_docs);
     assert_eq!(
         rec.record_validation(rep, "validator", 2),
         Err(LifecycleError::HashMismatch)

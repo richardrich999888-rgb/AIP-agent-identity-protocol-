@@ -156,7 +156,14 @@ impl<'a> Runtime<'a> {
         if !r.executable() {
             return Some(format!("state {:?}", r.state));
         }
-        let a = r.approval.as_ref()?;
+        // Explicit (not `?`): a record without an approval must never be
+        // reported as eligible, even if `executable()` changes later.
+        let Some(a) = r.approval.as_ref() else {
+            return Some("no approval".into());
+        };
+        if a.capability_hash != r.capability_hash {
+            return Some("approval is for different content".into());
+        }
         match self.cfg.approvers.get(&a.approver_id) {
             Some(pk) if a.verify(pk) => {}
             _ => return Some("approval not signed by a trusted approver".into()),

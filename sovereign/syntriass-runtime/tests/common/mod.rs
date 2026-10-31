@@ -11,6 +11,46 @@ use std::collections::BTreeMap;
 use serde_json::Value;
 use syntriass_runtime::capability::artifact::*;
 use syntriass_runtime::capability::quantity::Kind;
+use syntriass_runtime::capability::suite::{ExpertSuite, SuiteCase};
+
+/// Expert who signs the EP-114 validation suite in tests.
+pub const EXPERT: &str = "expert:koravi-elec-lead";
+
+/// Labels whose cases are designed to break a naive procedure.
+pub fn is_counterexample(label: &str) -> bool {
+    matches!(
+        label,
+        "OUT_OF_SCOPE" | "INVALID_TEST" | "INSUFFICIENT_INPUT"
+    )
+}
+
+/// Suite cases from a frozen data file.
+pub fn suite_cases(file: &str) -> Vec<SuiteCase> {
+    rows(file)
+        .iter()
+        .map(|r| SuiteCase {
+            id: r["id"].as_str().unwrap().into(),
+            text: r["text"].as_str().unwrap().into(),
+            expected: r["label"].as_str().unwrap().into(),
+            counterexample: is_counterexample(r["label"].as_str().unwrap()),
+        })
+        .collect()
+}
+
+/// The expert's key pair and the validation suite signed with it.
+pub fn expert_suite() -> (aip_types::KeyPair, ExpertSuite) {
+    let kp = aip_crypto::generate_ed25519_keypair();
+    let s = ExpertSuite::sign(
+        "ir-tasks-v1/validation",
+        "koravi-process",
+        "motor IR acceptance (EP-114 rev C)",
+        EXPERT,
+        suite_cases("validation.jsonl"),
+        &kp.private_key,
+    )
+    .unwrap();
+    (kp, s)
+}
 
 pub const DATA: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
@@ -126,17 +166,9 @@ pub fn expert_fixture() -> Capability {
         },
         evidence_refs: s(&["ep-114", "demo-000", "demo-001"]),
         failure_conditions: s(&["inputs ambiguous", "unit not recognised"]),
-        tests: rows("validation.jsonl")
-            .iter()
-            .map(|r| TestCase {
-                id: r["id"].as_str().unwrap().into(),
-                text: r["text"].as_str().unwrap().into(),
-                expected: r["label"].as_str().unwrap().into(),
-                source: TestSource::Expert,
-                author: "expert:koravi-elec-lead".into(),
-                counterexample: true,
-            })
-            .collect(),
+        // The artifact carries no tests of its own: validation evidence is the
+        // separately signed expert suite (see `expert_suite`).
+        tests: vec![],
         proposed_by: "user:koravi-engineer-7".into(),
     }
 }

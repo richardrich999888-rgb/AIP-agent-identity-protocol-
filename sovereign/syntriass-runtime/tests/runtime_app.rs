@@ -196,7 +196,8 @@ fn world(execution_model: Option<&str>) -> World {
         |d: &str| matches!(d, "ep-114" | "ep-090").then(|| "koravi-process".to_string());
     let mut rec = Record::propose(cap);
     rec.start_testing("validator", 1).unwrap();
-    let rep = validate(&rec.capability, &tenant_of);
+    let (ekp, suite) = expert_suite();
+    let rep = validate(&rec.capability, &suite, &ekp.public_key, &tenant_of);
     assert!(rep.passed, "{rep:?}");
     rec.record_validation(rep, "validator", 2).unwrap();
     let kp = aip_crypto::generate_ed25519_keypair();

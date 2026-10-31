@@ -6,11 +6,14 @@
 //! - a success reported by the agent itself is stored as `SelfReported` and
 //!   is never treated as verified;
 //! - only `Verified` experiences, verified by a principal other than the
-//!   actor, with an expected outcome, may become expert validation cases.
+//!   actor, with an expected outcome, may become expert validation cases —
+//!   and they count only after that verifier signs them into an
+//!   [`ExpertSuite`](super::suite::ExpertSuite); the `verifier` string alone
+//!   is a claim, not evidence.
 
 use serde::{Deserialize, Serialize};
 
-use super::artifact::{TestCase, TestSource};
+use super::suite::SuiteCase;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -76,17 +79,18 @@ pub fn admit(e: &Experience, principal_tenant: &str, domain: &str) -> Result<(),
     Ok(())
 }
 
-/// Convert to an expert validation case, if and only if it is independently
-/// verified and carries an expected outcome.
-pub fn as_expert_case(e: &Experience, counterexample: bool) -> Option<TestCase> {
+/// Candidate suite case for `verifier_id`, if and only if the experience was
+/// verified by that principal, who is not the actor, and carries an expected
+/// outcome. The case becomes evidence only when `verifier_id` signs a suite.
+pub fn as_suite_case(e: &Experience, verifier_id: &str, counterexample: bool) -> Option<SuiteCase> {
     match (&e.verification, &e.expected_outcome) {
-        (Verification::Verified { verifier, .. }, Some(expected)) if verifier != &e.actor => {
-            Some(TestCase {
+        (Verification::Verified { verifier, .. }, Some(expected))
+            if verifier != &e.actor && verifier == verifier_id =>
+        {
+            Some(SuiteCase {
                 id: e.id.clone(),
                 text: e.task.clone(),
                 expected: expected.clone(),
-                source: TestSource::Expert,
-                author: verifier.clone(),
                 counterexample,
             })
         }
@@ -123,20 +127,25 @@ mod tests {
             verifier: "expert:lead".into(),
             at_ms: 1,
         });
-        assert!(as_expert_case(&v, false).is_some());
-        assert!(as_expert_case(
+        assert!(as_suite_case(&v, "expert:lead", false).is_some());
+        assert!(
+            as_suite_case(&v, "expert:someone-else", false).is_none(),
+            "only the verifier may sign its own verifications into a suite"
+        );
+        assert!(as_suite_case(
             &exp(Verification::SelfReported {
                 agent: "agent:runtime".into()
             }),
+            "agent:runtime",
             false
         )
         .is_none());
-        assert!(as_expert_case(&exp(Verification::Unverified), false).is_none());
+        assert!(as_suite_case(&exp(Verification::Unverified), "expert:lead", false).is_none());
         let selfv = exp(Verification::Verified {
             verifier: "agent:runtime".into(),
             at_ms: 1,
         });
-        assert!(as_expert_case(&selfv, false).is_none());
+        assert!(as_suite_case(&selfv, "agent:runtime", false).is_none());
         assert_eq!(
             admit(&selfv, "koravi-process", "koravi-ot"),
             Err(ExperienceError::SelfVerified)
