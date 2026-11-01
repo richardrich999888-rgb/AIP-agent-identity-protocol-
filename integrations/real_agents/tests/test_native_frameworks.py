@@ -1,5 +1,7 @@
 """Controlled native-profile contracts, not framework/model execution evidence."""
 import json
+import os
+import stat
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 import tempfile
@@ -7,8 +9,8 @@ import sys
 import unittest
 from unittest.mock import patch
 
-from native_frameworks import CONTEXT, MODEL, Progress, assess, configuration, deerflow_bash_return_status, deerflow_configuration, prepare_environment, run, safe_failure, validate
-from hosted_agent_zero import agent_configuration, served_context
+from native_frameworks import CONTEXT, MODEL, Progress, assess, configuration, deerflow_bash_return_status, deerflow_configuration, prepare_environment, run, safe_failure, validate, verify_empty_catalog
+from hosted_agent_zero import agent_configuration, capability_http_diagnostic, model_http_status_events, served_context
 
 
 class Journal:
@@ -46,6 +48,7 @@ class NativeFrameworkTests(unittest.TestCase):
             {'host_path':'/model-config','container_path':'/model-config','read_only':True}])
         self.assertEqual(config['database'],{'backend':'sqlite','sqlite_dir':'/work/deerflow-state/database'})
         self.assertNotIn('checkpointer',config)
+        self.assertEqual(config['skills'],{'path':'/opt/snifferdog/empty-skills'})
         self.assertFalse(config['memory']['enabled'])
         self.assertFalse(config['title']['enabled'])
         self.assertFalse(config['summarization']['enabled'])
@@ -220,6 +223,41 @@ class NativeFrameworkTests(unittest.TestCase):
             self.assertNotIn(secret,json.dumps([report,cyclic]))
         errors[0].__cause__=None;errors[0].__context__=errors[2];errors[0].__suppress_context__=True
         self.assertNotIn('causal_chain',safe_failure(errors[0],'suppressed_context'))
+
+    def test_empty_catalog_requires_actual_readonly_empty_root_owned_directory(self):
+        for readonly,uid,mode,entries in ((True,0,stat.S_IFDIR|0o555,[]),(False,0,stat.S_IFDIR|0o555,[]),
+                (True,10001,stat.S_IFDIR|0o555,[]),(True,0,stat.S_IFLNK|0o777,[]),(True,0,stat.S_IFDIR|0o777,[]),
+                (True,0,stat.S_IFDIR|0o555,['unexpected-skill'])):
+            with self.subTest(readonly=readonly,uid=uid,mode=mode,entries=entries), \
+                    patch('native_frameworks.Path.lstat',return_value=SimpleNamespace(st_mode=mode,st_uid=uid)), \
+                    patch('native_frameworks.Path.iterdir',return_value=iter(entries)), \
+                    patch('native_frameworks.os.statvfs',return_value=SimpleNamespace(f_flag=os.ST_RDONLY if readonly else 0)):
+                if readonly and uid==0 and mode==stat.S_IFDIR|0o555 and not entries:verify_empty_catalog()
+                else:
+                    with self.assertRaises(ValueError):verify_empty_catalog()
+
+    def test_http_error_metadata_is_numeric_bounded_and_payload_free(self):
+        for value,expected in ((400,True),(500,True),(True,False),(99,False),(600,False),('private-status',False)):
+            error=RuntimeError('private-body');error.status_code=value
+            error.response=SimpleNamespace(status_code=value,headers={'Authorization':'private-header'},text='private-body')
+            report=safe_failure(error,'transport')
+            self.assertEqual('provider_status_code' in report,expected)
+            self.assertEqual('http_response_status_code' in report,expected)
+            self.assertNotIn('private',json.dumps(report))
+        lines=['[GIN] 2026/11/01 - 10:00:00 | 200 | 1ms | 172.18.0.2 | POST     "/api/generate"',
+               '[GIN] 2026/11/01 - 10:00:01 | 400 | 1ms | 172.18.0.2 | POST     "/api/chat"',
+               '[GIN] 2026/11/01 - 10:00:01 | 200 | 1ms | 172.18.0.2 | POST     "/api/pull"',
+               '[GIN] 2026/11/01 - 10:00:01 | 200 | 1ms | 172.18.0.2 | POST     "/api/chat?private-token=x"']
+        with patch('hosted_agent_zero.subprocess.run',return_value=SimpleNamespace(stdout='\n'.join(lines),stderr='')):
+            events=model_http_status_events('controlled-fixture')
+        self.assertEqual(events,[{'method':'POST','route':'/api/generate','status_code':200},
+                                 {'method':'POST','route':'/api/chat','status_code':400}])
+        with patch('hosted_agent_zero.model_http_status_events',return_value=events):
+            report=capability_http_diagnostic('controlled-fixture',events[:1],1,1)
+            self.assertEqual(report['request_count'],1)
+            self.assertEqual(report['status_counts'],[{'method':'POST','route':'/api/chat','status_code':400,'count':1}])
+            self.assertEqual(capability_http_diagnostic('controlled-fixture',events[:1],0,1)['status'],'UNAVAILABLE')
+        self.assertNotIn('172.18',json.dumps(report));self.assertNotIn('private',json.dumps(report))
 
     def test_served_context_uses_actual_service_state_and_rejects_sdk_metadata_only(self):
         class Reply:

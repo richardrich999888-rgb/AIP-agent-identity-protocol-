@@ -245,6 +245,40 @@ def model_access_lines(model_container):
             if re.search(r'\b200\b.*POST.*"/api/(?:chat|generate)"',line)]
 
 
+def model_http_status_events(model_container):
+    """Bounded allowlisted status metadata, without payloads or raw log text."""
+    result=subprocess.run(['docker','logs',model_container],capture_output=True,text=True,timeout=20,check=True)
+    events=[]
+    for line in (result.stdout+result.stderr).splitlines():
+        match=re.search(r'\[GIN\].*?\|\s*([1-5]\d\d)\s*\|.*?\|\s*POST\s+"(/api/(?:chat|generate))"\s*$',line)
+        if match:
+            if len(events)>=4096: raise Refused('bounded model HTTP diagnostic exceeded its event limit')
+            events.append({'method':'POST','route':match.group(2),'status_code':int(match.group(1))})
+    return events
+
+
+def capability_http_diagnostic(model_container, before, successful_before, successful_after):
+    """These access counters are application diagnostics, never signed proof."""
+    result={'source_authority':'root_read_of_separate_local_ollama_access_log',
+            'scope':'allowlisted POST /api/chat and /api/generate status metadata only',
+            'not_cryptographically_signed':True,'successful_counter_semantics':'HTTP_200_ONLY'}
+    try:
+        after=model_http_status_events(model_container)
+        if (before is None or after[:len(before)]!=before or
+                sum(x['status_code']==200 for x in before)!=successful_before or
+                sum(x['status_code']==200 for x in after)!=successful_after):
+            raise Refused('model HTTP diagnostic does not preserve the successful counter history')
+        counts={}
+        for event in after[len(before):]:
+            key=(event['method'],event['route'],event['status_code'])
+            counts[key]=counts.get(key,0)+1
+        result.update(status='AVAILABLE',request_count=len(after)-len(before),
+            status_counts=[{'method':k[0],'route':k[1],'status_code':k[2],'count':v} for k,v in sorted(counts.items())])
+    except (OSError,ValueError,subprocess.SubprocessError,Refused) as error:
+        result.update(status='UNAVAILABLE',failure_type=type(error).__name__,all_attempted_request_count='UNKNOWN')
+    return result
+
+
 def policy_request_count(public):
     path=public/'policy-inferences.jsonl'
     return sum(json.loads(line)['successful_generation_capability_requests']
@@ -301,6 +335,10 @@ def _run_framework_capability(image, network, inputs, public, model_container, w
     private_json(inputs/'capability-input.json',challenge)
     (inputs/'capability-input.json').chmod(0o644)
     before=model_access_lines(model_container)
+    http_before=None
+    if framework_name!='agent_zero':
+        try: http_before=model_http_status_events(model_container)
+        except (OSError,ValueError,subprocess.SubprocessError,Refused): pass
     report={'classification':'SEPARATE_REAL_FRAMEWORK_TOOL_CAPABILITY_STAGE','status':'RUNNING',
             'model_requests_before':len(before),'business_task_acceptance':False,
             'kernel_observation_claimed':False,'independent_task_acceptance':False,
@@ -328,7 +366,10 @@ def _run_framework_capability(image, network, inputs, public, model_container, w
         failure=Refused('model access history changed during separate capability stage')
         report['failure_type']='ModelAccessHistoryChanged'
     report.update(model_requests_after=len(after),model_counter_delta=len(after)-len(before),
-                  actual_model_requests_in_stage=len(after)-len(before) if counter_valid else None)
+                  actual_model_requests_in_stage=len(after)-len(before) if counter_valid else None,
+                  model_request_counter_semantics='SUCCESSFUL_HTTP_200_ONLY')
+    if framework_name!='agent_zero':
+        report['model_http_diagnostic']=capability_http_diagnostic(model_container,http_before,len(before),len(after))
     artifacts=[]
     for name,limit in [('capability-adapter.jsonl',8*1024*1024),('capability-result.json',65536)]:
         try:
@@ -460,6 +501,9 @@ def main():
             'remaining_bytes_before_runtime_and_scratch':5*1024**3-weights-kv,
             'actual_peak_usage':'NOT_MEASURED',
             'runtime_and_scratch_allocation':'UNKNOWN_UNTIL_ACTUAL_EXECUTION'}
+    if args.framework=='deerflow':
+        profile.update(skill_catalog_policy='ROOT_OWNED_EMPTY_READONLY_IMAGE_CATALOG_REQUIRED',
+            per_agent_skill_filesystem_isolation='UNSUPPORTED_UNVALIDATED',upstream_skill_source_files_in_image='READABLE_NOT_HIDDEN')
     save(public/'profile.json',profile)
     token=secrets.token_hex(6); network='snifferdog-az-'+token; bridge='br-sd'+token[:8]
     unit='aip-collector-validation-az-'+token+'.service'

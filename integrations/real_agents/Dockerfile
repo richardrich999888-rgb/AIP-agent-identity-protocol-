@@ -25,6 +25,7 @@ ENV TIKTOKEN_CACHE_DIR=/opt/tiktoken-cache
 RUN if [ "$FRAMEWORK" = agent_zero ]; then .venv/bin/python -c 'import tiktoken; tiktoken.get_encoding("cl100k_base"); tiktoken.get_encoding("o200k_base")'; fi
 RUN useradd --uid 10001 --create-home agent && mkdir -p /opt/snifferdog /work && \
     ln -s /opt/framework /a0 && \
+    mkdir -m 0555 /opt/snifferdog/empty-skills && \
     rm -rf /opt/framework/tmp /opt/framework/logs && \
     ln -s /tmp/framework /opt/framework/tmp && ln -s /tmp/framework-logs /opt/framework/logs
 COPY adapters/launch.py /opt/snifferdog/launch.py

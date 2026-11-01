@@ -14,10 +14,12 @@ import os
 import re
 from pathlib import Path
 import signal
+import stat
 
 PROFILE = 'native-qwen32k-v1'
 MODEL = 'qwen2.5-coder:1.5b-instruct'
 CONTEXT = 32768
+EMPTY_SKILLS = "/opt/snifferdog/empty-skills"
 
 
 def configuration(framework, model, endpoint):
@@ -59,6 +61,7 @@ def deerflow_configuration(config):
         # AppConfig.from_file defaults to SQLite. Keep real persistence in
         # the existing bounded workload mount rather than the read-only image.
         'database': {'backend': 'sqlite', 'sqlite_dir': '/work/deerflow-state/database'},
+        'skills': {'path': EMPTY_SKILLS},
         'memory': {'enabled': False, 'injection_enabled': False},
         'title': {'enabled': False}, 'summarization': {'enabled': False}}
 
@@ -169,6 +172,21 @@ def _failure_record(error, stage):
     result = {'exception_type': type(error).__name__, 'stage': stage}
     if isinstance(error, OSError) and type(error.errno) is int:
         result['errno'] = error.errno
+    for attribute, field in (('status_code', 'provider_status_code'),):
+        try:
+            code = getattr(error, attribute, None)
+        except Exception:
+            code = None
+        if type(code) is int and 100 <= code <= 599:
+            result[field] = code
+    # Provider-assigned status codes are not independently observed HTTP
+    # responses. Retain only a numeric response status when one is attached.
+    try:
+        response_code = getattr(getattr(error, 'response', None), 'status_code', None)
+    except Exception:
+        response_code = None
+    if type(response_code) is int and 100 <= response_code <= 599:
+        result['http_response_status_code'] = response_code
     frames = []
     tb = error.__traceback__
     roots = ('/opt/snifferdog/', '/opt/framework/', '/usr/local/lib/python3.12/')
@@ -194,7 +212,7 @@ def safe_failure(error, stage):
 
     SDKs wrap operational failures (e.g. ConversationRunError from OSError).
     Preserve the causal type/errno/source locations needed to diagnose those
-    failures, never str(error), args, filenames, source text, locals or state.
+    failures, never str(error), args, exception filenames, source text, locals or state.
     """
     result = _failure_record(error, stage)
     chain = []
@@ -219,6 +237,16 @@ def safe_failure(error, stage):
     if chain:
         result['causal_chain'] = chain
     return result
+
+
+
+def verify_empty_catalog():
+    """Check the configured image-root catalog, without hiding other files."""
+    path = Path(EMPTY_SKILLS)
+    info = path.lstat()
+    if (not stat.S_ISDIR(info.st_mode) or info.st_uid != 0 or info.st_mode & 0o022
+            or any(path.iterdir()) or not os.statvfs(path).f_flag & os.ST_RDONLY):
+        raise ValueError('requires a root-owned empty catalog on the read-only image filesystem')
 
 
 def prepare_environment(framework):
@@ -252,10 +280,19 @@ def initialize(config, journal, timeout_s, *, deerflow_config_path='/model-confi
         if config['framework'] == 'deerflow':
             entered('deerflow_import')
             from deerflow.client import DeerFlowClient
+            entered('deerflow_empty_skill_catalog')
+            verify_empty_catalog()
             entered('deerflow_client_create')
             client = DeerFlowClient(config_path=deerflow_config_path,
                 model_name=config['model'], thinking_enabled=False, subagent_enabled=False,
-                available_skills=set())
+                available_skills=None)
+            if client.list_skills().get('skills') != []:
+                raise ValueError('the supported single-lead profile requires an empty configured skill catalog')
+            journal.emit('deerflow_skill_scope_verified', {
+                'configured_catalog': EMPTY_SKILLS, 'initial_skill_count': 0,
+                'catalog_filesystem_readonly': True, 'delegation_enabled': False,
+                'per_agent_skill_filesystem_isolation': 'UNSUPPORTED_UNVALIDATED',
+                'other_upstream_skill_files_hidden': False})
             return {'client': client, 'progress': progress}
         entered('openhands_import')
         from openhands.sdk import Agent, Conversation, LLM, Tool
