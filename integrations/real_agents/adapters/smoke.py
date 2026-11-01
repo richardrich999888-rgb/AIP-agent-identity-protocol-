@@ -59,8 +59,48 @@ def smoke_agent_zero():
                 for shell in state.shells.values():
                     await shell.session.close()
 
+    async def check_reused_terminal_tool():
+        from plugins._code_execution.tools.code_execution_tool import CodeExecution
+        source = Path("/work/smoke-session-input.json")
+        source.write_text(json.dumps({"component": "persistent-terminal", "value": 17}))
+        target = Path("/work/smoke-session-output.txt")
+        target.unlink(missing_ok=True)
+        tools = []
+        try:
+            first = CodeExecution(agent=context.agent0, name="code_execution_tool", method=None,
+                args={"runtime": "terminal", "code": "cat /work/smoke-session-input.json",
+                      "session": "0", "reset": True},
+                message="offline first persistent terminal operation", loop_data=context.agent0.loop_data)
+            tools.append(first)
+            await first.before_execution()
+            first_result = await asyncio.wait_for(first.execute(), timeout=60)
+            assert "persistent-terminal" in first_result.message
+            assert first.state.shells[0].running is False
+            session = first.state.shells[0].session
+            await first.after_execution(first_result)
+            # The second real tool uses the SAME session without reset,
+            # allow_running, output rewriting or a manual idle-state change.
+            second = CodeExecution(agent=context.agent0, name="code_execution_tool", method=None,
+                args={"runtime": "terminal", "code": _command_for(str(target), text="persistent terminal wrote this"),
+                      "session": "0", "reset": False},
+                message="offline second persistent terminal operation", loop_data=context.agent0.loop_data)
+            tools.append(second)
+            await second.before_execution()
+            second_result = await asyncio.wait_for(second.execute(), timeout=60)
+            assert target.read_text() == "persistent terminal wrote this"
+            assert second.state.shells[0].session is session
+            assert second.state.shells[0].running is False
+            await second.after_execution(second_result)
+        finally:
+            for tool in tools:
+                state = getattr(tool, "state", None)
+                if state:
+                    for shell in state.shells.values():
+                        await shell.session.close()
+
     asyncio.run(check_shell())
     asyncio.run(check_python_tool())
+    asyncio.run(check_reused_terminal_tool())
     # Actual pinned public API compatibility, with no inference or agent task.
     from launch import DiagnosticJournal, FrameworkLogCursor
     with DiagnosticJournal("/work/smoke-adapter.jsonl") as journal:
@@ -89,6 +129,7 @@ def smoke_agent_zero():
         tiny.kill_process()
     return {"pinned_incremental_log_api": "PASS", "terminal_and_file": "PASS",
             "actual_code_execution_python_runtime": "PASS",
+            "actual_code_execution_two_commands_same_terminal_session": "PASS",
             "reviewed_tiny_local_profile_policy": "PASS"}
 
 

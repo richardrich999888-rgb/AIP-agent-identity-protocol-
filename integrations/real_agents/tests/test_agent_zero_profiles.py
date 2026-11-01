@@ -21,7 +21,7 @@ from hosted_agent_zero import (QWEN3_AGENT_ZERO_PROFILE,agent_configuration,busi
                                profile_context_requirement,
                                workload_request_count)
 from evidence import Refused
-from agent_zero_runtime import reviewed_profile_settings
+from agent_zero_runtime import local_code_execution_settings, reviewed_profile_settings
 from agent_zero_capability import assess_result, final_response_matches
 
 NEW_PROFILE='agent-zero-qwen25-coder-15b'
@@ -48,6 +48,21 @@ class AgentZeroProfileTests(unittest.TestCase):
         tools=[{'type':'code_exe','kvps':{'runtime':'python','code':'controlled fixture code'}}]
         self.assertEqual(assess_result(challenge,result,'fresh7-id 7',tools)['status'],'PASS')
         with self.assertRaises(ValueError):assess_result(challenge,result,'fresh7-id 70',tools)
+
+    def test_local_tty_configuration_preserves_complete_upstream_defaults(self):
+        defaults={'ssh_enabled':'auto','prompt_patterns':r'user@host:.*[$#]$',
+            'dialog_patterns':'yes/no','code_exec_first_output_timeout':30,
+            'code_exec_between_output_timeout':15,'code_exec_max_exec_timeout':240,
+            'output_max_exec_timeout':600,'additional_upstream_setting':'must survive'}
+        actual=local_code_execution_settings(defaults)
+        self.assertIs(actual['ssh_enabled'],False)
+        self.assertEqual({k:v for k,v in actual.items() if k!='ssh_enabled'},
+                         {k:v for k,v in defaults.items() if k!='ssh_enabled'})
+        self.assertEqual(defaults['ssh_enabled'],'auto')
+        for incomplete in (None,{}, {'ssh_enabled':False},
+                           {**defaults,'prompt_patterns':''}, {**defaults,'dialog_patterns':[]}):
+            with self.subTest(incomplete=incomplete),self.assertRaises(ValueError):
+                local_code_execution_settings(incomplete)
 
     def test_default_model_pin_and_default_agent_configuration_are_unchanged(self):
         profile=preparation.model_profile()

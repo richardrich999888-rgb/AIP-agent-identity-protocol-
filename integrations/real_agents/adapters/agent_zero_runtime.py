@@ -7,6 +7,15 @@ import sys
 from pathlib import Path
 
 
+def local_code_execution_settings(defaults):
+    """Keep pinned upstream session detection/timeouts when selecting local TTY."""
+    if not isinstance(defaults, dict) or any(
+            not isinstance(defaults.get(key), str) or not defaults[key].strip()
+            for key in ("prompt_patterns", "dialog_patterns")):
+        raise ValueError("complete upstream code-execution defaults are required")
+    return {**defaults, "ssh_enabled": False}
+
+
 def diagnostic_settings(actual, memory_disabled):
     """Only resolved non-secret model settings; never endpoints/keys/headers."""
     result = {"scope": "resolved_pre_initialization_configuration",
@@ -104,7 +113,10 @@ def configure(config, requested_model, *, on_configured=None):
                                 "root_password": settings.PASSWORD_PLACEHOLDER}, apply=False)
     model_config.save_presets([preset])
     plugins.save_plugin_config("_model_config", "", "", {"model_preset": "Default"})
-    plugins.save_plugin_config("_code_execution", "", "", {"ssh_enabled": False})
+    # A saved plugin config replaces the upstream default file as a whole.
+    # Preserve its prompt/dialog detection and timeouts; override only routing.
+    code_execution = local_code_execution_settings(plugins.get_default_plugin_config("_code_execution"))
+    plugins.save_plugin_config("_code_execution", "", "", code_execution)
     if config.get("disable_memory") is True:
         # Explicit narrow workload profile. An unused embedding slot is not
         # evidence of embedding capability or validated memory behavior.

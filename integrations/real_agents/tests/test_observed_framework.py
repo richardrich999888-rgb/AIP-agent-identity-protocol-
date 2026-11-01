@@ -291,6 +291,11 @@ class ObservedFrameworkControls(unittest.TestCase):
         audit.close.side_effect = lambda: setattr(audit, 'started', False)
         audit.export.return_value = {'fixture': True}
         actual_read = Path.read_text
+        actual_exists = Path.exists
+        def exists(path, *args, **kwargs):
+            if str(path) == '/sys/kernel/tracing/available_events':
+                return True
+            return actual_exists(path, *args, **kwargs)
         def read(path, *args, **kwargs):
             if str(path) == '/sys/kernel/tracing/available_events':
                 return 'sched:sched_process_exec\ncgroup:cgroup_attach_task\nsock:sock_send_length\n'
@@ -330,6 +335,7 @@ class ObservedFrameworkControls(unittest.TestCase):
                 patch.object(observer, 'records', return_value=[{'health': {'attested_coverage': {'to_ms': 100}}}]), \
                 patch.object(observer, 'covered', return_value=True), patch.object(observer, 'verify', return_value={}), \
                 patch.object(observer, 'tamper', return_value={}), patch.object(observer, 'now', return_value=20), \
+                patch.object(Path, 'exists', new=exists), \
                 patch.object(Path, 'read_text', new=read), patch('builtins.print'):
             if primary_failure:
                 with self.assertRaisesRegex(Refused, 'fixture primary failure'):
@@ -345,6 +351,22 @@ class ObservedFrameworkControls(unittest.TestCase):
         self.assertEqual(result['status'], 'FAILED')
         self.assertNotIn('failure', result)  # all primary component stages passed
         self.assertTrue(any(e['stage'] == 'unmount workspace' for e in result['cleanup_errors']))
+
+    def test_cleanup_fixture_is_independent_of_unreadable_host_tracefs(self):
+        actual_exists = Path.exists
+        trace_queries = []
+        def denied_tracefs(path, *args, **kwargs):
+            if str(path) == '/sys/kernel/tracing/available_events':
+                trace_queries.append(path)
+                raise PermissionError(13, 'controlled inaccessible host tracefs')
+            return actual_exists(path, *args, **kwargs)
+        with patch.object(Path, 'exists', new=denied_tracefs):
+            code, result = self.invoke_default_main()
+        self.assertEqual(trace_queries, [])
+        self.assertEqual(code, 1)
+        self.assertEqual(result['status'], 'FAILED')
+        self.assertNotIn('failure', result)
+        self.assertTrue(result['cleanup_errors'])
 
     def test_primary_failure_is_not_replaced_by_cleanup_or_return_code(self):
         code, result = self.invoke_default_main(primary_failure=True)
