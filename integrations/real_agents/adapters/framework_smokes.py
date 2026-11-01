@@ -132,6 +132,23 @@ def smoke_native_initialization(framework):
                     models = resources["client"].list_models()["models"]
                     if not any(item["name"] == MODEL for item in models):
                         raise AssertionError("actual native model configuration changed")
+                    from deerflow.runtime.checkpointer import get_checkpointer, reset_checkpointer
+                    try:
+                        checkpointer = get_checkpointer()
+                        if checkpointer.get_tuple({"configurable": {
+                                "thread_id": "offline-native-component-smoke", "checkpoint_ns": ""}}) is not None:
+                            raise AssertionError("component checkpoint thread must be fresh")
+                        database = Path("/work/deerflow-state/database/deerflow.db")
+                        if database.is_symlink() or not database.is_file():
+                            raise AssertionError("actual SQLite checkpoint database was not created in workload storage")
+                    finally:
+                        reset_checkpointer()
+                else:
+                    from openhands.sdk.llm import Message, TextContent
+                    count = resources["conversation"].agent.llm.get_token_count([
+                        Message(role="user", content=[TextContent(text="offline tokenizer component check")])])
+                    if type(count) is not int or count <= 0:
+                        raise AssertionError("actual configured SDK token counter did not return a positive count")
             finally:
                 if framework == "openhands":
                     resources["conversation"].close()
@@ -145,7 +162,9 @@ def smoke_native_initialization(framework):
         raise RuntimeError("native initialization smoke failed") from None
     return {"native_initialization": "PASS", "native_model_invocation": "NOT_INVOKED",
             "native_lazy_graph_and_agent_turn": "NOT_EXERCISED",
-            **({"native_conversation_close": "PASS"} if framework == "openhands" else {})}
+            **({"native_conversation_close": "PASS", "native_sdk_offline_token_counter": "PASS",
+                "native_model_tokenization_accuracy": "NOT_ESTABLISHED"} if framework == "openhands" else
+               {"native_sqlite_checkpoint_open_fresh_read_close": "PASS"})}
 
 
 def smoke_deerflow():

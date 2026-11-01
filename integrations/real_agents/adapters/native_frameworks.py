@@ -56,6 +56,9 @@ def deerflow_configuration(config):
         'tools': [{'name': 'bash', 'group': 'bash', 'use': 'deerflow.sandbox.tools:bash_tool'},
             {'name': 'read_file', 'group': 'file:read', 'use': 'deerflow.sandbox.tools:read_file_tool'},
             {'name': 'write_file', 'group': 'file:write', 'use': 'deerflow.sandbox.tools:write_file_tool'}],
+        # AppConfig.from_file defaults to SQLite. Keep real persistence in
+        # the existing bounded workload mount rather than the read-only image.
+        'database': {'backend': 'sqlite', 'sqlite_dir': '/work/deerflow-state/database'},
         'memory': {'enabled': False, 'injection_enabled': False},
         'title': {'enabled': False}, 'summarization': {'enabled': False}}
 
@@ -161,8 +164,8 @@ class Progress:
         journal.emit('native_framework_event', data)
 
 
-def safe_failure(error, stage):
-    """Bounded source locations and errno only, never exception text or locals."""
+def _failure_record(error, stage):
+    """Payload-free metadata for one actual exception."""
     result = {'exception_type': type(error).__name__, 'stage': stage}
     if isinstance(error, OSError) and type(error.errno) is int:
         result['errno'] = error.errno
@@ -183,6 +186,38 @@ def safe_failure(error, stage):
         frames.append(frame)
         tb = tb.tb_next
     result['source_frames'] = frames[-12:]
+    return result
+
+
+def safe_failure(error, stage):
+    """At most four actual exceptions, with cycle fencing and no payloads.
+
+    SDKs wrap operational failures (e.g. ConversationRunError from OSError).
+    Preserve the causal type/errno/source locations needed to diagnose those
+    failures, never str(error), args, filenames, source text, locals or state.
+    """
+    result = _failure_record(error, stage)
+    chain = []
+    seen = {id(error)}
+    current = error
+    while True:
+        following = current.__cause__
+        if following is None and not current.__suppress_context__:
+            following = current.__context__
+        if following is None:
+            break
+        if id(following) in seen:
+            result['causal_chain_cycle'] = True
+            result['causal_chain_truncated'] = True
+            break
+        if len(chain) >= 3:
+            result['causal_chain_truncated'] = True
+            break
+        seen.add(id(following))
+        chain.append(_failure_record(following, stage))
+        current = following
+    if chain:
+        result['causal_chain'] = chain
     return result
 
 

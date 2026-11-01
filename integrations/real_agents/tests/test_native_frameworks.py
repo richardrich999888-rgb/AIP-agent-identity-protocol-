@@ -44,6 +44,8 @@ class NativeFrameworkTests(unittest.TestCase):
         self.assertEqual(config['sandbox']['mounts'],[
             {'host_path':'/work','container_path':'/work','read_only':False},
             {'host_path':'/model-config','container_path':'/model-config','read_only':True}])
+        self.assertEqual(config['database'],{'backend':'sqlite','sqlite_dir':'/work/deerflow-state/database'})
+        self.assertNotIn('checkpointer',config)
         self.assertFalse(config['memory']['enabled'])
         self.assertFalse(config['title']['enabled'])
         self.assertFalse(config['summarization']['enabled'])
@@ -199,6 +201,25 @@ class NativeFrameworkTests(unittest.TestCase):
         for secret in ('private-error-message','credential-file','raise OSError','locals','args'):
             self.assertNotIn(secret,text)
         self.assertLessEqual(len(report['source_frames']),12)
+
+    def test_causal_diagnostics_are_bounded_cycle_fenced_and_payload_free(self):
+        errors=[RuntimeError('private-root'),OSError(30,'private-errno','/private/key'),
+                ValueError('private-value'),TypeError('private-type'),LookupError('private-lookup')]
+        for parent,cause in zip(errors,errors[1:]):parent.__cause__=cause
+        report=safe_failure(errors[0],'openhands_run')
+        self.assertEqual(len(report['causal_chain']),3)
+        self.assertTrue(report['causal_chain_truncated'])
+        self.assertEqual(report['causal_chain'][0]['errno'],30)
+        self.assertEqual([x['exception_type'] for x in report['causal_chain']],['OSError','ValueError','TypeError'])
+        errors[1].__cause__=errors[0]
+        cyclic=safe_failure(errors[0],'openhands_run')
+        self.assertEqual(len(cyclic['causal_chain']),1)
+        self.assertTrue(cyclic['causal_chain_cycle'])
+        self.assertTrue(cyclic['causal_chain_truncated'])
+        for secret in ('private-root','private-errno','private-value','private-type','private-lookup','/private/key'):
+            self.assertNotIn(secret,json.dumps([report,cyclic]))
+        errors[0].__cause__=None;errors[0].__context__=errors[2];errors[0].__suppress_context__=True
+        self.assertNotIn('causal_chain',safe_failure(errors[0],'suppressed_context'))
 
     def test_served_context_uses_actual_service_state_and_rejects_sdk_metadata_only(self):
         class Reply:

@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -15,6 +16,7 @@ sys.path.insert(0,str(ROOT/'integrations/real_agents'))
 sys.path.insert(0,str(ROOT/'integrations/real_agents/adapters'))
 sys.path.insert(0,str(ROOT/'validation/enterprise'))
 import prepare_local_model as preparation
+import hosted_agent_zero as hosted
 from hosted_agent_zero import (QWEN3_AGENT_ZERO_PROFILE,agent_configuration,business_success,framework_capability,
                                profile_context_requirement,
                                workload_request_count)
@@ -91,6 +93,22 @@ class AgentZeroProfileTests(unittest.TestCase):
         self.assertIsNone(profile_context_requirement('agent_zero',preparation.DEFAULT_MODEL_PROFILE))
         self.assertEqual(profile_context_requirement('deerflow',NEW_PROFILE),32768)
         self.assertEqual(profile_context_requirement('openhands',NEW_PROFILE),32768)
+
+    def test_qwen3_cli_is_rejected_for_native_frameworks_before_model_provisioning(self):
+        frameworks=json.loads((ROOT/'integrations/real_agents/frameworks.lock.json').read_text())
+        for framework in ('deerflow','openhands'):
+            self.host_command.return_value=json.dumps({'org.opencontainers.image.revision':frameworks[framework]['commit']})
+            argv=['hosted_agent_zero.py','run','--image','sha256:'+'0'*64,
+                '--tools',str(self.root/'tools'),'--model-root',str(self.root/'models'),
+                '--out',str(self.root/'out'),'--framework',framework,
+                '--task','business-reconciliation','--model-profile',QWEN3_AGENT_ZERO_PROFILE]
+            with self.subTest(framework=framework),patch.object(sys,'argv',argv), \
+                    patch.object(sys,'platform','linux'),patch('hosted_agent_zero.os.geteuid',return_value=0), \
+                    patch.dict(os.environ,{'RUNNER_ENVIRONMENT':'github-hosted'}), \
+                    patch('hosted_agent_zero.verify_model') as verify, \
+                    self.assertRaisesRegex(Refused,'native frameworks require'):
+                hosted.main()
+            verify.assert_not_called()
 
     def test_qwen3_weight_pin_is_enforced_in_addition_to_all_blob_hashes(self):
         models=self.root/'candidate-models';blobs=models/'blobs';blobs.mkdir(parents=True)
