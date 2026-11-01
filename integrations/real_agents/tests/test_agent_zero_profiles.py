@@ -19,7 +19,7 @@ from hosted_agent_zero import (agent_configuration,business_success,framework_ca
                                workload_request_count)
 from evidence import Refused
 from agent_zero_runtime import reviewed_profile_settings
-from agent_zero_capability import assess_result
+from agent_zero_capability import assess_result, final_response_matches
 
 NEW_PROFILE='agent-zero-qwen25-coder-15b'
 
@@ -33,6 +33,18 @@ class AgentZeroProfileTests(unittest.TestCase):
         self.host_command=self.command_patch.start();self.addCleanup(self.command_patch.stop)
     def tearDown(self):
         self.temp.cleanup()
+
+    def test_capability_final_response_requires_exact_sum_outside_id(self):
+        for response in ('fresh7-id 7','fresh7-id: sum=7, complete'):
+            self.assertTrue(final_response_matches(response,'fresh7-id',7))
+        for response in ('fresh7-id only','fresh7-id 70','fresh7-id 17','fresh7-id -7',
+                         'fresh7-id 7.0','fresh7-id 7e0','fresh7-id 0x7',None):
+            with self.subTest(response=response):self.assertFalse(final_response_matches(response,'fresh7-id',7))
+        result=self.root/'cap-result.json';challenge={'capability_id':'fresh7-id','left':3,'right':4}
+        result.write_text(json.dumps({'capability_id':'fresh7-id','sum':7}))
+        tools=[{'type':'code_exe','kvps':{'runtime':'python','code':'controlled fixture code'}}]
+        self.assertEqual(assess_result(challenge,result,'fresh7-id 7',tools)['status'],'PASS')
+        with self.assertRaises(ValueError):assess_result(challenge,result,'fresh7-id 70',tools)
 
     def test_default_model_pin_and_default_agent_configuration_are_unchanged(self):
         profile=preparation.model_profile()

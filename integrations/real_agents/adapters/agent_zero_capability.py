@@ -5,6 +5,7 @@ import contextlib
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import stat
 import sys
@@ -32,6 +33,17 @@ def read_regular_json(path):
     return raw, json.loads(raw)
 
 
+
+def final_response_matches(response, capability_id, expected_sum):
+    """Require an exact integer token independently of digits in the ID."""
+    if (not isinstance(response, str) or not isinstance(capability_id, str) or not capability_id
+            or type(expected_sum) is not int or capability_id not in response):
+        return False
+    text = response.replace(capability_id, '')
+    return re.search(r'(?<![A-Za-z0-9_.+\-])' + re.escape(str(expected_sum)) +
+                     r'(?![A-Za-z0-9_.])', text) is not None
+
+
 def assess_result(challenge, result_path, response, log_items):
     raw, result = read_regular_json(result_path)
     expected = {"capability_id": challenge["capability_id"],
@@ -46,7 +58,7 @@ def assess_result(challenge, result_path, response, log_items):
                   and item["kvps"]["code"].strip()]
     if not code_items:
         raise ValueError("framework did not record an actual code-execution tool operation")
-    if not isinstance(response, str) or challenge["capability_id"] not in response or str(expected["sum"]) not in response:
+    if not final_response_matches(response, challenge['capability_id'], expected['sum']):
         raise ValueError("actual final response does not contain the challenge result")
     return {"status": "PASS", "framework_code_operations": len(code_items),
             "output_sha256": hashlib.sha256(raw).hexdigest(),

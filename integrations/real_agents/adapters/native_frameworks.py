@@ -161,55 +161,151 @@ class Progress:
         journal.emit('native_framework_event', data)
 
 
-def run(config, prompt, run_id, journal, timeout_s):
+def safe_failure(error, stage):
+    """Bounded source locations and errno only, never exception text or locals."""
+    result = {'exception_type': type(error).__name__, 'stage': stage}
+    if isinstance(error, OSError) and type(error.errno) is int:
+        result['errno'] = error.errno
+    frames = []
+    tb = error.__traceback__
+    roots = ('/opt/snifferdog/', '/opt/framework/', '/usr/local/lib/python3.12/')
+    while tb is not None:
+        code = tb.tb_frame.f_code
+        filename = code.co_filename
+        frame = {'source': 'UNAPPROVED_SOURCE_OMITTED'}
+        for root in roots:
+            if (filename.startswith(root) and not filename.startswith('/opt/framework/usr/')
+                    and len(filename) <= 320 and re.fullmatch(r'[A-Za-z0-9_./-]+', filename)
+                    and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{0,79}|<module>|<lambda>|<listcomp>|<dictcomp>|<genexpr>', code.co_name)):
+                frame = {'source_root': root, 'file': filename[len(root):],
+                         'function': code.co_name, 'line': tb.tb_lineno}
+                break
+        frames.append(frame)
+        tb = tb.tb_next
+    result['source_frames'] = frames[-12:]
+    return result
+
+
+def prepare_environment(framework):
+    # The direct capability entrypoint bypasses entrypoint.sh. Reproduce its
+    # existing writable runtime-directory contract before framework imports.
+    for path in (os.environ['HOME'], '/tmp/framework', '/tmp/framework-logs'):
+        Path(path).mkdir(parents=True, exist_ok=True)
+    if framework == 'deerflow':
+        os.chdir('/opt/framework/backend')
+
+
+def initialize(config, journal, timeout_s, *, deerflow_config_path='/model-config/deerflow.yaml'):
+    """Actual pinned configuration initialization; never sends a model prompt.
+
+    The image smoke and genuine adapter share this path. DeerFlow graph
+    compilation remains lazy; callers must label its pinned internal compile
+    check separately. In-process objects returned here are never evidence.
+    """
     validate(config)
     progress = Progress()
     journal.emit('configuration_verified', {key: config[key] for key in (
         'reviewed_profile', 'framework', 'model', 'context_length', 'native_tool_calling',
         'model_api_credentials_used', 'compatibility_string_is_credential')})
-    if config['framework'] == 'deerflow':
-        from deerflow.client import DeerFlowClient
-        client = DeerFlowClient(config_path='/model-config/deerflow.yaml',
-            model_name=config['model'], thinking_enabled=False, subagent_enabled=False,
-            available_skills=set())
-        for event in client.stream(prompt, thread_id=run_id, recursion_limit=24):
-            progress.deerflow(event, journal)
-    else:
+    stage = 'framework_environment'
+    def entered(value):
+        nonlocal stage
+        stage = value
+        journal.emit('native_framework_stage', {'framework': config['framework'], 'stage': stage})
+    try:
+        prepare_environment(config['framework'])
+        if config['framework'] == 'deerflow':
+            entered('deerflow_import')
+            from deerflow.client import DeerFlowClient
+            entered('deerflow_client_create')
+            client = DeerFlowClient(config_path=deerflow_config_path,
+                model_name=config['model'], thinking_enabled=False, subagent_enabled=False,
+                available_skills=set())
+            return {'client': client, 'progress': progress}
+        entered('openhands_import')
         from openhands.sdk import Agent, Conversation, LLM, Tool
         from openhands.tools.terminal import TerminalTool
         from openhands.sdk.tool.builtins.finish import FinishTool
         from openhands.sdk.conversation.state import ConversationExecutionStatus
         progress.terminal_name, progress.finish_name = TerminalTool.name, FinishTool.name
+        entered('openhands_llm_create')
         llm = LLM(model='ollama_chat/' + config['model'], base_url=config['endpoint'],
             api_key=config['compatibility_string'], native_tool_calling=True,
             api_mode='chat', max_input_tokens=CONTEXT, max_output_tokens=1024,
             timeout=min(timeout_s, 120), num_retries=0, temperature=0)
+        entered('openhands_agent_create')
         agent = Agent(llm=llm, tools=[Tool(name=TerminalTool.name)],
                       system_prompt_kwargs={'cli_mode': True})
-        with Conversation(agent=agent, workspace='/work', max_iteration_per_run=24,
-                          callbacks=[lambda event: progress.openhands(event, journal)],
-                          visualizer=None) as conversation:
-            conversation.send_message(prompt)
-            conversation.run()
-            progress.finished = progress.finished and conversation.state.execution_status == ConversationExecutionStatus.FINISHED
-    if not progress.finished or not progress.final:
-        raise ValueError('native framework did not finish with an actual final response')
-    journal.emit('native_framework_returned', {'framework': config['framework'],
-        'terminal_calls': len(progress.calls), 'terminal_results': len(progress.completed),
-        'independent_task_acceptance': False})
-    return progress
+        entered('openhands_conversation_create')
+        try:
+            # The pinned LocalConversation exposes close(), not __enter__.
+            conversation = Conversation(agent=agent, workspace='/work', max_iteration_per_run=24,
+                callbacks=[lambda event: progress.openhands(event, journal)], visualizer=None)
+        except BaseException:
+            try:
+                agent.close()
+            except Exception as error:
+                journal.emit('native_framework_cleanup_failed', safe_failure(error, 'openhands_agent_close'))
+            raise
+        return {'conversation': conversation, 'progress': progress,
+                'finished_status': ConversationExecutionStatus.FINISHED}
+    except Exception as error:
+        journal.emit('native_framework_failure', safe_failure(error, stage))
+        raise
+
+
+def run(config, prompt, run_id, journal, timeout_s):
+    resources = initialize(config, journal, timeout_s)
+    progress = resources['progress']
+    stage = 'framework_run'
+    try:
+        if config['framework'] == 'deerflow':
+            stage = 'deerflow_stream'
+            journal.emit('native_framework_stage', {'framework': config['framework'], 'stage': stage})
+            for event in resources['client'].stream(prompt, thread_id=run_id, recursion_limit=24):
+                progress.deerflow(event, journal)
+        else:
+            conversation = resources['conversation']
+            primary_failure = False
+            try:
+                stage = 'openhands_send_message'
+                journal.emit('native_framework_stage', {'framework': config['framework'], 'stage': stage})
+                conversation.send_message(prompt)
+                stage = 'openhands_run'
+                journal.emit('native_framework_stage', {'framework': config['framework'], 'stage': stage})
+                conversation.run()
+                progress.finished = progress.finished and conversation.state.execution_status == resources['finished_status']
+            except BaseException:
+                primary_failure = True
+                raise
+            finally:
+                try:
+                    conversation.close()
+                except Exception as error:
+                    journal.emit('native_framework_cleanup_failed', safe_failure(error, 'openhands_close'))
+                    if not primary_failure:
+                        stage = 'openhands_close'
+                        raise
+        stage = 'framework_final_response_check'
+        if not progress.finished or not progress.final:
+            raise ValueError('native framework did not finish with an actual final response')
+        journal.emit('native_framework_returned', {'framework': config['framework'],
+            'terminal_calls': len(progress.calls), 'terminal_results': len(progress.completed),
+            'independent_task_acceptance': False})
+        return progress
+    except Exception as error:
+        journal.emit('native_framework_failure', safe_failure(error, stage))
+        raise
 
 
 def assess(challenge, result_path, progress):
-    from agent_zero_capability import read_regular_json
+    from agent_zero_capability import final_response_matches, read_regular_json
     raw, result = read_regular_json(result_path)
     expected = {'capability_id': challenge['capability_id'], 'sum': challenge['left'] + challenge['right']}
     if type(result) is not dict or type(result.get('sum')) is not int or result != expected:
         raise ValueError('actual capability output does not match the independent fresh challenge')
-    final_without_id = progress.final.replace(challenge['capability_id'], '')
-    exact_integer = re.search(r'(?<![A-Za-z0-9_.+\-])' + re.escape(str(expected['sum'])) +
-                              r'(?![A-Za-z0-9_.])', final_without_id)
-    if not progress.completed or not progress.finished or challenge['capability_id'] not in progress.final or not exact_integer:
+    if not progress.completed or not progress.finished or not final_response_matches(
+            progress.final, challenge['capability_id'], expected['sum']):
         raise ValueError('native tool-result and final-response capability is incomplete')
     return {'status': 'PASS', 'framework_code_operations': len(progress.completed),
             'output_sha256': hashlib.sha256(raw).hexdigest(), 'final_response_matches_challenge': True}
@@ -252,7 +348,8 @@ def main():
                 report.update(assess(challenge, '/work/capability-result.json', progress))
             except Exception as error:
                 report['failure_type'] = type(error).__name__
-                journal.emit('capability_failed', {'exception_type': type(error).__name__})
+                report['failure_details'] = safe_failure(error, 'capability')
+                journal.emit('capability_failed', report['failure_details'])
             finally:
                 signal.alarm(0)
     print(json.dumps(report, allow_nan=False))

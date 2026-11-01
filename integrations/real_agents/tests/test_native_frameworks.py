@@ -1,12 +1,13 @@
 """Controlled native-profile contracts, not framework/model execution evidence."""
 import json
 from pathlib import Path
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 import tempfile
+import sys
 import unittest
 from unittest.mock import patch
 
-from native_frameworks import CONTEXT, MODEL, Progress, assess, configuration, deerflow_bash_return_status, deerflow_configuration, validate
+from native_frameworks import CONTEXT, MODEL, Progress, assess, configuration, deerflow_bash_return_status, deerflow_configuration, prepare_environment, run, safe_failure, validate
 from hosted_agent_zero import agent_configuration, served_context
 
 
@@ -130,6 +131,74 @@ class NativeFrameworkTests(unittest.TestCase):
             with self.assertRaises(ValueError):assess(id_challenge,path,p)
             path.unlink();path.symlink_to('/etc/passwd')
             with self.assertRaises(ValueError):assess(challenge,path,p)
+
+    def test_openhands_pinned_close_only_lifecycle_and_primary_failure_cleanup(self):
+        # Controlled API fixture deliberately has no __enter__/__exit__, like
+        # the exact pinned LocalConversation. This is not upstream execution.
+        for fail_run,fail_close in ((False,False),(True,False),(True,True),(False,True)):
+            with self.subTest(fail_run=fail_run,fail_close=fail_close):
+                calls=[];j=Journal()
+                class Conversation:
+                    def __init__(self,**kwargs):
+                        self.callbacks=kwargs['callbacks'];self.state=SimpleNamespace(execution_status='finished')
+                        calls.append('create')
+                    def send_message(self,prompt):calls.append('message')
+                    def run(self):
+                        calls.append('run')
+                        if fail_run:raise RuntimeError('private-message-must-not-leak')
+                        for item in [event('ActionEvent',tool_name='terminal',tool_call_id='c1',action=SimpleNamespace(command='controlled fixture')),
+                            event('ObservationEvent',tool_name='terminal',tool_call_id='c1',observation=SimpleNamespace(is_error=False,metadata=SimpleNamespace(exit_code=0))),
+                            event('ActionEvent',tool_name='finish',tool_call_id='f1',action=SimpleNamespace(message='fixture final')),
+                            event('ObservationEvent',tool_name='finish',tool_call_id='f1',observation=SimpleNamespace(is_error=False))]:
+                            for callback in self.callbacks:callback(item)
+                    def close(self):
+                        calls.append('close')
+                        if fail_close:raise OSError(30,'private-cleanup-message')
+                modules={name:ModuleType(name) for name in ('openhands','openhands.sdk','openhands.tools','openhands.tools.terminal',
+                    'openhands.sdk.tool','openhands.sdk.tool.builtins','openhands.sdk.tool.builtins.finish',
+                    'openhands.sdk.conversation','openhands.sdk.conversation.state')}
+                sdk=modules['openhands.sdk'];sdk.Conversation=Conversation
+                sdk.Agent=lambda **kwargs:SimpleNamespace(**kwargs)
+                sdk.LLM=lambda **kwargs:SimpleNamespace(**kwargs)
+                sdk.Tool=lambda **kwargs:SimpleNamespace(**kwargs)
+                modules['openhands.tools.terminal'].TerminalTool=SimpleNamespace(name='terminal')
+                modules['openhands.sdk.tool.builtins.finish'].FinishTool=SimpleNamespace(name='finish')
+                modules['openhands.sdk.conversation.state'].ConversationExecutionStatus=SimpleNamespace(FINISHED='finished')
+                config=configuration('openhands',MODEL,'http://172.19.0.2:11434')
+                with patch.dict(sys.modules,modules), patch('native_frameworks.prepare_environment'):
+                    if fail_run or fail_close:
+                        with self.assertRaises(RuntimeError if fail_run else OSError):run(config,'fixture prompt','fixture',j,240)
+                    else:self.assertTrue(run(config,'fixture prompt','fixture',j,240).finished)
+                self.assertEqual(calls,['create','message','run','close'])
+                text=json.dumps(j.rows)
+                self.assertNotIn('private-message-must-not-leak',text)
+                self.assertNotIn('private-cleanup-message',text)
+                if fail_run or fail_close:
+                    failure=[v for k,v in j.rows if k=='native_framework_failure'][-1]
+                    self.assertEqual(failure['stage'],'openhands_run' if fail_run else 'openhands_close')
+
+    def test_direct_capability_reproduces_existing_entrypoint_directories_and_deerflow_cwd(self):
+        with patch.dict('os.environ',{'HOME':'/tmp/controlled-native-home'}), \
+                patch('native_frameworks.Path.mkdir') as mkdir, patch('native_frameworks.os.chdir') as chdir:
+            prepare_environment('deerflow')
+            self.assertEqual(mkdir.call_count,3)
+            for call in mkdir.call_args_list:self.assertEqual(call.kwargs,{'parents':True,'exist_ok':True})
+            chdir.assert_called_once_with('/opt/framework/backend')
+            chdir.reset_mock();prepare_environment('openhands');chdir.assert_not_called()
+
+    def test_failure_diagnostic_keeps_errno_and_approved_source_locations_without_private_values(self):
+        try:
+            exec(compile("raise OSError(30, 'private-error-message', '/private/credential-file')",
+                         '/opt/framework/backend/pinned_module.py','exec'))
+        except OSError as error:report=safe_failure(error,'deerflow_stream')
+        self.assertEqual(report['errno'],30)
+        self.assertEqual(report['stage'],'deerflow_stream')
+        approved=[f for f in report['source_frames'] if f.get('source_root')=='/opt/framework/']
+        self.assertEqual(approved,[{'source_root':'/opt/framework/','file':'backend/pinned_module.py','function':'<module>','line':1}])
+        text=json.dumps(report)
+        for secret in ('private-error-message','credential-file','raise OSError','locals','args'):
+            self.assertNotIn(secret,text)
+        self.assertLessEqual(len(report['source_frames']),12)
 
     def test_served_context_uses_actual_service_state_and_rejects_sdk_metadata_only(self):
         class Reply:

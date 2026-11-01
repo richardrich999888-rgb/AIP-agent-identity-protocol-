@@ -111,6 +111,43 @@ def _command_for(path, *, text=None):
     return "python -c " + shlex.quote(code)
 
 
+def smoke_native_initialization(framework):
+    """Construct the real reviewed native runtime without sending a prompt."""
+    from launch import DiagnosticJournal
+    from native_frameworks import (MODEL, configuration, deerflow_configuration,
+                                   initialize, safe_failure)
+    config = configuration(framework, MODEL, "http://127.0.0.1:11434")
+    native_path = Path("/work/native-deerflow-smoke.yaml")
+    if framework == "deerflow":
+        native_path.write_text(json.dumps(deerflow_configuration(config)))
+    journal_path = Path("/work/native-initialization-smoke.jsonl")
+    try:
+        with DiagnosticJournal(journal_path) as journal:
+            resources = initialize(config, journal, 60, deerflow_config_path=str(native_path))
+            try:
+                progress = resources["progress"]
+                if progress.calls or progress.completed or progress.finished or progress.final:
+                    raise AssertionError("initialization must not execute an agent turn")
+                if framework == "deerflow":
+                    models = resources["client"].list_models()["models"]
+                    if not any(item["name"] == MODEL for item in models):
+                        raise AssertionError("actual native model configuration changed")
+            finally:
+                if framework == "openhands":
+                    resources["conversation"].close()
+    except Exception as error:
+        # Retain bounded original stage records and safe source locations in
+        # the existing smoke output artifact; no exception text/config/locals.
+        rows = [json.loads(line) for line in journal_path.read_text().splitlines()] if journal_path.is_file() else []
+        print(json.dumps({"status": "FAIL", "kind": "native initialization smoke",
+                          "failure": safe_failure(error, "native_initialization_smoke"),
+                          "self_reported_records": rows}), flush=True)
+        raise RuntimeError("native initialization smoke failed") from None
+    return {"native_initialization": "PASS", "native_model_invocation": "NOT_INVOKED",
+            "native_lazy_graph_and_agent_turn": "NOT_EXERCISED",
+            **({"native_conversation_close": "PASS"} if framework == "openhands" else {})}
+
+
 def smoke_deerflow():
     from deerflow.client import DeerFlowClient
     from deerflow.sandbox.local import LocalSandboxProvider
@@ -145,7 +182,7 @@ def smoke_deerflow():
         provider.shutdown()
     return {"embedded_client_config": "PASS", "local_terminal_and_file": "PASS",
             "local_execution_scope": "unprivileged workload container only",
-            "model_invocation": "NOT_INVOKED"}
+            "model_invocation": "NOT_INVOKED", **smoke_native_initialization("deerflow")}
 
 
 def smoke_openhands():
@@ -158,7 +195,7 @@ def smoke_openhands():
               base_url="http://127.0.0.1:9/v1")
     Agent(llm=llm, tools=[Tool(name=tool.name) for tool in
                          (TerminalTool, FileEditorTool, TaskTrackerTool)])
-    # Import the exact launcher surface but never create/run a conversation.
+    # Preserve the generic SDK check; the reviewed native lifecycle is checked below.
     if not callable(Conversation):
         raise AssertionError("pinned Conversation API is unavailable")
     editor = FileEditorExecutor(workspace_root="/work")
@@ -184,4 +221,5 @@ def smoke_openhands():
     finally:
         terminal.close()
     return {"sdk_agent_config": "PASS", "file_editor_create_view_replace": "PASS",
-            "terminal": "PASS", "terminal_backend": backend, "model_invocation": "NOT_INVOKED"}
+            "terminal": "PASS", "terminal_backend": backend, "model_invocation": "NOT_INVOKED",
+            **smoke_native_initialization("openhands")}
