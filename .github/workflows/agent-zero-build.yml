@@ -28,7 +28,7 @@ on:
         description: Immutable reviewed local model profile
         required: true
         type: choice
-        options: [llama32-1b, agent-zero-qwen25-coder-15b]
+        options: [llama32-1b, agent-zero-qwen25-coder-15b, agent-zero-qwen3-4b-instruct-2507]
         default: llama32-1b
 permissions:
   contents: read

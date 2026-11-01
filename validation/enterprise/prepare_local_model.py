@@ -26,6 +26,12 @@ MODEL_PROFILES = {
         'model': 'qwen2.5-coder:1.5b-instruct',
         'manifest_sha256': 'd7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668',
         'family': 'qwen2.5-coder', 'tag': '1.5b-instruct', 'license': 'Apache-2.0'},
+    'agent-zero-qwen3-4b-instruct-2507': {
+        'model': 'qwen3:4b-instruct-2507-q4_K_M',
+        'manifest_sha256': '0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0',
+        'family': 'qwen3', 'tag': '4b-instruct-2507-q4_K_M', 'license': 'Apache-2.0',
+        'model_blob_sha256': '85e4a5b7b8ef0e48af0e8658f5aaab9c2324c76c1641493f4d1e25fce54b18b9',
+        'model_blob_bytes': 2497280480},
 }
 
 
@@ -68,6 +74,12 @@ def verify_model(models, profile_name=DEFAULT_MODEL_PROFILE):
     if sha(manifest) != profile['manifest_sha256']:
         raise ValueError('model tag changed; reviewed manifest digest required')
     value = json.loads(manifest.read_bytes())
+    if 'model_blob_sha256' in profile:
+        weights = [layer for layer in value['layers']
+                   if layer.get('mediaType') == 'application/vnd.ollama.image.model']
+        if (len(weights) != 1 or weights[0]['digest'] != 'sha256:' + profile['model_blob_sha256']
+                or weights[0]['size'] != profile['model_blob_bytes']):
+            raise ValueError('model weight layer differs from the explicit reviewed asset pin')
     for layer in [value['config'], *value['layers']]:
         digest = layer['digest']
         if not re.fullmatch(r'sha256:[0-9a-f]{64}', digest):

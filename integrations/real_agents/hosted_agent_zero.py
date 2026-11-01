@@ -34,6 +34,14 @@ from prepare_local_model import DEFAULT_MODEL_PROFILE, MODEL_PROFILES, model_pro
 
 CLICK_REVISION = '2247b35ea1c47c727d7a06e51fa280e12a863ff6'
 ISSUE_URL = 'https://api.github.com/repos/pallets/click/issues/3652'
+QWEN3_AGENT_ZERO_PROFILE = 'agent-zero-qwen3-4b-instruct-2507'
+REVIEWED_AGENT_ZERO_PROFILES = frozenset(('agent-zero-qwen25-coder-15b', QWEN3_AGENT_ZERO_PROFILE))
+
+
+def profile_context_requirement(framework, profile_name):
+    if framework != 'agent_zero':
+        return 32768
+    return 8192 if profile_name == QWEN3_AGENT_ZERO_PROFILE else None
 
 
 def private_json(path, value):
@@ -250,7 +258,7 @@ def agent_configuration(model, endpoint, profile_name):
     config={'preset':{'name':'Default','chat':chat,'utility':slot,
                      'embedding':{'provider':'ollama','name':model,'api_base':endpoint}},
             'settings':{},'disable_memory':True}
-    if profile_name=='agent-zero-qwen25-coder-15b':
+    if profile_name in REVIEWED_AGENT_ZERO_PROFILES:
         config['reviewed_profile']='tiny-local-coding-v1'
         config['settings']['agent_profile']='tiny-local'
     return config
@@ -415,11 +423,12 @@ def main():
     framework=json.loads((HERE/'frameworks.lock.json').read_text())[args.framework]
     if not labels or labels.get('org.opencontainers.image.revision')!=framework['commit']:
         raise Refused('framework image source revision differs from the existing reviewed pin')
-    if args.task=='business-reconciliation' and args.model_profile!='agent-zero-qwen25-coder-15b':
+    if args.task=='business-reconciliation' and args.model_profile not in REVIEWED_AGENT_ZERO_PROFILES:
         raise Refused('business task requires the explicit reviewed Agent Zero model/profile')
     if args.framework!='agent_zero' and (args.task!='business-reconciliation' or args.model_profile!='agent-zero-qwen25-coder-15b'):
         raise Refused('native frameworks require the explicit reviewed business task and pinned Qwen model')
-    context_length=8192 if args.framework=='agent_zero' else 32768
+    required_context=profile_context_requirement(args.framework,args.model_profile)
+    context_length=required_context or 8192
     selected_model=model_profile(args.model_profile)
     model,manifest=selected_model['model'],selected_model['manifest_sha256']
     model_root=args.model_root.resolve(); verify_model(model_root/'models',args.model_profile)
@@ -439,6 +448,18 @@ def main():
         'memory_recall':'NOT_EXERCISED_FRESH_WORKSPACE' if args.framework=='openhands' else 'DISABLED_UNVALIDATED','embedding':'UNVALIDATED_NOT_INVOKED',
         'served_context_length':context_length,
         'source_commit':command(['git','rev-parse','HEAD'],cwd=ROOT).strip()}
+    if args.model_profile==QWEN3_AGENT_ZERO_PROFILE:
+        # Architecture arithmetic only. The unchanged cgroup bound and actual
+        # service-context checks must still pass; no capacity result is inferred.
+        weights=selected_model['model_blob_bytes']
+        kv=36*2*8*128*8192*2
+        profile['model_memory_assessment']={
+            'classification':'CALCULATED_HEADROOM_NOT_MEASURED_CAPACITY',
+            'weights_bytes':weights,'fp16_kv_bytes_at_8192':kv,
+            'model_memory_limit_bytes':5*1024**3,
+            'remaining_bytes_before_runtime_and_scratch':5*1024**3-weights-kv,
+            'actual_peak_usage':'NOT_MEASURED',
+            'runtime_and_scratch_allocation':'UNKNOWN_UNTIL_ACTUAL_EXECUTION'}
     save(public/'profile.json',profile)
     token=secrets.token_hex(6); network='snifferdog-az-'+token; bridge='br-sd'+token[:8]
     unit='aip-collector-validation-az-'+token+'.service'
@@ -503,7 +524,7 @@ def main():
         # Non-vacuous host-service denial: a real listening service must be unreachable.
         listener=socket.socket(); listener.bind((gateway,0)); listener.listen(4)
         policy_cfg={'image':args.image,'network':network,'model_container':model_name,
-            'model_ip':model_ip,'framework':args.framework,'context_length':context_length if args.framework!='agent_zero' else None,'gateway':gateway,'host_probe_port':listener.getsockname()[1],
+            'model_ip':model_ip,'framework':args.framework,'context_length':required_context,'gateway':gateway,'host_probe_port':listener.getsockname()[1],
             'model':model,'manifest':manifest,'public':str(public),'chat_timeout_seconds':120}
         if business is not None:
             policy_cfg['allowed_business_endpoint']={'host':business['ip'],'port':business['port'],'path':business['policy_path']}
@@ -516,6 +537,11 @@ def main():
         # Test actual chat capability and denials before creating a workload.
         # The memory plugin is explicitly disabled through its upstream hook.
         policy(private/'policy.json')
+        if args.model_profile==QWEN3_AGENT_ZERO_PROFILE:
+            context_check=served_context(model_ip,model,context_length)
+            save(public/'model-context-before-capability.json',context_check)
+            if context_check['status']!='PASS':
+                raise Refused('actual served context does not match the reviewed Agent Zero profile')
         # Initial cold capability check is outside the harness. Its repeated
         # policy check must fit the existing strict 60-second preflight bound.
         policy_cfg['chat_timeout_seconds']=20
@@ -534,13 +560,13 @@ def main():
             if args.framework=='deerflow':
                 private_json(inputs/'deerflow.yaml',deerflow_configuration(native))
                 (inputs/'deerflow.yaml').chmod(0o644)
-        if args.model_profile=='agent-zero-qwen25-coder-15b':
+        if args.model_profile in REVIEWED_AGENT_ZERO_PROFILES:
             baseline=framework_capability(args.image,network,inputs,public,model_name,framework_name=args.framework)
-        if args.framework!='agent_zero':
+        if required_context:
             context_check=served_context(model_ip,model,context_length)
             save(public/'model-context-after-capability.json',context_check)
             if context_check['status']!='PASS':
-                raise Refused('actual served context does not match the reviewed native profile')
+                raise Refused('actual served context does not match the reviewed profile')
         helper=private/'collector_control.py'; shutil.copyfile(HERE/'collector_control.py',helper); helper.chmod(0o700)
         state=private/'collector-state'; state.mkdir()
         bootstrap_state=private/'bootstrap-state'; bootstrap_state.mkdir()
@@ -626,7 +652,7 @@ def main():
             'original_bytes_unmodified':True,'independent_task_acceptance':False,
             'artifacts':published})
         business_report=evaluate_business_output(business,run_directory/'work',public,status) if business is not None else None
-        if args.framework!='agent_zero':
+        if required_context:
             context_check=served_context(model_ip,model,context_length)
             save(public/'model-context-after-workload.json',context_check)
             if context_check['status']!='PASS':

@@ -15,7 +15,8 @@ sys.path.insert(0,str(ROOT/'integrations/real_agents'))
 sys.path.insert(0,str(ROOT/'integrations/real_agents/adapters'))
 sys.path.insert(0,str(ROOT/'validation/enterprise'))
 import prepare_local_model as preparation
-from hosted_agent_zero import (agent_configuration,business_success,framework_capability,
+from hosted_agent_zero import (QWEN3_AGENT_ZERO_PROFILE,agent_configuration,business_success,framework_capability,
+                               profile_context_requirement,
                                workload_request_count)
 from evidence import Refused
 from agent_zero_runtime import reviewed_profile_settings
@@ -70,6 +71,45 @@ class AgentZeroProfileTests(unittest.TestCase):
         with self.assertRaises(ValueError):preparation.model_profile('unreviewed')
         profile['model']='changed local copy'
         self.assertEqual(preparation.model_profile(NEW_PROFILE)['model'],'qwen2.5-coder:1.5b-instruct')
+
+    def test_qwen3_is_explicit_opt_in_with_exact_asset_pin_and_unchanged_limits(self):
+        profile=preparation.model_profile(QWEN3_AGENT_ZERO_PROFILE)
+        self.assertEqual(profile['model'],'qwen3:4b-instruct-2507-q4_K_M')
+        self.assertEqual(profile['manifest_sha256'],'0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0')
+        self.assertEqual(profile['model_blob_sha256'],'85e4a5b7b8ef0e48af0e8658f5aaab9c2324c76c1641493f4d1e25fce54b18b9')
+        self.assertEqual(profile['model_blob_bytes'],2497280480)
+        self.assertEqual(profile['license'],'Apache-2.0')
+        config=agent_configuration(profile['model'],'http://fixture-model:11434',QWEN3_AGENT_ZERO_PROFILE)
+        self.assertEqual(config['reviewed_profile'],'tiny-local-coding-v1')
+        self.assertEqual(config['preset']['chat']['ctx_length'],8192)
+        self.assertEqual(config['preset']['chat']['kwargs']['num_ctx'],8192)
+        self.assertEqual(config['preset']['chat']['kwargs']['num_predict'],1024)
+        self.assertEqual(config['preset']['chat']['kwargs']['response_format'],{'type':'json_object'})
+        self.assertIs(config['disable_memory'],True)
+        self.assertEqual(profile_context_requirement('agent_zero',QWEN3_AGENT_ZERO_PROFILE),8192)
+        self.assertIsNone(profile_context_requirement('agent_zero',NEW_PROFILE))
+        self.assertIsNone(profile_context_requirement('agent_zero',preparation.DEFAULT_MODEL_PROFILE))
+        self.assertEqual(profile_context_requirement('deerflow',NEW_PROFILE),32768)
+        self.assertEqual(profile_context_requirement('openhands',NEW_PROFILE),32768)
+
+    def test_qwen3_weight_pin_is_enforced_in_addition_to_all_blob_hashes(self):
+        models=self.root/'candidate-models';blobs=models/'blobs';blobs.mkdir(parents=True)
+        raw=b'controlled candidate weight fixture';digest=hashlib.sha256(raw).hexdigest()
+        (blobs/('sha256-'+digest)).write_bytes(raw)
+        layer={'digest':'sha256:'+digest,'size':len(raw),'mediaType':'application/vnd.ollama.image.model'}
+        manifest={'config':{'digest':'sha256:'+digest,'size':len(raw)},'layers':[layer]}
+        encoded=json.dumps(manifest).encode()
+        profile=preparation.model_profile(QWEN3_AGENT_ZERO_PROFILE)
+        profile.update(manifest_sha256=hashlib.sha256(encoded).hexdigest(),model_blob_sha256=digest,model_blob_bytes=len(raw))
+        path=models/preparation.manifest_paths(profile)[0];path.parent.mkdir(parents=True);path.write_bytes(encoded)
+        with patch.dict(preparation.MODEL_PROFILES,{QWEN3_AGENT_ZERO_PROFILE:profile}):
+            self.assertEqual(preparation.verify_model(models,QWEN3_AGENT_ZERO_PROFILE),manifest)
+            for changed in ({**profile,'model_blob_bytes':len(raw)+1},
+                            {**profile,'model_blob_sha256':'0'*64}):
+                with patch.dict(preparation.MODEL_PROFILES,{QWEN3_AGENT_ZERO_PROFILE:changed}),self.assertRaises(ValueError):
+                    preparation.verify_model(models,QWEN3_AGENT_ZERO_PROFILE)
+            (blobs/('sha256-'+digest)).write_bytes(b'corrupted original fixture')
+            with self.assertRaises(ValueError):preparation.verify_model(models,QWEN3_AGENT_ZERO_PROFILE)
 
     def test_reviewed_runtime_rejects_unknown_profile_memory_or_conflicting_profile(self):
         for config in ({'reviewed_profile':'unknown','disable_memory':True},
