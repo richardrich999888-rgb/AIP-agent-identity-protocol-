@@ -18,7 +18,7 @@ RUN if [ "$FRAMEWORK" = agent_zero ]; then python -m venv .venv && \
         uv pip install --python .venv/bin/python --no-cache -r requirements.txt -c /tmp/cpu-constraints.txt && \
         uv pip install --python .venv/bin/python --no-cache ipython==9.18.0 && \
         uv pip check --python .venv/bin/python; \
-    elif [ "$FRAMEWORK" = deerflow ]; then cd backend && uv sync --frozen --no-dev --python /usr/local/bin/python3.12; \
+    elif [ "$FRAMEWORK" = deerflow ]; then cd backend && uv sync --frozen --no-dev --extra ollama --python /usr/local/bin/python3.12; \
     elif [ "$FRAMEWORK" = openhands ]; then uv sync --frozen --all-packages --no-dev --python /usr/local/bin/python3.12; \
     else exit 1; fi
 ENV TIKTOKEN_CACHE_DIR=/opt/tiktoken-cache
@@ -28,7 +28,7 @@ RUN useradd --uid 10001 --create-home agent && mkdir -p /opt/snifferdog /work &&
     rm -rf /opt/framework/tmp /opt/framework/logs && \
     ln -s /tmp/framework /opt/framework/tmp && ln -s /tmp/framework-logs /opt/framework/logs
 COPY adapters/launch.py /opt/snifferdog/launch.py
-COPY adapters/agent_zero_runtime.py adapters/agent_zero_capability.py adapters/smoke.py adapters/framework_smokes.py /opt/snifferdog/
+COPY adapters/agent_zero_runtime.py adapters/agent_zero_capability.py adapters/smoke.py adapters/framework_smokes.py adapters/native_frameworks.py /opt/snifferdog/
 COPY adapters/entrypoint.sh /opt/snifferdog/entrypoint.sh
 ENV PATH="/opt/framework/backend/.venv/bin:/opt/framework/.venv/bin:${PATH}" PYTHONDONTWRITEBYTECODE=1
 ENV LITELLM_LOCAL_MODEL_COST_MAP=True

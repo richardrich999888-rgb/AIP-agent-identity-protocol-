@@ -13,6 +13,7 @@ import secrets
 import shutil
 import socket
 import subprocess
+import tempfile
 import time
 from pathlib import Path
 from audit_crosscheck import AuditCrosscheck
@@ -124,26 +125,90 @@ def framework_report(stdout, framework, commit):
     return {'source_authority': 'COMPONENT_STDOUT_NOT_SIGNED_KERNEL_EVIDENCE', 'report': report}
 
 
+def _reap_framework_waiter(waiter):
+    if waiter is None:
+        return
+    if waiter.poll() is None:
+        try:
+            waiter.terminate()
+        except ProcessLookupError:
+            pass
+        try:
+            waiter.wait(timeout=1)
+        except subprocess.TimeoutExpired:
+            waiter.kill()
+            waiter.wait(timeout=1)
+    else:
+        waiter.wait(timeout=1)
+
+
 def run_framework(component, public, probe, collector):
     measured = {k: v for k, v in component['launch'].items() if k != 'probe_id'}
     if proc_identity(measured['process']['pid']) != measured:
         raise Refused('framework waiting process changed before gate release')
-    (component['control'] / 'start').touch()
     deadline = time.monotonic() + 120
-    while command(['docker', 'inspect', '--format', '{{.State.Running}}', component['name']], timeout=10).strip() == 'true':
-        if probe.poll() is not None or collector.poll() is not None:
-            raise Refused('observer exited during framework component')
-        if time.monotonic() >= deadline:
-            raise Refused('framework component exceeded 120-second runtime budget')
-        time.sleep(0.2)
-    exit_code = int(command(['docker', 'inspect', '--format', '{{.State.ExitCode}}', component['name']], timeout=15))
-    component['exit_code'] = exit_code
-    stdout = collect_framework_output(component, public)
-    if exit_code != 0:
-        raise Refused('actual framework component exited unsuccessfully')
-    report = framework_report(stdout, component['framework'], component['metadata']['upstream_commit'])
-    save(public / 'framework-component.json', report)
-    return exit_code
+    waiter = None
+    complete = False
+    # Docker emits one exit integer. Files avoid unread-pipe deadlock; output
+    # size is checked between polls and only bounded bytes are ever parsed.
+    with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
+        try:
+            waiter = subprocess.Popen(['docker', 'wait', component['name']],
+                stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr)
+            if waiter.poll() is not None:
+                raise Refused('framework Docker waiter completed before task gate release')
+            (component['control'] / 'start').touch()
+            while waiter.poll() is None:
+                if probe.poll() is not None or collector.poll() is not None:
+                    raise Refused('observer exited during framework component')
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise Refused('framework component exceeded 120-second runtime budget')
+                if any(os.fstat(stream.fileno()).st_size > 4096 for stream in (stdout, stderr)):
+                    raise Refused('framework Docker wait output exceeds status limit')
+                time.sleep(min(0.2, remaining))
+            if waiter.returncode != 0:
+                raise Refused('framework Docker wait command failed')
+            if any(os.fstat(stream.fileno()).st_size > 4096 for stream in (stdout, stderr)):
+                raise Refused('framework Docker wait output exceeds status limit')
+            stdout.seek(0)
+            exit_text = stdout.read(4097).decode('ascii').strip()
+            if not re.fullmatch(r'[0-9]{1,3}', exit_text) or not 0 <= int(exit_text) <= 255:
+                raise Refused('framework Docker waiter did not return one valid exit status')
+            exit_code = int(exit_text)
+            # One final inspection refuses a stale/incorrect successful waiter.
+            state = json.loads(command(['docker', 'inspect', '--format', '{{json .State}}',
+                                        component['name']], timeout=15))
+            if (state.get('Running') is not False or type(state.get('ExitCode')) is not int
+                    or state['ExitCode'] != exit_code):
+                raise Refused('framework Docker wait status does not match stopped container')
+            component['exit_code'] = exit_code
+            output = collect_framework_output(component, public)
+            if exit_code != 0:
+                raise Refused('actual framework component exited unsuccessfully')
+            report = framework_report(output, component['framework'], component['metadata']['upstream_commit'])
+            save(public / 'framework-component.json', report)
+            complete = True
+            return exit_code
+        finally:
+            errors = []
+            if not complete:
+                # Stop the actual workload before spending time reaping a CLI
+                # waiter. The existing main cleanup retries failures honestly.
+                try:
+                    command(['docker', 'stop', '--time', '0', component['name']], timeout=15)
+                except Exception as error:
+                    errors.append({'stage': 'stop framework after waiter failure',
+                                   'type': type(error).__name__, 'detail': str(error)})
+            try:
+                _reap_framework_waiter(waiter)
+            except Exception as error:
+                errors.append({'stage': 'reap framework waiter',
+                               'type': type(error).__name__, 'detail': str(error)})
+            if errors:
+                component['waiter_cleanup_errors'] = errors
+                if complete:
+                    raise Refused('framework Docker waiter cleanup failed')
 
 
 def framework_observation_failures(summary, comparison, exit_code):
@@ -344,6 +409,8 @@ def main():
                       signed_batches=len(records(public / ARCHIVES[0])))
     except Exception as error:
         result['failure'] = {'type': type(error).__name__, 'detail': str(error)}
+        if 'exit_code' in component:
+            result['component_child_exit_code'] = component['exit_code']
         raise
     finally:
         cleanup_errors = []
@@ -371,6 +438,7 @@ def main():
         for stream in streams:
             cleanup('close diagnostic log', stream.close)
         cleanup('unmount workspace', lambda: command(['umount', workload]))
+        cleanup_errors.extend(component.get('waiter_cleanup_errors', []))
         if cleanup_errors:
             result.update(status='FAILED', cleanup_errors=cleanup_errors)
         save(public / 'result.json', result)

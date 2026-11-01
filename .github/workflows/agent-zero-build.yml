@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       genuine_task:
-        description: Run a genuine Agent Zero task after the component gates pass
+        description: Run the selected real agent after its installation and observation gates pass
         required: true
         type: boolean
         default: false
@@ -47,6 +47,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Repeated release startup and offline-verification regression
         run: |
+          cargo clippy --locked -p aip-probe --all-targets -- -D warnings
+          cargo test --locked --release -p aip-probe --lib
           cargo test --locked --release -p ghost-demo --test live idle_readiness_precedes_binding_collection
           cargo test --locked --release -p ghost-demo --test live idle_startup_race_diagnostic -- --nocapture
           cargo test --locked --release -p ghost-demo --test live d_wrong_process_instance_is_identity_divergence_never_verified
@@ -129,12 +131,13 @@ jobs:
             ${{ runner.temp }}/framework-observation/public/
             ${{ runner.temp }}/framework-observation/anchor.json
             ${{ runner.temp }}/framework-observation/checkpoint.json
-      - name: Preserve the exact tested Agent Zero image for its separate genuine task
-        if: matrix.framework == 'agent_zero'
+      - name: Preserve the exact tested image for its separate genuine task
+        if: matrix.framework == 'agent_zero' || inputs.genuine_task
         run: |
-          docker save snifferdog-agent-zero:validation | gzip -1 > "$RUNNER_TEMP/agent-zero-image.tar.gz"
+          image_prefix="${FRAMEWORK//_/-}"
+          docker save "snifferdog-${image_prefix}:validation" | gzip -1 > "$RUNNER_TEMP/${image_prefix}-image.tar.gz"
           cd "$RUNNER_TEMP"
-          sha256sum agent-zero-image.tar.gz > agent-zero-image.sha256
+          sha256sum "${image_prefix}-image.tar.gz" > "${image_prefix}-image.sha256"
       - name: Retain selected public installation and observation evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -147,6 +150,10 @@ jobs:
             ${{ runner.temp }}/smoke.txt
             ${{ runner.temp }}/agent-zero-image.tar.gz
             ${{ runner.temp }}/agent-zero-image.sha256
+            ${{ runner.temp }}/deerflow-image.tar.gz
+            ${{ runner.temp }}/deerflow-image.sha256
+            ${{ runner.temp }}/openhands-image.tar.gz
+            ${{ runner.temp }}/openhands-image.sha256
   hosted-observer-capabilities:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -186,12 +193,13 @@ jobs:
             ${{ runner.temp }}/hosted-observer/anchor.json
             ${{ runner.temp }}/hosted-observer/checkpoint.json
   genuine-task:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.genuine_task == true && inputs.framework == 'agent_zero' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.genuine_task == true && inputs.framework != 'all' }}
     needs: [image, release-regression, hosted-observer-capabilities]
     environment: snifferdog-validation
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
+      FRAMEWORK: ${{ inputs.framework }}
       MODEL_PROFILE: ${{ inputs.model_profile }}
       TASK_CASE: ${{ inputs.task_case }}
     steps:
@@ -219,31 +227,33 @@ jobs:
           fi
       - uses: actions/download-artifact@v4
         with:
-          name: agent-zero-build-${{ github.run_id }}
+          name: ${{ inputs.framework == 'agent_zero' && 'agent-zero' || inputs.framework }}-build-${{ github.run_id }}
           path: ${{ runner.temp }}/reviewed-image
       - name: Verify and load the actual image built by this workflow
         run: |
           cd "$RUNNER_TEMP/reviewed-image"
-          sha256sum -c agent-zero-image.sha256
-          gzip -dc agent-zero-image.tar.gz | docker load
-          docker image inspect snifferdog-agent-zero:validation | python -c 'import sys,json; s=json.load(sys.stdin)[0]; print(json.dumps({"Id":s["Id"],"Os":s["Os"],"Architecture":s["Architecture"],"Config":{"Labels":s["Config"]["Labels"],"User":s["Config"]["User"]}}))' > "$RUNNER_TEMP/agent-zero-image.json"
+          image_prefix="${FRAMEWORK//_/-}"
+          sha256sum -c "${image_prefix}-image.sha256"
+          gzip -dc "${image_prefix}-image.tar.gz" | docker load
+          docker image inspect "snifferdog-${image_prefix}:validation" | python -c 'import sys,json; s=json.load(sys.stdin)[0]; print(json.dumps({"Id":s["Id"],"Os":s["Os"],"Architecture":s["Architecture"],"Config":{"Labels":s["Config"]["Labels"],"User":s["Config"]["User"]}}))' > "$RUNNER_TEMP/agent-zero-image.json"
       - name: Provision the existing verified public CPU model with zero cloud credentials
         run: python validation/enterprise/prepare_local_model.py --root "$RUNNER_TEMP/agent-zero-local-model" --model-profile "$MODEL_PROFILE"
       - name: Build existing observation, lineage, interoperability and offline verification binaries
         run: cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate -p aip-reconcile -p aip-sentinel-feed
       - name: Execute the selected genuine task with independent acceptance and observation checks
         run: |
-          image_id="$(docker image inspect --format '{{.Id}}' snifferdog-agent-zero:validation)"
+          image_prefix="${FRAMEWORK//_/-}"
+          image_id="$(docker image inspect --format '{{.Id}}' "snifferdog-${image_prefix}:validation")"
           sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" \
             python integrations/real_agents/hosted_agent_zero.py run \
             --image "$image_id" --tools target/debug \
             --model-root "$RUNNER_TEMP/agent-zero-local-model" --out "$RUNNER_TEMP/agent-zero-genuine" \
-            --task "$TASK_CASE" --model-profile "$MODEL_PROFILE"
+            --task "$TASK_CASE" --model-profile "$MODEL_PROFILE" --framework "$FRAMEWORK"
       - name: Retain selected public evidence only, including failed attempts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent-zero-genuine-${{ github.run_id }}-${{ github.run_attempt }}
+          name: ${{ inputs.framework == 'agent_zero' && 'agent-zero' || inputs.framework }}-genuine-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 30
           path: |
             ${{ runner.temp }}/agent-zero-genuine/public/

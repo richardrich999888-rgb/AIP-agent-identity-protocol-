@@ -199,6 +199,21 @@ def main():
             Path("/work/response.json").write_text(json.dumps(result, default=str, indent=2))
             journal.emit("returned", {"framework": name, "independent_task_acceptance": False})
         return
+    if name in ("deerflow", "openhands") and Path("/model-config/native-framework.json").exists():
+        from native_frameworks import run, validate
+        config = json.loads(Path("/model-config/native-framework.json").read_text())
+        validate(config)
+        if config["framework"] != name or config["model"] != request["model"]:
+            raise ValueError("reviewed native profile differs from the root workload request")
+        with DiagnosticJournal("/work/adapter.jsonl") as journal:
+            journal.emit("start", {"framework": name, "reviewed_native_profile": True})
+            try:
+                progress = run(config, prompt, request["run_id"], journal, request["timeout_s"])
+                Path("/work/response.json").write_text(json.dumps(progress.final))
+            except Exception as error:
+                journal.emit("task_failed", {"exception_type": type(error).__name__})
+                raise
+        return
     emit("start", {"framework": name, "model": request["model"], "logical_agent": "lead"})
     if name == "deerflow":
         os.chdir("/opt/framework/backend")

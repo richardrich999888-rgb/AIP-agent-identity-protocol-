@@ -41,13 +41,13 @@ def private_json(path, value):
     path.chmod(0o600)
 
 
-def docker(image, network, args, *, mounts=(), memory='4g', timeout=120, framework=False, workdir=None, **kwargs):
+def docker(image, network, args, *, mounts=(), memory='4g', timeout=120, framework=False, workdir=None, framework_name='agent_zero', **kwargs):
     name='sd-az-policy-'+secrets.token_hex(6)
     invocation = ['docker', 'run', '--rm', '--name',name,'--network', network, '--user', '10001:10001',
         '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only',
         '--memory', memory, '--cpus', '2', '--pids-limit', '256',
         '--tmpfs', '/tmp:rw,nosuid,size=1g,mode=1777',
-        '--entrypoint', '/opt/framework/.venv/bin/python']
+        '--entrypoint', ('/opt/framework/backend/.venv/bin/python' if framework_name=='deerflow' else '/opt/framework/.venv/bin/python')]
     if workdir is None:
         invocation += ['--tmpfs','/work:rw,nosuid,size=1g,uid=10001,gid=10001']
     else:
@@ -116,7 +116,7 @@ if business:
     assert re.fullmatch(r'[0-9a-f]{32}',value['policy_nonce'])
 # This is a separate capability inference, before the measured agent run.
 # Memory is explicitly disabled; no embedding result is invented or claimed.
-request=Request(base+'/api/generate',data=json.dumps({'model':cfg['model'],'prompt':'Return one JSON object with ready set to true.','format':'json','stream':False,'options':{'temperature':0,'num_predict':32,'num_ctx':8192,'num_thread':2}}).encode(),headers={'Content-Type':'application/json'})
+request=Request(base+'/api/generate',data=json.dumps({'model':cfg['model'],'prompt':'Return one JSON object with ready set to true.','format':'json','stream':False,'options':{'temperature':0,'num_predict':32,'num_ctx':cfg.get('context_length') or 8192,'num_thread':2}}).encode(),headers={'Content-Type':'application/json'})
 try:
     with urlopen(request,timeout=cfg['chat_timeout_seconds']) as response:
         reply=json.load(response)
@@ -124,9 +124,13 @@ except HTTPError as error:
     raise RuntimeError('approved local model generation capability unavailable: HTTP '+str(error.code)) from error
 assert reply.get('done') and reply.get('done_reason')!='length'
 assert json.loads(reply['response']).get('ready') is True
+if cfg.get('context_length'):
+    with urlopen(base+'/api/ps',timeout=10) as response: loaded=json.load(response)
+    active=[m for m in loaded['models'] if m.get('name')==cfg['model']]
+    assert len(active)==1 and active[0].get('context_length')==cfg['context_length']
 print(json.dumps({'status':'PASS','real_generation_capability_checked':True,'native_json_generation_checked':True,'inference_route':'/api/generate','allowed_business_http_checked':bool(business),'business_check_scope':'PREWORKLOAD_CAPABILITY_ONLY','embedding_capability':'UNVALIDATED_NOT_INVOKED_MEMORY_DISABLED','denied_destinations':denials,'model_manifest_verified':True,'external_model_api_spend_cap':0,'api_credentials_used':False}))
 '''
-    probe = docker(cfg['image'], cfg['network'], ['-c',client,json.dumps(cfg)], timeout=cfg['chat_timeout_seconds']+20)
+    probe = docker(cfg['image'], cfg['network'], ['-c',client,json.dumps(cfg)], timeout=cfg['chat_timeout_seconds']+20,framework_name=cfg.get('framework','agent_zero'))
     if probe.returncode:
         save(Path(cfg['public'])/'network-model-policy.json', {'status':'FAIL',
             'classification':'ACTUAL_RESTRICTED_CONTAINER_CAPABILITY_CHECK',
@@ -252,7 +256,7 @@ def agent_configuration(model, endpoint, profile_name):
     return config
 
 
-def framework_capability(image, network, inputs, public, model_container):
+def framework_capability(image, network, inputs, public, model_container, *, framework_name='agent_zero'):
     """Separate real framework/tool context with the existing 1 GiB work bound."""
     workspace=inputs.parent/('capability-work-'+secrets.token_hex(6))
     workspace.mkdir(mode=0o700)
@@ -260,7 +264,7 @@ def framework_capability(image, network, inputs, public, model_container):
     try:
         command(['mount','-t','tmpfs','-o','size=1g,mode=700,uid=10001,gid=10001','tmpfs',workspace])
         mounted=True
-        return _run_framework_capability(image,network,inputs,public,model_container,workspace)
+        return _run_framework_capability(image,network,inputs,public,model_container,workspace,framework_name=framework_name)
     except (Refused,OSError,ValueError,subprocess.SubprocessError) as error:
         path=public/'framework-capability.json'
         report=json.loads(path.read_text()) if path.exists() else {
@@ -283,7 +287,7 @@ def framework_capability(image, network, inputs, public, model_container):
                 raise Refused('bounded capability workspace cleanup did not complete') from error
 
 
-def _run_framework_capability(image, network, inputs, public, model_container, workspace):
+def _run_framework_capability(image, network, inputs, public, model_container, workspace, *, framework_name='agent_zero'):
     challenge={'capability_id':secrets.token_hex(16),'left':secrets.randbelow(1_000_000),
                'right':secrets.randbelow(1_000_000)}
     private_json(inputs/'capability-input.json',challenge)
@@ -296,9 +300,11 @@ def _run_framework_capability(image, network, inputs, public, model_container, w
     save(public/'framework-capability.json',report)
     failure=None
     try:
-        result=docker(image,network,['/opt/snifferdog/agent_zero_capability.py',
-            '--config','/model-config/agent-zero.json','--challenge','/model-config/capability-input.json',
-            '--timeout','240'],mounts=[(inputs,'/model-config')],timeout=260,framework=True,workdir=workspace)
+        helper='agent_zero_capability.py' if framework_name=='agent_zero' else 'native_frameworks.py'
+        config_name='agent-zero.json' if framework_name=='agent_zero' else 'native-framework.json'
+        result=docker(image,network,['/opt/snifferdog/'+helper,
+            '--config','/model-config/'+config_name,'--challenge','/model-config/capability-input.json',
+            '--timeout','240'],mounts=[(inputs,'/model-config')],timeout=260,framework=True,workdir=workspace,framework_name=framework_name)
         report['helper_exit_code']=result.returncode
         if len(result.stdout.encode())>65536:
             raise ValueError('capability summary exceeds its bound')
@@ -364,6 +370,24 @@ def workload_request_count(all_lines, baseline, total_policy):
 
 
 
+
+def served_context(model_ip, model, expected):
+    """Actual local service state, not SDK metadata or a context-limit override."""
+    try:
+        with urlopen('http://'+model_ip+':11434/api/ps',timeout=10) as response:
+            loaded=json.load(response)
+        active=[item for item in loaded['models'] if item.get('name')==model]
+        actual=active[0].get('context_length') if len(active)==1 else None
+        return {'source_authority':'root_read_of_local_model_service_process_state',
+                'status':'PASS' if type(actual) is int and actual==expected else 'FAIL',
+                'expected_context_length':expected,'actual_context_length':actual,
+                'not_cryptographically_signed':True}
+    except (OSError,ValueError,TypeError,KeyError) as error:
+        return {'source_authority':'root_read_of_local_model_service_process_state',
+                'status':'FAIL','failure_type':type(error).__name__,
+                'expected_context_length':expected,'not_cryptographically_signed':True}
+
+
 def business_success(status, model_calls, output_report):
     return bool(output_report and output_report.get('status')=='PASS' and type(model_calls) is int and model_calls>0
                 and type(status.get('workload_exit')) is int and status.get('workload_exit')==0 and status.get('observation_validation')=='PASSED'
@@ -377,6 +401,7 @@ def main():
     p=sub.add_parser('run')
     for option in ('image','tools','model-root','out'):
         p.add_argument('--'+option,required=True,type=str if option=='image' else Path)
+    p.add_argument('--framework',choices=('agent_zero','deerflow','openhands'),default='agent_zero')
     p.add_argument('--task',choices=('click-3652','business-reconciliation'),default='click-3652')
     p.add_argument('--model-profile',choices=sorted(MODEL_PROFILES),default=DEFAULT_MODEL_PROFILE)
     args=parser.parse_args()
@@ -385,13 +410,16 @@ def main():
     if os.geteuid()!=0 or sys.platform!='linux' or os.environ.get('RUNNER_ENVIRONMENT')!='github-hosted':
         raise Refused('root on an explicitly disposable GitHub-hosted Linux VM required')
     if not re.fullmatch(r'sha256:[0-9a-f]{64}',args.image):
-        raise Refused('immutable already-built Agent Zero image ID required')
+        raise Refused('immutable already-built framework image ID required')
     labels=json.loads(command(['docker','image','inspect','--format','{{json .Config.Labels}}',args.image]))
-    framework=json.loads((HERE/'frameworks.lock.json').read_text())['agent_zero']
+    framework=json.loads((HERE/'frameworks.lock.json').read_text())[args.framework]
     if not labels or labels.get('org.opencontainers.image.revision')!=framework['commit']:
-        raise Refused('Agent Zero image source revision differs from the existing reviewed pin')
+        raise Refused('framework image source revision differs from the existing reviewed pin')
     if args.task=='business-reconciliation' and args.model_profile!='agent-zero-qwen25-coder-15b':
         raise Refused('business task requires the explicit reviewed Agent Zero model/profile')
+    if args.framework!='agent_zero' and (args.task!='business-reconciliation' or args.model_profile!='agent-zero-qwen25-coder-15b'):
+        raise Refused('native frameworks require the explicit reviewed business task and pinned Qwen model')
+    context_length=8192 if args.framework=='agent_zero' else 32768
     selected_model=model_profile(args.model_profile)
     model,manifest=selected_model['model'],selected_model['manifest_sha256']
     model_root=args.model_root.resolve(); verify_model(model_root/'models',args.model_profile)
@@ -401,14 +429,15 @@ def main():
     out.mkdir(mode=0o711)
     private=out/'private'; private.mkdir(mode=0o700)
     public=out/'public'; public.mkdir(mode=0o755)
-    profile={'status':'FAIL','assignment_complete':False,'framework':'agent_zero',
+    profile={'status':'FAIL','assignment_complete':False,'framework':args.framework,
         'collector_custody':'LOCAL_ISOLATION_SHARED_KERNEL_AND_ROOT',
         'separate_host_validation':'INCOMPLETE','logical_agent_attribution':'UNKNOWN',
         'authorization_gateway_join':'NOT_CONNECTED_FOR_THIS_FRAMEWORK',
         'model':model,'model_manifest_sha256':manifest,'model_profile':args.model_profile,
         'model_license':selected_model['license'],'task_case':args.task,
         'model_api_credentials_used':False,'external_model_api_spend_cap':0,
-        'memory_recall':'DISABLED_UNVALIDATED','embedding':'UNVALIDATED_NOT_INVOKED',
+        'memory_recall':'NOT_EXERCISED_FRESH_WORKSPACE' if args.framework=='openhands' else 'DISABLED_UNVALIDATED','embedding':'UNVALIDATED_NOT_INVOKED',
+        'served_context_length':context_length,
         'source_commit':command(['git','rev-parse','HEAD'],cwd=ROOT).strip()}
     save(public/'profile.json',profile)
     token=secrets.token_hex(6); network='snifferdog-az-'+token; bridge='br-sd'+token[:8]
@@ -453,7 +482,7 @@ def main():
             '--env','LD_LIBRARY_PATH=/model-assets/lib/ollama','--env','OLLAMA_HOST=0.0.0.0:11434',
             '--env','OLLAMA_NO_CLOUD=1','--env','OLLAMA_NOPRUNE=1',
             '--env','OLLAMA_NUM_PARALLEL=1','--env','OLLAMA_MAX_LOADED_MODELS=1',
-            '--env','OLLAMA_MAX_QUEUE=1','--env','OLLAMA_CONTEXT_LENGTH=8192',
+            '--env','OLLAMA_MAX_QUEUE=1','--env','OLLAMA_CONTEXT_LENGTH='+str(context_length),
             '--entrypoint','/model-assets/bin/ollama',args.image,'serve'])
         resources['model']=True
         model_ip=json.loads(command(['docker','inspect',model_name]))[0]['NetworkSettings']['Networks'][network]['IPAddress']
@@ -474,7 +503,7 @@ def main():
         # Non-vacuous host-service denial: a real listening service must be unreachable.
         listener=socket.socket(); listener.bind((gateway,0)); listener.listen(4)
         policy_cfg={'image':args.image,'network':network,'model_container':model_name,
-            'model_ip':model_ip,'gateway':gateway,'host_probe_port':listener.getsockname()[1],
+            'model_ip':model_ip,'framework':args.framework,'context_length':context_length if args.framework!='agent_zero' else None,'gateway':gateway,'host_probe_port':listener.getsockname()[1],
             'model':model,'manifest':manifest,'public':str(public),'chat_timeout_seconds':120}
         if business is not None:
             policy_cfg['allowed_business_endpoint']={'host':business['ip'],'port':business['port'],'path':business['policy_path']}
@@ -491,17 +520,32 @@ def main():
         # policy check must fit the existing strict 60-second preflight bound.
         policy_cfg['chat_timeout_seconds']=20
         private_json(private/'policy.json',policy_cfg)
-        # Native JSON constrains syntax only; the model still chooses all actions.
-        private_json(inputs/'agent-zero.json',agent_configuration(
-            model,'http://'+model_ip+':11434',args.model_profile))
-        (inputs/'agent-zero.json').chmod(0o644)
+        # Framework-native protocols remain unmodified.
+        if args.framework=='agent_zero':
+            private_json(inputs/'agent-zero.json',agent_configuration(
+                model,'http://'+model_ip+':11434',args.model_profile))
+            (inputs/'agent-zero.json').chmod(0o644)
+        else:
+            sys.path.insert(0,str(HERE/'adapters'))
+            from native_frameworks import configuration, deerflow_configuration
+            native=configuration(args.framework,model,'http://'+model_ip+':11434')
+            private_json(inputs/'native-framework.json',native)
+            (inputs/'native-framework.json').chmod(0o644)
+            if args.framework=='deerflow':
+                private_json(inputs/'deerflow.yaml',deerflow_configuration(native))
+                (inputs/'deerflow.yaml').chmod(0o644)
         if args.model_profile=='agent-zero-qwen25-coder-15b':
-            baseline=framework_capability(args.image,network,inputs,public,model_name)
+            baseline=framework_capability(args.image,network,inputs,public,model_name,framework_name=args.framework)
+        if args.framework!='agent_zero':
+            context_check=served_context(model_ip,model,context_length)
+            save(public/'model-context-after-capability.json',context_check)
+            if context_check['status']!='PASS':
+                raise Refused('actual served context does not match the reviewed native profile')
         helper=private/'collector_control.py'; shutil.copyfile(HERE/'collector_control.py',helper); helper.chmod(0o700)
         state=private/'collector-state'; state.mkdir()
         bootstrap_state=private/'bootstrap-state'; bootstrap_state.mkdir()
         passphrase=private/'collector-pass'; passphrase.write_text(secrets.token_urlsafe(48)); passphrase.chmod(0o600)
-        probe_env={'AIP_PROBE_ID':'probe.hosted-agent-zero','AIP_PROBE_KEY_PATH':str(private/'probe.key.json'),
+        probe_env={'AIP_PROBE_ID':'probe.hosted-'+('agent-zero' if args.framework=='agent_zero' else args.framework),'AIP_PROBE_KEY_PATH':str(private/'probe.key.json'),
             'AIP_PROBE_COLLECTOR_ENDPOINT':'127.0.0.1:1','AIP_PROBE_COLLECTOR_NOISE_PUBKEY':'0'*64,
             'AIP_PROBE_SENSORS':'sched'}
         bootstrap_log=(private/'bootstrap.log').open('wb')
@@ -512,7 +556,7 @@ def main():
         terminate(bootstrap); bootstrap=None
         transport=json.loads((private/'probe.key.json').read_text())['public_hex']
         private_json(private/'probes.json',[{'probe_id':probe_env['AIP_PROBE_ID'],'transport_pubkey_hex':transport}])
-        collector_env={'AIP_COLLECTOR_OBSERVER_ID':'collector.hosted-agent-zero','AIP_COLLECTOR_KEY_VERSION':'1',
+        collector_env={'AIP_COLLECTOR_OBSERVER_ID':'collector.hosted-'+('agent-zero' if args.framework=='agent_zero' else args.framework),'AIP_COLLECTOR_KEY_VERSION':'1',
             'AIP_COLLECTOR_KEY_PATH':str(private/'collector.key.wrapped'),'AIP_COLLECTOR_PASSPHRASE_FILE':str(passphrase),
             'AIP_COLLECTOR_STATE_DIR':str(bootstrap_state),'AIP_COLLECTOR_LISTEN':'127.0.0.1:19991',
             'AIP_COLLECTOR_PROBES_PATH':str(private/'probes.json'),'AIP_COLLECTOR_NOISE_KEY_PATH':str(private/'noise.key.json'),
@@ -539,13 +583,14 @@ def main():
         # The watched mount contains only this experiment, not the host source tree.
         runs=out/'runs'; runs.mkdir(mode=0o755)
         command(['mount','-t','tmpfs','-o','size=1g,mode=755','tmpfs',runs]); resources['mount']=True
-        cfg={'framework':'agent_zero','model':model,'image':args.image,'task':str(task),'tools':str(tools),
+        cfg={'framework':args.framework,'model':model,'image':args.image,'task':str(task),'tools':str(tools),
             'model_env':str(private/'model.env'),'model_config':str(inputs),'probe_env':str(probe_path),
             'policy_check':str(policy_executable),'network':network,'timeout_s':900,'cpus':2,'memory_mb':4096,'pids_limit':256,
             'collector':{'mode':'local-isolated','helper':str(helper),'config':str(private/'collector-control.json')},'anchor':anchor}
         private_json(private/'harness.json',cfg)
-        code=run_harness(cfg,runs/'agent-zero',public/'checkpoint.json')
-        status=json.loads((runs/'agent-zero/status.json').read_text())
+        run_directory=runs/('agent-zero' if args.framework=='agent_zero' else args.framework)
+        code=run_harness(cfg,run_directory,public/'checkpoint.json')
+        status=json.loads((run_directory/'status.json').read_text())
         calls=model_access_lines(model_name)
         policy_calls=policy_request_count(public)
         agent_calls=workload_request_count(calls,baseline,policy_calls)
@@ -563,24 +608,29 @@ def main():
                 ('audit-status.json','audit-status.json'),('auditd.log','auditd.log'),('launch.json','launch.json'),
                 ('fanotify-watch.json','fanotify-watch.json'),
                 ('task-end-boundary.json','task-end-boundary.json'),('finalization.json','finalization.json')]:
-            source=runs/'agent-zero'/source_name
+            source=run_directory/source_name
             if source.is_file(): shutil.copyfile(source,public/target_name)
         for name in ('attested.archive.jsonl','health.archive.jsonl'):
-            source=runs/'agent-zero/evidence'/name
+            source=run_directory/'evidence'/name
             if source.is_file(): shutil.copyfile(source,public/name)
         # Do not execute agent-owned git configuration or code in the root controller.
         # Its complete workspace stays on the runner for separate restricted review.
         # This dedicated profile supplies only public task data and an empty
         # credential environment. These bounded diagnostics retain original
         # bytes and their self-reported standing; no full workspace is exported.
-        published=[publish_self_reported_file(runs/'agent-zero/work',public,name,limit)
+        published=[publish_self_reported_file(run_directory/'work',public,name,limit)
             for name,limit in [('click.patch',1024*1024),('verification.md',1024*1024),
                               ('response.json',1024*1024),('adapter.jsonl',8*1024*1024),('report.json',65536)]]
         save(public/'agent-self-reported-artifact-provenance.json',{
             'classification':'UNTRUSTED_AGENT_DIAGNOSTICS_FROM_ZERO_CREDENTIAL_PUBLIC_TASK',
             'original_bytes_unmodified':True,'independent_task_acceptance':False,
             'artifacts':published})
-        business_report=evaluate_business_output(business,runs/'agent-zero/work',public,status) if business is not None else None
+        business_report=evaluate_business_output(business,run_directory/'work',public,status) if business is not None else None
+        if args.framework!='agent_zero':
+            context_check=served_context(model_ip,model,context_length)
+            save(public/'model-context-after-workload.json',context_check)
+            if context_check['status']!='PASS':
+                status.setdefault('failures',[]).append({'stage':'model_context','type':'ContextNotEstablished'})
         business_ok=business_success(status,agent_calls,business_report)
         result_status=('PASS' if business_ok else 'FAIL') if business is not None else (
             'REVIEW_REQUIRED' if not status.get('failures') and agent_calls>0 and (public/'agent-self-reported-click.patch').is_file() else 'FAIL')

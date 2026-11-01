@@ -1,7 +1,11 @@
 # Open-source agent observation — 1 November 2026
 
-Status: implementation and controlled tests ready; new Linux installation,
-framework observation and genuine business results are PENDING actual execution.
+Status: all three actual installations, upstream tool components and signed
+Sniffer component captures PASS at `7695d9a` in workflow `41291563704`, including
+independent offline verification. Each is explicitly zero-model component scope.
+A separate same-source business prerequisite capture failed signed coverage in
+`41291566529`; its genuine task was skipped. Genuine business acceptance remains
+PENDING fresh actual execution after the acquisition improvement.
 Historical `FINAL_57ac0d1` records remain unchanged and do not count as new passes.
 
 The validation reuses the pinned Agent Zero, DeerFlow and OpenHands SDK sources
@@ -12,7 +16,7 @@ zero-model component capture with the existing probe, authenticated collector,
 signed health/archives, Linux audit and offline verifier. An installation or
 tool-component pass does not establish a model-driven agent task.
 
-The separate Agent Zero business case reads synthetic invoices, retrieves the
+The separately gated framework business case reads synthetic invoices, retrieves the
 active policy from a separate internal HTTP fixture, computes overdue balances
 using actual tools, and writes `/work/report.json`. The controller independently
 checks exact cents, selected IDs, policy nonce, schema and a real policy response
@@ -35,7 +39,7 @@ Use the existing `agent-zero-build.yml` manual workflow:
 
 1. `framework=all`, `genuine_task=false` installs and observes all three real
    framework tool components. These have zero model calls.
-2. `framework=agent_zero`, `genuine_task=true`,
+2. Select one `framework=agent_zero`, `deerflow` or `openhands`; set `genuine_task=true`,
    `task_case=business-reconciliation`,
    `model_profile=agent-zero-qwen25-coder-15b` adds the separately gated business
    task. The original Click/llama profile remains available with its previous
@@ -64,8 +68,24 @@ Customer production environments, Kubernetes, air gap and regulated qualificatio
 remain outside these disposable tests.
 
 OpenHands' [official local-model guide](https://docs.openhands.dev/openhands/usage/llms/local-llms)
-requires a larger context and suitable tool-capable model than the existing
-8k small-model profile. No approved remote model secrets were available in the
-repository or validation environment at this inspection. DeerFlow/OpenHands
-installation and component observation can proceed while genuine model tasks
-remain separately unvalidated until suitable approved configuration is tested.
+requires a larger context and suitable tool-capable model than the historical
+8k profile. The opt-in native DeerFlow/OpenHands profile requests 32,768 tokens
+and requires actual local service process-state checks before/after workloads;
+it does not use a short-context override. It uses the exact pinned public
+framework APIs and current locked optional Ollama provider. An ignored local
+SDK compatibility string is explicitly noncredential configuration; no paid
+model secret is required for this local candidate. Actual tool quality, memory
+allocation and CPU latency remain gates to measure, not assumed successes.
+No approved remote model secrets were available at inspection.
+
+The failed prerequisite contains one connector exec whose actual scheduler
+counterpart landed in the next signed batch; strict verification correctly
+withdrew coverage. A one-sided acquisition ceiling could leave part of the
+already permitted 256-event grace unused. The narrow improvement permits that
+existing capacity while preserving the 20 ms scheduling budget, bounded idle
+grace, original events and collector/verification rules. Payload-free exhaustion
+diagnostics now identify future stop conditions. The old exact internal stop
+reason was not retained and is not asserted. The observed-component controller
+also uses one Docker wait process instead of repeated exec-based status polling.
+Fresh captures must establish the improvement; no historical interval is
+borrowed, rewritten or backfilled.

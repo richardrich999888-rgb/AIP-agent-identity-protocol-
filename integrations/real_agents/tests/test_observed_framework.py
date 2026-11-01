@@ -153,6 +153,7 @@ class ObservedFrameworkControls(unittest.TestCase):
             process = Mock(); process.poll.return_value = None
             with patch.object(observer, 'proc_identity', return_value=measured), \
                     patch.object(observer, 'command', return_value='true\n'), \
+                    patch.object(observer.subprocess, 'Popen', return_value=Mock(poll=Mock(return_value=None))), \
                     patch.object(observer.time, 'monotonic', side_effect=[0, 121]), \
                     patch.object(observer, 'collect_framework_output') as collect:
                 with self.assertRaisesRegex(Refused, 'runtime budget'):
@@ -167,6 +168,118 @@ class ObservedFrameworkControls(unittest.TestCase):
                 with self.assertRaisesRegex(Refused, 'publication limit'):
                     observer.collect_framework_output({'name': 'fixture'}, Path(tmp))
             self.assertFalse((Path(tmp) / 'framework-component.stdout.txt').exists())
+
+    def invoke_waiter(self, *, output=b'0\n', cli_exit=0, state=None,
+                      observer_exit=None, finish_after=3):
+        tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name); control = root / 'input'; control.mkdir()
+        public = root / 'public'; public.mkdir()
+        measured = {'process': {'pid': 123}}
+        component = {'control': control, 'name': 'fixture-container', 'launch': measured,
+                     'framework': 'agent_zero', 'metadata': {'upstream_commit': self.pin['commit']}}
+        events = []
+        class Waiter:
+            def __init__(self):
+                self.polls = 0
+                self.returncode = None
+            def poll(self):
+                self.polls += 1
+                if self.returncode is None and self.polls >= finish_after:
+                    self.returncode = cli_exit
+                return self.returncode
+            def terminate(self):
+                events.append('terminate_waiter')
+                self.returncode = -15
+            def kill(self):
+                events.append('kill_waiter')
+                self.returncode = -9
+            def wait(self, timeout):
+                events.append('reap_waiter')
+                return self.returncode
+        waiter = Waiter()
+        def popen(args, **kwargs):
+            self.assertEqual(args, ['docker', 'wait', 'fixture-container'])
+            self.assertNotEqual(kwargs['stdout'], observer.subprocess.PIPE)
+            self.assertNotEqual(kwargs['stderr'], observer.subprocess.PIPE)
+            kwargs['stdout'].write(output); kwargs['stdout'].flush()
+            return waiter
+        def command(args, **kwargs):
+            events.append('stop_workload' if args[:2] == ['docker', 'stop'] else 'inspect_state')
+            self.assertEqual(kwargs['timeout'], 15)
+            return json.dumps({'Running': False, 'ExitCode': 0} if state is None else state)
+        probe, collector = Mock(), Mock()
+        probe.poll.return_value = observer_exit; collector.poll.return_value = None
+        error, code = None, None
+        with patch.object(observer, 'proc_identity', return_value=measured), \
+                patch.object(observer.subprocess, 'Popen', side_effect=popen) as started, \
+                patch.object(observer, 'command', side_effect=command) as commands, \
+                patch.object(observer, 'collect_framework_output', return_value=json.dumps(self.report)) as collect, \
+                patch.object(observer.time, 'monotonic', return_value=0), \
+                patch.object(observer.time, 'sleep'):
+            try:
+                code = observer.run_framework(component, public, probe, collector)
+            except Exception as caught:
+                error = caught
+        return {'error': error, 'code': code, 'component': component, 'events': events,
+                'popen_calls': started.call_count, 'commands': commands.call_args_list,
+                'collect_calls': collect.call_count, 'gate_released': (control / 'start').exists()}
+
+    def test_one_waiter_and_one_final_state_inspect_replace_running_cli_polling(self):
+        result = self.invoke_waiter()
+        self.assertIsNone(result['error'])
+        self.assertEqual(result['code'], 0)
+        self.assertEqual(result['popen_calls'], 1)
+        self.assertEqual(len(result['commands']), 1)
+        self.assertEqual(result['commands'][0].args[0][3], '{{json .State}}')
+        self.assertEqual(result['collect_calls'], 1)
+        self.assertTrue(result['gate_released'])
+        self.assertIn('reap_waiter', result['events'])
+        self.assertNotIn('stop_workload', result['events'])
+
+    def test_waiter_cli_error_or_malformed_output_cannot_supply_exit_zero(self):
+        for kwargs in ({'cli_exit': 1}, {'output': b''}, {'output': b'0\n0\n'}, {'output': b'256\n'}):
+            with self.subTest(kwargs=kwargs):
+                result = self.invoke_waiter(**kwargs)
+                self.assertIsInstance(result['error'], Refused)
+                self.assertIsNone(result['code'])
+                self.assertEqual(result['collect_calls'], 0)
+                self.assertIn('stop_workload', result['events'])
+
+    def test_stale_zero_waiter_requires_actual_stopped_container_state(self):
+        for state in ({'Running': True, 'ExitCode': 0}, {'Running': False, 'ExitCode': 7},
+                      {'Running': False, 'ExitCode': False}):
+            with self.subTest(state=state):
+                result = self.invoke_waiter(state=state)
+                self.assertIsInstance(result['error'], Refused)
+                self.assertNotIn('exit_code', result['component'])
+                self.assertEqual(result['collect_calls'], 0)
+
+    def test_observer_failure_stops_workload_before_terminating_and_reaping_waiter(self):
+        result = self.invoke_waiter(observer_exit=1, finish_after=100)
+        self.assertIsInstance(result['error'], Refused)
+        self.assertEqual(result['events'], ['stop_workload', 'terminate_waiter', 'reap_waiter'])
+        self.assertEqual(result['collect_calls'], 0)
+
+    def test_waiter_output_limit_fails_and_always_reaps_child(self):
+        result = self.invoke_waiter(output=b'0' * 4097, finish_after=100)
+        self.assertIsInstance(result['error'], Refused)
+        self.assertIn('status limit', str(result['error']))
+        self.assertEqual(result['events'], ['stop_workload', 'terminate_waiter', 'reap_waiter'])
+
+    def test_waiter_completed_before_release_does_not_start_framework(self):
+        result = self.invoke_waiter(finish_after=1)
+        self.assertIsInstance(result['error'], Refused)
+        self.assertFalse(result['gate_released'])
+        self.assertEqual(result['collect_calls'], 0)
+
+    def test_waiter_ignoring_termination_is_killed_and_reaped_with_short_bounds(self):
+        waiter = Mock()
+        waiter.poll.return_value = None
+        waiter.wait.side_effect = [observer.subprocess.TimeoutExpired('docker wait', 1), -9]
+        observer._reap_framework_waiter(waiter)
+        waiter.terminate.assert_called_once()
+        waiter.kill.assert_called_once()
+        self.assertEqual([call.kwargs['timeout'] for call in waiter.wait.call_args_list], [1, 1])
 
     def invoke_default_main(self, *, primary_failure=False):
         """Drive actual main() control flow; every OS/crypto effect is a fixture."""
