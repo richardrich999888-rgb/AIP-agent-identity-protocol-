@@ -16,6 +16,31 @@ ARCHIVE_SHA256 = '7bedab90dd122661be78798e9f0edf37fccf0cccf2699d2c58ea1a3afdc04b
 ARCHIVE_SIZE = 1508659610
 MODEL = 'llama3.2:1b'
 MANIFEST_SHA256 = 'baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878'
+# Reviewed choices only. The default and exported constants retain the
+# existing LangGraph/loan profile; Agent Zero opts in explicitly.
+DEFAULT_MODEL_PROFILE = 'llama32-1b'
+MODEL_PROFILES = {
+    DEFAULT_MODEL_PROFILE: {'model': MODEL, 'manifest_sha256': MANIFEST_SHA256,
+        'family': 'llama3.2', 'tag': '1b', 'license': 'Llama 3.2 Community License'},
+    'agent-zero-qwen25-coder-15b': {
+        'model': 'qwen2.5-coder:1.5b-instruct',
+        'manifest_sha256': 'd7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668',
+        'family': 'qwen2.5-coder', 'tag': '1.5b-instruct', 'license': 'Apache-2.0'},
+}
+
+
+def model_profile(name=DEFAULT_MODEL_PROFILE):
+    try:
+        return dict(MODEL_PROFILES[name])
+    except (KeyError, TypeError) as error:
+        raise ValueError('unknown reviewed public model profile') from error
+
+
+def manifest_paths(profile):
+    suffix = '/library/' + profile['family'] + '/' + profile['tag']
+    return ('manifests/registry.ollama.ai' + suffix,
+            'manifests-v2/ollama.com' + suffix)
+
 URL = f'https://github.com/ollama/ollama/releases/download/v{VERSION}/ollama-linux-amd64.tar.zst'
 CPU_FILE = re.compile(r'lib/ollama/(?:llama-server|lib(?:ggml(?:-(?:base|cpu[^/]*|blas))?|llama(?:-common|-server-impl)?|mtmd|gomp|omp|stdc\+\+|gcc_s)\.so(?:\.[0-9.]+)?)\Z')
 
@@ -25,20 +50,22 @@ def sha(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
-def verify_model(models):
-    legacy = models / 'manifests/registry.ollama.ai/library/llama3.2/1b'
-    current = models / 'manifests-v2/ollama.com/library/llama3.2/1b'
+def verify_model(models, profile_name=DEFAULT_MODEL_PROFILE):
+    profile = model_profile(profile_name)
+    legacy_path, current_path = manifest_paths(profile)
+    legacy = models / legacy_path
+    current = models / current_path
     if current.exists() or current.is_symlink():
         # Ollama 0.40 stores the original registry document as a blob and
         # links its v2 name to it. The legacy file is a DIFFERENT downgrade
         # anchor with extra GC-reference layers, not the running manifest.
-        expected_blob = models / 'blobs' / ('sha256-' + MANIFEST_SHA256)
+        expected_blob = models / 'blobs' / ('sha256-' + profile['manifest_sha256'])
         if current.resolve(strict=True) != expected_blob.resolve(strict=True):
             raise ValueError('v2 model name does not reference the reviewed content-addressed blob')
         manifest = current
     else:
         manifest = legacy
-    if sha(manifest) != MANIFEST_SHA256:
+    if sha(manifest) != profile['manifest_sha256']:
         raise ValueError('model tag changed; reviewed manifest digest required')
     value = json.loads(manifest.read_bytes())
     for layer in [value['config'], *value['layers']]:
@@ -68,7 +95,9 @@ def publish_runtime(root):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--root', type=Path, required=True)
+    p.add_argument('--model-profile', choices=sorted(MODEL_PROFILES), default=DEFAULT_MODEL_PROFILE)
     args = p.parse_args()
+    profile = model_profile(args.model_profile)
     if platform.system() != 'Linux' or platform.machine() != 'x86_64':
         raise ValueError('this pin is Linux x86_64 only')
     root = args.root.resolve(); root.mkdir(parents=True, exist_ok=False)
@@ -113,17 +142,17 @@ def main():
                     time.sleep(0.2)
             else:
                 raise TimeoutError('local CPU runtime readiness timeout')
-            subprocess.run([str(root / 'bin/ollama'), 'pull', MODEL], env=environment,
+            subprocess.run([str(root / 'bin/ollama'), 'pull', profile['model']], env=environment,
                            stdout=log, stderr=log, check=True, timeout=600)
             layout = []
-            for relative in ('manifests/registry.ollama.ai/library/llama3.2/1b', 'manifests-v2/ollama.com/library/llama3.2/1b'):
+            for relative in manifest_paths(profile):
                 candidate = models / relative
                 if candidate.exists():
                     layout.append({'path':relative,'target':str(candidate.resolve().relative_to(models)),
                                    'sha256':sha(candidate),'bytes':candidate.stat().st_size,
                                    'public_manifest':json.loads(candidate.read_text())})
             (root / 'model-manifest-layout.json').write_text(json.dumps(layout,indent=2)+'\n')
-            manifest = verify_model(models)
+            manifest = verify_model(models, args.model_profile)
         finally:
             server.terminate()
             try:
@@ -131,8 +160,9 @@ def main():
             except subprocess.TimeoutExpired:
                 server.kill(); server.wait()
     pin = {'ollama_version': VERSION, 'archive_url': URL, 'archive_sha256': ARCHIVE_SHA256,
-           'archive_bytes': ARCHIVE_SIZE, 'extracted_cpu_members': selected, 'model': MODEL,
-           'manifest_sha256': MANIFEST_SHA256, 'manifest': manifest, 'every_blob_hash_verified': True,
+           'archive_bytes': ARCHIVE_SIZE, 'extracted_cpu_members': selected, 'model': profile['model'],
+           'model_profile': args.model_profile, 'model_license': profile['license'],
+           'manifest_sha256': profile['manifest_sha256'], 'manifest': manifest, 'every_blob_hash_verified': True,
            'cloud_inference': 'disabled', 'api_credentials_used': False, 'model_api_spend_cap': 0,
            'source_authority': 'operator_verified_public_distribution'}
     publish_runtime(root)

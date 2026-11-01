@@ -17,8 +17,8 @@ RUN if [ "$FRAMEWORK" = agent_zero ]; then python -m venv .venv && \
         printf 'torch==2.14.1+cpu\ntorchvision==0.29.1+cpu\n' > /tmp/cpu-constraints.txt && \
         uv pip install --python .venv/bin/python --no-cache -r requirements.txt -c /tmp/cpu-constraints.txt && \
         uv pip check --python .venv/bin/python; \
-    elif [ "$FRAMEWORK" = deerflow ]; then cd backend && uv sync --frozen; \
-    elif [ "$FRAMEWORK" = openhands ]; then uv sync --frozen --all-packages; \
+    elif [ "$FRAMEWORK" = deerflow ]; then cd backend && uv sync --frozen --no-dev; \
+    elif [ "$FRAMEWORK" = openhands ]; then uv sync --frozen --all-packages --no-dev; \
     else exit 1; fi
 ENV TIKTOKEN_CACHE_DIR=/opt/tiktoken-cache
 RUN if [ "$FRAMEWORK" = agent_zero ]; then .venv/bin/python -c 'import tiktoken; tiktoken.get_encoding("cl100k_base"); tiktoken.get_encoding("o200k_base")'; fi
@@ -27,12 +27,12 @@ RUN useradd --uid 10001 --create-home agent && mkdir -p /opt/snifferdog /work &&
     rm -rf /opt/framework/tmp /opt/framework/logs && \
     ln -s /tmp/framework /opt/framework/tmp && ln -s /tmp/framework-logs /opt/framework/logs
 COPY adapters/launch.py /opt/snifferdog/launch.py
-COPY adapters/agent_zero_runtime.py adapters/smoke.py /opt/snifferdog/
+COPY adapters/agent_zero_runtime.py adapters/agent_zero_capability.py adapters/smoke.py adapters/framework_smokes.py /opt/snifferdog/
 COPY adapters/entrypoint.sh /opt/snifferdog/entrypoint.sh
-ENV PATH="/opt/framework/.venv/bin:${PATH}" PYTHONDONTWRITEBYTECODE=1
+ENV PATH="/opt/framework/backend/.venv/bin:/opt/framework/.venv/bin:${PATH}" PYTHONDONTWRITEBYTECODE=1
 ENV LITELLM_LOCAL_MODEL_COST_MAP=True
 ENV HOME=/tmp/home UV_CACHE_DIR=/tmp/uv-cache
 ENV DEER_FLOW_HOME=/work/deerflow-state
-ENV FRAMEWORK=${FRAMEWORK}
+ENV FRAMEWORK=${FRAMEWORK} FRAMEWORK_COMMIT=${COMMIT}
 USER 10001:10001
 ENTRYPOINT ["/bin/sh", "/opt/snifferdog/entrypoint.sh"]

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import ipaddress
 import json
 import os
 from pathlib import Path
@@ -29,7 +30,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / 'validation/enterprise'))
 from evidence import Refused, command, sha256
 from harness import run as run_harness, save, terminate
-from prepare_local_model import MODEL, MANIFEST_SHA256, verify_model
+from prepare_local_model import DEFAULT_MODEL_PROFILE, MODEL_PROFILES, model_profile, verify_model
 
 CLICK_REVISION = '2247b35ea1c47c727d7a06e51fa280e12a863ff6'
 ISSUE_URL = 'https://api.github.com/repos/pallets/click/issues/3652'
@@ -40,14 +41,21 @@ def private_json(path, value):
     path.chmod(0o600)
 
 
-def docker(image, network, args, *, mounts=(), memory='4g', timeout=120, **kwargs):
+def docker(image, network, args, *, mounts=(), memory='4g', timeout=120, framework=False, workdir=None, **kwargs):
     name='sd-az-policy-'+secrets.token_hex(6)
     invocation = ['docker', 'run', '--rm', '--name',name,'--network', network, '--user', '10001:10001',
         '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only',
         '--memory', memory, '--cpus', '2', '--pids-limit', '256',
         '--tmpfs', '/tmp:rw,nosuid,size=1g,mode=1777',
-        '--tmpfs', '/work:rw,nosuid,size=1g,uid=10001,gid=10001',
         '--entrypoint', '/opt/framework/.venv/bin/python']
+    if workdir is None:
+        invocation += ['--tmpfs','/work:rw,nosuid,size=1g,uid=10001,gid=10001']
+    else:
+        if not stat.S_ISDIR(Path(workdir).lstat().st_mode):
+            raise Refused('capability workspace must be a new regular directory')
+        invocation += ['--mount',f'type=bind,src={workdir},dst=/work']
+    if framework:
+        invocation += ['--tmpfs', '/opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001']
     for source, target in mounts:
         invocation += ['--mount', f'type=bind,src={source},dst={target},readonly']
     try:
@@ -55,6 +63,11 @@ def docker(image, network, args, *, mounts=(), memory='4g', timeout=120, **kwarg
             text=True, timeout=timeout, **kwargs)
     finally:
         subprocess.run(['docker','rm','--force',name],capture_output=True,timeout=15)
+        if framework:
+            stopped=subprocess.run(['docker','ps','--all','--filter','name='+name,'--format','{{.Names}}'],
+                                   capture_output=True,text=True,timeout=15)
+            if stopped.returncode or name in stopped.stdout.splitlines():
+                raise Refused('capability container stop could not be confirmed')
 
 
 def policy(config_path):
@@ -71,7 +84,8 @@ def policy(config_path):
     if not inspected['State']['Running'] or inspected['HostConfig']['ReadonlyRootfs'] is not True:
         raise Refused('read-only bounded local model service is not running')
     client = r'''
-import json, socket, sys
+import json, re, socket, sys
+from datetime import date
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 cfg=json.loads(sys.argv[1]); base='http://'+cfg['model_ip']+':11434'
@@ -86,6 +100,20 @@ for host,port in [(cfg['gateway'],cfg['host_probe_port']),('169.254.169.254',80)
         denials.append({'host':host,'port':port,'errno':error.errno})
     else:
         connection.close(); raise RuntimeError('forbidden destination connected')
+business=cfg.get('allowed_business_endpoint')
+if business:
+    url='http://'+business['host']+':'+str(business['port'])+business['path']
+    with urlopen(url,timeout=10) as response:
+        raw=response.read(65537)
+    assert len(raw)<=65536
+    value=json.loads(raw)
+    assert type(value) is dict and set(value)=={'schema','as_of','currency','policy_nonce'}
+    assert value['schema']=='synthetic-invoice-policy-v1'
+    assert all(type(value[k]) is str for k in ('as_of','currency','policy_nonce'))
+    assert re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}',value['as_of'])
+    date.fromisoformat(value['as_of'])
+    assert re.fullmatch(r'[A-Z]{3}',value['currency'])
+    assert re.fullmatch(r'[0-9a-f]{32}',value['policy_nonce'])
 # This is a separate capability inference, before the measured agent run.
 # Memory is explicitly disabled; no embedding result is invented or claimed.
 request=Request(base+'/api/generate',data=json.dumps({'model':cfg['model'],'prompt':'Return one JSON object with ready set to true.','format':'json','stream':False,'options':{'temperature':0,'num_predict':32,'num_ctx':8192,'num_thread':2}}).encode(),headers={'Content-Type':'application/json'})
@@ -96,7 +124,7 @@ except HTTPError as error:
     raise RuntimeError('approved local model generation capability unavailable: HTTP '+str(error.code)) from error
 assert reply.get('done') and reply.get('done_reason')!='length'
 assert json.loads(reply['response']).get('ready') is True
-print(json.dumps({'status':'PASS','real_generation_capability_checked':True,'native_json_generation_checked':True,'inference_route':'/api/generate','embedding_capability':'UNVALIDATED_NOT_INVOKED_MEMORY_DISABLED','denied_destinations':denials,'model_manifest_verified':True,'external_model_api_spend_cap':0,'api_credentials_used':False}))
+print(json.dumps({'status':'PASS','real_generation_capability_checked':True,'native_json_generation_checked':True,'inference_route':'/api/generate','allowed_business_http_checked':bool(business),'business_check_scope':'PREWORKLOAD_CAPABILITY_ONLY','embedding_capability':'UNVALIDATED_NOT_INVOKED_MEMORY_DISABLED','denied_destinations':denials,'model_manifest_verified':True,'external_model_api_spend_cap':0,'api_credentials_used':False}))
 '''
     probe = docker(cfg['image'], cfg['network'], ['-c',client,json.dumps(cfg)], timeout=cfg['chat_timeout_seconds']+20)
     if probe.returncode:
@@ -198,6 +226,150 @@ def prepare_inputs(inputs, public):
     return task
 
 
+
+def model_access_lines(model_container):
+    result=subprocess.run(['docker','logs',model_container],capture_output=True,text=True,timeout=20,check=True)
+    return [line for line in (result.stdout+result.stderr).splitlines()
+            if re.search(r'\b200\b.*POST.*"/api/(?:chat|generate)"',line)]
+
+
+def policy_request_count(public):
+    path=public/'policy-inferences.jsonl'
+    return sum(json.loads(line)['successful_generation_capability_requests']
+               for line in path.read_text().splitlines()) if path.exists() else 0
+
+
+def agent_configuration(model, endpoint, profile_name):
+    slot={'provider':'ollama','name':model,'api_base':endpoint,
+          'ctx_length':8192,'vision':False,'kwargs':{'temperature':0,'num_ctx':8192,'num_predict':1024}}
+    chat={**slot,'kwargs':{**slot['kwargs'],'response_format':{'type':'json_object'}}}
+    config={'preset':{'name':'Default','chat':chat,'utility':slot,
+                     'embedding':{'provider':'ollama','name':model,'api_base':endpoint}},
+            'settings':{},'disable_memory':True}
+    if profile_name=='agent-zero-qwen25-coder-15b':
+        config['reviewed_profile']='tiny-local-coding-v1'
+        config['settings']['agent_profile']='tiny-local'
+    return config
+
+
+def framework_capability(image, network, inputs, public, model_container):
+    """Separate real framework/tool context with the existing 1 GiB work bound."""
+    workspace=inputs.parent/('capability-work-'+secrets.token_hex(6))
+    workspace.mkdir(mode=0o700)
+    mounted=False
+    try:
+        command(['mount','-t','tmpfs','-o','size=1g,mode=700,uid=10001,gid=10001','tmpfs',workspace])
+        mounted=True
+        return _run_framework_capability(image,network,inputs,public,model_container,workspace)
+    except (Refused,OSError,ValueError,subprocess.SubprocessError) as error:
+        path=public/'framework-capability.json'
+        report=json.loads(path.read_text()) if path.exists() else {
+            'classification':'SEPARATE_REAL_FRAMEWORK_TOOL_CAPABILITY_STAGE',
+            'business_task_acceptance':False,'kernel_observation_claimed':False}
+        report['status']='FAIL'
+        report.setdefault('failure_type',type(error).__name__)
+        save(path,report)
+        raise
+    finally:
+        if mounted:
+            try:
+                command(['umount',workspace])
+            except (Refused,OSError,subprocess.SubprocessError) as error:
+                path=public/'framework-capability.json'
+                report=json.loads(path.read_text()) if path.exists() else {}
+                report.update(status='FAIL',cleanup_failure_type=type(error).__name__,
+                              business_task_acceptance=False)
+                save(path,report)
+                raise Refused('bounded capability workspace cleanup did not complete') from error
+
+
+def _run_framework_capability(image, network, inputs, public, model_container, workspace):
+    challenge={'capability_id':secrets.token_hex(16),'left':secrets.randbelow(1_000_000),
+               'right':secrets.randbelow(1_000_000)}
+    private_json(inputs/'capability-input.json',challenge)
+    (inputs/'capability-input.json').chmod(0o644)
+    before=model_access_lines(model_container)
+    report={'classification':'SEPARATE_REAL_FRAMEWORK_TOOL_CAPABILITY_STAGE','status':'RUNNING',
+            'model_requests_before':len(before),'business_task_acceptance':False,
+            'kernel_observation_claimed':False,'independent_task_acceptance':False,
+            'challenge_sha256':sha256(inputs/'capability-input.json')}
+    save(public/'framework-capability.json',report)
+    failure=None
+    try:
+        result=docker(image,network,['/opt/snifferdog/agent_zero_capability.py',
+            '--config','/model-config/agent-zero.json','--challenge','/model-config/capability-input.json',
+            '--timeout','240'],mounts=[(inputs,'/model-config')],timeout=260,framework=True,workdir=workspace)
+        report['helper_exit_code']=result.returncode
+        if len(result.stdout.encode())>65536:
+            raise ValueError('capability summary exceeds its bound')
+        report['framework_result']=json.loads(result.stdout)
+        if not isinstance(report['framework_result'],dict):
+            raise ValueError('capability summary is not an object')
+    except (subprocess.TimeoutExpired,OSError,ValueError,TypeError) as error:
+        report['failure_type']=type(error).__name__
+        failure=error
+    after=model_access_lines(model_container)
+    counter_valid=after[:len(before)]==before and len(after)>=len(before)
+    if not counter_valid:
+        failure=Refused('model access history changed during separate capability stage')
+        report['failure_type']='ModelAccessHistoryChanged'
+    report.update(model_requests_after=len(after),model_counter_delta=len(after)-len(before),
+                  actual_model_requests_in_stage=len(after)-len(before) if counter_valid else None)
+    artifacts=[]
+    for name,limit in [('capability-adapter.jsonl',8*1024*1024),('capability-result.json',65536)]:
+        try:
+            artifacts.append(publish_self_reported_file(workspace,public,name,limit))
+        except (Refused,OSError) as error:
+            artifacts.append({'source_authority':'AGENT_SELF_REPORTED','source_file':name,
+                              'status':'REFUSED_UNSAFE','failure_type':type(error).__name__})
+            failure=error
+    report['artifacts']=artifacts
+    actual_result=False
+    output=public/'agent-self-reported-capability-result.json'
+    if any(x.get('published_file')==output.name and x.get('status')=='ORIGINAL_BYTES_RETAINED' for x in artifacts):
+        try:
+            value=json.loads(output.read_bytes())
+            actual_result=(type(value) is dict and set(value)=={'capability_id','sum'}
+                and value['capability_id']==challenge['capability_id'] and type(value['sum']) is int
+                and value['sum']==challenge['left']+challenge['right'])
+        except (ValueError,TypeError):
+            actual_result=False
+    report['independent_capability_file_matches_challenge']=actual_result
+    helper=report.get('framework_result',{})
+    ok=(failure is None and report.get('helper_exit_code')==0 and helper.get('status')=='PASS'
+        and helper.get('classification')=='REAL_FRAMEWORK_CODE_FINAL_RESPONSE_CAPABILITY_ONLY'
+        and report['actual_model_requests_in_stage']>0 and actual_result)
+    report['status']='PASS' if ok else 'FAIL'
+    save(public/'framework-capability.json',report)
+    if not ok:
+        raise Refused('actual framework/code/final-response capability did not pass')
+    baseline={'source_authority':'root_model_service_access_counter',
+              'stage':'CAPABILITY_COMPLETE_BEFORE_MEASURED_WORKLOAD',
+              'successful_model_requests':len(after),'policy_requests':policy_request_count(public),
+              'capability_model_requests':report['actual_model_requests_in_stage'],
+              'original_access_lines':after,'not_cryptographically_signed':True}
+    save(public/'model-call-baseline.json',baseline)
+    return baseline
+
+
+def workload_request_count(all_lines, baseline, total_policy):
+    initial=baseline.get('successful_model_requests',0)
+    if all_lines[:initial]!=baseline.get('original_access_lines',[]):
+        raise Refused('model access counter no longer contains the original preworkload baseline')
+    later_policy=total_policy-baseline.get('policy_requests',0)
+    count=len(all_lines)-initial-later_policy
+    if later_policy<0 or count<0:
+        raise Refused('model access log is incomplete relative to separate preflight stages')
+    return count
+
+
+
+def business_success(status, model_calls, output_report):
+    return bool(output_report and output_report.get('status')=='PASS' and type(model_calls) is int and model_calls>0
+                and type(status.get('workload_exit')) is int and status.get('workload_exit')==0 and status.get('observation_validation')=='PASSED'
+                and not status.get('failures'))
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     sub=parser.add_subparsers(dest='action',required=True)
@@ -205,6 +377,8 @@ def main():
     p=sub.add_parser('run')
     for option in ('image','tools','model-root','out'):
         p.add_argument('--'+option,required=True,type=str if option=='image' else Path)
+    p.add_argument('--task',choices=('click-3652','business-reconciliation'),default='click-3652')
+    p.add_argument('--model-profile',choices=sorted(MODEL_PROFILES),default=DEFAULT_MODEL_PROFILE)
     args=parser.parse_args()
     if args.action=='policy':
         policy(args.config); return 0
@@ -216,7 +390,11 @@ def main():
     framework=json.loads((HERE/'frameworks.lock.json').read_text())['agent_zero']
     if not labels or labels.get('org.opencontainers.image.revision')!=framework['commit']:
         raise Refused('Agent Zero image source revision differs from the existing reviewed pin')
-    model_root=args.model_root.resolve(); verify_model(model_root/'models')
+    if args.task=='business-reconciliation' and args.model_profile!='agent-zero-qwen25-coder-15b':
+        raise Refused('business task requires the explicit reviewed Agent Zero model/profile')
+    selected_model=model_profile(args.model_profile)
+    model,manifest=selected_model['model'],selected_model['manifest_sha256']
+    model_root=args.model_root.resolve(); verify_model(model_root/'models',args.model_profile)
     tools=args.tools.resolve(); out=args.out.resolve()
     if any(not re.fullmatch(r'[A-Za-z0-9_./-]+',str(path)) for path in (tools,out,model_root)):
         raise Refused('profile paths must be absolute safe paths for systemd configuration')
@@ -227,7 +405,8 @@ def main():
         'collector_custody':'LOCAL_ISOLATION_SHARED_KERNEL_AND_ROOT',
         'separate_host_validation':'INCOMPLETE','logical_agent_attribution':'UNKNOWN',
         'authorization_gateway_join':'NOT_CONNECTED_FOR_THIS_FRAMEWORK',
-        'model':MODEL,'model_manifest_sha256':MANIFEST_SHA256,
+        'model':model,'model_manifest_sha256':manifest,'model_profile':args.model_profile,
+        'model_license':selected_model['license'],'task_case':args.task,
         'model_api_credentials_used':False,'external_model_api_spend_cap':0,
         'memory_recall':'DISABLED_UNVALIDATED','embedding':'UNVALIDATED_NOT_INVOKED',
         'source_commit':command(['git','rev-parse','HEAD'],cwd=ROOT).strip()}
@@ -237,13 +416,19 @@ def main():
     model_name='snifferdog-model-'+token; chain='SDZA'+token[:8]
     unit_path=Path('/run/systemd/system')/unit
     resources={'network':False,'chain':False,'forward':False,'input':False,'input_established':False,'model':False,'unit':False,'mount':False}
-    bootstrap=None; bootstrap_log=None; listener=None; model_log=''
+    bootstrap=None; bootstrap_log=None; listener=None; business=None
+    baseline={'successful_model_requests':0,'policy_requests':0,'capability_model_requests':0,'original_access_lines':[]}
     try:
         trace=Path('/sys/kernel/tracing/available_events')
         if not trace.exists(): command(['mount','-t','tracefs','nodev','/sys/kernel/tracing'])
         for event in ('sched:sched_process_exec','sched:sched_process_fork','sock:sock_send_length'):
             if event not in trace.read_text(): raise Refused('required kernel tracepoint unavailable: '+event)
-        inputs=private/'inputs'; task=prepare_inputs(inputs,public)
+        inputs=private/'inputs'
+        if args.task=='business-reconciliation':
+            from business_case import prepare_business_inputs, start_business_service, evaluate_business_output, stop_business_service
+            task=prepare_business_inputs(inputs,public)
+        else:
+            task=prepare_inputs(inputs,public)
         # Do not pass personal environment or a credential placeholder into the agent.
         (private/'model.env').write_text(''); (private/'model.env').chmod(0o600)
         command(['docker','network','create','--internal','--opt','com.docker.network.bridge.name='+bridge,network])
@@ -274,6 +459,13 @@ def main():
         model_ip=json.loads(command(['docker','inspect',model_name]))[0]['NetworkSettings']['Networks'][network]['IPAddress']
         # Exact destination restriction, before any untrusted framework process runs.
         command(['iptables','-R',chain,'2','-d',model_ip,'-p','tcp','--dport','11434','-j','ACCEPT'])
+        if args.task=='business-reconciliation':
+            business=start_business_service(args.image,network,private,inputs,public)
+            business_ip=ipaddress.IPv4Address(business['ip'])
+            if type(business['port']) is not int or not 1<=business['port']<=65535 or business['policy_path']!='/policy':
+                raise Refused('business fixture returned an invalid exact endpoint')
+            command(['iptables','-I',chain,'3','-d',str(business_ip),'-p','tcp','--dport',str(business['port']),'-j','ACCEPT'])
+            task=Path(business['task_path'])
         for _ in range(100):
             try:
                 with urlopen('http://'+model_ip+':11434/api/version',timeout=1): break
@@ -283,7 +475,9 @@ def main():
         listener=socket.socket(); listener.bind((gateway,0)); listener.listen(4)
         policy_cfg={'image':args.image,'network':network,'model_container':model_name,
             'model_ip':model_ip,'gateway':gateway,'host_probe_port':listener.getsockname()[1],
-            'model':MODEL,'manifest':MANIFEST_SHA256,'public':str(public),'chat_timeout_seconds':120}
+            'model':model,'manifest':manifest,'public':str(public),'chat_timeout_seconds':120}
+        if business is not None:
+            policy_cfg['allowed_business_endpoint']={'host':business['ip'],'port':business['port'],'path':business['policy_path']}
         private_json(private/'policy.json',policy_cfg)
         # Reuse this reviewed policy implementation through a root-owned executable.
         policy_executable=private/'check-policy'
@@ -297,15 +491,12 @@ def main():
         # policy check must fit the existing strict 60-second preflight bound.
         policy_cfg['chat_timeout_seconds']=20
         private_json(private/'policy.json',policy_cfg)
-        slot={'provider':'ollama','name':MODEL,'api_base':'http://'+model_ip+':11434',
-            'ctx_length':8192,'vision':False,'kwargs':{'temperature':0,'num_ctx':8192,'num_predict':1024}}
-        # The pinned LiteLLM Ollama provider maps this to native format=json.
-        # Constrain syntax only; the genuine model still chooses every action.
-        chat_slot={**slot,'kwargs':{**slot['kwargs'],'response_format':{'type':'json_object'}}}
-        private_json(inputs/'agent-zero.json',{'preset':{'name':'Default','chat':chat_slot,'utility':slot,
-            'embedding':{'provider':'ollama','name':MODEL,'api_base':slot['api_base']}},
-            'settings':{},'disable_memory':True})
+        # Native JSON constrains syntax only; the model still chooses all actions.
+        private_json(inputs/'agent-zero.json',agent_configuration(
+            model,'http://'+model_ip+':11434',args.model_profile))
         (inputs/'agent-zero.json').chmod(0o644)
+        if args.model_profile=='agent-zero-qwen25-coder-15b':
+            baseline=framework_capability(args.image,network,inputs,public,model_name)
         helper=private/'collector_control.py'; shutil.copyfile(HERE/'collector_control.py',helper); helper.chmod(0o700)
         state=private/'collector-state'; state.mkdir()
         bootstrap_state=private/'bootstrap-state'; bootstrap_state.mkdir()
@@ -348,29 +539,30 @@ def main():
         # The watched mount contains only this experiment, not the host source tree.
         runs=out/'runs'; runs.mkdir(mode=0o755)
         command(['mount','-t','tmpfs','-o','size=1g,mode=755','tmpfs',runs]); resources['mount']=True
-        cfg={'framework':'agent_zero','model':MODEL,'image':args.image,'task':str(task),'tools':str(tools),
+        cfg={'framework':'agent_zero','model':model,'image':args.image,'task':str(task),'tools':str(tools),
             'model_env':str(private/'model.env'),'model_config':str(inputs),'probe_env':str(probe_path),
             'policy_check':str(policy_executable),'network':network,'timeout_s':900,'cpus':2,'memory_mb':4096,'pids_limit':256,
             'collector':{'mode':'local-isolated','helper':str(helper),'config':str(private/'collector-control.json')},'anchor':anchor}
         private_json(private/'harness.json',cfg)
         code=run_harness(cfg,runs/'agent-zero',public/'checkpoint.json')
         status=json.loads((runs/'agent-zero/status.json').read_text())
-        model_result=subprocess.run(['docker','logs',model_name],capture_output=True,text=True,timeout=20,check=True)
-        model_log=model_result.stdout+model_result.stderr
-        calls=[line for line in model_log.splitlines() if re.search(r'\b200\b.*POST.*"/api/(?:chat|generate)"',line)]
-        policy_calls=sum(json.loads(line)['successful_generation_capability_requests'] for line in (public/'policy-inferences.jsonl').read_text().splitlines())
-        agent_calls=len(calls)-policy_calls
-        if agent_calls<0: raise Refused('local model access log is incomplete relative to actual policy inferences')
+        calls=model_access_lines(model_name)
+        policy_calls=policy_request_count(public)
+        agent_calls=workload_request_count(calls,baseline,policy_calls)
         save(public/'model-calls.json',{'source_authority':'separate_local_model_container_access_log',
             'successful_chat_or_generate_requests_including_policy':len(calls),
             'successful_policy_generation_capability_requests':policy_calls,
             'successful_framework_period_requests_excluding_policy':agent_calls,
+            'separate_framework_capability_requests':baseline.get('capability_model_requests',0),
+            'preworkload_model_request_baseline':baseline.get('successful_model_requests',0),
+            'measured_workload_requests_exclude_capability_and_policy':True,
             'original_access_lines':calls,'not_cryptographically_signed':True,
-            'scope':'exact model service used only by the restricted workload and the counted root policy probes; does not prove logical subagent attribution'})
+            'scope':'exact model service with original access lines; separate capability baseline and later policy probes excluded from the measured workload count; does not prove logical subagent attribution'})
         for source_name,target_name in [('status.json','harness-status.json'),('verification.json','offline-verification.json'),
                 ('summary.json','observation-summary.json'),('corroboration.json','corroboration.json'),('tamper.json','tamper.json'),
                 ('audit-status.json','audit-status.json'),('auditd.log','auditd.log'),('launch.json','launch.json'),
-                ('fanotify-watch.json','fanotify-watch.json')]:
+                ('fanotify-watch.json','fanotify-watch.json'),
+                ('task-end-boundary.json','task-end-boundary.json'),('finalization.json','finalization.json')]:
             source=runs/'agent-zero'/source_name
             if source.is_file(): shutil.copyfile(source,public/target_name)
         for name in ('attested.archive.jsonl','health.archive.jsonl'):
@@ -383,19 +575,29 @@ def main():
         # bytes and their self-reported standing; no full workspace is exported.
         published=[publish_self_reported_file(runs/'agent-zero/work',public,name,limit)
             for name,limit in [('click.patch',1024*1024),('verification.md',1024*1024),
-                              ('response.json',1024*1024),('adapter.jsonl',8*1024*1024)]]
+                              ('response.json',1024*1024),('adapter.jsonl',8*1024*1024),('report.json',65536)]]
         save(public/'agent-self-reported-artifact-provenance.json',{
             'classification':'UNTRUSTED_AGENT_DIAGNOSTICS_FROM_ZERO_CREDENTIAL_PUBLIC_TASK',
             'original_bytes_unmodified':True,'independent_task_acceptance':False,
             'artifacts':published})
-        profile.update(status='REVIEW_REQUIRED' if not status.get('failures') and agent_calls>0 and (public/'agent-self-reported-click.patch').is_file() else 'FAIL',
+        business_report=evaluate_business_output(business,runs/'agent-zero/work',public,status) if business is not None else None
+        business_ok=business_success(status,agent_calls,business_report)
+        result_status=('PASS' if business_ok else 'FAIL') if business is not None else (
+            'REVIEW_REQUIRED' if not status.get('failures') and agent_calls>0 and (public/'agent-self-reported-click.patch').is_file() else 'FAIL')
+        profile.update(status=result_status,
             harness_exit_code=code,harness_status=status.get('status'),
             observation_validation=status.get('observation_validation','NOT_ESTABLISHED'),
             actual_model_chat_requests_excluding_policy=agent_calls,task_acceptance='PENDING_INDEPENDENT_PATCH_AND_TEST_REVIEW',
             actual_patch_supplied=(public/'agent-self-reported-click.patch').is_file(),
             framework_log_authority='SELF_REPORTED; not kernel attribution of logical delegation')
         save(public/'profile.json',profile)
-        # Preserve the existing incomplete-task contract, including REVIEW_REQUIRED.
+        if business is not None:
+            profile['business_task_acceptance']='PASSED' if business_ok else 'FAILED'
+            profile['task_acceptance']='INDEPENDENT_SYNTHETIC_OUTPUT_CHECK_PASSED' if business_ok else 'FAILED'
+            profile['claim_limit']='Synthetic output and observed execution only; no AIP gateway authorization, logical delegation, separate custody or production business outcome is established.'
+            save(public/'profile.json',profile)
+            return 0 if business_ok else 1
+        # Preserve the existing Click incomplete-task contract, including REVIEW_REQUIRED.
         return 1
     except Exception as error:
         profile['failure']={'type':type(error).__name__,'detail':str(error)}
@@ -419,6 +621,7 @@ def main():
             cleanup('stop_collector_unit',lambda: checked(['systemctl','stop',unit]))
             cleanup('remove_collector_unit',lambda: unit_path.unlink(missing_ok=True))
             cleanup('reload_units',lambda: checked(['systemctl','daemon-reload']))
+        if business is not None: cleanup('remove_business_fixture',lambda: stop_business_service(business))
         if resources['model']: cleanup('remove_model_container',lambda: checked(['docker','rm','--force',model_name]))
         if resources['input']: cleanup('remove_host_deny_rule',lambda: checked(['iptables','-D','INPUT','-i',bridge,'-j','REJECT']))
         if resources['input_established']: cleanup('remove_host_response_rule',lambda: checked(['iptables','-D','INPUT','-i',bridge,'-m','conntrack','--ctstate','ESTABLISHED,RELATED','-j','ACCEPT']))
@@ -433,7 +636,11 @@ def main():
             cleanup('retain_experiment',lambda: shutil.copytree(out/'runs',out/'retained-runs',symlinks=True))
             cleanup('unmount_experiment',lambda: checked(['umount',out/'runs']))
         profile['cleanup_errors']=cleanup_errors
-        if cleanup_errors: profile['status']='FAIL'
+        if cleanup_errors:
+            profile['status']='FAIL'
+            if business is not None:
+                profile['business_task_acceptance']='FAILED'
+                profile['task_acceptance']='FAILED_CLEANUP'
         save(public/'profile.json',profile)
         if cleanup_errors and sys.exc_info()[0] is None:
             raise Refused('disposable hosted profile cleanup did not complete')

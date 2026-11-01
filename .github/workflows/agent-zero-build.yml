@@ -1,4 +1,4 @@
-name: Agent Zero container and Linux regression
+name: Open-source agents and Linux observation
 on:
   pull_request:
     paths:
@@ -8,10 +8,28 @@ on:
   workflow_dispatch:
     inputs:
       genuine_task:
-        description: Run the genuine local-model software task after all component gates pass
+        description: Run a genuine Agent Zero task after the component gates pass
         required: true
         type: boolean
         default: false
+      framework:
+        description: Framework installations and observed component tests
+        required: true
+        type: choice
+        options: [agent_zero, deerflow, openhands, all]
+        default: agent_zero
+      task_case:
+        description: Genuine Agent Zero workload (separate from component checks)
+        required: true
+        type: choice
+        options: [click-3652, business-reconciliation]
+        default: click-3652
+      model_profile:
+        description: Immutable reviewed local model profile
+        required: true
+        type: choice
+        options: [llama32-1b, agent-zero-qwen25-coder-15b]
+        default: llama32-1b
 permissions:
   contents: read
 defaults:
@@ -36,44 +54,87 @@ jobs:
             cargo test --locked --release -p ghost-demo --test live_nexora g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too
           done
   image:
+    name: image (${{ matrix.framework }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: ${{ fromJSON(inputs.framework == 'all' && '["agent_zero","deerflow","openhands"]' || inputs.framework == 'deerflow' && '["deerflow"]' || inputs.framework == 'openhands' && '["openhands"]' || '["agent_zero"]') }}
+    env:
+      FRAMEWORK: ${{ matrix.framework }}
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Build pinned Agent Zero (no credentials available to build)
+      - name: Build exact pinned upstream source without credentials
         run: |
-          python3 integrations/real_agents/build_image.py agent_zero \
+          image_tag="snifferdog-${FRAMEWORK//_/-}:validation"
+          python3 integrations/real_agents/build_image.py "$FRAMEWORK" \
             --python-image python:3.12-slim-bookworm@sha256:62ed8e07e544e8555c5d93748d5275015136b7f5c52b5e8679b4de339c3779d3 \
-            --uv-version 0.13.6 --tag snifferdog-agent-zero:validation
-          docker image inspect snifferdog-agent-zero:validation > "$RUNNER_TEMP/image.json"
-          docker run --rm --network none --entrypoint /opt/framework/.venv/bin/python \
-            snifferdog-agent-zero:validation -m pip list --format=json > "$RUNNER_TEMP/dependencies.json"
-      - name: Exercise real upstream initialization and local terminal without a model
+            --uv-version 0.13.6 --tag "$image_tag" \
+            --metadata-out "$RUNNER_TEMP/build-metadata.json"
+          runtime_python="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"]+"/build-metadata.json"))["runtime_python"])')"
+          docker run --rm --network none --entrypoint "$runtime_python" "$image_tag" \
+            -c 'import importlib.metadata as m,json; print(json.dumps(sorted([{"name":d.metadata["Name"],"version":d.version} for d in m.distributions()],key=lambda d:d["name"])))' \
+            > "$RUNNER_TEMP/dependencies.json"
+      - name: Exercise actual upstream configuration, terminal and file APIs without a model
         run: |
+          image_tag="snifferdog-${FRAMEWORK//_/-}:validation"
+          runtime_python="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"]+"/build-metadata.json"))["runtime_python"])')"
           docker run --rm --network none --user 10001:10001 --cap-drop ALL \
             --security-opt no-new-privileges --read-only --memory 4g --cpus 2 --pids-limit 256 \
             --tmpfs /tmp:rw,nosuid,size=1g,mode=1777 \
             --tmpfs /work:rw,nosuid,size=1g,uid=10001,gid=10001 \
             --tmpfs /opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001 \
-            --entrypoint /opt/framework/.venv/bin/python \
-            snifferdog-agent-zero:validation /opt/snifferdog/smoke.py 2>&1 | tee "$RUNNER_TEMP/smoke.txt"
-      - name: Preserve the tested image for reproduction (no model secrets)
+            --entrypoint "$runtime_python" \
+            "$image_tag" /opt/snifferdog/smoke.py 2>&1 | tee "$RUNNER_TEMP/smoke.txt"
+      - uses: dtolnay/rust-toolchain@stable
+        if: github.event_name == 'workflow_dispatch'
+      - uses: Swatinem/rust-cache@v2
+        if: github.event_name == 'workflow_dispatch'
+      - name: Prepare actual Linux observation for the installed framework component
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chrony auditd
+          sudo systemctl restart chrony
+          sudo chronyc waitsync 30 0.1 0.0 2
+          sudo service auditd start
+          sudo auditctl -l > "$RUNNER_TEMP/framework-audit-initial.txt"
+          if sudo auditctl -l | grep -Fxq -- '-a never,task'; then
+            sudo auditctl -d never,task
+          fi
+          cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate
+      - name: Observe the actual installed framework tool component (zero model calls)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          image_tag="snifferdog-${FRAMEWORK//_/-}:validation"
+          image_id="$(docker image inspect --format '{{.Id}}' "$image_tag")"
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" python3 \
+            integrations/real_agents/hosted_observer_smoke.py --tools target/debug \
+            --framework "$FRAMEWORK" --framework-image "$image_id" \
+            --out "$RUNNER_TEMP/framework-observation"
+      - name: Preserve the exact tested Agent Zero image for its separate genuine task
+        if: matrix.framework == 'agent_zero'
         run: |
           docker save snifferdog-agent-zero:validation | gzip -1 > "$RUNNER_TEMP/agent-zero-image.tar.gz"
           cd "$RUNNER_TEMP"
           sha256sum agent-zero-image.tar.gz > agent-zero-image.sha256
-      - name: Retain build evidence only (no model keys or workload logs)
+      - name: Retain selected public installation and observation evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent-zero-build-${{ github.run_id }}
+          name: ${{ matrix.framework == 'agent_zero' && 'agent-zero' || matrix.framework }}-build-${{ github.run_id }}
           retention-days: 14
           path: |
-            ${{ runner.temp }}/image.json
+            ${{ runner.temp }}/build-metadata.json
             ${{ runner.temp }}/dependencies.json
             ${{ runner.temp }}/smoke.txt
+            ${{ runner.temp }}/framework-audit-initial.txt
+            ${{ runner.temp }}/framework-observation/public/
+            ${{ runner.temp }}/framework-observation/anchor.json
+            ${{ runner.temp }}/framework-observation/checkpoint.json
             ${{ runner.temp }}/agent-zero-image.tar.gz
             ${{ runner.temp }}/agent-zero-image.sha256
   hosted-observer-capabilities:
@@ -115,11 +176,14 @@ jobs:
             ${{ runner.temp }}/hosted-observer/anchor.json
             ${{ runner.temp }}/hosted-observer/checkpoint.json
   genuine-task:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.genuine_task == true }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.genuine_task == true && inputs.framework == 'agent_zero' }}
     needs: [image, release-regression, hosted-observer-capabilities]
     environment: snifferdog-validation
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    env:
+      MODEL_PROFILE: ${{ inputs.model_profile }}
+      TASK_CASE: ${{ inputs.task_case }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -152,18 +216,19 @@ jobs:
           cd "$RUNNER_TEMP/reviewed-image"
           sha256sum -c agent-zero-image.sha256
           gzip -dc agent-zero-image.tar.gz | docker load
-          docker image inspect snifferdog-agent-zero:validation > "$RUNNER_TEMP/agent-zero-image.json"
+          docker image inspect snifferdog-agent-zero:validation | python -c 'import sys,json; s=json.load(sys.stdin)[0]; print(json.dumps({"Id":s["Id"],"Os":s["Os"],"Architecture":s["Architecture"],"Config":{"Labels":s["Config"]["Labels"],"User":s["Config"]["User"]}}))' > "$RUNNER_TEMP/agent-zero-image.json"
       - name: Provision the existing verified public CPU model with zero cloud credentials
-        run: python validation/enterprise/prepare_local_model.py --root "$RUNNER_TEMP/agent-zero-local-model"
+        run: python validation/enterprise/prepare_local_model.py --root "$RUNNER_TEMP/agent-zero-local-model" --model-profile "$MODEL_PROFILE"
       - name: Build existing observation, lineage, interoperability and offline verification binaries
         run: cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate -p aip-reconcile -p aip-sentinel-feed
-      - name: Execute the actual GitHub software task and preserve its explicit review requirement
+      - name: Execute the selected genuine task with independent acceptance and observation checks
         run: |
           image_id="$(docker image inspect --format '{{.Id}}' snifferdog-agent-zero:validation)"
           sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" \
             python integrations/real_agents/hosted_agent_zero.py run \
             --image "$image_id" --tools target/debug \
-            --model-root "$RUNNER_TEMP/agent-zero-local-model" --out "$RUNNER_TEMP/agent-zero-genuine"
+            --model-root "$RUNNER_TEMP/agent-zero-local-model" --out "$RUNNER_TEMP/agent-zero-genuine" \
+            --task "$TASK_CASE" --model-profile "$MODEL_PROFILE"
       - name: Retain selected public evidence only, including failed attempts
         if: always()
         uses: actions/upload-artifact@v4

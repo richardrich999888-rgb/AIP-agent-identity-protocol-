@@ -1,4 +1,6 @@
 """Configure the pinned upstream runtime without falling back to another model."""
+import asyncio
+import hashlib
 import math
 import os
 import sys
@@ -31,6 +33,50 @@ def diagnostic_settings(actual, memory_disabled):
     return result
 
 
+REVIEWED_PROFILE = "tiny-local-coding-v1"
+CODE_TOOL = "plugin:_code_execution:code_execution_tool"
+
+
+def reviewed_profile_settings(config):
+    """Explicit opt-in only; generic and historical profiles stay unchanged."""
+    selected = config.get("reviewed_profile")
+    if selected is None:
+        return None
+    if selected != REVIEWED_PROFILE or config.get("disable_memory") is not True:
+        raise ValueError("unknown reviewed Agent Zero profile or memory policy")
+    supplied = config.get("settings", {}).get("agent_profile", "tiny-local")
+    if supplied != "tiny-local":
+        raise ValueError("reviewed profile cannot select a different agent")
+    return {"agent_profile": "tiny-local", "mcp_servers": '{"mcpServers":{}}'}
+
+
+async def verify_reviewed_context(context):
+    """Actual pinned framework catalog/prompt rendering; no model invocation."""
+    from helpers import skills, tool_policy
+    if context.config.profile != "tiny-local":
+        raise ValueError("reviewed Tiny Local profile did not take effect")
+    agent = context.agent0
+    catalog = tool_policy.get_tool_catalog(agent)
+    allowed = sorted(item["id"] for item in catalog if item.get("available") and
+                     tool_policy.resolve_tool(agent, item["name"], canonical_id=item["id"]).allowed)
+    if allowed != [CODE_TOOL] or not tool_policy.resolve_tool(agent, "response").allowed:
+        raise ValueError("reviewed code-only tool policy did not take effect")
+    if skills.list_skills(agent=agent) or skills.get_active_skills(agent):
+        raise ValueError("reviewed skill visibility policy did not take effect")
+    rendered = "\n\n".join(await agent.get_system_prompt(agent.loop_data))
+    if ("## Tiny Local Output Rule" not in rendered or
+            "code_execution_tool" not in rendered or
+            'Use exactly these top-level fields: `"tool_name"` and `"tool_args"`.' not in rendered):
+        raise ValueError("reviewed Tiny Local prompt contract did not render")
+    return {"source_authority": "framework_configuration_check_not_kernel_observation",
+            "reviewed_profile": REVIEWED_PROFILE, "agent_profile": context.config.profile,
+            "allowed_configurable_tools": allowed, "framework_required_response": True,
+            "visible_skills": 0, "active_skills": 0,
+            "rendered_prompt_bytes": len(rendered.encode()),
+            "rendered_prompt_sha256": hashlib.sha256(rendered.encode()).hexdigest(),
+            "model_calls_claimed": False, "task_acceptance": False}
+
+
 def configure(config, requested_model, *, on_configured=None):
     for name in ("plugins", "agents", "chats", "projects"):
         Path("/opt/framework/usr", name).mkdir(parents=True, exist_ok=True)
@@ -52,7 +98,8 @@ def configure(config, requested_model, *, on_configured=None):
             raise ValueError(f"explicit provider, model and approved endpoint required: {slot}")
     if preset["chat"]["name"] != requested_model:
         raise ValueError("requested model does not match the configured chat model")
-    settings.set_settings_delta({**config.get("settings", {}), "workdir_path": "/work",
+    reviewed = reviewed_profile_settings(config)
+    settings.set_settings_delta({**config.get("settings", {}), **(reviewed or {}), "workdir_path": "/work",
                                 "update_check_enabled": False, "rfc_auto_docker": False,
                                 "root_password": settings.PASSWORD_PLACEHOLDER}, apply=False)
     model_config.save_presets([preset])
@@ -64,6 +111,17 @@ def configure(config, requested_model, *, on_configured=None):
         plugins.toggle_plugin("_memory", False)
         if plugins.get_toggle_state("_memory") != "disabled":
             raise ValueError("explicit memory-disabled profile did not take effect")
+    if reviewed is not None:
+        # Official profile-scoped configuration APIs, with no parser/tool
+        # execution changes. The response tool is framework-required.
+        plugins.save_plugin_config("_tool_access", "", "tiny-local", {
+            "mode": "custom", "default": "block", "mcp_default": "block",
+            "allowed": [CODE_TOOL], "blocked": []})
+        # Skills is always enabled upstream; restrict its existing visibility
+        # owner rather than attempting to disable or replace the plugin.
+        plugins.save_plugin_config("_skills", "", "tiny-local", {
+            "active_skills": [], "visibility_policy": {
+                "mode": "custom", "default": "block", "allowed": [], "blocked": []}})
     actual = model_config.get_config()
     for slot in ("chat", "utility", "embedding"):
         for field in ("provider", "name", "api_base"):
@@ -71,4 +129,13 @@ def configure(config, requested_model, *, on_configured=None):
                 raise ValueError(f"upstream model configuration changed {slot}.{field}")
     if on_configured is not None:
         on_configured(diagnostic_settings(actual, config.get("disable_memory") is True))
-    return AgentContext(initialize_agent())
+    context = AgentContext(initialize_agent())
+    if reviewed is not None:
+        try:
+            verified = asyncio.run(verify_reviewed_context(context))
+            if on_configured is not None:
+                on_configured(verified)
+        except BaseException:
+            context.kill_process()
+            raise
+    return context
