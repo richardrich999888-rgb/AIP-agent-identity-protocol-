@@ -16,9 +16,10 @@ RUN if [ "$FRAMEWORK" = agent_zero ]; then python -m venv .venv && \
         uv pip install --python .venv/bin/python --no-cache torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu && \
         printf 'torch==2.14.1+cpu\ntorchvision==0.29.1+cpu\n' > /tmp/cpu-constraints.txt && \
         uv pip install --python .venv/bin/python --no-cache -r requirements.txt -c /tmp/cpu-constraints.txt && \
+        uv pip install --python .venv/bin/python --no-cache ipython==9.18.0 && \
         uv pip check --python .venv/bin/python; \
-    elif [ "$FRAMEWORK" = deerflow ]; then cd backend && uv sync --frozen --no-dev; \
-    elif [ "$FRAMEWORK" = openhands ]; then uv sync --frozen --all-packages --no-dev; \
+    elif [ "$FRAMEWORK" = deerflow ]; then cd backend && uv sync --frozen --no-dev --python /usr/local/bin/python3.12; \
+    elif [ "$FRAMEWORK" = openhands ]; then uv sync --frozen --all-packages --no-dev --python /usr/local/bin/python3.12; \
     else exit 1; fi
 ENV TIKTOKEN_CACHE_DIR=/opt/tiktoken-cache
 RUN if [ "$FRAMEWORK" = agent_zero ]; then .venv/bin/python -c 'import tiktoken; tiktoken.get_encoding("cl100k_base"); tiktoken.get_encoding("o200k_base")'; fi

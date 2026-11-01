@@ -16,6 +16,7 @@ import shlex
 import subprocess
 import sys
 import time
+import tomllib
 
 
 
@@ -69,9 +70,20 @@ def container_boundary(framework):
         raise AssertionError("framework source must be read-only")
 
 
+def source_project_metadata(path):
+    """Read virtual app metadata separately from installed distributions."""
+    with Path(path).open("rb") as source:
+        project = tomllib.load(source)["project"]
+    if any(not isinstance(project.get(key), str) or not project[key].strip()
+           for key in ("name", "version")):
+        raise ValueError("source project name/version must be explicit strings")
+    return {"name": project["name"], "version": project["version"],
+            "origin": "SOURCE_PYPROJECT_NOT_INSTALLED_DISTRIBUTION"}
+
+
 def framework_metadata(framework):
-    packages = {"agent_zero": ("litellm", "langchain-core", "pydantic"),
-                "deerflow": ("deer-flow", "deerflow-harness", "langchain-core"),
+    packages = {"agent_zero": ("litellm", "langchain-core", "pydantic", "ipython"),
+                "deerflow": ("deerflow-harness", "langchain-core"),
                 "openhands": ("openhands-sdk", "openhands-tools", "openhands-workspace",
                               "openhands-agent-server")}[framework]
     versions = {name: importlib.metadata.version(name) for name in packages}
@@ -83,7 +95,9 @@ def framework_metadata(framework):
     if not re.fullmatch(r"[0-9a-f]{40}", revision) or revision != os.environ["FRAMEWORK_COMMIT"]:
         raise AssertionError("actual upstream revision does not match the built pin")
     return {"upstream_source_commit": revision, "python": platform.python_version(),
-            "python_executable": sys.executable, "versions": versions}
+            "python_executable": sys.executable, "versions": versions,
+            **({"source_project": source_project_metadata("/opt/framework/backend/pyproject.toml")}
+               if framework == "deerflow" else {})}
 
 
 def _command_for(path, *, text=None):

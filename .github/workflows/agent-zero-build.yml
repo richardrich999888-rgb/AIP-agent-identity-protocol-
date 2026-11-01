@@ -115,6 +115,20 @@ jobs:
             integrations/real_agents/hosted_observer_smoke.py --tools target/debug \
             --framework "$FRAMEWORK" --framework-image "$image_id" \
             --out "$RUNNER_TEMP/framework-observation"
+      - name: Preserve public framework observation separately from the image archive
+        if: always() && github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: framework-observation-${{ matrix.framework }}-${{ github.run_id }}
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            ${{ runner.temp }}/build-metadata.json
+            ${{ runner.temp }}/smoke.txt
+            ${{ runner.temp }}/framework-audit-initial.txt
+            ${{ runner.temp }}/framework-observation/public/
+            ${{ runner.temp }}/framework-observation/anchor.json
+            ${{ runner.temp }}/framework-observation/checkpoint.json
       - name: Preserve the exact tested Agent Zero image for its separate genuine task
         if: matrix.framework == 'agent_zero'
         run: |
@@ -131,10 +145,6 @@ jobs:
             ${{ runner.temp }}/build-metadata.json
             ${{ runner.temp }}/dependencies.json
             ${{ runner.temp }}/smoke.txt
-            ${{ runner.temp }}/framework-audit-initial.txt
-            ${{ runner.temp }}/framework-observation/public/
-            ${{ runner.temp }}/framework-observation/anchor.json
-            ${{ runner.temp }}/framework-observation/checkpoint.json
             ${{ runner.temp }}/agent-zero-image.tar.gz
             ${{ runner.temp }}/agent-zero-image.sha256
   hosted-observer-capabilities:

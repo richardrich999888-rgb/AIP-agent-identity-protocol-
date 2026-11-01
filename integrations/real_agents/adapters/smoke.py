@@ -2,6 +2,7 @@
 import asyncio
 import json
 import os
+import sys
 from pathlib import Path
 
 from framework_smokes import (_command_for, child_hold_seconds, container_boundary,
@@ -32,7 +33,34 @@ def smoke_agent_zero():
         finally:
             await shell.close()
 
+    async def check_python_tool():
+        # Exercise the actual runtime=python dispatch, which invokes IPython in
+        # this upstream version. No model loop or inference is involved.
+        from plugins._code_execution.tools.code_execution_tool import CodeExecution
+        target = Path("/work/smoke-python.txt")
+        target.unlink(missing_ok=True)
+        code = ("from pathlib import Path; import sys,time; "
+                f"assert Path(sys.prefix).resolve()==Path({sys.prefix!r}).resolve(); "
+                "Path('/work/smoke-python.txt').write_text('real upstream python tool'); "
+                f"time.sleep({child_hold_seconds()!r}); print('python-tool-smoke-complete')")
+        tool = CodeExecution(agent=context.agent0, name="code_execution_tool", method=None,
+                             args={"runtime": "python", "code": code, "session": "0", "reset": True},
+                             message="offline Python runtime component check",
+                             loop_data=context.agent0.loop_data)
+        try:
+            await tool.before_execution()
+            response = await asyncio.wait_for(tool.execute(), timeout=60)
+            assert target.read_text() == "real upstream python tool"
+            assert "python-tool-smoke-complete" in response.message
+            await tool.after_execution(response)
+        finally:
+            state = getattr(tool, "state", None)
+            if state:
+                for shell in state.shells.values():
+                    await shell.session.close()
+
     asyncio.run(check_shell())
+    asyncio.run(check_python_tool())
     # Actual pinned public API compatibility, with no inference or agent task.
     from launch import DiagnosticJournal, FrameworkLogCursor
     with DiagnosticJournal("/work/smoke-adapter.jsonl") as journal:
@@ -60,6 +88,7 @@ def smoke_agent_zero():
     finally:
         tiny.kill_process()
     return {"pinned_incremental_log_api": "PASS", "terminal_and_file": "PASS",
+            "actual_code_execution_python_runtime": "PASS",
             "reviewed_tiny_local_profile_policy": "PASS"}
 
 
