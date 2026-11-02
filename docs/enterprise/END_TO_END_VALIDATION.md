@@ -1,5 +1,112 @@
 # End-to-end validation record
 
+## 2026-11-02 update — runtime source `3e6c179`
+
+**Assignment status: PARTIAL; engineering validation, with acceptance gates still open.**
+This dated section is the current snapshot at
+`3e6c1794000fa23006ef623722e37700e49582b7`. The historical text after the divider
+is preserved unchanged; its references to “current” describe its own recorded
+source and date. Keep PRs #6, #7 and #8 in draft until the remaining criteria
+are satisfied.
+
+### Latest executed results and separate acceptance status
+
+| Source / scope | Actual result | Separate evidence or acceptance limit |
+| --- | --- | --- |
+| `1968d45`, core run `41297713153` | Positive, genuine observer interruption and fresh recovery PASS; all three original bundles independently verified | Retained baseline, not a substitute for the new governance source |
+| `3e6c179`, governance run `41432473155` | Linux missing-assets refusal, positive workload, observer interruption, fresh recovery and all enterprise clients PASS | **Independent offline replay of all three new originals: PASS** |
+| `3e6c179`, actual OPA/OTel components | Mac and Linux strict 21/21 PASS, no skips | Component fixtures and local transport checks; no new agent-task proof |
+| `0b34730`, Agent Zero invoice run `41299438636` | Genuine business task executed after capability; eight successful HTTP200 framework-period model requests; exit 1/business FAIL | 198 original signed batches pass integrity and all-six-sensor task coverage; required bound FileEvent and business report missing |
+| `0b34730`, Agent Zero Click run `41299441797` | Separate capability FAIL; selected GitHub task NOT_STARTED | No accepted patch or independent task regression review |
+| `0b5b367`, DeerFlow `41303013832` / OpenHands `41303022348` | Both separate native capability stages FAIL; business NOT_STARTED | DeerFlow: one HTTP200, zero native tool calls/results; OpenHands: one HTTP400, zero HTTP200, exact rejection reason unknown |
+
+The new governance artifact is `13136100222`, original ZIP size 1,192,822 bytes,
+GitHub service SHA256
+`48ccc9525cade552b8eb28874e0c786b96a4b00024defd8b17e7cd9fbab6a505`.
+[Run 41432473155](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432473155)
+reports successful execution. The complete original ZIP is locally SHA-256 and
+CRC verified, with all 154 original members unchanged. [Independent replay](../../validation/enterprise/results/GOVERNANCE_20261102/genuine-3e6c179/preservation-index.json)
+passes all three actual bundles, the OPA decision/hash links and final Collector
+nonce/trace/parent/timestamp checks. Positive/recovery have independently checked
+all-six task coverage; interruption correctly has none. These are new original
+records, separate from the older 1968 baseline. The retained
+[1968 baseline](../../validation/enterprise/results/OPEN_SOURCE_AGENTS_20261101/core-1968d45/preservation-append-index.json)
+and [failed Agent Zero business capture](../../validation/enterprise/results/OPEN_SOURCE_AGENTS_20261101/0b34730/business-verification-scope.json)
+keep their original meanings.
+
+Agent Zero's retained diagnostics record missing optional `jq`, unavailable
+`sudo` installation attempts and repeated unusable model output. These are
+application diagnostics; valid signatures/coverage cannot supply the missing
+file event, report or business acceptance. No model response, command, result
+file or evidence was repaired to make the task pass. All three frameworks have
+actual installation/tool-component observations; successful business workloads
+for all three, swarms and genuine GitHub patch acceptance are not established.
+
+The actual OPA 1.22.0 + isolated OpenTelemetry SDK 1.45.2 + Collector Contrib
+0.164.0 component gate passed on Mac and GitHub-hosted Linux: **21 tests, zero
+failures, errors or skips**. Linux run
+[41432496211](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496211),
+job `125234256123`, ran the real engines. Controlled policy/peer fixtures and
+component timestamp fixtures are not evidence of agent behavior or actual
+operating-system peer measurement. The genuine `GovernanceRun` records its
+own actual operation boundaries. See the
+[component proof](../../validation/enterprise/results/GOVERNANCE_20261102/components-3e6c179/source-index.json)
+and [scope statement](../../validation/enterprise/results/GOVERNANCE_20261102/SCOPE.md).
+
+The complete 18-check component/security suite at runtime source `3e6c179`
+finished **16 PASS / 2 FAIL**. The separate genuine core workflow passed; its
+guarded PR Agent Zero task was skipped. [Exact CI provenance and counts](../../validation/enterprise/results/GOVERNANCE_20261102/ci-3e6c179/registry.json)
+retain every skipped/ignored or blocked scope separately. Gitleaks still reports
+217 findings and Trivy four HIGH findings in the historical enabled Helm
+render. Their result objects match the retained previously reviewed records;
+no detector result is waived or rewritten. Cargo audits retain the inherited
+`RUSTSEC-2026-0097` exception documented in `deny.toml`; no new exception was
+added, and an audit pass is not an unqualified security clearance.
+
+### Supported engineering pitch
+
+VANIAN connects open-source policy and operational tracing to its existing
+signed agent-execution evidence. OPA checks the permitted request before AIP
+authorization; Sniffer Dog records supported Linux activity; the existing
+verifier keeps unsupported claims unknown; and OpenTelemetry carries measured
+controller-operation references to a standard Collector. The scope is a
+reproducible engineering evaluation under a shared trusted host administrator.
+See [OPEN_SOURCE_GOVERNANCE.md](OPEN_SOURCE_GOVERNANCE.md) for the executable
+connection and its limits. Whole-run governance offline replay passes for
+these three original profiles; production, independent custody and all-framework
+business validation remain separate incomplete gates.
+
+OPA evaluates the actual controller-measured peer and permitted read scope
+before the existing AIP signer. Its decision, policy hash and decision-ID link
+are unsigned controller application records; an allow result cannot bypass
+the unchanged signer or signature/receipt/reconciliation rules. OpenTelemetry
+exports a delayed batch of controller-operation timestamps and approved IDs,
+hashes and status fields after workload cleanup. It does not create model
+spans, signed kernel evidence or an authorization authority. The Collector is
+stopped and reaped before complete final-file verification. Only the original
+verified `records.json`, `collector-config.json`, `collector-spans.jsonl` and
+`telemetry-report.json` are published from its private staging area; raw
+Collector logs and failed/unvalidated output remain private. Unknown fields,
+duplicate JSON keys, extra tails, wrong correlations or timestamps refuse
+publication.
+
+Independent administration still requires a separately controlled Linux
+workload host and collector Linux host/trust domain, approved public anchors,
+collector signing-key custody and durable retention. One disposable runner's
+root/kernel/GitHub administration remains trusted. Actual installed fanotify
+service qualification, installer/startup/restart/uninstall and recovery,
+logical sub-agent delegation, concurrency/soak and matched overhead,
+institutional key/identity operations, customer deployment and regulatory
+acceptance remain unvalidated. Remote-model credentials and protected
+production telemetry endpoints are configuration gates if those routes are
+selected; public local inference and the completed local component checks do
+not require those secrets.
+
+## Historical record preserved below
+
+The following text is retained unchanged from its recorded historical revision.
+
+
 Status: **Core software path PASS in local isolation; assignment PARTIAL.**
 At source `8d38d77fa3bf1c3b0670f584feaf75f34bf69a07`, one Linux workflow
 executed the complete genuine agent-to-enterprise-client path, a genuine

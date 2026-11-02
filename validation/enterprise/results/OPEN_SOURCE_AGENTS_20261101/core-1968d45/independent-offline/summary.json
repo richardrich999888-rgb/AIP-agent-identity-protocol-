@@ -1,0 +1,348 @@
+{
+  "classification": "DERIVED_INDEPENDENT_OFFLINE_VERIFICATION_OF_ORIGINAL_GITHUB_ZIP",
+  "source_run_id": 41297713153,
+  "source_commit": "1968d458487bc921a22bf91c71a1156781a753dd",
+  "artifact_id": 13080640355,
+  "artifact_zip_sha256": "f730754e5b75c94a5b00e246a87c9a08433ff5cbf0b60c60069928a18215c356",
+  "original_file_count": 132,
+  "workflow_conclusion": "success",
+  "platform": "macOS-26.4.1-arm64-arm-64bit",
+  "environment": "PATH only; evaluator additionally receives separately supplied AIP_RUN_TRUST_FILE.",
+  "additional_agent_or_model_execution": false,
+  "binaries_sha256": {
+    "aip-observe-verify": "916f770e88153a0683d295532da40261b4d76eb46aec67e200edab237b0c3701",
+    "aip-execution-assurance": "ed9f25b67c3da3db9dfad92dfdde240aff48c76dd55cfca67d8922153907cd27",
+    "aip-tool-receipt": "538103da9824dc752ee0778f2392f4c167c97764b5f6b9c7bff8e4b0a94d73de"
+  },
+  "profiles": {
+    "same-run": {
+      "manifest_status": "PASS",
+      "archive_verification": "PASS",
+      "run_id": "same-run-30ce51da769207317c263e4d",
+      "actual_model_calls": 2,
+      "signed_batches": 39,
+      "kernel_events": 1120,
+      "health_records": 4,
+      "checkpoint_bytes_match": true,
+      "archive_findings": [],
+      "cleanup_errors": [],
+      "verified_gateway_receipt_dispositions": [
+        "Forwarded",
+        "Refused"
+      ],
+      "bundle_sha256": "e9a084bbf1fd69ed6e4069705f90b8acd503a35cab9d4b528163c9a98c56ae4f",
+      "independent_evaluation_matches_original": true,
+      "kernel_identity": {
+        "Match": {
+          "observations": 10
+        }
+      },
+      "kernel_result": "CannotProve",
+      "kernel_reason": "ActionEvidenceUnavailable",
+      "kernel_availability": {
+        "Unavailable": {
+          "reason": "WindowNotCovered"
+        }
+      },
+      "original_forwarded_tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "derived_actual_refused_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      }
+    },
+    "same-run-interruption": {
+      "manifest_status": "PASS",
+      "archive_verification": "PASS",
+      "run_id": "same-run-397478b90081cefac478c80f",
+      "actual_model_calls": 2,
+      "signed_batches": 17,
+      "kernel_events": 390,
+      "health_records": 4,
+      "checkpoint_bytes_match": true,
+      "archive_findings": [],
+      "cleanup_errors": [],
+      "verified_gateway_receipt_dispositions": [
+        "Forwarded",
+        "Refused"
+      ],
+      "bundle_sha256": "1fdb5fd1b27e3ad705ea655a0a10890218f65f15b7ddec82db5636a0c8ddd857",
+      "independent_evaluation_matches_original": true,
+      "kernel_identity": "NoReference",
+      "kernel_result": "CannotProve",
+      "kernel_reason": "WindowNotCovered",
+      "kernel_availability": {
+        "Unavailable": {
+          "reason": "WindowNotCovered"
+        }
+      },
+      "original_forwarded_tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "derived_actual_refused_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      }
+    },
+    "same-run-recovery": {
+      "manifest_status": "PASS",
+      "archive_verification": "PASS",
+      "run_id": "same-run-997c70ac6cce229c0c2c7cda",
+      "actual_model_calls": 2,
+      "signed_batches": 41,
+      "kernel_events": 1182,
+      "health_records": 4,
+      "checkpoint_bytes_match": true,
+      "archive_findings": [],
+      "cleanup_errors": [],
+      "verified_gateway_receipt_dispositions": [
+        "Forwarded",
+        "Refused"
+      ],
+      "bundle_sha256": "e5ca5f0740ca458c508753d2184780f9f2495f33d17e0c4ac9223863740bfe9a",
+      "independent_evaluation_matches_original": true,
+      "kernel_identity": {
+        "Match": {
+          "observations": 4
+        }
+      },
+      "kernel_result": "CannotProve",
+      "kernel_reason": "ActionEvidenceUnavailable",
+      "kernel_availability": {
+        "Unavailable": {
+          "reason": "WindowNotCovered"
+        }
+      },
+      "original_forwarded_tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "derived_actual_refused_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

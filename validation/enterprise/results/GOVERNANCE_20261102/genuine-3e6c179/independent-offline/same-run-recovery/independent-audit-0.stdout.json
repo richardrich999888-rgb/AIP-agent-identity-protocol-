@@ -1,0 +1,73 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1793617239953,
+  "window_to_ms": 1793617255713,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 5556,
+        "wall_ms": 1793617240961,
+        "image": "/home/runner/work/_temp/bank-agent/bin/python",
+        "batch_sequence": 19
+      },
+      "external_wall_ms": 1793617240959,
+      "external_image": "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python3.12",
+      "skew_ms": -2
+    }
+  ],
+  "aip_only": [
+    {
+      "pid": 5558,
+      "wall_ms": 1793617243354,
+      "image": "/home/runner/work/_temp/governance/opa/opa-1.22.0-linux_amd64",
+      "batch_sequence": 20
+    },
+    {
+      "pid": 5564,
+      "wall_ms": 1793617243371,
+      "image": "/home/runner/work/_temp/same-run-recovery/control/bin/aip-execution-assurance",
+      "batch_sequence": 20
+    },
+    {
+      "pid": 5565,
+      "wall_ms": 1793617243993,
+      "image": "/home/runner/work/_temp/same-run-recovery/control/bin/aip-execution-assurance",
+      "batch_sequence": 21
+    },
+    {
+      "pid": 5566,
+      "wall_ms": 1793617244016,
+      "image": "/home/runner/work/_temp/same-run-recovery/control/bin/aip-tool-receipt",
+      "batch_sequence": 21
+    },
+    {
+      "pid": 5567,
+      "wall_ms": 1793617244035,
+      "image": "/home/runner/work/_temp/contextforge/.venv/bin/python",
+      "batch_sequence": 21
+    },
+    {
+      "pid": 5569,
+      "wall_ms": 1793617247116,
+      "image": "/home/runner/work/_temp/same-run-recovery/control/bin/aip-tool-receipt",
+      "batch_sequence": 24
+    },
+    {
+      "pid": 5570,
+      "wall_ms": 1793617247178,
+      "image": "/home/runner/work/_temp/same-run-recovery/control/bin/aip-execution-assurance",
+      "batch_sequence": 24
+    },
+    {
+      "pid": 5571,
+      "wall_ms": 1793617247213,
+      "image": "/home/runner/work/_temp/same-run-recovery/control/bin/aip-tool-receipt",
+      "batch_sequence": 24
+    }
+  ],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 0
+}

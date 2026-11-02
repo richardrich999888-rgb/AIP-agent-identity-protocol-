@@ -1,5 +1,84 @@
 # Security acceptance and evidence meanings
 
+## 2026-11-02 update — runtime source `3e6c179`
+
+**Assignment status: PARTIAL; engineering validation, with acceptance gates still open.**
+This dated section is the current snapshot at
+`3e6c1794000fa23006ef623722e37700e49582b7`. The historical text after the divider
+is preserved unchanged; its references to “current” describe its own recorded
+source and date. Keep PRs #6, #7 and #8 in draft until the remaining criteria
+are satisfied.
+
+| Evidence/acceptance layer at this snapshot | Result and limit |
+| --- | --- |
+| Real OPA + isolated SDK/Collector component controls | Mac and Linux 21/21 PASS, no skips; policy/peer and most record fixtures are controlled test data |
+| Governance-enabled genuine Linux execution | Run `41432473155` missing-assets refusal, positive, interruption, recovery and all clients PASS at `3e6c179` |
+| Independent replay of the new governance originals | **PASS**, [retained replay](../../validation/enterprise/results/GOVERNANCE_20261102/genuine-3e6c179/preservation-index.json); artifact `13136100222`, service SHA256 `48ccc9525cade552b8eb28874e0c786b96a4b00024defd8b17e7cd9fbab6a505` |
+| Previously independently replayed core | All three profiles PASS at `1968d45`; historical proof, not a substitute for new-source replay |
+| Agent Zero genuine invoice task | Executed/FAIL at `0b34730`; original signatures/all-six task coverage PASS; exit/report/bound-file gate FAIL |
+| Agent Zero GitHub task; DeerFlow/OpenHands business tasks | NOT_STARTED after their separate capability failures; no accepted patch/business output |
+| Complete exact-source CI/security review | **16 PASS / 2 FAIL**; two scanner failures remain open, as described below |
+| Separate collector administration/installed customer service | UNVALIDATED |
+
+OPA evaluates the actual controller-measured peer and permitted read scope
+before the existing AIP signer. Its decision, policy hash and decision-ID link
+are unsigned controller application records; an allow result cannot bypass
+the unchanged signer or signature/receipt/reconciliation rules. OpenTelemetry
+exports a delayed batch of controller-operation timestamps and approved IDs,
+hashes and status fields after workload cleanup. It does not create model
+spans, signed kernel evidence or an authorization authority. The Collector is
+stopped and reaped before complete final-file verification. Only the original
+verified `records.json`, `collector-config.json`, `collector-spans.jsonl` and
+`telemetry-report.json` are published from its private staging area; raw
+Collector logs and failed/unvalidated output remain private. Unknown fields,
+duplicate JSON keys, extra tails, wrong correlations or timestamps refuse
+publication.
+
+The 21-test component gate includes actual OPA execution and real SDK/Collector
+roundtrips, plus explicit policy/peer/signing fixtures and controlled negative
+mutations. It is not itself a genuine agent task, proof of measured peer
+identity, signed kernel evidence or independent custody. In the genuine
+controller, operation timestamps are captured at the actual operations, then
+exported after cleanup; they still remain unsigned application telemetry.
+Unknown or unavailable kernel/task evidence remains unknown. A delivered trace,
+OPA allow, valid archive signature or historical Active state cannot promote a
+failed task or missing observation interval.
+
+The Collector publication gate rejects unapproved attributes/fields, duplicate
+JSON keys at every depth, extra lines/spans, wrong nonces/trace parents and
+modified timestamps. A controlled late-tail failure preserves private original
+bytes and publishes no Collector files. No free-form Collector log is included
+in the public component package. See the
+[scope statement](../../validation/enterprise/results/GOVERNANCE_20261102/SCOPE.md)
+and [OPEN_SOURCE_GOVERNANCE.md](OPEN_SOURCE_GOVERNANCE.md).
+
+The complete 18-check component/security suite at runtime source `3e6c179`
+finished **16 PASS / 2 FAIL**. The separate genuine core workflow passed; its
+guarded PR Agent Zero task was skipped. [Exact CI provenance and counts](../../validation/enterprise/results/GOVERNANCE_20261102/ci-3e6c179/registry.json)
+retain every skipped/ignored or blocked scope separately. Gitleaks still reports
+217 findings and Trivy four HIGH findings in the historical enabled Helm
+render. Their result objects match the retained previously reviewed records;
+no detector result is waived or rewritten. Cargo audits retain the inherited
+`RUSTSEC-2026-0097` exception documented in `deny.toml`; no new exception was
+added, and an audit pass is not an unqualified security clearance.
+
+Independent administration still requires a separately controlled Linux
+workload host and collector Linux host/trust domain, approved public anchors,
+collector signing-key custody and durable retention. One disposable runner's
+root/kernel/GitHub administration remains trusted. Actual installed fanotify
+service qualification, installer/startup/restart/uninstall and recovery,
+logical sub-agent delegation, concurrency/soak and matched overhead,
+institutional key/identity operations, customer deployment and regulatory
+acceptance remain unvalidated. Remote-model credentials and protected
+production telemetry endpoints are configuration gates if those routes are
+selected; public local inference and the completed local component checks do
+not require those secrets.
+
+## Historical record preserved below
+
+The following text is retained unchanged from its recorded historical revision.
+
+
 Each property has an independent status. Signature validity does not establish
 live coverage, logical-agent identity, a completed bank transaction, independent
 administration or production approval.

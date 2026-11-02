@@ -1,0 +1,177 @@
+{
+  "original_zip_bytes": 83724,
+  "original_zip_sha256": "707c2d6ce1c1d7ffbc501f091fda0ee84bd81dc52f0bf5a6ecd0857e10cbf58c",
+  "full_zip_locally_hashed": true,
+  "full_zip_crc": "PASS",
+  "github_service_digest_matches": true,
+  "members": [
+    {
+      "path": "build-metadata.json",
+      "bytes": 1649,
+      "sha256": "aa872ae4d8e1be1d747c5496a430cce4a83d7a69ad8fdcd001645531248ee8e8",
+      "zip_crc32": "91dc6139",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "smoke.txt",
+      "bytes": 2919,
+      "sha256": "ad71269c4ee6272476536329e2de924fac92217ab9246539561774084ae5816f",
+      "zip_crc32": "1446ce4a",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-audit-initial.txt",
+      "bytes": 9,
+      "sha256": "61501e69a61dbbc1a41605ea15c34807e6b1d3992bee195dde36a7ebdd95dd87",
+      "zip_crc32": "9adc069e",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/aip-collector.log",
+      "bytes": 1040,
+      "sha256": "d524646866d9f23ec9faf455b1b32f187058474ab656fbdaa5a9001c971defdd",
+      "zip_crc32": "8c9207ae",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/aip-probe.log",
+      "bytes": 3218,
+      "sha256": "6ba50e0d28a5af7d27c68e785e450202972fb26d37b2eb898168e88ea0e08c4d",
+      "zip_crc32": "b694da04",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/attested.archive.jsonl",
+      "bytes": 949635,
+      "sha256": "c29b2f375da48be7d0a3b54125451d72f6223e230ad24e4e53addd0e30326dd1",
+      "zip_crc32": "dac1ee71",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/audit-rules-before.json",
+      "bytes": 28,
+      "sha256": "11924d0dd8182a40e93984e8679dea5e38d9037b09d7aa6c323b86d2fbfe66d1",
+      "zip_crc32": "beb6345b",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/audit-status.json",
+      "bytes": 336,
+      "sha256": "f7fcaf9202de73285bf4e69611cb8aafe9f3167b2cfef7e5ff446a2cf359416e",
+      "zip_crc32": "f6ac161f",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/auditd.log",
+      "bytes": 182878,
+      "sha256": "7523d9a7532577e928ac28ce848de29fc1abccb17f665d50ba36b9eb7dabe1c3",
+      "zip_crc32": "21bf2a11",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/component-fanotify-watch.json",
+      "bytes": 251,
+      "sha256": "cd1b6eb16e9249299b507067d8eda05f21a2eb918dac5fd1e16a81179e0e5d3c",
+      "zip_crc32": "b7cfff61",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/component-launch.json",
+      "bytes": 465,
+      "sha256": "c8aed4d5ef40eb0d3dc16d8fb10026ecc99167e517026837ea00e1d6460aca0a",
+      "zip_crc32": "e88faf1d",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/component-observation-summary.json",
+      "bytes": 72081,
+      "sha256": "dbcc4603af13fbc31688a5491d04407bdbe995ddf27e4ee814583487053e82cf",
+      "zip_crc32": "58a0880b",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/corroboration.json",
+      "bytes": 21334,
+      "sha256": "e3f87101fe913def7689e020f2239446bc709eaa526a6784085d901ac4b5710d",
+      "zip_crc32": "99eb925a",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/framework-component.json",
+      "bytes": 1449,
+      "sha256": "b21a4dd9fb85c89e0fceaeedf7e51607b6b87c37a33ff2397e4ba7750976e551",
+      "zip_crc32": "e27e7c2d",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/framework-component.stderr.txt",
+      "bytes": 1792,
+      "sha256": "62ad44a94bd95d886c8adf1a2b61b938dc5c947e09dd6606fca7ef6718efe6b7",
+      "zip_crc32": "0a874916",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/framework-component.stdout.txt",
+      "bytes": 1176,
+      "sha256": "a4b705baf0d524cc84eaa044831e768123639498940562462139cf91a3719e50",
+      "zip_crc32": "3955395b",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/framework-image.json",
+      "bytes": 436,
+      "sha256": "d72cd2b450016077c2795baaae45e86b3f7c4e2533426656a61ebe34b2633241",
+      "zip_crc32": "20963ae6",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/health.archive.jsonl",
+      "bytes": 3303,
+      "sha256": "ee7f6c7deeb0a6ceba4068cb4802e42c83ba37bb1b34671d3ce9f3dcb20f26ba",
+      "zip_crc32": "c0b2f1ba",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/observer.pub",
+      "bytes": 65,
+      "sha256": "7db7e18e56e1b0dd258c4ec7ddb37ca626350a7c68eb93421bee31efccda8fc1",
+      "zip_crc32": "81fa45bf",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/result.json",
+      "bytes": 860,
+      "sha256": "0fed75460fc4fcb00c9fb92a54054a8445fb5897b85348b0435dfc93ca4f2e00",
+      "zip_crc32": "135ef4c8",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/tamper.json",
+      "bytes": 654,
+      "sha256": "a19a6644fe05466faec296b5e4fb3147d5d7191c82e707aa292e4537485179f4",
+      "zip_crc32": "dac3c36b",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/public/verification.json",
+      "bytes": 734,
+      "sha256": "d09816f5f9494004154cc935d307bd485abb1e3dbac8279159b921e1152deafe",
+      "zip_crc32": "3fcdb1c8",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/anchor.json",
+      "bytes": 150,
+      "sha256": "32bbf266f14e3ca5d68726f14536b7befda81919e4459787765f9b0ae5b8bc2a",
+      "zip_crc32": "0ddb6719",
+      "zip_crc_check": "PASS"
+    },
+    {
+      "path": "framework-observation/checkpoint.json",
+      "bytes": 215,
+      "sha256": "866cb98b15addcda7e326db1afa4a763b5041a5ae07961838f5031f3ec5bb17f",
+      "zip_crc32": "d89defbf",
+      "zip_crc_check": "PASS"
+    }
+  ]
+}

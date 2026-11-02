@@ -1,0 +1,99 @@
+{
+  "framework": "deerflow",
+  "run_id": 41296854427,
+  "artifact_id": 13079423582,
+  "artifact_sha256": "d205eae96fcac57aa18e58a6868d47e48ef2364eaf9e7654279193d232aca768",
+  "original_zip_digest_matches_github": true,
+  "source_commit": "93e599dfed89b24d6671c4dc924b390cbed32bde",
+  "actual_stage": "SEPARATE_REAL_FRAMEWORK_TOOL_CAPABILITY_STAGE",
+  "capability_status": "FAIL",
+  "successful_framework_model_http200_requests": 0,
+  "all_attempted_framework_model_requests": "UNKNOWN_COUNTER_RETAINS_SUCCESSFUL_HTTP200_ONLY",
+  "pre_capability_successful_policy_generation_requests": 1,
+  "failure_type": "OSError",
+  "failure_details": {
+    "exception_type": "OSError",
+    "stage": "capability",
+    "errno": 30,
+    "source_frames": [
+      {
+        "source_root": "/opt/snifferdog/",
+        "file": "native_frameworks.py",
+        "function": "main",
+        "line": 347
+      },
+      {
+        "source_root": "/opt/snifferdog/",
+        "file": "native_frameworks.py",
+        "function": "run",
+        "line": 265
+      },
+      {
+        "source_root": "/opt/framework/",
+        "file": "backend/packages/harness/deerflow/client.py",
+        "function": "stream",
+        "line": 892
+      },
+      {
+        "source_root": "/opt/framework/",
+        "file": "backend/packages/harness/deerflow/client.py",
+        "function": "_stream_turn",
+        "line": 1016
+      },
+      {
+        "source_root": "/opt/framework/",
+        "file": "backend/packages/harness/deerflow/runtime/checkpointer/provider.py",
+        "function": "get_checkpointer",
+        "line": 230
+      },
+      {
+        "source_root": "/usr/local/lib/python3.12/",
+        "file": "contextlib.py",
+        "function": "__enter__",
+        "line": 137
+      },
+      {
+        "source_root": "/opt/framework/",
+        "file": "backend/packages/harness/deerflow/runtime/checkpointer/provider.py",
+        "function": "_sync_checkpointer_cm",
+        "line": 125
+      },
+      {
+        "source_root": "/opt/framework/",
+        "file": "backend/packages/harness/deerflow/runtime/store/_sqlite_utils.py",
+        "function": "ensure_sqlite_parent_dir",
+        "line": 36
+      },
+      {
+        "source_root": "/usr/local/lib/python3.12/",
+        "file": "pathlib.py",
+        "function": "mkdir",
+        "line": 1315
+      },
+      {
+        "source_root": "/usr/local/lib/python3.12/",
+        "file": "pathlib.py",
+        "function": "mkdir",
+        "line": 1311
+      }
+    ]
+  },
+  "business_task_execution": "NOT_STARTED",
+  "business_task_acceptance": "NOT_ESTABLISHED",
+  "business_kernel_archive_and_checkpoint": "NOT_PRODUCED",
+  "business_offline_verification": "NOT_APPLICABLE_NO_BUSINESS_ARCHIVE",
+  "actual_32768_service_context_preflight": "SOURCE_ENFORCED_SUCCESSFUL_POLICY_ASSERTION_NO_RAW_PS_RESPONSE_RETAINED",
+  "post_framework_served_context": "NOT_REACHED",
+  "native_framework_tool_roundtrip": "NOT_ESTABLISHED",
+  "journal_records": 6,
+  "journal_kind_counts": {
+    "configuration_verified": 1,
+    "native_framework_stage": 3,
+    "native_framework_failure": 1,
+    "capability_failed": 1
+  },
+  "cleanup_errors": [],
+  "model_quality_cause": "NOT_ESTABLISHED",
+  "diagnostic_authority": "SELF_REPORTED application diagnostics, not independent kernel evidence",
+  "specific_failure": "Read-only-filesystem errno30 creating SQLite checkpoint parent; exact original source frames identify ensure_sqlite_parent_dir and get_checkpointer."
+}

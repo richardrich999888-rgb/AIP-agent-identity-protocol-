@@ -1,5 +1,95 @@
 # Production and operational gaps
 
+## 2026-11-02 update — runtime source `3e6c179`
+
+**Assignment status: PARTIAL; engineering validation, with acceptance gates still open.**
+This dated section is the current snapshot at
+`3e6c1794000fa23006ef623722e37700e49582b7`. The historical text after the divider
+is preserved unchanged; its references to “current” describe its own recorded
+source and date. Keep PRs #6, #7 and #8 in draft until the remaining criteria
+are satisfied.
+
+| Gate | Current dated result / exact remaining work |
+| --- | --- |
+| Core evidence baseline | `1968d45` positive/interruption/recovery originals independently PASS; retain their historical source and bytes |
+| New governance end-to-end repeat | `3e6c179` Linux run `41432473155` positive/interruption/recovery/all clients + missing-assets refusal PASS; **all-three-original independent replay PASS** |
+| Actual policy/telemetry components | Mac and Linux strict 21/21 PASS, no skips; controlled component inputs are not agent evidence |
+| All-three-framework genuine business acceptance | Incomplete: Agent Zero invoice executed/FAIL; Agent Zero Click and native DeerFlow/OpenHands business tasks NOT_STARTED after capability failures |
+| Exact-head CI/scanner triage | All 18 checks finished: 16 PASS / 2 FAIL; Gitleaks217 and Trivy4 HIGH host-privilege findings remain actual failed scan results |
+| Collector custody/institutional enrollment | Separately administered two-Linux-host/trust-domain setup, signing-key/storage custody, approved anchors, enrollment/rotation/revocation and retention still required |
+| Installed sensor/service lifecycle | Hosted fanotify/mount capture is not installer qualification; current installer fanotify refusal, actual startup/restart/continuity/recovery/uninstall must be resolved and exercised |
+| Logical delegation/concurrency/performance | In-process/sub-agent delegation, swarms, concurrent and soak workloads, loss behavior and matched observed/unobserved overhead unvalidated |
+| Production/institutional use | Ingress/identity, storage/RLS operational controls, backup/HA, authenticated remote telemetry, external assessment and regulatory acceptance unvalidated |
+
+The new governance artifact is `13136100222`, 1,192,822 bytes, GitHub service
+SHA256 `48ccc9525cade552b8eb28874e0c786b96a4b00024defd8b17e7cd9fbab6a505`.
+The [local original inventory and independent replay](../../validation/enterprise/results/GOVERNANCE_20261102/genuine-3e6c179/preservation-index.json) pass all three
+new bundles and their policy/trace links. The complete ZIP was locally hashed
+and CRC checked; all 154 original members remain unchanged. The component proof and its deliberately narrower scope are retained
+under [GOVERNANCE_20261102](../../validation/enterprise/results/GOVERNANCE_20261102/SCOPE.md).
+
+The Agent Zero invoice workload's 198 signed batches/all-six task coverage are
+real evidence of a genuine failed task; eight HTTP200 model requests and valid
+capture cannot supply its missing bound FileEvent, report or business outcome.
+The diagnostics record missing optional `jq`, unavailable `sudo` attempts and
+repeated unusable model output. No generic model-incapacity conclusion follows.
+DeerFlow's latest capability produced ordinary fenced tool-shaped text with no
+native tool call; OpenHands reached one HTTP400. Their selected business tasks
+remain NOT_STARTED. These limitations are software/model/protocol acceptance
+questions as well as configuration questions; they are not all blocked merely
+by a missing secret.
+
+The complete 18-check component/security suite at runtime source `3e6c179`
+finished **16 PASS / 2 FAIL**. The separate genuine core workflow passed; its
+guarded PR Agent Zero task was skipped. [Exact CI provenance and counts](../../validation/enterprise/results/GOVERNANCE_20261102/ci-3e6c179/registry.json)
+retain every skipped/ignored or blocked scope separately. Gitleaks still reports
+217 findings and Trivy four HIGH findings in the historical enabled Helm
+render. Their result objects match the retained previously reviewed records;
+no detector result is waived or rewritten. Cargo audits retain the inherited
+`RUSTSEC-2026-0097` exception documented in `deny.toml`; no new exception was
+added, and an audit pass is not an unqualified security clearance.
+
+OPA evaluates the actual controller-measured peer and permitted read scope
+before the existing AIP signer. Its decision, policy hash and decision-ID link
+are unsigned controller application records; an allow result cannot bypass
+the unchanged signer or signature/receipt/reconciliation rules. OpenTelemetry
+exports a delayed batch of controller-operation timestamps and approved IDs,
+hashes and status fields after workload cleanup. It does not create model
+spans, signed kernel evidence or an authorization authority. The Collector is
+stopped and reaped before complete final-file verification. Only the original
+verified `records.json`, `collector-config.json`, `collector-spans.jsonl` and
+`telemetry-report.json` are published from its private staging area; raw
+Collector logs and failed/unvalidated output remain private. Unknown fields,
+duplicate JSON keys, extra tails, wrong correlations or timestamps refuse
+publication.
+
+### Credible current engineering scope
+
+VANIAN connects OPA policy, existing AIP authorization, supported Linux
+observation, offline evidence verification and standard operational trace
+references. [OPEN_SOURCE_GOVERNANCE.md](OPEN_SOURCE_GOVERNANCE.md) documents that
+executable connection. Keep the shared-host trust boundary, failed workloads,
+scanner failures and unvalidated operational/institutional gates visible beside
+any pitch. No all-framework business validation, independent custody or
+production/regulatory readiness is claimed.
+
+Independent administration still requires a separately controlled Linux
+workload host and collector Linux host/trust domain, approved public anchors,
+collector signing-key custody and durable retention. One disposable runner's
+root/kernel/GitHub administration remains trusted. Actual installed fanotify
+service qualification, installer/startup/restart/uninstall and recovery,
+logical sub-agent delegation, concurrency/soak and matched overhead,
+institutional key/identity operations, customer deployment and regulatory
+acceptance remain unvalidated. Remote-model credentials and protected
+production telemetry endpoints are configuration gates if those routes are
+selected; public local inference and the completed local component checks do
+not require those secrets.
+
+## Historical record preserved below
+
+The following text is retained unchanged from its recorded historical revision.
+
+
 The integration is an engineering evaluation. Final status is determined by
 actual retained run records and exact-revision CI, not by the architecture or
 by combining historical component successes.

@@ -1,5 +1,31 @@
 # Open-source agent observation — 1 November 2026
 
+## 2 November 2026 executed status
+
+The current integration runtime is `3e6c179`. OPA and OpenTelemetry are connected
+to the existing genuine LangGraph/AIP/ContextForge/Sniffer Dog/evidence-client
+path. Positive, interruption and fresh-recovery runs all pass their supported
+checks and separate offline verification; see the [governance package](../../validation/enterprise/results/GOVERNANCE_20261102/genuine-3e6c179/preservation-index.json).
+This is the supported engineering pitch profile, with shared host-root trust.
+
+| Framework | Installed / actual component capture | Genuine business or software task |
+| --- | --- | --- |
+| LangGraph core | PASS, same execution through AIP and all clients | Synthetic read-only loan analysis PASS; original signed records and policy/trace links verified |
+| Agent Zero | PASS, actual Python and reused terminal component calls and signed captures | Invoice task EXECUTED / FAIL: 8 successful model HTTP requests, policy response, valid 198-batch capture but no required file event/report; Click task NOT_STARTED after capability failure |
+| DeerFlow | PASS, actual local tool/SQLite/configuration component calls and signed capture | Native capability FAIL; business NOT_STARTED |
+| OpenHands | PASS, actual SDK terminal/file/token-count/configuration component calls and signed capture | Native capability FAIL, one actual HTTP400; business NOT_STARTED |
+
+The [November 1 originals and later appendices](../../validation/enterprise/results/OPEN_SOURCE_AGENTS_20261101/REPORT.md)
+retain failures alongside passes. Component tests use zero model calls. They
+are not autonomous task acceptance. Native/in-process delegation, concurrent
+swarm attribution and all-three-framework business success remain unvalidated.
+The [current CI registry](../../validation/enterprise/results/GOVERNANCE_20261102/ci-3e6c179/registry.json) records 16/18 checks passing with two scanner
+failures, inherited audit-exception scope and all ignored/skipped checks.
+
+## Historical November 1 implementation notes
+
+The original text below describes its own recorded source and date.
+
 Status: all three actual installations, upstream tool components and signed
 Sniffer component captures PASS at `7695d9a` in workflow `41291563704`, including
 independent offline verification. Each is explicitly zero-model component scope.

@@ -1,0 +1,150 @@
+{
+  "classification": "REAL_MAC_AND_LINUX_OPEN_SOURCE_GOVERNANCE_COMPONENT_PROOF_APPEND_ONLY",
+  "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+  "source_hashes": [
+    {
+      "path": ".github/workflows/real-agent-contracts.yml",
+      "sha256": "88b5d2916a978f880915bffb2fe070b151ab2aac4143e89993ea28332f93e4a9",
+      "bytes": 1462,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": ".github/workflows/same-run-validation.yml",
+      "sha256": "b3c364ac6a6f9002334e76f5cdfb7752219f864b71b1a720eab054fef0836515",
+      "bytes": 9416,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/check_components.py",
+      "sha256": "574c17d4d820bb3d60132c0d8f0c34448d621c6867db4337ed3d36781aceed9f",
+      "bytes": 1002,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/opa.lock.json",
+      "sha256": "6d9fa38123091cb9351217f2f4391328760c5cae16cc29bd05564e7e7e20fa7b",
+      "bytes": 1699,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/opa.py",
+      "sha256": "1eacf02af7bf3c809c5588322d831be5d42da98d9da5a96d79a4e482e6569a00",
+      "bytes": 10295,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/opa.rego",
+      "sha256": "4412a347279d1372a423ef75f5f37ca936eeca73f63db9b0ef445b785c20fb86",
+      "bytes": 1232,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/otel-collector.json",
+      "sha256": "34d65b92c5cc3477e513c3ccae783586fe75a5797912f7d9c088032162bac7e2",
+      "bytes": 369,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/otel.lock.json",
+      "sha256": "50bf537c92959def5eb11265606329732f04990bbde33a55ed59cd1ae7cdc59f",
+      "bytes": 2488,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/otel_worker.py",
+      "sha256": "7a48cc2361865f7bedeb5901ddcf588ff83318cba1cb163ff769c8613f6c8e46",
+      "bytes": 4243,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/prepare.py",
+      "sha256": "9b2260ec8f1ea1d5bf541587e8c38cd1110b3d5eb9da4bd552b8237023437847",
+      "bytes": 1302,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/requirements-otel.lock",
+      "sha256": "8414d104f5db15d262a6453d00cc5da414c03d1cce7fabdf3b540f98211a1935",
+      "bytes": 16975,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/run.py",
+      "sha256": "b2913e2b88853c678385061d080e7c525166b713755d0cce62e16cc00f3bdb9b",
+      "bytes": 8054,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/telemetry.py",
+      "sha256": "71b7a77bc5b1e314adef767640b172c3d93cd77aea14811da8185bc1d57f71ca",
+      "bytes": 24455,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/tests/test_join.py",
+      "sha256": "3ffb002f18c0075a6aa60cac15774e14226077491202eb71c49a41b82297ad99",
+      "bytes": 4032,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/tests/test_opa.py",
+      "sha256": "e90b6acac849bd3ac7d6e6e00dee98f8cd8bcebb9a7c5dc65bde17dcb3d1385a",
+      "bytes": 8671,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "integrations/governance/tests/test_telemetry.py",
+      "sha256": "fd477512298c187595215d94e388bac1d08bfc65126b336bc10b4aa9c36c96f3",
+      "bytes": 14604,
+      "worktree_matches_committed_bytes": true
+    },
+    {
+      "path": "validation/enterprise/same_run_validation.py",
+      "sha256": "1a00b485778d1e818547a6292a6b661f539ec19a384ecdea3e7ecbeadfdddfc6",
+      "bytes": 61168,
+      "worktree_matches_committed_bytes": true
+    }
+  ],
+  "mac": {
+    "root_actual_controls": {
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "independent_actual_controls": {
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "original_two_span_collector_file_sha256": "9b5023868b9b1b6b6bab990905787dc42f37dae37184fb400cd37c6d751d06a2",
+    "verified_public_files_preserve_original_bytes": true,
+    "raw_private_collector_log_included": false
+  },
+  "linux": {
+    "classification": "ACTUAL_GITHUB_ACTIONS_LINUX_COMPONENT_CONTROLS_ONLY",
+    "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+    "run_id": 41432496211,
+    "job_id": 125234256123,
+    "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496211",
+    "job_conclusion": "success",
+    "tests": 21,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 3.326,
+    "actual_components": [
+      "pinned real OPA engine",
+      "isolated pinned OpenTelemetry SDK HTTP exporter",
+      "pinned real Collector loopback receiver/file exporter"
+    ],
+    "kernel_or_genuine_agent_execution_claimed": false,
+    "original_job_log_sha256": "c3e15ed2add376aad362e3d856c7ccb126bc46ce3ffcc47fc478b08395943c0c"
+  },
+  "limits": [
+    "Component checks and application telemetry only; no new genuine agent/business/GitHub workload acceptance.",
+    "No signed kernel evidence, independent custody, release-signing-key custody, legal/compliance or production approval inferred.",
+    "Historical review files retain their original pre-commit wording; the source_hashes list independently confirms committed3e6c179 bytes."
+  ]
+}

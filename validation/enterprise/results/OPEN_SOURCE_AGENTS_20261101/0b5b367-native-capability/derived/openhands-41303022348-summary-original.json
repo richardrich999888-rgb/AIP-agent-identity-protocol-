@@ -1,0 +1,253 @@
+{
+  "framework": "openhands",
+  "run_id": 41303022348,
+  "artifact_id": 13082311338,
+  "artifact_sha256": "0b54b5caa03a47728f099e584cb86722a0ea3b2ff8d5cb947511cbd8681dcf31",
+  "original_zip_digest_matches_github": true,
+  "exact_zip_members_match_preserved_bytes": true,
+  "source_commit": "0b5b3674aa4c2bb877c8e6c497e8a721d45e9c65",
+  "actual_stage": "SEPARATE_REAL_FRAMEWORK_TOOL_CAPABILITY_STAGE",
+  "capability_status": "FAIL",
+  "successful_framework_model_http200_requests": 0,
+  "model_http_diagnostic": {
+    "source_authority": "root_read_of_separate_local_ollama_access_log",
+    "scope": "allowlisted POST /api/chat and /api/generate status metadata only",
+    "not_cryptographically_signed": true,
+    "successful_counter_semantics": "HTTP_200_ONLY",
+    "status": "AVAILABLE",
+    "request_count": 1,
+    "status_counts": [
+      {
+        "method": "POST",
+        "route": "/api/chat",
+        "status_code": 400,
+        "count": 1
+      }
+    ]
+  },
+  "pre_capability_successful_policy_generation_requests": 1,
+  "failure_type": "ConversationRunError",
+  "failure_details": {
+    "exception_type": "ConversationRunError",
+    "stage": "capability",
+    "source_frames": [
+      {
+        "source_root": "/opt/snifferdog/",
+        "file": "native_frameworks.py",
+        "function": "main",
+        "line": 419
+      },
+      {
+        "source_root": "/opt/snifferdog/",
+        "file": "native_frameworks.py",
+        "function": "run",
+        "line": 348
+      },
+      {
+        "source_root": "/opt/framework/",
+        "file": "openhands-sdk/openhands/sdk/observability/laminar.py",
+        "function": "sync_wrapper",
+        "line": 307
+      },
+      {
+        "source_root": "/opt/framework/",
+        "file": "openhands-sdk/openhands/sdk/conversation/impl/local_conversation.py",
+        "function": "run",
+        "line": 1995
+      },
+      {
+        "source_root": "/opt/framework/",
+        "file": "openhands-sdk/openhands/sdk/conversation/impl/local_conversation.py",
+        "function": "_run",
+        "line": 2161
+      }
+    ],
+    "causal_chain_truncated": true,
+    "causal_chain": [
+      {
+        "exception_type": "LLMServiceUnavailableError",
+        "stage": "capability",
+        "source_frames": [
+          {
+            "source_root": "/opt/framework/",
+            "file": "openhands-sdk/openhands/sdk/conversation/impl/local_conversation.py",
+            "function": "_run",
+            "line": 2075
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": "openhands-sdk/openhands/sdk/observability/laminar.py",
+            "function": "sync_wrapper",
+            "line": 307
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": "openhands-sdk/openhands/sdk/agent/agent.py",
+            "function": "step",
+            "line": 737
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": "openhands-sdk/openhands/sdk/agent/agent.py",
+            "function": "_step",
+            "line": 822
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": "openhands-sdk/openhands/sdk/llm/llm.py",
+            "function": "generate",
+            "line": 1715
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": "openhands-sdk/openhands/sdk/llm/llm.py",
+            "function": "completion",
+            "line": 1878
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": "openhands-sdk/openhands/sdk/llm/llm.py",
+            "function": "_handle_error",
+            "line": 1045
+          }
+        ]
+      },
+      {
+        "exception_type": "APIConnectionError",
+        "stage": "capability",
+        "provider_status_code": 500,
+        "source_frames": [
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/tenacity/__init__.py",
+            "function": "exc_check",
+            "line": 420
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/tenacity/__init__.py",
+            "function": "reraise",
+            "line": 187
+          },
+          {
+            "source_root": "/usr/local/lib/python3.12/",
+            "file": "concurrent/futures/_base.py",
+            "function": "result",
+            "line": 449
+          },
+          {
+            "source_root": "/usr/local/lib/python3.12/",
+            "file": "concurrent/futures/_base.py",
+            "function": "__get_result",
+            "line": 401
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/tenacity/__init__.py",
+            "function": "__call__",
+            "line": 480
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": "openhands-sdk/openhands/sdk/llm/llm.py",
+            "function": "_one_attempt",
+            "line": 1829
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": "openhands-sdk/openhands/sdk/llm/llm.py",
+            "function": "_transport_call",
+            "line": 2537
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/litellm/utils.py",
+            "function": "wrapper",
+            "line": 1577
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/litellm/utils.py",
+            "function": "wrapper",
+            "line": 1425
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/litellm/main.py",
+            "function": "completion",
+            "line": 5657
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py",
+            "function": "exception_type",
+            "line": 2505
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py",
+            "function": "exception_type",
+            "line": 2475
+          }
+        ]
+      },
+      {
+        "exception_type": "OllamaError",
+        "stage": "capability",
+        "provider_status_code": 400,
+        "http_response_status_code": 400,
+        "source_frames": [
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/litellm/main.py",
+            "function": "completion",
+            "line": 5613
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/litellm/main.py",
+            "function": "_complete_ollama_chat",
+            "line": 4170
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/litellm/llms/custom_httpx/llm_http_handler.py",
+            "function": "completion",
+            "line": 599
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/litellm/llms/custom_httpx/llm_http_handler.py",
+            "function": "_make_common_sync_call",
+            "line": 321
+          },
+          {
+            "source_root": "/opt/framework/",
+            "file": ".venv/lib/python3.12/site-packages/litellm/llms/custom_httpx/llm_http_handler.py",
+            "function": "_handle_error",
+            "line": 5573
+          }
+        ]
+      }
+    ]
+  },
+  "business_task_execution": "NOT_STARTED",
+  "business_task_acceptance": "NOT_ESTABLISHED",
+  "business_kernel_archive_and_checkpoint": "NOT_PRODUCED",
+  "business_offline_verification": "NOT_APPLICABLE_NO_BUSINESS_ARCHIVE",
+  "actual_32768_service_context_preflight": "SOURCE_ENFORCED_SUCCESSFUL_POLICY_ASSERTION_NO_RAW_PS_RESPONSE_RETAINED",
+  "post_framework_served_context": "NOT_REACHED",
+  "native_framework_tool_roundtrip": "NOT_ESTABLISHED",
+  "journal_records": 12,
+  "journal_kind_counts": {
+    "configuration_verified": 1,
+    "native_framework_stage": 6,
+    "native_framework_event": 3,
+    "native_framework_failure": 1,
+    "capability_failed": 1
+  },
+  "cleanup_errors": [],
+  "model_quality_cause": "NOT_ESTABLISHED",
+  "diagnostic_authority": "SELF_REPORTED application diagnostics; model access aggregate root-read, neither independent kernel evidence",
+  "specific_failure": "Exactly one actual root-observed POST /api/chat returned HTTP400. The actual inner OllamaError response status is400; outer wrapper maps it to500. No response body was retained, so the precise provider rejection reason remains unknown."
+}

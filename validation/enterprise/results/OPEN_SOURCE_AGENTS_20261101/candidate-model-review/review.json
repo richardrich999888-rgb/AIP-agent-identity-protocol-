@@ -1,0 +1,42 @@
+{
+  "classification": "DERIVED_PRIMARY_SOURCE_REVIEW_NOT_MODEL_EXECUTION_OR_CAPACITY_BENCHMARK",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "authorized_scope": "EXPLICIT_AGENT_ZERO_ONLY_OPT_IN",
+  "source_urls": [
+    "https://registry.ollama.ai/v2/library/qwen3/manifests/4b-instruct-2507-q4_K_M",
+    "https://ollama.com/library/qwen3:4b-instruct-2507-q4_K_M",
+    "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507",
+    "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507/raw/main/config.json",
+    "https://docs.github.com/en/actions/reference/runners/github-hosted-runners"
+  ],
+  "manifest_sha256": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+  "official_architecture_config_sha256": "5beea1a4a34c62782bfb2f911c606741a3bab8f92d80a118fa053c28af12e8ba",
+  "model_weight_digest": "sha256:85e4a5b7b8ef0e48af0e8658f5aaab9c2324c76c1641493f4d1e25fce54b18b9",
+  "model_weight_bytes": 2497280480,
+  "kv_calculation": {
+    "layers": 36,
+    "kv_heads": 8,
+    "head_dim": 128,
+    "key_and_value_tensors": 2,
+    "bytes_per_fp16_value": 2,
+    "tokens": 8192,
+    "bytes": 1207959552
+  },
+  "model_memory_limit_bytes": 5368709120,
+  "remaining_bytes_before_runtime_and_scratch": 1663469088,
+  "headroom_is_measured": false,
+  "actual_capacity_or_latency": "NOT_ESTABLISHED_BY_THIS_REVIEW",
+  "model_weights_downloaded_in_this_review": false,
+  "model_calls_in_this_review": 0,
+  "old_default_and_native_profiles": "UNCHANGED",
+  "primary_template_and_license_files": [
+    {
+      "path": "/private/tmp/snifferdog-candidate-model-review/qwen3-4b-instruct-2507.template",
+      "sha256": "eade0a07cac7712787bbce23d12f9306adb4781d873d1df6e16f7840fa37afec"
+    },
+    {
+      "path": "/private/tmp/snifferdog-candidate-model-review/qwen3-4b-instruct-2507.license",
+      "sha256": "d18a5cc71b84bc4af394a31116bd3932b42241de70c77d2b76d69a314ec8aa12"
+    }
+  ]
+}

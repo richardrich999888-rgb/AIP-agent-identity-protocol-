@@ -1,0 +1,93 @@
+{
+  "classification": "INDEPENDENT_MAC_OFFLINE_REPLAY_ZERO_MODEL_COMPONENT",
+  "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+  "framework": "agent_zero",
+  "autonomous_workload_executed": false,
+  "model_calls": 0,
+  "original_workflow_result": "FAILED",
+  "recomputed_observation_result": "FAIL",
+  "failures": [
+    "framework interval lacks signed Active coverage"
+  ],
+  "original_zip_sha256": "6b1278b7a80b3485e8943f6e7682f1b0d5fb3b2bde07c06dd0af20c19927a6ae",
+  "original_zip_bytes": 214342,
+  "original_public_member_count": 20,
+  "full_zip_locally_hashed": true,
+  "original_archive_checkpoint_bytes_match": true,
+  "signature_chain_verification": {
+    "exit_code": 0,
+    "findings": 0,
+    "batches": 102,
+    "kernel_events": 6907,
+    "health_records": 5
+  },
+  "six_sensor_task_coverage": "INTEGRITY_UNKNOWN",
+  "requested_interval_ms": {
+    "from": 1793524117114,
+    "to": 1793524151759
+  },
+  "latest_health": {
+    "state": "Active",
+    "sequence": 86,
+    "attested_coverage": {
+      "from_ms": 1793524146084,
+      "to_ms": 1793524203535
+    },
+    "covered_by": [
+      "ProcConnector",
+      "SockStateTracepoint",
+      "SchedTracepoint",
+      "SockSendTracepoint",
+      "Fanotify",
+      "CgroupTracepoint"
+    ],
+    "clock": {
+      "synchronized": true,
+      "max_error_us": 2511,
+      "state": 0
+    }
+  },
+  "terminal_batch_sequence": 102,
+  "bound_workload_events_by_kind": {
+    "ProcessSpawn": 29,
+    "ProcessExec": 6,
+    "Fork": 6,
+    "Exec": 6,
+    "FileEvent": 3,
+    "Exit": 6
+  },
+  "measured_launch_instance_events": 25,
+  "bound_process_instances": 7,
+  "unbound_host_events_not_attributed": 4500,
+  "outside_workload_bound_events": 633,
+  "events_without_clock_anchor": 0,
+  "probe_reported_drops": 0,
+  "nonverified_batch_sequences": [
+    46
+  ],
+  "batches_missing_requested_active_mechanisms": 0,
+  "audit_comparison": {
+    "agreed": 26,
+    "whole_host_aip_only": 184,
+    "external_only": 0,
+    "external_unparsed": 0,
+    "external_failed_attempts": 114,
+    "unmatched_bound_component_exec_references": 0,
+    "all_bound_exec_references_matched": true
+  },
+  "original_root_controller_mount": {
+    "source_authority": "ROOT_CONTROLLER_CONTAINER_MOUNT_RESOLUTION",
+    "path": "/proc/5844/root/work",
+    "workspace_device": 51,
+    "workspace_inode": 1,
+    "scope": "FAN_MARK_MOUNT on actual container /work",
+    "framework_task_gate_released": false
+  },
+  "original_report_recomputed_summary_equal": null,
+  "tools": {
+    "observer_verifier_sha256": "916f770e88153a0683d295532da40261b4d76eb46aec67e200edab237b0c3701",
+    "audit_corroborator_sha256": "0cb3ba6d642903d65a058a3fe061b2f38c58eb4287e62085190f18ce7a95aa51",
+    "runtime_environment": "PATH only; no agent/model/API/network invocation in replay"
+  },
+  "trust_limit": "Original hosted controller public anchor/checkpoint supplied separately to tools but received in the same GitHub artifact; shared kernel/root trusted. Replay does not establish separate institution custody, complete independent ground truth, logical delegation, genuine business-task acceptance or production readiness. Unbound/whole-host unmatched records are retained and not promoted to component attribution."
+}

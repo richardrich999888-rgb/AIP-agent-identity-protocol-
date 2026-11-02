@@ -1,0 +1,537 @@
+{
+  "classification": "PORTABLE_APPEND_ONLY_NOVEMBER_1_93E599D_ATTEMPTS",
+  "created_at_utc": "2026-11-01T10:32:13.673158+00:00",
+  "source_commit": "93e599dfed89b24d6671c4dc924b390cbed32bde",
+  "append_run_count": 2,
+  "preceding_seven_run_package_index_sha256": "6686166804c0a68dc6c11ebe476816a533e701d43420cbbefacb6ff6e77c442b",
+  "preceding_original_source_index_sha256": "24a7b7588ff10a46e429d0f14efaf5d2a3ab623041c7cb23e63dd4bc54cfa127",
+  "path_rules": "All paths in this index are relative to this append directory. Unchanged original command receipts/source inventories retain their actual original paths.",
+  "runs_and_artifact_catalog": [
+    {
+      "run_id": 41296854427,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41296854427",
+      "source_commit": "93e599dfed89b24d6671c4dc924b390cbed32bde",
+      "jobs": [
+        {
+          "id": 124819414679,
+          "name": "image (deerflow)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124819414837,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124819414875,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124820340046,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13079931828,
+          "name": "framework-observation-deerflow-41296854427",
+          "size_in_bytes": 63786,
+          "github_service_sha256": "072c9abe973a8dabef26ed7f9a5df3034a7caf5754e695aa952ae2b384c40a6d",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079931828",
+          "local_retention": {
+            "status": "COMPLETE_ORIGINAL_ZIP",
+            "path": "artifacts/13079931828.zip",
+            "bytes": 63786,
+            "sha256": "072c9abe973a8dabef26ed7f9a5df3034a7caf5754e695aa952ae2b384c40a6d",
+            "complete_zip_crc": "PASS",
+            "full_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "member_count": 24,
+            "member_inventory": {
+              "path": "artifacts/13079931828.members.json",
+              "bytes": 5352,
+              "sha256": "492846307f80078196af72382bf593f2293f03c03fd5e4a813c53eb5f3c86dc6"
+            }
+          }
+        },
+        {
+          "id": 13079816126,
+          "name": "deerflow-build-41296854427",
+          "size_in_bytes": 620335322,
+          "github_service_sha256": "82ae12201ba92785c8ed0d14bd6cd3e413f276fc1c2a4fbed5406b7ac78a8ceb",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079816126",
+          "local_retention": {
+            "status": "CATALOG_ONLY_NOT_DOWNLOADED",
+            "full_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13079423582,
+          "name": "deerflow-genuine-41296854427-1",
+          "size_in_bytes": 6609,
+          "github_service_sha256": "d205eae96fcac57aa18e58a6868d47e48ef2364eaf9e7654279193d232aca768",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079423582",
+          "local_retention": {
+            "status": "COMPLETE_ORIGINAL_ZIP",
+            "path": "artifacts/13079423582.zip",
+            "bytes": 6609,
+            "sha256": "d205eae96fcac57aa18e58a6868d47e48ef2364eaf9e7654279193d232aca768",
+            "complete_zip_crc": "PASS",
+            "full_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "member_count": 10,
+            "member_inventory": {
+              "path": "artifacts/13079423582.members.json",
+              "bytes": 2394,
+              "sha256": "d9814b4144bf50b7f4c068d598009a00ccd87bb8259614bdeff4d771960c5b91"
+            }
+          }
+        },
+        {
+          "id": 13079392933,
+          "name": "hosted-observer-smoke-41296854427",
+          "size_in_bytes": 44504,
+          "github_service_sha256": "a519547533a0624339a0c832ecf76165eef941b27f004c5479beb2f3145f1f81",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079392933",
+          "local_retention": {
+            "status": "CATALOG_ONLY_NOT_DOWNLOADED",
+            "full_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        }
+      ]
+    },
+    {
+      "run_id": 41296857215,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41296857215",
+      "source_commit": "93e599dfed89b24d6671c4dc924b390cbed32bde",
+      "jobs": [
+        {
+          "id": 124819419457,
+          "name": "image (openhands)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124819419619,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124819419849,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124820166334,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13080025617,
+          "name": "framework-observation-openhands-41296857215",
+          "size_in_bytes": 83456,
+          "github_service_sha256": "00242a68128da65d86fd96ffe86cb610f86d71353ba51dcbb8839a67370afcf6",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13080025617",
+          "local_retention": {
+            "status": "COMPLETE_ORIGINAL_ZIP",
+            "path": "artifacts/13080025617.zip",
+            "bytes": 83456,
+            "sha256": "00242a68128da65d86fd96ffe86cb610f86d71353ba51dcbb8839a67370afcf6",
+            "complete_zip_crc": "PASS",
+            "full_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "member_count": 24,
+            "member_inventory": {
+              "path": "artifacts/13080025617.members.json",
+              "bytes": 5357,
+              "sha256": "4d1e59bd0ffa30ac13a39d00ee63b6172127dcc4fb2440c4a60917dc69fb451d"
+            }
+          }
+        },
+        {
+          "id": 13079751138,
+          "name": "hosted-observer-smoke-41296857215",
+          "size_in_bytes": 45487,
+          "github_service_sha256": "ee07a5959c132128db89c30ad11f8b8de41ebb7ddf4edc853233368186892e65",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079751138",
+          "local_retention": {
+            "status": "CATALOG_ONLY_NOT_DOWNLOADED",
+            "full_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13079581595,
+          "name": "openhands-build-41296857215",
+          "size_in_bytes": 428435738,
+          "github_service_sha256": "e8b1e2a8afecc4df03952b88e848530c8aa8d91607b0ea67c89d9f58bb144da9",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079581595",
+          "local_retention": {
+            "status": "CATALOG_ONLY_NOT_DOWNLOADED",
+            "full_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13079418594,
+          "name": "openhands-genuine-41296857215-1",
+          "size_in_bytes": 6447,
+          "github_service_sha256": "4aec705adae5e25712027fff92bc50253efaed2bebe0178fab41b17fd5d5041e",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079418594",
+          "local_retention": {
+            "status": "COMPLETE_ORIGINAL_ZIP",
+            "path": "artifacts/13079418594.zip",
+            "bytes": 6447,
+            "sha256": "4aec705adae5e25712027fff92bc50253efaed2bebe0178fab41b17fd5d5041e",
+            "complete_zip_crc": "PASS",
+            "full_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "member_count": 10,
+            "member_inventory": {
+              "path": "artifacts/13079418594.members.json",
+              "bytes": 2394,
+              "sha256": "dfaad1c47b1fa287b93a105366d831fbdfb4b10b4f9f10942cb9ce2380339b59"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "independently_verified_components": [
+    {
+      "framework": "deerflow",
+      "run_id": 41296854427,
+      "source_commit": "93e599dfed89b24d6671c4dc924b390cbed32bde",
+      "artifact_id": 13079931828,
+      "original_artifact": {
+        "status": "COMPLETE_ORIGINAL_ZIP",
+        "path": "artifacts/13079931828.zip",
+        "bytes": 63786,
+        "sha256": "072c9abe973a8dabef26ed7f9a5df3034a7caf5754e695aa952ae2b384c40a6d",
+        "complete_zip_crc": "PASS",
+        "full_zip_locally_hashed": true,
+        "service_digest_matches_local": true,
+        "member_count": 24,
+        "member_inventory": {
+          "path": "artifacts/13079931828.members.json",
+          "bytes": 5352,
+          "sha256": "492846307f80078196af72382bf593f2293f03c03fd5e4a813c53eb5f3c86dc6"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "all_six_sensor_task_coverage": "COVERED",
+      "task_observation": "PASS",
+      "independent_summary": {
+        "path": "independent/13079931828/summary.json",
+        "bytes": 3140,
+        "sha256": "4fae8bcb25c861d770ab310d8386667287748b82be3d68780310d8959dcd28d8"
+      },
+      "signed_counts": {
+        "exit_code": 0,
+        "findings": 0,
+        "batches": 50,
+        "kernel_events": 1245,
+        "health_records": 3
+      },
+      "bound_events_by_kind": {
+        "ProcessSpawn": 4,
+        "ProcessExec": 2,
+        "FileEvent": 113,
+        "Fork": 1,
+        "Exec": 2,
+        "Exit": 1
+      },
+      "audit_comparison": {
+        "agreed": 3,
+        "whole_host_aip_only": 6,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "external_failed_attempts": 15,
+        "unmatched_bound_component_exec_references": 0,
+        "all_bound_exec_references_matched": true
+      },
+      "independent_files": [
+        {
+          "path": "independent/13079931828/archive-verifier.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "independent/13079931828/archive-verifier.stdout.json",
+          "bytes": 734,
+          "sha256": "34d1b639bfe352ee13eddb3c582f27728ddfbbd4f5c532bea9241b0a8d93bbe7"
+        },
+        {
+          "path": "independent/13079931828/audit-corroborator.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "independent/13079931828/audit-corroborator.stdout.json",
+          "bytes": 1846,
+          "sha256": "c0d4b1857d01caf69a2c8c41c32f3705bb338c694a232c5fce4ce84b47a75c4d"
+        },
+        {
+          "path": "independent/13079931828/command-receipts.json",
+          "bytes": 2107,
+          "sha256": "a38de25847d28815d09fc108cfa7a19d8891dc903cf0772abafb61592f884722"
+        },
+        {
+          "path": "independent/13079931828/recomputed-component-summary.json",
+          "bytes": 71065,
+          "sha256": "d7ad5c515cdf21d272073f2727da66684fb385ef4997f85dc5f5354b6e4ab453"
+        },
+        {
+          "path": "independent/13079931828/separately-supplied-public-files/anchor.json",
+          "bytes": 150,
+          "sha256": "f0daad40d3360b9b12026c8b585fba347c870014a0caefcb95790f7e78c48d23"
+        },
+        {
+          "path": "independent/13079931828/separately-supplied-public-files/checkpoint.json",
+          "bytes": 215,
+          "sha256": "98886339bc56c6c2161642880756204bfed3152562468d37048f7928eb6714b6"
+        },
+        {
+          "path": "independent/13079931828/separately-supplied-public-files/observer.pub",
+          "bytes": 65,
+          "sha256": "9162b6465a9690f1ed85897d9c88be271750339e7275e6fd24875cbbf87943ce"
+        },
+        {
+          "path": "independent/13079931828/summary.json",
+          "bytes": 3140,
+          "sha256": "4fae8bcb25c861d770ab310d8386667287748b82be3d68780310d8959dcd28d8"
+        }
+      ],
+      "original_unsigned_acquisition_diagnostics": [
+        "exec_rendezvous_unresolved reason=RoundBudget rounds=16 sched_events=0 connector_events=0 sched_reads=16 connector_reads=16 idle_waits=15 requested_idle_wait_us=15000 elapsed_us=16059 event_budget=256 scheduling_budget_us=20000"
+      ],
+      "diagnostic_limit": "Readiness checks both witness directions; unsigned unresolved acquisition log alone does not decide collector integrity or prove loss. Original signed records remain authoritative.",
+      "verifier_build_source": "1968d458487bc921a22bf91c71a1156781a753dd",
+      "trust_limit": "Original hosted controller public anchor/checkpoint supplied separately to tools but received in the same GitHub artifact; shared kernel/root trusted. Replay does not establish separate institution custody, complete independent ground truth, logical delegation, genuine business-task acceptance or production readiness. Unbound/whole-host unmatched records are retained and not promoted to component attribution."
+    },
+    {
+      "framework": "openhands",
+      "run_id": 41296857215,
+      "source_commit": "93e599dfed89b24d6671c4dc924b390cbed32bde",
+      "artifact_id": 13080025617,
+      "original_artifact": {
+        "status": "COMPLETE_ORIGINAL_ZIP",
+        "path": "artifacts/13080025617.zip",
+        "bytes": 83456,
+        "sha256": "00242a68128da65d86fd96ffe86cb610f86d71353ba51dcbb8839a67370afcf6",
+        "complete_zip_crc": "PASS",
+        "full_zip_locally_hashed": true,
+        "service_digest_matches_local": true,
+        "member_count": 24,
+        "member_inventory": {
+          "path": "artifacts/13080025617.members.json",
+          "bytes": 5357,
+          "sha256": "4d1e59bd0ffa30ac13a39d00ee63b6172127dcc4fb2440c4a60917dc69fb451d"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "all_six_sensor_task_coverage": "COVERED",
+      "task_observation": "PASS",
+      "independent_summary": {
+        "path": "independent/13080025617/summary.json",
+        "bytes": 3162,
+        "sha256": "77827012d665b712ae465c615f84390602138e597b330d9e505979c41e8f8928"
+      },
+      "signed_counts": {
+        "exit_code": 0,
+        "findings": 0,
+        "batches": 47,
+        "kernel_events": 1613,
+        "health_records": 3
+      },
+      "bound_events_by_kind": {
+        "ProcessSpawn": 78,
+        "ProcessExec": 4,
+        "FileEvent": 4,
+        "Fork": 4,
+        "Exec": 4,
+        "Exit": 4,
+        "SocketState": 2
+      },
+      "audit_comparison": {
+        "agreed": 79,
+        "whole_host_aip_only": 9,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "external_failed_attempts": 12,
+        "unmatched_bound_component_exec_references": 0,
+        "all_bound_exec_references_matched": true
+      },
+      "independent_files": [
+        {
+          "path": "independent/13080025617/archive-verifier.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "independent/13080025617/archive-verifier.stdout.json",
+          "bytes": 734,
+          "sha256": "6bca92a7c41411f87306d5314b201a20ddc3f1a52250243be964654efa7b8a6b"
+        },
+        {
+          "path": "independent/13080025617/audit-corroborator.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "independent/13080025617/audit-corroborator.stdout.json",
+          "bytes": 21964,
+          "sha256": "f0a9f9ed28ca91e072684f2afc31926dd200f0d232de9925a777a3ce7746f9d9"
+        },
+        {
+          "path": "independent/13080025617/command-receipts.json",
+          "bytes": 2115,
+          "sha256": "8cfac9f4f166dc801646f7907384abdab9b2efda831d0bec779101ebf59a75e4"
+        },
+        {
+          "path": "independent/13080025617/recomputed-component-summary.json",
+          "bytes": 72147,
+          "sha256": "c929077dd4a02b3dbf818abe2a64af0719bb1f0b14eddf621500883453932c9e"
+        },
+        {
+          "path": "independent/13080025617/separately-supplied-public-files/anchor.json",
+          "bytes": 150,
+          "sha256": "ddc9964a3212c361506dd7bd0e1666d189180add4c3ca72a1b9702648f931c38"
+        },
+        {
+          "path": "independent/13080025617/separately-supplied-public-files/checkpoint.json",
+          "bytes": 215,
+          "sha256": "c2679c638f6d8b255d1475081a44c03bb8bcd56fd36c04f41de12f31849c3a36"
+        },
+        {
+          "path": "independent/13080025617/separately-supplied-public-files/observer.pub",
+          "bytes": 65,
+          "sha256": "500b51f150e4f774f8ac9217fe3a5039601475d8aaafb7d15715dce7b8f9eb3f"
+        },
+        {
+          "path": "independent/13080025617/summary.json",
+          "bytes": 3162,
+          "sha256": "77827012d665b712ae465c615f84390602138e597b330d9e505979c41e8f8928"
+        }
+      ],
+      "original_unsigned_acquisition_diagnostics": [
+        "exec_rendezvous_unresolved reason=RoundBudget rounds=16 sched_events=0 connector_events=0 sched_reads=16 connector_reads=16 idle_waits=15 requested_idle_wait_us=15000 elapsed_us=16014 event_budget=256 scheduling_budget_us=20000"
+      ],
+      "diagnostic_limit": "Readiness checks both witness directions; unsigned unresolved acquisition log alone does not decide collector integrity or prove loss. Original signed records remain authoritative.",
+      "verifier_build_source": "1968d458487bc921a22bf91c71a1156781a753dd",
+      "trust_limit": "Original hosted controller public anchor/checkpoint supplied separately to tools but received in the same GitHub artifact; shared kernel/root trusted. Replay does not establish separate institution custody, complete independent ground truth, logical delegation, genuine business-task acceptance or production readiness. Unbound/whole-host unmatched records are retained and not promoted to component attribution."
+    }
+  ],
+  "separate_capability_attempts": [
+    {
+      "framework": "deerflow",
+      "run_id": 41296854427,
+      "source_commit": "93e599dfed89b24d6671c4dc924b390cbed32bde",
+      "artifact_id": 13079423582,
+      "original_artifact": {
+        "status": "COMPLETE_ORIGINAL_ZIP",
+        "path": "artifacts/13079423582.zip",
+        "bytes": 6609,
+        "sha256": "d205eae96fcac57aa18e58a6868d47e48ef2364eaf9e7654279193d232aca768",
+        "complete_zip_crc": "PASS",
+        "full_zip_locally_hashed": true,
+        "service_digest_matches_local": true,
+        "member_count": 10,
+        "member_inventory": {
+          "path": "artifacts/13079423582.members.json",
+          "bytes": 2394,
+          "sha256": "d9814b4144bf50b7f4c068d598009a00ccd87bb8259614bdeff4d771960c5b91"
+        }
+      },
+      "original_member_count": 10,
+      "derived_summary": {
+        "path": "capability-attempts/13079423582/summary.json",
+        "bytes": 3455,
+        "sha256": "2dcefeb2122defeed2638aaab13bf24da69aab2b0893875d4bff9680f98765d3"
+      },
+      "original_source_inventory": {
+        "path": "capability-attempts/13079423582/source-preservation-inventory.json",
+        "bytes": 2206,
+        "sha256": "dae05a6ef716cb91e8a486b3ee8e251693c3756fdca6e08e7b472166b7c88b03"
+      },
+      "capability_status": "FAIL",
+      "successful_framework_model_http200_requests": 0,
+      "all_attempted_framework_model_requests": "UNKNOWN_COUNTER_RETAINS_SUCCESSFUL_HTTP200_ONLY",
+      "business_workload": "NOT_STARTED",
+      "business_capture_and_checkpoint": "NOT_PRODUCED",
+      "failure_type": "OSError",
+      "specific_failure": "Read-only-filesystem errno30 creating SQLite checkpoint parent; exact original source frames identify ensure_sqlite_parent_dir and get_checkpointer.",
+      "model_quality_cause": "NOT_ESTABLISHED",
+      "diagnostic_authority": "SELF_REPORTED application diagnostics, not independent kernel evidence"
+    },
+    {
+      "framework": "openhands",
+      "run_id": 41296857215,
+      "source_commit": "93e599dfed89b24d6671c4dc924b390cbed32bde",
+      "artifact_id": 13079418594,
+      "original_artifact": {
+        "status": "COMPLETE_ORIGINAL_ZIP",
+        "path": "artifacts/13079418594.zip",
+        "bytes": 6447,
+        "sha256": "4aec705adae5e25712027fff92bc50253efaed2bebe0178fab41b17fd5d5041e",
+        "complete_zip_crc": "PASS",
+        "full_zip_locally_hashed": true,
+        "service_digest_matches_local": true,
+        "member_count": 10,
+        "member_inventory": {
+          "path": "artifacts/13079418594.members.json",
+          "bytes": 2394,
+          "sha256": "dfaad1c47b1fa287b93a105366d831fbdfb4b10b4f9f10942cb9ce2380339b59"
+        }
+      },
+      "original_member_count": 10,
+      "derived_summary": {
+        "path": "capability-attempts/13079418594/summary.json",
+        "bytes": 2637,
+        "sha256": "d008df3ca45045ac560c2e5540c0fb17c5ec69282ab03b8f633b40d3ff6a8d7c"
+      },
+      "original_source_inventory": {
+        "path": "capability-attempts/13079418594/source-preservation-inventory.json",
+        "bytes": 2206,
+        "sha256": "da9b05deafb74051e6215f3d12251250888829b04290226e5a551f262d560cbb"
+      },
+      "capability_status": "FAIL",
+      "successful_framework_model_http200_requests": 0,
+      "all_attempted_framework_model_requests": "UNKNOWN_COUNTER_RETAINS_SUCCESSFUL_HTTP200_ONLY",
+      "business_workload": "NOT_STARTED",
+      "business_capture_and_checkpoint": "NOT_PRODUCED",
+      "failure_type": "ConversationRunError",
+      "specific_failure": "ConversationRunError wraps underlying failure; original safe diagnostic omitted underlying causal metadata, so original cause remains UNKNOWN.",
+      "model_quality_cause": "NOT_ESTABLISHED",
+      "diagnostic_authority": "SELF_REPORTED application diagnostics, not independent kernel evidence"
+    }
+  ],
+  "linux_release_checks": {
+    "path": "checks/linux-probe-93e599d.json",
+    "bytes": 7713,
+    "sha256": "4ae666e79a233d4d719e36c1501a312185afdaf28700094080efeef7a22aac55"
+  },
+  "limits": [
+    "Append only; preceding seven runs/source-index/signed records remain unchanged. This append covers two93-source runs only, not later1968 or future core runs.",
+    "Two fresh installed zero-model component captures pass all six task sensor checks, signatures/checkpoint and exact bound-exec audit. They do not establish actual framework model/business capability.",
+    "Both subsequent capability attempts fail; zero successful HTTP200 model requests is not proof of zero attempted requests. No business workload/capture/checkpoint was produced.",
+    "DeerFlow specific errno30 checkpoint-parent failure is retained. OpenHands underlying cause remains UNKNOWN under its ConversationRunError wrapper.",
+    "Original public anchors/checkpoints came in the same GitHub artifact. Separate Mac replay is not independent institution custody or full independent event ground truth.",
+    "Logical delegation/concurrency/swarm validation, AIP authorization, authoritative business outcomes and production/regulatory acceptance remain unestablished."
+  ]
+}

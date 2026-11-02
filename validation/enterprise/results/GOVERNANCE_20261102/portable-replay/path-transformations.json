@@ -1,0 +1,67 @@
+{
+  "classification": "DERIVED_PATH_CONFIGURATION_ONLY",
+  "method": "EXACT_ONCE_KNOWN_ASSIGNMENTS_IN_FIXED_SHA_REVIEWED_SCRIPTS",
+  "scripts": [
+    {
+      "script": "verify-original-core.py",
+      "original_sha256": "ea53514ca5ee3d54daf37c6c28fc76f1677b0e4adf78004236f07e8e67930b6b",
+      "derived_sha256": "67c4dee295c2a4d1d960f4181f3cfea387ed277535bf0936d31fef9f8eb44257",
+      "replacements": [
+        {
+          "original": "REPO=Path('/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP')",
+          "derived": "REPO=Path('/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP')"
+        },
+        {
+          "original": "ROOT=Path('/private/tmp/snifferdog-gov-3e6c179-41432473155/original')",
+          "derived": "ROOT=Path('/private/tmp/snifferdog-portable-root-replay-20261102/original')"
+        },
+        {
+          "original": "ZIP=Path('/private/tmp/snifferdog-gov-3e6c179-41432473155/original-artifact.zip')",
+          "derived": "ZIP=Path('/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/validation/enterprise/results/GOVERNANCE_20261102/genuine-3e6c179/original-artifact.zip')"
+        },
+        {
+          "original": "OUT=Path('/private/tmp/snifferdog-gov-3e6c179-41432473155/independent-offline')",
+          "derived": "OUT=Path('/private/tmp/snifferdog-portable-root-replay-20261102/independent-offline')"
+        }
+      ]
+    },
+    {
+      "script": "verify-physical-scope-and-audit.py",
+      "original_sha256": "ba6442d13299d44c84e7d37efca0fd6832c1bfe2ef3484688d19f733600a8a79",
+      "derived_sha256": "02e8ab3fcd88150ae2249f6351a6bc5420c556bc1dcea6758dd47c12477f616e",
+      "replacements": [
+        {
+          "original": "REPO=Path('/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP')",
+          "derived": "REPO=Path('/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP')"
+        },
+        {
+          "original": "sys.path.insert(0,'/private/tmp/snifferdog-gov-3e6c179-replay-source/integrations/real_agents')",
+          "derived": "sys.path.insert(0,'/private/tmp/snifferdog-portable-root-replay-20261102/exact-public-source/integrations/real_agents')"
+        },
+        {
+          "original": "ROOT=Path('/private/tmp/snifferdog-gov-3e6c179-41432473155')",
+          "derived": "ROOT=Path('/private/tmp/snifferdog-portable-root-replay-20261102')"
+        }
+      ]
+    },
+    {
+      "script": "verify-policy-and-collector-links.py",
+      "original_sha256": "e6e973239a64c81ab391e258e8d6fc5bc70124a9bafac2a9744cea006eba6d57",
+      "derived_sha256": "692fcbdb8e9363e6852dfed848cddb4ca10176aa7be756a0e569a6e2dee937c8",
+      "replacements": [
+        {
+          "original": "ROOT=Path('/private/tmp/snifferdog-gov-3e6c179-41432473155')",
+          "derived": "ROOT=Path('/private/tmp/snifferdog-portable-root-replay-20261102')"
+        },
+        {
+          "original": "SNAPSHOT=Path('/private/tmp/snifferdog-gov-3e6c179-replay-source')",
+          "derived": "SNAPSHOT=Path('/private/tmp/snifferdog-portable-root-replay-20261102/exact-public-source')"
+        },
+        {
+          "original": "OPA_ENGINE=Path('/private/tmp/snifferdog-opa-adapter-bootstrap/opa-1.22.0-darwin_arm64')",
+          "derived": "OPA_ENGINE=Path('/private/tmp/snifferdog-governance-20261102-assets/opa/opa-1.22.0-darwin_arm64')"
+        }
+      ]
+    }
+  ]
+}

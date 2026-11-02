@@ -44,6 +44,9 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           version: '0.13.6'
+      - name: Prepare the pinned source reference for later offline replay
+        if: inputs.governance_stack == true
+        run: git fetch --no-tags --depth=1 origin 3e6c1794000fa23006ef623722e37700e49582b7
       - name: Prepare disposable Linux capabilities and synchronized clock
         run: |
           sudo apt-get update -qq
@@ -145,6 +148,16 @@ jobs:
             --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
             --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
             --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run-recovery" --browser "${governance_args[@]}"
+      - name: Replay retained reference evidence without a model or network service
+        if: inputs.governance_stack == true
+        run: |
+          opa_binary="$(python -c 'import json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"governance"; print((p/json.loads((p/"assets-manifest.json").read_text())["opa_engine"]).resolve())')"
+          workspace="$(pwd -P)"
+          replay_parent="$(python -c 'import os,pathlib; print(pathlib.Path(os.environ["RUNNER_TEMP"]).resolve())')"
+          python validation/enterprise/replay_retained_governance.py \
+            --package "$workspace/validation/enterprise/results/GOVERNANCE_20261102/genuine-3e6c179" \
+            --repo "$workspace" --opa "$opa_binary" \
+            --out "$replay_parent/governance-retained-replay"
       - name: Preserve only public same-run evidence and independent public anchors
         if: always()
         uses: actions/upload-artifact@v4
@@ -168,3 +181,14 @@ jobs:
             ${{ runner.temp }}/local-model/model-manifest-layout.json
             ${{ runner.temp }}/same-run-audit-initial.txt
             ${{ runner.temp }}/governance-unavailable/public/run-manifest.json
+            ${{ runner.temp }}/governance-retained-replay/portable-replay-result.json
+            ${{ runner.temp }}/governance-retained-replay/path-transformations.json
+            ${{ runner.temp }}/governance-retained-replay/independent-offline/summary.json
+            ${{ runner.temp }}/governance-retained-replay/independent-offline/physical-observation-and-clients.json
+            ${{ runner.temp }}/governance-retained-replay/independent-offline/governance-link-verification.json
+            ${{ runner.temp }}/governance-retained-replay/verify-original-core.py.stdout.txt
+            ${{ runner.temp }}/governance-retained-replay/verify-original-core.py.stderr.txt
+            ${{ runner.temp }}/governance-retained-replay/verify-physical-scope-and-audit.py.stdout.txt
+            ${{ runner.temp }}/governance-retained-replay/verify-physical-scope-and-audit.py.stderr.txt
+            ${{ runner.temp }}/governance-retained-replay/verify-policy-and-collector-links.py.stdout.txt
+            ${{ runner.temp }}/governance-retained-replay/verify-policy-and-collector-links.py.stderr.txt

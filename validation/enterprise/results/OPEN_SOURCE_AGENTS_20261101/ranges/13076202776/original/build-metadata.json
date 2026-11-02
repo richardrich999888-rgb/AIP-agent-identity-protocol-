@@ -1,0 +1,26 @@
+{
+  "classification": "CONTAINER_BUILD_ONLY_NO_AGENT_OR_MODEL_EXECUTION",
+  "framework": "agent_zero",
+  "upstream_repository": "https://github.com/agent0ai/agent-zero",
+  "upstream_commit": "ff2a5b9c9c4e490ba38dd7c313e779510bb2071a",
+  "python_base_image": "python:3.12-slim-bookworm@sha256:62ed8e07e544e8555c5d93748d5275015136b7f5c52b5e8679b4de339c3779d3",
+  "uv_version": "0.13.6",
+  "image_id": "sha256:df80cc6556c6a5f4cb0056fce4a080f8eac5e7a34622ad1203a3b8400075502c",
+  "image_os": "linux",
+  "image_architecture": "amd64",
+  "runtime_python": "/opt/framework/.venv/bin/python",
+  "source_sha256": {
+    "Dockerfile": "62797258a74374aaf24c8f8c24d06d10bce05820fcb6e2bf08fb82e77c27257a",
+    "frameworks.lock.json": "fc790819964efa3f358665949d5cd3cfdde1b34e0461d720a632433bcac4f9c6",
+    "adapters/agent_zero_capability.py": "f8b8de40879bb4bf6fa3826bfe75865aa9d6163b501bc769bdd4cc2b84f33e27",
+    "adapters/agent_zero_runtime.py": "fc711b8c52228b831c718facef3d8082a2b1e8d7e978132834460169684fefab",
+    "adapters/framework_smokes.py": "5936410094bf152b1239569c29b7fbe10ff18e946bdb877394785fc01fc2a4dc",
+    "adapters/launch.py": "843b8902932eea847bd50e3e1f5922a6d66f15ad7d454d851d3458f0eecc0bd8",
+    "adapters/smoke.py": "4143773398098adbb963758a751f1ce176fc1faeb9d5a561fcb51262cf5e43fa",
+    "adapters/entrypoint.sh": "5352659f150b1885cd393c6ae4e4f51c2a65349012d795f666d1a7aade979b77"
+  },
+  "model_calls": 0,
+  "autonomous_workload_executed": false,
+  "delegation": "UNVALIDATED",
+  "logical_agent_attribution": "CANNOT_PROVE"
+}

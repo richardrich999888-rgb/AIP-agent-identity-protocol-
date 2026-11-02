@@ -1,8 +1,17 @@
 # Open-source governance and observability integration
 
-Implementation status: **local component controls pass; the governance-enabled
-Linux genuine workload is pending.** This record does not replace the separate
-collector-custody, installation, security-scan or production acceptance gates.
+Implementation status: **genuine Linux integration and separate offline
+verification PASS** at runtime source `3e6c1794000fa23006ef623722e37700e49582b7`.
+[Run 41432473155](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432473155)
+and the [retained original/replay](../../validation/enterprise/results/GOVERNANCE_20261102/genuine-3e6c179/preservation-index.json) cover positive execution, actual observer
+interruption, fresh recovery, the missing-assets refusal and all enterprise
+clients. All 21 real framework controls pass on Mac and Linux with no skips.
+The [complete CI suite](../../validation/enterprise/results/GOVERNANCE_20261102/ci-3e6c179/registry.json) is 16 PASS / 2 scanner FAIL; this does not establish
+independent collector custody, installed customer deployment or production approval.
+
+Governance here covers permitted tool actions and execution accountability.
+Fairness, bias, general model quality and organizational risk-management
+qualification are outside this tested profile.
 
 VANIAN connects an existing policy engine and observability standard to its
 existing execution-assurance path. The current profile evaluates a synthetic,
@@ -15,6 +24,10 @@ read-only loan-document request; it does not approve or change bank records.
 | Observation | Existing Sniffer Dog probe, authenticated collector and reconciler | Capture supported Linux activity, retain coverage, verify and reconcile the available records | Signed kernel evidence and coverage remain distinct from application traces |
 | Operations | OpenTelemetry SDK 1.45.2 and Collector Contrib 0.164.0 | Export actual controller phase timestamps, opaque run/decision IDs and evidence-file digests through OTLP/HTTP | Explicitly controller application telemetry, exported after workload cleanup |
 | Review | Existing API, SDKs, restricted MCP server, console and offline verifier | Retrieve the same execution evidence and supported verdict | Traces never grant authorization or turn unsupported evidence into proof |
+
+Existing API, SDK, MCP and console checks retrieve AIP bundles and verdicts.
+OPA/Collector metadata is available in the workflow artifacts and offline
+records; a governance-specific API endpoint or console view is not implemented.
 
 The policy gate uses the peer PID/UID/GID measured by the existing Linux
 `SO_PEERCRED` boundary. The agent may propose only a tool and arguments. It
@@ -66,9 +79,14 @@ correlation, validated controller records and final verified Collector spans.
 Private keys and unvalidated Collector output are excluded. Original failed
 agent attempts remain in the separate November 1 validation package.
 
+For the retained original run, the [portable offline replay instructions](../../validation/enterprise/results/GOVERNANCE_20261102/REPORT.md#portable-replay-of-the-retained-governance-run)
+provide a single parameterized command after trusted Rust tools and the pinned
+OPA executable are prepared. Verification starts no agent, model, SDK or
+Collector and preserves the original package and frozen predicates.
+
 ## Pitch wording and limits
 
-After the enabled genuine validation passes, the supported description is:
+The supported engineering description for this retained execution is:
 
 > VANIAN connects open-source policy and observability tools to signed AI-agent
 > execution evidence. Open Policy Agent checks the permitted action before AIP

@@ -1,0 +1,8 @@
+{
+  "classification": "DERIVED_MEASUREMENT_LIMIT_ANNOTATION_NO_ORIGINALS_CHANGED",
+  "applies_to": "All November1 hosted capability/model-service counter delta fields, including earlier shorthand actual_framework_stage_model_requests/capability_model_requests/root_model_counter_delta.",
+  "measurement": "The actual model_access_lines parser retains successful HTTP200 GIN chat/generate access lines only. A delta proves that many successful requests, not the total attempted requests.",
+  "zero_delta": "Zero successful HTTP200 requests alone does not establish zero attempted/failed/error requests. Total attempts remain UNKNOWN unless separate original evidence establishes them.",
+  "component_scope": "Zero-model installed tool components invoke no agent generation by design; their no-model scope is distinct from the genuine capability model-service counters.",
+  "historical_originals": "Original ZIPs, original reports and the preceding7run source-index are unchanged. This note clarifies measurement semantics without changing any PASS/FAIL outcome."
+}

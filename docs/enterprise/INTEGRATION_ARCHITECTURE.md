@@ -1,5 +1,93 @@
 # Same-run execution assurance integration
 
+## 2026-11-02 update — runtime source `3e6c179`
+
+**Assignment status: PARTIAL; engineering validation, with acceptance gates still open.**
+This dated section is the current snapshot at
+`3e6c1794000fa23006ef623722e37700e49582b7`. The historical text after the divider
+is preserved unchanged; its references to “current” describe its own recorded
+source and date. Keep PRs #6, #7 and #8 in draft until the remaining criteria
+are satisfied.
+
+The implemented composition now includes the optional reviewed
+[open-source governance integration](OPEN_SOURCE_GOVERNANCE.md), enabled by
+`governance_stack=true` in the existing same-run workflow. It extends the
+existing agent → Unix broker → AIP authority → ContextForge → tool → Sniffer
+Dog → existing verifier/API/SDK/MCP/console path; it adds no replacement agent
+identity, receipt, signing or evidence protocol.
+
+OPA evaluates the actual controller-measured peer and permitted read scope
+before the existing AIP signer. Its decision, policy hash and decision-ID link
+are unsigned controller application records; an allow result cannot bypass
+the unchanged signer or signature/receipt/reconciliation rules. OpenTelemetry
+exports a delayed batch of controller-operation timestamps and approved IDs,
+hashes and status fields after workload cleanup. It does not create model
+spans, signed kernel evidence or an authorization authority. The Collector is
+stopped and reaped before complete final-file verification. Only the original
+verified `records.json`, `collector-config.json`, `collector-spans.jsonl` and
+`telemetry-report.json` are published from its private staging area; raw
+Collector logs and failed/unvalidated output remain private. Unknown fields,
+duplicate JSON keys, extra tails, wrong correlations or timestamps refuse
+publication.
+
+The OPA input's PID/UID/GID come from the actual kernel peer boundary in the
+genuine controller path. The agent does not choose trusted identity, policy
+allowlists or signing keys. Component peer inputs are explicit fixtures and
+do not by themselves establish that boundary. The SDK uses its own pinned
+Python environment; the agent, gateway and evidence-client dependencies are
+not replaced. The local Collector accepts loopback OTLP/HTTP and exports only
+to its local file. Remote customer backends, TLS/authentication deployment and
+institution-controlled trace retention are unvalidated.
+
+The actual OPA 1.22.0 + isolated OpenTelemetry SDK 1.45.2 + Collector Contrib
+0.164.0 component gate passed on Mac and GitHub-hosted Linux: **21 tests, zero
+failures, errors or skips**. Linux run
+[41432496211](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496211),
+job `125234256123`, ran the real engines. Controlled policy/peer fixtures and
+component timestamp fixtures are not evidence of agent behavior or actual
+operating-system peer measurement. The genuine `GovernanceRun` records its
+own actual operation boundaries. See the
+[component proof](../../validation/enterprise/results/GOVERNANCE_20261102/components-3e6c179/source-index.json)
+and [scope statement](../../validation/enterprise/results/GOVERNANCE_20261102/SCOPE.md).
+
+Governance-enabled Linux run `41432473155` at this source passed missing-assets
+refusal, positive execution, genuine interruption, fresh recovery and all
+enterprise clients. Artifact `13136100222` has service SHA256
+`48ccc9525cade552b8eb28874e0c786b96a4b00024defd8b17e7cd9fbab6a505`.
+**Independent replay of all three new bundles: PASS.** The
+[original inventory and separate replay](../../validation/enterprise/results/GOVERNANCE_20261102/genuine-3e6c179/preservation-index.json) preserve the exact 154-member
+ZIP, AIP records, OPA links and final six-phase Collector files. The independently passing 1968 three-profile baseline
+remains separate. This engineering connection supports the pitch “policy before
+authorization, observed activity, offline-verifiable evidence and operational
+trace references,” subject to each evidence layer's actual result.
+
+The complete 18-check component/security suite at runtime source `3e6c179`
+finished **16 PASS / 2 FAIL**. The separate genuine core workflow passed; its
+guarded PR Agent Zero task was skipped. [Exact CI provenance and counts](../../validation/enterprise/results/GOVERNANCE_20261102/ci-3e6c179/registry.json)
+retain every skipped/ignored or blocked scope separately. Gitleaks still reports
+217 findings and Trivy four HIGH findings in the historical enabled Helm
+render. Their result objects match the retained previously reviewed records;
+no detector result is waived or rewritten. Cargo audits retain the inherited
+`RUSTSEC-2026-0097` exception documented in `deny.toml`; no new exception was
+added, and an audit pass is not an unqualified security clearance.
+
+Independent administration still requires a separately controlled Linux
+workload host and collector Linux host/trust domain, approved public anchors,
+collector signing-key custody and durable retention. One disposable runner's
+root/kernel/GitHub administration remains trusted. Actual installed fanotify
+service qualification, installer/startup/restart/uninstall and recovery,
+logical sub-agent delegation, concurrency/soak and matched overhead,
+institutional key/identity operations, customer deployment and regulatory
+acceptance remain unvalidated. Remote-model credentials and protected
+production telemetry endpoints are configuration gates if those routes are
+selected; public local inference and the completed local component checks do
+not require those secrets.
+
+## Historical record preserved below
+
+The following text is retained unchanged from its recorded historical revision.
+
+
 The integration branch combines PR #6 at `65b6ff7fdad5ae70546a57216a497399091c7dc7`
 and PR #7 at `bd15b8e627e5ef67ba259559ed81feb6894cde48`. Their common ancestor
 is `f025a57911f7daf473cdfdcbf98d2f911df2534e`. Merge revision
