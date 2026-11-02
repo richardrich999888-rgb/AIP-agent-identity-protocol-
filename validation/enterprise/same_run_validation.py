@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 from contextlib import closing
 import ctypes
+from contextlib import nullcontext
 import hashlib
 import json
 import os
@@ -179,9 +180,10 @@ class AgentOutput:
 
 class AuthorityBroker:
     """Root validates kernel peer credentials; caller cannot choose PID or key/config."""
-    def __init__(self, socket_path, process, binary, config, decisions, public):
+    def __init__(self, socket_path, process, binary, config, decisions, public, *, governance=None, allowed_calls=None):
         self.process, self.binary, self.config = process, binary, config
         self.decisions, self.public = decisions, public
+        self.governance, self.allowed_calls = governance, allowed_calls
         self.failure = None
         self.expectation = None
         self.connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -193,7 +195,7 @@ class AuthorityBroker:
     def run(self):
         try:
             with self.connection.accept()[0] as peer:
-                pid, uid, _gid = struct.unpack('3i', peer.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
+                pid, uid, gid = struct.unpack('3i', peer.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
                 if uid != UID_AGENT or pid != self.process.pid or self.process.poll() is not None:
                     raise Refused('authority caller is not the externally launched live agent')
                 peer.settimeout(10)
@@ -206,14 +208,21 @@ class AuthorityBroker:
                 proposal = json.loads(data)
                 if set(proposal) != {'tool_id', 'arguments'}:
                     raise Refused('authority request may not supply keys, PID or identity')
-                result = subprocess.run([str(self.binary), 'authorize'], input=json.dumps({
-                    'agent_id': self.config['agent_id'], 'process_id': pid, **proposal}),
-                    text=True, capture_output=True, timeout=10,
-                    env={'PATH':os.defpath, 'AIP_AUTHORITY_CONFIG':self.config['authority_config_path']})
-                if result.returncode:
+                if self.governance is not None and not self.governance.evaluate_policy(
+                        proposal=proposal, agent_id=self.config['agent_id'],
+                        peer_pid=pid, peer_uid=uid, peer_gid=gid,
+                        expected_pid=self.process.pid, allowed_calls=self.allowed_calls):
                     peer.sendall(b'{"authorized":false}\n')
-                    raise Refused('independent authority denied actual proposed action')
-                signed = json.loads(result.stdout)
+                    raise Refused('independent policy engine denied the actual proposal')
+                with (self.governance.phase('aip.authorization.issue') if self.governance else nullcontext({})) as phase:
+                    result = subprocess.run([str(self.binary), 'authorize'], input=json.dumps({
+                        'agent_id': self.config['agent_id'], 'process_id': pid, **proposal}),
+                        text=True, capture_output=True, timeout=10,
+                        env={'PATH':os.defpath, 'AIP_AUTHORITY_CONFIG':self.config['authority_config_path']})
+                    if result.returncode:
+                        peer.sendall(b'{"authorized":false}\n')
+                        raise Refused('independent authority denied actual proposed action')
+                    signed = json.loads(result.stdout)
                 expectation = signed['expectation']
                 decision_id = bytes(expectation['decision_id']).hex()
                 protected_json(self.decisions / (decision_id + '.json'), expectation, UID_GATEWAY)
@@ -221,6 +230,8 @@ class AuthorityBroker:
                 save(self.public / 'authority-request.json', {
                     'source_authority':'root_authority_controller_SO_PEERCRED', 'peer_pid':pid, 'peer_uid':uid,
                     'actual_proposal':proposal, 'authority_sig':expectation['decision_sig']})
+                if self.governance is not None:
+                    self.governance.link_authorization(decision_id, self.public / 'expectation.json')
                 self.expectation = expectation
                 peer.sendall(json.dumps({'authorized':True, 'decision_id':decision_id}).encode()+b'\n')
         except Exception as error:
@@ -238,6 +249,8 @@ def main():
     parser.add_argument('--model-root', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--browser', action='store_true')
+    parser.add_argument('--governance-root', type=Path,
+        help='preverified optional OPA/OTel assets; never bootstraps during a workload')
     parser.add_argument('--observer-interruption', action='store_true',
         help='authorized negative trial: stop the probe before the genuine agent starts')
     args = parser.parse_args()
@@ -280,6 +293,9 @@ def main():
         'model_cloud_api_spend':0, 'model_api_credentials_used':False,
         'validation_profile':'OBSERVER_INTERRUPTION' if args.observer_interruption else 'OBSERVED_EXECUTION',
         'kernel':os.uname().release, 'started_at_ms':now()}
+    governance = None
+    result['open_source_governance'] = ('ENABLED_PENDING_ACTUAL_POLICY_AND_COLLECTOR_CHECKS'
+        if args.governance_root is not None else 'DISABLED')
     save(public / 'run-manifest.json', result)
     def in_host(operation):
         current = os.open('/proc/self/ns/net', os.O_RDONLY)
@@ -315,6 +331,10 @@ def main():
             shutil.copyfile(state / name, public / name)
         return {'sha256':{name:sha256(public/name) for name in ARCHIVES}}
     try:
+        if args.governance_root is not None:
+            sys.path.insert(0, str(ROOT))
+            from integrations.governance.run import GovernanceRun
+            governance = GovernanceRun(args.governance_root, public / 'governance', result['run_id'])
         python = source/'.venv/bin/python'
         runtime_access({
             UID_MODEL:[(model_root/'bin/ollama',os.R_OK|os.X_OK),
@@ -402,8 +422,9 @@ def main():
         anchor = {'observer_id':'collector.same-run','key_version':1,'public_key':(state/'observer.pub').read_text().strip()}
         save(out/'observer-anchor.json',anchor)
         authority = directory(private/'authority')
+        allowed_calls = [{'tool_id': TOOL, 'arguments': {'loan_id': 1, 'amount': 0}}]
         initialized = json.loads(command([binary,'init-authority'],input=json.dumps({'directory':str(authority),'model_id':MODEL_ID,
-            'allowed_calls':[{'tool_id':TOOL,'arguments':{'loan_id':1,'amount':0}}],
+            'allowed_calls':allowed_calls,
             'observer_id':anchor['observer_id'],'observer_public_key_hex':anchor['public_key']})))
         shutil.copyfile(initialized['gateway_key_path'],gateway_dir/'gateway.key')
         os.chown(gateway_dir/'gateway.key',UID_GATEWAY,UID_GATEWAY); (gateway_dir/'gateway.key').chmod(0o600)
@@ -536,39 +557,41 @@ def main():
             'VANIAN_BANK_GATEWAY_BASE_URL':base,'VANIAN_BANK_GATEWAY_TOKEN':agent_token,'VANIAN_BANK_TOOL_NAME':TOOL,
             'VANIAN_BANK_AGENT_ID':initialized['agent_id'],'VANIAN_BANK_AUTHORITY_SOCKET':str(control/'authority.sock'),
             'VANIAN_BANK_FORBIDDEN_FILES':json.dumps([str(Path(initialized['authority_config_path'])),str(gateway_dir/'gateway.key'),str(private/'collector.key.wrapped')])}
-        agent=spawn('agent',[args.agent_python.absolute(),ROOT/'examples/bank-ai-execution-assurance/loan_agent.py'],agent_env,UID_AGENT,True,subprocess.PIPE,subprocess.PIPE)
-        agent_output=AgentOutput(agent,public/'agent-events.jsonl')
-        actual_ready=agent_output.until('ready',30)
-        if actual_ready['pid'] != agent.pid or actual_ready['uid'] != UID_AGENT:
-            raise Refused('readiness process did not match externally launched instance')
-        metric_processes={'probe':probe.pid,'collector':collector.pid,'model':model.pid,'gateway':gateway.pid,'upstream':upstream.pid,'agent':agent.pid}
-        metrics_before=resource_snapshot(metric_processes,cg)
-        broker=AuthorityBroker(control/'authority.sock',agent,binary,initialized,decisions,public)
-        broker.start(); agent.stdin.write(b'start\n'); agent.stdin.flush()
-        agent_deadline=time.monotonic()+360
-        agent_output.until('tool_result',max(1,agent_deadline-time.monotonic()))
-        broker.thread.join(timeout=10)
-        if broker.failure or broker.expectation is None:
-            raise Refused(broker.failure or 'authority did not issue an expectation')
-        mismatch_id=secrets.token_hex(16)
-        mismatch_arguments={'loan_id':2,'amount':0}
-        mismatch_decision=bytes(broker.expectation['decision_id']).hex()
-        stimulus={'source_authority':'root_validation_controller','actor':'controlled negative request, not agent/model output',
-            'request_id':mismatch_id,'decision_id':mismatch_decision,'actual_sent_arguments':mismatch_arguments,'sent_at_ms':now()}
-        mismatch_status,mismatch_reply=request(base,'/rpc',agent_token,{'jsonrpc':'2.0','id':mismatch_id,'method':'tools/call',
-            'params':{'name':TOOL,'arguments':mismatch_arguments}},extra_headers={
-                'X-AIP-Agent-Id':initialized['agent_id'],'X-AIP-Decision-Id':mismatch_decision,'X-AIP-Request-Id':mismatch_id})
-        stimulus.update(http_status=mismatch_status,response=mismatch_reply)
-        save(public/'parameter-mismatch-stimulus.json',stimulus)
-        if mismatch_status==200 and mismatch_reply and 'result' in mismatch_reply and not mismatch_reply['result'].get('isError',False):
-            raise Refused('mismatched parameters were dispatched instead of refused')
-        agent_output.until('complete',max(1,agent_deadline-time.monotonic()))
-        broker.thread.join(timeout=10)
-        if broker.failure or broker.expectation is None:
-            raise Refused(broker.failure or 'authority did not issue an expectation')
-        metrics_after=resource_snapshot(metric_processes,cg)
-        agent.stdin.write(b'finish\n'); agent.stdin.flush()
-        if agent.wait(timeout=10) != 0: raise Refused('genuine agent returned failure')
+        with (governance.phase('aip.agent.execution') if governance else nullcontext({})):
+            agent=spawn('agent',[args.agent_python.absolute(),ROOT/'examples/bank-ai-execution-assurance/loan_agent.py'],agent_env,UID_AGENT,True,subprocess.PIPE,subprocess.PIPE)
+            agent_output=AgentOutput(agent,public/'agent-events.jsonl')
+            actual_ready=agent_output.until('ready',30)
+            if actual_ready['pid'] != agent.pid or actual_ready['uid'] != UID_AGENT:
+                raise Refused('readiness process did not match externally launched instance')
+            metric_processes={'probe':probe.pid,'collector':collector.pid,'model':model.pid,'gateway':gateway.pid,'upstream':upstream.pid,'agent':agent.pid}
+            metrics_before=resource_snapshot(metric_processes,cg)
+            broker=AuthorityBroker(control/'authority.sock',agent,binary,initialized,decisions,public,
+                governance=governance, allowed_calls=allowed_calls)
+            broker.start(); agent.stdin.write(b'start\n'); agent.stdin.flush()
+            agent_deadline=time.monotonic()+360
+            agent_output.until('tool_result',max(1,agent_deadline-time.monotonic()))
+            broker.thread.join(timeout=10)
+            if broker.failure or broker.expectation is None:
+                raise Refused(broker.failure or 'authority did not issue an expectation')
+            mismatch_id=secrets.token_hex(16)
+            mismatch_arguments={'loan_id':2,'amount':0}
+            mismatch_decision=bytes(broker.expectation['decision_id']).hex()
+            stimulus={'source_authority':'root_validation_controller','actor':'controlled negative request, not agent/model output',
+                'request_id':mismatch_id,'decision_id':mismatch_decision,'actual_sent_arguments':mismatch_arguments,'sent_at_ms':now()}
+            mismatch_status,mismatch_reply=request(base,'/rpc',agent_token,{'jsonrpc':'2.0','id':mismatch_id,'method':'tools/call',
+                'params':{'name':TOOL,'arguments':mismatch_arguments}},extra_headers={
+                    'X-AIP-Agent-Id':initialized['agent_id'],'X-AIP-Decision-Id':mismatch_decision,'X-AIP-Request-Id':mismatch_id})
+            stimulus.update(http_status=mismatch_status,response=mismatch_reply)
+            save(public/'parameter-mismatch-stimulus.json',stimulus)
+            if mismatch_status==200 and mismatch_reply and 'result' in mismatch_reply and not mismatch_reply['result'].get('isError',False):
+                raise Refused('mismatched parameters were dispatched instead of refused')
+            agent_output.until('complete',max(1,agent_deadline-time.monotonic()))
+            broker.thread.join(timeout=10)
+            if broker.failure or broker.expectation is None:
+                raise Refused(broker.failure or 'authority did not issue an expectation')
+            metrics_after=resource_snapshot(metric_processes,cg)
+            agent.stdin.write(b'finish\n'); agent.stdin.flush()
+            if agent.wait(timeout=10) != 0: raise Refused('genuine agent returned failure')
         result['autonomous_workload_executed']=True
         time.sleep(1); end=now()
         result.update(agent_id=initialized['agent_id'],agent_pid=agent.pid,from_ms=start,to_ms=end,
@@ -677,19 +700,23 @@ def main():
             'signed_receipt':matching[0],'batches_jsonl':(public/ARCHIVES[0]).read_text(),
             'health_jsonl':(public/ARCHIVES[1]).read_text(),'verification_time_ms':now()}
         env={'PATH':os.environ['PATH'],'AIP_RUN_TRUST_FILE':str(trust_path)}
-        sign_started=time.perf_counter()
-        signed=json.loads(command([binary,'evaluate-and-sign'],input=json.dumps(bundle),env={**env,
-            'AIP_RECONCILER_KEY_FILE':initialized['reconciler_key_path'],'AIP_RECONCILER_ID':initialized['reconciler_id'],
-            'AIP_RECONCILER_PUBLIC_KEY':initialized['reconciler_public_key_hex']}))
-        sign_elapsed=(time.perf_counter()-sign_started)*1000
-        bundle['signed_reconciliation']=signed['signed_reconciliation']
-        save(public/'run-bundle.json',bundle)
-        evaluation_started=time.perf_counter()
-        evaluation=json.loads(command([binary,'evaluate'],input=json.dumps(bundle),env=env))
-        performance['reconciliation_cli_wall_time_ms']={'evaluate_and_sign':sign_elapsed,'offline_evaluate':(time.perf_counter()-evaluation_started)*1000,'scope':'controller wall time including CLI process startup and all verification work; not isolated reconciler CPU'}
-        save(public/'performance.json',performance)
-        save(public/'evaluation.json',evaluation)
-        save(public/'signed-reconciliation.json',signed['signed_reconciliation'])
+        with (governance.phase('aip.evidence.verify') if governance else nullcontext({})) as phase:
+            sign_started=time.perf_counter()
+            signed=json.loads(command([binary,'evaluate-and-sign'],input=json.dumps(bundle),env={**env,
+                'AIP_RECONCILER_KEY_FILE':initialized['reconciler_key_path'],'AIP_RECONCILER_ID':initialized['reconciler_id'],
+                'AIP_RECONCILER_PUBLIC_KEY':initialized['reconciler_public_key_hex']}))
+            sign_elapsed=(time.perf_counter()-sign_started)*1000
+            bundle['signed_reconciliation']=signed['signed_reconciliation']
+            save(public/'run-bundle.json',bundle)
+            evaluation_started=time.perf_counter()
+            evaluation=json.loads(command([binary,'evaluate'],input=json.dumps(bundle),env=env))
+            performance['reconciliation_cli_wall_time_ms']={'evaluate_and_sign':sign_elapsed,'offline_evaluate':(time.perf_counter()-evaluation_started)*1000,'scope':'controller wall time including CLI process startup and all verification work; not isolated reconciler CPU'}
+            save(public/'performance.json',performance)
+            save(public/'evaluation.json',evaluation)
+            save(public/'signed-reconciliation.json',signed['signed_reconciliation'])
+            if governance:
+                phase['aip.evidence.bundle_sha256'] = sha256(public / 'run-bundle.json')
+                phase['aip.evidence.signed_reconciliation_sha256'] = sha256(public / 'signed-reconciliation.json')
         if args.observer_interruption:
             finding=evaluation.get('reconciliation') or {}
             boundary=evaluation.get('tool_boundary') or {}
@@ -739,12 +766,13 @@ def main():
             '--writer-key-file',credentials['writer'],'--reader-key-file',credentials['reader'],'--other-key-file',credentials['other'],
             '--bundle',public/'run-bundle.json','--output',public/'enterprise-clients.json']
         if args.browser: clients += ['--browser','--screenshot',public/'console.png']
-        with (private/'client-validation.log').open('wb') as client_log:
-            client_result=subprocess.run([str(value) for value in clients],timeout=120,
-                env={**os.environ,'PYTHONPATH':str(ROOT/'sdk/python')},
-                stdout=client_log,stderr=subprocess.STDOUT)
-        if client_result.returncode:
-            raise Refused('client interface validation failed; fixed stage retained publicly, diagnostics private')
+        with (governance.phase('aip.enterprise.clients') if governance else nullcontext({})):
+            with (private/'client-validation.log').open('wb') as client_log:
+                client_result=subprocess.run([str(value) for value in clients],timeout=120,
+                    env={**os.environ,'PYTHONPATH':str(ROOT/'sdk/python')},
+                    stdout=client_log,stderr=subprocess.STDOUT)
+            if client_result.returncode:
+                raise Refused('client interface validation failed; fixed stage retained publicly, diagnostics private')
         result.update(status='PASS',agent_id=initialized['agent_id'],agent_pid=agent.pid,tool_child_pid=target_pids[1],
             from_ms=start,to_ms=end,elapsed_ms=end-start,signed_batches=len(records(public/ARCHIVES[0])),
             signed_health_records=len(records(public/ARCHIVES[1])),model_calls=len([e for e in agent_output.events if e.get('event')=='model_response']),
@@ -753,6 +781,8 @@ def main():
             logical_subagent_attribution='NOT_ESTABLISHED',
             business_outcome='Synthetic read only; no loan approval or bank transaction',finished_at_ms=now())
     except Exception as error:
+        if args.governance_root is not None and governance is None:
+            result['open_source_governance'] = 'INITIALIZATION_FAILED'
         result['failure']={'type':type(error).__name__,'detail':str(error)}
         raise
     finally:
@@ -827,6 +857,18 @@ def main():
                     # it cannot contain framework credentials.
                     raise Refused(f'umount exited {status.returncode}: {status.stderr.strip()[:512]}')
             cleanup('unmount_workload',unmount)
+        if governance is not None:
+            try:
+                report = governance.finalize({**result, 'status': 'FAIL' if cleanup_errors else result['status']})
+                result['open_source_governance'] = {
+                    'policy_allowed': report['policy_allowed'],
+                    'policy_linked_to_aip_decision': report['policy_linked_to_aip_decision'],
+                    'telemetry_export': report['telemetry']['status'],
+                    'report': 'governance/integration-report.json',
+                    'new_evidence_authority': False}
+            except Exception as error:
+                cleanup_errors.append({'step': 'governance_export', 'type': type(error).__name__,
+                    'detail': 'optional policy/telemetry integration finalization failed'})
         result['cleanup_errors']=cleanup_errors
         result['finished_at_ms']=now()
         if cleanup_errors and result['status']=='PASS':

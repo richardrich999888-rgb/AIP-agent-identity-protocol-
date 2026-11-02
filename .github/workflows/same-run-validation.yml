@@ -1,6 +1,12 @@
 name: Genuine same-run execution assurance
 on:
   workflow_dispatch:
+    inputs:
+      governance_stack:
+        description: Require real pinned OPA policy and OpenTelemetry Collector integration
+        type: boolean
+        required: true
+        default: false
   pull_request:
     paths:
       - 'examples/bank-ai-execution-assurance/**'
@@ -11,6 +17,7 @@ on:
       - 'sdk/**'
       - 'aip-service/**'
       - 'integrations/mcp-gateway/**'
+      - 'integrations/governance/**'
       - '.github/workflows/same-run-validation.yml'
 permissions:
   contents: read
@@ -60,6 +67,11 @@ jobs:
           uv venv --python python3.12 "$RUNNER_TEMP/evidence-clients"
           uv pip install --python "$RUNNER_TEMP/evidence-clients/bin/python" -r integrations/evidence-mcp/requirements.lock playwright==1.56.0
           PLAYWRIGHT_BROWSERS_PATH="$RUNNER_TEMP/playwright" "$RUNNER_TEMP/evidence-clients/bin/python" -m playwright install --with-deps chromium
+      - name: Prepare pinned governance frameworks when explicitly requested
+        if: inputs.governance_stack == true
+        run: |
+          python integrations/governance/prepare.py --root "$RUNNER_TEMP/governance"
+          echo "AIP_GOVERNANCE_ROOT=$RUNNER_TEMP/governance" >> "$GITHUB_ENV"
       - name: Portable model/runtime/read-only tool boundaries
         run: python -B validation/enterprise/same_run_controls_test.py
       - name: Provision public pinned CPU model (no API credentials or cloud spending)
@@ -69,31 +81,70 @@ jobs:
       - name: Build existing observer, authority, verifier and enterprise service
         run: |
           cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate -p aip-mcp-gateway --bin aip-probe --bin aip-collector --bin aip-observe-verify --bin aip-corroborate --bin aip-tool-receipt --bin aip-execution-assurance -p airon-aip --bin airon-aip
+      - name: Refuse missing governance assets before any agent or authority executes
+        if: inputs.governance_stack == true
+        run: |
+          if sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" \
+            "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
+            --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
+            --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
+            --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
+            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/governance-unavailable" \
+            --governance-root "$RUNNER_TEMP/intentionally-missing-governance-assets"; then
+            echo "Missing governance assets unexpectedly allowed execution"
+            exit 1
+          fi
+          python - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          public = Path(os.environ['RUNNER_TEMP'])/'governance-unavailable/public'
+          result = json.loads((public/'run-manifest.json').read_text())
+          assert result['status'] == 'FAIL'
+          assert result['open_source_governance'] == 'INITIALIZATION_FAILED'
+          assert result['autonomous_workload_executed'] is False
+          assert result['failure']['type'] == 'FileNotFoundError'
+          assert result['cleanup_errors'] == []
+          assert not (public/'expectation.json').exists()
+          assert not (public/'attested.archive.jsonl').exists()
+          print('PASS: missing governance assets refused before workload or authorization')
+          PYCODE
       - name: Execute genuine agent and verify the same actual evidence through all clients
         run: |
+          governance_args=()
+          if [ -n "${AIP_GOVERNANCE_ROOT:-}" ]; then
+            governance_args=(--governance-root "$AIP_GOVERNANCE_ROOT")
+          fi
           sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/playwright" \
             "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
             --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
             --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
             --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
-            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run" --browser
+            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run" --browser "${governance_args[@]}"
       - name: Execute genuine observer interruption after the observed execution passed
         run: |
+          governance_args=()
+          if [ -n "${AIP_GOVERNANCE_ROOT:-}" ]; then
+            governance_args=(--governance-root "$AIP_GOVERNANCE_ROOT")
+          fi
           sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/playwright" \
             "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
             --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
             --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
             --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
             --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run-interruption" \
-            --observer-interruption --browser
+            --observer-interruption --browser "${governance_args[@]}"
       - name: Execute fresh recovery profile with new trust and capture epoch
         run: |
+          governance_args=()
+          if [ -n "${AIP_GOVERNANCE_ROOT:-}" ]; then
+            governance_args=(--governance-root "$AIP_GOVERNANCE_ROOT")
+          fi
           sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/playwright" \
             "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
             --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
             --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
             --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
-            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run-recovery" --browser
+            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run-recovery" --browser "${governance_args[@]}"
       - name: Preserve only public same-run evidence and independent public anchors
         if: always()
         uses: actions/upload-artifact@v4
@@ -116,3 +167,4 @@ jobs:
             ${{ runner.temp }}/local-model/model-pin.json
             ${{ runner.temp }}/local-model/model-manifest-layout.json
             ${{ runner.temp }}/same-run-audit-initial.txt
+            ${{ runner.temp }}/governance-unavailable/public/run-manifest.json

@@ -16,3 +16,24 @@ jobs:
           python-version: '3.12'
       - run: python -m unittest discover -s integrations/real_agents/tests -v
       - run: python -m compileall -q integrations/real_agents
+
+  governance-controls:
+    name: Real OPA and OpenTelemetry component controls (no agent claim)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Bootstrap verified public frameworks before any workload keys
+        run: |
+          python integrations/governance/prepare.py --root "$RUNNER_TEMP/governance"
+      - name: Execute actual engines and strict bridge controls
+        run: |
+          opa_binary="$(python -c 'import json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"governance"; print(p/json.loads((p/"assets-manifest.json").read_text())["opa_engine"])')"
+          AIP_OPA_BINARY="$opa_binary" AIP_GOVERNANCE_TEST_ROOT="$RUNNER_TEMP/governance" \
+            python integrations/governance/check_components.py
+          python -m compileall -q integrations/governance
