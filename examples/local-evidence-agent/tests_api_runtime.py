@@ -25,7 +25,7 @@ class LocalAPIControls(unittest.TestCase):
             raise unittest.SkipTest("Actual API binary missing; build airon-aip or require it with VANIAN_LOCAL_AGENT_REQUIRE_API=1")
 
     def test_actual_api_seed_reader_denials_and_cleanup(self):
-        with tempfile.TemporaryDirectory(prefix="local-evidence-api-", dir="/private/tmp") as directory:
+        with tempfile.TemporaryDirectory(prefix="local-evidence-api-") as directory:
             api = runtime.APIProcess(REPO, Path(directory), port=0)
             with api:
                 token = api.reader_token
@@ -64,7 +64,7 @@ class LocalAPIControls(unittest.TestCase):
                               "api_stopped_after_test": True, "public_summary": api.public_summary()}, sort_keys=True), flush=True)
 
     def test_modified_historical_original_refused_before_api_starts(self):
-        with tempfile.TemporaryDirectory(prefix="local-evidence-api-pin-", dir="/private/tmp") as directory:
+        with tempfile.TemporaryDirectory(prefix="local-evidence-api-pin-") as directory:
             api = runtime.APIProcess(REPO, Path(directory), port=0)
             api._private = Path(directory)
             with mock.patch.object(runtime, "ZIP_SHA256", "0" * 64):
@@ -73,7 +73,7 @@ class LocalAPIControls(unittest.TestCase):
             self.assertIsNone(api._process)
 
     def test_invalid_bind_address_refuses_before_creating_service_state(self):
-        with tempfile.TemporaryDirectory(prefix="local-evidence-api-bind-", dir="/private/tmp") as directory:
+        with tempfile.TemporaryDirectory(prefix="local-evidence-api-bind-") as directory:
             state = Path(directory) / "must-not-be-created"
             reply = subprocess.run([str(REPO / "target/debug/airon-aip")],
                 env={"PATH": os.defpath, "AIP_BIND_ADDRESS": "not-an-ip", "AIP_KEY_PATH": str(state / "service.key"),
@@ -84,7 +84,7 @@ class LocalAPIControls(unittest.TestCase):
             self.assertFalse(state.exists())
 
     def test_interrupt_during_enter_reaps_actual_ready_api_and_clears_credentials(self):
-        with tempfile.TemporaryDirectory(prefix="local-evidence-api-interrupt-", dir="/private/tmp") as directory:
+        with tempfile.TemporaryDirectory(prefix="local-evidence-api-interrupt-") as directory:
             api = runtime.APIProcess(REPO, Path(directory), port=0)
             children = []
 
@@ -108,14 +108,14 @@ class LocalAPIControls(unittest.TestCase):
                 self.assertNotEqual(connection.connect_ex(("127.0.0.1", api.port)), 0)
 
     def test_fresh_package_requires_separate_operator_trust(self):
-        with tempfile.TemporaryDirectory(prefix="local-fresh-pair-", dir="/private/tmp") as directory:
+        with tempfile.TemporaryDirectory(prefix="local-fresh-pair-") as directory:
             with self.assertRaisesRegex(runtime.RuntimeSetupError, "separate operator trust"):
                 runtime.APIProcess(REPO, Path(directory), port=0, fresh_evidence=Path(directory))
             with self.assertRaisesRegex(runtime.RuntimeSetupError, "separate operator trust"):
                 runtime.APIProcess(REPO, Path(directory), port=0, fresh_trust=Path(directory) / "trust.json")
 
     def test_component_fresh_verifier_failure_blocks_api_start(self):
-        with tempfile.TemporaryDirectory(prefix="local-fresh-refusal-", dir="/private/tmp") as directory:
+        with tempfile.TemporaryDirectory(prefix="local-fresh-refusal-") as directory:
             api = runtime.APIProcess(REPO, Path(directory), port=0,
                 fresh_evidence=Path(directory), fresh_trust=Path(directory) / "operator.json")
             # Controlled lifecycle fixture: cryptographic verifier behavior is
@@ -131,7 +131,7 @@ class LocalAPIControls(unittest.TestCase):
             self.assertEqual(api.reader_token, "")
 
     def test_component_fresh_summary_cached_without_relabelling_historical_api_runs(self):
-        with tempfile.TemporaryDirectory(prefix="local-fresh-cache-", dir="/private/tmp") as directory:
+        with tempfile.TemporaryDirectory(prefix="local-fresh-cache-") as directory:
             api = runtime.APIProcess(REPO, Path(directory), port=0,
                 fresh_evidence=Path(directory), fresh_trust=Path(directory) / "operator.json")
             fixture = {"status": "PASS", "classification": "CONTROLLED_COMPONENT_FIXTURE_NOT_A_LINUX_RUN",
