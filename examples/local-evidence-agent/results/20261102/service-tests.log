@@ -1,0 +1,299 @@
+warning: unused imports: `EXECUTION_BINDING_VERSION` and `ProcessInstance`
+  --> aip-standalone/aip-core/src/execution_binding.rs:28:54
+   |
+28 | use aip_types::{ContainerIdentity, ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION};
+   |                                                      ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `aip-core` (lib) generated 1 warning (run `cargo fix --lib -p aip-core` to apply 1 suggestion)
+warning: unused import: `crate::probe::ProbeError`
+  --> aip-standalone/aip-observe/src/linux.rs:21:5
+   |
+21 | use crate::probe::ProbeError;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/sched.rs:19:20
+   |
+19 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/socksend.rs:22:20
+   |
+22 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/sockstate.rs:33:20
+   |
+33 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `BootClockAnchor`
+  --> aip-standalone/aip-observe/src/sockstate.rs:34:23
+   |
+34 | use crate::observed::{BootClockAnchor, KernelLifecycleKind, SocketEndpoint, SocketProtocol};
+   |                       ^^^^^^^^^^^^^^^
+
+warning: field `image_cache` is never read
+   --> aip-standalone/aip-observe/src/probe.rs:158:5
+    |
+122 | pub struct ProcfsProbe {
+    |            ----------- field in this struct
+...
+158 |     image_cache: std::cell::RefCell<HashMap<u32, CachedImage>>,
+    |     ^^^^^^^^^^^
+    |
+    = note: `ProcfsProbe` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `still_describes` is never used
+   --> aip-standalone/aip-observe/src/probe.rs:177:8
+    |
+172 | impl CachedImage {
+    | ---------------- method in this implementation
+...
+177 |     fn still_describes(
+    |        ^^^^^^^^^^^^^^^
+
+warning: method `read_process` is never used
+   --> aip-standalone/aip-observe/src/probe.rs:306:8
+    |
+193 | impl ProcfsProbe {
+    | ---------------- method in this implementation
+...
+306 |     fn read_process(&self, pid: u32) -> Result<ObservedProcess, ProbeError> {
+    |        ^^^^^^^^^^^^
+
+warning: `aip-observe` (lib) generated 8 warnings (run `cargo fix --lib -p aip-observe` to apply 5 suggestions)
+   Compiling airon-aip v0.2.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-service)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.77s
+     Running unittests src/lib.rs (target/debug/deps/airon_aip-802b5f335f54e8c0)
+
+running 54 tests
+test auth::tests::test_empty_store_fails_closed ... ok
+test artifacts::tests::a_kind_does_not_answer_for_another_kind ... ok
+test auth::tests::test_authenticate_known_and_unknown ... ok
+test artifacts::tests::a_cross_tenant_read_is_empty_not_an_error ... ok
+test artifacts::tests::an_id_already_held_by_another_tenant_is_refused ... ok
+test auth::tests::test_keys_bind_distinct_tenants ... ok
+test artifacts::tests::the_same_document_filed_twice_is_one_row ... ok
+test artifacts::tests::damaged_records_are_preserved_and_refused_instead_of_skipped ... ok
+test artifacts::tests::an_agent_listing_is_ordered_by_window_and_scoped_to_one_agent ... ok
+test evidence::tests::test_generate_requires_action ... ok
+test authority::tests::test_who_authorized_resolves_chain ... ok
+test authority::tests::test_tamper_breaks_integrity_flag ... ok
+test evidence::tests::test_generate_then_verify_roundtrip ... ok
+test authority::tests::test_principal_and_agent_indexes ... ok
+test artifacts::tests::a_failed_append_never_publishes_or_acknowledges_a_retry ... ok
+test ingress::tests::the_defaults_are_conservative_and_finite ... ok
+test ingress::tests::a_malformed_limit_is_refused_not_ignored ... ok
+test ingress::tests::an_empty_value_falls_back_to_the_default ... ok
+test ingress::tests::env_overrides_are_read ... ok
+test metrics::tests::counters_increment_and_render ... ok
+test authority::tests::test_authority_graph_scoped_to_supplied_packets ... ok
+test metrics::tests::concurrent_increments_are_not_lost ... ok
+test evidence::tests::generating_multiple_actions_does_not_advance_a_frozen_clock ... ok
+test evidence::tests::weakness_generate_then_verify_accepts_self_issued_authority ... ok
+test evidence::tests::test_verify_detects_tamper ... ok
+test artifacts::tests::acknowledged_filings_survive_reopening ... ok
+test metrics::tests::no_metric_carries_a_label ... ok
+test metrics::tests::rendering_is_deterministic ... ok
+test revocation::tests::normalize_rejects_everything_that_is_not_a_token_id ... ok
+test metrics::tests::the_exposition_format_is_well_formed ... ok
+test revocation::tests::a_tampered_line_is_not_loaded ... ok
+test runs::tests::absent_or_broken_trust_is_not_an_implicit_approval ... ok
+test observations::tests::configured_observer_trust_fails_closed_and_rejects_ambiguous_anchors ... ok
+test revocation::tests::lookup_normalises_case_and_form ... ok
+test revocation::tests::persisted_entries_reload_under_their_tenant ... ok
+test revocation::tests::revoke_and_lookup_are_tenant_scoped ... ok
+test revocation::tests::legacy_lines_load_under_the_legacy_tenant_with_their_old_hash ... ok
+test revocation::tests::evidence_jtis_are_exported_per_tenant_in_16_byte_form ... ok
+test tokens::tests::test_each_token_has_unique_jti ... ok
+test tokens::tests::test_issue_verify_roundtrip ... ok
+test tokens::tests::test_metadata_in_claims ... ok
+test tokens::tests::test_tampered_token_rejected ... ok
+test tokens::tests::test_wrong_algorithm_rejected ... ok
+test wellknown::tests::test_jwks_x_decodes_to_32_bytes ... ok
+test wellknown::tests::test_jwks_x_is_32_bytes ... ok
+test tokens::tests::test_wrong_keypair_rejected ... ok
+test store::tests::test_cross_tenant_get_is_denied ... ok
+test evidence::tests::test_export_endpoint_roundtrip_and_tenant_isolation ... ok
+test store::tests::test_persist_and_reload_preserves_tenant ... ok
+test store::tests::test_store_rejects_id_reuse_across_tenants ... ok
+test store::tests::test_store_get_roundtrip ... ok
+test store::tests::test_all_for_tenant_isolates ... ok
+test tokens::tests::test_verify_latency_under_1ms_mean ... ok
+test tokens::tests::test_expired_token ... ok
+
+test result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.05s
+
+     Running unittests src/main.rs (target/debug/deps/airon_aip-5634bbf49ffc6bd4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/build_boundary.rs (target/debug/deps/build_boundary-3718423d4a3d5082)
+
+running 3 tests
+test the_service_compiles_against_the_protocol_crate ... ok
+test the_temporal_bound_api_is_reachable_from_the_service ... ok
+test the_service_is_declared_a_member_of_the_root_workspace ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/enterprise_api.rs (target/debug/deps/enterprise_api-b6f21a3c1dbf43da)
+
+running 16 tests
+test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener
+test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener
+test explicitly_shared_observer_anchors_keep_each_tenants_archive_index_private ... ok
+test same_run_caller_cannot_replace_keys_checkpoint_or_signed_inputs ... ok
+test same_run_admission_preserves_uncertainty_and_enforces_tenant_reader_boundaries ... ok
+test service_readiness_refuses_an_unavailable_artifact_path_without_creating_files ... ok
+test accepted_collector_archives_survive_a_service_store_restart ... ok
+test stored_verification_detects_actual_post_signature_tampering ... ok
+test console_shell_is_public_but_contains_no_records_and_data_stays_authenticated ... ok
+test pagination_is_bounded_and_agent_claims_are_not_upgraded_into_observation ... ok
+test read_routes_authenticate_and_cross_tenant_ids_are_indistinguishable_from_absent ... ok
+test same_run_body_limit_is_explicit_and_does_not_relax_other_endpoints ... ok
+test reader_refuses_every_mutation_and_raw_export_before_parsing_the_body ... ok
+test unconfigured_collector_admission_is_unavailable_and_caller_anchors_are_refused ... ok
+test same_run_raw_retrieval_preserves_exact_submitted_bytes ... ok
+test collector_archives_are_verified_stored_idempotently_and_tenant_scoped ... ok
+
+test result: ok. 14 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.38s
+
+     Running tests/ingress_limits.rs (target/debug/deps/ingress_limits-27dc125e70a061d6)
+
+running 4 tests
+test a_body_over_the_cap_is_rejected_before_the_handler ... ok
+test the_hardened_router_still_serves ... ok
+test an_unauthenticated_giant_body_is_rejected_without_being_read ... ok
+test a_body_under_the_cap_reaches_the_handler ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/key_custody.rs (target/debug/deps/key_custody-5e1afd27e7cfc928)
+
+running 18 tests
+test plaintext_backend_is_not_production_and_wrapped_is ... ok
+test ephemeral_key_is_development_backend ... ok
+test debug_redacts_the_seed_and_the_private_pem ... ok
+test structural_app_state_holds_no_raw_key ... ok
+test structural_generation_is_guarded_by_absence_only ... ok
+test structural_no_private_key_accessor_remains ... ok
+test plaintext_first_boot_creates_and_restart_reloads_the_same_key ... ok
+test corrupt_plaintext_key_is_fatal_and_never_regenerated ... ok
+test group_writable_directory_fails_closed ... ok
+test the_key_file_carries_no_pem_and_no_plaintext_key ... ok
+test an_unreadable_key_file_refuses_rather_than_rotating_the_identity ... ok
+test signing_through_the_interface_verifies_normally ... ok
+test the_final_mode_is_600_even_under_a_permissive_umask ... ok
+test symlink_fails_closed ... ok
+test creating_a_key_never_overwrites_an_existing_one ... ok
+test permissive_key_file_fails_closed ... ok
+test wrapped_first_boot_creates_and_restart_reloads_the_same_key ... ok
+test corrupt_or_unopenable_wrapped_key_is_fatal_and_never_regenerated ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.02s
+
+     Running tests/managed_signing.rs (target/debug/deps/managed_signing-9dc36e4e3337f118)
+
+running 8 tests
+test only_an_explicit_opt_in_permits_managed_signing ... ok
+test debug_formatting_redacts_the_counterparty_seed ... ok
+test debug_formatting_redacts_the_agent_seed ... ok
+test the_refusing_route_does_not_parse_the_body_at_all ... ok
+test the_refusal_does_not_echo_the_seed ... ok
+test the_refusal_says_what_to_do_instead ... ok
+test managed_signing_is_off_unless_a_deployment_opts_in ... ok
+test an_opted_in_deployment_still_serves_the_endpoint ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/metrics_api.rs (target/debug/deps/metrics_api-037649cd3a3f02fe)
+
+running 4 tests
+test no_series_is_labelled_by_tenant_agent_or_document ... ok
+test metrics_are_not_public ... ok
+test an_authenticated_scrape_gets_the_prometheus_format ... ok
+test a_refused_verdict_is_visible_in_the_counters ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/replay_ingest.rs (target/debug/deps/replay_ingest-d01773c76bd0d07a)
+
+running 6 tests
+test asking_for_a_replay_check_against_an_empty_store_evaluates_and_passes ... ok
+test not_asking_for_a_replay_check_reports_it_as_not_evaluated ... ok
+test a_packet_already_in_the_store_is_not_a_replay_of_itself ... ok
+test the_replay_check_is_reported_as_a_rule_the_caller_can_read ... ok
+test a_second_packet_reusing_a_stored_decision_is_refused ... ok
+test another_tenants_packets_do_not_make_this_one_a_replay ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/revocation_scope.rs (target/debug/deps/revocation_scope-bac0361ec39f3790)
+
+running 7 tests
+test the_unsigned_delegation_routes_no_longer_exist ... ok
+test the_discovery_document_advertises_no_delegation_endpoint ... ok
+test cascade_and_malformed_jtis_are_refused_not_ignored ... ok
+test a_machine_key_cannot_revoke_and_an_anonymous_caller_cannot_query_status ... ok
+test this_tenants_admin_revokes_this_tenants_token ... ok
+test another_tenants_admin_cannot_revoke_this_tenants_token ... ok
+test a_chain_jti_revoked_through_the_service_fails_revocation_for_that_tenant_only ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/storage_controls.rs (target/debug/deps/storage_controls-fdb3c5d77661666e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/temporal_bound.rs (target/debug/deps/temporal_bound-fcc4162b51836b2e)
+
+running 13 tests
+test a_present_dated_packet_is_otherwise_valid ... ok
+test a_future_dated_packet_is_refused_by_the_service ... ok
+test r16_is_the_rule_that_catches_it ... ok
+test generate_cannot_be_used_to_future_date_a_packet ... ok
+test an_explicit_time_before_the_packet_refuses_it ... ok
+test omitting_the_verification_time_still_applies_a_bound ... ok
+test a_packet_stays_verifiable_long_after_the_fact ... ok
+test r16_is_evaluated_rather_than_skipped_on_the_default_path ... ok
+test the_refusal_names_the_offending_timestamp ... ok
+test the_default_tolerance_is_zero ... ok
+test a_declared_tolerance_absorbs_skew_and_nothing_more ... ok
+test an_explicit_instant_overrides_the_service_clock ... ok
+test the_service_never_reports_a_bound_it_did_not_apply ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/verdict_api.rs (target/debug/deps/verdict_api-b5f0d3ba73085a56)
+
+running 8 tests
+test the_verdict_routes_are_authenticated ... ok
+test a_submission_with_no_anchors_is_refused ... ok
+test an_agents_ledger_is_empty_for_a_tenant_that_filed_none ... ok
+test another_tenant_cannot_read_a_verdict_and_cannot_tell_it_exists ... ok
+test a_verdict_that_does_not_verify_is_refused_and_not_stored ... ok
+test a_stored_verdict_comes_back_and_verifies_offline ... ok
+test an_agents_ledger_comes_back_and_verifies_offline ... ok
+test filing_the_same_ledger_twice_yields_one_row ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Doc-tests airon_aip
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

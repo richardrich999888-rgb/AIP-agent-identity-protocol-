@@ -1,0 +1,13 @@
+{
+  "case": 1,
+  "question": "Explain what this run verifies and why the kernel action is CannotProve.",
+  "profile": "same-run",
+  "model_raw_outputs": [
+    "{\n  \"run_id\": \"a237f408242a3b8007b559a5e593597f54789de8579b9d6d6b952d017dc11acc\",\n  \"tool\": \"inspect_recorded_run\"\n}"
+  ],
+  "status": "FAIL",
+  "failure_type": "AgentBoundaryError",
+  "safe_boundary_code": "local_model_not_finished",
+  "seconds": 8.999,
+  "completed_model_responses": 1
+}

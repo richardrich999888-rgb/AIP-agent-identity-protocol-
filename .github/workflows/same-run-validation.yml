@@ -2,6 +2,11 @@ name: Genuine same-run execution assurance
 on:
   workflow_dispatch:
     inputs:
+      local_evidence_agent:
+        description: Observe the actual local Qwen evidence assistant and verify its new signed Linux capture
+        type: boolean
+        required: true
+        default: false
       governance_stack:
         description: Require real pinned OPA policy and OpenTelemetry Collector integration
         type: boolean
@@ -10,6 +15,7 @@ on:
   pull_request:
     paths:
       - 'examples/bank-ai-execution-assurance/**'
+      - 'examples/local-evidence-agent/**'
       - 'validation/enterprise/**'
       - 'aip-standalone/**'
       - 'integrations/real_agents/**'
@@ -26,6 +32,7 @@ defaults:
     shell: bash
 jobs:
   local-model-linux:
+    if: inputs.local_evidence_agent != true
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
@@ -50,7 +57,7 @@ jobs:
       - name: Prepare disposable Linux capabilities and synchronized clock
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq chrony auditd iproute2 iptables zstd acl
+          sudo apt-get install -y -qq chrony auditd iproute2 iptables zstd acl lsof util-linux
           sudo systemctl restart chrony
           sudo chronyc waitsync 30 0.1 0.0 2
           sudo service auditd start
@@ -192,3 +199,101 @@ jobs:
             ${{ runner.temp }}/governance-retained-replay/verify-physical-scope-and-audit.py.stderr.txt
             ${{ runner.temp }}/governance-retained-replay/verify-policy-and-collector-links.py.stdout.txt
             ${{ runner.temp }}/governance-retained-replay/verify-policy-and-collector-links.py.stderr.txt
+
+  local-evidence-agent-linux:
+    if: github.event_name == 'workflow_dispatch' && inputs.local_evidence_agent == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Prepare disposable Linux observation capabilities
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chrony auditd iproute2 iptables zstd acl lsof util-linux
+          sudo systemctl restart chrony
+          sudo chronyc waitsync 30 0.1 0.0 2
+          sudo service auditd start
+          sudo auditctl -l > "$RUNNER_TEMP/qa-audit-initial.txt"
+          if sudo auditctl -l | grep -Fxq -- '-a never,task'; then
+            sudo auditctl -d never,task
+          fi
+      - name: Install the exact local-agent dependencies
+        run: |
+          python -m venv "$RUNNER_TEMP/qa-python"
+          "$RUNNER_TEMP/qa-python/bin/python" -m pip --isolated --disable-pip-version-check install --no-cache-dir -r examples/local-evidence-agent/requirements.lock
+          "$RUNNER_TEMP/qa-python/bin/python" -m pip check
+      - name: Build the existing observer and API binaries
+        run: |
+          cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate -p aip-mcp-gateway -p airon-aip --bin aip-probe --bin aip-collector --bin aip-observe-verify --bin aip-corroborate --bin aip-execution-assurance --bin airon-aip
+      - name: Exercise agent and API controls before the real workload
+        run: |
+          VANIAN_LOCAL_AGENT_REQUIRE_API=1 PYTHONDONTWRITEBYTECODE=1 "$RUNNER_TEMP/qa-python/bin/python" -m unittest discover -s examples/local-evidence-agent -p '*test*.py' -v
+      - name: Prepare the same pinned public Qwen model for CPU inference
+        run: |
+          "$RUNNER_TEMP/qa-python/bin/python" examples/local-evidence-agent/linux_model_runtime.py prepare --root "$RUNNER_TEMP/qa-model"
+      - name: Execute this agent under fresh signed Sniffer Dog observation
+        run: |
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "GITHUB_SHA=$GITHUB_SHA" "GITHUB_RUN_ID=$GITHUB_RUN_ID" "GITHUB_RUN_ATTEMPT=$GITHUB_RUN_ATTEMPT" "PYTHONDONTWRITEBYTECODE=1"             "$RUNNER_TEMP/qa-python/bin/python" examples/local-evidence-agent/linux_capture.py             --tools target/debug --agent-python "$RUNNER_TEMP/qa-python/bin/python"             --model-root "$RUNNER_TEMP/qa-model" --out "$RUNNER_TEMP/local-qa-capture"
+      - name: Preserve original public observations and actual workload output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-qa-observations-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: ${{ runner.temp }}/local-qa-capture/public/
+      - name: Preserve controller anchors separately from worker output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-qa-controller-trust-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/local-qa-capture/controller-trust.json
+            ${{ runner.temp }}/local-qa-capture/observer-anchor.json
+            ${{ runner.temp }}/local-qa-capture/checkpoint.json
+
+  local-evidence-agent-offline:
+    if: github.event_name == 'workflow_dispatch' && inputs.local_evidence_agent == true
+    needs: local-evidence-agent-linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/download-artifact@v4
+        with:
+          name: local-qa-observations-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/offline-qa/public
+      - uses: actions/download-artifact@v4
+        with:
+          name: local-qa-controller-trust-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/offline-qa/trust
+      - name: Build offline verifiers from the exact execution source
+        run: cargo build --locked -p aip-observe-verify -p aip-corroborate --bin aip-observe-verify --bin aip-corroborate
+      - name: Verify originals with network disabled on a separate runner
+        run: |
+          sudo unshare --net -- env "PATH=$PATH" "PYTHONDONTWRITEBYTECODE=1" python examples/local-evidence-agent/fresh_verify.py             --package "$RUNNER_TEMP/offline-qa/public"             --trust "$RUNNER_TEMP/offline-qa/trust/controller-trust.json"             --tools target/debug --output "$RUNNER_TEMP/offline-qa/offline-verification.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: local-qa-offline-verification-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: ${{ runner.temp }}/offline-qa/offline-verification.json

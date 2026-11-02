@@ -1,0 +1,14 @@
+{
+  "case": 2,
+  "question": "What does this interrupted record prove and why is its kernel action CannotProve?",
+  "profile": "same-run-interruption",
+  "model_raw_outputs": [
+    "{\n  \"run_id\": \"b52600e0564f0af806d36667e2ee96d1b16a185c9059eb01501d8ef7cdc5c15d\",\n  \"tool\": \"inspect_recorded_run\"\n}",
+    "{\"answer\": \"This interrupted record proves that the signatures and authorization are verified, but the kernel application action cannot be proven due to the window not being covered. The full authorization window coverage is unavailable, indicating that the coverage reason is WindowNotCovered.\"}"
+  ],
+  "status": "FAIL",
+  "failure_type": "AgentBoundaryError",
+  "safe_boundary_code": "model_answer_missing_required_evidence_label",
+  "seconds": 2.338,
+  "completed_model_responses": 2
+}

@@ -2,6 +2,7 @@
 //!
 //! Environment variables:
 //!   AIP_PORT                — listen port (default 8081)
+//!   AIP_BIND_ADDRESS        — literal listen IP (default 0.0.0.0)
 //!   AIP_KEY_PATH            — Ed25519 seed path (default /var/lib/aip/signing.key)
 //!   AIP_REVOCATION_LOG_PATH — revocation JSONL log (default /var/lib/aip/revocation.jsonl)
 //!   AIP_VAULT_PATH          — JSONL evidence vault (jsonl backend)
@@ -113,6 +114,19 @@ async fn main() {
         .ok()
         .and_then(|v| v.parse().ok())
         .unwrap_or(8081);
+
+    let bind_ip = match std::env::var("AIP_BIND_ADDRESS") {
+        Ok(value) => value,
+        Err(std::env::VarError::NotPresent) => "0.0.0.0".to_owned(),
+        Err(_) => {
+            eprintln!("aip-service: AIP_BIND_ADDRESS must be a literal IP address");
+            std::process::exit(1);
+        }
+    };
+    let bind_ip: std::net::IpAddr = bind_ip.parse().unwrap_or_else(|_| {
+        eprintln!("aip-service: AIP_BIND_ADDRESS must be a literal IP address");
+        std::process::exit(1);
+    });
 
     let key_path =
         std::env::var("AIP_KEY_PATH").unwrap_or_else(|_| "/var/lib/aip/signing.key".to_owned());
@@ -241,10 +255,10 @@ async fn main() {
         run_trust,
     });
 
-    let addr = format!("0.0.0.0:{port}");
+    let addr = std::net::SocketAddr::new(bind_ip, port);
     tracing::info!(port, fingerprint = %state.fingerprint, key_path, "airon-aip v2 starting");
 
-    let listener = tokio::net::TcpListener::bind(&addr)
+    let listener = tokio::net::TcpListener::bind(addr)
         .await
         .unwrap_or_else(|e| panic!("failed to bind {addr}: {e}"));
     let limits = ingress::IngressLimits::from_env().unwrap_or_else(|e| {
