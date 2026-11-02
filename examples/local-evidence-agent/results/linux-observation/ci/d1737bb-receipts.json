@@ -1,0 +1,70 @@
+{
+  "classification": "SELECTED_DECODED_JOB_LOG_RECEIPTS_NOT_SIGNED_KERNEL_EVIDENCE",
+  "source_commit": "d1737bbe08d04111d2e2cee43eab1dc1e419a54a",
+  "main": {
+    "counts": {
+      "debug_unit_integration": {
+        "passed": 3268,
+        "failed": 0,
+        "ignored": 7,
+        "measured": 0,
+        "filtered_out": 0,
+        "summary_lines": 279
+      },
+      "debug_doctests": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 2,
+        "measured": 0,
+        "filtered_out": 0,
+        "summary_lines": 53
+      },
+      "release_unit_integration": {
+        "passed": 3270,
+        "failed": 0,
+        "ignored": 5,
+        "measured": 0,
+        "filtered_out": 0,
+        "summary_lines": 279
+      },
+      "release_doctests": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 2,
+        "measured": 0,
+        "filtered_out": 0,
+        "summary_lines": 53
+      }
+    },
+    "unknown_summary_lines": 0,
+    "selected_lines": [
+      "2026-11-02T19:13:04.0642635Z test b05_another_observers_records_do_not_bind ... ok",
+      "2026-11-02T19:13:04.3667059Z test b13_coincident_health_metadata_does_not_bypass_signature_or_envelope_verification ... ok",
+      "2026-11-02T19:18:27.2943170Z test d_wrong_process_instance_is_identity_divergence_never_verified ... ok",
+      "2026-11-02T19:18:50.8031382Z test g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too ... ok",
+      "2026-11-02T19:23:22.8892255Z test b05_another_observers_records_do_not_bind ... ok",
+      "2026-11-02T19:23:22.8947501Z test b13_coincident_health_metadata_does_not_bypass_signature_or_envelope_verification ... ok",
+      "2026-11-02T19:24:02.2458313Z test d_wrong_process_instance_is_identity_divergence_never_verified ... ok",
+      "2026-11-02T19:24:20.0587031Z test g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too ... ok"
+    ]
+  },
+  "coverage": {
+    "counts": {
+      "coverage_unit_integration": {
+        "passed": 3268,
+        "failed": 0,
+        "ignored": 7,
+        "measured": 0,
+        "filtered_out": 0,
+        "summary_lines": 279
+      }
+    },
+    "unknown_summary_lines": 0,
+    "selected_lines": [
+      "2026-11-02T19:14:21.8754335Z test b05_another_observers_records_do_not_bind ... ok",
+      "2026-11-02T19:14:22.1741908Z test b13_coincident_health_metadata_does_not_bypass_signature_or_envelope_verification ... ok",
+      "2026-11-02T19:20:05.3994215Z test d_wrong_process_instance_is_identity_divergence_never_verified ... ok",
+      "2026-11-02T19:20:45.8262909Z test g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too ... ok"
+    ]
+  }
+}

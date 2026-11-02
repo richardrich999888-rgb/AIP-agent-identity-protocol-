@@ -6,6 +6,7 @@ on:
       - 'validation/rbi_demo/**'
       - 'validation/pilot_e2e/**'
       - 'aip-standalone/aip-observe/**'
+      - 'aip-standalone/aip-mcp-gateway/**'
       - '.github/workflows/rbi-rehearsal.yml'
   workflow_dispatch:
 

@@ -1,0 +1,33 @@
+{
+  "project": "Open Policy Agent",
+  "repository": "https://github.com/open-policy-agent/opa",
+  "version": "1.22.0",
+  "source_commit": "d4c8d0c8812290c3e3715ca4cf958f75283f6ec4",
+  "release_url": "https://github.com/open-policy-agent/opa/releases/tag/v1.22.0",
+  "release_published_at": "2026-10-29T15:34:18Z",
+  "release_immutable": true,
+  "provenance": "Official immutable GitHub release asset digests, published SHA256 files, and full downloaded asset hashes agree. No detached signature or independent custody is claimed.",
+  "license": {
+    "spdx": "Apache-2.0",
+    "url": "https://raw.githubusercontent.com/open-policy-agent/opa/d4c8d0c8812290c3e3715ca4cf958f75283f6ec4/LICENSE",
+    "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08",
+    "bytes": 11358
+  },
+  "assets": {
+    "linux_amd64": {
+      "url": "https://github.com/open-policy-agent/opa/releases/download/v1.22.0/opa_linux_amd64",
+      "bytes": 63997271,
+      "sha256": "ab4d4f59b3f2e64bfc8b4bde7a1eeb2eb08480dffea685b4bd8297c553769a3a",
+      "published_checksum_url": "https://github.com/open-policy-agent/opa/releases/download/v1.22.0/opa_linux_amd64.sha256",
+      "github_asset_id": 688966080
+    },
+    "darwin_arm64": {
+      "url": "https://github.com/open-policy-agent/opa/releases/download/v1.22.0/opa_darwin_arm64",
+      "bytes": 62273794,
+      "sha256": "41af6de872b3cb1d17eb604779489c83dd9bf377737873f9866814501df6e2d1",
+      "published_checksum_url": "https://github.com/open-policy-agent/opa/releases/download/v1.22.0/opa_darwin_arm64.sha256",
+      "github_asset_id": 688966043
+    }
+  },
+  "policy_sha256": "4412a347279d1372a423ef75f5f37ca936eeca73f63db9b0ef445b785c20fb86"
+}

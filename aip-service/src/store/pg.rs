@@ -246,14 +246,29 @@ impl EvidenceStore for PostgresEvidenceStore {
         let hash = hex::encode(packet.packet_hash);
         let status = integrity_status(packet);
 
-        tx.execute(
-            "INSERT INTO evidence_packets \
+        let inserted = tx
+            .execute(
+                "INSERT INTO evidence_packets \
              (id, tenant_id, packet_hash, created_at, evidence_json, verification_status) \
-             VALUES ($1,$2,$3,$4,$5,$6)",
-            &[&id, &tenant_id, &hash, &created_at, &json, &status],
-        )
-        .await
-        .map_err(be)?;
+             VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (id) DO NOTHING",
+                &[&id, &tenant_id, &hash, &created_at, &json, &status],
+            )
+            .await
+            .map_err(be)?;
+        if inserted == 0 {
+            let owned = tx
+                .query_opt(
+                    "SELECT id FROM evidence_packets WHERE id=$1 AND tenant_id=$2",
+                    &[&id, &tenant_id],
+                )
+                .await
+                .map_err(be)?;
+            if owned.is_none() {
+                return Err(StoreError::TenantConflict);
+            }
+            tx.commit().await.map_err(be)?;
+            return Ok(id);
+        }
 
         // Materialise the accountability graph for durable, SQL-queryable,
         // tenant-isolated authority data.

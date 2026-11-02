@@ -1,0 +1,3520 @@
+{
+  "kernel_state": "OBSERVED",
+  "archive_scope": "controller-measured workload namespaces, signed probe observations",
+  "coverage": "COVERED",
+  "workload_events_by_kind": {
+    "ProcessSpawn": 77,
+    "ProcessExec": 4,
+    "FileEvent": 3,
+    "Fork": 4,
+    "Exec": 4,
+    "Exit": 4
+  },
+  "host_events_by_kind": {
+    "Exit": 151,
+    "ProcessSpawn": 135,
+    "ProcessExec": 84,
+    "SocketSend": 130,
+    "Fork": 135,
+    "Exec": 84,
+    "Other": 71,
+    "SocketState": 40,
+    "FileEvent": 3,
+    "CgroupRemoved": 1
+  },
+  "process_instances": 5,
+  "launch_instance_events": 67,
+  "unbound_host_events": 588,
+  "outside_workload_bound_events": 150,
+  "events_without_clock_anchor": 0,
+  "probe_reported_drops": 0,
+  "logical_agent_attribution": "CANNOT_PROVE",
+  "authority": "CANNOT_PROVE",
+  "reconciliation": "CANNOT_PROVE",
+  "tool_gateway_receipts": "NOT_SUPPLIED",
+  "actual_event_ground_truth": null,
+  "missed_events": null,
+  "coverage_percent": null,
+  "incorrect_logical_attribution": null,
+  "events": [
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741770,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 883,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741773,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 885,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741775,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 887,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741789,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5898,
+        "pid_start_time_ticks": 33739,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 891,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741789,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5898,
+        "pid_start_time_ticks": 33739,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 892,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741791,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 897,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741795,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 901,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741798,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 903,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741801,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 905,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741804,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 907,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741807,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 909,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741809,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 911,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741812,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 913,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741814,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 915,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741817,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 917,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741820,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 919,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741822,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 921,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741824,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 923,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741827,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 925,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741830,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 927,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741833,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 929,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741836,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 931,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741838,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 933,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741840,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 935,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741843,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 937,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741845,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 939,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741853,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 941,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741856,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5898,
+        "pid_start_time_ticks": 33739,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 943,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741856,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5898,
+        "pid_start_time_ticks": 33739,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 944,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741856,
+      "kind": "ProcessExec",
+      "process": {
+        "pid": 5925,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 946,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741857,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5925,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 947,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741857,
+      "kind": "ProcessExec",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 948,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741858,
+      "kind": "ProcessExec",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 949,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741858,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 950,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741862,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 952,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741865,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 954,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741867,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5898,
+        "pid_start_time_ticks": 33739,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 956,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741869,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 958,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741872,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 960,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741875,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 962,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741875,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 963,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741975,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 964,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741978,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 966,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741981,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 968,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741983,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 970,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741983,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 971,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742081,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 972,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742085,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 974,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742089,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 976,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742092,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 978,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742096,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 980,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742100,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 982,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742103,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 984,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742106,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 986,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742109,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 988,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742109,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 989,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742109,
+      "kind": "ProcessExec",
+      "process": {
+        "pid": 5949,
+        "pid_start_time_ticks": 33773,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 990,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742132,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 992,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742156,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 994,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742179,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 996,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742201,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 998,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742230,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1000,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742275,
+      "kind": "FileEvent",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1010,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742275,
+      "kind": "FileEvent",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1011,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742275,
+      "kind": "FileEvent",
+      "process": {
+        "pid": 5949,
+        "pid_start_time_ticks": 33773,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1012,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741777,
+      "kind": "Fork",
+      "process": {
+        "pid": 5898,
+        "pid_start_time_ticks": 33739,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1025,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741856,
+      "kind": "Fork",
+      "process": {
+        "pid": 5925,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1129,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741856,
+      "kind": "Exec",
+      "process": {
+        "pid": 5925,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1133,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741857,
+      "kind": "Fork",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1134,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741857,
+      "kind": "Exec",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1136,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526741858,
+      "kind": "Exec",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1138,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742109,
+      "kind": "Fork",
+      "process": {
+        "pid": 5949,
+        "pid_start_time_ticks": 33773,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1214,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742109,
+      "kind": "Exec",
+      "process": {
+        "pid": 5949,
+        "pid_start_time_ticks": 33773,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1216,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742267,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 32,
+      "probe_seq": 1245,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742314,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 33,
+      "probe_seq": 1247,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742372,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 33,
+      "probe_seq": 1249,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742443,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 33,
+      "probe_seq": 1251,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742533,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 33,
+      "probe_seq": 1253,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742645,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 33,
+      "probe_seq": 1255,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742786,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 33,
+      "probe_seq": 1257,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526742961,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 33,
+      "probe_seq": 1259,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526743181,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 33,
+      "probe_seq": 1262,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526743455,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 33,
+      "probe_seq": 1264,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526743797,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1352,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744226,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1356,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744229,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1358,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744232,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1360,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744336,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1366,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744339,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1368,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744342,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1370,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744345,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1372,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744351,
+      "kind": "ProcessSpawn",
+      "process": {
+        "pid": 5793,
+        "pid_start_time_ticks": 29495,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1376,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744146,
+      "kind": "Exit",
+      "process": {
+        "pid": 5949,
+        "pid_start_time_ticks": 33773,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1394,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744348,
+      "kind": "Exit",
+      "process": {
+        "pid": 5925,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1437,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744349,
+      "kind": "Exit",
+      "process": {
+        "pid": 5927,
+        "pid_start_time_ticks": 33747,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1438,
+      "logical_agent": "CANNOT_PROVE"
+    },
+    {
+      "state": "OBSERVED",
+      "time_ms": 1793526744349,
+      "kind": "Exit",
+      "process": {
+        "pid": 5898,
+        "pid_start_time_ticks": 33739,
+        "boot_id": [
+          107,
+          220,
+          158,
+          232,
+          88,
+          215,
+          69,
+          174,
+          169,
+          128,
+          182,
+          178,
+          53,
+          172,
+          193,
+          146
+        ]
+      },
+      "container": {
+        "pid_ns_inode": 4026532274,
+        "mnt_ns_inode": 4026532271,
+        "net_ns_inode": 4026532276,
+        "cgroup_id": 9247
+      },
+      "batch_sequence": 34,
+      "probe_seq": 1440,
+      "logical_agent": "CANNOT_PROVE"
+    }
+  ],
+  "workload_executions": [
+    {
+      "pid": 5925,
+      "wall_ms": 1793526741856,
+      "batch_sequence": 32
+    },
+    {
+      "pid": 5927,
+      "wall_ms": 1793526741857,
+      "batch_sequence": 32
+    },
+    {
+      "pid": 5927,
+      "wall_ms": 1793526741858,
+      "batch_sequence": 32
+    },
+    {
+      "pid": 5949,
+      "wall_ms": 1793526742109,
+      "batch_sequence": 32
+    }
+  ],
+  "component_full_sensor_coverage": "COVERED"
+}

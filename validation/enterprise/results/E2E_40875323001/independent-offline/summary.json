@@ -1,0 +1,443 @@
+{
+  "classification": "DERIVED_INDEPENDENT_OFFLINE_VERIFICATION_OF_ORIGINAL_GITHUB_ZIP",
+  "source_run_id": 40875323001,
+  "source_commit": "8d38d77fa3bf1c3b0670f584feaf75f34bf69a07",
+  "artifact_id": 12897823323,
+  "artifact_zip_sha256": "2a64618ec126cc3a052fc9df3b52c6a49e71ddaa46c4f997aa643bf0133e34c2",
+  "original_file_count": 132,
+  "workflow_conclusion": "success",
+  "platform": "macOS-26.4.1-arm64-arm-64bit",
+  "environment": "PATH only; evaluator additionally receives separately supplied AIP_RUN_TRUST_FILE.",
+  "additional_agent_or_model_execution": false,
+  "binaries_sha256": {
+    "aip-observe-verify": "916f770e88153a0683d295532da40261b4d76eb46aec67e200edab237b0c3701",
+    "aip-execution-assurance": "ed9f25b67c3da3db9dfad92dfdde240aff48c76dd55cfca67d8922153907cd27",
+    "aip-tool-receipt": "44fe35467596c52012c642de2aa5d659589eb568e610e613c4c32f17f1f77190"
+  },
+  "profiles": {
+    "same-run": {
+      "manifest_status": "PASS",
+      "archive_verification": "PASS",
+      "run_id": "same-run-13d83a3d4c7d4afaf4e35abe",
+      "actual_model_calls": 2,
+      "signed_batches": 38,
+      "kernel_events": 1049,
+      "health_records": 4,
+      "checkpoint_bytes_match": true,
+      "archive_findings": [],
+      "cleanup_errors": [],
+      "verified_gateway_receipt_dispositions": [
+        "Forwarded",
+        "Refused"
+      ],
+      "bundle_sha256": "2e6b797b8136e3bb59065e6d743be6a6faa8e8b18890aa48d1afa7748462c415",
+      "independent_evaluation_matches_original": true,
+      "kernel_identity": {
+        "Match": {
+          "observations": 7
+        }
+      },
+      "kernel_result": "CannotProve",
+      "kernel_reason": "ActionEvidenceUnavailable",
+      "kernel_availability": {
+        "Unavailable": {
+          "reason": "WindowNotCovered"
+        }
+      },
+      "original_forwarded_tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "derived_actual_refused_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      },
+      "status": "PASS",
+      "original_clients_all_pass": true,
+      "original_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "final_health_covers_actual_task": true,
+      "bundle_embedded_archives_equal_original_files": true,
+      "original_signed_reconciliation_equal_embedded": true,
+      "actual_task_window": {
+        "from_ms": 1793277816575,
+        "to_ms": 1793277836275
+      },
+      "final_retained_health": {
+        "state": "Active",
+        "continuity": "Verified",
+        "emitted_at_ms": 1793277876008,
+        "attested_coverage": {
+          "from_ms": 1793277800863,
+          "to_ms": 1793277846984
+        }
+      }
+    },
+    "same-run-interruption": {
+      "manifest_status": "PASS",
+      "archive_verification": "PASS",
+      "run_id": "same-run-c4e0a2ff3132eec90d0d9483",
+      "actual_model_calls": 2,
+      "signed_batches": 11,
+      "kernel_events": 290,
+      "health_records": 3,
+      "checkpoint_bytes_match": true,
+      "archive_findings": [],
+      "cleanup_errors": [],
+      "verified_gateway_receipt_dispositions": [
+        "Forwarded",
+        "Refused"
+      ],
+      "bundle_sha256": "48bfc0871c096aaeac61f412635b5787c9fff2a4e7b32b03394c445a71f82d7c",
+      "independent_evaluation_matches_original": true,
+      "kernel_identity": "NoReference",
+      "kernel_result": "CannotProve",
+      "kernel_reason": "WindowNotCovered",
+      "kernel_availability": {
+        "Unavailable": {
+          "reason": "WindowNotCovered"
+        }
+      },
+      "original_forwarded_tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "derived_actual_refused_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      },
+      "status": "PASS",
+      "original_clients_all_pass": true,
+      "original_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "final_health_covers_actual_task": false,
+      "bundle_embedded_archives_equal_original_files": true,
+      "original_signed_reconciliation_equal_embedded": true,
+      "actual_task_window": {
+        "from_ms": 1793277957027,
+        "to_ms": 1793277975610
+      },
+      "final_retained_health": {
+        "state": "Active",
+        "continuity": "Verified",
+        "emitted_at_ms": 1793277983947,
+        "attested_coverage": {
+          "from_ms": 1793277939141,
+          "to_ms": 1793277953719
+        }
+      }
+    },
+    "same-run-recovery": {
+      "manifest_status": "PASS",
+      "archive_verification": "PASS",
+      "run_id": "same-run-51d854230c91ebb7899c520c",
+      "actual_model_calls": 2,
+      "signed_batches": 40,
+      "kernel_events": 1117,
+      "health_records": 4,
+      "checkpoint_bytes_match": true,
+      "archive_findings": [],
+      "cleanup_errors": [],
+      "verified_gateway_receipt_dispositions": [
+        "Forwarded",
+        "Refused"
+      ],
+      "bundle_sha256": "6657e9417d0faefef20c7e6f830d0a6798cc2846eb2ec87021c7a5254eb30e49",
+      "independent_evaluation_matches_original": true,
+      "kernel_identity": {
+        "Match": {
+          "observations": 7
+        }
+      },
+      "kernel_result": "CannotProve",
+      "kernel_reason": "ActionEvidenceUnavailable",
+      "kernel_availability": {
+        "Unavailable": {
+          "reason": "WindowNotCovered"
+        }
+      },
+      "original_forwarded_tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "derived_actual_refused_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      },
+      "status": "PASS",
+      "original_clients_all_pass": true,
+      "original_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "final_health_covers_actual_task": true,
+      "bundle_embedded_archives_equal_original_files": true,
+      "original_signed_reconciliation_equal_embedded": true,
+      "actual_task_window": {
+        "from_ms": 1793278035913,
+        "to_ms": 1793278055066
+      },
+      "final_retained_health": {
+        "state": "Active",
+        "continuity": "Verified",
+        "emitted_at_ms": 1793278094806,
+        "attested_coverage": {
+          "from_ms": 1793278018157,
+          "to_ms": 1793278066248
+        }
+      }
+    }
+  },
+  "status": "PASS",
+  "assignment_complete": false,
+  "scope": "Independent offline replay of this original genuine same-run core workflow only; does not validate the separate Agent Zero task or other unexecuted integrations.",
+  "coverage_policy_source_sha256": "83580fdba7a2b24ed686fe66ffb6f8da22fd3ef747afd20741f9665197dada60",
+  "refused_receipt_scope": "Derived evaluation substitutes the actual signed Refused receipt into an in-memory bundle copy; no original file is modified."
+}

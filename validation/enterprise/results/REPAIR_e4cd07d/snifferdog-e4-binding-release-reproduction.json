@@ -1,0 +1,14 @@
+{
+  "source_head": "e4cd07d906ed2c5661e7909e2c02559e100b26bf",
+  "profile": "release",
+  "platform": "aarch64-apple-darwin",
+  "test": "b05_another_observers_records_do_not_bind",
+  "attempts": 1,
+  "passed_before_first_failure": 0,
+  "failure": {
+    "exit_code": 101,
+    "stdout": "\nrunning 1 test\ntest b05_another_observers_records_do_not_bind ... FAILED\n\nfailures:\n\nfailures:\n    b05_another_observers_records_do_not_bind\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.00s\n\n",
+    "stderr": "\nthread 'b05_another_observers_records_do_not_bind' (1023483) panicked at aip-standalone/aip-nexora/tests/binding.rs:173:5:\n[]\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+  },
+  "elapsed_seconds": 0.0033889590049511753
+}

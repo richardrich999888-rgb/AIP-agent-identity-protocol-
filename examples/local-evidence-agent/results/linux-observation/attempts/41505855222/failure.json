@@ -1,0 +1,16 @@
+{
+  "run_id": 41505855222,
+  "source_commit": "13be4d61f7ee86c9c683888534661683ab602dfd",
+  "job_id": 125484895870,
+  "status": "FAIL",
+  "stage": "PRE_WORKLOAD_API_CONTROLS",
+  "workload_executed": false,
+  "model_preparation_executed": false,
+  "signed_capture_created": false,
+  "tests_run": 80,
+  "errors": 7,
+  "skipped": 1,
+  "cause": "Mac-specific /private/tmp path in seven API tests did not exist on Ubuntu",
+  "fix_commit": "d1737bbe08d04111d2e2cee43eab1dc1e419a54a",
+  "workflow_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41505855222"
+}

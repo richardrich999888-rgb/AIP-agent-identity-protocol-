@@ -1,0 +1,29 @@
+{
+  "observer_id": "collector.local.qa",
+  "key_version": 1,
+  "public_key": "7ad9041f3ced8f80a33d1da6459a869c46a73e6774bcf509909d59d91a501b56",
+  "batches": {
+    "records": 93,
+    "first_sequence": 1,
+    "last_sequence": 93,
+    "start": "Epoch",
+    "final_head": "46b9fae02d72927c718b515af95450c18c14b83b483bad3d5538c0fa1fe71699",
+    "observations": 0,
+    "kernel_events": 3372
+  },
+  "health": {
+    "records": 6,
+    "states": [
+      "ContinuityUnverified",
+      "Active"
+    ],
+    "with_coverage": 5,
+    "without_coverage": 1,
+    "cross_checked_against_batches": 5,
+    "clock_synchronised": 6,
+    "clock_unsynchronised": 0,
+    "clock_not_stated": 0,
+    "clock_worst_max_error_us": 4012
+  },
+  "findings": []
+}

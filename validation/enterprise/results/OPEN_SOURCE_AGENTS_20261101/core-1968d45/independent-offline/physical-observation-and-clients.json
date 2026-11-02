@@ -1,0 +1,452 @@
+{
+  "classification": "DERIVED_INDEPENDENT_CORE_PHYSICAL_SCOPE_AND_ORIGINAL_CLIENT_REPORT_INSPECTION",
+  "source_commit": "1968d458487bc921a22bf91c71a1156781a753dd",
+  "run_id": 41297713153,
+  "artifact_id": 13080640355,
+  "profiles": {
+    "same-run": {
+      "actual_run_id": "same-run-30ce51da769207317c263e4d",
+      "controller_manifest_status": "PASS",
+      "controller_reported_model_calls": 2,
+      "actual_task_interval_ms": {
+        "from": 1793529150142,
+        "to": 1793529166647
+      },
+      "all_six_sensor_actual_task_coverage": true,
+      "controller_coverage_annotation": "SIGNED_ACTIVE_FOR_WINDOW",
+      "canonical_kernel_finding": {
+        "identity": {
+          "Match": {
+            "observations": 10
+          }
+        },
+        "result": "CannotProve",
+        "reason": "ActionEvidenceUnavailable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "action": "Unobservable",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated"
+      },
+      "signed_counts": {
+        "batches": 39,
+        "kernel_events": 1120,
+        "health": 4
+      },
+      "exact_process_instances_recorded": 2,
+      "namespace_and_instance_binding_origin": "Original signed observations; exact boot/PID/start ticks matches only, not PID alone.",
+      "exact_instance_bound_event_counts": {
+        "ProcessExec": 2,
+        "CgroupAttach": 1,
+        "SocketSend": 8,
+        "Fork": 2,
+        "Exec": 2,
+        "SocketState": 5,
+        "FileEvent": 1,
+        "Exit": 2
+      },
+      "whole_host_task_event_counts_not_promoted": {
+        "ProcessSpawn": 12,
+        "ProcessExec": 9,
+        "SocketState": 249,
+        "SocketSend": 245,
+        "Fork": 12,
+        "Exec": 9,
+        "Exit": 14,
+        "CgroupAttach": 1,
+        "Other": 4,
+        "FileEvent": 2
+      },
+      "bound_socket_send_bytes": 5263,
+      "bound_file_close_events": [
+        {
+          "mask": 8,
+          "pid": 7044,
+          "path": "/home/runner/work/_temp/same-run/work/tool/loan-1-review.json",
+          "deleted": false,
+          "dev": 52,
+          "ino": 7
+        }
+      ],
+      "bound_socket_state_remote_endpoints": [
+        {
+          "address": "127.0.0.1",
+          "port": 11434,
+          "old_state": 7,
+          "new_state": 2
+        },
+        {
+          "address": "127.0.0.1",
+          "port": 19992,
+          "old_state": 7,
+          "new_state": 2
+        },
+        {
+          "address": "127.0.0.1",
+          "port": 19993,
+          "old_state": 7,
+          "new_state": 2
+        }
+      ],
+      "network_limit": "SocketState tuples describe observed state transitions/attempts. SocketSend bytes are not HTTP payloads or logical request/destination proof; reused kernel socket addresses are not promoted into an authorization/receipt join.",
+      "file_limit": "mask8 is FAN_CLOSE_WRITE in existing probe source; it records writable-file close metadata, not file contents, exact changes or business correctness.",
+      "unclocked_archive_events": 0,
+      "reported_drops": 0,
+      "nonverified_batch_sequences": [],
+      "latest_signed_health": {
+        "state": "Active",
+        "continuity": "Verified",
+        "attested_coverage": {
+          "from_ms": 1793529132559,
+          "to_ms": 1793529179076
+        },
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "clock": {
+          "synchronized": true,
+          "max_error_us": 1076,
+          "state": 0
+        }
+      },
+      "independent_audit_replays": [
+        {
+          "source": "audit-0.log",
+          "agreed": 1,
+          "whole_host_aip_only": 8,
+          "external_only": 0,
+          "external_unparsed": 0,
+          "external_failed_attempts": 0
+        },
+        {
+          "source": "audit-1.log",
+          "agreed": 1,
+          "whole_host_aip_only": 8,
+          "external_only": 0,
+          "external_unparsed": 0,
+          "external_failed_attempts": 0
+        }
+      ],
+      "unmatched_exact_instance_exec_references": 0,
+      "original_controller_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "client_report_source_bundle_hash_matches": true,
+      "client_evaluation_matches_independent_fields": true,
+      "client_limit": "Actual API/SDK/MCP/browser checks were executed by the Linux workflow. This offline replay inspects original reports and verifies their exact bundle/evaluation join; it does not repeat browser/network clients on Mac.",
+      "original_captured_negative_checks": {
+        "original": "PASS",
+        "missing_authorization": "PASS",
+        "missing_gateway_receipt": "PASS",
+        "authorization_signature": "PASS",
+        "gateway_signature": "PASS",
+        "reconciler_signature": "PASS",
+        "caller_supplied_trust_rejected": "PASS",
+        "prefix_truncation_checkpoint": "PASS",
+        "suffix_truncation_checkpoint": "PASS"
+      },
+      "negative_scope": "Original controlled mutations of captured records; live observer interruption is a separate actually executed profile. Actual Refused receipt was independently verified and reevaluated separately.",
+      "business_outcome": "Synthetic read only; no loan approval or bank transaction",
+      "logical_subagent_attribution": "NOT_ESTABLISHED",
+      "performance_scope": "MEASURED_OBSERVED_RUN_WITHOUT_MATCHED_BASELINE",
+      "cleanup_errors": []
+    },
+    "same-run-interruption": {
+      "actual_run_id": "same-run-397478b90081cefac478c80f",
+      "controller_manifest_status": "PASS",
+      "controller_reported_model_calls": 2,
+      "actual_task_interval_ms": {
+        "from": 1793529306669,
+        "to": 1793529322598
+      },
+      "all_six_sensor_actual_task_coverage": false,
+      "controller_coverage_annotation": "UNAVAILABLE_OBSERVER_INTERRUPTED",
+      "canonical_kernel_finding": {
+        "identity": "NoReference",
+        "result": "CannotProve",
+        "reason": "WindowNotCovered",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "action": "Unobservable",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated"
+      },
+      "signed_counts": {
+        "batches": 17,
+        "kernel_events": 390,
+        "health": 4
+      },
+      "exact_process_instances_recorded": 0,
+      "namespace_and_instance_binding_origin": "Original signed observations; exact boot/PID/start ticks matches only, not PID alone.",
+      "exact_instance_bound_event_counts": {},
+      "whole_host_task_event_counts_not_promoted": {},
+      "bound_socket_send_bytes": 0,
+      "bound_file_close_events": [],
+      "bound_socket_state_remote_endpoints": [],
+      "network_limit": "SocketState tuples describe observed state transitions/attempts. SocketSend bytes are not HTTP payloads or logical request/destination proof; reused kernel socket addresses are not promoted into an authorization/receipt join.",
+      "file_limit": "mask8 is FAN_CLOSE_WRITE in existing probe source; it records writable-file close metadata, not file contents, exact changes or business correctness.",
+      "unclocked_archive_events": 0,
+      "reported_drops": 0,
+      "nonverified_batch_sequences": [],
+      "latest_signed_health": {
+        "state": "Active",
+        "continuity": "Verified",
+        "attested_coverage": {
+          "from_ms": 1793529256626,
+          "to_ms": 1793529275809
+        },
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "clock": {
+          "synchronized": true,
+          "max_error_us": 4007,
+          "state": 0
+        }
+      },
+      "independent_audit_replays": [
+        {
+          "source": "audit-0.log",
+          "status": "REFUSED_NO_OVERLAPPING_OBSERVATION_WINDOWS",
+          "exit_code": 1,
+          "agreed": null,
+          "external_only": null,
+          "limit": "Actual task audit interval and original pre-interruption AIP archive do not overlap; strict corroborator refused. No earlier events were reused."
+        },
+        {
+          "source": "audit-1.log",
+          "status": "REFUSED_NO_OVERLAPPING_OBSERVATION_WINDOWS",
+          "exit_code": 1,
+          "agreed": null,
+          "external_only": null,
+          "limit": "Actual task audit interval and original pre-interruption AIP archive do not overlap; strict corroborator refused. No earlier events were reused."
+        }
+      ],
+      "unmatched_exact_instance_exec_references": 0,
+      "original_controller_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "client_report_source_bundle_hash_matches": true,
+      "client_evaluation_matches_independent_fields": true,
+      "client_limit": "Actual API/SDK/MCP/browser checks were executed by the Linux workflow. This offline replay inspects original reports and verifies their exact bundle/evaluation join; it does not repeat browser/network clients on Mac.",
+      "original_captured_negative_checks": {
+        "original": "PASS",
+        "missing_authorization": "PASS",
+        "missing_gateway_receipt": "PASS",
+        "authorization_signature": "PASS",
+        "gateway_signature": "PASS",
+        "reconciler_signature": "PASS",
+        "caller_supplied_trust_rejected": "PASS",
+        "prefix_truncation_checkpoint": "PASS",
+        "suffix_truncation_checkpoint": "PASS"
+      },
+      "negative_scope": "Original controlled mutations of captured records; live observer interruption is a separate actually executed profile. Actual Refused receipt was independently verified and reevaluated separately.",
+      "business_outcome": "Synthetic read only; no loan approval or bank transaction",
+      "logical_subagent_attribution": "NOT_ESTABLISHED",
+      "performance_scope": "MEASURED_INTERRUPTED_OBSERVER_TRIAL_WITHOUT_MATCHED_BASELINE",
+      "cleanup_errors": []
+    },
+    "same-run-recovery": {
+      "actual_run_id": "same-run-997c70ac6cce229c0c2c7cda",
+      "controller_manifest_status": "PASS",
+      "controller_reported_model_calls": 2,
+      "actual_task_interval_ms": {
+        "from": 1793529385974,
+        "to": 1793529401528
+      },
+      "all_six_sensor_actual_task_coverage": true,
+      "controller_coverage_annotation": "SIGNED_ACTIVE_FOR_WINDOW",
+      "canonical_kernel_finding": {
+        "identity": {
+          "Match": {
+            "observations": 4
+          }
+        },
+        "result": "CannotProve",
+        "reason": "ActionEvidenceUnavailable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "action": "Unobservable",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated"
+      },
+      "signed_counts": {
+        "batches": 41,
+        "kernel_events": 1182,
+        "health": 4
+      },
+      "exact_process_instances_recorded": 2,
+      "namespace_and_instance_binding_origin": "Original signed observations; exact boot/PID/start ticks matches only, not PID alone.",
+      "exact_instance_bound_event_counts": {
+        "ProcessExec": 2,
+        "CgroupAttach": 1,
+        "Fork": 2,
+        "Exec": 2,
+        "SocketState": 5,
+        "SocketSend": 8,
+        "FileEvent": 1,
+        "Exit": 2
+      },
+      "whole_host_task_event_counts_not_promoted": {
+        "Exit": 12,
+        "ProcessSpawn": 11,
+        "ProcessExec": 8,
+        "CgroupAttach": 1,
+        "SocketState": 250,
+        "SocketSend": 237,
+        "Fork": 11,
+        "Other": 4,
+        "Exec": 8,
+        "FileEvent": 2
+      },
+      "bound_socket_send_bytes": 5267,
+      "bound_file_close_events": [
+        {
+          "mask": 8,
+          "pid": 8619,
+          "path": "/home/runner/work/_temp/same-run-recovery/work/tool/loan-1-review.json",
+          "deleted": false,
+          "dev": 52,
+          "ino": 7
+        }
+      ],
+      "bound_socket_state_remote_endpoints": [
+        {
+          "address": "127.0.0.1",
+          "port": 11434,
+          "old_state": 7,
+          "new_state": 2
+        },
+        {
+          "address": "127.0.0.1",
+          "port": 19992,
+          "old_state": 7,
+          "new_state": 2
+        },
+        {
+          "address": "127.0.0.1",
+          "port": 19993,
+          "old_state": 7,
+          "new_state": 2
+        }
+      ],
+      "network_limit": "SocketState tuples describe observed state transitions/attempts. SocketSend bytes are not HTTP payloads or logical request/destination proof; reused kernel socket addresses are not promoted into an authorization/receipt join.",
+      "file_limit": "mask8 is FAN_CLOSE_WRITE in existing probe source; it records writable-file close metadata, not file contents, exact changes or business correctness.",
+      "unclocked_archive_events": 0,
+      "reported_drops": 0,
+      "nonverified_batch_sequences": [],
+      "latest_signed_health": {
+        "state": "Active",
+        "continuity": "Verified",
+        "attested_coverage": {
+          "from_ms": 1793529368436,
+          "to_ms": 1793529416434
+        },
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "clock": {
+          "synchronized": true,
+          "max_error_us": 3511,
+          "state": 0
+        }
+      },
+      "independent_audit_replays": [
+        {
+          "source": "audit-0.log",
+          "agreed": 1,
+          "whole_host_aip_only": 7,
+          "external_only": 0,
+          "external_unparsed": 0,
+          "external_failed_attempts": 0
+        },
+        {
+          "source": "audit-1.log",
+          "agreed": 1,
+          "whole_host_aip_only": 7,
+          "external_only": 0,
+          "external_unparsed": 0,
+          "external_failed_attempts": 0
+        }
+      ],
+      "unmatched_exact_instance_exec_references": 0,
+      "original_controller_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "client_report_source_bundle_hash_matches": true,
+      "client_evaluation_matches_independent_fields": true,
+      "client_limit": "Actual API/SDK/MCP/browser checks were executed by the Linux workflow. This offline replay inspects original reports and verifies their exact bundle/evaluation join; it does not repeat browser/network clients on Mac.",
+      "original_captured_negative_checks": {
+        "original": "PASS",
+        "missing_authorization": "PASS",
+        "missing_gateway_receipt": "PASS",
+        "authorization_signature": "PASS",
+        "gateway_signature": "PASS",
+        "reconciler_signature": "PASS",
+        "caller_supplied_trust_rejected": "PASS",
+        "prefix_truncation_checkpoint": "PASS",
+        "suffix_truncation_checkpoint": "PASS"
+      },
+      "negative_scope": "Original controlled mutations of captured records; live observer interruption is a separate actually executed profile. Actual Refused receipt was independently verified and reevaluated separately.",
+      "business_outcome": "Synthetic read only; no loan approval or bank transaction",
+      "logical_subagent_attribution": "NOT_ESTABLISHED",
+      "performance_scope": "MEASURED_OBSERVED_RUN_WITHOUT_MATCHED_BASELINE",
+      "cleanup_errors": []
+    }
+  },
+  "separate_administrative_custody": "INCOMPLETE",
+  "fresh_observer_public_keys_distinct": true,
+  "recovery_limit": "Fresh process/key/capture recovery; not same-key daemon restart continuity. No prior observation backfills the actual interruption interval.",
+  "trust_limit": "Original public anchors/checkpoints supplied separately to tools but received in the same GitHub artifact; shared host kernel/root and GitHub administration trusted. Not independent institutional custody, complete ground truth, logical delegation, authoritative bank outcomes or production approval."
+}

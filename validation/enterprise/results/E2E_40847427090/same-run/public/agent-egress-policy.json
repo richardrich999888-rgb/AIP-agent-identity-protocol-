@@ -1,0 +1,9 @@
+{
+  "source_authority": "root_namespace_network_policy",
+  "rules": "-P OUTPUT ACCEPT\n-A OUTPUT -d 127.0.0.1/32 -p tcp -m owner --uid-owner 10001 -m multiport --dports 11434,19992 -j ACCEPT\n-A OUTPUT -m owner --uid-owner 10001 -j REJECT --reject-with icmp-port-unreachable\n",
+  "allowed_agent_tcp_destinations": [
+    "127.0.0.1:11434",
+    "127.0.0.1:19992"
+  ],
+  "direct_mcp_upstream": "DENIED_BY_UID_OUTPUT_RULE"
+}

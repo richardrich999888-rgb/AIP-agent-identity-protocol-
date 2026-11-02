@@ -1,0 +1,68 @@
+{
+  "classification": "INDEPENDENT_MAC_OFFLINE_VERIFICATION_OF_ORIGINAL_LINUX_CAPTURE",
+  "source_commit": "d6eb35e4de11fbec10953e5ed00bd934f1cc02d7",
+  "run_id": 40847427090,
+  "status": "PASS",
+  "no_additional_agent_or_model_execution": true,
+  "profiles": [
+    {
+      "profile": "same-run",
+      "checkpoint_bytes_match": true,
+      "archive_findings": [],
+      "batches": 32,
+      "kernel_events": 1006,
+      "health": 4,
+      "evaluation_matches_runner": true,
+      "kernel_result": "CannotProve",
+      "kernel_reason": "ActionEvidenceUnavailable",
+      "identity": {
+        "Match": {
+          "observations": 4
+        }
+      },
+      "tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      }
+    },
+    {
+      "profile": "same-run-interruption",
+      "checkpoint_bytes_match": true,
+      "archive_findings": [],
+      "batches": 11,
+      "kernel_events": 357,
+      "health": 4,
+      "evaluation_matches_runner": true,
+      "kernel_result": "CannotProve",
+      "kernel_reason": "WindowNotCovered",
+      "identity": "NoReference",
+      "tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      }
+    },
+    {
+      "profile": "same-run-recovery",
+      "checkpoint_bytes_match": true,
+      "archive_findings": [],
+      "batches": 38,
+      "kernel_events": 1018,
+      "health": 4,
+      "evaluation_matches_runner": true,
+      "kernel_result": "CannotProve",
+      "kernel_reason": "ActionEvidenceUnavailable",
+      "identity": {
+        "Match": {
+          "observations": 4
+        }
+      },
+      "tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      }
+    }
+  ]
+}

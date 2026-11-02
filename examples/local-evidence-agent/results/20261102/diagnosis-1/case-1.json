@@ -1,0 +1,121 @@
+{
+  "case": 1,
+  "question": "Explain what this run verifies and why the kernel action is CannotProve.",
+  "profile": "same-run",
+  "model_raw_outputs": [
+    "{\n  \"run_id\": \"951683fb7032939d89bddf1ef93b4e4ff8ad7009b8b3b5876ba445f7e83bd723\",\n  \"tool\": \"inspect_recorded_run\"\n}",
+    "{\"answer\": \"The run verifies that the archive signatures and retained checkpoints are verified, the signed authorization and signed gateway receipt are verified, and the signed reconciler verdict is verified. However, the kernel application action is CannotProve due to ActionEvidenceUnavailable, and the full authorization window coverage is not covered due to WindowNotCovered.\"}"
+  ],
+  "status": "PASS",
+  "answer": "The run verifies that the archive signatures and retained checkpoints are verified, the signed authorization and signed gateway receipt are verified, and the signed reconciler verdict is verified. However, the kernel application action is CannotProve due to ActionEvidenceUnavailable, and the full authorization window coverage is not covered due to WindowNotCovered.",
+  "model_stats": {
+    "completed_http_requests": 2,
+    "responses": [
+      {
+        "request_number": 1,
+        "transport": "LOOPBACK_HTTP",
+        "model": "vanian-qwen-local",
+        "completed": true,
+        "elapsed_ms": 1723.13,
+        "prompt_eval_count": 508,
+        "eval_count": 76,
+        "total_duration": 1722359625,
+        "load_duration": 648000
+      },
+      {
+        "request_number": 2,
+        "transport": "LOOPBACK_HTTP",
+        "model": "vanian-qwen-local",
+        "completed": true,
+        "elapsed_ms": 1416.941,
+        "prompt_eval_count": 411,
+        "eval_count": 70,
+        "total_duration": 1416104166,
+        "load_duration": 438541
+      }
+    ],
+    "source": "LOCAL_MODEL_ENDPOINT_COUNTERS_NOT_KERNEL_EVIDENCE"
+  },
+  "tool_trace": [
+    {
+      "tool": "inspect_recorded_run",
+      "arguments": {
+        "run_id": "951683fb7032939d89bddf1ef93b4e4ff8ad7009b8b3b5876ba445f7e83bd723"
+      },
+      "read_only": true,
+      "api_reads": [
+        {
+          "method": "GET",
+          "path": "/v1/runs/951683fb7032939d89bddf1ef93b4e4ff8ad7009b8b3b5876ba445f7e83bd723/metadata",
+          "response_sha256": "715e349950af7b08f54b46cdcb72437674fed409dd74788b7ec42b2e90d4a4d8"
+        },
+        {
+          "method": "GET",
+          "path": "/v1/runs/951683fb7032939d89bddf1ef93b4e4ff8ad7009b8b3b5876ba445f7e83bd723/evaluation",
+          "response_sha256": "ec60b1a060faea3ebfca2718292cbf4246ad3bfc6b19fc97cddd415774ae2ca3"
+        },
+        {
+          "method": "GET",
+          "path": "/v1/runs/951683fb7032939d89bddf1ef93b4e4ff8ad7009b8b3b5876ba445f7e83bd723/verdict",
+          "response_sha256": "76e1f2b2eec9dace80e6abbc17b20afdcc216516319e6ff85d6a9d1ba0cc11f7"
+        }
+      ],
+      "result_sha256": "5495ec8baf80a9ab75c53c6fdd748b5ade62d060cc41e944c0e9fe92bd254488",
+      "status": "PASS"
+    }
+  ],
+  "authoritative_facts": {
+    "evidence_scope": "RECORDED_LINUX_EVIDENCE_REEVALUATED_BY_LOCAL_AIP_API",
+    "fresh_mac_kernel_capture": false,
+    "run_artifact_id": "951683fb7032939d89bddf1ef93b4e4ff8ad7009b8b3b5876ba445f7e83bd723",
+    "run_id": "same-run-54697da019b4ae8dbd8b77ee",
+    "agent_id": "aip1468hqdonLeB8ijW7RwftuaZ939Bxx6BCDVMo2UMPkR",
+    "bundle_sha256": "7584dd7444e1f50e1774ebc738296265d0d479095d843e373113ddb37dae4d66",
+    "batches_sha256": "8c4d6e39c9b51bd46d0ade8e13888fb5e91ae38b82c8ac0e972f334d9b9231d2",
+    "health_sha256": "ddcd823d989c43ff30465a1c32742f279ac4bb2bb69afa662273361fcff10eea",
+    "api_verification_scope": "same_run_evaluation",
+    "evaluation": {
+      "archive_integrity_verified": true,
+      "checkpoint_verified": true,
+      "authorization_verified": true,
+      "gateway_receipt_verified": true,
+      "signed_reconciliation_verified": true,
+      "receipt_within_authorization": true,
+      "gateway_disposition": "Forwarded",
+      "tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "limitations": [
+        "Archive signatures establish integrity; collector administrative separation requires deployment evidence.",
+        "Kernel process identity does not establish logical sub-agent attribution or a business outcome.",
+        "Tool request comparison is separate from the kernel reconciliation and cannot upgrade its verdict."
+      ],
+      "reconciliation": {
+        "result": "CannotProve",
+        "reason": "ActionEvidenceUnavailable",
+        "identity": {
+          "Match": {
+            "observations": 4
+          }
+        },
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "temporal": "WithinWindow",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated",
+        "strength": "Heuristic",
+        "replay_detected": false
+      }
+    },
+    "signed_verdict_sha256": "76e1f2b2eec9dace80e6abbc17b20afdcc216516319e6ff85d6a9d1ba0cc11f7",
+    "authority_boundary": "Existing API/Rust verification; model text grants no authority or coverage."
+  },
+  "seconds": 3.804,
+  "completed_model_responses": 2
+}

@@ -1,0 +1,1260 @@
+{
+  "classification": "NOVEMBER_1_ORIGINAL_ATTEMPT_PRESERVATION_INDEX_DERIVED_NOT_SIGNED",
+  "generated_at_utc": "2026-11-01T10:10:50.981591+00:00",
+  "scope": "Seven dispatched November 1 workflows through c379; installation/tool-component and failed capability attempts are distinct from a genuine business workload. No business workload started in these retained attempts.",
+  "runs_and_artifact_catalog": [
+    {
+      "run_id": 41288484161,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41288484161",
+      "source_commit": "c63bb5ee0e71cc9f97142574c0c4f1b95b85f20c",
+      "jobs": [
+        {
+          "id": 124794586122,
+          "name": "image (openhands)",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 124794586216,
+          "name": "image (agent_zero)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124794586277,
+          "name": "image (deerflow)",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 124794586281,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124794586288,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124795780969,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "skipped"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13076740140,
+          "name": "hosted-observer-smoke-41288484161",
+          "size_in_bytes": 45109,
+          "github_service_sha256": "0be83bd7b6349793b166d8c5a9004264f4c1826269fe1e3c05caae92cf7cfe58",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-capability-41288484161.zip",
+            "bytes": 45109,
+            "sha256": "0be83bd7b6349793b166d8c5a9004264f4c1826269fe1e3c05caae92cf7cfe58",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 14
+          }
+        },
+        {
+          "id": 13076520844,
+          "name": "deerflow-build-41288484161",
+          "size_in_bytes": 3888,
+          "github_service_sha256": "26dc2f4c68f9bcf64c6d3f6704cabd5411a78f2858b058527caf3adbc7ddce12",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-install-41288484161-originals/deerflow-13076520844.zip",
+            "bytes": 3888,
+            "sha256": "26dc2f4c68f9bcf64c6d3f6704cabd5411a78f2858b058527caf3adbc7ddce12",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 3
+          }
+        },
+        {
+          "id": 13076202776,
+          "name": "agent-zero-build-41288484161",
+          "size_in_bytes": 1593737922,
+          "github_service_sha256": "49270e820d3eb04dd8f1a9f6d616f14ef8c417bb82d0f3422d4a0441425f5e99",
+          "local_retention": {
+            "status": "SELECTED_EXACT_ORIGINAL_PUBLIC_MEMBERS_FROM_RANGES",
+            "provenance": {
+              "path": "/private/tmp/snifferdog-observed-agent-zero-c63bb5e-41288484161/range-extraction-provenance.json",
+              "bytes": 10442,
+              "sha256": "2ca6153385d9cbb12be2fb8dc8687eb7e1b195b340ee8074272aa3f25e6420ac"
+            },
+            "full_original_zip_locally_hashed": false
+          }
+        },
+        {
+          "id": 13076192238,
+          "name": "openhands-build-41288484161",
+          "size_in_bytes": 1201,
+          "github_service_sha256": "fce036d9849cda65484eff6b0816a30c2f6f83d428deccff10a151bbddbf35cf",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-install-41288484161-originals/openhands-13076192238.zip",
+            "bytes": 1201,
+            "sha256": "fce036d9849cda65484eff6b0816a30c2f6f83d428deccff10a151bbddbf35cf",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 2
+          }
+        }
+      ]
+    },
+    {
+      "run_id": 41288486804,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41288486804",
+      "source_commit": "c63bb5ee0e71cc9f97142574c0c4f1b95b85f20c",
+      "jobs": [
+        {
+          "id": 124794593723,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124794593864,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124794593878,
+          "name": "image (agent_zero)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124795769907,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13076361975,
+          "name": "hosted-observer-smoke-41288486804",
+          "size_in_bytes": 46083,
+          "github_service_sha256": "5fc0df409a3e44cfa41145c65312152c56098490df19d6eaa7c17bb26b68fd02",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13076173612,
+          "name": "agent-zero-genuine-41288486804-1",
+          "size_in_bytes": 11171,
+          "github_service_sha256": "709a762d3093a83783d05e6af171c7ab0084bc415e6506d780b8b4c5a6056638",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-agent-zero-41288486804-preserved/original-artifact.zip",
+            "bytes": 11171,
+            "sha256": "709a762d3093a83783d05e6af171c7ab0084bc415e6506d780b8b4c5a6056638",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 10
+          }
+        },
+        {
+          "id": 13076098147,
+          "name": "agent-zero-build-41288486804",
+          "size_in_bytes": 1593770030,
+          "github_service_sha256": "5ebefbeb7fecca42da68cf2e5c26e1ea2da0d7604c947f079a4650c4f3b6d28b",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        }
+      ]
+    },
+    {
+      "run_id": 41291563704,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41291563704",
+      "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+      "jobs": [
+        {
+          "id": 124803706556,
+          "name": "image (deerflow)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124803706634,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124803706671,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124803706710,
+          "name": "image (agent_zero)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124803707396,
+          "name": "image (openhands)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124805126563,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "skipped"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13077821320,
+          "name": "openhands-build-41291563704",
+          "size_in_bytes": 4082,
+          "github_service_sha256": "b7ecad839608daeb794e222db3aecbffabcfdc709ecf6f1a2ed2976af5cfcde9",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-install-41291563704-originals/openhands-13077821320.zip",
+            "bytes": 4082,
+            "sha256": "b7ecad839608daeb794e222db3aecbffabcfdc709ecf6f1a2ed2976af5cfcde9",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 3
+          }
+        },
+        {
+          "id": 13077742314,
+          "name": "agent-zero-build-41291563704",
+          "size_in_bytes": 1599649361,
+          "github_service_sha256": "5167760f926cc59608103d5cb5291e0b5450effd3302c04364e3b7dfbac9fe6a",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13077627631,
+          "name": "framework-observation-openhands-41291563704",
+          "size_in_bytes": 117902,
+          "github_service_sha256": "d621c32876e7f227c6a999614da77d7559b2ee3a4e79ab105bf1bb996a76f042",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-observed-openhands-7695d9a-41291563704/original-artifact.zip",
+            "bytes": 117902,
+            "sha256": "d621c32876e7f227c6a999614da77d7559b2ee3a4e79ab105bf1bb996a76f042",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 24
+          }
+        },
+        {
+          "id": 13077508087,
+          "name": "framework-observation-deerflow-41291563704",
+          "size_in_bytes": 89666,
+          "github_service_sha256": "7a680775788abcca81f18496d1a984e6fb2b079ba2137539ea51f576f00b42c3",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-observed-deerflow-7695d9a-41291563704/original-artifact.zip",
+            "bytes": 89666,
+            "sha256": "7a680775788abcca81f18496d1a984e6fb2b079ba2137539ea51f576f00b42c3",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 24
+          }
+        },
+        {
+          "id": 13077353391,
+          "name": "deerflow-build-41291563704",
+          "size_in_bytes": 4019,
+          "github_service_sha256": "16da38ed5077850e8ee56940bb42a58a8e3f7c469fc3819e34f3f5c90e873e7d",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-install-41291563704-originals/deerflow-13077353391.zip",
+            "bytes": 4019,
+            "sha256": "16da38ed5077850e8ee56940bb42a58a8e3f7c469fc3819e34f3f5c90e873e7d",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 3
+          }
+        },
+        {
+          "id": 13077204224,
+          "name": "framework-observation-agent_zero-41291563704",
+          "size_in_bytes": 179214,
+          "github_service_sha256": "9a9cd11bf70fa5c69b8399d8d72cefd4c4ecb93646ad7fd2865a74b75024a900",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291563704/original-artifact.zip",
+            "bytes": 179214,
+            "sha256": "9a9cd11bf70fa5c69b8399d8d72cefd4c4ecb93646ad7fd2865a74b75024a900",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 24
+          }
+        },
+        {
+          "id": 13076848862,
+          "name": "hosted-observer-smoke-41291563704",
+          "size_in_bytes": 52149,
+          "github_service_sha256": "40228c6e91db8ae5d870947566086ec3d51d1dc05f259ce853452871ae4ac1dc",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        }
+      ]
+    },
+    {
+      "run_id": 41291566529,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41291566529",
+      "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+      "jobs": [
+        {
+          "id": 124803714563,
+          "name": "image (agent_zero)",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 124803714822,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124803714829,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124804825453,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "skipped"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13077746706,
+          "name": "hosted-observer-smoke-41291566529",
+          "size_in_bytes": 53603,
+          "github_service_sha256": "da36aba8d4d985a465d1bd1af14d6ec352ef525cb9711446bfbece79d020ad5f",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13077682610,
+          "name": "agent-zero-build-41291566529",
+          "size_in_bytes": 5462,
+          "github_service_sha256": "d57210cc0cc9bff612962542c5b75ea913ce96a6e6e5c60cfd2b55862db20b25",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-install-41291566529-originals/agent-zero-13077682610.zip",
+            "bytes": 5462,
+            "sha256": "d57210cc0cc9bff612962542c5b75ea913ce96a6e6e5c60cfd2b55862db20b25",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 3
+          }
+        },
+        {
+          "id": 13077548276,
+          "name": "framework-observation-agent_zero-41291566529",
+          "size_in_bytes": 214342,
+          "github_service_sha256": "6b1278b7a80b3485e8943f6e7682f1b0d5fb3b2bde07c06dd0af20c19927a6ae",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291566529/original-artifact.zip",
+            "bytes": 214342,
+            "sha256": "6b1278b7a80b3485e8943f6e7682f1b0d5fb3b2bde07c06dd0af20c19927a6ae",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 20
+          }
+        }
+      ]
+    },
+    {
+      "run_id": 41294805975,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41294805975",
+      "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+      "jobs": [
+        {
+          "id": 124813296488,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124813296651,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124813296655,
+          "name": "image (agent_zero)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124814739233,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13079295928,
+          "name": "agent-zero-genuine-41294805975-1",
+          "size_in_bytes": 15967,
+          "github_service_sha256": "29a767fa9aa23c34497309ea6d8f164e8987befdc067a30f72dbe94b2db8b336",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-agent-zero-41294805975-preserved/original-13079295928.zip",
+            "bytes": 15967,
+            "sha256": "29a767fa9aa23c34497309ea6d8f164e8987befdc067a30f72dbe94b2db8b336",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 10
+          }
+        },
+        {
+          "id": 13078727653,
+          "name": "framework-observation-agent_zero-41294805975",
+          "size_in_bytes": 83879,
+          "github_service_sha256": "c1258c1ea12a53527914b9da6b13aeccddaecbcb68e8405089aca2ee543c4537",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-observed-agent_zero-c379f75-41294805975/original-artifact.zip",
+            "bytes": 83879,
+            "sha256": "c1258c1ea12a53527914b9da6b13aeccddaecbcb68e8405089aca2ee543c4537",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 24
+          }
+        },
+        {
+          "id": 13078573918,
+          "name": "hosted-observer-smoke-41294805975",
+          "size_in_bytes": 47681,
+          "github_service_sha256": "2b2f89f591b73ffda498767d1f8b771bc54295c31292d326105d7332c42bdcf9",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13078268538,
+          "name": "agent-zero-build-41294805975",
+          "size_in_bytes": 1599681581,
+          "github_service_sha256": "c2499e4db0654de70797cd0dbd1260b4e448650e77fc9f58851b36f11eea02dc",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        }
+      ]
+    },
+    {
+      "run_id": 41294812019,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41294812019",
+      "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+      "jobs": [
+        {
+          "id": 124813312665,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124813312781,
+          "name": "image (deerflow)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124813312935,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124814152609,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13079032967,
+          "name": "deerflow-genuine-41294812019-1",
+          "size_in_bytes": 5930,
+          "github_service_sha256": "b75029c5085f75446171c7a46ee50a233925f2d8960b228ef02f4bc7d1be0427",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-deerflow-41294812019-preserved/original-artifact.zip",
+            "bytes": 5930,
+            "sha256": "b75029c5085f75446171c7a46ee50a233925f2d8960b228ef02f4bc7d1be0427",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 10
+          }
+        },
+        {
+          "id": 13078684009,
+          "name": "deerflow-build-41294812019",
+          "size_in_bytes": 620361616,
+          "github_service_sha256": "9531e7bf61608428a4f2f3c776d7a873117cfd6270a6a74edab0cfaf46dc2b2c",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13078099828,
+          "name": "hosted-observer-smoke-41294812019",
+          "size_in_bytes": 45533,
+          "github_service_sha256": "bad27e4b151cf6c4952ee8fdb1c30c3e82ee3503f2633c8889badfd650b69497",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13077948811,
+          "name": "framework-observation-deerflow-41294812019",
+          "size_in_bytes": 62369,
+          "github_service_sha256": "2a4be63d14ce5e5a5071814de3c93dd49aec97bb456cbb8a284ed4c44135a343",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-observed-deerflow-c379f75-41294812019/original-artifact.zip",
+            "bytes": 62369,
+            "sha256": "2a4be63d14ce5e5a5071814de3c93dd49aec97bb456cbb8a284ed4c44135a343",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 24
+          }
+        }
+      ]
+    },
+    {
+      "run_id": 41294816896,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41294816896",
+      "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+      "jobs": [
+        {
+          "id": 124813327746,
+          "name": "image (openhands)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124813327865,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124813327882,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124814044254,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13078966617,
+          "name": "openhands-build-41294816896",
+          "size_in_bytes": 428423533,
+          "github_service_sha256": "4b1bda766c6242d8725f7b63bdf02bf1c0677d73d313a9d4cbcc58ce6becf039",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13078689074,
+          "name": "framework-observation-openhands-41294816896",
+          "size_in_bytes": 89311,
+          "github_service_sha256": "65ddbe9de44e6904d4b809755518396dade621137e88bb99d69ff279df953c5d",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-observed-openhands-c379f75-41294816896/original-artifact.zip",
+            "bytes": 89311,
+            "sha256": "65ddbe9de44e6904d4b809755518396dade621137e88bb99d69ff279df953c5d",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 24
+          }
+        },
+        {
+          "id": 13078529285,
+          "name": "hosted-observer-smoke-41294816896",
+          "size_in_bytes": 47497,
+          "github_service_sha256": "43e450bfe572772f68914a06c9044cb3e22c000103087696490a692bc61dba93",
+          "local_retention": {
+            "status": "NOT_DOWNLOADED_AS_THIS_ARTIFACT",
+            "full_original_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13078078773,
+          "name": "openhands-genuine-41294816896-1",
+          "size_in_bytes": 5947,
+          "github_service_sha256": "d0e9993be2e08e39ab0b9be490d567b2f55a383c48a659bb5e458d3a76b03012",
+          "local_retention": {
+            "path": "/private/tmp/snifferdog-openhands-41294816896-preserved/original-artifact.zip",
+            "bytes": 5947,
+            "sha256": "d0e9993be2e08e39ab0b9be490d567b2f55a383c48a659bb5e458d3a76b03012",
+            "full_original_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "complete_zip_crc": "PASS",
+            "original_zip_members": 10
+          }
+        }
+      ]
+    }
+  ],
+  "independently_verified_components": [
+    {
+      "framework": "agent_zero",
+      "source_commit": "c63bb5ee0e71cc9f97142574c0c4f1b95b85f20c",
+      "run_id": 41288484161,
+      "artifact_id": 13076202776,
+      "original_directory": "/private/tmp/snifferdog-observed-agent-zero-c63bb5e-41288484161/original",
+      "original_public_members": 26,
+      "original_workflow_result": "PASS",
+      "independent_replay": {
+        "signature_and_chain": "PASS_ZERO_FINDINGS",
+        "checkpoint_bytes_match": true,
+        "task_observation": "PASS",
+        "all_six_sensor_task_coverage": "COVERED",
+        "batches": 45,
+        "kernel_events": 2760,
+        "health_records": 3,
+        "bound_events_by_kind": {
+          "ProcessSpawn": 23,
+          "ProcessExec": 3,
+          "Fork": 3,
+          "Exec": 3,
+          "FileEvent": 2,
+          "Exit": 3
+        },
+        "nonverified_batch_sequences": [],
+        "reported_drops": 0,
+        "unmatched_bound_exec_references": 0,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "summary": {
+          "path": "/private/tmp/snifferdog-observed-agent-zero-c63bb5e-41288484161/independent-mac-offline/summary.json",
+          "bytes": 3107,
+          "sha256": "31db848259c5adaf57963f1932480d024fe287a20eb19bfefc045f71b8d92c65"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "scope": "Actual installed upstream tool component with real kernel observations; no autonomous/model/business/delegation validation.",
+      "original_artifact": {
+        "full_zip_locally_hashed": false,
+        "github_service_full_zip_sha256": "49270e820d3eb04dd8f1a9f6d616f14ef8c417bb82d0f3422d4a0441425f5e99",
+        "github_service_full_zip_bytes": 1593737922,
+        "range_provenance": {
+          "path": "/private/tmp/snifferdog-observed-agent-zero-c63bb5e-41288484161/range-extraction-provenance.json",
+          "bytes": 10442,
+          "sha256": "2ca6153385d9cbb12be2fb8dc8687eb7e1b195b340ee8074272aa3f25e6420ac"
+        },
+        "raw_ranges": [
+          {
+            "path": "/private/tmp/snifferdog-observed-agent-zero-c63bb5e-41288484161/original-prefix.range",
+            "bytes": 98357,
+            "sha256": "0479ee25bfdccd79b459bd69fdff1636b696e496fe404a975de1ed2c1ad342b2"
+          },
+          {
+            "path": "/private/tmp/snifferdog-observed-agent-zero-c63bb5e-41288484161/original-tail.range",
+            "bytes": 65536,
+            "sha256": "b9495748ce3e811f839d8e01d52f6a78470d56210bcaccaa82b38cb26dcc6896"
+          }
+        ],
+        "validation": "Selected exact original public members CRC-checked; full image ZIP and payload NOT downloaded or locally hashed."
+      }
+    },
+    {
+      "framework": "agent_zero",
+      "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+      "run_id": 41291563704,
+      "artifact_id": 13077204224,
+      "original_directory": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291563704/original",
+      "original_public_members": 24,
+      "original_workflow_result": "PASS",
+      "independent_replay": {
+        "signature_and_chain": "PASS_ZERO_FINDINGS",
+        "checkpoint_bytes_match": true,
+        "task_observation": "PASS",
+        "all_six_sensor_task_coverage": "COVERED",
+        "batches": 64,
+        "kernel_events": 5938,
+        "health_records": 4,
+        "bound_events_by_kind": {
+          "ProcessSpawn": 25,
+          "ProcessExec": 6,
+          "FileEvent": 3,
+          "Fork": 6,
+          "Exec": 6,
+          "Exit": 6
+        },
+        "nonverified_batch_sequences": [],
+        "reported_drops": 0,
+        "unmatched_bound_exec_references": 0,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "summary": {
+          "path": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291563704/independent-mac-offline/summary.json",
+          "bytes": 3146,
+          "sha256": "e92c06dd662e1a71fb2f95e936989a22cb2c0bb7d0db6da69c2d36c28e332d07"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "scope": "Actual installed upstream tool component with real kernel observations; no autonomous/model/business/delegation validation.",
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291563704/original-artifact.zip",
+        "bytes": 179214,
+        "sha256": "9a9cd11bf70fa5c69b8399d8d72cefd4c4ecb93646ad7fd2865a74b75024a900",
+        "full_zip_locally_hashed": true,
+        "complete_zip_crc": "PASS",
+        "inventory": {
+          "path": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291563704/original-file-inventory.json",
+          "bytes": 5979,
+          "sha256": "d1421dbff57c0b92c00bdbd4b1e696e2c958518dbc249699aee8157649e82a78"
+        }
+      }
+    },
+    {
+      "framework": "agent_zero",
+      "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+      "run_id": 41291566529,
+      "artifact_id": 13077548276,
+      "original_directory": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291566529/original",
+      "original_public_members": 20,
+      "original_workflow_result": "FAILED",
+      "independent_replay": {
+        "signature_and_chain": "PASS_ZERO_FINDINGS",
+        "checkpoint_bytes_match": true,
+        "task_observation": "FAIL",
+        "all_six_sensor_task_coverage": "INTEGRITY_UNKNOWN",
+        "batches": 102,
+        "kernel_events": 6907,
+        "health_records": 5,
+        "bound_events_by_kind": {
+          "ProcessSpawn": 29,
+          "ProcessExec": 6,
+          "Fork": 6,
+          "Exec": 6,
+          "FileEvent": 3,
+          "Exit": 6
+        },
+        "nonverified_batch_sequences": [
+          46
+        ],
+        "reported_drops": 0,
+        "unmatched_bound_exec_references": 0,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "summary": {
+          "path": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291566529/independent-mac-offline/summary.json",
+          "bytes": 3227,
+          "sha256": "1608aa68425331b92826cac03e8dbbd87e5e98034a7480d2a58478fe85c6868f"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "scope": "Actual installed upstream tool component with real kernel observations; no autonomous/model/business/delegation validation.",
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291566529/original-artifact.zip",
+        "bytes": 214342,
+        "sha256": "6b1278b7a80b3485e8943f6e7682f1b0d5fb3b2bde07c06dd0af20c19927a6ae",
+        "full_zip_locally_hashed": true,
+        "complete_zip_crc": "PASS",
+        "inventory": {
+          "path": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291566529/original-file-inventory.json",
+          "bytes": 5001,
+          "sha256": "0887803af842e004153a6ae60611160c80006d5bfd6186aadd1c927f92cb3123"
+        }
+      },
+      "failure_diagnosis": {
+        "path": "/private/tmp/snifferdog-observed-agent_zero-7695d9a-41291566529/derived-failure-diagnosis.json",
+        "bytes": 2177,
+        "sha256": "b78e41d05809307715355363315b5767949488455932ed0fd25f1a860efe0b0f"
+      },
+      "failure_limit": "Original task coverage FAIL remains FAIL. Actual connector/sched witnesses fell in adjacent signed batches; exact prior internal acquisition stop reason was not recorded. No signed-batch borrowing or previous-health fallback."
+    },
+    {
+      "framework": "deerflow",
+      "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+      "run_id": 41291563704,
+      "artifact_id": 13077508087,
+      "original_directory": "/private/tmp/snifferdog-observed-deerflow-7695d9a-41291563704/original",
+      "original_public_members": 24,
+      "original_workflow_result": "PASS",
+      "independent_replay": {
+        "signature_and_chain": "PASS_ZERO_FINDINGS",
+        "checkpoint_bytes_match": true,
+        "task_observation": "PASS",
+        "all_six_sensor_task_coverage": "COVERED",
+        "batches": 47,
+        "kernel_events": 2441,
+        "health_records": 3,
+        "bound_events_by_kind": {
+          "ProcessSpawn": 4,
+          "ProcessExec": 2,
+          "FileEvent": 113,
+          "Fork": 1,
+          "Exec": 2,
+          "Exit": 1
+        },
+        "nonverified_batch_sequences": [],
+        "reported_drops": 0,
+        "unmatched_bound_exec_references": 0,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "summary": {
+          "path": "/private/tmp/snifferdog-observed-deerflow-7695d9a-41291563704/independent-mac-offline/summary.json",
+          "bytes": 3142,
+          "sha256": "6ca0906cbb2a17b64542ced3bf55339c73490d7af1c6e2ca07f6988d00f0b9ee"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "scope": "Actual installed upstream tool component with real kernel observations; no autonomous/model/business/delegation validation.",
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-observed-deerflow-7695d9a-41291563704/original-artifact.zip",
+        "bytes": 89666,
+        "sha256": "7a680775788abcca81f18496d1a984e6fb2b079ba2137539ea51f576f00b42c3",
+        "full_zip_locally_hashed": true,
+        "complete_zip_crc": "PASS",
+        "inventory": {
+          "path": "/private/tmp/snifferdog-observed-deerflow-7695d9a-41291563704/original-file-inventory.json",
+          "bytes": 5974,
+          "sha256": "154ea3962a4b8bd6387844065a6483aa7b3eff982871f7b251efe095bbac6eec"
+        }
+      }
+    },
+    {
+      "framework": "openhands",
+      "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+      "run_id": 41291563704,
+      "artifact_id": 13077627631,
+      "original_directory": "/private/tmp/snifferdog-observed-openhands-7695d9a-41291563704/original",
+      "original_public_members": 24,
+      "original_workflow_result": "PASS",
+      "independent_replay": {
+        "signature_and_chain": "PASS_ZERO_FINDINGS",
+        "checkpoint_bytes_match": true,
+        "task_observation": "PASS",
+        "all_six_sensor_task_coverage": "COVERED",
+        "batches": 47,
+        "kernel_events": 3217,
+        "health_records": 3,
+        "bound_events_by_kind": {
+          "ProcessSpawn": 79,
+          "ProcessExec": 4,
+          "FileEvent": 3,
+          "Fork": 4,
+          "Exec": 4,
+          "Exit": 4
+        },
+        "nonverified_batch_sequences": [],
+        "reported_drops": 0,
+        "unmatched_bound_exec_references": 0,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "summary": {
+          "path": "/private/tmp/snifferdog-observed-openhands-7695d9a-41291563704/independent-mac-offline/summary.json",
+          "bytes": 3143,
+          "sha256": "0850856a376a8972c691a3e70960bcc528297fd74e596c22a7f4c4673d52cdbe"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "scope": "Actual installed upstream tool component with real kernel observations; no autonomous/model/business/delegation validation.",
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-observed-openhands-7695d9a-41291563704/original-artifact.zip",
+        "bytes": 117902,
+        "sha256": "d621c32876e7f227c6a999614da77d7559b2ee3a4e79ab105bf1bb996a76f042",
+        "full_zip_locally_hashed": true,
+        "complete_zip_crc": "PASS",
+        "inventory": {
+          "path": "/private/tmp/snifferdog-observed-openhands-7695d9a-41291563704/original-file-inventory.json",
+          "bytes": 5981,
+          "sha256": "42a5b648a413bd398b23386db2c3f3bf79f1d926412f33028f0e0de11a24adb6"
+        }
+      }
+    },
+    {
+      "framework": "agent_zero",
+      "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+      "run_id": 41294805975,
+      "artifact_id": 13078727653,
+      "original_directory": "/private/tmp/snifferdog-observed-agent_zero-c379f75-41294805975/original",
+      "original_public_members": 24,
+      "original_workflow_result": "PASS",
+      "independent_replay": {
+        "signature_and_chain": "PASS_ZERO_FINDINGS",
+        "checkpoint_bytes_match": true,
+        "task_observation": "PASS",
+        "all_six_sensor_task_coverage": "COVERED",
+        "batches": 72,
+        "kernel_events": 1607,
+        "health_records": 4,
+        "bound_events_by_kind": {
+          "ProcessSpawn": 29,
+          "ProcessExec": 6,
+          "Fork": 7,
+          "Exec": 6,
+          "FileEvent": 3,
+          "Exit": 7
+        },
+        "nonverified_batch_sequences": [],
+        "reported_drops": 0,
+        "unmatched_bound_exec_references": 0,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "summary": {
+          "path": "/private/tmp/snifferdog-observed-agent_zero-c379f75-41294805975/independent-mac-offline/summary.json",
+          "bytes": 3745,
+          "sha256": "4a5539d06b2c1cb1e7b89baba181e7296857856a9ae2d98d26c3d8ca968960c6"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "scope": "Actual installed upstream tool component with real kernel observations; no autonomous/model/business/delegation validation.",
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-observed-agent_zero-c379f75-41294805975/original-artifact.zip",
+        "bytes": 83879,
+        "sha256": "c1258c1ea12a53527914b9da6b13aeccddaecbcb68e8405089aca2ee543c4537",
+        "full_zip_locally_hashed": true,
+        "complete_zip_crc": "PASS",
+        "inventory": {
+          "path": "/private/tmp/snifferdog-observed-agent_zero-c379f75-41294805975/original-file-inventory.json",
+          "bytes": 5977,
+          "sha256": "68c75cc4c740449602ae8b4be31607a3febb46bf068b06b23c0f82270d277205"
+        }
+      }
+    },
+    {
+      "framework": "deerflow",
+      "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+      "run_id": 41294812019,
+      "artifact_id": 13077948811,
+      "original_directory": "/private/tmp/snifferdog-observed-deerflow-c379f75-41294812019/original",
+      "original_public_members": 24,
+      "original_workflow_result": "PASS",
+      "independent_replay": {
+        "signature_and_chain": "PASS_ZERO_FINDINGS",
+        "checkpoint_bytes_match": true,
+        "task_observation": "PASS",
+        "all_six_sensor_task_coverage": "COVERED",
+        "batches": 47,
+        "kernel_events": 1213,
+        "health_records": 3,
+        "bound_events_by_kind": {
+          "ProcessSpawn": 5,
+          "ProcessExec": 2,
+          "FileEvent": 113,
+          "Fork": 1,
+          "Exec": 2,
+          "Exit": 1
+        },
+        "nonverified_batch_sequences": [],
+        "reported_drops": 0,
+        "unmatched_bound_exec_references": 0,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "summary": {
+          "path": "/private/tmp/snifferdog-observed-deerflow-c379f75-41294812019/independent-mac-offline/summary.json",
+          "bytes": 3743,
+          "sha256": "5e96a19cdc59eec36e393becd5e6ec538d00b1748547a2e6c773caf830f3394c"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "scope": "Actual installed upstream tool component with real kernel observations; no autonomous/model/business/delegation validation.",
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-observed-deerflow-c379f75-41294812019/original-artifact.zip",
+        "bytes": 62369,
+        "sha256": "2a4be63d14ce5e5a5071814de3c93dd49aec97bb456cbb8a284ed4c44135a343",
+        "full_zip_locally_hashed": true,
+        "complete_zip_crc": "PASS",
+        "inventory": {
+          "path": "/private/tmp/snifferdog-observed-deerflow-c379f75-41294812019/original-file-inventory.json",
+          "bytes": 5973,
+          "sha256": "ee44a08bd715402620808128f46ccd952a0c30e09da2a21c61093b3dd04fa33b"
+        }
+      }
+    },
+    {
+      "framework": "openhands",
+      "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+      "run_id": 41294816896,
+      "artifact_id": 13078689074,
+      "original_directory": "/private/tmp/snifferdog-observed-openhands-c379f75-41294816896/original",
+      "original_public_members": 24,
+      "original_workflow_result": "PASS",
+      "independent_replay": {
+        "signature_and_chain": "PASS_ZERO_FINDINGS",
+        "checkpoint_bytes_match": true,
+        "task_observation": "PASS",
+        "all_six_sensor_task_coverage": "COVERED",
+        "batches": 46,
+        "kernel_events": 1812,
+        "health_records": 3,
+        "bound_events_by_kind": {
+          "ProcessSpawn": 77,
+          "ProcessExec": 4,
+          "FileEvent": 3,
+          "Fork": 4,
+          "Exec": 4,
+          "Exit": 4
+        },
+        "nonverified_batch_sequences": [],
+        "reported_drops": 0,
+        "unmatched_bound_exec_references": 0,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "summary": {
+          "path": "/private/tmp/snifferdog-observed-openhands-c379f75-41294816896/independent-mac-offline/summary.json",
+          "bytes": 3743,
+          "sha256": "9d3723be20eebcf3844314829909535435839e8540315645b02e0083f69e3cb7"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "scope": "Actual installed upstream tool component with real kernel observations; no autonomous/model/business/delegation validation.",
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-observed-openhands-c379f75-41294816896/original-artifact.zip",
+        "bytes": 89311,
+        "sha256": "65ddbe9de44e6904d4b809755518396dade621137e88bb99d69ff279df953c5d",
+        "full_zip_locally_hashed": true,
+        "complete_zip_crc": "PASS",
+        "inventory": {
+          "path": "/private/tmp/snifferdog-observed-openhands-c379f75-41294816896/original-file-inventory.json",
+          "bytes": 5980,
+          "sha256": "483cbc893149aee644d12669481167f2172ee1c3188e4119325ef5f73cf142f4"
+        }
+      }
+    }
+  ],
+  "installation_preservation_index": {
+    "path": "/private/tmp/snifferdog-installation-preservation-index-nov1.json",
+    "bytes": 3723,
+    "sha256": "70f2f3266cdbb2ce2c5931670581a2d572ce11d71fbc39bf04b4fb8794cc264d"
+  },
+  "genuine_profile_attempts": [
+    {
+      "framework": "agent_zero",
+      "run_id": 41288486804,
+      "source_commit": "c63bb5ee0e71cc9f97142574c0c4f1b95b85f20c",
+      "artifact_id": 13076173612,
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-agent-zero-41288486804-preserved/original-artifact.zip",
+        "bytes": 11171,
+        "sha256": "709a762d3093a83783d05e6af171c7ab0084bc415e6506d780b8b4c5a6056638",
+        "full_original_zip_locally_hashed": true,
+        "service_digest_matches_local": true,
+        "complete_zip_crc": "PASS",
+        "original_zip_members": 10
+      },
+      "original_directory": "/private/tmp/snifferdog-agent-zero-41288486804-preserved/original",
+      "original_profile_status": "FAIL",
+      "capability_status": "FAIL",
+      "capability_model_requests": 2,
+      "capability_failure_type": "FileNotFoundError",
+      "business_workload": "NOT_STARTED",
+      "business_acceptance": "NOT_ESTABLISHED",
+      "business_kernel_archive": "NOT_PRODUCED",
+      "business_offline_verification": "NOT_APPLICABLE_NO_BUSINESS_ARCHIVE",
+      "scope": "Separate actual framework capability attempt; application diagnostics/model service access log are unsigned, not business-task kernel evidence.",
+      "derived_summary": {
+        "path": "/private/tmp/snifferdog-agent-zero-41288486804-preserved/derived/summary.json",
+        "bytes": 1831,
+        "sha256": "db5a63c5457e5b248134b387d95ea2eebb721254ae2b2f8290f52d8d5f7fd659"
+      },
+      "inventories": [
+        {
+          "path": "/private/tmp/snifferdog-agent-zero-41288486804-preserved/preservation-inventory.json",
+          "bytes": 2358,
+          "sha256": "6ba89c9930ca831bcf11fca61b8aa7a2f46e26a6279a8aefb54003b05a1bd4e6"
+        },
+        {
+          "path": "/private/tmp/snifferdog-agent-zero-41288486804-preserved/inventory.json",
+          "bytes": 1935,
+          "sha256": "e076560183a6059bee2ed53aa229022fa57f8ab2097abd41a58c73bb6af1a18c"
+        }
+      ]
+    },
+    {
+      "framework": "deerflow",
+      "run_id": 41294812019,
+      "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+      "artifact_id": 13079032967,
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-deerflow-41294812019-preserved/original-artifact.zip",
+        "bytes": 5930,
+        "sha256": "b75029c5085f75446171c7a46ee50a233925f2d8960b228ef02f4bc7d1be0427",
+        "full_original_zip_locally_hashed": true,
+        "service_digest_matches_local": true,
+        "complete_zip_crc": "PASS",
+        "original_zip_members": 10
+      },
+      "original_directory": "/private/tmp/snifferdog-deerflow-41294812019-preserved/original",
+      "original_profile_status": "FAIL",
+      "capability_status": "FAIL",
+      "capability_model_requests": 0,
+      "capability_failure_type": "OSError",
+      "business_workload": "NOT_STARTED",
+      "business_acceptance": "NOT_ESTABLISHED",
+      "business_kernel_archive": "NOT_PRODUCED",
+      "business_offline_verification": "NOT_APPLICABLE_NO_BUSINESS_ARCHIVE",
+      "scope": "Separate actual framework capability attempt; application diagnostics/model service access log are unsigned, not business-task kernel evidence.",
+      "derived_summary": {
+        "path": "/private/tmp/snifferdog-deerflow-41294812019-preserved/derived/summary.json",
+        "bytes": 1297,
+        "sha256": "d91d74e8605c6f62993d44818648234a768c72fe72cf51dd0f6b532e0878603e"
+      },
+      "inventories": [
+        {
+          "path": "/private/tmp/snifferdog-deerflow-41294812019-preserved/preservation-inventory.json",
+          "bytes": 2205,
+          "sha256": "e1ee649bc2d2760d3bdebf8249d86f41de32ab97ae7ab2e27e238edba9de3e1f"
+        }
+      ]
+    },
+    {
+      "framework": "openhands",
+      "run_id": 41294816896,
+      "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+      "artifact_id": 13078078773,
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-openhands-41294816896-preserved/original-artifact.zip",
+        "bytes": 5947,
+        "sha256": "d0e9993be2e08e39ab0b9be490d567b2f55a383c48a659bb5e458d3a76b03012",
+        "full_original_zip_locally_hashed": true,
+        "service_digest_matches_local": true,
+        "complete_zip_crc": "PASS",
+        "original_zip_members": 10
+      },
+      "original_directory": "/private/tmp/snifferdog-openhands-41294816896-preserved/original",
+      "original_profile_status": "FAIL",
+      "capability_status": "FAIL",
+      "capability_model_requests": 0,
+      "capability_failure_type": "TypeError",
+      "business_workload": "NOT_STARTED",
+      "business_acceptance": "NOT_ESTABLISHED",
+      "business_kernel_archive": "NOT_PRODUCED",
+      "business_offline_verification": "NOT_APPLICABLE_NO_BUSINESS_ARCHIVE",
+      "scope": "Separate actual framework capability attempt; application diagnostics/model service access log are unsigned, not business-task kernel evidence.",
+      "derived_summary": {
+        "path": "/private/tmp/snifferdog-openhands-41294816896-preserved/derived/summary.json",
+        "bytes": 1300,
+        "sha256": "31ae059f5875bc0d0399fd47beed92badb7c1db77fc020410a658239c5c57e54"
+      },
+      "inventories": [
+        {
+          "path": "/private/tmp/snifferdog-openhands-41294816896-preserved/preservation-inventory.json",
+          "bytes": 2205,
+          "sha256": "6dac944ef529193ffcd515efc8f0cbd5710cc22de73cef487f575f985d68f983"
+        }
+      ]
+    },
+    {
+      "framework": "agent_zero",
+      "run_id": 41294805975,
+      "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+      "artifact_id": 13079295928,
+      "original_artifact": {
+        "path": "/private/tmp/snifferdog-agent-zero-41294805975-preserved/original-13079295928.zip",
+        "bytes": 15967,
+        "sha256": "29a767fa9aa23c34497309ea6d8f164e8987befdc067a30f72dbe94b2db8b336",
+        "full_original_zip_locally_hashed": true,
+        "service_digest_matches_local": true,
+        "complete_zip_crc": "PASS",
+        "original_zip_members": 10
+      },
+      "original_directory": "/private/tmp/snifferdog-agent-zero-41294805975-preserved/original",
+      "original_profile_status": "FAIL",
+      "capability_status": "FAIL",
+      "capability_model_requests": 3,
+      "capability_failure_type": "FileNotFoundError",
+      "business_workload": "NOT_STARTED",
+      "business_acceptance": "NOT_ESTABLISHED",
+      "business_kernel_archive": "NOT_PRODUCED",
+      "business_offline_verification": "NOT_APPLICABLE_NO_BUSINESS_ARCHIVE",
+      "scope": "Separate actual framework capability attempt; application diagnostics/model service access log are unsigned, not business-task kernel evidence.",
+      "derived_summary": {
+        "path": "/private/tmp/snifferdog-agent-zero-41294805975-preserved/derived/summary.json",
+        "bytes": 1162,
+        "sha256": "3a0db2fb3f5237507af9d9d13c3e20c30047eeebf0bc4da583da4acb92d0cb40"
+      },
+      "inventories": []
+    },
+    {
+      "framework": "agent_zero",
+      "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+      "run_id": 41291566529,
+      "job_id": 124804825453,
+      "job_conclusion": "skipped",
+      "business_workload": "NOT_STARTED",
+      "business_acceptance": "NOT_ESTABLISHED",
+      "reason": "Observed-component signed task coverage failed; genuine job skipped; no genuine artifact."
+    }
+  ],
+  "c379_linux_release_checks": {
+    "path": "/private/tmp/snifferdog-linux-probe-c379f75.json",
+    "bytes": 11556,
+    "sha256": "07a994589affc242874e2f97e2caa61fa4ceae5712a474d874a061e52eaed5b7"
+  },
+  "limits": [
+    "No public original bytes edited. Separate derived summaries/inventories do not confer signatures.",
+    "Original trust anchors/checkpoints came in the same GitHub artifact. Independent offline replay is a separate process on Mac, not independently controlled institution custody.",
+    "Unsigned workflow/image/framework/model/application reports have their stated source authority; they are not kernel proof of logical identity, delegation, authorization or outcomes.",
+    "All-six sensor task coverage checked independently for each retained observed component. Generic harness three-sensor policy was not broadened; no business archive exists here to evaluate.",
+    "Huge image artifacts not fully downloaded remain GitHub-service-digest-only, except the explicitly CRC-validated selected c63 public range members.",
+    "Passing later acquisition does not retrospectively repair the retained failed769 capture. No union of recovery epochs or old signed batch witnesses is used.",
+    "Not complete assignment acceptance, production approval, independent custody, customer deployment or evidence of general model capability."
+  ]
+}

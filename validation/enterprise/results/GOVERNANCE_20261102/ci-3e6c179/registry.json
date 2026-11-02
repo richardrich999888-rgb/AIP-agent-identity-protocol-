@@ -1,0 +1,846 @@
+{
+  "classification": "DERIVED_EXACT_SOURCE_CI_REGISTRY_NOT_NEW_EXECUTION_EVIDENCE",
+  "source_head": "3e6c1794000fa23006ef623722e37700e49582b7",
+  "pr_number": 8,
+  "pr_draft": true,
+  "tested_pr_merge": "83ccc8412745fce7ad089c092caa3606e07248c5",
+  "source_and_pr_tree": "8fc88d0001c3ac168c2f3575ef5991d87c897fbb",
+  "source_and_pr_tree_equal": true,
+  "component_security_checks": {
+    "total": 18,
+    "passed": 16,
+    "failed": 2,
+    "skipped": 0,
+    "pending": 0
+  },
+  "all_pr_triggered_jobs": {
+    "total": 20,
+    "passed": 17,
+    "failed": 2,
+    "skipped": 1,
+    "pending": 0
+  },
+  "strict_security_status": "FAILED",
+  "overall_ci_status": "FAILED",
+  "jobs": [
+    {
+      "workflow_run_id": 41432496258,
+      "workflow_name": "Open-source agents and Linux observation",
+      "job_id": 125234256629,
+      "name": "hosted-observer-capabilities",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496258/job/125234256629"
+    },
+    {
+      "workflow_run_id": 41432496258,
+      "workflow_name": "Open-source agents and Linux observation",
+      "job_id": 125234256688,
+      "name": "release-regression",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496258/job/125234256688"
+    },
+    {
+      "workflow_run_id": 41432496258,
+      "workflow_name": "Open-source agents and Linux observation",
+      "job_id": 125234256825,
+      "name": "image (agent_zero)",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496258/job/125234256825"
+    },
+    {
+      "workflow_run_id": 41432496258,
+      "workflow_name": "Open-source agents and Linux observation",
+      "job_id": 125235862518,
+      "name": "genuine-task",
+      "status": "completed",
+      "conclusion": "skipped",
+      "scope": "guarded_pr_skip",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496258/job/125235862518"
+    },
+    {
+      "workflow_run_id": 41432496214,
+      "workflow_name": "Genuine same-run execution assurance",
+      "job_id": 125234257112,
+      "name": "local-model-linux",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "genuine_core",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496214/job/125234257112"
+    },
+    {
+      "workflow_run_id": 41432496260,
+      "workflow_name": "Security",
+      "job_id": 125234256433,
+      "name": "trivy filesystem scan",
+      "status": "completed",
+      "conclusion": "failure",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496260/job/125234256433"
+    },
+    {
+      "workflow_run_id": 41432496260,
+      "workflow_name": "Security",
+      "job_id": 125234256758,
+      "name": "gitleaks (secret scan)",
+      "status": "completed",
+      "conclusion": "failure",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496260/job/125234256758"
+    },
+    {
+      "workflow_run_id": 41432496260,
+      "workflow_name": "Security",
+      "job_id": 125234256856,
+      "name": "cargo audit (RUSTSEC)",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496260/job/125234256856"
+    },
+    {
+      "workflow_run_id": 41432496223,
+      "workflow_name": "CI",
+      "job_id": 125234256776,
+      "name": "fmt \u00b7 clippy \u00b7 test",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496223/job/125234256776"
+    },
+    {
+      "workflow_run_id": 41432496223,
+      "workflow_name": "CI",
+      "job_id": 125234257056,
+      "name": "postgres backend integration",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496223/job/125234257056"
+    },
+    {
+      "workflow_run_id": 41432496223,
+      "workflow_name": "CI",
+      "job_id": 125234257120,
+      "name": "coverage",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496223/job/125234257120"
+    },
+    {
+      "workflow_run_id": 41432496223,
+      "workflow_name": "CI",
+      "job_id": 125234257163,
+      "name": "RED suite (adversarial ledger reproducible)",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496223/job/125234257163"
+    },
+    {
+      "workflow_run_id": 41432496223,
+      "workflow_name": "CI",
+      "job_id": 125234257196,
+      "name": "Python SDK regression and parity tests",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496223/job/125234257196"
+    },
+    {
+      "workflow_run_id": 41432496223,
+      "workflow_name": "CI",
+      "job_id": 125234257204,
+      "name": "cargo audit \u00b7 cargo deny",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496223/job/125234257204"
+    },
+    {
+      "workflow_run_id": 41432496211,
+      "workflow_name": "Real-agent harness contracts (no live agent claim)",
+      "job_id": 125234256123,
+      "name": "Real OPA and OpenTelemetry component controls (no agent claim)",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496211/job/125234256123"
+    },
+    {
+      "workflow_run_id": 41432496211,
+      "workflow_name": "Real-agent harness contracts (no live agent claim)",
+      "job_id": 125234256586,
+      "name": "contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496211/job/125234256586"
+    },
+    {
+      "workflow_run_id": 41432496283,
+      "workflow_name": "RBI rehearsal",
+      "job_id": 125234256582,
+      "name": "script-regressions",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496283/job/125234256582"
+    },
+    {
+      "workflow_run_id": 41432496283,
+      "workflow_name": "RBI rehearsal",
+      "job_id": 125234404318,
+      "name": "live-rehearsal",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496283/job/125234404318"
+    },
+    {
+      "workflow_run_id": 41432496271,
+      "workflow_name": "Enterprise integration",
+      "job_id": 125234256412,
+      "name": "contextforge",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496271/job/125234256412"
+    },
+    {
+      "workflow_run_id": 41432496271,
+      "workflow_name": "Enterprise integration",
+      "job_id": 125234256480,
+      "name": "contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "scope": "component_or_security",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432496271/job/125234256480"
+    }
+  ],
+  "test_counts": {
+    "main": {
+      "debug_unit_and_integration": {
+        "passed": 3268,
+        "failed": 0,
+        "ignored": 7,
+        "measured": 0,
+        "filtered_out": 0,
+        "summary_count": 279
+      },
+      "debug_doctests": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 2,
+        "measured": 0,
+        "filtered_out": 0,
+        "summary_count": 53
+      },
+      "release_unit_and_integration": {
+        "passed": 3270,
+        "failed": 0,
+        "ignored": 5,
+        "measured": 0,
+        "filtered_out": 0,
+        "summary_count": 279
+      },
+      "release_doctests": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 2,
+        "measured": 0,
+        "filtered_out": 0,
+        "summary_count": 53
+      }
+    },
+    "coverage": {
+      "passed": 3268,
+      "failed": 0,
+      "ignored": 7,
+      "scope": "repeat_of_debug_workspace_not_added_as_unique_tests"
+    },
+    "harness_contracts": {
+      "passed": 138,
+      "failed": 0,
+      "scope": "portable_contracts_not_live_agent"
+    },
+    "python_sdk": {
+      "passed": 76,
+      "failed": 0
+    },
+    "governance_components": {
+      "passed": 21,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "scope": "actual_pinned_OPA_and_OpenTelemetry_component_gate_controlled_inputs",
+      "original_decoded_job_log": "/private/tmp/snifferdog-governance-linux-3e6c179-job-original.log"
+    },
+    "contextforge_policy_python": [
+      "2026-11-02T10:55:13.5847680Z Ran 11 tests in 0.476s"
+    ],
+    "contextforge_actual_interoperability": {
+      "result": "PASS",
+      "checks": 27
+    },
+    "postgres_per_invocation": [
+      {
+        "passed": 57,
+        "failed": 0,
+        "ignored": 1
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 14,
+        "failed": 0,
+        "ignored": 2
+      },
+      {
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 18,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 14
+      },
+      {
+        "passed": 13,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 14,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "enterprise_contracts_per_invocation": [
+      {
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 23,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 17,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 13,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 1
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 12,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 15,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 32,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 14,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 11,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 16,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 16,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 12,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 14,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 12,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 54,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 14,
+        "failed": 0,
+        "ignored": 2
+      },
+      {
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 18,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 13,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "enterprise_python_invocations": [
+      "2026-11-02T10:54:43.8537003Z Ran 16 tests in 0.083s",
+      "2026-11-02T10:54:43.9752808Z Ran 3 tests in 0.020s",
+      "2026-11-02T10:54:57.7743288Z Ran 17 tests in 13.616s",
+      "2026-11-02T10:54:58.8633362Z Ran 76 tests in 0.701s",
+      "2026-11-02T10:55:00.8760452Z Ran 12 tests in 1.015s"
+    ],
+    "rbi_script_python": [
+      "2026-11-02T10:54:39.8113678Z Ran 17 tests in 9.894s"
+    ],
+    "rbi_live_rust": [
+      {
+        "passed": 13,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "focused_release": {
+      "probe_lib_passed": 21,
+      "g14_04_repetitions_passed": 20,
+      "g14_04_passes_in_main_debug": true,
+      "g14_04_passes_in_main_release": true,
+      "b05_b13_wrong_process_passes_in_main_debug_and_release": true
+    },
+    "red": {
+      "runnable": 43,
+      "notes": 2,
+      "blocked": 10,
+      "failed": 0
+    }
+  },
+  "interpretation": [
+    "Counts are per invocation and profile; coverage and repeated/overlapping scopes are not summed as unique tests.",
+    "Ignored regeneration/performance/client/doctest scopes remain explicit. PostgreSQL has14 initially ignored database tests subsequently explicitly rerun successfully.",
+    "RED kernel-required/deferred rows retain10 BLOCKED outcomes despite green reproducibility job.",
+    "The Agent Zero genuine task was skipped by the PR event guard; this job does not validate a new model-driven Agent Zero workload.",
+    "Separate manual governance genuine workflow41432473155 is outside this PR-triggered inventory and is owned by independent evidence review.",
+    "No additional native model jobs were dispatched;0b5 DeerFlow/OpenHands failed limitations remain.",
+    "Existing RUSTSEC-2026-0097 ignore in main audit command is unchanged; no new scanner waiver or ignore was added.",
+    "Debug/release unit+integration counts explicitly exclude doctests. Each profile has2passed/2ignored doctests; these supersede olderff99 combined-profile annotations and are not unique-test totals."
+  ],
+  "scanner_summary": "/private/tmp/snifferdog-ci-3e6c179/security-summary.json",
+  "scanner_original_zips": "/private/tmp/snifferdog-ci-3e6c179/security-originals/",
+  "scanner_outcomes": {
+    "classification": "DERIVED_SCANNER_METADATA_ONLY_NO_RAW_DETECTOR_VALUES",
+    "source": "3e6c1794000fa23006ef623722e37700e49582b7",
+    "scanner_jobs_remain_failed": [
+      "gitleaks",
+      "trivy"
+    ],
+    "waivers_or_ignores_added": false,
+    "artifacts": [
+      {
+        "scanner": "trivy",
+        "artifact_id": 13135115942,
+        "original_zip": "/private/tmp/snifferdog-ci-3e6c179/security-originals/trivy-13135115942.zip",
+        "zip_sha256": "9342632385292484e8f4ad044361a0c474a396e6a489de6e19a66a613acbc338",
+        "reports": [
+          {
+            "file": "/private/tmp/snifferdog-ci-3e6c179/security-originals/trivy-13135115942/trivy-results.sarif",
+            "sha256": "ed861699d4afdfa66df7eeb9bbe9f7d6c09230935835fa4c021c07820df2ce56",
+            "result_count": 4,
+            "rule_counts": {
+              "KSV-0009": 1,
+              "KSV-0010": 1,
+              "KSV-0118": 1,
+              "KSV-0121": 1
+            },
+            "levels": {
+              "error": 4
+            },
+            "rule_metadata": [
+              {
+                "id": "KSV-0009",
+                "properties": {
+                  "precision": "very-high",
+                  "security-severity": "8.0",
+                  "tags": [
+                    "misconfiguration",
+                    "security",
+                    "HIGH"
+                  ]
+                }
+              },
+              {
+                "id": "KSV-0010",
+                "properties": {
+                  "precision": "very-high",
+                  "security-severity": "8.0",
+                  "tags": [
+                    "misconfiguration",
+                    "security",
+                    "HIGH"
+                  ]
+                }
+              },
+              {
+                "id": "KSV-0118",
+                "properties": {
+                  "precision": "very-high",
+                  "security-severity": "8.0",
+                  "tags": [
+                    "misconfiguration",
+                    "security",
+                    "HIGH"
+                  ]
+                }
+              },
+              {
+                "id": "KSV-0121",
+                "properties": {
+                  "precision": "very-high",
+                  "security-severity": "8.0",
+                  "tags": [
+                    "misconfiguration",
+                    "security",
+                    "HIGH"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "scanner": "gitleaks",
+        "artifact_id": 13134458882,
+        "original_zip": "/private/tmp/snifferdog-ci-3e6c179/security-originals/gitleaks-13134458882.zip",
+        "zip_sha256": "258dd4336ae89b52f9a0d7e35c2f4894b9c1b4730da1443e07448ede76dea093",
+        "reports": [
+          {
+            "file": "/private/tmp/snifferdog-ci-3e6c179/security-originals/gitleaks-13134458882/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/results.sarif",
+            "sha256": "a59444b36fd4e911fa719f01d665a352ad7e78eb396b4cee1cc4ff8657b4043b",
+            "result_count": 217,
+            "rule_counts": {
+              "generic-api-key": 217
+            },
+            "levels": {
+              "null": 217
+            }
+          }
+        ]
+      },
+      {
+        "scanner": "cargo-audit",
+        "artifact_id": 13134763282,
+        "original_zip": "/private/tmp/snifferdog-ci-3e6c179/security-originals/cargo-audit-13134763282.zip",
+        "zip_sha256": "8fb1d1237a517c834b0f0f70486d9b79c02841bd946640490653c85ac5f96a2a",
+        "reports": [
+          {
+            "file": "/private/tmp/snifferdog-ci-3e6c179/security-originals/cargo-audit-13134763282/audit.json",
+            "sha256": "bdbd661f9df8abf8de6b677589922987a17c8f21fa60a049fd15f5a036c69fd2",
+            "vulnerabilities_found": false,
+            "vulnerability_count": 0,
+            "warning_categories": {}
+          }
+        ]
+      }
+    ],
+    "comparison_to_previously_source_triaged_results": {
+      "gitleaks": {
+        "method": "CANONICAL_COMPLETE_RESULT_OBJECT_MULTISET_COMPARISON_NO_RAW_DETECTOR_VALUES",
+        "prior_head": "57ac0d1d1bd7dae566244245316fa3314dd19b16",
+        "prior_original_zip": "/private/tmp/snifferdog-security-57ac0d1-private/12913273054.zip",
+        "current_report": "/private/tmp/snifferdog-ci-3e6c179/security-originals/gitleaks-13134458882/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/results.sarif",
+        "prior_count": 217,
+        "current_count": 217,
+        "identical_complete_result_multisets": true
+      },
+      "trivy": {
+        "method": "CANONICAL_COMPLETE_RESULT_OBJECT_MULTISET_COMPARISON_NO_RAW_DETECTOR_VALUES",
+        "prior_head": "57ac0d1d1bd7dae566244245316fa3314dd19b16",
+        "prior_original_zip": "/private/tmp/snifferdog-security-57ac0d1-private/12914446534.zip",
+        "current_report": "/private/tmp/snifferdog-ci-3e6c179/security-originals/trivy-13135115942/trivy-results.sarif",
+        "prior_count": 4,
+        "current_count": 4,
+        "identical_complete_result_multisets": true
+      }
+    },
+    "strict_security_result": "FAILED",
+    "source_context_classification": {
+      "gitleaks": {
+        "typed_classification_counts": {
+          "Linux audit rule-selection label": 213,
+          "container_environment_assignment_GPG_KEY": 3,
+          "local_API_executable_SHA256_digest": 1
+        },
+        "credential_classification": {
+          "False": 217
+        },
+        "basis": "Prior source-context review; complete current result-object multiset matches all217 prior originals exactly. This is not a detector waiver."
+      },
+      "trivy": {
+        "classification": "Four HIGH historical Helm host-access findings; opt-in disabled-default source context and runtime privilege qualification remain separate",
+        "basis": "Complete current result-object multiset matches all4 prior source-reviewed originals exactly; no runtime production validation or minimum-privilege claim."
+      }
+    },
+    "cargo_audit_scope": "Reported0 vulnerabilities under existing workflow configuration; inherited RUSTSEC-2026-0097 ignore remains. No unqualified vulnerability-free claim."
+  },
+  "safe_repository_copy": "This registry, security-summary.json and selected-job-log-lines.json contain no raw scanner detector values. Do NOT copy security-originals/ or raw SARIF into the repository."
+}

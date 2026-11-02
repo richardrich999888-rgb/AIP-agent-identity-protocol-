@@ -1,0 +1,41 @@
+[
+  {
+    "profile": "same-run",
+    "operation": "PUBLIC_OPA_EVALUATE_WITH_EXACT_SOURCE_POLICY",
+    "seconds": 0.06459329200151842,
+    "platform": "Darwin-arm64",
+    "engine_sha256": "41af6de872b3cb1d17eb604779489c83dd9bf377737873f9866814501df6e2d1",
+    "policy_sha256": "4412a347279d1372a423ef75f5f37ca936eeca73f63db9b0ef445b785c20fb86",
+    "input_sha256": "4421b3cfae4c7a38080c04073dba4125da146b4c1943aadde3cccfed1b4ff49f",
+    "controller_data_sha256": "c5f7cb21ae70ed8f86170e2a7d559c62490f0be75a023bea4e5b360ef5305fa5",
+    "output_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+    "allowed": true,
+    "network_used": false
+  },
+  {
+    "profile": "same-run-interruption",
+    "operation": "PUBLIC_OPA_EVALUATE_WITH_EXACT_SOURCE_POLICY",
+    "seconds": 0.043043583995313384,
+    "platform": "Darwin-arm64",
+    "engine_sha256": "41af6de872b3cb1d17eb604779489c83dd9bf377737873f9866814501df6e2d1",
+    "policy_sha256": "4412a347279d1372a423ef75f5f37ca936eeca73f63db9b0ef445b785c20fb86",
+    "input_sha256": "f26b3ce92338c46d427d1db1552c8b846300aed906c5b2c467288038462ec1dd",
+    "controller_data_sha256": "31af36a6cc487aab6d4574c89e3bd42ebeb6980b96acf306afafb2f9c9b48954",
+    "output_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+    "allowed": true,
+    "network_used": false
+  },
+  {
+    "profile": "same-run-recovery",
+    "operation": "PUBLIC_OPA_EVALUATE_WITH_EXACT_SOURCE_POLICY",
+    "seconds": 0.04285033400810789,
+    "platform": "Darwin-arm64",
+    "engine_sha256": "41af6de872b3cb1d17eb604779489c83dd9bf377737873f9866814501df6e2d1",
+    "policy_sha256": "4412a347279d1372a423ef75f5f37ca936eeca73f63db9b0ef445b785c20fb86",
+    "input_sha256": "886320853c5cbdf63fa0f4eb463aa8e36fced21714ecdc97eb7eb3256d792c9e",
+    "controller_data_sha256": "2774b52f6ff05694c1314d9620f2bd79b65cc73549de116c43f45b370624cdcc",
+    "output_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+    "allowed": true,
+    "network_used": false
+  }
+]

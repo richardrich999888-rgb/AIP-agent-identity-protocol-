@@ -1,0 +1,16 @@
+# Selected public job-log records; original timestamps retained, ANSI formatting omitted.
+# Contracts: https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558666/job/122762763474
+# ContextForge: https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558666/job/122762763183
+2026-10-28T10:29:50.4735681Z HEAD is now at 076b22c Merge e9da41314c3851a92388a8ce80f1db9a3a696520 into 5489260b96124b95a7973233e69d9e5a44cb6bf5
+2026-10-28T10:33:45.7870881Z TypeScript real API retrieval and cross-tenant refusal: PASS
+2026-10-28T10:33:45.8611544Z {"sdk": "PASS", "real_mcp_client": "PASS", "cross_tenant": "PASS", "openapi_contract": "PASS", "mcp_privilege_refusal": "PASS", "input_limit": "PASS", "kernel_observation": "NOT_EXERCISED"}
+2026-10-28T10:33:46.0006298Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 6.26s
+2026-10-28T10:34:40.3302417Z {"archive": "dist/vanian-runtime-x86_64-linux.tar", "sha256": "18c8ab104842eb9d806ea4952a5104c368a2f5344f6c0d21aa75a93a3d87a86a", "source_commit": "076b22c27d663a87dfd62d91df20583f417b383a", "target": "x86_64-unknown-linux-gnu"}
+2026-10-28T10:34:41.1326275Z SHA256 digest of uploaded artifact zip is 9befa5c62e141a43bc2484f252ab795ba4369e242ea305e22b675193beec9ebe
+2026-10-28T10:34:41.6112328Z Artifact enterprise-linux-runtime-076b22c27d663a87dfd62d91df20583f417b383a.zip successfully finalized. Artifact ID 12808967786
+2026-10-28T10:29:54.4472924Z git -C "$RUNNER_TEMP/contextforge" checkout ff6a566a4b5c098093db90bbb4d5df483e108026
+2026-10-28T10:31:00.5066878Z {"name": "official_mcp_2_3_client_uses_2026_07_28_transport_and_signed_receipt", "status": "PASS", "detail": "{\"protocol_version\": \"2026-07-28\", \"isError\": false, \"actual_dispatches\": 1, \"receipt_persisted\": true, \"upstream_compatibility\": \"Pinned ContextForge strips successful top-level result metadata on /mcp; receipt remains in gateway sink.\"}"}
+2026-10-28T10:31:02.8819113Z {"name": "live_parameter_mismatch_diverges_via_real_rust_comparator_without_agent_claim", "status": "PASS", "detail": ""}
+2026-10-28T10:31:08.6845160Z {"name": "gateway_restart_preserves_replay_protection", "status": "PASS", "detail": ""}
+2026-10-28T10:31:09.2541289Z {"name": "every_exported_receipt_verifies_offline_with_public_anchor_only", "status": "PASS", "detail": ""}
+2026-10-28T10:31:09.2556681Z {"result": "PASS", "checks": 27, "output": "/home/runner/work/_temp/contextforge-results"}

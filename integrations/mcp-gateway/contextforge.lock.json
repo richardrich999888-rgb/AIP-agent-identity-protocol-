@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/IBM/mcp-context-forge.git",
+  "revision": "ff6a566a4b5c098093db90bbb4d5df483e108026",
+  "gateway_version": "1.1.0",
+  "cpex": "0.1.4",
+  "mcp": "2.3.0",
+  "mcp_types": "2.3.0",
+  "uv_lock_sha256": "76ef83096d34d7a95aca91407cbf085c3da1e0c937616d86da393b9549117f0c",
+  "runtime_dependencies": "upstream uv.lock at the pinned revision; uv sync --locked --no-dev --no-install-project",
+  "plugin_api": "cpex.framework.Plugin; tool_pre_invoke and tool_post_invoke",
+  "license": "Apache-2.0"
+}

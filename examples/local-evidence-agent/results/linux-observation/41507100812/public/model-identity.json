@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "classification": "PUBLIC_PINNED_LOCAL_CPU_MODEL_ASSETS",
+  "root": "/home/runner/work/_temp/qa-model",
+  "models": "/home/runner/work/_temp/qa-model/models",
+  "binary": {
+    "path": "/home/runner/work/_temp/qa-model/bin/ollama",
+    "version": "0.40.11",
+    "sha256": "b0a4becfaf872e3ad5d2e9051244e0dfe55409f03d6e2cd9bd9c34400e201b4c"
+  },
+  "model": {
+    "model": "vanian-qwen-local",
+    "manifest_sha256": "ce52b9256f233ada412c475fa541bd467a898d2a3b347621d1ce1823595982c0",
+    "weight_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "weight_bytes": 1117320736,
+    "serving_context_length": 8192
+  },
+  "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+  "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+  "license": "Apache-2.0",
+  "runtime_archive_sha256": "7bedab90dd122661be78798e9f0edf37fccf0cccf2699d2c58ea1a3afdc04b6d",
+  "model_api_credentials_used": false,
+  "paid_inference_used": false,
+  "verification_network_used": false
+}

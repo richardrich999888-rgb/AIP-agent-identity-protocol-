@@ -78,23 +78,29 @@ def event_time(batch, event):
 
 
 def covered(health, start, end, mechanisms, max_error_us=1_000_000):
-    """One Active signed epoch must enclose the entire interval; never union
-    recovery windows across a gap. Bad health inside the interval vetoes it.
+    """The final retained signed health must cover one complete Active epoch.
+
+    Never union recovery windows or reuse an older Active record. Emission
+    chronology cannot move backwards; equal timestamps retain archive order,
+    so the last record wins. Bad health inside the interval still vetoes it.
     """
+    latest = previous_emission = None
     for item in health:
         h = item["health"]
-        if start <= h["emitted_at_ms"] <= end and h["state"] != "Active":
+        emitted = h["emitted_at_ms"]
+        if previous_emission is not None and emitted < previous_emission:
             return False
-    for item in health:
-        h = item["health"]
-        w, clock = h.get("attested_coverage"), h.get("clock")
-        if (h["state"] == "Active" and h["continuity"] == "Verified" and w
+        if start <= emitted <= end and h["state"] != "Active":
+            return False
+        latest, previous_emission = h, emitted
+    if latest is None:
+        return False
+    w, clock = latest.get("attested_coverage"), latest.get("clock")
+    return bool(latest["state"] == "Active" and latest["continuity"] == "Verified" and w
                 and w["from_ms"] <= start and w["to_ms"] >= end
-                and set(mechanisms) <= set(h["covered_by"])
+                and set(mechanisms) <= set(latest["covered_by"])
                 and clock and clock["synchronized"]
-                and 0 <= clock["max_error_us"] <= max_error_us):
-            return True
-    return False
+                and 0 <= clock["max_error_us"] <= max_error_us)
 
 
 def summarize(batches, health, launch, start, end):
@@ -109,12 +115,6 @@ def summarize(batches, health, launch, start, end):
     unbound = outside = unclocked = dropped = root_events = 0
     recent = []
     executions = []
-    # The current Rust corroborator normalizes all execs with its first exec
-    # batch's anchor. Use the same domain for exact agreement references;
-    # display/window timestamps below still use each event's own batch anchor.
-    comparison_anchor = next((s["batch"].get("clock_anchor") for s in batches
-                              if any("ProcessExec" in e["kind"]
-                                     for e in s["batch"]["kernel_events"])), None)
     for signed in batches:
         b = signed["batch"]
         if b["probe_id"] != launch["probe_id"]:
@@ -145,8 +145,9 @@ def summarize(batches, health, launch, start, end):
             root_events += instance_key(p) == instance_key(launch["process"])
             counts[kind] += 1
             if kind == "ProcessExec":
-                comparison_time = event_time({"clock_anchor": comparison_anchor}, e)
-                executions.append({"pid": p["pid"], "wall_ms": comparison_time,
+                # The Rust corroborator resets its anchor for each batch.
+                # Exact evidence references use that same signed clock domain.
+                executions.append({"pid": p["pid"], "wall_ms": when,
                                    "batch_sequence": signed["sequence"]})
             recent.append({"state": "OBSERVED", "time_ms": when,
                            "kind": kind, "process": p, "container": container,

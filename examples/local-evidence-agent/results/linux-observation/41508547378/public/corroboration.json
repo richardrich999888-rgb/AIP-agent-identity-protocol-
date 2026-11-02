@@ -1,0 +1,31 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1793647267118,
+  "window_to_ms": 1793647328684,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 3762,
+        "wall_ms": 1793647268120,
+        "image": "/home/runner/work/_temp/qa-python/bin/python",
+        "batch_sequence": 27
+      },
+      "external_wall_ms": 1793647268117,
+      "external_image": "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python3.12",
+      "skew_ms": -3
+    }
+  ],
+  "aip_only": [
+    {
+      "pid": 3815,
+      "wall_ms": 1793647326601,
+      "image": "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/aip-observe-verify",
+      "batch_sequence": 71
+    }
+  ],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 0
+}

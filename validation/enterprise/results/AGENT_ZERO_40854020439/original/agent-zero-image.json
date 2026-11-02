@@ -1,0 +1,86 @@
+[
+    {
+        "Id": "sha256:0e5c1922cf5da0c8285230e1e7304a716206b8d3ceed43f733c4ba7831a1029a",
+        "RepoTags": [
+            "snifferdog-agent-zero:validation"
+        ],
+        "RepoDigests": [],
+        "Parent": "",
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2026-10-29T10:01:01.466889791Z",
+        "DockerVersion": "",
+        "Author": "",
+        "Config": {
+            "Hostname": "",
+            "Domainname": "",
+            "User": "10001:10001",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/opt/framework/.venv/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+                "PYTHON_VERSION=3.12.16",
+                "PYTHON_SHA256=b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c",
+                "TIKTOKEN_CACHE_DIR=/opt/tiktoken-cache",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "LITELLM_LOCAL_MODEL_COST_MAP=True",
+                "HOME=/tmp/home",
+                "UV_CACHE_DIR=/tmp/uv-cache",
+                "DEER_FLOW_HOME=/work/deerflow-state",
+                "FRAMEWORK=agent_zero"
+            ],
+            "Cmd": null,
+            "Image": "",
+            "Volumes": null,
+            "WorkingDir": "/opt/framework",
+            "Entrypoint": [
+                "/bin/sh",
+                "/opt/snifferdog/entrypoint.sh"
+            ],
+            "OnBuild": null,
+            "Labels": {
+                "org.opencontainers.image.revision": "ff2a5b9c9c4e490ba38dd7c313e779510bb2071a",
+                "org.opencontainers.image.source": "https://github.com/agent0ai/agent-zero"
+            }
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 4640597805,
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/e990774f53a0bc1e39397c23ed73e05c32a51b927f6c29f1c0d4940860163992/diff:/var/lib/docker/overlay2/10c2ccc326d830d5ab317f637b96078737fa7fe5b1150c0d79a10ac92f166c73/diff:/var/lib/docker/overlay2/3d5f243deefa136f0320bf55502fc31f49df3050ca37ac750ede19b780523d00/diff:/var/lib/docker/overlay2/301dbc5b4c1037e699eb7a658ad50f7261ddd6cfde7b954c21c2581ed9d6ecc5/diff:/var/lib/docker/overlay2/09a366ed61e25e2783c56c1b523a0bb9d9dbc58ea284420f325e5433acbbb75b/diff:/var/lib/docker/overlay2/f19e5c9d6446da2e675d24bd7a821cc7b674248d5d75f255a1cc188a2a2194ad/diff:/var/lib/docker/overlay2/b249f0dd8f7ebe4353da9e5db2c11486be479c927630a26a8744e73658754276/diff:/var/lib/docker/overlay2/84130640eb07e5f42567bc52c34dba528181bd897ef5f4071f3685832bc95700/diff:/var/lib/docker/overlay2/a119fc473c5e9c7d8dd16f20eb0533cdedb5700a33eb59c15165b54284c312ba/diff:/var/lib/docker/overlay2/57464f6aa53bf09f2df3b0d18b38b2b02918b0e19e1fe6ebb29d15a7b49d4339/diff:/var/lib/docker/overlay2/e4f94e455b0166ceb295353ad8ec7f03c0b588edd67a7f669c9e59350800408f/diff:/var/lib/docker/overlay2/9b7107795b765fd35ed3e3568ca73bed0541d7c18dc446c1dd6630df5e4f0cb3/diff:/var/lib/docker/overlay2/7ffbfdd8a24389cb8828c51b6acc61e8c894f3f3be5c76a4cc63ade5392dd993/diff",
+                "MergedDir": "/var/lib/docker/overlay2/66246bfabd9cbef92b909b0a02d03a83db3b0368f2aeaf8d0f12863be7e575ca/merged",
+                "UpperDir": "/var/lib/docker/overlay2/66246bfabd9cbef92b909b0a02d03a83db3b0368f2aeaf8d0f12863be7e575ca/diff",
+                "WorkDir": "/var/lib/docker/overlay2/66246bfabd9cbef92b909b0a02d03a83db3b0368f2aeaf8d0f12863be7e575ca/work"
+            },
+            "Name": "overlay2"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:44a87794b739d471ec360bec56cc0ceac640d06bbf579ee7d9061a0b88d09818",
+                "sha256:576179aecba1384366d23a3e2b732dfd408128a7d2dd1f068d894730362e7947",
+                "sha256:8ed4cbb16557f194937089b065970b4bd118ed82d749a9e1d56261a930488b60",
+                "sha256:f8ff5ead77b71a3abea55b349b2f7acd000ef0a705870552e8b35720dd69145f",
+                "sha256:9b1f76877c9fae16e67fb88025dcb051438adf050acc2ad4f6621b1e19a6fcd4",
+                "sha256:53d4211a1d3ab53b8f0801c1ef1c3584390d52f7f5d74fae3532a291d2d71557",
+                "sha256:a48e1df359061b2ba402e7c3e86422029cd0359dd002b4998f7b128e9c9884b4",
+                "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+                "sha256:2bd04de8304bf1de6f190f0ec8ec8dd9686dba49cf284ffec1d7cbee5e7bda2b",
+                "sha256:af820b6a34e3a4efbb27ec27f6d613876ea73c28e52734828f6baae8f72ce916",
+                "sha256:af67093d6cef366c5db1462a156a4be27d507de150de5c74eee7c046376657ab",
+                "sha256:6c065b271b8a6f545f272a4aae04caa3fbb47101d583b5b292b76d62c842a65b",
+                "sha256:286d07362d3820dfcda89dbd52b25e299cfc82e82b6fa67e1876c98ad66b87f5",
+                "sha256:ad42c3eddd5e1aa68dfd6a29965aa4d53d5e4b21513edfb51a50bde1e7931240"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "0001-01-01T00:00:00Z"
+        }
+    }
+]

@@ -1,0 +1,43 @@
+{
+  "schema": "vanian-linux-local-model-pins-v1",
+  "scope": "Linux x86_64 CPU inference with public HF Qwen weights; no paid inference credentials",
+  "model": {
+    "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+    "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+    "filename": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "bytes": 1117320736,
+    "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "license": "Apache-2.0",
+    "license_url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/91cad51170dc346986eccefdc2dd33a9da36ead9/LICENSE",
+    "license_sha256": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e",
+    "license_bytes": 11343,
+    "readme_sha256": "57c72d4010fb11a98fc8e62dc8ef112b23a7a7525b71e571ca978d35cb3b2eec",
+    "readme_bytes": 4856,
+    "hash_authority": "Official Hugging Face immutable revision LFS metadata and complete downloaded weight bytes"
+  },
+  "runtime": {
+    "platform": "Linux-x86_64",
+    "version": "0.40.11",
+    "archive_url": "https://github.com/ollama/ollama/releases/download/v0.40.11/ollama-linux-amd64.tar.zst",
+    "archive_sha256": "7bedab90dd122661be78798e9f0edf37fccf0cccf2699d2c58ea1a3afdc04b6d",
+    "archive_bytes": 1508659610,
+    "cpu_member_regex": "lib/ollama/(?:llama-server|lib(?:ggml(?:-(?:base|cpu[^/]*|blas))?|llama(?:-common|-server-impl)?|mtmd|gomp|omp|stdc\\+\\+|gcc_s)\\.so(?:\\.[0-9.]+)?)\\Z",
+    "pin_source": "validation/enterprise/prepare_local_model.py",
+    "hash_authority": "Complete official archive SHA256 already used by retained genuine Linux validation; extracted file hashes are derived from those exact verified bytes",
+    "model_name": "vanian-qwen-local",
+    "default_port": 11436,
+    "bootstrap_port": 11435,
+    "context_length": 8192,
+    "num_predict": 512,
+    "num_thread": 2
+  },
+  "python": {
+    "version": "3.12",
+    "requirements": "requirements.lock",
+    "requirements_sha256": "a1d81b4e9aeaf126d67a1c09eadd36c6b791123bbf3ea0937a39793330117a9b",
+    "zstandard": "0.25.0",
+    "langchain-core": "1.7.0",
+    "langgraph": "1.2.11"
+  }
+}

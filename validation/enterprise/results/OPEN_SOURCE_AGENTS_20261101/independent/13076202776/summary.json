@@ -1,0 +1,88 @@
+{
+  "classification": "INDEPENDENT_MAC_OFFLINE_REPLAY_ZERO_MODEL_COMPONENT",
+  "source_commit": "c63bb5ee0e71cc9f97142574c0c4f1b95b85f20c",
+  "run_id": 41288484161,
+  "job_id": 124794586216,
+  "framework": "agent_zero",
+  "autonomous_workload_executed": false,
+  "model_calls": 0,
+  "status": "PASS",
+  "failures": [],
+  "original_archive_checkpoint_bytes_match": true,
+  "original_archive_signature_chain_verification": {
+    "exit_code": 0,
+    "findings": 0,
+    "batches": 45,
+    "kernel_events": 2760,
+    "health_records": 3
+  },
+  "six_sensor_task_coverage": "COVERED",
+  "requested_interval_ms": {
+    "from": 1793521426113,
+    "to": 1793521440665
+  },
+  "latest_health": {
+    "state": "Active",
+    "sequence": 44,
+    "attested_coverage": {
+      "from_ms": 1793521395109,
+      "to_ms": 1793521453096
+    },
+    "covered_by": [
+      "ProcConnector",
+      "SockStateTracepoint",
+      "SchedTracepoint",
+      "SockSendTracepoint",
+      "Fanotify",
+      "CgroupTracepoint"
+    ],
+    "clock": {
+      "synchronized": true,
+      "max_error_us": 511,
+      "state": 0
+    }
+  },
+  "terminal_batch_sequence": 45,
+  "bound_workload_events_by_kind": {
+    "ProcessSpawn": 23,
+    "ProcessExec": 3,
+    "Fork": 3,
+    "Exec": 3,
+    "FileEvent": 2,
+    "Exit": 3
+  },
+  "measured_launch_instance_events": 22,
+  "bound_process_instances": 4,
+  "unbound_host_events_not_attributed_to_component": 1744,
+  "outside_workload_bound_events": 244,
+  "events_without_clock_anchor": 0,
+  "probe_reported_drops": 0,
+  "batches_with_nonverified_integrity": 0,
+  "batches_missing_requested_active_mechanisms": 0,
+  "audit_comparison": {
+    "exit_code": 0,
+    "agreed": 21,
+    "whole_host_aip_only": 63,
+    "external_only": 0,
+    "external_unparsed": 0,
+    "external_failed_attempts": 102,
+    "unmatched_bound_component_exec_references": 0,
+    "all_bound_exec_references_matched": true,
+    "claim_limit": "Whole-host AIP-only and unbound records remain visible and are not promoted into workload attribution or complete independent ground truth."
+  },
+  "original_root_controller_mount": {
+    "source_authority": "ROOT_CONTROLLER_CONTAINER_MOUNT_RESOLUTION",
+    "path": "/proc/6699/root/work",
+    "workspace_device": 51,
+    "workspace_inode": 1,
+    "scope": "FAN_MARK_MOUNT on actual container /work",
+    "framework_task_gate_released": false
+  },
+  "tools": {
+    "observer_verifier_sha256": "916f770e88153a0683d295532da40261b4d76eb46aec67e200edab237b0c3701",
+    "audit_corroborator_sha256": "0cb3ba6d642903d65a058a3fe061b2f38c58eb4287e62085190f18ce7a95aa51",
+    "runtime_environment": "PATH only; no agent/model/API/network invocation in replay",
+    "python_evidence_helper_sha256": "83580fdba7a2b24ed686fe66ffb6f8da22fd3ef747afd20741f9665197dada60"
+  },
+  "trust_limit": "Original hosted controller public anchor/checkpoint are supplied separately to tools but delivered in the same GitHub artifact. Not independent institution custody, third-party timestamping, complete ground truth, logical delegation, business-task acceptance or a full local ZIP hash. Shared kernel/root trusted."
+}

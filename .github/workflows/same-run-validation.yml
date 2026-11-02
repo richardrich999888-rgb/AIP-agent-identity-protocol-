@@ -1,0 +1,301 @@
+name: Genuine same-run execution assurance
+on:
+  workflow_dispatch:
+    inputs:
+      local_evidence_agent:
+        description: Observe the actual local Qwen evidence assistant and verify its new signed Linux capture
+        type: boolean
+        required: true
+        default: false
+      governance_stack:
+        description: Require real pinned OPA policy and OpenTelemetry Collector integration
+        type: boolean
+        required: true
+        default: false
+  pull_request:
+    paths:
+      - 'examples/bank-ai-execution-assurance/**'
+      - 'examples/local-evidence-agent/**'
+      - 'validation/enterprise/**'
+      - 'aip-standalone/**'
+      - 'integrations/real_agents/**'
+      - 'integrations/evidence-mcp/**'
+      - 'sdk/**'
+      - 'aip-service/**'
+      - 'integrations/mcp-gateway/**'
+      - 'integrations/governance/**'
+      - '.github/workflows/same-run-validation.yml'
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+jobs:
+  local-model-linux:
+    if: inputs.local_evidence_agent != true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.13.6'
+      - name: Prepare the pinned source reference for later offline replay
+        if: inputs.governance_stack == true
+        run: git fetch --no-tags --depth=1 origin 3e6c1794000fa23006ef623722e37700e49582b7
+      - name: Prepare disposable Linux capabilities and synchronized clock
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chrony auditd iproute2 iptables zstd acl lsof util-linux
+          sudo systemctl restart chrony
+          sudo chronyc waitsync 30 0.1 0.0 2
+          sudo service auditd start
+          sudo auditctl -l | tee "$RUNNER_TEMP/same-run-audit-initial.txt"
+          if sudo auditctl -l | grep -Fxq -- '-a never,task'; then
+            sudo auditctl -d never,task
+          fi
+      - name: Prepare exact framework, gateway, independent clients and browser
+        run: |
+          git init "$RUNNER_TEMP/contextforge"
+          git -C "$RUNNER_TEMP/contextforge" remote add origin https://github.com/IBM/mcp-context-forge.git
+          git -C "$RUNNER_TEMP/contextforge" fetch --depth 1 origin ff6a566a4b5c098093db90bbb4d5df483e108026
+          git -C "$RUNNER_TEMP/contextforge" checkout --detach FETCH_HEAD
+          uv sync --project "$RUNNER_TEMP/contextforge" --locked --no-dev --no-install-project --python python3.12
+          uv venv --python python3.12 "$RUNNER_TEMP/bank-agent"
+          uv pip install --python "$RUNNER_TEMP/bank-agent/bin/python" -r examples/bank-ai-execution-assurance/requirements.lock
+          uv venv --python python3.12 "$RUNNER_TEMP/evidence-clients"
+          uv pip install --python "$RUNNER_TEMP/evidence-clients/bin/python" -r integrations/evidence-mcp/requirements.lock playwright==1.56.0
+          PLAYWRIGHT_BROWSERS_PATH="$RUNNER_TEMP/playwright" "$RUNNER_TEMP/evidence-clients/bin/python" -m playwright install --with-deps chromium
+      - name: Prepare pinned governance frameworks when explicitly requested
+        if: inputs.governance_stack == true
+        run: |
+          python integrations/governance/prepare.py --root "$RUNNER_TEMP/governance"
+          echo "AIP_GOVERNANCE_ROOT=$RUNNER_TEMP/governance" >> "$GITHUB_ENV"
+      - name: Portable model/runtime/read-only tool boundaries
+        run: python -B validation/enterprise/same_run_controls_test.py
+      - name: Provision public pinned CPU model (no API credentials or cloud spending)
+        run: |
+          python validation/enterprise/prepare_local_model.py --root "$RUNNER_TEMP/local-model"
+          df -h "$RUNNER_TEMP"
+      - name: Build existing observer, authority, verifier and enterprise service
+        run: |
+          cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate -p aip-mcp-gateway --bin aip-probe --bin aip-collector --bin aip-observe-verify --bin aip-corroborate --bin aip-tool-receipt --bin aip-execution-assurance -p airon-aip --bin airon-aip
+      - name: Refuse missing governance assets before any agent or authority executes
+        if: inputs.governance_stack == true
+        run: |
+          if sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" \
+            "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
+            --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
+            --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
+            --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
+            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/governance-unavailable" \
+            --governance-root "$RUNNER_TEMP/intentionally-missing-governance-assets"; then
+            echo "Missing governance assets unexpectedly allowed execution"
+            exit 1
+          fi
+          python - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          public = Path(os.environ['RUNNER_TEMP'])/'governance-unavailable/public'
+          result = json.loads((public/'run-manifest.json').read_text())
+          assert result['status'] == 'FAIL'
+          assert result['open_source_governance'] == 'INITIALIZATION_FAILED'
+          assert result['autonomous_workload_executed'] is False
+          assert result['failure']['type'] == 'FileNotFoundError'
+          assert result['cleanup_errors'] == []
+          assert not (public/'expectation.json').exists()
+          assert not (public/'attested.archive.jsonl').exists()
+          print('PASS: missing governance assets refused before workload or authorization')
+          PYCODE
+      - name: Execute genuine agent and verify the same actual evidence through all clients
+        run: |
+          governance_args=()
+          if [ -n "${AIP_GOVERNANCE_ROOT:-}" ]; then
+            governance_args=(--governance-root "$AIP_GOVERNANCE_ROOT")
+          fi
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/playwright" \
+            "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
+            --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
+            --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
+            --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
+            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run" --browser "${governance_args[@]}"
+      - name: Execute genuine observer interruption after the observed execution passed
+        run: |
+          governance_args=()
+          if [ -n "${AIP_GOVERNANCE_ROOT:-}" ]; then
+            governance_args=(--governance-root "$AIP_GOVERNANCE_ROOT")
+          fi
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/playwright" \
+            "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
+            --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
+            --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
+            --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
+            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run-interruption" \
+            --observer-interruption --browser "${governance_args[@]}"
+      - name: Execute fresh recovery profile with new trust and capture epoch
+        run: |
+          governance_args=()
+          if [ -n "${AIP_GOVERNANCE_ROOT:-}" ]; then
+            governance_args=(--governance-root "$AIP_GOVERNANCE_ROOT")
+          fi
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/playwright" \
+            "$RUNNER_TEMP/contextforge/.venv/bin/python" validation/enterprise/same_run_validation.py \
+            --tools target/debug --contextforge-source "$RUNNER_TEMP/contextforge" \
+            --agent-python "$RUNNER_TEMP/bank-agent/bin/python" \
+            --client-python "$RUNNER_TEMP/evidence-clients/bin/python" \
+            --model-root "$RUNNER_TEMP/local-model" --out "$RUNNER_TEMP/same-run-recovery" --browser "${governance_args[@]}"
+      - name: Replay retained reference evidence without a model or network service
+        if: inputs.governance_stack == true
+        run: |
+          opa_binary="$(python -c 'import json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"governance"; print((p/json.loads((p/"assets-manifest.json").read_text())["opa_engine"]).resolve())')"
+          workspace="$(pwd -P)"
+          replay_parent="$(python -c 'import os,pathlib; print(pathlib.Path(os.environ["RUNNER_TEMP"]).resolve())')"
+          python validation/enterprise/replay_retained_governance.py \
+            --package "$workspace/validation/enterprise/results/GOVERNANCE_20261102/genuine-3e6c179" \
+            --repo "$workspace" --opa "$opa_binary" \
+            --out "$replay_parent/governance-retained-replay"
+      - name: Preserve only public same-run evidence and independent public anchors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: same-run-evidence-${{ github.run_id }}
+          retention-days: 30
+          path: |
+            ${{ runner.temp }}/same-run/public/
+            ${{ runner.temp }}/same-run/observer-anchor.json
+            ${{ runner.temp }}/same-run/checkpoint.json
+            ${{ runner.temp }}/same-run/run-trust.json
+            ${{ runner.temp }}/same-run-interruption/public/
+            ${{ runner.temp }}/same-run-interruption/observer-anchor.json
+            ${{ runner.temp }}/same-run-interruption/checkpoint.json
+            ${{ runner.temp }}/same-run-interruption/run-trust.json
+            ${{ runner.temp }}/same-run-recovery/public/
+            ${{ runner.temp }}/same-run-recovery/observer-anchor.json
+            ${{ runner.temp }}/same-run-recovery/checkpoint.json
+            ${{ runner.temp }}/same-run-recovery/run-trust.json
+            ${{ runner.temp }}/local-model/model-pin.json
+            ${{ runner.temp }}/local-model/model-manifest-layout.json
+            ${{ runner.temp }}/same-run-audit-initial.txt
+            ${{ runner.temp }}/governance-unavailable/public/run-manifest.json
+            ${{ runner.temp }}/governance-retained-replay/portable-replay-result.json
+            ${{ runner.temp }}/governance-retained-replay/path-transformations.json
+            ${{ runner.temp }}/governance-retained-replay/independent-offline/summary.json
+            ${{ runner.temp }}/governance-retained-replay/independent-offline/physical-observation-and-clients.json
+            ${{ runner.temp }}/governance-retained-replay/independent-offline/governance-link-verification.json
+            ${{ runner.temp }}/governance-retained-replay/verify-original-core.py.stdout.txt
+            ${{ runner.temp }}/governance-retained-replay/verify-original-core.py.stderr.txt
+            ${{ runner.temp }}/governance-retained-replay/verify-physical-scope-and-audit.py.stdout.txt
+            ${{ runner.temp }}/governance-retained-replay/verify-physical-scope-and-audit.py.stderr.txt
+            ${{ runner.temp }}/governance-retained-replay/verify-policy-and-collector-links.py.stdout.txt
+            ${{ runner.temp }}/governance-retained-replay/verify-policy-and-collector-links.py.stderr.txt
+
+  local-evidence-agent-linux:
+    if: github.event_name == 'workflow_dispatch' && inputs.local_evidence_agent == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Prepare disposable Linux observation capabilities
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chrony auditd iproute2 iptables zstd acl lsof util-linux
+          sudo systemctl restart chrony
+          sudo chronyc waitsync 30 0.1 0.0 2
+          sudo service auditd start
+          sudo auditctl -l > "$RUNNER_TEMP/qa-audit-initial.txt"
+          if sudo auditctl -l | grep -Fxq -- '-a never,task'; then
+            sudo auditctl -d never,task
+          fi
+      - name: Install the exact local-agent dependencies
+        run: |
+          python -m venv "$RUNNER_TEMP/qa-python"
+          "$RUNNER_TEMP/qa-python/bin/python" -m pip --isolated --disable-pip-version-check install --no-cache-dir -r examples/local-evidence-agent/requirements.lock
+          "$RUNNER_TEMP/qa-python/bin/python" -m pip check
+      - name: Build the existing observer and API binaries
+        run: |
+          cargo build --locked -p aip-probe -p aip-collector -p aip-observe-verify -p aip-corroborate -p aip-mcp-gateway -p airon-aip --bin aip-probe --bin aip-collector --bin aip-observe-verify --bin aip-corroborate --bin aip-execution-assurance --bin airon-aip
+      - name: Exercise agent and API controls before the real workload
+        run: |
+          VANIAN_LOCAL_AGENT_REQUIRE_API=1 PYTHONDONTWRITEBYTECODE=1 "$RUNNER_TEMP/qa-python/bin/python" -m unittest discover -s examples/local-evidence-agent -p '*test*.py' -v
+      - name: Prepare the same pinned public Qwen model for CPU inference
+        run: |
+          "$RUNNER_TEMP/qa-python/bin/python" examples/local-evidence-agent/linux_model_runtime.py prepare --root "$RUNNER_TEMP/qa-model"
+      - name: Execute this agent under fresh signed Sniffer Dog observation
+        run: |
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "PATH=$PATH" "GITHUB_SHA=$GITHUB_SHA" "GITHUB_RUN_ID=$GITHUB_RUN_ID" "GITHUB_RUN_ATTEMPT=$GITHUB_RUN_ATTEMPT" "PYTHONDONTWRITEBYTECODE=1"             "$RUNNER_TEMP/qa-python/bin/python" examples/local-evidence-agent/linux_capture.py             --tools target/debug --agent-python "$RUNNER_TEMP/qa-python/bin/python"             --model-root "$RUNNER_TEMP/qa-model" --out "$RUNNER_TEMP/local-qa-capture"
+      - name: Preserve original public observations and actual workload output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-qa-observations-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: ${{ runner.temp }}/local-qa-capture/public/
+      - name: Preserve controller anchors separately from worker output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-qa-controller-trust-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/local-qa-capture/controller-trust.json
+            ${{ runner.temp }}/local-qa-capture/observer-anchor.json
+            ${{ runner.temp }}/local-qa-capture/checkpoint.json
+
+  local-evidence-agent-offline:
+    if: github.event_name == 'workflow_dispatch' && inputs.local_evidence_agent == true
+    needs: local-evidence-agent-linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/download-artifact@v4
+        with:
+          name: local-qa-observations-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/offline-qa/public
+      - uses: actions/download-artifact@v4
+        with:
+          name: local-qa-controller-trust-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/offline-qa/trust
+      - name: Build offline verifiers from the exact execution source
+        run: cargo build --locked -p aip-observe-verify -p aip-corroborate --bin aip-observe-verify --bin aip-corroborate
+      - name: Verify originals with network disabled on a separate runner
+        run: |
+          sudo unshare --net -- env "PATH=$PATH" "PYTHONDONTWRITEBYTECODE=1" python examples/local-evidence-agent/fresh_verify.py             --package "$RUNNER_TEMP/offline-qa/public"             --trust "$RUNNER_TEMP/offline-qa/trust/controller-trust.json"             --tools target/debug --output "$RUNNER_TEMP/offline-qa/offline-verification.json"
+          # The verified report is public metadata; private signing state never enters this job.
+          sudo chmod 0444 "$RUNNER_TEMP/offline-qa/offline-verification.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: local-qa-offline-verification-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: ${{ runner.temp }}/offline-qa/offline-verification.json

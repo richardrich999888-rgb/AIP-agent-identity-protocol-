@@ -1,0 +1,104 @@
+========================================
+2026-11-02T19:02:02.2052071Z ERROR: test_actual_api_seed_reader_denials_and_cleanup (tests_api_runtime.LocalAPIControls.test_actual_api_seed_reader_denials_and_cleanup)
+2026-11-02T19:02:02.2052685Z ----------------------------------------------------------------------
+2026-11-02T19:02:02.2053009Z Traceback (most recent call last):
+2026-11-02T19:02:02.2059977Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/examples/local-evidence-agent/tests_api_runtime.py", line 28, in test_actual_api_seed_reader_denials_and_cleanup
+2026-11-02T19:02:02.2061192Z     with tempfile.TemporaryDirectory(prefix="local-evidence-api-", dir="/private/tmp") as directory:
+2026-11-02T19:02:02.2061657Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2062124Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 886, in __init__
+2026-11-02T19:02:02.2062543Z     self.name = mkdtemp(suffix, prefix, dir)
+2026-11-02T19:02:02.2062788Z                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2063176Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 384, in mkdtemp
+2026-11-02T19:02:02.2063575Z     _os.mkdir(file, 0o700)
+2026-11-02T19:02:02.2063944Z FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/local-evidence-api-bep_hd20'
+2026-11-02T19:02:02.2064274Z 
+2026-11-02T19:02:02.2064376Z ======================================================================
+2026-11-02T19:02:02.2065117Z ERROR: test_component_fresh_summary_cached_without_relabelling_historical_api_runs (tests_api_runtime.LocalAPIControls.test_component_fresh_summary_cached_without_relabelling_historical_api_runs)
+2026-11-02T19:02:02.2065868Z ----------------------------------------------------------------------
+2026-11-02T19:02:02.2066167Z Traceback (most recent call last):
+2026-11-02T19:02:02.2066998Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/examples/local-evidence-agent/tests_api_runtime.py", line 134, in test_component_fresh_summary_cached_without_relabelling_historical_api_runs
+2026-11-02T19:02:02.2068115Z     with tempfile.TemporaryDirectory(prefix="local-fresh-cache-", dir="/private/tmp") as directory:
+2026-11-02T19:02:02.2068557Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2068993Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 886, in __init__
+2026-11-02T19:02:02.2069393Z     self.name = mkdtemp(suffix, prefix, dir)
+2026-11-02T19:02:02.2069629Z                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2070013Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 384, in mkdtemp
+2026-11-02T19:02:02.2070402Z     _os.mkdir(file, 0o700)
+2026-11-02T19:02:02.2070758Z FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/local-fresh-cache-fb1quax9'
+2026-11-02T19:02:02.2071068Z 
+2026-11-02T19:02:02.2071163Z ======================================================================
+2026-11-02T19:02:02.2071899Z ERROR: test_component_fresh_verifier_failure_blocks_api_start (tests_api_runtime.LocalAPIControls.test_component_fresh_verifier_failure_blocks_api_start)
+2026-11-02T19:02:02.2072508Z ----------------------------------------------------------------------
+2026-11-02T19:02:02.2072800Z Traceback (most recent call last):
+2026-11-02T19:02:02.2073726Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/examples/local-evidence-agent/tests_api_runtime.py", line 118, in test_component_fresh_verifier_failure_blocks_api_start
+2026-11-02T19:02:02.2074861Z     with tempfile.TemporaryDirectory(prefix="local-fresh-refusal-", dir="/private/tmp") as directory:
+2026-11-02T19:02:02.2075297Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2075730Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 886, in __init__
+2026-11-02T19:02:02.2076124Z     self.name = mkdtemp(suffix, prefix, dir)
+2026-11-02T19:02:02.2076353Z                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2076738Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 384, in mkdtemp
+2026-11-02T19:02:02.2077113Z     _os.mkdir(file, 0o700)
+2026-11-02T19:02:02.2077653Z FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/local-fresh-refusal-3auzbasl'
+2026-11-02T19:02:02.2077981Z 
+2026-11-02T19:02:02.2078078Z ======================================================================
+2026-11-02T19:02:02.2078799Z ERROR: test_fresh_package_requires_separate_operator_trust (tests_api_runtime.LocalAPIControls.test_fresh_package_requires_separate_operator_trust)
+2026-11-02T19:02:02.2079414Z ----------------------------------------------------------------------
+2026-11-02T19:02:02.2079700Z Traceback (most recent call last):
+2026-11-02T19:02:02.2080451Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/examples/local-evidence-agent/tests_api_runtime.py", line 111, in test_fresh_package_requires_separate_operator_trust
+2026-11-02T19:02:02.2081349Z     with tempfile.TemporaryDirectory(prefix="local-fresh-pair-", dir="/private/tmp") as directory:
+2026-11-02T19:02:02.2081781Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2082207Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 886, in __init__
+2026-11-02T19:02:02.2082605Z     self.name = mkdtemp(suffix, prefix, dir)
+2026-11-02T19:02:02.2082842Z                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2083223Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 384, in mkdtemp
+2026-11-02T19:02:02.2083598Z     _os.mkdir(file, 0o700)
+2026-11-02T19:02:02.2083953Z FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/local-fresh-pair-dpycuako'
+2026-11-02T19:02:02.2084264Z 
+2026-11-02T19:02:02.2084355Z ======================================================================
+2026-11-02T19:02:02.2085062Z ERROR: test_interrupt_during_enter_reaps_actual_ready_api_and_clears_credentials (tests_api_runtime.LocalAPIControls.test_interrupt_during_enter_reaps_actual_ready_api_and_clears_credentials)
+2026-11-02T19:02:02.2085787Z ----------------------------------------------------------------------
+2026-11-02T19:02:02.2086072Z Traceback (most recent call last):
+2026-11-02T19:02:02.2086877Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/examples/local-evidence-agent/tests_api_runtime.py", line 87, in test_interrupt_during_enter_reaps_actual_ready_api_and_clears_credentials
+2026-11-02T19:02:02.2087963Z     with tempfile.TemporaryDirectory(prefix="local-evidence-api-interrupt-", dir="/private/tmp") as directory:
+2026-11-02T19:02:02.2088461Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2088906Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 886, in __init__
+2026-11-02T19:02:02.2089309Z     self.name = mkdtemp(suffix, prefix, dir)
+2026-11-02T19:02:02.2089541Z                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2090083Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 384, in mkdtemp
+2026-11-02T19:02:02.2090452Z     _os.mkdir(file, 0o700)
+2026-11-02T19:02:02.2090844Z FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/local-evidence-api-interrupt-p6p7l5bv'
+2026-11-02T19:02:02.2091208Z 
+2026-11-02T19:02:02.2091301Z ======================================================================
+2026-11-02T19:02:02.2091945Z ERROR: test_invalid_bind_address_refuses_before_creating_service_state (tests_api_runtime.LocalAPIControls.test_invalid_bind_address_refuses_before_creating_service_state)
+2026-11-02T19:02:02.2092607Z ----------------------------------------------------------------------
+2026-11-02T19:02:02.2092892Z Traceback (most recent call last):
+2026-11-02T19:02:02.2093671Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/examples/local-evidence-agent/tests_api_runtime.py", line 76, in test_invalid_bind_address_refuses_before_creating_service_state
+2026-11-02T19:02:02.2094609Z     with tempfile.TemporaryDirectory(prefix="local-evidence-api-bind-", dir="/private/tmp") as directory:
+2026-11-02T19:02:02.2095071Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2095564Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 886, in __init__
+2026-11-02T19:02:02.2096084Z     self.name = mkdtemp(suffix, prefix, dir)
+2026-11-02T19:02:02.2096314Z                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2096695Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 384, in mkdtemp
+2026-11-02T19:02:02.2097074Z     _os.mkdir(file, 0o700)
+2026-11-02T19:02:02.2097557Z FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/local-evidence-api-bind-mz5kd1_2'
+2026-11-02T19:02:02.2097901Z 
+2026-11-02T19:02:02.2097991Z ======================================================================
+2026-11-02T19:02:02.2098616Z ERROR: test_modified_historical_original_refused_before_api_starts (tests_api_runtime.LocalAPIControls.test_modified_historical_original_refused_before_api_starts)
+2026-11-02T19:02:02.2099259Z ----------------------------------------------------------------------
+2026-11-02T19:02:02.2099545Z Traceback (most recent call last):
+2026-11-02T19:02:02.2100414Z   File "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/examples/local-evidence-agent/tests_api_runtime.py", line 67, in test_modified_historical_original_refused_before_api_starts
+2026-11-02T19:02:02.2101357Z     with tempfile.TemporaryDirectory(prefix="local-evidence-api-pin-", dir="/private/tmp") as directory:
+2026-11-02T19:02:02.2101819Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2102255Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 886, in __init__
+2026-11-02T19:02:02.2102656Z     self.name = mkdtemp(suffix, prefix, dir)
+2026-11-02T19:02:02.2102892Z                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-02T19:02:02.2103280Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/tempfile.py", line 384, in mkdtemp
+2026-11-02T19:02:02.2103663Z     _os.mkdir(file, 0o700)
+2026-11-02T19:02:02.2104036Z FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/local-evidence-api-pin-4t88is5m'
+2026-11-02T19:02:02.2104380Z 
+2026-11-02T19:02:02.2104499Z ----------------------------------------------------------------------
+2026-11-02T19:02:02.2104774Z Ran 80 tests in 4.716s
+2026-11-02T19:02:02.2104889Z 
+2026-11-02T19:02:02.2104976Z FAILED (errors=7, skipped=1)
+2026-11-02T19:02:02.3124630Z ##[error]Process completed with exit code 1.
+2026-11

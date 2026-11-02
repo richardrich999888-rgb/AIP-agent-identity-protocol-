@@ -1,0 +1,89 @@
+{
+  "collection_started_at_utc": "2026-10-28T10:39:50Z",
+  "verified_at_utc": "2026-10-28T10:45:16Z",
+  "repository": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+  "source_attribution": {
+    "event": "pull_request",
+    "pull_request": 7,
+    "run_head_sha": "e9da41314c3851a92388a8ce80f1db9a3a696520",
+    "run_head_tree": "7b6a2f5f03c0710a7a17abd38cd00f0f4d9f8754",
+    "actually_checked_out_sha": "076b22c27d663a87dfd62d91df20583f417b383a",
+    "actually_checked_out_tree": "c2ea29de5e04487706aae9dd9d0f7f2a1ff91fb7",
+    "synthetic_merge_parents": [
+      "5489260b96124b95a7973233e69d9e5a44cb6bf5",
+      "e9da41314c3851a92388a8ce80f1db9a3a696520"
+    ],
+    "commit_api": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/git/commits/076b22c27d663a87dfd62d91df20583f417b383a",
+    "scope": "Job checkout logs and the commit API identify the synthetic merge tree, which differs from the PR head tree. Results must not be attributed to e9da413 alone."
+  },
+  "postgresql": {
+    "result": "PASS",
+    "run_id": 40672558568,
+    "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558568",
+    "job_id": 122762762654,
+    "job_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558568/job/122762762654",
+    "job_name": "postgres backend integration",
+    "job_conclusion": "success",
+    "job_completed_at": "2026-10-28T10:33:11Z",
+    "server_version_from_container_log": "PostgreSQL 16.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "container_image_tag": "postgres:16-alpine",
+    "container_image_digest_from_public_pull_log": "sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab",
+    "strict_clippy": {
+      "command": "cargo clippy --all-targets --features postgres -- -D warnings",
+      "conclusion": "success"
+    },
+    "default_test_step": {
+      "command": "cargo test --features postgres --no-fail-fast",
+      "storage_controls": {"passed": 0, "failed": 0, "ignored": 14},
+      "interpretation": "This default step did not execute the restricted-role storage controls."
+    },
+    "explicit_storage_control_step": {
+      "command": "cargo test --features postgres --test storage_controls -- --ignored",
+      "passed": 14,
+      "failed": 0,
+      "ignored": 0,
+      "interpretation": "The subsequent explicit live-database step executed all fourteen controls, including signed-artifact RLS, mutation/hold refusal, concurrent idempotency and hidden tenant-collision handling."
+    },
+    "broader_ci_run_status_at_metadata_capture": "in_progress",
+    "limitation": "Disposable hosted PostgreSQL validation is not production database, backup, high-availability or institutional deployment qualification."
+  },
+  "enterprise_workflow": {
+    "run_id": 40672558666,
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558666",
+    "conclusion": "success",
+    "contracts_job": {
+      "job_id": 122762763474,
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558666/job/122762763474",
+      "conclusion": "success",
+      "real_interoperability": {
+        "sdk": "PASS",
+        "real_mcp_client": "PASS",
+        "cross_tenant": "PASS",
+        "openapi_contract": "PASS",
+        "mcp_privilege_refusal": "PASS",
+        "input_limit": "PASS",
+        "kernel_observation": "NOT_EXERCISED"
+      },
+      "typescript_api_and_cross_tenant_test": "PASS",
+      "explicit_live_service_test": {"passed": 1, "failed": 0, "ignored": 0},
+      "linux_package_build": "PASS"
+    },
+    "contextforge_job": {
+      "job_id": 122762763183,
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558666/job/122762763183",
+      "conclusion": "success",
+      "checks_passed": 27,
+      "checks_failed": 0,
+      "revision": "ff6a566a4b5c098093db90bbb4d5df483e108026",
+      "gateway_version": "1.1.0",
+      "mcp_sdk_version": "2.3.0",
+      "protocol_version": "2026-07-28",
+      "compatibility_limit": "Pinned ContextForge strips successful top-level result metadata on /mcp; the signed receipt remains in the gateway sink.",
+      "scope": "Actual pinned ContextForge, real MCP upstream, protocol clients and signed-receipt comparisons; no kernel observation or banking outcome proof."
+    }
+  },
+  "package_verification": "package-verification.json",
+  "retained_log_excerpts": ["postgres.filtered.log", "enterprise.filtered.log"],
+  "retention_policy_for_this_evidence": "Only public metadata, checksums, a package manifest and filtered test logs are retained here. Downloaded package/ZIP binaries and ContextForge artifacts remain under ignored .local/ci-artifacts/40672558666/.",
+  "not_performed": ["Linux package execution", "Linux installation", "sensor startup", "production database qualification", "independent reproducible-build verification"]
+}

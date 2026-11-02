@@ -1,0 +1,28 @@
+{
+  "models": [
+    {
+      "name": "llama3.2:1b",
+      "model": "llama3.2:1b",
+      "modified_at": "2026-10-28T19:25:37.743639181Z",
+      "size": 1321098329,
+      "digest": "baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "llama",
+        "families": [
+          "llama"
+        ],
+        "parameter_size": "1.2B",
+        "quantization_level": "Q8_0",
+        "context_length": 131072,
+        "embedding_length": 2048,
+        "runner": "ggml"
+      },
+      "capabilities": [
+        "completion",
+        "tools"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "scope": "ACTUAL_MAC_SDK_COLLECTOR_COMPONENT_TEST_ONLY",
+  "not_a_genuine_agent_or_kernel_validation": true,
+  "privacy_canary_rejections": 4,
+  "environment_canary_absent_from_all_retained_files": true,
+  "public": "/private/tmp/snifferdog-otel-build/final-roundtrip-b3af4db4/public",
+  "private": "/private/tmp/snifferdog-otel-build/final-roundtrip-b3af4db4/private",
+  "result": {
+    "status": "PASS",
+    "classification": "ROOT_CONTROLLER_APPLICATION_TELEMETRY",
+    "export_mode": "DELAYED_BATCH_AFTER_WORKLOAD_CLEANUP",
+    "signed_kernel_evidence": false,
+    "independent_custody": false,
+    "collector_version": "0.164.0",
+    "collector_binary_sha256": "4d60abcd101c768268f885e3c42a5d2ca083d9d7461c68c6c77dc044371aa0c5",
+    "sdk_version": "1.45.2",
+    "sdk_isolated": true,
+    "nonce": "34f02534cd1e9fd870ba3dd70d9414ec",
+    "private_originals_retained": true,
+    "raw_collector_log_published": false,
+    "final_file_verified_after_collector_stop": true,
+    "collector_exit_code": 0,
+    "span_count": 2,
+    "trace_id": "6e9733df73c8471967e1e7ea880dc1b6",
+    "phase_correlations_verified": true,
+    "actual_timestamps_preserved": true,
+    "original_collector_file_sha256": "9b5023868b9b1b6b6bab990905787dc42f37dae37184fb400cd37c6d751d06a2",
+    "actual_collector_receipt": true,
+    "worker_sdk_export_success": true
+  },
+  "files": [
+    {
+      "path": "private/collector-config.json",
+      "bytes": 669,
+      "sha256": "5a1b3dca0806c96c008f8459e70066e4c12857a98b8dcf0cf187074a9551f8a7"
+    },
+    {
+      "path": "private/collector-spans.jsonl",
+      "bytes": 2098,
+      "sha256": "9b5023868b9b1b6b6bab990905787dc42f37dae37184fb400cd37c6d751d06a2"
+    },
+    {
+      "path": "private/collector.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "private/records.json",
+      "bytes": 763,
+      "sha256": "24dbb6896b3fe11e571907e22533bc7a5aa23087220bc33d3519a2b72381a930"
+    },
+    {
+      "path": "private/telemetry-report.json",
+      "bytes": 919,
+      "sha256": "2acd5f74992ed1c8536259b56528f259f586e382a880e753b6490876ede791fe"
+    },
+    {
+      "path": "public/collector-config.json",
+      "bytes": 669,
+      "sha256": "5a1b3dca0806c96c008f8459e70066e4c12857a98b8dcf0cf187074a9551f8a7"
+    },
+    {
+      "path": "public/collector-spans.jsonl",
+      "bytes": 2098,
+      "sha256": "9b5023868b9b1b6b6bab990905787dc42f37dae37184fb400cd37c6d751d06a2"
+    },
+    {
+      "path": "public/records.json",
+      "bytes": 763,
+      "sha256": "24dbb6896b3fe11e571907e22533bc7a5aa23087220bc33d3519a2b72381a930"
+    },
+    {
+      "path": "public/telemetry-report.json",
+      "bytes": 919,
+      "sha256": "2acd5f74992ed1c8536259b56528f259f586e382a880e753b6490876ede791fe"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1793269866412,
+  "window_to_ms": 1793269870416,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 3229,
+        "wall_ms": 1793269867416,
+        "image": "/bin/sleep",
+        "batch_sequence": 28
+      },
+      "external_wall_ms": 1793269867413,
+      "external_image": "/usr/bin/sleep",
+      "skew_ms": -3
+    }
+  ],
+  "aip_only": [],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 0
+}

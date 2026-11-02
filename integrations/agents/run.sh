@@ -65,8 +65,19 @@ info "kernel $(uname -r), tracefs mounted, langgraph $LG_VER"
 uname -a > "$OUT/host.txt"; echo "langgraph=$LG_VER" >> "$OUT/host.txt"
 
 step "Build the daemons and the offline verifier"
-( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build -q -p aip-probe -p aip-collector -p aip-observe-verify --bin aip-lineage 2>&1 ) \
-  | tee -a "$OUT/build.log" | grep -E "^error" && die "build failed"
+# Select each package's binary explicitly. A lone --bin aip-lineage filters
+# out the daemons and its owning package must also be selected. Use the build
+# status, not diagnostic wording, so stale binaries never earn a PASS.
+if ! ( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build --locked -q \
+    -p aip-probe --bin aip-probe \
+    -p aip-collector --bin aip-collector \
+    -p aip-observe-verify --bin aip-observe-verify \
+    -p aip-reconcile --bin aip-lineage ) >> "$OUT/build.log" 2>&1; then
+  die "build failed; see build.log"
+fi
+for binary in aip-probe aip-collector aip-observe-verify aip-lineage; do
+  [ -x "$REPO/target/debug/$binary" ] || die "built binary missing: $binary"
+done
 ok "aip-probe, aip-collector, aip-observe-verify, aip-lineage built"
 
 W="$OUT/work"; mkdir -p "$W/state"
@@ -89,7 +100,7 @@ env AIP_COLLECTOR_OBSERVER_ID=collector.phase1 AIP_COLLECTOR_KEY_VERSION=1 \
     AIP_COLLECTOR_PASSPHRASE_FILE="$W/pass" AIP_COLLECTOR_STATE_DIR="$W/state" \
     AIP_COLLECTOR_LISTEN="127.0.0.1:$PORT" AIP_COLLECTOR_PROBES_PATH="$W/probes.json" \
     AIP_COLLECTOR_NOISE_KEY_PATH="$W/noise.key.json" \
-    AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 \
+    AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=1 \
     "$REPO/target/debug/aip-collector" > "$W/collector.log" 2>&1 &
 COLLECTOR_PID=$!
 for _ in $(seq 1 40); do [ -s "$W/state/noise.pub" ] && break; sleep 0.25; done
@@ -133,6 +144,16 @@ done
 [ -s "$ARCHIVE" ] || { cat "$W/collector.log"; die "no attested batches were archived"; }
 BATCHES=$(wc -l < "$ARCHIVE")
 info "attested batches on disk: $BATCHES"
+
+# Close the writers before verifying/exporting, as the RBI harness does. A
+# partial JSONL write or a new health head after the batch read must not make
+# this validation depend on teardown timing.
+kill "$PROBE_PID" 2>/dev/null || true
+wait "$PROBE_PID" 2>/dev/null || true
+PROBE_PID=""
+kill "$COLLECTOR_PID" 2>/dev/null || true
+wait "$COLLECTOR_PID" 2>/dev/null || true
+COLLECTOR_PID=""
 
 # The agent's execution must actually be in the signed evidence: count kernel
 # exec events across the archive. Absence here would mean the observer never

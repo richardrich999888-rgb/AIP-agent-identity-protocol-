@@ -1,0 +1,383 @@
+{
+  "classification": "GENUINE_GOVERNANCE_ENABLED_LINUX_CORE_RUN_WITH_INDEPENDENT_OFFLINE_REPLAY",
+  "created_at_utc": "2026-11-02T11:20:47.624983+00:00",
+  "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+  "workflow_run_id": 41432473155,
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41432473155",
+  "job_id": 125234212349,
+  "original_workflow_conclusion": "success",
+  "artifact_id": 13136100222,
+  "original_zip": {
+    "path": "original-artifact.zip",
+    "bytes": 1192822,
+    "sha256": "48ccc9525cade552b8eb28874e0c786b96a4b00024defd8b17e7cd9fbab6a505"
+  },
+  "full_local_zip_sha256_matches_service": true,
+  "full_zip_crc": "PASS",
+  "original_public_members": 154,
+  "original_member_inventory": {
+    "path": "original-member-inventory.json",
+    "bytes": 32822,
+    "sha256": "74210bc296597020f44ca288864216b4ef731ec127835a70ee3c058ecb81019a"
+  },
+  "original_artifact_metadata": {
+    "path": "github-artifact-metadata.json",
+    "bytes": 794,
+    "sha256": "394b2c27b985dab714332fb1909daf45a19117ced11e0ba849568ef0064642ee"
+  },
+  "original_job_metadata": {
+    "path": "github-original-job-metadata.json",
+    "bytes": 5562,
+    "sha256": "cbeb982dcd31b4260272a5aa726c287fe75bd11174262a6ad15bfa5b4db309f2"
+  },
+  "signed_core_verification_summary": {
+    "path": "independent-offline/summary.json",
+    "bytes": 8704,
+    "sha256": "a393566f31646f225ccaa4a7bfd7eb59de78334d3d3d893c31ce717261f1bd5c"
+  },
+  "physical_scope_and_original_client_report_checks": {
+    "path": "independent-offline/physical-observation-and-clients.json",
+    "bytes": 17179,
+    "sha256": "814f4376111f7b39c4a8b35d6ea093c80d7e3d8a60facda34b1f4a542a7d0671"
+  },
+  "OPA_and_original_Collector_link_verification": {
+    "path": "independent-offline/governance-link-verification.json",
+    "bytes": 5924,
+    "sha256": "43c8154420ab5149688fb55fa37e56af22895071589d0b31e25386ade5f7d7c2"
+  },
+  "public_replay_module_hashes": [
+    {
+      "repository_path": ".github/workflows/same-run-validation.yml",
+      "package_file": {
+        "path": "replay-source/exact-public-source/.github/workflows/same-run-validation.yml",
+        "bytes": 9416,
+        "sha256": "b3c364ac6a6f9002334e76f5cdfb7752219f864b71b1a720eab054fef0836515"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "integrations/governance/opa.lock.json",
+      "package_file": {
+        "path": "replay-source/exact-public-source/integrations/governance/opa.lock.json",
+        "bytes": 1699,
+        "sha256": "6d9fa38123091cb9351217f2f4391328760c5cae16cc29bd05564e7e7e20fa7b"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "integrations/governance/opa.py",
+      "package_file": {
+        "path": "replay-source/exact-public-source/integrations/governance/opa.py",
+        "bytes": 10295,
+        "sha256": "1eacf02af7bf3c809c5588322d831be5d42da98d9da5a96d79a4e482e6569a00"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "integrations/governance/opa.rego",
+      "package_file": {
+        "path": "replay-source/exact-public-source/integrations/governance/opa.rego",
+        "bytes": 1232,
+        "sha256": "4412a347279d1372a423ef75f5f37ca936eeca73f63db9b0ef445b785c20fb86"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "integrations/governance/otel-collector.json",
+      "package_file": {
+        "path": "replay-source/exact-public-source/integrations/governance/otel-collector.json",
+        "bytes": 369,
+        "sha256": "34d65b92c5cc3477e513c3ccae783586fe75a5797912f7d9c088032162bac7e2"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "integrations/governance/otel.lock.json",
+      "package_file": {
+        "path": "replay-source/exact-public-source/integrations/governance/otel.lock.json",
+        "bytes": 2488,
+        "sha256": "50bf537c92959def5eb11265606329732f04990bbde33a55ed59cd1ae7cdc59f"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "integrations/governance/otel_worker.py",
+      "package_file": {
+        "path": "replay-source/exact-public-source/integrations/governance/otel_worker.py",
+        "bytes": 4243,
+        "sha256": "7a48cc2361865f7bedeb5901ddcf588ff83318cba1cb163ff769c8613f6c8e46"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "integrations/governance/requirements-otel.lock",
+      "package_file": {
+        "path": "replay-source/exact-public-source/integrations/governance/requirements-otel.lock",
+        "bytes": 16975,
+        "sha256": "8414d104f5db15d262a6453d00cc5da414c03d1cce7fabdf3b540f98211a1935"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "integrations/governance/run.py",
+      "package_file": {
+        "path": "replay-source/exact-public-source/integrations/governance/run.py",
+        "bytes": 8054,
+        "sha256": "b2913e2b88853c678385061d080e7c525166b713755d0cce62e16cc00f3bdb9b"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "integrations/governance/telemetry.py",
+      "package_file": {
+        "path": "replay-source/exact-public-source/integrations/governance/telemetry.py",
+        "bytes": 24455,
+        "sha256": "71b7a77bc5b1e314adef767640b172c3d93cd77aea14811da8185bc1d57f71ca"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "integrations/real_agents/evidence.py",
+      "package_file": {
+        "path": "replay-source/exact-public-source/integrations/real_agents/evidence.py",
+        "bytes": 9774,
+        "sha256": "83580fdba7a2b24ed686fe66ffb6f8da22fd3ef747afd20741f9665197dada60"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    },
+    {
+      "repository_path": "validation/enterprise/same_run_validation.py",
+      "package_file": {
+        "path": "replay-source/exact-public-source/validation/enterprise/same_run_validation.py",
+        "bytes": 61168,
+        "sha256": "1a00b485778d1e818547a6292a6b661f539ec19a384ecdea3e7ecbeadfdddfc6"
+      },
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7"
+    }
+  ],
+  "replay_scripts": [
+    {
+      "path": "replay-source/verify-original-core.py",
+      "bytes": 6868,
+      "sha256": "ea53514ca5ee3d54daf37c6c28fc76f1677b0e4adf78004236f07e8e67930b6b"
+    },
+    {
+      "path": "replay-source/verify-physical-scope-and-audit.py",
+      "bytes": 9710,
+      "sha256": "ba6442d13299d44c84e7d37efca0fd6832c1bfe2ef3484688d19f733600a8a79"
+    },
+    {
+      "path": "replay-source/verify-policy-and-collector-links.py",
+      "bytes": 11429,
+      "sha256": "e6e973239a64c81ab391e258e8d6fc5bc70124a9bafac2a9744cea006eba6d57"
+    }
+  ],
+  "module_hash_scope": "Exact public Git blobs at the recorded commit. These hashes describe reviewed replay code, not remote measured boot or independent institution control.",
+  "replay_cryptographic_binary_source_scope": "Existing Mac verifier binaries are individually SHA-hashed in receipts. Complete aip-standalone source subtree is unchanged from their ff99 source through this3e6c179 run source.",
+  "actual_missing_assets_negative": {
+    "status": "EXPECTED_FAILURE_RETAINED",
+    "failure_type": "FileNotFoundError",
+    "autonomous_workload_executed": false,
+    "authorization_or_kernel_archive_produced": false,
+    "cleanup_errors": []
+  },
+  "profiles": {
+    "same-run": {
+      "actual_run_id": "same-run-54697da019b4ae8dbd8b77ee",
+      "original_controller_status": "PASS",
+      "agent_model_response_events_captured_by_controller": 2,
+      "signed_batches": 42,
+      "kernel_events": 1268,
+      "signed_health_records": 4,
+      "independent_signature_chain_findings": 0,
+      "original_checkpoint_bytes_match": true,
+      "authorization_receipt_signed_reconciliation_evaluation_matches_original": true,
+      "original_receipt_dispositions_independently_verified": [
+        "Forwarded",
+        "Refused"
+      ],
+      "independent_all_six_actual_task_coverage": true,
+      "exact_instance_bound_events": {
+        "ProcessExec": 2,
+        "CgroupAttach": 1,
+        "Fork": 2,
+        "Exec": 2,
+        "SocketState": 5,
+        "SocketSend": 8,
+        "FileEvent": 1,
+        "Exit": 2
+      },
+      "unmatched_exact_instance_exec_references": 0,
+      "original_Linux_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "client_report_exact_bundle_and_evaluation_links_match": true,
+      "canonical_kernel_finding": {
+        "identity": {
+          "Match": {
+            "observations": 4
+          }
+        },
+        "result": "CannotProve",
+        "reason": "ActionEvidenceUnavailable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "action": "Unobservable",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated"
+      },
+      "OPA_actual_context_hashes_replayed_and_signed_decision_link_matches": true,
+      "OPA_audit_is_signed_authorization": false,
+      "original_Collector_six_controller_phases_verified": true,
+      "original_Collector_nonce_trace_parent_times_attributes_file_hash_match": true,
+      "original_Collector_frozen_file_sha256": "50e20f543df60d0723203fc0f290ba4ec5895bdc71e69171984cf7e421fc7015",
+      "original_Collector_exit_code": 0,
+      "telemetry_source_authority": "ROOT_CONTROLLER_APPLICATION_TELEMETRY",
+      "telemetry_export_mode": "DELAYED_BATCH_AFTER_WORKLOAD_CLEANUP",
+      "telemetry_is_signed_kernel_evidence": false
+    },
+    "same-run-interruption": {
+      "actual_run_id": "same-run-a051d7606eb718ede04a61e9",
+      "original_controller_status": "PASS",
+      "agent_model_response_events_captured_by_controller": 2,
+      "signed_batches": 16,
+      "kernel_events": 424,
+      "signed_health_records": 4,
+      "independent_signature_chain_findings": 0,
+      "original_checkpoint_bytes_match": true,
+      "authorization_receipt_signed_reconciliation_evaluation_matches_original": true,
+      "original_receipt_dispositions_independently_verified": [
+        "Forwarded",
+        "Refused"
+      ],
+      "independent_all_six_actual_task_coverage": false,
+      "exact_instance_bound_events": {},
+      "unmatched_exact_instance_exec_references": 0,
+      "original_Linux_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "client_report_exact_bundle_and_evaluation_links_match": true,
+      "canonical_kernel_finding": {
+        "identity": "NoReference",
+        "result": "CannotProve",
+        "reason": "WindowNotCovered",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "action": "Unobservable",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated"
+      },
+      "OPA_actual_context_hashes_replayed_and_signed_decision_link_matches": true,
+      "OPA_audit_is_signed_authorization": false,
+      "original_Collector_six_controller_phases_verified": true,
+      "original_Collector_nonce_trace_parent_times_attributes_file_hash_match": true,
+      "original_Collector_frozen_file_sha256": "c37d49b0e78d8e3f75b073df97896de8efc14867ec9bf89afb546aa8d9e62d47",
+      "original_Collector_exit_code": 0,
+      "telemetry_source_authority": "ROOT_CONTROLLER_APPLICATION_TELEMETRY",
+      "telemetry_export_mode": "DELAYED_BATCH_AFTER_WORKLOAD_CLEANUP",
+      "telemetry_is_signed_kernel_evidence": false
+    },
+    "same-run-recovery": {
+      "actual_run_id": "same-run-d5e4b7d6f1381ae3a993ca73",
+      "original_controller_status": "PASS",
+      "agent_model_response_events_captured_by_controller": 2,
+      "signed_batches": 42,
+      "kernel_events": 1249,
+      "signed_health_records": 3,
+      "independent_signature_chain_findings": 0,
+      "original_checkpoint_bytes_match": true,
+      "authorization_receipt_signed_reconciliation_evaluation_matches_original": true,
+      "original_receipt_dispositions_independently_verified": [
+        "Forwarded",
+        "Refused"
+      ],
+      "independent_all_six_actual_task_coverage": true,
+      "exact_instance_bound_events": {
+        "ProcessExec": 2,
+        "CgroupAttach": 1,
+        "Fork": 2,
+        "Exec": 2,
+        "SocketState": 5,
+        "SocketSend": 8,
+        "FileEvent": 1,
+        "Exit": 2
+      },
+      "unmatched_exact_instance_exec_references": 0,
+      "original_Linux_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "client_report_exact_bundle_and_evaluation_links_match": true,
+      "canonical_kernel_finding": {
+        "identity": {
+          "Match": {
+            "observations": 4
+          }
+        },
+        "result": "CannotProve",
+        "reason": "ActionEvidenceUnavailable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "action": "Unobservable",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated"
+      },
+      "OPA_actual_context_hashes_replayed_and_signed_decision_link_matches": true,
+      "OPA_audit_is_signed_authorization": false,
+      "original_Collector_six_controller_phases_verified": true,
+      "original_Collector_nonce_trace_parent_times_attributes_file_hash_match": true,
+      "original_Collector_frozen_file_sha256": "e51d36add164b5fa8c88d8502cb1b7913370ff764a611df752905c6dcad7efe8",
+      "original_Collector_exit_code": 0,
+      "telemetry_source_authority": "ROOT_CONTROLLER_APPLICATION_TELEMETRY",
+      "telemetry_export_mode": "DELAYED_BATCH_AFTER_WORKLOAD_CLEANUP",
+      "telemetry_is_signed_kernel_evidence": false
+    }
+  },
+  "limits": [
+    "This is a genuine LangGraph/ContextForge/AIP controller integration with real OPA and isolated OpenTelemetry, not validation of AgentZero/DeerFlow/OpenHands autonomous business tasks or a GitHub software patch.",
+    "Original workflow task coverage gate requests3mechanisms. Independent post-signature replay separately checks all6from the FINAL retained signed health without recovery-window union or oldhealth fallback.",
+    "OPA audit/link and Collector spans are unsigned root-controller application metadata; neither is new authorization, kernel observation, logical identity, a business payload or independent custody.",
+    "The real live profiles exercised OPA allowance. Wrong/denied-policy engine cases and broker stop-before-sign behavior belong to separately executed component controls; no denied genuine-agent proposal is invented.",
+    "Model-call numbers here are original model_response events reported by the agent and captured by the controller, not the separate hosted-agent HTTP200 access-counter metric.",
+    "Actual Linux API/SDK/MCP/browser PASS reports are inspected and matched to exact independently verified bundles/evaluations; offline replay does not rerun clients/browser/network on Mac.",
+    "Full-authorization availability and canonical kernel action remain CannotProve/WindowNotCovered or ActionEvidenceUnavailable. Valid governance telemetry never upgrades those findings.",
+    "Fresh recovery uses new keys/capture and does not backfill interruption or establish same-key restart continuity. Concurrent/swarm attribution and complete event ground truth remain unestablished.",
+    "No matched unobserved performance baseline, authoritative bank outcome, institution-owned key/storage custody, customer deployment or regulatory/production approval is established.",
+    "Original public trust anchors/checkpoints came in the same GitHub artifact. Shared host root/kernel and GitHub administration remain trusted. All prior failed/valid originals and signed tails remain unchanged."
+  ]
+}

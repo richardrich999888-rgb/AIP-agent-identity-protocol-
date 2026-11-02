@@ -1,0 +1,40 @@
+{
+  "case": 2,
+  "question": "What does this interrupted record prove and why is its kernel action CannotProve?",
+  "profile": "same-run-interruption",
+  "model_raw_outputs": [
+    "{\n  \"run_id\": \"0b213986cbba3a13fa988fad212db310f694fc40ee048f91e11db11200e7025a\",\n  \"tool\": \"inspect_recorded_run\"\n}",
+    "{\n  \"answer\": \"This interrupted record proves that the kernel cannot prove the application action due to a longer authorization-window limit and a recorded Linux scope. The kernel cannot prove the application action because the full authorization window coverage is unavailable, and the business outcome is UNKNOWN. Neither loan approval NOR nonapproval is established. The kernel cannot prove the application action because the full authorization window coverage is unavailable, and the business outcome is UNKNOWN\",\n  \"evidence_labels\": [{\"evidence_scope\":\"RECORDED_LINUX_NOT_FRESH_MAC\",\"full_authorization_window_reason\":\"WindowNotCovered\",\"gateway_disposition\":\"Forwarded\",\"kernel_reason\":\"WindowNotCovered\",\"kernel_verdict\":\"CannotProve\",\"process_identity\":\"NoReference\",\"signature_checks_verified\":true}]\n}"
+  ],
+  "status": "FAIL",
+  "failure_type": "AgentBoundaryError",
+  "safe_boundary_code": "invalid_model_answer",
+  "seconds": 4.259,
+  "completed_model_responses": 2,
+  "model_raw_http_responses": [
+    {
+      "model": "vanian-qwen-local",
+      "done": true,
+      "done_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"run_id\": \"0b213986cbba3a13fa988fad212db310f694fc40ee048f91e11db11200e7025a\",\n  \"tool\": \"inspect_recorded_run\"\n}"
+      },
+      "prompt_eval_count": 508,
+      "eval_count": 75,
+      "total_duration": 1086906666
+    },
+    {
+      "model": "vanian-qwen-local",
+      "done": true,
+      "done_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"answer\": \"This interrupted record proves that the kernel cannot prove the application action due to a longer authorization-window limit and a recorded Linux scope. The kernel cannot prove the application action because the full authorization window coverage is unavailable, and the business outcome is UNKNOWN. Neither loan approval NOR nonapproval is established. The kernel cannot prove the application action because the full authorization window coverage is unavailable, and the business outcome is UNKNOWN\",\n  \"evidence_labels\": [{\"evidence_scope\":\"RECORDED_LINUX_NOT_FRESH_MAC\",\"full_authorization_window_reason\":\"WindowNotCovered\",\"gateway_disposition\":\"Forwarded\",\"kernel_reason\":\"WindowNotCovered\",\"kernel_verdict\":\"CannotProve\",\"process_identity\":\"NoReference\",\"signature_checks_verified\":true}]\n}"
+      },
+      "prompt_eval_count": 424,
+      "eval_count": 166,
+      "total_duration": 2928277708
+    }
+  ]
+}

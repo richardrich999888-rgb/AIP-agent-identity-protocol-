@@ -39,6 +39,8 @@ use crate::AppState;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Role {
+    /// Evidence queries and verification only. No issuance, filing or export.
+    Reader,
     /// Service-to-service caller (an integrating agent/system).
     Machine,
     /// Human administrator (revocation and other privileged operations).
@@ -165,8 +167,8 @@ fn unauthorized(msg: &str) -> (StatusCode, Json<ErrorBody>) {
     )
 }
 
-fn bearer_secret(parts: &Parts) -> Option<String> {
-    let header = parts.headers.get(AUTHORIZATION)?.to_str().ok()?;
+pub(crate) fn bearer_secret(headers: &axum::http::HeaderMap) -> Option<String> {
+    let header = headers.get(AUTHORIZATION)?.to_str().ok()?;
     let token = header
         .strip_prefix("Bearer ")
         .or_else(|| header.strip_prefix("bearer "))?;
@@ -186,7 +188,7 @@ impl FromRequestParts<Arc<AppState>> for Principal {
         parts: &mut Parts,
         state: &Arc<AppState>,
     ) -> Result<Self, Self::Rejection> {
-        let secret = bearer_secret(parts)
+        let secret = bearer_secret(&parts.headers)
             .ok_or_else(|| unauthorized("missing or malformed Authorization: Bearer header"))?;
         state
             .api_keys

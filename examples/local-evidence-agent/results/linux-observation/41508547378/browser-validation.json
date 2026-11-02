@@ -1,0 +1,27 @@
+{
+  "classification": "HUMAN_READABLE_BROWSER_OBSERVATION_NOT_SIGNED_KERNEL_PROOF",
+  "url": "http://127.0.0.1:18765/",
+  "fresh_workflow_run_id": 41508547378,
+  "fresh_source_commit": "bce0037d6ca5eb1b85a9f2d242f4b2650dd2e6d9",
+  "displayed_archive_batches": 93,
+  "displayed_archive_kernel_events": 3372,
+  "displayed_agent_bound_events": 56,
+  "displayed_coverage": "All six sensor types covered the full run",
+  "actual_question": "Explain what this run verifies and why the kernel action is CannotProve.",
+  "actual_answer_model_responses": 2,
+  "actual_answer_api_reads": 3,
+  "actual_answer_elapsed_seconds": 5.9,
+  "answer_retained_findings": [
+    "CannotProve",
+    "ActionEvidenceUnavailable",
+    "WindowNotCovered"
+  ],
+  "unknown_business_outcome_preserved": true,
+  "new_mac_kernel_capture_claimed": false,
+  "checked_using": [
+    "browser accessibility tree",
+    "browser screenshot",
+    "direct public demo status"
+  ],
+  "interruption_recovery": "Restarted owned demo and identified orphan model only; restored final evidence and repeated actual browser question"
+}

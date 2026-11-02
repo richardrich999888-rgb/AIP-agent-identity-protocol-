@@ -1,0 +1,78 @@
+{
+  "source_commit": "a59fde4caa965182d75764e718bc951054db4f5d",
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40753922392",
+  "job_id": 123047619789,
+  "artifact_id": 12843734313,
+  "artifact_sha256": "f036508f1bf5b66c3a87ea08cb7276e01edf00ef2830297cc4053273a7056460",
+  "status": "FAILED_GATEWAY_ACCOUNT_PROVISIONING_BEFORE_AGENT",
+  "autonomous_workload_executed": false,
+  "cleanup_errors": [],
+  "failure": "Non-admin gateway account creation returned a non-201 status; this attempt did not retain the exact HTTP status/error.",
+  "known_generator_defect_independently_reproduced": {
+    "upstream_pin": "ff6a566a4b5c098093db90bbb4d5df483e108026",
+    "old_random_passwords_rejected": 130,
+    "old_sample": 2000,
+    "reason": "upstream password sequential-character policy",
+    "new_passwords_rejected": 0,
+    "new_sample": 2000,
+    "actual_attempt_error_proven": false
+  },
+  "files": {
+    "same-run-audit-initial.txt": {
+      "sha256": "61501e69a61dbbc1a41605ea15c34807e6b1d3992bee195dde36a7ebdd95dd87",
+      "bytes": 9
+    },
+    "local-model/model-manifest-layout.json": {
+      "sha256": "99035f9bde0aefc994c03ed1b22ee9b828f55e50b88176a63033e711bf9c157e",
+      "bytes": 3085
+    },
+    "local-model/model-pin.json": {
+      "sha256": "b9ed9640cfe30be524d3e42098302c9b4ca003bd8da8b17fe0d0f9e3ee69f4b9",
+      "bytes": 2984
+    },
+    "same-run/run-trust.json": {
+      "sha256": "7661a3c3e28340322cb5932b397821e14ba9e030bbd6f48972ac6e4b88206210",
+      "bytes": 970
+    },
+    "same-run/observer-anchor.json": {
+      "sha256": "efaa8339e8c4c217009d4edcb069bfa47ddabc4f8db0ad029990ca4c5db1cf17",
+      "bytes": 146
+    },
+    "same-run/public/resource-limits.json": {
+      "sha256": "10b7b60e22c4d4d602c63eb924d015ba48b64f24cdc4c66d6861643e9d5de318",
+      "bytes": 111
+    },
+    "same-run/public/health.archive.jsonl": {
+      "sha256": "3673f425e83fcc76df1ac72003cfe013b0313cbe0cf67e0bfa3eae5f03bee923",
+      "bytes": 944
+    },
+    "same-run/public/resource-usage.json": {
+      "sha256": "59c221deb6432cacdaf3dafad7ec9f04ca46ddc8bfdda7611d67a314b8360213",
+      "bytes": 359
+    },
+    "same-run/public/model-pin.json": {
+      "sha256": "b9ed9640cfe30be524d3e42098302c9b4ca003bd8da8b17fe0d0f9e3ee69f4b9",
+      "bytes": 2984
+    },
+    "same-run/public/network-isolation.json": {
+      "sha256": "9a8dcac3b00e67897f807a0df1779da1626a99bb8823e3ca94836400d82264c6",
+      "bytes": 1022
+    },
+    "same-run/public/run-manifest.json": {
+      "sha256": "b7afe26c11864b69dbaa8aaec9f638dce055e11f14b4b75c46220433ddc5092b",
+      "bytes": 796
+    },
+    "same-run/public/registered-tool-identities.json": {
+      "sha256": "6b86a42f5e8273e7eca0a45e6759816deb99eeefc5aa0f9961f0128683f645ec",
+      "bytes": 232
+    },
+    "same-run/public/model-tags.json": {
+      "sha256": "aa27ae58023bf0ef86ac5b7c3e71041af822f9c7de8702436d756ee56b64d1a9",
+      "bytes": 653
+    },
+    "same-run/public/runtime-access.json": {
+      "sha256": "94104221dc3bd0b40bdcb05d0e0aa1fa98c9524577e40a0e3af6ec073d90b8ab",
+      "bytes": 695
+    }
+  }
+}

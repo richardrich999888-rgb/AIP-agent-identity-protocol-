@@ -1,0 +1,68 @@
+{
+  "source_head": "8d38d77fa3bf1c3b0670f584feaf75f34bf69a07",
+  "run_id": 40875322915,
+  "job_id": 123452538061,
+  "artifact_id": 12897976926,
+  "original_zip": "/private/tmp/snifferdog-observer-8d38d77-success.zip",
+  "original_zip_sha256": "85eec9bb0e2dd3054aa81eac9ca734bea2f555d0ff027c1e1504415f9a45f59b",
+  "bytes": 47183,
+  "zip_integrity": "PASS",
+  "batch_count": 51,
+  "signed_health_records": 3,
+  "batches_with_unverifiable_integrity": 0,
+  "batches_with_any_nonverified_integrity": 0,
+  "batches_with_reported_loss": 0,
+  "loss_unknown_batches": 0,
+  "reported_drop_sum": 0,
+  "health_states": {
+    "ContinuityUnverified": 1,
+    "Active": 2
+  },
+  "terminal_health_sequence": 51,
+  "terminal_batch_sequence": 51,
+  "result": {
+    "kind": "kernel/collector/audit capability smoke",
+    "autonomous_workload_executed": false,
+    "kernel": "7.0.0-1017-azure",
+    "status": "PASS",
+    "trust": "ephemeral key isolated from uid 10001; host kernel/root trusted; not institutional custody",
+    "coverage_requested_from_ms": 1793277762938,
+    "component_child_pid": 3232,
+    "component_child_exit_code": 0,
+    "coverage_requested_to_ms": 1793277766941,
+    "from_ms": 1793277762938,
+    "to_ms": 1793277766941,
+    "signed_batches": 51
+  },
+  "workflow_offline_verification": {
+    "observer_id": "collector.hosted.smoke",
+    "key_version": 1,
+    "public_key": "86431dc73e27d28899507adec3c5999df91c761de54fa86dfe65dcb7b371e802",
+    "batches": {
+      "records": 51,
+      "first_sequence": 1,
+      "last_sequence": 51,
+      "start": "Epoch",
+      "final_head": "ab06560bd0b2d58eb4f3ce25347ce3ecf4998830ee5446d29cc0860dbbfec09e",
+      "observations": 0,
+      "kernel_events": 1000
+    },
+    "health": {
+      "records": 3,
+      "states": [
+        "ContinuityUnverified",
+        "Active"
+      ],
+      "with_coverage": 2,
+      "without_coverage": 1,
+      "cross_checked_against_batches": 2,
+      "clock_synchronised": 3,
+      "clock_unsynchronised": 0,
+      "clock_not_stated": 0,
+      "clock_worst_max_error_us": 3923
+    },
+    "findings": []
+  },
+  "independent_signature_verification_by_this_review": false,
+  "scope": "Original ZIP digest and members inspected; independent fresh local verifier execution is separate from retained workflow verification."
+}

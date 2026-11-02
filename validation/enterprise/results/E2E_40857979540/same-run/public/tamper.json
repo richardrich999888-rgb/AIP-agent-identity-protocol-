@@ -1,0 +1,30 @@
+{
+  "modify": {
+    "checkpoint_rejected": true,
+    "signature_chain_rejected": true
+  },
+  "remove_middle": {
+    "checkpoint_rejected": true,
+    "signature_chain_rejected": true
+  },
+  "remove_suffix": {
+    "checkpoint_rejected": true,
+    "signature_chain_rejected": false
+  },
+  "remove_prefix": {
+    "checkpoint_rejected": true,
+    "signature_chain_rejected": false
+  },
+  "reorder": {
+    "checkpoint_rejected": true,
+    "signature_chain_rejected": true
+  },
+  "duplicate": {
+    "checkpoint_rejected": true,
+    "signature_chain_rejected": true
+  },
+  "corrupt": {
+    "checkpoint_rejected": true,
+    "signature_chain_rejected": true
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "classification": "COMPONENT_REPRODUCTIONS_AND_REPAIRS_NOT_GENUINE_AGENT_VALIDATION",
+  "original_source_commit": "e4cd07d906ed2c5661e7909e2c02559e100b26bf",
+  "binding_failure": "Unchanged release b05 reproduced; fixture metadata collision. Only binding.rs repaired. Health-signature and proof-envelope collision refusal retained.",
+  "gateway_failure": "Pinned CPEX manager replacement loses UUID-local pre-hook state. Reproduced with actual CPEX/Rust signers under controlled callbacks. Actual original runner TTL crossing remains unproven.",
+  "gateway_fix": "Public request-scoped owned state with outer request binding, sentinel consumption and atomic journal pending->receipting; no TTL/auth/crypto changes.",
+  "local_validation": {
+    "binding_suite_passed": 13,
+    "repaired_b05_repetitions_passed": 128,
+    "collision_b13_repetitions_passed": 128,
+    "real_cpex_authorization_tests_passed": 11,
+    "actual_gateway_mcp_interop_checks_passed": 27,
+    "linux_target_strict_clippy": "PASS"
+  },
+  "genuine_model_execution": false,
+  "fresh_linux_same_run_required": true,
+  "files": {
+    "snifferdog-e4-binding-release-reproduction.json": {
+      "sha256": "69dcad60cae684d49b8097f088eb2281427260e334a0d18a6d7dacb7bf275f49",
+      "bytes": 818,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "snifferdog-e4-binding-fixture-repair-validation.json": {
+      "sha256": "91936e48b4050f9ec716efe87b1ff9d3abfb83ab0ad86b3feafd9ff79569cfb9",
+      "bytes": 565,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "callback-lifecycle-reproduction/provenance.json": {
+      "sha256": "626068b9f8fafc5067fc12a1f247200e7d5263da001f959a25256e8e145f11f7",
+      "bytes": 2168,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "callback-lifecycle-reproduction/result.json": {
+      "sha256": "6f959b288ca26622c5b71acb805bbe10b2b41dc7d09000e19cfd8b1d33d5d76a",
+      "bytes": 694,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "callback-lifecycle-reproduction/reproduce.py": {
+      "sha256": "b963dcd7187d5007172764d8fb84a194e7539d390a8b42dbba73d12b2c50f615",
+      "bytes": 3979,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "gateway-interop/source-manifest.json": {
+      "sha256": "d302f23b374e72320c7137ed53b10a3224f769a886b3ce993ac2eecba2f183ca",
+      "bytes": 1414,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "gateway-interop/mcp-client-result.json": {
+      "sha256": "8ff01aec5ff72ab0edce213b8d9a7a8d9f01a60e2c0327c8631438075128e73f",
+      "bytes": 565,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "gateway-interop/mismatch-authorization.json": {
+      "sha256": "cf5b292003b15e765bdf7b9106797b4c04c0db6d9242a7bdfd203b33f545d53e",
+      "bytes": 3893,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "gateway-interop/receipts.jsonl": {
+      "sha256": "c713bd46e29e7bd3ef2243a87b7711755eb91013d7de6db9c34286b9281c96f4",
+      "bytes": 30141,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "gateway-interop/report.json": {
+      "sha256": "44027435535f0ae97afcdee6818858edb8c5aa44108ecf4ead9dcbec13c0eb6a",
+      "bytes": 5053,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "gateway-interop/mismatch-comparison.json": {
+      "sha256": "cefa481b23525ba9c0fa6318a53d47cd81cd846363343f7bc99c946b898e781b",
+      "bytes": 1271,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "gateway-interop/honest-authorization.json": {
+      "sha256": "4b627f1b4e80fb4e4a8da2a63140071140af553668b2a53bff835a238e656f50",
+      "bytes": 3909,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "gateway-interop/honest-comparison.json": {
+      "sha256": "2ca3bec491e099386d0f00c6eb8387f6f0173798d3613243c7a0fd4f9abef5b4",
+      "bytes": 80,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "gateway-interop/trust-anchor.json": {
+      "sha256": "92e51cdf8288f95b509c45724f2feac097ea0fd1ca69b182088498d239ba3cd4",
+      "bytes": 158,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "gateway-interop/upstream-events.jsonl": {
+      "sha256": "776b8a8f4c4f4daa361cdb2584d58f9d2d88bbad99d46703477da027ea383521",
+      "bytes": 838,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "callback-lifecycle-reproduction/original-plugin/vanian_contextforge.py": {
+      "sha256": "bc29e99f38e865fef5116afaa3127cc9416d1cadb250a9b28357d5e9c11d9fed",
+      "bytes": 16895,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    },
+    "callback-lifecycle-reproduction/original-plugin/test_authorization_policy.py": {
+      "sha256": "2b77c155397abb39acf3bb1ea761fa7d6cd408fca67a1d41d7bfbd6bf7cc2eef",
+      "bytes": 6840,
+      "origin": "separate local component reproduction/verification; not a genuine agent/model/kernel execution"
+    }
+  },
+  "tested_repair_source_sha256": {
+    "integrations/mcp-gateway/vanian_contextforge.py": "1228d47f6b9798c06559f31238646a009f67fac98198f44367bb35e290d53526",
+    "integrations/mcp-gateway/test_authorization_policy.py": "8060ed963819a1f2ac19da0001f71f08876367bc8b09bdcee8fecee5a268f675",
+    "aip-standalone/aip-nexora/tests/binding.rs": "fd82061a0fdb2948db6d906ebcaba0b2dfc0a7c965882b5532205cdc160ecaa2"
+  },
+  "tested_source_state": "Uncommitted repair based on e4cd07d; file digests identify exact tested bytes, subsequent Git commit records them."
+}

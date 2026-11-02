@@ -1,0 +1,17 @@
+{
+  "source": "Linux audit",
+  "key": "sd64a55208ee164a9ab1b1",
+  "initial": {
+    "enabled": 1,
+    "pid": 3050,
+    "lost": 0,
+    "backlog": 0
+  },
+  "final": {
+    "enabled": 1,
+    "pid": 3050,
+    "lost": 0,
+    "backlog": 0
+  },
+  "scope": "host euid=10002 execve/execveat; independent implementation/mechanism, shared kernel"
+}

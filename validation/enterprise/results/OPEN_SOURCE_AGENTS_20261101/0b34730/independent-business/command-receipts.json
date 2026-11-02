@@ -1,0 +1,56 @@
+[
+  {
+    "name": "archive-verifier",
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-observe-verify",
+      "--observer-id",
+      "collector.hosted-agent-zero",
+      "--key-version",
+      "1",
+      "--pubkey",
+      "5f4fbb0574053ec6b2c0aaeae18868a6b0de0d05fad2157e78bbe062d27a8b9b",
+      "--batches",
+      "/private/tmp/snifferdog-agent-zero-41299438636-preserved/original/agent-zero-genuine/public/attested.archive.jsonl",
+      "--health",
+      "/private/tmp/snifferdog-agent-zero-41299438636-preserved/original/agent-zero-genuine/public/health.archive.jsonl",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.3940708750014892,
+    "stdout_sha256": "7037ca7f6147ee1b676996ece4b11be88da58341060383c87a8b65b6cde00232",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "audit-corroborator",
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-corroborate",
+      "--observer-id",
+      "collector.hosted-agent-zero",
+      "--key-version",
+      "1",
+      "--pubkey-file",
+      "/private/tmp/snifferdog-agent-zero-41299438636-preserved/independent-offline/separately-supplied-public-trust/observer.pub",
+      "--batches",
+      "/private/tmp/snifferdog-agent-zero-41299438636-preserved/original/agent-zero-genuine/public/attested.archive.jsonl",
+      "--external",
+      "/private/tmp/snifferdog-agent-zero-41299438636-preserved/original/agent-zero-genuine/public/auditd.log",
+      "--source",
+      "auditd",
+      "--from-ms",
+      "1793531196546",
+      "--to-ms",
+      "1793531607255",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.3217281250108499,
+    "stdout_sha256": "5bd0c74bd47ab8a924cf09120786f7f6f7510674aa4dd33dc5969dbb54a4f0c1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

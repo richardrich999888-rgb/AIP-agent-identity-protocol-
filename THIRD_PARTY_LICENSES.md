@@ -1,10 +1,9 @@
 # Third-party licences — adversarial validation program
 
-Every external tool the program uses, with its licence as stated by the
-project. **Versions are pinned at setup time**, not here, because none of these
-has been fetched into the build environment yet; record the exact version
-beside each when it is cloned/installed. Licences must be re-verified at the
-repo at fetch time (several PoCs are research code with ambiguous licensing).
+External tools and licences, with exact versions recorded for verified setups.
+Entries still marked `TODO` are not validated installations. Reproduce pinned
+revisions and dependency locks rather than selecting current releases. Licences
+must be re-verified at fetch time (several PoCs have ambiguous licensing).
 
 ## Already in the tree (built + tested)
 
@@ -36,11 +35,13 @@ manifest itself.
 | `argon2`, `chacha20poly1305`, `zeroize` | Apache-2.0 OR MIT | `0.5`, `0.10`, `1.8` | Phase A key custody at rest. |
 | `bs58` | Apache-2.0 OR MIT | `0.5` | AIP-ID encoding. |
 
-## Phase 2 — MCP gateway (not yet fetched)
+## Phase 2 — MCP gateway (pinned source and locked runtime installed)
 
 | Tool | Licence | Pin |
 |------|---------|-----|
-| IBM ContextForge (`mcp-context-forge`) | Apache-2.0 | `TODO at setup` |
+| IBM ContextForge (`mcp-context-forge`) | Apache-2.0 | `ff6a566a4b5c098093db90bbb4d5df483e108026` (1.1.0); dependency lock SHA-256 `76ef83096d34d7a95aca91407cbf085c3da1e0c937616d86da393b9549117f0c` |
+| ContextForge Plugin Extensions (`cpex`) | Apache-2.0 | `0.1.4`, from pinned upstream `uv.lock` |
+| Official MCP Python SDK / types | MIT | `2.3.0` / `2.3.0`, from pinned upstream `uv.lock`; protocol `2026-07-28` client exercised |
 | Lasso MCP Gateway (fallback) | open-source (confirm exact) | `TODO at setup` |
 
 ## Phase 4 — ATT&CK corpus (not yet fetched)

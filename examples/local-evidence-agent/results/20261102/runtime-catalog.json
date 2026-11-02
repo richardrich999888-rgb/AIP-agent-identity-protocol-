@@ -1,0 +1,50 @@
+{
+  "url": "http://127.0.0.1:18765",
+  "status": "ready",
+  "model": "vanian-qwen-local",
+  "frameworks": [
+    "LangChain",
+    "LangGraph"
+  ],
+  "inference": "local",
+  "api": "real AIP service; read-only agent access",
+  "evidence": "Recorded Linux execution; no live Mac kernel capture",
+  "runs": [
+    {
+      "id": "641cfa5df433ada7e58cdf6a5365099486eaf6fd4d49946c66e3f5cc5ffbc441",
+      "run_artifact_id": "641cfa5df433ada7e58cdf6a5365099486eaf6fd4d49946c66e3f5cc5ffbc441",
+      "profile": "same-run",
+      "label": "Observed Linux task",
+      "agent_id": "aip1468hqdonLeB8ijW7RwftuaZ939Bxx6BCDVMo2UMPkR",
+      "run_id": "same-run-54697da019b4ae8dbd8b77ee",
+      "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+      "workflow_run_id": 41432473155,
+      "current_host_kernel_capture": false
+    },
+    {
+      "id": "3124c7663bde9568bf89f7df04374e7f23a7948a16f92dd3d4e542aef6be7edc",
+      "run_artifact_id": "3124c7663bde9568bf89f7df04374e7f23a7948a16f92dd3d4e542aef6be7edc",
+      "profile": "same-run-interruption",
+      "label": "Interrupted Linux observer",
+      "agent_id": "aip16Q21WER7SFm1TjZHTKddHyXw2jQkEwQbUbuz2P8QbG",
+      "run_id": "same-run-a051d7606eb718ede04a61e9",
+      "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+      "workflow_run_id": 41432473155,
+      "current_host_kernel_capture": false
+    },
+    {
+      "id": "ae5afdc44f648adc888e8c4e2f3a0d75e9ea75ecd2a0b2ae54eb0c4fcc5797ca",
+      "run_artifact_id": "ae5afdc44f648adc888e8c4e2f3a0d75e9ea75ecd2a0b2ae54eb0c4fcc5797ca",
+      "profile": "same-run-recovery",
+      "label": "Recovered Linux observer",
+      "agent_id": "aip14eYpDWJGyuaafRUXDnctErJMrjC6a2SCwnc86sU3LB",
+      "run_id": "same-run-d5e4b7d6f1381ae3a993ca73",
+      "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+      "workflow_run_id": 41432473155,
+      "current_host_kernel_capture": false
+    }
+  ]
+}

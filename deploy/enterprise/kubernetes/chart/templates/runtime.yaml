@@ -1,0 +1,176 @@
+{{- if or .Values.probe.enabled .Values.collector.enabled }}
+{{- if not .Values.confirmSeparateAdministration }}
+{{- fail "confirmSeparateAdministration is required; namespaces/pods alone do not separate administrators" }}
+{{- end }}
+{{- if eq .Values.probe.nodeLabel .Values.collector.nodeLabel }}
+{{- fail "probe and collector must target distinct, separately administered nodes" }}
+{{- end }}
+{{- end }}
+{{- if .Values.probe.enabled }}
+{{- if not (regexMatch "^[^@ ]+@sha256:[a-f0-9]{64}$" .Values.probe.image) }}
+{{- fail "probe.image must use an institution-approved immutable sha256 digest" }}
+{{- end }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Release.Name }}-probe
+  labels:
+    app.kubernetes.io/component: observer-only-probe
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-probe
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-probe
+      annotations:
+        vanian.example/validation: unvalidated-template
+    spec:
+      automountServiceAccountToken: false
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/os: linux
+        vanian.example/runtime-role: {{ .Values.probe.nodeLabel | quote }}
+      containers:
+        - name: probe
+          image: {{ .Values.probe.image | quote }}
+          command: ["/usr/local/bin/aip-probe"]
+          envFrom:
+            - configMapRef:
+                name: {{ required "probe.configMap is required" .Values.probe.configMap | quote }}
+          env:
+            - name: AIP_PROBE_SENSORS
+              value: sched,cgroup,sockstate,connector
+            - name: AIP_PROBE_KEY_PATH
+              value: /var/lib/aip-probe/transport.key.json
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            privileged: false
+            capabilities:
+              drop: ["ALL"]
+              add: ["PERFMON", "NET_ADMIN"]
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - {name: tracefs, mountPath: /sys/kernel/tracing, readOnly: true}
+            - {name: procfs, mountPath: /proc, readOnly: true}
+            - {name: cgroups, mountPath: /sys/fs/cgroup, readOnly: true}
+            - {name: state, mountPath: /var/lib/aip-probe}
+      volumes:
+        - name: tracefs
+          hostPath: {path: /sys/kernel/tracing, type: Directory}
+        - name: procfs
+          hostPath: {path: /proc, type: Directory}
+        - name: cgroups
+          hostPath: {path: /sys/fs/cgroup, type: Directory}
+        - name: state
+          hostPath:
+            path: {{ .Values.probe.statePath | quote }}
+            type: DirectoryOrCreate
+---
+{{- end }}
+{{- if .Values.collector.enabled }}
+{{- if not (regexMatch "^[^@ ]+@sha256:[a-f0-9]{64}$" .Values.collector.image) }}
+{{- fail "collector.image must use an institution-approved immutable sha256 digest" }}
+{{- end }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-collector-state
+  annotations:
+    # Removing software must not remove evidence or collector key material.
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: ["ReadWriteOnce"]
+  {{- if .Values.collector.storageClass }}
+  storageClassName: {{ .Values.collector.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.collector.storageSize | quote }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-collector
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-collector
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-collector
+      annotations:
+        vanian.example/validation: unvalidated-template
+    spec:
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/os: linux
+        vanian.example/runtime-role: {{ .Values.collector.nodeLabel | quote }}
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: collector
+          image: {{ .Values.collector.image | quote }}
+          command: ["/usr/local/bin/aip-collector"]
+          envFrom:
+            - configMapRef:
+                name: {{ required "collector.configMap is required" .Values.collector.configMap | quote }}
+          env:
+            - {name: AIP_COLLECTOR_LISTEN, value: "0.0.0.0:8443"}
+            - {name: AIP_COLLECTOR_KEY_PATH, value: /var/lib/aip-collector/collector.key.wrapped}
+            - {name: AIP_COLLECTOR_NOISE_KEY_PATH, value: /var/lib/aip-collector/noise.key.json}
+            - {name: AIP_COLLECTOR_STATE_DIR, value: /var/lib/aip-collector/state}
+            - {name: AIP_COLLECTOR_PROBES_PATH, value: /etc/aip/probes.json}
+            - {name: AIP_COLLECTOR_PASSPHRASE_FILE, value: /run/secrets/collector-passphrase}
+            - {name: AIP_COLLECTOR_CONTINUITY, value: strict}
+            - {name: AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK, value: "1"}
+          ports: [{name: transport, containerPort: 8443}]
+          # Listener reachability only, never signed coverage or evidence health.
+          readinessProbe:
+            tcpSocket: {port: transport}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - {name: state, mountPath: /var/lib/aip-collector}
+            - {name: passphrase, mountPath: /run/secrets, readOnly: true}
+            - {name: probes, mountPath: /etc/aip, readOnly: true}
+      volumes:
+        - name: state
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-collector-state
+        - name: passphrase
+          secret:
+            secretName: {{ required "collector.passphraseSecret is required" .Values.collector.passphraseSecret | quote }}
+            defaultMode: 0440
+            items: [{key: collector-passphrase, path: collector-passphrase}]
+        - name: probes
+          configMap:
+            name: {{ required "collector.allowListConfigMap is required" .Values.collector.allowListConfigMap | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-collector
+spec:
+  selector:
+    app: {{ .Release.Name }}-collector
+  ports: [{name: transport, port: 8443, targetPort: transport}]
+{{- end }}

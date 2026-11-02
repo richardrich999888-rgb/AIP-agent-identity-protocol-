@@ -1,0 +1,23 @@
+{
+  "source_authority": "root_validation_controller",
+  "actor": "controlled negative request, not agent/model output",
+  "request_id": "36b47e98bece46cb2692d88ab6fd2444",
+  "decision_id": "f01e6f4824bd44c3900c8673af8a341a",
+  "actual_sent_arguments": {
+    "loan_id": 2,
+    "amount": 0
+  },
+  "sent_at_ms": 1793277964784,
+  "http_status": 200,
+  "response": {
+    "error": {
+      "code": -32602,
+      "message": "Plugin Violation: Tool request refused by gateway receipt policy",
+      "data": {
+        "description": "Tool request refused by gateway receipt policy",
+        "plugin_error_code": "AUTHORIZATION_REFUSED",
+        "plugin_name": "VanianToolReceipt"
+      }
+    }
+  }
+}

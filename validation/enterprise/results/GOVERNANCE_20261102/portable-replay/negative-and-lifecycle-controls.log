@@ -1,0 +1,20 @@
+test_existing_output_untouched_actual_cli (__main__.RetainedReplayControls.test_existing_output_untouched_actual_cli) ... ok
+test_extractor_rejects_duplicate_zip_member (__main__.RetainedReplayControls.test_extractor_rejects_duplicate_zip_member) ... ok
+test_extractor_rejects_path_traversal_without_escape (__main__.RetainedReplayControls.test_extractor_rejects_path_traversal_without_escape) ... ok
+test_extractor_rejects_symlink_member (__main__.RetainedReplayControls.test_extractor_rejects_symlink_member) ... ok
+test_failed_frozen_command_preserves_failure_and_originals (__main__.RetainedReplayControls.test_failed_frozen_command_preserves_failure_and_originals) ... ok
+test_fixed_original_package_validates (__main__.RetainedReplayControls.test_fixed_original_package_validates) ... ok
+test_forged_inventory_refused (__main__.RetainedReplayControls.test_forged_inventory_refused) ... ok
+test_frozen_script_edit_refused_before_execution (__main__.RetainedReplayControls.test_frozen_script_edit_refused_before_execution) ... ok
+test_modified_original_zip_refused (__main__.RetainedReplayControls.test_modified_original_zip_refused) ... ok
+test_path_adaptations_do_not_change_other_bytes (__main__.RetainedReplayControls.test_path_adaptations_do_not_change_other_bytes) ... ok
+test_script_changed_between_inventory_and_adaptation_refused (__main__.RetainedReplayControls.test_script_changed_between_inventory_and_adaptation_refused) ... ok
+test_symlink_ancestor_refused (__main__.RetainedReplayControls.test_symlink_ancestor_refused) ... ok
+test_symlink_even_to_original_file_refused (__main__.RetainedReplayControls.test_symlink_even_to_original_file_refused) ... ok
+test_unexpected_importable_payload_refused (__main__.RetainedReplayControls.test_unexpected_importable_payload_refused) ... ok
+test_wrong_opa_is_never_executed (__main__.RetainedReplayControls.test_wrong_opa_is_never_executed) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.311s
+
+OK

@@ -1,0 +1,19 @@
+{
+  "classification": "ACTUAL_LOCAL_BROWSER_INTERACTION_OBSERVATION",
+  "status": "PASS",
+  "url": "http://127.0.0.1:18765/",
+  "question": "Does this evidence prove that a loan was approved?",
+  "record": "Observed Linux task",
+  "observed_answer_first_fact": "This API evidence establishes neither loan approval nor nonapproval; the business outcome remains unknown.",
+  "observed_model_responses": 2,
+  "observed_api_reads": 3,
+  "displayed_elapsed_seconds": 4,
+  "source_cards": {
+    "Evidence integrity": "Verified",
+    "Authorization signature": "Verified",
+    "Kernel action proof": "CannotProve"
+  },
+  "model_focus": "business_outcome",
+  "observation": "Browser accessibility state and screenshot inspected through the computer-use tool; summary of observed UI, not a kernel trace.",
+  "new_mac_kernel_capture": false
+}

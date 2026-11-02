@@ -1,0 +1,55 @@
+{
+  "classification": "LOCAL_MAC_OR_LINUX_API_HISTORICAL_EVIDENCE_DEMO",
+  "base_url": "http://127.0.0.1:18880",
+  "runs": [
+    {
+      "id": "a0be763c92847e572b1536a109c6072cffc6d67430505e1bc8120570ad23d1ce",
+      "run_artifact_id": "a0be763c92847e572b1536a109c6072cffc6d67430505e1bc8120570ad23d1ce",
+      "profile": "same-run",
+      "label": "Observed Linux task",
+      "agent_id": "aip1468hqdonLeB8ijW7RwftuaZ939Bxx6BCDVMo2UMPkR",
+      "run_id": "same-run-54697da019b4ae8dbd8b77ee",
+      "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+      "workflow_run_id": 41432473155,
+      "current_host_kernel_capture": false
+    },
+    {
+      "id": "e131a997be3397b7e4a6c1cb35de42078697f19c14bb8d63e368234ceea7e561",
+      "run_artifact_id": "e131a997be3397b7e4a6c1cb35de42078697f19c14bb8d63e368234ceea7e561",
+      "profile": "same-run-interruption",
+      "label": "Interrupted Linux observer",
+      "agent_id": "aip16Q21WER7SFm1TjZHTKddHyXw2jQkEwQbUbuz2P8QbG",
+      "run_id": "same-run-a051d7606eb718ede04a61e9",
+      "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+      "workflow_run_id": 41432473155,
+      "current_host_kernel_capture": false
+    },
+    {
+      "id": "2afe302e911eeb581fbe10afd43c71d9876b87a7b2093d2bb05bcb9c8e9f1102",
+      "run_artifact_id": "2afe302e911eeb581fbe10afd43c71d9876b87a7b2093d2bb05bcb9c8e9f1102",
+      "profile": "same-run-recovery",
+      "label": "Recovered Linux observer",
+      "agent_id": "aip14eYpDWJGyuaafRUXDnctErJMrjC6a2SCwnc86sU3LB",
+      "run_id": "same-run-d5e4b7d6f1381ae3a993ca73",
+      "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+      "workflow_run_id": 41432473155,
+      "current_host_kernel_capture": false
+    }
+  ],
+  "auth_checks": {
+    "anonymous_denied": "PASS",
+    "reader_write_denied": "PASS",
+    "reader_large_upload_preflight_denied": "PASS",
+    "reader_raw_bundle_denied": "PASS",
+    "cross_tenant_denied": "PASS"
+  },
+  "historical_original_zip_sha256": "48ccc9525cade552b8eb28874e0c786b96a4b00024defd8b17e7cd9fbab6a505",
+  "fresh_observation": null,
+  "current_host_kernel_capture": false,
+  "managed_evidence_signing": false,
+  "credential_scope": "Reader only for agent; separate bootstrap machine credential never returned",
+  "scope": "API run records retain their original historical Linux evidence. Optional fresh_observation is a separate offline-verified Linux capture, not an admitted RunBundle or independent custody."
+}

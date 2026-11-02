@@ -1,0 +1,64 @@
+{
+  "classification": "DERIVED_INSPECTION_OF_ORIGINAL_SELF_REPORTED_FRAMEWORK_JOURNAL",
+  "source_commit": "0b3473046af8433a0b96a6c24403336d1a6819b1",
+  "run_id": 41299438636,
+  "artifact_id": 13081566093,
+  "original_profile_status": "FAIL",
+  "business_workload_started": true,
+  "selected_Click_task_started": false,
+  "capability_status": "PASS",
+  "successful_HTTP200_capability_requests": 3,
+  "total_attempted_model_requests": "UNKNOWN_COUNTER_RETAINS_SUCCESSFUL_HTTP200_ONLY",
+  "capability_file_independently_matches_challenge": true,
+  "journal_original_member": "agent-zero-genuine/public/agent-self-reported-adapter.jsonl",
+  "journal_sha256": "8d28ecd7cae2446624d9689095ba2421bca2b083fa49216f13fd41ee03adadf9",
+  "journal_record_count": 283,
+  "last_snapshot_per_item_used_only_for_analysis": true,
+  "actual_original_snapshots_unchanged": true,
+  "framework_terminal_outcome_records": [
+    {
+      "provenance": "SELF_REPORTED",
+      "kind": "task_failed",
+      "value": {
+        "exception_type": "HandledException"
+      },
+      "time_ms": 1793531602039
+    }
+  ],
+  "actual_tool_metadata": [
+    {
+      "original_item_no": 2,
+      "runtime": "terminal",
+      "code_bytes": 64,
+      "code_sha256": "53944a28f78f2dd1795237b60ccf8d8f77cda64ada5928787ce6596026d2d5b7",
+      "result_sha256": "58efd789a4145ea62cecdaeca8fc42c54d61bd565d26c4ba271e62814ce5d7b1",
+      "observed_error": "jq: command not found",
+      "returns_nonroot_terminal_prompt": true
+    },
+    {
+      "original_item_no": 4,
+      "runtime": "terminal",
+      "code_bytes": 41,
+      "code_sha256": "efb753242caf22fb199f4727f28a7763d9af2a2adfea2f98afff1f57800f1fd4",
+      "result_sha256": "c19a6860cf6dbab95c1b8cf944479fae87b64cd64637d7488d2b5b36d0bc46cf",
+      "observed_error": "sudo: command not found",
+      "returns_nonroot_terminal_prompt": true
+    },
+    {
+      "original_item_no": 6,
+      "runtime": "terminal",
+      "code_bytes": 46,
+      "code_sha256": "61cdbd439fc4042e5424e0756ee508ed0f5a305515c1e2ca74d8ddc4b9bbdf24",
+      "result_sha256": "19b832e43bda66e67c57597c2edc2e45f30d710833d38f4d5693a7f58c3149fc",
+      "observed_error": "sudo: command not found",
+      "returns_nonroot_terminal_prompt": true
+    }
+  ],
+  "diagnostic_authority": "SELF_REPORTED application snapshots; independently signed kernel observations are separate.",
+  "successful_HTTP200_framework_period_requests_excluding_policy": 8,
+  "workload_exit": 1,
+  "business_acceptance": "FAIL",
+  "specific_failure": "Actual terminal commands encountered missing jq then missing sudo; the model repeatedly pursued unsuccessful install commands. Upstream repeated/unusable-response guard stopped after5responses with HandledException. No business report was produced; no proven new adapter/session bug.",
+  "dependency_scope": "Exact pinned official source does not explicitly require jq; inherited unpinned upstream-image availability UNKNOWN. Optional utility/model-plan failure; no sudo/privilege change authorized or made.",
+  "independent_kernel_report": "../independent-offline/summary.json"
+}

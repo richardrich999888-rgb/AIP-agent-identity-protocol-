@@ -1,0 +1,5 @@
+2026-11-02T19:14:44.6610780Z ##[group]Run sudo unshare --net -- env "PATH=$PATH" "PYTHONDONTWRITEBYTECODE=1" python examples/local-evidence-agent/fresh_verify.py             --package "$RUNNER_TEMP/offline-qa/public"             --trust "$RUNNER_TEMP/offline-qa/trust/controller-trust.json"             --tools target/debug --output "$RUNNER_TEMP/offline-qa/offline-verification.json"
+2026-11-02T19:14:44.6613157Z [36;1msudo unshare --net -- env "PATH=$PATH" "PYTHONDONTWRITEBYTECODE=1" python examples/local-evidence-agent/fresh_verify.py             --package "$RUNNER_TEMP/offline-qa/public"             --trust "$RUNNER_TEMP/offline-qa/trust/controller-trust.json"             --tools target/debug --output "$RUNNER_TEMP/offline-qa/offline-verification.json"[0m
+2026-11-02T19:14:47.1764372Z {"status": "PASS", "run_id": "local-qa-b92544214896275b357d9b13", "signed_batches": 91, "kernel_events": 3545, "model_responses": 8}
+2026-11-02T19:14:47.6714697Z ##[error]An error has occurred while creating the zip file for upload
+2026-11-02T19:14:47.6724610Z Error: EACCES: permission denied, open '/home/runner/work/_temp/offline-qa/offline-verification.json'

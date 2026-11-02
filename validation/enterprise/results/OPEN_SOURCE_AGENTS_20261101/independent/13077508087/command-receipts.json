@@ -1,0 +1,56 @@
+[
+  {
+    "name": "archive-verifier",
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-observe-verify",
+      "--observer-id",
+      "collector.hosted.smoke",
+      "--key-version",
+      "1",
+      "--pubkey",
+      "9c083d61334dace5856e214b6c775fae1e426b5c93c3d0af3980715150c555dc",
+      "--batches",
+      "/private/tmp/snifferdog-observed-deerflow-7695d9a-41291563704/original/framework-observation/public/attested.archive.jsonl",
+      "--health",
+      "/private/tmp/snifferdog-observed-deerflow-7695d9a-41291563704/original/framework-observation/public/health.archive.jsonl",
+      "--json"
+    ],
+    "exit_code": 0,
+    "seconds": 0.8571557910036063,
+    "stdout_sha256": "f7ec8bd175b015c3f2f2eb2950d3e155c396f7231f8aba16aa4bdadeb7d9ecaf",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "environment_keys": [
+      "PATH"
+    ]
+  },
+  {
+    "name": "audit-corroborator",
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-corroborate",
+      "--observer-id",
+      "collector.hosted.smoke",
+      "--key-version",
+      "1",
+      "--pubkey-file",
+      "/private/tmp/snifferdog-observed-deerflow-7695d9a-41291563704/independent-mac-offline/separately-supplied-public-files/observer.pub",
+      "--batches",
+      "/private/tmp/snifferdog-observed-deerflow-7695d9a-41291563704/original/framework-observation/public/attested.archive.jsonl",
+      "--external",
+      "/private/tmp/snifferdog-observed-deerflow-7695d9a-41291563704/original/framework-observation/public/auditd.log",
+      "--source",
+      "auditd",
+      "--from-ms",
+      "1793524072709",
+      "--to-ms",
+      "1793524082522",
+      "--json"
+    ],
+    "exit_code": 0,
+    "seconds": 0.8130692089907825,
+    "stdout_sha256": "336d49bcba948c41a37062dbc7bdec61084a7cd12f62daf0c4aab9c0af5e6d17",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "environment_keys": [
+      "PATH"
+    ]
+  }
+]

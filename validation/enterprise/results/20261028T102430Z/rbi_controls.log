@@ -1,0 +1,22 @@
+test_bad_gateway_receipts_are_not_a_pass (__main__.RehearsalControlFlowTests.test_bad_gateway_receipts_are_not_a_pass) ... ok
+test_explicit_skip_is_never_a_successful_rehearsal (__main__.RehearsalControlFlowTests.test_explicit_skip_is_never_a_successful_rehearsal) ... ok
+test_failed_build_stops_before_acts_regardless_of_diagnostics (__main__.RehearsalControlFlowTests.test_failed_build_stops_before_acts_regardless_of_diagnostics) ... ok
+test_failed_clock_query_cannot_pass_even_if_it_prints_yes (__main__.RehearsalControlFlowTests.test_failed_clock_query_cannot_pass_even_if_it_prints_yes) ... ok
+test_failed_system_run_cannot_be_hidden_by_other_passing_checks (__main__.RehearsalControlFlowTests.test_failed_system_run_cannot_be_hidden_by_other_passing_checks) ... ok
+test_gateway_build_failure_never_uses_stale_executable (__main__.RehearsalControlFlowTests.test_gateway_build_failure_never_uses_stale_executable) ... ok
+test_gateway_failure_after_writing_receipts_is_not_a_pass (__main__.RehearsalControlFlowTests.test_gateway_failure_after_writing_receipts_is_not_a_pass) ... ok
+test_generic_pilot_success_requires_stronger_rbi_control_evidence (__main__.RehearsalControlFlowTests.test_generic_pilot_success_requires_stronger_rbi_control_evidence) ... ok
+test_missing_clock_query_fails_despite_running_daemon (__main__.RehearsalControlFlowTests.test_missing_clock_query_fails_despite_running_daemon) ... ok
+test_pilot_build_failure_stops_before_compiling_interferer (__main__.RehearsalControlFlowTests.test_pilot_build_failure_stops_before_compiling_interferer) ... ok
+test_quoted_output_path_is_not_interpolated_as_python_code (__main__.RehearsalControlFlowTests.test_quoted_output_path_is_not_interpolated_as_python_code) ... ok
+test_recovery_cannot_backfill_the_blinded_interval (__main__.RehearsalControlFlowTests.test_recovery_cannot_backfill_the_blinded_interval) ... ok
+test_successful_build_is_not_rejected_for_error_shaped_log_text (__main__.RehearsalControlFlowTests.test_successful_build_is_not_rejected_for_error_shaped_log_text) ... ok
+test_synchronised_clock_can_pass_with_all_simulated_acts (__main__.RehearsalControlFlowTests.test_synchronised_clock_can_pass_with_all_simulated_acts) ... ok
+test_unknown_clock_values_fail_despite_running_daemon (__main__.RehearsalControlFlowTests.test_unknown_clock_values_fail_despite_running_daemon) ... ok
+test_unsynchronised_clock_fails_despite_running_daemon (__main__.RehearsalControlFlowTests.test_unsynchronised_clock_fails_despite_running_daemon) ... ok
+test_unwritable_build_log_cannot_report_built (__main__.RehearsalControlFlowTests.test_unwritable_build_log_cannot_report_built) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 19.966s
+
+OK

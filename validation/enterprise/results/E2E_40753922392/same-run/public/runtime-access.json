@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "ancestor_acl_changes": [
+    {
+      "uid": 10004,
+      "path": "/home/runner",
+      "permission": "traverse_only",
+      "original_mode": "0o750"
+    },
+    {
+      "uid": 10002,
+      "path": "/home/runner",
+      "permission": "traverse_only",
+      "original_mode": "0o750"
+    },
+    {
+      "uid": 10003,
+      "path": "/home/runner",
+      "permission": "traverse_only",
+      "original_mode": "0o750"
+    },
+    {
+      "uid": 10001,
+      "path": "/home/runner",
+      "permission": "traverse_only",
+      "original_mode": "0o750"
+    }
+  ],
+  "scope": "ancestor traversal only; no runner HOME listing/read grant; private service/key directories unchanged"
+}

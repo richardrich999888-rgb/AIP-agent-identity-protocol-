@@ -1,0 +1,26 @@
+# Render the absolute paths and approved principal/tool names for your gateway.
+# The gateway administrator owns this file, keys, receipt directory, and journal.
+plugin_dirs:
+  - /opt/vanian/integrations/mcp-gateway
+plugin_settings:
+  parallel_execution_within_band: false
+  plugin_timeout: 15
+  fail_on_plugin_error: true
+  include_user_info: true
+plugins:
+  - name: VanianToolReceipt
+    kind: vanian_contextforge.VanianToolReceiptPlugin
+    hooks: [tool_pre_invoke, tool_post_invoke]
+    mode: sequential
+    on_error: fail
+    # Final pre hook: no later plugin may transform the signed request.
+    priority: 2147483647
+    config:
+      signer_binary: /opt/vanian/bin/aip-tool-receipt
+      replay_database: /var/lib/vanian-gateway/requests.sqlite3
+      tools: [loan_read]
+      agent_principals:
+        loan-service@bank.example: agent.loan-review
+      signer_timeout_seconds: 5
+      max_request_bytes: 524288
+      max_requests: 100000
