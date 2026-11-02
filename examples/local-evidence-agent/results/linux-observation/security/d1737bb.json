@@ -1,0 +1,87 @@
+{
+  "classification": "READ_ONLY_SAFE_EXACT_SCANNER_BASELINE_COMPARISON",
+  "source_commit": "d1737bbe08d04111d2e2cee43eab1dc1e419a54a",
+  "workflow_run_id": 41507109405,
+  "baseline_commit": "75e75bb0aae36def2ba13b18717b0a00b7ec2558",
+  "security_workflow_status": "FAIL",
+  "raw_detector_values_published": false,
+  "waivers_or_source_edits_added": false,
+  "inherited_source_context": {
+    "basis": "Current complete SARIF result objects equal independently retained75e75bb originals exactly. Prior source-context classification is retained; detectors still fail.",
+    "gitleaks": {
+      "audit_rule_selection_labels": 213,
+      "public_GPG_fingerprints": 3,
+      "local_executable_SHA256": 1,
+      "new_credential_finding_claimed": false
+    },
+    "trivy": {
+      "HIGH_findings": 4,
+      "scope": "Historical enabled opt-in Helm host privileges; runtime minimum privileges remain a separate gate."
+    }
+  },
+  "conclusion": "NO_NEW_SCANNER_RESULTS_RELATIVE_TO75E75BB; STRICT_SECURITY_REMAINS_FAILED",
+  "limits": [
+    "This comparison is full-result-object multiset equality, not a new exhaustive source security audit.",
+    "No raw detector text/value is included; exact original ZIPs remain in the private staging directory.",
+    "Linux capture/model results and complete13beCI status are outside this security-only result."
+  ],
+  "jobs": {
+    "cargo_audit": {
+      "job_id": 125489104747,
+      "status": "PASS"
+    },
+    "gitleaks": {
+      "job_id": 125489104663,
+      "status": "FAIL"
+    },
+    "trivy": {
+      "job_id": 125489105072,
+      "status": "FAIL"
+    }
+  },
+  "scanners": {
+    "gitleaks": {
+      "status": "FAIL",
+      "artifact_id": 13172135665,
+      "baseline_artifact_id": 13140567021,
+      "result_count": 217,
+      "baseline_result_count": 217,
+      "full_result_object_multisets_equal": true,
+      "new_results": 0,
+      "missing_results": 0,
+      "canonical_result_objects_sha256": "444f9d4075e9ea09a276bec6be72bc4c922e315b97b0a82d58cd901326b9103a",
+      "rule_counts": {
+        "generic-api-key": 217
+      },
+      "current_original_zip_sha256": "09552a6b50f9efe448bcf771295d1c41a2f7b3b5ed8341554cb328d4dc490876"
+    },
+    "trivy": {
+      "status": "FAIL",
+      "artifact_id": 13172085306,
+      "baseline_artifact_id": 13140587040,
+      "result_count": 4,
+      "baseline_result_count": 4,
+      "full_result_object_multisets_equal": true,
+      "new_results": 0,
+      "missing_results": 0,
+      "canonical_result_objects_sha256": "02c594fa9d9a353764d8d2012c8d96fe53eeefbebd122caea3d57b55bb65db2f",
+      "rule_counts": {
+        "KSV-0009": 1,
+        "KSV-0010": 1,
+        "KSV-0118": 1,
+        "KSV-0121": 1
+      },
+      "current_original_zip_sha256": "1d2f3ef995f6852acfffca080202a04cae408a58a6a1779a020fb5e99be54898"
+    }
+  },
+  "cargo_audit": {
+    "status": "PASS",
+    "reported_vulnerabilities": 0,
+    "warnings": [],
+    "inherited_ignored_advisories": [
+      "RUSTSEC-2026-0097"
+    ],
+    "exception_source_files_changed_from_baseline": false,
+    "interpretation": "No vulnerabilities reported under the inherited exception; not an unqualified vulnerability-free claim."
+  }
+}

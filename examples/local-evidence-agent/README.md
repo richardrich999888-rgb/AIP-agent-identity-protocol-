@@ -166,3 +166,14 @@ limit is not enlarged or bypassed.
 A disposable hosted Ubuntu runner supplies the initial privileged sensor test.
 Independent collector administration/key custody, installed customer-host
 operation and external acceptance still require their separate validation.
+
+## Verified fresh Linux result
+
+The same Qwen/LangChain/LangGraph assistant executed four real questions under
+Sniffer Dog in [workflow 41508547378](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508547378).
+The retained capture contains 93 signed batches, 3,372 kernel events and 56
+events bound to the measured agent process, with all six sensor types covering
+the full task. Separate network-disabled Linux verification and independent
+Mac verification passed with identical reports. Eight model responses and
+twelve Reader API reads are separately identified as controller application
+records. [Results, originals, reproduction and remaining gates](results/linux-observation/REPORT.md).

@@ -1,0 +1,37 @@
+{
+  "classification": "SELECTED_DECODED_JOB_LOG_RECEIPTS_NOT_SIGNED_KERNEL_EVIDENCE",
+  "source_commit": "bce0037d6ca5eb1b85a9f2d242f4b2650dd2e6d9",
+  "main_job_id": 125494085882,
+  "main_selected_lines": [
+    "2026-11-02T19:19:11.1900390Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 53.50s",
+    "2026-11-02T19:20:40.6692475Z test b05_another_observers_records_do_not_bind ... ok",
+    "2026-11-02T19:20:40.8438835Z test b13_coincident_health_metadata_does_not_bypass_signature_or_envelope_verification ... ok",
+    "2026-11-02T19:23:33.9690477Z test d_wrong_process_instance_is_identity_divergence_never_verified ... ok",
+    "2026-11-02T19:23:46.6809699Z test g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too ... ok",
+    "2026-11-02T19:26:31.3678111Z     Finished `release` profile [optimized] target(s) in 2m 40s",
+    "2026-11-02T19:26:40.6174117Z     Finished `release` profile [optimized] target(s) in 7.36s",
+    "2026-11-02T19:26:40.7284015Z     Finished `release` profile [optimized] target(s) in 0.05s",
+    "2026-11-02T19:26:40.8428567Z     Finished `release` profile [optimized] target(s) in 0.05s",
+    "2026-11-02T19:26:40.9244670Z     Finished `release` profile [optimized] target(s) in 0.05s",
+    "2026-11-02T19:26:41.0228750Z     Finished `release` profile [optimized] target(s) in 0.05s",
+    "2026-11-02T19:26:41.4464468Z     Finished `release` profile [optimized] target(s) in 0.05s",
+    "2026-11-02T19:26:41.5867458Z test b05_another_observers_records_do_not_bind ... ok",
+    "2026-11-02T19:26:41.5898735Z test b13_coincident_health_metadata_does_not_bypass_signature_or_envelope_verification ... ok",
+    "2026-11-02T19:27:00.3095384Z     Finished `release` profile [optimized] target(s) in 0.05s",
+    "2026-11-02T19:27:00.4190066Z     Finished `release` profile [optimized] target(s) in 0.05s",
+    "2026-11-02T19:27:01.0330971Z     Finished `release` profile [optimized] target(s) in 0.05s",
+    "2026-11-02T19:27:03.4069332Z test d_wrong_process_instance_is_identity_divergence_never_verified ... ok",
+    "2026-11-02T19:27:15.6315077Z test g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too ... ok"
+  ],
+  "coverage_job_id": 125494085850,
+  "coverage_selected_lines": [
+    "2026-11-02T19:18:28.3002428Z \u001b[1m\u001b[92m    Finished\u001b[0m `release` profile [optimized] target(s) in 42.48s",
+    "2026-11-02T19:19:59.7373177Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 18s",
+    "2026-11-02T19:21:35.7260786Z test b05_another_observers_records_do_not_bind ... ok",
+    "2026-11-02T19:21:35.9009698Z test b13_coincident_health_metadata_does_not_bypass_signature_or_envelope_verification ... ok",
+    "2026-11-02T19:25:05.3811759Z test d_wrong_process_instance_is_identity_divergence_never_verified ... ok",
+    "2026-11-02T19:25:29.2861371Z test g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too ... ok"
+  ],
+  "red_job_id": 125494085362,
+  "red_terminal_line": "2026-11-02T19:18:05.8853199Z reproduced/runnable: 43   notes: 2   blocked: 10   failed: 0"
+}

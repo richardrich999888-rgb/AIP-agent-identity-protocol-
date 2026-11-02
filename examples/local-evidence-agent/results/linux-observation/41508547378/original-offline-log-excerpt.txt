@@ -1,0 +1,5 @@
+2026-11-02T19:24:01.5632767Z ##[group]Run sudo unshare --net -- env "PATH=$PATH" "PYTHONDONTWRITEBYTECODE=1" python examples/local-evidence-agent/fresh_verify.py             --package "$RUNNER_TEMP/offline-qa/public"             --trust "$RUNNER_TEMP/offline-qa/trust/controller-trust.json"             --tools target/debug --output "$RUNNER_TEMP/offline-qa/offline-verification.json"
+2026-11-02T19:24:01.5634018Z [36;1msudo unshare --net -- env "PATH=$PATH" "PYTHONDONTWRITEBYTECODE=1" python examples/local-evidence-agent/fresh_verify.py             --package "$RUNNER_TEMP/offline-qa/public"             --trust "$RUNNER_TEMP/offline-qa/trust/controller-trust.json"             --tools target/debug --output "$RUNNER_TEMP/offline-qa/offline-verification.json"[0m
+2026-11-02T19:24:01.5635090Z [36;1msudo chmod 0444 "$RUNNER_TEMP/offline-qa/offline-verification.json"[0m
+2026-11-02T19:24:03.1562308Z {"status": "PASS", "run_id": "local-qa-5008dbe8caa91aa859736d61", "signed_batches": 93, "kernel_events": 3372, "model_responses": 8}
+2026-11-02T19:24:04.4656020Z Artifact local-qa-offline-verification-41508547378-1.zip successfully finalized. Artifact ID 13171114228
