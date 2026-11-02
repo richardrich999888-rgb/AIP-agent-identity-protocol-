@@ -290,6 +290,8 @@ jobs:
       - name: Verify originals with network disabled on a separate runner
         run: |
           sudo unshare --net -- env "PATH=$PATH" "PYTHONDONTWRITEBYTECODE=1" python examples/local-evidence-agent/fresh_verify.py             --package "$RUNNER_TEMP/offline-qa/public"             --trust "$RUNNER_TEMP/offline-qa/trust/controller-trust.json"             --tools target/debug --output "$RUNNER_TEMP/offline-qa/offline-verification.json"
+          # The verified report is public metadata; private signing state never enters this job.
+          sudo chmod 0444 "$RUNNER_TEMP/offline-qa/offline-verification.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

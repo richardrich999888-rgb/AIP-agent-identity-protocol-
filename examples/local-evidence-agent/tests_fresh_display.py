@@ -50,7 +50,9 @@ class FreshDisplayControls(unittest.TestCase):
                  "source_commit": "a" * 40, "task": {"from_ms": 1793600000000, "to_ms": 1793600001000, "exit_code": 0},
                  "capture": {"platform": "Linux", "signed_batches": 2, "kernel_events": 5, "agent_bound_events": 3, "health_records": 1, "task_coverage": "FIXTURE"},
                  "model": {"name": "<img src=x onerror=malicious()>", "completed_http_requests": 8},
-                 "output": {"sha256": "b" * 64}, "extra_future_field": "preserved in details"}
+                 "output": {"sha256": "b" * 64},
+                 "api_admission": {"status": "NOT_REQUESTED", "decoded_archive_limit_bytes": 524288},
+                 "extra_future_field": "preserved in details"}
         result = self.render(fresh)
         self.assertEqual(result["calls"], 1)
         self.assertFalse(result["hidden"])
@@ -61,8 +63,18 @@ class FreshDisplayControls(unittest.TestCase):
         self.assertIn(["Agent-bound events (process instance)", "3"], result["cards"])
         self.assertIn(["Qwen runtime / completed requests", "<img src=x onerror=malicious()> / 8"], result["cards"])
         self.assertEqual(json.loads(result["details"]), fresh)
-        self.assertIn("not admitted through /v1/observations", result["admission"])
-        self.assertIn("512 KiB", result["admission"])
+        self.assertEqual(result["admission"], "Verified from original evidence files; this capture has not been admitted as an API observation.")
+        self.assertNotIn("512", result["admission"])
+
+    def test_only_exact_complete_coverage_gets_plain_language_pass(self):
+        fixture = {"status": "PASS", "classification": "CONTROLLED_DISPLAY_FIXTURE_NOT_A_CAPTURE",
+                   "capture": {"task_coverage": "SIGNED_ACTIVE_FOR_COMPLETE_TASK"}}
+        result = self.render(fixture)
+        self.assertIn(["Task coverage", "All six sensor types covered the full run"], result["cards"])
+        fixture["capture"]["task_coverage"] = "UNKNOWN"
+        result = self.render(fixture)
+        self.assertIn(["Task coverage", "UNKNOWN"], result["cards"])
+        self.assertNotIn(["Task coverage", "All six sensor types covered the full run"], result["cards"])
 
     def test_no_fresh_capture_panel_without_verified_result(self):
         result = self.render(None)
