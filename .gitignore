@@ -11,3 +11,11 @@ target/
 
 # Local API keys (use keys.example.json as a template)
 deploy/docker/keys.json
+
+# Node / Next.js build artifacts
+node_modules/
+.next/
+*.tsbuildinfo
+
+# Local AIP CLI identity store (contains key material)
+aip-standalone/aip_store.json

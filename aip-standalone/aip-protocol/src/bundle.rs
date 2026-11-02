@@ -95,10 +95,7 @@ fn compute_bundle_hash(files: &[FileEntry]) -> String {
 }
 
 fn now_ms() -> u64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_millis() as u64
+    aip_crypto::now_ms()
 }
 
 /// Build a signed audit-export ZIP for `packet`.

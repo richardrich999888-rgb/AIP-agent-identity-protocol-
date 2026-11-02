@@ -123,6 +123,25 @@ pub fn verify_ed25519_raw(public_key: &[u8], msg: &[u8], sig: &[u8; 64]) -> bool
     verifying_key.verify(msg, &signature).is_ok()
 }
 
+/// Get current timestamp in milliseconds since UNIX epoch.
+/// On wasm32, uses js_sys::Date::now() to prevent unsupported SystemTime panics.
+/// On native, uses std::time::SystemTime::now().
+#[cfg(target_arch = "wasm32")]
+pub fn now_ms() -> u64 {
+    js_sys::Date::now() as u64
+}
+
+/// Get current timestamp in milliseconds since UNIX epoch.
+/// On wasm32, uses js_sys::Date::now() to prevent unsupported SystemTime panics.
+/// On native, uses std::time::SystemTime::now().
+#[cfg(not(target_arch = "wasm32"))]
+pub fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis() as u64
+}
+
 /// Sign a payload with Ed25519.
 pub fn sign_ed25519(
     private_key: &[u8],
@@ -139,10 +158,7 @@ pub fn sign_ed25519(
             .map_err(|_| aip_types::AipError::InvalidPublicKey)?,
     );
 
-    let timestamp = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_millis() as u64;
+    let timestamp = now_ms();
 
     let mut nonce = [0u8; 16];
     use rand::RngCore;

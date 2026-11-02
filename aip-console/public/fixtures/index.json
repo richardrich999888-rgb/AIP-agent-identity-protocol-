@@ -1,0 +1,158 @@
+{
+  "fixtures": [
+    {
+      "category": "valid",
+      "claimed_trust_floor": "COUNTERPARTY_SIGNED",
+      "context_filename": "honest_counterparty.context.json",
+      "description": "Full enterprise payment approval chain with bilateral bank ledger countersignature. Passes all 14 engine verification rules.",
+      "expected_derived_floor": "COUNTERPARTY_SIGNED",
+      "expected_failed_rules": [],
+      "expected_tampered": false,
+      "expected_valid": true,
+      "filename": "honest_counterparty.json",
+      "id": "honest_counterparty",
+      "title": "Honest Counterparty-Signed Payment"
+    },
+    {
+      "category": "valid",
+      "claimed_trust_floor": "AUTHORITY_BOUND",
+      "context_filename": "authority_bound.context.json",
+      "description": "Autonomous infrastructure scaling action with attenuated delegation. Passes rules 1-12 without external countersignature.",
+      "expected_derived_floor": "AUTHORITY_BOUND",
+      "expected_failed_rules": [],
+      "expected_tampered": false,
+      "expected_valid": true,
+      "filename": "authority_bound.json",
+      "id": "authority_bound",
+      "title": "Authority-Bound Cloud Scaling"
+    },
+    {
+      "category": "unverified_authority",
+      "claimed_trust_floor": "AGENT_SIGNED",
+      "context_filename": "agent_signed.context.json",
+      "description": "Self-signed web scraping task lacking enterprise principal delegation. Derives AgentSigned trust floor.",
+      "expected_derived_floor": "AGENT_SIGNED",
+      "expected_failed_rules": [
+        "ROOT_TOKEN_SIGNATURE"
+      ],
+      "expected_tampered": false,
+      "expected_valid": false,
+      "filename": "agent_signed.json",
+      "id": "agent_signed",
+      "title": "Agent-Signed Autonomous Task"
+    },
+    {
+      "category": "adversarial",
+      "claimed_trust_floor": "COUNTERPARTY_SIGNED",
+      "context_filename": "honest_counterparty.context.json",
+      "description": "Payment amount modified in sealed packet without hash update. Violates CANONICAL_HASH.",
+      "expected_derived_floor": "UNVERIFIED",
+      "expected_failed_rules": [
+        "CANONICAL_HASH",
+        "TRUST_FLOOR"
+      ],
+      "expected_tampered": true,
+      "expected_valid": false,
+      "filename": "tampered_summary.json",
+      "id": "tampered_summary",
+      "title": "Tampered Decision Summary"
+    },
+    {
+      "category": "adversarial",
+      "claimed_trust_floor": "COUNTERPARTY_SIGNED",
+      "context_filename": "honest_counterparty.context.json",
+      "description": "Attacker updated packet_hash after editing payload. Bypasses CANONICAL_HASH but caught by AGENT_SIGNATURE.",
+      "expected_derived_floor": "UNVERIFIED",
+      "expected_failed_rules": [
+        "AGENT_SIGNATURE",
+        "TRUST_FLOOR"
+      ],
+      "expected_tampered": true,
+      "expected_valid": false,
+      "filename": "tampered_hash.json",
+      "id": "tampered_hash",
+      "title": "Tampered Payload with Recalculated Hash"
+    },
+    {
+      "category": "adversarial",
+      "claimed_trust_floor": "COUNTERPARTY_SIGNED",
+      "context_filename": "honest_counterparty.context.json",
+      "description": "Corrupted signature bytes in transit. Violates AGENT_SIGNATURE.",
+      "expected_derived_floor": "UNVERIFIED",
+      "expected_failed_rules": [
+        "AGENT_SIGNATURE",
+        "TRUST_FLOOR"
+      ],
+      "expected_tampered": true,
+      "expected_valid": false,
+      "filename": "tampered_signature.json",
+      "id": "tampered_signature",
+      "title": "Corrupted Agent Signature"
+    },
+    {
+      "category": "adversarial",
+      "claimed_trust_floor": "COUNTERPARTY_SIGNED",
+      "context_filename": "honest_counterparty.context.json",
+      "description": "Delegation hop claims wider scope than granted by root token. Violates DELEGATION_CHAIN.",
+      "expected_derived_floor": "UNVERIFIED",
+      "expected_failed_rules": [
+        "DELEGATION_CHAIN",
+        "TRUST_FLOOR"
+      ],
+      "expected_tampered": true,
+      "expected_valid": false,
+      "filename": "scope_escalation.json",
+      "id": "scope_escalation",
+      "title": "Privilege Scope Escalation"
+    },
+    {
+      "category": "revocation",
+      "claimed_trust_floor": "COUNTERPARTY_SIGNED",
+      "context_filename": "revoked_token.context.json",
+      "description": "Validly sealed packet whose delegation token was revoked after issuance. Violates REVOCATION (not tampered).",
+      "expected_derived_floor": "AGENT_SIGNED",
+      "expected_failed_rules": [
+        "REVOCATION",
+        "TRUST_FLOOR"
+      ],
+      "expected_tampered": false,
+      "expected_valid": false,
+      "filename": "revoked_token.json",
+      "id": "revoked_token",
+      "title": "Revoked Delegation Token"
+    },
+    {
+      "category": "bundle",
+      "context_filename": "honest_counterparty.context.json",
+      "description": "Conforming 7-file ZIP archive signed by service key with valid manifest and file checksums.",
+      "expected_checks": [
+        "BUNDLE_STRUCTURE",
+        "MANIFEST_PARSE",
+        "FILE_HASHES",
+        "BUNDLE_HASH",
+        "BUNDLE_SIGNATURE",
+        "EVIDENCE_INTEGRITY",
+        "PACKET_VERIFICATION"
+      ],
+      "expected_valid": true,
+      "filename": "audit_bundle_valid.zip",
+      "format": "zip",
+      "id": "audit_bundle_valid",
+      "title": "Certified Audit Export Bundle"
+    },
+    {
+      "category": "bundle",
+      "description": "ZIP bundle with modified evidence.json. FILE_HASHES check detects content tampering.",
+      "expected_failed_checks": [
+        "FILE_HASHES"
+      ],
+      "expected_valid": false,
+      "filename": "audit_bundle_tampered.zip",
+      "format": "zip",
+      "id": "audit_bundle_tampered",
+      "title": "Tampered Audit Export Bundle"
+    }
+  ],
+  "generated_at": 1781769600000,
+  "version": "1.0.0"
+}

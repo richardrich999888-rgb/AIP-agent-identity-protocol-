@@ -1,0 +1,21 @@
+{
+  "name": "aip-enterprise-accountability-console",
+  "version": "1.0.0",
+  "description": "AIP Enterprise Accountability Console (Syntriass) & E2E Automated Verification",
+  "type": "module",
+  "scripts": {
+    "dev": "npm --prefix aip-console run dev",
+    "build:console": "npm --prefix aip-console run build",
+    "test": "vitest run",
+    "test:e2e": "vitest run",
+    "test:t1": "vitest run e2e/tier1-features/",
+    "test:t2": "vitest run e2e/tier2-boundary/",
+    "test:t3": "vitest run e2e/tier3-combinations/",
+    "test:t4": "vitest run e2e/tier4-scenarios/"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

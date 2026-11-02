@@ -11,3 +11,6 @@ ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 sha2 = "0.10"
 rand = "0.8"
 bs58 = "0.5"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+js-sys = "0.3"

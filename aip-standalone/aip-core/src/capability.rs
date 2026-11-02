@@ -16,7 +16,6 @@
 
 use aip_crypto::{sha256, sign_ed25519};
 use aip_types::*;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 // ─── Named Scope Constructors ───
 
@@ -189,10 +188,7 @@ pub fn is_scope_violation(token: &ScopedToken, action: &ScopeAction) -> bool {
 // ─── Internal Helpers ───
 
 fn now_ms() -> u64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis() as u64
+    aip_crypto::now_ms()
 }
 
 pub fn random_jti() -> [u8; 16] {

@@ -1,0 +1,112 @@
+@import "@xyflow/react/dist/style.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #080B11;
+  --foreground: #F8FAFC;
+  --surface: #0E131F;
+  --surface-elevated: #161F33;
+  --border: #222F46;
+  --primary: #607D8B;
+  --primary-foreground: #080B11;
+  --success: #2E7D32;
+  --warning: #B7791F;
+  --destructive: #C62828;
+  --indigo: #3F6E9A;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: #080B11;
+  color: #F8FAFC;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  color-scheme: dark;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080B11;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #222F46;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #607D8B;
+}
+
+/* Card surfaces */
+.corporate-panel {
+  background-color: #0E131F;
+  border: 1px solid #222F46;
+  border-radius: 0.5rem;
+}
+
+.corporate-panel-elevated {
+  background-color: #161F33;
+  border: 1px solid #222F46;
+  border-radius: 0.5rem;
+}
+
+/* Corporate button base - rectangular, no pill shape */
+.btn-corporate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-family: ui-monospace, "JetBrains Mono", monospace;
+  font-weight: 500;
+  border: 1px solid #334155;
+  background-color: #121929;
+  color: #CBD5E1;
+  cursor: pointer;
+  transition: background-color 150ms, border-color 150ms;
+}
+.btn-corporate:hover {
+  background-color: #161F33;
+  border-color: #607D8B;
+}
+.btn-corporate-primary {
+  background-color: #1A2B3C;
+  border-color: #607D8B;
+  color: #90A4AE;
+}
+.btn-corporate-primary:hover {
+  background-color: #243447;
+  border-color: #90A4AE;
+}
+
+/* Code and cryptographic monospace typography */
+.font-mono-crypto {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-feature-settings: "zero" 1;
+}
+
+/* Browser surfaces: keyboard focus and numerals follow the palette */
+:focus-visible {
+  outline: 2px solid #90A4AE;
+  outline-offset: 2px;
+}
+
+
+.tabular-nums,
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}

@@ -4,7 +4,6 @@
 //! Includes configurable timestamp validation window.
 
 use std::collections::HashSet;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 use aip_types::{AipError, Signature};
 
@@ -64,10 +63,7 @@ impl NonceTracker {
 
     /// Get current time in milliseconds.
     fn now_ms() -> u64 {
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_millis() as u64
+        aip_crypto::now_ms()
     }
 
     /// Validate a signature's freshness and nonce uniqueness.

@@ -1,0 +1,17 @@
+{
+  "name": "aip-wasm",
+  "type": "module",
+  "description": "WebAssembly bindings for AIP verification engine & accountability console",
+  "version": "0.4.0",
+  "license": "LicenseRef-Proprietary",
+  "files": [
+    "aip_wasm_bg.wasm",
+    "aip_wasm.js",
+    "aip_wasm.d.ts"
+  ],
+  "main": "aip_wasm.js",
+  "types": "aip_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
