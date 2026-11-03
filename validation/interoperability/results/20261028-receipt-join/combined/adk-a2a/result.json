@@ -1,0 +1,516 @@
+{
+  "status": "PARTIALLY_VERIFIED",
+  "kernel_observation": "NOT_EXECUTED",
+  "institutional_key_custody": "NOT_ESTABLISHED",
+  "logical_agent_attribution": "FRAMEWORK_ONLY",
+  "remote_kernel": "UNOBSERVED",
+  "signed_authorization": "NOT_ESTABLISHED",
+  "identity": {
+    "scheme": "oauth-jwt",
+    "issuer": "https://identity.bank.example",
+    "subject": "research-agent",
+    "tenant": "synthetic-bank",
+    "credential_type": "JWT_ACCESS_TOKEN",
+    "verified_at_ms": 1793202474087,
+    "expires_at_ms": 1793202654000,
+    "trust_anchor": "https://identity.bank.example#configured-key:lab;spki-sha256:c63385640290723305edf4117cef063e77f587ad39fb453c65b7ddab63ce2fb5",
+    "credential_sha256": "c5cf72e7eb4155b7588f0a74452687127520ae800a27023eb265d5fd3eaa64fd",
+    "workload_identity": null,
+    "logical_agent_id": null,
+    "agent_binding_evidence": [],
+    "revocation_status": "UNKNOWN",
+    "possession": "BEARER",
+    "status": "AUTHENTICATED"
+  },
+  "agent_card": {
+    "retrieval_url": "https://127.0.0.1:54263/.well-known/agent-card.json",
+    "card_commitment": "88bf238545f1352f2f26537a135518b45649445101fa266b9f90599d780c22d8",
+    "endpoint_authentication": "TLS_SERVER_CERTIFICATE",
+    "card_signature_status": "NOT_VERIFIED",
+    "capabilities_status": "DECLARED"
+  },
+  "a2a_interactions": [
+    {
+      "parent_task": "bank-task-50d4b8fa-aa32-4ef0-9a5a-84b7bcfd93b1",
+      "request_commitment": "eca43d31c474d173195f4c2798226fa617ea7c1dab12e43e98c3beff25e46b92",
+      "action": "research.read",
+      "resource": "synthetic-loans",
+      "tenant": "synthetic-bank",
+      "delegator": "research-agent",
+      "issuer": "https://identity.bank.example",
+      "delegation_id": "73625549-611e-492c-b2b1-b0b231ce03aa",
+      "credential_sha256": "4e37e069b03427734ca83321b67c1036df5de99b083d92f15e5f69531b35cd9c",
+      "execution_authority": "NOT_ESTABLISHED",
+      "remote_kernel": "UNOBSERVED"
+    }
+  ],
+  "gateway": "ContextForge",
+  "tool_results": [
+    {
+      "jsonrpc": "2.0",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"loan_id\": 17,\n  \"amount_seen\": 0,\n  \"document_status\": \"synthetic-documents-require-human-review\",\n  \"recommendation\": \"review-only\"\n}"
+          }
+        ],
+        "isError": false,
+        "_meta": {
+          "io.modelcontextprotocol/serverInfo": {
+            "name": "vanian-receipt-test-upstream",
+            "version": ""
+          },
+          "vanian": {
+            "receipt_persisted": true,
+            "signed_receipt": {
+              "attestation": {
+                "algorithm": "Ed25519",
+                "nonce": [
+                  78,
+                  15,
+                  173,
+                  233,
+                  4,
+                  166,
+                  81,
+                  250,
+                  223,
+                  234,
+                  72,
+                  100,
+                  64,
+                  165,
+                  186,
+                  175
+                ],
+                "payload_hash": [
+                  205,
+                  161,
+                  166,
+                  124,
+                  109,
+                  28,
+                  86,
+                  162,
+                  220,
+                  156,
+                  80,
+                  63,
+                  162,
+                  130,
+                  14,
+                  64,
+                  156,
+                  149,
+                  82,
+                  112,
+                  180,
+                  114,
+                  64,
+                  71,
+                  87,
+                  80,
+                  127,
+                  35,
+                  94,
+                  41,
+                  36,
+                  161
+                ],
+                "signature_bytes": [
+                  156,
+                  27,
+                  193,
+                  93,
+                  143,
+                  199,
+                  164,
+                  80,
+                  105,
+                  149,
+                  230,
+                  145,
+                  33,
+                  214,
+                  66,
+                  126,
+                  118,
+                  206,
+                  76,
+                  63,
+                  22,
+                  206,
+                  231,
+                  232,
+                  229,
+                  161,
+                  204,
+                  174,
+                  213,
+                  38,
+                  142,
+                  195,
+                  224,
+                  45,
+                  80,
+                  62,
+                  138,
+                  57,
+                  226,
+                  195,
+                  105,
+                  190,
+                  49,
+                  86,
+                  96,
+                  182,
+                  59,
+                  92,
+                  108,
+                  175,
+                  191,
+                  9,
+                  61,
+                  241,
+                  58,
+                  245,
+                  125,
+                  87,
+                  123,
+                  128,
+                  198,
+                  219,
+                  62,
+                  12
+                ],
+                "signer_id": "gateway.contextforge.validation",
+                "timestamp": 1793202485016
+              },
+              "receipt": {
+                "agent_id": "agent.bank-evaluation",
+                "decision_id": [
+                  124,
+                  133,
+                  55,
+                  35,
+                  79,
+                  200,
+                  79,
+                  236,
+                  165,
+                  113,
+                  41,
+                  59,
+                  240,
+                  255,
+                  83,
+                  190
+                ],
+                "disposition": "Forwarded",
+                "gateway_id": "gateway.contextforge.validation",
+                "key_version": 1,
+                "parameter_commitment": [
+                  203,
+                  1,
+                  49,
+                  83,
+                  118,
+                  230,
+                  244,
+                  230,
+                  211,
+                  91,
+                  38,
+                  179,
+                  92,
+                  253,
+                  84,
+                  9,
+                  91,
+                  94,
+                  69,
+                  157,
+                  255,
+                  229,
+                  135,
+                  72,
+                  153,
+                  189,
+                  159,
+                  143,
+                  6,
+                  161,
+                  241,
+                  34
+                ],
+                "received_at_ms": 1793202484958,
+                "response_commitment": [
+                  182,
+                  199,
+                  233,
+                  26,
+                  140,
+                  8,
+                  147,
+                  122,
+                  173,
+                  177,
+                  65,
+                  27,
+                  151,
+                  159,
+                  253,
+                  62,
+                  103,
+                  199,
+                  128,
+                  55,
+                  153,
+                  195,
+                  81,
+                  126,
+                  119,
+                  23,
+                  175,
+                  244,
+                  170,
+                  109,
+                  40,
+                  215
+                ],
+                "tool_call_id": "a601b4f2-8d2c-405f-a439-00a1e9bd3ceb",
+                "tool_id": "receipt-test-loan-read",
+                "version": 1
+              }
+            }
+          }
+        }
+      },
+      "id": "f88b153f-44ee-410e-8922-9ae06ec88511"
+    }
+  ],
+  "agent_responses": [
+    {
+      "parts": [
+        {
+          "function_call": {
+            "id": "adk-780e44d3-54ba-466e-8250-dc34e675bd80",
+            "args": {
+              "record_id": "SYN-001"
+            },
+            "name": "delegate_research"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    {
+      "parts": [
+        {
+          "function_response": {
+            "id": "adk-780e44d3-54ba-466e-8250-dc34e675bd80",
+            "name": "delegate_research",
+            "response": {
+              "parent_task": "bank-task-50d4b8fa-aa32-4ef0-9a5a-84b7bcfd93b1",
+              "provider_response": [
+                "The synthetic loan with ID 17 has been reviewed by a human reviewer."
+              ],
+              "remote_kernel": "UNOBSERVED"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    {
+      "parts": [
+        {
+          "text": "A synthetic loan with ID 17 was reviewed by a human reviewer."
+        }
+      ],
+      "role": "model"
+    }
+  ],
+  "a2a_replies": [
+    {
+      "task": {
+        "id": "37ef0d88-f758-4b9f-9f0c-98504df73e4a",
+        "contextId": "eb0a6b2b-8133-4dd6-a9e2-f554d491da87",
+        "status": {
+          "state": "TASK_STATE_COMPLETED",
+          "timestamp": "2026-10-28T15:48:09.433945Z"
+        },
+        "artifacts": [
+          {
+            "artifactId": "a370f22b-0c9b-4a45-a365-2b0514f36c73",
+            "parts": [
+              {
+                "text": "The synthetic loan with ID 17 has been reviewed by a human reviewer."
+              }
+            ]
+          }
+        ],
+        "history": [
+          {
+            "messageId": "29e1d7b2-50f9-4436-8a9b-7914a5c0dbf7",
+            "contextId": "eb0a6b2b-8133-4dd6-a9e2-f554d491da87",
+            "taskId": "37ef0d88-f758-4b9f-9f0c-98504df73e4a",
+            "role": "ROLE_USER",
+            "parts": [
+              {
+                "text": "Read synthetic loan SYN-001 using the read_loan tool."
+              }
+            ]
+          },
+          {
+            "messageId": "09e0768f-57a8-498b-bdd4-9684ceea7ac5",
+            "role": "ROLE_AGENT",
+            "parts": [
+              {
+                "data": {
+                  "name": "read_loan",
+                  "id": "adk-2ca45846-e955-4374-9174-50bf97f0b636",
+                  "args": {
+                    "record_id": "SYN-001"
+                  }
+                },
+                "metadata": {
+                  "adk_type": "function_call"
+                }
+              }
+            ]
+          },
+          {
+            "messageId": "ec1e9606-243b-4670-b72c-1739c67191e3",
+            "role": "ROLE_AGENT",
+            "parts": [
+              {
+                "data": {
+                  "response": {
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "{\n  \"loan_id\": 17,\n  \"amount_seen\": 0,\n  \"document_status\": \"synthetic-documents-require-human-review\",\n  \"recommendation\": \"review-only\"\n}"
+                      }
+                    ],
+                    "isError": false
+                  },
+                  "name": "read_loan",
+                  "id": "adk-2ca45846-e955-4374-9174-50bf97f0b636"
+                },
+                "metadata": {
+                  "adk_type": "function_response"
+                }
+              }
+            ]
+          },
+          {
+            "messageId": "d2268f2e-f892-4590-b9f4-6f9af54ef010",
+            "role": "ROLE_AGENT",
+            "parts": [
+              {
+                "text": "The synthetic loan with ID 17 has been reviewed by a human reviewer."
+              }
+            ]
+          }
+        ],
+        "metadata": {
+          "adk_actions": {
+            "stateDelta": {},
+            "requestedToolConfirmations": {},
+            "artifactDelta": {},
+            "requestedAuthConfigs": {}
+          },
+          "adk_user_id": "research-agent",
+          "adk_custom_metadata": "{\"a2a_metadata\": {\"parent_task\": \"bank-task-50d4b8fa-aa32-4ef0-9a5a-84b7bcfd93b1\", \"delegation_reference\": \"73625549-611e-492c-b2b1-b0b231ce03aa\"}}",
+          "adk_app_name": "provider",
+          "adk_invocation_id": "e-46565953-35ba-4de8-80ae-02bca9210d5c",
+          "adk_session_id": "eb0a6b2b-8133-4dd6-a9e2-f554d491da87",
+          "adk_event_id": "aca6b3d9-a653-4cec-bfde-579b33059384",
+          "adk_author": "provider_research"
+        }
+      }
+    }
+  ],
+  "microsoft_governance": [
+    {
+      "source": "microsoft-agent-control-specification",
+      "tenant": "synthetic-provider",
+      "event_id": "a601b4f2-8d2c-405f-a439-00a1e9bd3ceb",
+      "event_kind": "policy.allow",
+      "occurred_at_ms": 1793202485055,
+      "native_json": "{\"enforced_identity\":\"sha256:1a007d411c5c788733853badd538dfb7adf67670c0dbc35d8db0c766d030eab8\",\"input_identity\":\"sha256:1a007d411c5c788733853badd538dfb7adf67670c0dbc35d8db0c766d030eab8\",\"policy_input\":{\"annotations\":{},\"intervention_point\":\"pre_tool_call\",\"policy_target\":{\"kind\":\"tool_args\",\"path\":\"$.tool_call.args\",\"value\":{\"amount\":0,\"loan_id\":17}},\"snapshot\":{\"agent\":{\"id\":\"provider_research\"},\"tool_call\":{\"args\":{\"amount\":0,\"loan_id\":17},\"id\":\"a601b4f2-8d2c-405f-a439-00a1e9bd3ceb\",\"name\":\"read_loan\"}},\"tool\":{\"clearance\":[\"synthetic\"],\"id\":\"read_loan\",\"name\":\"read_loan\",\"security_labels\":[\"synthetic\"],\"type\":\"Tool\"}},\"transformed_policy_target\":null,\"transformed_policy_target_applied\":false,\"verdict\":{\"approval\":null,\"decision\":\"allow\",\"evidence\":null,\"message\":null,\"reason\":null,\"result_labels\":[],\"transform\":null,\"warnings\":[]}}",
+      "authenticity": {
+        "mechanism": "IN_PROCESS_HOOK",
+        "authority": "ACS caller",
+        "trust_anchor": null,
+        "authenticated_at_ms": null,
+        "signature_status": "NOT_PRESENT",
+        "boundary": "APPLICATION"
+      },
+      "agent_id": "provider_research",
+      "workload_id": null,
+      "task_id": null,
+      "parent_task_id": null,
+      "policy_version": "vanian-synthetic-research-v2",
+      "status": "DECLARED",
+      "observation_coverage": "NOT_ESTABLISHED"
+    },
+    {
+      "source": "microsoft-agent-control-specification",
+      "tenant": "synthetic-provider",
+      "event_id": "post-a601b4f2-8d2c-405f-a439-00a1e9bd3ceb",
+      "event_kind": "policy.allow",
+      "occurred_at_ms": 1793202485055,
+      "native_json": "{\"enforced_identity\":\"sha256:98e1f8927b188102b2a4bf2287e96209d1e927fdf2c46de262e3916e83582b78\",\"input_identity\":\"sha256:98e1f8927b188102b2a4bf2287e96209d1e927fdf2c46de262e3916e83582b78\",\"policy_input\":{\"annotations\":{},\"intervention_point\":\"post_tool_call\",\"policy_target\":{\"kind\":\"tool_result\",\"path\":\"$.tool_result\",\"value\":{\"content\":[{\"text\":\"{\\n  \\\"loan_id\\\": 17,\\n  \\\"amount_seen\\\": 0,\\n  \\\"document_status\\\": \\\"synthetic-documents-require-human-review\\\",\\n  \\\"recommendation\\\": \\\"review-only\\\"\\n}\",\"type\":\"text\"}],\"isError\":false}},\"snapshot\":{\"agent\":{\"id\":\"provider_research\"},\"tool_call\":{\"args\":{\"amount\":0,\"loan_id\":17},\"id\":\"a601b4f2-8d2c-405f-a439-00a1e9bd3ceb\",\"name\":\"read_loan\"},\"tool_result\":{\"content\":[{\"text\":\"{\\n  \\\"loan_id\\\": 17,\\n  \\\"amount_seen\\\": 0,\\n  \\\"document_status\\\": \\\"synthetic-documents-require-human-review\\\",\\n  \\\"recommendation\\\": \\\"review-only\\\"\\n}\",\"type\":\"text\"}],\"isError\":false}},\"tool\":{\"clearance\":[\"synthetic\"],\"id\":\"read_loan\",\"name\":\"read_loan\",\"security_labels\":[\"synthetic\"],\"type\":\"Tool\"}},\"transformed_policy_target\":null,\"transformed_policy_target_applied\":false,\"verdict\":{\"approval\":null,\"decision\":\"allow\",\"evidence\":null,\"message\":null,\"reason\":null,\"result_labels\":[],\"transform\":null,\"warnings\":[]}}",
+      "authenticity": {
+        "mechanism": "IN_PROCESS_HOOK",
+        "authority": "ACS caller",
+        "trust_anchor": null,
+        "authenticated_at_ms": null,
+        "signature_status": "NOT_PRESENT",
+        "boundary": "APPLICATION"
+      },
+      "agent_id": "provider_research",
+      "workload_id": null,
+      "task_id": null,
+      "parent_task_id": null,
+      "policy_version": "vanian-synthetic-research-v2",
+      "status": "DECLARED",
+      "observation_coverage": "NOT_ESTABLISHED"
+    }
+  ],
+  "governance_requests": [
+    {
+      "request_id": "a601b4f2-8d2c-405f-a439-00a1e9bd3ceb",
+      "decision_id": "7c8537234fc84feca571293bf0ff53be",
+      "receipt_result_index": 0,
+      "context_provenance": "APPLICATION_REPORTED_NOT_AUTHORITY"
+    }
+  ],
+  "negative_checks": [
+    {
+      "check": "native_ACS_denied_out_of_scope_without_dispatch",
+      "status": "PASS"
+    },
+    {
+      "check": "A2A_missing_bearer_refused",
+      "status": "PASS"
+    },
+    {
+      "check": "A2A_wrong_audience_refused",
+      "status": "PASS"
+    },
+    {
+      "check": "A2A_changed_delegated_request_refused",
+      "status": "PASS"
+    },
+    {
+      "check": "A2A_missing_client_certificate_refused",
+      "status": "PASS"
+    }
+  ],
+  "model_calls": 4,
+  "scope": "Real local inference and authenticated A2A; same-process logical agents; no independent runtime observation."
+}

@@ -1,0 +1,81 @@
+{
+  "schema": "vanian.interop.receipt-join-validation.v1",
+  "date": "2026-10-28",
+  "base_commit": "ff52c2a47462244560502fc1587ada721c82e2a8",
+  "status": "PARTIALLY_VERIFIED",
+  "milestone_complete": false,
+  "upstream_locks": "integrations/interoperability/upstreams.lock.json",
+  "native_acs_sdk": "0.4.0b0 at 4eca1f5b44d30ebe5e9745ac36ca394f887e617b",
+  "execution": {
+    "fresh_combined_runs_completed": 2,
+    "retained_run": "combined",
+    "model_calls_in_retained_run": 4,
+    "gateway_checks_in_retained_run": 28,
+    "verified_gateway_receipts": 28,
+    "live_negative_checks": 5,
+    "captured_adapter_source_hashes_matched": 18,
+    "native_policy_input_to_gateway_comparison": "AGREEMENT_CONTENT_ONLY",
+    "source_policy_authenticity": "NOT_ESTABLISHED",
+    "kernel_execution": "CANNOT_PROVE"
+  },
+  "checks": [
+    {
+      "command": "cargo test --offline --locked -p aip-mcp-gateway",
+      "result": "PASS",
+      "passed": 34,
+      "new_tests": 8,
+      "log": "checks/native-gateway-tests.log"
+    },
+    {
+      "command": "python -m pytest validation/interoperability/test_microsoft_receipt.py -q",
+      "result": "PASS",
+      "passed": 25,
+      "log": "checks/microsoft-adversarial.log"
+    },
+    {
+      "command": "python -m pytest integrations/interoperability/tests -q",
+      "result": "PASS",
+      "passed": 47,
+      "log": "checks/adapter-tests.log"
+    },
+    {
+      "command": "opa test integrations/interoperability/examples/microsoft/policy -v",
+      "result": "PASS",
+      "passed": 4,
+      "log": "checks/acs-rego.log"
+    },
+    {
+      "command": "cargo clippy --offline --locked --workspace --all-targets --all-features -- -D warnings",
+      "result": "PASS",
+      "log": "checks/workspace-clippy.log"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "verify_microsoft_archive.py with committed combined archive and public context",
+      "result": "PASS",
+      "log": "checks/microsoft-offline.log"
+    },
+    {
+      "command": "verify_gateway_archive.py with committed combined archive and public anchor",
+      "result": "PASS",
+      "count": 28,
+      "tamper_refused": true,
+      "log": "checks/receipts-offline.log"
+    }
+  ],
+  "limitations": [
+    "ACS identity hashes are unkeyed; content consistency does not authenticate policy source/version.",
+    "Gateway anchor authority, tenant scope and alias configuration must be independently established.",
+    "Receipt IDs and framework agent claims do not prove workload/logical-agent binding.",
+    "No institutional ExpectedExecution for the model operation; separate comparator authorizations are labeled fixtures.",
+    "No same-run kernel capture, observer health/coverage or off-host collector signature.",
+    "No live OpenShell or SPIRE validation; host preflight remains blocked.",
+    "Additional ACS decision profiles, transforms, approvals and floating-point arguments are not supported by this comparison.",
+    "Existing full-workspace test failures are not reclassified or rerun by this scoped increment.",
+    "CI configuration is not evidence of remote execution; see PR exact-head workflow results."
+  ]
+}

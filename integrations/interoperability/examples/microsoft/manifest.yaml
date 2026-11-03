@@ -1,0 +1,29 @@
+agent_control_specification_version: 0.4.0-alpha.1
+metadata:
+  name: vanian_synthetic_research
+extends: []
+policies:
+  research:
+    type: rego
+    bundle: ./policy
+    query: data.vanian_acs.verdict
+intervention_points:
+  pre_tool_call:
+    policy_target: $.tool_call.args
+    policy_target_kind: tool_args
+    policy:
+      id: research
+    tool_name_from: $.tool_call.name
+  post_tool_call:
+    policy_target: $.tool_result
+    policy_target_kind: tool_result
+    policy:
+      id: research
+    tool_name_from: $.tool_call.name
+tools:
+  read_loan:
+    type: Tool
+    id: read_loan
+    clearance: [synthetic]
+    security_labels: [synthetic]
+annotators: {}
