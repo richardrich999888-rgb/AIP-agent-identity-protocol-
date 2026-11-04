@@ -39,6 +39,7 @@ hex = "0.4"
 clap = { version = "4", features = ["derive"] }
 
 [dev-dependencies]
+aip-hsm = { path = "../aip-hsm" }
 # Builds the signed registry an access-ledger fixture resolves against.
 aip-registry = { path = "../aip-registry" }
 
