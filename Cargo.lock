@@ -509,6 +509,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "aip-package"
+version = "0.4.0"
+dependencies = [
+ "aip-crypto",
+ "aip-types",
+ "hex",
+ "serde",
+ "serde_json",
+ "zip",
+]
+
+[[package]]
 name = "aip-placement"
 version = "0.4.0"
 dependencies = [
