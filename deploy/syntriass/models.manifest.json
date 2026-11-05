@@ -1,0 +1,71 @@
+{
+  "schema": "syntriass.models.manifest/1",
+  "purpose": "The single source of truth for which model files the offline bundle may contain, and what bytes each one must be. Read by resolve_model.py; never by a demo directly.",
+  "bundle_layout": {
+    "root_env": "SYNTRIASS_BUNDLE",
+    "root_default": "/opt/syntriass/current",
+    "root_default_provenance": "deploy/syntriass/README.md section 3 installs to /opt/syntriass/releases/<commit> and repoints /opt/syntriass/current",
+    "models_subdir": "models",
+    "llama_server": "bin/llama-server"
+  },
+  "integrity_rule": "SHA-256 is the authoritative check and subsumes size. A file whose digest differs from the pinned value is not the pinned artifact and is refused; it is never used with a warning.",
+  "provenance_rule": "An entry whose source_url or licence is UNVERIFIED_NO_NETWORK must NOT be downloaded by the staging script. Integrity without provenance is not enough to put a model in a customer bundle.",
+  "models": [
+    {
+      "logical_name": "qwen2.5-0.5b-q4",
+      "file": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+      "sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+      "sha256_provenance": "research/compute-memory/bench/run_all.sh:9 and research/compute-memory/BASELINES.md:21 (prefix 74a4da8c) agree",
+      "size_documented": "469 MiB",
+      "size_provenance": "research/compute-memory/BASELINES.md:21 — documented in MiB, not exact bytes; not used as a check",
+      "params": "0.63 B",
+      "source_url": "UNVERIFIED_NO_NETWORK",
+      "licence": "UNVERIFIED_NO_NETWORK",
+      "note": "BASELINES.md:25 records that despite the Q4_K_M name this file is mostly Q5_0/Q8_0 tensors per its GGUF metadata."
+    },
+    {
+      "logical_name": "qwen2.5-0.5b-q8",
+      "file": "qwen2.5-0.5b-instruct-q8_0.gguf",
+      "sha256": "ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e",
+      "sha256_provenance": "research/compute-memory/bench/run_all.sh:10 and BASELINES.md:22 (prefix ca59ca7f) agree",
+      "size_documented": "644 MiB",
+      "size_provenance": "research/compute-memory/BASELINES.md:22",
+      "params": "0.63 B",
+      "source_url": "UNVERIFIED_NO_NETWORK",
+      "licence": "UNVERIFIED_NO_NETWORK"
+    },
+    {
+      "logical_name": "qwen2.5-1.5b-q4",
+      "file": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "sha256_provenance": "research/compute-memory/bench/run_all.sh:12 and BASELINES.md:23 (prefix 6a1a2eb6) agree",
+      "size_documented": "1066 MiB",
+      "size_provenance": "research/compute-memory/BASELINES.md:23",
+      "params": "1.78 B",
+      "source_url": "UNVERIFIED_NO_NETWORK",
+      "licence": "UNVERIFIED_NO_NETWORK"
+    },
+    {
+      "logical_name": "qwen2.5-1.5b-q8",
+      "file": "qwen2.5-1.5b-instruct-q8_0.gguf",
+      "sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8",
+      "sha256_provenance": "research/compute-memory/bench/run_all.sh:11 and BASELINES.md:24 (prefix d7efb072) agree",
+      "size_documented": "1807 MiB",
+      "size_provenance": "research/compute-memory/BASELINES.md:24",
+      "params": "1.78 B",
+      "source_url": "UNVERIFIED_NO_NETWORK",
+      "licence": "UNVERIFIED_NO_NETWORK",
+      "note": "The model every published v0.2 figure was measured with."
+    }
+  ],
+  "not_yet_pinned": {
+    "reason": "Requested models whose licence could not be read from their model card: huggingface.co answers 403 at this environment's proxy, so no model card is reachable. Adding them with a licence recalled from memory would defeat the point of the check.",
+    "requested": [
+      "one 7B-class model",
+      "IBM Granite instruct (stated to be Apache-2.0 — UNVERIFIED here)",
+      "Mistral-7B-Instruct (stated to be Apache-2.0 — UNVERIFIED here)"
+    ],
+    "what_is_needed": "Read each model card on a connected machine and record, per file: the exact repository and file URL, the SHA-256 of the file as downloaded, and the licence identifier as the card states it. A licence restricting commercial use stops the entry and is escalated.",
+    "tracked_as": "X3 in docs/demo/TEACH_DEMO_LOOP.md"
+  }
+}

@@ -3,9 +3,15 @@
 #   usage: bench/run_all.sh OUT_DIR SERVER_BIN [REPS]
 # Models are verified against pinned SHA-256 before use.
 set -euo pipefail
-OUT=$1; S=$2; REPS=${3:-3}; M=${MODELS:-/home/claude/vanian-build/models}
+OUT=$1; S=$2; REPS=${3:-3}
+# Model directory from the staged bundle; MODELS still overrides it.
+RM="$(cd "$(dirname "$0")/../../.." && pwd)/deploy/syntriass/resolve_model.py"
+M=$(python3 -I "$RM" dir) || exit $?
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 declare -A SHA=(
+  # MIRROR of deploy/syntriass/models.manifest.json. If you change a digest,
+  # change it there first: resolve_model.py is what every other caller reads,
+  # and tests/test_resolve_model.py asserts these four agree with the manifest.
   [qwen2.5-0.5b-instruct-q4_k_m.gguf]=74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db
   [qwen2.5-0.5b-instruct-q8_0.gguf]=ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e
   [qwen2.5-1.5b-instruct-q8_0.gguf]=d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8

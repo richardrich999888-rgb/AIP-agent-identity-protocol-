@@ -191,11 +191,61 @@ with the unproven half named.
 
 ## Discovered items (added as found)
 
-- [ ] **X1. `run_demo.sh` hard-codes an absolute model path.**
-  `/home/claude/vanian-build/models/…` at line 65 makes the existing demo
-  unrunnable on any other machine. Should read a `MODELS_DIR` with the pinned digests
-  from `run_all.sh` and fail with a clear message naming the missing file. Small,
-  no model needed to fix, and it unblocks G1 reuse.
+- [x] **X1. Hard-coded absolute model paths — DONE.** Commit `08fb7db`.
+  Not one instance but **seven**, across five scripts: five model-directory
+  defaults and two `llama-server` paths, plus three duplicate copies of the
+  SHA-256 digests. Replaced by `deploy/syntriass/models.manifest.json` (4 pinned
+  models, digests cross-checked between `run_all.sh` and `BASELINES.md`) and
+  `deploy/syntriass/resolve_model.py`, with precedence
+  `MODELS` > `SYNTRIASS_BUNDLE/models` > `/opt/syntriass/current/models` — the
+  last being where `README.md` section 3 actually installs, so no default was
+  invented. SHA-256 is authoritative and a mismatch is **refused**, never warned
+  about. Exit codes are the contract: 2 caller error, 3 not staged, 4 integrity,
+  5 provenance unverified.
+  *Tests:* `deploy/syntriass/tests/test_resolve_model.py` **23/23**;
+  `cargo test -p syntriass-runtime --locked` **90/0**;
+  `test_atomic.py` **34/0**; `test_ir_compiler.py` **17/0** (2 skipped);
+  `cargo fmt --check` clean.
+  *Recorded run:* `docs/demo/results/X1_model_path_resolution.json` —
+  `run_demo.sh <OUT> --propose` now reaches Scene 3 and stops with **exit 3**
+  and the operator-facing message, where before it failed on a build-host path
+  with no remedy. Scene 6 (offline) and Scene 2 (`strategy: Exact`) pass live;
+  Scene 1 runs and correctly reports a missing *bundle* model, which shows the
+  fix reached the Rust runtime's config through `mkconfig.py`.
+  *Lesson recorded:* two of the seven instances were missed by the search pass
+  and caught only by the test, which asserts over an explicit caller list
+  instead of trusting a grep.
+- [ ] **X3. Pin the three requested extra models.** One 7B-class, IBM Granite
+  instruct, Mistral-7B-Instruct. **Blocked here:** every model card is behind
+  `huggingface.co`, which answers 403 at this proxy, so no licence can be read.
+  Per the owner's decision a licence must be verified from the card before an
+  entry is added, and one restricting commercial use must stop and escalate.
+  `models.manifest.json` records them under `not_yet_pinned` and
+  `resolve_model.py provenance` already exits 5 for any entry whose
+  `source_url` or `licence` is `UNVERIFIED_NO_NETWORK`, so the staging script
+  cannot download one by accident.
+- [ ] **X4. `research/bittorrent-p2p/bench/bench.py:43`** defaults `BENCH_WORK`
+  to `/home/claude/vanian-build/btwork`. Same defect class as X1 but a scratch
+  directory rather than a pinned artifact, and in a separate research area, so
+  it was deliberately left out of X1's scope rather than widened into it.
+- [ ] **X6. The sidecar's training data is gitignored.**
+  `.gitignore:11` is a blanket `*.jsonl`, which excludes
+  `research/system-one/data/maintenance-priority-v2/*.jsonl` even though that
+  dataset's `MANIFEST.json` is tracked. On a fresh clone the sidecar therefore
+  cannot start, and the demo dies in Scene 1 with
+  `Inference: sidecar reply missing or oversized` — a message that names
+  neither the file nor the cause.
+  **Good news:** the dataset is seeded (`seed 20261031`) and regenerates
+  **byte-identically** to the five digests pinned in the tracked manifest
+  (verified this iteration). So the fix is a generate-and-verify step in setup,
+  not a large-file commit. Also worth fixing the message so it names the file.
+- [ ] **X7. The documented Python requirement is understated.**
+  `deploy/syntriass/README.md` section 1 says "Python ≥ 3.10 with numpy", but
+  `research/system-one/methods/extractors.py:102` imports
+  `sklearn.linear_model`, so the sidecar needs **scikit-learn** as well. On this
+  container `numpy 2.4.6` + `scikit-learn 1.9.1` made the sidecar healthy
+  (`train_rows 1200`, matching the manifest). Fix the requirement table and add
+  both to whatever the offline bundle installs.
 - [ ] **X2. Hardware label on every emitted number.** D1 and G1 will produce figures
   on 4 vCPU / 16 GB. The emitter must stamp the live container's CPU and RAM into the
   result file so no reader can merge them with the 2 vCPU / 8 GB report figures.
