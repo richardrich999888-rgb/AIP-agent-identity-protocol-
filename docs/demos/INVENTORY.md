@@ -94,3 +94,27 @@ git -C /home/user/overlay grep -cE '#\[(tokio::)?test' <branch> -- '*.rs' | awk 
 - Local models: **none present on this machine** (no `*.gguf`/`*.safetensors` over 50 MB, no `~/.ollama`). The bench harness pins four hash-verified Qwen2.5 GGUF builds (0.5B/1.5B, q4_k_m/q8_0) in `research/compute-memory/bench/run_all.sh`. All are Qwen; **no non-Chinese model is pinned yet** (rule 7). W0.3 needs one connected staging download, run by the user.
 - The Overlay's runnable demo path (W5).
 - A non-Chinese model option for every demo (rule 7; W0.3).
+
+## Finding: `research/compute-memory/bench/offline.sh` (not modified)
+
+The script is the provenance for the published v0.2 results and stays
+byte-identical on `feature/wow-demos` (blob `ac5b7205`, same as
+`feature/syntriass-runtime-v02`). Demos use `demos/common/harness.py`; research
+scripts keep their own wrapper.
+
+**Normal use is sound:** it re-execs itself under `unshare --user --net`, so
+the command has no route regardless of the probe (verified here: inside it,
+`harness.py offline-check` reports no route, no non-loopback interface).
+
+**Theoretical gap, not reproduced on this host.** The namespace step is
+skipped when `CM_IN_NETNS=1` is already in the caller's environment. The only
+remaining guard is then a TCP connect to one address, `1.1.1.1:443`. On a
+network that blocks that address but allows other egress (a corporate
+firewall, a proxy-only network), the script would run the command in the
+host namespace with a working route. Here `1.1.1.1:443` is reachable, so with
+`CM_IN_NETNS=1` inherited the script still refused (`external route present;
+refusing`, exit 1) — the gap could not be demonstrated in this sandbox.
+
+Suggested remedy for the research owners, not applied: check the namespace's
+route table (as `demos/common/harness.py` does) instead of, or in addition to,
+one probe address, and do not trust an inherited `CM_IN_NETNS`.
