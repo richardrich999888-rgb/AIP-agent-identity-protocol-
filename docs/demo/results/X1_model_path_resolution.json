@@ -1,7 +1,7 @@
 {
   "schema": "syntriass.demo.item_evidence/1",
   "item": "X1 \u2014 replace hard-coded model paths with bundle resolution",
-  "commit": "3073a13a949ed270c116fc1de155d7b60aef6d1b",
+  "commit": "e012395",
   "branch": "feature/airon-teach-demo",
   "recorded_utc": "2026-11-05T19:59:58Z",
   "hardware": {
@@ -90,5 +90,6 @@
     "what": "every act needing a live model call",
     "why": "no GGUF staged; huggingface.co and registry.ollama.ai both answer 403 at this environment's proxy",
     "unblocked_by": "the staging script and bundle the owner will deliver"
-  }
+  },
+  "commit_note": "The X1 commit. An earlier value in this file named a pre-amend hash; recorded correctly in the follow-up commit that fixed it."
 }

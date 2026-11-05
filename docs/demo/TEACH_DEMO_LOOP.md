@@ -191,7 +191,7 @@ with the unproven half named.
 
 ## Discovered items (added as found)
 
-- [x] **X1. Hard-coded absolute model paths — DONE.** Commit `08fb7db`.
+- [x] **X1. Hard-coded absolute model paths — DONE.** Commit `e012395`.
   Not one instance but **seven**, across five scripts: five model-directory
   defaults and two `llama-server` paths, plus three duplicate copies of the
   SHA-256 digests. Replaced by `deploy/syntriass/models.manifest.json` (4 pinned
