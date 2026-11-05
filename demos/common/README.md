@@ -16,5 +16,22 @@ show both directions of the offline check on a real host: the host itself is
 refused, the namespaced run is offline, an outbound connect fails inside it,
 and loopback works.
 
-Not a project CI gate yet: the repository's workflows run on pull requests and
-on pushes to `develop`/`main`, and none covers `demos/`.
+## CI and the namespace tests
+
+`.github/workflows/demos.yml` runs pyflakes and these tests on pull requests
+into `feature/syntriass-runtime-v02`. It changes no other workflow.
+
+The namespace test (`test_run_offline_runs_with_no_route_and_outbound_fails`)
+needs `unshare --user --net`. Where that is refused — hosted Ubuntu runners
+commonly restrict unprivileged user namespaces — it is reported as
+`skipped 'SKIPPED, not passed: <reason>'`, and the workflow repeats that line
+as a warning. **A skip is never counted as a pass. For that test the local run
+below is the evidence:**
+
+| Date | Host | Result |
+|---|---|---|
+| 2026-11-05 | sandbox, 4 vCPU, 15 GB RAM, no GPU, kernel 6.18.44, root | 12/12 passed, 0 skipped (namespace test executed) |
+
+The skip path itself was checked locally by putting a refusing `unshare`
+first on `PATH`: the test reported `skipped 'SKIPPED, not passed: unshare
+--user --net refused here: …'`.

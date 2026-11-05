@@ -13,6 +13,26 @@ import harness  # noqa: E402
 HARNESS = str(Path(harness.__file__))
 
 
+def _netns_unavailable_reason() -> str | None:
+    """Why `unshare --user --net` cannot run here, or None if it can.
+
+    Namespace tests are SKIPPED (never passed) without it. CI runners commonly
+    restrict unprivileged user namespaces (AppArmor), in which case the local
+    run is the evidence for those tests.
+    """
+    try:
+        r = subprocess.run(["unshare", "--user", "--map-root-user", "--net", "--", "true"],
+                           capture_output=True, text=True, timeout=20)
+    except FileNotFoundError:
+        return "unshare is not installed"
+    if r.returncode != 0:
+        return "unshare --user --net refused here: " + (r.stderr.strip() or f"exit {r.returncode}")
+    return None
+
+
+NETNS_SKIP = _netns_unavailable_reason()
+
+
 def fake_proc_net(tmp: Path, routes: list[str], devs: list[str]) -> Path:
     (tmp / "route").write_text("Iface\tDestination\tGateway\n" + "".join(r + "\n" for r in routes))
     (tmp / "ipv6_route").write_text("")
@@ -47,6 +67,7 @@ class Offline(unittest.TestCase):
             self.skipTest("this host has no network route; the refusal path cannot be shown here")
         self.assertEqual(r.returncode, 1)
 
+    @unittest.skipIf(NETNS_SKIP is not None, f"SKIPPED, not passed: {NETNS_SKIP}")
     def test_run_offline_runs_with_no_route_and_outbound_fails(self):
         probe = ("import socket,json,sys\n"
                  "sys.path.insert(0,%r)\n"
