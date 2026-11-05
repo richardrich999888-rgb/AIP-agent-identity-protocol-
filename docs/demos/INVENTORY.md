@@ -1,5 +1,24 @@
 # Demo inventory (W0.1)
 
+## Source of truth — accepted corrections (owner, 2026-11-05)
+
+These override any other figure in this repository or in a brief:
+
+1. **Sniffer Dog line head is `ab16159` (3 Nov).**
+2. **CBOM test counts:** quote only figures obtained by building and running
+   the suite in W4.1. Until then the static counts are ~646 CBOM test
+   functions on the 8 Sep `feature/*` branches and 875 of 3,037 on
+   `claude/cbom-dashboard-ai-analysis-uujp2g`. **Never quote "2,540" for the
+   CBOM engine.**
+3. **Cross-check results are shown in full on screen:** bpftrace 113 agreed /
+   0 missing **and 1 seen only by AIP**; auditd 112 agreed / 0 missing **and
+   2 seen only by AIP**.
+4. **Existing seven-scene demo:** scene 3 is labelled **"recorded draft"** on
+   screen unless the demo is run with `--propose`.
+5. **Hardware label for every measurement made in this sandbox:** 4 vCPU,
+   15 GB RAM, no GPU. Demo-hardware numbers come later from the real demo
+   machine.
+
 Taken 2026-11-05 from `git fetch --all` in both repositories. Static facts
 (branches, files, test-function counts) are from git; nothing here has been
 built or run yet unless it says so. Every later number must come from a run

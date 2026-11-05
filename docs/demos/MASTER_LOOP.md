@@ -5,15 +5,17 @@ and result-file paths. BLOCKED items say exactly what a human must do.
 
 AIP working branch: `feature/wow-demos` from `feature/syntriass-runtime-v02`
 @ `2883da7`. OVERLAY working branch: `feature/wow-demos`, base chosen in W4.1
-(recommended `claude/cbom-dashboard-ai-analysis-uujp2g` @ `eccb668`); needs
-push access (attached read-only today).
+`claude/cbom-dashboard-ai-analysis-uujp2g` @ `eccb668` (owner-approved),
+**only after W4.1 confirms it builds and its suite runs**, with real pass/fail
+counts recorded first. W4/W5 work is prepared locally and not pushed until
+write access to OVERLAY is granted.
 
 Facts behind these items: `docs/demos/INVENTORY.md`.
 
 ## W0 — Inventory and foundations
 - [x] W0.1 Inventory both repositories → `docs/demos/INVENTORY.md`
 - [ ] W0.2 `demos/` common harness: offline check, hardware report, result-file writer (JSON: timestamps, commit SHAs, hardware), recorded-vs-live label helper
-- [ ] W0.3 Offline model set (Qwen2.5 1.5B, one 7B-class, one non-Chinese model), hash-verified, licences in `demos/MODELS.md`; download is a user-run connected staging step. **Disk: 12 GB free here**
+- [ ] W0.3 Model manifest (name, file, SHA-256, size, source URL, licence) + a staging script the owner runs once on a connected machine. Pin Qwen2.5-1.5B-Instruct, one 7B-class model, IBM Granite (Apache-2.0) and Mistral-7B-Instruct (Apache-2.0); licences verified from each model card; **stop if any restricts commercial use**. Weights never in git; demos load only from the bundle path; never a model API
 
 ## W1 — Pull the plug
 - [ ] W1.1 Cloud-API comparison app (no embedded key; fails cleanly offline)
@@ -27,7 +29,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 - [ ] W2.3 `demos/lying-agent/run.sh` (5 min), explainer, acceptance test (always detected; reproducible verdict)
 
 ## W3 — The AI asks the teacher + knowledge pack
-- [ ] W3.0 **BLOCKED: companion file `AIRON_Teach_Demo_Claude_Code_Loop.md` is not in either repository.** Needed to expand W3.A1 … W3.G4
+- [—] W3 **Tracked in the teaching-demo loop** (separate session, own branch, checklist `docs/demo/TEACH_DEMO_LOOP.md`). Not built here; that session's files are not edited from this loop.
 
 ## W4 — Quantum X-ray (OVERLAY)
 - [ ] W4.1 Build the CBOM engine; record the real executed test count
@@ -48,7 +50,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 
 ## W7 — One-USB demo kit
 - [ ] W7.1 Offline bundle with checksums; clean-machine no-network install test
-- [ ] W7.2 `demos/launch.sh` modes (customer-<sector>, security, pq, investor-3min)
+- [ ] W7.2 `demos/launch.sh` modes (customer-<sector>, security, pq, investor-3min); a `teach` mode prints **"not ready"** until the teaching-demo loop reports ready, and calls that loop's own script after
 - [ ] W7.3 10 consecutive passes per mode → `docs/demos/REHEARSAL_LOG.md`
 
 ## W8 — Buyer evidence pack
@@ -63,4 +65,5 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 ## Iteration log
 | # | Item | Result | Evidence |
 |---|---|---|---|
+| — | Owner decisions 2026-11-05 | Corrections accepted as source of truth; W3 handed to the teaching-demo loop; release loop stays paused; no branch deletions | `INVENTORY.md` §Source of truth |
 | 1 | W0.1 inventory | DONE; 4 corrections to the brief (snifferdog head moved to `ab16159`; "~2,540 tests" is whole-repo, CBOM-path ~646/875; scene 3 is recorded by default; AIP-only events omitted); W3 companion file missing | `docs/demos/INVENTORY.md` |
