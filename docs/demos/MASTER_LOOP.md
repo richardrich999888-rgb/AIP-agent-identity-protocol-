@@ -4,7 +4,7 @@ One item per iteration. An item is ticked only with a commit SHA, test counts
 and result-file paths. BLOCKED items say exactly what a human must do.
 
 AIP working branch: `feature/wow-demos` from `feature/syntriass-runtime-v02`
-@ `2883da7`. OVERLAY working branch: `feature/wow-demos`, base chosen in W4.1
+@ `2883da7`. OVERLAY working branch: `feature/wow-demos`, based on
 `claude/cbom-dashboard-ai-analysis-uujp2g` @ `eccb668` (owner-approved),
 **only after W4.1 confirms it builds and its suite runs**, with real pass/fail
 counts recorded first. W4/W5 work is prepared locally and not pushed until
@@ -14,7 +14,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 
 ## W0 — Inventory and foundations
 - [x] W0.1 Inventory both repositories → `docs/demos/INVENTORY.md`
-- [ ] W0.2 `demos/` common harness: offline check, hardware report, result-file writer (JSON: timestamps, commit SHAs, hardware), recorded-vs-live label helper
+- [x] W0.2 `demos/` common harness: offline check, hardware report, result-file writer (JSON: timestamps, commit SHAs, hardware), recorded-vs-live label helper — `demos/common/`; 12/12 unit tests (local run; no CI covers `demos/`)
 - [ ] W0.3 Model manifest (name, file, SHA-256, size, source URL, licence) + a staging script the owner runs once on a connected machine. Pin Qwen2.5-1.5B-Instruct, one 7B-class model, IBM Granite (Apache-2.0) and Mistral-7B-Instruct (Apache-2.0); licences verified from each model card; **stop if any restricts commercial use**. Weights never in git; demos load only from the bundle path; never a model API
 
 ## W1 — Pull the plug
@@ -66,4 +66,5 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 | # | Item | Result | Evidence |
 |---|---|---|---|
 | — | Owner decisions 2026-11-05 | Corrections accepted as source of truth; W3 handed to the teaching-demo loop; release loop stays paused; no branch deletions | `INVENTORY.md` §Source of truth |
+| 2 | W0.2 harness | DONE; 12/12 tests incl. live offline refusal on this host and namespaced offline run; memory label fixed to round down (15 not 16) | `demos/common/` |
 | 1 | W0.1 inventory | DONE; 4 corrections to the brief (snifferdog head moved to `ab16159`; "~2,540 tests" is whole-repo, CBOM-path ~646/875; scene 3 is recorded by default; AIP-only events omitted); W3 companion file missing | `docs/demos/INVENTORY.md` |
