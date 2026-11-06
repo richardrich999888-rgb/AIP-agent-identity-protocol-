@@ -30,13 +30,14 @@ if req.get("try_network"):
     s = socket.socket(); s.settimeout(1)
     try: s.connect(("198.51.100.7", 443))
     except OSError: pass
-print(json.dumps({
+# The real `serve --eval` envelope: {"id": ..., "response": Response}.
+print(json.dumps({"id": req.get("id"), "response": {
   "strategy": {"kind": "retrieve_and_cite"},
   "outcome": {"kind": "answer", "text": "Refunds within 30 days [doc-7]", "sources": ["doc-7"]},
   "cost": {"wall_ms": 301.5, "cpu_s": {"runtime": 0.3}, "rss_mib": {"runtime": 20.0},
            "model_calls": 1, "prompt_tokens": 120, "completion_tokens": 18, "cached_tokens": 0,
            "model_load_ms": 0.0, "interpreter_calls": 0, "escalations": 0},
-  "capability_hash": None, "audit_hash": "ab"}))
+  "capability_hash": None, "audit_hash": "ab"}}))
 '''
 
 
@@ -74,6 +75,21 @@ class Local(Fixture):
         r = meter.measure_local([sys.executable, "-I", str(f)], "{}", env={})
         for k in ("strategy", "model_calls", "prompt_tokens", "cpu_s_total", "sources"):
             self.assertIsNone(r["runtime"][k], k)
+
+    def test_a_runtime_error_envelope_is_a_failure_carrying_the_runtimes_message(self):
+        f = Path(self.tmp.name) / "err.py"
+        f.write_text('import json,sys; sys.stdin.readline(); print(json.dumps({"error": "principal: unknown tenant"}))')
+        r = meter.measure_local([sys.executable, "-I", str(f)], "{}", env={})
+        self.assertEqual((r["status"], r["reason"]), ("failed", "runtime_error"))
+        self.assertEqual(r["runtime_error"], "principal: unknown tenant")
+        self.assertNotIn("answer", r)
+
+    def test_the_bare_response_of_ask_is_also_read(self):
+        f = Path(self.tmp.name) / "bare.py"
+        f.write_text('import json,sys; sys.stdin.readline(); print(json.dumps({"strategy":"s","outcome":'
+                     '{"kind":"answer","text":"t","sources":["d"]},"cost":{"model_calls":0}}))')
+        r = meter.measure_local([sys.executable, "-I", str(f)], "{}", env={})
+        self.assertEqual((r["status"], r["runtime"]["model_calls"], r["runtime"]["strategy"]), ("answered", 0, "s"))
 
     def test_no_response_is_a_failure_with_no_runtime_figures(self):
         f = Path(self.tmp.name) / "silent.py"
@@ -128,6 +144,10 @@ class SchemaDrift(unittest.TestCase):
                       "strategy", "outcome", "cost"):
             self.assertRegex(src, rf"pub {field}:", field)
         self.assertIn("Answer { text: String, sources: Vec<String> }", src)
+        # The serve --eval envelope the meter unwraps (regression: W1.2 first read it as the Response).
+        bin_src = (REPO / "sovereign/syntriass-runtime/src/bin/syntriass.rs").read_text()
+        self.assertIn('json!({"id": v["id"], "response": r})', bin_src)
+        self.assertIn('json!({"error": e})', bin_src)
         self.assertRegex(src, r'#\[serde\(tag = "kind", rename_all = "snake_case"\)\]\s*pub enum Outcome')
 
 

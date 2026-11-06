@@ -66,6 +66,8 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 | # | Item | Result | Evidence |
 |---|---|---|---|
 | — | Owner decisions 2026-11-05 | Corrections accepted as source of truth; W3 handed to the teaching-demo loop; release loop stays paused; no branch deletions | `INVENTORY.md` §Source of truth |
+| 5 | W1.2 fix | Meter read the `serve --eval` envelope `{"id","response"}` as the Response (found while building W1.3); now unwraps it, reports `{"error"}` as a runtime failure, still reads `ask`'s bare Response; drift guard pins the envelope; mutation check: 2 tests fail without the fix | `demos/pull-the-plug/meter.py` |
+| — | Trivy (inherited) | 4 HIGH misconfig findings (KSV-0009/0010/0118/0121) in retained render `validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml`; no CVEs (job scans secret+misconfig only). Tracked in **issue #15**; fix owned by the teaching-demo session, not started as of 2026-11-06 10:45 UTC; not duplicated here | issue #15 |
 | 4 | W1.2 live meter | DONE; runtime-reported vs meter-measured fields kept separate; no rupee figure without an operator rate; offline bytes out 0 even when the runtime tries the network. PR #14 (model resolver) now open, not merged | `demos/pull-the-plug/meter.py` |
 | 3 | W1.1 cloud-API app | DONE; offline failure now names a proxy in the path (`via_proxy`) instead of a bare `connection_refused` | `demos/pull-the-plug/` |
 | — | PR #13 CI | 3 red checks all inherited from base `2883da7` (trivy: 4 HIGH in retained Helm render; `vanian-sovereign` agent_execution needs user namespaces the runner lacks). Commented on PR; fixes proposed, not applied | PR #13 comment |

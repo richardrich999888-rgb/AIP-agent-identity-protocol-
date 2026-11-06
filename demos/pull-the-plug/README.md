@@ -47,7 +47,7 @@ labelled with its source:
 
 | Field | Source | Notes |
 |---|---|---|
-| strategy, outcome, sources, model calls, prompt/completion tokens, escalations, per-component CPU-s, runtime wall ms | **runtime-reported** (`syntriass serve --eval` → `Response.strategy` / `Response.cost`) | A field the runtime did not report is `null`, never filled in |
+| strategy, outcome, sources, model calls, prompt/completion tokens, escalations, per-component CPU-s, runtime wall ms | **runtime-reported** (`syntriass serve --eval` → `{"id", "response": Response}`; a `{"error"}` reply is a failure carrying the runtime's message; `ask`'s bare `Response` is also read) | A field the runtime did not report is `null`, never filled in |
 | wall ms, child CPU-seconds | **measured by the meter**, around the call (`getrusage(RUSAGE_CHILDREN)` delta) | Independent of the runtime's own report |
 | bytes out | **measured by the meter**: change in this network namespace's **non-loopback** transmit counter | Offline demo namespace: only the demo runs there. On a connected host the counter is namespace-wide, and the result says so |
 | ₹ per answer | computed only from operator-set rates: `METER_INR_PER_CPU_HOUR` (local), `METER_INR_PER_1K_TOKENS` (cloud) | No rate → **no rupee figure** ("rate not set"). The cloud side gets a figure only if the endpoint reported token usage. Formula and rate are always in the result |
@@ -68,5 +68,10 @@ Tests (`test_meter.py`, 10 of the 21 in this directory):
 **Not yet shown:** the meter against the real `syntriass` binary. That needs a
 staged model, so it happens in W1.4, after W0.3.
 
-Local run, 2026-11-06, sandbox (4 vCPU, 15 GB RAM, no GPU): 21/21 passed in
+Local run, 2026-11-06, sandbox (4 vCPU, 15 GB RAM, no GPU): 23/23 passed in
 this directory, 0 skipped, no warnings.
+
+Correction (same day): the first W1.2 commit read the `serve --eval` envelope
+as if it were the `Response`, so against the real binary every runtime field
+would have been null. Fixed, with the stand-in now emitting the real envelope
+and a drift guard pinning it in `src/bin/syntriass.rs`.

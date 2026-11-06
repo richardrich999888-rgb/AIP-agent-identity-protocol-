@@ -5,7 +5,8 @@ Every figure on the meter is measured during the answer it describes, and
 every figure says where it came from:
 
 * ``runtime`` — what the AIRON runtime reported about its own request
-  (`syntriass serve --eval` → Response.strategy / Response.cost: model calls,
+  (`syntriass serve --eval` → {"response": Response} → Response.strategy /
+  Response.cost: model calls,
   tokens, per-component CPU-seconds, wall ms). Shown as *runtime-reported*.
 * ``outer`` — measured around the call by this meter, independently of the
   runtime: wall ms, CPU-seconds of the child process (``wait4`` rusage), and
@@ -109,12 +110,20 @@ def measure_local(cmd: list[str], request_line: str, env: dict | None = None, ti
              "bytes_out_scope": "this network namespace (non-loopback interfaces)"}
     lines = [l for l in out.splitlines() if l.strip()]
     try:
-        resp = json.loads(lines[-1])
-        if not isinstance(resp, dict):
+        reply = json.loads(lines[-1])
+        if not isinstance(reply, dict):
             raise ValueError("not an object")
     except (IndexError, ValueError):
         return {"side": "airon-native", "status": "failed", "reason": "no_runtime_response",
                 "exit_code": code, "outer": outer, "inr": inr_local(outer["cpu_s_child"], env)}
+    # `serve --eval` replies {"id", "response": Response} or {"error": "..."};
+    # `ask` prints a bare Response. Accept both; never read the envelope as
+    # the response.
+    if "error" in reply and "response" not in reply:
+        return {"side": "airon-native", "status": "failed", "reason": "runtime_error",
+                "runtime_error": reply["error"], "exit_code": code, "outer": outer,
+                "inr": inr_local(outer["cpu_s_child"], env)}
+    resp = reply["response"] if isinstance(reply.get("response"), dict) else reply
     rt = _runtime_view(resp)
     status = "answered" if rt["outcome_kind"] in ("answer", "decision") else (rt["outcome_kind"] or "unknown")
     answer = (resp.get("outcome") or {}).get("text") or (resp.get("outcome") or {}).get("label")
