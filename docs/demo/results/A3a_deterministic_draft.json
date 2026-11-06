@@ -1,0 +1,92 @@
+{
+  "schema": "syntriass.demo.item_evidence/1",
+  "item": "A3a \u2014 deterministic draft from a teach session: IR fields the cited clauses determine",
+  "commit": "47e149781a926c88784b545fe045f468d53f15e9",
+  "tree_dirty": true,
+  "branch": "feature/airon-teach-demo",
+  "recorded_utc": "2026-11-06T10:55:07Z",
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.30GHz",
+    "cores": 4,
+    "ram_mib": 16086,
+    "gpu": "none",
+    "kernel": "6.18.44-fc-v242",
+    "NOT_the_published_bench_machine": "V02_REPORT.md and BASELINES.md figures were measured on 2 vCPU Xeon (AVX-512) / 8 GB. Nothing here may be merged with those."
+  },
+  "acceptance_criterion": "session -> IR with every field the clauses determine filled and every other field marked hypothesis or issue, with no model call",
+  "result": "MET",
+  "chain": {
+    "task_spec": "research/capability-learning/tasks/ir_ep114.json",
+    "document": "research/capability-learning/data/ir-tasks-v1/corpus/koravi-ep-114.txt",
+    "document_sha256": "655c9d1920951a8cb49e23ea450e4beaa7565a60cc19a7cf98b1fdc1ddcc91eb",
+    "steps": [
+      "ingest_documents.py (A1)",
+      "syntriass teach start (A2, compiled binary)",
+      "draft_from_session.py (A3a)"
+    ],
+    "model_calls": 0,
+    "model_calls_note": "A3a is deterministic by construction: it reads values off clause text and enumerates alternatives it will not choose between. Choosing is A3b's job and needs the model bundle."
+  },
+  "session": {
+    "session_id": "43c9f27eb25b7e62c538d92c31f6ee76a3ff0f63e37c7c35928cf5152c44400c",
+    "tenant": "koravi-process",
+    "clauses_cited": 22,
+    "examples": 3
+  },
+  "draft": {
+    "status": "NEEDS_EXPERT_ANSWERS",
+    "claim_units": 16,
+    "claims_determined": [
+      "missing_input",
+      "default_outcome"
+    ],
+    "field_counts": {
+      "evidence": 6,
+      "hypothesis": 8,
+      "issue": 8
+    },
+    "fields_filled": {
+      "missing_input_outcome": "INSUFFICIENT_INPUT",
+      "validity[].ref": "temperature",
+      "validity[].min": 10.0,
+      "validity[].max": 75.0,
+      "validity[].unit": "\u00b0C",
+      "default_outcome": "PASS"
+    },
+    "ir_unfilled_required": [
+      "topic_terms",
+      "inputs",
+      "rules"
+    ],
+    "ir_compiles": false,
+    "ir_compile_error": "'proposed_by'",
+    "questions": 16
+  },
+  "what_the_document_determines_on_its_own": {
+    "of_the_five_required_ir_fields": {
+      "determined": [
+        "default_outcome",
+        "missing_input_outcome"
+      ],
+      "not_determined": [
+        "topic_terms",
+        "inputs",
+        "rules"
+      ]
+    },
+    "reading": "6 of 22 field states are evidence. The draft does not compile and says so: that is the honest outcome of a deterministic pass, not a failure of it. The 16 questions are what a model, or the expert, has to answer."
+  },
+  "segmentation_bridge": {
+    "finding": "A1 splits clauses at . ; : ! ? so a citation is a span a human can check, which puts 'Step 1 validity:' in a different clause from the numbers it heads. The claim extractors need the whole sentence. Cited clauses are therefore rejoined in document order and re-split at sentence ends, and each claim unit records the clause ids it came from so a claim stays traceable to the citations the expert chose.",
+    "clauses_cited": 22,
+    "claim_units_after_rejoining": 16
+  },
+  "examples_not_scored": {
+    "value": null,
+    "why": "NOT_MEASURED: the examples cannot be evaluated against an IR that does not compile. C1 scores them once the expert has answered the questions. This is not zero agreement."
+  },
+  "artifacts": {
+    "draft": "draft.json",
+    "retained": "no (temporary working directory; rerun to reproduce)"
+  }
+}

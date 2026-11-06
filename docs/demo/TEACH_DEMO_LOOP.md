@@ -189,10 +189,56 @@ with the unproven half named.
   show` were added alongside `start`. Without a read path the 0600
   persistence and the stored-hash check cannot be demonstrated from the CLI
   at all, so `start` alone would have been untestable end to end.
-- [ ] **A3. Draft from session.** Session → `propose_atomic.py` → IR. Output a
-  candidate plus every field marked `hypothesis` or `issue`.
-  *Watch:* if `propose_atomic.py` requires a model to draft, the deterministic
-  IR-compile half still runs; split the item rather than marking it blocked whole.
+- [x] **A3a. Deterministic draft from a session — DONE** (`__COMMIT__`).
+  `draft_from_session.py`: session → the IR fields the **cited clause text
+  determines**, with every other field classified `evidence` / `hypothesis`
+  (alternatives enumerated) / `issue`, and one question per unsettled field.
+  Reuses the existing vocabulary in `atomic.py` rather than inventing a
+  parallel one; no model is loaded and none is reachable.
+  *Measured on the real EP-114 corpus the task spec names* (22 cited clauses →
+  16 claim units): **6 evidence, 8 hypothesis, 8 issue**; 2 complete claims
+  (`missing_input` → `INSUFFICIENT_INPUT`, `default_outcome` → `PASS`); the
+  validity range read as **10–75 °C** on `temperature`; `topic_terms`,
+  `inputs` and `rules` left unfilled; 16 questions; status
+  `NEEDS_EXPERT_ANSWERS`.
+  *The honest reading, which is the point of the split:* a deterministic pass
+  does **not** produce a compiling capability, and the draft says so. What it
+  does produce is the denominator — how much of the IR the document fixes on
+  its own — recorded before any model exists to take credit for the rest.
+  *Independently cross-checked:* every filled value is asserted in the
+  recorded run against literals read from the corpus by hand, and the sentence
+  each came from is confirmed present in the file, so the evidence does not
+  rest on the drafter agreeing with itself.
+  *Tests:* `test_draft_from_session.py` **26/26**; capability-learning
+  **143/143** (was 117). The load-bearing one is negative: no filled value may
+  be absent from the text it is attributed to.
+  *Evidence:* `docs/demo/results/A3a_deterministic_draft.json`.
+  *Two findings recorded.* (1) **A segmentation mismatch between A1 and the
+  claim extractors.** A1 splits at `. ; : ! ?` so a citation is a span a human
+  can check, which puts `Step 1 validity:` in a *different clause* from the
+  numbers it heads — and `plausible_kinds` needs the word and the numbers in
+  one unit, so fed A1's fragments it determined **nothing at all** (0 claims
+  on the first run). Cited clauses are now rejoined in document order and
+  re-split at sentence ends, with each claim unit recording the clause ids it
+  came from. Neither splitter was wrong; they are for different jobs, and the
+  bridge belongs between them. (2) **My A1 PDF fixture's prose is not the real
+  corpus's prose.** `make_pdf_fixture.py` writes "shall be between 10 C and
+  25 C"; the corpus writes "Step 1 validity: … between 10 and 75 degrees
+  Celsius inclusive". The extractors were built for the latter, so the fixture
+  is fine for A2 (citation plumbing) but cannot exercise A3a at all. A3a is
+  therefore recorded against the real corpus.
+  *One deterministic rule added, and only one:* in "between A and B UNIT" the
+  unit is written once and applies to both bounds — the IR's `validity` has a
+  single `unit` field for `min` and `max`, so there is no second unit B could
+  have had. Reading it as shared is a reading of the sentence, not a choice
+  about it, and it is gated on the clause saying "between" with exactly two
+  numbers one of which is tagged. Rules that *would* need judgement
+  (`against: limit` with a fraction, which cued input a bare number names)
+  were left as `hypothesis` with their candidates rather than guessed.
+- [ ] **A3b. Model drafting.** `[B]` until the model bundle exists. The model
+  chooses among the alternatives A3a enumerates and fills `topic_terms`,
+  `inputs` and `rules`; it must never introduce a value A3a marked as
+  determined, and `--no-repair` remains the ablation that proves it does not.
 
 ### Phase B — The AI asks the teacher
 - [ ] **B1. Question generator.** Each `hypothesis`/`issue` field → one plain-language
@@ -239,6 +285,12 @@ with the unproven half named.
 ### Phase E — The teaching screen
 - [ ] **E1. Local web UI** on localhost only, assets and fonts vendored, no CDN:
   Ask, Teach, Questions, Homework, Approve, Meter, Model switch, Export/Import.
+  *Refusals must be explained in plain words, not as validation errors.* The
+  one-of-each-label rule (A2) is a hard requirement and stays one; the Teach
+  screen says **"Add at least one example where the answer is NO, so the
+  system can tell a rule from a constant."** Same for every other refusal the
+  core raises: `TeachError` already names the field and the value, and the
+  screen's job is to say what to do about it.
 - [ ] **E2. Login and roles.** expert / approver / user plus clearance; a
   lower-clearance user blocked from restricted capabilities and documents, on the
   existing permission model (`other_tenant_and_lower_clearance_cannot_see_the_capability`).
