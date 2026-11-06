@@ -28,11 +28,12 @@ jobs:
       - name: pyflakes
         run: |
           python -m pip install --quiet pyflakes==4.1.0
-          python -m pyflakes demos/common/
+          python -m pyflakes demos/
       - name: unit tests
         run: |
+          set -o pipefail
           python -m unittest -v demos/common/test_harness.py 2>&1 | tee harness-tests.txt
-          test "${PIPESTATUS[0]}" -eq 0
+          python -m unittest discover -v -s demos/pull-the-plug -p 'test_*.py' 2>&1 | tee -a harness-tests.txt
       - name: report skipped tests explicitly
         if: always()
         run: |
