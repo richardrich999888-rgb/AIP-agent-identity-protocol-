@@ -103,7 +103,7 @@ Legend: `[ ]` open · `[x]` done · `[B]` blocked (reason recorded) · `[~]` par
 with the unproven half named.
 
 ### Phase A — Teaching from real documents
-- [x] **A1. PDF / DOCX / TXT ingestion — DONE.** Commit `<A1_SHA>`.
+- [x] **A1. PDF / DOCX / TXT ingestion — DONE.** Commit `84bc3c7`.
   `research/capability-learning/harness/ingest_documents.py` yields `Clause`
   records with a 1-based page number and an exact character span; the
   invariant `page_text[char_start:char_end] == clause.text` is asserted for
