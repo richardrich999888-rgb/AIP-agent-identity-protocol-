@@ -1,0 +1,52 @@
+# Pinned Python environment for the SYNTRIASS sidecar and harness.
+#
+# Installed by deploy/syntriass/setup_env.sh, which prefers a local wheel
+# directory inside the offline bundle and falls back to PyPI only when that
+# directory is absent.
+#
+# Derived, not transcribed: every version and hash below was read from wheels
+# actually downloaded for CPython 3.11 on x86-64, which is what `python3`
+# resolves to on the install target. `pip install --require-hashes` refuses the
+# set if any file differs.
+#
+# Direct requirements and why:
+#   numpy          interpretation sidecar and harness (research/system-one)
+#   scikit-learn   QuantityClassifier('tfidf') via methods/extractors.py:102,105 — lazy import, so its absence shows up only at sidecar startup
+#   pytest         the harness test suites under research/*/tests
+#
+# Deliberately ABSENT:
+#   fastembed    methods/extractors.py:96 imports it only inside _embedder(),
+#                which serves the 'embed' mode. The sidecar uses the 'tfidf'
+#                mode, and fastembed would fetch BAAI/bge-small-en-v1.5 from
+#                Hugging Face at first use — a network call, so it cannot be
+#                part of an offline path. If the embed mode is ever needed
+#                offline, its model has to be bundled and pinned like the GGUFs.
+#
+# Platform: the three compiled wheels below are cp311 manylinux x86-64. On a
+# different interpreter or architecture setup_env.sh will fail the hash check
+# rather than silently install something else; regenerate the lock there.
+
+cloudpickle==3.1.2 \
+    --hash=sha256:9acb47f6afd73f60dc1df93bb801b472f05ff42fa6c84167d25cb206be1fbf4a    # transitive
+iniconfig==2.3.1 \
+    --hash=sha256:9121e2c1fdb355232495be3194c8dfe87ccc2d5dee45947b78e68f499790d7a7    # transitive
+joblib==1.6.0 \
+    --hash=sha256:3dbbf9f6e4b592a2357b854608e980fe6390d131d7a82f011a377ef2ebef7aba    # transitive
+narwhals==2.28.0 \
+    --hash=sha256:1f69d6385ec30e2fa6e1fdeb37c562ecabd0f713f6f3e3b58a668c5c9df9567f    # transitive
+numpy==2.4.6 \
+    --hash=sha256:89cd468399cfd2504718f0ba50e410dca55a170b61a02ad92bb18c8a65186e93
+packaging==26.3 \
+    --hash=sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c    # transitive
+pluggy==1.7.0 \
+    --hash=sha256:7dd7b0d8832ba3cb632c306926ded123429211b83641b35dc5c41ad2d34f9bec    # transitive
+pygments==2.21.0 \
+    --hash=sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9    # transitive
+pytest==9.2.0 \
+    --hash=sha256:07acdcf88ec174f907dc01af70bf52d49b014bbab03faeeade31c96b18c2e588
+scikit-learn==1.9.1 \
+    --hash=sha256:52a0703bbc07ad27f560fa63fa68e4c54dd735bfbbf65b4dd3c225dc7547b6df
+scipy==1.17.1 \
+    --hash=sha256:43af8d1f3bea642559019edfe64e9b11192a8978efbd1539d7bc2aaa23d92de4    # transitive
+threadpoolctl==3.8.0 \
+    --hash=sha256:f1b49c82704d50f13ffae019c727b0fa4f6791a58f48f06a09c45face1be66da    # transitive
