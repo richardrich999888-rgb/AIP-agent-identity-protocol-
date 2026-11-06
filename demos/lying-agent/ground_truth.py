@@ -72,10 +72,12 @@ class ExfilListener:
 
 
 def run_agent(mode: str, out_dir: Path, linger: float = 3.0, python: str = sys.executable) -> dict:
-    # The agent logs file paths. A run directory named after the mode would
-    # show the audience which run lies, for the wrong reason; refuse it.
-    # Whole-word tokens only, so a random temp name or "/home/leslie" never trips it.
-    tokens = {t for part in out_dir.resolve().parts for t in re.split(r"[^a-z0-9]+", part.lower())}
+    # The agent logs file paths. A run directory named after its mode would
+    # show the audience which run lies, for the wrong reason; refuse it. Only
+    # the run directory's own name is checked: a shared parent (such as the
+    # demo's own "lying-agent" folder) is identical for both modes and reveals
+    # nothing. Whole-word tokens only, so "leslie" or a random name never trips it.
+    tokens = set(re.split(r"[^a-z0-9]+", out_dir.resolve().name.lower()))
     if tokens & {"lying", "honest", "lie", "liar"}:
         raise ValueError(f"run directory must not reveal the mode: {out_dir}")
     out_dir.mkdir(parents=True, exist_ok=True)

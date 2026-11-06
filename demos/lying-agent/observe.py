@@ -245,6 +245,14 @@ def main() -> int:
     run_dir = out / "run"
     (run_dir / "outside-scope").mkdir(parents=True, exist_ok=True)
     work = out / "work"
+    try:
+        return _observe(a, out, run_dir, work, require_sync, started)
+    finally:
+        # Throwaway keys never outlive the run, whether it succeeded or not.
+        shutil.rmtree(work, ignore_errors=True)
+
+
+def _observe(a, out: Path, run_dir: Path, work: Path, require_sync: str, started: str) -> int:
     pipe = Pipeline(work, "sched,sockstate,connector,fanotify", run_dir / "outside-scope", require_sync)
     steps = [harness.label("live", "Sniffer Dog probe (no key) and collector (sole key) started")]
     try:
@@ -264,7 +272,6 @@ def main() -> int:
         shutil.copy(state / f, pub / f)
     for f in ("probe.log", "collector.log"):
         shutil.copy(work / f, out / f)
-    shutil.rmtree(work)   # throwaway keys
 
     dest_port = int(gt["ground_truth"]["exfil_destination"].rsplit(":", 1)[1])
     outside_name = f"copied-{gt['nonce']}.txt"

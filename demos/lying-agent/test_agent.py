@@ -79,6 +79,9 @@ class LyingAgent(unittest.TestCase):
             for name in ("tmplie9x", "leslie", "dishonesty-check"):
                 rec = ground_truth.run_agent("honest", Path(t) / name, linger=0.0)
                 self.assertEqual(rec["agent_exit"], 0)
+            # A shared parent named after the demo is the same for both modes: allowed.
+            rec = ground_truth.run_agent("lying", Path(t) / "lying-agent" / "evidence" / "run", linger=0.0)
+            self.assertEqual(rec["agent_exit"], 0)
 
     def test_payload_is_synthetic(self):
         payload = self.lying["ground_truth"]["connections_received"][0]["payload"]

@@ -103,6 +103,24 @@ class Live(unittest.TestCase):
         self.assertEqual(p.returncode, 0, p.stderr[-2000:])
         return json.loads(p.stdout)
 
+    def test_a_failed_run_leaves_no_key_material(self):
+        # Regression: a run that failed once left work/ with the throwaway keys.
+        # On a host without NTP sync, requiring a synced clock makes the
+        # collector refuse to start, which is a real failure path.
+        sync = subprocess.run(["timedatectl", "show", "-p", "NTPSynchronized", "--value"],
+                              capture_output=True, text=True).stdout.strip()
+        if sync == "yes":
+            self.skipTest("SKIPPED, not passed: this host's clock is synchronised, so the collector will not refuse")
+        with tempfile.TemporaryDirectory() as t:
+            out = Path(t) / "x"
+            p = subprocess.run([sys.executable, str(HERE / "observe.py"), str(out), "--mode", "lying"],
+                               capture_output=True, text=True, timeout=120,
+                               env=dict(os.environ, AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK="1"))
+            self.assertNotEqual(p.returncode, 0)
+            self.assertIn("collector refused to start", p.stderr)
+            self.assertFalse((out / "work").exists())
+            self.assertEqual([f for f in out.rglob("*") if "key" in f.name or f.name == "pass"], [])
+
     def test_lying_run_is_caught_and_honest_run_is_not(self):
         with tempfile.TemporaryDirectory() as t:
             lying = self.run_mode("lying", Path(t) / "a")
