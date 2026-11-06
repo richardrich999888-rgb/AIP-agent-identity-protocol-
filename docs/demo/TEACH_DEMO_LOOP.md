@@ -138,7 +138,7 @@ with the unproven half named.
   as a space (pinned by a test); and tesseract/poppler are **apt** packages,
   so an air-gapped bundle must carry their `.deb` files.
 
-- [x] **A2. Teach session API — DONE** (`__COMMIT__`). `syntriass teach
+- [x] **A2. Teach session API — DONE** (`d01ca3a`). `syntriass teach
   start --doc <file> --page <n> --clauses <A1.json> --tenant T --task X
   --expert E (--rule TEXT | --rule-file F) --examples EX.jsonl`, plus
   `teach list` and `teach show`.

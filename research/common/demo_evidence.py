@@ -123,11 +123,23 @@ def evidence(
     BLOCKED / NOT_EXECUTED); it is not validated here because a caller that
     invents a verdict has a problem this function cannot fix, and refusing to
     write the record would lose the measurement with it.
+
+    ``commit`` is the HEAD the run was made from, and ``tree_dirty`` says
+    whether that commit identifies the code that ran. Re-run a recorder on a
+    clean tree if the result is to be cited as reproducible.
     """
     record = {
         "schema": SCHEMA,
         "item": item,
+        # The HEAD the run was made from. It precedes the commit that records
+        # the result, because the result file is written before it is
+        # committed; there is no way round that regress, so it is stated
+        # rather than papered over.
         "commit": git("rev-parse", "HEAD", repo=repo),
+        # Whether that commit actually identifies the code that ran. On a
+        # dirty tree it does not, and a result file that implies otherwise is
+        # worse than one that admits it.
+        "tree_dirty": git("status", "--porcelain", repo=repo) != "",
         "branch": git("rev-parse", "--abbrev-ref", "HEAD", repo=repo),
         "recorded_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "hardware": hardware(),
