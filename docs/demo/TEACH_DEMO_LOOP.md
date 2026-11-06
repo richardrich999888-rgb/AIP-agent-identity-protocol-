@@ -138,9 +138,57 @@ with the unproven half named.
   as a space (pinned by a test); and tesseract/poppler are **apt** packages,
   so an air-gapped bundle must carry their `.deb` files.
 
-- [ ] **A2. Teach session API.** `syntriass teach start --doc <file> --page <n>`
-  creating a session holding cited clauses, the expert's plain-language rule, and 2–5
-  labelled examples with reasons. Persisted under the tenant, mode 0600.
+- [x] **A2. Teach session API — DONE** (`__COMMIT__`). `syntriass teach
+  start --doc <file> --page <n> --clauses <A1.json> --tenant T --task X
+  --expert E (--rule TEXT | --rule-file F) --examples EX.jsonl`, plus
+  `teach list` and `teach show`.
+  *Boundary:* the session contract and every invariant live in
+  `sovereign/syntriass-runtime/src/domain/teach.rs` (pure — no IO, no clock,
+  no randomness; `now_ms` is an argument); persistence is
+  `adapters/teach_store.rs`; the CLI only parses, hashes the document and
+  wires the two. Clause extraction stays in the A1 Python ingester, whose
+  JSON is the contract between them.
+  *Measured, live, in one run:* text-layer session from page 2 — **4 clauses
+  cited, 3 examples (1 allowed / 2 not_allowed), 0 flagged for
+  confirmation**; OCR session from page 20 — **3 clauses, all 3 flagged**;
+  file mode **0600** and tenant directory **0700** read back from the
+  filesystem, not asserted in prose; **2** sessions listed for the tenant;
+  **5 refusals** each the real stderr of a real non-zero exit (document
+  edited after extraction, one-sided examples, a requested page with no
+  clause, a session edited on disk, a cross-tenant read).
+  *Independent corroboration:* the canonical encoding is reproduced in
+  Python from the stored file and hashed with `hashlib`, with no Rust
+  involved, and agrees with the `session_id` the binary wrote. **26
+  mutations** — one per hashed field, including clause and example ordering
+  — each break it, so the check is not vacuous.
+  *Tests:* **78 new Rust** (44 core, 15 store, 19 through the real binary);
+  crate **173/173**, was 95. **32 new Python**; capability-learning
+  **117/117**, was 85. `cargo fmt` and `clippy -D warnings` clean.
+  *No model call, and that is asserted:* a teach session is bookkeeping over
+  an expert's words and a document's bytes. The config's model fields are
+  `UNUSED_BY_TEACH` and the recorded run states `model_calls: 0`.
+  *Three design decisions, stated because each refuses something:* (a) **one
+  of each label is required** — a single-class example set cannot
+  distinguish a rule from a constant, so a suite built from it would pass a
+  procedure that always answers the one label it ever saw; (b) a clause's
+  `text` must be exactly as long as its `[char_start, char_end)` span claims,
+  **counted in characters**, so a citation nobody can check back against the
+  page is refused; (c) the document is **re-hashed from disk** at
+  `teach start` and a clause set from another revision is refused, because
+  the spans would otherwise point into text that no longer exists.
+  *Evidence:* `docs/demo/results/A2_teach_session.json`.
+  *Two findings recorded:* a **check-ordering defect found by the CLI test,
+  not by review** — asking to teach from a page the ingester found nothing on
+  answered "clauses: at least one clause must be cited", which does not tell
+  the expert which page failed; `NoClauses` was removed and the page-coverage
+  check now owns that case (regression test in `domain::teach`). And X2's
+  hardware stamp was hand-written into A1's result file; a second hand-copy
+  is how two result files come to disagree about the machine, so it now comes
+  from one shared emitter, `research/common/demo_evidence.py`.
+  *Scope beyond the backlog line, deliberately:* `teach list` and `teach
+  show` were added alongside `start`. Without a read path the 0600
+  persistence and the stored-hash check cannot be demonstrated from the CLI
+  at all, so `start` alone would have been untestable end to end.
 - [ ] **A3. Draft from session.** Session → `propose_atomic.py` → IR. Output a
   candidate plus every field marked `hypothesis` or `issue`.
   *Watch:* if `propose_atomic.py` requires a model to draft, the deterministic

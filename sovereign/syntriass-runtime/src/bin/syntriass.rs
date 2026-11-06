@@ -26,6 +26,12 @@
 //!                                                 dry run: compile + label each case (no state change);
 //!                                                 a case may carry a signed "record" (S1)
 //! syntriass record-sign --key INSTRUMENT_KEY --in RECORDS.jsonl   sign measurement records (S1)
+//! syntriass teach start --config CFG --doc DOC --page N [--page N]... --clauses CLAUSES.json
+//!                  --tenant T --task X --expert E (--rule TEXT | --rule-file F) --examples EX.jsonl
+//!                                                 open a teaching session: cited clauses + the
+//!                                                 expert's rule + 2-5 labelled examples (0600)
+//! syntriass teach list --config CFG --tenant T     sessions for one tenant (hash-verified)
+//! syntriass teach show --config CFG --tenant T --session ID
 //! ```
 //!
 //! Run inside a network namespace with only loopback (see
@@ -44,6 +50,7 @@ use syntriass_runtime::adapters::pool::{Pool, TierSlot};
 use syntriass_runtime::adapters::sidecar::Sidecar;
 use syntriass_runtime::adapters::store::FileStore;
 use syntriass_runtime::adapters::supervisor::Profile;
+use syntriass_runtime::adapters::teach_store::TeachStore;
 use syntriass_runtime::app::{verify_audit_chain, Config, Runtime};
 use syntriass_runtime::capability::artifact::Capability;
 use syntriass_runtime::capability::artifact::Execution;
@@ -52,6 +59,7 @@ use syntriass_runtime::capability::experience::Experience;
 use syntriass_runtime::capability::lifecycle::{Record, Role, State};
 use syntriass_runtime::capability::memory;
 use syntriass_runtime::capability::suite::{ExpertSuite, SuiteCase};
+use syntriass_runtime::domain::teach::{CitedClause, Example, SessionInput, TeachSession};
 use syntriass_runtime::learning;
 use syntriass_runtime::ports::CapabilityStore;
 use vanian_sovereign::adapters::sqlite_corpus::SqliteCorpus;
@@ -434,6 +442,197 @@ fn write_private(p: &Path, b: &[u8]) {
     f.write_all(b).unwrap_or_else(|e| die(e));
 }
 
+/// Every value given for a repeated flag, in command-line order.
+fn multi(args: &[String], name: &str) -> Vec<String> {
+    args.iter()
+        .enumerate()
+        .filter(|(_, a)| a.as_str() == name)
+        .filter_map(|(i, _)| args.get(i + 1))
+        .cloned()
+        .collect()
+}
+
+/// The A1 ingester's output (`research/capability-learning/harness/
+/// ingest_documents.py`). Extra fields it writes for provenance are ignored
+/// here; the clause list and the document digest are the contract.
+#[derive(Deserialize)]
+struct ClauseFile {
+    document: String,
+    document_sha256: String,
+    clauses: Vec<CitedClause>,
+}
+
+/// One line of the examples file.
+#[derive(Deserialize)]
+struct ExampleLine {
+    id: String,
+    text: String,
+    /// "allowed" | "not_allowed"; an unknown label is refused by serde.
+    label: syntriass_runtime::domain::teach::Label,
+    reason: String,
+}
+
+fn read_json<T: serde::de::DeserializeOwned>(path: &str) -> T {
+    let b = std::fs::read(path).unwrap_or_else(|e| die(format!("{path}: {e}")));
+    serde_json::from_slice(&b).unwrap_or_else(|e| die(format!("{path}: {e}")))
+}
+
+/// The expert's rule, from exactly one of `--rule` or `--rule-file`.
+///
+/// Both or neither is a usage error rather than a precedence rule: a session
+/// records what the expert said, and two sources for it leave no way to tell
+/// which was recorded.
+fn rule_text(args: &[String]) -> String {
+    match (opt(args, "--rule"), opt(args, "--rule-file")) {
+        (Some(_), Some(_)) => die("give --rule or --rule-file, not both"),
+        (Some(t), None) => t.to_string(),
+        (None, Some(p)) => std::fs::read_to_string(p).unwrap_or_else(|e| die(format!("{p}: {e}"))),
+        (None, None) => die("--rule or --rule-file required"),
+    }
+}
+
+/// `teach start | list | show`.
+fn teach(c: &FileConfig, args: &[String]) {
+    let store = TeachStore::open(&c.state.join("teach")).unwrap_or_else(|e| die(e));
+    match args.get(2).map(String::as_str).unwrap_or("") {
+        "start" => {
+            let tenant = req(args, "--tenant");
+            let doc_path = req(args, "--doc");
+            let pages: Vec<u32> = multi(args, "--page")
+                .iter()
+                .map(|p| {
+                    p.parse::<u32>()
+                        .unwrap_or_else(|e| die(format!("--page {p}: {e}")))
+                })
+                .collect();
+            if pages.is_empty() {
+                die("--page required (repeatable)");
+            }
+
+            let clause_path = req(args, "--clauses");
+            let file: ClauseFile = read_json(clause_path);
+
+            // The citation is only as good as the bytes it points into. Hash
+            // the document as it is on disk now and refuse a clause set
+            // extracted from a different revision, rather than recording a
+            // span into a file that has since changed.
+            let on_disk = syntriass_runtime::adapters::supervisor::file_sha256(Path::new(doc_path))
+                .unwrap_or_else(|e| die(format!("{doc_path}: {e}")));
+            if on_disk != file.document_sha256 {
+                die(format!(
+                    "{doc_path}: sha256 {on_disk} does not match {clause_path} ({}); \
+                     re-run the ingester on this document",
+                    file.document_sha256
+                ));
+            }
+            let base = Path::new(doc_path)
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or_else(|| die(format!("{doc_path}: no file name")));
+            if base != file.document {
+                die(format!(
+                    "{clause_path}: clauses are for {}, not {base}",
+                    file.document
+                ));
+            }
+
+            // `--page` selects; the core then checks that every requested
+            // page was actually cited and that no other page slipped in.
+            let wanted: std::collections::BTreeSet<u32> = pages.iter().copied().collect();
+            let clauses: Vec<CitedClause> = file
+                .clauses
+                .into_iter()
+                .filter(|cl| wanted.contains(&cl.page))
+                .collect();
+
+            let ex_path = req(args, "--examples");
+            let examples: Vec<Example> = std::fs::read_to_string(ex_path)
+                .unwrap_or_else(|e| die(format!("{ex_path}: {e}")))
+                .lines()
+                .filter(|l| !l.trim().is_empty())
+                .map(|l| {
+                    let e: ExampleLine =
+                        serde_json::from_str(l).unwrap_or_else(|x| die(format!("{ex_path}: {x}")));
+                    Example {
+                        id: e.id,
+                        text: e.text,
+                        label: e.label,
+                        reason: e.reason,
+                    }
+                })
+                .collect();
+
+            let session = TeachSession::open(
+                SessionInput {
+                    tenant: tenant.into(),
+                    task: req(args, "--task").into(),
+                    expert_id: req(args, "--expert").into(),
+                    document: base.into(),
+                    document_sha256: file.document_sha256,
+                    pages,
+                    clauses,
+                    rule: rule_text(args),
+                    examples,
+                },
+                learning::now_ms(),
+            )
+            .unwrap_or_else(|e| die(e));
+
+            let path = store.put(&session).unwrap_or_else(|e| die(e));
+            println!(
+                "{}",
+                json!({
+                    "session_id": session.session_id,
+                    "path": path.display().to_string(),
+                    "tenant": session.tenant,
+                    "task": session.task,
+                    "expert_id": session.expert_id,
+                    "document": session.document,
+                    "document_sha256": session.document_sha256,
+                    "pages": session.pages,
+                    "clauses": session.clauses.len(),
+                    "citations": session.citations(),
+                    "examples": session.examples.len(),
+                    "allowed": session.examples.iter().filter(|e| e.label == syntriass_runtime::domain::teach::Label::Allowed).count(),
+                    "not_allowed": session.examples.iter().filter(|e| e.label == syntriass_runtime::domain::teach::Label::NotAllowed).count(),
+                    "needs_confirmation": session.needs_confirmation(),
+                })
+            );
+        }
+        "list" => {
+            let tenant = req(args, "--tenant");
+            for s in store.list(tenant).unwrap_or_else(|e| die(e)) {
+                println!(
+                    "{}",
+                    json!({
+                        "session_id": s.session_id,
+                        "task": s.task,
+                        "expert_id": s.expert_id,
+                        "document": s.document,
+                        "pages": s.pages,
+                        "clauses": s.clauses.len(),
+                        "examples": s.examples.len(),
+                        "needs_confirmation": s.needs_confirmation(),
+                        "created_ms": s.created_ms,
+                    })
+                );
+            }
+        }
+        "show" => {
+            let s = store
+                .get(req(args, "--tenant"), req(args, "--session"))
+                .unwrap_or_else(|e| die(e));
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&s).unwrap_or_else(|e| die(e))
+            );
+        }
+        other => die(format!(
+            "usage: syntriass teach {{start|list|show}} … (got {other:?})"
+        )),
+    }
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let cmd = args.get(1).map(String::as_str).unwrap_or("");
@@ -663,6 +862,7 @@ fn main() {
             }
             pool.shutdown().unwrap_or_else(|e| die(e));
         }
-        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-approve|cap-transition|cap-list|cap-activate|cap-rollback|exp-record|cap-review|cap-upgrade-check|cap-history|health} …"),
+        "teach" => teach(&c, &args),
+        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-approve|cap-transition|cap-list|cap-activate|cap-rollback|exp-record|cap-review|cap-upgrade-check|cap-history|health|teach} …"),
     }
 }
