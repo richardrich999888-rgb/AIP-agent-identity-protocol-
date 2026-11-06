@@ -26,6 +26,11 @@ struct Io {
 /// so a runaway log cannot be pasted whole into an error message.
 const MAX_STDERR_TAIL: usize = 2048;
 
+/// How long to let a dying sidecar finish flushing stderr before its log is
+/// read for the error message. Short enough not to delay a hung sidecar
+/// noticeably, long enough that "exited at startup" reports its reason.
+const MISSING_REPLY_SETTLE: std::time::Duration = std::time::Duration::from_millis(500);
+
 /// Running sidecar.
 pub struct Sidecar {
     child: RefCell<Child>,
@@ -84,6 +89,19 @@ impl Sidecar {
     /// startup" from "alive but silent", which have different causes.
     fn missing_reply_message(&self) -> String {
         let mut message = String::from("sidecar reply missing or oversized");
+        // A child that is dying has not necessarily finished flushing its
+        // stderr, and the tail of that log is the whole diagnosis. Give it a
+        // bounded moment before reading, or the most useful case - died at
+        // startup with a reason - reports an empty log. Bounded so a
+        // genuinely hung sidecar still returns promptly.
+        let deadline = std::time::Instant::now() + MISSING_REPLY_SETTLE;
+        while std::time::Instant::now() < deadline {
+            match self.child.borrow_mut().try_wait() {
+                Ok(Some(_)) => break,
+                Ok(None) => std::thread::sleep(std::time::Duration::from_millis(10)),
+                Err(_) => break,
+            }
+        }
         match self.child.borrow_mut().try_wait() {
             Ok(Some(status)) => {
                 message.push_str(&format!("; the sidecar exited ({status})"));

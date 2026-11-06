@@ -17,7 +17,7 @@
       "sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
       "sha256_provenance": "research/compute-memory/bench/run_all.sh:9 and research/compute-memory/BASELINES.md:21 (prefix 74a4da8c) agree",
       "size_documented": "469 MiB",
-      "size_provenance": "research/compute-memory/BASELINES.md:21 — documented in MiB, not exact bytes; not used as a check",
+      "size_provenance": "research/compute-memory/BASELINES.md:21 \u2014 documented in MiB, not exact bytes; not used as a check",
       "params": "0.63 B",
       "source_url": "UNVERIFIED_NO_NETWORK",
       "licence": "UNVERIFIED_NO_NETWORK",
@@ -62,10 +62,10 @@
     "reason": "Requested models whose licence could not be read from their model card: huggingface.co answers 403 at this environment's proxy, so no model card is reachable. Adding them with a licence recalled from memory would defeat the point of the check.",
     "requested": [
       "one 7B-class model",
-      "IBM Granite instruct (stated to be Apache-2.0 — UNVERIFIED here)",
-      "Mistral-7B-Instruct (stated to be Apache-2.0 — UNVERIFIED here)"
+      "IBM Granite instruct (stated to be Apache-2.0 \u2014 UNVERIFIED here)",
+      "Mistral-7B-Instruct (stated to be Apache-2.0 \u2014 UNVERIFIED here)"
     ],
     "what_is_needed": "Read each model card on a connected machine and record, per file: the exact repository and file URL, the SHA-256 of the file as downloaded, and the licence identifier as the card states it. A licence restricting commercial use stops the entry and is escalated.",
-    "tracked_as": "X3 in docs/demo/TEACH_DEMO_LOOP.md"
+    "tracked_as": "Owner-tracked. Blocked until a connected machine can read each model card; resolve_model.py's `provenance` subcommand exits 5 for any entry whose source_url or licence is UNVERIFIED_NO_NETWORK, so a staging script cannot download one by accident."
   }
 }
