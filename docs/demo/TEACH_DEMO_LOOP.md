@@ -189,7 +189,7 @@ with the unproven half named.
   show` were added alongside `start`. Without a read path the 0600
   persistence and the stored-hash check cannot be demonstrated from the CLI
   at all, so `start` alone would have been untestable end to end.
-- [x] **A3a. Deterministic draft from a session — DONE** (`__COMMIT__`).
+- [x] **A3a. Deterministic draft from a session — DONE** (`9599325`).
   `draft_from_session.py`: session → the IR fields the **cited clause text
   determines**, with every other field classified `evidence` / `hypothesis`
   (alternatives enumerated) / `issue`, and one question per unsettled field.
