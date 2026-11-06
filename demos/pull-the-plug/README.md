@@ -75,3 +75,50 @@ Correction (same day): the first W1.2 commit read the `serve --eval` envelope
 as if it were the `Response`, so against the real binary every runtime field
 would have been null. Fixed, with the stand-in now emitting the real envelope
 and a drift guard pinning it in `src/bin/syntriass.rs`.
+
+## W1.3 — the side-by-side page (`server.py`, `page.html`)
+
+```sh
+DEMO_LOCAL_CMD='["target/release/syntriass","serve","--eval","--config","<cfg>"]' \
+DEMO_PRINCIPAL='{"tenant":"<tenant>","clearance":"<clearance>"}' \
+python3 demos/pull-the-plug/server.py 8765          # → http://127.0.0.1:8765/
+```
+
+- **Local only.** Binds `127.0.0.1`. Requests whose `Host` header is not that
+  origin get 403, which guards against DNS rebinding. Bodies are capped at 16 KiB.
+- **Nothing external.** One self-contained page: inline CSS/JS, no CDN, font,
+  remote script or style. A Content-Security-Policy restricts it to its own
+  origin. The browser check confirms **zero requests** leave the origin.
+- **Answers are data, not markup.** Everything is inserted with `textContent`;
+  there is no HTML sink (`innerHTML`, `insertAdjacentHTML`, `document.write`).
+- **Network indicator.** Every 2 s it shows the harness's route check:
+  "OFFLINE — no network route" or "ONLINE — route via <interfaces>".
+- **Traceable numbers.** One question goes to both sides concurrently through
+  the meter. Each answer is written to a result file (`DEMO_RESULTS_DIR`,
+  git-ignored by default), and the page shows its path. Meter rows carry
+  their source label. No meter rows are shown for a side that made no call.
+
+Tests (`test_server.py`, 32 in this directory in total):
+- **Page and API:** no external references, no HTML sinks, CSP present;
+  status reflects the route check; both sides answer and the shown result
+  file matches; a foreign Host is refused; bad bodies are rejected;
+  loopback bind only.
+- **Real-browser check** (`browser_check.js`, Chromium via Playwright): no
+  page errors, no external requests, both columns render.
+- **End-to-end pulled plug:** the server runs inside the offline namespace
+  with a cloud endpoint configured. The page shows OFFLINE; the local side
+  answers with **0 bytes out**; the cloud side fails with `no_route`.
+
+Two tests skip-with-reason (never pass): the browser check where Node or
+Playwright is unavailable (CI runner), and the end-to-end test where user
+namespaces are unavailable.
+
+Fixed while building W1.3: `cloud_app.ask(env)` read proxies from the ambient
+process environment instead of `env`. Proxy and `NO_PROXY` now come from the
+same `env` as every other setting.
+
+The local side in these tests is the stand-in runtime. W1.4 runs the real
+`syntriass` binary.
+
+Local run, 2026-11-06, sandbox (4 vCPU, 15 GB RAM, no GPU): 32/32 passed,
+0 skipped, no warnings.

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pull the plug</title>
+<!-- Self-contained: no CDN, no remote font, script or style. Everything below is inline. -->
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --ink:#e8eaf0; --dim:#9aa3b2; --ok:#3fb950; --bad:#f85149; --warn:#d29922; --line:#2a2f3a; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+  header { display:flex; align-items:center; gap:16px; padding:14px 20px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  h1 { font-size:18px; margin:0; }
+  #net { padding:6px 12px; border-radius:999px; font-weight:600; }
+  #net.offline { background:#13361d; color:var(--ok); }
+  #net.online  { background:#3a2a0b; color:var(--warn); }
+  #hw { color:var(--dim); font-size:13px; }
+  form { display:flex; gap:8px; padding:16px 20px; }
+  input { flex:1; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); font-size:15px; }
+  button { padding:10px 18px; border-radius:8px; border:0; background:#2f81f7; color:white; font-weight:600; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:wait; }
+  main { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:0 20px 20px; }
+  @media (max-width: 800px) { main { grid-template-columns:1fr; } }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; min-height:240px; }
+  h2 { font-size:16px; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:13px; margin-bottom:12px; }
+  .status { font-weight:700; margin:8px 0; }
+  .status.answered { color:var(--ok); } .status.failed, .status.not_configured { color:var(--bad); }
+  .answer { white-space:pre-wrap; background:#11141a; border-radius:8px; padding:10px; margin:8px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+  td { padding:4px 6px; border-top:1px solid var(--line); vertical-align:top; }
+  td.k { color:var(--dim); width:42%; }
+  .src { color:var(--dim); font-size:11px; }
+  footer { padding:0 20px 20px; color:var(--dim); font-size:12px; word-break:break-all; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Pull the plug</h1>
+  <span id="net">checking network…</span>
+  <span id="hw"></span>
+</header>
+<form id="f">
+  <input id="q" autocomplete="off" placeholder="Ask both assistants the same question" required>
+  <button id="go" type="submit">Ask both</button>
+</form>
+<main>
+  <section id="cloud"><h2>Cloud-API app</h2><div class="sub">Sends the question to a remote endpoint</div><div class="body"></div></section>
+  <section id="local"><h2>AIRON Native</h2><div class="sub">Answers on this machine</div><div class="body"></div></section>
+</main>
+<footer id="foot"></footer>
+<script>
+"use strict";
+// Every value is inserted with textContent, never innerHTML: an answer is data, not markup.
+function el(tag, text, cls) { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; }
+function show(v) { return v === null || v === undefined ? "not reported" : (typeof v === "object" ? JSON.stringify(v) : String(v)); }
+function row(t, k, v, src) { const tr = el("tr"); tr.append(el("td", k, "k")); const td = el("td", show(v)); if (src) { td.append(el("div", src, "src")); } tr.append(td); t.append(tr); }
+
+function render(id, r) {
+  const body = document.querySelector("#" + id + " .body");
+  body.replaceChildren();
+  body.append(el("div", r.status + (r.reason ? " — " + r.reason : "") + (r.via_proxy ? " (via proxy " + r.via_proxy + ")" : ""), "status " + r.status));
+  if (r.message) body.append(el("div", r.message));
+  if (r.runtime_error) body.append(el("div", "runtime error: " + r.runtime_error));
+  if (r.answer) body.append(el("div", r.answer, "answer"));
+  if (r.status === "not_configured") return;   // no call was made: nothing to meter
+  const t = el("table");
+  if (r.runtime) {
+    row(t, "strategy", r.runtime.strategy, "runtime-reported");
+    row(t, "sources", r.runtime.sources, "runtime-reported");
+    row(t, "model calls", r.runtime.model_calls, "runtime-reported");
+    row(t, "CPU-s (runtime total)", r.runtime.cpu_s_total, "runtime-reported");
+  }
+  if (r.outer) {
+    row(t, "wall ms", r.outer.wall_ms, "measured by meter");
+    if ("cpu_s_child" in r.outer) row(t, "CPU-s (process)", r.outer.cpu_s_child, "measured by meter");
+    row(t, "bytes out", r.outer.bytes_out_non_loopback, r.outer.bytes_out_scope);
+  }
+  if (r.inr) row(t, "₹ per answer", r.inr.inr === null ? r.inr.note : r.inr.inr, r.inr.formula ? r.inr.formula + " (rate " + r.inr.rate + ")" : "");
+  body.append(t);
+}
+
+async function poll() {
+  try {
+    const s = await (await fetch("/api/status", {cache: "no-store"})).json();
+    const n = document.getElementById("net");
+    n.className = s.offline ? "offline" : "online";
+    n.textContent = s.offline ? "OFFLINE — no network route" : "ONLINE — route via " + s.non_loopback_interfaces.join(", ");
+    document.getElementById("hw").textContent = "measured on: " + s.hardware;
+  } catch (e) { /* the page server itself is local; nothing to do */ }
+}
+setInterval(poll, 2000); poll();
+
+document.getElementById("f").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const go = document.getElementById("go"); go.disabled = true;
+  for (const id of ["cloud", "local"]) document.querySelector("#" + id + " .body").replaceChildren(el("div", "asking…", "status"));
+  try {
+    const r = await (await fetch("/api/ask", {method: "POST", headers: {"Content-Type": "application/json"},
+                                             body: JSON.stringify({question: document.getElementById("q").value})})).json();
+    if (r.error) { document.getElementById("foot").textContent = r.error; return; }
+    render("cloud", r.cloud); render("local", r.local);
+    document.getElementById("foot").textContent = "Every number above is in the result file: " + r.result_file;
+  } finally { go.disabled = false; }
+});
+</script>
+</body>
+</html>

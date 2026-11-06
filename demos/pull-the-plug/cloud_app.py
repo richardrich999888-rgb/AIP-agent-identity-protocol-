@@ -54,6 +54,19 @@ def _classify(exc: BaseException) -> str:
     return type(exc).__name__
 
 
+def _proxy_for(scheme: str, host: str, env: dict) -> str | None:
+    """The proxy `env` configures for this scheme and host, honouring NO_PROXY."""
+    get = lambda k: env.get(k) or env.get(k.upper())  # noqa: E731
+    proxy = get(f"{scheme}_proxy")
+    if not proxy:
+        return None
+    for entry in (get("no_proxy") or "").split(","):
+        entry = entry.strip().lstrip(".")
+        if entry == "*" or (entry and (host == entry or host.endswith("." + entry))):
+            return None
+    return proxy
+
+
 def ask(question: str, env: dict | None = None) -> dict:
     """Send one question. Always returns a result dict; never raises and never
     returns an answer the endpoint did not send."""
@@ -70,17 +83,19 @@ def ask(question: str, env: dict | None = None) -> dict:
     if key:
         headers["Authorization"] = "Bearer " + key
     req = urllib.request.Request(url, data=body, headers=headers, method="POST")
-    # Say whether the request went via a proxy: offline, a local proxy refuses
-    # the connection, and "refused" must not be mistaken for "the cloud said no".
-    proxy = urllib.request.getproxies().get(urllib.parse.urlsplit(url).scheme)
-    if proxy and urllib.request.proxy_bypass(urllib.parse.urlsplit(url).hostname or ""):
-        proxy = None
+    # Proxies come from the same `env` as everything else (not ambient
+    # os.environ), and the result says whether one was in the path: offline,
+    # a local proxy refuses the connection, and "refused" must not be mistaken
+    # for "the cloud said no".
+    parts = urllib.parse.urlsplit(url)
+    proxy = _proxy_for(parts.scheme, parts.hostname or "", env)
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({parts.scheme: proxy} if proxy else {}))
     if proxy:
         result["via_proxy"] = urllib.parse.urlsplit(proxy).netloc
     timeout = float(env.get("CLOUD_TIMEOUT_S", "10"))
     t0 = time.monotonic()
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with opener.open(req, timeout=timeout) as resp:
             raw = resp.read(1 << 20)
         ms = round((time.monotonic() - t0) * 1000, 1)
         try:

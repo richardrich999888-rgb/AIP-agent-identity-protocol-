@@ -20,7 +20,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 ## W1 — Pull the plug
 - [x] W1.1 Cloud-API comparison app (no embedded key; fails cleanly offline) — `demos/pull-the-plug/cloud_app.py`; 11/11 tests local (2 offline-namespace tests SKIPPED on CI runners)
 - [x] W1.2 Live meter (strategy, model calls, ms, CPU-s, bytes out, ₹/answer at a configurable rate) — `demos/pull-the-plug/meter.py`; tested against a stand-in runtime in the real `Response` shape with a schema-drift guard; **real-binary run deferred to W1.4** (needs W0.3 models)
-- [ ] W1.3 Side-by-side local page (no CDN)
+- [x] W1.3 Side-by-side local page (no CDN) — `demos/pull-the-plug/server.py` + `page.html`; 32/32 tests incl. real-browser check (0 external requests, 0 page errors) and end-to-end offline run (local 0 bytes out, cloud `no_route`); local side still the stand-in until W1.4
 - [ ] W1.4 `demos/pull-the-plug/run.sh` + acceptance test (offline: cited answer, 0 bytes out, cloud side fails)
 
 ## W2 — Catch the lying agent
@@ -66,6 +66,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 | # | Item | Result | Evidence |
 |---|---|---|---|
 | — | Owner decisions 2026-11-05 | Corrections accepted as source of truth; W3 handed to the teaching-demo loop; release loop stays paused; no branch deletions | `INVENTORY.md` §Source of truth |
+| 6 | W1.3 side-by-side page | DONE; also fixed `cloud_app` reading proxies from ambient env instead of its config | `demos/pull-the-plug/` |
 | 5 | W1.2 fix | Meter read the `serve --eval` envelope `{"id","response"}` as the Response (found while building W1.3); now unwraps it, reports `{"error"}` as a runtime failure, still reads `ask`'s bare Response; drift guard pins the envelope; mutation check: 2 tests fail without the fix | `demos/pull-the-plug/meter.py` |
 | — | Trivy (inherited) | 4 HIGH misconfig findings (KSV-0009/0010/0118/0121) in retained render `validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml`; no CVEs (job scans secret+misconfig only). Tracked in **issue #15**; fix owned by the teaching-demo session, not started as of 2026-11-06 10:45 UTC; not duplicated here | issue #15 |
 | 4 | W1.2 live meter | DONE; runtime-reported vs meter-measured fields kept separate; no rupee figure without an operator rate; offline bytes out 0 even when the runtime tries the network. PR #14 (model resolver) now open, not merged | `demos/pull-the-plug/meter.py` |

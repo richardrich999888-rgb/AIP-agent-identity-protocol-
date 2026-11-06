@@ -50,6 +50,16 @@ class Mock(http.server.BaseHTTPRequestHandler):
         pass
 
 
+class ProxySelection(unittest.TestCase):
+    def test_proxy_comes_from_the_given_env_and_honours_no_proxy(self):
+        env = {"HTTPS_PROXY": "http://p:3128", "NO_PROXY": "internal.example,.corp"}
+        self.assertEqual(cloud_app._proxy_for("https", "api.example", env), "http://p:3128")
+        self.assertIsNone(cloud_app._proxy_for("https", "internal.example", env))
+        self.assertIsNone(cloud_app._proxy_for("https", "svc.corp", env))
+        self.assertIsNone(cloud_app._proxy_for("https", "api.example", {}))
+        self.assertIsNone(cloud_app._proxy_for("https", "x", {"https_proxy": "http://p", "no_proxy": "*"}))
+
+
 class CloudApp(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -133,10 +143,11 @@ class CloudApp(unittest.TestCase):
         self.assertEqual(p.returncode, 1)
         self.assertEqual(json.loads(p.stdout)["status"], "not_configured")
 
-    def _offline_ask(self, env: dict) -> dict:
+    def _offline_ask(self, env: dict, config: dict | None = None) -> dict:
+        cfg = {"CLOUD_API_URL": "https://198.51.100.7/v1/chat/completions", "CLOUD_TIMEOUT_S": "3",
+               **(config or {})}
         code = ("import sys,json; sys.path.insert(0,%r); import cloud_app; "
-                "print(json.dumps(cloud_app.ask('q', {'CLOUD_API_URL':'https://198.51.100.7/v1/chat/completions',"
-                "'CLOUD_TIMEOUT_S':'3'})))" % str(HERE))
+                "print(json.dumps(cloud_app.ask('q', %r)))" % (str(HERE), cfg))
         p = subprocess.run([sys.executable, "-I", str(HERE.parent / "common" / "harness.py"), "run-offline",
                             "--", sys.executable, "-I", "-c", code], capture_output=True, text=True,
                            timeout=60, env=env)
@@ -154,7 +165,8 @@ class CloudApp(unittest.TestCase):
 
     @unittest.skipIf(NETNS_SKIP is not None, f"SKIPPED, not passed: {NETNS_SKIP}")
     def test_with_the_plug_pulled_behind_a_proxy_the_result_names_the_proxy(self):
-        r = self._offline_ask({"PATH": "/usr/bin:/bin", "HTTPS_PROXY": "http://127.0.0.1:3128"})
+        # The proxy is read from the app's own config, like every other setting.
+        r = self._offline_ask({"PATH": "/usr/bin:/bin"}, {"HTTPS_PROXY": "http://127.0.0.1:3128"})
         self.assertEqual(r["via_proxy"], "127.0.0.1:3128")
         self.assertEqual(r["reason"], "connection_refused")
 
