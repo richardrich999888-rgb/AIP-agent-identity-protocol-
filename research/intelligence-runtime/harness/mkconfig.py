@@ -26,6 +26,23 @@ import resolve_model  # noqa: E402
 
 MODELS = str(resolve_model.models_dir())
 
+# Interpreter the runtime spawns the sidecar with. Was hard-coded to
+# /usr/local/bin/python3 — the same defect as the model paths: correct on one
+# machine only. Prefer the venv setup_env.sh builds, since that is the only
+# interpreter the pinned lock was installed into; fall back to whatever is
+# running this script, and let SIDECAR_PYTHON override both.
+def _sidecar_python():
+    override = os.environ.get("SIDECAR_PYTHON")
+    if override:
+        return override
+    venv = _RESOLVER.parent / "venv/bin/python"
+    if venv.is_file():
+        return str(venv)
+    return sys.executable
+
+
+SIDECAR_PYTHON = _sidecar_python()
+
 
 def _model_entry(logical_name):
     """Path plus pinned digest for one manifest entry."""
@@ -58,7 +75,7 @@ def main() -> None:
     os.makedirs(state)
     cfg = {
         "state": os.path.abspath(state), "policy_version": policy, "security_domain": domain, "rag_k": 3,
-        "approvers": approvers, "experts": experts, "python": "/usr/local/bin/python3",
+        "approvers": approvers, "experts": experts, "python": SIDECAR_PYTHON,
         "sidecar_script": os.path.join(ROOT, "research/system-one/harness/sidecar.py"),
         "llama_server": LLAMA, "profile": profile, "port": port,
         "q4": _model_entry("qwen2.5-1.5b-q4"),
