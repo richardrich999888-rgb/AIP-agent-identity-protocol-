@@ -19,7 +19,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 
 ## W1 — Pull the plug
 - [x] W1.1 Cloud-API comparison app (no embedded key; fails cleanly offline) — `demos/pull-the-plug/cloud_app.py`; 11/11 tests local (2 offline-namespace tests SKIPPED on CI runners)
-- [ ] W1.2 Live meter (strategy, model calls, ms, CPU-s, bytes out, ₹/answer at a configurable rate)
+- [x] W1.2 Live meter (strategy, model calls, ms, CPU-s, bytes out, ₹/answer at a configurable rate) — `demos/pull-the-plug/meter.py`; tested against a stand-in runtime in the real `Response` shape with a schema-drift guard; **real-binary run deferred to W1.4** (needs W0.3 models)
 - [ ] W1.3 Side-by-side local page (no CDN)
 - [ ] W1.4 `demos/pull-the-plug/run.sh` + acceptance test (offline: cited answer, 0 bytes out, cloud side fails)
 
@@ -66,6 +66,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 | # | Item | Result | Evidence |
 |---|---|---|---|
 | — | Owner decisions 2026-11-05 | Corrections accepted as source of truth; W3 handed to the teaching-demo loop; release loop stays paused; no branch deletions | `INVENTORY.md` §Source of truth |
+| 4 | W1.2 live meter | DONE; runtime-reported vs meter-measured fields kept separate; no rupee figure without an operator rate; offline bytes out 0 even when the runtime tries the network. PR #14 (model resolver) now open, not merged | `demos/pull-the-plug/meter.py` |
 | 3 | W1.1 cloud-API app | DONE; offline failure now names a proxy in the path (`via_proxy`) instead of a bare `connection_refused` | `demos/pull-the-plug/` |
 | — | PR #13 CI | 3 red checks all inherited from base `2883da7` (trivy: 4 HIGH in retained Helm render; `vanian-sovereign` agent_execution needs user namespaces the runner lacks). Commented on PR; fixes proposed, not applied | PR #13 comment |
 | 2 | W0.2 harness | DONE; 12/12 tests incl. live offline refusal on this host and namespaced offline run; memory label fixed to round down (15 not 16) | `demos/common/` |

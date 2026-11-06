@@ -39,3 +39,34 @@ Note for the owner: the brief's "never use a model API" applies to the
 demos' own models (W0.3). This app is the deliberate counter-example the
 brief asks for in W1.1, and it calls only an endpoint the operator configures
 at demo time.
+
+## W1.2 — the live meter (`meter.py`)
+
+Per answer, for both sides, every figure measured during that answer and
+labelled with its source:
+
+| Field | Source | Notes |
+|---|---|---|
+| strategy, outcome, sources, model calls, prompt/completion tokens, escalations, per-component CPU-s, runtime wall ms | **runtime-reported** (`syntriass serve --eval` → `Response.strategy` / `Response.cost`) | A field the runtime did not report is `null`, never filled in |
+| wall ms, child CPU-seconds | **measured by the meter**, around the call (`getrusage(RUSAGE_CHILDREN)` delta) | Independent of the runtime's own report |
+| bytes out | **measured by the meter**: change in this network namespace's **non-loopback** transmit counter | Offline demo namespace: only the demo runs there. On a connected host the counter is namespace-wide, and the result says so |
+| ₹ per answer | computed only from operator-set rates: `METER_INR_PER_CPU_HOUR` (local), `METER_INR_PER_1K_TOKENS` (cloud) | No rate → **no rupee figure** ("rate not set"). The cloud side gets a figure only if the endpoint reported token usage. Formula and rate are always in the result |
+
+```sh
+echo '<request json>' | python3 demos/pull-the-plug/meter.py local <syntriass serve --eval ...>
+python3 demos/pull-the-plug/meter.py cloud "What is the refund policy?"
+```
+
+Tests (`test_meter.py`, 10 of the 21 in this directory):
+- a stand-in runtime prints a `Response` in the runtime's JSON shape and burns 0.3 s of real CPU, which the meter measures from outside (≥ 0.25 s);
+- missing runtime fields stay `null`;
+- unparseable output is a failure with no runtime figures;
+- rupee figures appear only with a rate;
+- offline, bytes out is **0 even when the runtime attempts an outbound connection** (namespace test, SKIPPED-not-passed without user namespaces);
+- a drift guard fails if any runtime field the meter reads is renamed in `sovereign/syntriass-runtime/src/app.rs`.
+
+**Not yet shown:** the meter against the real `syntriass` binary. That needs a
+staged model, so it happens in W1.4, after W0.3.
+
+Local run, 2026-11-06, sandbox (4 vCPU, 15 GB RAM, no GPU): 21/21 passed in
+this directory, 0 skipped, no warnings.

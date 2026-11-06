@@ -41,7 +41,10 @@ class Mock(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(out)))
         self.end_headers()
-        self.wfile.write(out)
+        try:
+            self.wfile.write(out)
+        except BrokenPipeError:
+            pass  # "slow" mode: the client has already timed out, as intended
 
     def log_message(self, *a):
         pass
@@ -57,6 +60,7 @@ class CloudApp(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.srv.shutdown()
+        cls.srv.server_close()
 
     def setUp(self):
         Mock.mode, Mock.seen = "ok", []

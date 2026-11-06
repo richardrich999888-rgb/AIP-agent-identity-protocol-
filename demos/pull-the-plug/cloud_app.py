@@ -88,8 +88,11 @@ def ask(question: str, env: dict | None = None) -> dict:
         except (ValueError, KeyError, IndexError, TypeError):
             return {**result, "status": FAILED, "reason": "malformed_response", "ms": ms,
                     "request_bytes": len(body), "response_bytes": len(raw)}
+        usage = json.loads(raw).get("usage") or {}
+        tokens = usage.get("total_tokens") if isinstance(usage.get("total_tokens"), int) else None
         return {**result, "status": ANSWERED, "answer": answer, "ms": ms,
-                "request_bytes": len(body), "response_bytes": len(raw)}
+                "request_bytes": len(body), "response_bytes": len(raw),
+                "tokens": tokens}  # None when the endpoint reports no usage
     except Exception as exc:  # noqa: BLE001 — every failure is reported, none is raised
         return {**result, "status": FAILED, "reason": _classify(exc),
                 "ms": round((time.monotonic() - t0) * 1000, 1), "request_bytes": len(body)}
