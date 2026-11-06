@@ -1,0 +1,23 @@
+observer   : collector.lying (key version 1)
+anchor     : a8756ae550fd6aaf1dbfd1a0112b7135d8da7c9bdf5671cd0ee6cd96bda864a3
+
+ATTESTED BATCHES
+  records            : 7
+  chain positions    : 1..=7
+  chain start        : the observer's epoch (complete from origin)
+  final head         : 82da793cd5a03583d5ad1811cea4df8c75a51acf2e1d3e2ec0b8fd9b86d6a49d
+  observations       : 0
+  kernel events      : 86
+
+SIGNED HEALTH
+  records            : 1
+  states signed      : ContinuityUnverified
+  asserting coverage : 0
+  asserting none     : 1
+  heads cross-checked against batches : 0
+  clock, steered / adrift / not stated : 0 / 1 / 0
+  worst error bound the collector signed : 16000000 us (16000.0 ms)
+
+NOT VERIFIED — 2 finding(s)
+  line 3 (sequence 3): signature rejected: PayloadHashMismatch
+  line 4 (sequence 4): prev_head bd52aec6d9fa4d455bb4b0485a06aec1b602814c2d5e0a4d3d61deac6f52c079 does not match the recomputed head 1f0d4f248a3b215c48555c5f42ea9282626622e38b9874867338bd05d20243a4 of the preceding record — the chain is forked or spliced
