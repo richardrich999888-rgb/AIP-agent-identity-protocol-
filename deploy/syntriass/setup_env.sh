@@ -89,8 +89,11 @@ echo "setup_env: verifying the installed set imports"
 "$PYTHON" - <<'PYCHECK'
 import importlib, sys
 # Import names differ from distribution names; check what the code imports.
+# Every DIRECT requirement in the lock, by the name the code imports.
+# Transitives are covered implicitly: a missing one breaks its parent here.
 for module, distribution in (("numpy", "numpy"), ("sklearn", "scikit-learn"),
-                             ("pytest", "pytest")):
+                             ("pytest", "pytest"), ("pypdf", "pypdf"),
+                             ("docx", "python-docx"), ("PIL", "pillow")):
     try:
         loaded = importlib.import_module(module)
     except ImportError as error:

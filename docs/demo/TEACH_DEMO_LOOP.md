@@ -103,12 +103,41 @@ Legend: `[ ]` open · `[x]` done · `[B]` blocked (reason recorded) · `[~]` par
 with the unproven half named.
 
 ### Phase A — Teaching from real documents
-- [ ] **A1. PDF / DOCX / TXT ingestion.** Clauses with page numbers and character
-  spans for the atomic pipeline. Pin and vendor every new dependency for offline
-  install; record licences. *Acceptance:* a 20-page synthetic PDF with a table and
-  one scanned page yields correct clauses and page references.
-  *Note:* scanned-page OCR needs a local engine; `tesseract` is not installed and is
-  an apt package, so check that apt is reachable before promising the scanned half.
+- [x] **A1. PDF / DOCX / TXT ingestion — DONE.** Commit `<A1_SHA>`.
+  `research/capability-learning/harness/ingest_documents.py` yields `Clause`
+  records with a 1-based page number and an exact character span; the
+  invariant `page_text[char_start:char_end] == clause.text` is asserted for
+  **every** clause, OCR'd ones included, because a span that does not slice
+  back out of the page is a citation nobody can check.
+  *OCR is labelled, not merged.* `extraction` is part of every clause, so an
+  image-only page yields `pdf_ocr` and never `pdf_text`. OCR misreads digits
+  and this pipeline drafts *thresholds* from clause text, so an OCR'd value
+  belongs in the `hypothesis` class that gets a question put to the expert.
+  A missing OCR tool is a **refusal naming the apt package**, not a skipped
+  page — a silently dropped scanned page is a clause the expert never sees.
+  *Fixture:* `make_pdf_fixture.py` builds a byte-reproducible 20-page manual;
+  page 19 is an annex table, page 20 is **image-only with 0 text-layer
+  characters**, asserted, so the OCR path is genuinely exercised rather than
+  assumed.
+  *Measured:* 64 clauses — 61 `pdf_text`, 3 `pdf_ocr`. Table rows 3.3 / 6.6 /
+  11.0 recovered. OCR on this fixture was **exact, digits included**
+  (`['114','10.0']` both sides) — but that is a cleanly rendered 300 dpi
+  synthetic page and is **not** evidence about real scans, which is the whole
+  reason the label exists.
+  *Tests:* `test_ingest_documents.py` **32/32**; full capability-learning
+  suite **85/85** (was 53).
+  *Deps, licences verified from metadata not memory:* `pypdf 6.21.4`
+  BSD-3-Clause, `python-docx 1.2.0` MIT, `Pillow 13.0.0` MIT-CMU; system
+  `tesseract-ocr 5.3.4` Apache-2.0 + `poppler-utils`. None restricts
+  commercial use. **Rejected:** `pdfplumber` (drags in pdfminer.six →
+  `cryptography`) and `pytesseract` (a wrapper around a binary already shelled
+  out to).
+  *Evidence:* `docs/demo/results/A1_document_ingestion.json`.
+  *Two findings recorded:* PDF wrapping puts newlines inside phrases, so a
+  clause reads `between 10\nC and 25 C` and any field parser must treat that
+  as a space (pinned by a test); and tesseract/poppler are **apt** packages,
+  so an air-gapped bundle must carry their `.deb` files.
+
 - [ ] **A2. Teach session API.** `syntriass teach start --doc <file> --page <n>`
   creating a session holding cited clauses, the expert's plain-language rule, and 2–5
   labelled examples with reasons. Persisted under the tenant, mode 0600.
@@ -228,25 +257,41 @@ with the unproven half named.
   to `/home/claude/vanian-build/btwork`. Same defect class as X1 but a scratch
   directory rather than a pinned artifact, and in a separate research area, so
   it was deliberately left out of X1's scope rather than widened into it.
-- [ ] **X6. The sidecar's training data is gitignored.**
-  `.gitignore:11` is a blanket `*.jsonl`, which excludes
-  `research/system-one/data/maintenance-priority-v2/*.jsonl` even though that
-  dataset's `MANIFEST.json` is tracked. On a fresh clone the sidecar therefore
-  cannot start, and the demo dies in Scene 1 with
-  `Inference: sidecar reply missing or oversized` — a message that names
-  neither the file nor the cause.
-  **Good news:** the dataset is seeded (`seed 20261031`) and regenerates
-  **byte-identically** to the five digests pinned in the tracked manifest
-  (verified this iteration). So the fix is a generate-and-verify step in setup,
-  not a large-file commit. Also worth fixing the message so it names the file.
-- [ ] **X7. The documented Python requirement is understated.**
-  `deploy/syntriass/README.md` section 1 says "Python ≥ 3.10 with numpy", but
-  `research/system-one/methods/extractors.py:102` imports
-  `sklearn.linear_model`, so the sidecar needs **scikit-learn** as well. On this
-  container `numpy 2.4.6` + `scikit-learn 1.9.1` made the sidecar healthy
-  (`train_rows 1200`, matching the manifest). Fix the requirement table and add
-  both to whatever the offline bundle installs.
-- [ ] **X2. Hardware label on every emitted number.** D1 and G1 will produce figures
+- [x] **X6. Sidecar training data gitignored — DONE.** Option (b) as decided:
+  the ignore rule stays and `deploy/syntriass/verify_datasets.py` regenerates
+  the seeded dataset, checking every split against the digest pinned in the
+  tracked `MANIFEST.json`. It reads that manifest **from git, not disk** —
+  a regenerated run rewrites it, so comparing the working copy against itself
+  would pass unconditionally. All five splits reproduce byte-identically. A
+  mismatch is refused with a non-zero exit, never a warning.
+  Both message layers fixed: `sidecar.py` names the file, the cause and the
+  two exact commands; `sidecar.rs` reports the child's exit status, the stderr
+  log path and a bounded tail of it. A **race was fixed in production code**,
+  not papered over in the test — a dying child has not necessarily flushed
+  stderr when `try_wait()` first returns, so the most valuable case could
+  report an empty log; there is now a bounded 500 ms settle. 5 Rust tests;
+  95/0 on three consecutive runs.
+
+- [x] **X7. Python environment pinned — DONE.** `requirements.lock` pins 17
+  packages with hashes **derived from wheels actually downloaded** for cp311
+  x86-64, not transcribed; `setup_env.sh` installs with
+  `pip install --require-hashes`, preferring the bundle's wheels and falling
+  back to PyPI only when none are staged. It installs into a **venv**, and
+  that is not tidiness: installing system-wide failed outright because the
+  lock pins `packaging 26.3` while Debian ships 24.0 with no `RECORD` file.
+  Found by actually running the reinstall. `fastembed` is excluded with the
+  reason recorded — it would fetch a model from Hugging Face at first use, so
+  it cannot be on an offline path. README §1 corrected; `mkconfig.py`'s
+  hard-coded `/usr/local/bin/python3` now resolves the venv.
+  **Evidence re-run from the lock-installed venv after uninstalling the
+  hand-installed packages**, so none of it rests on anything added by hand.
+
+- [x] **X2. Hardware stamp — DONE.** Every file under `docs/demo/results/`
+  carries the live container's CPU model, core count, RAM and `gpu: none`,
+  plus an explicit note that these are **not** the published 2 vCPU / 8 GB
+  bench machine and must never be merged with those figures.
+
+- [x] ~~X2. Hardware label on every emitted number.~~ (see above) D1 and G1 will produce figures
   on 4 vCPU / 16 GB. The emitter must stamp the live container's CPU and RAM into the
   result file so no reader can merge them with the 2 vCPU / 8 GB report figures.
 

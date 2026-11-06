@@ -1,30 +1,52 @@
-# Pinned Python environment for the SYNTRIASS sidecar and harness.
+# Pinned Python environment for the SYNTRIASS sidecar, harness and ingestion.
 #
-# Installed by deploy/syntriass/setup_env.sh, which prefers a local wheel
-# directory inside the offline bundle and falls back to PyPI only when that
-# directory is absent.
+# Installed by deploy/syntriass/setup_env.sh into a virtual environment. It
+# prefers a wheel directory inside the offline bundle and falls back to PyPI
+# only when that directory is absent.
 #
 # Derived, not transcribed: every version and hash below was read from wheels
-# actually downloaded for CPython 3.11 on x86-64, which is what `python3`
-# resolves to on the install target. `pip install --require-hashes` refuses the
-# set if any file differs.
+# actually downloaded for CPython 3.11 on x86-64, which is what the venv's
+# interpreter is on the install target. `pip install --require-hashes` refuses
+# the whole set if any file differs.
 #
-# Direct requirements and why:
-#   numpy          interpretation sidecar and harness (research/system-one)
-#   scikit-learn   QuantityClassifier('tfidf') via methods/extractors.py:102,105 — lazy import, so its absence shows up only at sidecar startup
-#   pytest         the harness test suites under research/*/tests
+# Direct requirements, why, and the licence as its own metadata states it:
+#   numpy          [BSD-3-Clause]
+#                  interpretation sidecar and harness (research/system-one)
+#   scikit-learn   [BSD-3-Clause]
+#                  QuantityClassifier('tfidf') via methods/extractors.py:102,105 - lazy import, so its absence shows up only at sidecar startup
+#   pytest         [MIT]
+#                  the harness test suites under research/*/tests
+#   pypdf          [BSD-3-Clause (PyPI metadata)]
+#                  PDF text and page numbers for document ingestion (BSD-3-Clause)
+#   python-docx    [MIT (PyPI classifier)]
+#                  DOCX paragraph and table text for document ingestion (MIT)
+#   pillow         [MIT-CMU (PyPI metadata)]
+#                  renders the synthetic scanned page in the ingestion test fixture (MIT-CMU)
 #
-# Deliberately ABSENT:
+# Deliberately ABSENT, each for a stated reason:
 #   fastembed    methods/extractors.py:96 imports it only inside _embedder(),
-#                which serves the 'embed' mode. The sidecar uses the 'tfidf'
-#                mode, and fastembed would fetch BAAI/bge-small-en-v1.5 from
-#                Hugging Face at first use — a network call, so it cannot be
-#                part of an offline path. If the embed mode is ever needed
-#                offline, its model has to be bundled and pinned like the GGUFs.
+#                which serves the 'embed' mode. The sidecar uses 'tfidf', and
+#                fastembed would fetch BAAI/bge-small-en-v1.5 from Hugging Face
+#                at first use - a network call, so it cannot be part of an
+#                offline path.
+#   pdfplumber   richer PDF tables, but it pulls pdfminer.six, which pulls
+#                `cryptography`. pypdf gives the page text and page numbers the
+#                ingestion contract needs with one transitive dependency. If
+#                structured table reconstruction is ever required, weigh that
+#                chain then rather than carrying it now.
+#   pytesseract  a subprocess wrapper around the tesseract binary. Ingestion
+#                already shells out to pdftoppm, so the wrapper adds a
+#                dependency and no capability.
 #
-# Platform: the three compiled wheels below are cp311 manylinux x86-64. On a
-# different interpreter or architecture setup_env.sh will fail the hash check
-# rather than silently install something else; regenerate the lock there.
+# SYSTEM packages, not installable from this file. An air-gapped bundle must
+# carry their .deb files; `apt-get` is not available on the target host:
+#   poppler-utils    pdftoppm, to rasterise a page for OCR
+#   tesseract-ocr    the OCR engine itself (Apache-2.0)
+#   tesseract-ocr-eng  English traineddata
+#
+# Platform: the compiled wheels below are cp311 manylinux x86-64. On a
+# different interpreter or architecture setup_env.sh fails the hash check by
+# design; regenerate the lock there rather than relaxing it.
 
 cloudpickle==3.1.2 \
     --hash=sha256:9acb47f6afd73f60dc1df93bb801b472f05ff42fa6c84167d25cb206be1fbf4a    # transitive
@@ -32,21 +54,31 @@ iniconfig==2.3.1 \
     --hash=sha256:9121e2c1fdb355232495be3194c8dfe87ccc2d5dee45947b78e68f499790d7a7    # transitive
 joblib==1.6.0 \
     --hash=sha256:3dbbf9f6e4b592a2357b854608e980fe6390d131d7a82f011a377ef2ebef7aba    # transitive
+lxml==6.1.3 \
+    --hash=sha256:527195c188d7d0af748cd48d220ab8cdc5cb99be3d49ac4d9be7324d8abf9bc0    # transitive
 narwhals==2.28.0 \
     --hash=sha256:1f69d6385ec30e2fa6e1fdeb37c562ecabd0f713f6f3e3b58a668c5c9df9567f    # transitive
 numpy==2.4.6 \
     --hash=sha256:89cd468399cfd2504718f0ba50e410dca55a170b61a02ad92bb18c8a65186e93
 packaging==26.3 \
     --hash=sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c    # transitive
+pillow==13.0.0 \
+    --hash=sha256:a625df9a2a5597fa5e5266e01aefc82604bb85d291e3547981e863560d75da6c
 pluggy==1.7.0 \
     --hash=sha256:7dd7b0d8832ba3cb632c306926ded123429211b83641b35dc5c41ad2d34f9bec    # transitive
 pygments==2.21.0 \
     --hash=sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9    # transitive
+pypdf==6.21.4 \
+    --hash=sha256:33e4fb41ca352810eb4e9838aa0d82d6888a5f8bf682f43e99cce5faa666255c
 pytest==9.2.0 \
     --hash=sha256:07acdcf88ec174f907dc01af70bf52d49b014bbab03faeeade31c96b18c2e588
+python-docx==1.2.0 \
+    --hash=sha256:3fd478f3250fbbbfd3b94fe1e985955737c145627498896a8a6bf81f4baf66c7
 scikit-learn==1.9.1 \
     --hash=sha256:52a0703bbc07ad27f560fa63fa68e4c54dd735bfbbf65b4dd3c225dc7547b6df
 scipy==1.17.1 \
     --hash=sha256:43af8d1f3bea642559019edfe64e9b11192a8978efbd1539d7bc2aaa23d92de4    # transitive
 threadpoolctl==3.8.0 \
     --hash=sha256:f1b49c82704d50f13ffae019c727b0fa4f6791a58f48f06a09c45face1be66da    # transitive
+typing-extensions==4.16.0 \
+    --hash=sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8    # transitive
