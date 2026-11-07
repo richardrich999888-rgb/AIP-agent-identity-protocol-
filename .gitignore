@@ -50,3 +50,9 @@ validation/http_gateway/results/
 # Explicit public gateway-validation evidence only; never working key/state files.
 !validation/enterprise/results/CONTEXTFORGE_20261028T101836Z/receipts.jsonl
 !validation/enterprise/results/CONTEXTFORGE_20261028T101836Z/upstream-events.jsonl
+
+# Python environment created by deploy/syntriass/setup_env.sh.
+# Reproduced from requirements.lock; never committed.
+deploy/syntriass/venv/
+# Wheel directory staged into the offline bundle.
+deploy/syntriass/wheels/
