@@ -67,8 +67,10 @@ def test_one_question_per_askable_field(corpus):
 
 def test_the_real_corpus_numbers(corpus):
     _, out = corpus
-    assert out["counts"] == {"draft_unsettled_fields": 16, "asked": 12, "not_asked": 4,
-                             "with_closed_choices": 2, "with_ocr_warning": 0}
+    # 21 and 17, not 16 and 12: A3a now classifies every leaf of a rule, so
+    # each of the four rules is asked which reading it compares.
+    assert out["counts"] == {"draft_unsettled_fields": 21, "asked": 17, "not_asked": 4,
+                             "with_closed_choices": 6, "with_ocr_warning": 0}
 
 
 def test_sentences_that_state_nothing_are_listed_with_a_reason(corpus):

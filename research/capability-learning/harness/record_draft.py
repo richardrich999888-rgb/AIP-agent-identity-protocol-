@@ -79,15 +79,32 @@ def independent_cross_check(draft: dict, document_text: str) -> dict:
     the drafter's reading of the document ever drifts from what the document
     says, this fails rather than agreeing with it.
     """
-    expected = {
-        "validity[].min": 10.0,
-        "validity[].max": 75.0,
-        "validity[].unit": "°C",
-        "validity[].ref": "temperature",
-        "missing_input_outcome": "INSUFFICIENT_INPUT",
-        "default_outcome": "PASS",
-    }
-    filled = {f["path"]: f["value"] for f in draft["fields"] if f["status"] == "evidence"}
+    # (claim unit, field path, value) triples, not a dict keyed on the path:
+    # four rules each have a `rules[].op`, and a dict keyed on the path kept
+    # only the last one, so a wrong op on any other rule would have passed.
+    expected = sorted([
+        ("p1#8", "missing_input_outcome", "INSUFFICIENT_INPUT"),
+        ("p1#9+p1#10", "validity[].ref", "temperature"),
+        ("p1#9+p1#10", "validity[].min", 10.0),
+        ("p1#9+p1#10", "validity[].max", 75.0),
+        ("p1#9+p1#10", "validity[].unit", "°C"),
+        # "if the corrected resistance is below half of the minimum, reject the motor"
+        ("p1#16+p1#17", "rules[].op", "<"),
+        ("p1#16+p1#17", "rules[].outcome", "REJECT"),
+        # "If it is below the minimum, dry out the winding and retest."
+        ("p1#18", "rules[].op", "<"),
+        ("p1#18", "rules[].outcome", "DRY_OUT"),
+        # "If the resistance is acceptable but PI is below 1.5, dry out."
+        ("p1#19", "rules[].op", "<"),
+        ("p1#19", "rules[].outcome", "DRY_OUT"),
+        # "If PI is at least 1.5 but below 2.0, accept for service with a retest in 30 days."
+        ("p1#20", "rules[].outcome", "RETEST_30D"),
+        ("p1#21", "default_outcome", "PASS"),
+    ], key=repr)
+    filled = sorted(
+        [(f["clause"], f["path"], f["value"]) for f in draft["fields"] if f["status"] == "evidence"],
+        key=repr,
+    )
     check(
         filled == expected,
         f"filled fields differ from the document:\n  got      {filled}\n  expected {expected}",
@@ -97,6 +114,10 @@ def independent_cross_check(draft: dict, document_text: str) -> dict:
         "between 10 and 75 degrees Celsius inclusive",
         "the result is insufficient input",
         "Otherwise pass.",
+        "if the corrected resistance is below half of the minimum, reject the motor",
+        "If it is below the minimum, dry out the winding and retest.",
+        "If the resistance is acceptable but PI is below 1.5, dry out.",
+        "accept for service with a retest in 30 days",
     ):
         check(phrase in document_text, f"corpus does not contain {phrase!r}")
     return {
@@ -105,7 +126,7 @@ def independent_cross_check(draft: dict, document_text: str) -> dict:
             "corpus by hand, and the sentence each came from is confirmed "
             "present in the file. The drafter is not consulted."
         ),
-        "fields_confirmed": expected,
+        "fields_confirmed": [{"unit": u, "field": f, "value": v} for u, f, v in expected],
         "agrees": True,
     }
 
@@ -183,9 +204,10 @@ def record_run(work: Path, binary: Path) -> dict:
             "claim_units": len(draft["claim_units"]),
             "claims_determined": [c["kind"] for c in draft["claims_determined"]],
             "field_counts": counts,
-            "fields_filled": {
-                f["path"]: f["value"] for f in draft["fields"] if f["status"] == "evidence"
-            },
+            "fields_filled": [
+                {"unit": f["clause"], "field": f["path"], "value": f["value"]}
+                for f in draft["fields"] if f["status"] == "evidence"
+            ],
             "ir_unfilled_required": draft["ir_unfilled_required"],
             "ir_compiles": draft["ir_compiles"],
             "ir_compile_error": draft["ir_compile_error"],

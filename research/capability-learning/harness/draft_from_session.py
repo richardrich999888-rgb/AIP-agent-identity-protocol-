@@ -169,14 +169,27 @@ def _range_numbers(text: str) -> tuple[list[A.Num], str | None]:
     return tagged, None
 
 
+#: A rule whose subject is written "corrected <reading>" may compare the
+#: reading itself or the value the correction step produced. Which one is a
+#: choice: the IR's `corrected` exists only when a correction is taught.
+_CORRECTED = re.compile(r"\bcorrected\b", re.IGNORECASE)
+
+
 def _validity(clause: dict, outcomes: list[str]) -> tuple[dict | None, list[FieldState]]:
-    """A validity range: two numbers of one unit, and an outcome for outside it."""
+    """A validity range: two numbers of one unit, and an outcome for outside it.
+
+    Every leaf of the range is classified on its own, so a range whose
+    numbers cannot be read still asks which outcome applies outside it, and
+    no leaf is left neither filled nor asked about. A claim is returned only
+    when every leaf is evidence.
+    """
     cid, text = clause["id"], clause["text"]
     nums, inherited = _range_numbers(text)
     units = {inherited} if inherited else {n.unit for n in nums}
     states: list[FieldState] = []
+    ref, lo, hi, unit = None, None, None, None
     if len(nums) != 2 or len(units) != 1 or inherited is None:
-        states.append(
+        range_states = [
             FieldState(
                 "validity[].min/max",
                 "issue",
@@ -184,54 +197,78 @@ def _validity(clause: dict, outcomes: list[str]) -> tuple[dict | None, list[Fiel
                 f"a range needs exactly two numbers sharing one unit; found {len(nums)} "
                 f"number(s) in {sorted(units) or 'no'} unit(s)",
             )
+        ]
+        ref_state = FieldState(
+            "validity[].ref", "issue", cid, "without a readable range there is no unit naming the reading"
         )
-        return None, states
-    unit = inherited
-    ref = _ref_for_unit(unit)
-    if ref is None:
-        states.append(
+    else:
+        unit = inherited
+        lo, hi = sorted(_frac(n.value) for n in nums)
+        range_states = [
+            FieldState("validity[].min", "evidence", cid, "lower of the two numbers in the clause", lo),
+            FieldState("validity[].max", "evidence", cid, "upper of the two numbers in the clause", hi),
+            FieldState(
+                "validity[].unit",
+                "evidence",
+                cid,
+                "the unit written after the second bound, which both bounds carry",
+                unit,
+            ),
+        ]
+        ref = _ref_for_unit(unit)
+        ref_state = (
             FieldState("validity[].ref", "issue", cid, f"unit {unit} names no IR input")
+            if ref is None
+            else FieldState("validity[].ref", "evidence", cid, f"unit {unit} is a {ref} unit", ref)
         )
-        return None, states
-    lo, hi = sorted(_frac(n.value) for n in nums)
-    states += [
-        FieldState("validity[].ref", "evidence", cid, f"unit {unit} is a {ref} unit", ref),
-        FieldState("validity[].min", "evidence", cid, "lower of the two numbers in the clause", lo),
-        FieldState("validity[].max", "evidence", cid, "upper of the two numbers in the clause", hi),
-        FieldState(
-            "validity[].unit",
-            "evidence",
-            cid,
-            "the unit written after the second bound, which both bounds carry",
-            unit,
-        ),
-    ]
     out = _outcome_state(text, outcomes, "validity[].outcome", cid)
-    states.append(out)
-    if out.status != "evidence":
+    states = [ref_state, *range_states, out]
+    if any(st.status != "evidence" for st in states):
         return None, states
     return {"ref": ref, "min": lo, "max": hi, "unit": unit, "outcome": out.value}, states
 
 
 def _decision_rule(clause: dict, outcomes: list[str]) -> tuple[dict | None, list[FieldState]]:
-    """A single `if <value> <op> <number>, <outcome>` rule."""
+    """A single `if <value> <op> <number>, <outcome>` rule.
+
+    Every leaf of the rule is classified on its own — which reading, which
+    comparison, compared with what, and the outcome — so a rule that cannot
+    be completed from its clause still asks about each missing leaf. Stopping
+    at the first undetermined leaf would leave the rest neither filled nor
+    asked about, and the expert could answer every question and still be left
+    with a rule that cannot compile. A claim is returned only when every leaf
+    is evidence, in the shape `atomic.assemble` takes.
+    """
     cid, text = clause["id"], clause["text"]
     cmps = A.comparators(text)
     nums = [n for n in A.clause_numbers(text) if n.unit != "none"]
-    states: list[FieldState] = []
-    if len(cmps) != 1:
-        states.append(
-            FieldState(
-                "rules[].op",
-                "issue" if not cmps else "hypothesis",
-                cid,
-                f"the IR has no conjunction, so a rule needs exactly one comparator; found {len(cmps)}",
-                candidates=[op for _, op in cmps],
-            )
+
+    if len(cmps) == 1:
+        op = cmps[0][1]
+        op_state = FieldState("rules[].op", "evidence", cid, "the only comparator in the clause", op)
+    else:
+        op = None
+        op_state = FieldState(
+            "rules[].op",
+            "issue" if not cmps else "hypothesis",
+            cid,
+            f"the IR has no conjunction, so a rule needs exactly one comparator; found {len(cmps)}",
+            candidates=[o for _, o in cmps],
         )
-        return None, states
-    if len(nums) != 1:
-        states.append(
+
+    num = nums[0] if len(nums) == 1 else None
+    if num is not None:
+        number_states = [
+            FieldState("rules[].against", "evidence", cid,
+                       "the clause compares with a number it states", "number"),
+            FieldState("rules[].number", "evidence", cid, "the only tagged number in the clause",
+                       _frac(num.value)),
+            FieldState("rules[].unit", "evidence", cid, "the unit that number carries", num.unit),
+            FieldState("rules[].limit_fraction", "evidence", cid,
+                       "a stated number is compared whole, not as a fraction of a limit", 1),
+        ]
+    else:
+        number_states = [
             FieldState(
                 "rules[].number",
                 "issue" if not nums else "hypothesis",
@@ -239,33 +276,37 @@ def _decision_rule(clause: dict, outcomes: list[str]) -> tuple[dict | None, list
                 f"one comparator needs exactly one tagged number to compare against; found {len(nums)}",
                 candidates=[{"value": _frac(n.value), "unit": n.unit} for n in nums],
             )
-        )
-        return None, states
-    op = cmps[0][1]
-    num = nums[0]
-    ref = _ref_for_unit(num.unit)
+        ]
+
+    ref = _ref_for_unit(num.unit) if num is not None else None
     if ref is None:
-        states.append(
-            FieldState("rules[].value", "issue", cid, f"unit {num.unit} names no IR input")
+        value_state = FieldState(
+            "rules[].value",
+            "issue",
+            cid,
+            "no single tagged number names the reading, so which reading is compared is a choice",
         )
-        return None, states
-    states += [
-        FieldState("rules[].value", "evidence", cid, f"unit {num.unit} is a {ref} unit", ref),
-        FieldState("rules[].op", "evidence", cid, "the only comparator in the clause", op),
-        FieldState("rules[].number", "evidence", cid, "the only tagged number in the clause", _frac(num.value)),
-        FieldState("rules[].unit", "evidence", cid, "the unit that number carries", num.unit),
-    ]
+    elif _CORRECTED.search(text):
+        value_state = FieldState(
+            "rules[].value",
+            "hypothesis",
+            cid,
+            f"the clause says 'corrected': the {ref} reading itself or the corrected value",
+            candidates=[ref, "corrected"],
+        )
+    else:
+        value_state = FieldState("rules[].value", "evidence", cid, f"unit {num.unit} is a {ref} unit", ref)
+
     out = _outcome_state(text, outcomes, "rules[].outcome", cid)
-    states.append(out)
-    if out.status != "evidence":
+    states = [value_state, op_state, *number_states, out]
+    if any(st.status != "evidence" for st in states):
         return None, states
+    # `atomic.assemble` takes decision rules as conditions + outcome; any other
+    # shape raised KeyError('conditions') the first time a rule was complete.
     return {
-        "value": ref,
-        "op": op,
-        "against": "number",
-        "number": _frac(num.value),
-        "unit": num.unit,
-        "limit_fraction": 1,
+        "conditions": [
+            {"subject": ref, "op": op, "against": "number", "number": _frac(num.value), "unit": num.unit}
+        ],
         "outcome": out.value,
     }, states
 

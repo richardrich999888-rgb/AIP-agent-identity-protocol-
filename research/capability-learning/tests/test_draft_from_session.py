@@ -273,9 +273,90 @@ def test_a_rule_needs_exactly_one_comparator():
     text = "If PI is at least 1.5 but below 2.0, accept for service with a retest in 30 days."
     claim, states = D._decision_rule({"id": "p1#0", "text": text}, SPEC["outcomes"])
     assert claim is None
-    assert states[0].path == "rules[].op"
-    assert states[0].status == "hypothesis"
-    assert states[0].candidates == [">=", "<"]
+    (op,) = [st for st in states if st.path == "rules[].op"]
+    assert op.status == "hypothesis"
+    assert op.candidates == [">=", "<"]
+
+
+# ── every leaf of a touched element is classified ───────────────────────────
+#
+# A3a used to stop at the first leaf it could not determine. The leaves after
+# it were neither filled nor asked about, so the expert could answer every
+# question and still hold a rule with no reading and no outcome.
+
+RULE_LEAVES = {"rules[].value", "rules[].op", "rules[].number", "rules[].outcome"}
+
+
+def _paths(states):
+    return {st.path for st in states}
+
+
+def test_a_rule_with_no_stated_number_still_classifies_every_other_leaf():
+    text = "Step 4 decision: if the corrected resistance is below half of the minimum, reject the motor for rewind."
+    claim, states = D._decision_rule({"id": "p1#0", "text": text}, SPEC["outcomes"])
+    assert claim is None
+    assert RULE_LEAVES <= _paths(states)
+    by = {st.path: st for st in states}
+    assert (by["rules[].op"].status, by["rules[].op"].value) == ("evidence", "<")
+    assert (by["rules[].outcome"].status, by["rules[].outcome"].value) == ("evidence", "REJECT")
+    assert by["rules[].number"].status == "issue"
+    assert by["rules[].value"].status == "issue"
+
+
+def test_every_rule_unit_in_the_corpus_covers_every_rule_leaf(corpus_draft):
+    by_unit = {}
+    for f in corpus_draft["fields"]:
+        if f["path"].startswith("rules[]"):
+            by_unit.setdefault(f["clause"], set()).add(f["path"])
+    assert len(by_unit) == 4, by_unit
+    for unit, paths in by_unit.items():
+        assert RULE_LEAVES <= paths, f"{unit} leaves {RULE_LEAVES - paths} unclassified"
+
+
+def test_an_unreadable_range_still_asks_for_its_outcome_and_reading():
+    text = "Step 1 validity: the winding temperature must be within the stated limits, otherwise the test is invalid."
+    claim, states = D._validity({"id": "p1#0", "text": text}, SPEC["outcomes"])
+    assert claim is None
+    by = {st.path: st for st in states}
+    assert set(by) == {"validity[].ref", "validity[].min/max", "validity[].outcome"}
+    assert by["validity[].min/max"].status == "issue"
+    assert by["validity[].ref"].status == "issue"
+    assert (by["validity[].outcome"].status, by["validity[].outcome"].value) == ("evidence", "INVALID_TEST")
+
+
+def test_a_rule_on_the_corrected_reading_is_a_choice_not_evidence():
+    # The unit says resistance; the word "corrected" says it may be the value
+    # the correction step produced. Picking either would be a guess.
+    text = "If the corrected resistance is below 5 megohms, reject the motor."
+    claim, states = D._decision_rule({"id": "p1#0", "text": text}, SPEC["outcomes"])
+    assert claim is None
+    (value,) = [st for st in states if st.path == "rules[].value"]
+    assert value.status == "hypothesis"
+    assert value.candidates == ["resistance", "corrected"]
+
+
+def test_a_fully_determined_rule_reaches_the_ir():
+    # Regression: A3a returned the rule as {value, op, ...} while
+    # atomic.assemble takes {conditions, outcome}; the first complete rule
+    # raised KeyError('conditions') out of draft().
+    d = D.draft(session([clause(1, 0, "If the resistance is below 5 megohms, reject the motor.")]), SPEC)
+    assert d["ir"]["rules"] == [{
+        "value": "resistance", "op": "<", "against": "number", "number": 5.0,
+        "unit": "MΩ", "limit_fraction": 1, "outcome": "REJECT",
+    }]
+    assert {f["path"] for f in d["fields"] if f["status"] == "evidence"} == {
+        "rules[].value", "rules[].op", "rules[].against", "rules[].number",
+        "rules[].unit", "rules[].limit_fraction", "rules[].outcome",
+    }
+    assert d["questions"] == []
+
+
+def test_a_fully_determined_validity_range_reaches_the_ir():
+    text = "Step 1 validity: the winding temperature must be between 10 and 75 degrees Celsius inclusive, otherwise the test is invalid."
+    d = D.draft(session([clause(1, 0, text)]), SPEC)
+    assert d["ir"]["validity"] == [
+        {"ref": "temperature", "min": 10.0, "max": 75.0, "unit": "°C", "outcome": "INVALID_TEST"}
+    ]
 
 
 # ── OCR provenance carries through ──────────────────────────────────────────

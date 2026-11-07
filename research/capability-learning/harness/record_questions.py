@@ -47,6 +47,13 @@ REQUIRED_CHOICES = [
     ("validity[].outcome", "between 10 and 75 degrees Celsius inclusive", "INVALID_TEST"),
     ("rules[].op", "at least 1.5 but below 2.0", ">="),
     ("rules[].op", "at least 1.5 but below 2.0", "<"),
+    # Which reading each rule compares (asked since A3a classifies every leaf
+    # of a rule): the two resistance rules compare the corrected value, the
+    # two PI rules the cued reading.
+    ("rules[].value", "below half of the minimum", "corrected"),
+    ("rules[].value", "If it is below the minimum", "corrected"),
+    ("rules[].value", "PI is below 1.5", "cued_1"),
+    ("rules[].value", "at least 1.5 but below 2.0", "cued_1"),
 ]
 
 
