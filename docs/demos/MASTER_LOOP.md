@@ -43,10 +43,10 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 - [ ] W6.3 Fresh-machine rerun; record differences honestly
 
 ## W5 — Post-quantum in one switch (OVERLAY; "proof of concept")
-- [ ] W5.1 Two containers, unmodified TCP client/server
-- [ ] W5.2 Packet captures before/after; app binary hash unchanged
-- [ ] W5.3 Fail-closed check (identity removed → refused, not downgraded)
-- [ ] W5.4 Measured overhead; `demos/pq-switch/run.sh`
+- [x] W5.1 Two containers, unmodified TCP client/server — OVERLAY `demos/pq-switch/`: same host `nc` (sha256 `2a6fac3d…`) as server and client, `FROM scratch` image, `--internal` network (no route out, checked by acceptance)
+- [x] W5.2 Packet captures before/after; app binary hash unchanged — baseline: data in clear on the wire, 918 B; overlay: delivered, not on the wire, 14,146 B; same exe sha256 in all 6 phases; pcaps in `evidence/2026-11-07-13c0fb1/`
+- [x] W5.3 Fail-closed check (identity removed → refused, not downgraded) — identity removed (with and without a fallback PSK), plaintext client, impostor: none delivered; with identity removed the client sends 0 payload bytes. **Finding: refusal is silent to the app** (exit 0; waits for its own idle timeout)
+- [x] W5.4 Measured overhead; `demos/pq-switch/run.sh` — n=20 per mode, timed runs captured: median added 0.0 / 2.5 / 3.1 ms over 3 runs, not separable from ~70 ms `docker exec` noise; +13.2 KB per connection. `ACCEPTANCE: PASS` from clean OVERLAY `13c0fb1`; 9/9 unit tests. **Local only — not pushed (no OVERLAY write access)**
 
 ## W7 — One-USB demo kit
 - [ ] W7.1 Offline bundle with checksums; clean-machine no-network install test
@@ -65,6 +65,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 ## Iteration log
 | # | Item | Result | Evidence |
 |---|---|---|---|
+| 11 | W5.1–W5.4 PQ switch (OVERLAY, local, proof of concept) | DONE; caught and fixed in my own harness: capture on the bridge device saw no container traffic (meaningless 'no marker'), a cleanup bug that exited silently, seeds visible on the docker command line (now mode-600 env files), timed runs not captured (now judged). Overlay finding: refusals are silent to the client program | OVERLAY `demos/pq-switch/README.md` |
 | 10 | W4.1–W4.4 Quantum X-ray (OVERLAY, local) | DONE; first full scan read 0 files (scanner rightly won't follow the `/proc/<pid>/root` symlink) and acceptance FAILED — fixed in `run.sh` by scanning the container's top-level dirs. Engine gaps reported, not changed: recommendations omit 3DES and TLS 1.0/1.1 and list the one RSA key as 5 entries; RC4 flagged quantum-vulnerable, 3DES not; container mode reads cert dirs only | OVERLAY `demos/quantum-xray/README.md` |
 | — | Owner decisions 2026-11-05 | Corrections accepted as source of truth; W3 handed to the teaching-demo loop; release loop stays paused; no branch deletions | `INVENTORY.md` §Source of truth |
 | 9 | W2.3 run.sh/explainer/acceptance | DONE; one batch re-run because its tree was dirty (mode bits), one batch FAILED correctly when auditd was down — both recorded | `demos/lying-agent/evidence/acceptance-2026-11-07/` |
