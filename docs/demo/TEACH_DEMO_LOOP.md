@@ -244,6 +244,31 @@ with the unproven half named.
   on the old code. None of the numbers recorded above changed — 6/8/8, 16
   units, 16 questions, the same two claims — because no `evidence` field came
   from a colliding unit; only the quoted text of one question was wrong.
+  *Two more defects, found while designing B2, and fixed* (`12623c4`):
+  (1) **Leaves left neither filled nor asked.** The rule and range readers
+  returned at the first leaf they could not determine. On EP-114 none of the
+  four rules had its reading or its outcome classified at all, so an expert
+  could have answered every B1 question and still held four rules that cannot
+  compile, with nothing saying so. Each leaf is now classified on its own; a
+  rule written "corrected <reading>" makes the reading a choice between the
+  reading itself and the corrected value instead of evidence.
+  (2) **A latent crash.** A complete rule was handed to `atomic.assemble` in a
+  shape it does not take, raising `KeyError('conditions')` out of `draft()`
+  the first time any rule was complete. EP-114 never reached it because no
+  rule there is complete; any procedure with one plain "below 5 megohms,
+  reject" sentence would have.
+  The A3a recorder's own cross-check had the same blind spot as B1's: it
+  compared a dict keyed on the field path, which keeps one `rules[].op` out
+  of four. It now compares (claim unit, field, value) triples read off the
+  corpus by hand.
+  **The numbers above are superseded.** Re-recorded on the real corpus:
+  **13 evidence, 8 hypothesis, 13 issue** (was 6/8/8); 16 claim units and the
+  same two complete claims; **21 questions** (was 16). The 7 new evidence
+  fields are the comparison and outcome of the rules, each confirmed against
+  the sentence by hand (`<` on the three single-comparison rules; `REJECT`,
+  `DRY_OUT`, `DRY_OUT`, `RETEST_30D`). The draft still does not compile, and
+  still says so. Tests: 6 new, 5 of which fail on the previous code;
+  `test_draft_from_session.py` **34/34**.
 - [ ] **A3b. Model drafting.** `[B]` until the model bundle exists. The model
   chooses among the alternatives A3a enumerates and fills `topic_terms`,
   `inputs` and `rules`; it must never introduce a value A3a marked as
@@ -280,6 +305,13 @@ with the unproven half named.
   `rules[].op` checks were keyed on the same question in a dict, so one
   silently overwrote the other. Fixed by making the checks a list and asserting
   the number made; the result file now records `checks_made: 3`.
+  *Superseded by the A3a every-leaf fix* (`12623c4`, re-recorded on a clean
+  tree): of **21** unsettled fields, **17 asked** (6 with closed choices) and
+  the same **4 not asked**. The five new questions: four ask which reading each rule compares, and
+  one asks what the "at least 1.5 but below 2.0" rule compares against (it was
+  previously asked only its comparison). B1 needed no change: every new path
+  already had a template. Reachability checks extended from 3 to **7/7** —
+  the two resistance rules must offer `corrected`, the two PI rules `cued_1`.
   *Tests:* `test_question_generator.py` **48/48**; capability-learning
   **193/193**. Every path A3a can emit is parametrised and must have a
   template; questions are asserted free of internal jargon (`[]`, `.*`, "IR",

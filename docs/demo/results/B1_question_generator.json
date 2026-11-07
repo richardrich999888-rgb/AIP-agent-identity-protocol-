@@ -1,16 +1,16 @@
 {
   "schema": "syntriass.demo.item_evidence/1",
   "item": "B1 \u2014 plain-language question generator over the A3a draft",
-  "commit": "c4f996d8e7d09245a7660b9b6e8a3ae7ab8eb8e5",
+  "commit": "4f6b6c77a55f3490b48c7877df63460ed0b02128",
   "tree_dirty": false,
   "branch": "feature/airon-teach-demo",
-  "recorded_utc": "2026-11-07T03:48:02Z",
+  "recorded_utc": "2026-11-07T09:50:00Z",
   "hardware": {
     "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
     "cores": 4,
     "ram_mib": 16086,
     "gpu": "none",
-    "kernel": "6.18.44-fc-v260",
+    "kernel": "6.18.44-fc-v310",
     "NOT_the_published_bench_machine": "V02_REPORT.md and BASELINES.md figures were measured on 2 vCPU Xeon (AVX-512) / 8 GB. Nothing here may be merged with those."
   },
   "acceptance_criterion": "each hypothesis/issue field -> one plain-language question carrying the candidate values; deterministic templates only; no model",
@@ -29,10 +29,10 @@
     "model_calls_note": "A3a is deterministic by construction: it reads values off clause text and enumerates alternatives it will not choose between. Choosing is A3b's job and needs the model bundle."
   },
   "counts": {
-    "draft_unsettled_fields": 16,
-    "asked": 12,
+    "draft_unsettled_fields": 21,
+    "asked": 17,
     "not_asked": 4,
-    "with_closed_choices": 2,
+    "with_closed_choices": 6,
     "with_ocr_warning": 0
   },
   "questions": [
@@ -131,6 +131,39 @@
     },
     {
       "n": 9,
+      "field_path": "rules[].value",
+      "citation": "koravi-ep-114.txt p.1 [1122:1138]; koravi-ep-114.txt p.1 [1139:1225]",
+      "question": "The procedure says \"Step 4 decision: if the corrected resistance is below half of the minimum, reject the motor for rewind.\" (koravi-ep-114.txt p.1 [1122:1138]; koravi-ep-114.txt p.1 [1139:1225]). Which reading is this about?",
+      "choices": [
+        {
+          "code": "voltage",
+          "label": "the voltage reading"
+        },
+        {
+          "code": "resistance",
+          "label": "the resistance reading"
+        },
+        {
+          "code": "temperature",
+          "label": "the temperature reading"
+        },
+        {
+          "code": "cued_1",
+          "label": "the first named reading (for example an index written as an abbreviation)"
+        },
+        {
+          "code": "cued_2",
+          "label": "the second named reading"
+        },
+        {
+          "code": "corrected",
+          "label": "the corrected value worked out in an earlier step"
+        }
+      ],
+      "answer_note": "one reading from the choices"
+    },
+    {
+      "n": 10,
       "field_path": "rules[].number",
       "citation": "koravi-ep-114.txt p.1 [1122:1138]; koravi-ep-114.txt p.1 [1139:1225]",
       "question": "The procedure says \"Step 4 decision: if the corrected resistance is below half of the minimum, reject the motor for rewind.\" (koravi-ep-114.txt p.1 [1122:1138]; koravi-ep-114.txt p.1 [1139:1225]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
@@ -138,7 +171,40 @@
       "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)"
     },
     {
-      "n": 10,
+      "n": 11,
+      "field_path": "rules[].value",
+      "citation": "koravi-ep-114.txt p.1 [1226:1285]",
+      "question": "The procedure says \"If it is below the minimum, dry out the winding and retest.\" (koravi-ep-114.txt p.1 [1226:1285]). Which reading is this about?",
+      "choices": [
+        {
+          "code": "voltage",
+          "label": "the voltage reading"
+        },
+        {
+          "code": "resistance",
+          "label": "the resistance reading"
+        },
+        {
+          "code": "temperature",
+          "label": "the temperature reading"
+        },
+        {
+          "code": "cued_1",
+          "label": "the first named reading (for example an index written as an abbreviation)"
+        },
+        {
+          "code": "cued_2",
+          "label": "the second named reading"
+        },
+        {
+          "code": "corrected",
+          "label": "the corrected value worked out in an earlier step"
+        }
+      ],
+      "answer_note": "one reading from the choices"
+    },
+    {
+      "n": 12,
       "field_path": "rules[].number",
       "citation": "koravi-ep-114.txt p.1 [1226:1285]",
       "question": "The procedure says \"If it is below the minimum, dry out the winding and retest.\" (koravi-ep-114.txt p.1 [1226:1285]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
@@ -146,7 +212,40 @@
       "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)"
     },
     {
-      "n": 11,
+      "n": 13,
+      "field_path": "rules[].value",
+      "citation": "koravi-ep-114.txt p.1 [1286:1347]",
+      "question": "The procedure says \"If the resistance is acceptable but PI is below 1.5, dry out.\" (koravi-ep-114.txt p.1 [1286:1347]). Which reading is this about?",
+      "choices": [
+        {
+          "code": "voltage",
+          "label": "the voltage reading"
+        },
+        {
+          "code": "resistance",
+          "label": "the resistance reading"
+        },
+        {
+          "code": "temperature",
+          "label": "the temperature reading"
+        },
+        {
+          "code": "cued_1",
+          "label": "the first named reading (for example an index written as an abbreviation)"
+        },
+        {
+          "code": "cued_2",
+          "label": "the second named reading"
+        },
+        {
+          "code": "corrected",
+          "label": "the corrected value worked out in an earlier step"
+        }
+      ],
+      "answer_note": "one reading from the choices"
+    },
+    {
+      "n": 14,
       "field_path": "rules[].number",
       "citation": "koravi-ep-114.txt p.1 [1286:1347]",
       "question": "The procedure says \"If the resistance is acceptable but PI is below 1.5, dry out.\" (koravi-ep-114.txt p.1 [1286:1347]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
@@ -154,7 +253,40 @@
       "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)"
     },
     {
-      "n": 12,
+      "n": 15,
+      "field_path": "rules[].value",
+      "citation": "koravi-ep-114.txt p.1 [1348:1429]",
+      "question": "The procedure says \"If PI is at least 1.5 but below 2.0, accept for service with a retest in 30 days.\" (koravi-ep-114.txt p.1 [1348:1429]). Which reading is this about?",
+      "choices": [
+        {
+          "code": "voltage",
+          "label": "the voltage reading"
+        },
+        {
+          "code": "resistance",
+          "label": "the resistance reading"
+        },
+        {
+          "code": "temperature",
+          "label": "the temperature reading"
+        },
+        {
+          "code": "cued_1",
+          "label": "the first named reading (for example an index written as an abbreviation)"
+        },
+        {
+          "code": "cued_2",
+          "label": "the second named reading"
+        },
+        {
+          "code": "corrected",
+          "label": "the corrected value worked out in an earlier step"
+        }
+      ],
+      "answer_note": "one reading from the choices"
+    },
+    {
+      "n": 16,
       "field_path": "rules[].op",
       "citation": "koravi-ep-114.txt p.1 [1348:1429]",
       "question": "The procedure says \"If PI is at least 1.5 but below 2.0, accept for service with a retest in 30 days.\" (koravi-ep-114.txt p.1 [1348:1429]). That sentence combines more than one condition, and each rule can check only one. Which comparison should this rule check? The other can be taught as a separate rule.",
@@ -169,6 +301,14 @@
         }
       ],
       "answer_note": "one comparison from the choices"
+    },
+    {
+      "n": 17,
+      "field_path": "rules[].number",
+      "citation": "koravi-ep-114.txt p.1 [1348:1429]",
+      "question": "The procedure says \"If PI is at least 1.5 but below 2.0, accept for service with a retest in 30 days.\" (koravi-ep-114.txt p.1 [1348:1429]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
+      "choices": [],
+      "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)"
     }
   ],
   "not_asked": [
@@ -199,7 +339,7 @@
   ],
   "true_answer_reachability": {
     "method": "For each closed-choice question whose answer can be read off the corpus by hand, assert that answer is among the choices offered. A choice list that excludes the right answer forces a wrong one.",
-    "checks_made": 3,
+    "checks_made": 7,
     "results": [
       {
         "field_path": "validity[].outcome",
@@ -233,6 +373,62 @@
         "offered": [
           ">=",
           "<"
+        ],
+        "reachable": true
+      },
+      {
+        "field_path": "rules[].value",
+        "quote_contains": "below half of the minimum",
+        "required_answer": "corrected",
+        "offered": [
+          "voltage",
+          "resistance",
+          "temperature",
+          "cued_1",
+          "cued_2",
+          "corrected"
+        ],
+        "reachable": true
+      },
+      {
+        "field_path": "rules[].value",
+        "quote_contains": "If it is below the minimum",
+        "required_answer": "corrected",
+        "offered": [
+          "voltage",
+          "resistance",
+          "temperature",
+          "cued_1",
+          "cued_2",
+          "corrected"
+        ],
+        "reachable": true
+      },
+      {
+        "field_path": "rules[].value",
+        "quote_contains": "PI is below 1.5",
+        "required_answer": "cued_1",
+        "offered": [
+          "voltage",
+          "resistance",
+          "temperature",
+          "cued_1",
+          "cued_2",
+          "corrected"
+        ],
+        "reachable": true
+      },
+      {
+        "field_path": "rules[].value",
+        "quote_contains": "at least 1.5 but below 2.0",
+        "required_answer": "cued_1",
+        "offered": [
+          "voltage",
+          "resistance",
+          "temperature",
+          "cued_1",
+          "cued_2",
+          "corrected"
         ],
         "reachable": true
       }
