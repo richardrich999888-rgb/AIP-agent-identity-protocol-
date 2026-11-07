@@ -131,6 +131,69 @@ impl EffectInputs<'_> {
     }
 }
 
+/// Which of `items` to count: one per distinct kernel socket, per instance.
+///
+/// `aip-effect` is domain-neutral and counts **records**: every record it is
+/// handed with a `Supports` stance is one more corroboration. That is right
+/// for distinct observations and wrong for one socket described twice, and
+/// two routes produce the second (issue #18):
+///
+/// - a single read of `/proc/net/tcp` repeats a row when the socket table
+///   changes during the read, so one table snapshot can contain one socket
+///   twice (the observer now drops those, but a verifier must not depend on
+///   every observer doing so);
+/// - an observer that polls more than once describes a socket that is still
+///   open in every batch, at a different time each time.
+///
+/// Neither is a second corroboration. A connection held once is one fact, and
+/// counting it once per sighting is evidence inflation by the verifier's own
+/// loop — the exact error `t10_and_t11` exists to catch.
+///
+/// Two items are the same socket when they describe the **same observed
+/// process instance** and an equal `SocketObserved` effect (protocol, local
+/// and remote endpoint, state, inode). Different instances are never merged,
+/// whatever their sockets look like: that would let one execution's evidence
+/// stand in for another's.
+///
+/// The representative of a group is its first member **inside the window**,
+/// else its first member. `aip-effect` filters by window after this, so
+/// keeping an out-of-window duplicate while dropping an in-window one would
+/// turn a real corroboration into `OutsideWindow`. Items that are not socket
+/// observations are never collapsed. Returns the indices to keep, in their
+/// original order, and how many were collapsed.
+pub fn distinct_socket_observations(
+    items: &[(u64, &ObservedExecution)],
+    window: EffectWindow,
+) -> (Vec<usize>, usize) {
+    let mut groups: Vec<(usize, Vec<usize>)> = Vec::new();
+    let mut keep: Vec<usize> = Vec::with_capacity(items.len());
+    for (i, (_, observed)) in items.iter().enumerate() {
+        if !matches!(observed.effect, ObservedEffect::SocketObserved { .. }) {
+            keep.push(i);
+            continue;
+        }
+        let existing = groups.iter_mut().find(|(first, _)| {
+            let other = items[*first].1;
+            other.observed == observed.observed && other.effect == observed.effect
+        });
+        match existing {
+            Some((_, members)) => members.push(i),
+            None => groups.push((i, vec![i])),
+        }
+    }
+    for (_, members) in &groups {
+        let representative = members
+            .iter()
+            .copied()
+            .find(|&i| window.contains(items[i].0))
+            .unwrap_or(members[0]);
+        keep.push(representative);
+    }
+    keep.sort_unstable();
+    let collapsed = items.len() - keep.len();
+    (keep, collapsed)
+}
+
 /// Pair verified records with the stances read from their content, and assess.
 ///
 /// `records` are `(record, observed)` pairs: the record as
@@ -148,9 +211,18 @@ pub fn assess_effect(
     ip: [u8; 4],
     port: u16,
 ) -> Result<EffectAssessment, EdgeError> {
-    let observations = records
+    // One socket is one fact, however many records describe it. See
+    // `distinct_socket_observations` for why this happens before the stance
+    // and the count, and why it is a verifier's job rather than the observer's.
+    let index: Vec<(u64, &ObservedExecution)> = records
         .iter()
-        .map(|(record, observed)| {
+        .map(|(record, observed)| (record.attested_at_ms(), observed))
+        .collect();
+    let (keep, _collapsed) = distinct_socket_observations(&index, inputs.window);
+    let observations = keep
+        .iter()
+        .map(|&i| {
+            let (record, observed) = &records[i];
             EffectObservation::new(record.clone(), stance_of(observed, ip, port))
         })
         .collect::<Result<Vec<_>, _>>()?;
@@ -265,6 +337,124 @@ mod tests {
             host_wall_clock_ms: 0,
             probe_monotonic_ns: 0,
         }
+    }
+
+    // ─── One socket is one fact (issue #18) ───
+
+    const IP: [u8; 4] = [127, 0, 0, 1];
+    const PORT: u16 = 41879;
+    const ALL_TIME: EffectWindow = EffectWindow {
+        from_ms: 0,
+        to_ms: u64::MAX,
+    };
+
+    fn sock(inode: u64, local_port: u16) -> ObservedEffect {
+        ObservedEffect::SocketObserved {
+            protocol: SocketProtocol::Tcp,
+            local: endpoint(IP, local_port),
+            remote: endpoint(IP, PORT),
+            state: TCP_ESTABLISHED,
+            inode,
+        }
+    }
+
+    fn on_instance(effect: ObservedEffect, pid: u32) -> ObservedExecution {
+        let mut o = with_effect(effect);
+        o.observed.process.pid = pid;
+        o
+    }
+
+    fn supporting(items: &[(u64, &ObservedExecution)], window: EffectWindow) -> usize {
+        let (keep, _) = distinct_socket_observations(items, window);
+        keep.iter()
+            .filter(|&&i| stance_of(items[i].1, IP, PORT) == ObservedStance::Supports)
+            .count()
+    }
+
+    #[test]
+    fn a_socket_repeated_within_one_snapshot_counts_once() {
+        // Path 1: the shape captured in issue #18 — one table read, one
+        // socket, two identical rows, two records at the same instant.
+        let a = with_effect(sock(68001, 51406));
+        let b = a.clone();
+        let items = [(1000, &a), (1000, &b)];
+        assert_eq!(supporting(&items, ALL_TIME), 1);
+        assert_eq!(distinct_socket_observations(&items, ALL_TIME).1, 1);
+    }
+
+    #[test]
+    fn a_socket_seen_in_two_batches_counts_once() {
+        // Path 2: an observer that polls twice describes the same open socket
+        // twice, at two times. Still one connection.
+        let a = with_effect(sock(68001, 51406));
+        let b = a.clone();
+        let items = [(1000, &a), (2000, &b)];
+        assert_eq!(supporting(&items, ALL_TIME), 1);
+    }
+
+    #[test]
+    fn four_repeats_of_one_socket_still_count_once() {
+        let a = with_effect(sock(68001, 51406));
+        let items: Vec<(u64, &ObservedExecution)> = (0..4).map(|t| (1000 + t, &a)).collect();
+        assert_eq!(supporting(&items, ALL_TIME), 1);
+        assert_eq!(distinct_socket_observations(&items, ALL_TIME).1, 3);
+    }
+
+    #[test]
+    fn the_in_window_sighting_is_kept_when_the_first_is_outside_it() {
+        // Collapsing must not turn a real corroboration into OutsideWindow:
+        // the out-of-window sighting comes first, and must not be the one kept.
+        let a = with_effect(sock(68001, 51406));
+        let b = a.clone();
+        let items = [(10, &a), (5000, &b)];
+        let window = EffectWindow {
+            from_ms: 1000,
+            to_ms: 9000,
+        };
+        let (keep, collapsed) = distinct_socket_observations(&items, window);
+        assert_eq!(keep, vec![1]);
+        assert_eq!(collapsed, 1);
+    }
+
+    #[test]
+    fn two_distinct_sockets_still_count_twice() {
+        // Not over-collapsing: two connections are two kernel facts.
+        let a = with_effect(sock(68001, 51406));
+        let b = with_effect(sock(68002, 51407));
+        let items = [(1000, &a), (1000, &b)];
+        assert_eq!(supporting(&items, ALL_TIME), 2);
+        assert_eq!(distinct_socket_observations(&items, ALL_TIME).1, 0);
+    }
+
+    #[test]
+    fn identical_sockets_on_different_instances_are_never_merged() {
+        // One execution's evidence must never stand in for another's.
+        let a = on_instance(sock(68001, 51406), 100);
+        let b = on_instance(sock(68001, 51406), 200);
+        let items = [(1000, &a), (1000, &b)];
+        assert_eq!(
+            distinct_socket_observations(&items, ALL_TIME),
+            (vec![0, 1], 0)
+        );
+    }
+
+    #[test]
+    fn non_socket_observations_are_never_collapsed() {
+        let a = with_effect(ObservedEffect::ProcessPresent);
+        let b = a.clone();
+        let items = [(1000, &a), (1000, &b)];
+        assert_eq!(
+            distinct_socket_observations(&items, ALL_TIME),
+            (vec![0, 1], 0)
+        );
+    }
+
+    #[test]
+    fn the_kept_indices_preserve_input_order() {
+        let a = with_effect(sock(1, 1));
+        let b = with_effect(sock(2, 2));
+        let items = [(1, &a), (1, &b), (2, &a), (2, &b)];
+        assert_eq!(distinct_socket_observations(&items, ALL_TIME).0, vec![0, 1]);
     }
 
     #[test]
