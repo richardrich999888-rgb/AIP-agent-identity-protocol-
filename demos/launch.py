@@ -174,9 +174,10 @@ def rehearse(name: str, n: int, out: Path) -> int:
     prov = "; ".join(f"{p['repo']} {(p['commit'] or '?')[:7]}{' DIRTY' if p['dirty'] else ''}"
                      for p in results[0]["provenance"])
     verdict = "PASS" if passes == n else f"FAIL at run {passes + 1}"
+    where = os.path.relpath(out, REPO) if Path(out).resolve().is_relative_to(REPO) else str(out)
     row = (f"| {results[0]['started_utc'][:16]}Z | {name} | {passes}/{n} consecutive | {verdict} | "
            f"{walls[len(walls) // 2]} s median, {walls[-1]} s max | {prov} | "
-           f"{results[0]['hardware']['label']} | `{out}` |\n")
+           f"{results[0]['hardware']['label']} | `{where}` |\n")
     if not LOG.exists():
         LOG.write_text("# Rehearsal log (W7.3)\n\nWritten by `demos/launch.py rehearse`, one row per "
                        "rehearsal, from the result files. A mode passes only with N consecutive passes.\n\n"
