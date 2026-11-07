@@ -1,0 +1,986 @@
+{
+  "schema": "syntriass.demo.item_evidence/1",
+  "item": "B2 \u2014 answer application: answers become typed leaf edits on the IR",
+  "commit": "8f6d3db0f6190ff129c79e4b6bf402dca41b9df3",
+  "tree_dirty": false,
+  "branch": "feature/airon-teach-demo",
+  "recorded_utc": "2026-11-07T10:03:42Z",
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "cores": 4,
+    "ram_mib": 16086,
+    "gpu": "none",
+    "kernel": "6.18.44-fc-v310",
+    "NOT_the_published_bench_machine": "V02_REPORT.md and BASELINES.md figures were measured on 2 vCPU Xeon (AVX-512) / 8 GB. Nothing here may be merged with those."
+  },
+  "acceptance_criterion": "answers become typed leaf edits on the IR, each recorded with who, when and why, and counted",
+  "result": "MET",
+  "chain": {
+    "task_spec": "research/capability-learning/tasks/ir_ep114.json",
+    "document": "research/capability-learning/data/ir-tasks-v1/corpus/koravi-ep-114.txt",
+    "document_sha256": "655c9d1920951a8cb49e23ea450e4beaa7565a60cc19a7cf98b1fdc1ddcc91eb",
+    "steps": [
+      "ingest_documents.py (A1)",
+      "syntriass teach start (A2, compiled binary)",
+      "draft_from_session.py (A3a)",
+      "question_generator.py (B1)",
+      "apply_answers.py (B2)"
+    ],
+    "model_calls": 0,
+    "model_calls_note": "A3a is deterministic by construction: it reads values off clause text and enumerates alternatives it will not choose between. Choosing is A3b's job and needs the model bundle."
+  },
+  "who_answered": {
+    "identity": "engineer:recorder",
+    "statement": "No domain expert answered. The engineer recording this run read each answer off the EP-114 corpus, citing the sentence. This measures the mechanism, not an expert's answers."
+  },
+  "counts": {
+    "questions": 17,
+    "answered": 16,
+    "not_applicable": 1,
+    "unanswered": 0,
+    "leaves_set_by_answers": 54,
+    "leaf_edits": 50,
+    "leaves_from_document": 13,
+    "elements_complete": 6,
+    "elements_incomplete": 0,
+    "elements_withdrawn": 0
+  },
+  "status": "COMPILES",
+  "ir_compiles": true,
+  "ir": {
+    "topic_terms": [
+      "induction motors"
+    ],
+    "inputs": [
+      {
+        "ref": "voltage",
+        "unit": "kV",
+        "cues": []
+      },
+      {
+        "ref": "resistance",
+        "unit": "M\u03a9",
+        "cues": []
+      },
+      {
+        "ref": "temperature",
+        "unit": "\u00b0C",
+        "cues": []
+      },
+      {
+        "ref": "cued_1",
+        "unit": "none",
+        "cues": [
+          "PI",
+          "polarization index"
+        ]
+      }
+    ],
+    "out_of_scope_terms": [
+      "transformers",
+      "cables",
+      "generators"
+    ],
+    "out_of_scope_limits": [
+      {
+        "ref": "voltage",
+        "op": ">",
+        "value": 11,
+        "unit": "kV"
+      }
+    ],
+    "missing_input_outcome": "INSUFFICIENT_INPUT",
+    "validity": [
+      {
+        "ref": "temperature",
+        "min": 10.0,
+        "max": 75.0,
+        "unit": "\u00b0C",
+        "outcome": "INVALID_TEST"
+      }
+    ],
+    "correction": {
+      "template": "multiply_power_per_degree",
+      "target": "resistance",
+      "by": "temperature",
+      "reference": 40,
+      "reference_unit": "\u00b0C",
+      "rate": 0,
+      "rate_unit": "\u00b0C",
+      "base": 2,
+      "step": 10
+    },
+    "limit": {
+      "template": "coefficient_times_input_plus_offset",
+      "coefficient": 10,
+      "input": "voltage",
+      "offset": 1,
+      "unit": "M\u03a9"
+    },
+    "rules": [
+      {
+        "value": "corrected",
+        "op": "<",
+        "against": "limit",
+        "number": 0,
+        "unit": "none",
+        "limit_fraction": 0.5,
+        "outcome": "REJECT"
+      },
+      {
+        "value": "corrected",
+        "op": "<",
+        "against": "limit",
+        "number": 0,
+        "unit": "none",
+        "limit_fraction": 1,
+        "outcome": "DRY_OUT"
+      },
+      {
+        "value": "cued_1",
+        "op": "<",
+        "against": "number",
+        "number": 1.5,
+        "unit": "none",
+        "limit_fraction": 1,
+        "outcome": "DRY_OUT"
+      },
+      {
+        "value": "cued_1",
+        "op": "<",
+        "against": "number",
+        "number": 2.0,
+        "unit": "none",
+        "limit_fraction": 1,
+        "outcome": "RETEST_30D"
+      }
+    ],
+    "default_outcome": "PASS"
+  },
+  "elements": [
+    {
+      "array": "out_of_scope_limits",
+      "sentence": "p1#2+p1#3",
+      "status": "complete",
+      "path": "out_of_scope_limits[0]",
+      "from_document": [],
+      "from_answers": [
+        "op",
+        "ref",
+        "unit",
+        "value"
+      ],
+      "missing": []
+    },
+    {
+      "array": "validity",
+      "sentence": "p1#9+p1#10",
+      "status": "complete",
+      "path": "validity[0]",
+      "from_document": [
+        "max",
+        "min",
+        "ref",
+        "unit"
+      ],
+      "from_answers": [
+        "outcome"
+      ],
+      "missing": []
+    },
+    {
+      "array": "rules",
+      "sentence": "p1#16+p1#17",
+      "status": "complete",
+      "path": "rules[0]",
+      "from_document": [
+        "op",
+        "outcome"
+      ],
+      "from_answers": [
+        "against",
+        "limit_fraction",
+        "number",
+        "unit",
+        "value"
+      ],
+      "missing": []
+    },
+    {
+      "array": "rules",
+      "sentence": "p1#18",
+      "status": "complete",
+      "path": "rules[1]",
+      "from_document": [
+        "op",
+        "outcome"
+      ],
+      "from_answers": [
+        "against",
+        "limit_fraction",
+        "number",
+        "unit",
+        "value"
+      ],
+      "missing": []
+    },
+    {
+      "array": "rules",
+      "sentence": "p1#19",
+      "status": "complete",
+      "path": "rules[2]",
+      "from_document": [
+        "op",
+        "outcome"
+      ],
+      "from_answers": [
+        "against",
+        "limit_fraction",
+        "number",
+        "unit",
+        "value"
+      ],
+      "missing": []
+    },
+    {
+      "array": "rules",
+      "sentence": "p1#20",
+      "status": "complete",
+      "path": "rules[3]",
+      "from_document": [
+        "outcome"
+      ],
+      "from_answers": [
+        "against",
+        "limit_fraction",
+        "number",
+        "op",
+        "unit",
+        "value"
+      ],
+      "missing": []
+    }
+  ],
+  "edits": [
+    {
+      "question": 1,
+      "qid": "p1#2+p1#3:scope_subject.*",
+      "address": "topic_terms[0]",
+      "path": "topic_terms[0]",
+      "type": "string",
+      "before": null,
+      "after": "induction motors",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822397,
+      "why": "'Scope: induction motors rated up to and including 11 kV.'"
+    },
+    {
+      "question": 2,
+      "qid": "p1#2+p1#3:scope_limit.*",
+      "address": "out_of_scope_limits[@p1#2+p1#3].ref",
+      "path": "out_of_scope_limits[0].ref",
+      "type": "enum",
+      "before": null,
+      "after": "voltage",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822398,
+      "why": "'up to and including 11 kV': a rating above 11 kV is out of scope"
+    },
+    {
+      "question": 2,
+      "qid": "p1#2+p1#3:scope_limit.*",
+      "address": "out_of_scope_limits[@p1#2+p1#3].op",
+      "path": "out_of_scope_limits[0].op",
+      "type": "enum",
+      "before": null,
+      "after": ">",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822398,
+      "why": "'up to and including 11 kV': a rating above 11 kV is out of scope"
+    },
+    {
+      "question": 2,
+      "qid": "p1#2+p1#3:scope_limit.*",
+      "address": "out_of_scope_limits[@p1#2+p1#3].value",
+      "path": "out_of_scope_limits[0].value",
+      "type": "number",
+      "before": null,
+      "after": 11,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822398,
+      "why": "'up to and including 11 kV': a rating above 11 kV is out of scope"
+    },
+    {
+      "question": 2,
+      "qid": "p1#2+p1#3:scope_limit.*",
+      "address": "out_of_scope_limits[@p1#2+p1#3].unit",
+      "path": "out_of_scope_limits[0].unit",
+      "type": "enum",
+      "before": null,
+      "after": "kV",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822398,
+      "why": "'up to and including 11 kV': a rating above 11 kV is out of scope"
+    },
+    {
+      "question": 3,
+      "qid": "p1#4+p1#5:scope_exclusion_terms.*",
+      "address": "out_of_scope_terms[0]",
+      "path": "out_of_scope_terms[0]",
+      "type": "string",
+      "before": null,
+      "after": "transformers",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822399,
+      "why": "'does not apply to transformers, cables, generators'; motors above 11 kV are the voltage limit"
+    },
+    {
+      "question": 3,
+      "qid": "p1#4+p1#5:scope_exclusion_terms.*",
+      "address": "out_of_scope_terms[1]",
+      "path": "out_of_scope_terms[1]",
+      "type": "string",
+      "before": null,
+      "after": "cables",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822399,
+      "why": "'does not apply to transformers, cables, generators'; motors above 11 kV are the voltage limit"
+    },
+    {
+      "question": 3,
+      "qid": "p1#4+p1#5:scope_exclusion_terms.*",
+      "address": "out_of_scope_terms[2]",
+      "path": "out_of_scope_terms[2]",
+      "type": "string",
+      "before": null,
+      "after": "generators",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822399,
+      "why": "'does not apply to transformers, cables, generators'; motors above 11 kV are the voltage limit"
+    },
+    {
+      "question": 5,
+      "qid": "p1#6+p1#7:required_inputs.*",
+      "address": "inputs[0].ref",
+      "path": "inputs[0].ref",
+      "type": "enum",
+      "before": null,
+      "after": "voltage",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822401,
+      "why": "'rated voltage in kV, insulation resistance in megohms, winding temperature in degrees Celsius, polarization index (PI)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#6+p1#7:required_inputs.*",
+      "address": "inputs[0].unit",
+      "path": "inputs[0].unit",
+      "type": "enum",
+      "before": null,
+      "after": "kV",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822401,
+      "why": "'rated voltage in kV, insulation resistance in megohms, winding temperature in degrees Celsius, polarization index (PI)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#6+p1#7:required_inputs.*",
+      "address": "inputs[1].ref",
+      "path": "inputs[1].ref",
+      "type": "enum",
+      "before": null,
+      "after": "resistance",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822401,
+      "why": "'rated voltage in kV, insulation resistance in megohms, winding temperature in degrees Celsius, polarization index (PI)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#6+p1#7:required_inputs.*",
+      "address": "inputs[1].unit",
+      "path": "inputs[1].unit",
+      "type": "enum",
+      "before": null,
+      "after": "M\u03a9",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822401,
+      "why": "'rated voltage in kV, insulation resistance in megohms, winding temperature in degrees Celsius, polarization index (PI)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#6+p1#7:required_inputs.*",
+      "address": "inputs[2].ref",
+      "path": "inputs[2].ref",
+      "type": "enum",
+      "before": null,
+      "after": "temperature",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822401,
+      "why": "'rated voltage in kV, insulation resistance in megohms, winding temperature in degrees Celsius, polarization index (PI)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#6+p1#7:required_inputs.*",
+      "address": "inputs[2].unit",
+      "path": "inputs[2].unit",
+      "type": "enum",
+      "before": null,
+      "after": "\u00b0C",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822401,
+      "why": "'rated voltage in kV, insulation resistance in megohms, winding temperature in degrees Celsius, polarization index (PI)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#6+p1#7:required_inputs.*",
+      "address": "inputs[3].ref",
+      "path": "inputs[3].ref",
+      "type": "enum",
+      "before": null,
+      "after": "cued_1",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822401,
+      "why": "'rated voltage in kV, insulation resistance in megohms, winding temperature in degrees Celsius, polarization index (PI)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#6+p1#7:required_inputs.*",
+      "address": "inputs[3].unit",
+      "path": "inputs[3].unit",
+      "type": "enum",
+      "before": null,
+      "after": "none",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822401,
+      "why": "'rated voltage in kV, insulation resistance in megohms, winding temperature in degrees Celsius, polarization index (PI)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#6+p1#7:required_inputs.*",
+      "address": "inputs[3].cues[0]",
+      "path": "inputs[3].cues[0]",
+      "type": "string",
+      "before": null,
+      "after": "PI",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822401,
+      "why": "'rated voltage in kV, insulation resistance in megohms, winding temperature in degrees Celsius, polarization index (PI)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#6+p1#7:required_inputs.*",
+      "address": "inputs[3].cues[1]",
+      "path": "inputs[3].cues[1]",
+      "type": "string",
+      "before": null,
+      "after": "polarization index",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822401,
+      "why": "'rated voltage in kV, insulation resistance in megohms, winding temperature in degrees Celsius, polarization index (PI)'"
+    },
+    {
+      "question": 6,
+      "qid": "p1#9+p1#10:validity[].outcome",
+      "address": "validity[@p1#9+p1#10].outcome",
+      "path": "validity[0].outcome",
+      "type": "enum",
+      "before": null,
+      "after": "INVALID_TEST",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822402,
+      "why": "the next sentence: 'Outside that range the test is invalid and must be repeated.'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#12+p1#13:correction.*",
+      "address": "correction.template",
+      "path": "correction.template",
+      "type": "enum",
+      "before": "none",
+      "after": "multiply_power_per_degree",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822403,
+      "why": "'correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#12+p1#13:correction.*",
+      "address": "correction.target",
+      "path": "correction.target",
+      "type": "enum",
+      "before": "temperature",
+      "after": "resistance",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822403,
+      "why": "'correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#12+p1#13:correction.*",
+      "address": "correction.by",
+      "path": "correction.by",
+      "type": "enum",
+      "before": "temperature",
+      "after": "temperature",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822403,
+      "why": "'correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#12+p1#13:correction.*",
+      "address": "correction.reference",
+      "path": "correction.reference",
+      "type": "number",
+      "before": 0,
+      "after": 40,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822403,
+      "why": "'correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#12+p1#13:correction.*",
+      "address": "correction.reference_unit",
+      "path": "correction.reference_unit",
+      "type": "enum",
+      "before": "\u00b0C",
+      "after": "\u00b0C",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822403,
+      "why": "'correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#12+p1#13:correction.*",
+      "address": "correction.rate",
+      "path": "correction.rate",
+      "type": "number",
+      "before": 0,
+      "after": 0,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822403,
+      "why": "'correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#12+p1#13:correction.*",
+      "address": "correction.rate_unit",
+      "path": "correction.rate_unit",
+      "type": "enum",
+      "before": "\u00b0C",
+      "after": "\u00b0C",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822403,
+      "why": "'correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#12+p1#13:correction.*",
+      "address": "correction.base",
+      "path": "correction.base",
+      "type": "number",
+      "before": 1,
+      "after": 2,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822403,
+      "why": "'correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#12+p1#13:correction.*",
+      "address": "correction.step",
+      "path": "correction.step",
+      "type": "number",
+      "before": 1,
+      "after": 10,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822403,
+      "why": "'correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10'"
+    },
+    {
+      "question": 8,
+      "qid": "p1#14+p1#15:limit.*",
+      "address": "limit.template",
+      "path": "limit.template",
+      "type": "enum",
+      "before": "none",
+      "after": "coefficient_times_input_plus_offset",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822404,
+      "why": "'the minimum acceptable corrected resistance is 10 times (rated kV plus 1) megohms'"
+    },
+    {
+      "question": 8,
+      "qid": "p1#14+p1#15:limit.*",
+      "address": "limit.coefficient",
+      "path": "limit.coefficient",
+      "type": "number",
+      "before": 0,
+      "after": 10,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822404,
+      "why": "'the minimum acceptable corrected resistance is 10 times (rated kV plus 1) megohms'"
+    },
+    {
+      "question": 8,
+      "qid": "p1#14+p1#15:limit.*",
+      "address": "limit.input",
+      "path": "limit.input",
+      "type": "enum",
+      "before": "temperature",
+      "after": "voltage",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822404,
+      "why": "'the minimum acceptable corrected resistance is 10 times (rated kV plus 1) megohms'"
+    },
+    {
+      "question": 8,
+      "qid": "p1#14+p1#15:limit.*",
+      "address": "limit.offset",
+      "path": "limit.offset",
+      "type": "number",
+      "before": 0,
+      "after": 1,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822404,
+      "why": "'the minimum acceptable corrected resistance is 10 times (rated kV plus 1) megohms'"
+    },
+    {
+      "question": 8,
+      "qid": "p1#14+p1#15:limit.*",
+      "address": "limit.unit",
+      "path": "limit.unit",
+      "type": "enum",
+      "before": "\u00b0C",
+      "after": "M\u03a9",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822404,
+      "why": "'the minimum acceptable corrected resistance is 10 times (rated kV plus 1) megohms'"
+    },
+    {
+      "question": 9,
+      "qid": "p1#16+p1#17:rules[].value",
+      "address": "rules[@p1#16+p1#17].value",
+      "path": "rules[0].value",
+      "type": "enum",
+      "before": null,
+      "after": "corrected",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822405,
+      "why": "'if the corrected resistance is below ...'"
+    },
+    {
+      "question": 10,
+      "qid": "p1#16+p1#17:rules[].number",
+      "address": "rules[@p1#16+p1#17].against",
+      "path": "rules[0].against",
+      "type": "enum",
+      "before": null,
+      "after": "limit",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822406,
+      "why": "'below half of the minimum': half of the Step 3 limit"
+    },
+    {
+      "question": 10,
+      "qid": "p1#16+p1#17:rules[].number",
+      "address": "rules[@p1#16+p1#17].number",
+      "path": "rules[0].number",
+      "type": "number",
+      "before": null,
+      "after": 0,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822406,
+      "why": "'below half of the minimum': half of the Step 3 limit"
+    },
+    {
+      "question": 10,
+      "qid": "p1#16+p1#17:rules[].number",
+      "address": "rules[@p1#16+p1#17].unit",
+      "path": "rules[0].unit",
+      "type": "enum",
+      "before": null,
+      "after": "none",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822406,
+      "why": "'below half of the minimum': half of the Step 3 limit"
+    },
+    {
+      "question": 10,
+      "qid": "p1#16+p1#17:rules[].number",
+      "address": "rules[@p1#16+p1#17].limit_fraction",
+      "path": "rules[0].limit_fraction",
+      "type": "number",
+      "before": null,
+      "after": 0.5,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822406,
+      "why": "'below half of the minimum': half of the Step 3 limit"
+    },
+    {
+      "question": 11,
+      "qid": "p1#18:rules[].value",
+      "address": "rules[@p1#18].value",
+      "path": "rules[1].value",
+      "type": "enum",
+      "before": null,
+      "after": "corrected",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822407,
+      "why": "'it' is the corrected resistance of the previous sentence"
+    },
+    {
+      "question": 12,
+      "qid": "p1#18:rules[].number",
+      "address": "rules[@p1#18].against",
+      "path": "rules[1].against",
+      "type": "enum",
+      "before": null,
+      "after": "limit",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822408,
+      "why": "'below the minimum': the whole Step 3 limit"
+    },
+    {
+      "question": 12,
+      "qid": "p1#18:rules[].number",
+      "address": "rules[@p1#18].number",
+      "path": "rules[1].number",
+      "type": "number",
+      "before": null,
+      "after": 0,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822408,
+      "why": "'below the minimum': the whole Step 3 limit"
+    },
+    {
+      "question": 12,
+      "qid": "p1#18:rules[].number",
+      "address": "rules[@p1#18].unit",
+      "path": "rules[1].unit",
+      "type": "enum",
+      "before": null,
+      "after": "none",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822408,
+      "why": "'below the minimum': the whole Step 3 limit"
+    },
+    {
+      "question": 12,
+      "qid": "p1#18:rules[].number",
+      "address": "rules[@p1#18].limit_fraction",
+      "path": "rules[1].limit_fraction",
+      "type": "number",
+      "before": null,
+      "after": 1,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822408,
+      "why": "'below the minimum': the whole Step 3 limit"
+    },
+    {
+      "question": 13,
+      "qid": "p1#19:rules[].value",
+      "address": "rules[@p1#19].value",
+      "path": "rules[2].value",
+      "type": "enum",
+      "before": null,
+      "after": "cued_1",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822409,
+      "why": "'PI is below 1.5'"
+    },
+    {
+      "question": 14,
+      "qid": "p1#19:rules[].number",
+      "address": "rules[@p1#19].against",
+      "path": "rules[2].against",
+      "type": "enum",
+      "before": null,
+      "after": "number",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822410,
+      "why": "'below 1.5'; PI has no unit"
+    },
+    {
+      "question": 14,
+      "qid": "p1#19:rules[].number",
+      "address": "rules[@p1#19].number",
+      "path": "rules[2].number",
+      "type": "number",
+      "before": null,
+      "after": 1.5,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822410,
+      "why": "'below 1.5'; PI has no unit"
+    },
+    {
+      "question": 14,
+      "qid": "p1#19:rules[].number",
+      "address": "rules[@p1#19].unit",
+      "path": "rules[2].unit",
+      "type": "enum",
+      "before": null,
+      "after": "none",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822410,
+      "why": "'below 1.5'; PI has no unit"
+    },
+    {
+      "question": 14,
+      "qid": "p1#19:rules[].number",
+      "address": "rules[@p1#19].limit_fraction",
+      "path": "rules[2].limit_fraction",
+      "type": "number",
+      "before": null,
+      "after": 1,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822410,
+      "why": "'below 1.5'; PI has no unit"
+    },
+    {
+      "question": 15,
+      "qid": "p1#20:rules[].value",
+      "address": "rules[@p1#20].value",
+      "path": "rules[3].value",
+      "type": "enum",
+      "before": null,
+      "after": "cued_1",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822411,
+      "why": "'If PI is at least 1.5 but below 2.0'"
+    },
+    {
+      "question": 16,
+      "qid": "p1#20:rules[].op",
+      "address": "rules[@p1#20].op",
+      "path": "rules[3].op",
+      "type": "enum",
+      "before": null,
+      "after": "<",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822412,
+      "why": "the 'at least 1.5' half is already caught by the earlier 'below 1.5' rule, so this rule checks 'below 2.0'"
+    },
+    {
+      "question": 17,
+      "qid": "p1#20:rules[].number",
+      "address": "rules[@p1#20].against",
+      "path": "rules[3].against",
+      "type": "enum",
+      "before": null,
+      "after": "number",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822413,
+      "why": "'below 2.0'; PI has no unit"
+    },
+    {
+      "question": 17,
+      "qid": "p1#20:rules[].number",
+      "address": "rules[@p1#20].number",
+      "path": "rules[3].number",
+      "type": "number",
+      "before": null,
+      "after": 2.0,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822413,
+      "why": "'below 2.0'; PI has no unit"
+    },
+    {
+      "question": 17,
+      "qid": "p1#20:rules[].number",
+      "address": "rules[@p1#20].unit",
+      "path": "rules[3].unit",
+      "type": "enum",
+      "before": null,
+      "after": "none",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822413,
+      "why": "'below 2.0'; PI has no unit"
+    },
+    {
+      "question": 17,
+      "qid": "p1#20:rules[].number",
+      "address": "rules[@p1#20].limit_fraction",
+      "path": "rules[3].limit_fraction",
+      "type": "number",
+      "before": null,
+      "after": 1,
+      "who": "engineer:recorder",
+      "when_ms": 1794045822413,
+      "why": "'below 2.0'; PI has no unit"
+    }
+  ],
+  "not_applicable": [
+    {
+      "question": 4,
+      "qid": "p1#4+p1#5:scope_limit.*",
+      "who": "engineer:recorder",
+      "when_ms": 1794045822400,
+      "why": "the same 11 kV limit as the scope sentence; teaching it twice would duplicate it"
+    }
+  ],
+  "verification": {
+    "every_edit_has_who_when_why": true,
+    "every_edit_read_back_from_the_ir_at_its_path": 54,
+    "method": "Each edit's resolved path is read from the answered IR by a path walker in this recorder, independent of B2, and compared with the edit's `after`."
+  },
+  "refusal_check": {
+    "faults_injected": [
+      {
+        "field_path": "rules[].number",
+        "quote_contains": "at least 1.5 but below 2.0",
+        "answer": {
+          "against": "number",
+          "number": 2.5,
+          "unit": "none",
+          "limit_fraction": 1
+        },
+        "expected": "not stated in the quoted sentence"
+      },
+      {
+        "field_path": "scope_subject.*",
+        "quote_contains": "Scope: induction motors",
+        "answer": [
+          "synchronous motors"
+        ],
+        "expected": "not written in the quoted sentence"
+      },
+      {
+        "field_path": "scope_limit.*",
+        "quote_contains": "does not apply to",
+        "answer": {
+          "ref": "voltage",
+          "op": ">",
+          "value": 11,
+          "unit": "kV"
+        },
+        "expected": "duplicates an out_of_scope_limits entry"
+      }
+    ],
+    "result": "REFUSED; nothing applied",
+    "errors": [
+      {
+        "entry": 1,
+        "qid": "p1#2+p1#3:scope_subject.*",
+        "question": 1,
+        "error": "term 'synchronous motors' is not written in the quoted sentence"
+      },
+      {
+        "entry": 17,
+        "qid": "p1#20:rules[].number",
+        "question": 17,
+        "error": "2.5 (as number) is not stated in the quoted sentence"
+      },
+      {
+        "entry": 4,
+        "qid": "p1#4+p1#5:scope_limit.*",
+        "question": 4,
+        "error": "duplicates an out_of_scope_limits entry already taught: {'ref': 'voltage', 'op': '>', 'value': 11, 'unit': 'kV'}"
+      }
+    ]
+  },
+  "leaf_count_note": "leaf_edits counts leaves whose value changed, the v0.2 definition (correct_ir.edit_count). It includes leaves the compiler's schema requires but the compiler ignores, e.g. `number` = 0 on a rule compared with the limit.",
+  "scored": null,
+  "scored_note": "NOT_MEASURED: C1 scores the answered IR against the examples and the suite."
+}

@@ -269,6 +269,17 @@ with the unproven half named.
   `DRY_OUT`, `DRY_OUT`, `RETEST_30D`). The draft still does not compile, and
   still says so. Tests: 6 new, 5 of which fail on the previous code;
   `test_draft_from_session.py` **34/34**.
+  *And a misreported compile status* (`d3cf790`, re-recorded): A3a called
+  `compile_ir` with the bare task spec and caught `KeyError`. `compile_ir`
+  reads `spec["proposed_by"]` only after validating the whole IR, so every
+  draft "failed to compile" with `KeyError('proposed_by')` whatever its IR held
+  — the recorded evidence said exactly that. With a complete spec, `compile_ir`
+  would instead have *accepted* the EP-114 draft: it does not enforce its own
+  schema's `minItems`, so an IR with no rules and no inputs "compiles". A3a now
+  checks the compiler's schema strictly first (`schema_subset.py`, shared with
+  B2) and then compiles with a complete spec (`ir_check.py`); the recorded
+  reason is now the true one — `topic_terms`, `inputs` and `rules` are empty.
+  `ir_compiler.py` itself is unchanged, so no v0.2 figure moves.
 - [ ] **A3b. Model drafting.** `[B]` until the model bundle exists. The model
   chooses among the alternatives A3a enumerates and fills `topic_terms`,
   `inputs` and `rules`; it must never introduce a value A3a marked as
@@ -327,8 +338,67 @@ with the unproven half named.
   *Known limit:* "If the resistance is acceptable but PI is below 1.5" lists no
   candidate number, because A3a's candidates exclude unitless numbers. The
   quote shows `1.5`; B1 does not add values of its own.
-- [ ] **B2. Answer application.** Answers become typed leaf edits on the IR, each
-  recorded with who, when and why, and counted on screen.
+- [x] **B2. Answer application — DONE** (`50e915b`).
+  `apply_answers.py`: draft + task + answers file → the answered IR and one
+  edit record per leaf (`path`, `type` from the compiler's schema, `before`,
+  `after`, `who`, `when_ms`, `why`, the question it answers), with counts
+  printed on screen. Pure core, no model, no clock.
+  *What an answer is bound to.* The questions are regenerated from the draft by
+  B1, never read from a file, and an answers file must name the SHA-256 of
+  those questions **and of the draft** — the draft's document-determined values
+  (the 10–75 °C range) appear in no question, so the questions digest alone
+  would not notice a draft changed after the expert answered.
+  *Refused, the whole file, each problem at its question:* an answer outside
+  the question's `answer_schema` (the compiler's own, checked strictly — no
+  undeclared fields, no booleans as numbers); **a number the compiler would use
+  that the quoted sentence does not state** (`provenance_check` run on the
+  answer alone); a word list not copied from the sentence; a leaf the document
+  already determined, an object already set, a duplicate scope limit or input;
+  a bad `who` (the runtime's teach identifier grammar), `when_ms` or empty
+  `why`; more than one author in a file.
+  *Elements belong to their sentence.* A range, rule or scope limit enters the
+  IR only when every leaf is filled, from the document or from answers, in
+  **document order** — B2 never reorders rules. A partly filled one is reported
+  with its missing leaves and not emitted. Answering "not applicable" to a
+  rule's leaf withdraws the rule, and is refused if another answer fills part of
+  it. The IR does not depend on the order answers were written in.
+  *Measured on the real EP-114 corpus* (chain A1 → compiled `teach start` → A3a
+  → B1 → B2): 17 questions, **16 answered + 1 not applicable**, 0 unanswered;
+  **50 leaf edits** by the answerer (54 leaves set; 4 equal the draft's neutral
+  correction values and are not counted), **13 leaves from the document**; 6
+  elements complete (1 scope limit, 1 range, 4 rules); **the answered IR
+  compiles**, with no number lacking a cited source. Every edit is read back
+  from the IR at its path by the recorder, independently of B2.
+  *Who answered — read this before quoting any number above.* **No domain
+  expert.** I read every answer off the corpus myself, each citing its sentence,
+  and they are recorded under `engineer:recorder`. This measures the mechanism,
+  not how an expert answers; "50 leaf edits" is the cost of answering *these*
+  questions, not a measured expert effort. The answered IR is **not scored**
+  (`NOT_MEASURED`): C1 does that.
+  *Refusal recorded too:* the same answers with three planted faults — 2.5 for
+  "below 2.0", "synchronous motors" as the subject, the 11 kV limit taught twice
+  — are refused as a whole with exactly those three errors, each at its own
+  question, nothing applied.
+  *Tests:* `test_apply_answers.py` **62/62**, `test_schema_subset.py` 21,
+  `test_ir_check.py` 5; capability-learning **288/288**. Each of the 12 guards
+  was disabled in turn and fails at least one test; two (no overwrite, a
+  correction set once) are unreachable from real A3a output and are tested on a
+  crafted draft, because B2 reads the draft from a file and must not trust it.
+  *Evidence:* `docs/demo/results/B2_answer_application.json`.
+  *Defects found on the way, all fixed first and recorded under A3a/B1:*
+  rule leaves never classified (an expert could answer every question and still
+  hold rules that cannot compile), a latent `KeyError` on the first complete
+  rule, the misreported compile status, and the A3a recorder's path-keyed
+  cross-check.
+  *Count caveat for B3:* `leaf_edits` uses the v0.2 definition
+  (`correct_ir.leaves`, changed leaves only), so it is comparable with "3 leaf
+  edits vs 68" — but it includes leaves the schema requires and the compiler
+  ignores (e.g. `number: 0` on a rule compared with the limit).
+  *Open for D (approval), not decided here:* the runtime refuses approval when
+  `approver_id == proposed_by` (`lifecycle.rs:277`). B2 emits no capability, so
+  it sets no proposer; when one is emitted, the proposer must be the person who
+  answered, or the teacher could approve their own rules.
+  *Not covered by CI:* no workflow runs `research/` tests; they run locally.
 - [ ] **B3. Test against the v0.2 holdout.** The generated questions must cover the
   **3** leaf edits that were needed after the suite failure (`V02_REPORT.md:15`).
   Record honestly whether answering them up front lets the candidate pass without a
