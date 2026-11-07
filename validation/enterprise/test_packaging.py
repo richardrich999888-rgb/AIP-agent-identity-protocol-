@@ -267,6 +267,13 @@ class Packaging(unittest.TestCase):
         self.assertNotIn("privileged: true", template)
         self.assertNotIn("SYS_ADMIN", template)
         self.assertIn("automountServiceAccountToken: false", template)
+        # The probe runs with hostPID and hostNetwork by design; it must not
+        # also run with no syscall filter. Asserted on the probe's pod spec
+        # specifically: a pod-level context anywhere else in the file would
+        # satisfy a bare substring check without protecting the probe.
+        probe = template.split("kind: DaemonSet", 1)[1].split("\n---", 1)[0]
+        pod_spec = probe.split("    spec:\n", 1)[1].split("      containers:", 1)[0]
+        self.assertIn("seccompProfile:\n          type: RuntimeDefault", pod_spec)
 
 
 if __name__ == "__main__":
