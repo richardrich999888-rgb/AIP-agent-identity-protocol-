@@ -250,7 +250,7 @@ with the unproven half named.
   determined, and `--no-repair` remains the ablation that proves it does not.
 
 ### Phase B — The AI asks the teacher
-- [x] **B1. Question generator — DONE** (`__COMMIT__`).
+- [x] **B1. Question generator — DONE** (`a9867ee`).
   `question_generator.py`: every field A3a could not settle → exactly one
   plain-language question quoting its sentence and citation. Deterministic
   templates only; model rephrasing stays `[B]` and may change wording only,
