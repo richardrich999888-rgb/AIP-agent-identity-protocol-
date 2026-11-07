@@ -54,10 +54,10 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 - [x] W7.3 10 consecutive passes per mode → `docs/demos/REHEARSAL_LOG.md` — every READY mode 10/10 from clean AIP `7ccbd4d` / OVERLAY `3d63f95`: quantum (1.0 s median), security (24.8 s), pq (35.4 s); 30 result files in `demos/rehearsal-evidence/2026-11-07/`. NOT READY modes not rehearsed
 
 ## W8 — Buyer evidence pack
-- [ ] W8.1 One-page security note per product
-- [ ] W8.2 SBOM / AIBOM / CBOM; licence list
-- [ ] W8.3 Hardware sizing from measured runs on ≥2 machines
-- [ ] W8.4 Buyer questionnaire, each answer available / partial / planned
+- [x] W8.1 One-page security note per product — `docs/demos/buyer-pack/SECURITY_NOTES.md` (Sniffer Dog, Overlay, CBOM engine, runtime); every claim cites a file; "cannot prove" per product
+- [x] W8.2 SBOM / AIBOM / CBOM; licence list — `demos/evidence-pack/build_pack.sh` → `demos/evidence-pack/out/`: SBOMs scoped to shipped binaries (AIP 77, overlay 150 components); licences: third-party all permissive-optioned, **AIP's 8 own crates `LicenseRef-Proprietary` with no LICENSE file**; CBOM from 3 sources (**binscan misses ML-KEM/X25519/Ed25519/ML-DSA/AES-GCM; a floor, not an inventory**); AIBOM of the scripted test agent (0/15 fields independently backed)
+- [~] W8.3 Hardware sizing from measured runs on ≥2 machines — **PARTIAL: one machine** (`docs/demos/buyer-pack/SIZING.md`); a second machine is needed
+- [x] W8.4 Buyer questionnaire, each answer available / partial / planned — `docs/demos/buyer-pack/QUESTIONNAIRE.md`, 17 questions (5 available, 9 partial, 3 planned)
 
 ## W9 — Recording kit
 - [ ] W9.1 Terminal recordings + screenshot sequences + narration scripts (no synthetic voice/video)
@@ -65,6 +65,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 ## Iteration log
 | # | Item | Result | Evidence |
 |---|---|---|---|
+| 14 | W8 buyer evidence pack | W8.1, W8.2, W8.4 DONE; W8.3 PARTIAL (one machine). Found: AIP crates proprietary with no LICENSE file; `binscan` misses most algorithms actually in the binaries; my own first drafts mislabelled the Noise hash (BLAKE2, really SHA-256) and the runtime RSS (~6, really 6.2–7.2 MiB) — both corrected against the source before commit | `docs/demos/buyer-pack/`, `demos/evidence-pack/out/` |
 | 13 | W7.1–W7.3 kit, launcher, rehearsals | DONE except W7.1's clean machine; found and fixed: kit result files recorded no commit (harness now reads the kit MANIFEST), install test's mode selection bug; security mode cannot run in a separate network namespace (sensor limit, labelled). 30/30 rehearsal runs passed | `demos/kit/`, `docs/demos/REHEARSAL_LOG.md` |
 | — | CI flake (PR #13) | `aip-edge --test end_to_end` failed once in `fmt · clippy · test` on `1cf9178` and passed on re-run (no code change); 14/14 locally. Failure message not retrievable (log tail only; full log host blocked here). Recorded as intermittent, cause unknown | PR #13 run 42368415082 |
 | 12 | W6.2 benchmark REPRODUCE.md | DONE; recomputed the published table from result files: counts and CIs match (bootstrap reproduces them; no committed CI script existed); candidate 'CPU-s per task ≤ 0.01' covers only the 30 capability items, 3.05 over all 40 (probes go to the model). W6.1/W6.3 BLOCKED on PR #14 + models | `demos/benchmark/` |

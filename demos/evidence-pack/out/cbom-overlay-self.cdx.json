@@ -1,0 +1,463 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "bom-ref": "crypto/algorithm/syntriass/X25519",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "classicalSecurityLevel": 128,
+          "nistQuantumSecurityLevel": 0,
+          "primitive": "pke"
+        },
+        "assetType": "algorithm",
+        "oid": "1.3.101.110"
+      },
+      "name": "X25519",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "X25519"
+        },
+        {
+          "name": "syntriass:primitive",
+          "value": "pke"
+        },
+        {
+          "name": "syntriass:assetKind",
+          "value": "KEM"
+        },
+        {
+          "name": "syntriass:description",
+          "value": "X25519 elliptic-curve Diffie-Hellman key agreement (RFC 7748)"
+        },
+        {
+          "name": "syntriass:classicalSecurityBits",
+          "value": "128"
+        },
+        {
+          "name": "syntriass:nistQuantumSecurityLevel",
+          "value": "0"
+        },
+        {
+          "name": "syntriass:quantumVulnerable",
+          "value": "true"
+        },
+        {
+          "name": "syntriass:riskLevel",
+          "value": "High"
+        }
+      ],
+      "type": "cryptographic-asset"
+    },
+    {
+      "bom-ref": "crypto/algorithm/syntriass/Ed25519",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "classicalSecurityLevel": 128,
+          "nistQuantumSecurityLevel": 0,
+          "primitive": "signature"
+        },
+        "assetType": "algorithm",
+        "oid": "1.3.101.112"
+      },
+      "name": "Ed25519",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "Ed25519"
+        },
+        {
+          "name": "syntriass:primitive",
+          "value": "signature"
+        },
+        {
+          "name": "syntriass:assetKind",
+          "value": "Signature"
+        },
+        {
+          "name": "syntriass:description",
+          "value": "Ed25519 EdDSA signature (RFC 8032)"
+        },
+        {
+          "name": "syntriass:classicalSecurityBits",
+          "value": "128"
+        },
+        {
+          "name": "syntriass:nistQuantumSecurityLevel",
+          "value": "0"
+        },
+        {
+          "name": "syntriass:quantumVulnerable",
+          "value": "true"
+        },
+        {
+          "name": "syntriass:riskLevel",
+          "value": "High"
+        }
+      ],
+      "type": "cryptographic-asset"
+    },
+    {
+      "bom-ref": "crypto/algorithm/syntriass/ML-KEM-512",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "classicalSecurityLevel": 256,
+          "nistQuantumSecurityLevel": 1,
+          "primitive": "kem"
+        },
+        "assetType": "algorithm",
+        "oid": "2.16.840.1.101.3.4.4.1"
+      },
+      "name": "ML-KEM-512",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "ML-KEM-512"
+        },
+        {
+          "name": "syntriass:primitive",
+          "value": "kem"
+        },
+        {
+          "name": "syntriass:assetKind",
+          "value": "KEM"
+        },
+        {
+          "name": "syntriass:description",
+          "value": "NIST FIPS 203 post-quantum key-encapsulation mechanism (ML-KEM-512)"
+        },
+        {
+          "name": "syntriass:classicalSecurityBits",
+          "value": "256"
+        },
+        {
+          "name": "syntriass:nistQuantumSecurityLevel",
+          "value": "1"
+        },
+        {
+          "name": "syntriass:quantumVulnerable",
+          "value": "false"
+        },
+        {
+          "name": "syntriass:riskLevel",
+          "value": "Low"
+        }
+      ],
+      "type": "cryptographic-asset"
+    },
+    {
+      "bom-ref": "crypto/algorithm/syntriass/ML-KEM-768",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "classicalSecurityLevel": 256,
+          "nistQuantumSecurityLevel": 3,
+          "primitive": "kem"
+        },
+        "assetType": "algorithm",
+        "oid": "2.16.840.1.101.3.4.4.2"
+      },
+      "name": "ML-KEM-768",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "ML-KEM-768"
+        },
+        {
+          "name": "syntriass:primitive",
+          "value": "kem"
+        },
+        {
+          "name": "syntriass:assetKind",
+          "value": "KEM"
+        },
+        {
+          "name": "syntriass:description",
+          "value": "NIST FIPS 203 post-quantum key-encapsulation mechanism (ML-KEM-768)"
+        },
+        {
+          "name": "syntriass:classicalSecurityBits",
+          "value": "256"
+        },
+        {
+          "name": "syntriass:nistQuantumSecurityLevel",
+          "value": "3"
+        },
+        {
+          "name": "syntriass:quantumVulnerable",
+          "value": "false"
+        },
+        {
+          "name": "syntriass:riskLevel",
+          "value": "Low"
+        }
+      ],
+      "type": "cryptographic-asset"
+    },
+    {
+      "bom-ref": "crypto/algorithm/syntriass/ML-KEM-1024",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "classicalSecurityLevel": 256,
+          "nistQuantumSecurityLevel": 5,
+          "primitive": "kem"
+        },
+        "assetType": "algorithm",
+        "oid": "2.16.840.1.101.3.4.4.3"
+      },
+      "name": "ML-KEM-1024",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "ML-KEM-1024"
+        },
+        {
+          "name": "syntriass:primitive",
+          "value": "kem"
+        },
+        {
+          "name": "syntriass:assetKind",
+          "value": "KEM"
+        },
+        {
+          "name": "syntriass:description",
+          "value": "NIST FIPS 203 post-quantum key-encapsulation mechanism (ML-KEM-1024)"
+        },
+        {
+          "name": "syntriass:classicalSecurityBits",
+          "value": "256"
+        },
+        {
+          "name": "syntriass:nistQuantumSecurityLevel",
+          "value": "5"
+        },
+        {
+          "name": "syntriass:quantumVulnerable",
+          "value": "false"
+        },
+        {
+          "name": "syntriass:riskLevel",
+          "value": "Low"
+        }
+      ],
+      "type": "cryptographic-asset"
+    },
+    {
+      "bom-ref": "crypto/algorithm/syntriass/ML-DSA-65",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "classicalSecurityLevel": 256,
+          "nistQuantumSecurityLevel": 3,
+          "primitive": "signature"
+        },
+        "assetType": "algorithm",
+        "oid": "2.16.840.1.101.3.4.3.18"
+      },
+      "name": "ML-DSA-65",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "ML-DSA-65"
+        },
+        {
+          "name": "syntriass:primitive",
+          "value": "signature"
+        },
+        {
+          "name": "syntriass:assetKind",
+          "value": "Signature"
+        },
+        {
+          "name": "syntriass:description",
+          "value": "NIST FIPS 204 post-quantum signature (ML-DSA-65)"
+        },
+        {
+          "name": "syntriass:classicalSecurityBits",
+          "value": "256"
+        },
+        {
+          "name": "syntriass:nistQuantumSecurityLevel",
+          "value": "3"
+        },
+        {
+          "name": "syntriass:quantumVulnerable",
+          "value": "false"
+        },
+        {
+          "name": "syntriass:riskLevel",
+          "value": "Low"
+        }
+      ],
+      "type": "cryptographic-asset"
+    },
+    {
+      "bom-ref": "crypto/algorithm/syntriass/HKDF-SHA256",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "classicalSecurityLevel": 256,
+          "nistQuantumSecurityLevel": 5,
+          "primitive": "kdf"
+        },
+        "assetType": "algorithm"
+      },
+      "name": "HKDF-SHA256",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "HKDF-SHA256"
+        },
+        {
+          "name": "syntriass:primitive",
+          "value": "kdf"
+        },
+        {
+          "name": "syntriass:assetKind",
+          "value": "KDF"
+        },
+        {
+          "name": "syntriass:description",
+          "value": "HMAC-based Extract-and-Expand KDF over SHA-256 (RFC 5869)"
+        },
+        {
+          "name": "syntriass:classicalSecurityBits",
+          "value": "256"
+        },
+        {
+          "name": "syntriass:nistQuantumSecurityLevel",
+          "value": "5"
+        },
+        {
+          "name": "syntriass:quantumVulnerable",
+          "value": "false"
+        },
+        {
+          "name": "syntriass:riskLevel",
+          "value": "Low"
+        }
+      ],
+      "type": "cryptographic-asset"
+    },
+    {
+      "bom-ref": "crypto/algorithm/syntriass/HMAC-SHA256",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "classicalSecurityLevel": 256,
+          "nistQuantumSecurityLevel": 5,
+          "primitive": "mac"
+        },
+        "assetType": "algorithm",
+        "oid": "1.2.840.113549.2.9"
+      },
+      "name": "HMAC-SHA256",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "HMAC-SHA256"
+        },
+        {
+          "name": "syntriass:primitive",
+          "value": "mac"
+        },
+        {
+          "name": "syntriass:assetKind",
+          "value": "MAC"
+        },
+        {
+          "name": "syntriass:description",
+          "value": "HMAC over SHA-256 (RFC 2104) — OOB capability + handshake cookie"
+        },
+        {
+          "name": "syntriass:classicalSecurityBits",
+          "value": "256"
+        },
+        {
+          "name": "syntriass:nistQuantumSecurityLevel",
+          "value": "5"
+        },
+        {
+          "name": "syntriass:quantumVulnerable",
+          "value": "false"
+        },
+        {
+          "name": "syntriass:riskLevel",
+          "value": "Low"
+        }
+      ],
+      "type": "cryptographic-asset"
+    },
+    {
+      "bom-ref": "crypto/algorithm/syntriass/AES-256-GCM",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "classicalSecurityLevel": 256,
+          "nistQuantumSecurityLevel": 5,
+          "primitive": "ae"
+        },
+        "assetType": "algorithm",
+        "oid": "2.16.840.1.101.3.4.1.46"
+      },
+      "name": "AES-256-GCM",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "AES-256-GCM"
+        },
+        {
+          "name": "syntriass:primitive",
+          "value": "ae"
+        },
+        {
+          "name": "syntriass:assetKind",
+          "value": "AEAD"
+        },
+        {
+          "name": "syntriass:description",
+          "value": "AES-256 in Galois/Counter Mode (NIST SP 800-38D) — record AEAD"
+        },
+        {
+          "name": "syntriass:classicalSecurityBits",
+          "value": "256"
+        },
+        {
+          "name": "syntriass:nistQuantumSecurityLevel",
+          "value": "5"
+        },
+        {
+          "name": "syntriass:quantumVulnerable",
+          "value": "false"
+        },
+        {
+          "name": "syntriass:riskLevel",
+          "value": "Low"
+        }
+      ],
+      "type": "cryptographic-asset"
+    }
+  ],
+  "metadata": {
+    "properties": [
+      {
+        "name": "syntriass:inventory_type",
+        "value": "self"
+      },
+      {
+        "name": "syntriass:product",
+        "value": "SYNTRIASS Overlay"
+      },
+      {
+        "name": "syntriass:product_version",
+        "value": "0.1.0"
+      }
+    ],
+    "tools": {
+      "components": [
+        {
+          "name": "syntriass-cbom",
+          "type": "application",
+          "version": "0.1.0"
+        }
+      ]
+    }
+  },
+  "specVersion": "1.6",
+  "version": 1
+}
