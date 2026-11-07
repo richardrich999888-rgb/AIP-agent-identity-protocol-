@@ -1,10 +1,10 @@
 {
   "schema": "syntriass.demo.item_evidence/1",
   "item": "A3a \u2014 deterministic draft from a teach session: IR fields the cited clauses determine",
-  "commit": "12623c4e4c1bc7555a508fcd62c4d1454b0df2f1",
+  "commit": "50e915b039ceef751ccc15124c13477eefc9fd3b",
   "tree_dirty": false,
   "branch": "feature/airon-teach-demo",
-  "recorded_utc": "2026-11-07T09:49:49Z",
+  "recorded_utc": "2026-11-07T10:03:42Z",
   "hardware": {
     "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
     "cores": 4,
@@ -28,7 +28,7 @@
     "model_calls_note": "A3a is deterministic by construction: it reads values off clause text and enumerates alternatives it will not choose between. Choosing is A3b's job and needs the model bundle."
   },
   "session": {
-    "session_id": "66809c95fcbe709439b117a0024af446a0b5b6125303827ce88047ddb16573d2",
+    "session_id": "420c40b1f9e249d1f4e133e8cfc1366a8031eae2ac926b14899b975518a119ef",
     "tenant": "koravi-process",
     "clauses_cited": 22,
     "examples": 3
@@ -117,8 +117,13 @@
       "inputs",
       "rules"
     ],
+    "ir_schema_errors": [
+      "ir.topic_terms: 0 item(s), at least 1 required",
+      "ir.inputs: 0 item(s), at least 1 required",
+      "ir.rules: 0 item(s), at least 1 required"
+    ],
     "ir_compiles": false,
-    "ir_compile_error": "'proposed_by'",
+    "ir_compile_error": "not attempted: the IR does not match the compiler's schema",
     "questions": 21
   },
   "what_the_document_determines_on_its_own": {
