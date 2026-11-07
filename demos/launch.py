@@ -38,6 +38,7 @@ sys.path.insert(0, str(HERE / "common"))
 import harness  # noqa: E402
 
 LOG = REPO / "docs/demos/REHEARSAL_LOG.md"
+QUIET = os.environ.get("LAUNCH_QUIET") == "1"  # rehearsals: keep the screen to one line per run
 NOT_READY = 3
 
 
@@ -144,8 +145,16 @@ def run(name: str, out: Path) -> tuple[int, Path | None]:
     inner = out / "run"
     started, t0 = harness.now_utc(), time.monotonic()
     print(harness.label(harness.LIVE, spec["title"])["banner"])
-    with open(out / "console.txt", "w") as console:
-        rc = subprocess.run(spec["cmd"](inner), stdout=console, stderr=subprocess.STDOUT).returncode
+    # Stream the demo's output to the screen as it happens (a presenter, and a
+    # terminal recording, see it unfold) and keep the same bytes in console.txt.
+    with open(out / "console.txt", "wb") as console:
+        proc = subprocess.Popen(spec["cmd"](inner), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        for chunk in iter(lambda: proc.stdout.read1(4096), b""):
+            console.write(chunk)
+            if not QUIET:
+                sys.stdout.buffer.write(chunk)
+                sys.stdout.flush()
+        rc = proc.wait()
     wall = round(time.monotonic() - t0, 1)
     step = harness.label(harness.LIVE, spec["title"])
     path = harness.write_result(out, f"launch-{name}", [step],
@@ -157,6 +166,8 @@ def run(name: str, out: Path) -> tuple[int, Path | None]:
 
 
 def rehearse(name: str, n: int, out: Path) -> int:
+    global QUIET
+    QUIET = True
     results = []
     for i in range(1, n + 1):
         rc, path = run(name, out / f"{i:02d}")
