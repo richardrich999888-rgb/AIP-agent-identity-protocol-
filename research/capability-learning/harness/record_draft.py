@@ -80,8 +80,9 @@ def independent_cross_check(draft: dict, document_text: str) -> dict:
     says, this fails rather than agreeing with it.
     """
     # (claim unit, field path, value) triples, not a dict keyed on the path:
-    # four rules each have a `rules[].op`, and a dict keyed on the path kept
-    # only the last one, so a wrong op on any other rule would have passed.
+    # the corpus has three `rules[].op` and four `rules[].outcome` evidence
+    # fields, and a dict keyed on the path keeps one of each, so a wrong value
+    # on any other rule would have passed.
     expected = sorted([
         ("p1#8", "missing_input_outcome", "INSUFFICIENT_INPUT"),
         ("p1#9+p1#10", "validity[].ref", "temperature"),

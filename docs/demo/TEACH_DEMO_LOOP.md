@@ -258,9 +258,13 @@ with the unproven half named.
   rule there is complete; any procedure with one plain "below 5 megohms,
   reject" sentence would have.
   The A3a recorder's own cross-check had the same blind spot as B1's: it
-  compared a dict keyed on the field path, which keeps one `rules[].op` out
-  of four. It now compares (claim unit, field, value) triples read off the
-  corpus by hand.
+  compared a dict keyed on the field path. The re-recorded corpus has three
+  `rules[].op` and four `rules[].outcome` evidence fields, and such a dict keeps
+  one of each. The defect was latent: before the fix A3a produced no rule
+  evidence, so no recorded run lost a check to it. (Commit `12623c4`'s message
+  says "one rules[].op out of four"; the correct figure is one out of three.)
+  It now compares (claim unit, field, value) triples read off the corpus by
+  hand.
   **The numbers above are superseded.** Re-recorded on the real corpus:
   **13 evidence, 8 hypothesis, 13 issue** (was 6/8/8); 16 claim units and the
   same two complete claims; **21 questions** (was 16). The 7 new evidence
