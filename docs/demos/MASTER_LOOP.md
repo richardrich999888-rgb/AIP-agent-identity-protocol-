@@ -32,10 +32,10 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 - [—] W3 **Tracked in the teaching-demo loop** (separate session, own branch, checklist `docs/demo/TEACH_DEMO_LOOP.md`). Not built here; that session's files are not edited from this loop.
 
 ## W4 — Quantum X-ray (OVERLAY)
-- [ ] W4.1 Build the CBOM engine; record the real executed test count
-- [ ] W4.2 Synthetic sample image with planted mixed cryptography
-- [ ] W4.3 Scan → CycloneDX 1.6 CBOM → one-page report; control mapping only with cited evidence
-- [ ] W4.4 `demos/quantum-xray/run.sh` + acceptance test (every planted weakness found, nothing invented)
+- [x] W4.1 Build the CBOM engine; record the real executed test count — on `eccb668`: core crates 149, lib (full features, includes non-CBOM code) 1,867, CBOM integration 38 → 2,054 executed, 0 failed. After this branch's two fixes: lib 1,871/1,871
+- [x] W4.2 Synthetic sample image with planted mixed cryptography — OVERLAY `d1adc90` (`demos/quantum-xray/make_sample.sh --image`, 1.2 MB `FROM scratch`); ground truth checked by openssl, not the engine. Found 2 engine defects (nginx directives skipped; bare `TLSv1` Unknown), fixed with regression tests in `92c8b02`, `07d0319`
+- [x] W4.3 Scan → CycloneDX 1.6 CBOM → one-page report; control mapping only with cited evidence — OVERLAY `6072578` `report.py`; no control marked met (no verified CNSA 2.0 / IR 8547 pack ships); `syntriass-compliance` self-assessment not shown
+- [x] W4.4 `demos/quantum-xray/run.sh` + acceptance test (every planted weakness found, nothing invented) — OVERLAY `6072578`, clean tree: `ACCEPTANCE: PASS` 4/4 planted found, 0 invented; full scan 5 ms over 8 files; 9/9 unit tests. **Committed locally only — not pushed (no OVERLAY write access yet)**
 
 ## W6 — Reproducible benchmark package
 - [ ] W6.1 Package the capability benchmark for one-command offline rerun
@@ -65,6 +65,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 ## Iteration log
 | # | Item | Result | Evidence |
 |---|---|---|---|
+| 10 | W4.1–W4.4 Quantum X-ray (OVERLAY, local) | DONE; first full scan read 0 files (scanner rightly won't follow the `/proc/<pid>/root` symlink) and acceptance FAILED — fixed in `run.sh` by scanning the container's top-level dirs. Engine gaps reported, not changed: recommendations omit 3DES and TLS 1.0/1.1 and repeat RSA; RC4 flagged quantum-vulnerable, 3DES not; container mode reads cert dirs only | OVERLAY `demos/quantum-xray/README.md` |
 | — | Owner decisions 2026-11-05 | Corrections accepted as source of truth; W3 handed to the teaching-demo loop; release loop stays paused; no branch deletions | `INVENTORY.md` §Source of truth |
 | 9 | W2.3 run.sh/explainer/acceptance | DONE; one batch re-run because its tree was dirty (mode bits), one batch FAILED correctly when auditd was down — both recorded | `demos/lying-agent/evidence/acceptance-2026-11-07/` |
 | 8 | W2.2 observe/verify/tamper | DONE; found and fixed: hard-coded "log doesn't mention it" claim, port-vs-timestamp false match, keys left behind on a failed run, over-broad mode guard | `demos/lying-agent/evidence/2026-11-06/` |
