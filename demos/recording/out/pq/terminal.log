@@ -1,0 +1,12 @@
+Script started on 2026-11-07 15:03:05+00:00 [COMMAND="python3 '/home/user/AIP-agent-identity-protocol-/demos/launch.py' run 'pq' --out '/home/user/AIP-agent-identity-protocol-/demos/recording/out/pq/run'" <not executed on terminal>]
+[LIVE] Post-quantum in one switch (proof of concept)
+baseline: delivered=true on_wire=1 frames=16 bytes=918 client_exit=0
+overlay: delivered=true on_wire=0 frames=18 bytes=14146 client_exit=0
+no_identity: delivered=false on_wire=0 frames=13 bytes=706 client_exit=0
+no_id_psk: delivered=false on_wire=0 frames=13 bytes=706 client_exit=0
+plaintext: delivered=false on_wire=1 frames=15 bytes=864 client_exit=0
+impostor: delivered=false on_wire=0 frames=15 bytes=7417 client_exit=0
+ACCEPTANCE: PASS
+PASS  pq  35.3 s  result: /home/user/AIP-agent-identity-protocol-/demos/recording/out/pq/run/launch-pq-20261107T150340.970+0000.json
+
+Script done on 2026-11-07 15:03:40+00:00 [COMMAND_EXIT_CODE="0"]

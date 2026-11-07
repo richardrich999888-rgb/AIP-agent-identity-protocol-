@@ -1,0 +1,48 @@
+name: Demos harness
+
+# Runs the shared demo harness tests on pull requests into the runtime line.
+# It does not replace or change any other workflow; CI and the rest still run
+# on the same pull request as before.
+#
+# The namespace tests need `unshare --user --net`. Hosted Ubuntu runners
+# commonly restrict unprivileged user namespaces; when that happens the tests
+# report SKIPPED with the reason, never passed, and the local run recorded in
+# demos/common/README.md remains the evidence for them.
+
+on:
+  pull_request:
+    branches: [feature/syntriass-runtime-v02]
+
+permissions:
+  contents: read
+
+jobs:
+  harness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: pyflakes
+        run: |
+          python -m pip install --quiet pyflakes==4.1.0
+          python -m pyflakes demos/
+      - name: unit tests
+        run: |
+          set -o pipefail
+          python -m unittest -v demos/common/test_harness.py 2>&1 | tee harness-tests.txt
+          python -m unittest discover -v -s demos/pull-the-plug -p 'test_*.py' 2>&1 | tee -a harness-tests.txt
+          python -m unittest discover -v -s demos/lying-agent -p 'test_*.py' 2>&1 | tee -a harness-tests.txt
+          python -m unittest discover -v -s demos/benchmark -p 'test_*.py' 2>&1 | tee -a harness-tests.txt
+          python -m unittest -v demos/test_launch.py 2>&1 | tee -a harness-tests.txt
+      - name: report skipped tests explicitly
+        if: always()
+        run: |
+          if grep -q "skipped 'SKIPPED, not passed" harness-tests.txt; then
+            echo "::warning::namespace tests SKIPPED on this runner (not passed):"
+            grep "skipped 'SKIPPED, not passed" harness-tests.txt
+          else
+            echo "no tests skipped"
+          fi
