@@ -28,6 +28,22 @@ spec:
         vanian.example/validation: unvalidated-template
     spec:
       automountServiceAccountToken: false
+      # Pod-level seccomp: the container runtime's default profile, instead of
+      # no syscall filter at all. hostPID, hostNetwork and the /proc, tracefs
+      # and cgroupfs mounts below stay: they are what a host observer is, and
+      # are accepted design, not misconfiguration (see issue #15).
+      #
+      # UNVERIFIED ON A CLUSTER. The probe's sched sensor needs
+      # perf_event_open and its connector sensor a NETLINK_CONNECTOR socket.
+      # Whether a runtime's default profile permits perf_event_open to a
+      # container holding CAP_PERFMON, without the broad administrative
+      # capability this chart deliberately never grants, depends on the
+      # runtime and its version. If a sensor fails to open under this profile
+      # the probe must report reduced coverage, never silent success; confirm
+      # that on the target runtime before relying on this template.
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       hostPID: true
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
