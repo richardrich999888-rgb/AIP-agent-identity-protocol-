@@ -65,7 +65,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 ## Iteration log
 | # | Item | Result | Evidence |
 |---|---|---|---|
-| 10 | W4.1–W4.4 Quantum X-ray (OVERLAY, local) | DONE; first full scan read 0 files (scanner rightly won't follow the `/proc/<pid>/root` symlink) and acceptance FAILED — fixed in `run.sh` by scanning the container's top-level dirs. Engine gaps reported, not changed: recommendations omit 3DES and TLS 1.0/1.1 and repeat RSA; RC4 flagged quantum-vulnerable, 3DES not; container mode reads cert dirs only | OVERLAY `demos/quantum-xray/README.md` |
+| 10 | W4.1–W4.4 Quantum X-ray (OVERLAY, local) | DONE; first full scan read 0 files (scanner rightly won't follow the `/proc/<pid>/root` symlink) and acceptance FAILED — fixed in `run.sh` by scanning the container's top-level dirs. Engine gaps reported, not changed: recommendations omit 3DES and TLS 1.0/1.1 and list the one RSA key as 5 entries; RC4 flagged quantum-vulnerable, 3DES not; container mode reads cert dirs only | OVERLAY `demos/quantum-xray/README.md` |
 | — | Owner decisions 2026-11-05 | Corrections accepted as source of truth; W3 handed to the teaching-demo loop; release loop stays paused; no branch deletions | `INVENTORY.md` §Source of truth |
 | 9 | W2.3 run.sh/explainer/acceptance | DONE; one batch re-run because its tree was dirty (mode bits), one batch FAILED correctly when auditd was down — both recorded | `demos/lying-agent/evidence/acceptance-2026-11-07/` |
 | 8 | W2.2 observe/verify/tamper | DONE; found and fixed: hard-coded "log doesn't mention it" claim, port-vs-timestamp false match, keys left behind on a failed run, over-broad mode guard | `demos/lying-agent/evidence/2026-11-06/` |
