@@ -35,6 +35,7 @@ jobs:
           python -m unittest -v demos/common/test_harness.py 2>&1 | tee harness-tests.txt
           python -m unittest discover -v -s demos/pull-the-plug -p 'test_*.py' 2>&1 | tee -a harness-tests.txt
           python -m unittest discover -v -s demos/lying-agent -p 'test_*.py' 2>&1 | tee -a harness-tests.txt
+          python -m unittest discover -v -s demos/benchmark -p 'test_*.py' 2>&1 | tee -a harness-tests.txt
       - name: report skipped tests explicitly
         if: always()
         run: |

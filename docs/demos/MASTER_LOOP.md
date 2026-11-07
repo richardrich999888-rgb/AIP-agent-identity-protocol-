@@ -38,9 +38,9 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 - [x] W4.4 `demos/quantum-xray/run.sh` + acceptance test (every planted weakness found, nothing invented) — OVERLAY `6072578`, clean tree: `ACCEPTANCE: PASS` 4/4 planted found, 0 invented; full scan 5 ms over 8 files; 9/9 unit tests. **Committed locally only — not pushed (no OVERLAY write access yet)**
 
 ## W6 — Reproducible benchmark package
-- [ ] W6.1 Package the capability benchmark for one-command offline rerun
-- [ ] W6.2 `demos/benchmark/REPRODUCE.md` with expected ranges and the "must not say" list
-- [ ] W6.3 Fresh-machine rerun; record differences honestly
+- [ ] W6.1 Package the capability benchmark for one-command offline rerun — **BLOCKED**: every phase starts a local model server; the wrapper waits for PR #14 (`resolve_model.py`) to merge and for staged weights (W0.3). No `run.sh` shipped meanwhile (it would hard-code model paths, which PR #14 removes)
+- [x] W6.2 `demos/benchmark/REPRODUCE.md` with expected ranges and the "must not say" list — `summarize.py` recomputes the table from the recorded files (3/3 tests, added to the demos CI job). Agrees on every count and all 4 CIs; **disagrees on the candidate's CPU-s/task: ≤ 0.01 is the capability path only, 3.05 across all 40 items**. No variance measured (1 run per system), so no range is invented
+- [ ] W6.3 Fresh-machine rerun; record differences honestly — **BLOCKED** on W6.1 and models
 
 ## W5 — Post-quantum in one switch (OVERLAY; "proof of concept")
 - [x] W5.1 Two containers, unmodified TCP client/server — OVERLAY `demos/pq-switch/`: same host `nc` (sha256 `2a6fac3d…`) as server and client, `FROM scratch` image, `--internal` network (no route out, checked by acceptance)
@@ -65,6 +65,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 ## Iteration log
 | # | Item | Result | Evidence |
 |---|---|---|---|
+| 12 | W6.2 benchmark REPRODUCE.md | DONE; recomputed the published table from result files: counts and CIs match (bootstrap reproduces them; no committed CI script existed); candidate 'CPU-s per task ≤ 0.01' covers only the 30 capability items, 3.05 over all 40 (probes go to the model). W6.1/W6.3 BLOCKED on PR #14 + models | `demos/benchmark/` |
 | 11 | W5.1–W5.4 PQ switch (OVERLAY, local, proof of concept) | DONE; caught and fixed in my own harness: capture on the bridge device saw no container traffic (meaningless 'no marker'), a cleanup bug that exited silently, seeds visible on the docker command line (now mode-600 env files), timed runs not captured (now judged). Overlay finding: refusals are silent to the client program | OVERLAY `demos/pq-switch/README.md` |
 | 10 | W4.1–W4.4 Quantum X-ray (OVERLAY, local) | DONE; first full scan read 0 files (scanner rightly won't follow the `/proc/<pid>/root` symlink) and acceptance FAILED — fixed in `run.sh` by scanning the container's top-level dirs. Engine gaps reported, not changed: recommendations omit 3DES and TLS 1.0/1.1 and list the one RSA key as 5 entries; RC4 flagged quantum-vulnerable, 3DES not; container mode reads cert dirs only | OVERLAY `demos/quantum-xray/README.md` |
 | — | Owner decisions 2026-11-05 | Corrections accepted as source of truth; W3 handed to the teaching-demo loop; release loop stays paused; no branch deletions | `INVENTORY.md` §Source of truth |
