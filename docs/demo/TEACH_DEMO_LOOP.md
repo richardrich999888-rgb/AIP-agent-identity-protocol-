@@ -250,11 +250,46 @@ with the unproven half named.
   determined, and `--no-repair` remains the ablation that proves it does not.
 
 ### Phase B — The AI asks the teacher
-- [ ] **B1. Question generator.** Each `hypothesis`/`issue` field → one plain-language
-  question carrying the candidate values from the clause. Deterministic templates
-  only. *Model rephrasing is deferred and marked [B]:* no weights available, and
-  `YC_TECHNICAL_CLAIMS.md` already records that the local model's drafts all failed,
-  so a rephrasing path must never be allowed to introduce a value.
+- [x] **B1. Question generator — DONE** (`__COMMIT__`).
+  `question_generator.py`: every field A3a could not settle → exactly one
+  plain-language question quoting its sentence and citation. Deterministic
+  templates only; model rephrasing stays `[B]` and may change wording only,
+  never a choice.
+  *Three rules that make the questions safe to act on.* (1) **The answer's
+  shape is the compiler's own schema** — each `answer_schema` is lifted from
+  `ir_compiler.ir_schema(outcomes)`, asserted identical by test, so B2 can
+  refuse an answer that cannot compile at the question rather than at compile
+  time, and B1 defines no answer vocabulary of its own. (2) **Choices are
+  closed wherever the system can close them**, and never include a value
+  outside the draft's candidates, the task's outcomes or the compiler's
+  enumerations — outcome fields offer the task's vocabulary even when the
+  clause names none, which turns "what happens outside the range?" into a
+  choice. (3) **An unknown field path fails closed** (exit 3) instead of
+  getting a generic question.
+  *Measured on the real EP-114 corpus:* of 16 unsettled fields, **12 asked**
+  (2 with closed choices) and **4 not asked** — the corpus header line, the
+  title sentence, "Confidential." and one more — each listed with a reason,
+  never dropped.
+  *The check that matters:* for every closed-choice question whose answer can
+  be read off the document by hand, the recorded run asserts the true answer is
+  among the choices offered — **3/3 reachable** (`INVALID_TEST` for the
+  validity outcome; both `>=` and `<` for "at least 1.5 but below 2.0"). A
+  choice list that excludes the right answer forces a wrong one.
+  *Tests:* `test_question_generator.py` **48/48**; capability-learning
+  **193/193**. Every path A3a can emit is parametrised and must have a
+  template; questions are asserted free of internal jargon (`[]`, `.*`, "IR",
+  "hypothesis", "issue", "evidence", "schema").
+  *Evidence:* `docs/demo/results/B1_question_generator.json`.
+  *Defect found in A3a and fixed first* (`2e4d2fc`, recorded under A3a):
+  colliding claim-unit ids made one question quote the wrong sentence.
+  *Finding for E1:* the sentence that answers the validity-outcome question,
+  "Outside that range the test is invalid and must be repeated.", is itself
+  one of the four not asked, because on its own it states nothing the system
+  can use. B1 is right not to infer from it — but the Teach screen must show
+  the surrounding text beside each question, or the expert answers without it.
+  *Known limit:* "If the resistance is acceptable but PI is below 1.5" lists no
+  candidate number, because A3a's candidates exclude unitless numbers. The
+  quote shows `1.5`; B1 does not add values of its own.
 - [ ] **B2. Answer application.** Answers become typed leaf edits on the IR, each
   recorded with who, when and why, and counted on screen.
 - [ ] **B3. Test against the v0.2 holdout.** The generated questions must cover the

@@ -1,0 +1,233 @@
+{
+  "schema": "syntriass.demo.item_evidence/1",
+  "item": "B1 \u2014 plain-language question generator over the A3a draft",
+  "commit": "2e4d2fc2558f4ca14e6e536ae55c576443667696",
+  "tree_dirty": true,
+  "branch": "feature/airon-teach-demo",
+  "recorded_utc": "2026-11-07T03:46:54Z",
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "cores": 4,
+    "ram_mib": 16086,
+    "gpu": "none",
+    "kernel": "6.18.44-fc-v260",
+    "NOT_the_published_bench_machine": "V02_REPORT.md and BASELINES.md figures were measured on 2 vCPU Xeon (AVX-512) / 8 GB. Nothing here may be merged with those."
+  },
+  "acceptance_criterion": "each hypothesis/issue field -> one plain-language question carrying the candidate values; deterministic templates only; no model",
+  "result": "MET",
+  "chain": {
+    "task_spec": "research/capability-learning/tasks/ir_ep114.json",
+    "document": "research/capability-learning/data/ir-tasks-v1/corpus/koravi-ep-114.txt",
+    "document_sha256": "655c9d1920951a8cb49e23ea450e4beaa7565a60cc19a7cf98b1fdc1ddcc91eb",
+    "steps": [
+      "ingest_documents.py (A1)",
+      "syntriass teach start (A2, compiled binary)",
+      "draft_from_session.py (A3a)",
+      "question_generator.py (B1)"
+    ],
+    "model_calls": 0,
+    "model_calls_note": "A3a is deterministic by construction: it reads values off clause text and enumerates alternatives it will not choose between. Choosing is A3b's job and needs the model bundle."
+  },
+  "counts": {
+    "draft_unsettled_fields": 16,
+    "asked": 12,
+    "not_asked": 4,
+    "with_closed_choices": 2,
+    "with_ocr_warning": 0
+  },
+  "questions": [
+    {
+      "n": 1,
+      "field_path": "scope_subject.*",
+      "citation": "koravi-ep-114.txt p.1 [174:180]; koravi-ep-114.txt p.1 [181:230]",
+      "question": "The procedure says \"Scope: induction motors rated up to and including 11 kV.\" (koravi-ep-114.txt p.1 [174:180]; koravi-ep-114.txt p.1 [181:230]). What equipment does the procedure cover? Copy the words exactly as they are written in that sentence.",
+      "choices": [],
+      "answer_note": "words copied from the sentence; anything not in it is refused"
+    },
+    {
+      "n": 2,
+      "field_path": "scope_limit.*",
+      "citation": "koravi-ep-114.txt p.1 [174:180]; koravi-ep-114.txt p.1 [181:230]",
+      "question": "The procedure says \"Scope: induction motors rated up to and including 11 kV.\" (koravi-ep-114.txt p.1 [174:180]; koravi-ep-114.txt p.1 [181:230]). Does this set a measured limit on what the procedure covers? If so: which reading, which comparison, what value and unit \u2014 and does meeting it put a request outside the procedure, or inside it?",
+      "choices": [],
+      "answer_note": "a limit stated as the request being OUT of scope when the comparison holds"
+    },
+    {
+      "n": 3,
+      "field_path": "scope_exclusion_terms.*",
+      "citation": "koravi-ep-114.txt p.1 [231:325]; koravi-ep-114.txt p.1 [326:406]",
+      "question": "The procedure says \"This procedure does not apply to transformers, cables, generators or motors rated above 11 kV; such requests are out of scope and must be referred to the electrical authority.\" (koravi-ep-114.txt p.1 [231:325]; koravi-ep-114.txt p.1 [326:406]). What equipment does the procedure NOT cover? Copy each item exactly as it is written in that sentence.",
+      "choices": [],
+      "answer_note": "words copied from the sentence; anything not in it is refused"
+    },
+    {
+      "n": 4,
+      "field_path": "scope_limit.*",
+      "citation": "koravi-ep-114.txt p.1 [231:325]; koravi-ep-114.txt p.1 [326:406]",
+      "question": "The procedure says \"This procedure does not apply to transformers, cables, generators or motors rated above 11 kV; such requests are out of scope and must be referred to the electrical authority.\" (koravi-ep-114.txt p.1 [231:325]; koravi-ep-114.txt p.1 [326:406]). Does this set a measured limit on what the procedure covers? If so: which reading, which comparison, what value and unit \u2014 and does meeting it put a request outside the procedure, or inside it?",
+      "choices": [],
+      "answer_note": "a limit stated as the request being OUT of scope when the comparison holds"
+    },
+    {
+      "n": 5,
+      "field_path": "required_inputs.*",
+      "citation": "koravi-ep-114.txt p.1 [407:423]; koravi-ep-114.txt p.1 [424:582]",
+      "question": "The procedure says \"Required inputs: motor rated voltage in kV, measured insulation resistance in megohms, winding temperature in degrees Celsius at the time of test, and polarization index (PI).\" (koravi-ep-114.txt p.1 [407:423]; koravi-ep-114.txt p.1 [424:582]). Which readings does the procedure need? For each, give its unit as written and any short name it is known by in the text (for example an abbreviation in brackets).",
+      "choices": [],
+      "answer_note": "one entry per reading: which reading, unit, short names"
+    },
+    {
+      "n": 6,
+      "field_path": "validity[].outcome",
+      "citation": "koravi-ep-114.txt p.1 [689:705]; koravi-ep-114.txt p.1 [706:782]",
+      "question": "The procedure says \"Step 1 validity: the winding temperature must be between 10 and 75 degrees Celsius inclusive.\" (koravi-ep-114.txt p.1 [689:705]; koravi-ep-114.txt p.1 [706:782]). When a reading falls outside that range, what is the result? Choose one.",
+      "choices": [
+        {
+          "code": "PASS",
+          "label": "pass"
+        },
+        {
+          "code": "RETEST_30D",
+          "label": "retest 30d"
+        },
+        {
+          "code": "DRY_OUT",
+          "label": "dry out"
+        },
+        {
+          "code": "REJECT",
+          "label": "reject"
+        },
+        {
+          "code": "INVALID_TEST",
+          "label": "invalid test"
+        },
+        {
+          "code": "OUT_OF_SCOPE",
+          "label": "out of scope"
+        },
+        {
+          "code": "INSUFFICIENT_INPUT",
+          "label": "insufficient input"
+        }
+      ],
+      "answer_note": "one outcome code from the choices"
+    },
+    {
+      "n": 7,
+      "field_path": "correction.*",
+      "citation": "koravi-ep-114.txt p.1 [844:874]; koravi-ep-114.txt p.1 [875:1022]",
+      "question": "The procedure says \"Step 2 temperature correction: correct the measured resistance to 40 degrees Celsius by multiplying it by two raised to the power of (winding temperature minus 40) divided by 10.\" (koravi-ep-114.txt p.1 [844:874]; koravi-ep-114.txt p.1 [875:1022]). How is the reading corrected? Say which reading is corrected, by which other reading, to what reference value, and with what rate or factor \u2014 using only the numbers in the sentence.",
+      "choices": [],
+      "answer_note": "a correction formula built from the sentence's own numbers"
+    },
+    {
+      "n": 8,
+      "field_path": "limit.*",
+      "citation": "koravi-ep-114.txt p.1 [1023:1038]; koravi-ep-114.txt p.1 [1039:1121]",
+      "question": "The procedure says \"Step 3 minimum: the minimum acceptable corrected resistance is 10 times (rated kV plus 1) megohms.\" (koravi-ep-114.txt p.1 [1023:1038]; koravi-ep-114.txt p.1 [1039:1121]). How is the acceptance limit worked out? Say whether it is a fixed number or a multiple of a reading plus an offset, using only the numbers in the sentence.",
+      "choices": [],
+      "answer_note": "a limit formula built from the sentence's own numbers"
+    },
+    {
+      "n": 9,
+      "field_path": "rules[].number",
+      "citation": "koravi-ep-114.txt p.1 [1122:1138]; koravi-ep-114.txt p.1 [1139:1225]",
+      "question": "The procedure says \"Step 4 decision: if the corrected resistance is below half of the minimum, reject the motor for rewind.\" (koravi-ep-114.txt p.1 [1122:1138]; koravi-ep-114.txt p.1 [1139:1225]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
+      "choices": [],
+      "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)"
+    },
+    {
+      "n": 10,
+      "field_path": "rules[].number",
+      "citation": "koravi-ep-114.txt p.1 [1226:1285]",
+      "question": "The procedure says \"If it is below the minimum, dry out the winding and retest.\" (koravi-ep-114.txt p.1 [1226:1285]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
+      "choices": [],
+      "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)"
+    },
+    {
+      "n": 11,
+      "field_path": "rules[].number",
+      "citation": "koravi-ep-114.txt p.1 [1286:1347]",
+      "question": "The procedure says \"If the resistance is acceptable but PI is below 1.5, dry out.\" (koravi-ep-114.txt p.1 [1286:1347]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
+      "choices": [],
+      "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)"
+    },
+    {
+      "n": 12,
+      "field_path": "rules[].op",
+      "citation": "koravi-ep-114.txt p.1 [1348:1429]",
+      "question": "The procedure says \"If PI is at least 1.5 but below 2.0, accept for service with a retest in 30 days.\" (koravi-ep-114.txt p.1 [1348:1429]). That sentence combines more than one condition, and each rule can check only one. Which comparison should this rule check? The other can be taught as a separate rule.",
+      "choices": [
+        {
+          "code": ">=",
+          "label": "at least"
+        },
+        {
+          "code": "<",
+          "label": "below"
+        }
+      ],
+      "answer_note": "one comparison from the choices"
+    }
+  ],
+  "not_asked": [
+    {
+      "clause": "p1#0",
+      "citation": "koravi-ep-114.txt p.1 [0:159]",
+      "text": "koravi-process|ep-114|restricted|EP-114 rev C Motor winding insulation resistance acceptance",
+      "why": "the sentence states nothing the system can use"
+    },
+    {
+      "clause": "p1#0/2",
+      "citation": "koravi-ep-114.txt p.1 [0:159]",
+      "text": "Koravi Process Industries engineering procedure EP-114 revision C.",
+      "why": "the sentence states nothing the system can use"
+    },
+    {
+      "clause": "p1#1",
+      "citation": "koravi-ep-114.txt p.1 [160:173]",
+      "text": "Confidential.",
+      "why": "the sentence states nothing the system can use"
+    },
+    {
+      "clause": "p1#11",
+      "citation": "koravi-ep-114.txt p.1 [783:843]",
+      "text": "Outside that range the test is invalid and must be repeated.",
+      "why": "the sentence states nothing the system can use"
+    }
+  ],
+  "true_answer_reachability": {
+    "method": "For each closed-choice question whose answer can be read off the corpus by hand, assert that answer is among the choices offered. A choice list that excludes the right answer forces a wrong one.",
+    "results": {
+      "validity[].outcome | between 10 and 75 degrees Celsius inclusive": {
+        "true_answer": "INVALID_TEST",
+        "offered": [
+          "PASS",
+          "RETEST_30D",
+          "DRY_OUT",
+          "REJECT",
+          "INVALID_TEST",
+          "OUT_OF_SCOPE",
+          "INSUFFICIENT_INPUT"
+        ],
+        "reachable": true
+      },
+      "rules[].op | at least 1.5 but below 2.0": {
+        "true_answer": "<",
+        "offered": [
+          ">=",
+          "<"
+        ],
+        "reachable": true
+      }
+    }
+  },
+  "finding_for_E1": {
+    "observation": "The sentence that answers the validity-outcome question is itself 'not asked', because on its own it states nothing the system can use. B1 is right not to infer from it; the screen must still show it beside the question.",
+    "sentence": [
+      "Outside that range the test is invalid and must be repeated."
+    ]
+  },
+  "rephrasing": "[B] deferred: deterministic templates only, no model"
+}
