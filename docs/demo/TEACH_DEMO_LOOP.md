@@ -403,10 +403,54 @@ with the unproven half named.
   it sets no proposer; when one is emitted, the proposer must be the person who
   answered, or the teacher could approve their own rules.
   *Not covered by CI:* no workflow runs `research/` tests; they run locally.
-- [ ] **B3. Test against the v0.2 holdout.** The generated questions must cover the
-  **3** leaf edits that were needed after the suite failure (`V02_REPORT.md:15`).
-  Record honestly whether answering them up front lets the candidate pass without a
-  failed run — including if it does not.
+- [x] **B3. Test against the v0.2 holdout — DONE, and the answer is no** (`6a6bbbc`).
+  `record_holdout.py` runs the whole chain on HU-TX-2 and validates the
+  B2-answered candidate with the runtime's own `suite-sign` / `cap-propose` /
+  `cap-validate`, using `run_task.py`'s exact arguments. The holdout data is
+  regenerated and every file checked against the digests in the tracked
+  `MANIFEST.json`, read from git. Before any new result was trusted, the
+  replica **reproduced both recorded v0.2 validations**: the candidate 11/12
+  failing `val-09`, the 3-edit corrected capability 12/12.
+  *The 3 edits, computed by diffing the v0.2 IRs rather than typed in:*
+  `out_of_scope_terms` `cables`→`cable`, `generators`→`generator`,
+  `dry-type transformers`→`dry-type`.
+  *Coverage: yes.* Exactly one question owns all three leaves — question 3,
+  `scope_exclusion_terms`, quoting "does not apply to motors, cables,
+  generators or dry-type transformers".
+  *Pass without a failed run: **no**.* Answered up front as every question
+  instructs, through B2, the candidate compiles and **fails its first
+  validation on `val-09`** ("Cable C-4 …", expected OUT_OF_SCOPE, got
+  ACCEPT) — the same failure, on the same case, as v0.2. Three causes stack:
+  1. the question says "copy each item exactly as it is written", which
+     gives the document's plurals;
+  2. **B2 refuses the singular forms** the v0.2 expert used — `motor`,
+     `cable`, `generator` are "not written in the quoted sentence" — and
+     refuses listing both forms for the same reason;
+  3. the runtime matches terms case-insensitively but **whole-word**
+     (`quantity.rs` `find_term`), so `cables` never matches "Cable", and the
+     v0.2 fix `cable` would in turn miss a request that writes "Cables".
+  *Isolated:* the same answered IR with only the exclusion terms swapped for
+  the v0.2 expert's, outside B2, **passes 12/12**. Every other leaf matches the
+  v0.2 corrected IR except the topic terms (see below). So the questions reach
+  the right field; the obstacle is how that field may be answered, and how the
+  runtime reads it.
+  *Second finding:* the subject copied whole, "oil-immersed distribution
+  transformers", is 38 characters; the compiler's schema allows 32 per term
+  and B2 refuses it. The question never states the limit. (`compile_ir` does
+  not enforce its own `maxLength`, which is how the v0.2 model IR carried that
+  term.) The recorded answer uses "distribution transformers", from the same
+  sentence.
+  *Who answered:* the engineer recording the run, from the document, as
+  `engineer:recorder` — not a domain expert. *Not measured:* the 30 unseen
+  decisions — serving falls through to a local model for some requests and no
+  weights are staged here.
+  *Tests:* `test_holdout_questions.py` 7, pinning both findings without the
+  binary; capability-learning **295/295**.
+  *Evidence:* `docs/demo/results/B3_holdout_questions.json`.
+  *Open — needs a decision, not taken here* (it changes a validation rule or
+  the runtime): whether an expert may give a singular/plural form of a word
+  the sentence contains, or the runtime's term match becomes
+  number-insensitive, or neither.
 
 ### Phase C — It checks its own homework
 - [ ] **C1. Scoreboard.** Boundary probes + expert suite; "Passed N of M". On failure:
