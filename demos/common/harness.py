@@ -144,7 +144,21 @@ def _git(repo: Path, *args: str) -> str | None:
 
 
 def provenance(repo: Path = REPO) -> dict:
-    return {"repo": str(repo.name), "commit": _git(repo, "rev-parse", "HEAD"),
+    commit = _git(repo, "rev-parse", "HEAD")
+    if commit is None:
+        # Run from the offline demo kit (no .git): the kit's MANIFEST.json names
+        # the commit it was built from (build_bundle.sh refuses dirty trees) and
+        # kit/verify.sh checks every file against it. Working-tree state is not
+        # knowable here, so "dirty" is None, not False.
+        manifest = repo.parent / "MANIFEST.json"
+        try:
+            commit = json.loads(manifest.read_text())["commits"].get(repo.name)
+        except (OSError, ValueError, KeyError):
+            commit = None
+        if commit:
+            return {"repo": repo.name, "commit": commit, "dirty": None, "source": "kit MANIFEST.json"}
+        return {"repo": repo.name, "commit": None, "dirty": None}
+    return {"repo": str(repo.name), "commit": commit,
             "dirty": bool(_git(repo, "status", "--porcelain", "--untracked-files=no"))}
 
 

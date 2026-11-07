@@ -111,6 +111,15 @@ class Labels(unittest.TestCase):
 
 
 class Results(unittest.TestCase):
+    def test_provenance_from_a_kit_reads_the_manifest_not_a_guess(self):
+        with tempfile.TemporaryDirectory() as d:
+            kit = Path(d) / "kit"
+            (kit / "aip").mkdir(parents=True)
+            self.assertEqual(harness.provenance(kit / "aip"), {"repo": "aip", "commit": None, "dirty": None})
+            (kit / "MANIFEST.json").write_text(json.dumps({"commits": {"aip": "a" * 40}}))
+            p = harness.provenance(kit / "aip")
+            self.assertEqual((p["commit"], p["dirty"], p["source"]), ("a" * 40, None, "kit MANIFEST.json"))
+
     def test_result_file_carries_provenance_hardware_and_labels(self):
         with tempfile.TemporaryDirectory() as t:
             start = harness.now_utc()
