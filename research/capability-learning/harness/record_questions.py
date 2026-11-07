@@ -35,15 +35,19 @@ import question_generator as Q  # noqa: E402
 import record_draft  # noqa: E402
 import record_teach_session as R  # noqa: E402
 
-#: True answers read off the EP-114 corpus by hand, for the questions whose
-#: answer is a choice. (field path, text the question quotes) -> answer code.
-TRUE_CHOICES = {
-    ("validity[].outcome", "between 10 and 75 degrees Celsius inclusive"): "INVALID_TEST",
-    ("rules[].op", "at least 1.5 but below 2.0"): ">=",
-}
-#: The other half of that sentence, which must also be offered: the expert
-#: teaches one comparison here and the other as a second rule.
-ALSO_REACHABLE = {("rules[].op", "at least 1.5 but below 2.0"): "<"}
+#: Answers read off the EP-114 corpus by hand that each closed-choice question
+#: must offer: (field path, text the question quotes, answer code).
+#:
+#: A list of triples, not a dict keyed on (path, text): the combined condition
+#: "at least 1.5 but below 2.0" needs BOTH halves offered - the expert teaches
+#: one comparison here and the other as a second rule - and a dict keyed on the
+#: question silently kept only one of them. That is how an earlier version of
+#: this run reported a check it had not made.
+REQUIRED_CHOICES = [
+    ("validity[].outcome", "between 10 and 75 degrees Celsius inclusive", "INVALID_TEST"),
+    ("rules[].op", "at least 1.5 but below 2.0", ">="),
+    ("rules[].op", "at least 1.5 but below 2.0", "<"),
+]
 
 
 def check(cond: bool, msg: str) -> None:
@@ -75,12 +79,14 @@ def main(argv: list[str] | None = None) -> int:
         check(c["asked"] + c["not_asked"] == c["draft_unsettled_fields"], "a field was dropped")
         check(out["model_calls"] == 0, "a model was called")
 
-        reach = {}
-        for (path, frag), code in {**TRUE_CHOICES, **ALSO_REACHABLE}.items():
+        reach = []
+        for path, frag, code in REQUIRED_CHOICES:
             q = find(out["questions"], path, frag)
             offered = [ch["code"] for ch in q["choices"]]
             check(code in offered, f"{path} on {frag!r}: true answer {code} not offered {offered}")
-            reach[f"{path} | {frag}"] = {"true_answer": code, "offered": offered, "reachable": True}
+            reach.append({"field_path": path, "quote_contains": frag, "required_answer": code,
+                          "offered": offered, "reachable": True})
+        check(len(reach) == len(REQUIRED_CHOICES), "a reachability check was skipped")
 
         not_asked_answering = [n["text"] for n in out["not_asked"]
                                if "test is invalid" in n["text"]]
@@ -108,6 +114,7 @@ def main(argv: list[str] | None = None) -> int:
             "method": ("For each closed-choice question whose answer can be read off the "
                        "corpus by hand, assert that answer is among the choices offered. "
                        "A choice list that excludes the right answer forces a wrong one."),
+            "checks_made": len(reach),
             "results": reach,
         },
         finding_for_E1={

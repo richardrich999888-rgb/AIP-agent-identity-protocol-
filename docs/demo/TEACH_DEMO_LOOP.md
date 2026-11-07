@@ -275,6 +275,11 @@ with the unproven half named.
   among the choices offered — **3/3 reachable** (`INVALID_TEST` for the
   validity outcome; both `>=` and `<` for "at least 1.5 but below 2.0"). A
   choice list that excludes the right answer forces a wrong one.
+  *Correction:* the first recording of this run made only **2** of those 3
+  checks while the commit that introduced it (`a9867ee`) claimed 3/3. The two
+  `rules[].op` checks were keyed on the same question in a dict, so one
+  silently overwrote the other. Fixed by making the checks a list and asserting
+  the number made; the result file now records `checks_made: 3`.
   *Tests:* `test_question_generator.py` **48/48**; capability-learning
   **193/193**. Every path A3a can emit is parametrised and must have a
   template; questions are asserted free of internal jargon (`[]`, `.*`, "IR",

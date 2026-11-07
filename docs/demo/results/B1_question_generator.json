@@ -1,10 +1,10 @@
 {
   "schema": "syntriass.demo.item_evidence/1",
   "item": "B1 \u2014 plain-language question generator over the A3a draft",
-  "commit": "a9867ee11bd944d57f6b4fc27f19916c5cf0bb58",
+  "commit": "8eff4c132584409376e44d35b41a1d36a9711bcd",
   "tree_dirty": true,
   "branch": "feature/airon-teach-demo",
-  "recorded_utc": "2026-11-07T03:47:31Z",
+  "recorded_utc": "2026-11-07T03:47:48Z",
   "hardware": {
     "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
     "cores": 4,
@@ -199,9 +199,12 @@
   ],
   "true_answer_reachability": {
     "method": "For each closed-choice question whose answer can be read off the corpus by hand, assert that answer is among the choices offered. A choice list that excludes the right answer forces a wrong one.",
-    "results": {
-      "validity[].outcome | between 10 and 75 degrees Celsius inclusive": {
-        "true_answer": "INVALID_TEST",
+    "checks_made": 3,
+    "results": [
+      {
+        "field_path": "validity[].outcome",
+        "quote_contains": "between 10 and 75 degrees Celsius inclusive",
+        "required_answer": "INVALID_TEST",
         "offered": [
           "PASS",
           "RETEST_30D",
@@ -213,15 +216,27 @@
         ],
         "reachable": true
       },
-      "rules[].op | at least 1.5 but below 2.0": {
-        "true_answer": "<",
+      {
+        "field_path": "rules[].op",
+        "quote_contains": "at least 1.5 but below 2.0",
+        "required_answer": ">=",
+        "offered": [
+          ">=",
+          "<"
+        ],
+        "reachable": true
+      },
+      {
+        "field_path": "rules[].op",
+        "quote_contains": "at least 1.5 but below 2.0",
+        "required_answer": "<",
         "offered": [
           ">=",
           "<"
         ],
         "reachable": true
       }
-    }
+    ]
   },
   "finding_for_E1": {
     "observation": "The sentence that answers the validity-outcome question is itself 'not asked', because on its own it states nothing the system can use. B1 is right not to infer from it; the screen must still show it beside the question.",
