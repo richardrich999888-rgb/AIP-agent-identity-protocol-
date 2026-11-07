@@ -212,6 +212,28 @@ def test_clauses_split_at_a_colon_are_rejoined_for_claim_extraction():
     assert "validity" in A.plausible_kinds(units[0]["text"], SPEC["outcomes"])
 
 
+def test_claim_unit_ids_are_unique(corpus_draft):
+    ids = [u["id"] for u in corpus_draft["claim_units"]]
+    assert len(ids) == len(set(ids)), [i for i in ids if ids.count(i) > 1]
+
+
+def test_each_question_quotes_the_unit_it_is_about():
+    # REGRESSION. One A1 clause spanning a line break becomes two claim units
+    # with the same source. They used to share an id, so the first unit's
+    # question quoted the second unit's sentence.
+    c = clause(1, 0, "koravi-process|ep-114|restricted|EP-114 rev C\nConfidential.")
+    d = D.draft(session([c]), SPEC)
+    units = d["claim_units"]
+    assert [u["text"] for u in units] == [
+        "koravi-process|ep-114|restricted|EP-114 rev C",
+        "Confidential.",
+    ]
+    assert units[0]["id"] != units[1]["id"]
+    by_id = {u["id"]: u["text"] for u in units}
+    for f, q in zip([f for f in d["fields"] if f["status"] != "evidence"], d["questions"]):
+        assert q["clause_text"] == by_id[f["clause"]]
+
+
 def test_a_claim_unit_remains_traceable_to_every_clause_it_came_from(corpus_draft):
     cited = {f"p{c['page']}#{c['index']}" for c in ingested_corpus_clauses()}
     for u in corpus_draft["claim_units"]:

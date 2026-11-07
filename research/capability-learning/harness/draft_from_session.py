@@ -307,9 +307,18 @@ def claim_units(clauses: dict) -> list[dict]:
         spans.append((len(joined), len(joined) + len(c["text"]), c["id"]))
         joined += c["text"]
     units = []
+    seen: dict[str, int] = {}
     for seg in A.segment(joined):
         sources = [cid for (a, b, cid) in spans if a < seg.end and seg.start < b]
-        units.append({"id": "+".join(sources) or seg.cid, "text": seg.text, "sources": sources})
+        base = "+".join(sources) or seg.cid
+        # One A1 clause can yield several claim units: A1 does not split at a
+        # line break, `atomic.segment` does. Those units share a source set,
+        # so the id is made unique by order of appearance. Without this, two
+        # units were both called `p1#0`, a lookup by id kept only the second,
+        # and the first unit's question quoted the second unit's sentence.
+        seen[base] = seen.get(base, 0) + 1
+        uid = base if seen[base] == 1 else f"{base}/{seen[base]}"
+        units.append({"id": uid, "text": seg.text, "sources": sources})
     return units
 
 

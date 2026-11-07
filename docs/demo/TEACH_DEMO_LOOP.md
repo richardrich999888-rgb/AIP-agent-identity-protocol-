@@ -235,6 +235,15 @@ with the unproven half named.
   numbers one of which is tagged. Rules that *would* need judgement
   (`against: limit` with a fraction, which cued input a bare number names)
   were left as `hypothesis` with their candidates rather than guessed.
+  *Defect found later, while building B1 on it, and fixed:* claim-unit ids
+  were not unique. One A1 clause that spans a line break (the corpus header
+  line runs into the next sentence) becomes two claim units with the same
+  source, and both were called `p1#0`; the lookup by id kept the second, so the
+  first unit's question **quoted the wrong sentence**. Ids are now made unique
+  by order of appearance (`p1#0`, `p1#0/2`), with a regression test that fails
+  on the old code. None of the numbers recorded above changed — 6/8/8, 16
+  units, 16 questions, the same two claims — because no `evidence` field came
+  from a colliding unit; only the quoted text of one question was wrong.
 - [ ] **A3b. Model drafting.** `[B]` until the model bundle exists. The model
   chooses among the alternatives A3a enumerates and fills `topic_terms`,
   `inputs` and `rules`; it must never introduce a value A3a marked as
