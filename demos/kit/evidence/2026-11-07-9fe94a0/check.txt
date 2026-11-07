@@ -1,0 +1,6 @@
+READY      security           
+READY      pq                 
+READY      quantum            
+NOT READY  investor-3min      needs W1.4: Pull the plug on real local models (models not staged; PR #14 not merged)
+NOT READY  teach              not ready: the teaching-demo loop has not reported ready. When it does, this mode will call that loop's own script.
+NOT READY  customer-<sector>  needs W1.4: Pull the plug on real local models; and the owner has not yet defined what this sector's script shows

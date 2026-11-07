@@ -49,9 +49,9 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 - [x] W5.4 Measured overhead; `demos/pq-switch/run.sh` — n=20 per mode, timed runs captured: median added 0.0 / 2.5 / 3.1 ms over 3 runs, not separable from ~70 ms `docker exec` noise; +13.2 KB per connection. `ACCEPTANCE: PASS` from clean OVERLAY `13c0fb1`; 9/9 unit tests. **Local only — not pushed (no OVERLAY write access)**
 
 ## W7 — One-USB demo kit
-- [ ] W7.1 Offline bundle with checksums; clean-machine no-network install test
-- [ ] W7.2 `demos/launch.sh` modes (customer-<sector>, security, pq, investor-3min); a `teach` mode prints **"not ready"** until the teaching-demo loop reports ready, and calls that loop's own script after
-- [ ] W7.3 10 consecutive passes per mode → `docs/demos/REHEARSAL_LOG.md`
+- [~] W7.1 Offline bundle with checksums; clean-machine no-network install test — `demos/kit/`: 6.3 MB kit, 177 files, `SHA256SUMS` + `MANIFEST.json` (both commits, binary hashes, host needs); install test PASS from kit `9fe94a0`/`3d63f95` (`demos/kit/evidence/2026-11-07-9fe94a0/`): no-network namespace, archive + 177 files verified, one flipped byte refused, pq and quantum pass from the kit. **Not a clean machine** (same host). **security runs in the host network namespace**: its process-connector sensor only works in the initial netns (first attempt failed for that reason; sensor not weakened)
+- [x] W7.2 `demos/launch.sh` modes (customer-<sector>, security, pq, investor-3min); a `teach` mode prints **"not ready"** until the teaching-demo loop reports ready, and calls that loop's own script after — `demos/launch.py` (`7ccbd4d`): security, pq, quantum READY and run the real demos; customer-<sector>, investor-3min NOT READY (W1.4); teach not ready. Result file per run; 6 tests in CI
+- [x] W7.3 10 consecutive passes per mode → `docs/demos/REHEARSAL_LOG.md` — every READY mode 10/10 from clean AIP `7ccbd4d` / OVERLAY `3d63f95`: quantum (1.0 s median), security (24.8 s), pq (35.4 s); 30 result files in `demos/rehearsal-evidence/2026-11-07/`. NOT READY modes not rehearsed
 
 ## W8 — Buyer evidence pack
 - [ ] W8.1 One-page security note per product
@@ -65,6 +65,8 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 ## Iteration log
 | # | Item | Result | Evidence |
 |---|---|---|---|
+| 13 | W7.1–W7.3 kit, launcher, rehearsals | DONE except W7.1's clean machine; found and fixed: kit result files recorded no commit (harness now reads the kit MANIFEST), install test's mode selection bug; security mode cannot run in a separate network namespace (sensor limit, labelled). 30/30 rehearsal runs passed | `demos/kit/`, `docs/demos/REHEARSAL_LOG.md` |
+| — | CI flake (PR #13) | `aip-edge --test end_to_end` failed once in `fmt · clippy · test` on `1cf9178` and passed on re-run (no code change); 14/14 locally. Failure message not retrievable (log tail only; full log host blocked here). Recorded as intermittent, cause unknown | PR #13 run 42368415082 |
 | 12 | W6.2 benchmark REPRODUCE.md | DONE; recomputed the published table from result files: counts and CIs match (bootstrap reproduces them; no committed CI script existed); candidate 'CPU-s per task ≤ 0.01' covers only the 30 capability items, 3.05 over all 40 (probes go to the model). W6.1/W6.3 BLOCKED on PR #14 + models | `demos/benchmark/` |
 | 11 | W5.1–W5.4 PQ switch (OVERLAY, local, proof of concept) | DONE; caught and fixed in my own harness: capture on the bridge device saw no container traffic (meaningless 'no marker'), a cleanup bug that exited silently, seeds visible on the docker command line (now mode-600 env files), timed runs not captured (now judged). Overlay finding: refusals are silent to the client program | OVERLAY `demos/pq-switch/README.md` |
 | 10 | W4.1–W4.4 Quantum X-ray (OVERLAY, local) | DONE; first full scan read 0 files (scanner rightly won't follow the `/proc/<pid>/root` symlink) and acceptance FAILED — fixed in `run.sh` by scanning the container's top-level dirs. Engine gaps reported, not changed: recommendations omit 3DES and TLS 1.0/1.1 and list the one RSA key as 5 entries; RC4 flagged quantum-vulnerable, 3DES not; container mode reads cert dirs only | OVERLAY `demos/quantum-xray/README.md` |

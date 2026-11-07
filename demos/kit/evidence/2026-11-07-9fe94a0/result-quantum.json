@@ -1,0 +1,50 @@
+{
+  "schema": "syntriass.demo.result/v1",
+  "demo": "launch-quantum",
+  "started_utc": "2026-11-07T13:47:04.554+00:00",
+  "finished_utc": "2026-11-07T13:47:05.535+00:00",
+  "provenance": [
+    {
+      "repo": "aip",
+      "commit": "9fe94a0e0aefd80c431248f4c664b9e31a5467df",
+      "dirty": null,
+      "source": "kit MANIFEST.json"
+    },
+    {
+      "repo": "overlay",
+      "commit": "3d63f959f28c1c8fd2e55e4a7a240d72f76631fe",
+      "dirty": null,
+      "source": "kit MANIFEST.json"
+    }
+  ],
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "vcpu": 4,
+    "mem_gb": 15,
+    "gpu": null,
+    "kernel": "6.18.44-fc-v310",
+    "label": "4 vCPU, 15 GB RAM, no GPU"
+  },
+  "offline": {
+    "offline": true,
+    "non_loopback_routes": [],
+    "non_loopback_interfaces": [],
+    "tx_bytes_non_loopback": 0
+  },
+  "steps": [
+    {
+      "kind": "live",
+      "text": "Quantum X-ray",
+      "source": null,
+      "banner": "[LIVE] Quantum X-ray"
+    }
+  ],
+  "measurements": {
+    "mode": "quantum",
+    "exit_code": 0,
+    "passed": true,
+    "wall_s": 1.0,
+    "output_dir": "/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/kit3/install/quantum/run",
+    "console": "/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/kit3/install/quantum/console.txt"
+  }
+}
