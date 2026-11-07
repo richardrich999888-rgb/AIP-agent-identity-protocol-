@@ -209,6 +209,7 @@ def record_run(work: Path, binary: Path) -> dict:
                 for f in draft["fields"] if f["status"] == "evidence"
             ],
             "ir_unfilled_required": draft["ir_unfilled_required"],
+            "ir_schema_errors": draft["ir_schema_errors"],
             "ir_compiles": draft["ir_compiles"],
             "ir_compile_error": draft["ir_compile_error"],
             "questions": len(draft["questions"]),

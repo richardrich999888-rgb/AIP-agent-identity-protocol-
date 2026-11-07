@@ -46,7 +46,8 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import atomic as A  # noqa: E402
-from ir_compiler import IRError, compile_ir, provenance_check  # noqa: E402
+from ir_check import check_ir  # noqa: E402
+from ir_compiler import provenance_check  # noqa: E402
 
 #: Session schema this module reads. A different one is refused rather than
 #: parsed hopefully: the field meanings are the contract.
@@ -490,11 +491,12 @@ def draft(session: dict, spec: dict) -> dict:
     ir, simplifications, assemble_issues = A.assemble(claims)
     missing = unfilled(ir)
 
-    compiles, compile_error = True, None
-    try:
-        compile_ir(ir, spec)
-    except (IRError, KeyError, TypeError) as e:
-        compiles, compile_error = False, str(e)
+    # Schema first, then the compiler with a complete spec. The previous
+    # version called compile_ir with the bare task spec and caught KeyError,
+    # so every draft "failed to compile" with KeyError('proposed_by') whatever
+    # its IR held.
+    checked = check_ir(ir, spec)
+    compiles, compile_error = checked["compiles"], checked["compile_error"]
 
     # Provenance over the cited clause text only: a number the draft uses must
     # appear in a clause the expert actually cited, not merely somewhere in
@@ -528,6 +530,7 @@ def draft(session: dict, spec: dict) -> dict:
         "fields": [asdict(s) for s in states],
         "ir": ir,
         "ir_unfilled_required": missing,
+        "ir_schema_errors": checked["schema_errors"],
         "ir_compiles": compiles,
         "ir_compile_error": compile_error,
         "numbers_without_cited_provenance": unsupported,

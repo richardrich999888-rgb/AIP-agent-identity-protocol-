@@ -397,3 +397,16 @@ def test_an_unevaluable_ir_reports_not_measured_rather_than_zero(corpus_draft):
     # Standing rule: never a zero for an unmeasured metric.
     assert corpus_draft["examples_checked"] is None
     assert "NOT_MEASURED" in corpus_draft["examples_note"]
+
+
+def test_the_draft_reports_why_it_does_not_compile(corpus_draft):
+    # Regression: the draft called compile_ir with the bare task spec and
+    # caught KeyError, so every draft "failed to compile" with
+    # KeyError('proposed_by') whatever its IR held. The reason is now the IR's.
+    assert corpus_draft["ir_compiles"] is False
+    assert corpus_draft["ir_compile_error"] != "'proposed_by'"
+    assert corpus_draft["ir_schema_errors"] == [
+        "ir.topic_terms: 0 item(s), at least 1 required",
+        "ir.inputs: 0 item(s), at least 1 required",
+        "ir.rules: 0 item(s), at least 1 required",
+    ]
