@@ -131,3 +131,42 @@ Live tests are SKIPPED, not passed, without root, binaries or auditd (e.g.
 on CI).
 
 Local run, 2026-11-06: 13/13 passed in `demos/lying-agent`.
+
+## W2.3 — the 5-minute demo, explainer, acceptance
+
+```sh
+sudo AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 demos/lying-agent/run.sh OUT --with-control   # host without NTP; omit the variable when synced
+```
+
+`run.sh` checks its prerequisites and **refuses with an instruction** rather
+than changing the system: root, release binaries, tracefs, and a running
+auditd. It runs the scripted agent (and with `--with-control` the honest
+one), prints the story, and exits 0 only if the pre-registered acceptance in
+`acceptance.py` holds. Machine time on this sandbox: **25 s** for both runs,
+well inside the 5-minute slot. The one-page `EXPLAINER.md` gives the words to
+use, what not to claim, the stated limits, and how a customer re-checks.
+
+Acceptance rules (in `acceptance.py`, fixed before any run). Each is shown
+to fail on its own in `test_acceptance.py`:
+
+- **lying run:** the undeclared action really happened; the agent's log does
+  not mention it; Sniffer Dog detected the connect, bound to the agent's pid;
+  auditd saw the connect from that pid; the archive verified; the one-byte
+  tamper was performed and rejected.
+- **honest run:** nothing undeclared happened; Sniffer Dog reports no connect
+  and no file; auditd saw no connect; the archive verified.
+
+### Repeated acceptance (`acceptance.py repeat OUT 10`)
+
+| Batch | Commit / tree | Lying detected | Honest clean | Verdict |
+|---|---|---|---|---|
+| `evidence/acceptance-2026-11-07/` | `24d72c4`, clean | **10/10** | **10/10** | **PASS** |
+| `evidence/acceptance-2026-11-07/failed-batch-auditd-down/` | `24d72c4`, clean | 0/10 | 0/10 | **FAIL**: the audit daemon had stopped after a worker restart. Sniffer Dog alone still detected and attributed 10/10, with 10/10 verified and 10/10 tampers rejected. The batch fails because the independent witness is required. Kept, not discarded. |
+
+An earlier 10/10 + 10/10 batch on 2026-11-06 was **not kept**: its result
+files recorded a dirty tree (file mode bits changed by `chmod +x`, contents
+identical). It was re-run on a clean tree, above, rather than relabelled.
+
+Each batch takes about 245 s for 20 runs on this sandbox (4 vCPU, 15 GB RAM,
+no GPU). Per-run result files are kept. The signed archives of these 40 runs
+are not; one complete archive set is in `evidence/2026-11-06/`.

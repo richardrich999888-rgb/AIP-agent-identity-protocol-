@@ -26,7 +26,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 ## W2 — Catch the lying agent
 - [x] W2.1 Agent with a hidden undeclared action its own log omits (from `validation/rbi_demo/run.sh`) — `demos/lying-agent/agent.py` + independent `ground_truth.py`; 8/8 tests
 - [x] W2.2 Show own log vs signed observation vs independent cross-check; offline verify; one-byte tamper fails — `observe.py` + `show.py`; 5/5 lying runs detected and attributed (Sniffer Dog + auditd), 1/1 honest clean; evidence `demos/lying-agent/evidence/2026-11-06/` from clean commit `aab3e12`
-- [ ] W2.3 `demos/lying-agent/run.sh` (5 min), explainer, acceptance test (always detected; reproducible verdict)
+- [x] W2.3 `demos/lying-agent/run.sh` (5 min), explainer, acceptance test (always detected; reproducible verdict) — 25 s machine time; acceptance 10/10 lying detected + 10/10 honest clean from clean commit `24d72c4` (`evidence/acceptance-2026-11-07/`); a failed batch (auditd down after restart) kept beside it
 
 ## W3 — The AI asks the teacher + knowledge pack
 - [—] W3 **Tracked in the teaching-demo loop** (separate session, own branch, checklist `docs/demo/TEACH_DEMO_LOOP.md`). Not built here; that session's files are not edited from this loop.
@@ -66,6 +66,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 | # | Item | Result | Evidence |
 |---|---|---|---|
 | — | Owner decisions 2026-11-05 | Corrections accepted as source of truth; W3 handed to the teaching-demo loop; release loop stays paused; no branch deletions | `INVENTORY.md` §Source of truth |
+| 9 | W2.3 run.sh/explainer/acceptance | DONE; one batch re-run because its tree was dirty (mode bits), one batch FAILED correctly when auditd was down — both recorded | `demos/lying-agent/evidence/acceptance-2026-11-07/` |
 | 8 | W2.2 observe/verify/tamper | DONE; found and fixed: hard-coded "log doesn't mention it" claim, port-vs-timestamp false match, keys left behind on a failed run, over-broad mode guard | `demos/lying-agent/evidence/2026-11-06/` |
 | 7 | W2.1 lying agent + ground truth | DONE; caught a mode-revealing path leaking into the self-log, now refused by the harness | `demos/lying-agent/` |
 | 6 | W1.3 side-by-side page | DONE; also fixed `cloud_app` reading proxies from ambient env instead of its config | `demos/pull-the-plug/` |
