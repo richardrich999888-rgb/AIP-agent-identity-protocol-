@@ -60,11 +60,12 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 - [x] W8.4 Buyer questionnaire, each answer available / partial / planned — `docs/demos/buyer-pack/QUESTIONNAIRE.md`, 17 questions (5 available, 9 partial, 3 planned)
 
 ## W9 — Recording kit
-- [ ] W9.1 Terminal recordings + screenshot sequences + narration scripts (no synthetic voice/video)
+- [x] W9.1 Terminal recordings + screenshot sequences + narration scripts (no synthetic voice/video) — `demos/recording/`: live runs of security, pq, quantum recorded with util-linux `script` (replay: `scriptreplay`), 7 screenshots rendered only from each run's own files (offline, external requests blocked), `NARRATION.md` per mode with do-not-say lists and the RECORDED-label rule; recorded from clean AIP `80e8135` / OVERLAY `3d63f95`. Model modes and teach not recorded (NOT READY)
 
 ## Iteration log
 | # | Item | Result | Evidence |
 |---|---|---|---|
+| 15 | W9.1 recording kit | DONE for every READY mode; launcher now streams output live (first recordings only showed the result at the end). Caught myself writing an unchecked commit id into the narration; replaced with the one in the result files | `demos/recording/` |
 | 14 | W8 buyer evidence pack | W8.1, W8.2, W8.4 DONE; W8.3 PARTIAL (one machine). Found: AIP crates proprietary with no LICENSE file; `binscan` misses most algorithms actually in the binaries; my own first drafts mislabelled the Noise hash (BLAKE2, really SHA-256) and the runtime RSS (~6, really 6.2–7.2 MiB) — both corrected against the source before commit | `docs/demos/buyer-pack/`, `demos/evidence-pack/out/` |
 | 13 | W7.1–W7.3 kit, launcher, rehearsals | DONE except W7.1's clean machine; found and fixed: kit result files recorded no commit (harness now reads the kit MANIFEST), install test's mode selection bug; security mode cannot run in a separate network namespace (sensor limit, labelled). 30/30 rehearsal runs passed | `demos/kit/`, `docs/demos/REHEARSAL_LOG.md` |
 | — | CI flake (PR #13) | `aip-edge --test end_to_end` failed once in `fmt · clippy · test` on `1cf9178` and passed on re-run (no code change); 14/14 locally. Failure message not retrievable (log tail only; full log host blocked here). Recorded as intermittent, cause unknown | PR #13 run 42368415082 |
