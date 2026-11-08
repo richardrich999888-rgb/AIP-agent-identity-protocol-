@@ -111,6 +111,25 @@ class Labels(unittest.TestCase):
 
 
 class Results(unittest.TestCase):
+    def test_dirty_lists_files_and_ignores_only_the_tooling_output(self):
+        with tempfile.TemporaryDirectory() as d:
+            r = Path(d)
+            for c in (["init", "-q"], ["config", "user.email", "t@t"], ["config", "user.name", "t"]):
+                subprocess.run(["git", "-C", d, *c], check=True)
+            (r / "docs/demos").mkdir(parents=True)
+            (r / "docs/demos/REHEARSAL_LOG.md").write_text("a\n")
+            (r / "code.py").write_text("x = 1\n")
+            subprocess.run(["git", "-C", d, "add", "."], check=True)
+            subprocess.run(["git", "-C", d, "commit", "-qm", "c"], check=True)
+            self.assertFalse(harness.provenance(r)["dirty"])
+            (r / "docs/demos/REHEARSAL_LOG.md").write_text("a\nb\n")
+            p = harness.provenance(r)
+            self.assertEqual((p["dirty"], p["changed_files"]), (False, ["docs/demos/REHEARSAL_LOG.md"]))
+            (r / "code.py").write_text("x = 2\n")
+            p = harness.provenance(r)
+            self.assertTrue(p["dirty"])
+            self.assertIn("code.py", p["changed_files"])
+
     def test_provenance_from_a_kit_reads_the_manifest_not_a_guess(self):
         with tempfile.TemporaryDirectory() as d:
             kit = Path(d) / "kit"

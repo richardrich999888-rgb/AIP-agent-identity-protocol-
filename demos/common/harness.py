@@ -143,6 +143,11 @@ def _git(repo: Path, *args: str) -> str | None:
         return None
 
 
+# Tracked files written by the demo tooling itself. A change to one of these is
+# the tooling's output, not a change to the code being demonstrated.
+OUTPUT_FILES = frozenset({"docs/demos/REHEARSAL_LOG.md"})
+
+
 def provenance(repo: Path = REPO) -> dict:
     commit = _git(repo, "rev-parse", "HEAD")
     if commit is None:
@@ -158,8 +163,13 @@ def provenance(repo: Path = REPO) -> dict:
         if commit:
             return {"repo": repo.name, "commit": commit, "dirty": None, "source": "kit MANIFEST.json"}
         return {"repo": repo.name, "commit": None, "dirty": None}
-    return {"repo": str(repo.name), "commit": commit,
-            "dirty": bool(_git(repo, "status", "--porcelain", "--untracked-files=no"))}
+    # Tracked files that differ from HEAD, staged or not (untracked files are
+    # not part of the commit and are not counted, as before).
+    changed = (_git(repo, "diff", "--name-only", "HEAD") or "").splitlines()
+    # Files the demos themselves append to (output, not code under test) do not
+    # make a run dirty; they are still listed, so nothing is hidden.
+    material = [f for f in changed if f not in OUTPUT_FILES]
+    return {"repo": str(repo.name), "commit": commit, "dirty": bool(material), "changed_files": changed}
 
 
 def label(kind: str, text: str, source: str | None = None) -> dict:
