@@ -14,7 +14,9 @@ HARDWARE_PROFILE.md. Tables regenerate with `python3 tools/summarize_main.py`
 | Defaults | mmap on, weight repacking on, 2 threads, f16 KV cache, 1 slot, greedy decoding |
 | Offline | every run inside `bench/offline.sh` (user+net namespace, loopback only; refuses to run if an external route exists) |
 
-## Models (SHA-256 pinned in `bench/run_all.sh`, verified against Hugging Face LFS etags)
+## Models (SHA-256 pinned in `deploy/syntriass/models.manifest.json`, verified against Hugging Face LFS etags)
+
+The digests below were originally pinned in `bench/run_all.sh`. They now live in `deploy/syntriass/models.manifest.json`, which `resolve_model.py` reads and every caller resolves through; `run_all.sh` keeps a mirror of the same four digests and a test asserts the two agree. The values are unchanged.
 
 | File | Size | Params | KV bytes/token (f16) | SHA-256 |
 |---|---|---|---|---|
