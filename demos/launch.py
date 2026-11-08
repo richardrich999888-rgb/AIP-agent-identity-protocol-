@@ -11,8 +11,11 @@ Modes:
   security         Catch the lying agent (demos/lying-agent/run.sh)
   pq               Post-quantum in one switch, proof of concept (OVERLAY demos/pq-switch/run.sh)
   quantum          Quantum X-ray (OVERLAY demos/quantum-xray/run.sh)
-  customer-<sector>, investor-3min
-                   NOT READY until W1.4 (Pull the plug on real local models)
+  pull-the-plug    Pull the plug (demos/pull-the-plug/run.sh), real runtime + local model, offline
+  customer-banking  Pull the plug on the synthetic bank corpus, then Catch the lying agent
+  customer-defence  Pull the plug on the synthetic depot corpus, the PQ switch, then Catch the lying agent
+  investor-3min    Pull the plug, Catch the lying agent, Quantum X-ray
+  customer-<other> NOT READY until the owner defines that sector's script
   teach            NOT READY until the teaching-demo loop reports ready; this
                    launcher will then call that loop's own script, never a copy
 
@@ -78,6 +81,53 @@ def _first(*checks) -> str | None:
     return None
 
 
+def _models() -> str | None:
+    """The pinned serving models, verified by the teaching session's resolver."""
+    for m in ("qwen2.5-1.5b-q4", "qwen2.5-1.5b-q8"):
+        r = subprocess.run([sys.executable, str(REPO / "deploy/syntriass/resolve_model.py"), "path", m, "--verify"],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            return f"model {m} not staged with its pinned bytes (demos/models/stage.py; set SYNTRIASS_BUNDLE)"
+    return _files(REPO, "target/release/syntriass", "deploy/syntriass/venv/bin/python")
+
+
+SECURITY_READY = (_root, lambda: _files(REPO, "target/release/aip-probe", "target/release/aip-collector",
+                                        "target/release/aip-observe-verify"), lambda: _auditd())
+PQ_READY = (_docker, lambda: _files(overlay(), "demos/pq-switch/run.sh", "target/release/libsyntriass_overlay.so",
+                                    "target/release/syntriass-identity"))
+QUANTUM_READY = (_docker, lambda: _files(overlay(), "demos/quantum-xray/run.sh", "target/release/syntriass-cbom"))
+
+
+def _ptp(sector: str | None):
+    def cmd(out: Path) -> list[str]:
+        extra = [] if sector is None else ["--questions", str(HERE / f"sectors/{sector}/questions.json"),
+                                           "--corpus", str(HERE / f"sectors/{sector}/corpus")]
+        return ["bash", str(HERE / "pull-the-plug/run.sh"), str(out), *extra]
+    return cmd
+
+
+def _security(out: Path) -> list[str]:
+    return ["bash", str(HERE / "lying-agent/run.sh"), str(out), "--with-control"]
+
+
+def _pq(out: Path) -> list[str]:
+    return ["bash", str(overlay() / "demos/pq-switch/run.sh"), str(out), "20"]
+
+
+def _quantum(out: Path) -> list[str]:
+    return ["bash", str(overlay() / "demos/quantum-xray/run.sh"), str(out)]
+
+
+def _chain(out: Path, parts: list) -> list[str]:
+    """Run each part in order into out/<part>; stop at the first failure."""
+    import shlex
+    lines = ["set -e"]
+    for name, mk in parts:
+        lines.append(f"echo; echo '=== {name} ==='")
+        lines.append(" ".join(shlex.quote(a) for a in mk(out / name)))
+    return ["bash", "-c", "\n".join(lines)]
+
+
 MODES = {
     "security": {
         "title": "Catch the lying agent",
@@ -101,9 +151,29 @@ MODES = {
         "cmd": lambda out: ["bash", str(overlay() / "demos/quantum-xray/run.sh"), str(out)],
         "repos": lambda: [overlay()],
     },
+    "pull-the-plug": {
+        "title": "Pull the plug",
+        "ready": lambda: _first(_models),
+        "cmd": lambda out: ["bash", str(HERE / "pull-the-plug/run.sh"), str(out)],
+        "repos": lambda: [],
+    },
+    "customer-banking": {
+        "title": "Customer: banking (synthetic Varuna Bank)",
+        "ready": lambda: _first(_models, *SECURITY_READY),
+        "cmd": lambda out: _chain(out, [("pull-the-plug", _ptp("banking")), ("security", _security)]),
+        "repos": lambda: [],
+    },
+    "customer-defence": {
+        "title": "Customer: defence (synthetic Northfield Depot)",
+        "ready": lambda: _first(_models, *SECURITY_READY, *PQ_READY),
+        "cmd": lambda out: _chain(out, [("pull-the-plug", _ptp("defence")), ("pq", _pq), ("security", _security)]),
+        "repos": lambda: [overlay()],
+    },
     "investor-3min": {
         "title": "Investor, three minutes",
-        "ready": lambda: "needs W1.4: Pull the plug on real local models (models not staged; PR #14 not merged)",
+        "ready": lambda: _first(_models, *SECURITY_READY, *QUANTUM_READY),
+        "cmd": lambda out: _chain(out, [("pull-the-plug", _ptp(None)), ("security", _security), ("quantum", _quantum)]),
+        "repos": lambda: [overlay()],
     },
     "teach": {
         "title": "The AI asks the teacher",
@@ -118,8 +188,8 @@ def mode_spec(name: str) -> dict | None:
         return MODES[name]
     if name.startswith("customer-") and len(name) > len("customer-"):
         return {"title": f"Customer ({name[len('customer-'):]})",
-                "ready": lambda: ("needs W1.4: Pull the plug on real local models; and the owner has not yet "
-                                  "defined what this sector's script shows")}
+                "ready": lambda: ("the owner has not defined this sector's script; defined so far: "
+                                  "customer-banking, customer-defence")}
     return None
 
 
