@@ -40,8 +40,39 @@ from cascade import registered_codes  # noqa: E402
 MAX_TEXT = 4096
 
 
+#: Every split the training step needs, and the step that produces them.
+#: `.gitignore` carries a blanket `*.jsonl`, so these are absent on a fresh
+#: clone even though the dataset's MANIFEST.json is tracked.
+_SETUP_COMMAND = "deploy/syntriass/setup_env.sh"
+_DATA_ONLY_COMMAND = "python3 -I deploy/syntriass/verify_datasets.py --generate"
+
+
+def _require(path):
+    """Fail with the file name and the exact command that creates it.
+
+    The runtime spawns this process and reads one line from its stdout; a
+    traceback here reaches the operator only as "sidecar reply missing". So
+    the message has to carry the diagnosis itself, and it has to be the first
+    thing on stderr rather than the last line of a stack trace.
+    """
+    if os.path.isfile(path):
+        return path
+    sys.stderr.write(
+        "sidecar: required dataset is missing, so the interpretation model "
+        "cannot be trained.\n"
+        f"  missing file: {path}\n"
+        "  cause: .gitignore excludes *.jsonl, so this seeded dataset is not "
+        "in the repository.\n"
+        f"  fix (environment and data): {_SETUP_COMMAND}\n"
+        f"  fix (data only):            {_DATA_ONLY_COMMAND}\n"
+        "  the regenerated splits are verified against the SHA-256 digests "
+        "pinned in that dataset's MANIFEST.json.\n")
+    sys.stderr.flush()
+    raise SystemExit(3)
+
+
 def _train():
-    path = os.path.join(HERE, "data/maintenance-priority-v2/train.jsonl")
+    path = _require(os.path.join(HERE, "data/maintenance-priority-v2/train.jsonl"))
     rows = [json.loads(l) for l in open(path)]
     t0 = time.perf_counter()
     clf = X.QuantityClassifier("tfidf")

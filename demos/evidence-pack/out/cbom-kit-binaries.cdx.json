@@ -1,0 +1,335 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "bom-ref": "binkit/aip/target/release/aip-collector",
+      "name": "aip-collector",
+      "properties": [
+        {
+          "name": "syntriass:bin:sourcePath",
+          "value": "kit/aip/target/release/aip-collector"
+        },
+        {
+          "name": "syntriass:bin:totalImports",
+          "value": "102"
+        },
+        {
+          "name": "syntriass:bin:cryptoApiSymbolsAlgorithmUndetermined",
+          "value": "0"
+        },
+        {
+          "name": "syntriass:bin:constant:SHA-256",
+          "value": "SHA-256 round constants (FIPS 180-4)"
+        }
+      ],
+      "type": "application"
+    },
+    {
+      "bom-ref": "binkit/aip/target/release/aip-observe-verify",
+      "name": "aip-observe-verify",
+      "properties": [
+        {
+          "name": "syntriass:bin:sourcePath",
+          "value": "kit/aip/target/release/aip-observe-verify"
+        },
+        {
+          "name": "syntriass:bin:totalImports",
+          "value": "69"
+        },
+        {
+          "name": "syntriass:bin:cryptoApiSymbolsAlgorithmUndetermined",
+          "value": "0"
+        },
+        {
+          "name": "syntriass:bin:constant:SHA-256",
+          "value": "SHA-256 round constants (FIPS 180-4)"
+        }
+      ],
+      "type": "application"
+    },
+    {
+      "bom-ref": "binkit/aip/target/release/aip-probe",
+      "name": "aip-probe",
+      "properties": [
+        {
+          "name": "syntriass:bin:sourcePath",
+          "value": "kit/aip/target/release/aip-probe"
+        },
+        {
+          "name": "syntriass:bin:totalImports",
+          "value": "97"
+        },
+        {
+          "name": "syntriass:bin:cryptoApiSymbolsAlgorithmUndetermined",
+          "value": "0"
+        },
+        {
+          "name": "syntriass:bin:constant:SHA-256",
+          "value": "SHA-256 round constants (FIPS 180-4)"
+        }
+      ],
+      "type": "application"
+    },
+    {
+      "bom-ref": "binkit/overlay/target/release/libsyntriass_overlay.so",
+      "name": "libsyntriass_overlay.so",
+      "properties": [
+        {
+          "name": "syntriass:bin:sourcePath",
+          "value": "kit/overlay/target/release/libsyntriass_overlay.so"
+        },
+        {
+          "name": "syntriass:bin:totalImports",
+          "value": "81"
+        },
+        {
+          "name": "syntriass:bin:cryptoApiSymbolsAlgorithmUndetermined",
+          "value": "0"
+        },
+        {
+          "name": "syntriass:bin:constant:SHA-256",
+          "value": "SHA-256 round constants (FIPS 180-4)"
+        }
+      ],
+      "type": "application"
+    },
+    {
+      "bom-ref": "binkit/overlay/target/release/syntriass-cbom",
+      "name": "syntriass-cbom",
+      "properties": [
+        {
+          "name": "syntriass:bin:sourcePath",
+          "value": "kit/overlay/target/release/syntriass-cbom"
+        },
+        {
+          "name": "syntriass:bin:totalImports",
+          "value": "140"
+        },
+        {
+          "name": "syntriass:bin:cryptoApiSymbolsAlgorithmUndetermined",
+          "value": "0"
+        },
+        {
+          "name": "syntriass:bin:constant:AES",
+          "value": "AES S-box (FIPS-197)"
+        },
+        {
+          "name": "syntriass:bin:constant:SHA-256",
+          "value": "SHA-256 round constants (FIPS 180-4)"
+        },
+        {
+          "name": "syntriass:bin:constant:MD5",
+          "value": "MD5 sine constants (RFC 1321)"
+        }
+      ],
+      "type": "application"
+    },
+    {
+      "bom-ref": "binkit/overlay/target/release/syntriass-identity",
+      "name": "syntriass-identity",
+      "properties": [
+        {
+          "name": "syntriass:bin:sourcePath",
+          "value": "kit/overlay/target/release/syntriass-identity"
+        },
+        {
+          "name": "syntriass:bin:totalImports",
+          "value": "85"
+        },
+        {
+          "name": "syntriass:bin:cryptoApiSymbolsAlgorithmUndetermined",
+          "value": "0"
+        },
+        {
+          "name": "syntriass:bin:constant:SHA-256",
+          "value": "SHA-256 round constants (FIPS 180-4)"
+        }
+      ],
+      "type": "application"
+    },
+    {
+      "bom-ref": "crypto/algorithm/aes",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "primitive": "unknown"
+        },
+        "assetType": "algorithm"
+      },
+      "name": "AES",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "AES"
+        },
+        {
+          "name": "syntriass:quantumPosture",
+          "value": "unknown"
+        },
+        {
+          "name": "syntriass:derived",
+          "value": "true"
+        }
+      ],
+      "type": "cryptographic-asset"
+    },
+    {
+      "bom-ref": "crypto/algorithm/md5",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "primitive": "unknown"
+        },
+        "assetType": "algorithm"
+      },
+      "name": "MD5",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "MD5"
+        },
+        {
+          "name": "syntriass:quantumPosture",
+          "value": "unknown"
+        },
+        {
+          "name": "syntriass:derived",
+          "value": "true"
+        }
+      ],
+      "type": "cryptographic-asset"
+    },
+    {
+      "bom-ref": "crypto/algorithm/sha-256",
+      "cryptoProperties": {
+        "algorithmProperties": {
+          "primitive": "unknown"
+        },
+        "assetType": "algorithm"
+      },
+      "name": "SHA-256",
+      "properties": [
+        {
+          "name": "syntriass:algorithm",
+          "value": "SHA-256"
+        },
+        {
+          "name": "syntriass:quantumPosture",
+          "value": "unknown"
+        },
+        {
+          "name": "syntriass:derived",
+          "value": "true"
+        }
+      ],
+      "type": "cryptographic-asset"
+    }
+  ],
+  "dependencies": [
+    {
+      "dependsOn": [
+        "crypto/algorithm/sha-256"
+      ],
+      "ref": "binkit/aip/target/release/aip-collector"
+    },
+    {
+      "dependsOn": [
+        "crypto/algorithm/sha-256"
+      ],
+      "ref": "binkit/aip/target/release/aip-observe-verify"
+    },
+    {
+      "dependsOn": [
+        "crypto/algorithm/sha-256"
+      ],
+      "ref": "binkit/aip/target/release/aip-probe"
+    },
+    {
+      "dependsOn": [
+        "crypto/algorithm/sha-256"
+      ],
+      "ref": "binkit/overlay/target/release/libsyntriass_overlay.so"
+    },
+    {
+      "dependsOn": [
+        "crypto/algorithm/aes",
+        "crypto/algorithm/md5",
+        "crypto/algorithm/sha-256"
+      ],
+      "ref": "binkit/overlay/target/release/syntriass-cbom"
+    },
+    {
+      "dependsOn": [
+        "crypto/algorithm/sha-256"
+      ],
+      "ref": "binkit/overlay/target/release/syntriass-identity"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "bom-ref": "syntriass:binscan-subject",
+      "name": "binary-crypto-inventory",
+      "type": "application"
+    },
+    "properties": [
+      {
+        "name": "syntriass:bomType",
+        "value": "BINSCAN"
+      },
+      {
+        "name": "syntriass:scan:filesExamined",
+        "value": "6"
+      },
+      {
+        "name": "syntriass:bin:binariesWithCrypto",
+        "value": "6"
+      },
+      {
+        "name": "syntriass:bin:distinctCryptoLibraries",
+        "value": "0"
+      },
+      {
+        "name": "syntriass:scan:pathsSkipped",
+        "value": "0"
+      },
+      {
+        "name": "syntriass:scan:coverageComplete",
+        "value": "true"
+      },
+      {
+        "name": "syntriass:bin:linkIndex:ld-linux-x86-64.so.2",
+        "value": "kit/aip/target/release/aip-collector,kit/aip/target/release/aip-observe-verify,kit/aip/target/release/aip-probe,kit/overlay/target/release/libsyntriass_overlay.so,kit/overlay/target/release/syntriass-cbom,kit/overlay/target/release/syntriass-identity"
+      },
+      {
+        "name": "syntriass:bin:linkIndex:libc.so.6",
+        "value": "kit/aip/target/release/aip-collector,kit/aip/target/release/aip-observe-verify,kit/aip/target/release/aip-probe,kit/overlay/target/release/libsyntriass_overlay.so,kit/overlay/target/release/syntriass-cbom,kit/overlay/target/release/syntriass-identity"
+      },
+      {
+        "name": "syntriass:bin:linkIndex:libgcc_s.so.1",
+        "value": "kit/aip/target/release/aip-collector,kit/aip/target/release/aip-observe-verify,kit/aip/target/release/aip-probe,kit/overlay/target/release/libsyntriass_overlay.so,kit/overlay/target/release/syntriass-cbom,kit/overlay/target/release/syntriass-identity"
+      },
+      {
+        "name": "syntriass:bin:linkIndex:libm.so.6",
+        "value": "kit/overlay/target/release/syntriass-cbom"
+      },
+      {
+        "name": "syntriass:bin:linkIndexNote",
+        "value": "linkIndex covers every ELF examined, including binaries carrying no cryptography. A vulnerable library is usually not a crypto library, so an index built from the crypto subset alone would report every other package as linked by nothing."
+      },
+      {
+        "name": "syntriass:bin:capabilityNote",
+        "value": "This inventory reports what each binary COULD do, not what it did. An imported symbol is referenced somewhere in the binary, not necessarily reached on any live path, and linking a TLS library is not making a connection. Reachability is a separate analysis this scan does not perform."
+      }
+    ],
+    "timestamp": "2026-11-07T14:58:45Z",
+    "tools": {
+      "components": [
+        {
+          "name": "syntriass-cbom",
+          "type": "application",
+          "version": "0.1.0"
+        }
+      ]
+    }
+  },
+  "specVersion": "1.6",
+  "version": 1
+}

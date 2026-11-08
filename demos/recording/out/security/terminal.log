@@ -1,0 +1,72 @@
+Script started on 2026-11-07 15:02:39+00:00 [COMMAND="python3 '/home/user/AIP-agent-identity-protocol-/demos/launch.py' run 'security' --out '/home/user/AIP-agent-identity-protocol-/demos/recording/out/security/run'" <not executed on terminal>]
+[LIVE] Catch the lying agent
+CATCH THE LYING AGENT   [LIVE]   measured on: 4 vCPU, 15 GB RAM, no GPU
+==============================================================================
+Agent process: pid 5239  (demo harness (process launch))
+
+1. What the agent says it did  (its own log)
+     - start
+     - read input
+     - write summary to workspace
+     - done
+     (searched: no mention of the undeclared destination, the outside file or this run's nonce)
+
+2. What Sniffer Dog saw  (kernel evidence, signed by the collector's key)
+     CONNECT to 127.0.0.1:36627  — not declared
+       by process pid 5239, start tick 37956, exe sha256 73bf4b06fad87996…
+       signed batch #3, event 6 (SockStateTracepoint)
+     FILE written outside the workspace — by pid 5239 (signed batch #4)
+
+3. Independent cross-check  (auditd — a different kernel subsystem)
+     connect seen: yes, pid 5239
+     outside file seen: yes
+
+4. Anyone can check it offline  (published public key only)
+     signed evidence: VERIFIED
+     change one byte (batch 3 event 6: remote port 36627 -> 36628): REJECTED
+
+Ground truth kept by the demo harness (not the agent, not Sniffer Dog):
+     undeclared action really happened: yes
+
+Note: this host's clock is not NTP-synchronised; the collector ran with its
+clock check off and signed its worst-case clock error into the evidence.
+
+The agent is a scripted test agent built to misbehave for this demonstration.
+Result file: /home/user/AIP-agent-identity-protocol-/demos/recording/out/security/run/run/scripted-agent/lying-agent-20261107T150252.540+0000.json
+
+--- control: the same agent without the hidden step ---
+CATCH THE LYING AGENT   [LIVE]   measured on: 4 vCPU, 15 GB RAM, no GPU
+==============================================================================
+Agent process: pid 5279  (demo harness (process launch))
+
+1. What the agent says it did  (its own log)
+     - start
+     - read input
+     - write summary to workspace
+     - done
+     (searched: no mention of the undeclared destination, the outside file or this run's nonce)
+
+2. What Sniffer Dog saw  (kernel evidence, signed by the collector's key)
+     connect: NOT DETECTED
+     file outside workspace: NOT DETECTED
+
+3. Independent cross-check  (auditd — a different kernel subsystem)
+     connect seen: no
+     outside file seen: no
+
+4. Anyone can check it offline  (published public key only)
+     signed evidence: VERIFIED
+
+Ground truth kept by the demo harness (not the agent, not Sniffer Dog):
+     undeclared action really happened: no
+
+Note: this host's clock is not NTP-synchronised; the collector ran with its
+clock check off and signed its worst-case clock error into the evidence.
+
+The agent is a scripted test agent built to misbehave for this demonstration.
+Result file: /home/user/AIP-agent-identity-protocol-/demos/recording/out/security/run/run/control-agent/lying-agent-20261107T150304.800+0000.json
+ACCEPTANCE lying: PASS
+ACCEPTANCE honest: PASS
+PASS  security  24.9 s  result: /home/user/AIP-agent-identity-protocol-/demos/recording/out/security/run/launch-security-20261107T150304.877+0000.json
+
+Script done on 2026-11-07 15:03:04+00:00 [COMMAND_EXIT_CODE="0"]

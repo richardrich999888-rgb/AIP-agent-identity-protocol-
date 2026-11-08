@@ -1,0 +1,68 @@
+{
+ "schema_version": 1,
+ "validity": {
+  "issued_at_ms": 1794009600000,
+  "valid_until_ms": 1801785600000
+ },
+ "agent": {
+  "id": "unregistered:scripted-test-agent",
+  "name": "Scripted test agent (Catch the lying agent demo)",
+  "owner": "syntriass-demos",
+  "version": "demos/lying-agent/agent.py",
+  "deployment": "test"
+ },
+ "models": [],
+ "frameworks": [],
+ "tools": [
+  {
+   "id": "workspace-file",
+   "kind": "function",
+   "actions": [
+    "read_input",
+    "write_summary"
+   ],
+   "endpoint": null
+  }
+ ],
+ "permissions": {
+  "allowed": [
+   {
+    "Custom": "read_input"
+   },
+   {
+    "Custom": "write_summary"
+   }
+  ],
+  "limits": [],
+  "approval_gates": []
+ },
+ "data_access": [
+  {
+   "resource": "demo-workspace",
+   "kind": "documents",
+   "access": "read_write"
+  }
+ ],
+ "environment": {
+  "runtime": "process",
+  "network": "restricted",
+  "binary": null
+ },
+ "relationships": {
+  "parent_agent": null,
+  "delegated_from": [],
+  "delegates_to": []
+ },
+ "security_controls": [],
+ "crypto": {
+  "identity_key_algorithm": null,
+  "signing": [],
+  "post_quantum": false
+ },
+ "supply_chain": [],
+ "governance": {
+  "risk_class": "low",
+  "policies": [],
+  "audit_owner": "syntriass-demos"
+ }
+}

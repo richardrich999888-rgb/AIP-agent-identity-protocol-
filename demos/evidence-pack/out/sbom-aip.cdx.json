@@ -1,0 +1,1403 @@
+{
+ "bomFormat": "CycloneDX",
+ "specVersion": "1.6",
+ "serialNumber": "urn:uuid:42c21e69-4ad9-0e8e-597b-968a33147fad",
+ "version": 1,
+ "metadata": {
+  "component": {
+   "type": "application",
+   "name": "aip-kit-binaries",
+   "version": "217f889a8a04c95bf43bc2f600e1cbfee7021bbd"
+  },
+  "properties": [
+   {
+    "name": "syntriass:scope",
+    "value": "cargo tree -e normal -p aip-probe -p aip-collector -p aip-observe-verify"
+   },
+   {
+    "name": "syntriass:note",
+    "value": "declared licences, not a legal review"
+   }
+  ]
+ },
+ "components": [
+  {
+   "type": "library",
+   "name": "aead",
+   "version": "0.5.2",
+   "bom-ref": "pkg:cargo/aead@0.5.2",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/aead@0.5.2",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "aip-collector",
+   "version": "0.4.0",
+   "bom-ref": "pkg:cargo/aip-collector@0.4.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "workspace"
+    }
+   ],
+   "licenses": [
+    {
+     "expression": "LicenseRef-Proprietary"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "aip-core",
+   "version": "0.4.0",
+   "bom-ref": "pkg:cargo/aip-core@0.4.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "workspace"
+    }
+   ],
+   "licenses": [
+    {
+     "expression": "LicenseRef-Proprietary"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "aip-crypto",
+   "version": "0.4.0",
+   "bom-ref": "pkg:cargo/aip-crypto@0.4.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "workspace"
+    }
+   ],
+   "licenses": [
+    {
+     "expression": "LicenseRef-Proprietary"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "aip-observe-verify",
+   "version": "0.4.0",
+   "bom-ref": "pkg:cargo/aip-observe-verify@0.4.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "workspace"
+    }
+   ],
+   "licenses": [
+    {
+     "expression": "LicenseRef-Proprietary"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "aip-observe",
+   "version": "0.4.0",
+   "bom-ref": "pkg:cargo/aip-observe@0.4.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "workspace"
+    }
+   ],
+   "licenses": [
+    {
+     "expression": "LicenseRef-Proprietary"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "aip-probe",
+   "version": "0.4.0",
+   "bom-ref": "pkg:cargo/aip-probe@0.4.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "workspace"
+    }
+   ],
+   "licenses": [
+    {
+     "expression": "LicenseRef-Proprietary"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "aip-transport",
+   "version": "0.4.0",
+   "bom-ref": "pkg:cargo/aip-transport@0.4.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "workspace"
+    }
+   ],
+   "licenses": [
+    {
+     "expression": "LicenseRef-Proprietary"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "aip-types",
+   "version": "0.4.0",
+   "bom-ref": "pkg:cargo/aip-types@0.4.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "workspace"
+    }
+   ],
+   "licenses": [
+    {
+     "expression": "LicenseRef-Proprietary"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "argon2",
+   "version": "0.5.3",
+   "bom-ref": "pkg:cargo/argon2@0.5.3",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/argon2@0.5.3",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "base64",
+   "version": "0.22.1",
+   "bom-ref": "pkg:cargo/base64@0.22.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/base64@0.22.1",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "base64ct",
+   "version": "1.8.3",
+   "bom-ref": "pkg:cargo/base64ct@1.8.3",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/base64ct@1.8.3",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "blake2",
+   "version": "0.10.6",
+   "bom-ref": "pkg:cargo/blake2@0.10.6",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/blake2@0.10.6",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "block-buffer",
+   "version": "0.10.4",
+   "bom-ref": "pkg:cargo/block-buffer@0.10.4",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/block-buffer@0.10.4",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "bs58",
+   "version": "0.5.1",
+   "bom-ref": "pkg:cargo/bs58@0.5.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/bs58@0.5.1",
+   "licenses": [
+    {
+     "expression": "MIT/Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "cfg-if",
+   "version": "1.0.4",
+   "bom-ref": "pkg:cargo/cfg-if@1.0.4",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/cfg-if@1.0.4",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "chacha20",
+   "version": "0.9.1",
+   "bom-ref": "pkg:cargo/chacha20@0.9.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/chacha20@0.9.1",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "chacha20poly1305",
+   "version": "0.10.1",
+   "bom-ref": "pkg:cargo/chacha20poly1305@0.10.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/chacha20poly1305@0.10.1",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "cipher",
+   "version": "0.4.4",
+   "bom-ref": "pkg:cargo/cipher@0.4.4",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/cipher@0.4.4",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "cmov",
+   "version": "0.5.4",
+   "bom-ref": "pkg:cargo/cmov@0.5.4",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/cmov@0.5.4",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "const-oid",
+   "version": "0.10.2",
+   "bom-ref": "pkg:cargo/const-oid@0.10.2",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/const-oid@0.10.2",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "cpufeatures",
+   "version": "0.2.17",
+   "bom-ref": "pkg:cargo/cpufeatures@0.2.17",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/cpufeatures@0.2.17",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "crypto-common",
+   "version": "0.1.7",
+   "bom-ref": "pkg:cargo/crypto-common@0.1.7",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/crypto-common@0.1.7",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "crypto-common",
+   "version": "0.2.2",
+   "bom-ref": "pkg:cargo/crypto-common@0.2.2",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/crypto-common@0.2.2",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "ctutils",
+   "version": "0.4.6",
+   "bom-ref": "pkg:cargo/ctutils@0.4.6",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/ctutils@0.4.6",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "curve25519-dalek-derive",
+   "version": "0.1.1",
+   "bom-ref": "pkg:cargo/curve25519-dalek-derive@0.1.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/curve25519-dalek-derive@0.1.1",
+   "licenses": [
+    {
+     "expression": "MIT/Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "curve25519-dalek",
+   "version": "4.1.3",
+   "bom-ref": "pkg:cargo/curve25519-dalek@4.1.3",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/curve25519-dalek@4.1.3",
+   "licenses": [
+    {
+     "expression": "BSD-3-Clause"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "der",
+   "version": "0.8.2",
+   "bom-ref": "pkg:cargo/der@0.8.2",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/der@0.8.2",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "digest",
+   "version": "0.10.7",
+   "bom-ref": "pkg:cargo/digest@0.10.7",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/digest@0.10.7",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "digest",
+   "version": "0.11.3",
+   "bom-ref": "pkg:cargo/digest@0.11.3",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/digest@0.11.3",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "ed25519-dalek",
+   "version": "2.2.0",
+   "bom-ref": "pkg:cargo/ed25519-dalek@2.2.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/ed25519-dalek@2.2.0",
+   "licenses": [
+    {
+     "expression": "BSD-3-Clause"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "ed25519",
+   "version": "2.2.3",
+   "bom-ref": "pkg:cargo/ed25519@2.2.3",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/ed25519@2.2.3",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "generic-array",
+   "version": "0.14.7",
+   "bom-ref": "pkg:cargo/generic-array@0.14.7",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/generic-array@0.14.7",
+   "licenses": [
+    {
+     "expression": "MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "getrandom",
+   "version": "0.2.17",
+   "bom-ref": "pkg:cargo/getrandom@0.2.17",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/getrandom@0.2.17",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "getrandom",
+   "version": "0.3.4",
+   "bom-ref": "pkg:cargo/getrandom@0.3.4",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/getrandom@0.3.4",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "getrandom",
+   "version": "0.4.3",
+   "bom-ref": "pkg:cargo/getrandom@0.4.3",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/getrandom@0.4.3",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "hex",
+   "version": "0.4.3",
+   "bom-ref": "pkg:cargo/hex@0.4.3",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/hex@0.4.3",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "hybrid-array",
+   "version": "0.4.14",
+   "bom-ref": "pkg:cargo/hybrid-array@0.4.14",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/hybrid-array@0.4.14",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "inout",
+   "version": "0.1.4",
+   "bom-ref": "pkg:cargo/inout@0.1.4",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/inout@0.1.4",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "itoa",
+   "version": "1.0.18",
+   "bom-ref": "pkg:cargo/itoa@1.0.18",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/itoa@1.0.18",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "keccak",
+   "version": "0.2.2",
+   "bom-ref": "pkg:cargo/keccak@0.2.2",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/keccak@0.2.2",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "libc",
+   "version": "0.2.189",
+   "bom-ref": "pkg:cargo/libc@0.2.189",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/libc@0.2.189",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "memchr",
+   "version": "2.8.3",
+   "bom-ref": "pkg:cargo/memchr@2.8.3",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/memchr@2.8.3",
+   "licenses": [
+    {
+     "expression": "Unlicense OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "ml-dsa",
+   "version": "0.1.1",
+   "bom-ref": "pkg:cargo/ml-dsa@0.1.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/ml-dsa@0.1.1",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "module-lattice",
+   "version": "0.2.3",
+   "bom-ref": "pkg:cargo/module-lattice@0.2.3",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/module-lattice@0.2.3",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "num-traits",
+   "version": "0.2.19",
+   "bom-ref": "pkg:cargo/num-traits@0.2.19",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/num-traits@0.2.19",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "opaque-debug",
+   "version": "0.3.1",
+   "bom-ref": "pkg:cargo/opaque-debug@0.3.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/opaque-debug@0.3.1",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "password-hash",
+   "version": "0.5.0",
+   "bom-ref": "pkg:cargo/password-hash@0.5.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/password-hash@0.5.0",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "pkcs8",
+   "version": "0.11.0",
+   "bom-ref": "pkg:cargo/pkcs8@0.11.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/pkcs8@0.11.0",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "poly1305",
+   "version": "0.8.0",
+   "bom-ref": "pkg:cargo/poly1305@0.8.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/poly1305@0.8.0",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "ppv-lite86",
+   "version": "0.2.21",
+   "bom-ref": "pkg:cargo/ppv-lite86@0.2.21",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/ppv-lite86@0.2.21",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "proc-macro2",
+   "version": "1.0.107",
+   "bom-ref": "pkg:cargo/proc-macro2@1.0.107",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/proc-macro2@1.0.107",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "quote",
+   "version": "1.0.47",
+   "bom-ref": "pkg:cargo/quote@1.0.47",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/quote@1.0.47",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "rand",
+   "version": "0.8.8",
+   "bom-ref": "pkg:cargo/rand@0.8.8",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/rand@0.8.8",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "rand_chacha",
+   "version": "0.3.1",
+   "bom-ref": "pkg:cargo/rand_chacha@0.3.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/rand_chacha@0.3.1",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "rand_core",
+   "version": "0.10.1",
+   "bom-ref": "pkg:cargo/rand_core@0.10.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/rand_core@0.10.1",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "rand_core",
+   "version": "0.6.4",
+   "bom-ref": "pkg:cargo/rand_core@0.6.4",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/rand_core@0.6.4",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "serde",
+   "version": "1.0.229",
+   "bom-ref": "pkg:cargo/serde@1.0.229",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/serde@1.0.229",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "serde_core",
+   "version": "1.0.229",
+   "bom-ref": "pkg:cargo/serde_core@1.0.229",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/serde_core@1.0.229",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "serde_derive",
+   "version": "1.0.229",
+   "bom-ref": "pkg:cargo/serde_derive@1.0.229",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/serde_derive@1.0.229",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "serde_json",
+   "version": "1.0.151",
+   "bom-ref": "pkg:cargo/serde_json@1.0.151",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/serde_json@1.0.151",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "sha2",
+   "version": "0.10.9",
+   "bom-ref": "pkg:cargo/sha2@0.10.9",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/sha2@0.10.9",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "shake",
+   "version": "0.1.0",
+   "bom-ref": "pkg:cargo/shake@0.1.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/shake@0.1.0",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "signature",
+   "version": "2.2.0",
+   "bom-ref": "pkg:cargo/signature@2.2.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/signature@2.2.0",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "signature",
+   "version": "3.0.0",
+   "bom-ref": "pkg:cargo/signature@3.0.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/signature@3.0.0",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "snow",
+   "version": "0.10.0",
+   "bom-ref": "pkg:cargo/snow@0.10.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/snow@0.10.0",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "spki",
+   "version": "0.8.0",
+   "bom-ref": "pkg:cargo/spki@0.8.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/spki@0.8.0",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "sponge-cursor",
+   "version": "0.1.0",
+   "bom-ref": "pkg:cargo/sponge-cursor@0.1.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/sponge-cursor@0.1.0",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "subtle",
+   "version": "2.6.1",
+   "bom-ref": "pkg:cargo/subtle@2.6.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/subtle@2.6.1",
+   "licenses": [
+    {
+     "expression": "BSD-3-Clause"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "syn",
+   "version": "2.0.119",
+   "bom-ref": "pkg:cargo/syn@2.0.119",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/syn@2.0.119",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "syn",
+   "version": "3.0.5",
+   "bom-ref": "pkg:cargo/syn@3.0.5",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/syn@3.0.5",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "typenum",
+   "version": "1.20.1",
+   "bom-ref": "pkg:cargo/typenum@1.20.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/typenum@1.20.1",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "unicode-ident",
+   "version": "1.0.24",
+   "bom-ref": "pkg:cargo/unicode-ident@1.0.24",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/unicode-ident@1.0.24",
+   "licenses": [
+    {
+     "expression": "(MIT OR Apache-2.0) AND Unicode-3.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "universal-hash",
+   "version": "0.5.1",
+   "bom-ref": "pkg:cargo/universal-hash@0.5.1",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/universal-hash@0.5.1",
+   "licenses": [
+    {
+     "expression": "MIT OR Apache-2.0"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "zerocopy",
+   "version": "0.8.56",
+   "bom-ref": "pkg:cargo/zerocopy@0.8.56",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/zerocopy@0.8.56",
+   "licenses": [
+    {
+     "expression": "BSD-2-Clause OR Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "zeroize",
+   "version": "1.9.0",
+   "bom-ref": "pkg:cargo/zeroize@1.9.0",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/zeroize@1.9.0",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR MIT"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "zmij",
+   "version": "1.0.23",
+   "bom-ref": "pkg:cargo/zmij@1.0.23",
+   "properties": [
+    {
+     "name": "syntriass:source",
+     "value": "crates.io"
+    }
+   ],
+   "purl": "pkg:cargo/zmij@1.0.23",
+   "licenses": [
+    {
+     "expression": "MIT"
+    }
+   ]
+  }
+ ]
+}
