@@ -1,0 +1,15 @@
+[package]
+name = "aip-install"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Secure installation lifecycle and signed receipts for AIP packages"
+
+[dependencies]
+aip-types = { path = "../aip-types" }
+aip-crypto = { path = "../aip-crypto" }
+aip-package = { path = "../aip-package" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+libc = "0.2"
+rand = "0.8"

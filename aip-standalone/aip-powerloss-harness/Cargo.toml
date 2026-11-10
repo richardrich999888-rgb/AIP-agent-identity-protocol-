@@ -1,0 +1,10 @@
+[package]
+name = "aip-powerloss-harness"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+aip-crypto = { path = "../aip-crypto" }
+aip-package = { path = "../aip-package" }
+aip-install = { path = "../aip-install" }
