@@ -1,0 +1,23 @@
+test_default_clock_policy_and_writer_shutdown_are_preserved (validation.enterprise.test_agent_harness.AgentHarnessBuild.test_default_clock_policy_and_writer_shutdown_are_preserved) ... ok
+test_failed_builds_never_pass_with_stale_binaries_or_unusual_diagnostics (validation.enterprise.test_agent_harness.AgentHarnessBuild.test_failed_builds_never_pass_with_stale_binaries_or_unusual_diagnostics) ... ok
+test_success_is_decided_by_exit_status_and_selects_all_real_binaries (validation.enterprise.test_agent_harness.AgentHarnessBuild.test_success_is_decided_by_exit_status_and_selects_all_real_binaries) ... ok
+same_run_controls_test (unittest.loader._FailedTest.same_run_controls_test) ... ERROR
+test_manual_provisioning_matches_the_services_actual_schema (validation.enterprise.test_sql_provisioning.ProvisioningParity.test_manual_provisioning_matches_the_services_actual_schema) ... ok
+
+======================================================================
+ERROR: same_run_controls_test (unittest.loader._FailedTest.same_run_controls_test)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: same_run_controls_test
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/enterprise/same_run_controls_test.py", line 12, in <module>
+    from prepare_local_model import (CPU_FILE, MANIFEST_SHA256, MANIFEST_SIZE,
+ModuleNotFoundError: No module named 'prepare_local_model'
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.040s
+
+FAILED (errors=1)

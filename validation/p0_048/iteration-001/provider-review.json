@@ -1,0 +1,1384 @@
+{
+  "schema": "vanian.p0-048.provider-review.v1",
+  "scope": "GitHub connector observations; historical CI is not a fresh execution",
+  "repository": {
+    "id": "1227100465",
+    "name": "AIP-agent-identity-protocol-",
+    "owner": {
+      "login": "richardrich999888-rgb",
+      "id": 230304394,
+      "type": "User",
+      "avatar_url": "https://avatars.githubusercontent.com/u/230304394?v=4",
+      "url": "https://api.github.com/users/richardrich999888-rgb"
+    },
+    "repository_full_name": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+    "permissions": {
+      "admin": true,
+      "maintain": true,
+      "pull": true,
+      "push": true,
+      "triage": true
+    },
+    "allow_auto_merge": false,
+    "allow_merge_commit": true,
+    "allow_rebase_merge": true,
+    "allow_squash_merge": true,
+    "allow_update_branch": false,
+    "clone_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-.git",
+    "size": 43859,
+    "default_branch": "main",
+    "git_commits_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/git/commits{/sha}",
+    "git_refs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/git/refs{/sha}",
+    "git_url": "git://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-.git",
+    "master_branch": null,
+    "visibility": "public",
+    "archived": false,
+    "is_code_search_indexed": null
+  },
+  "prs": [
+    {
+      "metadata": {
+        "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/8",
+        "number": 8,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "The local evidence assistant now runs the pinned public Qwen2.5-1.5B-Instruct model through LangChain/LangGraph, reads the existing restricted AIP API, and can execute on a disposable Linux runner under Sniffer Dog. Its original signed observations are independently verified offline before the Mac demo displays them. The existing OPA and OpenTelemetry integration remains in place.\n\nThe actual execution source is `bce0037d6ca5eb1b85a9f2d242f4b2650dd2e6d9`. [Genuine Linux workflow 41508547378](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508547378) completed both capture and separate network-disabled verification successfully.\n\nValidation at that source:\n\n- Four real questions, eight completed local model responses and twelve authenticated Reader API reads. All four answers passed source-based review, including the request to falsely claim loan approval.\n- 93 signed batches, six health records and 3,372 archive kernel events; 56 events bind to the measured agent process. All six sensor types cover the full task. All four output paths have process-bound file observations; Linux audit independently agrees with the execution.\n- Separate network-disabled Linux verification and independent Mac verification produced identical full JSON results. Seven altered archive copies were rejected under the signature/chain/checkpoint contract. Original ZIPs, separate controller trust, failed attempts and verification reports are preserved.\n- Mac component/API suite: 81 passed, zero skips. Linux: 80 passed, one Mac-asset check skipped; genuine Linux inference ran separately and passed.\n- Complete CI rerun: debug 3,268 passed / 7 ignored; release 3,270 / 5. Each also passed two doctests with two ignored. The discrepancy regression passed both profiles and twenty focused release repeats. All 22 PR jobs completed: 17 PASS / 2 FAIL / 3 guarded skips (18 component/security checks: 16 PASS / 2 FAIL).\n- Strict security remains failed. Gitleaks 217 and Trivy four HIGH findings exactly match the retained `75e75bb` result objects at `bce0037`; neither gate is waived. Cargo audit retains the inherited `RUSTSEC-2026-0097` exception.\n\n[Reproducible report, originals and precise remaining gates](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/ab161597ea05d52813619d9962f8956811d2daf1/examples/local-evidence-agent/results/linux-observation/REPORT.md). Commits `6eb36fd` and `ab16159` publish README/results only; the counts above describe the exact executed implementation, not an unverified later-head result.\n\nThe fresh capture observes this assistant reading three preserved historical AIP records. Those input records retain their dates, `CannotProve` and coverage findings. Collector signatures cover kernel observations; model counts, answers and output hashes remain separately identified controller application records. No application-action authorization, gateway receipt or business outcome was fabricated. Fresh observation API admission is not claimed, and its 512 KiB limit is unchanged.\n\nEarlier governance execution and reference evidence remain documented in [the governance report](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/75e75bb0aae36def2ba13b18717b0a00b7ec2558/validation/enterprise/results/GOVERNANCE_20261102/REPORT.md). Agent Zero's prior invoice workload failed its required output despite a valid capture; native DeerFlow/OpenHands business tasks remain unexecuted. This bounded Q&A result does not validate all three integrations or a swarm.\n\nKeep this PR draft. Remaining gates include security review, separately administered workload/collector Linux hosts and inaccessible collector signing keys/storage, approved enrollment and anchors, clean-host installation/restart/recovery/uninstall, logical delegation/concurrency and external customer acceptance. Production or regulatory approval is not claimed.\n",
+        "title": "Observe local Qwen and governance-enabled agents with signed AIP evidence",
+        "base": "codex/snifferdog-real-agent-swarm-validation",
+        "base_sha": "65b6ff7fdad5ae70546a57216a497399091c7dc7",
+        "head": "integration/snifferdog-complete-enterprise-validation",
+        "head_sha": "ab161597ea05d52813619d9962f8956811d2daf1",
+        "head_repo_id": 1227100465,
+        "head_repo_full_name": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+        "merge_commit_sha": "e671589d6af41b4b7d4e85caa0106299982ecf45",
+        "user": {
+          "login": "richardrich999888-rgb",
+          "name": "richardrich999888-rgb",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/230304394?v=4",
+          "id": 230304394
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-10-28T12:07:06Z",
+        "updated_at": "2026-11-02T19:46:46Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 37,
+        "changed_files": 2049,
+        "additions": 491431,
+        "deletions": 399,
+        "display_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/8",
+        "display_title": "Observe local Qwen and governance-enabled agents with signed AIP evidence"
+      },
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 41513005690,
+            "name": "RBI rehearsal",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 43,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513005690/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513005690/logs",
+            "workflow_id": 397505616
+          },
+          {
+            "id": 41513004256,
+            "name": "Genuine same-run execution assurance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 38,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004256/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004256/logs",
+            "workflow_id": 399722517
+          },
+          {
+            "id": 41513004255,
+            "name": "Enterprise integration",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 49,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004255/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004255/logs",
+            "workflow_id": 399274576
+          },
+          {
+            "id": 41513004237,
+            "name": "Real-agent harness contracts (no live agent claim)",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 58,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004237/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004237/logs",
+            "workflow_id": 399123351
+          },
+          {
+            "id": 41513004226,
+            "name": "Security",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 85,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004226/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004226/logs",
+            "workflow_id": 297111055
+          },
+          {
+            "id": 41513004260,
+            "name": "Open-source agents and Linux observation",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 50,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004260/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004260/logs",
+            "workflow_id": 399273194
+          },
+          {
+            "id": 41513004249,
+            "name": "CI",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 81,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004249/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41513004249/logs",
+            "workflow_id": 297111051
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/9",
+        "number": 9,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "VANIAN needs to preserve external identity and governance claims while independently checking the native evidence that supports them. This adds optional interoperability adapters, real ADK/A2A/Microsoft-governed ContextForge execution, native offline authority-chain verification, and a read-only comparison of the exact ACS-reported tool input with the signed gateway request. **The complete institutional same-run milestone remains open.**\n\nStacked on draft PR #8 at exact base `e3aa195def7524d6ec84d37a934beebe18b6c794`, which already combines #6 and #7. No draft is merged. Historical RBI evidence and cryptographic signing formats are preserved.\n\n### Resulting behavior\n- Pinned-key JWT/JWT-SVID references retain issuer, tenant, provenance and unresolved logical-agent mappings.\n- Official A2A SDK uses pinned HTTPS/mTLS origins, card provenance and a clearly labeled signed task profile with durable local replay protection.\n- OPA remains the policy evaluator. ADK callbacks, native Microsoft ACS results and OpenShell OCSF imports retain their source boundaries.\n- Existing ContextForge/Rust signatures attest to actual gateway-received parameters.\n- `verify_authority_reference` verifies expectation signatures, exact native root/hop references, signatures/attenuation, leaf, action scope and validity at issuance. Known delegators cannot silently become root issuers.\n- New public-key-only `aip-tool-receipt compare-request` recomputes the original native commitment and compares agent, decision, tool and request IDs. It preserves Forwarded/Refused/Failed dispositions and establishes no authority or execution.\n- The optional ACS bridge calls the pinned upstream input-identity implementation. For its explicit untransformed integer-JSON pre-tool profile, it checks the native input/snapshot/context and compares the exact arguments against the verified receipt. Policy producer/version authenticity and logical-agent mapping remain unestablished.\n- The live workload translates the model's synthetic record selection **before** ACS evaluation and sends the evaluated arguments to ContextForge with the same request ID.\n- Missing observations still return CannotProve, including when native authority verifies. The read-only host preflight exposes unavailable observation prerequisites.\n\n### Actual validation\nLatest continuation, code head `9d52c68c93e634479dd82b012f7ef941b796d551`:\n- Two fresh genuine ADK/A2A/Microsoft/ContextForge lab runs completed. The retained final run has four model generations, 28 gateway checks/receipts and five live authentication/governance negatives.\n- The final run's ACS-reported input matches its signed gateway request offline. All 18 captured adapter source hashes match the retained code.\n- Native gateway suite: 34 passed, including eight new public-key-only CLI adversarial tests.\n- Native Microsoft archive suite: 25 passed using the installed pinned SDK and real Rust verifier; no mock hashing, policy engine or receipt signatures.\n- Optional adapter suite: 47 passed. Revised ACS Rego scope: four passed.\n- All 28 new gateway signatures verify offline; altered commitments are refused.\n- Workspace-wide Clippy (all targets/features, warnings denied) and formatting passed.\n\nEarlier retained validation:\n- Actual OPA mTLS allow/deny/no-client-certificate checks and four Rego tests pass.\n- Initial scoped native suites: 446 passed, one ignored. Authority continuation: 183 passed, one ignored, including 12 new adversarial tests; offline composition example: five passed. **These suite totals overlap and must not be added.**\n- Python SDK: 76 passed in its prescribed clean environment; TypeScript: two; MCP boundaries: nine; RBI control-flow: 17; packaging/harness/SQL and historical archive regression passed.\n- **Full local Cargo workspace run remains failed:** 3078 passed, 161 failed, eight ignored across 28 failed targets. The complete log is retained; scoped success does not reclassify it as green.\n\n**Exact-head remote CI is blocked:** all 12 jobs failed with runner ID 0 and no test steps, including the new pinned-native-SDK offline job. The provider reason is not exposed; no remote tests are claimed as executed.\n- [Interoperability](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802349)\n- [Main CI](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802391)\n- [Enterprise integration](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802575)\n- [Real-agent harness](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802445)\n\n### Evidence and remaining guarantees\n[Validation report](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/feature/vanian-agent-governance-interoperability/docs/interoperability/VALIDATION_REPORT.md) and [new live/offline archive](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/tree/feature/vanian-agent-governance-interoperability/validation/interoperability/results/20261028-receipt-join) retain transcripts, native records, signed receipts, public lab anchors, source hashes, adversarial results and reproduction commands. Earlier archives remain unchanged.\n\nACS input hashes are unkeyed. A fabricated policy record can be content-consistent with an authentic receipt, so the bridge explicitly refuses to promote self-declared source authenticity. Tenant-scoped gateway authority and tool aliases require assessor configuration; receipt v1 has no tenant field. Transforms, approvals and additional native profiles remain insufficient for this comparison.\n\nNo independent institutional ExpectedExecution is supplied for the model operation; separate comparator authorizations remain labeled fixtures. Same-run workload/logical-agent binding, kernel capture, independent collector signatures and enterprise admission/readback remain open. Remote A2A kernel execution remains UNOBSERVED. SPIRE/OpenShell runtime validation is blocked by host prerequisites.\n\nExact upstream pins and licenses remain in the lock/inventory. ADK A2A is experimental; Microsoft compatibility SDK 0.4.0b0 uses native ACS alpha.4. No upstream source is vendored by this increment. Full A2A TCK/MCP conformance, production support, independent security certification and vendor endorsement are not claimed.\n\n<details><summary>Exact changed files (132)</summary>\n\n- `.github/workflows/interoperability.yml`\n- `AUDIT_CORRECTIONS.md`\n- `STATUS.md`\n- `aip-standalone/aip-airi/examples/interop_verify.rs`\n- `aip-standalone/aip-authorize/src/authority.rs`\n- `aip-standalone/aip-authorize/src/lib.rs`\n- `aip-standalone/aip-authorize/tests/authority_reference.rs`\n- `aip-standalone/aip-mcp-gateway/src/bin/aip-tool-receipt.rs`\n- `aip-standalone/aip-mcp-gateway/src/comparison.rs`\n- `aip-standalone/aip-mcp-gateway/src/lib.rs`\n- `aip-standalone/aip-mcp-gateway/tests/received_call.rs`\n- `docs/interoperability/A2A_INTEGRATION.md`\n- `docs/interoperability/ARCHITECTURE.md`\n- `docs/interoperability/ECOSYSTEM_MATRIX.md`\n- `docs/interoperability/EVIDENCE_AND_TRUST_BOUNDARIES.md`\n- `docs/interoperability/GOOGLE_ADK_INTEGRATION.md`\n- `docs/interoperability/IDENTITY_MAPPING.md`\n- `docs/interoperability/MICROSOFT_GOVERNANCE_INTEGRATION.md`\n- `docs/interoperability/NVIDIA_INTEGRATION.md`\n- `docs/interoperability/POLICY_INTEROPERABILITY.md`\n- `docs/interoperability/PRODUCTION_GAPS.md`\n- `docs/interoperability/THIRD_PARTY_LICENSES.md`\n- `docs/interoperability/VALIDATION_REPORT.md`\n- `integrations/interoperability/README.md`\n- `integrations/interoperability/examples/adk_a2a_live.py`\n- `integrations/interoperability/examples/lab_tls.py`\n- `integrations/interoperability/examples/local_model.py`\n- `integrations/interoperability/examples/microsoft/manifest.yaml`\n- `integrations/interoperability/examples/microsoft/policy/research.rego`\n- `integrations/interoperability/examples/microsoft/policy/research_test.rego`\n- `integrations/interoperability/examples/opa_live.py`\n- `integrations/interoperability/examples/policy/vanian.rego`\n- `integrations/interoperability/examples/policy/vanian_test.rego`\n- `integrations/interoperability/examples/spire_jwt_live.py`\n- `integrations/interoperability/pyproject.toml`\n- `integrations/interoperability/runtime-packages.json`\n- `integrations/interoperability/src/vanian_interop/__init__.py`\n- `integrations/interoperability/src/vanian_interop/a2a.py`\n- `integrations/interoperability/src/vanian_interop/google_adk.py`\n- `integrations/interoperability/src/vanian_interop/governance.py`\n- `integrations/interoperability/src/vanian_interop/identity.py`\n- `integrations/interoperability/src/vanian_interop/microsoft_receipts.py`\n- `integrations/interoperability/src/vanian_interop/policy.py`\n- `integrations/interoperability/src/vanian_interop/receipts.py`\n- `integrations/interoperability/src/vanian_interop/records.py`\n- `integrations/interoperability/src/vanian_interop/transport.py`\n- `integrations/interoperability/tests/test_adk_plugin.py`\n- `integrations/interoperability/tests/test_boundaries.py`\n- `integrations/interoperability/upstreams.lock.json`\n- `integrations/interoperability/uv.lock`\n- `integrations/mcp-gateway/validate_contextforge.py`\n- `validation/interoperability/.gitattributes`\n- `validation/interoperability/.gitignore`\n- `validation/interoperability/authority-ci-attempt.json`\n- `validation/interoperability/ci-attempt.json`\n- `validation/interoperability/host_preflight.py`\n- `validation/interoperability/results/20261028-authority/SHA256SUMS.json`\n- `validation/interoperability/results/20261028-authority/checks/authority-cli-final.log`\n- `validation/interoperability/results/20261028-authority/checks/authority-clippy.log`\n- `validation/interoperability/results/20261028-authority/checks/authority-continuation.log`\n- `validation/interoperability/results/20261028-authority/checks/authority-offline.log`\n- `validation/interoperability/results/20261028-authority/checks/authority-workspace-clippy.log`\n- `validation/interoperability/results/20261028-authority/host-preflight.json`\n- `validation/interoperability/results/20261028-authority/report.json`\n- `validation/interoperability/results/20261028-authority/source-sha256.json`\n- `validation/interoperability/results/20261028-receipt-join/SHA256SUMS.json`\n- `validation/interoperability/results/20261028-receipt-join/checks/acs-rego.log`\n- `validation/interoperability/results/20261028-receipt-join/checks/adapter-tests.log`\n- `validation/interoperability/results/20261028-receipt-join/checks/live-harness.log`\n- `validation/interoperability/results/20261028-receipt-join/checks/microsoft-adversarial.log`\n- `validation/interoperability/results/20261028-receipt-join/checks/microsoft-offline.log`\n- `validation/interoperability/results/20261028-receipt-join/checks/native-gateway-tests.log`\n- `validation/interoperability/results/20261028-receipt-join/checks/receipts-offline.log`\n- `validation/interoperability/results/20261028-receipt-join/checks/workspace-clippy.log`\n- `validation/interoperability/results/20261028-receipt-join/combined/adk-a2a/framework-events.jsonl`\n- `validation/interoperability/results/20261028-receipt-join/combined/adk-a2a/model-transcript.jsonl`\n- `validation/interoperability/results/20261028-receipt-join/combined/adk-a2a/result.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/adk-a2a/source-sha256.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/governance-comparison-context.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/honest-authorization.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/honest-comparison.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/mcp-client-result.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/microsoft-receipt-comparison.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/mismatch-authorization.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/mismatch-comparison.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/receipts.jsonl`\n- `validation/interoperability/results/20261028-receipt-join/combined/report.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/source-manifest.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/trust-anchor.json`\n- `validation/interoperability/results/20261028-receipt-join/combined/upstream-events.jsonl`\n- `validation/interoperability/results/20261028-receipt-join/report.json`\n- `validation/interoperability/results/20261028-receipt-join/source-sha256.json`\n- `validation/interoperability/results/20261028/SHA256SUMS.json`\n- `validation/interoperability/results/20261028/checks/agent-harness.log`\n- `validation/interoperability/results/20261028/checks/clippy-online.log`\n- `validation/interoperability/results/20261028/checks/core-final.log`\n- `validation/interoperability/results/20261028/checks/fmt-final.log`\n- `validation/interoperability/results/20261028/checks/historical-offline-final.log`\n- `validation/interoperability/results/20261028/checks/interop-rust-final.log`\n- `validation/interoperability/results/20261028/checks/interop-tests-final.log`\n- `validation/interoperability/results/20261028/checks/locked-tests-final.log`\n- `validation/interoperability/results/20261028/checks/mcp-boundaries-final.log`\n- `validation/interoperability/results/20261028/checks/offline-composition-final.log`\n- `validation/interoperability/results/20261028/checks/packaging.log`\n- `validation/interoperability/results/20261028/checks/python-sdk-clean.log`\n- `validation/interoperability/results/20261028/checks/rbi-controls.log`\n- `validation/interoperability/results/20261028/checks/receipt-offline-final.log`\n- `validation/interoperability/results/20261028/checks/rego-final.log`\n- `validation/interoperability/results/20261028/checks/sql-parity.log`\n- `validation/interoperability/results/20261028/checks/typescript.log`\n- `validation/interoperability/results/20261028/checks/workspace-tests.log`\n- `validation/interoperability/results/20261028/combined/adk-a2a/framework-events.jsonl`\n- `validation/interoperability/results/20261028/combined/adk-a2a/model-transcript.jsonl`\n- `validation/interoperability/results/20261028/combined/adk-a2a/result.json`\n- `validation/interoperability/results/20261028/combined/adk-a2a/source-sha256.json`\n- `validation/interoperability/results/20261028/combined/honest-authorization.json`\n- `validation/interoperability/results/20261028/combined/honest-comparison.json`\n- `validation/interoperability/results/20261028/combined/mcp-client-result.json`\n- `validation/interoperability/results/20261028/combined/mismatch-authorization.json`\n- `validation/interoperability/results/20261028/combined/mismatch-comparison.json`\n- `validation/interoperability/results/20261028/combined/receipts.jsonl`\n- `validation/interoperability/results/20261028/combined/report.json`\n- `validation/interoperability/results/20261028/combined/source-manifest.json`\n- `validation/interoperability/results/20261028/combined/trust-anchor.json`\n- `validation/interoperability/results/20261028/combined/upstream-events.jsonl`\n- `validation/interoperability/results/20261028/opa/result.json`\n- `validation/interoperability/results/20261028/run-summary.json`\n- `validation/interoperability/test_microsoft_receipt.py`\n- `validation/interoperability/test_offline_composition.py`\n- `validation/interoperability/validation-matrix.json`\n- `validation/interoperability/verify_gateway_archive.py`\n- `validation/interoperability/verify_microsoft_archive.py`\n\n</details>\n",
+        "title": "Add tested agent interoperability with native authority and gateway correlation",
+        "base": "integration/snifferdog-complete-enterprise-validation",
+        "base_sha": "e3aa195def7524d6ec84d37a934beebe18b6c794",
+        "head": "feature/vanian-agent-governance-interoperability",
+        "head_sha": "9d52c68c93e634479dd82b012f7ef941b796d551",
+        "head_repo_id": 1227100465,
+        "head_repo_full_name": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+        "merge_commit_sha": "62b2a93e98c209a66a10cf2953a37b35c32432c1",
+        "user": {
+          "login": "richardrich999888-rgb",
+          "name": "richardrich999888-rgb",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/230304394?v=4",
+          "id": 230304394
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-10-28T14:32:34Z",
+        "updated_at": "2026-10-28T15:57:16Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 8,
+        "changed_files": 132,
+        "additions": 18816,
+        "deletions": 8,
+        "display_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/9",
+        "display_title": "Add tested agent interoperability with native authority and gateway correlation"
+      },
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 40720802445,
+            "name": "Real-agent harness contracts (no live agent claim)",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 25,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802445/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802445/logs",
+            "workflow_id": 399123351
+          },
+          {
+            "id": 40720802575,
+            "name": "Enterprise integration",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 16,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802575/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802575/logs",
+            "workflow_id": 399274576
+          },
+          {
+            "id": 40720802391,
+            "name": "CI",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 48,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802391/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802391/logs",
+            "workflow_id": 297111051
+          },
+          {
+            "id": 40720802349,
+            "name": "Interoperability contracts",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 6,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802349/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40720802349/logs",
+            "workflow_id": 399510411
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/11",
+        "number": 11,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "Enterprise engineers can now obtain role-specific Linux evaluation packages, bootstrap public probe enrollment, compose validated customer configuration, register it in the existing tenant-scoped service, and use install-tested Python/TypeScript clients. The registry closes an onboarding inventory gap without installing sensors, changing trust anchors or granting execution authority. **The complete commercial execution-assurance milestone remains incomplete.**\n\nBase branch: `feature/vanian-agent-governance-interoperability` at `9d52c68c93e634479dd82b012f7ef941b796d551`. Integration merge `0569e8a57c7be3c514f636f6e588df5ba4b6bdcf` preserves #9 and #10 (`52a18830f6607ac6677e6fcbb6f6a085ac5d413f`) as parents; #9 preserves the combined #6/#7/#8 work and RBI evidence. No draft PR or main is merged.\n\n### What the institution installs and connects\n\n- `vanian-snifferdog-agent` on the approved Linux workload host and `vanian-evidence-collector` on a separately administered collector. DEBs reuse existing native daemons, verified archives, strict configuration and systemd hardening. Installation does not automatically start services, contain processes, modify firewalls or gate transactions. Removal preserves configuration, keys, accounts and evidence.\n- Native `aip-probe enroll --probe-id ID --key-path ABSOLUTE_PATH` creates/loads the transport credential and emits public metadata without opening sensors or a network connection. Existing keys require private regular files and matching halves; new creation is exclusive mode 0600.\n- The kit composer validates #10's topology, approved software digest, actual native role configuration and public enrollment records. It produces the collector allow-list, requested retention and `deployment-registration.json`. CONFIGURATION_VALID is the only assessed stage.\n- Existing `aip-service`, its TLS ingress and institution-owned credential/anchor configuration remain the service boundary. The optional `AIP_DEPLOYMENTS_PATH` registry supports Admin POST and authenticated tenant-scoped GET/list. It is disabled by default, single-process JSONL, bounded, locked, immutable and synced before acknowledgment; corrupt/partial journals and failed appends are refused. No RAM fallback, update/delete API, PostgreSQL registry or HA claim.\n- Reader/Machine cannot register, caller-supplied tenant/assurance/private-key/anchor fields are rejected, and public keys remain declarations. The unsigned operator-controlled journal is configuration, not a tamper-evident audit archive. Registration cannot authenticate workload key possession, modify verifier anchors or enforce retention.\n- Existing Reader console displays registration separately from packet-derived identities and retains NOT_ASSESSED / NOT_ESTABLISHED. Both SDKs expose typed registry reads and explicit Admin registration with no automatic POST retries. The evidence MCP server retains its eight Reader-only evidence tools.\n- ContextForge remains the supported gateway profile, connecting existing agents to actual MCP tool servers and the native Rust signed-receipt implementation. No competing gateway, observer-control MCP route, network interception service or dashboard is introduced.\n\n### Executed validation\n\nRegistry implementation `b9eb4bd6de2a26842b869490af15c24927024fcc`, followed by the public-pin export correction `f0966992c5b9eb0b902314af38d3aee7eb36ca8b`; this continuation started at `d030fbf5e717cb690847ab2f056a8c189f4c7ca5`.\n\n- 72 scoped Rust debug tests: 55 service library, seven registry API and ten evidence API. Nineteen scoped release tests: two registry library, seven registry API and ten evidence API. Counts overlap.\n- Two ignored HTTP fixtures were explicitly executed. Registry registration/readback exercised Python and compiled TypeScript clients, eight simultaneous idempotent submissions, role/tenant refusal, conflicting configuration, unchanged unavailable coverage and actual OpenAPI schemas. The existing evidence HTTP fixture exercised both SDKs, the official restricted MCP client, native signed protocol fixtures and tenant/privilege refusals.\n- Python SDK 78 passed; TypeScript three; onboarding/planner 35; MCP boundaries nine; RBI control-flow 17; SQL source parity one. PostgreSQL runtime was not re-executed.\n- Service Clippy with all targets/features and warnings denied, workspace formatting, TypeScript compilation and console syntax passed. Updated console assets were served by the real service; registry browser interaction/visual validation was NOT_EXECUTED.\n- Wheel and compiled JavaScript/declarations tgz were built, installed/imported in fresh isolated environments and checked for the new methods. The earlier .ts-in-node_modules packaging failure remains retained. No package registry was published.\n- All 59 previously recorded delivery archive digests remain unchanged. All 28 retained gateway receipts reverify offline; changed commitments are refused. Historical observer mutation checks passed with the original prefix/suffix checkpoint limitation.\n- The earlier genuine ADK/A2A/model/ContextForge execution retains four model generations, 28 verified gateway receipts/checks and five live auth/governance negatives. Native ACS-reported input matches its signed gateway request. No new model run or join to the separate registry/API fixtures or historical kernel archive is asserted.\n\nThe new archive [REGISTRY_20261028](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/tree/integration/vanian-enterprise-service-delivery/validation/enterprise/results/REGISTRY_20261028) retains exact commands, source hashes, logs, initial failures/corrections, SDK artifact hashes, a labeled non-deployable lab input, preflight, preservation checks and CI records. The prior [DELIVERY_20261028](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/tree/integration/vanian-enterprise-service-delivery/validation/enterprise/results/DELIVERY_20261028) remains unchanged.\n\nThe updated engineering kit SHA-256 is `6be43cb8567b8bd64d3dc270c173cc9a6829410a0a0d7c08f77b9b700bf4c36d`, recorded in `download-artifact.json`. Native runtime/DEBs retain source `5875ba2b1912d0d3f9030e061988dd980b38380d`; SDK/onboarding source is `f0966992c5b9eb0b902314af38d3aee7eb36ca8b`. The API must be built separately. Artifacts remain unsigned/unpublished and require approved distribution terms and release review.\n\n### CI and remaining acceptance\n\nAt final head `a933fdc327e8744dc8a8441ea3d5b2d75063b91f`, all ten remote jobs failed with runner ID 0 and no steps. No remote tests executed. The provider cause is absent from retrieved metadata; no billing/account/runner-policy cause is inferred.\n\n- [Enterprise integration](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409515)\n- [Real-agent harness contracts (no live agent claim)](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409632)\n- [Enterprise service delivery contracts](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409818)\n- [CI](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409670)\n\nThe local environment cannot supply process binding, BPF/perf capabilities, BTF/tracepoints or Unix sockets. No genuinely separate administered collector, current same-run kernel observation, independently issued institutional ExpectedExecution or full reconciliation/API/SDK/offline-verifier chain is established. Registered administrative groups and a valid historical signature do not prove those properties. Missing evidence remains visible and never becomes a clean execution result.\n\nNo clean supported systemd install/upgrade/removal, Docker/cluster runtime, PostgreSQL runtime revalidation, capacity/power-loss qualification, standardized SBOM/vulnerability clearance, signed approved release or independent banking assessment is claimed. LicenseRef-Proprietary distribution text/terms and complete dependency notices remain open. Historical full-workspace failures (3078 passed, 161 failed, eight ignored) remain disclosed. Probe durable resend and qualified collector concurrency remain gaps.\n\nDeferred: independently authenticated workload enrollment, live signed coverage integration, first read-only network ingestion connector, qualified vendor connectors/certifications, RPM, validated collector HSM and additional framework support profiles. No external endorsement, agentless discovery, inline AI firewall or completed banking business effect is claimed.\n\nReady for a scoped paid **engineering evaluation** of package/configuration qualification, onboarding and API/SDK/MCP/gateway interfaces on approved test infrastructure under approved terms. This is not an accepted execution-assurance deployment.\n\nCustomer procedures: `docs/enterprise/INSTALLATION.md`, `CUSTOMER_ONBOARDING.md`, `BANK_INTEGRATION_GUIDE.md`, `SDK_GUIDE.md`, `PRODUCT_READINESS.md` and `VALIDATION_REPORT.md`. Auditors independently provision public anchors and run the existing Rust verifiers offline; configuration registration is excluded from cryptographic execution evidence.\n\n<details><summary>Exact changed files (158)</summary>\n\n- `.github/workflows/enterprise-integration.yml`\n- `.github/workflows/service-delivery-contracts.yml`\n- `STATUS.md`\n- `aip-service/src/deployments.rs`\n- `aip-service/src/enterprise.rs`\n- `aip-service/src/lib.rs`\n- `aip-service/src/main.rs`\n- `aip-service/tests/deployment_api.rs`\n- `aip-standalone/aip-probe/src/enrollment.rs`\n- `aip-standalone/aip-probe/src/keyfile.rs`\n- `aip-standalone/aip-probe/src/lib.rs`\n- `aip-standalone/aip-probe/src/main.rs`\n- `aip-standalone/aip-probe/tests/enrollment.rs`\n- `deploy/enterprise/README.md`\n- `deploy/enterprise/linux/README.md`\n- `deploy/enterprise/linux/container_context.py`\n- `deploy/enterprise/linux/deb.py`\n- `deploy/enterprise/linux/package.py`\n- `deploy/enterprise/runbooks/OPERATIONS.md`\n- `docs/enterprise/BANK_INTEGRATION_GUIDE.md`\n- `docs/enterprise/CUSTOMER_ONBOARDING.md`\n- `docs/enterprise/DELIVERY_INVENTORY.md`\n- `docs/enterprise/INSTALLATION.md`\n- `docs/enterprise/PRODUCT_READINESS.md`\n- `docs/enterprise/SDK_GUIDE.md`\n- `docs/enterprise/SERVICE_DELIVERY_MODEL.md`\n- `docs/enterprise/VALIDATION_REPORT.md`\n- `docs/enterprise/openapi.yaml`\n- `integrations/enterprise-console/app.js`\n- `integrations/enterprise-console/index.html`\n- `integrations/service_delivery/README.md`\n- `integrations/service_delivery/enrollments.py`\n- `integrations/service_delivery/example.json`\n- `integrations/service_delivery/onboarding_bundle.py`\n- `integrations/service_delivery/posture_report.py`\n- `integrations/service_delivery/service_onboard.py`\n- `integrations/service_delivery/tests/test_onboarding_bundle.py`\n- `integrations/service_delivery/tests/test_posture_report.py`\n- `integrations/service_delivery/tests/test_service_onboard.py`\n- `sdk/python/.gitignore`\n- `sdk/python/pyproject.toml`\n- `sdk/python/tests/test_service_client.py`\n- `sdk/python/vanian/__init__.py`\n- `sdk/python/vanian/client.py`\n- `sdk/typescript/.gitignore`\n- `sdk/typescript/package-lock.json`\n- `sdk/typescript/package.json`\n- `sdk/typescript/src/index.ts`\n- `sdk/typescript/test/client.test.ts`\n- `sdk/typescript/tsconfig.json`\n- `validation/enterprise/client_smoke.py`\n- `validation/enterprise/openapi_contract.py`\n- `validation/enterprise/registry_smoke.py`\n- `validation/enterprise/registry_smoke.ts`\n- `validation/enterprise/results/DELIVERY_20261028/.gitattributes`\n- `validation/enterprise/results/DELIVERY_20261028/.gitignore`\n- `validation/enterprise/results/DELIVERY_20261028/SHA256SUMS.json`\n- `validation/enterprise/results/DELIVERY_20261028/artifact-inventory.json`\n- `validation/enterprise/results/DELIVERY_20261028/checks/acs-gateway-offline.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/api-contracts.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/debian-tests.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/distribution-installation.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/enrollment-debug.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/enrollment-release.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/installed-python-sdk.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/installed-typescript-sdk.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/live-gateway.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/mcp-boundaries.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/onboarding-tests.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/probe-libraries-debug.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/python-wheel.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/rbi-controls.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/real-api-clients.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/real-api-compiled-sdk.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/receipts-offline.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/release-build.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/release-libraries.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/sdk-python.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/sdk-typescript-final.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/sdk-typescript.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/sql-source.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/tar-tests.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/typescript-initial-package-failure.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/typescript-locked-build.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/typescript-package-final.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/typescript-package.log`\n- `validation/enterprise/results/DELIVERY_20261028/checks/workspace-clippy.log`\n- `validation/enterprise/results/DELIVERY_20261028/ci-attempt.json`\n- `validation/enterprise/results/DELIVERY_20261028/collector-deb-build.json`\n- `validation/enterprise/results/DELIVERY_20261028/dependency-inventory.json`\n- `validation/enterprise/results/DELIVERY_20261028/download-artifact.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/adk-a2a/framework-events.jsonl`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/adk-a2a/model-transcript.jsonl`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/adk-a2a/result.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/adk-a2a/source-sha256.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/governance-comparison-context.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/honest-authorization.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/honest-comparison.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/mcp-client-result.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/microsoft-receipt-comparison.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/mismatch-authorization.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/mismatch-comparison.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/receipts.jsonl`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/report.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/source-manifest.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/trust-anchor.json`\n- `validation/enterprise/results/DELIVERY_20261028/gateway/upstream-events.jsonl`\n- `validation/enterprise/results/DELIVERY_20261028/host-preflight.json`\n- `validation/enterprise/results/DELIVERY_20261028/onboarding-result.json`\n- `validation/enterprise/results/DELIVERY_20261028/probe-deb-build.json`\n- `validation/enterprise/results/DELIVERY_20261028/report.json`\n- `validation/enterprise/results/DELIVERY_20261028/runtime-build.json`\n- `validation/enterprise/results/DELIVERY_20261028/rust-toolchain.txt`\n- `validation/enterprise/results/DELIVERY_20261028/source-sha256.json`\n- `validation/enterprise/results/REGISTRY_20261028/.gitattributes`\n- `validation/enterprise/results/REGISTRY_20261028/SHA256SUMS.json`\n- `validation/enterprise/results/REGISTRY_20261028/checks/cargo-check.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/console-syntax.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/evidence-http-mcp.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/evidence-release-api.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/format.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/historical-observer-offline.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/initial-disabled-route-contract-failure.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/initial-missing-package-tool.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/initial-missing-pythonpath.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/initial-schema-anchor-failure.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/kit-registration-schema.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/mcp-boundaries.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/onboarding.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/package-install.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/package-tools.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/python-sdk.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/python-wheel.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/rbi-controls.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/receipt-offline.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/registry-http.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/registry-release-api.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/registry-release-unit.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/rust-debug.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/service-clippy.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/sql-source.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/typescript-build.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/typescript-package.log`\n- `validation/enterprise/results/REGISTRY_20261028/checks/typescript-sdk.log`\n- `validation/enterprise/results/REGISTRY_20261028/ci-attempt.json`\n- `validation/enterprise/results/REGISTRY_20261028/commands.json`\n- `validation/enterprise/results/REGISTRY_20261028/download-artifact.json`\n- `validation/enterprise/results/REGISTRY_20261028/host-preflight.json`\n- `validation/enterprise/results/REGISTRY_20261028/lab-readiness.json`\n- `validation/enterprise/results/REGISTRY_20261028/lab-registration.json`\n- `validation/enterprise/results/REGISTRY_20261028/preservation.json`\n- `validation/enterprise/results/REGISTRY_20261028/report.json`\n- `validation/enterprise/results/REGISTRY_20261028/sdk-artifacts.json`\n- `validation/enterprise/results/REGISTRY_20261028/source-sha256.json`\n- `validation/enterprise/run_checks.py`\n- `validation/enterprise/test_deb.py`\n- `validation/enterprise/typescript_smoke.ts`\n- `validation/enterprise/verify_sdk_packages.py`\n\n</details>\n",
+        "title": "Deliver Linux packages, deployment registry and customer SDK onboarding",
+        "base": "feature/vanian-agent-governance-interoperability",
+        "base_sha": "9d52c68c93e634479dd82b012f7ef941b796d551",
+        "head": "integration/vanian-enterprise-service-delivery",
+        "head_sha": "a933fdc327e8744dc8a8441ea3d5b2d75063b91f",
+        "head_repo_id": 1227100465,
+        "head_repo_full_name": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+        "merge_commit_sha": "36fde0e327513677d7a27db43209084b6594bf25",
+        "user": {
+          "login": "richardrich999888-rgb",
+          "name": "richardrich999888-rgb",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/230304394?v=4",
+          "id": 230304394
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-10-28T16:23:41Z",
+        "updated_at": "2026-10-28T18:10:55Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 22,
+        "changed_files": 158,
+        "additions": 8392,
+        "deletions": 67,
+        "display_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/11",
+        "display_title": "Deliver Linux packages, deployment registry and customer SDK onboarding"
+      },
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 40742409515,
+            "name": "Enterprise integration",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 24,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409515/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409515/logs",
+            "workflow_id": 399274576
+          },
+          {
+            "id": 40742409632,
+            "name": "Real-agent harness contracts (no live agent claim)",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 33,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409632/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409632/logs",
+            "workflow_id": 399123351
+          },
+          {
+            "id": 40742409818,
+            "name": "Enterprise service delivery contracts",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 14,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409818/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409818/logs",
+            "workflow_id": 399558880
+          },
+          {
+            "id": 40742409670,
+            "name": "CI",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 56,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409670/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40742409670/logs",
+            "workflow_id": 297111051
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/12",
+        "number": 12,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": true,
+        "body": "Repairs the combined PR #8/#11 execution-assurance path while preserving enterprise delivery, SDKs, MCP/adapters, Debian packages and original evidence. Based on PR #11 `a933fdc`, with reviewed PR #8 snapshot `d6eb35e` retained by normal merge ancestry.\n\n## Fixes\n\n- Preserve both deployment and run APIs; exercise compiled/installed customer SDKs.\n- Keep the approved model/runtime/blob pins and validate immutable original metadata instead of Ollama's rewritten compatibility manifest.\n- Publish live sensor records through one bounded conservative cutoff; preserve strict collector matching and fail-closed coverage.\n- Close SQLite bootstrap handles, parse SPIRE token output correctly, isolate wheel imports from source metadata, and make NEXORA health-reference fixtures deterministic with an anchored wrong-key negative.\n- Bound SPIRE/browser readiness and retain safe diagnostic substages without publishing credentials or raw private logs.\n\n## Actual validation\n\nImplementation candidate `9ed1662af95ce83bbbee69c9387d5bd638713575`:\n\n- Complete Linux debug: **3304 passed, 0 failed, 10 ignored**; release: **3306 passed, 0 failed, 8 ignored**.\n- Exact locked strict workspace Clippy and formatting passed; explicit PostgreSQL: **14 passed**.\n- All seven source-specific workflows passed, including enterprise/package, interoperability, RBI and genuine observed/interrupted/fresh-recovery profiles.\n- Real local-model decisions, actual read-only MCP execution, authorization, signed receipts/kernel records, all API/SDK/MCP/browser clients, external-checkpoint mutations and independent native re-verification are retained.\n\nPositive profiles preserve `CannotProve / ActionEvidenceUnavailable`; interruption preserves `CannotProve / WindowNotCovered`. Gateway agreement does not upgrade the kernel action verdict.\n\n## Required limits — keep draft\n\nThe hosted probe and collector both run as root. Probe-to-collector key inaccessibility is **not enforced** in this profile; valid signatures do not establish independent custody. That gate, clean customer Linux/systemd installation, separate administration and independent bank acceptance remain **BLOCKED**. Both Debian builds and Linux staging passed, explicitly `live_clean_host_installation=false`.\n\n`validation/final_acceptance/acceptance.json` records 11 scoped PASS and 4 BLOCKED gates. `REPORT.md` links exact source files, root causes, source-specific CI and original public captures. Earlier failures remain unchanged. No main merge, force push, security-check bypass, fake observation or cloud-model credential was used.\n\nFinal publication commit `4d0ce1e32c8dedde4e3a930abc2becf1f56b864e` changes only documentation and public evidence; production sources exactly match the validated candidate. All seven publication-head workflows completed successfully, including [complete CI](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045183) and [genuine observed/interruption/recovery](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045115).\n\n[Acceptance report](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/4d0ce1e32c8dedde4e3a930abc2becf1f56b864e/validation/final_acceptance/REPORT.md) · [Machine-readable matrix](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/4d0ce1e32c8dedde4e3a930abc2becf1f56b864e/validation/final_acceptance/acceptance.json)",
+        "title": "Repair combined execution assurance and retain explicit custody limits",
+        "base": "integration/vanian-enterprise-service-delivery",
+        "base_sha": "a933fdc327e8744dc8a8441ea3d5b2d75063b91f",
+        "head": "fix/vanian-end-to-end-green",
+        "head_sha": "4d0ce1e32c8dedde4e3a930abc2becf1f56b864e",
+        "head_repo_id": 1227100465,
+        "head_repo_full_name": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+        "merge_commit_sha": "aa00edff2ee145fae36b03694b05bf3ff3239f3b",
+        "user": {
+          "login": "richardrich999888-rgb",
+          "name": "richardrich999888-rgb",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/230304394?v=4",
+          "id": 230304394
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-10-28T19:21:44Z",
+        "updated_at": "2026-10-29T10:45:20Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 24,
+        "changed_files": 748,
+        "additions": 124722,
+        "deletions": 196,
+        "display_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/12",
+        "display_title": "Repair combined execution assurance and retain explicit custody limits"
+      },
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 40858045115,
+            "name": "Genuine same-run execution assurance",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 21,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045115/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045115/logs",
+            "workflow_id": 399722517
+          },
+          {
+            "id": 40858045183,
+            "name": "CI",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 70,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045183/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045183/logs",
+            "workflow_id": 297111051
+          },
+          {
+            "id": 40858045007,
+            "name": "Real-agent harness contracts (no live agent claim)",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 47,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045007/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045007/logs",
+            "workflow_id": 399123351
+          },
+          {
+            "id": 40858045141,
+            "name": "Enterprise integration",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 38,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045141/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045141/logs",
+            "workflow_id": 399274576
+          },
+          {
+            "id": 40858045231,
+            "name": "RBI rehearsal",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 32,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045231/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045231/logs",
+            "workflow_id": 397505616
+          },
+          {
+            "id": 40858045203,
+            "name": "Agent Zero container and Linux regression",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 21,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045203/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045203/logs",
+            "workflow_id": 399273194
+          },
+          {
+            "id": 40858045161,
+            "name": "Interoperability contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 11,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045161/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40858045161/logs",
+            "workflow_id": 399510411
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/16",
+        "number": 16,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": false,
+        "body": "Makes the three failing `vanian-sovereign` sandbox tests **actually execute** on GitHub runners rather than be skipped, per the decision on #14. It also fixes the production defect that made them fail, which turned out to be the more serious half.\n\n## The defect\n\n`unshare` is a child process. A kernel that refuses the namespaces does not make `spawn` fail — unshare execs fine, fails its own setup, writes the reason to stderr and exits non-zero. The runner treated that as the **tool's** exit status and signed a run record for it.\n\nThree consequences, all live on `ubuntu-24.04` runners:\n\n1. **A signed evidence record claimed a tool had run and exited 1 when nothing ran at all.** This crate exists to make execution evidence trustworthy, so this is the one that matters.\n2. `tampered_exit_code_rejected` tampers a genuine record **to** `Code(1)`. Because a failed unshare also produced `Code(1)`, the tampered bundle was byte-identical to the real one — the verifier was *correct* to accept it. That test was failing because the evidence really had become indistinguishable, not because the verifier was broken.\n3. `sandbox_environment_is_empty` and `deadline_kills_the_tool` **passed**, because a tool that never runs produces no output and a non-zero exit, which is exactly what each asserted. Two tests were measuring a broken sandbox and reporting success. The CI tally of \"16 passed, 3 failed\" was flattering.\n\n## The fix\n\n`SandboxRunner::probe_namespaces` runs `unshare` with the **same flags** over `/bin/true` and requires exit 0, **before the one-shot decision is consumed**. A refusal is `RunError::SandboxUnavailable` carrying the kernel's reason: nothing is consumed, nothing is signed, and the caller's authorization survives a run that never happened.\n\nNot cached — a cached verdict would be wrong for the life of the process if an operator changed the sysctl underneath it. The cost is one `/bin/true` fork against a run already bounded by `timeout_ms`.\n\n## Granting the capability in CI\n\nUbuntu 24.04 ships `kernel.apparmor_restrict_unprivileged_userns=1`, which denies unprivileged user namespaces to the user `validation/ci/with_cgroup.sh` runs the tests as. That script now sets it to `0` and preflights the namespaces as that user, failing with the kernel's reason if they are still refused — the same discipline the freezer preflight beside it already applies. One change covers `fmt · clippy · test`, the release perf-gate run and `coverage`, since all three go through that wrapper.\n\n**It does not run the tests as root**, which was the other option offered. Root can create the namespaces, but it also changes what these tests measure — file modes, capability checks, what a sandboxed process may touch — so a pass as root would not be evidence about the unprivileged path the product actually uses.\n\n**And the tests do not skip.** A runtime skip in the built-in Rust harness *is* a pass: `#[ignore]` is resolved at compile time, and a test that prints a reason and returns early is counted `ok`. There is no way to report a skipped sandbox test as `SKIPPED` in the summary, so the skip-with-reason fallback could not have met its own stated condition (\"counted as SKIPPED, never passed\") in this harness. Fixing the environment was the better of the two, and it is why I did not build the fallback.\n\n## Verification\n\n| check | result |\n|---|---|\n| `cargo test -p vanian-sovereign` | **98 passed, 0 failed** |\n| `tests/agent_execution.rs` | **22 passed** (was 19) |\n| `cargo fmt -p vanian-sovereign --check` | clean |\n| `cargo clippy -p vanian-sovereign --all-targets -- -D warnings` | clean |\n| outer + extracted inner `with_cgroup.sh` | `bash -n` clean |\n| the preflight `unshare` invocation, run in isolation | exit 0 |\n\nThree new tests:\n\n- `the_namespace_probe_succeeds_where_the_sandbox_works` — asserts the precondition directly, so a restricted kernel names the cause **once** instead of producing five confusing assertion failures.\n- `an_unshare_that_fails_its_own_setup_is_not_mistaken_for_a_tool_exit` — `/bin/false` stands in for a refusing kernel; asserts `SandboxUnavailable` **and** that the one-shot decision was not consumed. This is the regression test for the defect, and it needs no special kernel.\n- `the_probe_refuses_when_unshare_is_not_executable`.\n\n`sandbox_environment_is_empty` now asserts the tool reached exit 0 *before* asserting its output was empty, so it can never again pass on an absence.\n\n### What I could not verify here, stated plainly\n\n**The CI change is verified by CI.** This container runs as uid 0 on a non-AppArmor kernel, so neither the sysctl branch nor an unprivileged refusal is reproducible in it — the namespace preflight passes here trivially. I have syntax-checked both the outer script and the inner `bash -c` program and run the preflight command in isolation, but whether the sysctl relaxation is sufficient on the runner image is a claim only this PR's own CI run can settle. If it is not, the preflight will now say so with the kernel's reason instead of leaving five tests to fail obscurely, and I will follow up here.\n\nA new crate README documents both host preconditions, why a refusal is not skipped, and this defect.\n\nRefs #15 (that issue tracks the separate, inherited `trivy` failure on this branch).\n\n---\n_Generated by [Claude Code](https://claude.ai/code/session_019kXhQDbuUN5rVvhHjyo4jq)_",
+        "title": "Refuse when the sandbox namespaces cannot be created, and grant them in CI",
+        "base": "feature/syntriass-runtime-v02",
+        "base_sha": "2883da7bf5b8591a31bf24789c1d0722f83a6624",
+        "head": "fix/ci-userns-sandbox-tests",
+        "head_sha": "c39fc1f0431ddfaffa2d62199874e18e92087969",
+        "head_repo_id": 1227100465,
+        "head_repo_full_name": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+        "merge_commit_sha": "544b2aba532af916ca6e6df8062c7e735406846d",
+        "user": {
+          "login": "richardrich999888-rgb",
+          "name": "richardrich999888-rgb",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/230304394?v=4",
+          "id": 230304394
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-06T10:47:21Z",
+        "updated_at": "2026-11-07T03:39:31Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 1,
+        "changed_files": 4,
+        "additions": 296,
+        "deletions": 18,
+        "display_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/16",
+        "display_title": "Refuse when the sandbox namespaces cannot be created, and grant them in CI"
+      },
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 42205336748,
+            "name": "Security",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 96,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336748/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336748/logs",
+            "workflow_id": 297111055
+          },
+          {
+            "id": 42205336884,
+            "name": "CI",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 88,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336884/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336884/logs",
+            "workflow_id": 297111051
+          },
+          {
+            "id": 42205336378,
+            "name": "Real-agent harness contracts (no live agent claim)",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 65,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336378/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336378/logs",
+            "workflow_id": 399123351
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/17",
+        "number": 17,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": false,
+        "body": "The one finding in #15 that is genuinely fixable. The probe DaemonSet ran with `hostPID` and `hostNetwork` and **no pod-level security context at all** — so no syscall filter. It now sets `seccompProfile: RuntimeDefault` at pod level.\n\n`hostPID`, `hostNetwork` and the `/proc`, tracefs and cgroupfs mounts are unchanged: they are what a host observer is, and the decision about how to treat them is still open on #15.\n\n## What this does not do\n\n**It does not turn `trivy filesystem scan` green**, and isn't trying to. All four findings, KSV-0118 included, live in the retained render `validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml` — evidence of a past run, which this PR does not touch. The live template isn't meaningfully scanned at all: trivy can't parse Helm placeholders, so it reports **0 findings for this file whatever it contains**.\n\n**\"KSV-0118 cleared\" is not the evidence for this change either.** I measured it on a scratch copy of the render with trivy 0.76.2:\n\n| pod-level `securityContext` | findings |\n|---|---|\n| none (as is) | KSV-0009, KSV-0010, **KSV-0118**, KSV-0121 |\n| `seccompProfile: RuntimeDefault` | KSV-0009, KSV-0010, KSV-0121 |\n| `runAsUser: 0` — a control that hardens nothing | KSV-0009, KSV-0010, KSV-0121 |\n\nThe rule only checks that a pod context is non-empty, so it can be silenced without improving anything. The test added here therefore asserts the specific property — `seccompProfile: type: RuntimeDefault` — **on the probe's own pod spec**, since a pod context elsewhere in the file would satisfy a bare substring check without protecting the probe. Falsified: with the chart change reverted, the assertion fails. The cosmetic control above would fail it too.\n\n## Not verified on a cluster — please read before relying on it\n\nThe `sched` sensor needs `perf_event_open`; the `connector` sensor needs a `NETLINK_CONNECTOR` socket. Whether a runtime's default seccomp profile permits `perf_event_open` to a container holding `CAP_PERFMON` — without the broad administrative capability this chart deliberately never grants — **depends on the runtime and its version**, and I have no cluster or probe image to test it with.\n\nIf a sensor fails to open under this profile, the probe must report reduced coverage, never silent success. That needs confirming on the target runtime. The template says so inline; the chart is already annotated `vanian.example/validation: unvalidated-template`, and `test_packaging.py` already states that rendering and cluster behaviour require separate acceptance. If you would rather not take a hardening change you can't yet run, closing this is a reasonable call — it changes no check result.\n\n## Verification\n\n| check | result |\n|---|---|\n| `python3 -m unittest validation.enterprise.test_packaging` | **16/16** |\n| new assertion, chart change reverted | **fails**, with the expected `AssertionError` |\n| trivy 0.76.2 on a rendered copy | KSV-0118 cleared, nothing new introduced |\n\nOne thing the existing tests caught: my first version of the inline comment named the capability literally, and the existing guard `assertNotIn(\"SYS_ADMIN\", template)` — a whole-file substring check — failed. The guard is right and is unchanged; I reworded the comment.\n\nRefs #15\n\n---\n_Generated by [Claude Code](https://claude.ai/code/session_019kXhQDbuUN5rVvhHjyo4jq)_",
+        "title": "Give the probe pod the runtime's default seccomp profile",
+        "base": "feature/syntriass-runtime-v02",
+        "base_sha": "2883da7bf5b8591a31bf24789c1d0722f83a6624",
+        "head": "fix/chart-probe-seccomp",
+        "head_sha": "a0b1045b80dbcd5aac33910361a4e67cfdd2f739",
+        "head_repo_id": 1227100465,
+        "head_repo_full_name": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+        "merge_commit_sha": "1f68e42dd714d38bbe0e96757e4322678b1b2ddb",
+        "user": {
+          "login": "richardrich999888-rgb",
+          "name": "richardrich999888-rgb",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/230304394?v=4",
+          "id": 230304394
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-07T03:41:55Z",
+        "updated_at": "2026-11-07T09:40:33Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 2,
+        "changed_files": 6,
+        "additions": 319,
+        "deletions": 18,
+        "display_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/17",
+        "display_title": "Give the probe pod the runtime's default seccomp profile"
+      },
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 42336209348,
+            "name": "CI",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 93,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209348/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209348/logs",
+            "workflow_id": 297111051
+          },
+          {
+            "id": 42336209415,
+            "name": "Real-agent harness contracts (no live agent claim)",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 70,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209415/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209415/logs",
+            "workflow_id": 399123351
+          },
+          {
+            "id": 42336209329,
+            "name": "Security",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 101,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209329/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209329/logs",
+            "workflow_id": 297111055
+          },
+          {
+            "id": 42336209347,
+            "name": "Enterprise integration",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 51,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209347/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209347/logs",
+            "workflow_id": 399274576
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/19",
+        "number": 19,
+        "state": "open",
+        "merged": false,
+        "mergeable": true,
+        "draft": false,
+        "body": "Fixes #18. This is a **product bug, not a test-isolation bug**: under socket churn, the edge reference counted one connection as two (and up to four) corroborations. The test that caught it — `t10_and_t11`, \"one connection observed once must not read as two corroborations\" — is **unchanged**, as is every other existing assertion.\n\n## Root cause\n\n`/proc/net/tcp` is **not an atomic snapshot**. The kernel produces it through `seq_file` across several `read()` calls and resumes each call by position in the socket hash table. When other sockets are created or closed between those calls, a row is emitted twice.\n\nShown independently of this code: reading the table while other threads churned loopback sockets gave a repeated inode in **29 of 400** reads, against **0 of 400** with no churn.\n\nFrom there the bug was inherited down the chain:\n\n1. `aip-observe::observe_sockets` joins the table to the instance's descriptors by inode. The join is correct, but a repeated row survives it.\n2. `aip-edge-observer` emitted **one observation per row**.\n3. Each became a record, and `aip-effect` counts **records**.\n\nA captured failure showed four `ProcNetTable` records for one socket: same inode, same local port 51406, same remote port 41879. It needs churn, which is why it never appeared serially and only when the file's scenarios ran together.\n\n## How I got there, including the hypotheses that were wrong\n\n| hypothesis | result |\n|---|---|\n| per-PID temp state shared by concurrent scenarios | **refuted** — the directory combines PID, tag and an atomic nonce |\n| the cross-execution scenario observing the shared test process | **refuted** — 0 of 30 barrier-synchronised rounds |\n| CPU contention | **refuted** — 0 of 10 under 4 busy loops |\n| the replayed batch escaping deduplication | **refuted** — the replayed copy was deduplicated; the extra records were inside one real batch |\n| duplicate rows from a non-atomic table read under churn | **confirmed** — captured directly, and reproduced in isolation |\n\nThe fresh-build dependence turned out to be incidental. `ensure_sibling_binaries` sits behind a `OnceLock`, so on a fresh build all 14 tests block on one `cargo build` and are then released together, which maximises socket churn.\n\n## The fix: two layers, because either alone leaves a hole\n\n**`aip-edge-observer`** — emit one observation per distinct socket. Rows equal in every field the table reports (protocol, endpoints, state, inode) are one socket. Rows that share an inode but **differ in state are kept**: the socket changed state between reads, and both are what the kernel said. The reply now reports `repeated-rows N`, so the deduplication is visible, not silent.\n\n**`aip-edge/src/effect.rs`** — `assess_effect` counts one observation per distinct socket per observed process instance before handing records to `aip-effect`. This covers what the observer cannot see — the same open socket described in **two different batches** by an observer that polls more than once — so the verifier doesn't depend on every observer deduplicating. Two design constraints:\n\n- **Different instances are never merged**, so one execution's evidence can't stand in for another's.\n- The representative of a group is its **first member inside the effect window**, else its first. `aip-effect` filters by window afterwards, and keeping an out-of-window duplicate while dropping an in-window one would turn a real corroboration into `OutsideWindow`.\n\n`aip-effect` itself is untouched: it is domain-neutral and has no socket identity to deduplicate on.\n\n## Tests: one per path\n\n| layer | test |\n|---|---|\n| observer | repeated row is one socket · many repeats still one · two genuine sockets both kept · one socket in two states keeps both · order preserved · non-socket passthrough |\n| effect | repeat within one snapshot · same socket in two batches · four repeats · in-window sighting kept when the first is outside · **two genuine sockets still count twice** · **identical sockets on different instances never merged** · non-socket never collapsed · order preserved |\n\n**Falsified:** with the deduplication disabled, exactly the five counting tests fail and the three over-collapsing guards (in bold, plus non-socket) still pass.\n\n## Proof: same harness before and after\n\nThe release `end_to_end` binary, its 14 tests running concurrently, under 4 threads of loopback churn, on a fresh build:\n\n| | runs | failed |\n|---|---|---|\n| **base code** | 60 | **4** (2 × `t10`, 2 × `two_honest_runs_agree…` seeing 3 and 5 records where 2 were expected) |\n| **this fix, concurrent** | **200** | **0** |\n| **this fix, serial** (`--test-threads=1`) | 50 | 0 |\n| barrier probe, all 8 scenario kinds released together | before 130 / after 100 replay checks | before **5** / after **0** |\n| `tests/adversarial.rs` under churn | 50 | 0 |\n\nA pass after the fix only means something because the identical harness made the base fail. Both after-run binaries were confirmed to contain the fix (the observer carries `repeated-rows`, the test binary `distinct_socket_observations`) and were rebuilt immediately before the runs.\n\n**All four baseline failures had this one cause.** The second symptom — two honest runs disagreeing on record count — is the same repeated row inflating an honest run's records.\n\n## Impact on published figures: none change\n\nChecked three ways:\n\n1. **Code path.** `aip-corroborate`, `aip-probe` and `aip-collector` never call `observe_sockets`, read socket tables through it, or use the effect assessment.\n2. **Matching.** `aip-corroborate` pairs one-to-one: each external exec claims at most one AIP exec.\n3. **Sealed evidence, recounted:**\n   - **bpftrace 113 agreed / auditd 112 agreed** — no exec appears in two agreements (by pid, image and time) and no external event does either. The 25 repeated PIDs are all `env` then `true`: `env` execs `true` in the same process, two genuine execs. The AIP-only entries are the harness's own `date` and `tee`.\n   - **LangGraph 167** — recounts to 167 (79 `Exec` + 88 `Fork`), every event distinct, across 2 batches with no repeated sequence.\n   - Neither sealed archive contains a single `ProcNetTable` observation. Their events come from the scheduler, socket-state and socket-send tracepoints and the proc connector.\n\n## Not changed, and why\n\n`aip-observe::observe_sockets`, where the repeated row first appears. It is a different crate with other callers (`ghost-demo`, `aip-observe`'s own tests), and outside the permission for this fix. The proposal — deduplicate rows by full identity inside the join, and count repeats alongside `malformed` — is on #18 for whoever owns it.\n\n## Also in this branch\n\n`9b81098` is #16's namespace fix, cherry-picked byte-identical (`git cherry-pick -x c39fc1f`). This branch is cut from the base, which does not yet have it, so without it CI would go red on the three `vanian-sovereign` sandbox tests that #16 fixes. Disjoint files; it becomes a no-op if #16 merges first. `trivy` will stay red: that failure comes from the base and is tracked in #15.\n\n`cargo fmt` and `clippy -D warnings` clean on both crates. Every `aip-edge` and `aip-edge-observer` test binary passes; `vanian-sovereign` 98/0.\n\n---\n_Generated by [Claude Code](https://claude.ai/code/session_019kXhQDbuUN5rVvhHjyo4jq)_",
+        "title": "aip-edge: count one socket as one corroboration, however many times it is read",
+        "base": "feature/syntriass-runtime-v02",
+        "base_sha": "2883da7bf5b8591a31bf24789c1d0722f83a6624",
+        "head": "fix/aip-edge-distinct-corroboration",
+        "head_sha": "9b8109884455e37a61ca7abef1bb7d78a39a860d",
+        "head_repo_id": 1227100465,
+        "head_repo_full_name": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+        "merge_commit_sha": "70b903aa339a3187704a0e97fecdf156092e1b2d",
+        "user": {
+          "login": "richardrich999888-rgb",
+          "name": "richardrich999888-rgb",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/230304394?v=4",
+          "id": 230304394
+        },
+        "requested_reviewers": null,
+        "requested_team_reviewers": null,
+        "diff": null,
+        "comments": null,
+        "created_at": "2026-11-07T09:39:48Z",
+        "updated_at": "2026-11-07T10:04:54Z",
+        "closed_at": null,
+        "merged_at": null,
+        "commits": 2,
+        "changed_files": 6,
+        "additions": 604,
+        "deletions": 21,
+        "display_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/19",
+        "display_title": "aip-edge: count one socket as one corroboration, however many times it is read"
+      },
+      "ci": {
+        "workflow_runs": [
+          {
+            "id": 42360677570,
+            "name": "Security",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_number": 105,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677570/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677570/logs",
+            "workflow_id": 297111055
+          },
+          {
+            "id": 42360677640,
+            "name": "CI",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 96,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677640/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677640/logs",
+            "workflow_id": 297111051
+          },
+          {
+            "id": 42360677582,
+            "name": "Real-agent harness contracts (no live agent claim)",
+            "status": "completed",
+            "conclusion": "success",
+            "run_number": 73,
+            "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677582/jobs",
+            "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677582/logs",
+            "workflow_id": 399123351
+          }
+        ]
+      }
+    }
+  ],
+  "jobs": {
+    "baseline": {
+      "jobs": [
+        {
+          "id": 123393929512,
+          "name": "RED suite (adversarial ledger reproducible)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 40858045183,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Install Rust toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache cargo",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "RED suite",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Cache cargo",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        },
+        {
+          "id": 123393929937,
+          "name": "fmt · clippy · test",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 40858045183,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Install Rust toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Cache cargo",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install SoftHSM2 (PKCS#11 module for aip-hsm tests)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "cargo fmt --check",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "cargo clippy (deny warnings)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "cargo test",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "cargo test (release — perf gates)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Cache cargo",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 123393929941,
+          "name": "cargo audit · cargo deny",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 40858045183,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run dtolnay/rust-toolchain@stable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Install audit tools",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "cargo audit",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "cargo deny check",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 123393930045,
+          "name": "Python SDK regression and parity tests",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 40858045183,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run python -m pip install cryptography==41.0.7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Test SDK, adapters, canonical fixtures and schemas",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        },
+        {
+          "id": 123393930060,
+          "name": "postgres backend integration",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 40858045183,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run dtolnay/rust-toolchain@stable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run Swatinem/rust-cache@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "clippy (postgres feature)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "test (postgres feature, live DB)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "storage controls (restricted roles, live DB)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run Swatinem/rust-cache@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 123393930165,
+          "name": "coverage",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 40858045183,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run dtolnay/rust-toolchain@stable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Install cargo-llvm-cov",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install SoftHSM2 (required by workspace custody tests)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Generate coverage",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Upload coverage artifact",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        }
+      ]
+    },
+    "pr19_security": {
+      "jobs": [
+        {
+          "id": 128368211819,
+          "name": "gitleaks (secret scan)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 42360677570,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run gitleaks",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            }
+          ]
+        },
+        {
+          "id": 128368211941,
+          "name": "cargo audit (RUSTSEC)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 42360677570,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run dtolnay/rust-toolchain@stable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run cargo install cargo-audit --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Audit (fail on any vulnerability)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 128368212023,
+          "name": "trivy filesystem scan",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 42360677570,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Install trivy",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Trivy filesystem scan (fail on CRITICAL/HIGH)",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 4
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        }
+      ]
+    },
+    "pr8_security": {
+      "jobs": [
+        {
+          "id": 125509317502,
+          "name": "cargo audit (RUSTSEC)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 41513004226,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run dtolnay/rust-toolchain@stable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run cargo install cargo-audit --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Audit (fail on any vulnerability)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 125509317889,
+          "name": "trivy filesystem scan",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 41513004226,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Install trivy",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Trivy filesystem scan (fail on CRITICAL/HIGH)",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 4
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        },
+        {
+          "id": 125509318074,
+          "name": "gitleaks (secret scan)",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_id": 41513004226,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run gitleaks",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 3
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
