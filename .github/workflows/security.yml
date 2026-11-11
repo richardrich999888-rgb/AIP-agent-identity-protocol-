@@ -17,8 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - name: Verify audit failure propagation
+        run: python3 -m unittest discover -s validation/ci -p 'test_audit_exit.py' -v
       - run: cargo install cargo-audit --locked
       - name: Audit (fail on any vulnerability)
+        # Explicit bash adds pipefail; tee must not turn an audit refusal green.
+        shell: bash
         # One workspace, one Cargo.lock at the repository root.
         # RUSTSEC-2026-0097 ignored with justification (see ./deny.toml): rand
         # unsoundness only via rand::rng()+custom logger; AIP uses OsRng only.
