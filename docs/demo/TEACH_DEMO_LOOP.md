@@ -453,9 +453,20 @@ with the unproven half named.
   number-insensitive, or neither.
 
 ### Phase C — It checks its own homework
-- [ ] **C1. Scoreboard.** Boundary probes + expert suite; "Passed N of M". On failure:
-  the rule misunderstood, the probe input, expected vs actual, and which question to
-  revisit.
+- [~] **C1. Scoreboard — CLI diagnostic complete; teaching integration open.**
+  Commit `84d889f0c045a998150900e433541a976fdd1d69` adds `cap-scoreboard`:
+  boundary/counterexample probes plus the signed expert suite, "Passed N of M",
+  failed input, expected/actual output, executed rule and questions to revisit.
+  Questions identify field families, not a proven root cause or precise B1 qid.
+  Existing validation and approval gates are unchanged; the command is read-only
+  and refuses tampered stored bytes. **14 new tests, 187 runtime tests passed**;
+  existing Python suite 293 passed plus its two initially skipped CLI tests passed
+  separately with the built binary. Clean local and CI runs retain motor 14/14,
+  rejected transformer 11/12, corrected transformer 12/12 with zero model calls.
+  Evidence: `docs/demos/evidence/p0-049-iteration-1/`; CI run `43090681318` passed.
+  **Open:** wire the answered teaching-session IR and exact B1 questions to this
+  diagnostic, then the E1 screen; this does not close the full teaching workflow.
+  Suites are signed synthetic engineer fixtures; diagnostics are unsigned.
 - [ ] **C2. Approve.** Signed approval → activate → supersede. One CLI command, one UI
   action. Builds on `cap-activate --supersede` and the six suite-attack tests.
 

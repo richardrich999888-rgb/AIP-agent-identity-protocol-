@@ -4,7 +4,7 @@
 `P0-049-COMPLETION-MATRIX.md`.
 
 1. **W3 is incomplete.** Live model drafting, B3 word-form/term-length issues,
-   teaching approval composition, knowledge packs, signed answer records, local
+   C1 answered-session/question linkage, teaching approval composition, knowledge packs, signed answer records, local
    REST/MCP, examples, role-aware teaching UI and complete two-domain workflow
    remain. The new C1 command is a bounded read-only diagnostic, not a full demo.
 2. **No complete offline kit.** W's builder omits the AIRON binary, weights,
@@ -16,8 +16,9 @@
    on accessible source, with fresh tests/captures, unchanged app hashes and identity
    refusals. Keep PQ labelled PROOF OF CONCEPT.
 4. **Network/sensor acceptance open.** The process-connector sensor requires the
-   initial netns. No independent isolation boundary, full-run packet captures or
-   interface-counter evidence was established here. Historical signatures do not
+   initial netns. No independent isolation boundary or full-run packet captures
+   were established for that sensor here. C1-only namespace counters are retained;
+   they do not establish the sensor's network isolation. Historical signatures do not
    establish sensor continuity or event completeness.
 5. **Benchmarks incomplete.** W6.1 already has a wrapper and comparison script;
    their full offline run has not been retained/accepted. W6.3 and two-machine
@@ -30,10 +31,15 @@
    required modes or W3's twenty-run requirement, final integrated code, fresh
    offline installs and complete signed/capture archives.
 8. **Integration and CI open.** T/W diverge; three overlapping dependency/setup
-   paths differ. PR #16/#17/#19 require content-aware integration review. W's latest
-   Security workflow remains red on Trivy. Nothing was auto-merged or suppressed.
+   paths differ. PR #16/#17/#19 require content-aware integration review. Source
+   commit `84d889f` passes the new scoreboard workflow, but Security fails with four
+   HIGH findings on the retained Helm render. Main CI's audit/deny gate fails on
+   `libsqlite3-sys 0.30.1` (RUSTSEC-2026-0459); rustix 1.1.5 also has an unsoundness
+   warning (RUSTSEC-2026-0486). Review compatible dependency updates and database
+   regressions in a bounded follow-up. Nothing was auto-merged or suppressed.
 9. **External acceptance absent.** No external evaluator has installed the final
-   package, verified all signed evidence and reproduced required results.
+   package, verified all signed evidence and reproduced required results. The
+   connected CI reproduction of C1 is useful evidence, not this acceptance.
 
 Iteration boundary: implementation, local verification, evidence, branch update,
 draft PR and CI inspection are the authorized work for one iteration. Continue with

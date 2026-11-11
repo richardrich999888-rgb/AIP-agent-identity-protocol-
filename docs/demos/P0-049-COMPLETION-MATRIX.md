@@ -1,7 +1,8 @@
 # P0-049 completion matrix
 
 Release verdict: **NOT READY**. This is iteration 1, reconciliation plus the C1
-homework scoreboard. No full-demo or independent-machine acceptance is claimed.
+homework scoreboard. Bounded C1 reproduced on a separate CI runner; no full-demo
+or independent clean-machine offline-install acceptance is claimed.
 Review date: 12 November 2026 IST (11 November UTC).
 
 ## Source snapshot and branch reconciliation
@@ -12,7 +13,7 @@ Review date: 12 November 2026 IST (11 November UTC).
 | W | AIP `feature/wow-demos`, `6ad92ae78806546948874812dc8e6161d24d9d67` | Detached audit checkout; master loop, rehearsal log, kit, launcher, benchmark scripts and evidence |
 | O | OVERLAY approved base `eccb66886d1f6b0b751909b6743d7e731e8061fb` | Connector commit/tree snapshot and selected CBOM, identity and test source; private git clone was unavailable to the shell |
 
-T and W have **27 and 37 unique commits**, respectively, since common ancestor
+Starting T and W have **27 and 37 unique commits**, respectively, since common ancestor
 `2883da7`. Of their 17 overlapping changed paths, `.gitignore`,
 `deploy/syntriass/requirements.lock` and `deploy/syntriass/setup_env.sh` differ.
 The remaining 14 are byte-identical. No branches were merged.
@@ -38,18 +39,31 @@ For W's Security run `42447753606`, secret scan and cargo audit passed; Trivy
 failed. No workflow, finding or retained render was suppressed. Historical green
 CI does not imply clean-machine, model, kernel-sensor or external-evaluator proof.
 
+This iteration's implementation is `84d889f0c045a998150900e433541a976fdd1d69`,
+delivered in [draft PR #21](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/21).
+Scoreboard CI `43090681318` passed and its raw artifact is retained. Its merge
+checkout `71ab878a1824364ac424b9895a6ffe12818ec842` has the identical source tree
+`557935e887f10328fb60355968503d8a619e3c1f`. The real-agent contract workflow passed.
+Security `43090681099` failed: four HIGH Trivy findings on the existing historical
+Helm render (KSV0009/0010/0118/0121). Main CI `43090681089` has a failed supply-chain
+job: unchanged `libsqlite3-sys 0.30.1` triggers RUSTSEC-2026-0459; audit also reports
+rustix RUSTSEC-2026-0486 as a warning. Other pending jobs are not counted as passed.
+See `remote-state.json`, `trivy-source.sarif` and `ci-supplychain-failure.txt` in the
+evidence directory. No ignores or gate reductions were added.
+
 ## Requirements
 
 Paths with T/W/O prefixes refer to the snapshots above. Evidence described as
 historical was inspected, not re-created in this iteration. New results are in
-`docs/demos/evidence/p0-049-iteration-1/` once the recording commit is added.
+`docs/demos/evidence/p0-049-iteration-1/`. T source paths below include this
+iteration's additive changes; starting-state revisions are recorded above.
 
 | Requirement / status | Current implementation | Source file | Test | Evidence | Missing behavior | Dependency | Next action |
 |---|---|---|---|---|---|---|---|
 | 1. Offline answers — HISTORICAL PARTIAL | Live local-model harness and citations | W `demos/pull-the-plug/run.sh` | W `accept.py`, server/meter tests | W `evidence/2026-11-08-64d6f40-*` | Fresh packaged run with captures on supported host | Weights, llama-server, bundle | Stage pinned bytes, package and rerun |
 | 2. Expert teaching — PARTIAL | Ingestion, sessions, deterministic draft, typed answers | T `domain/teach.rs`; `harness/{draft_from_session,apply_answers}.py` | T teach CLI + Python tests | T `docs/demo/results/A1*`, `A2*`, `A3a*`, `B2*` | Live model drafting and complete workflow | Model bundle, B3 scope issue | Finish A3b without overwriting document evidence |
 | 3. Questions — PARTIAL | Deterministic cited questions; OCR warning | T `harness/question_generator.py` | `test_question_generator.py` | `B1_question_generator.json`, `B3_holdout_questions.json` | Word-form restriction blocks holdout; term length not explained | Reviewed typed-answer policy | Fix with regression and false-activation checks |
-| 4. Homework C1 — IMPLEMENTED, bounded acceptance | New read-only `cap-scoreboard`, real validator, gate failures, inputs, trace, review prompts | T `capability/scoreboard.rs`, CLI | `teaching_scoreboard.rs` (14 new) | C1 recorder, two synthetic maintenance domains | UI linkage to precise B1 question IDs; full rehearsal | E1; trusted expert suite | Review bounded evidence; integrate teaching screen later |
+| 4. Homework C1 — PARTIAL; CLI accepted | New read-only `cap-scoreboard`, real validator, gate failures, inputs, trace, review prompts | T `capability/scoreboard.rs`, CLI | `teaching_scoreboard.rs` (14 new) | Local + CI recorder, two synthetic maintenance domains | Answered-session IR integration and precise B1 question IDs; screen; full rehearsal | B3/session compiler; E1; trusted suite | Wire actual answered session to scoreboard; keep fixture-only evidence labelled |
 | 5. Signed approval C2 — PARTIAL | Existing signed `cap-approve` and lifecycle | T `capability/lifecycle.rs`, `learning.rs` | `capability_engine.rs` | Existing research lifecycle results | One teaching action joining approval/activation/supersession | C1, approver roles | Compose existing gates; never auto-approve |
 | 6. Reuse — PARTIAL | Deterministic capability path; activation/supersede/rollback commands | T `app.rs`, `learning.rs` | `runtime_app.rs`, `capability_evolution.rs` | Existing v0.2 results | Teaching workflow, current live meter and variations | C2, D1/D2 | Measure end-to-end reuse with zero model calls |
 | 7. Knowledge packs D5 — OPEN | No completed `pack export/import` command | T CLI | No pack acceptance suite | None | Signed, tenant/version/approval/validation-bound export/import | C2, signing/trust format | Implement before pack demo |
@@ -57,7 +71,7 @@ historical was inspected, not re-created in this iteration. New results are in
 | 9. Undeclared action — HISTORICAL PARTIAL | Scripted liar, kernel observation, auditd comparison | W `demos/lying-agent/{agent,observe,acceptance}.py` | W lying-agent tests | Retained 7 batches / 86 events + 1 health record reverified this iteration; tampered copy rejected | Fresh initial-netns run behind independent isolation; missing-event/interruption acceptance | Kernel facilities, auditd, dedicated isolated host | Capture traffic/counters without disabling sensor |
 | 10. Quantum X-ray — ORIGINAL UNAVAILABLE | CBOM classifier/scanner exists at O | O `src/cbom/classify.rs`; original demo absent | O CBOM tests not run here | Historical W summaries only | Demo source, planted-sample acceptance and fresh raw outputs | Accessible O checkout/build | Reimplement from verified requirements and label fresh provenance |
 | 11. PQ Overlay — ORIGINAL UNAVAILABLE / PoC | Underlying hybrid encryption and identity tooling | O `src/bin/syntriass-identity.rs`, identity tests | O tests not run here | W historical summaries reference unavailable commits | Demo, captures, same-binary hashes, fail-closed trials | Linux/container facilities and O build | Reimplement; label **PROOF OF CONCEPT** |
-| 12. Independent reproduction — OPEN | Some hashes, verifier and retained results exist | W kit and benchmark tools | No independent full-kit test | Same-host historical runs only | External evaluator installation and full acceptance | Completed kit, second machine, evaluator | Provide immutable kit and independently held trust anchors |
+| 12. Independent reproduction — OPEN | Some hashes, verifier and retained results exist | W kit and benchmark tools; T recorder | Bounded C1 reproduced on CI; no independent full-kit test | Historical runs; new separate local/CI evidence | External evaluator installation and full acceptance | Completed kit, second machine, evaluator | Provide immutable kit and independently held trust anchors |
 | W3 signed answer records D6 — OPEN | AIP primitives; runtime audit hash chain | T `app.rs`, AIP signing crates | Existing audit-chain tests | No full per-answer receipt evidence | Signed questioner/capability/model/source/outcome binding; replay rejection | Identity/auth, receipt format | Implement and verify independently |
 | W3 REST F1 — OPEN | CLI and evaluation JSONL interface | T CLI | CLI tests | No authenticated teaching REST evidence | Ask/list/verify endpoints and OpenAPI | D6 and role/clearance checks | Build localhost interface; eval principals are not authentication |
 | W3 MCP F2 — OPEN | Existing AIP gateway patterns, no completed teaching adapter | T existing MCP code | No teaching MCP tests | None | Approved capability tools and signed calls | D6/F1 | Add authenticated adapter |
@@ -99,7 +113,8 @@ close the full-demo criterion.
 | PQ identity failure | O identity tests exist; original demo unavailable | Fresh missing/impostor/plaintext/PSK-fallback capture tests |
 | Offline installation failure | Historical partial same-host kit test | Complete local dependencies, independent clean-machine failure/recovery |
 
-The first next actionable item after this bounded iteration is C2 teaching approval
-composition, or the documented B3 word-form issue if its precise semantics are
-settled in tests. A3b remains unstaged in this checkout. This iteration does not
+Next reconcile the failing dependency gates, then finish the C1 answered-session
+and question linkage before claiming C1 complete. B3's word-form policy needs
+explicit regression/false-activation tests; C2 teaching approval composition
+follows those gates. A3b remains unstaged in this checkout. This iteration does not
 borrow W's historical model bytes, sensor observations or performance as current proof.

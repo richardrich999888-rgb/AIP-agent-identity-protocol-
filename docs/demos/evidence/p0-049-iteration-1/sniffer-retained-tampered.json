@@ -1,0 +1,30 @@
+{
+  "observer_id": "collector.lying",
+  "key_version": 1,
+  "public_key": "a8756ae550fd6aaf1dbfd1a0112b7135d8da7c9bdf5671cd0ee6cd96bda864a3",
+  "batches": {
+    "records": 7,
+    "first_sequence": 1,
+    "last_sequence": 7,
+    "start": "Epoch",
+    "final_head": "82da793cd5a03583d5ad1811cea4df8c75a51acf2e1d3e2ec0b8fd9b86d6a49d",
+    "observations": 0,
+    "kernel_events": 86
+  },
+  "health": null,
+  "findings": [
+    {
+      "kind": "SignatureRejected",
+      "line": 3,
+      "sequence": 3,
+      "error": "PayloadHashMismatch"
+    },
+    {
+      "kind": "ChainBroken",
+      "line": 4,
+      "sequence": 4,
+      "expected_prev_head": "1f0d4f248a3b215c48555c5f42ea9282626622e38b9874867338bd05d20243a4",
+      "found_prev_head": "bd52aec6d9fa4d455bb4b0485a06aec1b602814c2d5e0a4d3d61deac6f52c079"
+    }
+  ]
+}

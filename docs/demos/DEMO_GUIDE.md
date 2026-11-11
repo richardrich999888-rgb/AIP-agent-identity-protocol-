@@ -6,7 +6,7 @@ model fine-tuning. The complete three-minute investor show is not yet executable
 
 ## Run the bounded live demonstration
 
-On a development Linux x86-64 host, with Rust/Cargo and Python 3.10+ already
+On a development Linux x86-64 host, with Rust/Cargo, Git and Python 3.10+ already
 installed, from this repository:
 
 ```bash
@@ -20,6 +20,19 @@ prior evidence. It makes no downloads and requires no model weights. Cargo may
 need network access to populate its build cache: **this is a developer build,
 not the final offline installer**. A prebuilt, hash-verified binary is required
 for a truly disconnected installation; that kit is still incomplete.
+
+The retained local run used the existing namespace wrapper (Linux with permitted
+unprivileged user/network namespaces). To reproduce that bounded run:
+
+```bash
+env -u CM_IN_NETNS bash research/compute-memory/bench/offline.sh \
+  python3 research/capability-learning/harness/record_scoreboard.py \
+  --binary target/debug/syntriass --out /tmp/p0-049-homework-isolated
+```
+
+This recorded zero loopback counter increments and no non-loopback interface.
+It contains no sensor or model; it does not establish the independent isolation
+boundary required for the initial-netns Sniffer Dog demonstration.
 
 The recorder generates pinned synthetic datasets, creates a temporary test expert
 key, ingests tenant-labelled documents, proposes capabilities and runs the real
@@ -116,7 +129,7 @@ Checksums detect changed bytes relative to this manifest; an independently trust
 manifest/signature is still required for authenticity. See
 `INDEPENDENT-VERIFICATION.md` for scoped verification and limitations.
 
-Hardware record: the current run records Linux/kernel, CPU affinity, memory,
-cgroup availability, child CPU time, peak RSS and exact elapsed time. It is one
-development host, not the published 2-vCPU/8-GB benchmark host. Full model/sensor/
-PQ prerequisites and measured sizing on a second machine remain open.
+Hardware records include Linux/kernel, CPU affinity, memory, cgroup availability,
+child CPU time, peak RSS and exact elapsed time. Local and CI measurements are
+retained separately; neither is the published 2-vCPU/8-GB benchmark host. Full
+model/sensor/PQ prerequisites and measured sizing on a second machine remain open.
