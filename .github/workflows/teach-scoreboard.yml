@@ -22,6 +22,7 @@ jobs:
       - name: Runtime tests and real CLI
         run: |
           cargo test --locked -p syntriass-runtime
+          cargo test --locked -p vanian-sovereign --lib --test sqlite_upgrade
           cargo build --locked -p syntriass-runtime --bin syntriass
       - name: Two synthetic domains, including the rejected candidate
         run: |

@@ -17,7 +17,9 @@ hex = "0.4"
 # SQLite with FTS5, compiled from the crate's bundled amalgamation so the
 # destination needs no system SQLite and the engine version is pinned by the
 # lockfile. Exact pin: the storage format is part of the evidence surface.
-rusqlite = { version = "=0.32.1", features = ["bundled"] }
+# 0.41 uses the patched SQLite line for RUSTSEC-2026-0459; Cargo.lock pins
+# the exact libsqlite3-sys release. Compatibility is checked against old DB bytes.
+rusqlite = { version = "=0.41.0", features = ["bundled"] }
 
 [dev-dependencies]
 tempfile = "3"

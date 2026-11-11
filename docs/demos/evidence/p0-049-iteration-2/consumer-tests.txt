@@ -1,0 +1,207 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling ot-accountability-core v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-accountability-core)
+   Compiling aip-feed-conformance v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/aip-feed-conformance)
+   Compiling aip-spend v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-spend)
+   Compiling aip-registry v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-registry)
+   Compiling tempfile v3.27.0
+   Compiling aip-corroborate v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-corroborate)
+   Compiling aip-authorize v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-authorize)
+   Compiling ot-sentinel v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-sentinel)
+   Compiling aip-reconcile v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-reconcile)
+   Compiling aip-siem v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-siem)
+   Compiling aip-sentinel-feed v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-sentinel-feed)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 30.00s
+     Running unittests src/lib.rs (target/debug/deps/aip_feed_conformance-1b01bea08385da2a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/conformance.rs (target/debug/deps/conformance-e9e1c438333d7244)
+
+running 4 tests
+test cf04_an_unapproved_process_image_becomes_a_finding ... ok
+test cf03_an_approved_destination_produces_no_egress_finding ... ok
+test cf02_an_unapproved_destination_seen_by_the_kernel_becomes_a_finding ... ok
+test cf01_every_line_of_the_real_phase1_feed_parses_with_none_malformed ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src/lib.rs (target/debug/deps/ot_accountability_core-51c0cfe439fa7538)
+
+running 56 tests
+test aip::tests::a_permitted_call_seals_cross_bound_chains_the_shared_verifier_accepts ... ok
+test aip::tests::a_rejected_call_is_still_sealed_and_cannot_mutate_state ... ok
+test aip::tests::a_model_migration_rebinds_the_expected_weights ... ok
+test aip::tests::packets_from_a_writer_with_no_identity_tier_hash_exactly_as_before ... ok
+test aip::tests::proving_one_identity_does_not_license_acting_as_another ... ok
+test aip::tests::the_catalogue_declares_multisig_obligations_before_the_model_calls ... ok
+test aip::tests::the_established_identity_is_sealed_into_the_evidence ... ok
+test aip::tests::tools_list_is_filtered_by_scope_clearance_and_live_taint ... ok
+test authority::tests::a_rooted_edge_resolves_to_its_own_terms ... ok
+test aip::tests::a_relaxed_funnel_still_records_that_nothing_was_proven ... ok
+test authority::tests::a_verifier_rejecting_an_edge_removes_it_from_consideration ... ok
+test aip::tests::untrusted_context_removes_authority_for_a_taint_restricted_tool ... ok
+test authority::tests::an_expired_or_future_edge_is_unusable ... ok
+test authority::tests::an_unrooted_chain_is_no_authority ... ok
+test aip::tests::an_unproven_did_is_refused_before_anything_downstream_is_consulted ... ok
+test authority::tests::clearance_and_trust_ladders_order_correctly ... ok
+test authority::tests::revoking_a_mid_tree_edge_disables_the_whole_subtree ... ok
+test aip::tests::every_lifecycle_and_mandate_precondition_has_its_own_code ... ok
+test authority_journal::tests::authority_survives_a_restart ... ok
+test authority_journal::tests::deleting_a_revocation_from_the_journal_is_caught ... ok
+test authority_journal::tests::appending_after_a_torn_tail_produces_a_journal_that_reopens_clean ... ok
+test authority::tests::scope_intersects_clearance_minimises_and_multisig_unions_down_the_tree ... ok
+test authority_journal::tests::a_crash_mid_append_recovers_and_says_so ... ok
+test authority_journal::tests::a_revocation_survives_a_restart_and_still_cascades ... ok
+test authority_journal::tests::editing_a_past_grant_breaks_the_chain_and_the_store_refuses_to_open ... ok
+test authority_journal::tests::reordering_entries_is_caught_by_the_descent_check ... ok
+test authority_journal::tests::revoking_an_unknown_edge_is_reported_rather_than_silently_accepted ... ok
+test aip::tests::a_whole_governed_session_verifies_end_to_end_under_the_shared_verifier ... ok
+test authority_journal::tests::the_journal_store_satisfies_the_same_resolution_the_memory_store_does ... ok
+test chain::tests::an_edited_record_breaks_at_its_sequence_and_camel_cases_the_verdict ... ok
+test chain::tests::the_empty_chain_is_vacuously_valid ... ok
+test identity::anchor_tests::malformed_or_unrelated_anchors_are_ignored_rather_than_guessed_at ... ok
+test aip::tests::a_multisig_tool_needs_a_co_signature_that_actually_verifies ... ok
+test identity::tests::a_credential_is_bound_to_the_method_it_was_enrolled_for ... ok
+test identity::anchor_tests::the_chains_order_is_authoritative_including_a_deliberate_re_enrolment ... ok
+test identity::tests::an_unauthenticated_session_records_that_fact_rather_than_hiding_it ... ok
+test identity::anchor_tests::replaying_the_chain_reconstructs_who_could_speak_for_whom ... ok
+test aip::tests::empty_context_omits_the_field_so_pre_taint_packets_hash_unchanged ... ok
+test authority_journal::tests::a_signed_edge_round_trips_with_its_signature_intact ... ok
+test authority_journal::tests::verify_catches_an_edit_made_while_the_process_is_running ... ok
+test identity::tests::every_method_but_the_empty_one_counts_as_proven ... ok
+test identity::tests::nothing_speaks_for_an_agent_until_a_credential_is_enrolled ... ok
+test identity::tests::a_binding_round_trips_through_its_sealed_form ... ok
+test identity::tests::replaying_an_enrolment_never_reinstates_a_revoked_credential ... ok
+test identity::tests::revoking_one_credential_leaves_the_agents_others_working ... ok
+test merkle::tests::empty_set_commits_to_genesis ... ok
+test merkle::tests::odd_leaf_promotes_unchanged ... ok
+test lifecycle::tests::a_blocked_execution_cannot_mutate_state_by_construction ... ok
+test merkle::tests::any_leaf_change_changes_the_root ... ok
+test chain::tests::a_sealed_chain_verifies ... ok
+test stream::tests::a_break_latches_and_yields_no_checkpoint ... ok
+test stream::tests::resuming_from_a_checkpoint_verifies_only_the_delta ... ok
+test lifecycle::tests::the_full_lifecycle_produces_chains_the_shared_verifier_accepts ... ok
+test stream::tests::streaming_agrees_with_batch_on_valid_and_tampered_chains ... ok
+test merkle::tests::single_leaf_is_its_own_root ... ok
+test merkle::tests::two_leaves_hash_pairwise ... ok
+
+test result: ok. 56 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running unittests src/lib.rs (target/debug/deps/ot_sentinel-79ec3ae06e7e0f93)
+
+running 82 tests
+test conformance::tests::a_port_does_not_smuggle_an_unapproved_host_past_the_check ... ok
+test attestation::tests::extending_the_same_genesis_with_the_same_lines_agrees ... ok
+test conformance::tests::declaring_a_destination_fail_closes_egress_around_it ... ok
+test attestation::tests::a_different_line_produces_a_different_tail ... ok
+test attestation::tests::checkpoint_payload_carries_every_field_a_verifier_needs ... ok
+test conformance::tests::an_undeclared_policy_governs_nothing ... ok
+test conformance::tests::a_command_prefix_stops_at_an_argument_boundary ... ok
+test finding::tests::capping_lowers_a_claim_but_never_raises_one ... ok
+test finding::tests::strength_and_severity_order_from_weakest_to_strongest ... ok
+test finding::tests::a_finding_serializes_with_its_citations_intact ... ok
+test reconcile::tests::a_claimed_did_must_match_the_packets_own_agent ... ok
+test observation::tests::a_params_digest_matches_the_bytes_a_sealed_packet_hashes ... ok
+test observation::tests::a_sensor_is_untrusted_and_claims_no_coverage_until_told_otherwise ... ok
+test conformance::tests::fail_closed_egress_approves_nothing_until_told_to ... ok
+test finding::tests::a_finding_about_nobody_omits_the_subject_rather_than_inventing_one ... ok
+test observation::tests::consequential_effects_are_the_ones_that_reach_outside_the_agent ... ok
+test reconcile::tests::a_governed_call_reconciles_against_its_own_evidence ... ok
+test reconcile::tests::a_refused_call_is_never_phantom_because_it_was_meant_not_to_happen ... ok
+test reconcile::tests::an_anonymous_effect_may_still_pair_with_evidence_that_explains_it ... ok
+test reconcile::tests::an_effect_matching_a_refused_call_is_flagged_rather_than_matched ... ok
+test reconcile::tests::an_effect_with_no_evidence_anywhere_is_unattributed ... ok
+test reconcile::tests::evidence_too_far_from_its_effect_does_not_explain_it ... ok
+test reconcile::tests::concurrent_identical_calls_pair_nearest_in_time ... ok
+test response::tests::a_finding_that_cites_nothing_cannot_be_acted_on ... ok
+test registry::tests::heartbeats_only_move_forward_and_only_for_known_agents ... ok
+test registry::tests::replaying_a_lifecycle_yields_the_agents_current_binding ... ok
+test registry::tests::a_non_terminal_revocation_does_not_close_the_lifecycle ... ok
+test registry::tests::a_closed_lifecycle_cannot_be_reopened_by_appending_to_the_chain ... ok
+test reconcile::tests::phantom_evidence_is_only_claimed_where_a_sensor_declared_coverage ... ok
+test response::tests::a_non_autonomous_policy_is_advisory_no_matter_what_it_finds ... ok
+test reconcile::tests::matching_on_parameters_stops_a_ghost_hiding_behind_a_concurrent_call ... ok
+test reconcile::tests::one_packet_accounts_for_exactly_one_effect_so_replay_surfaces ... ok
+test response::tests::a_protected_agent_is_never_contained_automatically ... ok
+test response::tests::an_enforcement_action_carries_the_evidence_that_justified_it ... ok
+test response::tests::proof_of_a_critical_finding_warrants_containment ... ok
+test response::tests::severity_alone_never_reaches_containment_without_proof ... ok
+test runtime::tests::a_corrupt_state_file_is_a_hard_error_not_a_silent_fresh_start ... ok
+test runtime::tests::deleting_the_state_file_is_caught_as_amnesia_on_the_next_start ... ok
+test runtime::tests::a_restart_resumes_the_same_chain_and_passes_its_own_audit ... ok
+test response::tests::low_severity_findings_are_recorded_rather_than_escalated ... ok
+test runtime::tests::the_clock_formats_a_parseable_iso8601_instant ... ok
+test sensors::tests::a_line_with_no_agent_is_anonymous_rather_than_attributed_to_a_guess ... ok
+test sensors::tests::a_log_line_becomes_an_observation_whose_digest_matches_the_sealed_packet ... ok
+test runtime::tests::a_first_run_catches_an_escape_and_leaves_durable_records ... ok
+test runtime::tests::an_edit_made_while_the_sentinel_was_down_is_caught_after_resume ... ok
+test sensors::tests::a_log_that_does_not_exist_yet_is_empty_rather_than_an_error ... ok
+test sensors::tests::a_partial_trailing_line_waits_for_the_writer_to_finish_it ... ok
+test sensors::tests::an_egress_record_missing_its_destination_is_refused ... ok
+test sensors::tests::a_spawn_line_becomes_a_spawn_observation ... ok
+test sensors::tests::an_egress_line_becomes_an_egress_observation ... ok
+test runtime::tests::deep_verify_cadence_still_runs_on_the_first_cycle_after_resume ... ok
+test sensors::tests::a_proxy_that_cannot_see_a_did_reports_anonymous_rather_than_guessing ... ok
+test sensors::tests::a_refused_connection_with_no_byte_count_is_still_judged ... ok
+test sensors::tests::an_edited_egress_record_is_caught_by_the_shared_deep_verify ... ok
+test sensors::tests::a_same_length_rotation_is_still_caught ... ok
+test sensors::tests::an_unrecognised_kind_is_not_silently_turned_into_something_else ... ok
+test sensors::tests::missing_arguments_digest_as_an_empty_object ... ok
+test sensors::tests::an_incomplete_record_is_refused_rather_than_half_read ... ok
+test sensors::tests::starting_from_the_end_skips_history ... ok
+test sensors::tests::polling_reads_only_what_is_new ... ok
+test sensors::tests::malformed_lines_are_counted_rather_than_silently_dropped ... ok
+test sensors::tests::rotation_is_reported_and_the_new_file_is_read_from_the_start ... ok
+test state::tests::a_wiped_archive_is_reported_even_with_nothing_to_compare_against ... ok
+test state::tests::a_truncated_state_file_is_an_error_not_a_silent_partial_resume ... ok
+test state::tests::another_agents_anchors_are_never_mistaken_for_the_sentinels_own ... ok
+test state::tests::restarting_at_genesis_with_history_in_the_archive_is_amnesia ... ok
+test sensors::tests::the_effect_tailer_hashes_its_stream_the_same_way_the_access_tailer_does ... ok
+test state::tests::state_round_trips_through_json ... ok
+test state::tests::the_head_is_the_highest_sequence_not_the_last_listed ... ok
+test state::tests::the_same_sequence_with_a_different_hash_is_a_fork ... ok
+test time::tests::a_malformed_timestamp_is_refused_rather_than_coerced_to_the_epoch ... ok
+test time::tests::deltas_are_symmetric_and_absent_when_either_side_is_unparseable ... ok
+test state::tests::a_fresh_deployment_against_an_empty_archive_is_not_a_break ... ok
+test state::tests::resuming_behind_the_archive_is_a_rollback ... ok
+test state::tests::a_malformed_checkpoint_names_which_one_failed ... ok
+test state::tests::resuming_exactly_where_the_archive_ended_is_continuous ... ok
+test time::tests::parsing_agrees_with_string_ordering_the_rest_of_the_stack_relies_on ... ok
+test sensors::tests::an_evidence_ledger_splits_into_packets_and_anchors ... ok
+test state::tests::being_ahead_of_the_archive_reports_the_missing_records ... ok
+test time::tests::sub_millisecond_precision_truncates_rather_than_rounding_forward ... ok
+test sensors::tests::the_effect_tailer_counts_records_it_cannot_use_rather_than_dropping_them ... ok
+test time::tests::known_instants_parse_to_their_epoch_millis ... ok
+
+test result: ok. 82 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src/bin/sentinel.rs (target/debug/deps/sentinel-14408b129cbe3220)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests aip_feed_conformance
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ot_accountability_core
+
+running 1 test
+test orbitaltrust-accountability/rust/ot-accountability-core/src/authority_journal.rs - authority_journal::native::JournalAuthorityStore (line 323) - compile ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+   Doc-tests ot_sentinel
+
+running 1 test
+test orbitaltrust-accountability/rust/ot-sentinel/src/lib.rs - (line 137) ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
