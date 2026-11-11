@@ -1,0 +1,53 @@
+{
+  "version": "1.99.1",
+  "manifest_url": "https://static.rust-lang.org/dist/channel-rust-1.99.1.toml",
+  "manifest_sha256": "fb152be80975c194aa5fc684b2aec3a6e14e2b855efe2faa4e5f8ae6e590f463",
+  "components": [
+    {
+      "name": "rustc",
+      "version": "1.99.1 (58cf8f9c3 2026-10-13)",
+      "url": "https://static.rust-lang.org/dist/2026-10-15/rustc-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+      "sha256": "2ff05ff9c08a90861e7f6e4065b40a8b87463b4576186fd613871c3e37f2091f",
+      "bytes": 84098960
+    },
+    {
+      "name": "rust-std",
+      "version": "1.99.1 (58cf8f9c3 2026-10-13)",
+      "url": "https://static.rust-lang.org/dist/2026-10-15/rust-std-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+      "sha256": "109b074225bf5b9ea3820890876bfdf4ed161adbfaf94b2b4b5984c85ee5d958",
+      "bytes": 31563228
+    },
+    {
+      "name": "cargo",
+      "version": "0.100.0 (5f94df478 2026-08-27)",
+      "url": "https://static.rust-lang.org/dist/2026-10-15/cargo-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+      "sha256": "53f3521949404d595efb06a55c12c5658d4ed1c75566f33d3d514eaebe70bd8a",
+      "bytes": 10954816
+    },
+    {
+      "name": "rustfmt-preview",
+      "version": "1.10.0",
+      "url": "https://static.rust-lang.org/dist/2026-10-15/rustfmt-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+      "sha256": "e3b36c4c7ec3486c059d8067ff48787676612007123aad7a4e8ec12c48ee9ba2",
+      "bytes": 2488800
+    },
+    {
+      "name": "clippy-preview",
+      "version": "0.1.99",
+      "url": "https://static.rust-lang.org/dist/2026-10-15/clippy-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+      "sha256": "458339712a058e52cc4522ff9ef8b59cd1ea1340312216cd94194c464a3f6dc5",
+      "bytes": 5254436
+    }
+  ],
+  "license": "MIT OR Apache-2.0",
+  "license_files": [
+    {
+      "path_in_archive": "LICENSE-APACHE",
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    {
+      "path_in_archive": "LICENSE-MIT",
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+    }
+  ]
+}

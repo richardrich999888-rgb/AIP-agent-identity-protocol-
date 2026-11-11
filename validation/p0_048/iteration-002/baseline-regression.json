@@ -1,0 +1,25 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "aip-edge",
+    "--test",
+    "socket_duplicates",
+    "--",
+    "--test-threads=1"
+  ],
+  "started_utc": "2026-11-11T19:46:03.558933+00:00",
+  "elapsed_seconds": 100.081,
+  "exit_code": 101,
+  "log": "validation/p0_048/iteration-002/baseline-regression.log",
+  "log_sha256": "7e151e747b046ae317c942d49324794862ac680c7fcc5d3ee490e8208be1ad72",
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "rust_version": "1.99.1"
+}

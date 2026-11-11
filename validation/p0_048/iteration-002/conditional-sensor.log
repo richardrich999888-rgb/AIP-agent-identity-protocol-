@@ -1,0 +1,32 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/sniffer_dog.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/sniffer_dog-fb42902a46d18a86)
+
+running 22 tests
+test failure_classes_are_distinct_and_no_authorization_class_exists ... ok
+SKIP t09: process-event connector unavailable here (Unavailable("netlink connector socket: Operation not permitted (os error 1)")); property NOT established in this environment
+test t01_a_host_side_party_cannot_label_its_report_as_kernel_provenance ... ok
+test t09_live_short_lived_process_is_seen_by_the_kernel_connector ... ok
+SKIP t10: process-event connector unavailable here (Unavailable("netlink connector socket: Operation not permitted (os error 1)")); property NOT established in this environment
+test t10_live_exec_replacement_is_delivered_as_a_kernel_exec_event ... ok
+test t08_pid_reuse_never_transfers_identity_through_kernel_events ... ok
+test t12_no_observation_is_never_a_phantom_claim ... ok
+test t04_t05_probe_sequence_rollback_and_gap_degrade_and_never_backfill ... ok
+SKIP t15: process-event connector unavailable here (Unavailable("netlink connector socket: Operation not permitted (os error 1)")); property NOT established in this environment
+test t15_live_kernel_event_loss_is_signalled_and_degrades_coverage ... ok
+test t14_host_reboot_changes_instance_identity_and_uncouples_kernel_time ... ok
+test t03_a_resubmitted_probe_batch_is_a_visible_discontinuity ... ok
+test t13_collector_restart_cannot_silently_continue_the_chain ... ok
+test t15b_reported_loss_degrades_even_without_a_live_connector ... ok
+test t19_malformed_identifiers_never_panic ... ok
+test t18_malformed_kernel_event_bytes_never_panic_and_are_never_interpreted ... ok
+test t20_new_encodings_are_injective ... ok
+test t02_agent_resigned_forgery_of_a_kernel_event_batch_is_rejected ... ok
+test t11_socket_observation_is_socket_level_metadata_with_no_authorization ... ok
+test t16_observer_key_substitution_is_a_signature_failure ... ok
+test t17_a_stolen_collector_key_forges_history_until_revoked ... ok
+test t06_t07_duplicated_or_reordered_kernel_events_break_the_attestation ... ok
+test t01b_open_policy_is_a_visible_deployment_assumption_not_a_hidden_default ... ok
+test every_new_attested_field_mutation_is_detected ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.67s
+

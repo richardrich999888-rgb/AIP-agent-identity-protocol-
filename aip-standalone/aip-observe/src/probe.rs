@@ -53,6 +53,33 @@ pub const MAX_LIVE_PENDING_EVENTS: usize = 4096;
 pub const MAX_LIVE_PENDING_BYTES: usize = 512 * 1024;
 const LIVE_EVENT_RESERVE_BYTES: usize = 64 * 1024;
 
+/// Join only the measured instance's descriptors and collapse equal socket
+/// effects within this read. The raw parser remains lossless: state changes
+/// and malformed-row accounting must not disappear during deduplication.
+#[cfg(any(target_os = "linux", test))]
+fn socket_effects_for_inodes(
+    table: Vec<crate::linux::SocketRecord>,
+    inodes: &[u64],
+) -> (Vec<ObservedEffect>, usize) {
+    let mut effects = Vec::new();
+    let mut repeated = 0;
+    for row in table.into_iter().filter(|row| inodes.contains(&row.inode)) {
+        let effect = ObservedEffect::SocketObserved {
+            protocol: row.protocol,
+            local: row.local,
+            remote: row.remote,
+            state: row.state,
+            inode: row.inode,
+        };
+        if effects.contains(&effect) {
+            repeated += 1;
+        } else {
+            effects.push(effect);
+        }
+    }
+    (effects, repeated)
+}
+
 /// Why a measurement could not be taken. Never silently substituted with a
 /// weaker identifier, and never turned into a statement about the workload.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -432,30 +459,33 @@ impl ProcfsProbe {
     /// kernel socket tables whose inode is open in `/proc/<pid>/fd`, taken
     /// under a pidfd anchor. Returns the anchored process and its socket
     /// effects; `malformed_rows` counts table lines this crate could not
-    /// parse (skipped, never guessed).
+    /// parse (skipped, never guessed). Equal socket rows count once; callers
+    /// needing the discarded-repeat count use `observe_sockets_detailed`.
     #[cfg(target_os = "linux")]
     pub fn observe_sockets(
         &self,
         pid: u32,
     ) -> Result<(ObservedProcess, Vec<ObservedEffect>, usize), ProbeError> {
+        let (process, effects, malformed, _) = self.observe_sockets_detailed(pid)?;
+        Ok((process, effects, malformed))
+    }
+
+    /// The same anchored measurement, with separate malformed and repeated
+    /// row counts (third and fourth tuple members). These are diagnostics,
+    /// not independent corroborations, coverage or logical-agent attribution.
+    #[cfg(target_os = "linux")]
+    pub fn observe_sockets_detailed(
+        &self,
+        pid: u32,
+    ) -> Result<(ObservedProcess, Vec<ObservedEffect>, usize, usize), ProbeError> {
         let anchored = self.measure_anchored(pid)?;
         let inodes = crate::linux::socket_inodes_of(pid)?;
         let (table, malformed) = crate::linux::snapshot_socket_tables()?;
         if !anchored.is_alive()? {
             return Err(ProbeError::InstanceEnded { pid });
         }
-        let effects = table
-            .into_iter()
-            .filter(|r| inodes.contains(&r.inode))
-            .map(|r| ObservedEffect::SocketObserved {
-                protocol: r.protocol,
-                local: r.local,
-                remote: r.remote,
-                state: r.state,
-                inode: r.inode,
-            })
-            .collect();
-        Ok((anchored.process, effects, malformed))
+        let (effects, repeated) = socket_effects_for_inodes(table, &inodes);
+        Ok((anchored.process, effects, malformed, repeated))
     }
 
     // ─── Assembly ───
@@ -987,6 +1017,62 @@ pub fn clk_tck() -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn socket_row() -> crate::linux::SocketRecord {
+        let text = "header\n0: 0100007F:C8CE 0100007F:A397 01 00000000:00000000 00:00000000 00000000 1000 0 68001\n";
+        let (mut rows, malformed) =
+            crate::linux::parse_proc_net_table(text, crate::SocketProtocol::Tcp);
+        assert_eq!(malformed, 0);
+        rows.remove(0)
+    }
+
+    #[test]
+    fn socket_join_collapses_rows_but_preserves_parser_diagnostics() {
+        let text = "header\n0: 0100007F:C8CE 0100007F:A397 01 00000000:00000000 00:00000000 00000000 1000 0 68001\n0: 0100007F:C8CE 0100007F:A397 01 00000000:00000000 00:00000000 00000000 1000 0 68001\nmalformed\n";
+        let (rows, malformed) =
+            crate::linux::parse_proc_net_table(text, crate::SocketProtocol::Tcp);
+        assert_eq!(rows.len(), 2, "raw parser must retain both original rows");
+        assert_eq!(malformed, 1);
+        let (effects, repeated) = socket_effects_for_inodes(rows, &[68001]);
+        assert_eq!(effects.len(), 1);
+        assert_eq!(repeated, 1);
+    }
+
+    #[test]
+    fn socket_join_preserves_distinct_inodes_protocols_states_and_endpoints() {
+        let a = socket_row();
+        let mut inode = a.clone();
+        inode.inode += 1;
+        let mut state = a.clone();
+        state.state = 8;
+        let mut protocol = a.clone();
+        protocol.protocol = crate::SocketProtocol::Udp;
+        let mut local = a.clone();
+        local.local.port += 1;
+        let mut remote = a.clone();
+        remote.remote.port += 1;
+        let rows = vec![a.clone(), inode, state, protocol, local, remote, a];
+        let (effects, repeated) = socket_effects_for_inodes(rows, &[68001, 68002]);
+        assert_eq!(effects.len(), 6);
+        assert_eq!(repeated, 1);
+    }
+
+    #[test]
+    fn socket_join_never_admits_an_inode_the_process_does_not_hold() {
+        let row = socket_row();
+        assert_eq!(
+            socket_effects_for_inodes(vec![row.clone(); 4], &[9]),
+            (vec![], 0)
+        );
+        assert_eq!(socket_effects_for_inodes(vec![row; 4], &[]), (vec![], 0));
+    }
+
+    #[test]
+    fn duplicated_descriptors_do_not_multiply_socket_rows() {
+        let (effects, repeated) = socket_effects_for_inodes(vec![socket_row()], &[68001, 68001]);
+        assert_eq!(effects.len(), 1);
+        assert_eq!(repeated, 0);
+    }
 
     fn fake_process(pid: u32) -> ObservedProcess {
         ObservedProcess {

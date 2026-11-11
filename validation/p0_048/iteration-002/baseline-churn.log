@@ -1,0 +1,35 @@
+
+running 14 tests
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.22s
+test t21_a_successful_call_with_no_observation_does_not_become_an_effect ... ok
+test t1_a_signed_success_self_report_establishes_nothing ... ok
+test t10_and_t11_a_replayed_batch_is_detected_and_does_not_inflate_the_count ... FAILED
+test t3_and_t4_observer_and_collector_loss_are_conservative ... ok
+test t2_observation_that_disagrees_with_the_self_report_is_visible ... ok
+test t23_physical_effect_stays_unreachable_on_every_scenario ... ok
+test t5_a_workload_that_exits_first_yields_an_attested_empty_window ... ok
+test t22_missing_observation_is_never_read_as_non_occurrence ... ok
+test t7_and_t13_an_observation_of_another_instance_is_excluded_not_downgraded ... ok
+test t8_a_platform_other_than_the_authorized_one_is_a_mismatch ... ok
+test the_reference_digest_is_stable_for_one_report ... ok
+test t9_a_boot_the_observer_did_not_measure_yields_no_record ... ok
+test the_workload_and_the_observer_are_different_operating_system_processes ... ok
+test two_honest_runs_agree_on_everything_except_per_run_identity ... ok
+
+failures:
+
+---- t10_and_t11_a_replayed_batch_is_detected_and_does_not_inflate_the_count stdout ----
+
+thread 't10_and_t11_a_replayed_batch_is_detected_and_does_not_inflate_the_count' (11) panicked at aip-standalone/aip-edge/tests/end_to_end.rs:210:5:
+assertion `left == right` failed: the duplicated run must produce the same number of records as the honest one
+  left: 2
+ right: 5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    t10_and_t11_a_replayed_batch_is_detected_and_does_not_inflate_the_count
+
+test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 64.85s
+
+{"schema": "vanian.p0-048.socket-churn.v1", "scope": "Synthetic loopback churn; same host and administrator", "command": ["/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/end_to_end-0d0164b7c93a0b2a", "--test-threads=4"], "command_exit_code": 101, "elapsed_seconds": 64.929189, "completed_connections_per_thread": [78754, 76281, 76318, 75840], "errors": [], "status": "FAIL"}

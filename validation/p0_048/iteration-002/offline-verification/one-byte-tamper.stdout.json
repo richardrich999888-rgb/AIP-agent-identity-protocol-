@@ -1,0 +1,42 @@
+{
+  "observer_id": "edge-reference-collector",
+  "key_version": 1,
+  "public_key": "5ada7c93c5751461765eefbe3a7a2b9c5f36e361973e100b981a19848ab9954c",
+  "batches": {
+    "records": 2,
+    "first_sequence": 1,
+    "last_sequence": 2,
+    "start": "Epoch",
+    "final_head": "4e4439b2dfed9db376765b4c8fc59b9d1461d47caf0cfda79cf907bc04ecb02e",
+    "observations": 2,
+    "kernel_events": 0
+  },
+  "health": {
+    "records": 1,
+    "states": [
+      "Active"
+    ],
+    "with_coverage": 1,
+    "without_coverage": 0,
+    "cross_checked_against_batches": 1,
+    "clock_synchronised": 0,
+    "clock_unsynchronised": 0,
+    "clock_not_stated": 1,
+    "clock_worst_max_error_us": null
+  },
+  "findings": [
+    {
+      "kind": "SignatureRejected",
+      "line": 1,
+      "sequence": 1,
+      "error": "PayloadHashMismatch"
+    },
+    {
+      "kind": "ChainBroken",
+      "line": 2,
+      "sequence": 2,
+      "expected_prev_head": "dc71082e3b9d12f47fa7cb97ba6783bc22b90f727e0b928d7864d7a1f59430d5",
+      "found_prev_head": "775e4ec1df7cd7f2088add07110aedb3ccf500178fcf6e05530b8a0378e532a3"
+    }
+  ]
+}

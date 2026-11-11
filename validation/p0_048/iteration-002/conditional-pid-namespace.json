@@ -1,0 +1,27 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "aip-edge",
+    "--test",
+    "lifecycle",
+    "t_container",
+    "--",
+    "--nocapture"
+  ],
+  "started_utc": "2026-11-11T19:58:13.889709+00:00",
+  "elapsed_seconds": 0.196,
+  "exit_code": 0,
+  "log": "validation/p0_048/iteration-002/conditional-pid-namespace.log",
+  "log_sha256": "4bfc5ea82d22ac708cf4390b8f45f96245fb0c396c9279902aa16d2aef2039fc",
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "rust_version": "1.99.1"
+}

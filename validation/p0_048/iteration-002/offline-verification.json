@@ -1,0 +1,24 @@
+{
+  "command": [
+    "python3",
+    "validation/p0_048/verify_socket_archives.py",
+    "--verifier",
+    "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+    "--originals",
+    "validation/p0_048/iteration-002/originals",
+    "--output",
+    "validation/p0_048/iteration-002/offline-verification"
+  ],
+  "started_utc": "2026-11-11T19:59:12.999815+00:00",
+  "elapsed_seconds": 0.363,
+  "exit_code": 1,
+  "log": "validation/p0_048/iteration-002/offline-verification.log",
+  "log_sha256": "e93fb729372f5463553b317cd91cd7dc29e456d5dec1b204987580d45189efd5",
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "rust_version": "1.99.1"
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "vanian.p0-048.socket-churn.v1",
+  "scope": "Synthetic loopback churn; same host and administrator",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "aip-observe",
+    "--test",
+    "socket_multiplicity",
+    "--",
+    "--nocapture"
+  ],
+  "command_exit_code": 0,
+  "elapsed_seconds": 55.038894,
+  "completed_connections_per_thread": [
+    47785,
+    47416,
+    49702,
+    48348
+  ],
+  "errors": [],
+  "status": "PASS"
+}

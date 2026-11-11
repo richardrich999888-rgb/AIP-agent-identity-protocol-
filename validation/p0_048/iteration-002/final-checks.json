@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "checks": [
+    "prior-iteration SHA256SUMS checked against original commit",
+    "command log hashes checked",
+    "root Cargo.lock unchanged",
+    "frozen inventory and original preservation manifest checked",
+    "Git whitespace check",
+    "Python helper syntax checked"
+  ],
+  "new_regressions": 23,
+  "historical_inventory_check": {
+    "candidate_to_publication_changed_files": 485,
+    "candidate_to_publication_non_documentation_changes": [],
+    "configuration_references_checked": 1291,
+    "distinct_configuration_blobs_checked": 199,
+    "failures": [],
+    "historical_original_files_hashed": 131,
+    "inventory_sha256": "624478cac6f01097a92cc559c2078d12875ff10f02cbb2a5bf981e8dd67b5d4f",
+    "local_document_links_checked": 168,
+    "schema": "vanian.p0-048.inventory-check.v1",
+    "scope": "Audit reproducibility and byte integrity, not cryptographic execution acceptance",
+    "snapshots": 10,
+    "status": "PASS"
+  },
+  "failures": [],
+  "primary_scoped_distinct_tests": {
+    "executed_pass": 241,
+    "blocked_not_counted_as_pass": 4
+  },
+  "offline_scope": "2 complete batch/health signature checks; expected outage refusal and initial-batch-only signature check; 2 signature mutation rejections",
+  "publication_preflight": {
+    "jsonl_files_explicitly_staged": [
+      "validation/p0_048/iteration-002/offline-verification-final/MUTATED-one-byte-batches.jsonl",
+      "validation/p0_048/iteration-002/offline-verification/MUTATED-one-byte-batches.jsonl",
+      "validation/p0_048/iteration-002/originals/socket-absence-ObserverLost/batches.jsonl",
+      "validation/p0_048/iteration-002/originals/socket-absence-ObserverLost/claims.jsonl",
+      "validation/p0_048/iteration-002/originals/socket-absence-SelfReportOnly/batches.jsonl",
+      "validation/p0_048/iteration-002/originals/socket-absence-SelfReportOnly/claims.jsonl",
+      "validation/p0_048/iteration-002/originals/socket-absence-SelfReportOnly/health.jsonl",
+      "validation/p0_048/iteration-002/originals/socket-repeat-Honest/batches.jsonl",
+      "validation/p0_048/iteration-002/originals/socket-repeat-Honest/claims.jsonl",
+      "validation/p0_048/iteration-002/originals/socket-repeat-Honest/health.jsonl"
+    ],
+    "raw_logs_preserved": "Eight original logs have Cargo trailing blank lines; existing Git EOF whitespace policy extended only to iteration-002/*.log",
+    "source_formatting_and_security_scanners_unchanged": true
+  }
+}

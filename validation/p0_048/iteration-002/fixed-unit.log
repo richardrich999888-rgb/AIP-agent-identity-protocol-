@@ -1,0 +1,146 @@
+   Compiling aip-observe v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-observe)
+   Compiling aip-observe-verify v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-observe-verify)
+   Compiling aip-observation v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-observation)
+   Compiling aip-reconcile v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-reconcile)
+   Compiling aip-effect v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-effect)
+   Compiling aip-platform v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-platform)
+   Compiling aip-ledger v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-ledger)
+   Compiling aip-airi v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-airi)
+   Compiling aip-warrant v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-warrant)
+   Compiling aip-edge-observer v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-edge-observer)
+   Compiling aip-nexora v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-nexora)
+   Compiling aip-edge v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-edge)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.65s
+     Running unittests src/lib.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/aip_edge-c07a57aac35e711e)
+
+running 30 tests
+test effect::tests::a_non_established_socket_to_the_endpoint_does_not_support ... ok
+test effect::tests::a_socket_repeated_within_one_snapshot_counts_once ... ok
+test effect::tests::a_process_presence_measurement_says_nothing_about_the_effect ... ok
+test effect::tests::a_socket_to_another_endpoint_says_nothing_rather_than_opposing ... ok
+test effect::tests::a_socket_seen_in_two_batches_counts_once ... ok
+test effect::tests::a_state_change_is_preserved_but_does_not_add_support ... ok
+test effect::tests::absence_of_the_instance_is_never_read_as_opposition ... ok
+test effect::tests::an_established_socket_to_the_requested_endpoint_supports ... ok
+test effect::tests::identical_sockets_on_different_instances_are_never_merged ... ok
+test effect::tests::four_repeats_of_one_socket_still_count_once ... ok
+test effect::tests::physical_effect_is_unreachable_under_a_real_profile ... ok
+test effect::tests::physical_effect_stays_unreachable_even_if_every_mechanism_is_declared ... ok
+test effect::tests::non_socket_observations_are_never_collapsed ... ok
+test effect::tests::pid_reuse_or_another_boot_is_not_the_same_socket_observation ... ok
+test effect::tests::no_input_reaches_opposes_in_this_reference ... ok
+test effect::tests::the_in_window_sighting_is_kept_when_the_first_is_outside_it ... ok
+test effect::tests::the_kept_indices_preserve_input_order ... ok
+test effect::tests::the_requested_effect_commitment_matches_the_workloads_construction ... ok
+test effect::tests::two_distinct_sockets_still_count_twice ... ok
+test platform::tests::no_observation_yields_not_evaluated_never_bound ... ok
+test platform::tests::an_empty_registration_window_is_refused ... ok
+test platform::tests::a_self_reported_boot_reaches_not_evaluated_and_no_further ... ok
+test profile::tests::an_empty_declaration_observes_nothing ... ok
+test profile::tests::an_undeclared_class_is_not_observable_rather_than_not_observed ... ok
+test profile::tests::a_profile_declares_only_what_was_projected ... ok
+test profile::tests::an_unknown_code_is_refused_not_guessed ... ok
+test profile::tests::every_mechanism_code_round_trips ... ok
+test profile::tests::the_projection_cannot_raise_a_ceiling ... ok
+test reference::tests::highest_established_ignores_a_higher_unestablished_rung ... ok
+test reference::tests::the_physical_rung_has_no_stage_and_never_will_by_accident ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/bin/aip-edge.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/aip_edge-5758edfb7ded54f3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/aip_edge_observer-99c1f2583cc5cfbf)
+
+running 6 tests
+test tests::a_row_the_kernel_table_repeated_is_one_socket ... ok
+test tests::many_repeats_of_one_socket_still_make_one ... ok
+test tests::non_socket_effects_pass_through ... ok
+test tests::order_is_preserved_and_the_first_occurrence_is_kept ... ok
+test tests::two_genuinely_different_sockets_are_both_kept ... ok
+test tests::one_socket_seen_in_two_states_keeps_both_rows ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/aip_observe-9f35a78c1c7ee49c)
+
+running 73 tests
+test cgroupev::tests::attach_decodes_the_moved_task_apart_from_the_writer ... ok
+test clock::tests::a_synchronized_clock_outside_budget_fails ... ok
+test clock::tests::a_synchronized_clock_within_budget_passes ... ok
+test cgroupev::tests::malformed_records_are_refused_not_guessed ... ok
+test clock::tests::an_unsynchronized_clock_fails_however_small_its_error_bound ... ok
+test cgroupev::tests::mkdir_and_rmdir_decode_with_the_acting_task ... ok
+test clock::tests::the_budget_is_milliseconds_and_does_not_overflow ... ok
+test clock::tests::the_kernel_answers_on_this_host ... ok
+test clock::tests::the_summary_names_an_unsynchronized_clock ... ok
+test continuity::tests::contiguous_chain_verifies ... ok
+test continuity::tests::exact_replay_is_refused ... ok
+test continuity::tests::fork_at_one_sequence_quarantines_permanently ... ok
+test continuity::tests::first_batch_is_never_verified_continuity ... ok
+test continuity::tests::restart_does_not_imply_continuity ... ok
+test continuity::tests::rollback_and_gap_and_head_mismatch_are_distinct ... ok
+test divergence::tests::a_connector_exec_the_perf_tracepoint_also_delivered_is_not_divergence ... ok
+test divergence::tests::a_connector_exec_the_perf_tracepoint_missed_is_divergence ... ok
+test divergence::tests::a_perf_exec_just_outside_the_window_does_not_corroborate ... ok
+test continuity::tests::gap_status_is_not_silently_upgraded_by_later_contiguity ... ok
+test divergence::tests::a_perf_exec_for_a_different_pid_does_not_corroborate ... ok
+test divergence::tests::a_connector_fork_without_a_perf_fork_is_not_divergence ... ok
+test divergence::tests::a_perf_exec_just_inside_the_window_corroborates ... ok
+test divergence::tests::actual_sched_process_exec_corroborates_connector_exec ... ok
+test divergence::tests::actual_sched_shape_still_requires_matching_tgid_and_time ... ok
+test divergence::tests::several_unmatched_execs_yield_one_integrity_report ... ok
+test health::tests::gate_independent_mechanism_is_kernel_pushed_coverage ... ok
+test divergence::tests::an_idle_window_diverges_from_nothing ... ok
+test divergence::tests::nonleader_exec_matches_post_exec_pid_not_old_tid ... ok
+test divergence::tests::perf_silence_is_not_divergence_when_perf_was_not_declared_active ... ok
+test health::tests::integrity_unknown_does_not_permit_attested_use ... ok
+test health::tests::integrity_unknown_reports_unavailable_not_covered ... ok
+test health::tests::lone_gate_able_tracepoint_is_not_kernel_pushed_coverage ... ok
+test health::tests::independent_mechanism_alongside_a_gate_able_one_still_counts ... ok
+test health::tests::only_active_permits_attested_use ... ok
+test divergence::tests::nothing_diverges_without_the_connector_anchor ... ok
+test health::tests::coverage_window_is_inclusive ... ok
+test observed::tests::active_mechanisms_are_canonically_ordered_and_signed ... ok
+test health::tests::state_codes_are_distinct ... ok
+test observed::tests::kernel_event_kinds_with_equal_numbers_do_not_collide ... ok
+test linux::tests::malformed_datagrams_are_rejected_without_panicking ... ok
+test linux::tests::parses_fork_exec_exit_and_unknown ... ok
+test linux::tests::socket_table_parser_handles_v4_v6_and_garbage ... ok
+test observed::tests::attribution_encoding_is_injective_and_has_no_verified_variant ... ok
+test observed::tests::socket_endpoint_v4_and_v6_with_same_bytes_differ ... ok
+test observed::tests::batch_encoding_is_domain_tagged_and_count_prefixed ... ok
+test observed::tests::process_identity_excludes_path_and_survives_pid_reuse ... ok
+test perf::tests::a_cgroup_sample_carries_the_id_after_the_raw_block ... ok
+test observed::tests::mechanism_codes_are_distinct_and_change_the_encoding ... ok
+test perf::tests::sample_decoding_takes_the_tracepoint_id_from_common_type ... ok
+test perf::tests::data_loc_fields_are_decoded_by_their_locator_word ... ok
+test probe::tests::batch_reports_run_id_sequence_range_and_loss ... ok
+test probe::tests::duplicated_descriptors_do_not_multiply_socket_rows ... ok
+test probe::tests::a_claim_is_recorded_as_a_claim ... ok
+test probe::tests::an_image_hash_is_reused_only_for_the_same_instance_and_the_same_file ... ok
+test probe::tests::kernel_exit_after_loss_is_not_attributed_to_an_earlier_exec ... ok
+test observed::tests::perf_tracepoint_mechanisms_are_the_gate_able_ones ... ok
+test probe::tests::probing_an_impossible_pid_is_an_explicit_measurement_failure ... ok
+test probe::tests::kernel_exit_without_loss_is_attributed_to_the_bound_exec_instance ... ok
+test sched::tests::exec_decodes_the_kernel_filename_and_the_new_image_task ... ok
+test sched::tests::fork_decodes_parent_as_the_actor_and_child_as_the_subject_of_the_spawn ... ok
+test sched::tests::malformed_records_are_refused_not_guessed ... ok
+test probe::tests::socket_join_collapses_rows_but_preserves_parser_diagnostics ... ok
+test probe::tests::socket_join_never_admits_an_inode_the_process_does_not_hold ... ok
+test sockstate::tests::boot_clock_anchor_places_boot_time_on_the_wall_clock ... ok
+test wiretap::tests::direction_follows_pkttype_and_nothing_else ... ok
+test sockstate::tests::connect_initiation_and_completion_decode_with_kernel_semantics ... ok
+test sockstate::tests::v6_records_take_the_v6_addresses ... ok
+test sockstate::tests::non_tcp_unknown_family_and_short_records_are_refused_not_guessed ... ok
+test sockstate::tests::format_is_parsed_from_tracefs_text_not_assumed ... ok
+test probe::tests::socket_join_preserves_distinct_inodes_protocols_states_and_endpoints ... ok
+test wiretap::tests::ipv4_options_and_tcp_options_are_skipped_by_their_length_fields ... ok
+test probe::tests::repeated_measurements_of_one_instance_agree_and_do_not_rehash_a_stable_image ... ok
+test probe::tests::probe_measures_a_real_process_and_matches_stage_one_binding ... ok
+
+test result: ok. 73 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.27s
+

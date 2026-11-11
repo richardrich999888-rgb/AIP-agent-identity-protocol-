@@ -1,0 +1,10 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/lifecycle.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/lifecycle-8a1ac0cbb5af968e)
+
+running 2 tests
+test t_container_namespace_change_establishes_no_new_identity ... ok
+SKIPPED: unshare --pid --fork failed (exit status: 1): unshare: unshare failed: Operation not permitted
+test t_container_a_namespaced_workload_reports_a_pid_that_is_not_its_identity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.01s
+

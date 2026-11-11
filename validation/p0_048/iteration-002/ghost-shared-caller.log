@@ -1,0 +1,28 @@
+   Compiling ghost-demo v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/ghost-demo)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.63s
+     Running tests/live.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/live-55d6f5d1133b28cd)
+
+running 11 tests
+test b_u_executed_but_not_expected_without_a_statement_is_cannot_prove ... ok
+test a_expected_but_not_executed_is_cannot_prove_not_phantom ... ok
+test positive_authorized_connection_is_verified_at_attested ... ok
+test c_different_parameters_is_cannot_prove_with_action_mismatch ... ok
+test e_lost_observation_is_cannot_prove ... ok
+test f_replayed_evidence_does_not_verify_another_decision ... ok
+test g_tampered_evidence_is_sensor_integrity_failure_proven ... ok
+test d_wrong_process_instance_is_identity_divergence_never_verified ... ok
+test b_executed_but_not_expected_with_attested_absence_is_unattributed_effect ... ok
+pre-readiness identity changes: 0/16
+test idle_startup_race_diagnostic ... ok
+test idle_readiness_precedes_binding_collection ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.22s
+
+     Running tests/signed_verdict.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/signed_verdict-6c0d64bc4dddd401)
+
+running 2 tests
+test a_real_engine_verdict_signs_and_verifies ... ok
+test a_tampered_real_verdict_is_refused ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.14s
+

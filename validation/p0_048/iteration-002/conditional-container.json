@@ -1,0 +1,27 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "aip-observe",
+    "--test",
+    "container_identity",
+    "the_observer_reads_a_real_processs_placement_itself",
+    "--",
+    "--nocapture"
+  ],
+  "started_utc": "2026-11-11T19:58:12.130259+00:00",
+  "elapsed_seconds": 1.611,
+  "exit_code": 0,
+  "log": "validation/p0_048/iteration-002/conditional-container.log",
+  "log_sha256": "2fe8427cd512011b789ede58ed5f8d819d0cdc72be4917b9320fd38d631f722b",
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "rust_version": "1.99.1"
+}

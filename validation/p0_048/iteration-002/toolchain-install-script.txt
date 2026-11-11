@@ -1,0 +1,28 @@
+import hashlib,json,tarfile,tomllib,urllib.request,subprocess
+from pathlib import Path
+root=Path('/workspace/scratch/8cbb8ab6ce9d/p0-048-tools')
+version='1.99.1'
+url=f'https://static.rust-lang.org/dist/channel-rust-{version}.toml'
+def fetch(u):
+ with urllib.request.urlopen(u,timeout=90) as r: return r.read()
+raw=fetch(url)
+expected=fetch(url+'.sha256').decode().split()[0]
+assert hashlib.sha256(raw).hexdigest()==expected
+(root/'channel-rust.toml').write_bytes(raw)
+m=tomllib.loads(raw.decode())
+report={'version':version,'manifest_url':url,'manifest_sha256':expected,'components':[]}
+prefix=root/'rust'
+for name in ['rustc','rust-std','cargo','rustfmt-preview','clippy-preview']:
+ target=m['pkg'][name]['target']['x86_64-unknown-linux-gnu']
+ u=target['xz_url']; sha=target['xz_hash']
+ data=fetch(u)
+ assert hashlib.sha256(data).hexdigest()==sha, name
+ archive=root/u.rsplit('/',1)[1]
+ archive.write_bytes(data)
+ with tarfile.open(archive) as tf: tf.extractall(root,filter='data')
+ unpack=root/archive.name.removesuffix('.tar.xz')
+ subprocess.run(['bash',str(unpack/'install.sh'),'--prefix='+str(prefix),'--disable-ldconfig'],check=True,stdout=subprocess.DEVNULL)
+ report['components'].append({'name':name,'version':m['pkg'][name]['version'],'url':u,'sha256':sha,'bytes':len(data)})
+ (root/'rust-install.json').write_text(json.dumps(report,indent=2)+'\n')
+ print('installed',name,flush=True)
+subprocess.run([str(prefix/'bin/rustc'),'--version','--verbose'],check=True)

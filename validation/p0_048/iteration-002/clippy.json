@@ -1,0 +1,32 @@
+{
+  "command": [
+    "cargo",
+    "clippy",
+    "--locked",
+    "--offline",
+    "-p",
+    "aip-observe",
+    "-p",
+    "aip-edge",
+    "-p",
+    "aip-edge-observer",
+    "-p",
+    "ghost-demo",
+    "--all-targets",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "started_utc": "2026-11-11T19:58:19.267164+00:00",
+  "elapsed_seconds": 29.258,
+  "exit_code": 0,
+  "log": "validation/p0_048/iteration-002/clippy.log",
+  "log_sha256": "a89742bad8f1defdb50b4a96edfc3b794a06b1cde8d8e272de42ef9db95c6955",
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "rust_version": "1.99.1"
+}

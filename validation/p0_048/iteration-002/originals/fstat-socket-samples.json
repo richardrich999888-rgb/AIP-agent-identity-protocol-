@@ -1,0 +1,9171 @@
+{
+  "expected_inodes": [
+    2048790,
+    2048791,
+    2048792
+  ],
+  "independent_administration": false,
+  "samples": [
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    },
+    {
+      "counts": [
+        1,
+        1,
+        1
+      ],
+      "effects": [
+        {
+          "SocketObserved": {
+            "inode": 2048790,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 0
+            },
+            "state": 10
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048791,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "state": 1
+          }
+        },
+        {
+          "SocketObserved": {
+            "inode": 2048792,
+            "local": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 40457
+            },
+            "protocol": "Tcp",
+            "remote": {
+              "addr": [
+                127,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "is_v6": false,
+              "port": 48256
+            },
+            "state": 1
+          }
+        }
+      ],
+      "malformed_rows": 0,
+      "process": {
+        "container": {
+          "cgroup_id": null,
+          "mnt_ns_inode": 4026532625,
+          "net_ns_inode": 4026532628,
+          "pid_ns_inode": 4026532627
+        },
+        "exe_content_sha256": [
+          148,
+          84,
+          36,
+          0,
+          228,
+          150,
+          195,
+          51,
+          116,
+          244,
+          36,
+          43,
+          81,
+          245,
+          4,
+          210,
+          147,
+          14,
+          200,
+          242,
+          117,
+          110,
+          227,
+          58,
+          111,
+          172,
+          138,
+          92,
+          20,
+          41,
+          23,
+          32
+        ],
+        "exe_path": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21",
+        "process": {
+          "boot_id": [
+            29,
+            147,
+            14,
+            250,
+            165,
+            189,
+            67,
+            128,
+            138,
+            157,
+            79,
+            101,
+            246,
+            102,
+            204,
+            16
+          ],
+          "pid": 120,
+          "pid_start_time_ticks": 983449
+        }
+      },
+      "repeated_rows": 0
+    }
+  ],
+  "scope": "Forty samples of three held loopback sockets; fstat ground truth"
+}

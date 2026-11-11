@@ -1,0 +1,135 @@
+{
+  "scope": "Offline signature and supplied archive-chain checks; not capture completeness",
+  "independent_administration": false,
+  "verifier_sha256": "5c905155033d39057ae131836b235103b1b8f5b7917bb7774393784d40058f97",
+  "original_sha256": "e0a2ff051547a35a4516bbf5f296142028ced8de7dab79f8161f9d273bfba657",
+  "mutated_sha256": "bd44a7871face8e3e75fa4dae1765ebf83960e3966b291e54f0ffe6966dbcdf8",
+  "changed_bytes": 1,
+  "checks": [
+    {
+      "label": "outage-missing-health-refused",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "edge-reference-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "8dbe6871ae8c75069bbfc4cc01c02eff653487e0451dfadb7ab8c27d19697bbc",
+        "--batches",
+        "validation/p0_048/iteration-002/originals/socket-absence-ObserverLost/batches.jsonl",
+        "--json",
+        "--health",
+        "validation/p0_048/iteration-002/originals/socket-absence-ObserverLost/health.jsonl"
+      ],
+      "expected_exit": 2,
+      "actual_exit": 2,
+      "coverage_verdict": "NOT_EVALUATED",
+      "status": "PASS"
+    },
+    {
+      "label": "outage-initial-batch-signature-only",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "edge-reference-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "8dbe6871ae8c75069bbfc4cc01c02eff653487e0451dfadb7ab8c27d19697bbc",
+        "--batches",
+        "validation/p0_048/iteration-002/originals/socket-absence-ObserverLost/batches.jsonl",
+        "--json"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "coverage_verdict": "UNAVAILABLE",
+      "status": "PASS"
+    },
+    {
+      "label": "socket-absence-SelfReportOnly",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "edge-reference-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "c20e2670833097ca561ca4ebde48cbcfd65950d8f54335b04898e33abaefe753",
+        "--batches",
+        "validation/p0_048/iteration-002/originals/socket-absence-SelfReportOnly/batches.jsonl",
+        "--json",
+        "--health",
+        "validation/p0_048/iteration-002/originals/socket-absence-SelfReportOnly/health.jsonl"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "coverage_verdict": "NOT_EVALUATED",
+      "status": "PASS"
+    },
+    {
+      "label": "socket-repeat-Honest",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "edge-reference-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "5ada7c93c5751461765eefbe3a7a2b9c5f36e361973e100b981a19848ab9954c",
+        "--batches",
+        "validation/p0_048/iteration-002/originals/socket-repeat-Honest/batches.jsonl",
+        "--json",
+        "--health",
+        "validation/p0_048/iteration-002/originals/socket-repeat-Honest/health.jsonl"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "coverage_verdict": "NOT_EVALUATED",
+      "status": "PASS"
+    },
+    {
+      "label": "one-byte-tamper",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "edge-reference-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "5ada7c93c5751461765eefbe3a7a2b9c5f36e361973e100b981a19848ab9954c",
+        "--batches",
+        "validation/p0_048/iteration-002/offline-verification-final/MUTATED-one-byte-batches.jsonl",
+        "--json",
+        "--health",
+        "validation/p0_048/iteration-002/originals/socket-repeat-Honest/health.jsonl"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "coverage_verdict": "NOT_EVALUATED",
+      "status": "PASS"
+    },
+    {
+      "label": "wrong-anchor",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "edge-reference-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "5bda7c93c5751461765eefbe3a7a2b9c5f36e361973e100b981a19848ab9954c",
+        "--batches",
+        "validation/p0_048/iteration-002/originals/socket-repeat-Honest/batches.jsonl",
+        "--json",
+        "--health",
+        "validation/p0_048/iteration-002/originals/socket-repeat-Honest/health.jsonl"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "coverage_verdict": "NOT_EVALUATED",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}
