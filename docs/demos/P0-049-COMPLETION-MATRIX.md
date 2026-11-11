@@ -1,7 +1,7 @@
 # P0-049 completion matrix
 
-Release verdict: **NOT READY**. This is iteration 1, reconciliation plus the C1
-homework scoreboard. Bounded C1 reproduced on a separate CI runner; no full-demo
+Release verdict: **NOT READY**. Iterations 1–2 deliver reconciliation, the bounded
+C1 scoreboard and dependency/audit-gate remediation. Bounded C1 reproduced on a separate CI runner; no full-demo
 or independent clean-machine offline-install acceptance is claimed.
 Review date: 12 November 2026 IST (11 November UTC).
 
@@ -51,6 +51,24 @@ rustix RUSTSEC-2026-0486 as a warning. Other pending jobs are not counted as pas
 See `remote-state.json`, `trivy-source.sarif` and `ci-supplychain-failure.txt` in the
 evidence directory. No ignores or gate reductions were added.
 
+### Iteration 2 update
+
+Fetched AIP and refreshed OVERLAY's branch inventory; no new OVERLAY demo branch
+appeared. Started at `7de9ba4`; implementation `9e3909eea8328d7e81a5887a6e80430237642616`
+updates rusqlite to 0.41.0, libsqlite3-sys to 0.39.1 (linked SQLite 3.54.1) and
+rustix to 1.1.6. Real cargo-audit against the same pinned advisory DB rejects the
+old lockfile and accepts the new one with zero vulnerabilities/warnings and no
+ignore list. cargo-deny 0.20.2 passes with the existing policy unchanged.
+
+The historical Security audit job could report green because `tee` masked the
+audit exit. Explicit `shell: bash` now preserves failures, with four injected
+failure/success tests. Storage/runtime: 284 passes; other rustix consumers:
+144 passes; no failures/skips. Old-engine database bytes retain nine
+tenant/clearance combinations, quarantine, FTS results and dependency digests.
+Detailed provenance: `P0-049-ITERATION-2.md`, `evidence/p0-049-iteration-2/`.
+New CI was queued at first inspection; no full-workspace green claim is made.
+The four historical-render Trivy findings remain outside this bounded fix.
+
 ## Requirements
 
 Paths with T/W/O prefixes refer to the snapshots above. Evidence described as
@@ -60,6 +78,7 @@ iteration's additive changes; starting-state revisions are recorded above.
 
 | Requirement / status | Current implementation | Source file | Test | Evidence | Missing behavior | Dependency | Next action |
 |---|---|---|---|---|---|---|---|
+| Dependency audit gate — LOCAL ACCEPTANCE; CI pending | Patched SQLite/rustix pins; audit pipeline preserves failures | T Cargo.lock, corpus manifest, security workflow | 284 runtime/corpus + 144 consumer + 4 gate tests; audit/deny pass | Iteration 2 raw results and old DB fixture | Final CI reconciliation; remaining Trivy findings | CI runners; sensor-preserving configuration review | Inspect source/final-head CI, retain failures; no exemptions |
 | 1. Offline answers — HISTORICAL PARTIAL | Live local-model harness and citations | W `demos/pull-the-plug/run.sh` | W `accept.py`, server/meter tests | W `evidence/2026-11-08-64d6f40-*` | Fresh packaged run with captures on supported host | Weights, llama-server, bundle | Stage pinned bytes, package and rerun |
 | 2. Expert teaching — PARTIAL | Ingestion, sessions, deterministic draft, typed answers | T `domain/teach.rs`; `harness/{draft_from_session,apply_answers}.py` | T teach CLI + Python tests | T `docs/demo/results/A1*`, `A2*`, `A3a*`, `B2*` | Live model drafting and complete workflow | Model bundle, B3 scope issue | Finish A3b without overwriting document evidence |
 | 3. Questions — PARTIAL | Deterministic cited questions; OCR warning | T `harness/question_generator.py` | `test_question_generator.py` | `B1_question_generator.json`, `B3_holdout_questions.json` | Word-form restriction blocks holdout; term length not explained | Reviewed typed-answer policy | Fix with regression and false-activation checks |
@@ -113,7 +132,7 @@ close the full-demo criterion.
 | PQ identity failure | O identity tests exist; original demo unavailable | Fresh missing/impostor/plaintext/PSK-fallback capture tests |
 | Offline installation failure | Historical partial same-host kit test | Complete local dependencies, independent clean-machine failure/recovery |
 
-Next reconcile the failing dependency gates, then finish the C1 answered-session
+Next reconcile remote CI and the retained-render Trivy findings, then finish the C1 answered-session
 and question linkage before claiming C1 complete. B3's word-form policy needs
 explicit regression/false-activation tests; C2 teaching approval composition
 follows those gates. A3b remains unstaged in this checkout. This iteration does not

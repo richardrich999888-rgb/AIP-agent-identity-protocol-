@@ -31,12 +31,12 @@
    required modes or W3's twenty-run requirement, final integrated code, fresh
    offline installs and complete signed/capture archives.
 8. **Integration and CI open.** T/W diverge; three overlapping dependency/setup
-   paths differ. PR #16/#17/#19 require content-aware integration review. Source
-   commit `84d889f` passes the new scoreboard workflow, but Security fails with four
-   HIGH findings on the retained Helm render. Main CI's audit/deny gate fails on
-   `libsqlite3-sys 0.30.1` (RUSTSEC-2026-0459); rustix 1.1.5 also has an unsoundness
-   warning (RUSTSEC-2026-0486). Review compatible dependency updates and database
-   regressions in a bounded follow-up. Nothing was auto-merged or suppressed.
+   paths differ. PR #16/#17/#19 require content-aware integration review. Four
+   HIGH Trivy findings on the retained Helm render remain. Iteration 2 at `9e3909e`
+   updates the affected SQLite/rustix pins and fixes audit exit propagation; local
+   audit/deny and storage/runtime regressions pass. Its remote CI still needs
+   reconciliation before making a complete-CI claim. No finding was suppressed,
+   no advisory exemption added and no branch auto-merged.
 9. **External acceptance absent.** No external evaluator has installed the final
    package, verified all signed evidence and reproduced required results. The
    connected CI reproduction of C1 is useful evidence, not this acceptance.

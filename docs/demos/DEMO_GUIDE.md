@@ -7,7 +7,11 @@ model fine-tuning. The complete three-minute investor show is not yet executable
 ## Run the bounded live demonstration
 
 On a development Linux x86-64 host, with Rust/Cargo, Git and Python 3.10+ already
-installed, from this repository:
+installed, run the commands below from this repository.
+
+Iteration 2 was tested with Rust 1.99.1. The updated rusqlite dependency requires
+at least Rust 1.89; the whole workspace's minimum-toolchain support was not tested.
+Use the recorded toolchain for reproduction. SQLite is bundled into the binary.
 
 ```bash
 cargo build --locked -p syntriass-runtime --bin syntriass

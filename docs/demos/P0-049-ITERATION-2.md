@@ -1,5 +1,8 @@
 # P0-049 iteration 2 — dependency gates
 
+Implementation: `9e3909eea8328d7e81a5887a6e80430237642616`.
+Review: [draft PR #21](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/21).
+
 **Release NOT READY.** This bounded iteration addresses the dependency-check
 failure identified in iteration 1. It does not complete another teaching/demo
 phase or earn rehearsal credit.
@@ -73,6 +76,24 @@ The other rustix consumers passed **144 tests** (including two doc-tests).
 No failures or skips in either invocation. The four audit failure-propagation
 tests passed; formatting and clippy with warnings denied passed. These are
 separate from iteration 1's Python capability-learning test counts.
+
+Real cargo-deny 0.20.2 also returned exit 0 for advisories, bans, licences and
+sources, with `--locked` and the unchanged repository policy. Its raw JSON-lines
+diagnostics retain all warnings: one unmatched existing advisory exemption and
+68 duplicate/wildcard dependency warnings. No warning suppression was added.
+The clean source commit was then rebuilt and the existing bounded recorder rerun
+inside the network namespace: motor 14/14, expected transformer rejection 11/12,
+corrected transformer 12/12, unchanged capability hashes and zero model calls.
+This remains fixture-based C1 evidence, not completed teaching acceptance.
+
+CI inspection found the source commit's workflows queued with no jobs assigned:
+[scoreboard](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43095210388),
+[Security](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43095210411),
+[main CI](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43095210476).
+This is an outstanding verification dependency. No inference is made about the
+queue's cause, and no remote check is counted as passed for this commit. The
+workflow now includes the old-database regression tests; existing global tests
+and Trivy checks remain enabled.
 
 From the repository root, with the development toolchain/dependencies staged:
 

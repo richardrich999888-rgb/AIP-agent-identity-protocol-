@@ -21,9 +21,27 @@ The old database fixture and its provenance live in
 - Dependency trees, update output, clippy and the old fixture generator output
   are retained alongside those records. The SQLite version actually linked is
   3.54.1; old fixture generation asserted 3.46.0.
+- `deny-*.jsonl` and `deny-status.json`: cargo-deny 0.20.2, exit 0, with the
+  unchanged policy. The raw stream retains one unmatched existing advisory
+  exemption warning and 68 duplicate/wildcard warnings; all four check classes
+  have zero errors. Nothing was suppressed to get this result.
+- `scoreboard/`: a clean rebuild/run at implementation commit
+  `9e3909eea8328d7e81a5887a6e80430237642616`. The same capability hashes and
+  14/14, expected 11/12 rejection, 12/12 results survive the dependency upgrade.
+  Suites are signed with an ephemeral synthetic test key; diagnostics are
+  unsigned. Private keys are not retained. The separate `result.json` contains
+  actual hardware, binary hash, counters, exact CPU/RSS and timings. No timing
+  is combined with iteration 1 or converted into a performance range.
+- `ci-source.json`: source workflows were queued and had no assigned jobs when
+  inspected. No new remote check was counted as passed.
+
+From this directory, run `sha256sum -c SHA256SUMS`; inside `scoreboard/`, run its
+own checksum check. Verify suite signatures with iteration 1's independent
+verifier and independently held trust anchors. The aggregate manifest is
+unsigned and proves consistency only with a manifest the evaluator already trusts.
 
 Only native Linux behavior was exercised. The developer tool installation and
 crate staging used the network. Neither malformed-WAL exploit reproduction nor
 full offline installation is claimed. Read the iteration report and current PR
-for subsequent dependency-policy and CI results; earlier snapshots remain
-immutable. An external evaluator must independently establish its trust anchors.
+for subsequent CI results; earlier snapshots remain immutable. An external
+evaluator must independently establish its trust anchors.

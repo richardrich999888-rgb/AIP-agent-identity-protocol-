@@ -24,8 +24,11 @@ distribution remain required; no new product licensing decision is made here.
 
 Draft delivery is [PR #21](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/21),
 implementation `84d889f`. The scoreboard CI passes; existing Trivy findings and
-the SQLite dependency advisory still fail security/supply-chain gates. See the
-final report and retained scanner output. This evidence does not support a claim
+the initial SQLite dependency advisory failed security/supply-chain gates.
+Iteration 2 (`9e3909e`) updates SQLite/rustix and preserves audit failure exits;
+local checks now pass, with old-database access restrictions verified. Trivy
+findings and final remote CI reconciliation remain open. See the final report and
+retained scanner output. This evidence does not support a claim
 that the complete repository's CI is green.
 
 No TRL promotion, certification, autonomous learning, security accreditation,

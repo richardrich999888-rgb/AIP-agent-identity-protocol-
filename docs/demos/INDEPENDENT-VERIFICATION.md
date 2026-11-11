@@ -62,6 +62,16 @@ The diagnostic JSON is **unsigned**. Existing validation/approval records have
 their own binding format; no signed per-answer receipt or signed knowledge pack
 was added by this iteration. A matching hash is not an approval.
 
+## Verify the dependency upgrade
+
+For the separate dependency/gate change in iteration 2, use the commands and
+immutable RustSec snapshot in `P0-049-ITERATION-2.md`. The regression fixture was
+written by SQLite 3.46.0 and read by linked SQLite 3.54.1. Check its hash and
+producer before running `cargo test --locked -p vanian-sovereign --test sqlite_upgrade`.
+Passing proves the tested compatibility and access restrictions; it is not a
+malicious-WAL exploit test. The audit gate tests intentionally inject nonzero
+Cargo exits and verify they cannot be hidden by report generation.
+
 ## Verify retained Sniffer Dog evidence
 
 From a W checkout at `6ad92ae` and a built verifier:

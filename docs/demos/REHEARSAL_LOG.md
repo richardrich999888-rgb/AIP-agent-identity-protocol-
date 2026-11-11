@@ -13,6 +13,12 @@ rehearsal log. Historical W results remain in the original log at AIP commit
 New iteration-1 runs test only C1, not the full teaching or investor mode. They
 contribute **zero** to the required ten/twenty consecutive rehearsal totals.
 
+Iteration 2 (`9e3909e`) also contributes zero: dependency/gate checks and the C1
+regression are not full teaching/investor modes. Its 19 namespace sandbox tests
+exercise authorized tool execution, not a live Sniffer Dog observation acceptance
+run. No packet captures, verified model weights or clean-machine install resulted
+from these checks. Previous failed attempts and raw records remain retained.
+
 | Bounded run | Immutable source / state | Actual result | Retention |
 |---|---|---|---|
 | Local, 11 Nov 19:49:39 UTC | `84d889f0c045a998150900e433541a976fdd1d69`, clean | Recorder exit 0; 14/14, expected 11/12 rejection, 12/12; 2.7071336839999276 s | `evidence/p0-049-iteration-1/scoreboard/` |

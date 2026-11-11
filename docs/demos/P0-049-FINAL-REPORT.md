@@ -1,4 +1,28 @@
-# P0-049 iteration 1 delivery report
+# P0-049 delivery report
+
+**Release NOT READY.** Latest implementation:
+`9e3909eea8328d7e81a5887a6e80430237642616` (iteration 2), continuing draft PR #21.
+Patched the SQLite and rustix dependencies and corrected a Security workflow
+pipeline that could hide a failed audit behind a successful `tee`.
+
+| Iteration 2 check | Observed local result |
+|---|---|
+| Runtime/corpus tests, including old-database compatibility | 284 passed; 0 failed/skipped |
+| Other rustix consumer tests | 144 passed; 0 failed/skipped |
+| Audit failure-propagation tests | 4 passed; old-shell control reproduces false success |
+| cargo-audit 0.23.0, identical pinned advisory snapshot, no ignores | Before: 1 vulnerability and 1 warning, exit 1. After: 0/0, exit 0 |
+| cargo-deny 0.20.2 | Passed; policy unchanged |
+| Formatting / targeted clippy | Passed; warnings denied |
+
+The linked SQLite is 3.54.1. The previous engine's database fixture retains search,
+tenant/clearance restrictions, quarantine and document dependency hashes, and
+supports safe re-ingest/reopen. See [iteration 2](P0-049-ITERATION-2.md) and its
+retained evidence. This is compatibility/security-gate testing, not exploit
+reproduction or full offline-kit acceptance. Source CI was queued at first
+inspection. The four retained-render Trivy findings and all release-level gaps
+remain open. No advisory or Trivy suppression was added.
+
+## Iteration 1 historical record
 
 **Overall release: NOT READY.** This report closes one bounded iteration, not the
 P0-049 release. The bounded diagnostic reproduced on a separate CI runner; no
