@@ -1,0 +1,35 @@
+name: Teaching scoreboard (bounded C1 acceptance)
+
+on:
+  pull_request:
+    paths:
+      - 'sovereign/syntriass-runtime/**'
+      - 'research/capability-learning/**'
+      - 'Cargo.lock'
+      - '.github/workflows/teach-scoreboard.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  scoreboard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Runtime tests and real CLI
+        run: |
+          cargo test --locked -p syntriass-runtime
+          cargo build --locked -p syntriass-runtime --bin syntriass
+      - name: Two synthetic domains, including the rejected candidate
+        run: |
+          python3 research/capability-learning/harness/record_scoreboard.py \
+            --binary target/debug/syntriass --out "$RUNNER_TEMP/scoreboard-evidence"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: teaching-scoreboard-evidence
+          path: ${{ runner.temp }}/scoreboard-evidence
+          if-no-files-found: error

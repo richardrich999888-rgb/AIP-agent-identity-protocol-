@@ -11,6 +11,7 @@
 //! syntriass suite-sign --key KEYFILE --cases JSONL --suite-id S --tenant T --task X --out SUITE
 //! syntriass cap-propose  --config CFG --file CAP.json            → PROPOSED (evidence bound from corpus)
 //! syntriass cap-validate --config CFG --hash H --suite SUITE     → VALIDATED | REJECTED (trusted experts only)
+//! syntriass cap-scoreboard --config CFG --hash H --suite SUITE   read-only homework; exit 3 if rejected
 //! syntriass cap-approve  --config CFG --hash H --key KEYFILE [--consequential]
 //! syntriass cap-transition --config CFG --hash H --to STATE --role ROLE --actor A --reason R
 //! syntriass cap-list     --config CFG
@@ -681,6 +682,26 @@ fn main() {
                 .unwrap_or_else(|e| die(e));
             println!("{}", serde_json::to_string(&r).unwrap_or_default());
         }
+        "cap-scoreboard" => {
+            let sp = req(&args, "--suite");
+            let suite: ExpertSuite = serde_json::from_slice(&std::fs::read(sp).unwrap_or_else(|e| die(format!("{sp}: {e}"))))
+                .unwrap_or_else(|e| die(format!("{sp}: {e}")));
+            let rec = record(&c, req(&args, "--hash"));
+            if rec.capability.content_hash() != rec.capability_hash {
+                die("stored capability content hash does not match --hash; refusing scoreboard");
+            }
+            let trusted = c.experts.get(&suite.expert_id).unwrap_or_else(|| die(format!("{} is not a trusted expert", suite.expert_id)));
+            let reader = learning::evidence_reader(&rec.capability).unwrap_or_else(|e| die(e));
+            let tenant_of = |d: &str| corpus.document_digest(&reader, d).ok().flatten()
+                .map(|_| rec.capability.required.tenant.clone());
+            let result = syntriass_runtime::capability::scoreboard::check(
+                &rec.capability, &suite, &hexkey(trusted), &tenant_of);
+            let mut output = serde_json::to_value(&result).unwrap_or_else(|e| die(e));
+            output["stored_state"] = json!(rec.state);
+            output["stored_executable"] = json!(rec.executable());
+            println!("{}", serde_json::to_string(&output).unwrap_or_else(|e| die(e)));
+            if !result.validation.passed { std::process::exit(3); }
+        }
         "cap-approve" => {
             let k = read_key(req(&args, "--key"));
             let trusted = c.approvers.get(&k.id).unwrap_or_else(|| die(format!("{} is not a configured approver", k.id)));
@@ -863,6 +884,6 @@ fn main() {
             pool.shutdown().unwrap_or_else(|e| die(e));
         }
         "teach" => teach(&c, &args),
-        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-approve|cap-transition|cap-list|cap-activate|cap-rollback|exp-record|cap-review|cap-upgrade-check|cap-history|health|teach} …"),
+        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-scoreboard|cap-approve|cap-transition|cap-list|cap-activate|cap-rollback|exp-record|cap-review|cap-upgrade-check|cap-history|health|teach} …"),
     }
 }
