@@ -1,5 +1,20 @@
 # P0-050 execution roadmap
 
+**Concurrent source preserved:** `5bc0c5f` added a general teaching-session
+scoreboard while S2 evidence was being finalized. Its source and teaching CI
+are present, but this S2 iteration does not independently accept its new trust
+bindings. The evidence checkpoint is appended on top; source results for
+`6764c7e` remain separately attributed. No shared commit was overwritten.
+
+**S2 continuation:** the sandbox readiness/teaching-CI discrepancy is repaired
+in `6764c7e`; see the [evidence checkpoint](../assurance/evidence/p0-050-sandbox/README.md).
+Next S2 item is per-launch acknowledgement: a successful readiness probe must not
+be mistaken for proof of a later tool launch. Add probe-success/launch-failure
+controls; never sign a tool-exit claim without adequate evidence. Estimated
+C=4, V=5, D=4, U=5, E=2, I=0 gives **19.333**. Correctness overrides UI work.
+Then classify the four retained-render Trivy findings without deleting originals,
+before S3 and lifecycle/pack composition. This updates the historical order below.
+
 Iteration 1, 12 November 2026. One bounded change per iteration. No automatic
 merge, force-push, licence change, purchase, outreach or new repository publication.
 The [gap matrix](P0-050-STRATEGIC-GAP-MATRIX.md) is the source of scope and evidence.

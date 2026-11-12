@@ -6,14 +6,15 @@ signed evidence bundle that results.
 
 ## Test preconditions
 
-The tool-sandbox tests in `tests/agent_execution.rs` run the **real** sandbox.
-They have two host requirements, and they **fail rather than skip** when either
-is missing, because a sandbox test that passes without a sandbox has not run.
+The tool-sandbox tests in `tests/agent_execution.rs` run the **real** namespace
+sandbox and fail when that facility is unavailable. The shared workspace CI
+wrapper also checks cgroup delegation for the separate containment tests.
+Missing prerequisites fail rather than turning an unexecuted check into a pass.
 
 | Requirement | Why | Supplied in CI by |
 |---|---|---|
 | util-linux `unshare`, with unprivileged **user, net, pid and mount** namespaces available to the test user | the sandbox is built from them | `validation/ci/with_cgroup.sh` |
-| a delegated **cgroup v2** subtree with a usable freezer | the containment tests exercise the freezer | the same script |
+| a delegated **cgroup v2** subtree with a usable freezer | separate workspace containment tests exercise the freezer; the namespace runner itself does not use cgroups | the same script |
 
 `validation/ci/with_cgroup.sh` preflights both as the unprivileged test user
 and exits non-zero with the kernel's own reason if either is unavailable. Run

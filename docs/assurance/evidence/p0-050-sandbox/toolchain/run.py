@@ -1,0 +1,33 @@
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+root = Path('/workspace/scratch/8cbb8ab6ce9d/p050-sandbox')
+tool = Path(__file__).parent
+out = tool.parent / 'p050-sandbox-runs'
+out.mkdir(exist_ok=True)
+name, *command = sys.argv[1:]
+env = dict(os.environ)
+env.update(PATH=str(tool / 'rust/bin') + ':' + env['PATH'],
+           CARGO_HOME=str(tool / 'cargo-home'), CARGO_TARGET_DIR=str(tool / 'target'),
+           CARGO_BUILD_JOBS='4', CARGO_TERM_COLOR='never', PYTHONDONTWRITEBYTECODE='1')
+source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+changed = subprocess.check_output(['git', 'status', '--porcelain'], cwd=root, text=True).splitlines()
+paths = ['sovereign/vanian-sovereign/src/adapters/sandbox.rs',
+         'sovereign/vanian-sovereign/tests/agent_execution.rs', 'validation/ci/with_cgroup.sh']
+record = dict(command=command, cwd=str(root), source_commit=source, changes=changed,
+              started_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              source_hashes={p: hashlib.sha256((root / p).read_bytes()).hexdigest() for p in paths},
+              environment={k: env[k] for k in ['CARGO_HOME', 'CARGO_TARGET_DIR', 'CARGO_BUILD_JOBS']})
+start = time.monotonic()
+with (out / (name + '.log')).open('xb') as log:
+    result = subprocess.run(command, cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT)
+record.update(exit_code=result.returncode, duration_seconds=time.monotonic() - start)
+(out / (name + '.json')).write_text(json.dumps(record, indent=2) + '\n')
+print(json.dumps(record), flush=True)
+raise SystemExit(result.returncode)

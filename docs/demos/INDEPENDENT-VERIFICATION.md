@@ -225,3 +225,18 @@ counters; run every required mode ten consecutive times and W3 twenty, including
 fresh installs every fifth W3 run; preserve failures and reset the relevant pass
 count. Reproduce benchmarks on that second machine with its own hardware label.
 OVERLAY's original unavailable W4/W5 commits cannot be used as reproduction bases.
+
+## S2 runner evidence (source 6764c7e)
+
+See `../assurance/evidence/p0-050-sandbox/README.md` for exact source, original
+ZIP digest, public-material pins, failed attempts and commands. With a trusted
+`vanian` build, verify the retained `authorized.json` against the separately
+authenticated `public.json`. Expect AUTHORIZED_AND_RUNNER_ATTESTED and independent
+observation CANNOT_PROVE. A signature authenticates the runner's statement; it
+does not prove a kernel observation or a logical agent's attribution.
+
+The retained one-byte exit mutation and wrong-anchor copy must each exit 1.
+`verify_download.py` repeats these checks and the signed 38-case teaching replay
+with separately built binaries, into a new output directory. The reference trial
+ran without an external network route. This is not a complete offline installer,
+authenticated expert workflow or separately administered custody acceptance.

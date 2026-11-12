@@ -1,5 +1,29 @@
 # P0-050 iteration 1 report
 
+**Concurrent source preserved:** `5bc0c5f` added a general teaching-session
+scoreboard while S2 evidence was being finalized. Its source and teaching CI
+are present, but this S2 iteration does not independently accept its new trust
+bindings. The evidence checkpoint is appended on top; source results for
+`6764c7e` remain separately attributed. No shared commit was overwritten.
+
+**Completed source CI:** `6764c7e` passes full CI `43212899569`, including
+3,593 debug and 3,595 release test passes, plus coverage. Existing exclusions
+are enumerated in the S2 checkpoint; no new sandbox skips. Teaching and harness
+contracts pass. Security `43212899116` still fails four HIGH retained-render
+findings. These statuses refer to the implementation, not a future docs head.
+
+**S2 continuation, 12 November 2026:** source `6764c7e` integrates reviewed PR #16
+namespace refusal checks, post-probe authority/program rechecks, stronger execution
+assertions and temporary application-scoped CI policy. Fresh local and teaching
+CI: **289 Rust tests pass**; CI adds **197 focused Python passes**, unchanged
+12/12 holdout and 26/26 attacks. Original local/CI signed runner records verify;
+changed byte and wrong key reject. Downloaded teaching signatures and all 38
+outcomes replay in a network namespace without an external route. Full CI is
+reported in the [S2 evidence checkpoint](evidence/p0-050-sandbox/README.md).
+The broader S2 gate remains partially verified: per-launch acknowledgement and
+four retained-render HIGH findings remain open. **Release NOT READY**; no full
+commercial demonstration or new Sniffer Dog qualification is claimed.
+
 **Replay continuation, 12 November 2026:** the already-landed applicability repair
 now has a reusable verifier with separately supplied trust/byte pins, OpenSSL
 signature checks and native replay of every frozen outcome. Fresh local and

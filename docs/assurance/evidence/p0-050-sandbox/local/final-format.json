@@ -1,0 +1,32 @@
+{
+  "command": [
+    "cargo",
+    "fmt",
+    "--all",
+    "--",
+    "--check"
+  ],
+  "cwd": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox",
+  "source_commit": "62db903bd66d7d86369e9fece44c826e7ef41093",
+  "changes": [
+    " M .github/workflows/teach-scoreboard.yml",
+    " M sovereign/vanian-sovereign/src/adapters/sandbox.rs",
+    " M sovereign/vanian-sovereign/tests/agent_execution.rs",
+    " M validation/ci/with_cgroup.sh",
+    "?? sovereign/vanian-sovereign/README.md",
+    "?? validation/ci/record_sandbox.py"
+  ],
+  "started_at_utc": "2026-11-12T11:52:08.763099+00:00",
+  "source_hashes": {
+    "sovereign/vanian-sovereign/src/adapters/sandbox.rs": "a9c4019e3c4a2d5181c9708aee361a9cd17365dca0c8440893fc2a17ea60f4fb",
+    "sovereign/vanian-sovereign/tests/agent_execution.rs": "b3577c468dbf049134cc6a2a3a57da60728f57db85d8a01692a2b278a3536cac",
+    "validation/ci/with_cgroup.sh": "da5a6dbabfae437b485d52edbbd5fac1956fa369bf3d68518c641848419bd311"
+  },
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target",
+    "CARGO_BUILD_JOBS": "4"
+  },
+  "exit_code": 0,
+  "duration_seconds": 1.8844624829998793
+}

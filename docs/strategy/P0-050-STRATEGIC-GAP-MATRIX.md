@@ -1,5 +1,28 @@
 # P0-050 strategic gap matrix
 
+**Concurrent source preserved:** `5bc0c5f` added a general teaching-session
+scoreboard while S2 evidence was being finalized. Its source and teaching CI
+are present, but this S2 iteration does not independently accept its new trust
+bindings. The evidence checkpoint is appended on top; source results for
+`6764c7e` remain separately attributed. No shared commit was overwritten.
+
+**Completed source CI:** `6764c7e` passes full CI `43212899569`, including
+3,593 debug and 3,595 release test passes, plus coverage. Existing exclusions
+are enumerated in the S2 checkpoint; no new sandbox skips. Teaching and harness
+contracts pass. Security `43212899116` still fails four HIGH retained-render
+findings. These statuses refer to the implementation, not a future docs head.
+
+**Current S2 continuation (12 November 2026):** reviewed PR #16 and delivered
+source `6764c7e`. Local and hosted teaching checks pass 289 Rust tests; hosted
+197 focused Python tests and signed 12/26 acceptance remain green. Original
+signed CLI evidence and separate downloaded-packet verification are retained.
+Full workspace and Security status are tracked in the
+[S2 checkpoint](../assurance/evidence/p0-050-sandbox/README.md).
+S2 is **PARTIALLY VERIFIED**, not complete: readiness is repaired, per-launch
+acknowledgement and four HIGH retained-render findings remain open. Other
+product readiness classifications are unchanged. The historical snapshots below
+remain evidence of their own revisions, not the current result.
+
 Review: **12 November 2026, iteration 1**. Release: **NOT READY**.
 This iteration closes the bounded applicability defect in the compiler. It does
 not close W3, the offline kit, pilot qualification or independent acceptance.
@@ -64,8 +87,8 @@ access is subject to availability; no purchase is authorized by this matrix.
 | ID / workstream | Existing implementation and source | Verified capability | Unverified claim / acceptance blocker | Business relevance | Technical risk | Effort / hardware | Next experiment |
 |---|---|---|---|---|---|---|---|
 | S1 Applicability — bounded fix accepted | T `research/capability-learning/harness/ir_compiler.py`, `tests/test_applicability.py` | Fresh local + CI: holdout 12/12, attacks 26/26, frozen subset 6/6; four targeted behavioral mutants detected | General language understanding and full W3 remain unverified; old serialized capabilities are unchanged | Prevents an unrelated measurement entering a taught procedure | Lexical topic/cue matches are not semantic intent proof | E2; existing CPU host | Preserve this gate through later lifecycle/UI integration |
-| S2 Security / branch integration | T and PR #16 sandbox; PR #17 chart; PR #19/#20 sensor changes | Fresh local runtime/corpus 284 pass; historical PR #20 native/CI runs pass on its head | Teaching CI baseline: empty authorized output, missing loopback output, exit-code tamper test failure. Trivy fails. Branches are not one qualified product | Credible isolation and trustworthy evidence precede a customer pilot | High: runner/host differences, custody, shared-path conflicts | E3; Linux CI and native host | Reproduce sandbox refusal on CI, review minimal PR #16 content and conflicts; preserve all assertions. Then classify/remediate Trivy without deleting original evidence |
-| S3 C1 general teaching scoreboard | T `capability/scoreboard.rs`, `harness/record_exclusion_policy.py` | Read-only real CLI; signed suites; cited questions and scripted answers; no state mutation | Recorder is scenario-specific; general answered-session command and precise failed-row/B1 question linkage incomplete | Expert can understand and correct failures before authorizing use | Misattributing a failing branch to the wrong question | E2; existing CPU host | General session → compiled candidate → scoreboard binding; reject stale question/source hashes |
+| S2 Security / branch integration — PARTIALLY VERIFIED | T `6764c7e` integrates reviewed PR #16 readiness logic; PR #17/#19/#20 remain separately scoped | Fresh local + teaching CI: 289 Rust, CI 197 Python; 24 sandbox tests; signed CLI original/tamper/wrong-key checks and downloaded replay pass | Readiness is not per-launch acknowledgement; hash-to-exec race, confinement/custody and four HIGH retained-render findings remain open; full CI separately recorded | Credible execution evidence precedes a customer pilot | High: false attribution after a successful probe; shared administration | E3; Linux CI and native host | Deterministic successful-probe/failed-launch regression and fail-closed repair; then classify Trivy preserving originals |
+| S3 C1 general teaching scoreboard — concurrent source present | T `5bc0c5f` adds `harness/score_teaching_session.py`, recorder, tests and teaching workflow changes | Provider teaching CI `43215328974` passes; this S2 iteration did not independently assess the new behavior | Previous general-command gap has new implementation; complete source/question/suite/trust binding acceptance must be reconciled against its own checkpoint | Expert can understand and correct failures before authorizing use | Stale or wrongly attributed question/source/answer bindings | E2; existing CPU host | Review the concurrent C1 evidence and adversarial tests; do not overwrite or equate branch presence with complete acceptance |
 | S4 Signed expert approval | T `capability/lifecycle.rs`, `learning.rs`, `capability_engine.rs` | Existing Ed25519 capability/report binding and lifecycle tests rerun with runtime suite | Full expert/tenant/version/source/suite/scope/expiry/revocation binding and authenticated teaching action not accepted | Accountable authorization of consequential rules | High: trusting caller-supplied roles or stale authority | E4; existing CPU host | Enumerate direct and transitive bindings, then test changed source/suite, revoked/expired/cross-tenant approval, supersession and rollback |
 | S5 Knowledge pack | Existing artifact hashes, signatures and lifecycle primitives; CLI has no completed `pack` interface | No P0-050 pack acceptance | Export/import, lineage/floor/model policy, authority, approval and validation verification missing | Portable customer-controlled expertise and offline transfer | High: imported key trust, downgrade and implicit activation | E4; two isolated local states initially | After S4, reject every specified tamper/authority/version/model attack; default to inactive import |
 | S6 Signed answers and interfaces | T `app.rs`, CLI, audit chain; generic SDK/MCP patterns | Existing tenant/clearance/model gates covered by runtime tests | Per-answer signed receipt and replay defense; authenticated teaching REST/MCP; Python/TS teaching examples incomplete | Inspectable answers, integration and audit exports | High: confusing eval principals with authentication | E3; existing CPU host | Bind caller, scope, sources, capability/version/model and result; verify independently before exposing adapters |
@@ -97,4 +120,4 @@ claim that the product cannot ever work.
 No certification, government endorsement, customer deployment or regulatory
 approval is established by this evidence. See the [execution order](P0-050-EXECUTION-ROADMAP.md)
 and [open gaps](../assurance/P0-050-OPEN-GAPS.md). The next bounded item is S2's
-sandbox/CI discrepancy, which overrides the higher numerical score of S3.
+per-launch acknowledgement gap, which overrides S3.

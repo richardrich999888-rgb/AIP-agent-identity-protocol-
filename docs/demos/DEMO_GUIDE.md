@@ -221,3 +221,13 @@ Hardware records include Linux/kernel, CPU affinity, memory, cgroup availability
 child CPU time, peak RSS and exact elapsed time. Local and CI measurements are
 retained separately; neither is the published 2-vCPU/8-GB benchmark host. Full
 model/sensor/PQ prerequisites and measured sizing on a second machine remain open.
+
+## Bounded runner evidence check
+
+Source `6764c7e` adds `validation/ci/record_sandbox.py`. On a supported Linux
+host, run it with a trusted `vanian` binary and a new output directory to show
+an authorized echo, denied ungranted action, public-material verification and
+tampered-evidence rejection. See the S2 assurance checkpoint for prerequisites
+and exact commands. Label this **runner attestation, independent observation
+CANNOT_PROVE**. It earns no live Sniffer Dog, model, teaching approval or complete
+investor/bank/defence sequence credit.

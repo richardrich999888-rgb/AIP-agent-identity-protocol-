@@ -1,0 +1,70 @@
+{
+  "vanian_sha256": "f99413f5fd02634ffde0ad4f3e8b3d1df60aa9f3a180c7db69607b0ca64fe213",
+  "syntriass_sha256": "dc7a279b81cf256207de1ccb48cb87e26b9d5c29641fc6dfb03612bfe998b223",
+  "commands": [
+    {
+      "name": "original",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/vanian",
+        "verify",
+        "--public",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/public.json",
+        "--bundle",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/authorized.json"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "duration_seconds": 0.028784388001440675
+    },
+    {
+      "name": "one-byte-tamper",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/vanian",
+        "verify",
+        "--public",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/public.json",
+        "--bundle",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/tampered-exit.json"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "duration_seconds": 0.012922932000947185
+    },
+    {
+      "name": "wrong-anchor",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/vanian",
+        "verify",
+        "--public",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/wrong-public.json",
+        "--bundle",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/authorized.json"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "duration_seconds": 0.028864367999631213
+    },
+    {
+      "name": "teaching",
+      "command": [
+        "/usr/bin/python3",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/research/capability-learning/harness/verify_applicability.py",
+        "--evidence",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence",
+        "--trust",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-trust.json",
+        "--binary",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/syntriass",
+        "--out",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "duration_seconds": 0.2688210740016075
+    }
+  ],
+  "network_devices": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0\n",
+  "python": "3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]",
+  "routes": "",
+  "claim": "Synthetic runner/suite checks; no independent key custody, expert authentication or full offline installation."
+}

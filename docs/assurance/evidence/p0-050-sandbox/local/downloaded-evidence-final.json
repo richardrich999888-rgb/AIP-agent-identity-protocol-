@@ -1,0 +1,37 @@
+{
+  "command": [
+    "unshare",
+    "--user",
+    "--map-root-user",
+    "--net",
+    "--pid",
+    "--fork",
+    "--kill-child",
+    "--mount",
+    "--mount-proc",
+    "--",
+    "/usr/bin/python3",
+    "docs/assurance/evidence/p0-050-sandbox/verify_download.py",
+    "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/vanian",
+    "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/syntriass",
+    "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/reverified-final"
+  ],
+  "cwd": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox",
+  "source_commit": "6764c7eb38fa3c5cb0d9884303b14c1cd422d6ad",
+  "changes": [
+    "?? docs/assurance/evidence/p0-050-sandbox/"
+  ],
+  "started_at_utc": "2026-11-12T11:56:19.688439+00:00",
+  "source_hashes": {
+    "sovereign/vanian-sovereign/src/adapters/sandbox.rs": "a9c4019e3c4a2d5181c9708aee361a9cd17365dca0c8440893fc2a17ea60f4fb",
+    "sovereign/vanian-sovereign/tests/agent_execution.rs": "b3577c468dbf049134cc6a2a3a57da60728f57db85d8a01692a2b278a3536cac",
+    "validation/ci/with_cgroup.sh": "da5a6dbabfae437b485d52edbbd5fac1956fa369bf3d68518c641848419bd311"
+  },
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target",
+    "CARGO_BUILD_JOBS": "4"
+  },
+  "exit_code": 0,
+  "duration_seconds": 0.688667066000562
+}

@@ -1,5 +1,24 @@
 # P0-050 open acceptance requirements
 
+**Concurrent source preserved:** `5bc0c5f` added a general teaching-session
+scoreboard while S2 evidence was being finalized. Its source and teaching CI
+are present, but this S2 iteration does not independently accept its new trust
+bindings. The evidence checkpoint is appended on top; source results for
+`6764c7e` remain separately attributed. No shared commit was overwritten.
+
+**Completed source CI:** `6764c7e` passes full CI `43212899569`, including
+3,593 debug and 3,595 release test passes, plus coverage. Existing exclusions
+are enumerated in the S2 checkpoint; no new sandbox skips. Teaching and harness
+contracts pass. Security `43212899116` still fails four HIGH retained-render
+findings. These statuses refer to the implementation, not a future docs head.
+
+**S2 continuation:** the stable namespace-refusal and CI discrepancy has a
+bounded repair at `6764c7e`, with 24/24 sandbox tests and retained signed CLI
+checks passing locally and on teaching CI. The full local scoped total is 289;
+197 focused Python checks and the unchanged 12/26 teaching gate pass on CI.
+See the [checkpoint](evidence/p0-050-sandbox/README.md) for full-workspace status.
+Per-launch acknowledgement remains open, so S2 and release are not complete.
+
 **Release NOT READY — iteration 1, 12 November 2026.** Only the general compiler
 applicability defect is closed in bounded scope. No production, certification,
 regulatory approval or customer-deployment claim follows from these tests.
@@ -12,7 +31,7 @@ or rehearsal requirement below.
 
 | Priority / dependency | Exact incomplete requirement | Required proof to close |
 |---|---|---|
-| P0 next | Teaching branch main-CI sandbox discrepancy; review PR #16 and shared-path conflicts | Authorized execution, actual loopback-only network, genuine exit tamper rejection and unavailable-namespace refusal on affected CI; no skipped assertions |
+| P0 next | Per-launch acknowledgement after successful readiness probe; executable hash-to-exec race remains separate | Probe-success/launch-failure regression; fail closed without false tool-exit attestation, preserve one-shot semantics and CannotProve; scoped and affected CI tests pass |
 | P0 security | Four HIGH retained-render Trivy findings; source/config/evidence classification | Supported native sensor design and justified remediation while retaining original evidence; no blanket excludes or sensor disablement |
 | P0 C1 | General answered-session command, precise failed-row/B1 question linkage | Source/question/draft/candidate hashes bound; no stale answers; meaningful independent scoreboard with all attacks passing |
 | P0 C2 | Complete signed expert approval with identity, tenant, ID/version, source, suite, time and scope | Unauthorized/cross-tenant, changed source/suite, revoked/expired approval, rollback and supersession attacks; never unapproved activation |

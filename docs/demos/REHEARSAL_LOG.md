@@ -153,3 +153,20 @@ attacks 26/26, frozen 6/6 subset; copied-plural controls still rejected. Recorde
 body **0.190935002 s**, not the full show. Fresh signed ZIP and extracted originals
 are retained in `p0-050-replay/post-push/`; both corrected suites pass subsequent
 OpenSSL/native replay. CI adds zero to full-mode rehearsal totals.
+
+## P0-050 S2 sandbox continuation — zero full-mode credit
+
+12 November 2026, source `6764c7e`, hosted teaching run `43212899727`.
+Local scoped Rust tests: 289; hosted same 289 plus 197 focused Python tests.
+Original signed CLI packets retained under `../assurance/evidence/p0-050-sandbox/`.
+Authorized output verifies, unauthorized tool refuses, one-byte mutation and
+wrong anchor reject; independent observation remains CANNOT_PROVE. Post-download
+verification uses a separate local build without the original private state.
+All 38 signed teaching cases replay, including the six-case nonactivation subset.
+
+Local CLI command: 8.157518536 s including initialization and negative checks,
+not a commercial demonstration. Hosted durations are per-command values in
+`ci/original/sandbox-evidence/receipt.json`; no extrapolated show duration.
+The failed baseline and the failed first post-download helper attempt are retained.
+No model or fresh Sniffer Dog sensor ran; no install or independent-administrator
+credit. Required ten-/twenty-run consecutive complete-mode counts stay zero.
