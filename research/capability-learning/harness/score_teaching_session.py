@@ -7,8 +7,9 @@ compiler and native validator run in disposable state. Original lifecycle state
 is not written. No signing key, model, approval or activation is used.
 
 The first integration supports the existing synthetic UTF-8 TXT corpus format.
-Session examples use binary labels, whereas capabilities have multiple outcomes;
-their agreement remains NOT_MEASURED until an expert-reviewed mapping exists.
+Session examples use binary labels, whereas capabilities have multiple outcomes.
+Their agreement remains NOT_MEASURED unless an explicit, input-bound mapping is
+supplied; that unsigned review declaration is not approval or authentication.
 Question links identify actual review candidates, not proven causes of failure.
 """
 from __future__ import annotations
@@ -24,6 +25,7 @@ import time
 
 import apply_answers as B
 import draft_from_session as D
+import example_mapping as M
 import ingest_documents as I
 import question_generator as Q
 from ir_compiler import compile_ir
@@ -105,7 +107,7 @@ def checked_rows(board, suite):
     require(board["stored_state"] == "PROPOSED", "diagnostic changed lifecycle state")
 
 
-def score(*, binary, config, tenant, session_id, session_task, task, answers, document, suite, out):
+def score(*, binary, config, tenant, session_id, session_task, task, answers, document, suite, out, example_map=None):
     out.mkdir(mode=0o700, parents=True, exist_ok=False)
     report = {"schema": "syntriass.teach-session-scoreboard/v1", "status": "INCOMPLETE",
               "activation_performed": False, "approval_performed": False, "model_calls": 0,
@@ -130,10 +132,14 @@ def score(*, binary, config, tenant, session_id, session_task, task, answers, do
         binary = binary.resolve(strict=True)
         config = config.resolve(strict=True)
         cfg = parse(config.read_bytes())
+        require(isinstance(cfg, dict) and isinstance(cfg.get("experts"), dict), "configuration experts must be a public-key mapping")
         snapshots = {"task.json": task.read_bytes(), "answers.json": answers.read_bytes(),
                      "suite.json": suite.read_bytes()}
         values = {name: parse(raw) for name, raw in snapshots.items()}
         spec, answers_doc, signed_suite = (values[n] for n in ("task.json", "answers.json", "suite.json"))
+        if example_map is not None:
+            snapshots["example-map.json"] = example_map.read_bytes()
+            mapping = parse(snapshots["example-map.json"])
         for name, raw in snapshots.items():
             (out / name).write_bytes(raw)
         source = document.read_bytes()
@@ -205,15 +211,34 @@ def score(*, binary, config, tenant, session_id, session_task, task, answers, do
         checked_rows(board, signed_suite)
         require(board["validation"]["passed"] == (result.returncode == 0), "native verdict/exit mismatch")
         write(out / "scoreboard.json", link_questions(board, questions, answered))
-        report.update(status="PASS_SIGNED_SUITE" if result.returncode == 0 else "REJECTED_BY_SUITE",
-                      exit_status=result.returncode, validation=board["validation"],
+        status = "PASS_SIGNED_SUITE" if result.returncode == 0 else "REJECTED_BY_SUITE"
+        exit_status = result.returncode
+        if example_map is not None:
+            bindings = {"session_id": session_id, "capability_hash": proposal["hash"], "source_sha256": sha(source),
+                        **{name + "_sha256": sha(snapshots[name + ".json"]) for name in ("task", "answers", "suite")}}
+            bound_cap = record["capability"]
+            M.validate(mapping, bindings, session, bound_cap, answered["author"])
+            write(out / "bound-capability.json", bound_cap)
+            (out / "example-cases.jsonl").write_text("".join(
+                json.dumps({"id": e["id"], "text": e["text"], "label": e["label"]}) + "\n" for e in session["examples"]))
+            replay = run("native-examples", ["cap-check", "--file", out / "bound-capability.json",
+                                            "--cases", out / "example-cases.jsonl"])
+            observed = [parse(line) for line in replay.stdout.splitlines() if line.strip()]
+            report["examples"] = M.evaluate(mapping, bindings, session, bound_cap, answered["author"], observed)
+            report["example_map_sha256"] = sha(snapshots["example-map.json"])
+            if result.returncode == 0:
+                if report["examples"]["status"] == "PASSED":
+                    status = "PASS_SESSION_AND_SUITE"
+                else:
+                    status, exit_status = "REJECTED_BY_EXAMPLES", 3
+        report.update(status=status, exit_status=exit_status, validation=board["validation"],
                       session_id=session_id, session_task=session_task, tenant=tenant,
                       source_sha256=sha(source), binary_sha256=sha(binary.read_bytes()),
                       input_sha256={name: sha(raw) for name, raw in snapshots.items()},
                       draft_sha256=B.draft_digest(draft), questions_sha256=B.questions_digest(questions),
                       capability_hash=proposal["hash"], original_lifecycle_written=False,
-                      limitation="Same-host diagnostic with configured public trust. No authenticated expert approval, "
-                                 "example-label mapping, PDF/DOCX scoring, UI or full teaching acceptance.")
+                      limitation="Same-host diagnostic with configured public trust. Example mappings are explicit unsigned "
+                                 "review declarations, not authenticated approval. No PDF/DOCX scoring, UI or full teaching acceptance.")
     except (OSError, ValueError, KeyError, TypeError, I.IngestError, subprocess.SubprocessError) as error:
         report.update(status="REFUSED", exit_status=2, error=str(error))
         if isinstance(error, B.AnswersRefused):
@@ -230,6 +255,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     for name in ("binary", "config", "task", "answers", "document", "suite", "out"):
         ap.add_argument("--" + name, required=True, type=Path)
+    ap.add_argument("--example-map", type=Path, help="optional input-bound outcome/label review declaration")
     for name in ("tenant", "session", "session-task"):
         ap.add_argument("--" + name, required=True)
     args = vars(ap.parse_args())

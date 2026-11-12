@@ -48,6 +48,7 @@ jobs:
             research/capability-learning/tests/test_applicability.py \
             research/capability-learning/tests/test_verify_applicability.py \
             research/capability-learning/tests/test_session_scoreboard.py \
+            research/capability-learning/tests/test_example_mapping.py \
             research/capability-learning/tests/test_holdout_questions.py \
             research/capability-learning/tests/test_apply_answers.py \
             research/capability-learning/tests/test_question_generator.py
@@ -58,7 +59,7 @@ jobs:
       - name: Stored session to signed-suite scoreboard (no activation)
         run: |
           python3 research/capability-learning/harness/record_session_scoreboard.py \
-            --binary target/debug/syntriass --out "$RUNNER_TEMP/session-scoreboard-evidence"
+            --binary target/debug/syntriass --with-examples --out "$RUNNER_TEMP/session-scoreboard-evidence"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

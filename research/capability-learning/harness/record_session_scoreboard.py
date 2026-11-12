@@ -17,6 +17,7 @@ import tempfile
 import time
 
 import draft_from_session as D
+import example_mapping as M
 import question_generator as Q
 import record_answers as RA
 import record_exclusion_policy as E
@@ -29,6 +30,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--binary", required=True, type=Path)
     ap.add_argument("--out", required=True, type=Path)
+    ap.add_argument("--with-examples", action="store_true", help="explicitly review the existing synthetic example labels")
     a = ap.parse_args()
     binary, out = a.binary.resolve(strict=True), a.out.resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -46,8 +48,9 @@ def main():
                              "cgroup_memory_max": S.host_probe("/sys/fs/cgroup/memory.max")},
                 "network_before": S.host_probe("/proc/net/dev"), "runs": runs,
                 "full_mode_rehearsal_credit": 0, "model_calls": 0,
+                "example_mapping_requested": a.with_examples,
                 "limitations": ["Synthetic engineer answers and evaluator keys, not authenticated expert approval.",
-                                "Session example agreement NOT_MEASURED; no label mapping was invented.",
+                                "Explicit synthetic example mapping only." if a.with_examples else "Session example agreement NOT_MEASURED; no label mapping was invented.",
                                 "No model, UI, activation, knowledge pack, sensor, packet capture or separate-machine installation."]}
     try:
         with tempfile.TemporaryDirectory(prefix="p051-session-score-") as temp:
@@ -79,19 +82,38 @@ def main():
                 S.run([binary, "suite-sign", "--key", key, "--cases", work / "cases.jsonl",
                        "--suite-id", "p0-051/" + name, "--tenant", spec["tenant"], "--task", spec["intended_task"],
                        "--out", work / "suite.json"])
+                initial_name = name + "-before-example-review" if a.with_examples else name
                 command = [sys.executable, str(Path(T.__file__)), "--binary", str(binary), "--config", str(work / "config.json"),
                            "--tenant", spec["tenant"], "--session", session["session_id"], "--session-task", session["task"],
                            "--task", str(H.TASK), "--answers", str(work / "answers.json"),
-                           "--document", str(data / spec["doc_file"]), "--suite", str(work / "suite.json"), "--out", str(out / name)]
-                start = time.monotonic()
-                result = subprocess.run(command, capture_output=True, timeout=120)
-                (out / (name + ".stdout")).write_bytes(result.stdout)
-                (out / (name + ".stderr")).write_bytes(result.stderr)
-                runs.append({"command": command, "expected_exit": expected, "actual_exit": result.returncode,
-                             "wall_seconds": time.monotonic() - start})
-                T.require(result.returncode == expected, name + " returned an unexpected exit")
+                           "--document", str(data / spec["doc_file"]), "--suite", str(work / "suite.json"), "--out", str(out / initial_name)]
+                def execute(label):
+                    start = time.monotonic()
+                    result = subprocess.run(command, capture_output=True, timeout=120)
+                    (out / (label + ".stdout")).write_bytes(result.stdout)
+                    (out / (label + ".stderr")).write_bytes(result.stderr)
+                    runs.append({"command": list(command), "expected_exit": expected, "actual_exit": result.returncode,
+                                 "wall_seconds": time.monotonic() - start})
+                    T.require(result.returncode == expected, label + " returned an unexpected exit")
+                execute(initial_name)
+                if a.with_examples:
+                    initial = T.parse((out / initial_name / "result.json").read_bytes())
+                    review = {"schema": M.SCHEMA, "bindings": {
+                        "session_id": initial["session_id"], "capability_hash": initial["capability_hash"],
+                        "source_sha256": initial["source_sha256"],
+                        **{n + "_sha256": initial["input_sha256"][n + ".json"] for n in ("task", "answers", "suite")}},
+                        "review": {"who": RA.AUTHOR, "when_ms": int(time.time() * 1000),
+                                   "why": "Explicitly reuse the existing synthetic example labels; other outcomes remain unreviewed."},
+                        "outcomes": H.EXAMPLE_LABELS}
+                    T.write(work / "example-map.json", review)
+                    command[-1] = str(out / name)
+                    command += ["--example-map", str(work / "example-map.json")]
+                    execute(name)
                 observed = T.parse((out / name / "result.json").read_bytes())
                 T.require(observed["validation"]["expert_passed"] == passed, "unexpected validation count")
+                if a.with_examples:
+                    T.require(observed["examples"]["status"] == "PASSED" and observed["examples"]["passed"] == 3,
+                              "synthetic example agreement failed")
                 if expected == 3:
                     board = T.parse((out / name / "scoreboard.json").read_bytes())
                     row, = [r for r in board["cases"] if r["id"] == "val-09"]

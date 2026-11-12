@@ -76,6 +76,9 @@ GENERATOR = CL / "datasets/tx_tasks_v1.py"
 EXPERT = "expert:halvorn-power-lead"      # run_task.py: f"expert:{tenant}-lead"
 APPROVER = "user:halvorn-power-authority"  # run_task.py: f"user:{tenant}-authority"
 PROPOSER = RA.AUTHOR
+# Explicit labels already used by this synthetic session. Other outcomes are
+# deliberately unmapped; C1 must not infer their binary meaning.
+EXAMPLE_LABELS = {"ACCEPT": "allowed", "REMOVE_FROM_SERVICE": "not_allowed", "INVALID_TEST": "not_allowed"}
 MKCONFIG = REPO / "research/intelligence-runtime/harness/mkconfig.py"
 
 EXCLUSION_SENTENCE = "does not apply to motors, cables, generators or dry-type transformers"
@@ -214,7 +217,7 @@ def teach(work: Path, data: Path, spec: dict, *, binary: Path | None = None) -> 
     corpus = data / "corpus/halvorn-hu-tx-2.txt"
     clauses = work / "clauses.json"
     R.ingest_page(corpus, 1, clauses)
-    pick = {"ACCEPT": "allowed", "REMOVE_FROM_SERVICE": "not_allowed", "INVALID_TEST": "not_allowed"}
+    pick = EXAMPLE_LABELS
     demos = [json.loads(line) for line in (data / "demos.jsonl").read_text().splitlines()]
     examples = [{"id": d["id"], "text": d["text"], "label": pick[d["label"]],
                  "reason": f"HU-TX-2 gives {d['label']}"} for d in demos if d["label"] in pick]
