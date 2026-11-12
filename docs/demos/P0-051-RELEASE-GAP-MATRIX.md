@@ -9,10 +9,10 @@ passes do not establish current release acceptance. No branches were merged.
 | Branch / PR | Fetched head | Evidence inspected |
 |---|---|---|
 | WOW / #13 | `6ad92ae78806546948874812dc8e6161d24d9d67` | MASTER_LOOP and original rehearsal ledger; historical CI/demos pass, Security failure |
-| Teaching / #21 | `6764c7eb38fa3c5cb0d9884303b14c1cd422d6ad` | Reviewed concurrent sandbox continuation after initial `62db903`; teaching CI `43212899727` passes; main CI `43212899569` in progress, Security `43212899116` fails |
+| Teaching / #21 | `6764c7eb38fa3c5cb0d9884303b14c1cd422d6ad` | Reviewed concurrent sandbox continuation after initial `62db903`; teaching CI `43212899727` passes; main CI `43212899569` passes; concurrent evidence checkpoint `512fd4f` preserved, Security `43212899116` fails |
 | Native observation / #20 | `61dd73013d02ea7869de104d953f330098df1c32` | P0-048 checkpoint iteration 004, original hosted archives and current CI metadata; main/native/same-run/RBI/contracts pass, Security fails |
 | Reviewed sandbox fix / #16 | `c39fc1f0431ddfaffa2d62199874e18e92087969` | Runtime probe and tests reviewed by content; starting teaching versions equal its parent. No blanket branch merge |
-| OVERLAY | `eccb66886d1f6b0b751909b6743d7e731e8061fb` | Authorized remote branch/tree snapshot, 24 branches, 1,528 tree entries; no demo directories. This is not a fresh build/test |
+| OVERLAY | `eccb66886d1f6b0b751909b6743d7e731e8061fb` | Authorized remote branch/tree snapshot, 24 branches, 1,528 tree entries; no demo directories. Git clone separately failed for lack of git credentials; connector inspection works. This is not a fresh build/test |
 
 All six original OVERLAY revisions (`d1adc90`, `92c8b02`, `07d0319`, `6072578`,
 `13c0fb1`, `3d63f95`) again return 422 / No commit found. No authorized local
@@ -29,10 +29,10 @@ P0-051 sensor qualification. The prior two maintenance examples are not two sect
 
 | ID | Requirement / current state | Existing source or evidence | Missing proof / next action |
 |---|---|---|---|
-| R1 | Sandbox setup correctness — reviewed concurrent repair adopted | `sovereign/vanian-sovereign/src/adapters/sandbox.rs`; PR #16 | Concurrent `6764c7e` implements repair and stronger timeout/program-change controls. Hosted teaching CI passes; whole-workspace CI still pending. Local duplicate patch retained as superseded, never pushed |
+| R1 | Sandbox setup correctness — reviewed concurrent repair adopted | `sovereign/vanian-sovereign/src/adapters/sandbox.rs`; PR #16 | Concurrent `6764c7e` implements repair and stronger timeout/program-change controls. Source `6764c7e` whole-workspace CI passes with existing excluded cases documented in S2. Source `5bc0c5f` teaching CI passes; its main CI remains separately tracked. Local duplicate patch retained as superseded, never pushed |
 | R2 | Remaining sandbox assurance — OPEN | Existing runner retains CANNOT_PROVE observation | Probe-to-launch policy race, executable TOCTOU, filesystem isolation and resource limits are not solved by the preflight repair |
 | R3 | Security CI — OPEN | Four HIGH retained Helm-render Trivy findings; original evidence kept | Classify/remediate supported configuration while preserving evidence and native observation; no blanket suppression |
-| A1 / C1 | Teaching-session scoreboard — PARTIAL | `capability/scoreboard.rs`, scenario recorder, cited B1/B2 questions | P0-051 adds general TXT session command and exact question/citation/edit links; 33 new checks pass locally, hosted acceptance pending. Example-label mapping and PDF/DOCX integration remain open |
+| A1 / C1 | Teaching-session scoreboard — PARTIAL | `capability/scoreboard.rs`, scenario recorder, cited B1/B2 questions | P0-051 adds general TXT session command and exact question/citation/edit links; 33 new checks pass locally and within hosted focused acceptance; full Python 408 passes. Example-label mapping and PDF/DOCX integration remain open |
 | A2 / C2 | Signed expert approval — PARTIAL | `capability/lifecycle.rs`, `learning.rs` | Complete authenticated teaching action and approval envelope; bind tenant/expert/ID/version/source/suite/scope/time/trust anchor |
 | A3 | Authority verification — OPEN end-to-end | Existing signature/trust-map and independence checks | Forged, wrong expert/tenant, expired and revoked authority attacks in teaching workflow |
 | A4 | Activation — PARTIAL | Existing lifecycle and CLI gates | Never activate without required validation/approval; unauthorized activation rejection through actual teaching interface |
@@ -85,3 +85,6 @@ P0-051 sensor qualification. The prior two maintenance examples are not two sect
 All mandatory rows must close with evidence before release. No licensing,
 purchase, outreach, new repository, production deployment or patent action was
 performed. Use **EXPERT-GUIDED TAUGHT CAPABILITY** for the teaching behavior.
+
+P0-051 bounded implementation: `5bc0c5f`; evidence and subsequent reconciliation
+are in [the current report](P0-051-FINAL-REPORT.md). C1 example mapping remains open.

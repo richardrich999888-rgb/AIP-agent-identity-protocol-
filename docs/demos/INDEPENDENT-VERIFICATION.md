@@ -6,6 +6,61 @@ C1 diagnostic reproduced on CI; that connected build is not kit acceptance.
 Source checkouts, unit tests,
 new directories and development namespaces do not satisfy that requirement.
 
+## P0-051 retained originals and reproducible diagnostic
+
+Use source `5bc0c5f68690e5d2656716a97c2cfbb2ce105e08`. Its CI merge
+`9892299fbbb4d76c8dfe62665a8ddd950221fe18` has the same source tree. Stage Python
+3.10+, Git, a trusted Linux `syntriass`/`vanian` binary and `unzip` before disconnecting.
+The existing suite signature checker additionally requires the recorded
+`cryptography==50.0.0`; frozen-case replay uses OpenSSL. Nothing below installs
+or downloads a dependency.
+
+```bash
+(cd docs/demos/evidence/p0-051-iteration-1 && sha256sum -c SHA256SUMS)
+export P051_REVIEW="$(mktemp -d)"
+unzip -q docs/demos/evidence/p0-051-iteration-1/local-original.zip -d "$P051_REVIEW/local"
+unzip -q docs/demos/evidence/p0-051-iteration-1/ci-teaching-original.zip -d "$P051_REVIEW/ci"
+python3 docs/demos/evidence/p0-049-iteration-1/verify_suite_signatures.py \
+  "$P051_REVIEW/local/session-clean" \
+  --trusted-keys "$P051_REVIEW/local/session-clean/corrected-validation/expert-public.json"
+python3 docs/demos/evidence/p0-049-iteration-1/verify_suite_signatures.py \
+  "$P051_REVIEW/ci/session-scoreboard-evidence" \
+  --trusted-keys "$P051_REVIEW/ci/session-scoreboard-evidence/corrected-validation/expert-public.json"
+python3 research/capability-learning/harness/record_session_scoreboard.py \
+  --binary target/debug/syntriass --out "$P051_REVIEW/new-session"
+```
+
+These commands reproduce the documented synthetic test-key checks; accompanying
+keys alone never establish real authority. Expect three suite signatures per
+host, preserved 11/12 rejection, corrected 12/12 and 26/26, and no activation.
+Inspect the original source, questions/answers and exact links in the retained
+control. A fresh recording uses new session IDs and temporary keys. It is a
+new component exercise, not a replay of the original key custody or a full W3 run.
+The existing pinned applicability replay below can also be run on the extracted
+`local/applicability-clean` and `ci/exclusion-evidence` with their separately
+reviewed trust files in this evidence directory; update only the trusted runtime
+hash for your independently built binary.
+
+Verify the original CI runner bundle with public material in a new process:
+
+```bash
+target/debug/vanian verify --public "$P051_REVIEW/ci/sandbox-evidence/public.json" \
+  --bundle "$P051_REVIEW/ci/sandbox-evidence/authorized.json"
+target/debug/vanian verify --public "$P051_REVIEW/ci/sandbox-evidence/public.json" \
+  --bundle "$P051_REVIEW/ci/sandbox-evidence/tampered-exit.json"
+```
+
+The first exits 0 and reports AUTHORIZED_AND_RUNNER_ATTESTED with independent
+observation CANNOT_PROVE. The second must exit 1. This bundle is a namespace
+runner exercise, **not** Sniffer Dog native observation or independent administration.
+The original CI ZIP's digest is
+`9f7f02803e53e48b337ea96b24790e9cace6cce259db99e400f33e9c05b7ef38`.
+
+Final release acceptance still needs the complete offline installer, live models,
+all required modes, original native/PQ evidence, separate clean hosts, benchmarks
+and ten/twenty consecutive rehearsals. Signature validity alone closes none of
+those missing behavior gates.
+
 ## Verify P0-050 iteration 1's accepted component
 
 Use implementation `ef3d9d434e5ed55e5994331abc91c03833f997ff` and the current

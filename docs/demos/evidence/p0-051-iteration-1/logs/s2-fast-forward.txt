@@ -1,0 +1,363 @@
+Updating 5bc0c5f..512fd4f
+Fast-forward
+ docs/assurance/P0-050-FINAL-REPORT.md              |   24 +
+ docs/assurance/P0-050-OPEN-GAPS.md                 |   21 +-
+ docs/assurance/evidence/p0-050-sandbox/README.md   |  228 ++++
+ docs/assurance/evidence/p0-050-sandbox/SHA256SUMS  |  173 +++
+ .../p0-050-sandbox/baseline/overlay-branches.json  |   13 +
+ .../p0-050-sandbox/baseline/pr16-inspected.json    |   13 +
+ .../p0-050-sandbox/baseline/pr21-start.json        |   38 +
+ .../p0-050-sandbox/baseline/quality-job.log.gz     |  Bin 0 -> 245059 bytes
+ .../p0-050-sandbox/ci/coverage-artifact.json       |   23 +
+ .../evidence/p0-050-sandbox/ci/coverage-job.log.gz |  Bin 0 -> 126688 bytes
+ .../p0-050-sandbox/ci/coverage-members.json        |    6 +
+ .../p0-050-sandbox/ci/coverage-original.zip        |  Bin 0 -> 443365 bytes
+ .../p0-050-sandbox/ci/main-jobs-final.json         |  406 +++++++
+ .../evidence/p0-050-sandbox/ci/merge-commit.json   |   40 +
+ .../ci/original/exclusion-evidence/SHA256SUMS      |   39 +
+ .../exclusion-evidence/answered-control.json       |  904 ++++++++++++++++
+ .../exclusion-evidence/answered-explicit.json      |  984 +++++++++++++++++
+ .../exclusion-evidence/answers-control.json        |  192 ++++
+ .../exclusion-evidence/answers-explicit.json       |  196 ++++
+ .../copied-plural-attacks/capability.json          |  130 +++
+ .../copied-plural-attacks/cases.jsonl              |   26 +
+ .../copied-plural-attacks/exit.json                |    4 +
+ .../copied-plural-attacks/scoreboard.json          |  844 +++++++++++++++
+ .../copied-plural-attacks/stderr.txt               |    0
+ .../copied-plural-attacks/stdout.txt               |    1 +
+ .../copied-plural-attacks/suite.json               |  165 +++
+ .../copied-plural-control/capability.json          |  130 +++
+ .../copied-plural-control/cases.jsonl              |   12 +
+ .../copied-plural-control/exit.json                |    4 +
+ .../copied-plural-control/scoreboard.json          |  318 ++++++
+ .../copied-plural-control/stderr.txt               |    0
+ .../copied-plural-control/stdout.txt               |    1 +
+ .../copied-plural-control/suite.json               |   81 ++
+ .../ci/original/exclusion-evidence/draft.json      |  681 ++++++++++++
+ .../original/exclusion-evidence/expert-public.json |    3 +
+ .../explicit-forms-attacks/capability.json         |  138 +++
+ .../explicit-forms-attacks/cases.jsonl             |   26 +
+ .../explicit-forms-attacks/exit.json               |    4 +
+ .../explicit-forms-attacks/scoreboard.json         |  643 +++++++++++
+ .../explicit-forms-attacks/stderr.txt              |    0
+ .../explicit-forms-attacks/stdout.txt              |    1 +
+ .../explicit-forms-attacks/suite.json              |  165 +++
+ .../explicit-forms-validation/capability.json      |  138 +++
+ .../explicit-forms-validation/cases.jsonl          |   12 +
+ .../explicit-forms-validation/exit.json            |    4 +
+ .../explicit-forms-validation/scoreboard.json      |  288 +++++
+ .../explicit-forms-validation/stderr.txt           |    0
+ .../explicit-forms-validation/stdout.txt           |    1 +
+ .../explicit-forms-validation/suite.json           |   81 ++
+ .../ci/original/exclusion-evidence/ir-diff.json    |   22 +
+ .../ci/original/exclusion-evidence/questions.json  |  843 +++++++++++++++
+ .../ci/original/exclusion-evidence/result.json     |  166 +++
+ .../ci/original/exclusion-evidence/session.json    |  267 +++++
+ .../exclusion-evidence/word-form-policy.json       |   22 +
+ .../ci/original/sandbox-evidence/authorized.json   |  609 +++++++++++
+ .../ci/original/sandbox-evidence/authorized.stderr |    0
+ .../ci/original/sandbox-evidence/authorized.stdout |    6 +
+ .../ci/original/sandbox-evidence/init.stderr       |    0
+ .../ci/original/sandbox-evidence/init.stdout       |    1 +
+ .../ci/original/sandbox-evidence/public.json       |   10 +
+ .../ci/original/sandbox-evidence/receipt.json      |  123 +++
+ .../original/sandbox-evidence/tampered-exit.json   |  609 +++++++++++
+ .../ci/original/sandbox-evidence/tools.json        |   16 +
+ .../original/sandbox-evidence/unauthorized.stderr  |    0
+ .../original/sandbox-evidence/unauthorized.stdout  |    2 +
+ .../sandbox-evidence/verify-original.stderr        |    0
+ .../sandbox-evidence/verify-original.stdout        |    3 +
+ .../sandbox-evidence/verify-tampered.stderr        |    0
+ .../sandbox-evidence/verify-tampered.stdout        |    1 +
+ .../sandbox-evidence/verify-wrong-anchor.stderr    |    0
+ .../sandbox-evidence/verify-wrong-anchor.stdout    |    1 +
+ .../ci/original/sandbox-evidence/wrong-public.json |   10 +
+ .../ci/original/scoreboard-evidence/SHA256SUMS     |   14 +
+ .../scoreboard-evidence/expert-public.json         |    3 +
+ .../motor-corrected/capability.json                |  133 +++
+ .../motor-corrected/scoreboard.json                |  320 ++++++
+ .../scoreboard-evidence/motor-corrected/stderr.txt |    0
+ .../scoreboard-evidence/motor-corrected/suite.json |   93 ++
+ .../ci/original/scoreboard-evidence/result.json    |   87 ++
+ .../transformer-candidate/capability.json          |  143 +++
+ .../transformer-candidate/scoreboard.json          |  318 ++++++
+ .../transformer-candidate/stderr.txt               |    0
+ .../transformer-candidate/suite.json               |   81 ++
+ .../transformer-corrected/capability.json          |  137 +++
+ .../transformer-corrected/scoreboard.json          |  284 +++++
+ .../transformer-corrected/stderr.txt               |    0
+ .../transformer-corrected/suite.json               |   81 ++
+ .../evidence/p0-050-sandbox/ci/postgres-job.log    | 1112 +++++++++++++++++++
+ .../evidence/p0-050-sandbox/ci/quality-job.log.gz  |  Bin 0 -> 245974 bytes
+ .../evidence/p0-050-sandbox/ci/red-job.log         |  539 ++++++++++
+ .../p0-050-sandbox/ci/security-jobs-final.json     |  160 +++
+ .../p0-050-sandbox/ci/source-runs-final.json       |   44 +
+ .../p0-050-sandbox/ci/teaching-artifact.json       |   23 +
+ .../evidence/p0-050-sandbox/ci/teaching-job.log    | 1132 ++++++++++++++++++++
+ .../evidence/p0-050-sandbox/ci/teaching-jobs.json  |  104 ++
+ .../p0-050-sandbox/ci/teaching-original.zip        |  Bin 0 -> 79259 bytes
+ .../evidence/p0-050-sandbox/ci/test-summary.json   |   88 ++
+ .../evidence/p0-050-sandbox/ci/trivy-job.log       |  190 ++++
+ .../evidence/p0-050-sandbox/ci/trivy-original.zip  |  Bin 0 -> 1840 bytes
+ .../ci/trivy-original/trivy-results.sarif          |  242 +++++
+ .../p0-050-sandbox/local/baseline-refusal.json     |   33 +
+ .../p0-050-sandbox/local/baseline-refusal.log      |  214 ++++
+ .../evidence/p0-050-sandbox/local/cli-build.json   |   35 +
+ .../evidence/p0-050-sandbox/local/cli-build.log    |    4 +
+ .../p0-050-sandbox/local/cli-evidence.json         |   33 +
+ .../evidence/p0-050-sandbox/local/cli-evidence.log |    1 +
+ .../local/cli-original/authorized.json             |  609 +++++++++++
+ .../local/cli-original/authorized.stderr           |    0
+ .../local/cli-original/authorized.stdout           |    6 +
+ .../p0-050-sandbox/local/cli-original/init.stderr  |    0
+ .../p0-050-sandbox/local/cli-original/init.stdout  |    1 +
+ .../p0-050-sandbox/local/cli-original/public.json  |   10 +
+ .../p0-050-sandbox/local/cli-original/receipt.json |  123 +++
+ .../local/cli-original/tampered-exit.json          |  609 +++++++++++
+ .../p0-050-sandbox/local/cli-original/tools.json   |   16 +
+ .../local/cli-original/unauthorized.stderr         |    0
+ .../local/cli-original/unauthorized.stdout         |    2 +
+ .../local/cli-original/verify-original.stderr      |    0
+ .../local/cli-original/verify-original.stdout      |    3 +
+ .../local/cli-original/verify-tampered.stderr      |    0
+ .../local/cli-original/verify-tampered.stdout      |    1 +
+ .../local/cli-original/verify-wrong-anchor.stderr  |    0
+ .../local/cli-original/verify-wrong-anchor.stdout  |    1 +
+ .../local/cli-original/wrong-public.json           |   10 +
+ .../evidence/p0-050-sandbox/local/clippy.json      |   38 +
+ .../evidence/p0-050-sandbox/local/clippy.log       |   83 ++
+ .../local/downloaded-evidence-final.json           |   37 +
+ .../local/downloaded-evidence-final.log            |    1 +
+ .../p0-050-sandbox/local/downloaded-evidence.json  |   37 +
+ .../p0-050-sandbox/local/downloaded-evidence.log   |   16 +
+ .../p0-050-sandbox/local/final-format.json         |   32 +
+ .../evidence/p0-050-sandbox/local/final-format.log |    0
+ .../evidence/p0-050-sandbox/local/format.json      |   31 +
+ .../evidence/p0-050-sandbox/local/format.log       |    0
+ .../evidence/p0-050-sandbox/local/host.json        |   22 +
+ .../p0-050-sandbox/local/published-cli-build.json  |   31 +
+ .../p0-050-sandbox/local/published-cli-build.log   |    3 +
+ .../p0-050-sandbox/local/sandbox-regression.json   |   35 +
+ .../p0-050-sandbox/local/sandbox-regression.log    |   31 +
+ .../p0-050-sandbox/local/scoped-regression.json    |   34 +
+ .../p0-050-sandbox/local/scoped-regression.log     |  382 +++++++
+ .../p0-050-sandbox/publication-reconciliation.json |    9 +
+ .../p0-050-sandbox/reverified-final/commands.json  |   70 ++
+ .../reverified-final/one-byte-tamper.stderr        |    0
+ .../reverified-final/one-byte-tamper.stdout        |    1 +
+ .../reverified-final/original.stderr               |    0
+ .../reverified-final/original.stdout               |    3 +
+ .../explicit-forms-attacks-capability.json         |  138 +++
+ .../explicit-forms-attacks-cases.jsonl             |   26 +
+ .../explicit-forms-attacks-signature.log           |    1 +
+ .../explicit-forms-attacks-stderr.log              |    0
+ .../explicit-forms-attacks-stdout.jsonl            |   26 +
+ .../explicit-forms-validation-capability.json      |  138 +++
+ .../explicit-forms-validation-cases.jsonl          |   12 +
+ .../explicit-forms-validation-signature.log        |    1 +
+ .../explicit-forms-validation-stderr.log           |    0
+ .../explicit-forms-validation-stdout.jsonl         |   12 +
+ .../teaching-replay/verification.json              |   56 +
+ .../reverified-final/teaching-trust.json           |    8 +
+ .../reverified-final/teaching.stderr               |    0
+ .../reverified-final/teaching.stdout               |    1 +
+ .../reverified-final/wrong-anchor.stderr           |    0
+ .../reverified-final/wrong-anchor.stdout           |    1 +
+ .../reverified/one-byte-tamper.stderr              |    0
+ .../reverified/one-byte-tamper.stdout              |    1 +
+ .../p0-050-sandbox/reverified/original.stderr      |    0
+ .../p0-050-sandbox/reverified/original.stdout      |    3 +
+ .../p0-050-sandbox/reverified/wrong-anchor.stderr  |    0
+ .../p0-050-sandbox/reverified/wrong-anchor.stdout  |    1 +
+ .../evidence/p0-050-sandbox/source-hashes.json     |   12 +
+ .../p0-050-sandbox/source-publication.json         |   12 +
+ .../p0-050-sandbox/toolchain/bootstrap.log         |    7 +
+ .../evidence/p0-050-sandbox/toolchain/bootstrap.py |   39 +
+ .../p0-050-sandbox/toolchain/manifest-pin.json     |   13 +
+ .../evidence/p0-050-sandbox/toolchain/run.py       |   33 +
+ .../toolchain/toolchain-provenance.json            |   53 +
+ .../p0-050-sandbox/verify_download-attempt1.py.txt |   74 ++
+ .../evidence/p0-050-sandbox/verify_download.py     |   75 ++
+ docs/demos/DEMO_GUIDE.md                           |   10 +
+ docs/demos/INDEPENDENT-VERIFICATION.md             |   15 +
+ docs/demos/REHEARSAL_LOG.md                        |   17 +
+ docs/strategy/P0-050-EXECUTION-ROADMAP.md          |   15 +
+ docs/strategy/P0-050-STRATEGIC-GAP-MATRIX.md       |   29 +-
+ sovereign/vanian-sovereign/README.md               |    9 +-
+ 184 files changed, 18677 insertions(+), 8 deletions(-)
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/README.md
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/SHA256SUMS
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/baseline/overlay-branches.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/baseline/pr16-inspected.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/baseline/pr21-start.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/baseline/quality-job.log.gz
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/coverage-artifact.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/coverage-job.log.gz
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/coverage-members.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/coverage-original.zip
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/main-jobs-final.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/merge-commit.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/SHA256SUMS
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/answered-control.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/answered-explicit.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/answers-control.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/answers-explicit.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-attacks/capability.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-attacks/cases.jsonl
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-attacks/exit.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-attacks/scoreboard.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-attacks/stderr.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-attacks/stdout.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-attacks/suite.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-control/capability.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-control/cases.jsonl
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-control/exit.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-control/scoreboard.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-control/stderr.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-control/stdout.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/copied-plural-control/suite.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/draft.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/expert-public.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-attacks/capability.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-attacks/cases.jsonl
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-attacks/exit.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-attacks/scoreboard.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-attacks/stderr.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-attacks/stdout.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-attacks/suite.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-validation/capability.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-validation/cases.jsonl
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-validation/exit.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-validation/scoreboard.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-validation/stderr.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-validation/stdout.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/explicit-forms-validation/suite.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/ir-diff.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/questions.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/result.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/session.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/exclusion-evidence/word-form-policy.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/authorized.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/authorized.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/authorized.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/init.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/init.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/public.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/receipt.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/tampered-exit.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/tools.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/unauthorized.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/unauthorized.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/verify-original.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/verify-original.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/verify-tampered.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/verify-tampered.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/verify-wrong-anchor.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/verify-wrong-anchor.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/sandbox-evidence/wrong-public.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/SHA256SUMS
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/expert-public.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/motor-corrected/capability.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/motor-corrected/scoreboard.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/motor-corrected/stderr.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/motor-corrected/suite.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/result.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/transformer-candidate/capability.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/transformer-candidate/scoreboard.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/transformer-candidate/stderr.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/transformer-candidate/suite.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/transformer-corrected/capability.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/transformer-corrected/scoreboard.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/transformer-corrected/stderr.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/original/scoreboard-evidence/transformer-corrected/suite.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/postgres-job.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/quality-job.log.gz
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/red-job.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/security-jobs-final.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/source-runs-final.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/teaching-artifact.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/teaching-job.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/teaching-jobs.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/teaching-original.zip
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/test-summary.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/trivy-job.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/trivy-original.zip
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/ci/trivy-original/trivy-results.sarif
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/baseline-refusal.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/baseline-refusal.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-build.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-build.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-evidence.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-evidence.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/authorized.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/authorized.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/authorized.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/init.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/init.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/public.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/receipt.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/tampered-exit.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/tools.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/unauthorized.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/unauthorized.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/verify-original.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/verify-original.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/verify-tampered.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/verify-tampered.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/verify-wrong-anchor.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/verify-wrong-anchor.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/cli-original/wrong-public.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/clippy.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/clippy.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/downloaded-evidence-final.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/downloaded-evidence-final.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/downloaded-evidence.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/downloaded-evidence.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/final-format.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/final-format.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/format.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/format.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/host.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/published-cli-build.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/published-cli-build.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/sandbox-regression.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/sandbox-regression.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/scoped-regression.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/local/scoped-regression.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/publication-reconciliation.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/commands.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/one-byte-tamper.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/one-byte-tamper.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/original.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/original.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/explicit-forms-attacks-capability.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/explicit-forms-attacks-cases.jsonl
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/explicit-forms-attacks-signature.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/explicit-forms-attacks-stderr.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/explicit-forms-attacks-stdout.jsonl
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/explicit-forms-validation-capability.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/explicit-forms-validation-cases.jsonl
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/explicit-forms-validation-signature.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/explicit-forms-validation-stderr.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/explicit-forms-validation-stdout.jsonl
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-replay/verification.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching-trust.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/teaching.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/wrong-anchor.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified-final/wrong-anchor.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified/one-byte-tamper.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified/one-byte-tamper.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified/original.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified/original.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified/wrong-anchor.stderr
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/reverified/wrong-anchor.stdout
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/source-hashes.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/source-publication.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/toolchain/bootstrap.log
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/toolchain/bootstrap.py
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/toolchain/manifest-pin.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/toolchain/run.py
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/toolchain/toolchain-provenance.json
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/verify_download-attempt1.py.txt
+ create mode 100644 docs/assurance/evidence/p0-050-sandbox/verify_download.py

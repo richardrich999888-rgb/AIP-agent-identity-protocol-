@@ -1,4 +1,4 @@
-# P0-049 / P0-050 rehearsal ledger
+# P0-049 / P0-050 / P0-051 rehearsal ledger
 
 **Required-mode acceptance: NOT READY.** This teaching branch had no master demo
 rehearsal log. Historical W results remain in the original log at AIP commit
@@ -153,6 +153,35 @@ attacks 26/26, frozen 6/6 subset; copied-plural controls still rejected. Recorde
 body **0.190935002 s**, not the full show. Fresh signed ZIP and extracted originals
 are retained in `p0-050-replay/post-push/`; both corrected suites pass subsequent
 OpenSSL/native replay. CI adds zero to full-mode rehearsal totals.
+
+## P0-051 iteration 1 — session diagnostic, zero full-mode credit
+
+Implementation `5bc0c5f68690e5d2656716a97c2cfbb2ce105e08`; hosted merge
+`9892299fbbb4d76c8dfe62665a8ddd950221fe18`; identical tree
+`751702c7f6472d52062040b942132c88341a31b5`. Both recordings have clean source.
+
+| Observation | Actual result | Wall seconds | Child CPU seconds | Peak child RSS KiB |
+|---|---|---:|---:|---:|
+| Local Linux development host, 9 logical CPUs | Original control 11/12 rejected; corrected 12/12 and 26/26; exact question links | 0.9302947449996282 | 0.645871 | 62592 |
+| Hosted CI, run 43215328974 | Same outcomes and capability hashes; separate binary/hardware | 0.7274345790000041 | 0.632221 | 67416 |
+
+Original archives, signed suites/public keys, raw stdout/stderr, runtime/source
+hashes, hardware/counters and verification outputs are in
+`evidence/p0-051-iteration-1/`. Three signatures per host verify separately.
+The existing frozen applicability evidence also replays 12/12 and 26/26; six
+nonactivation cases are a subset. Do not add overlapping counts.
+
+Failed attempts are kept: original parent sandbox regression; superseded local
+repair; two initial ineffective test mutations; an initial full Python run with
+two skipped tests due to an unstaged default release binary. Later runs explicitly
+select the built binary (408 passed, no skips). No failing frozen label changed.
+
+The adopted `6764c7e` sandbox recorder also ran locally and on CI, retaining real
+signed original bundles and one-byte mutations. Local verification of the original
+CI bundle passes; its tampered copy fails. Observation remains CANNOT_PROVE. No
+native sensor, independent collector administrator, model or final kit ran here.
+No packet captures or clean-machine installation are claimed. Consecutive final
+full-mode counts remain zero; these timings are individual component observations.
 
 ## P0-050 S2 sandbox continuation — zero full-mode credit
 

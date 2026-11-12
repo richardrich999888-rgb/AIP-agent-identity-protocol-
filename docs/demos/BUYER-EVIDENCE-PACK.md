@@ -1,43 +1,53 @@
-# Buyer evidence pack — bounded current claims
+# Buyer evidence pack — P0-051 bounded claims
 
-**P0-049 release status: NOT READY.** Use this with the completion matrix and
-independent-verification guide. This is a pointer pack, not a distributable kit.
+**Release: NOT READY.** This is an evidence index, not the finished offline kit.
+Implementation `5bc0c5f` is in draft PR #21. No certification, government
+endorsement, customer deployment, production readiness or TRL promotion is claimed.
 
-| Claim | Inspectable evidence | Limit |
+| Product | DEMONSTRABLE | REPRODUCIBLE | PILOT-READY | PRODUCTION-READY |
+|---|---|---|---|---|
+| AIRON Native | Bounded TXT teaching diagnostic; historical offline inference | Current session/signed-suite component on local and hosted source-matched runs | NOT VERIFIED: approval, packs, complete offline deployment and UX gates open | NOT VERIFIED |
+| VANIAN Sniffer Dog | Prior source/host-specific native observations; current namespace runner is a separate component | Prior native archives and current signed runner verification; not full sensor qualification | NOT VERIFIED: kernel/load/coverage/custody and independent administration gates open | NOT VERIFIED |
+| SYNTRIASS PQ Overlay | Underlying PoC source exists; original demo revisions unavailable here | NOT VERIFIED for final demo | NOT VERIFIED | NOT VERIFIED |
+| Quantum X-ray / CBOM | Underlying scanner source exists; original W4 demo unavailable here | NOT VERIFIED for planted-weakness final acceptance | NOT VERIFIED | NOT VERIFIED |
+
+Demonstration, reproduction, pilot acceptance and production readiness are
+different claims. A same-source CI pass does not establish a customer air gap.
+
+| Inspectable behavior | Current evidence | Boundary |
 |---|---|---|
-| Explicit source-linked exclusions survive actual teaching and compilation | Iteration 3 session/draft/questions/answers, 12/12 holdout, 16/16 singular/plural probes | Four reviewed maintenance word pairs; engineer-scripted answers, no approval/activation |
-| Broader attacks block acceptance despite a passing original suite | fa-3 remains 25/26 and exit 3 locally and on CI; original control is 17/26 | Applicability defect remains open; this is rejected acceptance, not customer readiness |
-| AIRON can validate a bounded capability against independent signed test cases | C1 code, 14 targeted tests, `evidence/p0-049-iteration-1/scoreboard/` | Synthetic engineer-generated tests; not external expert approval |
-| A failing capability remains visibly rejected | Original transformer `val-09` stays 11/12 and exit 3; failed input/trace/review questions retained | Iteration 3 repairs explicit answers but keeps this original control unchanged |
-| Passing homework cannot activate a rule | CLI test attempts activation after scoreboard success and is refused | Full authenticated teaching approval experience remains incomplete |
-| Model-free capability testing | Recorder uses no model paths; zero calls; unavailable model binaries in CLI test | Does not prove model-assisted drafting or full offline installation |
-| Bounded results reproduce on a separate runner | Clean source and CI merge trees match; same capability hashes/outcomes; `scoreboard-ci/` | CI is connected; measurements remain separate; no external-evaluator acceptance |
-| Suite signatures can be checked independently of the Rust runtime | `verify_suite_signatures.py`; six suites verified; altered label refused | Synthetic test-key trust only; unsigned diagnostics are not authenticated by this check |
-| Retained observer records can be cryptographically verified | Reverified 7 batches/86 events/1 health record; tampered copy rejected | Health is ContinuityUnverified; no complete-coverage or new live-sensor claim |
-| Historical offline inference exists | W `demos/pull-the-plug/evidence/2026-11-08-64d6f40-*` | Not remeasured here; complete bundle and independent-host proof absent |
-| PQ Overlay and Quantum X-ray underlying source exists | Accessible OVERLAY base `eccb668` | Original demo commits unavailable; PQ is a PROOF OF CONCEPT |
+| An expert can inspect why a candidate failed | General session diagnostic, exact qids/citations/edits; original control remains 11/12 rejected | Review suggestions are not proven root causes; synthetic engineer answers are not authenticated expert approval |
+| Corrected capability preserves applicability/refusal gates | Current local and CI 12/12 holdout, 26/26 attacks, frozen subset 6/6; OpenSSL/native replay | Bounded lexical procedure, not general language understanding; counts overlap |
+| Source and answer substitutions are refused | 33 new session checks within 408 local Python tests; 230 focused hosted tests | TXT corpus integration only; session-example mapping and PDF/DOCX scoring remain open |
+| Passing the diagnostic does not activate anything | Original lifecycle untouched; scratch proposal nonexecutable; owner-only retained output | Complete signed authority/activation experience is still incomplete |
+| Signed test inputs are independently verifiable | Three original local and three CI suites verified with separate Python cryptography | Public test keys prove integrity, not independent custody or expert identity; reports are unsigned |
+| Runner signatures and tamper refusal reproduce separately | Original CI bundle verifies locally; one-byte tamper rejected after private state removal | Namespace runner attestation; independent observation CANNOT_PROVE; not a Sniffer Dog live capture |
+| Native sensor work exists | PR #20 `61dd730`, P0-048 original hosted evidence and current provider CI inspection | Historical/source-specific ten native assertions were not rerun as a final P0-051 sensor acceptance |
+| Offline inference exists historically | WOW branch `6ad92ae`, original pull-the-plug evidence | No fresh model weights/runtime or final clean-machine kit acceptance here |
 
-Existing W buyer material remains at `docs/demos/buyer-pack/` on `6ad92ae`:
-security notes, questionnaire, one-machine sizing and `demos/evidence-pack/out/`.
-Do not broaden those SBOM/AIBOM/CBOM scopes to an expanded kit that has not been
-built. Its AIBOM describes a scripted test agent, and binary scanning is not a
-complete algorithm inventory. Full dependency/licence manifests for the final
-distribution remain required; no new product licensing decision is made here.
+Original evidence and failed attempts:
+[`p0-051-iteration-1/`](evidence/p0-051-iteration-1/README.md).
+Launch/narration/recovery: [founder guide](DEMO_GUIDE.md).
+Hash/signature/replay commands: [independent verification](INDEPENDENT-VERIFICATION.md).
+Requirement ledger: [release matrix](P0-051-RELEASE-GAP-MATRIX.md).
 
-Draft delivery is [PR #21](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/21),
-historical implementation `84d889f`. Its scoreboard CI passed; existing Trivy findings and
-the initial SQLite dependency advisory failed security/supply-chain gates.
-Iteration 2 (`9e3909e`) updates SQLite/rustix and preserves audit failure exits;
-local checks now pass, with old-database access restrictions verified. Trivy
-findings and final remote CI reconciliation remain open. See the final report and
-retained scanner output. This evidence does not support a claim
-that the complete repository's CI is green.
+The old 25/26 applicability failure belongs to source `4d002ac`; it remains in
+historical evidence. P0-050 corrected it, and P0-051 freshly preserves 26/26.
+It must not be described as the current failing teaching result. The original
+11/12 rejection control is intentionally retained and remains rejected.
 
-Latest implementation is `4d002ac`. Teaching CI `43164083237` passes its regression
-steps and fails its expanded attack step with exit 3. Raw CI evidence and eight
-verified local/CI suite signatures are retained in iteration 3. This later
-failure supersedes any suggestion that the current teaching CI is green.
+Security CI still fails four HIGH findings in a retained historical Helm render.
+Those findings were not hidden or suppressed. The raw report and audit policy
+context are in the P0-051 final report. Main CI status is in the retained provider
+snapshot; pending checks never count as successful release acceptance.
 
-No TRL promotion, certification, autonomous learning, security accreditation,
-production readiness, universal agent coverage or guaranteed three-minute runtime
-is asserted by this evidence pack.
+A pilot requires a specified supported host, authenticated authorities, bounded
+use case, complete verified offline payloads, original signed evidence, documented
+failure behavior and independent reproduction of agreed acceptance tests. These
+gates have not all passed. Banking, defence, manufacturing and healthcare modes
+must report NOT READY when required capabilities are absent. Synthetic data only.
+
+The investor sequence remains **Pull the Plug → Teach One Rule → Catch the Lying
+Agent**, target three minutes; no full live duration has been established.
+Use **EXPERT-GUIDED TAUGHT CAPABILITY**, never autonomous training or fine-tuning.
+All PQ demonstrations remain **PROOF OF CONCEPT**.

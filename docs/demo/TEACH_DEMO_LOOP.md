@@ -493,7 +493,8 @@ with the unproven half named.
   the signed suite in disposable state without activation. See
   [command and boundaries](TEACH_SESSION_SCOREBOARD.md). Session example
   agreement remains NOT_MEASURED until an expert-reviewed outcome/label mapping
-  exists; PDF/DOCX scoring and E1 remain open. Hosted evidence is pending.
+  exists; PDF/DOCX scoring and E1 remain open. Source `5bc0c5f` passes hosted
+  teaching CI `43215328974`; originals are in `docs/demos/evidence/p0-051-iteration-1/`.
 - [ ] **C2. Approve.** Signed approval → activate → supersede. One CLI command, one UI
   action. Builds on `cap-activate --supersede` and the six suite-attack tests.
 

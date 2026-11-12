@@ -1,4 +1,4 @@
-# Founder guide — P0-050 current bounded demonstrations
+# Founder guide — P0-051 current bounded demonstrations
 
 **Release: NOT READY.** The runnable addition is the corrected teaching applicability gate.
 It is expert-guided capability validation, not autonomous self-improvement or
@@ -10,6 +10,44 @@ externally selected keys/byte pins and recompute the frozen 12-case holdout and
 [Independent verification](INDEPENDENT-VERIFICATION.md#replay-without-trusting-diagnostic-pass-fields).
 An edited PASS summary cannot make this check pass. This is not the final signed
 knowledge-pack scene or a full investor rehearsal.
+
+## P0-051: show why a taught rule failed
+
+With the staged Linux binary, Python 3.10+, Git and this checkout:
+
+```bash
+python3 research/capability-learning/harness/record_session_scoreboard.py \
+  --binary target/debug/syntriass --out /tmp/p051-session-new
+```
+
+Show `rejected-control/scoreboard.json`: the original 11/12 control remains
+rejected and its failed row links to the exact exclusion question, cited sentence
+and answer edits. Then show `corrected-validation/scoreboard.json` (12/12) and
+`corrected-attacks/scoreboard.json` (26/26, including six nonactivation probes).
+Passing this diagnostic does not approve or activate anything.
+
+Presenter: “This is an EXPERT-GUIDED TAUGHT CAPABILITY. Here is the document,
+the question and the answer that supplied this part of the rule. The test found
+a failure. These are questions to review, not an automatic diagnosis. After
+explicitly selecting the cited exclusion forms, the signed suite passes. The
+capability still needs authorized approval before it can be used.”
+
+This is a live scripted component exercise with synthetic engineer answers.
+Only its suites are signed; reports and question links are unsigned. Session
+example agreement is NOT_MEASURED until an expert-reviewed outcome mapping
+exists. No model, human approval screen, pack, kernel observation or complete
+investor show runs. See [the general command](../demo/TEACH_SESSION_SCOREBOARD.md).
+
+Recovery: preserve the failed output directory. Exit 2 means refusal; inspect
+`result.json` and command stderr for stale input, bad trust or missing prerequisites.
+Exit 3 means the signed suite rejected the candidate. Correct the reviewed input
+and rerun into a new directory; do not change frozen expected labels.
+
+The clean local component took 0.9302947449996282 seconds and its hosted counterpart
+0.7274345790000041 seconds on separately labelled hardware. Neither value is the
+investor show's duration. Required Linux models/inference, final installer,
+independent sensor boundary, UI/approval and packs are still unavailable as a
+complete kit. The three-minute sequence below remains NOT READY.
 
 ## Current teaching-session check (P0-050 iteration 1)
 
