@@ -50,8 +50,65 @@ This is evaluation infrastructure, not an air-gap runtime installer.
 
 The qualification gate's 15 positive/negative tests pass. The actual restricted
 workspace run correctly returns exit 1 for nine BLOCKED cases, one BPF FAIL and
-two missing live archives. Those results stay blocked locally. They will only be
-qualified on the external host after the ten assertions and archive checks pass.
+two missing live archives. Those results remain blocked locally.
+
+The [dedicated hosted run](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43167021649)
+passed **all ten exact native tests**, without skips, at source
+`ea5fe9e9ad10da0b490b411afc9f757e01259c73`. Both archive checks also passed.
+The actual host was Ubuntu 24.04.5, x86_64, kernel `7.0.0-1017-azure`, image
+`20261101.360.1`, with root capabilities and the VM PID 1 network namespace.
+This resolves these ten environment-dependent qualification gaps on this host;
+it does not make the restricted workspace capable of those kernel operations.
+
+| Native assertion | Executed result |
+|---|---|
+| Exec sample carries the task's cgroup ID | PASS |
+| Fanotify binds a live writer through its kernel pidfd | PASS |
+| Exited fanotify writer remains unbound | PASS |
+| Kernel loads/runs the XDP parser without attaching it | PASS |
+| Kernel verifier refuses the unsafe BPF program | PASS |
+| Connector captures a short-lived process | PASS |
+| Connector delivers exec replacement | PASS |
+| Real connector loss degrades health and removes coverage | PASS |
+| Loopback send records the sender PID and byte count | PASS |
+| Loopback packet capture records kernel timestamps and loss counters | PASS |
+
+The 19,870-byte original provider ZIP is retained alongside extracted bytes.
+Its SHA-256 matches the provider's published digest:
+`cd0e919510fc5922de8638dacf98d11e22d82e84f6d6e5c1c3a8890ac1cca29c`.
+Local re-verification checked all 19 entries in the native evidence manifest and
+nine recorded source hashes against both the tested commit and current files.
+The hosted checkout was clean. `GITHUB_SHA` records the PR's synthetic merge ref;
+the workflow deliberately checked out and measured the exact head above.
+
+Six local offline CLI checks pass: both originals are accepted; one-byte-modified
+copies and a different valid public trust anchor are rejected for each archive.
+The short-lived-process archive contains three kernel events, with
+`ContinuityUnverified` health and no coverage. The loss archive records a dropped
+event, `Degraded` health, and no coverage. Signature acceptance does not upgrade
+either archive to a VERIFIED execution verdict.
+
+The first local tamper setup aborted before invoking the verifier because it
+incorrectly required the probe ID to occur only once. Kernel events repeat that
+ID. The helper now changes exactly one byte in the first occurrence of a copy;
+three regression controls cover unique/repeated IDs and refusal of a missing
+target field. The initial failure and successful rerun are both retained.
+
+Local sensor regression reported 95 successes, of which 92 actually executed and
+three were blocked connector checks. Those three were executed separately in the
+hosted gate; overlapping suites are not summed. Workspace formatting and scoped
+all-target Clippy with warnings denied pass.
+
+## Separate timing observation
+
+The previously ignored throughput test was explicitly executed in release mode
+and passed once. It measured 2,000 small synthetic batches after 100 warmups on
+kernel `6.18.57`, nine visible CPUs, AMD EPYC 9V74. Offline verification measured
+21,948 batches/s (mean 45.6 microseconds; p50 36.5, p95 86.9, p99 121.9).
+This is an in-process component timing measurement. It excludes sensor sampling,
+transport and archive storage, and establishes no capture rate, false-negative
+rate, concurrent-agent capacity or supported host count. The legacy benchmark's
+printed host-capacity extrapolation is not a measured or accepted result.
 
 Exact results, including any hosted failure and subsequent correction, are in
 [iteration-004](../../validation/p0_048/iteration-004/README.md). Native source checks
@@ -71,3 +128,10 @@ Helm output remain a separate open security-CI item. Historical evidence is not
 deleted or rewritten. Separate collector administration, clean-machine air-gap
 deployment, actual high-load attribution and final demo/release acceptance remain
 unqualified. No certification or complete enterprise-readiness claim follows.
+
+At the tested implementation head, the native gate, same-run assurance, RBI
+rehearsal and harness-contract workflows passed. Full CI was still running when
+the retained provider snapshot was taken. Security CI failed on the same two
+tokenizer-checksum matches and four retained Helm findings (`KSV-0009`,
+`KSV-0010`, `KSV-0118`, `KSV-0121`); the current SARIF and provider receipts are
+retained. These results are not represented as a clean release gate.

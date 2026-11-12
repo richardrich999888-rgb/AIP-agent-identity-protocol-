@@ -1,0 +1,140 @@
+{
+  "status": "PASS",
+  "source_commit": "ea5fe9e9ad10da0b490b411afc9f757e01259c73",
+  "artifact_sha256": "cd0e919510fc5922de8638dacf98d11e22d82e84f6d6e5c1c3a8890ac1cca29c",
+  "artifact_manifest_files_checked": 19,
+  "current_source_files_matching_hosted_source": 9,
+  "verifier_sha256": "37021818ef8d4b26b999bcc5cb2a0846862e21f1ccbc58e23bb8c6587a657e5a",
+  "cases": [
+    {
+      "case": "t09-original",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "f1e4cca6f54918f71a6b32ae5a70f63bb84b844ebb6fcde096afef578bb8dc29",
+        "--batches",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted/p0-native-evidence/originals/t09/batches.jsonl",
+        "--health",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted/p0-native-evidence/originals/t09/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "duration_seconds": 0.03274721799971303,
+      "status": "PASS"
+    },
+    {
+      "case": "t09-one-byte-modified",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "f1e4cca6f54918f71a6b32ae5a70f63bb84b844ebb6fcde096afef578bb8dc29",
+        "--batches",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted-reverification-final/t09-one-byte-modified.jsonl",
+        "--health",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted/p0-native-evidence/originals/t09/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "duration_seconds": 0.014587302999643725,
+      "status": "PASS"
+    },
+    {
+      "case": "t09-wrong-anchor",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "347caad19cd7e44b04716221ff66834222a9b991dc2f0009f9fc79aa71527342",
+        "--batches",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted/p0-native-evidence/originals/t09/batches.jsonl",
+        "--health",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted/p0-native-evidence/originals/t09/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "duration_seconds": 0.023794156999429106,
+      "status": "PASS"
+    },
+    {
+      "case": "t15-original",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "347caad19cd7e44b04716221ff66834222a9b991dc2f0009f9fc79aa71527342",
+        "--batches",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted/p0-native-evidence/originals/t15/batches.jsonl",
+        "--health",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted/p0-native-evidence/originals/t15/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "duration_seconds": 0.02411031199972058,
+      "status": "PASS"
+    },
+    {
+      "case": "t15-one-byte-modified",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "347caad19cd7e44b04716221ff66834222a9b991dc2f0009f9fc79aa71527342",
+        "--batches",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted-reverification-final/t15-one-byte-modified.jsonl",
+        "--health",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted/p0-native-evidence/originals/t15/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "duration_seconds": 0.012543383999400248,
+      "status": "PASS"
+    },
+    {
+      "case": "t15-wrong-anchor",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "f1e4cca6f54918f71a6b32ae5a70f63bb84b844ebb6fcde096afef578bb8dc29",
+        "--batches",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted/p0-native-evidence/originals/t15/batches.jsonl",
+        "--health",
+        "/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-004/hosted/p0-native-evidence/originals/t15/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "duration_seconds": 0.027581776999795693,
+      "status": "PASS"
+    }
+  ],
+  "lost_event_health": "Degraded",
+  "coverage_asserted": false,
+  "independent_administration": false,
+  "execution_verdict": "NOT_EVALUATED"
+}

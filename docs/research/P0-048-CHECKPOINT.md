@@ -17,13 +17,23 @@ for process capture and event loss; verify them through the separate native CLI.
 Keep the local restrictions and all product checks intact. Commit/push on the
 approved branch, inspect actual CI, retain results, update this checklist and stop.
 
-## Implementation checkpoint
+## Completed item
 
 The strict runner and its 15 positive/negative controls are implemented. The local
 restricted-host attempt correctly refuses qualification (nine BLOCKED, one FAIL,
 no live archives). A pinned dedicated workflow prepares a disposable GitHub-hosted
-Linux VM and executes the actual tests as root. Hosted acceptance is pending at
-this implementation checkpoint; no unexecuted test is marked passed.
+Linux VM and executes the actual tests as root. Hosted acceptance **passed** at
+`ea5fe9e9ad10da0b490b411afc9f757e01259c73` in run `43167021649`: ten executed
+native tests, zero blocked/ignored, and two native archive-verification checks.
+The original provider ZIP, logs, host/source/binary hashes and signed originals
+are retained. Six local archive/tamper/wrong-anchor checks also pass, with no
+upgrade of missing coverage. Three tamper-harness regressions pass after fixing
+an initial setup assumption; the failed setup transcript remains available.
+
+Local regression: 92 executed passes plus three blocked cases, never counted as
+passed locally. Formatting and scoped Clippy pass. The separately requested
+ignored throughput test was explicitly executed once in release mode; its timing
+is a component measurement, not the high-load or concurrent-agent benchmark matrix.
 
 The native product is unchanged. Only optional retention was added to two existing
 live tests; original signatures and absence of coverage after loss are preserved.
@@ -37,15 +47,15 @@ live tests; original signatures and absence of coverage after loss are preserved
 | Workstream | Current state |
 |---|---|
 | A — audit | Completed to the recorded structural and targeted-review scope |
-| B — sensor correctness | Socket multiplicity and delayed connector-event/cache corrections complete locally; executable/descriptor consistency, namespaces, concurrent attribution and interruption qualification incomplete |
+| B — sensor correctness | Socket multiplicity and delayed connector-event/cache corrections complete; ten native kernel assertions now pass on the recorded disposable host; executable/descriptor consistency, namespaces, concurrent attribution and broader interruption qualification incomplete |
 | C — SPIFFE/SPIRE | Existing adapter qualification and lifecycle/binding guarantees pending |
 | D — OTel GenAI | Existing cross-branch telemetry and full GenAI correlation pending |
 | E — Tetragon | Optional evaluation on a supported host pending |
 | F — policy/gateway | Complete fresh negative matrix pending |
 | G — frameworks | Full framework task acceptance pending; historical failures remain |
-| H — custody | Fresh scoped socket/lifecycle signatures and tamper checks complete; independent administration and full custody matrix pending |
+| H — custody | Fresh socket/lifecycle and live connector/loss signatures and tamper checks complete; independent administration and full custody matrix pending |
 | I — air gap | Complete bundle and clean-host/firewall qualification pending |
-| J — performance | Bounded churn is not the required performance matrix |
+| J — performance | Bounded churn and one explicit component timing run retained; required performance matrix pending |
 | K — demo | Full retained nine-scene demo acceptance pending |
 | L — release | NOT MET: full regression/security CI, clean installation, independent custody and ten full rehearsals remain open |
 
@@ -61,9 +71,9 @@ findings. These are a separate item; this work adds no scanner suppression and
 removes no historical evidence. Independent collector administration, clean-machine
 air-gap deployment, broader attribution/load and final demo acceptance remain open.
 
-## Next step within this item
+## Next item
 
-Inspect the dedicated hosted run, diagnose any actual failure without weakening
-the test, and retain its evidence. Then update this checkpoint and stop. Next
-incomplete work item after this host gate is security-CI finding classification
-and remediation while preserving original archives and scanner coverage.
+The native-host gate is complete for the recorded Linux environment. Stop after
+publishing this evidence update and inspecting CI. The next single incomplete
+item is security-CI finding classification and remediation while preserving
+original archives and scanner coverage. No merge or production enforcement.

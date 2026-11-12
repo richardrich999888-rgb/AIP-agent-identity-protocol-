@@ -1,0 +1,28 @@
+{
+  "observer_id": "collector.syntriass.example",
+  "key_version": 1,
+  "public_key": "347caad19cd7e44b04716221ff66834222a9b991dc2f0009f9fc79aa71527342",
+  "batches": {
+    "records": 1,
+    "first_sequence": 1,
+    "last_sequence": 1,
+    "start": "Epoch",
+    "final_head": "cb6d122df9d5c36588543d5310dcaff0b07343a2b70edb80ec3ba2c323421e04",
+    "observations": 0,
+    "kernel_events": 0
+  },
+  "health": {
+    "records": 1,
+    "states": [
+      "Degraded"
+    ],
+    "with_coverage": 0,
+    "without_coverage": 1,
+    "cross_checked_against_batches": 1,
+    "clock_synchronised": 0,
+    "clock_unsynchronised": 0,
+    "clock_not_stated": 1,
+    "clock_worst_max_error_us": null
+  },
+  "findings": []
+}

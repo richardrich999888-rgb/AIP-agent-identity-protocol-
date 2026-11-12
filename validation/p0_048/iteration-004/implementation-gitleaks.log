@@ -1,0 +1,256 @@
+﻿2026-11-12T06:16:52.0581260Z Current runner version: '2.338.2'
+2026-11-12T06:16:52.0603701Z ##[group]Runner Image Provisioner
+2026-11-12T06:16:52.0604486Z Hosted Compute Agent
+2026-11-12T06:16:52.0604975Z Version: 20261028.624
+2026-11-12T06:16:52.0605481Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-12T06:16:52.0606132Z Build Date: 2026-10-28T21:51:42Z
+2026-11-12T06:16:52.0606731Z Worker ID: {d3544464-a9f7-49e9-ae55-17e24313844b}
+2026-11-12T06:16:52.0607336Z Region: westus3
+2026-11-12T06:16:52.0607828Z Cloud: Azure
+2026-11-12T06:16:52.0608344Z ##[endgroup]
+2026-11-12T06:16:52.0610053Z ##[group]Operating System
+2026-11-12T06:16:52.0610668Z Ubuntu
+2026-11-12T06:16:52.0611168Z 26.04.1
+2026-11-12T06:16:52.0611611Z LTS
+2026-11-12T06:16:52.0612040Z ##[endgroup]
+2026-11-12T06:16:52.0612543Z ##[group]Runner Image
+2026-11-12T06:16:52.0613072Z Image: ubuntu-26.04
+2026-11-12T06:16:52.0613530Z Version: 20261101.186.1
+2026-11-12T06:16:52.0614623Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-12T06:16:52.0615903Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-12T06:16:52.0616723Z ##[endgroup]
+2026-11-12T06:16:52.0617781Z ##[group]GITHUB_TOKEN Permissions
+2026-11-12T06:16:52.0619483Z Contents: read
+2026-11-12T06:16:52.0619960Z Metadata: read
+2026-11-12T06:16:52.0620560Z PullRequests: read
+2026-11-12T06:16:52.0621079Z ##[endgroup]
+2026-11-12T06:16:52.0622969Z Secret source: Actions
+2026-11-12T06:16:52.0623951Z Cache mode: write
+2026-11-12T06:16:52.0624585Z Prepare workflow directory
+2026-11-12T06:16:52.0903367Z Prepare all required actions
+2026-11-12T06:16:52.0946026Z Getting action download info
+2026-11-12T06:16:52.4012098Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-12T06:16:52.5306979Z Download action repository 'gitleaks/gitleaks-action@v2' (SHA:ff98106e4c7b2bc287b24eaf42907196329070c7)
+2026-11-12T06:16:53.1842965Z Complete job name: gitleaks (secret scan)
+2026-11-12T06:16:53.2612514Z ##[group]Run actions/checkout@v4
+2026-11-12T06:16:53.2613187Z with:
+2026-11-12T06:16:53.2613535Z   fetch-depth: 0
+2026-11-12T06:16:53.2614019Z   repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:16:53.2617446Z   token: ***
+2026-11-12T06:16:53.2617822Z   ssh-strict: true
+2026-11-12T06:16:53.2618183Z   ssh-user: git
+2026-11-12T06:16:53.2618548Z   persist-credentials: true
+2026-11-12T06:16:53.2618941Z   clean: true
+2026-11-12T06:16:53.2619454Z   sparse-checkout-cone-mode: true
+2026-11-12T06:16:53.2619881Z   fetch-tags: false
+2026-11-12T06:16:53.2620235Z   show-progress: true
+2026-11-12T06:16:53.2620591Z   lfs: false
+2026-11-12T06:16:53.2620923Z   submodules: false
+2026-11-12T06:16:53.2621305Z   set-safe-directory: true
+2026-11-12T06:16:53.2621707Z   allow-unsafe-pr-checkout: false
+2026-11-12T06:16:53.2622435Z ##[endgroup]
+2026-11-12T06:16:53.4501802Z Syncing repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:16:53.4504634Z ##[group]Getting Git version info
+2026-11-12T06:16:53.4505787Z Working directory is '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-12T06:16:53.4507683Z [command]/usr/bin/git version
+2026-11-12T06:16:53.4510282Z git version 2.56.0
+2026-11-12T06:16:53.4527917Z ##[endgroup]
+2026-11-12T06:16:53.4542315Z Temporarily overriding HOME='/home/runner/work/_temp/2f139127-fd55-4b34-8f66-6fcd44ea22dc' before making global git config changes
+2026-11-12T06:16:53.4544422Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T06:16:53.4548119Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:16:53.4601144Z Deleting the contents of '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-12T06:16:53.4604064Z ##[group]Initializing the repository
+2026-11-12T06:16:53.4608932Z [command]/usr/bin/git init /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:16:53.4687448Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-12T06:16:53.4688441Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-12T06:16:53.4689286Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-12T06:16:53.4690153Z hint: call:
+2026-11-12T06:16:53.4690512Z hint:
+2026-11-12T06:16:53.4690984Z hint: 	git config --global init.defaultBranch <name>
+2026-11-12T06:16:53.4691522Z hint:
+2026-11-12T06:16:53.4692018Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-12T06:16:53.4692806Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-12T06:16:53.4693418Z hint:
+2026-11-12T06:16:53.4693789Z hint: 	git branch -m <name>
+2026-11-12T06:16:53.4694210Z hint:
+2026-11-12T06:16:53.4694754Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-12T06:16:53.4704547Z Initialized empty Git repository in /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/.git/
+2026-11-12T06:16:53.4714965Z [command]/usr/bin/git remote add origin https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:16:53.4766048Z ##[endgroup]
+2026-11-12T06:16:53.4766931Z ##[group]Disabling automatic garbage collection
+2026-11-12T06:16:53.4767614Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-12T06:16:53.4800094Z ##[endgroup]
+2026-11-12T06:16:53.4800824Z ##[group]Setting up auth
+2026-11-12T06:16:53.4807734Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T06:16:53.4845337Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T06:16:53.5223002Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T06:16:53.5256347Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T06:16:53.5502794Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T06:16:53.5534208Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T06:16:53.5774659Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-12T06:16:53.5811990Z ##[endgroup]
+2026-11-12T06:16:53.5812790Z ##[group]Fetching the repository
+2026-11-12T06:16:53.5821042Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +d3c2641cb1acc49cd01e9c802c1b85a6da4004a1:refs/remotes/pull/20/merge
+2026-11-12T06:16:55.7026375Z From https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:16:55.7027322Z  * [new branch]      anuj-testing                             -> origin/anuj-testing
+2026-11-12T06:16:55.7028347Z  * [new branch]      claude/aip-security-architecture-audit-zpf9b3 -> origin/claude/aip-security-architecture-audit-zpf9b3
+2026-11-12T06:16:55.7029675Z  * [new branch]      claude/autonomous-accountability-skills-16-30 -> origin/claude/autonomous-accountability-skills-16-30
+2026-11-12T06:16:55.7030745Z  * [new branch]      claude/codebase-production-readiness-wm6idp -> origin/claude/codebase-production-readiness-wm6idp
+2026-11-12T06:16:55.7031701Z  * [new branch]      claude/real-agent-acceptance-n5ysvd      -> origin/claude/real-agent-acceptance-n5ysvd
+2026-11-12T06:16:55.7032679Z  * [new branch]      claude/release-completion-loop           -> origin/claude/release-completion-loop
+2026-11-12T06:16:55.7033723Z  * [new branch]      claude/skill-25-implementation-xbz0t3    -> origin/claude/skill-25-implementation-xbz0t3
+2026-11-12T06:16:55.7035224Z  * [new branch]      claude/strategic-validation-loop         -> origin/claude/strategic-validation-loop
+2026-11-12T06:16:55.7036265Z  * [new branch]      claude/syntriass-airgap-intelligence     -> origin/claude/syntriass-airgap-intelligence
+2026-11-12T06:16:55.7037401Z  * [new branch]      claude/vanian-audit-maturity-addendum-n5ysvd -> origin/claude/vanian-audit-maturity-addendum-n5ysvd
+2026-11-12T06:16:55.7038516Z  * [new branch]      claude/vanian-sovereign-slice1           -> origin/claude/vanian-sovereign-slice1
+2026-11-12T06:16:55.7039619Z  * [new branch]      claude/vanian-system-one                 -> origin/claude/vanian-system-one
+2026-11-12T06:16:55.7040614Z  * [new branch]      codex/accountability-test-gaps-2026-10-20 -> origin/codex/accountability-test-gaps-2026-10-20
+2026-11-12T06:16:55.7041565Z  * [new branch]      codex/aip-v4-accountability              -> origin/codex/aip-v4-accountability
+2026-11-12T06:16:55.7042590Z  * [new branch]      codex/open-source-agents-nov1-validation -> origin/codex/open-source-agents-nov1-validation
+2026-11-12T06:16:55.7043656Z  * [new branch]      codex/p0-048-snifferdog-enterprise-assurance -> origin/codex/p0-048-snifferdog-enterprise-assurance
+2026-11-12T06:16:55.7044656Z  * [new branch]      codex/rbi-demo-preflight-2026-10-27      -> origin/codex/rbi-demo-preflight-2026-10-27
+2026-11-12T06:16:55.7045627Z  * [new branch]      codex/snifferdog-real-agent-swarm-validation -> origin/codex/snifferdog-real-agent-swarm-validation
+2026-11-12T06:16:55.7046477Z  * [new branch]      codex/val-ladder-sync                    -> origin/codex/val-ladder-sync
+2026-11-12T06:16:55.7047317Z  * [new branch]      feature/airon-teach-demo                 -> origin/feature/airon-teach-demo
+2026-11-12T06:16:55.7048213Z  * [new branch]      feature/customer-service-delivery-model  -> origin/feature/customer-service-delivery-model
+2026-11-12T06:16:55.7049801Z  * [new branch]      feature/snifferdog-enterprise-integration -> origin/feature/snifferdog-enterprise-integration
+2026-11-12T06:16:55.7050979Z  * [new branch]      feature/syntriass-intelligence-runtime-v01 -> origin/feature/syntriass-intelligence-runtime-v01
+2026-11-12T06:16:55.7051939Z  * [new branch]      feature/syntriass-runtime-v02            -> origin/feature/syntriass-runtime-v02
+2026-11-12T06:16:55.7052973Z  * [new branch]      feature/vanian-agent-governance-interoperability -> origin/feature/vanian-agent-governance-interoperability
+2026-11-12T06:16:55.7053958Z  * [new branch]      feature/wow-demos                        -> origin/feature/wow-demos
+2026-11-12T06:16:55.7054785Z  * [new branch]      fix/aip-edge-distinct-corroboration      -> origin/fix/aip-edge-distinct-corroboration
+2026-11-12T06:16:55.7055680Z  * [new branch]      fix/chart-probe-seccomp                  -> origin/fix/chart-probe-seccomp
+2026-11-12T06:16:55.7056710Z  * [new branch]      fix/ci-userns-sandbox-tests              -> origin/fix/ci-userns-sandbox-tests
+2026-11-12T06:16:55.7057871Z  * [new branch]      fix/model-resolver-and-setup             -> origin/fix/model-resolver-and-setup
+2026-11-12T06:16:55.7058449Z  * [new branch]      fix/vanian-end-to-end-green              -> origin/fix/vanian-end-to-end-green
+2026-11-12T06:16:55.7059060Z  * [new branch]      import/orbitaltrust-accountability-layer -> origin/import/orbitaltrust-accountability-layer
+2026-11-12T06:16:55.7059998Z  * [new branch]      integration/snifferdog-complete-enterprise-validation -> origin/integration/snifferdog-complete-enterprise-validation
+2026-11-12T06:16:55.7060766Z  * [new branch]      integration/vanian-enterprise-service-delivery -> origin/integration/vanian-enterprise-service-delivery
+2026-11-12T06:16:55.7061304Z  * [new branch]      main                                     -> origin/main
+2026-11-12T06:16:55.7061798Z  * [new branch]      research/syntriass-compute-memory        -> origin/research/syntriass-compute-memory
+2026-11-12T06:16:55.7062439Z  * [new branch]      research/syntriass-generalization-r1-20261031 -> origin/research/syntriass-generalization-r1-20261031
+2026-11-12T06:16:55.7063151Z  * [new branch]      testing                                  -> origin/testing
+2026-11-12T06:16:55.7063584Z  * [new ref]         d3c2641cb1acc49cd01e9c802c1b85a6da4004a1 -> pull/20/merge
+2026-11-12T06:16:55.7065164Z ##[endgroup]
+2026-11-12T06:16:55.7065734Z ##[group]Determining the checkout info
+2026-11-12T06:16:55.7066311Z ##[endgroup]
+2026-11-12T06:16:55.7066580Z [command]/usr/bin/git sparse-checkout disable
+2026-11-12T06:16:55.7097252Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-12T06:16:55.7124683Z ##[group]Checking out the ref
+2026-11-12T06:16:55.7128014Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/20/merge
+2026-11-12T06:16:55.9573792Z Note: switching to 'refs/remotes/pull/20/merge'.
+2026-11-12T06:16:55.9574179Z 
+2026-11-12T06:16:55.9574465Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-12T06:16:55.9575143Z changes and commit them, and you can discard any commits you make in this
+2026-11-12T06:16:55.9575919Z state without impacting any branches by switching back to a branch.
+2026-11-12T06:16:55.9576218Z 
+2026-11-12T06:16:55.9576439Z If you want to create a new branch to retain commits you create, you may
+2026-11-12T06:16:55.9576979Z do so (now or later) by using -c with the switch command. Example:
+2026-11-12T06:16:55.9577291Z 
+2026-11-12T06:16:55.9577414Z   git switch -c <new-branch-name>
+2026-11-12T06:16:55.9577624Z 
+2026-11-12T06:16:55.9577756Z Or undo this operation with:
+2026-11-12T06:16:55.9577963Z 
+2026-11-12T06:16:55.9578068Z   git switch -
+2026-11-12T06:16:55.9578207Z 
+2026-11-12T06:16:55.9578473Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-12T06:16:55.9578858Z 
+2026-11-12T06:16:55.9579494Z HEAD is now at d3c2641 Merge ea5fe9e9ad10da0b490b411afc9f757e01259c73 into 4d0ce1e32c8dedde4e3a930abc2becf1f56b864e
+2026-11-12T06:16:55.9607827Z ##[endgroup]
+2026-11-12T06:16:55.9652679Z [command]/usr/bin/git log -1 --format=%H
+2026-11-12T06:16:55.9676710Z d3c2641cb1acc49cd01e9c802c1b85a6da4004a1
+2026-11-12T06:16:55.9874909Z ##[group]Run gitleaks/gitleaks-action@v2
+2026-11-12T06:16:55.9875154Z env:
+2026-11-12T06:16:55.9877441Z   GITHUB_TOKEN: ***
+2026-11-12T06:16:55.9877646Z   GITLEAKS_ENABLE_UPLOAD_ARTIFACT: true
+2026-11-12T06:16:55.9877869Z ##[endgroup]
+2026-11-12T06:16:56.1266762Z (node:2191) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-12T06:16:56.1267359Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-12T06:16:56.1396412Z (node:2191) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-12T06:16:56.5239717Z [richardrich999888-rgb] is an individual user. No license key is required.
+2026-11-12T06:16:56.5240137Z gitleaks version: 8.24.3
+2026-11-12T06:16:56.5241708Z Version to install: 8.24.3 (target directory: /tmp/gitleaks-8.24.3)
+2026-11-12T06:16:56.7286776Z Cache hit for: gitleaks-cache-8.24.3-linux-x64
+2026-11-12T06:16:57.5192726Z Received 5713644 of 5713644 (100.0%), 9.3 MBs/sec
+2026-11-12T06:16:57.5193716Z Cache Size: ~5 MB (5713644 B)
+2026-11-12T06:16:57.5216328Z [command]/usr/bin/tar -xf /home/runner/work/_temp/613bdd84-bae4-4b1f-87f8-b622aa42e468/cache.tzst -P -C /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol- --use-compress-program unzstd
+2026-11-12T06:16:57.5505989Z Cache restored successfully
+2026-11-12T06:16:57.5510861Z Gitleaks restored from cache
+2026-11-12T06:16:57.5513226Z event type: pull_request
+2026-11-12T06:16:57.9816164Z gitleaks cmd: gitleaks detect --redact -v --exit-code=2 --report-format=sarif --report-path=results.sarif --log-level=debug --log-opts=--no-merges --first-parent 40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf^..ea5fe9e9ad10da0b490b411afc9f757e01259c73
+2026-11-12T06:16:57.9828037Z [command]/tmp/gitleaks-8.24.3/gitleaks detect --redact -v --exit-code=2 --report-format=sarif --report-path=results.sarif --log-level=debug --log-opts=--no-merges --first-parent 40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf^..ea5fe9e9ad10da0b490b411afc9f757e01259c73
+2026-11-12T06:16:58.2119213Z 
+2026-11-12T06:16:58.2120252Z     ○
+2026-11-12T06:16:58.2120978Z     │╲
+2026-11-12T06:16:58.2121226Z     │ ○
+2026-11-12T06:16:58.2121399Z     ○ ░
+2026-11-12T06:16:58.2121573Z     ░    gitleaks
+2026-11-12T06:16:58.2121691Z 
+2026-11-12T06:16:58.2121955Z [90m6:16AM[0m DBG using github.com/wasilibs/go-re2 regex engine
+2026-11-12T06:16:58.2122473Z [90m6:16AM[0m DBG using existing gitleaks config .gitleaks.toml from `(--source)/.gitleaks.toml`
+2026-11-12T06:16:58.3187423Z [90m6:16AM[0m DBG extending config with default config
+2026-11-12T06:16:58.3200169Z [90m6:16AM[0m DBG found .gitleaksignore file: .gitleaksignore
+2026-11-12T06:16:58.3200749Z [90m6:16AM[0m DBG found .gitleaksignore file: .gitleaksignore
+2026-11-12T06:16:58.3202693Z [90m6:16AM[0m DBG executing: /usr/bin/git -C . log -p -U0 --no-merges --first-parent 40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf^..ea5fe9e9ad10da0b490b411afc9f757e01259c73
+2026-11-12T06:16:58.3243771Z [90m6:16AM[0m DBG SCM platform parsed from host [36mhost=[0mgithub.com [36mplatform=[0mgithub
+2026-11-12T06:16:58.5102295Z Finding:     "tokenizer.json": "[1;3;mREDACTED[0m"
+2026-11-12T06:16:58.5102819Z Secret:      [1;3;mREDACTED[0m
+2026-11-12T06:16:58.5103156Z RuleID:      generic-api-key
+2026-11-12T06:16:58.5103478Z Entropy:     3.827973
+2026-11-12T06:16:58.5103818Z File:        validation/p0_048/iteration-001/inventory.json
+2026-11-12T06:16:58.5104219Z Line:        7515
+2026-11-12T06:16:58.5104528Z Commit:      40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf
+2026-11-12T06:16:58.5104924Z Author:      naga sri ganesh
+2026-11-12T06:16:58.5105247Z Email:       richard.rich999888@gmail.com
+2026-11-12T06:16:58.5105604Z Date:        2026-11-11T19:36:02Z
+2026-11-12T06:16:58.5106745Z Fingerprint: 40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf:validation/p0_048/iteration-001/inventory.json:generic-api-key:7515
+2026-11-12T06:16:58.5108224Z Link:        https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf/validation/p0_048/iteration-001/inventory.json#L7515
+2026-11-12T06:16:58.5109086Z 
+2026-11-12T06:16:58.5109468Z Finding:     "tokenizer_config.json": "[1;3;mREDACTED[0m"
+2026-11-12T06:16:58.5109869Z Secret:      [1;3;mREDACTED[0m
+2026-11-12T06:16:58.5110082Z RuleID:      generic-api-key
+2026-11-12T06:16:58.5110284Z Entropy:     3.620407
+2026-11-12T06:16:58.5110510Z File:        validation/p0_048/iteration-001/inventory.json
+2026-11-12T06:16:58.5110771Z Line:        7516
+2026-11-12T06:16:58.5110978Z Commit:      40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf
+2026-11-12T06:16:58.5111248Z Author:      naga sri ganesh
+2026-11-12T06:16:58.5111462Z Email:       richard.rich999888@gmail.com
+2026-11-12T06:16:58.5111690Z Date:        2026-11-11T19:36:02Z
+2026-11-12T06:16:58.5112141Z Fingerprint: 40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf:validation/p0_048/iteration-001/inventory.json:generic-api-key:7516
+2026-11-12T06:16:58.5112965Z Link:        https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf/validation/p0_048/iteration-001/inventory.json#L7516
+2026-11-12T06:16:58.5113471Z 
+2026-11-12T06:16:58.5113632Z [90m6:16AM[0m [32mINF[0m [1m4 commits scanned.[0m
+2026-11-12T06:16:58.5114069Z [90m6:16AM[0m DBG Note: this number might be smaller than expected due to commits with no additions
+2026-11-12T06:16:58.5114541Z [90m6:16AM[0m [32mINF[0m [1mscanned ~2211509 bytes (2.21 MB) in 299ms[0m
+2026-11-12T06:16:58.5114883Z [90m6:16AM[0m [33mWRN[0m [1mleaks found: 2[0m
+2026-11-12T06:16:58.5163167Z Artifact name is valid!
+2026-11-12T06:16:58.5163732Z Root directory input is valid!
+2026-11-12T06:16:58.8307228Z Beginning upload of artifact content to blob storage
+2026-11-12T06:16:59.0655724Z Uploaded bytes 7271
+2026-11-12T06:16:59.1270385Z Finished uploading artifact content to blob storage!
+2026-11-12T06:16:59.1271380Z SHA256 digest of uploaded artifact zip is 45cc2a9b631df3a49d034c945a534da3d371e9e8749eaec361c4fa2d5f3feb00
+2026-11-12T06:16:59.1272158Z Finalizing artifact upload
+2026-11-12T06:16:59.6322206Z Artifact gitleaks-results.sarif.zip successfully finalized. Artifact ID 13919684503
+2026-11-12T06:17:00.2607897Z ##[warning]Error encountered when attempting to write a comment on PR #20: HttpError: Resource not accessible by integration
+Likely an issue with too large of a diff for the comment to be written.
+All secrets that have been leaked will be reported in the summary and job artifact.
+2026-11-12T06:17:00.9223435Z ##[warning]Error encountered when attempting to write a comment on PR #20: HttpError: Resource not accessible by integration
+Likely an issue with too large of a diff for the comment to be written.
+All secrets that have been leaked will be reported in the summary and job artifact.
+2026-11-12T06:17:00.9234956Z ##[warning]🛑 Leaks detected, see job summary for details
+2026-11-12T06:17:00.9453641Z Post job cleanup.
+2026-11-12T06:17:01.0154913Z [command]/usr/bin/git version
+2026-11-12T06:17:01.0192490Z git version 2.56.0
+2026-11-12T06:17:01.0222286Z Temporarily overriding HOME='/home/runner/work/_temp/8594b8e3-098d-47f8-8f78-b7e5b9d62b96' before making global git config changes
+2026-11-12T06:17:01.0223390Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T06:17:01.0226649Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:17:01.0271381Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T06:17:01.0320346Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T06:17:01.0589694Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T06:17:01.0613997Z http.https://github.com/.extraheader
+2026-11-12T06:17:01.0642669Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-12T06:17:01.0667335Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T06:17:01.0946918Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T06:17:01.0978318Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T06:17:01.1361114Z Cleaning up orphan processes
+2026-11-12T06:17:01.1696203Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, gitleaks/gitleaks-action@v2. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

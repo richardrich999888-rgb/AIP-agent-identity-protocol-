@@ -1,0 +1,394 @@
+﻿2026-11-12T06:16:51.9586427Z Current runner version: '2.338.2'
+2026-11-12T06:16:51.9609991Z ##[group]Runner Image Provisioner
+2026-11-12T06:16:51.9610858Z Hosted Compute Agent
+2026-11-12T06:16:51.9611427Z Version: 20261028.624
+2026-11-12T06:16:51.9612066Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-12T06:16:51.9612760Z Build Date: 2026-10-28T21:51:42Z
+2026-11-12T06:16:51.9613428Z Worker ID: {9539c1d7-7f95-475e-aea4-06402a0751de}
+2026-11-12T06:16:51.9614144Z Region: centralus
+2026-11-12T06:16:51.9614685Z Cloud: Azure
+2026-11-12T06:16:51.9615259Z ##[endgroup]
+2026-11-12T06:16:51.9616808Z ##[group]Operating System
+2026-11-12T06:16:51.9617413Z Ubuntu
+2026-11-12T06:16:51.9617957Z 24.04.5
+2026-11-12T06:16:51.9618772Z LTS
+2026-11-12T06:16:51.9619404Z ##[endgroup]
+2026-11-12T06:16:51.9619944Z ##[group]Runner Image
+2026-11-12T06:16:51.9620550Z Image: ubuntu-24.04
+2026-11-12T06:16:51.9621104Z Version: 20261101.360.1
+2026-11-12T06:16:51.9622341Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-12T06:16:51.9623814Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-12T06:16:51.9624761Z ##[endgroup]
+2026-11-12T06:16:51.9625851Z ##[group]GITHUB_TOKEN Permissions
+2026-11-12T06:16:51.9627883Z Contents: read
+2026-11-12T06:16:51.9628756Z Metadata: read
+2026-11-12T06:16:51.9629346Z ##[endgroup]
+2026-11-12T06:16:51.9631408Z Secret source: Actions
+2026-11-12T06:16:51.9632358Z Cache mode: write
+2026-11-12T06:16:51.9633026Z Prepare workflow directory
+2026-11-12T06:16:51.9939493Z Prepare all required actions
+2026-11-12T06:16:51.9984104Z Getting action download info
+2026-11-12T06:16:52.2803876Z Download action repository 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683' (SHA:11bd71901bbe5b1630ceea73d27597364c9af683)
+2026-11-12T06:16:52.3996959Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-12T06:16:52.6493003Z Complete job name: native-linux
+2026-11-12T06:16:52.7308799Z ##[group]Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+2026-11-12T06:16:52.7309880Z with:
+2026-11-12T06:16:52.7310468Z   persist-credentials: false
+2026-11-12T06:16:52.7311093Z   ref: ea5fe9e9ad10da0b490b411afc9f757e01259c73
+2026-11-12T06:16:52.7311876Z   repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:16:52.7315835Z   token: ***
+2026-11-12T06:16:52.7316286Z   ssh-strict: true
+2026-11-12T06:16:52.7316793Z   ssh-user: git
+2026-11-12T06:16:52.7317278Z   clean: true
+2026-11-12T06:16:52.7317775Z   sparse-checkout-cone-mode: true
+2026-11-12T06:16:52.7318504Z   fetch-depth: 1
+2026-11-12T06:16:52.7319118Z   fetch-tags: false
+2026-11-12T06:16:52.7319641Z   show-progress: true
+2026-11-12T06:16:52.7320123Z   lfs: false
+2026-11-12T06:16:52.7320583Z   submodules: false
+2026-11-12T06:16:52.7321103Z   set-safe-directory: true
+2026-11-12T06:16:52.7321808Z ##[endgroup]
+2026-11-12T06:16:53.0171992Z Syncing repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:16:53.0174468Z ##[group]Getting Git version info
+2026-11-12T06:16:53.0175590Z Working directory is '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-12T06:16:53.0177472Z [command]/usr/bin/git version
+2026-11-12T06:16:53.0284658Z git version 2.56.0
+2026-11-12T06:16:53.0307251Z ##[endgroup]
+2026-11-12T06:16:53.0330183Z Temporarily overriding HOME='/home/runner/work/_temp/f78b3727-9602-4cda-bcc2-a340496701bc' before making global git config changes
+2026-11-12T06:16:53.0333188Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T06:16:53.0342704Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:16:53.0405128Z Deleting the contents of '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-12T06:16:53.0412078Z ##[group]Initializing the repository
+2026-11-12T06:16:53.0419125Z [command]/usr/bin/git init /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:16:53.0534222Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-12T06:16:53.0536190Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-12T06:16:53.0537858Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-12T06:16:53.0539489Z hint: call:
+2026-11-12T06:16:53.0540401Z hint:
+2026-11-12T06:16:53.0541463Z hint: 	git config --global init.defaultBranch <name>
+2026-11-12T06:16:53.0542683Z hint:
+2026-11-12T06:16:53.0553531Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-12T06:16:53.0555111Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-12T06:16:53.0559351Z hint:
+2026-11-12T06:16:53.0564390Z hint: 	git branch -m <name>
+2026-11-12T06:16:53.0565651Z hint:
+2026-11-12T06:16:53.0566842Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-12T06:16:53.0569864Z Initialized empty Git repository in /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/.git/
+2026-11-12T06:16:53.0573442Z [command]/usr/bin/git remote add origin https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:16:53.0622677Z ##[endgroup]
+2026-11-12T06:16:53.0623793Z ##[group]Disabling automatic garbage collection
+2026-11-12T06:16:53.0628142Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-12T06:16:53.0662256Z ##[endgroup]
+2026-11-12T06:16:53.0663211Z ##[group]Setting up auth
+2026-11-12T06:16:53.0672174Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T06:16:53.0708737Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T06:16:53.1057712Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T06:16:53.1089648Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T06:16:53.1283943Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-12T06:16:53.1320438Z ##[endgroup]
+2026-11-12T06:16:53.1321504Z ##[group]Fetching the repository
+2026-11-12T06:16:53.1331534Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin ea5fe9e9ad10da0b490b411afc9f757e01259c73
+2026-11-12T06:16:54.4664054Z From https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:16:54.4666078Z  * branch            ea5fe9e9ad10da0b490b411afc9f757e01259c73 -> FETCH_HEAD
+2026-11-12T06:16:54.4677575Z ##[endgroup]
+2026-11-12T06:16:54.4680452Z ##[group]Determining the checkout info
+2026-11-12T06:16:54.4690674Z ##[endgroup]
+2026-11-12T06:16:54.4691508Z [command]/usr/bin/git sparse-checkout disable
+2026-11-12T06:16:54.4749147Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-12T06:16:54.4774731Z ##[group]Checking out the ref
+2026-11-12T06:16:54.4779202Z [command]/usr/bin/git checkout --progress --force ea5fe9e9ad10da0b490b411afc9f757e01259c73
+2026-11-12T06:16:54.7363576Z Note: switching to 'ea5fe9e9ad10da0b490b411afc9f757e01259c73'.
+2026-11-12T06:16:54.7364427Z 
+2026-11-12T06:16:54.7364915Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-12T06:16:54.7366117Z changes and commit them, and you can discard any commits you make in this
+2026-11-12T06:16:54.7367220Z state without impacting any branches by switching back to a branch.
+2026-11-12T06:16:54.7367803Z 
+2026-11-12T06:16:54.7368533Z If you want to create a new branch to retain commits you create, you may
+2026-11-12T06:16:54.7369669Z do so (now or later) by using -c with the switch command. Example:
+2026-11-12T06:16:54.7370510Z 
+2026-11-12T06:16:54.7370868Z   git switch -c <new-branch-name>
+2026-11-12T06:16:54.7371315Z 
+2026-11-12T06:16:54.7371700Z Or undo this operation with:
+2026-11-12T06:16:54.7372132Z 
+2026-11-12T06:16:54.7372371Z   git switch -
+2026-11-12T06:16:54.7372722Z 
+2026-11-12T06:16:54.7373158Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-12T06:16:54.7373674Z 
+2026-11-12T06:16:54.7374010Z HEAD is now at ea5fe9e test(assurance): require native assertions on disposable Linux
+2026-11-12T06:16:54.7378792Z ##[endgroup]
+2026-11-12T06:16:54.7420897Z [command]/usr/bin/git log -1 --format=%H
+2026-11-12T06:16:54.7444136Z ea5fe9e9ad10da0b490b411afc9f757e01259c73
+2026-11-12T06:16:54.7452676Z ##[group]Removing auth
+2026-11-12T06:16:54.7456179Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T06:16:54.7486197Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T06:16:54.7672193Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T06:16:54.7695780Z http.https://github.com/.extraheader
+2026-11-12T06:16:54.7703261Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-12T06:16:54.7732225Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T06:16:54.7909418Z ##[endgroup]
+2026-11-12T06:16:54.8107230Z ##[group]Run python3 -B validation/p0_048/test_native_qualification.py
+2026-11-12T06:16:54.8108208Z [36;1mpython3 -B validation/p0_048/test_native_qualification.py[0m
+2026-11-12T06:16:54.8125467Z shell: /usr/bin/bash -e {0}
+2026-11-12T06:16:54.8126122Z ##[endgroup]
+2026-11-12T06:16:54.9172716Z ...............
+2026-11-12T06:16:54.9174123Z ----------------------------------------------------------------------
+2026-11-12T06:16:54.9175414Z Ran 15 tests in 0.013s
+2026-11-12T06:16:54.9175888Z 
+2026-11-12T06:16:54.9176245Z OK
+2026-11-12T06:16:54.9368321Z ##[group]Run python3 -B validation/p0_048/install_test_toolchain.py \
+2026-11-12T06:16:54.9369634Z [36;1mpython3 -B validation/p0_048/install_test_toolchain.py \[0m
+2026-11-12T06:16:54.9370464Z [36;1m  --prefix "$RUNNER_TEMP/p0-rust" --record "$RUNNER_TEMP/p0-native-build/toolchain.json"[0m
+2026-11-12T06:16:54.9371244Z [36;1mecho "$RUNNER_TEMP/p0-rust/bin" >> "$GITHUB_PATH"[0m
+2026-11-12T06:16:54.9384934Z shell: /usr/bin/bash -e {0}
+2026-11-12T06:16:54.9385563Z ##[endgroup]
+2026-11-12T06:17:01.0519578Z install: creating uninstall script at /home/runner/work/_temp/p0-rust/lib/rustlib/uninstall.sh
+2026-11-12T06:17:01.0533233Z install: installing component 'rustc'
+2026-11-12T06:17:01.5174212Z 
+2026-11-12T06:17:01.5174965Z     rustc installed.
+2026-11-12T06:17:01.5175502Z 
+2026-11-12T06:17:03.9983149Z install: creating uninstall script at /home/runner/work/_temp/p0-rust/lib/rustlib/uninstall.sh
+2026-11-12T06:17:04.0001557Z install: installing component 'rust-std-x86_64-unknown-linux-gnu'
+2026-11-12T06:17:04.6245069Z 
+2026-11-12T06:17:04.6245793Z     rust std installed.
+2026-11-12T06:17:04.6246396Z 
+2026-11-12T06:17:05.5837348Z install: creating uninstall script at /home/runner/work/_temp/p0-rust/lib/rustlib/uninstall.sh
+2026-11-12T06:17:05.5854339Z install: installing component 'cargo'
+2026-11-12T06:17:05.9773321Z 
+2026-11-12T06:17:05.9774109Z     cargo installed.
+2026-11-12T06:17:05.9774578Z 
+2026-11-12T06:17:06.0468059Z ##[group]Run cargo test --locked --no-run --message-format=json -p aip-observe \
+2026-11-12T06:17:06.0468882Z [36;1mcargo test --locked --no-run --message-format=json -p aip-observe \[0m
+2026-11-12T06:17:06.0469462Z [36;1m  --test cgroup_live --test fanotify --test gate10_xdp_evaluation \[0m
+2026-11-12T06:17:06.0470202Z [36;1m  --test sniffer_dog --test socksend --test wiretap \[0m
+2026-11-12T06:17:06.0470658Z [36;1m  > "$RUNNER_TEMP/p0-native-build/artifacts.jsonl"[0m
+2026-11-12T06:17:06.0471134Z [36;1mcargo build --locked -p aip-observe-verify[0m
+2026-11-12T06:17:06.0488514Z shell: /usr/bin/bash -e {0}
+2026-11-12T06:17:06.0489038Z ##[endgroup]
+2026-11-12T06:17:06.0911336Z     Updating crates.io index
+2026-11-12T06:17:06.5196910Z  Downloading crates ...
+2026-11-12T06:17:06.6011804Z   Downloaded block-buffer v0.10.4
+2026-11-12T06:17:06.6133407Z   Downloaded aead v0.5.2
+2026-11-12T06:17:06.6168965Z   Downloaded argon2 v0.5.3
+2026-11-12T06:17:06.6216069Z   Downloaded blake2 v0.10.6
+2026-11-12T06:17:06.6303508Z   Downloaded base64ct v1.8.3
+2026-11-12T06:17:06.6349533Z   Downloaded autocfg v1.5.1
+2026-11-12T06:17:06.6360383Z   Downloaded crypto-common v0.1.7
+2026-11-12T06:17:06.6365280Z   Downloaded password-hash v0.5.0
+2026-11-12T06:17:06.6375119Z   Downloaded base64 v0.22.1
+2026-11-12T06:17:06.6419028Z   Downloaded version_check v0.9.5
+2026-11-12T06:17:06.6426134Z   Downloaded crypto-common v0.2.2
+2026-11-12T06:17:06.6449026Z   Downloaded proc-macro2 v1.0.107
+2026-11-12T06:17:06.6467052Z   Downloaded signature v3.0.0
+2026-11-12T06:17:06.6475330Z   Downloaded quote v1.0.47
+2026-11-12T06:17:06.6491734Z   Downloaded cipher v0.4.4
+2026-11-12T06:17:06.6501731Z   Downloaded curve25519-dalek-derive v0.1.1
+2026-11-12T06:17:06.6507203Z   Downloaded subtle v2.6.1
+2026-11-12T06:17:06.6554714Z   Downloaded bs58 v0.5.1
+2026-11-12T06:17:06.6568695Z   Downloaded digest v0.11.3
+2026-11-12T06:17:06.6585025Z   Downloaded poly1305 v0.8.0
+2026-11-12T06:17:06.6600357Z   Downloaded signature v2.2.0
+2026-11-12T06:17:06.6607993Z   Downloaded digest v0.10.7
+2026-11-12T06:17:06.6618847Z   Downloaded spki v0.7.3
+2026-11-12T06:17:06.6629021Z   Downloaded getrandom v0.2.17
+2026-11-12T06:17:06.6645146Z   Downloaded tinyvec_macros v0.1.1
+2026-11-12T06:17:06.6649694Z   Downloaded opaque-debug v0.3.1
+2026-11-12T06:17:06.6654481Z   Downloaded itoa v1.0.18
+2026-11-12T06:17:06.6662292Z   Downloaded rustc_version v0.4.1
+2026-11-12T06:17:06.6668893Z   Downloaded rand_chacha v0.3.1
+2026-11-12T06:17:06.6675530Z   Downloaded universal-hash v0.5.1
+2026-11-12T06:17:06.6681151Z   Downloaded cfg-if v1.0.4
+2026-11-12T06:17:06.6688585Z   Downloaded sponge-cursor v0.1.0
+2026-11-12T06:17:06.6696188Z   Downloaded cpufeatures v0.2.17
+2026-11-12T06:17:06.6703453Z   Downloaded inout v0.1.4
+2026-11-12T06:17:06.6709070Z   Downloaded generic-array v0.14.7
+2026-11-12T06:17:06.6717484Z   Downloaded ed25519 v2.2.3
+2026-11-12T06:17:06.6727745Z   Downloaded zmij v1.0.23
+2026-11-12T06:17:06.6737596Z   Downloaded const-oid v0.9.6
+2026-11-12T06:17:06.6749697Z   Downloaded ctutils v0.4.6
+2026-11-12T06:17:06.6761530Z   Downloaded module-lattice v0.2.3
+2026-11-12T06:17:06.6771063Z   Downloaded semver v1.0.28
+2026-11-12T06:17:06.6783053Z   Downloaded pkcs8 v0.10.2
+2026-11-12T06:17:06.6796842Z   Downloaded ppv-lite86 v0.2.21
+2026-11-12T06:17:06.6804438Z   Downloaded rand_core v0.6.4
+2026-11-12T06:17:06.6816955Z   Downloaded rand_core v0.10.1
+2026-11-12T06:17:06.6830094Z   Downloaded cmov v0.5.4
+2026-11-12T06:17:06.6842911Z   Downloaded sha2 v0.10.9
+2026-11-12T06:17:06.6862782Z   Downloaded pkcs8 v0.11.0
+2026-11-12T06:17:06.6885514Z   Downloaded keccak v0.2.2
+2026-11-12T06:17:06.6896744Z   Downloaded hybrid-array v0.4.14
+2026-11-12T06:17:06.6910736Z   Downloaded chacha20 v0.9.1
+2026-11-12T06:17:06.6920885Z   Downloaded spki v0.8.0
+2026-11-12T06:17:06.6931984Z   Downloaded zeroize v1.9.0
+2026-11-12T06:17:06.6940799Z   Downloaded tinyvec v1.13.2
+2026-11-12T06:17:06.6960660Z   Downloaded unicode-ident v1.0.24
+2026-11-12T06:17:06.6976250Z   Downloaded getrandom v0.4.3
+2026-11-12T06:17:06.6995897Z   Downloaded num-traits v0.2.19
+2026-11-12T06:17:06.7010644Z   Downloaded serde_derive v1.0.229
+2026-11-12T06:17:06.7027627Z   Downloaded const-oid v0.10.2
+2026-11-12T06:17:06.7042595Z   Downloaded ml-dsa v0.1.1
+2026-11-12T06:17:06.7059150Z   Downloaded chacha20poly1305 v0.10.1
+2026-11-12T06:17:06.7070194Z   Downloaded serde v1.0.229
+2026-11-12T06:17:06.7091288Z   Downloaded der v0.7.10
+2026-11-12T06:17:06.7120534Z   Downloaded serde_core v1.0.229
+2026-11-12T06:17:06.7137567Z   Downloaded rand v0.8.8
+2026-11-12T06:17:06.7157474Z   Downloaded memchr v2.8.3
+2026-11-12T06:17:06.7186971Z   Downloaded typenum v1.20.1
+2026-11-12T06:17:06.7209974Z   Downloaded ed25519-dalek v2.2.0
+2026-11-12T06:17:06.7230106Z   Downloaded der v0.8.2
+2026-11-12T06:17:06.7263510Z   Downloaded serde_json v1.0.151
+2026-11-12T06:17:06.7303801Z   Downloaded curve25519-dalek v4.1.3
+2026-11-12T06:17:06.7357917Z   Downloaded zerocopy v0.8.56
+2026-11-12T06:17:06.7463297Z   Downloaded syn v3.0.5
+2026-11-12T06:17:06.7529395Z   Downloaded shake v0.1.0
+2026-11-12T06:17:06.7543052Z   Downloaded syn v2.0.119
+2026-11-12T06:17:06.7608800Z   Downloaded libc v0.2.189
+2026-11-12T06:17:06.8093657Z    Compiling libc v0.2.189
+2026-11-12T06:17:06.8094161Z    Compiling cfg-if v1.0.4
+2026-11-12T06:17:06.8094755Z    Compiling typenum v1.20.1
+2026-11-12T06:17:06.8095253Z    Compiling version_check v0.9.5
+2026-11-12T06:17:06.8353439Z    Compiling proc-macro2 v1.0.107
+2026-11-12T06:17:07.0326626Z    Compiling generic-array v0.14.7
+2026-11-12T06:17:07.1211174Z    Compiling subtle v2.6.1
+2026-11-12T06:17:07.1469768Z    Compiling quote v1.0.47
+2026-11-12T06:17:07.2056123Z    Compiling unicode-ident v1.0.24
+2026-11-12T06:17:07.2769488Z    Compiling zeroize v1.9.0
+2026-11-12T06:17:07.3819644Z    Compiling cmov v0.5.4
+2026-11-12T06:17:07.5439986Z    Compiling ctutils v0.4.6
+2026-11-12T06:17:07.7899785Z    Compiling getrandom v0.4.3
+2026-11-12T06:17:07.8538995Z    Compiling cpufeatures v0.2.17
+2026-11-12T06:17:07.8837035Z    Compiling hybrid-array v0.4.14
+2026-11-12T06:17:07.9129064Z    Compiling rand_core v0.10.1
+2026-11-12T06:17:07.9539508Z    Compiling getrandom v0.2.17
+2026-11-12T06:17:07.9910714Z    Compiling block-buffer v0.10.4
+2026-11-12T06:17:08.0553701Z    Compiling rand_core v0.6.4
+2026-11-12T06:17:08.0953413Z    Compiling semver v1.0.28
+2026-11-12T06:17:08.0954135Z    Compiling zerocopy v0.8.56
+2026-11-12T06:17:08.2070210Z    Compiling crypto-common v0.1.7
+2026-11-12T06:17:08.2599921Z    Compiling digest v0.10.7
+2026-11-12T06:17:08.3003906Z    Compiling serde_core v1.0.229
+2026-11-12T06:17:08.3059442Z    Compiling autocfg v1.5.1
+2026-11-12T06:17:08.4169878Z    Compiling rustc_version v0.4.1
+2026-11-12T06:17:08.4641845Z    Compiling const-oid v0.10.2
+2026-11-12T06:17:08.5876600Z    Compiling num-traits v0.2.19
+2026-11-12T06:17:08.5959371Z    Compiling curve25519-dalek v4.1.3
+2026-11-12T06:17:08.7162517Z    Compiling crypto-common v0.2.2
+2026-11-12T06:17:09.7169768Z    Compiling digest v0.11.3
+2026-11-12T06:17:09.7805846Z    Compiling inout v0.1.4
+2026-11-12T06:17:09.8529802Z    Compiling syn v3.0.5
+2026-11-12T06:17:10.5689523Z    Compiling der v0.8.2
+2026-11-12T06:17:10.6999959Z    Compiling syn v2.0.119
+2026-11-12T06:17:11.8359619Z    Compiling serde v1.0.229
+2026-11-12T06:17:11.9248769Z    Compiling serde_derive v1.0.229
+2026-11-12T06:17:11.9879834Z    Compiling spki v0.8.0
+2026-11-12T06:17:12.0984660Z    Compiling ppv-lite86 v0.2.21
+2026-11-12T06:17:12.1039605Z    Compiling cipher v0.4.4
+2026-11-12T06:17:12.3879804Z    Compiling universal-hash v0.5.1
+2026-11-12T06:17:12.4419819Z    Compiling keccak v0.2.2
+2026-11-12T06:17:12.4934884Z    Compiling opaque-debug v0.3.1
+2026-11-12T06:17:12.5151142Z    Compiling base64ct v1.8.3
+2026-11-12T06:17:12.7260143Z    Compiling signature v2.2.0
+2026-11-12T06:17:12.7578944Z    Compiling zmij v1.0.23
+2026-11-12T06:17:12.7918007Z    Compiling sponge-cursor v0.1.0
+2026-11-12T06:17:12.8630139Z    Compiling shake v0.1.0
+2026-11-12T06:17:12.9082156Z    Compiling ed25519 v2.2.3
+2026-11-12T06:17:12.9140078Z    Compiling module-lattice v0.2.3
+2026-11-12T06:17:13.0090092Z    Compiling password-hash v0.5.0
+2026-11-12T06:17:13.0715398Z    Compiling poly1305 v0.8.0
+2026-11-12T06:17:13.3620400Z    Compiling rand_chacha v0.3.1
+2026-11-12T06:17:13.4019614Z    Compiling chacha20 v0.9.1
+2026-11-12T06:17:13.5329598Z    Compiling pkcs8 v0.11.0
+2026-11-12T06:17:13.6900395Z    Compiling signature v3.0.0
+2026-11-12T06:17:13.7329489Z    Compiling sha2 v0.10.9
+2026-11-12T06:17:13.7738230Z    Compiling blake2 v0.10.6
+2026-11-12T06:17:14.0180204Z    Compiling aead v0.5.2
+2026-11-12T06:17:14.0250273Z    Compiling curve25519-dalek-derive v0.1.1
+2026-11-12T06:17:14.0899445Z    Compiling serde_json v1.0.151
+2026-11-12T06:17:14.1339568Z    Compiling chacha20poly1305 v0.10.1
+2026-11-12T06:17:14.1732534Z    Compiling argon2 v0.5.3
+2026-11-12T06:17:14.1939711Z    Compiling ml-dsa v0.1.1
+2026-11-12T06:17:14.5871539Z    Compiling rand v0.8.8
+2026-11-12T06:17:14.9315554Z    Compiling aip-types v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-types)
+2026-11-12T06:17:15.1736283Z    Compiling ed25519-dalek v2.2.0
+2026-11-12T06:17:15.5473969Z    Compiling memchr v2.8.3
+2026-11-12T06:17:15.6108337Z    Compiling itoa v1.0.18
+2026-11-12T06:17:15.7009868Z    Compiling bs58 v0.5.1
+2026-11-12T06:17:15.7239745Z    Compiling base64 v0.22.1
+2026-11-12T06:17:15.8980487Z    Compiling aip-crypto v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-crypto)
+2026-11-12T06:17:16.6475798Z    Compiling aip-core v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-core)
+2026-11-12T06:17:17.1275286Z    Compiling aip-observe v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe)
+2026-11-12T06:17:19.6760235Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 13.62s
+2026-11-12T06:17:19.7980185Z  Downloading crates ...
+2026-11-12T06:17:19.8576073Z   Downloaded hex v0.4.3
+2026-11-12T06:17:19.8690560Z    Compiling hex v0.4.3
+2026-11-12T06:17:19.9672576Z    Compiling aip-observe-verify v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe-verify)
+2026-11-12T06:17:20.5098034Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.76s
+2026-11-12T06:17:20.5235762Z ##[group]Run test "$RUNNER_ENVIRONMENT" = github-hosted
+2026-11-12T06:17:20.5236233Z [36;1mtest "$RUNNER_ENVIRONMENT" = github-hosted[0m
+2026-11-12T06:17:20.5236664Z [36;1mtest "$(uname -s)" = Linux[0m
+2026-11-12T06:17:20.5237051Z [36;1mif ! mountpoint -q /sys/kernel/tracing; then[0m
+2026-11-12T06:17:20.5237449Z [36;1m  sudo mount -t tracefs nodev /sys/kernel/tracing[0m
+2026-11-12T06:17:20.5237862Z [36;1mfi[0m
+2026-11-12T06:17:20.5238248Z [36;1msudo test -r /sys/kernel/tracing/events/sched/sched_process_exec/id[0m
+2026-11-12T06:17:20.5252233Z shell: /usr/bin/bash -e {0}
+2026-11-12T06:17:20.5252557Z ##[endgroup]
+2026-11-12T06:17:20.5414020Z ##[group]Run sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "RUNNER_ARCH=$RUNNER_ARCH" \
+2026-11-12T06:17:20.5414705Z [36;1msudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "RUNNER_ARCH=$RUNNER_ARCH" \[0m
+2026-11-12T06:17:20.5415315Z [36;1m  "ImageOS=$ImageOS" "ImageVersion=$ImageVersion" "GITHUB_RUN_ID=$GITHUB_RUN_ID" \[0m
+2026-11-12T06:17:20.5415900Z [36;1m  "GITHUB_REPOSITORY=$GITHUB_REPOSITORY" "GITHUB_SHA=$GITHUB_SHA" \[0m
+2026-11-12T06:17:20.5416384Z [36;1m  python3 -B validation/p0_048/native_qualification.py \[0m
+2026-11-12T06:17:20.5416927Z [36;1m    --build-log "$RUNNER_TEMP/p0-native-build/artifacts.jsonl" \[0m
+2026-11-12T06:17:20.5417404Z [36;1m    --verifier "$PWD/target/debug/aip-observe-verify" \[0m
+2026-11-12T06:17:20.5417895Z [36;1m    --out "$RUNNER_TEMP/p0-native-evidence" --require-github-hosted[0m
+2026-11-12T06:17:20.5430783Z shell: /usr/bin/bash -e {0}
+2026-11-12T06:17:20.5431133Z ##[endgroup]
+2026-11-12T06:17:20.9511169Z {"family": "cgroup_live", "test": "an_exec_sample_carries_the_execing_tasks_cgroup_id", "status": "PASS", "reason": "the selected native test executed and passed", "command": ["/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/cgroup_live-6147c54ecfce48fe", "an_exec_sample_carries_the_execing_tasks_cgroup_id", "--exact", "--nocapture", "--test-threads=1"], "exit_code": 0, "timed_out": false, "duration_seconds": 0.07479562799999684, "log": "01-cgroup_live.log", "log_sha256": "3d33332da441c9e876d08d61ab50aa50803644da699af82cf3fe2a6dc1cf53a5"}
+2026-11-12T06:17:21.4604939Z {"family": "fanotify", "test": "fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd", "status": "PASS", "reason": "the selected native test executed and passed", "command": ["/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/fanotify-9bd4165b0640a272", "fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd", "--exact", "--nocapture", "--test-threads=1"], "exit_code": 0, "timed_out": false, "duration_seconds": 0.5090979390000001, "log": "02-fanotify.log", "log_sha256": "51437003480ea980a926c00dd19dcaf6021edec8d9128109dce416428ca05478"}
+2026-11-12T06:17:21.5649310Z {"family": "fanotify", "test": "fa06_live_a_writer_that_exited_before_the_read_is_unbound", "status": "PASS", "reason": "the selected native test executed and passed", "command": ["/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/fanotify-9bd4165b0640a272", "fa06_live_a_writer_that_exited_before_the_read_is_unbound", "--exact", "--nocapture", "--test-threads=1"], "exit_code": 0, "timed_out": false, "duration_seconds": 0.10420871299999845, "log": "03-fanotify.log", "log_sha256": "de495637203dc372a879bc72214fb491fd6545a884ecf6cf27c79b103a118a38"}
+2026-11-12T06:17:21.5806298Z {"family": "gate10_xdp_evaluation", "test": "x10a_this_kernel_loads_and_executes_an_xdp_parser_without_attaching_it", "status": "PASS", "reason": "the selected native test executed and passed", "command": ["/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/gate10_xdp_evaluation-50c98840d9cf9c4c", "x10a_this_kernel_loads_and_executes_an_xdp_parser_without_attaching_it", "--exact", "--nocapture", "--test-threads=1"], "exit_code": 0, "timed_out": false, "duration_seconds": 0.015582628000004206, "log": "04-gate10_xdp_evaluation.log", "log_sha256": "c16cd617a018d9035e35a9989c11b6f804f326ca2bd8f6e5b373fb413909becd"}
+2026-11-12T06:17:21.5825757Z {"family": "gate10_xdp_evaluation", "test": "x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused", "status": "PASS", "reason": "the selected native test executed and passed", "command": ["/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/gate10_xdp_evaluation-50c98840d9cf9c4c", "x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused", "--exact", "--nocapture", "--test-threads=1"], "exit_code": 0, "timed_out": false, "duration_seconds": 0.001788312999998709, "log": "05-gate10_xdp_evaluation.log", "log_sha256": "c63ffa1411125869dc012a8ff60b89009f885d8049da39e34d7f94874ac489bc"}
+2026-11-12T06:17:21.5945096Z {"family": "sniffer_dog", "test": "t09_live_short_lived_process_is_seen_by_the_kernel_connector", "status": "PASS", "reason": "the selected native test executed and passed", "command": ["/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/sniffer_dog-f074366363cef1c3", "t09_live_short_lived_process_is_seen_by_the_kernel_connector", "--exact", "--nocapture", "--test-threads=1"], "exit_code": 0, "timed_out": false, "duration_seconds": 0.011558174000001031, "log": "06-sniffer_dog.log", "log_sha256": "e9b5875708ba919eb8bd9304877e1a602f1b0724bd10c7dfc90f46ddbbb40b48"}
+2026-11-12T06:17:21.5987196Z {"family": "sniffer_dog", "test": "t10_live_exec_replacement_is_delivered_as_a_kernel_exec_event", "status": "PASS", "reason": "the selected native test executed and passed", "command": ["/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/sniffer_dog-f074366363cef1c3", "t10_live_exec_replacement_is_delivered_as_a_kernel_exec_event", "--exact", "--nocapture", "--test-threads=1"], "exit_code": 0, "timed_out": false, "duration_seconds": 0.0042520249999995485, "log": "07-sniffer_dog.log", "log_sha256": "d050a99adec9c75c69c0aae6c459e680502a7c8f757bd2a65498c8ab1b4e3fee"}
+2026-11-12T06:17:21.7326226Z {"family": "sniffer_dog", "test": "t15_live_kernel_event_loss_is_signalled_and_degrades_coverage", "status": "PASS", "reason": "the selected native test executed and passed", "command": ["/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/sniffer_dog-f074366363cef1c3", "t15_live_kernel_event_loss_is_signalled_and_degrades_coverage", "--exact", "--nocapture", "--test-threads=1"], "exit_code": 0, "timed_out": false, "duration_seconds": 0.13354907099999735, "log": "08-sniffer_dog.log", "log_sha256": "373b9ef990d2a3fea373313592ae93ffe5c431b0df5f1fe81863875e87ee5e8b"}
+2026-11-12T06:17:21.7586802Z {"family": "socksend", "test": "sk07_live_a_loopback_send_is_reported_under_the_senders_pid_with_its_count", "status": "PASS", "reason": "the selected native test executed and passed", "command": ["/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/socksend-6c32afb2538b49ef", "sk07_live_a_loopback_send_is_reported_under_the_senders_pid_with_its_count", "--exact", "--nocapture", "--test-threads=1"], "exit_code": 0, "timed_out": false, "duration_seconds": 0.025872167999999363, "log": "09-socksend.log", "log_sha256": "80b4b38c7ca6076dfded72cbb0605b1457cca404eacd7fe84512768a2ab03ac3"}
+2026-11-12T06:17:21.7786494Z {"family": "wiretap", "test": "wt10_live_loopback_handshake_is_captured_with_kernel_stamps_and_counted_loss", "status": "PASS", "reason": "the selected native test executed and passed", "command": ["/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/wiretap-6081798d83da8fa0", "wt10_live_loopback_handshake_is_captured_with_kernel_stamps_and_counted_loss", "--exact", "--nocapture", "--test-threads=1"], "exit_code": 0, "timed_out": false, "duration_seconds": 0.019749781000001576, "log": "10-wiretap.log", "log_sha256": "88a2107b70e9286fd49c9fa6fd6f855ffa4eef76734ea38c0eb67409d53caa2d"}
+2026-11-12T06:17:21.8375955Z {"status": "PASS", "cases": 10}
+2026-11-12T06:17:21.8535234Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-12T06:17:21.8535703Z with:
+2026-11-12T06:17:21.8535979Z   name: p0-048-native-43167021649
+2026-11-12T06:17:21.8536286Z   retention-days: 30
+2026-11-12T06:17:21.8536623Z   if-no-files-found: error
+2026-11-12T06:17:21.8537072Z   path: /home/runner/work/_temp/p0-native-build/
+/home/runner/work/_temp/p0-native-evidence/
+
+2026-11-12T06:17:21.8537534Z   compression-level: 6
+2026-11-12T06:17:21.8537831Z   overwrite: false
+2026-11-12T06:17:21.8538106Z   include-hidden-files: false
+2026-11-12T06:17:21.8538640Z ##[endgroup]
+2026-11-12T06:17:22.0140244Z (node:5625) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-12T06:17:22.0141053Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-12T06:17:22.0232237Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-12T06:17:22.0234365Z The least common ancestor is /home/runner/work/_temp. This will be the root directory of the artifact
+2026-11-12T06:17:22.0235197Z With the provided path, there will be 22 files uploaded
+2026-11-12T06:17:22.0240527Z Artifact name is valid!
+2026-11-12T06:17:22.0241071Z Root directory input is valid!
+2026-11-12T06:17:22.3001234Z Beginning upload of artifact content to blob storage
+2026-11-12T06:17:22.3461590Z (node:5625) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-12T06:17:22.5085363Z Uploaded bytes 19870
+2026-11-12T06:17:22.5442346Z Finished uploading artifact content to blob storage!
+2026-11-12T06:17:22.5443126Z SHA256 digest of uploaded artifact zip is cd0e919510fc5922de8638dacf98d11e22d82e84f6d6e5c1c3a8890ac1cca29c
+2026-11-12T06:17:22.5444157Z Finalizing artifact upload
+2026-11-12T06:17:22.8754849Z Artifact p0-048-native-43167021649.zip successfully finalized. Artifact ID 13920446862
+2026-11-12T06:17:22.8756175Z Artifact p0-048-native-43167021649 has been successfully uploaded! Final size is 19870 bytes. Artifact ID is 13920446862
+2026-11-12T06:17:22.8758955Z Artifact download URL: https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43167021649/artifacts/13920446862
+2026-11-12T06:17:22.8996964Z Post job cleanup.
+2026-11-12T06:17:22.9822291Z [command]/usr/bin/git version
+2026-11-12T06:17:22.9868540Z git version 2.56.0
+2026-11-12T06:17:22.9908647Z Temporarily overriding HOME='/home/runner/work/_temp/685a0ddf-243a-4e0b-8750-6bffd2365ea4' before making global git config changes
+2026-11-12T06:17:22.9909907Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T06:17:22.9914907Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:17:22.9952756Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T06:17:22.9985147Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T06:17:23.0189686Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T06:17:23.0219761Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T06:17:23.0585774Z Cleaning up orphan processes
+2026-11-12T06:17:23.0946694Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

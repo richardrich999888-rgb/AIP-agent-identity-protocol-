@@ -9,3 +9,7 @@ validation/p0_048/iteration-003/*.log whitespace=-blank-at-eof
 # Preserve those original log bytes; source whitespace checks are unchanged.
 validation/p0_048/iteration-004/**/*.log whitespace=-blank-at-eof,-blank-at-eol
 validation/p0_048/iteration-004/*.log whitespace=-blank-at-eof
+# Provider timestamps and Rust's nocapture prefix retain their original spaces.
+validation/p0_048/iteration-004/hosted-job.log whitespace=-blank-at-eof,-blank-at-eol
+validation/p0_048/iteration-004/implementation-gitleaks.log whitespace=-blank-at-eof,-blank-at-eol
+validation/p0_048/iteration-004/throughput-release.log whitespace=-blank-at-eof,-blank-at-eol
