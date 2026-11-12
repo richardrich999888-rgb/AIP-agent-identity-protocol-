@@ -3,8 +3,8 @@
 
 The contract: every field A3a could not settle becomes exactly one question a
 domain expert can answer; the answer's shape is the compiler's own schema; a
-choice is never offered that the draft, the task or the compiler did not
-already contain; and a field with no template is refused rather than given a
+choice comes from the draft, task, compiler or bounded exclusion policy;
+and a field with no template is refused rather than given a
 generic question.
 """
 import json

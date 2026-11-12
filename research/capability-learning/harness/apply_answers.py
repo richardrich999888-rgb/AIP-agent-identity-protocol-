@@ -20,7 +20,8 @@ question. Checks, all fail-closed:
   by B1 — checked strictly (`schema_subset`: no undeclared fields);
 - provenance: every number the compiler would use from the answer must be
   stated in the sentence the question quotes (`ir_compiler.provenance_check`
-  run on the answer alone), and every word list must be copied from it;
+  run on the answer alone); word lists must be copied from it except for
+  explicit, source-linked exclusion variants offered by the bounded policy;
 - no silent overwrite: an answer may not set a leaf the document already
   determined or another answer already set, and may not add an element that
   duplicates one already taught.
@@ -64,6 +65,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import question_generator as Q  # noqa: E402
+import exclusion_terms as E  # noqa: E402
 import schema_subset as S  # noqa: E402
 from draft_from_session import unfilled  # noqa: E402
 from ir_check import check_ir  # noqa: E402
@@ -251,11 +253,13 @@ def _envelope_errors(a: Any) -> list[str]:
 
 
 def _in_quote(word: str, quote: str) -> bool:
-    return re.search(rf"(?<!\w){re.escape(word)}(?!\w)", quote, re.IGNORECASE) is not None
+    return E.in_quote(word, quote)
 
 
 def _copied_words(path: str, answer: Any, quote: str) -> list[str]:
-    """Word lists must be copied from the quoted sentence (B1 says so)."""
+    """Literal provenance, with B1's explicit bounded exclusion choices."""
+    if path == "scope_exclusion_terms.*":
+        return E.errors(answer, quote)
     if path == "required_inputs.*":
         words = [c for item in answer for c in item["cues"]]
         what = "short name"
@@ -424,6 +428,12 @@ def apply(draft: dict, spec: dict, answers_doc: dict) -> dict:
             item = ir_schema(list(spec["outcomes"]))["properties"][name]["items"]
             for j, x in enumerate(answer):
                 record(q, a, f"{name}[{base + j}]", x, item, lambda p: None)
+                if name == "out_of_scope_terms":
+                    choice = E.selected(x, quote)
+                    if choice:
+                        edits[-1]["provenance"] = {
+                            "kind": "explicit_exclusion_word_form", **choice, "citation": q["citation"],
+                        }
         elif path in OBJECT_PATHS:
             name = OBJECT_PATHS[path]
             if name in objects_set:

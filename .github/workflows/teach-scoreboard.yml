@@ -28,9 +28,25 @@ jobs:
         run: |
           python3 research/capability-learning/harness/record_scoreboard.py \
             --binary target/debug/syntriass --out "$RUNNER_TEMP/scoreboard-evidence"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Teaching answer policy regressions
+        run: |
+          python3 -m pip install pytest==8.3.5
+          python3 -m pytest -q research/capability-learning/tests/test_exclusion_terms.py \
+            research/capability-learning/tests/test_holdout_questions.py \
+            research/capability-learning/tests/test_apply_answers.py \
+            research/capability-learning/tests/test_question_generator.py
+      - name: Answered-session exclusion and false-activation acceptance
+        run: |
+          python3 research/capability-learning/harness/record_exclusion_policy.py \
+            --binary target/debug/syntriass --out "$RUNNER_TEMP/exclusion-evidence"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: teaching-scoreboard-evidence
-          path: ${{ runner.temp }}/scoreboard-evidence
+          path: |
+            ${{ runner.temp }}/scoreboard-evidence
+            ${{ runner.temp }}/exclusion-evidence
           if-no-files-found: error

@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 """B3 on the v0.2 holdout (HU-TX-2), the deterministic half.
 
-Pins what `record_holdout.py` measured with the runtime: the question that
-owns the three v0.2 edits is asked, and the answer B2 accepts for it is the
-document's plurals, which the signed suite rejects. When the open decision on
-how to fix this is made, these tests are the ones that must change, on
-purpose.
+Preserves the original copied-plural control while checking the bounded,
+explicit exclusion word-form policy. Historical recorded bytes stay intact.
 """
 import json
 import sys
@@ -64,17 +61,22 @@ def test_b2_accepts_the_documents_plurals(chain):
     assert B._copied_words(q["field_path"], H.EXCLUSION_ALTERNATIVES["copied_as_written"], q["quote"]) == []
 
 
-@pytest.mark.parametrize("name", ["v02_expert_terms", "both_numbers"])
-def test_b2_refuses_the_singular_forms_the_suite_needs(chain, name):
+def test_b2_refuses_replacing_quoted_forms_with_variants(chain):
     q = owner(chain)
-    errs = B._copied_words(q["field_path"], H.EXCLUSION_ALTERNATIVES[name], q["quote"])
+    errs = B._copied_words(q["field_path"], H.EXCLUSION_ALTERNATIVES["v02_expert_terms"], q["quote"])
     assert sorted(e.split("'")[1] for e in errs) == ["cable", "generator", "motor"]
+    assert all("requires keeping quoted term" in e for e in errs)
+
+
+def test_b2_accepts_explicit_both_number_forms(chain):
+    q = owner(chain)
+    assert B._copied_words(q["field_path"], H.EXCLUSION_ALTERNATIVES["both_numbers"], q["quote"]) == []
 
 
 def test_the_subject_copied_whole_exceeds_the_term_limit(chain):
     q = RA.qid_for(chain[1], "scope_subject.*", "Scope: oil-immersed")
     assert S.validate(H.LONG_SUBJECT, q["answer_schema"]) == ["answer[0]: 38 characters, at most 32 allowed"]
-    assert "32" not in q["question"], "if the question now states the limit, update this finding"
+    assert "at most 32 characters" in q["question"]
 
 
 def test_the_scripted_answers_compile_through_b2(chain):

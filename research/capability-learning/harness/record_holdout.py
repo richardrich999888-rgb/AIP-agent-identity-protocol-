@@ -207,9 +207,9 @@ def leaf_diff(a: dict, b: dict) -> list[dict]:
             for k in sorted(set(la) | set(lb)) if la.get(k, absent) != lb.get(k, absent)]
 
 
-def teach(work: Path, data: Path, spec: dict) -> dict:
+def teach(work: Path, data: Path, spec: dict, *, binary: Path | None = None) -> dict:
     """A1 -> compiled `teach start` -> stored session, for HU-TX-2."""
-    binary = R.build_binary()
+    binary = binary or R.build_binary()
     cfg = R.write_config(work / "state", work / "config.json")
     corpus = data / "corpus/halvorn-hu-tx-2.txt"
     clauses = work / "clauses.json"
@@ -306,9 +306,9 @@ def main(argv: list[str] | None = None) -> int:
             "questions_cover_the_three_edits": covered,
             "answering_up_front_passes_without_a_failed_run": passes_first_time,
             "why": None if passes_first_time else (
-                "The question that owns the three edited leaves is asked, but it instructs 'copy each item "
-                "exactly as it is written', which yields the document's plurals; B2 enforces that and refuses "
-                "the singular forms the v0.2 expert used. The runtime matches terms whole-word "
+                "This historical answer script copies only the document's plurals and does not select "
+                "the explicit exclusion word forms offered by the newer bounded policy. "
+                "The runtime matches terms whole-word "
                 "(quantity.rs find_term), so 'cables' never matches 'Cable C-4' and the first validation "
                 "fails on val-09 exactly as v0.2's did."),
         },
@@ -331,10 +331,9 @@ def main(argv: list[str] | None = None) -> int:
             "question": subject_q["question"],
             "answer_copied_whole": LONG_SUBJECT,
             "b2_verdict": long_subject,
-            "reading": ("The question says to copy the words exactly but does not state the compiler's "
-                        "32-character term limit, so the natural answer is refused. B2 is right to refuse "
-                        "(compile_ir does not enforce its own maxLength; the v0.2 model IR carried this "
-                        "38-character term); the question should state the limit."),
+            "reading": ("The question now states the compiler's 32-character term limit. The 38-character "
+                        "full subject remains refused; a shorter quoted phrase must be chosen. "
+                        "This retains the original long-subject rejection as a control."),
         },
         answered_as_instructed={"counts": answered["counts"], "status": answered["status"],
                                 "first_validation": first},

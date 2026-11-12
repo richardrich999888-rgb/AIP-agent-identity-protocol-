@@ -12,12 +12,13 @@ Three rules make the questions safe to act on:
    `answer_schema` lifted from `ir_compiler.ir_schema(outcomes)`, the schema
    the compiler itself enforces. B2 validates an answer against it, so an
    answer that cannot compile is refused at the question, not discovered at
-   compile time. This module defines no answer vocabulary of its own.
+   compile time. Typed fields retain the compiler's answer vocabulary.
 2. **Choices are closed wherever the system can close them.** Outcome fields
    offer the task's outcome vocabulary even when the clause names none, which
    turns "what happens outside the range?" into a choice rather than free
-   text. A choice is never introduced that is not in the draft's candidates,
-   the task's outcomes, or the compiler's own enumerations.
+   text. Choices come from the draft, task, compiler, or the explicitly versioned
+   exclusion word-form policy. Those word forms name their quoted source and
+   cannot be used as topic terms or input cues.
 3. **Unknown field paths fail closed.** A path with no template raises rather
    than receiving a generic question: a question that does not say what it is
    asking cannot be answered correctly, and a silent fallback would hide a new
@@ -45,6 +46,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 from ir_compiler import INPUT_REFS, OPS, VALUE_REFS, ir_schema  # noqa: E402
+import exclusion_terms as E  # noqa: E402
 
 DRAFT_SCHEMA = "syntriass.teach-draft/v1"
 SCHEMA = "syntriass.teach-questions/v1"
@@ -184,18 +186,31 @@ def template(q: dict, schema: dict, outcomes: list[str]) -> tuple[str, dict, lis
         )
 
     if path == "scope_subject.*":
+        answer = _sub(schema, "properties", "topic_terms")
+        bound = answer["items"]["maxLength"]
         return (
             f"The procedure says {_quote(q)}. What equipment does the procedure "
-            "cover? Copy the words exactly as they are written in that sentence.",
-            _sub(schema, "properties", "topic_terms"), [],
+            "cover? Copy the words exactly as they are written in that sentence. "
+            f"Each term may contain at most {bound} characters; use a shorter quoted phrase if needed.",
+            answer, [],
             "words copied from the sentence; anything not in it is refused",
         )
     if path == "scope_exclusion_terms.*":
+        answer = _sub(schema, "properties", "out_of_scope_terms")
+        bound = answer["items"]["maxLength"]
+        variants = E.offered(q["clause_text"])
+        note = ""
+        if variants:
+            note = " You may also explicitly add these word forms: " + "; ".join(
+                f"{v['term']!r} from {v['source_term']!r}" for v in variants) + "."
+            note += " Keep each paired quoted term in the same answer. No variant is added automatically."
         return (
             f"The procedure says {_quote(q)}. What equipment does the procedure "
-            "NOT cover? Copy each item exactly as it is written in that sentence.",
-            _sub(schema, "properties", "out_of_scope_terms"), [],
-            "words copied from the sentence; anything not in it is refused",
+            "NOT cover? Copy each item exactly as it is written in that sentence. "
+            f"Each term may contain at most {bound} characters.{note}",
+            answer, [],
+            "quoted terms, optionally with the offered exclusion word forms and their quoted terms; "
+            "unlisted forms and synonyms are refused; runtime matching remains literal and whole-word",
         )
     if path == "scope_limit.*":
         return (
@@ -269,6 +284,9 @@ def generate(draft: dict, spec: dict) -> dict:
             "ocr_warning": bool(q.get("ocr_warning")),
             "draft_basis": q["needs"],
         })
+        if q["field_path"] == "scope_exclusion_terms.*":
+            asked[-1]["exclusion_word_form_policy"] = E.POLICY
+            asked[-1]["exclusion_word_forms"] = E.offered(q["clause_text"])
 
     return {
         "schema": SCHEMA,
