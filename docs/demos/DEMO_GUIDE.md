@@ -1,8 +1,39 @@
-# Founder guide — P0-049 iteration 1
+# Founder guide — P0-049 current bounded demonstrations
 
 **Release: NOT READY.** The runnable addition is the teaching homework scoreboard.
 It is expert-guided capability validation, not autonomous self-improvement or
 model fine-tuning. The complete three-minute investor show is not yet executable.
+
+## Current teaching-session check (iteration 3)
+
+With the staged binary and Python/Git prerequisites below:
+
+```bash
+python3 research/capability-learning/harness/record_exclusion_policy.py \
+  --binary target/debug/syntriass --out /tmp/p0-049-exclusions-new
+```
+
+This creates a real teaching session and applies scripted engineer answers.
+The expert is offered explicit singular/plural exclusions, each linked to its
+quoted source, which must remain. It proves that these answers can be compiled
+and tested without a model. It does not demonstrate a live human UI, signed
+approval, activation, general language learning or the full teaching workflow.
+
+**Expect exit 3 / NOT READY.** The original holdout improves from 11/12 to 12/12,
+but the expanded attack suite reaches only 25/26. Inspect
+`explicit-forms-attacks/scoreboard.json`: battery-cell case fa-3 is incorrectly
+handled by the transformer path. Do not use the passing 12-case suite alone as
+an approval signal. Recovery means fixing applicability and rerunning the
+unchanged attacks; changing the expected answer does not resolve the failure.
+
+Presenter: “I explicitly add the singular form while keeping the source's plural.
+The cable is now refused. The broader checks also catch a battery request entering
+the wrong capability, so this candidate is still not ready for activation.”
+
+The program retains original/corrected answers, source citations, signed suites,
+full diagnostics and measured metadata in a new output directory. Its operation
+uses only the Python standard library and the staged runtime; no installation or
+download occurs during execution. See `P0-049-ITERATION-3.md` for exact limits.
 
 ## Run the bounded live demonstration
 

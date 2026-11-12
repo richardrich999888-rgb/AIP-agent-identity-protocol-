@@ -3,10 +3,15 @@
 **Release NOT READY.** Detailed source/test/evidence mapping is in
 `P0-049-COMPLETION-MATRIX.md`.
 
-1. **W3 is incomplete.** Live model drafting, B3 word-form/term-length issues,
+1. **W3 is incomplete.** Live model drafting, the newly retained B3 applicability failure,
    C1 answered-session/question linkage, teaching approval composition, knowledge packs, signed answer records, local
    REST/MCP, examples, role-aware teaching UI and complete two-domain workflow
-   remain. The new C1 command is a bounded read-only diagnostic, not a full demo.
+   remain. Iteration 3 fixes explicit exclusion word forms and explains the term
+   length limit. The broader suite still rejects `fa-3`: a battery-cell request
+   enters the transformer path and returns INSUFFICIENT_INPUT rather than
+   NOT_APPLICABLE. The same failure occurs before/after this fix and on CI.
+   Keep its original label and repair applicability before approval. The C1
+   command is a bounded read-only diagnostic, not a full demo.
 2. **No complete offline kit.** W's builder omits the AIRON binary, weights,
    inference runtime, teaching files and complete local dependencies. Python setup
    can use PyPI when wheels are absent. No complete authenticated manifest and
@@ -34,9 +39,12 @@
    paths differ. PR #16/#17/#19 require content-aware integration review. Four
    HIGH Trivy findings on the retained Helm render remain. Iteration 2 at `9e3909e`
    updates the affected SQLite/rustix pins and fixes audit exit propagation; local
-   audit/deny and storage/runtime regressions pass. Its remote CI still needs
-   reconciliation before making a complete-CI claim. No finding was suppressed,
+   audit/deny and storage/runtime regressions pass. Iteration 3 source audit/deny
+   also passes; a complete-CI claim remains unavailable. No finding was suppressed,
    no advisory exemption added and no branch auto-merged.
+   Iteration 3 teaching CI `43164083237` fails on the newly enforced fa-3 attack
+   after its regression tests pass. That failure is retained, with no
+   `continue-on-error` or expected-label substitution.
 9. **External acceptance absent.** No external evaluator has installed the final
    package, verified all signed evidence and reproduced required results. The
    connected CI reproduction of C1 is useful evidence, not this acceptance.

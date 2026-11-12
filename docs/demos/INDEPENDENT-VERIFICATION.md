@@ -6,6 +6,31 @@ C1 diagnostic reproduced on CI; that connected build is not kit acceptance.
 Source checkouts, unit tests,
 new directories and development namespaces do not satisfy that requirement.
 
+## Reproduce iteration 3's rejected candidate
+
+Use source `4d002accbf6759fe1845872ac5579815c8081631` and the exclusion-policy
+command in `DEMO_GUIDE.md`. The correct observed result is exit **3** and
+`PARTIAL_B3_ADVERSARIAL_FAILURE`, not green acceptance. Verify original 11/12,
+explicit-forms 12/12, attack-control 17/26, and corrected attacks 25/26. The
+remaining fa-3 failure must retain NOT_APPLICABLE as its expected label.
+
+```bash
+cd docs/demos/evidence/p0-049-iteration-3
+sha256sum -c SHA256SUMS
+python3 ../p0-049-iteration-1/verify_suite_signatures.py local \
+  --trusted-keys local/expert-public.json
+python3 ../p0-049-iteration-1/verify_suite_signatures.py ci/exclusion-evidence \
+  --trusted-keys ci/exclusion-evidence/expert-public.json
+```
+
+The signature checker needs pre-staged `cryptography==50.0.0`; the recorder itself
+uses only the standard library. Eight synthetic suites verify; modifying a signed
+label is rejected. Retained test keys establish integrity, not expert identity.
+The CI merge `192acf0` and implementation have tree
+`ac6a26bcfec23e8da962d2e30633a056c9694950`; verify that equality before comparing
+them. Per-host timing/CPU/RSS/network data remain separate. No rehearsal or
+independent offline-install credit is earned by these runs.
+
 ## Reproduce the C1 diagnostic
 
 Build a binary from the immutable implementation commit recorded in the evidence,

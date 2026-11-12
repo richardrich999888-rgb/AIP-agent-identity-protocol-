@@ -54,3 +54,41 @@ full signed evidence, verification outputs, captures, counters, CPU/memory, timi
 exit status and failures/recovery. Reset each mode's consecutive count on failure.
 W3 additionally requires twenty passes and a fresh offline install every fifth run
 on supported CPU-only clean hardware.
+
+## P0-049 iteration 3 — rejected engineering acceptance, zero rehearsal credit
+
+Source `4d002accbf6759fe1845872ac5579815c8081631`; clean CI merge
+`192acf0ee9aa00378caa315721aad46dc0de660d` has the same tree. Both are bounded
+teaching-session checks, not complete W3/investor/customer rehearsals.
+
+| Run | Actual result | Wall seconds | Child CPU seconds | Peak child RSS KiB |
+|---|---|---:|---:|---:|
+| Local clean source, 9-CPU development host, new network namespace | Exit 3; holdout 12/12, expanded attacks 25/26 | 0.8565336249998836 | 0.450454 | 15616 |
+| Connected 4-CPU CI runner, run 43164083237 | Exit 3; same outcomes and capability hashes | 0.26487211500000285 | 0.166703 | 22956 |
+
+Full metadata and signed suites are under `evidence/p0-049-iteration-3/`, with
+separate `local/` and `ci/` results. No model was used. Local counters show only
+loopback and zero deltas; no packet captures or sensor observation were performed.
+Neither host installed the completed offline kit. These timings are individual
+observations, not a performance range or a three-minute show.
+
+Development attempts are retained rather than counted as passes:
+
+1. `b3-dev.log`: the initial recorder raised at the unexpected attack failure.
+   The outer shell then ran `cat`, so its exit 0 did not measure the Python exit.
+   The exception is retained; complete failed stdout was not retained that time.
+2. `development-failure-2/`, `b3-dev-2.log`: after preserving stdout before
+   checking its status, the recorder retained the failing fa-3 suite/report and
+   exited 1. This identified the battery-cell applicability failure.
+3. `b3-dev-3.log`: baseline attack comparison proved the failure pre-existed;
+   the recorder now completes the evidence and reports partial progress, exit 3.
+4. `b3-stdlib.log`: execution with only the Python standard library also exits 3.
+5. `b3-clean.log` and CI: final clean-source reproduction still rejects fa-3.
+   This defect was not recovered or waived in this iteration.
+
+All 16 explicit word-form probes and four whole-word controls pass; the frozen
+false-activation set is 5/6. The original copied-plural candidate remains 11/12,
+and its broader attack control remains 17/26. Eight local/CI suite signatures
+verify with the separate Python implementation; the tampered control exits 1.
+No approval or activation was performed. Consecutive full-mode counts remain
+unchanged at zero for this work; a future qualifying failure resets its count.

@@ -1,6 +1,26 @@
 # P0-049 delivery report
 
 **Release NOT READY.** Latest implementation:
+`4d002accbf6759fe1845872ac5579815c8081631` (iteration 3), continuing draft PR #21.
+Explicit, source-linked exclusion variants fix the Cable holdout failure while
+retaining quoted forms and literal runtime matching. Actual teaching-session
+answers now compile to a capability that passes the original 12/12 holdout.
+
+The expanded attack gate remains **FAILED**: 25/26, versus 17/26 before the fix.
+A battery-cell request still returns INSUFFICIENT_INPUT instead of NOT_APPLICABLE.
+That pre-existing failure reproduces on CI; the recorder and CI retain exit 3.
+Local regression tests: 324 Python and 187 runtime passes, no failures/skips.
+Eight local/CI suite signatures independently verified; an altered suite was
+rejected. No approval, activation or release acceptance occurred.
+
+See [iteration 3](P0-049-ITERATION-3.md), its retained evidence, and the updated
+completion matrix. Next dependency: cross-domain applicability, then general C1
+session/question linkage. The offline kit, OVERLAY demonstrations, second-host
+benchmarks, required rehearsals and external evaluation remain incomplete.
+
+## Iteration 2 historical record
+
+Implementation:
 `9e3909eea8328d7e81a5887a6e80430237642616` (iteration 2), continuing draft PR #21.
 Patched the SQLite and rustix dependencies and corrected a Security workflow
 pipeline that could hide a failed audit behind a successful `tee`.

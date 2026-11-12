@@ -5,8 +5,10 @@ independent-verification guide. This is a pointer pack, not a distributable kit.
 
 | Claim | Inspectable evidence | Limit |
 |---|---|---|
+| Explicit source-linked exclusions survive actual teaching and compilation | Iteration 3 session/draft/questions/answers, 12/12 holdout, 16/16 singular/plural probes | Four reviewed maintenance word pairs; engineer-scripted answers, no approval/activation |
+| Broader attacks block acceptance despite a passing original suite | fa-3 remains 25/26 and exit 3 locally and on CI; original control is 17/26 | Applicability defect remains open; this is rejected acceptance, not customer readiness |
 | AIRON can validate a bounded capability against independent signed test cases | C1 code, 14 targeted tests, `evidence/p0-049-iteration-1/scoreboard/` | Synthetic engineer-generated tests; not external expert approval |
-| A failing capability remains visibly rejected | Transformer `val-09` stays 11/12 and exit 3; failed input/trace/review questions retained | Known failure is demonstrated, not fixed by this iteration |
+| A failing capability remains visibly rejected | Original transformer `val-09` stays 11/12 and exit 3; failed input/trace/review questions retained | Iteration 3 repairs explicit answers but keeps this original control unchanged |
 | Passing homework cannot activate a rule | CLI test attempts activation after scoreboard success and is refused | Full authenticated teaching approval experience remains incomplete |
 | Model-free capability testing | Recorder uses no model paths; zero calls; unavailable model binaries in CLI test | Does not prove model-assisted drafting or full offline installation |
 | Bounded results reproduce on a separate runner | Clean source and CI merge trees match; same capability hashes/outcomes; `scoreboard-ci/` | CI is connected; measurements remain separate; no external-evaluator acceptance |
@@ -23,13 +25,18 @@ complete algorithm inventory. Full dependency/licence manifests for the final
 distribution remain required; no new product licensing decision is made here.
 
 Draft delivery is [PR #21](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/21),
-implementation `84d889f`. The scoreboard CI passes; existing Trivy findings and
+historical implementation `84d889f`. Its scoreboard CI passed; existing Trivy findings and
 the initial SQLite dependency advisory failed security/supply-chain gates.
 Iteration 2 (`9e3909e`) updates SQLite/rustix and preserves audit failure exits;
 local checks now pass, with old-database access restrictions verified. Trivy
 findings and final remote CI reconciliation remain open. See the final report and
 retained scanner output. This evidence does not support a claim
 that the complete repository's CI is green.
+
+Latest implementation is `4d002ac`. Teaching CI `43164083237` passes its regression
+steps and fails its expanded attack step with exit 3. Raw CI evidence and eight
+verified local/CI suite signatures are retained in iteration 3. This later
+failure supersedes any suggestion that the current teaching CI is green.
 
 No TRL promotion, certification, autonomous learning, security accreditation,
 production readiness, universal agent coverage or guaranteed three-minute runtime

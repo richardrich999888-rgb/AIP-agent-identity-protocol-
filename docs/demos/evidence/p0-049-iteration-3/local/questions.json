@@ -1,0 +1,843 @@
+{
+  "schema": "syntriass.teach-questions/v1",
+  "session_id": "0dde1717b870177916637441af43ac8cedbae594d5669206329af6e473104b60",
+  "tenant": "halvorn-power",
+  "task": "tx_acceptance",
+  "outcomes": [
+    "ACCEPT",
+    "MONITOR_90D",
+    "INVESTIGATE",
+    "DRY_OUT_OIL",
+    "REMOVE_FROM_SERVICE",
+    "INVALID_TEST",
+    "OUT_OF_SCOPE",
+    "INSUFFICIENT_INPUT"
+  ],
+  "model_calls": 0,
+  "questions": [
+    {
+      "qid": "p1#2+p1#3:scope_subject.*",
+      "n": 1,
+      "field_path": "scope_subject.*",
+      "clause": "p1#2+p1#3",
+      "citation": "halvorn-hu-tx-2.txt p.1 [152:158]; halvorn-hu-tx-2.txt p.1 [159:230]",
+      "quote": "Scope: oil-immersed distribution transformers rated up to and including 33 kV.",
+      "question": "The procedure says \"Scope: oil-immersed distribution transformers rated up to and including 33 kV.\" (halvorn-hu-tx-2.txt p.1 [152:158]; halvorn-hu-tx-2.txt p.1 [159:230]). What equipment does the procedure cover? Copy the words exactly as they are written in that sentence. Each term may contain at most 32 characters; use a shorter quoted phrase if needed.",
+      "choices": [],
+      "answer_schema": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "minItems": 1,
+        "maxItems": 8
+      },
+      "answer_note": "words copied from the sentence; anything not in it is refused",
+      "ocr_warning": false,
+      "draft_basis": "the clause could state this, but filling it needs a choice this module will not make"
+    },
+    {
+      "qid": "p1#2+p1#3:scope_limit.*",
+      "n": 2,
+      "field_path": "scope_limit.*",
+      "clause": "p1#2+p1#3",
+      "citation": "halvorn-hu-tx-2.txt p.1 [152:158]; halvorn-hu-tx-2.txt p.1 [159:230]",
+      "quote": "Scope: oil-immersed distribution transformers rated up to and including 33 kV.",
+      "question": "The procedure says \"Scope: oil-immersed distribution transformers rated up to and including 33 kV.\" (halvorn-hu-tx-2.txt p.1 [152:158]; halvorn-hu-tx-2.txt p.1 [159:230]). Does this set a measured limit on what the procedure covers? If so: which reading, which comparison, what value and unit \u2014 and does meeting it put a request outside the procedure, or inside it?",
+      "choices": [],
+      "answer_schema": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "enum": [
+              "voltage",
+              "resistance",
+              "temperature",
+              "cued_1",
+              "cued_2"
+            ]
+          },
+          "op": {
+            "enum": [
+              "<",
+              "<=",
+              ">",
+              ">="
+            ]
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "enum": [
+              "kV",
+              "V",
+              "M\u03a9",
+              "G\u03a9",
+              "k\u03a9",
+              "\u00b0C",
+              "\u00b0F",
+              "none"
+            ]
+          }
+        },
+        "required": [
+          "ref",
+          "op",
+          "value",
+          "unit"
+        ]
+      },
+      "answer_note": "a limit stated as the request being OUT of scope when the comparison holds",
+      "ocr_warning": false,
+      "draft_basis": "the clause could state this, but filling it needs a choice this module will not make"
+    },
+    {
+      "qid": "p1#4+p1#5:scope_exclusion_terms.*",
+      "n": 3,
+      "field_path": "scope_exclusion_terms.*",
+      "clause": "p1#4+p1#5",
+      "citation": "halvorn-hu-tx-2.txt p.1 [231:316]; halvorn-hu-tx-2.txt p.1 [317:348]",
+      "quote": "This procedure does not apply to motors, cables, generators or dry-type transformers; such requests are out of scope.",
+      "question": "The procedure says \"This procedure does not apply to motors, cables, generators or dry-type transformers; such requests are out of scope.\" (halvorn-hu-tx-2.txt p.1 [231:316]; halvorn-hu-tx-2.txt p.1 [317:348]). What equipment does the procedure NOT cover? Copy each item exactly as it is written in that sentence. Each term may contain at most 32 characters. You may also explicitly add these word forms: 'motor' from 'motors'; 'cable' from 'cables'; 'generator' from 'generators'; 'dry-type transformer' from 'dry-type transformers'. Keep each paired quoted term in the same answer. No variant is added automatically.",
+      "choices": [],
+      "answer_schema": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "maxItems": 8
+      },
+      "answer_note": "quoted terms, optionally with the offered exclusion word forms and their quoted terms; unlisted forms and synonyms are refused; runtime matching remains literal and whole-word",
+      "ocr_warning": false,
+      "draft_basis": "the clause could state this, but filling it needs a choice this module will not make",
+      "exclusion_word_form_policy": "syntriass.maintenance-exclusion-word-forms/v1",
+      "exclusion_word_forms": [
+        {
+          "source_term": "motors",
+          "term": "motor",
+          "policy": "syntriass.maintenance-exclusion-word-forms/v1"
+        },
+        {
+          "source_term": "cables",
+          "term": "cable",
+          "policy": "syntriass.maintenance-exclusion-word-forms/v1"
+        },
+        {
+          "source_term": "generators",
+          "term": "generator",
+          "policy": "syntriass.maintenance-exclusion-word-forms/v1"
+        },
+        {
+          "source_term": "dry-type transformers",
+          "term": "dry-type transformer",
+          "policy": "syntriass.maintenance-exclusion-word-forms/v1"
+        }
+      ]
+    },
+    {
+      "qid": "p1#6:scope_limit.*",
+      "n": 4,
+      "field_path": "scope_limit.*",
+      "clause": "p1#6",
+      "citation": "halvorn-hu-tx-2.txt p.1 [349:397]",
+      "quote": "Transformers rated above 33 kV are out of scope.",
+      "question": "The procedure says \"Transformers rated above 33 kV are out of scope.\" (halvorn-hu-tx-2.txt p.1 [349:397]). Does this set a measured limit on what the procedure covers? If so: which reading, which comparison, what value and unit \u2014 and does meeting it put a request outside the procedure, or inside it?",
+      "choices": [],
+      "answer_schema": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "enum": [
+              "voltage",
+              "resistance",
+              "temperature",
+              "cued_1",
+              "cued_2"
+            ]
+          },
+          "op": {
+            "enum": [
+              "<",
+              "<=",
+              ">",
+              ">="
+            ]
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "enum": [
+              "kV",
+              "V",
+              "M\u03a9",
+              "G\u03a9",
+              "k\u03a9",
+              "\u00b0C",
+              "\u00b0F",
+              "none"
+            ]
+          }
+        },
+        "required": [
+          "ref",
+          "op",
+          "value",
+          "unit"
+        ]
+      },
+      "answer_note": "a limit stated as the request being OUT of scope when the comparison holds",
+      "ocr_warning": false,
+      "draft_basis": "the clause could state this, but filling it needs a choice this module will not make"
+    },
+    {
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "n": 5,
+      "field_path": "required_inputs.*",
+      "clause": "p1#7+p1#8",
+      "citation": "halvorn-hu-tx-2.txt p.1 [398:414]; halvorn-hu-tx-2.txt p.1 [415:608]",
+      "quote": "Required inputs: rated high-voltage winding voltage in kV, insulation resistance from the high-voltage winding to earth in megohms, top-oil temperature in degrees Celsius, and dielectric absorption ratio (DAR).",
+      "question": "The procedure says \"Required inputs: rated high-voltage winding voltage in kV, insulation resistance from the high-voltage winding to earth in megohms, top-oil temperature in degrees Celsius, and dielectric absorption ratio (DAR).\" (halvorn-hu-tx-2.txt p.1 [398:414]; halvorn-hu-tx-2.txt p.1 [415:608]). Which readings does the procedure need? For each, give its unit as written and any short name it is known by in the text (for example an abbreviation in brackets).",
+      "choices": [],
+      "answer_schema": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 5,
+        "items": {
+          "type": "object",
+          "properties": {
+            "ref": {
+              "enum": [
+                "voltage",
+                "resistance",
+                "temperature",
+                "cued_1",
+                "cued_2"
+              ]
+            },
+            "unit": {
+              "enum": [
+                "kV",
+                "V",
+                "M\u03a9",
+                "G\u03a9",
+                "k\u03a9",
+                "\u00b0C",
+                "\u00b0F",
+                "none"
+              ]
+            },
+            "cues": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 32
+              },
+              "maxItems": 4
+            }
+          },
+          "required": [
+            "ref",
+            "unit",
+            "cues"
+          ]
+        }
+      },
+      "answer_note": "one entry per reading: which reading, unit, short names",
+      "ocr_warning": false,
+      "draft_basis": "the clause could state this, but filling it needs a choice this module will not make"
+    },
+    {
+      "qid": "p1#13+p1#14:correction.*",
+      "n": 6,
+      "field_path": "correction.*",
+      "clause": "p1#13+p1#14",
+      "citation": "halvorn-hu-tx-2.txt p.1 [791:821]; halvorn-hu-tx-2.txt p.1 [822:969]",
+      "quote": "Step 2 temperature correction: correct the insulation resistance to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15.",
+      "question": "The procedure says \"Step 2 temperature correction: correct the insulation resistance to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15.\" (halvorn-hu-tx-2.txt p.1 [791:821]; halvorn-hu-tx-2.txt p.1 [822:969]). How is the reading corrected? Say which reading is corrected, by which other reading, to what reference value, and with what rate or factor \u2014 using only the numbers in the sentence.",
+      "choices": [],
+      "answer_schema": {
+        "type": "object",
+        "properties": {
+          "template": {
+            "enum": [
+              "none",
+              "add_per_degree",
+              "multiply_power_per_degree"
+            ]
+          },
+          "target": {
+            "enum": [
+              "voltage",
+              "resistance",
+              "temperature",
+              "cued_1",
+              "cued_2"
+            ]
+          },
+          "by": {
+            "enum": [
+              "voltage",
+              "resistance",
+              "temperature",
+              "cued_1",
+              "cued_2"
+            ]
+          },
+          "reference": {
+            "type": "number"
+          },
+          "reference_unit": {
+            "enum": [
+              "kV",
+              "V",
+              "M\u03a9",
+              "G\u03a9",
+              "k\u03a9",
+              "\u00b0C",
+              "\u00b0F",
+              "none"
+            ]
+          },
+          "rate": {
+            "type": "number"
+          },
+          "rate_unit": {
+            "enum": [
+              "kV",
+              "V",
+              "M\u03a9",
+              "G\u03a9",
+              "k\u03a9",
+              "\u00b0C",
+              "\u00b0F",
+              "none"
+            ]
+          },
+          "base": {
+            "type": "number"
+          },
+          "step": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "template",
+          "target",
+          "by",
+          "reference",
+          "reference_unit",
+          "rate",
+          "rate_unit",
+          "base",
+          "step"
+        ]
+      },
+      "answer_note": "a correction formula built from the sentence's own numbers",
+      "ocr_warning": false,
+      "draft_basis": "the clause could state this, but filling it needs a choice this module will not make"
+    },
+    {
+      "qid": "p1#15+p1#16:limit.*",
+      "n": 7,
+      "field_path": "limit.*",
+      "clause": "p1#15+p1#16",
+      "citation": "halvorn-hu-tx-2.txt p.1 [970:985]; halvorn-hu-tx-2.txt p.1 [986:1068]",
+      "quote": "Step 3 minimum: the minimum acceptable corrected resistance is 20 times (rated kV plus 2) megohms.",
+      "question": "The procedure says \"Step 3 minimum: the minimum acceptable corrected resistance is 20 times (rated kV plus 2) megohms.\" (halvorn-hu-tx-2.txt p.1 [970:985]; halvorn-hu-tx-2.txt p.1 [986:1068]). How is the acceptance limit worked out? Say whether it is a fixed number or a multiple of a reading plus an offset, using only the numbers in the sentence.",
+      "choices": [],
+      "answer_schema": {
+        "type": "object",
+        "properties": {
+          "template": {
+            "enum": [
+              "none",
+              "constant",
+              "coefficient_times_input_plus_offset"
+            ]
+          },
+          "coefficient": {
+            "type": "number"
+          },
+          "input": {
+            "enum": [
+              "voltage",
+              "resistance",
+              "temperature",
+              "cued_1",
+              "cued_2"
+            ]
+          },
+          "offset": {
+            "type": "number"
+          },
+          "unit": {
+            "enum": [
+              "kV",
+              "V",
+              "M\u03a9",
+              "G\u03a9",
+              "k\u03a9",
+              "\u00b0C",
+              "\u00b0F",
+              "none"
+            ]
+          }
+        },
+        "required": [
+          "template",
+          "coefficient",
+          "input",
+          "offset",
+          "unit"
+        ]
+      },
+      "answer_note": "a limit formula built from the sentence's own numbers",
+      "ocr_warning": false,
+      "draft_basis": "the clause could state this, but filling it needs a choice this module will not make"
+    },
+    {
+      "qid": "p1#17+p1#18:rules[].value",
+      "n": 8,
+      "field_path": "rules[].value",
+      "clause": "p1#17+p1#18",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1069:1085]; halvorn-hu-tx-2.txt p.1 [1086:1185]",
+      "quote": "Step 4 decision: if the corrected resistance is below one third of the minimum, remove the transformer from service.",
+      "question": "The procedure says \"Step 4 decision: if the corrected resistance is below one third of the minimum, remove the transformer from service.\" (halvorn-hu-tx-2.txt p.1 [1069:1085]; halvorn-hu-tx-2.txt p.1 [1086:1185]). Which reading is this about?",
+      "choices": [
+        {
+          "code": "voltage",
+          "label": "the voltage reading"
+        },
+        {
+          "code": "resistance",
+          "label": "the resistance reading"
+        },
+        {
+          "code": "temperature",
+          "label": "the temperature reading"
+        },
+        {
+          "code": "cued_1",
+          "label": "the first named reading (for example an index written as an abbreviation)"
+        },
+        {
+          "code": "cued_2",
+          "label": "the second named reading"
+        },
+        {
+          "code": "corrected",
+          "label": "the corrected value worked out in an earlier step"
+        }
+      ],
+      "answer_schema": {
+        "enum": [
+          "voltage",
+          "resistance",
+          "temperature",
+          "cued_1",
+          "cued_2",
+          "corrected"
+        ]
+      },
+      "answer_note": "one reading from the choices",
+      "ocr_warning": false,
+      "draft_basis": "no single tagged number names the reading, so which reading is compared is a choice"
+    },
+    {
+      "qid": "p1#17+p1#18:rules[].number",
+      "n": 9,
+      "field_path": "rules[].number",
+      "clause": "p1#17+p1#18",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1069:1085]; halvorn-hu-tx-2.txt p.1 [1086:1185]",
+      "quote": "Step 4 decision: if the corrected resistance is below one third of the minimum, remove the transformer from service.",
+      "question": "The procedure says \"Step 4 decision: if the corrected resistance is below one third of the minimum, remove the transformer from service.\" (halvorn-hu-tx-2.txt p.1 [1069:1085]; halvorn-hu-tx-2.txt p.1 [1086:1185]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
+      "choices": [],
+      "answer_schema": {
+        "type": "object",
+        "properties": {
+          "against": {
+            "enum": [
+              "number",
+              "limit"
+            ]
+          },
+          "number": {
+            "type": "number"
+          },
+          "unit": {
+            "enum": [
+              "kV",
+              "V",
+              "M\u03a9",
+              "G\u03a9",
+              "k\u03a9",
+              "\u00b0C",
+              "\u00b0F",
+              "none"
+            ]
+          },
+          "limit_fraction": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "against",
+          "number",
+          "unit",
+          "limit_fraction"
+        ]
+      },
+      "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)",
+      "ocr_warning": false,
+      "draft_basis": "one comparator needs exactly one tagged number to compare against; found 0"
+    },
+    {
+      "qid": "p1#19:rules[].value",
+      "n": 10,
+      "field_path": "rules[].value",
+      "clause": "p1#19",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1186:1241]",
+      "quote": "If it is below the minimum, dry out the oil and retest.",
+      "question": "The procedure says \"If it is below the minimum, dry out the oil and retest.\" (halvorn-hu-tx-2.txt p.1 [1186:1241]). Which reading is this about?",
+      "choices": [
+        {
+          "code": "voltage",
+          "label": "the voltage reading"
+        },
+        {
+          "code": "resistance",
+          "label": "the resistance reading"
+        },
+        {
+          "code": "temperature",
+          "label": "the temperature reading"
+        },
+        {
+          "code": "cued_1",
+          "label": "the first named reading (for example an index written as an abbreviation)"
+        },
+        {
+          "code": "cued_2",
+          "label": "the second named reading"
+        },
+        {
+          "code": "corrected",
+          "label": "the corrected value worked out in an earlier step"
+        }
+      ],
+      "answer_schema": {
+        "enum": [
+          "voltage",
+          "resistance",
+          "temperature",
+          "cued_1",
+          "cued_2",
+          "corrected"
+        ]
+      },
+      "answer_note": "one reading from the choices",
+      "ocr_warning": false,
+      "draft_basis": "no single tagged number names the reading, so which reading is compared is a choice"
+    },
+    {
+      "qid": "p1#19:rules[].number",
+      "n": 11,
+      "field_path": "rules[].number",
+      "clause": "p1#19",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1186:1241]",
+      "quote": "If it is below the minimum, dry out the oil and retest.",
+      "question": "The procedure says \"If it is below the minimum, dry out the oil and retest.\" (halvorn-hu-tx-2.txt p.1 [1186:1241]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
+      "choices": [],
+      "answer_schema": {
+        "type": "object",
+        "properties": {
+          "against": {
+            "enum": [
+              "number",
+              "limit"
+            ]
+          },
+          "number": {
+            "type": "number"
+          },
+          "unit": {
+            "enum": [
+              "kV",
+              "V",
+              "M\u03a9",
+              "G\u03a9",
+              "k\u03a9",
+              "\u00b0C",
+              "\u00b0F",
+              "none"
+            ]
+          },
+          "limit_fraction": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "against",
+          "number",
+          "unit",
+          "limit_fraction"
+        ]
+      },
+      "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)",
+      "ocr_warning": false,
+      "draft_basis": "one comparator needs exactly one tagged number to compare against; found 0"
+    },
+    {
+      "qid": "p1#20:rules[].value",
+      "n": 12,
+      "field_path": "rules[].value",
+      "clause": "p1#20",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1242:1276]",
+      "quote": "If DAR is below 1.25, investigate.",
+      "question": "The procedure says \"If DAR is below 1.25, investigate.\" (halvorn-hu-tx-2.txt p.1 [1242:1276]). Which reading is this about?",
+      "choices": [
+        {
+          "code": "voltage",
+          "label": "the voltage reading"
+        },
+        {
+          "code": "resistance",
+          "label": "the resistance reading"
+        },
+        {
+          "code": "temperature",
+          "label": "the temperature reading"
+        },
+        {
+          "code": "cued_1",
+          "label": "the first named reading (for example an index written as an abbreviation)"
+        },
+        {
+          "code": "cued_2",
+          "label": "the second named reading"
+        },
+        {
+          "code": "corrected",
+          "label": "the corrected value worked out in an earlier step"
+        }
+      ],
+      "answer_schema": {
+        "enum": [
+          "voltage",
+          "resistance",
+          "temperature",
+          "cued_1",
+          "cued_2",
+          "corrected"
+        ]
+      },
+      "answer_note": "one reading from the choices",
+      "ocr_warning": false,
+      "draft_basis": "no single tagged number names the reading, so which reading is compared is a choice"
+    },
+    {
+      "qid": "p1#20:rules[].number",
+      "n": 13,
+      "field_path": "rules[].number",
+      "clause": "p1#20",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1242:1276]",
+      "quote": "If DAR is below 1.25, investigate.",
+      "question": "The procedure says \"If DAR is below 1.25, investigate.\" (halvorn-hu-tx-2.txt p.1 [1242:1276]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
+      "choices": [],
+      "answer_schema": {
+        "type": "object",
+        "properties": {
+          "against": {
+            "enum": [
+              "number",
+              "limit"
+            ]
+          },
+          "number": {
+            "type": "number"
+          },
+          "unit": {
+            "enum": [
+              "kV",
+              "V",
+              "M\u03a9",
+              "G\u03a9",
+              "k\u03a9",
+              "\u00b0C",
+              "\u00b0F",
+              "none"
+            ]
+          },
+          "limit_fraction": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "against",
+          "number",
+          "unit",
+          "limit_fraction"
+        ]
+      },
+      "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)",
+      "ocr_warning": false,
+      "draft_basis": "one comparator needs exactly one tagged number to compare against; found 0"
+    },
+    {
+      "qid": "p1#21:rules[].value",
+      "n": 14,
+      "field_path": "rules[].value",
+      "clause": "p1#21",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1277:1346]",
+      "quote": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+      "question": "The procedure says \"If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.\" (halvorn-hu-tx-2.txt p.1 [1277:1346]). Which reading is this about?",
+      "choices": [
+        {
+          "code": "voltage",
+          "label": "the voltage reading"
+        },
+        {
+          "code": "resistance",
+          "label": "the resistance reading"
+        },
+        {
+          "code": "temperature",
+          "label": "the temperature reading"
+        },
+        {
+          "code": "cued_1",
+          "label": "the first named reading (for example an index written as an abbreviation)"
+        },
+        {
+          "code": "cued_2",
+          "label": "the second named reading"
+        },
+        {
+          "code": "corrected",
+          "label": "the corrected value worked out in an earlier step"
+        }
+      ],
+      "answer_schema": {
+        "enum": [
+          "voltage",
+          "resistance",
+          "temperature",
+          "cued_1",
+          "cued_2",
+          "corrected"
+        ]
+      },
+      "answer_note": "one reading from the choices",
+      "ocr_warning": false,
+      "draft_basis": "no single tagged number names the reading, so which reading is compared is a choice"
+    },
+    {
+      "qid": "p1#21:rules[].op",
+      "n": 15,
+      "field_path": "rules[].op",
+      "clause": "p1#21",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1277:1346]",
+      "quote": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+      "question": "The procedure says \"If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.\" (halvorn-hu-tx-2.txt p.1 [1277:1346]). That sentence combines more than one condition, and each rule can check only one. Which comparison should this rule check? The other can be taught as a separate rule.",
+      "choices": [
+        {
+          "code": ">=",
+          "label": "at least"
+        },
+        {
+          "code": "<",
+          "label": "below"
+        }
+      ],
+      "answer_schema": {
+        "enum": [
+          ">=",
+          "<"
+        ]
+      },
+      "answer_note": "one comparison from the choices",
+      "ocr_warning": false,
+      "draft_basis": "the IR has no conjunction, so a rule needs exactly one comparator; found 2"
+    },
+    {
+      "qid": "p1#21:rules[].number",
+      "n": 16,
+      "field_path": "rules[].number",
+      "clause": "p1#21",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1277:1346]",
+      "quote": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+      "question": "The procedure says \"If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.\" (halvorn-hu-tx-2.txt p.1 [1277:1346]). What is the reading compared with? Give a number and its unit, or say it is compared with the limit worked out in an earlier step (and what fraction of that limit, if not the whole of it).",
+      "choices": [],
+      "answer_schema": {
+        "type": "object",
+        "properties": {
+          "against": {
+            "enum": [
+              "number",
+              "limit"
+            ]
+          },
+          "number": {
+            "type": "number"
+          },
+          "unit": {
+            "enum": [
+              "kV",
+              "V",
+              "M\u03a9",
+              "G\u03a9",
+              "k\u03a9",
+              "\u00b0C",
+              "\u00b0F",
+              "none"
+            ]
+          },
+          "limit_fraction": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "against",
+          "number",
+          "unit",
+          "limit_fraction"
+        ]
+      },
+      "answer_note": "against = number (give number and unit) or limit (give limit_fraction, 1 for the whole limit)",
+      "ocr_warning": false,
+      "draft_basis": "one comparator needs exactly one tagged number to compare against; found 0"
+    }
+  ],
+  "not_asked": [
+    {
+      "clause": "p1#0",
+      "citation": "halvorn-hu-tx-2.txt p.1 [0:137]",
+      "text": "halvorn-power|hu-tx-2|restricted|HU-TX-2 rev A Distribution transformer insulation acceptance",
+      "why": "the sentence states nothing the system can use"
+    },
+    {
+      "clause": "p1#0/2",
+      "citation": "halvorn-hu-tx-2.txt p.1 [0:137]",
+      "text": "Halvorn Power procedure HU-TX-2 revision A.",
+      "why": "the sentence states nothing the system can use"
+    },
+    {
+      "clause": "p1#1",
+      "citation": "halvorn-hu-tx-2.txt p.1 [138:151]",
+      "text": "Confidential.",
+      "why": "the sentence states nothing the system can use"
+    }
+  ],
+  "counts": {
+    "draft_unsettled_fields": 19,
+    "asked": 16,
+    "not_asked": 3,
+    "with_closed_choices": 5,
+    "with_ocr_warning": 0
+  },
+  "rephrasing": "[B] deferred: deterministic templates only, no model"
+}

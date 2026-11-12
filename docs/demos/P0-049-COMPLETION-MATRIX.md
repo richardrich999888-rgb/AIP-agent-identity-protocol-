@@ -1,9 +1,10 @@
 # P0-049 completion matrix
 
-Release verdict: **NOT READY**. Iterations 1–2 deliver reconciliation, the bounded
-C1 scoreboard and dependency/audit-gate remediation. Bounded C1 reproduced on a separate CI runner; no full-demo
+Release verdict: **NOT READY**. Iterations 1–3 deliver reconciliation, the bounded
+C1 scoreboard, dependency/audit-gate remediation and explicit exclusion word forms.
+The expanded teaching attack gate fails locally and on CI. Bounded C1 reproduced on a separate CI runner; no full-demo
 or independent clean-machine offline-install acceptance is claimed.
-Review date: 12 November 2026 IST (11 November UTC).
+Review date: 12 November 2026.
 
 ## Source snapshot and branch reconciliation
 
@@ -71,18 +72,37 @@ The four historical-render Trivy findings remain outside this bounded fix.
 
 ## Requirements
 
+### Iteration 3 update
+
+Implementation `4d002accbf6759fe1845872ac5579815c8081631` resolves the literal
+singular/plural exclusion obstacle with four versioned, explicitly selected word
+pairs. The quoted form must remain; source/question/digest bindings are retained.
+The runtime and compiler are unchanged. The actual answered-session recorder
+gets 12/12 on the original holdout, versus the retained 11/12 control.
+
+The expanded attacks improve from 17/26 to 25/26. `fa-3` remains a failure:
+a battery-cell request returns INSUFFICIENT_INPUT instead of NOT_APPLICABLE.
+The recorder and teaching CI `43164083237` both exit 3; this is **not accepted**.
+Local tests: 324 Python and 187 runtime passes. CI's 146 focused tests and
+runtime/storage tests pass; its subsequent live attack step fails as required.
+Raw local and separate connected-CI evidence, including failed attempts, is in
+`evidence/p0-049-iteration-3/`; details in `P0-049-ITERATION-3.md`.
+Source audit/deny and Security's audit/secret scan pass. Trivy still reports the
+same four HIGH historical-render findings; raw SARIF/audit output is retained.
+Main CI's fmt/test and coverage were still running at this snapshot.
+
 Paths with T/W/O prefixes refer to the snapshots above. Evidence described as
 historical was inspected, not re-created in this iteration. New results are in
-`docs/demos/evidence/p0-049-iteration-1/`. T source paths below include this
+`docs/demos/evidence/p0-049-iteration-{1,2,3}/`. T source paths below include this
 iteration's additive changes; starting-state revisions are recorded above.
 
 | Requirement / status | Current implementation | Source file | Test | Evidence | Missing behavior | Dependency | Next action |
 |---|---|---|---|---|---|---|---|
-| Dependency audit gate — LOCAL ACCEPTANCE; CI pending | Patched SQLite/rustix pins; audit pipeline preserves failures | T Cargo.lock, corpus manifest, security workflow | 284 runtime/corpus + 144 consumer + 4 gate tests; audit/deny pass | Iteration 2 raw results and old DB fixture | Final CI reconciliation; remaining Trivy findings | CI runners; sensor-preserving configuration review | Inspect source/final-head CI, retain failures; no exemptions |
+| Dependency audit gate — LOCAL + SOURCE CI ACCEPTANCE | Patched SQLite/rustix pins; audit pipeline preserves failures | T Cargo.lock, corpus manifest, security workflow | Iteration 2: 284 runtime/corpus + 144 consumer + 4 gate tests; iteration 3 source audit/deny pass | Iterations 2/3 raw results and old DB fixture | Full final-head CI; remaining Trivy findings | CI runners; sensor-preserving configuration review | Inspect final-head CI, retain failures; no new exemptions |
 | 1. Offline answers — HISTORICAL PARTIAL | Live local-model harness and citations | W `demos/pull-the-plug/run.sh` | W `accept.py`, server/meter tests | W `evidence/2026-11-08-64d6f40-*` | Fresh packaged run with captures on supported host | Weights, llama-server, bundle | Stage pinned bytes, package and rerun |
 | 2. Expert teaching — PARTIAL | Ingestion, sessions, deterministic draft, typed answers | T `domain/teach.rs`; `harness/{draft_from_session,apply_answers}.py` | T teach CLI + Python tests | T `docs/demo/results/A1*`, `A2*`, `A3a*`, `B2*` | Live model drafting and complete workflow | Model bundle, B3 scope issue | Finish A3b without overwriting document evidence |
-| 3. Questions — PARTIAL | Deterministic cited questions; OCR warning | T `harness/question_generator.py` | `test_question_generator.py` | `B1_question_generator.json`, `B3_holdout_questions.json` | Word-form restriction blocks holdout; term length not explained | Reviewed typed-answer policy | Fix with regression and false-activation checks |
-| 4. Homework C1 — PARTIAL; CLI accepted | New read-only `cap-scoreboard`, real validator, gate failures, inputs, trace, review prompts | T `capability/scoreboard.rs`, CLI | `teaching_scoreboard.rs` (14 new) | Local + CI recorder, two synthetic maintenance domains | Answered-session IR integration and precise B1 question IDs; screen; full rehearsal | B3/session compiler; E1; trusted suite | Wire actual answered session to scoreboard; keep fixture-only evidence labelled |
+| 3. Questions — PARTIAL; bounded word-form repair verified | Cited questions, OCR warning, 32-character limit, explicit exclusion variants retaining source forms | T `harness/{question_generator,exclusion_terms,apply_answers}.py` | 29 new policy tests; full Python 324 passed | Iteration 3 actual session, edits and signed suites; original history preserved | General vocabulary/live model rephrasing; expanded attack fa-3 still fails | Applicability policy and frozen cross-domain tests | Fix fa-3 without changing expected labels; keep policy exclusions-only |
+| 4. Homework C1 — PARTIAL; CLI accepted | Read-only scoreboard; new B3 recorder connects actual session → answers → compiled capability → signed suites | T `capability/scoreboard.rs`, `harness/record_exclusion_policy.py` | 187 runtime passes; 12/12 holdout, 25/26 attacks (rejected) | Iterations 1/3 local + CI; failed case retained | General answered-session CLI and precise failed-row/B1 qid linkage; screen; rehearsal | fa-3 applicability gate; E1; trusted suite | Repair applicability, then generalize answered-session integration; do not approve rejected candidate |
 | 5. Signed approval C2 — PARTIAL | Existing signed `cap-approve` and lifecycle | T `capability/lifecycle.rs`, `learning.rs` | `capability_engine.rs` | Existing research lifecycle results | One teaching action joining approval/activation/supersession | C1, approver roles | Compose existing gates; never auto-approve |
 | 6. Reuse — PARTIAL | Deterministic capability path; activation/supersede/rollback commands | T `app.rs`, `learning.rs` | `runtime_app.rs`, `capability_evolution.rs` | Existing v0.2 results | Teaching workflow, current live meter and variations | C2, D1/D2 | Measure end-to-end reuse with zero model calls |
 | 7. Knowledge packs D5 — OPEN | No completed `pack export/import` command | T CLI | No pack acceptance suite | None | Signed, tenant/version/approval/validation-bound export/import | C2, signing/trust format | Implement before pack demo |
@@ -122,7 +142,7 @@ close the full-demo criterion.
 | Forged pack / unauthorized import / invalid version / missing approval | Pack command absent | Implement D5 and all negative cases |
 | Unauthorized approval | Existing lifecycle tests; new scoreboard cannot activate a PROPOSED record | Authenticated teaching approval path and revoked-authority trials |
 | Cross-tenant retrieval | Existing runtime tests and W fixed questions | Full teaching/API/pack retrieval boundary tests |
-| False activation | Existing false-activation fixtures; C1 missed-scope failure remains visible | Fix B3 without broadening scope; full evaluation |
+| False activation | Explicit variants remove all eight singular-form failures; frozen battery fa-3 still fails in original and corrected capabilities | Fix compiler/runtime applicability; keep broader suite and CI rejected until passing |
 | Revoked authority | New removed-expert-anchor CLI rejection | Revoked approver, runtime and imported-pack authority tests |
 | Undeclared execution | W scripted liar + historical signed observations | Fresh sensor and independent ground-truth run |
 | Missing kernel events / sensor interruption | Historical failed auditd batch retained; verifier health says ContinuityUnverified | Demonstrate understandable failure and no complete-coverage claim |
@@ -132,8 +152,8 @@ close the full-demo criterion.
 | PQ identity failure | O identity tests exist; original demo unavailable | Fresh missing/impostor/plaintext/PSK-fallback capture tests |
 | Offline installation failure | Historical partial same-host kit test | Complete local dependencies, independent clean-machine failure/recovery |
 
-Next reconcile remote CI and the retained-render Trivy findings, then finish the C1 answered-session
-and question linkage before claiming C1 complete. B3's word-form policy needs
-explicit regression/false-activation tests; C2 teaching approval composition
-follows those gates. A3b remains unstaged in this checkout. This iteration does not
+Next repair the independently reproduced fa-3 applicability failure, then finish the C1
+answered-session interface and precise question linkage before claiming C1 complete.
+Reconcile current CI and address the retained-render Trivy findings without hiding historical evidence.
+C2 teaching approval composition follows those gates. A3b remains unstaged in this checkout. This iteration does not
 borrow W's historical model bytes, sensor observations or performance as current proof.

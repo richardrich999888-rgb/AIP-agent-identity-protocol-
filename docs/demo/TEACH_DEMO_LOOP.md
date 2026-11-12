@@ -447,10 +447,17 @@ with the unproven half named.
   *Tests:* `test_holdout_questions.py` 7, pinning both findings without the
   binary; capability-learning **295/295**.
   *Evidence:* `docs/demo/results/B3_holdout_questions.json`.
-  *Open — needs a decision, not taken here* (it changes a validation rule or
-  the runtime): whether an expert may give a singular/plural form of a word
-  the sentence contains, or the runtime's term match becomes
-  number-insensitive, or neither.
+  *Iteration 3 update (`4d002ac`):* the historical recording above is preserved.
+  The bounded policy now offers four explicit maintenance word pairs only for
+  exclusions, with quoted-form retention and source/question/digest binding.
+  Runtime matching stays literal. The question now states the 32-character limit.
+  The new actual-session recorder obtains 12/12 on the original holdout, but
+  **25/26 and exit 3** on expanded attacks: frozen battery-cell fa-3 still returns
+  INSUFFICIENT_INPUT instead of NOT_APPLICABLE, before and after the change.
+  Local 324 Python / 187 runtime tests pass; CI reproduces the attack failure.
+  Evidence: `docs/demos/evidence/p0-049-iteration-3/`. Fix applicability before
+  approval; never change fa-3's expected label merely to pass. General vocabulary
+  and live model-assisted wording remain outside this bounded repair.
 
 ### Phase C — It checks its own homework
 - [~] **C1. Scoreboard — CLI diagnostic complete; teaching integration open.**
@@ -464,8 +471,11 @@ with the unproven half named.
   separately with the built binary. Clean local and CI runs retain motor 14/14,
   rejected transformer 11/12, corrected transformer 12/12 with zero model calls.
   Evidence: `docs/demos/evidence/p0-049-iteration-1/`; CI run `43090681318` passed.
-  **Open:** wire the answered teaching-session IR and exact B1 questions to this
-  diagnostic, then the E1 screen; this does not close the full teaching workflow.
+  **Update:** iteration 3's B3 recorder passes actual session/answers through
+  compilation and this diagnostic, retaining the owning exclusion qid and edits.
+  **Open:** the general answered-session CLI and precise failed-row/B1 question
+  linkage, then the E1 screen. Its expanded attack suite still fails fa-3;
+  this does not close the full teaching workflow.
   Suites are signed synthetic engineer fixtures; diagnostics are unsigned.
 - [ ] **C2. Approve.** Signed approval → activate → supersede. One CLI command, one UI
   action. Builds on `cap-activate --supersede` and the six suite-attack tests.
