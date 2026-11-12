@@ -1,4 +1,4 @@
-# P0-049 rehearsal ledger
+# P0-049 / P0-050 rehearsal ledger
 
 **Required-mode acceptance: NOT READY.** This teaching branch had no master demo
 rehearsal log. Historical W results remain in the original log at AIP commit
@@ -92,3 +92,34 @@ and its broader attack control remains 17/26. Eight local/CI suite signatures
 verify with the separate Python implementation; the tampered control exits 1.
 No approval or activation was performed. Consecutive full-mode counts remain
 unchanged at zero for this work; a future qualifying failure resets its count.
+
+## P0-050 iteration 1 — bounded applicability accepted, zero rehearsal credit
+
+Implementation `ef3d9d434e5ed55e5994331abc91c03833f997ff`, tree
+`d8e21fc9b2fa8ae4ad981036f0c082916fc51e86`. CI merge `de0786e2` has the same
+tree. All rows are component checks, not complete W3/investor/customer modes.
+
+| Run | Source / state | Result | Wall seconds | CPU seconds | Peak child RSS KiB |
+|---|---|---|---:|---:|---:|
+| Rejected parent, local namespace | `925432b`, clean | 25/26 attacks; recorder exit 3 | 1.1971525059998385 | 0.524794 | 15604 |
+| Development candidate, local namespace | `925432b`, dirty | 26/26 attacks; recorder exit 0 | 0.5467602559992883 | 0.330729 | 15604 |
+| Clean source, prior prebuilt binary | `ef3d9d4`, clean | 26/26 attacks; recorder exit 0 | 0.9466386320000311 | 0.42060600000000004 | 15604 |
+| Clean source, fresh local build | `ef3d9d4`, clean | 26/26 attacks; recorder exit 0 | 0.4039170820005893 | 0.168796 | 15604 |
+| Connected four-CPU CI | `de0786e`, clean | 26/26 attacks; recorder exit 0 | 0.22955532699999992 | 0.136628 | 22596 |
+
+Evidence: `../assurance/evidence/p0-050-iteration-1/`. The clean parent retains
+fa-3 INSUFFICIENT_INPUT; the corrected runs return NOT_APPLICABLE. Holdout remains
+12/12; copied-plural control remains rejected. Eight synthetic suite signatures
+verify separately; a changed signed label is rejected. Diagnostic JSON is unsigned.
+
+The prior prebuilt binary and fresh build have different hashes, so both runs
+are retained and labelled; the final local row uses the fresh source build.
+Local host: nine CPUs, Linux 6.18.57; CI: four CPUs, Linux 7.0.0-1017-azure.
+Full per-host/binary/resource/network metadata is retained. Model hashes are empty
+because no model ran. No packet capture or sensor operation occurred.
+
+The first evidence comparison incorrectly expected independent session IDs to
+have the same questions digest; that failed attempt is retained. Recovery compares
+actual questions and choices while checking each session binding. Frozen labels
+were not changed. No qualifying full-mode run occurred, so consecutive counts
+remain zero. No clean-machine, Mac hardware or external-evaluator credit.

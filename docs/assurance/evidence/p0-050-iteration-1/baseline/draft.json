@@ -1,0 +1,681 @@
+{
+  "schema": "syntriass.teach-draft/v1",
+  "session_id": "b6c6bfafcc64e755ed172d2a8bde16d2e094a3e9484698b62e7abcbc0c609463",
+  "tenant": "halvorn-power",
+  "task": "tx_acceptance",
+  "document": "halvorn-hu-tx-2.txt",
+  "document_sha256": "1c502b5940db2b1524b73bba60c77505863b19db1c0047547ec06caeb0233bbf",
+  "outcomes": [
+    "ACCEPT",
+    "MONITOR_90D",
+    "INVESTIGATE",
+    "DRY_OUT_OIL",
+    "REMOVE_FROM_SERVICE",
+    "INVALID_TEST",
+    "OUT_OF_SCOPE",
+    "INSUFFICIENT_INPUT"
+  ],
+  "expert_rule": "Accept only a transformer whose corrected resistance meets the HU-TX-2 minimum and whose DAR is acceptable.\n",
+  "expert_rule_note": "Recorded for the question generator to quote back. No field is filled from it: reading intent out of prose is the step that produced the wrong thresholds in YC_TECHNICAL_CLAIMS.md.",
+  "model_calls": 0,
+  "clauses_cited": 23,
+  "clauses_ocr": [],
+  "claims_determined": [
+    {
+      "kind": "missing_input",
+      "claim": {
+        "outcome": "INSUFFICIENT_INPUT"
+      },
+      "clause": "p1#9"
+    },
+    {
+      "kind": "validity",
+      "claim": {
+        "ref": "temperature",
+        "min": 0.0,
+        "max": 90.0,
+        "unit": "\u00b0C",
+        "outcome": "INVALID_TEST"
+      },
+      "clause": "p1#10+p1#11+p1#12"
+    },
+    {
+      "kind": "default_outcome",
+      "claim": {
+        "outcome": "ACCEPT"
+      },
+      "clause": "p1#22"
+    }
+  ],
+  "field_counts": {
+    "evidence": 14,
+    "hypothesis": 8,
+    "issue": 11
+  },
+  "fields": [
+    {
+      "path": "(none)",
+      "status": "issue",
+      "clause": "p1#0",
+      "basis": "the clause states nothing the IR can express",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "(none)",
+      "status": "issue",
+      "clause": "p1#0/2",
+      "basis": "the clause states nothing the IR can express",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "(none)",
+      "status": "issue",
+      "clause": "p1#1",
+      "basis": "the clause states nothing the IR can express",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "scope_subject.*",
+      "status": "hypothesis",
+      "clause": "p1#2+p1#3",
+      "basis": "the clause could state this, but filling it needs a choice this module will not make",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "scope_limit.*",
+      "status": "hypothesis",
+      "clause": "p1#2+p1#3",
+      "basis": "the clause could state this, but filling it needs a choice this module will not make",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "scope_exclusion_terms.*",
+      "status": "hypothesis",
+      "clause": "p1#4+p1#5",
+      "basis": "the clause could state this, but filling it needs a choice this module will not make",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "scope_limit.*",
+      "status": "hypothesis",
+      "clause": "p1#6",
+      "basis": "the clause could state this, but filling it needs a choice this module will not make",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "required_inputs.*",
+      "status": "hypothesis",
+      "clause": "p1#7+p1#8",
+      "basis": "the clause could state this, but filling it needs a choice this module will not make",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "missing_input_outcome",
+      "status": "evidence",
+      "clause": "p1#9",
+      "basis": "the clause names exactly one outcome",
+      "value": "INSUFFICIENT_INPUT",
+      "candidates": []
+    },
+    {
+      "path": "validity[].ref",
+      "status": "evidence",
+      "clause": "p1#10+p1#11+p1#12",
+      "basis": "unit \u00b0C is a temperature unit",
+      "value": "temperature",
+      "candidates": []
+    },
+    {
+      "path": "validity[].min",
+      "status": "evidence",
+      "clause": "p1#10+p1#11+p1#12",
+      "basis": "lower of the two numbers in the clause",
+      "value": 0.0,
+      "candidates": []
+    },
+    {
+      "path": "validity[].max",
+      "status": "evidence",
+      "clause": "p1#10+p1#11+p1#12",
+      "basis": "upper of the two numbers in the clause",
+      "value": 90.0,
+      "candidates": []
+    },
+    {
+      "path": "validity[].unit",
+      "status": "evidence",
+      "clause": "p1#10+p1#11+p1#12",
+      "basis": "the unit written after the second bound, which both bounds carry",
+      "value": "\u00b0C",
+      "candidates": []
+    },
+    {
+      "path": "validity[].outcome",
+      "status": "evidence",
+      "clause": "p1#10+p1#11+p1#12",
+      "basis": "the clause names exactly one outcome",
+      "value": "INVALID_TEST",
+      "candidates": []
+    },
+    {
+      "path": "correction.*",
+      "status": "hypothesis",
+      "clause": "p1#13+p1#14",
+      "basis": "the clause could state this, but filling it needs a choice this module will not make",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "limit.*",
+      "status": "hypothesis",
+      "clause": "p1#15+p1#16",
+      "basis": "the clause could state this, but filling it needs a choice this module will not make",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "rules[].value",
+      "status": "issue",
+      "clause": "p1#17+p1#18",
+      "basis": "no single tagged number names the reading, so which reading is compared is a choice",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "rules[].op",
+      "status": "evidence",
+      "clause": "p1#17+p1#18",
+      "basis": "the only comparator in the clause",
+      "value": "<",
+      "candidates": []
+    },
+    {
+      "path": "rules[].number",
+      "status": "issue",
+      "clause": "p1#17+p1#18",
+      "basis": "one comparator needs exactly one tagged number to compare against; found 0",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "rules[].outcome",
+      "status": "evidence",
+      "clause": "p1#17+p1#18",
+      "basis": "the clause names exactly one outcome",
+      "value": "REMOVE_FROM_SERVICE",
+      "candidates": []
+    },
+    {
+      "path": "rules[].value",
+      "status": "issue",
+      "clause": "p1#19",
+      "basis": "no single tagged number names the reading, so which reading is compared is a choice",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "rules[].op",
+      "status": "evidence",
+      "clause": "p1#19",
+      "basis": "the only comparator in the clause",
+      "value": "<",
+      "candidates": []
+    },
+    {
+      "path": "rules[].number",
+      "status": "issue",
+      "clause": "p1#19",
+      "basis": "one comparator needs exactly one tagged number to compare against; found 0",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "rules[].outcome",
+      "status": "evidence",
+      "clause": "p1#19",
+      "basis": "the clause names exactly one outcome",
+      "value": "DRY_OUT_OIL",
+      "candidates": []
+    },
+    {
+      "path": "rules[].value",
+      "status": "issue",
+      "clause": "p1#20",
+      "basis": "no single tagged number names the reading, so which reading is compared is a choice",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "rules[].op",
+      "status": "evidence",
+      "clause": "p1#20",
+      "basis": "the only comparator in the clause",
+      "value": "<",
+      "candidates": []
+    },
+    {
+      "path": "rules[].number",
+      "status": "issue",
+      "clause": "p1#20",
+      "basis": "one comparator needs exactly one tagged number to compare against; found 0",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "rules[].outcome",
+      "status": "evidence",
+      "clause": "p1#20",
+      "basis": "the clause names exactly one outcome",
+      "value": "INVESTIGATE",
+      "candidates": []
+    },
+    {
+      "path": "rules[].value",
+      "status": "issue",
+      "clause": "p1#21",
+      "basis": "no single tagged number names the reading, so which reading is compared is a choice",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "rules[].op",
+      "status": "hypothesis",
+      "clause": "p1#21",
+      "basis": "the IR has no conjunction, so a rule needs exactly one comparator; found 2",
+      "value": null,
+      "candidates": [
+        ">=",
+        "<"
+      ]
+    },
+    {
+      "path": "rules[].number",
+      "status": "issue",
+      "clause": "p1#21",
+      "basis": "one comparator needs exactly one tagged number to compare against; found 0",
+      "value": null,
+      "candidates": []
+    },
+    {
+      "path": "rules[].outcome",
+      "status": "evidence",
+      "clause": "p1#21",
+      "basis": "the clause names exactly one outcome",
+      "value": "MONITOR_90D",
+      "candidates": []
+    },
+    {
+      "path": "default_outcome",
+      "status": "evidence",
+      "clause": "p1#22",
+      "basis": "the clause names exactly one outcome",
+      "value": "ACCEPT",
+      "candidates": []
+    }
+  ],
+  "ir": {
+    "topic_terms": [],
+    "inputs": [],
+    "out_of_scope_terms": [],
+    "out_of_scope_limits": [],
+    "missing_input_outcome": "INSUFFICIENT_INPUT",
+    "validity": [
+      {
+        "ref": "temperature",
+        "min": 0.0,
+        "max": 90.0,
+        "unit": "\u00b0C",
+        "outcome": "INVALID_TEST"
+      }
+    ],
+    "correction": {
+      "template": "none",
+      "target": "temperature",
+      "by": "temperature",
+      "reference": 0,
+      "reference_unit": "\u00b0C",
+      "rate": 0,
+      "rate_unit": "\u00b0C",
+      "base": 1,
+      "step": 1
+    },
+    "limit": {
+      "template": "none",
+      "coefficient": 0,
+      "input": "temperature",
+      "offset": 0,
+      "unit": "\u00b0C"
+    },
+    "rules": [],
+    "default_outcome": "ACCEPT"
+  },
+  "ir_unfilled_required": [
+    "topic_terms",
+    "inputs",
+    "rules"
+  ],
+  "ir_schema_errors": [
+    "ir.topic_terms: 0 item(s), at least 1 required",
+    "ir.inputs: 0 item(s), at least 1 required",
+    "ir.rules: 0 item(s), at least 1 required"
+  ],
+  "ir_compiles": false,
+  "ir_compile_error": "not attempted: the IR does not match the compiler's schema",
+  "numbers_without_cited_provenance": [],
+  "assemble_issues": [
+    {
+      "clause": null,
+      "issue": "no required inputs stated"
+    }
+  ],
+  "simplifications": [],
+  "claim_units": [
+    {
+      "id": "p1#0",
+      "sources": [
+        "p1#0"
+      ],
+      "text": "halvorn-power|hu-tx-2|restricted|HU-TX-2 rev A Distribution transformer insulation acceptance"
+    },
+    {
+      "id": "p1#0/2",
+      "sources": [
+        "p1#0"
+      ],
+      "text": "Halvorn Power procedure HU-TX-2 revision A."
+    },
+    {
+      "id": "p1#1",
+      "sources": [
+        "p1#1"
+      ],
+      "text": "Confidential."
+    },
+    {
+      "id": "p1#2+p1#3",
+      "sources": [
+        "p1#2",
+        "p1#3"
+      ],
+      "text": "Scope: oil-immersed distribution transformers rated up to and including 33 kV."
+    },
+    {
+      "id": "p1#4+p1#5",
+      "sources": [
+        "p1#4",
+        "p1#5"
+      ],
+      "text": "This procedure does not apply to motors, cables, generators or dry-type transformers; such requests are out of scope."
+    },
+    {
+      "id": "p1#6",
+      "sources": [
+        "p1#6"
+      ],
+      "text": "Transformers rated above 33 kV are out of scope."
+    },
+    {
+      "id": "p1#7+p1#8",
+      "sources": [
+        "p1#7",
+        "p1#8"
+      ],
+      "text": "Required inputs: rated high-voltage winding voltage in kV, insulation resistance from the high-voltage winding to earth in megohms, top-oil temperature in degrees Celsius, and dielectric absorption ratio (DAR)."
+    },
+    {
+      "id": "p1#9",
+      "sources": [
+        "p1#9"
+      ],
+      "text": "If any input is missing the result is insufficient input."
+    },
+    {
+      "id": "p1#10+p1#11+p1#12",
+      "sources": [
+        "p1#10",
+        "p1#11",
+        "p1#12"
+      ],
+      "text": "Step 1 validity: the top-oil temperature must be between 0 and 90 degrees Celsius inclusive; otherwise the test is invalid."
+    },
+    {
+      "id": "p1#13+p1#14",
+      "sources": [
+        "p1#13",
+        "p1#14"
+      ],
+      "text": "Step 2 temperature correction: correct the insulation resistance to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15."
+    },
+    {
+      "id": "p1#15+p1#16",
+      "sources": [
+        "p1#15",
+        "p1#16"
+      ],
+      "text": "Step 3 minimum: the minimum acceptable corrected resistance is 20 times (rated kV plus 2) megohms."
+    },
+    {
+      "id": "p1#17+p1#18",
+      "sources": [
+        "p1#17",
+        "p1#18"
+      ],
+      "text": "Step 4 decision: if the corrected resistance is below one third of the minimum, remove the transformer from service."
+    },
+    {
+      "id": "p1#19",
+      "sources": [
+        "p1#19"
+      ],
+      "text": "If it is below the minimum, dry out the oil and retest."
+    },
+    {
+      "id": "p1#20",
+      "sources": [
+        "p1#20"
+      ],
+      "text": "If DAR is below 1.25, investigate."
+    },
+    {
+      "id": "p1#21",
+      "sources": [
+        "p1#21"
+      ],
+      "text": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days."
+    },
+    {
+      "id": "p1#22",
+      "sources": [
+        "p1#22"
+      ],
+      "text": "Otherwise accept."
+    }
+  ],
+  "questions": [
+    {
+      "field_path": "(none)",
+      "clause": "p1#0",
+      "citation": "halvorn-hu-tx-2.txt p.1 [0:137]",
+      "clause_text": "halvorn-power|hu-tx-2|restricted|HU-TX-2 rev A Distribution transformer insulation acceptance",
+      "needs": "the clause states nothing the IR can express",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "(none)",
+      "clause": "p1#0/2",
+      "citation": "halvorn-hu-tx-2.txt p.1 [0:137]",
+      "clause_text": "Halvorn Power procedure HU-TX-2 revision A.",
+      "needs": "the clause states nothing the IR can express",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "(none)",
+      "clause": "p1#1",
+      "citation": "halvorn-hu-tx-2.txt p.1 [138:151]",
+      "clause_text": "Confidential.",
+      "needs": "the clause states nothing the IR can express",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "scope_subject.*",
+      "clause": "p1#2+p1#3",
+      "citation": "halvorn-hu-tx-2.txt p.1 [152:158]; halvorn-hu-tx-2.txt p.1 [159:230]",
+      "clause_text": "Scope: oil-immersed distribution transformers rated up to and including 33 kV.",
+      "needs": "the clause could state this, but filling it needs a choice this module will not make",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "scope_limit.*",
+      "clause": "p1#2+p1#3",
+      "citation": "halvorn-hu-tx-2.txt p.1 [152:158]; halvorn-hu-tx-2.txt p.1 [159:230]",
+      "clause_text": "Scope: oil-immersed distribution transformers rated up to and including 33 kV.",
+      "needs": "the clause could state this, but filling it needs a choice this module will not make",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "scope_exclusion_terms.*",
+      "clause": "p1#4+p1#5",
+      "citation": "halvorn-hu-tx-2.txt p.1 [231:316]; halvorn-hu-tx-2.txt p.1 [317:348]",
+      "clause_text": "This procedure does not apply to motors, cables, generators or dry-type transformers; such requests are out of scope.",
+      "needs": "the clause could state this, but filling it needs a choice this module will not make",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "scope_limit.*",
+      "clause": "p1#6",
+      "citation": "halvorn-hu-tx-2.txt p.1 [349:397]",
+      "clause_text": "Transformers rated above 33 kV are out of scope.",
+      "needs": "the clause could state this, but filling it needs a choice this module will not make",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "required_inputs.*",
+      "clause": "p1#7+p1#8",
+      "citation": "halvorn-hu-tx-2.txt p.1 [398:414]; halvorn-hu-tx-2.txt p.1 [415:608]",
+      "clause_text": "Required inputs: rated high-voltage winding voltage in kV, insulation resistance from the high-voltage winding to earth in megohms, top-oil temperature in degrees Celsius, and dielectric absorption ratio (DAR).",
+      "needs": "the clause could state this, but filling it needs a choice this module will not make",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "correction.*",
+      "clause": "p1#13+p1#14",
+      "citation": "halvorn-hu-tx-2.txt p.1 [791:821]; halvorn-hu-tx-2.txt p.1 [822:969]",
+      "clause_text": "Step 2 temperature correction: correct the insulation resistance to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15.",
+      "needs": "the clause could state this, but filling it needs a choice this module will not make",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "limit.*",
+      "clause": "p1#15+p1#16",
+      "citation": "halvorn-hu-tx-2.txt p.1 [970:985]; halvorn-hu-tx-2.txt p.1 [986:1068]",
+      "clause_text": "Step 3 minimum: the minimum acceptable corrected resistance is 20 times (rated kV plus 2) megohms.",
+      "needs": "the clause could state this, but filling it needs a choice this module will not make",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "rules[].value",
+      "clause": "p1#17+p1#18",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1069:1085]; halvorn-hu-tx-2.txt p.1 [1086:1185]",
+      "clause_text": "Step 4 decision: if the corrected resistance is below one third of the minimum, remove the transformer from service.",
+      "needs": "no single tagged number names the reading, so which reading is compared is a choice",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "rules[].number",
+      "clause": "p1#17+p1#18",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1069:1085]; halvorn-hu-tx-2.txt p.1 [1086:1185]",
+      "clause_text": "Step 4 decision: if the corrected resistance is below one third of the minimum, remove the transformer from service.",
+      "needs": "one comparator needs exactly one tagged number to compare against; found 0",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "rules[].value",
+      "clause": "p1#19",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1186:1241]",
+      "clause_text": "If it is below the minimum, dry out the oil and retest.",
+      "needs": "no single tagged number names the reading, so which reading is compared is a choice",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "rules[].number",
+      "clause": "p1#19",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1186:1241]",
+      "clause_text": "If it is below the minimum, dry out the oil and retest.",
+      "needs": "one comparator needs exactly one tagged number to compare against; found 0",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "rules[].value",
+      "clause": "p1#20",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1242:1276]",
+      "clause_text": "If DAR is below 1.25, investigate.",
+      "needs": "no single tagged number names the reading, so which reading is compared is a choice",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "rules[].number",
+      "clause": "p1#20",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1242:1276]",
+      "clause_text": "If DAR is below 1.25, investigate.",
+      "needs": "one comparator needs exactly one tagged number to compare against; found 0",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "rules[].value",
+      "clause": "p1#21",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1277:1346]",
+      "clause_text": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+      "needs": "no single tagged number names the reading, so which reading is compared is a choice",
+      "candidates": [],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "rules[].op",
+      "clause": "p1#21",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1277:1346]",
+      "clause_text": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+      "needs": "the IR has no conjunction, so a rule needs exactly one comparator; found 2",
+      "candidates": [
+        ">=",
+        "<"
+      ],
+      "ocr_warning": false
+    },
+    {
+      "field_path": "rules[].number",
+      "clause": "p1#21",
+      "citation": "halvorn-hu-tx-2.txt p.1 [1277:1346]",
+      "clause_text": "If DAR is at least 1.25 but below 1.4, monitor and retest in 90 days.",
+      "needs": "one comparator needs exactly one tagged number to compare against; found 0",
+      "candidates": [],
+      "ocr_warning": false
+    }
+  ],
+  "examples_checked": null,
+  "examples_note": "NOT_MEASURED: the examples cannot be evaluated against an IR that does not compile. C1 scores them once the expert has answered the questions. This is not zero agreement.",
+  "status": "NEEDS_EXPERT_ANSWERS"
+}

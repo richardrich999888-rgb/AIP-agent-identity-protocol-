@@ -1,0 +1,104 @@
+[
+  {
+    "command": [
+      "python3",
+      "compare_runs.py",
+      "baseline",
+      "local",
+      "ci/exclusion-evidence"
+    ],
+    "exit_status": 0,
+    "stdout": "{\n  \"status\": \"CONSISTENT_BOUNDED_RESULTS\",\n  \"runs\": [\n    {\n      \"directory\": \"local\",\n      \"source\": \"ef3d9d434e5ed55e5994331abc91c03833f997ff\",\n      \"binary_sha256\": \"07e7aec9a95a3b6da2aed750898aad9fbc412e3afec8aebd80ed08a09541979f\",\n      \"wall_seconds\": 0.4039170820005893,\n      \"hardware\": {\n        \"platform\": \"Linux-6.18.57-x86_64-with-glibc2.41\",\n        \"logical_cpus\": 9,\n        \"affinity_cpus\": 9,\n        \"meminfo\": \"MemTotal:       10206472 kB\",\n        \"cgroup_cpu_max\": {\n          \"status\": \"UNAVAILABLE\",\n          \"reason\": \"[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'\"\n        },\n        \"cgroup_memory_max\": {\n          \"status\": \"UNAVAILABLE\",\n          \"reason\": \"[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.max'\"\n        }\n      },\n      \"unchanged_labels\": true,\n      \"only_artifact_change\": \"applicability\",\n      \"holdout\": \"12/12\",\n      \"adversarial\": \"26/26\",\n      \"frozen_nonactivation_subset\": \"6/6\"\n    },\n    {\n      \"directory\": \"ci/exclusion-evidence\",\n      \"source\": \"de0786e22a433512c50c402af4057d28564452d1\",\n      \"binary_sha256\": \"ec7d08a3cf185bdb6a9ee8ab017e258e9c4e4da6ca97e67757326019ddb69ac3\",\n      \"wall_seconds\": 0.22955532699999992,\n      \"hardware\": {\n        \"platform\": \"Linux-7.0.0-1017-azure-x86_64-with-glibc2.39\",\n        \"logical_cpus\": 4,\n        \"affinity_cpus\": 4,\n        \"meminfo\": \"MemTotal:       16366512 kB\",\n        \"cgroup_cpu_max\": {\n          \"status\": \"UNAVAILABLE\",\n          \"reason\": \"[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'\"\n        },\n        \"cgroup_memory_max\": {\n          \"status\": \"UNAVAILABLE\",\n          \"reason\": \"[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.max'\"\n        }\n      },\n      \"unchanged_labels\": true,\n      \"only_artifact_change\": \"applicability\",\n      \"holdout\": \"12/12\",\n      \"adversarial\": \"26/26\",\n      \"frozen_nonactivation_subset\": \"6/6\"\n    }\n  ]\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "../../../demos/evidence/p0-049-iteration-1/verify_suite_signatures.py",
+      "local",
+      "--trusted-keys",
+      "local/expert-public.json"
+    ],
+    "exit_status": 0,
+    "stdout": "{\n  \"result\": \"SUITE_SIGNATURES_VERIFIED\",\n  \"suites\": [\n    {\n      \"suite\": \"copied-plural-attacks/suite.json\",\n      \"suite_hash\": \"680c6fbf0db63e978e7bb77a961c3e14028082ca5ce60e1ccd0d413b1b099abc\",\n      \"signature_verified\": true,\n      \"expert_id\": \"expert:p0-049-synthetic-evaluator\"\n    },\n    {\n      \"suite\": \"copied-plural-control/suite.json\",\n      \"suite_hash\": \"f0d6c16cddf76b83ee0d3d62a76aac2ec5e95611263f604d540cf553d7d6bf46\",\n      \"signature_verified\": true,\n      \"expert_id\": \"expert:p0-049-synthetic-evaluator\"\n    },\n    {\n      \"suite\": \"explicit-forms-attacks/suite.json\",\n      \"suite_hash\": \"1ed316091a2fc1e8338f9f6ec8a9d9c5e198e2d8a3b97aa2c26363d6fc54d48d\",\n      \"signature_verified\": true,\n      \"expert_id\": \"expert:p0-049-synthetic-evaluator\"\n    },\n    {\n      \"suite\": \"explicit-forms-validation/suite.json\",\n      \"suite_hash\": \"597952cbddd84446c1ec14d3c48ffc1295b05df797928baface0e2da174f4aea\",\n      \"signature_verified\": true,\n      \"expert_id\": \"expert:p0-049-synthetic-evaluator\"\n    }\n  ],\n  \"diagnostic_or_release_approved\": false\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "../../../demos/evidence/p0-049-iteration-1/verify_suite_signatures.py",
+      "ci/exclusion-evidence",
+      "--trusted-keys",
+      "ci/exclusion-evidence/expert-public.json"
+    ],
+    "exit_status": 0,
+    "stdout": "{\n  \"result\": \"SUITE_SIGNATURES_VERIFIED\",\n  \"suites\": [\n    {\n      \"suite\": \"copied-plural-attacks/suite.json\",\n      \"suite_hash\": \"680c6fbf0db63e978e7bb77a961c3e14028082ca5ce60e1ccd0d413b1b099abc\",\n      \"signature_verified\": true,\n      \"expert_id\": \"expert:p0-049-synthetic-evaluator\"\n    },\n    {\n      \"suite\": \"copied-plural-control/suite.json\",\n      \"suite_hash\": \"f0d6c16cddf76b83ee0d3d62a76aac2ec5e95611263f604d540cf553d7d6bf46\",\n      \"signature_verified\": true,\n      \"expert_id\": \"expert:p0-049-synthetic-evaluator\"\n    },\n    {\n      \"suite\": \"explicit-forms-attacks/suite.json\",\n      \"suite_hash\": \"1ed316091a2fc1e8338f9f6ec8a9d9c5e198e2d8a3b97aa2c26363d6fc54d48d\",\n      \"signature_verified\": true,\n      \"expert_id\": \"expert:p0-049-synthetic-evaluator\"\n    },\n    {\n      \"suite\": \"explicit-forms-validation/suite.json\",\n      \"suite_hash\": \"597952cbddd84446c1ec14d3c48ffc1295b05df797928baface0e2da174f4aea\",\n      \"signature_verified\": true,\n      \"expert_id\": \"expert:p0-049-synthetic-evaluator\"\n    }\n  ],\n  \"diagnostic_or_release_approved\": false\n}\n",
+    "stderr": ""
+  },
+  {
+    "directory": "baseline",
+    "command": [
+      "sha256sum",
+      "-c",
+      "SHA256SUMS"
+    ],
+    "exit_status": 0,
+    "verified_files": 39,
+    "stderr": ""
+  },
+  {
+    "directory": "development/repaired-dev",
+    "command": [
+      "sha256sum",
+      "-c",
+      "SHA256SUMS"
+    ],
+    "exit_status": 0,
+    "verified_files": 39,
+    "stderr": ""
+  },
+  {
+    "directory": "development/clean-prebuilt",
+    "command": [
+      "sha256sum",
+      "-c",
+      "SHA256SUMS"
+    ],
+    "exit_status": 0,
+    "verified_files": 39,
+    "stderr": ""
+  },
+  {
+    "directory": "local",
+    "command": [
+      "sha256sum",
+      "-c",
+      "SHA256SUMS"
+    ],
+    "exit_status": 0,
+    "verified_files": 39,
+    "stderr": ""
+  },
+  {
+    "directory": "ci/exclusion-evidence",
+    "command": [
+      "sha256sum",
+      "-c",
+      "SHA256SUMS"
+    ],
+    "exit_status": 0,
+    "verified_files": 39,
+    "stderr": ""
+  },
+  {
+    "directory": "ci/scoreboard-evidence",
+    "command": [
+      "sha256sum",
+      "-c",
+      "SHA256SUMS"
+    ],
+    "exit_status": 0,
+    "verified_files": 14,
+    "stderr": ""
+  }
+]

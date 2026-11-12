@@ -1,16 +1,16 @@
-# Founder guide — P0-049 current bounded demonstrations
+# Founder guide — P0-050 current bounded demonstrations
 
-**Release: NOT READY.** The runnable addition is the teaching homework scoreboard.
+**Release: NOT READY.** The runnable addition is the corrected teaching applicability gate.
 It is expert-guided capability validation, not autonomous self-improvement or
 model fine-tuning. The complete three-minute investor show is not yet executable.
 
-## Current teaching-session check (iteration 3)
+## Current teaching-session check (P0-050 iteration 1)
 
 With the staged binary and Python/Git prerequisites below:
 
 ```bash
 python3 research/capability-learning/harness/record_exclusion_policy.py \
-  --binary target/debug/syntriass --out /tmp/p0-049-exclusions-new
+  --binary target/debug/syntriass --out /tmp/p0-050-applicability-new
 ```
 
 This creates a real teaching session and applies scripted engineer answers.
@@ -19,21 +19,67 @@ quoted source, which must remain. It proves that these answers can be compiled
 and tested without a model. It does not demonstrate a live human UI, signed
 approval, activation, general language learning or the full teaching workflow.
 
-**Expect exit 3 / NOT READY.** The original holdout improves from 11/12 to 12/12,
-but the expanded attack suite reaches only 25/26. Inspect
-`explicit-forms-attacks/scoreboard.json`: battery-cell case fa-3 is incorrectly
-handled by the transformer path. Do not use the passing 12-case suite alone as
-an approval signal. Recovery means fixing applicability and rerunning the
-unchanged attacks; changing the expected answer does not resolve the failure.
+At implementation `ef3d9d434e5ed55e5994331abc91c03833f997ff`, **expect exit 0 /
+PASS_BOUNDED_B3**. The corrected candidate passes 12/12 holdout and 26/26 attacks,
+including all six frozen nonactivation probes. Inspect
+`explicit-forms-attacks/scoreboard.json`: battery-cell case fa-3 now returns
+NOT_APPLICABLE. The copied-plural control still fails 11/12 and 18/26, exit 3;
+those expected failures remain visible. None of these candidates is activated.
 
-Presenter: “I explicitly add the singular form while keeping the source's plural.
-The cable is now refused. The broader checks also catch a battery request entering
-the wrong capability, so this candidate is still not ready for activation.”
+Presenter: “I keep the source's wording and explicitly add the reviewed exclusion
+forms. AIRON tests the rule. It refuses excluded equipment, asks for missing
+measurements within scope, and leaves unrelated questions outside this capability.
+Passing tests still requires a separate authorized approval before use.”
 
 The program retains original/corrected answers, source citations, signed suites,
 full diagnostics and measured metadata in a new output directory. Its operation
 uses only the Python standard library and the staged runtime; no installation or
-download occurs during execution. See `P0-049-ITERATION-3.md` for exact limits.
+download occurs during execution. The session, edits and diagnostics are unsigned;
+only the synthetic test suites are signed. This is a live scripted component
+exercise, not a live human-teaching UI or external expert approval. See
+[`P0-050-FINAL-REPORT.md`](../assurance/P0-050-FINAL-REPORT.md).
+
+To repeat the isolated component run after staging all prerequisites:
+
+```bash
+env -u CM_IN_NETNS bash research/compute-memory/bench/offline.sh \
+  python3 research/capability-learning/harness/record_exclusion_policy.py \
+  --binary target/debug/syntriass --out /tmp/p0-050-applicability-isolated
+```
+
+Use a new directory. If exit 3 occurs, inspect the failed rows and preserve the
+entire directory; do not relabel expected outcomes. If a prerequisite is missing,
+report NOT READY and stage the verified component before repeating. An unavailable
+network namespace is a refusal, not permission to claim isolation on a connected
+host. No native sensor runs inside this wrapper. Existing signed capabilities
+need new validation/approval and explicit supersession after recompilation.
+
+## Commercial scripts — required sequence, currently NOT READY
+
+| Script | Presenter sequence | Current readiness / recovery |
+|---|---|---|
+| Investor, target three minutes | **Pull the Plug → Teach One Rule → Catch the Lying Agent.** Show local answer/citation and network boundary; teach a bounded rule, questions/tests/approval/use/pack verification; then show undeclared execution and independently verify the original archive | Full live sequence NOT READY: model, lifecycle/UI/pack and qualified sensor/kit gates remain. Do not substitute the old plug → liar → quantum launcher or unlabelled video |
+| Regulated enterprise | Authorize a synthetic agent; perform an undeclared action; inspect independent kernel evidence; verify offline; export audit material | NOT READY as a final accepted mode. Missing coverage must yield CANNOT_PROVE; interruption/restart must retain the original archive and failure |
+| Defence / sovereign AI | Disconnect external network; run local intelligence; show tenant/clearance refusals; verify evidence; explain air-gap installation, updates and hardware limits | NOT READY until the complete supported kit and independent boundary are tested. A software namespace alone does not qualify the sensor host |
+| Technical, target five minutes | Explain scope; run the current component command; inspect citations, rejected control, 12/12 and 26/26 reports; run independent signature/hash verification; show open approval/pack gates | Only this bounded component segment is runnable today. Five minutes is a presentation budget, not a measured end-to-end result |
+
+Narration for the future investor flow: “This answer runs locally. Now an expert
+teaches one bounded rule from a cited document. AIRON asks what is missing, tests
+the rule and waits for authorized approval. Finally, this agent hides an action;
+the independent evidence exposes the discrepancy.” Use that narration only when
+each corresponding scene is actually available. Every recording must visibly
+state its source SHA, hardware and recorded status.
+
+No complete script duration has been measured in P0-050. The local applicability
+recorder took **0.4039170820005893 seconds** on the labelled nine-CPU development
+host; that is not the investor show's duration. Measure the complete live show,
+report any overrun and optimize without hiding live execution.
+
+Profile A targets the founder laptop: local AI/teaching/pack verification and
+clearly labelled recorded Linux evidence. Profile B targets qualified Linux:
+live sensors, local AI, live PQ/CBOM and verification. Both complete profiles are
+still open. No fresh Mac hardware observation, macOS binary compatibility or
+minimum laptop sizing was established by this Linux component test.
 
 ## Run the bounded live demonstration
 

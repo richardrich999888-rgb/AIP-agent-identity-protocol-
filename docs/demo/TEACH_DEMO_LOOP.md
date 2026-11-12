@@ -459,6 +459,14 @@ with the unproven half named.
   approval; never change fa-3's expected label merely to pass. General vocabulary
   and live model-assisted wording remain outside this bounded repair.
 
+  **P0-050 iteration 1 (`ef3d9d4`) update:** bounded applicability now passes all
+  26 attacks with the unchanged 12-case holdout and labels. The original rejected
+  run is retained. 353 Python tests and 284 runtime/sovereign tests pass locally;
+  teaching CI reproduces acceptance. General context matching remains lexical.
+  Evidence: `docs/assurance/evidence/p0-050-iteration-1/`. Existing stored/signed
+  artifacts require explicit recompilation, validation and new approval. No
+  full W3, model or rehearsal claim is made.
+
 ### Phase C — It checks its own homework
 - [~] **C1. Scoreboard — CLI diagnostic complete; teaching integration open.**
   Commit `84d889f0c045a998150900e433541a976fdd1d69` adds `cap-scoreboard`:
@@ -474,8 +482,10 @@ with the unproven half named.
   **Update:** iteration 3's B3 recorder passes actual session/answers through
   compilation and this diagnostic, retaining the owning exclusion qid and edits.
   **Open:** the general answered-session CLI and precise failed-row/B1 question
-  linkage, then the E1 screen. Its expanded attack suite still fails fa-3;
-  this does not close the full teaching workflow.
+  linkage, then the E1 screen. P0-050 `ef3d9d4` fixes fa-3 generally: the compiler
+  requires taught context rather than adding measurement units to applicability.
+  Fresh local and CI runs pass 12/12 and 26/26, including all six frozen probes.
+  This does not close the full teaching workflow or authorize activation.
   Suites are signed synthetic engineer fixtures; diagnostics are unsigned.
 - [ ] **C2. Approve.** Signed approval → activate → supersede. One CLI command, one UI
   action. Builds on `cap-activate --supersede` and the six suite-attack tests.

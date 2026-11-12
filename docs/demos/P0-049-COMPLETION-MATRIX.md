@@ -2,7 +2,11 @@
 
 Release verdict: **NOT READY**. Iterations 1–3 deliver reconciliation, the bounded
 C1 scoreboard, dependency/audit-gate remediation and explicit exclusion word forms.
-The expanded teaching attack gate fails locally and on CI. Bounded C1 reproduced on a separate CI runner; no full-demo
+P0-050 `ef3d9d4` subsequently fixes the expanded applicability attack gate:
+12/12 holdout and 26/26 attacks now pass locally and on CI. Historical failure
+sections below are retained. The current strategic status is in
+[`../strategy/P0-050-STRATEGIC-GAP-MATRIX.md`](../strategy/P0-050-STRATEGIC-GAP-MATRIX.md).
+Bounded C1 reproduced on a separate CI runner; no full-demo
 or independent clean-machine offline-install acceptance is claimed.
 Review date: 12 November 2026.
 
@@ -101,8 +105,8 @@ iteration's additive changes; starting-state revisions are recorded above.
 | Dependency audit gate — LOCAL + SOURCE CI ACCEPTANCE | Patched SQLite/rustix pins; audit pipeline preserves failures | T Cargo.lock, corpus manifest, security workflow | Iteration 2: 284 runtime/corpus + 144 consumer + 4 gate tests; iteration 3 source audit/deny pass | Iterations 2/3 raw results and old DB fixture | Full final-head CI; remaining Trivy findings | CI runners; sensor-preserving configuration review | Inspect final-head CI, retain failures; no new exemptions |
 | 1. Offline answers — HISTORICAL PARTIAL | Live local-model harness and citations | W `demos/pull-the-plug/run.sh` | W `accept.py`, server/meter tests | W `evidence/2026-11-08-64d6f40-*` | Fresh packaged run with captures on supported host | Weights, llama-server, bundle | Stage pinned bytes, package and rerun |
 | 2. Expert teaching — PARTIAL | Ingestion, sessions, deterministic draft, typed answers | T `domain/teach.rs`; `harness/{draft_from_session,apply_answers}.py` | T teach CLI + Python tests | T `docs/demo/results/A1*`, `A2*`, `A3a*`, `B2*` | Live model drafting and complete workflow | Model bundle, B3 scope issue | Finish A3b without overwriting document evidence |
-| 3. Questions — PARTIAL; bounded word-form repair verified | Cited questions, OCR warning, 32-character limit, explicit exclusion variants retaining source forms | T `harness/{question_generator,exclusion_terms,apply_answers}.py` | 29 new policy tests; full Python 324 passed | Iteration 3 actual session, edits and signed suites; original history preserved | General vocabulary/live model rephrasing; expanded attack fa-3 still fails | Applicability policy and frozen cross-domain tests | Fix fa-3 without changing expected labels; keep policy exclusions-only |
-| 4. Homework C1 — PARTIAL; CLI accepted | Read-only scoreboard; new B3 recorder connects actual session → answers → compiled capability → signed suites | T `capability/scoreboard.rs`, `harness/record_exclusion_policy.py` | 187 runtime passes; 12/12 holdout, 25/26 attacks (rejected) | Iterations 1/3 local + CI; failed case retained | General answered-session CLI and precise failed-row/B1 qid linkage; screen; rehearsal | fa-3 applicability gate; E1; trusted suite | Repair applicability, then generalize answered-session integration; do not approve rejected candidate |
+| 3. Questions — PARTIAL; bounded word-form repair verified | Cited questions, OCR warning, 32-character limit, explicit exclusion variants retaining source forms | T `harness/{question_generator,exclusion_terms,apply_answers}.py` | 29 new policy tests; full Python 324 passed | Iteration 3 actual session, edits and signed suites; original history preserved | General vocabulary/live model rephrasing; fa-3 fixed in P0-050 `ef3d9d4` | Applicability policy and frozen cross-domain tests | Preserve P0-050 applicability gate and exclusion-only policy |
+| 4. Homework C1 — PARTIAL; CLI accepted | Read-only scoreboard; new B3 recorder connects actual session → answers → compiled capability → signed suites | T `capability/scoreboard.rs`, `harness/record_exclusion_policy.py` | P0-050: 187 runtime passes; 12/12 holdout, 26/26 attacks accepted | Iterations 1/3 local + CI; failed case retained | General answered-session CLI and precise failed-row/B1 qid linkage; screen; rehearsal | General session bindings; E1; trusted suite | Generalize answered-session integration; do not approve rejected candidate |
 | 5. Signed approval C2 — PARTIAL | Existing signed `cap-approve` and lifecycle | T `capability/lifecycle.rs`, `learning.rs` | `capability_engine.rs` | Existing research lifecycle results | One teaching action joining approval/activation/supersession | C1, approver roles | Compose existing gates; never auto-approve |
 | 6. Reuse — PARTIAL | Deterministic capability path; activation/supersede/rollback commands | T `app.rs`, `learning.rs` | `runtime_app.rs`, `capability_evolution.rs` | Existing v0.2 results | Teaching workflow, current live meter and variations | C2, D1/D2 | Measure end-to-end reuse with zero model calls |
 | 7. Knowledge packs D5 — OPEN | No completed `pack export/import` command | T CLI | No pack acceptance suite | None | Signed, tenant/version/approval/validation-bound export/import | C2, signing/trust format | Implement before pack demo |
@@ -142,7 +146,7 @@ close the full-demo criterion.
 | Forged pack / unauthorized import / invalid version / missing approval | Pack command absent | Implement D5 and all negative cases |
 | Unauthorized approval | Existing lifecycle tests; new scoreboard cannot activate a PROPOSED record | Authenticated teaching approval path and revoked-authority trials |
 | Cross-tenant retrieval | Existing runtime tests and W fixed questions | Full teaching/API/pack retrieval boundary tests |
-| False activation | Explicit variants remove all eight singular-form failures; frozen battery fa-3 still fails in original and corrected capabilities | Fix compiler/runtime applicability; keep broader suite and CI rejected until passing |
+| False activation | P0-050 compiler context fix passes all 26 attacks and six frozen nonactivation cases; prior failure retained | Preserve these attacks through approval/API integration; do not rewrite existing signed artifacts |
 | Revoked authority | New removed-expert-anchor CLI rejection | Revoked approver, runtime and imported-pack authority tests |
 | Undeclared execution | W scripted liar + historical signed observations | Fresh sensor and independent ground-truth run |
 | Missing kernel events / sensor interruption | Historical failed auditd batch retained; verifier health says ContinuityUnverified | Demonstrate understandable failure and no complete-coverage claim |
@@ -152,8 +156,9 @@ close the full-demo criterion.
 | PQ identity failure | O identity tests exist; original demo unavailable | Fresh missing/impostor/plaintext/PSK-fallback capture tests |
 | Offline installation failure | Historical partial same-host kit test | Complete local dependencies, independent clean-machine failure/recovery |
 
-Next repair the independently reproduced fa-3 applicability failure, then finish the C1
-answered-session interface and precise question linkage before claiming C1 complete.
-Reconcile current CI and address the retained-render Trivy findings without hiding historical evidence.
+P0-050 closes fa-3 in bounded scope. Next resolve the teaching branch sandbox/CI
+discrepancy and retained-render Security findings without weakening gates or hiding
+historical evidence, then finish C1 answered-session/question linkage. See the
+P0-050 roadmap for the current scored order.
 C2 teaching approval composition follows those gates. A3b remains unstaged in this checkout. This iteration does not
 borrow W's historical model bytes, sensor observations or performance as current proof.

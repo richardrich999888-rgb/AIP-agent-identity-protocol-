@@ -6,10 +6,53 @@ C1 diagnostic reproduced on CI; that connected build is not kit acceptance.
 Source checkouts, unit tests,
 new directories and development namespaces do not satisfy that requirement.
 
-## Reproduce iteration 3's rejected candidate
+## Verify P0-050 iteration 1's accepted component
+
+Use implementation `ef3d9d434e5ed55e5994331abc91c03833f997ff` and the current
+command in `DEMO_GUIDE.md`. Build dependencies must already be staged for offline
+use. Expect PASS_BOUNDED_B3, exit 0: holdout 12/12, expanded attacks 26/26, frozen
+nonactivation subset 6/6. The rejected copied-plural control remains 11/12 and
+18/26. Passing validation does not activate anything.
+
+From the repository root, with Python 3.10+ and `cryptography==50.0.0` pre-staged:
+
+```bash
+cd docs/assurance/evidence/p0-050-iteration-1
+sha256sum -c SHA256SUMS
+python3 compare_runs.py baseline local ci/exclusion-evidence
+python3 ../../../demos/evidence/p0-049-iteration-1/verify_suite_signatures.py \
+  local --trusted-keys local/expert-public.json
+python3 ../../../demos/evidence/p0-049-iteration-1/verify_suite_signatures.py \
+  ci/exclusion-evidence --trusted-keys ci/exclusion-evidence/expert-public.json
+```
+
+The comparison uses only the standard library and does not import the compiler.
+It checks unchanged labels, actual questions (each separately bound to its own
+session), unchanged capability fields other than applicability, reported state
+preservation and the six frozen cases. It is a consistency check of **unsigned
+diagnostics**, not authentication of verdicts. Rerun the actual validator for
+independent acceptance. The eight suite signatures authenticate synthetic test
+inputs only. Use an independently held expert trust map in a real evaluation;
+never trust an authority solely because its public key accompanied an archive.
+
+`ci-teaching-original.zip` is the original GitHub artifact, SHA-256
+`a35cecd3141759fb088df7bf1ac752b1f3ab909c5c227076ccbd7749c65f9489`.
+Its original extracted files and manifests are retained. The CI merge
+`de0786e22a433512c50c402af4057d28564452d1` and implementation both have tree
+`d8e21fc9b2fa8ae4ad981036f0c082916fc51e86`. Local and CI binaries and hosts differ;
+compare each separately. Evidence includes the failed parent, development
+attempt, previous-binary run, fresh build, full logs, tampered-signature rejection
+and an initially incorrect comparison-script assumption plus its recovery.
+
+No complete offline kit, fresh-machine install, initial-netns sensor isolation,
+pack verification, answer receipt, packet capture or external expert acceptance
+is proved here. Existing deployed artifacts require explicit revalidation and
+new approval after recompilation; no automatic migration or activation occurs.
+
+## Reproduce historical P0-049 iteration 3's rejected candidate
 
 Use source `4d002accbf6759fe1845872ac5579815c8081631` and the exclusion-policy
-command in `DEMO_GUIDE.md`. The correct observed result is exit **3** and
+`record_exclusion_policy.py` command at that historical source. The correct observed result is exit **3** and
 `PARTIAL_B3_ADVERSARIAL_FAILURE`, not green acceptance. Verify original 11/12,
 explicit-forms 12/12, attack-control 17/26, and corrected attacks 25/26. The
 remaining fa-3 failure must retain NOT_APPLICABLE as its expected label.
