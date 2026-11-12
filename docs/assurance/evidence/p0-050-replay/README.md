@@ -123,3 +123,40 @@ CI must be assessed separately.
 Next: **S2, teaching sandbox/CI discrepancy**, without reducing coverage or
 changing expected outcomes. Signed approval, packs, complete demonstrations,
 sensor qualification and clean-machine offline acceptance remain open.
+
+## Published-source CI and replay
+
+Implementation commit **`91df9e96743804057ec3f51e7c629ef16a532a89`** was pushed
+to the existing `feature/airon-teach-demo` branch with an expected-head check and
+no force push. Its published tree equals the reviewed local tree. The CI merge
+`ac06538353f6c42f92e4d9d683cd953db45f2abf` has the same tree
+`82c751bee4e888c2854f429f01f71402ab611186`.
+
+Teaching workflow **43174778630 passes**: **197 focused Python tests**, including
+the 22 new replay controls, and **265 runtime/storage tests** (187 native runtime
+plus 78 sovereign-library/SQLite tests; excludes the separate full-workspace
+sandbox integration job). Real recorders pass with unchanged labels and rejected
+negative controls. These overlap the local counts. The fresh CI recorder body
+takes 0.190935002 seconds on its labelled host; this is not a commercial demo.
+
+`post-push/original.zip` retains the complete original 55-member artifact,
+SHA-256 `b240e7e1a08852e65acf1b80f97cd4847728bc92706d56b1e9a4ea5c8c2089ee`.
+Original extracted files, metadata and full teaching log accompany it. This
+continuation replayed its two corrected signed suites successfully using OpenSSL
+and the trusted local native binary: `post-push/replay/verification.json`.
+`post-push/ci-trust.json` selects this run's synthetic key; it is not expert
+authority. The replay ran at clean published source `91df9e9`; no model or
+original agent runtime was used. All original recorder manifests verify.
+
+The same source's Security workflow **43174778666 fails**. The original Trivy
+ZIP, SARIF and job log retain exactly four HIGH findings: KSV-0009/0010/0118/0121
+in `validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml`.
+No evidence was deleted or finding suppressed. Secret scan passes. Full-workspace
+CI **43174778542** was still running at the recorded snapshot and is not claimed
+passed; the previous checkpoint's full CI failed. Its sandbox discrepancy stays
+open. Later documentation-head checks are reported separately in draft PR #21.
+
+Original logs retain their original whitespace, including a final blank line in
+the local runtime log; source/doc whitespace checks exclude raw evidence. This
+does not waive formatting, lint, security or acceptance checks. No new full-mode
+rehearsal credit is earned by CI or its subsequent replay.

@@ -15,6 +15,12 @@ complete product readiness. [Evidence](../assurance/evidence/p0-050-replay/READM
 The concurrent `975b245` checkpoint and its originals were preserved. All other
 workstream states below remain as stated; S2 remains next.
 
+The replay source `91df9e9` now passes connected teaching CI (197 focused Python,
+265 runtime/storage tests) and post-download signature/outcome replay. Original
+CI archives and Security's four unchanged HIGH findings are retained under
+`p0-050-replay/post-push/`; full CI was pending at that snapshot. These results
+strengthen S1 reproducibility only and do not close S2 or the product gates.
+
 ## Ground truth and provenance
 
 Freshly fetched AIP source and provider metadata were compared with source,

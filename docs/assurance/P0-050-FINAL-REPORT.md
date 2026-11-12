@@ -15,6 +15,13 @@ prove expert identity, independent administration, an independent implementation
 of domain rules, full sandbox CI, signed packs or offline-kit acceptance.
 S2's sandbox/CI discrepancy remains next; complete release NOT READY.
 
+Published replay source **`91df9e9`** passes teaching CI **43174778630** with
+197 focused Python and 265 runtime/storage tests; its signed artifact replays
+successfully. Full originals, logs, hashes and CI/source tree equality are retained
+under `evidence/p0-050-replay/post-push/`. Security **43174778666 fails** the same
+four HIGH retained-render findings. Full CI **43174778542** was still running
+at the recorded snapshot. No full-repository green claim is made.
+
 **Bounded applicability repair accepted; complete release NOT READY.**
 12 November 2026. This is an iteration report, not final commercial qualification.
 

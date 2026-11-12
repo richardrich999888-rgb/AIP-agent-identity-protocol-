@@ -147,3 +147,9 @@ use the existing trusted native engine. No authenticated expert, separate
 administrator, model, live sensor, clean-machine kit install or complete commercial
 mode is proved. The initial uncached offline Cargo failures and host-plugin
 warning remain recorded. Required ten-/twenty-run full-mode counts remain zero.
+
+Published replay source `91df9e9`, connected CI **43174778630**: holdout 12/12,
+attacks 26/26, frozen 6/6 subset; copied-plural controls still rejected. Recorder
+body **0.190935002 s**, not the full show. Fresh signed ZIP and extracted originals
+are retained in `p0-050-replay/post-push/`; both corrected suites pass subsequent
+OpenSSL/native replay. CI adds zero to full-mode rehearsal totals.
