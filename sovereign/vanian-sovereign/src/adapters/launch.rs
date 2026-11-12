@@ -114,11 +114,21 @@ fn execute(argv: &[String], timeout_ms: u64) -> io::Result<ExitOutcome> {
                 libc::_exit(125);
             }
             libc::raise(libc::SIGSTOP);
-            libc::execv(pointers[0], pointers.as_ptr());
+            exec_tool(&pointers);
             libc::_exit(126);
         }
     }
     finish_child(pid, timeout_ms)
+}
+
+// SAFETY: argv must contain a nonempty, null-terminated vector of live C strings.
+// This function performs no allocation and is used only between fork and exec.
+#[cfg(target_os = "linux")]
+unsafe fn exec_tool(argv: &[*const libc::c_char]) -> libc::c_int {
+    // The helper can acquire environment entries after the outer env_clear,
+    // including compiler runtime initialization. Never inherit its environ.
+    let empty_env = [std::ptr::null::<libc::c_char>()];
+    unsafe { libc::execve(argv[0], argv.as_ptr(), empty_env.as_ptr()) }
 }
 
 #[cfg(target_os = "linux")]
@@ -272,6 +282,51 @@ mod tests {
         writer.write_all(&valid).unwrap();
         drop(writer);
         assert_eq!(read_result(&mut reader).unwrap(), ExitOutcome::Code(127));
+    }
+
+    #[test]
+    #[cfg(target_os = "linux")]
+    fn final_exec_discards_helper_environment() {
+        use std::ffi::CString;
+        use std::os::unix::process::CommandExt;
+        use std::process::Command;
+        if std::env::var_os("AIP_EXEC_ENV_TEST_CHILD").is_none() {
+            let child = Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "adapters::launch::tests::final_exec_discards_helper_environment",
+                    "--nocapture",
+                ])
+                .env_clear()
+                .env("AIP_EXEC_ENV_TEST_CHILD", "1")
+                .env("SYNTHETIC_HELPER_SECRET", "must-not-leak")
+                .env("__LLVM_PROFILE_RT_INIT_ONCE", "instrumentation-marker")
+                .output()
+                .unwrap();
+            assert!(
+                child.status.success(),
+                "isolated child regression failed: {}",
+                String::from_utf8_lossy(&child.stdout)
+            );
+            return;
+        }
+        let program = CString::new("/usr/bin/env").unwrap();
+        let mut command = Command::new("/usr/bin/env");
+
+        // Exercise the exact final exec boundary without needing ptrace or
+        // namespace privileges. No process-global environment mutation.
+        unsafe {
+            command.pre_exec(move || {
+                exec_tool(&[program.as_ptr(), std::ptr::null()]);
+                Err(io::Error::last_os_error())
+            });
+        }
+        let output = command.output().unwrap();
+        assert!(output.status.success(), "env must actually execute");
+        assert!(
+            output.stdout.is_empty(),
+            "final exec leaked environment bytes"
+        );
     }
 
     #[test]
