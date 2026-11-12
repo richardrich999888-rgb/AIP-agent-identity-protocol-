@@ -248,3 +248,26 @@ One-byte approval modification, changed source/suite/tenant, missing approval
 and wrong trust reject in the independent signature check. Lifecycle history
 remains unsigned. All original failures, exact hashes, hardware, logs and checks
 are in `evidence/p0-051-iteration-3/`. Full-mode consecutive counts stay **zero**.
+
+## P0-051 iteration 4 — policy-bound approval
+
+Source `00c06de1503785470a73a7a2f0890ad8f9c1ce84` adds optional strict expert
+authority grants and v2 Ed25519 approvals. Approval/activation/rollback/use enforce
+key, tenant/domain, scope/version, clearance, expiry and revocation. Policy removal
+cannot downgrade a v2 approval. Native CLI rechecks source dependencies.
+
+Local runtime **201 pass**, teaching Python **445 pass**; teaching CI **303 Rust /
+267 focused Python pass** (overlapping counts). Holdout **12/12**, attacks **26/26**
+including six nonactivation probes; rejected control remains **11/12**. Independent
+verification of original local/offline/hosted signatures passes; six tamper controls
+reject. Full evidence, commands, source/host hashes, CI and failed recorder attempts
+are in [iteration 4](evidence/p0-051-iteration-4/README.md). Native policy setup is
+in [APPROVAL-AUTHORITY.md](APPROVAL-AUTHORITY.md).
+
+**NOT READY. C2 remains partial.** Actor/role strings do not authenticate operators;
+C1 session/full-document/example-map approval binding, policy rollback resistance,
+per-approval revocation and transactional writes remain open. Strict policy must
+be explicitly configured; legacy mode is not C2-qualified. Packs, models, UI/API,
+OVERLAY, clean-host installation and independent demo acceptance remain open.
+No new qualifying rehearsal: the offline 33-test component run on this same host
+counts as zero demos. No live investor runtime, second host or sensor qualification.

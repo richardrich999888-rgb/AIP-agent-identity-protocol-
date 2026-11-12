@@ -1,0 +1,32 @@
+[
+  {
+    "attack": "signature",
+    "result": "REFUSED",
+    "error": "InvalidSignature: "
+  },
+  {
+    "attack": "strip-grant",
+    "result": "REFUSED",
+    "error": "InvalidSignature: "
+  },
+  {
+    "attack": "capability-source",
+    "result": "REFUSED",
+    "error": "ValueError: capability hash mismatch"
+  },
+  {
+    "attack": "suite",
+    "result": "REFUSED",
+    "error": "InvalidSignature: "
+  },
+  {
+    "attack": "authority",
+    "result": "REFUSED",
+    "error": "ValueError: changed authority grant"
+  },
+  {
+    "attack": "trust-key",
+    "result": "REFUSED",
+    "error": "ValueError: public material differs from selected pins"
+  }
+]
