@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'sovereign/syntriass-runtime/**'
+      - 'sovereign/vanian-sovereign/**'
+      - 'validation/ci/**'
       - 'research/capability-learning/**'
       - 'Cargo.lock'
       - '.github/workflows/teach-scoreboard.yml'
@@ -24,6 +26,14 @@ jobs:
           cargo test --locked -p syntriass-runtime
           cargo test --locked -p vanian-sovereign --lib --test sqlite_upgrade
           cargo build --locked -p syntriass-runtime --bin syntriass
+          cargo build --locked -p vanian-sovereign --bin vanian
+      - name: Unprivileged namespace sandbox and refusal regressions
+        run: |
+          bash validation/ci/with_cgroup.sh \
+            bash -euc '
+              cargo test --locked -p vanian-sovereign --test agent_execution
+              python3 validation/ci/record_sandbox.py --binary target/debug/vanian --out "$1"
+            ' bash "$RUNNER_TEMP/sandbox-evidence"
       - name: Two synthetic domains, including the rejected candidate
         run: |
           python3 research/capability-learning/harness/record_scoreboard.py \
@@ -51,4 +61,5 @@ jobs:
           path: |
             ${{ runner.temp }}/scoreboard-evidence
             ${{ runner.temp }}/exclusion-evidence
+            ${{ runner.temp }}/sandbox-evidence
           if-no-files-found: error

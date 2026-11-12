@@ -5,6 +5,13 @@
 //! Requires util-linux `unshare` with unprivileged user namespaces. If that
 //! is unavailable the sandbox tests fail (they do not skip): the product
 //! fails closed there, and so do its tests.
+//!
+//! On a kernel that refuses the namespaces, every one of those tests now
+//! fails with `SandboxUnavailable`. Before the namespace probe was added two
+//! of them — `sandbox_environment_is_empty` and `deadline_kills_the_tool` —
+//! *passed* there, because a tool that never ran produces no output and a
+//! non-zero exit, which is exactly what each asserted. They were measuring
+//! the broken sandbox and calling it a pass.
 
 use std::path::PathBuf;
 use std::time::Instant;
@@ -330,7 +337,16 @@ fn sandbox_has_no_network_interface_but_loopback() {
 fn sandbox_environment_is_empty() {
     let f = fixture(&["env"]);
     let m = manifest("env", "/usr/bin/env", &[], 5_000);
-    let (_, out) = run_ok(&f, &m, &inv("env", &[]));
+    let (b, out) = run_ok(&f, &m, &inv("env", &[]));
+    // Assert the tool actually ran first. "No output" is also what a sandbox
+    // that could not be built produces, and an empty-output assertion alone
+    // cannot tell the two apart.
+    assert_eq!(
+        b.run_record.exit,
+        ExitOutcome::Code(0),
+        "env did not run to completion: {:?}",
+        b.run_record.exit
+    );
     assert!(
         out.is_empty(),
         "leaked env: {}",
@@ -341,11 +357,127 @@ fn sandbox_environment_is_empty() {
 #[test]
 fn deadline_kills_the_tool() {
     let f = fixture(&["sleep"]);
-    let m = manifest("sleep", "/bin/sleep", &[], 300);
+    let m = manifest(
+        "sleep",
+        "/bin/sh",
+        &["-c", "printf 'started\\n'; exec /bin/sleep 30"],
+        300,
+    );
     let t = Instant::now();
-    let (b, _) = run_ok(&f, &m, &inv("sleep", &["30"]));
+    let (b, out) = run_ok(&f, &m, &inv("sleep", &[]));
+    assert_eq!(out, b"started\n", "the authorized tool never started");
     assert!(t.elapsed().as_secs() < 5, "deadline not enforced");
-    assert_ne!(b.run_record.exit, ExitOutcome::Code(0));
+    assert_eq!(b.run_record.exit, ExitOutcome::Signal(9));
+}
+
+#[test]
+fn the_namespace_probe_succeeds_where_the_sandbox_works() {
+    // The precondition the sandbox tests rest on, asserted directly so a
+    // restricted kernel names the cause once instead of producing a spread
+    // of confusing assertion failures across five tests.
+    let f = fixture(&["echo"]);
+    if let Err(reason) = f.runner.probe_namespaces() {
+        panic!(
+            "this kernel refuses the sandbox namespaces, so the sandbox tests              below cannot be meaningful: {reason}"
+        );
+    }
+}
+
+#[test]
+fn authority_expiring_during_the_probe_is_refused_without_consumption() {
+    let f = fixture(&["echo"]);
+    let m = manifest("echo", "/bin/echo", &[], 5_000);
+    let i = inv("echo", &["must-not-run"]);
+    let e = ee(&f, &m, &i);
+    let calls = std::cell::Cell::new(0);
+    let clock = || {
+        let previous = calls.get();
+        calls.set(previous + 1);
+        if previous == 0 {
+            e.issued_at + 1
+        } else {
+            e.valid_until + 1
+        }
+    };
+    let mut guard = MemoryReplayGuard::default();
+    assert!(matches!(
+        f.runner.run(&m, &i, &e, &f.binding, &mut guard, &clock),
+        Err(RunError::NotInWindow(_))
+    ));
+    assert_eq!(calls.get(), 2, "authority must be checked after the probe");
+    assert!(guard.consume(&e.decision_id).is_ok());
+}
+
+#[test]
+fn program_changed_during_the_probe_is_refused_without_consumption() {
+    let f = fixture(&["echo"]);
+    let copied = f._work.path().join("tool");
+    std::fs::copy("/bin/echo", &copied).unwrap();
+    let m = manifest("echo", copied.to_str().unwrap(), &[], 5_000);
+    let i = inv("echo", &["must-not-run"]);
+    let e = ee(&f, &m, &i);
+    let calls = std::cell::Cell::new(0);
+    let clock = || {
+        calls.set(calls.get() + 1);
+        if calls.get() == 2 {
+            std::fs::write(&copied, b"changed after initial authorization checks").unwrap();
+        }
+        e.issued_at + 1
+    };
+    let mut guard = MemoryReplayGuard::default();
+    assert_eq!(
+        f.runner
+            .run(&m, &i, &e, &f.binding, &mut guard, &clock)
+            .unwrap_err(),
+        RunError::ProgramDigestMismatch
+    );
+    assert!(guard.consume(&e.decision_id).is_ok());
+}
+
+#[test]
+fn an_unshare_that_fails_its_own_setup_is_not_mistaken_for_a_tool_exit() {
+    // REGRESSION. `unshare` is a child process: a kernel that refuses the
+    // namespaces lets it exec, then it fails setup and exits non-zero. The
+    // runner used to sign a run record carrying that exit code as though the
+    // tool had run and exited 1 — a false evidence record, and one that made
+    // tampering a genuine record to Code(1) undetectable.
+    //
+    // `/bin/false` stands in for that kernel: a real file at `unshare_path`
+    // that execs and exits 1 without creating any namespace.
+    let mut f = fixture(&["echo"]);
+    f.runner.unshare_path = PathBuf::from("/bin/false");
+    let m = manifest("echo", "/bin/echo", &[], 5_000);
+    let i = inv("echo", &["x"]);
+    let e = ee(&f, &m, &i);
+    let mut g = MemoryReplayGuard::default();
+    match f.runner.run(&m, &i, &e, &f.binding, &mut g, &now_ms) {
+        Err(RunError::SandboxUnavailable(reason)) => {
+            assert!(
+                reason.contains("exited 1"),
+                "the refusal must carry what the probe saw: {reason}"
+            );
+        }
+        other => panic!("expected SandboxUnavailable, got {other:?}"),
+    }
+    // And the one-shot decision must survive, because nothing ran.
+    assert!(
+        g.consume(&e.decision_id).is_ok(),
+        "decision consumed for a run that never happened"
+    );
+}
+
+#[test]
+fn the_probe_refuses_when_unshare_is_not_executable() {
+    let mut f = fixture(&["echo"]);
+    f.runner.unshare_path = PathBuf::from("/etc/hostname");
+    let reason = f
+        .runner
+        .probe_namespaces()
+        .expect_err("a text file is not unshare");
+    assert!(
+        reason.contains("cannot spawn") || reason.contains("exited"),
+        "{reason}"
+    );
 }
 
 // ─── Evidence tampering (offline verifier) ───

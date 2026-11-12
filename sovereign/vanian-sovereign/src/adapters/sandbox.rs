@@ -24,12 +24,34 @@
 //! # Known gaps (documented, not hidden)
 //!
 //! - Step 6 then exec is a TOCTOU window: the file could be swapped between
-//!   hashing and execve. aip-enforce (seccomp user-notify on execve) closes
-//!   this and is the planned integration.
+//!   hashing and execve. Integration with aip-enforce requires separate
+//!   verification; this adapter does not close that race.
 //! - No filesystem isolation beyond the namespaces: the tool sees the host
 //!   filesystem with the runner's uid. Read-only bind mounts / Landlock are
 //!   the next hardening step.
 //! - No CPU/memory cgroup limits yet; only the wall-clock deadline.
+//! - The namespace probe is a readiness check, not a per-execution witness.
+//!   Setup can still change between the probe and the subsequent launch.
+//!   Runner attestation therefore never establishes independent observation;
+//!   the record retains `CannotProve` without an attached kernel observer.
+//!
+//! # Why the namespace is probed before anything is consumed
+//!
+//! `unshare` is a child process, so a kernel that refuses to create the
+//! namespaces does not make `spawn` fail: `unshare` execs fine, fails its own
+//! setup, writes to stderr and exits non-zero. Without the probe below the
+//! runner could not tell that apart from a tool that ran and exited non-zero,
+//! and it would go on to sign a run record carrying a real-looking exit code
+//! for a tool that never executed. The exit-code mutation test then changed
+//! `Code(1)` to the same value: no bytes changed, so signature verification
+//! correctly accepted it. The defect was false runner attribution, not broken
+//! cryptography.
+//!
+//! [`SandboxRunner::probe_namespaces`] therefore checks namespace readiness
+//! *before* the one-shot decision is consumed. A failed probe is
+//! [`RunError::SandboxUnavailable`], nothing is consumed and nothing is
+//! signed. Observed in CI on `ubuntu-24.04`, where unprivileged user
+//! namespaces are restricted by AppArmor.
 
 use std::io::Read;
 use std::os::unix::process::ExitStatusExt;
@@ -54,6 +76,22 @@ use crate::agent::tool::{decode_digest, file_sha256, ToolInvocation, ToolManifes
 pub const MAX_CAPTURE_BYTES: usize = 1 << 20;
 /// try_wait polling interval while enforcing the deadline.
 const POLL: Duration = Duration::from_millis(10);
+/// Program the namespace probe runs: it must only start and exit 0.
+const PROBE_PROGRAM: &str = "/bin/true";
+/// The probe must not hang if the kernel wedges; it only runs `/bin/true`.
+const PROBE_TIMEOUT: Duration = Duration::from_secs(10);
+/// Flags shared by the probe and the real run. Readiness at probe time does
+/// not attest the later launch; both exercise the same namespace requests.
+const UNSHARE_FLAGS: [&str; 8] = [
+    "--user",
+    "--map-root-user",
+    "--net",
+    "--pid",
+    "--fork",
+    "--kill-child",
+    "--mount",
+    "--mount-proc",
+];
 
 /// Static configuration of the runner.
 pub struct SandboxRunner {
@@ -66,7 +104,8 @@ pub struct SandboxRunner {
     pub workdir: PathBuf,
 }
 
-/// Why the runner refused or failed. A refusal means nothing was executed.
+/// Why the runner refused or failed. Preflight refusals precede execution;
+/// later operational/signing failures do not prove that nothing executed.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunError {
     ExpectedExecutionInvalid(String),
@@ -152,6 +191,77 @@ fn capture(mut r: impl Read + Send + 'static) -> thread::JoinHandle<(Vec<u8>, bo
 }
 
 impl SandboxRunner {
+    /// Check current availability of the namespaces the sandbox depends on.
+    ///
+    /// Runs `unshare` with the *same* flags as a real execution over
+    /// `/bin/true`, which only has to start and exit 0. Any other outcome
+    /// means the sandbox cannot be built, and the caller must refuse rather
+    /// than execute unsandboxed or sign a record for a run that did not
+    /// happen.
+    ///
+    /// Returns the probe's own stderr on failure, because that is where the
+    /// kernel's reason appears (`unshare failed: Operation not permitted`
+    /// where unprivileged user namespaces are restricted).
+    ///
+    /// Not cached: the cost is one `/bin/true` fork against a tool execution
+    /// bounded by `timeout_ms`, and a cached verdict would be wrong for the
+    /// lifetime of the process if an operator changed the sysctl underneath
+    /// it. Correctness over the microseconds.
+    pub fn probe_namespaces(&self) -> Result<(), String> {
+        if !Path::new(PROBE_PROGRAM).is_file() {
+            // Cannot prove the capability either way, so refuse: an
+            // unprovable sandbox is treated exactly like an unavailable one.
+            return Err(format!(
+                "cannot probe namespaces: {PROBE_PROGRAM} is missing"
+            ));
+        }
+        let mut child = Command::new(&self.unshare_path)
+            .args(UNSHARE_FLAGS)
+            .args(["--", PROBE_PROGRAM])
+            .env_clear()
+            .current_dir(&self.workdir)
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|e| format!("cannot spawn {}: {e}", self.unshare_path.display()))?;
+        let err_h = capture(child.stderr.take().expect("piped"));
+        let started = Instant::now();
+        let status = loop {
+            match child.try_wait() {
+                Ok(Some(s)) => break s,
+                Err(e) => return Err(format!("probe wait failed: {e}")),
+                Ok(None) if started.elapsed() >= PROBE_TIMEOUT => {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return Err(format!(
+                        "namespace probe did not finish within {:?}",
+                        PROBE_TIMEOUT
+                    ));
+                }
+                Ok(None) => thread::sleep(POLL),
+            }
+        };
+        if status.success() {
+            return Ok(());
+        }
+        let (stderr, _) = err_h.join().unwrap_or_default();
+        let reason = String::from_utf8_lossy(&stderr).trim().to_string();
+        Err(format!(
+            "unshare {} exited {}: {}",
+            UNSHARE_FLAGS.join(" "),
+            status
+                .code()
+                .map(|c| c.to_string())
+                .unwrap_or_else(|| "by signal".into()),
+            if reason.is_empty() {
+                "(no stderr)".into()
+            } else {
+                reason
+            }
+        ))
+    }
+
     /// Verify, consume, execute in the sandbox and return a signed record.
     pub fn run(
         &self,
@@ -162,33 +272,32 @@ impl SandboxRunner {
         guard: &mut dyn ReplayGuard,
         clock: &dyn Fn() -> u64,
     ) -> Result<RunOutput, RunError> {
-        let argv = preflight(self, manifest, inv, ee, current_binding, clock())?;
+        preflight(self, manifest, inv, ee, current_binding, clock())?;
         if !Path::new(&self.unshare_path).is_file() {
             // Fail closed: never fall back to running unsandboxed.
             return Err(RunError::SandboxUnavailable(
                 self.unshare_path.display().to_string(),
             ));
         }
+        // Before the decision is spent: check current namespace readiness.
+        // A decision is one-shot, so consuming it for a run that cannot
+        // happen would destroy the caller's authorization for nothing.
+        self.probe_namespaces()
+            .map_err(RunError::SandboxUnavailable)?;
+        // The probe can take time. Recheck expiry and the program pin before
+        // spending the decision; readiness must not extend signed authority.
+        let argv = preflight(self, manifest, inv, ee, current_binding, clock())?;
         guard.consume(&ee.decision_id).map_err(RunError::Replay)?;
 
         let mut cmd = Command::new(&self.unshare_path);
-        cmd.args([
-            "--user",
-            "--map-root-user",
-            "--net",
-            "--pid",
-            "--fork",
-            "--kill-child",
-            "--mount",
-            "--mount-proc",
-            "--",
-        ])
-        .args(&argv)
-        .env_clear()
-        .current_dir(&self.workdir)
-        .stdin(Stdio::null())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped());
+        cmd.args(UNSHARE_FLAGS)
+            .args(["--"])
+            .args(&argv)
+            .env_clear()
+            .current_dir(&self.workdir)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
 
         let started_ms = clock();
         let started = Instant::now();
