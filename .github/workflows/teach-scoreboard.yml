@@ -23,7 +23,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Runtime tests and real CLI
         run: |
-          cargo test --locked -p syntriass-runtime
+          SYNTRIASS_LIFECYCLE_EVIDENCE="$RUNNER_TEMP/lifecycle-isolation-evidence" \
+            cargo test --locked -p syntriass-runtime
           cargo test --locked -p vanian-sovereign --lib --test sqlite_upgrade
           cargo build --locked -p syntriass-runtime --bin syntriass
           cargo build --locked -p vanian-sovereign --bin vanian
@@ -69,4 +70,5 @@ jobs:
             ${{ runner.temp }}/exclusion-evidence
             ${{ runner.temp }}/sandbox-evidence
             ${{ runner.temp }}/session-scoreboard-evidence
+            ${{ runner.temp }}/lifecycle-isolation-evidence
           if-no-files-found: error

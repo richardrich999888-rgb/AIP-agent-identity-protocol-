@@ -163,7 +163,7 @@ pub fn transition(
     reason: &str,
 ) -> Result<(), PortError> {
     let mut rec = find(store, hash)?;
-    if to == State::Active && !active_of(store, &rec.capability.id, hash)?.is_empty() {
+    if to == State::Active && !active_of(store, &rec.capability, hash)?.is_empty() {
         return Err(err(
             PortErrorKind::ContractViolation,
             format!(
@@ -179,20 +179,28 @@ pub fn transition(
 
 fn active_of(
     store: &dyn CapabilityStore,
-    id: &str,
+    target: &Capability,
     except: &str,
 ) -> Result<Vec<Record>, PortError> {
     Ok(store
         .all()?
         .into_iter()
         .filter(|r| {
-            r.capability.id == id && r.state == State::Active && r.capability_hash != except
+            // A capability name is local to its tenant and security domain.
+            // Matching only the name lets supersession/rollback displace an
+            // unrelated authority's active version in a shared store.
+            r.capability.id == target.id
+                && r.capability.required.tenant == target.required.tenant
+                && r.capability.required.security_domain == target.required.security_domain
+                && r.state == State::Active
+                && r.capability_hash != except
         })
         .collect())
 }
 
 /// Activate an APPROVED version (operator). At most one version of a
-/// capability id is ACTIVE: if another version is active, this fails unless
+/// capability id in the same tenant and security domain is ACTIVE: if another
+/// version is active, this fails unless
 /// `supersede` is set, in which case that version goes ACTIVE → SUPERSEDED
 /// first (it stays approved, so it can be rolled back to). Returns the
 /// superseded hashes.
@@ -205,7 +213,7 @@ pub fn activate(
     reason: &str,
 ) -> Result<Vec<String>, PortError> {
     let rec = find(store, hash)?;
-    let others = active_of(store, &rec.capability.id, hash)?;
+    let others = active_of(store, &rec.capability, hash)?;
     if !others.is_empty() && !supersede {
         return Err(err(
             PortErrorKind::ContractViolation,
@@ -242,7 +250,8 @@ pub fn activate(
 }
 
 /// Roll back to a SUPERSEDED version (approver): the currently ACTIVE
-/// version of the same id is SUSPENDED, then the target is re-activated.
+/// version of the same id, tenant and security domain is SUSPENDED, then the
+/// target is re-activated. Other scopes are never modified by this operation.
 /// The target must still be executable-if-active (validation + approval
 /// intact, hash unchanged); staleness checks still apply at request time.
 /// Returns the suspended hashes.
@@ -267,7 +276,7 @@ pub fn rollback(
         ));
     }
     let mut done = vec![];
-    for mut o in active_of(store, &rec.capability.id, target)? {
+    for mut o in active_of(store, &rec.capability, target)? {
         o.transition(
             State::Suspended,
             approver,
