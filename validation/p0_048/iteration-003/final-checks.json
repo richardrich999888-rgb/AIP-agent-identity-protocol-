@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "checks": [
+    "current production/test/lockfile hashes match tested-source receipt",
+    "rustfmt of original baseline tests exactly equals final tests",
+    "format and Clippy exit 0",
+    "new regression and offline verification exit 0",
+    "full scoped failure retained as exit 101",
+    "baseline failure retained as exit 101",
+    "publication parent lease unchanged",
+    "all previous iteration manifests checked against original commits"
+  ],
+  "previous_manifests": [
+    {
+      "iteration": "iteration-001",
+      "commit": "40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf",
+      "hashed_files": 18,
+      "status": "PASS"
+    },
+    {
+      "iteration": "iteration-002",
+      "commit": "353b2169e48fd000aa079ef6afa94ad0e02afbe7",
+      "hashed_files": 109,
+      "status": "PASS"
+    }
+  ],
+  "no_new_runtime_dependencies": true,
+  "full_scoped_suite_green": false
+}

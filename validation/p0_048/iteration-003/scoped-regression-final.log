@@ -1,0 +1,264 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/aip_observe-9f35a78c1c7ee49c)
+
+running 73 tests
+test clock::tests::a_synchronized_clock_outside_budget_fails ... ok
+test cgroupev::tests::mkdir_and_rmdir_decode_with_the_acting_task ... ok
+test cgroupev::tests::attach_decodes_the_moved_task_apart_from_the_writer ... ok
+test clock::tests::a_synchronized_clock_within_budget_passes ... ok
+test cgroupev::tests::malformed_records_are_refused_not_guessed ... ok
+test clock::tests::an_unsynchronized_clock_fails_however_small_its_error_bound ... ok
+test clock::tests::the_budget_is_milliseconds_and_does_not_overflow ... ok
+test clock::tests::the_summary_names_an_unsynchronized_clock ... ok
+this host: clock synchronized, max_error 3 ms (kernel state 0)
+test continuity::tests::exact_replay_is_refused ... ok
+test continuity::tests::contiguous_chain_verifies ... ok
+test clock::tests::the_kernel_answers_on_this_host ... ok
+test continuity::tests::first_batch_is_never_verified_continuity ... ok
+test continuity::tests::fork_at_one_sequence_quarantines_permanently ... ok
+test continuity::tests::gap_status_is_not_silently_upgraded_by_later_contiguity ... ok
+test continuity::tests::restart_does_not_imply_continuity ... ok
+test continuity::tests::rollback_and_gap_and_head_mismatch_are_distinct ... ok
+test divergence::tests::a_connector_exec_the_perf_tracepoint_also_delivered_is_not_divergence ... ok
+test divergence::tests::a_connector_fork_without_a_perf_fork_is_not_divergence ... ok
+test divergence::tests::a_connector_exec_the_perf_tracepoint_missed_is_divergence ... ok
+test divergence::tests::a_perf_exec_for_a_different_pid_does_not_corroborate ... ok
+test divergence::tests::a_perf_exec_just_inside_the_window_corroborates ... ok
+test divergence::tests::a_perf_exec_just_outside_the_window_does_not_corroborate ... ok
+test divergence::tests::actual_sched_process_exec_corroborates_connector_exec ... ok
+test divergence::tests::actual_sched_shape_still_requires_matching_tgid_and_time ... ok
+test divergence::tests::an_idle_window_diverges_from_nothing ... ok
+test divergence::tests::nonleader_exec_matches_post_exec_pid_not_old_tid ... ok
+test divergence::tests::nothing_diverges_without_the_connector_anchor ... ok
+test divergence::tests::perf_silence_is_not_divergence_when_perf_was_not_declared_active ... ok
+test divergence::tests::several_unmatched_execs_yield_one_integrity_report ... ok
+test health::tests::coverage_window_is_inclusive ... ok
+test health::tests::gate_independent_mechanism_is_kernel_pushed_coverage ... ok
+test health::tests::independent_mechanism_alongside_a_gate_able_one_still_counts ... ok
+test health::tests::integrity_unknown_does_not_permit_attested_use ... ok
+test health::tests::integrity_unknown_reports_unavailable_not_covered ... ok
+test health::tests::lone_gate_able_tracepoint_is_not_kernel_pushed_coverage ... ok
+test health::tests::only_active_permits_attested_use ... ok
+test health::tests::state_codes_are_distinct ... ok
+test linux::tests::parses_fork_exec_exit_and_unknown ... ok
+test linux::tests::malformed_datagrams_are_rejected_without_panicking ... ok
+test linux::tests::socket_table_parser_handles_v4_v6_and_garbage ... ok
+test observed::tests::attribution_encoding_is_injective_and_has_no_verified_variant ... ok
+test observed::tests::active_mechanisms_are_canonically_ordered_and_signed ... ok
+test observed::tests::batch_encoding_is_domain_tagged_and_count_prefixed ... ok
+test observed::tests::mechanism_codes_are_distinct_and_change_the_encoding ... ok
+test observed::tests::perf_tracepoint_mechanisms_are_the_gate_able_ones ... ok
+test observed::tests::kernel_event_kinds_with_equal_numbers_do_not_collide ... ok
+test observed::tests::socket_endpoint_v4_and_v6_with_same_bytes_differ ... ok
+test observed::tests::process_identity_excludes_path_and_survives_pid_reuse ... ok
+test perf::tests::a_cgroup_sample_carries_the_id_after_the_raw_block ... ok
+test perf::tests::data_loc_fields_are_decoded_by_their_locator_word ... ok
+test perf::tests::sample_decoding_takes_the_tracepoint_id_from_common_type ... ok
+test probe::tests::an_image_hash_is_reused_only_for_the_same_instance_and_the_same_file ... ok
+test probe::tests::a_claim_is_recorded_as_a_claim ... ok
+test probe::tests::batch_reports_run_id_sequence_range_and_loss ... ok
+test probe::tests::duplicated_descriptors_do_not_multiply_socket_rows ... ok
+test probe::tests::kernel_exit_after_loss_is_not_attributed_to_an_earlier_exec ... ok
+test probe::tests::probing_an_impossible_pid_is_an_explicit_measurement_failure ... ok
+test probe::tests::kernel_exit_without_loss_is_attributed_to_the_bound_exec_instance ... ok
+test probe::tests::socket_join_collapses_rows_but_preserves_parser_diagnostics ... ok
+test probe::tests::socket_join_never_admits_an_inode_the_process_does_not_hold ... ok
+test probe::tests::socket_join_preserves_distinct_inodes_protocols_states_and_endpoints ... ok
+test sched::tests::exec_decodes_the_kernel_filename_and_the_new_image_task ... ok
+test sched::tests::fork_decodes_parent_as_the_actor_and_child_as_the_subject_of_the_spawn ... ok
+test sockstate::tests::boot_clock_anchor_places_boot_time_on_the_wall_clock ... ok
+test sched::tests::malformed_records_are_refused_not_guessed ... ok
+test sockstate::tests::connect_initiation_and_completion_decode_with_kernel_semantics ... ok
+test sockstate::tests::format_is_parsed_from_tracefs_text_not_assumed ... ok
+test sockstate::tests::v6_records_take_the_v6_addresses ... ok
+test sockstate::tests::non_tcp_unknown_family_and_short_records_are_refused_not_guessed ... ok
+test wiretap::tests::direction_follows_pkttype_and_nothing_else ... ok
+test wiretap::tests::ipv4_options_and_tcp_options_are_skipped_by_their_length_fields ... ok
+test probe::tests::repeated_measurements_of_one_instance_agree_and_do_not_rehash_a_stable_image ... ok
+test probe::tests::probe_measures_a_real_process_and_matches_stage_one_binding ... ok
+
+test result: ok. 73 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.51s
+
+     Running tests/adversarial.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/adversarial-f06884c622b13c1e)
+
+running 26 tests
+test a_quarantined_ledger_refuses_all_later_batches ... ok
+test a_sequence_gap_degrades_coverage_and_does_not_backfill ... ok
+test absence_of_observation_never_becomes_a_claim_about_execution ... ok
+test collector_constructor_rejects_bad_material ... ok
+test a_health_signature_cannot_be_replayed_as_a_batch_attestation ... ok
+test domain_tags_are_distinct_and_lead_every_preimage ... ok
+test collector_partition_produces_unavailability_not_a_verdict ... ok
+test an_injected_decision_id_confers_nothing ... ok
+test health_field_mutation_is_detected ... ok
+test every_attested_field_mutation_is_detected ... ok
+test matching_a_process_never_matches_an_agent_identity ... ok
+test malformed_procfs_input_never_panics ... ok
+test observation_encoding_is_injective_across_adjacent_strings ... ok
+test no_authorization_concept_exists_in_an_observation ... ok
+test pid_reuse_cannot_transfer_an_observation ... ok
+test observer_restart_is_not_continuous_coverage ... ok
+test sequence_rollback_is_refused_and_a_fork_quarantines ... ok
+test sha256_of_preimage_is_the_head_and_is_never_carried ... ok
+test replayed_attestation_is_not_a_new_observation ... ok
+test stale_state_restoration_cannot_reconstruct_continuity ... ok
+test signature_mutation_and_signer_mismatch_are_distinct ... ok
+test the_probe_holds_no_key_and_cannot_produce_a_signature ... ok
+test unsupported_protocol_version_is_refused ... ok
+test attested_batch_verifies_offline_and_chains ... ok
+test the_observed_agent_cannot_forge_an_accepted_attestation ... ok
+test key_version_mismatch_and_rotation_and_revocation ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/attested_clock.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/attested_clock-52e05365451c6082)
+
+running 9 tests
+test a_record_with_no_reading_differs_from_one_with_a_reading ... ok
+test an_unsynchronised_reading_is_distinguishable_from_a_synchronised_one ... ok
+test dropping_the_clock_reading_after_signing_breaks_the_signature ... ok
+test editing_the_clock_reading_after_signing_breaks_the_signature ... ok
+test the_budget_predicate_requires_both_synchronisation_and_the_bound ... ok
+test inserting_a_clock_reading_into_a_record_that_had_none_breaks_the_signature ... ok
+test a_disciplined_clock_is_signed_and_verifies ... ok
+test a_negative_error_bound_encodes_and_compares_as_a_negative ... ok
+this host, signed: clock synchronized, max_error 3 ms (kernel state 0)
+test this_hosts_real_clock_reading_round_trips_into_signed_evidence ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/blind_spots.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/blind_spots-6c15953d74da6078)
+
+running 9 tests
+test b_a_short_lived_process_is_invisible_to_polling ... ok
+test c_polling_after_exit_yields_no_instance_linkage ... ok
+test f_no_syscall_or_effect_observation_path_exists ... ok
+test g_restart_leaves_the_outage_uncovered_and_says_nothing_about_execution ... ok
+test h_polling_exposes_no_loss_counter ... ok
+test i_observation_time_is_host_supplied_and_carries_no_kernel_timestamp ... ok
+test e_open_socket_is_invisible_to_the_polling_observation ... ok
+test a_fabricated_measurement_is_indistinguishable_from_a_real_one_at_the_collector ... ok
+test d_exec_between_polls_changes_identity_but_the_event_is_unseen ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.51s
+
+     Running tests/cgroup_live.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/cgroup_live-d86fec9b37c5b4eb)
+
+running 1 test
+cgroup_live: SKIPPED — sched tracer unavailable: Unavailable("tracefs is not mounted (/sys/kernel/tracing); mount -t tracefs nodev /sys/kernel/tracing")
+test an_exec_sample_carries_the_execing_tasks_cgroup_id ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cgroup_wire.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/cgroup_wire-e646474592f7a8b9)
+
+running 10 tests
+test a_v12_event_encodes_no_cgroup_field ... ok
+test a_batch_mixing_event_versions_is_refused ... ok
+test a_v12_event_of_any_cgroup_kind_is_refused ... ok
+test a_v12_batch_declaring_any_v13_mechanism_is_refused ... ok
+test not_sampled_and_every_sampled_id_encode_distinctly ... ok
+test every_cgroup_kind_field_is_signed_and_the_kinds_are_distinct ... ok
+test the_protocol_version_is_thirteen_and_twelve_stays_verifiable ... ok
+test the_probe_copies_the_kernels_cgroup_sample_unchanged ... ok
+test a_sampled_cgroup_id_is_inside_the_signed_bytes ... ok
+test a_v12_record_carrying_v13_content_is_refused ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/container_identity.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/container_identity-00971e02a81d107d)
+
+running 9 tests
+test different_namespaces_are_a_positive_finding ... ok
+test neither_side_reading_it_is_not_a_difference ... ok
+test an_observation_without_the_field_deserializes_as_not_observed ... ok
+test one_side_blind_is_not_comparable_and_never_a_difference ... ok
+test the_cgroup_id_is_context_and_does_not_make_a_difference ... ok
+test the_placement_is_inside_the_canonical_bytes ... ok
+test the_identity_digest_does_not_move_when_only_the_placement_differs ... ok
+test two_readings_of_one_container_agree ... ok
+test the_observer_reads_a_real_processs_placement_itself ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.83s
+
+     Running tests/continuity_runtime.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/continuity_runtime-511cac9eff0190d6)
+
+running 10 tests
+test cr01_a_fresh_directory_starts_a_fresh_chain_and_persists_every_signature ... ok
+test cr02_a_clean_restart_continues_one_chain_and_does_not_claim_continuity ... ok
+test cr06_a_truncated_archive_keeps_the_state_reports_and_runs_recovering ... ok
+test cr07_foreign_state_and_corrupt_files_are_errors_never_a_fresh_chain ... ok
+test cr05_fork_is_quarantined_under_every_policy_and_never_signs_a_batch_again ... ok
+test cr03_amnesia_strict_refuses_advisory_adopts_the_archive_head_and_reports ... ok
+test cr10_policy_and_outcome_vocabulary ... ok
+test cr04_rollback_strict_refuses_advisory_adopts_the_archive_head_and_reports ... ok
+test cr09_a_continuity_report_is_signed_domain_separated_and_names_no_subject ... ok
+test cr08_forged_archive_records_are_ignored_so_amnesia_is_still_detected_from_the_real_ones ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
+     Running tests/custody.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/custody-1bf8b1f2efe91c2f)
+
+running 11 tests
+test a_10_guard_a_custodian_with_a_malformed_public_key_is_refused ... ok
+test a_14_observer_key_custody_stays_in_aip_observe ... ok
+test a_6_a_production_collector_never_falls_back ... ok
+test a_5_14_wrong_identity_and_wrong_key_are_both_rejected ... ok
+test a_7_guard_rotation_refuses_a_bad_key_and_leaves_the_old_one ... ok
+test a_8_revoked_key_fails_as_untrusted_not_as_bad_crypto ... ok
+test a_8_unknown_key_version_is_refused ... ok
+test a_9_a_replacement_observer_is_a_new_identity ... ok
+test a_7_rotation_keeps_history_verifiable ... ok
+test a_15_a_development_backend_is_not_mistakable_for_production ... ok
+test a_1_11_first_initialization_and_restart_keep_the_same_key ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.36s
+
+     Running tests/custody_runtime.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/custody_runtime-9441677e3f589550)
+
+running 2 tests
+test a_wrapped_key_collector_attests_a_verifiable_batch ... ok
+test a_second_start_over_the_same_store_continues_one_chain ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.97s
+
+     Running tests/fanotify.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/fanotify-32c2e38629019f23)
+
+running 7 tests
+test fa01_a_buffer_of_events_decodes_masks_descriptors_pids_and_pidfds ... ok
+test fa02_overflow_is_counted_as_loss_and_fan_nopidfd_is_no_pidfd ... ok
+test fa03_truncated_and_inconsistent_buffers_are_refused_not_guessed ... ok
+fa05: no private tmpfs (needs CAP_SYS_ADMIN); sharing the temp mount
+test fa04_the_mechanism_and_the_event_kind ... ok
+fa05: SKIPPED — fanotify unavailable: fanotify_init: Operation not permitted (os error 1) (CAP_SYS_ADMIN required)
+test fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd ... ok
+fa06: no private tmpfs (needs CAP_SYS_ADMIN); sharing the temp mount
+fa06: SKIPPED — fanotify unavailable: fanotify_init: Operation not permitted (os error 1) (CAP_SYS_ADMIN required)
+test fa06_live_a_writer_that_exited_before_the_read_is_unbound ... ok
+test fa07_the_collector_refuses_fanotify_provenance_from_a_probe_not_provisioned_for_it ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/gate10_xdp_evaluation.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/gate10_xdp_evaluation-352b76686e0ac580)
+
+running 2 tests
+Gate 10: XDP is UNAVAILABLE on this host: BPF_PROG_LOAD: Operation not permitted (os error 1)
+verifier log:
+
+
+thread 'x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused' (192) panicked at aip-standalone/aip-observe/tests/gate10_xdp_evaluation.rs:326:13:
+assertion `left == right` failed: a rejected program is EACCES, not Operation not permitted (os error 1)
+  left: Some(1)
+ right: Some(13)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test x10a_this_kernel_loads_and_executes_an_xdp_parser_without_attaching_it ... ok
+test x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused ... FAILED
+
+failures:
+
+failures:
+    x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p aip-observe --test gate10_xdp_evaluation`

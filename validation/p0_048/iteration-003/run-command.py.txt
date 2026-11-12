@@ -1,0 +1,25 @@
+import datetime, json, os, pathlib, subprocess, sys, time
+root = pathlib.Path('/workspace/scratch/8cbb8ab6ce9d/vanian')
+dest = root / 'validation/p0_048/iteration-003'
+label, *command = sys.argv[1:]
+env = dict(os.environ)
+settings = {
+    'PATH': '/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/rust/bin:' + env['PATH'],
+    'CARGO_HOME': '/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home',
+    'CARGO_TARGET_DIR': '/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target',
+    'CARGO_BUILD_JOBS': '4', 'CARGO_TERM_COLOR': 'never',
+}
+if 'P0_048_LIFECYCLE_RETAIN_DIR' in env:
+    settings['P0_048_LIFECYCLE_RETAIN_DIR'] = env['P0_048_LIFECYCLE_RETAIN_DIR']
+env.update(settings)
+started = datetime.datetime.now(datetime.timezone.utc).isoformat()
+t = time.monotonic()
+log = dest / (label + '.log')
+with log.open('xb') as f:
+    proc = subprocess.run(command, cwd=root / 'aip-standalone', env=env, stdout=f, stderr=subprocess.STDOUT)
+record = {'command': command, 'cwd': str(root / 'aip-standalone'), 'environment': settings,
+          'started_at': started, 'duration_seconds': time.monotonic() - t, 'exit_code': proc.returncode}
+(dest / (label + '.json')).write_text(json.dumps(record, indent=2) + '\n')
+print(json.dumps(record))
+print(log.read_text()[-14000:])
+sys.exit(proc.returncode)

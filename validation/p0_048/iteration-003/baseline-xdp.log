@@ -1,0 +1,21 @@
+
+running 2 tests
+Gate 10: XDP is UNAVAILABLE on this host: BPF_PROG_LOAD: Operation not permitted (os error 1)
+verifier log:
+
+
+thread 'x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused' (7) panicked at /workspace/scratch/8cbb8ab6ce9d/p0-048-tools/baseline-xdp.rs:326:13:
+assertion `left == right` failed: a rejected program is EACCES, not Operation not permitted (os error 1)
+  left: Some(1)
+ right: Some(13)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test x10a_this_kernel_loads_and_executes_an_xdp_parser_without_attaching_it ... ok
+test x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused ... FAILED
+
+failures:
+
+failures:
+    x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

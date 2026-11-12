@@ -1,0 +1,30 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--no-fail-fast",
+    "-p",
+    "aip-observe",
+    "-p",
+    "aip-reconcile",
+    "-p",
+    "aip-observe-verify",
+    "--",
+    "--nocapture",
+    "--test-threads=4"
+  ],
+  "cwd": "/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone",
+  "environment": {
+    "PATH": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/rust/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "started_at": "2026-11-12T05:35:39.300244+00:00",
+  "duration_seconds": 37.38500926500001,
+  "exit_code": 101,
+  "log_sha256": "6ef286fb5f0a6c5b002761dcc8980760b5c6566d6a8865edf93aa8a4eae32f51"
+}

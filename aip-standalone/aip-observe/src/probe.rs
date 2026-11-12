@@ -167,7 +167,7 @@ pub struct ProcfsProbe {
     /// pid → instance bound at exec time, so a later kernel exit event for
     /// the same pid can be attributed to that instance. Cleared whenever the
     /// source reports loss: after a gap the pid may have been recycled.
-    bound_by_exec: HashMap<u32, ObservedProcess>,
+    bound_by_exec: HashMap<u32, LifecycleBinding>,
     pending_kernel_events: Vec<KernelLifecycleEvent>,
     pending_kernel_bytes: usize,
     live_published_seq: u64,
@@ -196,6 +196,16 @@ pub struct ProcfsProbe {
     /// around every measurement is unchanged.
     #[cfg(target_os = "linux")]
     image_cache: std::cell::RefCell<HashMap<u32, CachedImage>>,
+}
+
+/// A measured instance and the connector event that established its binding.
+/// The stamp prevents a delayed event from replacing or consuming a newer
+/// binding. This is not a permanent per-PID history or a proof of image
+/// identity at event time: procfs is measured after delivery.
+#[derive(Debug, Clone)]
+struct LifecycleBinding {
+    process: ObservedProcess,
+    kernel_timestamp_ns: u64,
 }
 
 /// What an image hash in the probe's cache was taken of.
@@ -539,10 +549,12 @@ impl ProcfsProbe {
 
     /// Ingest a kernel-pushed process event (`ProcConnector`). For an exec,
     /// the probe tries an anchored measurement of the subject *now*; if it
-    /// succeeds the event is bound to that instance and the binding is
-    /// remembered so the matching exit can be attributed. If the subject
-    /// already exited, the event is recorded unbound — kernel-attested
-    /// existence, identity `CANNOT_PROVE`.
+    /// succeeds, the instance must also have started no later than the event
+    /// (at clock-tick resolution). A fork follows the same rule for its child.
+    /// Events no later than a cached binding stay unbound and cannot replace
+    /// or consume it. A newer exec/fork whose measurement fails invalidates
+    /// the older binding. Unbound originals remain in the evidence stream;
+    /// neither a PID nor a registered claim supplies the missing identity.
     pub fn ingest_kernel_event(&mut self, ev: ProcEvent) -> &KernelLifecycleEvent {
         self.ingest_event(ev, SourceMechanism::ProcConnector)
     }
@@ -656,13 +668,49 @@ impl ProcfsProbe {
         let bound = match (&ev.kind, subject) {
             (KernelLifecycleKind::Exec { .. }, Some(pid))
             | (KernelLifecycleKind::Fork { .. }, Some(pid)) => {
-                let b = self.try_anchor(pid);
-                if let Some(p) = &b {
-                    self.bound_by_exec.insert(pid, p.clone());
+                if self
+                    .bound_by_exec
+                    .get(&pid)
+                    .is_some_and(|b| ev.timestamp_ns <= b.kernel_timestamp_ns)
+                {
+                    None
+                } else {
+                    // A newer, unmeasurable image must not leave an older
+                    // binding available for a later exit. Loss/fault paths
+                    // independently clear this cache as before.
+                    self.bound_by_exec.remove(&pid);
+                    let b = self.try_anchor(pid).filter(|p| {
+                        instance_started_no_later_than(
+                            p,
+                            ev.timestamp_ns,
+                            self.clock_anchor.as_ref(),
+                        )
+                    });
+                    if let Some(p) = &b {
+                        self.bound_by_exec.insert(
+                            pid,
+                            LifecycleBinding {
+                                process: p.clone(),
+                                kernel_timestamp_ns: ev.timestamp_ns,
+                            },
+                        );
+                    }
+                    b
                 }
-                b
             }
-            (KernelLifecycleKind::Exit { .. }, Some(pid)) => self.bound_by_exec.remove(&pid),
+            (KernelLifecycleKind::Exit { .. }, Some(pid)) => {
+                if self
+                    .bound_by_exec
+                    .get(&pid)
+                    .is_some_and(|b| ev.timestamp_ns > b.kernel_timestamp_ns)
+                {
+                    self.bound_by_exec.remove(&pid).map(|b| b.process)
+                } else {
+                    // No ordering proof (including equal timestamps): retain
+                    // the event unbound, without consuming the newer binding.
+                    None
+                }
+            }
             (KernelLifecycleKind::SocketState { .. }, Some(pid))
             | (KernelLifecycleKind::SocketSend { .. }, Some(pid))
             | (KernelLifecycleKind::ProcessSpawn { .. }, Some(pid))
@@ -1239,7 +1287,13 @@ mod tests {
         let mut probe = ProcfsProbe::new("probe-1");
         // Simulate an exec that was bound (inject the binding directly, as a
         // live anchor would have).
-        probe.bound_by_exec.insert(77, fake_process(77));
+        probe.bound_by_exec.insert(
+            77,
+            LifecycleBinding {
+                process: fake_process(77),
+                kernel_timestamp_ns: 4,
+            },
+        );
         probe.record_lost_events(1);
         let ev = probe.ingest_kernel_event(ProcEvent {
             cgroup: crate::observed::CgroupSample::NotSampled,
@@ -1259,7 +1313,13 @@ mod tests {
     #[test]
     fn kernel_exit_without_loss_is_attributed_to_the_bound_exec_instance() {
         let mut probe = ProcfsProbe::new("probe-1");
-        probe.bound_by_exec.insert(77, fake_process(77));
+        probe.bound_by_exec.insert(
+            77,
+            LifecycleBinding {
+                process: fake_process(77),
+                kernel_timestamp_ns: 4,
+            },
+        );
         let ev = probe.ingest_kernel_event(ProcEvent {
             cgroup: crate::observed::CgroupSample::NotSampled,
             kind: KernelLifecycleKind::Exit {
