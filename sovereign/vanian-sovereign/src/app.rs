@@ -341,6 +341,7 @@ pub fn act(state: &Path, tool: &str, args: Vec<String>, unshare: &Path) -> AppRe
         decision_anchors: DecisionPointTrustAnchors::new()
             .trust(&pubs.decision_point_id, &hexkey(&pubs.decision_point_pub)?),
         unshare_path: unshare.to_path_buf(),
+        launcher_path: std::env::current_exe().map_err(|e| e.to_string())?,
         workdir,
     };
     let mut guard = FileReplayGuard::new(state.join("consumed.log"));

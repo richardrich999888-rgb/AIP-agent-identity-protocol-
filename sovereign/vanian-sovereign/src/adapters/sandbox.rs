@@ -18,7 +18,8 @@
 //! The process then runs under `unshare --user --map-root-user --net --pid
 //! --fork --kill-child --mount --mount-proc` with an empty environment,
 //! stdin closed, a private working directory and a wall-clock deadline
-//! enforced by SIGKILL. The new network namespace contains only a loopback
+//! enforced by the helper with SIGKILL; an outer watchdog allows 1 second of
+//! setup/reporting grace, refusing unproven results. The network namespace contains only a loopback
 //! device, so the tool has no route off the host.
 //!
 //! # Known gaps (documented, not hidden)
@@ -30,10 +31,12 @@
 //!   filesystem with the runner's uid. Read-only bind mounts / Landlock are
 //!   the next hardening step.
 //! - No CPU/memory cgroup limits yet; only the wall-clock deadline.
-//! - The namespace probe is a readiness check, not a per-execution witness.
-//!   Setup can still change between the probe and the subsequent launch.
-//!   Runner attestation therefore never establishes independent observation;
-//!   the record retains `CannotProve` without an attached kernel observer.
+//! - Launch acknowledgement is a runner-local kernel exec/wait check, not an
+//!   independently administered witness. Trusted unshare/helper/runner code and
+//!   keys remain in one security domain. Records retain `CannotProve`.
+//! - Child tracing must be permitted by the host. No fallback weakens this
+//!   requirement. Privilege-gaining executables and other kernel/platforms need
+//!   separate compatibility qualification.
 //!
 //! # Why the namespace is probed before anything is consumed
 //!
@@ -50,11 +53,16 @@
 //! [`SandboxRunner::probe_namespaces`] therefore checks namespace readiness
 //! *before* the one-shot decision is consumed. A failed probe is
 //! [`RunError::SandboxUnavailable`], nothing is consumed and nothing is
-//! signed. Observed in CI on `ubuntu-24.04`, where unprivileged user
+//! signed. After that, the trusted helper must positively observe the intended
+//! child's kernel exec event and terminal wait status before a record can be
+//! signed. Late failures leave authority consumed and return `LaunchUnproven`.
+//! Observed in CI on `ubuntu-24.04`, where unprivileged user
 //! namespaces are restricted by AppArmor.
 
 use std::io::Read;
-use std::os::unix::process::ExitStatusExt;
+use std::os::fd::AsRawFd;
+use std::os::unix::net::UnixStream;
+use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::thread;
@@ -66,8 +74,7 @@ use aip_authorize::{
 use aip_types::ExecutionBinding;
 
 use crate::agent::evidence::{
-    expected_execution_digest, ExitOutcome, Observation, RunRecord, SandboxDescriptor,
-    RUN_RECORD_VERSION,
+    expected_execution_digest, Observation, RunRecord, SandboxDescriptor, RUN_RECORD_VERSION,
 };
 use crate::agent::replay::{ReplayError, ReplayGuard};
 use crate::agent::tool::{decode_digest, file_sha256, ToolInvocation, ToolManifest};
@@ -100,6 +107,8 @@ pub struct SandboxRunner {
     pub decision_anchors: DecisionPointTrustAnchors,
     /// Absolute path to util-linux `unshare`.
     pub unshare_path: PathBuf,
+    /// Trusted vanian CLI implementing the private launch helper; not agent input.
+    pub launcher_path: PathBuf,
     /// Directory the tool runs in (must exist).
     pub workdir: PathBuf,
 }
@@ -117,6 +126,9 @@ pub enum RunError {
     ProgramDigestMismatch,
     Replay(ReplayError),
     SandboxUnavailable(String),
+    /// Launch began but successful tool exec plus terminal status was not proven.
+    /// One-shot authority stays consumed and no run record is returned.
+    LaunchUnproven(String),
     Spawn(String),
     Signing(String),
 }
@@ -287,11 +299,26 @@ impl SandboxRunner {
         // The probe can take time. Recheck expiry and the program pin before
         // spending the decision; readiness must not extend signed authority.
         let argv = preflight(self, manifest, inv, ee, current_binding, clock())?;
+        if !self.launcher_path.is_absolute() || !self.launcher_path.is_file() {
+            return Err(RunError::SandboxUnavailable(
+                "trusted vanian launch helper unavailable".into(),
+            ));
+        }
+        let (mut control, helper_control) =
+            UnixStream::pair().map_err(|e| RunError::SandboxUnavailable(e.to_string()))?;
+        control
+            .set_read_timeout(Some(Duration::from_millis(100)))
+            .map_err(|e| RunError::SandboxUnavailable(e.to_string()))?;
+        let helper_fd = helper_control.as_raw_fd();
         guard.consume(&ee.decision_id).map_err(RunError::Replay)?;
 
         let mut cmd = Command::new(&self.unshare_path);
         cmd.args(UNSHARE_FLAGS)
-            .args(["--"])
+            .arg("--")
+            .arg(&self.launcher_path)
+            .arg(super::launch::HELPER_COMMAND)
+            .arg(helper_fd.to_string())
+            .arg(manifest.timeout_ms.to_string())
             .args(&argv)
             .env_clear()
             .current_dir(&self.workdir)
@@ -299,35 +326,51 @@ impl SandboxRunner {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
 
+        // SAFETY: only async-signal-safe fcntl in the post-fork child. Clear
+        // CLOEXEC for this endpoint only; the helper restores it before tool exec.
+        unsafe {
+            cmd.pre_exec(move || {
+                if libc::fcntl(helper_fd, libc::F_SETFD, 0) == -1 {
+                    Err(std::io::Error::last_os_error())
+                } else {
+                    Ok(())
+                }
+            });
+        }
         let started_ms = clock();
         let started = Instant::now();
         let mut child = cmd.spawn().map_err(|e| RunError::Spawn(e.to_string()))?;
+        drop(helper_control);
         let out_h = capture(child.stdout.take().expect("piped"));
         let err_h = capture(child.stderr.take().expect("piped"));
-        let deadline = Duration::from_millis(manifest.timeout_ms);
+        // The helper enforces the tool budget after the exec stop. The outer
+        // watchdog adds bounded setup/reporting grace; a lost report is never
+        // converted to a guessed tool signal/exit status.
+        let deadline = Duration::from_millis(manifest.timeout_ms + 1000);
         let status = loop {
-            match child
-                .try_wait()
-                .map_err(|e| RunError::Spawn(e.to_string()))?
-            {
-                Some(s) => break s,
-                None if started.elapsed() >= deadline => {
-                    // SIGKILL to unshare; --kill-child propagates to the
-                    // namespace init, which takes the whole PID namespace.
+            match child.try_wait() {
+                Ok(Some(s)) => break s,
+                Ok(None) if started.elapsed() < deadline => thread::sleep(POLL),
+                other => {
                     let _ = child.kill();
-                    break child.wait().map_err(|e| RunError::Spawn(e.to_string()))?;
+                    let _ = child.wait();
+                    return Err(RunError::LaunchUnproven(format!(
+                        "launcher watchdog/wait failure: {other:?}"
+                    )));
                 }
-                None => thread::sleep(POLL),
             }
         };
         let ended_ms = clock();
         let (stdout, stdout_truncated) = out_h.join().unwrap_or_default();
         let (stderr, _) = err_h.join().unwrap_or_default();
-        let exit = match (status.code(), status.signal()) {
-            (Some(c), _) => ExitOutcome::Code(c),
-            (None, Some(s)) => ExitOutcome::Signal(s),
-            (None, None) => ExitOutcome::Signal(-1),
-        };
+        if !status.success() {
+            return Err(RunError::LaunchUnproven(format!(
+                "launcher did not complete: {status}; {}",
+                String::from_utf8_lossy(&stderr)
+            )));
+        }
+        let exit = super::launch::read_result(&mut control)
+            .map_err(|e| RunError::LaunchUnproven(e.to_string()))?;
 
         let mut record = RunRecord {
             version: RUN_RECORD_VERSION,

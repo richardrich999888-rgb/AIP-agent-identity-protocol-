@@ -14,6 +14,7 @@ Missing prerequisites fail rather than turning an unexecuted check into a pass.
 | Requirement | Why | Supplied in CI by |
 |---|---|---|
 | util-linux `unshare`, with unprivileged **user, net, pid and mount** namespaces available to the test user | the sandbox is built from them | `validation/ci/with_cgroup.sh` |
+| Same-user child `ptrace` with `PTRACE_O_TRACEEXEC` | positively acknowledge successful exec; failed or blocked tracing refuses signing | host policy; no weaker fallback |
 | a delegated **cgroup v2** subtree with a usable freezer | separate workspace containment tests exercise the freezer; the namespace runner itself does not use cgroups | the same script |
 
 `validation/ci/with_cgroup.sh` preflights both as the unprivileged test user
@@ -73,10 +74,34 @@ Authority expiry and the program pin are checked again after the probe. The
 probe cannot extend signed authority. The deadline test also requires a real
 startup marker and SIGKILL, rather than accepting any nonzero exit as a timeout.
 
-The probe is not a per-execution witness: a later setup failure is still possible
-between it and launch. The runner remains a proof-of-concept adapter, with
-`CannotProve` independent observation. Full launch acknowledgement, executable
-hash-to-exec race closure, filesystem confinement and resource limits remain open.
+The probe is not the execution witness. The same trusted `vanian` binary now
+runs a private helper inside the namespaces. It observes the intended child's
+positive `PTRACE_EVENT_EXEC`, detaches before user code runs, and reports its
+actual terminal wait status over a private inherited socket. The tool does not
+inherit this socket across exec. No report, malformed report, setup failure,
+failed exec or pre-exec death yields a signed tool record. A late uncertain
+failure keeps one-shot authority consumed; callers must not retry that decision.
+
+`SandboxRunner` library callers must supply an absolute trusted `launcher_path`
+implementing the vanian helper command. The production CLI uses its own path;
+no extra executable, package download or signing algorithm is introduced. Host
+policy must allow same-user child tracing. EPERM is a refusal, not a passed or
+skipped test. No host tracing restriction is disabled by this change.
+
+The helper measures the tool deadline after the exec stop and observes its real
+SIGKILL status on timeout. The outer watchdog permits at most one second of
+additional setup/reporting grace, then refuses signing if no complete result
+arrives. The helper is namespace init, and the tool is its child. Executables
+that depend on PID 1 or privilege-gaining setuid/file-capability behavior need
+separate qualification; this is not a transparent sandbox for every program.
+
+This is runner-local acknowledgement, not independent observation or resistance
+to a compromised runner/administrator. Old records do not acquire launch proof
+retroactively, and the evidence schema remains unchanged. Authenticate deployment
+source/binary pins before relying on the new runner behavior. The adapter remains
+a proof of concept with `CannotProve` independent observation. Executable
+hash-to-exec races, interpreter dependency pins, filesystem confinement and
+resource limits remain open.
 This change does not make the sandbox or Sniffer Dog enterprise-qualified.
 
 ## Retained CLI evidence
