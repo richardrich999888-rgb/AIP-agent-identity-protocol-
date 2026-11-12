@@ -6,8 +6,8 @@
 | Priority / phase | Precise unfinished gate | Required next evidence or dependency |
 |---|---|---|
 | P0 correctness | Sandbox probe-to-launch race, executable TOCTOU, filesystem/resource isolation | Per-execution setup/launch acknowledgement and supported-host adversarial evidence; preserve CANNOT_PROVE |
-| P0 security CI | Four HIGH Trivy findings in retained historical Helm output; main CI must be reconciled | Review actual supported deployment privileges and fix/qualify them without rewriting original evidence, suppressing findings or disabling sensors |
-| A / C1 | Session examples have binary labels; capabilities have multiple outcomes. No reviewed mapping exists | Explicit reviewed outcome mapping, separate example results, positive/negative/mutation tests; no guessed labels. TXT integration passes; PDF/DOCX extraction-to-corpus binding remains open |
+| P0 security CI | Four HIGH Trivy findings in retained historical Helm output; track current-head main CI separately | Review actual supported deployment privileges and fix/qualify them without rewriting original evidence, suppressing findings or disabling sensors |
+| A / C1 | Explicit mapping and separate example validation now exist; full C1 remains partial | Bind the reviewed map digest into authenticated C2 authorization. Complete PDF/DOCX extraction-to-corpus binding and E1; no inferred labels or automatic activation |
 | A / C2 | Complete signed expert authority is not implemented end-to-end | Tenant/expert/capability/version/source/suite/scope/time/trust-anchor binding; forged/wrong/expired/revoked authority rejection |
 | A / lifecycle | Authenticated activation, supersession, safe rollback and revocation across all entry points | No unvalidated/unapproved active state; atomic failure handling; reject unauthorized activation and rollback below policy floor |
 | B / W3.D5 | No accepted `syntriass pack export/verify/import` | Real signed synthetic `.pack`; offline separate-process verification; all specified integrity, authority, source, version, model, validation, replay/rollback tests; inactive import |

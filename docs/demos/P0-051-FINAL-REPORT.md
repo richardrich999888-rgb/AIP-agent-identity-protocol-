@@ -3,7 +3,67 @@
 12 November 2026 (Asia/Kolkata). This report closes a bounded teaching diagnostic
 item. It is not a final-release acceptance certificate.
 
-## Delivered and reconciled
+## Iteration 2: explicit example validation
+
+Published implementation **`7c9a0b385d88460d19da100a4c99dd0ff3c2a2c0`**, tree
+`90f9291d7ec392db466c52016c581112815080b0`. Hosted merge
+`c6fd26a1468644b16261e16b2ef36ec9a94acb3b` has the identical tree.
+
+The general session diagnostic accepts an explicit outcome/label mapping bound
+to the session, capability, source, task, answers and signed suite. It replays
+original examples in the native engine and reports them separately. Unmapped,
+missing-input, ambiguous, out-of-domain and failed execution results stay
+withheld. A refusal cannot satisfy a negative example; passing examples cannot
+override a failed independent suite. The map is an **unsigned review declaration**,
+not authenticated expert approval. No lifecycle writes or activation occur.
+
+Fresh results: **445 full Python tests pass without skips**, including 37 new
+mapping checks. Hosted teaching run **43220664054 passes**: 267 focused Python
+checks and 289 relevant Rust tests (187 runtime, 102 sovereign). Counts overlap;
+no totals are added across local/CI runs. Frozen task/dataset bytes are unchanged.
+The control remains **11/12 rejected**; corrected suites remain **12/12 and 26/26**,
+including the same six nonactivation cases. All three scenarios separately
+show **3/3** reviewed examples; the control still rejects. No map leaves examples
+NOT_MEASURED. The new tests include stale bindings, malformed maps, unsafe refusal
+mappings, omitted/reordered/substituted native results and unchanged lifecycle.
+
+Original local and downloaded CI session inputs were replayed in new processes
+inside a network namespace with no external route, without the original private
+state. Native source/citation/answer compilation and signed-suite checks rerun;
+saved PASS fields are not trusted. Six signature instances per host verify with
+Python cryptography: these are **three unique signed suites duplicated before
+and after review**, not six independent suites. One-byte suite tampering, wrong
+public authority and stale map bindings are rejected. Altered stored diagnostic
+verdicts do not affect recomputed outcomes. This is not independent administration.
+
+The original first regression (67 pass / 1 fail) remains retained: its new
+missing-input test lacked taught context and correctly got NOT_APPLICABLE. The
+input was corrected to include that context; frozen labels were untouched. A
+first replay-control script expected exit 2 for a structurally valid wrong key;
+the documented native validator returns rejection exit 3. That original is kept;
+the corrected control additionally asserts failed validation and zero passed
+expert cases. Neither failure was hidden or converted into an accepted capability.
+
+The local component ran in **2.5933206640002027 s**, child CPU
+**1.9584009999999996 s**, peak child RSS **62592 KiB**; full Python regression was
+running concurrently. The hosted run took **1.8950681390000028 s**, child CPU
+**1.014322 s**, RSS **67640 KiB**, on separately recorded hardware. These are
+single component observations, not a benchmark range or complete demo duration.
+Local namespace interface counters stayed zero; there is no packet capture,
+model inference, sensor run, complete kit installation or rehearsal credit.
+
+Security **43220664086 fails the same four HIGH Helm-render findings**; audit
+and secret scanning pass. Original SARIF is retained without suppression.
+Main CI **43220664053 is tracked in the checkpoint provider snapshot**; a
+pending result is not a pass. The earlier `5bc0c5f` main CI subsequently passed.
+Original inputs, signed suites, raw CI ZIP/log, failures, replay helpers and
+SHA-256 manifests are in [iteration 2 evidence](evidence/p0-051-iteration-2/README.md).
+
+Next: authenticated C2 authority and signed teaching approval, binding the
+reviewed mapping digest as well as source/suite/capability/scope. PDF/DOCX scoring,
+E1 and every other release gate remain as listed in the matrix. **NOT READY.**
+
+## Previous iteration: session integration (`5bc0c5f`)
 
 Implementation `5bc0c5f68690e5d2656716a97c2cfbb2ce105e08` extends draft
 [PR #21](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/21)
@@ -92,7 +152,8 @@ no replacement was claimed implemented, and no OVERLAY draft PR was fabricated.
 
 ## Next acceptance work
 
-C1 remains partial for session-example outcome mapping and PDF/DOCX integration.
+At iteration 1, C1 remained partial for session-example mapping and PDF/DOCX integration.
+Iteration 2 above closes only the explicit TXT example-mapping mechanism.
 Then complete authenticated signed expert approval/authority expiry and
 revocation, safe activation/supersession/rollback, signed packs and answer
 receipts. The UI/APIs, two full synthetic domains, PQ/CBOM replacements, offline

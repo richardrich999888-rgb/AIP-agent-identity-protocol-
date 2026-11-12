@@ -1,0 +1,23 @@
+{
+  "source": "7c9a0b385d88460d19da100a4c99dd0ff3c2a2c0",
+  "tree": "90f9291d7ec392db466c52016c581112815080b0",
+  "paths_sha256": {
+    ".github/workflows/teach-scoreboard.yml": "b6018b06f443436bb5c6bb118c9c0ffb7039d9315bac0fbfe166db708dec3e86",
+    "docs/demo/TEACH_SESSION_SCOREBOARD.md": "09e4f81e4a0351d2f4f612fe240d5299aa12905ddb5675ca26c05f4ca9403425",
+    "research/capability-learning/harness/example_mapping.py": "c8a8dc8bf3a9efad843e763a36972cfe23a7963ca2d3629ef0dfa91f66efa95b",
+    "research/capability-learning/harness/record_holdout.py": "c05b95aa6e221eef7a036e72dbccec14d8a05f2adea8c4356a5e25e5d2555f8f",
+    "research/capability-learning/harness/record_session_scoreboard.py": "69746e752932cf7072bfbcfde7524619533bc2f4591dfd0b49cb29bdd1c42a93",
+    "research/capability-learning/harness/score_teaching_session.py": "f54919a08be1aa58243999ee4ed00c8d4977d0d580cc146c489e36aeac3cce69",
+    "research/capability-learning/tests/test_example_mapping.py": "926593cf24945d31a3e8d82890fd1204fde9873cbfc03d7026834bb91ed554f4"
+  },
+  "binary_sha256": "e6bdba858687677d0a928035db55e5e002d06f5cf1eff5d33a4a351148a56c5c",
+  "hardware": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "cpu_count": 9,
+    "meminfo": "MemTotal:       10206472 kB\nMemFree:         9149424 kB\nMemAvailable:    9285004 kB\nBuffers:            5740 kB\nCached:           265188 kB\nSwapCached:            0 kB\nActive:           208396 kB\nInactive:         100932 kB\nActive(anon):      90476 kB\nInactive(anon):    84856 kB\nActive(file):     117920 kB\nInactive(file):    16076 kB\nUnevictable:       29944 kB\nMlocked:               0 kB\nSwapTotal:             0 kB\nSwapFree:              0 kB\nDirty:              4552 kB\nWriteback:             0 kB\nAnonPages:         68556 kB\nMapped:            77000 kB\nShmem:            107076 kB\nKReclaimable:     297680 kB\nSlab:             376672 kB\nSReclaimable:     297680 kB\nSUnreclaim:        78992 kB\nKernelStack:        3724 kB\nPageTables:         4140 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:     5103236 kB\nCommitted_AS:     642928 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:        4904 kB\nVmallocChunk:          0 kB\nPercpu:             3168 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      258048 kB\nDirectMap2M:     4814848 kB\nDirectMap1G:    22020096 kB\n"
+  },
+  "clean_run_note": "session-clean ran alongside the published full Python regression; its single elapsed value is not a benchmark or range.",
+  "frozen_diff": "",
+  "ci_merge": "c6fd26a1468644b16261e16b2ef36ec9a94acb3b",
+  "ci_tree": "90f9291d7ec392db466c52016c581112815080b0"
+}

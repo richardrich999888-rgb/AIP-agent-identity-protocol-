@@ -199,3 +199,30 @@ not a commercial demonstration. Hosted durations are per-command values in
 The failed baseline and the failed first post-download helper attempt are retained.
 No model or fresh Sniffer Dog sensor ran; no install or independent-administrator
 credit. Required ten-/twenty-run consecutive complete-mode counts stay zero.
+
+## P0-051 iteration 2 — explicit examples, zero full-mode credit
+
+Source `7c9a0b385d88460d19da100a4c99dd0ff3c2a2c0`; hosted merge
+`c6fd26a1468644b16261e16b2ef36ec9a94acb3b`; identical tree
+`90f9291d7ec392db466c52016c581112815080b0`. Original 11/12 control rejects;
+corrected 12/12 and 26/26 pass. Explicit examples are 3/3 in each scenario and
+add zero independent cases. Frozen nonactivation 6/6 is part of the 26.
+
+| Component observation | Wall seconds | Child CPU seconds | Peak child RSS KiB |
+|---|---:|---:|---:|
+| Clean local Linux namespace; 9 CPUs; concurrent Python regression | 2.5933206640002027 | 1.9584009999999996 | 62592 |
+| Hosted teaching run 43220664054; exact hardware in original ZIP | 1.8950681390000028 | 1.014322 | 67640 |
+
+Local counters before/after contain only loopback and zero bytes. This is no
+packet capture or initial-netns native observation. Current full Python 445 and
+focused hosted Python 267 pass; hosted relevant Rust 289 passes. Counts overlap.
+Both originals replay through the source/citation/compiler/native-signed-suite
+path in new local processes. One-byte suite edits, wrong public authority and
+changed map bindings reject. Saved verdict text is ignored on recomputation.
+
+Retained in `evidence/p0-051-iteration-2/`: full original archives, source/binary
+hashes, public trust, CI log, metrics, replay outputs, first 67/68 regression and
+first replay-control exit-code mismatch. See the report for corrected test input
+and unchanged frozen labels. C2 authentication, model, UI, pack, live sensors,
+kit and external evaluator gates remain open. All final consecutive counts stay
+**zero**; no investor-show duration or clean-machine acceptance is claimed.

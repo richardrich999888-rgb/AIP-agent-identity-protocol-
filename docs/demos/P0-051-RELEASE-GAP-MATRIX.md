@@ -29,10 +29,10 @@ P0-051 sensor qualification. The prior two maintenance examples are not two sect
 
 | ID | Requirement / current state | Existing source or evidence | Missing proof / next action |
 |---|---|---|---|
-| R1 | Sandbox setup correctness — reviewed concurrent repair adopted | `sovereign/vanian-sovereign/src/adapters/sandbox.rs`; PR #16 | Concurrent `6764c7e` implements repair and stronger timeout/program-change controls. Source `6764c7e` whole-workspace CI passes with existing excluded cases documented in S2. Source `5bc0c5f` teaching CI passes; its main CI remains separately tracked. Local duplicate patch retained as superseded, never pushed |
+| R1 | Sandbox setup correctness — reviewed concurrent repair adopted | `sovereign/vanian-sovereign/src/adapters/sandbox.rs`; PR #16 | Concurrent `6764c7e` implements repair and stronger timeout/program-change controls. Source `6764c7e` whole-workspace CI passes with existing excluded cases documented in S2. Source `5bc0c5f` teaching and main CI pass; current `7c9a0b3` runs are recorded separately. Local duplicate patch retained as superseded, never pushed |
 | R2 | Remaining sandbox assurance — OPEN | Existing runner retains CANNOT_PROVE observation | Probe-to-launch policy race, executable TOCTOU, filesystem isolation and resource limits are not solved by the preflight repair |
 | R3 | Security CI — OPEN | Four HIGH retained Helm-render Trivy findings; original evidence kept | Classify/remediate supported configuration while preserving evidence and native observation; no blanket suppression |
-| A1 / C1 | Teaching-session scoreboard — PARTIAL | `capability/scoreboard.rs`, scenario recorder, cited B1/B2 questions | P0-051 adds general TXT session command and exact question/citation/edit links; 33 new checks pass locally and within hosted focused acceptance; full Python 408 passes. Example-label mapping and PDF/DOCX integration remain open |
+| A1 / C1 | Teaching-session scoreboard — PARTIAL | `capability/scoreboard.rs`, scenario recorder, cited B1/B2 questions | P0-051 adds general TXT session command and exact question/citation/edit links; 33 new checks pass locally and within hosted focused acceptance; full Python 408 passes. `7c9a0b3` adds explicit input-bound example mapping, separate native replay and refusal preservation: 37 new checks, 445 full local Python passes and 267 focused CI passes (overlapping counts). PDF/DOCX extraction-to-corpus binding and E1 remain open; mapping declarations are unsigned |
 | A2 / C2 | Signed expert approval — PARTIAL | `capability/lifecycle.rs`, `learning.rs` | Complete authenticated teaching action and approval envelope; bind tenant/expert/ID/version/source/suite/scope/time/trust anchor |
 | A3 | Authority verification — OPEN end-to-end | Existing signature/trust-map and independence checks | Forged, wrong expert/tenant, expired and revoked authority attacks in teaching workflow |
 | A4 | Activation — PARTIAL | Existing lifecycle and CLI gates | Never activate without required validation/approval; unauthorized activation rejection through actual teaching interface |
@@ -87,4 +87,4 @@ purchase, outreach, new repository, production deployment or patent action was
 performed. Use **EXPERT-GUIDED TAUGHT CAPABILITY** for the teaching behavior.
 
 P0-051 bounded implementation: `5bc0c5f`; evidence and subsequent reconciliation
-are in [the current report](P0-051-FINAL-REPORT.md). C1 example mapping remains open.
+are in [the current report](P0-051-FINAL-REPORT.md). The next bounded source `7c9a0b3` implements explicit example mapping; it does not close authenticated approval, full C1/UI or release acceptance.

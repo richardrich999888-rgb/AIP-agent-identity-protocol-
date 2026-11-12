@@ -1,7 +1,7 @@
 # Buyer evidence pack — P0-051 bounded claims
 
 **Release: NOT READY.** This is an evidence index, not the finished offline kit.
-Implementation `5bc0c5f` is in draft PR #21. No certification, government
+Implementations `5bc0c5f` and `7c9a0b3` are in draft PR #21. No certification, government
 endorsement, customer deployment, production readiness or TRL promotion is claimed.
 
 | Product | DEMONSTRABLE | REPRODUCIBLE | PILOT-READY | PRODUCTION-READY |
@@ -18,15 +18,17 @@ different claims. A same-source CI pass does not establish a customer air gap.
 |---|---|---|
 | An expert can inspect why a candidate failed | General session diagnostic, exact qids/citations/edits; original control remains 11/12 rejected | Review suggestions are not proven root causes; synthetic engineer answers are not authenticated expert approval |
 | Corrected capability preserves applicability/refusal gates | Current local and CI 12/12 holdout, 26/26 attacks, frozen subset 6/6; OpenSSL/native replay | Bounded lexical procedure, not general language understanding; counts overlap |
-| Source and answer substitutions are refused | 33 new session checks within 408 local Python tests; 230 focused hosted tests | TXT corpus integration only; session-example mapping and PDF/DOCX scoring remain open |
+| Source and answer substitutions are refused | 70 session/mapping checks within 445 local Python tests; 267 focused hosted tests | Counts overlap. TXT integration only; PDF/DOCX scoring and authenticated approval remain open |
+| Original binary examples have explicit meaning | Input-bound outcome mapping; 3/3 examples reported separately; refusal results stay withheld and cannot rescue the rejected 11/12 suite | Unsigned review declaration; it does not authenticate an expert or add independent suite cases |
 | Passing the diagnostic does not activate anything | Original lifecycle untouched; scratch proposal nonexecutable; owner-only retained output | Complete signed authority/activation experience is still incomplete |
-| Signed test inputs are independently verifiable | Three original local and three CI suites verified with separate Python cryptography | Public test keys prove integrity, not independent custody or expert identity; reports are unsigned |
+| Signed test inputs are independently verifiable | Iteration 2 retains three unique suites per host, each before/after example review; separate Python verification plus fresh native session replay | Public test keys prove integrity, not independent custody or expert identity; reports are unsigned |
 | Runner signatures and tamper refusal reproduce separately | Original CI bundle verifies locally; one-byte tamper rejected after private state removal | Namespace runner attestation; independent observation CANNOT_PROVE; not a Sniffer Dog live capture |
 | Native sensor work exists | PR #20 `61dd730`, P0-048 original hosted evidence and current provider CI inspection | Historical/source-specific ten native assertions were not rerun as a final P0-051 sensor acceptance |
 | Offline inference exists historically | WOW branch `6ad92ae`, original pull-the-plug evidence | No fresh model weights/runtime or final clean-machine kit acceptance here |
 
 Original evidence and failed attempts:
-[`p0-051-iteration-1/`](evidence/p0-051-iteration-1/README.md).
+[`p0-051-iteration-1/`](evidence/p0-051-iteration-1/README.md) and
+[`p0-051-iteration-2/`](evidence/p0-051-iteration-2/README.md).
 Launch/narration/recovery: [founder guide](DEMO_GUIDE.md).
 Hash/signature/replay commands: [independent verification](INDEPENDENT-VERIFICATION.md).
 Requirement ledger: [release matrix](P0-051-RELEASE-GAP-MATRIX.md).

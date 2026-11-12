@@ -6,7 +6,51 @@ C1 diagnostic reproduced on CI; that connected build is not kit acceptance.
 Source checkouts, unit tests,
 new directories and development namespaces do not satisfy that requirement.
 
-## P0-051 retained originals and reproducible diagnostic
+## Iteration 2: replay the explicit example mapping
+
+Use trusted source `7c9a0b385d88460d19da100a4c99dd0ff3c2a2c0` (or its later
+documentation-only checkpoint). The hosted merge has identical tree
+`90f9291d7ec392db466c52016c581112815080b0`. Stage all prerequisites first;
+these commands do not download anything. The recorded native binary SHA-256 is
+`e6bdba858687677d0a928035db55e5e002d06f5cf1eff5d33a4a351148a56c5c`.
+An independent build may differ; select and verify its hash separately instead
+of silently accepting an archive-supplied executable.
+
+```bash
+(cd docs/demos/evidence/p0-051-iteration-2 && sha256sum -c SHA256SUMS)
+export P051_MAPPING_REVIEW="$(mktemp -d)"
+unzip -q docs/demos/evidence/p0-051-iteration-2/ci-teaching-original.zip \
+  -d "$P051_MAPPING_REVIEW/ci"
+python3 docs/demos/evidence/p0-051-iteration-2/replay_retained_session.py \
+  --repo "$PWD" --binary "$PWD/target/debug/syntriass" \
+  --binary-sha256 e6bdba858687677d0a928035db55e5e002d06f5cf1eff5d33a4a351148a56c5c \
+  --folder "$P051_MAPPING_REVIEW/ci/session-scoreboard-evidence/corrected-validation" \
+  --trusted-keys "$P051_MAPPING_REVIEW/ci/session-scoreboard-evidence/corrected-validation/expert-public.json" \
+  --out "$P051_MAPPING_REVIEW/recomputed-validation"
+```
+
+The original CI ZIP hash is
+`e566d34a6294e8c37a35106d37b45e26a67e1ef4a8ad357e02cc8d55dcf87648`.
+The command above uses that archive's **synthetic test authority**; it verifies
+the documented experiment, not a real expert identity. Establish trust in the
+archive/source independently. For other evidence, pass an independently provisioned
+public-key map. A key bundled by an untrusted sender is not an authority.
+
+Expect native signed-suite **12/12**, explicit examples **3/3 separately**, exit 0.
+Use `corrected-attacks` and a different output directory for 26/26 (six probes
+are a subset). `rejected-control` must exit 3 with 11/12 despite 3/3 examples.
+The helper rebuilds the disposable session state, rechecks the content hash,
+source spans and bound answers, recompiles and invokes the native validator.
+It never reads the retained `result.json`, scoreboard verdict or bound capability
+as its decision input. It is not pack import and writes no production lifecycle.
+
+`local-original.zip` retains both original and replayed runs. The replay controls
+retain one-byte signed-suite mutation, wrong authority, changed mapping and
+altered saved verdicts. The first three reject; altering saved verdicts leaves
+the actual recomputation unchanged. Reports and map declarations are unsigned.
+Full authenticated C2 approval and the final independent evaluator remain open.
+
+## Iteration 1 retained originals and reproducible diagnostic
 
 Use source `5bc0c5f68690e5d2656716a97c2cfbb2ce105e08`. Its CI merge
 `9892299fbbb4d76c8dfe62665a8ddd950221fe18` has the same source tree. Stage Python

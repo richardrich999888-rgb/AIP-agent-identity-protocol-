@@ -17,14 +17,16 @@ With the staged Linux binary, Python 3.10+, Git and this checkout:
 
 ```bash
 python3 research/capability-learning/harness/record_session_scoreboard.py \
-  --binary target/debug/syntriass --out /tmp/p051-session-new
+  --binary target/debug/syntriass --with-examples --out /tmp/p051-session-new
 ```
 
 Show `rejected-control/scoreboard.json`: the original 11/12 control remains
 rejected and its failed row links to the exact exclusion question, cited sentence
 and answer edits. Then show `corrected-validation/scoreboard.json` (12/12) and
 `corrected-attacks/scoreboard.json` (26/26, including six nonactivation probes).
-Passing this diagnostic does not approve or activate anything.
+Show each `result.json`: the explicitly reviewed examples pass 3/3 separately.
+The 11/12 control remains rejected even with passing examples. Passing this
+diagnostic does not approve or activate anything.
 
 Presenter: “This is an EXPERT-GUIDED TAUGHT CAPABILITY. Here is the document,
 the question and the answer that supplied this part of the rule. The test found
@@ -34,18 +36,20 @@ capability still needs authorized approval before it can be used.”
 
 This is a live scripted component exercise with synthetic engineer answers.
 Only its suites are signed; reports and question links are unsigned. Session
-example agreement is NOT_MEASURED until an expert-reviewed outcome mapping
-exists. No model, human approval screen, pack, kernel observation or complete
+example labels are explicitly declared and bound to the exact inputs; the
+reviewer identity is not authenticated. Pre-review NOT_MEASURED outputs remain
+retained. Missing, ambiguous or out-of-domain answers never count as negative
+example successes. No model, human approval screen, pack, kernel observation or complete
 investor show runs. See [the general command](../demo/TEACH_SESSION_SCOREBOARD.md).
 
 Recovery: preserve the failed output directory. Exit 2 means refusal; inspect
 `result.json` and command stderr for stale input, bad trust or missing prerequisites.
-Exit 3 means the signed suite rejected the candidate. Correct the reviewed input
+Exit 3 means the signed suite or the separately reviewed examples rejected the candidate. Correct the reviewed input
 and rerun into a new directory; do not change frozen expected labels.
 
-The clean local component took 0.9302947449996282 seconds and its hosted counterpart
-0.7274345790000041 seconds on separately labelled hardware. Neither value is the
-investor show's duration. Required Linux models/inference, final installer,
+The mapping component took 2.5933206640002027 seconds locally (concurrent test
+load) and 1.8950681390000028 seconds on CI, with separate hardware records. These
+are single observations, not a performance range or investor-show duration. Required Linux models/inference, final installer,
 independent sensor boundary, UI/approval and packs are still unavailable as a
 complete kit. The three-minute sequence below remains NOT READY.
 

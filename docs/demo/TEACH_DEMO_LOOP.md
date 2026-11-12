@@ -492,8 +492,13 @@ with the unproven half named.
   It regenerates drafts, checks source spans and answer bindings, and recomputes
   the signed suite in disposable state without activation. See
   [command and boundaries](TEACH_SESSION_SCOREBOARD.md). Session example
-  agreement remains NOT_MEASURED until an expert-reviewed outcome/label mapping
-  exists; PDF/DOCX scoring and E1 remain open. Source `5bc0c5f` passes hosted
+  agreement was NOT_MEASURED in that source. `7c9a0b3` now accepts an explicit
+  input-bound outcome mapping, replays original examples separately and never
+  counts withheld results as negative answers. Examples cannot override a failed
+  signed suite. Full Python 445 and focused CI 267 pass (overlapping); 37 mapping
+  checks are new. The mapping is an unsigned review declaration, not expert
+  authentication. C2 must bind its digest. PDF/DOCX scoring and E1 remain open.
+  Source `5bc0c5f` passes hosted
   teaching CI `43215328974`; originals are in `docs/demos/evidence/p0-051-iteration-1/`.
 - [ ] **C2. Approve.** Signed approval → activate → supersede. One CLI command, one UI
   action. Builds on `cap-activate --supersede` and the six suite-attack tests.
