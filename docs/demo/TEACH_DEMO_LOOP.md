@@ -487,6 +487,13 @@ with the unproven half named.
   Fresh local and CI runs pass 12/12 and 26/26, including all six frozen probes.
   This does not close the full teaching workflow or authorize activation.
   Suites are signed synthetic engineer fixtures; diagnostics are unsigned.
+  **P0-051 continuation:** the general TXT answered-session diagnostic and exact
+  question/citation/edit links are implemented in `score_teaching_session.py`.
+  It regenerates drafts, checks source spans and answer bindings, and recomputes
+  the signed suite in disposable state without activation. See
+  [command and boundaries](TEACH_SESSION_SCOREBOARD.md). Session example
+  agreement remains NOT_MEASURED until an expert-reviewed outcome/label mapping
+  exists; PDF/DOCX scoring and E1 remain open. Hosted evidence is pending.
 - [ ] **C2. Approve.** Signed approval → activate → supersede. One CLI command, one UI
   action. Builds on `cap-activate --supersede` and the six suite-attack tests.
 
