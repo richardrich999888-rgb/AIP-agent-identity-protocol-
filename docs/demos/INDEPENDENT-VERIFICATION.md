@@ -49,6 +49,58 @@ pack verification, answer receipt, packet capture or external expert acceptance
 is proved here. Existing deployed artifacts require explicit revalidation and
 new approval after recompilation; no automatic migration or activation occurs.
 
+## Replay without trusting diagnostic PASS fields
+
+The new `research/capability-learning/harness/verify_applicability.py` uses
+pre-staged Python 3.10+, OpenSSL and a separately trusted `syntriass` binary. It
+checks external trust/byte pins, frozen cases, Ed25519 suite signatures and every
+recomputed native result. It ignores packet `scoreboard.json` and `result.json`.
+Missing checks fail closed. No downloads, model calls or activation occur.
+
+From the repository root, first verify the retained files:
+
+```bash
+(cd docs/assurance/evidence/p0-050-replay && sha256sum -c SHA256SUMS)
+(cd docs/assurance/evidence/p0-050-iteration-1 && sha256sum -c SHA256SUMS)
+```
+
+Select runtime and trust pins independently. A packet's accompanying public key
+cannot establish authority. The commands below reproduce only the **synthetic**
+evaluation, using its documented CI key and capability hash. Set `P050_RUNTIME`
+to a trusted, already staged binary. If building first, use reviewed source and
+`cargo build --locked --offline -p syntriass-runtime --bin syntriass`; missing
+dependencies must fail. A rebuild can have a different binary hash.
+
+```bash
+export P050_RUNTIME=/absolute/path/to/trusted/syntriass
+export P050_REVIEW="$(mktemp -d)"
+python3 - <<'PY'
+import hashlib, json, os
+from pathlib import Path
+trust = json.loads(Path('docs/assurance/evidence/p0-050-replay/ci-trust.json').read_text())
+# Independently review this runtime before recording its hash. Other pins stay fixed.
+trust['binary_sha256'] = hashlib.sha256(Path(os.environ['P050_RUNTIME']).read_bytes()).hexdigest()
+Path(os.environ['P050_REVIEW'], 'trust.json').write_text(json.dumps(trust))
+PY
+python3 research/capability-learning/harness/verify_applicability.py \
+  --evidence docs/assurance/evidence/p0-050-iteration-1/ci/exclusion-evidence \
+  --trust "$P050_REVIEW/trust.json" --binary "$P050_RUNTIME" \
+  --out "$P050_REVIEW/recomputed"
+```
+
+Expect exit 0, signature PASS and recomputed **12/12 plus 26/26**; six
+nonactivation probes are a subset of 26. Changed capability bytes, signatures,
+frozen cases or recomputed outcomes must fail. Use a new output directory each
+time; prior evidence is preserved. OpenSSL supplies a separate signature
+implementation; the native outcome engine is trusted, not reimplemented.
+Synthetic keys prove neither expert identity nor independent administration.
+The new report is unsigned; rerun the checks instead of trusting its PASS field.
+
+Fresh replays, 22 positive/refusal tests, source hashes, hardware and command
+results are in [`p0-050-replay/`](../assurance/evidence/p0-050-replay/README.md).
+This closes a component verification gap, with no full-mode rehearsal,
+expert-approval, pack or clean-machine installation credit.
+
 ## Reproduce historical P0-049 iteration 3's rejected candidate
 
 Use source `4d002accbf6759fe1845872ac5579815c8081631` and the exclusion-policy

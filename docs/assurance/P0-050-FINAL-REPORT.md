@@ -1,5 +1,20 @@
 # P0-050 iteration 1 report
 
+**Replay continuation, 12 November 2026:** the already-landed applicability repair
+now has a reusable verifier with separately supplied trust/byte pins, OpenSSL
+signature checks and native replay of every frozen outcome. Fresh local and
+original CI packets pass 12/12 and 26/26 (6/6 subset). Fresh checks here:
+**375 Python tests**, including **22 new replay controls**; **187 native runtime
+tests**; formatting and Clippy pass. These overlap the earlier counts below and
+must not be added together. Checkpoint `975b245` was preserved; no compiler,
+lifecycle or acceptance data changed here. See [continuation evidence](evidence/p0-050-replay/README.md)
+and the [portable command](../demos/INDEPENDENT-VERIFICATION.md).
+
+This closes reliance on unsigned summaries for the bounded replay. It does not
+prove expert identity, independent administration, an independent implementation
+of domain rules, full sandbox CI, signed packs or offline-kit acceptance.
+S2's sandbox/CI discrepancy remains next; complete release NOT READY.
+
 **Bounded applicability repair accepted; complete release NOT READY.**
 12 November 2026. This is an iteration report, not final commercial qualification.
 

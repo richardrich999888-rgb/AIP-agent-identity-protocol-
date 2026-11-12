@@ -4,6 +4,12 @@
 applicability defect is closed in bounded scope. No production, certification,
 regulatory approval or customer-deployment claim follows from these tests.
 
+The replay follow-up adds external trust/byte pins and recomputes signed frozen
+cases without accepting diagnostic PASS fields. That narrow gap is closed
+(375 Python / 187 native tests locally; full CI assessed separately). It does not
+close any lifecycle, sandbox, expert identity/custody, pack, sensor, deployment
+or rehearsal requirement below.
+
 | Priority / dependency | Exact incomplete requirement | Required proof to close |
 |---|---|---|
 | P0 next | Teaching branch main-CI sandbox discrepancy; review PR #16 and shared-path conflicts | Authorized execution, actual loopback-only network, genuine exit tamper rejection and unavailable-namespace refusal on affected CI; no skipped assertions |

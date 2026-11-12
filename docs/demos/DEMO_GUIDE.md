@@ -4,6 +4,13 @@
 It is expert-guided capability validation, not autonomous self-improvement or
 model fine-tuning. The complete three-minute investor show is not yet executable.
 
+The applicability replay follow-up adds a runnable **VERIFY component**: check
+externally selected keys/byte pins and recompute the frozen 12-case holdout and
+26-case attack suite with no model or network downloads. Follow
+[Independent verification](INDEPENDENT-VERIFICATION.md#replay-without-trusting-diagnostic-pass-fields).
+An edited PASS summary cannot make this check pass. This is not the final signed
+knowledge-pack scene or a full investor rehearsal.
+
 ## Current teaching-session check (P0-050 iteration 1)
 
 With the staged binary and Python/Git prerequisites below:

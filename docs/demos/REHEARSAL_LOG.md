@@ -123,3 +123,27 @@ have the same questions digest; that failed attempt is retained. Recovery compar
 actual questions and choices while checking each session binding. Frozen labels
 were not changed. No qualifying full-mode run occurred, so consecutive counts
 remain zero. No clean-machine, Mac hardware or external-evaluator credit.
+
+## P0-050 applicability replay continuation — zero full-mode credit
+
+12 November 2026. The compiler repair already existed at `ef3d9d4`; this
+continuation adds a reusable verifier and negative controls. The concurrent
+documentation/evidence checkpoint `975b245` was preserved. All original local
+signed suites, rejected controls, replay outputs, logs and exact command receipts
+are under `../assurance/evidence/p0-050-replay/`.
+
+| Bounded check | Result | Measured duration |
+|---|---|---|
+| Fresh local recorder, source `ef3d9d4` clean | 12/12 holdout, 26/26 attacks, 6/6 subset; controls still rejected | 0.272866667 s recorder body; 0.405602888 s enclosing command |
+| OpenSSL + native replay of local packet | Both signatures and all 38 outcomes pass | Exact enclosing duration in `replay-local-final.json` |
+| Same replay of original CI packet | Both signatures and all 38 outcomes pass | Exact enclosing duration in `replay-ci-final.json` |
+| Full Python / runtime regression | 375 / 187 pass; no skipped/ignored tests | Original command receipts; overlapping counts |
+
+The replay uses a separately selected build hash recorded in trust material;
+Cargo test rebuilt the CLI after the local recorder. The original CI ZIP and
+every extracted member match the earlier retained originals byte-for-byte and
+are referenced rather than counted twice. Signature checks use OpenSSL; outcomes
+use the existing trusted native engine. No authenticated expert, separate
+administrator, model, live sensor, clean-machine kit install or complete commercial
+mode is proved. The initial uncached offline Cargo failures and host-plugin
+warning remain recorded. Required ten-/twenty-run full-mode counts remain zero.

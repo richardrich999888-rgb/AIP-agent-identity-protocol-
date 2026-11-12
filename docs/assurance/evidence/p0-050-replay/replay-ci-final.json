@@ -1,0 +1,32 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "research/capability-learning/harness/verify_applicability.py",
+    "--evidence",
+    "/workspace/scratch/8cbb8ab6ce9d/p050-artifact-review/extracted/exclusion-evidence",
+    "--trust",
+    "/workspace/scratch/8cbb8ab6ce9d/p050-local/ci-trust.json",
+    "--binary",
+    "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/syntriass",
+    "--out",
+    "/workspace/scratch/8cbb8ab6ce9d/p050-local/replay-ci-final"
+  ],
+  "cwd": "/workspace/scratch/8cbb8ab6ce9d/p050-teach",
+  "started_at": "2026-11-12T07:05:06.391917+00:00",
+  "source_commit": "ef3d9d434e5ed55e5994331abc91c03833f997ff",
+  "source_changes": [
+    " M .github/workflows/teach-scoreboard.yml",
+    "?? research/capability-learning/harness/verify_applicability.py",
+    "?? research/capability-learning/tests/test_verify_applicability.py"
+  ],
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "PYTHONPATH": "/workspace/scratch/8cbb8ab6ce9d/p050-tools/python",
+    "SYNTRIASS_BIN": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/syntriass"
+  },
+  "exit_code": 0,
+  "duration_seconds": 0.32182188099977793
+}

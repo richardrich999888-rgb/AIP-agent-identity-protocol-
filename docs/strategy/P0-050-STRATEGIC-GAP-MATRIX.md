@@ -6,6 +6,15 @@ not close W3, the offline kit, pilot qualification or independent acceptance.
 Implementation: `ef3d9d434e5ed55e5994331abc91c03833f997ff`.
 Evidence: [`../assurance/evidence/p0-050-iteration-1/`](../assurance/evidence/p0-050-iteration-1/).
 
+**Replay continuation:** S1 now has an external-trust signature and native outcome
+replay command. Fresh results: 375 Python tests (22 new verifier controls),
+187 native tests, formatting/Clippy pass. Original CI and fresh local signed
+suites pass the unchanged 12/26/6-subset gate through OpenSSL plus the trusted
+native engine. This is component verification, not independent administration or
+complete product readiness. [Evidence](../assurance/evidence/p0-050-replay/README.md).
+The concurrent `975b245` checkpoint and its originals were preserved. All other
+workstream states below remain as stated; S2 remains next.
+
 ## Ground truth and provenance
 
 Freshly fetched AIP source and provider metadata were compared with source,

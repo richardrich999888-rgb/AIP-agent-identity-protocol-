@@ -1,0 +1,56 @@
+{
+  "attempts": [
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "syntriass-runtime",
+        "--bin",
+        "syntriass"
+      ],
+      "result": "BLOCKED: rusqlite was not cached",
+      "provenance": "Console observation transcribed; complete original output not retained."
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "-p",
+        "syntriass-runtime",
+        "--bin",
+        "syntriass"
+      ],
+      "exit_code": 0,
+      "log": "build.log",
+      "network": "Connected preparation downloaded missing locked dependencies; not offline install acceptance."
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pip",
+        "install",
+        "--require-hashes",
+        "--no-deps",
+        "--target",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-tools/python",
+        "-r",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-tools/test-requirements.lock"
+      ],
+      "exit_code": 0,
+      "log": "test-dependencies.log",
+      "scope": "Missing test runner only, after existing dependency audit; no production dependency change."
+    },
+    {
+      "operation": "Evidence environment receipt generation",
+      "exit_code": 1,
+      "error": "FileNotFoundError for research/capability-learning/requirements.lock",
+      "recovery": "Located existing deploy/syntriass/requirements.lock and actual capability source paths; corrected receipt generation. No acceptance test changed.",
+      "provenance": "Console observation transcribed; artifact generation failure, not a product test."
+    }
+  ]
+}

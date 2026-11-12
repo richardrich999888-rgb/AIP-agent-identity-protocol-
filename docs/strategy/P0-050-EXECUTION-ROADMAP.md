@@ -42,6 +42,14 @@ to spend**. Re-estimate after experiments. Dates are not delivery commitments.
 
 ## Executable order and overriding gates
 
+The applicability replay follow-up closes a small S1 verification dependency:
+external trust pins, signatures and recomputed outcomes instead of unsigned PASS
+summaries. C=4, V=5, D=3, U=4, E=1, I=0 yield **26.5** using the same scale;
+these are planning estimates, not benchmark data. Selected while the original
+applicability checkpoint was being completed, it is now delivered in bounded
+scope. It does not postpone S2 or change the open-item order below. See
+`../assurance/evidence/p0-050-replay/README.md`.
+
 1. **S1 completed in bounded scope:** taught context before applicability,
    unchanged 12/12 holdout, 26/26 attacks, 6/6 frozen nonactivation subset. No
    candidate activation or historical artifact rewriting.

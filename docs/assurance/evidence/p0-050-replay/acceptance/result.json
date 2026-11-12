@@ -1,0 +1,166 @@
+{
+  "schema": "syntriass.p0-049.exclusion-policy-evidence/v1",
+  "result": "PASS_BOUNDED_B3",
+  "commit": "ef3d9d434e5ed55e5994331abc91c03833f997ff",
+  "tree_dirty": false,
+  "dirty_paths": [],
+  "binary_sha256": "99ef69bdc2cd6a8de7c11218435ebaef862efbaf24ef1b2aa4e8cf97c399d69f",
+  "recorded_utc": "2026-11-12T06:58:05Z",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "policy": "syntriass.maintenance-exclusion-word-forms/v1",
+  "session_id": "c6a16c7da5705d7897ff89a2f7729e1b8a19ff99a645e94606a5894cd507e61c",
+  "question_id": "p1#4+p1#5:scope_exclusion_terms.*",
+  "questions_sha256": "5d81e0bde08fc6e755b2cde5d3cd81cdcbc5ecd00c3fe6d7291472855488f2e5",
+  "dataset_manifest_sha256": "5ec07e1d4bf3216db72fb699cd930cf8819fb9c511c320542761214a238e443b",
+  "hardware": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "logical_cpus": 9,
+    "affinity_cpus": 9,
+    "meminfo": "MemTotal:       10206472 kB",
+    "cgroup_cpu_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'"
+    },
+    "cgroup_memory_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.max'"
+    }
+  },
+  "wall_seconds": 0.2728666670000166,
+  "child_cpu_seconds": 0.16412,
+  "child_peak_rss_kib": 19456,
+  "network": {
+    "namespace": "net:[4026532328]",
+    "interfaces_before": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0"
+    },
+    "interfaces_after": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0"
+    },
+    "ipv4_routes": {
+      "status": "READ",
+      "value": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT"
+    },
+    "ipv6_routes": {
+      "status": "READ",
+      "value": "00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo\n00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001       lo\n00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo"
+    }
+  },
+  "runs": [
+    {
+      "name": "copied-plural-control",
+      "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+      "exit_status": 3,
+      "wall_seconds": 0.016589723999459238,
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "val-09",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-validation",
+      "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+      "exit_status": 0,
+      "wall_seconds": 0.01628651900045952,
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "copied-plural-attacks",
+      "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+      "exit_status": 3,
+      "wall_seconds": 0.02045338400057517,
+      "expert_passed": 18,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-upper",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-attacks",
+      "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+      "exit_status": 0,
+      "wall_seconds": 0.020504830999925616,
+      "expert_passed": 26,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": true,
+      "failures": []
+    }
+  ],
+  "model_calls": 0,
+  "model_hashes": [],
+  "activation_performed": false,
+  "attack_gate_passed": true,
+  "new_attack_failures": [],
+  "signed_material": "synthetic expert suites only; public key retained; private key discarded",
+  "limitations": [
+    "Four reviewed maintenance word pairs; not general language understanding.",
+    "Engineer-scripted answers, not external expert approval.",
+    "Session, answer edits and scoreboard are unsigned; no answer receipts.",
+    "One development host; no independent installation, packet capture or kernel sensor proof.",
+    "No live model, UI, activation, pack transfer or full W3 rehearsal."
+  ]
+}
