@@ -1,0 +1,103 @@
+{
+  "scope": "Optional evaluation CI tooling; no new product runtime dependency",
+  "compiler": {
+    "version": "1.99.1",
+    "license": "MIT OR Apache-2.0",
+    "components": [
+      {
+        "name": "rustc",
+        "version": "1.99.1 (58cf8f9c3 2026-10-13)",
+        "url": "https://static.rust-lang.org/dist/2026-10-15/rustc-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+        "sha256": "2ff05ff9c08a90861e7f6e4065b40a8b87463b4576186fd613871c3e37f2091f",
+        "bytes": 84098960,
+        "license_files": [
+          {
+            "path_in_archive": "LICENSE-APACHE",
+            "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+          },
+          {
+            "path_in_archive": "LICENSE-MIT",
+            "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+          }
+        ]
+      },
+      {
+        "name": "rust-std",
+        "version": "1.99.1 (58cf8f9c3 2026-10-13)",
+        "url": "https://static.rust-lang.org/dist/2026-10-15/rust-std-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+        "sha256": "109b074225bf5b9ea3820890876bfdf4ed161adbfaf94b2b4b5984c85ee5d958",
+        "bytes": 31563228,
+        "license_files": [
+          {
+            "path_in_archive": "LICENSE-APACHE",
+            "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+          },
+          {
+            "path_in_archive": "LICENSE-MIT",
+            "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+          }
+        ]
+      },
+      {
+        "name": "cargo",
+        "version": "0.100.0 (5f94df478 2026-08-27)",
+        "url": "https://static.rust-lang.org/dist/2026-10-15/cargo-1.99.1-x86_64-unknown-linux-gnu.tar.xz",
+        "sha256": "53f3521949404d595efb06a55c12c5658d4ed1c75566f33d3d514eaebe70bd8a",
+        "bytes": 10954816,
+        "license_files": [
+          {
+            "path_in_archive": "LICENSE-APACHE",
+            "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb"
+          },
+          {
+            "path_in_archive": "LICENSE-MIT",
+            "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+          }
+        ]
+      }
+    ]
+  },
+  "actions": [
+    {
+      "repository": "actions/checkout",
+      "version": "v4.2.2",
+      "revision": "11bd71901bbe5b1630ceea73d27597364c9af683",
+      "license": "MIT",
+      "files": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/actions/checkout/11bd71901bbe5b1630ceea73d27597364c9af683/LICENSE",
+          "sha256": "3e855ffa704114a51628ef8f0bf3aeb41728adf9d9070e263bf58aa5640b0eb5"
+        },
+        {
+          "path": "action.yml",
+          "url": "https://raw.githubusercontent.com/actions/checkout/11bd71901bbe5b1630ceea73d27597364c9af683/action.yml",
+          "sha256": "5349b6eea0a1797a9a993c48db9d95b33d27ee1b6227ceced0c9cbf8e655c939"
+        }
+      ]
+    },
+    {
+      "repository": "actions/upload-artifact",
+      "version": "v4.6.2",
+      "revision": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "license": "MIT",
+      "files": [
+        {
+          "path": "LICENSE",
+          "url": "https://raw.githubusercontent.com/actions/upload-artifact/ea165f8d65b6e75b540449e92b4886f43607fa02/LICENSE",
+          "sha256": "3e855ffa704114a51628ef8f0bf3aeb41728adf9d9070e263bf58aa5640b0eb5"
+        },
+        {
+          "path": "action.yml",
+          "url": "https://raw.githubusercontent.com/actions/upload-artifact/ea165f8d65b6e75b540449e92b4886f43607fa02/action.yml",
+          "sha256": "29b21270ff44638a165ea12abb4481796770c629e513217af7b4df1aa3821177"
+        }
+      ]
+    }
+  ],
+  "host_image": {
+    "label": "ubuntu-24.04",
+    "reproducibly_pinned": false,
+    "policy": "Record actual ImageVersion and kernel; not a clean-machine air-gap qualification"
+  }
+}

@@ -1,56 +1,36 @@
-# P0-048 checkpoint — iteration 003
+# P0-048 checkpoint — iteration 004
 
 Branch: `codex/p0-048-snifferdog-enterprise-assurance`.
-Integration base: `fix/vanian-end-to-end-green`,
-`4d0ce1e32c8dedde4e3a930abc2becf1f56b864e`.
-Parent: `353b2169e48fd000aa079ef6afa94ad0e02afbe7`.
-Date: 12 November 2026 (Asia/Kolkata).
+Integration base: `fix/vanian-end-to-end-green`, `4d0ce1e32c8dedde4e3a930abc2becf1f56b864e`.
+Parent: `9e7e9eec13f58a2b7689b66ca1e76ff65fb8bc8d`.
+12 November 2026 (Asia/Kolkata).
 
-Previous checkpoint:
-[iteration 002 at its published commit](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/353b2169e48fd000aa079ef6afa94ad0e02afbe7/docs/research/P0-048-CHECKPOINT.md).
-All remote branches were fetched and current CI reviewed before selecting this item.
+All remote branches were fetched and the prior checkpoint/CI reviewed. The user
+asked to remove blockers, so the single selected item is supported-host execution
+of the ten native tests previously blocked by local kernel permissions.
 
-## Selected single item and acceptance
+## Acceptance
 
-**P0-048-B: delayed connector lifecycle-event binding and cache ordering.**
+All ten exact tests execute and pass with no early-return, ignored or zero-test
+substitute. Retain host/source/binary/log provenance and fresh signed originals
+for process capture and event loss; verify them through the separate native CLI.
+Keep the local restrictions and all product checks intact. Commit/push on the
+approved branch, inspect actual CI, retain results, update this checklist and stop.
 
-1. Reproduce stale exec/fork/exit binding before changing production source.
-2. Refuse event-to-instance bindings that contradict process start time or a
-   newer cached event; keep rejected original events unbound.
-3. Invalidate old bindings when a newer exec/fork cannot be measured.
-4. Preserve positive controls, concurrent-instance separation, loss invalidation,
-   signature and coverage checks, and CANNOT_PROVE for insufficient evidence.
-5. Retain fresh, visibly synthetic signed regression evidence and separately
-   check signatures, one-byte tampering, wrong anchors and missing health.
-6. Record failed/blocked checks, commit/publish only on the feature branch,
-   inspect CI, update the draft/checkpoint and stop.
+## Implementation checkpoint
 
-## Result
+The strict runner and its 15 positive/negative controls are implemented. The local
+restricted-host attempt correctly refuses qualification (nine BLOCKED, one FAIL,
+no live archives). A pinned dedicated workflow prepares a disposable GitHub-hosted
+Linux VM and executes the actual tests as root. Hosted acceptance is pending at
+this implementation checkpoint; no unexecuted test is marked passed.
 
-The selected correction is implemented and locally verified: six of eight new
-regressions failed on the unchanged parent; all eight pass after the correction.
-Only the native probe's binding cache/timestamp checks changed in production.
-The public API, protocol, dependency lockfile, verifier and reconciler are unchanged.
+The native product is unchanged. Only optional retention was added to two existing
+live tests; original signatures and absence of coverage after loss are preserved.
 
-The complete scoped observe/reconcile/verifier run reports **489 executed passes,
-nine BLOCKED live checks, one failed BPF host check and one explicitly ignored
-release-only timing benchmark**. Overall command exit is 101, not a green suite.
-The unmodified parent BPF test independently reproduces EPERM before verifier
-evaluation. No assertion, security check or host restriction was relaxed.
-Formatting and scoped all-target Clippy with denied warnings pass.
-
-Four offline archive checks pass. The exact fresh signed batch contains synthetic
-connector stimuli plus real procfs/pidfd process measurements. Signature integrity
-is established under the supplied same-administrator test key. Live connector
-capture, complete coverage, independent administration and an execution verdict
-are not established. Missing health remains missing and is refused.
-
-- [Correction, acceptance and remaining attribution limits](P0-048-LIFECYCLE-CORRECTNESS.md)
-- [Commands, failures and original evidence](../../validation/p0_048/iteration-003/README.md)
-- [Blocked, failed and ignored test ledger](../../validation/p0_048/iteration-003/blocked-tests.json)
-- [Offline check results](../../validation/p0_048/iteration-003/offline-verification/summary.json)
-- [Prior socket correction](P0-048-SOCKET-CORRECTNESS.md)
-- [Frozen baseline gap register](P0-048-SECURITY-GAPS.md)
+- [Native host qualification report](P0-048-NATIVE-QUALIFICATION.md)
+- [Iteration commands and evidence](../../validation/p0_048/iteration-004/README.md)
+- [Prior checkpoint](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/9e7e9eec13f58a2b7689b66ca1e76ff65fb8bc8d/docs/research/P0-048-CHECKPOINT.md)
 
 ## Checklist
 
@@ -69,31 +49,21 @@ are not established. Missing health remains missing and is refused.
 | K — demo | Full retained nine-scene demo acceptance pending |
 | L — release | NOT MET: full regression/security CI, clean installation, independent custody and ten full rehearsals remain open |
 
-## CI and remaining external dependencies
+## Updated CI baseline and remaining gates
 
-Parent 353b216's format/Clippy/debug-release, audit, SDK, Postgres, RED, RBI and
-harness jobs passed. Coverage generation and same-run task logs completed, but
-both artifact uploads failed after five attempts with HTML where JSON was
-expected. Missing uploaded archives are not acceptance evidence. The provider
-receipt is retained in `iteration-003/prior-head-ci.json`.
+Parent 9e7e9ee's full CI, coverage upload, same-run assurance and artifact upload,
+RBI rehearsal and harness contracts have now passed. Provider receipts are in
+`iteration-004/parent-ci.json`. Historical failed uploads remain in their original
+records; a current successful upload does not reconstruct an earlier missing one.
 
-Prior Security CI findings remain: two tokenizer SHA-256 strings matched by
-Gitleaks and four inherited Helm-render HIGH findings from Trivy. They were not
-suppressed. Current publication-head CI is inspected and reported on draft PR
-#20; pending checks are not passes. No automatic merge is authorized.
+Security CI still reports the known tokenizer-checksum matches and retained Helm
+findings. These are a separate item; this work adds no scanner suppression and
+removes no historical evidence. Independent collector administration, clean-machine
+air-gap deployment, broader attribution/load and final demo acceptance remain open.
 
-The current host denies connector/fanotify/packet/BPF facilities or lacks tracefs,
-as itemized in the ledger. Closing those live checks requires a supported
-isolated Linux host. Independently administered custody, clean-machine offline
-installation, complete framework task qualification and ten full retained demo
-rehearsals remain external or later qualification gates.
+## Next step within this item
 
-## Next single item
-
-Continue B with executable/descriptor measurement consistency across exec and
-process exit, retaining explicit namespace and clock limits. PID/UID/ancestry
-and a process-lifetime handle cannot alone prove executable image at event time
-or which logical in-process agent acted. Actual high-load PID reuse and complete
-namespace qualification remain open.
-
-Stop after this iteration. No automatic merge or next-item execution.
+Inspect the dedicated hosted run, diagnose any actual failure without weakening
+the test, and retain its evidence. Then update this checkpoint and stop. Next
+incomplete work item after this host gate is security-CI finding classification
+and remediation while preserving original archives and scanner coverage.

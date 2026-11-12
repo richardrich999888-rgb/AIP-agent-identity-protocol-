@@ -1,0 +1,262 @@
+{
+  "schema": "vanian.p0-048.native-qualification.v1",
+  "status": "FAIL",
+  "started_at": "2026-11-12T06:10:00.985364+00:00",
+  "source_commit": "9e7e9eec13f58a2b7689b66ca1e76ff65fb8bc8d",
+  "source_changes": [
+    " M aip-standalone/aip-observe/tests/sniffer_dog.rs",
+    "?? .github/workflows/p0-048-native-qualification.yml",
+    "?? validation/p0_048/install_test_toolchain.py",
+    "?? validation/p0_048/iteration-004/",
+    "?? validation/p0_048/native_ci_pins.json",
+    "?? validation/p0_048/native_qualification.py",
+    "?? validation/p0_048/test_native_qualification.py"
+  ],
+  "host": {
+    "kernel": "6.18.57",
+    "machine": "x86_64",
+    "euid": 1000,
+    "os_release": "PRETTY_NAME=\"Debian GNU/Linux 13 (trixie)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"13\"\nVERSION=\"13 (trixie)\"\nVERSION_CODENAME=trixie\nDEBIAN_VERSION_FULL=13.6\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"",
+    "namespaces": {
+      "self_net": "net:[4026532325]",
+      "pid1_net": "net:[4026532325]"
+    },
+    "process_security": [
+      "CapInh:\t0000000000000000",
+      "CapPrm:\t0000000000000000",
+      "CapEff:\t0000000000000000",
+      "CapBnd:\t0000000000000000",
+      "CapAmb:\t0000000000000000",
+      "NoNewPrivs:\t1",
+      "Seccomp:\t2",
+      "Seccomp_filters:\t1"
+    ],
+    "platform": {
+      "RUNNER_ENVIRONMENT": null,
+      "RUNNER_ARCH": null,
+      "ImageOS": null,
+      "ImageVersion": null,
+      "GITHUB_RUN_ID": null,
+      "GITHUB_REPOSITORY": null,
+      "GITHUB_SHA": null
+    }
+  },
+  "cases": [
+    {
+      "family": "cgroup_live",
+      "test": "an_exec_sample_carries_the_execing_tasks_cgroup_id",
+      "status": "BLOCKED",
+      "reason": "required live assertion did not execute under its prerequisites",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/cgroup_live-d86fec9b37c5b4eb",
+        "an_exec_sample_carries_the_execing_tasks_cgroup_id",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "timed_out": false,
+      "duration_seconds": 0.0019740080001611204,
+      "log": "01-cgroup_live.log",
+      "log_sha256": "4cdf9704f0bda909d0e621ba4009263e6f44d589c8b0a8ad4629a97071643701"
+    },
+    {
+      "family": "fanotify",
+      "test": "fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd",
+      "status": "BLOCKED",
+      "reason": "required live assertion did not execute under its prerequisites",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/fanotify-32c2e38629019f23",
+        "fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.0024723579999772483,
+      "log": "02-fanotify.log",
+      "log_sha256": "e9472fd95bd0578acf32a1ab276193128df49a90b485d86220a3e99f59021f85"
+    },
+    {
+      "family": "fanotify",
+      "test": "fa06_live_a_writer_that_exited_before_the_read_is_unbound",
+      "status": "BLOCKED",
+      "reason": "required live assertion did not execute under its prerequisites",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/fanotify-32c2e38629019f23",
+        "fa06_live_a_writer_that_exited_before_the_read_is_unbound",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.0020848750000368454,
+      "log": "03-fanotify.log",
+      "log_sha256": "bc2fffc2b10c5460d310546bec3b758c1eeecb6bbfd6e4e2ad8a4c310bf6fbe0"
+    },
+    {
+      "family": "gate10_xdp_evaluation",
+      "test": "x10a_this_kernel_loads_and_executes_an_xdp_parser_without_attaching_it",
+      "status": "BLOCKED",
+      "reason": "required live assertion did not execute under its prerequisites",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/gate10_xdp_evaluation-352b76686e0ac580",
+        "x10a_this_kernel_loads_and_executes_an_xdp_parser_without_attaching_it",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.002124444999935804,
+      "log": "04-gate10_xdp_evaluation.log",
+      "log_sha256": "e662beea03a4ba404afed6390411060cef21cf45e3cb288e279491b39435d53c"
+    },
+    {
+      "family": "gate10_xdp_evaluation",
+      "test": "x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused",
+      "status": "FAIL",
+      "reason": "test process failed",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/gate10_xdp_evaluation-352b76686e0ac580",
+        "x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "timed_out": false,
+      "duration_seconds": 0.001942510999924707,
+      "log": "05-gate10_xdp_evaluation.log",
+      "log_sha256": "e67b87815a8cbb5987d4035d109908a50382cccd307ff0d2f27d433664c31633"
+    },
+    {
+      "family": "sniffer_dog",
+      "test": "t09_live_short_lived_process_is_seen_by_the_kernel_connector",
+      "status": "BLOCKED",
+      "reason": "required live assertion did not execute under its prerequisites",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/sniffer_dog-fb42902a46d18a86",
+        "t09_live_short_lived_process_is_seen_by_the_kernel_connector",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.0014776620000702678,
+      "log": "06-sniffer_dog.log",
+      "log_sha256": "949c941c58c9b4c6536516d7875f6d998a42ae6350a737ae821fb8f84177c5fe"
+    },
+    {
+      "family": "sniffer_dog",
+      "test": "t10_live_exec_replacement_is_delivered_as_a_kernel_exec_event",
+      "status": "BLOCKED",
+      "reason": "required live assertion did not execute under its prerequisites",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/sniffer_dog-fb42902a46d18a86",
+        "t10_live_exec_replacement_is_delivered_as_a_kernel_exec_event",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.0014731050000591495,
+      "log": "07-sniffer_dog.log",
+      "log_sha256": "964d777d32d82b7eb9560c6da3e89ddb3dddab92e4cb165333089dd03d6d1dd6"
+    },
+    {
+      "family": "sniffer_dog",
+      "test": "t15_live_kernel_event_loss_is_signalled_and_degrades_coverage",
+      "status": "BLOCKED",
+      "reason": "required live assertion did not execute under its prerequisites",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/sniffer_dog-fb42902a46d18a86",
+        "t15_live_kernel_event_loss_is_signalled_and_degrades_coverage",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.0023110150000320573,
+      "log": "08-sniffer_dog.log",
+      "log_sha256": "ce2a68a2395d9c9c924d82059aaba7facbfb972ffb3176bc7cf07dea816bd84b"
+    },
+    {
+      "family": "socksend",
+      "test": "sk07_live_a_loopback_send_is_reported_under_the_senders_pid_with_its_count",
+      "status": "BLOCKED",
+      "reason": "required live assertion did not execute under its prerequisites",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socksend-0a0a621b4d62f338",
+        "sk07_live_a_loopback_send_is_reported_under_the_senders_pid_with_its_count",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.0015430200000992045,
+      "log": "09-socksend.log",
+      "log_sha256": "ddc05cf605baa063c070db67a495cdbdb2bd4a16118a2af2421a6399bb046924"
+    },
+    {
+      "family": "wiretap",
+      "test": "wt10_live_loopback_handshake_is_captured_with_kernel_stamps_and_counted_loss",
+      "status": "BLOCKED",
+      "reason": "required live assertion did not execute under its prerequisites",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/wiretap-c4288ad0a12c328b",
+        "wt10_live_loopback_handshake_is_captured_with_kernel_stamps_and_counted_loss",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.0013662040000781417,
+      "log": "10-wiretap.log",
+      "log_sha256": "845828dd205747db0a49229c2b56f2011e03db12516679e9472bd667e4098dd6"
+    }
+  ],
+  "offline_checks": [
+    {
+      "case": "t09",
+      "status": "BLOCKED",
+      "reason": "live archive absent"
+    },
+    {
+      "case": "t15",
+      "status": "BLOCKED",
+      "reason": "live archive absent"
+    }
+  ],
+  "scope": "Native component assertions; not full framework, capture-rate or enterprise acceptance",
+  "independent_administration": false,
+  "airgap_acceptance": false,
+  "build_log_sha256": "21187ae510b421ebd38a11fd2618f14aba640c1c02a0b356872f1733e8d1c3d5",
+  "binary_sha256": {
+    "cgroup_live": "fbd28b9ee93e1f9ea9c1f9f13d66ee5c8689297fe8c2b6ffd65a775a7152f5b9",
+    "fanotify": "a488dd1a0f7f98110f8486993d8859c44e181672801cf925a67c7357538a0d17",
+    "wiretap": "6150283521e08b7509582333db0b454878e0dbea5eddd1f47e3b85baee4b2ba8",
+    "socksend": "af31d8851d5a3d8789c98bb87a75b993c000987007812fa45a2f24305116a301",
+    "gate10_xdp_evaluation": "7b23f170ea566d6ab4c6fc3722f53c0d8e69fefc0828c3153b2ad65ee37d41c3",
+    "sniffer_dog": "ae682ec256fb6c6545a8c82aa7a56353c48d0a144b2ba2eb65cb65def14230f3"
+  },
+  "source_sha256": {
+    "Cargo.lock": "03b5eb24895f17597ad47175215c2eb36bbf258c308d1ec28ca762ddac90e4cd",
+    "aip-standalone/../validation/p0_048/native_qualification.py": "a39d992c89ce2e9edb25e1067979956350c56eeb624d7615fdaf4c692a0369da",
+    "aip-standalone/aip-observe/src/probe.rs": "988f32c8d297a90ba335012aeb4d784c6a5e65de52392f312a092ae033385546",
+    "aip-standalone/aip-observe/tests/cgroup_live.rs": "84bfee818574dacd9bf3d19a9324116a9e54e1895ffcf78ff221c9c868009223",
+    "aip-standalone/aip-observe/tests/fanotify.rs": "7f89f96e6841ef565284ccf2faa001f70073c9644219f0466ab600028c0c2851",
+    "aip-standalone/aip-observe/tests/gate10_xdp_evaluation.rs": "27b2583e2c2a47d469786e9783dbdc1404dad12199c766280a551d996f5c2345",
+    "aip-standalone/aip-observe/tests/sniffer_dog.rs": "f0974fcfe6fdd0f26d640dd384ced5464ec26cc2034c21e27df9b36330b35ef2",
+    "aip-standalone/aip-observe/tests/socksend.rs": "124805cf86b1fb9acd5c75e89ec477ebfef9a5bc3d6cfe64d7f3a60ddd21df42",
+    "aip-standalone/aip-observe/tests/wiretap.rs": "226787e9b5b0854421cae29e09dbb7257cb552b48196ce33407fa2e523a3ace5"
+  },
+  "verifier_sha256": "37021818ef8d4b26b999bcc5cb2a0846862e21f1ccbc58e23bb8c6587a657e5a"
+}

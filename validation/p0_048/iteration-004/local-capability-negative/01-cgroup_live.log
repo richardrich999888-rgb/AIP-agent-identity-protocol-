@@ -1,0 +1,15 @@
+
+running 1 test
+test an_exec_sample_carries_the_execing_tasks_cgroup_id ... 
+thread 'an_exec_sample_carries_the_execing_tasks_cgroup_id' (15) panicked at aip-standalone/aip-observe/tests/cgroup_live.rs:19:9:
+cgroup_live: required live capability missing — sched tracer unavailable: Unavailable("tracefs is not mounted (/sys/kernel/tracing); mount -t tracefs nodev /sys/kernel/tracing")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    an_exec_sample_carries_the_execing_tasks_cgroup_id
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

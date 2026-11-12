@@ -1,0 +1,21 @@
+{
+  "command": [
+    "bash",
+    "-euo",
+    "pipefail",
+    "-c",
+    "cargo test --locked --offline --no-run --message-format=json -p aip-observe --test cgroup_live --test fanotify --test gate10_xdp_evaluation --test sniffer_dog --test socksend --test wiretap > /workspace/scratch/8cbb8ab6ce9d/p0-048-tools/native-artifacts.jsonl"
+  ],
+  "cwd": "/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone",
+  "environment": {
+    "PATH": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/rust/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "started_at": "2026-11-12T06:09:06.475169+00:00",
+  "duration_seconds": 1.4628217280001081,
+  "exit_code": 0,
+  "log_sha256": "db0c6c78769c28018ab4c92cc0351690cf3c426e158ce004482d7ffeb84cc24e"
+}

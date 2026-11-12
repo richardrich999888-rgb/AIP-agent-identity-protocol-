@@ -52,6 +52,36 @@ fn fixture() -> Fx {
     }
 }
 
+/// Optional retention for the disposable-host qualification job. Store the
+/// original signed values, never private keys or reconstructed observations.
+#[cfg(target_os = "linux")]
+fn retain_live(f: &Fx, label: &str, batch: &AttestedBatch, health: &SignedSensorHealth) {
+    let Ok(root) = std::env::var("P0_048_LIVE_RETAIN_DIR") else {
+        return;
+    };
+    let root = std::path::Path::new(&root);
+    std::fs::create_dir_all(root).unwrap();
+    let directory = root.join(label);
+    std::fs::create_dir(&directory).expect("refuse to overwrite earlier live originals");
+    for (name, value) in [
+        ("batches.jsonl", serde_json::to_string(batch).unwrap()),
+        ("health.jsonl", serde_json::to_string(health).unwrap()),
+    ] {
+        std::fs::write(directory.join(name), format!("{value}\n")).unwrap();
+    }
+    let scope = serde_json::json!({
+        "scope": "Live kernel component test over synthetic local workloads; fixture wall windows are not production execution coverage",
+        "case": label, "live_connector_capture": true,
+        "independent_administration": false, "execution_verdict": "NOT_EVALUATED",
+        "observer_id": OBSERVER_ID, "key_version": 1, "public_key": f.observer_kp.public_key,
+    });
+    std::fs::write(
+        directory.join("scope-and-anchor.json"),
+        serde_json::to_vec_pretty(&scope).unwrap(),
+    )
+    .unwrap();
+}
+
 fn process(pid: u32, start: u64, boot: u8, exe: u8) -> ObservedProcess {
     ObservedProcess {
         process: ProcessInstance {
@@ -445,6 +475,7 @@ fn t09_live_short_lived_process_is_seen_by_the_kernel_connector() {
     if exit.bound.is_none() {
         assert_eq!(exit.subject_identity_digest(), None);
     }
+    retain_live(&f, "t09", &attested, &f.signer.health(now_ms()).unwrap());
 }
 
 // ─── 10. Executable replacement is a kernel event ───
@@ -685,7 +716,7 @@ fn t15_live_kernel_event_loss_is_signalled_and_degrades_coverage() {
 
     let b = f.probe.batch([15u8; 16], 1, 2, vec![]);
     assert!(matches!(b.dropped_events, Some(n) if n > 0));
-    f.signer.attest(b).unwrap();
+    let attested = f.signer.attest(b).unwrap();
     assert!(matches!(
         f.signer.probe_faults().last(),
         Some(ProbeStreamFault::EventsLost { .. })
@@ -693,6 +724,7 @@ fn t15_live_kernel_event_loss_is_signalled_and_degrades_coverage() {
     assert_eq!(f.signer.state(), ObserverState::Degraded);
     let h = f.signer.health(3).unwrap();
     assert_eq!(h.health.attested_coverage, None);
+    retain_live(&f, "t15", &attested, &h);
     assert_eq!(
         h.availability_for(
             &CoverageWindow {
