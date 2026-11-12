@@ -271,3 +271,7 @@ be explicitly configured; legacy mode is not C2-qualified. Packs, models, UI/API
 OVERLAY, clean-host installation and independent demo acceptance remain open.
 No new qualifying rehearsal: the offline 33-test component run on this same host
 counts as zero demos. No live investor runtime, second host or sensor qualification.
+
+## 12 November 2026 — P0-050 launch boundary component run
+
+Source 2408c6e; hosted teaching 43252347920 passed 313 Rust / 267 Python, all 32 sandbox checks. Full original signed archive retained at [launch checkpoint](../assurance/evidence/p0-050-launch/README.md), independently replayed with public material offline. Local ptrace EPERM failures and stale-key replay failure retained. Component runs only: **zero investor/bank/defence full rehearsals and zero W3 twenty-run credit**. No live model or independent Sniffer Dog observation. Full CI pending; Security failed.

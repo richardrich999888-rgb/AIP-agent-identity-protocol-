@@ -1,5 +1,9 @@
 # P0-050 iteration 1 report
 
+**Latest S2 launch continuation (12 November 2026):** source `2408c6e` requires a positive child exec event and real terminal status before signing. Hosted teaching CI passes 313 relevant Rust and 267 focused Python tests, including all 32 sandbox tests. Downloaded original signed records and tamper/wrong-key controls replay offline; teaching 12/12 + 26/26 remains intact. Local ptrace is refused (EPERM): 288 pass / 18 fail retained, no skipped tests. Full workspace CI remains pending; Security retains four HIGH historical Helm findings. Release NOT READY; no complete demo or enterprise acceptance. [Originals and checkpoint](evidence/p0-050-launch/README.md).
+
+Earlier checkpoint (historical; superseded only for the scoped launch item):
+
 **Concurrent source preserved:** `5bc0c5f` added a general teaching-session
 scoreboard while S2 evidence was being finalized. Its source and teaching CI
 are present, but this S2 iteration does not independently accept its new trust

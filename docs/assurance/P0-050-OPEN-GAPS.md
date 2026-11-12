@@ -1,5 +1,9 @@
 # P0-050 open acceptance requirements
 
+**Latest S2 launch continuation (12 November 2026):** source `2408c6e` requires a positive child exec event and real terminal status before signing. Hosted teaching CI passes 313 relevant Rust and 267 focused Python tests, including all 32 sandbox tests. Downloaded original signed records and tamper/wrong-key controls replay offline; teaching 12/12 + 26/26 remains intact. Local ptrace is refused (EPERM): 288 pass / 18 fail retained, no skipped tests. Full workspace CI remains pending; Security retains four HIGH historical Helm findings. Release NOT READY; no complete demo or enterprise acceptance. [Originals and checkpoint](evidence/p0-050-launch/README.md).
+
+Earlier checkpoint (historical; superseded only for the scoped launch item):
+
 **Concurrent source preserved:** `5bc0c5f` added a general teaching-session
 scoreboard while S2 evidence was being finalized. Its source and teaching CI
 are present, but this S2 iteration does not independently accept its new trust
@@ -31,7 +35,7 @@ or rehearsal requirement below.
 
 | Priority / dependency | Exact incomplete requirement | Required proof to close |
 |---|---|---|
-| P0 next | Per-launch acknowledgement after successful readiness probe; executable hash-to-exec race remains separate | Probe-success/launch-failure regression; fail closed without false tool-exit attestation, preserve one-shot semantics and CannotProve; scoped and affected CI tests pass |
+| P0 current | Launch acknowledgement: hosted scoped checks pass; full CI pending; local tracing unsupported | Retain original failures and successful hosted signed archives; complete full CI. Executable hash-to-exec race remains separate. |
 | P0 security | Four HIGH retained-render Trivy findings; source/config/evidence classification | Supported native sensor design and justified remediation while retaining original evidence; no blanket excludes or sensor disablement |
 | P0 C1 | General answered-session command, precise failed-row/B1 question linkage | Source/question/draft/candidate hashes bound; no stale answers; meaningful independent scoreboard with all attacks passing |
 | P0 C2 | Complete signed expert approval with identity, tenant, ID/version, source, suite, time and scope | Unauthorized/cross-tenant, changed source/suite, revoked/expired approval, rollback and supersession attacks; never unapproved activation |
