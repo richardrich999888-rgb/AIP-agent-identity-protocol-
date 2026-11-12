@@ -32,12 +32,13 @@ struct World {
     approver: aip_types::KeyPair,
     suites: Vec<ExpertSuite>,
     snapshots: RefCell<Vec<BTreeMap<String, Vec<u8>>>>,
+    policies: RefCell<Vec<serde_json::Value>>,
 }
 
 impl World {
     fn new() -> Self {
         let dir = tempfile::tempdir().unwrap();
-        let mut corpus = SqliteCorpus::in_memory().unwrap();
+        let mut corpus = SqliteCorpus::open(&dir.path().join("corpus.db")).unwrap();
         let text = std::fs::read_to_string(format!("{DATA}/corpus/koravi-ep-114.txt")).unwrap();
         let (_, body) = text.split_once('\n').unwrap();
         // Identical synthetic source content, separately ingested per tenant.
@@ -61,6 +62,7 @@ impl World {
             approver: aip_crypto::generate_ed25519_keypair(),
             suites: vec![],
             snapshots: RefCell::new(vec![]),
+            policies: RefCell::new(vec![]),
         }
     }
 
@@ -162,14 +164,27 @@ impl World {
     }
 
     fn cli(&self, command: &str, args: &[&str]) -> std::process::Output {
+        self.cli_policy(command, args, None)
+    }
+
+    fn cli_policy(
+        &self,
+        command: &str,
+        args: &[&str],
+        policy: Option<&serde_json::Value>,
+    ) -> std::process::Output {
         let unused = serde_json::json!({"path":"UNUSED_BY_LIFECYCLE", "sha256":"0".repeat(64)});
-        let config = serde_json::json!({
+        let mut config = serde_json::json!({
             "state":self.dir.path(), "policy_version":"ep-114-revC", "security_domain":DOMAIN,
             "rag_k":3, "approvers":{"expert:approval-authority":hex::encode(&self.approver.public_key)},
             "experts":{EXPERT:hex::encode(&self.expert.public_key)}, "python":"UNUSED_BY_LIFECYCLE",
             "sidecar_script":"UNUSED_BY_LIFECYCLE", "llama_server":"UNUSED_BY_LIFECYCLE",
             "profile":"none", "q4":unused, "q8":unused, "port":18080
         });
+        if let Some(policy) = policy {
+            config["approval_policy"] = policy.clone();
+            self.policies.borrow_mut().push(policy.clone());
+        }
         let path = self.dir.path().join("config.json");
         std::fs::write(&path, serde_json::to_vec(&config).unwrap()).unwrap();
         Command::new(env!("CARGO_BIN_EXE_syntriass"))
@@ -180,6 +195,209 @@ impl World {
             .output()
             .unwrap()
     }
+}
+
+fn strict_policy(w: &World, hash: &str) -> serde_json::Value {
+    let r = w.record(hash);
+    serde_json::json!({"authorities":{"expert:approval-authority":{
+        "expert_id":"expert:approval-authority",
+        "public_key_sha256":hex::encode(aip_crypto::sha256(&w.approver.public_key)),
+        "tenant":TENANT,"security_domain":DOMAIN,"capability_ids":[r.capability.id],
+        "min_version":1,"max_version":2,"max_clearance":"restricted",
+        "valid_from_ms":1,"expires_at_ms":u64::MAX,"revoked":false
+    }}})
+}
+
+fn strict_approve(w: &mut World, hash: &str, policy: &serde_json::Value) {
+    let mut r = w.record(hash);
+    r.state = State::Validated;
+    r.approval = None;
+    w.store.put(&r).unwrap();
+    let key = w.dir.path().join("ephemeral-key.json");
+    aip_crypto::custody::create_owner_only(
+        &key,
+        &serde_json::to_vec(&serde_json::json!({
+            "id":"expert:approval-authority", "public_hex":hex::encode(&w.approver.public_key),
+            "private_hex":hex::encode(&w.approver.private_key)
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let result = w.cli_policy(
+        "cap-approve",
+        &["--hash", hash, "--key", key.to_str().unwrap()],
+        Some(policy),
+    );
+    std::fs::remove_file(key).unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(w.record(hash).approval.unwrap().authority_hash.is_some());
+}
+
+#[test]
+fn strict_cli_approves_activates_then_refuses_revoked_authority_without_mutation() {
+    let mut w = World::new();
+    let hash = w.approved(TENANT, DOMAIN, 1);
+    let policy = strict_policy(&w, &hash);
+    strict_approve(&mut w, &hash, &policy);
+    let args = [
+        "--hash",
+        hash.as_str(),
+        "--actor",
+        "operator",
+        "--reason",
+        "test",
+    ];
+    let result = w.cli_policy("cap-activate", &args, Some(&policy));
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let result = w.cli_policy("cap-list", &[], Some(&policy));
+    let row: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
+    assert_eq!(row["executable"], true);
+    let mut revoked = policy.clone();
+    revoked["authorities"]["expert:approval-authority"]["revoked"] = true.into();
+    let before = w.snapshot();
+    let result = w.cli_policy("cap-list", &[], Some(&revoked));
+    let row: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
+    assert_eq!(row["executable"], false);
+    for p in [Some(&revoked), None] {
+        assert!(!w.cli_policy("cap-activate", &args, p).status.success());
+        assert!(!w
+            .cli_policy(
+                "cap-transition",
+                &[
+                    "--hash", &hash, "--to", "ACTIVE", "--role", "operator", "--actor", "operator",
+                    "--reason", "bypass"
+                ],
+                p
+            )
+            .status
+            .success());
+        assert_eq!(w.snapshot(), before);
+    }
+}
+
+#[test]
+fn strict_cli_rejects_below_floor_rollback_before_suspending_current() {
+    let mut w = World::new();
+    let old = w.approved(TENANT, DOMAIN, 1);
+    let mut policy = strict_policy(&w, &old);
+    strict_approve(&mut w, &old, &policy);
+    w.seed_active(&old);
+    let current = w.approved(TENANT, DOMAIN, 2);
+    strict_approve(&mut w, &current, &policy);
+    activate(&mut w.store, &current, "operator", true, 4, "upgrade").unwrap();
+    policy["authorities"]["expert:approval-authority"]["min_version"] = 2.into();
+    let before = w.snapshot();
+    let result = w.cli_policy(
+        "cap-rollback",
+        &["--to", &old, "--actor", "authority", "--reason", "rollback"],
+        Some(&policy),
+    );
+    assert!(!result.status.success());
+    assert!(String::from_utf8_lossy(&result.stderr).contains("version outside"));
+    assert_eq!(w.snapshot(), before);
+    assert_eq!(w.record(&current).state, State::Active);
+}
+
+#[test]
+fn strict_cli_rejects_changed_source_and_legacy_approval() {
+    let mut w = World::new();
+    let hash = w.approved(TENANT, DOMAIN, 1);
+    let policy = strict_policy(&w, &hash);
+    let args = [
+        "--hash",
+        hash.as_str(),
+        "--actor",
+        "operator",
+        "--reason",
+        "test",
+    ];
+    let before = w.snapshot();
+    let result = w.cli_policy("cap-activate", &args, Some(&policy));
+    assert!(!result.status.success());
+    assert!(String::from_utf8_lossy(&result.stderr).contains("legacy approval"));
+    assert_eq!(w.snapshot(), before);
+    strict_approve(&mut w, &hash, &policy);
+    w.corpus
+        .ingest(&Document {
+            tenant: Ident::new(TENANT).unwrap(),
+            doc_id: Ident::new("ep-114").unwrap(),
+            classification: Classification::Restricted,
+            title: "Changed synthetic source".into(),
+            body: "Different limits".into(),
+        })
+        .unwrap();
+    let before = w.snapshot();
+    let result = w.cli_policy("cap-activate", &args, Some(&policy));
+    assert!(!result.status.success());
+    assert!(String::from_utf8_lossy(&result.stderr).contains("source evidence changed"));
+    assert_eq!(w.snapshot(), before);
+}
+
+#[test]
+fn strict_cli_denies_unauthorized_approval_without_writing_state() {
+    let mut w = World::new();
+    let hash = w.approved(TENANT, DOMAIN, 1);
+    let mut record = w.record(&hash);
+    record.state = State::Validated;
+    record.approval = None;
+    w.store.put(&record).unwrap();
+    let policy = strict_policy(&w, &hash);
+    let key = w.dir.path().join("ephemeral-key.json");
+    aip_crypto::custody::create_owner_only(
+        &key,
+        &serde_json::to_vec(&serde_json::json!({
+            "id":"expert:approval-authority", "public_hex":hex::encode(&w.approver.public_key),
+            "private_hex":hex::encode(&w.approver.private_key)
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let before = w.snapshot();
+    for attack in ["revoked", "expired", "tenant", "key", "empty"] {
+        let mut p = policy.clone();
+        let grant = &mut p["authorities"]["expert:approval-authority"];
+        match attack {
+            "revoked" => grant["revoked"] = true.into(),
+            "expired" => grant["expires_at_ms"] = 2.into(),
+            "tenant" => grant["tenant"] = "foreign".into(),
+            "key" => grant["public_key_sha256"] = "0".repeat(64).into(),
+            "empty" => p["authorities"] = serde_json::json!({}),
+            _ => unreachable!(),
+        }
+        let result = w.cli_policy(
+            "cap-approve",
+            &["--hash", &hash, "--key", key.to_str().unwrap()],
+            Some(&p),
+        );
+        assert!(!result.status.success(), "{attack}");
+        assert_eq!(w.snapshot(), before, "{attack}");
+    }
+    w.corpus
+        .ingest(&Document {
+            tenant: Ident::new(TENANT).unwrap(),
+            doc_id: Ident::new("ep-114").unwrap(),
+            classification: Classification::Restricted,
+            title: "Changed".into(),
+            body: "Changed".into(),
+        })
+        .unwrap();
+    let result = w.cli_policy(
+        "cap-approve",
+        &["--hash", &hash, "--key", key.to_str().unwrap()],
+        Some(&policy),
+    );
+    assert!(!result.status.success());
+    assert!(String::from_utf8_lossy(&result.stderr).contains("source evidence changed"));
+    assert_eq!(w.snapshot(), before);
+    std::fs::remove_file(key).unwrap();
 }
 
 impl Drop for World {
@@ -211,6 +429,11 @@ impl Drop for World {
             aip_crypto::custody::create_owner_only(
                 &output.join("suites.json"),
                 &serde_json::to_vec_pretty(&self.suites)?,
+            )
+            .map_err(|e| format!("{e:?}"))?;
+            aip_crypto::custody::create_owner_only(
+                &output.join("policies.json"),
+                &serde_json::to_vec_pretty(&*self.policies.borrow())?,
             )
             .map_err(|e| format!("{e:?}"))?;
             self.snapshot(); // Retain final bytes even when a test assertion failed.

@@ -15,6 +15,7 @@ use vanian_sovereign::domain::corpus::{Classification, Ident, Principal};
 use vanian_sovereign::ports::{PortError, PortErrorKind};
 
 use crate::capability::artifact::Capability;
+use crate::capability::authority::ApprovalPolicy;
 use crate::capability::lifecycle::{Approval, LifecycleError, Record, Role, State};
 use crate::capability::suite::ExpertSuite;
 use crate::capability::validate::{validate, ValidationReport};
@@ -134,19 +135,68 @@ pub fn approve_record(
     consequential: bool,
     at_ms: u64,
 ) -> Result<(), PortError> {
+    approve_record_with_policy(
+        store,
+        hash,
+        approver_id,
+        private_key,
+        public_key,
+        consequential,
+        ApprovalContext {
+            at_ms,
+            policy: None,
+        },
+    )
+}
+
+pub struct ApprovalContext<'a> {
+    pub at_ms: u64,
+    pub policy: Option<&'a ApprovalPolicy>,
+}
+
+/// Issue an authority-bound approval when strict policy is configured.
+pub fn approve_record_with_policy(
+    store: &mut dyn CapabilityStore,
+    hash: &str,
+    approver_id: &str,
+    private_key: &[u8],
+    public_key: &[u8],
+    consequential: bool,
+    context: ApprovalContext<'_>,
+) -> Result<(), PortError> {
+    let at_ms = context.at_ms;
     let mut rec = find(store, hash)?;
     let report = rec
         .validation
         .clone()
         .ok_or_else(|| err(PortErrorKind::ContractViolation, "not validated"))?;
-    let a = Approval::sign(
-        hash,
-        &report,
-        approver_id,
-        consequential,
-        at_ms,
-        private_key,
-    )
+    let a = match context.policy {
+        Some(policy) => {
+            let grant = policy
+                .grant(approver_id)
+                .map_err(|e| err(PortErrorKind::ContractViolation, e))?;
+            grant
+                .authorize(&rec.capability, approver_id, public_key, at_ms, at_ms)
+                .map_err(|e| err(PortErrorKind::ContractViolation, e))?;
+            Approval::sign_authorized(
+                hash,
+                &report,
+                approver_id,
+                consequential,
+                at_ms,
+                private_key,
+                grant.hash(),
+            )
+        }
+        None => Approval::sign(
+            hash,
+            &report,
+            approver_id,
+            consequential,
+            at_ms,
+            private_key,
+        ),
+    }
     .map_err(|e| err(PortErrorKind::ContractViolation, e))?;
     rec.approve(a, public_key, at_ms).map_err(life)?;
     store.put(&rec)

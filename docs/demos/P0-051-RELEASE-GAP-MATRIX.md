@@ -94,3 +94,23 @@ collision. Teaching CI 43224795762 passes 296 relevant Rust and 267 focused
 Python checks; local full Python remains 445. These counts overlap. Original
 baseline failures and signed records are in `evidence/p0-051-iteration-3/`.
 Main CI is separately tracked; Security still fails four HIGH findings.
+
+## Iteration 4 — native approval authority (12 November 2026)
+
+Parent `31d3ee5a84e7565db9458b9834f46b51dfd53720` freshly fetched. Its main,
+teaching and contracts CI pass; Security fails the four previously retained HIGH
+Helm findings. This is baseline CI, not validation of the changes below.
+
+A2/A3/A6/A7 advance to **PARTIAL**: optional strict authority policy binds expert
+key, tenant/domain, capability scope/version, clearance and validity to a v2
+Ed25519 approval. CLI activation/rollback and runtime use recheck policy; policy
+removal cannot downgrade the signature. Source dependencies are rechecked in
+strict CLI paths. Local runtime 201/201 and teaching Python 445/445 pass; seven
+new Rust tests are included in 201, not additional totals. Exact evidence and CI
+will be retained in `evidence/p0-051-iteration-4/`. See `APPROVAL-AUTHORITY.md`.
+
+C2 stays OPEN end-to-end: operator actions are not authenticated; C1 session/full
+original-document/example-map approval binding, transactional writes, local
+policy rollback protection and per-approval revocation remain open. Legacy mode
+is explicitly not C2-qualified. Packs and all previously listed release blockers
+remain open. No new rehearsal or clean-machine credit. **NOT READY**.

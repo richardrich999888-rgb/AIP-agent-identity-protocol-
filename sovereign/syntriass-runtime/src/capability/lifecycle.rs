@@ -76,6 +76,8 @@ pub struct Approval {
     pub approver_id: String,
     pub consequential: bool,
     pub decided_at_ms: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub authority_hash: Option<String>,
     pub signature_hex: String,
 }
 
@@ -112,8 +114,63 @@ impl Approval {
             approver_id: approver_id.into(),
             consequential,
             decided_at_ms: at,
+            authority_hash: None,
             signature_hex: hex::encode(sig),
         })
+    }
+
+    /// Sign with an exact operator-provisioned authority grant, using Ed25519.
+    pub fn sign_authorized(
+        cap_hash: &str,
+        report: &ValidationReport,
+        approver_id: &str,
+        consequential: bool,
+        at: u64,
+        private_key: &[u8],
+        authority_hash: String,
+    ) -> Result<Self, String> {
+        let mut approval = Self::sign(
+            cap_hash,
+            report,
+            approver_id,
+            consequential,
+            at,
+            private_key,
+        )?;
+        approval.authority_hash = Some(authority_hash);
+        approval.signature_hex = hex::encode(
+            aip_crypto::sign_ed25519_raw(private_key, &approval.payload())
+                .map_err(|e| format!("{e:?}"))?,
+        );
+        Ok(approval)
+    }
+
+    /// v1 bytes are unchanged; v2 additionally binds the exact grant hash.
+    pub fn payload(&self) -> Vec<u8> {
+        match &self.authority_hash {
+            None => Self::signed_bytes(
+                &self.capability_hash,
+                &self.validation_report_hash,
+                &self.approver_id,
+                self.consequential,
+                self.decided_at_ms,
+            ),
+            Some(hash) => {
+                let mut bytes = b"syntriass-capability-approval/v2\n".to_vec();
+                bytes.extend(
+                    serde_json::to_vec(&(
+                        &self.capability_hash,
+                        &self.validation_report_hash,
+                        &self.approver_id,
+                        self.consequential,
+                        self.decided_at_ms,
+                        hash,
+                    ))
+                    .expect("approval contains no fallible JSON values"),
+                );
+                bytes
+            }
+        }
     }
 
     /// Verify with the approver's public key (offline).
@@ -124,17 +181,7 @@ impl Approval {
         let Ok(sig) = <[u8; 64]>::try_from(raw.as_slice()) else {
             return false;
         };
-        aip_crypto::verify_ed25519_raw(
-            public_key,
-            &Self::signed_bytes(
-                &self.capability_hash,
-                &self.validation_report_hash,
-                &self.approver_id,
-                self.consequential,
-                self.decided_at_ms,
-            ),
-            &sig,
-        )
+        aip_crypto::verify_ed25519_raw(public_key, &self.payload(), &sig)
     }
 }
 

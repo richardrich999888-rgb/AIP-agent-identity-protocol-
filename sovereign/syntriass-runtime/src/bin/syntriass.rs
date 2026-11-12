@@ -81,6 +81,9 @@ struct FileConfig {
     rag_k: usize,
     /// approver id → public key hex
     approvers: BTreeMap<String, String>,
+    /// Optional strict policy. Empty authorities deny every approval.
+    #[serde(default)]
+    approval_policy: Option<syntriass_runtime::capability::authority::ApprovalPolicy>,
     /// expert id → public key hex (trust anchors for validation suites)
     #[serde(default)]
     experts: BTreeMap<String, String>,
@@ -119,6 +122,36 @@ fn profile(c: &FileConfig) -> Option<Profile> {
         "none" => None,
         other => die(format!("unknown profile {other}")),
     }
+}
+
+fn current_evidence(c: &FileConfig, corpus: &SqliteCorpus, rec: &Record) -> Result<(), String> {
+    if c.approval_policy.is_some()
+        || rec
+            .approval
+            .as_ref()
+            .is_some_and(|a| a.authority_hash.is_some())
+    {
+        if rec.capability.required.security_domain != c.security_domain {
+            return Err("capability outside configured security domain".into());
+        }
+        let mut bound = rec.capability.clone();
+        learning::bind_evidence(&mut bound, corpus).map_err(|e| e.to_string())?;
+        if bound.content_hash() != rec.capability_hash {
+            return Err("source evidence changed; validation and fresh approval required".into());
+        }
+    }
+    Ok(())
+}
+
+fn approval_current(c: &FileConfig, corpus: &SqliteCorpus, rec: &Record) -> Result<(), String> {
+    syntriass_runtime::capability::authority::check(
+        rec,
+        &keys(&c.approvers),
+        c.approval_policy.as_ref(),
+        learning::now_ms(),
+    )
+    .map_err(str::to_owned)?;
+    current_evidence(c, corpus, rec)
 }
 
 fn parse_doc(text: &str, file: &str) -> Document {
@@ -698,7 +731,7 @@ fn main() {
                 &rec.capability, &suite, &hexkey(trusted), &tenant_of);
             let mut output = serde_json::to_value(&result).unwrap_or_else(|e| die(e));
             output["stored_state"] = json!(rec.state);
-            output["stored_executable"] = json!(rec.executable());
+            output["stored_executable"] = json!(rec.executable() && approval_current(&c, &corpus, &rec).is_ok());
             println!("{}", serde_json::to_string(&output).unwrap_or_else(|e| die(e)));
             if !result.validation.passed { std::process::exit(3); }
         }
@@ -706,13 +739,17 @@ fn main() {
             let k = read_key(req(&args, "--key"));
             let trusted = c.approvers.get(&k.id).unwrap_or_else(|| die(format!("{} is not a configured approver", k.id)));
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
-            learning::approve_record(&mut store, req(&args, "--hash"), &k.id, &hexkey(&k.private_hex), &hexkey(trusted), args.iter().any(|a| a == "--consequential"), learning::now_ms())
+            current_evidence(&c, &corpus, &record(&c, req(&args, "--hash"))).unwrap_or_else(|e| die(e));
+            learning::approve_record_with_policy(&mut store, req(&args, "--hash"), &k.id, &hexkey(&k.private_hex), &hexkey(trusted), args.iter().any(|a| a == "--consequential"), learning::ApprovalContext { at_ms: learning::now_ms(), policy: c.approval_policy.as_ref() })
                 .unwrap_or_else(|e| die(e));
             println!("{}", json!({"hash": req(&args, "--hash"), "state": "APPROVED", "approver": k.id}));
         }
         "cap-transition" => {
             let to: State = parse_enum(req(&args, "--to"));
             let role: Role = parse_enum(req(&args, "--role"));
+            if to == State::Active {
+                approval_current(&c, &corpus, &record(&c, req(&args, "--hash"))).unwrap_or_else(|e| die(e));
+            }
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
             learning::transition(&mut store, req(&args, "--hash"), to, req(&args, "--actor"), role, learning::now_ms(), req(&args, "--reason"))
                 .unwrap_or_else(|e| die(e));
@@ -721,16 +758,18 @@ fn main() {
         "cap-list" => {
             let store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
             for r in store.all().unwrap_or_else(|e| die(e)) {
-                println!("{}", json!({"id": r.capability.id, "version": r.capability.version, "hash": r.capability_hash, "state": r.state, "executable": r.executable()}));
+                println!("{}", json!({"id": r.capability.id, "version": r.capability.version, "hash": r.capability_hash, "state": r.state, "executable": r.executable() && approval_current(&c, &corpus, &r).is_ok()}));
             }
         }
         "cap-activate" => {
+            approval_current(&c, &corpus, &record(&c, req(&args, "--hash"))).unwrap_or_else(|e| die(e));
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
             let sup = learning::activate(&mut store, req(&args, "--hash"), req(&args, "--actor"), args.iter().any(|a| a == "--supersede"), learning::now_ms(), req(&args, "--reason"))
                 .unwrap_or_else(|e| die(e));
             println!("{}", json!({"hash": req(&args, "--hash"), "state": "ACTIVE", "superseded": sup}));
         }
         "cap-rollback" => {
+            approval_current(&c, &corpus, &record(&c, req(&args, "--to"))).unwrap_or_else(|e| die(e));
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
             let sus = learning::rollback(&mut store, req(&args, "--to"), req(&args, "--actor"), learning::now_ms(), req(&args, "--reason"))
                 .unwrap_or_else(|e| die(e));
@@ -836,6 +875,7 @@ fn main() {
                 audit_log: audit.clone(),
                 rag_k: c.rag_k,
                 approvers,
+                approval_policy: c.approval_policy.clone(),
                 instruments: keys(&c.instruments),
             };
             let rt = Runtime::new(rt_cfg, &corpus, &sidecar, &pool, &store, &meter);
