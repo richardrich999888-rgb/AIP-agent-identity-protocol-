@@ -36,8 +36,8 @@ P0-051 sensor qualification. The prior two maintenance examples are not two sect
 | A2 / C2 | Signed expert approval — PARTIAL | `capability/lifecycle.rs`, `learning.rs` | Complete authenticated teaching action and approval envelope; bind tenant/expert/ID/version/source/suite/scope/time/trust anchor |
 | A3 | Authority verification — OPEN end-to-end | Existing signature/trust-map and independence checks | Forged, wrong expert/tenant, expired and revoked authority attacks in teaching workflow |
 | A4 | Activation — PARTIAL | Existing lifecycle and CLI gates | Never activate without required validation/approval; unauthorized activation rejection through actual teaching interface |
-| A5 | Supersession — PARTIAL | `cap-activate --supersede` | Signed version/lineage/policy-floor enforcement in composed workflow |
-| A6 | Safe rollback — PARTIAL | Existing rollback command | Reject unapproved/revoked/stale/below-floor rollback; preserve active version on failure |
+| A5 | Supersession — PARTIAL; cross-scope displacement fixed | `cap-activate --supersede`; `ee3850c` | Version selection now matches tenant + security domain + capability ID; 7 new behavior/CLI tests, 194 runtime passes. Signed authority/version/lineage/policy-floor enforcement remains open |
+| A6 | Safe rollback — PARTIAL; cross-scope displacement fixed | Existing rollback command; `ee3850c` | Other tenant/domain records remain byte-identical. Authenticated actor, expired/revoked/stale/below-floor rejection and transactional handling of storage failure remain open |
 | A7 | Approval revocation — PARTIAL | Existing revoked state | Trust-anchor and expert revocation at use/import/rollback; no stale approval reuse |
 | A8 | Tenant/clearance — PARTIAL | Runtime/corpus regressions | Full session/API/pack scope, wrong tenant, changed source/capability/suite attacks; no implicit activation |
 | B1 | `pack export/verify/import` — OPEN | Existing hashes, Ed25519 and lifecycle primitives | Signed real synthetic maintenance `.pack`, version, implementation, provenance, approvals, validation, scope and model dependencies |
@@ -88,3 +88,9 @@ performed. Use **EXPERT-GUIDED TAUGHT CAPABILITY** for the teaching behavior.
 
 P0-051 bounded implementation: `5bc0c5f`; evidence and subsequent reconciliation
 are in [the current report](P0-051-FINAL-REPORT.md). The next bounded source `7c9a0b3` implements explicit example mapping; it does not close authenticated approval, full C1/UI or release acceptance.
+
+Iteration 3 source `ee3850c` fixes the demonstrated cross-tenant/domain lifecycle
+collision. Teaching CI 43224795762 passes 296 relevant Rust and 267 focused
+Python checks; local full Python remains 445. These counts overlap. Original
+baseline failures and signed records are in `evidence/p0-051-iteration-3/`.
+Main CI is separately tracked; Security still fails four HIGH findings.

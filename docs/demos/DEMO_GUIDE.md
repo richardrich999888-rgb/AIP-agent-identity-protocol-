@@ -273,3 +273,24 @@ tampered-evidence rejection. See the S2 assurance checkpoint for prerequisites
 and exact commands. Label this **runner attestation, independent observation
 CANNOT_PROVE**. It earns no live Sniffer Dog, model, teaching approval or complete
 investor/bank/defence sequence credit.
+
+## Lifecycle scope check — engineering component only
+
+With the recorded Rust toolchain and all build dependencies staged locally:
+
+```bash
+SYNTRIASS_LIFECYCLE_EVIDENCE=/tmp/p051-lifecycle-new \
+  cargo test --locked --offline -p syntriass-runtime --test lifecycle_isolation
+```
+
+Expect seven tests passing. They execute the existing signed-validation/approval
+flow over synthetic fixtures and show that same-named capabilities in another
+tenant or security domain remain unchanged during activation/rollback. Original
+records and public test trust are retained; private keys exist only in memory.
+Use a new directory. The recorded source is `ee3850c`; this requires staged
+build tools and is not an offline customer installer or a teaching approval UI.
+
+Presenter: “Updating this tenant's capability leaves other tenants and security
+domains unchanged. Passing this check does not authenticate a human expert or
+complete the approval workflow.” See the independent verification guide for the
+signed records. Full investor/customer modes remain NOT READY.

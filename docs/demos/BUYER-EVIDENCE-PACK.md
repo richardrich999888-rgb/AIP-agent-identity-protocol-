@@ -1,7 +1,7 @@
 # Buyer evidence pack — P0-051 bounded claims
 
 **Release: NOT READY.** This is an evidence index, not the finished offline kit.
-Implementations `5bc0c5f` and `7c9a0b3` are in draft PR #21. No certification, government
+Implementations `5bc0c5f`, `7c9a0b3` and `ee3850c` are in draft PR #21. No certification, government
 endorsement, customer deployment, production readiness or TRL promotion is claimed.
 
 | Product | DEMONSTRABLE | REPRODUCIBLE | PILOT-READY | PRODUCTION-READY |
@@ -20,6 +20,7 @@ different claims. A same-source CI pass does not establish a customer air gap.
 | Corrected capability preserves applicability/refusal gates | Current local and CI 12/12 holdout, 26/26 attacks, frozen subset 6/6; OpenSSL/native replay | Bounded lexical procedure, not general language understanding; counts overlap |
 | Source and answer substitutions are refused | 70 session/mapping checks within 445 local Python tests; 267 focused hosted tests | Counts overlap. TXT integration only; PDF/DOCX scoring and authenticated approval remain open |
 | Original binary examples have explicit meaning | Input-bound outcome mapping; 3/3 examples reported separately; refusal results stay withheld and cannot rescue the rejected 11/12 suite | Unsigned review declaration; it does not authenticate an expert or add independent suite cases |
+| Lifecycle version changes stay in their tenant/domain | `ee3850c`: 7 new tests, including actual CLI supersession/rollback, preserve foreign records byte-for-byte; original baseline and corrected signed fixtures retained | Actor authentication, expiry/revocation and transactional failure handling remain open; this does not close C2 |
 | Passing the diagnostic does not activate anything | Original lifecycle untouched; scratch proposal nonexecutable; owner-only retained output | Complete signed authority/activation experience is still incomplete |
 | Signed test inputs are independently verifiable | Iteration 2 retains three unique suites per host, each before/after example review; separate Python verification plus fresh native session replay | Public test keys prove integrity, not independent custody or expert identity; reports are unsigned |
 | Runner signatures and tamper refusal reproduce separately | Original CI bundle verifies locally; one-byte tamper rejected after private state removal | Namespace runner attestation; independent observation CANNOT_PROVE; not a Sniffer Dog live capture |
@@ -28,7 +29,8 @@ different claims. A same-source CI pass does not establish a customer air gap.
 
 Original evidence and failed attempts:
 [`p0-051-iteration-1/`](evidence/p0-051-iteration-1/README.md) and
-[`p0-051-iteration-2/`](evidence/p0-051-iteration-2/README.md).
+[`p0-051-iteration-2/`](evidence/p0-051-iteration-2/README.md), plus the
+[lifecycle isolation evidence](evidence/p0-051-iteration-3/README.md).
 Launch/narration/recovery: [founder guide](DEMO_GUIDE.md).
 Hash/signature/replay commands: [independent verification](INDEPENDENT-VERIFICATION.md).
 Requirement ledger: [release matrix](P0-051-RELEASE-GAP-MATRIX.md).

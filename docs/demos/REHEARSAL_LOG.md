@@ -226,3 +226,25 @@ first replay-control exit-code mismatch. See the report for corrected test input
 and unchanged frozen labels. C2 authentication, model, UI, pack, live sensors,
 kit and external evaluator gates remain open. All final consecutive counts stay
 **zero**; no investor-show duration or clean-machine acceptance is claimed.
+
+## P0-051 iteration 3 — lifecycle isolation, zero full-mode credit
+
+Source `ee3850c0c67995ee53e2e82b4983f6e0b55460fd`; hosted merge
+`5acfc0efdb9703fe43f29e9b4375d713d1bf1aa6`; same tree
+`0adadc1fc3d6ebd48fc13cf7d6a0f87f664546fc`. Seven new lifecycle tests reproduce
+six failures on the prior module and all pass with tenant/domain/id selection.
+194 local runtime and 445 Python tests pass. Hosted teaching 43224795762 passes
+296 relevant Rust and 267 focused Python checks; counts overlap.
+
+The clean local scoped command took 0.560703042003297 seconds, child CPU
+1.194756 seconds, peak child RSS 53908 KiB, with zero namespace interface bytes.
+Original baseline and corrected signed suites/approvals/snapshots are retained;
+11 successful local and 11 hosted fixture worlds verify separately. These are
+synthetic unit/CLI fixtures, not 11 rehearsals or independent administrators.
+Current CI teaching originals separately replay 11/12 rejected, 12/12 and 26/26
+accepted with 3/3 examples; six nonactivation probes remain a subset of 26.
+
+One-byte approval modification, changed source/suite/tenant, missing approval
+and wrong trust reject in the independent signature check. Lifecycle history
+remains unsigned. All original failures, exact hashes, hardware, logs and checks
+are in `evidence/p0-051-iteration-3/`. Full-mode consecutive counts stay **zero**.

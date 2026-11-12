@@ -3,6 +3,55 @@
 12 November 2026 (Asia/Kolkata). This report closes a bounded teaching diagnostic
 item. It is not a final-release acceptance certificate.
 
+## Iteration 3: lifecycle scope isolation
+
+Published source **`ee3850c0c67995ee53e2e82b4983f6e0b55460fd`**, CI merge
+`5acfc0efdb9703fe43f29e9b4375d713d1bf1aa6`, identical tree
+`0adadc1fc3d6ebd48fc13cf7d6a0f87f664546fc`.
+
+The existing lifecycle selected active versions by capability ID alone. In a
+shared store, activating/superseding one tenant's capability could displace
+another tenant's version; rollback could suspend another security domain's
+record. The added tests reproduced **six failures and one pass** on the prior
+module, including both real CLI attacks. The original failed states, signed
+suites/approvals and public test keys are retained.
+
+Version selection now uses **tenant + security domain + capability ID** in
+activation, direct transitions, supersession and rollback. Cross-scope records
+remain byte-for-byte unchanged. Existing same-scope conflict and unapproved-target
+refusals remain intact. This is a lifecycle selection repair, not proof that an
+actor string authenticates an operator. Authenticated C2 approval, expiry,
+revocation, policy floors and transactional storage-failure handling remain open.
+
+Fresh checks: **194 runtime tests** pass locally (including seven new tests),
+**445 full Python teaching tests** pass, and scoped Clippy/format checks pass.
+Hosted teaching **43224795762 passes 296 relevant Rust and 267 focused Python**
+tests. Counts overlap. The original control remains 11/12 rejected; corrected
+12/12 and 26/26, including the six nonactivation probes, replay using the current
+binary from the downloaded CI originals. Example agreement remains separately
+3/3. No frozen task/dataset bytes changed.
+
+The 11 successful fixture worlds on the clean local source and the 11 hosted
+worlds retain original signed suites, approval records, snapshots and public
+keys. A separate Python cryptography verifier checks the existing signatures,
+capability/report/suite hashes and tenant bindings. One-byte approval modification,
+changed source/suite/tenant, missing approval and wrong trust each reject.
+**Lifecycle history is unsigned**; signature verification alone also succeeds
+for the failing baseline's authentic approvals. The behavior tests and original
+before/after states establish the selection defect and its fix.
+
+The clean scoped test command ran in a local network namespace in
+**0.560703042003297 s**, child CPU **1.194756 s**, peak child RSS **53908 KiB**;
+only loopback existed and byte counters remained zero. This is a parallel unit/
+CLI component observation, not a commercial demo timing or hardware sizing result.
+No model, sensor, packet capture, clean-machine installation or final rehearsal ran.
+
+Main CI **43224795474** is tracked separately in the evidence provider snapshot;
+no pending result is credited. Security **43224795526 fails four HIGH findings**
+in the retained historical Helm output. The prior mapping source `7c9a0b3` main
+CI 43220664053 subsequently passed; it is not substituted for this new source.
+See [iteration 3 originals](evidence/p0-051-iteration-3/README.md). Release **NOT READY**.
+
 ## Iteration 2: explicit example validation
 
 Published implementation **`7c9a0b385d88460d19da100a4c99dd0ff3c2a2c0`**, tree

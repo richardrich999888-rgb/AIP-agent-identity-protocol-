@@ -502,6 +502,12 @@ with the unproven half named.
   teaching CI `43215328974`; originals are in `docs/demos/evidence/p0-051-iteration-1/`.
 - [ ] **C2. Approve.** Signed approval → activate → supersede. One CLI command, one UI
   action. Builds on `cap-activate --supersede` and the six suite-attack tests.
+  **P0-051 lifecycle prerequisite:** `ee3850c` fixes cross-tenant/domain version
+  selection in activation, supersession and rollback. Seven new tests (including
+  two actual CLI cases) pass; other-scope bytes remain unchanged. Original failing
+  and passing signed records are retained in `docs/demos/evidence/p0-051-iteration-3/`.
+  This does not implement authenticated teaching approval, expiry/revocation,
+  an authorized activation UI or transactional multi-record rollback. C2 stays open.
 
 ### Phase D — Reuse, refusal and ownership
 - [ ] **D1. Live meter.** Per answer: strategy (capability / model / withheld), model

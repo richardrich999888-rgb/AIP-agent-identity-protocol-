@@ -6,6 +6,53 @@ C1 diagnostic reproduced on CI; that connected build is not kit acceptance.
 Source checkouts, unit tests,
 new directories and development namespaces do not satisfy that requirement.
 
+## Latest lifecycle isolation checkpoint
+
+Source `ee3850c0c67995ee53e2e82b4983f6e0b55460fd` fixes cross-tenant/domain
+supersession and rollback. Its hosted merge `5acfc0efdb9703fe43f29e9b4375d713d1bf1aa6`
+has the same tree. These original records use the existing v1 signed suites and
+approvals; the human-teaching authority flow remains incomplete.
+
+```bash
+(cd docs/demos/evidence/p0-051-iteration-3 && sha256sum -c SHA256SUMS)
+export P051_SCOPE_REVIEW="$(mktemp -d)"
+unzip -q docs/demos/evidence/p0-051-iteration-3/ci-teaching-original.zip \
+  -d "$P051_SCOPE_REVIEW/ci"
+python3 docs/demos/evidence/p0-051-iteration-3/verify_lifecycle_records.py \
+  "$P051_SCOPE_REVIEW/ci/lifecycle-isolation-evidence" \
+  --trusted-pins docs/demos/evidence/p0-051-iteration-3/ci-synthetic-trust-pins.json
+```
+
+Expected: ORIGINAL_SYNTHETIC_SIGNATURES_VERIFIED, 11 fixture worlds, no failed
+test world. Authenticate the selected source/archive and pins independently.
+The original CI ZIP SHA-256 is
+`d0b43c755fb23e2bb74f7669355b023959472cc64793cde98da6dca49e9cc5b9`.
+The verifier uses Python cryptography (recorded 50.0.0) and checks capability,
+source-dependency, validation-report and signed-suite bindings. It needs no
+original private key or agent runtime. It does **not** authenticate the unsigned
+lifecycle history, expert identity, current authority validity or execution.
+Even authentic baseline signatures accompany six failing behavior tests; inspect
+and rerun the behavior tests before claiming isolation.
+
+```bash
+SYNTRIASS_LIFECYCLE_EVIDENCE="$P051_SCOPE_REVIEW/fresh" \
+  cargo test --locked --offline -p syntriass-runtime --test lifecycle_isolation
+```
+
+Stage the exact toolchain/dependency cache before disconnecting. This is an
+engineering test, not the final offline installer. Seven tests must pass,
+including real CLI supersession and rollback, with foreign records unchanged.
+The checkpoint retains baseline failures, correct results and six verifier
+mutations: approval byte, source/suite/tenant binding, missing approval and wrong
+trust. Those mutations reject. All full-mode rehearsal counts remain zero.
+
+For the previous C1 replay helper against this checkpoint's teaching inputs,
+select the independently checked current binary hash:
+`6624ef6ad82d529c5f311254c0ddd95a96583c1ba4fbf190e3a7143416e1617f`.
+The old binary hash in iteration 2 below intentionally identifies that earlier
+source. Current CI originals replay 11/12 rejected, 12/12 and 26/26 passing,
+with examples reported as 3/3 separately; replay transcripts are retained.
+
 ## Iteration 2: replay the explicit example mapping
 
 Use trusted source `7c9a0b385d88460d19da100a4c99dd0ff3c2a2c0` (or its later
