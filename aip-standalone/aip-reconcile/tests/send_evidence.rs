@@ -18,6 +18,8 @@
 //!
 //! FIXTURE-BASED; the live path is `ghost-demo/tests/live_send.rs`.
 
+use std::{fs, io::Write, process::Command};
+
 use aip_authorize::*;
 use aip_core::capability::issue_scoped_token;
 use aip_core::create_identity;
@@ -44,6 +46,94 @@ const OTHER: [u8; 4] = [10, 0, 0, 9];
 const SK: u64 = 0xffff_9a0b_1234_5678;
 const RUN: [u8; 16] = [0x7b; 16];
 const ANCHOR_BOOT_NS: u64 = 100_000_000_000;
+
+fn exported_bundle(s: &Scene) -> (serde_json::Value, serde_json::Value) {
+    let dp_key = s.x.anchors.get(&s.x.ee.decision_point_id).unwrap().to_vec();
+    let observer_key =
+        s.o.anchors
+            .get(
+                &s.ev.health.health.observer_id,
+                s.ev.health.health.key_version,
+            )
+            .unwrap()
+            .to_vec();
+    assert_ne!(
+        dp_key, observer_key,
+        "collector and decision point use independent keys"
+    );
+    let dp_id = s.x.ee.decision_point_id.clone();
+    let observer_id = s.ev.health.health.observer_id.clone();
+    let observer_version = s.ev.health.health.key_version;
+    let bundle = serde_json::json!({
+        "bundle_version": 1,
+        "evidence_origin": "SYNTHETIC_TEST_FIXTURE",
+        "expected_execution": s.x.ee,
+        "observer_batches": s.ev.batches,
+        "signed_sensor_health": s.ev.health,
+        "trust_anchors": {
+            "decision_point": {"id": dp_id, "public_key": dp_key},
+            "observer": {"id": observer_id, "key_version": observer_version, "public_key": observer_key},
+            "agent_public_key": s.x.agent_kp.public_key
+        },
+        "verification_context": {"verification_time_ms":s.at, "health_max_age_ms":HEALTH_MAX_AGE, "window_tolerance_ms":0, "expected_side_coverage":"unknown"}
+    });
+    let anchors = serde_json::json!({
+        "decision_point": {"id": dp_id, "public_key": dp_key.iter().map(|b| format!("{b:02x}")).collect::<String>()},
+        "observer": {"id": observer_id, "key_version": observer_version, "public_key": observer_key.iter().map(|b| format!("{b:02x}")).collect::<String>()}
+    });
+    (bundle, anchors)
+}
+
+fn invoke_evidence_cli(bundle: &str, anchors: &str) -> (serde_json::Value, bool) {
+    let dir = std::env::temp_dir().join(format!(
+        "aip-evidence-cli-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir(&dir).unwrap();
+    let bundle_path = dir.join("bundle.json");
+    let anchors_path = dir.join("anchors.json");
+    fs::write(&bundle_path, bundle).unwrap();
+    fs::write(&anchors_path, anchors).unwrap();
+    let output = Command::new(env!("CARGO_BIN_EXE_aip-evidence-verify"))
+        .args([
+            "--bundle",
+            bundle_path.to_str().unwrap(),
+            "--anchors",
+            anchors_path.to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    let report = serde_json::from_slice(&output.stdout).unwrap_or_else(|e| {
+        panic!(
+            "CLI did not emit JSON: {e}; stderr={}",
+            String::from_utf8_lossy(&output.stderr)
+        )
+    });
+    fs::remove_dir_all(dir).unwrap();
+    (report, output.status.success())
+}
+
+fn degraded_scene() -> Scene {
+    let mut s = scene(expected_send(REMOTE, PORT), honest(19));
+    let previous = s.ev.batches.last().unwrap().batch.probe_seq_last;
+    let mut loss = raw_batch(
+        3,
+        s.x.now + 4_000,
+        s.x.now + 4_500,
+        (previous + 1, previous + 1),
+        vec![],
+        None,
+    );
+    loss.dropped_events = Some(1);
+    s.ev.batches
+        .push(s.o.signer.attest_at(loss, s.x.now + 4_500).unwrap());
+    s.ev.health = s.o.signer.health(s.at).unwrap();
+    s
+}
 
 fn provenance(tag: &str) -> ProvenanceTriple {
     ProvenanceTriple {
@@ -78,8 +168,27 @@ fn binding(agent_id: &str) -> ExecutionBinding {
 }
 
 fn expected_for(kind: ScopeAction, params: ActionParameters) -> Expected {
+    expected_for_ttl(kind, params, TTL)
+}
+
+fn expected_for_ttl(kind: ScopeAction, params: ActionParameters, ttl_ms: u64) -> Expected {
+    authorize_for(
+        kind,
+        params,
+        ttl_ms,
+        vec![net_connect_action(), net_send_action()],
+    )
+    .unwrap_or_else(|d| panic!("fixture must authorize, got {d:?}"))
+}
+
+fn authorize_for(
+    kind: ScopeAction,
+    params: ActionParameters,
+    ttl_ms: u64,
+    allowed: Vec<ScopeAction>,
+) -> Result<Expected, Denial> {
     let scope = CapabilityScope {
-        allowed: vec![net_connect_action(), net_send_action()],
+        allowed,
         denied: vec![],
     };
     let cfo_kp = generate_ed25519_keypair();
@@ -110,18 +219,17 @@ fn expected_for(kind: ScopeAction, params: ActionParameters) -> Expected {
         action_kind: kind,
         parameters: params,
         execution_binding: binding(&agent_aid.id),
-        requested_ttl_ms: TTL,
+        requested_ttl_ms: ttl_ms,
     };
-    let ee = match dp.authorize_at(&req, now) {
-        Decision::Authorized(ee) => *ee,
-        Decision::Denied(d) => panic!("fixture must authorize, got {d:?}"),
-    };
-    Expected {
-        ee,
-        anchors,
-        agent_id: agent_aid.id,
-        agent_kp,
-        now,
+    match dp.authorize_at(&req, now) {
+        Decision::Authorized(ee) => Ok(Expected {
+            ee: *ee,
+            anchors,
+            agent_id: agent_aid.id,
+            agent_kp,
+            now,
+        }),
+        Decision::Denied(d) => Err(d),
     }
 }
 
@@ -142,7 +250,21 @@ impl Observer {
         let kp = generate_ed25519_keypair();
         let mut signer =
             CollectorSigner::new(OBSERVER_ID, 1, &kp.private_key, &kp.public_key).unwrap();
-        signer.register_probe(PROBE_ID, &SourceMechanism::ALL);
+        signer.register_probe(
+            PROBE_ID,
+            &[
+                SourceMechanism::PidFdAnchored,
+                SourceMechanism::SockStateTracepoint,
+                SourceMechanism::SockSendTracepoint,
+            ],
+        );
+        let anchors = ObserverTrustAnchors::new().trust(OBSERVER_ID, 1, &kp.public_key);
+        Self { signer, anchors }
+    }
+
+    fn open_policy() -> Self {
+        let kp = generate_ed25519_keypair();
+        let signer = CollectorSigner::new(OBSERVER_ID, 1, &kp.private_key, &kp.public_key).unwrap();
         let anchors = ObserverTrustAnchors::new().trust(OBSERVER_ID, 1, &kp.public_key);
         Self { signer, anchors }
     }
@@ -361,8 +483,11 @@ struct Scene {
 }
 
 fn scene(x: Expected, events: Events) -> Scene {
+    scene_with_observer(x, events, Observer::new())
+}
+
+fn scene_with_observer(x: Expected, events: Events, mut o: Observer) -> Scene {
     let c = claim(&x);
-    let mut o = Observer::new();
     let now = x.now;
     let anchor_wall = now - 10_000;
     let a = Some(anchor_at(anchor_wall));
@@ -474,7 +599,9 @@ fn ss03_a_send_to_another_endpoint_does_not_match() {
     assert_eq!(r.reason, ReasonCode::ActionEvidenceDoesNotMatch);
     assert!(matches!(r.action, ActionComparison::Mismatch(_)));
     let s = scene(expected_send(REMOTE, PORT + 1), honest(19));
-    assert_eq!(reconcile(&s).reason, ReasonCode::ActionEvidenceDoesNotMatch);
+    let r = reconcile(&s);
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert_eq!(r.reason, ReasonCode::ActionEvidenceDoesNotMatch);
 }
 
 #[test]
@@ -579,6 +706,7 @@ fn ss08_a_send_by_another_instance_under_the_decisions_claim_is_divergence() {
     });
     let r = reconcile(&scene(expected_send(REMOTE, PORT), evs));
     assert_eq!(r.result, ReconciliationResult::IdentityDivergence, "{r:?}");
+    assert_eq!(r.reason, ReasonCode::IdentityDiverged, "{r:?}");
     assert_ne!(r.result, ReconciliationResult::VerifiedExecution);
 }
 
@@ -673,4 +801,363 @@ fn ss13_a_byte_count_altered_after_attestation_breaks_the_batch_signature() {
         "{r:?}"
     );
     assert_eq!(r.strength, EvidenceStrength::Proven);
+    assert_eq!(r.reason, ReasonCode::ObserverSignatureInvalid, "{r:?}");
+}
+
+#[test]
+fn ss14_offline_verifier_reconciles_signed_records_and_emits_json_report() {
+    let s = scene(expected_send(REMOTE, PORT), honest(19));
+    let (bundle, _) = exported_bundle(&s);
+    let offline_ee: ExpectedExecution =
+        serde_json::from_value(bundle["expected_execution"].clone()).unwrap();
+    let offline_batches: Vec<AttestedBatch> =
+        serde_json::from_value(bundle["observer_batches"].clone()).unwrap();
+    let offline_health: SignedSensorHealth =
+        serde_json::from_value(bundle["signed_sensor_health"].clone()).unwrap();
+    let trust = &bundle["trust_anchors"];
+    let dp_id = trust["decision_point"]["id"].as_str().unwrap();
+    let dp_key: Vec<u8> =
+        serde_json::from_value(trust["decision_point"]["public_key"].clone()).unwrap();
+    let observer_id = trust["observer"]["id"].as_str().unwrap();
+    let observer_version = trust["observer"]["key_version"].as_u64().unwrap() as u32;
+    let observer_key: Vec<u8> =
+        serde_json::from_value(trust["observer"]["public_key"].clone()).unwrap();
+    let agent_key: Vec<u8> = serde_json::from_value(trust["agent_public_key"].clone()).unwrap();
+    let dp_anchors = DecisionPointTrustAnchors::new().trust(dp_id, &dp_key);
+    let observer_anchors =
+        ObserverTrustAnchors::new().trust(observer_id, observer_version, &observer_key);
+    assert_eq!(
+        verify_expected_execution_for_agent(&offline_ee, &dp_anchors, &agent_key),
+        Ok(())
+    );
+    for batch in &offline_batches {
+        assert_eq!(
+            verify_attested_batch_independent_of_agent(batch, &observer_anchors, &agent_key),
+            Ok(())
+        );
+    }
+    assert_eq!(
+        verify_signed_health(&offline_health, &observer_anchors),
+        Ok(())
+    );
+    // Reconciliation consumes only the signed records and trust anchors. It
+    // does not call the agent or the code which generated the fixture events.
+    let offline_evidence = ObserverEvidence {
+        batches: offline_batches.clone(),
+        health: offline_health.clone(),
+    };
+    let offline_context = ReconciliationContext {
+        decision_point_anchors: dp_anchors,
+        observer_anchors: observer_anchors.clone(),
+        verification_time_ms: bundle["verification_context"]["verification_time_ms"]
+            .as_u64()
+            .unwrap(),
+        health_max_age_ms: bundle["verification_context"]["health_max_age_ms"]
+            .as_u64()
+            .unwrap(),
+        window_tolerance_ms: bundle["verification_context"]["window_tolerance_ms"]
+            .as_u64()
+            .unwrap(),
+        expected_side: ExpectedSideCoverage::Unknown,
+        agent_public_key: Some(agent_key),
+    };
+    let r = reconcile_expectation(&offline_ee, Some(&offline_evidence), &offline_context);
+    assert_eq!(r.result, ReconciliationResult::VerifiedExecution, "{r:?}");
+    assert_eq!(r.strength, EvidenceStrength::Attested);
+    assert_eq!(r.reason, ReasonCode::ActionEvidenceMatches);
+    let report = serde_json::json!({
+        "agent_id": s.x.agent_id,
+        "decision_id": s.x.ee.decision_id.iter().map(|b| format!("{b:02x}")).collect::<String>(),
+        "authorized_action": NET_SEND_ACTION,
+        "authorized_parameters": {"protocol":"tcp", "remote_addr":"10.0.0.5", "remote_port":443},
+        "execution_binding": s.x.ee.execution_binding,
+        "observer_id": s.ev.health.health.observer_id,
+        "probe_id": s.ev.batches.last().unwrap().batch.probe_id,
+        "evidence_batch_sequences": s.ev.batches.iter().map(|b| b.sequence).collect::<Vec<_>>(),
+        "signature_verification": {"expected_execution":"verified_offline", "attested_batches":"verified_offline", "signed_sensor_health":"verified_offline"},
+        "offline_input_bundle": bundle,
+        "observer_evidence_present": true,
+        "observation_availability": serde_json::to_value(&r.availability).unwrap(),
+        "observer_health": format!("{:?}", s.ev.health.health.state),
+        "reconciliation": serde_json::to_value(&r).unwrap(),
+        "evidence_origin": "SYNTHETIC_TEST_FIXTURE",
+        "live_kernel_observation": false
+    });
+    assert_eq!(report["reconciliation"]["result"], "VerifiedExecution");
+    assert_eq!(report["reconciliation"]["strength"], "Attested");
+    println!("AIP_SNIFFER_DOG_E2E_REPORT={report}");
+}
+
+#[test]
+fn ss15_expired_action_is_not_reconciled_as_execution() {
+    let x = expected_for_ttl(
+        net_send_action(),
+        net_send_parameters(NetProtocol::Tcp, &REMOTE, PORT).unwrap(),
+        1_000,
+    );
+    let r = reconcile(&scene(x, honest(19)));
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert_eq!(r.reason, ReasonCode::ObservationOutsideWindow, "{r:?}");
+}
+
+#[test]
+fn ss16_missing_observer_evidence_remains_conservative() {
+    let x = expected_send(REMOTE, PORT);
+    let o = Observer::new();
+    let r = reconcile_expectation(&x.ee, None, &ctx(&x, &o, x.now + 5_000));
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert_eq!(r.reason, ReasonCode::NoObserverEvidence, "{r:?}");
+}
+
+#[test]
+fn ss17_untrusted_observer_key_is_not_accepted() {
+    let mut s = scene(expected_send(REMOTE, PORT), honest(19));
+    s.o.anchors = ObserverTrustAnchors::new();
+    let r = reconcile(&s);
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert_eq!(r.reason, ReasonCode::ObserverUntrusted, "{r:?}");
+}
+
+#[test]
+fn ss18_degraded_observer_health_suppresses_positive_result() {
+    let mut s = scene(expected_send(REMOTE, PORT), honest(19));
+    let previous = s.ev.batches.last().unwrap().batch.probe_seq_last;
+    let mut loss = raw_batch(
+        3,
+        s.x.now + 4_000,
+        s.x.now + 4_500,
+        (previous + 1, previous + 1),
+        vec![],
+        None,
+    );
+    loss.dropped_events = Some(1);
+    s.ev.batches
+        .push(s.o.signer.attest_at(loss, s.x.now + 4_500).unwrap());
+    s.ev.health = s.o.signer.health(s.at).unwrap();
+    assert_eq!(
+        s.ev.health.health.state,
+        aip_observe::ObserverState::Degraded
+    );
+    let r = reconcile(&s);
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert_eq!(r.reason, ReasonCode::ObserverDegraded, "{r:?}");
+}
+
+#[test]
+fn ss19_open_probe_policy_does_not_upgrade_synthetic_provenance() {
+    let s = scene_with_observer(
+        expected_send(REMOTE, PORT),
+        honest(19),
+        Observer::open_policy(),
+    );
+    let r = reconcile(&s);
+    assert_eq!(r.result, ReconciliationResult::CannotProve, "{r:?}");
+    assert_eq!(
+        r.reason,
+        ReasonCode::ProvenanceUnverifiedOpenPolicy,
+        "{r:?}"
+    );
+}
+
+#[test]
+fn ss20_decision_point_rejects_an_action_outside_authority_scope() {
+    let denial = authorize_for(
+        ScopeAction::Custom("ghost.file.erase.v1".into()),
+        ActionParameters::empty(),
+        TTL,
+        vec![net_send_action()],
+    )
+    .err()
+    .expect("out-of-scope action must not receive an ExpectedExecution");
+    assert_eq!(denial.reason, DenialReason::ActionOutOfScope);
+    // No ExpectedExecution exists for a denied request, so passing one to the
+    // reconciler would require fabricating a signed authorization.
+}
+
+#[test]
+fn cli_accepts_a_valid_export_and_retains_fixture_provenance() {
+    let s = scene(expected_send(REMOTE, PORT), honest(19));
+    let (bundle, anchors) = exported_bundle(&s);
+    let (report, success) = invoke_evidence_cli(&bundle.to_string(), &anchors.to_string());
+    assert!(success, "{report}");
+    assert_eq!(report["status"], "INPUTS_VERIFIED");
+    assert_eq!(report["reconciliation_result"], "VerifiedExecution");
+    assert_eq!(report["evidence_strength"], "Attested");
+    assert_eq!(report["reason_code"], "ActionEvidenceMatches");
+    assert_eq!(report["evidence_origin"], "SYNTHETIC_TEST_FIXTURE");
+    assert_eq!(report["evidence_origin_is_self_asserted"], true);
+}
+
+/// Explicit opt-in export for users who want to transfer the synthetic fixture
+/// to an offline verifier. Normal test runs never create persistent files.
+#[test]
+#[ignore = "manual exporter; set AIP_SNIFFER_DOG_EXPORT_DIR (see OFFLINE_EVIDENCE_VERIFIER.md)"]
+fn export_synthetic_bundle_to_user_directory() {
+    let output_dir = std::env::var_os("AIP_SNIFFER_DOG_EXPORT_DIR")
+        .map(std::path::PathBuf::from)
+        .expect("set AIP_SNIFFER_DOG_EXPORT_DIR to the chosen output directory");
+    fs::create_dir_all(&output_dir)
+        .unwrap_or_else(|e| panic!("cannot create {}: {e}", output_dir.display()));
+
+    let s = scene(expected_send(REMOTE, PORT), honest(19));
+    let (bundle, anchors) = exported_bundle(&s);
+    assert_eq!(bundle["evidence_origin"], "SYNTHETIC_TEST_FIXTURE");
+    let files = [
+        (
+            "evidence-bundle.json",
+            serde_json::to_vec_pretty(&bundle).unwrap(),
+        ),
+        (
+            "trusted-anchors.json",
+            serde_json::to_vec_pretty(&anchors).unwrap(),
+        ),
+    ];
+
+    // create_new is atomic with respect to an existing file and never
+    // overwrites user data. Roll back only files created by this invocation
+    // if the second create or either write fails.
+    let mut created = Vec::new();
+    let result = (|| -> std::io::Result<()> {
+        for (name, contents) in &files {
+            let path = output_dir.join(name);
+            let mut file = fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&path)?;
+            created.push(path);
+            file.write_all(contents)?;
+            file.write_all(b"\n")?;
+            file.sync_all()?;
+        }
+        Ok(())
+    })();
+    if let Err(error) = result {
+        for path in created {
+            let _ = fs::remove_file(path);
+        }
+        panic!("export failed; existing files were preserved: {error}");
+    }
+    println!("Exported synthetic fixture:");
+    println!("  {}", output_dir.join("evidence-bundle.json").display());
+    println!("  {}", output_dir.join("trusted-anchors.json").display());
+}
+
+#[test]
+fn cli_rejects_tampered_authorization_and_observer_batch() {
+    let s = scene(expected_send(REMOTE, PORT), honest(19));
+    let (bundle, anchors) = exported_bundle(&s);
+    let mut bad_authorization = bundle.clone();
+    let sig_byte = bad_authorization["expected_execution"]["decision_sig"]["payload_hash"][0]
+        .as_u64()
+        .unwrap() as u8;
+    bad_authorization["expected_execution"]["decision_sig"]["payload_hash"][0] =
+        serde_json::json!(sig_byte ^ 1);
+    let (report, success) =
+        invoke_evidence_cli(&bad_authorization.to_string(), &anchors.to_string());
+    assert!(!success);
+    assert_eq!(report["status"], "REJECTED");
+    assert_eq!(
+        report["signature_verification"]["expected_execution"]["verified"],
+        false
+    );
+
+    let mut bad_batch = bundle;
+    bad_batch["observer_batches"][1]["batch"]["probe_id"] = serde_json::json!("substituted-probe");
+    let (report, success) = invoke_evidence_cli(&bad_batch.to_string(), &anchors.to_string());
+    assert!(!success);
+    assert_eq!(report["status"], "REJECTED");
+    assert_eq!(
+        report["signature_verification"]["observer_batches"][1],
+        false
+    );
+}
+
+#[test]
+fn cli_rejects_untrusted_decision_point_and_observer_keys() {
+    let s = scene(expected_send(REMOTE, PORT), honest(19));
+    let (base, base_anchors) = exported_bundle(&s);
+    let mut untrusted_dp_bundle = base.clone();
+    let mut untrusted_dp_anchors = base_anchors.clone();
+    let wrong_dp = generate_ed25519_keypair().public_key;
+    untrusted_dp_bundle["trust_anchors"]["decision_point"]["public_key"] =
+        serde_json::json!(wrong_dp);
+    untrusted_dp_anchors["decision_point"]["public_key"] =
+        untrusted_dp_bundle["trust_anchors"]["decision_point"]["public_key"].clone();
+    let (report, success) = invoke_evidence_cli(
+        &untrusted_dp_bundle.to_string(),
+        &untrusted_dp_anchors.to_string(),
+    );
+    assert!(!success);
+    assert_eq!(report["status"], "REJECTED");
+    assert_eq!(
+        report["signature_verification"]["expected_execution"]["verified"],
+        false
+    );
+
+    let mut untrusted_observer_bundle = base;
+    let mut untrusted_observer_anchors = base_anchors;
+    let wrong_observer = generate_ed25519_keypair().public_key;
+    untrusted_observer_bundle["trust_anchors"]["observer"]["public_key"] =
+        serde_json::json!(wrong_observer);
+    untrusted_observer_anchors["observer"]["public_key"] =
+        untrusted_observer_bundle["trust_anchors"]["observer"]["public_key"].clone();
+    let (report, success) = invoke_evidence_cli(
+        &untrusted_observer_bundle.to_string(),
+        &untrusted_observer_anchors.to_string(),
+    );
+    assert!(!success);
+    assert_eq!(report["status"], "REJECTED");
+    assert_eq!(
+        report["signature_verification"]["observer_batches"][0],
+        false
+    );
+}
+
+#[test]
+fn cli_rejects_a_missing_external_trust_anchor() {
+    let s = scene(expected_send(REMOTE, PORT), honest(19));
+    let (bundle, mut anchors) = exported_bundle(&s);
+    anchors.as_object_mut().unwrap().remove("observer");
+    let (report, success) = invoke_evidence_cli(&bundle.to_string(), &anchors.to_string());
+    assert!(!success);
+    assert_eq!(report["status"], "REJECTED");
+    assert!(report["error"]
+        .as_str()
+        .unwrap()
+        .contains("external trust anchor"));
+}
+
+#[test]
+fn cli_keeps_missing_evidence_conservative() {
+    let s = scene(expected_send(REMOTE, PORT), honest(19));
+    let (mut bundle, anchors) = exported_bundle(&s);
+    bundle["observer_batches"] = serde_json::json!([]);
+    let (report, success) = invoke_evidence_cli(&bundle.to_string(), &anchors.to_string());
+    assert!(!success);
+    assert_eq!(report["status"], "INCOMPLETE");
+    assert_eq!(report["reconciliation_result"], "CannotProve");
+}
+
+#[test]
+fn cli_reports_degraded_signed_health_without_upgrading_the_result() {
+    let s = degraded_scene();
+    let (bundle, anchors) = exported_bundle(&s);
+    let (report, success) = invoke_evidence_cli(&bundle.to_string(), &anchors.to_string());
+    assert!(success, "the signed input records are authentic: {report}");
+    assert_eq!(report["status"], "INPUTS_VERIFIED");
+    assert_eq!(report["reconciliation_result"], "CannotProve");
+    assert_eq!(report["reason_code"], "ObserverDegraded");
+}
+
+#[test]
+fn cli_rejects_malformed_bundle_json_with_a_json_report() {
+    let s = scene(expected_send(REMOTE, PORT), honest(19));
+    let (_, anchors) = exported_bundle(&s);
+    let (report, success) = invoke_evidence_cli("{malformed", &anchors.to_string());
+    assert!(!success);
+    assert_eq!(report["status"], "REJECTED");
+    assert!(report["error"]
+        .as_str()
+        .unwrap()
+        .contains("malformed bundle"));
 }

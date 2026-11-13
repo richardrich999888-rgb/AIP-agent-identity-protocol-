@@ -58,6 +58,7 @@ pub fn test_app_state_with(
         managed_signing,
         observer_trust: Default::default(),
         run_trust: Default::default(),
+        agent_trust: Default::default(),
     })
 }
 

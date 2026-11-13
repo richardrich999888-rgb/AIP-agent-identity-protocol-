@@ -15,6 +15,10 @@ test-fixtures = []
 name = "aip-lineage"
 path = "src/bin/aip-lineage.rs"
 
+[[bin]]
+name = "aip-evidence-verify"
+path = "src/bin/aip-evidence-verify.rs"
+
 [dependencies]
 aip-types = { path = "../aip-types" }
 aip-crypto = { path = "../aip-crypto" }
@@ -23,6 +27,6 @@ aip-observe = { path = "../aip-observe" }
 aip-observe-verify = { path = "../aip-observe-verify" }
 aip-core = { path = "../aip-core" }
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [dev-dependencies]
-serde_json = "1.0"

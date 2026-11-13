@@ -26,7 +26,8 @@ import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from vanian_airi import commit_bytes  # noqa: E402
+from vanian_airi import commit_bytes, commit_json  # noqa: E402
+from vanian_airi.commitment import AIRI_PARAM_DOMAIN  # noqa: E402
 from vanian_airi.events import (  # noqa: E402
     AiriEvent,
     AiriEventKind,
@@ -229,6 +230,25 @@ class TestCanonicalParity(unittest.TestCase):
 
 
 class TestCommitmentParity(unittest.TestCase):
+    def test_shared_tool_parameter_commitment_vector(self) -> None:
+        vector = json.loads((pathlib.Path(__file__).parent / "parameter_commitment_vector.json").read_text())
+        canonical = json.dumps(vector["arguments"], sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+        self.assertEqual(canonical.decode("utf-8"), vector["canonical_utf8"])
+        self.assertEqual(canonical.hex(), vector["canonical_hex"])
+        self.assertEqual(commit_json(vector["arguments"]).hex(), vector["commitment_hex"])
+        import hashlib
+        self.assertEqual(hashlib.sha256(canonical).hexdigest(), vector["bare_sha256_hex"])
+        self.assertNotEqual(commit_json(vector["arguments"]).hex(), vector["bare_sha256_hex"])
+
+    def test_nested_arguments_are_sorted_but_array_order_is_significant(self) -> None:
+        left = {"outer": {"z": [1, {"b": True, "a": None}], "a": "x"}}
+        reordered = {"outer": {"a": "x", "z": [1, {"a": None, "b": True}]}}
+        changed = {"outer": {"a": "x", "z": [1, {"a": None, "b": False}]}}
+        reversed_array = {"outer": {"a": "x", "z": [{"a": None, "b": True}, 1]}}
+        self.assertEqual(commit_json(left), commit_json(reordered))
+        self.assertNotEqual(commit_json(left), commit_json(changed))
+        self.assertNotEqual(commit_json(left), commit_json(reversed_array))
+
     def test_commitment_is_not_a_bare_sha256(self) -> None:
         import hashlib
 
@@ -244,6 +264,16 @@ class TestCommitmentParity(unittest.TestCase):
         # separate arguments and one concatenated argument share a commitment.
         self.assertNotEqual(commit_bytes(b"ab"), commit_bytes(b"a") + commit_bytes(b"b"))
         self.assertNotEqual(commit_bytes(b"ab"), commit_bytes(b"a"))
+
+    def test_commitment_preimage_has_domain_and_length_prefixes(self) -> None:
+        import hashlib
+        from vanian_airi.canonical import put_bytes, put_domain
+
+        data = b"ab"
+        preimage = bytearray()
+        put_domain(preimage, AIRI_PARAM_DOMAIN)
+        put_bytes(preimage, data)
+        self.assertEqual(commit_bytes(data), hashlib.sha256(preimage).digest())
 
 
 if __name__ == "__main__":

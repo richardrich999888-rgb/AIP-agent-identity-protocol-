@@ -112,10 +112,7 @@ impl Publisher {
     /// A probe signature is verified before the custodian is accepted.
     /// This checks that its public key corresponds to the signing key and
     /// that it returns the expected AIP signature envelope.
-    pub fn from_custodian(
-        id: &str,
-        custodian: Arc<dyn Custodian>,
-    ) -> Result<Self, SealError> {
+    pub fn from_custodian(id: &str, custodian: Arc<dyn Custodian>) -> Result<Self, SealError> {
         let probe_payload = SEAL_DOMAIN.as_bytes();
         let probe = custodian
             .sign(id, probe_payload)

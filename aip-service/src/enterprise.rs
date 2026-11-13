@@ -75,7 +75,7 @@ pub async fn scope_and_audit(
     if let Some(p) = &principal {
         let calculation = matches!(
             route.as_str(),
-            "/v1/evidence/verify" | "/v1/identity/verify"
+            "/v1/evidence/verify" | "/v1/identity/verify" | "/v1/delegations/verify"
         );
         let mutation = !matches!(
             *request.method(),

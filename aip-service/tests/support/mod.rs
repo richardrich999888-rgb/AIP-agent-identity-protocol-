@@ -66,6 +66,8 @@ pub struct Fixture {
     pub packet: EvidencePacket,
     /// Issuer AIP-ID → Ed25519 public key (hex), as the verify API wants them.
     pub issuers: HashMap<String, String>,
+    /// Test-only issuer private keys, indexed by AIP-ID.
+    pub issuer_private_keys: HashMap<String, Vec<u8>>,
     /// The instant the authority tokens were issued. This is the *earliest*
     /// instant at which the packet can legitimately verify: a verification
     /// bound before it would rightly object that the tokens did not yet
@@ -165,12 +167,17 @@ pub fn packet_dated(offset_ms: u64) -> Fixture {
     .expect("seal packet");
 
     let issuers = HashMap::from([
-        (cfo_aid.id, hex::encode(&cfo_kp.public_key)),
-        (orch_aid.id, hex::encode(&orch_kp.public_key)),
+        (cfo_aid.id.clone(), hex::encode(&cfo_kp.public_key)),
+        (orch_aid.id.clone(), hex::encode(&orch_kp.public_key)),
+    ]);
+    let issuer_private_keys = HashMap::from([
+        (cfo_aid.id, cfo_kp.private_key),
+        (orch_aid.id, orch_kp.private_key),
     ]);
     Fixture {
         packet,
         issuers,
+        issuer_private_keys,
         issued_at_ms,
         decided_at_ms,
     }
@@ -314,6 +321,7 @@ pub fn app_state(
         managed_signing,
         observer_trust: Default::default(),
         run_trust: Default::default(),
+        agent_trust: Default::default(),
     })
 }
 
@@ -448,4 +456,37 @@ pub fn replay_pair() -> (EvidencePacket, EvidencePacket, HashMap<String, String>
         (orch_aid.id, hex::encode(&orch_kp.public_key)),
     ]);
     (first, second, issuers)
+}
+
+/// Build an AppState with institution-configured agent trust anchors.
+pub fn app_state_with_agent_trust(
+    store: std::sync::Arc<dyn airon_aip::store::EvidenceStore>,
+    api_keys: airon_aip::auth::ApiKeyStore,
+    managed_signing: airon_aip::ManagedSigning,
+    agent_trust: airon_aip::agent_trust::AgentTrustStore,
+) -> std::sync::Arc<airon_aip::AppState> {
+    let kp = airon_aip::keys::ServiceKey::generate();
+    let encoding_key = kp.encoding_key();
+    let decoding_key = kp.decoding_key();
+    let mut p = std::env::temp_dir();
+    p.push(format!("aip_it_logs_{}", uuid::Uuid::new_v4()));
+    let log_path = p.to_str().expect("utf-8 path").to_owned();
+
+    std::sync::Arc::new(airon_aip::AppState {
+        encoding_key,
+        decoding_key,
+        public_pem: kp.public_pem.clone(),
+        fingerprint: kp.fingerprint.clone(),
+        revocation_log_path: log_path.clone(),
+        revocation_set: airon_aip::revocation::load_revocation_set(&log_path),
+        store,
+        artifacts: std::sync::Arc::new(airon_aip::artifacts::JsonlArtifactStore::in_memory()),
+        api_keys,
+        signer: std::sync::Arc::new(kp),
+        metrics: std::sync::Arc::new(Default::default()),
+        managed_signing,
+        observer_trust: Default::default(),
+        run_trust: Default::default(),
+        agent_trust,
+    })
 }

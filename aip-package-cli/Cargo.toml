@@ -1,0 +1,35 @@
+[package]
+name = "aip-package-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "AIBOM-aware offline publisher and verifier CLI for AIP packages"
+
+[features]
+default = []
+offline-evidence = ["dep:aip-distribution"]
+live-distribution-e2e = ["offline-evidence", "aip-distribution/live-noise"]
+
+[dependencies]
+aip-aibom = { path = "../aip-standalone/aip-aibom" }
+aip-crypto = { path = "../aip-standalone/aip-crypto" }
+aip-package = { path = "../aip-standalone/aip-package" }
+aip-install = { path = "../aip-standalone/aip-install" }
+aip-types = { path = "../aip-standalone/aip-types" }
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+aip-distribution = { path = "../aip-standalone/aip-distribution", optional = true, default-features = false, features = ["p2p"] }
+
+[dev-dependencies]
+base64 = "0.22"
+zip = { version = "9.0.0", default-features = false, features = ["deflate"] }
+aip-core = { path = "../aip-standalone/aip-core" }
+libp2p = { version = "=0.57.1", default-features = false, features = ["ed25519"] }
+futures = "0.3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
+
+[[bin]]
+name = "aip-package"
+path = "src/main.rs"

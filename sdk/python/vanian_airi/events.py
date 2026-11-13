@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import enum
 import hashlib
+import dataclasses
 from dataclasses import dataclass, field
 from typing import Optional, Union
 
@@ -25,6 +26,7 @@ from .canonical import (
     put_u16,
     put_u64,
 )
+from .identity import SignatureEnvelope
 
 AIRI_EVENT_DOMAIN = "SYNTRIASS/AIRI/EVENT/v1"
 AIRI_EVENT_VERSION = 1
@@ -325,7 +327,25 @@ class AiriEvent:
     decision_id: Optional[bytes] = None
     runtime_binding: Optional[RuntimeBinding] = None
     version: int = AIRI_EVENT_VERSION
-    signature: Optional[bytes] = field(default=None, compare=False)
+    signature: Optional[SignatureEnvelope] = field(default=None, compare=False)
+
+    def to_dict(self) -> dict:
+        """Serialize using Rust's AiriEvent and externally tagged AiriPayload wire shape."""
+        if self.signature is None:
+            raise ValueError("an unsigned AIRI event has no complete wire representation")
+        def wire(value):
+            if isinstance(value, enum.Enum): return value.name.title().replace("_", "")
+            if isinstance(value, bytes): return list(value)
+            if dataclasses.is_dataclass(value): return {f.name: wire(getattr(value, f.name)) for f in dataclasses.fields(value)}
+            if isinstance(value, (list, tuple)): return [wire(x) for x in value]
+            return value
+        kind_names = {AiriEventKind.AGENT_EXECUTION_STARTED:"AgentExecutionStarted", AiriEventKind.MODEL_INVOCATION_REQUESTED:"ModelInvocationRequested", AiriEventKind.MODEL_INVOCATION_OBSERVED:"ModelInvocationObserved", AiriEventKind.TOOL_INVOCATION_REQUESTED:"ToolInvocationRequested", AiriEventKind.TOOL_EXECUTION_REPORTED:"ToolExecutionReported", AiriEventKind.SUBPROCESS_EXECUTION:"SubprocessExecution", AiriEventKind.EXECUTION_COMPLETED:"ExecutionCompleted", AiriEventKind.EXECUTION_FAILED:"ExecutionFailed", AiriEventKind.EXECUTION_CONTEXT_PROPAGATED:"ExecutionContextPropagated"}
+        payload = {kind_names[self.kind]: wire(self.payload)}
+        sig = self.signature.to_dict()
+        if self.runtime_binding is not None:
+            raise ValueError("Rust runtime_binding contains fields unavailable in the Python AIRI model")
+        rb = None
+        return {"version":self.version,"agent_id":self.agent_id,"execution_id":list(self.execution_id),"parent_execution_id":wire(self.parent_execution_id),"decision_id":wire(self.decision_id),"sequence":self.sequence,"prev_event_hash":list(self.prev_event_hash),"emitted_at_ms":self.emitted_at_ms,"framework":wire(self.framework),"runtime_binding":rb,"payload":payload,"signature":sig}
 
     def signing_preimage(self) -> bytes:
         """The exact bytes the agent signs. Mirrors ``AiriEvent::signing_preimage``."""

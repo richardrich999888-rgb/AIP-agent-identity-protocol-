@@ -1,0 +1,48 @@
+[package]
+name = "aip-distribution"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Offline signed package transfer manifests and Merkle chunk verification"
+
+[features]
+default = []
+# Explicit opt-in while the P2P identity and crypto-provider policy is under review.
+p2p = ["dep:aip-core", "dep:libp2p", "libp2p/ed25519"]
+# Live TCP/Noise request-response is isolated from offline identity and
+# authorization APIs until the provider and deployment MSRV decisions land.
+live-noise = [
+    "p2p",
+    "dep:futures",
+    "dep:tokio",
+    "dep:cbor4ii",
+    "libp2p/tokio",
+    "libp2p/tcp",
+    "libp2p/noise",
+    "libp2p/yamux",
+    "libp2p/macros",
+    "libp2p/identify",
+    "libp2p/request-response",
+    "libp2p/cbor",
+    "libp2p/memory-connection-limits",
+]
+# Enables the shared loopback E2E source when included by the higher-level
+# package CLI test crate. It intentionally adds no AIBOM dependency here.
+live-distribution-e2e = []
+
+[dependencies]
+aip-crypto = { path = "../aip-crypto" }
+aip-types = { path = "../aip-types" }
+aip-package = { path = "../aip-package" }
+aip-core = { path = "../aip-core", optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+libc = "0.2"
+libp2p = { version = "=0.57.1", optional = true, default-features = false }
+futures = { version = "0.3", optional = true }
+tokio = { version = "1", optional = true, features = ["macros", "rt-multi-thread", "time", "sync"] }
+cbor4ii = { version = "1.2", optional = true, features = ["serde1"] }
+
+[dev-dependencies]
+aip-install = { path = "../aip-install" }

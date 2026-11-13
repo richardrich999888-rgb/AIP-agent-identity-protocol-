@@ -185,7 +185,8 @@ class TestEndToEnd(unittest.TestCase):
             decision_id=bytes([0xD1] * 16),
         )
         with tempfile.TemporaryDirectory() as tmp:
-            em, sink, ident = make_emitter(tmp, clock_ms=lambda: 1_700_000_000_000)
+            em, sink, ident = make_emitter(tmp, bound=False, clock_ms=lambda: 1_700_000_000_000)
+            em._nonce_source = iter(bytes([i] * 16) for i in range(1, 6)).__next__
             fw, model, tools = FrameworkAdapter(em), ModelAdapter(em), ToolAdapter(em)
             with bind(fixed_exec):
                 fw.on_agent_start(role="refund-bot")
@@ -197,14 +198,7 @@ class TestEndToEnd(unittest.TestCase):
             out = {
                 "agent_id": ident.aip_id,
                 "public_key": ident.public_key_bytes.hex(),
-                "events": [
-                    {
-                        "sequence": e.sequence,
-                        "preimage": e.signing_preimage().hex(),
-                        "signature": e.signature.hex(),
-                    }
-                    for e in sink.events
-                ],
+                "events": [e.to_dict() for e in sink.events],
             }
             dest = pathlib.Path(__file__).parent / "python_events.json"
             rendered = json.dumps(out, indent=2)
@@ -213,13 +207,7 @@ class TestEndToEnd(unittest.TestCase):
             # permanent spurious diff. Regenerating identical bytes is the
             # property that stops that, so it is asserted, not assumed.
             if dest.exists():
-                self.assertEqual(
-                    dest.read_text(),
-                    rendered,
-                    "the interop fixture is not byte-stable across runs; a "
-                    "committed fixture must regenerate identically or it "
-                    "shows as a diff forever",
-                )
+                self.assertEqual(dest.read_text(), rendered, "fixture generation must be deterministic")
             dest.write_text(rendered)
             self.assertEqual(len(out["events"]), 5)
 

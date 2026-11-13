@@ -95,6 +95,77 @@ pub fn create_identity(
     Ok((aid, keypair))
 }
 
+/// Create and self-sign an Agent Identity Document using an external custodian.
+///
+/// The custodian retains control of the private key. This function only
+/// receives its public key and requests a structured AIP signature.
+pub fn create_identity_with_custodian(
+    provenance: ProvenanceTriple,
+    custodian: &dyn aip_crypto::custody::Custodian,
+) -> Result<AgentIdentityDocument, aip_crypto::custody::CustodyError> {
+    let public_key = custodian.public_key().to_vec();
+    if public_key.len() != 32 {
+        return Err(aip_crypto::custody::CustodyError::InvalidKeyLength(
+            public_key.len(),
+        ));
+    }
+    let id = derive_aip_id(&public_key, &provenance);
+
+    let mut flags = AidFlags::empty();
+    flags.insert(AidFlags::HAS_PROVENANCE);
+
+    let mut aid = AgentIdentityDocument {
+        magic: AID_MAGIC,
+        version: AIP_VERSION,
+        flags,
+        id: id.clone(),
+        created_at: std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(|_| {
+                aip_crypto::custody::CustodyError::Malformed(
+                    "system clock is before UNIX epoch".to_string(),
+                )
+            })?
+            .as_millis() as u64,
+        expires_at: None,
+        primary_key: PublicKey {
+            algorithm: AlgorithmId::Ed25519,
+            key_bytes: public_key,
+        },
+        recovery_key: None,
+        encryption_key: None,
+        provenance,
+        status: IdentityStatus::Pending,
+        sequence: 0,
+        lineage_depth: 0,
+        lineage_proof: None,
+        capability_root: merkle_empty(),
+        reputation_root: merkle_empty(),
+        self_signature: None,
+    };
+
+    let payload = identity_signing_payload(&aid);
+    let signature = custodian.sign(&id, &payload)?;
+    if signature.algorithm != AlgorithmId::Ed25519
+        || signature.signer_id != id
+        || signature.payload_hash != sha256(&payload)
+    {
+        return Err(aip_crypto::custody::CustodyError::Malformed(
+            "custodian returned a signature envelope that does not bind the identity".into(),
+        ));
+    }
+    if !verify_ed25519(&aid.primary_key.key_bytes, &signature)
+        .map_err(aip_crypto::custody::CustodyError::Crypto)?
+    {
+        return Err(aip_crypto::custody::CustodyError::Malformed(
+            "custodian signature did not verify against its public key".into(),
+        ));
+    }
+    aid.self_signature = Some(signature);
+
+    Ok(aid)
+}
+
 // ─── Signed-payload domain tags ───
 //
 // Every signed payload produced by this crate starts with one of these tags so
@@ -1023,6 +1094,53 @@ mod tests {
         assert!(aid.self_signature.is_some());
         assert!(aid.id.starts_with("aip1"));
         assert_eq!(kp.public_key.len(), 32);
+    }
+
+    #[test]
+    fn test_create_identity_with_custodian() {
+        let custodian = aip_crypto::custody::InMemoryCustodian::generate();
+
+        let aid = create_identity_with_custodian(test_provenance(), &custodian).unwrap();
+
+        assert_eq!(aid.magic, AID_MAGIC);
+        assert_eq!(aid.version, AIP_VERSION);
+        assert_eq!(aid.status, IdentityStatus::Pending);
+        assert_eq!(aid.lineage_depth, 0);
+        assert!(aid.self_signature.is_some());
+        assert!(aid.id.starts_with("aip1"));
+        assert_eq!(aid.primary_key.key_bytes.len(), 32);
+
+        assert!(validate_aid(&aid).is_ok());
+    }
+
+    #[test]
+    fn test_create_identity_rejects_invalid_custodian_envelope() {
+        use aip_crypto::custody::{Backend, Custodian, CustodyError, InMemoryCustodian};
+
+        #[derive(Debug)]
+        struct WrongSigner(InMemoryCustodian);
+
+        impl Custodian for WrongSigner {
+            fn public_key(&self) -> &[u8] {
+                self.0.public_key()
+            }
+
+            fn sign(&self, signer_id: &str, payload: &[u8]) -> Result<Signature, CustodyError> {
+                let mut signature = self.0.sign(signer_id, payload)?;
+                signature.signer_id = "forged-identity".into();
+                Ok(signature)
+            }
+
+            fn backend(&self) -> Backend {
+                self.0.backend()
+            }
+        }
+
+        let custodian = WrongSigner(InMemoryCustodian::generate());
+        assert!(matches!(
+            create_identity_with_custodian(test_provenance(), &custodian),
+            Err(CustodyError::Malformed(_))
+        ));
     }
 
     #[test]

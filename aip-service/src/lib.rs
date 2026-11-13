@@ -2,10 +2,12 @@
 //! `aip-migrate` tool. The deployable surface is a thin layer over
 //! `aip-core` + `aip-protocol`.
 
+pub mod agent_trust;
 pub mod artifacts;
 pub mod auth;
 pub mod authority;
 pub mod console;
+pub mod delegations;
 pub mod enterprise;
 pub mod evidence;
 pub mod handlers;
@@ -87,6 +89,8 @@ pub struct AppState {
     pub observer_trust: observations::ObserverTrustStore,
     /// Tenant/admin supplied same-run anchors and independently retained checkpoints.
     pub run_trust: runs::RunTrustStore,
+    /// Institution-approved agent public keys, bound to tenant and agent.
+    pub agent_trust: agent_trust::AgentTrustStore,
 }
 
 /// Whether the service will sign on an agent's behalf using a key the caller
@@ -158,6 +162,12 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/metrics", get(handlers::metrics))
         .route("/v1/identity/issue", post(handlers::issue))
         .route("/v1/identity/verify", post(handlers::verify))
+        .route(
+            "/v1/delegations/verify",
+            post(delegations::verify).layer(axum::extract::DefaultBodyLimit::max(
+                delegations::MAX_CHAIN_BODY_BYTES,
+            )),
+        )
         .route("/v1/identity/public-key", get(handlers::public_key))
         .route("/v1/identity/revoke", post(handlers::revoke))
         .route(

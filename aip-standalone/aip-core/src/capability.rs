@@ -14,7 +14,8 @@
 //! This is enforced via lattice MEET: `effective = intersection(parent, child)`.
 //! If the intersection is empty, the delegation is rejected.
 
-use aip_crypto::{sha256, sign_ed25519};
+use aip_crypto::custody::{Custodian, CustodyError};
+use aip_crypto::{sha256, sign_ed25519, verify_ed25519};
 use aip_types::canonical::{encode_scope, put_domain, put_opt_u64, put_str, put_u64};
 use aip_types::*;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -147,6 +148,46 @@ pub fn issue_scoped_token(
     // later trusts, including the validity window (I6).
     let payload = canonical_token_payload(&jti, issuer_id, agent_id, &scope, now_ms, expires_at);
     let issuer_sig = sign_ed25519(issuer_private_key, issuer_id, &payload)?;
+
+    Ok(ScopedToken {
+        jti,
+        agent_id: agent_id.to_string(),
+        issuer_id: issuer_id.to_string(),
+        scope,
+        issued_at: now_ms,
+        expires_at,
+        issuer_sig,
+    })
+}
+
+/// Issue a scoped token using an external signing custodian.
+pub fn issue_scoped_token_with_custodian(
+    issuer_id: &str,
+    custodian: &dyn Custodian,
+    agent_id: &str,
+    scope: CapabilityScope,
+    expires_in_ms: Option<u64>,
+) -> Result<ScopedToken, CustodyError> {
+    let now_ms = now_ms();
+    let jti = random_jti();
+    let expires_at = expires_in_ms.map(|duration| now_ms + duration);
+
+    let payload = canonical_token_payload(&jti, issuer_id, agent_id, &scope, now_ms, expires_at);
+
+    let issuer_sig = custodian.sign(issuer_id, &payload)?;
+    if issuer_sig.algorithm != AlgorithmId::Ed25519
+        || issuer_sig.signer_id != issuer_id
+        || issuer_sig.payload_hash != sha256(&payload)
+    {
+        return Err(CustodyError::Malformed(
+            "custodian returned a signature envelope that does not bind the scoped token".into(),
+        ));
+    }
+    if !verify_ed25519(custodian.public_key(), &issuer_sig).map_err(CustodyError::Crypto)? {
+        return Err(CustodyError::Malformed(
+            "custodian signature did not verify against its public key".into(),
+        ));
+    }
 
     Ok(ScopedToken {
         jti,
@@ -427,6 +468,64 @@ mod tests {
         assert_eq!(token.agent_id, "aip1agent");
         assert!(!is_token_expired(&token));
         assert!(verify_scoped_token(&token, &pub_key).unwrap());
+    }
+
+    #[test]
+    fn test_custodian_issued_scoped_token_verifies_and_rejects_mutation() {
+        let custodian = aip_crypto::custody::InMemoryCustodian::generate();
+        let token = issue_scoped_token_with_custodian(
+            "custodian-issuer",
+            &custodian,
+            "aip1agent",
+            scope_submitter(),
+            Some(60_000),
+        )
+        .unwrap();
+
+        assert_eq!(token.issuer_id, "custodian-issuer");
+        assert_eq!(token.issuer_sig.signer_id, "custodian-issuer");
+        assert!(verify_scoped_token(&token, custodian.public_key()).unwrap());
+
+        let mut substituted = token;
+        substituted.scope = scope_admin();
+        assert!(!verify_scoped_token(&substituted, custodian.public_key()).unwrap());
+    }
+
+    #[test]
+    fn test_custodian_with_wrong_signer_envelope_is_rejected() {
+        use aip_crypto::custody::{Backend, Custodian, CustodyError, InMemoryCustodian};
+        use aip_types::Signature;
+
+        #[derive(Debug)]
+        struct WrongSigner(InMemoryCustodian);
+
+        impl Custodian for WrongSigner {
+            fn public_key(&self) -> &[u8] {
+                self.0.public_key()
+            }
+
+            fn sign(&self, signer_id: &str, payload: &[u8]) -> Result<Signature, CustodyError> {
+                let mut signature = self.0.sign(signer_id, payload)?;
+                signature.signer_id = "other-issuer".into();
+                Ok(signature)
+            }
+
+            fn backend(&self) -> Backend {
+                self.0.backend()
+            }
+        }
+
+        let custodian = WrongSigner(InMemoryCustodian::generate());
+        assert!(matches!(
+            issue_scoped_token_with_custodian(
+                "issuer",
+                &custodian,
+                "agent",
+                scope_submitter(),
+                None,
+            ),
+            Err(CustodyError::Malformed(_))
+        ));
     }
 
     #[test]

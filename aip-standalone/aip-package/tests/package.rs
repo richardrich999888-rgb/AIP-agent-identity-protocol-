@@ -369,8 +369,7 @@ fn rejects_duplicate_zip_entry_names() {
 
     for index in 0..=package.archive_bytes.len() - original.len() {
         if &package.archive_bytes[index..index + original.len()] == original {
-            package.archive_bytes[index..index + replacement.len()]
-                .copy_from_slice(replacement);
+            package.archive_bytes[index..index + replacement.len()].copy_from_slice(replacement);
         }
     }
 
@@ -379,16 +378,243 @@ fn rejects_duplicate_zip_entry_names() {
 
     package.archive_sha256 = aip_crypto::sha256(&package.archive_bytes);
 
-    let result = verify_package(
-        &package,
-        &signature,
-        publisher.public_key(),
-        AIBOM_DIGEST,
-    );
+    let result = verify_package(&package, &signature, publisher.public_key(), AIBOM_DIGEST);
 
     assert!(matches!(
         result,
         Err(PackageError::InvalidMetadata(message))
             if message.contains("duplicate ZIP entry names")
     ));
+}
+
+use aip_package::{build_package_v2, PACKAGE_FORMAT_VERSION_V2};
+
+#[test]
+fn v2_package_declares_and_verifies_executables() {
+    let package = build_package_v2(
+        "test-agent",
+        "2.0.0",
+        "publisher-test",
+        AIBOM_DIGEST,
+        files(),
+        vec!["model/weights.bin".into()],
+    )
+    .unwrap();
+
+    assert_eq!(package.manifest.format_version, PACKAGE_FORMAT_VERSION_V2);
+
+    let executable = package
+        .manifest
+        .files
+        .iter()
+        .find(|entry| entry.path == "model/weights.bin")
+        .unwrap();
+    let data = package
+        .manifest
+        .files
+        .iter()
+        .find(|entry| entry.path == "config/runtime.json")
+        .unwrap();
+
+    assert!(executable.executable);
+    assert!(!data.executable);
+
+    let mut archive = zip::ZipArchive::new(std::io::Cursor::new(&package.archive_bytes)).unwrap();
+
+    assert_eq!(
+        archive
+            .by_name("model/weights.bin")
+            .unwrap()
+            .unix_mode()
+            .unwrap()
+            & 0o777,
+        0o755
+    );
+    assert_eq!(
+        archive
+            .by_name("config/runtime.json")
+            .unwrap()
+            .unix_mode()
+            .unwrap()
+            & 0o777,
+        0o644
+    );
+
+    let publisher = InMemoryCustodian::generate();
+    let signature = sign_package(&package, &publisher).unwrap();
+
+    verify_package(&package, &signature, publisher.public_key(), AIBOM_DIGEST).unwrap();
+}
+
+#[test]
+fn v2_package_build_is_deterministic() {
+    let first = build_package_v2(
+        "test-agent",
+        "2.0.0",
+        "publisher-test",
+        AIBOM_DIGEST,
+        files(),
+        vec!["model/weights.bin".into()],
+    )
+    .unwrap();
+
+    let second = build_package_v2(
+        "test-agent",
+        "2.0.0",
+        "publisher-test",
+        AIBOM_DIGEST,
+        files(),
+        vec!["model/weights.bin".into()],
+    )
+    .unwrap();
+
+    assert_eq!(first.archive_bytes, second.archive_bytes);
+    assert_eq!(first.manifest_bytes, second.manifest_bytes);
+}
+
+#[test]
+fn v2_rejects_executable_declaration_for_missing_file() {
+    let result = build_package_v2(
+        "test-agent",
+        "2.0.0",
+        "publisher-test",
+        AIBOM_DIGEST,
+        files(),
+        vec!["bin/not-present".into()],
+    );
+
+    assert!(matches!(result, Err(PackageError::InvalidMetadata(_))));
+}
+
+#[test]
+fn v2_rejects_traversal_in_executable_declaration() {
+    let result = build_package_v2(
+        "test-agent",
+        "2.0.0",
+        "publisher-test",
+        AIBOM_DIGEST,
+        files(),
+        vec!["../outside".into()],
+    );
+
+    assert!(matches!(result, Err(PackageError::InvalidPath(_))));
+}
+
+#[test]
+fn v2_executable_metadata_is_bound_to_signed_manifest() {
+    let mut package = build_package_v2(
+        "test-agent",
+        "2.0.0",
+        "publisher-test",
+        AIBOM_DIGEST,
+        files(),
+        vec!["model/weights.bin".into()],
+    )
+    .unwrap();
+
+    let publisher = InMemoryCustodian::generate();
+    let signature = sign_package(&package, &publisher).unwrap();
+
+    package
+        .manifest
+        .files
+        .iter_mut()
+        .find(|entry| entry.path == "model/weights.bin")
+        .unwrap()
+        .executable = false;
+
+    assert!(verify_package(&package, &signature, publisher.public_key(), AIBOM_DIGEST).is_err());
+}
+
+#[test]
+fn v2_rejects_duplicate_executable_declarations() {
+    let result = build_package_v2(
+        "test-agent",
+        "2.0.0",
+        "publisher-test",
+        AIBOM_DIGEST,
+        files(),
+        vec!["model/weights.bin".into(), "model/weights.bin".into()],
+    );
+
+    assert!(matches!(result, Err(PackageError::InvalidMetadata(_))));
+}
+
+#[test]
+fn v1_manifest_remains_backward_compatible() {
+    let package = aip_package::build_package(
+        "test-agent",
+        "1.0.0",
+        "publisher-test",
+        AIBOM_DIGEST,
+        files(),
+    )
+    .unwrap();
+
+    assert_eq!(
+        package.manifest.format_version,
+        aip_package::PACKAGE_FORMAT_VERSION
+    );
+
+    let manifest_json = String::from_utf8(package.manifest_bytes.clone()).unwrap();
+    assert!(!manifest_json.contains("\"executable\":"));
+
+    let publisher = InMemoryCustodian::generate();
+    let signature = sign_package(&package, &publisher).unwrap();
+
+    verify_package(&package, &signature, publisher.public_key(), AIBOM_DIGEST).unwrap();
+}
+
+#[test]
+fn verified_package_returns_only_authenticated_file_contents() {
+    let package = build(files());
+    let publisher = InMemoryCustodian::generate();
+    let signature = sign_package(&package, &publisher).unwrap();
+
+    let verified = aip_package::verify_package_contents(
+        &package,
+        &signature,
+        publisher.public_key(),
+        AIBOM_DIGEST,
+    )
+    .expect("valid signed package should return verified contents");
+
+    assert_eq!(verified.manifest().name, "test-agent");
+    assert_eq!(verified.manifest().publisher_id, "publisher-test");
+    assert_eq!(verified.files().len(), 2);
+
+    let config = verified
+        .files()
+        .iter()
+        .find(|file| file.path() == "config/runtime.json")
+        .unwrap();
+
+    assert_eq!(config.contents(), br#"{"runtime":"python"}"#);
+    assert!(!config.is_executable());
+
+    let weights = verified
+        .files()
+        .iter()
+        .find(|file| file.path() == "model/weights.bin")
+        .unwrap();
+
+    assert_eq!(weights.contents(), &[1, 2, 3, 4]);
+    assert!(!weights.is_executable());
+}
+
+#[test]
+fn rejects_untrusted_publisher_when_returning_verified_contents() {
+    let package = build(files());
+    let publisher = InMemoryCustodian::generate();
+    let attacker = InMemoryCustodian::generate();
+
+    let signature = sign_package(&package, &publisher).unwrap();
+
+    assert!(aip_package::verify_package_contents(
+        &package,
+        &signature,
+        attacker.public_key(),
+        AIBOM_DIGEST,
+    )
+    .is_err());
 }

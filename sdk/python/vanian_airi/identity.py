@@ -28,7 +28,10 @@ becomes unverifiable.
 from __future__ import annotations
 
 import os
+import hashlib
+import secrets
 import stat
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
@@ -46,7 +49,32 @@ if TYPE_CHECKING:  # pragma: no cover
         Ed25519PublicKey,
     )
 
-__all__ = ["AgentIdentity", "load_agent_identity"]
+__all__ = ["AgentIdentity", "SignatureEnvelope", "load_agent_identity"]
+
+
+@dataclass(frozen=True)
+class SignatureEnvelope:
+    algorithm: str
+    signer_id: str
+    timestamp: int
+    nonce: bytes
+    payload_hash: bytes
+    signature_bytes: bytes
+
+    def __post_init__(self) -> None:
+        if self.algorithm != "Ed25519": raise ValueError("unsupported signature algorithm")
+        if not isinstance(self.signer_id, str) or not self.signer_id: raise ValueError("signer_id must not be empty")
+        if not isinstance(self.timestamp, int) or isinstance(self.timestamp, bool) or not 0 <= self.timestamp < 2**64: raise ValueError("timestamp must be an unsigned 64-bit integer")
+        if len(self.nonce) != 16: raise ValueError("nonce must be 16 bytes")
+        if len(self.payload_hash) != 32: raise ValueError("payload_hash must be 32 bytes")
+        if len(self.signature_bytes) != 64: raise ValueError("signature_bytes must be 64 bytes")
+
+    def digest(self) -> bytes:
+        return hashlib.sha256(b"\x01" + self.signer_id.encode("utf-8") + self.timestamp.to_bytes(8, "little") + self.nonce + self.payload_hash).digest()
+
+    def to_dict(self) -> dict:
+        return {"algorithm": self.algorithm, "signer_id": self.signer_id, "timestamp": self.timestamp,
+                "nonce": list(self.nonce), "payload_hash": list(self.payload_hash), "signature_bytes": list(self.signature_bytes)}
 
 #: Permission bits that must not be set on a private key file.
 _FORBIDDEN_MODE = stat.S_IRWXG | stat.S_IRWXO
@@ -82,6 +110,13 @@ class AgentIdentity:
         how domain separation gets lost.
         """
         return self._private.sign(message)
+
+    def sign_envelope(self, message: bytes, *, timestamp: Optional[int] = None, nonce: Optional[bytes] = None) -> SignatureEnvelope:
+        ts = int(time.time() * 1000) if timestamp is None else timestamp
+        n = secrets.token_bytes(16) if nonce is None else nonce
+        payload_hash = hashlib.sha256(message).digest()
+        envelope = SignatureEnvelope("Ed25519", self.aip_id, ts, n, payload_hash, bytes(64))
+        return SignatureEnvelope("Ed25519", self.aip_id, ts, n, payload_hash, self.sign(envelope.digest()))
 
     def __repr__(self) -> str:  # pragma: no cover - defensive
         # Never let a key reach a log, a traceback, or an error report.

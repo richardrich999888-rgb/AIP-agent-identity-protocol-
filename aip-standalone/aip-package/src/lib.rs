@@ -6,9 +6,11 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::{Cursor, Read, Write};
 
+use base64::Engine;
 use serde::{Deserialize, Serialize};
 
 pub const PACKAGE_FORMAT_VERSION: u16 = 1;
+pub const PACKAGE_FORMAT_VERSION_V2: u16 = 2;
 pub const PACKAGE_MANIFEST_FILE: &str = "aip-package.json";
 const ARCHIVE_TIMESTAMP: zip::DateTime = zip::DateTime::DEFAULT;
 const ARCHIVE_FILE_MODE: u32 = 0o644;
@@ -28,6 +30,11 @@ struct PackageLimits {
     max_total_uncompressed_bytes: u64,
     max_package_entries: usize,
     max_manifest_bytes: u64,
+}
+
+struct PackageBuildOptions {
+    executable_paths: BTreeSet<String>,
+    format_version: u16,
 }
 
 impl PackageLimits {
@@ -72,13 +79,22 @@ pub struct PackageFile {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
 pub struct PackageFileEntry {
     pub path: String,
     pub size: u64,
     pub sha256: String,
+    /// Present and true only for executable files in package format v2.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub executable: bool,
+}
+
+fn is_false(value: &bool) -> bool {
+    !*value
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
 pub struct PackageManifest {
     pub format_version: u16,
     pub name: String,
@@ -94,6 +110,61 @@ pub struct BuiltPackage {
     pub manifest_bytes: Vec<u8>,
     pub archive_bytes: Vec<u8>,
     pub archive_sha256: [u8; 32],
+}
+
+/// A package file whose bytes have passed publisher-authenticated
+/// manifest inventory, size, permission, and SHA-256 verification.
+#[derive(Debug, Clone)]
+pub struct VerifiedPackageFile {
+    path: String,
+    contents: Vec<u8>,
+    executable: bool,
+}
+
+impl VerifiedPackageFile {
+    pub fn path(&self) -> &str {
+        &self.path
+    }
+
+    pub fn contents(&self) -> &[u8] {
+        &self.contents
+    }
+
+    pub fn is_executable(&self) -> bool {
+        self.executable
+    }
+}
+
+/// A package that has passed complete publisher and payload verification.
+///
+/// Its fields are private: callers must obtain it through
+/// `verify_package_contents()`.
+#[derive(Debug, Clone)]
+pub struct VerifiedPackage {
+    manifest: PackageManifest,
+    files: Vec<VerifiedPackageFile>,
+    archive_sha256: [u8; 32],
+    manifest_sha256: [u8; 32],
+}
+
+impl VerifiedPackage {
+    pub fn manifest(&self) -> &PackageManifest {
+        &self.manifest
+    }
+
+    pub fn files(&self) -> &[VerifiedPackageFile] {
+        &self.files
+    }
+
+    /// SHA-256 of the exact archive bytes that passed verification.
+    pub fn archive_sha256(&self) -> &[u8; 32] {
+        &self.archive_sha256
+    }
+
+    /// SHA-256 of the exact embedded manifest bytes that passed verification.
+    pub fn manifest_sha256(&self) -> &[u8; 32] {
+        &self.manifest_sha256
+    }
 }
 
 fn validate_label(value: &str, field: &str) -> Result<(), PackageError> {
@@ -158,24 +229,90 @@ pub fn build_package(
     aibom_manifest_sha256: &str,
     files: Vec<PackageFile>,
 ) -> Result<BuiltPackage, PackageError> {
-    build_package_with_limits(
+    build_package_with_options(
         name,
         version,
         publisher_id,
         aibom_manifest_sha256,
         files,
+        PackageBuildOptions {
+            executable_paths: BTreeSet::new(),
+            format_version: PACKAGE_FORMAT_VERSION,
+        },
         PackageLimits::PRODUCTION,
     )
 }
 
+/// Build a deterministic v2 package with explicit executable declarations.
+///
+/// Executable paths are part of the signed manifest and receive ZIP mode 0755.
+/// All other payload files receive mode 0644. The input paths must refer to
+/// files present in `files`.
+pub fn build_package_v2(
+    name: &str,
+    version: &str,
+    publisher_id: &str,
+    aibom_manifest_sha256: &str,
+    files: Vec<PackageFile>,
+    executable_paths: Vec<String>,
+) -> Result<BuiltPackage, PackageError> {
+    let unique_executable_paths: BTreeSet<String> = executable_paths.iter().cloned().collect();
+
+    if unique_executable_paths.len() != executable_paths.len() {
+        return Err(PackageError::InvalidMetadata(
+            "duplicate executable path declaration".into(),
+        ));
+    }
+
+    build_package_with_options(
+        name,
+        version,
+        publisher_id,
+        aibom_manifest_sha256,
+        files,
+        PackageBuildOptions {
+            executable_paths: unique_executable_paths,
+            format_version: PACKAGE_FORMAT_VERSION_V2,
+        },
+        PackageLimits::PRODUCTION,
+    )
+}
+
+#[cfg(test)]
 fn build_package_with_limits(
     name: &str,
     version: &str,
     publisher_id: &str,
     aibom_manifest_sha256: &str,
-    mut files: Vec<PackageFile>,
+    files: Vec<PackageFile>,
     limits: PackageLimits,
 ) -> Result<BuiltPackage, PackageError> {
+    build_package_with_options(
+        name,
+        version,
+        publisher_id,
+        aibom_manifest_sha256,
+        files,
+        PackageBuildOptions {
+            executable_paths: BTreeSet::new(),
+            format_version: PACKAGE_FORMAT_VERSION,
+        },
+        limits,
+    )
+}
+
+fn build_package_with_options(
+    name: &str,
+    version: &str,
+    publisher_id: &str,
+    aibom_manifest_sha256: &str,
+    mut files: Vec<PackageFile>,
+    options: PackageBuildOptions,
+    limits: PackageLimits,
+) -> Result<BuiltPackage, PackageError> {
+    let executable_paths = options.executable_paths;
+    let format_version = options.format_version;
+
     validate_label(name, "name")?;
     validate_label(version, "version")?;
     validate_label(publisher_id, "publisher_id")?;
@@ -189,6 +326,10 @@ fn build_package_with_limits(
 
     let mut seen = BTreeSet::new();
     let mut total_uncompressed_bytes = 0u64;
+
+    for path in &executable_paths {
+        validate_path(path)?;
+    }
 
     for file in &files {
         validate_path(&file.path)?;
@@ -221,6 +362,18 @@ fn build_package_with_limits(
         }
     }
 
+    if executable_paths.iter().any(|path| !seen.contains(path)) {
+        return Err(PackageError::InvalidMetadata(
+            "executable declaration references a file absent from the package".into(),
+        ));
+    }
+
+    if format_version == PACKAGE_FORMAT_VERSION && !executable_paths.is_empty() {
+        return Err(PackageError::InvalidMetadata(
+            "v1 packages cannot declare executable files".into(),
+        ));
+    }
+
     files.sort_by(|a, b| a.path.cmp(&b.path));
 
     let entries: Vec<PackageFileEntry> = files
@@ -229,11 +382,12 @@ fn build_package_with_limits(
             path: file.path.clone(),
             size: file.contents.len() as u64,
             sha256: hex::encode(aip_crypto::sha256(&file.contents)),
+            executable: executable_paths.contains(&file.path),
         })
         .collect();
 
     let manifest = PackageManifest {
-        format_version: PACKAGE_FORMAT_VERSION,
+        format_version,
         name: name.to_string(),
         version: version.to_string(),
         publisher_id: publisher_id.to_string(),
@@ -263,8 +417,15 @@ fn build_package_with_limits(
         let mut writer = zip::ZipWriter::new(&mut cursor);
 
         for file in &files {
+            let mode = if executable_paths.contains(&file.path) {
+                0o755
+            } else {
+                ARCHIVE_FILE_MODE
+            };
+            let file_options = options.unix_permissions(mode);
+
             writer
-                .start_file(&file.path, options)
+                .start_file(&file.path, file_options)
                 .map_err(|e| PackageError::Archive(e.to_string()))?;
 
             writer
@@ -307,6 +468,161 @@ fn build_package_with_limits(
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PackageSignature {
     pub signature: aip_types::Signature,
+}
+
+/// Version of the portable, unsigned export envelope. This is distinct from
+/// the signed package format version in [`PackageManifest`].
+pub const PACKAGE_EXPORT_VERSION: u16 = 1;
+
+/// Strict wire representation of the existing AIP signature envelope.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct PortableSignature {
+    pub algorithm: aip_types::AlgorithmId,
+    pub signer_id: String,
+    pub timestamp: u64,
+    pub nonce: [u8; 16],
+    pub payload_hash: [u8; 32],
+    pub signature_bytes: Vec<u8>,
+}
+
+impl From<&aip_types::Signature> for PortableSignature {
+    fn from(s: &aip_types::Signature) -> Self {
+        Self {
+            algorithm: s.algorithm,
+            signer_id: s.signer_id.clone(),
+            timestamp: s.timestamp,
+            nonce: s.nonce,
+            payload_hash: s.payload_hash,
+            signature_bytes: s.signature_bytes.clone(),
+        }
+    }
+}
+
+impl From<PortableSignature> for aip_types::Signature {
+    fn from(s: PortableSignature) -> Self {
+        Self {
+            algorithm: s.algorithm,
+            signer_id: s.signer_id,
+            timestamp: s.timestamp,
+            nonce: s.nonce,
+            payload_hash: s.payload_hash,
+            signature_bytes: s.signature_bytes,
+        }
+    }
+}
+
+/// Portable JSON envelope. `archive_base64` decodes to the exact ZIP bytes;
+/// its detached signature remains the existing AIP package signature.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct PortablePackageExport {
+    pub export_version: u16,
+    pub package_format_version: u16,
+    pub publisher_id: String,
+    pub archive_sha256: String,
+    pub manifest: PackageManifest,
+    pub archive_base64: String,
+    pub signature: PortableSignature,
+}
+
+/// External publisher trust anchor. This object must be provisioned
+/// independently of the package export.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct PublisherTrustAnchor {
+    pub publisher_id: String,
+    pub public_key_hex: String,
+}
+
+/// Convert an in-memory package and its existing detached signature to the
+/// documented portable export representation.
+pub fn export_package(
+    package: &BuiltPackage,
+    signature: &PackageSignature,
+) -> Result<PortablePackageExport, PackageError> {
+    let actual = aip_crypto::sha256(&package.archive_bytes);
+    if actual != package.archive_sha256 {
+        return Err(PackageError::InvalidMetadata(
+            "archive digest does not match archive bytes".into(),
+        ));
+    }
+    if package.manifest.format_version != PACKAGE_FORMAT_VERSION
+        && package.manifest.format_version != PACKAGE_FORMAT_VERSION_V2
+    {
+        return Err(PackageError::InvalidMetadata(
+            "unsupported package format version".into(),
+        ));
+    }
+    Ok(PortablePackageExport {
+        export_version: PACKAGE_EXPORT_VERSION,
+        package_format_version: package.manifest.format_version,
+        publisher_id: package.manifest.publisher_id.clone(),
+        archive_sha256: hex::encode(actual),
+        manifest: package.manifest.clone(),
+        archive_base64: base64::engine::general_purpose::STANDARD.encode(&package.archive_bytes),
+        signature: PortableSignature::from(&signature.signature),
+    })
+}
+
+/// Reconstruct the existing package types from a parsed portable export.
+/// Schema checks here do not replace cryptographic verification; callers
+/// must pass the result through `verify_package_contents` with an external
+/// anchor and expected AIBOM digest.
+pub fn package_from_export(
+    export: PortablePackageExport,
+) -> Result<(BuiltPackage, PackageSignature), PackageError> {
+    if export.export_version != PACKAGE_EXPORT_VERSION {
+        return Err(PackageError::InvalidMetadata(format!(
+            "unsupported export version {}",
+            export.export_version
+        )));
+    }
+    if export.package_format_version != PACKAGE_FORMAT_VERSION
+        && export.package_format_version != PACKAGE_FORMAT_VERSION_V2
+    {
+        return Err(PackageError::InvalidMetadata(format!(
+            "unsupported package format version {}",
+            export.package_format_version
+        )));
+    }
+    if export.package_format_version != export.manifest.format_version
+        || export.publisher_id != export.manifest.publisher_id
+    {
+        return Err(PackageError::InvalidMetadata(
+            "export metadata does not match package manifest".into(),
+        ));
+    }
+    validate_digest(&export.archive_sha256, "archive_sha256")?;
+    if export.archive_sha256 != export.archive_sha256.to_ascii_lowercase() {
+        return Err(PackageError::InvalidMetadata(
+            "archive_sha256 must use lowercase hexadecimal".into(),
+        ));
+    }
+    let archive_bytes = base64::engine::general_purpose::STANDARD
+        .decode(&export.archive_base64)
+        .map_err(|e| PackageError::Serialization(format!("invalid archive base64: {e}")))?;
+    if archive_bytes.len() > MAX_ARCHIVE_BYTES {
+        return Err(PackageError::InvalidMetadata(
+            "archive exceeds maximum compressed size".into(),
+        ));
+    }
+    let archive_sha256: [u8; 32] = hex::decode(&export.archive_sha256)
+        .map_err(|e| PackageError::Serialization(e.to_string()))?
+        .try_into()
+        .map_err(|_| PackageError::InvalidMetadata("invalid archive digest length".into()))?;
+    let manifest_bytes = serde_json::to_vec(&export.manifest)
+        .map_err(|e| PackageError::Serialization(e.to_string()))?;
+    let package = BuiltPackage {
+        manifest: export.manifest,
+        manifest_bytes,
+        archive_bytes,
+        archive_sha256,
+    };
+    let signature = PackageSignature {
+        signature: export.signature.into(),
+    };
+    Ok((package, signature))
 }
 
 const PACKAGE_SIGNATURE_DOMAIN: &[u8] = b"AIP-SIGNED-PACKAGE-V1\0";
@@ -369,6 +685,23 @@ pub fn verify_package(
     trusted_publisher_public_key: &[u8],
     expected_aibom_manifest_sha256: &str,
 ) -> Result<(), PackageError> {
+    verify_package_contents(
+        package,
+        package_signature,
+        trusted_publisher_public_key,
+        expected_aibom_manifest_sha256,
+    )
+    .map(|_| ())
+}
+
+/// Verify a package and return its payload only after all authenticity,
+/// inventory, size, permission, and content-hash checks have succeeded.
+pub fn verify_package_contents(
+    package: &BuiltPackage,
+    package_signature: &PackageSignature,
+    trusted_publisher_public_key: &[u8],
+    expected_aibom_manifest_sha256: &str,
+) -> Result<VerifiedPackage, PackageError> {
     if package.archive_bytes.len() > MAX_ARCHIVE_BYTES {
         return Err(PackageError::InvalidMetadata(
             "archive exceeds maximum compressed size".into(),
@@ -449,7 +782,9 @@ pub fn verify_package(
     }
 
     // Validate the manifest structure before trusting its inventory.
-    if parsed_manifest.format_version != PACKAGE_FORMAT_VERSION {
+    if parsed_manifest.format_version != PACKAGE_FORMAT_VERSION
+        && parsed_manifest.format_version != PACKAGE_FORMAT_VERSION_V2
+    {
         return Err(PackageError::InvalidMetadata(
             "unsupported package format version".into(),
         ));
@@ -466,10 +801,37 @@ pub fn verify_package(
         }
     }
 
+    let signature = &package_signature.signature;
+
+    if signature.signer_id != package.manifest.publisher_id {
+        return Err(PackageError::InvalidMetadata(
+            "signature publisher ID mismatch".into(),
+        ));
+    }
+
+    let payload = package_signing_payload(&parsed_manifest, &actual_archive_digest)?;
+    let expected_payload_hash = aip_crypto::sha256(&payload);
+
+    if signature.payload_hash != expected_payload_hash {
+        return Err(PackageError::InvalidMetadata(
+            "signature payload hash mismatch".into(),
+        ));
+    }
+
+    let valid = aip_crypto::verify_ed25519(trusted_publisher_public_key, signature)
+        .map_err(|e| PackageError::Archive(format!("signature verification error: {e:?}")))?;
+
+    if !valid {
+        return Err(PackageError::InvalidMetadata(
+            "publisher signature is invalid".into(),
+        ));
+    }
+
     // Independently verify every ZIP entry against the signed inventory.
     let mut seen_paths = BTreeSet::new();
     let mut manifest_count = 0usize;
     let mut total_uncompressed_bytes = 0u64;
+    let mut verified_files = Vec::with_capacity(expected_files.len());
 
     for index in 0..archive.len() {
         let entry = archive
@@ -508,6 +870,34 @@ pub fn verify_package(
         let expected = expected_files.get(path.as_str()).ok_or_else(|| {
             PackageError::InvalidMetadata(format!("unexpected archive entry: {path}"))
         })?;
+
+        if parsed_manifest.format_version == PACKAGE_FORMAT_VERSION_V2 {
+            let expected_mode = if expected.executable { 0o755 } else { 0o644 };
+            let raw_mode = entry.unix_mode().ok_or_else(|| {
+                PackageError::InvalidMetadata(format!(
+                    "missing Unix permission metadata for v2 file: {path}"
+                ))
+            })?;
+
+            if raw_mode & 0o7000 != 0 {
+                return Err(PackageError::InvalidMetadata(format!(
+                    "special permission bits are not permitted for v2 file: {path}"
+                )));
+            }
+
+            let actual_mode = raw_mode & 0o777;
+            if actual_mode != expected_mode {
+                return Err(PackageError::InvalidMetadata(format!(
+                    "file permission mismatch for {path}: expected {expected_mode:o}, got {actual_mode:o}"
+                )));
+            }
+        }
+
+        if parsed_manifest.format_version == PACKAGE_FORMAT_VERSION && expected.executable {
+            return Err(PackageError::InvalidMetadata(
+                "v1 manifest contains v2 executable metadata".into(),
+            ));
+        }
 
         if entry.size() > MAX_FILE_BYTES {
             return Err(PackageError::InvalidMetadata(format!(
@@ -573,6 +963,12 @@ pub fn verify_package(
                 "file SHA-256 mismatch: {path}"
             )));
         }
+
+        verified_files.push(VerifiedPackageFile {
+            path,
+            contents,
+            executable: expected.executable,
+        });
     }
 
     if manifest_count != 1 {
@@ -591,33 +987,12 @@ pub fn verify_package(
         ));
     }
 
-    let signature = &package_signature.signature;
-
-    if signature.signer_id != package.manifest.publisher_id {
-        return Err(PackageError::InvalidMetadata(
-            "signature publisher ID mismatch".into(),
-        ));
-    }
-
-    let payload = package_signing_payload(&parsed_manifest, &actual_archive_digest)?;
-    let expected_payload_hash = aip_crypto::sha256(&payload);
-
-    if signature.payload_hash != expected_payload_hash {
-        return Err(PackageError::InvalidMetadata(
-            "signature payload hash mismatch".into(),
-        ));
-    }
-
-    let valid = aip_crypto::verify_ed25519(trusted_publisher_public_key, signature)
-        .map_err(|e| PackageError::Archive(format!("signature verification error: {e:?}")))?;
-
-    if !valid {
-        return Err(PackageError::InvalidMetadata(
-            "publisher signature is invalid".into(),
-        ));
-    }
-
-    Ok(())
+    Ok(VerifiedPackage {
+        manifest: parsed_manifest,
+        files: verified_files,
+        archive_sha256: actual_archive_digest,
+        manifest_sha256: aip_crypto::sha256(&embedded_manifest),
+    })
 }
 
 #[cfg(test)]

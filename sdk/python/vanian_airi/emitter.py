@@ -22,6 +22,7 @@ events is worse than one the operator chose knowingly.
 from __future__ import annotations
 
 import threading
+import secrets
 import time
 from typing import Callable, List, Optional, Protocol
 
@@ -86,12 +87,14 @@ class AiriEmitter:
         sink: Optional[EventSink] = None,
         runtime_binding: Optional[RuntimeBinding] = None,
         clock_ms: Callable[[], int] = lambda: int(time.time() * 1000),
+        nonce_source: Callable[[], bytes] = lambda: secrets.token_bytes(16),
     ) -> None:
         self._identity = identity
         self._framework = framework
         self._sink: EventSink = sink if sink is not None else ListSink()
         self._runtime_binding = runtime_binding
         self._clock_ms = clock_ms
+        self._nonce_source = nonce_source
         self._sequence = 0
         self._head = _GENESIS
         self._execution_id: Optional[bytes] = None
@@ -128,7 +131,7 @@ class AiriEmitter:
                 payload=payload,  # type: ignore[arg-type]
             )
             preimage = event.signing_preimage()
-            event.signature = self._identity.sign(preimage)
+            event.signature = self._identity.sign_envelope(preimage, timestamp=event.emitted_at_ms, nonce=self._nonce_source())
             self._execution_id = c.execution_id
             self._sequence += 1
             self._head = event.event_hash()

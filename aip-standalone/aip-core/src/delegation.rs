@@ -28,9 +28,12 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use aip_crypto::{sha256, sign_ed25519, verify_ed25519};
+use aip_crypto::{
+    custody::RawSigner, sha256, sign_ed25519, signature_signed_bytes, verify_ed25519,
+};
 use aip_types::canonical::{encode_scope, put_domain, put_opt_u64, put_str, put_u64, put_u8};
 use aip_types::*;
+use rand::RngCore;
 use serde::{Deserialize, Serialize};
 
 /// Domain tag that leads every DelegationToken signing payload.
@@ -97,6 +100,114 @@ pub fn create_delegation(
         scope: effective_scope,
         depth,
         issued_at: now_ms,
+        expires_at,
+        issuer_sig,
+    })
+}
+
+/// Errors returned by custody-backed delegation signing.
+#[derive(Debug)]
+pub enum DelegationSigningError {
+    /// Delegation policy or signature-envelope validation failed.
+    Aip(AipError),
+    /// The configured custodian could not sign the delegation.
+    Custody(aip_crypto::custody::CustodyError),
+}
+
+impl From<AipError> for DelegationSigningError {
+    fn from(error: AipError) -> Self {
+        Self::Aip(error)
+    }
+}
+
+/// Create a root delegation using a custody-backed signer.
+///
+/// This preserves the existing DelegationToken and Signature wire formats.
+/// The signer never exposes its private key.
+///
+/// The caller must ensure that `signer.public_key()` is the trusted key
+/// registered for `parent_token.agent_id`. The normal chain verifier must
+/// still be given that trusted agent-to-public-key binding.
+pub fn create_delegation_with_signer(
+    parent_token: &ScopedToken,
+    signer: &dyn RawSigner,
+    grantee_id: &str,
+    requested_scope: CapabilityScope,
+) -> Result<DelegationToken, DelegationSigningError> {
+    if parent_token.scope.allowed.is_empty() {
+        return Err(AipError::CapabilityInsufficient.into());
+    }
+
+    if !is_scope_subset(&requested_scope, &parent_token.scope) {
+        return Err(AipError::AttenuationViolation.into());
+    }
+
+    let effective_scope = scope_intersection(&parent_token.scope, &requested_scope)
+        .ok_or(AipError::AttenuationViolation)?;
+
+    let now = now_ms();
+
+    if parent_token.expires_at.is_some_and(|expiry| now >= expiry) {
+        return Err(AipError::CapabilityExpired.into());
+    }
+
+    if signer.public_key().len() != 32 {
+        return Err(AipError::InvalidPublicKey.into());
+    }
+
+    let jti = random_jti();
+    let depth = 1u8;
+    let expires_at = parent_token.expires_at;
+
+    let payload = canonical_delegation_payload(
+        &jti,
+        &parent_token.jti,
+        &parent_token.agent_id,
+        grantee_id,
+        &effective_scope,
+        depth,
+        now,
+        expires_at,
+    );
+
+    let timestamp = now;
+    let mut nonce = [0u8; 16];
+    rand::rngs::OsRng.fill_bytes(&mut nonce);
+
+    let payload_hash = sha256(&payload);
+    let signed_bytes = signature_signed_bytes(
+        AlgorithmId::Ed25519,
+        &parent_token.agent_id,
+        timestamp,
+        &nonce,
+        &payload_hash,
+    );
+
+    let raw_signature = signer
+        .sign_raw(&signed_bytes)
+        .map_err(DelegationSigningError::Custody)?;
+
+    let issuer_sig = Signature {
+        algorithm: AlgorithmId::Ed25519,
+        signer_id: parent_token.agent_id.clone(),
+        timestamp,
+        nonce,
+        payload_hash,
+        signature_bytes: raw_signature.to_vec(),
+    };
+
+    if !verify_ed25519(signer.public_key(), &issuer_sig)? {
+        return Err(AipError::SignatureInvalid.into());
+    }
+
+    Ok(DelegationToken {
+        jti,
+        parent_jti: parent_token.jti,
+        issuer_id: parent_token.agent_id.clone(),
+        grantee_id: grantee_id.to_string(),
+        scope: effective_scope,
+        depth,
+        issued_at: now,
         expires_at,
         issuer_sig,
     })
@@ -512,6 +623,66 @@ mod tests {
         scope: CapabilityScope,
     ) -> ScopedToken {
         issue_scoped_token(issuer_id, issuer_priv, agent_id, scope, None).unwrap()
+    }
+
+    #[test]
+    fn custody_backed_root_delegation_creates_a_verifiable_chain() {
+        use aip_crypto::custody::InMemoryCustodian;
+
+        let (issuer_id, issuer_priv, issuer_pub) = make_agent();
+        let (agent_id, agent_priv, agent_pub) = make_agent();
+        let (grantee_id, _, _) = make_agent();
+
+        let root = make_root_token(&issuer_id, &issuer_priv, &agent_id, scope_orchestrator());
+
+        let custodian = InMemoryCustodian::new(&agent_priv, &agent_pub).unwrap();
+
+        let delegation =
+            create_delegation_with_signer(&root, &custodian, &grantee_id, scope_submitter())
+                .unwrap();
+
+        assert_eq!(delegation.issuer_id, agent_id);
+        assert_eq!(delegation.grantee_id, grantee_id);
+        assert_eq!(delegation.depth, 1);
+
+        let mut trusted_keys = HashMap::new();
+        trusted_keys.insert(issuer_id, issuer_pub);
+        trusted_keys.insert(agent_id, agent_pub);
+
+        let effective_scope = verify_delegation_chain(&root, &[delegation], &trusted_keys).unwrap();
+
+        assert!(is_scope_subset(&effective_scope, &root.scope));
+        assert!(scope_permits(
+            &effective_scope,
+            &ScopeAction::Standard(Action::Write),
+        ));
+        assert!(!scope_permits(
+            &effective_scope,
+            &ScopeAction::Standard(Action::Admin),
+        ));
+    }
+
+    #[test]
+    fn custody_backed_delegation_rejects_scope_escalation() {
+        use aip_crypto::custody::InMemoryCustodian;
+
+        let (issuer_id, issuer_priv, _) = make_agent();
+        let (agent_id, agent_priv, agent_pub) = make_agent();
+        let (grantee_id, _, _) = make_agent();
+
+        let root = make_root_token(&issuer_id, &issuer_priv, &agent_id, scope_submitter());
+
+        let custodian = InMemoryCustodian::new(&agent_priv, &agent_pub).unwrap();
+
+        let result = create_delegation_with_signer(&root, &custodian, &grantee_id, scope_admin());
+
+        assert!(
+            matches!(
+                result,
+                Err(DelegationSigningError::Aip(AipError::AttenuationViolation))
+            ),
+            "custody-backed delegation must reject privilege escalation"
+        );
     }
 
     // ── Adversarial: delegation expiry must be bound by the issuer signature (I6) ──

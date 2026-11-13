@@ -14,6 +14,7 @@ directly.
 from __future__ import annotations
 
 import os
+import hashlib
 import pathlib
 import stat
 import sys
@@ -197,7 +198,27 @@ class TestEmitterDiscipline(unittest.TestCase):
             with bind(new_execution(aid)):
                 em.agent_started()
             self.assertTrue(all(e.signature is not None for e in sink.events))
-            self.assertEqual(len(sink.events[0].signature), 64)
+            self.assertEqual(len(sink.events[0].signature.signature_bytes), 64)
+            self.assertEqual(sink.events[0].signature.signer_id, aid)
+            self.assertEqual(sink.events[0].signature.payload_hash, hashlib.sha256(sink.events[0].signing_preimage()).digest())
+
+    def test_raw_detached_signing_remains_available_and_envelopes_bind_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            em, sink, aid = self._emitter(d)
+            raw = em._identity.sign(b"legacy detached message")
+            self.assertEqual(len(raw), 64)
+            with bind(new_execution(aid)):
+                first = em.agent_started()
+                second = em.completed()
+            for event in (first, second):
+                env = event.signature
+                self.assertEqual(env.algorithm, "Ed25519")
+                self.assertEqual(env.signer_id, aid)
+                self.assertEqual(env.timestamp, event.emitted_at_ms)
+                self.assertEqual(env.payload_hash, hashlib.sha256(event.signing_preimage()).digest())
+                self.assertEqual(len(env.nonce), 16)
+                self.assertEqual(len(env.digest()), 32)
+            self.assertNotEqual(first.signature.nonce, second.signature.nonce)
 
     def test_parameters_are_committed_not_carried(self) -> None:
         # The secret must not appear anywhere in the signed bytes.

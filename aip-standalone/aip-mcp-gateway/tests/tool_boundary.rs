@@ -9,8 +9,9 @@
 //! decision point does, which is the whole point.
 
 use aip_airi::{
-    compare_tool_boundary, verify_tool_receipt, GatewayDisposition, GatewaySigner,
-    GatewayTrustAnchors, ToolBoundary, ToolBoundaryDivergence,
+    compare_tool_boundary, sign_airi_event, verify_airi_event, verify_tool_receipt, AiriEvent,
+    AiriPayload, FrameworkIdentity, GatewayDisposition, GatewaySigner, GatewayTrustAnchors,
+    ToolBoundary, ToolBoundaryDivergence, ToolInvocation, AIRI_EVENT_VERSION,
 };
 use aip_authorize::{
     tool_invoke_action, tool_invoke_parameters, AuthorityRef, DecisionPointTrustAnchors,
@@ -108,6 +109,90 @@ fn the_authorised_call_agrees() {
         matches!(boundary, ToolBoundary::Agrees { .. }),
         "an honest call must agree: {boundary:?}"
     );
+}
+
+#[test]
+fn shared_python_vector_receipt_and_airi_claim_compare_as_agreeing() {
+    let vector: Value = serde_json::from_str(include_str!(
+        "../../../sdk/python/tests/parameter_commitment_vector.json"
+    ))
+    .unwrap();
+    let args = vector["arguments"].clone();
+    let canonical = aip_mcp_gateway::canonical_json_bytes(&args);
+    assert_eq!(
+        canonical,
+        vector["canonical_utf8"].as_str().unwrap().as_bytes()
+    );
+    let commitment = parameter_commitment(&args);
+    assert_eq!(
+        hex::encode(commitment),
+        vector["commitment_hex"].as_str().unwrap()
+    );
+
+    let k = keys();
+    let (ee, dp_anchors) = expectation(&k, &args);
+    let signer = GatewaySigner::new(GATEWAY, 1, &k.gw.private_key).unwrap();
+    let receipt = aip_mcp_gateway::issue_receipt(
+        &signer,
+        &call(&args),
+        GatewayDisposition::Forwarded,
+        None,
+        1_000,
+    )
+    .unwrap();
+    let gw_anchors = GatewayTrustAnchors::new().trust(GATEWAY, 1, &k.gw.public_key);
+    let verified = verify_tool_receipt(&receipt, &gw_anchors, Some(&k.agent.public_key)).unwrap();
+
+    let mut substituted = receipt.clone();
+    substituted.receipt.parameter_commitment[0] ^= 1;
+    assert!(verify_tool_receipt(&substituted, &gw_anchors, Some(&k.agent.public_key)).is_err());
+    let mut malformed = serde_json::to_value(&receipt).unwrap();
+    malformed["receipt"]["parameter_commitment"] = json!(vec![0u8; 31]);
+    assert!(serde_json::from_value::<aip_airi::SignedToolReceipt>(malformed).is_err());
+
+    let unsigned = AiriEvent {
+        version: AIRI_EVENT_VERSION,
+        agent_id: AGENT.into(),
+        execution_id: [9; 16],
+        parent_execution_id: None,
+        decision_id: Some(DECISION),
+        sequence: 0,
+        prev_event_hash: [0; 32],
+        emitted_at_ms: 1_000,
+        framework: FrameworkIdentity {
+            name: "test".into(),
+            version: "1".into(),
+            adapter_version: "test/1".into(),
+        },
+        runtime_binding: None,
+        payload: AiriPayload::ToolInvocationRequested(ToolInvocation {
+            tool_id: TOOL.into(),
+            action_kind: "transfer".into(),
+            parameter_commitment: commitment,
+            tool_call_id: None,
+            target: None,
+        }),
+        signature: empty_sig(),
+    };
+    let claim = sign_airi_event(&k.agent.private_key, AGENT, unsigned).unwrap();
+    verify_airi_event(&claim, &k.agent.public_key).unwrap();
+    assert!(matches!(
+        compare_tool_boundary(&ee, &dp_anchors, Some(&verified), Some(&claim)),
+        ToolBoundary::Agrees { .. }
+    ));
+
+    let mut substituted_claim = claim;
+    if let AiriPayload::ToolInvocationRequested(ref mut invocation) = substituted_claim.payload {
+        invocation.parameter_commitment[0] ^= 1;
+    }
+    let substituted_claim =
+        sign_airi_event(&k.agent.private_key, AGENT, substituted_claim).unwrap();
+    assert!(matches!(
+        compare_tool_boundary(&ee, &dp_anchors, Some(&verified), Some(&substituted_claim)),
+        ToolBoundary::Diverges {
+            divergence: ToolBoundaryDivergence::ClaimDoesNotMatchAuthorization { .. }
+        }
+    ));
 }
 
 // ── The decisive case: mis-parameterised, caught without the agent ────────

@@ -221,6 +221,19 @@ async fn main() {
                 eprintln!("aip-service: same-run trust configuration: {e}");
                 std::process::exit(1)
             });
+    let agent_trust = airon_aip::agent_trust::AgentTrustStore::load(
+        std::env::var("AIP_AGENT_TRUST_PATH").ok().as_deref(),
+    )
+    .unwrap_or_else(|e| {
+        eprintln!("aip-service: agent trust configuration: {e}");
+        std::process::exit(1)
+    });
+
+    tracing::info!(
+        source_sha256 = agent_trust.source_sha256().unwrap_or("not-configured"),
+        "institution agent trust configuration loaded"
+    );
+
     let state = Arc::new(AppState {
         encoding_key,
         decoding_key,
@@ -239,6 +252,7 @@ async fn main() {
         managed_signing,
         observer_trust,
         run_trust,
+        agent_trust,
     });
 
     let addr = format!("0.0.0.0:{port}");

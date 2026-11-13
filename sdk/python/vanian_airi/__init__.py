@@ -71,7 +71,7 @@ from .events import (
     ToolInvocation,
     ToolReport,
 )
-from .identity import AgentIdentity, load_agent_identity
+from .identity import AgentIdentity, SignatureEnvelope, load_agent_identity
 
 __version__ = "0.1.0"
 
@@ -79,6 +79,7 @@ __all__ = [
     "__version__",
     # identity
     "AgentIdentity",
+    "SignatureEnvelope",
     "load_agent_identity",
     # context
     "ExecutionContext",

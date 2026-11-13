@@ -125,9 +125,11 @@ pub fn check_header_body(
     Ok(())
 }
 
-/// Commit to a response body the same way arguments are committed.
+/// Commit to a response body using the existing canonical-response contract.
+/// Tool argument commitments use the AIRI parameter domain; responses remain
+/// canonical JSON SHA-256 values for wire compatibility.
 pub fn response_commitment(response: &Value) -> [u8; 32] {
-    args_commitment(response)
+    aip_crypto::sha256(&canonical_json_bytes(response))
 }
 
 /// Issue a signed receipt for one tool call.

@@ -10,6 +10,7 @@ import sys
 import tempfile
 import threading
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
@@ -44,6 +45,17 @@ class TestCommitmentFailures(unittest.TestCase):
                 last = emitter.completed()
             self.assertEqual([event.sequence for event in sink.events], [0, 1])
             self.assertEqual(last.prev_event_hash, first.event_hash())
+
+    def test_failed_signing_does_not_consume_sequence_number(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            emitter, sink, identity = make_emitter(tmp)
+            with bind(new_execution(identity.aip_id)):
+                with patch.object(type(identity), "sign_envelope", side_effect=RuntimeError("sign failed")):
+                    with self.assertRaisesRegex(RuntimeError, "sign failed"):
+                        emitter.agent_started()
+                event = emitter.agent_started()
+            self.assertEqual(event.sequence, 0)
+            self.assertEqual(len(sink.events), 1)
 
 
 class TestExecutionIsolation(unittest.TestCase):
@@ -83,7 +95,7 @@ class TestExecutionIsolation(unittest.TestCase):
             for event in events:
                 self.assertEqual(event.execution_id, context.execution_id)
                 self.assertEqual(event.prev_event_hash, previous_hash)
-                public.verify(event.signature, event.signing_preimage())
+                public.verify(event.signature.signature_bytes, event.signature.digest())
                 previous_hash = event.event_hash()
 
     def test_sink_failure_is_visible_to_the_caller(self):

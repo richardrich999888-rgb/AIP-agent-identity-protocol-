@@ -117,8 +117,7 @@ fn custodian_backed_publisher_seals_and_verifies() {
     let custodian = Arc::new(InMemoryCustodian::generate());
     let public_key = custodian.public_key().to_vec();
 
-    let publisher =
-        Publisher::from_custodian("platform-team", custodian).unwrap();
+    let publisher = Publisher::from_custodian("platform-team", custodian).unwrap();
 
     let manifest = manifest("agent");
     let seal = publisher.seal(&manifest, 20).unwrap();
@@ -135,17 +134,14 @@ fn custodian_backed_publisher_reports_its_backend() {
     use std::sync::Arc;
 
     let custodian = Arc::new(InMemoryCustodian::generate());
-    let publisher =
-        Publisher::from_custodian("platform-team", custodian).unwrap();
+    let publisher = Publisher::from_custodian("platform-team", custodian).unwrap();
 
     assert_eq!(publisher.backend(), Backend::DevelopmentInMemory);
 }
 
 #[test]
 fn publisher_rejects_custodian_with_wrong_signer_envelope() {
-    use aip_crypto::custody::{
-        Backend, Custodian, CustodyError, InMemoryCustodian,
-    };
+    use aip_crypto::custody::{Backend, Custodian, CustodyError, InMemoryCustodian};
     use aip_types::Signature;
     use std::sync::Arc;
 
@@ -157,11 +153,7 @@ fn publisher_rejects_custodian_with_wrong_signer_envelope() {
             self.0.public_key()
         }
 
-        fn sign(
-            &self,
-            signer_id: &str,
-            payload: &[u8],
-        ) -> Result<Signature, CustodyError> {
+        fn sign(&self, signer_id: &str, payload: &[u8]) -> Result<Signature, CustodyError> {
             let mut signature = self.0.sign(signer_id, payload)?;
             signature.signer_id = "forged-signer".to_string();
             Ok(signature)
@@ -172,8 +164,7 @@ fn publisher_rejects_custodian_with_wrong_signer_envelope() {
         }
     }
 
-    let custodian =
-        Arc::new(WrongSignerCustodian(InMemoryCustodian::generate()));
+    let custodian = Arc::new(WrongSignerCustodian(InMemoryCustodian::generate()));
 
     assert!(matches!(
         Publisher::from_custodian("platform-team", custodian),
@@ -209,9 +200,7 @@ fn wrapped_file_custodian_can_publish_and_reopen() {
             aip_crypto::custody::Backend::WrappedFile
         );
 
-        let publisher =
-            Publisher::from_custodian("platform-team", Arc::new(custodian))
-                .unwrap();
+        let publisher = Publisher::from_custodian("platform-team", Arc::new(custodian)).unwrap();
 
         let m = manifest("agent");
         let seal = publisher.seal(&m, 30).unwrap();
@@ -227,15 +216,11 @@ fn wrapped_file_custodian_can_publish_and_reopen() {
         assert_eq!(reopened.public_key(), public_key.as_slice());
 
         let reopened_publisher =
-            Publisher::from_custodian("platform-team", Arc::new(reopened))
-                .unwrap();
+            Publisher::from_custodian("platform-team", Arc::new(reopened)).unwrap();
 
         let reopened_seal = reopened_publisher.seal(&m, 31).unwrap();
 
-        assert_eq!(
-            verify_seal(&reopened_seal, &m, &anchors),
-            Ok(())
-        );
+        assert_eq!(verify_seal(&reopened_seal, &m, &anchors), Ok(()));
     }
 
     let _ = std::fs::remove_file(&path);
@@ -266,9 +251,7 @@ impl Drop for SoftHsmTestCleanup {
 #[test]
 fn pkcs11_custodian_can_publish_and_verify_aibom_seal() {
     use aip_crypto::custody::Custodian;
-    use aip_hsm::{
-        provision_ed25519, PinSource, Pkcs11Config, Pkcs11Custodian,
-    };
+    use aip_hsm::{provision_ed25519, PinSource, Pkcs11Config, Pkcs11Custodian};
     use std::path::PathBuf;
     use std::sync::Arc;
 
@@ -278,8 +261,7 @@ fn pkcs11_custodian_can_publish_and_verify_aibom_seal() {
         .unwrap()
         .as_nanos();
 
-    let root = std::env::temp_dir()
-        .join(format!("aibom-pkcs11-{pid}-{unique}"));
+    let root = std::env::temp_dir().join(format!("aibom-pkcs11-{pid}-{unique}"));
     let tokens = root.join("tokens");
     std::fs::create_dir_all(&tokens).unwrap();
 
@@ -351,20 +333,12 @@ fn pkcs11_custodian_can_publish_and_verify_aibom_seal() {
     let provisioned = provision_ed25519(&config).unwrap();
     let custodian = Pkcs11Custodian::open(&config).unwrap();
 
-    assert_eq!(
-        custodian.backend(),
-        aip_crypto::custody::Backend::Pkcs11
-    );
-    assert_eq!(
-        custodian.public_key(),
-        provisioned.public_key.as_slice()
-    );
+    assert_eq!(custodian.backend(), aip_crypto::custody::Backend::Pkcs11);
+    assert_eq!(custodian.public_key(), provisioned.public_key.as_slice());
 
     let public_key = custodian.public_key().to_vec();
 
-    let publisher =
-        Publisher::from_custodian("platform-team", Arc::new(custodian))
-            .unwrap();
+    let publisher = Publisher::from_custodian("platform-team", Arc::new(custodian)).unwrap();
 
     let m = manifest("agent");
     let seal = publisher.seal(&m, 60).unwrap();

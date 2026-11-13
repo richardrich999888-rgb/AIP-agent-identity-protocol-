@@ -8,8 +8,12 @@ happens somewhere this process cannot reach.
 ## Install
 
 ```
-pip install cryptography==41.0.7    # the only non-stdlib dependency
+pip install vanian-sdk
 ```
+
+The distribution includes both the `vanian_airi` agent-side accountability
+SDK and the `vanian` read-only evidence-service client. The `cryptography`
+dependency is installed automatically.
 
 The canonical encoder, commitments, execution context and event construction
 need no third-party package at all — `cryptography` is imported lazily and
@@ -65,7 +69,7 @@ principal.
 ## Tests
 
 ```
-python3 -m unittest discover -s tests    # 50 tests
+python3 -m unittest discover -s tests -v
 ```
 
 `tests/test_canonical_parity.py` is the load-bearing one: it checks the

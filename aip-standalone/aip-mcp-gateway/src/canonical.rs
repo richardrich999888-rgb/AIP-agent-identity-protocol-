@@ -1,5 +1,5 @@
 //! Deterministic canonical JSON, so a commitment over tool arguments is the
-//! same on the decision point that sealed it and the gateway that received it.
+//! same on the AIRI SDK and the gateway that received it.
 //!
 //! # Why not `serde_json::to_vec`
 //!
@@ -18,7 +18,6 @@
 //! rule is four lines of intent, and a commitment function that everyone must
 //! agree on should have no moving parts a reader cannot see.
 
-use aip_crypto::sha256;
 use serde_json::Value;
 
 /// Canonical UTF-8 bytes of a JSON value: object keys sorted, no insignificant
@@ -29,9 +28,10 @@ pub fn canonical_json_bytes(value: &Value) -> Vec<u8> {
     out
 }
 
-/// The gateway's parameter commitment: SHA-256 over the canonical bytes.
+/// The gateway's AIRI parameter commitment over canonical argument bytes.
+/// This matches Python `commit_json` and Rust `aip_airi::parameter_commitment`.
 pub fn args_commitment(value: &Value) -> [u8; 32] {
-    sha256(&canonical_json_bytes(value))
+    aip_airi::parameter_commitment(&canonical_json_bytes(value))
 }
 
 fn write_canonical(value: &Value, out: &mut Vec<u8>) {
@@ -99,6 +99,7 @@ fn write_json_string(s: &str, out: &mut Vec<u8>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use aip_crypto::sha256;
     use serde_json::json;
 
     #[test]
@@ -141,5 +142,38 @@ mod tests {
         let a = json!({"note": "line1\nline2\t\"q\""});
         let b: Value = serde_json::from_str(r#"{"note":"line1\nline2\t\"q\""}"#).unwrap();
         assert_eq!(args_commitment(&a), args_commitment(&b));
+    }
+
+    #[test]
+    fn shared_python_airi_parameter_commitment_vector_matches() {
+        let vector: Value = serde_json::from_str(include_str!(
+            "../../../sdk/python/tests/parameter_commitment_vector.json"
+        ))
+        .unwrap();
+        let arguments = &vector["arguments"];
+        let canonical = vector["canonical_utf8"].as_str().unwrap().as_bytes();
+        assert_eq!(canonical_json_bytes(arguments), canonical);
+        assert_eq!(
+            hex::encode(args_commitment(arguments)),
+            vector["commitment_hex"].as_str().unwrap()
+        );
+        assert_eq!(
+            hex::encode(sha256(canonical)),
+            vector["bare_sha256_hex"].as_str().unwrap()
+        );
+        assert_ne!(args_commitment(arguments), sha256(canonical));
+        assert_eq!(crate::response_commitment(arguments), sha256(canonical));
+    }
+
+    #[test]
+    fn argument_commitment_is_domain_separated_and_nested_values_are_canonical() {
+        let a = json!({"outer":{"z":[1,{"b":true,"a":null}],"a":"x"}});
+        let b = json!({"outer":{"a":"x","z":[1,{"a":null,"b":true}]}});
+        assert_eq!(args_commitment(&a), args_commitment(&b));
+        assert_ne!(args_commitment(&a), sha256(&canonical_json_bytes(&a)));
+        assert_ne!(
+            args_commitment(&a),
+            args_commitment(&json!({"outer":{"a":"y","z":[1,{"a":null,"b":true}]}}))
+        );
     }
 }
