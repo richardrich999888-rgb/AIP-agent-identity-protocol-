@@ -26,6 +26,8 @@ aip-observe = { path = "../aip-observe" }
 aip-reconcile = { path = "../aip-reconcile" }
 
 [dev-dependencies]
+# Parse Cargo executable reports; reuse the already locked workspace crate.
+serde_json = "=1.0.151"
 # Gate 14: the offline demonstrator packages this crate's live runs as
 # NEXORA proofs and verifies them in a separate process. The proof layer is
 # downstream of the demo, never a dependency of the observation it checks.
