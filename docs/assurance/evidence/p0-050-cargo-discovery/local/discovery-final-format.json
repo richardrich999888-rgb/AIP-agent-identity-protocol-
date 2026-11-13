@@ -1,0 +1,33 @@
+{
+  "command": [
+    "cargo",
+    "fmt",
+    "--all"
+  ],
+  "cwd": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox",
+  "source_commit": "ef23c76d6cc4335717733a0a4f767fb6ab050d2a",
+  "changes": [
+    " M .github/workflows/ci.yml",
+    " M aip-standalone/aip-edge/src/transport.rs",
+    " M aip-standalone/ghost-demo/tests/live_nexora.rs",
+    "?? validation/ci/relocated_reference_tests.py"
+  ],
+  "started_at_utc": "2026-11-13T03:09:40.866802+00:00",
+  "source_hashes": {
+    "aip-standalone/aip-edge/src/transport.rs": "76692d3b6429576744a4eafd79c90d8bf429e5c99b43cdcc9deeba02762f01ad",
+    "aip-standalone/ghost-demo/tests/live_nexora.rs": "4d7aa849c1cae576fd3d298ec0418f0cfcefddf7884fbe1be485852de2084f37",
+    "sovereign/vanian-sovereign/src/adapters/sandbox.rs": "4a813ae1f904636171a03e3a126512f7b99d08e32922d9b476fa50289609068b",
+    "sovereign/vanian-sovereign/tests/agent_execution.rs": "23fec19d6671c30b7038785149be65e6bf869d4006bd2e823b1b4cb01cf079f5",
+    "validation/ci/with_cgroup.sh": "da5a6dbabfae437b485d52edbbd5fac1956fa369bf3d68518c641848419bd311",
+    "sovereign/vanian-sovereign/src/adapters/launch.rs": "c509e95bb4abda33a7b2f63b49f3d6af83e17d18a005c7ae585d003351ab1a06",
+    "sovereign/vanian-sovereign/src/bin/vanian.rs": "a2f2ed1582287b033b669967883c062f452692003006b7801136278a2add978a",
+    "Cargo.lock": "43bd0521198d9ae40aa683c9a01c3fe0e632681fc9bda509b73ed1d351c5daa1"
+  },
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target",
+    "CARGO_BUILD_JOBS": "4"
+  },
+  "exit_code": 0,
+  "duration_seconds": 1.9770717899955343
+}
