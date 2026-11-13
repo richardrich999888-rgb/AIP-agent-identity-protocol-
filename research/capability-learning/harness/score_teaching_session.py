@@ -28,6 +28,7 @@ import draft_from_session as D
 import example_mapping as M
 import ingest_documents as I
 import question_generator as Q
+import teaching_review as V
 from ir_compiler import compile_ir
 
 
@@ -239,6 +240,9 @@ def score(*, binary, config, tenant, session_id, session_task, task, answers, do
                       capability_hash=proposal["hash"], original_lifecycle_written=False,
                       limitation="Same-host diagnostic with configured public trust. Example mappings are explicit unsigned "
                                  "review declarations, not authenticated approval. No PDF/DOCX scoring, UI or full teaching acceptance.")
+        if status == "PASS_SESSION_AND_SUITE":
+            report["teaching_review_sha256"] = V.prepare(out, report)
+            report["teaching_review_authority"] = "UNSIGNED_REVIEW_REQUIRES_EXPERT_APPROVAL"
     except (OSError, ValueError, KeyError, TypeError, I.IngestError, subprocess.SubprocessError) as error:
         report.update(status="REFUSED", exit_status=2, error=str(error))
         if isinstance(error, B.AnswersRefused):

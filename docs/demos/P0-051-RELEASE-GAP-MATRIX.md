@@ -137,3 +137,22 @@ be explicitly configured; legacy mode is not C2-qualified. Packs, models, UI/API
 OVERLAY, clean-host installation and independent demo acceptance remain open.
 No new qualifying rehearsal: the offline 33-test component run on this same host
 counts as zero demos. No live investor runtime, second host or sensor qualification.
+
+## Iteration 5 — fresh teaching-review commitment (13 November 2026)
+
+Reconciled parent `93c65bcdc293aa950552f1a11515c4b21a553e8e`; preserved seven
+newer sandbox/CI commits by fast-forward. Parent main, teaching, contract and
+Agent Zero CI pass; Security fails. This baseline is not new-source validation.
+
+C2 prerequisite: emit an unsigned content-addressed review only after fresh
+signed-suite and example replay. Full original document, session, answers,
+example map, suite/trust, capability, native results and binary are bound.
+27 new tests include each input mutation, separate-process verification, missing
+files, symlinks and false approval labels. Full Python 472 pass (27 included).
+Native runtime code and activation policy are unchanged. No frozen labels change.
+
+Next: incorporate this digest in the expert signature and enforce its replay
+binding at native approval. The current verifier proves pinned-byte integrity,
+not human identity or activation permission. C2, signed packs, complete demos,
+independent clean-host acceptance and all remaining release gates stay OPEN.
+Release **NOT READY**; zero qualifying rehearsal credit.

@@ -78,3 +78,24 @@ independent C1 replay, full original-document hash and unsigned example-map
 digest to a teaching approval envelope is still required. Per-approval revocation,
 rollback-resistant policy storage, login/clearance administration, offline packs
 and independently authenticated distribution of policy/trust material are open.
+
+## Fresh teaching review commitment (13 November 2026)
+
+The session scoreboard now emits `teaching-review.json` and a domain-separated
+`teaching_review_sha256` only after fresh native suite and example replay both
+pass. It binds the full original TXT document, runtime-verified session, cited
+questions/corrections, exact example map, signed suite, evaluator public key,
+native results, capability and runtime binary digest. Failed/incomplete inputs
+emit no review. Original lifecycle state remains unchanged.
+
+```sh
+python3 research/capability-learning/harness/teaching_review.py REVIEW_FOLDER \
+  --expected-digest EXTERNALLY_PINNED_REVIEW_SHA256
+```
+
+This command verifies pinned bytes in a separate process. Its result is explicitly
+`UNSIGNED_REVIEW_INTEGRITY_VERIFIED`, never approval or activation authorization.
+Do not derive a trusted pin from an untrusted archive. The digest still needs to
+be bound into the expert approval signature and checked at the native approval
+boundary. Existing `cap-approve` does not consume this review yet; C2 remains
+partial. A saved result.json PASS is neither a signing input nor a trust anchor.
