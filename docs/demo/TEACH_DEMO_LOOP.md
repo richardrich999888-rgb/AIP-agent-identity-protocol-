@@ -685,3 +685,18 @@ be explicitly configured; legacy mode is not C2-qualified. Packs, models, UI/API
 OVERLAY, clean-host installation and independent demo acceptance remain open.
 No new qualifying rehearsal: the offline 33-test component run on this same host
 counts as zero demos. No live investor runtime, second host or sensor qualification.
+
+## Iteration 5 checkpoint — 13 November 2026
+
+Source `2d3a22697acbdcf4c3343a70f130f841bd722491` prepares an **unsigned** teaching
+review commitment only after fresh native signed-suite and example replay. It
+binds full source, session, answers, example map, suite/trust, capability and
+native results. Separate-process verification requires an external digest and
+never authorizes activation. 472 local Python tests pass, including 27 new tests;
+12/12 holdout and 26/26 adversarial (six nonactivation probes included) remain
+passing, while the control remains rejected at 11/12. Counts overlap.
+
+[Original inputs, replay, measurements and limitations](../demos/evidence/p0-051-iteration-5/README.md).
+No qualifying rehearsal or clean-machine credit. Release **NOT READY**. Next:
+bind this review digest into the expert approval signature and enforce fresh
+replay at native approval. Existing native approval does not consume it yet.
