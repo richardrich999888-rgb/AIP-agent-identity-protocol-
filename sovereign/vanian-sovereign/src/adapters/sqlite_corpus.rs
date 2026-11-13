@@ -67,6 +67,23 @@ fn storage(e: rusqlite::Error) -> PortError {
 }
 
 impl SqliteCorpus {
+    /// Delete an authorized document and its FTS entry in the same SQLite statement.
+    /// An absent or unreadable document has the same result. The host adapter must
+    /// separately authorize the mutation; a Principal describes read scope only.
+    pub fn delete(&mut self, principal: &Principal, doc_id: &Ident) -> Result<bool, PortError> {
+        self.conn
+            .execute(
+                "DELETE FROM documents WHERE tenant=?1 AND doc_id=?2 AND class_rank<=?3",
+                params![
+                    principal.tenant.as_str(),
+                    doc_id.as_str(),
+                    principal.clearance.rank()
+                ],
+            )
+            .map(|n| n == 1)
+            .map_err(storage)
+    }
+
     /// SHA-256 of the body of `doc_id` **if the principal may read it**
     /// (same tenant, clearance and quarantine filter as `search`). Returns
     /// `None` both when the document is absent and when it is not readable,
