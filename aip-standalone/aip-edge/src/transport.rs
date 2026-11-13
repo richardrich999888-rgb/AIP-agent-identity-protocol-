@@ -210,8 +210,9 @@ impl Peer {
 pub const SIBLING_BINARIES: [&str; 2] = ["aip-edge-observer", "aip-edge-workload"];
 
 /// Build the sibling binaries the orchestrator spawns, with the cargo and
-/// profile that built the caller, into the target directory
-/// [`sibling_binary`] searches.
+/// standard debug/release mode of the caller. Cargo reports the paths used by
+/// [`sibling_binary`]; its private intermediate directories are never guessed.
+/// Custom profiles/cross-target execution are not qualified by this helper.
 ///
 /// # Why a library function and not a test helper
 ///
@@ -236,65 +237,113 @@ pub const SIBLING_BINARIES: [&str; 2] = ["aip-edge-observer", "aip-edge-workload
 /// Once per process. Returns a descriptive error rather than skipping: a
 /// reference that quietly does nothing when its own binaries are absent is
 /// worse than one that stops and names the command that builds them.
+type BinaryPaths = std::collections::BTreeMap<String, PathBuf>;
+static BUILT: std::sync::OnceLock<Result<BinaryPaths, String>> = std::sync::OnceLock::new();
+
 pub fn ensure_sibling_binaries() -> Result<(), EdgeError> {
-    static BUILT: std::sync::OnceLock<Result<(), String>> = std::sync::OnceLock::new();
     BUILT
         .get_or_init(build_sibling_binaries)
-        .clone()
-        .map_err(EdgeError::Transport)
+        .as_ref()
+        .map(|_| ())
+        .map_err(|e| EdgeError::Transport(e.clone()))
 }
 
-fn build_sibling_binaries() -> Result<(), String> {
-    let exe = std::env::current_exe().map_err(|e| format!("current_exe: {e}"))?;
-    // `<target>/<profile>/deps/<test>` for a test binary, `<target>/<profile>/<bin>`
-    // for a binary. The profile directory is the one holding `deps`, so walk
-    // up until a directory named `deps` is passed, at most one level.
-    let mut profile_dir = exe
-        .parent()
-        .ok_or_else(|| format!("{} has no parent directory", exe.display()))?
-        .to_path_buf();
-    if profile_dir.file_name().is_some_and(|n| n == "deps") {
-        profile_dir = profile_dir
-            .parent()
-            .ok_or_else(|| "deps directory has no parent".to_string())?
-            .to_path_buf();
-    }
-    let target_dir = profile_dir
-        .parent()
-        .ok_or_else(|| format!("{} has no target directory", profile_dir.display()))?
-        .to_path_buf();
-    let release = profile_dir.file_name().is_some_and(|p| p == "release");
-
+fn build_sibling_binaries() -> Result<BinaryPaths, String> {
     let cargo = std::env::var_os("CARGO").unwrap_or_else(|| "cargo".into());
-    let mut cmd = std::process::Command::new(cargo);
-    cmd.arg("build").arg("--target-dir").arg(&target_dir);
-    if release {
+    let mut cmd = Command::new(cargo);
+    // Cargo's intermediate layout is private (and changed in 1.100). Let
+    // Cargo choose its configured target/build directories and report outputs.
+    cmd.args([
+        "build",
+        "--locked",
+        "--offline",
+        "--message-format=json",
+        "--manifest-path",
+    ])
+    .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml"));
+    if !cfg!(debug_assertions) {
         cmd.arg("--release");
     }
     for name in SIBLING_BINARIES {
         cmd.arg("-p").arg(name);
     }
-    let status = cmd
-        .status()
+    let output = cmd
+        .stderr(Stdio::inherit())
+        .output()
         .map_err(|e| format!("could not run cargo to build {SIBLING_BINARIES:?}: {e}"))?;
-    if !status.success() {
+    if !output.status.success() {
         return Err(format!(
-            "building {SIBLING_BINARIES:?} failed; from a shell: cargo build -p {} -p {}",
-            SIBLING_BINARIES[0], SIBLING_BINARIES[1]
+            "building {SIBLING_BINARIES:?} failed: {}",
+            output.status
         ));
     }
-    for name in SIBLING_BINARIES {
-        if !profile_dir.join(name).exists() {
+    let paths = artifact_paths(&output.stdout)?;
+    for (name, path) in &paths {
+        if !path.is_file() {
             return Err(format!(
-                "{name} was built but did not appear in {}",
-                profile_dir.display()
+                "Cargo reported {name} but no executable file exists at {}",
+                path.display()
             ));
         }
     }
-    Ok(())
+    Ok(paths)
+}
+
+fn artifact_paths(output: &[u8]) -> Result<BinaryPaths, String> {
+    let mut paths = BinaryPaths::new();
+    for line in output.split(|b| *b == b'\n').filter(|l| !l.is_empty()) {
+        let value: serde_json::Value = serde_json::from_slice(line)
+            .map_err(|e| format!("invalid Cargo artifact message: {e}"))?;
+        if value["reason"] != "compiler-artifact" {
+            continue;
+        }
+        let Some(name) = value["target"]["name"].as_str() else {
+            continue;
+        };
+        if !SIBLING_BINARIES.contains(&name)
+            || !value["target"]["kind"]
+                .as_array()
+                .is_some_and(|k| k.iter().any(|v| v == "bin"))
+        {
+            continue;
+        }
+        let Some(executable) = value["executable"].as_str() else {
+            continue;
+        };
+        let path = PathBuf::from(executable);
+        if !path.is_absolute() {
+            return Err(format!("relative Cargo executable for {name}"));
+        }
+        if paths
+            .insert(name.to_owned(), path.clone())
+            .is_some_and(|old| old != path)
+        {
+            return Err(format!("conflicting Cargo executables for {name}"));
+        }
+    }
+    for name in SIBLING_BINARIES {
+        if !paths.contains_key(name) {
+            return Err(format!("Cargo did not report executable for {name}"));
+        }
+    }
+    Ok(paths)
 }
 
 pub fn sibling_binary(name: &str) -> Result<PathBuf, EdgeError> {
+    if let Some(built) = BUILT.get() {
+        return built
+            .as_ref()
+            .map_err(|e| EdgeError::Transport(e.clone()))?
+            .get(name)
+            .cloned()
+            .filter(|p| p.is_file())
+            .ok_or_else(|| {
+                EdgeError::Transport(format!("no built sibling executable for {name}"))
+            });
+    }
+    // Installed/reference CLI mode without a requested Cargo build retains
+    // adjacent-binary discovery. Never fall back after a failed build.
+
     let exe =
         std::env::current_exe().map_err(|e| EdgeError::Transport(format!("current_exe: {e}")))?;
     let mut dir = exe.parent().map(Path::to_path_buf);
@@ -316,4 +365,50 @@ pub fn sibling_binary(name: &str) -> Result<PathBuf, EdgeError> {
         "{name} was not found next to {}; build it with `cargo build -p {name}`",
         exe.display()
     )))
+}
+
+#[cfg(test)]
+mod artifact_tests {
+    use super::*;
+    fn message(name: &str, path: &str) -> String {
+        serde_json::json!({"reason":"compiler-artifact","target":{"name":name,"kind":["bin"]},"executable":path}).to_string()
+    }
+    #[test]
+    fn reported_executables_do_not_depend_on_internal_test_layout() {
+        let a = message(
+            SIBLING_BINARIES[0],
+            "/separate target/debug/aip-edge-observer",
+        );
+        let b = message(
+            SIBLING_BINARIES[1],
+            "/separate target/debug/aip-edge-workload",
+        );
+        let paths = artifact_paths(
+            format!("{a}\n{b}\n{a}\n{{\"reason\":\"build-finished\",\"success\":true}}\n")
+                .as_bytes(),
+        )
+        .unwrap();
+        assert_eq!(
+            paths[SIBLING_BINARIES[0]],
+            PathBuf::from("/separate target/debug/aip-edge-observer")
+        );
+    }
+    #[test]
+    fn missing_malformed_relative_and_conflicting_artifacts_refuse() {
+        let a = message(SIBLING_BINARIES[0], "/one/observer");
+        let b = message(SIBLING_BINARIES[1], "/one/workload");
+        for data in [
+            String::new(),
+            a.clone(),
+            "not json".into(),
+            format!(
+                "{a}\n{b}\n{}",
+                message(SIBLING_BINARIES[0], "/two/observer")
+            ),
+            format!("{a}\n{}", message(SIBLING_BINARIES[1], "relative/workload")),
+            format!("{a}\n{}", b.replace("\"bin\"", "\"lib\"")),
+        ] {
+            assert!(artifact_paths(data.as_bytes()).is_err());
+        }
+    }
 }
