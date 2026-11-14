@@ -74,3 +74,21 @@ passing, while the control remains rejected at 11/12. Counts overlap.
 No qualifying rehearsal or clean-machine credit. Release **NOT READY**. Next:
 bind this review digest into the expert approval signature and enforce fresh
 replay at native approval. Existing native approval does not consume it yet.
+
+## Iteration 6 — native signed teaching approval (14 November 2026)
+
+Source `42c1038f1ef7454821a9ecf32454f07554422866` closes the review-digest
+signature/native-replay item: v3 Ed25519 approval binds the exact teaching review
+after native signed-suite and example replay, current-source/session checks and
+authority verification. require_teaching_review prevents legacy activation/use.
+Approval does not activate. Full local runtime **203 pass**, Python **490 pass
+with no skips**; source teaching CI **316 Rust / 312 focused Python pass**. Counts
+overlap. Holdout **12/12**, adversarial **26/26** including six nonactivation probes
+remain passing; rejected control **11/12** stays rejected. Independent local/CI
+v3 signature verification and seven archive-tamper refusals pass.
+
+[Original signed records, setup failures, verification and limits](evidence/p0-051-iteration-6/README.md).
+C2 remains partial: actor/role strings are not authenticated operator actions;
+transactional state, policy trust, packs and remaining release/demo gates remain
+open. No second-machine/install/model/sensor or qualifying rehearsal credit.
+Release **NOT READY**. Next: authenticate activation and revocation actions.
