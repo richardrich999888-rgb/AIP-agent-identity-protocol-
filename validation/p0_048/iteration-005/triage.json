@@ -1,0 +1,351 @@
+{
+  "schema_version": "triage-finding/v0",
+  "repository": {
+    "path": "/workspace/scratch/9d463b080ab5/aip-p048",
+    "revision": "61dd73013d02ea7869de104d953f330098df1c32"
+  },
+  "findings": [
+    {
+      "triage_item_id": "triage-001",
+      "input_id": "40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf:validation/p0_048/iteration-001/inventory.json:generic-api-key:7515",
+      "source_type": "scanner_ticket",
+      "title": "Public tokenizer file checksum reported as API key",
+      "normalized_input": {
+        "vulnerable_component": "validation/p0_048/iteration-001/inventory.json",
+        "claimed_source": "repository reader",
+        "claimed_sink": "published credential",
+        "claimed_control": "unknown",
+        "affected_version_or_path": "validation/p0_048/iteration-001/inventory.json:7515",
+        "preconditions": [
+          "The matched value must be a usable credential"
+        ],
+        "impact": "Possible credential disclosure",
+        "references": [
+          "validation/p0_048/iteration-004/implementation-gitleaks.log"
+        ]
+      },
+      "verdict": "not_actionable",
+      "confidence": "high",
+      "affected_locations": [
+        {
+          "label": "reported match",
+          "path": "validation/p0_048/iteration-001/inventory.json",
+          "lines": "7515",
+          "detail": "file_sha256 entry for a public Qwen model tokenizer file"
+        }
+      ],
+      "reachable_path": [
+        "Public model file digest copied from the interoperability lock to the audit inventory"
+      ],
+      "boundary_assessment": {
+        "product_surface": "generated",
+        "source_trust": "trusted_developer_config",
+        "boundary_crossed": false,
+        "policy_basis": "Inventory file_sha256 structure and matching integrations/interoperability/upstreams.lock.json entries; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": null,
+        "rank": null,
+        "rationale": "not actionable: checksum is not a credential",
+        "drivers": []
+      },
+      "evidence": [
+        "Exact matching digest in public-model file_sha256 inventory",
+        "Original finding bound to immutable commit 40f2c1b"
+      ],
+      "counterevidence": [
+        "Value describes file content, not an authentication secret"
+      ],
+      "proof_gaps": [],
+      "recommended_next_step": "Classify this exact commit/path/rule/line; continue scanning new commits",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-002",
+      "input_id": "40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf:validation/p0_048/iteration-001/inventory.json:generic-api-key:7516",
+      "source_type": "scanner_ticket",
+      "title": "Public tokenizer file checksum reported as API key",
+      "normalized_input": {
+        "vulnerable_component": "validation/p0_048/iteration-001/inventory.json",
+        "claimed_source": "repository reader",
+        "claimed_sink": "published credential",
+        "claimed_control": "unknown",
+        "affected_version_or_path": "validation/p0_048/iteration-001/inventory.json:7516",
+        "preconditions": [
+          "The matched value must be a usable credential"
+        ],
+        "impact": "Possible credential disclosure",
+        "references": [
+          "validation/p0_048/iteration-004/implementation-gitleaks.log"
+        ]
+      },
+      "verdict": "not_actionable",
+      "confidence": "high",
+      "affected_locations": [
+        {
+          "label": "reported match",
+          "path": "validation/p0_048/iteration-001/inventory.json",
+          "lines": "7516",
+          "detail": "file_sha256 entry for a public Qwen model tokenizer file"
+        }
+      ],
+      "reachable_path": [
+        "Public model file digest copied from the interoperability lock to the audit inventory"
+      ],
+      "boundary_assessment": {
+        "product_surface": "generated",
+        "source_trust": "trusted_developer_config",
+        "boundary_crossed": false,
+        "policy_basis": "Inventory file_sha256 structure and matching integrations/interoperability/upstreams.lock.json entries; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": null,
+        "rank": null,
+        "rationale": "not actionable: checksum is not a credential",
+        "drivers": []
+      },
+      "evidence": [
+        "Exact matching digest in public-model file_sha256 inventory",
+        "Original finding bound to immutable commit 40f2c1b"
+      ],
+      "counterevidence": [
+        "Value describes file content, not an authentication secret"
+      ],
+      "proof_gaps": [],
+      "recommended_next_step": "Classify this exact commit/path/rule/line; continue scanning new commits",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-003",
+      "input_id": "KSV-0009",
+      "source_type": "sarif",
+      "title": "Elevated host access in retained Helm test rendering",
+      "normalized_input": {
+        "vulnerable_component": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "claimed_source": "workload in a deployed probe container",
+        "claimed_sink": "host network, PID namespace, root or procfs access",
+        "claimed_control": "host workload isolation",
+        "affected_version_or_path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "preconditions": [
+          "An operator deploys the rendered workload with working images and configuration"
+        ],
+        "impact": "Elevated access to the monitored host",
+        "references": [
+          "validation/p0_048/iteration-004/implementation-trivy.sarif"
+        ]
+      },
+      "verdict": "not_actionable",
+      "confidence": "high",
+      "affected_locations": [
+        {
+          "label": "historical artifact",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "lines": "33-89",
+          "detail": "Accurate warning in a retained synthetic rendering, not deployment approval"
+        }
+      ],
+      "reachable_path": [
+        "Recorded Helm test rendering uses registry.example.invalid fixture images",
+        "No cluster applied and no container started in the recorded run"
+      ],
+      "boundary_assessment": {
+        "product_surface": "test/fixture",
+        "source_trust": "trusted_developer_config",
+        "boundary_crossed": false,
+        "policy_basis": "deploy/enterprise/kubernetes/README.md and HELM_20261028T103133Z/report.json; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": null,
+        "rank": null,
+        "rationale": "not actionable in this exact frozen historical artifact; current deployment qualification is separate",
+        "drivers": []
+      },
+      "evidence": [
+        "Retained report explicitly limits execution to Helm lint/render",
+        "Fixture image registry is .invalid and both components default disabled"
+      ],
+      "counterevidence": [
+        "The source template retains the same elevated privileges; this is not a false warning or a safe deployment verdict"
+      ],
+      "proof_gaps": [
+        "Current enabled deployment remains unqualified; institution configuration, cluster isolation and independent key custody require separate review and execution"
+      ],
+      "recommended_next_step": "Retain raw HIGH finding; classify only original artifact hash and exact location; block any new manifest finding",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-004",
+      "input_id": "KSV-0010",
+      "source_type": "sarif",
+      "title": "Elevated host access in retained Helm test rendering",
+      "normalized_input": {
+        "vulnerable_component": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "claimed_source": "workload in a deployed probe container",
+        "claimed_sink": "host network, PID namespace, root or procfs access",
+        "claimed_control": "host workload isolation",
+        "affected_version_or_path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "preconditions": [
+          "An operator deploys the rendered workload with working images and configuration"
+        ],
+        "impact": "Elevated access to the monitored host",
+        "references": [
+          "validation/p0_048/iteration-004/implementation-trivy.sarif"
+        ]
+      },
+      "verdict": "not_actionable",
+      "confidence": "high",
+      "affected_locations": [
+        {
+          "label": "historical artifact",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "lines": "33-89",
+          "detail": "Accurate warning in a retained synthetic rendering, not deployment approval"
+        }
+      ],
+      "reachable_path": [
+        "Recorded Helm test rendering uses registry.example.invalid fixture images",
+        "No cluster applied and no container started in the recorded run"
+      ],
+      "boundary_assessment": {
+        "product_surface": "test/fixture",
+        "source_trust": "trusted_developer_config",
+        "boundary_crossed": false,
+        "policy_basis": "deploy/enterprise/kubernetes/README.md and HELM_20261028T103133Z/report.json; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": null,
+        "rank": null,
+        "rationale": "not actionable in this exact frozen historical artifact; current deployment qualification is separate",
+        "drivers": []
+      },
+      "evidence": [
+        "Retained report explicitly limits execution to Helm lint/render",
+        "Fixture image registry is .invalid and both components default disabled"
+      ],
+      "counterevidence": [
+        "The source template retains the same elevated privileges; this is not a false warning or a safe deployment verdict"
+      ],
+      "proof_gaps": [
+        "Current enabled deployment remains unqualified; institution configuration, cluster isolation and independent key custody require separate review and execution"
+      ],
+      "recommended_next_step": "Retain raw HIGH finding; classify only original artifact hash and exact location; block any new manifest finding",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-005",
+      "input_id": "KSV-0118",
+      "source_type": "sarif",
+      "title": "Elevated host access in retained Helm test rendering",
+      "normalized_input": {
+        "vulnerable_component": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "claimed_source": "workload in a deployed probe container",
+        "claimed_sink": "host network, PID namespace, root or procfs access",
+        "claimed_control": "host workload isolation",
+        "affected_version_or_path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "preconditions": [
+          "An operator deploys the rendered workload with working images and configuration"
+        ],
+        "impact": "Elevated access to the monitored host",
+        "references": [
+          "validation/p0_048/iteration-004/implementation-trivy.sarif"
+        ]
+      },
+      "verdict": "not_actionable",
+      "confidence": "high",
+      "affected_locations": [
+        {
+          "label": "historical artifact",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "lines": "43-89",
+          "detail": "Accurate warning in a retained synthetic rendering, not deployment approval"
+        }
+      ],
+      "reachable_path": [
+        "Recorded Helm test rendering uses registry.example.invalid fixture images",
+        "No cluster applied and no container started in the recorded run"
+      ],
+      "boundary_assessment": {
+        "product_surface": "test/fixture",
+        "source_trust": "trusted_developer_config",
+        "boundary_crossed": false,
+        "policy_basis": "deploy/enterprise/kubernetes/README.md and HELM_20261028T103133Z/report.json; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": null,
+        "rank": null,
+        "rationale": "not actionable in this exact frozen historical artifact; current deployment qualification is separate",
+        "drivers": []
+      },
+      "evidence": [
+        "Retained report explicitly limits execution to Helm lint/render",
+        "Fixture image registry is .invalid and both components default disabled"
+      ],
+      "counterevidence": [
+        "The source template retains the same elevated privileges; this is not a false warning or a safe deployment verdict"
+      ],
+      "proof_gaps": [
+        "Current enabled deployment remains unqualified; institution configuration, cluster isolation and independent key custody require separate review and execution"
+      ],
+      "recommended_next_step": "Retain raw HIGH finding; classify only original artifact hash and exact location; block any new manifest finding",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-006",
+      "input_id": "KSV-0121",
+      "source_type": "sarif",
+      "title": "Elevated host access in retained Helm test rendering",
+      "normalized_input": {
+        "vulnerable_component": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "claimed_source": "workload in a deployed probe container",
+        "claimed_sink": "host network, PID namespace, root or procfs access",
+        "claimed_control": "host workload isolation",
+        "affected_version_or_path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "preconditions": [
+          "An operator deploys the rendered workload with working images and configuration"
+        ],
+        "impact": "Elevated access to the monitored host",
+        "references": [
+          "validation/p0_048/iteration-004/implementation-trivy.sarif"
+        ]
+      },
+      "verdict": "not_actionable",
+      "confidence": "high",
+      "affected_locations": [
+        {
+          "label": "historical artifact",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "lines": "33-89",
+          "detail": "Accurate warning in a retained synthetic rendering, not deployment approval"
+        }
+      ],
+      "reachable_path": [
+        "Recorded Helm test rendering uses registry.example.invalid fixture images",
+        "No cluster applied and no container started in the recorded run"
+      ],
+      "boundary_assessment": {
+        "product_surface": "test/fixture",
+        "source_trust": "trusted_developer_config",
+        "boundary_crossed": false,
+        "policy_basis": "deploy/enterprise/kubernetes/README.md and HELM_20261028T103133Z/report.json; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": null,
+        "rank": null,
+        "rationale": "not actionable in this exact frozen historical artifact; current deployment qualification is separate",
+        "drivers": []
+      },
+      "evidence": [
+        "Retained report explicitly limits execution to Helm lint/render",
+        "Fixture image registry is .invalid and both components default disabled"
+      ],
+      "counterevidence": [
+        "The source template retains the same elevated privileges; this is not a false warning or a safe deployment verdict"
+      ],
+      "proof_gaps": [
+        "Current enabled deployment remains unqualified; institution configuration, cluster isolation and independent key custody require separate review and execution"
+      ],
+      "recommended_next_step": "Retain raw HIGH finding; classify only original artifact hash and exact location; block any new manifest finding",
+      "fix_finding_handoff": null
+    }
+  ]
+}

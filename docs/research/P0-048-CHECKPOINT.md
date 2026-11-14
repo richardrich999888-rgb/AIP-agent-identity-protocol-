@@ -1,46 +1,39 @@
-# P0-048 checkpoint — iteration 004
+# P0-048 checkpoint — iteration 005
 
 Branch: `codex/p0-048-snifferdog-enterprise-assurance`.
 Integration base: `fix/vanian-end-to-end-green`, `4d0ce1e32c8dedde4e3a930abc2becf1f56b864e`.
-Parent: `9e7e9eec13f58a2b7689b66ca1e76ff65fb8bc8d`.
-12 November 2026 (Asia/Kolkata).
+Parent: `61dd73013d02ea7869de104d953f330098df1c32`.
+14 November 2026 (Asia/Kolkata).
 
-All remote branches were fetched and the prior checkpoint/CI reviewed. The user
-asked to remove blockers, so the single selected item is supported-host execution
-of the ten native tests previously blocked by local kernel permissions.
+The next selected item is security-CI finding classification and remediation,
+with historical evidence preserved and no weakening of new-finding detection.
+The parent has five successful workflows and one failed Security workflow.
 
-## Acceptance
+## Implemented item and local acceptance
 
-All ten exact tests execute and pass with no early-return, ignored or zero-test
-substitute. Retain host/source/binary/log provenance and fresh signed originals
-for process capture and event loss; verify them through the separate native CLI.
-Keep the local restrictions and all product checks intact. Commit/push on the
-approved branch, inspect actual CI, retain results, update this checklist and stop.
+Reproduced both failures with the baseline scanner versions: two public
+Qwen tokenizer-checksum matches and four HIGH warnings in the immutable
+28 October Helm fixture. Gitleaks now classifies only the two original commit
+fingerprints. Trivy still scans all files and retains its unfiltered SARIF;
+a separate gate accepts only the four exact archived findings after checking
+original bytes, paths, rule IDs and locations. New findings, copied manifests,
+missing expected results and scanner failures remain blocking.
 
-## Completed item
+Local results: 17 classification controls and three real scanner controls pass.
+The original Gitleaks PR range is clean under the exact false-positive
+classification. Fresh Trivy output retains four archival HIGH warnings and
+zero new findings. A newly rendered enabled Kubernetes chart still produces
+all four HIGH warnings; no deployment qualification or risk waiver is claimed.
 
-The strict runner and its 15 positive/negative controls are implemented. The local
-restricted-host attempt correctly refuses qualification (nine BLOCKED, one FAIL,
-no live archives). A pinned dedicated workflow prepares a disposable GitHub-hosted
-Linux VM and executes the actual tests as root. Hosted acceptance **passed** at
-`ea5fe9e9ad10da0b490b411afc9f757e01259c73` in run `43167021649`: ten executed
-native tests, zero blocked/ignored, and two native archive-verification checks.
-The original provider ZIP, logs, host/source/binary hashes and signed originals
-are retained. Six local archive/tamper/wrong-anchor checks also pass, with no
-upgrade of missing coverage. Three tamper-harness regressions pass after fixing
-an initial setup assumption; the failed setup transcript remains available.
+- [Classification, implementation and limitations](P0-048-SECURITY-CI.md)
+- [Commands and retained results](../../validation/p0_048/iteration-005/README.md)
+- [Prior native qualification](P0-048-NATIVE-QUALIFICATION.md)
+- [Prior checkpoint](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/61dd73013d02ea7869de104d953f330098df1c32/docs/research/P0-048-CHECKPOINT.md)
 
-Local regression: 92 executed passes plus three blocked cases, never counted as
-passed locally. Formatting and scoped Clippy pass. The separately requested
-ignored throughput test was explicitly executed once in release mode; its timing
-is a component measurement, not the high-load or concurrent-agent benchmark matrix.
-
-The native product is unchanged. Only optional retention was added to two existing
-live tests; original signatures and absence of coverage after loss are preserved.
-
-- [Native host qualification report](P0-048-NATIVE-QUALIFICATION.md)
-- [Iteration commands and evidence](../../validation/p0_048/iteration-004/README.md)
-- [Prior checkpoint](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/9e7e9eec13f58a2b7689b66ca1e76ff65fb8bc8d/docs/research/P0-048-CHECKPOINT.md)
+Hosted results at the new published head are pending. Local acceptance is not
+a claim that a future CI run passed. Native runtime code and prior signed
+archives are unchanged; the ten native Linux assertions remain tied to their
+recorded executed revisions.
 
 ## Checklist
 
@@ -57,23 +50,12 @@ live tests; original signatures and absence of coverage after loss are preserved
 | I — air gap | Complete bundle and clean-host/firewall qualification pending |
 | J — performance | Bounded churn and one explicit component timing run retained; required performance matrix pending |
 | K — demo | Full retained nine-scene demo acceptance pending |
-| L — release | NOT MET: full regression/security CI, clean installation, independent custody and ten full rehearsals remain open |
+| L — release | NOT MET: new-head hosted security/regression inspection pending; clean installation, independent custody and ten full rehearsals remain open |
 
-## Updated CI baseline and remaining gates
+## Next item and release limits
 
-Parent 9e7e9ee's full CI, coverage upload, same-run assurance and artifact upload,
-RBI rehearsal and harness contracts have now passed. Provider receipts are in
-`iteration-004/parent-ci.json`. Historical failed uploads remain in their original
-records; a current successful upload does not reconstruct an earlier missing one.
-
-Security CI still reports the known tokenizer-checksum matches and retained Helm
-findings. These are a separate item; this work adds no scanner suppression and
-removes no historical evidence. Independent collector administration, clean-machine
-air-gap deployment, broader attribution/load and final demo acceptance remain open.
-
-## Next item
-
-The native-host gate is complete for the recorded Linux environment. Stop after
-publishing this evidence update and inspecting CI. The next single incomplete
-item is security-CI finding classification and remediation while preserving
-original archives and scanner coverage. No merge or production enforcement.
+Publish this security-CI item, inspect actual new-head runs and retain provider
+results. The next sensor correctness item is executable/descriptor consistency
+under replacement and exit. Broader concurrent attribution and interruption
+qualification, the C–K workstreams above and independent enterprise acceptance
+remain incomplete. Keep PR #20 draft; no merge or production enforcement.

@@ -1,0 +1,46 @@
+{
+  "schema": "vanian.security-classification.v1",
+  "reviewed_source": "61dd73013d02ea7869de104d953f330098df1c32",
+  "trivy_version": "0.76.2",
+  "immutable_files": [
+    {
+      "path": "validation/p0_048/iteration-001/inventory.json",
+      "sha256": "624478cac6f01097a92cc559c2078d12875ff10f02cbb2a5bf981e8dd67b5d4f"
+    },
+    {
+      "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+      "sha256": "e5efc92b55a62f799174498ff0ef11003d3ea18487b71e1f0e5b005bef8ba5ed"
+    }
+  ],
+  "archived_misconfigurations": [
+    {
+      "rule_id": "KSV-0009",
+      "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+      "start_line": 33,
+      "end_line": 89
+    },
+    {
+      "rule_id": "KSV-0010",
+      "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+      "start_line": 33,
+      "end_line": 89
+    },
+    {
+      "rule_id": "KSV-0118",
+      "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+      "start_line": 43,
+      "end_line": 89
+    },
+    {
+      "rule_id": "KSV-0121",
+      "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+      "start_line": 33,
+      "end_line": 89
+    }
+  ],
+  "gitleaks_fingerprints": [
+    "40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf:validation/p0_048/iteration-001/inventory.json:generic-api-key:7515",
+    "40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf:validation/p0_048/iteration-001/inventory.json:generic-api-key:7516"
+  ],
+  "scope": "Only immutable historical rendering and two public model checksums. No deployment, rule-wide, path-wide, or secret exemption. Current enabled Kubernetes template remains unqualified."
+}

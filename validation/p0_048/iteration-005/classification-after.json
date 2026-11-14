@@ -1,0 +1,36 @@
+{
+  "schema": "vanian.security-gate.v1",
+  "status": "PASS_WITH_ARCHIVED_FINDINGS",
+  "scanner_exit": 42,
+  "raw_findings": 4,
+  "archived_findings": [
+    {
+      "rule_id": "KSV-0009",
+      "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+      "start_line": 33,
+      "end_line": 89
+    },
+    {
+      "rule_id": "KSV-0010",
+      "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+      "start_line": 33,
+      "end_line": 89
+    },
+    {
+      "rule_id": "KSV-0118",
+      "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+      "start_line": 43,
+      "end_line": 89
+    },
+    {
+      "rule_id": "KSV-0121",
+      "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+      "start_line": 33,
+      "end_line": 89
+    }
+  ],
+  "blocking_findings": [],
+  "missing_expected_findings": [],
+  "scope": "Only immutable historical rendering and two public model checksums. No deployment, rule-wide, path-wide, or secret exemption. Current enabled Kubernetes template remains unqualified.",
+  "deployment_qualified": false
+}
