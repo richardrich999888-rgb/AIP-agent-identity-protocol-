@@ -34,6 +34,7 @@ from evidence import ARCHIVES, Refused, command, covered, event_time, records, s
 from harness import now, save, tamper, terminate
 from prepare_local_model import MANIFEST_SHA256, MODEL, verify_model
 from resource_metrics import snapshot as resource_snapshot, report as resource_report
+from gateway_diagnostics import journal_snapshot
 
 UID_AGENT, UID_TOOL, UID_GATEWAY, UID_MODEL = 10001, 10002, 10003, 10004
 MECHANISMS = ['SchedTracepoint', 'Fanotify', 'SockSendTracepoint']
@@ -774,6 +775,10 @@ def main():
         for audit in audits:
             cleanup('remove_audit_rule', lambda: in_host(audit.close))
         for child in reversed(processes): cleanup('terminate_child', lambda: terminate(child))
+        # Preserve bounded journal state after processes stop, including failed
+        # trials. Never use it to replace a missing signed gateway receipt.
+        cleanup('retain_gateway_journal_diagnostic', lambda: save(
+            public/'gateway-journal-diagnostic.json', journal_snapshot(gateway_dir/'requests.sqlite3')))
         if agent_output: cleanup('close_agent_output', agent_output.close)
         for stream in streams: cleanup('close_log', stream.close)
         probe_log=private/'probe.log'
