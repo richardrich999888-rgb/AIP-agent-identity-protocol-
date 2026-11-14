@@ -71,9 +71,31 @@ must fail regardless of whether its bytes match the old fixture.
 
 Evidence, commands, scanner pins and source hashes are retained in
 [`iteration-005`](../../validation/p0_048/iteration-005/README.md).
-Hosted CI at the new published source is recorded there separately; local
-results do not imply a hosted pass. The parent head's five other workflows
-completed successfully; its Security workflow was the reproduced failure.
+Hosted Security at `ce7925c649fe3268ef0ba40b321058216c5e0c27` passed all three
+jobs in [run 43581555606](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43581555606).
+Its original unfiltered Trivy artifact, classification and real detection
+controls are retained with provider-verified ZIP hashes. Native qualification
+also passed ten assertions and two archive checks in
+[run 43581555600](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43581555600).
+The original native ZIP, signed records and all logs are retained; local checks
+verified its 19 manifest entries and nine source hashes.
+
+## Newly exposed compiler drift
+
+The full coverage run selected Rust 1.100.0 from floating `stable`. Cargo changed
+its internal test binary layout, while the reference's sibling launcher assumes
+the prior layout. Twelve adversarial tests aborted in setup because the helper
+looked for a sibling executable in a build-output directory. The original
+failure log and job metadata are retained, rather than counted as passed.
+
+The quality and coverage jobs now explicitly use Rust 1.99.1, the already
+qualified native/compiler baseline. All original test commands, coverage
+generation and strict checks remain enabled. This closes the unexpected
+toolchain-change path without claiming Cargo 1.100 compatibility. Updating the
+reference launcher for newer layouts remains a separate follow-up. See the
+[Cargo layout reference](https://doc.rust-lang.org/cargo/reference/build-cache.html).
+Final publication CI must be assessed on its own head; the current results
+and links are maintained in [PR #20](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/20).
 
 ## Remaining P0-048 work
 

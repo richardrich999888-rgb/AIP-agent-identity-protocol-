@@ -26,6 +26,9 @@ historical bytes and rejection of new findings. No runtime product changes.
 - `triage.json`: static finding classification. Archival-scope verdicts do not
   approve the current enabled Kubernetes profile.
 - `SHA256SUMS`: hashes for the retained local evidence files.
+- `hosted/`: original security/native provider ZIPs, scanner job transcripts,
+  source/content verification, and the retained original coverage failure.
+  Native signatures and health records remain inside the original provider ZIP.
 
 ## Reproduce
 
@@ -61,6 +64,17 @@ the committed classification or alter history.
 
 ## Publication status
 
-Local checks passed. The new hosted run is pending publication and will be
-recorded separately at its exact source commit. The previous native
-qualification evidence remains tied to its original executed source.
+Local checks passed. At implementation `ce7925c649fe3268ef0ba40b321058216c5e0c27`,
+Security run `43581555606` passed all three jobs. Native run `43581555600`
+passed ten assertions and two native archive checks. Original ZIP SHA-256s:
+
+- Security: `52d1e798d77955cd83d70063b79c7dede7278199e71f40629f4c8d5296e5724c`.
+- Native: `74fd24c0dc9c40885065721e86b553e7fcead750b515f31d30abe05dea54fcdf`.
+
+The full coverage job at that source failed after the floating toolchain
+selected Rust 1.100.0 and the reference sibling launcher could not resolve
+Cargo's changed internal path. `hosted/toolchain-drift.json` and the original
+compressed failure transcript preserve that failure. The follow-up pins the
+quality/coverage jobs to qualified Rust 1.99.1 without excluding any tests.
+The latest exact-head CI results are maintained in PR #20; no later run is
+declared passed by inference from these retained implementation results.

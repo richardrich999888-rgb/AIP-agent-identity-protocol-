@@ -1,0 +1,10 @@
+{
+  "observed_source": "ce7925c649fe3268ef0ba40b321058216c5e0c27",
+  "workflow_run": 43581555608,
+  "failed_job": 132407180974,
+  "observed_compiler": "rustc 1.100.0 (0ef1bc386 2026-11-09)",
+  "failure": "aip-edge sibling binary path discovery assumed the pre-1.100 Cargo test layout; 12 adversarial tests aborted at setup before assertions",
+  "remediation": "Pin the quality and coverage jobs to the already-qualified Rust 1.99.1; preserve all test commands and scanners",
+  "limits": "Cargo 1.100 reference-launcher compatibility remains unqualified; no product code or verification predicate was changed",
+  "official_layout_reference": "https://doc.rust-lang.org/cargo/reference/build-cache.html"
+}

@@ -30,10 +30,14 @@ all four HIGH warnings; no deployment qualification or risk waiver is claimed.
 - [Prior native qualification](P0-048-NATIVE-QUALIFICATION.md)
 - [Prior checkpoint](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/blob/61dd73013d02ea7869de104d953f330098df1c32/docs/research/P0-048-CHECKPOINT.md)
 
-Hosted results at the new published head are pending. Local acceptance is not
-a claim that a future CI run passed. Native runtime code and prior signed
-archives are unchanged; the ten native Linux assertions remain tied to their
-recorded executed revisions.
+Hosted Security passed all three jobs at `ce7925c` (run `43581555606`). Fresh
+native qualification also passed ten assertions and two archive checks (run
+`43581555600`); original ZIPs and local source/hash checks are retained.
+Full coverage exposed floating Rust 1.100.0's changed test artifact layout.
+The quality and coverage jobs are now pinned to the qualified Rust 1.99.1;
+all tests remain enabled. That failure is retained and newer-layout launcher
+compatibility remains open. Final-head results are maintained in PR #20.
+Native runtime code and all earlier signed archives remain unchanged.
 
 ## Checklist
 
@@ -50,12 +54,12 @@ recorded executed revisions.
 | I — air gap | Complete bundle and clean-host/firewall qualification pending |
 | J — performance | Bounded churn and one explicit component timing run retained; required performance matrix pending |
 | K — demo | Full retained nine-scene demo acceptance pending |
-| L — release | NOT MET: new-head hosted security/regression inspection pending; clean installation, independent custody and ten full rehearsals remain open |
+| L — release | NOT MET: inspect current PR-head CI separately; clean installation, independent custody and ten full rehearsals remain open |
 
 ## Next item and release limits
 
-Publish this security-CI item, inspect actual new-head runs and retain provider
-results. The next sensor correctness item is executable/descriptor consistency
+The security classification item has hosted evidence; inspect the final-head
+toolchain-pin rerun separately in PR #20. The next sensor item is executable/descriptor consistency
 under replacement and exit. Broader concurrent attribution and interruption
 qualification, the C–K workstreams above and independent enterprise acceptance
 remain incomplete. Keep PR #20 draft; no merge or production enforcement.

@@ -42,6 +42,10 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
+          # The reference sibling-binary launcher is qualified against this
+          # version. Cargo 1.100 changes its internal test artifact layout.
+          # Keep every test enabled; qualify newer layouts as a separate item.
+          toolchain: 1.99.1
           components: rustfmt, clippy
 
       - name: Cache cargo
@@ -157,9 +161,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
+          # Match the qualified full-suite compiler above; no test exclusions.
+          toolchain: 1.99.1
           components: llvm-tools-preview
       - name: Install cargo-llvm-cov
-        run: cargo install cargo-llvm-cov --locked
+        run: cargo install cargo-llvm-cov --version 0.9.1 --locked
       - name: Install SoftHSM2 (required by workspace custody tests)
         run: sudo apt-get update -qq && sudo apt-get install -y -qq softhsm2
       - name: Generate coverage
