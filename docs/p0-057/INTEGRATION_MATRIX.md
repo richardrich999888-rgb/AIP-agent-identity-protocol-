@@ -28,3 +28,17 @@ merging them. Fresh upstream API/advisory assessment for every framework is an
 open gate; this table does not claim these versions are vulnerability-free,
 production-compatible or vendor-endorsed. First engineering priority is native
 attribution correctness, then exact same-run request/effect binding.
+
+## Fresh P0-057 execution evidence
+
+At `5be83a8`, the unchanged pinned ContextForge `ff6a566a` and its locked CPEX
+0.1.4 / MCP 2.3.0 APIs ran locally against a real MCP upstream: 27 checks pass,
+27 receipts independently verify, 16 upstream calls occur. This controller-driven
+trial is not an AI-model/kernel test. `iteration-002/gateway-runtime` contains
+original requests, receipts, public anchor, source/binary hashes and the report.
+
+The separate hosted same-run model test used the existing real LangGraph,
+local llama3.2:1b, authority broker, ContextForge and Linux observers at `5be83a8`.
+Observed/interruption scenes retain CannotProve; the recovery scene fails on
+missing Forwarded receipt. The native sensor workflow's ten assertions pass.
+These outcomes do not close any mandatory integration as enterprise-qualified.

@@ -1,0 +1,23 @@
+{
+  "observer_id": "p0-057-lab-collector",
+  "key_version": 1,
+  "public_key": "19ca8dc8deb49ae285bea07fe399bd1833b6f733bc0453651401cde61fd65745",
+  "batches": {
+    "records": 1,
+    "first_sequence": 1,
+    "last_sequence": 1,
+    "start": "Epoch",
+    "final_head": "23ead8c324d175fa9c4d51ea8c2501cccb191e35e81a57dcb14d7438055ee80a",
+    "observations": 2,
+    "kernel_events": 0
+  },
+  "health": null,
+  "findings": [
+    {
+      "kind": "SignatureRejected",
+      "line": 1,
+      "sequence": 1,
+      "error": "PayloadHashMismatch"
+    }
+  ]
+}

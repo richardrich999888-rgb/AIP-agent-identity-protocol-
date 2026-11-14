@@ -1,0 +1,37 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "aip-observe",
+    "--lib",
+    "--test",
+    "lifecycle_races",
+    "--test",
+    "socket_multiplicity",
+    "--test",
+    "container_identity",
+    "--test",
+    "blind_spots",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/workspace/scratch/142664b02214/aip",
+  "start_unix": 1794649675.5857918,
+  "source_commit": "ceb7682b11311b3f05649c513adcf1b8eecedb94",
+  "source_sha256": {
+    "aip-standalone/aip-core/src/execution_binding.rs": "6009bdec7ebc073c2da9fa0c4da7031d03a3a93cbcd2f05e98220190c42615aa",
+    "aip-standalone/aip-observe/src/probe.rs": "642e8aad1dcae71958d08dd7e93a02fdeb476558f5482c232a5d8bda72285b90",
+    "Cargo.lock": "03b5eb24895f17597ad47175215c2eb36bbf258c308d1ec28ca762ddac90e4cd"
+  },
+  "kernel": "6.18.57",
+  "uid": 1000,
+  "expected_exit": 0,
+  "timeout_seconds": 900,
+  "exit_code": 0,
+  "elapsed_seconds": 23.96376242799988,
+  "status": "PASS",
+  "output_sha256": "d8ef53a457e8380a8873c9091a2b80dda60de7d36fa0600ffb4a504e6376d8a6"
+}

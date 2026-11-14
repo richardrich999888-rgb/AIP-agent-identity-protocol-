@@ -1,0 +1,41 @@
+{
+  "observer_id": "collector.syntriass.example",
+  "key_version": 1,
+  "public_key": "db060311e2da56e4d864804d0bfaf5dfd6e236a686acc2c9a98afb1dfd5c1899",
+  "batches": {
+    "records": 1,
+    "first_sequence": 1,
+    "last_sequence": 1,
+    "start": "Epoch",
+    "final_head": "a28a1c5fa6b10cb88d32cb944851cf7b7b8daa3e49d18a23654e74d2a6b1bc9e",
+    "observations": 0,
+    "kernel_events": 3
+  },
+  "health": {
+    "records": 1,
+    "states": [
+      "ContinuityUnverified"
+    ],
+    "with_coverage": 0,
+    "without_coverage": 1,
+    "cross_checked_against_batches": 1,
+    "clock_synchronised": 0,
+    "clock_unsynchronised": 0,
+    "clock_not_stated": 1,
+    "clock_worst_max_error_us": null
+  },
+  "findings": [
+    {
+      "kind": "SignatureRejected",
+      "line": 1,
+      "sequence": 1,
+      "error": "PayloadHashMismatch"
+    },
+    {
+      "kind": "HealthHeadMismatch",
+      "sequence": 1,
+      "health_head": "695e33a5847967b8cc1282329d2ff8bd8f57895129e598da8aa8b025f264b9e8",
+      "batch_head": "a28a1c5fa6b10cb88d32cb944851cf7b7b8daa3e49d18a23654e74d2a6b1bc9e"
+    }
+  ]
+}

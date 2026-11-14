@@ -67,7 +67,9 @@ jobs:
           npm ci --prefix sdk/typescript --ignore-scripts
           npm run build --prefix sdk/typescript
       - name: Portable model/runtime/read-only tool boundaries
-        run: python -B validation/enterprise/same_run_controls_test.py
+        run: |
+          python -B validation/enterprise/same_run_controls_test.py
+          python -B validation/enterprise/test_gateway_diagnostics.py
       - name: Provision public pinned CPU model (no API credentials or cloud spending)
         run: |
           python validation/enterprise/prepare_local_model.py --root "$RUNNER_TEMP/local-model"

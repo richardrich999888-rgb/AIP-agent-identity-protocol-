@@ -1,0 +1,9 @@
+test_actual_journal_states_are_exported_without_credentials_or_modification (test_gateway_diagnostics.GatewayDiagnostics.test_actual_journal_states_are_exported_without_credentials_or_modification) ... ok
+test_corrupt_archive_preserves_bytes_and_emits_no_error_payload (test_gateway_diagnostics.GatewayDiagnostics.test_corrupt_archive_preserves_bytes_and_emits_no_error_payload) ... ok
+test_missing_and_symlink_journals_are_not_created_or_followed (test_gateway_diagnostics.GatewayDiagnostics.test_missing_and_symlink_journals_are_not_created_or_followed) ... ok
+test_oversize_or_invalid_rows_never_publish_partial_success (test_gateway_diagnostics.GatewayDiagnostics.test_oversize_or_invalid_rows_never_publish_partial_success) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.010s
+
+OK

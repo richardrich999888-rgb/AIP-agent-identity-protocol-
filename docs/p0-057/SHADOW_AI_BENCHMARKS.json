@@ -1,0 +1,132 @@
+{
+  "schema": "vanian.p0-057.shadow-ai-benchmarks.v1",
+  "status": "NOT_RUN",
+  "source_commit": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+  "scope": "No AI discovery or comparative performance experiment was executed. Real non-AI process regressions do not supply these denominators.",
+  "ground_truth": null,
+  "raw_runs": [],
+  "metrics": {
+    "ai_workload_discovery_recall": {
+      "value": null,
+      "unit": "percent",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "discovery_precision": {
+      "value": null,
+      "unit": "percent",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "false_attribution_rate": {
+      "value": null,
+      "unit": "percent",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "unattributed_event_rate": {
+      "value": null,
+      "unit": "percent",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "event_loss_under_load": {
+      "value": null,
+      "unit": "percent",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "cpu_overhead": {
+      "value": null,
+      "unit": "percent",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "memory_overhead": {
+      "value": null,
+      "unit": "MiB",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "event_to_verdict_latency": {
+      "value": null,
+      "unit": "milliseconds p50/p95/p99",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "evidence_verification_time": {
+      "value": null,
+      "unit": "milliseconds p50/p95/p99",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "throughput": {
+      "value": null,
+      "unit": "events/sec and agents/host",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "evidence_storage": {
+      "value": null,
+      "unit": "bytes/event and bytes/hour",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    },
+    "interruption_recovery": {
+      "value": null,
+      "unit": "seconds and coverage state",
+      "status": "NOT_MEASURED",
+      "confidence_interval": null,
+      "denominator": null
+    }
+  },
+  "prospective_design": {
+    "frozen_on": "2026-11-14",
+    "agent_counts": [
+      1,
+      4,
+      16,
+      64
+    ],
+    "repetitions_per_supported_cell": 5,
+    "unsupported_cells": "BLOCKED with reason, never zero or omitted",
+    "baseline_profiles": [
+      "OTel-only",
+      "MCP-gateway-only",
+      "native Linux audit",
+      "Sniffer Dog at 61dd730",
+      "integrated candidate"
+    ],
+    "ground_truth_owner": "separate controller; frozen workload assignments kept away from detector",
+    "ai_vs_non_ai_control": "actual pinned agent workloads plus similar non-AI Python/network control",
+    "classification": [
+      "UNKNOWN_PROCESS",
+      "SUSPECTED_AI",
+      "CONFIRMED_AI",
+      "IDENTIFIED_AUTHORISED_AGENT",
+      "IDENTIFIED_UNAUTHORISED_AGENT",
+      "UNATTRIBUTED_EXECUTION"
+    ],
+    "intervals": "Report counts and Wilson 95% intervals for proportions; empirical distributions and repeated-run variability for latency/usage. Define resampling before execution.",
+    "threshold_changes": "Record any exploratory change explicitly; no enterprise pass thresholds yet approved",
+    "current_host_acceptance": false
+  },
+  "exploratory_resource_measurements": {
+    "source": "validation/p0_057/iteration-002/hosted/same-run-selected",
+    "workflow": 43582459576,
+    "comparable_baseline": false,
+    "repeated_run_statistics": false,
+    "scope": "Single-controller trial resource snapshots, including failed recovery. Not discovery metrics, causal overhead, event-to-verdict distributions or qualification. See each unchanged performance.json for interval, units and limitations."
+  }
+}

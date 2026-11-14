@@ -1,0 +1,49 @@
+{
+  "workflow": 43583751360,
+  "source_commit": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+  "artifact_id": 14109553449,
+  "artifact_sha256": "4351d0217fa5f616d46d6a59db34d2f0173d2715fbd6f372b98370225f846942",
+  "scenes": [
+    {
+      "scene": "same-run",
+      "run_id": "same-run-236c9fe6dc26aa1821105b64",
+      "status": "PASS",
+      "source_commit": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "verdict": "CannotProve",
+      "reason": "ActionEvidenceUnavailable",
+      "journal_status": "CAPTURED",
+      "journal_states": [
+        "Forwarded"
+      ],
+      "administrative_custody": "INCOMPLETE"
+    },
+    {
+      "scene": "same-run-interruption",
+      "run_id": "same-run-146a0792625920ddfa7e020d",
+      "status": "PASS",
+      "source_commit": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "verdict": "CannotProve",
+      "reason": "WindowNotCovered",
+      "journal_status": "CAPTURED",
+      "journal_states": [
+        "Forwarded"
+      ],
+      "administrative_custody": "INCOMPLETE"
+    },
+    {
+      "scene": "same-run-recovery",
+      "run_id": "same-run-a38e1e5e9cd2ebc77ed31fbf",
+      "status": "PASS",
+      "source_commit": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "verdict": "CannotProve",
+      "reason": "ActionEvidenceUnavailable",
+      "journal_status": "CAPTURED",
+      "journal_states": [
+        "Forwarded"
+      ],
+      "administrative_custody": "INCOMPLETE"
+    }
+  ],
+  "original_failure_resolved": false,
+  "interpretation": "All three actual hosted scenes passed this attempt. Original intermittent missing Forwarded receipt was not reproduced; no cause-specific repair was applied and it remains unresolved. All verdicts remain CannotProve."
+}

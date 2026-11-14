@@ -1,0 +1,140 @@
+{
+  "status": "PASS",
+  "source_commit": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+  "artifact_sha256": "f6859f1235aa10755df8949ceb6b4d055d9d452512a15194f1a7026497d21996",
+  "artifact_manifest_files_checked": 19,
+  "current_source_files_matching_hosted_source": 9,
+  "verifier_sha256": "b147a650103f09a2a4c6c38ab0ed0d98c01a1b4576707b103802857069fa9438",
+  "cases": [
+    {
+      "case": "t09-original",
+      "command": [
+        "/workspace/scratch/142664b02214/aip/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "db060311e2da56e4d864804d0bfaf5dfd6e236a686acc2c9a98afb1dfd5c1899",
+        "--batches",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted/native/p0-native-evidence/originals/t09/batches.jsonl",
+        "--health",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted/native/p0-native-evidence/originals/t09/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "duration_seconds": 0.03679243000033239,
+      "status": "PASS"
+    },
+    {
+      "case": "t09-one-byte-modified",
+      "command": [
+        "/workspace/scratch/142664b02214/aip/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "db060311e2da56e4d864804d0bfaf5dfd6e236a686acc2c9a98afb1dfd5c1899",
+        "--batches",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted-replay/t09-one-byte-modified.jsonl",
+        "--health",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted/native/p0-native-evidence/originals/t09/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "duration_seconds": 0.017100706999826798,
+      "status": "PASS"
+    },
+    {
+      "case": "t09-wrong-anchor",
+      "command": [
+        "/workspace/scratch/142664b02214/aip/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "1924827571fc8b903e00eda3ba9856c6135ea4559b6e67913190243f0deb5b43",
+        "--batches",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted/native/p0-native-evidence/originals/t09/batches.jsonl",
+        "--health",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted/native/p0-native-evidence/originals/t09/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "duration_seconds": 0.026819507999789494,
+      "status": "PASS"
+    },
+    {
+      "case": "t15-original",
+      "command": [
+        "/workspace/scratch/142664b02214/aip/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "1924827571fc8b903e00eda3ba9856c6135ea4559b6e67913190243f0deb5b43",
+        "--batches",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted/native/p0-native-evidence/originals/t15/batches.jsonl",
+        "--health",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted/native/p0-native-evidence/originals/t15/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 0,
+      "actual_exit_code": 0,
+      "duration_seconds": 0.0522003319997566,
+      "status": "PASS"
+    },
+    {
+      "case": "t15-one-byte-modified",
+      "command": [
+        "/workspace/scratch/142664b02214/aip/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "1924827571fc8b903e00eda3ba9856c6135ea4559b6e67913190243f0deb5b43",
+        "--batches",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted-replay/t15-one-byte-modified.jsonl",
+        "--health",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted/native/p0-native-evidence/originals/t15/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "duration_seconds": 0.020162628999969456,
+      "status": "PASS"
+    },
+    {
+      "case": "t15-wrong-anchor",
+      "command": [
+        "/workspace/scratch/142664b02214/aip/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "db060311e2da56e4d864804d0bfaf5dfd6e236a686acc2c9a98afb1dfd5c1899",
+        "--batches",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted/native/p0-native-evidence/originals/t15/batches.jsonl",
+        "--health",
+        "/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/hosted/native/p0-native-evidence/originals/t15/health.jsonl",
+        "--json"
+      ],
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "duration_seconds": 0.029342627999994875,
+      "status": "PASS"
+    }
+  ],
+  "lost_event_health": "Degraded",
+  "coverage_asserted": false,
+  "independent_administration": false,
+  "execution_verdict": "NOT_EVALUATED"
+}

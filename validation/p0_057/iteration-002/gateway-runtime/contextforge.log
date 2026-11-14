@@ -1,0 +1,93 @@
+2026-11-14T10:05:34 - mcpgateway.config - INFO - Using SQLite database. Consider PostgreSQL for production.
+2026-11-14T10:05:34 - mcpgateway.config - INFO - SIEM URL allowlist is empty — all outbound destination URLs are permitted
+2026-11-14T10:05:34 - mcpgateway.db - INFO - Configuring SQLite with pool_size=50, max_overflow=10. Note: With gunicorn multi-worker deployment, each worker gets its own pool. 
+2026-11-14T10:05:34 - mcpgateway.observability - INFO - Observability disabled via OTEL_ENABLE_OBSERVABILITY=false
+2026-11-14T10:05:35 - mcpgateway.cache.admin_stats_cache - INFO - AdminStatsCache initialized: enabled=True, system_ttl=60s, observability_ttl=30s, tags_ttl=120s
+2026-11-14T10:05:35 - mcpgateway.cache.auth_cache - INFO - AuthCache initialized: enabled=True, user_ttl=60s, revocation_ttl=30s, team_ttl=60s, role_ttl=60s, teams_list_enabled=True, teams_list_ttl=60s
+2026-11-14T10:05:35 - mcpgateway.services.argon2_service - INFO - Initialized Argon2PasswordService with time_cost=3, memory_cost=65536, parallelism=1
+2026-11-14T10:05:35 - mcpgateway.services.metrics_buffer_service - INFO - MetricsBufferService initialized: recording_enabled=True, buffer_enabled=True, flush_interval=60s, max_buffer_size=1000
+2026-11-14T10:05:35 - mcpgateway.services.content_security - INFO - ContentSecurityService initialized
+2026-11-14T10:05:36 - mcpgateway.services.content_security - INFO - ContentSecurityService initialized
+2026-11-14T10:05:36 - mcpgateway - INFO - Plugin subsystem enabled (factory will be initialized in lifespan)
+2026-11-14T10:05:36 - mcpgateway.services.content_security - INFO - ContentSecurityService initialized
+⚠️ Metrics instrumentation disabled
+2026-11-14T10:05:36 - mcpgateway - INFO - 🗜️  Response compression enabled (SSE-aware): minimum_size=500B, gzip_level=6, brotli_quality=4, zstd_level=3
+2026-11-14T10:05:36 - mcpgateway - INFO - 📏 RFC 6585 header size validation enabled: max_total=16384B, max_field=8192B, max_count=100
+2026-11-14T10:05:36 - mcpgateway - INFO - 🚦 RFC 6585 rate limiting enabled: Redis=True, Tiers[CRITICAL=10, HIGH=30, MEDIUM=100, LOW=500]
+2026-11-14T10:05:36 - mcpgateway - INFO - 🔒 Input validation and output sanitization middleware disabled
+2026-11-14T10:05:36 - mcpgateway - INFO - ✅ Correlation ID tracking enabled (header: X-Correlation-ID)
+2026-11-14T10:05:36 - mcpgateway.middleware.auth_context_stack - INFO - 🛡️  CSRF protection middleware enabled - validating tokens on state-changing requests
+2026-11-14T10:05:36 - mcpgateway.middleware.auth_context_stack - INFO - 🔒 Password change enforcement middleware enabled - blocking access for users requiring password change
+2026-11-14T10:05:36 - mcpgateway.middleware.auth_context_stack - INFO - 🔐 Authentication context middleware enabled - capturing authentication security events
+2026-11-14T10:05:36 - mcpgateway - INFO - 📊 Token usage logging middleware enabled - tracking API token usage
+2026-11-14T10:05:36 - mcpgateway - INFO - 🔍 Observability middleware disabled
+2026-11-14T10:05:36 - mcpgateway - INFO - 🧵 OTEL request tracing middleware disabled
+2026-11-14T10:05:36 - mcpgateway - INFO - Client disconnect middleware enabled - cancels handlers on nginx timeout
+2026-11-14T10:05:36 - mcpgateway - INFO - 🎨 Template auto-reload disabled (production mode)
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - Version router included
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - Unified search router included (/search)
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - Observability metrics summary router included (/observability/metrics)
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - Tool plugin bindings router included
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - A2A router included - A2A features enabled
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - Observability router not included - observability disabled
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - Reverse proxy router not included - feature disabled
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - Cancellation router included (tool cancellation enabled)
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - Metrics maintenance router included - cleanup/rollup API endpoints enabled
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - Authentication routers included - Auth enabled
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - SSO router not included - SSO authentication disabled
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - Team management router included - Teams enabled with email auth
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - User-scoped router included - Users enabled with email auth
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - JWT Token Catalog router included - Token management enabled with email auth
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - RBAC router included - Role-based access control enabled
+2026-11-14T10:05:36 - mcpgateway.api.v1 - INFO - LLM Chat router included
+2026-11-14T10:05:37 - mcpgateway.services.content_security - INFO - ContentSecurityService initialized
+2026-11-14T10:05:37 - mcpgateway.api.v1 - INFO - LLM configuration and admin routers included
+2026-11-14T10:05:37 - mcpgateway.api.v1 - INFO - Compliance router included
+2026-11-14T10:05:37 - mcpgateway.admin - INFO - SECTION_PERMISSIONS validation passed: all 16 mapped sections verified (skipped 7 sections on other routers)
+2026-11-14T10:05:37 - mcpgateway.api.v1 - INFO - Admin router included - Admin API enabled
+2026-11-14T10:05:37 - mcpgateway.api.v1 - INFO - Well-known admin router included (/admin/well-known only — RFC 8615 safe)
+2026-11-14T10:05:37 - mcpgateway.api.v1 - INFO - Catalog router included - v1 only
+2026-11-14T10:05:37 - mcpgateway.api.v1 - INFO - Plugin discovery router included - v1 only
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Version router included
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Unified search router included (/search)
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Observability metrics summary router included (/observability/metrics)
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Tool plugin bindings router included
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - A2A router included - A2A features enabled
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Observability router not included - observability disabled
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Reverse proxy router not included - feature disabled
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Cancellation router included (tool cancellation enabled)
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Metrics maintenance router included - cleanup/rollup API endpoints enabled
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Authentication routers included - Auth enabled
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - SSO router not included - SSO authentication disabled
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Team management router included - Teams enabled with email auth
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - User-scoped router included - Users enabled with email auth
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - JWT Token Catalog router included - Token management enabled with email auth
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - RBAC router included - Role-based access control enabled
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - LLM Chat router included
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - LLM configuration and admin routers included
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Compliance router included
+2026-11-14T10:05:38 - mcpgateway.admin - INFO - SECTION_PERMISSIONS validation passed: all 16 mapped sections verified (skipped 7 sections on other routers)
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Admin router included - Admin API enabled
+2026-11-14T10:05:38 - mcpgateway.api.v1 - INFO - Well-known admin router included (/admin/well-known only — RFC 8615 safe)
+2026-11-14T10:05:39 - mcpgateway - INFO - Legacy (unversioned) route shims mounted — sunset: Sat, 26 Sep 2026 00:00:00 GMT
+2026-11-14T10:05:39 - mcpgateway - INFO - OAuth router included
+2026-11-14T10:05:39 - mcpgateway - INFO - A2A agent plugin bindings router included
+2026-11-14T10:05:39 - mcpgateway - INFO - MCP servers router included
+2026-11-14T10:05:39 - mcpgateway - INFO - Log search router included - structured logging enabled
+2026-11-14T10:05:39 - mcpgateway - INFO - SIEM router not included - admin API or SIEM export disabled
+2026-11-14T10:05:39 - mcpgateway - WARNING - LLM_API_PREFIX='/v1' conflicts with the gateway '/v1' prefix — set LLM_API_PREFIX to a distinct path (e.g. /llm/v1)
+2026-11-14T10:05:39 - mcpgateway - INFO - LLM proxy router included at prefix /v1
+2026-11-14T10:05:39 - mcpgateway - INFO - Admin UI enabled: False
+2026-11-14T10:05:39 - mcpgateway - INFO - Admin API enabled: True
+2026-11-14T10:05:39 - mcpgateway - INFO - /mcp is mounted on the Python transport.
+2026-11-14T10:05:39 - mcpgateway - WARNING - Static files not mounted - UI disabled via MCPGATEWAY_UI_ENABLED=False
+INFO:     Started server process [113]
+INFO:     Waiting for application startup.
+2026-11-14T10:05:39 - mcpgateway.middleware.header_size_middleware - INFO - HeaderSizeMiddleware initialized: max_total=16384B, max_field=8192B, max_count=100
+2026-11-14T10:05:39 - mcpgateway.middleware.rate_limit_middleware - WARNING - Sync Redis unavailable, using in-memory fallback
+2026-11-14T10:05:39 - mcpgateway.middleware.rate_limit_middleware - INFO - RateLimitMiddleware initialized: enabled=True, use_redis=False, lockout=True
+2026-11-14T10:05:39 - mcpgateway.middleware.deprecation - WARNING - LEGACY API SUNSET DATE HAS PASSED! Legacy routes are 50 days overdue for removal. Set LEGACY_API_ENABLED=false to disable legacy routes. Sunset date: Sat, 26 Sep 2026 00:00:00 GMT
+{"asctime": "2026-11-14T10:05:39", "name": "mcpgateway", "levelname": "ERROR", "message": "\ud83d\udea8 SECURITY: UAID cross-gateway routing is DISABLED. Configure UAID_ALLOWED_DOMAINS with trusted domains or set UAID_ALLOW_ALL_DOMAINS=true (unsafe for production). Cross-gateway UAID calls will fail until allowlist is configured.", "@timestamp": "2026-11-14T10:05:39.899752Z", "hostname": "d50a18950a18", "process_id": 113}
+{"asctime": "2026-11-14T10:05:42", "name": "mcpgateway.services.structured_logger", "levelname": "ERROR", "message": "[tool_service] Tool 'receipt-test-loan-read' invocation failed", "component": "tool_service", "category": null, "user_id": "vanian-validator@example.com", "user_email": null, "team_id": null, "duration_ms": 118.54651400017246, "custom_fields": {"tool_name": "receipt-test-loan-read", "integration_type": "MCP", "error_message": null}, "tags": null, "resource_type": "tool", "resource_id": "1192b3c2b2404be4b98230bd34a67918", "resource_action": "invoke", "correlation_id": "c31a54cb6da24ae7b6d37cd32edee3a1", "hostname": "d50a18950a18", "process_id": 113, "timestamp": "2026-11-14T10:05:42.599308+00:00", "@timestamp": "2026-11-14T10:05:42.599413Z", "request_id": "c31a54cb6da24ae7b6d37cd32edee3a1"}
+{"asctime": "2026-11-14T10:05:42", "name": "mcpgateway.services.structured_logger", "levelname": "ERROR", "message": "[tool_service] Tool 'receipt-test-loan-read' invocation failed", "component": "tool_service", "category": null, "user_id": "vanian-validator@example.com", "user_email": null, "team_id": null, "duration_ms": 23.18872800015015, "custom_fields": {"tool_name": "receipt-test-loan-read", "integration_type": "MCP", "error_message": null}, "tags": null, "resource_type": "tool", "resource_id": "1192b3c2b2404be4b98230bd34a67918", "resource_action": "invoke", "correlation_id": "4cd3f34349e848feb1f8ee728f4e5819", "hostname": "d50a18950a18", "process_id": 113, "timestamp": "2026-11-14T10:05:42.660515+00:00", "@timestamp": "2026-11-14T10:05:42.660592Z", "request_id": "4cd3f34349e848feb1f8ee728f4e5819"}
+{"asctime": "2026-11-14T10:05:42", "name": "mcpgateway.services.structured_logger", "levelname": "ERROR", "message": "[tool_service] Tool 'receipt-test-loan-read' invocation failed", "component": "tool_service", "category": null, "user_id": "vanian-validator@example.com", "user_email": null, "team_id": null, "duration_ms": 38.773187000060716, "custom_fields": {"tool_name": "receipt-test-loan-read", "integration_type": "MCP", "error_message": null}, "tags": null, "resource_type": "tool", "resource_id": "1192b3c2b2404be4b98230bd34a67918", "resource_action": "invoke", "correlation_id": "f4dafbc9f0bd42f088919769488f2893", "hostname": "d50a18950a18", "process_id": 113, "timestamp": "2026-11-14T10:05:42.739014+00:00", "@timestamp": "2026-11-14T10:05:42.739087Z", "request_id": "f4dafbc9f0bd42f088919769488f2893"}

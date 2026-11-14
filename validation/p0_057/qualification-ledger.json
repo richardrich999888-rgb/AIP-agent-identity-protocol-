@@ -1,0 +1,127 @@
+{
+  "schema": "vanian.p0-057.qualification-ledger.v1",
+  "programme_status": "NOT_COMPLETE_NOT_ENTERPRISE_READY",
+  "base_commit": "61dd73013d02ea7869de104d953f330098df1c32",
+  "branch": "codex/p0-057-independent-agent-assurance",
+  "pr": 23,
+  "audit_commit": "ceb7682b11311b3f05649c513adcf1b8eecedb94",
+  "runtime_fix_commit": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+  "diagnostic_commit": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+  "publication": "Evidence checkpoint is the Git commit containing this file; runtime and diagnostic commits are explicitly separate. No automatic merge or force-push.",
+  "iterations": [
+    {
+      "id": 1,
+      "status": "AUDIT_COMPLETED",
+      "evidence": "iteration-001",
+      "verified": "40 branch heads, 18 initially open PRs, dependency/license/build/deploy inventory; 12 baseline probe tests",
+      "limits": "Structural all-branch audit, not exhaustive line-by-line security review"
+    },
+    {
+      "id": 2,
+      "status": "SCOPED_RUNTIME_REPAIR_VERIFIED",
+      "evidence": "iteration-002",
+      "completed": "Opened executable measurement and sampled consistency checks reject reproduced cold/warm-cache exec races",
+      "failed": "Original two assertions retained. Hosted same-run recovery missing Forwarded receipt remains unresolved.",
+      "next": "Trace real gateway lifecycle state without replacing missing proof"
+    },
+    {
+      "id": 3,
+      "status": "DIAGNOSTIC_VERIFIED_IN_FRESH_LIVE_TRIAL",
+      "evidence": "iteration-003",
+      "completed": "Bounded credential-free, read-only journal diagnostics retained on failed hosted trials",
+      "verified": "4 real SQLite regressions and 11 existing portable controls; observed/interruption/recovery live scenes pass, all verdicts CannotProve",
+      "limits": "No receipt root-cause repair; no verdict promotion",
+      "hosted_workflow": 43583751360,
+      "original_failure_resolved": false
+    }
+  ],
+  "acceptance_gates": [
+    {
+      "gate": "exact_source",
+      "status": "RECORDED",
+      "evidence": "runtime_fix_commit and diagnostic_commit; source hashes in iteration summaries"
+    },
+    {
+      "gate": "mandatory_integrations",
+      "status": "OPEN",
+      "evidence": "docs/p0-057/INTEGRATION_MATRIX.md; 27-check live ContextForge subset passes, remaining frameworks unqualified"
+    },
+    {
+      "gate": "complete_authority_observation_action_verdict",
+      "status": "CANNOT_PROVE",
+      "evidence": "Genuine observed scene ActionEvidenceUnavailable; recovery missing signed Forwarded receipt"
+    },
+    {
+      "gate": "adversarial_attribution",
+      "status": "PARTIAL",
+      "evidence": "2 real exec regressions corrected; 102 observer tests, native assertions, archive controls; full adversarial matrix open"
+    },
+    {
+      "gate": "independent_verification",
+      "status": "LOCAL_REPLAY_VERIFIED",
+      "evidence": "Original native archives and two signed genuine CannotProve results replay with separately built verifier; no independent custody claim"
+    },
+    {
+      "gate": "security_release_blockers",
+      "status": "NOT_ACCEPTED",
+      "evidence": "Original findings preserved; later P0-048 archival classification does not approve enabled chart privileges"
+    },
+    {
+      "gate": "clean_install_and_uninstall",
+      "status": "NOT_RUN",
+      "evidence": "Procedure and existing packaging references only"
+    },
+    {
+      "gate": "resource_usage",
+      "status": "SINGLE_TRIAL_MEASURED",
+      "evidence": "Unchanged hosted performance.json including failed trial; no matched overhead or repetitions"
+    },
+    {
+      "gate": "shadow_ai_and_comparative_benchmarks",
+      "status": "NOT_RUN",
+      "evidence": "All requested benchmark values remain null"
+    },
+    {
+      "gate": "all_programme_evidence_reproducible",
+      "status": "OPEN",
+      "evidence": "Scoped commands, hashes, public anchors, original ZIPs and replay helpers retained; complete acceptance not run"
+    },
+    {
+      "gate": "known_limitations",
+      "status": "DOCUMENTED",
+      "evidence": "docs/p0-057/KNOWN_LIMITATIONS.md"
+    },
+    {
+      "gate": "independent_administration_external_review",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": "No two independently administered authorised hosts or external reviewer approval supplied"
+    },
+    {
+      "gate": "five_scene_customer_demo",
+      "status": "NOT_COMPLETE",
+      "evidence": "Demo script states required live evidence and unexecuted scenes"
+    }
+  ],
+  "next_engineering_item": "Reproduce and repair the missing Forwarded receipt with gateway lifecycle evidence and a cause-specific regression. No speculative repair or weakened gate.",
+  "approved_spending": 0,
+  "production_enforcement_enabled": false,
+  "private_signing_keys_committed": false,
+  "hosted_source_outcomes": [
+    {
+      "source": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+      "full_ci": "PASS",
+      "native": "PASS",
+      "same_run": "FAIL_RECOVERY_MISSING_FORWARDED_RECEIPT",
+      "run": 43582459576
+    },
+    {
+      "source": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "full_ci": "IN_PROGRESS_AT_CAPTURE",
+      "native": "PASS",
+      "same_run": "PASS_ALL_THREE_SCENES_VERDICTS_CANNOT_PROVE",
+      "enterprise_integration": "PASS",
+      "security": "PASS_WITH_INHERITED_ARCHIVAL_CLASSIFICATION_NOT_DEPLOYMENT_APPROVAL",
+      "run": 43583751360
+    }
+  ]
+}

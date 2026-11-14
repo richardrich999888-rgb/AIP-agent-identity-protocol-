@@ -1,0 +1,36 @@
+   Compiling aip-core v0.4.0 (/workspace/scratch/142664b02214/aip/aip-standalone/aip-core)
+   Compiling aip-observe v0.4.0 (/workspace/scratch/142664b02214/aip/aip-standalone/aip-observe)
+error[E0425]: cannot find function `boot_clock_anchor` in module `crate::linux`
+    --> aip-standalone/aip-observe/src/probe.rs:1384:37
+     |
+1384 |         let started = crate::linux::boot_clock_anchor().unwrap();
+     |                                     ^^^^^^^^^^^^^^^^^ not found in `crate::linux`
+     |
+help: consider importing this function through its public re-export
+     |
+1129 +     use crate::boot_clock_anchor;
+     |
+help: if you import `boot_clock_anchor`, refer to it directly
+     |
+1384 -         let started = crate::linux::boot_clock_anchor().unwrap();
+1384 +         let started = boot_clock_anchor().unwrap();
+     |
+
+error[E0425]: cannot find function `boot_clock_anchor` in module `crate::linux`
+    --> aip-standalone/aip-observe/src/probe.rs:1421:42
+     |
+1421 |             let finished = crate::linux::boot_clock_anchor().unwrap();
+     |                                          ^^^^^^^^^^^^^^^^^ not found in `crate::linux`
+     |
+help: consider importing this function through its public re-export
+     |
+1129 +     use crate::boot_clock_anchor;
+     |
+help: if you import `boot_clock_anchor`, refer to it directly
+     |
+1421 -             let finished = crate::linux::boot_clock_anchor().unwrap();
+1421 +             let finished = boot_clock_anchor().unwrap();
+     |
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `aip-observe` (lib test) due to 2 previous errors

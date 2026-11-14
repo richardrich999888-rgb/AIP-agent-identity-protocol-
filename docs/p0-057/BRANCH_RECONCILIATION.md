@@ -30,3 +30,28 @@ are review inputs, not evidence that this baseline's cluster deployment passes.
 At each publication re-fetch the target ref and use an ordinary fast-forward
 push or an expected-SHA ref update. A concurrent advance requires reconciliation;
 never reset it or replace another workstream's code.
+
+## Concurrent advance during this iteration
+
+P0-048 advanced to `d2883d7d565901a46e134a22f702eb793db72497` through
+`ce7925c649fe3268ef0ba40b321058216c5e0c27` after the initial capture. Its 40
+changed paths are CI/scanner classification and retained evidence; none overlaps
+the new P0-057 runtime files. They were inspected but not automatically merged
+or cherry-picked. The target's recorded base remains `61dd730`. PR #23 targets
+the advancing P0-048 branch; GitHub tests its synthetic merge where the workflow
+uses default checkout. The required native workflow checks out exact P0-057
+head `5be83a8` and records it in its signed-evidence artifact's source manifest.
+
+Shell Git push lacked credentials. The connected provider published Git blobs,
+trees and commits with expected-head non-forced ref updates. Remote trees were
+checked against local trees before adopting each publication commit locally.
+Audit local `dbb509b` equals remote `ceb7682` at tree `228dc116`; implementation
+local `17523ef` equals remote `5be83a8` at tree `fe4a962`. No existing remote
+commit was rewritten. The full mapping is in the iteration-002 provider record.
+
+Diagnostic local `1b4f8c39ac1ef01a63c057dfb548b0142d82c281` equals remote
+`5a7d2625a861821e74f979cd0700fbbe6dbe1de1` at tree
+`d9c2ada9464fc7e25b34c6637b91a1c61358600f`. It adds failure diagnostics to the
+existing same-run harness. The final evidence checkpoint includes all required
+programme documents with explicit open gates and adds the portable diagnostic
+test to CI. It does not merge #8/#21/#22 or mark their work accepted.

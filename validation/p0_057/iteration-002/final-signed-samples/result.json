@@ -1,0 +1,32 @@
+{
+  "command": [
+    "env",
+    "P0_057_RETAIN_DIR=/workspace/scratch/142664b02214/aip/validation/p0_057/iteration-002/originals-final",
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "aip-observe",
+    "--lib",
+    "image_race_",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/workspace/scratch/142664b02214/aip",
+  "start_unix": 1794649707.7142475,
+  "source_commit": "ceb7682b11311b3f05649c513adcf1b8eecedb94",
+  "source_sha256": {
+    "aip-standalone/aip-core/src/execution_binding.rs": "6009bdec7ebc073c2da9fa0c4da7031d03a3a93cbcd2f05e98220190c42615aa",
+    "aip-standalone/aip-observe/src/probe.rs": "642e8aad1dcae71958d08dd7e93a02fdeb476558f5482c232a5d8bda72285b90",
+    "Cargo.lock": "03b5eb24895f17597ad47175215c2eb36bbf258c308d1ec28ca762ddac90e4cd"
+  },
+  "kernel": "6.18.57",
+  "uid": 1000,
+  "expected_exit": 0,
+  "timeout_seconds": 900,
+  "exit_code": 0,
+  "elapsed_seconds": 0.166008796999904,
+  "status": "PASS",
+  "output_sha256": "198a7b56dfbc1fbb9a7720fe9a079b29aad395c43e45411c55315e70b500a96b"
+}

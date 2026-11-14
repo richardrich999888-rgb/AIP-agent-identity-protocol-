@@ -1,0 +1,349 @@
+{
+  "captured_at": "2026-11-14T10:16:32.578Z",
+  "jobs": {
+    "total_count": 1,
+    "jobs": [
+      {
+        "id": 132413763766,
+        "run_id": 43583751360,
+        "workflow_name": "Genuine same-run execution assurance",
+        "head_branch": "codex/p0-057-independent-agent-assurance",
+        "run_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43583751360",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSSQRMc8AAAAe1Hmwtg",
+        "head_sha": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+        "url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/jobs/132413763766",
+        "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43583751360/job/132413763766",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-11-14T10:07:20Z",
+        "started_at": "2026-11-14T10:07:21Z",
+        "completed_at": "2026-11-14T10:15:33Z",
+        "name": "local-model-linux",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-11-14T10:07:22Z",
+            "completed_at": "2026-11-14T10:07:25Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-11-14T10:07:25Z",
+            "completed_at": "2026-11-14T10:07:28Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-11-14T10:07:28Z",
+            "completed_at": "2026-11-14T10:07:28Z"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-11-14T10:07:28Z",
+            "completed_at": "2026-11-14T10:07:31Z"
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-11-14T10:07:31Z",
+            "completed_at": "2026-11-14T10:07:43Z"
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-11-14T10:07:43Z",
+            "completed_at": "2026-11-14T10:07:43Z"
+          },
+          {
+            "name": "Run astral-sh/setup-uv@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-11-14T10:07:43Z",
+            "completed_at": "2026-11-14T10:07:45Z"
+          },
+          {
+            "name": "Prepare disposable Linux capabilities and synchronized clock",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-11-14T10:07:45Z",
+            "completed_at": "2026-11-14T10:08:17Z"
+          },
+          {
+            "name": "Prepare exact framework, gateway, independent clients and browser",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-11-14T10:08:17Z",
+            "completed_at": "2026-11-14T10:08:31Z"
+          },
+          {
+            "name": "Build the compiled customer TypeScript client",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-11-14T10:08:31Z",
+            "completed_at": "2026-11-14T10:08:33Z"
+          },
+          {
+            "name": "Portable model/runtime/read-only tool boundaries",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-11-14T10:08:33Z",
+            "completed_at": "2026-11-14T10:08:38Z"
+          },
+          {
+            "name": "Provision public pinned CPU model (no API credentials or cloud spending)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-11-14T10:08:38Z",
+            "completed_at": "2026-11-14T10:08:52Z"
+          },
+          {
+            "name": "Build existing observer, authority, verifier and enterprise service",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-11-14T10:08:52Z",
+            "completed_at": "2026-11-14T10:09:25Z"
+          },
+          {
+            "name": "Execute genuine agent and verify the same actual evidence through all clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-11-14T10:09:25Z",
+            "completed_at": "2026-11-14T10:11:32Z"
+          },
+          {
+            "name": "Execute genuine observer interruption after the observed execution passed",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-11-14T10:11:32Z",
+            "completed_at": "2026-11-14T10:13:22Z"
+          },
+          {
+            "name": "Execute fresh recovery profile with new trust and capture epoch",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-11-14T10:13:22Z",
+            "completed_at": "2026-11-14T10:15:27Z"
+          },
+          {
+            "name": "Preserve only public same-run evidence and independent public anchors",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-11-14T10:15:27Z",
+            "completed_at": "2026-11-14T10:15:28Z"
+          },
+          {
+            "name": "Post Run astral-sh/setup-uv@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 30,
+            "started_at": "2026-11-14T10:15:28Z",
+            "completed_at": "2026-11-14T10:15:28Z"
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 31,
+            "started_at": "2026-11-14T10:15:28Z",
+            "completed_at": "2026-11-14T10:15:31Z"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 32,
+            "started_at": "2026-11-14T10:15:31Z",
+            "completed_at": "2026-11-14T10:15:31Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 33,
+            "started_at": "2026-11-14T10:15:31Z",
+            "completed_at": "2026-11-14T10:15:31Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 34,
+            "started_at": "2026-11-14T10:15:31Z",
+            "completed_at": "2026-11-14T10:15:31Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 35,
+            "started_at": "2026-11-14T10:15:31Z",
+            "completed_at": "2026-11-14T10:15:31Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/check-runs/132413763766",
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "runner_id": 1000006967,
+        "runner_name": "GitHub Actions 1000006967",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      }
+    ]
+  },
+  "artifacts": {
+    "artifacts": [
+      {
+        "id": 14109553449,
+        "name": "same-run-evidence-43583751360",
+        "size_in_bytes": 1231159,
+        "url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/14109553449",
+        "archive_download_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/14109553449/zip",
+        "expired": false,
+        "created_at": "2026-11-14T10:15:27Z",
+        "expires_at": "2026-12-14T10:15:27Z",
+        "updated_at": "2026-11-14T10:15:27Z",
+        "digest": "sha256:4351d0217fa5f616d46d6a59db34d2f0173d2715fbd6f372b98370225f846942",
+        "workflow_run": {
+          "id": 43583751360,
+          "repository_id": 1227100465,
+          "head_repository_id": 1227100465,
+          "head_branch": "codex/p0-057-independent-agent-assurance",
+          "head_sha": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1"
+        }
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": 43583751285,
+      "name": "Real-agent harness contracts (no live agent claim)",
+      "head_sha": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43583751285"
+    },
+    {
+      "id": 43583751267,
+      "name": "CI",
+      "head_sha": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43583751267"
+    },
+    {
+      "id": 43583751297,
+      "name": "P0-048 required native qualification",
+      "head_sha": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43583751297"
+    },
+    {
+      "id": 43583751273,
+      "name": "Security",
+      "head_sha": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43583751273"
+    },
+    {
+      "id": 43583751365,
+      "name": "RBI rehearsal",
+      "head_sha": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43583751365"
+    },
+    {
+      "id": 43583751282,
+      "name": "Enterprise integration",
+      "head_sha": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43583751282"
+    },
+    {
+      "id": 43583751360,
+      "name": "Genuine same-run execution assurance",
+      "head_sha": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43583751360"
+    },
+    {
+      "id": 43582459508,
+      "name": "CI",
+      "head_sha": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43582459508"
+    },
+    {
+      "id": 43582459573,
+      "name": "Real-agent harness contracts (no live agent claim)",
+      "head_sha": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43582459573"
+    },
+    {
+      "id": 43582459564,
+      "name": "P0-048 required native qualification",
+      "head_sha": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43582459564"
+    },
+    {
+      "id": 43582459579,
+      "name": "Security",
+      "head_sha": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43582459579"
+    },
+    {
+      "id": 43582459565,
+      "name": "RBI rehearsal",
+      "head_sha": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43582459565"
+    },
+    {
+      "id": 43582459576,
+      "name": "Genuine same-run execution assurance",
+      "head_sha": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43582459576"
+    }
+  ]
+}
