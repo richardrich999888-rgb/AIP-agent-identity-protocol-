@@ -1,0 +1,23 @@
+{
+  "observer_id": "synthetic-test-collector",
+  "key_version": 1,
+  "public_key": "85f38605d1a7b4782670ffa0d4178c94323cabcf11e2aaaa41f3126a5e102543",
+  "batches": {
+    "records": 1,
+    "first_sequence": 1,
+    "last_sequence": 1,
+    "start": "Epoch",
+    "final_head": "7e04d434087b12f5aeb2f08be739061c0d3625b5b204e06eee521251f9d554ca",
+    "observations": 0,
+    "kernel_events": 4
+  },
+  "health": null,
+  "findings": [
+    {
+      "kind": "SignatureRejected",
+      "line": 1,
+      "sequence": 1,
+      "error": "PayloadHashMismatch"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+name: P0-048 required native qualification
+
+on:
+  pull_request:
+    paths:
+      - 'aip-standalone/aip-observe/**'
+      - 'aip-standalone/aip-observe-verify/**'
+      - 'aip-standalone/aip-crypto/**'
+      - 'aip-standalone/aip-core/**'
+      - 'aip-standalone/aip-types/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'validation/p0_048/native_qualification.py'
+      - 'validation/p0_048/test_native_qualification.py'
+      - 'validation/p0_048/install_test_toolchain.py'
+      - 'validation/p0_048/native_ci_pins.json'
+      - 'validation/p0_048/iteration-003/blocked-tests.json'
+      - '.github/workflows/p0-048-native-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-linux:
+    # This is an explicit disposable-VM capability evaluation, never a
+    # self-hosted runner or fork with repository credentials.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2, MIT
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Check the strict qualification gate
+        run: python3 -B validation/p0_048/test_native_qualification.py
+      - name: Restore audited compiler pins before building
+        run: |
+          python3 -B validation/p0_048/install_test_toolchain.py \
+            --prefix "$RUNNER_TEMP/p0-rust" --record "$RUNNER_TEMP/p0-native-build/toolchain.json"
+          echo "$RUNNER_TEMP/p0-rust/bin" >> "$GITHUB_PATH"
+      - name: Build the exact existing native tests and offline verifier
+        run: |
+          cargo test --locked --no-run --message-format=json -p aip-observe \
+            --test cgroup_live --test fanotify --test gate10_xdp_evaluation \
+            --test sniffer_dog --test socksend --test wiretap \
+            > "$RUNNER_TEMP/p0-native-build/artifacts.jsonl"
+          cargo build --locked -p aip-observe-verify
+      - name: Prepare only this disposable VM's trace filesystem
+        run: |
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          test "$(uname -s)" = Linux
+          if ! mountpoint -q /sys/kernel/tracing; then
+            sudo mount -t tracefs nodev /sys/kernel/tracing
+          fi
+          sudo test -r /sys/kernel/tracing/events/sched/sched_process_exec/id
+      - name: Require actual execution of all ten native assertions
+        run: |
+          sudo env "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" "RUNNER_ARCH=$RUNNER_ARCH" \
+            "ImageOS=$ImageOS" "ImageVersion=$ImageVersion" "GITHUB_RUN_ID=$GITHUB_RUN_ID" \
+            "GITHUB_REPOSITORY=$GITHUB_REPOSITORY" "GITHUB_SHA=$GITHUB_SHA" \
+            python3 -B validation/p0_048/native_qualification.py \
+              --build-log "$RUNNER_TEMP/p0-native-build/artifacts.jsonl" \
+              --verifier "$PWD/target/debug/aip-observe-verify" \
+              --out "$RUNNER_TEMP/p0-native-evidence" --require-github-hosted
+      - name: Retain public evidence and all failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2, MIT
+        with:
+          name: p0-048-native-${{ github.run_id }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/p0-native-build/
+            ${{ runner.temp }}/p0-native-evidence/

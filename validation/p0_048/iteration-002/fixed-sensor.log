@@ -1,0 +1,103 @@
+   Compiling aip-observe v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-observe)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.37s
+     Running tests/adversarial.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/adversarial-f06884c622b13c1e)
+
+running 26 tests
+test collector_constructor_rejects_bad_material ... ok
+test a_sequence_gap_degrades_coverage_and_does_not_backfill ... ok
+test a_quarantined_ledger_refuses_all_later_batches ... ok
+test domain_tags_are_distinct_and_lead_every_preimage ... ok
+test collector_partition_produces_unavailability_not_a_verdict ... ok
+test matching_a_process_never_matches_an_agent_identity ... ok
+test malformed_procfs_input_never_panics ... ok
+test every_attested_field_mutation_is_detected ... ok
+test a_health_signature_cannot_be_replayed_as_a_batch_attestation ... ok
+test health_field_mutation_is_detected ... ok
+test pid_reuse_cannot_transfer_an_observation ... ok
+test sequence_rollback_is_refused_and_a_fork_quarantines ... ok
+test no_authorization_concept_exists_in_an_observation ... ok
+test observation_encoding_is_injective_across_adjacent_strings ... ok
+test observer_restart_is_not_continuous_coverage ... ok
+test sha256_of_preimage_is_the_head_and_is_never_carried ... ok
+test stale_state_restoration_cannot_reconstruct_continuity ... ok
+test the_probe_holds_no_key_and_cannot_produce_a_signature ... ok
+test an_injected_decision_id_confers_nothing ... ok
+test unsupported_protocol_version_is_refused ... ok
+test replayed_attestation_is_not_a_new_observation ... ok
+test absence_of_observation_never_becomes_a_claim_about_execution ... ok
+test attested_batch_verifies_offline_and_chains ... ok
+test signature_mutation_and_signer_mismatch_are_distinct ... ok
+test the_observed_agent_cannot_forge_an_accepted_attestation ... ok
+test key_version_mismatch_and_rotation_and_revocation ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/container_identity.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/container_identity-00971e02a81d107d)
+
+running 9 tests
+test neither_side_reading_it_is_not_a_difference ... ok
+test an_observation_without_the_field_deserializes_as_not_observed ... ok
+test the_cgroup_id_is_context_and_does_not_make_a_difference ... ok
+test one_side_blind_is_not_comparable_and_never_a_difference ... ok
+test different_namespaces_are_a_positive_finding ... ok
+test the_placement_is_inside_the_canonical_bytes ... ok
+test the_identity_digest_does_not_move_when_only_the_placement_differs ... ok
+test two_readings_of_one_container_agree ... ok
+test the_observer_reads_a_real_processs_placement_itself ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.50s
+
+     Running tests/observer_integrity.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/observer_integrity-a775e4be58900a19)
+
+running 6 tests
+test an_unverifiable_query_fails_closed_like_a_found_gate ... ok
+test a_clean_mechanism_does_not_mask_a_gated_one ... ok
+test integrity_recovers_on_the_next_clean_cycle ... ok
+test a_foreign_tracepoint_gate_makes_the_signed_state_integrity_unknown ... ok
+test a_forger_with_the_key_cannot_relabel_integrity_unknown_as_active ... ok
+test recovery_never_backfills_coverage_across_unknown_integrity ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/restart_continuity.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/restart_continuity-6688790715178ad1)
+
+running 8 tests
+test rc06_fresh_start_is_clean_and_foreign_state_is_refused ... ok
+test rc02_amnesia_is_reported_and_the_archive_head_is_adopted ... ok
+test rc04_forked_state_quarantines_the_collector ... ok
+test rc08_a_break_names_no_subject ... ok
+test rc05_truncated_archive_is_reported_and_the_state_is_kept ... ok
+test rc07_forged_or_foreign_archive_records_are_ignored ... ok
+test rc03_rolled_back_state_is_reported_and_the_archive_head_is_adopted ... ok
+test rc01_correct_resume_continues_one_chain_without_claiming_continuity ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+
+     Running tests/sniffer_dog.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/sniffer_dog-fb42902a46d18a86)
+
+running 22 tests
+test failure_classes_are_distinct_and_no_authorization_class_exists ... ok
+test t01_a_host_side_party_cannot_label_its_report_as_kernel_provenance ... ok
+test t03_a_resubmitted_probe_batch_is_a_visible_discontinuity ... ok
+test t04_t05_probe_sequence_rollback_and_gap_degrade_and_never_backfill ... ok
+test t09_live_short_lived_process_is_seen_by_the_kernel_connector ... ok
+test t12_no_observation_is_never_a_phantom_claim ... ok
+test t14_host_reboot_changes_instance_identity_and_uncouples_kernel_time ... ok
+test t15_live_kernel_event_loss_is_signalled_and_degrades_coverage ... ok
+test t10_live_exec_replacement_is_delivered_as_a_kernel_exec_event ... ok
+test t15b_reported_loss_degrades_even_without_a_live_connector ... ok
+test t08_pid_reuse_never_transfers_identity_through_kernel_events ... ok
+test t18_malformed_kernel_event_bytes_never_panic_and_are_never_interpreted ... ok
+test t19_malformed_identifiers_never_panic ... ok
+test t20_new_encodings_are_injective ... ok
+test t13_collector_restart_cannot_silently_continue_the_chain ... ok
+test t02_agent_resigned_forgery_of_a_kernel_event_batch_is_rejected ... ok
+test t11_socket_observation_is_socket_level_metadata_with_no_authorization ... ok
+test every_new_attested_field_mutation_is_detected ... ok
+test t17_a_stolen_collector_key_forges_history_until_revoked ... ok
+test t16_observer_key_substitution_is_a_signature_failure ... ok
+test t06_t07_duplicated_or_reordered_kernel_events_break_the_attestation ... ok
+test t01b_open_policy_is_a_visible_deployment_assumption_not_a_hidden_default ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.83s
+

@@ -1,0 +1,22 @@
+{
+  "scope": "Read-only research; no new runtime dependency",
+  "project": "torvalds/linux",
+  "revision": "24a0b5e196cf70ccff97bc0add6fa7178ad50cc4",
+  "path": "drivers/connector/cn_proc.c",
+  "url": "https://raw.githubusercontent.com/torvalds/linux/24a0b5e196cf70ccff97bc0add6fa7178ad50cc4/drivers/connector/cn_proc.c",
+  "sha256": "103be309ede3613aca78825fa18d681107399b951cd2f7f7fb8ff57d2072bfaf",
+  "license_header": [
+    "// SPDX-License-Identifier: GPL-2.0-or-later",
+    "/*",
+    " * cn_proc.c - process events connector",
+    " *",
+    " * Copyright (C) Matt Helsley, IBM Corp. 2005",
+    " * Based on cn_fork.c by Guillaume Thouvenin <guillaume.thouvenin@bull.net>",
+    " * Original copyright notice follows:",
+    " * Copyright (C) 2005 BULL SA.",
+    " */",
+    ""
+  ],
+  "clock_reference": "https://docs.kernel.org/6.12/core-api/timekeeping.html",
+  "claim": "Connector exec/fork/exit events use ktime_get_ns; the existing clock-anchor conversion must be preserved."
+}

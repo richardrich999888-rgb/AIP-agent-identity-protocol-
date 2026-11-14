@@ -53,6 +53,33 @@ pub const MAX_LIVE_PENDING_EVENTS: usize = 4096;
 pub const MAX_LIVE_PENDING_BYTES: usize = 512 * 1024;
 const LIVE_EVENT_RESERVE_BYTES: usize = 64 * 1024;
 
+/// Join only the measured instance's descriptors and collapse equal socket
+/// effects within this read. The raw parser remains lossless: state changes
+/// and malformed-row accounting must not disappear during deduplication.
+#[cfg(any(target_os = "linux", test))]
+fn socket_effects_for_inodes(
+    table: Vec<crate::linux::SocketRecord>,
+    inodes: &[u64],
+) -> (Vec<ObservedEffect>, usize) {
+    let mut effects = Vec::new();
+    let mut repeated = 0;
+    for row in table.into_iter().filter(|row| inodes.contains(&row.inode)) {
+        let effect = ObservedEffect::SocketObserved {
+            protocol: row.protocol,
+            local: row.local,
+            remote: row.remote,
+            state: row.state,
+            inode: row.inode,
+        };
+        if effects.contains(&effect) {
+            repeated += 1;
+        } else {
+            effects.push(effect);
+        }
+    }
+    (effects, repeated)
+}
+
 /// Why a measurement could not be taken. Never silently substituted with a
 /// weaker identifier, and never turned into a statement about the workload.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -140,7 +167,7 @@ pub struct ProcfsProbe {
     /// pid → instance bound at exec time, so a later kernel exit event for
     /// the same pid can be attributed to that instance. Cleared whenever the
     /// source reports loss: after a gap the pid may have been recycled.
-    bound_by_exec: HashMap<u32, ObservedProcess>,
+    bound_by_exec: HashMap<u32, LifecycleBinding>,
     pending_kernel_events: Vec<KernelLifecycleEvent>,
     pending_kernel_bytes: usize,
     live_published_seq: u64,
@@ -169,6 +196,16 @@ pub struct ProcfsProbe {
     /// around every measurement is unchanged.
     #[cfg(target_os = "linux")]
     image_cache: std::cell::RefCell<HashMap<u32, CachedImage>>,
+}
+
+/// A measured instance and the connector event that established its binding.
+/// The stamp prevents a delayed event from replacing or consuming a newer
+/// binding. This is not a permanent per-PID history or a proof of image
+/// identity at event time: procfs is measured after delivery.
+#[derive(Debug, Clone)]
+struct LifecycleBinding {
+    process: ObservedProcess,
+    kernel_timestamp_ns: u64,
 }
 
 /// What an image hash in the probe's cache was taken of.
@@ -432,30 +469,33 @@ impl ProcfsProbe {
     /// kernel socket tables whose inode is open in `/proc/<pid>/fd`, taken
     /// under a pidfd anchor. Returns the anchored process and its socket
     /// effects; `malformed_rows` counts table lines this crate could not
-    /// parse (skipped, never guessed).
+    /// parse (skipped, never guessed). Equal socket rows count once; callers
+    /// needing the discarded-repeat count use `observe_sockets_detailed`.
     #[cfg(target_os = "linux")]
     pub fn observe_sockets(
         &self,
         pid: u32,
     ) -> Result<(ObservedProcess, Vec<ObservedEffect>, usize), ProbeError> {
+        let (process, effects, malformed, _) = self.observe_sockets_detailed(pid)?;
+        Ok((process, effects, malformed))
+    }
+
+    /// The same anchored measurement, with separate malformed and repeated
+    /// row counts (third and fourth tuple members). These are diagnostics,
+    /// not independent corroborations, coverage or logical-agent attribution.
+    #[cfg(target_os = "linux")]
+    pub fn observe_sockets_detailed(
+        &self,
+        pid: u32,
+    ) -> Result<(ObservedProcess, Vec<ObservedEffect>, usize, usize), ProbeError> {
         let anchored = self.measure_anchored(pid)?;
         let inodes = crate::linux::socket_inodes_of(pid)?;
         let (table, malformed) = crate::linux::snapshot_socket_tables()?;
         if !anchored.is_alive()? {
             return Err(ProbeError::InstanceEnded { pid });
         }
-        let effects = table
-            .into_iter()
-            .filter(|r| inodes.contains(&r.inode))
-            .map(|r| ObservedEffect::SocketObserved {
-                protocol: r.protocol,
-                local: r.local,
-                remote: r.remote,
-                state: r.state,
-                inode: r.inode,
-            })
-            .collect();
-        Ok((anchored.process, effects, malformed))
+        let (effects, repeated) = socket_effects_for_inodes(table, &inodes);
+        Ok((anchored.process, effects, malformed, repeated))
     }
 
     // ─── Assembly ───
@@ -509,10 +549,12 @@ impl ProcfsProbe {
 
     /// Ingest a kernel-pushed process event (`ProcConnector`). For an exec,
     /// the probe tries an anchored measurement of the subject *now*; if it
-    /// succeeds the event is bound to that instance and the binding is
-    /// remembered so the matching exit can be attributed. If the subject
-    /// already exited, the event is recorded unbound — kernel-attested
-    /// existence, identity `CANNOT_PROVE`.
+    /// succeeds, the instance must also have started no later than the event
+    /// (at clock-tick resolution). A fork follows the same rule for its child.
+    /// Events no later than a cached binding stay unbound and cannot replace
+    /// or consume it. A newer exec/fork whose measurement fails invalidates
+    /// the older binding. Unbound originals remain in the evidence stream;
+    /// neither a PID nor a registered claim supplies the missing identity.
     pub fn ingest_kernel_event(&mut self, ev: ProcEvent) -> &KernelLifecycleEvent {
         self.ingest_event(ev, SourceMechanism::ProcConnector)
     }
@@ -626,13 +668,49 @@ impl ProcfsProbe {
         let bound = match (&ev.kind, subject) {
             (KernelLifecycleKind::Exec { .. }, Some(pid))
             | (KernelLifecycleKind::Fork { .. }, Some(pid)) => {
-                let b = self.try_anchor(pid);
-                if let Some(p) = &b {
-                    self.bound_by_exec.insert(pid, p.clone());
+                if self
+                    .bound_by_exec
+                    .get(&pid)
+                    .is_some_and(|b| ev.timestamp_ns <= b.kernel_timestamp_ns)
+                {
+                    None
+                } else {
+                    // A newer, unmeasurable image must not leave an older
+                    // binding available for a later exit. Loss/fault paths
+                    // independently clear this cache as before.
+                    self.bound_by_exec.remove(&pid);
+                    let b = self.try_anchor(pid).filter(|p| {
+                        instance_started_no_later_than(
+                            p,
+                            ev.timestamp_ns,
+                            self.clock_anchor.as_ref(),
+                        )
+                    });
+                    if let Some(p) = &b {
+                        self.bound_by_exec.insert(
+                            pid,
+                            LifecycleBinding {
+                                process: p.clone(),
+                                kernel_timestamp_ns: ev.timestamp_ns,
+                            },
+                        );
+                    }
+                    b
                 }
-                b
             }
-            (KernelLifecycleKind::Exit { .. }, Some(pid)) => self.bound_by_exec.remove(&pid),
+            (KernelLifecycleKind::Exit { .. }, Some(pid)) => {
+                if self
+                    .bound_by_exec
+                    .get(&pid)
+                    .is_some_and(|b| ev.timestamp_ns > b.kernel_timestamp_ns)
+                {
+                    self.bound_by_exec.remove(&pid).map(|b| b.process)
+                } else {
+                    // No ordering proof (including equal timestamps): retain
+                    // the event unbound, without consuming the newer binding.
+                    None
+                }
+            }
             (KernelLifecycleKind::SocketState { .. }, Some(pid))
             | (KernelLifecycleKind::SocketSend { .. }, Some(pid))
             | (KernelLifecycleKind::ProcessSpawn { .. }, Some(pid))
@@ -988,6 +1066,62 @@ pub fn clk_tck() -> u64 {
 mod tests {
     use super::*;
 
+    fn socket_row() -> crate::linux::SocketRecord {
+        let text = "header\n0: 0100007F:C8CE 0100007F:A397 01 00000000:00000000 00:00000000 00000000 1000 0 68001\n";
+        let (mut rows, malformed) =
+            crate::linux::parse_proc_net_table(text, crate::SocketProtocol::Tcp);
+        assert_eq!(malformed, 0);
+        rows.remove(0)
+    }
+
+    #[test]
+    fn socket_join_collapses_rows_but_preserves_parser_diagnostics() {
+        let text = "header\n0: 0100007F:C8CE 0100007F:A397 01 00000000:00000000 00:00000000 00000000 1000 0 68001\n0: 0100007F:C8CE 0100007F:A397 01 00000000:00000000 00:00000000 00000000 1000 0 68001\nmalformed\n";
+        let (rows, malformed) =
+            crate::linux::parse_proc_net_table(text, crate::SocketProtocol::Tcp);
+        assert_eq!(rows.len(), 2, "raw parser must retain both original rows");
+        assert_eq!(malformed, 1);
+        let (effects, repeated) = socket_effects_for_inodes(rows, &[68001]);
+        assert_eq!(effects.len(), 1);
+        assert_eq!(repeated, 1);
+    }
+
+    #[test]
+    fn socket_join_preserves_distinct_inodes_protocols_states_and_endpoints() {
+        let a = socket_row();
+        let mut inode = a.clone();
+        inode.inode += 1;
+        let mut state = a.clone();
+        state.state = 8;
+        let mut protocol = a.clone();
+        protocol.protocol = crate::SocketProtocol::Udp;
+        let mut local = a.clone();
+        local.local.port += 1;
+        let mut remote = a.clone();
+        remote.remote.port += 1;
+        let rows = vec![a.clone(), inode, state, protocol, local, remote, a];
+        let (effects, repeated) = socket_effects_for_inodes(rows, &[68001, 68002]);
+        assert_eq!(effects.len(), 6);
+        assert_eq!(repeated, 1);
+    }
+
+    #[test]
+    fn socket_join_never_admits_an_inode_the_process_does_not_hold() {
+        let row = socket_row();
+        assert_eq!(
+            socket_effects_for_inodes(vec![row.clone(); 4], &[9]),
+            (vec![], 0)
+        );
+        assert_eq!(socket_effects_for_inodes(vec![row; 4], &[]), (vec![], 0));
+    }
+
+    #[test]
+    fn duplicated_descriptors_do_not_multiply_socket_rows() {
+        let (effects, repeated) = socket_effects_for_inodes(vec![socket_row()], &[68001, 68001]);
+        assert_eq!(effects.len(), 1);
+        assert_eq!(repeated, 0);
+    }
+
     fn fake_process(pid: u32) -> ObservedProcess {
         ObservedProcess {
             process: ProcessInstance {
@@ -1153,7 +1287,13 @@ mod tests {
         let mut probe = ProcfsProbe::new("probe-1");
         // Simulate an exec that was bound (inject the binding directly, as a
         // live anchor would have).
-        probe.bound_by_exec.insert(77, fake_process(77));
+        probe.bound_by_exec.insert(
+            77,
+            LifecycleBinding {
+                process: fake_process(77),
+                kernel_timestamp_ns: 4,
+            },
+        );
         probe.record_lost_events(1);
         let ev = probe.ingest_kernel_event(ProcEvent {
             cgroup: crate::observed::CgroupSample::NotSampled,
@@ -1173,7 +1313,13 @@ mod tests {
     #[test]
     fn kernel_exit_without_loss_is_attributed_to_the_bound_exec_instance() {
         let mut probe = ProcfsProbe::new("probe-1");
-        probe.bound_by_exec.insert(77, fake_process(77));
+        probe.bound_by_exec.insert(
+            77,
+            LifecycleBinding {
+                process: fake_process(77),
+                kernel_timestamp_ns: 4,
+            },
+        );
         let ev = probe.ingest_kernel_event(ProcEvent {
             cgroup: crate::observed::CgroupSample::NotSampled,
             kind: KernelLifecycleKind::Exit {

@@ -1,0 +1,17 @@
+
+running 1 test
+test x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused ... 
+thread 'x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused' (23) panicked at aip-standalone/aip-observe/tests/gate10_xdp_evaluation.rs:326:13:
+assertion `left == right` failed: a rejected program is EACCES, not Operation not permitted (os error 1)
+  left: Some(1)
+ right: Some(13)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+

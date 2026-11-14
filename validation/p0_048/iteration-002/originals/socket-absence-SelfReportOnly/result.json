@@ -1,0 +1,140 @@
+{
+  "correlation": {
+    "boot_id": [
+      29,
+      147,
+      14,
+      250,
+      165,
+      189,
+      67,
+      128,
+      138,
+      157,
+      79,
+      101,
+      246,
+      102,
+      204,
+      16
+    ],
+    "decision_id": [
+      134,
+      77,
+      57,
+      61,
+      17,
+      213,
+      64,
+      101,
+      129,
+      83,
+      58,
+      186,
+      1,
+      185,
+      216,
+      61
+    ],
+    "execution_id": [
+      111,
+      236,
+      243,
+      101,
+      203,
+      226,
+      73,
+      144,
+      164,
+      217,
+      141,
+      159,
+      226,
+      245,
+      61,
+      60
+    ],
+    "system_id": "edge:reference-system"
+  },
+  "endpoint": "127.0.0.1:46043",
+  "establishes_named_effect": false,
+  "finding": {
+    "Inconclusive": {
+      "records_examined": 1
+    }
+  },
+  "observer_pid": 14,
+  "records": [
+    {
+      "attested_at_ms": 1794427002153,
+      "completeness": "Observed",
+      "correlation": {
+        "boot_id": [
+          29,
+          147,
+          14,
+          250,
+          165,
+          189,
+          67,
+          128,
+          138,
+          157,
+          79,
+          101,
+          246,
+          102,
+          204,
+          16
+        ],
+        "decision_id": [
+          134,
+          77,
+          57,
+          61,
+          17,
+          213,
+          64,
+          101,
+          129,
+          83,
+          58,
+          186,
+          1,
+          185,
+          216,
+          61
+        ],
+        "execution_id": [
+          111,
+          236,
+          243,
+          101,
+          203,
+          226,
+          73,
+          144,
+          164,
+          217,
+          141,
+          159,
+          226,
+          245,
+          61,
+          60
+        ],
+        "system_id": "edge:reference-system"
+      },
+      "key_version": 1,
+      "mechanism": "PidFdAnchored",
+      "observer_id": "edge-reference-collector",
+      "sequence": 2,
+      "version": 1
+    }
+  ],
+  "replay_detected": false,
+  "result": "CANNOT_PROVE",
+  "scenario": "SelfReportOnly",
+  "scope": "Live synthetic reference; one host and administrator",
+  "workload_pid": 15
+}

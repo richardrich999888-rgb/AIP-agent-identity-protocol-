@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-11-12T06:25:56.083230+00:00",
+  "historical_manifests": [
+    {
+      "iteration": 1,
+      "commit": "40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf",
+      "manifest": "validation/p0_048/iteration-001/SHA256SUMS",
+      "verified_files": 18,
+      "status": "PASS"
+    },
+    {
+      "iteration": 2,
+      "commit": "353b2169e48fd000aa079ef6afa94ad0e02afbe7",
+      "manifest": "validation/p0_048/iteration-002/SHA256SUMS",
+      "verified_files": 109,
+      "status": "PASS"
+    },
+    {
+      "iteration": 3,
+      "commit": "9e7e9eec13f58a2b7689b66ca1e76ff65fb8bc8d",
+      "manifest": "validation/p0_048/iteration-003/SHA256SUMS",
+      "verified_files": 58,
+      "status": "PASS"
+    }
+  ],
+  "tested_implementation_commit": "ea5fe9e9ad10da0b490b411afc9f757e01259c73",
+  "native_product_and_tested_workflow_unchanged": true,
+  "prior_evidence_unchanged": true
+}

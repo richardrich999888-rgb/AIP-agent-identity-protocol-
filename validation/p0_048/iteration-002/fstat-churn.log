@@ -1,0 +1,10 @@
+   Compiling aip-observe v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-observe)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.91s
+     Running tests/socket_multiplicity.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_multiplicity-da0a80f96cbc7e21)
+
+running 1 test
+test stable_socket_multiplicity_matches_fstat_ground_truth ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 53.03s
+
+{"schema": "vanian.p0-048.socket-churn.v1", "scope": "Synthetic loopback churn; same host and administrator", "command": ["cargo", "test", "--locked", "--offline", "-p", "aip-observe", "--test", "socket_multiplicity", "--", "--nocapture"], "command_exit_code": 0, "elapsed_seconds": 55.038894, "completed_connections_per_thread": [47785, 47416, 49702, 48348], "errors": [], "status": "PASS"}

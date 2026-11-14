@@ -1,0 +1,28 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "ghost-demo",
+    "--test",
+    "live",
+    "--test",
+    "signed_verdict",
+    "--",
+    "--nocapture"
+  ],
+  "started_utc": "2026-11-11T19:59:12.977002+00:00",
+  "elapsed_seconds": 39.07,
+  "exit_code": 0,
+  "log": "validation/p0_048/iteration-002/ghost-shared-caller.log",
+  "log_sha256": "24ed6c8862d7fcce0d12b385ba13f8126634c6f32bbb91e67a8ce43e8323390a",
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "rust_version": "1.99.1"
+}

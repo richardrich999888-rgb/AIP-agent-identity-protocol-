@@ -1,0 +1,23 @@
+{
+  "command": [
+    "python3",
+    "validation/p0_048/socket_churn.py",
+    "--report",
+    "validation/p0_048/iteration-002/fixed-churn-metrics.json",
+    "--",
+    "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/end_to_end-0d0164b7c93a0b2a",
+    "--test-threads=4"
+  ],
+  "started_utc": "2026-11-11T19:54:47.280202+00:00",
+  "elapsed_seconds": 73.015,
+  "exit_code": 0,
+  "log": "validation/p0_048/iteration-002/fixed-churn.log",
+  "log_sha256": "ccc6d312590c397cd8d5f9c2fc09498d8e7faa3977684099e009b59f48d9724b",
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "rust_version": "1.99.1"
+}

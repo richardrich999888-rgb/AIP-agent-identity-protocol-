@@ -1,0 +1,18 @@
+{
+  "schema": "vanian.p0-048.socket-churn.v1",
+  "scope": "Synthetic loopback churn; same host and administrator",
+  "command": [
+    "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/end_to_end-0d0164b7c93a0b2a",
+    "--test-threads=4"
+  ],
+  "command_exit_code": 0,
+  "elapsed_seconds": 72.940007,
+  "completed_connections_per_thread": [
+    88579,
+    84638,
+    84395,
+    83579
+  ],
+  "errors": [],
+  "status": "PASS"
+}

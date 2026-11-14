@@ -1,0 +1,51 @@
+{
+  "schema": "vanian.p0-048.additional-ci.v1",
+  "scope": "PR-triggered workflow query; absence does not establish status of other triggers",
+  "runtime": {
+    "workflow_runs": []
+  },
+  "wow": {
+    "workflow_runs": [
+      {
+        "id": 42447753627,
+        "name": "Demos harness",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 21,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753627/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753627/logs",
+        "workflow_id": 408603772
+      },
+      {
+        "id": 42447753682,
+        "name": "Real-agent harness contracts (no live agent claim)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 85,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753682/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753682/logs",
+        "workflow_id": 399123351
+      },
+      {
+        "id": 42447753606,
+        "name": "Security",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 117,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753606/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753606/logs",
+        "workflow_id": 297111055
+      },
+      {
+        "id": 42447753630,
+        "name": "CI",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 108,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753630/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753630/logs",
+        "workflow_id": 297111051
+      }
+    ]
+  }
+}

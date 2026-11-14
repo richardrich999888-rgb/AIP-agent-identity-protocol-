@@ -1,0 +1,16 @@
+   Compiling aip-observe v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-observe)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.90s
+     Running tests/lifecycle_races.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/lifecycle_races-72ea11c6cab11f88)
+
+running 8 tests
+test failed_new_measurement_invalidates_old_exit_binding ... ok
+test delayed_fork_before_child_start_is_unbound ... ok
+test concurrent_siblings_keep_distinct_instances_without_agent_identity ... ok
+test signing_keeps_stale_events_unbound_and_preserves_originals ... ok
+test stale_or_equal_exec_cannot_replace_a_later_binding ... ok
+test stale_exit_does_not_consume_a_later_exec_binding ... ok
+test loss_still_invalidates_a_live_binding ... ok
+test delayed_exec_before_instance_start_is_unbound ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.91s
+

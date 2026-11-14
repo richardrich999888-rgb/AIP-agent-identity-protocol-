@@ -1,0 +1,199 @@
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded cmov v0.5.4
+  Downloaded generic-array v0.14.7
+  Downloaded digest v0.10.7
+  Downloaded syn v2.0.119
+  Downloaded digest v0.11.3
+  Downloaded memchr v2.8.3
+  Downloaded ed25519 v2.2.3
+  Downloaded getrandom v0.2.17
+  Downloaded hybrid-array v0.4.14
+  Downloaded inout v0.1.4
+  Downloaded itoa v1.0.18
+  Downloaded keccak v0.2.2
+  Downloaded serde_core v1.0.229
+  Downloaded sha2 v0.10.9
+  Downloaded signature v3.0.0
+  Downloaded universal-hash v0.5.1
+  Downloaded zeroize v1.9.0
+  Downloaded zmij v1.0.23
+  Downloaded argon2 v0.5.3
+  Downloaded block-buffer v0.10.4
+  Downloaded const-oid v0.10.2
+  Downloaded curve25519-dalek-derive v0.1.1
+  Downloaded getrandom v0.4.3
+  Downloaded ml-dsa v0.1.1
+  Downloaded module-lattice v0.2.3
+  Downloaded tinyvec_macros v0.1.1
+  Downloaded version_check v0.9.5
+  Downloaded ed25519-dalek v2.2.0
+  Downloaded cfg-if v1.0.4
+  Downloaded rand_chacha v0.3.1
+  Downloaded rustc_version v0.4.1
+  Downloaded autocfg v1.5.1
+  Downloaded cipher v0.4.4
+  Downloaded crypto-common v0.2.2
+  Downloaded ppv-lite86 v0.2.21
+  Downloaded blake2 v0.10.6
+  Downloaded crypto-common v0.1.7
+  Downloaded chacha20 v0.9.1
+  Downloaded opaque-debug v0.3.1
+  Downloaded subtle v2.6.1
+  Downloaded aead v0.5.2
+  Downloaded quote v1.0.47
+  Downloaded pkcs8 v0.11.0
+  Downloaded poly1305 v0.8.0
+  Downloaded cpufeatures v0.2.17
+  Downloaded spki v0.7.3
+  Downloaded sponge-cursor v0.1.0
+  Downloaded pkcs8 v0.10.2
+  Downloaded signature v2.2.0
+  Downloaded password-hash v0.5.0
+  Downloaded bs58 v0.5.1
+  Downloaded rand_core v0.6.4
+  Downloaded spki v0.8.0
+  Downloaded const-oid v0.9.6
+  Downloaded semver v1.0.28
+  Downloaded ctutils v0.4.6
+  Downloaded num-traits v0.2.19
+  Downloaded unicode-ident v1.0.24
+  Downloaded base64ct v1.8.3
+  Downloaded proc-macro2 v1.0.107
+  Downloaded tinyvec v1.13.2
+  Downloaded rand_core v0.10.1
+  Downloaded serde_derive v1.0.229
+  Downloaded typenum v1.20.1
+  Downloaded chacha20poly1305 v0.10.1
+  Downloaded serde v1.0.229
+  Downloaded base64 v0.22.1
+  Downloaded der v0.7.10
+  Downloaded rand v0.8.8
+  Downloaded serde_json v1.0.151
+  Downloaded der v0.8.2
+  Downloaded zerocopy v0.8.56
+  Downloaded curve25519-dalek v4.1.3
+  Downloaded shake v0.1.0
+  Downloaded syn v3.0.5
+  Downloaded libc v0.2.189
+   Compiling libc v0.2.189
+   Compiling cfg-if v1.0.4
+   Compiling typenum v1.20.1
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling generic-array v0.14.7
+   Compiling subtle v2.6.1
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.24
+   Compiling zeroize v1.9.0
+   Compiling cmov v0.5.4
+   Compiling ctutils v0.4.6
+   Compiling cpufeatures v0.2.17
+   Compiling getrandom v0.4.3
+   Compiling getrandom v0.2.17
+   Compiling hybrid-array v0.4.14
+   Compiling rand_core v0.10.1
+   Compiling rand_core v0.6.4
+   Compiling block-buffer v0.10.4
+   Compiling serde_core v1.0.229
+   Compiling semver v1.0.28
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling zerocopy v0.8.56
+   Compiling autocfg v1.5.1
+   Compiling rustc_version v0.4.1
+   Compiling const-oid v0.10.2
+   Compiling curve25519-dalek v4.1.3
+   Compiling crypto-common v0.2.2
+   Compiling num-traits v0.2.19
+   Compiling digest v0.11.3
+   Compiling inout v0.1.4
+   Compiling syn v3.0.5
+   Compiling der v0.8.2
+   Compiling syn v2.0.119
+   Compiling serde v1.0.229
+   Compiling serde_derive v1.0.229
+   Compiling spki v0.8.0
+   Compiling cipher v0.4.4
+   Compiling ppv-lite86 v0.2.21
+   Compiling universal-hash v0.5.1
+   Compiling keccak v0.2.2
+   Compiling opaque-debug v0.3.1
+   Compiling sponge-cursor v0.1.0
+   Compiling zmij v1.0.23
+   Compiling base64ct v1.8.3
+   Compiling signature v2.2.0
+   Compiling ed25519 v2.2.3
+   Compiling password-hash v0.5.0
+   Compiling shake v0.1.0
+   Compiling module-lattice v0.2.3
+   Compiling poly1305 v0.8.0
+   Compiling rand_chacha v0.3.1
+   Compiling chacha20 v0.9.1
+   Compiling pkcs8 v0.11.0
+   Compiling signature v3.0.0
+   Compiling sha2 v0.10.9
+   Compiling blake2 v0.10.6
+   Compiling curve25519-dalek-derive v0.1.1
+   Compiling aead v0.5.2
+   Compiling serde_json v1.0.151
+   Compiling chacha20poly1305 v0.10.1
+   Compiling argon2 v0.5.3
+   Compiling ml-dsa v0.1.1
+   Compiling rand v0.8.8
+   Compiling aip-types v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-types)
+   Compiling ed25519-dalek v2.2.0
+   Compiling bs58 v0.5.1
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling base64 v0.22.1
+   Compiling aip-crypto v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-crypto)
+   Compiling aip-core v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-core)
+   Compiling aip-observe v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-observe)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 40.79s
+     Running tests/lifecycle_races.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/lifecycle_races-72ea11c6cab11f88)
+
+running 8 tests
+
+thread 'failed_new_measurement_invalidates_old_exit_binding' (1551) panicked at aip-standalone/aip-observe/tests/lifecycle_races.rs:130:5:
+a newer unmeasurable exec must not leave the old image cached
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test failed_new_measurement_invalidates_old_exit_binding ... FAILED
+test concurrent_siblings_keep_distinct_instances_without_agent_identity ... ok
+
+thread 'delayed_fork_before_child_start_is_unbound' (1550) panicked at aip-standalone/aip-observe/tests/lifecycle_races.rs:92:5:
+parent ancestry cannot bind a stale child event
+test delayed_fork_before_child_start_is_unbound ... FAILED
+
+thread 'delayed_exec_before_instance_start_is_unbound' (1549) panicked at aip-standalone/aip-observe/tests/lifecycle_races.rs:73:5:
+the current PID cannot identify an older event
+test delayed_exec_before_instance_start_is_unbound ... FAILED
+test loss_still_invalidates_a_live_binding ... ok
+
+thread 'stale_or_equal_exec_cannot_replace_a_later_binding' (1558) panicked at aip-standalone/aip-observe/tests/lifecycle_races.rs:117:9:
+assertion failed: p.ingest_kernel_event(exec(pid, stale)).bound.is_none()
+test stale_or_equal_exec_cannot_replace_a_later_binding ... FAILED
+
+thread 'signing_keeps_stale_events_unbound_and_preserves_originals' (1553) panicked at aip-standalone/aip-observe/tests/lifecycle_races.rs:176:5:
+assertion `left == right` failed
+  left: [true, true, true, false]
+ right: [false, true, false, true]
+test signing_keeps_stale_events_unbound_and_preserves_originals ... FAILED
+
+thread 'stale_exit_does_not_consume_a_later_exec_binding' (1557) panicked at aip-standalone/aip-observe/tests/lifecycle_races.rs:103:9:
+assertion failed: p.ingest_kernel_event(exit(pid, stale)).bound.is_none()
+test stale_exit_does_not_consume_a_later_exec_binding ... FAILED
+
+failures:
+
+failures:
+    delayed_exec_before_instance_start_is_unbound
+    delayed_fork_before_child_start_is_unbound
+    failed_new_measurement_invalidates_old_exit_binding
+    signing_keeps_stale_events_unbound_and_preserves_originals
+    stale_exit_does_not_consume_a_later_exec_binding
+    stale_or_equal_exec_cannot_replace_a_later_binding
+
+test result: FAILED. 2 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.90s
+
+error: test failed, to rerun pass `-p aip-observe --test lifecycle_races`

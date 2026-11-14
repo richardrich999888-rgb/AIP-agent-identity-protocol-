@@ -4,3 +4,9 @@
 # keys (see deploy/docker/README) — not real credentials.
 51a04c928647797ec14ce92f86293f18f4175157:deploy/docker/keys.example.json:generic-api-key:3
 51a04c928647797ec14ce92f86293f18f4175157:deploy/docker/keys.example.json:generic-api-key:4
+# P0-048 inventory copied the public Qwen tokenizer SHA-256 digests from
+# integrations/interoperability/upstreams.lock.json. These two exact immutable
+# commit/path/rule/line findings are checksums, not credentials. New commits and
+# other locations remain scanned. See docs/research/P0-048-SECURITY-CI.md.
+40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf:validation/p0_048/iteration-001/inventory.json:generic-api-key:7515
+40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf:validation/p0_048/iteration-001/inventory.json:generic-api-key:7516

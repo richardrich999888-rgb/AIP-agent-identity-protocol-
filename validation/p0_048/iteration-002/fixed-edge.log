@@ -1,0 +1,150 @@
+   Compiling aip-edge v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-edge)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.42s
+     Running unittests src/lib.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/aip_edge-c07a57aac35e711e)
+
+running 30 tests
+test effect::tests::a_socket_repeated_within_one_snapshot_counts_once ... ok
+test effect::tests::a_socket_seen_in_two_batches_counts_once ... ok
+test effect::tests::a_non_established_socket_to_the_endpoint_does_not_support ... ok
+test effect::tests::a_socket_to_another_endpoint_says_nothing_rather_than_opposing ... ok
+test effect::tests::absence_of_the_instance_is_never_read_as_opposition ... ok
+test effect::tests::a_process_presence_measurement_says_nothing_about_the_effect ... ok
+test effect::tests::a_state_change_is_preserved_but_does_not_add_support ... ok
+test effect::tests::an_established_socket_to_the_requested_endpoint_supports ... ok
+test effect::tests::four_repeats_of_one_socket_still_count_once ... ok
+test effect::tests::identical_sockets_on_different_instances_are_never_merged ... ok
+test effect::tests::no_input_reaches_opposes_in_this_reference ... ok
+test effect::tests::non_socket_observations_are_never_collapsed ... ok
+test effect::tests::physical_effect_is_unreachable_under_a_real_profile ... ok
+test effect::tests::physical_effect_stays_unreachable_even_if_every_mechanism_is_declared ... ok
+test effect::tests::the_kept_indices_preserve_input_order ... ok
+test effect::tests::the_in_window_sighting_is_kept_when_the_first_is_outside_it ... ok
+test effect::tests::pid_reuse_or_another_boot_is_not_the_same_socket_observation ... ok
+test platform::tests::a_self_reported_boot_reaches_not_evaluated_and_no_further ... ok
+test platform::tests::an_empty_registration_window_is_refused ... ok
+test platform::tests::no_observation_yields_not_evaluated_never_bound ... ok
+test profile::tests::a_profile_declares_only_what_was_projected ... ok
+test effect::tests::the_requested_effect_commitment_matches_the_workloads_construction ... ok
+test profile::tests::an_undeclared_class_is_not_observable_rather_than_not_observed ... ok
+test effect::tests::two_distinct_sockets_still_count_twice ... ok
+test profile::tests::every_mechanism_code_round_trips ... ok
+test reference::tests::the_physical_rung_has_no_stage_and_never_will_by_accident ... ok
+test profile::tests::an_unknown_code_is_refused_not_guessed ... ok
+test profile::tests::an_empty_declaration_observes_nothing ... ok
+test reference::tests::highest_established_ignores_a_higher_unestablished_rung ... ok
+test profile::tests::the_projection_cannot_raise_a_ceiling ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/bin/aip-edge.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/aip_edge-5758edfb7ded54f3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/adversarial.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/adversarial-e8e3e77b305e8d37)
+
+running 12 tests
+   Compiling aip-edge-observer v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-edge-observer)
+   Compiling aip-edge-workload v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/vanian/aip-standalone/aip-edge-workload)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.74s
+test conflicting_stances_over_real_records_are_never_resolved ... ok
+test a_record_that_observed_nothing_cannot_be_given_a_stance ... ok
+test t15c_a_record_cannot_be_deserialized_into_existence ... ok
+test a_real_record_with_an_opposing_stance_reaches_contradicted ... ok
+test t14b_a_batch_signed_under_an_unanchored_key_version_yields_no_record ... ok
+test t14_a_batch_naming_an_observer_the_verifier_never_anchored_yields_no_record ... ok
+test t15_altering_an_observation_after_signing_yields_no_record ... ok
+test t15b_altering_the_measured_boot_after_signing_yields_no_record ... ok
+test t12_an_observation_outside_the_window_establishes_nothing ... ok
+test t24_a_corroborating_finding_alone_does_not_establish_the_named_effect ... ok
+test t24b_an_assessment_of_zero_requested_effects_is_refused ... ok
+test the_stance_read_from_the_real_socket_row_is_supports_exactly_once ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.58s
+
+     Running tests/dependency_isolation.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/dependency_isolation-821428c36f7098ff)
+
+running 8 tests
+test t18_the_workload_cannot_link_aip_observe ... ok
+test the_shared_contract_crate_re_links_neither_side ... ok
+test t17_the_workload_has_no_route_to_a_collector_key ... ok
+test t16_the_workload_cannot_construct_observer_evidence ... ok
+test the_contract_announcement_carries_no_private_material ... ok
+test t20_the_observer_cannot_alter_an_expected_execution ... ok
+test t19_the_observer_cannot_author_airi_evidence ... ok
+test the_observer_publishes_a_public_key_and_never_a_private_one ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/end_to_end.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/end_to_end-0d0164b7c93a0b2a)
+
+running 14 tests
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.14s
+test t5_a_workload_that_exits_first_yields_an_attested_empty_window ... ok
+test t21_a_successful_call_with_no_observation_does_not_become_an_effect ... ok
+test t3_and_t4_observer_and_collector_loss_are_conservative ... ok
+test t7_and_t13_an_observation_of_another_instance_is_excluded_not_downgraded ... ok
+test t2_observation_that_disagrees_with_the_self_report_is_visible ... ok
+test t8_a_platform_other_than_the_authorized_one_is_a_mismatch ... ok
+test t9_a_boot_the_observer_did_not_measure_yields_no_record ... ok
+test the_reference_digest_is_stable_for_one_report ... ok
+test t10_and_t11_a_replayed_batch_is_detected_and_does_not_inflate_the_count ... ok
+test t1_a_signed_success_self_report_establishes_nothing ... ok
+test the_workload_and_the_observer_are_different_operating_system_processes ... ok
+test t23_physical_effect_stays_unreachable_on_every_scenario ... ok
+test two_honest_runs_agree_on_everything_except_per_run_identity ... ok
+test t22_missing_observation_is_never_read_as_non_occurrence ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 38.61s
+
+     Running tests/lifecycle.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/lifecycle-8a1ac0cbb5af968e)
+
+running 6 tests
+test every_identity_kind_that_is_not_independently_established_stays_unknown ... ok
+test t_container_namespace_change_establishes_no_new_identity ... ok
+test t_container_a_namespaced_workload_reports_a_pid_that_is_not_its_identity ... ok
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+test t6b_the_observer_restarting_does_not_change_the_workloads_identity ... ok
+test a_host_reboot_changes_the_platform_identity_and_the_registry_stops_applying ... ok
+test t6_a_restarted_workload_is_a_different_execution_and_inherits_no_evidence ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.34s
+
+     Running tests/nexora.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/nexora-c9d1842538520d01)
+
+running 3 tests
+test nexora_and_reconcile_were_not_modified_by_skill_22 ... ok
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
+test an_unanchored_head_proves_nothing ... ok
+test a_real_run_commits_to_nexora_with_no_new_leaf_kind ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.95s
+
+     Running tests/no_second_engine.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/no_second_engine-3ba1bf1001e94eae)
+
+running 6 tests
+test the_comment_stripper_does_not_defeat_the_guards ... ok
+test the_stripper_handles_non_ascii_comments ... ok
+test this_crate_constructs_no_evidence_strength ... ok
+test this_crate_calls_the_existing_engine_and_does_not_reimplement_it ... ok
+test this_crate_constructs_no_reconciliation_result ... ok
+test this_crate_defines_no_verdict_or_ceiling_vocabulary_of_its_own ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/socket_duplicates.rs (/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/deps/socket_duplicates-cbe47906efe99d11)
+
+running 2 tests
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.57s
+test repeated_signed_socket_records_count_as_one_fact ... ok
+test repeated_absence_or_self_report_never_establishes_execution ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.26s
+
+   Doc-tests aip_edge
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

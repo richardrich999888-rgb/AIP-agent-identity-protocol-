@@ -1,0 +1,27 @@
+{
+  "source_parent": "61dd73013d02ea7869de104d953f330098df1c32",
+  "recorded_utc": "2026-11-14T09:35:32.809428+00:00",
+  "scope": "local security classification and real scanner controls; no product runtime changes",
+  "source_sha256": {
+    ".github/workflows/security.yml": "0dd2603f938966c952e941d698f3185ff378ecdbf00855a9ba8b24334afde4be",
+    ".gitleaksignore": "5f281de5a0c15349e0fbcfadb1aa6901fcf29d29e89b5027ae8d5be17ecc7627",
+    "validation/p0_048/install_security_scanners.py": "b21117e0c37c486016a2c75b85a78e66c667a671a29ce51ef14bace934a9ac72",
+    "validation/p0_048/security_classifications.json": "0433488f535d9586572ac6f0ec33bb1b8147af5f811625c3104fde1e069ddcf1",
+    "validation/p0_048/security_gate.py": "ff3242a30fb37846e3f7c32b50d34561a8507c1ebd776e3b3fa1c0aa716fae15",
+    "validation/p0_048/security_scanner_controls.py": "de647586c91d54fca654f472271c2c7ff1616f3710945b914c6d48a18e47bf2e",
+    "validation/p0_048/security_scanners.lock.json": "a8d0579f85ea2bee6750ea8cdbf59a2acedfa0bf84d3eaa575b9f1d65c875beb",
+    "validation/p0_048/test_security_gate.py": "6f96bc0ff27f856b7b225794b71a6b9ee992674af574539a6b2360610bbb635c"
+  },
+  "results": {
+    "gitleaks_before_exit": 42,
+    "gitleaks_before_findings": 2,
+    "gitleaks_after_exit": 0,
+    "gitleaks_after_findings": 0,
+    "trivy_before_after_exit": 42,
+    "trivy_archived_high_findings": 4,
+    "gate_tests_passed": 17,
+    "real_scanner_controls_passed": 3,
+    "fresh_enabled_chart_high_findings": 4,
+    "deployment_qualified": false
+  }
+}

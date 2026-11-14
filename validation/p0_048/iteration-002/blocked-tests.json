@@ -1,0 +1,33 @@
+{
+  "scope": "Explicit reinterpretation of existing conditional early returns; no test source weakened",
+  "tests": [
+    {
+      "test": "aip-observe::sniffer_dog::t09_live_short_lived_process_is_seen_by_the_kernel_connector",
+      "reason": "NETLINK_CONNECTOR socket refused with EPERM",
+      "log": "conditional-sensor.log",
+      "status": "BLOCKED",
+      "rust_harness_reports": "ok after early return; excluded from executed-pass total"
+    },
+    {
+      "test": "aip-observe::sniffer_dog::t10_live_exec_replacement_is_delivered_as_a_kernel_exec_event",
+      "reason": "NETLINK_CONNECTOR socket refused with EPERM",
+      "log": "conditional-sensor.log",
+      "status": "BLOCKED",
+      "rust_harness_reports": "ok after early return; excluded from executed-pass total"
+    },
+    {
+      "test": "aip-observe::sniffer_dog::t15_live_kernel_event_loss_is_signalled_and_degrades_coverage",
+      "reason": "NETLINK_CONNECTOR socket refused with EPERM",
+      "log": "conditional-sensor.log",
+      "status": "BLOCKED",
+      "rust_harness_reports": "ok after early return; excluded from executed-pass total"
+    },
+    {
+      "test": "aip-edge::lifecycle::t_container_a_namespaced_workload_reports_a_pid_that_is_not_its_identity",
+      "reason": "unshare --pid --fork refused with EPERM",
+      "log": "conditional-pid-namespace.log",
+      "status": "BLOCKED",
+      "rust_harness_reports": "ok after early return; excluded from executed-pass total"
+    }
+  ]
+}

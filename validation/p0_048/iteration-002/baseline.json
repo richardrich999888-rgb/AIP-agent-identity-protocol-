@@ -1,0 +1,16 @@
+{
+  "parent_commit": "40f2c1bd003e5c40378fb7e91ec89b4de9a03fbf",
+  "reviewed_fix": "5c899356ccbaf11f3e2a87ec79408960aa312201",
+  "reviewed_pr_head": "9b8109884455e37a61ca7abef1bb7d78a39a860d",
+  "scope": "P0-048-B socket multiplicity only, not full native-sensor qualification",
+  "kernel": "6.18.57",
+  "architecture": "x86_64",
+  "cpus_visible": 9,
+  "baseline_file_sha256": {
+    "aip-standalone/aip-edge/src/effect.rs": "698d8a1836a5ce7628897bb80b340f098dd04bc71d1dad181fd496f8a6eca440",
+    "aip-standalone/aip-edge-observer/src/main.rs": "f1f4cc11da5f3bd9c8e6d6fda3ee69f968fdae3e291553843ad94e291804ce9a",
+    "aip-standalone/aip-observe/src/probe.rs": "854b55ba472606b1286731b4f2005799e4c334e965c226227039157ad82cb8ab",
+    "aip-standalone/aip-edge/tests/socket_duplicates.rs": "2e0ab74c8ab2bff55997956d529a891006f59bede8787066ada24e508148e05c",
+    "Cargo.lock": "03b5eb24895f17597ad47175215c2eb36bbf258c308d1ec28ca762ddac90e4cd"
+  }
+}

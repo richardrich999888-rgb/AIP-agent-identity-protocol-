@@ -1,0 +1,84 @@
+{
+  "scope": "aip-observe, aip-reconcile, aip-observe-verify full scoped run",
+  "blocked": [
+    {
+      "path": "aip-standalone/aip-observe/tests/cgroup_live.rs",
+      "test": "an_exec_sample_carries_the_execing_tasks_cgroup_id",
+      "status": "BLOCKED",
+      "rust_status": "ok via early return",
+      "reason": "tracefs unavailable; sched tracer not mounted"
+    },
+    {
+      "path": "aip-standalone/aip-observe/tests/fanotify.rs",
+      "test": "fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd",
+      "status": "BLOCKED",
+      "rust_status": "ok via early return",
+      "reason": "fanotify_init EPERM; CAP_SYS_ADMIN required"
+    },
+    {
+      "path": "aip-standalone/aip-observe/tests/fanotify.rs",
+      "test": "fa06_live_a_writer_that_exited_before_the_read_is_unbound",
+      "status": "BLOCKED",
+      "rust_status": "ok via early return",
+      "reason": "fanotify_init EPERM; CAP_SYS_ADMIN required"
+    },
+    {
+      "path": "aip-standalone/aip-observe/tests/gate10_xdp_evaluation.rs",
+      "test": "x10a_this_kernel_loads_and_executes_an_xdp_parser_without_attaching_it",
+      "status": "BLOCKED",
+      "rust_status": "ok via early return",
+      "reason": "BPF_PROG_LOAD EPERM before verifier evaluation"
+    },
+    {
+      "path": "aip-standalone/aip-observe/tests/sniffer_dog.rs",
+      "test": "t09_live_short_lived_process_is_seen_by_the_kernel_connector",
+      "status": "BLOCKED",
+      "rust_status": "ok via early return",
+      "reason": "NETLINK_CONNECTOR socket EPERM"
+    },
+    {
+      "path": "aip-standalone/aip-observe/tests/sniffer_dog.rs",
+      "test": "t10_live_exec_replacement_is_delivered_as_a_kernel_exec_event",
+      "status": "BLOCKED",
+      "rust_status": "ok via early return",
+      "reason": "NETLINK_CONNECTOR socket EPERM"
+    },
+    {
+      "path": "aip-standalone/aip-observe/tests/sniffer_dog.rs",
+      "test": "t15_live_kernel_event_loss_is_signalled_and_degrades_coverage",
+      "status": "BLOCKED",
+      "rust_status": "ok via early return",
+      "reason": "NETLINK_CONNECTOR socket EPERM"
+    },
+    {
+      "path": "aip-standalone/aip-observe/tests/socksend.rs",
+      "test": "sk07_live_a_loopback_send_is_reported_under_the_senders_pid_with_its_count",
+      "status": "BLOCKED",
+      "rust_status": "ok via early return",
+      "reason": "tracefs unavailable"
+    },
+    {
+      "path": "aip-standalone/aip-observe/tests/wiretap.rs",
+      "test": "wt10_live_loopback_handshake_is_captured_with_kernel_stamps_and_counted_loss",
+      "status": "BLOCKED",
+      "rust_status": "ok via early return",
+      "reason": "AF_PACKET socket EPERM; CAP_NET_RAW required"
+    }
+  ],
+  "failed": [
+    {
+      "path": "aip-standalone/aip-observe/tests/gate10_xdp_evaluation.rs",
+      "test": "x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused",
+      "status": "FAIL",
+      "reason": "BPF_PROG_LOAD EPERM, expected verifier EACCES with invalid-packet-access log; unchanged baseline reproduces same failure. Requires a supported disposable host permitting program load; do not relax current host restrictions."
+    }
+  ],
+  "ignored": [
+    {
+      "path": "aip-standalone/aip-observe/tests/throughput.rs",
+      "test": "observer_path_throughput",
+      "status": "NOT_RUN",
+      "reason": "Existing #[ignore]: release-only timing measurement; not a security pass or a performance result."
+    }
+  ]
+}

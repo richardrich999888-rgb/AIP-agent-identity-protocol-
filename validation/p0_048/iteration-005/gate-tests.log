@@ -1,0 +1,22 @@
+test_absent_evidence_is_an_error (__main__.SecurityGateTests.test_absent_evidence_is_an_error) ... ok
+test_changed_archival_bytes_fail_even_if_findings_look_the_same (__main__.SecurityGateTests.test_changed_archival_bytes_fail_even_if_findings_look_the_same) ... ok
+test_changed_inventory_is_not_accepted_by_its_old_fingerprint (__main__.SecurityGateTests.test_changed_inventory_is_not_accepted_by_its_old_fingerprint) ... ok
+test_changed_location_blocks (__main__.SecurityGateTests.test_changed_location_blocks) ... ok
+test_duplicate_result_is_not_silently_collapsed (__main__.SecurityGateTests.test_duplicate_result_is_not_silently_collapsed) ... ok
+test_exit_zero_with_findings_is_inconsistent (__main__.SecurityGateTests.test_exit_zero_with_findings_is_inconsistent) ... ok
+test_missing_expected_warning_is_not_a_clean_scan (__main__.SecurityGateTests.test_missing_expected_warning_is_not_a_clean_scan) ... ok
+test_missing_or_duplicate_fingerprint_fails (__main__.SecurityGateTests.test_missing_or_duplicate_fingerprint_fails) ... ok
+test_multiple_locations_fail (__main__.SecurityGateTests.test_multiple_locations_fail) ... ok
+test_multiple_runs_fail (__main__.SecurityGateTests.test_multiple_runs_fail) ... ok
+test_new_rule_at_the_same_archival_location_blocks (__main__.SecurityGateTests.test_new_rule_at_the_same_archival_location_blocks) ... ok
+test_original_findings_remain_visible_and_are_not_deployment_acceptance (__main__.SecurityGateTests.test_original_findings_remain_visible_and_are_not_deployment_acceptance) ... ok
+test_same_warning_in_a_new_manifest_blocks (__main__.SecurityGateTests.test_same_warning_in_a_new_manifest_blocks) ... ok
+test_scanner_operational_errors_fail_even_with_a_valid_report (__main__.SecurityGateTests.test_scanner_operational_errors_fail_even_with_a_valid_report) ... ok
+test_symlink_cannot_replace_the_archival_file (__main__.SecurityGateTests.test_symlink_cannot_replace_the_archival_file) ... ok
+test_unreviewed_scanner_version_fails (__main__.SecurityGateTests.test_unreviewed_scanner_version_fails) ... ok
+test_zero_result_scan_does_not_prove_the_archive_was_scanned (__main__.SecurityGateTests.test_zero_result_scan_does_not_prove_the_archive_was_scanned) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.110s
+
+OK

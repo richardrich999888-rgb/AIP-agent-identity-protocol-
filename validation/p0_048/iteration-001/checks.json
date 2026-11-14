@@ -1,0 +1,117 @@
+{
+  "scope": "Fresh portable component checks, not fresh sensor/framework execution or clean install",
+  "host": {
+    "os": "Linux",
+    "kernel": "6.18.57",
+    "python": "3.12.14",
+    "packages": {
+      "PyJWT": "2.13.0",
+      "cryptography": "50.0.0",
+      "httpx": "0.28.1"
+    }
+  },
+  "results": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "validation.enterprise.test_combined_contracts",
+        "validation.enterprise.test_packaging",
+        "validation.interoperability.test_spire_cli"
+      ],
+      "environment": {
+        "PYTHONPATH": "integrations/interoperability/src"
+      },
+      "started_utc": "2026-11-11T19:21:23.549407+00:00",
+      "exit_code": 1,
+      "log": "validation/p0_048/iteration-001/python-1.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "validation.enterprise.test_agent_harness",
+        "validation.enterprise.same_run_controls_test",
+        "validation.enterprise.test_sql_provisioning"
+      ],
+      "environment": {
+        "PYTHONPATH": "integrations/interoperability/src"
+      },
+      "started_utc": "2026-11-11T19:21:24.035984+00:00",
+      "exit_code": 1,
+      "log": "validation/p0_048/iteration-001/python-2.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "status": "BLOCKED",
+      "exit_code": null,
+      "reason": "cargo executable unavailable"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "integrations/interoperability/tests"
+      ],
+      "status": "BLOCKED",
+      "exit_code": 1,
+      "reason": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: No module named pytest"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "validation.enterprise.test_combined_contracts",
+        "validation.enterprise.test_packaging",
+        "validation.interoperability.test_spire_cli"
+      ],
+      "environment": {
+        "PYTHONPATH": "validation/enterprise:integrations/interoperability/src"
+      },
+      "exit_code": 0,
+      "log": "validation/p0_048/iteration-001/python-3.log",
+      "rerun_reason": "Match the repository harness import path; no source or assertion changed"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "validation.enterprise.test_agent_harness",
+        "validation.enterprise.same_run_controls_test",
+        "validation.enterprise.test_sql_provisioning"
+      ],
+      "environment": {
+        "PYTHONPATH": "validation/enterprise:integrations/interoperability/src"
+      },
+      "exit_code": 0,
+      "log": "validation/p0_048/iteration-001/python-4.log",
+      "rerun_reason": "Match the repository harness import path; no source or assertion changed"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "status": "FAILED_THEN_CORRECTED",
+      "reason": "Four Markdown hard-break lines had trailing spaces; stripped them before the final staged check. No product source changed."
+    }
+  ]
+}

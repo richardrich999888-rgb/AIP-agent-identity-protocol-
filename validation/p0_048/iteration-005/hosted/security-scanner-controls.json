@@ -1,0 +1,114 @@
+{
+  "status": "PASS",
+  "commands": [
+    {
+      "command": [
+        "/home/runner/work/_temp/p0-security-bin/trivy",
+        "fs",
+        "--scanners",
+        "misconfig",
+        "--severity",
+        "CRITICAL,HIGH",
+        "--ignorefile",
+        "",
+        "--skip-check-update",
+        "--exit-code",
+        "42",
+        "--format",
+        "sarif",
+        "--output",
+        "/tmp/p0-048-security-controls-jni5y_0e/trivy.sarif",
+        "."
+      ],
+      "exit_code": 42,
+      "expected_exit": 42
+    },
+    {
+      "command": [
+        "git",
+        "init",
+        "-q"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "command": [
+        "git",
+        "add",
+        "."
+      ],
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "command": [
+        "git",
+        "-c",
+        "user.name=Security control",
+        "-c",
+        "user.email=control@example.invalid",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "-qm",
+        "synthetic scanner control"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0
+    },
+    {
+      "command": [
+        "/home/runner/work/_temp/p0-security-bin/gitleaks",
+        "git",
+        "--redact",
+        "--exit-code",
+        "42",
+        "--report-format",
+        "json",
+        "--report-path",
+        "/tmp/p0-048-security-controls-jni5y_0e/gitleaks-control.json",
+        "."
+      ],
+      "exit_code": 42,
+      "expected_exit": 42
+    },
+    {
+      "command": [
+        "/home/runner/work/_temp/p0-security-bin/trivy",
+        "fs",
+        "--scanners",
+        "secret",
+        "--severity",
+        "CRITICAL,HIGH",
+        "--ignorefile",
+        "",
+        "--exit-code",
+        "42",
+        "--format",
+        "json",
+        "--output",
+        "/tmp/p0-048-security-controls-jni5y_0e/trivy-secret.json",
+        "/tmp/p0-048-security-controls-jni5y_0e/gitleaks-control"
+      ],
+      "exit_code": 42,
+      "expected_exit": 42
+    }
+  ],
+  "scope": "synthetic detection controls, no production acceptance",
+  "trivy_copy_control": {
+    "status": "PASS",
+    "archived_findings": 4,
+    "new_blocking_findings": 4
+  },
+  "gitleaks_new_commit_control": {
+    "status": "PASS",
+    "findings": 1,
+    "values_retained": false
+  },
+  "trivy_secret_control": {
+    "status": "PASS",
+    "findings": 1,
+    "values_retained": false
+  }
+}

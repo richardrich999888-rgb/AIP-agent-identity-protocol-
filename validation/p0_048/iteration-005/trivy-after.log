@@ -1,0 +1,9 @@
+2026-11-14T09:33:34Z	INFO	[misconfig] Misconfiguration scanning is enabled
+2026-11-14T09:33:34Z	INFO	[checks-client] Using existing checks from cache	path="/home/agent/.cache/trivy/policy/content"
+2026-11-14T09:33:36Z	INFO	[secret] Secret scanning is enabled
+2026-11-14T09:33:36Z	INFO	[secret] If your scanning is slow, please try '--scanners misconfig' to disable secret scanning
+2026-11-14T09:33:36Z	INFO	[secret] Please see https://trivy.dev/docs/v0.76/guide/scanner/secret#recommendation for faster secret detection
+2026-11-14T09:33:39Z	INFO	[npm] Run "npm install" to collect the license information of packages	dir="sdk/typescript/node_modules"
+2026-11-14T09:33:39Z	INFO	Suppressing dependencies for development and testing. To display them, try the '--include-dev-deps' flag.
+2026-11-14T09:33:39Z	INFO	Number of language-specific files	num=8
+2026-11-14T09:33:39Z	INFO	Detected config files	num=3

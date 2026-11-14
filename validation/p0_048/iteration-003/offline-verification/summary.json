@@ -1,0 +1,87 @@
+{
+  "scope": "SYNTHETIC event stimuli; real local procfs/pidfd measurement; signature integrity only",
+  "execution_verdict": "NOT_EVALUATED",
+  "coverage": "NOT_ESTABLISHED",
+  "independent_administration": false,
+  "verifier_sha256": "37021818ef8d4b26b999bcc5cb2a0846862e21f1ccbc58e23bb8c6587a657e5a",
+  "original_sha256": "30103802c4469c6f15b4c2950d504a7c064600aae532e9c2736a446183847a96",
+  "mutated_sha256": "173c12803fe8f68fa1116bc17de26cc037ccfa15b6847b1454de183c42c43542",
+  "changed_bytes": 1,
+  "checks": [
+    {
+      "label": "original-signature-only",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "synthetic-test-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "85f38605d1a7b4782670ffa0d4178c94323cabcf11e2aaaa41f3126a5e102543",
+        "--batches",
+        "../validation/p0_048/iteration-003/originals/batches.jsonl",
+        "--json"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "missing-health-refused",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "synthetic-test-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "85f38605d1a7b4782670ffa0d4178c94323cabcf11e2aaaa41f3126a5e102543",
+        "--batches",
+        "../validation/p0_048/iteration-003/originals/batches.jsonl",
+        "--json",
+        "--health",
+        "../validation/p0_048/iteration-003/originals/health.jsonl"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2,
+      "status": "PASS"
+    },
+    {
+      "label": "one-byte-tamper",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "synthetic-test-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "85f38605d1a7b4782670ffa0d4178c94323cabcf11e2aaaa41f3126a5e102543",
+        "--batches",
+        "../validation/p0_048/iteration-003/offline-verification/MUTATED-one-byte-batches.jsonl",
+        "--json"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "status": "PASS"
+    },
+    {
+      "label": "wrong-anchor",
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/aip-observe-verify",
+        "--observer-id",
+        "synthetic-test-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "84f38605d1a7b4782670ffa0d4178c94323cabcf11e2aaaa41f3126a5e102543",
+        "--batches",
+        "../validation/p0_048/iteration-003/originals/batches.jsonl",
+        "--json"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,33 @@
+{
+  "command": [
+    "env",
+    "P0_048_RETAIN_DIR=/workspace/scratch/8cbb8ab6ce9d/vanian/validation/p0_048/iteration-002/originals",
+    "python3",
+    "validation/p0_048/socket_churn.py",
+    "--report",
+    "validation/p0_048/iteration-002/fstat-churn-metrics.json",
+    "--",
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "aip-observe",
+    "--test",
+    "socket_multiplicity",
+    "--",
+    "--nocapture"
+  ],
+  "started_utc": "2026-11-11T19:56:55.994866+00:00",
+  "elapsed_seconds": 55.12,
+  "exit_code": 0,
+  "log": "validation/p0_048/iteration-002/fstat-churn.log",
+  "log_sha256": "d55e5b1befce0c80e696615c3346f5d73e1d46101a7319d04d896389b98eefdc",
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "rust_version": "1.99.1"
+}

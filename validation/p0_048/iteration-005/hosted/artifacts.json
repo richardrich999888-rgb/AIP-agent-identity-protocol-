@@ -1,0 +1,67 @@
+{
+  "security": {
+    "artifacts": [
+      {
+        "id": 14108083830,
+        "name": "gitleaks-results.sarif",
+        "size_in_bytes": 6844,
+        "url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/14108083830",
+        "archive_download_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/14108083830/zip",
+        "expired": false,
+        "created_at": "2026-11-14T09:39:18Z",
+        "expires_at": "2027-02-12T09:39:07Z",
+        "updated_at": "2026-11-14T09:39:18Z",
+        "digest": "sha256:bc6c13eaa4c9f0be3ca389c3593128f63bd2302dfb36a0b2daf291d2ce9c3330",
+        "workflow_run": {
+          "id": 43581555606,
+          "repository_id": 1227100465,
+          "head_repository_id": 1227100465,
+          "head_branch": "codex/p0-048-snifferdog-enterprise-assurance",
+          "head_sha": "ce7925c649fe3268ef0ba40b321058216c5e0c27"
+        }
+      },
+      {
+        "id": 14108058919,
+        "name": "trivy-report",
+        "size_in_bytes": 3121,
+        "url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/14108058919",
+        "archive_download_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/14108058919/zip",
+        "expired": false,
+        "created_at": "2026-11-14T09:39:19Z",
+        "expires_at": "2027-02-12T09:39:07Z",
+        "updated_at": "2026-11-14T09:39:19Z",
+        "digest": "sha256:52d1e798d77955cd83d70063b79c7dede7278199e71f40629f4c8d5296e5724c",
+        "workflow_run": {
+          "id": 43581555606,
+          "repository_id": 1227100465,
+          "head_repository_id": 1227100465,
+          "head_branch": "codex/p0-048-snifferdog-enterprise-assurance",
+          "head_sha": "ce7925c649fe3268ef0ba40b321058216c5e0c27"
+        }
+      }
+    ]
+  },
+  "native": {
+    "artifacts": [
+      {
+        "id": 14108183732,
+        "name": "p0-048-native-43581555600",
+        "size_in_bytes": 19889,
+        "url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/14108183732",
+        "archive_download_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/14108183732/zip",
+        "expired": false,
+        "created_at": "2026-11-14T09:39:43Z",
+        "expires_at": "2026-12-14T09:39:42Z",
+        "updated_at": "2026-11-14T09:39:43Z",
+        "digest": "sha256:74fd24c0dc9c40885065721e86b553e7fcead750b515f31d30abe05dea54fcdf",
+        "workflow_run": {
+          "id": 43581555600,
+          "repository_id": 1227100465,
+          "head_repository_id": 1227100465,
+          "head_branch": "codex/p0-048-snifferdog-enterprise-assurance",
+          "head_sha": "ce7925c649fe3268ef0ba40b321058216c5e0c27"
+        }
+      }
+    ]
+  }
+}

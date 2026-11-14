@@ -74,6 +74,37 @@ const DECLARED: [SourceMechanism; 2] = [
 /// TCP `ESTABLISHED`, from the kernel socket table.
 const TCP_ESTABLISHED: u8 = aip_observe::tcp_state::ESTABLISHED;
 
+/// One effect per distinct kernel socket, and how many rows were repeats.
+///
+/// `/proc/net/tcp` is not an atomic snapshot. The kernel produces it through
+/// `seq_file` across several `read()` calls and resumes each call by position
+/// in the socket hash table, so when other sockets are created or closed
+/// between those calls the same row can be emitted twice (issue #18). The
+/// probe joins that table to the instance's descriptors by inode. Before
+/// P0-048 a repeated row survived that join, and this observer emitted one
+/// observation per row. Each observation becomes a record, and the
+/// effect layer counts records, so one connection read as two
+/// corroborations whenever the host was busy.
+///
+/// Two rows are the same socket when every field the table reports for it
+/// is equal: protocol, local and remote endpoint, state and inode. Rows that
+/// share an inode but differ in state are **kept**: the socket changed state
+/// between two reads, and both are things the kernel said. Order is preserved
+/// and the first occurrence is kept, so the result is deterministic.
+/// The shared probe now deduplicates too; this remains a consumer-side guard.
+fn distinct_rows(effects: Vec<ObservedEffect>) -> (Vec<ObservedEffect>, usize) {
+    let mut kept: Vec<ObservedEffect> = Vec::with_capacity(effects.len());
+    let mut repeats = 0usize;
+    for e in effects {
+        if kept.contains(&e) {
+            repeats += 1;
+        } else {
+            kept.push(e);
+        }
+    }
+    (kept, repeats)
+}
+
 fn main() {
     let args = match parse_args() {
         Ok(a) => a,
@@ -270,7 +301,7 @@ impl Observer {
         // let anyone interpret. So the observer attests an empty batch: "I
         // looked, over this window, and there was nothing of this instance to
         // see." Availability, not occurrence.
-        let measured = match probe.observe_sockets(pid) {
+        let measured = match probe.observe_sockets_detailed(pid) {
             Ok(v) => Some(v),
             // Two distinct absences, both recorded rather than raised:
             // `ProcessNotVisible` is "there is nothing at this pid" (exited,
@@ -283,7 +314,7 @@ impl Observer {
             | Err(aip_observe::ProbeError::InstanceEnded { .. }) => None,
             Err(e) => return Err(format!("{e}")),
         };
-        let Some((process, effects, _malformed)) = measured else {
+        let Some((process, effects, _malformed, probe_repeated_rows)) = measured else {
             let to = now_ms().max(from + 1);
             let batch = probe.batch(id, from, to, vec![]);
             let attested = signer.attest(batch).map_err(|e| format!("{e:?}"))?;
@@ -301,6 +332,8 @@ impl Observer {
             claim.as_ref(),
             wall,
         )];
+        let (effects, repeated_rows) = distinct_rows(effects);
+        let repeated_rows = probe_repeated_rows + repeated_rows;
         let mut established = 0usize;
         for e in effects {
             if matches!(
@@ -325,8 +358,11 @@ impl Observer {
         let batch = probe.batch(id, from, to, observations);
         let attested = signer.attest(batch).map_err(|e| format!("{e:?}"))?;
         append_json(&self.args.dir.join(contract::BATCHES_JSONL), &attested)?;
+        // The repeat count is reported, not hidden: a non-zero value is the
+        // kernel table being read under churn, and it is the evidence that
+        // the deduplication above is doing something.
         Ok(format!(
-            "observed sequence {} established {established}",
+            "observed sequence {} established {established} repeated-rows {repeated_rows}",
             attested.sequence
         ))
     }
@@ -388,4 +424,85 @@ fn append_json<T: serde::Serialize>(path: &Path, value: &T) -> Result<(), String
         .open(path)
         .map_err(|e| format!("{}: {e}", path.display()))?;
     f.write_all(&line).map_err(|e| e.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use aip_observe::SocketEndpoint;
+
+    fn ep(port: u16) -> SocketEndpoint {
+        let mut addr = [0u8; 16];
+        addr[..4].copy_from_slice(&[127, 0, 0, 1]);
+        SocketEndpoint {
+            addr,
+            is_v6: false,
+            port,
+        }
+    }
+
+    fn row(local: u16, remote: u16, state: u8, inode: u64) -> ObservedEffect {
+        ObservedEffect::SocketObserved {
+            protocol: SocketProtocol::Tcp,
+            local: ep(local),
+            remote: ep(remote),
+            state,
+            inode,
+        }
+    }
+
+    #[test]
+    fn a_row_the_kernel_table_repeated_is_one_socket() {
+        // Exactly the shape captured in issue #18: one socket, same inode,
+        // same endpoints, same state, reported twice by one table read.
+        let r = row(51406, 41879, TCP_ESTABLISHED, 68001);
+        let (kept, repeats) = distinct_rows(vec![r.clone(), r.clone()]);
+        assert_eq!(kept, vec![r]);
+        assert_eq!(repeats, 1);
+    }
+
+    #[test]
+    fn many_repeats_of_one_socket_still_make_one() {
+        let r = row(51406, 41879, TCP_ESTABLISHED, 68001);
+        let (kept, repeats) = distinct_rows(vec![r.clone(); 4]);
+        assert_eq!(kept.len(), 1);
+        assert_eq!(repeats, 3);
+    }
+
+    #[test]
+    fn two_genuinely_different_sockets_are_both_kept() {
+        // Two connections to the same endpoint are two kernel facts. Merging
+        // them would undercount, which is a different error, not a fix.
+        let a = row(51406, 41879, TCP_ESTABLISHED, 68001);
+        let b = row(51407, 41879, TCP_ESTABLISHED, 68002);
+        let (kept, repeats) = distinct_rows(vec![a.clone(), b.clone()]);
+        assert_eq!(kept, vec![a, b]);
+        assert_eq!(repeats, 0);
+    }
+
+    #[test]
+    fn one_socket_seen_in_two_states_keeps_both_rows() {
+        // A state change between two reads: both rows are what the kernel
+        // said. Only the ESTABLISHED one can ever support the effect.
+        let est = row(51406, 41879, TCP_ESTABLISHED, 68001);
+        let wait = row(51406, 41879, 8, 68001);
+        let (kept, repeats) = distinct_rows(vec![est.clone(), wait.clone()]);
+        assert_eq!(kept, vec![est, wait]);
+        assert_eq!(repeats, 0);
+    }
+
+    #[test]
+    fn order_is_preserved_and_the_first_occurrence_is_kept() {
+        let a = row(1, 9, TCP_ESTABLISHED, 1);
+        let b = row(2, 9, TCP_ESTABLISHED, 2);
+        let (kept, _) = distinct_rows(vec![a.clone(), b.clone(), a.clone(), b.clone()]);
+        assert_eq!(kept, vec![a, b]);
+    }
+
+    #[test]
+    fn non_socket_effects_pass_through() {
+        let (kept, repeats) = distinct_rows(vec![ObservedEffect::ProcessPresent]);
+        assert_eq!(kept, vec![ObservedEffect::ProcessPresent]);
+        assert_eq!(repeats, 0);
+    }
 }
