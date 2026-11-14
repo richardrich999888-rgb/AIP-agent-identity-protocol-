@@ -248,6 +248,7 @@ fn cfg(w: &World) -> Config {
         rag_k: 3,
         approvers: w.approvers.clone(),
         approval_policy: None,
+        require_teaching_review: false,
         instruments: w.instruments.clone(),
     }
 }
@@ -541,6 +542,66 @@ fn untrusted_approver_makes_the_capability_invisible() {
         )
         .unwrap();
     assert!(!matches!(r.strategy, Strategy::Capability { .. }));
+}
+
+#[test]
+fn required_teaching_review_refuses_legacy_at_use_time() {
+    let w = world(None);
+    let m = models("{}");
+    let mut c = cfg(&w);
+    c.require_teaching_review = true;
+    let rt = Runtime::new(c, &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let r = rt
+        .invoke(
+            &principal("koravi-process", Classification::Restricted),
+            &w.store.0[0].capability.id,
+            IR_TASK,
+        )
+        .unwrap();
+    assert!(matches!(r.outcome, Outcome::Refused { .. }));
+    assert_eq!(r.cost.model_calls, 0);
+}
+
+#[test]
+fn signed_review_is_verified_at_use_time_without_model_calls() {
+    let (mut w, mut c) = policy_world();
+    let key = aip_crypto::generate_ed25519_keypair();
+    let grant = c
+        .approval_policy
+        .as_mut()
+        .unwrap()
+        .authorities
+        .values_mut()
+        .next()
+        .unwrap();
+    grant.public_key_sha256 = hex::encode(aip_crypto::sha256(&key.public_key));
+    let r = &mut w.store.0[0];
+    let mut a = Approval::sign_authorized(
+        &r.capability_hash,
+        r.validation.as_ref().unwrap(),
+        &grant.expert_id,
+        false,
+        3,
+        &key.private_key,
+        grant.hash(),
+    )
+    .unwrap();
+    a.bind_teaching_review(&"a".repeat(64), &key.private_key)
+        .unwrap();
+    r.approval = Some(a);
+    c.approvers.insert(grant.expert_id.clone(), key.public_key);
+    c.require_teaching_review = true;
+    let m = models("{}");
+    let p = principal("koravi-process", Classification::Restricted);
+    let id = w.store.0[0].capability.id.clone();
+    let rt = Runtime::new(c.clone(), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    assert_eq!(label(&rt.invoke(&p, &id, IR_TASK).unwrap()), "PASS");
+    w.store.0[0].approval.as_mut().unwrap().teaching_review_hash = Some("b".repeat(64));
+    let rt = Runtime::new(c, &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let result = rt.invoke(&p, &id, IR_TASK).unwrap();
+    assert!(matches!(result.outcome, Outcome::Refused { .. }));
+    assert_eq!(result.cost.model_calls, 0);
+    assert!(m.0.seen.borrow().is_empty());
 }
 
 #[test]

@@ -116,6 +116,9 @@ pub fn check(
         .filter(|r| r.passed)
         .ok_or("validation missing or failed")?;
     let approval = record.approval.as_ref().ok_or("approval missing")?;
+    if approval.teaching_review_hash.is_some() && approval.authority_hash.is_none() {
+        return Err("teaching approval lacks authority binding");
+    }
     if report.capability_hash != record.capability_hash
         || approval.capability_hash != record.capability_hash
         || approval.validation_report_hash != report_hash(report)

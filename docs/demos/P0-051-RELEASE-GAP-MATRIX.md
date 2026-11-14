@@ -171,3 +171,25 @@ passing, while the control remains rejected at 11/12. Counts overlap.
 No qualifying rehearsal or clean-machine credit. Release **NOT READY**. Next:
 bind this review digest into the expert approval signature and enforce fresh
 replay at native approval. Existing native approval does not consume it yet.
+
+## Iteration 6 — signed teaching-review binding (14 November 2026)
+
+Parent `940948ec30f754558672f79a2fa6693ed89ec319` re-fetched; main, teaching,
+contracts and Agent Zero pass; Security fails. Prior temporary checkout/toolchain
+was gone and restored; that is not a clean-machine acceptance test.
+
+C2 review-binding item implemented: native approval verifies a pinned review,
+matching stored session/capability/current source, independently replays the
+signed suite and mapped examples, then emits a v3 Ed25519 approval committing
+the review digest. require_teaching_review enforces binding on approval,
+activation and use. No implicit activation. Original v1/v2 payloads preserved.
+
+Tests include OpenSSL verification and one-byte tampering, recomputed-hash forged
+PASS/example/suite/tenant attacks, source/map mutation, missing session/policy/
+review, unauthorized authority, changed stored validation and stripped bindings.
+Record bytes remain unchanged on refusals. Full evidence will be retained under
+`evidence/p0-051-iteration-6/`. Operator-action authentication, policy storage,
+transactions, packs, UI/API, clean-host kit and full rehearsal gates remain OPEN.
+Release **NOT READY**. Next: authenticate lifecycle activation/revocation actions.
+
+Concurrent documentation-only `f9ebf207b962d2a2fe25873dd8469ff1118e6d9e` was reviewed and preserved by fast-forward. Its Helm triage classifies, but does not remediate, the four HIGH findings. No tested runtime changed in that reconciliation.

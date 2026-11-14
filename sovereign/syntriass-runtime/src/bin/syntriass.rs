@@ -84,6 +84,8 @@ struct FileConfig {
     /// Optional strict policy. Empty authorities deny every approval.
     #[serde(default)]
     approval_policy: Option<syntriass_runtime::capability::authority::ApprovalPolicy>,
+    #[serde(default)]
+    require_teaching_review: bool,
     /// expert id → public key hex (trust anchors for validation suites)
     #[serde(default)]
     experts: BTreeMap<String, String>,
@@ -144,6 +146,15 @@ fn current_evidence(c: &FileConfig, corpus: &SqliteCorpus, rec: &Record) -> Resu
 }
 
 fn approval_current(c: &FileConfig, corpus: &SqliteCorpus, rec: &Record) -> Result<(), String> {
+    if c.require_teaching_review
+        && rec
+            .approval
+            .as_ref()
+            .and_then(|a| a.teaching_review_hash.as_ref())
+            .is_none()
+    {
+        return Err("signed teaching review required".into());
+    }
     syntriass_runtime::capability::authority::check(
         rec,
         &keys(&c.approvers),
@@ -740,7 +751,17 @@ fn main() {
             let trusted = c.approvers.get(&k.id).unwrap_or_else(|| die(format!("{} is not a configured approver", k.id)));
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
             current_evidence(&c, &corpus, &record(&c, req(&args, "--hash"))).unwrap_or_else(|e| die(e));
-            learning::approve_record_with_policy(&mut store, req(&args, "--hash"), &k.id, &hexkey(&k.private_hex), &hexkey(trusted), args.iter().any(|a| a == "--consequential"), learning::ApprovalContext { at_ms: learning::now_ms(), policy: c.approval_policy.as_ref() })
+            let review = match (opt(&args, "--review"), opt(&args, "--review-digest")) {
+                (Some(dir), Some(pin)) => {
+                    if c.approval_policy.is_none() { die("teaching approval requires authority policy"); }
+                    let rec = record(&c, req(&args, "--hash"));
+                    Some(syntriass_runtime::capability::teaching_review::verify(Path::new(dir), pin, &rec,
+                        &keys(&c.experts), &corpus, &c.state.join("teach")).unwrap_or_else(|e| die(e)))
+                },
+                (None, None) if !c.require_teaching_review => None,
+                _ => die("--review and --review-digest are required together; signed teaching review required"),
+            };
+            learning::approve_record_with_policy(&mut store, req(&args, "--hash"), &k.id, &hexkey(&k.private_hex), &hexkey(trusted), args.iter().any(|a| a == "--consequential"), learning::ApprovalContext { at_ms: learning::now_ms(), policy: c.approval_policy.as_ref(), review: review.as_ref() })
                 .unwrap_or_else(|e| die(e));
             println!("{}", json!({"hash": req(&args, "--hash"), "state": "APPROVED", "approver": k.id}));
         }
@@ -876,6 +897,7 @@ fn main() {
                 rag_k: c.rag_k,
                 approvers,
                 approval_policy: c.approval_policy.clone(),
+                require_teaching_review: c.require_teaching_review,
                 instruments: keys(&c.instruments),
             };
             let rt = Runtime::new(rt_cfg, &corpus, &sidecar, &pool, &store, &meter);

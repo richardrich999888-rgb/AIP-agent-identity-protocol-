@@ -78,6 +78,8 @@ pub struct Approval {
     pub decided_at_ms: u64,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub authority_hash: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub teaching_review_hash: Option<String>,
     pub signature_hex: String,
 }
 
@@ -115,6 +117,7 @@ impl Approval {
             consequential,
             decided_at_ms: at,
             authority_hash: None,
+            teaching_review_hash: None,
             signature_hex: hex::encode(sig),
         })
     }
@@ -146,7 +149,35 @@ impl Approval {
     }
 
     /// v1 bytes are unchanged; v2 additionally binds the exact grant hash.
+    pub fn bind_teaching_review(&mut self, hash: &str, private_key: &[u8]) -> Result<(), String> {
+        if self.authority_hash.is_none() {
+            return Err("teaching approval requires authority policy".into());
+        }
+        self.teaching_review_hash = Some(hash.into());
+        self.signature_hex = hex::encode(
+            aip_crypto::sign_ed25519_raw(private_key, &self.payload())
+                .map_err(|e| format!("{e:?}"))?,
+        );
+        Ok(())
+    }
+
     pub fn payload(&self) -> Vec<u8> {
+        if let Some(review) = &self.teaching_review_hash {
+            let mut bytes = b"syntriass-capability-approval/v3\n".to_vec();
+            bytes.extend(
+                serde_json::to_vec(&(
+                    &self.capability_hash,
+                    &self.validation_report_hash,
+                    &self.approver_id,
+                    self.consequential,
+                    self.decided_at_ms,
+                    &self.authority_hash,
+                    review,
+                ))
+                .expect("serializable approval"),
+            );
+            return bytes;
+        }
         match &self.authority_hash {
             None => Self::signed_bytes(
                 &self.capability_hash,

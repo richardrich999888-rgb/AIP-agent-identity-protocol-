@@ -99,3 +99,40 @@ Do not derive a trusted pin from an untrusted archive. The digest still needs to
 be bound into the expert approval signature and checked at the native approval
 boundary. Existing `cap-approve` does not consume this review yet; C2 remains
 partial. A saved result.json PASS is neither a signing input nor a trust anchor.
+
+## Native signed teaching approval (14 November 2026)
+
+Enable `"require_teaching_review": true` alongside the strict `approval_policy`
+and configured expert/approver public keys. Prepare the review using the existing
+fresh session scoreboard. In the SAME installation, ingest its original source,
+propose its bound capability and validate it against the same signed suite. The
+stored teaching session must still match. Then the authorized expert executes:
+
+```sh
+syntriass cap-approve --config CFG --hash CAP_HASH --key EXPERT_KEYFILE \
+  --review REVIEW_FOLDER --review-digest EXPECTED_REVIEW_SHA256
+syntriass cap-activate --config CFG --hash CAP_HASH --actor OPERATOR --reason DEMO
+```
+
+Approval performs native replay of the signed independent suite and mapped
+original examples; saved PASS fields cannot substitute for replay. All review
+files are read and checked against the selected digest. The full source, stored
+session, capability/scope, current corpus, evaluator trust and stored validation
+must agree. Replay timing may differ; every other validation-report field must
+match. A validation change after verification is refused before persistence.
+
+The v3 Ed25519 approval signs the capability hash, exact stored validation-report
+hash, approver identity, consequential flag, approval time, authority-grant hash
+and teaching-review digest. That digest commits the original document, cited
+answers and example map. Approval leaves state APPROVED; activation is explicit.
+Removing/changing the review or authority binding breaks the signature. With
+require_teaching_review enabled, legacy approvals cannot activate or execute.
+Legacy v1/v2 signatures retain their original bytes for compatible deployments.
+
+The expert must review the committed document/corrections/map: native validation
+replays the bounded capability, not the Python draft/compiler pipeline. The
+reviewer's declaration string alone is not authentication; the configured expert
+key signs approval. In-process primitives, installation policy, clock and
+owner-controlled files remain trusted. Operator actor strings still lack action
+authentication, and concurrent multi-file transactions are not qualified. This
+closes review-digest signature/native-replay binding, not all C2 or release gates.

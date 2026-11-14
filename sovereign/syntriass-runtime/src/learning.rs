@@ -145,11 +145,13 @@ pub fn approve_record(
         ApprovalContext {
             at_ms,
             policy: None,
+            review: None,
         },
     )
 }
 
 pub struct ApprovalContext<'a> {
+    pub review: Option<&'a crate::capability::teaching_review::VerifiedReview>,
     pub at_ms: u64,
     pub policy: Option<&'a ApprovalPolicy>,
 }
@@ -170,7 +172,7 @@ pub fn approve_record_with_policy(
         .validation
         .clone()
         .ok_or_else(|| err(PortErrorKind::ContractViolation, "not validated"))?;
-    let a = match context.policy {
+    let mut a = match context.policy {
         Some(policy) => {
             let grant = policy
                 .grant(approver_id)
@@ -198,6 +200,22 @@ pub fn approve_record_with_policy(
         ),
     }
     .map_err(|e| err(PortErrorKind::ContractViolation, e))?;
+    if let Some(review) = context.review {
+        if review.capability_hash() != hash {
+            return Err(err(
+                PortErrorKind::ContractViolation,
+                "review capability mismatch",
+            ));
+        }
+        if review.validation_report_hash() != crate::capability::lifecycle::report_hash(&report) {
+            return Err(err(
+                PortErrorKind::ContractViolation,
+                "stored validation changed after review verification",
+            ));
+        }
+        a.bind_teaching_review(review.digest(), private_key)
+            .map_err(|e| err(PortErrorKind::ContractViolation, e))?;
+    }
     rec.approve(a, public_key, at_ms).map_err(life)?;
     store.put(&rec)
 }

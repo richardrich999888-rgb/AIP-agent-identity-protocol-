@@ -43,6 +43,8 @@ jobs:
         with:
           python-version: '3.12'
       - name: Teaching answer policy regressions
+        env:
+          SYNTRIASS_TEACH_APPROVAL_EVIDENCE: ${{ runner.temp }}/teaching-approval-evidence
         run: |
           python3 -m pip install pytest==8.3.5
           python3 -m pytest -q research/capability-learning/tests/test_exclusion_terms.py \
@@ -51,6 +53,7 @@ jobs:
             research/capability-learning/tests/test_session_scoreboard.py \
             research/capability-learning/tests/test_example_mapping.py \
             research/capability-learning/tests/test_teaching_review.py \
+            research/capability-learning/tests/test_signed_teaching_review.py \
             research/capability-learning/tests/test_holdout_questions.py \
             research/capability-learning/tests/test_apply_answers.py \
             research/capability-learning/tests/test_question_generator.py
@@ -72,4 +75,5 @@ jobs:
             ${{ runner.temp }}/sandbox-evidence
             ${{ runner.temp }}/session-scoreboard-evidence
             ${{ runner.temp }}/lifecycle-isolation-evidence
+            ${{ runner.temp }}/teaching-approval-evidence
           if-no-files-found: error
