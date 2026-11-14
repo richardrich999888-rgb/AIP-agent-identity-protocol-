@@ -191,9 +191,9 @@ pub struct ProcfsProbe {
     /// on the host, and hashing a large executable for each event never
     /// catches up; the cache makes the cost one hash per (instance, image).
     /// A hit requires the same start tick (the same instance) **and** the
-    /// same inode, size and modification time of the file `/proc/<pid>/exe`
-    /// resolves to (the same image); any change re-hashes. The pidfd anchor
-    /// around every measurement is unchanged.
+    /// same opened-file device, inode, size, modification and change times.
+    /// The descriptor and current executable/placement must still agree at
+    /// the end of the read. A pidfd protects lifetime, not an exec boundary.
     #[cfg(target_os = "linux")]
     image_cache: std::cell::RefCell<HashMap<u32, CachedImage>>,
 }
@@ -213,31 +213,61 @@ struct LifecycleBinding {
 #[cfg(any(target_os = "linux", test))]
 struct CachedImage {
     pid_start_time_ticks: u64,
-    exe_ino: u64,
-    exe_size: u64,
-    exe_mtime: (i64, i64),
+    fingerprint: ImageFingerprint,
     exe_path: String,
     exe_content_sha256: [u8; 32],
+}
+
+/// Metadata of the actual opened image, not a separately resolved path.
+/// This is an ordinary trusted-kernel consistency check, not fs-verity or
+/// proof of the process's memory contents or image at an earlier event time.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg(any(target_os = "linux", test))]
+struct ImageFingerprint {
+    device: u64,
+    inode: u64,
+    size: u64,
+    mtime: (i64, i64),
+    ctime: (i64, i64),
+}
+
+#[cfg(target_os = "linux")]
+impl ImageFingerprint {
+    fn from_metadata(meta: &std::fs::Metadata) -> Self {
+        use std::os::unix::fs::MetadataExt;
+        Self {
+            device: meta.dev(),
+            inode: meta.ino(),
+            size: meta.len(),
+            mtime: (meta.mtime(), meta.mtime_nsec()),
+            ctime: (meta.ctime(), meta.ctime_nsec()),
+        }
+    }
+
+    fn of(file: &std::fs::File) -> Result<Self, ProbeError> {
+        file.metadata()
+            .map(|meta| Self::from_metadata(&meta))
+            .map_err(|error| ProbeError::Unavailable {
+                field: "exe_metadata",
+                reason: error.to_string(),
+            })
+    }
 }
 
 #[cfg(any(target_os = "linux", test))]
 impl CachedImage {
     /// Does a cached hash still describe what `/proc/<pid>/exe` now resolves
     /// to, for the same instance? Every field must agree: a recycled pid
-    /// (other start tick), an exec of another file (other inode), a rewrite
-    /// of the file (other size or mtime) or another path all miss.
+    /// (other start tick), another file/device, changed content metadata or
+    /// another path all miss. Equal metadata is not a hostile-filesystem proof.
     fn still_describes(
         &self,
         pid_start_time_ticks: u64,
-        exe_ino: u64,
-        exe_size: u64,
-        exe_mtime: (i64, i64),
+        fingerprint: &ImageFingerprint,
         exe_path: &str,
     ) -> bool {
         self.pid_start_time_ticks == pid_start_time_ticks
-            && self.exe_ino == exe_ino
-            && self.exe_size == exe_size
-            && self.exe_mtime == exe_mtime
+            && self.fingerprint == *fingerprint
             && self.exe_path == exe_path
     }
 }
@@ -362,10 +392,40 @@ impl ProcfsProbe {
 
     #[cfg(target_os = "linux")]
     fn read_process(&self, pid: u32) -> Result<ObservedProcess, ProbeError> {
+        self.read_process_after_snapshot(pid, || {})
+    }
+
+    #[cfg(target_os = "linux")]
+    fn read_process_after_snapshot(
+        &self,
+        pid: u32,
+        after_snapshot: impl FnOnce(),
+    ) -> Result<ObservedProcess, ProbeError> {
+        let result = self.read_process_snapshot(pid, after_snapshot);
+        if result.is_err() {
+            // An unavailable or changing snapshot must not leave a usable
+            // cached image behind for a later observation of this PID.
+            self.image_cache.borrow_mut().remove(&pid);
+        }
+        result
+    }
+
+    #[cfg(target_os = "linux")]
+    fn read_process_snapshot(
+        &self,
+        pid: u32,
+        after_snapshot: impl FnOnce(),
+    ) -> Result<ObservedProcess, ProbeError> {
         use aip_core::execution_binding::{
-            hash_file_contents, parse_boot_id, parse_proc_stat_start_time,
+            hash_open_file_contents, parse_boot_id, parse_proc_stat_start_time,
         };
-        use std::os::unix::fs::MetadataExt;
+        use std::os::fd::AsRawFd;
+        // Resolve the context pathname from the descriptor we actually hash.
+        let image_path = |file: &std::fs::File| {
+            std::fs::read_link(format!("/proc/self/fd/{}", file.as_raw_fd()))
+                .map(|path| path.to_string_lossy().into_owned())
+                .map_err(|_| ProbeError::ProcessNotVisible { pid })
+        };
         let stat = std::fs::read_to_string(format!("/proc/{pid}/stat"))
             .map_err(|_| ProbeError::ProcessNotVisible { pid })?;
         let pid_start_time_ticks = parse_proc_stat_start_time(&stat)?;
@@ -377,46 +437,48 @@ impl ProcfsProbe {
                 }
             })?;
         let boot_id = parse_boot_id(&boot_text)?;
+        let container = aip_core::execution_binding::collect_container_identity(pid);
         let exe_link = std::path::PathBuf::from(format!("/proc/{pid}/exe"));
-        let exe_path = std::fs::read_link(&exe_link)
-            .map_err(|_| ProbeError::ProcessNotVisible { pid })?
-            .to_string_lossy()
-            .into_owned();
-        // `metadata` follows the link: the image file's own inode, size and
-        // modification time, read from the kernel, not from the path.
-        let meta =
-            std::fs::metadata(&exe_link).map_err(|_| ProbeError::ProcessNotVisible { pid })?;
-        let (exe_ino, exe_size, exe_mtime) =
-            (meta.ino(), meta.len(), (meta.mtime(), meta.mtime_nsec()));
+        let mut image =
+            std::fs::File::open(&exe_link).map_err(|_| ProbeError::ProcessNotVisible { pid })?;
+        let exe_path = image_path(&image)?;
+        let fingerprint = ImageFingerprint::of(&image)?;
+        // Production supplies a no-op. Tests coordinate a genuine child exec
+        // here to exercise the exact interleaving without a timing lottery.
+        after_snapshot();
         let cached = self.image_cache.borrow().get(&pid).cloned();
         let exe_content_sha256 = match cached {
-            Some(c)
-                if c.still_describes(
-                    pid_start_time_ticks,
-                    exe_ino,
-                    exe_size,
-                    exe_mtime,
-                    &exe_path,
-                ) =>
-            {
+            Some(c) if c.still_describes(pid_start_time_ticks, &fingerprint, &exe_path) => {
                 c.exe_content_sha256
             }
-            _ => {
-                let sha = hash_file_contents(&exe_link)?;
-                self.image_cache.borrow_mut().insert(
-                    pid,
-                    CachedImage {
-                        pid_start_time_ticks,
-                        exe_ino,
-                        exe_size,
-                        exe_mtime,
-                        exe_path: exe_path.clone(),
-                        exe_content_sha256: sha,
-                    },
-                );
-                sha
-            }
+            _ => hash_open_file_contents(&mut image)?,
         };
+        let current_image =
+            std::fs::File::open(&exe_link).map_err(|_| ProbeError::ProcessNotVisible { pid })?;
+        let end_stat = std::fs::read_to_string(format!("/proc/{pid}/stat"))
+            .map_err(|_| ProbeError::ProcessNotVisible { pid })?;
+        let end_container = aip_core::execution_binding::collect_container_identity(pid);
+        if fingerprint != ImageFingerprint::of(&image)?
+            || fingerprint != ImageFingerprint::of(&current_image)?
+            || exe_path != image_path(&current_image)?
+            || pid_start_time_ticks != parse_proc_stat_start_time(&end_stat)?
+            || container != end_container
+        {
+            return Err(ProbeError::Unavailable {
+                field: "process_snapshot",
+                reason: "process, executable or placement changed during measurement".into(),
+            });
+        }
+        // Commit cache only after the complete consistency check, on hits too.
+        self.image_cache.borrow_mut().insert(
+            pid,
+            CachedImage {
+                pid_start_time_ticks,
+                fingerprint,
+                exe_path: exe_path.clone(),
+                exe_content_sha256,
+            },
+        );
         Ok(ObservedProcess {
             process: ProcessInstance {
                 pid,
@@ -432,7 +494,7 @@ impl ProcfsProbe {
             // namespaces are all-or-nothing, so a partial read records
             // nothing rather than a placement that would compare unequal
             // against a complete one for the same container.
-            container: aip_core::execution_binding::collect_container_identity(pid),
+            container,
         })
     }
 
@@ -1228,24 +1290,48 @@ mod tests {
 
     #[test]
     fn an_image_hash_is_reused_only_for_the_same_instance_and_the_same_file() {
+        let fingerprint = ImageFingerprint {
+            device: 9,
+            inode: 4242,
+            size: 1_000,
+            mtime: (1_700_000_000, 5),
+            ctime: (1_700_000_000, 6),
+        };
         let c = CachedImage {
             pid_start_time_ticks: 900_000,
-            exe_ino: 4242,
-            exe_size: 1_000,
-            exe_mtime: (1_700_000_000, 5),
+            fingerprint: fingerprint.clone(),
             exe_path: "/opt/agent".into(),
             exe_content_sha256: [7u8; 32],
         };
-        assert!(c.still_describes(900_000, 4242, 1_000, (1_700_000_000, 5), "/opt/agent"));
+        assert!(c.still_describes(900_000, &fingerprint, "/opt/agent"));
         // Recycled pid: another instance.
-        assert!(!c.still_describes(900_001, 4242, 1_000, (1_700_000_000, 5), "/opt/agent"));
-        // Exec of another file at the same path.
-        assert!(!c.still_describes(900_000, 4243, 1_000, (1_700_000_000, 5), "/opt/agent"));
-        // The file was rewritten (size, or only mtime).
-        assert!(!c.still_describes(900_000, 4242, 1_001, (1_700_000_000, 5), "/opt/agent"));
-        assert!(!c.still_describes(900_000, 4242, 1_000, (1_700_000_000, 6), "/opt/agent"));
+        assert!(!c.still_describes(900_001, &fingerprint, "/opt/agent"));
+        for changed in [
+            ImageFingerprint {
+                device: 10,
+                ..fingerprint.clone()
+            },
+            ImageFingerprint {
+                inode: 4243,
+                ..fingerprint.clone()
+            },
+            ImageFingerprint {
+                size: 1001,
+                ..fingerprint.clone()
+            },
+            ImageFingerprint {
+                mtime: (1_700_000_000, 6),
+                ..fingerprint.clone()
+            },
+            ImageFingerprint {
+                ctime: (1_700_000_000, 7),
+                ..fingerprint.clone()
+            },
+        ] {
+            assert!(!c.still_describes(900_000, &changed, "/opt/agent"));
+        }
         // Another path (bind mount, rename) is not assumed to be the same.
-        assert!(!c.still_describes(900_000, 4242, 1_000, (1_700_000_000, 5), "/opt/other"));
+        assert!(!c.still_describes(900_000, &fingerprint, "/opt/other"));
     }
 
     #[cfg(target_os = "linux")]
@@ -1268,7 +1354,8 @@ mod tests {
             .borrow_mut()
             .get_mut(&pid)
             .unwrap()
-            .exe_ino += 1;
+            .fingerprint
+            .inode += 1;
         probe
             .image_cache
             .borrow_mut()
@@ -1280,6 +1367,152 @@ mod tests {
             c.exe_content_sha256, a.exe_content_sha256,
             "re-hashed, not trusted"
         );
+    }
+
+    #[cfg(target_os = "linux")]
+    fn reject_real_exec_during_image_read(warm_cache: bool) {
+        use std::io::{BufRead, Write};
+        use std::process::{Command, Stdio};
+        use std::time::{Duration, Instant};
+
+        struct ChildGuard(std::process::Child);
+        impl Drop for ChildGuard {
+            fn drop(&mut self) {
+                let _ = self.0.kill();
+                let _ = self.0.wait();
+            }
+        }
+        let mut child = ChildGuard(
+            Command::new("/bin/sh")
+                .args(["-c", "printf 'ready\\n'; read go; exec /bin/sleep 60"])
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .spawn()
+                .unwrap(),
+        );
+        let mut ready = String::new();
+        std::io::BufReader::new(child.0.stdout.take().unwrap())
+            .read_line(&mut ready)
+            .unwrap();
+        assert_eq!(ready, "ready\n");
+        let pid = child.0.id();
+        let mut probe = ProcfsProbe::new("p0-057-image-race");
+        let started = crate::boot_clock_anchor().unwrap();
+        let anchored = probe.measure_anchored(pid).unwrap();
+        let before = anchored.process.clone();
+        if !warm_cache {
+            probe.image_cache.borrow_mut().clear();
+        }
+        let link = std::path::PathBuf::from(format!("/proc/{pid}/exe"));
+        let before_path = std::fs::read_link(&link).unwrap();
+        let observed = probe.read_process_after_snapshot(pid, || {
+            child.0.stdin.as_mut().unwrap().write_all(b"go\n").unwrap();
+            let deadline = Instant::now() + Duration::from_secs(5);
+            while std::fs::read_link(&link).unwrap() == before_path {
+                assert!(Instant::now() < deadline, "controlled child did not exec");
+                std::thread::sleep(Duration::from_millis(1));
+            }
+        });
+        eprintln!(
+            "P0_057_REAL_EXEC warm_cache={warm_cache} before={} result={observed:?}",
+            serde_json::to_string(&before).unwrap()
+        );
+        assert!(
+            anchored.is_alive().unwrap(),
+            "pidfd stays alive across exec"
+        );
+        assert!(
+            matches!(
+                observed,
+                Err(ProbeError::Unavailable {
+                    field: "process_snapshot",
+                    ..
+                })
+            ),
+            "a live pidfd does not prevent exec; reject the mixed snapshot"
+        );
+        assert!(!probe.image_cache.borrow().contains_key(&pid));
+        let after = probe.measure_anchored(pid).unwrap().process;
+        assert_eq!(
+            before.process, after.process,
+            "exec retains the process instance"
+        );
+        assert_ne!(before.exe_content_sha256, after.exe_content_sha256);
+        assert_eq!(
+            after.exe_content_sha256,
+            aip_core::execution_binding::hash_file_contents(&link).unwrap()
+        );
+        assert!(after.exe_path.ends_with("/sleep"));
+        eprintln!(
+            "P0_057_REAL_EXEC after={}",
+            serde_json::to_string(&after).unwrap()
+        );
+        if let Ok(root) = std::env::var("P0_057_RETAIN_DIR") {
+            use crate::{CollectorSigner, ObserverAttestor};
+            let finished = crate::boot_clock_anchor().unwrap();
+            let observations = vec![
+                probe.observation_with(
+                    before,
+                    ObservedEffect::ProcessPresent,
+                    SourceMechanism::PidFdAnchored,
+                    None,
+                    started.realtime_ms,
+                ),
+                probe.observation_with(
+                    after,
+                    ObservedEffect::ProcessPresent,
+                    SourceMechanism::PidFdAnchored,
+                    None,
+                    finished.realtime_ms,
+                ),
+            ];
+            let key = aip_crypto::generate_ed25519_keypair();
+            let mut signer =
+                CollectorSigner::new("p0-057-lab-collector", 1, &key.private_key, &key.public_key)
+                    .unwrap();
+            signer.register_probe("p0-057-image-race", &[SourceMechanism::PidFdAnchored]);
+            let batch = signer
+                .attest(probe.batch(
+                    random_jti(),
+                    started.realtime_ms,
+                    finished.realtime_ms,
+                    observations,
+                ))
+                .unwrap();
+            let output = std::path::Path::new(&root).join(if warm_cache { "warm" } else { "cold" });
+            std::fs::create_dir_all(&root).unwrap();
+            std::fs::create_dir(&output).expect("refuse to overwrite signed originals");
+            std::fs::write(
+                output.join("batches.jsonl"),
+                format!("{}\n", serde_json::to_string(&batch).unwrap()),
+            )
+            .unwrap();
+            let scope = serde_json::json!({
+                "scope": "Real procfs/pidfd process samples around a controlled real exec; same-process ephemeral lab signer; no live connector events or action/coverage verdict",
+                "live_connector_capture": false, "independent_administration": false,
+                "execution_verdict": "NOT_EVALUATED", "coverage": "NOT_ESTABLISHED",
+                "logical_agent_identity": "NOT_ESTABLISHED", "observer_id": "p0-057-lab-collector",
+                "key_version": 1, "public_key": key.public_key, "expected_bound": [],
+                "warm_cache": warm_cache, "mixed_snapshot_rejected": true
+            });
+            std::fs::write(
+                output.join("scope-and-anchor.json"),
+                serde_json::to_vec_pretty(&scope).unwrap(),
+            )
+            .unwrap();
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn image_race_cold_cache_rejects_real_exec() {
+        reject_real_exec_during_image_read(false);
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn image_race_warm_cache_rejects_real_exec() {
+        reject_real_exec_during_image_read(true);
     }
 
     #[test]
