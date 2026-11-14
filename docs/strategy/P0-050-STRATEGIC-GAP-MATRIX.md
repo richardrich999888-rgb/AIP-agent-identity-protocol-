@@ -1,5 +1,7 @@
 # P0-050 strategic gap matrix
 
+**14 November 2026 IST — current checkpoint:** Cargo discovery full CI and coverage now PASS; current 940948e main CI also passes. Static classification of four HIGH Helm findings is complete: all four conditions persist in the current optional template and remain `needs_review`, not suppressed or remediated. Security and release remain NOT READY. [Evidence and next experiment](../assurance/evidence/p0-050-helm-triage/README.md).
+
 **13 November 2026 IST — Cargo discovery continuation:** `049f015` replaces internal-layout guessing with Cargo executable reports. Fresh relocated edge 12/12, offline verifier 6/6, parser 2/2 and scoped lint/format pass. Full hosted CI/coverage pending; no weakened assertions or skipped tests. [Evidence](../assurance/evidence/p0-050-cargo-discovery/README.md). Release NOT READY.
 
 **13 November 2026 IST — current continuation:** prior full debug/release tests passed, but coverage failed the strict empty-environment test. Source `9d25aa4` supplies an explicit empty environment at final exec; the isolated negative regression now passes in normal and instrumented builds. Hosted scoped CI passes 314 Rust / 267 Python; coverage blocked by 12 aip-edge sibling-binary-discovery failures before sandbox tests; release NOT READY. [Evidence and acceptance](../assurance/evidence/p0-050-exec-env/README.md).

@@ -1,0 +1,313 @@
+{
+  "schema_version": "triage-finding/v0",
+  "repository": {
+    "path": "/workspace/scratch/8cbb8ab6ce9d/p050-audit",
+    "revision": "940948ec30f754558672f79a2fa6693ed89ec319"
+  },
+  "findings": [
+    {
+      "triage_item_id": "triage-001",
+      "input_id": "KSV-0009",
+      "source_type": "sarif",
+      "title": "host networking",
+      "normalized_input": {
+        "vulnerable_component": "optional unvalidated Kubernetes probe DaemonSet",
+        "claimed_source": "unknown: scanner reports a configuration condition, not an attacker entrypoint",
+        "claimed_sink": "hostNetwork: true",
+        "claimed_control": "generic Kubernetes isolation/hardening control",
+        "affected_version_or_path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "preconditions": [
+          "Operator explicitly enables the probe and supplies an image/configuration",
+          "A real cluster admits and executes the rendered pod; not established by static rendering"
+        ],
+        "impact": "Artifact: validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml\nType: kubernetes\nVulnerability KSV-0009\nSeverity: HIGH\nMessage: DaemonSet 'vanian-runtime-probe' should not set 'spec.template.spec.hostNetwork' to true\nLink: [KSV-0009](https://avd.aquasec.com/misconfig/ksv-0009)",
+        "references": [
+          "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43396261719",
+          "https://avd.aquasec.com/misconfig/ksv-0009"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "medium",
+      "affected_locations": [
+        {
+          "label": "current template",
+          "path": "deploy/enterprise/kubernetes/chart/templates/runtime.yaml",
+          "lines": "32",
+          "detail": "hostNetwork: true"
+        },
+        {
+          "label": "scanner input",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "lines": "33-89",
+          "detail": "Original retained render remains unchanged"
+        }
+      ],
+      "reachable_path": [
+        "operator enables probe and supplies immutable image/config map",
+        "Helm renders the current DaemonSet with the reported host access",
+        "cluster admission, runtime policy and actual probe behavior are not evidenced"
+      ],
+      "boundary_assessment": {
+        "product_surface": "example/demo",
+        "source_trust": "trusted_operator",
+        "boundary_crossed": null,
+        "policy_basis": "No root/scoped SECURITY.md found. deploy/enterprise/kubernetes/README.md explicitly calls this an unvalidated opt-in template, not a supported Kubernetes release."
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 1,
+        "rationale": "Network effects may reach the node network; configured NET_ADMIN makes this the first review priority.",
+        "drivers": [
+          "host access after probe compromise",
+          "unknown runtime admission/LSM policy",
+          "operator opt-in",
+          "existing restricted capabilities and read-only mounts"
+        ]
+      },
+      "evidence": [
+        "deploy/enterprise/kubernetes/chart/templates/runtime.yaml:32: hostNetwork: true",
+        "Current source retains the reported condition; not merely an obsolete archive warning"
+      ],
+      "counterevidence": [
+        "Both components disabled by default; immutable image/configuration and explicit trust assertion required",
+        "privileged:false, allowPrivilegeEscalation:false, drop ALL except PERFMON/NET_ADMIN, no service-account token",
+        "Documentation warns that different pods/nodes do not prove separate administration"
+      ],
+      "proof_gaps": [
+        "No approved cluster/kernel/image/runtime policy and no runtime qualification",
+        "No supplied lower-trust entrypoint or exploit establishes a crossed supported product boundary",
+        "Generic scanner severity HIGH is retained; static presence does not establish exploitability"
+      ],
+      "recommended_next_step": "On an approved isolated host, measure required connector coverage with and without host networking and independently verify host egress controls. Ordinary pod NetworkPolicy is not sufficient evidence.",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-002",
+      "input_id": "KSV-0010",
+      "source_type": "sarif",
+      "title": "host PID namespace",
+      "normalized_input": {
+        "vulnerable_component": "optional unvalidated Kubernetes probe DaemonSet",
+        "claimed_source": "unknown: scanner reports a configuration condition, not an attacker entrypoint",
+        "claimed_sink": "hostPID: true",
+        "claimed_control": "generic Kubernetes isolation/hardening control",
+        "affected_version_or_path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "preconditions": [
+          "Operator explicitly enables the probe and supplies an image/configuration",
+          "A real cluster admits and executes the rendered pod; not established by static rendering"
+        ],
+        "impact": "Artifact: validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml\nType: kubernetes\nVulnerability KSV-0010\nSeverity: HIGH\nMessage: DaemonSet 'vanian-runtime-probe' should not set 'spec.template.spec.hostPID' to true\nLink: [KSV-0010](https://avd.aquasec.com/misconfig/ksv-0010)",
+        "references": [
+          "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43396261719",
+          "https://avd.aquasec.com/misconfig/ksv-0010"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "medium",
+      "affected_locations": [
+        {
+          "label": "current template",
+          "path": "deploy/enterprise/kubernetes/chart/templates/runtime.yaml",
+          "lines": "31",
+          "detail": "hostPID: true"
+        },
+        {
+          "label": "scanner input",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "lines": "33-89",
+          "detail": "Original retained render remains unchanged"
+        }
+      ],
+      "reachable_path": [
+        "operator enables probe and supplies immutable image/config map",
+        "Helm renders the current DaemonSet with the reported host access",
+        "cluster admission, runtime policy and actual probe behavior are not evidenced"
+      ],
+      "boundary_assessment": {
+        "product_surface": "example/demo",
+        "source_trust": "trusted_operator",
+        "boundary_crossed": null,
+        "policy_basis": "No root/scoped SECURITY.md found. deploy/enterprise/kubernetes/README.md explicitly calls this an unvalidated opt-in template, not a supported Kubernetes release."
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 4,
+        "rationale": "Shares host process visibility; no process-control exploit or supported cluster policy has been established.",
+        "drivers": [
+          "host access after probe compromise",
+          "unknown runtime admission/LSM policy",
+          "operator opt-in",
+          "existing restricted capabilities and read-only mounts"
+        ]
+      },
+      "evidence": [
+        "deploy/enterprise/kubernetes/chart/templates/runtime.yaml:31: hostPID: true",
+        "Current source retains the reported condition; not merely an obsolete archive warning"
+      ],
+      "counterevidence": [
+        "Both components disabled by default; immutable image/configuration and explicit trust assertion required",
+        "privileged:false, allowPrivilegeEscalation:false, drop ALL except PERFMON/NET_ADMIN, no service-account token",
+        "Documentation warns that different pods/nodes do not prove separate administration"
+      ],
+      "proof_gaps": [
+        "No approved cluster/kernel/image/runtime policy and no runtime qualification",
+        "No supplied lower-trust entrypoint or exploit establishes a crossed supported product boundary",
+        "Generic scanner severity HIGH is retained; static presence does not establish exploitability"
+      ],
+      "recommended_next_step": "Establish a minimum process-identity/coverage test matrix and whether an alternative preserves observations without host PID access.",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-003",
+      "input_id": "KSV-0118",
+      "source_type": "sarif",
+      "title": "root execution",
+      "normalized_input": {
+        "vulnerable_component": "optional unvalidated Kubernetes probe DaemonSet",
+        "claimed_source": "unknown: scanner reports a configuration condition, not an attacker entrypoint",
+        "claimed_sink": "runAsUser: 0",
+        "claimed_control": "generic Kubernetes isolation/hardening control",
+        "affected_version_or_path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "preconditions": [
+          "Operator explicitly enables the probe and supplies an image/configuration",
+          "A real cluster admits and executes the rendered pod; not established by static rendering"
+        ],
+        "impact": "Artifact: validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml\nType: kubernetes\nVulnerability KSV-0118\nSeverity: HIGH\nMessage: daemonset vanian-runtime-probe in default namespace is using the default security context, which allows root privileges\nLink: [KSV-0118](https://avd.aquasec.com/misconfig/ksv-0118)",
+        "references": [
+          "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43396261719",
+          "https://avd.aquasec.com/misconfig/ksv-0118"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "medium",
+      "affected_locations": [
+        {
+          "label": "current template",
+          "path": "deploy/enterprise/kubernetes/chart/templates/runtime.yaml",
+          "lines": "49-56",
+          "detail": "runAsUser: 0"
+        },
+        {
+          "label": "scanner input",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "lines": "33-89",
+          "detail": "Original retained render remains unchanged"
+        }
+      ],
+      "reachable_path": [
+        "operator enables probe and supplies immutable image/config map",
+        "Helm renders the current DaemonSet with the reported host access",
+        "cluster admission, runtime policy and actual probe behavior are not evidenced"
+      ],
+      "boundary_assessment": {
+        "product_surface": "example/demo",
+        "source_trust": "trusted_operator",
+        "boundary_crossed": null,
+        "policy_basis": "No root/scoped SECURITY.md found. deploy/enterprise/kubernetes/README.md explicitly calls this an unvalidated opt-in template, not a supported Kubernetes release."
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 2,
+        "rationale": "Explicit root plus retained capabilities increases impact after probe compromise, though privileged mode and escalation are disabled.",
+        "drivers": [
+          "host access after probe compromise",
+          "unknown runtime admission/LSM policy",
+          "operator opt-in",
+          "existing restricted capabilities and read-only mounts"
+        ]
+      },
+      "evidence": [
+        "deploy/enterprise/kubernetes/chart/templates/runtime.yaml:49-56: runAsUser: 0",
+        "Current source retains the reported condition; not merely an obsolete archive warning"
+      ],
+      "counterevidence": [
+        "Both components disabled by default; immutable image/configuration and explicit trust assertion required",
+        "privileged:false, allowPrivilegeEscalation:false, drop ALL except PERFMON/NET_ADMIN, no service-account token",
+        "Documentation warns that different pods/nodes do not prove separate administration"
+      ],
+      "proof_gaps": [
+        "No approved cluster/kernel/image/runtime policy and no runtime qualification",
+        "No supplied lower-trust entrypoint or exploit establishes a crossed supported product boundary",
+        "Generic scanner severity HIGH is retained; static presence does not establish exploitability"
+      ],
+      "recommended_next_step": "Test non-root sensor operation with only required capabilities and signed coverage on each supported kernel; document any remaining root requirement.",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-004",
+      "input_id": "KSV-0121",
+      "source_type": "sarif",
+      "title": "host procfs mount",
+      "normalized_input": {
+        "vulnerable_component": "optional unvalidated Kubernetes probe DaemonSet",
+        "claimed_source": "unknown: scanner reports a configuration condition, not an attacker entrypoint",
+        "claimed_sink": "hostPath /proc mounted readOnly",
+        "claimed_control": "generic Kubernetes isolation/hardening control",
+        "affected_version_or_path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+        "preconditions": [
+          "Operator explicitly enables the probe and supplies an image/configuration",
+          "A real cluster admits and executes the rendered pod; not established by static rendering"
+        ],
+        "impact": "Artifact: validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml\nType: kubernetes\nVulnerability KSV-0121\nSeverity: HIGH\nMessage: daemonset vanian-runtime-probe in default namespace shouldn't have volumes set to {\"/proc\"}\nLink: [KSV-0121](https://avd.aquasec.com/misconfig/ksv-0121)",
+        "references": [
+          "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43396261719",
+          "https://avd.aquasec.com/misconfig/ksv-0121"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "medium",
+      "affected_locations": [
+        {
+          "label": "current template",
+          "path": "deploy/enterprise/kubernetes/chart/templates/runtime.yaml",
+          "lines": "60-69",
+          "detail": "hostPath /proc mounted readOnly"
+        },
+        {
+          "label": "scanner input",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "lines": "33-89",
+          "detail": "Original retained render remains unchanged"
+        }
+      ],
+      "reachable_path": [
+        "operator enables probe and supplies immutable image/config map",
+        "Helm renders the current DaemonSet with the reported host access",
+        "cluster admission, runtime policy and actual probe behavior are not evidenced"
+      ],
+      "boundary_assessment": {
+        "product_surface": "example/demo",
+        "source_trust": "trusted_operator",
+        "boundary_crossed": null,
+        "policy_basis": "No root/scoped SECURITY.md found. deploy/enterprise/kubernetes/README.md explicitly calls this an unvalidated opt-in template, not a supported Kubernetes release."
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 3,
+        "rationale": "Read-only mounting limits writes but does not prove confidentiality or remove host process visibility.",
+        "drivers": [
+          "host access after probe compromise",
+          "unknown runtime admission/LSM policy",
+          "operator opt-in",
+          "existing restricted capabilities and read-only mounts"
+        ]
+      },
+      "evidence": [
+        "deploy/enterprise/kubernetes/chart/templates/runtime.yaml:60-69: hostPath /proc mounted readOnly",
+        "Current source retains the reported condition; not merely an obsolete archive warning"
+      ],
+      "counterevidence": [
+        "Both components disabled by default; immutable image/configuration and explicit trust assertion required",
+        "privileged:false, allowPrivilegeEscalation:false, drop ALL except PERFMON/NET_ADMIN, no service-account token",
+        "Documentation warns that different pods/nodes do not prove separate administration"
+      ],
+      "proof_gaps": [
+        "No approved cluster/kernel/image/runtime policy and no runtime qualification",
+        "No supplied lower-trust entrypoint or exploit establishes a crossed supported product boundary",
+        "Generic scanner severity HIGH is retained; static presence does not establish exploitability"
+      ],
+      "recommended_next_step": "Determine the minimum procfs views required; measure identity/attribution loss under scoped mounts and independently inspect access controls.",
+      "fix_finding_handoff": null
+    }
+  ]
+}
