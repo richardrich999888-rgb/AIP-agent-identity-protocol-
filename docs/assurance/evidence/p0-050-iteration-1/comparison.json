@@ -1,0 +1,55 @@
+{
+  "status": "CONSISTENT_BOUNDED_RESULTS",
+  "runs": [
+    {
+      "directory": "local",
+      "source": "ef3d9d434e5ed55e5994331abc91c03833f997ff",
+      "binary_sha256": "07e7aec9a95a3b6da2aed750898aad9fbc412e3afec8aebd80ed08a09541979f",
+      "wall_seconds": 0.4039170820005893,
+      "hardware": {
+        "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+        "logical_cpus": 9,
+        "affinity_cpus": 9,
+        "meminfo": "MemTotal:       10206472 kB",
+        "cgroup_cpu_max": {
+          "status": "UNAVAILABLE",
+          "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'"
+        },
+        "cgroup_memory_max": {
+          "status": "UNAVAILABLE",
+          "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.max'"
+        }
+      },
+      "unchanged_labels": true,
+      "only_artifact_change": "applicability",
+      "holdout": "12/12",
+      "adversarial": "26/26",
+      "frozen_nonactivation_subset": "6/6"
+    },
+    {
+      "directory": "ci/exclusion-evidence",
+      "source": "de0786e22a433512c50c402af4057d28564452d1",
+      "binary_sha256": "ec7d08a3cf185bdb6a9ee8ab017e258e9c4e4da6ca97e67757326019ddb69ac3",
+      "wall_seconds": 0.22955532699999992,
+      "hardware": {
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "logical_cpus": 4,
+        "affinity_cpus": 4,
+        "meminfo": "MemTotal:       16366512 kB",
+        "cgroup_cpu_max": {
+          "status": "UNAVAILABLE",
+          "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'"
+        },
+        "cgroup_memory_max": {
+          "status": "UNAVAILABLE",
+          "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.max'"
+        }
+      },
+      "unchanged_labels": true,
+      "only_artifact_change": "applicability",
+      "holdout": "12/12",
+      "adversarial": "26/26",
+      "frozen_nonactivation_subset": "6/6"
+    }
+  ]
+}

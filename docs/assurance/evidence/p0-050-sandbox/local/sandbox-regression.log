@@ -1,0 +1,31 @@
+   Compiling vanian-sovereign v0.4.0 (/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/sovereign/vanian-sovereign)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.52s
+     Running tests/agent_execution.rs (/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/deps/agent_execution-848ecc3a716ba236)
+
+running 23 tests
+test an_unshare_that_fails_its_own_setup_is_not_mistaken_for_a_tool_exit ... ok
+test authority_expiring_during_the_probe_is_refused_without_consumption ... ok
+test decision_moved_to_another_process_is_refused ... ok
+test expired_expectation_is_refused ... ok
+test argument_substitution_after_authorization_is_refused_and_not_consumed ... ok
+test authorized_tool_runs_and_verifies_offline_without_claiming_observation ... ok
+test expectation_swapped_for_another_valid_one_rejected ... ok
+test deadline_kills_the_tool ... ok
+test expectation_from_untrusted_decision_point_is_refused ... ok
+test forged_observation_upgrade_cannot_deserialize ... ok
+test resigned_with_forged_hash_rejected ... ok
+test missing_sandbox_fails_closed_before_consuming ... ok
+test sandbox_has_no_network_interface_but_loopback ... ok
+test sandbox_environment_is_empty ... ok
+test replayed_decision_is_refused ... ok
+test record_signed_by_unknown_runner_rejected ... ok
+test swapped_program_binary_is_refused ... ok
+test ungranted_tool_is_denied_by_the_decision_point ... ok
+test tampered_exit_code_rejected ... ok
+test the_probe_refuses_when_unshare_is_not_executable ... ok
+test unsigned_record_rejected ... ok
+test the_namespace_probe_succeeds_where_the_sandbox_works ... ok
+test tampered_expectation_rejected ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.36s
+

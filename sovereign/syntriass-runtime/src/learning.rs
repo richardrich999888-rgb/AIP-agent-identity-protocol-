@@ -15,6 +15,7 @@ use vanian_sovereign::domain::corpus::{Classification, Ident, Principal};
 use vanian_sovereign::ports::{PortError, PortErrorKind};
 
 use crate::capability::artifact::Capability;
+use crate::capability::authority::ApprovalPolicy;
 use crate::capability::lifecycle::{Approval, LifecycleError, Record, Role, State};
 use crate::capability::suite::ExpertSuite;
 use crate::capability::validate::{validate, ValidationReport};
@@ -134,20 +135,87 @@ pub fn approve_record(
     consequential: bool,
     at_ms: u64,
 ) -> Result<(), PortError> {
+    approve_record_with_policy(
+        store,
+        hash,
+        approver_id,
+        private_key,
+        public_key,
+        consequential,
+        ApprovalContext {
+            at_ms,
+            policy: None,
+            review: None,
+        },
+    )
+}
+
+pub struct ApprovalContext<'a> {
+    pub review: Option<&'a crate::capability::teaching_review::VerifiedReview>,
+    pub at_ms: u64,
+    pub policy: Option<&'a ApprovalPolicy>,
+}
+
+/// Issue an authority-bound approval when strict policy is configured.
+pub fn approve_record_with_policy(
+    store: &mut dyn CapabilityStore,
+    hash: &str,
+    approver_id: &str,
+    private_key: &[u8],
+    public_key: &[u8],
+    consequential: bool,
+    context: ApprovalContext<'_>,
+) -> Result<(), PortError> {
+    let at_ms = context.at_ms;
     let mut rec = find(store, hash)?;
     let report = rec
         .validation
         .clone()
         .ok_or_else(|| err(PortErrorKind::ContractViolation, "not validated"))?;
-    let a = Approval::sign(
-        hash,
-        &report,
-        approver_id,
-        consequential,
-        at_ms,
-        private_key,
-    )
+    let mut a = match context.policy {
+        Some(policy) => {
+            let grant = policy
+                .grant(approver_id)
+                .map_err(|e| err(PortErrorKind::ContractViolation, e))?;
+            grant
+                .authorize(&rec.capability, approver_id, public_key, at_ms, at_ms)
+                .map_err(|e| err(PortErrorKind::ContractViolation, e))?;
+            Approval::sign_authorized(
+                hash,
+                &report,
+                approver_id,
+                consequential,
+                at_ms,
+                private_key,
+                grant.hash(),
+            )
+        }
+        None => Approval::sign(
+            hash,
+            &report,
+            approver_id,
+            consequential,
+            at_ms,
+            private_key,
+        ),
+    }
     .map_err(|e| err(PortErrorKind::ContractViolation, e))?;
+    if let Some(review) = context.review {
+        if review.capability_hash() != hash {
+            return Err(err(
+                PortErrorKind::ContractViolation,
+                "review capability mismatch",
+            ));
+        }
+        if review.validation_report_hash() != crate::capability::lifecycle::report_hash(&report) {
+            return Err(err(
+                PortErrorKind::ContractViolation,
+                "stored validation changed after review verification",
+            ));
+        }
+        a.bind_teaching_review(review.digest(), private_key)
+            .map_err(|e| err(PortErrorKind::ContractViolation, e))?;
+    }
     rec.approve(a, public_key, at_ms).map_err(life)?;
     store.put(&rec)
 }
@@ -163,7 +231,7 @@ pub fn transition(
     reason: &str,
 ) -> Result<(), PortError> {
     let mut rec = find(store, hash)?;
-    if to == State::Active && !active_of(store, &rec.capability.id, hash)?.is_empty() {
+    if to == State::Active && !active_of(store, &rec.capability, hash)?.is_empty() {
         return Err(err(
             PortErrorKind::ContractViolation,
             format!(
@@ -179,20 +247,28 @@ pub fn transition(
 
 fn active_of(
     store: &dyn CapabilityStore,
-    id: &str,
+    target: &Capability,
     except: &str,
 ) -> Result<Vec<Record>, PortError> {
     Ok(store
         .all()?
         .into_iter()
         .filter(|r| {
-            r.capability.id == id && r.state == State::Active && r.capability_hash != except
+            // A capability name is local to its tenant and security domain.
+            // Matching only the name lets supersession/rollback displace an
+            // unrelated authority's active version in a shared store.
+            r.capability.id == target.id
+                && r.capability.required.tenant == target.required.tenant
+                && r.capability.required.security_domain == target.required.security_domain
+                && r.state == State::Active
+                && r.capability_hash != except
         })
         .collect())
 }
 
 /// Activate an APPROVED version (operator). At most one version of a
-/// capability id is ACTIVE: if another version is active, this fails unless
+/// capability id in the same tenant and security domain is ACTIVE: if another
+/// version is active, this fails unless
 /// `supersede` is set, in which case that version goes ACTIVE → SUPERSEDED
 /// first (it stays approved, so it can be rolled back to). Returns the
 /// superseded hashes.
@@ -205,7 +281,7 @@ pub fn activate(
     reason: &str,
 ) -> Result<Vec<String>, PortError> {
     let rec = find(store, hash)?;
-    let others = active_of(store, &rec.capability.id, hash)?;
+    let others = active_of(store, &rec.capability, hash)?;
     if !others.is_empty() && !supersede {
         return Err(err(
             PortErrorKind::ContractViolation,
@@ -242,7 +318,8 @@ pub fn activate(
 }
 
 /// Roll back to a SUPERSEDED version (approver): the currently ACTIVE
-/// version of the same id is SUSPENDED, then the target is re-activated.
+/// version of the same id, tenant and security domain is SUSPENDED, then the
+/// target is re-activated. Other scopes are never modified by this operation.
 /// The target must still be executable-if-active (validation + approval
 /// intact, hash unchanged); staleness checks still apply at request time.
 /// Returns the suspended hashes.
@@ -267,7 +344,7 @@ pub fn rollback(
         ));
     }
     let mut done = vec![];
-    for mut o in active_of(store, &rec.capability.id, target)? {
+    for mut o in active_of(store, &rec.capability, target)? {
         o.transition(
             State::Suspended,
             approver,

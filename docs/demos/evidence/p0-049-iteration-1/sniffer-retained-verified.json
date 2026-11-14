@@ -1,0 +1,28 @@
+{
+  "observer_id": "collector.lying",
+  "key_version": 1,
+  "public_key": "a8756ae550fd6aaf1dbfd1a0112b7135d8da7c9bdf5671cd0ee6cd96bda864a3",
+  "batches": {
+    "records": 7,
+    "first_sequence": 1,
+    "last_sequence": 7,
+    "start": "Epoch",
+    "final_head": "82da793cd5a03583d5ad1811cea4df8c75a51acf2e1d3e2ec0b8fd9b86d6a49d",
+    "observations": 0,
+    "kernel_events": 86
+  },
+  "health": {
+    "records": 1,
+    "states": [
+      "ContinuityUnverified"
+    ],
+    "with_coverage": 0,
+    "without_coverage": 1,
+    "cross_checked_against_batches": 0,
+    "clock_synchronised": 0,
+    "clock_unsynchronised": 1,
+    "clock_not_stated": 0,
+    "clock_worst_max_error_us": 16000000
+  },
+  "findings": []
+}

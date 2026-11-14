@@ -1,0 +1,29 @@
+..........................F.........................................     [100%]
+=================================== FAILURES ===================================
+_ test_actual_native_refusal_does_not_pass_a_negative_example[Transformer TX-14, 11 kV at 20 C-INSUFFICIENT_INPUT] _
+
+case = (PosixPath('/tmp/pytest-of-agent/pytest-7/test_actual_native_refusal_doe1/inputs'), {'answers': PosixPath('/tmp/pytest...osixPath('/tmp/pytest-of-agent/pytest-7/test_actual_native_refusal_doe1/inputs/data/corpus/halvorn-hu-tx-2.txt'), ...})
+text = 'Transformer TX-14, 11 kV at 20 C', expected = 'INSUFFICIENT_INPUT'
+
+    @pytest.mark.parametrize("text,expected", [
+        ("Battery cell B-8: 4 V and 7 mA at 20 C", "NOT_APPLICABLE"),
+        ("Transformer TX-14, 11 kV at 20 C", "INSUFFICIENT_INPUT"),
+        ("Transformer TX-14, 11 kV: IR 800 megohms at 20 C, DAR 1.6, DAR 1.2", "AMBIGUOUS"),
+    ])
+    def test_actual_native_refusal_does_not_pass_a_negative_example(case, text, expected):
+        root, args = case
+        new_negative_example(root, args, text)
+        review(args)
+        result = T.score(**args)
+        assert result["status"] == "REJECTED_BY_EXAMPLES", result
+        row = result["examples"]["cases"][-1]
+>       assert row["native_outcome"] == expected
+E       AssertionError: assert 'NOT_APPLICABLE' == 'INSUFFICIENT_INPUT'
+E         
+E         - INSUFFICIENT_INPUT
+E         + NOT_APPLICABLE
+
+research/capability-learning/tests/test_example_mapping.py:141: AssertionError
+=========================== short test summary info ============================
+FAILED research/capability-learning/tests/test_example_mapping.py::test_actual_native_refusal_does_not_pass_a_negative_example[Transformer TX-14, 11 kV at 20 C-INSUFFICIENT_INPUT]
+1 failed, 67 passed in 8.13s

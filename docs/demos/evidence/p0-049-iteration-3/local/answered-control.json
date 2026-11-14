@@ -1,0 +1,904 @@
+{
+  "schema": "syntriass.teach-answered/v1",
+  "session_id": "0dde1717b870177916637441af43ac8cedbae594d5669206329af6e473104b60",
+  "tenant": "halvorn-power",
+  "task": "tx_acceptance",
+  "draft_sha256": "f067556f56f95c3414cef3357c9dc57e1be8eb637a676afa144d997041947d54",
+  "questions_sha256": "94bf7f6d79b0b6572c357e32205d318504ad8619695c746c913f86d692300ea8",
+  "author": "engineer:recorder",
+  "model_calls": 0,
+  "ir": {
+    "topic_terms": [
+      "distribution transformers"
+    ],
+    "inputs": [
+      {
+        "ref": "voltage",
+        "unit": "kV",
+        "cues": []
+      },
+      {
+        "ref": "resistance",
+        "unit": "M\u03a9",
+        "cues": []
+      },
+      {
+        "ref": "temperature",
+        "unit": "\u00b0C",
+        "cues": []
+      },
+      {
+        "ref": "cued_1",
+        "unit": "none",
+        "cues": [
+          "DAR",
+          "dielectric absorption ratio"
+        ]
+      }
+    ],
+    "out_of_scope_terms": [
+      "motors",
+      "cables",
+      "generators",
+      "dry-type transformers"
+    ],
+    "out_of_scope_limits": [
+      {
+        "ref": "voltage",
+        "op": ">",
+        "value": 33,
+        "unit": "kV"
+      }
+    ],
+    "missing_input_outcome": "INSUFFICIENT_INPUT",
+    "validity": [
+      {
+        "ref": "temperature",
+        "min": 0.0,
+        "max": 90.0,
+        "unit": "\u00b0C",
+        "outcome": "INVALID_TEST"
+      }
+    ],
+    "correction": {
+      "template": "multiply_power_per_degree",
+      "target": "resistance",
+      "by": "temperature",
+      "reference": 20,
+      "reference_unit": "\u00b0C",
+      "rate": 0,
+      "rate_unit": "\u00b0C",
+      "base": 2,
+      "step": 15
+    },
+    "limit": {
+      "template": "coefficient_times_input_plus_offset",
+      "coefficient": 20,
+      "input": "voltage",
+      "offset": 2,
+      "unit": "M\u03a9"
+    },
+    "rules": [
+      {
+        "value": "corrected",
+        "op": "<",
+        "against": "limit",
+        "number": 0,
+        "unit": "none",
+        "limit_fraction": 0.3333333333333333,
+        "outcome": "REMOVE_FROM_SERVICE"
+      },
+      {
+        "value": "corrected",
+        "op": "<",
+        "against": "limit",
+        "number": 0,
+        "unit": "none",
+        "limit_fraction": 1,
+        "outcome": "DRY_OUT_OIL"
+      },
+      {
+        "value": "cued_1",
+        "op": "<",
+        "against": "number",
+        "number": 1.25,
+        "unit": "none",
+        "limit_fraction": 1,
+        "outcome": "INVESTIGATE"
+      },
+      {
+        "value": "cued_1",
+        "op": "<",
+        "against": "number",
+        "number": 1.4,
+        "unit": "none",
+        "limit_fraction": 1,
+        "outcome": "MONITOR_90D"
+      }
+    ],
+    "default_outcome": "ACCEPT"
+  },
+  "edits": [
+    {
+      "question": 1,
+      "qid": "p1#2+p1#3:scope_subject.*",
+      "address": "topic_terms[0]",
+      "path": "topic_terms[0]",
+      "type": "string",
+      "before": null,
+      "after": "distribution transformers",
+      "who": "engineer:recorder",
+      "when_ms": 1,
+      "why": "'Scope: oil-immersed distribution transformers ...'; the full phrase exceeds the 32-character term limit"
+    },
+    {
+      "question": 2,
+      "qid": "p1#2+p1#3:scope_limit.*",
+      "address": "out_of_scope_limits[@p1#2+p1#3].ref",
+      "path": "out_of_scope_limits[0].ref",
+      "type": "enum",
+      "before": null,
+      "after": "voltage",
+      "who": "engineer:recorder",
+      "when_ms": 2,
+      "why": "'up to and including 33 kV': above 33 kV is out of scope"
+    },
+    {
+      "question": 2,
+      "qid": "p1#2+p1#3:scope_limit.*",
+      "address": "out_of_scope_limits[@p1#2+p1#3].op",
+      "path": "out_of_scope_limits[0].op",
+      "type": "enum",
+      "before": null,
+      "after": ">",
+      "who": "engineer:recorder",
+      "when_ms": 2,
+      "why": "'up to and including 33 kV': above 33 kV is out of scope"
+    },
+    {
+      "question": 2,
+      "qid": "p1#2+p1#3:scope_limit.*",
+      "address": "out_of_scope_limits[@p1#2+p1#3].value",
+      "path": "out_of_scope_limits[0].value",
+      "type": "number",
+      "before": null,
+      "after": 33,
+      "who": "engineer:recorder",
+      "when_ms": 2,
+      "why": "'up to and including 33 kV': above 33 kV is out of scope"
+    },
+    {
+      "question": 2,
+      "qid": "p1#2+p1#3:scope_limit.*",
+      "address": "out_of_scope_limits[@p1#2+p1#3].unit",
+      "path": "out_of_scope_limits[0].unit",
+      "type": "enum",
+      "before": null,
+      "after": "kV",
+      "who": "engineer:recorder",
+      "when_ms": 2,
+      "why": "'up to and including 33 kV': above 33 kV is out of scope"
+    },
+    {
+      "question": 3,
+      "qid": "p1#4+p1#5:scope_exclusion_terms.*",
+      "address": "out_of_scope_terms[0]",
+      "path": "out_of_scope_terms[0]",
+      "type": "string",
+      "before": null,
+      "after": "motors",
+      "who": "engineer:recorder",
+      "when_ms": 3,
+      "why": "copied exactly as written, as the question asks"
+    },
+    {
+      "question": 3,
+      "qid": "p1#4+p1#5:scope_exclusion_terms.*",
+      "address": "out_of_scope_terms[1]",
+      "path": "out_of_scope_terms[1]",
+      "type": "string",
+      "before": null,
+      "after": "cables",
+      "who": "engineer:recorder",
+      "when_ms": 3,
+      "why": "copied exactly as written, as the question asks"
+    },
+    {
+      "question": 3,
+      "qid": "p1#4+p1#5:scope_exclusion_terms.*",
+      "address": "out_of_scope_terms[2]",
+      "path": "out_of_scope_terms[2]",
+      "type": "string",
+      "before": null,
+      "after": "generators",
+      "who": "engineer:recorder",
+      "when_ms": 3,
+      "why": "copied exactly as written, as the question asks"
+    },
+    {
+      "question": 3,
+      "qid": "p1#4+p1#5:scope_exclusion_terms.*",
+      "address": "out_of_scope_terms[3]",
+      "path": "out_of_scope_terms[3]",
+      "type": "string",
+      "before": null,
+      "after": "dry-type transformers",
+      "who": "engineer:recorder",
+      "when_ms": 3,
+      "why": "copied exactly as written, as the question asks"
+    },
+    {
+      "question": 5,
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "address": "inputs[0].ref",
+      "path": "inputs[0].ref",
+      "type": "enum",
+      "before": null,
+      "after": "voltage",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "address": "inputs[0].unit",
+      "path": "inputs[0].unit",
+      "type": "enum",
+      "before": null,
+      "after": "kV",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "address": "inputs[1].ref",
+      "path": "inputs[1].ref",
+      "type": "enum",
+      "before": null,
+      "after": "resistance",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "address": "inputs[1].unit",
+      "path": "inputs[1].unit",
+      "type": "enum",
+      "before": null,
+      "after": "M\u03a9",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "address": "inputs[2].ref",
+      "path": "inputs[2].ref",
+      "type": "enum",
+      "before": null,
+      "after": "temperature",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "address": "inputs[2].unit",
+      "path": "inputs[2].unit",
+      "type": "enum",
+      "before": null,
+      "after": "\u00b0C",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "address": "inputs[3].ref",
+      "path": "inputs[3].ref",
+      "type": "enum",
+      "before": null,
+      "after": "cued_1",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "address": "inputs[3].unit",
+      "path": "inputs[3].unit",
+      "type": "enum",
+      "before": null,
+      "after": "none",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "address": "inputs[3].cues[0]",
+      "path": "inputs[3].cues[0]",
+      "type": "string",
+      "before": null,
+      "after": "DAR",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'"
+    },
+    {
+      "question": 5,
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "address": "inputs[3].cues[1]",
+      "path": "inputs[3].cues[1]",
+      "type": "string",
+      "before": null,
+      "after": "dielectric absorption ratio",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'"
+    },
+    {
+      "question": 6,
+      "qid": "p1#13+p1#14:correction.*",
+      "address": "correction.template",
+      "path": "correction.template",
+      "type": "enum",
+      "before": "none",
+      "after": "multiply_power_per_degree",
+      "who": "engineer:recorder",
+      "when_ms": 6,
+      "why": "'to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15'"
+    },
+    {
+      "question": 6,
+      "qid": "p1#13+p1#14:correction.*",
+      "address": "correction.target",
+      "path": "correction.target",
+      "type": "enum",
+      "before": "temperature",
+      "after": "resistance",
+      "who": "engineer:recorder",
+      "when_ms": 6,
+      "why": "'to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15'"
+    },
+    {
+      "question": 6,
+      "qid": "p1#13+p1#14:correction.*",
+      "address": "correction.by",
+      "path": "correction.by",
+      "type": "enum",
+      "before": "temperature",
+      "after": "temperature",
+      "who": "engineer:recorder",
+      "when_ms": 6,
+      "why": "'to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15'"
+    },
+    {
+      "question": 6,
+      "qid": "p1#13+p1#14:correction.*",
+      "address": "correction.reference",
+      "path": "correction.reference",
+      "type": "number",
+      "before": 0,
+      "after": 20,
+      "who": "engineer:recorder",
+      "when_ms": 6,
+      "why": "'to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15'"
+    },
+    {
+      "question": 6,
+      "qid": "p1#13+p1#14:correction.*",
+      "address": "correction.reference_unit",
+      "path": "correction.reference_unit",
+      "type": "enum",
+      "before": "\u00b0C",
+      "after": "\u00b0C",
+      "who": "engineer:recorder",
+      "when_ms": 6,
+      "why": "'to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15'"
+    },
+    {
+      "question": 6,
+      "qid": "p1#13+p1#14:correction.*",
+      "address": "correction.rate",
+      "path": "correction.rate",
+      "type": "number",
+      "before": 0,
+      "after": 0,
+      "who": "engineer:recorder",
+      "when_ms": 6,
+      "why": "'to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15'"
+    },
+    {
+      "question": 6,
+      "qid": "p1#13+p1#14:correction.*",
+      "address": "correction.rate_unit",
+      "path": "correction.rate_unit",
+      "type": "enum",
+      "before": "\u00b0C",
+      "after": "\u00b0C",
+      "who": "engineer:recorder",
+      "when_ms": 6,
+      "why": "'to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15'"
+    },
+    {
+      "question": 6,
+      "qid": "p1#13+p1#14:correction.*",
+      "address": "correction.base",
+      "path": "correction.base",
+      "type": "number",
+      "before": 1,
+      "after": 2,
+      "who": "engineer:recorder",
+      "when_ms": 6,
+      "why": "'to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15'"
+    },
+    {
+      "question": 6,
+      "qid": "p1#13+p1#14:correction.*",
+      "address": "correction.step",
+      "path": "correction.step",
+      "type": "number",
+      "before": 1,
+      "after": 15,
+      "who": "engineer:recorder",
+      "when_ms": 6,
+      "why": "'to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#15+p1#16:limit.*",
+      "address": "limit.template",
+      "path": "limit.template",
+      "type": "enum",
+      "before": "none",
+      "after": "coefficient_times_input_plus_offset",
+      "who": "engineer:recorder",
+      "when_ms": 7,
+      "why": "'20 times (rated kV plus 2) megohms'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#15+p1#16:limit.*",
+      "address": "limit.coefficient",
+      "path": "limit.coefficient",
+      "type": "number",
+      "before": 0,
+      "after": 20,
+      "who": "engineer:recorder",
+      "when_ms": 7,
+      "why": "'20 times (rated kV plus 2) megohms'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#15+p1#16:limit.*",
+      "address": "limit.input",
+      "path": "limit.input",
+      "type": "enum",
+      "before": "temperature",
+      "after": "voltage",
+      "who": "engineer:recorder",
+      "when_ms": 7,
+      "why": "'20 times (rated kV plus 2) megohms'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#15+p1#16:limit.*",
+      "address": "limit.offset",
+      "path": "limit.offset",
+      "type": "number",
+      "before": 0,
+      "after": 2,
+      "who": "engineer:recorder",
+      "when_ms": 7,
+      "why": "'20 times (rated kV plus 2) megohms'"
+    },
+    {
+      "question": 7,
+      "qid": "p1#15+p1#16:limit.*",
+      "address": "limit.unit",
+      "path": "limit.unit",
+      "type": "enum",
+      "before": "\u00b0C",
+      "after": "M\u03a9",
+      "who": "engineer:recorder",
+      "when_ms": 7,
+      "why": "'20 times (rated kV plus 2) megohms'"
+    },
+    {
+      "question": 8,
+      "qid": "p1#17+p1#18:rules[].value",
+      "address": "rules[@p1#17+p1#18].value",
+      "path": "rules[0].value",
+      "type": "enum",
+      "before": null,
+      "after": "corrected",
+      "who": "engineer:recorder",
+      "when_ms": 8,
+      "why": "'if the corrected resistance is below ...'"
+    },
+    {
+      "question": 9,
+      "qid": "p1#17+p1#18:rules[].number",
+      "address": "rules[@p1#17+p1#18].against",
+      "path": "rules[0].against",
+      "type": "enum",
+      "before": null,
+      "after": "limit",
+      "who": "engineer:recorder",
+      "when_ms": 9,
+      "why": "'below one third of the minimum'"
+    },
+    {
+      "question": 9,
+      "qid": "p1#17+p1#18:rules[].number",
+      "address": "rules[@p1#17+p1#18].number",
+      "path": "rules[0].number",
+      "type": "number",
+      "before": null,
+      "after": 0,
+      "who": "engineer:recorder",
+      "when_ms": 9,
+      "why": "'below one third of the minimum'"
+    },
+    {
+      "question": 9,
+      "qid": "p1#17+p1#18:rules[].number",
+      "address": "rules[@p1#17+p1#18].unit",
+      "path": "rules[0].unit",
+      "type": "enum",
+      "before": null,
+      "after": "none",
+      "who": "engineer:recorder",
+      "when_ms": 9,
+      "why": "'below one third of the minimum'"
+    },
+    {
+      "question": 9,
+      "qid": "p1#17+p1#18:rules[].number",
+      "address": "rules[@p1#17+p1#18].limit_fraction",
+      "path": "rules[0].limit_fraction",
+      "type": "number",
+      "before": null,
+      "after": 0.3333333333333333,
+      "who": "engineer:recorder",
+      "when_ms": 9,
+      "why": "'below one third of the minimum'"
+    },
+    {
+      "question": 10,
+      "qid": "p1#19:rules[].value",
+      "address": "rules[@p1#19].value",
+      "path": "rules[1].value",
+      "type": "enum",
+      "before": null,
+      "after": "corrected",
+      "who": "engineer:recorder",
+      "when_ms": 10,
+      "why": "'it' is the corrected resistance"
+    },
+    {
+      "question": 11,
+      "qid": "p1#19:rules[].number",
+      "address": "rules[@p1#19].against",
+      "path": "rules[1].against",
+      "type": "enum",
+      "before": null,
+      "after": "limit",
+      "who": "engineer:recorder",
+      "when_ms": 11,
+      "why": "'below the minimum'"
+    },
+    {
+      "question": 11,
+      "qid": "p1#19:rules[].number",
+      "address": "rules[@p1#19].number",
+      "path": "rules[1].number",
+      "type": "number",
+      "before": null,
+      "after": 0,
+      "who": "engineer:recorder",
+      "when_ms": 11,
+      "why": "'below the minimum'"
+    },
+    {
+      "question": 11,
+      "qid": "p1#19:rules[].number",
+      "address": "rules[@p1#19].unit",
+      "path": "rules[1].unit",
+      "type": "enum",
+      "before": null,
+      "after": "none",
+      "who": "engineer:recorder",
+      "when_ms": 11,
+      "why": "'below the minimum'"
+    },
+    {
+      "question": 11,
+      "qid": "p1#19:rules[].number",
+      "address": "rules[@p1#19].limit_fraction",
+      "path": "rules[1].limit_fraction",
+      "type": "number",
+      "before": null,
+      "after": 1,
+      "who": "engineer:recorder",
+      "when_ms": 11,
+      "why": "'below the minimum'"
+    },
+    {
+      "question": 12,
+      "qid": "p1#20:rules[].value",
+      "address": "rules[@p1#20].value",
+      "path": "rules[2].value",
+      "type": "enum",
+      "before": null,
+      "after": "cued_1",
+      "who": "engineer:recorder",
+      "when_ms": 12,
+      "why": "'If DAR is below 1.25'"
+    },
+    {
+      "question": 13,
+      "qid": "p1#20:rules[].number",
+      "address": "rules[@p1#20].against",
+      "path": "rules[2].against",
+      "type": "enum",
+      "before": null,
+      "after": "number",
+      "who": "engineer:recorder",
+      "when_ms": 13,
+      "why": "'below 1.25'; DAR has no unit"
+    },
+    {
+      "question": 13,
+      "qid": "p1#20:rules[].number",
+      "address": "rules[@p1#20].number",
+      "path": "rules[2].number",
+      "type": "number",
+      "before": null,
+      "after": 1.25,
+      "who": "engineer:recorder",
+      "when_ms": 13,
+      "why": "'below 1.25'; DAR has no unit"
+    },
+    {
+      "question": 13,
+      "qid": "p1#20:rules[].number",
+      "address": "rules[@p1#20].unit",
+      "path": "rules[2].unit",
+      "type": "enum",
+      "before": null,
+      "after": "none",
+      "who": "engineer:recorder",
+      "when_ms": 13,
+      "why": "'below 1.25'; DAR has no unit"
+    },
+    {
+      "question": 13,
+      "qid": "p1#20:rules[].number",
+      "address": "rules[@p1#20].limit_fraction",
+      "path": "rules[2].limit_fraction",
+      "type": "number",
+      "before": null,
+      "after": 1,
+      "who": "engineer:recorder",
+      "when_ms": 13,
+      "why": "'below 1.25'; DAR has no unit"
+    },
+    {
+      "question": 14,
+      "qid": "p1#21:rules[].value",
+      "address": "rules[@p1#21].value",
+      "path": "rules[3].value",
+      "type": "enum",
+      "before": null,
+      "after": "cued_1",
+      "who": "engineer:recorder",
+      "when_ms": 14,
+      "why": "'If DAR is at least 1.25 but below 1.4'"
+    },
+    {
+      "question": 15,
+      "qid": "p1#21:rules[].op",
+      "address": "rules[@p1#21].op",
+      "path": "rules[3].op",
+      "type": "enum",
+      "before": null,
+      "after": "<",
+      "who": "engineer:recorder",
+      "when_ms": 15,
+      "why": "the 'at least 1.25' half is caught by the earlier 'below 1.25' rule"
+    },
+    {
+      "question": 16,
+      "qid": "p1#21:rules[].number",
+      "address": "rules[@p1#21].against",
+      "path": "rules[3].against",
+      "type": "enum",
+      "before": null,
+      "after": "number",
+      "who": "engineer:recorder",
+      "when_ms": 16,
+      "why": "'below 1.4'; DAR has no unit"
+    },
+    {
+      "question": 16,
+      "qid": "p1#21:rules[].number",
+      "address": "rules[@p1#21].number",
+      "path": "rules[3].number",
+      "type": "number",
+      "before": null,
+      "after": 1.4,
+      "who": "engineer:recorder",
+      "when_ms": 16,
+      "why": "'below 1.4'; DAR has no unit"
+    },
+    {
+      "question": 16,
+      "qid": "p1#21:rules[].number",
+      "address": "rules[@p1#21].unit",
+      "path": "rules[3].unit",
+      "type": "enum",
+      "before": null,
+      "after": "none",
+      "who": "engineer:recorder",
+      "when_ms": 16,
+      "why": "'below 1.4'; DAR has no unit"
+    },
+    {
+      "question": 16,
+      "qid": "p1#21:rules[].number",
+      "address": "rules[@p1#21].limit_fraction",
+      "path": "rules[3].limit_fraction",
+      "type": "number",
+      "before": null,
+      "after": 1,
+      "who": "engineer:recorder",
+      "when_ms": 16,
+      "why": "'below 1.4'; DAR has no unit"
+    }
+  ],
+  "not_applicable": [
+    {
+      "question": 4,
+      "qid": "p1#6:scope_limit.*",
+      "who": "engineer:recorder",
+      "when_ms": 4,
+      "why": "the same 33 kV limit as the scope sentence; teaching it twice would duplicate it"
+    }
+  ],
+  "unanswered": [],
+  "elements": [
+    {
+      "array": "out_of_scope_limits",
+      "sentence": "p1#2+p1#3",
+      "status": "complete",
+      "path": "out_of_scope_limits[0]",
+      "from_document": [],
+      "from_answers": [
+        "op",
+        "ref",
+        "unit",
+        "value"
+      ],
+      "missing": []
+    },
+    {
+      "array": "validity",
+      "sentence": "p1#10+p1#11+p1#12",
+      "status": "complete",
+      "path": "validity[0]",
+      "from_document": [
+        "max",
+        "min",
+        "outcome",
+        "ref",
+        "unit"
+      ],
+      "from_answers": [],
+      "missing": []
+    },
+    {
+      "array": "rules",
+      "sentence": "p1#17+p1#18",
+      "status": "complete",
+      "path": "rules[0]",
+      "from_document": [
+        "op",
+        "outcome"
+      ],
+      "from_answers": [
+        "against",
+        "limit_fraction",
+        "number",
+        "unit",
+        "value"
+      ],
+      "missing": []
+    },
+    {
+      "array": "rules",
+      "sentence": "p1#19",
+      "status": "complete",
+      "path": "rules[1]",
+      "from_document": [
+        "op",
+        "outcome"
+      ],
+      "from_answers": [
+        "against",
+        "limit_fraction",
+        "number",
+        "unit",
+        "value"
+      ],
+      "missing": []
+    },
+    {
+      "array": "rules",
+      "sentence": "p1#20",
+      "status": "complete",
+      "path": "rules[2]",
+      "from_document": [
+        "op",
+        "outcome"
+      ],
+      "from_answers": [
+        "against",
+        "limit_fraction",
+        "number",
+        "unit",
+        "value"
+      ],
+      "missing": []
+    },
+    {
+      "array": "rules",
+      "sentence": "p1#21",
+      "status": "complete",
+      "path": "rules[3]",
+      "from_document": [
+        "outcome"
+      ],
+      "from_answers": [
+        "against",
+        "limit_fraction",
+        "number",
+        "op",
+        "unit",
+        "value"
+      ],
+      "missing": []
+    }
+  ],
+  "counts": {
+    "questions": 16,
+    "answered": 15,
+    "not_applicable": 1,
+    "unanswered": 0,
+    "leaves_set_by_answers": 54,
+    "leaf_edits": 50,
+    "leaves_from_document": 14,
+    "elements_complete": 6,
+    "elements_incomplete": 0,
+    "elements_withdrawn": 0
+  },
+  "ir_unfilled_required": [],
+  "ir_schema_errors": [],
+  "ir_compiles": true,
+  "ir_compile_error": null,
+  "numbers_without_cited_provenance": [],
+  "scored": null,
+  "scored_note": "NOT_MEASURED here: C1 scores the IR against the examples and the suite.",
+  "status": "COMPILES"
+}

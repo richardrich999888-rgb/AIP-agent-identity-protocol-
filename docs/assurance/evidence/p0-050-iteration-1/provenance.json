@@ -1,0 +1,45 @@
+{
+  "implementation": "ef3d9d434e5ed55e5994331abc91c03833f997ff",
+  "implementation_tree": "d8e21fc9b2fa8ae4ad981036f0c082916fc51e86",
+  "ci_merge": "de0786e22a433512c50c402af4057d28564452d1",
+  "ci_merge_tree": "d8e21fc9b2fa8ae4ad981036f0c082916fc51e86",
+  "source_sha256": {
+    "Cargo.lock": "3bff972d6ac0dd2a871f23af4fac352e94327d5de202e72cb2421c8089dca336",
+    "research/capability-learning/harness/ir_compiler.py": "95426d9c686e10264a0c493e72e1c9e9c7df2c02860cc575899cca777db83cf3",
+    "research/capability-learning/harness/record_exclusion_policy.py": "2800f2bd29f1d85acff5a9c08e7df2fea0907e083319267e1f04961d43c9f46a",
+    "research/capability-learning/tests/test_applicability.py": "378f9878ffba0da4a0e4ce36f726ae8218484ed1d5f5aa822e11a241a6eb3364",
+    "research/capability-learning/data/tx-tasks-v1/MANIFEST.json": "5ec07e1d4bf3216db72fb699cd930cf8819fb9c511c320542761214a238e443b",
+    ".github/workflows/teach-scoreboard.yml": "fed01986255c57820d9ce8da61373815bd99ebe3cd6d3c36fe821735eb8c2537"
+  },
+  "model_hashes": [],
+  "model_status": "NOT STAGED; no model calls",
+  "source_tests": [
+    {
+      "command": "python -m pytest research/capability-learning/tests -q",
+      "exit_status": 0,
+      "passed": 353,
+      "log": "python-full-clean.txt"
+    },
+    {
+      "command": "cargo test --locked -p syntriass-runtime -p vanian-sovereign",
+      "exit_status": 0,
+      "passed": 284,
+      "log": "runtime-corpus.txt",
+      "note": "Executed before implementation commit on the same source changes; Rust source unchanged."
+    },
+    {
+      "command": "cargo build --locked -p syntriass-runtime --bin syntriass",
+      "exit_status": 0,
+      "log": "build.txt"
+    },
+    {
+      "command": "pytest research/capability-learning/tests/test_applicability.py",
+      "exit_status": 0,
+      "passed": 29,
+      "log": "applicability-tests-first.txt",
+      "note": "Subset of full Python tests, not additional passes"
+    }
+  ],
+  "rehearsal_credit": 0,
+  "independent_clean_machine_acceptance": false
+}

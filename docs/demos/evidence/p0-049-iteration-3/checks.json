@@ -1,0 +1,82 @@
+{
+  "implementation": "4d002accbf6759fe1845872ac5579815c8081631",
+  "tree": "ac6a26bcfec23e8da962d2e30633a056c9694950",
+  "ci_merge": "192acf0ee9aa00378caa315721aad46dc0de660d",
+  "ci_artifact_id": 13919257653,
+  "ci_archive_sha256": "fed9e11be15b966e88c7c3a9ed6dd097e412cb6c2ea5e75c4fded16e54bc300b",
+  "checks": {
+    "python": {
+      "passed": 324,
+      "failed": 0,
+      "skipped": 0,
+      "exit": 0
+    },
+    "runtime": {
+      "passed": 187,
+      "failed": 0,
+      "ignored": 0,
+      "exit": 0
+    },
+    "focused_python": {
+      "passed": 146,
+      "overlaps_full_suite": true,
+      "exit": 0
+    },
+    "local_recorder_exit": 3,
+    "ci_recorder_exit": 3,
+    "suite_signature_verification": {
+      "local": 4,
+      "ci": 4,
+      "tampered_exit": 1
+    }
+  },
+  "development_attempts": [
+    {
+      "name": "b3-dev",
+      "status": "exception",
+      "program_exit_retained": false,
+      "note": "Outer shell ran cat after Python; shell exit 0 does not establish script success. Trace retained. Scoreboard stdout missing for failing attack."
+    },
+    {
+      "name": "b3-dev-2",
+      "exit": 1,
+      "note": "Recorder aborts at fa-3; full signed suite and diagnostic retained."
+    },
+    {
+      "name": "b3-dev-3",
+      "exit": 3,
+      "note": "Retains partial result and baseline comparison; fa-3 unresolved."
+    },
+    {
+      "name": "b3-stdlib",
+      "exit": 3,
+      "note": "Standard-library-only execution; same unresolved attack."
+    }
+  ],
+  "self_review": {
+    "scope": "B1 questions, B2 provenance checks, explicit negative guards, offline recorder and CI exit propagation",
+    "no_runtime_or_compiler_changes": true,
+    "no_advisory_or_trivy_exemptions_added": true,
+    "approval_activation_not_performed": true,
+    "new_word_forms_count": 4,
+    "existing_quoted_forms_preserved": true,
+    "external_review": false
+  },
+  "limitations": [
+    "No packet captures, weights or signed answer receipts.",
+    "Same local development host; CI connected; neither is clean-machine offline-kit acceptance.",
+    "Full teaching, capability activation and independent evaluator acceptance remain open."
+  ],
+  "ci_security_artifacts": [
+    {
+      "id": 13919455887,
+      "sha256": "c3a3711d9b55b014099e63bdb6282d0894b504872b753859e81704ed392d4029",
+      "name": "trivy-report"
+    },
+    {
+      "id": 13918664339,
+      "sha256": "e251fd1e34a834edef9a6c87180dc209559be58272f5bf0dd3002f5653eaf175",
+      "name": "cargo-audit-report"
+    }
+  ]
+}

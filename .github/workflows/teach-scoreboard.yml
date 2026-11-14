@@ -1,0 +1,79 @@
+name: Teaching scoreboard (bounded C1 acceptance)
+
+on:
+  pull_request:
+    paths:
+      - 'sovereign/syntriass-runtime/**'
+      - 'sovereign/vanian-sovereign/**'
+      - 'validation/ci/**'
+      - 'research/capability-learning/**'
+      - 'Cargo.lock'
+      - '.github/workflows/teach-scoreboard.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  scoreboard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Runtime tests and real CLI
+        run: |
+          SYNTRIASS_LIFECYCLE_EVIDENCE="$RUNNER_TEMP/lifecycle-isolation-evidence" \
+            cargo test --locked -p syntriass-runtime
+          cargo test --locked -p vanian-sovereign --lib --test sqlite_upgrade
+          cargo build --locked -p syntriass-runtime --bin syntriass
+          cargo build --locked -p vanian-sovereign --bin vanian
+      - name: Unprivileged namespace sandbox and refusal regressions
+        run: |
+          bash validation/ci/with_cgroup.sh \
+            bash -euc '
+              cargo test --locked -p vanian-sovereign --test agent_execution
+              python3 validation/ci/record_sandbox.py --binary target/debug/vanian --out "$1"
+            ' bash "$RUNNER_TEMP/sandbox-evidence"
+      - name: Two synthetic domains, including the rejected candidate
+        run: |
+          python3 research/capability-learning/harness/record_scoreboard.py \
+            --binary target/debug/syntriass --out "$RUNNER_TEMP/scoreboard-evidence"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Teaching answer policy regressions
+        env:
+          SYNTRIASS_TEACH_APPROVAL_EVIDENCE: ${{ runner.temp }}/teaching-approval-evidence
+        run: |
+          python3 -m pip install pytest==8.3.5
+          python3 -m pytest -q research/capability-learning/tests/test_exclusion_terms.py \
+            research/capability-learning/tests/test_applicability.py \
+            research/capability-learning/tests/test_verify_applicability.py \
+            research/capability-learning/tests/test_session_scoreboard.py \
+            research/capability-learning/tests/test_example_mapping.py \
+            research/capability-learning/tests/test_teaching_review.py \
+            research/capability-learning/tests/test_signed_teaching_review.py \
+            research/capability-learning/tests/test_holdout_questions.py \
+            research/capability-learning/tests/test_apply_answers.py \
+            research/capability-learning/tests/test_question_generator.py
+      - name: Answered-session exclusion and false-activation acceptance
+        run: |
+          python3 research/capability-learning/harness/record_exclusion_policy.py \
+            --binary target/debug/syntriass --out "$RUNNER_TEMP/exclusion-evidence"
+      - name: Stored session to signed-suite scoreboard (no activation)
+        run: |
+          python3 research/capability-learning/harness/record_session_scoreboard.py \
+            --binary target/debug/syntriass --with-examples --out "$RUNNER_TEMP/session-scoreboard-evidence"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: teaching-scoreboard-evidence
+          path: |
+            ${{ runner.temp }}/scoreboard-evidence
+            ${{ runner.temp }}/exclusion-evidence
+            ${{ runner.temp }}/sandbox-evidence
+            ${{ runner.temp }}/session-scoreboard-evidence
+            ${{ runner.temp }}/lifecycle-isolation-evidence
+            ${{ runner.temp }}/teaching-approval-evidence
+          if-no-files-found: error

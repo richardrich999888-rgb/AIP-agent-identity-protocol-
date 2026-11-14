@@ -1,0 +1,22 @@
+{
+  "captured_at_utc": "2026-11-12T11:53:51.080142+00:00",
+  "uid": 1000,
+  "gid": 1000,
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "cpu_count": 9,
+  "cpu_affinity_count": 9,
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "meminfo": [
+    "MemTotal:       10206472 kB",
+    "SwapTotal:             0 kB"
+  ],
+  "apparmor_userns_sysctl": "NOT PRESENT",
+  "cgroup": "0::/\n",
+  "unshare": "unshare from util-linux 2.41.5",
+  "python": "3.12.14",
+  "source_commit": "6764c7eb38fa3c5cb0d9884303b14c1cd422d6ad",
+  "source_tree": "56ec58a2773556bfd6a26c6643913aa9bb43ca09",
+  "binary_sha256": "6a46fd086980dcf65e567efc6a6c45451a8f6a72f4b3d0065650c7e85cdc9166",
+  "baseline_log_sha256": "8af80cb4f136caac663a7356bcd733b3c5ad212e8f8500f81f7a0715a2e5ca60",
+  "baseline_log_note": "Full decoded provider log, losslessly gzip compressed; trailing newline preserved by text-file writer."
+}

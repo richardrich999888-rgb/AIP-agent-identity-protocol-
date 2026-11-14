@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/d81076ea93b3/p051-4/record_offline.py", line 5, in <module>
+    meta={'source':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'tracked_diff':git('diff','HEAD','--stat'),'platform':platform.platform(),'cpuinfo':Path('/proc/cpuinfo').read_text(),'meminfo':Path('/proc/meminfo').read_text(),'net_before':Path('/proc/net/dev').read_text(),'interfaces':[name for _, name in socket.if_nameindex()],'routes':Path('/proc/net/route').read_text(),'rehearsal_credit':0,'clean_machine':False}
+                                                                                                                                                                                                                                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted

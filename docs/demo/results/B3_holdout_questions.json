@@ -1,0 +1,195 @@
+{
+  "schema": "syntriass.demo.item_evidence/1",
+  "item": "B3 \u2014 the generated questions against the v0.2 holdout (HU-TX-2)",
+  "commit": "6a6bbbcb33f7c057057d33f0c9ce42da97cb81b8",
+  "tree_dirty": false,
+  "branch": "feature/airon-teach-demo",
+  "recorded_utc": "2026-11-07T19:49:44Z",
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "cores": 4,
+    "ram_mib": 16086,
+    "gpu": "none",
+    "kernel": "6.18.44-fc-v310",
+    "NOT_the_published_bench_machine": "V02_REPORT.md and BASELINES.md figures were measured on 2 vCPU Xeon (AVX-512) / 8 GB. Nothing here may be merged with those."
+  },
+  "acceptance_criterion": "the generated questions cover the 3 leaf edits needed after the v0.2 suite failure; record honestly whether answering them up front lets the candidate pass without a failed run, including if it does not",
+  "result": "RECORDED",
+  "finding": {
+    "questions_cover_the_three_edits": true,
+    "answering_up_front_passes_without_a_failed_run": false,
+    "why": "The question that owns the three edited leaves is asked, but it instructs 'copy each item exactly as it is written', which yields the document's plurals; B2 enforces that and refuses the singular forms the v0.2 expert used. The runtime matches terms whole-word (quantity.rs find_term), so 'cables' never matches 'Cable C-4' and the first validation fails on val-09 exactly as v0.2's did."
+  },
+  "who_answered": {
+    "identity": "engineer:recorder",
+    "statement": "The engineer recording this run, from the document. Not a domain expert."
+  },
+  "chain": {
+    "task_spec": "research/capability-learning/tasks/tx_hutx2.json",
+    "dataset": "tx-tasks-v1 regenerated; all files match the digests in the tracked MANIFEST.json (read from git)",
+    "document_sha256": "1c502b5940db2b1524b73bba60c77505863b19db1c0047547ec06caeb0233bbf",
+    "steps": [
+      "tx_tasks_v1.py + digest check",
+      "ingest_documents.py (A1)",
+      "syntriass teach start (A2, compiled)",
+      "draft_from_session.py (A3a)",
+      "question_generator.py (B1)",
+      "apply_answers.py (B2)",
+      "ir_compiler.compile_ir",
+      "syntriass suite-sign / cap-propose / cap-validate (release build)"
+    ],
+    "model_calls": 0
+  },
+  "v02_reproduced_first": {
+    "candidate": {
+      "passed": false,
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "counterexamples_passed": 4,
+      "counterexamples": 5,
+      "failures": [
+        {
+          "id": "val-09",
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "origin": "suite"
+        }
+      ],
+      "suite_independent": true
+    },
+    "corrected": {
+      "passed": true,
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "counterexamples_passed": 5,
+      "counterexamples": 5,
+      "failures": [],
+      "suite_independent": true
+    }
+  },
+  "the_three_v02_edits": [
+    {
+      "leaf": ".out_of_scope_terms[1]",
+      "from": "cables",
+      "to": "cable"
+    },
+    {
+      "leaf": ".out_of_scope_terms[2]",
+      "from": "generators",
+      "to": "generator"
+    },
+    {
+      "leaf": ".out_of_scope_terms[3]",
+      "from": "dry-type transformers",
+      "to": "dry-type"
+    }
+  ],
+  "owning_question": {
+    "n": 3,
+    "field_path": "scope_exclusion_terms.*",
+    "quote": "This procedure does not apply to motors, cables, generators or dry-type transformers; such requests are out of scope.",
+    "question": "The procedure says \"This procedure does not apply to motors, cables, generators or dry-type transformers; such requests are out of scope.\" (halvorn-hu-tx-2.txt p.1 [231:316]; halvorn-hu-tx-2.txt p.1 [317:348]). What equipment does the procedure NOT cover? Copy each item exactly as it is written in that sentence.",
+    "answer_note": "words copied from the sentence; anything not in it is refused"
+  },
+  "b2_verdicts_on_the_exclusion_question": {
+    "copied_as_written": "ACCEPTED",
+    "v02_expert_terms": [
+      "term 'motor' is not written in the quoted sentence",
+      "term 'cable' is not written in the quoted sentence",
+      "term 'generator' is not written in the quoted sentence"
+    ],
+    "both_numbers": [
+      "term 'motor' is not written in the quoted sentence",
+      "term 'cable' is not written in the quoted sentence",
+      "term 'generator' is not written in the quoted sentence"
+    ]
+  },
+  "second_finding_subject_length": {
+    "question": "The procedure says \"Scope: oil-immersed distribution transformers rated up to and including 33 kV.\" (halvorn-hu-tx-2.txt p.1 [152:158]; halvorn-hu-tx-2.txt p.1 [159:230]). What equipment does the procedure cover? Copy the words exactly as they are written in that sentence.",
+    "answer_copied_whole": [
+      "oil-immersed distribution transformers"
+    ],
+    "b2_verdict": [
+      "answer[0]: 38 characters, at most 32 allowed"
+    ],
+    "reading": "The question says to copy the words exactly but does not state the compiler's 32-character term limit, so the natural answer is refused. B2 is right to refuse (compile_ir does not enforce its own maxLength; the v0.2 model IR carried this 38-character term); the question should state the limit."
+  },
+  "answered_as_instructed": {
+    "counts": {
+      "questions": 16,
+      "answered": 15,
+      "not_applicable": 1,
+      "unanswered": 0,
+      "leaves_set_by_answers": 54,
+      "leaf_edits": 50,
+      "leaves_from_document": 14,
+      "elements_complete": 6,
+      "elements_incomplete": 0,
+      "elements_withdrawn": 0
+    },
+    "status": "COMPILES",
+    "first_validation": {
+      "passed": false,
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "counterexamples_passed": 4,
+      "counterexamples": 5,
+      "failures": [
+        {
+          "id": "val-09",
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "origin": "suite"
+        }
+      ],
+      "suite_independent": true
+    }
+  },
+  "diagnostic_outside_b2": {
+    "change": "out_of_scope_terms replaced by the v0.2 expert's terms; nothing else",
+    "validation": {
+      "passed": true,
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "counterexamples_passed": 5,
+      "counterexamples": 5,
+      "failures": [],
+      "suite_independent": true
+    }
+  },
+  "answered_ir_versus_v02_corrected": [
+    {
+      "leaf": ".out_of_scope_terms[0]",
+      "from": "motor",
+      "to": "motors"
+    },
+    {
+      "leaf": ".out_of_scope_terms[1]",
+      "from": "cable",
+      "to": "cables"
+    },
+    {
+      "leaf": ".out_of_scope_terms[2]",
+      "from": "generator",
+      "to": "generators"
+    },
+    {
+      "leaf": ".out_of_scope_terms[3]",
+      "from": "dry-type",
+      "to": "dry-type transformers"
+    },
+    {
+      "leaf": ".topic_terms[0]",
+      "from": "scope",
+      "to": "distribution transformers"
+    },
+    {
+      "leaf": ".topic_terms[1]",
+      "from": "oil-immersed distribution transformers",
+      "to": "<absent>"
+    }
+  ],
+  "not_measured": {
+    "unseen_30": "NOT_MEASURED here: serving falls through to a local model for some requests and no weights are staged in this container."
+  }
+}

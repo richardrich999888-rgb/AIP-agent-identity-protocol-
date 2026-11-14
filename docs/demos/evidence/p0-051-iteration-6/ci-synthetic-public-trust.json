@@ -1,0 +1,25 @@
+{
+  "approver_id": "expert:approver",
+  "public_hex": "09147e1a876e18db985fb39f64217526183c2707e64396a2f3d847ddca2673a7",
+  "approval_policy": {
+    "authorities": {
+      "expert:approver": {
+        "expert_id": "expert:approver",
+        "public_key_sha256": "1b6f92e457dda345b01c6ec1a95aacb588b41c74ee24cff7b73597a922f0a3e5",
+        "tenant": "halvorn-power",
+        "security_domain": "halvorn-ot",
+        "capability_ids": [
+          "halvorn.hutx2.insulation.compiled"
+        ],
+        "min_version": 1,
+        "max_version": 1,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 18446744073709551615,
+        "revoked": false
+      }
+    }
+  },
+  "review_digest": "5fd54acce26e63c146e8f2b33f8b0b869ab470e712509ad09eee25596e54ef9d",
+  "synthetic_identity": true
+}

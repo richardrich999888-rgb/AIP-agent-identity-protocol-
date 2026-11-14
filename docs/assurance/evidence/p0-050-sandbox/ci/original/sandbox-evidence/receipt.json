@@ -1,0 +1,123 @@
+{
+  "started_at_utc": "2026-11-12T11:53:20.204889+00:00",
+  "uid": 1001,
+  "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+  "cpu_count": 4,
+  "binary_sha256": "f8c6c6a419cd8c2dbd659146e8512993450524ffed198d1e79f43d7e252b7c36",
+  "recorder_sha256": "c78e3e55d89e21c31634e64a9ca2fcdc887d1355877c596cae23ebaf3201e9a0",
+  "model": "Synthetic commitment only; no model was loaded or invoked.",
+  "claim": "Runner attestation only; independent observation CANNOT_PROVE.",
+  "custody": "Synthetic keys generated under one uid; no independent administration.",
+  "commands": [
+    {
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/vanian",
+        "init",
+        "--state",
+        "/tmp/p050-synthetic-keys-jnkz3y4_",
+        "--tools",
+        "/home/runner/work/_temp/sandbox-evidence/tools.json",
+        "--grant",
+        "echo",
+        "--model-sha256",
+        "0000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "expected_exit": 0,
+      "exit_code": 0,
+      "duration_seconds": 5.025631984
+    },
+    {
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/vanian",
+        "act",
+        "--state",
+        "/tmp/p050-synthetic-keys-jnkz3y4_",
+        "--tool",
+        "echo",
+        "--evidence",
+        "/home/runner/work/_temp/sandbox-evidence/authorized.json",
+        "--",
+        "p050 sandbox ok"
+      ],
+      "expected_exit": 0,
+      "exit_code": 0,
+      "duration_seconds": 1.3670594640000004
+    },
+    {
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/vanian",
+        "act",
+        "--state",
+        "/tmp/p050-synthetic-keys-jnkz3y4_",
+        "--tool",
+        "forbidden",
+        "--evidence",
+        "/home/runner/work/_temp/sandbox-evidence/forbidden.json",
+        "--",
+        "must not run"
+      ],
+      "expected_exit": 1,
+      "exit_code": 1,
+      "duration_seconds": 1.316893463999989
+    },
+    {
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/vanian",
+        "verify",
+        "--public",
+        "/home/runner/work/_temp/sandbox-evidence/public.json",
+        "--bundle",
+        "/home/runner/work/_temp/sandbox-evidence/authorized.json"
+      ],
+      "expected_exit": 0,
+      "exit_code": 0,
+      "duration_seconds": 0.03181319699999108
+    },
+    {
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/vanian",
+        "verify",
+        "--public",
+        "/home/runner/work/_temp/sandbox-evidence/public.json",
+        "--bundle",
+        "/home/runner/work/_temp/sandbox-evidence/tampered-exit.json"
+      ],
+      "expected_exit": 1,
+      "exit_code": 1,
+      "duration_seconds": 0.015620061000007013
+    },
+    {
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/vanian",
+        "verify",
+        "--public",
+        "/home/runner/work/_temp/sandbox-evidence/wrong-public.json",
+        "--bundle",
+        "/home/runner/work/_temp/sandbox-evidence/authorized.json"
+      ],
+      "expected_exit": 1,
+      "exit_code": 1,
+      "duration_seconds": 0.03165533099999607
+    }
+  ],
+  "status": "PASS",
+  "files_sha256": {
+    "authorized.json": "2b7b1cdcb2e6f6df189d43956b5fcfcb38ea486c01560fa3a673920fa708c6ac",
+    "authorized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "authorized.stdout": "c6e7aef46db99833afa265a7df04f6f889f468b771cdfed9fb09bbb4a3925fcd",
+    "init.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "init.stdout": "cea1267bb5b934e1ec115e4192599daef6c93d82074db0ee01ed12e675527480",
+    "public.json": "f203443e3abe7d0b12ff57b0a8bc51722f0fc56112167b72a1b8292f6c4b32d1",
+    "tampered-exit.json": "58a2180c6afbecfffa3c3efeee1c442a91eef7b5c1ed677c0972b84625f5056d",
+    "tools.json": "4a217d7e1f23f45759c5309370a527d1e626225afd7fbd2470b5c08bda7c8a9b",
+    "unauthorized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "unauthorized.stdout": "ad32cfcdd1b085fcf720c48e7e49564f25f99ee93abcbf696b612d0b23750fe3",
+    "verify-original.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verify-original.stdout": "c0d19cb9bb36e292e0378c53a97503d5883e2ab58a3abc66eec7f874bf708d6a",
+    "verify-tampered.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verify-tampered.stdout": "abf9638d86c549e1834481241262308fb2c0e21da2b65ffb0d58718180183ccc",
+    "verify-wrong-anchor.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verify-wrong-anchor.stdout": "dc8f1a9252a252b0f6ec97666d92825129c586b61366f418c58c69cddfb7936e",
+    "wrong-public.json": "1f8150b56f72d1ed16c409050f0059b468e034b1a66f71336c8c6018f56e0fa4"
+  }
+}

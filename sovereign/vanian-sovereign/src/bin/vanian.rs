@@ -208,6 +208,18 @@ fn describe(o: &Outcome) -> (&'static str, String) {
 
 fn main() -> ExitCode {
     let argv: Vec<String> = std::env::args().skip(1).collect();
+    if argv
+        .first()
+        .is_some_and(|s| s == vanian_sovereign::adapters::launch::HELPER_COMMAND)
+    {
+        return match vanian_sovereign::adapters::launch::helper(&argv[1..]) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(e) => {
+                eprintln!("sandbox launch refused: {e}");
+                ExitCode::from(2)
+            }
+        };
+    }
     let Some(cmd) = argv.first() else {
         eprintln!("{USAGE}");
         return ExitCode::from(2);

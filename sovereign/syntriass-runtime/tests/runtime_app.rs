@@ -247,8 +247,202 @@ fn cfg(w: &World) -> Config {
         audit_log: w.audit.path().into(),
         rag_k: 3,
         approvers: w.approvers.clone(),
+        approval_policy: None,
+        require_teaching_review: false,
         instruments: w.instruments.clone(),
     }
+}
+
+fn policy_world() -> (World, Config) {
+    use syntriass_runtime::capability::authority::{ApprovalPolicy, AuthorityGrant};
+    let mut w = world(None);
+    let kp = aip_crypto::generate_ed25519_keypair();
+    let r = &mut w.store.0[0];
+    let expert = r.approval.as_ref().unwrap().approver_id.clone();
+    let grant = AuthorityGrant {
+        expert_id: expert.clone(),
+        public_key_sha256: hex::encode(aip_crypto::sha256(&kp.public_key)),
+        tenant: r.capability.required.tenant.clone(),
+        security_domain: r.capability.required.security_domain.clone(),
+        capability_ids: [r.capability.id.clone()].into(),
+        min_version: 1,
+        max_version: 2,
+        max_clearance: "restricted".into(),
+        valid_from_ms: 1,
+        expires_at_ms: u64::MAX,
+        revoked: false,
+    };
+    r.approval = Some(
+        Approval::sign_authorized(
+            &r.capability_hash,
+            r.validation.as_ref().unwrap(),
+            &expert,
+            false,
+            3,
+            &kp.private_key,
+            grant.hash(),
+        )
+        .unwrap(),
+    );
+    w.approvers.insert(expert.clone(), kp.public_key);
+    let mut c = cfg(&w);
+    c.approval_policy = Some(ApprovalPolicy {
+        authorities: [(expert, grant)].into(),
+    });
+    (w, c)
+}
+
+#[test]
+fn policy_bound_approval_runs_without_model_and_rechecks_current_authority() {
+    let (w, c) = policy_world();
+    let m = models("{}");
+    let p = principal("koravi-process", Classification::Restricted);
+    let id = &w.store.0[0].capability.id;
+    let rt = Runtime::new(c.clone(), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    assert_eq!(label(&rt.invoke(&p, id, IR_TASK).unwrap()), "PASS");
+    for attack in [
+        "revoked",
+        "expired",
+        "removed",
+        "empty",
+        "wrong-key",
+        "wrong-tenant",
+        "wrong-domain",
+        "wrong-expert",
+        "wrong-scope",
+        "version-floor",
+        "clearance",
+        "grant-change",
+    ] {
+        let mut changed = c.clone();
+        let grant = changed
+            .approval_policy
+            .as_mut()
+            .unwrap()
+            .authorities
+            .values_mut()
+            .next()
+            .unwrap();
+        match attack {
+            "revoked" => grant.revoked = true,
+            "expired" => grant.expires_at_ms = 4,
+            "wrong-key" => grant.public_key_sha256 = "0".repeat(64),
+            "wrong-tenant" => grant.tenant = "foreign".into(),
+            "wrong-domain" => grant.security_domain = "foreign".into(),
+            "wrong-expert" => grant.expert_id = "foreign".into(),
+            "wrong-scope" => grant.capability_ids.clear(),
+            "version-floor" => grant.min_version = 2,
+            "clearance" => grant.max_clearance = "public".into(),
+            "grant-change" => grant.max_version = 3,
+            "removed" => changed.approval_policy = None,
+            "empty" => changed
+                .approval_policy
+                .as_mut()
+                .unwrap()
+                .authorities
+                .clear(),
+            _ => unreachable!(),
+        }
+        let rt = Runtime::new(changed, &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+        let result = rt.invoke(&p, id, IR_TASK).unwrap();
+        assert!(
+            matches!(result.outcome, Outcome::Refused { .. }),
+            "{attack}: {:?}",
+            result.outcome
+        );
+        assert_eq!(result.cost.model_calls, 0, "{attack}");
+    }
+    assert!(m.0.seen.borrow().is_empty());
+}
+
+#[test]
+fn policy_time_boundaries_and_version_limits_are_exact() {
+    use syntriass_runtime::capability::authority::check;
+    let (w, c) = policy_world();
+    let r = &w.store.0[0];
+    let mut g = c
+        .approval_policy
+        .as_ref()
+        .unwrap()
+        .authorities
+        .values()
+        .next()
+        .unwrap()
+        .clone();
+    let key = c.approvers.values().next().unwrap();
+    g.valid_from_ms = 10;
+    g.expires_at_ms = 20;
+    assert!(g
+        .authorize(&r.capability, &g.expert_id, key, 10, 10)
+        .is_ok());
+    assert!(g
+        .authorize(&r.capability, &g.expert_id, key, 10, 19)
+        .is_ok());
+    for (decision, now) in [(9, 10), (10, 20), (11, 10), (0, 0)] {
+        assert!(g
+            .authorize(&r.capability, &g.expert_id, key, decision, now)
+            .is_err());
+    }
+    for (min, max) in [(0, 2), (2, 1), (2, 3)] {
+        g.min_version = min;
+        g.max_version = max;
+        assert!(g
+            .authorize(&r.capability, &g.expert_id, key, 10, 10)
+            .is_err());
+    }
+    assert!(check(r, &c.approvers, c.approval_policy.as_ref(), 3).is_ok());
+    assert!(check(r, &c.approvers, c.approval_policy.as_ref(), 2).is_err());
+}
+
+#[test]
+fn approval_binds_content_validation_authority_and_cannot_downgrade() {
+    use syntriass_runtime::capability::authority::check;
+    let (w, c) = policy_world();
+    for attack in [
+        "strip-grant",
+        "forged-grant",
+        "changed-source",
+        "changed-capability",
+        "changed-report",
+        "missing-report",
+        "missing-approval",
+        "wrong-signer",
+    ] {
+        let mut r = w.store.0[0].clone();
+        match attack {
+            "strip-grant" => r.approval.as_mut().unwrap().authority_hash = None,
+            "forged-grant" => r.approval.as_mut().unwrap().authority_hash = Some("0".repeat(64)),
+            "changed-source" => {
+                r.capability
+                    .dependencies
+                    .knowledge
+                    .insert("ep-114".into(), "0".repeat(64));
+            }
+            "changed-capability" => r.capability.version += 1,
+            "changed-report" => r.validation.as_mut().unwrap().capability_hash = "0".repeat(64),
+            "missing-report" => r.validation = None,
+            "missing-approval" => r.approval = None,
+            "wrong-signer" => r.approval.as_mut().unwrap().approver_id = "intruder".into(),
+            _ => unreachable!(),
+        }
+        assert!(
+            check(&r, &c.approvers, c.approval_policy.as_ref(), 4).is_err(),
+            "{attack}"
+        );
+        assert!(
+            check(&r, &c.approvers, None, 4).is_err(),
+            "legacy downgrade: {attack}"
+        );
+    }
+    let legacy = world(None);
+    assert!(check(&legacy.store.0[0], &legacy.approvers, None, 4).is_ok());
+    assert!(check(
+        &legacy.store.0[0],
+        &legacy.approvers,
+        c.approval_policy.as_ref(),
+        4
+    )
+    .is_err());
 }
 
 fn models(reply: &str) -> FakeModels {
@@ -348,6 +542,66 @@ fn untrusted_approver_makes_the_capability_invisible() {
         )
         .unwrap();
     assert!(!matches!(r.strategy, Strategy::Capability { .. }));
+}
+
+#[test]
+fn required_teaching_review_refuses_legacy_at_use_time() {
+    let w = world(None);
+    let m = models("{}");
+    let mut c = cfg(&w);
+    c.require_teaching_review = true;
+    let rt = Runtime::new(c, &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let r = rt
+        .invoke(
+            &principal("koravi-process", Classification::Restricted),
+            &w.store.0[0].capability.id,
+            IR_TASK,
+        )
+        .unwrap();
+    assert!(matches!(r.outcome, Outcome::Refused { .. }));
+    assert_eq!(r.cost.model_calls, 0);
+}
+
+#[test]
+fn signed_review_is_verified_at_use_time_without_model_calls() {
+    let (mut w, mut c) = policy_world();
+    let key = aip_crypto::generate_ed25519_keypair();
+    let grant = c
+        .approval_policy
+        .as_mut()
+        .unwrap()
+        .authorities
+        .values_mut()
+        .next()
+        .unwrap();
+    grant.public_key_sha256 = hex::encode(aip_crypto::sha256(&key.public_key));
+    let r = &mut w.store.0[0];
+    let mut a = Approval::sign_authorized(
+        &r.capability_hash,
+        r.validation.as_ref().unwrap(),
+        &grant.expert_id,
+        false,
+        3,
+        &key.private_key,
+        grant.hash(),
+    )
+    .unwrap();
+    a.bind_teaching_review(&"a".repeat(64), &key.private_key)
+        .unwrap();
+    r.approval = Some(a);
+    c.approvers.insert(grant.expert_id.clone(), key.public_key);
+    c.require_teaching_review = true;
+    let m = models("{}");
+    let p = principal("koravi-process", Classification::Restricted);
+    let id = w.store.0[0].capability.id.clone();
+    let rt = Runtime::new(c.clone(), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    assert_eq!(label(&rt.invoke(&p, &id, IR_TASK).unwrap()), "PASS");
+    w.store.0[0].approval.as_mut().unwrap().teaching_review_hash = Some("b".repeat(64));
+    let rt = Runtime::new(c, &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    let result = rt.invoke(&p, &id, IR_TASK).unwrap();
+    assert!(matches!(result.outcome, Outcome::Refused { .. }));
+    assert_eq!(result.cost.model_calls, 0);
+    assert!(m.0.seen.borrow().is_empty());
 }
 
 #[test]

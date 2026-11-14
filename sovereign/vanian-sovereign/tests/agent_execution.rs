@@ -5,6 +5,13 @@
 //! Requires util-linux `unshare` with unprivileged user namespaces. If that
 //! is unavailable the sandbox tests fail (they do not skip): the product
 //! fails closed there, and so do its tests.
+//!
+//! On a kernel that refuses the namespaces, every one of those tests now
+//! fails with `SandboxUnavailable`. Before the namespace probe was added two
+//! of them — `sandbox_environment_is_empty` and `deadline_kills_the_tool` —
+//! *passed* there, because a tool that never ran produces no output and a
+//! non-zero exit, which is exactly what each asserted. They were measuring
+//! the broken sandbox and calling it a pass.
 
 use std::path::PathBuf;
 use std::time::Instant;
@@ -84,6 +91,7 @@ fn fixture(granted: &[&str]) -> Fx {
         runner_private_key: runner_kp.private_key.clone(),
         decision_anchors: dp_anchors.clone(),
         unshare_path: PathBuf::from("/usr/bin/unshare"),
+        launcher_path: PathBuf::from(env!("CARGO_BIN_EXE_vanian")),
         workdir: work.path().to_path_buf(),
     };
     let binding = collect_self_binding(&agent.id).unwrap();
@@ -330,7 +338,16 @@ fn sandbox_has_no_network_interface_but_loopback() {
 fn sandbox_environment_is_empty() {
     let f = fixture(&["env"]);
     let m = manifest("env", "/usr/bin/env", &[], 5_000);
-    let (_, out) = run_ok(&f, &m, &inv("env", &[]));
+    let (b, out) = run_ok(&f, &m, &inv("env", &[]));
+    // Assert the tool actually ran first. "No output" is also what a sandbox
+    // that could not be built produces, and an empty-output assertion alone
+    // cannot tell the two apart.
+    assert_eq!(
+        b.run_record.exit,
+        ExitOutcome::Code(0),
+        "env did not run to completion: {:?}",
+        b.run_record.exit
+    );
     assert!(
         out.is_empty(),
         "leaked env: {}",
@@ -341,11 +358,127 @@ fn sandbox_environment_is_empty() {
 #[test]
 fn deadline_kills_the_tool() {
     let f = fixture(&["sleep"]);
-    let m = manifest("sleep", "/bin/sleep", &[], 300);
+    let m = manifest(
+        "sleep",
+        "/bin/sh",
+        &["-c", "printf 'started\\n'; exec /bin/sleep 30"],
+        300,
+    );
     let t = Instant::now();
-    let (b, _) = run_ok(&f, &m, &inv("sleep", &["30"]));
+    let (b, out) = run_ok(&f, &m, &inv("sleep", &[]));
+    assert_eq!(out, b"started\n", "the authorized tool never started");
     assert!(t.elapsed().as_secs() < 5, "deadline not enforced");
-    assert_ne!(b.run_record.exit, ExitOutcome::Code(0));
+    assert_eq!(b.run_record.exit, ExitOutcome::Signal(9));
+}
+
+#[test]
+fn the_namespace_probe_succeeds_where_the_sandbox_works() {
+    // The precondition the sandbox tests rest on, asserted directly so a
+    // restricted kernel names the cause once instead of producing a spread
+    // of confusing assertion failures across five tests.
+    let f = fixture(&["echo"]);
+    if let Err(reason) = f.runner.probe_namespaces() {
+        panic!(
+            "this kernel refuses the sandbox namespaces, so the sandbox tests              below cannot be meaningful: {reason}"
+        );
+    }
+}
+
+#[test]
+fn authority_expiring_during_the_probe_is_refused_without_consumption() {
+    let f = fixture(&["echo"]);
+    let m = manifest("echo", "/bin/echo", &[], 5_000);
+    let i = inv("echo", &["must-not-run"]);
+    let e = ee(&f, &m, &i);
+    let calls = std::cell::Cell::new(0);
+    let clock = || {
+        let previous = calls.get();
+        calls.set(previous + 1);
+        if previous == 0 {
+            e.issued_at + 1
+        } else {
+            e.valid_until + 1
+        }
+    };
+    let mut guard = MemoryReplayGuard::default();
+    assert!(matches!(
+        f.runner.run(&m, &i, &e, &f.binding, &mut guard, &clock),
+        Err(RunError::NotInWindow(_))
+    ));
+    assert_eq!(calls.get(), 2, "authority must be checked after the probe");
+    assert!(guard.consume(&e.decision_id).is_ok());
+}
+
+#[test]
+fn program_changed_during_the_probe_is_refused_without_consumption() {
+    let f = fixture(&["echo"]);
+    let copied = f._work.path().join("tool");
+    std::fs::copy("/bin/echo", &copied).unwrap();
+    let m = manifest("echo", copied.to_str().unwrap(), &[], 5_000);
+    let i = inv("echo", &["must-not-run"]);
+    let e = ee(&f, &m, &i);
+    let calls = std::cell::Cell::new(0);
+    let clock = || {
+        calls.set(calls.get() + 1);
+        if calls.get() == 2 {
+            std::fs::write(&copied, b"changed after initial authorization checks").unwrap();
+        }
+        e.issued_at + 1
+    };
+    let mut guard = MemoryReplayGuard::default();
+    assert_eq!(
+        f.runner
+            .run(&m, &i, &e, &f.binding, &mut guard, &clock)
+            .unwrap_err(),
+        RunError::ProgramDigestMismatch
+    );
+    assert!(guard.consume(&e.decision_id).is_ok());
+}
+
+#[test]
+fn an_unshare_that_fails_its_own_setup_is_not_mistaken_for_a_tool_exit() {
+    // REGRESSION. `unshare` is a child process: a kernel that refuses the
+    // namespaces lets it exec, then it fails setup and exits non-zero. The
+    // runner used to sign a run record carrying that exit code as though the
+    // tool had run and exited 1 — a false evidence record, and one that made
+    // tampering a genuine record to Code(1) undetectable.
+    //
+    // `/bin/false` stands in for that kernel: a real file at `unshare_path`
+    // that execs and exits 1 without creating any namespace.
+    let mut f = fixture(&["echo"]);
+    f.runner.unshare_path = PathBuf::from("/bin/false");
+    let m = manifest("echo", "/bin/echo", &[], 5_000);
+    let i = inv("echo", &["x"]);
+    let e = ee(&f, &m, &i);
+    let mut g = MemoryReplayGuard::default();
+    match f.runner.run(&m, &i, &e, &f.binding, &mut g, &now_ms) {
+        Err(RunError::SandboxUnavailable(reason)) => {
+            assert!(
+                reason.contains("exited 1"),
+                "the refusal must carry what the probe saw: {reason}"
+            );
+        }
+        other => panic!("expected SandboxUnavailable, got {other:?}"),
+    }
+    // And the one-shot decision must survive, because nothing ran.
+    assert!(
+        g.consume(&e.decision_id).is_ok(),
+        "decision consumed for a run that never happened"
+    );
+}
+
+#[test]
+fn the_probe_refuses_when_unshare_is_not_executable() {
+    let mut f = fixture(&["echo"]);
+    f.runner.unshare_path = PathBuf::from("/etc/hostname");
+    let reason = f
+        .runner
+        .probe_namespaces()
+        .expect_err("a text file is not unshare");
+    assert!(
+        reason.contains("cannot spawn") || reason.contains("exited"),
+        "{reason}"
+    );
 }
 
 // ─── Evidence tampering (offline verifier) ───
@@ -421,4 +554,183 @@ fn forged_observation_upgrade_cannot_deserialize() {
         .unwrap()
         .replace("CannotProve", "VerifiedExecution");
     assert!(serde_json::from_str::<EvidenceBundle>(&json).is_err());
+}
+
+#[test]
+fn probe_success_then_launcher_failure_never_signs() {
+    use std::os::unix::fs::PermissionsExt;
+    for exit_code in [0, 1, 126, 127] {
+        let mut f = fixture(&["echo"]);
+        let fake = f._work.path().join("probe-only-launcher");
+        std::fs::write(&fake, format!("#!/bin/sh\nfor last; do :; done\nif [ \"$last\" = /bin/true ]; then exit 0; fi\nexit {exit_code}\n")).unwrap();
+        std::fs::set_permissions(&fake, std::fs::Permissions::from_mode(0o755)).unwrap();
+        f.runner.unshare_path = fake;
+        let m = manifest("echo", "/bin/echo", &[], 5000);
+        let i = inv("echo", &["must-not-run"]);
+        let e = ee(&f, &m, &i);
+        let mut guard = MemoryReplayGuard::default();
+        let result = f.runner.run(&m, &i, &e, &f.binding, &mut guard, &now_ms);
+        assert!(
+            result.is_err(),
+            "launcher exit {exit_code} was signed as tool execution: {result:?}"
+        );
+        assert_eq!(
+            guard.consume(&e.decision_id),
+            Err(ReplayError::AlreadyConsumed),
+            "uncertain launch must not refund one-shot authority"
+        );
+    }
+}
+
+#[test]
+fn non_executable_tool_never_signs() {
+    let f = fixture(&["invalid"]);
+    let program = f._work.path().join("non-executable");
+    std::fs::write(&program, b"not executable").unwrap();
+    let m = manifest("invalid", program.to_str().unwrap(), &[], 5000);
+    let i = inv("invalid", &[]);
+    let e = ee(&f, &m, &i);
+    let mut guard = MemoryReplayGuard::default();
+    assert!(
+        f.runner
+            .run(&m, &i, &e, &f.binding, &mut guard, &now_ms)
+            .is_err(),
+        "a failed exec must never receive a signed tool record"
+    );
+}
+
+#[test]
+fn failed_exec_formats_and_missing_interpreters_never_sign() {
+    use std::os::unix::fs::PermissionsExt;
+    for body in [
+        b"not an executable image".as_slice(),
+        b"#!/definitely-missing-interpreter\nexit 0\n",
+    ] {
+        let f = fixture(&["invalid"]);
+        let program = f._work.path().join("invalid-image");
+        std::fs::write(&program, body).unwrap();
+        std::fs::set_permissions(&program, std::fs::Permissions::from_mode(0o755)).unwrap();
+        let m = manifest("invalid", program.to_str().unwrap(), &[], 5000);
+        let i = inv("invalid", &[]);
+        let e = ee(&f, &m, &i);
+        let error = f
+            .runner
+            .run(
+                &m,
+                &i,
+                &e,
+                &f.binding,
+                &mut MemoryReplayGuard::default(),
+                &now_ms,
+            )
+            .unwrap_err();
+        assert!(matches!(error, RunError::LaunchUnproven(_)));
+        assert!(
+            error
+                .to_string()
+                .contains("no successful kernel exec event"),
+            "{error}"
+        );
+    }
+}
+
+#[test]
+fn genuine_nonzero_tool_exits_are_not_confused_with_launcher_errors() {
+    for code in [1, 126, 127] {
+        let f = fixture(&["shell"]);
+        let script = format!(
+            "printf 'AIPLEX01'; printf 'unshare: Operation not permitted' >&2; exit {code}"
+        );
+        let m = manifest("shell", "/bin/sh", &["-c", &script], 5000);
+        let (bundle, stdout) = run_ok(&f, &m, &inv("shell", &[]));
+        assert_eq!(bundle.run_record.exit, ExitOutcome::Code(code));
+        assert_eq!(stdout, b"AIPLEX01");
+        assert!(matches!(
+            verify_bundle(&bundle, &f.dp_anchors, &runner_anchor(&f)),
+            Verdict::AuthorizedAndRunnerAttested {
+                observation: Observation::CannotProve { .. },
+                ..
+            }
+        ));
+    }
+}
+
+#[test]
+fn successful_shebang_tool_and_signal_exit_preserve_real_status() {
+    use std::os::unix::fs::PermissionsExt;
+    let f = fixture(&["script"]);
+    let program = f._work.path().join("script");
+    std::fs::write(&program, b"#!/bin/sh\nprintf 'script ran\\n'\n").unwrap();
+    std::fs::set_permissions(&program, std::fs::Permissions::from_mode(0o755)).unwrap();
+    let m = manifest("script", program.to_str().unwrap(), &[], 5000);
+    let (bundle, output) = run_ok(&f, &m, &inv("script", &[]));
+    assert_eq!(bundle.run_record.exit, ExitOutcome::Code(0));
+    assert_eq!(output, b"script ran\n");
+    let m = manifest("script", "/bin/sh", &["-c", "kill -TERM $$"], 5000);
+    let (bundle, _) = run_ok(&f, &m, &inv("script", &[]));
+    assert_eq!(bundle.run_record.exit, ExitOutcome::Signal(15));
+}
+
+#[test]
+fn tool_does_not_inherit_the_private_reporting_socket() {
+    let f = fixture(&["fd-check"]);
+    let m = manifest(
+        "fd-check",
+        "/bin/sh",
+        &[
+            "-c",
+            "for f in /proc/self/fd/*; do /usr/bin/readlink \"$f\" || :; done",
+        ],
+        5000,
+    );
+    let (_, output) = run_ok(&f, &m, &inv("fd-check", &[]));
+    assert!(!output.is_empty());
+    assert!(
+        !String::from_utf8_lossy(&output).contains("socket:"),
+        "private control socket leaked to tool"
+    );
+}
+
+#[test]
+fn missing_helper_refuses_before_consuming_authority() {
+    let mut f = fixture(&["echo"]);
+    f.runner.launcher_path = PathBuf::from("/nonexistent/vanian");
+    let m = manifest("echo", "/bin/echo", &[], 5000);
+    let i = inv("echo", &[]);
+    let e = ee(&f, &m, &i);
+    let mut guard = MemoryReplayGuard::default();
+    assert!(matches!(
+        f.runner.run(&m, &i, &e, &f.binding, &mut guard, &now_ms),
+        Err(RunError::SandboxUnavailable(_))
+    ));
+    assert!(guard.consume(&e.decision_id).is_ok());
+}
+
+#[test]
+fn helper_death_and_stdout_markers_do_not_prove_execution() {
+    use std::os::unix::fs::PermissionsExt;
+    for body in [
+        "#!/bin/sh\nprintf AIPLEX01\nexit 0\n",
+        "#!/bin/sh\nkill -KILL $$\n",
+    ] {
+        let mut f = fixture(&["echo"]);
+        let fake = f._work.path().join("failed-helper");
+        std::fs::write(&fake, body).unwrap();
+        std::fs::set_permissions(&fake, std::fs::Permissions::from_mode(0o755)).unwrap();
+        f.runner.launcher_path = fake;
+        let m = manifest("echo", "/bin/echo", &[], 5000);
+        let i = inv("echo", &[]);
+        let e = ee(&f, &m, &i);
+        assert!(matches!(
+            f.runner.run(
+                &m,
+                &i,
+                &e,
+                &f.binding,
+                &mut MemoryReplayGuard::default(),
+                &now_ms
+            ),
+            Err(RunError::LaunchUnproven(_))
+        ));
+    }
 }

@@ -10,8 +10,10 @@ free-text fields — undefined or misspelled names, operator precedence,
 outcome/ordering mistakes, unmatchable applicability phrases. Here the model
 only chooses enums and numbers; it never writes an expression or a name.
 
-Mechanical repairs (never change meaning): unit spellings added to the
-applicability terms for every declared input kind; cue-word case variants.
+Applicability comes from taught topic terms, declared input cues and explicit
+exclusions. A measurement unit identifies a quantity, not a procedure's domain;
+the compiler must never add unit spellings as independent scope evidence.
+Mechanical repairs: cue-word case variants and identifier-style cue spacing.
 Not repaired, ever: thresholds, outcomes, rule order, scope or validity
 limits — a wrong one fails validation and is reported.
 
@@ -42,10 +44,6 @@ UNIT_KIND = {"kV": ("voltage", "id"), "V": ("voltage", "milli"), "MΩ": ("resist
              "°F": ("temperature", "f_to_c"), "none": ("cued", "id")}
 CONVERT = {"id": lambda v: v, "milli": lambda v: v / 1000.0, "kilo": lambda v: v * 1000.0,
            "f_to_c": lambda v: (v - 32.0) * 5.0 / 9.0}
-# Spellings the runtime parser recognises (quantity.rs), used as applicability terms.
-UNIT_TERMS = {"voltage": ["V", "volt", "volts", "kV"],
-              "resistance": ["megohm", "megohms", "MΩ", "Mohm", "GΩ", "kΩ"],
-              "temperature": []}  # temperature words are too common to signal applicability
 MAX_RULES = 10
 
 REF = {"enum": list(INPUT_REFS)}
@@ -243,16 +241,19 @@ def compile_ir(ir: dict, spec: dict) -> Compiled:
             rhs = _num(_to_canonical(r["number"], r["unit"], kind, f"rules[{k}]"))
         rules.append({"when": f"{r['value']} {r['op']} {rhs}", "outcome": r["outcome"]})
 
-    # Applicability: topic terms + cue words + unit spellings (mechanical repair).
+    # Taught context is required before missing inputs can be diagnosed.
+    # Shared measurement units do not supply that context. Explicit exclusions
+    # may route to their existing OUT_OF_SCOPE text guard, which executes before
+    # missing-input checks or release rules. The measurement-count gate remains.
     terms = list(dict.fromkeys([x for x in ir["topic_terms"] if x.strip()]))
     added = []
-    for inp in inputs:
-        for w in UNIT_TERMS.get(inp["kind"], []) + inp["cues"]:
-            if w not in terms:
-                terms.append(w)
-                added.append(w)
+    context = [w for inp in inputs for w in inp["cues"]] + ir["out_of_scope_terms"]
+    for w in context:
+        if w not in terms:
+            terms.append(w)
+            added.append(w)
     if added:
-        repairs.append({"kind": "applicability_unit_and_cue_terms", "added": added})
+        repairs.append({"kind": "applicability_cue_and_exclusion_terms", "added": added})
     cap = {
         "id": spec["capability_id"], "version": 1, "intended_task": spec["intended_task"], "outcomes": outcomes,
         "applicability": {"any_terms": terms[:32], "min_inputs_present": min(2, len(inputs))},

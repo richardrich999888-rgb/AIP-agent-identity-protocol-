@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/verify_download.py", line 58, in <module>
+    "public_key_hex": json.loads((evidence / "expert-public.json").read_text())["public_key_hex"],
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+KeyError: 'public_key_hex'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox/docs/assurance/evidence/p0-050-sandbox/verify_download.py", line 70, in <module>
+    "network_interfaces": sorted(p.name for p in Path("/sys/class/net").iterdir()),
+                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 577, in iterdir
+    with os.scandir(root_dir) as scandir_it:
+         ~~~~~~~~~~^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/sys/class/net'

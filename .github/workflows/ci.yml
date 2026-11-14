@@ -70,6 +70,12 @@ jobs:
         if: ${{ !cancelled() }}
         run: bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast
 
+      - name: Relocated reference binaries (no layout assumptions)
+        if: ${{ !cancelled() }}
+        run: |
+          python3 validation/ci/relocated_reference_tests.py aip-edge adversarial
+          python3 validation/ci/relocated_reference_tests.py ghost-demo live_nexora
+
       - name: cargo test (release — perf gates)
         if: ${{ !cancelled() }}
         run: bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast

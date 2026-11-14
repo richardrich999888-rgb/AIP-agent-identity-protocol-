@@ -1,0 +1,36 @@
+{
+  "result": "PASS_BOUNDED_C1",
+  "output": "/workspace/scratch/d81076ea93b3/scoreboard-clean-84d889f",
+  "runs": [
+    {
+      "name": "motor-corrected",
+      "domain": "ir",
+      "exit_status": 0,
+      "wall_seconds": 0.030751497999517596,
+      "capability_hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "expert_passed": 14,
+      "expert_cases": 14,
+      "state_unchanged": true
+    },
+    {
+      "name": "transformer-candidate",
+      "domain": "tx",
+      "exit_status": 3,
+      "wall_seconds": 0.028524505998575478,
+      "capability_hash": "560e81faa7686ef0ab1e51a6028dffd036cab99455770b8968bafd53d2a6adbc",
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "state_unchanged": true
+    },
+    {
+      "name": "transformer-corrected",
+      "domain": "tx",
+      "exit_status": 0,
+      "wall_seconds": 0.07915835700077878,
+      "capability_hash": "6d8ee2cbd71363a233c006b096ea01d7c1d77819139f8931f8478f2e8ea3e953",
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "state_unchanged": true
+    }
+  ]
+}

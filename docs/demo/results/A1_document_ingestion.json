@@ -1,0 +1,147 @@
+{
+  "schema": "syntriass.demo.item_evidence/1",
+  "item": "A1 \u2014 PDF / DOCX / TXT ingestion with page numbers and character spans",
+  "commit": "923dd7df36a52d19dc6b2811877e693aae2bc934",
+  "branch": "feature/airon-teach-demo",
+  "recorded_utc": "2026-11-06T04:45:59Z",
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.30GHz",
+    "cores": 4,
+    "ram_mib": 16086,
+    "gpu": "none",
+    "kernel": "6.18.44-fc-v242",
+    "NOT_the_published_bench_machine": "V02_REPORT.md figures were measured on 2 vCPU Xeon (AVX-512) / 8 GB. Nothing here may be merged with those."
+  },
+  "acceptance_criterion": "a 20-page PDF with a table and one scanned page yields correct clauses and page references",
+  "result": "MET",
+  "fixture": {
+    "generator": "research/capability-learning/harness/make_pdf_fixture.py",
+    "deterministic": "byte-reproducible across builds; asserted by test_it_is_byte_reproducible",
+    "pages": 20,
+    "page_19": "annex table, rendered as spaced text the way a real manual's table reaches a text extractor",
+    "page_20": "IMAGE ONLY \u2014 0 text-layer characters, verified by test_the_last_page_has_no_text_layer_at_all, so the OCR path is genuinely exercised"
+  },
+  "measured": {
+    "clauses_total": 64,
+    "by_extraction": {
+      "pdf_ocr": 3,
+      "pdf_text": 61
+    },
+    "table_rows_recovered": [
+      "3.3",
+      "6.6",
+      "11.0",
+      "Test voltage"
+    ],
+    "ocr_fidelity_on_this_fixture": {
+      "exact_text_match": true,
+      "numbers_source": [
+        "114",
+        "10.0"
+      ],
+      "numbers_from_ocr": [
+        "114",
+        "10.0"
+      ],
+      "digits_intact": true,
+      "scope_limit": "A cleanly rendered 300 dpi synthetic page. Real scans are noisier; this is NOT evidence that OCR preserves digits in general, which is precisely why clauses carry extraction='pdf_ocr' rather than being folded into 'pdf_text'."
+    }
+  },
+  "design": {
+    "exact_span_invariant": "page_text[char_start:char_end] == clause.text, asserted for EVERY clause including OCR'd ones",
+    "ocr_is_labelled_not_merged": "extraction is part of Clause. OCR misreads digits and this pipeline drafts thresholds from clause text, so an OCR'd value belongs in the hypothesis class put to the expert, never in evidence.",
+    "missing_ocr_tool_is_refused": "a silently skipped scanned page is a clause the expert never sees; the refusal names the apt package",
+    "docx_pages": "DOCX has no pages before layout, so the body is page 1 and that is stated rather than a page number being guessed"
+  },
+  "dependencies_added": {
+    "python": [
+      {
+        "name": "pypdf",
+        "version": "6.21.4",
+        "licence": "BSD-3-Clause",
+        "licence_source": "PyPI metadata",
+        "transitives": [
+          "typing_extensions"
+        ]
+      },
+      {
+        "name": "python-docx",
+        "version": "1.2.0",
+        "licence": "MIT",
+        "licence_source": "PyPI classifier",
+        "transitives": [
+          "lxml",
+          "typing_extensions"
+        ]
+      },
+      {
+        "name": "Pillow",
+        "version": "13.0.0",
+        "licence": "MIT-CMU",
+        "licence_source": "PyPI metadata",
+        "used_for": "rendering the fixture's scanned page only"
+      }
+    ],
+    "system_apt_must_be_vendored_for_airgap": [
+      {
+        "name": "poppler-utils",
+        "version": "24.02.0-1ubuntu9.11",
+        "state": "already present",
+        "used_for": "pdftoppm"
+      },
+      {
+        "name": "tesseract-ocr",
+        "version": "5.3.4-1build5",
+        "licence": "Apache-2.0",
+        "used_for": "the OCR engine"
+      },
+      {
+        "name": "tesseract-ocr-eng",
+        "state": "installed",
+        "used_for": "English traineddata"
+      }
+    ],
+    "rejected": [
+      {
+        "name": "pdfplumber",
+        "reason": "pulls pdfminer.six, which pulls cryptography. pypdf gives the page text and page numbers the contract needs with one transitive."
+      },
+      {
+        "name": "pytesseract",
+        "reason": "a subprocess wrapper around a binary the ingester already shells out to; a dependency with no added capability."
+      }
+    ],
+    "all_licences_permissive": true,
+    "any_restricting_commercial_use": false
+  },
+  "tests": {
+    "research/capability-learning/tests/test_ingest_documents.py": {
+      "passed": 32,
+      "failed": 0
+    },
+    "research/capability-learning/tests (full)": {
+      "passed": 85,
+      "failed": 0,
+      "was_before_A1": 53
+    },
+    "deploy/syntriass/tests/test_setup.py": {
+      "passed": 21,
+      "failed": 0
+    }
+  },
+  "findings": [
+    {
+      "id": "A1-f1",
+      "what": "PDF line wrapping puts newlines inside phrases, so a clause reads 'between 10\nC and 25 C'",
+      "consequence": "any downstream quantity parser must treat an intra-phrase newline as a space or it will miss the value",
+      "status": "pinned by test_clause_text_can_contain_newlines_from_pdf_wrapping so it cannot surprise whoever writes the field parser"
+    },
+    {
+      "id": "A1-f2",
+      "what": "tesseract and poppler are apt packages, not pip",
+      "consequence": "an air-gapped bundle must carry their .deb files; apt-get is unavailable on the target host",
+      "status": "recorded in requirements.lock's SYSTEM section and in this file"
+    }
+  ],
+  "offline": "no network call and no model: pypdf reads the text layer, pdftoppm rasterises, tesseract reads. Verified by construction \u2014 none of the three opens a socket."
+}

@@ -1,0 +1,110 @@
+{
+  "observed_at": "2026-11-12",
+  "implementation": "5bc0c5f68690e5d2656716a97c2cfbb2ce105e08",
+  "runs": {
+    "workflow_runs": [
+      {
+        "id": 43215328982,
+        "name": "CI",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 125,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43215328982/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43215328982/logs",
+        "workflow_id": 297111051
+      },
+      {
+        "id": 43215329006,
+        "name": "Real-agent harness contracts (no live agent claim)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 102,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43215329006/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43215329006/logs",
+        "workflow_id": 399123351
+      },
+      {
+        "id": 43215328974,
+        "name": "Teaching scoreboard (bounded C1 acceptance)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 12,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43215328974/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43215328974/logs",
+        "workflow_id": 415093042
+      },
+      {
+        "id": 43215329189,
+        "name": "Security",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 139,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43215329189/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43215329189/logs",
+        "workflow_id": 297111055
+      }
+    ]
+  },
+  "security_artifacts": {
+    "artifacts": [
+      {
+        "id": 13943536971,
+        "name": "cargo-audit-report",
+        "size_in_bytes": 408,
+        "url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13943536971",
+        "archive_download_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13943536971/zip",
+        "expired": false,
+        "created_at": "2026-11-12T12:12:30Z",
+        "expires_at": "2027-02-10T12:09:22Z",
+        "updated_at": "2026-11-12T12:12:30Z",
+        "digest": "sha256:b1e38c50c4ed8c20728a7781c23fdc53185ceeccdc7e82759b386b65648c8138",
+        "workflow_run": {
+          "id": 43215329189,
+          "repository_id": 1227100465,
+          "head_repository_id": 1227100465,
+          "head_branch": "feature/airon-teach-demo",
+          "head_sha": "5bc0c5f68690e5d2656716a97c2cfbb2ce105e08"
+        }
+      },
+      {
+        "id": 13943331944,
+        "name": "trivy-report",
+        "size_in_bytes": 1840,
+        "url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13943331944",
+        "archive_download_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13943331944/zip",
+        "expired": false,
+        "created_at": "2026-11-12T12:09:36Z",
+        "expires_at": "2027-02-10T12:09:22Z",
+        "updated_at": "2026-11-12T12:09:36Z",
+        "digest": "sha256:ae361d2c66df742b80b3e22b452a2980e9db953b293e2c28ca2656f622bee68e",
+        "workflow_run": {
+          "id": 43215329189,
+          "repository_id": 1227100465,
+          "head_repository_id": 1227100465,
+          "head_branch": "feature/airon-teach-demo",
+          "head_sha": "5bc0c5f68690e5d2656716a97c2cfbb2ce105e08"
+        }
+      },
+      {
+        "id": 13943241966,
+        "name": "gitleaks-results.sarif",
+        "size_in_bytes": 6844,
+        "url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13943241966",
+        "archive_download_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13943241966/zip",
+        "expired": false,
+        "created_at": "2026-11-12T12:09:32Z",
+        "expires_at": "2027-02-10T12:09:22Z",
+        "updated_at": "2026-11-12T12:09:32Z",
+        "digest": "sha256:cb142a43722ea259e87c9f22a2a694bca8f490f481814262d851a545f10bee32",
+        "workflow_run": {
+          "id": 43215329189,
+          "repository_id": 1227100465,
+          "head_repository_id": 1227100465,
+          "head_branch": "feature/airon-teach-demo",
+          "head_sha": "5bc0c5f68690e5d2656716a97c2cfbb2ce105e08"
+        }
+      }
+    ]
+  },
+  "reconciled_checkpoint": "512fd4fe071417cd78e69dc3f670dae88f14d33b"
+}

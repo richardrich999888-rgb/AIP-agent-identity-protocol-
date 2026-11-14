@@ -11,6 +11,7 @@
 //! syntriass suite-sign --key KEYFILE --cases JSONL --suite-id S --tenant T --task X --out SUITE
 //! syntriass cap-propose  --config CFG --file CAP.json            → PROPOSED (evidence bound from corpus)
 //! syntriass cap-validate --config CFG --hash H --suite SUITE     → VALIDATED | REJECTED (trusted experts only)
+//! syntriass cap-scoreboard --config CFG --hash H --suite SUITE   read-only homework; exit 3 if rejected
 //! syntriass cap-approve  --config CFG --hash H --key KEYFILE [--consequential]
 //! syntriass cap-transition --config CFG --hash H --to STATE --role ROLE --actor A --reason R
 //! syntriass cap-list     --config CFG
@@ -26,6 +27,12 @@
 //!                                                 dry run: compile + label each case (no state change);
 //!                                                 a case may carry a signed "record" (S1)
 //! syntriass record-sign --key INSTRUMENT_KEY --in RECORDS.jsonl   sign measurement records (S1)
+//! syntriass teach start --config CFG --doc DOC --page N [--page N]... --clauses CLAUSES.json
+//!                  --tenant T --task X --expert E (--rule TEXT | --rule-file F) --examples EX.jsonl
+//!                                                 open a teaching session: cited clauses + the
+//!                                                 expert's rule + 2-5 labelled examples (0600)
+//! syntriass teach list --config CFG --tenant T     sessions for one tenant (hash-verified)
+//! syntriass teach show --config CFG --tenant T --session ID
 //! ```
 //!
 //! Run inside a network namespace with only loopback (see
@@ -44,6 +51,7 @@ use syntriass_runtime::adapters::pool::{Pool, TierSlot};
 use syntriass_runtime::adapters::sidecar::Sidecar;
 use syntriass_runtime::adapters::store::FileStore;
 use syntriass_runtime::adapters::supervisor::Profile;
+use syntriass_runtime::adapters::teach_store::TeachStore;
 use syntriass_runtime::app::{verify_audit_chain, Config, Runtime};
 use syntriass_runtime::capability::artifact::Capability;
 use syntriass_runtime::capability::artifact::Execution;
@@ -52,6 +60,7 @@ use syntriass_runtime::capability::experience::Experience;
 use syntriass_runtime::capability::lifecycle::{Record, Role, State};
 use syntriass_runtime::capability::memory;
 use syntriass_runtime::capability::suite::{ExpertSuite, SuiteCase};
+use syntriass_runtime::domain::teach::{CitedClause, Example, SessionInput, TeachSession};
 use syntriass_runtime::learning;
 use syntriass_runtime::ports::CapabilityStore;
 use vanian_sovereign::adapters::sqlite_corpus::SqliteCorpus;
@@ -72,6 +81,11 @@ struct FileConfig {
     rag_k: usize,
     /// approver id → public key hex
     approvers: BTreeMap<String, String>,
+    /// Optional strict policy. Empty authorities deny every approval.
+    #[serde(default)]
+    approval_policy: Option<syntriass_runtime::capability::authority::ApprovalPolicy>,
+    #[serde(default)]
+    require_teaching_review: bool,
     /// expert id → public key hex (trust anchors for validation suites)
     #[serde(default)]
     experts: BTreeMap<String, String>,
@@ -110,6 +124,45 @@ fn profile(c: &FileConfig) -> Option<Profile> {
         "none" => None,
         other => die(format!("unknown profile {other}")),
     }
+}
+
+fn current_evidence(c: &FileConfig, corpus: &SqliteCorpus, rec: &Record) -> Result<(), String> {
+    if c.approval_policy.is_some()
+        || rec
+            .approval
+            .as_ref()
+            .is_some_and(|a| a.authority_hash.is_some())
+    {
+        if rec.capability.required.security_domain != c.security_domain {
+            return Err("capability outside configured security domain".into());
+        }
+        let mut bound = rec.capability.clone();
+        learning::bind_evidence(&mut bound, corpus).map_err(|e| e.to_string())?;
+        if bound.content_hash() != rec.capability_hash {
+            return Err("source evidence changed; validation and fresh approval required".into());
+        }
+    }
+    Ok(())
+}
+
+fn approval_current(c: &FileConfig, corpus: &SqliteCorpus, rec: &Record) -> Result<(), String> {
+    if c.require_teaching_review
+        && rec
+            .approval
+            .as_ref()
+            .and_then(|a| a.teaching_review_hash.as_ref())
+            .is_none()
+    {
+        return Err("signed teaching review required".into());
+    }
+    syntriass_runtime::capability::authority::check(
+        rec,
+        &keys(&c.approvers),
+        c.approval_policy.as_ref(),
+        learning::now_ms(),
+    )
+    .map_err(str::to_owned)?;
+    current_evidence(c, corpus, rec)
 }
 
 fn parse_doc(text: &str, file: &str) -> Document {
@@ -434,6 +487,197 @@ fn write_private(p: &Path, b: &[u8]) {
     f.write_all(b).unwrap_or_else(|e| die(e));
 }
 
+/// Every value given for a repeated flag, in command-line order.
+fn multi(args: &[String], name: &str) -> Vec<String> {
+    args.iter()
+        .enumerate()
+        .filter(|(_, a)| a.as_str() == name)
+        .filter_map(|(i, _)| args.get(i + 1))
+        .cloned()
+        .collect()
+}
+
+/// The A1 ingester's output (`research/capability-learning/harness/
+/// ingest_documents.py`). Extra fields it writes for provenance are ignored
+/// here; the clause list and the document digest are the contract.
+#[derive(Deserialize)]
+struct ClauseFile {
+    document: String,
+    document_sha256: String,
+    clauses: Vec<CitedClause>,
+}
+
+/// One line of the examples file.
+#[derive(Deserialize)]
+struct ExampleLine {
+    id: String,
+    text: String,
+    /// "allowed" | "not_allowed"; an unknown label is refused by serde.
+    label: syntriass_runtime::domain::teach::Label,
+    reason: String,
+}
+
+fn read_json<T: serde::de::DeserializeOwned>(path: &str) -> T {
+    let b = std::fs::read(path).unwrap_or_else(|e| die(format!("{path}: {e}")));
+    serde_json::from_slice(&b).unwrap_or_else(|e| die(format!("{path}: {e}")))
+}
+
+/// The expert's rule, from exactly one of `--rule` or `--rule-file`.
+///
+/// Both or neither is a usage error rather than a precedence rule: a session
+/// records what the expert said, and two sources for it leave no way to tell
+/// which was recorded.
+fn rule_text(args: &[String]) -> String {
+    match (opt(args, "--rule"), opt(args, "--rule-file")) {
+        (Some(_), Some(_)) => die("give --rule or --rule-file, not both"),
+        (Some(t), None) => t.to_string(),
+        (None, Some(p)) => std::fs::read_to_string(p).unwrap_or_else(|e| die(format!("{p}: {e}"))),
+        (None, None) => die("--rule or --rule-file required"),
+    }
+}
+
+/// `teach start | list | show`.
+fn teach(c: &FileConfig, args: &[String]) {
+    let store = TeachStore::open(&c.state.join("teach")).unwrap_or_else(|e| die(e));
+    match args.get(2).map(String::as_str).unwrap_or("") {
+        "start" => {
+            let tenant = req(args, "--tenant");
+            let doc_path = req(args, "--doc");
+            let pages: Vec<u32> = multi(args, "--page")
+                .iter()
+                .map(|p| {
+                    p.parse::<u32>()
+                        .unwrap_or_else(|e| die(format!("--page {p}: {e}")))
+                })
+                .collect();
+            if pages.is_empty() {
+                die("--page required (repeatable)");
+            }
+
+            let clause_path = req(args, "--clauses");
+            let file: ClauseFile = read_json(clause_path);
+
+            // The citation is only as good as the bytes it points into. Hash
+            // the document as it is on disk now and refuse a clause set
+            // extracted from a different revision, rather than recording a
+            // span into a file that has since changed.
+            let on_disk = syntriass_runtime::adapters::supervisor::file_sha256(Path::new(doc_path))
+                .unwrap_or_else(|e| die(format!("{doc_path}: {e}")));
+            if on_disk != file.document_sha256 {
+                die(format!(
+                    "{doc_path}: sha256 {on_disk} does not match {clause_path} ({}); \
+                     re-run the ingester on this document",
+                    file.document_sha256
+                ));
+            }
+            let base = Path::new(doc_path)
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or_else(|| die(format!("{doc_path}: no file name")));
+            if base != file.document {
+                die(format!(
+                    "{clause_path}: clauses are for {}, not {base}",
+                    file.document
+                ));
+            }
+
+            // `--page` selects; the core then checks that every requested
+            // page was actually cited and that no other page slipped in.
+            let wanted: std::collections::BTreeSet<u32> = pages.iter().copied().collect();
+            let clauses: Vec<CitedClause> = file
+                .clauses
+                .into_iter()
+                .filter(|cl| wanted.contains(&cl.page))
+                .collect();
+
+            let ex_path = req(args, "--examples");
+            let examples: Vec<Example> = std::fs::read_to_string(ex_path)
+                .unwrap_or_else(|e| die(format!("{ex_path}: {e}")))
+                .lines()
+                .filter(|l| !l.trim().is_empty())
+                .map(|l| {
+                    let e: ExampleLine =
+                        serde_json::from_str(l).unwrap_or_else(|x| die(format!("{ex_path}: {x}")));
+                    Example {
+                        id: e.id,
+                        text: e.text,
+                        label: e.label,
+                        reason: e.reason,
+                    }
+                })
+                .collect();
+
+            let session = TeachSession::open(
+                SessionInput {
+                    tenant: tenant.into(),
+                    task: req(args, "--task").into(),
+                    expert_id: req(args, "--expert").into(),
+                    document: base.into(),
+                    document_sha256: file.document_sha256,
+                    pages,
+                    clauses,
+                    rule: rule_text(args),
+                    examples,
+                },
+                learning::now_ms(),
+            )
+            .unwrap_or_else(|e| die(e));
+
+            let path = store.put(&session).unwrap_or_else(|e| die(e));
+            println!(
+                "{}",
+                json!({
+                    "session_id": session.session_id,
+                    "path": path.display().to_string(),
+                    "tenant": session.tenant,
+                    "task": session.task,
+                    "expert_id": session.expert_id,
+                    "document": session.document,
+                    "document_sha256": session.document_sha256,
+                    "pages": session.pages,
+                    "clauses": session.clauses.len(),
+                    "citations": session.citations(),
+                    "examples": session.examples.len(),
+                    "allowed": session.examples.iter().filter(|e| e.label == syntriass_runtime::domain::teach::Label::Allowed).count(),
+                    "not_allowed": session.examples.iter().filter(|e| e.label == syntriass_runtime::domain::teach::Label::NotAllowed).count(),
+                    "needs_confirmation": session.needs_confirmation(),
+                })
+            );
+        }
+        "list" => {
+            let tenant = req(args, "--tenant");
+            for s in store.list(tenant).unwrap_or_else(|e| die(e)) {
+                println!(
+                    "{}",
+                    json!({
+                        "session_id": s.session_id,
+                        "task": s.task,
+                        "expert_id": s.expert_id,
+                        "document": s.document,
+                        "pages": s.pages,
+                        "clauses": s.clauses.len(),
+                        "examples": s.examples.len(),
+                        "needs_confirmation": s.needs_confirmation(),
+                        "created_ms": s.created_ms,
+                    })
+                );
+            }
+        }
+        "show" => {
+            let s = store
+                .get(req(args, "--tenant"), req(args, "--session"))
+                .unwrap_or_else(|e| die(e));
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&s).unwrap_or_else(|e| die(e))
+            );
+        }
+        other => die(format!(
+            "usage: syntriass teach {{start|list|show}} … (got {other:?})"
+        )),
+    }
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let cmd = args.get(1).map(String::as_str).unwrap_or("");
@@ -482,17 +726,51 @@ fn main() {
                 .unwrap_or_else(|e| die(e));
             println!("{}", serde_json::to_string(&r).unwrap_or_default());
         }
+        "cap-scoreboard" => {
+            let sp = req(&args, "--suite");
+            let suite: ExpertSuite = serde_json::from_slice(&std::fs::read(sp).unwrap_or_else(|e| die(format!("{sp}: {e}"))))
+                .unwrap_or_else(|e| die(format!("{sp}: {e}")));
+            let rec = record(&c, req(&args, "--hash"));
+            if rec.capability.content_hash() != rec.capability_hash {
+                die("stored capability content hash does not match --hash; refusing scoreboard");
+            }
+            let trusted = c.experts.get(&suite.expert_id).unwrap_or_else(|| die(format!("{} is not a trusted expert", suite.expert_id)));
+            let reader = learning::evidence_reader(&rec.capability).unwrap_or_else(|e| die(e));
+            let tenant_of = |d: &str| corpus.document_digest(&reader, d).ok().flatten()
+                .map(|_| rec.capability.required.tenant.clone());
+            let result = syntriass_runtime::capability::scoreboard::check(
+                &rec.capability, &suite, &hexkey(trusted), &tenant_of);
+            let mut output = serde_json::to_value(&result).unwrap_or_else(|e| die(e));
+            output["stored_state"] = json!(rec.state);
+            output["stored_executable"] = json!(rec.executable() && approval_current(&c, &corpus, &rec).is_ok());
+            println!("{}", serde_json::to_string(&output).unwrap_or_else(|e| die(e)));
+            if !result.validation.passed { std::process::exit(3); }
+        }
         "cap-approve" => {
             let k = read_key(req(&args, "--key"));
             let trusted = c.approvers.get(&k.id).unwrap_or_else(|| die(format!("{} is not a configured approver", k.id)));
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
-            learning::approve_record(&mut store, req(&args, "--hash"), &k.id, &hexkey(&k.private_hex), &hexkey(trusted), args.iter().any(|a| a == "--consequential"), learning::now_ms())
+            current_evidence(&c, &corpus, &record(&c, req(&args, "--hash"))).unwrap_or_else(|e| die(e));
+            let review = match (opt(&args, "--review"), opt(&args, "--review-digest")) {
+                (Some(dir), Some(pin)) => {
+                    if c.approval_policy.is_none() { die("teaching approval requires authority policy"); }
+                    let rec = record(&c, req(&args, "--hash"));
+                    Some(syntriass_runtime::capability::teaching_review::verify(Path::new(dir), pin, &rec,
+                        &keys(&c.experts), &corpus, &c.state.join("teach")).unwrap_or_else(|e| die(e)))
+                },
+                (None, None) if !c.require_teaching_review => None,
+                _ => die("--review and --review-digest are required together; signed teaching review required"),
+            };
+            learning::approve_record_with_policy(&mut store, req(&args, "--hash"), &k.id, &hexkey(&k.private_hex), &hexkey(trusted), args.iter().any(|a| a == "--consequential"), learning::ApprovalContext { at_ms: learning::now_ms(), policy: c.approval_policy.as_ref(), review: review.as_ref() })
                 .unwrap_or_else(|e| die(e));
             println!("{}", json!({"hash": req(&args, "--hash"), "state": "APPROVED", "approver": k.id}));
         }
         "cap-transition" => {
             let to: State = parse_enum(req(&args, "--to"));
             let role: Role = parse_enum(req(&args, "--role"));
+            if to == State::Active {
+                approval_current(&c, &corpus, &record(&c, req(&args, "--hash"))).unwrap_or_else(|e| die(e));
+            }
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
             learning::transition(&mut store, req(&args, "--hash"), to, req(&args, "--actor"), role, learning::now_ms(), req(&args, "--reason"))
                 .unwrap_or_else(|e| die(e));
@@ -501,16 +779,18 @@ fn main() {
         "cap-list" => {
             let store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
             for r in store.all().unwrap_or_else(|e| die(e)) {
-                println!("{}", json!({"id": r.capability.id, "version": r.capability.version, "hash": r.capability_hash, "state": r.state, "executable": r.executable()}));
+                println!("{}", json!({"id": r.capability.id, "version": r.capability.version, "hash": r.capability_hash, "state": r.state, "executable": r.executable() && approval_current(&c, &corpus, &r).is_ok()}));
             }
         }
         "cap-activate" => {
+            approval_current(&c, &corpus, &record(&c, req(&args, "--hash"))).unwrap_or_else(|e| die(e));
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
             let sup = learning::activate(&mut store, req(&args, "--hash"), req(&args, "--actor"), args.iter().any(|a| a == "--supersede"), learning::now_ms(), req(&args, "--reason"))
                 .unwrap_or_else(|e| die(e));
             println!("{}", json!({"hash": req(&args, "--hash"), "state": "ACTIVE", "superseded": sup}));
         }
         "cap-rollback" => {
+            approval_current(&c, &corpus, &record(&c, req(&args, "--to"))).unwrap_or_else(|e| die(e));
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
             let sus = learning::rollback(&mut store, req(&args, "--to"), req(&args, "--actor"), learning::now_ms(), req(&args, "--reason"))
                 .unwrap_or_else(|e| die(e));
@@ -616,6 +896,8 @@ fn main() {
                 audit_log: audit.clone(),
                 rag_k: c.rag_k,
                 approvers,
+                approval_policy: c.approval_policy.clone(),
+                require_teaching_review: c.require_teaching_review,
                 instruments: keys(&c.instruments),
             };
             let rt = Runtime::new(rt_cfg, &corpus, &sidecar, &pool, &store, &meter);
@@ -663,6 +945,7 @@ fn main() {
             }
             pool.shutdown().unwrap_or_else(|e| die(e));
         }
-        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-approve|cap-transition|cap-list|cap-activate|cap-rollback|exp-record|cap-review|cap-upgrade-check|cap-history|health} …"),
+        "teach" => teach(&c, &args),
+        _ => die("usage: syntriass {ingest|ask|serve --eval|audit-verify|keygen|suite-sign|cap-propose|cap-validate|cap-scoreboard|cap-approve|cap-transition|cap-list|cap-activate|cap-rollback|exp-record|cap-review|cap-upgrade-check|cap-history|health|teach} …"),
     }
 }

@@ -1,0 +1,72 @@
+[
+  {
+    "archive": "ci-teaching-original.zip",
+    "sha256": "e566d34a6294e8c37a35106d37b45e26a67e1ef4a8ad357e02cc8d55dcf87648",
+    "members": 228,
+    "matching_inner_hashes": 342,
+    "intended_attack_mismatches": [],
+    "private_key_fields_found": 0
+  },
+  {
+    "archive": "ci-trivy-original.zip",
+    "sha256": "6960797f5007c8c1cf9c8b9a53784778411db25d4b188c3e9b775096e2d0d531",
+    "members": 1,
+    "matching_inner_hashes": 0,
+    "intended_attack_mismatches": [],
+    "private_key_fields_found": 0
+  },
+  {
+    "archive": "development-original.zip",
+    "sha256": "6507161ed999e8baccc040a31b4c3cffa8158c548482cfbb8fed174f916b27d6",
+    "members": 264,
+    "matching_inner_hashes": 384,
+    "intended_attack_mismatches": [
+      {
+        "path": "first-replay-attacks/one-byte-suite/inputs/suite.json",
+        "expected": "e6d601ab710ecdb728c33dea323798b25aa10b2316889082056c98a2f0183ef8",
+        "actual": "2921678a313d1635f4dc204d9aec09ae638c6dc1853ab79634159cb72e070504",
+        "kind": "intentional retained attack"
+      }
+    ],
+    "private_key_fields_found": 0
+  },
+  {
+    "archive": "local-original.zip",
+    "sha256": "df8cef52e3fee9d2eba3bd03a6c2da44afa2da786aa4ec5a71b9484f3ae79dbc",
+    "members": 526,
+    "matching_inner_hashes": 626,
+    "intended_attack_mismatches": [
+      {
+        "path": "replay-attacks/changed-map/inputs/example-map.json",
+        "expected": "4f2e1ac30adc8cacd8cdbc2ac97a112c3487673df1df8bfb158ce950a82a60a2",
+        "actual": "fc485ba71d03155448cc41f9da9658bf04723d31cbfab27f4e5c4bb37f1e352f",
+        "kind": "intentional retained attack"
+      },
+      {
+        "path": "replay-attacks/false-saved-verdict/inputs/bound-capability.json",
+        "expected": "a4ce6c0702378859e330cbd820d05d253d57f3eb57d1219a83757f0283be762d",
+        "actual": "605554f94c2485db849a9031d2cf216944b92c0d29935bc49354a802e6580261",
+        "kind": "intentional retained attack"
+      },
+      {
+        "path": "replay-attacks/false-saved-verdict/inputs/result.json",
+        "expected": "210e0286096108b14627b881d27fa90fdea972c818620783863e8b9dfdadc205",
+        "actual": "605554f94c2485db849a9031d2cf216944b92c0d29935bc49354a802e6580261",
+        "kind": "intentional retained attack"
+      },
+      {
+        "path": "replay-attacks/false-saved-verdict/inputs/scoreboard.json",
+        "expected": "fde76b468d873257334895d7acdd39aa5acfbe31bbe382ea638f9f9054e65a60",
+        "actual": "605554f94c2485db849a9031d2cf216944b92c0d29935bc49354a802e6580261",
+        "kind": "intentional retained attack"
+      },
+      {
+        "path": "replay-attacks/one-byte-suite/inputs/suite.json",
+        "expected": "e6d601ab710ecdb728c33dea323798b25aa10b2316889082056c98a2f0183ef8",
+        "actual": "2921678a313d1635f4dc204d9aec09ae638c6dc1853ab79634159cb72e070504",
+        "kind": "intentional retained attack"
+      }
+    ],
+    "private_key_fields_found": 0
+  }
+]
