@@ -1,0 +1,68 @@
+{
+  "artifact_sha256": "bc5c9882c37fcd4039bb4f3db082329fffbc74a6624125dccd7660766d678c0a",
+  "verifier_sha256": "0c426855da31e3f8b69ada5a9a3c75733e69d9c982e7bb4b037fbde18c806171",
+  "scope": "Separate local verifier process, same reviewer administration; no private keys. Original recovery failure remains unresolved.",
+  "cases": [
+    {
+      "scene": "same-run",
+      "case": "original",
+      "exit_code": 0,
+      "elapsed_seconds": 1.6611848269999427,
+      "status": "PASS",
+      "input_sha256": "8e0e6847e414c61958f82614c4dfc6fcf053b922606ff281e547e87fa6e0729d",
+      "public_trust_sha256": "f3614bf656e1ad73e0bd5f6c5e75cbb731a588bb2425b38fd3224082bec6c904",
+      "mutation": null
+    },
+    {
+      "scene": "same-run",
+      "case": "missing-receipt",
+      "exit_code": 0,
+      "elapsed_seconds": 1.8458293690000573,
+      "status": "PASS",
+      "input_sha256": "c8d834968921c8f691fb1a5a3949a0efff99bab394d58da278b3be4652fab360",
+      "public_trust_sha256": "f3614bf656e1ad73e0bd5f6c5e75cbb731a588bb2425b38fd3224082bec6c904",
+      "mutation": "missing-receipt"
+    },
+    {
+      "scene": "same-run",
+      "case": "wrong-gateway-anchor",
+      "exit_code": 1,
+      "elapsed_seconds": 1.062656312999934,
+      "status": "PASS",
+      "input_sha256": "8e0e6847e414c61958f82614c4dfc6fcf053b922606ff281e547e87fa6e0729d",
+      "public_trust_sha256": "3bcabe4489e3b935d8d7fc6cd896113b9e6500dce9d39f86b3f041adf98dfef2",
+      "mutation": "wrong-gateway-anchor"
+    },
+    {
+      "scene": "same-run-interruption",
+      "case": "original",
+      "exit_code": 0,
+      "elapsed_seconds": 0.8512377329998344,
+      "status": "PASS",
+      "input_sha256": "b444b7df63baf5fa8cdc2f63647184dfced5843598180ac429b2d0ba548cd70c",
+      "public_trust_sha256": "26491b8e6f185a8dac4512ef2af93fbf7945488d80c9132baf0204b57d297285",
+      "mutation": null
+    },
+    {
+      "scene": "same-run-interruption",
+      "case": "missing-receipt",
+      "exit_code": 0,
+      "elapsed_seconds": 0.815150519999861,
+      "status": "PASS",
+      "input_sha256": "6ca0a3bfd3a97f54f17a825b81e64bf4e28a6e8fa9159dc04462b11219e21555",
+      "public_trust_sha256": "26491b8e6f185a8dac4512ef2af93fbf7945488d80c9132baf0204b57d297285",
+      "mutation": "missing-receipt"
+    },
+    {
+      "scene": "same-run-interruption",
+      "case": "wrong-gateway-anchor",
+      "exit_code": 1,
+      "elapsed_seconds": 0.5817278859999533,
+      "status": "PASS",
+      "input_sha256": "b444b7df63baf5fa8cdc2f63647184dfced5843598180ac429b2d0ba548cd70c",
+      "public_trust_sha256": "c0823374efd99de4823ec05aae67d52ad420a170236f7442864e83fff756755b",
+      "mutation": "wrong-gateway-anchor"
+    }
+  ],
+  "status": "PASS"
+}

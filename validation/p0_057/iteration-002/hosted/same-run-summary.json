@@ -1,0 +1,74 @@
+{
+  "source_commit": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+  "workflow_run": 43582459576,
+  "artifact": {
+    "id": 14108683682,
+    "sha256": "bc5c9882c37fcd4039bb4f3db082329fffbc74a6624125dccd7660766d678c0a"
+  },
+  "scenes": [
+    {
+      "scene": "same-run",
+      "status": "PASS",
+      "run_id": "same-run-a7c00a1f15194cd7bae0c663",
+      "source_commit": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+      "agent_task_ran": true,
+      "failure": null,
+      "receipt_dispositions": [
+        "Forwarded",
+        "Refused"
+      ],
+      "reconciliation_result": "CannotProve",
+      "reconciliation_reason": "ActionEvidenceUnavailable",
+      "process_identity": {
+        "Match": {
+          "observations": 7
+        }
+      },
+      "observation_coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+      "kernel_to_logical_agent_causality": "NOT_ESTABLISHED",
+      "trust_domain": "LOCAL_ISOLATION_SHARED_KERNEL_AND_ROOT"
+    },
+    {
+      "scene": "same-run-interruption",
+      "status": "PASS",
+      "run_id": "same-run-cf5440897efad52b71e3dc36",
+      "source_commit": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+      "agent_task_ran": true,
+      "failure": null,
+      "receipt_dispositions": [
+        "Forwarded",
+        "Refused"
+      ],
+      "reconciliation_result": "CannotProve",
+      "reconciliation_reason": "WindowNotCovered",
+      "process_identity": "NoReference",
+      "observation_coverage": "UNAVAILABLE_OBSERVER_INTERRUPTED",
+      "kernel_to_logical_agent_causality": "NOT_ESTABLISHED",
+      "trust_domain": "LOCAL_ISOLATION_SHARED_KERNEL_AND_ROOT"
+    },
+    {
+      "scene": "same-run-recovery",
+      "status": "FAIL",
+      "run_id": "same-run-d0d77fac0968bd06579ed494",
+      "source_commit": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+      "agent_task_ran": true,
+      "failure": {
+        "type": "Refused",
+        "detail": "actual authorized request has no unique trustworthy Forwarded receipt"
+      },
+      "receipt_dispositions": [
+        "Refused"
+      ],
+      "reconciliation_result": null,
+      "reconciliation_reason": null,
+      "process_identity": null,
+      "observation_coverage": null,
+      "kernel_to_logical_agent_causality": "NOT_ESTABLISHED",
+      "trust_domain": "LOCAL_ISOLATION_SHARED_KERNEL_AND_ROOT"
+    }
+  ],
+  "root_cause": "UNRESOLVED: original archive did not retain gateway journal or hook lifecycle state; no speculative runtime fix applied",
+  "failure_preserved": true,
+  "readiness_upgraded": false,
+  "scope": "Controller manifests and resource measurements are unsigned metadata; verify signed originals from retained ZIP against public anchors. A PASS scene can still have a CannotProve reconciliation."
+}

@@ -1,0 +1,14 @@
+   Compiling aip-observe v0.4.0 (/workspace/scratch/142664b02214/aip/aip-standalone/aip-observe)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.79s
+     Running unittests src/lib.rs (target/debug/deps/aip_observe-9f35a78c1c7ee49c)
+
+running 2 tests
+P0_057_REAL_EXEC warm_cache=true before={"process":{"pid":228,"pid_start_time_ticks":189332,"boot_id":[73,107,76,96,179,81,70,22,138,218,89,71,10,229,62,221]},"exe_content_sha256":[166,245,89,224,11,105,164,170,77,140,182,7,190,24,217,56,108,90,238,85,197,9,226,192,117,84,157,207,0,224,15,199],"exe_path":"/usr/bin/dash","container":{"pid_ns_inode":4026532315,"mnt_ns_inode":4026532313,"net_ns_inode":4026532316,"cgroup_id":null}} result=Err(Unavailable { field: "process_snapshot", reason: "process, executable or placement changed during measurement" })
+P0_057_REAL_EXEC warm_cache=false before={"process":{"pid":227,"pid_start_time_ticks":189332,"boot_id":[73,107,76,96,179,81,70,22,138,218,89,71,10,229,62,221]},"exe_content_sha256":[166,245,89,224,11,105,164,170,77,140,182,7,190,24,217,56,108,90,238,85,197,9,226,192,117,84,157,207,0,224,15,199],"exe_path":"/usr/bin/dash","container":{"pid_ns_inode":4026532315,"mnt_ns_inode":4026532313,"net_ns_inode":4026532316,"cgroup_id":null}} result=Err(Unavailable { field: "process_snapshot", reason: "process, executable or placement changed during measurement" })
+P0_057_REAL_EXEC after={"process":{"pid":227,"pid_start_time_ticks":189332,"boot_id":[73,107,76,96,179,81,70,22,138,218,89,71,10,229,62,221]},"exe_content_sha256":[6,55,230,212,117,121,146,156,183,46,250,70,243,97,134,27,49,157,98,198,47,232,169,209,7,49,253,118,85,235,89,54],"exe_path":"/usr/bin/sleep","container":{"pid_ns_inode":4026532315,"mnt_ns_inode":4026532313,"net_ns_inode":4026532316,"cgroup_id":null}}
+P0_057_REAL_EXEC after={"process":{"pid":228,"pid_start_time_ticks":189332,"boot_id":[73,107,76,96,179,81,70,22,138,218,89,71,10,229,62,221]},"exe_content_sha256":[6,55,230,212,117,121,146,156,183,46,250,70,243,97,134,27,49,157,98,198,47,232,169,209,7,49,253,118,85,235,89,54],"exe_path":"/usr/bin/sleep","container":{"pid_ns_inode":4026532315,"mnt_ns_inode":4026532313,"net_ns_inode":4026532316,"cgroup_id":null}}
+test probe::tests::image_race_cold_cache_rejects_real_exec ... ok
+test probe::tests::image_race_warm_cache_rejects_real_exec ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 73 filtered out; finished in 0.02s
+

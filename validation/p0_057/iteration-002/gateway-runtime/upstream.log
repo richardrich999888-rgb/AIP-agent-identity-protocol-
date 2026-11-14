@@ -1,0 +1,179 @@
+INFO:     Started server process [8]
+INFO:     Waiting for application startup.
+[11/14/26 10:05:09] INFO     StreamableHTTP       streamable_http_manager.py:162
+                             session manager                                    
+                             started                                            
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:34981 (Press CTRL+C to quit)
+                    INFO     Created new          streamable_http_manager.py:325
+                             transport with                                     
+                             session ID:                                        
+                             af7a757346974b83bf7d                               
+                             1c2a7d83d976                                       
+INFO:     127.0.0.1:34802 - "GET /mcp HTTP/1.1" 406 Not Acceptable
+                    INFO     Terminating session:         streamable_http.py:855
+                             af7a757346974b83bf7d1c2a7d83                       
+                             d976                                               
+INFO:     127.0.0.1:40238 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40238 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40238 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40238 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40238 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33036 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33036 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33036 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33046 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33046 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33046 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33052 - "POST /mcp HTTP/1.1" 200 OK
+[11/14/26 10:05:29] ERROR    Tool 'loan_fail' raised an unexpected server.py:455
+                             exception                                          
+                             ╭─ Traceback (most recent call last─╮              
+                             │ /workspace/scratch/142664b02214/c │              
+                             │ ontextforge/.venv/lib/python3.12/ │              
+                             │ site-packages/mcp/server/mcpserve │              
+                             │ r/tools/base.py:179 in run        │              
+                             │                                   │              
+                             │   176 │   │   │   │   │   return  │              
+                             │       else resolved               │              
+                             │   177 │   │   │   │   pass_direct │              
+                             │   178 │   │   │                   │              
+                             │ ❱ 179 │   │   │   result = await  │              
+                             │       pass_directly)              │              
+                             │   180 │   │   │                   │              
+                             │   181 │   │   │   # Registration  │              
+                             │   182 │   │   │   # a body that r │              
+                             │                                   │              
+                             │ /workspace/scratch/142664b02214/c │              
+                             │ ontextforge/.venv/lib/python3.12/ │              
+                             │ site-packages/mcp/server/mcpserve │              
+                             │ r/utilities/func_metadata.py:163  │              
+                             │ in call_fn                        │              
+                             │                                   │              
+                             │   160 │   │   """                 │              
+                             │   161 │   │   kwargs = arguments  │              
+                             │   162 │   │   if fn_is_async:     │              
+                             │ ❱ 163 │   │   │   return await fn │              
+                             │   164 │   │   return await anyio. │              
+                             │   165 │                           │              
+                             │   166 │   @deprecated(            │              
+                             │                                   │              
+                             │ /workspace/scratch/142664b02214/a │              
+                             │ ip/integrations/mcp-gateway/test_ │              
+                             │ upstream.py:40 in loan_fail       │              
+                             │                                   │              
+                             │   37 async def loan_fail(loan_id: │              
+                             │   38 │   """Return an actual tool │              
+                             │   39 │   record("loan_fail", loan │              
+                             │ ❱ 40 │   raise ValueError("contro │              
+                             │   41                              │              
+                             │   42                              │              
+                             │   43 @server.tool()               │              
+                             ╰───────────────────────────────────╯              
+                             ValueError: controlled non-production              
+                             upstream failure                                   
+                                                                                
+                             The above exception was the direct                 
+                             cause of the following exception:                  
+                                                                                
+                             ╭─ Traceback (most recent call last─╮              
+                             │ /workspace/scratch/142664b02214/c │              
+                             │ ontextforge/.venv/lib/python3.12/ │              
+                             │ site-packages/mcp/server/mcpserve │              
+                             │ r/server.py:442 in                │              
+                             │ _handle_call_tool                 │              
+                             │                                   │              
+                             │    439 │   ) -> CallToolResult |  │              
+                             │    440 │   │   context = Context( │              
+                             │        subscriptions=self._subscr │              
+                             │    441 │   │   try:               │              
+                             │ ❱  442 │   │   │   return await s │              
+                             │    443 │   │   except MCPError:   │              
+                             │    444 │   │   │   raise          │              
+                             │    445 │   │   except Exception a │              
+                             │                                   │              
+                             │ /workspace/scratch/142664b02214/c │              
+                             │ ontextforge/.venv/lib/python3.12/ │              
+                             │ site-packages/mcp/server/mcpserve │              
+                             │ r/server.py:548 in call_tool      │              
+                             │                                   │              
+                             │    545 │   │   """                │              
+                             │    546 │   │   if context is None │              
+                             │    547 │   │   │   context = Cont │              
+                             │ ❱  548 │   │   return await self. │              
+                             │        convert_result=True)       │              
+                             │    549 │                          │              
+                             │    550 │   async def list_resourc │              
+                             │    551 │   │   """List all availa │              
+                             │                                   │              
+                             │ /workspace/scratch/142664b02214/c │              
+                             │ ontextforge/.venv/lib/python3.12/ │              
+                             │ site-packages/mcp/server/mcpserve │              
+                             │ r/tools/tool_manager.py:87 in     │              
+                             │ call_tool                         │              
+                             │                                   │              
+                             │   84 │   │   if not tool:         │              
+                             │   85 │   │   │   raise ToolError( │              
+                             │   86 │   │                        │              
+                             │ ❱ 87 │   │   return await tool.ru │              
+                             │   88                              │              
+                             │                                   │              
+                             │ /workspace/scratch/142664b02214/c │              
+                             │ ontextforge/.venv/lib/python3.12/ │              
+                             │ site-packages/mcp/server/mcpserve │              
+                             │ r/tools/base.py:213 in run        │              
+                             │                                   │              
+                             │   210 │   │   │   raise ToolError │              
+                             │   211 │   │   except Exception as │              
+                             │   212 │   │   │   # A crash: the  │              
+                             │ ❱ 213 │   │   │   raise Unexpecte │              
+                             │   214                             │              
+                             ╰───────────────────────────────────╯              
+                             UnexpectedToolError: Error executing               
+                             tool loan_fail                                     
+INFO:     127.0.0.1:33052 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33056 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33070 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33084 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33070 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33084 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33070 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33084 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33088 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33098 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33102 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33088 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33098 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33102 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33088 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33098 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33116 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33102 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33120 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33116 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33120 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33122 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33116 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33120 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33122 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33122 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33132 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33132 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33132 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33142 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33142 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33142 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60162 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60178 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60178 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60178 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60192 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60192 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60192 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+[11/14/26 10:05:43] INFO     StreamableHTTP       streamable_http_manager.py:166
+                             session manager                                    
+                             shutting down                                      
+INFO:     Application shutdown complete.
+INFO:     Finished server process [8]

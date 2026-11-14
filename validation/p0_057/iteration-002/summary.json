@@ -1,0 +1,31 @@
+{
+  "runtime_source_commit": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+  "diagnostic_source_commit": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+  "source_sha256": {
+    "aip-standalone/aip-core/src/execution_binding.rs": "6009bdec7ebc073c2da9fa0c4da7031d03a3a93cbcd2f05e98220190c42615aa",
+    "aip-standalone/aip-observe/src/probe.rs": "642e8aad1dcae71958d08dd7e93a02fdeb476558f5482c232a5d8bda72285b90",
+    "Cargo.lock": "03b5eb24895f17597ad47175215c2eb36bbf258c308d1ec28ca762ddac90e4cd",
+    "integrations/mcp-gateway/contextforge.lock.json": "38ec9584e3b5ed2532728a48cf1b14eef464d38c27f41c2733c402de8a85f9c8",
+    "integrations/mcp-gateway/vanian_contextforge.py": "bc29e99f38e865fef5116afaa3127cc9416d1cadb250a9b28357d5e9c11d9fed",
+    "integrations/mcp-gateway/validate_contextforge.py": "d6b45642a07097f79e159441db4005cee217593507f00858205085649790f0bb",
+    "validation/p0_057/verify_native.py": "54b67797dd13a50865f122f696966b9b6f5abc406e5f1498a35bdde37c792e0b",
+    "validation/p0_057/verify_same_run.py": "5a9da16c51681aeefac2224d62c6269b26b3f9eadae6581619356683fc8fcf9f"
+  },
+  "binary_sha256": {
+    "aip-observe-verify": "b147a650103f09a2a4c6c38ab0ed0d98c01a1b4576707b103802857069fa9438",
+    "aip-tool-receipt": "2c67325645b42709314a7966b873b97138b61eaa4c239f9725beb3f55fa88f7e",
+    "aip-execution-assurance": "0c426855da31e3f8b69ada5a9a3c75733e69d9c982e7bb4b037fbde18c806171",
+    "examples/contextforge_fixture": "261b4a436d65b2d44d71e5a84ad7c727175f7d4982e8326ddd1a783b06a34f6b"
+  },
+  "checks": {
+    "observer_suite": 102,
+    "related_core_reconcile_gateway_verifier_suites": 455,
+    "local_final_sample_verification": 8,
+    "native_live_kernel_assertions": 10,
+    "native_archive_checks": 2,
+    "hosted_original_replay_controls": 6,
+    "real_contextforge_checks": 27,
+    "genuine_same_run_replay_controls": 6
+  },
+  "not_additive": "Focused reruns overlap; counts distinguish fixtures, native processes, actual gateway and artifact mutations. No enterprise qualification."
+}

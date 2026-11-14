@@ -1,0 +1,16 @@
+{
+  "source_commit": "5a7d2625a861821e74f979cd0700fbbe6dbe1de1",
+  "source_sha256": {
+    "validation/enterprise/gateway_diagnostics.py": "77afdb8348c3b90ec820e7a5f45cb5c1c204c8e881e50acb49fc8aa37fb1a9a2",
+    "validation/enterprise/test_gateway_diagnostics.py": "329b8595f27bfdd5173f043fc9673e4a5daca59b0fc0ff3f6ef32fd85efcb96d",
+    "validation/enterprise/same_run_validation.py": "51016565cbcd1f22f2f1b3dbbe4fccb288280205e04a46ac832b1a1b25e6573b"
+  },
+  "previous_runtime_source": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+  "runtime_identity_repair_unchanged": true,
+  "tests": {
+    "diagnostic_regressions": 4,
+    "same_run_controls": 11
+  },
+  "scope": "read-only diagnostic only, no missing-receipt fix and no new execution assurance",
+  "ci_wiring": "Evidence checkpoint adds the same portable diagnostic test to same-run-validation.yml; no assertion skipped or weakened"
+}

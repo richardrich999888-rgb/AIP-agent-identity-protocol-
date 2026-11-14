@@ -1,0 +1,109 @@
+diff --git a/aip-standalone/aip-observe/src/probe.rs b/aip-standalone/aip-observe/src/probe.rs
+index a3cc55e..30ab2cb 100644
+--- a/aip-standalone/aip-observe/src/probe.rs
++++ b/aip-standalone/aip-observe/src/probe.rs
+@@ -362,6 +362,15 @@ impl ProcfsProbe {
+ 
+     #[cfg(target_os = "linux")]
+     fn read_process(&self, pid: u32) -> Result<ObservedProcess, ProbeError> {
++        self.read_process_after_snapshot(pid, || {})
++    }
++
++    #[cfg(target_os = "linux")]
++    fn read_process_after_snapshot(
++        &self,
++        pid: u32,
++        after_snapshot: impl FnOnce(),
++    ) -> Result<ObservedProcess, ProbeError> {
+         use aip_core::execution_binding::{
+             hash_file_contents, parse_boot_id, parse_proc_stat_start_time,
+         };
+@@ -388,6 +397,7 @@ impl ProcfsProbe {
+             std::fs::metadata(&exe_link).map_err(|_| ProbeError::ProcessNotVisible { pid })?;
+         let (exe_ino, exe_size, exe_mtime) =
+             (meta.ino(), meta.len(), (meta.mtime(), meta.mtime_nsec()));
++        after_snapshot();
+         let cached = self.image_cache.borrow().get(&pid).cloned();
+         let exe_content_sha256 = match cached {
+             Some(c)
+@@ -1282,6 +1292,80 @@ mod tests {
+         );
+     }
+ 
++    #[cfg(target_os = "linux")]
++    fn reject_real_exec_during_image_read(warm_cache: bool) {
++        use std::io::{BufRead, Write};
++        use std::process::{Command, Stdio};
++        use std::time::{Duration, Instant};
++
++        struct ChildGuard(std::process::Child);
++        impl Drop for ChildGuard {
++            fn drop(&mut self) {
++                let _ = self.0.kill();
++                let _ = self.0.wait();
++            }
++        }
++        let mut child = ChildGuard(
++            Command::new("/bin/sh")
++                .args(["-c", "printf 'ready\\n'; read go; exec /bin/sleep 60"])
++                .stdin(Stdio::piped())
++                .stdout(Stdio::piped())
++                .spawn()
++                .unwrap(),
++        );
++        let mut ready = String::new();
++        std::io::BufReader::new(child.0.stdout.take().unwrap())
++            .read_line(&mut ready)
++            .unwrap();
++        assert_eq!(ready, "ready\n");
++        let pid = child.0.id();
++        let probe = ProcfsProbe::new("p0-057-image-race");
++        let before = probe.measure_anchored(pid).unwrap().process;
++        if !warm_cache {
++            probe.image_cache.borrow_mut().clear();
++        }
++        let link = std::path::PathBuf::from(format!("/proc/{pid}/exe"));
++        let before_path = std::fs::read_link(&link).unwrap();
++        let observed = probe.read_process_after_snapshot(pid, || {
++            child.0.stdin.as_mut().unwrap().write_all(b"go\n").unwrap();
++            let deadline = Instant::now() + Duration::from_secs(5);
++            while std::fs::read_link(&link).unwrap() == before_path {
++                assert!(Instant::now() < deadline, "controlled child did not exec");
++                std::thread::sleep(Duration::from_millis(1));
++            }
++        });
++        eprintln!(
++            "P0_057_REAL_EXEC warm_cache={warm_cache} before={} result={observed:?}",
++            serde_json::to_string(&before).unwrap()
++        );
++        assert!(
++            matches!(observed, Err(ProbeError::Unavailable { field: "process_snapshot", .. })),
++            "a live pidfd does not prevent exec; reject the mixed snapshot"
++        );
++        assert!(!probe.image_cache.borrow().contains_key(&pid));
++        let after = probe.measure_anchored(pid).unwrap().process;
++        assert_eq!(before.process, after.process, "exec retains the process instance");
++        assert_ne!(before.exe_content_sha256, after.exe_content_sha256);
++        assert_eq!(
++            after.exe_content_sha256,
++            aip_core::execution_binding::hash_file_contents(&link).unwrap()
++        );
++        assert!(after.exe_path.ends_with("/sleep"));
++        eprintln!("P0_057_REAL_EXEC after={}", serde_json::to_string(&after).unwrap());
++    }
++
++    #[cfg(target_os = "linux")]
++    #[test]
++    fn image_race_cold_cache_rejects_real_exec() {
++        reject_real_exec_during_image_read(false);
++    }
++
++    #[cfg(target_os = "linux")]
++    #[test]
++    fn image_race_warm_cache_rejects_real_exec() {
++        reject_real_exec_during_image_read(true);
++    }
++
+     #[test]
+     fn kernel_exit_after_loss_is_not_attributed_to_an_earlier_exec() {
+         let mut probe = ProcfsProbe::new("probe-1");

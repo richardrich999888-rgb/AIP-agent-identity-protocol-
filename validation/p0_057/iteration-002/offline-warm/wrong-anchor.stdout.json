@@ -1,0 +1,23 @@
+{
+  "observer_id": "p0-057-lab-collector",
+  "key_version": 1,
+  "public_key": "18ca8dc8deb49ae285bea07fe399bd1833b6f733bc0453651401cde61fd65745",
+  "batches": {
+    "records": 1,
+    "first_sequence": 1,
+    "last_sequence": 1,
+    "start": "Epoch",
+    "final_head": "7a996578be4abfc56d0a4587514cee887a2509306b377dcdd57405a661f200f0",
+    "observations": 2,
+    "kernel_events": 0
+  },
+  "health": null,
+  "findings": [
+    {
+      "kind": "SignatureRejected",
+      "line": 1,
+      "sequence": 1,
+      "error": "Crypto(InvalidPublicKey)"
+    }
+  ]
+}

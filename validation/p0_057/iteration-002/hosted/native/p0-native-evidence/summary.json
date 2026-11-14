@@ -1,0 +1,286 @@
+{
+  "schema": "vanian.p0-048.native-qualification.v1",
+  "status": "PASS",
+  "started_at": "2026-11-14T09:51:16.613460+00:00",
+  "source_commit": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+  "source_changes": [],
+  "host": {
+    "kernel": "7.0.0-1014-aws",
+    "machine": "x86_64",
+    "euid": 0,
+    "os_release": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo",
+    "namespaces": {
+      "self_net": "net:[4026531833]",
+      "pid1_net": "net:[4026531833]"
+    },
+    "process_security": [
+      "CapInh:\t0000000000000000",
+      "CapPrm:\t000001ffffffffff",
+      "CapEff:\t000001ffffffffff",
+      "CapBnd:\t000001ffffffffff",
+      "CapAmb:\t0000000000000000",
+      "NoNewPrivs:\t0",
+      "Seccomp:\t0",
+      "Seccomp_filters:\t0"
+    ],
+    "platform": {
+      "RUNNER_ENVIRONMENT": "github-hosted",
+      "RUNNER_ARCH": "X64",
+      "ImageOS": "ubuntu24",
+      "ImageVersion": "20261111.127.1",
+      "GITHUB_RUN_ID": "43582459564",
+      "GITHUB_REPOSITORY": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+      "GITHUB_SHA": "b6e0619207dc9c5c810314bc5a22f78751244d70"
+    }
+  },
+  "cases": [
+    {
+      "family": "cgroup_live",
+      "test": "an_exec_sample_carries_the_execing_tasks_cgroup_id",
+      "status": "PASS",
+      "reason": "the selected native test executed and passed",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/cgroup_live-6147c54ecfce48fe",
+        "an_exec_sample_carries_the_execing_tasks_cgroup_id",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.07213817499999209,
+      "log": "01-cgroup_live.log",
+      "log_sha256": "3d33332da441c9e876d08d61ab50aa50803644da699af82cf3fe2a6dc1cf53a5"
+    },
+    {
+      "family": "fanotify",
+      "test": "fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd",
+      "status": "PASS",
+      "reason": "the selected native test executed and passed",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/fanotify-9bd4165b0640a272",
+        "fa05_live_a_write_by_this_process_is_bound_through_the_kernels_pidfd",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.4154545730000052,
+      "log": "02-fanotify.log",
+      "log_sha256": "d3d608afdbb54b0128a4cb1814f6e95fa11bef85007d54be64cd4ceb048f5441"
+    },
+    {
+      "family": "fanotify",
+      "test": "fa06_live_a_writer_that_exited_before_the_read_is_unbound",
+      "status": "PASS",
+      "reason": "the selected native test executed and passed",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/fanotify-9bd4165b0640a272",
+        "fa06_live_a_writer_that_exited_before_the_read_is_unbound",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.10399030600001424,
+      "log": "03-fanotify.log",
+      "log_sha256": "de495637203dc372a879bc72214fb491fd6545a884ecf6cf27c79b103a118a38"
+    },
+    {
+      "family": "gate10_xdp_evaluation",
+      "test": "x10a_this_kernel_loads_and_executes_an_xdp_parser_without_attaching_it",
+      "status": "PASS",
+      "reason": "the selected native test executed and passed",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/gate10_xdp_evaluation-50c98840d9cf9c4c",
+        "x10a_this_kernel_loads_and_executes_an_xdp_parser_without_attaching_it",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.017376014999996414,
+      "log": "04-gate10_xdp_evaluation.log",
+      "log_sha256": "ce25990007b1a52037454daf3d1db29b9f5f9eedba5c50c2632e585a2aff2e53"
+    },
+    {
+      "family": "gate10_xdp_evaluation",
+      "test": "x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused",
+      "status": "PASS",
+      "reason": "the selected native test executed and passed",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/gate10_xdp_evaluation-50c98840d9cf9c4c",
+        "x10b_the_verifier_is_the_judge_an_unsafe_program_is_refused",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.00149921099998096,
+      "log": "05-gate10_xdp_evaluation.log",
+      "log_sha256": "c63ffa1411125869dc012a8ff60b89009f885d8049da39e34d7f94874ac489bc"
+    },
+    {
+      "family": "sniffer_dog",
+      "test": "t09_live_short_lived_process_is_seen_by_the_kernel_connector",
+      "status": "PASS",
+      "reason": "the selected native test executed and passed",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/sniffer_dog-f074366363cef1c3",
+        "t09_live_short_lived_process_is_seen_by_the_kernel_connector",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.009641602999977295,
+      "log": "06-sniffer_dog.log",
+      "log_sha256": "e9b5875708ba919eb8bd9304877e1a602f1b0724bd10c7dfc90f46ddbbb40b48"
+    },
+    {
+      "family": "sniffer_dog",
+      "test": "t10_live_exec_replacement_is_delivered_as_a_kernel_exec_event",
+      "status": "PASS",
+      "reason": "the selected native test executed and passed",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/sniffer_dog-f074366363cef1c3",
+        "t10_live_exec_replacement_is_delivered_as_a_kernel_exec_event",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.04037530299999048,
+      "log": "07-sniffer_dog.log",
+      "log_sha256": "3ebb8c4a35a12ecc7fc1e6f8acf1c02da0094e0e3ff3bd46df499468e27fbda1"
+    },
+    {
+      "family": "sniffer_dog",
+      "test": "t15_live_kernel_event_loss_is_signalled_and_degrades_coverage",
+      "status": "PASS",
+      "reason": "the selected native test executed and passed",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/sniffer_dog-f074366363cef1c3",
+        "t15_live_kernel_event_loss_is_signalled_and_degrades_coverage",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.12089137399999572,
+      "log": "08-sniffer_dog.log",
+      "log_sha256": "48473c797f6ddcb305aba4736fc2eae109e448c3dc2ebd03c853b895fc259735"
+    },
+    {
+      "family": "socksend",
+      "test": "sk07_live_a_loopback_send_is_reported_under_the_senders_pid_with_its_count",
+      "status": "PASS",
+      "reason": "the selected native test executed and passed",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/socksend-6c32afb2538b49ef",
+        "sk07_live_a_loopback_send_is_reported_under_the_senders_pid_with_its_count",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.04376815699998815,
+      "log": "09-socksend.log",
+      "log_sha256": "16100d1e857c7d126fd4116d57ed3ed3edc5a6f556f59b7c7a644a42f898970d"
+    },
+    {
+      "family": "wiretap",
+      "test": "wt10_live_loopback_handshake_is_captured_with_kernel_stamps_and_counted_loss",
+      "status": "PASS",
+      "reason": "the selected native test executed and passed",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/wiretap-6081798d83da8fa0",
+        "wt10_live_loopback_handshake_is_captured_with_kernel_stamps_and_counted_loss",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_seconds": 0.02155680900000334,
+      "log": "10-wiretap.log",
+      "log_sha256": "88a2107b70e9286fd49c9fa6fd6f855ffa4eef76734ea38c0eb67409d53caa2d"
+    }
+  ],
+  "offline_checks": [
+    {
+      "case": "t09",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "db060311e2da56e4d864804d0bfaf5dfd6e236a686acc2c9a98afb1dfd5c1899",
+        "--batches",
+        "/home/runner/work/_temp/p0-native-evidence/originals/t09/batches.jsonl",
+        "--health",
+        "/home/runner/work/_temp/p0-native-evidence/originals/t09/health.jsonl",
+        "--json"
+      ],
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 0.01516814200002159,
+      "scope": "Signature and supplied chain only; no independent administration or execution verdict"
+    },
+    {
+      "case": "t15",
+      "command": [
+        "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/aip-observe-verify",
+        "--observer-id",
+        "collector.syntriass.example",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "1924827571fc8b903e00eda3ba9856c6135ea4559b6e67913190243f0deb5b43",
+        "--batches",
+        "/home/runner/work/_temp/p0-native-evidence/originals/t15/batches.jsonl",
+        "--health",
+        "/home/runner/work/_temp/p0-native-evidence/originals/t15/health.jsonl",
+        "--json"
+      ],
+      "exit_code": 0,
+      "status": "PASS",
+      "duration_seconds": 0.014523220000000947,
+      "scope": "Signature and supplied chain only; no independent administration or execution verdict"
+    }
+  ],
+  "scope": "Native component assertions; not full framework, capture-rate or enterprise acceptance",
+  "independent_administration": false,
+  "airgap_acceptance": false,
+  "build_log_sha256": "cdbd4c6ec264a3c210e9cfc888c5a509f2fb2d86fa0512bb64783c358b728a0c",
+  "binary_sha256": {
+    "socksend": "8e20c97b5ede185b7c94b2b05ed302e2817d4f74272e37a9928027bb4ab210c6",
+    "wiretap": "90e468c0c8f6dd5aa97fcfccec93fcc053405cac9861ba1a5a879ea334e9357a",
+    "fanotify": "0a8a058f921da82605cb40c32dd851c1fee2e278e2fb2988b34207673642fc34",
+    "gate10_xdp_evaluation": "fb624b184216f7da8cf45ae6f578d431f7d7487dd1e8f37796ee088f6506d6ea",
+    "sniffer_dog": "f922a69af8b863201cda4c351cb6b7325eb0c6fc5c61dbc16ad1cadee51975a7",
+    "cgroup_live": "6b7d2c28bf64df2fd926ba812124b64cde31af0329f15c8778e28df48697cbe6"
+  },
+  "source_sha256": {
+    "Cargo.lock": "03b5eb24895f17597ad47175215c2eb36bbf258c308d1ec28ca762ddac90e4cd",
+    "validation/p0_048/native_qualification.py": "c0043dbfa3d9f54bdcd6c84df511c836267b6a7a59f722ab6f17e10de82ceeaf",
+    "aip-standalone/aip-observe/src/probe.rs": "642e8aad1dcae71958d08dd7e93a02fdeb476558f5482c232a5d8bda72285b90",
+    "aip-standalone/aip-observe/tests/cgroup_live.rs": "84bfee818574dacd9bf3d19a9324116a9e54e1895ffcf78ff221c9c868009223",
+    "aip-standalone/aip-observe/tests/fanotify.rs": "7f89f96e6841ef565284ccf2faa001f70073c9644219f0466ab600028c0c2851",
+    "aip-standalone/aip-observe/tests/gate10_xdp_evaluation.rs": "27b2583e2c2a47d469786e9783dbdc1404dad12199c766280a551d996f5c2345",
+    "aip-standalone/aip-observe/tests/sniffer_dog.rs": "f0974fcfe6fdd0f26d640dd384ced5464ec26cc2034c21e27df9b36330b35ef2",
+    "aip-standalone/aip-observe/tests/socksend.rs": "124805cf86b1fb9acd5c75e89ec477ebfef9a5bc3d6cfe64d7f3a60ddd21df42",
+    "aip-standalone/aip-observe/tests/wiretap.rs": "226787e9b5b0854421cae29e09dbb7257cb552b48196ce33407fa2e523a3ace5"
+  },
+  "verifier_sha256": "3cb559dfaa0720aa53d00c0316d75f003e74bcdc3eba5a9e0ed567b4de210056"
+}

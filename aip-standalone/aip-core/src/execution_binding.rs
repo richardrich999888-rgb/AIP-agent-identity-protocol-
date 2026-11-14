@@ -134,18 +134,29 @@ pub fn parse_boot_id(text: &str) -> Result<[u8; 16], BindingError> {
 
 /// SHA-256 of a file's contents, streamed.
 pub fn hash_file_contents(path: &std::path::Path) -> Result<[u8; 32], BindingError> {
-    use sha2::{Digest, Sha256};
-    use std::io::Read;
     let mut f = std::fs::File::open(path).map_err(|e| BindingError::Unavailable {
         field: "exe_content_sha256",
         reason: format!("open {}: {e}", path.display()),
+    })?;
+    hash_open_file_contents(&mut f)
+}
+
+/// SHA-256 of the complete file already opened by the caller, streamed from
+/// offset zero. Does not resolve a mutable pathname again. The caller must
+/// separately check file/process stability; hashing alone is not a snapshot.
+pub fn hash_open_file_contents(f: &mut std::fs::File) -> Result<[u8; 32], BindingError> {
+    use sha2::{Digest, Sha256};
+    use std::io::{Read, Seek};
+    f.rewind().map_err(|e| BindingError::Unavailable {
+        field: "exe_content_sha256",
+        reason: format!("rewind opened executable: {e}"),
     })?;
     let mut hasher = Sha256::new();
     let mut buf = [0u8; 64 * 1024];
     loop {
         let n = f.read(&mut buf).map_err(|e| BindingError::Unavailable {
             field: "exe_content_sha256",
-            reason: format!("read {}: {e}", path.display()),
+            reason: format!("read opened executable: {e}"),
         })?;
         if n == 0 {
             break;
@@ -412,6 +423,31 @@ mod tests {
     }
 
     // ── Test D: path is context, not identity ──
+    #[test]
+    fn opened_file_hash_survives_path_replacement_and_reads_from_zero() {
+        use std::io::Read;
+        let dir = std::env::temp_dir().join(format!("aip-open-image-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("image");
+        let replacement = dir.join("replacement");
+        std::fs::write(&path, b"original executable bytes").unwrap();
+        std::fs::write(&replacement, b"replacement bytes").unwrap();
+        let mut opened = std::fs::File::open(&path).unwrap();
+        let mut prefix = [0; 3];
+        opened.read_exact(&mut prefix).unwrap();
+        std::fs::rename(replacement, &path).unwrap();
+        assert_eq!(
+            hash_open_file_contents(&mut opened).unwrap(),
+            sha256(b"original executable bytes")
+        );
+        assert_eq!(
+            hash_file_contents(&path).unwrap(),
+            sha256(b"replacement bytes")
+        );
+        drop(opened);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
     #[test]
     fn exe_path_does_not_participate_in_identity_but_is_signed_content() {
         let a = binding("aip1agent", 1, 1, 0x01, 0xE0, "/opt/agent");

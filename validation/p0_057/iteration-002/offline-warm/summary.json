@@ -1,0 +1,87 @@
+{
+  "scope": "Real procfs/pidfd process samples around a controlled real exec; same-process ephemeral lab signer; no live connector events or action/coverage verdict",
+  "execution_verdict": "NOT_EVALUATED",
+  "coverage": "NOT_ESTABLISHED",
+  "independent_administration": false,
+  "verifier_sha256": "b147a650103f09a2a4c6c38ab0ed0d98c01a1b4576707b103802857069fa9438",
+  "original_sha256": "487a5909ea51e67d5f03c185e3a8f9e71646c155937c06573703f637ca1da190",
+  "mutated_sha256": "733addab0f82e4c03613454f68fe2ec6c6085681c2e8e9656fff9f18db244c4d",
+  "changed_bytes": 1,
+  "checks": [
+    {
+      "label": "original-signature-only",
+      "command": [
+        "/workspace/scratch/142664b02214/aip/target/debug/aip-observe-verify",
+        "--observer-id",
+        "p0-057-lab-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "19ca8dc8deb49ae285bea07fe399bd1833b6f733bc0453651401cde61fd65745",
+        "--batches",
+        "validation/p0_057/iteration-002/originals-final/warm/batches.jsonl",
+        "--json"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "missing-health-refused",
+      "command": [
+        "/workspace/scratch/142664b02214/aip/target/debug/aip-observe-verify",
+        "--observer-id",
+        "p0-057-lab-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "19ca8dc8deb49ae285bea07fe399bd1833b6f733bc0453651401cde61fd65745",
+        "--batches",
+        "validation/p0_057/iteration-002/originals-final/warm/batches.jsonl",
+        "--json",
+        "--health",
+        "validation/p0_057/iteration-002/originals-final/warm/health.jsonl"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2,
+      "status": "PASS"
+    },
+    {
+      "label": "one-byte-tamper",
+      "command": [
+        "/workspace/scratch/142664b02214/aip/target/debug/aip-observe-verify",
+        "--observer-id",
+        "p0-057-lab-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "19ca8dc8deb49ae285bea07fe399bd1833b6f733bc0453651401cde61fd65745",
+        "--batches",
+        "validation/p0_057/iteration-002/offline-warm/MUTATED-one-byte-batches.jsonl",
+        "--json"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "status": "PASS"
+    },
+    {
+      "label": "wrong-anchor",
+      "command": [
+        "/workspace/scratch/142664b02214/aip/target/debug/aip-observe-verify",
+        "--observer-id",
+        "p0-057-lab-collector",
+        "--key-version",
+        "1",
+        "--pubkey",
+        "18ca8dc8deb49ae285bea07fe399bd1833b6f733bc0453651401cde61fd65745",
+        "--batches",
+        "validation/p0_057/iteration-002/originals-final/warm/batches.jsonl",
+        "--json"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}
