@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VanianObservationV0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "timestamp",
+    "source",
+    "actor_type",
+    "action",
+    "resource",
+    "correlation_id"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "enum": [
+        "gateway",
+        "kernel",
+        "mcp",
+        "identity",
+        "policy",
+        "billing"
+      ]
+    },
+    "actor_type": {
+      "enum": [
+        "human",
+        "agent",
+        "service",
+        "unknown"
+      ]
+    },
+    "actor_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "agent_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "parent_agent_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "delegation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workload_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action": {
+      "type": "string"
+    },
+    "resource": {
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "allow",
+        "deny",
+        "observe",
+        "unknown"
+      ]
+    },
+    "tokens_input": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tokens_output": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "estimated_cost_usd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "evidence_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}
