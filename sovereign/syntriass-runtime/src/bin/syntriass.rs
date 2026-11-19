@@ -17,6 +17,8 @@
 //! syntriass cap-list     --config CFG
 //! syntriass cap-activate --config CFG --hash H --actor A --reason R [--supersede]   (one ACTIVE version per id)
 //! syntriass cap-rollback --config CFG --to H --actor APPROVER --reason R         SUPERSEDED → ACTIVE, current → SUSPENDED
+//!   cap-transition / cap-activate / cap-rollback take --key KEY.json instead of --actor to sign
+//!   each transition; with "require_signed_lifecycle": true in the config, --actor is refused.
 //! syntriass exp-record   --config CFG --file EXP.json      record an experience as the calling OS user (uid map)
 //! syntriass cap-review   --config CFG --hash H             active capability vs verified experience (read-only)
 //! syntriass cap-upgrade-check --config CFG --from H1 --to H2 --suite SUITE   regressions / fixes / scope changes
@@ -53,6 +55,7 @@ use syntriass_runtime::adapters::store::FileStore;
 use syntriass_runtime::adapters::supervisor::Profile;
 use syntriass_runtime::adapters::teach_store::TeachStore;
 use syntriass_runtime::app::{verify_audit_chain, Config, Runtime};
+use syntriass_runtime::capability::action::ActionKeys;
 use syntriass_runtime::capability::artifact::Capability;
 use syntriass_runtime::capability::artifact::Execution;
 use syntriass_runtime::capability::evidence::MeasurementRecord;
@@ -86,6 +89,13 @@ struct FileConfig {
     approval_policy: Option<syntriass_runtime::capability::authority::ApprovalPolicy>,
     #[serde(default)]
     require_teaching_review: bool,
+    /// operator id → public key hex: who may sign activation and supersession.
+    #[serde(default)]
+    operators: BTreeMap<String, String>,
+    /// Lifecycle actions must be signed (`--key`); ACTIVE must follow from a
+    /// verified signed activation at use time. Off by default (legacy).
+    #[serde(default)]
+    require_signed_lifecycle: bool,
     /// expert id → public key hex (trust anchors for validation suites)
     #[serde(default)]
     experts: BTreeMap<String, String>,
@@ -162,7 +172,34 @@ fn approval_current(c: &FileConfig, corpus: &SqliteCorpus, rec: &Record) -> Resu
         learning::now_ms(),
     )
     .map_err(str::to_owned)?;
+    if c.require_signed_lifecycle && rec.state == State::Active {
+        let (operators, approvers) = (keys(&c.operators), keys(&c.approvers));
+        let ak = ActionKeys {
+            operators: &operators,
+            approvers: &approvers,
+            policy: c.approval_policy.as_ref(),
+        };
+        syntriass_runtime::capability::action::check_active(rec, &ak, learning::now_ms())
+            .map_err(str::to_owned)?;
+    }
     current_evidence(c, corpus, rec)
+}
+
+/// The signing key for a lifecycle command (`--key`), or `None` for an
+/// asserted `--actor` name, which signed-lifecycle mode refuses.
+fn lifecycle_key(c: &FileConfig, args: &[String]) -> Option<(KeyFile, Vec<u8>)> {
+    match (opt(args, "--key"), opt(args, "--actor")) {
+        (Some(_), Some(_)) => die("give --key or --actor, not both"),
+        (Some(path), None) => {
+            let k = read_key(path);
+            let sk = hexkey(&k.private_hex);
+            Some((k, sk))
+        }
+        (None, _) if c.require_signed_lifecycle => die(
+            "signed lifecycle required: pass --key KEY.json; --actor is an unauthenticated name",
+        ),
+        (None, _) => None,
+    }
 }
 
 fn parse_doc(text: &str, file: &str) -> Document {
@@ -772,7 +809,14 @@ fn main() {
                 approval_current(&c, &corpus, &record(&c, req(&args, "--hash"))).unwrap_or_else(|e| die(e));
             }
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
-            learning::transition(&mut store, req(&args, "--hash"), to, req(&args, "--actor"), role, learning::now_ms(), req(&args, "--reason"))
+            let signing = lifecycle_key(&c, &args);
+            let (operators, approvers) = (keys(&c.operators), keys(&c.approvers));
+            let ak = ActionKeys { operators: &operators, approvers: &approvers, policy: c.approval_policy.as_ref() };
+            let actor = match &signing {
+                Some((k, sk)) => learning::Actor::Signed { id: &k.id, private_key: sk, keys: &ak },
+                None => learning::Actor::Claimed(req(&args, "--actor")),
+            };
+            learning::transition_as(&mut store, req(&args, "--hash"), to, &actor, role, learning::now_ms(), req(&args, "--reason"))
                 .unwrap_or_else(|e| die(e));
             println!("{}", json!({"hash": req(&args, "--hash"), "state": to}));
         }
@@ -785,14 +829,28 @@ fn main() {
         "cap-activate" => {
             approval_current(&c, &corpus, &record(&c, req(&args, "--hash"))).unwrap_or_else(|e| die(e));
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
-            let sup = learning::activate(&mut store, req(&args, "--hash"), req(&args, "--actor"), args.iter().any(|a| a == "--supersede"), learning::now_ms(), req(&args, "--reason"))
+            let signing = lifecycle_key(&c, &args);
+            let (operators, approvers) = (keys(&c.operators), keys(&c.approvers));
+            let ak = ActionKeys { operators: &operators, approvers: &approvers, policy: c.approval_policy.as_ref() };
+            let actor = match &signing {
+                Some((k, sk)) => learning::Actor::Signed { id: &k.id, private_key: sk, keys: &ak },
+                None => learning::Actor::Claimed(req(&args, "--actor")),
+            };
+            let sup = learning::activate_as(&mut store, req(&args, "--hash"), &actor, args.iter().any(|a| a == "--supersede"), learning::now_ms(), req(&args, "--reason"))
                 .unwrap_or_else(|e| die(e));
             println!("{}", json!({"hash": req(&args, "--hash"), "state": "ACTIVE", "superseded": sup}));
         }
         "cap-rollback" => {
             approval_current(&c, &corpus, &record(&c, req(&args, "--to"))).unwrap_or_else(|e| die(e));
             let mut store = FileStore::open(&c.state.join("capabilities")).unwrap_or_else(|e| die(e));
-            let sus = learning::rollback(&mut store, req(&args, "--to"), req(&args, "--actor"), learning::now_ms(), req(&args, "--reason"))
+            let signing = lifecycle_key(&c, &args);
+            let (operators, approvers) = (keys(&c.operators), keys(&c.approvers));
+            let ak = ActionKeys { operators: &operators, approvers: &approvers, policy: c.approval_policy.as_ref() };
+            let actor = match &signing {
+                Some((k, sk)) => learning::Actor::Signed { id: &k.id, private_key: sk, keys: &ak },
+                None => learning::Actor::Claimed(req(&args, "--actor")),
+            };
+            let sus = learning::rollback_as(&mut store, req(&args, "--to"), &actor, learning::now_ms(), req(&args, "--reason"))
                 .unwrap_or_else(|e| die(e));
             println!("{}", json!({"hash": req(&args, "--to"), "state": "ACTIVE", "suspended": sus}));
         }
@@ -898,6 +956,8 @@ fn main() {
                 approvers,
                 approval_policy: c.approval_policy.clone(),
                 require_teaching_review: c.require_teaching_review,
+                operators: keys(&c.operators),
+                require_signed_lifecycle: c.require_signed_lifecycle,
                 instruments: keys(&c.instruments),
             };
             let rt = Runtime::new(rt_cfg, &corpus, &sidecar, &pool, &store, &meter);

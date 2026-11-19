@@ -16,6 +16,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use super::action::SignedAction;
 use super::artifact::Capability;
 use super::validate::ValidationReport;
 
@@ -232,6 +233,11 @@ pub struct Transition {
     pub role: Role,
     pub at_ms: u64,
     pub reason: String,
+    /// The signature authorizing this transition, when it was signed. Absent
+    /// on validator transitions and on records written before signed
+    /// lifecycle existed, which therefore still load unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub action: Option<SignedAction>,
 }
 
 /// Lifecycle record for one artifact version.
@@ -252,6 +258,7 @@ pub enum LifecycleError {
     ValidationMissingOrFailed,
     ApprovalInvalid(&'static str),
     SelfApproval,
+    ActionInvalid(&'static str),
 }
 
 impl Record {
@@ -293,6 +300,7 @@ impl Record {
             role,
             at_ms: at,
             reason: reason.into(),
+            action: None,
         });
         self.state = to;
         Ok(())
@@ -381,6 +389,41 @@ impl Record {
             });
         }
         self.step(to, actor, role, at, reason)
+    }
+
+    /// A permitted transition authorized by a signed action, verified with
+    /// the signer's public key before anything changes. The recorded actor,
+    /// role, time and reason are the signed ones, never the caller's.
+    pub fn transition_signed(
+        &mut self,
+        action: SignedAction,
+        public_key: &[u8],
+    ) -> Result<(), LifecycleError> {
+        if matches!(action.to, State::Validated | State::Approved) {
+            return Err(LifecycleError::NotPermitted {
+                from: self.state,
+                to: action.to,
+                role: action.role,
+            });
+        }
+        action
+            .applies_to(self)
+            .map_err(LifecycleError::ActionInvalid)?;
+        if !action.verify(public_key) {
+            return Err(LifecycleError::ActionInvalid("signature"));
+        }
+        let (to, role, at, actor, reason) = (
+            action.to,
+            action.role,
+            action.at_ms,
+            action.signer_id.clone(),
+            action.reason.clone(),
+        );
+        self.step(to, &actor, role, at, &reason)?;
+        if let Some(last) = self.history.last_mut() {
+            last.action = Some(action);
+        }
+        Ok(())
     }
 
     /// May this record execute now?

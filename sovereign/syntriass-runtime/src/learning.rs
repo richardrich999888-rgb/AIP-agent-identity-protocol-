@@ -14,6 +14,7 @@ use vanian_sovereign::adapters::sqlite_corpus::SqliteCorpus;
 use vanian_sovereign::domain::corpus::{Classification, Ident, Principal};
 use vanian_sovereign::ports::{PortError, PortErrorKind};
 
+use crate::capability::action::{ActionKeys, SignedAction};
 use crate::capability::artifact::Capability;
 use crate::capability::authority::ApprovalPolicy;
 use crate::capability::lifecycle::{Approval, LifecycleError, Record, Role, State};
@@ -220,12 +221,66 @@ pub fn approve_record_with_policy(
     store.put(&rec)
 }
 
+/// Who performs a lifecycle action.
+pub enum Actor<'a> {
+    /// A name the caller asserts and nothing checks. Legacy mode only; it
+    /// cannot satisfy `require_signed_lifecycle` and is not C2-qualified.
+    Claimed(&'a str),
+    /// A configured key that signs each transition it performs. The public
+    /// key used to verify comes from `keys`, never from the caller.
+    Signed {
+        id: &'a str,
+        private_key: &'a [u8],
+        keys: &'a ActionKeys<'a>,
+    },
+}
+
+/// Move one record across one edge as `actor`.
+fn apply(
+    rec: &mut Record,
+    to: State,
+    role: Role,
+    actor: &Actor<'_>,
+    at_ms: u64,
+    reason: &str,
+) -> Result<(), PortError> {
+    match actor {
+        Actor::Claimed(name) => rec.transition(to, name, role, at_ms, reason).map_err(life),
+        Actor::Signed {
+            id,
+            private_key,
+            keys,
+        } => {
+            let public = keys
+                .authorize(rec, role, id, at_ms, at_ms)
+                .map_err(|e| err(PortErrorKind::ContractViolation, e))?
+                .to_vec();
+            let action = SignedAction::sign(rec, to, role, id, at_ms, reason, private_key)
+                .map_err(|e| err(PortErrorKind::ContractViolation, e))?;
+            rec.transition_signed(action, &public).map_err(life)
+        }
+    }
+}
+
 /// Any other permitted transition by role (activate, suspend, revoke, …).
 pub fn transition(
     store: &mut dyn CapabilityStore,
     hash: &str,
     to: State,
     actor: &str,
+    role: Role,
+    at_ms: u64,
+    reason: &str,
+) -> Result<(), PortError> {
+    transition_as(store, hash, to, &Actor::Claimed(actor), role, at_ms, reason)
+}
+
+/// [`transition`] performed by any [`Actor`].
+pub fn transition_as(
+    store: &mut dyn CapabilityStore,
+    hash: &str,
+    to: State,
+    actor: &Actor<'_>,
     role: Role,
     at_ms: u64,
     reason: &str,
@@ -240,8 +295,7 @@ pub fn transition(
             ),
         ));
     }
-    rec.transition(to, actor, role, at_ms, reason)
-        .map_err(life)?;
+    apply(&mut rec, to, role, actor, at_ms, reason)?;
     store.put(&rec)
 }
 
@@ -280,6 +334,27 @@ pub fn activate(
     at_ms: u64,
     reason: &str,
 ) -> Result<Vec<String>, PortError> {
+    activate_as(
+        store,
+        hash,
+        &Actor::Claimed(actor),
+        supersede,
+        at_ms,
+        reason,
+    )
+}
+
+/// [`activate`] performed by any [`Actor`]. Every record it changes — the
+/// target and each version it supersedes — is authorized and, for a signed
+/// actor, signed separately, before anything is written.
+pub fn activate_as(
+    store: &mut dyn CapabilityStore,
+    hash: &str,
+    actor: &Actor<'_>,
+    supersede: bool,
+    at_ms: u64,
+    reason: &str,
+) -> Result<Vec<String>, PortError> {
     let rec = find(store, hash)?;
     let others = active_of(store, &rec.capability, hash)?;
     if !others.is_empty() && !supersede {
@@ -297,22 +372,33 @@ pub fn activate(
             format!("{hash} is {:?}, not APPROVED", rec.state),
         ));
     }
-    let mut done = vec![];
+    // Every change is computed and authorized first, then written, so a
+    // refusal on any record leaves every record as it was.
+    let mut changed = vec![];
     for mut o in others {
-        o.transition(
+        apply(
+            &mut o,
             State::Superseded,
-            actor,
             Role::Operator,
+            actor,
             at_ms,
             &format!("superseded by {hash}"),
-        )
-        .map_err(life)?;
-        store.put(&o)?;
-        done.push(o.capability_hash.clone());
+        )?;
+        changed.push(o);
     }
     let mut rec = rec;
-    rec.transition(State::Active, actor, Role::Operator, at_ms, reason)
-        .map_err(life)?;
+    apply(
+        &mut rec,
+        State::Active,
+        Role::Operator,
+        actor,
+        at_ms,
+        reason,
+    )?;
+    let done = changed.iter().map(|o| o.capability_hash.clone()).collect();
+    for o in &changed {
+        store.put(o)?;
+    }
     store.put(&rec)?;
     Ok(done)
 }
@@ -330,6 +416,18 @@ pub fn rollback(
     at_ms: u64,
     reason: &str,
 ) -> Result<Vec<String>, PortError> {
+    rollback_as(store, target, &Actor::Claimed(approver), at_ms, reason)
+}
+
+/// [`rollback`] performed by any [`Actor`]; authorized and computed for
+/// every record before any is written.
+pub fn rollback_as(
+    store: &mut dyn CapabilityStore,
+    target: &str,
+    approver: &Actor<'_>,
+    at_ms: u64,
+    reason: &str,
+) -> Result<Vec<String>, PortError> {
     let mut rec = find(store, target)?;
     if rec.state != State::Superseded {
         return Err(err(
@@ -343,27 +441,30 @@ pub fn rollback(
             "rollback target lacks validation or approval",
         ));
     }
-    let mut done = vec![];
+    let mut changed = vec![];
     for mut o in active_of(store, &rec.capability, target)? {
-        o.transition(
+        apply(
+            &mut o,
             State::Suspended,
-            approver,
             Role::Approver,
+            approver,
             at_ms,
             &format!("rolled back to {target}: {reason}"),
-        )
-        .map_err(life)?;
-        store.put(&o)?;
-        done.push(o.capability_hash.clone());
+        )?;
+        changed.push(o);
     }
-    rec.transition(
+    apply(
+        &mut rec,
         State::Active,
-        approver,
         Role::Approver,
+        approver,
         at_ms,
         &format!("rollback: {reason}"),
-    )
-    .map_err(life)?;
+    )?;
+    let done = changed.iter().map(|o| o.capability_hash.clone()).collect();
+    for o in &changed {
+        store.put(o)?;
+    }
     store.put(&rec)?;
     Ok(done)
 }

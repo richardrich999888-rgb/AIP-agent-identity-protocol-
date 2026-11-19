@@ -55,6 +55,10 @@ pub struct Config {
     pub approvers: BTreeMap<String, Vec<u8>>,
     pub require_teaching_review: bool,
     pub approval_policy: Option<crate::capability::authority::ApprovalPolicy>,
+    /// operator id → Ed25519 public key: who may sign activation and supersession.
+    pub operators: BTreeMap<String, Vec<u8>>,
+    /// Refuse an ACTIVE record unless its activation is a verified signed action.
+    pub require_signed_lifecycle: bool,
     /// instrument id → Ed25519 public key: who may sign measurement records (S1).
     pub instruments: BTreeMap<String, Vec<u8>>,
 }
@@ -196,6 +200,18 @@ impl<'a> Runtime<'a> {
             crate::learning::now_ms(),
         ) {
             return Some(reason.into());
+        }
+        if self.cfg.require_signed_lifecycle {
+            let keys = crate::capability::action::ActionKeys {
+                operators: &self.cfg.operators,
+                approvers: &self.cfg.approvers,
+                policy: self.cfg.approval_policy.as_ref(),
+            };
+            if let Err(reason) =
+                crate::capability::action::check_active(r, &keys, crate::learning::now_ms())
+            {
+                return Some(reason.into());
+            }
         }
         let req = &r.capability.required;
         if req.tenant != p.tenant.as_str() || req.security_domain != self.cfg.security_domain {

@@ -249,6 +249,8 @@ fn cfg(w: &World) -> Config {
         approvers: w.approvers.clone(),
         approval_policy: None,
         require_teaching_review: false,
+        operators: Default::default(),
+        require_signed_lifecycle: false,
         instruments: w.instruments.clone(),
     }
 }
@@ -560,6 +562,49 @@ fn required_teaching_review_refuses_legacy_at_use_time() {
         .unwrap();
     assert!(matches!(r.outcome, Outcome::Refused { .. }));
     assert_eq!(r.cost.model_calls, 0);
+}
+
+#[test]
+fn required_signed_lifecycle_refuses_unsigned_activation_and_runs_a_signed_one() {
+    use syntriass_runtime::capability::action::SignedAction;
+    let mut w = world(None);
+    let m = models("{}");
+    let p = principal("koravi-process", Classification::Restricted);
+    let id = w.store.0[0].capability.id.clone();
+    let op = aip_crypto::generate_ed25519_keypair();
+    let mut c = cfg(&w);
+    c.require_signed_lifecycle = true;
+    c.operators
+        .insert("operator:koravi-ot".into(), op.public_key.clone());
+    {
+        // As built, the world's record was activated under an asserted name.
+        let rt = Runtime::new(c.clone(), &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+        let r = rt.invoke(&p, &id, IR_TASK).unwrap();
+        assert!(
+            matches!(r.outcome, Outcome::Refused { .. }),
+            "{:?}",
+            r.outcome
+        );
+        assert_eq!(r.cost.model_calls, 0);
+    }
+    // The same record, re-activated by a signed operator action.
+    let rec = &mut w.store.0[0];
+    rec.history.pop();
+    rec.state = State::Approved;
+    let a = SignedAction::sign(
+        rec,
+        State::Active,
+        Role::Operator,
+        "operator:koravi-ot",
+        4,
+        "go live",
+        &op.private_key,
+    )
+    .unwrap();
+    rec.transition_signed(a, &op.public_key).unwrap();
+    let rt = Runtime::new(c, &w.corpus, &FakeInterp, &m, &w.store, &NullMeter);
+    assert_eq!(label(&rt.invoke(&p, &id, IR_TASK).unwrap()), "PASS");
+    assert!(m.0.seen.borrow().is_empty());
 }
 
 #[test]
