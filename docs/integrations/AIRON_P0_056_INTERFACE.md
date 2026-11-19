@@ -1,0 +1,11 @@
+# AIRON process interface v1
+
+Base: 93c65bcdc293aa950552f1a11515c4b21a553e8e, feature/airon-teach-demo. Ownership and existing licences are unchanged. AIRON must provision separately authorized binaries; this interface does not grant redistribution rights.
+
+`airon-bridge CONFIG IDENTITY_FILE` consumes one bounded JSON object on stdin and emits `syntriass-airon-bridge/v1`. The configuration and identity must be regular owner-only files. A trusted local application chooses the provisioned identity; this is not network authentication. The OS account/configuration is the trust root. The caller serializes mutations and anchors the native audit and capability files in its signed ledger.
+
+Operations: `search {query,limit}`, `ingest {doc_id,title,classification,body}`, `delete {doc_id}`, `execute {capability_id,text}`, `snapshot {}`. All reads use the original SqliteCorpus ACL inside SQL. Mutations require configured can_ingest and respect the principal's clearance. Delete updates the native FTS index via its existing SQLite trigger. Explicit capability invocation reuses Runtime::invoke, including source freshness, scoped authority, signatures and the existing refusal of consequential operations. Disabled model/interpreter ports return errors; no model result or execution is simulated. Inference belongs to AIRON's separate model service.
+
+The existing syntriass CLI remains the proposal/validation/approval/activation/rollback boundary. AIRON authenticates its local operator/reviewer sessions before calling it. Distinct keys in a synthetic test are not independently administered custody. No independent observation is claimed.
+
+Local validation: original syntriass-runtime baseline 201 tests passed. AIRON integration suite exercises the built bridge and real Docling: 20 tests passed, including authorization, signed suites, rollback, deletion/reindexing, source invalidation and tamper rejection. Full combined native test attempt stopped at an existing vanian-sovereign ptrace-dependent test (pre_exec_death_never_returns_a_tool_status, PTRACE_TRACEME unavailable); 78 of 79 library tests passed there. This host restriction is retained, not skipped or fixed by weakening sandbox assertions. Host: Linux 6.18.57 x86-64, AMD EPYC 9V74, 9 visible CPUs, 10,206,472 KiB RAM, no GPU. A full independently isolated deployment remains unqualified.
