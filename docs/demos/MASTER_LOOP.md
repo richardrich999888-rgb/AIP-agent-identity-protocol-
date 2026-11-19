@@ -38,9 +38,9 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 - [x] W4.4 `demos/quantum-xray/run.sh` + acceptance test (every planted weakness found, nothing invented) — OVERLAY `6072578`, clean tree: `ACCEPTANCE: PASS` 4/4 planted found, 0 invented; full scan 5 ms over 8 files; 9/9 unit tests. **Committed locally only — not pushed (no OVERLAY write access yet)**
 
 ## W6 — Reproducible benchmark package
-- [ ] W6.1 Package the capability benchmark for one-command offline rerun — **BLOCKED**: every phase starts a local model server; the wrapper waits for PR #14 (`resolve_model.py`) to merge and for staged weights (W0.3). No `run.sh` shipped meanwhile (it would hard-code model paths, which PR #14 removes)
+- [x] W6.1 Package the capability benchmark for one-command offline rerun — `demos/benchmark/rerun.sh` (calls the teaching session's harness unchanged with the staged models and the same llama.cpp source) + `compare.py`
 - [x] W6.2 `demos/benchmark/REPRODUCE.md` with expected ranges and the "must not say" list — `summarize.py` recomputes the table from the recorded files (3/3 tests, added to the demos CI job). Agrees on every count and all 4 CIs; **disagrees on the candidate's CPU-s/task: ≤ 0.01 is the capability path only, 3.05 across all 40 items**. No variance measured (1 run per system), so no range is invented
-- [ ] W6.3 Fresh-machine rerun; record differences honestly — **BLOCKED** on W6.1 and models
+- [x] W6.3 Fresh rerun; record differences honestly — 2026-11-19 from clean `ef520c1`, this sandbox (4 vCPU, 15 GB, no GPU; not a different machine): **every label identical on all 40 items for B1–B4 and the candidate**, 37/40 and 29/32 reproduced, lifecycle 14/14 + 4/4, phase E identical; CPU-s per task differs (B1 3.24→3.84, B2 9.11→10.30, B3 15.92→17.46, B4 4.19→3.91, candidate 3.05→3.35). Model-proposal phase not rerun (stated). `demos/benchmark/evidence/2026-11-19-ef520c1/comparison.md`
 
 ## W5 — Post-quantum in one switch (OVERLAY; "proof of concept")
 - [x] W5.1 Two containers, unmodified TCP client/server — OVERLAY `demos/pq-switch/`: same host `nc` (sha256 `2a6fac3d…`) as server and client, `FROM scratch` image, `--internal` network (no route out, checked by acceptance)
