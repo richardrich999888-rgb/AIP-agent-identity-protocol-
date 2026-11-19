@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SYNTRIASS — Live Demos</title>
+<link rel="icon" href="/assets/favicon.png">
+<style>
+:root{
+  --bg:#0A0140; --bg2:#0E0656; --panel:#120A5E; --panel2:#170E6B; --line:#2A2283;
+  --text:#EEF0FF; --muted:#A9A8D6; --dim:#7D7BB5;
+  --mag:#B026D9; --vio:#6B5CE7; --cyan:#22B8E0; --ok:#2ED3A0; --bad:#FF5C8A; --warn:#FFC24B;
+  --grad:linear-gradient(90deg,var(--mag),var(--vio) 50%,var(--cyan));
+  --r:14px; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{background:radial-gradient(1200px 600px at 85% -10%,rgba(34,184,224,.16),transparent 60%),
+     radial-gradient(900px 500px at -10% 10%,rgba(176,38,217,.18),transparent 60%),var(--bg);min-height:100vh}
+a{color:var(--cyan)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+header{position:sticky;top:0;z-index:5;background:rgba(10,1,64,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:16px;height:68px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img.mark{height:40px}
+.brand img.word{height:22px}
+.brand .sub{color:var(--muted);font-size:13px;padding-left:12px;border-left:1px solid var(--line)}
+.spacer{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);border:1px solid var(--line);
+  border-radius:999px;padding:4px 10px;background:rgba(255,255,255,.03);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dim)}
+.dot.ok{background:var(--ok);box-shadow:0 0 8px var(--ok)} .dot.bad{background:var(--bad)} .dot.run{background:var(--warn);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:32px;align-items:center;padding:42px 0 26px}
+.hero h1{font-size:40px;line-height:1.12;margin:0 0 14px;letter-spacing:-.01em}
+.hero h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);font-size:17px;margin:0 0 18px;max-width:640px}
+.hero .facts{display:flex;flex-wrap:wrap;gap:8px}
+.lockup{justify-self:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+.lockup .logo{width:220px;max-width:60vw;filter:drop-shadow(0 0 40px rgba(107,92,231,.55))}
+.lockup .lword{height:40px} .lockup .tag{color:var(--muted);font-size:14px;letter-spacing:.02em}
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-top:6px}
+nav.tabs button{all:unset;cursor:pointer;padding:12px 16px;color:var(--muted);border-bottom:2px solid transparent;font-weight:600}
+nav.tabs button[aria-selected=true]{color:var(--text);border-image:var(--grad) 1;border-bottom:2px solid}
+nav.tabs button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+section.panel{display:none;padding:26px 0 60px}
+section.panel.on{display:block}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:24px}
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.card h2{margin:0 0 6px;font-size:20px}
+.card h3{margin:16px 0 8px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.card p,.card li{color:var(--muted)}
+.card ul{padding-left:18px;margin:6px 0}
+.btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;font-weight:700;
+  background:var(--grad);color:#fff;box-shadow:0 6px 24px rgba(107,92,231,.35)}
+.btn:hover{filter:brightness(1.08)} .btn:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:transparent;border:1px solid var(--line);box-shadow:none;color:var(--text);font-weight:600}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:800;letter-spacing:.1em;padding:3px 8px;border-radius:6px}
+.badge.live{background:rgba(46,211,160,.15);color:var(--ok);border:1px solid rgba(46,211,160,.4)}
+.badge.rec{background:rgba(255,194,75,.12);color:var(--warn);border:1px solid rgba(255,194,75,.4)}
+.badge.pass{background:rgba(46,211,160,.15);color:var(--ok)} .badge.fail{background:rgba(255,92,138,.15);color:var(--bad)}
+.console{font:12.5px/1.45 var(--mono);background:#06012A;border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  height:300px;overflow:auto;white-space:pre-wrap;color:#CFD3FF}
+.console:empty::before{content:"Output appears here, line by line, as the demo runs.";color:var(--dim)}
+.hl-ok{color:var(--ok)} .hl-bad{color:var(--bad)} .hl-key{color:#FFD27D}
+input[type=text],select{background:#06012A;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit}
+input[type=text]{flex:1;min-width:220px}
+input:focus,select:focus{outline:2px solid var(--vio)}
+.qs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+.qs button{all:unset;cursor:pointer;font-size:13px;color:var(--muted);border:1px dashed var(--line);border-radius:999px;padding:5px 11px}
+.qs button:hover{color:var(--text);border-color:var(--vio)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.side{border:1px solid var(--line);border-radius:12px;padding:16px;background:rgba(0,0,0,.18);min-height:170px}
+.side h4{margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;font-size:15px}
+.answer{font-size:18px;color:var(--text);margin:6px 0 10px;min-height:28px}
+.cite{display:inline-block;font:12px var(--mono);color:var(--cyan);border:1px solid rgba(34,184,224,.4);border-radius:6px;padding:2px 7px;margin:0 6px 6px 0}
+.meter{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.meter div{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:8px}
+.meter b{display:block;font-size:17px} .meter span{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+td.num{font-variant-numeric:tabular-nums}
+.res{margin-top:16px}
+.muted{color:var(--muted)} .small{font-size:12.5px;color:var(--dim)}
+iframe{width:100%;height:520px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-top:12px}
+footer{border-top:1px solid var(--line);padding:18px 0 40px;color:var(--dim);font-size:12.5px}
+@media (max-width:960px){.hero{grid-template-columns:1fr}.lockup{order:-1}.lockup .logo{width:120px}.lockup .lword{height:28px}header .chip{display:none}.hero h1{font-size:32px}.grid,.duo{grid-template-columns:1fr}.brand .sub{display:none}.meter{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand"><img class="mark" src="/assets/syntriass-mark.png" alt=""><img class="word" src="/assets/syntriass-wordmark.png" alt="SYNTRIASS"><span class="sub">Live demos</span></div>
+  <div class="spacer"></div>
+  <span class="chip" id="hw"><span class="dot"></span>hardware</span>
+  <span class="chip" id="busy"><span class="dot ok"></span>idle</span>
+</div></header>
+
+<main class="wrap">
+  <div class="hero">
+    <div>
+      <h1>AI you can run <span class="g">offline</span>, check <span class="g">independently</span>, and secure for the <span class="g">quantum era</span>.</h1>
+      <p>Every demo on this page runs the real software on this machine when you press its button. Nothing is pre-recorded, except the benchmark tab, which is labelled RECORDED.</p>
+      <div class="facts" id="facts"></div>
+    </div>
+    <div class="lockup" role="img" aria-label="SYNTRIASS — Replacing Digital Laws. Rebuilding Civilization.">
+      <img class="logo" src="/assets/syntriass-mark.png" alt="">
+      <img class="lword" src="/assets/syntriass-wordmark.png" alt="">
+      <div class="tag">Replacing Digital Laws. Rebuilding Civilization.</div>
+    </div>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-t="ptp">Pull the plug</button>
+    <button role="tab" aria-selected="false" data-t="security">Catch the lying agent</button>
+    <button role="tab" aria-selected="false" data-t="quantum">Quantum X-ray</button>
+    <button role="tab" aria-selected="false" data-t="pq">Post-quantum switch</button>
+    <button role="tab" aria-selected="false" data-t="bench">Taught-capability benchmark</button>
+  </nav>
+
+  <!-- Pull the plug -->
+  <section class="panel on" id="p-ptp">
+    <div class="grid">
+      <div class="card">
+        <h2>Pull the plug</h2>
+        <p>An organisation's own AI assistant keeps working with the network cut. A cloud AI app does not.</p>
+        <h3>What happens</h3>
+        <ul><li>Your question goes to the SYNTRIASS runtime inside a network namespace with <b>no route out</b>.</li>
+          <li>It answers from the organisation's own documents, with citations, using a small local model.</li>
+          <li>The same question goes to a cloud AI app, which fails.</li>
+          <li>Bytes sent out are measured from outside the runtime.</li></ul>
+        <h3>Shown, and not shown</h3>
+        <ul><li>Documents are <b>synthetic</b> plant procedures. Restricted ones stay hidden from an "internal" user.</li>
+          <li>The models are Qwen2.5-1.5B or IBM Granite 3.3-2B (both Apache-2.0), on CPU only. Accuracy is the small model's.</li></ul>
+        <div class="row" style="margin-top:14px"><button class="btn ghost" data-run="pull-the-plug">Run the full 5-question check</button></div>
+      </div>
+      <div class="card">
+        <div class="row"><span class="badge live">LIVE</span><b>Ask your own question</b><span class="spacer"></span>
+          <select id="model" aria-label="Local model"></select></div>
+        <div class="row" style="margin-top:12px"><input type="text" id="q" maxlength="500" placeholder="e.g. What is the vibration limit for coolant pump P-7?">
+          <button class="btn" id="ask" disabled>Ask offline</button></div>
+        <div class="qs" id="qs"></div>
+        <div class="duo">
+          <div class="side"><h4>SYNTRIASS, on this machine <span id="l-badge"></span></h4>
+            <div class="answer" id="l-ans"><span class="small">Ask a question to see the answer here.</span></div>
+            <div id="l-cite"></div><div class="meter" id="l-meter"></div></div>
+          <div class="side"><h4>Cloud AI app <span id="c-badge"></span></h4>
+            <div class="answer" id="c-ans"><span class="small">Same question, sent to the cloud.</span></div>
+            <p class="small" id="c-note"></p></div>
+        </div>
+        <div class="res" id="r-pull-the-plug"></div>
+        <h3>Live output</h3><div class="console" id="con-pull-the-plug"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security -->
+  <section class="panel" id="p-security">
+    <div class="grid">
+      <div class="card">
+        <h2>Catch the lying agent</h2>
+        <p>An AI agent's own log says one thing. Independent kernel-level evidence shows what it actually did.</p>
+        <h3>What happens</h3>
+        <ul><li>A <b>scripted test agent</b> does its task, and secretly opens a network connection and writes a file outside its workspace. Its own log omits both.</li>
+          <li><b>Sniffer Dog</b> watches from the Linux kernel and binds each action to the exact process. A collector key the agent never sees signs the evidence.</li>
+          <li><b>auditd</b>, a separate kernel subsystem, cross-checks it.</li>
+          <li>Anyone can verify the evidence offline. Changing one byte breaks it.</li></ul>
+        <h3>Not claimed</h3>
+        <ul><li>That it catches any real-world agent, or an agent built to evade it.</li><li>Its overhead, which has not been measured.</li></ul>
+        <div class="row" style="margin-top:14px"><button class="btn" data-run="security">Run live (~25 s)</button></div>
+      </div>
+      <div class="card"><div class="row"><span class="badge live">LIVE</span><b>The three witnesses</b></div>
+        <div class="res" id="r-security"></div><h3>Live output</h3><div class="console" id="con-security"></div></div>
+    </div>
+  </section>
+
+  <!-- Quantum X-ray -->
+  <section class="panel" id="p-quantum">
+    <div class="grid">
+      <div class="card">
+        <h2>Quantum X-ray</h2>
+        <p>Find every quantum-vulnerable key, certificate and cipher on a server, and show where it is used.</p>
+        <h3>What happens</h3>
+        <ul><li>A sample server is built with four <b>planted</b> weaknesses. They are checked with openssl, not with our scanner.</li>
+          <li>The server runs as a live container. The scanner reads it and writes a CycloneDX 1.6 cryptographic bill of materials (CBOM).</li>
+          <li>Acceptance requires every planted item found at its path, and nothing invented.</li></ul>
+        <h3>Not claimed</h3>
+        <ul><li>That it covers any real estate. This is one synthetic sample.</li><li>Any compliance status: no verified CNSA 2.0 or NIST IR 8547 policy pack ships.</li></ul>
+        <div class="row" style="margin-top:14px"><button class="btn" data-run="quantum">Run live (~2 s)</button></div>
+      </div>
+      <div class="card"><div class="row"><span class="badge live">LIVE</span><b>What the scan found</b></div>
+        <div class="res" id="r-quantum"></div><h3>Live output</h3><div class="console" id="con-quantum"></div></div>
+    </div>
+  </section>
+
+  <!-- PQ switch -->
+  <section class="panel" id="p-pq">
+    <div class="grid">
+      <div class="card">
+        <h2>Post-quantum in one switch</h2>
+        <p><b>Proof of concept.</b> An unmodified network program gets a post-quantum protected connection, switched on at launch.</p>
+        <h3>What happens</h3>
+        <ul><li>Two containers run the <b>same unmodified</b> netcat binary. Its hash is unchanged in every phase.</li>
+          <li>Without the overlay, the message crosses the wire in clear. With it, the message is delivered but is never on the wire.</li>
+          <li>Remove the identity, offer a weaker fallback, connect without the overlay, or impersonate: nothing is delivered.</li></ul>
+        <h3>Not claimed</h3>
+        <ul><li>TLS interoperability (both ends run the overlay), production readiness, or zero overhead.</li>
+          <li>The algorithms (hybrid X25519 + ML-KEM-768, ML-DSA-65) come from the source code. The capture shows only a ~13 KB handshake.</li></ul>
+        <div class="row" style="margin-top:14px"><button class="btn" data-run="pq">Run live (~35 s)</button></div>
+      </div>
+      <div class="card"><div class="row"><span class="badge live">LIVE</span><b>Packet capture, phase by phase</b></div>
+        <div class="res" id="r-pq"></div><h3>Live output</h3><div class="console" id="con-pq"></div></div>
+    </div>
+  </section>
+
+  <!-- Benchmark -->
+  <section class="panel" id="p-bench">
+    <div class="grid">
+      <div class="card">
+        <h2>Taught capability, not fine-tuning</h2>
+        <p>An expert teaches the runtime a confidential procedure through demonstrations and corrections. It becomes a typed, validated, signed and approved capability. No model weights change.</p>
+        <h3>Read with</h3><ul id="b-notes"></ul>
+        <p class="small">This tab shows result files: the original run and a fresh rerun on this machine. It is not a live run. Rerun it with <code>demos/benchmark/rerun.sh</code> (~8 minutes).</p>
+      </div>
+      <div class="card"><div class="row"><span class="badge rec">RECORDED</span><b>40 requests: 32 unseen tasks + 8 false-activation probes</b></div>
+        <div class="res" id="r-bench"></div><p class="small" id="b-src"></p></div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap" id="foot">SYNTRIASS · demos run locally on this machine · page served from 127.0.0.1 only, with no external requests</div></footer>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const el = (tag, attrs = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === "class") n.className = v; else n.setAttribute(k, v); }
+  for (const k of kids) n.append(k instanceof Node ? k : document.createTextNode(String(k ?? "")));
+  return n;
+};
+const api = async (path, body) => {
+  const r = await fetch(path, body ? {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)} : {});
+  return r.json();
+};
+const badge = (ok, t) => el("span", {class: "badge " + (ok ? "pass" : "fail")}, t ?? (ok ? "PASS" : "FAIL"));
+
+// tabs
+document.querySelectorAll("nav.tabs button").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("nav.tabs button").forEach((x) => x.setAttribute("aria-selected", x === b));
+  document.querySelectorAll("section.panel").forEach((p) => p.classList.toggle("on", p.id === "p-" + b.dataset.t));
+  if (b.dataset.t === "bench") loadBench();
+}));
+
+// status
+let busy = false;
+async function refresh() {
+  const s = await api("/api/status");
+  busy = s.busy;
+  $("#hw").replaceChildren(el("span", {class: "dot ok"}), s.hardware);
+  $("#busy").replaceChildren(el("span", {class: "dot " + (s.busy ? "run" : "ok")}), s.busy ? "demo running" : "idle");
+  const f = $("#facts"); f.replaceChildren();
+  for (const [m, r] of Object.entries(s.modes)) f.append(el("span", {class: "chip", title: r.reason || "ready"}, el("span", {class: "dot " + (r.ready ? "ok" : "bad")}), m + (r.ready ? " ready" : " not ready")));
+  for (const p of s.provenance) f.append(el("span", {class: "chip"}, `${p.repo.startsWith("AIP") ? "AIP" : p.repo} ${(p.commit || "?").slice(0, 7)}${p.dirty ? " (uncommitted changes)" : ""}`));
+  const sel = $("#model");
+  if (!sel.options.length) for (const [k, v] of Object.entries(s.models)) sel.append(el("option", {value: k}, v));
+  document.querySelectorAll("[data-run]").forEach((b) => {
+    const r = s.modes[b.dataset.run];
+    b.disabled = s.busy || !(r && r.ready);
+    b.title = r && !r.ready ? r.reason : "";
+  });
+  $("#ask").disabled = s.busy || !sel.options.length;
+  if (!s.checked) for (const c of f.querySelectorAll(".chip")) if (/ready/.test(c.textContent)) c.title = "checking…";
+}
+refresh(); setInterval(refresh, 4000);
+
+// highlight console lines
+function paint(con, text) {
+  con.replaceChildren();
+  for (const line of text.split("\n")) {
+    let cls = "";
+    if (/PASS|VERIFIED|REJECTED|not seen|withheld|answered/.test(line)) cls = "hl-ok";
+    if (/FAIL|NOT DETECTED|IN CLEAR|STILL VERIFIED|PROBLEM/.test(line)) cls = "hl-bad";
+    if (/CONNECT to|FILE written|marker_on_wire|delivered=|ACCEPTANCE/.test(line)) cls = cls || "hl-key";
+    con.append(cls ? el("span", {class: cls}, line) : document.createTextNode(line), "\n");
+  }
+  con.scrollTop = con.scrollHeight;
+}
+
+// run a demo and stream it
+document.querySelectorAll("[data-run]").forEach((b) => b.addEventListener("click", async () => {
+  const mode = b.dataset.run;
+  const res = $("#r-" + mode), con = $("#con-" + mode);
+  res.replaceChildren(el("p", {class: "muted"}, "Starting…"));
+  const j = await api("/api/run", {mode});
+  if (j.error) { res.replaceChildren(el("p", {class: "hl-bad"}, j.error)); return; }
+  refresh();
+  const t = setInterval(async () => {
+    const v = await api("/api/job/" + j.id);
+    paint(con, v.console || "");
+    if (v.state === "running") { res.replaceChildren(el("p", {class: "muted"}, `Running live… ${v.elapsed_s} s`)); return; }
+    clearInterval(t); refresh(); render(mode, v, res);
+  }, 1000);
+}));
+
+function provLine(s) {
+  return el("p", {class: "small"}, `Result file ${s.result_file || "?"} · ${s.wall_s ?? "?"} s · ` +
+    (s.provenance || []).map((p) => `${p.repo.startsWith("AIP") ? "AIP" : p.repo} ${(p.commit || "?").slice(0, 7)}`).join(", "));
+}
+
+function render(mode, v, res) {
+  const s = v.summary || {};
+  const head = el("div", {class: "row"}, badge(s.passed, s.passed ? "ACCEPTANCE PASS" : (v.state === "not_ready" ? "NOT READY" : "ACCEPTANCE FAIL")));
+  const out = [head];
+  if (mode === "pull-the-plug" && s.answers) {
+    const tb = el("table", {}, el("tr", {}, el("th", {}, "Question"), el("th", {}, "Local answer (offline)"), el("th", {}, "Cites"), el("th", {}, "Bytes out"), el("th", {}, "Cloud")));
+    for (const a of s.answers) tb.append(el("tr", {}, el("td", {}, a.question), el("td", {class: a.status === "answered" ? "hl-ok" : "hl-key"}, a.answer || `(${a.status})`),
+      el("td", {}, (a.sources || []).slice(0, 2).join(", ")), el("td", {class: "num"}, a.bytes_out), el("td", {class: "hl-bad"}, a.cloud)));
+    out.push(tb);
+  }
+  if (mode === "security" && s.screen) { const c = el("div", {class: "console", style: "height:auto;max-height:520px"}); paint(c, s.screen); out.push(c); }
+  if (mode === "quantum" && s.found) {
+    const tb = el("table", {}, el("tr", {}, el("th", {}, "Planted weakness"), el("th", {}, "Found by the scanner")));
+    for (const [k, items] of Object.entries(s.found)) tb.append(el("tr", {}, el("td", {}, k), el("td", {class: "hl-ok"}, items.join(" · "))));
+    out.push(tb, el("p", {class: "muted"}, `Invented assets: ${s.invented}`));
+    if (s.report) out.push(el("iframe", {src: "/api/report/" + v.id, title: "Quantum X-ray report", sandbox: ""}));
+  }
+  if (mode === "pq" && s.phases) {
+    const names = {baseline: "No overlay", overlay: "Overlay on both ends", no_identity: "Client identity removed", no_id_psk: "Removed + weaker fallback offered", plaintext: "Client without overlay", impostor: "Unknown identity"};
+    const tb = el("table", {}, el("tr", {}, el("th", {}, "Phase"), el("th", {}, "Server app got the data"), el("th", {}, "Data on the wire"), el("th", {}, "Bytes")));
+    for (const p of s.phases) tb.append(el("tr", {}, el("td", {}, names[p.phase] || p.phase), el("td", {class: p.delivered_to_server_app ? "hl-ok" : "muted"}, p.delivered_to_server_app ? "yes" : "no"),
+      el("td", {class: p.marker_on_wire ? "hl-bad" : "hl-ok"}, p.marker_on_wire ? "IN CLEAR" : "not seen"), el("td", {class: "num"}, p.bytes_on_wire)));
+    out.push(tb);
+    const o = s.overhead || {};
+    if (o.baseline && o.overlay) out.push(el("p", {class: "muted"}, `Per connection (n=${o.overlay.n}): median ${o.baseline.median_ms} ms without the overlay, ${o.overlay.median_ms} ms with it. This includes ~70 ms container start-up, so the time difference is within noise. Bytes on the wire: ${o.bytes_on_wire?.baseline} vs ${o.bytes_on_wire?.overlay}.`));
+  }
+  if (s.parse_note) out.push(el("p", {class: "hl-bad"}, s.parse_note));
+  out.push(provLine(s));
+  res.replaceChildren(...out);
+}
+
+// ask
+const SAMPLES = ["What is the vibration limit for coolant pump P-7?", "At what top-oil temperature does transformer T-3 trip?",
+  "How long does standby generator G-2 run at no load each week?", "What is the SCADA maintenance account password?"];
+for (const q of SAMPLES) { const b = el("button", {}, q); b.addEventListener("click", () => { $("#q").value = q; }); $("#qs").append(b); }
+$("#q").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#ask").click(); });
+$("#ask").addEventListener("click", async () => {
+  const q = $("#q").value.trim(); if (!q) return;
+  $("#ask").disabled = true;
+  $("#l-ans").replaceChildren(el("span", {class: "muted"}, "Answering on this machine, offline…"));
+  $("#c-ans").replaceChildren(el("span", {class: "muted"}, "Contacting the cloud…"));
+  $("#l-cite").replaceChildren(); $("#l-meter").replaceChildren(); $("#l-badge").replaceChildren(); $("#c-badge").replaceChildren(); $("#c-note").textContent = "";
+  const r = await api("/api/ask", {question: q, model: $("#model").value});
+  $("#ask").disabled = false;
+  if (r.error) { $("#l-ans").replaceChildren(el("span", {class: "hl-bad"}, r.error)); $("#c-ans").replaceChildren(); return; }
+  const L = r.local;
+  $("#l-badge").append(badge(L.status === "answered" || L.status === "withheld", L.status.toUpperCase()));
+  $("#l-ans").replaceChildren(L.answer ? L.answer : el("span", {class: "hl-key"}, L.status === "withheld" ? "Withheld: no document this user may see answers it." : `(${L.status})`));
+  for (const c of L.sources || []) $("#l-cite").append(el("span", {class: "cite"}, c));
+  const m = [["network", r.offline ? "no route" : "ONLINE"], ["bytes out", L.bytes_out], ["time", (L.wall_ms / 1000).toFixed(1) + " s"], ["CPU", L.cpu_s + " s"]];
+  for (const [k, v] of m) $("#l-meter").append(el("div", {}, el("b", {}, v), el("span", {}, k)));
+  $("#c-badge").append(badge(false, "FAILED"));
+  const WHY = {dns_unavailable: "no network (name lookup failed)", no_route: "no network route", timeout: "timed out",
+    connection_refused: "connection refused", not_configured: "no cloud endpoint configured"};
+  $("#c-ans").replaceChildren(el("span", {class: "hl-bad"}, `No answer: ${WHY[r.cloud.reason] || r.cloud.reason || r.cloud.status}`));
+  $("#c-note").textContent = `${r.model} · ${r.corpus}`;
+});
+
+// benchmark
+let benchLoaded = false;
+async function loadBench() {
+  if (benchLoaded) return; benchLoaded = true;
+  const b = await api("/api/benchmark");
+  const tb = el("table", {}, el("tr", {}, el("th", {}, "System"), el("th", {}, "Correct /40"), el("th", {}, "Tasks /32"), el("th", {}, "CPU-s per task"), el("th", {}, "Fresh rerun: same answer on")));
+  for (const r of b.rows) {
+    const f = r.fresh;
+    const best = r.system.includes("taught");
+    tb.append(el("tr", {style: best ? "background:rgba(107,92,231,.15)" : ""}, el("td", {}, best ? el("b", {}, r.system) : r.system),
+      el("td", {class: "num"}, f ? `${r.recorded.correct} → ${f.correct}` : r.recorded.correct),
+      el("td", {class: "num"}, f ? `${r.recorded.decision} → ${f.decision}` : r.recorded.decision),
+      el("td", {class: "num"}, f ? `${r.recorded.cpu} → ${f.cpu}` : r.recorded.cpu),
+      el("td", {class: "num"}, f ? `${f.same_labels}/${b.n}` : "—")));
+  }
+  $("#r-bench").replaceChildren(tb);
+  $("#b-notes").replaceChildren(...b.notes.map((n) => el("li", {}, n)));
+  $("#b-src").textContent = `Sources: ${b.recorded_source}; fresh rerun ${b.fresh_source || "none"}. "a → b" = recorded → fresh.`;
+}
+</script>
+</body>
+</html>
