@@ -11,7 +11,7 @@ list every changed file and do not count this log as a change
 (`demos/common/harness.py` `OUTPUT_FILES`). The batch was run again.
 
 Not rehearsed: `teach` (the teaching-demo loop has not reported ready) and any
-`customer-<sector>` other than banking and defence (not defined by the owner). OVERLAY `3d63f95` is local only; it is not pushed (no write access yet).
+`customer-<sector>` other than banking and defence (not defined by the owner). OVERLAY `3d63f95` was pushed to its `feature/wow-demos` on 2026-11-19.
 
 | Started (UTC) | Mode | Passes | Verdict | Wall time | Commits | Hardware | Results |
 |---|---|---|---|---|---|---|---|

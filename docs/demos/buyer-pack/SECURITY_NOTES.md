@@ -1,7 +1,7 @@
 # Security notes — one page per product (W8.1)
 
 Every statement cites a file on `feature/wow-demos` (AIP) or OVERLAY's local
-`feature/wow-demos` (not pushed). "Cannot prove" means no evidence exists yet,
+`feature/wow-demos` (pushed 2026-11-19 at `3d63f95`). "Cannot prove" means no evidence exists yet,
 not that the property is false. Measurements: one machine, 4 vCPU, 15 GB RAM,
 no GPU. Machine-readable artefacts: `demos/evidence-pack/out/`.
 

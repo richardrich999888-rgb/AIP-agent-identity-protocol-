@@ -7,7 +7,7 @@ AIP working branch: `feature/wow-demos` from `feature/syntriass-runtime-v02`
 @ `2883da7`. OVERLAY working branch: `feature/wow-demos`, based on
 `claude/cbom-dashboard-ai-analysis-uujp2g` @ `eccb668` (owner-approved),
 **only after W4.1 confirms it builds and its suite runs**, with real pass/fail
-counts recorded first. W4/W5 work is prepared locally and not pushed until
+counts recorded first. W4/W5 work was prepared locally and **pushed to OVERLAY `feature/wow-demos` on 2026-11-19 (`3d63f95`)** once
 write access to OVERLAY is granted.
 
 Facts behind these items: `docs/demos/INVENTORY.md`.
@@ -35,7 +35,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 - [x] W4.1 Build the CBOM engine; record the real executed test count — on `eccb668`: core crates 149, lib (full features, includes non-CBOM code) 1,867, CBOM integration 38 → 2,054 executed, 0 failed. After this branch's two fixes: lib 1,871/1,871
 - [x] W4.2 Synthetic sample image with planted mixed cryptography — OVERLAY `d1adc90` (`demos/quantum-xray/make_sample.sh --image`, 1.2 MB `FROM scratch`); ground truth checked by openssl, not the engine. Found 2 engine defects (nginx directives skipped; bare `TLSv1` Unknown), fixed with regression tests in `92c8b02`, `07d0319`
 - [x] W4.3 Scan → CycloneDX 1.6 CBOM → one-page report; control mapping only with cited evidence — OVERLAY `6072578` `report.py`; no control marked met (no verified CNSA 2.0 / IR 8547 pack ships); `syntriass-compliance` self-assessment not shown
-- [x] W4.4 `demos/quantum-xray/run.sh` + acceptance test (every planted weakness found, nothing invented) — OVERLAY `6072578`, clean tree: `ACCEPTANCE: PASS` 4/4 planted found, 0 invented; full scan 5 ms over 8 files; 9/9 unit tests. **Committed locally only — not pushed (no OVERLAY write access yet)**
+- [x] W4.4 `demos/quantum-xray/run.sh` + acceptance test (every planted weakness found, nothing invented) — OVERLAY `6072578`, clean tree: `ACCEPTANCE: PASS` 4/4 planted found, 0 invented; full scan 5 ms over 8 files; 9/9 unit tests. pushed 2026-11-19 (OVERLAY `feature/wow-demos` @ `3d63f95`)
 
 ## W6 — Reproducible benchmark package
 - [x] W6.1 Package the capability benchmark for one-command offline rerun — `demos/benchmark/rerun.sh` (calls the teaching session's harness unchanged with the staged models and the same llama.cpp source) + `compare.py`
@@ -46,7 +46,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 - [x] W5.1 Two containers, unmodified TCP client/server — OVERLAY `demos/pq-switch/`: same host `nc` (sha256 `2a6fac3d…`) as server and client, `FROM scratch` image, `--internal` network (no route out, checked by acceptance)
 - [x] W5.2 Packet captures before/after; app binary hash unchanged — baseline: data in clear on the wire, 918 B; overlay: delivered, not on the wire, 14,146 B; same exe sha256 in all 6 phases; pcaps in `evidence/2026-11-07-13c0fb1/`
 - [x] W5.3 Fail-closed check (identity removed → refused, not downgraded) — identity removed (with and without a fallback PSK), plaintext client, impostor: none delivered; with identity removed the client sends 0 payload bytes. **Finding: refusal is silent to the app** (exit 0; waits for its own idle timeout)
-- [x] W5.4 Measured overhead; `demos/pq-switch/run.sh` — n=20 per mode, timed runs captured: median added 0.0 / 2.5 / 3.1 ms over 3 runs, not separable from ~70 ms `docker exec` noise; +13.2 KB per connection. `ACCEPTANCE: PASS` from clean OVERLAY `13c0fb1`; 9/9 unit tests. **Local only — not pushed (no OVERLAY write access)**
+- [x] W5.4 Measured overhead; `demos/pq-switch/run.sh` — n=20 per mode, timed runs captured: median added 0.0 / 2.5 / 3.1 ms over 3 runs, not separable from ~70 ms `docker exec` noise; +13.2 KB per connection. `ACCEPTANCE: PASS` from clean OVERLAY `13c0fb1`; 9/9 unit tests. pushed 2026-11-19 (OVERLAY `feature/wow-demos` @ `3d63f95`)
 
 ## W7 — One-USB demo kit
 - [~] W7.1 Offline bundle with checksums; clean-machine no-network install test — `demos/kit/`: 6.3 MB kit, 177 files, `SHA256SUMS` + `MANIFEST.json` (both commits, binary hashes, host needs); install test PASS from kit `9fe94a0`/`3d63f95` (`demos/kit/evidence/2026-11-07-9fe94a0/`): no-network namespace, archive + 177 files verified, one flipped byte refused, pq and quantum pass from the kit. **Not a clean machine** (same host). **security runs in the host network namespace**: its process-connector sensor only works in the initial netns (first attempt failed for that reason; sensor not weakened)
@@ -69,7 +69,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 | W0.3 models, W1.4 Pull the plug, W6.1 / W6.3 benchmark rerun, `customer-<sector>` and `investor-3min` modes | PR #14 (model resolver) is open, not merged; then weights staged from a connected machine, with each licence checked on its model card | Owner: review/merge #14; run the staging download (or allow this session to fetch the pinned files) |
 | `customer-<sector>` content | What each sector's script shows is not defined | Owner: name the sectors and the story for each |
 | W7.1 clean machine, W8.3 second machine | Only this sandbox has been available | Owner: a second machine, or approval to use a fresh cloud session as one (the kit would have to be handed to it, since OVERLAY is unpushed) |
-| Everything OVERLAY (W4, W5, kit's overlay part) | Commits are local only | Owner: write access to OVERLAY |
+| ~~Everything OVERLAY~~ | **Resolved 2026-11-19:** owner granted write access; OVERLAY `feature/wow-demos` pushed at `3d63f95` (new branch, nothing overwritten) | — |
 | W3 and `teach` | The teaching-demo loop | That session reports ready |
 | PR #13 red checks | trivy: #15 (#17 partial); `vanian-sovereign`: #16; `aip-edge` flake: #18 / #19 | Merging #16, #19 and a trivy fix into the base |
 
