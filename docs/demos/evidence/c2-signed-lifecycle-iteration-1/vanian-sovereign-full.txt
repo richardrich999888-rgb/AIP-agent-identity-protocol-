@@ -1,0 +1,144 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running unittests src/lib.rs (target/debug/deps/vanian_sovereign-c2402a41639c7c5e)
+
+running 79 tests
+test adapters::llama_http::tests::content_extraction_requires_expected_shape ... ok
+test adapters::launch::tests::incomplete_duplicate_and_invalid_acknowledgements_are_refused ... ok
+test adapters::llama_http::tests::end_to_end_against_a_local_fake_server ... ok
+test adapters::llama_http::tests::parses_identity_and_chunked_bodies ... ok
+test adapters::llama_http::tests::request_body_is_deterministic_and_greedy ... ok
+test adapters::llama_http::tests::schema_is_forwarded_as_response_format ... ok
+test adapters::llama_http::tests::unreachable_endpoint_fails_closed ... ok
+test adapters::llama_http::tests::malformed_responses_are_errors_not_panics ... ok
+test adapters::launch::tests::pre_exec_death_never_returns_a_tool_status ... ok
+test adapters::launch::tests::final_exec_discards_helper_environment ... ok
+test adapters::sqlite_corpus::tests::fts5_is_compiled_in ... ok
+test adapters::sqlite_corpus::tests::digests_respect_the_acl_and_track_changes ... ok
+test adapters::sqlite_corpus::tests::empty_or_symbol_only_query_returns_nothing ... ok
+test adapters::sqlite_corpus::tests::reingest_increments_version_and_replaces_index ... ok
+test adapters::sqlite_corpus::tests::injection_suspect_is_stored_but_never_retrieved ... ok
+test adapters::sqlite_corpus::tests::retrieval_never_crosses_tenants ... ok
+test adapters::sqlite_corpus::tests::fts_operators_in_user_text_are_neutralised ... ok
+test adapters::sqlite_corpus::tests::retrieval_respects_clearance ... ok
+test agent::evidence::tests::unknown_observation_variant_cannot_be_deserialized ... ok
+test agent::replay::tests::memory_guard_refuses_second_use ... ok
+test agent::tool::tests::action_kind_is_namespaced ... ok
+test agent::tool::tests::argv_encoding_is_unambiguous ... ok
+test agent::tool::tests::invalid_manifests_and_args_refused ... ok
+test agent::tool::tests::invocation_for_another_tool_refused ... ok
+test agent::tool::tests::parameters_bind_args_and_program_digest ... ok
+test domain::citation::tests::extracts_valid_markers_only ... ok
+test domain::citation::tests::fabricated_reference_detected ... ok
+test domain::citation::tests::grounded_when_all_citations_in_range ... ok
+test domain::citation::tests::non_ascii_text_does_not_panic ... ok
+test domain::citation::tests::overlong_digits_are_ignored_not_overflowed ... ok
+test domain::citation::tests::ungrounded_when_no_citation ... ok
+test domain::corpus::tests::classification_order_is_total_and_ranked ... ok
+test agent::replay::tests::file_guard_survives_restart ... ok
+test domain::corpus::tests::ident_rejects_injection_characters ... ok
+test domain::corpus::tests::unknown_classification_is_refused_not_defaulted ... ok
+test domain::grounding::tests::abstention_is_not_release ... ok
+test domain::grounding::tests::citation_rules ... ok
+test domain::grounding::tests::digit_inside_equipment_code_is_not_evidence ... ok
+test domain::corpus::tests::oversized_body_rejected ... ok
+test domain::grounding::tests::fabricated_number_refused_even_with_valid_citation ... ok
+test domain::grounding::tests::empty_and_overlong_withheld ... ok
+test domain::grounding::tests::malformed_and_extra_fields_withheld ... ok
+test domain::grounding::tests::number_from_uncited_source_is_refused ... ok
+test domain::grounding::tests::marker_digits_are_not_claims ... ok
+test domain::grounding::tests::numbers_extracted_and_normalised ... ok
+test domain::grounding::tests::off_topic_and_non_answers_withheld ... ok
+test domain::grounding::tests::other_entity_withheld ... ok
+test domain::grounding::tests::on_topic_supported_answer_released ... ok
+test domain::grounding::tests::requested_unit_absent_withheld ... ok
+test domain::grounding::tests::schema_bounds_citations_to_supplied_sources ... ok
+test domain::grounding::tests::schema_property_order_is_generation_order ... ok
+test domain::grounding::tests::wrong_unit_withheld ... ok
+test domain::grounding::tests::supported_answer_released ... ok
+test domain::support::tests::code_digits_are_not_numeric_claims ... ok
+test domain::support::tests::coverage_uses_prefix_stems ... ok
+test domain::support::tests::injection_markers_detected_case_insensitively ... ok
+test domain::support::tests::entities_extracted_and_checked ... ok
+test domain::support::tests::non_ascii_input_does_not_panic ... ok
+test domain::support::tests::quantities_bind_units ... ok
+test domain::support::tests::requested_unit_enforced ... ok
+test domain::support::tests::wrong_unit_is_unsupported ... ok
+test domain::support::tests::unit_elsewhere_in_source_supports_bare_source_number ... ok
+test policy::egress::tests::hostnames_refused_without_resolution ... ok
+test policy::egress::tests::loopback_literals_accepted ... ok
+test policy::egress::tests::non_loopback_refused ... ok
+test policy::egress::tests::port_zero_and_garbage_refused ... ok
+test policy::retrieval::tests::cross_tenant_always_denied_even_at_max_clearance ... ok
+test policy::retrieval::tests::enforce_reports_contract_violations ... ok
+test policy::retrieval::tests::same_tenant_at_or_below_clearance ... ok
+test rag::tests::abstention_is_reported_not_released ... ok
+test rag::tests::hallucinated_number_withheld ... ok
+test rag::tests::no_authorized_match_skips_the_model ... ok
+test rag::tests::restricted_text_never_reaches_the_model ... ok
+test rag::tests::schema_is_requested_and_bounded_to_supplied_sources ... ok
+test rag::tests::source_fence_cannot_be_closed_by_document_text ... ok
+test adapters::sqlite_corpus::tests::slice1_database_is_migrated ... ok
+test rag::tests::supported_answer_released ... ok
+test rag::tests::unconstrained_free_text_is_withheld_but_auditable ... ok
+test adapters::sqlite_corpus::tests::corrupted_database_is_refused ... ok
+
+test result: ok. 79 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running unittests src/bin/vanian.rs (target/debug/deps/vanian-3eaa61800450b848)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/agent_execution.rs (target/debug/deps/agent_execution-9b73656c1d6cb8ae)
+
+running 32 tests
+test argument_substitution_after_authorization_is_refused_and_not_consumed ... ok
+test authority_expiring_during_the_probe_is_refused_without_consumption ... ok
+test an_unshare_that_fails_its_own_setup_is_not_mistaken_for_a_tool_exit ... ok
+test authorized_tool_runs_and_verifies_offline_without_claiming_observation ... ok
+test decision_moved_to_another_process_is_refused ... ok
+test expectation_swapped_for_another_valid_one_rejected ... ok
+test deadline_kills_the_tool ... ok
+test expectation_from_untrusted_decision_point_is_refused ... ok
+test expired_expectation_is_refused ... ok
+test forged_observation_upgrade_cannot_deserialize ... ok
+test failed_exec_formats_and_missing_interpreters_never_sign ... ok
+test missing_helper_refuses_before_consuming_authority ... ok
+test helper_death_and_stdout_markers_do_not_prove_execution ... ok
+test missing_sandbox_fails_closed_before_consuming ... ok
+test non_executable_tool_never_signs ... ok
+test program_changed_during_the_probe_is_refused_without_consumption ... ok
+test genuine_nonzero_tool_exits_are_not_confused_with_launcher_errors ... ok
+test record_signed_by_unknown_runner_rejected ... ok
+test replayed_decision_is_refused ... ok
+test sandbox_environment_is_empty ... ok
+test resigned_with_forged_hash_rejected ... ok
+test sandbox_has_no_network_interface_but_loopback ... ok
+test swapped_program_binary_is_refused ... ok
+test successful_shebang_tool_and_signal_exit_preserve_real_status ... ok
+test probe_success_then_launcher_failure_never_signs ... ok
+test tampered_exit_code_rejected ... ok
+test tampered_expectation_rejected ... ok
+test the_namespace_probe_succeeds_where_the_sandbox_works ... ok
+test the_probe_refuses_when_unshare_is_not_executable ... ok
+test tool_does_not_inherit_the_private_reporting_socket ... ok
+test ungranted_tool_is_denied_by_the_decision_point ... ok
+test unsigned_record_rejected ... ok
+
+test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.22s
+
+     Running tests/sqlite_upgrade.rs (target/debug/deps/sqlite_upgrade-d438467ba827116b)
+
+running 2 tests
+test old_engine_database_preserves_tenant_clearance_quarantine_and_digests ... ok
+test old_engine_database_updates_fts_versions_and_clearance_after_reopen ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Doc-tests vanian_sovereign
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

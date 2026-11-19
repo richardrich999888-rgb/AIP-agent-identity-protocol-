@@ -1,0 +1,12 @@
+Each defence disabled alone at source dbafea49; a defence counts as tested only if a test then fails.
+use-time seq/prev_chain check                    test result: FAILED. 16 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s
+use-time recorded==signed check                  test result: FAILED. 15 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.64s
+use-time state-follows-history check             test result: FAILED. 16 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s
+sign-time role/key authorization                 test result: FAILED. 12 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+CLI use-time check (approval_current)            test result: FAILED. 16 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s
+compute-before-write in activate                 test result: FAILED. 16 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.52s
+serving-path check (app.rs ineligible)           test result: FAILED. 24 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+(first attempt at the --actor row did not apply: rustfmt had re-wrapped the anchor line; the source was unchanged, so its 'ok' was the unmutated code and is discarded. Re-run below.)
+git diff after restore: 0 changed line(s)
+CLI --actor refusal in strict mode (re-run)      test result: FAILED. 16 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s
+git diff after restore: 0 changed line(s)

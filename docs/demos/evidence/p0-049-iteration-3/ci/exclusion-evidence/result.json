@@ -1,0 +1,179 @@
+{
+  "schema": "syntriass.p0-049.exclusion-policy-evidence/v1",
+  "result": "PARTIAL_B3_ADVERSARIAL_FAILURE",
+  "commit": "192acf0ee9aa00378caa315721aad46dc0de660d",
+  "tree_dirty": false,
+  "dirty_paths": [],
+  "binary_sha256": "ec7d08a3cf185bdb6a9ee8ab017e258e9c4e4da6ca97e67757326019ddb69ac3",
+  "recorded_utc": "2026-11-12T05:51:46Z",
+  "python": "3.12.16 (main, Oct 26 2026, 02:50:49) [GCC 13.3.0]",
+  "policy": "syntriass.maintenance-exclusion-word-forms/v1",
+  "session_id": "f472482e4818b49cd6f8957d38570a99c0b10eec2d9f138fd4404dbb8a72a669",
+  "question_id": "p1#4+p1#5:scope_exclusion_terms.*",
+  "questions_sha256": "5d129eba5734054798d7c28fbfc0952aff06bb20395503cfba3598ff28bff2e6",
+  "dataset_manifest_sha256": "5ec07e1d4bf3216db72fb699cd930cf8819fb9c511c320542761214a238e443b",
+  "hardware": {
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "logical_cpus": 4,
+    "affinity_cpus": 4,
+    "meminfo": "MemTotal:       16367516 kB",
+    "cgroup_cpu_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'"
+    },
+    "cgroup_memory_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.max'"
+    }
+  },
+  "wall_seconds": 0.26487211500000285,
+  "child_cpu_seconds": 0.166703,
+  "child_peak_rss_kib": 22956,
+  "network": {
+    "namespace": "net:[4026531833]",
+    "interfaces_before": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:   32746     234    0    0    0     0          0         0    32746     234    0    0    0     0       0          0\n  eth0: 153846087    7833    0    0    0     0          0         1   941282    4399    0    0    0     0       0          0\ndocker0:       0       0    0    0    0     0          0         0        0       0    0    2    0     0       0          0\nenP47327s1: 160211645  108280    0    0    0     0          0         0   733303    3994    0    0    0     0       0          0"
+    },
+    "interfaces_after": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:   32746     234    0    0    0     0          0         0    32746     234    0    0    0     0       0          0\n  eth0: 153847335    7840    0    0    0     0          0         1   951197    4409    0    0    0     0       0          0\ndocker0:       0       0    0    0    0     0          0         0        0       0    0    2    0     0       0          0\nenP47327s1: 160212991  108287    0    0    0     0          0         0   743350    4006    0    0    0     0       0          0"
+    },
+    "ipv4_routes": {
+      "status": "READ",
+      "value": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t0100010A\t0003\t0\t0\t100\t00000000\t0\t0\t0                                                                             \neth0\t0000010A\t00000000\t0001\t0\t0\t100\t00F0FFFF\t0\t0\t0                                                                             \neth0\t0100010A\t00000000\t0005\t0\t0\t100\tFFFFFFFF\t0\t0\t0                                                                             \neth0\t10813FA8\t0100010A\t0007\t0\t0\t100\tFFFFFFFF\t0\t0\t0                                                                             \neth0\tFEA9FEA9\t0100010A\t0007\t0\t0\t100\tFFFFFFFF\t0\t0\t0                                                                             \ndocker0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0"
+    },
+    "ipv6_routes": {
+      "status": "READ",
+      "value": "fe800000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000001 00000000 00000001     eth0\n00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo\n00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000006 00000000 80200001       lo\nfe80000000000000020d3afffe30e711 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001     eth0\nff000000000000000000000000000000 08 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000004 00000000 00000001     eth0\n00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo"
+    }
+  },
+  "runs": [
+    {
+      "name": "copied-plural-control",
+      "capability_hash": "5fdc5a25e8d79a4331512fbe280c1dbe3033941d921867f76d66735a330f80fc",
+      "exit_status": 3,
+      "wall_seconds": 0.01664103800001726,
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "val-09",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-validation",
+      "capability_hash": "b1147f89546d4432e2fcab28d40bfc79dc2dd6b7bb6c8ceee541610d2e53b0e1",
+      "exit_status": 0,
+      "wall_seconds": 0.017749895000008564,
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "copied-plural-attacks",
+      "capability_hash": "5fdc5a25e8d79a4331512fbe280c1dbe3033941d921867f76d66735a330f80fc",
+      "exit_status": 3,
+      "wall_seconds": 0.020293789000021434,
+      "expert_passed": 17,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "NOT_APPLICABLE",
+          "got": "INSUFFICIENT_INPUT",
+          "id": "fa-3",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-upper",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-attacks",
+      "capability_hash": "b1147f89546d4432e2fcab28d40bfc79dc2dd6b7bb6c8ceee541610d2e53b0e1",
+      "exit_status": 3,
+      "wall_seconds": 0.020575526999977,
+      "expert_passed": 25,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "NOT_APPLICABLE",
+          "got": "INSUFFICIENT_INPUT",
+          "id": "fa-3",
+          "origin": "suite"
+        }
+      ]
+    }
+  ],
+  "model_calls": 0,
+  "model_hashes": [],
+  "activation_performed": false,
+  "attack_gate_passed": false,
+  "new_attack_failures": [],
+  "signed_material": "synthetic expert suites only; public key retained; private key discarded",
+  "limitations": [
+    "Four reviewed maintenance word pairs; not general language understanding.",
+    "Engineer-scripted answers, not external expert approval.",
+    "Session, answer edits and scoreboard are unsigned; no answer receipts.",
+    "One development host; no independent installation, packet capture or kernel sensor proof.",
+    "No live model, UI, activation, pack transfer or full W3 rehearsal."
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "source": "00c06de1503785470a73a7a2f0890ad8f9c1ce84",
+  "ci": {
+    "workflow_runs": [
+      {
+        "id": 43250976642,
+        "name": "Real-agent harness contracts (no live agent claim)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 109,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43250976642/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43250976642/logs",
+        "workflow_id": 399123351
+      },
+      {
+        "id": 43250976901,
+        "name": "Teaching scoreboard (bounded C1 acceptance)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 19,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43250976901/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43250976901/logs",
+        "workflow_id": 415093042
+      },
+      {
+        "id": 43250976479,
+        "name": "CI",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 132,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43250976479/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43250976479/logs",
+        "workflow_id": 297111051
+      },
+      {
+        "id": 43250976495,
+        "name": "Security",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 146,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43250976495/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43250976495/logs",
+        "workflow_id": 297111055
+      }
+    ]
+  },
+  "security": {
+    "jobs": [
+      {
+        "id": 131296349347,
+        "name": "cargo audit (RUSTSEC)",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_id": 43250976495,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Verify audit failure propagation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run cargo install cargo-audit --locked",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 5
+          },
+          {
+            "name": "Audit (fail on any vulnerability)",
+            "status": "pending",
+            "conclusion": null,
+            "number": 6
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 14
+          }
+        ]
+      },
+      {
+        "id": 131296349639,
+        "name": "trivy filesystem scan",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_id": 43250976495,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Install trivy",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Trivy filesystem scan (fail on CRITICAL/HIGH)",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 4
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      },
+      {
+        "id": 131296349676,
+        "name": "gitleaks (secret scan)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 43250976495,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run gitleaks",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          }
+        ]
+      }
+    ]
+  }
+}

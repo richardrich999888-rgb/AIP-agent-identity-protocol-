@@ -1,0 +1,107 @@
+ingest: 23 clauses -> /tmp/p0-049-b3-9ypv086i/clauses.json
+{
+  "result": "PASS_BOUNDED_B3",
+  "output": "/workspace/scratch/d81076ea93b3/p050/clean",
+  "runs": [
+    {
+      "name": "copied-plural-control",
+      "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+      "exit_status": 3,
+      "wall_seconds": 0.015978145000190125,
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "val-09",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-validation",
+      "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+      "exit_status": 0,
+      "wall_seconds": 0.01596625199999835,
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "copied-plural-attacks",
+      "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+      "exit_status": 3,
+      "wall_seconds": 0.021114156999828992,
+      "expert_passed": 18,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-upper",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-attacks",
+      "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+      "exit_status": 0,
+      "wall_seconds": 0.02309046399932413,
+      "expert_passed": 26,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": true,
+      "failures": []
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+[
+  {
+    "command": [
+      "env",
+      "-u",
+      "CM_IN_NETNS",
+      "bash",
+      "research/compute-memory/bench/offline.sh",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "docs/demos/evidence/p0-051-iteration-2/replay_retained_session.py",
+      "--repo",
+      "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-",
+      "--binary",
+      "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/target/debug/syntriass",
+      "--binary-sha256",
+      "6624ef6ad82d529c5f311254c0ddd95a96583c1ba4fbf190e3a7143416e1617f",
+      "--folder",
+      "/workspace/scratch/d81076ea93b3/p051-3/ci/session-scoreboard-evidence/rejected-control",
+      "--trusted-keys",
+      "/workspace/scratch/d81076ea93b3/p051-3/ci/session-scoreboard-evidence/corrected-validation/expert-public.json",
+      "--out",
+      "/workspace/scratch/d81076ea93b3/p051-3/teaching-replay/rejected-control"
+    ],
+    "actual_exit": 3,
+    "expected_exit": 3
+  },
+  {
+    "command": [
+      "env",
+      "-u",
+      "CM_IN_NETNS",
+      "bash",
+      "research/compute-memory/bench/offline.sh",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "docs/demos/evidence/p0-051-iteration-2/replay_retained_session.py",
+      "--repo",
+      "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-",
+      "--binary",
+      "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/target/debug/syntriass",
+      "--binary-sha256",
+      "6624ef6ad82d529c5f311254c0ddd95a96583c1ba4fbf190e3a7143416e1617f",
+      "--folder",
+      "/workspace/scratch/d81076ea93b3/p051-3/ci/session-scoreboard-evidence/corrected-validation",
+      "--trusted-keys",
+      "/workspace/scratch/d81076ea93b3/p051-3/ci/session-scoreboard-evidence/corrected-validation/expert-public.json",
+      "--out",
+      "/workspace/scratch/d81076ea93b3/p051-3/teaching-replay/corrected-validation"
+    ],
+    "actual_exit": 0,
+    "expected_exit": 0
+  },
+  {
+    "command": [
+      "env",
+      "-u",
+      "CM_IN_NETNS",
+      "bash",
+      "research/compute-memory/bench/offline.sh",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "docs/demos/evidence/p0-051-iteration-2/replay_retained_session.py",
+      "--repo",
+      "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-",
+      "--binary",
+      "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/target/debug/syntriass",
+      "--binary-sha256",
+      "6624ef6ad82d529c5f311254c0ddd95a96583c1ba4fbf190e3a7143416e1617f",
+      "--folder",
+      "/workspace/scratch/d81076ea93b3/p051-3/ci/session-scoreboard-evidence/corrected-attacks",
+      "--trusted-keys",
+      "/workspace/scratch/d81076ea93b3/p051-3/ci/session-scoreboard-evidence/corrected-validation/expert-public.json",
+      "--out",
+      "/workspace/scratch/d81076ea93b3/p051-3/teaching-replay/corrected-attacks"
+    ],
+    "actual_exit": 0,
+    "expected_exit": 0
+  }
+]

@@ -1,0 +1,318 @@
+{
+  "activation_performed": false,
+  "cases": [
+    {
+      "counterexample": false,
+      "expected": "ACCEPT",
+      "fired_rule": {
+        "outcome": "ACCEPT"
+      },
+      "fired_step": "default",
+      "got": "ACCEPT",
+      "id": "val-00",
+      "index": 0,
+      "input": "TX-30 11 kV, 260 megohms at 20 C, DAR 1.4",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "DRY_OUT_OIL",
+      "fired_rule": {
+        "outcome": "DRY_OUT_OIL",
+        "when": "corrected < limit"
+      },
+      "fired_step": "rules[2]",
+      "got": "DRY_OUT_OIL",
+      "id": "val-01",
+      "index": 1,
+      "input": "TX-31 11 kV, 259 megohms at 20 C, DAR 1.6",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "DRY_OUT_OIL",
+      "fired_rule": {
+        "outcome": "DRY_OUT_OIL",
+        "when": "corrected < limit"
+      },
+      "fired_step": "rules[2]",
+      "got": "DRY_OUT_OIL",
+      "id": "val-02",
+      "index": 2,
+      "input": "TX-32 11 kV, 87 megohms at 20 C, DAR 1.6",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "REMOVE_FROM_SERVICE",
+      "fired_rule": {
+        "outcome": "REMOVE_FROM_SERVICE",
+        "when": "corrected < 0.3333333333333333 * limit"
+      },
+      "fired_step": "rules[1]",
+      "got": "REMOVE_FROM_SERVICE",
+      "id": "val-03",
+      "index": 3,
+      "input": "TX-33 11 kV, 86 megohms at 20 C, DAR 1.6",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "MONITOR_90D",
+      "fired_rule": {
+        "outcome": "MONITOR_90D",
+        "when": "cued_1 < 1.4"
+      },
+      "fired_step": "rules[4]",
+      "got": "MONITOR_90D",
+      "id": "val-04",
+      "index": 4,
+      "input": "TX-34 11 kV, 500 megohms at 20 C, DAR 1.25",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "INVESTIGATE",
+      "fired_rule": {
+        "outcome": "INVESTIGATE",
+        "when": "cued_1 < 1.25"
+      },
+      "fired_step": "rules[3]",
+      "got": "INVESTIGATE",
+      "id": "val-05",
+      "index": 5,
+      "input": "TX-35 11 kV, 500 megohms at 20 C, DAR 1.24",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "ACCEPT",
+      "fired_rule": {
+        "outcome": "ACCEPT"
+      },
+      "fired_step": "default",
+      "got": "ACCEPT",
+      "id": "val-06",
+      "index": 6,
+      "input": "TX-36 11 kV, 150 megohms at 50 C, DAR 1.5",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": true,
+      "expected": "ACCEPT",
+      "fired_rule": {
+        "outcome": "ACCEPT"
+      },
+      "fired_step": "default",
+      "got": "ACCEPT",
+      "id": "val-07",
+      "index": 7,
+      "input": "TX-37 11 kV, 700 megohms at 0 C, DAR 1.5",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": true,
+      "expected": "INVALID_TEST",
+      "fired_rule": {
+        "outcome": "INVALID_TEST",
+        "when": "temperature < 0.0 or temperature > 90.0"
+      },
+      "fired_step": "rules[0]",
+      "got": "INVALID_TEST",
+      "id": "val-08",
+      "index": 8,
+      "input": "TX-38 11 kV, 700 megohms at -2 C, DAR 1.5",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": true,
+      "expected": "OUT_OF_SCOPE",
+      "fired_rule": {
+        "outcome": "ACCEPT"
+      },
+      "fired_step": "default",
+      "got": "ACCEPT",
+      "id": "val-09",
+      "index": 9,
+      "input": "Cable C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": false,
+      "review_questions": [
+        {
+          "field_path": "default_outcome",
+          "question": "What result is required when no earlier rule matches?"
+        },
+        {
+          "field_path": "rules[].number",
+          "question": "What number or fraction of the limit should the rule compare against?"
+        },
+        {
+          "field_path": "rules[].op",
+          "question": "Which comparison should the rule use, including equality at the boundary?"
+        },
+        {
+          "field_path": "scope_exclusion_terms.*",
+          "question": "What equipment does this procedure exclude? Check exact whole-word forms in the failed input."
+        },
+        {
+          "field_path": "scope_limit.*",
+          "question": "Which measured limits put this request outside the procedure?"
+        },
+        {
+          "field_path": "validity[].min/max",
+          "question": "What are the inclusive lower and upper bounds and units?"
+        },
+        {
+          "field_path": "validity[].outcome",
+          "question": "What result is required outside the valid range?"
+        },
+        {
+          "field_path": "validity[].ref",
+          "question": "Which reading does the validity range constrain?"
+        }
+      ]
+    },
+    {
+      "counterexample": true,
+      "expected": "OUT_OF_SCOPE",
+      "fired_rule": {
+        "outcome": "OUT_OF_SCOPE",
+        "when": "voltage > 33.0"
+      },
+      "fired_step": "numeric_guards[0]",
+      "got": "OUT_OF_SCOPE",
+      "id": "val-10",
+      "index": 10,
+      "input": "TX-40 66 kV, 3000 megohms at 20 C, DAR 1.5",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": true,
+      "expected": "INSUFFICIENT_INPUT",
+      "fired_rule": {
+        "outcome": "INSUFFICIENT_INPUT"
+      },
+      "fired_step": "missing_input",
+      "got": "INSUFFICIENT_INPUT",
+      "id": "val-11",
+      "index": 11,
+      "input": "TX-41 11 kV, 700 megohms at 30 C, DAR not measured",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    }
+  ],
+  "evidence_kind": "UNSIGNED_LOCAL_VALIDATION_DIAGNOSTIC",
+  "gates": [
+    {
+      "name": "compilation",
+      "passed": true,
+      "remedy": "Fix the compile error before testing."
+    },
+    {
+      "name": "evidence_tenant",
+      "passed": true,
+      "remedy": "Use readable evidence owned by this capability's tenant."
+    },
+    {
+      "name": "expert_signature",
+      "passed": true,
+      "remedy": "Supply a structurally valid suite signed by a configured expert."
+    },
+    {
+      "name": "independent_expert",
+      "passed": true,
+      "remedy": "Use the same tenant and an expert other than the proposer."
+    },
+    {
+      "name": "minimum_expert_cases",
+      "passed": true,
+      "remedy": "Provide at least eight independently signed expert cases."
+    },
+    {
+      "name": "expert_cases",
+      "passed": false,
+      "remedy": "Revisit failed expert cases; do not change expected results to make them pass."
+    },
+    {
+      "name": "minimum_counterexamples",
+      "passed": true,
+      "remedy": "Include at least one signed counterexample or boundary probe."
+    },
+    {
+      "name": "counterexamples",
+      "passed": false,
+      "remedy": "Correct the rule that fails the signed counterexample."
+    },
+    {
+      "name": "generated_cases",
+      "passed": true,
+      "remedy": "Fix every failed generated case; these cases can veto, never certify."
+    }
+  ],
+  "limitation": "Review questions suggest fields to inspect, not a proven root cause. This read-only check does not approve, activate, revalidate stored state, or prove network isolation.",
+  "model_calls": 0,
+  "schema": "syntriass.teach.scoreboard/v1",
+  "stored_executable": false,
+  "stored_state": "PROPOSED",
+  "summary": "Passed 11 of 12 executed expert checks (12 submitted); 4 of 5 counterexamples (a subset); 0 of 0 generated checks. NOT READY: validation failed. See failed gates and cases.",
+  "validation": {
+    "artifact_cases": 0,
+    "artifact_claimed_expert": 0,
+    "artifact_passed": 0,
+    "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+    "compile_error": null,
+    "compiled": true,
+    "counterexamples": 5,
+    "counterexamples_passed": 4,
+    "evidence_scope_ok": true,
+    "expert_cases": 12,
+    "expert_passed": 11,
+    "failures": [
+      {
+        "expected": "OUT_OF_SCOPE",
+        "got": "ACCEPT",
+        "id": "val-09",
+        "origin": "suite"
+      }
+    ],
+    "passed": false,
+    "suite_expert": "expert:p0-049-synthetic-evaluator",
+    "suite_hash": "f0d6c16cddf76b83ee0d3d62a76aac2ec5e95611263f604d540cf553d7d6bf46",
+    "suite_independent": true,
+    "suite_signature_ok": true,
+    "wall_micros": 12555
+  }
+}

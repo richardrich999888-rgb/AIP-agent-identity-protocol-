@@ -1,0 +1,170 @@
+{
+  "schema": "syntriass.p0-049.exclusion-policy-evidence/v1",
+  "result": "PASS_BOUNDED_B3",
+  "commit": "925432b181ea194565fa855b9d3d3c734723354b",
+  "tree_dirty": true,
+  "dirty_paths": [
+    " M research/capability-learning/harness/ir_compiler.py",
+    " M research/capability-learning/tests/test_ir_compiler.py",
+    "?? research/capability-learning/tests/test_applicability.py"
+  ],
+  "binary_sha256": "a19b96a482d30326c33511029092683a853843fe8b09c742eaa13f25cf90f2da",
+  "recorded_utc": "2026-11-12T06:34:42Z",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "policy": "syntriass.maintenance-exclusion-word-forms/v1",
+  "session_id": "97b3419aeacd5e3ddfbbb9308908d2e8ed38d9a2e28c50171eb031f42ded63f8",
+  "question_id": "p1#4+p1#5:scope_exclusion_terms.*",
+  "questions_sha256": "3b7818b1999878e899b8bd61e17432791c481829abe684af91c04709c651b14d",
+  "dataset_manifest_sha256": "5ec07e1d4bf3216db72fb699cd930cf8819fb9c511c320542761214a238e443b",
+  "hardware": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "logical_cpus": 9,
+    "affinity_cpus": 9,
+    "meminfo": "MemTotal:       10206472 kB",
+    "cgroup_cpu_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'"
+    },
+    "cgroup_memory_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.max'"
+    }
+  },
+  "wall_seconds": 0.5467602559992883,
+  "child_cpu_seconds": 0.330729,
+  "child_peak_rss_kib": 15604,
+  "network": {
+    "namespace": "net:[4026532328]",
+    "interfaces_before": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0"
+    },
+    "interfaces_after": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0"
+    },
+    "ipv4_routes": {
+      "status": "READ",
+      "value": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT"
+    },
+    "ipv6_routes": {
+      "status": "READ",
+      "value": "00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo\n00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001       lo\n00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo"
+    }
+  },
+  "runs": [
+    {
+      "name": "copied-plural-control",
+      "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+      "exit_status": 3,
+      "wall_seconds": 0.016431366000688286,
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "val-09",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-validation",
+      "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+      "exit_status": 0,
+      "wall_seconds": 0.018048609999823384,
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "copied-plural-attacks",
+      "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+      "exit_status": 3,
+      "wall_seconds": 0.01902429699930508,
+      "expert_passed": 18,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-upper",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-attacks",
+      "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+      "exit_status": 0,
+      "wall_seconds": 0.01897202300006029,
+      "expert_passed": 26,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": true,
+      "failures": []
+    }
+  ],
+  "model_calls": 0,
+  "model_hashes": [],
+  "activation_performed": false,
+  "attack_gate_passed": true,
+  "new_attack_failures": [],
+  "signed_material": "synthetic expert suites only; public key retained; private key discarded",
+  "limitations": [
+    "Four reviewed maintenance word pairs; not general language understanding.",
+    "Engineer-scripted answers, not external expert approval.",
+    "Session, answer edits and scoreboard are unsigned; no answer receipts.",
+    "One development host; no independent installation, packet capture or kernel sensor proof.",
+    "No live model, UI, activation, pack transfer or full W3 rehearsal."
+  ]
+}

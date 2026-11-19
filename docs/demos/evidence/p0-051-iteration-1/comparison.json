@@ -1,0 +1,29 @@
+{
+  "scope": "Comparison of unsigned diagnostics; independent signature/replay outputs retained separately",
+  "rows": [
+    {
+      "name": "rejected-control",
+      "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+      "case_rows_equal": true,
+      "local_passed": 11,
+      "ci_passed": 11,
+      "cases": 12
+    },
+    {
+      "name": "corrected-validation",
+      "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+      "case_rows_equal": true,
+      "local_passed": 12,
+      "ci_passed": 12,
+      "cases": 12
+    },
+    {
+      "name": "corrected-attacks",
+      "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+      "case_rows_equal": true,
+      "local_passed": 26,
+      "ci_passed": 26,
+      "cases": 26
+    }
+  ]
+}

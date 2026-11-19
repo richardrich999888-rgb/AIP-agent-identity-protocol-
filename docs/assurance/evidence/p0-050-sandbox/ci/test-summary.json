@@ -1,0 +1,88 @@
+{
+  "debug": {
+    "passed": 3593,
+    "failed": 0,
+    "ignored": 10,
+    "test_summary_rows": 353
+  },
+  "release": {
+    "passed": 3595,
+    "failed": 0,
+    "ignored": 8,
+    "test_summary_rows": 353
+  },
+  "ignored_rows": [
+    {
+      "phase": "debug",
+      "line": "2026-11-12T11:55:23.1495217Z test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-12T11:58:09.6880318Z test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-12T11:58:10.4071085Z test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-12T11:58:16.2354372Z test stress::test_signing_throughput ... ignored, wall-clock throughput gate \u2014 meaningful only under `cargo test --release`"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-12T11:58:21.6911996Z test stress::test_verification_throughput ... ignored, wall-clock throughput gate \u2014 meaningful only under `cargo test --release`"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-12T12:02:27.2612074Z test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-12T12:02:27.4461732Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-12T12:02:27.4462867Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-12T12:03:16.4674174Z test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-12T12:03:17.5806871Z test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-12T12:07:50.4344743Z test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-12T12:08:08.7281081Z test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-12T12:08:08.8041937Z test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-12T12:08:38.9561845Z test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-12T12:08:38.9734992Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-12T12:08:38.9735852Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-12T12:08:55.9080391Z test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-12T12:08:57.0001031Z test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored"
+    }
+  ]
+}

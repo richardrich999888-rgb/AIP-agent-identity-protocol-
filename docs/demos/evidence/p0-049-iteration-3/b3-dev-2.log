@@ -1,0 +1,11 @@
+ingest: 23 clauses -> /tmp/p0-049-b3-e07htjw8/clauses.json
+Traceback (most recent call last):
+  File "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/harness/record_exclusion_policy.py", line 194, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/harness/record_exclusion_policy.py", line 158, in main
+    runs.append(score(binary, cfg, key, json.loads(cap_file.read_text()), cases,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/harness/record_exclusion_policy.py", line 82, in score
+    raise RuntimeError(f"{retained.name}: expected exit {expected_exit}, got {result.returncode}; "
+RuntimeError: explicit-forms-attacks: expected exit 0, got 3; full stdout/stderr retained in /workspace/scratch/d81076ea93b3/tooling/b3-dev-2/explicit-forms-attacks

@@ -1,0 +1,133 @@
+{
+  "baseline": {
+    "workflow_runs": [
+      {
+        "id": 43357780113,
+        "name": "CI",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 140,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43357780113/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43357780113/logs",
+        "workflow_id": 297111051
+      },
+      {
+        "id": 43357780120,
+        "name": "Agent Zero container and Linux regression",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 52,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43357780120/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43357780120/logs",
+        "workflow_id": 399273194
+      },
+      {
+        "id": 43357780248,
+        "name": "Security",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 154,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43357780248/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43357780248/logs",
+        "workflow_id": 297111055
+      },
+      {
+        "id": 43357780163,
+        "name": "Real-agent harness contracts (no live agent claim)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 117,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43357780163/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43357780163/logs",
+        "workflow_id": 399123351
+      },
+      {
+        "id": 43357780140,
+        "name": "Teaching scoreboard (bounded C1 acceptance)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 27,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43357780140/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43357780140/logs",
+        "workflow_id": 415093042
+      }
+    ]
+  },
+  "source": {
+    "workflow_runs": [
+      {
+        "id": 43395769045,
+        "name": "Agent Zero container and Linux regression",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 53,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43395769045/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43395769045/logs",
+        "workflow_id": 399273194
+      },
+      {
+        "id": 43395769065,
+        "name": "CI",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 142,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43395769065/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43395769065/logs",
+        "workflow_id": 297111051
+      },
+      {
+        "id": 43395769022,
+        "name": "Teaching scoreboard (bounded C1 acceptance)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 29,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43395769022/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43395769022/logs",
+        "workflow_id": 415093042
+      },
+      {
+        "id": 43395768931,
+        "name": "Real-agent harness contracts (no live agent claim)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 119,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43395768931/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43395768931/logs",
+        "workflow_id": 399123351
+      },
+      {
+        "id": 43395768909,
+        "name": "Security",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 156,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43395768909/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43395768909/logs",
+        "workflow_id": 297111055
+      }
+    ]
+  },
+  "artifact": {
+    "artifacts": [
+      {
+        "id": 14022796863,
+        "name": "teaching-scoreboard-evidence",
+        "size_in_bytes": 520233,
+        "url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/14022796863",
+        "archive_download_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/14022796863/zip",
+        "expired": false,
+        "created_at": "2026-11-13T08:46:50Z",
+        "expires_at": "2027-02-11T08:45:49Z",
+        "updated_at": "2026-11-13T08:46:50Z",
+        "digest": "sha256:fc1d9bf5564a95528c92434b3a7cce432e3b1eab766d5d983e7d506de7aafb80",
+        "workflow_run": {
+          "id": 43395769022,
+          "repository_id": 1227100465,
+          "head_repository_id": 1227100465,
+          "head_branch": "feature/airon-teach-demo",
+          "head_sha": "2d3a22697acbdcf4c3343a70f130f841bd722491"
+        }
+      }
+    ]
+  }
+}

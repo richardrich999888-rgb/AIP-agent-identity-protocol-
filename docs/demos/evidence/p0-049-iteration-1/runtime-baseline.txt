@@ -1,0 +1,425 @@
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded argon2 v0.5.3
+  Downloaded ahash v0.8.12
+  Downloaded ed25519 v2.2.3
+  Downloaded base64ct v1.8.3
+  Downloaded chacha20 v0.9.1
+  Downloaded block-buffer v0.10.4
+  Downloaded fallible-streaming-iterator v0.1.9
+  Downloaded aead v0.5.2
+  Downloaded chacha20poly1305 v0.10.1
+  Downloaded crypto-common v0.2.2
+  Downloaded getrandom v0.2.17
+  Downloaded rand_core v0.6.4
+  Downloaded curve25519-dalek-derive v0.1.1
+  Downloaded hex v0.4.3
+  Downloaded errno v0.3.14
+  Downloaded cfg-if v1.0.4
+  Downloaded generic-array v0.14.7
+  Downloaded cpufeatures v0.2.17
+  Downloaded crypto-common v0.1.7
+  Downloaded rustc_version v0.4.1
+  Downloaded opaque-debug v0.3.1
+  Downloaded signature v2.2.0
+  Downloaded signature v3.0.0
+  Downloaded subtle v2.6.1
+  Downloaded rand_chacha v0.3.1
+  Downloaded autocfg v1.5.1
+  Downloaded cipher v0.4.4
+  Downloaded digest v0.11.3
+  Downloaded fallible-iterator v0.3.0
+  Downloaded fastrand v2.5.0
+  Downloaded version_check v0.9.5
+  Downloaded inout v0.1.4
+  Downloaded sponge-cursor v0.1.0
+  Downloaded tinyvec_macros v0.1.1
+  Downloaded universal-hash v0.5.1
+  Downloaded bs58 v0.5.1
+  Downloaded itoa v1.0.18
+  Downloaded keccak v0.2.2
+  Downloaded poly1305 v0.8.0
+  Downloaded sha2 v0.10.9
+  Downloaded cmov v0.5.4
+  Downloaded pkcs8 v0.10.2
+  Downloaded quote v1.0.47
+  Downloaded shlex v2.0.1
+  Downloaded zmij v1.0.23
+  Downloaded ppv-lite86 v0.2.21
+  Downloaded digest v0.10.7
+  Downloaded hashlink v0.9.1
+  Downloaded once_cell v1.21.4
+  Downloaded spki v0.8.0
+  Downloaded spki v0.7.3
+  Downloaded smallvec v1.16.0
+  Downloaded pkcs8 v0.11.0
+  Downloaded rand_core v0.10.1
+  Downloaded semver v1.0.28
+  Downloaded pkg-config v0.3.34
+  Downloaded ctutils v0.4.6
+  Downloaded password-hash v0.5.0
+  Downloaded const-oid v0.9.6
+  Downloaded getrandom v0.4.3
+  Downloaded hybrid-array v0.4.14
+  Downloaded module-lattice v0.2.3
+  Downloaded num-traits v0.2.19
+  Downloaded proc-macro2 v1.0.107
+  Downloaded tempfile v3.27.0
+  Downloaded zeroize v1.9.0
+  Downloaded bitflags v2.13.1
+  Downloaded blake2 v0.10.6
+  Downloaded const-oid v0.10.2
+  Downloaded serde_core v1.0.229
+  Downloaded base64 v0.22.1
+  Downloaded unicode-ident v1.0.24
+  Downloaded serde_derive v1.0.229
+  Downloaded der v0.7.10
+  Downloaded ml-dsa v0.1.1
+  Downloaded tinyvec v1.13.2
+  Downloaded rand v0.8.8
+  Downloaded cc v1.4.5
+  Downloaded serde v1.0.229
+  Downloaded memchr v2.8.3
+  Downloaded ed25519-dalek v2.2.0
+  Downloaded typenum v1.20.1
+  Downloaded der v0.8.2
+  Downloaded hashbrown v0.14.5
+  Downloaded serde_json v1.0.151
+  Downloaded rusqlite v0.32.1
+  Downloaded vcpkg v0.2.15
+  Downloaded zerocopy v0.8.56
+  Downloaded syn v2.0.119
+  Downloaded curve25519-dalek v4.1.3
+  Downloaded syn v3.0.5
+  Downloaded shake v0.1.0
+  Downloaded rustix v1.1.5
+  Downloaded libc v0.2.189
+  Downloaded find-msvc-tools v0.1.12
+  Downloaded linux-raw-sys v0.12.1
+  Downloaded libsqlite3-sys v0.30.1
+   Compiling cfg-if v1.0.4
+   Compiling libc v0.2.189
+   Compiling version_check v0.9.5
+   Compiling typenum v1.20.1
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling subtle v2.6.1
+   Compiling quote v1.0.47
+   Compiling zeroize v1.9.0
+   Compiling zerocopy v0.8.56
+   Compiling cmov v0.5.4
+   Compiling getrandom v0.4.3
+   Compiling rand_core v0.10.1
+   Compiling generic-array v0.14.7
+   Compiling ctutils v0.4.6
+   Compiling cpufeatures v0.2.17
+   Compiling serde_core v1.0.229
+   Compiling autocfg v1.5.1
+   Compiling semver v1.0.28
+   Compiling const-oid v0.10.2
+   Compiling serde v1.0.229
+   Compiling keccak v0.2.2
+   Compiling base64ct v1.8.3
+   Compiling num-traits v0.2.19
+   Compiling hybrid-array v0.4.14
+   Compiling rustc_version v0.4.1
+   Compiling syn v3.0.5
+   Compiling syn v2.0.119
+   Compiling curve25519-dalek v4.1.3
+   Compiling getrandom v0.2.17
+   Compiling block-buffer v0.10.4
+   Compiling rand_core v0.6.4
+   Compiling inout v0.1.4
+   Compiling crypto-common v0.1.7
+   Compiling sponge-cursor v0.1.0
+   Compiling digest v0.10.7
+   Compiling cipher v0.4.4
+   Compiling crypto-common v0.2.2
+   Compiling universal-hash v0.5.1
+   Compiling signature v2.2.0
+   Compiling opaque-debug v0.3.1
+   Compiling ed25519 v2.2.3
+   Compiling poly1305 v0.8.0
+   Compiling module-lattice v0.2.3
+   Compiling chacha20 v0.9.1
+   Compiling sha2 v0.10.9
+   Compiling blake2 v0.10.6
+   Compiling digest v0.11.3
+   Compiling shake v0.1.0
+   Compiling signature v3.0.0
+   Compiling aead v0.5.2
+   Compiling password-hash v0.5.0
+   Compiling ahash v0.8.12
+   Compiling shlex v2.0.1
+   Compiling chacha20poly1305 v0.10.1
+   Compiling der v0.8.2
+   Compiling zmij v1.0.23
+   Compiling find-msvc-tools v0.1.12
+   Compiling bs58 v0.5.1
+   Compiling once_cell v1.21.4
+   Compiling argon2 v0.5.3
+   Compiling cc v1.4.5
+   Compiling pkg-config v0.3.34
+   Compiling vcpkg v0.2.15
+   Compiling serde_json v1.0.151
+   Compiling serde_derive v1.0.229
+   Compiling bitflags v2.13.1
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling base64 v0.22.1
+   Compiling smallvec v1.16.0
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling spki v0.8.0
+   Compiling fallible-iterator v0.3.0
+   Compiling pkcs8 v0.11.0
+   Compiling ml-dsa v0.1.1
+   Compiling hex v0.4.3
+   Compiling rustix v1.1.5
+   Compiling libsqlite3-sys v0.30.1
+   Compiling linux-raw-sys v0.12.1
+   Compiling fastrand v2.5.0
+   Compiling ppv-lite86 v0.2.21
+   Compiling hashbrown v0.14.5
+   Compiling curve25519-dalek-derive v0.1.1
+   Compiling rand_chacha v0.3.1
+   Compiling rand v0.8.8
+   Compiling hashlink v0.9.1
+   Compiling ed25519-dalek v2.2.0
+   Compiling tempfile v3.27.0
+   Compiling aip-types v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-types)
+   Compiling aip-crypto v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-crypto)
+   Compiling aip-registry v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-registry)
+   Compiling aip-core v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-core)
+   Compiling aip-spend v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-spend)
+   Compiling aip-authorize v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/aip-standalone/aip-authorize)
+   Compiling rusqlite v0.32.1
+   Compiling vanian-sovereign v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/sovereign/vanian-sovereign)
+   Compiling syntriass-runtime v0.1.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/sovereign/syntriass-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 11s
+     Running unittests src/lib.rs (target/debug/deps/syntriass_runtime-ccc6615866cf993b)
+
+running 108 tests
+test adapters::llama_scoped::tests::body_pins_slot_and_caches_prompt ... ok
+test adapters::llama_scoped::tests::stats_parse_usage_and_cache ... ok
+test adapters::supervisor::hash_tests::missing_file_is_an_error ... ok
+test adapters::meter::tests::reads_own_process ... ok
+test adapters::teach_store::tests::a_missing_session_is_not_found_rather_than_an_io_error ... ok
+test adapters::teach_store::tests::a_file_that_is_not_a_session_is_reported_as_malformed ... ok
+test adapters::teach_store::tests::a_session_is_stored_under_its_tenant_and_named_by_its_hash ... ok
+test adapters::teach_store::tests::a_listing_is_ordered_by_session_id ... ok
+test adapters::teach_store::tests::a_tampered_session_also_fails_a_tenant_listing ... ok
+test adapters::teach_store::tests::a_tampered_session_is_refused_not_returned ... ok
+test adapters::teach_store::tests::a_tenant_with_no_sessions_lists_empty_and_is_not_an_error ... ok
+test adapters::teach_store::tests::an_unsafe_tenant_or_session_name_cannot_reach_outside_the_store ... ok
+test adapters::teach_store::tests::every_store_error_prints_what_was_wrong ... ok
+test adapters::teach_store::tests::non_json_files_in_a_tenant_directory_are_ignored_by_a_listing ... ok
+test adapters::teach_store::tests::one_tenants_sessions_are_not_listed_for_another ... ok
+test adapters::teach_store::tests::the_store_root_and_tenant_directory_are_owner_only ... ok
+test adapters::teach_store::tests::a_stored_session_reads_back_unchanged ... ok
+test capability::experience::tests::no_cross_tenant_or_cross_domain_ingestion ... ok
+test adapters::teach_store::tests::writing_the_same_session_twice_is_refused ... ok
+test capability::expr::tests::conditions_dnf ... ok
+test capability::experience::tests::only_independently_verified_experience_becomes_a_test ... ok
+test adapters::sidecar::tests::a_large_stderr_log_is_truncated_to_a_bounded_tail ... ok
+test capability::expr::tests::precedence_and_right_associative_power ... ok
+test capability::expr::tests::temperature_correction_matches_reference_arithmetic ... ok
+test capability::quantity::tests::codes_times_and_bare_numbers_are_not_quantities ... ok
+test capability::expr::tests::rejects_code_and_hostile_input ... ok
+test capability::quantity::tests::cue_numbers ... ok
+test capability::quantity::tests::negative_temperatures_are_read_but_codes_and_ranges_are_not ... ok
+test capability::quantity::tests::typed_units_and_conversions ... ok
+test capability::quantity::tests::hostile_input_is_bounded ... ok
+test adapters::teach_store::tests::a_session_file_is_written_mode_0600 ... ok
+test capability::expr::tests::failure_modes_fail_closed ... ok
+test capability::suite::tests::structural_limits ... ok
+test adapters::sidecar::tests::an_empty_stderr_log_is_reported_as_empty ... ok
+test controller::tests::escalation_is_one_bounded_step_and_only_for_model_quality ... ok
+test controller::tests::missing_models_refuse_instead_of_guessing ... ok
+test controller::tests::order_is_capability_gate_rules_multi_interp_question ... ok
+test controller::tests::partial_rule_coverage_of_a_multi_asset_report_is_not_exact ... ok
+test controller::tests::question_detection ... ok
+test controller::tests::strongest_fit_wins_ties_refuse_and_a_stale_best_is_never_bypassed ... ok
+test domain::answer_check::tests::computed_values_and_general_questions_pass ... ok
+test domain::answer_check::tests::rule_without_value_is_unfinished ... ok
+test controller::tests::capability_conflicts_and_staleness_fail_closed ... ok
+test domain::health::tests::default_routes_detected_loopback_ignored ... ok
+test domain::health::tests::memory_estimate_matches_the_measured_case_and_fails_closed ... ok
+test domain::health::tests::parses_hardware ... ok
+test domain::health::tests::private_mode_rejects_group_or_world_access ... ok
+test domain::maintenance::tests::band_edges_are_half_open ... ok
+test domain::maintenance::tests::decision_is_most_urgent_reading ... ok
+test domain::maintenance::tests::fails_closed ... ok
+test domain::scope::tests::empty_slot_before_eviction_then_lru ... ok
+test domain::scope::tests::every_field_change_is_a_miss_that_erases ... ok
+test domain::scope::tests::key_has_no_concatenation_collision ... ok
+test domain::scope::tests::invalidate_forces_recompute ... ok
+test domain::scope::tests::rejects_bad_fields_and_zero_slots ... ok
+test domain::scope::tests::same_scope_reuses_after_first_use ... ok
+test domain::scope::tests::matches_python_reference_key ... ok
+test domain::teach::tests::a_clause_from_a_page_that_was_not_requested_is_refused ... ok
+test domain::teach::tests::a_clause_from_another_revision_of_the_document_is_refused ... ok
+test domain::teach::tests::a_clause_whose_text_is_not_as_long_as_its_span_is_refused ... ok
+test domain::teach::tests::a_different_clock_gives_a_different_session ... ok
+test domain::teach::tests::a_digest_that_is_not_64_lowercase_hex_is_refused ... ok
+test domain::teach::tests::a_duplicate_example_id_is_refused ... ok
+test domain::teach::tests::a_requested_page_with_no_clause_is_refused ... ok
+test domain::teach::tests::a_clause_from_another_document_is_refused ... ok
+test adapters::sidecar::tests::a_sidecar_that_exits_at_startup_reports_its_stderr_and_log_path ... ok
+test domain::teach::tests::a_session_round_trips_through_json_unchanged ... ok
+test domain::teach::tests::a_session_with_no_clause_names_the_page_that_was_not_cited ... ok
+test domain::teach::tests::a_zero_clock_is_refused ... ok
+test domain::teach::tests::a_valid_session_opens_and_is_named_by_its_content ... ok
+test domain::teach::tests::a_text_layer_session_needs_no_confirmation ... ok
+test domain::teach::tests::an_empty_example_text_is_refused ... ok
+test domain::teach::tests::an_empty_or_unsafe_identifier_is_refused ... ok
+test domain::teach::tests::an_example_without_a_reason_is_refused ... ok
+test domain::teach::tests::an_inverted_or_empty_span_is_refused ... ok
+test domain::teach::tests::an_ocr_clause_is_listed_for_confirmation ... ok
+test domain::teach::tests::an_empty_rule_is_refused ... ok
+test capability::suite::tests::wrong_key_or_malformed_signature_fails_closed ... ok
+test domain::teach::tests::an_over_long_rule_is_refused ... ok
+test domain::teach::tests::an_over_long_identifier_is_refused ... ok
+test domain::teach::tests::an_over_long_example_or_reason_is_refused ... ok
+test domain::teach::tests::an_empty_clause_text_is_refused ... ok
+test domain::teach::tests::an_unknown_label_is_refused_by_the_decoder ... ok
+test domain::teach::tests::changing_the_rule_changes_the_hash ... ok
+test domain::teach::tests::an_unsafe_example_id_is_refused ... ok
+test domain::teach::tests::exactly_five_examples_is_accepted ... ok
+test domain::teach::tests::examples_of_a_single_class_are_refused ... ok
+test domain::teach::tests::extraction_and_label_use_the_ingesters_spelling ... ok
+test domain::teach::tests::editing_a_stored_session_breaks_its_hash ... ok
+test domain::teach::tests::fewer_than_two_examples_is_refused ... ok
+test domain::teach::tests::every_error_prints_what_was_wrong ... ok
+test domain::teach::tests::more_than_five_examples_is_refused ... ok
+test domain::teach::tests::no_requested_page_is_refused ... ok
+test domain::teach::tests::only_ocr_needs_confirmation ... ok
+test domain::teach::tests::pages_are_sorted_and_deduplicated ... ok
+test domain::teach::tests::sameness_of_example_text_ignores_case_and_line_breaks ... ok
+test domain::teach::tests::the_same_clause_cited_twice_is_refused ... ok
+test domain::teach::tests::the_session_id_is_a_deterministic_function_of_its_inputs ... ok
+test domain::teach::tests::the_span_is_counted_in_characters_not_bytes ... ok
+test domain::teach::tests::too_many_clauses_is_refused ... ok
+test domain::teach::tests::two_examples_with_the_same_text_are_refused_whatever_their_labels ... ok
+test domain::teach::tests::citations_name_the_document_page_and_span ... ok
+test domain::teach::tests::page_zero_is_refused_because_pages_are_one_based ... ok
+test capability::suite::tests::signed_suite_verifies_and_hash_is_stable ... ok
+test adapters::sidecar::tests::a_healthy_sidecar_still_starts_and_returns_its_health_reply ... ok
+test capability::suite::tests::any_edit_breaks_the_signature ... ok
+test adapters::sidecar::tests::a_sidecar_that_stays_alive_but_answers_nothing_is_reported_differently ... ok
+test adapters::supervisor::hash_tests::streamed_hash_matches_one_shot_across_chunk_boundaries ... ok
+
+test result: ok. 108 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.35s
+
+     Running unittests src/bin/syntriass.rs (target/debug/deps/syntriass-0bbbccc6e3f923d0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/capability_engine.rs (target/debug/deps/capability_engine-7e177b2a9ed29f48)
+
+running 16 tests
+test compile_rejects_bad_artifacts ... ok
+test fixture_on_unseen_and_false_activation_sets ... ok
+test fixture_compiles_and_validates ... ok
+test artifact_cases_claiming_expert_authorship_cannot_certify_it ... ok
+test edges_and_roles_are_enforced ... ok
+test a_wrong_threshold_is_caught_by_validation ... ok
+test failing_artifact_cases_fail_validation ... ok
+test other_tenants_suite_does_not_count ... ok
+test cross_tenant_evidence_fails_validation ... ok
+test full_lifecycle_requires_signed_independent_approval ... ok
+test too_few_suite_cases_fail_validation ... ok
+test tampered_suite_does_not_count ... ok
+test proposer_signed_suite_does_not_count ... ok
+test validation_report_for_other_content_is_refused ... ok
+test tampering_after_approval_disables_execution ... ok
+test proposer_cannot_approve_and_forged_signatures_fail ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/capability_memory.rs (target/debug/deps/capability_memory-1b2f8f628829cab3)
+
+running 6 tests
+test experience_log_refuses_foreign_tenant_domain_self_verification_and_rewrites ... ok
+test review_reports_disagreement_and_ignores_unverified_and_foreign_experience ... ok
+test a_version_that_breaks_an_old_case_is_a_regression ... ok
+test improvement_passes_old_and_new_cases_with_no_regression ... ok
+test scope_change_forged_suite_or_same_version_is_not_acceptable ... ok
+test upgrade_supersedes_keeps_one_active_version_and_rolls_back ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/learning_flow.rs (target/debug/deps/learning_flow-4a8aab6a12199579)
+
+running 4 tests
+test evidence_digests_are_bound_by_the_system_not_the_proposer ... ok
+test proposal_naming_another_tenants_document_is_refused ... ok
+test a_wrong_procedure_is_rejected_and_rejection_is_terminal ... ok
+test full_flow_and_every_gate ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/parity.rs (target/debug/deps/parity-db0e3d184f411f53)
+
+running 1 test
+test rust_policy_matches_python_reference_on_every_labelled_item ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/runtime_app.rs (target/debug/deps/runtime_app-31e8205a9fa21643)
+
+running 19 tests
+test authorized_principal_gets_the_capability_without_any_model_call ... ok
+test consequential_capabilities_are_disabled_until_aip_action_authorization_exists ... ok
+test both_tiers_failing_is_withheld_after_exactly_two_attempts ... ok
+test conflicting_values_in_a_record_are_withheld_not_averaged ... ok
+test changed_evidence_or_policy_makes_it_stale_and_refused ... ok
+test grounded_qa_sees_only_the_callers_documents ... ok
+test audit_chain_verifies_and_detects_tampering ... ok
+test hypothetical_text_cannot_release_without_a_signed_record ... ok
+test no_authorized_source_is_not_escalated_and_capabilities_need_no_model ... ok
+test other_tenant_and_lower_clearance_cannot_see_the_capability ... ok
+test model_dependent_capability_needs_revalidation_after_model_change ... ok
+test a_verified_record_decides_and_text_numbers_are_ignored ... ok
+test unparseable_small_output_escalates_once_and_charges_both_attempts ... ok
+test question_without_authorized_source_never_calls_the_model ... ok
+test model_output_cannot_escalate_authority_or_change_policy ... ok
+test explicit_invocation_by_an_unauthorized_principal_is_refused ... ok
+test untrusted_approver_makes_the_capability_invisible ... ok
+test maintenance_routes_gate_exact_and_scoped_model_extraction ... ok
+test forged_foreign_or_unregistered_records_are_rejected ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+
+     Running tests/teach_cli.rs (target/debug/deps/teach_cli-6c3c0963bb3ee7bb)
+
+running 19 tests
+test an_unknown_example_label_is_refused_rather_than_coerced ... ok
+test a_clause_file_for_a_different_document_is_refused ... ok
+test a_non_numeric_page_is_a_usage_error ... ok
+test a_session_edited_on_disk_is_refused_by_show ... ok
+test giving_both_rule_and_rule_file_is_a_usage_error ... ok
+test examples_of_a_single_class_are_refused ... ok
+test an_ocr_clause_is_flagged_for_confirmation_on_the_way_through ... ok
+test a_document_edited_after_extraction_is_refused ... ok
+test an_unknown_teach_subcommand_prints_usage ... ok
+test a_rule_from_a_file_is_accepted ... ok
+test giving_no_rule_at_all_is_a_usage_error ... ok
+test listing_a_tenant_with_no_sessions_prints_nothing_and_succeeds ... ok
+test page_selects_which_clauses_are_cited ... ok
+test omitting_page_is_a_usage_error_rather_than_teaching_the_whole_document ... ok
+test a_requested_page_with_no_clause_is_refused ... ok
+test a_teach_session_is_created_persisted_owner_only_and_read_back ... ok
+test one_example_is_refused ... ok
+test two_pages_may_be_taught_together ... ok
+test one_tenant_cannot_read_anothers_session_through_the_cli ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+   Doc-tests syntriass_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,30 @@
+[
+  {
+    "folder": "corrected-attacks",
+    "digest": "2c48c3907923eadea497ffefe705f6e0835b644240b6d3723f3490be9e69010a",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "research/capability-learning/harness/teaching_review.py",
+      "/workspace/scratch/d81076ea93b3/p051-5/offline/replay/corrected-attacks",
+      "--expected-digest",
+      "2c48c3907923eadea497ffefe705f6e0835b644240b6d3723f3490be9e69010a"
+    ],
+    "exit_status": 0,
+    "stdout": "{\"status\": \"UNSIGNED_REVIEW_INTEGRITY_VERIFIED\", \"review_sha256\": \"2c48c3907923eadea497ffefe705f6e0835b644240b6d3723f3490be9e69010a\", \"expert_identity_verified\": false, \"activation_authorized\": false, \"limitation\": \"Pinned-byte integrity only; fresh native replay and expert signature remain separate gates.\"}\n",
+    "stderr": ""
+  },
+  {
+    "folder": "corrected-validation",
+    "digest": "0fc7543c6ef495bcf8116e37335b0921505b6234644c5f450ae10ff331cab119",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "research/capability-learning/harness/teaching_review.py",
+      "/workspace/scratch/d81076ea93b3/p051-5/offline/replay/corrected-validation",
+      "--expected-digest",
+      "0fc7543c6ef495bcf8116e37335b0921505b6234644c5f450ae10ff331cab119"
+    ],
+    "exit_status": 0,
+    "stdout": "{\"status\": \"UNSIGNED_REVIEW_INTEGRITY_VERIFIED\", \"review_sha256\": \"0fc7543c6ef495bcf8116e37335b0921505b6234644c5f450ae10ff331cab119\", \"expert_identity_verified\": false, \"activation_authorized\": false, \"limitation\": \"Pinned-byte integrity only; fresh native replay and expert signature remain separate gates.\"}\n",
+    "stderr": ""
+  }
+]

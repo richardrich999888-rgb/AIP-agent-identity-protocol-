@@ -1,0 +1,86 @@
+{
+  "status": "PASS",
+  "unchanged_data_since": "925432b181ea194565fa855b9d3d3c734723354b",
+  "files": [
+    {
+      "path": "research/capability-learning/data/bt-tasks-v1/MANIFEST.json",
+      "sha256": "58516722064b0702a64ec2b2ad77925d451066e31da65b87418d0a53e0c71d16"
+    },
+    {
+      "path": "research/capability-learning/data/bt-tasks-v1/corpus/halvorn-hu-bt-4.txt",
+      "sha256": "59319b937fa152cd64bd8be271014306ef652da3f74cfc0f41ab983a7c677264"
+    },
+    {
+      "path": "research/capability-learning/data/bt-tasks-v1/corpus/tarvel-tg-bt-01.txt",
+      "sha256": "9e4aa155039d5d0b4b48cd5ab492881c0987caff16ed4fda61f6a077265bddf1"
+    },
+    {
+      "path": "research/capability-learning/data/bt-tasks-v1/demos.jsonl",
+      "sha256": "fe6ed2d80a7e611869c38e78c5a88ad6f05fc770ce4028c461b52e3a09d33c54"
+    },
+    {
+      "path": "research/capability-learning/data/bt-tasks-v1/false_activation.jsonl",
+      "sha256": "80ebc429c1a6e42380dc831f9bd6c7c04af2a724a4e86859ff7ec8540e020b6e"
+    },
+    {
+      "path": "research/capability-learning/data/bt-tasks-v1/test_unseen.jsonl",
+      "sha256": "29167377ded463b6cb23fc26d47050ad50be1c2dd70bf795203d4671560eeead"
+    },
+    {
+      "path": "research/capability-learning/data/bt-tasks-v1/validation.jsonl",
+      "sha256": "b5af18d62c84243dc53d81cb7e446ca2f5bc348eeee65f5d5b3353377844bb21"
+    },
+    {
+      "path": "research/capability-learning/data/ir-tasks-v1/MANIFEST.json",
+      "sha256": "96f22531d1a3d253c350fa49fb83d1a5b8dd68b5ab3201b6c753cdf011f4c7ae"
+    },
+    {
+      "path": "research/capability-learning/data/ir-tasks-v1/corpus/koravi-ep-090.txt",
+      "sha256": "6eb42d034771096400b443f87bc9e7e07a6278653ad73d9a112ca4052364d1a9"
+    },
+    {
+      "path": "research/capability-learning/data/ir-tasks-v1/corpus/koravi-ep-114.txt",
+      "sha256": "655c9d1920951a8cb49e23ea450e4beaa7565a60cc19a7cf98b1fdc1ddcc91eb"
+    },
+    {
+      "path": "research/capability-learning/data/ir-tasks-v1/corpus/tarvel-tg-ir-02.txt",
+      "sha256": "daae0065d32c2afd445043391d9270f516aab29e99dba683dd4e47eef25756f2"
+    },
+    {
+      "path": "research/capability-learning/data/ir-tasks-v1/demos.jsonl",
+      "sha256": "2d33465692875f38a463fd86fd5dc88154064a103677701c790473ffdac1e9a2"
+    },
+    {
+      "path": "research/capability-learning/data/ir-tasks-v1/false_activation.jsonl",
+      "sha256": "681e55e59a7efcc1d0638a18b43d8508ba58659b99aed594c359334aeb3e1e0a"
+    },
+    {
+      "path": "research/capability-learning/data/ir-tasks-v1/test_unseen.jsonl",
+      "sha256": "59231cb78220f8d96a682c540fd4ec338479aa7321f7bba40aecba8d65e53369"
+    },
+    {
+      "path": "research/capability-learning/data/ir-tasks-v1/validation.jsonl",
+      "sha256": "66ce9479c3a2b47370297f19f654368b026fc8aa81b22c5699337d9076db5b33"
+    },
+    {
+      "path": "research/capability-learning/data/tx-tasks-v1/MANIFEST.json",
+      "sha256": "5ec07e1d4bf3216db72fb699cd930cf8819fb9c511c320542761214a238e443b"
+    },
+    {
+      "path": "research/capability-learning/data/tx-tasks-v1/corpus/halvorn-hu-tx-2.txt",
+      "sha256": "1c502b5940db2b1524b73bba60c77505863b19db1c0047547ec06caeb0233bbf"
+    }
+  ],
+  "cases": [
+    {
+      "suite": "explicit-forms-validation",
+      "count": 12,
+      "unchanged_from": "4d002accbf6759fe1845872ac5579815c8081631 retained CI suites"
+    },
+    {
+      "suite": "explicit-forms-attacks",
+      "count": 26,
+      "unchanged_from": "4d002accbf6759fe1845872ac5579815c8081631 retained CI suites"
+    }
+  ]
+}

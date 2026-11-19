@@ -1,0 +1,123 @@
+{
+  "started_at_utc": "2026-11-12T11:51:41.205795+00:00",
+  "uid": 1000,
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "cpu_count": 9,
+  "binary_sha256": "6a46fd086980dcf65e567efc6a6c45451a8f6a72f4b3d0065650c7e85cdc9166",
+  "recorder_sha256": "c78e3e55d89e21c31634e64a9ca2fcdc887d1355877c596cae23ebaf3201e9a0",
+  "model": "Synthetic commitment only; no model was loaded or invoked.",
+  "claim": "Runner attestation only; independent observation CANNOT_PROVE.",
+  "custody": "Synthetic keys generated under one uid; no independent administration.",
+  "commands": [
+    {
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/vanian",
+        "init",
+        "--state",
+        "/tmp/p050-synthetic-keys-gjhj2eop",
+        "--tools",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-runs/cli-original/tools.json",
+        "--grant",
+        "echo",
+        "--model-sha256",
+        "0000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "expected_exit": 0,
+      "exit_code": 0,
+      "duration_seconds": 5.099540416998934
+    },
+    {
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/vanian",
+        "act",
+        "--state",
+        "/tmp/p050-synthetic-keys-gjhj2eop",
+        "--tool",
+        "echo",
+        "--evidence",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-runs/cli-original/authorized.json",
+        "--",
+        "p050 sandbox ok"
+      ],
+      "expected_exit": 0,
+      "exit_code": 0,
+      "duration_seconds": 1.3192151000002923
+    },
+    {
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/vanian",
+        "act",
+        "--state",
+        "/tmp/p050-synthetic-keys-gjhj2eop",
+        "--tool",
+        "forbidden",
+        "--evidence",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-runs/cli-original/forbidden.json",
+        "--",
+        "must not run"
+      ],
+      "expected_exit": 1,
+      "exit_code": 1,
+      "duration_seconds": 1.2727671819993702
+    },
+    {
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/vanian",
+        "verify",
+        "--public",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-runs/cli-original/public.json",
+        "--bundle",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-runs/cli-original/authorized.json"
+      ],
+      "expected_exit": 0,
+      "exit_code": 0,
+      "duration_seconds": 0.03272091399958299
+    },
+    {
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/vanian",
+        "verify",
+        "--public",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-runs/cli-original/public.json",
+        "--bundle",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-runs/cli-original/tampered-exit.json"
+      ],
+      "expected_exit": 1,
+      "exit_code": 1,
+      "duration_seconds": 0.01589159099967219
+    },
+    {
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target/debug/vanian",
+        "verify",
+        "--public",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-runs/cli-original/wrong-public.json",
+        "--bundle",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-runs/cli-original/authorized.json"
+      ],
+      "expected_exit": 1,
+      "exit_code": 1,
+      "duration_seconds": 0.03219639000053576
+    }
+  ],
+  "status": "PASS",
+  "files_sha256": {
+    "authorized.json": "8d6aa75abb9d92e6dcf04e0431486acaa2d5c17147ea83de710cb1e688a263b5",
+    "authorized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "authorized.stdout": "1e82da957d5b08bc9c78fd5cdab95095c6857f309ce7a8c85e319f2a297f99f6",
+    "init.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "init.stdout": "58c58392316f38ba48e583b61532f8ccdbb22e6e6fc0ab78a177d5354c5964d4",
+    "public.json": "f9d57acf00f771270ef9679723c64e25e2628c9a8e48c6266ac73391566acd80",
+    "tampered-exit.json": "991d86e3c646a9cb2e6ce91e6a40155a8abadd8812d095387bbb05bbacfdc597",
+    "tools.json": "a61e4c24296f9c7ad576a55f946a17ccb790de318b90d9def8daa9e0e54a6569",
+    "unauthorized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "unauthorized.stdout": "ad32cfcdd1b085fcf720c48e7e49564f25f99ee93abcbf696b612d0b23750fe3",
+    "verify-original.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verify-original.stdout": "c0d19cb9bb36e292e0378c53a97503d5883e2ab58a3abc66eec7f874bf708d6a",
+    "verify-tampered.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verify-tampered.stdout": "abf9638d86c549e1834481241262308fb2c0e21da2b65ffb0d58718180183ccc",
+    "verify-wrong-anchor.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verify-wrong-anchor.stdout": "dc8f1a9252a252b0f6ec97666d92825129c586b61366f418c58c69cddfb7936e",
+    "wrong-public.json": "aab03865f402a0f0bcedd90a37be97cd589c5883fcbcf9a5416a714c1cddb31b"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "base": "7e540dc841a01bd3fa23f6ac77741935da0a1baf",
+  "baseline_module_sha256": "1ec22d352ac12e196241d4c1920c0602f8e9b8c37026d7784c973ce6b70ba8f1",
+  "fixed_module_sha256": "1c0b419c081cb6c37ca83b92d8f555a9335f57fac9395095a3939f9bccdf6922",
+  "test_sha256": "29a4db4c2240741da63f3c36cbd64ea5deda1b135ca0649830184cb43bdd20ea",
+  "commands": [
+    {
+      "label": "baseline-retained",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "syntriass-runtime",
+        "--test",
+        "lifecycle_isolation"
+      ],
+      "actual_exit": 101,
+      "expected_exit": 101,
+      "wall_seconds": 2.7512880920003226,
+      "evidence_dir": "/workspace/scratch/d81076ea93b3/p051-3/baseline-retained-originals"
+    },
+    {
+      "label": "fixed-retained",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "syntriass-runtime"
+      ],
+      "actual_exit": 0,
+      "expected_exit": 0,
+      "wall_seconds": 3.150728666001669,
+      "evidence_dir": "/workspace/scratch/d81076ea93b3/p051-3/fixed-retained-originals"
+    }
+  ]
+}

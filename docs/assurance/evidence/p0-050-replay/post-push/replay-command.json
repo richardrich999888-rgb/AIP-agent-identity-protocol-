@@ -1,0 +1,28 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "research/capability-learning/harness/verify_applicability.py",
+    "--evidence",
+    "/workspace/scratch/8cbb8ab6ce9d/p050-ci-final/extracted/exclusion-evidence",
+    "--trust",
+    "/workspace/scratch/8cbb8ab6ce9d/p050-ci-final/ci-trust.json",
+    "--binary",
+    "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/syntriass",
+    "--out",
+    "/workspace/scratch/8cbb8ab6ce9d/p050-ci-final/replay"
+  ],
+  "cwd": "/workspace/scratch/8cbb8ab6ce9d/p050-teach",
+  "started_at": "2026-11-12T07:25:43.874005+00:00",
+  "source_commit": "91df9e96743804057ec3f51e7c629ef16a532a89",
+  "source_changes": [],
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "PYTHONPATH": "/workspace/scratch/8cbb8ab6ce9d/p050-tools/python",
+    "SYNTRIASS_BIN": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/syntriass"
+  },
+  "exit_code": 0,
+  "duration_seconds": 0.3384529309987556
+}

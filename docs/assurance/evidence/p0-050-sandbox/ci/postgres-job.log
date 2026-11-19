@@ -1,0 +1,1112 @@
+﻿2026-11-12T11:52:42.6686588Z Current runner version: '2.338.2'
+2026-11-12T11:52:42.6710704Z ##[group]Runner Image Provisioner
+2026-11-12T11:52:42.6711480Z Hosted Compute Agent
+2026-11-12T11:52:42.6711957Z Version: 20261028.624
+2026-11-12T11:52:42.6712535Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-12T11:52:42.6713129Z Build Date: 2026-10-28T21:51:42Z
+2026-11-12T11:52:42.6713770Z Worker ID: {8caf1d5e-5d90-4e2d-b3a5-355f80739dd6}
+2026-11-12T11:52:42.6714704Z Region: westus2
+2026-11-12T11:52:42.6715149Z Cloud: Azure
+2026-11-12T11:52:42.6715659Z ##[endgroup]
+2026-11-12T11:52:42.6716846Z ##[group]Operating System
+2026-11-12T11:52:42.6717404Z Ubuntu
+2026-11-12T11:52:42.6717886Z 26.04.1
+2026-11-12T11:52:42.6718329Z LTS
+2026-11-12T11:52:42.6718798Z ##[endgroup]
+2026-11-12T11:52:42.6719253Z ##[group]Runner Image
+2026-11-12T11:52:42.6719818Z Image: ubuntu-26.04
+2026-11-12T11:52:42.6720325Z Version: 20261101.186.1
+2026-11-12T11:52:42.6721406Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-12T11:52:42.6722639Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-12T11:52:42.6723483Z ##[endgroup]
+2026-11-12T11:52:42.6724766Z ##[group]GITHUB_TOKEN Permissions
+2026-11-12T11:52:42.6726495Z Contents: read
+2026-11-12T11:52:42.6727003Z Metadata: read
+2026-11-12T11:52:42.6727468Z Packages: read
+2026-11-12T11:52:42.6728003Z ##[endgroup]
+2026-11-12T11:52:42.6729807Z Secret source: Actions
+2026-11-12T11:52:42.6730640Z Cache mode: write
+2026-11-12T11:52:42.6731196Z Prepare workflow directory
+2026-11-12T11:52:42.7105922Z Prepare all required actions
+2026-11-12T11:52:42.7149704Z Getting action download info
+2026-11-12T11:52:43.1353483Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-12T11:52:43.2871658Z Download action repository 'dtolnay/rust-toolchain@stable' (SHA:b725eda525362e7cf34af9a7243cac1e3f01a7ec)
+2026-11-12T11:52:43.4743722Z Download action repository 'Swatinem/rust-cache@v2' (SHA:d1527c8f67ef9af357290475d4af4b0fab8f12e0)
+2026-11-12T11:52:43.8517800Z Complete job name: postgres backend integration
+2026-11-12T11:52:43.9065769Z ##[group]Checking docker version
+2026-11-12T11:52:43.9076397Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2026-11-12T11:52:43.9832303Z '1.54'
+2026-11-12T11:52:43.9848778Z Docker daemon API version: '1.54'
+2026-11-12T11:52:43.9849565Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2026-11-12T11:52:44.0025992Z '1.54'
+2026-11-12T11:52:44.0042439Z Docker client API version: '1.54'
+2026-11-12T11:52:44.0049486Z ##[endgroup]
+2026-11-12T11:52:44.0052668Z ##[group]Clean up resources from previous jobs
+2026-11-12T11:52:44.0057534Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=914891"
+2026-11-12T11:52:44.0215980Z ##[command]/usr/bin/docker network prune --force --filter "label=914891"
+2026-11-12T11:52:44.0371873Z ##[endgroup]
+2026-11-12T11:52:44.0372391Z ##[group]Create local container network
+2026-11-12T11:52:44.0382131Z ##[command]/usr/bin/docker network create --label 914891 github_network_69e2b6bae7524ada8a6ff6da3e74175b
+2026-11-12T11:52:44.0937118Z 1f8f2d9a79207aa76604d61747a38340fa5022bdbbc28aec213c9217eda2611f
+2026-11-12T11:52:44.0959145Z ##[endgroup]
+2026-11-12T11:52:44.0981067Z ##[group]Starting postgres service container
+2026-11-12T11:52:44.0998766Z ##[command]/usr/bin/docker pull postgres:16-alpine
+2026-11-12T11:52:45.0266729Z 16-alpine: Pulling from library/postgres
+2026-11-12T11:52:45.3520928Z 9df8a060171e: Pulling fs layer
+2026-11-12T11:52:45.3521972Z 07e60219949d: Pulling fs layer
+2026-11-12T11:52:45.3523002Z 55cd3be29a9d: Pulling fs layer
+2026-11-12T11:52:45.3523932Z 108fda73eb54: Pulling fs layer
+2026-11-12T11:52:45.3524879Z ec3414c15456: Pulling fs layer
+2026-11-12T11:52:45.3525670Z 45a91a95fdfe: Pulling fs layer
+2026-11-12T11:52:45.3526564Z ac5e852d5d1d: Pulling fs layer
+2026-11-12T11:52:45.3527584Z a8b9fccd8d77: Pulling fs layer
+2026-11-12T11:52:45.3528519Z 881fc932939e: Pulling fs layer
+2026-11-12T11:52:45.3529884Z 850c0285d2f3: Pulling fs layer
+2026-11-12T11:52:45.3530974Z fd818ebd7c87: Pulling fs layer
+2026-11-12T11:52:45.5175475Z 07e60219949d: Download complete
+2026-11-12T11:52:45.6166751Z ec3414c15456: Download complete
+2026-11-12T11:52:45.6169002Z fd818ebd7c87: Download complete
+2026-11-12T11:52:45.6173703Z 108fda73eb54: Download complete
+2026-11-12T11:52:45.6180399Z 9df8a060171e: Download complete
+2026-11-12T11:52:45.6186191Z ac5e852d5d1d: Download complete
+2026-11-12T11:52:45.6187579Z a8b9fccd8d77: Download complete
+2026-11-12T11:52:45.6193558Z 55cd3be29a9d: Download complete
+2026-11-12T11:52:45.6197607Z 45a91a95fdfe: Download complete
+2026-11-12T11:52:45.7171288Z 881fc932939e: Download complete
+2026-11-12T11:52:45.8177368Z 59bde9deb524: Download complete
+2026-11-12T11:52:45.8312712Z 881fc932939e: Pull complete
+2026-11-12T11:52:45.9167560Z 60cee29fe688: Download complete
+2026-11-12T11:52:45.9184491Z 07e60219949d: Pull complete
+2026-11-12T11:52:45.9195458Z ec3414c15456: Pull complete
+2026-11-12T11:52:45.9209597Z fd818ebd7c87: Pull complete
+2026-11-12T11:52:45.9277747Z a8b9fccd8d77: Pull complete
+2026-11-12T11:52:46.6167609Z 850c0285d2f3: Download complete
+2026-11-12T11:52:47.9002581Z 108fda73eb54: Pull complete
+2026-11-12T11:52:47.9026019Z 9df8a060171e: Pull complete
+2026-11-12T11:52:47.9039131Z ac5e852d5d1d: Pull complete
+2026-11-12T11:52:47.9047047Z 55cd3be29a9d: Pull complete
+2026-11-12T11:52:47.9055396Z 45a91a95fdfe: Pull complete
+2026-11-12T11:52:47.9065020Z 850c0285d2f3: Pull complete
+2026-11-12T11:52:47.9065682Z Digest: sha256:aa6cb33cf4c19c765cefcf48d96176258800870a9a1e930ad126200f9d825139
+2026-11-12T11:52:47.9066575Z Status: Downloaded newer image for postgres:16-alpine
+2026-11-12T11:52:47.9071456Z docker.io/library/postgres:16-alpine
+2026-11-12T11:52:47.9158548Z ##[command]/usr/bin/docker create --name 90b9c5fbbfbc494e837ce2fdff9c428a_postgres16alpine_233003 --label 914891 --network github_network_69e2b6bae7524ada8a6ff6da3e74175b --network-alias postgres -p 5432:5432 --health-cmd "pg_isready -U aip -d aip" --health-interval 5s --health-timeout 3s --health-retries 10 -e "POSTGRES_USER=aip" -e "POSTGRES_PASSWORD=aip" -e "POSTGRES_DB=aip" -e GITHUB_ACTIONS=true -e CI=true postgres:16-alpine
+2026-11-12T11:52:51.6302295Z 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a
+2026-11-12T11:52:51.6345989Z ##[command]/usr/bin/docker start 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a
+2026-11-12T11:52:51.8158250Z 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a
+2026-11-12T11:52:51.8187434Z ##[command]/usr/bin/docker ps --all --filter id=9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2026-11-12T11:52:51.8435591Z 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a Up Less than a second (health: starting)
+2026-11-12T11:52:51.8452050Z ##[command]/usr/bin/docker port 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a
+2026-11-12T11:52:51.8587922Z 5432/tcp -> 0.0.0.0:5432
+2026-11-12T11:52:51.8588708Z 5432/tcp -> [::]:5432
+2026-11-12T11:52:51.8632902Z ##[endgroup]
+2026-11-12T11:52:51.8640072Z ##[group]Waiting for all services to be ready
+2026-11-12T11:52:51.8650995Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a
+2026-11-12T11:52:51.8788889Z starting
+2026-11-12T11:52:51.8816240Z postgres service is starting, waiting 2 seconds before checking again.
+2026-11-12T11:52:53.8811960Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a
+2026-11-12T11:52:53.8941210Z starting
+2026-11-12T11:52:53.8956825Z postgres service is starting, waiting 3 seconds before checking again.
+2026-11-12T11:52:57.6901361Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a
+2026-11-12T11:52:57.7038197Z healthy
+2026-11-12T11:52:57.7057407Z postgres service is healthy.
+2026-11-12T11:52:57.7058227Z ##[endgroup]
+2026-11-12T11:52:57.7298429Z ##[group]Run actions/checkout@v4
+2026-11-12T11:52:57.7298913Z with:
+2026-11-12T11:52:57.7299186Z   repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T11:52:57.7301205Z   token: ***
+2026-11-12T11:52:57.7301395Z   ssh-strict: true
+2026-11-12T11:52:57.7301585Z   ssh-user: git
+2026-11-12T11:52:57.7301776Z   persist-credentials: true
+2026-11-12T11:52:57.7301985Z   clean: true
+2026-11-12T11:52:57.7302175Z   sparse-checkout-cone-mode: true
+2026-11-12T11:52:57.7302391Z   fetch-depth: 1
+2026-11-12T11:52:57.7302577Z   fetch-tags: false
+2026-11-12T11:52:57.7302759Z   show-progress: true
+2026-11-12T11:52:57.7302942Z   lfs: false
+2026-11-12T11:52:57.7303109Z   submodules: false
+2026-11-12T11:52:57.7303292Z   set-safe-directory: true
+2026-11-12T11:52:57.7303525Z   allow-unsafe-pr-checkout: false
+2026-11-12T11:52:57.7303916Z env:
+2026-11-12T11:52:57.7304234Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:57.7304434Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:57.7304732Z ##[endgroup]
+2026-11-12T11:52:58.4249325Z Syncing repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T11:52:58.4251216Z ##[group]Getting Git version info
+2026-11-12T11:52:58.4251903Z Working directory is '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-12T11:52:58.4252802Z [command]/usr/bin/git version
+2026-11-12T11:52:58.4263260Z git version 2.56.0
+2026-11-12T11:52:58.4279611Z ##[endgroup]
+2026-11-12T11:52:58.4305424Z Temporarily overriding HOME='/home/runner/work/_temp/8a862df0-ece9-40c6-944d-5e6884f996bf' before making global git config changes
+2026-11-12T11:52:58.4306557Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T11:52:58.4307834Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T11:52:58.4355831Z Deleting the contents of '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-12T11:52:58.4362539Z ##[group]Initializing the repository
+2026-11-12T11:52:58.4363616Z [command]/usr/bin/git init /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T11:52:58.4446780Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-12T11:52:58.4447506Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-12T11:52:58.4448142Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-12T11:52:58.4448637Z hint: call:
+2026-11-12T11:52:58.4448883Z hint:
+2026-11-12T11:52:58.4449236Z hint: 	git config --global init.defaultBranch <name>
+2026-11-12T11:52:58.4449651Z hint:
+2026-11-12T11:52:58.4450024Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-12T11:52:58.4450682Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-12T11:52:58.4451161Z hint:
+2026-11-12T11:52:58.4451437Z hint: 	git branch -m <name>
+2026-11-12T11:52:58.4451753Z hint:
+2026-11-12T11:52:58.4452159Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-12T11:52:58.4457394Z Initialized empty Git repository in /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/.git/
+2026-11-12T11:52:58.4470295Z [command]/usr/bin/git remote add origin https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T11:52:58.4531739Z ##[endgroup]
+2026-11-12T11:52:58.4532248Z ##[group]Disabling automatic garbage collection
+2026-11-12T11:52:58.4536902Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-12T11:52:58.4573533Z ##[endgroup]
+2026-11-12T11:52:58.4574011Z ##[group]Setting up auth
+2026-11-12T11:52:58.4580978Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T11:52:58.4615486Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T11:52:58.5252959Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T11:52:58.5283482Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T11:52:58.5531908Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T11:52:58.5564539Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T11:52:58.5812987Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-12T11:52:58.5851289Z ##[endgroup]
+2026-11-12T11:52:58.5851807Z ##[group]Fetching the repository
+2026-11-12T11:52:58.5860117Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +b5731ecbad0857a8014d13b15f1f07702b66acba:refs/remotes/pull/21/merge
+2026-11-12T11:52:59.3597486Z From https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T11:52:59.3598208Z  * [new ref]         b5731ecbad0857a8014d13b15f1f07702b66acba -> pull/21/merge
+2026-11-12T11:52:59.3610168Z ##[endgroup]
+2026-11-12T11:52:59.3610534Z ##[group]Determining the checkout info
+2026-11-12T11:52:59.3610899Z ##[endgroup]
+2026-11-12T11:52:59.3611138Z [command]/usr/bin/git sparse-checkout disable
+2026-11-12T11:52:59.3656792Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-12T11:52:59.3685309Z ##[group]Checking out the ref
+2026-11-12T11:52:59.3688822Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/21/merge
+2026-11-12T11:52:59.6331151Z Note: switching to 'refs/remotes/pull/21/merge'.
+2026-11-12T11:52:59.6331486Z 
+2026-11-12T11:52:59.6331740Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-12T11:52:59.6332367Z changes and commit them, and you can discard any commits you make in this
+2026-11-12T11:52:59.6332969Z state without impacting any branches by switching back to a branch.
+2026-11-12T11:52:59.6333323Z 
+2026-11-12T11:52:59.6333673Z If you want to create a new branch to retain commits you create, you may
+2026-11-12T11:52:59.6334329Z do so (now or later) by using -c with the switch command. Example:
+2026-11-12T11:52:59.6334642Z 
+2026-11-12T11:52:59.6334772Z   git switch -c <new-branch-name>
+2026-11-12T11:52:59.6334981Z 
+2026-11-12T11:52:59.6335111Z Or undo this operation with:
+2026-11-12T11:52:59.6335297Z 
+2026-11-12T11:52:59.6335409Z   git switch -
+2026-11-12T11:52:59.6335561Z 
+2026-11-12T11:52:59.6335828Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-12T11:52:59.6336215Z 
+2026-11-12T11:52:59.6336661Z HEAD is now at b5731ec Merge 6764c7eb38fa3c5cb0d9884303b14c1cd422d6ad into 2883da7bf5b8591a31bf24789c1d0722f83a6624
+2026-11-12T11:52:59.6351976Z ##[endgroup]
+2026-11-12T11:52:59.6394626Z [command]/usr/bin/git log -1 --format=%H
+2026-11-12T11:52:59.6417512Z b5731ecbad0857a8014d13b15f1f07702b66acba
+2026-11-12T11:52:59.6716590Z ##[group]Run dtolnay/rust-toolchain@stable
+2026-11-12T11:52:59.6716860Z with:
+2026-11-12T11:52:59.6717036Z   toolchain: stable
+2026-11-12T11:52:59.6717219Z env:
+2026-11-12T11:52:59.6717388Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:59.6717600Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:59.6717791Z ##[endgroup]
+2026-11-12T11:52:59.6771439Z ##[start-action display=Parse toolchain version;id=__dtolnay_rust-toolchain.parse]
+2026-11-12T11:52:59.6850154Z ##[group]Run if [[ -z $toolchain ]]; then
+2026-11-12T11:52:59.6850533Z [36;1mif [[ -z $toolchain ]]; then[0m
+2026-11-12T11:52:59.6850981Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
+2026-11-12T11:52:59.6851629Z [36;1m  echo "'toolchain' is a required input" >&2[0m
+2026-11-12T11:52:59.6851883Z [36;1m  exit 1[0m
+2026-11-12T11:52:59.6852158Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
+2026-11-12T11:52:59.6852531Z [36;1m  if [[ Linux == macOS ]]; then[0m
+2026-11-12T11:52:59.6852944Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:59.6853338Z [36;1m  else[0m
+2026-11-12T11:52:59.6853660Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:59.6854011Z [36;1m  fi[0m
+2026-11-12T11:52:59.6854559Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
+2026-11-12T11:52:59.6855009Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:59.6855376Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
+2026-11-12T11:52:59.6855778Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:59.6856156Z [36;1melse[0m
+2026-11-12T11:52:59.6856330Z [36;1m  delimiter=EOF[0m
+2026-11-12T11:52:59.6856584Z [36;1m  while [[ $toolchain == *$delimiter* ]]; do delimiter+=_; done[0m
+2026-11-12T11:52:59.6856981Z [36;1m  printf 'toolchain<<%s\n%s\n%s\n' "$delimiter" "$toolchain" "$delimiter" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:59.6857306Z [36;1mfi[0m
+2026-11-12T11:52:59.6907834Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:59.6908127Z env:
+2026-11-12T11:52:59.6908309Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:59.6908562Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:59.6908757Z   toolchain: stable
+2026-11-12T11:52:59.6908928Z ##[endgroup]
+2026-11-12T11:52:59.7024867Z ##[end-action id=__dtolnay_rust-toolchain.parse;outcome=success;conclusion=success;duration_ms=25]
+2026-11-12T11:52:59.7027213Z ##[start-action display=Set $CARGO_HOME;id=__dtolnay_rust-toolchain.__run]
+2026-11-12T11:52:59.7056766Z ##[group]Run echo CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV
+2026-11-12T11:52:59.7057197Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV[0m
+2026-11-12T11:52:59.7103135Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:59.7103421Z env:
+2026-11-12T11:52:59.7103598Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:59.7103809Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:59.7104008Z ##[endgroup]
+2026-11-12T11:52:59.7178280Z ##[end-action id=__dtolnay_rust-toolchain.__run;outcome=success;conclusion=success;duration_ms=15]
+2026-11-12T11:52:59.7180396Z ##[start-action display=Install rustup if needed;id=__dtolnay_rust-toolchain.__run_2]
+2026-11-12T11:52:59.7203248Z ##[group]Run if ! command -v rustup &>/dev/null; then
+2026-11-12T11:52:59.7203559Z [36;1mif ! command -v rustup &>/dev/null; then[0m
+2026-11-12T11:52:59.7204425Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://sh.rustup.rs | sh -s -- --default-toolchain none -y[0m
+2026-11-12T11:52:59.7204991Z [36;1m  echo "$CARGO_HOME/bin" >> $GITHUB_PATH[0m
+2026-11-12T11:52:59.7205417Z [36;1mfi[0m
+2026-11-12T11:52:59.7251018Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:59.7251303Z env:
+2026-11-12T11:52:59.7251478Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:59.7251693Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:59.7251901Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:59.7252131Z ##[endgroup]
+2026-11-12T11:52:59.7321334Z ##[end-action id=__dtolnay_rust-toolchain.__run_2;outcome=success;conclusion=success;duration_ms=14]
+2026-11-12T11:52:59.7323461Z ##[start-action display=Install rustup if needed on windows;id=__dtolnay_rust-toolchain.__run_3]
+2026-11-12T11:52:59.7330435Z ##[end-action id=__dtolnay_rust-toolchain.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-12T11:52:59.7342578Z ##[start-action display=rustup toolchain install stable;id=__dtolnay_rust-toolchain.__run_4]
+2026-11-12T11:52:59.7359191Z ##[group]Run set -f  # split targets and components on commas and whitespace, without glob expansion
+2026-11-12T11:52:59.7359793Z [36;1mset -f  # split targets and components on commas and whitespace, without glob expansion[0m
+2026-11-12T11:52:59.7360148Z [36;1mflags=()[0m
+2026-11-12T11:52:59.7360383Z [36;1mfor t in ${targets//,/ }; do flags+=(--target "$t"); done[0m
+2026-11-12T11:52:59.7360708Z [36;1mfor c in ${components//,/ }; do flags+=(--component "$c"); done[0m
+2026-11-12T11:52:59.7361109Z [36;1mif [[ $toolchain == nightly && -n $components ]]; then flags+=(--allow-downgrade); fi[0m
+2026-11-12T11:52:59.7361450Z [36;1mlog=$(mktemp)[0m
+2026-11-12T11:52:59.7361651Z [36;1mtrap 'rm -f "$log"' EXIT[0m
+2026-11-12T11:52:59.7361867Z [36;1mfor attempt in 1 2 3 4 5; do[0m
+2026-11-12T11:52:59.7362328Z [36;1m  if rustup toolchain install "$toolchain" "${flags[@]}" --profile minimal --no-self-update --force-non-host 2>&1 | tee "$log"; then[0m
+2026-11-12T11:52:59.7362797Z [36;1m    break[0m
+2026-11-12T11:52:59.7362977Z [36;1m  else[0m
+2026-11-12T11:52:59.7363146Z [36;1m    status=$?[0m
+2026-11-12T11:52:59.7363343Z [36;1m  fi[0m
+2026-11-12T11:52:59.7363605Z [36;1m  if [[ $attempt == 5 ]] || ! grep -Fq 'checksum failed for ' "$log" \[0m
+2026-11-12T11:52:59.7364211Z [36;1m      || ! grep -Fq 'this is likely due to an ongoing update of the official release server' "$log"; then[0m
+2026-11-12T11:52:59.7364599Z [36;1m    exit "$status"[0m
+2026-11-12T11:52:59.7364797Z [36;1m  fi[0m
+2026-11-12T11:52:59.7365086Z [36;1m  echo "Retrying rustup toolchain install in 30 seconds (retry $attempt of 4)" >&2[0m
+2026-11-12T11:52:59.7365417Z [36;1m  sleep 30[0m
+2026-11-12T11:52:59.7365591Z [36;1mdone[0m
+2026-11-12T11:52:59.7411736Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:59.7412027Z env:
+2026-11-12T11:52:59.7412201Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:59.7412404Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:59.7412606Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:59.7412813Z   toolchain: stable
+2026-11-12T11:52:59.7413016Z   targets: 
+2026-11-12T11:52:59.7413200Z   components: 
+2026-11-12T11:52:59.7413381Z   RUSTUP_PERMIT_COPY_RENAME: 1
+2026-11-12T11:52:59.7413582Z ##[endgroup]
+2026-11-12T11:52:59.8822266Z info: syncing channel updates for stable-x86_64-unknown-linux-gnu
+2026-11-12T11:52:59.9899616Z 
+2026-11-12T11:52:59.9976658Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-11-12T11:52:59.9977163Z 
+2026-11-12T11:53:00.0031697Z ##[end-action id=__dtolnay_rust-toolchain.__run_4;outcome=success;conclusion=success;duration_ms=268]
+2026-11-12T11:53:00.0037767Z ##[start-action display=rustup default stable;id=__dtolnay_rust-toolchain.__run_5]
+2026-11-12T11:53:00.0056335Z ##[group]Run rustup default "$toolchain" --force-non-host
+2026-11-12T11:53:00.0056705Z [36;1mrustup default "$toolchain" --force-non-host[0m
+2026-11-12T11:53:00.0100635Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:53:00.0100927Z env:
+2026-11-12T11:53:00.0101102Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:00.0101501Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:00.0101720Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:00.0101932Z   toolchain: stable
+2026-11-12T11:53:00.0102113Z ##[endgroup]
+2026-11-12T11:53:00.0203975Z info: using existing install for stable-x86_64-unknown-linux-gnu
+2026-11-12T11:53:00.0212114Z info: default toolchain set to stable-x86_64-unknown-linux-gnu
+2026-11-12T11:53:00.0212461Z 
+2026-11-12T11:53:00.0292297Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-11-12T11:53:00.0292587Z 
+2026-11-12T11:53:00.0309478Z ##[end-action id=__dtolnay_rust-toolchain.__run_5;outcome=success;conclusion=success;duration_ms=27]
+2026-11-12T11:53:00.0312912Z ##[start-action display=Create cachekey;id=__dtolnay_rust-toolchain.rustc-version]
+2026-11-12T11:53:00.0330393Z ##[group]Run DATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')
+2026-11-12T11:53:00.0331092Z [36;1mDATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
+2026-11-12T11:53:00.0331630Z [36;1mHASH=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-hash: //p')[0m
+2026-11-12T11:53:00.0332040Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:53:00.0375689Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:53:00.0375987Z env:
+2026-11-12T11:53:00.0376169Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:00.0376375Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:00.0376578Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:00.0376786Z   toolchain: stable
+2026-11-12T11:53:00.0376960Z ##[endgroup]
+2026-11-12T11:53:00.0740319Z ##[end-action id=__dtolnay_rust-toolchain.rustc-version;outcome=success;conclusion=success;duration_ms=42]
+2026-11-12T11:53:00.0742712Z ##[start-action display=Disable incremental compilation;id=__dtolnay_rust-toolchain.__run_6]
+2026-11-12T11:53:00.0760534Z ##[group]Run if [ -z "${CARGO_INCREMENTAL+set}" ]; then
+2026-11-12T11:53:00.0760857Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
+2026-11-12T11:53:00.0761126Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
+2026-11-12T11:53:00.0761373Z [36;1mfi[0m
+2026-11-12T11:53:00.0804396Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:53:00.0804692Z env:
+2026-11-12T11:53:00.0804874Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:00.0805078Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:00.0805281Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:00.0805496Z ##[endgroup]
+2026-11-12T11:53:00.0869082Z ##[end-action id=__dtolnay_rust-toolchain.__run_6;outcome=success;conclusion=success;duration_ms=12]
+2026-11-12T11:53:00.0871031Z ##[start-action display=Enable colors in Cargo output;id=__dtolnay_rust-toolchain.__run_7]
+2026-11-12T11:53:00.0887888Z ##[group]Run if [ -z "${CARGO_TERM_COLOR+set}" ]; then
+2026-11-12T11:53:00.0888198Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
+2026-11-12T11:53:00.0888495Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
+2026-11-12T11:53:00.0888750Z [36;1mfi[0m
+2026-11-12T11:53:00.0929749Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:53:00.0930048Z env:
+2026-11-12T11:53:00.0930232Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:00.0930439Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:00.0930644Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:00.0930863Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:53:00.0931051Z ##[endgroup]
+2026-11-12T11:53:00.0998696Z ##[end-action id=__dtolnay_rust-toolchain.__run_7;outcome=success;conclusion=success;duration_ms=12]
+2026-11-12T11:53:00.1002675Z ##[start-action display=Enable Cargo sparse registry;id=__dtolnay_rust-toolchain.__run_8]
+2026-11-12T11:53:00.1039069Z ##[group]Run # implemented in 1.66, stabilized in 1.68, made default in 1.70
+2026-11-12T11:53:00.1039506Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
+2026-11-12T11:53:00.1040224Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
+2026-11-12T11:53:00.1040812Z [36;1m  if rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
+2026-11-12T11:53:00.1041269Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-11-12T11:53:00.1041719Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
+2026-11-12T11:53:00.1042140Z [36;1m  elif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
+2026-11-12T11:53:00.1042600Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-11-12T11:53:00.1043147Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
+2026-11-12T11:53:00.1043441Z [36;1m  fi[0m
+2026-11-12T11:53:00.1043643Z [36;1mfi[0m
+2026-11-12T11:53:00.1086648Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:53:00.1086937Z env:
+2026-11-12T11:53:00.1087128Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:00.1087334Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:00.1087546Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:00.1087781Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:53:00.1087971Z   toolchain: stable
+2026-11-12T11:53:00.1088147Z ##[endgroup]
+2026-11-12T11:53:00.1399357Z ##[end-action id=__dtolnay_rust-toolchain.__run_8;outcome=success;conclusion=success;duration_ms=39]
+2026-11-12T11:53:00.1403115Z ##[start-action display=Work around spurious network errors in curl 8.0;id=__dtolnay_rust-toolchain.__run_9]
+2026-11-12T11:53:00.1420835Z ##[group]Run # https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation
+2026-11-12T11:53:00.1421470Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
+2026-11-12T11:53:00.1421972Z [36;1mif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
+2026-11-12T11:53:00.1422368Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
+2026-11-12T11:53:00.1422635Z [36;1mfi[0m
+2026-11-12T11:53:00.1466732Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:53:00.1467032Z env:
+2026-11-12T11:53:00.1467208Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:00.1467418Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:00.1467623Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:00.1467834Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:53:00.1468023Z   toolchain: stable
+2026-11-12T11:53:00.1468199Z ##[endgroup]
+2026-11-12T11:53:00.1665231Z ##[end-action id=__dtolnay_rust-toolchain.__run_9;outcome=success;conclusion=success;duration_ms=26]
+2026-11-12T11:53:00.1669732Z ##[start-action display=rustc +stable --version --verbose;id=__dtolnay_rust-toolchain.__run_10]
+2026-11-12T11:53:00.1686860Z ##[group]Run rustc +"$toolchain" --version --verbose
+2026-11-12T11:53:00.1687179Z [36;1mrustc +"$toolchain" --version --verbose[0m
+2026-11-12T11:53:00.1729990Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:53:00.1730293Z env:
+2026-11-12T11:53:00.1730471Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:00.1730676Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:00.1730893Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:00.1731108Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:53:00.1731293Z   toolchain: stable
+2026-11-12T11:53:00.1731464Z ##[endgroup]
+2026-11-12T11:53:00.1896181Z rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-11-12T11:53:00.1896638Z binary: rustc
+2026-11-12T11:53:00.1896967Z commit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67
+2026-11-12T11:53:00.1897357Z commit-date: 2026-10-13
+2026-11-12T11:53:00.1897646Z host: x86_64-unknown-linux-gnu
+2026-11-12T11:53:00.1897857Z release: 1.99.1
+2026-11-12T11:53:00.1898065Z LLVM version: 23.1.1
+2026-11-12T11:53:00.1917608Z ##[end-action id=__dtolnay_rust-toolchain.__run_10;outcome=success;conclusion=success;duration_ms=24]
+2026-11-12T11:53:00.1991268Z ##[group]Run Swatinem/rust-cache@v2
+2026-11-12T11:53:00.1991516Z with:
+2026-11-12T11:53:00.1991700Z   prefix-key: v0-rust
+2026-11-12T11:53:00.1991891Z   add-job-id-key: true
+2026-11-12T11:53:00.1992092Z   add-rust-environment-hash-key: true
+2026-11-12T11:53:00.1992318Z   cache-targets: true
+2026-11-12T11:53:00.1992500Z   cache-all-crates: false
+2026-11-12T11:53:00.1992707Z   cache-workspace-crates: false
+2026-11-12T11:53:00.1992925Z   save-if: true
+2026-11-12T11:53:00.1993106Z   cache-provider: github
+2026-11-12T11:53:00.1993303Z   cache-bin: true
+2026-11-12T11:53:00.1993478Z   lookup-only: false
+2026-11-12T11:53:00.1993660Z   cmd-format: {0}
+2026-11-12T11:53:00.1993829Z env:
+2026-11-12T11:53:00.1994007Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:00.1994514Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:00.1994897Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:00.1995108Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:53:00.1995289Z ##[endgroup]
+2026-11-12T11:53:00.7859866Z ##[group]Cache Configuration
+2026-11-12T11:53:00.7860369Z Cache Provider:
+2026-11-12T11:53:00.7860635Z     github
+2026-11-12T11:53:00.7860893Z Workspaces:
+2026-11-12T11:53:00.7861358Z     /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T11:53:00.7861901Z Cache Paths:
+2026-11-12T11:53:00.7862202Z     /home/runner/.cargo/bin
+2026-11-12T11:53:00.7862529Z     /home/runner/.cargo/.crates.toml
+2026-11-12T11:53:00.7862929Z     /home/runner/.cargo/.crates2.json
+2026-11-12T11:53:00.7863284Z     /home/runner/.cargo/registry
+2026-11-12T11:53:00.7863591Z     /home/runner/.cargo/git
+2026-11-12T11:53:00.7864236Z     /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target
+2026-11-12T11:53:00.7864825Z Restore Key:
+2026-11-12T11:53:00.7865134Z     v0-rust-postgres-backend-Linux-x64-368c5654
+2026-11-12T11:53:00.7865544Z Cache Key:
+2026-11-12T11:53:00.7865882Z     v0-rust-postgres-backend-Linux-x64-368c5654-259d97ab
+2026-11-12T11:53:00.7866261Z .. Prefix:
+2026-11-12T11:53:00.7866563Z   - v0-rust-postgres-backend-Linux-x64
+2026-11-12T11:53:00.7866944Z .. Environment considered:
+2026-11-12T11:53:00.7867241Z   - Rust Versions:
+2026-11-12T11:53:00.7867655Z     - 1.99.1 x86_64-unknown-linux-gnu 58cf8f9c35b355199727627d07ae34a4e2846d67
+2026-11-12T11:53:00.7868091Z   - CARGO_HOME
+2026-11-12T11:53:00.7868311Z   - CARGO_INCREMENTAL
+2026-11-12T11:53:00.7868594Z   - CARGO_TERM_COLOR
+2026-11-12T11:53:00.7868848Z   - RUSTFLAGS
+2026-11-12T11:53:00.7869102Z .. Lockfiles considered:
+2026-11-12T11:53:00.7869688Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-service/Cargo.toml
+2026-11-12T11:53:00.7870661Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-agent/Cargo.toml
+2026-11-12T11:53:00.7871676Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-aibom/Cargo.toml
+2026-11-12T11:53:00.7872713Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-airi/Cargo.toml
+2026-11-12T11:53:00.7873728Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-anchor/Cargo.toml
+2026-11-12T11:53:00.7874999Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-approval/Cargo.toml
+2026-11-12T11:53:00.7876001Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-authorize/Cargo.toml
+2026-11-12T11:53:00.7877028Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-cli/Cargo.toml
+2026-11-12T11:53:00.7878028Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-collector/Cargo.toml
+2026-11-12T11:53:00.7879142Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-conformance/Cargo.toml
+2026-11-12T11:53:00.7880855Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-containment/Cargo.toml
+2026-11-12T11:53:00.7882024Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-core/Cargo.toml
+2026-11-12T11:53:00.7883102Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-corroborate/Cargo.toml
+2026-11-12T11:53:00.7884265Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-crypto/Cargo.toml
+2026-11-12T11:53:00.7885400Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-contract/Cargo.toml
+2026-11-12T11:53:00.7886463Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-observer/Cargo.toml
+2026-11-12T11:53:00.7887530Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-workload/Cargo.toml
+2026-11-12T11:53:00.7888886Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge/Cargo.toml
+2026-11-12T11:53:00.7889872Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-effect/Cargo.toml
+2026-11-12T11:53:00.7890801Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-enforce/Cargo.toml
+2026-11-12T11:53:00.7891774Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-enterprise/Cargo.toml
+2026-11-12T11:53:00.7892737Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-execution/Cargo.toml
+2026-11-12T11:53:00.7893745Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-hsm/Cargo.toml
+2026-11-12T11:53:00.7894919Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-http-gateway/Cargo.toml
+2026-11-12T11:53:00.7895919Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-incident/Cargo.toml
+2026-11-12T11:53:00.7896882Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-industrial/Cargo.toml
+2026-11-12T11:53:00.7897823Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-interlock/Cargo.toml
+2026-11-12T11:53:00.7898833Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-ledger/Cargo.toml
+2026-11-12T11:53:00.7899813Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-mcp-gateway/Cargo.toml
+2026-11-12T11:53:00.7900754Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-nexora/Cargo.toml
+2026-11-12T11:53:00.7901887Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observation/Cargo.toml
+2026-11-12T11:53:00.7902833Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe-verify/Cargo.toml
+2026-11-12T11:53:00.7903477Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe/Cargo.toml
+2026-11-12T11:53:00.7904332Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-placement/Cargo.toml
+2026-11-12T11:53:00.7904998Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-platform/Cargo.toml
+2026-11-12T11:53:00.7905610Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-probe/Cargo.toml
+2026-11-12T11:53:00.7906214Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-protocol/Cargo.toml
+2026-11-12T11:53:00.7906844Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-real-tests/Cargo.toml
+2026-11-12T11:53:00.7907660Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-reconcile/Cargo.toml
+2026-11-12T11:53:00.7908298Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-registry/Cargo.toml
+2026-11-12T11:53:00.7908922Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-robotics/Cargo.toml
+2026-11-12T11:53:00.7909553Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-sentinel-feed/Cargo.toml
+2026-11-12T11:53:00.7910165Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-siem/Cargo.toml
+2026-11-12T11:53:00.7910751Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-space/Cargo.toml
+2026-11-12T11:53:00.7911480Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spend/Cargo.toml
+2026-11-12T11:53:00.7912365Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spiffe/Cargo.toml
+2026-11-12T11:53:00.7913278Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-system/Cargo.toml
+2026-11-12T11:53:00.7914373Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-test/Cargo.toml
+2026-11-12T11:53:00.7915347Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-transport/Cargo.toml
+2026-11-12T11:53:00.7916022Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-types/Cargo.toml
+2026-11-12T11:53:00.7916606Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-uas/Cargo.toml
+2026-11-12T11:53:00.7917205Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-verify/Cargo.toml
+2026-11-12T11:53:00.7917817Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-warrant/Cargo.toml
+2026-11-12T11:53:00.7918556Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/banking_demo/Cargo.toml
+2026-11-12T11:53:00.7919533Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/ghost-demo/Cargo.toml
+2026-11-12T11:53:00.7920461Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/Cargo.lock
+2026-11-12T11:53:00.7921548Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/aip-feed-conformance/Cargo.toml
+2026-11-12T11:53:00.7922821Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-accountability-core/Cargo.toml
+2026-11-12T11:53:00.7924230Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-sentinel/Cargo.toml
+2026-11-12T11:53:00.7925336Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/syntriass-runtime/Cargo.toml
+2026-11-12T11:53:00.7926354Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/vanian-sovereign/Cargo.toml
+2026-11-12T11:53:00.7927341Z ##[endgroup]
+2026-11-12T11:53:00.7927487Z 
+2026-11-12T11:53:00.7927616Z ... Restoring cache ...
+2026-11-12T11:53:01.0832659Z Cache hit for: v0-rust-postgres-backend-Linux-x64-368c5654-259d97ab
+2026-11-12T11:53:02.4045273Z Received 8388608 of 248123550 (3.4%), 8.0 MBs/sec
+2026-11-12T11:53:03.4079378Z Received 134217728 of 248123550 (54.1%), 63.7 MBs/sec
+2026-11-12T11:53:04.4126199Z Received 235540638 of 248123550 (94.9%), 74.6 MBs/sec
+2026-11-12T11:53:04.6691453Z Received 248123550 of 248123550 (100.0%), 72.4 MBs/sec
+2026-11-12T11:53:04.6694957Z Cache Size: ~237 MB (248123550 B)
+2026-11-12T11:53:04.6750865Z [command]/usr/bin/tar -xf /home/runner/work/_temp/243768a5-7ff8-49d3-980e-aa3710b9861d/cache.tzst -P -C /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol- --use-compress-program unzstd
+2026-11-12T11:53:05.9033439Z Cache restored successfully
+2026-11-12T11:53:05.9130920Z Restored from cache key "v0-rust-postgres-backend-Linux-x64-368c5654-259d97ab" full match: true.
+2026-11-12T11:53:05.9330767Z ##[group]Run cargo clippy --all-targets --features postgres -- -D warnings
+2026-11-12T11:53:05.9331227Z [36;1mcargo clippy --all-targets --features postgres -- -D warnings[0m
+2026-11-12T11:53:05.9375861Z shell: /usr/bin/bash -e {0}
+2026-11-12T11:53:05.9376100Z env:
+2026-11-12T11:53:05.9376280Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:05.9376488Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:05.9376705Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:05.9376929Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:53:05.9377293Z   CACHE_ON_FAILURE: false
+2026-11-12T11:53:05.9377491Z ##[endgroup]
+2026-11-12T11:53:06.0415993Z [1m[92m    Updating[0m crates.io index
+2026-11-12T11:53:06.8021106Z [1m[92m    Checking[0m aip-types v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-types)
+2026-11-12T11:53:07.9976123Z [1m[92m    Checking[0m aip-crypto v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-crypto)
+2026-11-12T11:53:08.2725767Z [1m[92m    Checking[0m aip-core v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-core)
+2026-11-12T11:53:08.2727302Z [1m[92m    Checking[0m aip-spend v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spend)
+2026-11-12T11:53:08.2728678Z [1m[92m    Checking[0m aip-registry v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-registry)
+2026-11-12T11:53:08.6344644Z [1m[92m    Checking[0m aip-observe v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe)
+2026-11-12T11:53:08.6346078Z [1m[92m    Checking[0m aip-authorize v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-authorize)
+2026-11-12T11:53:08.6347250Z [1m[92m    Checking[0m aip-protocol v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-protocol)
+2026-11-12T11:53:09.8498192Z [1m[92m    Checking[0m aip-observe-verify v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe-verify)
+2026-11-12T11:53:09.9449885Z [1m[92m    Checking[0m aip-reconcile v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-reconcile)
+2026-11-12T11:53:10.4798059Z [1m[92m    Checking[0m aip-airi v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-airi)
+2026-11-12T11:53:10.4799501Z [1m[92m    Checking[0m aip-ledger v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-ledger)
+2026-11-12T11:53:10.9000181Z [1m[92m    Checking[0m aip-mcp-gateway v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-mcp-gateway)
+2026-11-12T11:53:11.1141480Z [1m[92m    Checking[0m airon-aip v0.2.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-service)
+2026-11-12T11:53:13.6400063Z [1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 7.66s
+2026-11-12T11:53:13.7120465Z ##[group]Run cargo test --features postgres --no-fail-fast
+2026-11-12T11:53:13.7120993Z [36;1mcargo test --features postgres --no-fail-fast[0m
+2026-11-12T11:53:13.7165007Z shell: /usr/bin/bash -e {0}
+2026-11-12T11:53:13.7165230Z env:
+2026-11-12T11:53:13.7165433Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:13.7165644Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:13.7165858Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:13.7166073Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:53:13.7166264Z   CACHE_ON_FAILURE: false
+2026-11-12T11:53:13.7167007Z   AIP_TEST_DATABASE_URL: ***127.0.0.1:5432/aip
+2026-11-12T11:53:13.7167262Z ##[endgroup]
+2026-11-12T11:53:13.8826533Z [1m[92m   Compiling[0m aip-types v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-types)
+2026-11-12T11:53:14.5538788Z [1m[92m   Compiling[0m aip-crypto v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-crypto)
+2026-11-12T11:53:15.2701817Z [1m[92m   Compiling[0m aip-core v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-core)
+2026-11-12T11:53:15.2704957Z [1m[92m   Compiling[0m aip-spend v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spend)
+2026-11-12T11:53:15.2707102Z [1m[92m   Compiling[0m aip-registry v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-registry)
+2026-11-12T11:53:15.8735544Z [1m[92m   Compiling[0m aip-observe v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe)
+2026-11-12T11:53:15.8779949Z [1m[92m   Compiling[0m aip-authorize v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-authorize)
+2026-11-12T11:53:15.9104641Z [1m[92m   Compiling[0m aip-protocol v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-protocol)
+2026-11-12T11:53:17.6901040Z [1m[92m   Compiling[0m aip-observe-verify v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe-verify)
+2026-11-12T11:53:17.9026174Z [1m[92m   Compiling[0m aip-reconcile v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-reconcile)
+2026-11-12T11:53:18.6357763Z [1m[92m   Compiling[0m aip-airi v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-airi)
+2026-11-12T11:53:18.6359041Z [1m[92m   Compiling[0m aip-ledger v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-ledger)
+2026-11-12T11:53:19.2196133Z [1m[92m   Compiling[0m aip-mcp-gateway v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-mcp-gateway)
+2026-11-12T11:53:19.5360361Z [1m[92m   Compiling[0m airon-aip v0.2.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-service)
+2026-11-12T11:53:32.2981987Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 18.56s
+2026-11-12T11:53:32.3443573Z [1m[92m     Running[0m unittests src/lib.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/airon_aip-4beb7bb9eace4517)
+2026-11-12T11:53:32.3461722Z 
+2026-11-12T11:53:32.3461984Z running 60 tests
+2026-11-12T11:53:32.3477214Z test artifacts::tests::a_kind_does_not_answer_for_another_kind ... ok
+2026-11-12T11:53:32.3477893Z test artifacts::tests::a_cross_tenant_read_is_empty_not_an_error ... ok
+2026-11-12T11:53:32.3485171Z test artifacts::tests::a_failed_append_never_publishes_or_acknowledges_a_retry ... ok
+2026-11-12T11:53:32.3486158Z test artifacts::tests::an_id_already_held_by_another_tenant_is_refused ... ok
+2026-11-12T11:53:32.3488778Z test artifacts::tests::an_agent_listing_is_ordered_by_window_and_scoped_to_one_agent ... ok
+2026-11-12T11:53:32.3490188Z test artifacts::tests::damaged_records_are_preserved_and_refused_instead_of_skipped ... ok
+2026-11-12T11:53:32.3491279Z test artifacts::tests::the_same_document_filed_twice_is_one_row ... ok
+2026-11-12T11:53:32.3491976Z test auth::tests::test_authenticate_known_and_unknown ... ok
+2026-11-12T11:53:32.3492636Z test auth::tests::test_empty_store_fails_closed ... ok
+2026-11-12T11:53:32.3493258Z test auth::tests::test_keys_bind_distinct_tenants ... ok
+2026-11-12T11:53:32.4026224Z test authority::tests::test_authority_graph_scoped_to_supplied_packets ... ok
+2026-11-12T11:53:32.4042254Z test authority::tests::test_tamper_breaks_integrity_flag ... ok
+2026-11-12T11:53:32.4054960Z test deployments::tests::append_failure_never_creates_a_readable_or_acknowledged_registration ... ok
+2026-11-12T11:53:32.4063971Z test authority::tests::test_principal_and_agent_indexes ... ok
+2026-11-12T11:53:32.4584609Z test authority::tests::test_who_authorized_resolves_chain ... ok
+2026-11-12T11:53:32.4842034Z test evidence::tests::generating_multiple_actions_does_not_advance_a_frozen_clock ... ok
+2026-11-12T11:53:32.4861743Z test evidence::tests::test_generate_requires_action ... ok
+2026-11-12T11:53:32.5397015Z test evidence::tests::test_generate_then_verify_roundtrip ... ok
+2026-11-12T11:53:32.6025446Z test artifacts::tests::acknowledged_filings_survive_reopening ... ok
+2026-11-12T11:53:32.6343068Z test evidence::tests::test_verify_detects_tamper ... ok
+2026-11-12T11:53:32.6344943Z test ingress::tests::a_malformed_limit_is_refused_not_ignored ... ok
+2026-11-12T11:53:32.6346974Z test ingress::tests::an_empty_value_falls_back_to_the_default ... ok
+2026-11-12T11:53:32.6347949Z test ingress::tests::env_overrides_are_read ... ok
+2026-11-12T11:53:32.6348681Z test ingress::tests::the_defaults_are_conservative_and_finite ... ok
+2026-11-12T11:53:32.6354446Z test metrics::tests::concurrent_increments_are_not_lost ... ok
+2026-11-12T11:53:32.6357850Z test metrics::tests::counters_increment_and_render ... ok
+2026-11-12T11:53:32.6358707Z test metrics::tests::no_metric_carries_a_label ... ok
+2026-11-12T11:53:32.6359839Z test metrics::tests::rendering_is_deterministic ... ok
+2026-11-12T11:53:32.6362974Z test metrics::tests::the_exposition_format_is_well_formed ... ok
+2026-11-12T11:53:32.6366513Z test observations::tests::configured_observer_trust_fails_closed_and_rejects_ambiguous_anchors ... ok
+2026-11-12T11:53:32.6370126Z test revocation::tests::a_tampered_line_is_not_loaded ... ok
+2026-11-12T11:53:32.6377519Z test revocation::tests::evidence_jtis_are_exported_per_tenant_in_16_byte_form ... ok
+2026-11-12T11:53:32.6381470Z test revocation::tests::legacy_lines_load_under_the_legacy_tenant_with_their_old_hash ... ok
+2026-11-12T11:53:32.6388081Z test revocation::tests::lookup_normalises_case_and_form ... ok
+2026-11-12T11:53:32.6388869Z test revocation::tests::normalize_rejects_everything_that_is_not_a_token_id ... ok
+2026-11-12T11:53:32.6389593Z test revocation::tests::persisted_entries_reload_under_their_tenant ... ok
+2026-11-12T11:53:32.6391068Z test revocation::tests::revoke_and_lookup_are_tenant_scoped ... ok
+2026-11-12T11:53:32.6392433Z test runs::tests::absent_or_broken_trust_is_not_an_implicit_approval ... ok
+2026-11-12T11:53:32.6393856Z test store::pg::tests::pg_benchmark_10k ... ignored, benchmark — run explicitly with --ignored against a live DB
+2026-11-12T11:53:32.6466586Z test evidence::tests::weakness_generate_then_verify_accepts_self_issued_authority ... ok
+2026-11-12T11:53:32.7391794Z test evidence::tests::test_export_endpoint_roundtrip_and_tenant_isolation ... ok
+2026-11-12T11:53:32.7458084Z test deployments::tests::repeated_or_incomplete_journal_records_are_not_repaired_into_success ... ok
+2026-11-12T11:53:32.9815240Z test store::tests::test_all_for_tenant_isolates ... ok
+2026-11-12T11:53:33.1081701Z test store::tests::test_cross_tenant_get_is_denied ... ok
+2026-11-12T11:53:33.2825075Z test store::tests::test_persist_and_reload_preserves_tenant ... ok
+2026-11-12T11:53:33.3425817Z test store::tests::test_store_get_roundtrip ... ok
+2026-11-12T11:53:33.3696237Z test store::pg::tests::pg_tenant_conflict_on_id_reuse ... ok
+2026-11-12T11:53:33.3697632Z test store::pg::tests::pg_cross_tenant_isolation ... ok
+2026-11-12T11:53:33.3742343Z test tokens::tests::test_each_token_has_unique_jti ... ok
+2026-11-12T11:53:33.3755381Z test tokens::tests::test_issue_verify_roundtrip ... ok
+2026-11-12T11:53:33.3774942Z test tokens::tests::test_metadata_in_claims ... ok
+2026-11-12T11:53:33.3795287Z test tokens::tests::test_tampered_token_rejected ... ok
+2026-11-12T11:53:33.4018931Z test store::tests::test_store_rejects_id_reuse_across_tenants ... ok
+2026-11-12T11:53:33.4024881Z test tokens::tests::test_wrong_algorithm_rejected ... ok
+2026-11-12T11:53:33.4041047Z test tokens::tests::test_wrong_keypair_rejected ... ok
+2026-11-12T11:53:33.4046256Z test wellknown::tests::test_jwks_x_decodes_to_32_bytes ... ok
+2026-11-12T11:53:33.4047004Z test wellknown::tests::test_jwks_x_is_32_bytes ... ok
+2026-11-12T11:53:33.4393764Z test store::pg::tests::pg_store_get_all_count_roundtrip ... ok
+2026-11-12T11:53:33.6164975Z test tokens::tests::test_verify_latency_under_1ms_mean ... ok
+2026-11-12T11:53:35.3712348Z test tokens::tests::test_expired_token ... ok
+2026-11-12T11:53:35.3712659Z 
+2026-11-12T11:53:35.3712913Z test result: ok. 59 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 3.02s
+2026-11-12T11:53:35.3713705Z 
+2026-11-12T11:53:35.3719226Z [1m[92m     Running[0m unittests src/bin/aip_migrate.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/aip_migrate-35df69310fccf3bd)
+2026-11-12T11:53:35.3730419Z 
+2026-11-12T11:53:35.3730673Z running 0 tests
+2026-11-12T11:53:35.3730926Z 
+2026-11-12T11:53:35.3731277Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T11:53:35.3731827Z 
+2026-11-12T11:53:35.3733511Z [1m[92m     Running[0m unittests src/main.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/airon_aip-09aadb1d91c6fdd7)
+2026-11-12T11:53:35.3741637Z 
+2026-11-12T11:53:35.3741818Z running 0 tests
+2026-11-12T11:53:35.3742832Z 
+2026-11-12T11:53:35.3743470Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T11:53:35.3744992Z [1m[92m     Running[0m tests/build_boundary.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/build_boundary-8f6e716055818c47)
+2026-11-12T11:53:35.3745897Z 
+2026-11-12T11:53:35.3752234Z 
+2026-11-12T11:53:35.3752378Z running 3 tests
+2026-11-12T11:53:35.3756136Z test the_service_compiles_against_the_protocol_crate ... ok
+2026-11-12T11:53:35.3757021Z test the_temporal_bound_api_is_reachable_from_the_service ... ok
+2026-11-12T11:53:35.3757779Z test the_service_is_declared_a_member_of_the_root_workspace ... ok
+2026-11-12T11:53:35.3758195Z 
+2026-11-12T11:53:35.3758590Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T11:53:35.3759070Z 
+2026-11-12T11:53:35.3761819Z [1m[92m     Running[0m tests/deployment_api.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/deployment_api-bcf21a03e15e05bc)
+2026-11-12T11:53:35.3775070Z 
+2026-11-12T11:53:35.3775358Z running 8 tests
+2026-11-12T11:53:35.3809566Z test default_is_disabled_and_authentication_remains_required ... ok
+2026-11-12T11:53:35.3818539Z test journal_refuses_symlinks_and_world_readable_configuration ... ok
+2026-11-12T11:53:35.3828518Z test journal_refuses_corruption_repeated_records_and_concurrent_writers ... ok
+2026-11-12T11:53:35.3852501Z test real_http_registry_clients ... ignored, explicit real HTTP SDK validation; requires Python/Node environments
+2026-11-12T11:53:35.3853253Z test invalid_topology_collisions_and_oversize_requests_are_refused ... ok
+2026-11-12T11:53:35.3858808Z test only_administrator_can_register_and_caller_cannot_set_tenant_or_assurance ... ok
+2026-11-12T11:53:35.3866833Z test idempotency_conflicts_restart_and_pagination_preserve_records ... ok
+2026-11-12T11:53:35.3875970Z test registration_is_tenant_scoped_and_never_upgrades_assurance ... ok
+2026-11-12T11:53:35.3876367Z 
+2026-11-12T11:53:35.3876871Z test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-11-12T11:53:35.3877391Z 
+2026-11-12T11:53:35.3881958Z [1m[92m     Running[0m tests/enterprise_api.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/enterprise_api-86328e1cfb9bd2c8)
+2026-11-12T11:53:35.3897884Z 
+2026-11-12T11:53:35.3898232Z running 16 tests
+2026-11-12T11:53:35.4725348Z test console_shell_is_public_but_contains_no_records_and_data_stays_authenticated ... ok
+2026-11-12T11:53:35.4865079Z test explicitly_shared_observer_anchors_keep_each_tenants_archive_index_private ... ok
+2026-11-12T11:53:35.5085441Z test accepted_collector_archives_survive_a_service_store_restart ... ok
+2026-11-12T11:53:35.5758828Z test pagination_is_bounded_and_agent_claims_are_not_upgraded_into_observation ... ok
+2026-11-12T11:53:35.5769185Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener
+2026-11-12T11:53:35.5786008Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener
+2026-11-12T11:53:35.5925795Z test read_routes_authenticate_and_cross_tenant_ids_are_indistinguishable_from_absent ... ok
+2026-11-12T11:53:35.6459134Z test reader_refuses_every_mutation_and_raw_export_before_parsing_the_body ... ok
+2026-11-12T11:53:35.6675375Z test same_run_caller_cannot_replace_keys_checkpoint_or_signed_inputs ... ok
+2026-11-12T11:53:35.7495309Z test same_run_body_limit_is_explicit_and_does_not_relax_other_endpoints ... ok
+2026-11-12T11:53:35.7496689Z test service_readiness_refuses_an_unavailable_artifact_path_without_creating_files ... ok
+2026-11-12T11:53:35.7615254Z test same_run_raw_retrieval_preserves_exact_submitted_bytes ... ok
+2026-11-12T11:53:35.7709076Z test stored_verification_detects_actual_post_signature_tampering ... ok
+2026-11-12T11:53:35.7718646Z test unconfigured_collector_admission_is_unavailable_and_caller_anchors_are_refused ... ok
+2026-11-12T11:53:35.8418324Z test same_run_admission_preserves_uncertainty_and_enforces_tenant_reader_boundaries ... ok
+2026-11-12T11:53:35.8430819Z test collector_archives_are_verified_stored_idempotently_and_tenant_scoped ... ok
+2026-11-12T11:53:35.8431268Z 
+2026-11-12T11:53:35.8431819Z test result: ok. 14 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.45s
+2026-11-12T11:53:35.8432299Z 
+2026-11-12T11:53:35.8440273Z [1m[92m     Running[0m tests/ingress_limits.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/ingress_limits-4601d161cc73e7ab)
+2026-11-12T11:53:35.8456665Z 
+2026-11-12T11:53:35.8456955Z running 4 tests
+2026-11-12T11:53:35.8487234Z test a_body_over_the_cap_is_rejected_before_the_handler ... ok
+2026-11-12T11:53:35.8487758Z test the_hardened_router_still_serves ... ok
+2026-11-12T11:53:35.8488307Z test an_unauthenticated_giant_body_is_rejected_without_being_read ... ok
+2026-11-12T11:53:35.8488750Z test a_body_under_the_cap_reaches_the_handler ... ok
+2026-11-12T11:53:35.8488960Z 
+2026-11-12T11:53:35.8489301Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T11:53:35.8489651Z 
+2026-11-12T11:53:35.8492510Z [1m[92m     Running[0m tests/key_custody.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/key_custody-283a74dc0081d04a)
+2026-11-12T11:53:35.8503604Z 
+2026-11-12T11:53:35.8503800Z running 18 tests
+2026-11-12T11:53:35.8592049Z test corrupt_plaintext_key_is_fatal_and_never_regenerated ... ok
+2026-11-12T11:53:35.8597116Z test debug_redacts_the_seed_and_the_private_pem ... ok
+2026-11-12T11:53:35.8607589Z test ephemeral_key_is_development_backend ... ok
+2026-11-12T11:53:37.1676075Z test an_unreadable_key_file_refuses_rather_than_rotating_the_identity ... ok
+2026-11-12T11:53:37.1825268Z test group_writable_directory_fails_closed ... ok
+2026-11-12T11:53:37.1885080Z test plaintext_backend_is_not_production_and_wrapped_is ... ok
+2026-11-12T11:53:37.1914820Z test plaintext_first_boot_creates_and_restart_reloads_the_same_key ... ok
+2026-11-12T11:53:38.4930048Z test creating_a_key_never_overwrites_an_existing_one ... ok
+2026-11-12T11:53:38.4954639Z test structural_app_state_holds_no_raw_key ... ok
+2026-11-12T11:53:38.4955283Z test structural_generation_is_guarded_by_absence_only ... ok
+2026-11-12T11:53:38.4994656Z test structural_no_private_key_accessor_remains ... ok
+2026-11-12T11:53:38.5256353Z test signing_through_the_interface_verifies_normally ... ok
+2026-11-12T11:53:39.7145515Z test corrupt_or_unopenable_wrapped_key_is_fatal_and_never_regenerated ... ok
+2026-11-12T11:53:39.8276774Z test symlink_fails_closed ... ok
+2026-11-12T11:53:39.8812272Z test the_final_mode_is_600_even_under_a_permissive_umask ... ok
+2026-11-12T11:53:39.8915413Z test permissive_key_file_fails_closed ... ok
+2026-11-12T11:53:40.9753590Z test the_key_file_carries_no_pem_and_no_plaintext_key ... ok
+2026-11-12T11:53:41.8695855Z test wrapped_first_boot_creates_and_restart_reloads_the_same_key ... ok
+2026-11-12T11:53:41.8696467Z 
+2026-11-12T11:53:41.8697500Z test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.02s
+2026-11-12T11:53:41.8697985Z 
+2026-11-12T11:53:41.8794575Z [1m[92m     Running[0m tests/managed_signing.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/managed_signing-cecd0e7d862da2c4)
+2026-11-12T11:53:41.8809743Z 
+2026-11-12T11:53:41.8809958Z running 8 tests
+2026-11-12T11:53:41.8844842Z test debug_formatting_redacts_the_counterparty_seed ... ok
+2026-11-12T11:53:41.8845855Z test debug_formatting_redacts_the_agent_seed ... ok
+2026-11-12T11:53:41.8846600Z test only_an_explicit_opt_in_permits_managed_signing ... ok
+2026-11-12T11:53:41.8893567Z test managed_signing_is_off_unless_a_deployment_opts_in ... ok
+2026-11-12T11:53:41.8895818Z test the_refusing_route_does_not_parse_the_body_at_all ... ok
+2026-11-12T11:53:41.8914472Z test an_opted_in_deployment_still_serves_the_endpoint ... ok
+2026-11-12T11:53:41.8914959Z test the_refusal_does_not_echo_the_seed ... ok
+2026-11-12T11:53:41.8933521Z test the_refusal_says_what_to_do_instead ... ok
+2026-11-12T11:53:41.8933890Z 
+2026-11-12T11:53:41.8934571Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-11-12T11:53:41.8935090Z 
+2026-11-12T11:53:41.8940306Z [1m[92m     Running[0m tests/metrics_api.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/metrics_api-d0b064d908cad352)
+2026-11-12T11:53:41.8955385Z 
+2026-11-12T11:53:41.8955612Z running 4 tests
+2026-11-12T11:53:41.9004624Z test an_authenticated_scrape_gets_the_prometheus_format ... ok
+2026-11-12T11:53:41.9005419Z test no_series_is_labelled_by_tenant_agent_or_document ... ok
+2026-11-12T11:53:41.9109837Z test metrics_are_not_public ... ok
+2026-11-12T11:53:41.9110279Z test a_refused_verdict_is_visible_in_the_counters ... ok
+2026-11-12T11:53:41.9110569Z 
+2026-11-12T11:53:41.9110863Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-11-12T11:53:41.9111297Z 
+2026-11-12T11:53:41.9116658Z [1m[92m     Running[0m tests/replay_ingest.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/replay_ingest-129df5aceb954953)
+2026-11-12T11:53:41.9132167Z 
+2026-11-12T11:53:41.9132370Z running 6 tests
+2026-11-12T11:53:41.9795217Z test another_tenants_packets_do_not_make_this_one_a_replay ... ok
+2026-11-12T11:53:41.9824836Z test a_second_packet_reusing_a_stored_decision_is_refused ... ok
+2026-11-12T11:53:42.0065597Z test asking_for_a_replay_check_against_an_empty_store_evaluates_and_passes ... ok
+2026-11-12T11:53:42.0186176Z test a_packet_already_in_the_store_is_not_a_replay_of_itself ... ok
+2026-11-12T11:53:42.0375718Z test not_asking_for_a_replay_check_reports_it_as_not_evaluated ... ok
+2026-11-12T11:53:42.1092766Z test the_replay_check_is_reported_as_a_rule_the_caller_can_read ... ok
+2026-11-12T11:53:42.1093249Z 
+2026-11-12T11:53:42.1094195Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+2026-11-12T11:53:42.1094729Z 
+2026-11-12T11:53:42.1098554Z [1m[92m     Running[0m tests/revocation_scope.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/revocation_scope-b2f4d0e731b67311)
+2026-11-12T11:53:42.1114808Z 
+2026-11-12T11:53:42.1114947Z running 7 tests
+2026-11-12T11:53:42.1175117Z test cascade_and_malformed_jtis_are_refused_not_ignored ... ok
+2026-11-12T11:53:42.1175825Z test a_machine_key_cannot_revoke_and_an_anonymous_caller_cannot_query_status ... ok
+2026-11-12T11:53:42.1176521Z test another_tenants_admin_cannot_revoke_this_tenants_token ... ok
+2026-11-12T11:53:42.1189230Z test the_discovery_document_advertises_no_delegation_endpoint ... ok
+2026-11-12T11:53:42.1189797Z test the_unsigned_delegation_routes_no_longer_exist ... ok
+2026-11-12T11:53:42.1190308Z test this_tenants_admin_revokes_this_tenants_token ... ok
+2026-11-12T11:53:42.3212675Z test a_chain_jti_revoked_through_the_service_fails_revocation_for_that_tenant_only ... ok
+2026-11-12T11:53:42.3213407Z 
+2026-11-12T11:53:42.3213631Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+2026-11-12T11:53:42.3213909Z 
+2026-11-12T11:53:42.3219188Z [1m[92m     Running[0m tests/storage_controls.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/storage_controls-d1d4736c4a6caedc)
+2026-11-12T11:53:42.3232720Z 
+2026-11-12T11:53:42.3232845Z running 14 tests
+2026-11-12T11:53:42.3234219Z test a_connection_with_no_declared_tenant_sees_nothing ... ignored, needs a database: set AIP_TEST_ADMIN_DATABASE_URL (see module docs) and run with --ignored
+2026-11-12T11:53:42.3236516Z test a_held_packet_cannot_be_deleted_even_by_the_owner ... ignored, needs a database: set AIP_TEST_ADMIN_DATABASE_URL (see module docs) and run with --ignored
+2026-11-12T11:53:42.3237388Z test a_query_that_forgets_its_tenant_filter_still_cannot_cross_tenants ... ignored, needs a database: set AIP_TEST_ADMIN_DATABASE_URL (see module docs) and run with --ignored
+2026-11-12T11:53:42.3238212Z test a_retention_policy_below_the_180_day_floor_is_refused ... ignored, needs a database: set AIP_TEST_ADMIN_DATABASE_URL (see module docs) and run with --ignored
+2026-11-12T11:53:42.3238970Z test a_tenant_wide_hold_covers_packets_it_never_named ... ignored, needs a database: set AIP_TEST_ADMIN_DATABASE_URL (see module docs) and run with --ignored
+2026-11-12T11:53:42.3239741Z test a_write_into_another_tenant_is_refused_by_the_policy ... ignored, needs a database: set AIP_TEST_ADMIN_DATABASE_URL (see module docs) and run with --ignored
+2026-11-12T11:53:42.3240822Z test artifact_owner_cannot_rewrite_documents_or_delete_under_legal_hold ... ignored, needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored
+2026-11-12T11:53:42.3241744Z test concurrent_filings_are_idempotent_and_hidden_collisions_are_generic ... ignored, needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored
+2026-11-12T11:53:42.3242879Z test service_cannot_update_delete_or_truncate_signed_artifacts ... ignored, needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored
+2026-11-12T11:53:42.3243698Z test signed_artifact_reads_and_insertions_are_bound_to_the_database_tenant ... ignored, needs a disposable PostgreSQL: set AIP_TEST_ADMIN_DATABASE_URL and run --ignored
+2026-11-12T11:53:42.3244658Z test the_service_role_cannot_delete_evidence ... ignored, needs a database: set AIP_TEST_ADMIN_DATABASE_URL (see module docs) and run with --ignored
+2026-11-12T11:53:42.3245385Z test the_service_role_cannot_modify_stored_evidence ... ignored, needs a database: set AIP_TEST_ADMIN_DATABASE_URL (see module docs) and run with --ignored
+2026-11-12T11:53:42.3246322Z test the_service_role_cannot_truncate_or_drop ... ignored, needs a database: set AIP_TEST_ADMIN_DATABASE_URL (see module docs) and run with --ignored
+2026-11-12T11:53:42.3247073Z test the_store_operates_normally_as_the_restricted_role ... ignored, needs a database: set AIP_TEST_ADMIN_DATABASE_URL (see module docs) and run with --ignored
+2026-11-12T11:53:42.3247495Z 
+2026-11-12T11:53:42.3247697Z test result: ok. 0 passed; 0 failed; 14 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T11:53:42.3247959Z 
+2026-11-12T11:53:42.3248579Z [1m[92m     Running[0m tests/temporal_bound.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/temporal_bound-5844e9aaf34c793e)
+2026-11-12T11:53:42.3251356Z 
+2026-11-12T11:53:42.3251462Z running 13 tests
+2026-11-12T11:53:42.3866499Z test a_future_dated_packet_is_refused_by_the_service ... ok
+2026-11-12T11:53:42.3915023Z test a_packet_stays_verifiable_long_after_the_fact ... ok
+2026-11-12T11:53:42.3974900Z test a_present_dated_packet_is_otherwise_valid ... ok
+2026-11-12T11:53:42.4485308Z test an_explicit_time_before_the_packet_refuses_it ... ok
+2026-11-12T11:53:42.4529508Z test a_declared_tolerance_absorbs_skew_and_nothing_more ... ok
+2026-11-12T11:53:42.4634893Z test generate_cannot_be_used_to_future_date_a_packet ... ok
+2026-11-12T11:53:42.5075079Z test omitting_the_verification_time_still_applies_a_bound ... ok
+2026-11-12T11:53:42.5175013Z test an_explicit_instant_overrides_the_service_clock ... ok
+2026-11-12T11:53:42.5175762Z test r16_is_the_rule_that_catches_it ... ok
+2026-11-12T11:53:42.5270722Z test r16_is_evaluated_rather_than_skipped_on_the_default_path ... ok
+2026-11-12T11:53:42.5685030Z test the_default_tolerance_is_zero ... ok
+2026-11-12T11:53:42.5767800Z test the_refusal_names_the_offending_timestamp ... ok
+2026-11-12T11:53:42.7364825Z test the_service_never_reports_a_bound_it_did_not_apply ... ok
+2026-11-12T11:53:42.7365219Z 
+2026-11-12T11:53:42.7365559Z test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+2026-11-12T11:53:42.7365852Z 
+2026-11-12T11:53:42.7367126Z [1m[92m     Running[0m tests/verdict_api.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/verdict_api-042f2cd76a73f919)
+2026-11-12T11:53:42.7384441Z 
+2026-11-12T11:53:42.7384648Z running 8 tests
+2026-11-12T11:53:42.7455123Z test a_submission_with_no_anchors_is_refused ... ok
+2026-11-12T11:53:42.7545406Z test a_verdict_that_does_not_verify_is_refused_and_not_stored ... ok
+2026-11-12T11:53:42.7655961Z test a_stored_verdict_comes_back_and_verifies_offline ... ok
+2026-11-12T11:53:42.7677188Z test an_agents_ledger_is_empty_for_a_tenant_that_filed_none ... ok
+2026-11-12T11:53:42.7690487Z test the_verdict_routes_are_authenticated ... ok
+2026-11-12T11:53:42.7743518Z test another_tenant_cannot_read_a_verdict_and_cannot_tell_it_exists ... ok
+2026-11-12T11:53:42.7755324Z test an_agents_ledger_comes_back_and_verifies_offline ... ok
+2026-11-12T11:53:42.8020821Z test filing_the_same_ledger_twice_yields_one_row ... ok
+2026-11-12T11:53:42.8021153Z 
+2026-11-12T11:53:42.8021473Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+2026-11-12T11:53:42.8021903Z 
+2026-11-12T11:53:42.8026428Z [1m[92m   Doc-tests[0m airon_aip
+2026-11-12T11:53:43.0963353Z 
+2026-11-12T11:53:43.0963927Z running 0 tests
+2026-11-12T11:53:43.0964280Z 
+2026-11-12T11:53:43.0964649Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T11:53:43.0965136Z 
+2026-11-12T11:53:43.1093010Z ##[group]Run cargo test --features postgres --test storage_controls -- --ignored
+2026-11-12T11:53:43.1093470Z [36;1mcargo test --features postgres --test storage_controls -- --ignored[0m
+2026-11-12T11:53:43.1137346Z shell: /usr/bin/bash -e {0}
+2026-11-12T11:53:43.1137580Z env:
+2026-11-12T11:53:43.1137763Z   CARGO_TERM_COLOR: always
+2026-11-12T11:53:43.1137975Z   RUSTFLAGS: -D warnings
+2026-11-12T11:53:43.1138186Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:53:43.1138408Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:53:43.1138603Z   CACHE_ON_FAILURE: false
+2026-11-12T11:53:43.1139182Z   AIP_TEST_ADMIN_DATABASE_URL: ***127.0.0.1:5432/aip
+2026-11-12T11:53:43.1139468Z ##[endgroup]
+2026-11-12T11:53:43.2277976Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+2026-11-12T11:53:43.2353529Z [1m[92m     Running[0m tests/storage_controls.rs (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/deps/storage_controls-d1d4736c4a6caedc)
+2026-11-12T11:53:43.2367628Z 
+2026-11-12T11:53:43.2367755Z running 14 tests
+2026-11-12T11:53:43.7275465Z test a_query_that_forgets_its_tenant_filter_still_cannot_cross_tenants ... ok
+2026-11-12T11:53:43.7345113Z test a_retention_policy_below_the_180_day_floor_is_refused ... ok
+2026-11-12T11:53:43.8034916Z test a_connection_with_no_declared_tenant_sees_nothing ... ok
+2026-11-12T11:53:43.8198087Z test a_held_packet_cannot_be_deleted_even_by_the_owner ... ok
+2026-11-12T11:53:43.8261233Z test a_write_into_another_tenant_is_refused_by_the_policy ... ok
+2026-11-12T11:53:43.9205318Z test service_cannot_update_delete_or_truncate_signed_artifacts ... ok
+2026-11-12T11:53:43.9525994Z test a_tenant_wide_hold_covers_packets_it_never_named ... ok
+2026-11-12T11:53:43.9876488Z test artifact_owner_cannot_rewrite_documents_or_delete_under_legal_hold ... ok
+2026-11-12T11:53:44.0218754Z test signed_artifact_reads_and_insertions_are_bound_to_the_database_tenant ... ok
+2026-11-12T11:53:44.0604953Z test the_service_role_cannot_delete_evidence ... ok
+2026-11-12T11:53:44.0765596Z test the_service_role_cannot_modify_stored_evidence ... ok
+2026-11-12T11:53:44.0876088Z test concurrent_filings_are_idempotent_and_hidden_collisions_are_generic ... ok
+2026-11-12T11:53:44.1033958Z test the_service_role_cannot_truncate_or_drop ... ok
+2026-11-12T11:53:44.2602166Z test the_store_operates_normally_as_the_restricted_role ... ok
+2026-11-12T11:53:44.2602623Z 
+2026-11-12T11:53:44.2603164Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.02s
+2026-11-12T11:53:44.2603809Z 
+2026-11-12T11:53:44.2757625Z Post job cleanup.
+2026-11-12T11:53:44.3824594Z Cache up-to-date.
+2026-11-12T11:53:44.3953872Z Post job cleanup.
+2026-11-12T11:53:44.4700476Z [command]/usr/bin/git version
+2026-11-12T11:53:44.4747846Z git version 2.56.0
+2026-11-12T11:53:44.4783442Z Temporarily overriding HOME='/home/runner/work/_temp/e17eb84c-cfa6-406a-8168-ce3cb5695e26' before making global git config changes
+2026-11-12T11:53:44.4784594Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T11:53:44.4788285Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T11:53:44.4830564Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T11:53:44.4867714Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T11:53:44.5173471Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T11:53:44.5190307Z http.https://github.com/.extraheader
+2026-11-12T11:53:44.5206117Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-12T11:53:44.5247861Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T11:53:44.5527630Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T11:53:44.5561414Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T11:53:44.5953477Z Print service container logs: 90b9c5fbbfbc494e837ce2fdff9c428a_postgres16alpine_233003
+2026-11-12T11:53:44.5957304Z ##[command]/usr/bin/docker logs --details 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a
+2026-11-12T11:53:44.6088434Z  sh: locale: not found
+2026-11-12T11:53:44.6088877Z  The files belonging to this database system will be owned by user "postgres".
+2026-11-12T11:53:44.6089629Z  2026-11-12 11:52:52.191 UTC [35] WARNING:  no usable system locales were found
+2026-11-12T11:53:44.6090125Z  This user must also own the server process.
+2026-11-12T11:53:44.6090691Z  initdb: warning: enabling "trust" authentication for local connections
+2026-11-12T11:53:44.6090997Z  
+2026-11-12T11:53:44.6095042Z  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+2026-11-12T11:53:44.6095848Z  The database cluster will be initialized with locale "en_US.utf8".
+2026-11-12T11:53:44.6096478Z  The default database encoding has accordingly been set to "UTF8".
+2026-11-12T11:53:44.6096992Z  The default text search configuration will be set to "english".
+2026-11-12T11:53:44.6097390Z  
+2026-11-12T11:53:44.6097664Z  Data page checksums are disabled.
+2026-11-12T11:53:44.6097980Z  
+2026-11-12T11:53:44.6098648Z  2026-11-12 11:52:53.195 UTC [1] LOG:  starting PostgreSQL 16.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-11-12T11:53:44.6099801Z  fixing permissions on existing directory /var/lib/postgresql/data ... ok
+2026-11-12T11:53:44.6100474Z  2026-11-12 11:52:53.195 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-11-12T11:53:44.6101053Z  2026-11-12 11:52:53.195 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-11-12T11:53:44.6101523Z  2026-11-12 11:52:53.196 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-11-12T11:53:44.6102009Z  2026-11-12 11:52:53.199 UTC [57] LOG:  database system was shut down at 2026-11-12 11:52:53 UTC
+2026-11-12T11:53:44.6102424Z  2026-11-12 11:52:53.203 UTC [1] LOG:  database system is ready to accept connections
+2026-11-12T11:53:44.6102859Z  2026-11-12 11:53:43.296 UTC [133] FATAL:  terminating autovacuum process due to administrator command
+2026-11-12T11:53:44.6103302Z  2026-11-12 11:53:43.620 UTC [135] WARNING:  no privileges could be revoked for "public"
+2026-11-12T11:53:44.6103691Z  2026-11-12 11:53:43.620 UTC [135] WARNING:  no privileges were granted for "public"
+2026-11-12T11:53:44.6104438Z  2026-11-12 11:53:43.720 UTC [138] ERROR:  new row for relation "evidence_retention" violates check constraint "retention_floor_180_days"
+2026-11-12T11:53:44.6105376Z  2026-11-12 11:53:43.720 UTC [138] DETAIL:  Failing row contains (t-retention, 90, ops, 2026-11-12 11:53:43.719775+00).
+2026-11-12T11:53:44.6106192Z  2026-11-12 11:53:43.720 UTC [138] STATEMENT:  INSERT INTO evidence_retention (tenant_id, retain_days, set_by)
+2026-11-12T11:53:44.6106785Z  	             VALUES ('t-retention', 90, 'ops')
+2026-11-12T11:53:44.6107498Z  2026-11-12 11:53:43.815 UTC [140] ERROR:  evidence record p-held is under legal hold (RBI inspection ref 2026/11) and cannot be deleted
+2026-11-12T11:53:44.6108430Z  2026-11-12 11:53:43.815 UTC [140] CONTEXT:  PL/pgSQL function refuse_delete_under_legal_hold() line 13 at RAISE
+2026-11-12T11:53:44.6109202Z  2026-11-12 11:53:43.815 UTC [140] STATEMENT:  DELETE FROM evidence_packets WHERE id = 'p-held'
+2026-11-12T11:53:44.6109990Z  2026-11-12 11:53:43.825 UTC [143] ERROR:  new row violates row-level security policy for table "evidence_packets"
+2026-11-12T11:53:44.6110672Z  2026-11-12 11:53:43.825 UTC [143] STATEMENT:  INSERT INTO evidence_packets
+2026-11-12T11:53:44.6111275Z  	                 (id, tenant_id, packet_hash, created_at, evidence_json, verification_status)
+2026-11-12T11:53:44.6111871Z  	             VALUES ('p-cross', 't-cross-b', 'deadbeef', 1, '{}', 'ok')
+2026-11-12T11:53:44.6112732Z  2026-11-12 11:53:43.909 UTC [146] ERROR:  permission denied for schema public at character 29
+2026-11-12T11:53:44.6113258Z  2026-11-12 11:53:43.909 UTC [146] STATEMENT:  
+2026-11-12T11:53:44.6113641Z  	CREATE TABLE IF NOT EXISTS evidence_packets (
+2026-11-12T11:53:44.6114006Z  	    id                  TEXT PRIMARY KEY,
+2026-11-12T11:53:44.6114471Z  	    tenant_id           TEXT   NOT NULL,
+2026-11-12T11:53:44.6114814Z  	    packet_hash         TEXT   NOT NULL,
+2026-11-12T11:53:44.6115164Z  	    created_at          BIGINT NOT NULL,
+2026-11-12T11:53:44.6115498Z  	    evidence_json       TEXT   NOT NULL,
+2026-11-12T11:53:44.6115825Z  	    verification_status TEXT   NOT NULL
+2026-11-12T11:53:44.6116189Z  	);
+2026-11-12T11:53:44.6116602Z  	CREATE INDEX IF NOT EXISTS idx_evidence_tenant  ON evidence_packets(tenant_id);
+2026-11-12T11:53:44.6117292Z  	CREATE INDEX IF NOT EXISTS idx_evidence_hash    ON evidence_packets(packet_hash);
+2026-11-12T11:53:44.6117964Z  	CREATE INDEX IF NOT EXISTS idx_evidence_created ON evidence_packets(created_at);
+2026-11-12T11:53:44.6118458Z  	
+2026-11-12T11:53:44.6118746Z  	CREATE TABLE IF NOT EXISTS authority_nodes (
+2026-11-12T11:53:44.6119138Z  	    tenant_id  TEXT NOT NULL,
+2026-11-12T11:53:44.6119461Z  	    packet_id  TEXT NOT NULL,
+2026-11-12T11:53:44.6119771Z  	    node_id    TEXT NOT NULL,
+2026-11-12T11:53:44.6120083Z  	    kind       TEXT NOT NULL,
+2026-11-12T11:53:44.6120347Z  	    label      TEXT NOT NULL,
+2026-11-12T11:53:44.6120824Z  	    PRIMARY KEY (tenant_id, packet_id, node_id)
+2026-11-12T11:53:44.6121183Z  	);
+2026-11-12T11:53:44.6121565Z  	CREATE INDEX IF NOT EXISTS idx_nodes_tenant ON authority_nodes(tenant_id);
+2026-11-12T11:53:44.6122040Z  	
+2026-11-12T11:53:44.6122313Z  	CREATE TABLE IF NOT EXISTS authority_edges (
+2026-11-12T11:53:44.6122660Z  	    tenant_id  TEXT NOT NULL,
+2026-11-12T11:53:44.6122972Z  	    packet_id  TEXT NOT NULL,
+2026-11-12T11:53:44.6123271Z  	    from_node  TEXT NOT NULL,
+2026-11-12T11:53:44.6123577Z  	    to_node    TEXT NOT NULL,
+2026-11-12T11:53:44.6123876Z  	    relation   TEXT NOT NULL
+2026-11-12T11:53:44.6124801Z  	);
+2026-11-12T11:53:44.6125185Z  	CREATE INDEX IF NOT EXISTS idx_edges_tenant ON authority_edges(tenant_id);
+2026-11-12T11:53:44.6125797Z  	
+2026-11-12T11:53:44.6126087Z  	-- Signed verdicts and access ledgers (R10). Created with the evidence
+2026-11-12T11:53:44.6126485Z  	-- schema, so `deploy/sql/hardening.sql` covers it under the same grants and
+2026-11-12T11:53:44.6126896Z  	-- the same row-level policy: an artifact tier with weaker storage controls
+2026-11-12T11:53:44.6127289Z  	-- than the evidence tier would be the place an inspector's answer went to be
+2026-11-12T11:53:44.6127599Z  	-- edited.
+2026-11-12T11:53:44.6127808Z  	CREATE TABLE IF NOT EXISTS signed_artifacts (
+2026-11-12T11:53:44.6128051Z  	    id            TEXT   NOT NULL,
+2026-11-12T11:53:44.6128268Z  	    kind          TEXT   NOT NULL,
+2026-11-12T11:53:44.6128497Z  	    tenant_id     TEXT   NOT NULL,
+2026-11-12T11:53:44.6128712Z  	    agent_id      TEXT,
+2026-11-12T11:53:44.6128910Z  	    from_ms       BIGINT,
+2026-11-12T11:53:44.6129112Z  	    to_ms         BIGINT,
+2026-11-12T11:53:44.6129317Z  	    stored_at_ms  BIGINT NOT NULL,
+2026-11-12T11:53:44.6129530Z  	    body          TEXT   NOT NULL,
+2026-11-12T11:53:44.6129737Z  	    PRIMARY KEY (kind, id)
+2026-11-12T11:53:44.6129939Z  	);
+2026-11-12T11:53:44.6130200Z  	CREATE INDEX IF NOT EXISTS idx_artifacts_tenant ON signed_artifacts(tenant_id);
+2026-11-12T11:53:44.6130684Z  	CREATE INDEX IF NOT EXISTS idx_artifacts_agent  ON signed_artifacts(tenant_id, kind, agent_id);
+2026-11-12T11:53:44.6131026Z  	
+2026-11-12T11:53:44.6131298Z  2026-11-12 11:53:43.917 UTC [147] ERROR:  permission denied for table signed_artifacts
+2026-11-12T11:53:44.6131782Z  2026-11-12 11:53:43.917 UTC [147] STATEMENT:  UPDATE signed_artifacts SET body='tampered' WHERE id='artifact-mutation'
+2026-11-12T11:53:44.6132280Z  2026-11-12 11:53:43.918 UTC [147] ERROR:  permission denied for table signed_artifacts
+2026-11-12T11:53:44.6132890Z  2026-11-12 11:53:43.918 UTC [147] STATEMENT:  DELETE FROM signed_artifacts WHERE id='artifact-mutation'
+2026-11-12T11:53:44.6133341Z  2026-11-12 11:53:43.919 UTC [147] ERROR:  permission denied for table signed_artifacts
+2026-11-12T11:53:44.6133711Z  2026-11-12 11:53:43.919 UTC [147] STATEMENT:  TRUNCATE signed_artifacts
+2026-11-12T11:53:44.6134402Z  2026-11-12 11:53:43.925 UTC [145] ERROR:  evidence record p-wide-1 is under legal hold (segment regulator direction) and cannot be deleted
+2026-11-12T11:53:44.6134987Z  2026-11-12 11:53:43.925 UTC [145] CONTEXT:  PL/pgSQL function refuse_delete_under_legal_hold() line 13 at RAISE
+2026-11-12T11:53:44.6135441Z  2026-11-12 11:53:43.925 UTC [145] STATEMENT:  DELETE FROM evidence_packets WHERE id = $1
+2026-11-12T11:53:44.6135960Z  2026-11-12 11:53:43.929 UTC [145] ERROR:  evidence record p-wide-2 is under legal hold (segment regulator direction) and cannot be deleted
+2026-11-12T11:53:44.6136517Z  2026-11-12 11:53:43.929 UTC [145] CONTEXT:  PL/pgSQL function refuse_delete_under_legal_hold() line 13 at RAISE
+2026-11-12T11:53:44.6136970Z  2026-11-12 11:53:43.929 UTC [145] STATEMENT:  DELETE FROM evidence_packets WHERE id = $1
+2026-11-12T11:53:44.6137494Z  2026-11-12 11:53:43.982 UTC [148] ERROR:  signed_artifacts is append-only; observer_archive record artifact-held cannot be modified
+2026-11-12T11:53:44.6138058Z  2026-11-12 11:53:43.982 UTC [148] CONTEXT:  PL/pgSQL function refuse_update_of_signed_artifact() line 3 at RAISE
+2026-11-12T11:53:44.6138709Z  2026-11-12 11:53:43.982 UTC [148] STATEMENT:  UPDATE signed_artifacts SET body='tampered' WHERE id='artifact-held'
+2026-11-12T11:53:44.6139263Z  2026-11-12 11:53:43.986 UTC [148] ERROR:  evidence record artifact-held is under legal hold (test hold) and cannot be deleted
+2026-11-12T11:53:44.6139797Z  2026-11-12 11:53:43.986 UTC [148] CONTEXT:  PL/pgSQL function refuse_delete_under_legal_hold() line 13 at RAISE
+2026-11-12T11:53:44.6140280Z  2026-11-12 11:53:43.986 UTC [148] STATEMENT:  DELETE FROM signed_artifacts WHERE id='artifact-held'
+2026-11-12T11:53:44.6140766Z  2026-11-12 11:53:44.018 UTC [150] ERROR:  new row violates row-level security policy for table "signed_artifacts"
+2026-11-12T11:53:44.6141473Z  2026-11-12 11:53:44.018 UTC [150] STATEMENT:  INSERT INTO signed_artifacts (id,kind,tenant_id,stored_at_ms,body) VALUES ('artifact-forged','observer_archive','t-artifact-scope',1,'{}')
+2026-11-12T11:53:44.6142110Z  2026-11-12 11:53:44.052 UTC [151] ERROR:  permission denied for table evidence_packets
+2026-11-12T11:53:44.6142537Z  2026-11-12 11:53:44.052 UTC [151] STATEMENT:  DELETE FROM evidence_packets WHERE id = 'p-delete'
+2026-11-12T11:53:44.6142950Z  2026-11-12 11:53:44.075 UTC [152] ERROR:  permission denied for table evidence_packets
+2026-11-12T11:53:44.6143453Z  2026-11-12 11:53:44.075 UTC [152] STATEMENT:  UPDATE evidence_packets SET evidence_json = '{"tampered":true}' WHERE id = 'p-update'
+2026-11-12T11:53:44.6143990Z  2026-11-12 11:53:44.088 UTC [149] LOG:  unexpected EOF on client connection with an open transaction
+2026-11-12T11:53:44.6144598Z  2026-11-12 11:53:44.101 UTC [153] ERROR:  permission denied for table evidence_packets
+2026-11-12T11:53:44.6144998Z  2026-11-12 11:53:44.101 UTC [153] STATEMENT:  TRUNCATE evidence_packets
+2026-11-12T11:53:44.6145372Z  2026-11-12 11:53:44.101 UTC [153] ERROR:  must be owner of table evidence_packets
+2026-11-12T11:53:44.6145731Z  2026-11-12 11:53:44.101 UTC [153] STATEMENT:  DROP TABLE evidence_packets
+2026-11-12T11:53:44.6146087Z  2026-11-12 11:53:44.102 UTC [153] ERROR:  must be owner of table evidence_packets
+2026-11-12T11:53:44.6146518Z  2026-11-12 11:53:44.102 UTC [153] STATEMENT:  ALTER TABLE evidence_packets DISABLE ROW LEVEL SECURITY
+2026-11-12T11:53:44.6146942Z  2026-11-12 11:53:44.102 UTC [153] ERROR:  must be owner of relation evidence_packets
+2026-11-12T11:53:44.6147388Z  2026-11-12 11:53:44.102 UTC [153] STATEMENT:  DROP TRIGGER trg_refuse_delete_under_legal_hold ON evidence_packets
+2026-11-12T11:53:44.6147870Z  2026-11-12 11:53:44.130 UTC [154] ERROR:  permission denied for schema public at character 29
+2026-11-12T11:53:44.6148333Z  2026-11-12 11:53:44.130 UTC [154] STATEMENT:  
+2026-11-12T11:53:44.6148600Z  	CREATE TABLE IF NOT EXISTS evidence_packets (
+2026-11-12T11:53:44.6148856Z  	    id                  TEXT PRIMARY KEY,
+2026-11-12T11:53:44.6149089Z  	    tenant_id           TEXT   NOT NULL,
+2026-11-12T11:53:44.6149316Z  	    packet_hash         TEXT   NOT NULL,
+2026-11-12T11:53:44.6149553Z  	    created_at          BIGINT NOT NULL,
+2026-11-12T11:53:44.6149776Z  	    evidence_json       TEXT   NOT NULL,
+2026-11-12T11:53:44.6150000Z  	    verification_status TEXT   NOT NULL
+2026-11-12T11:53:44.6150214Z  	);
+2026-11-12T11:53:44.6150483Z  	CREATE INDEX IF NOT EXISTS idx_evidence_tenant  ON evidence_packets(tenant_id);
+2026-11-12T11:53:44.6150901Z  	CREATE INDEX IF NOT EXISTS idx_evidence_hash    ON evidence_packets(packet_hash);
+2026-11-12T11:53:44.6151332Z  	CREATE INDEX IF NOT EXISTS idx_evidence_created ON evidence_packets(created_at);
+2026-11-12T11:53:44.6151647Z  	
+2026-11-12T11:53:44.6151837Z  	CREATE TABLE IF NOT EXISTS authority_nodes (
+2026-11-12T11:53:44.6152088Z  	    tenant_id  TEXT NOT NULL,
+2026-11-12T11:53:44.6152310Z  	    packet_id  TEXT NOT NULL,
+2026-11-12T11:53:44.6152517Z  	    node_id    TEXT NOT NULL,
+2026-11-12T11:53:44.6152718Z  	    kind       TEXT NOT NULL,
+2026-11-12T11:53:44.6152914Z  	    label      TEXT NOT NULL,
+2026-11-12T11:53:44.6153146Z  	    PRIMARY KEY (tenant_id, packet_id, node_id)
+2026-11-12T11:53:44.6153521Z  	);
+2026-11-12T11:53:44.6153771Z  	CREATE INDEX IF NOT EXISTS idx_nodes_tenant ON authority_nodes(tenant_id);
+2026-11-12T11:53:44.6154242Z  	
+2026-11-12T11:53:44.6154479Z  	CREATE TABLE IF NOT EXISTS authority_edges (
+2026-11-12T11:53:44.6154721Z  	    tenant_id  TEXT NOT NULL,
+2026-11-12T11:53:44.6154935Z  	    packet_id  TEXT NOT NULL,
+2026-11-12T11:53:44.6155138Z  	    from_node  TEXT NOT NULL,
+2026-11-12T11:53:44.6155343Z  	    to_node    TEXT NOT NULL,
+2026-11-12T11:53:44.6155550Z  	    relation   TEXT NOT NULL
+2026-11-12T11:53:44.6155751Z  	);
+2026-11-12T11:53:44.6156003Z  	CREATE INDEX IF NOT EXISTS idx_edges_tenant ON authority_edges(tenant_id);
+2026-11-12T11:53:44.6156296Z  	
+2026-11-12T11:53:44.6156545Z  	-- Signed verdicts and access ledgers (R10). Created with the evidence
+2026-11-12T11:53:44.6156932Z  	-- schema, so `deploy/sql/hardening.sql` covers it under the same grants and
+2026-11-12T11:53:44.6157321Z  	-- the same row-level policy: an artifact tier with weaker storage controls
+2026-11-12T11:53:44.6157723Z  	-- than the evidence tier would be the place an inspector's answer went to be
+2026-11-12T11:53:44.6158025Z  	-- edited.
+2026-11-12T11:53:44.6158223Z  	CREATE TABLE IF NOT EXISTS signed_artifacts (
+2026-11-12T11:53:44.6158462Z  	    id            TEXT   NOT NULL,
+2026-11-12T11:53:44.6158689Z  	    kind          TEXT   NOT NULL,
+2026-11-12T11:53:44.6158902Z  	    tenant_id     TEXT   NOT NULL,
+2026-11-12T11:53:44.6159110Z  	    agent_id      TEXT,
+2026-11-12T11:53:44.6159310Z  	    from_ms       BIGINT,
+2026-11-12T11:53:44.6159506Z  	    to_ms         BIGINT,
+2026-11-12T11:53:44.6159702Z  	    stored_at_ms  BIGINT NOT NULL,
+2026-11-12T11:53:44.6159923Z  	    body          TEXT   NOT NULL,
+2026-11-12T11:53:44.6160133Z  	    PRIMARY KEY (kind, id)
+2026-11-12T11:53:44.6160333Z  	);
+2026-11-12T11:53:44.6160585Z  	CREATE INDEX IF NOT EXISTS idx_artifacts_tenant ON signed_artifacts(tenant_id);
+2026-11-12T11:53:44.6161039Z  	CREATE INDEX IF NOT EXISTS idx_artifacts_agent  ON signed_artifacts(tenant_id, kind, agent_id);
+2026-11-12T11:53:44.6161392Z  	
+2026-11-12T11:53:44.6161570Z  creating subdirectories ... ok
+2026-11-12T11:53:44.6161845Z  selecting dynamic shared memory implementation ... posix
+2026-11-12T11:53:44.6162143Z  selecting default max_connections ... 100
+2026-11-12T11:53:44.6162396Z  selecting default shared_buffers ... 128MB
+2026-11-12T11:53:44.6162653Z  selecting default time zone ... UTC
+2026-11-12T11:53:44.6162886Z  creating configuration files ... ok
+2026-11-12T11:53:44.6163116Z  running bootstrap script ... ok
+2026-11-12T11:53:44.6163368Z  performing post-bootstrap initialization ... ok
+2026-11-12T11:53:44.6163823Z  syncing data to disk ... ok
+2026-11-12T11:53:44.6164257Z  
+2026-11-12T11:53:44.6164420Z  
+2026-11-12T11:53:44.6164632Z  Success. You can now start the database server using:
+2026-11-12T11:53:44.6164892Z  
+2026-11-12T11:53:44.6165098Z      pg_ctl -D /var/lib/postgresql/data -l logfile start
+2026-11-12T11:53:44.6165343Z  
+2026-11-12T11:53:44.6165802Z  waiting for server to start....2026-11-12 11:52:52.925 UTC [41] LOG:  starting PostgreSQL 16.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-11-12T11:53:44.6166421Z  2026-11-12 11:52:52.925 UTC [41] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-11-12T11:53:44.6166871Z  2026-11-12 11:52:52.927 UTC [44] LOG:  database system was shut down at 2026-11-12 11:52:52 UTC
+2026-11-12T11:53:44.6167270Z  2026-11-12 11:52:52.931 UTC [41] LOG:  database system is ready to accept connections
+2026-11-12T11:53:44.6167570Z   done
+2026-11-12T11:53:44.6167735Z  server started
+2026-11-12T11:53:44.6167929Z  CREATE DATABASE
+2026-11-12T11:53:44.6168105Z  
+2026-11-12T11:53:44.6168262Z  
+2026-11-12T11:53:44.6168539Z  /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+2026-11-12T11:53:44.6168856Z  
+2026-11-12T11:53:44.6169150Z  waiting for server to shut down....2026-11-12 11:52:53.076 UTC [41] LOG:  received fast shutdown request
+2026-11-12T11:53:44.6169704Z  2026-11-12 11:52:53.077 UTC [41] LOG:  aborting any active transactions
+2026-11-12T11:53:44.6170158Z  2026-11-12 11:52:53.080 UTC [41] LOG:  background worker "logical replication launcher" (PID 47) exited with exit code 1
+2026-11-12T11:53:44.6170580Z  2026-11-12 11:52:53.080 UTC [42] LOG:  shutting down
+2026-11-12T11:53:44.6170901Z  2026-11-12 11:52:53.080 UTC [42] LOG:  checkpoint starting: shutdown immediate
+2026-11-12T11:53:44.6171735Z  2026-11-12 11:52:53.163 UTC [42] LOG:  checkpoint complete: wrote 926 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.075 s, sync=0.007 s, total=0.084 s; sync files=301, longest=0.006 s, average=0.001 s; distance=4283 kB, estimate=4283 kB; lsn=0/1925D58, redo lsn=0/1925D58
+2026-11-12T11:53:44.6172545Z  2026-11-12 11:52:53.170 UTC [41] LOG:  database system is shut down
+2026-11-12T11:53:44.6172823Z   done
+2026-11-12T11:53:44.6172991Z  server stopped
+2026-11-12T11:53:44.6173162Z  
+2026-11-12T11:53:44.6173365Z  PostgreSQL init process complete; ready for start up.
+2026-11-12T11:53:44.6173630Z  
+2026-11-12T11:53:44.6179426Z Stop and remove container: 90b9c5fbbfbc494e837ce2fdff9c428a_postgres16alpine_233003
+2026-11-12T11:53:44.6183689Z ##[command]/usr/bin/docker rm --force 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a
+2026-11-12T11:53:49.0043382Z 9d82c37356814129c669f4715917809dae9a1e0e2b504b36553107a43a3fdd0a
+2026-11-12T11:53:49.0072381Z Remove container network: github_network_69e2b6bae7524ada8a6ff6da3e74175b
+2026-11-12T11:53:49.0076487Z ##[command]/usr/bin/docker network rm github_network_69e2b6bae7524ada8a6ff6da3e74175b
+2026-11-12T11:53:49.2294842Z github_network_69e2b6bae7524ada8a6ff6da3e74175b
+2026-11-12T11:53:49.2368079Z Cleaning up orphan processes
+2026-11-12T11:53:49.2759405Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

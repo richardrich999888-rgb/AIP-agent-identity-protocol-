@@ -1,0 +1,66 @@
+   Compiling syntriass-runtime v0.1.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/sovereign/syntriass-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.63s
+     Running tests/lifecycle_isolation.rs (target/debug/deps/lifecycle_isolation-41fce7a8aeb943c1)
+
+running 7 tests
+test direct_transition_does_not_treat_another_scope_as_a_conflict ... FAILED
+test activation_does_not_require_superseding_another_scope ... FAILED
+test actual_cli_supersession_cannot_displace_another_tenant ... FAILED
+test same_scope_conflicts_and_unapproved_targets_remain_refused ... ok
+test rollback_preserves_other_tenants_and_domains_byte_for_byte ... FAILED
+test supersession_preserves_other_tenants_and_domains_byte_for_byte ... FAILED
+test actual_cli_rollback_cannot_suspend_another_domain ... FAILED
+
+failures:
+
+---- direct_transition_does_not_treat_another_scope_as_a_conflict stdout ----
+
+thread 'direct_transition_does_not_treat_another_scope_as_a_conflict' (126) panicked at sovereign/syntriass-runtime/tests/lifecycle_isolation.rs:189:101:
+called `Result::unwrap()` on an `Err` value: PortError { kind: ContractViolation, detail: "koravi.ep114.ir-acceptance already has an active version (use activate with supersede, or rollback)" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- activation_does_not_require_superseding_another_scope stdout ----
+
+thread 'activation_does_not_require_superseding_another_scope' (123) panicked at sovereign/syntriass-runtime/tests/lifecycle_isolation.rs:175:83:
+called `Result::unwrap()` on an `Err` value: PortError { kind: ContractViolation, detail: "koravi.ep114.ir-acceptance already has an active version; activate with supersede" }
+
+---- actual_cli_supersession_cannot_displace_another_tenant stdout ----
+
+thread 'actual_cli_supersession_cannot_displace_another_tenant' (125) panicked at sovereign/syntriass-runtime/tests/lifecycle_isolation.rs:257:5:
+assertion `left == right` failed
+  left: Array [String("013af5bc1702352692a63ea3796494688d71620fd64e05c141ddfc49ea16da92")]
+ right: Array []
+
+---- rollback_preserves_other_tenants_and_domains_byte_for_byte stdout ----
+
+thread 'rollback_preserves_other_tenants_and_domains_byte_for_byte' (127) panicked at sovereign/syntriass-runtime/tests/lifecycle_isolation.rs:225:9:
+assertion `left == right` failed
+  left: ["013af5bc1702352692a63ea3796494688d71620fd64e05c141ddfc49ea16da92", "d4b574748396d17690b8647f511d777bac78cfe99ccfea02900c84e3b5456811"]
+ right: ["d4b574748396d17690b8647f511d777bac78cfe99ccfea02900c84e3b5456811"]
+
+---- supersession_preserves_other_tenants_and_domains_byte_for_byte stdout ----
+
+thread 'supersession_preserves_other_tenants_and_domains_byte_for_byte' (129) panicked at sovereign/syntriass-runtime/tests/lifecycle_isolation.rs:206:9:
+assertion `left == right` failed
+  left: ["013af5bc1702352692a63ea3796494688d71620fd64e05c141ddfc49ea16da92", "1ee1d8c29ba0b7d3aacdc72b35aa4b9e5f2108316318b7cb26e47fbe1bcf852c"]
+ right: ["1ee1d8c29ba0b7d3aacdc72b35aa4b9e5f2108316318b7cb26e47fbe1bcf852c"]
+
+---- actual_cli_rollback_cannot_suspend_another_domain stdout ----
+
+thread 'actual_cli_rollback_cannot_suspend_another_domain' (124) panicked at sovereign/syntriass-runtime/tests/lifecycle_isolation.rs:274:5:
+assertion `left == right` failed
+  left: Array [String("79fdba7a387928364c47c33120412b7ab296267e95b3ea3d98d5f20f393b4248"), String("d4b574748396d17690b8647f511d777bac78cfe99ccfea02900c84e3b5456811")]
+ right: Array [String("d4b574748396d17690b8647f511d777bac78cfe99ccfea02900c84e3b5456811")]
+
+
+failures:
+    activation_does_not_require_superseding_another_scope
+    actual_cli_rollback_cannot_suspend_another_domain
+    actual_cli_supersession_cannot_displace_another_tenant
+    direct_transition_does_not_treat_another_scope_as_a_conflict
+    rollback_preserves_other_tenants_and_domains_byte_for_byte
+    supersession_preserves_other_tenants_and_domains_byte_for_byte
+
+test result: FAILED. 1 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+error: test failed, to rerun pass `-p syntriass-runtime --test lifecycle_isolation`

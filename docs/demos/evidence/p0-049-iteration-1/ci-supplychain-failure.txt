@@ -1,0 +1,92 @@
+CI JOB LOG EXCERPT — omitted lines are not retained in this file.
+Job: https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43090681089/job/130766604407
+Source: 84d889f0c045a998150900e433541a976fdd1d69
+
+2026-11-11T19:48:59.5973702Z ##[group]Runner Image Provisioner
+2026-11-11T19:48:59.5974695Z Hosted Compute Agent
+2026-11-11T19:48:59.5975290Z Version: 20261028.624
+2026-11-11T19:48:59.5975963Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-11T19:48:59.5976745Z Build Date: 2026-10-28T21:51:42Z
+2026-11-11T19:48:59.5977492Z Worker ID: {aecd00ea-f1b3-4767-af3c-f01af5101119}
+2026-11-11T19:48:59.5978275Z Region: westus
+2026-11-11T19:48:59.5978829Z Cloud: Azure
+2026-11-11T19:48:59.5979390Z ##[endgroup]
+2026-11-11T19:48:59.5981288Z ##[group]Operating System
+2026-11-11T19:48:59.5981937Z Ubuntu
+2026-11-11T19:48:59.5982547Z 26.04.1
+2026-11-11T19:48:59.5983056Z LTS
+[... omitted ...]
+2026-11-11T19:48:59.5984191Z ##[group]Runner Image
+2026-11-11T19:48:59.5984835Z Image: ubuntu-26.04
+2026-11-11T19:48:59.5985445Z Version: 20261101.186.1
+2026-11-11T19:48:59.5986714Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261101.186/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-11T19:48:59.5988305Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261101.186
+2026-11-11T19:48:59.5989310Z ##[endgroup]
+2026-11-11T19:48:59.5990746Z ##[group]GITHUB_TOKEN Permissions
+2026-11-11T19:48:59.5992729Z Contents: read
+2026-11-11T19:48:59.5993475Z Metadata: read
+2026-11-11T19:48:59.5994060Z Packages: read
+[... omitted ...]
+2026-11-11T19:54:10.2688317Z     Updating crates.io index
+2026-11-11T19:54:10.2850412Z     Scanning Cargo.lock for vulnerabilities (333 crate dependencies)
+2026-11-11T19:54:10.4905385Z Crate:     libsqlite3-sys
+2026-11-11T19:54:10.4905841Z Version:   0.30.1
+2026-11-11T19:54:10.4906317Z Title:     `libsqlite3-sys` via C SQLite CVE-2026-119375
+2026-11-11T19:54:10.4906784Z Date:      2026-10-30
+2026-11-11T19:54:10.4907154Z ID:        RUSTSEC-2026-0459
+2026-11-11T19:54:10.4907661Z URL:       https://rustsec.org/advisories/RUSTSEC-2026-0459
+2026-11-11T19:54:10.4908137Z Severity:  6.8 (medium)
+2026-11-11T19:54:10.4908753Z Solution:  Upgrade to >=0.39.0 (patched)
+2026-11-11T19:54:10.4909045Z 
+2026-11-11T19:54:10.4909205Z Crate:     rustix
+2026-11-11T19:54:10.4909543Z Version:   1.1.5
+2026-11-11T19:54:10.4909869Z Warning:   unsound
+2026-11-11T19:54:10.4910725Z Title:     xattr functions mark unwritten bytes as initialized when given a zero-length buffer
+2026-11-11T19:54:10.4911365Z Date:      2026-10-27
+2026-11-11T19:54:10.4911734Z ID:        RUSTSEC-2026-0486
+2026-11-11T19:54:10.4912231Z URL:       https://rustsec.org/advisories/RUSTSEC-2026-0486
+2026-11-11T19:54:10.4912751Z Solution:  Upgrade to >=1.1.6 (patched)
+2026-11-11T19:54:10.4913018Z 
+2026-11-11T19:54:10.4913232Z error: 1 vulnerability found!
+2026-11-11T19:54:10.4913661Z warning: 1 allowed warning found
+2026-11-11T19:54:10.5009174Z ##[error]Process completed with exit code 1.
+2026-11-11T19:54:10.5067042Z ##[group]Run cargo deny check
+2026-11-11T19:54:10.5067375Z cargo deny check
+2026-11-11T19:54:10.5116062Z shell: /usr/bin/bash -e {0}
+[... omitted ...]
+2026-11-11T19:54:12.2661061Z               └── banking-demo v0.4.0
+2026-11-11T19:54:12.2661067Z 
+2026-11-11T19:54:12.2661392Z error[vulnerability]: `libsqlite3-sys` via C SQLite CVE-2026-119375
+2026-11-11T19:54:12.2661942Z     ┌─ /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/Cargo.lock:154:1
+2026-11-11T19:54:12.2662055Z     │
+2026-11-11T19:54:12.2662477Z 154 │ libsqlite3-sys 0.30.1 registry+https://github.com/rust-lang/crates.io-index
+2026-11-11T19:54:12.2663078Z     │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ security vulnerability detected
+2026-11-11T19:54:12.2663175Z     │
+2026-11-11T19:54:12.2663303Z     ├ ID: RUSTSEC-2026-0459
+2026-11-11T19:54:12.2663559Z     ├ Advisory: https://rustsec.org/advisories/RUSTSEC-2026-0459
+2026-11-11T19:54:12.2665080Z     ├ SQLite versions before 3.54.0 can return uninitialized page-cache memory when a process opens a database file together with a sibling write-ahead-log (`-wal`) file whose page size differs from the database's. A crafted pair of files can make ordinary queries return stale bytes from the process's memory. The attack vector is local and needs the victim to open the files.
+2026-11-11T19:54:12.2665281Z       
+2026-11-11T19:54:12.2667291Z       As `libsqlite3-sys` bundles SQLite when it is built from its bundled source (the `bundled` feature, which `rusqlite`'s `bundled` feature enables), it is susceptible to the vulnerability. The releases `0.6.0` to `0.38.2` bundle SQLite `3.13.0` to `3.53.2` and are affected; the earlier releases contain no SQLite source. `libsqlite3-sys` was updated to bundle the patched version of SQLite in `0.39.0` (SQLite `3.54.0`) and `0.39.1` (SQLite `3.54.1`), released with [`rusqlite` 0.41](https://github.com/rusqlite/rusqlite/releases/tag/v0.41.0). `libsqlite3-sys` `0.39` declares Rust 1.88 and `rusqlite` `0.41` declares Rust 1.89.
+2026-11-11T19:54:12.2667365Z       
+2026-11-11T19:54:12.2668848Z       Only a process that opens a database file, with its `-wal`, that a less trusted party could have written is exposed. A build that links a system SQLite instead of the bundled source is not affected by the copy in this crate; its exposure is that of the system library's version. The `bundled-sqlcipher` feature builds SQLCipher instead of SQLite; in `0.39.0` and `0.39.1` it depends on `sqlcipher-src =419.0.6`, which bundles SQLite `3.53.4` and is affected.
+2026-11-11T19:54:12.2669133Z     ├ Announcement: https://nvd.nist.gov/vuln/detail/CVE-2026-119375
+2026-11-11T19:54:12.2669432Z     ├ Solution: Upgrade to >=0.39.0 (try `cargo update -p libsqlite3-sys`)
+2026-11-11T19:54:12.2669570Z     ├ libsqlite3-sys v0.30.1
+2026-11-11T19:54:12.2669689Z       └── rusqlite v0.32.1
+2026-11-11T19:54:12.2669821Z           └── vanian-sovereign v0.4.0
+2026-11-11T19:54:12.2669957Z               └── syntriass-runtime v0.1.0
+2026-11-11T19:54:12.2669962Z 
+2026-11-11T19:54:12.2670357Z warning[advisory-not-detected]: advisory was not encountered
+2026-11-11T19:54:12.2670897Z    ┌─ /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/deny.toml:12:6
+[... omitted ...]
+2026-11-11T19:54:12.2671546Z    │      ━━━━━━━━━━━━━━━━━ no crate matched advisory criteria
+2026-11-11T19:54:12.2671552Z 
+2026-11-11T19:54:12.2671835Z advisories FAILED, bans ok, licenses ok, sources ok
+2026-11-11T19:54:12.2673709Z ##[error]Process completed with exit code 1.
+2026-11-11T19:54:12.2794043Z Post job cleanup.
+2026-11-11T19:54:12.3703400Z [command]/usr/bin/git version
+2026-11-11T19:54:12.3749472Z git version 2.56.0
+2026-11-11T19:54:12.3791695Z Temporarily overriding HOME='/home/runner/work/_temp/71a006f3-34ce-4b58-a8c7-7743e8c37c93' before making global git config changes
+2026-11-11T19:54:12.3792203Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-11T19:54:12.3798836Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+

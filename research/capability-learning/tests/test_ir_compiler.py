@@ -101,7 +101,7 @@ def test_mechanical_repairs_never_touch_rules():
     assert a.capability["procedure"]["rules"] == b.capability["procedure"]["rules"]
     assert a.capability["procedure"]["derive"] == b.capability["procedure"]["derive"]
     kinds = {r["kind"] for r in a.repairs}
-    assert kinds <= {"cue_case_variants", "applicability_unit_and_cue_terms"}
+    assert kinds <= {"cue_case_variants", "applicability_cue_and_exclusion_terms"}
 
 
 @pytest.mark.parametrize("mutate, msg", [

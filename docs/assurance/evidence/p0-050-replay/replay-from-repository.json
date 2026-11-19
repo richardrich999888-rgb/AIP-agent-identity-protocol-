@@ -1,0 +1,40 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "research/capability-learning/harness/verify_applicability.py",
+    "--evidence",
+    "docs/assurance/evidence/p0-050-iteration-1/ci/exclusion-evidence",
+    "--trust",
+    "docs/assurance/evidence/p0-050-replay/ci-trust.json",
+    "--binary",
+    "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/syntriass",
+    "--out",
+    "/workspace/scratch/8cbb8ab6ce9d/p050-local/replay-from-repository"
+  ],
+  "cwd": "/workspace/scratch/8cbb8ab6ce9d/p050-teach",
+  "started_at": "2026-11-12T07:19:55.565337+00:00",
+  "source_commit": "975b24507b42c92081a9b2dc708cd3d31104a629",
+  "source_changes": [
+    " M .github/workflows/teach-scoreboard.yml",
+    " M docs/assurance/P0-050-FINAL-REPORT.md",
+    " M docs/assurance/P0-050-OPEN-GAPS.md",
+    " M docs/demos/DEMO_GUIDE.md",
+    " M docs/demos/INDEPENDENT-VERIFICATION.md",
+    " M docs/demos/REHEARSAL_LOG.md",
+    " M docs/strategy/P0-050-EXECUTION-ROADMAP.md",
+    " M docs/strategy/P0-050-STRATEGIC-GAP-MATRIX.md",
+    "?? docs/assurance/evidence/p0-050-replay/",
+    "?? research/capability-learning/harness/verify_applicability.py",
+    "?? research/capability-learning/tests/test_verify_applicability.py"
+  ],
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "PYTHONPATH": "/workspace/scratch/8cbb8ab6ce9d/p050-tools/python",
+    "SYNTRIASS_BIN": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/syntriass"
+  },
+  "exit_code": 0,
+  "duration_seconds": 0.3605704150004385
+}

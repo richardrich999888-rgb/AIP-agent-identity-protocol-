@@ -53,6 +53,12 @@ pub struct Config {
     pub rag_k: usize,
     /// approver id → Ed25519 public key (operator-configured trust anchors).
     pub approvers: BTreeMap<String, Vec<u8>>,
+    pub require_teaching_review: bool,
+    pub approval_policy: Option<crate::capability::authority::ApprovalPolicy>,
+    /// operator id → Ed25519 public key: who may sign activation and supersession.
+    pub operators: BTreeMap<String, Vec<u8>>,
+    /// Refuse an ACTIVE record unless its activation is a verified signed action.
+    pub require_signed_lifecycle: bool,
     /// instrument id → Ed25519 public key: who may sign measurement records (S1).
     pub instruments: BTreeMap<String, Vec<u8>>,
 }
@@ -179,9 +185,33 @@ impl<'a> Runtime<'a> {
         if a.consequential {
             return Some("consequential capabilities are disabled: AIP action authorization is not integrated in this runtime".into());
         }
-        match self.cfg.approvers.get(&a.approver_id) {
-            Some(pk) if a.verify(pk) => {}
-            _ => return Some("approval not signed by a trusted approver".into()),
+        if self.cfg.require_teaching_review
+            && r.approval
+                .as_ref()
+                .and_then(|a| a.teaching_review_hash.as_ref())
+                .is_none()
+        {
+            return Some("signed teaching review required".into());
+        }
+        if let Err(reason) = crate::capability::authority::check(
+            r,
+            &self.cfg.approvers,
+            self.cfg.approval_policy.as_ref(),
+            crate::learning::now_ms(),
+        ) {
+            return Some(reason.into());
+        }
+        if self.cfg.require_signed_lifecycle {
+            let keys = crate::capability::action::ActionKeys {
+                operators: &self.cfg.operators,
+                approvers: &self.cfg.approvers,
+                policy: self.cfg.approval_policy.as_ref(),
+            };
+            if let Err(reason) =
+                crate::capability::action::check_active(r, &keys, crate::learning::now_ms())
+            {
+                return Some(reason.into());
+            }
         }
         let req = &r.capability.required;
         if req.tenant != p.tenant.as_str() || req.security_domain != self.cfg.security_domain {

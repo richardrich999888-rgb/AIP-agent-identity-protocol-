@@ -1,0 +1,77 @@
+{
+  "schema": "syntriass.teach-session/v1",
+  "session_id": "877fe69755781670c84d37517a71584c37fed681c30dd2a5c8c83048db22edfa",
+  "tenant": "koravi-process",
+  "task": "winding_temperature_gate",
+  "expert_id": "expert:koravi-elec-lead",
+  "document": "EP-114.pdf",
+  "document_sha256": "f28d6bd4ef44f26687f646cde08b18f81385ff149103516b4f7d363e0b0d01f3",
+  "pages": [
+    2
+  ],
+  "clauses": [
+    {
+      "document": "EP-114.pdf",
+      "document_sha256": "f28d6bd4ef44f26687f646cde08b18f81385ff149103516b4f7d363e0b0d01f3",
+      "page": 2,
+      "index": 0,
+      "text": "EP-114 Section 2.",
+      "char_start": 0,
+      "char_end": 17,
+      "extraction": "pdf_text"
+    },
+    {
+      "document": "EP-114.pdf",
+      "document_sha256": "f28d6bd4ef44f26687f646cde08b18f81385ff149103516b4f7d363e0b0d01f3",
+      "page": 2,
+      "index": 1,
+      "text": "Winding temperature at the time of test shall be between 10\nC and 25 C.",
+      "char_start": 18,
+      "char_end": 89,
+      "extraction": "pdf_text"
+    },
+    {
+      "document": "EP-114.pdf",
+      "document_sha256": "f28d6bd4ef44f26687f646cde08b18f81385ff149103516b4f7d363e0b0d01f3",
+      "page": 2,
+      "index": 2,
+      "text": "If the winding temperature is outside the allowed range, the test shall be\ndeferred and the deviation recorded.",
+      "char_start": 90,
+      "char_end": 201,
+      "extraction": "pdf_text"
+    },
+    {
+      "document": "EP-114.pdf",
+      "document_sha256": "f28d6bd4ef44f26687f646cde08b18f81385ff149103516b4f7d363e0b0d01f3",
+      "page": 2,
+      "index": 3,
+      "text": "Temperature shall be measured at the stator winding, not at the frame.",
+      "char_start": 202,
+      "char_end": 272,
+      "extraction": "pdf_text"
+    }
+  ],
+  "rule": "Only accept a test when the winding temperature was between 10 and 25 degrees C and was read at the stator winding. Anything else is deferred.\n",
+  "examples": [
+    {
+      "id": "t1",
+      "text": "Winding temperature at the stator was 18 C at the time of test.",
+      "label": "allowed",
+      "reason": "18 C is inside the 10 C to 25 C range in Section 2, read at the winding."
+    },
+    {
+      "id": "t2",
+      "text": "Winding temperature at the stator was 31 C at the time of test.",
+      "label": "not_allowed",
+      "reason": "31 C is above the 25 C ceiling, so Section 2 requires the test be deferred."
+    },
+    {
+      "id": "t3",
+      "text": "Temperature was taken at the motor frame and read 15 C.",
+      "label": "not_allowed",
+      "reason": "Section 2 requires the stator winding, not the frame, whatever the reading."
+    }
+  ],
+  "ocr_cited": [],
+  "created_ms": 1793942211031
+}

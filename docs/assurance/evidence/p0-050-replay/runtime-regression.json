@@ -1,0 +1,23 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "syntriass-runtime"
+  ],
+  "cwd": "/workspace/scratch/8cbb8ab6ce9d/p050-teach",
+  "started_at": "2026-11-12T06:58:04.457590+00:00",
+  "source_commit": "ef3d9d434e5ed55e5994331abc91c03833f997ff",
+  "source_changes": [],
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target",
+    "CARGO_BUILD_JOBS": "4",
+    "PYTHONPATH": "/workspace/scratch/8cbb8ab6ce9d/p050-tools/python",
+    "SYNTRIASS_BIN": "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/syntriass"
+  },
+  "exit_code": 101,
+  "duration_seconds": 0.15649323700017703
+}

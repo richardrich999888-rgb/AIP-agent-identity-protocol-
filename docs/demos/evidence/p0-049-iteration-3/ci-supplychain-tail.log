@@ -1,0 +1,160 @@
+EXCERPT: final 160 lines of CI job 131001754007; full provider log is linked in remote job metadata.
+2026-11-12T05:56:17.9461085Z                   │   │   ├── (dev) syntriass-runtime v0.1.0 (*)
+2026-11-12T05:56:17.9461247Z                   │   │   └── (dev) vanian-sovereign v0.4.0 (*)
+2026-11-12T05:56:17.9461366Z                   │   ├── uuid v1.26.0
+2026-11-12T05:56:17.9461609Z                   │   │   └── airon-aip v0.2.0 (*)
+2026-11-12T05:56:17.9461728Z                   │   └── zip v9.1.2
+2026-11-12T05:56:17.9461873Z                   │       └── aip-protocol v0.4.0 (*)
+2026-11-12T05:56:17.9462004Z                   ├── iana-time-zone v0.1.65
+2026-11-12T05:56:17.9462131Z                   │   └── chrono v0.4.45 (*)
+2026-11-12T05:56:17.9462254Z                   └── js-sys v0.3.105
+2026-11-12T05:56:17.9462375Z                       ├── chrono v0.4.45 (*)
+2026-11-12T05:56:17.9462508Z                       ├── getrandom v0.2.17 (*)
+2026-11-12T05:56:17.9462635Z                       ├── getrandom v0.4.3 (*)
+2026-11-12T05:56:17.9462780Z                       ├── iana-time-zone v0.1.65 (*)
+2026-11-12T05:56:17.9462929Z                       └── jsonwebtoken v9.3.1 (*)
+2026-11-12T05:56:17.9462942Z 
+2026-11-12T05:56:17.9463308Z [0m[1m[38;5;11mwarning[wildcard][0m[1m: found 5 wildcard dependencies for crate 'syntriass-runtime'[0m
+2026-11-12T05:56:17.9463866Z    [0m[36m┌─[0m /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/syntriass-runtime/Cargo.toml:10:20
+2026-11-12T05:56:17.9463965Z    [0m[36m│[0m
+2026-11-12T05:56:17.9464275Z [0m[36m10[0m [0m[36m│[0m vanian-sovereign = [0m[33m{ path = "../vanian-sovereign" }[0m
+2026-11-12T05:56:17.9464582Z    [0m[36m│[0m                    [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+2026-11-12T05:56:17.9464883Z [0m[36m11[0m [0m[36m│[0m aip-types = [0m[33m{ path = "../../aip-standalone/aip-types" }[0m
+2026-11-12T05:56:17.9465201Z    [0m[36m│[0m             [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+2026-11-12T05:56:17.9465506Z [0m[36m12[0m [0m[36m│[0m aip-crypto = [0m[33m{ path = "../../aip-standalone/aip-crypto" }[0m
+2026-11-12T05:56:17.9465828Z    [0m[36m│[0m              [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+2026-11-12T05:56:17.9466110Z [0m[36m13[0m [0m[36m│[0m aip-core = [0m[33m{ path = "../../aip-standalone/aip-core" }[0m
+2026-11-12T05:56:17.9466420Z    [0m[36m│[0m            [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+2026-11-12T05:56:17.9466740Z [0m[36m14[0m [0m[36m│[0m aip-authorize = [0m[33m{ path = "../../aip-standalone/aip-authorize" }[0m
+2026-11-12T05:56:17.9467075Z    [0m[36m│[0m                 [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+2026-11-12T05:56:17.9467303Z    [0m[36m│[0m
+2026-11-12T05:56:17.9467557Z    [0m[36m├[0m syntriass-runtime v0.1.0
+2026-11-12T05:56:17.9467563Z 
+2026-11-12T05:56:17.9467917Z [0m[1m[38;5;11mwarning[wildcard][0m[1m: found 4 wildcard dependencies for crate 'vanian-sovereign'[0m
+2026-11-12T05:56:17.9468449Z    [0m[36m┌─[0m /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/vanian-sovereign/Cargo.toml:10:13
+2026-11-12T05:56:17.9468551Z    [0m[36m│[0m
+2026-11-12T05:56:17.9468841Z [0m[36m10[0m [0m[36m│[0m aip-types = [0m[33m{ path = "../../aip-standalone/aip-types" }[0m
+2026-11-12T05:56:17.9469149Z    [0m[36m│[0m             [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+2026-11-12T05:56:17.9469444Z [0m[36m11[0m [0m[36m│[0m aip-crypto = [0m[33m{ path = "../../aip-standalone/aip-crypto" }[0m
+2026-11-12T05:56:17.9469762Z    [0m[36m│[0m              [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+2026-11-12T05:56:17.9470031Z [0m[36m12[0m [0m[36m│[0m aip-core = [0m[33m{ path = "../../aip-standalone/aip-core" }[0m
+2026-11-12T05:56:17.9470497Z    [0m[36m│[0m            [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+2026-11-12T05:56:17.9470811Z [0m[36m13[0m [0m[36m│[0m aip-authorize = [0m[33m{ path = "../../aip-standalone/aip-authorize" }[0m
+2026-11-12T05:56:17.9471258Z    [0m[36m│[0m                 [0m[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [0m[33mwildcard dependency[0m
+2026-11-12T05:56:17.9471363Z    [0m[36m│[0m
+2026-11-12T05:56:17.9471494Z    [0m[36m├[0m vanian-sovereign v0.4.0
+2026-11-12T05:56:17.9471625Z      └── syntriass-runtime v0.1.0
+2026-11-12T05:56:17.9471630Z 
+2026-11-12T05:56:17.9471929Z [0m[1m[38;5;11mwarning[duplicate][0m[1m: found 2 duplicate entries for crate 'windows-sys'[0m
+2026-11-12T05:56:17.9472325Z     [0m[36m┌─[0m /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/Cargo.lock:280:1
+2026-11-12T05:56:17.9472422Z     [0m[36m│[0m  
+2026-11-12T05:56:17.9472851Z [0m[36m280[0m [0m[36m│[0m [0m[33m╭[0m [0m[33mwindows-sys 0.52.0 registry+https://github.com/rust-lang/crates.io-index[0m
+2026-11-12T05:56:17.9473273Z [0m[36m281[0m [0m[36m│[0m [0m[33m│[0m [0m[33mwindows-sys 0.61.2 registry+https://github.com/rust-lang/crates.io-index[0m
+2026-11-12T05:56:17.9473641Z     [0m[36m│[0m [0m[33m╰[0m[0m[33m────────────────────────────────────────────────────────────────────────┘ lock entries[0m
+2026-11-12T05:56:17.9473742Z     [0m[36m│[0m  
+2026-11-12T05:56:17.9473864Z     [0m[36m├[0m windows-sys v0.52.0
+2026-11-12T05:56:17.9473976Z       ├── errno v0.3.14
+2026-11-12T05:56:17.9474093Z       │   ├── rustix v1.1.6
+2026-11-12T05:56:17.9474211Z       │   │   └── tempfile v3.27.0
+2026-11-12T05:56:17.9474382Z       │   │       ├── (dev) ot-accountability-core v0.4.0
+2026-11-12T05:56:17.9474514Z       │   │       │   └── ot-sentinel v0.4.0
+2026-11-12T05:56:17.9474687Z       │   │       │       └── (dev) aip-feed-conformance v0.4.0
+2026-11-12T05:56:17.9474828Z       │   │       ├── (dev) ot-sentinel v0.4.0 (*)
+2026-11-12T05:56:17.9474993Z       │   │       ├── (dev) syntriass-runtime v0.1.0
+2026-11-12T05:56:17.9475135Z       │   │       └── (dev) vanian-sovereign v0.4.0
+2026-11-12T05:56:17.9475287Z       │   │           └── syntriass-runtime v0.1.0 (*)
+2026-11-12T05:56:17.9475438Z       │   └── signal-hook-registry v1.4.8
+2026-11-12T05:56:17.9475552Z       │       └── tokio v1.53.3
+2026-11-12T05:56:17.9475690Z       │           ├── aip-http-gateway v0.4.0
+2026-11-12T05:56:17.9475809Z       │           ├── airon-aip v0.2.0
+2026-11-12T05:56:17.9475924Z       │           ├── axum v0.7.9
+2026-11-12T05:56:17.9476069Z       │           │   ├── aip-http-gateway v0.4.0 (*)
+2026-11-12T05:56:17.9476203Z       │           │   └── airon-aip v0.2.0 (*)
+2026-11-12T05:56:17.9476326Z       │           ├── hyper v1.11.1
+2026-11-12T05:56:17.9476466Z       │           │   ├── aip-http-gateway v0.4.0 (*)
+2026-11-12T05:56:17.9476587Z       │           │   ├── axum v0.7.9 (*)
+2026-11-12T05:56:17.9476711Z       │           │   └── hyper-util v0.1.20
+2026-11-12T05:56:17.9476971Z       │           │       ├── aip-http-gateway v0.4.0 (*)
+2026-11-12T05:56:17.9477094Z       │           │       └── axum v0.7.9 (*)
+2026-11-12T05:56:17.9477497Z       │           ├── hyper-util v0.1.20 (*)
+2026-11-12T05:56:17.9477778Z       │           ├── tokio-util v0.7.19
+2026-11-12T05:56:17.9477906Z       │           │   └── tower v0.5.3
+2026-11-12T05:56:17.9478048Z       │           │       ├── airon-aip v0.2.0 (*)
+2026-11-12T05:56:17.9478170Z       │           │       └── axum v0.7.9 (*)
+2026-11-12T05:56:17.9478293Z       │           ├── tower v0.5.3 (*)
+2026-11-12T05:56:17.9478415Z       │           └── tower-http v0.6.11
+2026-11-12T05:56:17.9478548Z       │               └── airon-aip v0.2.0 (*)
+2026-11-12T05:56:17.9478655Z       ├── ring v0.17.14
+2026-11-12T05:56:17.9478771Z       │   └── jsonwebtoken v9.3.1
+2026-11-12T05:56:17.9478901Z       │       └── airon-aip v0.2.0 (*)
+2026-11-12T05:56:17.9479009Z       ├── rustix v1.1.6 (*)
+2026-11-12T05:56:17.9479141Z       └── tempfile v3.27.0 (*)
+2026-11-12T05:56:17.9479261Z     [0m[36m├[0m windows-sys v0.61.2
+2026-11-12T05:56:17.9479380Z       ├── anstyle-query v1.1.5
+2026-11-12T05:56:17.9479491Z       │   └── anstream v1.0.0
+2026-11-12T05:56:17.9479615Z       │       └── clap_builder v4.6.6
+2026-11-12T05:56:17.9479741Z       │           └── clap v4.6.6
+2026-11-12T05:56:17.9479865Z       │               ├── aip-aibom v0.4.0
+2026-11-12T05:56:17.9479987Z       │               ├── aip-cli v0.4.0
+2026-11-12T05:56:17.9480112Z       │               └── aip-verify v0.4.0
+2026-11-12T05:56:17.9480235Z       ├── anstyle-wincon v3.0.11
+2026-11-12T05:56:17.9480348Z       │   └── anstream v1.0.0 (*)
+2026-11-12T05:56:17.9480456Z       ├── mio v1.2.3
+2026-11-12T05:56:17.9480568Z       │   └── tokio v1.53.3
+2026-11-12T05:56:17.9480696Z       │       ├── aip-http-gateway v0.4.0
+2026-11-12T05:56:17.9480817Z       │       ├── airon-aip v0.2.0
+2026-11-12T05:56:17.9480922Z       │       ├── axum v0.7.9
+2026-11-12T05:56:17.9481080Z       │       │   ├── aip-http-gateway v0.4.0 (*)
+2026-11-12T05:56:17.9481201Z       │       │   └── airon-aip v0.2.0 (*)
+2026-11-12T05:56:17.9481318Z       │       ├── hyper v1.11.1
+2026-11-12T05:56:17.9481454Z       │       │   ├── aip-http-gateway v0.4.0 (*)
+2026-11-12T05:56:17.9481584Z       │       │   ├── axum v0.7.9 (*)
+2026-11-12T05:56:17.9481709Z       │       │   └── hyper-util v0.1.20
+2026-11-12T05:56:17.9481851Z       │       │       ├── aip-http-gateway v0.4.0 (*)
+2026-11-12T05:56:17.9481978Z       │       │       └── axum v0.7.9 (*)
+2026-11-12T05:56:17.9482099Z       │       ├── hyper-util v0.1.20 (*)
+2026-11-12T05:56:17.9482223Z       │       ├── tokio-util v0.7.19
+2026-11-12T05:56:17.9482336Z       │       │   └── tower v0.5.3
+2026-11-12T05:56:17.9482476Z       │       │       ├── airon-aip v0.2.0 (*)
+2026-11-12T05:56:17.9482599Z       │       │       └── axum v0.7.9 (*)
+2026-11-12T05:56:17.9482709Z       │       ├── tower v0.5.3 (*)
+2026-11-12T05:56:17.9482835Z       │       └── tower-http v0.6.11
+2026-11-12T05:56:17.9482969Z       │           └── airon-aip v0.2.0 (*)
+2026-11-12T05:56:17.9483090Z       ├── nu-ansi-term v0.50.3
+2026-11-12T05:56:17.9483216Z       │   └── tracing-subscriber v0.3.23
+2026-11-12T05:56:17.9483343Z       │       └── airon-aip v0.2.0 (*)
+2026-11-12T05:56:17.9483461Z       ├── socket2 v0.6.5
+2026-11-12T05:56:17.9483585Z       │   ├── hyper-util v0.1.20 (*)
+2026-11-12T05:56:17.9483700Z       │   └── tokio v1.53.3 (*)
+2026-11-12T05:56:17.9483805Z       ├── tokio v1.53.3 (*)
+2026-11-12T05:56:17.9483911Z       └── zip v9.1.2
+2026-11-12T05:56:17.9484029Z           └── aip-protocol v0.4.0
+2026-11-12T05:56:17.9484149Z               ├── aip-agent v0.4.0
+2026-11-12T05:56:17.9484260Z               ├── aip-test v0.4.0
+2026-11-12T05:56:17.9484387Z               ├── aip-verify v0.4.0 (*)
+2026-11-12T05:56:17.9484511Z               ├── airon-aip v0.2.0 (*)
+2026-11-12T05:56:17.9484629Z               └── banking-demo v0.4.0
+2026-11-12T05:56:17.9484633Z 
+2026-11-12T05:56:17.9484937Z [0m[1m[38;5;11mwarning[advisory-not-detected][0m[1m: advisory was not encountered[0m
+2026-11-12T05:56:17.9485463Z    [0m[36m┌─[0m /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/deny.toml:12:6
+2026-11-12T05:56:17.9485564Z    [0m[36m│[0m
+2026-11-12T05:56:17.9485844Z [0m[36m12[0m [0m[36m│[0m     "[0m[33mRUSTSEC-2026-0097[0m",
+2026-11-12T05:56:17.9486133Z    [0m[36m│[0m      [0m[33m━━━━━━━━━━━━━━━━━[0m [0m[33mno crate matched advisory criteria[0m
+2026-11-12T05:56:17.9486138Z 
+2026-11-12T05:56:17.9486406Z advisories [32mok[0m, bans [32mok[0m, licenses [32mok[0m, sources [32mok[0m
+2026-11-12T05:56:17.9602683Z Post job cleanup.
+2026-11-12T05:56:18.0484432Z [command]/usr/bin/git version
+2026-11-12T05:56:18.0529315Z git version 2.56.0
+2026-11-12T05:56:18.0569340Z Temporarily overriding HOME='/home/runner/work/_temp/a638c861-1fe0-4f55-bd47-f5ba155f96f9' before making global git config changes
+2026-11-12T05:56:18.0569857Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T05:56:18.0574824Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T05:56:18.0617750Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T05:56:18.0657618Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T05:56:18.0972318Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T05:56:18.1000177Z http.https://github.com/.extraheader
+2026-11-12T05:56:18.1013383Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-12T05:56:18.1060132Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T05:56:18.1452304Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T05:56:18.1483711Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T05:56:18.1919361Z Cleaning up orphan processes
+2026-11-12T05:56:18.2411257Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

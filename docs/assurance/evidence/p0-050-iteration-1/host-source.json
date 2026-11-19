@@ -1,0 +1,39 @@
+[
+  {
+    "command": [
+      "uname",
+      "-a"
+    ],
+    "exit_status": 0,
+    "stdout": "Linux e4623afc8d0a 6.18.57 #1 SMP Tue Oct 20 21:56:04 UTC 2026 x86_64 GNU/Linux\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "lscpu"
+    ],
+    "exit_status": 1,
+    "stdout": "",
+    "stderr": "lscpu: failed to determine number of CPUs: /sys/devices/system/cpu/possible: No such file or directory\n"
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit_status": 0,
+    "stdout": "ef3d9d434e5ed55e5994331abc91c03833f997ff\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD^{tree}"
+    ],
+    "exit_status": 0,
+    "stdout": "d8e21fc9b2fa8ae4ad981036f0c082916fc51e86\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "attack": "signature-byte",
+    "result": "REFUSED",
+    "error": "approval signature invalid"
+  },
+  {
+    "attack": "removed-review",
+    "result": "REFUSED",
+    "error": "'teaching_review_hash'"
+  },
+  {
+    "attack": "source-byte",
+    "result": "REFUSED",
+    "error": "review input changed: source/halvorn-hu-tx-2.txt"
+  },
+  {
+    "attack": "changed-report",
+    "result": "REFUSED",
+    "error": "validation binding mismatch"
+  },
+  {
+    "attack": "wrong-key",
+    "result": "REFUSED",
+    "error": "authority key mismatch"
+  },
+  {
+    "attack": "revoked-authority",
+    "result": "REFUSED",
+    "error": "authority policy changed"
+  },
+  {
+    "attack": "wrong-tenant",
+    "result": "REFUSED",
+    "error": "capability hash mismatch"
+  }
+]

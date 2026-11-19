@@ -1,0 +1,539 @@
+﻿2026-11-12T11:52:42.9190975Z Current runner version: '2.338.2'
+2026-11-12T11:52:42.9218188Z ##[group]Runner Image Provisioner
+2026-11-12T11:52:42.9219082Z Hosted Compute Agent
+2026-11-12T11:52:42.9219802Z Version: 20261103.629
+2026-11-12T11:52:42.9220638Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-12T11:52:42.9221377Z Build Date: 2026-11-03T17:26:59Z
+2026-11-12T11:52:42.9222154Z Worker ID: {acf79c38-c397-4ee8-a30f-c470ff1b2f42}
+2026-11-12T11:52:42.9222868Z Region: westcentralus
+2026-11-12T11:52:42.9223513Z Cloud: Azure
+2026-11-12T11:52:42.9224063Z ##[endgroup]
+2026-11-12T11:52:42.9225566Z ##[group]Operating System
+2026-11-12T11:52:42.9226367Z Ubuntu
+2026-11-12T11:52:42.9226906Z 26.04.1
+2026-11-12T11:52:42.9227486Z LTS
+2026-11-12T11:52:42.9228011Z ##[endgroup]
+2026-11-12T11:52:42.9228554Z ##[group]Runner Image
+2026-11-12T11:52:42.9229186Z Image: ubuntu-26.04
+2026-11-12T11:52:42.9229745Z Version: 20261111.196.1
+2026-11-12T11:52:42.9231290Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261111.196/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-12T11:52:42.9232868Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261111.196
+2026-11-12T11:52:42.9233919Z ##[endgroup]
+2026-11-12T11:52:42.9235161Z ##[group]GITHUB_TOKEN Permissions
+2026-11-12T11:52:42.9237086Z Contents: read
+2026-11-12T11:52:42.9237697Z Metadata: read
+2026-11-12T11:52:42.9238241Z Packages: read
+2026-11-12T11:52:42.9238932Z ##[endgroup]
+2026-11-12T11:52:42.9241457Z Secret source: Actions
+2026-11-12T11:52:42.9242480Z Cache mode: write
+2026-11-12T11:52:42.9243184Z Prepare workflow directory
+2026-11-12T11:52:42.9689765Z Prepare all required actions
+2026-11-12T11:52:42.9737803Z Getting action download info
+2026-11-12T11:52:43.3378670Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-12T11:52:43.4434049Z Download action repository 'dtolnay/rust-toolchain@stable' (SHA:b725eda525362e7cf34af9a7243cac1e3f01a7ec)
+2026-11-12T11:52:43.6536282Z Download action repository 'Swatinem/rust-cache@v2' (SHA:d1527c8f67ef9af357290475d4af4b0fab8f12e0)
+2026-11-12T11:52:44.3834755Z Complete job name: RED suite (adversarial ledger reproducible)
+2026-11-12T11:52:44.4902372Z ##[group]Run actions/checkout@v4
+2026-11-12T11:52:44.4903754Z with:
+2026-11-12T11:52:44.4904905Z   repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T11:52:44.4913828Z   token: ***
+2026-11-12T11:52:44.4914683Z   ssh-strict: true
+2026-11-12T11:52:44.4915541Z   ssh-user: git
+2026-11-12T11:52:44.4916433Z   persist-credentials: true
+2026-11-12T11:52:44.4917391Z   clean: true
+2026-11-12T11:52:44.4918276Z   sparse-checkout-cone-mode: true
+2026-11-12T11:52:44.4919308Z   fetch-depth: 1
+2026-11-12T11:52:44.4920161Z   fetch-tags: false
+2026-11-12T11:52:44.4921154Z   show-progress: true
+2026-11-12T11:52:44.4922342Z   lfs: false
+2026-11-12T11:52:44.4923315Z   submodules: false
+2026-11-12T11:52:44.4924299Z   set-safe-directory: true
+2026-11-12T11:52:44.4925492Z   allow-unsafe-pr-checkout: false
+2026-11-12T11:52:44.4926946Z env:
+2026-11-12T11:52:44.4927855Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:44.4929069Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:44.4930163Z ##[endgroup]
+2026-11-12T11:52:44.7556944Z Syncing repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T11:52:44.7562625Z ##[group]Getting Git version info
+2026-11-12T11:52:44.7566197Z Working directory is '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-12T11:52:44.7571324Z [command]/usr/bin/git version
+2026-11-12T11:52:44.7573455Z git version 2.56.1
+2026-11-12T11:52:44.7587386Z ##[endgroup]
+2026-11-12T11:52:44.7603334Z Temporarily overriding HOME='/home/runner/work/_temp/7eeab49a-0dd1-4e6f-b11b-2980bd99bb1a' before making global git config changes
+2026-11-12T11:52:44.7608681Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T11:52:44.7614213Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T11:52:44.7681265Z Deleting the contents of '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-12T11:52:44.7686848Z ##[group]Initializing the repository
+2026-11-12T11:52:44.7691327Z [command]/usr/bin/git init /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T11:52:44.7796188Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-12T11:52:44.7798743Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-12T11:52:44.7801588Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-12T11:52:44.7803763Z hint: call:
+2026-11-12T11:52:44.7806666Z hint:
+2026-11-12T11:52:44.7812318Z hint: 	git config --global init.defaultBranch <name>
+2026-11-12T11:52:44.7814646Z hint:
+2026-11-12T11:52:44.7817040Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-12T11:52:44.7821168Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-12T11:52:44.7824117Z hint:
+2026-11-12T11:52:44.7825614Z hint: 	git branch -m <name>
+2026-11-12T11:52:44.7827347Z hint:
+2026-11-12T11:52:44.7829747Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-12T11:52:44.7833013Z Initialized empty Git repository in /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/.git/
+2026-11-12T11:52:44.7838359Z [command]/usr/bin/git remote add origin https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T11:52:44.7882111Z ##[endgroup]
+2026-11-12T11:52:44.7885270Z ##[group]Disabling automatic garbage collection
+2026-11-12T11:52:44.7888058Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-12T11:52:44.7925387Z ##[endgroup]
+2026-11-12T11:52:44.7928244Z ##[group]Setting up auth
+2026-11-12T11:52:44.7931977Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T11:52:44.7973701Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T11:52:44.8432336Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T11:52:44.8472210Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T11:52:44.8742906Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T11:52:44.8779809Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T11:52:44.9065954Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-12T11:52:44.9107038Z ##[endgroup]
+2026-11-12T11:52:44.9110155Z ##[group]Fetching the repository
+2026-11-12T11:52:44.9121311Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +b5731ecbad0857a8014d13b15f1f07702b66acba:refs/remotes/pull/21/merge
+2026-11-12T11:52:45.8591554Z From https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T11:52:45.8595414Z  * [new ref]         b5731ecbad0857a8014d13b15f1f07702b66acba -> pull/21/merge
+2026-11-12T11:52:45.8600908Z ##[endgroup]
+2026-11-12T11:52:45.8602788Z ##[group]Determining the checkout info
+2026-11-12T11:52:45.8605285Z ##[endgroup]
+2026-11-12T11:52:45.8606793Z [command]/usr/bin/git sparse-checkout disable
+2026-11-12T11:52:45.8660785Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-12T11:52:45.8692092Z ##[group]Checking out the ref
+2026-11-12T11:52:45.8694518Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/21/merge
+2026-11-12T11:52:46.2088346Z Note: switching to 'refs/remotes/pull/21/merge'.
+2026-11-12T11:52:46.2089374Z 
+2026-11-12T11:52:46.2089705Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-12T11:52:46.2090354Z changes and commit them, and you can discard any commits you make in this
+2026-11-12T11:52:46.2091460Z state without impacting any branches by switching back to a branch.
+2026-11-12T11:52:46.2091825Z 
+2026-11-12T11:52:46.2092112Z If you want to create a new branch to retain commits you create, you may
+2026-11-12T11:52:46.2092801Z do so (now or later) by using -c with the switch command. Example:
+2026-11-12T11:52:46.2093383Z 
+2026-11-12T11:52:46.2093651Z   git switch -c <new-branch-name>
+2026-11-12T11:52:46.2093994Z 
+2026-11-12T11:52:46.2094152Z Or undo this operation with:
+2026-11-12T11:52:46.2094386Z 
+2026-11-12T11:52:46.2094515Z   git switch -
+2026-11-12T11:52:46.2094716Z 
+2026-11-12T11:52:46.2095021Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-12T11:52:46.2095464Z 
+2026-11-12T11:52:46.2095916Z HEAD is now at b5731ec Merge 6764c7eb38fa3c5cb0d9884303b14c1cd422d6ad into 2883da7bf5b8591a31bf24789c1d0722f83a6624
+2026-11-12T11:52:46.2097528Z ##[endgroup]
+2026-11-12T11:52:46.2147431Z [command]/usr/bin/git log -1 --format=%H
+2026-11-12T11:52:46.2174032Z b5731ecbad0857a8014d13b15f1f07702b66acba
+2026-11-12T11:52:46.2574567Z ##[group]Run dtolnay/rust-toolchain@stable
+2026-11-12T11:52:46.2575004Z with:
+2026-11-12T11:52:46.2575287Z   toolchain: stable
+2026-11-12T11:52:46.2575575Z env:
+2026-11-12T11:52:46.2575850Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.2576190Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.2576505Z ##[endgroup]
+2026-11-12T11:52:46.2643492Z ##[start-action display=Parse toolchain version;id=__dtolnay_rust-toolchain.parse]
+2026-11-12T11:52:46.2757782Z ##[group]Run if [[ -z $toolchain ]]; then
+2026-11-12T11:52:46.2758287Z [36;1mif [[ -z $toolchain ]]; then[0m
+2026-11-12T11:52:46.2758980Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
+2026-11-12T11:52:46.2759715Z [36;1m  echo "'toolchain' is a required input" >&2[0m
+2026-11-12T11:52:46.2760127Z [36;1m  exit 1[0m
+2026-11-12T11:52:46.2760813Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
+2026-11-12T11:52:46.2761398Z [36;1m  if [[ Linux == macOS ]]; then[0m
+2026-11-12T11:52:46.2762062Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:46.2762707Z [36;1m  else[0m
+2026-11-12T11:52:46.2763220Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:46.2763796Z [36;1m  fi[0m
+2026-11-12T11:52:46.2764194Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
+2026-11-12T11:52:46.2764861Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:46.2765439Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
+2026-11-12T11:52:46.2766096Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:46.2766708Z [36;1melse[0m
+2026-11-12T11:52:46.2766994Z [36;1m  delimiter=EOF[0m
+2026-11-12T11:52:46.2767400Z [36;1m  while [[ $toolchain == *$delimiter* ]]; do delimiter+=_; done[0m
+2026-11-12T11:52:46.2768036Z [36;1m  printf 'toolchain<<%s\n%s\n%s\n' "$delimiter" "$toolchain" "$delimiter" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:46.2768575Z [36;1mfi[0m
+2026-11-12T11:52:46.2825164Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.2825646Z env:
+2026-11-12T11:52:46.2825959Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.2826320Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.2826669Z   toolchain: stable
+2026-11-12T11:52:46.2826994Z ##[endgroup]
+2026-11-12T11:52:46.2962660Z ##[end-action id=__dtolnay_rust-toolchain.parse;outcome=success;conclusion=success;duration_ms=31]
+2026-11-12T11:52:46.2968631Z ##[start-action display=Set $CARGO_HOME;id=__dtolnay_rust-toolchain.__run]
+2026-11-12T11:52:46.3015297Z ##[group]Run echo CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV
+2026-11-12T11:52:46.3015978Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV[0m
+2026-11-12T11:52:46.3067563Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.3068062Z env:
+2026-11-12T11:52:46.3068388Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.3068770Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.3069131Z ##[endgroup]
+2026-11-12T11:52:46.3153762Z ##[end-action id=__dtolnay_rust-toolchain.__run;outcome=success;conclusion=success;duration_ms=18]
+2026-11-12T11:52:46.3156649Z ##[start-action display=Install rustup if needed;id=__dtolnay_rust-toolchain.__run_2]
+2026-11-12T11:52:46.3195693Z ##[group]Run if ! command -v rustup &>/dev/null; then
+2026-11-12T11:52:46.3196211Z [36;1mif ! command -v rustup &>/dev/null; then[0m
+2026-11-12T11:52:46.3197165Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://sh.rustup.rs | sh -s -- --default-toolchain none -y[0m
+2026-11-12T11:52:46.3198109Z [36;1m  echo "$CARGO_HOME/bin" >> $GITHUB_PATH[0m
+2026-11-12T11:52:46.3198735Z [36;1mfi[0m
+2026-11-12T11:52:46.3252500Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.3253075Z env:
+2026-11-12T11:52:46.3253396Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.3253771Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.3254160Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:46.3254532Z ##[endgroup]
+2026-11-12T11:52:46.3340953Z ##[end-action id=__dtolnay_rust-toolchain.__run_2;outcome=success;conclusion=success;duration_ms=18]
+2026-11-12T11:52:46.3344185Z ##[start-action display=Install rustup if needed on windows;id=__dtolnay_rust-toolchain.__run_3]
+2026-11-12T11:52:46.3353432Z ##[end-action id=__dtolnay_rust-toolchain.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-12T11:52:46.3369379Z ##[start-action display=rustup toolchain install stable;id=__dtolnay_rust-toolchain.__run_4]
+2026-11-12T11:52:46.3402329Z ##[group]Run set -f  # split targets and components on commas and whitespace, without glob expansion
+2026-11-12T11:52:46.3403194Z [36;1mset -f  # split targets and components on commas and whitespace, without glob expansion[0m
+2026-11-12T11:52:46.3403783Z [36;1mflags=()[0m
+2026-11-12T11:52:46.3404191Z [36;1mfor t in ${targets//,/ }; do flags+=(--target "$t"); done[0m
+2026-11-12T11:52:46.3404754Z [36;1mfor c in ${components//,/ }; do flags+=(--component "$c"); done[0m
+2026-11-12T11:52:46.3405414Z [36;1mif [[ $toolchain == nightly && -n $components ]]; then flags+=(--allow-downgrade); fi[0m
+2026-11-12T11:52:46.3405992Z [36;1mlog=$(mktemp)[0m
+2026-11-12T11:52:46.3406352Z [36;1mtrap 'rm -f "$log"' EXIT[0m
+2026-11-12T11:52:46.3406743Z [36;1mfor attempt in 1 2 3 4 5; do[0m
+2026-11-12T11:52:46.3407493Z [36;1m  if rustup toolchain install "$toolchain" "${flags[@]}" --profile minimal --no-self-update --force-non-host 2>&1 | tee "$log"; then[0m
+2026-11-12T11:52:46.3408234Z [36;1m    break[0m
+2026-11-12T11:52:46.3408549Z [36;1m  else[0m
+2026-11-12T11:52:46.3408864Z [36;1m    status=$?[0m
+2026-11-12T11:52:46.3409208Z [36;1m  fi[0m
+2026-11-12T11:52:46.3409637Z [36;1m  if [[ $attempt == 5 ]] || ! grep -Fq 'checksum failed for ' "$log" \[0m
+2026-11-12T11:52:46.3410559Z [36;1m      || ! grep -Fq 'this is likely due to an ongoing update of the official release server' "$log"; then[0m
+2026-11-12T11:52:46.3411208Z [36;1m    exit "$status"[0m
+2026-11-12T11:52:46.3411558Z [36;1m  fi[0m
+2026-11-12T11:52:46.3412057Z [36;1m  echo "Retrying rustup toolchain install in 30 seconds (retry $attempt of 4)" >&2[0m
+2026-11-12T11:52:46.3412622Z [36;1m  sleep 30[0m
+2026-11-12T11:52:46.3412944Z [36;1mdone[0m
+2026-11-12T11:52:46.3465900Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.3466376Z env:
+2026-11-12T11:52:46.3466864Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.3467232Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.3467607Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:46.3467978Z   toolchain: stable
+2026-11-12T11:52:46.3468293Z   targets: 
+2026-11-12T11:52:46.3468595Z   components: 
+2026-11-12T11:52:46.3468931Z   RUSTUP_PERMIT_COPY_RENAME: 1
+2026-11-12T11:52:46.3469297Z ##[endgroup]
+2026-11-12T11:52:46.5426998Z info: syncing channel updates for stable-x86_64-unknown-linux-gnu
+2026-11-12T11:52:46.7208034Z 
+2026-11-12T11:52:46.7291478Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-11-12T11:52:46.7292610Z 
+2026-11-12T11:52:46.7352879Z ##[end-action id=__dtolnay_rust-toolchain.__run_4;outcome=success;conclusion=success;duration_ms=398]
+2026-11-12T11:52:46.7359904Z ##[start-action display=rustup default stable;id=__dtolnay_rust-toolchain.__run_5]
+2026-11-12T11:52:46.7393580Z ##[group]Run rustup default "$toolchain" --force-non-host
+2026-11-12T11:52:46.7394146Z [36;1mrustup default "$toolchain" --force-non-host[0m
+2026-11-12T11:52:46.7449281Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.7449750Z env:
+2026-11-12T11:52:46.7450056Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.7450736Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.7451117Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:46.7451474Z   toolchain: stable
+2026-11-12T11:52:46.7451788Z ##[endgroup]
+2026-11-12T11:52:46.7572625Z info: using existing install for stable-x86_64-unknown-linux-gnu
+2026-11-12T11:52:46.7582980Z info: default toolchain set to stable-x86_64-unknown-linux-gnu
+2026-11-12T11:52:46.7583375Z 
+2026-11-12T11:52:46.7661193Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-11-12T11:52:46.7661869Z 
+2026-11-12T11:52:46.7678731Z ##[end-action id=__dtolnay_rust-toolchain.__run_5;outcome=success;conclusion=success;duration_ms=31]
+2026-11-12T11:52:46.7683048Z ##[start-action display=Create cachekey;id=__dtolnay_rust-toolchain.rustc-version]
+2026-11-12T11:52:46.7738708Z ##[group]Run DATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')
+2026-11-12T11:52:46.7739791Z [36;1mDATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
+2026-11-12T11:52:46.7740931Z [36;1mHASH=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-hash: //p')[0m
+2026-11-12T11:52:46.7741639Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
+2026-11-12T11:52:46.7795412Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.7795895Z env:
+2026-11-12T11:52:46.7796215Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.7796592Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.7796964Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:46.7797341Z   toolchain: stable
+2026-11-12T11:52:46.7797665Z ##[endgroup]
+2026-11-12T11:52:46.8201946Z ##[end-action id=__dtolnay_rust-toolchain.rustc-version;outcome=success;conclusion=success;duration_ms=51]
+2026-11-12T11:52:46.8205500Z ##[start-action display=Disable incremental compilation;id=__dtolnay_rust-toolchain.__run_6]
+2026-11-12T11:52:46.8238021Z ##[group]Run if [ -z "${CARGO_INCREMENTAL+set}" ]; then
+2026-11-12T11:52:46.8238545Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
+2026-11-12T11:52:46.8239020Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
+2026-11-12T11:52:46.8239430Z [36;1mfi[0m
+2026-11-12T11:52:46.8294933Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.8295412Z env:
+2026-11-12T11:52:46.8295722Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.8296084Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.8296453Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:46.8296820Z ##[endgroup]
+2026-11-12T11:52:46.8381916Z ##[end-action id=__dtolnay_rust-toolchain.__run_6;outcome=success;conclusion=success;duration_ms=17]
+2026-11-12T11:52:46.8384781Z ##[start-action display=Enable colors in Cargo output;id=__dtolnay_rust-toolchain.__run_7]
+2026-11-12T11:52:46.8415815Z ##[group]Run if [ -z "${CARGO_TERM_COLOR+set}" ]; then
+2026-11-12T11:52:46.8416316Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
+2026-11-12T11:52:46.8416796Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
+2026-11-12T11:52:46.8417202Z [36;1mfi[0m
+2026-11-12T11:52:46.8471281Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.8471758Z env:
+2026-11-12T11:52:46.8472074Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.8472438Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.8472796Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:46.8473169Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:52:46.8473490Z ##[endgroup]
+2026-11-12T11:52:46.8555600Z ##[end-action id=__dtolnay_rust-toolchain.__run_7;outcome=success;conclusion=success;duration_ms=16]
+2026-11-12T11:52:46.8559825Z ##[start-action display=Enable Cargo sparse registry;id=__dtolnay_rust-toolchain.__run_8]
+2026-11-12T11:52:46.8592574Z ##[group]Run # implemented in 1.66, stabilized in 1.68, made default in 1.70
+2026-11-12T11:52:46.8593240Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
+2026-11-12T11:52:46.8594308Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
+2026-11-12T11:52:46.8595247Z [36;1m  if rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
+2026-11-12T11:52:46.8595992Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-11-12T11:52:46.8596691Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
+2026-11-12T11:52:46.8597376Z [36;1m  elif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
+2026-11-12T11:52:46.8598129Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-11-12T11:52:46.8598808Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
+2026-11-12T11:52:46.8599298Z [36;1m  fi[0m
+2026-11-12T11:52:46.8599593Z [36;1mfi[0m
+2026-11-12T11:52:46.8652068Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.8652692Z env:
+2026-11-12T11:52:46.8653015Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.8653377Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.8653738Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:46.8654104Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:52:46.8654428Z   toolchain: stable
+2026-11-12T11:52:46.8654808Z ##[endgroup]
+2026-11-12T11:52:46.8987002Z ##[end-action id=__dtolnay_rust-toolchain.__run_8;outcome=success;conclusion=success;duration_ms=42]
+2026-11-12T11:52:46.8991995Z ##[start-action display=Work around spurious network errors in curl 8.0;id=__dtolnay_rust-toolchain.__run_9]
+2026-11-12T11:52:46.9024396Z ##[group]Run # https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation
+2026-11-12T11:52:46.9025309Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
+2026-11-12T11:52:46.9026107Z [36;1mif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
+2026-11-12T11:52:46.9026752Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
+2026-11-12T11:52:46.9027182Z [36;1mfi[0m
+2026-11-12T11:52:46.9080722Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.9081201Z env:
+2026-11-12T11:52:46.9081504Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.9081863Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.9082226Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:46.9082590Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:52:46.9082907Z   toolchain: stable
+2026-11-12T11:52:46.9083212Z ##[endgroup]
+2026-11-12T11:52:46.9293118Z ##[end-action id=__dtolnay_rust-toolchain.__run_9;outcome=success;conclusion=success;duration_ms=30]
+2026-11-12T11:52:46.9298702Z ##[start-action display=rustc +stable --version --verbose;id=__dtolnay_rust-toolchain.__run_10]
+2026-11-12T11:52:46.9331656Z ##[group]Run rustc +"$toolchain" --version --verbose
+2026-11-12T11:52:46.9332174Z [36;1mrustc +"$toolchain" --version --verbose[0m
+2026-11-12T11:52:46.9386892Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T11:52:46.9387383Z env:
+2026-11-12T11:52:46.9387693Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.9388051Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.9388414Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:46.9388783Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:52:46.9389115Z   toolchain: stable
+2026-11-12T11:52:46.9389427Z ##[endgroup]
+2026-11-12T11:52:46.9585021Z rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-11-12T11:52:46.9586024Z binary: rustc
+2026-11-12T11:52:46.9586820Z commit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67
+2026-11-12T11:52:46.9587796Z commit-date: 2026-10-13
+2026-11-12T11:52:46.9588634Z host: x86_64-unknown-linux-gnu
+2026-11-12T11:52:46.9589285Z release: 1.99.1
+2026-11-12T11:52:46.9589816Z LLVM version: 23.1.1
+2026-11-12T11:52:46.9622513Z ##[end-action id=__dtolnay_rust-toolchain.__run_10;outcome=success;conclusion=success;duration_ms=32]
+2026-11-12T11:52:46.9754135Z ##[group]Run Swatinem/rust-cache@v2
+2026-11-12T11:52:46.9754553Z with:
+2026-11-12T11:52:46.9754854Z   prefix-key: v0-rust
+2026-11-12T11:52:46.9755185Z   add-job-id-key: true
+2026-11-12T11:52:46.9755540Z   add-rust-environment-hash-key: true
+2026-11-12T11:52:46.9755921Z   cache-targets: true
+2026-11-12T11:52:46.9756246Z   cache-all-crates: false
+2026-11-12T11:52:46.9756602Z   cache-workspace-crates: false
+2026-11-12T11:52:46.9756959Z   save-if: true
+2026-11-12T11:52:46.9757272Z   cache-provider: github
+2026-11-12T11:52:46.9757598Z   cache-bin: true
+2026-11-12T11:52:46.9757898Z   lookup-only: false
+2026-11-12T11:52:46.9758203Z   cmd-format: {0}
+2026-11-12T11:52:46.9758496Z env:
+2026-11-12T11:52:46.9758784Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:46.9759144Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:46.9759498Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:46.9759880Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:52:46.9760195Z ##[endgroup]
+2026-11-12T11:52:47.7859845Z ##[group]Cache Configuration
+2026-11-12T11:52:47.7860684Z Cache Provider:
+2026-11-12T11:52:47.7861410Z     github
+2026-11-12T11:52:47.7861845Z Workspaces:
+2026-11-12T11:52:47.7862448Z     /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T11:52:47.7863173Z Cache Paths:
+2026-11-12T11:52:47.7863541Z     /home/runner/.cargo/bin
+2026-11-12T11:52:47.7863968Z     /home/runner/.cargo/.crates.toml
+2026-11-12T11:52:47.7864699Z     /home/runner/.cargo/.crates2.json
+2026-11-12T11:52:47.7865294Z     /home/runner/.cargo/registry
+2026-11-12T11:52:47.7865964Z     /home/runner/.cargo/git
+2026-11-12T11:52:47.7866811Z     /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target
+2026-11-12T11:52:47.7867853Z Restore Key:
+2026-11-12T11:52:47.7868377Z     v0-rust-red-suite-Linux-x64-368c5654
+2026-11-12T11:52:47.7869026Z Cache Key:
+2026-11-12T11:52:47.7869728Z     v0-rust-red-suite-Linux-x64-368c5654-259d97ab
+2026-11-12T11:52:47.7870387Z .. Prefix:
+2026-11-12T11:52:47.7871219Z   - v0-rust-red-suite-Linux-x64
+2026-11-12T11:52:47.7871887Z .. Environment considered:
+2026-11-12T11:52:47.7872476Z   - Rust Versions:
+2026-11-12T11:52:47.7873230Z     - 1.99.1 x86_64-unknown-linux-gnu 58cf8f9c35b355199727627d07ae34a4e2846d67
+2026-11-12T11:52:47.7936561Z   - CARGO_HOME
+2026-11-12T11:52:47.7936968Z   - CARGO_INCREMENTAL
+2026-11-12T11:52:47.7937389Z   - CARGO_TERM_COLOR
+2026-11-12T11:52:47.7937766Z   - RUSTFLAGS
+2026-11-12T11:52:47.7938002Z .. Lockfiles considered:
+2026-11-12T11:52:47.7938501Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-service/Cargo.toml
+2026-11-12T11:52:47.7939318Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-agent/Cargo.toml
+2026-11-12T11:52:47.7940157Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-aibom/Cargo.toml
+2026-11-12T11:52:47.7942191Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-airi/Cargo.toml
+2026-11-12T11:52:47.7943069Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-anchor/Cargo.toml
+2026-11-12T11:52:47.7943940Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-approval/Cargo.toml
+2026-11-12T11:52:47.7944775Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-authorize/Cargo.toml
+2026-11-12T11:52:47.7945613Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-cli/Cargo.toml
+2026-11-12T11:52:47.7946434Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-collector/Cargo.toml
+2026-11-12T11:52:47.7947269Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-conformance/Cargo.toml
+2026-11-12T11:52:47.7948336Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-containment/Cargo.toml
+2026-11-12T11:52:47.7949166Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-core/Cargo.toml
+2026-11-12T11:52:47.7949985Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-corroborate/Cargo.toml
+2026-11-12T11:52:47.7951348Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-crypto/Cargo.toml
+2026-11-12T11:52:47.7952791Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-contract/Cargo.toml
+2026-11-12T11:52:47.7953665Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-observer/Cargo.toml
+2026-11-12T11:52:47.7954515Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-workload/Cargo.toml
+2026-11-12T11:52:47.7955349Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge/Cargo.toml
+2026-11-12T11:52:47.7956208Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-effect/Cargo.toml
+2026-11-12T11:52:47.7957016Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-enforce/Cargo.toml
+2026-11-12T11:52:47.7957834Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-enterprise/Cargo.toml
+2026-11-12T11:52:47.7958657Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-execution/Cargo.toml
+2026-11-12T11:52:47.7959452Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-hsm/Cargo.toml
+2026-11-12T11:52:47.7960264Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-http-gateway/Cargo.toml
+2026-11-12T11:52:47.7961401Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-incident/Cargo.toml
+2026-11-12T11:52:47.7962229Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-industrial/Cargo.toml
+2026-11-12T11:52:47.7963052Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-interlock/Cargo.toml
+2026-11-12T11:52:47.7963858Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-ledger/Cargo.toml
+2026-11-12T11:52:47.7964671Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-mcp-gateway/Cargo.toml
+2026-11-12T11:52:47.7965501Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-nexora/Cargo.toml
+2026-11-12T11:52:47.7966319Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observation/Cargo.toml
+2026-11-12T11:52:47.7967392Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe-verify/Cargo.toml
+2026-11-12T11:52:47.7968239Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe/Cargo.toml
+2026-11-12T11:52:47.7969068Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-placement/Cargo.toml
+2026-11-12T11:52:47.7969891Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-platform/Cargo.toml
+2026-11-12T11:52:47.7971068Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-probe/Cargo.toml
+2026-11-12T11:52:47.7971907Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-protocol/Cargo.toml
+2026-11-12T11:52:47.7972731Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-real-tests/Cargo.toml
+2026-11-12T11:52:47.7973743Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-reconcile/Cargo.toml
+2026-11-12T11:52:47.7974570Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-registry/Cargo.toml
+2026-11-12T11:52:47.7975381Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-robotics/Cargo.toml
+2026-11-12T11:52:47.7976214Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-sentinel-feed/Cargo.toml
+2026-11-12T11:52:47.7977042Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-siem/Cargo.toml
+2026-11-12T11:52:47.7977834Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-space/Cargo.toml
+2026-11-12T11:52:47.7978625Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spend/Cargo.toml
+2026-11-12T11:52:47.7979490Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spiffe/Cargo.toml
+2026-11-12T11:52:47.7980287Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-system/Cargo.toml
+2026-11-12T11:52:47.7981374Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-test/Cargo.toml
+2026-11-12T11:52:47.7982179Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-transport/Cargo.toml
+2026-11-12T11:52:47.7982981Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-types/Cargo.toml
+2026-11-12T11:52:47.7983767Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-uas/Cargo.toml
+2026-11-12T11:52:47.7984560Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-verify/Cargo.toml
+2026-11-12T11:52:47.7985362Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-warrant/Cargo.toml
+2026-11-12T11:52:47.7986285Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/banking_demo/Cargo.toml
+2026-11-12T11:52:47.7987133Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/ghost-demo/Cargo.toml
+2026-11-12T11:52:47.7987862Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/Cargo.lock
+2026-11-12T11:52:47.7988695Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/aip-feed-conformance/Cargo.toml
+2026-11-12T11:52:47.7989838Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-accountability-core/Cargo.toml
+2026-11-12T11:52:47.7991518Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-sentinel/Cargo.toml
+2026-11-12T11:52:47.7992720Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/syntriass-runtime/Cargo.toml
+2026-11-12T11:52:47.7993846Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/vanian-sovereign/Cargo.toml
+2026-11-12T11:52:47.7995678Z ##[endgroup]
+2026-11-12T11:52:47.7995807Z 
+2026-11-12T11:52:47.7995912Z ... Restoring cache ...
+2026-11-12T11:52:48.0571703Z Cache hit for: v0-rust-red-suite-Linux-x64-368c5654-259d97ab
+2026-11-12T11:52:49.2708084Z Received 67108864 of 111640320 (60.1%), 64.0 MBs/sec
+2026-11-12T11:52:49.5085424Z Received 111640320 of 111640320 (100.0%), 86.0 MBs/sec
+2026-11-12T11:52:49.5086263Z Cache Size: ~106 MB (111640320 B)
+2026-11-12T11:52:49.5151055Z [command]/usr/bin/tar -xf /home/runner/work/_temp/a7509df1-2f87-4200-9cc0-fbdb44693cb3/cache.tzst -P -C /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol- --use-compress-program unzstd
+2026-11-12T11:52:50.2876674Z Cache restored successfully
+2026-11-12T11:52:50.2925951Z Restored from cache key "v0-rust-red-suite-Linux-x64-368c5654-259d97ab" full match: true.
+2026-11-12T11:52:50.3133871Z ##[group]Run validation/red_suite/run.sh
+2026-11-12T11:52:50.3134257Z [36;1mvalidation/red_suite/run.sh[0m
+2026-11-12T11:52:50.3184246Z shell: /usr/bin/bash -e {0}
+2026-11-12T11:52:50.3184524Z env:
+2026-11-12T11:52:50.3184742Z   CARGO_TERM_COLOR: always
+2026-11-12T11:52:50.3185011Z   RUSTFLAGS: -D warnings
+2026-11-12T11:52:50.3185272Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T11:52:50.3185556Z   CARGO_INCREMENTAL: 0
+2026-11-12T11:52:50.3185803Z   CACHE_ON_FAILURE: false
+2026-11-12T11:52:50.3186052Z ##[endgroup]
+2026-11-12T11:52:50.3337620Z Vanian RED suite (R19)
+2026-11-12T11:52:50.3424141Z host: Linux 7.0.0-1019-azure  user: runner  2026-11-12T11:52:50Z
+2026-11-12T11:52:50.3425518Z kernel-gate rows: BLOCKED (needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here)
+2026-11-12T11:52:50.3426362Z 
+2026-11-12T11:52:50.3426615Z ROW      STATUS       LEDGER / DETAIL
+2026-11-12T11:52:50.3427409Z -------------------------------------------------------------------
+2026-11-12T11:52:50.3441443Z OI-01    [33mBLOCKED[0m      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as DETECTED
+2026-11-12T11:52:50.3447390Z OI-02    [33mBLOCKED[0m      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as MISSED(pre-fix)
+2026-11-12T11:52:50.3453909Z OI-03    [33mBLOCKED[0m      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as MISSED(pre-fix)
+2026-11-12T11:52:50.3459986Z OI-04    [33mBLOCKED[0m      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as DETECTED
+2026-11-12T11:52:50.3466374Z OI-05    [33mBLOCKED[0m      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as DETECTED
+2026-11-12T11:52:50.3474590Z OI-06    [33mBLOCKED[0m      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as NO_FALSE_POSITIVE
+2026-11-12T11:52:56.0335144Z OI-07    [33mNOTE[0m         boundary: KEY_CUSTODY_BOUNDARY
+2026-11-12T11:52:56.0341853Z OI-08    [33mBLOCKED[0m      deferred — DEFERRED
+2026-11-12T11:52:57.0870034Z OI-09    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:52:57.1940820Z OI-10    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:52:57.3007741Z OI-11    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:52:57.4049625Z OI-12    [32mREPRODUCED[0m   NO_FALSE_POSITIVE
+2026-11-12T11:52:59.2936279Z RA-01    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:52:59.3931128Z RA-02    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:52:59.4945923Z RA-03    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:52:59.6050760Z RA-04    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:52:59.7066276Z RA-05    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:52:59.8060059Z RA-06    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:03.7694725Z CV-01    [32mREPRODUCED[0m   CONTROL_VERIFIES
+2026-11-12T11:53:03.9692748Z CV-02    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:04.2563360Z CV-03    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:04.4359029Z CV-04    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:04.6148236Z CV-05    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:04.8042804Z CV-06    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:04.9847631Z CV-07    [32mREPRODUCED[0m   PROPERTY
+2026-11-12T11:53:05.2976241Z CI-01    [32mREPRODUCED[0m   NO_FALSE_POSITIVE
+2026-11-12T11:53:05.3972139Z CI-02    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:05.4971102Z CI-03    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:05.5976142Z CI-04    [32mREPRODUCED[0m   NO_FALSE_POSITIVE
+2026-11-12T11:53:05.6979152Z CI-05    [33mNOTE[0m         boundary: BY_CONSTRUCTION
+2026-11-12T11:53:05.7995238Z CI-06    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:05.9009315Z CI-07    [32mREPRODUCED[0m   NO_FALSE_POSITIVE
+2026-11-12T11:53:06.0055878Z CI-08    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:06.0063267Z OI-13    [33mBLOCKED[0m      needs root + CAP_BPF + tracefs; sealed evidence in validation/pilot_e2e/results/sealed; NO_FALSE_POSITIVE
+2026-11-12T11:53:06.0070992Z OI-14    [33mBLOCKED[0m      needs root + CAP_BPF + tracefs; sealed evidence in validation/pilot_e2e/results/sealed; DETECTED
+2026-11-12T11:53:06.0077442Z OI-15    [33mBLOCKED[0m      needs root + CAP_BPF + tracefs; sealed evidence in validation/pilot_e2e/results/sealed; RECOVERS
+2026-11-12T11:53:06.8577765Z EA-01    [32mREPRODUCED[0m   NO_FALSE_POSITIVE
+2026-11-12T11:53:06.9895575Z EA-02    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:07.1094844Z EA-03    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:07.2536797Z EA-04    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:07.3946670Z EA-05    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:07.5320856Z EA-06    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:07.6622971Z EA-07    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:07.7686131Z EA-08    [32mREPRODUCED[0m   REFUSED
+2026-11-12T11:53:07.9057743Z EA-09    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:08.0391025Z EA-10    [32mREPRODUCED[0m   NO_FALSE_POSITIVE
+2026-11-12T11:53:08.3441305Z CL-01    [32mREPRODUCED[0m   CONTROL_VERIFIES
+2026-11-12T11:53:08.4493980Z CL-02    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:08.5530239Z CL-03    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:08.6564266Z CL-04    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:08.7632570Z CL-05    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:08.8683292Z CL-06    [32mREPRODUCED[0m   DETECTED
+2026-11-12T11:53:08.9706709Z CL-07    [32mREPRODUCED[0m   PROPERTY
+2026-11-12T11:53:09.0848265Z CL-08    [32mREPRODUCED[0m   PROPERTY
+2026-11-12T11:53:09.1964513Z CL-09    [32mREPRODUCED[0m   CONTROL_VERIFIES
+2026-11-12T11:53:09.1965208Z -------------------------------------------------------------------
+2026-11-12T11:53:09.1965986Z reproduced/runnable: 43   notes: 2   blocked: 10   failed: 0
+2026-11-12T11:53:09.2078213Z Post job cleanup.
+2026-11-12T11:53:09.3327394Z Cache up-to-date.
+2026-11-12T11:53:09.3498301Z Post job cleanup.
+2026-11-12T11:53:09.4408238Z [command]/usr/bin/git version
+2026-11-12T11:53:09.4456286Z git version 2.56.1
+2026-11-12T11:53:09.4500575Z Temporarily overriding HOME='/home/runner/work/_temp/03135537-1264-4f08-97d3-63dc60c7d649' before making global git config changes
+2026-11-12T11:53:09.4502129Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T11:53:09.4507108Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T11:53:09.4550148Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T11:53:09.4587729Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T11:53:09.4896362Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T11:53:09.4925092Z http.https://github.com/.extraheader
+2026-11-12T11:53:09.4945985Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-12T11:53:09.4988645Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T11:53:09.5317163Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T11:53:09.5356440Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T11:53:09.5783304Z Cleaning up orphan processes
+2026-11-12T11:53:09.6176652Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

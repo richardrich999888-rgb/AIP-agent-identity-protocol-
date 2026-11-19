@@ -1,0 +1,39 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "vanian-sovereign",
+    "--test",
+    "agent_execution",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox",
+  "source_commit": "31d3ee5a84e7565db9458b9834f46b51dfd53720",
+  "changes": [
+    " M Cargo.lock",
+    " M sovereign/vanian-sovereign/Cargo.toml",
+    " M sovereign/vanian-sovereign/src/adapters/mod.rs",
+    " M sovereign/vanian-sovereign/src/adapters/sandbox.rs",
+    " M sovereign/vanian-sovereign/src/app.rs",
+    " M sovereign/vanian-sovereign/src/bin/vanian.rs",
+    " M sovereign/vanian-sovereign/tests/agent_execution.rs",
+    "?? sovereign/vanian-sovereign/src/adapters/launch.rs"
+  ],
+  "started_at_utc": "2026-11-12T15:38:53.547772+00:00",
+  "source_hashes": {
+    "sovereign/vanian-sovereign/src/adapters/sandbox.rs": "003e8b8a9be632faedfeb5ea1618195fbe0e6af014fe7144c03ba6f03bf92b9a",
+    "sovereign/vanian-sovereign/tests/agent_execution.rs": "11912d347bc5691364d96fd46e4be4e3759ac20acc34aa2420e3ce9aa8672bfb",
+    "validation/ci/with_cgroup.sh": "da5a6dbabfae437b485d52edbbd5fac1956fa369bf3d68518c641848419bd311"
+  },
+  "environment": {
+    "CARGO_HOME": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/cargo-home",
+    "CARGO_TARGET_DIR": "/workspace/scratch/8cbb8ab6ce9d/p050-sandbox-tools/target",
+    "CARGO_BUILD_JOBS": "4"
+  },
+  "exit_code": 101,
+  "duration_seconds": 15.151934843001072
+}

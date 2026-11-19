@@ -1,0 +1,527 @@
+{
+  "outcomes": {
+    "local": {
+      "rejected-control": {
+        "status": "REJECTED_BY_SUITE",
+        "exit_status": 3,
+        "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+        "examples": {
+          "status": "PASSED",
+          "passed": 3,
+          "total": 3,
+          "withheld": 0,
+          "cases": [
+            {
+              "id": "demo-0",
+              "input": "Transformer TX-14, 11 kV: IR 800 megohms at 20 C, DAR 1.6.",
+              "expected": "allowed",
+              "expert_reason": "HU-TX-2 gives ACCEPT",
+              "native_outcome": "ACCEPT",
+              "mapped_label": "allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-2",
+              "input": "TX-9 (6.6 kV): 40 megohms at 20 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives REMOVE_FROM_SERVICE",
+              "native_outcome": "REMOVE_FROM_SERVICE",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-5",
+              "input": "TX-7, 11 kV, 900 megohms, top oil 95 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives INVALID_TEST",
+              "native_outcome": "INVALID_TEST",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            }
+          ],
+          "review_declaration": {
+            "who": "engineer:recorder",
+            "when_ms": 1794487483199,
+            "why": "Explicitly reuse the existing synthetic example labels; other outcomes remain unreviewed."
+          },
+          "bindings": {
+            "session_id": "239741f7c09c79b9d68c6e47e10d8758df7e016ce0ffd0f468726ecd55e234bb",
+            "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+            "source_sha256": "1c502b5940db2b1524b73bba60c77505863b19db1c0047547ec06caeb0233bbf",
+            "task_sha256": "172785299c316f6eb85ba122a5e1bca735406e9c22a1ac7d7cd1373c0316ba10",
+            "answers_sha256": "d9960183b64a4a9cb335dc90dde16281012990c7e748b19866818cea7244f1fc",
+            "suite_sha256": "e3e95cace87d7d9fcc3c554598e19491878d1322d85aaa703ccfa029073ad2d1"
+          },
+          "expert_identity_verified": false,
+          "independent_suite_cases_added": 0,
+          "limitation": "Unsigned declared review; examples remain separate from the independently signed suite."
+        },
+        "validation": {
+          "artifact_cases": 0,
+          "artifact_claimed_expert": 0,
+          "artifact_passed": 0,
+          "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+          "compile_error": null,
+          "compiled": true,
+          "counterexamples": 5,
+          "counterexamples_passed": 4,
+          "evidence_scope_ok": true,
+          "expert_cases": 12,
+          "expert_passed": 11,
+          "failures": [
+            {
+              "expected": "OUT_OF_SCOPE",
+              "got": "ACCEPT",
+              "id": "val-09",
+              "origin": "suite"
+            }
+          ],
+          "passed": false,
+          "suite_expert": "expert:p0-049-synthetic-evaluator",
+          "suite_hash": "f259e0401a102f18336bad71c45f14d8dad217d5ea02e8569238aa7bd5da7123",
+          "suite_independent": true,
+          "suite_signature_ok": true,
+          "wall_micros": 13047
+        }
+      },
+      "corrected-validation": {
+        "status": "PASS_SESSION_AND_SUITE",
+        "exit_status": 0,
+        "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+        "examples": {
+          "status": "PASSED",
+          "passed": 3,
+          "total": 3,
+          "withheld": 0,
+          "cases": [
+            {
+              "id": "demo-0",
+              "input": "Transformer TX-14, 11 kV: IR 800 megohms at 20 C, DAR 1.6.",
+              "expected": "allowed",
+              "expert_reason": "HU-TX-2 gives ACCEPT",
+              "native_outcome": "ACCEPT",
+              "mapped_label": "allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-2",
+              "input": "TX-9 (6.6 kV): 40 megohms at 20 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives REMOVE_FROM_SERVICE",
+              "native_outcome": "REMOVE_FROM_SERVICE",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-5",
+              "input": "TX-7, 11 kV, 900 megohms, top oil 95 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives INVALID_TEST",
+              "native_outcome": "INVALID_TEST",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            }
+          ],
+          "review_declaration": {
+            "who": "engineer:recorder",
+            "when_ms": 1794487483641,
+            "why": "Explicitly reuse the existing synthetic example labels; other outcomes remain unreviewed."
+          },
+          "bindings": {
+            "session_id": "239741f7c09c79b9d68c6e47e10d8758df7e016ce0ffd0f468726ecd55e234bb",
+            "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+            "source_sha256": "1c502b5940db2b1524b73bba60c77505863b19db1c0047547ec06caeb0233bbf",
+            "task_sha256": "172785299c316f6eb85ba122a5e1bca735406e9c22a1ac7d7cd1373c0316ba10",
+            "answers_sha256": "4970fe0e8882b7db5112b6f9edbc205bd4b8831b7df88e1c16a1a1cde6d58148",
+            "suite_sha256": "5a6ee04c698bf114c51da10b2f82d966856570967c6c83b765068f83c9659a53"
+          },
+          "expert_identity_verified": false,
+          "independent_suite_cases_added": 0,
+          "limitation": "Unsigned declared review; examples remain separate from the independently signed suite."
+        },
+        "validation": {
+          "artifact_cases": 0,
+          "artifact_claimed_expert": 0,
+          "artifact_passed": 0,
+          "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+          "compile_error": null,
+          "compiled": true,
+          "counterexamples": 5,
+          "counterexamples_passed": 5,
+          "evidence_scope_ok": true,
+          "expert_cases": 12,
+          "expert_passed": 12,
+          "failures": [],
+          "passed": true,
+          "suite_expert": "expert:p0-049-synthetic-evaluator",
+          "suite_hash": "6a9c7cd27ff9dbe22e5c52d1967ade3f7f55286383b1dd1cd9aefaabe9186c17",
+          "suite_independent": true,
+          "suite_signature_ok": true,
+          "wall_micros": 12136
+        }
+      },
+      "corrected-attacks": {
+        "status": "PASS_SESSION_AND_SUITE",
+        "exit_status": 0,
+        "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+        "examples": {
+          "status": "PASSED",
+          "passed": 3,
+          "total": 3,
+          "withheld": 0,
+          "cases": [
+            {
+              "id": "demo-0",
+              "input": "Transformer TX-14, 11 kV: IR 800 megohms at 20 C, DAR 1.6.",
+              "expected": "allowed",
+              "expert_reason": "HU-TX-2 gives ACCEPT",
+              "native_outcome": "ACCEPT",
+              "mapped_label": "allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-2",
+              "input": "TX-9 (6.6 kV): 40 megohms at 20 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives REMOVE_FROM_SERVICE",
+              "native_outcome": "REMOVE_FROM_SERVICE",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-5",
+              "input": "TX-7, 11 kV, 900 megohms, top oil 95 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives INVALID_TEST",
+              "native_outcome": "INVALID_TEST",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            }
+          ],
+          "review_declaration": {
+            "who": "engineer:recorder",
+            "when_ms": 1794487484215,
+            "why": "Explicitly reuse the existing synthetic example labels; other outcomes remain unreviewed."
+          },
+          "bindings": {
+            "session_id": "239741f7c09c79b9d68c6e47e10d8758df7e016ce0ffd0f468726ecd55e234bb",
+            "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+            "source_sha256": "1c502b5940db2b1524b73bba60c77505863b19db1c0047547ec06caeb0233bbf",
+            "task_sha256": "172785299c316f6eb85ba122a5e1bca735406e9c22a1ac7d7cd1373c0316ba10",
+            "answers_sha256": "4970fe0e8882b7db5112b6f9edbc205bd4b8831b7df88e1c16a1a1cde6d58148",
+            "suite_sha256": "7aa3f3d1fb711df6561069048cc8b0746aa7b51aaa05bf166dba0eec49dd885b"
+          },
+          "expert_identity_verified": false,
+          "independent_suite_cases_added": 0,
+          "limitation": "Unsigned declared review; examples remain separate from the independently signed suite."
+        },
+        "validation": {
+          "artifact_cases": 0,
+          "artifact_claimed_expert": 0,
+          "artifact_passed": 0,
+          "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+          "compile_error": null,
+          "compiled": true,
+          "counterexamples": 22,
+          "counterexamples_passed": 22,
+          "evidence_scope_ok": true,
+          "expert_cases": 26,
+          "expert_passed": 26,
+          "failures": [],
+          "passed": true,
+          "suite_expert": "expert:p0-049-synthetic-evaluator",
+          "suite_hash": "d4e26ecbbef3454cbc8d7b3adea32afaf05d0cd8c477284bd2909821526bb47f",
+          "suite_independent": true,
+          "suite_signature_ok": true,
+          "wall_micros": 13084
+        }
+      }
+    },
+    "ci": {
+      "rejected-control": {
+        "status": "REJECTED_BY_SUITE",
+        "exit_status": 3,
+        "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+        "examples": {
+          "status": "PASSED",
+          "passed": 3,
+          "total": 3,
+          "withheld": 0,
+          "cases": [
+            {
+              "id": "demo-0",
+              "input": "Transformer TX-14, 11 kV: IR 800 megohms at 20 C, DAR 1.6.",
+              "expected": "allowed",
+              "expert_reason": "HU-TX-2 gives ACCEPT",
+              "native_outcome": "ACCEPT",
+              "mapped_label": "allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-2",
+              "input": "TX-9 (6.6 kV): 40 megohms at 20 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives REMOVE_FROM_SERVICE",
+              "native_outcome": "REMOVE_FROM_SERVICE",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-5",
+              "input": "TX-7, 11 kV, 900 megohms, top oil 95 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives INVALID_TEST",
+              "native_outcome": "INVALID_TEST",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            }
+          ],
+          "review_declaration": {
+            "who": "engineer:recorder",
+            "when_ms": 1794487524272,
+            "why": "Explicitly reuse the existing synthetic example labels; other outcomes remain unreviewed."
+          },
+          "bindings": {
+            "session_id": "59a8507e6e2a2391da9a0b09413963ec5ae59983242d280e61436a9290f3f66f",
+            "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+            "source_sha256": "1c502b5940db2b1524b73bba60c77505863b19db1c0047547ec06caeb0233bbf",
+            "task_sha256": "172785299c316f6eb85ba122a5e1bca735406e9c22a1ac7d7cd1373c0316ba10",
+            "answers_sha256": "95867e640a103616323bbfdcb519b853ef0c6364af66a22a52e4da9bc79f32f0",
+            "suite_sha256": "5741cb40befc20b92c51d4edbaa65479c9faa031e79cae9c507d9999b4ee4c6c"
+          },
+          "expert_identity_verified": false,
+          "independent_suite_cases_added": 0,
+          "limitation": "Unsigned declared review; examples remain separate from the independently signed suite."
+        },
+        "validation": {
+          "artifact_cases": 0,
+          "artifact_claimed_expert": 0,
+          "artifact_passed": 0,
+          "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+          "compile_error": null,
+          "compiled": true,
+          "counterexamples": 5,
+          "counterexamples_passed": 4,
+          "evidence_scope_ok": true,
+          "expert_cases": 12,
+          "expert_passed": 11,
+          "failures": [
+            {
+              "expected": "OUT_OF_SCOPE",
+              "got": "ACCEPT",
+              "id": "val-09",
+              "origin": "suite"
+            }
+          ],
+          "passed": false,
+          "suite_expert": "expert:p0-049-synthetic-evaluator",
+          "suite_hash": "f259e0401a102f18336bad71c45f14d8dad217d5ea02e8569238aa7bd5da7123",
+          "suite_independent": true,
+          "suite_signature_ok": true,
+          "wall_micros": 11703
+        }
+      },
+      "corrected-validation": {
+        "status": "PASS_SESSION_AND_SUITE",
+        "exit_status": 0,
+        "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+        "examples": {
+          "status": "PASSED",
+          "passed": 3,
+          "total": 3,
+          "withheld": 0,
+          "cases": [
+            {
+              "id": "demo-0",
+              "input": "Transformer TX-14, 11 kV: IR 800 megohms at 20 C, DAR 1.6.",
+              "expected": "allowed",
+              "expert_reason": "HU-TX-2 gives ACCEPT",
+              "native_outcome": "ACCEPT",
+              "mapped_label": "allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-2",
+              "input": "TX-9 (6.6 kV): 40 megohms at 20 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives REMOVE_FROM_SERVICE",
+              "native_outcome": "REMOVE_FROM_SERVICE",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-5",
+              "input": "TX-7, 11 kV, 900 megohms, top oil 95 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives INVALID_TEST",
+              "native_outcome": "INVALID_TEST",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            }
+          ],
+          "review_declaration": {
+            "who": "engineer:recorder",
+            "when_ms": 1794487524597,
+            "why": "Explicitly reuse the existing synthetic example labels; other outcomes remain unreviewed."
+          },
+          "bindings": {
+            "session_id": "59a8507e6e2a2391da9a0b09413963ec5ae59983242d280e61436a9290f3f66f",
+            "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+            "source_sha256": "1c502b5940db2b1524b73bba60c77505863b19db1c0047547ec06caeb0233bbf",
+            "task_sha256": "172785299c316f6eb85ba122a5e1bca735406e9c22a1ac7d7cd1373c0316ba10",
+            "answers_sha256": "b8862ac67de2d5321f056f170bd0e29a6d4f00ee0ba5d8f69407739a58fab370",
+            "suite_sha256": "e6d601ab710ecdb728c33dea323798b25aa10b2316889082056c98a2f0183ef8"
+          },
+          "expert_identity_verified": false,
+          "independent_suite_cases_added": 0,
+          "limitation": "Unsigned declared review; examples remain separate from the independently signed suite."
+        },
+        "validation": {
+          "artifact_cases": 0,
+          "artifact_claimed_expert": 0,
+          "artifact_passed": 0,
+          "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+          "compile_error": null,
+          "compiled": true,
+          "counterexamples": 5,
+          "counterexamples_passed": 5,
+          "evidence_scope_ok": true,
+          "expert_cases": 12,
+          "expert_passed": 12,
+          "failures": [],
+          "passed": true,
+          "suite_expert": "expert:p0-049-synthetic-evaluator",
+          "suite_hash": "6a9c7cd27ff9dbe22e5c52d1967ade3f7f55286383b1dd1cd9aefaabe9186c17",
+          "suite_independent": true,
+          "suite_signature_ok": true,
+          "wall_micros": 11815
+        }
+      },
+      "corrected-attacks": {
+        "status": "PASS_SESSION_AND_SUITE",
+        "exit_status": 0,
+        "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+        "examples": {
+          "status": "PASSED",
+          "passed": 3,
+          "total": 3,
+          "withheld": 0,
+          "cases": [
+            {
+              "id": "demo-0",
+              "input": "Transformer TX-14, 11 kV: IR 800 megohms at 20 C, DAR 1.6.",
+              "expected": "allowed",
+              "expert_reason": "HU-TX-2 gives ACCEPT",
+              "native_outcome": "ACCEPT",
+              "mapped_label": "allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-2",
+              "input": "TX-9 (6.6 kV): 40 megohms at 20 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives REMOVE_FROM_SERVICE",
+              "native_outcome": "REMOVE_FROM_SERVICE",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            },
+            {
+              "id": "demo-5",
+              "input": "TX-7, 11 kV, 900 megohms, top oil 95 C, DAR 1.5.",
+              "expected": "not_allowed",
+              "expert_reason": "HU-TX-2 gives INVALID_TEST",
+              "native_outcome": "INVALID_TEST",
+              "mapped_label": "not_allowed",
+              "passed": true,
+              "withheld_reason": null
+            }
+          ],
+          "review_declaration": {
+            "who": "engineer:recorder",
+            "when_ms": 1794487524923,
+            "why": "Explicitly reuse the existing synthetic example labels; other outcomes remain unreviewed."
+          },
+          "bindings": {
+            "session_id": "59a8507e6e2a2391da9a0b09413963ec5ae59983242d280e61436a9290f3f66f",
+            "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+            "source_sha256": "1c502b5940db2b1524b73bba60c77505863b19db1c0047547ec06caeb0233bbf",
+            "task_sha256": "172785299c316f6eb85ba122a5e1bca735406e9c22a1ac7d7cd1373c0316ba10",
+            "answers_sha256": "b8862ac67de2d5321f056f170bd0e29a6d4f00ee0ba5d8f69407739a58fab370",
+            "suite_sha256": "83035b85edea032ebb73f2754252277cf7a360f8029c4934caec153d286041f9"
+          },
+          "expert_identity_verified": false,
+          "independent_suite_cases_added": 0,
+          "limitation": "Unsigned declared review; examples remain separate from the independently signed suite."
+        },
+        "validation": {
+          "artifact_cases": 0,
+          "artifact_claimed_expert": 0,
+          "artifact_passed": 0,
+          "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+          "compile_error": null,
+          "compiled": true,
+          "counterexamples": 22,
+          "counterexamples_passed": 22,
+          "evidence_scope_ok": true,
+          "expert_cases": 26,
+          "expert_passed": 26,
+          "failures": [],
+          "passed": true,
+          "suite_expert": "expert:p0-049-synthetic-evaluator",
+          "suite_hash": "d4e26ecbbef3454cbc8d7b3adea32afaf05d0cd8c477284bd2909821526bb47f",
+          "suite_independent": true,
+          "suite_signature_ok": true,
+          "wall_micros": 12870
+        }
+      }
+    }
+  },
+  "timing_differences": {
+    "local": {
+      "rejected-control": {
+        "original_wall_micros": 13047,
+        "replay_wall_micros": 16950
+      },
+      "corrected-validation": {
+        "original_wall_micros": 12136,
+        "replay_wall_micros": 12129
+      },
+      "corrected-attacks": {
+        "original_wall_micros": 13084,
+        "replay_wall_micros": 13710
+      }
+    },
+    "ci": {
+      "rejected-control": {
+        "original_wall_micros": 11703,
+        "replay_wall_micros": 13137
+      },
+      "corrected-validation": {
+        "original_wall_micros": 11815,
+        "replay_wall_micros": 12323
+      },
+      "corrected-attacks": {
+        "original_wall_micros": 12870,
+        "replay_wall_micros": 13871
+      }
+    }
+  },
+  "first_comparison_attempt": "Strict full validation equality failed on wall_micros only; timings are preserved and all non-timing fields compare exactly."
+}

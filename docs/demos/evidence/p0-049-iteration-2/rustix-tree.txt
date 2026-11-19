@@ -1,0 +1,11 @@
+rustix v1.1.6
+└── tempfile v3.27.0
+    [dev-dependencies]
+    ├── ot-accountability-core v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-accountability-core)
+    │   └── ot-sentinel v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-sentinel)
+    │       [dev-dependencies]
+    │       └── aip-feed-conformance v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/aip-feed-conformance)
+    ├── ot-sentinel v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-sentinel) (*)
+    ├── syntriass-runtime v0.1.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/sovereign/syntriass-runtime)
+    └── vanian-sovereign v0.4.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/sovereign/vanian-sovereign)
+        └── syntriass-runtime v0.1.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/sovereign/syntriass-runtime)

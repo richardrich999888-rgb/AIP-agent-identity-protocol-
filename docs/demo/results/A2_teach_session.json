@@ -1,0 +1,84 @@
+{
+  "schema": "syntriass.demo.item_evidence/1",
+  "item": "A2 \u2014 teach session API: cited clauses, the expert's rule, 2-5 labelled examples",
+  "commit": "40040059898a3c9b0473c086a5d730d1bfe1da91",
+  "tree_dirty": false,
+  "branch": "feature/airon-teach-demo",
+  "recorded_utc": "2026-11-06T05:19:22Z",
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.30GHz",
+    "cores": 4,
+    "ram_mib": 16086,
+    "gpu": "none",
+    "kernel": "6.18.44-fc-v242",
+    "NOT_the_published_bench_machine": "V02_REPORT.md and BASELINES.md figures were measured on 2 vCPU Xeon (AVX-512) / 8 GB. Nothing here may be merged with those."
+  },
+  "acceptance_criterion": "`syntriass teach start --doc <file> --page <n>` creates a session holding cited clauses, the expert's plain-language rule and 2-5 labelled examples with reasons, persisted under the tenant at mode 0600",
+  "result": "MET",
+  "fixture": {
+    "generator": "research/capability-learning/harness/make_pdf_fixture.py",
+    "document": "EP-114.pdf",
+    "document_sha256": "f28d6bd4ef44f26687f646cde08b18f81385ff149103516b4f7d363e0b0d01f3",
+    "pages": 20
+  },
+  "binary": {
+    "path": "target/debug/syntriass",
+    "command": "syntriass teach {start|list|show}",
+    "model_calls": 0,
+    "model_calls_note": "A teach session records an expert's words against a document's bytes. No model is loaded and none is reachable: the config's model fields are UNUSED_BY_TEACH and nothing in this run opens a socket. This is a property of the item, not an untested claim."
+  },
+  "text_layer_session": {
+    "task": "winding_temperature_gate",
+    "session_id": "3216bce92308a3980aa4318a77b2e7884d3603dd795bd5c99a3856e2c3888ec1",
+    "pages": [
+      2
+    ],
+    "clauses_cited": 4,
+    "citations": [
+      "EP-114.pdf p.2 [0:17]",
+      "EP-114.pdf p.2 [18:89]",
+      "EP-114.pdf p.2 [90:201]",
+      "EP-114.pdf p.2 [202:272]"
+    ],
+    "examples": 3,
+    "allowed": 1,
+    "not_allowed": 2,
+    "needs_confirmation": [],
+    "stored_at": "state/teach/koravi-process/3216bce92308a3980aa4318a77b2e7884d3603dd795bd5c99a3856e2c3888ec1.json",
+    "file_mode": "0600",
+    "tenant_directory_mode": "0700"
+  },
+  "ocr_session": {
+    "task": "rewound_motor_floor",
+    "session_id": "ddb382329a19f3f34abe6d9d2c722e0570d4f9b36f196819599fd5cf7c3e1415",
+    "pages": [
+      20
+    ],
+    "clauses_cited": 3,
+    "citations": [
+      "EP-114.pdf p.20 [0:32]",
+      "EP-114.pdf p.20 [33:124]",
+      "EP-114.pdf p.20 [126:174]"
+    ],
+    "needs_confirmation": [
+      "p20#0",
+      "p20#1",
+      "p20#2"
+    ],
+    "why_it_matters": "Every clause on page 20 came from OCR, so every value in them is a hypothesis to put back to the expert in B1, not a reading to assert. The session says so in a field rather than leaving it to whoever reads the clause text."
+  },
+  "independent_hash_check": {
+    "method": "The canonical encoding was reproduced in Python from the stored file (research/capability-learning/harness/record_teach_session.py:canonical) and hashed with hashlib, with no Rust code involved.",
+    "session_id_recomputed": "3216bce92308a3980aa4318a77b2e7884d3603dd795bd5c99a3856e2c3888ec1",
+    "agrees": true
+  },
+  "refusals": {
+    "note": "Each entry is the stderr of a real attempt that exited non-zero. Nothing here is a description of what the code would do.",
+    "document_edited_after_extraction": "syntriass: /tmp/a2-teach-s1vmdyz0/edited.pdf: sha256 12b4276b4afe138af03f21b0c581340ec2035a6dc04ecd84db9a163cf97cd58d does not match /tmp/a2-teach-s1vmdyz0/page2.clauses.json (f28d6bd4ef44f26687f646cde08b18f81385ff149103516b4f7d363e0b0d01f3); re-run the ingester on this document",
+    "single_class_examples": "syntriass: examples: every example is labelled allowed; one of each label is required",
+    "page_not_cited": "syntriass: page 7: requested, but no clause was extracted from it",
+    "session_edited_on_disk": "syntriass: /tmp/a2-teach-s1vmdyz0/state/teach/koravi-process/3216bce92308a3980aa4318a77b2e7884d3603dd795bd5c99a3856e2c3888ec1.json: session_id 3216bce92308a3980aa4318a77b2e7884d3603dd795bd5c99a3856e2c3888ec1 does not match its content (computed 934fd4feab05c431465567d845ee0200a58efd3f6cb86d5d6e154f760fa29e00)",
+    "cross_tenant_read": "syntriass: no session 3216bce92308a3980aa4318a77b2e7884d3603dd795bd5c99a3856e2c3888ec1 for tenant someone-else"
+  },
+  "sessions_listed_for_tenant": 2
+}

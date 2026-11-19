@@ -1,0 +1,4 @@
+Observed in the first recorder attempt; transcribed from the tool output, not a retained raw log.
+Command: python3 research/capability-learning/harness/record_scoreboard.py --binary target/debug/syntriass --out /workspace/scratch/d81076ea93b3/scoreboard-trial
+Recorder called suite-sign with an expected field. The CLI refused: syntriass: case.label (exit 2).
+Fix: emit the documented label field. No runtime validation rule changed.

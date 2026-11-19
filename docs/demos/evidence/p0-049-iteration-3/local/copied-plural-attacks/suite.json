@@ -1,0 +1,165 @@
+{
+  "suite_id": "p0-049/b3/copied-plural-attacks",
+  "tenant": "halvorn-power",
+  "task": "Distribution transformer insulation acceptance per Halvorn HU-TX-2 rev A",
+  "expert_id": "expert:p0-049-synthetic-evaluator",
+  "cases": [
+    {
+      "id": "fa-0",
+      "text": "Who signs off transformer oil sampling?",
+      "expected": "NOT_APPLICABLE",
+      "counterexample": true
+    },
+    {
+      "id": "fa-1",
+      "text": "When was the last DGA report for substation 4?",
+      "expected": "NOT_APPLICABLE",
+      "counterexample": true
+    },
+    {
+      "id": "fa-2",
+      "text": "What PPE is needed for insulation testing at 11 kV?",
+      "expected": "NOT_APPLICABLE",
+      "counterexample": true
+    },
+    {
+      "id": "fa-3",
+      "text": "Cell 7 floats at 2.22 V at 25 C with SG 1.215.",
+      "expected": "NOT_APPLICABLE",
+      "counterexample": true
+    },
+    {
+      "id": "fa-4",
+      "text": "Explain what the dielectric absorption ratio measures.",
+      "expected": "NOT_APPLICABLE",
+      "counterexample": true
+    },
+    {
+      "id": "fa-5",
+      "text": "List the transformers due for maintenance this quarter.",
+      "expected": "NOT_APPLICABLE",
+      "counterexample": true
+    },
+    {
+      "id": "form-0-lower",
+      "text": "motor C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-0-upper",
+      "text": "MOTOR C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-1-lower",
+      "text": "motors C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-1-upper",
+      "text": "MOTORS C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-2-lower",
+      "text": "cable C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-2-upper",
+      "text": "CABLE C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-3-lower",
+      "text": "cables C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-3-upper",
+      "text": "CABLES C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-4-lower",
+      "text": "generator C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-4-upper",
+      "text": "GENERATOR C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-5-lower",
+      "text": "generators C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-5-upper",
+      "text": "GENERATORS C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-6-lower",
+      "text": "dry-type transformer C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-6-upper",
+      "text": "DRY-TYPE TRANSFORMER C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-7-lower",
+      "text": "dry-type transformers C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "form-7-upper",
+      "text": "DRY-TYPE TRANSFORMERS C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "whole-word-0",
+      "text": "TX-30 11 kV, 260 megohms at 20 C, DAR 1.4. Tag: motorcycle",
+      "expected": "ACCEPT",
+      "counterexample": false
+    },
+    {
+      "id": "whole-word-1",
+      "text": "TX-30 11 kV, 260 megohms at 20 C, DAR 1.4. Tag: xcables",
+      "expected": "ACCEPT",
+      "counterexample": false
+    },
+    {
+      "id": "whole-word-2",
+      "text": "TX-30 11 kV, 260 megohms at 20 C, DAR 1.4. Tag: cabling",
+      "expected": "ACCEPT",
+      "counterexample": false
+    },
+    {
+      "id": "whole-word-3",
+      "text": "TX-30 11 kV, 260 megohms at 20 C, DAR 1.4. Tag: generatorship",
+      "expected": "ACCEPT",
+      "counterexample": false
+    }
+  ],
+  "signature_hex": "c23f233034df89443b9fd897086e2477c57c6ca77d2653b869363a870b1deed27f89fd7612577806dba57f26e57d572c0d871a6d9589afd19bcfb171bc049805"
+}

@@ -18,21 +18,51 @@
 //! The process then runs under `unshare --user --map-root-user --net --pid
 //! --fork --kill-child --mount --mount-proc` with an empty environment,
 //! stdin closed, a private working directory and a wall-clock deadline
-//! enforced by SIGKILL. The new network namespace contains only a loopback
+//! enforced by the helper with SIGKILL; an outer watchdog allows 1 second of
+//! setup/reporting grace, refusing unproven results. The network namespace contains only a loopback
 //! device, so the tool has no route off the host.
 //!
 //! # Known gaps (documented, not hidden)
 //!
 //! - Step 6 then exec is a TOCTOU window: the file could be swapped between
-//!   hashing and execve. aip-enforce (seccomp user-notify on execve) closes
-//!   this and is the planned integration.
+//!   hashing and execve. Integration with aip-enforce requires separate
+//!   verification; this adapter does not close that race.
 //! - No filesystem isolation beyond the namespaces: the tool sees the host
 //!   filesystem with the runner's uid. Read-only bind mounts / Landlock are
 //!   the next hardening step.
 //! - No CPU/memory cgroup limits yet; only the wall-clock deadline.
+//! - Launch acknowledgement is a runner-local kernel exec/wait check, not an
+//!   independently administered witness. Trusted unshare/helper/runner code and
+//!   keys remain in one security domain. Records retain `CannotProve`.
+//! - Child tracing must be permitted by the host. No fallback weakens this
+//!   requirement. Privilege-gaining executables and other kernel/platforms need
+//!   separate compatibility qualification.
+//!
+//! # Why the namespace is probed before anything is consumed
+//!
+//! `unshare` is a child process, so a kernel that refuses to create the
+//! namespaces does not make `spawn` fail: `unshare` execs fine, fails its own
+//! setup, writes to stderr and exits non-zero. Without the probe below the
+//! runner could not tell that apart from a tool that ran and exited non-zero,
+//! and it would go on to sign a run record carrying a real-looking exit code
+//! for a tool that never executed. The exit-code mutation test then changed
+//! `Code(1)` to the same value: no bytes changed, so signature verification
+//! correctly accepted it. The defect was false runner attribution, not broken
+//! cryptography.
+//!
+//! [`SandboxRunner::probe_namespaces`] therefore checks namespace readiness
+//! *before* the one-shot decision is consumed. A failed probe is
+//! [`RunError::SandboxUnavailable`], nothing is consumed and nothing is
+//! signed. After that, the trusted helper must positively observe the intended
+//! child's kernel exec event and terminal wait status before a record can be
+//! signed. Late failures leave authority consumed and return `LaunchUnproven`.
+//! Observed in CI on `ubuntu-24.04`, where unprivileged user
+//! namespaces are restricted by AppArmor.
 
 use std::io::Read;
-use std::os::unix::process::ExitStatusExt;
+use std::os::fd::AsRawFd;
+use std::os::unix::net::UnixStream;
+use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::thread;
@@ -44,8 +74,7 @@ use aip_authorize::{
 use aip_types::ExecutionBinding;
 
 use crate::agent::evidence::{
-    expected_execution_digest, ExitOutcome, Observation, RunRecord, SandboxDescriptor,
-    RUN_RECORD_VERSION,
+    expected_execution_digest, Observation, RunRecord, SandboxDescriptor, RUN_RECORD_VERSION,
 };
 use crate::agent::replay::{ReplayError, ReplayGuard};
 use crate::agent::tool::{decode_digest, file_sha256, ToolInvocation, ToolManifest};
@@ -54,6 +83,22 @@ use crate::agent::tool::{decode_digest, file_sha256, ToolInvocation, ToolManifes
 pub const MAX_CAPTURE_BYTES: usize = 1 << 20;
 /// try_wait polling interval while enforcing the deadline.
 const POLL: Duration = Duration::from_millis(10);
+/// Program the namespace probe runs: it must only start and exit 0.
+const PROBE_PROGRAM: &str = "/bin/true";
+/// The probe must not hang if the kernel wedges; it only runs `/bin/true`.
+const PROBE_TIMEOUT: Duration = Duration::from_secs(10);
+/// Flags shared by the probe and the real run. Readiness at probe time does
+/// not attest the later launch; both exercise the same namespace requests.
+const UNSHARE_FLAGS: [&str; 8] = [
+    "--user",
+    "--map-root-user",
+    "--net",
+    "--pid",
+    "--fork",
+    "--kill-child",
+    "--mount",
+    "--mount-proc",
+];
 
 /// Static configuration of the runner.
 pub struct SandboxRunner {
@@ -62,11 +107,14 @@ pub struct SandboxRunner {
     pub decision_anchors: DecisionPointTrustAnchors,
     /// Absolute path to util-linux `unshare`.
     pub unshare_path: PathBuf,
+    /// Trusted vanian CLI implementing the private launch helper; not agent input.
+    pub launcher_path: PathBuf,
     /// Directory the tool runs in (must exist).
     pub workdir: PathBuf,
 }
 
-/// Why the runner refused or failed. A refusal means nothing was executed.
+/// Why the runner refused or failed. Preflight refusals precede execution;
+/// later operational/signing failures do not prove that nothing executed.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunError {
     ExpectedExecutionInvalid(String),
@@ -78,6 +126,9 @@ pub enum RunError {
     ProgramDigestMismatch,
     Replay(ReplayError),
     SandboxUnavailable(String),
+    /// Launch began but successful tool exec plus terminal status was not proven.
+    /// One-shot authority stays consumed and no run record is returned.
+    LaunchUnproven(String),
     Spawn(String),
     Signing(String),
 }
@@ -152,6 +203,77 @@ fn capture(mut r: impl Read + Send + 'static) -> thread::JoinHandle<(Vec<u8>, bo
 }
 
 impl SandboxRunner {
+    /// Check current availability of the namespaces the sandbox depends on.
+    ///
+    /// Runs `unshare` with the *same* flags as a real execution over
+    /// `/bin/true`, which only has to start and exit 0. Any other outcome
+    /// means the sandbox cannot be built, and the caller must refuse rather
+    /// than execute unsandboxed or sign a record for a run that did not
+    /// happen.
+    ///
+    /// Returns the probe's own stderr on failure, because that is where the
+    /// kernel's reason appears (`unshare failed: Operation not permitted`
+    /// where unprivileged user namespaces are restricted).
+    ///
+    /// Not cached: the cost is one `/bin/true` fork against a tool execution
+    /// bounded by `timeout_ms`, and a cached verdict would be wrong for the
+    /// lifetime of the process if an operator changed the sysctl underneath
+    /// it. Correctness over the microseconds.
+    pub fn probe_namespaces(&self) -> Result<(), String> {
+        if !Path::new(PROBE_PROGRAM).is_file() {
+            // Cannot prove the capability either way, so refuse: an
+            // unprovable sandbox is treated exactly like an unavailable one.
+            return Err(format!(
+                "cannot probe namespaces: {PROBE_PROGRAM} is missing"
+            ));
+        }
+        let mut child = Command::new(&self.unshare_path)
+            .args(UNSHARE_FLAGS)
+            .args(["--", PROBE_PROGRAM])
+            .env_clear()
+            .current_dir(&self.workdir)
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|e| format!("cannot spawn {}: {e}", self.unshare_path.display()))?;
+        let err_h = capture(child.stderr.take().expect("piped"));
+        let started = Instant::now();
+        let status = loop {
+            match child.try_wait() {
+                Ok(Some(s)) => break s,
+                Err(e) => return Err(format!("probe wait failed: {e}")),
+                Ok(None) if started.elapsed() >= PROBE_TIMEOUT => {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return Err(format!(
+                        "namespace probe did not finish within {:?}",
+                        PROBE_TIMEOUT
+                    ));
+                }
+                Ok(None) => thread::sleep(POLL),
+            }
+        };
+        if status.success() {
+            return Ok(());
+        }
+        let (stderr, _) = err_h.join().unwrap_or_default();
+        let reason = String::from_utf8_lossy(&stderr).trim().to_string();
+        Err(format!(
+            "unshare {} exited {}: {}",
+            UNSHARE_FLAGS.join(" "),
+            status
+                .code()
+                .map(|c| c.to_string())
+                .unwrap_or_else(|| "by signal".into()),
+            if reason.is_empty() {
+                "(no stderr)".into()
+            } else {
+                reason
+            }
+        ))
+    }
+
     /// Verify, consume, execute in the sandbox and return a signed record.
     pub fn run(
         &self,
@@ -162,63 +284,93 @@ impl SandboxRunner {
         guard: &mut dyn ReplayGuard,
         clock: &dyn Fn() -> u64,
     ) -> Result<RunOutput, RunError> {
-        let argv = preflight(self, manifest, inv, ee, current_binding, clock())?;
+        preflight(self, manifest, inv, ee, current_binding, clock())?;
         if !Path::new(&self.unshare_path).is_file() {
             // Fail closed: never fall back to running unsandboxed.
             return Err(RunError::SandboxUnavailable(
                 self.unshare_path.display().to_string(),
             ));
         }
+        // Before the decision is spent: check current namespace readiness.
+        // A decision is one-shot, so consuming it for a run that cannot
+        // happen would destroy the caller's authorization for nothing.
+        self.probe_namespaces()
+            .map_err(RunError::SandboxUnavailable)?;
+        // The probe can take time. Recheck expiry and the program pin before
+        // spending the decision; readiness must not extend signed authority.
+        let argv = preflight(self, manifest, inv, ee, current_binding, clock())?;
+        if !self.launcher_path.is_absolute() || !self.launcher_path.is_file() {
+            return Err(RunError::SandboxUnavailable(
+                "trusted vanian launch helper unavailable".into(),
+            ));
+        }
+        let (mut control, helper_control) =
+            UnixStream::pair().map_err(|e| RunError::SandboxUnavailable(e.to_string()))?;
+        control
+            .set_read_timeout(Some(Duration::from_millis(100)))
+            .map_err(|e| RunError::SandboxUnavailable(e.to_string()))?;
+        let helper_fd = helper_control.as_raw_fd();
         guard.consume(&ee.decision_id).map_err(RunError::Replay)?;
 
         let mut cmd = Command::new(&self.unshare_path);
-        cmd.args([
-            "--user",
-            "--map-root-user",
-            "--net",
-            "--pid",
-            "--fork",
-            "--kill-child",
-            "--mount",
-            "--mount-proc",
-            "--",
-        ])
-        .args(&argv)
-        .env_clear()
-        .current_dir(&self.workdir)
-        .stdin(Stdio::null())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped());
+        cmd.args(UNSHARE_FLAGS)
+            .arg("--")
+            .arg(&self.launcher_path)
+            .arg(super::launch::HELPER_COMMAND)
+            .arg(helper_fd.to_string())
+            .arg(manifest.timeout_ms.to_string())
+            .args(&argv)
+            .env_clear()
+            .current_dir(&self.workdir)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
 
+        // SAFETY: only async-signal-safe fcntl in the post-fork child. Clear
+        // CLOEXEC for this endpoint only; the helper restores it before tool exec.
+        unsafe {
+            cmd.pre_exec(move || {
+                if libc::fcntl(helper_fd, libc::F_SETFD, 0) == -1 {
+                    Err(std::io::Error::last_os_error())
+                } else {
+                    Ok(())
+                }
+            });
+        }
         let started_ms = clock();
         let started = Instant::now();
         let mut child = cmd.spawn().map_err(|e| RunError::Spawn(e.to_string()))?;
+        drop(helper_control);
         let out_h = capture(child.stdout.take().expect("piped"));
         let err_h = capture(child.stderr.take().expect("piped"));
-        let deadline = Duration::from_millis(manifest.timeout_ms);
+        // The helper enforces the tool budget after the exec stop. The outer
+        // watchdog adds bounded setup/reporting grace; a lost report is never
+        // converted to a guessed tool signal/exit status.
+        let deadline = Duration::from_millis(manifest.timeout_ms + 1000);
         let status = loop {
-            match child
-                .try_wait()
-                .map_err(|e| RunError::Spawn(e.to_string()))?
-            {
-                Some(s) => break s,
-                None if started.elapsed() >= deadline => {
-                    // SIGKILL to unshare; --kill-child propagates to the
-                    // namespace init, which takes the whole PID namespace.
+            match child.try_wait() {
+                Ok(Some(s)) => break s,
+                Ok(None) if started.elapsed() < deadline => thread::sleep(POLL),
+                other => {
                     let _ = child.kill();
-                    break child.wait().map_err(|e| RunError::Spawn(e.to_string()))?;
+                    let _ = child.wait();
+                    return Err(RunError::LaunchUnproven(format!(
+                        "launcher watchdog/wait failure: {other:?}"
+                    )));
                 }
-                None => thread::sleep(POLL),
             }
         };
         let ended_ms = clock();
         let (stdout, stdout_truncated) = out_h.join().unwrap_or_default();
         let (stderr, _) = err_h.join().unwrap_or_default();
-        let exit = match (status.code(), status.signal()) {
-            (Some(c), _) => ExitOutcome::Code(c),
-            (None, Some(s)) => ExitOutcome::Signal(s),
-            (None, None) => ExitOutcome::Signal(-1),
-        };
+        if !status.success() {
+            return Err(RunError::LaunchUnproven(format!(
+                "launcher did not complete: {status}; {}",
+                String::from_utf8_lossy(&stderr)
+            )));
+        }
+        let exit = super::launch::read_result(&mut control)
+            .map_err(|e| RunError::LaunchUnproven(e.to_string()))?;
 
         let mut record = RunRecord {
             version: RUN_RECORD_VERSION,

@@ -1,0 +1,121 @@
+record_exclusion_policy: NOT READY; corrected capability rejected by the attack suite. See explicit-forms-attacks/scoreboard.json. No approval or activation performed.
+ingest: 23 clauses -> /tmp/p0-049-b3-pvfjjrgk/clauses.json
+{
+  "result": "PARTIAL_B3_ADVERSARIAL_FAILURE",
+  "output": "/workspace/scratch/d81076ea93b3/tooling/b3-stdlib",
+  "runs": [
+    {
+      "name": "copied-plural-control",
+      "capability_hash": "5fdc5a25e8d79a4331512fbe280c1dbe3033941d921867f76d66735a330f80fc",
+      "exit_status": 3,
+      "wall_seconds": 0.016043643000102747,
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "val-09",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-validation",
+      "capability_hash": "b1147f89546d4432e2fcab28d40bfc79dc2dd6b7bb6c8ceee541610d2e53b0e1",
+      "exit_status": 0,
+      "wall_seconds": 0.019106377999833057,
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "copied-plural-attacks",
+      "capability_hash": "5fdc5a25e8d79a4331512fbe280c1dbe3033941d921867f76d66735a330f80fc",
+      "exit_status": 3,
+      "wall_seconds": 0.02109199400001671,
+      "expert_passed": 17,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "NOT_APPLICABLE",
+          "got": "INSUFFICIENT_INPUT",
+          "id": "fa-3",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-upper",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-attacks",
+      "capability_hash": "b1147f89546d4432e2fcab28d40bfc79dc2dd6b7bb6c8ceee541610d2e53b0e1",
+      "exit_status": 3,
+      "wall_seconds": 0.02251724599955196,
+      "expert_passed": 25,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "NOT_APPLICABLE",
+          "got": "INSUFFICIENT_INPUT",
+          "id": "fa-3",
+          "origin": "suite"
+        }
+      ]
+    }
+  ]
+}

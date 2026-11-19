@@ -1,0 +1,278 @@
+{
+  "baseline_commit": "7de9ba4d0fb8da83ec294380e719b82ecadee7ca",
+  "corpus_sha256": "4f8be7e73bf20fbb17bc6f77dfa4ce5b9aaa2c1807aab5a351cee6fef4fac486",
+  "libsqlite3_sys_version": "0.30.1",
+  "limitation": "Synthetic compatibility fixture, not a malicious-WAL exploit reproduction or release acceptance.",
+  "principals": [
+    {
+      "clearance": "Public",
+      "documents": [
+        {
+          "digest": null,
+          "id": "manual"
+        },
+        {
+          "digest": "d8e398db2c198143e42338a63193120127df0f0ccd9e22db9bc0c14d89ae4a06",
+          "id": "notice"
+        },
+        {
+          "digest": null,
+          "id": "secret"
+        },
+        {
+          "digest": null,
+          "id": "quarantined"
+        }
+      ],
+      "hits": [
+        {
+          "body": "hydraulic pump inspection notice",
+          "classification": "Public",
+          "id": "notice"
+        }
+      ],
+      "snapshot_digest": "87c0f10d904e374a0f64d2379074dac8dfbffb379ea24227991564fdc56d230c",
+      "tenant": "acme"
+    },
+    {
+      "clearance": "Internal",
+      "documents": [
+        {
+          "digest": "3671b81efd5298372eddcd07bd84f3d085d126f86f9a2c5e491c36a33406cec0",
+          "id": "manual"
+        },
+        {
+          "digest": "d8e398db2c198143e42338a63193120127df0f0ccd9e22db9bc0c14d89ae4a06",
+          "id": "notice"
+        },
+        {
+          "digest": null,
+          "id": "secret"
+        },
+        {
+          "digest": null,
+          "id": "quarantined"
+        }
+      ],
+      "hits": [
+        {
+          "body": "hydraulic pump inspection notice",
+          "classification": "Public",
+          "id": "notice"
+        },
+        {
+          "body": "hydraulic pump pressure limit 210 bar",
+          "classification": "Internal",
+          "id": "manual"
+        }
+      ],
+      "snapshot_digest": "cf4a19f65f520f1a7e09bdd750780ebb15bad0bcd128c15bd7a47736e7f9c89b",
+      "tenant": "acme"
+    },
+    {
+      "clearance": "Restricted",
+      "documents": [
+        {
+          "digest": "3671b81efd5298372eddcd07bd84f3d085d126f86f9a2c5e491c36a33406cec0",
+          "id": "manual"
+        },
+        {
+          "digest": "d8e398db2c198143e42338a63193120127df0f0ccd9e22db9bc0c14d89ae4a06",
+          "id": "notice"
+        },
+        {
+          "digest": "60a9e08385bbd7eccfd97380167ad4d1701fceea2e758ef0fa44f2b55913e0b9",
+          "id": "secret"
+        },
+        {
+          "digest": null,
+          "id": "quarantined"
+        }
+      ],
+      "hits": [
+        {
+          "body": "hydraulic pump inspection notice",
+          "classification": "Public",
+          "id": "notice"
+        },
+        {
+          "body": "hydraulic pump restricted vendor key",
+          "classification": "Restricted",
+          "id": "secret"
+        },
+        {
+          "body": "hydraulic pump pressure limit 210 bar",
+          "classification": "Internal",
+          "id": "manual"
+        }
+      ],
+      "snapshot_digest": "09934070116836c865410fb9a7b5f6f49726857cfec9fa0ca93249aed711d5eb",
+      "tenant": "acme"
+    },
+    {
+      "clearance": "Public",
+      "documents": [
+        {
+          "digest": "0b04d546b2f2fb161ec134cda3d2b4bcf7c69d0e83d55699e73c521390f49848",
+          "id": "manual"
+        },
+        {
+          "digest": null,
+          "id": "notice"
+        },
+        {
+          "digest": null,
+          "id": "secret"
+        },
+        {
+          "digest": null,
+          "id": "quarantined"
+        }
+      ],
+      "hits": [
+        {
+          "body": "hydraulic pump rival design",
+          "classification": "Public",
+          "id": "manual"
+        }
+      ],
+      "snapshot_digest": "d56cb26770525dfedbeaadcdc19c440eb73180b16fc705deda331df3b9e35880",
+      "tenant": "globex"
+    },
+    {
+      "clearance": "Internal",
+      "documents": [
+        {
+          "digest": "0b04d546b2f2fb161ec134cda3d2b4bcf7c69d0e83d55699e73c521390f49848",
+          "id": "manual"
+        },
+        {
+          "digest": null,
+          "id": "notice"
+        },
+        {
+          "digest": null,
+          "id": "secret"
+        },
+        {
+          "digest": null,
+          "id": "quarantined"
+        }
+      ],
+      "hits": [
+        {
+          "body": "hydraulic pump rival design",
+          "classification": "Public",
+          "id": "manual"
+        }
+      ],
+      "snapshot_digest": "d56cb26770525dfedbeaadcdc19c440eb73180b16fc705deda331df3b9e35880",
+      "tenant": "globex"
+    },
+    {
+      "clearance": "Restricted",
+      "documents": [
+        {
+          "digest": "0b04d546b2f2fb161ec134cda3d2b4bcf7c69d0e83d55699e73c521390f49848",
+          "id": "manual"
+        },
+        {
+          "digest": null,
+          "id": "notice"
+        },
+        {
+          "digest": null,
+          "id": "secret"
+        },
+        {
+          "digest": null,
+          "id": "quarantined"
+        }
+      ],
+      "hits": [
+        {
+          "body": "hydraulic pump rival design",
+          "classification": "Public",
+          "id": "manual"
+        }
+      ],
+      "snapshot_digest": "d56cb26770525dfedbeaadcdc19c440eb73180b16fc705deda331df3b9e35880",
+      "tenant": "globex"
+    },
+    {
+      "clearance": "Public",
+      "documents": [
+        {
+          "digest": null,
+          "id": "manual"
+        },
+        {
+          "digest": null,
+          "id": "notice"
+        },
+        {
+          "digest": null,
+          "id": "secret"
+        },
+        {
+          "digest": null,
+          "id": "quarantined"
+        }
+      ],
+      "hits": [],
+      "snapshot_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tenant": "absent"
+    },
+    {
+      "clearance": "Internal",
+      "documents": [
+        {
+          "digest": null,
+          "id": "manual"
+        },
+        {
+          "digest": null,
+          "id": "notice"
+        },
+        {
+          "digest": null,
+          "id": "secret"
+        },
+        {
+          "digest": null,
+          "id": "quarantined"
+        }
+      ],
+      "hits": [],
+      "snapshot_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tenant": "absent"
+    },
+    {
+      "clearance": "Restricted",
+      "documents": [
+        {
+          "digest": null,
+          "id": "manual"
+        },
+        {
+          "digest": null,
+          "id": "notice"
+        },
+        {
+          "digest": null,
+          "id": "secret"
+        },
+        {
+          "digest": null,
+          "id": "quarantined"
+        }
+      ],
+      "hits": [],
+      "snapshot_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tenant": "absent"
+    }
+  ],
+  "rusqlite_version": "0.32.1",
+  "schema": "syntriass.sqlite-upgrade-fixture/v1",
+  "sqlite_version": "3.46.0"
+}

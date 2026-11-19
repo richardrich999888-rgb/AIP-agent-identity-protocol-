@@ -1,0 +1,179 @@
+{
+  "schema": "syntriass.p0-049.exclusion-policy-evidence/v1",
+  "result": "PARTIAL_B3_ADVERSARIAL_FAILURE",
+  "commit": "4d002accbf6759fe1845872ac5579815c8081631",
+  "tree_dirty": false,
+  "dirty_paths": [],
+  "binary_sha256": "a19b96a482d30326c33511029092683a853843fe8b09c742eaa13f25cf90f2da",
+  "recorded_utc": "2026-11-12T05:51:26Z",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "policy": "syntriass.maintenance-exclusion-word-forms/v1",
+  "session_id": "0dde1717b870177916637441af43ac8cedbae594d5669206329af6e473104b60",
+  "question_id": "p1#4+p1#5:scope_exclusion_terms.*",
+  "questions_sha256": "94bf7f6d79b0b6572c357e32205d318504ad8619695c746c913f86d692300ea8",
+  "dataset_manifest_sha256": "5ec07e1d4bf3216db72fb699cd930cf8819fb9c511c320542761214a238e443b",
+  "hardware": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "logical_cpus": 9,
+    "affinity_cpus": 9,
+    "meminfo": "MemTotal:       10206472 kB",
+    "cgroup_cpu_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'"
+    },
+    "cgroup_memory_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.max'"
+    }
+  },
+  "wall_seconds": 0.8565336249998836,
+  "child_cpu_seconds": 0.450454,
+  "child_peak_rss_kib": 15616,
+  "network": {
+    "namespace": "net:[4026532244]",
+    "interfaces_before": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0"
+    },
+    "interfaces_after": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0"
+    },
+    "ipv4_routes": {
+      "status": "READ",
+      "value": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT"
+    },
+    "ipv6_routes": {
+      "status": "READ",
+      "value": "00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo\n00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001       lo\n00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo"
+    }
+  },
+  "runs": [
+    {
+      "name": "copied-plural-control",
+      "capability_hash": "5fdc5a25e8d79a4331512fbe280c1dbe3033941d921867f76d66735a330f80fc",
+      "exit_status": 3,
+      "wall_seconds": 0.017481308999776957,
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "val-09",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-validation",
+      "capability_hash": "b1147f89546d4432e2fcab28d40bfc79dc2dd6b7bb6c8ceee541610d2e53b0e1",
+      "exit_status": 0,
+      "wall_seconds": 0.016258069000286923,
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "state_unchanged": true,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "name": "copied-plural-attacks",
+      "capability_hash": "5fdc5a25e8d79a4331512fbe280c1dbe3033941d921867f76d66735a330f80fc",
+      "exit_status": 3,
+      "wall_seconds": 0.019650150000416033,
+      "expert_passed": 17,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "NOT_APPLICABLE",
+          "got": "INSUFFICIENT_INPUT",
+          "id": "fa-3",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-0-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-2-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-4-upper",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-lower",
+          "origin": "suite"
+        },
+        {
+          "expected": "OUT_OF_SCOPE",
+          "got": "ACCEPT",
+          "id": "form-6-upper",
+          "origin": "suite"
+        }
+      ]
+    },
+    {
+      "name": "explicit-forms-attacks",
+      "capability_hash": "b1147f89546d4432e2fcab28d40bfc79dc2dd6b7bb6c8ceee541610d2e53b0e1",
+      "exit_status": 3,
+      "wall_seconds": 0.0223972019998655,
+      "expert_passed": 25,
+      "expert_cases": 26,
+      "state_unchanged": true,
+      "passed": false,
+      "failures": [
+        {
+          "expected": "NOT_APPLICABLE",
+          "got": "INSUFFICIENT_INPUT",
+          "id": "fa-3",
+          "origin": "suite"
+        }
+      ]
+    }
+  ],
+  "model_calls": 0,
+  "model_hashes": [],
+  "activation_performed": false,
+  "attack_gate_passed": false,
+  "new_attack_failures": [],
+  "signed_material": "synthetic expert suites only; public key retained; private key discarded",
+  "limitations": [
+    "Four reviewed maintenance word pairs; not general language understanding.",
+    "Engineer-scripted answers, not external expert approval.",
+    "Session, answer edits and scoreboard are unsigned; no answer receipts.",
+    "One development host; no independent installation, packet capture or kernel sensor proof.",
+    "No live model, UI, activation, pack transfer or full W3 rehearsal."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/workspace/scratch/d81076ea93b3/tooling/auditors/bin/cargo-deny",
+    "--locked",
+    "--format",
+    "json",
+    "check",
+    "--hide-inclusion-graph",
+    "--show-stats"
+  ],
+  "exit_status": 0,
+  "wall_seconds": 12.761097386999609,
+  "cargo_deny_version": "0.20.2",
+  "policy_changed": false
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "attack": "approval-byte",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/d81076ea93b3/p051-3/verify_lifecycle_records.py",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/approval-byte/originals",
+      "--trusted-pins",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/approval-byte/selected-trust.json"
+    ],
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "attack": "source-hash",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/d81076ea93b3/p051-3/verify_lifecycle_records.py",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/source-hash/originals",
+      "--trusted-pins",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/source-hash/selected-trust.json"
+    ],
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "attack": "suite-hash",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/d81076ea93b3/p051-3/verify_lifecycle_records.py",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/suite-hash/originals",
+      "--trusted-pins",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/suite-hash/selected-trust.json"
+    ],
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "attack": "tenant",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/d81076ea93b3/p051-3/verify_lifecycle_records.py",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/tenant/originals",
+      "--trusted-pins",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/tenant/selected-trust.json"
+    ],
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "attack": "missing-approval",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/d81076ea93b3/p051-3/verify_lifecycle_records.py",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/missing-approval/originals",
+      "--trusted-pins",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/missing-approval/selected-trust.json"
+    ],
+    "expected_exit": 1,
+    "actual_exit": 1
+  },
+  {
+    "attack": "wrong-trust",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/d81076ea93b3/p051-3/verify_lifecycle_records.py",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/wrong-trust/originals",
+      "--trusted-pins",
+      "/workspace/scratch/d81076ea93b3/p051-3/verification-attacks/wrong-trust/selected-trust.json"
+    ],
+    "expected_exit": 1,
+    "actual_exit": 1
+  }
+]

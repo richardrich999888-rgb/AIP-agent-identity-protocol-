@@ -1,0 +1,336 @@
+{
+  "strict_cli_approves_activates_then_refuses_revoked_authority_without_mutation-.tmpxujm7A": {
+    "approvers": {
+      "expert:approval-authority": "2b5b42e9eb041bf3edbe4011ce45148ff24a7d9a1a5861e72dc6c7d4f6b0a136"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "dc8c7b141dea2f46d54f901c09525e5a69498bc60442b8e8d853f7d380428d62"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "strict_cli_approves_activates_then_refuses_revoked_authority_without_mutation",
+    "test_panicked": false,
+    "authority_grants": {
+      "7e5a283fcc348f0355634458069557f8f8c958a88221664f17a35bbb7f294188": {
+        "expert_id": "expert:approval-authority",
+        "public_key_sha256": "d97c534b802585fececbd3241688fe41e258d88afb28b3691de50e74ce954621",
+        "tenant": "koravi-process",
+        "security_domain": "koravi-ot",
+        "capability_ids": [
+          "koravi.ep114.ir-acceptance"
+        ],
+        "min_version": 1,
+        "max_version": 2,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 18446744073709551615,
+        "revoked": false
+      },
+      "bb0d9c139dcc76294e593b6a8a415f8e181afbfd8ecb4e76124873c501c32ab3": {
+        "expert_id": "expert:approval-authority",
+        "public_key_sha256": "d97c534b802585fececbd3241688fe41e258d88afb28b3691de50e74ce954621",
+        "tenant": "koravi-process",
+        "security_domain": "koravi-ot",
+        "capability_ids": [
+          "koravi.ep114.ir-acceptance"
+        ],
+        "min_version": 1,
+        "max_version": 2,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 18446744073709551615,
+        "revoked": true
+      }
+    }
+  },
+  "actual_cli_supersession_cannot_displace_another_tenant-.tmpavnDpN": {
+    "approvers": {
+      "expert:approval-authority": "18b362031fa8d156b55dec4c3913434b19ef0cfd0e9bff0da7a811f49fffff4d"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "578d987f3b6d1508dfad7728f1084353c447a0266e861d9a9452c63313058aa8"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "actual_cli_supersession_cannot_displace_another_tenant",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "supersession_preserves_other_tenants_and_domains_byte_for_byte-.tmpbNtHX3": {
+    "approvers": {
+      "expert:approval-authority": "c5c2e1b165066f2e520f003910d4af27a5b484a5eed93211e0fc021603bb5f55"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "42f5d9fb3f371158c6986cb8ce2ddbadf96074d357d4338fba033e0e3cfd447b"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "supersession_preserves_other_tenants_and_domains_byte_for_byte",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "strict_cli_denies_unauthorized_approval_without_writing_state-.tmpHEvpWG": {
+    "approvers": {
+      "expert:approval-authority": "be4d7d24248e49ba756a97b16bed47e8f1b9435851f1535402f8c1a51af17ba5"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "76264ab490d1942c742e509297f5e6a6454cc73bd8cc0af3893bf3379ae632ca"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "strict_cli_denies_unauthorized_approval_without_writing_state",
+    "test_panicked": false,
+    "authority_grants": {
+      "ed9daa6815701517eba84dd293d895f48359341107b89b0a1ead63b2e6d7762d": {
+        "expert_id": "expert:approval-authority",
+        "public_key_sha256": "317dd045cf6c25f605426cf90761eeda8eeb53f1c9f7153716b72a65714c36a5",
+        "tenant": "koravi-process",
+        "security_domain": "koravi-ot",
+        "capability_ids": [
+          "koravi.ep114.ir-acceptance"
+        ],
+        "min_version": 1,
+        "max_version": 2,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 18446744073709551615,
+        "revoked": true
+      },
+      "1ac888b6d340cda9592319c2d665629b821cb5d8e9d5a8a7942488c8afd50731": {
+        "expert_id": "expert:approval-authority",
+        "public_key_sha256": "317dd045cf6c25f605426cf90761eeda8eeb53f1c9f7153716b72a65714c36a5",
+        "tenant": "koravi-process",
+        "security_domain": "koravi-ot",
+        "capability_ids": [
+          "koravi.ep114.ir-acceptance"
+        ],
+        "min_version": 1,
+        "max_version": 2,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 2,
+        "revoked": false
+      },
+      "11c2900a81f932e66e120297884b0a903fb068ce01fce21aae1c5c10830fec76": {
+        "expert_id": "expert:approval-authority",
+        "public_key_sha256": "317dd045cf6c25f605426cf90761eeda8eeb53f1c9f7153716b72a65714c36a5",
+        "tenant": "foreign",
+        "security_domain": "koravi-ot",
+        "capability_ids": [
+          "koravi.ep114.ir-acceptance"
+        ],
+        "min_version": 1,
+        "max_version": 2,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 18446744073709551615,
+        "revoked": false
+      },
+      "941028cdf42b321799b8778638c200c645d68ceb2c2771dc46dd5976efbf3480": {
+        "expert_id": "expert:approval-authority",
+        "public_key_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "tenant": "koravi-process",
+        "security_domain": "koravi-ot",
+        "capability_ids": [
+          "koravi.ep114.ir-acceptance"
+        ],
+        "min_version": 1,
+        "max_version": 2,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 18446744073709551615,
+        "revoked": false
+      },
+      "0db76ca6e9794a8a0fe1630cf60af6aab5ad0014c4937d3a28b0493d1e171823": {
+        "expert_id": "expert:approval-authority",
+        "public_key_sha256": "317dd045cf6c25f605426cf90761eeda8eeb53f1c9f7153716b72a65714c36a5",
+        "tenant": "koravi-process",
+        "security_domain": "koravi-ot",
+        "capability_ids": [
+          "koravi.ep114.ir-acceptance"
+        ],
+        "min_version": 1,
+        "max_version": 2,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 18446744073709551615,
+        "revoked": false
+      }
+    }
+  },
+  "direct_transition_does_not_treat_another_scope_as_a_conflict-.tmpPTxFvS": {
+    "approvers": {
+      "expert:approval-authority": "eeddac62924e01ee6210fcbf69044786b21cce60824c4c3b11401e13d2c049b2"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "ed890726f944c75df983017da821ccd48c85a4f17238891af1865dec1d3c94d9"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "direct_transition_does_not_treat_another_scope_as_a_conflict",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "activation_does_not_require_superseding_another_scope-.tmpJQTunr": {
+    "approvers": {
+      "expert:approval-authority": "f42e5ba5663af23ad576fceb1af7c6280886ff0c40c0feb738a090155102c6f6"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "116c33172e05bf917ddac3ec1262fbedeb2c68b187d54f10b892f74cb80812cc"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "activation_does_not_require_superseding_another_scope",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "same_scope_conflicts_and_unapproved_targets_remain_refused-.tmpKTMbM8": {
+    "approvers": {
+      "expert:approval-authority": "d6b0396af25fa3848130ceeabfa928c1ab1515dc5886de00f29da1d7e5d3f85d"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "3b8a5f419a3b4557352d76fa89ed4f70370e40e700d9d205800fc356bcb75e9f"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "same_scope_conflicts_and_unapproved_targets_remain_refused",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "rollback_preserves_other_tenants_and_domains_byte_for_byte-.tmpNi2H2R": {
+    "approvers": {
+      "expert:approval-authority": "e4a6a1713b5bcc027c98658f38ad6169047cb710c31a4c7703674db272573e7b"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "914e723c21332c9ba2bdb348ad328b433e181f96e07d7224256d91d177fe4dcb"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "rollback_preserves_other_tenants_and_domains_byte_for_byte",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "direct_transition_does_not_treat_another_scope_as_a_conflict-.tmpWzYWEM": {
+    "approvers": {
+      "expert:approval-authority": "22b5f080bd410bee5205798e548447e9c9fe1f566cd8613bc86b316e2bccf7cc"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "600c9db6664933d426f03c341b1170ff87048f295363f5f3cf9358861f0fedfb"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "direct_transition_does_not_treat_another_scope_as_a_conflict",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "actual_cli_rollback_cannot_suspend_another_domain-.tmpizmSjj": {
+    "approvers": {
+      "expert:approval-authority": "7fe4258d25281e668feb7d4cd7e5033e51240db1fee9c7823deb6d28cab19205"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "4212c82da009c57c3a3dcba044e1ae63335293236f7181315227ebdfc4dc9a19"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "actual_cli_rollback_cannot_suspend_another_domain",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "rollback_preserves_other_tenants_and_domains_byte_for_byte-.tmpFPCbTR": {
+    "approvers": {
+      "expert:approval-authority": "ce4f4cbf534a559cc0ec58af097fd063d68c586b0b5c2b378ef7f95135d07759"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "56fc0c771eea3d6e443d45a2c961e6c4d55d48d23d15748f944c38393e78e75b"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "rollback_preserves_other_tenants_and_domains_byte_for_byte",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "supersession_preserves_other_tenants_and_domains_byte_for_byte-.tmpQ507k7": {
+    "approvers": {
+      "expert:approval-authority": "b2e0de5e169c6311f837ca7780ef5aa26ef36d393bbb62cf55c7735056bfd243"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "3f07cd05326f857890ad342ed305743878f5d3de6dcdaf0131c48c055709eafd"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "supersession_preserves_other_tenants_and_domains_byte_for_byte",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "activation_does_not_require_superseding_another_scope-.tmpMpv0zt": {
+    "approvers": {
+      "expert:approval-authority": "54bb5a2d4b3005e664caeedf4656ddad8f42653f6a73c0dfa18ad277e26d3a39"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "20f1319e6f723abd8082ddbfd5ca1366606de647ec59e4485a306a80a899e175"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "activation_does_not_require_superseding_another_scope",
+    "test_panicked": false,
+    "authority_grants": {}
+  },
+  "strict_cli_rejects_below_floor_rollback_before_suspending_current-.tmpmxWvjW": {
+    "approvers": {
+      "expert:approval-authority": "94a88ebdaecceabde7c51e2ec26a23d2f1f4eb4c40dd7295e16b8c9f8856e3d9"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "8ca5dd89d88b6dcd4eff37015c540437d45c0f7d9a3b7e42d7d70ba3ae3d8eb0"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "strict_cli_rejects_below_floor_rollback_before_suspending_current",
+    "test_panicked": false,
+    "authority_grants": {
+      "613951223aa185fbc0cd5a185ae49efe8723c3e434d0db96e498d9ed9de906f5": {
+        "expert_id": "expert:approval-authority",
+        "public_key_sha256": "422b57734270cf72d720713211813218c367c40f8a2532380f35fcebe79f1c97",
+        "tenant": "koravi-process",
+        "security_domain": "koravi-ot",
+        "capability_ids": [
+          "koravi.ep114.ir-acceptance"
+        ],
+        "min_version": 1,
+        "max_version": 2,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 18446744073709551615,
+        "revoked": false
+      },
+      "3e6f14929854be788af3c299337706563dccc0b9cd2a16805ed0149386b362a7": {
+        "expert_id": "expert:approval-authority",
+        "public_key_sha256": "422b57734270cf72d720713211813218c367c40f8a2532380f35fcebe79f1c97",
+        "tenant": "koravi-process",
+        "security_domain": "koravi-ot",
+        "capability_ids": [
+          "koravi.ep114.ir-acceptance"
+        ],
+        "min_version": 2,
+        "max_version": 2,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 18446744073709551615,
+        "revoked": false
+      }
+    }
+  },
+  "strict_cli_rejects_changed_source_and_legacy_approval-.tmpE01bar": {
+    "approvers": {
+      "expert:approval-authority": "a0331b19ef56d95664e29d16b680229fedc60c7b82adb53aabd13d6b9bf5763b"
+    },
+    "experts": {
+      "expert:koravi-elec-lead": "9a50abdfeee9bd3c5d3640f99d65ee6a86c6ff94f4408394f762494c336c6dd5"
+    },
+    "scope": "synthetic lifecycle tests; not authenticated teaching approval",
+    "test": "strict_cli_rejects_changed_source_and_legacy_approval",
+    "test_panicked": false,
+    "authority_grants": {
+      "c8701537781da6988228eb87b4393414969b244f988cbfd71706b1eed22df629": {
+        "expert_id": "expert:approval-authority",
+        "public_key_sha256": "aa4b17f2f35363f335468454c1b02bce478a2fd5a9601e3807b3b2d828a8ebb5",
+        "tenant": "koravi-process",
+        "security_domain": "koravi-ot",
+        "capability_ids": [
+          "koravi.ep114.ir-acceptance"
+        ],
+        "min_version": 1,
+        "max_version": 2,
+        "max_clearance": "restricted",
+        "valid_from_ms": 1,
+        "expires_at_ms": 18446744073709551615,
+        "revoked": false
+      }
+    }
+  }
+}

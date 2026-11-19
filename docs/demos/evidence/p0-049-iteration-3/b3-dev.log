@@ -1,0 +1,14 @@
+ingest: 23 clauses -> /tmp/p0-049-b3-9irp_68j/clauses.json
+Traceback (most recent call last):
+  File "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/harness/record_exclusion_policy.py", line 187, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/harness/record_exclusion_policy.py", line 151, in main
+    runs.append(score(binary, cfg, key, json.loads(cap_file.read_text()), cases,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/harness/record_exclusion_policy.py", line 71, in score
+    result = S.run([binary, "cap-scoreboard", "--config", cfg, "--hash", proposal["hash"],
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/harness/record_scoreboard.py", line 40, in run
+    raise RuntimeError(f"{args[1]}: expected exit {expected}, got {result.returncode}: {result.stderr}")
+RuntimeError: cap-scoreboard: expected exit 0, got 3: 

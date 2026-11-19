@@ -1,0 +1,54 @@
+EXCERPT ONLY: source ef3d9d434e5ed55e5994331abc91c03833f997ff, CI 43169880412, job 131020363116. Full log fetched; this file retains the failure section only.
+t unsigned_record_rejected ... ok
+2026-11-12T06:48:35.8247122Z test ungranted_tool_is_denied_by_the_decision_point ... ok
+2026-11-12T06:48:35.8247368Z 
+2026-11-12T06:48:35.8247453Z failures:
+2026-11-12T06:48:35.8247550Z 
+2026-11-12T06:48:35.8247770Z ---- authorized_tool_runs_and_verifies_offline_without_claiming_observation stdout ----
+2026-11-12T06:48:35.8248397Z 
+2026-11-12T06:48:35.8248821Z thread 'authorized_tool_runs_and_verifies_offline_without_claiming_observation' (19326) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:170:5:
+2026-11-12T06:48:35.8249391Z assertion `left == right` failed
+2026-11-12T06:48:35.8249607Z   left: []
+2026-11-12T06:48:35.8249803Z  right: [112, 117, 109, 112, 32, 111, 107, 10]
+2026-11-12T06:48:35.8250141Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-11-12T06:48:35.8250394Z 
+2026-11-12T06:48:35.8250542Z ---- sandbox_has_no_network_interface_but_loopback stdout ----
+2026-11-12T06:48:35.8250757Z 
+2026-11-12T06:48:35.8251093Z thread 'sandbox_has_no_network_interface_but_loopback' (19362) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:326:5:
+2026-11-12T06:48:35.8251595Z assertion `left == right` failed: 
+2026-11-12T06:48:35.8251812Z   left: []
+2026-11-12T06:48:35.8251974Z  right: ["lo"]
+2026-11-12T06:48:35.8252079Z 
+2026-11-12T06:48:35.8252181Z ---- tampered_exit_code_rejected stdout ----
+2026-11-12T06:48:35.8252355Z 
+2026-11-12T06:48:35.8252646Z thread 'tampered_exit_code_rejected' (19372) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:363:14:
+2026-11-12T06:48:35.8253696Z tampered bundle accepted: AuthorizedAndRunnerAttested { exit: Code(1), observation: CannotProve { reason: "no independent kernel observer (Sniffer Dog) attached to this run; execution is attested by the runner only" } }
+2026-11-12T06:48:35.8254330Z 
+2026-11-12T06:48:35.8254333Z 
+2026-11-12T06:48:35.8254408Z failures:
+2026-11-12T06:48:35.8254677Z     authorized_tool_runs_and_verifies_offline_without_claiming_observation
+2026-11-12T06:48:35.8255026Z     sandbox_has_no_network_interface_but_loopback
+2026-11-12T06:48:35.8255297Z     tampered_exit_code_rejected
+2026-11-12T06:48:35.8255437Z 
+2026-11-12T06:48:35.8255655Z test result: FAILED. 16 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.24s
+2026-11-12T06:48:35.8255956Z 
+2026-11-12T06:48:35.8383744Z error: test failed, to rerun pass `-p vanian-sovereign --test agent_execution`
+2026-11-12T06:48:35.8384090Z      Running tests/sqlite_upgrade.rs (target/debug/deps/sqlite_upgrade-9c804cc6d44173e1)
+2026-11-12T06:48:35.8395992Z 
+2026-11-12T06:48:35.8396302Z running 2 tests
+2026-11-12T06:48:35.8546983Z test old_engine_database_updates_fts_versions_and_clearance_after_reopen ... ok
+2026-11-12T06:48:35.8547974Z test old_engine_database_preserves_tenant_clearance_quarantine_and_digests ... ok
+2026-11-12T06:48:35.8548263Z 
+2026-11-12T06:48:35.8548481Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-11-12T06:48:35.8548767Z 
+2026-11-12T06:48:35.8551167Z    Doc-tests aip_agent
+2026-11-12T06:48:36.2484155Z 
+2026-11-12T06:48:36.2484772Z running 0 tests
+2026-11-12T06:48:36.2484963Z 
+2026-11-12T06:48:36.2485155Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T06:48:36.2485360Z 
+2026-11-12T06:48:36.2564560Z    Doc-tests aip_aibom
+2026-11-12T06:48:36.3867683Z 
+2026-11-12T06:48:36.3868267Z running 0 tests
+2026-11-12T06:48:36.3868412Z 
+2026-11-12T06:4

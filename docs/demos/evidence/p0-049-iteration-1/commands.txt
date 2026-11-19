@@ -1,0 +1,9 @@
+Implementation: 84d889f0c045a998150900e433541a976fdd1d69
+Build profile: debug, unoptimized with debuginfo; not a release performance benchmark.
+Clean bounded run: env -u CM_IN_NETNS bash research/compute-memory/bench/offline.sh python3 research/capability-learning/harness/record_scoreboard.py --binary target/debug/syntriass --out /workspace/scratch/d81076ea93b3/scoreboard-clean-84d889f
+Verification: sha256sum -c SHA256SUMS in each scoreboard directory.
+Independent signature implementation: python3 verify_suite_signatures.py scoreboard --trusted-keys scoreboard/expert-public.json (synthetic exercise trust anchor, not external expert authorization).
+CI run: https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43090681318
+CI merge commit 71ab878a1824364ac424b9895a6ffe12818ec842 and source commit have identical tree 557935e887f10328fb60355968503d8a619e3c1f.
+CI artifact ZIP SHA256: 07f46c64ace90fe1fcd6e9d90902ed5c658aeae9897329e5ee967243a509074c (verified before extraction).
+No independent evaluator or full offline installation is claimed. CI was not network-isolated.

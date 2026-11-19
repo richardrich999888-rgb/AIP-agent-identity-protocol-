@@ -1,0 +1,30 @@
+{
+  "source_commit": "5bc0c5f68690e5d2656716a97c2cfbb2ce105e08",
+  "source_tree": "751702c7f6472d52062040b942132c88341a31b5",
+  "dirty_paths": [],
+  "ci_merge_commit": "9892299fbbb4d76c8dfe62665a8ddd950221fe18",
+  "ci_merge_tree": "751702c7f6472d52062040b942132c88341a31b5",
+  "sha256": {
+    "research/capability-learning/harness/score_teaching_session.py": "d7241a048382eb96207ce37ea4ab01ba33fca9f530f1872cb9cdeef65dc60c0a",
+    "research/capability-learning/harness/record_session_scoreboard.py": "0ae912bf00b048e42431b3ffdc2c4ac07a7b8a01c8bba76dce77098b7b1ddad4",
+    "research/capability-learning/tests/test_session_scoreboard.py": "381aacba8dcee5ac840baae1c26691c49283bb4469a2184be6bc2739eb838b56",
+    ".github/workflows/teach-scoreboard.yml": "892e071ffe9c3c4aa19731d4b5a9eef19c7c4f11f210b39cdd803e18f0f3848b",
+    "research/capability-learning/harness/ir_compiler.py": "95426d9c686e10264a0c493e72e1c9e9c7df2c02860cc575899cca777db83cf3",
+    "research/capability-learning/harness/verify_applicability.py": "bc8c60b6bdd07279f118ee039a845f7f8b82f06f8b8d161aad60c618523813ae",
+    "sovereign/vanian-sovereign/src/adapters/sandbox.rs": "a9c4019e3c4a2d5181c9708aee361a9cd17365dca0c8440893fc2a17ea60f4fb",
+    "validation/ci/with_cgroup.sh": "da5a6dbabfae437b485d52edbbd5fac1956fa369bf3d68518c641848419bd311",
+    "Cargo.lock": "3bff972d6ac0dd2a871f23af4fac352e94327d5de202e72cb2421c8089dca336"
+  },
+  "host": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "logical_cpus": 9,
+    "affinity_cpus": 9,
+    "meminfo": "MemTotal:       10206472 kB\nMemFree:         8185444 kB\nMemAvailable:    9376232 kB\nBuffers:           11828 kB\nCached:          1268584 kB\nSwapCached:            0 kB\nActive:           467888 kB\nInactive:         854540 kB\nActive(anon):      42316 kB\nInactive(anon):    86280 kB\nActive(file):     425572 kB\nInactive(file):   768260 kB\nUnevictable:       29944 kB\nMlocked:               0 kB\nSwapTotal:             0 kB\nSwapFree:              0 kB\nDirty:              2028 kB\nWriteback:             0 kB\nAnonPages:         72356 kB\nMapped:            77964 kB\nShmem:             56676 kB\nKReclaimable:     310656 kB\nSlab:             387812 kB\nSReclaimable:     310656 kB\nSUnreclaim:        77156 kB\nKernelStack:        3784 kB\nPageTables:         3856 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:     5103236 kB\nCommitted_AS:     628220 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:        5160 kB\nVmallocChunk:          0 kB\nPercpu:             3168 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:      2048 kB\nFilePmdMapped:         0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      217088 kB\nDirectMap2M:     4855808 kB\nDirectMap1G:    22020096 kB\n",
+    "uid": 1000
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "openssl": "OpenSSL 3.5.7 9 Jun 2026 (Library: OpenSSL 3.5.7 9 Jun 2026)",
+  "no_model_loaded": true,
+  "separate_clean_machine": false,
+  "network_packet_capture": false
+}

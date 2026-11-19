@@ -1,0 +1,119 @@
+{
+  "recorded_utc": "2026-11-11T20:15:35.653943+00:00",
+  "starting_commit": "7de9ba4d0fb8da83ec294380e719b82ecadee7ca",
+  "tree_dirty": true,
+  "scope": "dependency and audit-gate engineering checks; not release acceptance",
+  "host": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "advisory_db_commit": "fd6f39814c4d3c359fdbe223d0280dec4933f78f",
+  "cargo_audit_version": "0.23.0",
+  "rustc_version": "1.99.1 (58cf8f9c3 2026-10-13)",
+  "linked_sqlite_version": "3.54.1",
+  "runtime_tests": {
+    "passed": 284,
+    "failed": 0,
+    "ignored": 0
+  },
+  "other_rustix_consumer_tests": {
+    "passed": 144,
+    "failed": 0,
+    "ignored": 0
+  },
+  "audit_gate_tests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "source_hashes": {
+    "Cargo.lock": "3bff972d6ac0dd2a871f23af4fac352e94327d5de202e72cb2421c8089dca336",
+    "sovereign/vanian-sovereign/Cargo.toml": "c7781c60aff3bacfb022265f482e33178b42cdc1c051b7d472d9f15eecb3f50e",
+    ".github/workflows/security.yml": "303ac0294e8c6cb6cafda67a17fd13c700f51810ebac603714d2bb4ad70e70ae",
+    ".github/workflows/teach-scoreboard.yml": "ffc2ce1a8ec76818a9a1d8ba704ed64e77137e61bb36147d0f9e00ce0fc4edf0",
+    "sovereign/vanian-sovereign/tests/sqlite_upgrade.rs": "e4de2dff7c512f07f067effd993e38aebc5444891887f1aed4abcb05a9317d95",
+    "validation/ci/test_audit_exit.py": "041db2e7fb1e2d46810f8d39f5b1026cb329f498af1b48a7811e8f15012e5244"
+  },
+  "locked_packages": {
+    "foldhash": {
+      "name": "foldhash",
+      "version": "0.2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
+    },
+    "hashbrown": {
+      "name": "hashbrown",
+      "version": "0.17.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a",
+      "dependencies": [
+        "foldhash"
+      ]
+    },
+    "hashlink": {
+      "name": "hashlink",
+      "version": "0.12.2",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "a596f1b20ed2cc5ecac41a164aaebc7258057060f06c0cf7a2ba3991ee7990fb",
+      "dependencies": [
+        "hashbrown"
+      ]
+    },
+    "libsqlite3-sys": {
+      "name": "libsqlite3-sys",
+      "version": "0.39.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "14a5f01b87b92705d07b433c06f96cbc764637d81a0bffb5734ce17cf0f9a2b3",
+      "dependencies": [
+        "cc",
+        "pkg-config",
+        "vcpkg"
+      ]
+    },
+    "rsqlite-vfs": {
+      "name": "rsqlite-vfs",
+      "version": "0.2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "353b74f9810d5b085b6c42c9d86a5f0fdb795553235cdd48753b32e3809d18a7",
+      "dependencies": [
+        "thiserror"
+      ]
+    },
+    "rusqlite": {
+      "name": "rusqlite",
+      "version": "0.41.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "9c026b4444579e8d754556c6c75d040d69c4a44283cdb648ab8a8d5965c2cfa8",
+      "dependencies": [
+        "bitflags",
+        "fallible-iterator 0.3.0",
+        "fallible-streaming-iterator",
+        "hashlink",
+        "libsqlite3-sys",
+        "smallvec",
+        "sqlite-wasm-rs"
+      ]
+    },
+    "rustix": {
+      "name": "rustix",
+      "version": "1.1.6",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e5e76742e5294153d4dde1207dbec5bdd81eef6fabdc0d2118babadabfd858aa",
+      "dependencies": [
+        "bitflags",
+        "errno",
+        "libc",
+        "linux-raw-sys",
+        "windows-sys 0.52.0"
+      ]
+    },
+    "sqlite-wasm-rs": {
+      "name": "sqlite-wasm-rs",
+      "version": "0.6.3",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "a6cd504cecbfe7eef649988840f9a6cb768d11085efec138f8e99f160632d867",
+      "dependencies": [
+        "cc",
+        "rsqlite-vfs"
+      ]
+    }
+  },
+  "no_release_rehearsal_credit": true,
+  "signed": false
+}

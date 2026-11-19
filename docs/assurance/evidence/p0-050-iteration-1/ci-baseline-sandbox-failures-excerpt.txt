@@ -1,0 +1,64 @@
+EXCERPT ONLY: GitHub CI 43165157994, job 131005200942, pre-existing head 925432b. Full log fetched through GitHub; retained failure section below.
+ 
+2026-11-12T06:08:10.9757821Z failures:
+2026-11-12T06:08:10.9757888Z 
+2026-11-12T06:08:10.9758062Z ---- authorized_tool_runs_and_verifies_offline_without_claiming_observation stdout ----
+2026-11-12T06:08:10.9758597Z 
+2026-11-12T06:08:10.9758882Z thread 'authorized_tool_runs_and_verifies_offline_without_claiming_observation' (18839) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:170:5:
+2026-11-12T06:08:10.9759270Z assertion `left == right` failed
+2026-11-12T06:08:10.9759419Z   left: []
+2026-11-12T06:08:10.9759548Z  right: [112, 117, 109, 112, 32, 111, 107, 10]
+2026-11-12T06:08:10.9759787Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-11-12T06:08:10.9759961Z 
+2026-11-12T06:08:10.9760066Z ---- sandbox_has_no_network_interface_but_loopback stdout ----
+2026-11-12T06:08:10.9760212Z 
+2026-11-12T06:08:10.9760436Z thread 'sandbox_has_no_network_interface_but_loopback' (18875) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:326:5:
+2026-11-12T06:08:10.9760777Z assertion `left == right` failed: 
+2026-11-12T06:08:10.9760923Z   left: []
+2026-11-12T06:08:10.9761033Z  right: ["lo"]
+2026-11-12T06:08:10.9761104Z 
+2026-11-12T06:08:10.9761173Z ---- tampered_exit_code_rejected stdout ----
+2026-11-12T06:08:10.9761290Z 
+2026-11-12T06:08:10.9761479Z thread 'tampered_exit_code_rejected' (18885) panicked at sovereign/vanian-sovereign/tests/agent_execution.rs:363:14:
+2026-11-12T06:08:10.9762101Z tampered bundle accepted: AuthorizedAndRunnerAttested { exit: Code(1), observation: CannotProve { reason: "no independent kernel observer (Sniffer Dog) attached to this run; execution is attested by the runner only" } }
+2026-11-12T06:08:10.9762523Z 
+2026-11-12T06:08:10.9762525Z 
+2026-11-12T06:08:10.9762575Z failures:
+2026-11-12T06:08:10.9762751Z     authorized_tool_runs_and_verifies_offline_without_claiming_observation
+2026-11-12T06:08:10.9762988Z     sandbox_has_no_network_interface_but_loopback
+2026-11-12T06:08:10.9763168Z     tampered_exit_code_rejected
+2026-11-12T06:08:10.9763264Z 
+2026-11-12T06:08:10.9763414Z test result: FAILED. 16 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.32s
+2026-11-12T06:08:10.9763619Z 
+2026-11-12T06:08:10.9812934Z error: test failed, to rerun pass `-p vanian-sovereign --test agent_execution`
+2026-11-12T06:08:10.9813318Z      Running tests/sqlite_upgrade.rs (target/debug/deps/sqlite_upgrade-9c804cc6d44173e1)
+2026-11-12T06:08:10.9823985Z 
+2026-11-12T06:08:10.9824067Z running 2 tests
+2026-11-12T06:08:10.9938349Z test old_engine_database_preserves_tenant_clearance_quarantine_and_digests ... ok
+2026-11-12T06:08:10.9942816Z test old_engine_database_updates_fts_versions_and_clearance_after_reopen ... ok
+2026-11-12T06:08:10.9943119Z 
+2026-11-12T06:08:10.9943348Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-11-12T06:08:10.9943658Z 
+2026-11-12T06:08:10.9945606Z    Doc-tests aip_agent
+2026-11-12T06:08:11.0599616Z 
+2026-11-12T06:08:11.0600059Z running 0 tests
+2026-11-12T06:08:11.0600237Z 
+2026-11-12T06:08:11.0601067Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T06:08:11.0601393Z 
+2026-11-12T06:08:11.0628874Z    Doc-tests aip_aibom
+2026-11-12T06:08:11.1828531Z 
+2026-11-12T06:08:11.1829003Z running 0 tests
+2026-11-12T06:08:11.1829174Z 
+2026-11-12T06:08:11.1829422Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T06:08:11.1829625Z 
+2026-11-12T06:08:11.1857893Z    Doc-tests aip_airi
+2026-11-12T06:08:11.2638097Z 
+2026-11-12T06:08:11.2638629Z running 0 tests
+2026-11-12T06:08:11.2638823Z 
+2026-11-12T06:08:11.2639076Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T06:08:11.2639286Z 
+2026-11-12T06:08:11.2666187Z    Doc-tests aip_anchor
+2026-11-12T06:08:11.3000488Z 
+2026-11-12T06:08:11.3000940Z running 0 tests
+2026-11-12T06:08:11.3001160Z 
+2026-11-12T06:08:11.3001424Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filt

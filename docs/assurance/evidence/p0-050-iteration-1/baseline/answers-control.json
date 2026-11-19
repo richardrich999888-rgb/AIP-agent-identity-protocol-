@@ -1,0 +1,192 @@
+{
+  "schema": "syntriass.teach-answers/v1",
+  "session_id": "b6c6bfafcc64e755ed172d2a8bde16d2e094a3e9484698b62e7abcbc0c609463",
+  "draft_sha256": "c3379d22e289f956daec4c0666bd333f95dc2c2bc7bde32ba93988ba4f6573eb",
+  "questions_sha256": "710b50badb6f233ab3158b0faae15ade01bffd750eeffbd042a76f575715c27f",
+  "answers": [
+    {
+      "qid": "p1#2+p1#3:scope_subject.*",
+      "who": "engineer:recorder",
+      "when_ms": 1,
+      "why": "'Scope: oil-immersed distribution transformers ...'; the full phrase exceeds the 32-character term limit",
+      "answer": [
+        "distribution transformers"
+      ]
+    },
+    {
+      "qid": "p1#2+p1#3:scope_limit.*",
+      "who": "engineer:recorder",
+      "when_ms": 2,
+      "why": "'up to and including 33 kV': above 33 kV is out of scope",
+      "answer": {
+        "ref": "voltage",
+        "op": ">",
+        "value": 33,
+        "unit": "kV"
+      }
+    },
+    {
+      "qid": "p1#4+p1#5:scope_exclusion_terms.*",
+      "who": "engineer:recorder",
+      "when_ms": 3,
+      "why": "copied exactly as written, as the question asks",
+      "answer": [
+        "motors",
+        "cables",
+        "generators",
+        "dry-type transformers"
+      ]
+    },
+    {
+      "qid": "p1#6:scope_limit.*",
+      "who": "engineer:recorder",
+      "when_ms": 4,
+      "why": "the same 33 kV limit as the scope sentence; teaching it twice would duplicate it",
+      "not_applicable": true
+    },
+    {
+      "qid": "p1#7+p1#8:required_inputs.*",
+      "who": "engineer:recorder",
+      "when_ms": 5,
+      "why": "'voltage in kV, insulation resistance in megohms, top-oil temperature in degrees Celsius, dielectric absorption ratio (DAR)'",
+      "answer": [
+        {
+          "ref": "voltage",
+          "unit": "kV",
+          "cues": []
+        },
+        {
+          "ref": "resistance",
+          "unit": "M\u03a9",
+          "cues": []
+        },
+        {
+          "ref": "temperature",
+          "unit": "\u00b0C",
+          "cues": []
+        },
+        {
+          "ref": "cued_1",
+          "unit": "none",
+          "cues": [
+            "DAR",
+            "dielectric absorption ratio"
+          ]
+        }
+      ]
+    },
+    {
+      "qid": "p1#13+p1#14:correction.*",
+      "who": "engineer:recorder",
+      "when_ms": 6,
+      "why": "'to 20 degrees Celsius by multiplying it by 2 raised to the power of (top-oil temperature minus 20) divided by 15'",
+      "answer": {
+        "template": "multiply_power_per_degree",
+        "target": "resistance",
+        "by": "temperature",
+        "reference": 20,
+        "reference_unit": "\u00b0C",
+        "rate": 0,
+        "rate_unit": "\u00b0C",
+        "base": 2,
+        "step": 15
+      }
+    },
+    {
+      "qid": "p1#15+p1#16:limit.*",
+      "who": "engineer:recorder",
+      "when_ms": 7,
+      "why": "'20 times (rated kV plus 2) megohms'",
+      "answer": {
+        "template": "coefficient_times_input_plus_offset",
+        "coefficient": 20,
+        "input": "voltage",
+        "offset": 2,
+        "unit": "M\u03a9"
+      }
+    },
+    {
+      "qid": "p1#17+p1#18:rules[].value",
+      "who": "engineer:recorder",
+      "when_ms": 8,
+      "why": "'if the corrected resistance is below ...'",
+      "answer": "corrected"
+    },
+    {
+      "qid": "p1#17+p1#18:rules[].number",
+      "who": "engineer:recorder",
+      "when_ms": 9,
+      "why": "'below one third of the minimum'",
+      "answer": {
+        "against": "limit",
+        "number": 0,
+        "unit": "none",
+        "limit_fraction": 0.3333333333333333
+      }
+    },
+    {
+      "qid": "p1#19:rules[].value",
+      "who": "engineer:recorder",
+      "when_ms": 10,
+      "why": "'it' is the corrected resistance",
+      "answer": "corrected"
+    },
+    {
+      "qid": "p1#19:rules[].number",
+      "who": "engineer:recorder",
+      "when_ms": 11,
+      "why": "'below the minimum'",
+      "answer": {
+        "against": "limit",
+        "number": 0,
+        "unit": "none",
+        "limit_fraction": 1
+      }
+    },
+    {
+      "qid": "p1#20:rules[].value",
+      "who": "engineer:recorder",
+      "when_ms": 12,
+      "why": "'If DAR is below 1.25'",
+      "answer": "cued_1"
+    },
+    {
+      "qid": "p1#20:rules[].number",
+      "who": "engineer:recorder",
+      "when_ms": 13,
+      "why": "'below 1.25'; DAR has no unit",
+      "answer": {
+        "against": "number",
+        "number": 1.25,
+        "unit": "none",
+        "limit_fraction": 1
+      }
+    },
+    {
+      "qid": "p1#21:rules[].value",
+      "who": "engineer:recorder",
+      "when_ms": 14,
+      "why": "'If DAR is at least 1.25 but below 1.4'",
+      "answer": "cued_1"
+    },
+    {
+      "qid": "p1#21:rules[].op",
+      "who": "engineer:recorder",
+      "when_ms": 15,
+      "why": "the 'at least 1.25' half is caught by the earlier 'below 1.25' rule",
+      "answer": "<"
+    },
+    {
+      "qid": "p1#21:rules[].number",
+      "who": "engineer:recorder",
+      "when_ms": 16,
+      "why": "'below 1.4'; DAR has no unit",
+      "answer": {
+        "against": "number",
+        "number": 1.4,
+        "unit": "none",
+        "limit_fraction": 1
+      }
+    }
+  ]
+}

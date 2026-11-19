@@ -1,0 +1,30 @@
+   Compiling syntriass-runtime v0.1.0 (/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/sovereign/syntriass-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.72s
+     Running tests/runtime_app.rs (target/debug/deps/runtime_app-4d3287c94e6201db)
+
+running 22 tests
+test both_tiers_failing_is_withheld_after_exactly_two_attempts ... ok
+test consequential_capabilities_are_disabled_until_aip_action_authorization_exists ... ok
+test conflicting_values_in_a_record_are_withheld_not_averaged ... ok
+test audit_chain_verifies_and_detects_tampering ... ok
+test a_verified_record_decides_and_text_numbers_are_ignored ... ok
+test changed_evidence_or_policy_makes_it_stale_and_refused ... ok
+test authorized_principal_gets_the_capability_without_any_model_call ... ok
+test grounded_qa_sees_only_the_callers_documents ... ok
+test hypothetical_text_cannot_release_without_a_signed_record ... ok
+test explicit_invocation_by_an_unauthorized_principal_is_refused ... ok
+test model_dependent_capability_needs_revalidation_after_model_change ... ok
+test approval_binds_content_validation_authority_and_cannot_downgrade ... ok
+test maintenance_routes_gate_exact_and_scoped_model_extraction ... ok
+test no_authorized_source_is_not_escalated_and_capabilities_need_no_model ... ok
+test model_output_cannot_escalate_authority_or_change_policy ... ok
+test forged_foreign_or_unregistered_records_are_rejected ... ok
+test policy_time_boundaries_and_version_limits_are_exact ... ok
+test question_without_authorized_source_never_calls_the_model ... ok
+test unparseable_small_output_escalates_once_and_charges_both_attempts ... ok
+test other_tenant_and_lower_clearance_cannot_see_the_capability ... ok
+test untrusted_approver_makes_the_capability_invisible ... ok
+test policy_bound_approval_runs_without_model_and_rechecks_current_authority ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+

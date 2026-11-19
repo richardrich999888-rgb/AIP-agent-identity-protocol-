@@ -1,0 +1,95 @@
+{
+  "schema": "syntriass.demo.item_evidence/1",
+  "item": "X1 \u2014 replace hard-coded model paths with bundle resolution",
+  "commit": "e012395",
+  "branch": "feature/airon-teach-demo",
+  "recorded_utc": "2026-11-05T19:59:58Z",
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+    "cores": 4,
+    "ram_mib": 16086,
+    "gpu": "none",
+    "kernel": "6.18.44-fc-v236",
+    "NOT_the_published_bench_machine": "V02_REPORT.md figures were measured on 2 vCPU Xeon (AVX-512) / 8 GB. Numbers in this file are from different hardware and must never be merged with those."
+  },
+  "defect": {
+    "was": "Five scripts hard-coded /home/claude/vanian-build/models/... and two also hard-coded the llama-server path, so each was unrunnable on any machine but the original build host. Three carried duplicate copies of the SHA-256 digests.",
+    "instances_found_by_grep": 5,
+    "instances_found_only_by_the_test": 2,
+    "note": "run_atomic.sh's --server argument and run_holdout_v02.sh's --model/--model-sha pair were missed by the search pass and caught by test_no_caller_duplicates_a_manifest_digest_except_the_declared_mirror and test_none_of_the_patched_callers_mentions_the_build_host. The test asserts over an explicit caller list rather than trusting a search, which is why it found them."
+  },
+  "fix": {
+    "manifest": "deploy/syntriass/models.manifest.json \u2014 4 pinned models, digests cross-checked between run_all.sh and BASELINES.md",
+    "resolver": "deploy/syntriass/resolve_model.py \u2014 precedence MODELS > SYNTRIASS_BUNDLE/models > /opt/syntriass/current/models (the location README.md section 3 installs to)",
+    "exit_codes": {
+      "0": "resolved",
+      "2": "caller error",
+      "3": "not staged",
+      "4": "integrity failure",
+      "5": "provenance unverified"
+    },
+    "integrity": "SHA-256 is authoritative and subsumes the documented size; a mismatch is refused, never warned about"
+  },
+  "tests": {
+    "deploy/syntriass/tests/test_resolve_model.py": {
+      "passed": 23,
+      "failed": 0
+    },
+    "cargo test -p syntriass-runtime --locked": {
+      "binaries": 8,
+      "passed": 90,
+      "failed": 0
+    },
+    "research/capability-learning/tests/test_atomic.py": {
+      "passed": 34,
+      "failed": 0
+    },
+    "research/capability-learning/tests/test_ir_compiler.py": {
+      "passed": 17,
+      "skipped": 2,
+      "failed": 0
+    },
+    "cargo fmt --check": "clean"
+  },
+  "recorded_run": {
+    "command": "bash research/intelligence-runtime/demo/run_demo.sh <OUT> --propose",
+    "exit_code": 3,
+    "exit_code_meaning": "EXIT_NOT_STAGED from resolve_model.py \u2014 the intended, documented refusal",
+    "scenes_reached": [
+      "Scene 6 (offline)",
+      "Setup",
+      "Scene 1",
+      "Scene 2",
+      "Scene 3"
+    ],
+    "scene_outcomes": {
+      "Scene 6 offline check": "PASSED \u2014 1.1.1.1 and 8.8.8.8 both unreachable (OSError)",
+      "Setup": "PASSED \u2014 fresh install, keys, 19 documents across 3 organisations ingested",
+      "Scene 1": "RAN, DID NOT PASS \u2014 returned error 'Inference: /opt/syntriass/current/models/qwen2.5-1.5b-instruct-q4_k_m.gguf: No such file or directory'. Needs a live model. Note the path: X1 propagated into the Rust runtime's config via mkconfig.py, so even the runtime now names the bundle path instead of the build host.",
+      "Scene 2": "PASSED \u2014 strategy 'Exact', the model-free exact-rules path, live",
+      "Scene 3": "STOPPED at the model resolution with exit 3 and the operator-facing message"
+    },
+    "before_this_item": "the same run attempted /home/claude/vanian-build/models/... and failed without saying how to fix it"
+  },
+  "incidental_unblocks_required_to_produce_the_recorded_run": [
+    {
+      "what": "research/system-one/data/maintenance-priority-v2/*.jsonl absent on a fresh clone",
+      "cause": ".gitignore line 11 is a blanket '*.jsonl', which excludes the sidecar's training data even though that dataset's MANIFEST.json IS tracked",
+      "fix": "regenerated with research/system-one/datasets/maintenance_priority.py (seed 20261031)",
+      "verification": "all 5 splits byte-identical to the digests pinned in the tracked MANIFEST.json (train de1acd44\u2026, val c4755127\u2026, test_id 2a316291\u2026, test_ood 6e8eced6\u2026, test_para d4103088\u2026)",
+      "tracked_as": "X6"
+    },
+    {
+      "what": "the interpretation sidecar needs scikit-learn, not just numpy",
+      "cause": "deploy/syntriass/README.md section 1 documents 'Python >= 3.10 with numpy'; methods/extractors.py:102 imports sklearn.linear_model",
+      "fix": "installed numpy 2.4.6 and scikit-learn 1.9.1; sidecar health then returned ok with train_rows 1200, matching the manifest",
+      "tracked_as": "X7"
+    }
+  ],
+  "still_blocked": {
+    "what": "every act needing a live model call",
+    "why": "no GGUF staged; huggingface.co and registry.ollama.ai both answer 403 at this environment's proxy",
+    "unblocked_by": "the staging script and bundle the owner will deliver"
+  },
+  "commit_note": "The X1 commit. An earlier value in this file named a pre-amend hash; recorded correctly in the follow-up commit that fixed it."
+}

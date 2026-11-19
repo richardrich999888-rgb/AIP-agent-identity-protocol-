@@ -1,0 +1,8 @@
+Exit status: 1
+Traceback (most recent call last):
+  File "/workspace/scratch/d81076ea93b3/p050/compare_runs.py", line 53, in <module>
+    main()
+  File "/workspace/scratch/d81076ea93b3/p050/compare_runs.py", line 27, in main
+    assert new["questions_sha256"] == old["questions_sha256"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

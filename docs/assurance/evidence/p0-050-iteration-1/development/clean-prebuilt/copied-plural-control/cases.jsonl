@@ -1,0 +1,12 @@
+{"category": "boundary", "counterexample": false, "id": "val-00", "inputs": {"dar": 1.4, "ir": 260, "kv": 11, "t": 20}, "label": "ACCEPT", "text": "TX-30 11 kV, 260 megohms at 20 C, DAR 1.4"}
+{"category": "boundary", "counterexample": false, "id": "val-01", "inputs": {"dar": 1.6, "ir": 259, "kv": 11, "t": 20}, "label": "DRY_OUT_OIL", "text": "TX-31 11 kV, 259 megohms at 20 C, DAR 1.6"}
+{"category": "boundary-third", "counterexample": false, "id": "val-02", "inputs": {"dar": 1.6, "ir": 87, "kv": 11, "t": 20}, "label": "DRY_OUT_OIL", "text": "TX-32 11 kV, 87 megohms at 20 C, DAR 1.6"}
+{"category": "boundary-third", "counterexample": false, "id": "val-03", "inputs": {"dar": 1.6, "ir": 86, "kv": 11, "t": 20}, "label": "REMOVE_FROM_SERVICE", "text": "TX-33 11 kV, 86 megohms at 20 C, DAR 1.6"}
+{"category": "boundary-dar", "counterexample": false, "id": "val-04", "inputs": {"dar": 1.25, "ir": 500, "kv": 11, "t": 20}, "label": "MONITOR_90D", "text": "TX-34 11 kV, 500 megohms at 20 C, DAR 1.25"}
+{"category": "boundary-dar", "counterexample": false, "id": "val-05", "inputs": {"dar": 1.24, "ir": 500, "kv": 11, "t": 20}, "label": "INVESTIGATE", "text": "TX-35 11 kV, 500 megohms at 20 C, DAR 1.24"}
+{"category": "correction", "counterexample": false, "id": "val-06", "inputs": {"dar": 1.5, "ir": 150, "kv": 11, "t": 50}, "label": "ACCEPT", "text": "TX-36 11 kV, 150 megohms at 50 C, DAR 1.5"}
+{"category": "validity-edge", "counterexample": true, "id": "val-07", "inputs": {"dar": 1.5, "ir": 700, "kv": 11, "t": 0}, "label": "ACCEPT", "text": "TX-37 11 kV, 700 megohms at 0 C, DAR 1.5"}
+{"category": "validity", "counterexample": true, "id": "val-08", "inputs": {"dar": 1.5, "ir": 700, "kv": 11, "t": -2}, "label": "INVALID_TEST", "text": "TX-38 11 kV, 700 megohms at -2 C, DAR 1.5"}
+{"category": "scope", "counterexample": true, "id": "val-09", "inputs": {"dar": 1.5, "ir": 700, "kv": 11, "t": 20}, "label": "OUT_OF_SCOPE", "text": "Cable C-4 11 kV, 700 megohms at 20 C, DAR 1.5"}
+{"category": "scope-numeric", "counterexample": true, "id": "val-10", "inputs": {"dar": 1.5, "ir": 3000, "kv": 66, "t": 20}, "label": "OUT_OF_SCOPE", "text": "TX-40 66 kV, 3000 megohms at 20 C, DAR 1.5"}
+{"category": "missing", "counterexample": true, "id": "val-11", "inputs": {"dar": null, "ir": 700, "kv": 11, "t": 30}, "label": "INSUFFICIENT_INPUT", "text": "TX-41 11 kV, 700 megohms at 30 C, DAR not measured"}

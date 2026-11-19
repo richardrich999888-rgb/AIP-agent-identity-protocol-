@@ -1,0 +1,1181 @@
+﻿2026-11-12T06:41:21.9303026Z Current runner version: '2.338.2'
+2026-11-12T06:41:21.9326696Z ##[group]Runner Image Provisioner
+2026-11-12T06:41:21.9327647Z Hosted Compute Agent
+2026-11-12T06:41:21.9328320Z Version: 20261028.624
+2026-11-12T06:41:21.9328984Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-12T06:41:21.9329703Z Build Date: 2026-10-28T21:51:42Z
+2026-11-12T06:41:21.9330356Z Worker ID: {ebf18213-2f45-4837-b44d-e8aa00a7541b}
+2026-11-12T06:41:21.9331051Z Region: centralus
+2026-11-12T06:41:21.9331587Z Cloud: Azure
+2026-11-12T06:41:21.9332094Z ##[endgroup]
+2026-11-12T06:41:21.9333667Z ##[group]Operating System
+2026-11-12T06:41:21.9334317Z Ubuntu
+2026-11-12T06:41:21.9334838Z 24.04.5
+2026-11-12T06:41:21.9335371Z LTS
+2026-11-12T06:41:21.9336249Z ##[endgroup]
+2026-11-12T06:41:21.9336770Z ##[group]Runner Image
+2026-11-12T06:41:21.9337406Z Image: ubuntu-24.04
+2026-11-12T06:41:21.9337940Z Version: 20261101.360.1
+2026-11-12T06:41:21.9339166Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-12T06:41:21.9340648Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-12T06:41:21.9341648Z ##[endgroup]
+2026-11-12T06:41:21.9342693Z ##[group]GITHUB_TOKEN Permissions
+2026-11-12T06:41:21.9344746Z Contents: read
+2026-11-12T06:41:21.9345285Z Metadata: read
+2026-11-12T06:41:21.9346346Z ##[endgroup]
+2026-11-12T06:41:21.9348387Z Secret source: Actions
+2026-11-12T06:41:21.9349337Z Cache mode: write
+2026-11-12T06:41:21.9350034Z Prepare workflow directory
+2026-11-12T06:41:21.9664639Z Prepare all required actions
+2026-11-12T06:41:21.9712136Z Getting action download info
+2026-11-12T06:41:22.2383295Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-12T06:41:22.3641893Z Download action repository 'dtolnay/rust-toolchain@stable' (SHA:b725eda525362e7cf34af9a7243cac1e3f01a7ec)
+2026-11-12T06:41:22.5255194Z Download action repository 'Swatinem/rust-cache@v2' (SHA:d1527c8f67ef9af357290475d4af4b0fab8f12e0)
+2026-11-12T06:41:22.9310502Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-12T06:41:23.1143350Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-12T06:41:23.4112988Z Complete job name: scoreboard
+2026-11-12T06:41:23.4952114Z ##[group]Run actions/checkout@v4
+2026-11-12T06:41:23.4952971Z with:
+2026-11-12T06:41:23.4953733Z   repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:41:23.4958716Z   token: ***
+2026-11-12T06:41:23.4959229Z   ssh-strict: true
+2026-11-12T06:41:23.4959814Z   ssh-user: git
+2026-11-12T06:41:23.4960348Z   persist-credentials: true
+2026-11-12T06:41:23.4960945Z   clean: true
+2026-11-12T06:41:23.4961523Z   sparse-checkout-cone-mode: true
+2026-11-12T06:41:23.4962149Z   fetch-depth: 1
+2026-11-12T06:41:23.4962740Z   fetch-tags: false
+2026-11-12T06:41:23.4963283Z   show-progress: true
+2026-11-12T06:41:23.4963841Z   lfs: false
+2026-11-12T06:41:23.4964421Z   submodules: false
+2026-11-12T06:41:23.4964957Z   set-safe-directory: true
+2026-11-12T06:41:23.4965795Z   allow-unsafe-pr-checkout: false
+2026-11-12T06:41:23.4966637Z ##[endgroup]
+2026-11-12T06:41:23.7842412Z Syncing repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:41:23.7847801Z ##[group]Getting Git version info
+2026-11-12T06:41:23.7850620Z Working directory is '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-12T06:41:23.7854563Z [command]/usr/bin/git version
+2026-11-12T06:41:23.7919976Z git version 2.56.0
+2026-11-12T06:41:23.7938701Z ##[endgroup]
+2026-11-12T06:41:23.7951706Z Temporarily overriding HOME='/home/runner/work/_temp/e639544e-5164-4a7e-a0f7-c03b2148e6ed' before making global git config changes
+2026-11-12T06:41:23.7956284Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T06:41:23.7960413Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:41:23.8008501Z Deleting the contents of '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-12T06:41:23.8013706Z ##[group]Initializing the repository
+2026-11-12T06:41:23.8017545Z [command]/usr/bin/git init /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:41:23.8134918Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-12T06:41:23.8138331Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-12T06:41:23.8141008Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-12T06:41:23.8143286Z hint: call:
+2026-11-12T06:41:23.8144402Z hint:
+2026-11-12T06:41:23.8146036Z hint: 	git config --global init.defaultBranch <name>
+2026-11-12T06:41:23.8147813Z hint:
+2026-11-12T06:41:23.8149965Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-12T06:41:23.8152994Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-12T06:41:23.8155213Z hint:
+2026-11-12T06:41:23.8156563Z hint: 	git branch -m <name>
+2026-11-12T06:41:23.8157876Z hint:
+2026-11-12T06:41:23.8159571Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-12T06:41:23.8163206Z Initialized empty Git repository in /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/.git/
+2026-11-12T06:41:23.8170493Z [command]/usr/bin/git remote add origin https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:41:23.8214727Z ##[endgroup]
+2026-11-12T06:41:23.8217779Z ##[group]Disabling automatic garbage collection
+2026-11-12T06:41:23.8219641Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-12T06:41:23.8248246Z ##[endgroup]
+2026-11-12T06:41:23.8251011Z ##[group]Setting up auth
+2026-11-12T06:41:23.8253651Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T06:41:23.8288871Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T06:41:23.8660590Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T06:41:23.8697727Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T06:41:23.8889000Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T06:41:23.8923010Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T06:41:23.9123590Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-12T06:41:23.9167640Z ##[endgroup]
+2026-11-12T06:41:23.9169449Z ##[group]Fetching the repository
+2026-11-12T06:41:23.9181903Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +de0786e22a433512c50c402af4057d28564452d1:refs/remotes/pull/21/merge
+2026-11-12T06:41:25.3908205Z From https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-12T06:41:25.3910241Z  * [new ref]         de0786e22a433512c50c402af4057d28564452d1 -> pull/21/merge
+2026-11-12T06:41:25.3915764Z ##[endgroup]
+2026-11-12T06:41:25.3916485Z ##[group]Determining the checkout info
+2026-11-12T06:41:25.3917079Z ##[endgroup]
+2026-11-12T06:41:25.3917857Z [command]/usr/bin/git sparse-checkout disable
+2026-11-12T06:41:25.3973388Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-12T06:41:25.4004357Z ##[group]Checking out the ref
+2026-11-12T06:41:25.4009146Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/21/merge
+2026-11-12T06:41:25.6534467Z Note: switching to 'refs/remotes/pull/21/merge'.
+2026-11-12T06:41:25.6535730Z 
+2026-11-12T06:41:25.6536052Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-12T06:41:25.6536801Z changes and commit them, and you can discard any commits you make in this
+2026-11-12T06:41:25.6537576Z state without impacting any branches by switching back to a branch.
+2026-11-12T06:41:25.6538097Z 
+2026-11-12T06:41:25.6538765Z If you want to create a new branch to retain commits you create, you may
+2026-11-12T06:41:25.6539371Z do so (now or later) by using -c with the switch command. Example:
+2026-11-12T06:41:25.6539704Z 
+2026-11-12T06:41:25.6539870Z   git switch -c <new-branch-name>
+2026-11-12T06:41:25.6540108Z 
+2026-11-12T06:41:25.6540278Z Or undo this operation with:
+2026-11-12T06:41:25.6540517Z 
+2026-11-12T06:41:25.6540723Z   git switch -
+2026-11-12T06:41:25.6540925Z 
+2026-11-12T06:41:25.6541173Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-12T06:41:25.6541506Z 
+2026-11-12T06:41:25.6541859Z HEAD is now at de0786e Merge ef3d9d434e5ed55e5994331abc91c03833f997ff into 2883da7bf5b8591a31bf24789c1d0722f83a6624
+2026-11-12T06:41:25.6550542Z ##[endgroup]
+2026-11-12T06:41:25.6593468Z [command]/usr/bin/git log -1 --format=%H
+2026-11-12T06:41:25.6618393Z de0786e22a433512c50c402af4057d28564452d1
+2026-11-12T06:41:25.6962640Z ##[group]Run dtolnay/rust-toolchain@stable
+2026-11-12T06:41:25.6963012Z with:
+2026-11-12T06:41:25.6963280Z   toolchain: stable
+2026-11-12T06:41:25.6963554Z ##[endgroup]
+2026-11-12T06:41:25.7048275Z ##[start-action display=Parse toolchain version;id=__dtolnay_rust-toolchain.parse]
+2026-11-12T06:41:25.7120456Z ##[group]Run if [[ -z $toolchain ]]; then
+2026-11-12T06:41:25.7120947Z [36;1mif [[ -z $toolchain ]]; then[0m
+2026-11-12T06:41:25.7121559Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
+2026-11-12T06:41:25.7122134Z [36;1m  echo "'toolchain' is a required input" >&2[0m
+2026-11-12T06:41:25.7122514Z [36;1m  exit 1[0m
+2026-11-12T06:41:25.7122903Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
+2026-11-12T06:41:25.7123354Z [36;1m  if [[ Linux == macOS ]]; then[0m
+2026-11-12T06:41:25.7123959Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-11-12T06:41:25.7124491Z [36;1m  else[0m
+2026-11-12T06:41:25.7124917Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-11-12T06:41:25.7125378Z [36;1m  fi[0m
+2026-11-12T06:41:25.7125967Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
+2026-11-12T06:41:25.7126520Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
+2026-11-12T06:41:25.7127003Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
+2026-11-12T06:41:25.7127534Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
+2026-11-12T06:41:25.7128040Z [36;1melse[0m
+2026-11-12T06:41:25.7128297Z [36;1m  delimiter=EOF[0m
+2026-11-12T06:41:25.7128659Z [36;1m  while [[ $toolchain == *$delimiter* ]]; do delimiter+=_; done[0m
+2026-11-12T06:41:25.7129172Z [36;1m  printf 'toolchain<<%s\n%s\n%s\n' "$delimiter" "$toolchain" "$delimiter" >> $GITHUB_OUTPUT[0m
+2026-11-12T06:41:25.7129606Z [36;1mfi[0m
+2026-11-12T06:41:25.7148719Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:25.7149131Z env:
+2026-11-12T06:41:25.7149400Z   toolchain: stable
+2026-11-12T06:41:25.7149669Z ##[endgroup]
+2026-11-12T06:41:25.7243784Z ##[end-action id=__dtolnay_rust-toolchain.parse;outcome=success;conclusion=success;duration_ms=19]
+2026-11-12T06:41:25.7248881Z ##[start-action display=Set $CARGO_HOME;id=__dtolnay_rust-toolchain.__run]
+2026-11-12T06:41:25.7341695Z ##[group]Run echo CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV
+2026-11-12T06:41:25.7342336Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV[0m
+2026-11-12T06:41:25.7357104Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:25.7357500Z ##[endgroup]
+2026-11-12T06:41:25.7402589Z ##[end-action id=__dtolnay_rust-toolchain.__run;outcome=success;conclusion=success;duration_ms=15]
+2026-11-12T06:41:25.7405216Z ##[start-action display=Install rustup if needed;id=__dtolnay_rust-toolchain.__run_2]
+2026-11-12T06:41:25.7442334Z ##[group]Run if ! command -v rustup &>/dev/null; then
+2026-11-12T06:41:25.7442762Z [36;1mif ! command -v rustup &>/dev/null; then[0m
+2026-11-12T06:41:25.7443512Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://sh.rustup.rs | sh -s -- --default-toolchain none -y[0m
+2026-11-12T06:41:25.7444200Z [36;1m  echo "$CARGO_HOME/bin" >> $GITHUB_PATH[0m
+2026-11-12T06:41:25.7444523Z [36;1mfi[0m
+2026-11-12T06:41:25.7458110Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:25.7458511Z env:
+2026-11-12T06:41:25.7458777Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:25.7459081Z ##[endgroup]
+2026-11-12T06:41:25.7500631Z ##[end-action id=__dtolnay_rust-toolchain.__run_2;outcome=success;conclusion=success;duration_ms=9]
+2026-11-12T06:41:25.7503273Z ##[start-action display=Install rustup if needed on windows;id=__dtolnay_rust-toolchain.__run_3]
+2026-11-12T06:41:25.7510560Z ##[end-action id=__dtolnay_rust-toolchain.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-12T06:41:25.7524482Z ##[start-action display=rustup toolchain install stable;id=__dtolnay_rust-toolchain.__run_4]
+2026-11-12T06:41:25.7554235Z ##[group]Run set -f  # split targets and components on commas and whitespace, without glob expansion
+2026-11-12T06:41:25.7554917Z [36;1mset -f  # split targets and components on commas and whitespace, without glob expansion[0m
+2026-11-12T06:41:25.7555372Z [36;1mflags=()[0m
+2026-11-12T06:41:25.7555945Z [36;1mfor t in ${targets//,/ }; do flags+=(--target "$t"); done[0m
+2026-11-12T06:41:25.7556392Z [36;1mfor c in ${components//,/ }; do flags+=(--component "$c"); done[0m
+2026-11-12T06:41:25.7556904Z [36;1mif [[ $toolchain == nightly && -n $components ]]; then flags+=(--allow-downgrade); fi[0m
+2026-11-12T06:41:25.7557374Z [36;1mlog=$(mktemp)[0m
+2026-11-12T06:41:25.7557667Z [36;1mtrap 'rm -f "$log"' EXIT[0m
+2026-11-12T06:41:25.7557995Z [36;1mfor attempt in 1 2 3 4 5; do[0m
+2026-11-12T06:41:25.7558568Z [36;1m  if rustup toolchain install "$toolchain" "${flags[@]}" --profile minimal --no-self-update --force-non-host 2>&1 | tee "$log"; then[0m
+2026-11-12T06:41:25.7559136Z [36;1m    break[0m
+2026-11-12T06:41:25.7559392Z [36;1m  else[0m
+2026-11-12T06:41:25.7559648Z [36;1m    status=$?[0m
+2026-11-12T06:41:25.7559910Z [36;1m  fi[0m
+2026-11-12T06:41:25.7560247Z [36;1m  if [[ $attempt == 5 ]] || ! grep -Fq 'checksum failed for ' "$log" \[0m
+2026-11-12T06:41:25.7560796Z [36;1m      || ! grep -Fq 'this is likely due to an ongoing update of the official release server' "$log"; then[0m
+2026-11-12T06:41:25.7561276Z [36;1m    exit "$status"[0m
+2026-11-12T06:41:25.7561553Z [36;1m  fi[0m
+2026-11-12T06:41:25.7561938Z [36;1m  echo "Retrying rustup toolchain install in 30 seconds (retry $attempt of 4)" >&2[0m
+2026-11-12T06:41:25.7562412Z [36;1m  sleep 30[0m
+2026-11-12T06:41:25.7562730Z [36;1mdone[0m
+2026-11-12T06:41:25.7576051Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:25.7576435Z env:
+2026-11-12T06:41:25.7576705Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:25.7577011Z   toolchain: stable
+2026-11-12T06:41:25.7577270Z   targets: 
+2026-11-12T06:41:25.7577515Z   components: 
+2026-11-12T06:41:25.7577795Z   RUSTUP_PERMIT_COPY_RENAME: 1
+2026-11-12T06:41:25.7578084Z ##[endgroup]
+2026-11-12T06:41:27.6122068Z info: syncing channel updates for stable-x86_64-unknown-linux-gnu
+2026-11-12T06:41:27.7398062Z 
+2026-11-12T06:41:27.7470325Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-11-12T06:41:27.7471133Z 
+2026-11-12T06:41:27.7518478Z ##[end-action id=__dtolnay_rust-toolchain.__run_4;outcome=success;conclusion=success;duration_ms=1999]
+2026-11-12T06:41:27.7525641Z ##[start-action display=rustup default stable;id=__dtolnay_rust-toolchain.__run_5]
+2026-11-12T06:41:27.7546137Z ##[group]Run rustup default "$toolchain" --force-non-host
+2026-11-12T06:41:27.7546542Z [36;1mrustup default "$toolchain" --force-non-host[0m
+2026-11-12T06:41:27.7559891Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:27.7560216Z env:
+2026-11-12T06:41:27.7560435Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:27.7560692Z   toolchain: stable
+2026-11-12T06:41:27.7560903Z ##[endgroup]
+2026-11-12T06:41:27.7634968Z info: using existing install for stable-x86_64-unknown-linux-gnu
+2026-11-12T06:41:27.7647377Z info: default toolchain set to stable-x86_64-unknown-linux-gnu
+2026-11-12T06:41:27.7647793Z 
+2026-11-12T06:41:27.7718033Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-11-12T06:41:27.7718421Z 
+2026-11-12T06:41:27.7732745Z ##[end-action id=__dtolnay_rust-toolchain.__run_5;outcome=success;conclusion=success;duration_ms=20]
+2026-11-12T06:41:27.7736772Z ##[start-action display=Create cachekey;id=__dtolnay_rust-toolchain.rustc-version]
+2026-11-12T06:41:27.7756997Z ##[group]Run DATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')
+2026-11-12T06:41:27.7757759Z [36;1mDATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
+2026-11-12T06:41:27.7758356Z [36;1mHASH=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-hash: //p')[0m
+2026-11-12T06:41:27.7758820Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
+2026-11-12T06:41:27.7771493Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:27.7771838Z env:
+2026-11-12T06:41:27.7772064Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:27.7772316Z   toolchain: stable
+2026-11-12T06:41:27.7772529Z ##[endgroup]
+2026-11-12T06:41:27.8389016Z ##[end-action id=__dtolnay_rust-toolchain.rustc-version;outcome=success;conclusion=success;duration_ms=65]
+2026-11-12T06:41:27.8391822Z ##[start-action display=Disable incremental compilation;id=__dtolnay_rust-toolchain.__run_6]
+2026-11-12T06:41:27.8412666Z ##[group]Run if [ -z "${CARGO_INCREMENTAL+set}" ]; then
+2026-11-12T06:41:27.8413043Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
+2026-11-12T06:41:27.8413360Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
+2026-11-12T06:41:27.8413645Z [36;1mfi[0m
+2026-11-12T06:41:27.8426758Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:27.8427094Z env:
+2026-11-12T06:41:27.8427309Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:27.8427553Z ##[endgroup]
+2026-11-12T06:41:27.8463415Z ##[end-action id=__dtolnay_rust-toolchain.__run_6;outcome=success;conclusion=success;duration_ms=7]
+2026-11-12T06:41:27.8466114Z ##[start-action display=Enable colors in Cargo output;id=__dtolnay_rust-toolchain.__run_7]
+2026-11-12T06:41:27.8485056Z ##[group]Run if [ -z "${CARGO_TERM_COLOR+set}" ]; then
+2026-11-12T06:41:27.8485595Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
+2026-11-12T06:41:27.8486004Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
+2026-11-12T06:41:27.8486288Z [36;1mfi[0m
+2026-11-12T06:41:27.8498270Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:27.8498598Z env:
+2026-11-12T06:41:27.8498816Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:27.8499079Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:41:27.8499299Z ##[endgroup]
+2026-11-12T06:41:27.8536412Z ##[end-action id=__dtolnay_rust-toolchain.__run_7;outcome=success;conclusion=success;duration_ms=6]
+2026-11-12T06:41:27.8539856Z ##[start-action display=Enable Cargo sparse registry;id=__dtolnay_rust-toolchain.__run_8]
+2026-11-12T06:41:27.8561332Z ##[group]Run # implemented in 1.66, stabilized in 1.68, made default in 1.70
+2026-11-12T06:41:27.8561809Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
+2026-11-12T06:41:27.8562446Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
+2026-11-12T06:41:27.8563095Z [36;1m  if rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
+2026-11-12T06:41:27.8563630Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-11-12T06:41:27.8564110Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
+2026-11-12T06:41:27.8564568Z [36;1m  elif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
+2026-11-12T06:41:27.8565072Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-11-12T06:41:27.8565744Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
+2026-11-12T06:41:27.8566088Z [36;1m  fi[0m
+2026-11-12T06:41:27.8566291Z [36;1mfi[0m
+2026-11-12T06:41:27.8577642Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:27.8577965Z env:
+2026-11-12T06:41:27.8578329Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:27.8578597Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:41:27.8578829Z   CARGO_TERM_COLOR: always
+2026-11-12T06:41:27.8579061Z   toolchain: stable
+2026-11-12T06:41:27.8579277Z ##[endgroup]
+2026-11-12T06:41:27.8834180Z ##[end-action id=__dtolnay_rust-toolchain.__run_8;outcome=success;conclusion=success;duration_ms=29]
+2026-11-12T06:41:27.8838049Z ##[start-action display=Work around spurious network errors in curl 8.0;id=__dtolnay_rust-toolchain.__run_9]
+2026-11-12T06:41:27.8856805Z ##[group]Run # https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation
+2026-11-12T06:41:27.8857464Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
+2026-11-12T06:41:27.8858032Z [36;1mif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
+2026-11-12T06:41:27.8858464Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
+2026-11-12T06:41:27.8858766Z [36;1mfi[0m
+2026-11-12T06:41:27.8870187Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:27.8870513Z env:
+2026-11-12T06:41:27.8870741Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:27.8870997Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:41:27.8871227Z   CARGO_TERM_COLOR: always
+2026-11-12T06:41:27.8871453Z   toolchain: stable
+2026-11-12T06:41:27.8871659Z ##[endgroup]
+2026-11-12T06:41:27.9011510Z ##[end-action id=__dtolnay_rust-toolchain.__run_9;outcome=success;conclusion=success;duration_ms=17]
+2026-11-12T06:41:27.9015695Z ##[start-action display=rustc +stable --version --verbose;id=__dtolnay_rust-toolchain.__run_10]
+2026-11-12T06:41:27.9034962Z ##[group]Run rustc +"$toolchain" --version --verbose
+2026-11-12T06:41:27.9035338Z [36;1mrustc +"$toolchain" --version --verbose[0m
+2026-11-12T06:41:27.9047150Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-12T06:41:27.9047472Z env:
+2026-11-12T06:41:27.9047690Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:27.9047949Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:41:27.9048201Z   CARGO_TERM_COLOR: always
+2026-11-12T06:41:27.9048428Z   toolchain: stable
+2026-11-12T06:41:27.9048638Z ##[endgroup]
+2026-11-12T06:41:27.9170198Z rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-11-12T06:41:27.9170758Z binary: rustc
+2026-11-12T06:41:27.9171201Z commit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67
+2026-11-12T06:41:27.9171667Z commit-date: 2026-10-13
+2026-11-12T06:41:27.9172027Z host: x86_64-unknown-linux-gnu
+2026-11-12T06:41:27.9172385Z release: 1.99.1
+2026-11-12T06:41:27.9172710Z LLVM version: 23.1.1
+2026-11-12T06:41:27.9187435Z ##[end-action id=__dtolnay_rust-toolchain.__run_10;outcome=success;conclusion=success;duration_ms=17]
+2026-11-12T06:41:27.9296300Z ##[group]Run Swatinem/rust-cache@v2
+2026-11-12T06:41:27.9296710Z with:
+2026-11-12T06:41:27.9296921Z   prefix-key: v0-rust
+2026-11-12T06:41:27.9297143Z   add-job-id-key: true
+2026-11-12T06:41:27.9297387Z   add-rust-environment-hash-key: true
+2026-11-12T06:41:27.9297658Z   cache-targets: true
+2026-11-12T06:41:27.9297877Z   cache-all-crates: false
+2026-11-12T06:41:27.9298125Z   cache-workspace-crates: false
+2026-11-12T06:41:27.9298363Z   save-if: true
+2026-11-12T06:41:27.9298573Z   cache-provider: github
+2026-11-12T06:41:27.9298794Z   cache-bin: true
+2026-11-12T06:41:27.9298999Z   lookup-only: false
+2026-11-12T06:41:27.9299205Z   cmd-format: {0}
+2026-11-12T06:41:27.9299399Z env:
+2026-11-12T06:41:27.9299596Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:27.9299838Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:41:27.9300054Z   CARGO_TERM_COLOR: always
+2026-11-12T06:41:27.9300278Z ##[endgroup]
+2026-11-12T06:41:28.9600511Z ##[group]Cache Configuration
+2026-11-12T06:41:28.9601305Z Cache Provider:
+2026-11-12T06:41:28.9601747Z     github
+2026-11-12T06:41:28.9602094Z Workspaces:
+2026-11-12T06:41:28.9602795Z     /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:41:28.9603517Z Cache Paths:
+2026-11-12T06:41:28.9603847Z     /home/runner/.cargo/bin
+2026-11-12T06:41:28.9604242Z     /home/runner/.cargo/.crates.toml
+2026-11-12T06:41:28.9604692Z     /home/runner/.cargo/.crates2.json
+2026-11-12T06:41:28.9605092Z     /home/runner/.cargo/registry
+2026-11-12T06:41:28.9605623Z     /home/runner/.cargo/git
+2026-11-12T06:41:28.9606184Z     /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target
+2026-11-12T06:41:28.9606831Z Restore Key:
+2026-11-12T06:41:28.9607169Z     v0-rust-scoreboard-Linux-x64-01b81e85
+2026-11-12T06:41:28.9607568Z Cache Key:
+2026-11-12T06:41:28.9607900Z     v0-rust-scoreboard-Linux-x64-01b81e85-259d97ab
+2026-11-12T06:41:28.9608341Z .. Prefix:
+2026-11-12T06:41:28.9608651Z   - v0-rust-scoreboard-Linux-x64
+2026-11-12T06:41:28.9609058Z .. Environment considered:
+2026-11-12T06:41:28.9609387Z   - Rust Versions:
+2026-11-12T06:41:28.9609840Z     - 1.99.1 x86_64-unknown-linux-gnu 58cf8f9c35b355199727627d07ae34a4e2846d67
+2026-11-12T06:41:28.9610301Z   - CARGO_HOME
+2026-11-12T06:41:28.9610566Z   - CARGO_INCREMENTAL
+2026-11-12T06:41:28.9610901Z   - CARGO_TERM_COLOR
+2026-11-12T06:41:28.9611401Z .. Lockfiles considered:
+2026-11-12T06:41:28.9612204Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-service/Cargo.toml
+2026-11-12T06:41:28.9613644Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-agent/Cargo.toml
+2026-11-12T06:41:28.9614924Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-aibom/Cargo.toml
+2026-11-12T06:41:28.9616413Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-airi/Cargo.toml
+2026-11-12T06:41:28.9618019Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-anchor/Cargo.toml
+2026-11-12T06:41:28.9619250Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-approval/Cargo.toml
+2026-11-12T06:41:28.9620563Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-authorize/Cargo.toml
+2026-11-12T06:41:28.9621754Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-cli/Cargo.toml
+2026-11-12T06:41:28.9622988Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-collector/Cargo.toml
+2026-11-12T06:41:28.9623959Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-conformance/Cargo.toml
+2026-11-12T06:41:28.9624784Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-containment/Cargo.toml
+2026-11-12T06:41:28.9626430Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-core/Cargo.toml
+2026-11-12T06:41:28.9627361Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-corroborate/Cargo.toml
+2026-11-12T06:41:28.9628133Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-crypto/Cargo.toml
+2026-11-12T06:41:28.9628998Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-contract/Cargo.toml
+2026-11-12T06:41:28.9629808Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-observer/Cargo.toml
+2026-11-12T06:41:28.9630669Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-workload/Cargo.toml
+2026-11-12T06:41:28.9631449Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge/Cargo.toml
+2026-11-12T06:41:28.9632200Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-effect/Cargo.toml
+2026-11-12T06:41:28.9633034Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-enforce/Cargo.toml
+2026-11-12T06:41:28.9633859Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-enterprise/Cargo.toml
+2026-11-12T06:41:28.9634983Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-execution/Cargo.toml
+2026-11-12T06:41:28.9636720Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-hsm/Cargo.toml
+2026-11-12T06:41:28.9638088Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-http-gateway/Cargo.toml
+2026-11-12T06:41:28.9639680Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-incident/Cargo.toml
+2026-11-12T06:41:28.9641268Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-industrial/Cargo.toml
+2026-11-12T06:41:28.9642554Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-interlock/Cargo.toml
+2026-11-12T06:41:28.9643886Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-ledger/Cargo.toml
+2026-11-12T06:41:28.9645160Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-mcp-gateway/Cargo.toml
+2026-11-12T06:41:28.9646722Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-nexora/Cargo.toml
+2026-11-12T06:41:28.9647866Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observation/Cargo.toml
+2026-11-12T06:41:28.9648998Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe-verify/Cargo.toml
+2026-11-12T06:41:28.9650102Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe/Cargo.toml
+2026-11-12T06:41:28.9651294Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-placement/Cargo.toml
+2026-11-12T06:41:28.9652528Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-platform/Cargo.toml
+2026-11-12T06:41:28.9653770Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-probe/Cargo.toml
+2026-11-12T06:41:28.9654937Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-protocol/Cargo.toml
+2026-11-12T06:41:28.9656193Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-real-tests/Cargo.toml
+2026-11-12T06:41:28.9657558Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-reconcile/Cargo.toml
+2026-11-12T06:41:28.9659207Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-registry/Cargo.toml
+2026-11-12T06:41:28.9660232Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-robotics/Cargo.toml
+2026-11-12T06:41:28.9661026Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-sentinel-feed/Cargo.toml
+2026-11-12T06:41:28.9661813Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-siem/Cargo.toml
+2026-11-12T06:41:28.9662590Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-space/Cargo.toml
+2026-11-12T06:41:28.9663365Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spend/Cargo.toml
+2026-11-12T06:41:28.9664163Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spiffe/Cargo.toml
+2026-11-12T06:41:28.9664927Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-system/Cargo.toml
+2026-11-12T06:41:28.9665896Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-test/Cargo.toml
+2026-11-12T06:41:28.9666697Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-transport/Cargo.toml
+2026-11-12T06:41:28.9667595Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-types/Cargo.toml
+2026-11-12T06:41:28.9668778Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-uas/Cargo.toml
+2026-11-12T06:41:28.9670022Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-verify/Cargo.toml
+2026-11-12T06:41:28.9671202Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-warrant/Cargo.toml
+2026-11-12T06:41:28.9672007Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/banking_demo/Cargo.toml
+2026-11-12T06:41:28.9673145Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/ghost-demo/Cargo.toml
+2026-11-12T06:41:28.9674184Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/Cargo.lock
+2026-11-12T06:41:28.9675359Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/aip-feed-conformance/Cargo.toml
+2026-11-12T06:41:28.9677180Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-accountability-core/Cargo.toml
+2026-11-12T06:41:28.9678643Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-sentinel/Cargo.toml
+2026-11-12T06:41:28.9679962Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/syntriass-runtime/Cargo.toml
+2026-11-12T06:41:28.9681225Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/vanian-sovereign/Cargo.toml
+2026-11-12T06:41:28.9682557Z ##[endgroup]
+2026-11-12T06:41:28.9682763Z 
+2026-11-12T06:41:28.9683007Z ... Restoring cache ...
+2026-11-12T06:41:29.1092445Z Cache hit for restore-key: v0-rust-scoreboard-Linux-x64-01b81e85-f662eabe
+2026-11-12T06:41:30.2486804Z Received 132581504 of 132581504 (100.0%), 126.2 MBs/sec
+2026-11-12T06:41:30.2487804Z Cache Size: ~126 MB (132581504 B)
+2026-11-12T06:41:30.2553219Z [command]/usr/bin/tar -xf /home/runner/work/_temp/6c7aca3d-75a7-4068-868c-2a7ace870a87/cache.tzst -P -C /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol- --use-compress-program unzstd
+2026-11-12T06:41:30.9001532Z Cache restored successfully
+2026-11-12T06:41:30.9048619Z Restored from cache key "v0-rust-scoreboard-Linux-x64-01b81e85-f662eabe" full match: false.
+2026-11-12T06:41:30.9389955Z ##[group]Run cargo test --locked -p syntriass-runtime
+2026-11-12T06:41:30.9390965Z [36;1mcargo test --locked -p syntriass-runtime[0m
+2026-11-12T06:41:30.9391537Z [36;1mcargo test --locked -p vanian-sovereign --lib --test sqlite_upgrade[0m
+2026-11-12T06:41:30.9392078Z [36;1mcargo build --locked -p syntriass-runtime --bin syntriass[0m
+2026-11-12T06:41:30.9407578Z shell: /usr/bin/bash -e {0}
+2026-11-12T06:41:30.9407984Z env:
+2026-11-12T06:41:30.9408355Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:41:30.9408706Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:41:30.9409013Z   CARGO_TERM_COLOR: always
+2026-11-12T06:41:30.9409378Z   CACHE_ON_FAILURE: false
+2026-11-12T06:41:30.9409718Z ##[endgroup]
+2026-11-12T06:41:31.4298991Z [1m[92m    Updating[0m crates.io index
+2026-11-12T06:41:31.7733707Z [1m[92m Downloading[0m crates ...
+2026-11-12T06:41:31.9131740Z [1m[92m  Downloaded[0m foldhash v0.2.0
+2026-11-12T06:41:31.9143930Z [1m[92m  Downloaded[0m hashlink v0.12.2
+2026-11-12T06:41:31.9156066Z [1m[92m  Downloaded[0m rusqlite v0.41.0
+2026-11-12T06:41:31.9200382Z [1m[92m  Downloaded[0m rustix v1.1.6
+2026-11-12T06:41:31.9344237Z [1m[92m  Downloaded[0m libsqlite3-sys v0.39.1
+2026-11-12T06:41:32.0202831Z [1m[92m   Compiling[0m aip-types v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-types)
+2026-11-12T06:41:32.0218199Z [1m[92m   Compiling[0m libsqlite3-sys v0.39.1
+2026-11-12T06:41:32.0219574Z [1m[92m   Compiling[0m foldhash v0.2.0
+2026-11-12T06:41:32.0220772Z [1m[92m   Compiling[0m rustix v1.1.6
+2026-11-12T06:41:35.6327217Z [1m[92m   Compiling[0m aip-crypto v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-crypto)
+2026-11-12T06:41:35.6358251Z [1m[92m   Compiling[0m hashbrown v0.17.1
+2026-11-12T06:41:36.3006729Z [1m[92m   Compiling[0m hashlink v0.12.2
+2026-11-12T06:41:36.6568245Z [1m[92m   Compiling[0m aip-core v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-core)
+2026-11-12T06:41:37.3113654Z [1m[92m   Compiling[0m aip-spend v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spend)
+2026-11-12T06:41:38.0128093Z [1m[92m   Compiling[0m aip-registry v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-registry)
+2026-11-12T06:41:38.2247417Z [1m[92m   Compiling[0m aip-authorize v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-authorize)
+2026-11-12T06:41:39.9366025Z [1m[92m   Compiling[0m tempfile v3.27.0
+2026-11-12T06:41:54.7832890Z [1m[92m   Compiling[0m rusqlite v0.41.0
+2026-11-12T06:41:55.3809472Z [1m[92m   Compiling[0m vanian-sovereign v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/vanian-sovereign)
+2026-11-12T06:41:56.1233664Z [1m[92m   Compiling[0m syntriass-runtime v0.1.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/syntriass-runtime)
+2026-11-12T06:42:01.3677103Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 30.41s
+2026-11-12T06:42:01.3762371Z [1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/syntriass_runtime-9b495e29e6376abe)
+2026-11-12T06:42:01.3774934Z 
+2026-11-12T06:42:01.3775707Z running 108 tests
+2026-11-12T06:42:01.3787125Z test adapters::llama_scoped::tests::stats_parse_usage_and_cache ... ok
+2026-11-12T06:42:01.3788311Z test adapters::llama_scoped::tests::body_pins_slot_and_caches_prompt ... ok
+2026-11-12T06:42:01.3797009Z test adapters::meter::tests::reads_own_process ... ok
+2026-11-12T06:42:01.4004313Z test adapters::sidecar::tests::a_sidecar_that_exits_at_startup_reports_its_stderr_and_log_path ... ok
+2026-11-12T06:42:01.4019670Z test adapters::sidecar::tests::a_large_stderr_log_is_truncated_to_a_bounded_tail ... ok
+2026-11-12T06:42:01.4025034Z test adapters::supervisor::hash_tests::missing_file_is_an_error ... ok
+2026-11-12T06:42:01.4060668Z test adapters::sidecar::tests::a_healthy_sidecar_still_starts_and_returns_its_health_reply ... ok
+2026-11-12T06:42:01.4065380Z test adapters::teach_store::tests::a_file_that_is_not_a_session_is_reported_as_malformed ... ok
+2026-11-12T06:42:01.4226437Z test adapters::teach_store::tests::a_listing_is_ordered_by_session_id ... ok
+2026-11-12T06:42:01.4233125Z test adapters::teach_store::tests::a_missing_session_is_not_found_rather_than_an_io_error ... ok
+2026-11-12T06:42:01.4243951Z test adapters::teach_store::tests::a_session_file_is_written_mode_0600 ... ok
+2026-11-12T06:42:01.4248789Z test adapters::sidecar::tests::an_empty_stderr_log_is_reported_as_empty ... ok
+2026-11-12T06:42:01.4258001Z test adapters::teach_store::tests::a_session_is_stored_under_its_tenant_and_named_by_its_hash ... ok
+2026-11-12T06:42:01.4271741Z test adapters::teach_store::tests::a_stored_session_reads_back_unchanged ... ok
+2026-11-12T06:42:01.4272907Z test adapters::teach_store::tests::a_tampered_session_also_fails_a_tenant_listing ... ok
+2026-11-12T06:42:01.4274254Z test adapters::teach_store::tests::a_tenant_with_no_sessions_lists_empty_and_is_not_an_error ... ok
+2026-11-12T06:42:01.4278548Z test adapters::teach_store::tests::an_unsafe_tenant_or_session_name_cannot_reach_outside_the_store ... ok
+2026-11-12T06:42:01.4279559Z test adapters::teach_store::tests::every_store_error_prints_what_was_wrong ... ok
+2026-11-12T06:42:01.4288358Z test adapters::teach_store::tests::a_tampered_session_is_refused_not_returned ... ok
+2026-11-12T06:42:01.4296541Z test adapters::teach_store::tests::non_json_files_in_a_tenant_directory_are_ignored_by_a_listing ... ok
+2026-11-12T06:42:01.4310113Z test adapters::teach_store::tests::the_store_root_and_tenant_directory_are_owner_only ... ok
+2026-11-12T06:42:01.4322743Z test adapters::teach_store::tests::one_tenants_sessions_are_not_listed_for_another ... ok
+2026-11-12T06:42:01.4324586Z test capability::experience::tests::no_cross_tenant_or_cross_domain_ingestion ... ok
+2026-11-12T06:42:01.4325677Z test adapters::teach_store::tests::writing_the_same_session_twice_is_refused ... ok
+2026-11-12T06:42:01.4326743Z test capability::experience::tests::only_independently_verified_experience_becomes_a_test ... ok
+2026-11-12T06:42:01.4328628Z test capability::expr::tests::conditions_dnf ... ok
+2026-11-12T06:42:01.4329278Z test capability::expr::tests::failure_modes_fail_closed ... ok
+2026-11-12T06:42:01.4330027Z test capability::expr::tests::precedence_and_right_associative_power ... ok
+2026-11-12T06:42:01.4330956Z test capability::expr::tests::temperature_correction_matches_reference_arithmetic ... ok
+2026-11-12T06:42:01.4331898Z test capability::quantity::tests::codes_times_and_bare_numbers_are_not_quantities ... ok
+2026-11-12T06:42:01.4339104Z test capability::expr::tests::rejects_code_and_hostile_input ... ok
+2026-11-12T06:42:01.4340142Z test capability::quantity::tests::cue_numbers ... ok
+2026-11-12T06:42:01.4341327Z test capability::quantity::tests::negative_temperatures_are_read_but_codes_and_ranges_are_not ... ok
+2026-11-12T06:42:01.4342334Z test capability::quantity::tests::typed_units_and_conversions ... ok
+2026-11-12T06:42:01.4343132Z test capability::quantity::tests::hostile_input_is_bounded ... ok
+2026-11-12T06:42:01.4463200Z test capability::suite::tests::signed_suite_verifies_and_hash_is_stable ... ok
+2026-11-12T06:42:01.4465616Z test capability::suite::tests::structural_limits ... ok
+2026-11-12T06:42:01.4575642Z test capability::suite::tests::wrong_key_or_malformed_signature_fails_closed ... ok
+2026-11-12T06:42:01.4576708Z test controller::tests::capability_conflicts_and_staleness_fail_closed ... ok
+2026-11-12T06:42:01.4577743Z test controller::tests::escalation_is_one_bounded_step_and_only_for_model_quality ... ok
+2026-11-12T06:42:01.4578722Z test controller::tests::missing_models_refuse_instead_of_guessing ... ok
+2026-11-12T06:42:01.4579672Z test controller::tests::order_is_capability_gate_rules_multi_interp_question ... ok
+2026-11-12T06:42:01.4581096Z test controller::tests::partial_rule_coverage_of_a_multi_asset_report_is_not_exact ... ok
+2026-11-12T06:42:01.4582106Z test controller::tests::question_detection ... ok
+2026-11-12T06:42:01.4583025Z test controller::tests::strongest_fit_wins_ties_refuse_and_a_stale_best_is_never_bypassed ... ok
+2026-11-12T06:42:01.4584019Z test domain::answer_check::tests::computed_values_and_general_questions_pass ... ok
+2026-11-12T06:42:01.4584882Z test domain::answer_check::tests::rule_without_value_is_unfinished ... ok
+2026-11-12T06:42:01.4585895Z test domain::health::tests::default_routes_detected_loopback_ignored ... ok
+2026-11-12T06:42:01.4586789Z test domain::health::tests::memory_estimate_matches_the_measured_case_and_fails_closed ... ok
+2026-11-12T06:42:01.4587662Z test domain::health::tests::parses_hardware ... ok
+2026-11-12T06:42:01.4588438Z test domain::health::tests::private_mode_rejects_group_or_world_access ... ok
+2026-11-12T06:42:01.4589338Z test domain::maintenance::tests::band_edges_are_half_open ... ok
+2026-11-12T06:42:01.4590128Z test domain::maintenance::tests::decision_is_most_urgent_reading ... ok
+2026-11-12T06:42:01.4590859Z test domain::maintenance::tests::fails_closed ... ok
+2026-11-12T06:42:01.4591709Z test domain::scope::tests::empty_slot_before_eviction_then_lru ... ok
+2026-11-12T06:42:01.4592510Z test domain::scope::tests::every_field_change_is_a_miss_that_erases ... ok
+2026-11-12T06:42:01.4593323Z test domain::scope::tests::invalidate_forces_recompute ... ok
+2026-11-12T06:42:01.4594127Z test domain::scope::tests::key_has_no_concatenation_collision ... ok
+2026-11-12T06:42:01.4594894Z test domain::scope::tests::matches_python_reference_key ... ok
+2026-11-12T06:42:01.4595944Z test domain::scope::tests::rejects_bad_fields_and_zero_slots ... ok
+2026-11-12T06:42:01.4596751Z test domain::scope::tests::same_scope_reuses_after_first_use ... ok
+2026-11-12T06:42:01.4597643Z test domain::teach::tests::a_clause_from_a_page_that_was_not_requested_is_refused ... ok
+2026-11-12T06:42:01.4598528Z test domain::teach::tests::a_clause_from_another_document_is_refused ... ok
+2026-11-12T06:42:01.4599463Z test domain::teach::tests::a_clause_from_another_revision_of_the_document_is_refused ... ok
+2026-11-12T06:42:01.4600419Z test domain::teach::tests::a_clause_whose_text_is_not_as_long_as_its_span_is_refused ... ok
+2026-11-12T06:42:01.4601357Z test domain::teach::tests::a_different_clock_gives_a_different_session ... ok
+2026-11-12T06:42:01.4602314Z test domain::teach::tests::a_digest_that_is_not_64_lowercase_hex_is_refused ... ok
+2026-11-12T06:42:01.4603129Z test domain::teach::tests::a_duplicate_example_id_is_refused ... ok
+2026-11-12T06:42:01.4604026Z test domain::teach::tests::a_requested_page_with_no_clause_is_refused ... ok
+2026-11-12T06:42:01.4604901Z test domain::teach::tests::a_session_round_trips_through_json_unchanged ... ok
+2026-11-12T06:42:01.4606130Z test domain::teach::tests::a_session_with_no_clause_names_the_page_that_was_not_cited ... ok
+2026-11-12T06:42:01.4607101Z test domain::teach::tests::a_text_layer_session_needs_no_confirmation ... ok
+2026-11-12T06:42:01.4608010Z test domain::teach::tests::a_valid_session_opens_and_is_named_by_its_content ... ok
+2026-11-12T06:42:01.4608908Z test domain::teach::tests::a_zero_clock_is_refused ... ok
+2026-11-12T06:42:01.4609647Z test domain::teach::tests::an_empty_clause_text_is_refused ... ok
+2026-11-12T06:42:01.4610401Z test domain::teach::tests::an_empty_example_text_is_refused ... ok
+2026-11-12T06:42:01.4611242Z test domain::teach::tests::an_empty_or_unsafe_identifier_is_refused ... ok
+2026-11-12T06:42:01.4612081Z test domain::teach::tests::an_empty_rule_is_refused ... ok
+2026-11-12T06:42:01.4612909Z test domain::teach::tests::an_example_without_a_reason_is_refused ... ok
+2026-11-12T06:42:01.4613767Z test domain::teach::tests::an_inverted_or_empty_span_is_refused ... ok
+2026-11-12T06:42:01.4614632Z test domain::teach::tests::an_ocr_clause_is_listed_for_confirmation ... ok
+2026-11-12T06:42:01.4615821Z test domain::teach::tests::an_over_long_example_or_reason_is_refused ... ok
+2026-11-12T06:42:01.4616789Z test domain::teach::tests::an_over_long_identifier_is_refused ... ok
+2026-11-12T06:42:01.4617653Z test domain::teach::tests::an_over_long_rule_is_refused ... ok
+2026-11-12T06:42:01.4618525Z test domain::teach::tests::an_unknown_label_is_refused_by_the_decoder ... ok
+2026-11-12T06:42:01.4619411Z test domain::teach::tests::an_unsafe_example_id_is_refused ... ok
+2026-11-12T06:42:01.4620307Z test domain::teach::tests::changing_the_rule_changes_the_hash ... ok
+2026-11-12T06:42:01.4621184Z test domain::teach::tests::citations_name_the_document_page_and_span ... ok
+2026-11-12T06:42:01.4624022Z test domain::teach::tests::editing_a_stored_session_breaks_its_hash ... ok
+2026-11-12T06:42:01.4625068Z test domain::teach::tests::every_error_prints_what_was_wrong ... ok
+2026-11-12T06:42:01.4626948Z test domain::teach::tests::exactly_five_examples_is_accepted ... ok
+2026-11-12T06:42:01.4627793Z test domain::teach::tests::examples_of_a_single_class_are_refused ... ok
+2026-11-12T06:42:01.4628699Z test domain::teach::tests::extraction_and_label_use_the_ingesters_spelling ... ok
+2026-11-12T06:42:01.4630560Z test domain::teach::tests::fewer_than_two_examples_is_refused ... ok
+2026-11-12T06:42:01.4631373Z test domain::teach::tests::more_than_five_examples_is_refused ... ok
+2026-11-12T06:42:01.4632162Z test domain::teach::tests::no_requested_page_is_refused ... ok
+2026-11-12T06:42:01.4632990Z test domain::teach::tests::only_ocr_needs_confirmation ... ok
+2026-11-12T06:42:01.4633904Z test domain::teach::tests::page_zero_is_refused_because_pages_are_one_based ... ok
+2026-11-12T06:42:01.4634826Z test domain::teach::tests::pages_are_sorted_and_deduplicated ... ok
+2026-11-12T06:42:01.4636180Z test domain::teach::tests::sameness_of_example_text_ignores_case_and_line_breaks ... ok
+2026-11-12T06:42:01.4637109Z test domain::teach::tests::the_same_clause_cited_twice_is_refused ... ok
+2026-11-12T06:42:01.4638033Z test domain::teach::tests::the_session_id_is_a_deterministic_function_of_its_inputs ... ok
+2026-11-12T06:42:01.4639560Z test domain::teach::tests::the_span_is_counted_in_characters_not_bytes ... ok
+2026-11-12T06:42:01.4640395Z test domain::teach::tests::too_many_clauses_is_refused ... ok
+2026-11-12T06:42:01.4641346Z test domain::teach::tests::two_examples_with_the_same_text_are_refused_whatever_their_labels ... ok
+2026-11-12T06:42:01.4901588Z test capability::suite::tests::any_edit_breaks_the_signature ... ok
+2026-11-12T06:42:01.7355117Z test adapters::supervisor::hash_tests::streamed_hash_matches_one_shot_across_chunk_boundaries ... ok
+2026-11-12T06:42:01.9020768Z test adapters::sidecar::tests::a_sidecar_that_stays_alive_but_answers_nothing_is_reported_differently ... ok
+2026-11-12T06:42:01.9021312Z 
+2026-11-12T06:42:01.9021678Z test result: ok. 108 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.52s
+2026-11-12T06:42:01.9022291Z 
+2026-11-12T06:42:01.9027131Z [1m[92m     Running[0m unittests src/bin/syntriass.rs (target/debug/deps/syntriass-f82b7f01ae512a67)
+2026-11-12T06:42:01.9035376Z 
+2026-11-12T06:42:01.9035881Z running 0 tests
+2026-11-12T06:42:01.9036201Z 
+2026-11-12T06:42:01.9036676Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T06:42:01.9037198Z 
+2026-11-12T06:42:01.9038305Z [1m[92m     Running[0m tests/capability_engine.rs (target/debug/deps/capability_engine-7473c98bbe9c439c)
+2026-11-12T06:42:01.9048255Z 
+2026-11-12T06:42:01.9048594Z running 16 tests
+2026-11-12T06:42:01.9126251Z test compile_rejects_bad_artifacts ... ok
+2026-11-12T06:42:01.9203094Z test cross_tenant_evidence_fails_validation ... ok
+2026-11-12T06:42:01.9216426Z test artifact_cases_claiming_expert_authorship_cannot_certify_it ... ok
+2026-11-12T06:42:01.9238812Z test a_wrong_threshold_is_caught_by_validation ... ok
+2026-11-12T06:42:01.9256083Z test fixture_on_unseen_and_false_activation_sets ... ok
+2026-11-12T06:42:01.9306284Z test edges_and_roles_are_enforced ... ok
+2026-11-12T06:42:01.9336063Z test fixture_compiles_and_validates ... ok
+2026-11-12T06:42:01.9357160Z test failing_artifact_cases_fail_validation ... ok
+2026-11-12T06:42:01.9426229Z test other_tenants_suite_does_not_count ... ok
+2026-11-12T06:42:01.9471734Z test proposer_signed_suite_does_not_count ... ok
+2026-11-12T06:42:01.9546850Z test full_lifecycle_requires_signed_independent_approval ... ok
+2026-11-12T06:42:01.9591277Z test tampered_suite_does_not_count ... ok
+2026-11-12T06:42:01.9656757Z test proposer_cannot_approve_and_forged_signatures_fail ... ok
+2026-11-12T06:42:01.9711311Z test too_few_suite_cases_fail_validation ... ok
+2026-11-12T06:42:01.9718308Z test validation_report_for_other_content_is_refused ... ok
+2026-11-12T06:42:01.9745128Z test tampering_after_approval_disables_execution ... ok
+2026-11-12T06:42:01.9745546Z 
+2026-11-12T06:42:01.9746052Z test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+2026-11-12T06:42:01.9746485Z 
+2026-11-12T06:42:01.9749151Z [1m[92m     Running[0m tests/capability_memory.rs (target/debug/deps/capability_memory-07048ff5a9c9a55a)
+2026-11-12T06:42:01.9760767Z 
+2026-11-12T06:42:01.9761108Z running 6 tests
+2026-11-12T06:42:01.9796320Z test experience_log_refuses_foreign_tenant_domain_self_verification_and_rewrites ... ok
+2026-11-12T06:42:01.9846188Z test review_reports_disagreement_and_ignores_unverified_and_foreign_experience ... ok
+2026-11-12T06:42:01.9926503Z test a_version_that_breaks_an_old_case_is_a_regression ... ok
+2026-11-12T06:42:01.9930517Z test improvement_passes_old_and_new_cases_with_no_regression ... ok
+2026-11-12T06:42:02.0274479Z test scope_change_forged_suite_or_same_version_is_not_acceptable ... ok
+2026-11-12T06:42:02.0410751Z test upgrade_supersedes_keeps_one_active_version_and_rolls_back ... ok
+2026-11-12T06:42:02.0411428Z 
+2026-11-12T06:42:02.0411924Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+2026-11-12T06:42:02.0412425Z 
+2026-11-12T06:42:02.0418247Z [1m[92m     Running[0m tests/learning_flow.rs (target/debug/deps/learning_flow-e82877a23f6b3e8d)
+2026-11-12T06:42:02.0430066Z 
+2026-11-12T06:42:02.0430819Z running 4 tests
+2026-11-12T06:42:02.0509461Z test proposal_naming_another_tenants_document_is_refused ... ok
+2026-11-12T06:42:02.0523434Z test evidence_digests_are_bound_by_the_system_not_the_proposer ... ok
+2026-11-12T06:42:02.0680249Z test a_wrong_procedure_is_rejected_and_rejection_is_terminal ... ok
+2026-11-12T06:42:02.0917715Z test full_flow_and_every_gate ... ok
+2026-11-12T06:42:02.0918281Z 
+2026-11-12T06:42:02.0918808Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+2026-11-12T06:42:02.0919400Z 
+2026-11-12T06:42:02.0922115Z [1m[92m     Running[0m tests/parity.rs (target/debug/deps/parity-5195adbd8fe8c8b2)
+2026-11-12T06:42:02.0931620Z 
+2026-11-12T06:42:02.0932023Z running 1 test
+2026-11-12T06:42:02.0943000Z test rust_policy_matches_python_reference_on_every_labelled_item ... ok
+2026-11-12T06:42:02.0943543Z 
+2026-11-12T06:42:02.0944139Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-12T06:42:02.0944847Z 
+2026-11-12T06:42:02.0946690Z [1m[92m     Running[0m tests/runtime_app.rs (target/debug/deps/runtime_app-9292ca88e1c5f302)
+2026-11-12T06:42:02.0957193Z 
+2026-11-12T06:42:02.0957749Z running 19 tests
+2026-11-12T06:42:02.1397390Z test authorized_principal_gets_the_capability_without_any_model_call ... ok
+2026-11-12T06:42:02.1398383Z test both_tiers_failing_is_withheld_after_exactly_two_attempts ... ok
+2026-11-12T06:42:02.1696841Z test audit_chain_verifies_and_detects_tampering ... ok
+2026-11-12T06:42:02.1766596Z test a_verified_record_decides_and_text_numbers_are_ignored ... ok
+2026-11-12T06:42:02.1916740Z test conflicting_values_in_a_record_are_withheld_not_averaged ... ok
+2026-11-12T06:42:02.2096354Z test consequential_capabilities_are_disabled_until_aip_action_authorization_exists ... ok
+2026-11-12T06:42:02.2176303Z test changed_evidence_or_policy_makes_it_stale_and_refused ... ok
+2026-11-12T06:42:02.2417042Z test explicit_invocation_by_an_unauthorized_principal_is_refused ... ok
+2026-11-12T06:42:02.2476819Z test grounded_qa_sees_only_the_callers_documents ... ok
+2026-11-12T06:42:02.2736412Z test hypothetical_text_cannot_release_without_a_signed_record ... ok
+2026-11-12T06:42:02.2907541Z test model_dependent_capability_needs_revalidation_after_model_change ... ok
+2026-11-12T06:42:02.2956307Z test forged_foreign_or_unregistered_records_are_rejected ... ok
+2026-11-12T06:42:02.3085344Z test model_output_cannot_escalate_authority_or_change_policy ... ok
+2026-11-12T06:42:02.3166142Z test maintenance_routes_gate_exact_and_scoped_model_extraction ... ok
+2026-11-12T06:42:02.3427057Z test no_authorized_source_is_not_escalated_and_capabilities_need_no_model ... ok
+2026-11-12T06:42:02.3477030Z test question_without_authorized_source_never_calls_the_model ... ok
+2026-11-12T06:42:02.3505906Z test other_tenant_and_lower_clearance_cannot_see_the_capability ... ok
+2026-11-12T06:42:02.3525795Z test unparseable_small_output_escalates_once_and_charges_both_attempts ... ok
+2026-11-12T06:42:02.3677305Z test untrusted_approver_makes_the_capability_invisible ... ok
+2026-11-12T06:42:02.3677768Z 
+2026-11-12T06:42:02.3678071Z test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+2026-11-12T06:42:02.3678675Z 
+2026-11-12T06:42:02.3681912Z [1m[92m     Running[0m tests/teach_cli.rs (target/debug/deps/teach_cli-4f8f4bcfebdd57f0)
+2026-11-12T06:42:02.3692052Z 
+2026-11-12T06:42:02.3692224Z running 19 tests
+2026-11-12T06:42:02.3876199Z test a_clause_file_for_a_different_document_is_refused ... ok
+2026-11-12T06:42:02.3878409Z test a_requested_page_with_no_clause_is_refused ... ok
+2026-11-12T06:42:02.3881511Z test a_non_numeric_page_is_a_usage_error ... ok
+2026-11-12T06:42:02.3906115Z test a_document_edited_after_extraction_is_refused ... ok
+2026-11-12T06:42:02.4227276Z test an_ocr_clause_is_flagged_for_confirmation_on_the_way_through ... ok
+2026-11-12T06:42:02.4265244Z test a_rule_from_a_file_is_accepted ... ok
+2026-11-12T06:42:02.4266471Z test a_teach_session_is_created_persisted_owner_only_and_read_back ... ok
+2026-11-12T06:42:02.4287734Z test a_session_edited_on_disk_is_refused_by_show ... ok
+2026-11-12T06:42:02.4403546Z test an_unknown_example_label_is_refused_rather_than_coerced ... ok
+2026-11-12T06:42:02.4422883Z test an_unknown_teach_subcommand_prints_usage ... ok
+2026-11-12T06:42:02.4451294Z test examples_of_a_single_class_are_refused ... ok
+2026-11-12T06:42:02.4468042Z test giving_both_rule_and_rule_file_is_a_usage_error ... ok
+2026-11-12T06:42:02.4569013Z test giving_no_rule_at_all_is_a_usage_error ... ok
+2026-11-12T06:42:02.4589019Z test listing_a_tenant_with_no_sessions_prints_nothing_and_succeeds ... ok
+2026-11-12T06:42:02.4624916Z test omitting_page_is_a_usage_error_rather_than_teaching_the_whole_document ... ok
+2026-11-12T06:42:02.4635249Z test one_example_is_refused ... ok
+2026-11-12T06:42:02.4766886Z test two_pages_may_be_taught_together ... ok
+2026-11-12T06:42:02.4767683Z test page_selects_which_clauses_are_cited ... ok
+2026-11-12T06:42:02.4780810Z test one_tenant_cannot_read_anothers_session_through_the_cli ... ok
+2026-11-12T06:42:02.4781335Z 
+2026-11-12T06:42:02.4781695Z test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+2026-11-12T06:42:02.4782192Z 
+2026-11-12T06:42:02.4786247Z [1m[92m     Running[0m tests/teaching_scoreboard.rs (target/debug/deps/teaching_scoreboard-9a3e1a8c96242386)
+2026-11-12T06:42:02.4796579Z 
+2026-11-12T06:42:02.4797086Z running 14 tests
+2026-11-12T06:42:02.5086791Z test cli_removed_expert_trust_anchor_is_refused ... ok
+2026-11-12T06:42:02.5106987Z test cli_tampered_capability_is_refused_even_if_the_edited_program_would_pass ... ok
+2026-11-12T06:42:02.5186048Z test compile_failure_is_not_a_zero_case_pass ... ok
+2026-11-12T06:42:02.5197004Z test cli_signature_failure_returns_three_and_retains_diagnostic_json ... ok
+2026-11-12T06:42:02.5202794Z test forged_signature_cannot_be_displayed_as_passing_homework ... ok
+2026-11-12T06:42:02.5319282Z test cli_runs_without_models_and_does_not_validate_or_activate_stored_state ... ok
+2026-11-12T06:42:02.5376843Z test missing_evidence_is_a_failed_gate_even_when_all_cases_pass ... ok
+2026-11-12T06:42:02.5396393Z test generated_cases_never_count_as_expert_and_duplicate_ids_keep_both_rows ... ok
+2026-11-12T06:42:02.5426540Z test missed_guard_suggests_exclusion_question_even_when_default_fires ... ok
+2026-11-12T06:42:02.5546241Z test wrong_rule_exposes_input_expected_actual_and_the_rule_that_ran ... ok
+2026-11-12T06:42:02.5596666Z test real_suite_counts_counterexamples_once_and_preserves_the_validator ... ok
+2026-11-12T06:42:02.5644254Z test wrong_tenant_and_self_signed_proposal_cannot_certify ... ok
+2026-11-12T06:42:02.5651498Z test too_few_cases_and_absent_counterexamples_remain_rejections ... ok
+2026-11-12T06:42:02.5656421Z test wrong_trust_anchor_executes_no_expert_case ... ok
+2026-11-12T06:42:02.5656764Z 
+2026-11-12T06:42:02.5657062Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+2026-11-12T06:42:02.5657583Z 
+2026-11-12T06:42:02.5659423Z [1m[92m   Doc-tests[0m syntriass_runtime
+2026-11-12T06:42:03.9531660Z 
+2026-11-12T06:42:03.9532246Z running 0 tests
+2026-11-12T06:42:03.9532714Z 
+2026-11-12T06:42:03.9740219Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-11-12T06:42:03.9740758Z 
+2026-11-12T06:42:04.0883689Z [1m[92m   Compiling[0m vanian-sovereign v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/vanian-sovereign)
+2026-11-12T06:42:05.4887664Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 1.48s
+2026-11-12T06:42:05.4949389Z [1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/vanian_sovereign-559d51bda11d5699)
+2026-11-12T06:42:05.4962496Z 
+2026-11-12T06:42:05.4963006Z running 76 tests
+2026-11-12T06:42:05.4967187Z test adapters::llama_http::tests::malformed_responses_are_errors_not_panics ... ok
+2026-11-12T06:42:05.4968376Z test adapters::llama_http::tests::content_extraction_requires_expected_shape ... ok
+2026-11-12T06:42:05.4969501Z test adapters::llama_http::tests::parses_identity_and_chunked_bodies ... ok
+2026-11-12T06:42:05.4970643Z test adapters::llama_http::tests::request_body_is_deterministic_and_greedy ... ok
+2026-11-12T06:42:05.4971338Z test adapters::llama_http::tests::schema_is_forwarded_as_response_format ... ok
+2026-11-12T06:42:05.4972236Z test adapters::llama_http::tests::unreachable_endpoint_fails_closed ... ok
+2026-11-12T06:42:05.4973148Z test adapters::llama_http::tests::end_to_end_against_a_local_fake_server ... ok
+2026-11-12T06:42:05.5009651Z test adapters::sqlite_corpus::tests::digests_respect_the_acl_and_track_changes ... ok
+2026-11-12T06:42:05.5018212Z test adapters::sqlite_corpus::tests::fts5_is_compiled_in ... ok
+2026-11-12T06:42:05.5028938Z test adapters::sqlite_corpus::tests::empty_or_symbol_only_query_returns_nothing ... ok
+2026-11-12T06:42:05.5090865Z test adapters::sqlite_corpus::tests::injection_suspect_is_stored_but_never_retrieved ... ok
+2026-11-12T06:42:05.5093017Z test adapters::sqlite_corpus::tests::reingest_increments_version_and_replaces_index ... ok
+2026-11-12T06:42:05.5115102Z test adapters::sqlite_corpus::tests::fts_operators_in_user_text_are_neutralised ... ok
+2026-11-12T06:42:05.5134732Z test adapters::sqlite_corpus::tests::retrieval_respects_clearance ... ok
+2026-11-12T06:42:05.5140123Z test adapters::sqlite_corpus::tests::retrieval_never_crosses_tenants ... ok
+2026-11-12T06:42:05.5141974Z test agent::evidence::tests::unknown_observation_variant_cannot_be_deserialized ... ok
+2026-11-12T06:42:05.5143720Z test agent::replay::tests::memory_guard_refuses_second_use ... ok
+2026-11-12T06:42:05.5144766Z test agent::tool::tests::action_kind_is_namespaced ... ok
+2026-11-12T06:42:05.5145899Z test agent::tool::tests::argv_encoding_is_unambiguous ... ok
+2026-11-12T06:42:05.5146711Z test agent::tool::tests::invalid_manifests_and_args_refused ... ok
+2026-11-12T06:42:05.5147745Z test agent::tool::tests::invocation_for_another_tool_refused ... ok
+2026-11-12T06:42:05.5148596Z test agent::tool::tests::parameters_bind_args_and_program_digest ... ok
+2026-11-12T06:42:05.5149567Z test domain::citation::tests::extracts_valid_markers_only ... ok
+2026-11-12T06:42:05.5150336Z test domain::citation::tests::fabricated_reference_detected ... ok
+2026-11-12T06:42:05.5151047Z test domain::citation::tests::grounded_when_all_citations_in_range ... ok
+2026-11-12T06:42:05.5151749Z test domain::citation::tests::non_ascii_text_does_not_panic ... ok
+2026-11-12T06:42:05.5152664Z test domain::citation::tests::overlong_digits_are_ignored_not_overflowed ... ok
+2026-11-12T06:42:05.5153530Z test domain::citation::tests::ungrounded_when_no_citation ... ok
+2026-11-12T06:42:05.5154168Z test domain::corpus::tests::classification_order_is_total_and_ranked ... ok
+2026-11-12T06:42:05.5160249Z test domain::corpus::tests::ident_rejects_injection_characters ... ok
+2026-11-12T06:42:05.5161113Z test domain::corpus::tests::oversized_body_rejected ... ok
+2026-11-12T06:42:05.5161936Z test domain::corpus::tests::unknown_classification_is_refused_not_defaulted ... ok
+2026-11-12T06:42:05.5162752Z test domain::grounding::tests::abstention_is_not_release ... ok
+2026-11-12T06:42:05.5163643Z test domain::grounding::tests::citation_rules ... ok
+2026-11-12T06:42:05.5164520Z test domain::grounding::tests::digit_inside_equipment_code_is_not_evidence ... ok
+2026-11-12T06:42:05.5165869Z test domain::grounding::tests::empty_and_overlong_withheld ... ok
+2026-11-12T06:42:05.5167048Z test domain::grounding::tests::fabricated_number_refused_even_with_valid_citation ... ok
+2026-11-12T06:42:05.5172297Z test agent::replay::tests::file_guard_survives_restart ... ok
+2026-11-12T06:42:05.5175947Z test domain::grounding::tests::malformed_and_extra_fields_withheld ... ok
+2026-11-12T06:42:05.5179392Z test domain::grounding::tests::marker_digits_are_not_claims ... ok
+2026-11-12T06:42:05.5180198Z test domain::grounding::tests::number_from_uncited_source_is_refused ... ok
+2026-11-12T06:42:05.5184338Z test domain::grounding::tests::numbers_extracted_and_normalised ... ok
+2026-11-12T06:42:05.5186399Z test domain::grounding::tests::on_topic_supported_answer_released ... ok
+2026-11-12T06:42:05.5187409Z test domain::grounding::tests::off_topic_and_non_answers_withheld ... ok
+2026-11-12T06:42:05.5188161Z test domain::grounding::tests::other_entity_withheld ... ok
+2026-11-12T06:42:05.5189285Z test domain::grounding::tests::schema_bounds_citations_to_supplied_sources ... ok
+2026-11-12T06:42:05.5189918Z test domain::grounding::tests::requested_unit_absent_withheld ... ok
+2026-11-12T06:42:05.5190813Z test domain::grounding::tests::schema_property_order_is_generation_order ... ok
+2026-11-12T06:42:05.5194265Z test domain::grounding::tests::wrong_unit_withheld ... ok
+2026-11-12T06:42:05.5196037Z test domain::grounding::tests::supported_answer_released ... ok
+2026-11-12T06:42:05.5196839Z test domain::support::tests::code_digits_are_not_numeric_claims ... ok
+2026-11-12T06:42:05.5197601Z test domain::support::tests::coverage_uses_prefix_stems ... ok
+2026-11-12T06:42:05.5198519Z test domain::support::tests::injection_markers_detected_case_insensitively ... ok
+2026-11-12T06:42:05.5199391Z test domain::support::tests::entities_extracted_and_checked ... ok
+2026-11-12T06:42:05.5200133Z test domain::support::tests::quantities_bind_units ... ok
+2026-11-12T06:42:05.5200898Z test domain::support::tests::non_ascii_input_does_not_panic ... ok
+2026-11-12T06:42:05.5201689Z test domain::support::tests::requested_unit_enforced ... ok
+2026-11-12T06:42:05.5202555Z test domain::support::tests::unit_elsewhere_in_source_supports_bare_source_number ... ok
+2026-11-12T06:42:05.5203521Z test policy::egress::tests::hostnames_refused_without_resolution ... ok
+2026-11-12T06:42:05.5204371Z test domain::support::tests::wrong_unit_is_unsupported ... ok
+2026-11-12T06:42:05.5205059Z test policy::egress::tests::loopback_literals_accepted ... ok
+2026-11-12T06:42:05.5205826Z test policy::egress::tests::non_loopback_refused ... ok
+2026-11-12T06:42:05.5206925Z test policy::retrieval::tests::cross_tenant_always_denied_even_at_max_clearance ... ok
+2026-11-12T06:42:05.5207982Z test policy::retrieval::tests::enforce_reports_contract_violations ... ok
+2026-11-12T06:42:05.5208842Z test policy::retrieval::tests::same_tenant_at_or_below_clearance ... ok
+2026-11-12T06:42:05.5209534Z test policy::egress::tests::port_zero_and_garbage_refused ... ok
+2026-11-12T06:42:05.5242278Z test rag::tests::hallucinated_number_withheld ... ok
+2026-11-12T06:42:05.5245097Z test rag::tests::abstention_is_reported_not_released ... ok
+2026-11-12T06:42:05.5276733Z test rag::tests::no_authorized_match_skips_the_model ... ok
+2026-11-12T06:42:05.5290085Z test rag::tests::restricted_text_never_reaches_the_model ... ok
+2026-11-12T06:42:05.5291212Z test rag::tests::source_fence_cannot_be_closed_by_document_text ... ok
+2026-11-12T06:42:05.5314759Z test rag::tests::schema_is_requested_and_bounded_to_supplied_sources ... ok
+2026-11-12T06:42:05.5316076Z test adapters::sqlite_corpus::tests::slice1_database_is_migrated ... ok
+2026-11-12T06:42:05.5326378Z test rag::tests::supported_answer_released ... ok
+2026-11-12T06:42:05.5337047Z test rag::tests::unconstrained_free_text_is_withheld_but_auditable ... ok
+2026-11-12T06:42:05.6699741Z test adapters::sqlite_corpus::tests::corrupted_database_is_refused ... ok
+2026-11-12T06:42:05.6700469Z 
+2026-11-12T06:42:05.6700907Z test result: ok. 76 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+2026-11-12T06:42:05.6701522Z 
+2026-11-12T06:42:05.6704830Z [1m[92m     Running[0m tests/sqlite_upgrade.rs (target/debug/deps/sqlite_upgrade-1866a3aa01ed84af)
+2026-11-12T06:42:05.6716715Z 
+2026-11-12T06:42:05.6717014Z running 2 tests
+2026-11-12T06:42:05.6915115Z test old_engine_database_updates_fts_versions_and_clearance_after_reopen ... ok
+2026-11-12T06:42:05.6916174Z test old_engine_database_preserves_tenant_clearance_quarantine_and_digests ... ok
+2026-11-12T06:42:05.6916692Z 
+2026-11-12T06:42:05.6917195Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-11-12T06:42:05.6917973Z 
+2026-11-12T06:42:05.7801892Z [1m[92m   Compiling[0m rusqlite v0.41.0
+2026-11-12T06:42:06.3286579Z [1m[92m   Compiling[0m vanian-sovereign v0.4.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/vanian-sovereign)
+2026-11-12T06:42:07.0046465Z [1m[92m   Compiling[0m syntriass-runtime v0.1.0 (/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/syntriass-runtime)
+2026-11-12T06:42:10.4197437Z [1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 4.71s
+2026-11-12T06:42:10.4337700Z ##[group]Run python3 research/capability-learning/harness/record_scoreboard.py \
+2026-11-12T06:42:10.4338445Z [36;1mpython3 research/capability-learning/harness/record_scoreboard.py \[0m
+2026-11-12T06:42:10.4339110Z [36;1m  --binary target/debug/syntriass --out "$RUNNER_TEMP/scoreboard-evidence"[0m
+2026-11-12T06:42:10.4352808Z shell: /usr/bin/bash -e {0}
+2026-11-12T06:42:10.4353175Z env:
+2026-11-12T06:42:10.4353558Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:42:10.4353954Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:42:10.4354273Z   CARGO_TERM_COLOR: always
+2026-11-12T06:42:10.4354683Z   CACHE_ON_FAILURE: false
+2026-11-12T06:42:10.4355015Z ##[endgroup]
+2026-11-12T06:42:10.9013155Z {
+2026-11-12T06:42:10.9013857Z   "result": "PASS_BOUNDED_C1",
+2026-11-12T06:42:10.9014552Z   "output": "/home/runner/work/_temp/scoreboard-evidence",
+2026-11-12T06:42:10.9015164Z   "runs": [
+2026-11-12T06:42:10.9015683Z     {
+2026-11-12T06:42:10.9016192Z       "name": "motor-corrected",
+2026-11-12T06:42:10.9016960Z       "domain": "ir",
+2026-11-12T06:42:10.9017286Z       "exit_status": 0,
+2026-11-12T06:42:10.9017666Z       "wall_seconds": 0.014261528999995221,
+2026-11-12T06:42:10.9018227Z       "capability_hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+2026-11-12T06:42:10.9018802Z       "expert_passed": 14,
+2026-11-12T06:42:10.9019130Z       "expert_cases": 14,
+2026-11-12T06:42:10.9019445Z       "state_unchanged": true
+2026-11-12T06:42:10.9020066Z     },
+2026-11-12T06:42:10.9020411Z     {
+2026-11-12T06:42:10.9020724Z       "name": "transformer-candidate",
+2026-11-12T06:42:10.9021072Z       "domain": "tx",
+2026-11-12T06:42:10.9021358Z       "exit_status": 3,
+2026-11-12T06:42:10.9021762Z       "wall_seconds": 0.014180645999999797,
+2026-11-12T06:42:10.9022263Z       "capability_hash": "560e81faa7686ef0ab1e51a6028dffd036cab99455770b8968bafd53d2a6adbc",
+2026-11-12T06:42:10.9022768Z       "expert_passed": 11,
+2026-11-12T06:42:10.9023084Z       "expert_cases": 12,
+2026-11-12T06:42:10.9023455Z       "state_unchanged": true
+2026-11-12T06:42:10.9023806Z     },
+2026-11-12T06:42:10.9024075Z     {
+2026-11-12T06:42:10.9024381Z       "name": "transformer-corrected",
+2026-11-12T06:42:10.9024763Z       "domain": "tx",
+2026-11-12T06:42:10.9025065Z       "exit_status": 0,
+2026-11-12T06:42:10.9025535Z       "wall_seconds": 0.014057753000003004,
+2026-11-12T06:42:10.9026081Z       "capability_hash": "6d8ee2cbd71363a233c006b096ea01d7c1d77819139f8931f8478f2e8ea3e953",
+2026-11-12T06:42:10.9026636Z       "expert_passed": 12,
+2026-11-12T06:42:10.9026955Z       "expert_cases": 12,
+2026-11-12T06:42:10.9027280Z       "state_unchanged": true
+2026-11-12T06:42:10.9027632Z     }
+2026-11-12T06:42:10.9027906Z   ]
+2026-11-12T06:42:10.9028224Z }
+2026-11-12T06:42:10.9146170Z ##[group]Run actions/setup-python@v5
+2026-11-12T06:42:10.9146558Z with:
+2026-11-12T06:42:10.9146938Z   python-version: 3.12
+2026-11-12T06:42:10.9147258Z   check-latest: false
+2026-11-12T06:42:10.9149535Z   token: ***
+2026-11-12T06:42:10.9149871Z   update-environment: true
+2026-11-12T06:42:10.9150211Z   allow-prereleases: false
+2026-11-12T06:42:10.9150551Z   freethreaded: false
+2026-11-12T06:42:10.9150875Z env:
+2026-11-12T06:42:10.9151202Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:42:10.9151570Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:42:10.9151880Z   CARGO_TERM_COLOR: always
+2026-11-12T06:42:10.9152249Z   CACHE_ON_FAILURE: false
+2026-11-12T06:42:10.9152545Z ##[endgroup]
+2026-11-12T06:42:11.0496062Z ##[group]Installed versions
+2026-11-12T06:42:11.1388826Z (node:3414) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-12T06:42:11.1390049Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-12T06:42:11.1391006Z Successfully set up CPython (3.12.16)
+2026-11-12T06:42:11.1391875Z ##[endgroup]
+2026-11-12T06:42:11.1529116Z ##[group]Run python3 -m pip install pytest==8.3.5
+2026-11-12T06:42:11.1529871Z [36;1mpython3 -m pip install pytest==8.3.5[0m
+2026-11-12T06:42:11.1530808Z [36;1mpython3 -m pytest -q research/capability-learning/tests/test_exclusion_terms.py \[0m
+2026-11-12T06:42:11.1531818Z [36;1m  research/capability-learning/tests/test_applicability.py \[0m
+2026-11-12T06:42:11.1532703Z [36;1m  research/capability-learning/tests/test_holdout_questions.py \[0m
+2026-11-12T06:42:11.1533600Z [36;1m  research/capability-learning/tests/test_apply_answers.py \[0m
+2026-11-12T06:42:11.1534503Z [36;1m  research/capability-learning/tests/test_question_generator.py[0m
+2026-11-12T06:42:11.1624289Z shell: /usr/bin/bash -e {0}
+2026-11-12T06:42:11.1624839Z env:
+2026-11-12T06:42:11.1625325Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:42:11.1625976Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:42:11.1626422Z   CARGO_TERM_COLOR: always
+2026-11-12T06:42:11.1626960Z   CACHE_ON_FAILURE: false
+2026-11-12T06:42:11.1627623Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:11.1628462Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-12T06:42:11.1629202Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:11.1629949Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:11.1630617Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:11.1631311Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-12T06:42:11.1631939Z ##[endgroup]
+2026-11-12T06:42:14.2977097Z Collecting pytest==8.3.5
+2026-11-12T06:42:14.3752592Z   Downloading pytest-8.3.5-py3-none-any.whl.metadata (7.6 kB)
+2026-11-12T06:42:14.4001401Z Collecting iniconfig (from pytest==8.3.5)
+2026-11-12T06:42:14.4135811Z   Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+2026-11-12T06:42:14.4430851Z Collecting packaging (from pytest==8.3.5)
+2026-11-12T06:42:14.4564110Z   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+2026-11-12T06:42:14.4805753Z Collecting pluggy<2,>=1.5 (from pytest==8.3.5)
+2026-11-12T06:42:14.4936890Z   Downloading pluggy-1.7.0-py3-none-any.whl.metadata (5.0 kB)
+2026-11-12T06:42:14.5116668Z Downloading pytest-8.3.5-py3-none-any.whl (343 kB)
+2026-11-12T06:42:14.5639420Z Downloading pluggy-1.7.0-py3-none-any.whl (27 kB)
+2026-11-12T06:42:14.5790975Z Downloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+2026-11-12T06:42:14.5942903Z Downloading packaging-26.3-py3-none-any.whl (129 kB)
+2026-11-12T06:42:14.7856257Z Installing collected packages: pluggy, packaging, iniconfig, pytest
+2026-11-12T06:42:15.1173414Z 
+2026-11-12T06:42:15.1183517Z Successfully installed iniconfig-2.3.1 packaging-26.3 pluggy-1.7.0 pytest-8.3.5
+2026-11-12T06:42:15.1192038Z 
+2026-11-12T06:42:15.1192458Z [notice] A new release of pip is available: 26.2.2 -> 26.3
+2026-11-12T06:42:16.0804530Z [notice] To update, run: pip install --upgrade pip
+2026-11-12T06:42:16.0805776Z ........................................................................ [ 41%]
+2026-11-12T06:42:16.4771754Z ........................................................................ [ 82%]
+2026-11-12T06:42:16.4950716Z ...............................                                          [100%]
+2026-11-12T06:42:16.4951529Z 175 passed in 0.86s
+2026-11-12T06:42:16.5303881Z ##[group]Run python3 research/capability-learning/harness/record_exclusion_policy.py \
+2026-11-12T06:42:16.5304627Z [36;1mpython3 research/capability-learning/harness/record_exclusion_policy.py \[0m
+2026-11-12T06:42:16.5305385Z [36;1m  --binary target/debug/syntriass --out "$RUNNER_TEMP/exclusion-evidence"[0m
+2026-11-12T06:42:16.5320446Z shell: /usr/bin/bash -e {0}
+2026-11-12T06:42:16.5320805Z env:
+2026-11-12T06:42:16.5321244Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:42:16.5321615Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:42:16.5322012Z   CARGO_TERM_COLOR: always
+2026-11-12T06:42:16.5322350Z   CACHE_ON_FAILURE: false
+2026-11-12T06:42:16.5322728Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:16.5323316Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-12T06:42:16.5323858Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:16.5324454Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:16.5324929Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:16.5325589Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-12T06:42:16.5326112Z ##[endgroup]
+2026-11-12T06:42:16.8379507Z ingest: 23 clauses -> /tmp/p0-049-b3-0sy69mcr/clauses.json
+2026-11-12T06:42:16.8380278Z {
+2026-11-12T06:42:16.8380732Z   "result": "PASS_BOUNDED_B3",
+2026-11-12T06:42:16.8381178Z   "output": "/home/runner/work/_temp/exclusion-evidence",
+2026-11-12T06:42:16.8381593Z   "runs": [
+2026-11-12T06:42:16.8381890Z     {
+2026-11-12T06:42:16.8382271Z       "name": "copied-plural-control",
+2026-11-12T06:42:16.8382801Z       "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+2026-11-12T06:42:16.8383319Z       "exit_status": 3,
+2026-11-12T06:42:16.8383653Z       "wall_seconds": 0.013626262000002498,
+2026-11-12T06:42:16.8384074Z       "expert_passed": 11,
+2026-11-12T06:42:16.8384432Z       "expert_cases": 12,
+2026-11-12T06:42:16.8384833Z       "state_unchanged": true,
+2026-11-12T06:42:16.8385842Z       "passed": false,
+2026-11-12T06:42:16.8386188Z       "failures": [
+2026-11-12T06:42:16.8386522Z         {
+2026-11-12T06:42:16.8386852Z           "expected": "OUT_OF_SCOPE",
+2026-11-12T06:42:16.8387206Z           "got": "ACCEPT",
+2026-11-12T06:42:16.8387574Z           "id": "val-09",
+2026-11-12T06:42:16.8388136Z           "origin": "suite"
+2026-11-12T06:42:16.8388511Z         }
+2026-11-12T06:42:16.8388786Z       ]
+2026-11-12T06:42:16.8389111Z     },
+2026-11-12T06:42:16.8389385Z     {
+2026-11-12T06:42:16.8389674Z       "name": "explicit-forms-validation",
+2026-11-12T06:42:16.8390241Z       "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+2026-11-12T06:42:16.8390770Z       "exit_status": 0,
+2026-11-12T06:42:16.8391105Z       "wall_seconds": 0.013898601999997595,
+2026-11-12T06:42:16.8391465Z       "expert_passed": 12,
+2026-11-12T06:42:16.8391774Z       "expert_cases": 12,
+2026-11-12T06:42:16.8392195Z       "state_unchanged": true,
+2026-11-12T06:42:16.8392524Z       "passed": true,
+2026-11-12T06:42:16.8392852Z       "failures": []
+2026-11-12T06:42:16.8393146Z     },
+2026-11-12T06:42:16.8393463Z     {
+2026-11-12T06:42:16.8393796Z       "name": "copied-plural-attacks",
+2026-11-12T06:42:16.8394294Z       "capability_hash": "c89a88707f034cd2f1e6afaa33878c0badbdf7e244d568d64262df3434b0097a",
+2026-11-12T06:42:16.8394879Z       "exit_status": 3,
+2026-11-12T06:42:16.8395236Z       "wall_seconds": 0.016410933999992494,
+2026-11-12T06:42:16.8395698Z       "expert_passed": 18,
+2026-11-12T06:42:16.8396030Z       "expert_cases": 26,
+2026-11-12T06:42:16.8396357Z       "state_unchanged": true,
+2026-11-12T06:42:16.8396733Z       "passed": false,
+2026-11-12T06:42:16.8397042Z       "failures": [
+2026-11-12T06:42:16.8397364Z         {
+2026-11-12T06:42:16.8397671Z           "expected": "OUT_OF_SCOPE",
+2026-11-12T06:42:16.8398038Z           "got": "ACCEPT",
+2026-11-12T06:42:16.8398392Z           "id": "form-0-lower",
+2026-11-12T06:42:16.8398887Z           "origin": "suite"
+2026-11-12T06:42:16.8399228Z         },
+2026-11-12T06:42:16.8399560Z         {
+2026-11-12T06:42:16.8399837Z           "expected": "OUT_OF_SCOPE",
+2026-11-12T06:42:16.8400211Z           "got": "ACCEPT",
+2026-11-12T06:42:16.8400560Z           "id": "form-0-upper",
+2026-11-12T06:42:16.8400942Z           "origin": "suite"
+2026-11-12T06:42:16.8401252Z         },
+2026-11-12T06:42:16.8401512Z         {
+2026-11-12T06:42:16.8401835Z           "expected": "OUT_OF_SCOPE",
+2026-11-12T06:42:16.8402239Z           "got": "ACCEPT",
+2026-11-12T06:42:16.8402583Z           "id": "form-2-lower",
+2026-11-12T06:42:16.8402908Z           "origin": "suite"
+2026-11-12T06:42:16.8403198Z         },
+2026-11-12T06:42:16.8403511Z         {
+2026-11-12T06:42:16.8403860Z           "expected": "OUT_OF_SCOPE",
+2026-11-12T06:42:16.8404222Z           "got": "ACCEPT",
+2026-11-12T06:42:16.8404533Z           "id": "form-2-upper",
+2026-11-12T06:42:16.8404841Z           "origin": "suite"
+2026-11-12T06:42:16.8405218Z         },
+2026-11-12T06:42:16.8405608Z         {
+2026-11-12T06:42:16.8405928Z           "expected": "OUT_OF_SCOPE",
+2026-11-12T06:42:16.8406267Z           "got": "ACCEPT",
+2026-11-12T06:42:16.8406623Z           "id": "form-4-lower",
+2026-11-12T06:42:16.8406983Z           "origin": "suite"
+2026-11-12T06:42:16.8407289Z         },
+2026-11-12T06:42:16.8407584Z         {
+2026-11-12T06:42:16.8407903Z           "expected": "OUT_OF_SCOPE",
+2026-11-12T06:42:16.8408239Z           "got": "ACCEPT",
+2026-11-12T06:42:16.8408584Z           "id": "form-4-upper",
+2026-11-12T06:42:16.8408911Z           "origin": "suite"
+2026-11-12T06:42:16.8409267Z         },
+2026-11-12T06:42:16.8409541Z         {
+2026-11-12T06:42:16.8409825Z           "expected": "OUT_OF_SCOPE",
+2026-11-12T06:42:16.8410196Z           "got": "ACCEPT",
+2026-11-12T06:42:16.8410529Z           "id": "form-6-lower",
+2026-11-12T06:42:16.8410882Z           "origin": "suite"
+2026-11-12T06:42:16.8411186Z         },
+2026-11-12T06:42:16.8411463Z         {
+2026-11-12T06:42:16.8411828Z           "expected": "OUT_OF_SCOPE",
+2026-11-12T06:42:16.8412152Z           "got": "ACCEPT",
+2026-11-12T06:42:16.8412502Z           "id": "form-6-upper",
+2026-11-12T06:42:16.8412829Z           "origin": "suite"
+2026-11-12T06:42:16.8413211Z         }
+2026-11-12T06:42:16.8413485Z       ]
+2026-11-12T06:42:16.8413860Z     },
+2026-11-12T06:42:16.8414159Z     {
+2026-11-12T06:42:16.8414461Z       "name": "explicit-forms-attacks",
+2026-11-12T06:42:16.8415041Z       "capability_hash": "1c39aff4e00384082cc9df6a296ec41712d41d9103640316c7eff00654fb2164",
+2026-11-12T06:42:16.8416309Z       "exit_status": 0,
+2026-11-12T06:42:16.8416676Z       "wall_seconds": 0.016826971000000412,
+2026-11-12T06:42:16.8417177Z       "expert_passed": 26,
+2026-11-12T06:42:16.8417506Z       "expert_cases": 26,
+2026-11-12T06:42:16.8417850Z       "state_unchanged": true,
+2026-11-12T06:42:16.8418205Z       "passed": true,
+2026-11-12T06:42:16.8418563Z       "failures": []
+2026-11-12T06:42:16.8418873Z     }
+2026-11-12T06:42:16.8419156Z   ]
+2026-11-12T06:42:16.8419448Z }
+2026-11-12T06:42:16.8540016Z ##[group]Run actions/upload-artifact@v4
+2026-11-12T06:42:16.8540433Z with:
+2026-11-12T06:42:16.8540731Z   name: teaching-scoreboard-evidence
+2026-11-12T06:42:16.8541259Z   path: /home/runner/work/_temp/scoreboard-evidence
+/home/runner/work/_temp/exclusion-evidence
+
+2026-11-12T06:42:16.8541812Z   if-no-files-found: error
+2026-11-12T06:42:16.8542167Z   compression-level: 6
+2026-11-12T06:42:16.8542472Z   overwrite: false
+2026-11-12T06:42:16.8542770Z   include-hidden-files: false
+2026-11-12T06:42:16.8543105Z env:
+2026-11-12T06:42:16.8543450Z   CARGO_HOME: /home/runner/.cargo
+2026-11-12T06:42:16.8543783Z   CARGO_INCREMENTAL: 0
+2026-11-12T06:42:16.8544103Z   CARGO_TERM_COLOR: always
+2026-11-12T06:42:16.8544404Z   CACHE_ON_FAILURE: false
+2026-11-12T06:42:16.8544900Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:16.8545391Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-12T06:42:16.8546085Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:16.8546528Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:16.8546984Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-12T06:42:16.8547462Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-12T06:42:16.8547845Z ##[endgroup]
+2026-11-12T06:42:17.0209760Z (node:3516) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-12T06:42:17.0210572Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-12T06:42:17.0353482Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-12T06:42:17.0355320Z The least common ancestor is /home/runner/work/_temp. This will be the root directory of the artifact
+2026-11-12T06:42:17.0356413Z With the provided path, there will be 55 files uploaded
+2026-11-12T06:42:17.0361355Z Artifact name is valid!
+2026-11-12T06:42:17.0362006Z Root directory input is valid!
+2026-11-12T06:42:17.2748416Z Beginning upload of artifact content to blob storage
+2026-11-12T06:42:17.3463696Z (node:3516) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-12T06:42:17.5687749Z Uploaded bytes 69344
+2026-11-12T06:42:17.6112003Z Finished uploading artifact content to blob storage!
+2026-11-12T06:42:17.6114921Z SHA256 digest of uploaded artifact zip is a35cecd3141759fb088df7bf1ac752b1f3ab909c5c227076ccbd7749c65f9489
+2026-11-12T06:42:17.6116376Z Finalizing artifact upload
+2026-11-12T06:42:17.9846608Z Artifact teaching-scoreboard-evidence.zip successfully finalized. Artifact ID 13921671463
+2026-11-12T06:42:17.9848215Z Artifact teaching-scoreboard-evidence has been successfully uploaded! Final size is 69344 bytes. Artifact ID is 13921671463
+2026-11-12T06:42:17.9854318Z Artifact download URL: https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43169880420/artifacts/13921671463
+2026-11-12T06:42:18.0028703Z Post job cleanup.
+2026-11-12T06:42:18.1215717Z (node:3528) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-12T06:42:18.1217455Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-12T06:42:18.1425562Z Post job cleanup.
+2026-11-12T06:42:18.2627549Z ##[group]Cache Configuration
+2026-11-12T06:42:18.2628240Z Cache Provider:
+2026-11-12T06:42:18.2628832Z     github
+2026-11-12T06:42:18.2629286Z Workspaces:
+2026-11-12T06:42:18.2630133Z     /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:42:18.2631015Z Cache Paths:
+2026-11-12T06:42:18.2631506Z     /home/runner/.cargo/bin
+2026-11-12T06:42:18.2632109Z     /home/runner/.cargo/.crates.toml
+2026-11-12T06:42:18.2632681Z     /home/runner/.cargo/.crates2.json
+2026-11-12T06:42:18.2636933Z     /home/runner/.cargo/registry
+2026-11-12T06:42:18.2637619Z     /home/runner/.cargo/git
+2026-11-12T06:42:18.2638477Z     /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target
+2026-11-12T06:42:18.2639227Z Restore Key:
+2026-11-12T06:42:18.2639758Z     v0-rust-scoreboard-Linux-x64-01b81e85
+2026-11-12T06:42:18.2640302Z Cache Key:
+2026-11-12T06:42:18.2640969Z     v0-rust-scoreboard-Linux-x64-01b81e85-259d97ab
+2026-11-12T06:42:18.2641505Z .. Prefix:
+2026-11-12T06:42:18.2642098Z   - v0-rust-scoreboard-Linux-x64
+2026-11-12T06:42:18.2642452Z .. Environment considered:
+2026-11-12T06:42:18.2642845Z   - Rust Versions:
+2026-11-12T06:42:18.2643278Z     - 1.99.1 x86_64-unknown-linux-gnu 58cf8f9c35b355199727627d07ae34a4e2846d67
+2026-11-12T06:42:18.2643727Z   - CARGO_HOME
+2026-11-12T06:42:18.2644077Z   - CARGO_INCREMENTAL
+2026-11-12T06:42:18.2644411Z   - CARGO_TERM_COLOR
+2026-11-12T06:42:18.2644772Z .. Lockfiles considered:
+2026-11-12T06:42:18.2645292Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-service/Cargo.toml
+2026-11-12T06:42:18.2646306Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-agent/Cargo.toml
+2026-11-12T06:42:18.2647155Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-aibom/Cargo.toml
+2026-11-12T06:42:18.2647978Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-airi/Cargo.toml
+2026-11-12T06:42:18.2648807Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-anchor/Cargo.toml
+2026-11-12T06:42:18.2649595Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-approval/Cargo.toml
+2026-11-12T06:42:18.2650443Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-authorize/Cargo.toml
+2026-11-12T06:42:18.2651253Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-cli/Cargo.toml
+2026-11-12T06:42:18.2652067Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-collector/Cargo.toml
+2026-11-12T06:42:18.2653048Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-conformance/Cargo.toml
+2026-11-12T06:42:18.2654231Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-containment/Cargo.toml
+2026-11-12T06:42:18.2655558Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-core/Cargo.toml
+2026-11-12T06:42:18.2656885Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-corroborate/Cargo.toml
+2026-11-12T06:42:18.2658655Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-crypto/Cargo.toml
+2026-11-12T06:42:18.2660295Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-contract/Cargo.toml
+2026-11-12T06:42:18.2664100Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-observer/Cargo.toml
+2026-11-12T06:42:18.2665706Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge-workload/Cargo.toml
+2026-11-12T06:42:18.2667677Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-edge/Cargo.toml
+2026-11-12T06:42:18.2668964Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-effect/Cargo.toml
+2026-11-12T06:42:18.2670214Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-enforce/Cargo.toml
+2026-11-12T06:42:18.2671543Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-enterprise/Cargo.toml
+2026-11-12T06:42:18.2672814Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-execution/Cargo.toml
+2026-11-12T06:42:18.2674029Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-hsm/Cargo.toml
+2026-11-12T06:42:18.2675252Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-http-gateway/Cargo.toml
+2026-11-12T06:42:18.2676731Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-incident/Cargo.toml
+2026-11-12T06:42:18.2678075Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-industrial/Cargo.toml
+2026-11-12T06:42:18.2679348Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-interlock/Cargo.toml
+2026-11-12T06:42:18.2680600Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-ledger/Cargo.toml
+2026-11-12T06:42:18.2681857Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-mcp-gateway/Cargo.toml
+2026-11-12T06:42:18.2682756Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-nexora/Cargo.toml
+2026-11-12T06:42:18.2683597Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observation/Cargo.toml
+2026-11-12T06:42:18.2684416Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe-verify/Cargo.toml
+2026-11-12T06:42:18.2685297Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-observe/Cargo.toml
+2026-11-12T06:42:18.2686414Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-placement/Cargo.toml
+2026-11-12T06:42:18.2687229Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-platform/Cargo.toml
+2026-11-12T06:42:18.2688055Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-probe/Cargo.toml
+2026-11-12T06:42:18.2689638Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-protocol/Cargo.toml
+2026-11-12T06:42:18.2691588Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-real-tests/Cargo.toml
+2026-11-12T06:42:18.2693317Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-reconcile/Cargo.toml
+2026-11-12T06:42:18.2694957Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-registry/Cargo.toml
+2026-11-12T06:42:18.2696320Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-robotics/Cargo.toml
+2026-11-12T06:42:18.2697635Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-sentinel-feed/Cargo.toml
+2026-11-12T06:42:18.2698875Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-siem/Cargo.toml
+2026-11-12T06:42:18.2700228Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-space/Cargo.toml
+2026-11-12T06:42:18.2701796Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spend/Cargo.toml
+2026-11-12T06:42:18.2703264Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-spiffe/Cargo.toml
+2026-11-12T06:42:18.2704760Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-system/Cargo.toml
+2026-11-12T06:42:18.2706248Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-test/Cargo.toml
+2026-11-12T06:42:18.2707723Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-transport/Cargo.toml
+2026-11-12T06:42:18.2709180Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-types/Cargo.toml
+2026-11-12T06:42:18.2710600Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-uas/Cargo.toml
+2026-11-12T06:42:18.2712007Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-verify/Cargo.toml
+2026-11-12T06:42:18.2713447Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/aip-warrant/Cargo.toml
+2026-11-12T06:42:18.2714839Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/banking_demo/Cargo.toml
+2026-11-12T06:42:18.2716356Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/aip-standalone/ghost-demo/Cargo.toml
+2026-11-12T06:42:18.2717705Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/Cargo.lock
+2026-11-12T06:42:18.2719118Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/aip-feed-conformance/Cargo.toml
+2026-11-12T06:42:18.2720935Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-accountability-core/Cargo.toml
+2026-11-12T06:42:18.2722608Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/orbitaltrust-accountability/rust/ot-sentinel/Cargo.toml
+2026-11-12T06:42:18.2724098Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/syntriass-runtime/Cargo.toml
+2026-11-12T06:42:18.2725670Z   - /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/sovereign/vanian-sovereign/Cargo.toml
+2026-11-12T06:42:18.2727209Z ##[endgroup]
+2026-11-12T06:42:18.2727496Z 
+2026-11-12T06:42:18.9648479Z ... Cleaning /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target ...
+2026-11-12T06:42:19.0598706Z ... Cleaning cargo registry (cache-all-crates: false) ...
+2026-11-12T06:42:19.6572047Z ... Cleaning cargo/bin ...
+2026-11-12T06:42:19.6591267Z ... Cleaning cargo git cache ...
+2026-11-12T06:42:19.6595261Z ... Saving cache ...
+2026-11-12T06:42:19.6746050Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol- --files-from manifest.txt --use-compress-program zstdmt
+2026-11-12T06:42:21.8403766Z Sent 11576164 of 145793892 (7.9%), 11.0 MBs/sec
+2026-11-12T06:42:22.1135978Z Sent 145793892 of 145793892 (100.0%), 109.1 MBs/sec
+2026-11-12T06:42:22.3152142Z Post job cleanup.
+2026-11-12T06:42:22.4006053Z [command]/usr/bin/git version
+2026-11-12T06:42:22.4044513Z git version 2.56.0
+2026-11-12T06:42:22.4077919Z Temporarily overriding HOME='/home/runner/work/_temp/cdf7be51-2e23-4375-90c3-0f134e5388e2' before making global git config changes
+2026-11-12T06:42:22.4079228Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-12T06:42:22.4083228Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-12T06:42:22.4122709Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-12T06:42:22.4155699Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-12T06:42:22.4458497Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-12T06:42:22.4496059Z http.https://github.com/.extraheader
+2026-11-12T06:42:22.4523357Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-12T06:42:22.4596142Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-12T06:42:22.4901585Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-12T06:42:22.4940196Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-12T06:42:22.5282325Z Cleaning up orphan processes
+2026-11-12T06:42:22.5569712Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

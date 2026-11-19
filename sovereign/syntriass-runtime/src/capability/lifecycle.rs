@@ -16,6 +16,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use super::action::SignedAction;
 use super::artifact::Capability;
 use super::validate::ValidationReport;
 
@@ -76,6 +77,10 @@ pub struct Approval {
     pub approver_id: String,
     pub consequential: bool,
     pub decided_at_ms: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub authority_hash: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub teaching_review_hash: Option<String>,
     pub signature_hex: String,
 }
 
@@ -112,8 +117,92 @@ impl Approval {
             approver_id: approver_id.into(),
             consequential,
             decided_at_ms: at,
+            authority_hash: None,
+            teaching_review_hash: None,
             signature_hex: hex::encode(sig),
         })
+    }
+
+    /// Sign with an exact operator-provisioned authority grant, using Ed25519.
+    pub fn sign_authorized(
+        cap_hash: &str,
+        report: &ValidationReport,
+        approver_id: &str,
+        consequential: bool,
+        at: u64,
+        private_key: &[u8],
+        authority_hash: String,
+    ) -> Result<Self, String> {
+        let mut approval = Self::sign(
+            cap_hash,
+            report,
+            approver_id,
+            consequential,
+            at,
+            private_key,
+        )?;
+        approval.authority_hash = Some(authority_hash);
+        approval.signature_hex = hex::encode(
+            aip_crypto::sign_ed25519_raw(private_key, &approval.payload())
+                .map_err(|e| format!("{e:?}"))?,
+        );
+        Ok(approval)
+    }
+
+    /// v1 bytes are unchanged; v2 additionally binds the exact grant hash.
+    pub fn bind_teaching_review(&mut self, hash: &str, private_key: &[u8]) -> Result<(), String> {
+        if self.authority_hash.is_none() {
+            return Err("teaching approval requires authority policy".into());
+        }
+        self.teaching_review_hash = Some(hash.into());
+        self.signature_hex = hex::encode(
+            aip_crypto::sign_ed25519_raw(private_key, &self.payload())
+                .map_err(|e| format!("{e:?}"))?,
+        );
+        Ok(())
+    }
+
+    pub fn payload(&self) -> Vec<u8> {
+        if let Some(review) = &self.teaching_review_hash {
+            let mut bytes = b"syntriass-capability-approval/v3\n".to_vec();
+            bytes.extend(
+                serde_json::to_vec(&(
+                    &self.capability_hash,
+                    &self.validation_report_hash,
+                    &self.approver_id,
+                    self.consequential,
+                    self.decided_at_ms,
+                    &self.authority_hash,
+                    review,
+                ))
+                .expect("serializable approval"),
+            );
+            return bytes;
+        }
+        match &self.authority_hash {
+            None => Self::signed_bytes(
+                &self.capability_hash,
+                &self.validation_report_hash,
+                &self.approver_id,
+                self.consequential,
+                self.decided_at_ms,
+            ),
+            Some(hash) => {
+                let mut bytes = b"syntriass-capability-approval/v2\n".to_vec();
+                bytes.extend(
+                    serde_json::to_vec(&(
+                        &self.capability_hash,
+                        &self.validation_report_hash,
+                        &self.approver_id,
+                        self.consequential,
+                        self.decided_at_ms,
+                        hash,
+                    ))
+                    .expect("approval contains no fallible JSON values"),
+                );
+                bytes
+            }
+        }
     }
 
     /// Verify with the approver's public key (offline).
@@ -124,17 +213,7 @@ impl Approval {
         let Ok(sig) = <[u8; 64]>::try_from(raw.as_slice()) else {
             return false;
         };
-        aip_crypto::verify_ed25519_raw(
-            public_key,
-            &Self::signed_bytes(
-                &self.capability_hash,
-                &self.validation_report_hash,
-                &self.approver_id,
-                self.consequential,
-                self.decided_at_ms,
-            ),
-            &sig,
-        )
+        aip_crypto::verify_ed25519_raw(public_key, &self.payload(), &sig)
     }
 }
 
@@ -154,6 +233,11 @@ pub struct Transition {
     pub role: Role,
     pub at_ms: u64,
     pub reason: String,
+    /// The signature authorizing this transition, when it was signed. Absent
+    /// on validator transitions and on records written before signed
+    /// lifecycle existed, which therefore still load unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub action: Option<SignedAction>,
 }
 
 /// Lifecycle record for one artifact version.
@@ -174,6 +258,7 @@ pub enum LifecycleError {
     ValidationMissingOrFailed,
     ApprovalInvalid(&'static str),
     SelfApproval,
+    ActionInvalid(&'static str),
 }
 
 impl Record {
@@ -215,6 +300,7 @@ impl Record {
             role,
             at_ms: at,
             reason: reason.into(),
+            action: None,
         });
         self.state = to;
         Ok(())
@@ -303,6 +389,41 @@ impl Record {
             });
         }
         self.step(to, actor, role, at, reason)
+    }
+
+    /// A permitted transition authorized by a signed action, verified with
+    /// the signer's public key before anything changes. The recorded actor,
+    /// role, time and reason are the signed ones, never the caller's.
+    pub fn transition_signed(
+        &mut self,
+        action: SignedAction,
+        public_key: &[u8],
+    ) -> Result<(), LifecycleError> {
+        if matches!(action.to, State::Validated | State::Approved) {
+            return Err(LifecycleError::NotPermitted {
+                from: self.state,
+                to: action.to,
+                role: action.role,
+            });
+        }
+        action
+            .applies_to(self)
+            .map_err(LifecycleError::ActionInvalid)?;
+        if !action.verify(public_key) {
+            return Err(LifecycleError::ActionInvalid("signature"));
+        }
+        let (to, role, at, actor, reason) = (
+            action.to,
+            action.role,
+            action.at_ms,
+            action.signer_id.clone(),
+            action.reason.clone(),
+        );
+        self.step(to, &actor, role, at, &reason)?;
+        if let Some(last) = self.history.last_mut() {
+            last.action = Some(action);
+        }
+        Ok(())
     }
 
     /// May this record execute now?

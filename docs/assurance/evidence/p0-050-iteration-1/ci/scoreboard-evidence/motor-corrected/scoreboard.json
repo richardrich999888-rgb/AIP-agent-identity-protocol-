@@ -1,0 +1,320 @@
+{
+  "activation_performed": false,
+  "cases": [
+    {
+      "counterexample": false,
+      "expected": "PASS",
+      "fired_rule": {
+        "outcome": "PASS"
+      },
+      "fired_step": "default",
+      "got": "PASS",
+      "id": "val-000",
+      "index": 0,
+      "input": "M-201 6.6 kV, 76 megohms at 40 C, PI 2.0",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "DRY_OUT",
+      "fired_rule": {
+        "outcome": "DRY_OUT",
+        "when": "corrected_resistance < minimum"
+      },
+      "fired_step": "rules[2]",
+      "got": "DRY_OUT",
+      "id": "val-001",
+      "index": 1,
+      "input": "M-202 6.6 kV, 75.9 megohms at 40 C, PI 2.5",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "DRY_OUT",
+      "fired_rule": {
+        "outcome": "DRY_OUT",
+        "when": "corrected_resistance < minimum"
+      },
+      "fired_step": "rules[2]",
+      "got": "DRY_OUT",
+      "id": "val-002",
+      "index": 2,
+      "input": "M-203 6.6 kV, 38 megohms at 40 C, PI 2.5",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "REJECT",
+      "fired_rule": {
+        "outcome": "REJECT",
+        "when": "corrected_resistance < 0.5 * minimum"
+      },
+      "fired_step": "rules[1]",
+      "got": "REJECT",
+      "id": "val-003",
+      "index": 3,
+      "input": "M-204 6.6 kV, 37.9 megohms at 40 C, PI 2.5",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "RETEST_30D",
+      "fired_rule": {
+        "outcome": "RETEST_30D",
+        "when": "polarization_index < 2.0"
+      },
+      "fired_step": "rules[4]",
+      "got": "RETEST_30D",
+      "id": "val-004",
+      "index": 4,
+      "input": "M-205 3.3 kV, 100 megohms at 40 C, PI 1.5",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "DRY_OUT",
+      "fired_rule": {
+        "outcome": "DRY_OUT",
+        "when": "polarization_index < 1.5"
+      },
+      "fired_step": "rules[3]",
+      "got": "DRY_OUT",
+      "id": "val-005",
+      "index": 5,
+      "input": "M-206 3.3 kV, 100 megohms at 40 C, PI 1.49",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "PASS",
+      "fired_rule": {
+        "outcome": "PASS"
+      },
+      "fired_step": "default",
+      "got": "PASS",
+      "id": "val-006",
+      "index": 6,
+      "input": "M-207 3.3 kV, 100 megohms at 75 C, PI 2.2",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": true,
+      "expected": "INVALID_TEST",
+      "fired_rule": {
+        "outcome": "INVALID_TEST",
+        "when": "winding_temperature < 10 or winding_temperature > 75"
+      },
+      "fired_step": "rules[0]",
+      "got": "INVALID_TEST",
+      "id": "val-007",
+      "index": 7,
+      "input": "M-208 3.3 kV, 100 megohms at 9 C, PI 2.2",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "PASS",
+      "fired_rule": {
+        "outcome": "PASS"
+      },
+      "fired_step": "default",
+      "got": "PASS",
+      "id": "val-008",
+      "index": 8,
+      "input": "M-209 11 kV, 500 megohms at 40 C, PI 2.3",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": true,
+      "expected": "OUT_OF_SCOPE",
+      "fired_rule": {
+        "outcome": "OUT_OF_SCOPE",
+        "when": "rated_voltage > 11"
+      },
+      "fired_step": "numeric_guards[0]",
+      "got": "OUT_OF_SCOPE",
+      "id": "val-009",
+      "index": 9,
+      "input": "M-210 13.8 kV, 900 megohms at 40 C, PI 2.6",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": true,
+      "expected": "OUT_OF_SCOPE",
+      "fired_rule": {
+        "any_terms": [
+          "transformer",
+          "transformers",
+          "cable",
+          "cables",
+          "generator",
+          "generators"
+        ],
+        "outcome": "OUT_OF_SCOPE"
+      },
+      "fired_step": "text_guards[0]",
+      "got": "OUT_OF_SCOPE",
+      "id": "val-010",
+      "index": 10,
+      "input": "Transformer TR-3 HV winding 400 megohms at 40 C, PI 2.2",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": true,
+      "expected": "INSUFFICIENT_INPUT",
+      "fired_rule": {
+        "outcome": "INSUFFICIENT_INPUT"
+      },
+      "fired_step": "missing_input",
+      "got": "INSUFFICIENT_INPUT",
+      "id": "val-011",
+      "index": 11,
+      "input": "M-211 6.6 kV, 150 megohms at 40 C, PI not recorded",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "REJECT",
+      "fired_rule": {
+        "outcome": "REJECT",
+        "when": "corrected_resistance < 0.5 * minimum"
+      },
+      "fired_step": "rules[1]",
+      "got": "REJECT",
+      "id": "val-012",
+      "index": 12,
+      "input": "M-212 0.415 kV, 6 megohms at 20 C, PI 2.1",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    },
+    {
+      "counterexample": false,
+      "expected": "RETEST_30D",
+      "fired_rule": {
+        "outcome": "RETEST_30D",
+        "when": "polarization_index < 2.0"
+      },
+      "fired_step": "rules[4]",
+      "got": "RETEST_30D",
+      "id": "val-013",
+      "index": 13,
+      "input": "M-213 3.3 kV, 25 megohms at 60 C, PI 1.9",
+      "not_run_reason": null,
+      "origin": "suite",
+      "passed": true,
+      "review_questions": []
+    }
+  ],
+  "evidence_kind": "UNSIGNED_LOCAL_VALIDATION_DIAGNOSTIC",
+  "gates": [
+    {
+      "name": "compilation",
+      "passed": true,
+      "remedy": "Fix the compile error before testing."
+    },
+    {
+      "name": "evidence_tenant",
+      "passed": true,
+      "remedy": "Use readable evidence owned by this capability's tenant."
+    },
+    {
+      "name": "expert_signature",
+      "passed": true,
+      "remedy": "Supply a structurally valid suite signed by a configured expert."
+    },
+    {
+      "name": "independent_expert",
+      "passed": true,
+      "remedy": "Use the same tenant and an expert other than the proposer."
+    },
+    {
+      "name": "minimum_expert_cases",
+      "passed": true,
+      "remedy": "Provide at least eight independently signed expert cases."
+    },
+    {
+      "name": "expert_cases",
+      "passed": true,
+      "remedy": "Revisit failed expert cases; do not change expected results to make them pass."
+    },
+    {
+      "name": "minimum_counterexamples",
+      "passed": true,
+      "remedy": "Include at least one signed counterexample or boundary probe."
+    },
+    {
+      "name": "counterexamples",
+      "passed": true,
+      "remedy": "Correct the rule that fails the signed counterexample."
+    },
+    {
+      "name": "generated_cases",
+      "passed": true,
+      "remedy": "Fix every failed generated case; these cases can veto, never certify."
+    }
+  ],
+  "limitation": "Review questions suggest fields to inspect, not a proven root cause. This read-only check does not approve, activate, revalidate stored state, or prove network isolation.",
+  "model_calls": 0,
+  "schema": "syntriass.teach.scoreboard/v1",
+  "stored_executable": false,
+  "stored_state": "PROPOSED",
+  "summary": "Passed 14 of 14 executed expert checks (14 submitted); 4 of 4 counterexamples (a subset); 0 of 0 generated checks. Validation passed. Signed approval and activation are still required.",
+  "validation": {
+    "artifact_cases": 0,
+    "artifact_claimed_expert": 0,
+    "artifact_passed": 0,
+    "capability_hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+    "compile_error": null,
+    "compiled": true,
+    "counterexamples": 4,
+    "counterexamples_passed": 4,
+    "evidence_scope_ok": true,
+    "expert_cases": 14,
+    "expert_passed": 14,
+    "failures": [],
+    "passed": true,
+    "suite_expert": "expert:p0-049-synthetic-evaluator",
+    "suite_hash": "ec00896210ef924bab7ac0fa641230d8f8332af7165fedfa37f024966b427de2",
+    "suite_independent": true,
+    "suite_signature_ok": true,
+    "wall_micros": 10295
+  }
+}

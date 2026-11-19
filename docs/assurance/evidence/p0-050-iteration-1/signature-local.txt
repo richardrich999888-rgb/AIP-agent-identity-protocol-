@@ -1,0 +1,30 @@
+{
+  "result": "SUITE_SIGNATURES_VERIFIED",
+  "suites": [
+    {
+      "suite": "copied-plural-attacks/suite.json",
+      "suite_hash": "680c6fbf0db63e978e7bb77a961c3e14028082ca5ce60e1ccd0d413b1b099abc",
+      "signature_verified": true,
+      "expert_id": "expert:p0-049-synthetic-evaluator"
+    },
+    {
+      "suite": "copied-plural-control/suite.json",
+      "suite_hash": "f0d6c16cddf76b83ee0d3d62a76aac2ec5e95611263f604d540cf553d7d6bf46",
+      "signature_verified": true,
+      "expert_id": "expert:p0-049-synthetic-evaluator"
+    },
+    {
+      "suite": "explicit-forms-attacks/suite.json",
+      "suite_hash": "1ed316091a2fc1e8338f9f6ec8a9d9c5e198e2d8a3b97aa2c26363d6fc54d48d",
+      "signature_verified": true,
+      "expert_id": "expert:p0-049-synthetic-evaluator"
+    },
+    {
+      "suite": "explicit-forms-validation/suite.json",
+      "suite_hash": "597952cbddd84446c1ec14d3c48ffc1295b05df797928baface0e2da174f4aea",
+      "signature_verified": true,
+      "expert_id": "expert:p0-049-synthetic-evaluator"
+    }
+  ],
+  "diagnostic_or_release_approved": false
+}

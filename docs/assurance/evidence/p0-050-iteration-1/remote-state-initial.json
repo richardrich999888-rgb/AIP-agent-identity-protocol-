@@ -1,0 +1,624 @@
+{
+  "schema": "syntriass.p0-050.remote-reconciliation/v1",
+  "captured_utc": "2026-11-12T06:42:44.002Z",
+  "note": "Provider snapshots inspected this iteration; historical runs are not fresh local validation.",
+  "prs": {
+    "13": {
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/13",
+      "number": 13,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "title": "WIP: wow demos (do not merge)",
+      "base": "feature/syntriass-runtime-v02",
+      "base_sha": "2883da7bf5b8591a31bf24789c1d0722f83a6624",
+      "head": "feature/wow-demos",
+      "head_sha": "6ad92ae78806546948874812dc8e6161d24d9d67",
+      "merge_commit_sha": "b0d732718d881dad7e3e38d47c97bdfc95fe3c22",
+      "updated_at": "2026-11-08T04:40:21Z"
+    },
+    "14": {
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/14",
+      "number": 14,
+      "state": "open",
+      "merged": false,
+      "draft": false,
+      "title": "Model resolver, dataset setup, pinned Python env",
+      "base": "feature/syntriass-runtime-v02",
+      "base_sha": "2883da7bf5b8591a31bf24789c1d0722f83a6624",
+      "head": "fix/model-resolver-and-setup",
+      "head_sha": "86f21056f2b4d7a1f3b84a642eef8e2d862629d4",
+      "merge_commit_sha": "9a2d1e563187526bbe5ad53b4a928dad40f52c2f",
+      "updated_at": "2026-11-07T09:40:35Z"
+    },
+    "16": {
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/16",
+      "number": 16,
+      "state": "open",
+      "merged": false,
+      "draft": false,
+      "title": "Refuse when the sandbox namespaces cannot be created, and grant them in CI",
+      "base": "feature/syntriass-runtime-v02",
+      "base_sha": "2883da7bf5b8591a31bf24789c1d0722f83a6624",
+      "head": "fix/ci-userns-sandbox-tests",
+      "head_sha": "c39fc1f0431ddfaffa2d62199874e18e92087969",
+      "merge_commit_sha": "544b2aba532af916ca6e6df8062c7e735406846d",
+      "updated_at": "2026-11-07T03:39:31Z"
+    },
+    "17": {
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/17",
+      "number": 17,
+      "state": "open",
+      "merged": false,
+      "draft": false,
+      "title": "Give the probe pod the runtime's default seccomp profile",
+      "base": "feature/syntriass-runtime-v02",
+      "base_sha": "2883da7bf5b8591a31bf24789c1d0722f83a6624",
+      "head": "fix/chart-probe-seccomp",
+      "head_sha": "a0b1045b80dbcd5aac33910361a4e67cfdd2f739",
+      "merge_commit_sha": "1f68e42dd714d38bbe0e96757e4322678b1b2ddb",
+      "updated_at": "2026-11-07T09:40:33Z"
+    },
+    "19": {
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/19",
+      "number": 19,
+      "state": "open",
+      "merged": false,
+      "draft": false,
+      "title": "aip-edge: count one socket as one corroboration, however many times it is read",
+      "base": "feature/syntriass-runtime-v02",
+      "base_sha": "2883da7bf5b8591a31bf24789c1d0722f83a6624",
+      "head": "fix/aip-edge-distinct-corroboration",
+      "head_sha": "9b8109884455e37a61ca7abef1bb7d78a39a860d",
+      "merge_commit_sha": "70b903aa339a3187704a0e97fecdf156092e1b2d",
+      "updated_at": "2026-11-07T10:04:54Z"
+    },
+    "20": {
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/20",
+      "number": 20,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "title": "Reject stale process bindings and duplicate socket corroboration",
+      "base": "fix/vanian-end-to-end-green",
+      "base_sha": "4d0ce1e32c8dedde4e3a930abc2becf1f56b864e",
+      "head": "codex/p0-048-snifferdog-enterprise-assurance",
+      "head_sha": "61dd73013d02ea7869de104d953f330098df1c32",
+      "merge_commit_sha": "ee52cd4a449fea7d52994f4c380845d4b6470fd5",
+      "updated_at": "2026-11-12T06:26:52Z"
+    },
+    "21": {
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/pull/21",
+      "number": 21,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "title": "WIP: AIRON teaching validation and fail-closed acceptance",
+      "base": "feature/syntriass-runtime-v02",
+      "base_sha": "2883da7bf5b8591a31bf24789c1d0722f83a6624",
+      "head": "feature/airon-teach-demo",
+      "head_sha": "925432b181ea194565fa855b9d3d3c734723354b",
+      "merge_commit_sha": "98007383bdd38085421176d7d88a9a24d218828f",
+      "updated_at": "2026-11-12T06:00:46Z"
+    }
+  },
+  "initial_workflows": {
+    "13": {
+      "workflow_runs": [
+        {
+          "id": 42447753627,
+          "name": "Demos harness",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 21,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753627/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753627/logs",
+          "workflow_id": 408603772
+        },
+        {
+          "id": 42447753682,
+          "name": "Real-agent harness contracts (no live agent claim)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 85,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753682/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753682/logs",
+          "workflow_id": 399123351
+        },
+        {
+          "id": 42447753606,
+          "name": "Security",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_number": 117,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753606/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753606/logs",
+          "workflow_id": 297111055
+        },
+        {
+          "id": 42447753630,
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 108,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753630/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42447753630/logs",
+          "workflow_id": 297111051
+        }
+      ]
+    },
+    "14": {
+      "workflow_runs": [
+        {
+          "id": 42336262244,
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 94,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336262244/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336262244/logs",
+          "workflow_id": 297111051
+        },
+        {
+          "id": 42336262194,
+          "name": "Real-agent harness contracts (no live agent claim)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 71,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336262194/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336262194/logs",
+          "workflow_id": 399123351
+        },
+        {
+          "id": 42336262254,
+          "name": "Security",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_number": 102,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336262254/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336262254/logs",
+          "workflow_id": 297111055
+        }
+      ]
+    },
+    "16": {
+      "workflow_runs": [
+        {
+          "id": 42205336748,
+          "name": "Security",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_number": 96,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336748/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336748/logs",
+          "workflow_id": 297111055
+        },
+        {
+          "id": 42205336884,
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 88,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336884/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336884/logs",
+          "workflow_id": 297111051
+        },
+        {
+          "id": 42205336378,
+          "name": "Real-agent harness contracts (no live agent claim)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 65,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336378/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42205336378/logs",
+          "workflow_id": 399123351
+        }
+      ]
+    },
+    "17": {
+      "workflow_runs": [
+        {
+          "id": 42336209348,
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 93,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209348/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209348/logs",
+          "workflow_id": 297111051
+        },
+        {
+          "id": 42336209415,
+          "name": "Real-agent harness contracts (no live agent claim)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 70,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209415/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209415/logs",
+          "workflow_id": 399123351
+        },
+        {
+          "id": 42336209329,
+          "name": "Security",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_number": 101,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209329/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209329/logs",
+          "workflow_id": 297111055
+        },
+        {
+          "id": 42336209347,
+          "name": "Enterprise integration",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 51,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209347/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42336209347/logs",
+          "workflow_id": 399274576
+        }
+      ]
+    },
+    "19": {
+      "workflow_runs": [
+        {
+          "id": 42360677570,
+          "name": "Security",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_number": 105,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677570/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677570/logs",
+          "workflow_id": 297111055
+        },
+        {
+          "id": 42360677640,
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 96,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677640/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677640/logs",
+          "workflow_id": 297111051
+        },
+        {
+          "id": 42360677582,
+          "name": "Real-agent harness contracts (no live agent claim)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 73,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677582/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/42360677582/logs",
+          "workflow_id": 399123351
+        }
+      ]
+    },
+    "20": {
+      "workflow_runs": [
+        {
+          "id": 43168207563,
+          "name": "Real-agent harness contracts (no live agent claim)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 96,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207563/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207563/logs",
+          "workflow_id": 399123351
+        },
+        {
+          "id": 43168207745,
+          "name": "CI",
+          "status": "in_progress",
+          "conclusion": null,
+          "run_number": 119,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207745/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207745/logs",
+          "workflow_id": 297111051
+        },
+        {
+          "id": 43168207586,
+          "name": "Genuine same-run execution assurance",
+          "status": "in_progress",
+          "conclusion": null,
+          "run_number": 42,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207586/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207586/logs",
+          "workflow_id": 399722517
+        },
+        {
+          "id": 43168207784,
+          "name": "Security",
+          "status": "in_progress",
+          "conclusion": null,
+          "run_number": 132,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207784/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207784/logs",
+          "workflow_id": 297111055
+        },
+        {
+          "id": 43168207704,
+          "name": "RBI rehearsal",
+          "status": "in_progress",
+          "conclusion": null,
+          "run_number": 47,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207704/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207704/logs",
+          "workflow_id": 397505616
+        },
+        {
+          "id": 43168207575,
+          "name": "P0-048 required native qualification",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 2,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207575/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207575/logs",
+          "workflow_id": 415633705
+        }
+      ]
+    },
+    "21": {
+      "workflow_runs": [
+        {
+          "id": 43165157994,
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_number": 117,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43165157994/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43165157994/logs",
+          "workflow_id": 297111051
+        },
+        {
+          "id": 43165157692,
+          "name": "Real-agent harness contracts (no live agent claim)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 94,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43165157692/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43165157692/logs",
+          "workflow_id": 399123351
+        },
+        {
+          "id": 43165157898,
+          "name": "Teaching scoreboard (bounded C1 acceptance)",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_number": 6,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43165157898/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43165157898/logs",
+          "workflow_id": 415093042
+        },
+        {
+          "id": 43165158082,
+          "name": "Security",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_number": 130,
+          "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43165158082/jobs",
+          "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43165158082/logs",
+          "workflow_id": 297111055
+        }
+      ]
+    }
+  },
+  "overlay": {
+    "base": "eccb66886d1f6b0b751909b6743d7e731e8061fb",
+    "missing_commits": [
+      {
+        "sha": "d1adc90",
+        "response": {
+          "status": "fulfilled",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "GitHub API error 422: {\"message\":\"No commit found for SHA: d1adc90\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}"
+              }
+            ],
+            "structuredContent": {
+              "error": "GitHub API error 422: {\"message\":\"No commit found for SHA: d1adc90\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}",
+              "error_code": "INVALID_ARGUMENT",
+              "error_data": {
+                "message": "No commit found for SHA: d1adc90",
+                "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+                "status": "422"
+              }
+            },
+            "isError": true
+          }
+        }
+      },
+      {
+        "sha": "92c8b02",
+        "response": {
+          "status": "fulfilled",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "GitHub API error 422: {\"message\":\"No commit found for SHA: 92c8b02\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}"
+              }
+            ],
+            "structuredContent": {
+              "error": "GitHub API error 422: {\"message\":\"No commit found for SHA: 92c8b02\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}",
+              "error_code": "INVALID_ARGUMENT",
+              "error_data": {
+                "message": "No commit found for SHA: 92c8b02",
+                "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+                "status": "422"
+              }
+            },
+            "isError": true
+          }
+        }
+      },
+      {
+        "sha": "07d0319",
+        "response": {
+          "status": "fulfilled",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "GitHub API error 422: {\"message\":\"No commit found for SHA: 07d0319\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}"
+              }
+            ],
+            "structuredContent": {
+              "error": "GitHub API error 422: {\"message\":\"No commit found for SHA: 07d0319\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}",
+              "error_code": "INVALID_ARGUMENT",
+              "error_data": {
+                "message": "No commit found for SHA: 07d0319",
+                "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+                "status": "422"
+              }
+            },
+            "isError": true
+          }
+        }
+      },
+      {
+        "sha": "6072578",
+        "response": {
+          "status": "fulfilled",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "GitHub API error 422: {\"message\":\"No commit found for SHA: 6072578\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}"
+              }
+            ],
+            "structuredContent": {
+              "error": "GitHub API error 422: {\"message\":\"No commit found for SHA: 6072578\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}",
+              "error_code": "INVALID_ARGUMENT",
+              "error_data": {
+                "message": "No commit found for SHA: 6072578",
+                "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+                "status": "422"
+              }
+            },
+            "isError": true
+          }
+        }
+      },
+      {
+        "sha": "13c0fb1",
+        "response": {
+          "status": "fulfilled",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "GitHub API error 422: {\"message\":\"No commit found for SHA: 13c0fb1\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}"
+              }
+            ],
+            "structuredContent": {
+              "error": "GitHub API error 422: {\"message\":\"No commit found for SHA: 13c0fb1\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}",
+              "error_code": "INVALID_ARGUMENT",
+              "error_data": {
+                "message": "No commit found for SHA: 13c0fb1",
+                "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+                "status": "422"
+              }
+            },
+            "isError": true
+          }
+        }
+      },
+      {
+        "sha": "3d63f95",
+        "response": {
+          "status": "fulfilled",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "GitHub API error 422: {\"message\":\"No commit found for SHA: 3d63f95\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}"
+              }
+            ],
+            "structuredContent": {
+              "error": "GitHub API error 422: {\"message\":\"No commit found for SHA: 3d63f95\",\"documentation_url\":\"https://docs.github.com/rest/commits/commits#get-a-commit\",\"status\":\"422\"}",
+              "error_code": "INVALID_ARGUMENT",
+              "error_data": {
+                "message": "No commit found for SHA: 3d63f95",
+                "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+                "status": "422"
+              }
+            },
+            "isError": true
+          }
+        }
+      }
+    ],
+    "branch_inventory": {
+      "count": 24,
+      "inspected_base": "eccb66886d1f6b0b751909b6743d7e731e8061fb",
+      "original_demo_branch_present": false,
+      "note": "Private branch metadata inspected through the authorized connector; private source not republished in this public repository."
+    }
+  },
+  "latest_pr20_workflows": {
+    "workflow_runs": [
+      {
+        "id": 43168207563,
+        "name": "Real-agent harness contracts (no live agent claim)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 96,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207563/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207563/logs",
+        "workflow_id": 399123351
+      },
+      {
+        "id": 43168207575,
+        "name": "P0-048 required native qualification",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 2,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207575/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207575/logs",
+        "workflow_id": 415633705
+      },
+      {
+        "id": 43168207784,
+        "name": "Security",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 132,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207784/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207784/logs",
+        "workflow_id": 297111055
+      },
+      {
+        "id": 43168207704,
+        "name": "RBI rehearsal",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 47,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207704/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207704/logs",
+        "workflow_id": 397505616
+      },
+      {
+        "id": 43168207586,
+        "name": "Genuine same-run execution assurance",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 42,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207586/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207586/logs",
+        "workflow_id": 399722517
+      },
+      {
+        "id": 43168207745,
+        "name": "CI",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 119,
+        "jobs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207745/jobs",
+        "logs_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/43168207745/logs",
+        "workflow_id": 297111051
+      }
+    ]
+  }
+}

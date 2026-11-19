@@ -1,0 +1,87 @@
+{
+  "schema": "syntriass.p0-049.scoreboard-evidence/v1",
+  "result": "PASS_BOUNDED_C1",
+  "commit": "84d889f0c045a998150900e433541a976fdd1d69",
+  "tree_dirty": false,
+  "dirty_paths": [],
+  "binary_sha256": "7c8c3aa8dadc44d5b8b829631b38268d493bbcfea0b114137d129f617afe3d50",
+  "recorded_utc": "2026-11-11T19:49:39Z",
+  "hardware": {
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "logical_cpus": 9,
+    "affinity_cpus": 9,
+    "meminfo": "MemTotal:       10206472 kB",
+    "cgroup_cpu_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'"
+    },
+    "cgroup_memory_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.max'"
+    }
+  },
+  "wall_seconds": 2.7071336839999276,
+  "network": {
+    "namespace": "net:[4026532337]",
+    "interfaces_before": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0"
+    },
+    "interfaces_after": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0"
+    },
+    "ipv4_routes": {
+      "status": "READ",
+      "value": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT"
+    },
+    "ipv6_routes": {
+      "status": "READ",
+      "value": "00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo\n00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001       lo\n00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo"
+    }
+  },
+  "child_cpu_seconds": 1.037143,
+  "child_peak_rss_kib": 12288,
+  "model_calls": 0,
+  "model_hashes": [],
+  "runs": [
+    {
+      "name": "motor-corrected",
+      "domain": "ir",
+      "exit_status": 0,
+      "wall_seconds": 0.030751497999517596,
+      "capability_hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "expert_passed": 14,
+      "expert_cases": 14,
+      "state_unchanged": true
+    },
+    {
+      "name": "transformer-candidate",
+      "domain": "tx",
+      "exit_status": 3,
+      "wall_seconds": 0.028524505998575478,
+      "capability_hash": "560e81faa7686ef0ab1e51a6028dffd036cab99455770b8968bafd53d2a6adbc",
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "state_unchanged": true
+    },
+    {
+      "name": "transformer-corrected",
+      "domain": "tx",
+      "exit_status": 0,
+      "wall_seconds": 0.07915835700077878,
+      "capability_hash": "6d8ee2cbd71363a233c006b096ea01d7c1d77819139f8931f8478f2e8ea3e953",
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "state_unchanged": true
+    }
+  ],
+  "signed_material": "expert suites only; public trust anchor retained",
+  "limitations": [
+    "Engineer-generated synthetic fixtures, not external domain-expert approval.",
+    "Unsigned diagnostics; no signed answer receipts or knowledge packs.",
+    "One development host; no clean-machine acceptance or rehearsal credit.",
+    "No packet capture or independent network isolation proof.",
+    "No live model, drafting, UI or full teaching workflow in this run."
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "schema": "syntriass.applicability-replay/v1",
+  "status": "PASS",
+  "trust": {
+    "tenant": "halvorn-power",
+    "task": "Distribution transformer insulation acceptance per Halvorn HU-TX-2 rev A",
+    "expert_id": "expert:p0-049-synthetic-evaluator",
+    "public_key_hex": "f6efa0a911766012d6d15959a9c10601738be1b29c815d681e518c4c3208ae06",
+    "capability_sha256": "076c4bee1b9f8e55a6b8971b50ec246d6d12ff6298d3a061b9e84695b36d2ea9",
+    "binary_sha256": "48d7d078fe86d9bdc2ccdd32161f6f1e8f4ed45b38fd4ac97df1bea3275ce9ec"
+  },
+  "suites": [
+    {
+      "suite": "explicit-forms-validation",
+      "cases": 12,
+      "passed": 12,
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/syntriass",
+        "cap-check",
+        "--file",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-local/replay-local-final/explicit-forms-validation-capability.json",
+        "--cases",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-local/replay-local-final/explicit-forms-validation-cases.jsonl"
+      ],
+      "cases_sha256": "755e39ca9d2206746391baebf458c87d6cfe058a5aa248e002efd910c0a47967",
+      "suite_sha256": "6f4689336e411065c40dbcc728d3744f1886b0dc359d913f04d5b704dd03bdc2",
+      "signature_verification": "PASS",
+      "recomputed_outcomes": "PASS"
+    },
+    {
+      "suite": "explicit-forms-attacks",
+      "cases": 26,
+      "passed": 26,
+      "command": [
+        "/workspace/scratch/8cbb8ab6ce9d/p0-048-tools/target/debug/syntriass",
+        "cap-check",
+        "--file",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-local/replay-local-final/explicit-forms-attacks-capability.json",
+        "--cases",
+        "/workspace/scratch/8cbb8ab6ce9d/p050-local/replay-local-final/explicit-forms-attacks-cases.jsonl"
+      ],
+      "cases_sha256": "e7c446cc4da83a8273f296dc3e98f217143e8eac948854572aca27534386398c",
+      "suite_sha256": "2f300ed92b97da78399f9a8da767dcf6bb95eed96c7bba91ba31c9f58655c9e9",
+      "signature_verification": "PASS",
+      "recomputed_outcomes": "PASS"
+    }
+  ],
+  "frozen_nonactivation_passed": 6,
+  "nonactivation_is_subset_of_26": true,
+  "openssl": "OpenSSL 3.5.7 9 Jun 2026 (Library: OpenSSL 3.5.7 9 Jun 2026)",
+  "openssl_sha256": "acc10176d038aeb7b2a77d9ec972ac2985857a7191f7aecb7c54ef0e2c7e9549",
+  "activation_performed": false,
+  "expert_identity_verified": false,
+  "independent_administration": false,
+  "scope": "Signed frozen cases and recomputed component outcomes; no full teaching/kit/production acceptance"
+}

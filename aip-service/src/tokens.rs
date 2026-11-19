@@ -14,7 +14,6 @@
 //!              absent on tokens minted before tenancy, which belong to the
 //!              legacy tenant for revocation purposes
 
-use chrono::Utc;
 use jsonwebtoken::{
     decode, encode, errors::ErrorKind, Algorithm, DecodingKey, EncodingKey, Header, Validation,
 };
@@ -61,8 +60,7 @@ pub fn issue(
     tenant_id: &str,
     encoding_key: &EncodingKey,
 ) -> Result<IssueResult, String> {
-    let now = Utc::now();
-    let iat = now.timestamp();
+    let iat = crate::utc::now_unix();
     let exp = iat + ttl_seconds as i64;
 
     let claims = Claims {
@@ -78,11 +76,12 @@ pub fn issue(
     let token = encode(&Header::new(Algorithm::EdDSA), &claims, encoding_key)
         .map_err(|e| format!("JWT encode error: {e}"))?;
 
-    let fmt = "%Y-%m-%dT%H:%M:%SZ";
-    let issued_at = now.format(fmt).to_string();
-    let expires_at = chrono::DateTime::from_timestamp(exp, 0)
-        .map(|dt| dt.format(fmt).to_string())
-        .unwrap_or_else(|| "9999-12-31T23:59:59Z".to_owned());
+    let issued_at =
+        crate::utc::format_unix(iat).unwrap_or_else(|| "9999-12-31T23:59:59Z".to_owned());
+    // Unchanged fallback: an expiry beyond the representable range displays
+    // as the maximum. The JWT's own `exp` claim is the authoritative value.
+    let expires_at =
+        crate::utc::format_unix(exp).unwrap_or_else(|| "9999-12-31T23:59:59Z".to_owned());
 
     Ok(IssueResult {
         token,

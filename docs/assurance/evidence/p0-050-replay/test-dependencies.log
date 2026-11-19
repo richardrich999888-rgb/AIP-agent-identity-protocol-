@@ -1,0 +1,14 @@
+Collecting pytest==9.2.0 (from -r /workspace/scratch/8cbb8ab6ce9d/p050-tools/test-requirements.lock (line 1))
+  Downloading pytest-9.2.0-py3-none-any.whl (411 kB)
+Collecting pluggy==1.7.0 (from -r /workspace/scratch/8cbb8ab6ce9d/p050-tools/test-requirements.lock (line 3))
+  Using cached pluggy-1.7.0-py3-none-any.whl (27 kB)
+Collecting iniconfig==2.3.1 (from -r /workspace/scratch/8cbb8ab6ce9d/p050-tools/test-requirements.lock (line 5))
+  Using cached iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+Collecting packaging==26.3 (from -r /workspace/scratch/8cbb8ab6ce9d/p050-tools/test-requirements.lock (line 7))
+  Using cached packaging-26.3-py3-none-any.whl (129 kB)
+Collecting pygments==2.21.0 (from -r /workspace/scratch/8cbb8ab6ce9d/p050-tools/test-requirements.lock (line 9))
+  Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 41.5 MB/s  0:00:00
+Installing collected packages: pytest, pygments, pluggy, packaging, iniconfig
+
+Successfully installed iniconfig-2.3.1 packaging-26.3 pluggy-1.7.0 pygments-2.21.0 pytest-9.2.0

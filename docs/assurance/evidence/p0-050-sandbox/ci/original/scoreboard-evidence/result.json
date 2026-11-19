@@ -1,0 +1,87 @@
+{
+  "schema": "syntriass.p0-049.scoreboard-evidence/v1",
+  "result": "PASS_BOUNDED_C1",
+  "commit": "b5731ecbad0857a8014d13b15f1f07702b66acba",
+  "tree_dirty": false,
+  "dirty_paths": [],
+  "binary_sha256": "a4221b15bf105a06768371acf348392faadfa414f6bfb4640571bf27971a9cf8",
+  "recorded_utc": "2026-11-12T11:53:28Z",
+  "hardware": {
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "logical_cpus": 4,
+    "affinity_cpus": 4,
+    "meminfo": "MemTotal:       16367524 kB",
+    "cgroup_cpu_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/cpu.max'"
+    },
+    "cgroup_memory_max": {
+      "status": "UNAVAILABLE",
+      "reason": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.max'"
+    }
+  },
+  "wall_seconds": 0.5149240960000014,
+  "network": {
+    "namespace": "net:[4026531833]",
+    "interfaces_before": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:   27221     194    0    0    0     0          0         0    27221     194    0    0    0     0       0          0\n  eth0: 163197834    8008    0    0    0     0          0         0   828131    4472    0    0    0     0       0          0\nenP65027s1: 170395478  115426    0    0    0     0          0         0   837160    4623    0    0    0     0       0          0\ndocker0:       0       0    0    0    0     0          0         0        0       0    0    2    0     0       0          0"
+    },
+    "interfaces_after": {
+      "status": "READ",
+      "value": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:   27221     194    0    0    0     0          0         0    27221     194    0    0    0     0       0          0\n  eth0: 163200006    8018    0    0    0     0          0         0   841330    4481    0    0    0     0       0          0\nenP65027s1: 170397790  115436    0    0    0     0          0         0   850623    4636    0    0    0     0       0          0\ndocker0:       0       0    0    0    0     0          0         0        0       0    0    2    0     0       0          0"
+    },
+    "ipv4_routes": {
+      "status": "READ",
+      "value": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t0100010A\t0003\t0\t0\t100\t00000000\t0\t0\t0                                                                             \neth0\t0000010A\t00000000\t0001\t0\t0\t100\t00F0FFFF\t0\t0\t0                                                                             \neth0\t0100010A\t00000000\t0005\t0\t0\t100\tFFFFFFFF\t0\t0\t0                                                                             \neth0\t10813FA8\t0100010A\t0007\t0\t0\t100\tFFFFFFFF\t0\t0\t0                                                                             \neth0\tFEA9FEA9\t0100010A\t0007\t0\t0\t100\tFFFFFFFF\t0\t0\t0                                                                             \ndocker0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0"
+    },
+    "ipv6_routes": {
+      "status": "READ",
+      "value": "fe800000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000001 00000000 00000001     eth0\n00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo\n00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000005 00000000 80200001       lo\nfe8000000000000072a8a5fffe9d5684 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001     eth0\nff000000000000000000000000000000 08 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000005 00000000 00000001     eth0\n00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo"
+    }
+  },
+  "child_cpu_seconds": 0.43074999999999997,
+  "child_peak_rss_kib": 18424,
+  "model_calls": 0,
+  "model_hashes": [],
+  "runs": [
+    {
+      "name": "motor-corrected",
+      "domain": "ir",
+      "exit_status": 0,
+      "wall_seconds": 0.020395725999989622,
+      "capability_hash": "9f71e4fb409bb5f6993de2e757eac01bd4d0b88f96f1c9c305ea4f18a2ffd842",
+      "expert_passed": 14,
+      "expert_cases": 14,
+      "state_unchanged": true
+    },
+    {
+      "name": "transformer-candidate",
+      "domain": "tx",
+      "exit_status": 3,
+      "wall_seconds": 0.019751517000003105,
+      "capability_hash": "560e81faa7686ef0ab1e51a6028dffd036cab99455770b8968bafd53d2a6adbc",
+      "expert_passed": 11,
+      "expert_cases": 12,
+      "state_unchanged": true
+    },
+    {
+      "name": "transformer-corrected",
+      "domain": "tx",
+      "exit_status": 0,
+      "wall_seconds": 0.01994205000001159,
+      "capability_hash": "6d8ee2cbd71363a233c006b096ea01d7c1d77819139f8931f8478f2e8ea3e953",
+      "expert_passed": 12,
+      "expert_cases": 12,
+      "state_unchanged": true
+    }
+  ],
+  "signed_material": "expert suites only; public trust anchor retained",
+  "limitations": [
+    "Engineer-generated synthetic fixtures, not external domain-expert approval.",
+    "Unsigned diagnostics; no signed answer receipts or knowledge packs.",
+    "One development host; no clean-machine acceptance or rehearsal credit.",
+    "No packet capture or independent network isolation proof.",
+    "No live model, drafting, UI or full teaching workflow in this run."
+  ]
+}

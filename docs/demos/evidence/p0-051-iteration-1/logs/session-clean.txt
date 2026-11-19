@@ -1,0 +1,94 @@
+ingest: 23 clauses -> /tmp/p051-session-score-d1l0guo1/clauses.json
+{
+  "status": "PASS_BOUNDED_SESSION_SCOREBOARD",
+  "out": "/workspace/scratch/d81076ea93b3/p051/session-clean",
+  "runs": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/harness/score_teaching_session.py",
+        "--binary",
+        "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/target/debug/syntriass",
+        "--config",
+        "/tmp/p051-session-score-d1l0guo1/config.json",
+        "--tenant",
+        "halvorn-power",
+        "--session",
+        "ab8056925238b7e0bc9a59fcf19212d81dff3752d10bcbbe56cae0f3ef0e924d",
+        "--session-task",
+        "tx_acceptance",
+        "--task",
+        "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/tasks/tx_hutx2.json",
+        "--answers",
+        "/tmp/p051-session-score-d1l0guo1/answers.json",
+        "--document",
+        "/tmp/p051-session-score-d1l0guo1/data/corpus/halvorn-hu-tx-2.txt",
+        "--suite",
+        "/tmp/p051-session-score-d1l0guo1/suite.json",
+        "--out",
+        "/workspace/scratch/d81076ea93b3/p051/session-clean/rejected-control"
+      ],
+      "expected_exit": 3,
+      "actual_exit": 3,
+      "wall_seconds": 0.17013698200025829
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/harness/score_teaching_session.py",
+        "--binary",
+        "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/target/debug/syntriass",
+        "--config",
+        "/tmp/p051-session-score-d1l0guo1/config.json",
+        "--tenant",
+        "halvorn-power",
+        "--session",
+        "ab8056925238b7e0bc9a59fcf19212d81dff3752d10bcbbe56cae0f3ef0e924d",
+        "--session-task",
+        "tx_acceptance",
+        "--task",
+        "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/tasks/tx_hutx2.json",
+        "--answers",
+        "/tmp/p051-session-score-d1l0guo1/answers.json",
+        "--document",
+        "/tmp/p051-session-score-d1l0guo1/data/corpus/halvorn-hu-tx-2.txt",
+        "--suite",
+        "/tmp/p051-session-score-d1l0guo1/suite.json",
+        "--out",
+        "/workspace/scratch/d81076ea93b3/p051/session-clean/corrected-validation"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "wall_seconds": 0.23540482700082066
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/harness/score_teaching_session.py",
+        "--binary",
+        "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/target/debug/syntriass",
+        "--config",
+        "/tmp/p051-session-score-d1l0guo1/config.json",
+        "--tenant",
+        "halvorn-power",
+        "--session",
+        "ab8056925238b7e0bc9a59fcf19212d81dff3752d10bcbbe56cae0f3ef0e924d",
+        "--session-task",
+        "tx_acceptance",
+        "--task",
+        "/workspace/scratch/d81076ea93b3/AIP-agent-identity-protocol-/research/capability-learning/tasks/tx_hutx2.json",
+        "--answers",
+        "/tmp/p051-session-score-d1l0guo1/answers.json",
+        "--document",
+        "/tmp/p051-session-score-d1l0guo1/data/corpus/halvorn-hu-tx-2.txt",
+        "--suite",
+        "/tmp/p051-session-score-d1l0guo1/suite.json",
+        "--out",
+        "/workspace/scratch/d81076ea93b3/p051/session-clean/corrected-attacks"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "wall_seconds": 0.17359441600092396
+    }
+  ]
+}

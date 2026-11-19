@@ -1,0 +1,81 @@
+{
+  "suite_id": "p0-049/transformer-corrected",
+  "tenant": "halvorn-power",
+  "task": "Distribution transformer insulation acceptance per Halvorn HU-TX-2 rev A",
+  "expert_id": "expert:p0-049-synthetic-evaluator",
+  "cases": [
+    {
+      "id": "val-00",
+      "text": "TX-30 11 kV, 260 megohms at 20 C, DAR 1.4",
+      "expected": "ACCEPT",
+      "counterexample": false
+    },
+    {
+      "id": "val-01",
+      "text": "TX-31 11 kV, 259 megohms at 20 C, DAR 1.6",
+      "expected": "DRY_OUT_OIL",
+      "counterexample": false
+    },
+    {
+      "id": "val-02",
+      "text": "TX-32 11 kV, 87 megohms at 20 C, DAR 1.6",
+      "expected": "DRY_OUT_OIL",
+      "counterexample": false
+    },
+    {
+      "id": "val-03",
+      "text": "TX-33 11 kV, 86 megohms at 20 C, DAR 1.6",
+      "expected": "REMOVE_FROM_SERVICE",
+      "counterexample": false
+    },
+    {
+      "id": "val-04",
+      "text": "TX-34 11 kV, 500 megohms at 20 C, DAR 1.25",
+      "expected": "MONITOR_90D",
+      "counterexample": false
+    },
+    {
+      "id": "val-05",
+      "text": "TX-35 11 kV, 500 megohms at 20 C, DAR 1.24",
+      "expected": "INVESTIGATE",
+      "counterexample": false
+    },
+    {
+      "id": "val-06",
+      "text": "TX-36 11 kV, 150 megohms at 50 C, DAR 1.5",
+      "expected": "ACCEPT",
+      "counterexample": false
+    },
+    {
+      "id": "val-07",
+      "text": "TX-37 11 kV, 700 megohms at 0 C, DAR 1.5",
+      "expected": "ACCEPT",
+      "counterexample": true
+    },
+    {
+      "id": "val-08",
+      "text": "TX-38 11 kV, 700 megohms at -2 C, DAR 1.5",
+      "expected": "INVALID_TEST",
+      "counterexample": true
+    },
+    {
+      "id": "val-09",
+      "text": "Cable C-4 11 kV, 700 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "val-10",
+      "text": "TX-40 66 kV, 3000 megohms at 20 C, DAR 1.5",
+      "expected": "OUT_OF_SCOPE",
+      "counterexample": true
+    },
+    {
+      "id": "val-11",
+      "text": "TX-41 11 kV, 700 megohms at 30 C, DAR not measured",
+      "expected": "INSUFFICIENT_INPUT",
+      "counterexample": true
+    }
+  ],
+  "signature_hex": "033e7c0f3e2cc59069ebc012ba6937091c5ed6098b3ff1795c0bb622793c19045def3cea98ca1c81b1cc322d517230b009a05c92bc280920a6ffa552a510470e"
+}
