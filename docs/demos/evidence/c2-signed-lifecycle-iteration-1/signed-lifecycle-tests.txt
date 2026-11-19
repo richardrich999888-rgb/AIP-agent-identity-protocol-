@@ -1,0 +1,24 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/signed_lifecycle.rs (target/debug/deps/signed_lifecycle-05577c7e273be4ba)
+
+running 17 tests
+test a_configured_id_with_the_wrong_private_key_is_refused_without_writing ... ok
+test a_legacy_unsigned_activation_does_not_satisfy_signed_lifecycle ... ok
+test a_record_hand_set_to_active_is_refused_at_use_time ... ok
+test a_refused_supersession_leaves_the_current_version_active ... ok
+test a_signature_check_on_the_action_itself_matches_its_fields ... ok
+test a_signed_activation_copied_onto_another_record_is_refused ... ok
+test an_edited_reason_or_time_breaks_the_signed_activation ... ok
+test an_old_resume_replayed_after_a_later_suspension_is_refused ... ok
+test cli_refuses_both_key_and_actor ... ok
+test keys_are_role_specific_and_validator_cannot_be_claimed ... ok
+test removing_the_operator_from_the_trust_store_withdraws_the_activation ... ok
+test signed_activate_supersede_and_rollback_each_verify_at_use_time ... ok
+test strict_cli_activates_with_an_operator_key_and_refuses_a_hand_set_record ... ok
+test strict_cli_refuses_an_asserted_actor_and_writes_nothing ... ok
+test strict_cli_rollback_needs_an_approver_key ... ok
+test the_recorded_actor_is_the_signer_never_a_caller_string ... ok
+test under_strict_policy_an_approver_needs_a_current_grant_to_roll_back ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.54s
+

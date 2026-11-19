@@ -508,6 +508,17 @@ with the unproven half named.
   and passing signed records are retained in `docs/demos/evidence/p0-051-iteration-3/`.
   This does not implement authenticated teaching approval, expiry/revocation,
   an authorized activation UI or transactional multi-record rollback. C2 stays open.
+  **Signed lifecycle actions (`dbafea49`):** with `require_signed_lifecycle`
+  and an `operators` trust store, activation, supersession, rollback, resume
+  and revocation are Ed25519-signed actions bound to the record, edge, role and
+  history position; `--actor` is refused; CLI and request serving refuse an
+  ACTIVE record unless its last transition is such a verified signed
+  activation, so a stored state edited to ACTIVE no longer executes. Default
+  off; legacy unchanged. Runtime **221/221** (was 203), Python **490/490**; all
+  8 defences fail a test when disabled. Open: freshness against storage
+  rollback (history truncation), operator tenant/domain scoping, crash-atomic
+  multi-record writes, authenticated login/UI. Evidence:
+  `docs/demos/evidence/c2-signed-lifecycle-iteration-1/`. C2 stays open.
 
 ### Phase D — Reuse, refusal and ownership
 - [ ] **D1. Live meter.** Per answer: strategy (capability / model / withheld), model

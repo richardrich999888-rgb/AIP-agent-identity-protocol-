@@ -70,7 +70,8 @@ operations. Runtime orchestration tests use deterministic model/interpreter fake
 they are not live-model or investor rehearsals. Policy refusals leave capability
 files unchanged in tested cases. Multi-file storage-failure atomicity is open.
 
-Actor strings and supplied role labels are not authenticated operator identities.
+In legacy lifecycle mode, actor strings and supplied role labels are not
+authenticated operator identities; signed lifecycle mode (below) replaces them.
 The low-level lifecycle functions are trusted in-process primitives; callers must
 perform the same policy checks as the CLI/runtime. No untrusted API is qualified.
 The stored validation report remains an owner-controlled input. Connecting the
@@ -136,3 +137,35 @@ key signs approval. In-process primitives, installation policy, clock and
 owner-controlled files remain trusted. Operator actor strings still lack action
 authentication, and concurrent multi-file transactions are not qualified. This
 closes review-digest signature/native-replay binding, not all C2 or release gates.
+
+## Signed lifecycle actions
+
+Source `dbafea49`. Opt-in, like `require_teaching_review`:
+
+```json
+{
+  "operators": {"operator:koravi-ot": "OPERATOR_ED25519_PUBLIC_KEY_HEX"},
+  "require_signed_lifecycle": true
+}
+```
+
+```sh
+syntriass cap-activate   --config CFG --hash CAP_HASH --key OPERATOR_KEYFILE --reason R [--supersede]
+syntriass cap-rollback   --config CFG --to CAP_HASH   --key APPROVER_KEYFILE --reason R
+syntriass cap-transition --config CFG --hash CAP_HASH --to STATE --role ROLE --key KEYFILE --reason R
+```
+
+Each transition is an Ed25519 signature binding the capability hash, the edge,
+the role, the signer, the record's history position and the hash of the history
+before it, plus time and reason. Activation and supersession need an `operators`
+key; rollback, resume and revocation an `approvers` key and, with
+`approval_policy`, a current grant for that capability. The validator role
+cannot be signed by a caller. With the mode on, `--actor` is refused, and both
+`cap-list`/CLI checks and request serving refuse an ACTIVE record whose last
+transition is not such a verified signed activation — including one whose stored
+state was simply edited to ACTIVE.
+
+Limits: no freshness against a storage rollback that truncates history to an
+older signed activation; operator keys are not tenant/domain scoped; a crash
+between the file writes of one supersession can still leave a partial change.
+Evidence: [c2-signed-lifecycle-iteration-1](evidence/c2-signed-lifecycle-iteration-1/README.md).
