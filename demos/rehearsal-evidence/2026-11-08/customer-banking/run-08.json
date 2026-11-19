@@ -1,0 +1,62 @@
+{
+  "schema": "syntriass.demo.result/v1",
+  "demo": "launch-customer-banking",
+  "started_utc": "2026-11-08T04:47:01.410+00:00",
+  "finished_utc": "2026-11-08T04:47:55.663+00:00",
+  "provenance": [
+    {
+      "repo": "AIP-agent-identity-protocol-",
+      "commit": "6ad92ae78806546948874812dc8e6161d24d9d67",
+      "dirty": false,
+      "changed_files": []
+    }
+  ],
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.30GHz",
+    "vcpu": 4,
+    "mem_gb": 15,
+    "gpu": null,
+    "kernel": "6.18.44-fc-v310",
+    "label": "4 vCPU, 15 GB RAM, no GPU"
+  },
+  "offline": {
+    "offline": false,
+    "non_loopback_routes": [
+      {
+        "family": "ipv4",
+        "iface": "eth0"
+      },
+      {
+        "family": "ipv4",
+        "iface": "docker0"
+      },
+      {
+        "family": "ipv4",
+        "iface": "eth0"
+      }
+    ],
+    "non_loopback_interfaces": [
+      "docker0",
+      "eth0",
+      "ifb0",
+      "ifb1"
+    ],
+    "tx_bytes_non_loopback": 11026812
+  },
+  "steps": [
+    {
+      "kind": "live",
+      "text": "Customer: banking (synthetic Varuna Bank)",
+      "source": null,
+      "banner": "[LIVE] Customer: banking (synthetic Varuna Bank)"
+    }
+  ],
+  "measurements": {
+    "mode": "customer-banking",
+    "exit_code": 0,
+    "passed": true,
+    "wall_s": 54.3,
+    "output_dir": "/home/user/AIP-agent-identity-protocol-/demos/results/rehearse-customer-banking-20261108T044025Z/08/run",
+    "console": "/home/user/AIP-agent-identity-protocol-/demos/results/rehearse-customer-banking-20261108T044025Z/08/console.txt"
+  }
+}
