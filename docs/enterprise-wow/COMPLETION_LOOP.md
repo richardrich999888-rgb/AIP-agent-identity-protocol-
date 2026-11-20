@@ -121,11 +121,13 @@ The brief's claims about each project are hypotheses. Verify the license file in
 | 5 | Parent-child | signed chain + gateway actions | parent **process** spawns children; unauthorized delegation detected |
 | 11 | AIP identity | done | verification failure shown live in the console |
 
-- [ ] **2.1 Persistent event store.**
+- [ ] **2.1 Persistent event store.** Split on 20 Nov: 2.1a (the store) and 2.1b (ingestion and queries).
   - `command-center/server/eventstore.py` (stdlib `sqlite3`): append-only, with an idempotency key = SHA-256 of the canonical event.
   - Each run's records are ingested into it.
   - Inventory, last-observed time and risk become queries over the store.
   - Tests: duplicate ingestion is a no-op (adversarial #14); the BFF restart preserves state (adversarial #13).
+  - [x] **2.1a** The store: `command-center/server/eventstore.py`. **Done** `815f5d3a`. `python3 -m unittest -v test_eventstore`: 22 passed / 0 failed / 0 skipped. Covers adversarial #13 (restart, including a second OS process) and #14 (duplicate is a no-op). Five mutations all caught. Limit: deleting the newest rows is detectable only against a held `head()` (pinned by a test).
+  - [ ] **2.1b** Ingest each P0-059 run's records. Inventory, last-observed time and risk become store queries. BFF restart test (#13 at the BFF level). **Blocked on 0.1** (the P0-059 commits are not on the remote).
 - [ ] **2.2 Inventory fields.** Add framework (`scripted-test-agent` / `langgraph` if 4.x adds one), host, runtime, credential metadata (key fingerprint and token expiry, never secrets), parent, owner, responsible human, and risk/governance status derived from findings.
 - [ ] **2.3 Shadow and ghost.**
   - Add a `HEURISTIC_AI_WORKLOAD` class: a process that connects to the LLM proxy or model port with no identity. Keep it separate from CONFIRMED.
@@ -246,6 +248,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Fri 20 Nov 20:09 | 1.2 OPA | Done | default REST API writable without auth: must be locked down or embedded |
 | Fri 20 Nov 20:20 | 1.3 LiteLLM | Done | proxy extra pulls proprietary litellm-enterprise; use core SDK only |
 | Fri 20 Nov 20:23 | 2.6 revocation ADR | Done | gateway half unverifiable until P0-059 lands |
+| Fri 20 Nov 20:25 | 2.1a event store | Done | 2.1b (ingestion) blocked on 0.1 |
 
 ## Iteration log
 
@@ -256,6 +259,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 3 | 1.2 | Done: OPA pinned + verified; finding: unauthenticated REST writes un-revoke an agent | `fc8a686e` | opa test 10/0/0; smoke 5/5; upstream 6 pkgs ok/0 fail |
 | 4 | 1.3 | Done: SDK capture works without Postgres; 3 zero-for-unmeasured cases fixed in capture | `af2df27c` | acceptance 16/0; unit 23/0/0 |
 | 5 | 2.6 | Done (ADR): gap measured by 3 tests; DecisionPoint untouched | `b5143a7f` | revocation_gap 3/0/0; aip-authorize 103/0/0 |
+| 6 | 2.1a | Done: append-only store with dedup, restart, tamper detection | `815f5d3a` | test_eventstore 22/0/0 |
 
 ---
 
