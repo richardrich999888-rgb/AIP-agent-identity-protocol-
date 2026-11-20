@@ -19,11 +19,11 @@ all_ok=1
 for i in $(seq 1 "$N"); do
   "$HERE/reset.sh" > /dev/null
   mkdir -p "$RUNS"
-  "$HERE/test.sh" > "$LAB/rehearsal-$ts-$i-test.log" 2>&1; t_rc=$?
+  t_rc=0; "$HERE/test.sh" > "$LAB/rehearsal-$ts-$i-test.log" 2>&1 || t_rc=$?   # set -e safe
   t0=$(date +%s%N)
-  "$HERE/run.sh" > "$LAB/rehearsal-$ts-$i-run.log" 2>&1; r_rc=$?
+  r_rc=0; "$HERE/run.sh" > "$LAB/rehearsal-$ts-$i-run.log" 2>&1 || r_rc=$?   # set -e safe
   t1=$(date +%s%N)
-  "$HERE/verify.sh" > "$LAB/rehearsal-$ts-$i-verify.log" 2>&1; v_rc=$?
+  v_rc=0; "$HERE/verify.sh" > "$LAB/rehearsal-$ts-$i-verify.log" 2>&1 || v_rc=$?   # set -e safe
   cp "$RUNS/verify-summary.json" "$LAB/rehearsal-$ts-$i-verify-summary.json" 2>/dev/null || true
   [ "$t_rc" -eq 0 ] && [ "$r_rc" -eq 0 ] && [ "$v_rc" -eq 0 ] || all_ok=0
   rows+=("{\"run\":$i,\"test_exit\":$t_rc,\"run_exit\":$r_rc,\"verify_exit\":$v_rc,\"run_ms\":$(( (t1-t0)/1000000 ))}")
