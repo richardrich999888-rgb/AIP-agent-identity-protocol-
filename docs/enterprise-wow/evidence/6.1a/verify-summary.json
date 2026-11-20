@@ -7,8 +7,8 @@
   },
   {
    "capability": "2 Shadow AI",
-   "status": "NOT_AVAILABLE",
-   "reason": "P0-059 commits are not on this branch (item 0.1)"
+   "status": "PARTIAL",
+   "reason": "HEURISTIC class passes live with 0 false positives; CONFIRMED class and registry are P0-059 (2.3b)"
   },
   {
    "capability": "3 Ghost AI",
@@ -67,7 +67,8 @@
   "litellm-acceptance": true,
   "revocation-gap": true,
   "live-sensors": true,
-  "live-kill": true
+  "live-kill": true,
+  "live-shadow": true
  },
  "verified": 0,
  "failed": 0

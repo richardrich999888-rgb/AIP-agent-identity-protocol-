@@ -10,8 +10,8 @@ reason. Nothing is counted from P0-059, whose results are not reachable here
 
 | # | Test | Status | Command → result | False positives | Coverage | Unresolved |
 |---|---|---|---|---|---|---|
-| 1 | Unregistered workload | NOT RUN | — | — | — | needs 2.3 (P0-059 discovery) |
-| 2 | False-positive control | NOT RUN | — | — | — | needs 2.3 |
+| 1 | Unregistered workload | **RUN** | `live_shadow_ai.py` ×3: the unregistered client of the model port is HEURISTIC_AI_WORKLOAD (7/7 each) | — | heuristic class only | CONFIRMED and registry are P0-059 (2.3b); "no binding" in every run |
+| 2 | False-positive control | **RUN** | `live_shadow_ai.py` ×3: http.server, its client and `sort` are observed and UNCLASSIFIED; 3.4b archives give 0 HEURISTIC out of 154–160 processes | **0** | ordinary loopback web traffic and exec | only these workloads were tried |
 | 3 | Missing ownership | NOT RUN | — | — | — | needs 2.4 (P0-059 registry) |
 | 4 | Revoked authorization | **PARTIAL** | (a) `test_opa_gate` live `test_revoked_denied`: a revoked hop gives DENY with "authority revoked". (b) `cargo test -p aip-authorize --test revocation_gap` 3/0/0: **DecisionPoint still authorizes under a revoked root or hop.** | none observed | (a) the OPA decision only; (b) the DecisionPoint gap is pinned | not enforced at a gate (3.1b); DecisionPoint fix is ADR-001; the P0-059 gateway re-run is blocked |
 | 5 | Unauthorized child delegation | NOT RUN | — | — | — | needs 2.5 (`vcc-agent --spawn`) |
@@ -26,4 +26,4 @@ reason. Nothing is counted from P0-059, whose results are not reachable here
 | 14 | Duplicate events | **RUN** | `test_eventstore` Duplicates 4/4; a redelivered LiteLLM hook is a no-op (`stored` 1 of `seen` 2); re-polling an archive inserts 0. | different events are never merged (`test_any_field_change_is_a_new_event`) | the store and both ingest paths | — |
 | 15 | Interrupted collector | **RUN** | `command-center/lab/live_observer_kill.py`, 3 runs: 7/7 checks each (`evidence/3.4b-live-kill/`) | — | live SIGKILL of the real `aip-collector` | same as #10 |
 
-Totals: **RUN 3** (#10, #14, #15), **PARTIAL 5** (#4, #9, #11, #12, #13), **NOT RUN 7** (#1, #2, #3, #5, #6, #7, #8). 3 + 5 + 7 = 15.
+Totals (updated after 2.3a): **RUN 5** (#1, #2, #10, #14, #15), **PARTIAL 5** (#4, #9, #11, #12, #13), **NOT RUN 5** (#3, #5, #6, #7, #8). 5 + 5 + 5 = 15.

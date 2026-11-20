@@ -1,12 +1,12 @@
 # Acceptance matrix (enterprise WOW loop, item 6.4a)
 
 Generated from `docs/enterprise-wow/evidence/6.1a/verify-summary.json`, which `demos/vanian-enterprise/verify.sh` wrote after `test.sh` and `run.sh` on 21 Nov 2026 (cloud session container).
-**Result: 0/12 VERIFIED, 0 FAIL; verify.sh exit 1.** Status and limitation are copied from `verify.py`, not restated.
+**Result: 0/12 VERIFIED, 0 FAIL; verify.sh exit 1** (re-run after 2.3a). Status and limitation are copied from `verify.py`, not restated.
 
 | Capability | Status | Source | Execution path | Test | Evidence | Limitation |
 |---|---|---|---|---|---|---|
 | 1 Agent inventory | **NOT_AVAILABLE** | P0-059 (absent) | — | — | — | P0-059 commits are not on this branch (item 0.1) |
-| 2 Shadow AI | **NOT_AVAILABLE** | P0-059 (absent) | — | — | — | P0-059 commits are not on this branch (item 0.1) |
+| 2 Shadow AI | **PARTIAL** | `command-center/server/shadow_ai.py` | kernel SYN_SENT to a declared model endpoint, unregistered → HEURISTIC | `test_shadow_ai` 10/0/0; `live_shadow_ai.py` 7/7 | `evidence/2.3a-shadow-ai/`, `evidence/6.1a/live-shadow-result.json` | HEURISTIC class passes live with 0 false positives; CONFIRMED class and registry are P0-059 (2.3b) |
 | 3 Ghost AI | **NOT_AVAILABLE** | P0-059 (absent) | — | — | — | P0-059 commits are not on this branch (item 0.1) |
 | 4 Orphan AI | **NOT_AVAILABLE** | P0-059 (absent) | — | — | — | P0-059 commits are not on this branch (item 0.1) |
 | 5 Parent-child | **NOT_AVAILABLE** | P0-059 (absent) | — | — | — | P0-059 commits are not on this branch (item 0.1) |

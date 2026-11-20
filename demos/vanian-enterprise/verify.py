@@ -32,8 +32,8 @@ def passed(runs: Path, name: str) -> bool | None:
     return "test result: ok" in t and "FAILED" not in t
 
 
-def live_kill(runs: Path) -> bool | None:
-    r = runs / "live-kill-latest" / "result.json"
+def live_result(runs: Path, name: str) -> bool | None:
+    r = runs / f"{name}-latest" / "result.json"
     if not r.exists():
         return None
     checks = json.loads(r.read_text()).get("checks", {})
@@ -42,7 +42,8 @@ def live_kill(runs: Path) -> bool | None:
 
 def main(runs: Path) -> int:
     t = {n: passed(runs, n) for n in ("policy", "server-suite", "litellm-acceptance", "revocation-gap", "live-sensors")}
-    kill = live_kill(runs)
+    kill = live_result(runs, "live-kill")
+    shadow = live_result(runs, "live-shadow")
 
     def gate(ok, partial_reason):
         if ok is None:
@@ -52,7 +53,8 @@ def main(runs: Path) -> int:
     p0059 = ("NOT_AVAILABLE", "P0-059 commits are not on this branch (item 0.1)")
     rows = [
         ("1 Agent inventory", p0059),
-        ("2 Shadow AI", p0059),
+        ("2 Shadow AI", gate(shadow and t["server-suite"],
+                             "HEURISTIC class passes live with 0 false positives; CONFIRMED class and registry are P0-059 (2.3b)")),
         ("3 Ghost AI", p0059),
         ("4 Orphan AI", p0059),
         ("5 Parent-child", p0059),
@@ -76,7 +78,7 @@ def main(runs: Path) -> int:
     print(f"verified {verified}/12, failed {failed}")
     (runs / "verify-summary.json").write_text(json.dumps(
         {"capabilities": [{"capability": n, "status": s, "reason": w} for n, (s, w) in rows],
-         "checks": {**t, "live-kill": kill}, "verified": verified, "failed": failed}, indent=1) + "\n")
+         "checks": {**t, "live-kill": kill, "live-shadow": shadow}, "verified": verified, "failed": failed}, indent=1) + "\n")
     return 0 if verified == 12 else 1
 
 

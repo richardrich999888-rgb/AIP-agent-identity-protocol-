@@ -18,12 +18,13 @@ GOOD = {
 }
 
 
-def lab(tmp: Path, logs: dict, kill: dict | None) -> Path:
+def lab(tmp: Path, logs: dict, kill: dict | None, shadow: dict | None = None) -> Path:
     for name, text in logs.items():
         (tmp / f"test-{name}.log").write_text(text)
-    if kill is not None:
-        (tmp / "live-kill-latest").mkdir()
-        (tmp / "live-kill-latest" / "result.json").write_text(json.dumps({"checks": kill}))
+    for run, checks in (("live-kill", kill), ("live-shadow", shadow if shadow is not None else kill)):
+        if checks is not None:
+            (tmp / f"{run}-latest").mkdir()
+            (tmp / f"{run}-latest" / "result.json").write_text(json.dumps({"checks": checks}))
     return tmp
 
 
@@ -41,7 +42,8 @@ class Verify(unittest.TestCase):
     def test_all_good_is_partial_not_verified(self):
         code, st = run(lab(self.tmp, GOOD, {"a": True}))
         self.assertEqual(code, 1)
-        self.assertEqual((st["6"], st["8"], st["10"], st["1"], st["7"]), ("PARTIAL", "PARTIAL", "PARTIAL", "NOT_AVAILABLE", "NOT_IMPLEMENTED"))
+        self.assertEqual((st["2"], st["6"], st["8"], st["10"], st["1"], st["7"]),
+                         ("PARTIAL", "PARTIAL", "PARTIAL", "PARTIAL", "NOT_AVAILABLE", "NOT_IMPLEMENTED"))
         self.assertNotIn("VERIFIED", st.values())
 
     def test_failed_policy_is_fail(self):
@@ -56,9 +58,13 @@ class Verify(unittest.TestCase):
         _, st = run(lab(self.tmp, GOOD, {"a": True, "b": False}))
         self.assertEqual(st["8"], "FAIL")
 
+    def test_failed_shadow_check_is_fail(self):
+        _, st = run(lab(self.tmp, GOOD, {"a": True}, shadow={"a": False}))
+        self.assertEqual((st["2"], st["8"]), ("FAIL", "PARTIAL"))
+
     def test_missing_runs_are_fail(self):
         _, st = run(lab(self.tmp, {}, None))
-        self.assertEqual((st["6"], st["8"], st["10"], st["11"], st["12"]), ("FAIL",) * 5)
+        self.assertEqual((st["2"], st["6"], st["8"], st["10"], st["11"], st["12"]), ("FAIL",) * 6)
 
     def test_acceptance_count_must_match(self):
         _, st = run(lab(self.tmp, {**GOOD, "litellm-acceptance": "checks: 15 passed, 1 failed\n"}, {"a": True}))
