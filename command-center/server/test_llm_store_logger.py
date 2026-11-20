@@ -99,6 +99,22 @@ class Live(unittest.TestCase):
                          max(priced["observed_at_ms"], no_usage["observed_at_ms"], failed["observed_at_ms"]))
         self.assertEqual(self.store.verify(), [])
 
+    def test_finops_report_over_live_events(self):
+        # 4.2a: aggregate exactly what LiteLLM put in the store.
+        import finops_report
+
+        md = {"agent_id": "recon-reporter", "workflow": "wf-1", "owner": "alice"}
+        self.call("mock-1", md)
+        self.call("mock-no-usage", md)
+        self.call("mock-1", {"workflow": "wf-2", "owner": "bob"})
+        evs = [e.event for e in self.store.events(kind="llm.usage")]
+        agents = finops_report.by_key(evs, "agent_id")
+        rr = agents["recon-reporter"]
+        self.assertEqual((rr["calls"], rr["tokens"], rr["status"], rr["calls_without_token_telemetry"]), (2, 8, "PARTIAL", 1))
+        self.assertEqual(agents[None]["calls"], 1)  # unattributed stays separate
+        b = finops_report.budgets(evs, {"alice": 1.0})
+        self.assertTrue(b["alice"]["used_is_lower_bound"])
+
     def test_replayed_hook_is_deduplicated_and_survives_restart(self):
         import eventstore
 
