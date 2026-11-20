@@ -25,7 +25,7 @@ path" below for why.
 |---|---|---|
 | Unit tests | `python3 -m unittest test_capture test_mock_openai` | 23 passed / 0 failed / 0 skipped |
 | Mutations of `capture.py` | `mutations.txt` | 3/3 caught |
-| Acceptance, offline | `env -u DATABASE_URL LITELLM_LOCAL_MODEL_COST_MAP=True unshare -n core/bin/python acceptance.py records.jsonl --isolated` | **16/16 checks**, exit 0 (`acceptance-run.txt`, records in `records.jsonl`) |
+| Acceptance, offline | `env -u DATABASE_URL LITELLM_LOCAL_MODEL_COST_MAP=True unshare -n core/bin/python acceptance.py records.jsonl --isolated` | **16/16 checks**, exit 0 (`acceptance-run.txt`, records copied to `acceptance-records.txt`, since the repo ignores `*.jsonl`) |
 | LiteLLM's own raw values | `… unshare -n core/bin/python raw_zeros.py --isolated` | `raw-zeros.txt` |
 
 The acceptance run covers five calls:
