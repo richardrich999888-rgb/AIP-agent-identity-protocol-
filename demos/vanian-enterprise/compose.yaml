@@ -1,0 +1,21 @@
+# Real-host services for the VANIAN enterprise lab (item 6.1a).
+#
+# Only the deterministic mock model runs as a service. Its replies are TEST
+# DATA. Not services, on purpose:
+# - OPA runs as `opa eval` once per decision (command-center/server/opa_gate.py).
+#   An OPA server's default REST API accepts unauthenticated policy and data
+#   writes, which un-revoked an agent in item 1.2.
+# - LiteLLM is the in-process SDK (item 1.3). Its proxy needs the [proxy]
+#   extra, which installs proprietary litellm-enterprise.
+# The native fallback is the same: run mock_openai.py directly (README).
+services:
+  mock-model:
+    image: mirror.gcr.io/library/python@sha256:07d4824036af339fa1b6ef769cc99d9c10a141769538b52b3b597c84f7a7b535   # python:3.11-slim via mirror.gcr.io (Docker Hub returned 429)
+    command: ["python3", "/app/mock_openai.py", "8900"]
+    working_dir: /app
+    volumes:
+      - ../../research/oss/litellm/mock_openai.py:/app/mock_openai.py:ro
+    # mock_openai binds 127.0.0.1 inside the container; host networking keeps it loopback-only.
+    network_mode: host
+    read_only: true
+    user: "65534:65534"

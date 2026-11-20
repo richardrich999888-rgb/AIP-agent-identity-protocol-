@@ -1,0 +1,28 @@
+netns: loopback up, outside unreachable
+18:58:30 - LiteLLM:WARNING: utils.py:4183 - register_model: model=openai/mock-1 has custom pricing but not in built-in cost map and no prefix/region variant matched; cache_creation_input_token_cost and cache_read_input_token_cost will default to 0 for this model (input/output cost tracking is unaffected). To track cache cost, add them to model_info
+mock: "POST /v1/chat/completions HTTP/1.1" 200 -
+mock: "POST /v1/chat/completions HTTP/1.1" 200 -
+mock: "POST /v1/chat/completions HTTP/1.1" 200 -
+mock: "POST /v1/chat/completions HTTP/1.1" 500 -
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.turn_on_debug()'.
+
+mock: "POST /v1/chat/completions HTTP/1.1" 200 -
+ok   isolated: outside name does not resolve
+ok   LITELLM_LOCAL_MODEL_COST_MAP=True
+ok   one record per call
+ok   priced: tokens 3/5/8 from provider
+ok   priced: cost = 3*in + 5*out at test price
+ok   priced: basis estimated
+ok   priced: attribution complete
+ok   priced: model/provider
+ok   unpriced: cost None, not 0
+ok   unpriced: tokens still recorded
+ok   no-usage: tokens and cost None, not 0
+ok   provider-error: failure recorded, None not 0
+ok   missing-owner: recorded with attribution_missing
+ok   every record labelled TEST DATA
+ok   no Postgres configured
+ok   no enterprise module loaded
+checks: 16 passed, 0 failed

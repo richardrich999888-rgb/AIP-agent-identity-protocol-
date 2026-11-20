@@ -1,0 +1,218 @@
+{
+ "label": "live lab run on the cloud session container",
+ "sensors": "sched,sockstate,socksend,connector",
+ "tracefs_mounted_by_script": false,
+ "task_from_ms": 1795201117144,
+ "kill_at_ms": 1795201125191,
+ "task_to_ms": 1795201137231,
+ "final": {
+  "state": "DEGRADED",
+  "spans": [
+   [
+    1795201115830,
+    1795201124653
+   ]
+  ],
+  "gaps": [
+   {
+    "from_ms": 1795201124653,
+    "to_ms": 1795201137231,
+    "reason": "observer silent: no batch since"
+   }
+  ],
+  "losses": [],
+  "covered_to_ms": 1795201124653
+ },
+ "batches_ingested": 8,
+ "polls": [
+  {
+   "at_ms": 1795201117149,
+   "verified": true,
+   "reason": "verified",
+   "lines": 1,
+   "inserted": 1,
+   "state": "COVERED",
+   "covered_to_ms": 1795201116780
+  },
+  {
+   "at_ms": 1795201118186,
+   "verified": true,
+   "reason": "verified",
+   "lines": 2,
+   "inserted": 1,
+   "state": "COVERED",
+   "covered_to_ms": 1795201117894
+  },
+  {
+   "at_ms": 1795201119229,
+   "verified": true,
+   "reason": "verified",
+   "lines": 3,
+   "inserted": 1,
+   "state": "COVERED",
+   "covered_to_ms": 1795201118942
+  },
+  {
+   "at_ms": 1795201120285,
+   "verified": true,
+   "reason": "verified",
+   "lines": 4,
+   "inserted": 1,
+   "state": "COVERED",
+   "covered_to_ms": 1795201120000
+  },
+  {
+   "at_ms": 1795201121328,
+   "verified": true,
+   "reason": "verified",
+   "lines": 5,
+   "inserted": 1,
+   "state": "COVERED",
+   "covered_to_ms": 1795201121064
+  },
+  {
+   "at_ms": 1795201122374,
+   "verified": true,
+   "reason": "verified",
+   "lines": 5,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795201121064
+  },
+  {
+   "at_ms": 1795201123427,
+   "verified": true,
+   "reason": "verified",
+   "lines": 6,
+   "inserted": 1,
+   "state": "COVERED",
+   "covered_to_ms": 1795201122259
+  },
+  {
+   "at_ms": 1795201124471,
+   "verified": true,
+   "reason": "verified",
+   "lines": 7,
+   "inserted": 1,
+   "state": "COVERED",
+   "covered_to_ms": 1795201123591
+  },
+  {
+   "at_ms": 1795201125208,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 1,
+   "state": "COVERED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201126257,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201127301,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201128346,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201129391,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201130437,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201131480,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201132528,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201133571,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201134624,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201135672,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "DEGRADED",
+   "covered_to_ms": 1795201124653
+  },
+  {
+   "at_ms": 1795201136717,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "DEGRADED",
+   "covered_to_ms": 1795201124653
+  }
+ ],
+ "checks": {
+  "every poll verified (nothing unverified ingested)": true,
+  "batches were ingested before the kill": true,
+  "pre-kill part of the task is covered": true,
+  "whole task window is NOT covered": true,
+  "state at task end is DEGRADED": true,
+  "open gap starts no later than the kill": true,
+  "store chain intact": true
+ }
+}

@@ -1,0 +1,21 @@
+ok       root (sensors and network namespaces)
+ok       cargo
+ok       go (builds the pinned OPA)
+ok       python3 >= 3.11
+ok       unshare (offline test runs)
+ok       tracefs mounted
+ok       docker daemon
+absent   CAP_SYS_RESOURCE (Falco) (Falco cannot run; not on the demo path)
+absent   tools built (run setup.sh)
+required missing: 0
+building probe, collector and verifier (release, --locked)
+building OPA v1.22.4 through the Go module proxy
+go: github.com/open-policy-agent/opa@v1.22.4 requires go >= 1.26.0; switching to go1.26.11
+ok OPA module hash matches the pin
+
+ok litellm 1.110.2 core, no enterprise package
+setup complete: /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/9788f004-efc3-5687-ba2e-f67ae9d1044d/scratchpad/lab
+
+real	1m0.574s
+user	0m28.946s
+sys	0m2.737s
