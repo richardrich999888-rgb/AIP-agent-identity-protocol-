@@ -1,0 +1,4 @@
+docker run --ulimit memlock=-1:-1 ... -> runc: error setting rlimit type 8: operation not permitted
+prlimit --memlock=unlimited:unlimited -> Operation not permitted
+ulimit -l (soft/hard KiB): 8192/8192
+CapEff:	000001fffeffffff  (bit 24 CAP_SYS_RESOURCE clear)

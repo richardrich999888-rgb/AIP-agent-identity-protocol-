@@ -1,0 +1,39 @@
+2026-11-20T18:50:27+0000: Falco version: 0.45.2 (x86_64)
+2026-11-20T18:50:27+0000: Falco initialized with configuration files:
+2026-11-20T18:50:27+0000:    /etc/falco/config.d/falco.container_plugin.yaml | schema validation: ok
+2026-11-20T18:50:27+0000:    /etc/falco/config.d/falco.iso8601_timeformat.yaml | schema validation: ok
+2026-11-20T18:50:27+0000:    /etc/falco/falco.yaml | schema validation: ok
+2026-11-20T18:50:27+0000: System info: Linux version 6.18.44-fc-v726 (builder@sandboxing) (gcc (GCC) 15.3.0, GNU ld (GNU Binutils) 2.46) #1 SMP PREEMPT_DYNAMIC @0
+2026-11-20T18:50:27+0000: [libs]: Cannot read host init process proc root: 13
+2026-11-20T18:50:27+0000: Loaded plugin 'container@0.7.6' from file /usr/share/falco/plugins/libcontainer.so
+2026-11-20T18:50:27+0000: [libs]: Cannot read host init process proc root: 13
+2026-11-20T18:50:27+0000: [libs]: container: Enabled 'podman' container engine.
+2026-11-20T18:50:27+0000: [libs]: container: * enabled container runtime socket at '/host/run/podman/podman.sock'
+2026-11-20T18:50:27+0000: [libs]: container: Enabled 'docker' container engine.
+2026-11-20T18:50:27+0000: [libs]: container: * enabled container runtime socket at '/host/var/run/docker.sock'
+2026-11-20T18:50:27+0000: [libs]: container: Enabled 'cri' container engine.
+2026-11-20T18:50:27+0000: [libs]: container: * enabled container runtime socket at '/host/run/containerd/containerd.sock'
+2026-11-20T18:50:27+0000: [libs]: container: * enabled container runtime socket at '/host/run/crio/crio.sock'
+2026-11-20T18:50:27+0000: [libs]: container: * enabled container runtime socket at '/host/run/k3s/containerd/containerd.sock'
+2026-11-20T18:50:27+0000: [libs]: container: * enabled container runtime socket at '/host/run/host-containerd/containerd.sock'
+2026-11-20T18:50:27+0000: [libs]: container: Enabled 'containerd' container engine.
+2026-11-20T18:50:27+0000: [libs]: container: * enabled container runtime socket at '/host/run/host-containerd/containerd.sock'
+2026-11-20T18:50:27+0000: [libs]: container: Enabled 'lxc' container engine.
+2026-11-20T18:50:27+0000: [libs]: container: Enabled 'libvirt_lxc' container engine.
+2026-11-20T18:50:27+0000: [libs]: container: Enabled 'bpm' container engine.
+2026-11-20T18:50:27+0000: Loading rules from:
+2026-11-20T18:50:27+0000:    /etc/falco/falco_rules.yaml | schema validation: ok
+2026-11-20T18:50:27+0000:    /etc/falco/falco_rules.local.yaml | schema validation: none
+2026-11-20T18:50:27+0000: The chosen syscall buffer dimension is: 8388608 bytes (8 MBs)
+2026-11-20T18:50:27+0000: Starting health webserver with threadiness 4, listening on 0.0.0.0:8765
+2026-11-20T18:50:27+0000: Loaded event sources: syscall
+2026-11-20T18:50:27+0000: Enabled event sources: syscall
+2026-11-20T18:50:27+0000: Opening 'syscall' source with modern BPF probe.
+2026-11-20T18:50:27+0000: One ring buffer every '2' CPUs.
+2026-11-20T18:50:27+0000: [libs]: Trying to open the right engine!
+2026-11-20T18:50:27+0000: [libs]: libpman: unable to bump RLIMIT_MEMLOCK to RLIM_INFINITY (errno: 1 | message: Operation not permitted)
+2026-11-20T18:50:27+0000: An error occurred in an event source, forcing termination...
+Error: unable to configure the libpman state.
+Events detected: 0
+Rule counts by severity:
+Triggered rules by rule name:

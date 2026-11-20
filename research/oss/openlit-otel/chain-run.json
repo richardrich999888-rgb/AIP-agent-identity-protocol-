@@ -1,0 +1,72 @@
+{
+ "label": "TEST DATA",
+ "checks": {
+  "spans reached the sink through the collector": true,
+  "gen_ai.usage.input_tokens == mock prompt tokens": true,
+  "gen_ai.usage.output_tokens == mock completion tokens": true
+ },
+ "openlit_init_s": 0.886,
+ "response_usage": {
+  "completion_tokens": 5,
+  "prompt_tokens": 3,
+  "total_tokens": 8,
+  "completion_tokens_details": null,
+  "prompt_tokens_details": null
+ },
+ "spans_received": 2,
+ "genai_span_attrs": [
+  {
+   "telemetry.sdk.name": "openlit",
+   "gen_ai.operation.name": "chat",
+   "gen_ai.provider.name": "openai",
+   "server.address": "127.0.0.1",
+   "server.port": "41097",
+   "gen_ai.request.model": "mock-1",
+   "gen_ai.response.model": "mock-1",
+   "deployment.environment": "TEST",
+   "service.name": "vanian-lab",
+   "gen_ai.request.stream": false,
+   "gen_ai.server.time_per_output_token": "0",
+   "gen_ai.server.time_to_first_token": 0.010631799697875977,
+   "gen_ai.sdk.version": "2.54.0",
+   "openai.api.type": "chat_completions",
+   "gen_ai.request.seed": "0",
+   "gen_ai.request.frequency_penalty": 0,
+   "gen_ai.request.presence_penalty": 0,
+   "gen_ai.request.temperature": 1,
+   "gen_ai.request.top_p": 1,
+   "gen_ai.request.user": "",
+   "gen_ai.response.id": "mock-2981e10e3de9",
+   "gen_ai.response.finish_reasons": {
+    "values": [
+     {
+      "stringValue": "stop"
+     }
+    ]
+   },
+   "gen_ai.output.type": "text",
+   "gen_ai.usage.input_tokens": "3",
+   "gen_ai.usage.output_tokens": "5",
+   "gen_ai.client.token.usage": "8",
+   "gen_ai.usage.cost": "0",
+   "gen_ai.usage.cache_read.input_tokens": "0",
+   "gen_ai.usage.cache_creation.input_tokens": "0",
+   "openlit.agent.version_hash": "42aa1900a391f17d",
+   "gen_ai.input.messages": "[{\"role\": \"user\", \"parts\": [{\"type\": \"text\", \"content\": \"hello there agent\"}]}]",
+   "gen_ai.output.messages": "[{\"role\": \"assistant\", \"parts\": [{\"type\": \"text\", \"content\": \"TEST DATA: mock reply 2981e10e3de9\"}], \"finish_reason\": \"stop\"}]"
+  }
+ ],
+ "cost_attributes_reported": {
+  "gen_ai.usage.cost": "0"
+ },
+ "collector_log_tail": [
+  "2026-11-20T18:49:46.293Z\tinfo\tservice@v0.165.0/service.go:233\tStarting otelcorecol...\t{\"resource\": {\"service.instance.id\": \"d6769693-448d-43fd-81a0-9a94a8c98955\", \"service.name\": \"otelcorecol\", \"service.version\": \"0.165.0-dev\"}, \"Version\": \"0.165.0-dev\", \"NumCPU\": 4}",
+  "2026-11-20T18:49:46.294Z\tinfo\textensions/extensions.go:43\tStarting extensions...\t{\"resource\": {\"service.instance.id\": \"d6769693-448d-43fd-81a0-9a94a8c98955\", \"service.name\": \"otelcorecol\", \"service.version\": \"0.165.0-dev\"}}",
+  "2026-11-20T18:49:46.294Z\tinfo\totlpreceiver@v0.165.0/otlp.go:197\tStarting HTTP server\t{\"resource\": {\"service.instance.id\": \"d6769693-448d-43fd-81a0-9a94a8c98955\", \"service.name\": \"otelcorecol\", \"service.version\": \"0.165.0-dev\"}, \"otelcol.component.id\": \"otlp\", \"otelcol.component.kind\": \"receiver\", \"endpoint\": \"127.0.0.1:52093\"}",
+  "2026-11-20T18:49:46.294Z\tinfo\tservice@v0.165.0/service.go:256\tEverything is ready. Begin running and processing data.\t{\"resource\": {\"service.instance.id\": \"d6769693-448d-43fd-81a0-9a94a8c98955\", \"service.name\": \"otelcorecol\", \"service.version\": \"0.165.0-dev\"}}",
+  "2026-11-20T18:49:48.396Z\tinfo\totelcol@v0.165.0/collector.go:476\tReceived signal from OS\t{\"resource\": {\"service.instance.id\": \"d6769693-448d-43fd-81a0-9a94a8c98955\", \"service.name\": \"otelcorecol\", \"service.version\": \"0.165.0-dev\"}, \"signal\": \"terminated\"}",
+  "2026-11-20T18:49:48.396Z\tinfo\tservice@v0.165.0/service.go:294\tStarting shutdown...\t{\"resource\": {\"service.instance.id\": \"d6769693-448d-43fd-81a0-9a94a8c98955\", \"service.name\": \"otelcorecol\", \"service.version\": \"0.165.0-dev\"}}",
+  "2026-11-20T18:49:48.396Z\tinfo\textensions/extensions.go:72\tStopping extensions...\t{\"resource\": {\"service.instance.id\": \"d6769693-448d-43fd-81a0-9a94a8c98955\", \"service.name\": \"otelcorecol\", \"service.version\": \"0.165.0-dev\"}}",
+  "2026-11-20T18:49:48.396Z\tinfo\tservice@v0.165.0/service.go:308\tShutdown complete.\t{\"resource\": {\"service.instance.id\": \"d6769693-448d-43fd-81a0-9a94a8c98955\", \"service.name\": \"otelcorecol\", \"service.version\": \"0.165.0-dev\"}}"
+ ]
+}
