@@ -104,7 +104,10 @@ The brief's claims about each project are hypotheses. Verify the license file in
   - **Done** `fc8a686e`. Pinned `v1.22.4` / `ba39415db4b3`, built via proxy.golang.org (module hash = sum.golang.org entry; the release binary is unreachable). `opa test -v policy/*.rego` 10 passed / 0 failed / 0 skipped. Four mutations all caught. `research/oss/opa/smoke.sh` (live server) 5/5 decisions, exit 0. OPA's own `go test ./v1/ast/... ./v1/rego/...`: 6 packages ok / 0 fail, exit 0.
   - **Finding:** the default OPA server accepts unauthenticated PUTs. Clearing `inventory/revoked` returned 204, and the revoked agent was then allowed. Any OPA-backed control stays ADVISORY until a gateway enforces OPA's decision and a test shows the management API refusing writes.
   - Limits: a local build, not the release binary (the file hash differs from upstream). Only the ast and rego subset of OPA's own suite was run. OPA ran as root.
-- [ ] **1.3** Install **LiteLLM** (pinned version) in a venv. Test it against the mock model (4.1). Establish whether usage and cost capture work **without Postgres**, through the SDK callback or the proxy custom logger. Record the results.
+- [x] **1.3** Install **LiteLLM** (pinned version) in a venv. Test it against the mock model (4.1). Establish whether usage and cost capture work **without Postgres**, through the SDK callback or the proxy custom logger. Record the results.
+  - **Done** `af2df27c`. Answer: yes, via the SDK CustomLogger path, with no Postgres. Core `litellm==1.110.2` (no `[proxy]` extra); mock model and prices are TEST DATA. `unshare -n … acceptance.py --isolated`: 16 passed / 0 failed checks, exit 0. `python3 -m unittest test_capture test_mock_openai`: 23 passed / 0 failed / 0 skipped. Three mutations all caught.
+  - Findings: LiteLLM logs cost and tokens of 0 for an unpriced model, a missing provider usage and a failed call; `capture.py` maps these to None with a reason. Callback exceptions are swallowed. The `[proxy]` extra installs `litellm-enterprise` (LicenseRef-Proprietary), which `import litellm` then loads.
+  - Limits: the proxy path was not tested (license). Sync `completion()` only. Metadata is caller-asserted, not verified. Records go to JSONL, not the event store (2.1 is blocked by 0.1). The mock was written here; 4.1 reuses it. Evidence: `research/oss/litellm/`.
 - [ ] **1.4** (P2) Evaluate Falco, the OTel Collector and OpenLIT only if Phase 1 finishes by the Sat 06:00 checkpoint. Otherwise mark them `NOT_EVALUATED`.
 
 ## Phase 2 — P0 capabilities
@@ -239,6 +242,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Fri 20 Nov 19:44 | 0.4 lab feasibility | Done | Docker + Compose work in the cloud container; 0.1 still waits on P0-059 commits |
 | Fri 20 Nov 20:05 | 1.1 integration matrix | Done | OpenLoop ambiguous; LiteLLM enterprise/ and Langfuse ee/ excluded by license |
 | Fri 20 Nov 20:09 | 1.2 OPA | Done | default REST API writable without auth: must be locked down or embedded |
+| Fri 20 Nov 20:20 | 1.3 LiteLLM | Done | proxy extra pulls proprietary litellm-enterprise; use core SDK only |
 
 ## Iteration log
 
@@ -247,6 +251,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 1 | 0.4 | Done: Compose runs; sensors 3/7 as found, 7/7 with tracefs | `24379741` | live_sensors 6/0/0; sensor_matrix 7/7 open |
 | 2 | 1.1 | Done: 17 candidates pinned, ranked; OPA + LiteLLM core adopted | `58a69d2b` | test_survey 15/0/0; survey 17/17 ok |
 | 3 | 1.2 | Done: OPA pinned + verified; finding: unauthenticated REST writes un-revoke an agent | `fc8a686e` | opa test 10/0/0; smoke 5/5; upstream 6 pkgs ok/0 fail |
+| 4 | 1.3 | Done: SDK capture works without Postgres; 3 zero-for-unmeasured cases fixed in capture | `af2df27c` | acceptance 16/0; unit 23/0/0 |
 
 ---
 
