@@ -1,0 +1,49 @@
+diff --git a/aip-standalone/aip-core/src/delegation.rs b/aip-standalone/aip-core/src/delegation.rs
+index 71b3d3da..7be695ad 100644
+--- a/aip-standalone/aip-core/src/delegation.rs
++++ b/aip-standalone/aip-core/src/delegation.rs
+@@ -36,7 +36,12 @@ use serde::{Deserialize, Serialize};
+ /// Domain tag that leads every DelegationToken signing payload.
+ pub const DELEGATION_TOKEN_DOMAIN: &str = "AIP/DelegationToken/v1";
+ 
+-use crate::capability::{is_scope_subset, random_jti, scope_intersection};
++use crate::capability::{is_scope_subset, random_jti, scope_intersection, scope_permits};
++
++/// EXPERIMENT (ADR-002 impact): only a holder whose scope permits Delegate may delegate.
++fn may_delegate(scope: &CapabilityScope) -> bool {
++    scope_permits(scope, &ScopeAction::Standard(Action::Delegate))
++}
+ 
+ /// Maximum allowed delegation chain depth (§6-v2).
+ pub const MAX_DELEGATION_DEPTH: u8 = 8;
+@@ -59,7 +64,7 @@ pub fn create_delegation(
+     requested_scope: CapabilityScope,
+ ) -> Result<DelegationToken, AipError> {
+     // Check depth limit
+-    if parent_token.scope.allowed.is_empty() {
++    if parent_token.scope.allowed.is_empty() || !may_delegate(&parent_token.scope) {
+         return Err(AipError::CapabilityInsufficient);
+     }
+ 
+@@ -121,6 +126,9 @@ pub fn create_sub_delegation(
+         return Err(AipError::LineageInvalid);
+     }
+ 
++    if !may_delegate(&parent_delegation.scope) {
++        return Err(AipError::CapabilityInsufficient);
++    }
+     // Reject if child requests any action not held by parent (NM-A1)
+     if !is_scope_subset(&requested_scope, &parent_delegation.scope) {
+         return Err(AipError::AttenuationViolation);
+@@ -243,6 +251,11 @@ pub fn verify_delegation_chain(
+             return Err(AipError::LineageInvalid);
+         }
+ 
++        // 2b. EXPERIMENT (ADR-002): the delegator's scope must permit Delegate.
++        if !may_delegate(&prev_scope) {
++            return Err(AipError::CapabilityInsufficient);
++        }
++
+         // 3. Scope subset: hop.scope ⊆ prev_scope
+         if !is_scope_subset(&hop.scope, &prev_scope) {
+             return Err(AipError::AttenuationViolation);

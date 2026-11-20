@@ -1,0 +1,134 @@
+[
+ {
+  "crate": "aip-core",
+  "baseline": [
+   161,
+   0,
+   0
+  ],
+  "patched": [
+   157,
+   4,
+   0
+  ],
+  "failure_sites": {
+   "aip-standalone/aip-core/src/delegation.rs": 3,
+   "aip-standalone/aip-core/src/revocation.rs": 1
+  }
+ },
+ {
+  "crate": "aip-agent",
+  "baseline": [
+   39,
+   0,
+   0
+  ],
+  "patched": [
+   38,
+   1,
+   0
+  ],
+  "failure_sites": {
+   "aip-standalone/aip-agent/tests/graph.rs": 1
+  }
+ },
+ {
+  "crate": "aip-aibom",
+  "baseline": [
+   161,
+   0,
+   0
+  ],
+  "patched": [
+   157,
+   4,
+   0
+  ],
+  "failure_sites": {
+   "aip-standalone/aip-aibom/tests/common/mod.rs": 4
+  }
+ },
+ {
+  "crate": "aip-authorize",
+  "baseline": [
+   108,
+   0,
+   0
+  ],
+  "patched": [
+   86,
+   22,
+   0
+  ],
+  "failure_sites": {
+   "aip-standalone/aip-authorize/tests/authority_reference.rs": 12,
+   "aip-standalone/aip-authorize/tests/delegation_identity_findings.rs": 2,
+   "aip-standalone/aip-authorize/tests/resources.rs": 8
+  }
+ },
+ {
+  "crate": "aip-conformance",
+  "baseline": [
+   80,
+   0,
+   0
+  ],
+  "patched": [
+   80,
+   0,
+   0
+  ],
+  "failure_sites": {}
+ },
+ {
+  "crate": "aip-nexora",
+  "baseline": [
+   196,
+   0,
+   0
+  ],
+  "patched": [
+   47,
+   149,
+   0
+  ],
+  "failure_sites": {
+   "aip-standalone/aip-nexora/tests/common/mod.rs": 149
+  }
+ },
+ {
+  "crate": "aip-protocol",
+  "baseline": [
+   95,
+   0,
+   1
+  ],
+  "patched": [
+   95,
+   0,
+   1
+  ],
+  "failure_sites": {}
+ },
+ {
+  "crate": "aip-reconcile",
+  "baseline": [
+   224,
+   0,
+   0
+  ],
+  "patched": [
+   125,
+   99,
+   0
+  ],
+  "failure_sites": {
+   "aip-standalone/aip-reconcile/tests/action_evidence.rs": 18,
+   "aip-standalone/aip-reconcile/tests/exec_evidence.rs": 16,
+   "aip-standalone/aip-reconcile/tests/file_evidence.rs": 15,
+   "aip-standalone/aip-reconcile/tests/send_evidence.rs": 13,
+   "aip-standalone/aip-reconcile/tests/transition_evidence.rs": 22,
+   "aip-standalone/aip-reconcile/tests/wire_corroboration.rs": 15
+  }
+ }
+]
