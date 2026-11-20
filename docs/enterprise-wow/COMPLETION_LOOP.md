@@ -134,10 +134,12 @@ The brief's claims about each project are hypotheses. Verify the license file in
   - [x] **2.1a** The store: `command-center/server/eventstore.py`. **Done** `815f5d3a`. `python3 -m unittest -v test_eventstore`: 22 passed / 0 failed / 0 skipped. Covers adversarial #13 (restart, including a second OS process) and #14 (duplicate is a no-op). Five mutations all caught. Limit: deleting the newest rows is detectable only against a held `head()` (pinned by a test).
   - [ ] **2.1b** Ingest each P0-059 run's records. Inventory, last-observed time and risk become store queries. BFF restart test (#13 at the BFF level). **Blocked on 0.1** (the P0-059 commits are not on the remote).
 - [ ] **2.2 Inventory fields.** Add framework (`scripted-test-agent` / `langgraph` if 4.x adds one), host, runtime, credential metadata (key fingerprint and token expiry, never secrets), parent, owner, responsible human, and risk/governance status derived from findings.
-- [ ] **2.3 Shadow and ghost.**
+- [ ] **2.3 Shadow and ghost.** Split on 21 Nov: 2.3a (heuristic class, live) and 2.3b (P0-059 classes).
   - Add a `HEURISTIC_AI_WORKLOAD` class: a process that connects to the LLM proxy or model port with no identity. Keep it separate from CONFIRMED.
   - Add a false-positive control: a normal process (e.g. `python3 -m http.server`, `sort`) must stay `UNCLASSIFIED` (adversarial #2).
   - Every ghost row carries `attribution_missing_reason` (one of: no registry row / signature invalid / no gateway session / no binding).
+  - [x] **2.3a** `command-center/server/shadow_ai.py`: HEURISTIC_AI_WORKLOAD from kernel events, kept separate from CONFIRMED. False-positive control. `attribution_missing_reason` on heuristic rows. **Done** `ee497446`. `python3 command-center/lab/live_shadow_ai.py OUT`: 3/3 runs, 7 passed / 0 failed checks each (#1, #2). `test_shadow_ai` 10/0/0; four mutations all caught. Old 3.4b archives: 0 HEURISTIC out of 154–160 processes. Limits: A's reason was "no binding" in every run (no start time bound, so pid reuse is not excluded); the model endpoint is operator-declared; the registry is empty.
+  - [ ] **2.3b** Merge with P0-059's CONFIRMED class and registry. Ghost rows with "signature invalid" and "no gateway session". **Blocked on 0.1.**
 - [ ] **2.4 Orphan, live.** The orphaned grandchild must keep running after revocation and attempt a call: it is observed by Sniffer Dog and refused by the gateway. Add an owner-removal case (principal removed from the registry → UNKNOWN_OWNER). Test both.
 - [ ] **2.5 Real parent-child processes.**
   - `vcc-agent --spawn` lets the orchestrator process launch its children, so the inferred fork edge and the signed edge coincide.
@@ -278,6 +280,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 00:30 | 6.1a lab scripts | Done | verify exit 1: 0/12 VERIFIED until P0-059 and the gateway land |
 | Sat 21 Nov 00:31 | 6.3a adversarial results | Done | 7 tests wait on P0-059 and the gateway |
 | Sat 21 Nov 00:32 | 6.4a acceptance matrix | Done | everything left is blocked on 0.1 or the gateway |
+| Sat 21 Nov 00:36 | 2.3a shadow AI | Done | adversarial #1 and #2 now RUN; 2.3b blocked on 0.1 |
 
 ## Iteration log
 
@@ -299,6 +302,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 14 | 6.1a | Done: lab scripts; verify reports 0/12 VERIFIED honestly | `efc1d5b1` | test.sh 5/5; run 7/7; test_verify 6/6 |
 | 15 | 6.3a | Done: 3 RUN, 5 PARTIAL, 7 NOT RUN (blocked) | `471ff1f1` | doc; cites prior counts |
 | 16 | 6.4a | Done: acceptance matrix (0/12 VERIFIED) | `96e59b4d` | generated from verify-summary.json |
+| 17 | 2.3a | Done: heuristic shadow AI live, 0 false positives | `ee497446` | live 7/7 x3; unit 10/0/0 |
 
 ---
 
