@@ -1,0 +1,77 @@
+{
+ "capabilities": [
+  {
+   "capability": "1 Agent inventory",
+   "status": "NOT_AVAILABLE",
+   "reason": "P0-059 commits are not on this branch (item 0.1)"
+  },
+  {
+   "capability": "2 Shadow AI",
+   "status": "PARTIAL",
+   "reason": "HEURISTIC class passes live with 0 false positives; CONFIRMED class and registry are P0-059 (2.3b)"
+  },
+  {
+   "capability": "3 Ghost AI",
+   "status": "NOT_AVAILABLE",
+   "reason": "P0-059 commits are not on this branch (item 0.1)"
+  },
+  {
+   "capability": "4 Orphan AI",
+   "status": "NOT_AVAILABLE",
+   "reason": "P0-059 commits are not on this branch (item 0.1)"
+  },
+  {
+   "capability": "5 Parent-child",
+   "status": "NOT_AVAILABLE",
+   "reason": "P0-059 commits are not on this branch (item 0.1)"
+  },
+  {
+   "capability": "6 Governance enforcement",
+   "status": "PARTIAL",
+   "reason": "the OPA decision is tested but not wired into the gate: ADVISORY (3.1b)"
+  },
+  {
+   "capability": "7 Human approval",
+   "status": "NOT_IMPLEMENTED",
+   "reason": "3.2 needs the gateway"
+  },
+  {
+   "capability": "8 Activity and observer coverage",
+   "status": "PARTIAL",
+   "reason": "coverage, gaps and the kill run pass live; per-event rows and console are 3.4c"
+  },
+  {
+   "capability": "9 Human vs agent attribution",
+   "status": "NOT_IMPLEMENTED",
+   "reason": "4.3 needs the gateway"
+  },
+  {
+   "capability": "10 FinOps",
+   "status": "PARTIAL",
+   "reason": "capture and persistence pass against the TEST DATA mock; console 4.2 and agents 4.1b missing"
+  },
+  {
+   "capability": "11 AIP identity",
+   "status": "PARTIAL",
+   "reason": "crates tested; console is P0-059; findings pinned: DecisionPoint ignores revocation and an unpersisted revocation is lost on restart (ADR-001), Delegate scope not enforced and no proof of possession (ADR-002)"
+  },
+  {
+   "capability": "12 Evidence verification",
+   "status": "PARTIAL",
+   "reason": "observer archives verified offline; bundle v2 and vcc-verify are P0-059"
+  }
+ ],
+ "checks": {
+  "policy": true,
+  "server-suite": true,
+  "litellm-acceptance": true,
+  "revocation-gap": true,
+  "delegation-findings": true,
+  "revocation-persistence": true,
+  "live-sensors": true,
+  "live-kill": true,
+  "live-shadow": true
+ },
+ "verified": 0,
+ "failed": 0
+}
