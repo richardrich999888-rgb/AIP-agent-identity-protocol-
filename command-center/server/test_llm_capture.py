@@ -1,9 +1,9 @@
-"""Unit tests for capture.to_record (pure; no LiteLLM)."""
+"""Unit tests for llm_capture.to_record (pure; no LiteLLM)."""
 
 import json
 import unittest
 
-import capture as c
+import llm_capture as c
 
 RAW_WITH_USAGE = json.dumps({"id": "x", "usage": {"prompt_tokens": 3, "completion_tokens": 5, "total_tokens": 8}})
 RAW_NO_USAGE = json.dumps({"id": "x"})

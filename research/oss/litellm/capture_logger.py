@@ -9,12 +9,16 @@ caller must compare that count with the number of calls it made.
 
 from __future__ import annotations
 
+import sys
 import threading
 from pathlib import Path
 
+# The capture rules live in command-center/server/llm_capture.py (moved in 4.1a).
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "command-center" / "server"))
+
 from litellm.integrations.custom_logger import CustomLogger
 
-from capture import to_record
+from llm_capture import to_record  # noqa: E402
 
 
 class UsageCapture(CustomLogger):

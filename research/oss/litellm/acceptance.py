@@ -60,6 +60,7 @@ def main(argv: list[str]) -> int:
     check("LITELLM_LOCAL_MODEL_COST_MAP=True", os.environ.get("LITELLM_LOCAL_MODEL_COST_MAP") == "True")
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "command-center" / "server"))
     import mock_openai
 
     srv = mock_openai.serve(0)
@@ -67,7 +68,7 @@ def main(argv: list[str]) -> int:
     base = f"http://127.0.0.1:{srv.server_address[1]}/v1"
 
     import litellm
-    from capture import COST_ESTIMATED, COST_FAILED, COST_NO_USAGE, COST_PRICE_UNKNOWN
+    from llm_capture import COST_ESTIMATED, COST_FAILED, COST_NO_USAGE, COST_PRICE_UNKNOWN
     from capture_logger import UsageCapture
     import json
 
