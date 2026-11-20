@@ -157,10 +157,12 @@ The brief's claims about each project are hypotheses. Verify the license file in
   - An operator approves in the console. The approval is signed with the operator's principal key; the agent retries with the approval id, and the call is ALLOWED and forwarded.
   - Test: no approval means no forwarding.
 - [ ] **3.3 Policy console.** Show the current Rego, its version, a test "evaluate this request" form that calls OPA for real, and the violations and audit log. Label each result **PREVENTION** (gateway) or **ADVISORY** (detection only).
-- [ ] **3.4 Activity pipeline.**
+- [ ] **3.4 Activity pipeline.** Split on 21 Nov: 3.4a (verified ingestion and coverage) and 3.4b (live run and console).
   - Continuous ingestion of Sniffer Dog batches into the event store while a run is active.
   - The Activity Explorer shows process, file, socket and tool events with evidence strength.
   - Degraded-observer state: collector down → banner and coverage gap (adversarial #10, #15: kill the collector mid-window and confirm the gap is reported and that nothing is shown as clean).
+  - [x] **3.4a** `command-center/server/observer_ingest.py`. **Done** `ea405018`. It ingests only batches that the real `aip-observe-verify` accepts. Coverage, gaps, restarts, losses and DEGRADED come from signed windows. `VANIAN_OBSERVE_VERIFY_BIN=target/release/aip-observe-verify python3 -m unittest test_observer_ingest`: 22 passed / 0 failed / 0 skipped (15 passed / 7 skipped without the binary). Six mutations all caught. On the repo's qualified `same-run-interruption` archive (probe killed), the agent task window is reported DEGRADED, not clean. The healthy `same-run` task window is COVERED.
+  - [ ] **3.4b** A live run: probe and collector on this host, continuous polling while an agent runs, the collector killed mid-window, and the gap reported (#15). Per-event rows (process, file, socket) for the Activity Explorer. The console banner. Banner and Explorer are **blocked on 0.1** (P0-059 console); the live kill run is not.
 
 ## Phase 4 — P1 capabilities
 
@@ -255,6 +257,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Fri 20 Nov 20:25 | 2.1a event store | Done | 2.1b (ingestion) blocked on 0.1 |
 | Fri 20 Nov 20:28 | 3.1a OPA adapter | Done | 3.1b (gate wiring, parity) blocked on 0.1 |
 | Fri 20 Nov 20:32 | 4.1a FinOps capture | Done | 4.1b blocked on 0.1 |
+| Sat 21 Nov 00:12 | 3.4a observer ingestion | Done | 3.4b live kill run next; console part blocked on 0.1 |
 
 ## Iteration log
 
@@ -268,6 +271,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 6 | 2.1a | Done: append-only store with dedup, restart, tamper detection | `815f5d3a` | test_eventstore 22/0/0 |
 | 7 | 3.1a | Done: OPA adapter, fail-closed, bundle hash per decision | `141a11e9` | rego 17/17; adapter 23/0/0 live (16/0/7 without OPA) |
 | 8 | 4.1a | Done: LiteLLM usage persisted; found + fixed store thread bug (`07652616`) | `fb6da331` | command-center suite 70/0/0 offline |
+| 9 | 3.4a | Done: verified archive ingestion; interrupted run shows DEGRADED, healthy COVERED | `ea405018` | test_observer_ingest 22/0/0 |
 
 ---
 
