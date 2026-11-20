@@ -1,0 +1,10 @@
+# 0.4 feasibility probe: service-to-service DNS on the compose network + a host-published port.
+services:
+  web:
+    image: busybox:1.36.1
+    command: ["sh", "-c", "mkdir -p /www && echo vanian-0.4-ok > /www/index.html && httpd -f -p 8080 -h /www"]
+    ports: ["127.0.0.1:18080:8080"]
+  probe:
+    image: busybox:1.36.1
+    depends_on: [web]
+    command: ["sh", "-c", "for i in 1 2 3 4 5 6 7 8 9 10; do wget -qO- http://web:8080/ && exit 0; sleep 1; done; exit 1"]

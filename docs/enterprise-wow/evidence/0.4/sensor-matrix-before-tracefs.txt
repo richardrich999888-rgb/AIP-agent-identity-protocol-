@@ -1,0 +1,10 @@
+# 2026-11-20T14:12:40Z uid=0 kernel=6.18.44-fc-v726 tracefs: 0 mounts
+{"detail":"open sched tracer: Unavailable(\"tracefs is not mounted (/sys/kernel/tracing); mount -t tracefs nodev /sys/kernel/tracing\")","open":false,"sensor":"sched"}
+{"detail":"open cgroup tracer: Unavailable(\"tracefs is not mounted (/sys/kernel/tracing); mount -t tracefs nodev /sys/kernel/tracing\")","open":false,"sensor":"cgroup"}
+{"detail":"open sockstate tracer: Unavailable(\"tracefs is not mounted (/sys/kernel/tracing); mount -t tracefs nodev /sys/kernel/tracing\")","open":false,"sensor":"sockstate"}
+{"detail":"open socksend tracer: Unavailable(\"tracefs is not mounted (/sys/kernel/tracing); mount -t tracefs nodev /sys/kernel/tracing\")","open":false,"sensor":"socksend"}
+{"detail":"","open":true,"sensor":"connector"}
+{"detail":"","open":true,"sensor":"fanotify"}
+{"detail":"","open":true,"sensor":"afpacket"}
+3/7 sensors opened
+exit=0
