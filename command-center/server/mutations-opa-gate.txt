@@ -1,0 +1,7 @@
+# mutations of opa_gate.py; G3 survived the first test version and the snapshot test was strengthened (see commit)
+G1 forward on PENDING too :: FAILED (failures=1)
+G2 drop consistency check :: FAILED (failures=3)
+G3 eval source dir, not snapshot :: FAILED (failures=1)
+G4 nonzero exit ignored :: FAILED (failures=1)
+G5 hash includes test files :: FAILED (failures=3)
+G6 snapshot not removed :: FAILED (failures=1)
