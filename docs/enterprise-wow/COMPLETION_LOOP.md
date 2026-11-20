@@ -144,12 +144,14 @@ The brief's claims about each project are hypotheses. Verify the license file in
 
 ## Phase 3 — governance (P0) and monitoring
 
-- [ ] **3.1 OPA at the enforcement point.**
+- [ ] **3.1 OPA at the enforcement point.** Split on 20 Nov: 3.1a (decision component) and 3.1b (wiring and parity).
   - Gate step 7 calls OPA: pinned binary, `opa eval` or a localhost server, with a Rego bundle in `command-center/policy/`.
   - Every decision records the bundle hash.
   - Rules: allowed and denied tools, delegation restrictions, sensitive actions, revoked authority (input from signed revocations).
   - If OPA is unreachable, the gate **denies** (fail closed).
   - Tests: parity with the old allowlist on all P0-059 cases, plus OPA-down → DENY.
+  - [x] **3.1a** OPA decision adapter `command-center/server/opa_gate.py` and bundle `command-center/policy/`. **Done** `141a11e9`. Bundle hash and input hash recorded per decision. Every engine failure is DENY. PENDING_APPROVAL is not forwarded. `opa test command-center/policy`: 17/17. `VANIAN_OPA_BIN=… python3 -m unittest test_opa_gate`: 23 passed / 0 failed / 0 skipped (16 passed / 7 skipped without the binary). Six mutations all caught. Uses `opa eval` per call, not a server (the 1.2 finding).
+  - [ ] **3.1b** Gate step 7 calls `OpaGate.decide`. `revoked_jtis` comes from signature-verified revocations. Parity tests against all P0-059 allowlist cases, plus an OPA-down test at the gate (call not forwarded). **Blocked on 0.1.** Until then 3.1a is a decision component, not PREVENTION.
 - [ ] **3.2 Human approval with real enforcement.**
   - A sensitive call (`payments.settle_batch` above a threshold) returns `PENDING_APPROVAL`, and the gateway holds it.
   - An operator approves in the console. The approval is signed with the operator's principal key; the agent retries with the approval id, and the call is ALLOWED and forwarded.
@@ -249,6 +251,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Fri 20 Nov 20:20 | 1.3 LiteLLM | Done | proxy extra pulls proprietary litellm-enterprise; use core SDK only |
 | Fri 20 Nov 20:23 | 2.6 revocation ADR | Done | gateway half unverifiable until P0-059 lands |
 | Fri 20 Nov 20:25 | 2.1a event store | Done | 2.1b (ingestion) blocked on 0.1 |
+| Fri 20 Nov 20:28 | 3.1a OPA adapter | Done | 3.1b (gate wiring, parity) blocked on 0.1 |
 
 ## Iteration log
 
@@ -260,6 +263,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 4 | 1.3 | Done: SDK capture works without Postgres; 3 zero-for-unmeasured cases fixed in capture | `af2df27c` | acceptance 16/0; unit 23/0/0 |
 | 5 | 2.6 | Done (ADR): gap measured by 3 tests; DecisionPoint untouched | `b5143a7f` | revocation_gap 3/0/0; aip-authorize 103/0/0 |
 | 6 | 2.1a | Done: append-only store with dedup, restart, tamper detection | `815f5d3a` | test_eventstore 22/0/0 |
+| 7 | 3.1a | Done: OPA adapter, fail-closed, bundle hash per decision | `141a11e9` | rego 17/17; adapter 23/0/0 live (16/0/7 without OPA) |
 
 ---
 
