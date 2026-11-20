@@ -53,37 +53,60 @@ const AGENT: &str = env!("CARGO_BIN_EXE_ghost-demo-agent");
 /// built here rather than assumed. Cargo has released the target lock by
 /// the time tests run, so the nested build is safe.
 fn verifier_path() -> std::path::PathBuf {
-    let exe = std::env::current_exe().expect("the test binary has a path");
-    let profile_dir = exe
-        .parent()
-        .and_then(|deps| deps.parent())
-        .expect("target/<profile>/deps/<test>");
-    let profile = profile_dir.file_name().unwrap().to_str().unwrap();
-    static BUILD: std::sync::Once = std::sync::Once::new();
-    BUILD.call_once(|| {
-        let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".into());
-        let out = std::process::Command::new(cargo)
-            .args([
-                "build",
-                "--locked",
-                "-p",
-                "aip-nexora",
-                "--bin",
-                "nexora-verify",
-                "--profile",
-                if profile == "debug" { "dev" } else { profile },
-            ])
-            .output()
-            .expect("cargo must be runnable to build the offline verifier");
-        assert!(
-            out.status.success(),
-            "could not build nexora-verify:\n{}",
-            String::from_utf8_lossy(&out.stderr)
-        );
-    });
-    let p = profile_dir.join("nexora-verify");
-    assert!(p.is_file(), "no offline verifier at {}", p.display());
-    p
+    static BUILD: std::sync::OnceLock<std::path::PathBuf> = std::sync::OnceLock::new();
+    BUILD
+        .get_or_init(|| {
+            let cargo = std::env::var_os("CARGO").unwrap_or_else(|| "cargo".into());
+            let mut command = std::process::Command::new(cargo);
+            command
+                .args([
+                    "build",
+                    "--locked",
+                    "--offline",
+                    "--message-format=json",
+                    "-p",
+                    "aip-nexora",
+                    "--bin",
+                    "nexora-verify",
+                    "--manifest-path",
+                ])
+                .arg(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml"));
+            if !cfg!(debug_assertions) {
+                command.arg("--release");
+            }
+            let out = command
+                .output()
+                .expect("cargo must build the offline verifier");
+            assert!(
+                out.status.success(),
+                "could not build nexora-verify: {}",
+                String::from_utf8_lossy(&out.stderr)
+            );
+            let mut found = None;
+            for line in out.stdout.split(|b| *b == b'\n').filter(|l| !l.is_empty()) {
+                let v: serde_json::Value =
+                    serde_json::from_slice(line).expect("Cargo JSON message");
+                if v["reason"] == "compiler-artifact"
+                    && v["target"]["name"] == "nexora-verify"
+                    && v["target"]["kind"]
+                        .as_array()
+                        .is_some_and(|k| k.iter().any(|x| x == "bin"))
+                {
+                    if let Some(path) = v["executable"].as_str() {
+                        let path = std::path::PathBuf::from(path);
+                        assert!(
+                            path.is_absolute() && path.is_file(),
+                            "reported verifier must exist"
+                        );
+                        if let Some(old) = found.replace(path.clone()) {
+                            assert_eq!(old, path, "conflicting verifier artifacts");
+                        }
+                    }
+                }
+            }
+            found.expect("Cargo must report the current offline verifier")
+        })
+        .clone()
 }
 
 /// Package a live run exactly as it happened. Nothing is substituted: the

@@ -1,0 +1,10 @@
+{
+  "kind": "CONTROL_REPRODUCES_PREEXISTING_FALSE_GREEN",
+  "source": "same workflow with only explicit shell declaration removed",
+  "cargo_exit_to_step_exit": {
+    "0": 0,
+    "1": 0,
+    "42": 0
+  },
+  "patched_tests": "see iteration2-audit-gate.txt: both nonzero statuses are preserved"
+}

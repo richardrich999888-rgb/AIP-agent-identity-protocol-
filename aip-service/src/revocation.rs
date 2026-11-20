@@ -21,7 +21,6 @@
 //! [`LEGACY_TENANT`] with their original hash form, so an existing log keeps
 //! verifying and keeps applying to the tokens it applied to before.
 
-use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sha3::{Digest, Sha3_256};
 use std::collections::HashSet;
@@ -91,7 +90,7 @@ impl RevocationEntry {
     /// A new, tenant-scoped entry stamped now. `jti` must already be
     /// canonical (the handler normalises before constructing).
     pub fn new(tenant_id: &str, jti: &str, revoked_by: &str, reason: &str) -> Self {
-        let revoked_at = Utc::now().format("%Y-%m-%dT%H:%M:%SZ").to_string();
+        let revoked_at = crate::utc::now_string();
         let mut entry = Self {
             tenant_id: Some(tenant_id.to_owned()),
             jti: jti.to_owned(),
