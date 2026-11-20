@@ -83,7 +83,10 @@ Cut order when behind: P2 polish → cost trends and budgets → Activity Explor
 - [ ] **0.1** Create `claude/vanian-enterprise-wow` from `origin/feature/wow-demos`. Cherry-pick the three P0-059 commits from the bundle. Build with `cargo build --release --locked -p aip-probe -p aip-collector -p aip-observe-verify -p vanian-command-center`. Run the P0-059 test table (`command-center/README.md`). Record real counts and failures.
 - [ ] **0.2** Inventory the branches, recent Claude commits and PRs (GitHub API needs P1). Output: `docs/enterprise-wow/AUDIT.md`. Re-use `command-center/docs/REPOSITORY_AUDIT.md` and extend it to sentinel, containment and NEXORA.
 - [ ] **0.3** Write the capability matrix using the brief's five classes (independently tested / integration incomplete / partial / simulated / not implemented) for every module named in Phase 0. Output: `docs/enterprise-wow/CAPABILITY_MATRIX.md`.
-- [ ] **0.4** Lab feasibility check. Try `dockerd &` as root and record whether Compose runs. If not, mark `BLOCKED_BY_INFRASTRUCTURE` and run every service as a native process with a `compose.yaml` kept for real hosts. Record kernel sensor availability per sensor.
+- [x] **0.4** Lab feasibility check. Try `dockerd &` as root and record whether Compose runs. If not, mark `BLOCKED_BY_INFRASTRUCTURE` and run every service as a native process with a `compose.yaml` kept for real hosts. Record kernel sensor availability per sensor.
+  - **Done** `24379741`. Compose runs: `dockerd &`, `docker run --rm hello-world` exit 0, two-service `docker compose up` probe exit 0 and host curl exit 0. Not BLOCKED_BY_INFRASTRUCTURE.
+  - Sensors: `cargo run --release --locked -p aip-probe --example sensor_matrix` gave 3/7 open as found (connector, fanotify, afpacket). After `mount -t tracefs nodev /sys/kernel/tracing` it gave 7/7. `cargo test --locked -p aip-probe --test live_sensors -- --nocapture` gave 6 passed / 0 failed / 0 skipped, with no SKIPPED line.
+  - Limits: dockerd and tracefs are manual and must be scripted in 6.1. cgroup v1. The four tracer sensors opened but were not exercised. Evidence: `docs/enterprise-wow/evidence/0.4/`.
 
 ## Phase 1 — open-source R&D (P0 for OPA and LiteLLM, P2 for the rest)
 
@@ -228,11 +231,13 @@ The console reads only persisted backend data. The video shows that same run.
 |---|---|---|---|
 | Fri 20 Nov 19:30 | Plan seeded | — | waiting on P1 (push access) |
 | Fri 20 Nov 19:25 | Plan committed to `claude/vanian-enterprise-wow` | — | P1 met in this session (see verification below); P2 open: the bundle is not reachable here |
+| Fri 20 Nov 19:45 | 0.4 lab feasibility | Done | Docker + Compose work in the cloud container; 0.1 still waits on P0-059 commits |
 
 ## Iteration log
 
 | # | Item | Result | SHA | Tests (pass/fail/skip) |
 |---|---|---|---|---|
+| 1 | 0.4 | Done: Compose runs; sensors 3/7 as found, 7/7 with tracefs | `24379741` | live_sensors 6/0/0; sensor_matrix 7/7 open |
 
 ---
 
