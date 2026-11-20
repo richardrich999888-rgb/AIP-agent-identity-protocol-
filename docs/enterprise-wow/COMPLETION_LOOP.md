@@ -136,7 +136,9 @@ The brief's claims about each project are hypotheses. Verify the license file in
   - `vcc-agent --spawn` lets the orchestrator process launch its children, so the inferred fork edge and the signed edge coincide.
   - Unauthorized delegation case: `recon-reporter` (no Delegate scope) tries to sub-delegate → the chain is rejected and recorded (adversarial #5).
   - Forged identity case: a request signed with a key that does not derive the claimed id (adversarial #6).
-- [ ] **2.6 Close the revocation gap.** Keep the gateway check. Add `docs/enterprise-wow/ADR-001-decisionpoint-revocation.md` recommending a `DecisionPoint` change. **Do not change `DecisionPoint` this weekend.**
+- [x] **2.6 Close the revocation gap.** Keep the gateway check. Add `docs/enterprise-wow/ADR-001-decisionpoint-revocation.md` recommending a `DecisionPoint` change. **Do not change `DecisionPoint` this weekend.**
+  - **Done (ADR part)** `b5143a7f`. `cargo test --locked -p aip-authorize --test revocation_gap`: 3 passed / 0 failed / 0 skipped. These tests pin that `DecisionPoint::authorize_at` authorizes under a revoked root and under a revoked hop, while `RevocationLog` reports both as revoked. The whole crate: 103 passed / 0 failed. ADR: `docs/enterprise-wow/ADR-001-decisionpoint-revocation.md`. `DecisionPoint` is unchanged.
+  - Limits: "keep the gateway check" is **not verified**: the gateway is in P0-059 (0.1 blocked). Also recorded, from reading the code only: `RevocationLog::revoke` discards save errors (`revocation.rs:127`), which fails open. A tracking issue is not filed yet.
 
 ## Phase 3 — governance (P0) and monitoring
 
@@ -243,6 +245,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Fri 20 Nov 20:05 | 1.1 integration matrix | Done | OpenLoop ambiguous; LiteLLM enterprise/ and Langfuse ee/ excluded by license |
 | Fri 20 Nov 20:09 | 1.2 OPA | Done | default REST API writable without auth: must be locked down or embedded |
 | Fri 20 Nov 20:20 | 1.3 LiteLLM | Done | proxy extra pulls proprietary litellm-enterprise; use core SDK only |
+| Fri 20 Nov 20:23 | 2.6 revocation ADR | Done | gateway half unverifiable until P0-059 lands |
 
 ## Iteration log
 
@@ -252,6 +255,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 2 | 1.1 | Done: 17 candidates pinned, ranked; OPA + LiteLLM core adopted | `58a69d2b` | test_survey 15/0/0; survey 17/17 ok |
 | 3 | 1.2 | Done: OPA pinned + verified; finding: unauthenticated REST writes un-revoke an agent | `fc8a686e` | opa test 10/0/0; smoke 5/5; upstream 6 pkgs ok/0 fail |
 | 4 | 1.3 | Done: SDK capture works without Postgres; 3 zero-for-unmeasured cases fixed in capture | `af2df27c` | acceptance 16/0; unit 23/0/0 |
+| 5 | 2.6 | Done (ADR): gap measured by 3 tests; DecisionPoint untouched | `b5143a7f` | revocation_gap 3/0/0; aip-authorize 103/0/0 |
 
 ---
 
