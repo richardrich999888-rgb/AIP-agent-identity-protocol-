@@ -232,7 +232,9 @@ The brief's claims about each project are hypotheses. Verify the license file in
 | 14 | Duplicate events | 2.1 |
 | 15 | Interrupted collector | 3.4 |
 
-- [ ] **6.4** Write the 12-capability acceptance matrix: `demos/vanian-enterprise/verify.sh` output + `docs/enterprise-wow/ACCEPTANCE_MATRIX.md`, giving source, execution path, test, output, evidence and limitation for each capability.
+- [ ] **6.4** Write the 12-capability acceptance matrix: `demos/vanian-enterprise/verify.sh` output + `docs/enterprise-wow/ACCEPTANCE_MATRIX.md`, giving source, execution path, test, output, evidence and limitation for each capability. Split on 21 Nov: 6.4a (current) and 6.4b (final).
+  - [x] **6.4a** `docs/enterprise-wow/ACCEPTANCE_MATRIX.md`, generated from the recorded `verify.sh` run. **Done** `96e59b4d`. 0/12 VERIFIED, 0 FAIL.
+  - [ ] **6.4b** Regenerate after 0.1, 3.1b, 3.2 and 4.3 land, and at freeze.
 
 ## Phase 7 — recording and handoff
 
@@ -275,6 +277,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 00:25 | 0.3a matrix | Done | 5 of 12 capabilities NV until P0-059 lands |
 | Sat 21 Nov 00:30 | 6.1a lab scripts | Done | verify exit 1: 0/12 VERIFIED until P0-059 and the gateway land |
 | Sat 21 Nov 00:31 | 6.3a adversarial results | Done | 7 tests wait on P0-059 and the gateway |
+| Sat 21 Nov 00:32 | 6.4a acceptance matrix | Done | everything left is blocked on 0.1 or the gateway |
 
 ## Iteration log
 
@@ -295,6 +298,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 13 | 0.3a | Done: capability matrix, no PREVENTION rows | `94337fc6` | doc only; cites prior counts |
 | 14 | 6.1a | Done: lab scripts; verify reports 0/12 VERIFIED honestly | `efc1d5b1` | test.sh 5/5; run 7/7; test_verify 6/6 |
 | 15 | 6.3a | Done: 3 RUN, 5 PARTIAL, 7 NOT RUN (blocked) | `471ff1f1` | doc; cites prior counts |
+| 16 | 6.4a | Done: acceptance matrix (0/12 VERIFIED) | `96e59b4d` | generated from verify-summary.json |
 
 ---
 
