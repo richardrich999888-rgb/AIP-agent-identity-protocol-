@@ -108,7 +108,8 @@ The brief's claims about each project are hypotheses. Verify the license file in
   - **Done** `af2df27c`. Answer: yes, via the SDK CustomLogger path, with no Postgres. Core `litellm==1.110.2` (no `[proxy]` extra); mock model and prices are TEST DATA. `unshare -n … acceptance.py --isolated`: 16 passed / 0 failed checks, exit 0. `python3 -m unittest test_capture test_mock_openai`: 23 passed / 0 failed / 0 skipped. Three mutations all caught.
   - Findings: LiteLLM logs cost and tokens of 0 for an unpriced model, a missing provider usage and a failed call; `capture.py` maps these to None with a reason. Callback exceptions are swallowed. The `[proxy]` extra installs `litellm-enterprise` (LicenseRef-Proprietary), which `import litellm` then loads.
   - Limits: the proxy path was not tested (license). Sync `completion()` only. Metadata is caller-asserted, not verified. Records go to JSONL, not the event store (2.1 is blocked by 0.1). The mock was written here; 4.1 reuses it. Evidence: `research/oss/litellm/`.
-- [ ] **1.4** (P2) Evaluate Falco, the OTel Collector and OpenLIT only if Phase 1 finishes by the Sat 06:00 checkpoint. Otherwise mark them `NOT_EVALUATED`.
+- [x] **1.4** (P2) Evaluate Falco, the OTel Collector and OpenLIT only if Phase 1 finishes by the Sat 06:00 checkpoint. Otherwise mark them `NOT_EVALUATED`.
+  - **Done** `9ac0671c`. OTel Collector v0.165.0: USABLE (built from the pinned commit). OpenLIT 1.45.0: INSTRUMENTATION ONLY. `chain.py` passes 3/3 offline, but OpenLIT phones home for pricing and reports a cost of 0 when it has no price. Falco 0.45.2: **BLOCKED_BY_INFRASTRUCTURE** (no CAP_SYS_RESOURCE, memlock hard limit 8,192 KiB; final for this host). Evidence: `research/oss/openlit-otel/`.
 
 ## Phase 2 — P0 capabilities
 
@@ -260,6 +261,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Fri 20 Nov 20:32 | 4.1a FinOps capture | Done | 4.1b blocked on 0.1 |
 | Sat 21 Nov 00:12 | 3.4a observer ingestion | Done | 3.4b live kill run next; console part blocked on 0.1 |
 | Sat 21 Nov 00:16 | 3.4b live kill | Done | state lag ~10.5 s measured; 3.4c blocked on 0.1 |
+| Sat 21 Nov 00:21 | 1.4 P2 evaluations | Done | Phase 1 complete before Sat 06:00; Falco blocked here |
 
 ## Iteration log
 
@@ -275,6 +277,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 8 | 4.1a | Done: LiteLLM usage persisted; found + fixed store thread bug (`07652616`) | `fb6da331` | command-center suite 70/0/0 offline |
 | 9 | 3.4a | Done: verified archive ingestion; interrupted run shows DEGRADED, healthy COVERED | `ea405018` | test_observer_ingest 22/0/0 |
 | 10 | 3.4b | Done: live collector kill, gap reported in 3/3 runs | `a078c7cf` | live_observer_kill 7/7 checks x3 |
+| 11 | 1.4 | Done: OTel usable; OpenLIT instrumentation only; Falco BLOCKED_BY_INFRASTRUCTURE | `9ac0671c` | chain 3/0 checks |
 
 ---
 
