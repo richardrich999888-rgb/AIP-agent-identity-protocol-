@@ -115,6 +115,40 @@ class Restart(Base):
         self.assertEqual(self.s.verify(), [])
 
 
+class Threads(Base):
+    """Regression (4.1a): LiteLLM calls hooks on its own thread."""
+
+    def test_append_from_another_thread(self):
+        import threading
+
+        out = []
+        t = threading.Thread(target=lambda: out.append(self.s.append(E1, 0)))
+        t.start()
+        t.join()
+        self.assertTrue(out and out[0].inserted)
+        self.assertEqual(self.s.count(), 1)
+
+    def test_concurrent_appends_keep_one_chain(self):
+        import threading
+
+        n_threads, per = 8, 25
+        events = [{"kind": "k", "subject": f"t{t}", "observed_at_ms": i} for t in range(n_threads) for i in range(per)]
+        dup = events[:per]  # thread 0's events, also appended by a second thread
+
+        def worker(batch):
+            for e in batch:
+                self.s.append(e, 0)
+
+        threads = [threading.Thread(target=worker, args=(events[t * per:(t + 1) * per],)) for t in range(n_threads)]
+        threads.append(threading.Thread(target=worker, args=(dup,)))
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        self.assertEqual(self.s.count(), n_threads * per)
+        self.assertEqual(self.s.verify(), [])
+
+
 class AppendOnly(Base):
     def test_update_refused(self):
         self.s.append(E1, 0)

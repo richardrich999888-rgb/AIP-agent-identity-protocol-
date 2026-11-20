@@ -4,10 +4,10 @@
 are listed in its module docstring, and each one is tested in
 `test_eventstore.py`.
 
-- Tests: `python3 -m unittest -v test_eventstore` gives 22 passed / 0 failed /
+- Tests: `python3 -m unittest -v test_eventstore` gives 24 passed / 0 failed /
   0 skipped. That includes adversarial #13 (restart, with a second OS
   process) and #14 (duplicates).
-- Mutations: `mutations.txt` records five edits, all caught.
+- Mutations: `mutations.txt` records seven edits, all caught. E6 and E7 were added with the thread-safety fix (4.1a): LiteLLM runs hooks on its own thread, and the first version of this store refused them with `sqlite3.ProgrammingError`.
 
 This directory was created before P0-059's `command-center/` lands (item
 0.1 is blocked). Only these files are new; they must not collide with

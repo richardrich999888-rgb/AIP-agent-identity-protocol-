@@ -25,6 +25,7 @@ import hashlib
 import json
 import math
 import sqlite3
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -133,18 +134,25 @@ def chain_hash(prev_hash: str, idem: str) -> str:
 
 
 class EventStore:
-    """An append-only event log in one SQLite file. Not shared across processes
-    for writing: one writer at a time (SQLite serialises; this class does not
-    retry on SQLITE_BUSY)."""
+    """An append-only event log in one SQLite file.
+
+    Thread-safe within a process: one connection, opened with
+    `check_same_thread=False`, with every operation serialised by a lock.
+    Callers such as LiteLLM run hooks on their own threads (found in 4.1a).
+    Across processes, SQLite serialises writers. This class does not retry
+    on SQLITE_BUSY.
+    """
 
     def __init__(self, path: Path | str) -> None:
-        self._db = sqlite3.connect(str(path), isolation_level=None)
+        self._lock = threading.RLock()
+        self._db = sqlite3.connect(str(path), isolation_level=None, check_same_thread=False)
         self._db.execute("PRAGMA journal_mode=WAL")
         self._db.execute("PRAGMA synchronous=FULL")
         self._db.executescript(SCHEMA)
 
     def close(self) -> None:
-        self._db.close()
+        with self._lock:
+            self._db.close()
 
     def __enter__(self) -> EventStore:
         return self
@@ -154,7 +162,8 @@ class EventStore:
 
     def head(self) -> tuple[int, str]:
         """(last seq, last row_hash), or (0, GENESIS) when empty."""
-        row = self._db.execute("SELECT seq, row_hash FROM events ORDER BY seq DESC LIMIT 1").fetchone()
+        with self._lock:
+            row = self._db.execute("SELECT seq, row_hash FROM events ORDER BY seq DESC LIMIT 1").fetchone()
         return (row[0], row[1]) if row else (0, GENESIS)
 
     def append(self, event: object, ingested_at_ms: int) -> Appended:
@@ -164,8 +173,12 @@ class EventStore:
         body = canonical(event)
         idem = idempotency_key(body)
         assert isinstance(event, dict)  # canonical() checked
-        # BEGIN IMMEDIATE takes the write lock before reading the head, so
-        # the chain cannot fork between the read and the insert.
+        # The in-process lock, and BEGIN IMMEDIATE across processes, hold the
+        # write lock from reading the head to the insert, so the chain cannot fork.
+        with self._lock:
+            return self._append_locked(event, body, idem, ingested_at_ms)
+
+    def _append_locked(self, event: dict, body: str, idem: str, ingested_at_ms: int) -> Appended:
         self._db.execute("BEGIN IMMEDIATE")
         try:
             got = self._db.execute("SELECT seq FROM events WHERE idem = ?", (idem,)).fetchone()
@@ -186,7 +199,8 @@ class EventStore:
             raise
 
     def count(self) -> int:
-        return self._db.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+        with self._lock:
+            return self._db.execute("SELECT COUNT(*) FROM events").fetchone()[0]
 
     def events(self, *, kind: str | None = None, subject: str | None = None,
                after_seq: int = 0, limit: int = 100) -> list[StoredEvent]:
@@ -198,20 +212,22 @@ class EventStore:
             q, args = q + " AND kind = ?", args + [kind]
         if subject is not None:
             q, args = q + " AND subject = ?", args + [subject]
-        rows = self._db.execute(q + " ORDER BY seq LIMIT ?", args + [limit]).fetchall()
+        with self._lock:
+            rows = self._db.execute(q + " ORDER BY seq LIMIT ?", args + [limit]).fetchall()
         return [StoredEvent(r[0], r[1], r[2], r[3], r[4], json.loads(r[5]), r[6]) for r in rows]
 
     def last_observed_ms(self, subject: str) -> int | None:
         """Latest `observed_at_ms` for `subject`; None if never observed (not 0)."""
-        return self._db.execute("SELECT MAX(observed_at_ms) FROM events WHERE subject = ?", (subject,)).fetchone()[0]
+        with self._lock:
+            return self._db.execute("SELECT MAX(observed_at_ms) FROM events WHERE subject = ?", (subject,)).fetchone()[0]
 
     def verify(self) -> list[str]:
         """Recompute every key and chain link. Returns problems; empty means intact."""
         problems: list[str] = []
         prev, expect_seq = GENESIS, None
-        for seq, idem, body, prev_hash, row_hash in self._db.execute(
-            "SELECT seq, idem, body, prev_hash, row_hash FROM events ORDER BY seq"
-        ):
+        with self._lock:
+            rows = self._db.execute("SELECT seq, idem, body, prev_hash, row_hash FROM events ORDER BY seq").fetchall()
+        for seq, idem, body, prev_hash, row_hash in rows:
             if expect_seq is not None and seq != expect_seq:
                 problems.append(f"seq {seq}: gap after {expect_seq - 1}")
             if idempotency_key(body) != idem:
