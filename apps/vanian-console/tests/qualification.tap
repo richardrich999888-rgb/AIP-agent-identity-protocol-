@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: console live.ts passes a real TLS round trip to the native reader and rejects unavailable records
+ok 1 - console live.ts passes a real TLS round trip to the native reader and rejects unavailable records
+  ---
+  duration_ms: 1328.146777
+  type: 'test'
+  ...
+# Subtest: shipped observer WASM matches native: t09/original
+ok 2 - shipped observer WASM matches native: t09/original
+  ---
+  duration_ms: 25.831364
+  type: 'test'
+  ...
+# Subtest: shipped observer WASM matches native: t09/tampered
+ok 3 - shipped observer WASM matches native: t09/tampered
+  ---
+  duration_ms: 8.836505
+  type: 'test'
+  ...
+# Subtest: shipped observer WASM matches native: t09/wrong-key
+ok 4 - shipped observer WASM matches native: t09/wrong-key
+  ---
+  duration_ms: 5.447226
+  type: 'test'
+  ...
+# Subtest: shipped observer WASM matches native: t15/original
+ok 5 - shipped observer WASM matches native: t15/original
+  ---
+  duration_ms: 5.757666
+  type: 'test'
+  ...
+# Subtest: shipped observer WASM matches native: t15/tampered
+ok 6 - shipped observer WASM matches native: t15/tampered
+  ---
+  duration_ms: 4.798972
+  type: 'test'
+  ...
+# Subtest: shipped observer WASM matches native: t15/wrong-key
+ok 7 - shipped observer WASM matches native: t15/wrong-key
+  ---
+  duration_ms: 5.323384
+  type: 'test'
+  ...
+# Subtest: shipped AIP WASM matches native: same-run/original
+ok 8 - shipped AIP WASM matches native: same-run/original
+  ---
+  duration_ms: 130.060756
+  type: 'test'
+  ...
+# Subtest: shipped AIP WASM matches native: same-run/missing-receipt
+ok 9 - shipped AIP WASM matches native: same-run/missing-receipt
+  ---
+  duration_ms: 213.080079
+  type: 'test'
+  ...
+# Subtest: shipped AIP WASM matches native: same-run/wrong-key
+ok 10 - shipped AIP WASM matches native: same-run/wrong-key
+  ---
+  duration_ms: 52.285599
+  type: 'test'
+  ...
+# Subtest: shipped AIP WASM matches native: same-run-interruption/original
+ok 11 - shipped AIP WASM matches native: same-run-interruption/original
+  ---
+  duration_ms: 36.156828
+  type: 'test'
+  ...
+# Subtest: shipped AIP WASM matches native: same-run-interruption/missing-receipt
+ok 12 - shipped AIP WASM matches native: same-run-interruption/missing-receipt
+  ---
+  duration_ms: 73.208095
+  type: 'test'
+  ...
+# Subtest: shipped AIP WASM matches native: same-run-interruption/wrong-key
+ok 13 - shipped AIP WASM matches native: same-run-interruption/wrong-key
+  ---
+  duration_ms: 31.811205
+  type: 'test'
+  ...
+# Subtest: invalid research selection is refused
+ok 14 - invalid research selection is refused
+  ---
+  duration_ms: 0.408763
+  type: 'test'
+  ...
+# Subtest: the shipped worker rejects altered bundled asset bytes before execution
+ok 15 - the shipped worker rejects altered bundled asset bytes before execution
+  ---
+  duration_ms: 1.549707
+  type: 'test'
+  ...
+# Subtest: native observer bridge snapshots and verifies signed evidence
+ok 16 - native observer bridge snapshots and verifies signed evidence
+  ---
+  duration_ms: 64.225079
+  type: 'test'
+  ...
+# Subtest: native AIP bridge preserves incomplete actions
+ok 17 - native AIP bridge preserves incomplete actions
+  ---
+  duration_ms: 1288.430673
+  type: 'test'
+  ...
+# Subtest: bridge requires a complete service configuration
+ok 18 - bridge requires a complete service configuration
+  ---
+  duration_ms: 1.444547
+  type: 'test'
+  ...
+# Subtest: reader rejects wrong token, tenant, role, subject and mutation before opening archives
+ok 19 - reader rejects wrong token, tenant, role, subject and mutation before opening archives
+  ---
+  duration_ms: 8.057508
+  type: 'test'
+  ...
+# Subtest: unconnected, unsupported and historical sources do not supply live metrics
+ok 20 - unconnected, unsupported and historical sources do not supply live metrics
+  ---
+  duration_ms: 12.957327
+  type: 'test'
+  ...
+# Subtest: time windows exclude older authenticated records
+ok 21 - time windows exclude older authenticated records
+  ---
+  duration_ms: 9.009162
+  type: 'test'
+  ...
+# Subtest: native HTTP projection accepts fresh self-process samples, filters rows and withholds raw data
+ok 22 - native HTTP projection accepts fresh self-process samples, filters rows and withholds raw data
+  ---
+  duration_ms: 1298.616948
+  type: 'test'
+  ...
+# Subtest: runnable loopback HTTP adapter serves the checked v1 contract
+ok 23 - runnable loopback HTTP adapter serves the checked v1 contract
+  ---
+  duration_ms: 977.592016
+  type: 'test'
+  ...
+# Subtest: historical kernel graph uses directly recorded parent/child PID values and no agent nodes
+ok 24 - historical kernel graph uses directly recorded parent/child PID values and no agent nodes
+  ---
+  duration_ms: 29.795395
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2474.869281

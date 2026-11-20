@@ -1,0 +1,36 @@
+name: VANIAN console verification
+
+on:
+  pull_request:
+    paths:
+      - 'apps/vanian-console/**'
+      - '.github/workflows/vanian-console.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/vanian-console
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/vanian-console/package-lock.json
+      - name: Prepare the pinned AIP toolchain
+        run: |
+          git fetch --depth=1 origin d8ea36255d311b10b9b5b6e844336058622d45c6
+          rustup toolchain install 1.99.1 --profile minimal
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run design:build
+      - run: npm run verify:aip-console
