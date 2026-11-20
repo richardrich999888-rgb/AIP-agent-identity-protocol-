@@ -1,0 +1,87 @@
+{
+ "label": "live lab run; model is the TEST DATA mock",
+ "model_port": 45951,
+ "web_port": 59107,
+ "pids": {
+  "a": 17489,
+  "web": 17490,
+  "b": 17492,
+  "c": 17494
+ },
+ "poll": {
+  "verified": true,
+  "reason": "verified",
+  "lines": 3,
+  "inserted": 3,
+  "findings": 0
+ },
+ "findings": [
+  {
+   "pid": 17489,
+   "start_ticks": null,
+   "names": [
+    "/usr/local/bin/python3",
+    "python3"
+   ],
+   "classification": "HEURISTIC_AI_WORKLOAD",
+   "model_connects": 1,
+   "attribution_missing_reason": "no binding",
+   "pid_reuse_not_excluded": true,
+   "evidence_probe_seqs": [
+    39
+   ]
+  },
+  {
+   "pid": 17490,
+   "start_ticks": null,
+   "names": [
+    "/usr/local/bin/python3",
+    "python3"
+   ],
+   "classification": "UNCLASSIFIED",
+   "model_connects": 0,
+   "attribution_missing_reason": null,
+   "pid_reuse_not_excluded": true,
+   "evidence_probe_seqs": []
+  },
+  {
+   "pid": 17492,
+   "start_ticks": null,
+   "names": [
+    "/usr/local/bin/python3",
+    "python3"
+   ],
+   "classification": "UNCLASSIFIED",
+   "model_connects": 0,
+   "attribution_missing_reason": null,
+   "pid_reuse_not_excluded": true,
+   "evidence_probe_seqs": []
+  },
+  {
+   "pid": 17494,
+   "start_ticks": null,
+   "names": [
+    "/usr/bin/sort",
+    "python3"
+   ],
+   "classification": "UNCLASSIFIED",
+   "model_connects": 0,
+   "attribution_missing_reason": null,
+   "pid_reuse_not_excluded": true,
+   "evidence_probe_seqs": []
+  }
+ ],
+ "heuristic_pids": [
+  17489
+ ],
+ "observed_processes": 16,
+ "checks": {
+  "archive verified by aip-observe-verify before classification": true,
+  "A got a TEST DATA reply from the mock": true,
+  "A (unregistered client of the model port) is HEURISTIC_AI_WORKLOAD": true,
+  "A's attribution_missing_reason is set": true,
+  "B (http.server and its client) and C (sort) are not HEURISTIC": true,
+  "B and C were observed (so the negative is not vacuous)": true,
+  "no false positive: A is the only HEURISTIC process": true
+ }
+}

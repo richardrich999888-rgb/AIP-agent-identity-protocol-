@@ -1,0 +1,9 @@
+aip-collector: clock NOT synchronized (STA_UNSYNC), max_error 16000 ms (kernel state 5)
+aip-collector: evidence public key (collector.lab.shadow v1), give this to the auditor: 05d8fc55e0203f6ac49788bbf4ef84b5fb8800dd4371b8f7d3dec5152a02a20b
+aip-collector: started (Fresh)
+aip-collector: 1 probe(s) registered; observer "collector.lab.shadow"
+aip-collector: generated a new noise static key at /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/9788f004-efc3-5687-ba2e-f67ae9d1044d/scratchpad/shadow-run2/work/noise.key.json. Pin this public key in every probe's AIP_PROBE_COLLECTOR_NOISE_PUBKEY:
+  15d0be237202b2646f935ed5509cd368ee4332e949fba25e5ef4085b714e467e
+aip-collector: noise static public key (pin in AIP_PROBE_COLLECTOR_NOISE_PUBKEY): 15d0be237202b2646f935ed5509cd368ee4332e949fba25e5ef4085b714e467e
+aip-collector: attested batches are appended to /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/9788f004-efc3-5687-ba2e-f67ae9d1044d/scratchpad/shadow-run2/work/state/attested.archive.jsonl
+aip-collector: listening on 127.0.0.1:33653
