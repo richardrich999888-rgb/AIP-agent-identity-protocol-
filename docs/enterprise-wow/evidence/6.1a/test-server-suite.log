@@ -1,5 +1,5 @@
 netns: loopback up, outside unreachable
-....................................................................19:13:49 - LiteLLM:WARNING: utils.py:4183 - register_model: model=openai/mock-1 has custom pricing but not in built-in cost map and no prefix/region variant matched; cache_creation_input_token_cost and cache_read_input_token_cost will default to 0 for this model (input/output cost tracking is unaffected). To track cache cost, add them to model_info
+....................................................................19:46:43 - LiteLLM:WARNING: utils.py:4183 - register_model: model=openai/mock-1 has custom pricing but not in built-in cost map and no prefix/region variant matched; cache_creation_input_token_cost and cache_read_input_token_cost will default to 0 for this model (input/output cost tracking is unaffected). To track cache cost, add them to model_info
 mock: "POST /v1/chat/completions HTTP/1.1" 200 -
 mock: "POST /v1/chat/completions HTTP/1.1" 200 -
 mock: "POST /v1/chat/completions HTTP/1.1" 200 -
@@ -14,6 +14,6 @@ LiteLLM.Info: If you need to debug this error, use `litellm.turn_on_debug()'.
 mock: "POST /v1/chat/completions HTTP/1.1" 200 -
 ..............................................
 ----------------------------------------------------------------------
-Ran 116 tests in 4.899s
+Ran 116 tests in 12.484s
 
 OK

@@ -15,6 +15,7 @@ GOOD = {
     "litellm-acceptance": "checks: 16 passed, 0 failed\n",
     "revocation-gap": "test result: ok. 3 passed; 0 failed\n",
     "delegation-findings": "test result: ok. 5 passed; 0 failed\n",
+    "revocation-persistence": "test result: ok. 2 passed; 0 failed\n",
     "live-sensors": "test result: ok. 6 passed; 0 failed\n",
 }
 

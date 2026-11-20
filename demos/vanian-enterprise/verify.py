@@ -41,7 +41,7 @@ def live_result(runs: Path, name: str) -> bool | None:
 
 
 def main(runs: Path) -> int:
-    t = {n: passed(runs, n) for n in ("policy", "server-suite", "litellm-acceptance", "revocation-gap", "delegation-findings", "live-sensors")}
+    t = {n: passed(runs, n) for n in ("policy", "server-suite", "litellm-acceptance", "revocation-gap", "delegation-findings", "revocation-persistence", "live-sensors")}
     kill = live_result(runs, "live-kill")
     shadow = live_result(runs, "live-shadow")
 
@@ -66,8 +66,9 @@ def main(runs: Path) -> int:
         ("9 Human vs agent attribution", ("NOT_IMPLEMENTED", "4.3 needs the gateway")),
         ("10 FinOps", gate(t["server-suite"] and t["litellm-acceptance"],
                            "capture and persistence pass against the TEST DATA mock; console 4.2 and agents 4.1b missing")),
-        ("11 AIP identity", gate(t["revocation-gap"] and t["delegation-findings"],
-                                 "crates tested; console is P0-059; findings pinned: DecisionPoint ignores revocation (ADR-001), "
+        ("11 AIP identity", gate(t["revocation-gap"] and t["delegation-findings"] and t["revocation-persistence"],
+                                 "crates tested; console is P0-059; findings pinned: DecisionPoint ignores revocation and an unpersisted "
+                                 "revocation is lost on restart (ADR-001), "
                                  "Delegate scope not enforced and no proof of possession (ADR-002)")),
         ("12 Evidence verification", gate(t["server-suite"],
                                           "observer archives verified offline; bundle v2 and vcc-verify are P0-059")),

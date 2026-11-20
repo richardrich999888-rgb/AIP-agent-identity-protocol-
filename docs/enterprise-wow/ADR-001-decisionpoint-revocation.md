@@ -90,14 +90,14 @@ visible through an accessor, and never silently absent.
 - The format version bump means verifiers must accept v1 and v2 during
   migration, or be upgraded in lockstep.
 
-## Related defect observed (code reading, not a measured test)
+## Related defect: unpersisted revocation is reported done (measured 21 Nov)
 
 `RevocationLog::revoke` writes the entry in memory and then runs
 `let _ = self.save();` (`aip-core/src/revocation.rs:127`), which discards
 any persistence error. A revocation can therefore be reported as done while
 it is not on disk, and a restart loses it: this fails open. Recommendation:
 return the error, and treat a revocation as effective only once persisted.
-This is out of scope for this loop. Record it as a tracking issue.
+**Measured** by `aip-core/tests/revocation_persistence_finding.rs` (2 passed / 0 failed). The log's path is made unwritable (its parent is a regular file). `revoke` then returns the entry, and `is_revoked` is true in memory. Nothing is written, and a `with_file` reload of the same path, as a restart does, no longer has the agent revoked. The control (a writable path) persists and survives a reload. This is out of scope for this loop. Record it as a tracking issue; none has been filed yet (that is an outward action).
 
 ## When implemented
 
