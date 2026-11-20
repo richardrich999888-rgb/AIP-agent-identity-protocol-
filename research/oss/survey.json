@@ -1,0 +1,1226 @@
+[
+ {
+  "commit": "fcebb5543846576a061d5aa75dc097e3c8c69646",
+  "commit_date": "2026-08-02T19:53:07-04:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".ts",
+    912
+   ],
+   [
+    ".tsx",
+    346
+   ],
+   [
+    ".mdx",
+    308
+   ],
+   [
+    ".py",
+    282
+   ],
+   [
+    ".go",
+    245
+   ],
+   [
+    ".png",
+    79
+   ]
+  ],
+  "files": 2484,
+  "licenses": [
+   {
+    "bytes": 11357,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+   },
+   {
+    "bytes": 11357,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "sdk/python/LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+   },
+   {
+    "bytes": 11357,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "sdk/typescript/LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+   }
+  ],
+  "name": "OpenLIT",
+  "repo": "openlit/openlit",
+  "tag": "py-1.45.0"
+ },
+ {
+  "commit": "c3cafa3782642685ef10777e4c5931400c0a7176",
+  "commit_date": "2026-11-19T16:37:23-08:00",
+  "enterprise_dirs": [
+   "enterprise",
+   "tests/unit/enterprise"
+  ],
+  "extensions": [
+   [
+    ".py",
+    9050
+   ],
+   [
+    ".tsx",
+    1743
+   ],
+   [
+    ".rs",
+    1004
+   ],
+   [
+    ".ts",
+    931
+   ],
+   [
+    ".md",
+    346
+   ],
+   [
+    ".svg",
+    331
+   ]
+  ],
+  "files": 15720,
+  "licenses": [
+   {
+    "bytes": 1419,
+    "class": "MIT",
+    "first_line": "Portions of this software are licensed as follows:",
+    "path": "LICENSE",
+    "sha256": "b170d6bf8e8835dd357e011681db028f4d51e2fb0ea892058f56e01fb39b8273"
+   },
+   {
+    "bytes": 2223,
+    "class": "UNRECOGNISED",
+    "first_line": "The BerriAI Enterprise license (the \"Enterprise License\")",
+    "path": "enterprise/LICENSE.md",
+    "sha256": "a3160d1176cb556447255ca8652855486d681f8025550291828796a439e1b2f9"
+   },
+   {
+    "bytes": 72747,
+    "class": "GPL",
+    "first_line": "{",
+    "path": "license_cache.json",
+    "sha256": "021881e4c63ba353d45efdd10142fed1bf7be94016c10c223337aa1a90d2a02c"
+   },
+   {
+    "bytes": 1419,
+    "class": "MIT",
+    "first_line": "Portions of this software are licensed as follows:",
+    "path": "litellm-proxy-extras/LICENSE",
+    "sha256": "b170d6bf8e8835dd357e011681db028f4d51e2fb0ea892058f56e01fb39b8273"
+   },
+   {
+    "bytes": 1610,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "terraform/provider/LICENSE",
+    "sha256": "a82f7ec70737c73fe4c78ec1f58c0d7aeec36e25500ccc1922f7bae1bb39104e"
+   },
+   {
+    "bytes": 49245,
+    "class": "GPL",
+    "first_line": "{",
+    "path": "tests/code_coverage_tests/license_cache.json",
+    "sha256": "a08d9d61825c10c9c92b20074d436aad2d2246d0fbec3b0d0f64310193106282"
+   },
+   {
+    "bytes": 1065,
+    "class": "MIT",
+    "first_line": "MIT License",
+    "path": "vscode-extension/LICENSE",
+    "sha256": "bedb01b52def8531f9c294b69a533afd787d0076f3cb99914d579b79a5e77d9d"
+   }
+  ],
+  "name": "LiteLLM",
+  "repo": "BerriAI/litellm",
+  "tag": "v1.110.2"
+ },
+ {
+  "commit": "ba39415db4b3c90cd68942a74b3cc2223ec2b23c",
+  "commit_date": "2026-11-12T11:00:27+01:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".yaml",
+    2403
+   ],
+   [
+    ".stmt",
+    1914
+   ],
+   [
+    ".go",
+    1049
+   ],
+   [
+    ".json",
+    711
+   ],
+   [
+    ".md",
+    566
+   ],
+   [
+    ".rego",
+    261
+   ]
+  ],
+  "files": 7994,
+  "licenses": [
+   {
+    "bytes": 11358,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+   },
+   {
+    "bytes": 1483,
+    "class": "BSD",
+    "first_line": "Copyright (c) 2014 Dropbox, Inc.",
+    "path": "internal/edittree/bitvector/license.txt",
+    "sha256": "185effe24905321d45fe84c7087b05fbcee850caf42a72e037d318cdcb700f8d"
+   },
+   {
+    "bytes": 11338,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "internal/gojsonschema/LICENSE-APACHE-2.0.txt",
+    "sha256": "745f8f53e61ad2f8463a27b77aac1636dc3a121ed8bd841e82397226fdcb4bae"
+   },
+   {
+    "bytes": 1453,
+    "class": "BSD",
+    "first_line": "Copyright 2009 The Go Authors.",
+    "path": "internal/methodlesstemplate/LICENSE",
+    "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+   },
+   {
+    "bytes": 121,
+    "class": "UNRECOGNISED",
+    "first_line": "AWS SDK for Go",
+    "path": "internal/providers/aws/NOTICE.txt",
+    "sha256": "d64678da511cc3c76e1b20cd7074c102a62de0685d486eba144e3ff7b3ee60f3"
+   },
+   {
+    "bytes": 11358,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "internal/semver/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+   }
+  ],
+  "name": "OPA",
+  "repo": "open-policy-agent/opa",
+  "tag": "v1.22.4"
+ },
+ {
+  "commit": "7625e203c17c88c91fa1b1b8e2937907f22a1523",
+  "commit_date": "2026-10-29T14:11:54+01:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".cpp",
+    102
+   ],
+   [
+    ".yaml",
+    71
+   ],
+   [
+    ".h",
+    61
+   ],
+   [
+    ".md",
+    34
+   ],
+   [
+    "(none)",
+    30
+   ],
+   [
+    ".cmake",
+    20
+   ]
+  ],
+  "files": 411,
+  "licenses": [
+   {
+    "bytes": 11348,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "COPYING",
+    "sha256": "908a8e97d551fac9b859f653b53ac905d9de0e22d2f3099ca3120cc2525e7159"
+   },
+   {
+    "bytes": 11348,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "908a8e97d551fac9b859f653b53ac905d9de0e22d2f3099ca3120cc2525e7159"
+   }
+  ],
+  "name": "Falco",
+  "repo": "falcosecurity/falco",
+  "tag": "0.45.2"
+ },
+ {
+  "commit": "e883d737e49935984df6b064e512eed6cdc0d289",
+  "commit_date": "2026-11-06T23:11:16+00:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".go",
+    1841
+   ],
+   [
+    ".yaml",
+    416
+   ],
+   [
+    ".md",
+    137
+   ],
+   [
+    "(none)",
+    121
+   ],
+   [
+    ".mod",
+    102
+   ],
+   [
+    ".sum",
+    101
+   ]
+  ],
+  "files": 2909,
+  "licenses": [
+   {
+    "bytes": 11358,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+   }
+  ],
+  "name": "OpenTelemetry Collector",
+  "repo": "open-telemetry/opentelemetry-collector",
+  "tag": "v0.165.0"
+ },
+ {
+  "commit": "6083b2c53d78b21d0925b703194aaed920c01af5",
+  "commit_date": "2026-11-09T18:06:24+00:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".go",
+    8115
+   ],
+   [
+    ".yaml",
+    2984
+   ],
+   [
+    "(none)",
+    673
+   ],
+   [
+    ".md",
+    629
+   ],
+   [
+    ".json",
+    405
+   ],
+   [
+    ".mod",
+    358
+   ]
+  ],
+  "files": 14126,
+  "licenses": [
+   {
+    "bytes": 11357,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+   },
+   {
+    "bytes": 2253,
+    "class": "Apache-2.0",
+    "first_line": "receiver/hostmetricsreceiver/internal/scraper/processscraper/process.go contains code originating from gopsutil under in",
+    "path": "NOTICE",
+    "sha256": "6d7a5113049e69b6068c8304f4b2b67be17ae4a4679e1534539481cdcfda3dd9"
+   }
+  ],
+  "name": "OpenTelemetry Collector Contrib",
+  "repo": "open-telemetry/opentelemetry-collector-contrib",
+  "tag": "v0.165.1"
+ },
+ {
+  "commit": "c96ac3c320296db0eb480eb321abab65ab73fd0b",
+  "commit_date": "2026-09-01T21:15:36+01:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".py",
+    275
+   ],
+   [
+    ".md",
+    24
+   ],
+   [
+    ".yml",
+    8
+   ],
+   [
+    "(none)",
+    6
+   ],
+   [
+    ".sql",
+    6
+   ],
+   [
+    ".service",
+    5
+   ]
+  ],
+  "files": 346,
+  "licenses": [
+   {
+    "bytes": 11357,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "c0a4b5e2b9479582f00347928c907a4b4f580ff51ab6659e5a8be51751385ba1"
+   }
+  ],
+  "name": "OpenLoop (ambiguous name)",
+  "repo": "openloop-team/openloop",
+  "tag": "v0.1.1"
+ },
+ {
+  "commit": "fe82bdc24d3bbaac919b20d8fe8708920a9a81a8",
+  "commit_date": "2026-11-19T11:28:30+01:00",
+  "enterprise_dirs": [
+   "ee",
+   "web/src/ee",
+   "worker/src/ee"
+  ],
+  "extensions": [
+   [
+    ".ts",
+    4309
+   ],
+   [
+    ".tsx",
+    2316
+   ],
+   [
+    ".sql",
+    604
+   ],
+   [
+    ".md",
+    324
+   ],
+   [
+    ".rs",
+    130
+   ],
+   [
+    ".json",
+    105
+   ]
+  ],
+  "files": 8168,
+  "licenses": [
+   {
+    "bytes": 11358,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": ".agents/skills/skill-creator/license.txt",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+   },
+   {
+    "bytes": 1646,
+    "class": "MIT",
+    "first_line": "Copyright (c) 2023-2026 ClickHouse, Inc.",
+    "path": "LICENSE",
+    "sha256": "9ee6ca42e813fb58bcad18bed834438503bcc997da3b452d3f9ad4af4292b6b3"
+   },
+   {
+    "bytes": 2633,
+    "class": "UNRECOGNISED",
+    "first_line": "START NOTE",
+    "path": "ee/LICENSE",
+    "sha256": "760f5202be4f31f9f8ca43a3c558bebaa5187fa7d7eccad6a32de8392cdccee6"
+   }
+  ],
+  "name": "Langfuse",
+  "repo": "langfuse/langfuse",
+  "tag": "v4.83.0"
+ },
+ {
+  "commit": "7efbcc340104161b47652f6b3c0505682cf79a63",
+  "commit_date": "2026-11-19T21:14:01-08:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".ts",
+    2464
+   ],
+   [
+    ".py",
+    1677
+   ],
+   [
+    ".tsx",
+    1529
+   ],
+   [
+    ".md",
+    1282
+   ],
+   [
+    ".mdx",
+    899
+   ],
+   [
+    ".webp",
+    290
+   ]
+  ],
+  "files": 9211,
+  "licenses": [
+   {
+    "bytes": 3794,
+    "class": "Elastic-2.0",
+    "first_line": "Elastic License 2.0 (ELv2)",
+    "path": "LICENSE",
+    "sha256": "1c5916f5112e30e92f291002bb02cf4f4851c9d1dbdf3360f9f745b7de2d775f"
+   },
+   {
+    "bytes": 444,
+    "class": "Elastic-2.0",
+    "first_line": "---",
+    "path": "docs/phoenix/self-hosting/license.mdx",
+    "sha256": "8cc2e23b670f0345ed58606318a17965cbf8737491d004d700561f09a5b5e0a2"
+   },
+   {
+    "bytes": 11372,
+    "class": "Apache-2.0",
+    "first_line": "Copyright (c) Arize AI, Inc",
+    "path": "js/packages/phoenix-cli/LICENSE",
+    "sha256": "869963dbff4a3f4e5dc08aabae02b1310a819d41883a669a31400dc35f3b586d"
+   },
+   {
+    "bytes": 11372,
+    "class": "Apache-2.0",
+    "first_line": "Copyright (c) Arize AI, Inc",
+    "path": "js/packages/phoenix-config/LICENSE",
+    "sha256": "869963dbff4a3f4e5dc08aabae02b1310a819d41883a669a31400dc35f3b586d"
+   },
+   {
+    "bytes": 11374,
+    "class": "Apache-2.0",
+    "first_line": "Copyright (c) Arize AI, Inc",
+    "path": "js/packages/phoenix-evals/LICENSE",
+    "sha256": "1d0cf3d5d40e37421c0e1cdaf45670c3edf16a70bcb95bf90b0b8abc14817ea2"
+   },
+   {
+    "bytes": 10775,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "packages/phoenix-client/LICENSE",
+    "sha256": "eaf2723a549ed4fd3d7696ca1882b228f1b8ac308664c17d76b1b55dca054e0f"
+   },
+   {
+    "bytes": 3794,
+    "class": "Elastic-2.0",
+    "first_line": "Elastic License 2.0 (ELv2)",
+    "path": "packages/phoenix-evals/LICENSE",
+    "sha256": "1c5916f5112e30e92f291002bb02cf4f4851c9d1dbdf3360f9f745b7de2d775f"
+   },
+   {
+    "bytes": 10775,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "packages/phoenix-otel/LICENSE",
+    "sha256": "eaf2723a549ed4fd3d7696ca1882b228f1b8ac308664c17d76b1b55dca054e0f"
+   },
+   {
+    "bytes": 949,
+    "class": "UNRECOGNISED",
+    "first_line": "Copyright (c) 2004-2007 Gerhard H\u00e4ring, 2018+ Charles Leifer, 2023+ Anton Zhiyanov,",
+    "path": "packages/phoenix-sqlean/LICENSE",
+    "sha256": "1eefe6802a5cab3964b69c38ef3d8005fb95fe7ef6ac0984cad9f61b38c26d39"
+   }
+  ],
+  "name": "Arize Phoenix",
+  "repo": "Arize-ai/phoenix",
+  "tag": "arize-phoenix-v22.0.0"
+ },
+ {
+  "commit": "872c1d55b4d5ac7fc1bf05f0760f2ca740ab37aa",
+  "commit_date": "2026-11-05T18:12:15+00:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".go",
+    1236
+   ],
+   [
+    "(none)",
+    384
+   ],
+   [
+    ".conf",
+    144
+   ],
+   [
+    ".md",
+    137
+   ],
+   [
+    ".yaml",
+    125
+   ],
+   [
+    ".pem",
+    73
+   ]
+  ],
+  "files": 2236,
+  "licenses": [
+   {
+    "bytes": 11358,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "39ce806fa2687a8d8d6a8a8d57bfec8b2fc29fe2a9ae2023020390aabb2de82d"
+   }
+  ],
+  "name": "SPIRE",
+  "repo": "spiffe/spire",
+  "tag": "v1.16.0"
+ },
+ {
+  "commit": "44054f542f64e9b9589dd26a595081b3d2cfd942",
+  "commit_date": "2026-10-28T13:53:36+01:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".go",
+    476
+   ],
+   [
+    ".md",
+    22
+   ],
+   [
+    ".yaml",
+    19
+   ],
+   [
+    ".sql",
+    16
+   ],
+   [
+    ".svg",
+    14
+   ],
+   [
+    ".yml",
+    11
+   ]
+  ],
+  "files": 578,
+  "licenses": [
+   {
+    "bytes": 10176,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "1c46d7b2bed94d457d745f28cabeb31f8d6c81dd9035bc5d24039989ee1e1bff"
+   }
+  ],
+  "name": "OpenFGA",
+  "repo": "openfga/openfga",
+  "tag": "v1.22.1"
+ },
+ {
+  "commit": "dbc643befb6f412e62584179c8f0ebb0207d44fb",
+  "commit_date": "2026-11-10T13:14:59+00:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".py",
+    1611
+   ],
+   [
+    ".md",
+    405
+   ],
+   [
+    ".yaml",
+    206
+   ],
+   [
+    ".js",
+    147
+   ],
+   [
+    ".png",
+    143
+   ],
+   [
+    "(none)",
+    80
+   ]
+  ],
+  "files": 2884,
+  "licenses": [
+   {
+    "bytes": 1579,
+    "class": "UNRECOGNISED",
+    "first_line": "name: License Check",
+    "path": ".github/workflows/license-check.yml",
+    "sha256": "f0ccf055ff58e13a7ccd7361419dd4da7954bfbf9d30509fd3228a4d4b0d0813"
+   },
+   {
+    "bytes": 11357,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+   },
+   {
+    "bytes": 3109,
+    "class": "UNRECOGNISED",
+    "first_line": "[license]",
+    "path": "license-policy.toml",
+    "sha256": "b4ef63e49f8841d1ea7fcab2fde9d9da6c1a7bbdcc5fa7cee9c2c9cfb7cb5559"
+   },
+   {
+    "bytes": 5568,
+    "class": "UNRECOGNISED",
+    "first_line": "# -*- coding: utf-8 -*-",
+    "path": "plugins/license_header_injector/license_header_injector.py",
+    "sha256": "ba34ad919cae8fd06ae0c715d7f05441ab746ac5c6ae8dfae11faf07bbfefed2"
+   },
+   {
+    "bytes": 49314,
+    "class": "BSD",
+    "first_line": "#!/usr/bin/env python3",
+    "path": "scripts/license_checker.py",
+    "sha256": "e2d6f356a85f9349061f5eb4aaaca7d0cc544234f61ea1b23295cad3ad8e4e53"
+   }
+  ],
+  "name": "MCP Context Forge",
+  "repo": "IBM/mcp-context-forge",
+  "tag": "v1.1.1"
+ },
+ {
+  "commit": "6485ecb515437b7296d4bc8825c7022a07b7e108",
+  "commit_date": "2026-11-16T10:20:06-08:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".cs",
+    115
+   ],
+   [
+    ".tsx",
+    15
+   ],
+   [
+    ".json",
+    13
+   ],
+   [
+    ".ts",
+    10
+   ],
+   [
+    ".md",
+    9
+   ],
+   [
+    "(none)",
+    7
+   ]
+  ],
+  "files": 210,
+  "licenses": [
+   {
+    "bytes": 1066,
+    "class": "MIT",
+    "first_line": "MIT License",
+    "path": "LICENSE",
+    "sha256": "98a96c38494df4963951e32b81ec4effebe4c8a812ab8d9e7d185d59e86fe2fc"
+   },
+   {
+    "bytes": 388454,
+    "class": "Apache-2.0",
+    "first_line": "NOTICES AND INFORMATION",
+    "path": "NOTICE",
+    "sha256": "5d5d83e02fbd6f9fcd954e3d33192f2cb2b654e4cb21d805b239b52352731b28"
+   }
+  ],
+  "name": "Microsoft MCP Gateway",
+  "repo": "microsoft/mcp-gateway",
+  "tag": "v1.0.1"
+ },
+ {
+  "commit": "7e0f34277c91855ad861eeff536b4fdc77420593",
+  "commit_date": "2026-10-26T10:47:34-07:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".go",
+    5484
+   ],
+   [
+    "(none)",
+    417
+   ],
+   [
+    ".md",
+    366
+   ],
+   [
+    ".yaml",
+    118
+   ],
+   [
+    ".yml",
+    85
+   ],
+   [
+    ".s",
+    77
+   ]
+  ],
+  "files": 6789,
+  "licenses": [
+   {
+    "bytes": 1063,
+    "class": "MIT",
+    "first_line": "MIT License",
+    "path": "LICENSE",
+    "sha256": "b5205b638b9000b8e5ff8d78714e18b3584e8b8ecd15ac68798995584ed533d7"
+   }
+  ],
+  "name": "Docker MCP Gateway",
+  "repo": "docker/mcp-gateway",
+  "tag": "v0.44.3"
+ },
+ {
+  "commit": "c8b73bb4e022727e7ea14dd99ffb29abdbc8eeeb",
+  "commit_date": "2025-12-24T15:42:43+02:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".py",
+    31
+   ],
+   [
+    "(none)",
+    3
+   ],
+   [
+    ".md",
+    3
+   ],
+   [
+    ".png",
+    2
+   ],
+   [
+    ".in",
+    1
+   ],
+   [
+    ".toml",
+    1
+   ]
+  ],
+  "files": 43,
+  "licenses": [
+   {
+    "bytes": 1075,
+    "class": "MIT",
+    "first_line": "MIT License",
+    "path": "LICENSE",
+    "sha256": "380b2f7d335830301e588ffe4ebc7b129ca3ab03ae6f4bebf8ee23c97faa8993"
+   }
+  ],
+  "name": "Lasso MCP Gateway",
+  "repo": "lasso-security/mcp-gateway",
+  "tag": "v1.2.0"
+ },
+ {
+  "commit": "864f8591081251a40a40e0bb06a4d8084c3664d2",
+  "commit_date": "2026-11-16T19:09:37+00:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".yaml",
+    765
+   ],
+   [
+    ".py",
+    711
+   ],
+   [
+    ".toml",
+    69
+   ],
+   [
+    ".md",
+    45
+   ],
+   [
+    ".json",
+    40
+   ],
+   [
+    "(none)",
+    36
+   ]
+  ],
+  "files": 1727,
+  "licenses": [
+   {
+    "bytes": 11357,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+   }
+  ],
+  "name": "OpenLLMetry",
+  "repo": "traceloop/openllmetry",
+  "tag": "v0.63.1"
+ },
+ {
+  "commit": "74b34f9343b10d8d0dd04e5ff96a7ec69945199c",
+  "commit_date": "2026-11-19T19:49:34-07:00",
+  "enterprise_dirs": [],
+  "extensions": [
+   [
+    ".py",
+    821
+   ],
+   [
+    ".ts",
+    312
+   ],
+   [
+    ".yaml",
+    282
+   ],
+   [
+    ".md",
+    276
+   ],
+   [
+    ".json",
+    152
+   ],
+   [
+    ".txt",
+    81
+   ]
+  ],
+  "files": 2329,
+  "licenses": [
+   {
+    "bytes": 11357,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+   },
+   {
+    "bytes": 11356,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "js/packages/openinference-instrumentation-beeai/LICENSE",
+    "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-ag2/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 11358,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-agentspec/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-agno/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-anthropic/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-autogen-agentchat/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-autogen/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-bedrock/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-claude-agent-sdk/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-cohere/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-crewai/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-dspy/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-google-adk/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-google-genai/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-groq/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-guardrails/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-haystack/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-instructor/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-langchain/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-litellm/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-llama-index/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-mcp/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-mistralai/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-ollama/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-openai-agents/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-openai/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10869,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-openlit/LICENSE",
+    "sha256": "c3090cfefe2b53ffee899b6325058df762001fa7ab13f257fb9ec34cd1ce8b1b"
+   },
+   {
+    "bytes": 10869,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-openllmetry/LICENSE",
+    "sha256": "c3090cfefe2b53ffee899b6325058df762001fa7ab13f257fb9ec34cd1ce8b1b"
+   },
+   {
+    "bytes": 10869,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-pipecat/LICENSE",
+    "sha256": "c3090cfefe2b53ffee899b6325058df762001fa7ab13f257fb9ec34cd1ce8b1b"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-pydantic-ai/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-smolagents/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10759,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-strands-agents/LICENSE",
+    "sha256": "83e93e1df41daf6ddfc55cf040e4df696bf0a8581e73268a719ddf6d357b9fb0"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-together/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10840,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-typesafe/LICENSE",
+    "sha256": "a8333516da5f767765efdbab6244d8cedd36fc40bc269bdf2c6c5ef4a236a134"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/instrumentation/openinference-instrumentation-vertexai/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/openinference-instrumentation/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   },
+   {
+    "bytes": 10870,
+    "class": "Apache-2.0",
+    "first_line": "Apache License",
+    "path": "python/openinference-semantic-conventions/LICENSE",
+    "sha256": "c7f63b397fa55b14948662a88af96b0fa58dde35a5207c5dba0f0126fd92237e"
+   }
+  ],
+  "name": "OpenInference",
+  "repo": "Arize-ai/openinference",
+  "tag": null
+ }
+]
