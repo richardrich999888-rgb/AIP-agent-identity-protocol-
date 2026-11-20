@@ -53,7 +53,7 @@
   {
    "capability": "11 AIP identity",
    "status": "PARTIAL",
-   "reason": "crates tested; the console view is P0-059; DecisionPoint ignores revocation (ADR-001)"
+   "reason": "crates tested; console is P0-059; findings pinned: DecisionPoint ignores revocation (ADR-001), Delegate scope not enforced and no proof of possession (ADR-002)"
   },
   {
    "capability": "12 Evidence verification",
@@ -66,6 +66,7 @@
   "server-suite": true,
   "litellm-acceptance": true,
   "revocation-gap": true,
+  "delegation-findings": true,
   "live-sensors": true,
   "live-kill": true,
   "live-shadow": true

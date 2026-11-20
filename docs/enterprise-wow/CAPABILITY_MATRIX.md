@@ -30,6 +30,7 @@ here is PREVENTION, because no enforcement point is wired (3.1b is blocked).
 | OTel export pipe | `otelcorecol` v0.165.0 (pinned build) | **IT + S** | `openlit-otel/chain.py` 3/3 offline (1.4) | not on the demo path |
 | Falco second witness | Falco 0.45.2 | **NI here** | BLOCKED_BY_INFRASTRUCTURE: no CAP_SYS_RESOURCE (1.4) | final for this host |
 | Revocation at DecisionPoint | `aip-authorize` `DecisionPoint` | **NI** (gap) | `revocation_gap` 3/0/0 pins that revoked authority is still authorized (2.6) | ADR-001 proposed; not implemented this weekend by rule |
+| Delegate-scope enforcement and proof of possession | `aip-core` delegation, `aip-authorize` `DecisionPoint` | **NI** (findings) | `delegation_identity_findings` 5/0/0 pins that a holder without Delegate can sub-delegate and the grandchild is authorized (#5), and that a request naming another agent without its key is authorized (#6) (2.5a) | ADR-002 proposed; not changed this weekend |
 
 ## Existing crates (own tests only)
 

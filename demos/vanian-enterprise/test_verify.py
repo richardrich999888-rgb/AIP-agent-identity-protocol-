@@ -14,6 +14,7 @@ GOOD = {
     "server-suite": "Ran 70 tests in 4.9s\n\nOK\n",
     "litellm-acceptance": "checks: 16 passed, 0 failed\n",
     "revocation-gap": "test result: ok. 3 passed; 0 failed\n",
+    "delegation-findings": "test result: ok. 5 passed; 0 failed\n",
     "live-sensors": "test result: ok. 6 passed; 0 failed\n",
 }
 
@@ -65,6 +66,10 @@ class Verify(unittest.TestCase):
     def test_missing_runs_are_fail(self):
         _, st = run(lab(self.tmp, {}, None))
         self.assertEqual((st["2"], st["6"], st["8"], st["10"], st["11"], st["12"]), ("FAIL",) * 6)
+
+    def test_failed_delegation_findings_is_fail(self):
+        _, st = run(lab(self.tmp, {**GOOD, "delegation-findings": "test result: FAILED. 4 passed; 1 failed\n"}, {"a": True}))
+        self.assertEqual(st["11"], "FAIL")
 
     def test_acceptance_count_must_match(self):
         _, st = run(lab(self.tmp, {**GOOD, "litellm-acceptance": "checks: 15 passed, 1 failed\n"}, {"a": True}))

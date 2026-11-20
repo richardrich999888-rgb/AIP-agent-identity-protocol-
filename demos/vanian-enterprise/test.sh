@@ -12,6 +12,7 @@ run server-suite unshare -n sh -c "cd '$SERVER' && python3 netns_lo_up.py && \
 run litellm-acceptance unshare -n sh -c "cd '$REPO/research/oss/litellm' && python3 '$SERVER/netns_lo_up.py' && \
   env -u DATABASE_URL LITELLM_LOCAL_MODEL_COST_MAP=True '$VENV/bin/python' acceptance.py '$RUNS/litellm-records.jsonl' --isolated"
 run revocation-gap bash -c "cd '$REPO' && cargo test -q --locked -p aip-authorize --test revocation_gap"
+run delegation-findings bash -c "cd '$REPO' && cargo test -q --locked -p aip-authorize --test delegation_identity_findings"
 run live-sensors bash -c "cd '$REPO' && cargo test -q --locked -p aip-probe --test live_sensors"
 if grep -q 'skipped=' "$RUNS/test-server-suite.log"; then log "FAIL server-suite has SKIPPED tests: a live dependency is missing"; fails=$((fails+1)); fi
 log "suites failed: $fails"
