@@ -233,8 +233,8 @@ The console reads only persisted backend data. The video shows that same run.
 |---|---|---|---|
 | Fri 20 Nov 19:30 | Plan seeded | — | waiting on P1 (push access) |
 | Fri 20 Nov 19:25 | Plan committed to `claude/vanian-enterprise-wow` | — | P1 met in this session (see verification below); P2 open: the bundle is not reachable here |
-| Fri 20 Nov 19:45 | 0.4 lab feasibility | Done | Docker + Compose work in the cloud container; 0.1 still waits on P0-059 commits |
-| Fri 20 Nov 20:40 | 1.1 integration matrix | Done | OpenLoop ambiguous; LiteLLM enterprise/ and Langfuse ee/ excluded by license |
+| Fri 20 Nov 19:44 | 0.4 lab feasibility | Done | Docker + Compose work in the cloud container; 0.1 still waits on P0-059 commits |
+| Fri 20 Nov 20:05 | 1.1 integration matrix | Done | OpenLoop ambiguous; LiteLLM enterprise/ and Langfuse ee/ excluded by license |
 
 ## Iteration log
 
