@@ -164,10 +164,12 @@ The brief's claims about each project are hypotheses. Verify the license file in
 
 ## Phase 4 — P1 capabilities
 
-- [ ] **4.1 Mock model + FinOps.**
+- [ ] **4.1 Mock model + FinOps.** Split on 20 Nov: 4.1a (capture into the store) and 4.1b (the P0-059 agents use it).
   - A local OpenAI-compatible mock model returns deterministic text and `usage` token counts, labelled **TEST DATA** everywhere.
   - Agents call it through LiteLLM with per-agent metadata (agent id, workflow, owner).
   - Usage and cost are captured into the event store: tokens, model/provider, agent, workflow, owner, cost at a declared **test price** (labelled "estimated").
+  - [x] **4.1a** LiteLLM → `StoreUsageLogger` → `EventStore` as `llm.usage` events. Mock model and prices are TEST DATA. **Done** `fb6da331`. Event-store thread fix `07652616`: LiteLLM runs hooks on its own thread; the live test caught 3 of 4 events silently lost. Offline suite (`unshare -n`, with the pinned LiteLLM and OPA): 70 passed / 0 failed / 0 skipped. With stdlib Python only: 61 passed / 9 skipped. Missing telemetry is stored as null, never 0. Unattributed usage gets no subject. A redelivered hook event is a no-op.
+  - [ ] **4.1b** The P0-059 agents call the mock through LiteLLM with their real agent id, workflow and owner, and agent metadata is bound to the verified identity rather than caller-asserted. **Blocked on 0.1.**
 - [ ] **4.2 FinOps console.**
   - Tokens and cost per agent, workflow and owner; parent→child roll-up; budget per owner with a usage bar; trend across runs.
   - Missing telemetry is shown as **"no telemetry"**, never as 0 (adversarial #12).
@@ -252,6 +254,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Fri 20 Nov 20:23 | 2.6 revocation ADR | Done | gateway half unverifiable until P0-059 lands |
 | Fri 20 Nov 20:25 | 2.1a event store | Done | 2.1b (ingestion) blocked on 0.1 |
 | Fri 20 Nov 20:28 | 3.1a OPA adapter | Done | 3.1b (gate wiring, parity) blocked on 0.1 |
+| Fri 20 Nov 20:32 | 4.1a FinOps capture | Done | 4.1b blocked on 0.1 |
 
 ## Iteration log
 
@@ -264,6 +267,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 5 | 2.6 | Done (ADR): gap measured by 3 tests; DecisionPoint untouched | `b5143a7f` | revocation_gap 3/0/0; aip-authorize 103/0/0 |
 | 6 | 2.1a | Done: append-only store with dedup, restart, tamper detection | `815f5d3a` | test_eventstore 22/0/0 |
 | 7 | 3.1a | Done: OPA adapter, fail-closed, bundle hash per decision | `141a11e9` | rego 17/17; adapter 23/0/0 live (16/0/7 without OPA) |
+| 8 | 4.1a | Done: LiteLLM usage persisted; found + fixed store thread bug (`07652616`) | `fb6da331` | command-center suite 70/0/0 offline |
 
 ---
 
