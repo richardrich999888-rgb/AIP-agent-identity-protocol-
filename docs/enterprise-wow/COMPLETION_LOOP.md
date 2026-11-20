@@ -162,7 +162,8 @@ The brief's claims about each project are hypotheses. Verify the license file in
   - The Activity Explorer shows process, file, socket and tool events with evidence strength.
   - Degraded-observer state: collector down → banner and coverage gap (adversarial #10, #15: kill the collector mid-window and confirm the gap is reported and that nothing is shown as clean).
   - [x] **3.4a** `command-center/server/observer_ingest.py`. **Done** `ea405018`. It ingests only batches that the real `aip-observe-verify` accepts. Coverage, gaps, restarts, losses and DEGRADED come from signed windows. `VANIAN_OBSERVE_VERIFY_BIN=target/release/aip-observe-verify python3 -m unittest test_observer_ingest`: 22 passed / 0 failed / 0 skipped (15 passed / 7 skipped without the binary). Six mutations all caught. On the repo's qualified `same-run-interruption` archive (probe killed), the agent task window is reported DEGRADED, not clean. The healthy `same-run` task window is COVERED.
-  - [ ] **3.4b** A live run: probe and collector on this host, continuous polling while an agent runs, the collector killed mid-window, and the gap reported (#15). Per-event rows (process, file, socket) for the Activity Explorer. The console banner. Banner and Explorer are **blocked on 0.1** (P0-059 console); the live kill run is not.
+  - [x] **3.4b** Live run: probe and collector on this host, continuous verified polling while a workload runs, and the collector SIGKILLed mid-window (adversarial #15, #10). **Done** `a078c7cf`. `python3 command-center/lab/live_observer_kill.py OUT`: 3/3 runs, 7 passed / 0 failed checks each. The full task window is not covered; the state is DEGRADED; the gap starts before the kill. Limits: the summary state lags the kill by about 10.5 s (max_silence), while `window_covered` stays exact. No synced clock (no NTP; the control is off). Same host. Evidence: `docs/enterprise-wow/evidence/3.4b-live-kill/`.
+  - [ ] **3.4c** Per-event rows (process, file, socket) for the Activity Explorer, and the console degraded banner showing "covered to <time>". **Blocked on 0.1** (P0-059 console).
 
 ## Phase 4 — P1 capabilities
 
@@ -258,6 +259,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Fri 20 Nov 20:28 | 3.1a OPA adapter | Done | 3.1b (gate wiring, parity) blocked on 0.1 |
 | Fri 20 Nov 20:32 | 4.1a FinOps capture | Done | 4.1b blocked on 0.1 |
 | Sat 21 Nov 00:12 | 3.4a observer ingestion | Done | 3.4b live kill run next; console part blocked on 0.1 |
+| Sat 21 Nov 00:16 | 3.4b live kill | Done | state lag ~10.5 s measured; 3.4c blocked on 0.1 |
 
 ## Iteration log
 
@@ -272,6 +274,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 7 | 3.1a | Done: OPA adapter, fail-closed, bundle hash per decision | `141a11e9` | rego 17/17; adapter 23/0/0 live (16/0/7 without OPA) |
 | 8 | 4.1a | Done: LiteLLM usage persisted; found + fixed store thread bug (`07652616`) | `fb6da331` | command-center suite 70/0/0 offline |
 | 9 | 3.4a | Done: verified archive ingestion; interrupted run shows DEGRADED, healthy COVERED | `ea405018` | test_observer_ingest 22/0/0 |
+| 10 | 3.4b | Done: live collector kill, gap reported in 3/3 runs | `a078c7cf` | live_observer_kill 7/7 checks x3 |
 
 ---
 
