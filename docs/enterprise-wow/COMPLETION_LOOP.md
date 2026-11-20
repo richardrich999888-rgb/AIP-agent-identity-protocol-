@@ -182,9 +182,11 @@ The brief's claims about each project are hypotheses. Verify the license file in
   - Usage and cost are captured into the event store: tokens, model/provider, agent, workflow, owner, cost at a declared **test price** (labelled "estimated").
   - [x] **4.1a** LiteLLM → `StoreUsageLogger` → `EventStore` as `llm.usage` events. Mock model and prices are TEST DATA. **Done** `fb6da331`. Event-store thread fix `07652616`: LiteLLM runs hooks on its own thread; the live test caught 3 of 4 events silently lost. Offline suite (`unshare -n`, with the pinned LiteLLM and OPA): 70 passed / 0 failed / 0 skipped. With stdlib Python only: 61 passed / 9 skipped. Missing telemetry is stored as null, never 0. Unattributed usage gets no subject. A redelivered hook event is a no-op.
   - [ ] **4.1b** The P0-059 agents call the mock through LiteLLM with their real agent id, workflow and owner, and agent metadata is bound to the verified identity rather than caller-asserted. **Blocked on 0.1.**
-- [ ] **4.2 FinOps console.**
+- [ ] **4.2 FinOps console.** Split on 21 Nov: 4.2a (backend aggregation) and 4.2b (console and roll-up).
   - Tokens and cost per agent, workflow and owner; parent→child roll-up; budget per owner with a usage bar; trend across runs.
   - Missing telemetry is shown as **"no telemetry"**, never as 0 (adversarial #12).
+  - [x] **4.2a** `command-center/server/finops_report.py`: per agent, workflow and owner; owner budgets (TEST USD) with a lower-bound flag; trend buckets; NO_TELEMETRY and PARTIAL states (None never 0, adversarial #12). **Done** `48ba91cf`. `test_finops_report` 13/0/0, plus the live `test_finops_report_over_live_events` (LiteLLM to store, offline), 16 passed in that run; four mutations all caught.
+  - [ ] **4.2b** The console page, and the parent→child roll-up (needs P0-059 lineage). **Blocked on 0.1.**
 - [ ] **4.3 Human-versus-agent attribution, four cases**, each from signatures and sessions, never from process names or user-agent strings:
   - **(a) Human initiated:** the operator signs the action with the principal key in a console session.
   - **(b) Agent authorized:** existing ALLOW.
@@ -284,6 +286,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 00:32 | 6.4a acceptance matrix | Done | everything left is blocked on 0.1 or the gateway |
 | Sat 21 Nov 00:36 | 2.3a shadow AI | Done | adversarial #1 and #2 now RUN; 2.3b blocked on 0.1 |
 | Sat 21 Nov 00:40 | 2.5a delegation/identity | Done (findings) | #5 and #6 attacks not refused; ADR-002 |
+| Sat 21 Nov 00:43 | 4.2a FinOps aggregation | Done | 4.2b console blocked on 0.1 |
 
 ## Iteration log
 
@@ -307,6 +310,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 16 | 6.4a | Done: acceptance matrix (0/12 VERIFIED) | `96e59b4d` | generated from verify-summary.json |
 | 17 | 2.3a | Done: heuristic shadow AI live, 0 false positives | `ee497446` | live 7/7 x3; unit 10/0/0 |
 | 18 | 2.5a | Done with 2 findings: Delegate not enforced; no proof of possession | `f2353c6c` | 5/0/0; aip-authorize 108/0/0 |
+| 19 | 4.2a | Done: FinOps aggregation, no-telemetry never 0 | `48ba91cf` | 13/0/0 + live 16 OK |
 
 ---
 
