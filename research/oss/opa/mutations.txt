@@ -1,0 +1,8 @@
+M1 default allow true :: PASS: 1/10
+FAIL: 9/10
+M2 drop revocation :: PASS: 9/10
+FAIL: 1/10
+M3 drop server match :: PASS: 9/10
+FAIL: 1/10
+M4 prefix match :: PASS: 9/10
+FAIL: 1/10

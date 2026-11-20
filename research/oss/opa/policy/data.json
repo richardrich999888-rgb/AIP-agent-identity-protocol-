@@ -1,0 +1,24 @@
+{
+ "inventory": {
+  "agents": {
+   "recon-reporter": {},
+   "orchestrator": {},
+   "ex-worker": {}
+  },
+  "revoked": [
+   "ex-worker"
+  ],
+  "allowlist": [
+   {
+    "agent_id": "recon-reporter",
+    "server": "fs",
+    "tool": "read_file"
+   },
+   {
+    "agent_id": "ex-worker",
+    "server": "fs",
+    "tool": "read_file"
+   }
+  ]
+ }
+}

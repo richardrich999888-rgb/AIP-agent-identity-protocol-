@@ -1,0 +1,4 @@
+# default-config write check, 2026-11-20T14:39:24Z
+PUT /v1/data/inventory/revoked [] -> HTTP 204
+revoked agent now -> {"result":{"allow":true,"reasons":[]}}
+PUT /v1/policies/x (package x; allow := true) -> HTTP 200

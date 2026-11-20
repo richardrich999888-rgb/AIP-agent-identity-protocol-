@@ -1,0 +1,11 @@
+Version: 1.22.4
+{"fields.time":"2026-11-20T14:38:43.937779928Z","level":"warning","msg":"OPA running with uid or gid 0. Running OPA with root privileges is not recommended.","time":"2026-11-20T14:38:43Z"}
+opa pid 13656 healthy on 127.0.0.1:18181
+ok   allowed -> {"allow": true, "reasons": []}
+ok   wrongtool -> {"allow": false, "reasons": ["call not in allowlist"]}
+ok   revoked -> {"allow": false, "reasons": ["agent revoked"]}
+ok   unknown -> {"allow": false, "reasons": ["call not in allowlist", "unknown agent"]}
+ok   malformed -> {"allow": false, "reasons": ["malformed input"]}
+after stop: curl exit 7 (7 = connection refused). The caller gets no decision and must treat that as deny.
+mismatches: 0
+exit=0
