@@ -92,12 +92,14 @@ Cut order when behind: P2 polish → cost trends and budgets → Activity Explor
 
 The brief's claims about each project are hypotheses. Verify the license file in each repository at a pinned commit.
 
-- [ ] **1.1** Write `docs/research/OPEN_SOURCE_INTEGRATION_MATRIX.md` covering every candidate the brief lists:
+- [x] **1.1** Write `docs/research/OPEN_SOURCE_INTEGRATION_MATRIX.md` covering every candidate the brief lists:
   - OpenLIT, LiteLLM, OPA, Falco, OpenTelemetry Collector, OpenLoop, Langfuse, Arize Phoenix, SPIFFE/SPIRE and OpenFGA;
   - plus MCP gateway and agent-instrumentation projects.
 
   For each one record: repository, release, license and its obligations (including any directories under separate enterprise licenses), architecture, security model, dependencies, local requirements, effort, maintenance risk, tests run, verdict. Rank them. Use web research and do not answer from memory.
   - "OpenLoop": identify the actual project first. If it cannot be identified unambiguously, record that.
+  - **Done** `58a69d2b`. `python3 -I research/oss/survey.py research/oss/survey.json`: exit 0, 17/17 candidates pinned to commits with license files hashed. `python3 -m unittest test_survey`: 15 passed / 0 failed / 0 skipped. Verdicts: ADOPT OPA (`v1.22.4`) and LiteLLM core (`1.110.2`, no `enterprise/`); the rest DEFER, REFERENCE ONLY or REJECT. OpenLoop is AMBIGUOUS (two unrelated projects).
+  - Limits: github.com pages and api.github.com are blocked (403), so release notes and stars were not read; tags were cross-checked with PyPI. No project's own tests were run (1.2–1.4). License classes are signature matches, not legal advice.
 - [ ] **1.2** Clone **OPA** into `research/oss/opa` at a pinned commit, or use the pinned release binary with its checksum. Run its tests or a smoke test. Record the results.
 - [ ] **1.3** Install **LiteLLM** (pinned version) in a venv. Test it against the mock model (4.1). Establish whether usage and cost capture work **without Postgres**, through the SDK callback or the proxy custom logger. Record the results.
 - [ ] **1.4** (P2) Evaluate Falco, the OTel Collector and OpenLIT only if Phase 1 finishes by the Sat 06:00 checkpoint. Otherwise mark them `NOT_EVALUATED`.
@@ -232,12 +234,14 @@ The console reads only persisted backend data. The video shows that same run.
 | Fri 20 Nov 19:30 | Plan seeded | — | waiting on P1 (push access) |
 | Fri 20 Nov 19:25 | Plan committed to `claude/vanian-enterprise-wow` | — | P1 met in this session (see verification below); P2 open: the bundle is not reachable here |
 | Fri 20 Nov 19:45 | 0.4 lab feasibility | Done | Docker + Compose work in the cloud container; 0.1 still waits on P0-059 commits |
+| Fri 20 Nov 20:40 | 1.1 integration matrix | Done | OpenLoop ambiguous; LiteLLM enterprise/ and Langfuse ee/ excluded by license |
 
 ## Iteration log
 
 | # | Item | Result | SHA | Tests (pass/fail/skip) |
 |---|---|---|---|---|
 | 1 | 0.4 | Done: Compose runs; sensors 3/7 as found, 7/7 with tracefs | `24379741` | live_sensors 6/0/0; sensor_matrix 7/7 open |
+| 2 | 1.1 | Done: 17 candidates pinned, ranked; OPA + LiteLLM core adopted | `58a69d2b` | test_survey 15/0/0; survey 17/17 ok |
 
 ---
 
