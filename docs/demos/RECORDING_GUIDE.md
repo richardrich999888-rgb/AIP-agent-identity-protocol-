@@ -227,3 +227,29 @@ While waiting for a live run:
   `sudo systemctl start docker`.
 - **Anything else:** the console prints the reason in red. Send that text and
   the result file path it shows.
+
+---
+
+## 8. After recording: measure this laptop (15 minutes, very useful)
+
+This laptop is a second machine, and our sizing so far comes from one machine
+only. Run each demo 10 times in a row:
+
+```sh
+cd ~/syntriass/aip
+for m in pull-the-plug security quantum pq investor-3min; do
+  sudo SYNTRIASS_BUNDLE=$HOME/syntriass/bundle python3 demos/launch.py rehearse $m 10
+done
+```
+
+Each run appends a row to `docs/demos/REHEARSAL_LOG.md`, with pass count,
+wall time, commits and hardware. Send back:
+- that file;
+- the folders under `demos/results/rehearse-*/`;
+- the output of `lscpu | head -20` and `free -g`.
+
+Don't edit the rows. A failed run is a result too.
+
+Why build on the laptop instead of copying our binaries? `llama-server` is built
+for the CPU it runs on (`GGML_NATIVE=ON`). Ours uses AVX-512/AMX instructions
+that many laptops lack, and would crash there.

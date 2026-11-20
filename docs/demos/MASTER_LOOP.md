@@ -56,7 +56,7 @@ Facts behind these items: `docs/demos/INVENTORY.md`.
 ## W8 — Buyer evidence pack
 - [x] W8.1 One-page security note per product — `docs/demos/buyer-pack/SECURITY_NOTES.md` (Sniffer Dog, Overlay, CBOM engine, runtime); every claim cites a file; "cannot prove" per product
 - [x] W8.2 SBOM / AIBOM / CBOM; licence list — `demos/evidence-pack/build_pack.sh` → `demos/evidence-pack/out/`: SBOMs scoped to shipped binaries (AIP 77, overlay 150 components); licences: third-party all permissive-optioned, **AIP's 8 own crates `LicenseRef-Proprietary` with no LICENSE file**; CBOM from 3 sources (**binscan misses ML-KEM/X25519/Ed25519/ML-DSA/AES-GCM; a floor, not an inventory**); AIBOM of the scripted test agent (0/15 fields independently backed)
-- [~] W8.3 Hardware sizing from measured runs on ≥2 machines — **PARTIAL: one machine** (`docs/demos/buyer-pack/SIZING.md`); a second machine is needed
+- [~] W8.3 Hardware sizing from measured runs on ≥2 machines — **PARTIAL: one machine** (`docs/demos/buyer-pack/SIZING.md`); a second machine is needed — the recording laptop is the planned second machine (`docs/demos/RECORDING_GUIDE.md` §8)
 - [x] W8.4 Buyer questionnaire, each answer available / partial / planned — `docs/demos/buyer-pack/QUESTIONNAIRE.md`, 17 questions (5 available, 9 partial, 3 planned)
 
 ## W9 — Recording kit
