@@ -199,12 +199,15 @@ The brief's claims about each project are hypotheses. Verify the license file in
 
 ## Phase 6 — lab, adversarial tests, evidence
 
-- [ ] **6.1** `demos/vanian-enterprise/` containing:
+- [ ] **6.1** `demos/vanian-enterprise/` containing (split on 21 Nov: 6.1a scripts, 6.1b guides and full coverage):
   - `README.md`, `setup.sh`, `check.sh`, `run.sh`, `reset.sh`, `verify.sh`, `test.sh`;
   - `RECORDING_GUIDE.md`, `NARRATION.md`;
   - `compose.yaml` for OPA, LiteLLM and the mock model (with a native fallback).
 
   `setup.sh && run.sh` initialises the demo; `verify.sh` checks all 12 capabilities and exits non-zero on any failure.
+  - [x] **6.1a** check, setup, test, run, verify and reset scripts, plus `compose.yaml` (the mock only; OPA and LiteLLM deliberately not services, see the file). **Done** `efc1d5b1`. setup exit 0; `test.sh` 5/5 suites; `run.sh` 7/7 checks; `verify.sh` **0/12 VERIFIED, 0 FAIL, exit 1** (5 NOT_AVAILABLE, 2 NOT_IMPLEMENTED, 5 PARTIAL); `test_verify` 6/6. Evidence: `docs/enterprise-wow/evidence/6.1a/`. Limit: the Docker Hub pull returned 429, so the image comes from mirror.gcr.io, pinned by digest.
+  - [ ] **6.1b** `RECORDING_GUIDE.md` and `NARRATION.md` (with 7.2). verify.sh coverage for capabilities 1–5, 7 and 9. **Blocked on 0.1** for 1–5; on the gateway for 7 and 9.
+
 - [ ] **6.2** Write the evidence bundle v2. It covers policy decisions with the OPA bundle hash, approvals, attribution records and FinOps usage.
   - Add `vcc-verify` checks: `POLICY` (decision ↔ bundle hash ↔ receipt), `APPROVAL` (operator signature) and `ATTRIBUTION` (signatures). Each check must have a test that tampers its input and fails.
 - [ ] **6.3** Run all 15 adversarial tests. Output: `docs/enterprise-wow/ADVERSARIAL_RESULTS.md`, with per test: command, result, false positives, coverage, unresolved limitations.
@@ -268,6 +271,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 00:21 | 1.4 P2 evaluations | Done | Phase 1 complete before Sat 06:00; Falco blocked here |
 | Sat 21 Nov 00:24 | 0.2a audit | Done | 0.2b blocked on 0.1 |
 | Sat 21 Nov 00:25 | 0.3a matrix | Done | 5 of 12 capabilities NV until P0-059 lands |
+| Sat 21 Nov 00:30 | 6.1a lab scripts | Done | verify exit 1: 0/12 VERIFIED until P0-059 and the gateway land |
 
 ## Iteration log
 
@@ -286,6 +290,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 11 | 1.4 | Done: OTel usable; OpenLIT instrumentation only; Falco BLOCKED_BY_INFRASTRUCTURE | `9ac0671c` | chain 3/0 checks |
 | 12 | 0.2a | Done: repository audit; 5 Ghost crates 508/0/0 | `e8410425` | cargo test 508/0/0 |
 | 13 | 0.3a | Done: capability matrix, no PREVENTION rows | `94337fc6` | doc only; cites prior counts |
+| 14 | 6.1a | Done: lab scripts; verify reports 0/12 VERIFIED honestly | `efc1d5b1` | test.sh 5/5; run 7/7; test_verify 6/6 |
 
 ---
 
